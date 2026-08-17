@@ -3,6 +3,7 @@
 #include <array>
 #include <cstdint>
 #include <span>
+#include <vector>
 
 namespace metalrobo {
 
@@ -13,6 +14,55 @@ struct SurgicalThreadObstacleCapsule {
     SurgicalThreadTargetPoint firstM{};
     SurgicalThreadTargetPoint secondM{};
     double radiusM = 0.0;
+};
+
+struct SurgicalThreadChannelCapsule {
+    SurgicalThreadTargetPoint firstM{};
+    SurgicalThreadTargetPoint secondM{};
+    double radiusM = 0.0;
+    std::uint32_t tract = 0u;
+};
+
+struct SurgicalThreadContactSelectionSpec {
+    double threadRadiusM = 0.0;
+    double maximumSurfaceSeparationM = 0.0;
+    std::uint32_t tractCount = 0u;
+    std::uint32_t proxyCount = 0u;
+};
+
+enum class SurgicalThreadContactSelectionStatus : std::uint32_t {
+    success = 0u,
+    invalidDimensions,
+    invalidTopology,
+    nonfiniteInput,
+    invalidSpecification,
+    noContactEdgeSet,
+};
+
+struct SurgicalThreadContactSelection {
+    SurgicalThreadContactSelectionStatus status =
+        SurgicalThreadContactSelectionStatus::success;
+    std::uint32_t evaluatedEdges = 0u;
+    std::vector<std::uint32_t> edges;
+    std::vector<std::uint32_t> tractEdges;
+    std::vector<double> tractSurfaceSeparationsM;
+    double maximumSurfaceSeparationM = 0.0;
+
+    [[nodiscard]] bool succeeded() const noexcept {
+        return status == SurgicalThreadContactSelectionStatus::success;
+    }
+};
+
+struct SurgicalThreadProxyRebindPlan {
+    SurgicalThreadContactSelectionStatus status =
+        SurgicalThreadContactSelectionStatus::success;
+    // Slot-ordered bindings after each single-slot maintenance command.
+    std::vector<std::vector<std::uint32_t>> transitions;
+    std::vector<std::uint32_t> finalEdges;
+
+    [[nodiscard]] bool succeeded() const noexcept {
+        return status == SurgicalThreadContactSelectionStatus::success;
+    }
 };
 
 struct SurgicalThreadTargetingSpec {
@@ -95,6 +145,28 @@ selectSurgicalThreadGraspTarget(
     const SurgicalThreadTargetingSpec& spec
 ) noexcept;
 
+// Selects the smallest fixed-cost DER edge set that retains at least one
+// physical material edge in each live puncture tract. One tract uses remaining
+// slots as overlap during pull-through; two tracts reserve one edge for each.
+// The result is geometric ownership only: Matter's live contact transaction
+// remains the acceptance authority.
+[[nodiscard]] SurgicalThreadContactSelection
+selectSurgicalThreadContactEdges(
+    std::span<const SurgicalThreadTargetPoint> threadNodes,
+    std::span<const SurgicalThreadChannelCapsule> channels,
+    const SurgicalThreadContactSelectionSpec& spec
+);
+
+// Converts an unordered desired edge set into deterministic slot bindings.
+// Each transition changes exactly one retired slot so a caller can apply the
+// Runtime maintenance contract repeatedly without simulating between updates.
+[[nodiscard]] SurgicalThreadProxyRebindPlan
+planSurgicalThreadProxyRebind(
+    std::span<const std::uint32_t> currentSlotEdges,
+    std::span<const std::uint32_t> desiredEdges,
+    std::uint32_t rodEdgeCount
+);
+
 // Evaluates the same finite jaw-axis capsule used by target selection at one
 // articulated pose. This supports sampled path qualification without
 // duplicating the triangle-distance implementation in an application.
@@ -110,6 +182,10 @@ evaluateSurgicalThreadJawSurfaceClearance(
 
 [[nodiscard]] const char* surgicalThreadTargetStatusName(
     SurgicalThreadTargetStatus status
+) noexcept;
+
+[[nodiscard]] const char* surgicalThreadContactSelectionStatusName(
+    SurgicalThreadContactSelectionStatus status
 ) noexcept;
 
 } // namespace metalrobo

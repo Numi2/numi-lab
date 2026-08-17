@@ -699,6 +699,318 @@ SurgicalThreadTargetDiagnostics selectSurgicalThreadGraspTarget(
     return diagnostics;
 }
 
+SurgicalThreadContactSelection selectSurgicalThreadContactEdges(
+    const std::span<const SurgicalThreadTargetPoint> threadNodes,
+    const std::span<const SurgicalThreadChannelCapsule> channels,
+    const SurgicalThreadContactSelectionSpec& spec
+) {
+    SurgicalThreadContactSelection selection;
+    if (threadNodes.size() < 2u || channels.empty()) {
+        selection.status =
+            SurgicalThreadContactSelectionStatus::invalidDimensions;
+        return selection;
+    }
+    if (!std::isfinite(spec.threadRadiusM) ||
+        !std::isfinite(spec.maximumSurfaceSeparationM)) {
+        selection.status =
+            SurgicalThreadContactSelectionStatus::nonfiniteInput;
+        return selection;
+    }
+    const std::size_t edgeCount = threadNodes.size() - 1u;
+    if (!(spec.threadRadiusM > 0.0) ||
+        spec.maximumSurfaceSeparationM < 0.0 ||
+        spec.tractCount == 0u || spec.tractCount > 2u ||
+        spec.proxyCount < spec.tractCount ||
+        spec.proxyCount > edgeCount) {
+        selection.status =
+            SurgicalThreadContactSelectionStatus::invalidSpecification;
+        return selection;
+    }
+    for (std::size_t node = 0u; node < threadNodes.size(); ++node) {
+        if (!finite(threadNodes[node])) {
+            selection.status =
+                SurgicalThreadContactSelectionStatus::nonfiniteInput;
+            return selection;
+        }
+        if (node != 0u &&
+            squaredLength(subtract(
+                threadNodes[node], threadNodes[node - 1u]
+            )) <= kGeometryEpsilon * kGeometryEpsilon) {
+            selection.status =
+                SurgicalThreadContactSelectionStatus::invalidTopology;
+            return selection;
+        }
+    }
+
+    std::vector<bool> representedTracts(spec.tractCount, false);
+    for (const SurgicalThreadChannelCapsule& channel : channels) {
+        if (!finite(channel.firstM) || !finite(channel.secondM) ||
+            !std::isfinite(channel.radiusM)) {
+            selection.status =
+                SurgicalThreadContactSelectionStatus::nonfiniteInput;
+            return selection;
+        }
+        if (!(channel.radiusM > 0.0) ||
+            channel.tract >= spec.tractCount ||
+            squaredLength(subtract(channel.secondM, channel.firstM)) <=
+                kGeometryEpsilon * kGeometryEpsilon) {
+            selection.status =
+                SurgicalThreadContactSelectionStatus::invalidTopology;
+            return selection;
+        }
+        representedTracts[channel.tract] = true;
+    }
+    if (std::ranges::find(representedTracts, false) !=
+        representedTracts.end()) {
+        selection.status =
+            SurgicalThreadContactSelectionStatus::invalidTopology;
+        return selection;
+    }
+
+    std::vector<double> surfaceSeparations(
+        static_cast<std::size_t>(spec.tractCount) * edgeCount,
+        std::numeric_limits<double>::infinity()
+    );
+    for (std::size_t edge = 0u; edge < edgeCount; ++edge) {
+        for (const SurgicalThreadChannelCapsule& channel : channels) {
+            const double separation = std::sqrt(
+                segmentSegmentSquaredDistance(
+                    threadNodes[edge],
+                    threadNodes[edge + 1u],
+                    channel.firstM,
+                    channel.secondM
+                )
+            ) - spec.threadRadiusM - channel.radiusM;
+            double& current = surfaceSeparations[
+                static_cast<std::size_t>(channel.tract) * edgeCount +
+                edge
+            ];
+            current = std::min(current, separation);
+        }
+    }
+    selection.evaluatedEdges = static_cast<std::uint32_t>(edgeCount);
+    selection.tractEdges.resize(spec.tractCount);
+    selection.tractSurfaceSeparationsM.resize(spec.tractCount);
+
+    std::vector<std::uint32_t> chosenEdges;
+    chosenEdges.reserve(spec.proxyCount);
+    if (spec.tractCount == 1u) {
+        std::vector<std::uint32_t> ranked(edgeCount);
+        for (std::size_t edge = 0u; edge < edgeCount; ++edge) {
+            ranked[edge] = static_cast<std::uint32_t>(edge);
+        }
+        std::ranges::sort(
+            ranked,
+            [&surfaceSeparations](
+                const std::uint32_t left,
+                const std::uint32_t right
+            ) {
+                const double leftGap = surfaceSeparations[left];
+                const double rightGap = surfaceSeparations[right];
+                return leftGap < rightGap ||
+                    (leftGap == rightGap && left < right);
+            }
+        );
+        selection.tractEdges[0] = ranked[0];
+        selection.tractSurfaceSeparationsM[0] =
+            surfaceSeparations[ranked[0]];
+        chosenEdges.push_back(ranked[0]);
+        std::uint32_t firstChosen = ranked[0];
+        std::uint32_t lastChosen = ranked[0];
+        while (chosenEdges.size() < spec.proxyCount) {
+            const bool canGrowFirst = firstChosen != 0u;
+            const bool canGrowLast =
+                static_cast<std::size_t>(lastChosen) + 1u < edgeCount;
+            if (!canGrowFirst && !canGrowLast) {
+                break;
+            }
+            if (canGrowFirst &&
+                (!canGrowLast ||
+                 surfaceSeparations[firstChosen - 1u] <=
+                    surfaceSeparations[lastChosen + 1u])) {
+                --firstChosen;
+                chosenEdges.push_back(firstChosen);
+            } else {
+                ++lastChosen;
+                chosenEdges.push_back(lastChosen);
+            }
+        }
+    } else {
+        double bestMaximum = std::numeric_limits<double>::infinity();
+        double bestSum = std::numeric_limits<double>::infinity();
+        std::uint32_t bestFirst = 0u;
+        std::uint32_t bestSecond = 0u;
+        bool foundPair = false;
+        for (std::uint32_t first = 0u; first < edgeCount; ++first) {
+            for (std::uint32_t second = 0u;
+                 second < edgeCount;
+                 ++second) {
+                if (first == second) {
+                    continue;
+                }
+                const double firstGap = surfaceSeparations[first];
+                const double secondGap = surfaceSeparations[
+                    edgeCount + second
+                ];
+                const double maximumGap = std::max(firstGap, secondGap);
+                const double sumGap = firstGap + secondGap;
+                const bool better = !foundPair ||
+                    maximumGap < bestMaximum ||
+                    (maximumGap == bestMaximum && sumGap < bestSum) ||
+                    (maximumGap == bestMaximum && sumGap == bestSum &&
+                        (first < bestFirst ||
+                         (first == bestFirst && second < bestSecond)));
+                if (better) {
+                    foundPair = true;
+                    bestMaximum = maximumGap;
+                    bestSum = sumGap;
+                    bestFirst = first;
+                    bestSecond = second;
+                }
+            }
+        }
+        if (!foundPair) {
+            selection.status =
+                SurgicalThreadContactSelectionStatus::noContactEdgeSet;
+            return selection;
+        }
+        selection.tractEdges = {bestFirst, bestSecond};
+        selection.tractSurfaceSeparationsM = {
+            surfaceSeparations[bestFirst],
+            surfaceSeparations[edgeCount + bestSecond],
+        };
+        chosenEdges = {bestFirst, bestSecond};
+
+        std::vector<std::uint32_t> remaining(edgeCount);
+        for (std::size_t edge = 0u; edge < edgeCount; ++edge) {
+            remaining[edge] = static_cast<std::uint32_t>(edge);
+        }
+        std::ranges::sort(
+            remaining,
+            [&surfaceSeparations, edgeCount](
+                const std::uint32_t left,
+                const std::uint32_t right
+            ) {
+                const double leftGap = std::min(
+                    surfaceSeparations[left],
+                    surfaceSeparations[edgeCount + left]
+                );
+                const double rightGap = std::min(
+                    surfaceSeparations[right],
+                    surfaceSeparations[edgeCount + right]
+                );
+                return leftGap < rightGap ||
+                    (leftGap == rightGap && left < right);
+            }
+        );
+        for (const std::uint32_t edge : remaining) {
+            if (chosenEdges.size() >= spec.proxyCount) {
+                break;
+            }
+            if (std::ranges::find(chosenEdges, edge) ==
+                chosenEdges.end()) {
+                chosenEdges.push_back(edge);
+            }
+        }
+    }
+
+    selection.maximumSurfaceSeparationM =
+        *std::ranges::max_element(
+            selection.tractSurfaceSeparationsM
+        );
+    if (!std::isfinite(selection.maximumSurfaceSeparationM) ||
+        selection.maximumSurfaceSeparationM >
+            spec.maximumSurfaceSeparationM ||
+        chosenEdges.size() != spec.proxyCount) {
+        selection.status =
+            SurgicalThreadContactSelectionStatus::noContactEdgeSet;
+        selection.edges.clear();
+        return selection;
+    }
+    std::ranges::sort(chosenEdges);
+    selection.edges = std::move(chosenEdges);
+    selection.status = SurgicalThreadContactSelectionStatus::success;
+    return selection;
+}
+
+SurgicalThreadProxyRebindPlan planSurgicalThreadProxyRebind(
+    const std::span<const std::uint32_t> currentSlotEdges,
+    const std::span<const std::uint32_t> desiredEdges,
+    const std::uint32_t rodEdgeCount
+) {
+    SurgicalThreadProxyRebindPlan plan;
+    if (currentSlotEdges.empty() ||
+        currentSlotEdges.size() != desiredEdges.size()) {
+        plan.status =
+            SurgicalThreadContactSelectionStatus::invalidDimensions;
+        return plan;
+    }
+    if (rodEdgeCount < currentSlotEdges.size()) {
+        plan.status =
+            SurgicalThreadContactSelectionStatus::invalidSpecification;
+        return plan;
+    }
+    std::vector<std::uint32_t> sortedCurrent(
+        currentSlotEdges.begin(), currentSlotEdges.end()
+    );
+    std::vector<std::uint32_t> sortedDesired(
+        desiredEdges.begin(), desiredEdges.end()
+    );
+    std::ranges::sort(sortedCurrent);
+    std::ranges::sort(sortedDesired);
+    const auto validSet = [rodEdgeCount](
+        const std::vector<std::uint32_t>& edges
+    ) {
+        for (std::size_t edge = 0u; edge < edges.size(); ++edge) {
+            if (edges[edge] >= rodEdgeCount ||
+                (edge != 0u && edges[edge] == edges[edge - 1u])) {
+                return false;
+            }
+        }
+        return true;
+    };
+    if (!validSet(sortedCurrent) || !validSet(sortedDesired)) {
+        plan.status =
+            SurgicalThreadContactSelectionStatus::invalidTopology;
+        return plan;
+    }
+
+    std::vector<std::uint32_t> working(
+        currentSlotEdges.begin(), currentSlotEdges.end()
+    );
+    for (const std::uint32_t desired : sortedDesired) {
+        if (std::ranges::find(working, desired) != working.end()) {
+            continue;
+        }
+        const auto retired = std::ranges::find_if(
+            working,
+            [&sortedDesired](const std::uint32_t edge) {
+                return std::ranges::find(sortedDesired, edge) ==
+                    sortedDesired.end();
+            }
+        );
+        if (retired == working.end()) {
+            plan.status =
+                SurgicalThreadContactSelectionStatus::invalidTopology;
+            plan.transitions.clear();
+            return plan;
+        }
+        *retired = desired;
+        plan.transitions.push_back(working);
+    }
+    std::vector<std::uint32_t> sortedFinal = working;
+    std::ranges::sort(sortedFinal);
+    if (sortedFinal != sortedDesired) {
+        plan.status =
+            SurgicalThreadContactSelectionStatus::invalidTopology;
+        plan.transitions.clear();
+        return plan;
+    }
+    plan.finalEdges = std::move(working);
+    plan.status = SurgicalThreadContactSelectionStatus::success;
+    return plan;
+}
+
 SurgicalThreadJawSurfaceClearance
 evaluateSurgicalThreadJawSurfaceClearance(
     const SurgicalThreadTargetPoint& jawCenterM,
@@ -804,6 +1116,26 @@ const char* surgicalThreadTargetStatusName(
             return "invalid_specification";
         case SurgicalThreadTargetStatus::noAccessibleSegment:
             return "no_accessible_segment";
+    }
+    return "unknown";
+}
+
+const char* surgicalThreadContactSelectionStatusName(
+    const SurgicalThreadContactSelectionStatus status
+) noexcept {
+    switch (status) {
+        case SurgicalThreadContactSelectionStatus::success:
+            return "success";
+        case SurgicalThreadContactSelectionStatus::invalidDimensions:
+            return "invalid_dimensions";
+        case SurgicalThreadContactSelectionStatus::invalidTopology:
+            return "invalid_topology";
+        case SurgicalThreadContactSelectionStatus::nonfiniteInput:
+            return "nonfinite_input";
+        case SurgicalThreadContactSelectionStatus::invalidSpecification:
+            return "invalid_specification";
+        case SurgicalThreadContactSelectionStatus::noContactEdgeSet:
+            return "no_contact_edge_set";
     }
     return "unknown";
 }

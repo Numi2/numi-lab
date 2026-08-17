@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <iomanip>
 #include <iostream>
+#include <span>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -259,6 +260,110 @@ int main() {
             "malformed tissue surface was not rejected"
         );
 
+        const std::vector<metalrobo::SurgicalThreadChannelCapsule>
+            twoTractChannels{
+                {
+                    .firstM = {2.05e-2, -1.0e-3, 5.0e-3},
+                    .secondM = {2.05e-2, 1.0e-3, 5.0e-3},
+                    .radiusM = 2.0e-4,
+                    .tract = 0u,
+                },
+                {
+                    .firstM = {8.05e-2, -1.0e-3, 5.0e-3},
+                    .secondM = {8.05e-2, 1.0e-3, 5.0e-3},
+                    .radiusM = 2.0e-4,
+                    .tract = 1u,
+                },
+            };
+        const metalrobo::SurgicalThreadContactSelectionSpec
+            twoTractSpec{
+                .threadRadiusM = 1.0e-4,
+                .maximumSurfaceSeparationM = 0.0,
+                .tractCount = 2u,
+                .proxyCount = 2u,
+            };
+        const auto twoTractSelection =
+            metalrobo::selectSurgicalThreadContactEdges(
+                threadNodes,
+                twoTractChannels,
+                twoTractSpec
+            );
+        const auto twoTractReplay =
+            metalrobo::selectSurgicalThreadContactEdges(
+                threadNodes,
+                twoTractChannels,
+                twoTractSpec
+            );
+        require(
+            twoTractSelection.succeeded() &&
+                twoTractReplay.succeeded() &&
+                twoTractSelection.edges ==
+                    std::vector<std::uint32_t>{20u, 80u} &&
+                twoTractSelection.tractEdges ==
+                    std::vector<std::uint32_t>{20u, 80u} &&
+                twoTractSelection.edges == twoTractReplay.edges &&
+                twoTractSelection.tractEdges ==
+                    twoTractReplay.tractEdges &&
+                twoTractSelection.tractSurfaceSeparationsM ==
+                    twoTractReplay.tractSurfaceSeparationsM,
+            "two-tract material-edge selection was not exact and repeatable"
+        );
+        const std::array<std::uint32_t, 2u> initialProxyEdges{0u, 1u};
+        const auto rebindPlan =
+            metalrobo::planSurgicalThreadProxyRebind(
+                initialProxyEdges,
+                twoTractSelection.edges,
+                static_cast<std::uint32_t>(threadNodes.size() - 1u)
+            );
+        require(
+            rebindPlan.succeeded() &&
+                rebindPlan.transitions ==
+                    std::vector<std::vector<std::uint32_t>>{
+                        {20u, 1u},
+                        {20u, 80u},
+                    } &&
+                rebindPlan.finalEdges ==
+                    std::vector<std::uint32_t>{20u, 80u},
+            "two-tract rebind plan did not preserve one-slot transactions"
+        );
+
+        const std::span<const metalrobo::SurgicalThreadChannelCapsule>
+            firstTract(twoTractChannels.data(), 1u);
+        auto oneTractSpec = twoTractSpec;
+        oneTractSpec.tractCount = 1u;
+        oneTractSpec.maximumSurfaceSeparationM = 1.0e-3;
+        const auto oneTractSelection =
+            metalrobo::selectSurgicalThreadContactEdges(
+                threadNodes,
+                firstTract,
+                oneTractSpec
+            );
+        require(
+            oneTractSelection.succeeded() &&
+                oneTractSelection.edges ==
+                    std::vector<std::uint32_t>{19u, 20u} &&
+                oneTractSelection.tractEdges ==
+                    std::vector<std::uint32_t>{20u},
+            "single-tract selection did not retain its nearest overlap edge"
+        );
+        auto distantChannels = twoTractChannels;
+        for (auto& channel : distantChannels) {
+            channel.firstM[2] += 1.0e-2;
+            channel.secondM[2] += 1.0e-2;
+        }
+        const auto distantSelection =
+            metalrobo::selectSurgicalThreadContactEdges(
+                threadNodes,
+                distantChannels,
+                twoTractSpec
+            );
+        require(
+            distantSelection.status ==
+                metalrobo::SurgicalThreadContactSelectionStatus::
+                    noContactEdgeSet,
+            "distant strand was assigned false puncture-tract ownership"
+        );
+
         std::cout << std::setprecision(10)
             << "surgical_thread_targeting=ok"
             << " center_edge=" << target.centerEdge
@@ -286,6 +391,15 @@ int main() {
             << " negative_tissue_clearance=reject"
             << " negative_jaw_envelope_penetration=reject"
             << " negative_surface_topology=reject"
+            << " contact_edges="
+            << twoTractSelection.edges[0] << ','
+            << twoTractSelection.edges[1]
+            << " contact_maximum_surface_separation_m="
+            << twoTractSelection.maximumSurfaceSeparationM
+            << " proxy_rebind_commands="
+            << rebindPlan.transitions.size()
+            << " sparse_two_tract_contact=exact"
+            << " negative_distant_tract=reject"
             << " boundary=geometry_not_ik_swept_collision_contact_or_retention"
             << '\n';
         return 0;

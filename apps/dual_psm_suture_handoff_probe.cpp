@@ -122,11 +122,11 @@ constexpr double kCurvedPassageExitClearanceM = 1.0e-4;
 constexpr double kCurvedPassageMaximumExtensionM = 5.0e-4;
 constexpr std::uint32_t kCurvedPassageChunkSteps = 32u;
 constexpr std::uint32_t kCurvedPassageContactSegmentCount = 2u;
-// The first two 1.97 mm DER edges cover the swage, full 0.77 mm wall and both
-// free-surface approach regions during the qualified root pull-through. Keeping
-// the contact set local avoids evaluating the remote packaged coil against
-// every tissue boundary node while the live rod remains the sole strand state
-// authority.
+// Two 1.97 mm DER capsules are sufficient for one edge in each of the two
+// 0.77 mm puncture tracts. Phase-boundary material selection uses both slots as
+// overlap while only one tract is occupied, then sparsely owns one edge per
+// tract. This keeps the contact graph fixed instead of evaluating the remote
+// packaged coil against every tissue boundary node.
 constexpr std::uint32_t kSutureMatterContactSegmentCount = 2u;
 // Matter is quasi-static relative to the 16 kHz DER flexural cadence. During
 // sharp-tip entry it samples every rod substep: the 20 mm/s entry moves 1.25 um
@@ -17280,6 +17280,15 @@ int main(const int argc, const char* const argv[]) {
                         passageStateHash,
                         passageSnapshot.solverCertificates
                     );
+                    appendStateHash(
+                        passageStateHash,
+                        passageSnapshot.sutureProxyEdges
+                    );
+                    appendStateHash(
+                        passageStateHash,
+                        &passageSnapshot.sutureProxyBindingRevision,
+                        sizeof(passageSnapshot.sutureProxyBindingRevision)
+                    );
                     const std::uint32_t minimumWallChannels =
                         static_cast<std::uint32_t>(std::ceil(
                             authoredWallThicknessM /
@@ -17461,6 +17470,238 @@ int main(const int argc, const char* const argv[]) {
                     const double passageAngleRad =
                         entryAngleRad +
                         anglePerPassageStepRad * totalPassageSteps;
+                    bool secondSutureTractOwnershipEstablished = false;
+                    const auto advanceSutureContactOwnership = [&] (
+                        const metalrobo::MetalWorldResult& state,
+                        const numi::matter::RuntimeStateSnapshot& snapshot,
+                        const double predictiveTravelM,
+                        const std::string& phase
+                    ) {
+                        require(
+                            snapshot.available &&
+                                snapshot.sutureProxyEdges.size() ==
+                                    kSutureMatterContactSegmentCount &&
+                                state.finalRodNodes.size() >= 2u &&
+                                std::isfinite(predictiveTravelM) &&
+                                predictiveTravelM >= 0.0,
+                            phase + " has no valid live strand-contact authority"
+                        );
+                        std::vector<
+                            metalrobo::SurgicalThreadTargetPoint
+                        > threadNodes;
+                        threadNodes.reserve(state.finalRodNodes.size());
+                        for (const MRRodNodeStateGPU& node :
+                             state.finalRodNodes) {
+                            const Vec3 position = vector(node.position);
+                            threadNodes.push_back({
+                                position.x,
+                                position.y,
+                                position.z,
+                            });
+                        }
+
+                        std::vector<
+                            metalrobo::SurgicalThreadChannelCapsule
+                        > firstTractChannels;
+                        std::vector<
+                            metalrobo::SurgicalThreadChannelCapsule
+                        > allOccupiedCandidates;
+                        std::uint32_t secondTractChannelCount = 0u;
+                        for (const NMPunctureChannelGPU& channel :
+                             snapshot.punctureChannels) {
+                            if ((channel.identity.w &
+                                 NM_TOPOLOGY_ACTIVE) == 0u) {
+                                continue;
+                            }
+                            const bool firstTract = std::ranges::any_of(
+                                passageChannels,
+                                [&channel](
+                                    const NMPunctureChannelGPU& accepted
+                                ) {
+                                    return accepted.identity.z ==
+                                        channel.identity.z;
+                                }
+                            );
+                            const Vec3 rawAxis = vector(
+                                channel.axisAndHalfLength
+                            );
+                            const double axisLength = norm(rawAxis);
+                            require(
+                                axisLength > 1.0e-12 &&
+                                    channel.axisAndHalfLength.w > 0.0f &&
+                                    channel.originAndRadius.w > 0.0f,
+                                phase + " contains a degenerate puncture tract"
+                            );
+                            const Vec3 axis = rawAxis *
+                                (1.0 / axisLength);
+                            const Vec3 origin = vector(
+                                channel.originAndRadius
+                            );
+                            const Vec3 first = origin - axis *
+                                channel.axisAndHalfLength.w;
+                            const Vec3 second = origin + axis *
+                                channel.axisAndHalfLength.w;
+                            metalrobo::SurgicalThreadChannelCapsule capsule{
+                                .firstM = {first.x, first.y, first.z},
+                                .secondM = {second.x, second.y, second.z},
+                                .radiusM = channel.originAndRadius.w,
+                                .tract = firstTract ? 0u : 1u,
+                            };
+                            allOccupiedCandidates.push_back(capsule);
+                            if (firstTract) {
+                                firstTractChannels.push_back(capsule);
+                            } else {
+                                ++secondTractChannelCount;
+                            }
+                        }
+                        require(
+                            !firstTractChannels.empty(),
+                            phase + " lost the first accepted puncture tract"
+                        );
+
+                        const double maximumSurfaceSeparationM =
+                            kSutureTissueContactSlopM + predictiveTravelM;
+                        metalrobo::SurgicalThreadContactSelection selection;
+                        bool ownsSecondTract = false;
+                        require(
+                            !secondSutureTractOwnershipEstablished ||
+                                secondTractChannelCount != 0u,
+                            phase + " removed the occupied opposing tract"
+                        );
+                        if (secondTractChannelCount != 0u) {
+                            selection =
+                                metalrobo::selectSurgicalThreadContactEdges(
+                                    threadNodes,
+                                    allOccupiedCandidates,
+                                    {
+                                        .threadRadiusM =
+                                            world.rods[0].model.radius,
+                                        .maximumSurfaceSeparationM =
+                                            maximumSurfaceSeparationM,
+                                        .tractCount = 2u,
+                                        .proxyCount =
+                                            kSutureMatterContactSegmentCount,
+                                    }
+                                );
+                            ownsSecondTract = selection.succeeded();
+                            require(
+                                ownsSecondTract ||
+                                    (!secondSutureTractOwnershipEstablished &&
+                                     selection.status ==
+                                        metalrobo::
+                                            SurgicalThreadContactSelectionStatus::
+                                                noContactEdgeSet),
+                                phase + " could not classify the opposing "
+                                    "strand tract: " +
+                                    metalrobo::
+                                        surgicalThreadContactSelectionStatusName(
+                                            selection.status
+                                        )
+                            );
+                        }
+                        secondSutureTractOwnershipEstablished =
+                            secondSutureTractOwnershipEstablished ||
+                            ownsSecondTract;
+                        if (!ownsSecondTract) {
+                            selection =
+                                metalrobo::selectSurgicalThreadContactEdges(
+                                    threadNodes,
+                                    firstTractChannels,
+                                    {
+                                        .threadRadiusM =
+                                            world.rods[0].model.radius,
+                                        .maximumSurfaceSeparationM =
+                                            maximumSurfaceSeparationM,
+                                        .tractCount = 1u,
+                                        .proxyCount =
+                                            kSutureMatterContactSegmentCount,
+                                    }
+                                );
+                        }
+                        require(
+                            selection.succeeded(),
+                            phase + " has no material edge in the accepted "
+                                "puncture tract: " +
+                                metalrobo::
+                                    surgicalThreadContactSelectionStatusName(
+                                        selection.status
+                                    )
+                        );
+                        const auto plan =
+                            metalrobo::planSurgicalThreadProxyRebind(
+                                snapshot.sutureProxyEdges,
+                                selection.edges,
+                                static_cast<std::uint32_t>(
+                                    state.finalRodNodes.size() - 1u
+                                )
+                            );
+                        require(
+                            plan.succeeded(),
+                            phase + " could not plan a stable strand-proxy "
+                                "transition: " +
+                                metalrobo::
+                                    surgicalThreadContactSelectionStatusName(
+                                        plan.status
+                                    )
+                        );
+                        for (const auto& transition : plan.transitions) {
+                            const numi::matter::RuntimeDiagnostics rebound =
+                                tissueRuntime.setSutureProxyEdges(
+                                    transition,
+                                    static_cast<std::uint32_t>(
+                                        state.finalRodNodes.size()
+                                    )
+                                );
+                            require(
+                                rebound.encoded,
+                                phase + " could not rebind live DER contact: " +
+                                    rebound.message
+                            );
+                        }
+                        const numi::matter::RuntimeStateSnapshot rebound =
+                            tissueRuntime.snapshot();
+                        std::vector<std::uint32_t> reboundEdges =
+                            rebound.sutureProxyEdges;
+                        std::ranges::sort(reboundEdges);
+                        require(
+                            rebound.available &&
+                                reboundEdges == selection.edges &&
+                                rebound.sutureProxyBindingRevision ==
+                                    snapshot.sutureProxyBindingRevision +
+                                        plan.transitions.size(),
+                            phase + " did not publish exact strand-proxy "
+                                "binding evidence"
+                        );
+                        if (!plan.transitions.empty()) {
+                            std::cout << std::setprecision(9)
+                                << "suture_contact_ownership=ok"
+                                << " phase=\"" << phase << '"'
+                                << " occupied_tracts="
+                                << selection.tractEdges.size()
+                                << " tract_edges=";
+                            for (std::size_t tract = 0u;
+                                 tract < selection.tractEdges.size();
+                                 ++tract) {
+                                if (tract != 0u) {
+                                    std::cout << ',';
+                                }
+                                std::cout << selection.tractEdges[tract];
+                            }
+                            std::cout
+                                << " slot_edges="
+                                << rebound.sutureProxyEdges[0] << ','
+                                << rebound.sutureProxyEdges[1]
+                                << " maximum_surface_separation_m="
+                                << selection.maximumSurfaceSeparationM
+                                << " predictive_travel_m="
+                                << predictiveTravelM
+                                << " maintenance_commands="
+                                << plan.transitions.size()
+                                << " binding_revision="
+                                << rebound.sutureProxyBindingRevision
+                                << '\n';
+                        }
+                    };
                     if (tissueReceiverLiveSequence) {
                         require(
                             tissueNeedleOrbit.has_value() &&
@@ -17482,6 +17723,19 @@ int main(const int argc, const char* const argv[]) {
                                 !angles.empty() &&
                                     angles.size() == angularSpeeds.size(),
                                 phase + " has invalid orbit samples"
+                            );
+                            const double maximumAngularSpeedRadPerS =
+                                *std::ranges::max_element(angularSpeeds);
+                            advanceSutureContactOwnership(
+                                passage.result,
+                                tissueRuntime.snapshot(),
+                                maximumAngularSpeedRadPerS *
+                                    tissueNeedleOrbit->centerlineRadiusM *
+                                    static_cast<double>(angles.size()) *
+                                    static_cast<double>(
+                                        stepConfig.timestepSeconds
+                                    ),
+                                phase
                             );
                             std::vector<MRBodyStateGPU> targets;
                             targets.reserve(
@@ -18712,6 +18966,17 @@ int main(const int argc, const char* const argv[]) {
                             bridgeStateHash,
                             postBridgeMatter.punctureChannels
                         );
+                        appendStateHash(
+                            bridgeStateHash,
+                            postBridgeMatter.sutureProxyEdges
+                        );
+                        appendStateHash(
+                            bridgeStateHash,
+                            &postBridgeMatter.sutureProxyBindingRevision,
+                            sizeof(
+                                postBridgeMatter.sutureProxyBindingRevision
+                            )
+                        );
                         std::cout << std::setprecision(9)
                             << "tissue_receiver_state_bridge=ok"
                             << " target_orbit_angle_rad="
@@ -19235,6 +19500,9 @@ int main(const int argc, const char* const argv[]) {
                             std::uint32_t completedSteps = 0u;
                             std::uint32_t chunks = 0u;
                         };
+                        metalrobo::MetalWorldResult
+                            liveContactOwnershipState =
+                                dynamicBridge.result;
                         const auto firstPassageChannelsPreserved = [&] (
                             const numi::matter::RuntimeStateSnapshot& snapshot
                         ) {
@@ -19295,6 +19563,23 @@ int main(const int argc, const char* const argv[]) {
                                     maximumChunkSteps,
                                     phaseSteps - stream.completedSteps
                                 );
+                                const RodStateMetrics ownershipRod =
+                                    rodStateMetrics(
+                                        world,
+                                        liveContactOwnershipState
+                                    );
+                                advanceSutureContactOwnership(
+                                    liveContactOwnershipState,
+                                    tissueRuntime.snapshot(),
+                                    std::max(
+                                        kMaximumTerminalRodNodeSpeed,
+                                        ownershipRod.maximumNodeSpeed
+                                    ) * static_cast<double>(chunkSteps) *
+                                        static_cast<double>(
+                                            stepConfig.timestepSeconds
+                                        ),
+                                    phase
+                                );
                                 const std::size_t begin =
                                     static_cast<std::size_t>(
                                         stream.completedSteps
@@ -19315,11 +19600,18 @@ int main(const int argc, const char* const argv[]) {
                                 stream.gpuMilliseconds +=
                                     stream.terminal.diagnostics
                                         .gpuElapsedMilliseconds;
+                                liveContactOwnershipState =
+                                    stream.terminal.result;
                                 stream.completedSteps += chunkSteps;
                                 ++stream.chunks;
 
                                 const numi::matter::RuntimeStateSnapshot
                                     liveSnapshot = tissueRuntime.snapshot();
+                                require(
+                                    liveSnapshot.sutureProxyEdges.size() ==
+                                        kSutureMatterContactSegmentCount,
+                                    phase + " lost live DER material ownership"
+                                );
                                 const LiveTissueMetrics tissue =
                                     liveTissueMetrics(liveSnapshot, phase);
                                 const bool channelTopologyAccepted =
@@ -19400,6 +19692,13 @@ int main(const int argc, const char* const argv[]) {
                                     << rod.maximumNodeSpeed
                                     << " thread_maximum_edge_error_m="
                                     << rod.maximumEdgeLengthError
+                                    << " suture_proxy_edges="
+                                    << liveSnapshot.sutureProxyEdges.at(0u)
+                                    << ','
+                                    << liveSnapshot.sutureProxyEdges.at(1u)
+                                    << " suture_proxy_binding_revision="
+                                    << liveSnapshot
+                                           .sutureProxyBindingRevision
                                     << " chunk_gpu_ms="
                                     << stream.terminal.diagnostics
                                         .gpuElapsedMilliseconds
@@ -22571,6 +22870,19 @@ int main(const int argc, const char* const argv[]) {
                             opposingPassageStateHash,
                             opposingPassageMatter.punctureChannels
                         );
+                        appendStateHash(
+                            opposingPassageStateHash,
+                            opposingPassageMatter.sutureProxyEdges
+                        );
+                        appendStateHash(
+                            opposingPassageStateHash,
+                            &opposingPassageMatter
+                                .sutureProxyBindingRevision,
+                            sizeof(
+                                opposingPassageMatter
+                                    .sutureProxyBindingRevision
+                            )
+                        );
                         writeHandoffStateArtifact(
                             options.stateOutputDirectory,
                             "tissue-opposing-bite-passage",
@@ -22823,6 +23135,16 @@ int main(const int argc, const char* const argv[]) {
                             kPullChunkSteps,
                             remainingMatterSteps
                         );
+                        advanceSutureContactOwnership(
+                            passage.result,
+                            tissueRuntime.snapshot(),
+                            pullSpeedMps *
+                                static_cast<double>(chunkSteps) *
+                                static_cast<double>(
+                                    stepConfig.timestepSeconds
+                                ),
+                            "needle-and-suture tissue pull-through"
+                        );
                         std::vector<MRBodyStateGPU> kinematicTargets;
                         kinematicTargets.reserve(
                             static_cast<std::size_t>(chunkSteps) *
@@ -22921,12 +23243,19 @@ int main(const int argc, const char* const argv[]) {
                                     certifiedThreadNode).position),
                                 thicknessAxis
                             ) - world.rods[0].model.radius;
-                        for (std::uint32_t edge = 0u;
-                             edge < kSutureMatterContactSegmentCount;
-                             ++edge) {
+                        require(
+                            pullSnapshot.sutureProxyEdges.size() ==
+                                kSutureMatterContactSegmentCount,
+                            "pull-through snapshot lost material-edge ownership"
+                        );
+                        for (std::uint32_t slot = 0u;
+                             slot < kSutureMatterContactSegmentCount;
+                             ++slot) {
+                            const std::uint32_t edge =
+                                pullSnapshot.sutureProxyEdges[slot];
                             const NMRigidStateGPU& projected =
                                 pullSnapshot.rigidStates.at(
-                                    firstStrandProxy + edge
+                                    firstStrandProxy + slot
                                 );
                             maximumStrandProjectionErrorM = std::max({
                                 maximumStrandProjectionErrorM,
@@ -22943,7 +23272,7 @@ int main(const int argc, const char* const argv[]) {
                             });
                             const NMRigidReactionGPU& strandReaction =
                                 pullSnapshot.reactions.at(
-                                    firstStrandProxy + edge
+                                    firstStrandProxy + slot
                                 );
                             sampledStrandReactionImpulseNs += norm({
                                 strandReaction.impulseAndCount.x,
@@ -23088,6 +23417,15 @@ int main(const int argc, const char* const argv[]) {
                     appendStateHash(
                         pullStateHash,
                         pullSnapshot.solverCertificates
+                    );
+                    appendStateHash(
+                        pullStateHash,
+                        pullSnapshot.sutureProxyEdges
+                    );
+                    appendStateHash(
+                        pullStateHash,
+                        &pullSnapshot.sutureProxyBindingRevision,
+                        sizeof(pullSnapshot.sutureProxyBindingRevision)
                     );
                     require(
                         certifiedThreadClearanceReached &&

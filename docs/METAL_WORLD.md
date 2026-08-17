@@ -576,6 +576,20 @@ tract spanning the current tissue thickness, all tetrahedra and mass retained,
 the receiver grasp and hard swage intact, and the terminal Matter/DER/contact
 certificates accepted.
 
+Live strand/tissue ownership no longer assumes that proxy slot zero is DER
+edge zero. Before every bounded pull, bridge, acquisition, extraction, and
+opposing-bite submission, `SurgicalThreadTargeting` measures all resolved DER
+segments against the accepted puncture-channel capsules. With one occupied
+tract the two fixed Matter slots cover adjacent material edges for overlap;
+when the strand physically reaches the opposing tract, the same graph becomes
+sparse and retains one material edge in each tract. The second-tract state is
+latched, so a later miss fails instead of silently dropping tissue contact.
+Rebinding changes one retired slot per maintenance command, preserves retained
+friction history, and records the slot-ordered edges plus binding revision in
+the restorable Matter snapshot and surgical state hash. The lightweight probe
+qualifies deterministic two-tract selection and one-slot plans; full live
+sequence qualification still requires the long Apple-Metal continuation.
+
 `HeterogeneousWorld` is the owned compilation boundary above those executors.
 It composes `EngineModel` instances transactionally, records the exact global
 body indices represented by the environment-major scene-state tensor, owns
