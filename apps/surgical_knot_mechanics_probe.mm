@@ -409,6 +409,23 @@ double reactionLoad(
     return maximum;
 }
 
+double minimumReactionLoad(
+    const std::span<const metalrobo::DiscreteRodAttachmentReaction>
+        reactions
+) {
+    if (reactions.empty()) {
+        return 0.0;
+    }
+    double minimum = std::numeric_limits<double>::infinity();
+    for (const auto& reaction : reactions) {
+        minimum = std::min(
+            minimum,
+            length(reaction.averageForceOnTarget)
+        );
+    }
+    return minimum;
+}
+
 } // namespace
 
 int main() {
@@ -541,12 +558,16 @@ int main() {
         const double cpuAttachmentLoad = reactionLoad(
             cpuFrictionReactions
         );
+        const double cpuMinimumAttachmentLoad = minimumReactionLoad(
+            cpuFrictionReactions
+        );
         require(
             cpuFrictionMotion.count >= 5u &&
                 cpuFrictionMotion.rmsTangentialSlip() <
                     0.9 *
                         cpuFrictionlessMotion.rmsTangentialSlip() &&
-                cpuAttachmentLoad > 0.0,
+                std::isfinite(cpuMinimumAttachmentLoad) &&
+                cpuMinimumAttachmentLoad > 0.0,
             "FP64 PDO knot friction did not reduce loaded crossing slip: "
             "frictionless_rms=" + std::to_string(
                 cpuFrictionlessMotion.rmsTangentialSlip()
@@ -619,6 +640,8 @@ int main() {
         double maximumMetalFrictionlessSlip = 0.0;
         double maximumMetalOracleError = 0.0;
         double maximumMetalLoad = 0.0;
+        double minimumMetalLoad =
+            std::numeric_limits<double>::infinity();
         double maximumSelfFrictionContactCount = 0.0;
         double maximumSelfNormalImpulseNs = 0.0;
         double maximumSelfTangentialImpulseNs = 0.0;
@@ -708,14 +731,24 @@ int main() {
                     attachments.size(),
                 })
             );
+            minimumMetalLoad = std::min(
+                minimumMetalLoad,
+                minimumReactionLoad({
+                    metalFriction.reactions.data() +
+                        environment * attachments.size(),
+                    attachments.size(),
+                })
+            );
         }
         require(
             maximumMetalOracleError <= 3.0e-3 &&
-                maximumMetalLoad > 0.0,
-            "Apple Metal knot response diverged from FP64 or carried no "
-            "load: oracle_error=" +
+                std::isfinite(minimumMetalLoad) &&
+                minimumMetalLoad > 0.0,
+            "Apple Metal knot response diverged from FP64 or left a tail "
+            "unloaded: oracle_error=" +
                 std::to_string(maximumMetalOracleError) +
-                " load=" + std::to_string(maximumMetalLoad) +
+                " minimum_load=" + std::to_string(minimumMetalLoad) +
+                " maximum_load=" + std::to_string(maximumMetalLoad) +
                 " metal_slip=" + std::to_string(maximumMetalSlip) +
                 " fp64_slip=" + std::to_string(
                     cpuFrictionMotion.rmsTangentialSlip()
@@ -810,6 +843,8 @@ int main() {
             << cpuFrictionMotion.rmsTangentialSlip()
             << " fp64_attachment_load_n="
             << cpuAttachmentLoad
+            << " fp64_minimum_attachment_load_n="
+            << cpuMinimumAttachmentLoad
             << " metal_frictionless_slip_mps="
             << maximumMetalFrictionlessSlip
             << " metal_frictional_slip_mps="
@@ -826,6 +861,8 @@ int main() {
             << maximumMetalOracleError
             << " maximum_attachment_load_n="
             << maximumMetalLoad
+            << " minimum_attachment_load_n="
+            << minimumMetalLoad
             << " deterministic=yes"
             << " boundary=authored_pre_tied_fixture_not_robot_tied"
             << '\n';
