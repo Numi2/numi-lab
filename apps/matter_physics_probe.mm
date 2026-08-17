@@ -2054,10 +2054,10 @@ void runSutureProxyWindow() {
         const auto rejected = runtime.setSutureProxyEdges(discontinuous, 6u);
         require(!rejected.encoded,
             "suture proxy window accepted a transition with no stable slot");
-        const std::array<std::uint32_t, 2u> advanced{2u, 1u};
-        const auto remapped = runtime.setSutureProxyEdges(advanced, 4u);
+        const std::array<std::uint32_t, 2u> advanced{3u, 1u};
+        const auto remapped = runtime.setSutureProxyEdges(advanced, 5u);
         require(remapped.encoded,
-            "suture proxy window could not advance with one-edge overlap: " +
+            "suture proxy window could not advance to a sparse two-tract set: " +
                 remapped.message);
         const auto binding = runtime.snapshot();
         require(binding.available &&
@@ -2072,7 +2072,7 @@ void runSutureProxyWindow() {
                     runtime.timestepSeconds() == baseTimestep * 0.5f,
             "suture proxy window could not select exact half-step cadence");
 
-        std::array<MRRodNodeStateGPU, 4u> rodNodes{};
+        std::array<MRRodNodeStateGPU, 5u> rodNodes{};
         for (std::uint32_t node = 0u; node < rodNodes.size(); ++node) {
             rodNodes[node].position = {
                 0.1f + 0.01f * static_cast<float>(node),
@@ -2081,7 +2081,9 @@ void runSutureProxyWindow() {
                 1.0f,
             };
         }
-        const std::array<float, 4u> inverseMasses{1.0f, 1.0f, 1.0f, 1.0f};
+        const std::array<float, 5u> inverseMasses{
+            1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        };
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
         id<MTLCommandQueue> queue = [device newCommandQueue];
         id<MTLBuffer> rodBuffer = [device
@@ -2107,8 +2109,8 @@ void runSutureProxyWindow() {
         request.commandBuffer = (__bridge void*)commandBuffer;
         request.rigid.rodNodes = (__bridge void*)rodBuffer;
         request.rigid.rodInverseMasses = (__bridge void*)inverseMassBuffer;
-        request.rigid.rodNodeCount = 4u;
-        request.rigid.rodNodeStride = 4u;
+        request.rigid.rodNodeCount = 5u;
+        request.rigid.rodNodeStride = 5u;
         request.environmentStatuses = (__bridge void*)worldStatuses;
         request.phase = numi::matter::EncodePhase::preDynamics;
         request.controlStep = 0u;
@@ -2133,18 +2135,43 @@ void runSutureProxyWindow() {
                     projected.coupledTimestepDivisor == 2u &&
                     projected.rigidStates.size() == 2u &&
                     std::abs(projected.rigidStates[0].centerAndRadius.x -
-                        rodNodes[2].position.x) <= 1.0e-7f &&
-                    std::abs(projected.rigidStates[0].extent.x -
                         rodNodes[3].position.x) <= 1.0e-7f &&
+                    std::abs(projected.rigidStates[0].extent.x -
+                        rodNodes[4].position.x) <= 1.0e-7f &&
                     std::abs(projected.rigidStates[1].centerAndRadius.x -
                         rodNodes[1].position.x) <= 1.0e-7f &&
                     std::abs(projected.rigidStates[1].extent.x -
                         rodNodes[2].position.x) <= 1.0e-7f,
-            "live Metal projection did not consume the remapped DER edges");
+            "live Metal projection did not consume the sparse DER edge set");
+
+        numi::matter::Runtime restoredRuntime;
+        const auto restoredInitialized = restoredRuntime.initialize(world, {
+            .metallib = NUMI_MATTER_METALLIB,
+            .environmentCount = 1u,
+            .captureEvents = true,
+            .captureDiagnostics = true,
+            .automaticIdentification = false,
+            .adaptiveTransfer = false,
+        });
+        require(restoredInitialized.encoded && restoredRuntime.valid(),
+            "suture proxy restore runtime did not initialize");
+        const auto restored = restoredRuntime.restore(projected);
+        require(restored.encoded,
+            "sparse suture proxy set did not restore into a fresh runtime: " +
+                restored.message);
+        const auto restoredSnapshot = restoredRuntime.snapshot();
+        require(restoredSnapshot.available &&
+                    restoredSnapshot.sutureProxyEdges ==
+                        std::vector<std::uint32_t>(
+                            advanced.begin(), advanced.end()) &&
+                    restoredSnapshot.sutureProxyBindingRevision == 1u,
+            "fresh runtime did not retain sparse suture proxy authority");
         std::cout
             << "{\"schema\":\"numi.matter.suture-window.v1\""
             << ",\"edges\":[" << projected.sutureProxyEdges[0] << ','
             << projected.sutureProxyEdges[1] << ']'
+            << ",\"sparse\":true"
+            << ",\"restored\":true"
             << ",\"revision\":"
             << projected.sutureProxyBindingRevision
             << ",\"cadence\":\"1/"

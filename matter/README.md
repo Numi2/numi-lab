@@ -108,11 +108,12 @@ select a power-of-two coupled timestep multiplier or divisor only between
 submissions; this retains accepted state while grouping or refining the exact
 base DER step and never runs hidden Matter microticks against frozen rod
 geometry. The active canonical ratio is recorded in completion snapshots.
-Long-running pull-through and knot phases may also move a contiguous strand
-proxy window one DER edge at a time between submissions. Every move retains
-the overlapping proxy slot and its friction history, resets only the retired
-slot, and records the completed binding revision without changing the authored
-physics fingerprint.
+Long-running pull-through and knot phases may also move a compact, potentially
+sparse strand-proxy set one slot at a time between submissions. Sparse slots
+can retain simultaneous material ownership in separate puncture tracts. Every
+move retains all unchanged proxy identities and their friction histories,
+resets only the retired slot, and records the completed binding revision
+without changing the authored physics fingerprint.
 Puncture admission sums
 only closing, direction-aligned, tip-local surface rows: mesh refinement may
 distribute a physical sharp-tip resultant across nodes, while shaft, arc and

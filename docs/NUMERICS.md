@@ -366,12 +366,14 @@ to leave a curved tract therefore activates its analytic needle row one
 transaction early, while it is still above the unchanged authored contact
 floor, instead of appearing below that floor after the geometric exemption
 switches off.
-Long strand motion retains a fixed-size contact graph by advancing a
-contiguous DER-edge proxy window only at completed command boundaries. One
-slot changes per advance, so the overlapping physical edge keeps its stable
-proxy identity and friction history; the retired slot's history is cleared on
-Metal before it is rebound. The active edge list and completed binding revision
-are explicit snapshot evidence rather than an untracked host-side alias.
+Long strand motion retains a fixed-size contact graph by advancing a compact
+DER-edge proxy set only at completed command boundaries. The set may be sparse
+so one bounded graph can retain material ownership in two distinct puncture
+tracts. One slot changes per maintenance command, so every retained physical
+edge keeps its stable proxy identity and friction history; only the retired
+slot's history is cleared on Metal before rebinding. The active edge list and
+completed binding revision are explicit, restorable snapshot evidence rather
+than an untracked host-side alias.
 Contact-critical motion can refine that same transaction by a power-of-two
 coupled timestep divisor between command buffers. Matter, DER, rigid bodies,
 and commands all use the exact refined step; physical-duration preservation is

@@ -5876,9 +5876,9 @@ RuntimeDiagnostics Runtime::setSutureProxyEdges(
     std::ranges::sort(sortedEdges);
     for (std::size_t slot = 0u; slot < sortedEdges.size(); ++slot) {
         if (sortedEdges[slot] >= rodNodeCount - 1u ||
-            sortedEdges[slot] != sortedEdges.front() + slot) {
+            (slot != 0u && sortedEdges[slot] == sortedEdges[slot - 1u])) {
             diagnostics.message =
-                "suture proxy edges must form one in-range contiguous window";
+                "suture proxy edges must form one unique in-range set";
             return diagnostics;
         }
     }
@@ -5986,7 +5986,7 @@ RuntimeDiagnostics Runtime::setSutureProxyEdges(
     diagnostics.requestedThreadCount =
         static_cast<std::uint64_t>(state.dispatch.environmentCount) *
         state.dispatch.contactPairCount;
-    diagnostics.message = "suture proxy bindings advanced with overlap";
+    diagnostics.message = "suture proxy bindings advanced with stable ownership";
     return diagnostics;
 }
 
@@ -6255,19 +6255,26 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
     if (snapshot.sutureProxyEdges.size() !=
         state.sutureProxyIndices.size()) {
         diagnostics.message =
-            "Matter snapshot suture-proxy window width changed";
+            "Matter snapshot suture-proxy set width changed";
         return diagnostics;
     }
+    std::uint32_t restoredRequiredRodNodeCount =
+        state.requiredRodNodeCount;
     if (!snapshot.sutureProxyEdges.empty()) {
         std::vector<std::uint32_t> sorted = snapshot.sutureProxyEdges;
         std::ranges::sort(sorted);
         for (std::size_t slot = 0u; slot < sorted.size(); ++slot) {
-            if (sorted[slot] + 1u >= state.requiredRodNodeCount ||
-                sorted[slot] != sorted.front() + slot) {
+            if (sorted[slot] >=
+                    std::numeric_limits<std::uint32_t>::max() - 1u ||
+                (slot != 0u && sorted[slot] == sorted[slot - 1u])) {
                 diagnostics.message =
-                    "Matter snapshot suture-proxy window is invalid";
+                    "Matter snapshot suture-proxy set is invalid";
                 return diagnostics;
             }
+            restoredRequiredRodNodeCount = std::max(
+                restoredRequiredRodNodeCount,
+                sorted[slot] + 2u
+            );
             const std::uint32_t proxy = state.sutureProxyIndices[slot];
             restoredProxyLayout[proxy].bodyIndex =
                 snapshot.sutureProxyEdges[slot];
@@ -6496,6 +6503,7 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
     state.rigidProxyLayout = std::move(restoredProxyLayout);
     state.sutureProxyEdges = snapshot.sutureProxyEdges;
     state.sutureProxyBindingRevision = snapshot.sutureProxyBindingRevision;
+    state.requiredRodNodeCount = restoredRequiredRodNodeCount;
     state.coupledTimestepMultiplier.store(
         snapshot.coupledTimestepMultiplier,
         std::memory_order_release

@@ -837,11 +837,13 @@ public:
     [[nodiscard]] bool requiresCoupledCandidate() const noexcept;
     [[nodiscard]] std::uint32_t coupledCandidatePointCapacity() const noexcept;
     [[nodiscard]] bool requiresRigidContactEvidence() const noexcept;
-    // Move a contiguous live-DER contact window between completed command
-    // buffers. firstRodEdges is ordered by compiled strand-proxy slot. A
-    // transition may replace at most one slot, retaining the other slots as
-    // stable overlap; the retired slot's friction history is cleared on GPU.
-    // This method submits and waits for one bounded maintenance blit/dispatch.
+    // Move a compact live-DER contact set between completed command buffers.
+    // firstRodEdges is ordered by compiled strand-proxy slot and must contain
+    // unique in-range edges. A transition may replace at most one slot,
+    // retaining every other slot as stable physical ownership; the retired
+    // slot's friction history is cleared on GPU. Sparse sets allow one fixed-
+    // cost graph to follow material through multiple puncture tracts. This
+    // method submits and waits for one bounded maintenance blit/dispatch.
     [[nodiscard]] RuntimeDiagnostics setSutureProxyEdges(
         std::span<const std::uint32_t> firstRodEdges,
         std::uint32_t rodNodeCount
