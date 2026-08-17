@@ -690,6 +690,13 @@ evidence rather than a substitute for the archived solver/contact
 certificates. Legacy v2 visual states remain readable with the calibrated rest
 mesh but are not resumable Matter checkpoints.
 
+Long neutral-zone handoff motion also publishes a bounded
+`giver-handoff-stage-prefix`. New prefixes carry the cumulative completed
+staging count separately from the global physics step, because each restore
+adds a certified settling hold. Resume reads that count from the checkpoint
+and rejects a conflicting CLI value; `--resume-staging-completed-steps` remains
+required only for legacy prefixes that predate this metadata.
+
 `--tissue-checkpoint-restore-only --resume-tissue-checkpoint PHASE STATE.tsv`
 is the executable pre-advance gate for v3 tissue checkpoints. It rebuilds the
 phase's original Matter contact program, restores the manifest's exact

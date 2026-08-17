@@ -7335,11 +7335,13 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
     );
     require(
         result.resumeGiverHandoffStagePrefixPath.empty() ==
-                !result.resumeStagingCompletedStepsProvided &&
-            result.resumeGiverHandoffStagePrefixPath.empty() ==
-                result.giverLiftReferencePath.empty(),
-        "stage-prefix resume requires its completed-step count and the "
-        "original giver-lift reference"
+            result.giverLiftReferencePath.empty(),
+        "stage-prefix resume requires the original giver-lift reference"
+    );
+    require(
+        !result.resumeStagingCompletedStepsProvided ||
+            !result.resumeGiverHandoffStagePrefixPath.empty(),
+        "staging completed-step count requires a stage-prefix resume"
     );
     require(
         result.resumeReceiverApproachMotionPath.empty() ||
@@ -7609,7 +7611,8 @@ std::uint64_t loadHandoffState(
     const std::string_view expectedPhase,
     metalrobo::HeterogeneousWorld& world,
     numi::matter::RuntimeStateSnapshot* matterSnapshot = nullptr,
-    KnotContinuationCheckpoint* knotCheckpoint = nullptr
+    KnotContinuationCheckpoint* knotCheckpoint = nullptr,
+    std::uint32_t* stagingCompletedSteps = nullptr
 ) {
     std::ifstream input(path);
     require(input.good(), "could not open handoff resume state");
@@ -7647,6 +7650,8 @@ std::uint64_t loadHandoffState(
     bool needleAngularVelocity = false;
     bool haveStep = false;
     std::uint64_t stateStep = 0u;
+    bool stagingCompletedStepsSeen = false;
+    std::uint32_t parsedStagingCompletedSteps = 0u;
     std::string line;
     while (std::getline(input, line)) {
         const std::vector<std::string_view> fields = splitTabs(line);
@@ -7667,6 +7672,22 @@ std::uint64_t loadHandoffState(
             require(fields.size() == 2u, "invalid resume step");
             stateStep = parseIndex(fields[1], "step");
             haveStep = true;
+        } else if (fields[0] == "handoff_staging_completed_steps") {
+            require(
+                fields.size() == 2u && !stagingCompletedStepsSeen &&
+                    expectedPhase == "giver-handoff-stage-prefix",
+                "invalid handoff staging progress"
+            );
+            parsedStagingCompletedSteps = parseIndex(
+                fields[1],
+                "handoff staging completed steps"
+            );
+            require(
+                parsedStagingCompletedSteps > 0u &&
+                    parsedStagingCompletedSteps < kHandoffStagingSteps,
+                "handoff staging progress is outside the trajectory"
+            );
+            stagingCompletedStepsSeen = true;
         } else if (fields[0] == "q" || fields[0] == "v") {
             std::vector<float>& destination =
                 fields[0] == "q" ? q : v;
@@ -7890,6 +7911,11 @@ std::uint64_t loadHandoffState(
     if (knotCheckpoint != nullptr) {
         *knotCheckpoint = parsedKnotCheckpoint;
     }
+    if (stagingCompletedSteps != nullptr) {
+        *stagingCompletedSteps = stagingCompletedStepsSeen
+            ? parsedStagingCompletedSteps
+            : 0u;
+    }
     if (matterRequired) {
         numi::matter::RuntimeStateSnapshot decodedMatter;
         const metalrobo::MatterSnapshotArchiveResult archive =
@@ -7990,7 +8016,8 @@ void writeHandoffStateArtifact(
     const metalrobo::BowelAnastomosisSutureSpec& suture,
     const metalrobo::MetalWorldResult& state,
     const numi::matter::RuntimeStateSnapshot* matterSnapshot = nullptr,
-    const KnotContinuationCheckpoint* knotCheckpoint = nullptr
+    const KnotContinuationCheckpoint* knotCheckpoint = nullptr,
+    const std::optional<std::uint32_t> stagingCompletedSteps = std::nullopt
 ) {
     if (directory.empty()) {
         return;
@@ -8009,6 +8036,14 @@ void writeHandoffStateArtifact(
         (knotCheckpoint != nullptr) ==
             knotCheckpointThrowIndex(phase).has_value(),
         "handoff knot phase and continuation metadata are inconsistent"
+    );
+    require(
+        stagingCompletedSteps.has_value() ==
+            (phase == "giver-handoff-stage-prefix") &&
+            (!stagingCompletedSteps.has_value() ||
+             (*stagingCompletedSteps > 0u &&
+              *stagingCompletedSteps < kHandoffStagingSteps)),
+        "handoff staging phase and progress metadata are inconsistent"
     );
     if (knotCheckpoint != nullptr) {
         requireKnotCheckpointProtocolContract(phase, *knotCheckpoint);
@@ -8120,6 +8155,10 @@ void writeHandoffStateArtifact(
         << tissue.lengthM.value << '\t' << tissue.widthM.value << '\t'
         << tissue.thicknessM.value << '\t' << tissue.incisionGapM.value
         << '\n';
+    if (stagingCompletedSteps.has_value()) {
+        output << "handoff_staging_completed_steps\t"
+            << *stagingCompletedSteps << '\n';
+    }
     if (matterSnapshot != nullptr) {
         output << "matter_snapshot\t" << matterPath.filename().string()
             << '\t' << matterArchive.contentHash
@@ -8368,7 +8407,7 @@ PhaseResult continuePhaseUnchecked(
 
 int main(const int argc, const char* const argv[]) {
     try {
-        const Arguments options = parseArguments(argc, argv);
+        Arguments options = parseArguments(argc, argv);
         const bool geometryOnly = options.mode == "--geometry-only";
         const bool longSettle = options.mode == "--long-settle";
         const bool settleOnly = longSettle ||
@@ -13557,10 +13596,31 @@ int main(const int argc, const char* const argv[]) {
                 world
             );
         } else if (!options.resumeGiverHandoffStagePrefixPath.empty()) {
+            std::uint32_t checkpointStagingCompletedSteps = 0u;
             loadedStateStep = loadHandoffState(
                 options.resumeGiverHandoffStagePrefixPath,
                 "giver-handoff-stage-prefix",
-                world
+                world,
+                nullptr,
+                nullptr,
+                &checkpointStagingCompletedSteps
+            );
+            if (checkpointStagingCompletedSteps != 0u) {
+                require(
+                    !options.resumeStagingCompletedStepsProvided ||
+                        options.resumeStagingCompletedSteps ==
+                            checkpointStagingCompletedSteps,
+                    "stage-prefix CLI progress disagrees with its "
+                    "checkpoint metadata"
+                );
+                options.resumeStagingCompletedSteps =
+                    checkpointStagingCompletedSteps;
+                options.resumeStagingCompletedStepsProvided = true;
+            }
+            require(
+                options.resumeStagingCompletedStepsProvided,
+                "legacy stage-prefix checkpoint requires its completed-step "
+                "count"
             );
         } else if (!options.resumeReceiverApproachMotionPath.empty()) {
             loadedStateStep = loadHandoffState(
@@ -31686,7 +31746,10 @@ int main(const int argc, const char* const argv[]) {
                     preReceiverSuccessfulSteps + completedStagingSteps,
                     world,
                     sutureSpec,
-                    checkpoint.result
+                    checkpoint.result,
+                    nullptr,
+                    nullptr,
+                    priorStagingSteps + completedStagingSteps
                 );
                 require(
                     bilateral(checkpointContacts, 0u) &&
