@@ -6770,6 +6770,7 @@ void requireKnotCheckpointProtocolContract(
 bool isLiveTissueCheckpointPhase(const std::string_view phase) {
     return phase == "tissue-receiver-bridge-start" ||
         phase == "tissue-receiver-dynamic-bridge" ||
+        phase == "tissue-receiver-cadence-proof" ||
         phase == "tissue-receiver-alignment-motion" ||
         phase == "tissue-receiver-alignment-settled" ||
         phase == "tissue-receiver-acquisition" ||
@@ -24424,13 +24425,170 @@ int main(const int argc, const char* const argv[]) {
                             return stream;
                         };
 
-                        const MRBodyStateGPU acquisitionStartNeedle =
-                            dynamicBridge.result.finalSceneBodies.at(0u);
-                        const GraspReference liveGiverReference =
+                        // The accepted bridge checkpoint is produced at the
+                        // 16x free-transport cadence. Switching its persistent
+                        // contact history directly to the half-base alignment
+                        // cadence previously admitted a tract-wall sample only
+                        // 2.44 um away at -0.370 m/s on alignment step 11.
+                        // Re-establish one complete 4 ms window at the 16 kHz
+                        // base cadence while both instruments are stationary;
+                        // only an accepted physical endpoint may seed the
+                        // refined receiver motion.
+                        const GraspReference bridgeGiverReference =
                             graspReference(
                                 world,
                                 needleForPlacement,
                                 dynamicBridge.result,
+                                0u,
+                                giverPlacementShape
+                            );
+                        const std::uint32_t receiverCadenceProofSteps =
+                            std::max<std::uint32_t>(
+                                1u,
+                                static_cast<std::uint32_t>(std::llround(
+                                    kLiveReceiverChunkDurationS /
+                                    static_cast<double>(
+                                        stepConfig.timestepSeconds
+                                    )
+                                ))
+                            );
+                        const std::vector<float> receiverCadenceProofEfforts =
+                            interpolateLiveReceiverTargets(
+                                dynamicBridge.result.finalQ,
+                                dynamicBridge.result.finalQ,
+                                receiverCadenceProofSteps
+                            );
+                        LiveReceiverStreamResult receiverCadenceProofStream =
+                            continueLiveReceiverStream(
+                                receiverCadenceProofEfforts,
+                                receiverCadenceProofSteps,
+                                "live tissue receiver base-cadence "
+                                "transition proof",
+                                "tissue_receiver_cadence_transition",
+                                kMaximumReceiverBridgeTissueIncrementM
+                            );
+                        const PhaseResult& liveReceiverStart =
+                            receiverCadenceProofStream.terminal;
+                        const numi::matter::RuntimeStateSnapshot
+                            receiverCadenceProofMatter =
+                                tissueRuntime.snapshot();
+                        const ContactCounts receiverCadenceProofContacts =
+                            contactCounts(
+                                world,
+                                liveReceiverStart.result,
+                                needleForPlacement.metadata,
+                                kNeedleFirstShape
+                            );
+                        const GraspKinematics receiverCadenceProofGiver =
+                            graspKinematics(
+                                world,
+                                needleForPlacement,
+                                liveReceiverStart.result,
+                                0u,
+                                giverPlacementShape,
+                                bridgeGiverReference
+                            );
+                        const RodStateMetrics receiverCadenceProofRod =
+                            rodStateMetrics(world, liveReceiverStart.result);
+                        const double receiverCadenceProofSwageErrorM =
+                            swageAttachmentError(
+                                world,
+                                liveReceiverStart.result
+                            );
+                        const MRBodyStateGPU& receiverCadenceProofNeedle =
+                            liveReceiverStart.result.finalSceneBodies.at(0u);
+                        const double receiverCadenceProofNeedleTravelM = norm(
+                            vector(receiverCadenceProofNeedle.position) -
+                            vector(
+                                dynamicBridge.result.finalSceneBodies.at(0u)
+                                    .position
+                            )
+                        );
+                        const MRMetalWorldContactStatusGPU&
+                            receiverCadenceProofResidual =
+                                requireTerminalResidual(
+                                    liveReceiverStart.result,
+                                    "live tissue receiver base-cadence "
+                                    "transition proof",
+                                    false
+                                );
+                        require(
+                            bilateral(receiverCadenceProofContacts, 0u) &&
+                                distributedInsertCoverage(
+                                    receiverCadenceProofContacts,
+                                    0u
+                                ) &&
+                                cleanNeedleInteraction(
+                                    receiverCadenceProofContacts,
+                                    true,
+                                    false
+                                ) &&
+                                qualifiedTransitionGrasp(
+                                    receiverCadenceProofGiver
+                                ) &&
+                                qualifiedTerminalRod(
+                                    receiverCadenceProofRod
+                                ) &&
+                                receiverCadenceProofSwageErrorM <
+                                    kMaximumSwageAttachmentError &&
+                                receiverCadenceProofNeedleTravelM <=
+                                    kMaximumReceiverAcquisitionNeedleTravelM &&
+                                receiverCadenceProofResidual.residuals.y <=
+                                    kMaximumTerminalContactVelocityResidual &&
+                                receiverCadenceProofResidual.residuals.z <=
+                                    kMaximumTerminalConeViolation,
+                            "receiver cadence transition did not preserve the "
+                            "accepted tissue-engaged giver state: " +
+                                contactSummary(
+                                    receiverCadenceProofContacts
+                                )
+                        );
+                        const std::uint64_t
+                            liveReceiverStartBaseDERSubsteps =
+                                postBridgeBaseDERSubsteps +
+                                static_cast<std::uint64_t>(
+                                    receiverCadenceProofSteps
+                                ) * stepConfig.physicsSubsteps;
+                        writeHandoffStateArtifact(
+                            options.stateOutputDirectory,
+                            "tissue-receiver-cadence-proof",
+                            liveReceiverStartBaseDERSubsteps,
+                            world,
+                            sutureSpec,
+                            liveReceiverStart.result,
+                            &receiverCadenceProofMatter
+                        );
+                        std::cout << std::setprecision(9)
+                            << "tissue_receiver_cadence_transition=ok"
+                            << " proof_steps="
+                            << receiverCadenceProofSteps
+                            << " timestep_s="
+                            << stepConfig.timestepSeconds
+                            << " cadence_multiplier="
+                            << stepConfig.physicsSubsteps
+                            << " giver_seat_drift_m="
+                            << receiverCadenceProofGiver.seatDrift
+                            << " needle_travel_m="
+                            << receiverCadenceProofNeedleTravelM
+                            << " hard_swage_root_error_m="
+                            << receiverCadenceProofSwageErrorM
+                            << " thread_maximum_node_speed_mps="
+                            << receiverCadenceProofRod.maximumNodeSpeed
+                            << " terminal_contact_velocity_residual_mps="
+                            << receiverCadenceProofResidual.residuals.y
+                            << " terminal_cone_violation="
+                            << receiverCadenceProofResidual.residuals.z
+                            << " gpu_ms="
+                            << receiverCadenceProofStream.gpuMilliseconds
+                            << " failed_steps=0\n";
+
+                        const MRBodyStateGPU acquisitionStartNeedle =
+                            liveReceiverStart.result.finalSceneBodies.at(0u);
+                        const GraspReference liveGiverReference =
+                            graspReference(
+                                world,
+                                needleForPlacement,
+                                liveReceiverStart.result,
                                 0u,
                                 giverPlacementShape
                             );
@@ -24477,8 +24635,8 @@ int main(const int argc, const char* const argv[]) {
                             worldJawGeometry(
                                 world.model,
                                 1u,
-                                dynamicBridge.result.finalQ,
-                                dynamicBridge.result.finalV
+                                liveReceiverStart.result.finalQ,
+                                liveReceiverStart.result.finalV
                             );
                         struct ReceiverNeedlePathAudit {
                             CrossArmCollisionScan environment;
@@ -24648,7 +24806,7 @@ int main(const int argc, const char* const argv[]) {
                                 psm,
                                 1u,
                                 bridgeReceiverBase,
-                                dynamicBridge.result.finalQ,
+                                liveReceiverStart.result.finalQ,
                                 receiverBeforeApproach.midpoint,
                                 receiverBeforeApproach.midpoint,
                                 liveReceiverFrame.rail,
@@ -24672,7 +24830,7 @@ int main(const int argc, const char* const argv[]) {
                                 psm,
                                 1u,
                                 bridgeReceiverBase,
-                                dynamicBridge.result.finalQ,
+                                liveReceiverStart.result.finalQ,
                                 receiverBeforeApproach.midpoint,
                                 receiverBeforeApproach.midpoint,
                                 liveReceiverFrame.rail,
@@ -24688,7 +24846,7 @@ int main(const int argc, const char* const argv[]) {
                             );
                         const ReceiverNeedlePathAudit alignmentAudit =
                             auditReceiverNeedlePath(
-                                dynamicBridge.result.finalQ,
+                                liveReceiverStart.result.finalQ,
                                 liveReceiverAlignmentAudit,
                                 alignmentAuditSteps
                             );
@@ -24710,7 +24868,7 @@ int main(const int argc, const char* const argv[]) {
                         writeHandoffStateArtifact(
                             options.stateOutputDirectory,
                             "tissue-receiver-alignment-motion",
-                            postBridgeBaseDERSubsteps +
+                            liveReceiverStartBaseDERSubsteps +
                                 refinedAlignmentMotionBaseDERSubsteps,
                             world,
                             sutureSpec,
@@ -25108,7 +25266,7 @@ int main(const int argc, const char* const argv[]) {
                         writeHandoffStateArtifact(
                             options.stateOutputDirectory,
                             "tissue-receiver-alignment-settled",
-                            postBridgeBaseDERSubsteps +
+                            liveReceiverStartBaseDERSubsteps +
                                 refinedAlignmentMotionBaseDERSubsteps +
                                 refinedAlignmentSettleBaseDERSubsteps +
                                 static_cast<std::uint64_t>(
@@ -25612,6 +25770,7 @@ int main(const int argc, const char* const argv[]) {
                                     liveLoadExchangeHoldSteps) *
                                     stepConfig.physicsSubsteps;
                         const double liveAcquisitionGpuMilliseconds =
+                            receiverCadenceProofStream.gpuMilliseconds +
                             liveAlignmentStream.gpuMilliseconds +
                             liveAlignmentSettleStream.gpuMilliseconds +
                             liveAlignmentBaseProofStream.gpuMilliseconds +
@@ -25650,7 +25809,7 @@ int main(const int argc, const char* const argv[]) {
                         writeHandoffStateArtifact(
                             options.stateOutputDirectory,
                             "tissue-receiver-acquisition",
-                            postBridgeBaseDERSubsteps +
+                            liveReceiverStartBaseDERSubsteps +
                                 liveAcquisitionBaseDERSubsteps,
                             world,
                             sutureSpec,
@@ -25659,6 +25818,8 @@ int main(const int argc, const char* const argv[]) {
                         );
                         std::cout << std::setprecision(9)
                             << "tissue_receiver_acquisition=ok"
+                            << " cadence_transition_proof_steps="
+                            << receiverCadenceProofSteps
                             << " alignment_steps=" << liveAlignmentSteps
                             << " alignment_timestep_s="
                             << liveAlignmentTimestepSeconds
@@ -26219,7 +26380,7 @@ int main(const int argc, const char* const argv[]) {
                         writeHandoffStateArtifact(
                             options.stateOutputDirectory,
                             "tissue-receiver-extraction",
-                            postBridgeBaseDERSubsteps +
+                            liveReceiverStartBaseDERSubsteps +
                                 liveAcquisitionBaseDERSubsteps +
                                 liveExtractionPhaseSteps *
                                     stepConfig.physicsSubsteps,
@@ -26658,7 +26819,7 @@ int main(const int argc, const char* const argv[]) {
                         writeHandoffStateArtifact(
                             options.stateOutputDirectory,
                             "tissue-opposing-bite-distal-clearance",
-                            postBridgeBaseDERSubsteps +
+                            liveReceiverStartBaseDERSubsteps +
                                 liveAcquisitionBaseDERSubsteps +
                                 liveExtractionPhaseSteps *
                                     stepConfig.physicsSubsteps +
@@ -26920,7 +27081,7 @@ int main(const int argc, const char* const argv[]) {
                         writeHandoffStateArtifact(
                             options.stateOutputDirectory,
                             "tissue-opposing-bite-reoriented",
-                            postBridgeBaseDERSubsteps +
+                            liveReceiverStartBaseDERSubsteps +
                                 liveAcquisitionBaseDERSubsteps +
                                 liveExtractionPhaseSteps *
                                     stepConfig.physicsSubsteps +
@@ -27214,7 +27375,7 @@ int main(const int argc, const char* const argv[]) {
                         writeHandoffStateArtifact(
                             options.stateOutputDirectory,
                             "tissue-opposing-bite-ready",
-                            postBridgeBaseDERSubsteps +
+                            liveReceiverStartBaseDERSubsteps +
                                 liveAcquisitionBaseDERSubsteps +
                                 liveExtractionPhaseSteps *
                                     stepConfig.physicsSubsteps +
@@ -27786,7 +27947,7 @@ int main(const int argc, const char* const argv[]) {
                             ) * stepConfig.physicsSubsteps;
                         const std::uint64_t
                             opposingPassageTotalBaseSubsteps =
-                                postBridgeBaseDERSubsteps +
+                                liveReceiverStartBaseDERSubsteps +
                                 liveAcquisitionBaseDERSubsteps +
                                 liveExtractionPhaseSteps *
                                     stepConfig.physicsSubsteps +
