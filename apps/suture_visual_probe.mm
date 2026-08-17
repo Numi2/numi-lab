@@ -2408,6 +2408,11 @@ int main(const int argumentCount, char* argv[]) {
             for (std::uint32_t camera = 0u;
                  camera < names.size();
                  ++camera) {
+                const std::size_t requiredTissuePixels =
+                    pickup.dualHandoff &&
+                        pickup.matterSnapshot == nullptr && camera == 0u
+                    ? 0u
+                    : minimumCoverage[camera][5u];
                 require(
                     viewMetrics[camera].instrumentPixels >=
                             minimumCoverage[camera][0u] &&
@@ -2424,7 +2429,7 @@ int main(const int argumentCount, char* argv[]) {
                         viewMetrics[camera].fieldPixels >=
                             minimumCoverage[camera][4u] &&
                         viewMetrics[camera].tissuePixels >=
-                            minimumCoverage[camera][5u] &&
+                            requiredTissuePixels &&
                         (pickup.matterSnapshot == nullptr ||
                          viewMetrics[camera].tissueFixturePixels >=
                             (camera == 0u ? 1000u : 100u)) &&

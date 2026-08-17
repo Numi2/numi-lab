@@ -6063,6 +6063,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::renderFrame(
     }
     MetalHybridFrameCommandContext context;
     context.commandBuffer = (__bridge void*)command;
+    const auto start = std::chrono::steady_clock::now();
     auto diagnostics = encodeFrame(
         worlds,
         motion,
@@ -6074,6 +6075,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::renderFrame(
     }
     [command commit];
     [command waitUntilCompleted];
+    diagnostics.elapsedMilliseconds =
+        std::chrono::duration<double, std::milli>(
+            std::chrono::steady_clock::now() - start
+        ).count();
     if (command.status != MTLCommandBufferStatusCompleted) {
         return reject(
             std::move(diagnostics),
