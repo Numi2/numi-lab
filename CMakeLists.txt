@@ -2550,6 +2550,18 @@ if(BUILD_TESTING)
             TIMEOUT 30
     )
     add_test(
+        NAME metalrobo.surgical.thread_frame_ik
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --thread-frame-ik-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.thread_frame_ik
+        PROPERTIES
+            LABELS "metalrobo;surgical;geometry"
+            TIMEOUT 30
+    )
+    add_test(
         NAME metalrobo.surgical.dual_psm_suture_handoff
         COMMAND
             $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>

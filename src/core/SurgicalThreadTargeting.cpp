@@ -699,6 +699,95 @@ SurgicalThreadTargetDiagnostics selectSurgicalThreadGraspTarget(
     return diagnostics;
 }
 
+SurgicalThreadJawSurfaceClearance
+evaluateSurgicalThreadJawSurfaceClearance(
+    const SurgicalThreadTargetPoint& jawCenterM,
+    const SurgicalThreadTargetPoint& jawRailDirection,
+    const double jawContactLengthM,
+    const double jawEnvelopeRadiusM,
+    const std::span<const SurgicalThreadTargetPoint> surfaceNodes,
+    const std::span<const SurgicalThreadSurfaceTriangle> surfaceTriangles
+) noexcept {
+    SurgicalThreadJawSurfaceClearance result;
+    if (surfaceNodes.size() < 3u || surfaceTriangles.empty()) {
+        result.status = SurgicalThreadTargetStatus::invalidDimensions;
+        return result;
+    }
+    if (!finite(jawCenterM) || !finite(jawRailDirection) ||
+        !std::isfinite(jawContactLengthM) ||
+        !std::isfinite(jawEnvelopeRadiusM)) {
+        result.status = SurgicalThreadTargetStatus::nonfiniteInput;
+        return result;
+    }
+    const Point rail = normalized(jawRailDirection);
+    if (!(jawContactLengthM > 0.0) ||
+        !(jawEnvelopeRadiusM > 0.0) ||
+        squaredLength(rail) <=
+            kGeometryEpsilon * kGeometryEpsilon) {
+        result.status =
+            SurgicalThreadTargetStatus::invalidSpecification;
+        return result;
+    }
+    for (const Point& point : surfaceNodes) {
+        if (!finite(point)) {
+            result.status = SurgicalThreadTargetStatus::nonfiniteInput;
+            return result;
+        }
+    }
+    const Point halfSpan = multiply(rail, 0.5 * jawContactLengthM);
+    const Point first = subtract(jawCenterM, halfSpan);
+    const Point second = add(jawCenterM, halfSpan);
+    double minimumSquaredDistance =
+        std::numeric_limits<double>::infinity();
+    std::uint32_t closestTriangle = 0u;
+    for (std::size_t triangleIndex = 0u;
+         triangleIndex < surfaceTriangles.size();
+         ++triangleIndex) {
+        const SurgicalThreadSurfaceTriangle& triangle =
+            surfaceTriangles[triangleIndex];
+        if (triangle[0] >= surfaceNodes.size() ||
+            triangle[1] >= surfaceNodes.size() ||
+            triangle[2] >= surfaceNodes.size() ||
+            triangle[0] == triangle[1] ||
+            triangle[1] == triangle[2] ||
+            triangle[2] == triangle[0]) {
+            result.status = SurgicalThreadTargetStatus::invalidTopology;
+            return result;
+        }
+        const Point firstSecond = subtract(
+            surfaceNodes[triangle[1]],
+            surfaceNodes[triangle[0]]
+        );
+        const Point firstThird = subtract(
+            surfaceNodes[triangle[2]],
+            surfaceNodes[triangle[0]]
+        );
+        if (!(length(cross(firstSecond, firstThird)) >
+              kGeometryEpsilon * kGeometryEpsilon)) {
+            result.status = SurgicalThreadTargetStatus::invalidTopology;
+            return result;
+        }
+        const double squaredDistance =
+            segmentTriangleSquaredDistance(
+                first,
+                second,
+                surfaceNodes[triangle[0]],
+                surfaceNodes[triangle[1]],
+                surfaceNodes[triangle[2]]
+            );
+        if (squaredDistance < minimumSquaredDistance) {
+            minimumSquaredDistance = squaredDistance;
+            closestTriangle = static_cast<std::uint32_t>(triangleIndex);
+        }
+    }
+    result.status = SurgicalThreadTargetStatus::success;
+    result.closestTriangle = closestTriangle;
+    result.minimumAxisDistanceM = std::sqrt(minimumSquaredDistance);
+    result.minimumEnvelopeClearanceM =
+        result.minimumAxisDistanceM - jawEnvelopeRadiusM;
+    return result;
+}
+
 const char* surgicalThreadTargetStatusName(
     const SurgicalThreadTargetStatus status
 ) noexcept {

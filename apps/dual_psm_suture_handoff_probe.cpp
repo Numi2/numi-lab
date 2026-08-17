@@ -1840,6 +1840,99 @@ struct JawGeometry {
     double separation = 0.0;
 };
 
+JawGeometry twoPatchJawGeometry(
+    const std::span<const metalrobo::ArticulatedBodyKinematics> bodies,
+    const metalrobo::EngineModel& model,
+    const std::array<std::uint32_t, 2u>& jawAShapes,
+    const std::array<std::uint32_t, 2u>& jawBShapes,
+    const std::uint32_t shapeOffset,
+    const std::string_view name
+) {
+    JawGeometry result;
+    Vec3 negativeRailCenter{};
+    Vec3 positiveRailCenter{};
+    constexpr double jawWeight = 0.5;
+    constexpr double angularWeight = 0.25;
+    constexpr double railCenterWeight = 0.5;
+    for (std::size_t index = 0u; index < jawAShapes.size(); ++index) {
+        const ShapeMotion motion = shapeMotion(
+            bodies,
+            model,
+            shapeOffset + jawAShapes[index]
+        );
+        result.jawA = result.jawA + motion.position * jawWeight;
+        result.jawAVelocity = result.jawAVelocity +
+            motion.linearVelocity * jawWeight;
+        result.meanAngularVelocity = result.meanAngularVelocity +
+            motion.angularVelocity * angularWeight;
+        (index == 0u ? negativeRailCenter : positiveRailCenter) =
+            (index == 0u ? negativeRailCenter : positiveRailCenter) +
+            motion.position * railCenterWeight;
+    }
+    for (std::size_t index = 0u; index < jawBShapes.size(); ++index) {
+        const ShapeMotion motion = shapeMotion(
+            bodies,
+            model,
+            shapeOffset + jawBShapes[index]
+        );
+        result.jawB = result.jawB + motion.position * jawWeight;
+        result.jawBVelocity = result.jawBVelocity +
+            motion.linearVelocity * jawWeight;
+        result.meanAngularVelocity = result.meanAngularVelocity +
+            motion.angularVelocity * angularWeight;
+        (index == 0u ? negativeRailCenter : positiveRailCenter) =
+            (index == 0u ? negativeRailCenter : positiveRailCenter) +
+            motion.position * railCenterWeight;
+    }
+    result.midpoint = (result.jawA + result.jawB) * 0.5;
+    result.midpointVelocity =
+        (result.jawAVelocity + result.jawBVelocity) * 0.5;
+    result.separation = norm(result.jawA - result.jawB);
+    require(
+        result.separation > 1.0e-9,
+        std::string(name) + " jaw separation collapsed"
+    );
+    result.separationDirection =
+        (result.jawA - result.jawB) * (1.0 / result.separation);
+    const Vec3 rail = positiveRailCenter - negativeRailCenter;
+    const double railLength = norm(rail);
+    require(
+        railLength > 1.0e-9,
+        std::string(name) + " jaw rail direction collapsed"
+    );
+    result.railDirection = rail * (1.0 / railLength);
+    return result;
+}
+
+JawGeometry threadJawGeometry(
+    const metalrobo::EngineModel& model,
+    const std::span<const double> q
+) {
+    const std::vector<double> zeroV(model.world.nv, 0.0);
+    std::vector<metalrobo::ArticulatedBodyKinematics> bodies(
+        model.articulations[0].bodyCount
+    );
+    const auto diagnostics =
+        metalrobo::computeArticulatedBodyKinematics(
+            model,
+            0u,
+            q,
+            zeroV,
+            bodies,
+            {}
+        );
+    require(diagnostics.succeeded(), "PSM thread-jaw kinematics failed");
+    const auto& metadata = metalrobo::surgicalPSMMetadata();
+    return twoPatchJawGeometry(
+        bodies,
+        model,
+        metadata.jawAThreadInsertShapeIndices,
+        metadata.jawBThreadInsertShapeIndices,
+        0u,
+        "local thread"
+    );
+}
+
 JawGeometry jawGeometry(
     const metalrobo::EngineModel& model,
     const std::span<const double> q
@@ -1902,6 +1995,66 @@ JawGeometry jawGeometry(
     require(norm(rail) > 1.0e-9, "local jaw rail direction collapsed");
     result.railDirection = rail * (1.0 / norm(rail));
     return result;
+}
+
+double calibratedThreadJawCoordinate(
+    const metalrobo::EngineModel& psm,
+    const double threadRadiusM,
+    const double radialPreloadM
+) {
+    const auto& metadata = metalrobo::surgicalPSMMetadata();
+    const MRShapeGPU& first = psm.shapes.at(
+        metadata.jawAThreadInsertShapeIndices[0]
+    );
+    const MRShapeGPU& second = psm.shapes.at(
+        metadata.jawAThreadInsertShapeIndices[1]
+    );
+    require(
+        first.shapeType == MR_SHAPE_BOX &&
+            second.shapeType == MR_SHAPE_BOX &&
+            threadRadiusM > 0.0 && radialPreloadM > 0.0 &&
+            radialPreloadM < threadRadiusM,
+        "thread jaw calibration has invalid source geometry"
+    );
+    const double rowHalfSpacing = 0.5 * std::abs(
+        static_cast<double>(second.localPosition.z) -
+        static_cast<double>(first.localPosition.z)
+    );
+    const double contactRadius = threadRadiusM +
+        static_cast<double>(first.dimensions.x) - radialPreloadM;
+    require(
+        contactRadius > rowHalfSpacing,
+        "LND thread insert cannot seat the restored PDO gauge"
+    );
+    const double desiredSeparation = 2.0 * std::sqrt(
+        contactRadius * contactRadius -
+        rowHalfSpacing * rowHalfSpacing
+    );
+    double bestCoordinate = 0.0;
+    double bestError = std::numeric_limits<double>::infinity();
+    for (std::uint32_t sample = 0u; sample <= 2400u; ++sample) {
+        const double coordinate =
+            0.12 * static_cast<double>(sample) / 2400.0;
+        std::vector<double> q(
+            psm.defaultQ.begin(),
+            psm.defaultQ.end()
+        );
+        q[6] = -coordinate;
+        q[7] = coordinate;
+        const double error = std::abs(
+            threadJawGeometry(psm, q).separation - desiredSeparation
+        );
+        if (error < bestError) {
+            bestError = error;
+            bestCoordinate = coordinate;
+        }
+    }
+    require(
+        bestCoordinate > 0.0 && bestCoordinate < 0.12 &&
+            bestError <= 2.0e-5,
+        "LND could not calibrate a 3-0 PDO thread closure"
+    );
+    return bestCoordinate;
 }
 
 JawGeometry worldJawGeometry(
@@ -1990,6 +2143,52 @@ JawGeometry worldJawGeometry(
     require(norm(rail) > 1.0e-9, "world jaw rail direction collapsed");
     result.railDirection = rail * (1.0 / norm(rail));
     return result;
+}
+
+JawGeometry worldThreadJawGeometry(
+    const metalrobo::EngineModel& model,
+    const std::uint32_t arm,
+    const std::span<const float> q,
+    const std::span<const float> v
+) {
+    require(
+        q.size() == model.world.nq && v.size() == model.world.nv &&
+            arm < model.articulations.size(),
+        "world thread-jaw state has invalid dimensions"
+    );
+    const std::vector<double> q64(q.begin(), q.end());
+    const std::vector<double> v64(v.begin(), v.end());
+    std::vector<metalrobo::ArticulatedBodyKinematics> bodies(
+        model.articulations[arm].bodyCount
+    );
+    const auto diagnostics =
+        metalrobo::computeArticulatedBodyKinematics(
+            model,
+            arm,
+            std::span<const double>(q64).subspan(
+                model.articulations[arm].qOffset,
+                model.articulations[arm].nq
+            ),
+            std::span<const double>(v64).subspan(
+                model.articulations[arm].vOffset,
+                model.articulations[arm].nv
+            ),
+            bodies,
+            {}
+        );
+    require(
+        diagnostics.succeeded(),
+        "world PSM thread-jaw kinematics failed"
+    );
+    const auto& metadata = metalrobo::surgicalPSMMetadata();
+    return twoPatchJawGeometry(
+        bodies,
+        model,
+        metadata.jawAThreadInsertShapeIndices,
+        metadata.jawBThreadInsertShapeIndices,
+        metalrobo::kSurgicalPSMShapeCount * arm,
+        "world thread"
+    );
 }
 
 double calibratedJawCoordinate(
@@ -2359,7 +2558,8 @@ JawFrameIKSolution solvePsmJawFrameTarget(
     const Vec3 desiredWorldSeparation,
     const double jawCoordinate,
     const double positionToleranceM = 5.0e-6,
-    const double orientationToleranceRad = 2.0e-3
+    const double orientationToleranceRad = 2.0e-3,
+    const bool useThreadContactFrame = false
 ) {
     require(
         q.size() == 8u && model.dofs.size() >= 8u &&
@@ -2415,7 +2615,9 @@ JawFrameIKSolution solvePsmJawFrameTarget(
                                Vector6& error,
                                JawGeometry& jaw,
                                OrthonormalJawFrame& frame) {
-        jaw = jawGeometry(model, value);
+        jaw = useThreadContactFrame
+            ? threadJawGeometry(model, value)
+            : jawGeometry(model, value);
         frame = orthonormalJawFrame(
             jaw.railDirection,
             jaw.separationDirection,
@@ -2463,7 +2665,9 @@ JawFrameIKSolution solvePsmJawFrameTarget(
              ++coordinate) {
             std::vector<double> perturbed = q;
             perturbed[coordinate] += increments[coordinate];
-            const JawGeometry perturbedJaw = jawGeometry(model, perturbed);
+            const JawGeometry perturbedJaw = useThreadContactFrame
+                ? threadJawGeometry(model, perturbed)
+                : jawGeometry(model, perturbed);
             const OrthonormalJawFrame perturbedFrame =
                 orthonormalJawFrame(
                     perturbedJaw.railDirection,
@@ -3699,11 +3903,14 @@ std::uint32_t velocityLimitedTargetSteps(
     const metalrobo::EngineModel& model,
     const std::span<const float> begin,
     const std::span<const float> end,
-    const std::uint32_t minimumSteps
+    const std::uint32_t minimumSteps,
+    const double trajectoryTimestepSeconds = kControlTimestep
 ) {
     require(
         begin.size() == model.world.nq &&
-            end.size() == model.world.nq && minimumSteps != 0u,
+            end.size() == model.world.nq && minimumSteps != 0u &&
+            std::isfinite(trajectoryTimestepSeconds) &&
+            trajectoryTimestepSeconds > 0.0,
         "velocity-limited target has invalid dimensions"
     );
     std::uint32_t steps = minimumSteps;
@@ -3727,7 +3934,7 @@ std::uint32_t velocityLimitedTargetSteps(
             (
                 kMaximumCommandVelocityRatio *
                 static_cast<double>(properties.limits.z) *
-                kControlTimestep
+                trajectoryTimestepSeconds
             );
         steps = std::max(
             steps,
@@ -3897,7 +4104,8 @@ ArmTrajectory frameArmTrajectory(
     const std::uint32_t steps,
     const double trajectoryTimestepSeconds = kControlTimestep,
     const double positionToleranceM = 5.0e-6,
-    const double orientationToleranceRad = 2.0e-3
+    const double orientationToleranceRad = 2.0e-3,
+    const bool useThreadContactFrame = false
 ) {
     require(
         begin.size() == worldModel.defaultQ.size() && steps != 0u &&
@@ -3916,12 +4124,19 @@ ArmTrajectory frameArmTrajectory(
     );
     trajectory.finalTarget = begin;
     const std::vector<float> zeroV(worldModel.world.nv, 0.0f);
-    const JawGeometry beginJaw = worldJawGeometry(
-        worldModel,
-        arm,
-        begin,
-        zeroV
-    );
+    const JawGeometry beginJaw = useThreadContactFrame
+        ? worldThreadJawGeometry(
+              worldModel,
+              arm,
+              begin,
+              zeroV
+          )
+        : worldJawGeometry(
+              worldModel,
+              arm,
+              begin,
+              zeroV
+          );
     const OrthonormalJawFrame beginFrame = orthonormalJawFrame(
         beginJaw.railDirection,
         beginJaw.separationDirection,
@@ -3960,7 +4175,8 @@ ArmTrajectory frameArmTrajectory(
             frame.separation,
             jawCoordinate,
             positionToleranceM,
-            orientationToleranceRad
+            orientationToleranceRad,
+            useThreadContactFrame
         );
         local = solution.localQ;
         trajectory.finalTarget = begin;
@@ -4424,6 +4640,103 @@ ContactCounts contactCounts(
                 static_cast<double>(contact.impulses.x)
             );
         }
+    }
+    return counts;
+}
+
+struct ThreadGraspContactCounts {
+    std::array<std::uint32_t, 2u> jawContacts{};
+    std::array<std::uint32_t, 2u> jawPatchMasks{};
+    std::uint32_t targetWindowContacts = 0u;
+    std::uint32_t centerEdgeContacts = 0u;
+    std::uint32_t nonTargetWindowContacts = 0u;
+    double maximumNormalImpulseNs = 0.0;
+    double maximumTangentialImpulseNs = 0.0;
+    double minimumSeparationM =
+        std::numeric_limits<double>::infinity();
+};
+
+ThreadGraspContactCounts threadGraspContactCounts(
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::MetalWorldResult& result,
+    const metalrobo::SurgicalThreadTarget& target
+) {
+    ThreadGraspContactCounts counts;
+    if (result.contactStatuses.empty()) {
+        return counts;
+    }
+    const auto& metadata = metalrobo::surgicalPSMMetadata();
+    const std::array<std::span<const std::uint32_t>, 2u> jawPatches{
+        std::span<const std::uint32_t>(
+            metadata.jawAThreadInsertShapeIndices
+        ),
+        std::span<const std::uint32_t>(
+            metadata.jawBThreadInsertShapeIndices
+        ),
+    };
+    const std::size_t constraintCount = std::min<std::size_t>(
+        result.contactStatuses.back().requiredConstraints,
+        result.contactEvidence.blocks.size()
+    );
+    for (std::size_t constraint = 0u;
+         constraint < constraintCount;
+         ++constraint) {
+        const MRConstraintIRBlockGPU& block =
+            result.contactEvidence.blocks[constraint];
+        if ((block.flags & MR_CONSTRAINT_IR_BLOCK_ROD_ENDPOINT) == 0u ||
+            block.key.words[0] < world.model.shapes.size() ||
+            block.key.words[1] >= world.model.shapes.size() ||
+            constraint >= result.contactEvidence.contacts.size()) {
+            continue;
+        }
+        std::uint32_t jaw = MR_INVALID_INDEX;
+        std::uint32_t patch = MR_INVALID_INDEX;
+        for (std::uint32_t candidateJaw = 0u;
+             candidateJaw < jawPatches.size();
+             ++candidateJaw) {
+            for (std::uint32_t candidatePatch = 0u;
+                 candidatePatch < jawPatches[candidateJaw].size();
+                 ++candidatePatch) {
+                if (block.key.words[1] ==
+                    jawPatches[candidateJaw][candidatePatch]) {
+                    jaw = candidateJaw;
+                    patch = candidatePatch;
+                }
+            }
+        }
+        if (jaw == MR_INVALID_INDEX || patch == MR_INVALID_INDEX) {
+            continue;
+        }
+        const MRContactConstraintGPU& contact =
+            result.contactEvidence.contacts[constraint];
+        counts.minimumSeparationM = std::min(
+            counts.minimumSeparationM,
+            static_cast<double>(contact.pointAndSeparation.w)
+        );
+        if (!(contact.impulses.x > 1.0e-12f)) {
+            continue;
+        }
+        ++counts.jawContacts[jaw];
+        counts.jawPatchMasks[jaw] |= 1u << patch;
+        const std::uint32_t edge = block.key.words[0] -
+            static_cast<std::uint32_t>(world.model.shapes.size());
+        const bool targetWindow =
+            edge >= target.windowFirstNode &&
+            edge < target.windowLastNode;
+        counts.targetWindowContacts += targetWindow;
+        counts.centerEdgeContacts += edge == target.centerEdge;
+        counts.nonTargetWindowContacts += !targetWindow;
+        counts.maximumNormalImpulseNs = std::max(
+            counts.maximumNormalImpulseNs,
+            static_cast<double>(contact.impulses.x)
+        );
+        counts.maximumTangentialImpulseNs = std::max(
+            counts.maximumTangentialImpulseNs,
+            std::hypot(
+                static_cast<double>(contact.impulses.y),
+                static_cast<double>(contact.impulses.z)
+            )
+        );
     }
     return counts;
 }
@@ -6093,7 +6406,9 @@ bool isLiveTissueCheckpointPhase(const std::string_view phase) {
         phase == "tissue-opposing-bite-distal-clearance" ||
         phase == "tissue-opposing-bite-reorientation" ||
         phase == "tissue-opposing-bite-ready" ||
-        phase == "tissue-opposing-bite-passage";
+        phase == "tissue-opposing-bite-passage" ||
+        phase == "tissue-thread-approached" ||
+        phase == "tissue-thread-acquired";
 }
 
 bool isSupportedTissueCheckpointPhase(const std::string_view phase) {
@@ -6126,6 +6441,8 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-checkpoint-restore-only" ||
             argument == "--tissue-checkpoint-hold-only" ||
             argument == "--tissue-thread-target-only" ||
+            argument == "--tissue-thread-acquisition-only" ||
+            argument == "--thread-frame-ik-only" ||
             argument == "--receiver-frame-ik-only" ||
             argument == "--receiver-extraction-geometry-only" ||
             argument == "--receiver-extraction-giver-hold-only" ||
@@ -6686,14 +7003,16 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
     const bool tissueCheckpointMode =
         result.mode == "--tissue-checkpoint-restore-only" ||
         result.mode == "--tissue-checkpoint-hold-only" ||
-        result.mode == "--tissue-thread-target-only";
+        result.mode == "--tissue-thread-target-only" ||
+        result.mode == "--tissue-thread-acquisition-only";
     require(
         tissueCheckpointMode ==
             !result.resumeTissueCheckpointPath.empty(),
         "tissue checkpoint mode requires exactly one v3 checkpoint"
     );
     require(
-        result.mode != "--tissue-thread-target-only" ||
+        (result.mode != "--tissue-thread-target-only" &&
+         result.mode != "--tissue-thread-acquisition-only") ||
             result.resumeTissueCheckpointPhase ==
                 "tissue-opposing-bite-passage",
         "post-bite thread targeting requires the opposing-passage phase"
@@ -7675,9 +7994,11 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-checkpoint-hold-only";
         const bool tissueThreadTargetOnly =
             options.mode == "--tissue-thread-target-only";
+        const bool tissueThreadAcquisitionOnly =
+            options.mode == "--tissue-thread-acquisition-only";
         const bool tissueCheckpointResume =
             tissueCheckpointRestoreOnly || tissueCheckpointHoldOnly ||
-            tissueThreadTargetOnly;
+            tissueThreadTargetOnly || tissueThreadAcquisitionOnly;
         const bool resumeTissueRestCheckpoint =
             tissueCheckpointResume &&
             options.resumeTissueCheckpointPhase == "tissue-rest";
@@ -7748,6 +8069,8 @@ int main(const int argc, const char* const argv[]) {
             tissueReceiverLiveSequence;
         const bool receiverFrameIkOnly =
             options.mode == "--receiver-frame-ik-only";
+        const bool threadFrameIkOnly =
+            options.mode == "--thread-frame-ik-only";
         const bool receiverExtractionGeometryOnly =
             options.mode == "--receiver-extraction-geometry-only";
         const bool receiverExtractionGiverHoldOnly =
@@ -7997,6 +8320,75 @@ int main(const int argc, const char* const argv[]) {
             "gauge-calibrated closure no longer seats the needle in the "
             "eight-patch V-groove"
         );
+
+        if (threadFrameIkOnly) {
+            std::vector<double> seed(
+                psm.defaultQ.begin(),
+                psm.defaultQ.end()
+            );
+            const JawGeometry initialThreadFrame =
+                threadJawGeometry(psm, seed);
+            const Vec3 desiredPoint = initialThreadFrame.midpoint +
+                Vec3{1.0e-3, -5.0e-4, 1.5e-3};
+            const metalrobo::SurgicalBasePose identityBase{};
+            const JawFrameIKSolution solution =
+                solvePsmJawFrameTarget(
+                    psm,
+                    identityBase,
+                    seed,
+                    desiredPoint,
+                    initialThreadFrame.railDirection,
+                    initialThreadFrame.separationDirection,
+                    openJawCoordinate,
+                    5.0e-6,
+                    2.0e-3,
+                    true
+                );
+            const JawGeometry finalThreadFrame =
+                threadJawGeometry(psm, solution.localQ);
+            const JawGeometry finalNeedleFrame =
+                jawGeometry(psm, solution.localQ);
+            const double positionResidualM = norm(
+                finalThreadFrame.midpoint - desiredPoint
+            );
+            const OrthonormalJawFrame initialFrame =
+                orthonormalJawFrame(
+                    initialThreadFrame.railDirection,
+                    initialThreadFrame.separationDirection,
+                    "thread-frame IK desired"
+                );
+            const OrthonormalJawFrame finalFrame =
+                orthonormalJawFrame(
+                    finalThreadFrame.railDirection,
+                    finalThreadFrame.separationDirection,
+                    "thread-frame IK final"
+                );
+            const double orientationResidualRad = norm(
+                jawFrameOrientationError(finalFrame, initialFrame)
+            );
+            const double needleGrooveOffsetM = norm(
+                finalNeedleFrame.midpoint - desiredPoint
+            );
+            require(
+                positionResidualM <= 5.0e-6 &&
+                    orientationResidualRad <= 2.0e-3 &&
+                    needleGrooveOffsetM >= 2.0e-3,
+                "thread-frame IK did not distinguish the proximal PDO "
+                "patches from the distal needle groove"
+            );
+            std::cout << std::setprecision(9)
+                << "thread_frame_ik=ok"
+                << " position_residual_m=" << positionResidualM
+                << " orientation_residual_rad="
+                << orientationResidualRad
+                << " distal_needle_groove_offset_m="
+                << needleGrooveOffsetM
+                << " thread_patch_span_m="
+                << threadInsertContactLength(psm)
+                << " iterations=" << solution.iterations
+                << " gpu_dispatched=no\n";
+            return 0;
+        }
 
         metalrobo::DualPsmNeedleThreadNeutralZoneConfig config;
         config.surgical =
@@ -14224,7 +14616,8 @@ int main(const int argc, const char* const argv[]) {
                 << " matter_maximum_residual=" << maximumResidual
                 << " authority_byte_exact=yes"
                 << " physics_advanced=no\n";
-            if (tissueThreadTargetOnly) {
+            if (tissueThreadTargetOnly ||
+                tissueThreadAcquisitionOnly) {
                 require(
                     options.resumeTissueCheckpointPhase ==
                         "tissue-opposing-bite-passage",
@@ -14391,7 +14784,7 @@ int main(const int argc, const char* const argv[]) {
                     world.model.world.nv,
                     0.0f
                 );
-                const JawGeometry beginJaw = worldJawGeometry(
+                const JawGeometry beginJaw = worldThreadJawGeometry(
                     world.model,
                     0u,
                     world.model.defaultQ,
@@ -14416,6 +14809,14 @@ int main(const int argc, const char* const argv[]) {
                     "post-bite target frame changed handedness"
                 );
                 constexpr double kThreadTargetStandOffM = 2.0e-3;
+                const double executionControlTimestepSeconds =
+                    static_cast<double>(stepConfig.timestepSeconds) *
+                    stepConfig.physicsSubsteps;
+                require(
+                    std::isfinite(executionControlTimestepSeconds) &&
+                        executionControlTimestepSeconds > 0.0,
+                    "post-bite target has an invalid restored cadence"
+                );
                 const Vec3 standOffCenter = targetCenter +
                     targetApproach * kThreadTargetStandOffM;
                 const std::vector<double> beginLocal = armLocalQ(
@@ -14435,7 +14836,8 @@ int main(const int argc, const char* const argv[]) {
                         targetSeparation,
                         openJawCoordinate,
                         kReceiverBridgeIKPositionToleranceM,
-                        kReceiverBridgeIKOrientationToleranceRad
+                        kReceiverBridgeIKOrientationToleranceRad,
+                        true
                     );
                 std::vector<float> standOffTarget =
                     world.model.defaultQ;
@@ -14455,7 +14857,8 @@ int main(const int argc, const char* const argv[]) {
                         targetSeparation,
                         openJawCoordinate,
                         kReceiverBridgeIKPositionToleranceM,
-                        kReceiverBridgeIKOrientationToleranceRad
+                        kReceiverBridgeIKOrientationToleranceRad,
+                        true
                     );
                 std::vector<float> finalTarget = standOffTarget;
                 setArmTarget(
@@ -14469,7 +14872,8 @@ int main(const int argc, const char* const argv[]) {
                         world.model,
                         world.model.defaultQ,
                         standOffTarget,
-                        64u
+                        64u,
+                        executionControlTimestepSeconds
                     );
                 const ArmTrajectory standOffTrajectory =
                     frameArmTrajectory(
@@ -14485,11 +14889,12 @@ int main(const int argc, const char* const argv[]) {
                         beginJawCoordinate,
                         openJawCoordinate,
                         standOffSteps,
-                        kControlTimestep,
+                        executionControlTimestepSeconds,
                         kReceiverBridgeIKPositionToleranceM,
-                        kReceiverBridgeIKOrientationToleranceRad
+                        kReceiverBridgeIKOrientationToleranceRad,
+                        true
                     );
-                const JawGeometry standOffJaw = worldJawGeometry(
+                const JawGeometry standOffJaw = worldThreadJawGeometry(
                     world.model,
                     0u,
                     standOffTrajectory.finalTarget,
@@ -14500,7 +14905,8 @@ int main(const int argc, const char* const argv[]) {
                         world.model,
                         standOffTrajectory.finalTarget,
                         finalTarget,
-                        50u
+                        50u,
+                        executionControlTimestepSeconds
                     );
                 const ArmTrajectory approachTrajectory =
                     frameArmTrajectory(
@@ -14516,9 +14922,10 @@ int main(const int argc, const char* const argv[]) {
                         openJawCoordinate,
                         openJawCoordinate,
                         approachSteps,
-                        kControlTimestep,
+                        executionControlTimestepSeconds,
                         kReceiverBridgeIKPositionToleranceM,
-                        kReceiverBridgeIKOrientationToleranceRad
+                        kReceiverBridgeIKOrientationToleranceRad,
+                        true
                     );
                 const CrossArmCollisionScan standOffCollision =
                     scanCrossArmTargetPath(
@@ -14559,8 +14966,61 @@ int main(const int argc, const char* const argv[]) {
                 };
                 auditNeedleContacts(standOffTrajectory, standOffSteps);
                 auditNeedleContacts(approachTrajectory, approachSteps);
+                double minimumSweptTissueClearanceM =
+                    std::numeric_limits<double>::infinity();
+                const auto auditTissueClearance = [&] (
+                    const ArmTrajectory& trajectory,
+                    const std::uint32_t steps
+                ) {
+                    for (std::uint32_t step = 0u; step < steps; ++step) {
+                        const std::span<const float> q{
+                            trajectory.desiredQ.data() +
+                                static_cast<std::size_t>(step) *
+                                    world.model.world.nq,
+                            world.model.world.nq,
+                        };
+                        const JawGeometry jaw =
+                            worldThreadJawGeometry(
+                                world.model,
+                                0u,
+                                q,
+                                zeroV
+                            );
+                        const auto clearance = metalrobo::
+                            evaluateSurgicalThreadJawSurfaceClearance(
+                                targetingPoint(jaw.midpoint),
+                                targetingPoint(jaw.railDirection),
+                                jawContactLengthM,
+                                jawEnvelopeRadiusM,
+                                tissueNodes,
+                                tissueTriangles
+                            );
+                        require(
+                            clearance.succeeded(),
+                            "post-bite jaw-surface audit failed: " +
+                                std::string(
+                                    metalrobo::
+                                        surgicalThreadTargetStatusName(
+                                            clearance.status
+                                        )
+                                )
+                        );
+                        minimumSweptTissueClearanceM = std::min(
+                            minimumSweptTissueClearanceM,
+                            clearance.minimumEnvelopeClearanceM
+                        );
+                    }
+                };
+                auditTissueClearance(
+                    standOffTrajectory,
+                    standOffSteps
+                );
+                auditTissueClearance(
+                    approachTrajectory,
+                    approachSteps
+                );
 
-                const JawGeometry finalJaw = worldJawGeometry(
+                const JawGeometry finalJaw = worldThreadJawGeometry(
                     world.model,
                     0u,
                     approachTrajectory.finalTarget,
@@ -14599,6 +15059,8 @@ int main(const int argc, const char* const argv[]) {
                         approachCollision.samplesWithGiverPadContact == 0u &&
                         approachCollision.samplesWithReceiverPadContact == 0u &&
                         giverNeedleContactSamples == 0u &&
+                        minimumSweptTissueClearanceM >=
+                            targetingSpec.minimumTissueClearanceM &&
                         finalPositionResidualM <=
                             kReceiverBridgeIKPositionToleranceM &&
                         finalOrientationResidualRad <=
@@ -14640,10 +15102,553 @@ int main(const int argc, const char* const argv[]) {
                     << " cross_arm_samples=0"
                     << " pad_contact_samples=0"
                     << " giver_needle_contact_samples=0"
+                    << " minimum_swept_distal_jaw_tissue_clearance_m="
+                    << minimumSweptTissueClearanceM
                     << " target_replay=exact"
                     << " physics_advanced=no"
                     << " boundary=open_jaw_geometry_not_thread_contact_"
-                       "retention_or_swept_tissue_collision\n";
+                       "retention_or_full_link_tissue_collision\n";
+                if (tissueThreadTargetOnly) {
+                    return 0;
+                }
+                require(
+                    tissueThreadAcquisitionOnly,
+                    "unsupported post-bite thread targeting mode"
+                );
+
+                constexpr double kThreadRadialPreloadM = 15.0e-6;
+                constexpr double kThreadLoadTravelM = 5.0e-4;
+                constexpr double kThreadLoadSpeedMps = 2.0e-3;
+                constexpr double kThreadClosureDurationSeconds = 0.120;
+                constexpr std::uint32_t kThreadClosureSettleSteps = 24u;
+                constexpr std::uint32_t kThreadLoadedHoldSteps = 32u;
+                const double threadJawCoordinate =
+                    calibratedThreadJawCoordinate(
+                        psm,
+                        sutureSpec.threadRadiusM.value,
+                        kThreadRadialPreloadM
+                    );
+                std::vector<double> openGeometryQ(
+                    psm.defaultQ.begin(),
+                    psm.defaultQ.end()
+                );
+                openGeometryQ[6] = -openJawCoordinate;
+                openGeometryQ[7] = openJawCoordinate;
+                const double openThreadSurfaceGapM =
+                    threadJawGeometry(psm, openGeometryQ).separation -
+                    2.0 * psm.shapes.at(
+                        jawMetadata.jawAThreadInsertShapeIndices[0]
+                    ).dimensions.x;
+                require(
+                    openJawCoordinate > threadJawCoordinate &&
+                        openThreadSurfaceGapM >=
+                            2.0 * sutureSpec.threadRadiusM.value +
+                                2.0e-5,
+                    "post-bite LND opening cannot admit the 3-0 PDO strand"
+                );
+
+                const JawFrameIKSolution closureIK =
+                    solvePsmJawFrameTarget(
+                        psm,
+                        config.surgical.robots.leftBase,
+                        finalIK.localQ,
+                        targetCenter,
+                        targetRail,
+                        targetSeparation,
+                        threadJawCoordinate,
+                        kReceiverBridgeIKPositionToleranceM,
+                        kReceiverBridgeIKOrientationToleranceRad,
+                        true
+                    );
+                std::vector<float> closureTarget =
+                    approachTrajectory.finalTarget;
+                setArmTarget(
+                    closureTarget,
+                    world.model,
+                    0u,
+                    closureIK.localQ
+                );
+                const std::uint32_t minimumClosureSteps =
+                    static_cast<std::uint32_t>(std::ceil(
+                        kThreadClosureDurationSeconds /
+                        executionControlTimestepSeconds
+                    ));
+                const std::uint32_t closureSteps =
+                    velocityLimitedTargetSteps(
+                        world.model,
+                        approachTrajectory.finalTarget,
+                        closureTarget,
+                        minimumClosureSteps,
+                        executionControlTimestepSeconds
+                    );
+                const ArmTrajectory closureTrajectory =
+                    frameArmTrajectory(
+                        world.model,
+                        psm,
+                        0u,
+                        config.surgical.robots.leftBase,
+                        approachTrajectory.finalTarget,
+                        finalJaw.midpoint,
+                        targetCenter,
+                        targetRail,
+                        targetSeparation,
+                        openJawCoordinate,
+                        threadJawCoordinate,
+                        closureSteps,
+                        executionControlTimestepSeconds,
+                        kReceiverBridgeIKPositionToleranceM,
+                        kReceiverBridgeIKOrientationToleranceRad,
+                        true
+                    );
+                const Vec3 loadedTargetCenter = targetCenter +
+                    targetApproach * kThreadLoadTravelM;
+                const JawFrameIKSolution loadedIK =
+                    solvePsmJawFrameTarget(
+                        psm,
+                        config.surgical.robots.leftBase,
+                        closureIK.localQ,
+                        loadedTargetCenter,
+                        targetRail,
+                        targetSeparation,
+                        threadJawCoordinate,
+                        kReceiverBridgeIKPositionToleranceM,
+                        kReceiverBridgeIKOrientationToleranceRad,
+                        true
+                    );
+                std::vector<float> loadedTarget = closureTarget;
+                setArmTarget(
+                    loadedTarget,
+                    world.model,
+                    0u,
+                    loadedIK.localQ
+                );
+                const std::uint32_t minimumLoadSteps =
+                    static_cast<std::uint32_t>(std::ceil(
+                        1.5 * kThreadLoadTravelM /
+                        (
+                            kThreadLoadSpeedMps *
+                            executionControlTimestepSeconds
+                        )
+                    ));
+                const std::uint32_t loadSteps =
+                    velocityLimitedTargetSteps(
+                        world.model,
+                        closureTrajectory.finalTarget,
+                        loadedTarget,
+                        minimumLoadSteps,
+                        executionControlTimestepSeconds
+                    );
+                const JawGeometry closedJaw = worldThreadJawGeometry(
+                    world.model,
+                    0u,
+                    closureTrajectory.finalTarget,
+                    zeroV
+                );
+                const ArmTrajectory loadTrajectory =
+                    frameArmTrajectory(
+                        world.model,
+                        psm,
+                        0u,
+                        config.surgical.robots.leftBase,
+                        closureTrajectory.finalTarget,
+                        closedJaw.midpoint,
+                        loadedTargetCenter,
+                        targetRail,
+                        targetSeparation,
+                        threadJawCoordinate,
+                        threadJawCoordinate,
+                        loadSteps,
+                        executionControlTimestepSeconds,
+                        kReceiverBridgeIKPositionToleranceM,
+                        kReceiverBridgeIKOrientationToleranceRad,
+                        true
+                    );
+                const CrossArmCollisionScan closureCollision =
+                    scanCrossArmTargetPath(
+                        world,
+                        approachTrajectory.finalTarget,
+                        closureTrajectory.finalTarget,
+                        closureSteps,
+                        closureTrajectory.desiredQ
+                    );
+                const CrossArmCollisionScan loadCollision =
+                    scanCrossArmTargetPath(
+                        world,
+                        closureTrajectory.finalTarget,
+                        loadTrajectory.finalTarget,
+                        loadSteps,
+                        loadTrajectory.desiredQ
+                    );
+                auditNeedleContacts(closureTrajectory, closureSteps);
+                auditNeedleContacts(loadTrajectory, loadSteps);
+                auditTissueClearance(closureTrajectory, closureSteps);
+                auditTissueClearance(loadTrajectory, loadSteps);
+                require(
+                    closureTrajectory.maximumVelocityRatio <=
+                            kMaximumCommandVelocityRatio &&
+                        loadTrajectory.maximumVelocityRatio <=
+                            kMaximumCommandVelocityRatio &&
+                        closureCollision.samplesWithContact == 0u &&
+                        closureCollision.samplesWithGiverPadContact == 0u &&
+                        closureCollision.samplesWithReceiverPadContact == 0u &&
+                        loadCollision.samplesWithContact == 0u &&
+                        loadCollision.samplesWithGiverPadContact == 0u &&
+                        loadCollision.samplesWithReceiverPadContact == 0u &&
+                        giverNeedleContactSamples == 0u &&
+                        minimumSweptTissueClearanceM >=
+                            targetingSpec.minimumTissueClearanceM,
+                    "post-bite thread closure or load path intersects the "
+                    "needle, support, or other PSM"
+                );
+
+                const GraspReference receiverNeedleReference =
+                    graspReference(
+                        world,
+                        needleForPlacement,
+                        world.model.defaultQ,
+                        world.model.defaultV,
+                        world.defaultSceneBodies.at(0u),
+                        1u,
+                        kExtractionNeedleShape
+                    );
+                metalrobo::MetalWorldContext acquisitionContext;
+                metalrobo::MetalWorldResidentState acquisitionResident;
+                const PhaseResult standOffExecuted = initializePhase(
+                    acquisitionContext,
+                    compiled,
+                    world,
+                    stepConfig,
+                    acquisitionResident,
+                    standOffTrajectory.efforts,
+                    standOffSteps
+                );
+                const PhaseResult approachExecuted = continuePhase(
+                    acquisitionContext,
+                    compiled,
+                    stepConfig,
+                    acquisitionResident,
+                    approachTrajectory.efforts,
+                    approachSteps,
+                    "post-bite open thread approach"
+                );
+                const numi::matter::RuntimeStateSnapshot approachMatter =
+                    tissueRuntime.snapshot();
+                require(
+                    approachMatter.available,
+                    "post-bite thread approach did not publish Matter state"
+                );
+                const std::uint64_t approachedStateStep =
+                    resumedTissueCheckpointStep +
+                    static_cast<std::uint64_t>(
+                        standOffSteps + approachSteps
+                    ) * stepConfig.physicsSubsteps;
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    "tissue-thread-approached",
+                    approachedStateStep,
+                    world,
+                    sutureSpec,
+                    approachExecuted.result,
+                    &approachMatter
+                );
+
+                const PhaseResult closureExecuted = continuePhase(
+                    acquisitionContext,
+                    compiled,
+                    stepConfig,
+                    acquisitionResident,
+                    closureTrajectory.efforts,
+                    closureSteps,
+                    "post-bite thread closure"
+                );
+                const ArmTrajectory closureHold = stationaryArmTrajectory(
+                    world.model,
+                    closureTrajectory.finalTarget,
+                    kThreadClosureSettleSteps,
+                    executionControlTimestepSeconds
+                );
+                const PhaseResult closureSettled = continuePhase(
+                    acquisitionContext,
+                    compiled,
+                    stepConfig,
+                    acquisitionResident,
+                    closureHold.efforts,
+                    kThreadClosureSettleSteps,
+                    "post-bite thread closure settle"
+                );
+                const ThreadGraspContactCounts closureContacts =
+                    threadGraspContactCounts(
+                        world,
+                        closureSettled.result,
+                        target
+                    );
+                require(
+                    closureContacts.jawContacts[0] != 0u &&
+                        closureContacts.jawContacts[1] != 0u &&
+                        closureContacts.jawPatchMasks[0] != 0u &&
+                        closureContacts.jawPatchMasks[1] != 0u &&
+                        closureContacts.targetWindowContacts >= 2u &&
+                        closureContacts.centerEdgeContacts != 0u &&
+                        closureContacts.nonTargetWindowContacts == 0u &&
+                        closureContacts.maximumNormalImpulseNs > 0.0,
+                    "post-bite LND closure did not acquire the selected DER "
+                    "material window bilaterally"
+                );
+
+                const PhaseResult loadExecuted = continuePhase(
+                    acquisitionContext,
+                    compiled,
+                    stepConfig,
+                    acquisitionResident,
+                    loadTrajectory.efforts,
+                    loadSteps,
+                    "post-bite thread retention load"
+                );
+                const ArmTrajectory loadedHold = stationaryArmTrajectory(
+                    world.model,
+                    loadTrajectory.finalTarget,
+                    kThreadLoadedHoldSteps,
+                    executionControlTimestepSeconds
+                );
+                const PhaseResult loaded = continuePhase(
+                    acquisitionContext,
+                    compiled,
+                    stepConfig,
+                    acquisitionResident,
+                    loadedHold.efforts,
+                    kThreadLoadedHoldSteps,
+                    "post-bite thread loaded hold"
+                );
+                const numi::matter::RuntimeStateSnapshot loadedMatter =
+                    tissueRuntime.snapshot();
+                require(
+                    loadedMatter.available &&
+                        loaded.result.finalRodNodes.size() >
+                            target.centerEdge + 1u,
+                    "post-bite loaded thread state is incomplete"
+                );
+                const ThreadGraspContactCounts loadedContacts =
+                    threadGraspContactCounts(
+                        world,
+                        loaded.result,
+                        target
+                    );
+                const Vec3 loadedMaterialCenter = (
+                    vector(
+                        loaded.result.finalRodNodes[
+                            target.centerEdge
+                        ].position
+                    ) +
+                    vector(
+                        loaded.result.finalRodNodes[
+                            target.centerEdge + 1u
+                        ].position
+                    )
+                ) * 0.5;
+                const JawGeometry loadedJaw = worldThreadJawGeometry(
+                    world.model,
+                    0u,
+                    loaded.result.finalQ,
+                    loaded.result.finalV
+                );
+                const double materialSeatErrorM = norm(
+                    loadedMaterialCenter - loadedJaw.midpoint
+                );
+                const double materialLoadAdvanceM = dot(
+                    loadedMaterialCenter - targetCenter,
+                    targetApproach
+                );
+                const ContactCounts loadedNeedleContacts = contactCounts(
+                    world,
+                    loaded.result,
+                    needleForPlacement.metadata,
+                    kNeedleFirstShape
+                );
+                const GraspKinematics loadedReceiverGrasp =
+                    graspKinematics(
+                        world,
+                        needleForPlacement,
+                        loaded.result,
+                        1u,
+                        kExtractionNeedleShape,
+                        receiverNeedleReference
+                    );
+                const RodStateMetrics loadedRod = rodStateMetrics(
+                    world,
+                    loaded.result
+                );
+                const double loadedSwageErrorM = swageAttachmentError(
+                    world,
+                    loaded.result
+                );
+                const MRMetalWorldContactStatusGPU& loadedResidual =
+                    requireTerminalResidual(
+                        loaded.result,
+                        "post-bite thread loaded hold"
+                    );
+
+                std::uint32_t loadedActiveChannels = 0u;
+                std::uint32_t loadedActiveTetrahedra = 0u;
+                double loadedRemovedMassKg = 0.0;
+                double loadedMinimumDeterminant =
+                    std::numeric_limits<double>::infinity();
+                double loadedMaximumResidual = 0.0;
+                bool loadedCertificatesAccepted =
+                    !loadedMatter.solverCertificates.empty();
+                for (const NMPunctureChannelGPU& channel :
+                     loadedMatter.punctureChannels) {
+                    loadedActiveChannels +=
+                        (channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+                }
+                for (const NMTetrahedronGPU& tetrahedron :
+                     loadedMatter.femTopologyTetrahedra) {
+                    loadedActiveTetrahedra +=
+                        (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+                }
+                for (const NMFEMTopologyStateGPU& topology :
+                     loadedMatter.topologyStates) {
+                    loadedRemovedMassKg += topology.accounting.y;
+                }
+                for (const NMSolverCertificateGPU& certificate :
+                     loadedMatter.solverCertificates) {
+                    loadedCertificatesAccepted =
+                        loadedCertificatesAccepted &&
+                        certificate.validity.w > 0.5f;
+                    loadedMinimumDeterminant = std::min(
+                        loadedMinimumDeterminant,
+                        static_cast<double>(certificate.validity.x)
+                    );
+                    loadedMaximumResidual = std::max({
+                        loadedMaximumResidual,
+                        static_cast<double>(certificate.nonlinear.x),
+                        static_cast<double>(certificate.nonlinear.z),
+                        static_cast<double>(certificate.nonlinear.w),
+                    });
+                }
+                require(
+                    loadedContacts.jawContacts[0] != 0u &&
+                        loadedContacts.jawContacts[1] != 0u &&
+                        loadedContacts.jawPatchMasks[0] != 0u &&
+                        loadedContacts.jawPatchMasks[1] != 0u &&
+                        loadedContacts.targetWindowContacts >= 2u &&
+                        loadedContacts.centerEdgeContacts != 0u &&
+                        loadedContacts.nonTargetWindowContacts == 0u &&
+                        loadedContacts.maximumNormalImpulseNs > 0.0 &&
+                        loadedContacts.maximumTangentialImpulseNs > 0.0 &&
+                        materialSeatErrorM <= 2.5e-4 &&
+                        materialLoadAdvanceM >=
+                            0.5 * kThreadLoadTravelM &&
+                        bilateral(loadedNeedleContacts, 1u) &&
+                        distributedInsertCoverage(
+                            loadedNeedleContacts,
+                            1u
+                        ) &&
+                        cleanNeedleInteraction(
+                            loadedNeedleContacts,
+                            false,
+                            true
+                        ) &&
+                        qualifiedTransitionGrasp(loadedReceiverGrasp) &&
+                        qualifiedTransitionRod(loadedRod) &&
+                        loadedSwageErrorM <
+                            kMaximumSwageAttachmentError &&
+                        loadedActiveChannels == activeChannels &&
+                        sameVectorBytes(
+                            loadedMatter.punctureChannels,
+                            restored.punctureChannels
+                        ) &&
+                        loadedActiveTetrahedra ==
+                            tissueCoupon.metadata.tetrahedronCount &&
+                        loadedRemovedMassKg == 0.0 &&
+                        loadedCertificatesAccepted &&
+                        std::isfinite(loadedMinimumDeterminant) &&
+                        loadedMinimumDeterminant > 0.0 &&
+                        std::isfinite(loadedMaximumResidual),
+                    "post-bite PDO grasp did not retain the selected material "
+                    "edge under load with the operative state intact"
+                );
+                const std::uint64_t acquiredStateStep =
+                    approachedStateStep +
+                    static_cast<std::uint64_t>(
+                        closureSteps + kThreadClosureSettleSteps +
+                        loadSteps + kThreadLoadedHoldSteps
+                    ) * stepConfig.physicsSubsteps;
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    "tissue-thread-acquired",
+                    acquiredStateStep,
+                    world,
+                    sutureSpec,
+                    loaded.result,
+                    &loadedMatter
+                );
+                const double gpuMilliseconds =
+                    standOffExecuted.diagnostics.gpuElapsedMilliseconds +
+                    approachExecuted.diagnostics.gpuElapsedMilliseconds +
+                    closureExecuted.diagnostics.gpuElapsedMilliseconds +
+                    closureSettled.diagnostics.gpuElapsedMilliseconds +
+                    loadExecuted.diagnostics.gpuElapsedMilliseconds +
+                    loaded.diagnostics.gpuElapsedMilliseconds;
+                std::cout << std::setprecision(9)
+                    << "tissue_thread_acquisition=ok"
+                    << " center_edge=" << target.centerEdge
+                    << " radial_preload_m="
+                    << kThreadRadialPreloadM
+                    << " thread_jaw_coordinate_rad="
+                    << threadJawCoordinate
+                    << " open_jaw_coordinate_rad="
+                    << openJawCoordinate
+                    << " open_thread_surface_gap_m="
+                    << openThreadSurfaceGapM
+                    << " closure_steps=" << closureSteps
+                    << " closure_settle_steps="
+                    << kThreadClosureSettleSteps
+                    << " load_steps=" << loadSteps
+                    << " loaded_hold_steps="
+                    << kThreadLoadedHoldSteps
+                    << " load_travel_m=" << kThreadLoadTravelM
+                    << " load_speed_mps=" << kThreadLoadSpeedMps
+                    << " closure_jaw_a_contacts="
+                    << closureContacts.jawContacts[0]
+                    << " closure_jaw_b_contacts="
+                    << closureContacts.jawContacts[1]
+                    << " loaded_jaw_a_contacts="
+                    << loadedContacts.jawContacts[0]
+                    << " loaded_jaw_b_contacts="
+                    << loadedContacts.jawContacts[1]
+                    << " loaded_target_window_contacts="
+                    << loadedContacts.targetWindowContacts
+                    << " loaded_maximum_normal_impulse_ns="
+                    << loadedContacts.maximumNormalImpulseNs
+                    << " loaded_maximum_tangential_impulse_ns="
+                    << loadedContacts.maximumTangentialImpulseNs
+                    << " material_seat_error_m="
+                    << materialSeatErrorM
+                    << " material_load_advance_m="
+                    << materialLoadAdvanceM
+                    << " minimum_swept_distal_jaw_tissue_clearance_m="
+                    << minimumSweptTissueClearanceM
+                    << " receiver_seat_drift_m="
+                    << loadedReceiverGrasp.seatDrift
+                    << " hard_swage_root_error_m="
+                    << loadedSwageErrorM
+                    << " thread_maximum_edge_error_m="
+                    << loadedRod.maximumEdgeLengthError
+                    << " active_puncture_channels="
+                    << loadedActiveChannels
+                    << " active_tetrahedra="
+                    << loadedActiveTetrahedra
+                    << " removed_tissue_mass_kg="
+                    << loadedRemovedMassKg
+                    << " matter_minimum_determinant="
+                    << loadedMinimumDeterminant
+                    << " matter_maximum_residual="
+                    << loadedMaximumResidual
+                    << " terminal_contact_velocity_residual_mps="
+                    << loadedResidual.residuals.y
+                    << " gpu_ms=" << gpuMilliseconds
+                    << " failed_steps=0"
+                    << " boundary=loaded_temporary_grasp_not_throw_or_knot\n";
                 return 0;
             }
             if (tissueCheckpointRestoreOnly) {

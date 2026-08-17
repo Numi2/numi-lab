@@ -306,6 +306,28 @@ or robot-tied knot formation.
   build-coupled-dev/testing/suture/tissue-opposing-bite-passage.tsv
 ```
 
+`--tissue-thread-acquisition-only` crosses the next boundary while keeping the
+same required input checkpoint. The free giver follows the certified thread-
+patch frame to a 2 mm standoff, approaches open, closes the four dedicated PDO
+patches to the independently calibrated 15 um preload, settles, then moves
+0.5 mm away from tissue at a bounded 2 mm/s and holds the load. It publishes a
+v3 approached checkpoint before closure and an acquired checkpoint only if the
+selected material edge remains in bilateral patches with normal and tangential
+impulse, the receiver still owns the needle, the swage and DER remain bounded,
+the puncture channels are byte-unchanged, and all FEM mass/tetrahedra and solver
+certificates survive. The thread-frame IK regression explicitly measures the
+2.696 mm longitudinal offset between these proximal patches and the distal
+needle groove. This live acquisition command is implemented but has not yet
+been qualified from an earned opposing-passage v3 checkpoint.
+
+```sh
+./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-thread-acquisition-only \
+  --resume-tissue-checkpoint tissue-opposing-bite-passage \
+  build-coupled-dev/testing/suture/tissue-opposing-bite-passage.tsv \
+  --state-output-dir build-coupled-dev/testing/suture/thread-acquisition
+```
+
 ## Loaded PDO knot-contact mechanics
 
 The rod solver now resolves a bounded network of frictional thread/thread

@@ -70,6 +70,18 @@ struct SurgicalThreadTargetDiagnostics {
     }
 };
 
+struct SurgicalThreadJawSurfaceClearance {
+    SurgicalThreadTargetStatus status =
+        SurgicalThreadTargetStatus::success;
+    std::uint32_t closestTriangle = 0u;
+    double minimumAxisDistanceM = 0.0;
+    double minimumEnvelopeClearanceM = 0.0;
+
+    [[nodiscard]] bool succeeded() const noexcept {
+        return status == SurgicalThreadTargetStatus::success;
+    }
+};
+
 // Selects a finite segment of an already resolved DER strand for a temporary
 // Large Needle Driver grasp. This is a geometric accessibility certificate;
 // articulated IK, continuous collision, jaw contact, and frictional retention
@@ -81,6 +93,19 @@ selectSurgicalThreadGraspTarget(
     std::span<const SurgicalThreadSurfaceTriangle> tissueTriangles,
     std::span<const SurgicalThreadObstacleCapsule> obstacleCapsules,
     const SurgicalThreadTargetingSpec& spec
+) noexcept;
+
+// Evaluates the same finite jaw-axis capsule used by target selection at one
+// articulated pose. This supports sampled path qualification without
+// duplicating the triangle-distance implementation in an application.
+[[nodiscard]] SurgicalThreadJawSurfaceClearance
+evaluateSurgicalThreadJawSurfaceClearance(
+    const SurgicalThreadTargetPoint& jawCenterM,
+    const SurgicalThreadTargetPoint& jawRailDirection,
+    double jawContactLengthM,
+    double jawEnvelopeRadiusM,
+    std::span<const SurgicalThreadTargetPoint> surfaceNodes,
+    std::span<const SurgicalThreadSurfaceTriangle> surfaceTriangles
 ) noexcept;
 
 [[nodiscard]] const char* surgicalThreadTargetStatusName(

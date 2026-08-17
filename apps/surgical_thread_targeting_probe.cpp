@@ -185,6 +185,37 @@ int main() {
                     spec.minimumObstacleClearanceM,
             "selected target violated clearance constraints"
         );
+        const auto surfaceClearance =
+            metalrobo::evaluateSurgicalThreadJawSurfaceClearance(
+                target.centerM,
+                target.railDirection,
+                spec.jawContactLengthM,
+                spec.jawEnvelopeRadiusM,
+                tissueNodes,
+                tissueTriangles
+            );
+        require(
+            surfaceClearance.succeeded() &&
+                surfaceClearance.minimumEnvelopeClearanceM ==
+                    target.minimumTissueClearanceM,
+            "standalone jaw-surface clearance disagrees with selection"
+        );
+        Point penetratingCenter = target.centerM;
+        penetratingCenter[2] = 5.0e-4;
+        const auto penetratingClearance =
+            metalrobo::evaluateSurgicalThreadJawSurfaceClearance(
+                penetratingCenter,
+                target.railDirection,
+                spec.jawContactLengthM,
+                spec.jawEnvelopeRadiusM,
+                tissueNodes,
+                tissueTriangles
+            );
+        require(
+            penetratingClearance.succeeded() &&
+                penetratingClearance.minimumEnvelopeClearanceM < 0.0,
+            "penetrating jaw envelope was not measured as unsafe"
+        );
         require(
             std::abs(target.arcLengthFromSwageM -
                      spec.preferredArcLengthFromSwageM) > 4.0e-3,
@@ -253,6 +284,7 @@ int main() {
             << diagnostics.obstacleClearCandidates
             << " deterministic_replay=exact"
             << " negative_tissue_clearance=reject"
+            << " negative_jaw_envelope_penetration=reject"
             << " negative_surface_topology=reject"
             << " boundary=geometry_not_ik_swept_collision_contact_or_retention"
             << '\n';

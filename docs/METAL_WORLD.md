@@ -503,6 +503,23 @@ giver IK and sampled cross-arm, support, and needle collision audits. It
 reports `physics_advanced=no`; jaw closure, live thread contact, retention, and
 throw execution remain subsequent authorities.
 
+The related `--tissue-thread-acquisition-only` continuation advances those
+authorities without treating the distal needle groove as the PDO frame. A
+dedicated regression resolves the actual proximal thread patches and measures
+their 2.696 mm longitudinal offset from the needle groove. The live command
+executes a velocity-limited open approach, 15 um calibrated thread preload,
+settle, and a 0.5 mm outward load at no more than 2 mm/s. Every sampled distal
+jaw capsule must retain clearance from the restored FEM triangle surface; this
+is deliberately narrower than a full-link deformable collision claim. Before
+closure it publishes `tissue-thread-approached`. It publishes
+`tissue-thread-acquired` only after bilateral selected-edge contact persists
+with nonzero normal and tangential impulse, material-point seat error remains
+bounded, the receiver needle grasp and hard swage remain qualified, puncture
+channels remain byte-identical, and the Matter determinant, mass, topology,
+and residual certificates remain accepted. The command is implemented but is
+not recorded as live-qualified until an earned opposing-passage v3 checkpoint
+is available.
+
 The surgical visual probe accepts the finite set of transactionally published
 dual-PSM operative checkpoints through receiver extraction and the opposing
 bite. It binds the checkpoint's exact articulated state, rigid needle pose, and
