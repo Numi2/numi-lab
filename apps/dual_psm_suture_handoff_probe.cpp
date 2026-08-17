@@ -103,7 +103,7 @@ constexpr double kControlTimestep = 0.002;
 constexpr std::uint32_t kPhysicsSubsteps = 32u;
 // The first puncture gate is intentionally a research qualification value,
 // not a clinical insertion-force claim. At the live 62.5 us substep it is an
-// 8 mN mean normal-force floor. Geometry crossing and accepted contact must
+// 8 mN mean axial tip-force floor. Geometry crossing and accepted contact must
 // both hold before topology may change; specimen-specific calibration still
 // owns later promotion.
 constexpr double kPunctureImpulseThresholdNs = 5.0e-7;

@@ -114,10 +114,13 @@ can retain simultaneous material ownership in separate puncture tracts. Every
 move retains all unchanged proxy identities and their friction histories,
 resets only the retired slot, and records the completed binding revision
 without changing the authored physics fingerprint.
-Puncture admission sums
-only closing, direction-aligned, tip-local surface rows: mesh refinement may
-distribute a physical sharp-tip resultant across nodes, while shaft, arc and
-strand rows cannot manufacture a cut.
+Puncture admission projects every closing, forward, tip-local surface row onto
+the live terminal direction and compares their deterministic axial resultant
+with the authored impulse gate. The strongest axial row must still satisfy the
+strict direction-alignment and tract-intersection tests. Mesh refinement may
+therefore distribute a physical sharp-tip load across terminal-hemisphere
+nodes, while shaft, arc, strand and glancing-only rows cannot manufacture a
+cut.
 
 ABI v21 added an explicit body-backed tapered-tip capsule role for
 physics-triggered puncture. Shaft, swage, gripper and generic capsule contact
