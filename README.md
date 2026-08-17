@@ -268,6 +268,29 @@ accepted tissue tracts; the strokes themselves are not yet live PSM evidence.
 ./build-coupled-dev/bin/metalrobo_surgical_knot_protocol_probe
 ```
 
+`--tissue-suture-pull-stroke-only` turns the first remaining material stroke
+into live receiver motion. It accepts either the thread-root checkpoint or a
+prior stroke checkpoint, identifies the first and opposing tracts from their
+deformed bite locations, and retains one exact DER material edge in each while
+the receiver translates the still-grasped needle away from the proximal wall.
+Each stroke is capped at 25 mm and 20 mm/s. Acceptance measures source-material
+progress rather than assuming commanded Cartesian travel: the working arc must
+increase by the stroke length within one DER-edge quantization band, the
+inter-tract stitch span must remain invariant, the needle and complete LND
+envelope must move monotonically away from tissue, and Matter mass, topology,
+channels, determinants, residuals, the hard swage, and the receiver grasp must
+all survive. Repeat from `tissue-suture-pull-stroke` until the command publishes
+`tissue-suture-pull-complete`. The path is implemented and fast-regression
+compiled, but its long Apple-Metal execution is not yet qualified.
+
+```sh
+./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-suture-pull-stroke-only \
+  --resume-tissue-checkpoint tissue-opposing-bite-thread-root \
+  build-coupled-dev/testing/suture/tissue-opposing-bite-thread-root.tsv \
+  --state-output-dir build-coupled-dev/testing/suture/pull-stroke-01
+```
+
 The separate PDO clamp fixture places the authored 0.20 mm 3-0 strand inside
 four finite flat proximal medial Large Needle Driver insert patches while
 preserving the qualified eight-patch distal needle groove. A 65-node local
@@ -302,10 +325,11 @@ topology.
 ```
 
 The operative `--tissue-thread-target-only` gate accepts only a v3
-`tissue-opposing-bite-thread-root` checkpoint. A needle-tip passage checkpoint
-is intentionally insufficient: the hard-swaged DER root and the complete steel
-needle must first clear the live wall while one material edge remains measured
-in each accepted tract. The target gate restores the exact Matter and
+`tissue-suture-pull-complete` checkpoint. A needle-tip passage or thread-root
+checkpoint is intentionally insufficient: the hard-swaged DER root and the
+complete steel needle must first clear the live wall, then measured
+source-material transfer must leave the planned short tail while one edge
+remains in each accepted tract. The target gate restores the exact Matter and
 MetalWorld reset, builds the surface from live FEM nodes, uses the restored DER
 nodes and needle pose, then requires velocity-limited giver PSM IK plus sampled
 cross-arm, support-pad, and needle clearance on the open-jaw approach. This
@@ -315,8 +339,8 @@ or robot-tied knot formation.
 ```sh
 ./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
   --tissue-thread-target-only \
-  --resume-tissue-checkpoint tissue-opposing-bite-thread-root \
-  build-coupled-dev/testing/suture/tissue-opposing-bite-thread-root.tsv
+  --resume-tissue-checkpoint tissue-suture-pull-complete \
+  build-coupled-dev/testing/suture/tissue-suture-pull-complete.tsv
 ```
 
 `--tissue-thread-acquisition-only` crosses the next boundary while keeping the
@@ -331,13 +355,13 @@ the puncture channels are byte-unchanged, and all FEM mass/tetrahedra and solver
 certificates survive. The thread-frame IK regression explicitly measures the
 2.696 mm longitudinal offset between these proximal patches and the distal
 needle groove. This live acquisition command is implemented but has not yet
-been qualified from an earned opposing-passage v3 checkpoint.
+been qualified from an earned completed-pull v3 checkpoint.
 
 ```sh
 ./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
   --tissue-thread-acquisition-only \
-  --resume-tissue-checkpoint tissue-opposing-bite-thread-root \
-  build-coupled-dev/testing/suture/tissue-opposing-bite-thread-root.tsv \
+  --resume-tissue-checkpoint tissue-suture-pull-complete \
+  build-coupled-dev/testing/suture/tissue-suture-pull-complete.tsv \
   --state-output-dir build-coupled-dev/testing/suture/thread-acquisition
 ```
 

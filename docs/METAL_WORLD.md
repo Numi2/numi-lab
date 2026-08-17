@@ -509,7 +509,7 @@ surface encroachment, and collision with the complete finite-capsule needle.
 It returns a deterministic right-handed rail/separation/approach frame. The
 standalone probe supplies exact replay and blocked-needle, near-surface, and
 malformed-topology controls. The operative `--tissue-thread-target-only` mode
-is stricter: it requires a v3 `tissue-opposing-bite-thread-root` checkpoint, uses
+is stricter: it requires a v3 `tissue-suture-pull-complete` checkpoint, uses
 its restored DER, needle, and deformed FEM state, applies the conservative 4 mm
 radius of the 8 mm instrument as the target envelope, then runs velocity-limited
 giver IK and sampled cross-arm, support, and needle collision audits. It
@@ -530,8 +530,8 @@ with nonzero normal and tangential impulse, material-point seat error remains
 bounded, the receiver needle grasp and hard swage remain qualified, puncture
 channels remain byte-identical, and the Matter determinant, mass, topology,
 and residual certificates remain accepted. The command is implemented but is
-not recorded as live-qualified until an earned opposing-passage v3 checkpoint
-is available.
+not recorded as live-qualified until an earned completed-pull v3 checkpoint is
+available.
 
 The surgical visual probe accepts the finite set of transactionally published
 dual-PSM operative checkpoints through receiver extraction and the opposing
@@ -600,8 +600,24 @@ terminal checkpoint records those ordered tract edges and derives the bounded
 source-coordinate pull strokes needed to leave a 19 mm free tail without
 changing the stitch span. A preflight that finds the receiver jaw would reach
 tissue fails before dispatch and explicitly requires a needle regrasp; it does
-not tunnel the tool through tissue. The continuation and its downstream stroke
-execution still require long Apple-Metal qualification.
+not tunnel the tool through tissue. The continuation still requires long
+Apple-Metal qualification.
+
+The checkpointed `--tissue-suture-pull-stroke-only` continuation executes the
+next source-coordinate draw rather than treating Cartesian tool travel as
+material progress. The receiver keeps the needle in its qualified handling
+zone and translates it proximally by at most 25 mm at a 20 mm/s peak while the
+giver remains clear. Before every bounded submission, spatially classified
+first/opposing channel capsules select one current DER edge per tract and the
+runtime changes only retired proxy slots. The accepted boundary requires the
+working material coordinate and remaining draw to advance by the commanded
+stroke within the finite DER edge-resolution band, preserves the stitch span,
+and rechecks tool/tissue clearance, grasp, swage, rod, channel bytes, FEM mass
+and topology, and solver certificates. Intermediate invocations publish
+`tissue-suture-pull-stroke`; the final one publishes
+`tissue-suture-pull-complete`, which is the earliest checkpoint admitted by
+post-bite thread targeting. Implementation and lightweight contracts are
+present; no long live stroke is claimed yet.
 
 Live strand/tissue ownership no longer assumes that proxy slot zero is DER
 edge zero. Before every bounded pull, bridge, acquisition, extraction, and

@@ -6426,6 +6426,8 @@ bool isLiveTissueCheckpointPhase(const std::string_view phase) {
         phase == "tissue-opposing-bite-ready" ||
         phase == "tissue-opposing-bite-passage" ||
         phase == "tissue-opposing-bite-thread-root" ||
+        phase == "tissue-suture-pull-stroke" ||
+        phase == "tissue-suture-pull-complete" ||
         phase == "tissue-thread-approached" ||
         phase == "tissue-thread-acquired";
 }
@@ -6458,6 +6460,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-opposing-bite-reorientation-only" ||
             argument == "--tissue-opposing-bite-passage-only" ||
             argument == "--tissue-opposing-bite-thread-root-only" ||
+            argument == "--tissue-suture-pull-stroke-only" ||
             argument == "--tissue-checkpoint-restore-only" ||
             argument == "--tissue-checkpoint-hold-only" ||
             argument == "--tissue-thread-target-only" ||
@@ -7023,6 +7026,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
     const bool tissueCheckpointMode =
         result.mode == "--tissue-checkpoint-restore-only" ||
         result.mode == "--tissue-checkpoint-hold-only" ||
+        result.mode == "--tissue-suture-pull-stroke-only" ||
         result.mode == "--tissue-thread-target-only" ||
         result.mode == "--tissue-thread-acquisition-only";
     require(
@@ -7034,8 +7038,16 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         (result.mode != "--tissue-thread-target-only" &&
          result.mode != "--tissue-thread-acquisition-only") ||
             result.resumeTissueCheckpointPhase ==
-                "tissue-opposing-bite-thread-root",
-        "post-bite thread targeting requires the opposing thread-root phase"
+                "tissue-suture-pull-complete",
+        "post-bite thread targeting requires the completed pull-through phase"
+    );
+    require(
+        result.mode != "--tissue-suture-pull-stroke-only" ||
+            result.resumeTissueCheckpointPhase ==
+                "tissue-opposing-bite-thread-root" ||
+            result.resumeTissueCheckpointPhase ==
+                "tissue-suture-pull-stroke",
+        "suture pull stroke requires a thread-root or prior-stroke phase"
     );
     require(
         result.resumeTissueReceiverDynamicBridgePath.empty() ||
@@ -8016,9 +8028,12 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-thread-target-only";
         const bool tissueThreadAcquisitionOnly =
             options.mode == "--tissue-thread-acquisition-only";
+        const bool tissueSuturePullStrokeOnly =
+            options.mode == "--tissue-suture-pull-stroke-only";
         const bool tissueCheckpointResume =
             tissueCheckpointRestoreOnly || tissueCheckpointHoldOnly ||
-            tissueThreadTargetOnly || tissueThreadAcquisitionOnly;
+            tissueThreadTargetOnly || tissueThreadAcquisitionOnly ||
+            tissueSuturePullStrokeOnly;
         const bool resumeTissueRestCheckpoint =
             tissueCheckpointResume &&
             options.resumeTissueCheckpointPhase == "tissue-rest";
@@ -14639,13 +14654,956 @@ int main(const int argc, const char* const argv[]) {
                 << " matter_maximum_residual=" << maximumResidual
                 << " authority_byte_exact=yes"
                 << " physics_advanced=no\n";
+            if (tissueSuturePullStrokeOnly) {
+                require(
+                    (options.resumeTissueCheckpointPhase ==
+                         "tissue-opposing-bite-thread-root" ||
+                     options.resumeTissueCheckpointPhase ==
+                         "tissue-suture-pull-stroke") &&
+                        restored.sutureProxyEdges.size() ==
+                            kSutureMatterContactSegmentCount &&
+                        compiled.defaultRodNodes().size() >= 3u,
+                    "working-end pull requires a two-tract DER checkpoint"
+                );
+
+                const metalrobo::SurgicalSutureMaterialPlanSpec
+                    pullMaterialSpec{
+                        .targetFreeTailLengthM =
+                            kKnotTargetFreeTailLengthM,
+                        .freeTailToleranceM =
+                            kKnotFreeTailToleranceM,
+                        .minimumWorkingArcLengthM =
+                            kKnotMinimumWorkingArcLengthM,
+                        .minimumStitchArcLengthM =
+                            kKnotMinimumStitchArcLengthM,
+                        .maximumDrawPerStrokeM =
+                            kKnotMaximumDrawPerStrokeM,
+                        .maximumStrokeCount =
+                            kKnotMaximumPullStrokeCount,
+                    };
+                const auto materialPlanFor = [&] (
+                    const metalrobo::SurgicalThreadContactSelection&
+                        selection
+                ) {
+                    require(
+                        selection.succeeded() &&
+                            selection.tractEdges.size() == 2u,
+                        "working-end pull lost ordered tract ownership"
+                    );
+                    return metalrobo::planSurgicalSuturePullThrough(
+                        world.rods[0].model.restPositions,
+                        selection.tractEdges[0],
+                        selection.tractEdges[1],
+                        pullMaterialSpec
+                    );
+                };
+                const auto occupiedChannelCapsules = [&] (
+                    const numi::matter::RuntimeStateSnapshot& snapshot
+                ) {
+                    const TissueBiteSites sites = tissueBiteSites(
+                        tissueCoupon,
+                        snapshot.femNodes
+                    );
+                    std::vector<
+                        metalrobo::SurgicalThreadChannelCapsule
+                    > channels;
+                    for (const NMPunctureChannelGPU& channel :
+                         snapshot.punctureChannels) {
+                        if ((channel.identity.w & NM_TOPOLOGY_ACTIVE) ==
+                            0u) {
+                            continue;
+                        }
+                        Vec3 axis = vector(channel.axisAndHalfLength);
+                        const double axisLength = norm(axis);
+                        require(
+                            axisLength > 1.0e-12 &&
+                                channel.axisAndHalfLength.w > 0.0f &&
+                                channel.originAndRadius.w > 0.0f,
+                            "working-end pull found a degenerate puncture "
+                                "channel"
+                        );
+                        axis = axis * (1.0 / axisLength);
+                        const Vec3 origin = vector(
+                            channel.originAndRadius
+                        );
+                        const auto planarDistanceSquared = [&] (
+                            const Vec3 point
+                        ) {
+                            const Vec3 offset = origin - point;
+                            const double longitudinal = dot(
+                                offset,
+                                sites.longitudinalAxis
+                            );
+                            const double circumferential = dot(
+                                offset,
+                                sites.circumferentialAxis
+                            );
+                            return longitudinal * longitudinal +
+                                circumferential * circumferential;
+                        };
+                        const std::uint32_t tract =
+                            planarDistanceSquared(
+                                sites.firstProximalSurface
+                            ) <= planarDistanceSquared(
+                                sites.opposingDistalSurface
+                            )
+                                ? 0u
+                                : 1u;
+                        const Vec3 halfAxis = axis *
+                            channel.axisAndHalfLength.w;
+                        const Vec3 first = origin - halfAxis;
+                        const Vec3 second = origin + halfAxis;
+                        channels.push_back({
+                            .firstM = targetingPoint(first),
+                            .secondM = targetingPoint(second),
+                            .radiusM = channel.originAndRadius.w,
+                            .tract = tract,
+                        });
+                    }
+                    require(
+                        std::ranges::any_of(
+                            channels,
+                            [](const auto& channel) {
+                                return channel.tract == 0u;
+                            }
+                        ) &&
+                            std::ranges::any_of(
+                                channels,
+                                [](const auto& channel) {
+                                    return channel.tract == 1u;
+                                }
+                            ),
+                        "working-end pull could not recover both spatial "
+                            "puncture tracts"
+                    );
+                    return channels;
+                };
+                const auto selectAndBindTractMaterial = [&] (
+                    const metalrobo::MetalWorldResult& state,
+                    const numi::matter::RuntimeStateSnapshot& snapshot,
+                    const double predictiveTravelM,
+                    const std::string& phase
+                ) {
+                    require(
+                        state.finalRodNodes.size() >= 3u &&
+                            snapshot.sutureProxyEdges.size() ==
+                                kSutureMatterContactSegmentCount &&
+                            std::isfinite(predictiveTravelM) &&
+                            predictiveTravelM >= 0.0,
+                        phase + " has invalid DER contact authority"
+                    );
+                    std::vector<
+                        metalrobo::SurgicalThreadTargetPoint
+                    > threadNodes;
+                    threadNodes.reserve(state.finalRodNodes.size());
+                    for (const MRRodNodeStateGPU& node :
+                         state.finalRodNodes) {
+                        threadNodes.push_back(targetingPoint(
+                            vector(node.position)
+                        ));
+                    }
+                    const auto channels = occupiedChannelCapsules(snapshot);
+                    const auto selection =
+                        metalrobo::selectSurgicalThreadContactEdges(
+                            threadNodes,
+                            channels,
+                            {
+                                .threadRadiusM =
+                                    world.rods[0].model.radius,
+                                .maximumSurfaceSeparationM =
+                                    kSutureTissueContactSlopM +
+                                    predictiveTravelM,
+                                .tractCount = 2u,
+                                .proxyCount =
+                                    kSutureMatterContactSegmentCount,
+                            }
+                        );
+                    require(
+                        selection.succeeded() &&
+                            selection.tractEdges.size() == 2u &&
+                            selection.tractEdges[1] <
+                                selection.tractEdges[0],
+                        phase + " lost the source-ordered two-tract strand: " +
+                            metalrobo::
+                                surgicalThreadContactSelectionStatusName(
+                                    selection.status
+                                )
+                    );
+                    const auto rebind =
+                        metalrobo::planSurgicalThreadProxyRebind(
+                            snapshot.sutureProxyEdges,
+                            selection.edges,
+                            static_cast<std::uint32_t>(
+                                state.finalRodNodes.size() - 1u
+                            )
+                        );
+                    require(
+                        rebind.succeeded(),
+                        phase + " could not plan material-edge rebinding"
+                    );
+                    for (const auto& transition : rebind.transitions) {
+                        const auto rebound =
+                            tissueRuntime.setSutureProxyEdges(
+                                transition,
+                                static_cast<std::uint32_t>(
+                                    state.finalRodNodes.size()
+                                )
+                            );
+                        require(
+                            rebound.encoded,
+                            phase + " could not publish material ownership: " +
+                                rebound.message
+                        );
+                    }
+                    const auto rebound = tissueRuntime.snapshot();
+                    std::vector<std::uint32_t> reboundEdges =
+                        rebound.sutureProxyEdges;
+                    std::ranges::sort(reboundEdges);
+                    require(
+                        rebound.available &&
+                            reboundEdges == selection.edges &&
+                            rebound.sutureProxyBindingRevision ==
+                                snapshot.sutureProxyBindingRevision +
+                                    rebind.transitions.size(),
+                        phase + " did not retain exact two-tract bindings"
+                    );
+                    if (!rebind.transitions.empty()) {
+                        std::cout << std::setprecision(9)
+                            << "suture_pull_material_ownership=ok"
+                            << " phase=\"" << phase << '"'
+                            << " first_tract_edge="
+                            << selection.tractEdges[0]
+                            << " opposing_tract_edge="
+                            << selection.tractEdges[1]
+                            << " maximum_surface_separation_m="
+                            << selection.maximumSurfaceSeparationM
+                            << " predictive_travel_m="
+                            << predictiveTravelM
+                            << " maintenance_commands="
+                            << rebind.transitions.size()
+                            << " binding_revision="
+                            << rebound.sutureProxyBindingRevision << '\n';
+                    }
+                    return selection;
+                };
+
+                metalrobo::MetalWorldResult pullState;
+                pullState.finalQ = world.model.defaultQ;
+                pullState.finalV = world.model.defaultV;
+                pullState.finalSceneBodies = world.defaultSceneBodies;
+                pullState.finalRodNodes.assign(
+                    compiled.defaultRodNodes().begin(),
+                    compiled.defaultRodNodes().end()
+                );
+                pullState.finalRodEdges.assign(
+                    compiled.defaultRodEdges().begin(),
+                    compiled.defaultRodEdges().end()
+                );
+                auto pullSelection = selectAndBindTractMaterial(
+                    pullState,
+                    tissueRuntime.snapshot(),
+                    0.0,
+                    "working-end pull initial boundary"
+                );
+                const auto initialMaterialPlan = materialPlanFor(
+                    pullSelection
+                );
+                require(
+                    initialMaterialPlan.succeeded() &&
+                        !initialMaterialPlan.strokes.empty(),
+                    "working-end checkpoint has no admissible remaining "
+                        "pull stroke: " +
+                        std::string(
+                            metalrobo::
+                                surgicalSutureMaterialPlanStatusName(
+                                    initialMaterialPlan.status
+                                )
+                        )
+                );
+                const double strokeDrawM =
+                    initialMaterialPlan.strokes.front().drawLengthM;
+
+                const TissueBiteSites pullBiteSites = tissueBiteSites(
+                    tissueCoupon,
+                    restored.femNodes
+                );
+                double pullTopProjection =
+                    -std::numeric_limits<double>::infinity();
+                for (const NMFEMNodeStateGPU& node : restored.femNodes) {
+                    pullTopProjection = std::max(
+                        pullTopProjection,
+                        dot(
+                            vector(node.positionAndMass),
+                            pullBiteSites.thicknessAxis
+                        )
+                    );
+                }
+                const MRBodyStateGPU pullStartNeedle =
+                    world.defaultSceneBodies.at(0u);
+                const NeedleProjectionRange pullStartNeedleRange =
+                    wholeNeedleProjectionRange(
+                        needleForPlacement,
+                        pullStartNeedle,
+                        pullBiteSites.thicknessAxis
+                    );
+                const Vec3 pullDirection = pullBiteSites.thicknessAxis;
+                require(
+                    pullStartNeedleRange.minimum - pullTopProjection >=
+                            kOpposingThreadRootClearanceM &&
+                        dot(
+                            vector(pullStartNeedle.position) -
+                                pullBiteSites.frameOrigin,
+                            pullDirection
+                        ) > 0.0,
+                    "working-end stroke does not begin with the complete "
+                        "needle on the proximal side"
+                );
+                const double pullExecutionTimestepS =
+                    static_cast<double>(stepConfig.timestepSeconds);
+                const std::uint32_t pullStrokeSteps =
+                    static_cast<std::uint32_t>(std::ceil(
+                        1.5 * strokeDrawM /
+                        (
+                            kSutureLoadBearingPullSpeedMps *
+                            pullExecutionTimestepS
+                        )
+                    ));
+                require(
+                    pullExecutionTimestepS > 0.0 &&
+                        pullStrokeSteps > 1u &&
+                        pullStrokeSteps < 100000u,
+                    "working-end stroke cadence is invalid"
+                );
+                const double pullStrokeDurationS =
+                    static_cast<double>(pullStrokeSteps) *
+                    pullExecutionTimestepS;
+                std::vector<MRBodyStateGPU> pullNeedleTargets;
+                pullNeedleTargets.reserve(pullStrokeSteps);
+                for (std::uint32_t step = 0u;
+                     step < pullStrokeSteps;
+                     ++step) {
+                    const double t = static_cast<double>(step + 1u) /
+                        static_cast<double>(pullStrokeSteps);
+                    const double smooth = t * t * (3.0 - 2.0 * t);
+                    const double speed = 6.0 * t * (1.0 - t) *
+                        strokeDrawM / pullStrokeDurationS;
+                    MRBodyStateGPU target = pullStartNeedle;
+                    target.position.x += static_cast<float>(
+                        pullDirection.x * strokeDrawM * smooth
+                    );
+                    target.position.y += static_cast<float>(
+                        pullDirection.y * strokeDrawM * smooth
+                    );
+                    target.position.z += static_cast<float>(
+                        pullDirection.z * strokeDrawM * smooth
+                    );
+                    target.linearVelocityAndInverseMass.x =
+                        static_cast<float>(pullDirection.x * speed);
+                    target.linearVelocityAndInverseMass.y =
+                        static_cast<float>(pullDirection.y * speed);
+                    target.linearVelocityAndInverseMass.z =
+                        static_cast<float>(pullDirection.z * speed);
+                    target.angularVelocity = {};
+                    pullNeedleTargets.push_back(target);
+                }
+                const GraspReference pullReceiverReference =
+                    graspReference(
+                        world,
+                        needleForPlacement,
+                        world.model.defaultQ,
+                        world.model.defaultV,
+                        pullStartNeedle,
+                        1u,
+                        kExtractionNeedleShape
+                    );
+                const std::vector<double> pullReceiverLocalQ = armLocalQ(
+                    world.model,
+                    1u,
+                    world.model.defaultQ
+                );
+                const double pullReceiverJawCoordinate = 0.5 * (
+                    pullReceiverLocalQ[7] - pullReceiverLocalQ[6]
+                );
+                const ArmTrajectory pullTrajectory =
+                    needleGraspArmTrajectory(
+                        world.model,
+                        psm,
+                        1u,
+                        config.surgical.robots.rightBase,
+                        world.model.defaultQ,
+                        needleForPlacement,
+                        kExtractionNeedleShape,
+                        pullReceiverReference,
+                        pullNeedleTargets,
+                        pullReceiverJawCoordinate,
+                        pullExecutionTimestepS
+                    );
+                const CrossArmCollisionScan pullCollision =
+                    scanCrossArmTargetPath(
+                        world,
+                        world.model.defaultQ,
+                        pullTrajectory.finalTarget,
+                        pullStrokeSteps,
+                        pullTrajectory.desiredQ
+                    );
+                const CarriedNeedlePathAudit pullNeedleAudit =
+                    auditCarriedNeedlePath(
+                        world,
+                        needleForPlacement.metadata,
+                        pullTrajectory,
+                        pullNeedleTargets
+                    );
+                std::vector<metalrobo::SurgicalThreadTargetPoint>
+                    pullSurfaceNodes;
+                pullSurfaceNodes.reserve(restored.femNodes.size());
+                for (const NMFEMNodeStateGPU& node : restored.femNodes) {
+                    pullSurfaceNodes.push_back(targetingPoint(
+                        vector(node.positionAndMass)
+                    ));
+                }
+                const auto pullSurfaceTriangles =
+                    exteriorTissueTargetingTriangles(
+                        tissueWorld,
+                        restored
+                    );
+                const std::vector<float> pullZeroV(
+                    world.model.world.nv,
+                    0.0f
+                );
+                double pullMinimumPlannedJawClearanceM =
+                    std::numeric_limits<double>::infinity();
+                double pullMinimumPlannedNeedleClearanceM =
+                    std::numeric_limits<double>::infinity();
+                double pullMaximumNeedleClearanceRegressionM = 0.0;
+                double previousNeedleClearanceM =
+                    pullStartNeedleRange.minimum - pullTopProjection;
+                for (std::uint32_t step = 0u;
+                     step < pullStrokeSteps;
+                     ++step) {
+                    const std::span<const float> q{
+                        pullTrajectory.desiredQ.data() +
+                            static_cast<std::size_t>(step) *
+                                world.model.world.nq,
+                        world.model.world.nq,
+                    };
+                    const JawGeometry jaw = worldJawGeometry(
+                        world.model,
+                        1u,
+                        q,
+                        pullZeroV
+                    );
+                    const auto jawClearance = metalrobo::
+                        evaluateSurgicalThreadJawSurfaceClearance(
+                            targetingPoint(jaw.midpoint),
+                            targetingPoint(jaw.railDirection),
+                            jawMetadata.largeNeedleDriverJawLength,
+                            0.5 * jawMetadata.instrumentDiameter,
+                            pullSurfaceNodes,
+                            pullSurfaceTriangles
+                        );
+                    require(
+                        jawClearance.succeeded(),
+                        "working-end pull could not evaluate jaw/tissue "
+                            "clearance"
+                    );
+                    pullMinimumPlannedJawClearanceM = std::min(
+                        pullMinimumPlannedJawClearanceM,
+                        jawClearance.minimumEnvelopeClearanceM
+                    );
+                    const double needleClearanceM =
+                        wholeNeedleProjectionRange(
+                            needleForPlacement,
+                            pullNeedleTargets[step],
+                            pullDirection
+                        ).minimum - pullTopProjection;
+                    pullMinimumPlannedNeedleClearanceM = std::min(
+                        pullMinimumPlannedNeedleClearanceM,
+                        needleClearanceM
+                    );
+                    pullMaximumNeedleClearanceRegressionM = std::max(
+                        pullMaximumNeedleClearanceRegressionM,
+                        previousNeedleClearanceM - needleClearanceM
+                    );
+                    previousNeedleClearanceM = needleClearanceM;
+                }
+                require(
+                    pullTrajectory.maximumVelocityRatio <=
+                            kMaximumCommandVelocityRatio &&
+                        pullCollision.samplesWithContact == 0u &&
+                        pullCollision.samplesWithGiverPadContact == 0u &&
+                        pullCollision.samplesWithReceiverPadContact == 0u &&
+                        pullNeedleAudit.unsafeSamples == 0u &&
+                        pullMinimumPlannedJawClearanceM >=
+                            kOpposingDriveJawTissueClearanceM &&
+                        pullMinimumPlannedNeedleClearanceM >=
+                            kOpposingThreadRootClearanceM &&
+                        pullMaximumNeedleClearanceRegressionM <= 1.0e-9,
+                    "working-end pull trajectory is not a monotone, "
+                        "collision-free proximal draw"
+                );
+
+                struct PullMatterMetrics {
+                    std::uint32_t activeChannels = 0u;
+                    std::uint32_t activeTetrahedra = 0u;
+                    double removedMassKg = 0.0;
+                    double minimumDeterminant =
+                        std::numeric_limits<double>::infinity();
+                    double maximumResidual = 0.0;
+                    bool certificatesAccepted = false;
+                };
+                const auto validatePullMatter = [&] (
+                    const numi::matter::RuntimeStateSnapshot& snapshot,
+                    const std::string& phase
+                ) {
+                    PullMatterMetrics metrics;
+                    metrics.certificatesAccepted =
+                        !snapshot.solverCertificates.empty();
+                    for (const NMPunctureChannelGPU& channel :
+                         snapshot.punctureChannels) {
+                        metrics.activeChannels +=
+                            (channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+                    }
+                    for (const NMTetrahedronGPU& tetrahedron :
+                         snapshot.femTopologyTetrahedra) {
+                        metrics.activeTetrahedra +=
+                            (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+                    }
+                    for (const NMFEMTopologyStateGPU& topology :
+                         snapshot.topologyStates) {
+                        metrics.removedMassKg += topology.accounting.y;
+                    }
+                    for (const NMSolverCertificateGPU& certificate :
+                         snapshot.solverCertificates) {
+                        metrics.certificatesAccepted =
+                            metrics.certificatesAccepted &&
+                            certificate.validity.w > 0.5f;
+                        metrics.minimumDeterminant = std::min(
+                            metrics.minimumDeterminant,
+                            static_cast<double>(certificate.validity.x)
+                        );
+                        metrics.maximumResidual = std::max({
+                            metrics.maximumResidual,
+                            static_cast<double>(certificate.nonlinear.x),
+                            static_cast<double>(certificate.nonlinear.z),
+                            static_cast<double>(certificate.nonlinear.w),
+                        });
+                    }
+                    require(
+                        snapshot.available &&
+                            metrics.activeChannels == activeChannels &&
+                            sameVectorBytes(
+                                snapshot.punctureChannels,
+                                restored.punctureChannels
+                            ) &&
+                            metrics.activeTetrahedra ==
+                                tissueCoupon.metadata.tetrahedronCount &&
+                            sameVectorBytes(
+                                snapshot.femTopologyTetrahedra,
+                                restored.femTopologyTetrahedra
+                            ) &&
+                            metrics.removedMassKg == 0.0 &&
+                            metrics.certificatesAccepted &&
+                            std::isfinite(metrics.minimumDeterminant) &&
+                            metrics.minimumDeterminant > 0.0 &&
+                            std::isfinite(metrics.maximumResidual),
+                        phase + " changed the accepted tissue topology, "
+                            "mass, or solver certificate"
+                    );
+                    return metrics;
+                };
+
+                metalrobo::MetalWorldContext pullContext;
+                metalrobo::MetalWorldResidentState pullResident;
+                bool pullResidentInitialized = false;
+                std::uint32_t completedPullSteps = 0u;
+                double pullGpuMilliseconds = 0.0;
+                PullMatterMetrics pullMatterMetrics;
+                const std::uint32_t pullChunkSteps =
+                    std::max<std::uint32_t>(
+                        1u,
+                        static_cast<std::uint32_t>(std::llround(
+                            kLiveReceiverChunkDurationS /
+                                pullExecutionTimestepS
+                        ))
+                    );
+                const auto executePullEfforts = [&] (
+                    const std::vector<float>& efforts,
+                    const std::uint32_t steps,
+                    const double predictiveSpeedMps,
+                    const std::string& phase,
+                    const std::string& progressKey
+                ) {
+                    require(
+                        steps != 0u &&
+                            efforts.size() ==
+                                static_cast<std::size_t>(steps) *
+                                    world.model.world.nv,
+                        phase + " has invalid effort dimensions"
+                    );
+                    std::uint32_t completed = 0u;
+                    while (completed < steps) {
+                        const std::uint32_t chunk = std::min(
+                            pullChunkSteps,
+                            steps - completed
+                        );
+                        pullSelection = selectAndBindTractMaterial(
+                            pullState,
+                            tissueRuntime.snapshot(),
+                            predictiveSpeedMps *
+                                static_cast<double>(chunk) *
+                                pullExecutionTimestepS,
+                            phase + " predictive boundary"
+                        );
+                        const std::size_t begin =
+                            static_cast<std::size_t>(completed) *
+                            world.model.world.nv;
+                        const std::size_t end = begin +
+                            static_cast<std::size_t>(chunk) *
+                                world.model.world.nv;
+                        const std::vector<float> chunkEfforts(
+                            efforts.begin() + begin,
+                            efforts.begin() + end
+                        );
+                        PhaseResult chunkResult;
+                        if (!pullResidentInitialized) {
+                            chunkResult = initializePhase(
+                                pullContext,
+                                compiled,
+                                world,
+                                stepConfig,
+                                pullResident,
+                                chunkEfforts,
+                                chunk
+                            );
+                            pullResidentInitialized = true;
+                        } else {
+                            chunkResult = continuePhase(
+                                pullContext,
+                                compiled,
+                                stepConfig,
+                                pullResident,
+                                chunkEfforts,
+                                chunk,
+                                phase
+                            );
+                        }
+                        pullGpuMilliseconds +=
+                            chunkResult.diagnostics
+                                .gpuElapsedMilliseconds;
+                        pullState = std::move(chunkResult.result);
+                        completed += chunk;
+                        completedPullSteps += chunk;
+                        pullSelection = selectAndBindTractMaterial(
+                            pullState,
+                            tissueRuntime.snapshot(),
+                            0.0,
+                            phase + " accepted boundary"
+                        );
+                        pullMatterMetrics = validatePullMatter(
+                            tissueRuntime.snapshot(),
+                            phase
+                        );
+                        const auto progressPlan = materialPlanFor(
+                            pullSelection
+                        );
+                        require(
+                            progressPlan.succeeded(),
+                            phase + " lost a valid remaining material plan"
+                        );
+                        std::cout << std::setprecision(9)
+                            << progressKey << "_progress_steps="
+                            << completed << '/' << steps
+                            << " first_tract_edge="
+                            << pullSelection.tractEdges[0]
+                            << " opposing_tract_edge="
+                            << pullSelection.tractEdges[1]
+                            << " remaining_draw_m="
+                            << progressPlan.requiredDrawLengthM
+                            << " matter_minimum_determinant="
+                            << pullMatterMetrics.minimumDeterminant
+                            << " chunk_gpu_ms="
+                            << chunkResult.diagnostics
+                                   .gpuElapsedMilliseconds << '\n';
+                    }
+                };
+                executePullEfforts(
+                    pullTrajectory.efforts,
+                    pullStrokeSteps,
+                    kSutureLoadBearingPullSpeedMps,
+                    "live working-end suture pull stroke",
+                    "tissue_suture_pull_stroke"
+                );
+                const std::uint32_t pullHoldSteps =
+                    static_cast<std::uint32_t>(std::ceil(
+                        0.1 / pullExecutionTimestepS
+                    ));
+                const std::vector<float> pullHoldEfforts =
+                    interpolateTargets(
+                        world.model,
+                        pullState.finalQ,
+                        pullTrajectory.finalTarget,
+                        pullHoldSteps,
+                        pullExecutionTimestepS
+                    );
+                executePullEfforts(
+                    pullHoldEfforts,
+                    pullHoldSteps,
+                    kMaximumTerminalRodNodeSpeed,
+                    "live working-end suture pull hold",
+                    "tissue_suture_pull_hold"
+                );
+
+                numi::matter::RuntimeStateSnapshot finalPullMatter =
+                    tissueRuntime.snapshot();
+                pullSelection = selectAndBindTractMaterial(
+                    pullState,
+                    finalPullMatter,
+                    0.0,
+                    "working-end pull terminal boundary"
+                );
+                finalPullMatter = tissueRuntime.snapshot();
+                const auto finalMaterialPlan = materialPlanFor(
+                    pullSelection
+                );
+                require(
+                    finalMaterialPlan.succeeded(),
+                    "working-end pull terminal material plan failed: " +
+                        std::string(
+                            metalrobo::
+                                surgicalSutureMaterialPlanStatusName(
+                                    finalMaterialPlan.status
+                                )
+                        )
+                );
+                double maximumRestEdgeLengthM = 0.0;
+                for (std::size_t node = 1u;
+                     node < world.rods[0].model.restPositions.size();
+                     ++node) {
+                    maximumRestEdgeLengthM = std::max(
+                        maximumRestEdgeLengthM,
+                        norm(
+                            vector(
+                                world.rods[0].model.restPositions[node]
+                            ) -
+                            vector(
+                                world.rods[0].model
+                                    .restPositions[node - 1u]
+                            )
+                        )
+                    );
+                }
+                const double materialDrawM =
+                    finalMaterialPlan.current.workingArcLengthM -
+                    initialMaterialPlan.current.workingArcLengthM;
+                const double remainingDrawReductionM =
+                    initialMaterialPlan.requiredDrawLengthM -
+                    finalMaterialPlan.requiredDrawLengthM;
+                const double stitchArcChangeM = std::abs(
+                    finalMaterialPlan.current.stitchArcLengthM -
+                    initialMaterialPlan.current.stitchArcLengthM
+                );
+                const Vec3 finalNeedlePosition = vector(
+                    pullState.finalSceneBodies.at(0u).position
+                );
+                const Vec3 needleTranslation =
+                    finalNeedlePosition - vector(pullStartNeedle.position);
+                const double achievedNeedleDrawM = dot(
+                    needleTranslation,
+                    pullDirection
+                );
+                const double lateralNeedleErrorM = norm(
+                    needleTranslation -
+                    pullDirection * achievedNeedleDrawM
+                );
+                double finalPullTopProjection =
+                    -std::numeric_limits<double>::infinity();
+                std::vector<metalrobo::SurgicalThreadTargetPoint>
+                    finalPullSurfaceNodes;
+                finalPullSurfaceNodes.reserve(
+                    finalPullMatter.femNodes.size()
+                );
+                for (const NMFEMNodeStateGPU& node :
+                     finalPullMatter.femNodes) {
+                    const Vec3 position = vector(node.positionAndMass);
+                    finalPullTopProjection = std::max(
+                        finalPullTopProjection,
+                        dot(position, pullDirection)
+                    );
+                    finalPullSurfaceNodes.push_back(
+                        targetingPoint(position)
+                    );
+                }
+                const JawGeometry finalPullJaw = worldJawGeometry(
+                    world.model,
+                    1u,
+                    pullState.finalQ,
+                    pullState.finalV
+                );
+                const auto finalPullJawClearance = metalrobo::
+                    evaluateSurgicalThreadJawSurfaceClearance(
+                        targetingPoint(finalPullJaw.midpoint),
+                        targetingPoint(finalPullJaw.railDirection),
+                        jawMetadata.largeNeedleDriverJawLength,
+                        0.5 * jawMetadata.instrumentDiameter,
+                        finalPullSurfaceNodes,
+                        pullSurfaceTriangles
+                    );
+                const double finalNeedleClearanceM =
+                    wholeNeedleProjectionRange(
+                        needleForPlacement,
+                        pullState.finalSceneBodies.at(0u),
+                        pullDirection
+                    ).minimum - finalPullTopProjection;
+                const ContactCounts finalPullContacts = contactCounts(
+                    world,
+                    pullState,
+                    needleForPlacement.metadata,
+                    kNeedleFirstShape
+                );
+                const GraspKinematics finalPullGrasp = graspKinematics(
+                    world,
+                    needleForPlacement,
+                    pullState,
+                    1u,
+                    kExtractionNeedleShape,
+                    pullReceiverReference
+                );
+                const RodStateMetrics finalPullRod = rodStateMetrics(
+                    world,
+                    pullState
+                );
+                const double finalPullSwageErrorM = swageAttachmentError(
+                    world,
+                    pullState
+                );
+                const MRMetalWorldContactStatusGPU& finalPullResidual =
+                    requireTerminalResidual(
+                        pullState,
+                        "working-end pull terminal hold"
+                    );
+                pullMatterMetrics = validatePullMatter(
+                    finalPullMatter,
+                    "working-end pull terminal"
+                );
+                require(
+                    maximumRestEdgeLengthM > 0.0 &&
+                        materialDrawM >=
+                            strokeDrawM - maximumRestEdgeLengthM &&
+                        materialDrawM <=
+                            strokeDrawM + maximumRestEdgeLengthM &&
+                        remainingDrawReductionM >=
+                            strokeDrawM - maximumRestEdgeLengthM &&
+                        remainingDrawReductionM <=
+                            strokeDrawM + maximumRestEdgeLengthM &&
+                        stitchArcChangeM <=
+                            2.0 * maximumRestEdgeLengthM &&
+                        achievedNeedleDrawM >= 0.9 * strokeDrawM &&
+                        lateralNeedleErrorM <= 5.0e-4 &&
+                        finalPullJawClearance.succeeded() &&
+                        finalPullJawClearance
+                                .minimumEnvelopeClearanceM >=
+                            kOpposingDriveJawTissueClearanceM &&
+                        finalNeedleClearanceM >=
+                            kOpposingThreadRootClearanceM &&
+                        bilateral(finalPullContacts, 1u) &&
+                        distributedInsertCoverage(
+                            finalPullContacts,
+                            1u
+                        ) &&
+                        cleanNeedleInteraction(
+                            finalPullContacts,
+                            false,
+                            true
+                        ) &&
+                        qualifiedDrivenGrasp(finalPullGrasp) &&
+                        qualifiedTerminalRod(finalPullRod) &&
+                        finalPullSwageErrorM <
+                            kMaximumSwageAttachmentError &&
+                        finalPullResidual.residuals.y <=
+                            kMaximumTerminalContactVelocityResidual &&
+                        finalPullResidual.residuals.z <=
+                            kMaximumTerminalConeViolation,
+                    "working-end stroke did not transfer the commanded "
+                        "source material through both live tracts"
+                );
+                const bool pullComplete =
+                    finalMaterialPlan.requiredDrawLengthM <= 1.0e-12;
+                const std::string_view pullPhase = pullComplete
+                    ? "tissue-suture-pull-complete"
+                    : "tissue-suture-pull-stroke";
+                const std::uint64_t pullStateStep =
+                    resumedTissueCheckpointStep +
+                    static_cast<std::uint64_t>(completedPullSteps) *
+                        stepConfig.physicsSubsteps;
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    pullPhase,
+                    pullStateStep,
+                    world,
+                    sutureSpec,
+                    pullState,
+                    &finalPullMatter
+                );
+                std::cout << std::setprecision(9)
+                    << "tissue_suture_pull_stroke=ok"
+                    << " source_phase="
+                    << options.resumeTissueCheckpointPhase
+                    << " output_phase=" << pullPhase
+                    << " commanded_draw_m=" << strokeDrawM
+                    << " material_draw_m=" << materialDrawM
+                    << " material_resolution_m="
+                    << maximumRestEdgeLengthM
+                    << " remaining_draw_reduction_m="
+                    << remainingDrawReductionM
+                    << " remaining_draw_m="
+                    << finalMaterialPlan.requiredDrawLengthM
+                    << " current_working_arc_m="
+                    << finalMaterialPlan.current.workingArcLengthM
+                    << " stitch_arc_m="
+                    << finalMaterialPlan.current.stitchArcLengthM
+                    << " current_free_tail_m="
+                    << finalMaterialPlan.current.freeTailLengthM
+                    << " first_tract_edge="
+                    << pullSelection.tractEdges[0]
+                    << " opposing_tract_edge="
+                    << pullSelection.tractEdges[1]
+                    << " achieved_needle_draw_m="
+                    << achievedNeedleDrawM
+                    << " lateral_needle_error_m="
+                    << lateralNeedleErrorM
+                    << " minimum_planned_jaw_tissue_clearance_m="
+                    << pullMinimumPlannedJawClearanceM
+                    << " terminal_jaw_tissue_clearance_m="
+                    << finalPullJawClearance.minimumEnvelopeClearanceM
+                    << " terminal_needle_tissue_clearance_m="
+                    << finalNeedleClearanceM
+                    << " active_puncture_channels="
+                    << pullMatterMetrics.activeChannels
+                    << " active_tetrahedra="
+                    << pullMatterMetrics.activeTetrahedra
+                    << " removed_tissue_mass_kg="
+                    << pullMatterMetrics.removedMassKg
+                    << " matter_minimum_determinant="
+                    << pullMatterMetrics.minimumDeterminant
+                    << " matter_maximum_residual="
+                    << pullMatterMetrics.maximumResidual
+                    << " receiver_seat_drift_m="
+                    << finalPullGrasp.seatDrift
+                    << " thread_maximum_edge_error_m="
+                    << finalPullRod.maximumEdgeLengthError
+                    << " terminal_contact_velocity_residual_mps="
+                    << finalPullResidual.residuals.y
+                    << " gpu_ms=" << pullGpuMilliseconds
+                    << " failed_steps=0\n";
+                return 0;
+            }
             if (tissueThreadTargetOnly ||
                 tissueThreadAcquisitionOnly) {
                 require(
                     options.resumeTissueCheckpointPhase ==
-                        "tissue-opposing-bite-thread-root",
+                        "tissue-suture-pull-complete",
                     "post-bite thread targeting requires the accepted "
-                    "opposing thread-root checkpoint"
+                    "completed pull-through checkpoint"
                 );
                 std::vector<metalrobo::SurgicalThreadTargetPoint>
                     threadNodes;
