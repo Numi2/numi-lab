@@ -6496,6 +6496,61 @@ struct KnotContinuationCheckpoint {
     Vec3 axisZ{};
 };
 
+std::optional<std::uint32_t> knotCheckpointThrowIndex(
+    const std::string_view phase
+) {
+    if (phase == "tissue-knot-first-throw-staged" ||
+        phase == "tissue-knot-first-double-throw") {
+        return 0u;
+    }
+    if (phase == "tissue-knot-load-retained") {
+        return 5u;
+    }
+    constexpr std::string_view prefix{"tissue-knot-square-throw-"};
+    if (phase.size() == prefix.size() + 1u &&
+        phase.starts_with(prefix) && phase.back() >= '1' &&
+        phase.back() <= '5') {
+        return static_cast<std::uint32_t>(phase.back() - '0');
+    }
+    return std::nullopt;
+}
+
+void requireKnotCheckpointProtocolContract(
+    const std::string_view phase,
+    const KnotContinuationCheckpoint& checkpoint
+) {
+    const auto throwIndex = knotCheckpointThrowIndex(phase);
+    require(
+        checkpoint.available == throwIndex.has_value(),
+        "knot checkpoint metadata does not match its phase"
+    );
+    if (!throwIndex.has_value()) {
+        return;
+    }
+    const auto protocol =
+        metalrobo::makeSurgeonsKnotInstrumentProtocol();
+    const metalrobo::SurgicalThrowPath& path = *throwIndex == 0u
+        ? protocol.firstDoubleThrow
+        : protocol.squareSingleThrows[*throwIndex - 1u];
+    const bool staged = phase == "tissue-knot-first-throw-staged";
+    const std::uint32_t expectedCompletedSample = staged
+        ? 0u
+        : static_cast<std::uint32_t>(path.samples.size() - 1u);
+    require(
+        checkpoint.protocolRevision == 1u &&
+            checkpoint.protocolFingerprint ==
+                metalrobo::surgeonsKnotInstrumentProtocolFingerprint(
+                    protocol
+                ) &&
+            checkpoint.throwIndex == *throwIndex &&
+            checkpoint.completedSample == expectedCompletedSample &&
+            checkpoint.expectedWholeTurns == path.expectedWholeTurns &&
+            checkpoint.expectedWindingSign == path.expectedWindingSign &&
+            checkpoint.expectedTransferSign == path.expectedTransferSign,
+        "knot checkpoint phase, sample, or canonical protocol is mismatched"
+    );
+}
+
 bool isLiveTissueCheckpointPhase(const std::string_view phase) {
     return phase == "tissue-receiver-bridge-start" ||
         phase == "tissue-receiver-dynamic-bridge" ||
@@ -6512,14 +6567,7 @@ bool isLiveTissueCheckpointPhase(const std::string_view phase) {
         phase == "tissue-suture-pull-complete" ||
         phase == "tissue-thread-approached" ||
         phase == "tissue-thread-acquired" ||
-        phase == "tissue-knot-first-throw-staged" ||
-        phase == "tissue-knot-first-double-throw" ||
-        phase == "tissue-knot-square-throw-1" ||
-        phase == "tissue-knot-square-throw-2" ||
-        phase == "tissue-knot-square-throw-3" ||
-        phase == "tissue-knot-square-throw-4" ||
-        phase == "tissue-knot-square-throw-5" ||
-        phase == "tissue-knot-load-retained";
+        knotCheckpointThrowIndex(phase).has_value();
 }
 
 bool isSupportedTissueCheckpointPhase(const std::string_view phase) {
@@ -7835,6 +7883,10 @@ std::uint64_t loadHandoffState(
         "handoff knot continuation metadata is partial"
     );
     parsedKnotCheckpoint.available = knotFieldCount == 6u;
+    requireKnotCheckpointProtocolContract(
+        expectedPhase,
+        parsedKnotCheckpoint
+    );
     if (knotCheckpoint != nullptr) {
         *knotCheckpoint = parsedKnotCheckpoint;
     }
@@ -7953,7 +8005,13 @@ void writeHandoffStateArtifact(
                 world.rods[0].model.restTwists.size(),
         "handoff visual state is incomplete"
     );
+    require(
+        (knotCheckpoint != nullptr) ==
+            knotCheckpointThrowIndex(phase).has_value(),
+        "handoff knot phase and continuation metadata are inconsistent"
+    );
     if (knotCheckpoint != nullptr) {
+        requireKnotCheckpointProtocolContract(phase, *knotCheckpoint);
         const auto finiteVector = [](const Vec3 value) {
             return std::isfinite(value.x) && std::isfinite(value.y) &&
                 std::isfinite(value.z);
@@ -14746,15 +14804,9 @@ int main(const int argc, const char* const argv[]) {
                     "surgical tissue resume requires a v3 Matter checkpoint"
                 );
                 const bool knotCheckpointPhase =
-                    options.resumeTissueCheckpointPhase ==
-                        "tissue-knot-first-throw-staged" ||
-                    options.resumeTissueCheckpointPhase ==
-                        "tissue-knot-first-double-throw" ||
-                    options.resumeTissueCheckpointPhase.starts_with(
-                        "tissue-knot-square-throw-"
-                    ) ||
-                    options.resumeTissueCheckpointPhase ==
-                        "tissue-knot-load-retained";
+                    knotCheckpointThrowIndex(
+                        options.resumeTissueCheckpointPhase
+                    ).has_value();
                 require(
                     resumedKnotCheckpoint.available == knotCheckpointPhase,
                     knotCheckpointPhase
