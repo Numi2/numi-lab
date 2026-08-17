@@ -464,6 +464,17 @@ coefficient. Resolved surface-spin torque, distinct static and dynamic
 self-friction, and stronger coupled rod/rigid iterations remain open fidelity
 boundaries.
 
+Knot execution has a separate instrument-trajectory gate before the expensive
+coupled replay. `SurgicalKnot` derives the finite envelope from the source-
+pinned 8 mm Large Needle Driver, integrates signed jaw-centre winding, checks a
+finite-radius bight transfer, bounds commanded centre speed, and requires
+monotone opposing cinch motion. The accepted protocol is a two-wrap first throw
+followed by one oppositely handed throw; same-handed, missing-wrap, and missed-
+gate controls reject. This certificate does not infer thread topology from the
+instrument path. The DER self-contact network, temporary jaw/thread grasp,
+articulated reachability, and loaded-knot retention remain independent live
+physics authorities.
+
 The dual-PSM operative probe keeps post-extraction needle transport separate
 from the next bite. It first translates the receiver-held complete half-circle
 needle without changing attitude, then performs the half-turn only on a distal

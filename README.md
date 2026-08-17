@@ -242,6 +242,22 @@ boundaries.
   build-coupled-dev/testing/suture/extraction-state/receiver-extraction-giver-retreated.tsv
 ```
 
+## Surgical-knot instrument protocol
+
+The deterministic protocol gate derives the instrument envelope from the
+source-pinned 8 mm Large Needle Driver and verifies the jaw-centre geometry of
+a two-wrap first throw followed by a single reversing throw. It integrates the
+signed winding from sampled motion, requires a finite-clearance tail transfer
+through the bight gate, bounds jaw-centre speed, and requires monotone opposing
+cinch motion. Same-handed, missing-wrap, and missed-gate controls are rejected.
+This is an instrument-trajectory authority only; it is not evidence that the
+thread formed or retained a knot, that the path is reachable by the articulated
+PSMs, or that a live tissue-coupled robot sequence executed.
+
+```sh
+./build-coupled-dev/bin/metalrobo_surgical_knot_protocol_probe
+```
+
 ## Loaded PDO knot-contact mechanics
 
 The rod solver now resolves a bounded network of frictional thread/thread

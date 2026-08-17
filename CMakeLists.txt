@@ -653,6 +653,7 @@ add_library(
     src/core/SurgicalAssets.cpp
     src/core/SurgicalVisual.cpp
     src/core/SurgicalWorld.cpp
+    src/core/SurgicalKnot.cpp
     src/core/HeterogeneousWorld.cpp
     src/core/DiscreteElasticRod.cpp
     src/core/Collision.cpp
@@ -1357,6 +1358,30 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_surgical_knot_mechanics_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_surgical_knot_protocol_probe
+    apps/surgical_knot_protocol_probe.cpp
+)
+target_compile_options(
+    metalrobo_surgical_knot_protocol_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_surgical_knot_protocol_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_surgical_knot_protocol_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
@@ -2398,6 +2423,16 @@ if(BUILD_TESTING)
         PROPERTIES
             LABELS "metalrobo;surgical;physics;metal"
             TIMEOUT 180
+    )
+    add_test(
+        NAME metalrobo.surgical.knot_instrument_protocol
+        COMMAND $<TARGET_FILE:metalrobo_surgical_knot_protocol_probe>
+    )
+    set_tests_properties(
+        metalrobo.surgical.knot_instrument_protocol
+        PROPERTIES
+            LABELS "metalrobo;surgical;geometry"
+            TIMEOUT 30
     )
     add_test(
         NAME metalrobo.surgical.dual_psm_suture_handoff
