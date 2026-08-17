@@ -2480,6 +2480,10 @@ if(BUILD_TESTING)
         METALROBO_TISSUE_CHECKPOINT_TEST_STATE_DIRECTORY
         "${CMAKE_CURRENT_BINARY_DIR}/testing/suture/tissue-checkpoint"
     )
+    set(
+        METALROBO_TISSUE_CHECKPOINT_CONTINUED_DIRECTORY
+        "${CMAKE_CURRENT_BINARY_DIR}/testing/suture/tissue-checkpoint-continued"
+    )
     add_test(
         NAME metalrobo.surgical.loaded_knot_mechanics
         COMMAND $<TARGET_FILE:metalrobo_surgical_knot_mechanics_probe>
@@ -2560,6 +2564,23 @@ if(BUILD_TESTING)
     )
     set_tests_properties(
         metalrobo.surgical.tissue_checkpoint_restore
+        PROPERTIES
+            FIXTURES_REQUIRED metalrobo_surgical_tissue_checkpoint
+            LABELS "metalrobo;matter;surgical;physics;metal;checkpoint"
+            TIMEOUT 900
+    )
+    add_test(
+        NAME metalrobo.surgical.tissue_checkpoint_hold
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-checkpoint-hold-only
+            --resume-tissue-checkpoint tissue-rest
+            "${METALROBO_TISSUE_CHECKPOINT_TEST_STATE_DIRECTORY}/tissue-rest.tsv"
+            --state-output-dir
+            "${METALROBO_TISSUE_CHECKPOINT_CONTINUED_DIRECTORY}"
+    )
+    set_tests_properties(
+        metalrobo.surgical.tissue_checkpoint_hold
         PROPERTIES
             FIXTURES_REQUIRED metalrobo_surgical_tissue_checkpoint
             LABELS "metalrobo;matter;surgical;physics;metal;checkpoint"

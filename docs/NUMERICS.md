@@ -395,7 +395,12 @@ then loads the articulated/rigid/DER reset and restores the decoded private
 arenas. It requires byte-exact authority and physical FEM/topology certificates
 before allowing a later command to advance physics; compiling Matter directly
 from a deformed checkpoint would change the owning program identity and is not
-a valid resume.
+a valid resume. The checkpoint hold probe restores the recorded coupled cadence,
+advances one full MetalWorld/Matter transaction twice from the same state, and
+requires byte-identical rigid, articulated, DER, and Matter results. MetalWorld
+manifold/warm-start caches are not yet part of the archive, so this is a
+deterministic cold-cache continuation rather than byte equivalence to an
+uninterrupted resident submission.
 The v1 MetalWorld contract owns one articulation per environment; all of its
 collision proxies therefore share one articulated generalized/q reserve, while
 each distinct free body contributes exactly six additional coordinates.

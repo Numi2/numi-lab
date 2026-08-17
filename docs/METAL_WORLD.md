@@ -511,6 +511,14 @@ The CTest fixture publishes and consumes a real `tissue-rest` checkpoint; the
 same gate accepts every transactionally published receiver and opposing-bite
 phase.
 
+`--tissue-checkpoint-hold-only` crosses that boundary by restoring the recorded
+Matter cadence and advancing one coupled transaction. It rewinds and repeats the
+transaction, requires byte-identical articulated, needle, DER, and Matter state,
+then can atomically publish the continued v3 checkpoint. This is intentionally
+reported as `metalworld_warmstart=cold_reinitialized`: Matter continuation is
+exact, while MetalWorld contact-manifold and warm-start caches are not archived,
+so uninterrupted resident equivalence is not claimed.
+
 The dual-PSM operative probe keeps post-extraction needle transport separate
 from the next bite. It first translates the receiver-held complete half-circle
 needle without changing attitude, then performs the half-turn only on a distal
