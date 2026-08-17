@@ -289,9 +289,11 @@ constexpr std::uint32_t kPositiveControlResumeMaximumProofSteps = 500u;
 constexpr std::uint32_t kReceiverClosureSettleSteps = 100u;
 // Exchange preload before the giver clears the needle: the receiver ramps
 // from gentle 15 um overlap to the qualified 60 um seat while the giver ramps
-// down by the same amount. A short hold qualifies that full receiver seat;
-// only then does the giver continue to a visibly open clearance.
+// down by the same amount. Re-prove the full receiver seat in consecutive
+// 100 ms chunks, with a bounded 1 s ceiling; only then may the giver continue
+// to a visibly open clearance.
 constexpr std::uint32_t kLoadExchangeSettleSteps = 50u;
+constexpr std::uint32_t kLoadExchangeMaximumSettleSteps = 500u;
 constexpr std::uint32_t kGiverReleaseSettleSteps = 100u;
 // Once the receiver owns the needle, withdraw the opened giver along its
 // trocar axis before translating the curved needle. Eight millimetres clears
@@ -33369,11 +33371,13 @@ int main(const int argc, const char* const argv[]) {
             sutureSpec,
             loadExchangeMotion.result
         );
+        std::uint32_t loadExchangeSettleStepsThisRun =
+            kLoadExchangeSettleSteps;
         efforts = interpolateTargets(
             world.model,
             loadExchangeMotion.result.finalQ,
             target,
-            kLoadExchangeSettleSteps
+            loadExchangeSettleStepsThisRun
         );
         PhaseResult loadExchanged = continuePhase(
             context,
@@ -33381,48 +33385,198 @@ int main(const int argc, const char* const argv[]) {
             stepConfig,
             resident,
             efforts,
-            kLoadExchangeSettleSteps,
+            loadExchangeSettleStepsThisRun,
             "coordinated handoff load-exchange hold"
         );
-        loadExchanged.diagnostics.successfulStepCount +=
-            loadExchangeMotion.diagnostics.successfulStepCount;
-        loadExchanged.diagnostics.gpuElapsedMilliseconds +=
-            loadExchangeMotion.diagnostics.gpuElapsedMilliseconds;
-        const ContactCounts loadExchangeContacts = contactCounts(
-            world,
-            loadExchanged.result,
-            needleForPlacement.metadata,
-            kNeedleFirstShape
-        );
-        const double loadExchangeSwageError =
-            swageAttachmentError(world, loadExchanged.result);
-        const double loadExchangeSwageTangentError =
-            swageTangentAngleError(world, loadExchanged.result);
-        const GraspKinematics loadExchangeGiverMotion = graspKinematics(
-            world,
-            needleForPlacement,
-            loadExchanged.result,
-            0u,
-            kGiverNeedleShape,
-            *giverGraspReference
-        );
-        const GraspKinematics loadExchangeReceiverMotion = graspKinematics(
-            world,
-            needleForPlacement,
-            loadExchanged.result,
-            1u,
-            kReceiverNeedleShape,
-            *receiverGraspReference
-        );
-        const RodStateMetrics loadExchangeRod = rodStateMetrics(
-            world,
-            loadExchanged.result
-        );
-        const MRMetalWorldContactStatusGPU& loadExchangeResidual =
-            requireTerminalResidual(
-                loadExchanged.result,
-                "coordinated handoff load exchange"
+        std::uint64_t loadExchangeSuccessfulSteps =
+            loadExchangeMotion.diagnostics.successfulStepCount +
+            loadExchanged.diagnostics.successfulStepCount;
+        double loadExchangeGpuMilliseconds =
+            loadExchangeMotion.diagnostics.gpuElapsedMilliseconds +
+            loadExchanged.diagnostics.gpuElapsedMilliseconds;
+        struct LoadExchangeAudit {
+            ContactCounts contacts{};
+            GraspKinematics giverMotion{};
+            GraspKinematics receiverMotion{};
+            RodStateMetrics rod{};
+            MRMetalWorldContactStatusGPU residual{};
+            double swageError =
+                std::numeric_limits<double>::infinity();
+            double swageTangentError =
+                std::numeric_limits<double>::infinity();
+            double needleLinearSpeed =
+                std::numeric_limits<double>::infinity();
+            double needleAngularSpeed =
+                std::numeric_limits<double>::infinity();
+            bool qualified = false;
+        };
+        const auto auditLoadExchange = [&] (
+            const PhaseResult& state,
+            const std::uint32_t completedSettleSteps
+        ) {
+            LoadExchangeAudit audit;
+            audit.contacts = contactCounts(
+                world,
+                state.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
             );
+            audit.giverMotion = graspKinematics(
+                world,
+                needleForPlacement,
+                state.result,
+                0u,
+                kGiverNeedleShape,
+                *giverGraspReference
+            );
+            audit.receiverMotion = graspKinematics(
+                world,
+                needleForPlacement,
+                state.result,
+                1u,
+                kReceiverNeedleShape,
+                *receiverGraspReference
+            );
+            audit.rod = rodStateMetrics(world, state.result);
+            audit.swageError = swageAttachmentError(world, state.result);
+            audit.swageTangentError = swageTangentAngleError(
+                world,
+                state.result
+            );
+            const MRBodyStateGPU& needle =
+                state.result.finalSceneBodies[0];
+            audit.needleLinearSpeed = norm(vector(
+                needle.linearVelocityAndInverseMass
+            ));
+            audit.needleAngularSpeed = norm(vector(
+                needle.angularVelocity
+            ));
+            audit.residual = requireTerminalResidual(
+                state.result,
+                "coordinated load-exchange candidate",
+                false
+            );
+            audit.qualified =
+                bilateral(audit.contacts, 0u) &&
+                bilateral(audit.contacts, 1u) &&
+                cleanNeedleInteraction(audit.contacts, true, true) &&
+                qualifiedTransitionGrasp(audit.giverMotion) &&
+                qualifiedTransitionGrasp(audit.receiverMotion) &&
+                qualifiedTransitionRod(audit.rod) &&
+                audit.rod.clampedRootSpeedValid &&
+                audit.rod.maximumClampedRootSpeed <=
+                    kMaximumSettledSwageRootSpeed &&
+                audit.needleLinearSpeed <=
+                    kMaximumSettledNeedleLinearSpeed &&
+                audit.needleAngularSpeed <=
+                    kMaximumSettledNeedleAngularSpeed &&
+                audit.swageError < kMaximumSwageAttachmentError &&
+                audit.swageTangentError <
+                    maximumSwageTangentAngleError(world) &&
+                audit.residual.residuals.y <=
+                    kMaximumTerminalContactVelocityResidual &&
+                audit.residual.residuals.z <=
+                    kMaximumTerminalConeViolation;
+            std::cerr << "handoff_phase=load_exchange_candidate"
+                << " completed_settle_steps=" << completedSettleSteps
+                << " qualified=" << audit.qualified
+                << " hard_swage_root_error_m=" << audit.swageError
+                << " giver_seat_drift_m="
+                << audit.giverMotion.seatDrift
+                << " receiver_seat_drift_m="
+                << audit.receiverMotion.seatDrift
+                << " needle_linear_speed_mps="
+                << audit.needleLinearSpeed
+                << " needle_angular_speed_radps="
+                << audit.needleAngularSpeed
+                << " thread_max_node_speed_mps="
+                << audit.rod.maximumNodeSpeed
+                << " thread_max_node_speed_index="
+                << audit.rod.maximumNodeSpeedIndex
+                << " swage_root_max_node_speed_mps="
+                << audit.rod.maximumClampedRootSpeed
+                << " contact_residuals=["
+                << audit.residual.residuals.x << ','
+                << audit.residual.residuals.y << ','
+                << audit.residual.residuals.z << ','
+                << audit.residual.residuals.w << ']'
+                << contactSummary(audit.contacts) << '\n';
+            return audit;
+        };
+        std::optional<LoadExchangeAudit> loadExchangeAudit =
+            auditLoadExchange(
+                loadExchanged,
+                loadExchangeSettleStepsThisRun
+            );
+        std::uint32_t consecutiveQualifiedLoadExchangeProofs =
+            loadExchangeAudit->qualified ? 1u : 0u;
+        while (
+            consecutiveQualifiedLoadExchangeProofs < 2u &&
+            loadExchangeSettleStepsThisRun <
+                kLoadExchangeMaximumSettleSteps
+        ) {
+            const std::uint32_t extensionSteps = std::min(
+                kLoadExchangeSettleSteps,
+                kLoadExchangeMaximumSettleSteps -
+                    loadExchangeSettleStepsThisRun
+            );
+            efforts = interpolateTargets(
+                world.model,
+                loadExchanged.result.finalQ,
+                target,
+                extensionSteps
+            );
+            PhaseResult extension = continuePhase(
+                context,
+                compiled,
+                stepConfig,
+                resident,
+                efforts,
+                extensionSteps,
+                "coordinated load-exchange proof extension"
+            );
+            loadExchangeSuccessfulSteps +=
+                extension.diagnostics.successfulStepCount;
+            loadExchangeGpuMilliseconds +=
+                extension.diagnostics.gpuElapsedMilliseconds;
+            loadExchangeSettleStepsThisRun += extensionSteps;
+            loadExchanged = std::move(extension);
+            loadExchangeAudit = auditLoadExchange(
+                loadExchanged,
+                loadExchangeSettleStepsThisRun
+            );
+            consecutiveQualifiedLoadExchangeProofs =
+                loadExchangeAudit->qualified
+                ? consecutiveQualifiedLoadExchangeProofs + 1u
+                : 0u;
+        }
+        require(
+            consecutiveQualifiedLoadExchangeProofs >= 2u,
+            "coordinated load exchange did not reach two consecutive "
+            "quiescent dual-control completions"
+        );
+        loadExchanged.diagnostics.successfulStepCount =
+            loadExchangeSuccessfulSteps;
+        loadExchanged.diagnostics.gpuElapsedMilliseconds =
+            loadExchangeGpuMilliseconds;
+        (void)requireTerminalResidual(
+            loadExchanged.result,
+            "coordinated handoff load exchange"
+        );
+        const ContactCounts& loadExchangeContacts =
+            loadExchangeAudit->contacts;
+        const double loadExchangeSwageError =
+            loadExchangeAudit->swageError;
+        const double loadExchangeSwageTangentError =
+            loadExchangeAudit->swageTangentError;
+        const GraspKinematics& loadExchangeGiverMotion =
+            loadExchangeAudit->giverMotion;
+        const GraspKinematics& loadExchangeReceiverMotion =
+            loadExchangeAudit->receiverMotion;
+        const RodStateMetrics& loadExchangeRod =
+            loadExchangeAudit->rod;
+        const MRMetalWorldContactStatusGPU& loadExchangeResidual =
+            loadExchangeAudit->residual;
         std::cerr << "handoff_phase=load_exchange"
             << " hard_swage_root_error_m=" << loadExchangeSwageError
             << " swage_tangent_angle_error_rad="
@@ -33468,7 +33622,7 @@ int main(const int argc, const char* const argv[]) {
             options.stateOutputDirectory,
             "load-exchange",
             preReleaseSuccessfulSteps + kLoadExchangeSteps +
-                kLoadExchangeSettleSteps,
+                loadExchangeSettleStepsThisRun,
             world,
             sutureSpec,
             loadExchanged.result
@@ -33477,7 +33631,8 @@ int main(const int argc, const char* const argv[]) {
             std::cout << std::setprecision(9)
                 << "dual_psm_suture_handoff_load_exchange=ok"
                 << " motion_steps=" << kLoadExchangeSteps
-                << " settling_steps=" << kLoadExchangeSettleSteps
+                << " settling_steps="
+                << loadExchangeSettleStepsThisRun
                 << " giver_seat_drift_m="
                 << loadExchangeGiverMotion.seatDrift
                 << " receiver_seat_drift_m="
@@ -33554,7 +33709,7 @@ int main(const int argc, const char* const argv[]) {
             options.stateOutputDirectory,
             "giver-release-motion",
             preReleaseSuccessfulSteps + kLoadExchangeSteps +
-                kLoadExchangeSettleSteps + kReleaseSteps,
+                loadExchangeSettleStepsThisRun + kReleaseSteps,
             world,
             sutureSpec,
             releaseMotion.result
@@ -33646,7 +33801,7 @@ int main(const int argc, const char* const argv[]) {
             options.stateOutputDirectory,
             "giver-release",
             preReleaseSuccessfulSteps + kLoadExchangeSteps +
-                kLoadExchangeSettleSteps + kReleaseSteps +
+                loadExchangeSettleStepsThisRun + kReleaseSteps +
                 kGiverReleaseSettleSteps,
             world,
             sutureSpec,
@@ -33707,7 +33862,7 @@ int main(const int argc, const char* const argv[]) {
             options.stateOutputDirectory,
             "receiver-transfer-motion",
             preReleaseSuccessfulSteps + kLoadExchangeSteps +
-                kLoadExchangeSettleSteps + kReleaseSteps +
+                loadExchangeSettleStepsThisRun + kReleaseSteps +
                 kGiverReleaseSettleSteps + kReceiverTransferSteps,
             world,
             sutureSpec,
@@ -33807,7 +33962,7 @@ int main(const int argc, const char* const argv[]) {
             options.stateOutputDirectory,
             "receiver-transfer",
             preReleaseSuccessfulSteps + kLoadExchangeSteps +
-                kLoadExchangeSettleSteps + kReleaseSteps +
+                loadExchangeSettleStepsThisRun + kReleaseSteps +
                 kGiverReleaseSettleSteps + kReceiverTransferSteps +
                 kReceiverTransferSettleSteps,
             world,
@@ -33818,7 +33973,7 @@ int main(const int argc, const char* const argv[]) {
         const auto stats = context.stats();
         const std::uint64_t successfulSteps =
             preReleaseSuccessfulSteps + kLoadExchangeSteps +
-            kLoadExchangeSettleSteps + kReleaseSteps +
+            loadExchangeSettleStepsThisRun + kReleaseSteps +
             kGiverReleaseSettleSteps + kReceiverTransferSteps +
             kReceiverTransferSettleSteps;
         const double totalGpuMilliseconds =
