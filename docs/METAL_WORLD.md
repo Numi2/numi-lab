@@ -702,7 +702,10 @@ is the executable pre-advance gate for v3 tissue checkpoints. It rebuilds the
 phase's original Matter contact program, restores the manifest's exact
 articulated/needle/DER reset and binary FEM/contact authority, recompiles that
 MetalWorld reset, and rejects any byte or physical-certificate mismatch. The
-reported `physics_advanced=no` boundary is deliberate: the gate proves an exact
+runtime deterministically rebuilds FEM node incidence from an archived accepted
+topology generation and mirrors it into the rollback state; incidence is derived
+rather than a second checkpoint authority. The reported `physics_advanced=no`
+boundary is deliberate: the gate proves an exact
 resume point, while phase continuation remains a subsequent physical command.
 The CTest fixture publishes and consumes a real `tissue-rest` checkpoint; the
 same gate accepts every transactionally published receiver and opposing-bite

@@ -191,9 +191,12 @@ device program. It requires the snapshot's cooked layout, runtime policy, ABI,
 metallib fingerprint, arena sizes, cadence, and suture-proxy window to match,
 then restores accepted/candidate/checkpoint mirrors in one bounded Metal blit.
 The stateful MPM and FEM probes require byte-exact immediate readback and a
-byte-identical deterministic continuation after rewind. Snapshots taken after
-allocation growth are rejected for now because rebuilt topology incidence is
-not yet exported; source-physics fingerprint equality alone is insufficient.
+byte-identical deterministic continuation after rewind. For an exact matching
+device program, snapshots whose accepted topology generation differs from the
+cooked generation reconstruct node incidence and ranges deterministically from
+the archived topology arrays, then restore both the live and rollback mirrors.
+Arena sizes remain exact; source-physics fingerprint equality alone is still
+insufficient.
 `MatterSnapshotArchive` stores that completion authority in an ABI-bound,
 content-hashed binary payload. It writes a same-directory temporary file and
 publishes with atomic rename; decode checks magic, version, endian marker,

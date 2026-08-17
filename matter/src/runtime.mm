@@ -6119,9 +6119,11 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             "Matter snapshot does not match the initialized device program";
         return diagnostics;
     }
-    // Topology incidence is rebuilt by the allocation-growth path and is not
-    // yet part of RuntimeStateSnapshot. Refuse a mutated allocation rather
-    // than restoring topology arrays against stale incidence.
+    // Incidence is derived state rather than independent snapshot authority.
+    // A topology mutation can advance the accepted generation without changing
+    // the compiled arena sizes, so reconstruct that derived state below from
+    // the exact accepted node/tetrahedron arrays instead of pairing restored
+    // topology with the initialized world's stale incidence.
     std::uint32_t cookedAllocationGeneration = 0u;
     for (const NMContinuumObjectGPU& object : state.objectLayout) {
         if (object.representation != NM_REPRESENTATION_FEM) {
@@ -6132,11 +6134,8 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             object.topologyGeneration
         );
     }
-    if (snapshot.allocationGeneration != cookedAllocationGeneration) {
-        diagnostics.message =
-            "Matter snapshot restore does not yet support grown topology incidence";
-        return diagnostics;
-    }
+    const bool rebuildTopologyIncidence =
+        snapshot.allocationGeneration != cookedAllocationGeneration;
     const auto powerOfTwo = [](const std::uint32_t value) {
         return value != 0u && (value & (value - 1u)) == 0u;
     };
@@ -6248,6 +6247,191 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
     }
     if (!dimensionsValid) {
         return diagnostics;
+    }
+
+    std::vector<std::uint32_t> restoredFEMIncidence;
+    std::vector<NMIncidenceRangeGPU> restoredFEMRanges;
+    if (rebuildTopologyIncidence) {
+        try {
+            const std::size_t environments = state.dispatch.environmentCount;
+            const std::size_t nodesPerEnvironment =
+                state.dispatch.femNodeCount;
+            const std::size_t tetrahedraPerEnvironment =
+                state.dispatch.tetrahedronCount;
+            const std::size_t nodeCount =
+                environments * nodesPerEnvironment;
+            const std::size_t tetrahedronCount =
+                environments * tetrahedraPerEnvironment;
+            const std::size_t incidenceCapacity =
+                state.femNodeIncidence.length / sizeof(std::uint32_t);
+            const bool arenaShapeValid =
+                state.femNodeIncidence.length % sizeof(std::uint32_t) == 0u &&
+                incidenceCapacity ==
+                    environments * tetrahedraPerEnvironment * 4u &&
+                incidenceCapacity <=
+                    std::numeric_limits<std::uint32_t>::max() &&
+                state.femNodeIncidenceCheckpoint.length ==
+                    state.femNodeIncidence.length &&
+                state.femNodeRanges.length %
+                        sizeof(NMIncidenceRangeGPU) ==
+                    0u &&
+                state.femNodeRanges.length /
+                        sizeof(NMIncidenceRangeGPU) ==
+                    nodeCount &&
+                state.femNodeRangesCheckpoint.length ==
+                    state.femNodeRanges.length &&
+                snapshot.femTopologyNodes.size() == nodeCount &&
+                snapshot.femTopologyTetrahedra.size() == tetrahedronCount;
+            if (!arenaShapeValid) {
+                diagnostics.message =
+                    "Matter snapshot topology incidence arena shape changed";
+                return diagnostics;
+            }
+
+            restoredFEMIncidence.assign(incidenceCapacity, 0u);
+            restoredFEMRanges.assign(nodeCount, NMIncidenceRangeGPU{});
+            std::vector<std::uint32_t> counts(nodeCount, 0u);
+            std::vector<std::uint32_t> cursors(nodeCount, 0u);
+            bool topologyValid = true;
+            const auto visitActiveTetrahedronNodes = [&] (
+                const std::size_t environment,
+                const std::uint32_t localTetrahedron,
+                const auto& visitor
+            ) {
+                const NMTetrahedronGPU& tetrahedron =
+                    snapshot.femTopologyTetrahedra[
+                        environment * tetrahedraPerEnvironment +
+                        localTetrahedron
+                    ];
+                if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) {
+                    return;
+                }
+                const std::array<std::uint32_t, 4u> nodes{
+                    tetrahedron.nodes.x,
+                    tetrahedron.nodes.y,
+                    tetrahedron.nodes.z,
+                    tetrahedron.nodes.w,
+                };
+                for (std::uint32_t slot = 0u; slot < 4u; ++slot) {
+                    const std::uint32_t node = nodes[slot];
+                    bool duplicate = false;
+                    for (std::uint32_t earlier = 0u;
+                         earlier < slot; ++earlier) {
+                        duplicate = duplicate || nodes[earlier] == node;
+                    }
+                    if (duplicate) {
+                        continue;
+                    }
+                    if (node >= nodesPerEnvironment) {
+                        topologyValid = false;
+                        continue;
+                    }
+                    const std::size_t globalNode =
+                        environment * nodesPerEnvironment + node;
+                    const NMFEMTopologyNodeGPU& topologyNode =
+                        snapshot.femTopologyNodes[globalNode];
+                    if ((topologyNode.identity.w & NM_TOPOLOGY_ACTIVE) == 0u ||
+                        topologyNode.identity.y != tetrahedron.identity.x) {
+                        topologyValid = false;
+                        continue;
+                    }
+                    visitor(
+                        globalNode,
+                        localTetrahedron
+                    );
+                }
+            };
+            for (std::size_t environment = 0u;
+                 environment < environments; ++environment) {
+                for (std::uint32_t tetrahedron = 0u;
+                     tetrahedron < tetrahedraPerEnvironment;
+                     ++tetrahedron) {
+                    visitActiveTetrahedronNodes(
+                        environment,
+                        tetrahedron,
+                        [&] (const std::size_t node, const std::uint32_t) {
+                            if (counts[node] ==
+                                std::numeric_limits<std::uint32_t>::max()) {
+                                topologyValid = false;
+                                return;
+                            }
+                            ++counts[node];
+                        }
+                    );
+                }
+            }
+            for (std::size_t environment = 0u;
+                 environment < environments; ++environment) {
+                const std::size_t nodeBase =
+                    environment * nodesPerEnvironment;
+                const std::size_t incidenceBase =
+                    environment * tetrahedraPerEnvironment * 4u;
+                std::size_t running = 0u;
+                for (std::size_t localNode = 0u;
+                     localNode < nodesPerEnvironment; ++localNode) {
+                    const std::size_t node = nodeBase + localNode;
+                    if (incidenceBase + running + counts[node] >
+                        restoredFEMIncidence.size()) {
+                        topologyValid = false;
+                        break;
+                    }
+                    NMIncidenceRangeGPU& range = restoredFEMRanges[node];
+                    range.first = static_cast<std::uint32_t>(
+                        incidenceBase + running
+                    );
+                    range.count = counts[node];
+                    range.objectIndex = counts[node] == 0u
+                        ? NM_INVALID_INDEX
+                        : snapshot.femTopologyNodes[node].identity.y;
+                    range.reserved = 0u;
+                    running += counts[node];
+                }
+            }
+            if (topologyValid) {
+                for (std::size_t environment = 0u;
+                     environment < environments; ++environment) {
+                    for (std::uint32_t tetrahedron = 0u;
+                         tetrahedron < tetrahedraPerEnvironment;
+                         ++tetrahedron) {
+                        visitActiveTetrahedronNodes(
+                            environment,
+                            tetrahedron,
+                            [&] (
+                                const std::size_t node,
+                                const std::uint32_t localTetrahedron
+                            ) {
+                                const NMIncidenceRangeGPU& range =
+                                    restoredFEMRanges[node];
+                                if (cursors[node] >= range.count ||
+                                    static_cast<std::size_t>(range.first) +
+                                            cursors[node] >=
+                                        restoredFEMIncidence.size()) {
+                                    topologyValid = false;
+                                    return;
+                                }
+                                restoredFEMIncidence[
+                                    range.first + cursors[node]++
+                                ] = localTetrahedron;
+                            }
+                        );
+                    }
+                }
+            }
+            topologyValid = topologyValid && std::ranges::equal(
+                counts,
+                cursors
+            );
+            if (!topologyValid) {
+                diagnostics.message =
+                    "Matter snapshot topology incidence is invalid or exceeds "
+                    "the exact device arena";
+                return diagnostics;
+            }
+        } catch (const std::bad_alloc&) {
+            diagnostics.message =
+                "failed to allocate Matter topology incidence restore staging";
+            return diagnostics;
+        }
     }
 
     std::vector<NMRigidProxyGPU> restoredProxyLayout =
@@ -6369,6 +6553,10 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             snapshot.topologyStates,
             "topology-state"
         );
+        id<MTLBuffer> femNodeIncidence = rebuildTopologyIncidence
+            ? stage(restoredFEMIncidence, "FEM-node-incidence") : nil;
+        id<MTLBuffer> femNodeRanges = rebuildTopologyIncidence
+            ? stage(restoredFEMRanges, "FEM-node-range") : nil;
         id<MTLBuffer> contactHistories = stage(
             snapshot.contactHistories,
             "contact-history"
@@ -6464,6 +6652,20 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             state.punctureChannelsCheckpoint);
         mirror(topologyStates, state.topologyStatesAccepted,
             state.topologyStatesCandidate, state.topologyStatesCheckpoint);
+        if (rebuildTopologyIncidence) {
+            copy(femNodeIncidence, state.femNodeIncidence);
+            copy(femNodeIncidence, state.femNodeIncidenceCheckpoint);
+            copy(femNodeRanges, state.femNodeRanges);
+            copy(femNodeRanges, state.femNodeRangesCheckpoint);
+            if (state.topologyIncidenceCursors.length != 0u) {
+                [blit fillBuffer:state.topologyIncidenceCursors
+                           range:NSMakeRange(
+                               0u,
+                               state.topologyIncidenceCursors.length
+                           )
+                           value:0u];
+            }
+        }
         mirror(contactHistories, state.contactHistoriesAccepted,
             state.contactHistoriesCandidate,
             state.contactHistoriesCheckpoint);
