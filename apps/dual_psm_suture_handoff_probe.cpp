@@ -292,9 +292,15 @@ constexpr std::uint32_t kPositiveControlResumeMaximumProofSteps = 500u;
 constexpr std::uint32_t kReceiverClosureSettleSteps = 100u;
 // Exchange preload before the giver clears the needle: the receiver ramps
 // from gentle 15 um overlap to the qualified 60 um seat while the giver ramps
-// down by the same amount. Re-prove the full receiver seat in consecutive
-// 100 ms chunks, with a bounded 1 s ceiling; only then may the giver continue
-// to a visibly open clearance.
+// down by the same amount. The former 0.18 rad/s relative-jaw trajectory ended
+// its 100 ms cubic move with 63.9 mm/s needle translation and 11.6 rad/s needle
+// rotation, then settled into a rejected 0.48 mm common reseat. Limit this
+// force-transfer motion to one third of that relative-jaw speed and reject its
+// endpoint unless both physical seats remain inside the transition envelope;
+// a later hold must dissipate only bounded residual motion, not hide a snap.
+constexpr double kLoadExchangeRelativeJawSpeedRadPerS = 0.06;
+// Re-prove the full receiver seat in consecutive 100 ms chunks, with a bounded
+// 1 s ceiling; only then may the giver continue to a visibly open clearance.
 constexpr std::uint32_t kLoadExchangeSettleSteps = 50u;
 constexpr std::uint32_t kLoadExchangeMaximumSettleSteps = 500u;
 constexpr std::uint32_t kGiverReleaseSettleSteps = 100u;
@@ -33328,7 +33334,10 @@ int main(const int argc, const char* const argv[]) {
             static_cast<std::uint32_t>(std::ceil(
                 3.0 * (
                     receiverOverlapJawCoordinate - closeJawCoordinate
-                ) / (0.18 * kControlTimestep)
+                ) / (
+                    kLoadExchangeRelativeJawSpeedRadPerS *
+                    kControlTimestep
+                )
             )) + 4u;
         auto giverLoadExchanged = armLocalQ(
             world.model,
@@ -33384,6 +33393,83 @@ int main(const int argc, const char* const argv[]) {
             efforts,
             kLoadExchangeSteps,
             "coordinated handoff load exchange"
+        );
+        const ContactCounts loadExchangeMotionContacts = contactCounts(
+            world,
+            loadExchangeMotion.result,
+            needleForPlacement.metadata,
+            kNeedleFirstShape
+        );
+        const GraspKinematics loadExchangeMotionGiver = graspKinematics(
+            world,
+            needleForPlacement,
+            loadExchangeMotion.result,
+            0u,
+            kGiverNeedleShape,
+            *giverGraspReference
+        );
+        const GraspKinematics loadExchangeMotionReceiver = graspKinematics(
+            world,
+            needleForPlacement,
+            loadExchangeMotion.result,
+            1u,
+            kReceiverNeedleShape,
+            *receiverGraspReference
+        );
+        const RodStateMetrics loadExchangeMotionRod = rodStateMetrics(
+            world,
+            loadExchangeMotion.result
+        );
+        const double loadExchangeMotionSwageError = swageAttachmentError(
+            world,
+            loadExchangeMotion.result
+        );
+        const double loadExchangeMotionSwageTangentError =
+            swageTangentAngleError(world, loadExchangeMotion.result);
+        const MRBodyStateGPU& loadExchangeMotionNeedle =
+            loadExchangeMotion.result.finalSceneBodies.at(0u);
+        const double loadExchangeMotionNeedleLinearSpeed = norm(vector(
+            loadExchangeMotionNeedle.linearVelocityAndInverseMass
+        ));
+        const double loadExchangeMotionNeedleAngularSpeed = norm(vector(
+            loadExchangeMotionNeedle.angularVelocity
+        ));
+        std::cerr << "handoff_phase=load_exchange_motion"
+            << " motion_steps=" << kLoadExchangeSteps
+            << " relative_jaw_speed_limit_radps="
+            << kLoadExchangeRelativeJawSpeedRadPerS
+            << " giver_seat_drift_m="
+            << loadExchangeMotionGiver.seatDrift
+            << " receiver_seat_drift_m="
+            << loadExchangeMotionReceiver.seatDrift
+            << " giver_relative_point_speed_mps="
+            << loadExchangeMotionGiver.relativePointSpeed
+            << " receiver_relative_point_speed_mps="
+            << loadExchangeMotionReceiver.relativePointSpeed
+            << " needle_linear_speed_mps="
+            << loadExchangeMotionNeedleLinearSpeed
+            << " needle_angular_speed_radps="
+            << loadExchangeMotionNeedleAngularSpeed
+            << " swage_root_max_node_speed_mps="
+            << loadExchangeMotionRod.maximumClampedRootSpeed
+            << contactSummary(loadExchangeMotionContacts) << '\n';
+        require(
+            bilateral(loadExchangeMotionContacts, 0u) &&
+                bilateral(loadExchangeMotionContacts, 1u) &&
+                cleanNeedleInteraction(
+                    loadExchangeMotionContacts,
+                    true,
+                    true
+                ) &&
+                qualifiedTransitionGrasp(loadExchangeMotionGiver) &&
+                qualifiedTransitionGrasp(loadExchangeMotionReceiver) &&
+                qualifiedTransitionRod(loadExchangeMotionRod) &&
+                loadExchangeMotionSwageError <
+                    kMaximumSwageAttachmentError &&
+                loadExchangeMotionSwageTangentError <
+                    maximumSwageTangentAngleError(world),
+            "coordinated load-exchange motion snapped or lost bounded dual "
+            "positive control"
         );
         writeHandoffStateArtifact(
             options.stateOutputDirectory,
