@@ -567,6 +567,34 @@ collision. The output remains `physics_advanced=no`: it proves an articulated
 placement for the already grasped ends, not DER winding, bight transfer,
 self-contact topology, cinch load, or knot retention.
 
+The live continuation is
+`--tissue-knot-first-throw-stage-only`. It consumes the same earned
+`tissue-thread-acquired` v3 state and executes only the 128-sample join into
+the first protocol pose. The solved joint path is resampled at the restored
+free-space coupling cadence: one 1 ms Matter transaction contains sixteen
+62.5 us DER/rigid substeps. A second dense audit precedes dispatch and checks
+every interpolated joint state, both complete distal LND envelopes, the entire
+translated curved needle, receiver insert contact, joint speed, support, and
+cross-arm separation. During execution the needle remains a dynamic rigid
+body carried by receiver jaw contact and the short PDO end remains carried by
+the standing thread patches; neither is prescribed kinematically.
+
+Execution is split into 64 ms completion-bounded chunks. At each boundary the
+standing PDO window must retain bilateral target-only contact and normal load,
+the moving interval must also publish tangential load, and the receiver must
+retain bilateral distributed needle contact with bounded relative seat motion.
+The DER edge/stretch and self-clearance certificate, hard swage, terminal cone
+residual, live instrument/tissue clearance, active puncture channels, all
+32,640 tetrahedra, zero removed mass, positive determinant, and accepted
+Matter certificates remain mandatory. The two exact DER material edges in the
+tracts and their binding revision are immutable throughout this phase: unlike
+pull-through, knot staging has no proxy-rebind maintenance path. After the
+motion, two consecutive quiescent boundaries below the existing needle and
+strand speed gates publish `tissue-knot-first-throw-staged`. This is an
+implemented execution boundary pending an earned upstream replay; it is not
+evidence of winding, self-contact formation, bight transfer, cinch loading, or
+knot retention.
+
 The surgical visual probe accepts the finite set of transactionally published
 dual-PSM operative checkpoints through receiver extraction and the opposing
 bite. It binds the checkpoint's exact articulated state, rigid needle pose, and
@@ -678,6 +706,14 @@ tract the two fixed Matter slots cover adjacent material edges for overlap;
 when the strand physically reaches the opposing tract, the same graph becomes
 sparse and retains one material edge in each tract. The second-tract state is
 latched, so a later miss fails instead of silently dropping tissue contact.
+Immediately after sharp-tip passage, the swage and first DER edge can still be
+millimetres behind the distal wall. A `noContactEdgeSet` result in that
+pre-strand interval now leaves both existing proxy slots and their binding
+revision unchanged instead of inventing material in the tract. Deferral is
+allowed only before any second-tract ownership has been latched and only after
+the selector expands its contact band by the complete next-chunk travel; every
+other status still fails. As soon as a real edge reaches that predictive band,
+normal exact-edge selection and rebinding resume.
 Rebinding changes one retired slot per maintenance command, preserves retained
 friction history, and records the slot-ordered edges plus binding revision in
 the restorable Matter snapshot and surgical state hash. The lightweight probe

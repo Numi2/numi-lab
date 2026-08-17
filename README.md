@@ -279,6 +279,30 @@ owns that evidence.
   build-coupled-dev/testing/suture/tissue-thread-acquired.tsv
 ```
 
+`--tissue-knot-first-throw-stage-only` crosses the next physical boundary but
+stops before winding. It densely resamples the certified articulated join at a
+1 ms coupled Matter step containing sixteen 62.5 us DER substeps, then moves
+the short-tail LND and needle-owning LND into the collision-clear operative
+plane with the needle and PDO carried only by live finite-patch contact. Every
+bounded chunk requires both grasps, the hard swage, DER geometry, contact
+residual, deformable solver certificate, active tetrahedra, and zero removed
+mass to remain accepted. The two material edges occupying the puncture tracts
+and their binding revision must remain exactly unchanged; staging is not
+allowed to hide an unintended pull-through by rebinding proxies. Two
+consecutive quiescent hold boundaries are required before publishing the v3
+`tissue-knot-first-throw-staged` checkpoint. The path is implemented but is not
+reported as live-qualified until an earned `tissue-thread-acquired` checkpoint
+has executed it on Apple Metal. It does not yet form a wrap, bight transfer,
+cinch, or retained knot.
+
+```sh
+./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-knot-first-throw-stage-only \
+  --resume-tissue-checkpoint tissue-thread-acquired \
+  build-coupled-dev/testing/suture/tissue-thread-acquired.tsv \
+  --state-output-dir build-coupled-dev/testing/suture/first-throw-stage
+```
+
 ```sh
 ./build-coupled-dev/bin/metalrobo_surgical_knot_protocol_probe
 ```

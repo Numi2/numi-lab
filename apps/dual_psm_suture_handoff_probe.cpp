@@ -6438,7 +6438,8 @@ bool isLiveTissueCheckpointPhase(const std::string_view phase) {
         phase == "tissue-suture-pull-stroke" ||
         phase == "tissue-suture-pull-complete" ||
         phase == "tissue-thread-approached" ||
-        phase == "tissue-thread-acquired";
+        phase == "tissue-thread-acquired" ||
+        phase == "tissue-knot-first-throw-staged";
 }
 
 bool isSupportedTissueCheckpointPhase(const std::string_view phase) {
@@ -6475,6 +6476,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-thread-target-only" ||
             argument == "--tissue-thread-acquisition-only" ||
             argument == "--tissue-knot-first-throw-preflight-only" ||
+            argument == "--tissue-knot-first-throw-stage-only" ||
             argument == "--thread-frame-ik-only" ||
             argument == "--receiver-frame-ik-only" ||
             argument == "--receiver-extraction-geometry-only" ||
@@ -7039,7 +7041,8 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         result.mode == "--tissue-suture-pull-stroke-only" ||
         result.mode == "--tissue-thread-target-only" ||
         result.mode == "--tissue-thread-acquisition-only" ||
-        result.mode == "--tissue-knot-first-throw-preflight-only";
+        result.mode == "--tissue-knot-first-throw-preflight-only" ||
+        result.mode == "--tissue-knot-first-throw-stage-only";
     require(
         tissueCheckpointMode ==
             !result.resumeTissueCheckpointPath.empty(),
@@ -7051,6 +7054,13 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.resumeTissueCheckpointPhase ==
                 "tissue-suture-pull-complete",
         "post-bite thread targeting requires the completed pull-through phase"
+    );
+    require(
+        (result.mode != "--tissue-knot-first-throw-preflight-only" &&
+         result.mode != "--tissue-knot-first-throw-stage-only") ||
+            result.resumeTissueCheckpointPhase ==
+                "tissue-thread-acquired",
+        "first-throw preparation requires the loaded two-ended thread phase"
     );
     require(
         result.mode != "--tissue-suture-pull-stroke-only" ||
@@ -8041,12 +8051,15 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-thread-acquisition-only";
         const bool tissueKnotFirstThrowPreflightOnly =
             options.mode == "--tissue-knot-first-throw-preflight-only";
+        const bool tissueKnotFirstThrowStageOnly =
+            options.mode == "--tissue-knot-first-throw-stage-only";
         const bool tissueSuturePullStrokeOnly =
             options.mode == "--tissue-suture-pull-stroke-only";
         const bool tissueCheckpointResume =
             tissueCheckpointRestoreOnly || tissueCheckpointHoldOnly ||
             tissueThreadTargetOnly || tissueThreadAcquisitionOnly ||
             tissueKnotFirstThrowPreflightOnly ||
+            tissueKnotFirstThrowStageOnly ||
             tissueSuturePullStrokeOnly;
         const bool resumeTissueRestCheckpoint =
             tissueCheckpointResume &&
@@ -15613,14 +15626,18 @@ int main(const int argc, const char* const argv[]) {
             }
             if (tissueThreadTargetOnly ||
                 tissueThreadAcquisitionOnly ||
-                tissueKnotFirstThrowPreflightOnly) {
+                tissueKnotFirstThrowPreflightOnly ||
+                tissueKnotFirstThrowStageOnly) {
+                const bool tissueKnotFirstThrowPreparation =
+                    tissueKnotFirstThrowPreflightOnly ||
+                    tissueKnotFirstThrowStageOnly;
                 require(
                     options.resumeTissueCheckpointPhase ==
-                        (tissueKnotFirstThrowPreflightOnly
+                        (tissueKnotFirstThrowPreparation
                             ? "tissue-thread-acquired"
                             : "tissue-suture-pull-complete"),
-                    tissueKnotFirstThrowPreflightOnly
-                        ? "first-throw preflight requires the accepted "
+                    tissueKnotFirstThrowPreparation
+                        ? "first-throw preparation requires the accepted "
                             "loaded short-tail checkpoint"
                         : "post-bite thread targeting requires the accepted "
                             "completed pull-through checkpoint"
@@ -15852,7 +15869,7 @@ int main(const int argc, const char* const argv[]) {
                 );
 
                 const auto& target = targetDiagnostics.target;
-                if (tissueKnotFirstThrowPreflightOnly) {
+                if (tissueKnotFirstThrowPreparation) {
                     const auto protocol =
                         metalrobo::makeSurgeonsKnotInstrumentProtocol();
                     const auto protocolDiagnostics = metalrobo::
@@ -16068,6 +16085,10 @@ int main(const int argc, const char* const argv[]) {
                             world.model.defaultQ
                         );
                     std::vector<float> previousQ = world.model.defaultQ;
+                    std::vector<float> placedSampleQ;
+                    placedSampleQ.reserve(
+                        placedSamples.size() * world.model.world.nq
+                    );
                     double previousTimeSeconds = 0.0;
                     double maximumVelocityRatio = 0.0;
                     double maximumPositionResidualM = 0.0;
@@ -16278,6 +16299,11 @@ int main(const int argc, const char* const argv[]) {
                                 standingJaw.midpoint
                             ) - 2.0 * jawEnvelopeRadiusM
                         );
+                        placedSampleQ.insert(
+                            placedSampleQ.end(),
+                            q.begin(),
+                            q.end()
+                        );
                         previousQ = std::move(q);
                         previousTimeSeconds = sample.timeSeconds;
                     }
@@ -16302,47 +16328,650 @@ int main(const int argc, const char* const argv[]) {
                         "first double throw has no reachable, collision-free "
                             "two-ended articulated placement"
                     );
-                    std::cout << std::setprecision(9)
-                        << "tissue_knot_first_throw_preflight=ok"
-                        << " source_phase="
-                        << options.resumeTissueCheckpointPhase
-                        << " standing_center_edge=" << target.centerEdge
-                        << " standing_material_seat_error_m="
-                        << standingMaterialSeatErrorM
-                        << " signed_winding_turns="
-                        << protocolDiagnostics.firstDoubleThrow
-                               .signedWindingTurns
-                        << " path_samples=" << placedSamples.size()
-                        << " stage_duration_s=" << stageDurationSeconds
-                        << " throw_duration_s="
-                        << firstThrow.samples.back().timeSeconds
-                        << " maximum_velocity_ratio="
-                        << maximumVelocityRatio
-                        << " maximum_position_residual_m="
-                        << maximumPositionResidualM
-                        << " maximum_orientation_residual_rad="
-                        << maximumOrientationResidualRad
-                        << " minimum_instrument_clearance_m="
-                        << minimumInstrumentClearanceM
-                        << " minimum_standing_tissue_clearance_m="
-                        << minimumStandingTissueClearanceM
-                        << " minimum_working_tissue_clearance_m="
-                        << minimumWorkingTissueClearanceM
-                        << " minimum_needle_tissue_clearance_m="
-                        << minimumNeedleTissueClearanceM
-                        << " minimum_receiver_jaw_contacts="
-                        << minimumReceiverJawContacts[0] << '/'
-                        << minimumReceiverJawContacts[1]
-                        << " giver_needle_contact_samples="
-                        << giverNeedleContactSamples
-                        << " cross_arm_contact_samples="
-                        << crossArmContactSamples
-                        << " unsafe_receiver_needle_samples="
-                        << unsafeReceiverNeedleSamples
-                        << " physics_advanced=no"
-                        << " boundary=articulated_path_not_der_throw_or_"
-                           "loaded_knot\n";
-                    return 0;
+                if (tissueKnotFirstThrowPreflightOnly) {
+                  std::cout
+                      << std::setprecision(9)
+                      << "tissue_knot_first_throw_preflight=ok"
+                      << " source_phase=" << options.resumeTissueCheckpointPhase
+                      << " standing_center_edge=" << target.centerEdge
+                      << " standing_material_seat_error_m="
+                      << standingMaterialSeatErrorM << " signed_winding_turns="
+                      << protocolDiagnostics.firstDoubleThrow.signedWindingTurns
+                      << " path_samples=" << placedSamples.size()
+                      << " stage_duration_s=" << stageDurationSeconds
+                      << " throw_duration_s="
+                      << firstThrow.samples.back().timeSeconds
+                      << " maximum_velocity_ratio=" << maximumVelocityRatio
+                      << " maximum_position_residual_m="
+                      << maximumPositionResidualM
+                      << " maximum_orientation_residual_rad="
+                      << maximumOrientationResidualRad
+                      << " minimum_instrument_clearance_m="
+                      << minimumInstrumentClearanceM
+                      << " minimum_standing_tissue_clearance_m="
+                      << minimumStandingTissueClearanceM
+                      << " minimum_working_tissue_clearance_m="
+                      << minimumWorkingTissueClearanceM
+                      << " minimum_needle_tissue_clearance_m="
+                      << minimumNeedleTissueClearanceM
+                      << " minimum_receiver_jaw_contacts="
+                      << minimumReceiverJawContacts[0] << '/'
+                      << minimumReceiverJawContacts[1]
+                      << " giver_needle_contact_samples="
+                      << giverNeedleContactSamples
+                      << " cross_arm_contact_samples=" << crossArmContactSamples
+                      << " unsafe_receiver_needle_samples="
+                      << unsafeReceiverNeedleSamples << " physics_advanced=no"
+                      << " boundary=articulated_path_not_der_throw_or_"
+                         "loaded_knot\n";
+                  return 0;
+                }
+                require(tissueKnotFirstThrowStageOnly,
+                        "unsupported first-throw preparation mode");
+
+                // The acquired checkpoint already carries the sharp
+                // needle, both physical LND grasps, the two fixed tract
+                // material edges, and the accepted deformable state.
+                // Stage only the two ends above the operative field here;
+                // the double wrap remains a separate checkpointed phase.
+                require(restored.sutureProxyEdges.size() ==
+                                kSutureMatterContactSegmentCount &&
+                            restored.coupledTimestepDivisor == 1u &&
+                            tissueRuntime.setCoupledTimestepMultiplier(
+                                kSuturePullMatterRateMultiplier),
+                        "first-throw staging could not select the bounded "
+                        "free-space Matter cadence");
+                const double stageTimestepSeconds =
+                    (kControlTimestep / static_cast<double>(kPhysicsSubsteps)) *
+                    static_cast<double>(kSuturePullMatterRateMultiplier);
+                stepConfig.timestepSeconds =
+                    static_cast<float>(stageTimestepSeconds);
+                stepConfig.physicsSubsteps = kSuturePullMatterRateMultiplier;
+                require(
+                    tissueRuntime.coupledTimestepMultiplier() ==
+                            kSuturePullMatterRateMultiplier &&
+                        tissueRuntime.coupledTimestepDivisor() == 1u &&
+                        tissueRuntime.timestepSeconds() ==
+                            stepConfig.timestepSeconds &&
+                        stepConfig.devicePhysicsProgram.valid() &&
+                        (stepConfig.devicePhysicsProgram.flags &
+                         metalrobo::MetalWorldDevicePhysicsCouplesRodNodes) !=
+                            0u &&
+                        (stepConfig.devicePhysicsProgram.flags &
+                         metalrobo::
+                             MetalWorldDevicePhysicsWritesBodyWrenches) != 0u,
+                    "first-throw Matter, DER, and rigid-body cadences "
+                    "diverged");
+
+                require(
+                    placedSampleQ.size() ==
+                            placedSamples.size() * world.model.world.nq &&
+                        placedSamples.size() >= kKnotStageSamples &&
+                        std::abs(
+                            placedSamples[kKnotStageSamples - 1u].timeSeconds -
+                            stageDurationSeconds) <= 1.0e-12,
+                    "first-throw staging lost its solved sparse path");
+                const std::uint32_t stageSteps = static_cast<std::uint32_t>(
+                    std::ceil(stageDurationSeconds / stageTimestepSeconds));
+                require(stageSteps > kKnotStageSamples && stageSteps < 100000u,
+                        "first-throw dense staging cadence is invalid");
+                std::vector<float> stageDesiredQ;
+                stageDesiredQ.reserve(static_cast<std::size_t>(stageSteps) *
+                                      world.model.world.nq);
+                std::size_t upperSparseSample = 0u;
+                double denseMaximumVelocityRatio = 0.0;
+                std::vector<float> densePreviousQ = world.model.defaultQ;
+                for (std::uint32_t step = 0u; step < stageSteps; ++step) {
+                  const double sampleTimeSeconds = std::min(
+                      stageDurationSeconds,
+                      static_cast<double>(step + 1u) * stageTimestepSeconds);
+                  while (upperSparseSample + 1u < kKnotStageSamples &&
+                         placedSamples[upperSparseSample].timeSeconds <
+                             sampleTimeSeconds) {
+                    ++upperSparseSample;
+                  }
+                  const double lowerTimeSeconds =
+                      upperSparseSample == 0u
+                          ? 0.0
+                          : placedSamples[upperSparseSample - 1u].timeSeconds;
+                  const double upperTimeSeconds =
+                      placedSamples[upperSparseSample].timeSeconds;
+                  require(upperTimeSeconds > lowerTimeSeconds &&
+                              sampleTimeSeconds >= lowerTimeSeconds - 1.0e-12 &&
+                              sampleTimeSeconds <= upperTimeSeconds + 1.0e-12,
+                          "first-throw dense sample escaped its sparse "
+                          "interval");
+                  const double fraction =
+                      std::clamp((sampleTimeSeconds - lowerTimeSeconds) /
+                                     (upperTimeSeconds - lowerTimeSeconds),
+                                 0.0, 1.0);
+                  const float *lowerQ =
+                      upperSparseSample == 0u
+                          ? world.model.defaultQ.data()
+                          : placedSampleQ.data() +
+                                (upperSparseSample - 1u) * world.model.world.nq;
+                  const float *upperQ =
+                      placedSampleQ.data() +
+                      upperSparseSample * world.model.world.nq;
+                  std::vector<float> q(world.model.world.nq);
+                  for (std::uint32_t coordinate = 0u;
+                       coordinate < world.model.world.nq; ++coordinate) {
+                    q[coordinate] = static_cast<float>(
+                        static_cast<double>(lowerQ[coordinate]) +
+                        fraction * (static_cast<double>(upperQ[coordinate]) -
+                                    static_cast<double>(lowerQ[coordinate])));
+                  }
+                  for (std::uint32_t dof = 0u; dof < world.model.world.nv;
+                       ++dof) {
+                    const MRDofPropertiesGPU &properties =
+                        world.model.dofs[dof];
+                    if (properties.qIndex == MR_INVALID_INDEX ||
+                        (properties.flags & MR_DOF_FLAG_ROOT) != 0u ||
+                        (properties.flags & MR_DOF_FLAG_VELOCITY_LIMIT) == 0u ||
+                        !(properties.limits.z > 0.0f)) {
+                      continue;
+                    }
+                    denseMaximumVelocityRatio = std::max(
+                        denseMaximumVelocityRatio,
+                        std::abs(static_cast<double>(q[properties.qIndex]) -
+                                 densePreviousQ[properties.qIndex]) /
+                            (stageTimestepSeconds * properties.limits.z));
+                  }
+                  stageDesiredQ.insert(stageDesiredQ.end(), q.begin(), q.end());
+                  densePreviousQ = std::move(q);
+                }
+                const std::vector<float> stageFinalTarget(
+                    stageDesiredQ.end() - world.model.world.nq,
+                    stageDesiredQ.end());
+                const std::vector<float> stageEfforts =
+                    computedTorqueTrajectory(world.model, world.model.defaultQ,
+                                             stageDesiredQ, stageSteps,
+                                             stageTimestepSeconds);
+
+                double denseMinimumStandingTissueClearanceM =
+                    std::numeric_limits<double>::infinity();
+                double denseMinimumWorkingTissueClearanceM =
+                    std::numeric_limits<double>::infinity();
+                double denseMinimumNeedleTissueClearanceM =
+                    std::numeric_limits<double>::infinity();
+                double denseMinimumInstrumentClearanceM =
+                    std::numeric_limits<double>::infinity();
+                std::uint32_t denseGiverNeedleContactSamples = 0u;
+                std::uint32_t denseCrossArmContactSamples = 0u;
+                std::uint32_t denseUnsafeReceiverNeedleSamples = 0u;
+                std::array<std::uint32_t, 2u> denseMinimumReceiverJawContacts{
+                    std::numeric_limits<std::uint32_t>::max(),
+                    std::numeric_limits<std::uint32_t>::max(),
+                };
+                for (std::uint32_t step = 0u; step < stageSteps; ++step) {
+                  const std::span<const float> q{
+                      stageDesiredQ.data() +
+                          static_cast<std::size_t>(step) * world.model.world.nq,
+                      world.model.world.nq,
+                  };
+                  const JawGeometry standingJaw =
+                      worldThreadJawGeometry(world.model, 0u, q, zeroVelocity);
+                  const JawGeometry workingJaw =
+                      worldJawGeometry(world.model, 1u, q, zeroVelocity);
+                  MRBodyStateGPU needleTarget = startNeedle;
+                  const Vec3 needleTranslation =
+                      workingJaw.midpoint - workingStart.midpoint;
+                  needleTarget.position.x +=
+                      static_cast<float>(needleTranslation.x);
+                  needleTarget.position.y +=
+                      static_cast<float>(needleTranslation.y);
+                  needleTarget.position.z +=
+                      static_cast<float>(needleTranslation.z);
+                  needleTarget.linearVelocityAndInverseMass.x = 0.0f;
+                  needleTarget.linearVelocityAndInverseMass.y = 0.0f;
+                  needleTarget.linearVelocityAndInverseMass.z = 0.0f;
+                  needleTarget.angularVelocity = {};
+                  const KinematicNeedleObservation observation =
+                      observeKinematicNeedleContacts(
+                          world, needleForPlacement.metadata, q, &needleTarget);
+                  denseGiverNeedleContactSamples +=
+                      observation.giverNeedleContacts != 0u;
+                  denseCrossArmContactSamples +=
+                      observation.crossArmContacts != 0u;
+                  denseUnsafeReceiverNeedleSamples +=
+                      observation.receiverNeedleContacts !=
+                      observation.receiverJawContacts[0] +
+                          observation.receiverJawContacts[1];
+                  for (std::uint32_t jaw = 0u; jaw < 2u; ++jaw) {
+                    denseMinimumReceiverJawContacts[jaw] =
+                        std::min(denseMinimumReceiverJawContacts[jaw],
+                                 observation.receiverJawContacts[jaw]);
+                  }
+                  const auto standingClearance =
+                      metalrobo::evaluateSurgicalThreadJawSurfaceClearance(
+                          targetingPoint(standingJaw.midpoint),
+                          targetingPoint(standingJaw.railDirection),
+                          jawContactLengthM, jawEnvelopeRadiusM, tissueNodes,
+                          tissueTriangles);
+                  const auto workingClearance =
+                      metalrobo::evaluateSurgicalThreadJawSurfaceClearance(
+                          targetingPoint(workingJaw.midpoint),
+                          targetingPoint(workingJaw.railDirection),
+                          jawMetadata.largeNeedleDriverJawLength,
+                          jawEnvelopeRadiusM, tissueNodes, tissueTriangles);
+                  require(standingClearance.succeeded() &&
+                              workingClearance.succeeded(),
+                          "first-throw dense jaw-surface audit failed");
+                  denseMinimumStandingTissueClearanceM =
+                      std::min(denseMinimumStandingTissueClearanceM,
+                               standingClearance.minimumEnvelopeClearanceM);
+                  denseMinimumWorkingTissueClearanceM =
+                      std::min(denseMinimumWorkingTissueClearanceM,
+                               workingClearance.minimumEnvelopeClearanceM);
+                  denseMinimumNeedleTissueClearanceM =
+                      std::min(denseMinimumNeedleTissueClearanceM,
+                               wholeNeedleProjectionRange(
+                                   needleForPlacement, needleTarget, knotAxis)
+                                       .minimum -
+                                   tissueTopProjection);
+                  denseMinimumInstrumentClearanceM = std::min(
+                      denseMinimumInstrumentClearanceM,
+                      norm(workingJaw.midpoint - standingJaw.midpoint) -
+                          2.0 * jawEnvelopeRadiusM);
+                }
+                const CrossArmCollisionScan denseCollision =
+                    scanCrossArmTargetPath(world, world.model.defaultQ,
+                                           stageFinalTarget, stageSteps,
+                                           stageDesiredQ);
+                require(
+                    denseMaximumVelocityRatio <= kMaximumCommandVelocityRatio &&
+                        denseCollision.samplesWithContact == 0u &&
+                        denseCollision.samplesWithGiverPadContact == 0u &&
+                        denseCollision.samplesWithReceiverPadContact == 0u &&
+                        denseGiverNeedleContactSamples == 0u &&
+                        denseCrossArmContactSamples == 0u &&
+                        denseUnsafeReceiverNeedleSamples == 0u &&
+                        denseMinimumReceiverJawContacts[0] >= 2u &&
+                        denseMinimumReceiverJawContacts[1] >= 2u &&
+                        denseMinimumStandingTissueClearanceM >=
+                            kKnotTissueClearanceM &&
+                        denseMinimumWorkingTissueClearanceM >=
+                            kKnotTissueClearanceM &&
+                        denseMinimumNeedleTissueClearanceM >=
+                            kKnotTissueClearanceM &&
+                        denseMinimumInstrumentClearanceM >=
+                            firstThrow.minimumInstrumentClearanceM,
+                    "first-throw dense staging path violates speed, "
+                    "collision, or operative-field clearance");
+
+                const GraspReference stageReceiverReference =
+                    graspReference(world, needleForPlacement,
+                                   world.model.defaultQ, world.model.defaultV,
+                                   startNeedle, 1u, kExtractionNeedleShape);
+                const std::vector<std::uint32_t> fixedProxyEdges =
+                    restored.sutureProxyEdges;
+                const std::uint64_t fixedProxyBindingRevision =
+                    restored.sutureProxyBindingRevision;
+                struct KnotStageMatterMetrics {
+                  std::uint32_t activeChannels = 0u;
+                  std::uint32_t activeTetrahedra = 0u;
+                  double removedMassKg = 0.0;
+                  double minimumDeterminant =
+                      std::numeric_limits<double>::infinity();
+                  double maximumResidual = 0.0;
+                  bool certificatesAccepted = false;
+                };
+                const auto validateStageMatter =
+                    [&](const numi::matter::RuntimeStateSnapshot &snapshot,
+                        const std::string &phase) {
+                      KnotStageMatterMetrics metrics;
+                      metrics.certificatesAccepted =
+                          !snapshot.solverCertificates.empty();
+                      for (const NMPunctureChannelGPU &channel :
+                           snapshot.punctureChannels) {
+                        metrics.activeChannels +=
+                            (channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+                      }
+                      for (const NMTetrahedronGPU &tetrahedron :
+                           snapshot.femTopologyTetrahedra) {
+                        metrics.activeTetrahedra +=
+                            (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+                      }
+                      for (const NMFEMTopologyStateGPU &topology :
+                           snapshot.topologyStates) {
+                        metrics.removedMassKg += topology.accounting.y;
+                      }
+                      for (const NMSolverCertificateGPU &certificate :
+                           snapshot.solverCertificates) {
+                        metrics.certificatesAccepted =
+                            metrics.certificatesAccepted &&
+                            certificate.validity.w > 0.5f;
+                        metrics.minimumDeterminant = std::min(
+                            metrics.minimumDeterminant,
+                            static_cast<double>(certificate.validity.x));
+                        metrics.maximumResidual = std::max({
+                            metrics.maximumResidual,
+                            static_cast<double>(certificate.nonlinear.x),
+                            static_cast<double>(certificate.nonlinear.z),
+                            static_cast<double>(certificate.nonlinear.w),
+                        });
+                      }
+                      require(
+                          snapshot.available &&
+                              metrics.activeChannels == activeChannels &&
+                              sameVectorBytes(snapshot.punctureChannels,
+                                              restored.punctureChannels) &&
+                              metrics.activeTetrahedra ==
+                                  tissueCoupon.metadata.tetrahedronCount &&
+                              sameVectorBytes(snapshot.femTopologyTetrahedra,
+                                              restored.femTopologyTetrahedra) &&
+                              metrics.removedMassKg == 0.0 &&
+                              metrics.certificatesAccepted &&
+                              std::isfinite(metrics.minimumDeterminant) &&
+                              metrics.minimumDeterminant > 0.0 &&
+                              std::isfinite(metrics.maximumResidual) &&
+                              snapshot.sutureProxyEdges == fixedProxyEdges &&
+                              snapshot.sutureProxyBindingRevision ==
+                                  fixedProxyBindingRevision,
+                          phase + " changed accepted tissue topology, "
+                                  "mass, tract channels, or fixed DER material "
+                                  "ownership");
+                      return metrics;
+                    };
+
+                struct KnotStageBoundaryMetrics {
+                  ThreadGraspContactCounts standingThread;
+                  ContactCounts workingNeedle;
+                  GraspKinematics workingGrasp;
+                  RodStateMetrics rod;
+                  KnotStageMatterMetrics matter;
+                  double materialSeatErrorM = 0.0;
+                  double swageErrorM = 0.0;
+                  double needleLinearSpeedMps = 0.0;
+                  double needleAngularSpeedRadps = 0.0;
+                  double minimumStandingTissueClearanceM = 0.0;
+                  double minimumWorkingTissueClearanceM = 0.0;
+                  double minimumNeedleTissueClearanceM = 0.0;
+                  double instrumentClearanceM = 0.0;
+                  double contactVelocityResidualMps = 0.0;
+                };
+                const auto validateStageBoundary =
+                    [&](const metalrobo::MetalWorldResult &state,
+                        const bool requireTangentialLoad,
+                        const std::string &phase) {
+                      KnotStageBoundaryMetrics metrics;
+                      metrics.standingThread =
+                          threadGraspContactCounts(world, state, target);
+                      metrics.workingNeedle = contactCounts(
+                          world, state, needleForPlacement.metadata,
+                          kNeedleFirstShape);
+                      metrics.workingGrasp = graspKinematics(
+                          world, needleForPlacement, state, 1u,
+                          kExtractionNeedleShape, stageReceiverReference);
+                      metrics.rod = rodStateMetrics(world, state);
+                      metrics.swageErrorM = swageAttachmentError(world, state);
+                      require(state.finalRodNodes.size() >
+                                  target.centerEdge + 1u,
+                              phase + " lost the standing material edge");
+                      const Vec3 materialCenter =
+                          (vector(state.finalRodNodes[target.centerEdge]
+                                      .position) +
+                           vector(state.finalRodNodes[target.centerEdge + 1u]
+                                      .position)) *
+                          0.5;
+                      const JawGeometry standingJaw = worldThreadJawGeometry(
+                          world.model, 0u, state.finalQ, state.finalV);
+                      const JawGeometry workingJaw = worldJawGeometry(
+                          world.model, 1u, state.finalQ, state.finalV);
+                      metrics.materialSeatErrorM =
+                          norm(materialCenter - standingJaw.midpoint);
+                      const MRBodyStateGPU &liveNeedle =
+                          state.finalSceneBodies.at(0u);
+                      metrics.needleLinearSpeedMps =
+                          norm(vector(liveNeedle.linearVelocityAndInverseMass));
+                      metrics.needleAngularSpeedRadps =
+                          norm(vector(liveNeedle.angularVelocity));
+                      const auto matterSnapshot = tissueRuntime.snapshot();
+                      metrics.matter =
+                          validateStageMatter(matterSnapshot, phase);
+                      std::vector<metalrobo::SurgicalThreadTargetPoint>
+                          liveTissueNodes;
+                      liveTissueNodes.reserve(matterSnapshot.femNodes.size());
+                      double liveTissueTopProjection =
+                          -std::numeric_limits<double>::infinity();
+                      for (const NMFEMNodeStateGPU &node :
+                           matterSnapshot.femNodes) {
+                        const Vec3 position = vector(node.positionAndMass);
+                        liveTissueNodes.push_back(targetingPoint(position));
+                        liveTissueTopProjection = std::max(
+                            liveTissueTopProjection, dot(position, knotAxis));
+                      }
+                      const auto standingClearance =
+                          metalrobo::evaluateSurgicalThreadJawSurfaceClearance(
+                              targetingPoint(standingJaw.midpoint),
+                              targetingPoint(standingJaw.railDirection),
+                              jawContactLengthM, jawEnvelopeRadiusM,
+                              liveTissueNodes, tissueTriangles);
+                      const auto workingClearance =
+                          metalrobo::evaluateSurgicalThreadJawSurfaceClearance(
+                              targetingPoint(workingJaw.midpoint),
+                              targetingPoint(workingJaw.railDirection),
+                              jawMetadata.largeNeedleDriverJawLength,
+                              jawEnvelopeRadiusM, liveTissueNodes,
+                              tissueTriangles);
+                      require(standingClearance.succeeded() &&
+                                  workingClearance.succeeded(),
+                              phase + " live jaw-surface audit failed");
+                      metrics.minimumStandingTissueClearanceM =
+                          standingClearance.minimumEnvelopeClearanceM;
+                      metrics.minimumWorkingTissueClearanceM =
+                          workingClearance.minimumEnvelopeClearanceM;
+                      metrics.minimumNeedleTissueClearanceM =
+                          wholeNeedleProjectionRange(needleForPlacement,
+                                                     liveNeedle, knotAxis)
+                              .minimum -
+                          liveTissueTopProjection;
+                      metrics.instrumentClearanceM =
+                          norm(workingJaw.midpoint - standingJaw.midpoint) -
+                          2.0 * jawEnvelopeRadiusM;
+                      const MRMetalWorldContactStatusGPU &residual =
+                          requireTerminalResidual(state, phase);
+                      metrics.contactVelocityResidualMps = residual.residuals.y;
+                      require(
+                          metrics.standingThread.jawContacts[0] != 0u &&
+                              metrics.standingThread.jawContacts[1] != 0u &&
+                              metrics.standingThread.jawPatchMasks[0] != 0u &&
+                              metrics.standingThread.jawPatchMasks[1] != 0u &&
+                              metrics.standingThread.targetWindowContacts >=
+                                  2u &&
+                              metrics.standingThread.centerEdgeContacts != 0u &&
+                              metrics.standingThread.nonTargetWindowContacts ==
+                                  0u &&
+                              metrics.standingThread.maximumNormalImpulseNs >
+                                  0.0 &&
+                              (!requireTangentialLoad ||
+                               metrics.standingThread
+                                       .maximumTangentialImpulseNs > 0.0) &&
+                              metrics.materialSeatErrorM <=
+                                  kMaximumTransitionGraspReseating &&
+                              bilateral(metrics.workingNeedle, 1u) &&
+                              distributedInsertCoverage(metrics.workingNeedle,
+                                                        1u) &&
+                              cleanNeedleInteraction(metrics.workingNeedle,
+                                                     false, true) &&
+                              qualifiedTransitionGrasp(metrics.workingGrasp) &&
+                              qualifiedTransitionRod(metrics.rod) &&
+                              metrics.swageErrorM <
+                                  kMaximumSwageAttachmentError &&
+                              metrics.minimumStandingTissueClearanceM >=
+                                  kKnotTissueClearanceM &&
+                              metrics.minimumWorkingTissueClearanceM >=
+                                  kKnotTissueClearanceM &&
+                              metrics.minimumNeedleTissueClearanceM >=
+                                  kKnotTissueClearanceM &&
+                              metrics.instrumentClearanceM >=
+                                  firstThrow.minimumInstrumentClearanceM,
+                          phase + " lost a grasp, material edge, coupled "
+                                  "certificate, or operative-field clearance");
+                      return metrics;
+                    };
+
+                constexpr std::uint32_t kKnotStageChunkSteps = 64u;
+                constexpr std::uint32_t kKnotStageMaximumHoldSteps = 512u;
+                metalrobo::MetalWorldContext stageContext;
+                metalrobo::MetalWorldResidentState stageResident;
+                bool stageResidentInitialized = false;
+                metalrobo::MetalWorldResult stageState;
+                KnotStageBoundaryMetrics terminalStageMetrics;
+                double stageGpuMilliseconds = 0.0;
+                std::uint32_t completedStageSteps = 0u;
+                while (completedStageSteps < stageSteps) {
+                  const std::uint32_t chunkSteps = std::min(
+                      kKnotStageChunkSteps, stageSteps - completedStageSteps);
+                  const std::size_t effortBegin =
+                      static_cast<std::size_t>(completedStageSteps) *
+                      world.model.world.nv;
+                  const std::size_t effortEnd =
+                      effortBegin + static_cast<std::size_t>(chunkSteps) *
+                                        world.model.world.nv;
+                  const std::vector<float> chunkEfforts(
+                      stageEfforts.begin() + effortBegin,
+                      stageEfforts.begin() + effortEnd);
+                  PhaseResult chunkResult;
+                  if (!stageResidentInitialized) {
+                    chunkResult = initializePhase(stageContext, compiled, world,
+                                                  stepConfig, stageResident,
+                                                  chunkEfforts, chunkSteps);
+                    stageResidentInitialized = true;
+                  } else {
+                    chunkResult = continuePhase(
+                        stageContext, compiled, stepConfig, stageResident,
+                        chunkEfforts, chunkSteps, "live first-throw staging");
+                  }
+                  stageGpuMilliseconds +=
+                      chunkResult.diagnostics.gpuElapsedMilliseconds;
+                  stageState = std::move(chunkResult.result);
+                  completedStageSteps += chunkSteps;
+                  terminalStageMetrics = validateStageBoundary(
+                      stageState, true, "live first-throw staging");
+                  std::cout << std::setprecision(9)
+                            << "tissue_knot_first_throw_stage_progress_steps="
+                            << completedStageSteps << '/' << stageSteps
+                            << " standing_seat_error_m="
+                            << terminalStageMetrics.materialSeatErrorM
+                            << " receiver_seat_drift_m="
+                            << terminalStageMetrics.workingGrasp.seatDrift
+                            << " thread_maximum_edge_error_m="
+                            << terminalStageMetrics.rod.maximumEdgeLengthError
+                            << " matter_minimum_determinant="
+                            << terminalStageMetrics.matter.minimumDeterminant
+                            << " chunk_gpu_ms="
+                            << chunkResult.diagnostics.gpuElapsedMilliseconds
+                            << '\n';
+                }
+
+                std::uint32_t completedHoldSteps = 0u;
+                std::uint32_t consecutiveQuiescentBoundaries = 0u;
+                while (completedHoldSteps < kKnotStageMaximumHoldSteps &&
+                       consecutiveQuiescentBoundaries < 2u) {
+                  const std::uint32_t chunkSteps =
+                      std::min(kKnotStageChunkSteps,
+                               kKnotStageMaximumHoldSteps - completedHoldSteps);
+                  const std::vector<float> holdEfforts = interpolateTargets(
+                      world.model, stageState.finalQ, stageFinalTarget,
+                      chunkSteps, stageTimestepSeconds);
+                  PhaseResult held = continuePhase(
+                      stageContext, compiled, stepConfig, stageResident,
+                      holdEfforts, chunkSteps, "live first-throw staging hold");
+                  stageGpuMilliseconds +=
+                      held.diagnostics.gpuElapsedMilliseconds;
+                  stageState = std::move(held.result);
+                  completedHoldSteps += chunkSteps;
+                  terminalStageMetrics = validateStageBoundary(
+                      stageState, false, "live first-throw staging hold");
+                  const bool quiescent =
+                      qualifiedTerminalRod(terminalStageMetrics.rod) &&
+                      terminalStageMetrics.rod.maximumNodeSpeed <=
+                          kMaximumSettledRodSpeed &&
+                      terminalStageMetrics.needleLinearSpeedMps <=
+                          kMaximumSettledNeedleLinearSpeed &&
+                      terminalStageMetrics.needleAngularSpeedRadps <=
+                          kMaximumSettledNeedleAngularSpeed;
+                  consecutiveQuiescentBoundaries =
+                      quiescent ? consecutiveQuiescentBoundaries + 1u : 0u;
+                  std::cout << std::setprecision(9)
+                            << "tissue_knot_first_throw_stage_hold_steps="
+                            << completedHoldSteps << " quiescent=" << quiescent
+                            << " consecutive_quiescent="
+                            << consecutiveQuiescentBoundaries
+                            << " needle_linear_speed_mps="
+                            << terminalStageMetrics.needleLinearSpeedMps
+                            << " needle_angular_speed_radps="
+                            << terminalStageMetrics.needleAngularSpeedRadps
+                            << " thread_maximum_speed_mps="
+                            << terminalStageMetrics.rod.maximumNodeSpeed
+                            << " chunk_gpu_ms="
+                            << held.diagnostics.gpuElapsedMilliseconds << '\n';
+                }
+                require(consecutiveQuiescentBoundaries >= 2u,
+                        "first-throw staged state did not become quiescent "
+                        "within its fixed hold ceiling");
+                const numi::matter::RuntimeStateSnapshot stagedMatter =
+                    tissueRuntime.snapshot();
+                terminalStageMetrics.matter = validateStageMatter(
+                    stagedMatter, "first-throw staged checkpoint");
+                const std::uint64_t stagedStateStep =
+                    resumedTissueCheckpointStep +
+                    static_cast<std::uint64_t>(completedStageSteps +
+                                               completedHoldSteps) *
+                        stepConfig.physicsSubsteps;
+                writeHandoffStateArtifact(options.stateOutputDirectory,
+                                          "tissue-knot-first-throw-staged",
+                                          stagedStateStep, world, sutureSpec,
+                                          stageState, &stagedMatter);
+                std::cout << std::setprecision(9)
+                          << "tissue_knot_first_throw_stage=ok"
+                          << " source_phase="
+                          << options.resumeTissueCheckpointPhase
+                          << " output_phase=tissue-knot-first-throw-staged"
+                          << " standing_center_edge=" << target.centerEdge
+                          << " stage_steps=" << completedStageSteps
+                          << " hold_steps=" << completedHoldSteps
+                          << " timestep_s=" << stageTimestepSeconds
+                          << " base_der_substeps="
+                          << (completedStageSteps + completedHoldSteps) *
+                                 stepConfig.physicsSubsteps
+                          << " maximum_velocity_ratio="
+                          << denseMaximumVelocityRatio
+                          << " minimum_planned_instrument_clearance_m="
+                          << denseMinimumInstrumentClearanceM
+                          << " minimum_planned_standing_tissue_clearance_m="
+                          << denseMinimumStandingTissueClearanceM
+                          << " minimum_planned_working_tissue_clearance_m="
+                          << denseMinimumWorkingTissueClearanceM
+                          << " minimum_planned_needle_tissue_clearance_m="
+                          << denseMinimumNeedleTissueClearanceM
+                          << " standing_material_seat_error_m="
+                          << terminalStageMetrics.materialSeatErrorM
+                          << " receiver_seat_drift_m="
+                          << terminalStageMetrics.workingGrasp.seatDrift
+                          << " thread_normal_impulse_ns="
+                          << terminalStageMetrics.standingThread
+                                 .maximumNormalImpulseNs
+                          << " thread_maximum_edge_error_m="
+                          << terminalStageMetrics.rod.maximumEdgeLengthError
+                          << " active_puncture_channels="
+                          << terminalStageMetrics.matter.activeChannels
+                          << " active_tetrahedra="
+                          << terminalStageMetrics.matter.activeTetrahedra
+                          << " removed_tissue_mass_kg="
+                          << terminalStageMetrics.matter.removedMassKg
+                          << " matter_minimum_determinant="
+                          << terminalStageMetrics.matter.minimumDeterminant
+                          << " matter_maximum_residual="
+                          << terminalStageMetrics.matter.maximumResidual
+                          << " contact_velocity_residual_mps="
+                          << terminalStageMetrics.contactVelocityResidualMps
+                          << " gpu_ms=" << stageGpuMilliseconds
+                          << " failed_steps=0"
+                          << " boundary=staged_two_ended_state_not_throw_or_"
+                             "loaded_knot\n";
+                return 0;
                 }
                 Vec3 targetRail = targetingVector(
                     target.railDirection
@@ -19213,6 +19842,50 @@ int main(const int argc, const char* const argv[]) {
                                             kSutureMatterContactSegmentCount,
                                     }
                                 );
+                        }
+                        if (!selection.succeeded()) {
+                            // At the end of sharp-tip passage the needle tip
+                            // has cleared the distal wall, but the swage and
+                            // first DER edge are still several millimetres
+                            // behind it. No strand edge should be invented in
+                            // the tract during that geometric interval. The
+                            // selector already includes the complete next-
+                            // chunk travel in its surface band, so retain the
+                            // current inactive proxy slots until a real
+                            // material edge enters that predictive band.
+                            const auto pending = tissueRuntime.snapshot();
+                            require(
+                                !secondSutureTractOwnershipEstablished &&
+                                    selection.status ==
+                                        metalrobo::
+                                            SurgicalThreadContactSelectionStatus::
+                                                noContactEdgeSet &&
+                                    pending.available &&
+                                    pending.sutureProxyEdges ==
+                                        snapshot.sutureProxyEdges &&
+                                    pending.sutureProxyBindingRevision ==
+                                        snapshot
+                                            .sutureProxyBindingRevision,
+                                phase + " lost strand ownership before a "
+                                    "material edge reached the puncture tract: " +
+                                    metalrobo::
+                                        surgicalThreadContactSelectionStatusName(
+                                            selection.status
+                                        )
+                            );
+                            std::cout << std::setprecision(9)
+                                << "suture_contact_ownership=pending"
+                                << " phase=\"" << phase << '"'
+                                << " reason=no_material_edge_in_predictive_"
+                                   "tract_band"
+                                << " maximum_surface_separation_m="
+                                << maximumSurfaceSeparationM
+                                << " predictive_travel_m="
+                                << predictiveTravelM
+                                << " binding_revision="
+                                << snapshot.sutureProxyBindingRevision
+                                << '\n';
+                            return;
                         }
                         require(
                             selection.succeeded(),
