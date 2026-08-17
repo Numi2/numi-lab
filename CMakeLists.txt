@@ -655,6 +655,7 @@ add_library(
     src/core/SurgicalVisual.cpp
     src/core/SurgicalWorld.cpp
     src/core/SurgicalKnot.cpp
+    src/core/SurgicalThreadTargeting.cpp
     src/core/HeterogeneousWorld.cpp
     src/core/DiscreteElasticRod.cpp
     src/core/Collision.cpp
@@ -1410,6 +1411,30 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_surgical_thread_grasp_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_surgical_thread_targeting_probe
+    apps/surgical_thread_targeting_probe.cpp
+)
+target_compile_options(
+    metalrobo_surgical_thread_targeting_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_surgical_thread_targeting_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_surgical_thread_targeting_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
@@ -2513,6 +2538,16 @@ if(BUILD_TESTING)
         PROPERTIES
             LABELS "metalrobo;surgical;physics;metal"
             TIMEOUT 180
+    )
+    add_test(
+        NAME metalrobo.surgical.thread_post_bite_targeting
+        COMMAND $<TARGET_FILE:metalrobo_surgical_thread_targeting_probe>
+    )
+    set_tests_properties(
+        metalrobo.surgical.thread_post_bite_targeting
+        PROPERTIES
+            LABELS "metalrobo;surgical;geometry"
+            TIMEOUT 30
     )
     add_test(
         NAME metalrobo.surgical.dual_psm_suture_handoff
