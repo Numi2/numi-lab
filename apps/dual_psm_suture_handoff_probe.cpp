@@ -4710,6 +4710,8 @@ struct ThreadGraspContactCounts {
     std::uint32_t nonTargetWindowContacts = 0u;
     double maximumNormalImpulseNs = 0.0;
     double maximumTangentialImpulseNs = 0.0;
+    double maximumTargetWindowNormalImpulseNs = 0.0;
+    double maximumTargetWindowTangentialImpulseNs = 0.0;
     double minimumSeparationM =
         std::numeric_limits<double>::infinity();
 };
@@ -4788,17 +4790,30 @@ ThreadGraspContactCounts threadGraspContactCounts(
         }
         counts.centerEdgeContacts += edge == target.centerEdge;
         counts.nonTargetWindowContacts += !targetWindow;
+        const double normalImpulseNs =
+            static_cast<double>(contact.impulses.x);
+        const double tangentialImpulseNs = std::hypot(
+            static_cast<double>(contact.impulses.y),
+            static_cast<double>(contact.impulses.z)
+        );
         counts.maximumNormalImpulseNs = std::max(
             counts.maximumNormalImpulseNs,
-            static_cast<double>(contact.impulses.x)
+            normalImpulseNs
         );
         counts.maximumTangentialImpulseNs = std::max(
             counts.maximumTangentialImpulseNs,
-            std::hypot(
-                static_cast<double>(contact.impulses.y),
-                static_cast<double>(contact.impulses.z)
-            )
+            tangentialImpulseNs
         );
+        if (targetWindow) {
+            counts.maximumTargetWindowNormalImpulseNs = std::max(
+                counts.maximumTargetWindowNormalImpulseNs,
+                normalImpulseNs
+            );
+            counts.maximumTargetWindowTangentialImpulseNs = std::max(
+                counts.maximumTargetWindowTangentialImpulseNs,
+                tangentialImpulseNs
+            );
+        }
     }
     return counts;
 }
@@ -16941,7 +16956,8 @@ int main(const int argc, const char* const argv[]) {
                                     .targetWindowJawPatchMasks[1] != 0u &&
                             metrics.standingThread.targetWindowContacts >= 2u &&
                             metrics.standingThread.centerEdgeContacts != 0u &&
-                            metrics.standingThread.maximumNormalImpulseNs >
+                            metrics.standingThread
+                                    .maximumTargetWindowNormalImpulseNs >
                                 0.0 &&
                             metrics.materialSeatErrorM <=
                                 kMaximumTransitionGraspReseating &&
@@ -17012,7 +17028,8 @@ int main(const int argc, const char* const argv[]) {
                 ) {
                     maximumStandingTangentialImpulseNs = std::max(
                         maximumStandingTangentialImpulseNs,
-                        metrics.standingThread.maximumTangentialImpulseNs
+                        metrics.standingThread
+                            .maximumTargetWindowTangentialImpulseNs
                     );
                     const auto& impulse =
                         metrics.workingNeedle.rodAttachmentImpulses[0u];
@@ -17201,7 +17218,7 @@ int main(const int argc, const char* const argv[]) {
                     physicsSubstepSeconds;
                 const double terminalStandingRetentionLoadN =
                     terminalMetrics.standingThread
-                        .maximumTangentialImpulseNs /
+                        .maximumTargetWindowTangentialImpulseNs /
                     physicsSubstepSeconds;
                 const auto& terminalSwageImpulse =
                     terminalMetrics.workingNeedle
@@ -17326,6 +17343,12 @@ int main(const int argc, const char* const argv[]) {
                     << " standing_incidental_wrap_contacts="
                     << terminalMetrics.standingThread
                            .nonTargetWindowContacts
+                    << " standing_target_maximum_normal_impulse_ns="
+                    << terminalMetrics.standingThread
+                           .maximumTargetWindowNormalImpulseNs
+                    << " standing_target_maximum_tangential_impulse_ns="
+                    << terminalMetrics.standingThread
+                           .maximumTargetWindowTangentialImpulseNs
                     << " minimum_planned_instrument_clearance_m="
                     << denseAudit.minimumInstrumentClearanceM
                     << " minimum_planned_standing_tissue_clearance_m="
@@ -18568,11 +18591,13 @@ int main(const int argc, const char* const argv[]) {
                               metrics.standingThread.centerEdgeContacts != 0u &&
                               metrics.standingThread.nonTargetWindowContacts ==
                                   0u &&
-                              metrics.standingThread.maximumNormalImpulseNs >
+                              metrics.standingThread
+                                      .maximumTargetWindowNormalImpulseNs >
                                   0.0 &&
                               (!requireTangentialLoad ||
                                metrics.standingThread
-                                       .maximumTangentialImpulseNs > 0.0) &&
+                                       .maximumTargetWindowTangentialImpulseNs >
+                                   0.0) &&
                               metrics.materialSeatErrorM <=
                                   kMaximumTransitionGraspReseating &&
                               bilateral(metrics.workingNeedle, 1u) &&
