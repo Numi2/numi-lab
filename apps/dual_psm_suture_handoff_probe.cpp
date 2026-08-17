@@ -20249,6 +20249,7 @@ int main(const int argc, const char* const argv[]) {
             std::uint32_t activeSutureStrandContacts = 0u;
             double normalImpulse = 0.0;
             double punctureTipNormalImpulse = 0.0;
+            double punctureTipAcceptedImpulse = 0.0;
             double sutureStrandNormalImpulse = 0.0;
             double maximumContactSpecificImpulseMps = 0.0;
             double minimumContactNodeMassKg =
@@ -20259,8 +20260,11 @@ int main(const int argc, const char* const argv[]) {
                 std::numeric_limits<double>::infinity();
             double minimumAdmissionNormalVelocity =
                 std::numeric_limits<double>::infinity();
-            for (const NMContactSampleGPU& sample :
-                 snapshot.contactSamples) {
+            for (std::size_t contactIndex = 0u;
+                 contactIndex < snapshot.contactSamples.size();
+                 ++contactIndex) {
+                const NMContactSampleGPU& sample =
+                    snapshot.contactSamples[contactIndex];
                 if ((sample.identity.w & NM_CONTACT_VALID) == 0u) {
                     continue;
                 }
@@ -20275,6 +20279,11 @@ int main(const int argc, const char* const argv[]) {
                         ++activePunctureTipContacts;
                         punctureTipNormalImpulse +=
                             sample.impulseAndNormal.w;
+                        if (contactIndex <
+                            snapshot.contactHistories.size()) {
+                            punctureTipAcceptedImpulse +=
+                                snapshot.contactHistories[contactIndex].w;
+                        }
                     }
                     if ((proxyFlags & NM_RIGID_SUTURE_STRAND) != 0u) {
                         ++activeSutureStrandContacts;
@@ -20533,6 +20542,8 @@ int main(const int argc, const char* const argv[]) {
                     << activePunctureTipContacts
                     << " puncture_tip_impulse_ns="
                     << punctureTipNormalImpulse
+                    << " puncture_tip_accepted_impulse_ns="
+                    << punctureTipAcceptedImpulse
                     << " suture_strand_contacts="
                     << activeSutureStrandContacts
                     << " suture_strand_impulse_ns="
@@ -20666,7 +20677,9 @@ int main(const int argc, const char* const argv[]) {
                         " puncture_tip_contacts=" +
                         std::to_string(activePunctureTipContacts) +
                         " puncture_tip_impulse=" +
-                        std::to_string(punctureTipNormalImpulse) +
+                            std::to_string(punctureTipNormalImpulse) +
+                        " puncture_tip_accepted_impulse=" +
+                            std::to_string(punctureTipAcceptedImpulse) +
                         " minimum_contact_separation=" +
                         std::to_string(minimumContactSeparation) +
                         " minimum_contact_normal_velocity=" +
