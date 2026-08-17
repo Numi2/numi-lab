@@ -4459,6 +4459,8 @@ struct ContactCounts {
     // capsule patch touches several adjacent needle segments.
     std::array<std::array<std::uint32_t, 2>, 2> jawInsertPatchMasks{};
     std::array<std::uint32_t, 2> graspZoneContacts{};
+    std::array<std::array<std::uint32_t, 2>, 2>
+        graspZoneContactsByJaw{};
     std::uint32_t needlePadContacts = 0u;
     std::array<std::uint32_t, 2> armPadContacts{};
     std::array<std::uint32_t, 2> armNeedleContacts{};
@@ -4678,6 +4680,7 @@ ContactCounts contactCounts(
                         needleFirstShape +
                             needleMetadata.graspShapeBegin) {
                     ++counts.graspZoneContacts[arm];
+                    ++counts.graspZoneContactsByJaw[arm][jaw];
                 }
             }
         }
@@ -4871,9 +4874,19 @@ ThreadGraspContactCounts threadGraspContactCounts(
 bool bilateral(const ContactCounts& counts, const std::uint32_t arm) {
     const std::uint32_t jawContactCount =
         counts.jawContacts[arm][0] + counts.jawContacts[arm][1];
+    // Needle-handling guidance specifies a driving interval, but a finite
+    // insert centered inside that interval can overlap one neighbouring
+    // collision segment. Require both jaws to witness the authored interval
+    // and keep it dominant, while rejecting the former boundary grasp whose
+    // in-zone share fell to 40 percent during load exchange.
+    const bool handlingZoneDominant =
+        static_cast<std::uint64_t>(counts.graspZoneContacts[arm]) * 4u >=
+        static_cast<std::uint64_t>(jawContactCount) * 3u;
     return counts.jawContacts[arm][0] != 0u &&
         counts.jawContacts[arm][1] != 0u &&
-        counts.graspZoneContacts[arm] == jawContactCount;
+        counts.graspZoneContactsByJaw[arm][0] != 0u &&
+        counts.graspZoneContactsByJaw[arm][1] != 0u &&
+        handlingZoneDominant;
 }
 
 bool transverseInsertCoverage(
@@ -4967,6 +4980,11 @@ std::string contactSummary(const ContactCounts& counts) {
         " grasp_zone=" +
         std::to_string(counts.graspZoneContacts[0]) + "/" +
         std::to_string(counts.graspZoneContacts[1]) +
+        " grasp_zone_by_jaw=" +
+        std::to_string(counts.graspZoneContactsByJaw[0][0]) + "/" +
+        std::to_string(counts.graspZoneContactsByJaw[0][1]) + "/" +
+        std::to_string(counts.graspZoneContactsByJaw[1][0]) + "/" +
+        std::to_string(counts.graspZoneContactsByJaw[1][1]) +
         " pad=" + std::to_string(counts.needlePadContacts) +
         " arm_pad=" +
         std::to_string(counts.armPadContacts[0]) + "/" +
@@ -9122,10 +9140,18 @@ int main(const int argc, const char* const argv[]) {
                 "enter the authored needle contact envelope"
             );
         }
+        // A staged checkpoint already contains the canonical neutral-zone
+        // translation. Preserve that frame when a collision scan is resumed
+        // without an explicit y override; otherwise the receiver base is
+        // rebuilt around the pre-stage needle and the IK failure is a scan
+        // bookkeeping artifact rather than a path collision.
         const Vec3 handoffStagingOffset = options.receiverCollisionScan
             ? Vec3{
                 options.receiverScanHandoffOffsetX,
-                options.receiverScanHandoffOffsetY,
+                !options.resumeGiverHandoffStagePath.empty() &&
+                        !options.receiverScanHandoffOffsetYProvided
+                    ? kHandoffStagingOffset.y
+                    : options.receiverScanHandoffOffsetY,
                 options.receiverScanHandoffHeightIncrement,
             }
             : kHandoffStagingOffset;
@@ -14471,11 +14497,11 @@ int main(const int argc, const char* const argv[]) {
                 << " needle_axis_roll_rad="
                 << options.receiverNeedleAxisRoll
                 << " handoff_height_increment_m="
-                << options.receiverScanHandoffHeightIncrement
+                << scanHandoffOffset.z
                 << " handoff_offset_x_m="
-                << options.receiverScanHandoffOffsetX
+                << scanHandoffOffset.x
                 << " handoff_offset_y_m="
-                << options.receiverScanHandoffOffsetY
+                << scanHandoffOffset.y
                 << " staging_steps=" << kHandoffStagingSteps
                 << " staging_max_velocity_ratio="
                 << stagingMaximumVelocityRatio
