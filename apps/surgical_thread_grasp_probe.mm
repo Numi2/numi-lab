@@ -30,6 +30,8 @@ constexpr std::array<std::uint32_t, 2> kJawBShapes{
     25u,
     27u,
 };
+constexpr std::uint32_t kAcquisitionClosureSteps = 120u;
+constexpr std::uint32_t kAcquisitionSettleSteps = 12u;
 
 void require(const bool condition, const std::string& message) {
     if (!condition) {
@@ -108,12 +110,16 @@ Vec3 rotate(
 
 std::vector<metalrobo::ArticulatedBodyKinematics> bodyKinematics(
     const metalrobo::EngineModel& model,
-    const std::span<const double> q
+    const std::span<const double> q,
+    const std::span<const double> velocity
 ) {
+    require(
+        velocity.size() == model.world.nv,
+        "Large Needle Driver velocity has invalid dimensions"
+    );
     std::vector<metalrobo::ArticulatedBodyKinematics> result(
         model.articulations.at(0u).bodyCount
     );
-    const std::vector<double> velocity(model.world.nv, 0.0);
     const auto diagnostics =
         metalrobo::computeArticulatedBodyKinematics(
             model,
@@ -127,6 +133,14 @@ std::vector<metalrobo::ArticulatedBodyKinematics> bodyKinematics(
         "Large Needle Driver kinematics failed"
     );
     return result;
+}
+
+std::vector<metalrobo::ArticulatedBodyKinematics> bodyKinematics(
+    const metalrobo::EngineModel& model,
+    const std::span<const double> q
+) {
+    const std::vector<double> velocity(model.world.nv, 0.0);
+    return bodyKinematics(model, q, velocity);
 }
 
 Vec3 shapeCenter(
@@ -262,9 +276,10 @@ double calibratedThreadJawCoordinate(
 
 std::vector<MRBodyStateGPU> kinematicBodyStates(
     const metalrobo::EngineModel& model,
-    const std::span<const double> q
+    const std::span<const double> q,
+    const std::span<const double> velocity
 ) {
-    const auto bodies = bodyKinematics(model, q);
+    const auto bodies = bodyKinematics(model, q, velocity);
     std::vector<MRBodyStateGPU> result(model.bodies.size());
     for (const auto& body : bodies) {
         MRBodyStateGPU& state = result.at(body.bodyIndex);
@@ -280,8 +295,18 @@ std::vector<MRBodyStateGPU> kinematicBodyStates(
             static_cast<float>(body.orientation[2]),
             static_cast<float>(body.orientation[3]),
         };
-        state.linearVelocityAndInverseMass = {};
-        state.angularVelocity = {};
+        state.linearVelocityAndInverseMass = {
+            static_cast<float>(body.linearVelocity[0]),
+            static_cast<float>(body.linearVelocity[1]),
+            static_cast<float>(body.linearVelocity[2]),
+            0.0f,
+        };
+        state.angularVelocity = {
+            static_cast<float>(body.angularVelocity[0]),
+            static_cast<float>(body.angularVelocity[1]),
+            static_cast<float>(body.angularVelocity[2]),
+            0.0f,
+        };
         state.inverseInertiaWorldRow0 = {};
         state.inverseInertiaWorldRow1 = {};
         state.inverseInertiaWorldRow2 = {};
@@ -290,6 +315,14 @@ std::vector<MRBodyStateGPU> kinematicBodyStates(
         state.flagsAndIndices[2] = body.bodyIndex;
     }
     return result;
+}
+
+std::vector<MRBodyStateGPU> kinematicBodyStates(
+    const metalrobo::EngineModel& model,
+    const std::span<const double> q
+) {
+    const std::vector<double> velocity(model.world.nv, 0.0);
+    return kinematicBodyStates(model, q, velocity);
 }
 
 void placeRod(
@@ -348,50 +381,11 @@ std::vector<MRRodToolPairGPU> insertPairs(
     return result;
 }
 
-struct ClampOutcome {
-    metalrobo::DiscreteElasticRodState state;
-    double maximumNormalImpulse = 0.0;
-    double maximumTangentialImpulse = 0.0;
-    double maximumAttachmentLoadN = 0.0;
-    double meanPullResistanceN = 0.0;
-    double graspNodeDisplacementM = 0.0;
-    std::uint32_t jawAContactSteps = 0u;
-    std::uint32_t jawBContactSteps = 0u;
-    std::uint32_t bilateralPullContactSteps = 0u;
-    std::uint32_t firstMissingBilateralPullStep = MR_INVALID_INDEX;
-    std::uint32_t lastMissingBilateralPullStep = MR_INVALID_INDEX;
-    bool terminalBilateralContact = false;
-    std::uint32_t failedSteps = 0u;
-    std::string deviceName;
-};
-
-ClampOutcome runClamp(
-    const metalrobo::EngineModel& toolModel,
-    const metalrobo::DiscreteElasticRodModel& rod,
-    const metalrobo::DiscreteElasticRodState& initialState,
-    const std::span<const MRBodyStateGPU> toolBodies,
-    const std::span<const MRRodToolPairGPU> pairs,
-    const Vec3& pullDirection
+metalrobo::MetalDiscreteElasticRodConfig clampConfig(
+    const metalrobo::EngineModel& toolModel
 ) {
-    constexpr double timestep = 1.0e-3;
-    constexpr double pullSpeedMps = 2.0e-3;
-    constexpr std::uint32_t settleSteps = 12u;
-    constexpr std::uint32_t pullSteps = 40u;
-    const std::uint32_t graspNode =
-        static_cast<std::uint32_t>(initialState.positions.size() / 2u);
-    const Vec3 initialGraspPosition = initialState.positions[graspNode];
-
-    ClampOutcome outcome;
-    outcome.state = initialState;
-    metalrobo::DiscreteRodAttachment attachment{
-        .nodeIndex = 0u,
-        .targetPosition = initialState.positions.front(),
-        .targetVelocity = {},
-        .compliance = 0.0,
-    };
-    std::vector<MRRodToolWitnessGPU> previousContacts;
     metalrobo::MetalDiscreteElasticRodConfig config;
-    config.step.timestep = timestep;
+    config.step.timestep = 1.0e-3;
     config.step.gravity = {0.0, 0.0, 0.0};
     config.step.solverIterations = 1024u;
     config.step.constraintTolerance = 5.0e-6;
@@ -410,6 +404,201 @@ ClampOutcome runClamp(
     config.tool.damping = 0.0f;
     config.tool.restitution = 0.0f;
     config.tool.frictionScale = 1.0f;
+    return config;
+}
+
+struct AcquisitionOutcome {
+    metalrobo::DiscreteElasticRodState state;
+    std::vector<MRRodToolWitnessGPU> contacts;
+    double maximumNormalImpulse = 0.0;
+    std::uint32_t jawAContactSteps = 0u;
+    std::uint32_t jawBContactSteps = 0u;
+    std::uint32_t firstAnyContactStep = MR_INVALID_INDEX;
+    std::uint32_t firstBilateralContactStep = MR_INVALID_INDEX;
+    bool terminalBilateralContact = false;
+    std::string deviceName;
+};
+
+AcquisitionOutcome acquireClamp(
+    const metalrobo::EngineModel& toolModel,
+    const metalrobo::DiscreteElasticRodModel& rod,
+    const metalrobo::DiscreteElasticRodState& initialState,
+    const std::span<const MRRodToolPairGPU> pairs,
+    const double openJawCoordinate,
+    const double closedJawCoordinate
+) {
+    constexpr double timestep = 1.0e-3;
+    require(
+        openJawCoordinate > closedJawCoordinate &&
+            closedJawCoordinate > 0.0,
+        "PDO acquisition jaw coordinates are invalid"
+    );
+
+    AcquisitionOutcome outcome;
+    outcome.state = initialState;
+    const std::array<metalrobo::DiscreteRodAttachment, 2u> attachments{{
+        {
+            .nodeIndex = 0u,
+            .targetPosition = initialState.positions.front(),
+            .targetVelocity = {},
+            .compliance = 0.0,
+        },
+        {
+            .nodeIndex = static_cast<std::uint32_t>(
+                initialState.positions.size() - 1u
+            ),
+            .targetPosition = initialState.positions.back(),
+            .targetVelocity = {},
+            .compliance = 0.0,
+        },
+    }};
+    const std::array<
+        metalrobo::DiscreteRodRigidAttachmentBinding,
+        2u
+    > rigidBindings{};
+    const metalrobo::MetalDiscreteElasticRodConfig config =
+        clampConfig(toolModel);
+
+    for (std::uint32_t step = 0u;
+         step < kAcquisitionClosureSteps + kAcquisitionSettleSteps;
+         ++step) {
+        double jawCoordinate = closedJawCoordinate;
+        double jawCoordinateRate = 0.0;
+        if (step < kAcquisitionClosureSteps) {
+            const double t = static_cast<double>(step + 1u) /
+                static_cast<double>(kAcquisitionClosureSteps);
+            const double smooth = t * t * (3.0 - 2.0 * t);
+            const double smoothRate =
+                6.0 * t * (1.0 - t) /
+                (static_cast<double>(kAcquisitionClosureSteps) * timestep);
+            jawCoordinate = openJawCoordinate +
+                (closedJawCoordinate - openJawCoordinate) * smooth;
+            jawCoordinateRate =
+                (closedJawCoordinate - openJawCoordinate) * smoothRate;
+        }
+        const std::vector<double> q = jawConfiguration(
+            toolModel,
+            jawCoordinate
+        );
+        std::vector<double> velocity(toolModel.world.nv, 0.0);
+        velocity[6] = -jawCoordinateRate;
+        velocity[7] = jawCoordinateRate;
+        const auto toolBodies = kinematicBodyStates(
+            toolModel,
+            q,
+            velocity
+        );
+        const std::array<metalrobo::DiscreteElasticRodState, 1u> states{{
+            outcome.state,
+        }};
+        metalrobo::MetalDiscreteElasticRodResult result;
+        const auto diagnostics = metalrobo::runMetalDiscreteElasticRod(
+            rod,
+            {
+                .states = states,
+                .attachmentCount =
+                    static_cast<std::uint32_t>(attachments.size()),
+                .attachments = attachments,
+                .rigidBodyCount = toolBodies.size(),
+                .rigidBodies = toolBodies,
+                .rigidBindings = rigidBindings,
+                .toolModel = &toolModel,
+                .toolPairs = pairs,
+                .previousToolContacts = outcome.contacts,
+            },
+            result,
+            config
+        );
+        require(
+            diagnostics.succeeded() && diagnostics.published &&
+                result.states.size() == 1u,
+            "Apple Metal PDO acquisition step failed at " +
+                std::to_string(step) + ": " + diagnostics.message
+        );
+        outcome.deviceName = diagnostics.deviceName;
+        outcome.state = std::move(result.states[0]);
+        outcome.contacts = std::move(result.toolContacts);
+        bool jawAContact = false;
+        bool jawBContact = false;
+        for (const MRRodToolWitnessGPU& witness : outcome.contacts) {
+            if ((witness.featuresAndFlags.w &
+                 MR_ROD_TOOL_WITNESS_VALID) == 0u ||
+                !(witness.impulses.x > 0.0f)) {
+                continue;
+            }
+            outcome.maximumNormalImpulse = std::max(
+                outcome.maximumNormalImpulse,
+                static_cast<double>(witness.impulses.x)
+            );
+            jawAContact = jawAContact ||
+                witness.featuresAndFlags.z == 7u;
+            jawBContact = jawBContact ||
+                witness.featuresAndFlags.z == 8u;
+        }
+        if (jawAContact || jawBContact) {
+            outcome.firstAnyContactStep = std::min(
+                outcome.firstAnyContactStep,
+                step
+            );
+        }
+        if (jawAContact && jawBContact) {
+            outcome.firstBilateralContactStep = std::min(
+                outcome.firstBilateralContactStep,
+                step
+            );
+        }
+        outcome.jawAContactSteps += jawAContact ? 1u : 0u;
+        outcome.jawBContactSteps += jawBContact ? 1u : 0u;
+        outcome.terminalBilateralContact = jawAContact && jawBContact;
+    }
+    return outcome;
+}
+
+struct ClampOutcome {
+    metalrobo::DiscreteElasticRodState state;
+    double maximumNormalImpulse = 0.0;
+    double maximumTangentialImpulse = 0.0;
+    double maximumAttachmentLoadN = 0.0;
+    double meanPullResistanceN = 0.0;
+    double graspNodeDisplacementM = 0.0;
+    std::uint32_t jawAContactSteps = 0u;
+    std::uint32_t jawBContactSteps = 0u;
+    std::uint32_t bilateralPullContactSteps = 0u;
+    std::uint32_t firstMissingBilateralPullStep = MR_INVALID_INDEX;
+    std::uint32_t lastMissingBilateralPullStep = MR_INVALID_INDEX;
+    bool terminalBilateralContact = false;
+    std::uint32_t failedSteps = 0u;
+    std::string deviceName;
+    std::vector<MRRodToolWitnessGPU> contacts;
+};
+
+ClampOutcome runClamp(
+    const metalrobo::EngineModel& toolModel,
+    const metalrobo::DiscreteElasticRodModel& rod,
+    const metalrobo::DiscreteElasticRodState& initialState,
+    const std::span<const MRBodyStateGPU> toolBodies,
+    const std::span<const MRRodToolPairGPU> pairs,
+    const Vec3& pullDirection,
+    std::vector<MRRodToolWitnessGPU> previousContacts = {}
+) {
+    constexpr double timestep = 1.0e-3;
+    constexpr double pullSpeedMps = 2.0e-3;
+    constexpr std::uint32_t settleSteps = 40u;
+    constexpr std::uint32_t pullSteps = 40u;
+    const std::uint32_t graspNode =
+        static_cast<std::uint32_t>(initialState.positions.size() / 2u);
+    const Vec3 initialGraspPosition = initialState.positions[graspNode];
+
+    ClampOutcome outcome;
+    outcome.state = initialState;
+    metalrobo::DiscreteRodAttachment attachment{
+        .nodeIndex = 0u,
+        .targetPosition = initialState.positions.front(),
+        .targetVelocity = {},
+        .compliance = 0.0,
+    };
+    const metalrobo::MetalDiscreteElasticRodConfig config =
+        clampConfig(toolModel);
 
     for (std::uint32_t step = 0u;
          step < settleSteps + pullSteps;
@@ -514,6 +703,7 @@ ClampOutcome runClamp(
         subtract(outcome.state.positions[graspNode], initialGraspPosition),
         pullDirection
     );
+    outcome.contacts = std::move(previousContacts);
     return outcome;
 }
 
@@ -521,7 +711,7 @@ ClampOutcome runClamp(
 
 int main() {
     try {
-        constexpr double radialPreloadM = 14.0e-6;
+        constexpr double radialPreloadM = 15.0e-6;
         const auto sutureSpec =
             metalrobo::makeBowelAnastomosisSutureSpec();
         const auto sutureWorld =
@@ -567,6 +757,26 @@ int main() {
         );
         const JawGeometry jaws = jawGeometry(frictionalTool, q);
         const auto toolBodies = kinematicBodyStates(frictionalTool, q);
+        const double openJawCoordinate = jawCoordinate + 0.01;
+        const JawGeometry openJaws = jawGeometry(
+            frictionalTool,
+            jawConfiguration(frictionalTool, openJawCoordinate)
+        );
+        const double maximumJawCoordinateRate =
+            1.5 * (openJawCoordinate - jawCoordinate) /
+            (1.0e-3 * static_cast<double>(kAcquisitionClosureSteps));
+        const double openSurfaceGap = openJaws.separation -
+            2.0 * frictionalTool.shapes.at(kJawAShapes[0]).dimensions.x;
+        require(
+            openJawCoordinate < 0.12 &&
+                openSurfaceGap >=
+                    2.0 * sutureSpec.threadRadiusM.value + 2.0e-5 &&
+                maximumJawCoordinateRate <=
+                    frictionalTool.dofs.at(6u).limits.z &&
+                maximumJawCoordinateRate <=
+                    frictionalTool.dofs.at(7u).limits.z,
+            "Large Needle Driver thread-acquisition opening is obstructed"
+        );
         metalrobo::DiscreteElasticRodModel rod =
             metalrobo::makeStraightSutureRod(
                 65u,
@@ -579,29 +789,105 @@ int main() {
         const auto pairs = insertPairs(rod);
         const Vec3 pullDirection = multiply(jaws.rail, -1.0);
 
-        const ClampOutcome frictionless = runClamp(
+        const AcquisitionOutcome frictionlessAcquisition = acquireClamp(
             frictionlessTool,
             rod,
             initialState,
+            pairs,
+            openJawCoordinate,
+            jawCoordinate
+        );
+        const AcquisitionOutcome frictionalAcquisition = acquireClamp(
+            frictionalTool,
+            rod,
+            initialState,
+            pairs,
+            openJawCoordinate,
+            jawCoordinate
+        );
+        const AcquisitionOutcome replayAcquisition = acquireClamp(
+            frictionalTool,
+            rod,
+            initialState,
+            pairs,
+            openJawCoordinate,
+            jawCoordinate
+        );
+        const bool deterministicAcquisition =
+            replayAcquisition.state.positions ==
+                frictionalAcquisition.state.positions &&
+            replayAcquisition.state.velocities ==
+                frictionalAcquisition.state.velocities &&
+            replayAcquisition.state.twists ==
+                frictionalAcquisition.state.twists &&
+            replayAcquisition.state.twistRates ==
+                frictionalAcquisition.state.twistRates &&
+            replayAcquisition.maximumNormalImpulse ==
+                frictionalAcquisition.maximumNormalImpulse &&
+            replayAcquisition.jawAContactSteps ==
+                frictionalAcquisition.jawAContactSteps &&
+            replayAcquisition.jawBContactSteps ==
+                frictionalAcquisition.jawBContactSteps &&
+            replayAcquisition.firstAnyContactStep ==
+                frictionalAcquisition.firstAnyContactStep &&
+            replayAcquisition.firstBilateralContactStep ==
+                frictionalAcquisition.firstBilateralContactStep;
+        const bool acquired =
+            frictionalAcquisition.firstAnyContactStep > 0u &&
+                frictionalAcquisition.firstAnyContactStep <
+                    kAcquisitionClosureSteps &&
+                frictionalAcquisition.firstBilateralContactStep !=
+                    MR_INVALID_INDEX &&
+                frictionalAcquisition.jawAContactSteps > 0u &&
+                frictionalAcquisition.jawBContactSteps > 0u &&
+                frictionalAcquisition.maximumNormalImpulse > 0.0 &&
+                frictionalAcquisition.terminalBilateralContact &&
+                deterministicAcquisition;
+        if (!acquired) {
+            std::ostringstream evidence;
+            evidence << "PDO strand was not acquired by continuous open-jaw "
+                << "closure: first_contact_step="
+                << frictionalAcquisition.firstAnyContactStep
+                << " first_bilateral_step="
+                << frictionalAcquisition.firstBilateralContactStep
+                << " jaw_a_contact_steps="
+                << frictionalAcquisition.jawAContactSteps
+                << " jaw_b_contact_steps="
+                << frictionalAcquisition.jawBContactSteps
+                << " terminal_bilateral="
+                << frictionalAcquisition.terminalBilateralContact
+                << " maximum_normal_impulse="
+                << frictionalAcquisition.maximumNormalImpulse
+                << " deterministic=" << deterministicAcquisition;
+            throw std::runtime_error(evidence.str());
+        }
+
+        const ClampOutcome frictionless = runClamp(
+            frictionlessTool,
+            rod,
+            frictionlessAcquisition.state,
             toolBodies,
             pairs,
-            pullDirection
+            pullDirection,
+            frictionlessAcquisition.contacts
         );
         const ClampOutcome frictional = runClamp(
             frictionalTool,
             rod,
-            initialState,
+            frictionalAcquisition.state,
             toolBodies,
             pairs,
-            pullDirection
+            pullDirection,
+            frictionalAcquisition.contacts
         );
         const ClampOutcome replay = runClamp(
             frictionalTool,
             rod,
-            initialState,
+            replayAcquisition.state,
             toolBodies,
             pairs,
-            pullDirection
+            pullDirection,
+            replayAcquisition.contacts
         );
         const bool deterministicReplay =
             replay.state.positions == frictional.state.positions &&
@@ -615,7 +901,8 @@ int main() {
             replay.meanPullResistanceN ==
                 frictional.meanPullResistanceN &&
             replay.bilateralPullContactSteps ==
-                frictional.bilateralPullContactSteps;
+                frictional.bilateralPullContactSteps &&
+            deterministicAcquisition;
         const bool retained =
             frictional.jawAContactSteps > 0u &&
                 frictional.jawBContactSteps > 0u &&
@@ -627,8 +914,8 @@ int main() {
                     1.2 * frictionless.meanPullResistanceN &&
                 frictional.bilateralPullContactSteps >= 36u &&
                 frictional.terminalBilateralContact &&
-                frictional.graspNodeDisplacementM <
-                    frictionless.graspNodeDisplacementM &&
+                std::abs(frictional.graspNodeDisplacementM) <
+                    std::abs(frictionless.graspNodeDisplacementM) &&
                 deterministicReplay;
         if (!retained) {
             std::ostringstream evidence;
@@ -673,8 +960,27 @@ int main() {
             << " instrument=large_needle_driver"
             << " insert_patches=4"
             << " jaw_coordinate_rad=" << jawCoordinate
+            << " open_jaw_coordinate_rad=" << openJawCoordinate
             << " jaw_center_separation_m=" << jaws.separation
+            << " open_jaw_center_separation_m=" << openJaws.separation
+            << " open_jaw_surface_gap_m=" << openSurfaceGap
             << " radial_preload_m=" << radialPreloadM
+            << " acquisition_steps="
+            << kAcquisitionClosureSteps + kAcquisitionSettleSteps
+            << " acquisition_maximum_jaw_rate_radps="
+            << maximumJawCoordinateRate
+            << " acquisition_first_contact_step="
+            << frictionalAcquisition.firstAnyContactStep
+            << " acquisition_first_bilateral_step="
+            << frictionalAcquisition.firstBilateralContactStep
+            << " acquisition_jaw_a_contact_steps="
+            << frictionalAcquisition.jawAContactSteps
+            << " acquisition_jaw_b_contact_steps="
+            << frictionalAcquisition.jawBContactSteps
+            << " acquisition_terminal_bilateral=yes"
+            << " load_settle_steps=40"
+            << " pull_steps=40"
+            << " pull_speed_mps=0.002"
             << " jaw_a_contact_steps=" << frictional.jawAContactSteps
             << " jaw_b_contact_steps=" << frictional.jawBContactSteps
             << " maximum_normal_impulse_ns="
@@ -694,13 +1000,13 @@ int main() {
             << " last_missing_bilateral_pull_step="
             << frictional.lastMissingBilateralPullStep
             << " terminal_bilateral=yes"
-            << " frictionless_grasp_node_displacement_m="
+            << " frictionless_grasp_node_axial_displacement_m="
             << frictionless.graspNodeDisplacementM
-            << " frictional_grasp_node_displacement_m="
+            << " frictional_grasp_node_axial_displacement_m="
             << frictional.graspNodeDisplacementM
             << " deterministic=yes"
             << " failed_steps=" << frictional.failedSteps
-            << " boundary=preseated_clamp_fixture_not_live_acquisition_or_knot"
+            << " boundary=aligned_closure_fixture_not_articulated_approach_or_knot"
             << '\n';
         return 0;
     } catch (const std::exception& exception) {
