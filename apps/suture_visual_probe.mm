@@ -199,6 +199,50 @@ std::uint64_t integer(const std::string& text, const char* field) {
     return value;
 }
 
+bool isAcceptedDualHandoffVisualPhase(const std::string_view phase) {
+    // Every entry is a transactionally published q/v + rigid + DER snapshot.
+    // Keep this finite so an arbitrary or partially written phase cannot be
+    // presented as operative evidence merely because its array widths match.
+    static constexpr std::array<std::string_view, 30u> phases{
+        "giver-closed",
+        "giver-lift",
+        "giver-handoff-stage",
+        "receiver-approach",
+        "receiver-aligned",
+        "positive-control-motion",
+        "positive-control-overlap",
+        "load-exchange",
+        "giver-release",
+        "receiver-transfer-motion",
+        "receiver-transfer",
+        "receiver-extraction-giver-hold",
+        "receiver-extraction-approach",
+        "receiver-extraction-positive-control",
+        "receiver-extraction-load-exchange",
+        "receiver-extraction-giver-release",
+        "receiver-extraction-giver-retreated",
+        "receiver-extraction-preload-released",
+        "receiver-extraction-retraction-settled",
+        "receiver-extraction-retracted",
+        "tissue-receiver-bridge-start",
+        "tissue-receiver-dynamic-bridge",
+        "tissue-receiver-alignment-motion",
+        "tissue-receiver-alignment-settled",
+        "tissue-receiver-acquisition",
+        "tissue-receiver-extraction",
+        "tissue-opposing-bite-distal-clearance",
+        "tissue-opposing-bite-reoriented",
+        "tissue-opposing-bite-ready",
+        "tissue-opposing-bite-passage",
+    };
+    return std::ranges::find(phases, phase) != phases.end();
+}
+
+bool isPostHandoffOperativeVisualPhase(const std::string_view phase) {
+    return phase.starts_with("receiver-extraction-") ||
+        phase.starts_with("tissue-");
+}
+
 PickupState readPickupState(const std::filesystem::path& path) {
     std::ifstream input(path);
     if (!input) {
@@ -487,8 +531,10 @@ PickupState readPickupState(const std::filesystem::path& path) {
             result.needleLiftSeen && result.jawTravelSeen &&
             result.followRatioSeen && result.orientationDriftSeen &&
             result.graspedSeen &&
-            result.model ==
-            "dvrk_psm_classic_lnd_source_coupled_abi_v3" &&
+            (result.model ==
+                 "dvrk_psm_classic_lnd_source_coupled_abi_v3" ||
+             result.model ==
+                 "dvrk_psm_classic_lnd_source_coupled_abi_v4") &&
             result.step == 3030u &&
             result.q.size() == metalrobo::kSurgicalPSMJointCount &&
             result.v.size() == metalrobo::kSurgicalPSMJointCount &&
@@ -511,12 +557,7 @@ PickupState readPickupState(const std::filesystem::path& path) {
         result.model == "dual_psm_bowel_suture_neutral_zone_world" &&
         result.q.size() == metalrobo::kDualPsmQCount &&
         result.v.size() == metalrobo::kDualPsmVCount &&
-        (result.phase == "giver-closed" ||
-         result.phase == "giver-lift" ||
-         result.phase == "positive-control-overlap" ||
-         result.phase == "load-exchange" ||
-         result.phase == "giver-release" ||
-         result.phase == "receiver-transfer") &&
+        isAcceptedDualHandoffVisualPhase(result.phase) &&
         result.threadNodeCount == kHandoffThreadNodeCount &&
         result.threadTwists.size() + 1u == result.threadNodeCount &&
         std::ranges::all_of(
@@ -922,7 +963,9 @@ metalrobo::WorldTemplate makeWorldTemplate(
     close.width = kWidth;
     close.height = kHeight;
     close.intrinsics = state.dualHandoff
-        ? mr_float4{1500.0f, 1500.0f, 640.0f, 480.0f}
+        ? isPostHandoffOperativeVisualPhase(state.phase)
+            ? mr_float4{1750.0f, 1750.0f, 640.0f, 480.0f}
+            : mr_float4{1500.0f, 1500.0f, 640.0f, 480.0f}
         : state.medicallyMatchedSinglePickup
             ? mr_float4{1600.0f, 1600.0f, 640.0f, 480.0f}
             : mr_float4{1250.0f, 1250.0f, 640.0f, 480.0f};

@@ -489,6 +489,13 @@ centre-node slip than the same Metal solve with zero insert friction. Full
 six-axis targeting of the post-bite strand and retention throughout the throw
 sequence remain open execution boundaries.
 
+The surgical visual probe accepts the finite set of transactionally published
+dual-PSM operative checkpoints through receiver extraction and the opposing
+bite. It binds the checkpoint's exact articulated state, rigid needle pose, and
+all DER nodes into the Metal renderer. The current v2 checkpoint does not carry
+Matter FEM nodes, so the rendered jejunal surface is the calibrated rest mesh;
+it is presentation context, not evidence of the live deformed tissue state.
+
 The dual-PSM operative probe keeps post-extraction needle transport separate
 from the next bite. It first translates the receiver-held complete half-circle
 needle without changing attitude, then performs the half-turn only on a distal
