@@ -3817,12 +3817,15 @@ std::vector<float> computedTorquePositionTarget(
     const metalrobo::EngineModel& model,
     const std::span<const float> desiredQ,
     const std::span<const double> desiredV,
-    const std::span<const double> desiredAcceleration
+    const std::span<const double> desiredAcceleration,
+    const double driveIntegrationTimestepSeconds
 ) {
     require(
         desiredQ.size() == model.world.nq &&
             desiredV.size() == model.world.nv &&
-            desiredAcceleration.size() == model.world.nv,
+            desiredAcceleration.size() == model.world.nv &&
+            driveIntegrationTimestepSeconds > 0.0 &&
+            std::isfinite(driveIntegrationTimestepSeconds),
         "computed-torque target has invalid dimensions"
     );
     std::vector<float> command(model.world.nv, 0.0f);
@@ -3893,7 +3896,7 @@ std::vector<float> computedTorquePositionTarget(
                     (
                         properties.drive.y +
                         properties.drive.x *
-                            (kControlTimestep / kPhysicsSubsteps)
+                            driveIntegrationTimestepSeconds
                     ) * localV[localDof]
                 ) / properties.drive.x;
             if ((properties.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u) {
@@ -3930,6 +3933,15 @@ std::vector<float> computedTorqueTrajectory(
     );
     std::vector<double> previousV(model.world.nv, 0.0);
     std::vector<float> previousQ(initialQ.begin(), initialQ.end());
+    // A position-drive command is integrated at the actual physics substep,
+    // not at the wider command waypoint interval. Grouped Matter/DER paths
+    // retain the 62.5 us base substep; a genuinely refined trajectory (the
+    // 31.25 us embedded-needle alignment) must use its smaller interval or
+    // the stiffness-related velocity compensation is doubled.
+    const double driveIntegrationTimestepSeconds = std::min(
+        trajectoryTimestepSeconds,
+        kControlTimestep / static_cast<double>(kPhysicsSubsteps)
+    );
     for (std::uint32_t step = 0u; step < steps; ++step) {
         const std::span<const float> currentQ = desiredQ.subspan(
             static_cast<std::size_t>(step) * model.world.nq,
@@ -3955,7 +3967,8 @@ std::vector<float> computedTorqueTrajectory(
             model,
             currentQ,
             velocity,
-            acceleration
+            acceleration,
+            driveIntegrationTimestepSeconds
         );
         std::copy(
             command.begin(),
