@@ -24,11 +24,19 @@ struct DvrkSutureVisualBindings {
 };
 
 struct DvrkSutureVisualStyle {
-    std::uint32_t needleArcSections = 128u;
-    std::uint32_t needleRadialSections = 16u;
-    std::uint32_t threadSubsectionsPerEdge = 3u;
-    std::uint32_t threadRadialSections = 10u;
-    std::uint32_t instrumentRadialSections = 20u;
+    std::uint32_t needleArcSections = 192u;
+    std::uint32_t needleRadialSections = 24u;
+    std::uint32_t threadSubsectionsPerEdge = 4u;
+    std::uint32_t threadRadialSections = 12u;
+    std::uint32_t instrumentRadialSections = 32u;
+};
+
+// Presentation of an explicitly authored fixed-boundary fixture. These boxes
+// explain FEM Dirichlet support in evidence images; they are never promoted to
+// collision geometry or counted as a physical contact implementation.
+struct DvrkSutureVisualFixtureBox {
+    std::array<double, 3> centerM{};
+    std::array<double, 3> halfExtentM{};
 };
 
 // Optional visual-only scene additions. The secondary instrument remains
@@ -46,6 +54,7 @@ struct DvrkSutureVisualScene {
     std::vector<std::array<double, 3>> tissuePositions;
     std::vector<std::array<std::uint32_t, 3>> tissueTriangles;
     std::array<double, 3> tissueTranslationM{};
+    std::vector<DvrkSutureVisualFixtureBox> tissueFixtureBoxes;
 };
 
 struct DvrkSutureVisualMetrics {
@@ -55,6 +64,7 @@ struct DvrkSutureVisualMetrics {
     std::uint32_t needleTriangleCount = 0u;
     std::uint32_t threadTriangleCount = 0u;
     std::uint32_t tissueTriangleCount = 0u;
+    std::uint32_t tissueFixtureTriangleCount = 0u;
     double threadCenterlineLengthM = 0.0;
 };
 

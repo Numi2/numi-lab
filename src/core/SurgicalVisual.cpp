@@ -435,10 +435,10 @@ GeometryRange appendSurfaceGeometry(
     const double width = std::max(upper.x - lower.x, 1.0e-12);
     const double height = std::max(upper.y - lower.y, 1.0e-12);
     for (std::size_t index = 0u; index < positions.size(); ++index) {
-        // Interior FEM nodes remain in the stable physics index space but are
-        // not referenced by the extracted boundary. Give those unused slots a
-        // finite placeholder normal; every rendered vertex has the accumulated
-        // outward normal of at least one boundary face.
+        // Keep a finite fallback for callers that provide unused source
+        // positions. The surgical visual probe compacts its live FEM boundary,
+        // so every uploaded tissue vertex normally has an accumulated outward
+        // face normal.
         const Vec3 normal = norm(normals[index]) > 1.0e-12
             ? normalized(normals[index])
             : Vec3{0.0, 0.0, 1.0};
@@ -841,6 +841,27 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
                 }
             )
         );
+    const bool tissueFixtureGeometryValid =
+        scene.tissueFixtureBoxes.size() <= 16u &&
+        (scene.tissueFixtureBoxes.empty() ||
+         !scene.tissuePositions.empty()) &&
+        std::ranges::all_of(
+            scene.tissueFixtureBoxes,
+            [](const DvrkSutureVisualFixtureBox& box) {
+                return std::ranges::all_of(
+                        box.centerM,
+                        [](const double value) {
+                            return std::isfinite(value);
+                        }
+                    ) &&
+                    std::ranges::all_of(
+                        box.halfExtentM,
+                        [](const double value) {
+                            return value > 0.0 && std::isfinite(value);
+                        }
+                    );
+            }
+        );
     if (needle.rigid.shapes.empty() ||
         !threadModel.valid(&rodReason) ||
         threadState.positions.size() != threadModel.restPositions.size() ||
@@ -849,6 +870,7 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
         threadState.twistRates.size() != threadModel.restTwists.size() ||
         bindings.needleBodyIndex == MR_INVALID_INDEX ||
         !surgicalFieldGeometryValid ||
+        !tissueFixtureGeometryValid ||
         scene.tissuePositions.empty() != scene.tissueTriangles.empty()) {
         throw std::invalid_argument(
             "dVRK suture visual inputs are invalid: " + rodReason
@@ -877,7 +899,7 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
     }
     pack.license = "NOASSERTION";
     pack.preprocessingProvenance =
-        "makeDvrkSutureVisualAsset/physics-bound-procedural-v2";
+        "makeDvrkSutureVisualAsset/physics-bound-procedural-v3";
     pack.materials = {
         material({0.44f, 0.49f, 0.54f, 1.0f}, 0.27f, 0.92f,
                  0.16f, 0.16f, 1u),
@@ -894,10 +916,14 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
                  0.015f, 0.38f, 5u),
         material({0.025f, 0.032f, 0.038f, 1.0f}, 0.56f, 0.18f,
                  0.04f, 0.30f, 6u),
-        material({0.43f, 0.13f, 0.12f, 1.0f}, 0.86f, 0.0f,
-                 0.03f, 0.32f, 7u),
-        material({0.16f, 0.015f, 0.018f, 1.0f}, 0.69f, 0.0f,
-                 0.02f, 0.28f, 8u),
+        // Presentation-only wet serosal response. Geometry and normals still
+        // come directly from the accepted live FEM boundary; the modest
+        // clearcoat avoids the dry, chalky appearance of the diagnostic
+        // material without implying a calibrated optical tissue model.
+        material({0.34f, 0.055f, 0.060f, 1.0f}, 0.58f, 0.0f,
+                 0.22f, 0.18f, 7u),
+        material({0.11f, 0.006f, 0.010f, 1.0f}, 0.49f, 0.0f,
+                 0.10f, 0.22f, 8u),
         // Receiver-only visual identity band. The articulated geometry and
         // collision model remain identical stainless-steel LNDs; this muted
         // blue polymer cue only keeps the two opposed tools readable in
@@ -912,6 +938,7 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
     constexpr std::uint32_t threadSemantic = 202u;
     constexpr std::uint32_t fieldSemantic = 301u;
     constexpr std::uint32_t tissueSemantic = 302u;
+    constexpr std::uint32_t tissueFixtureSemantic = 303u;
     std::uint32_t stableId = 1u;
 
     const auto cylinder = [&](
@@ -1340,6 +1367,30 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
         );
         result.metrics.tissueTriangleCount = 12u;
     }
+    const std::size_t fixtureIndexBegin = pack.indices.size();
+    for (std::size_t index = 0u;
+         index < scene.tissueFixtureBoxes.size();
+         ++index) {
+        const DvrkSutureVisualFixtureBox& fixture =
+            scene.tissueFixtureBoxes[index];
+        addBox(
+            pack,
+            fromArray(fixture.centerM),
+            fromArray(fixture.halfExtentM),
+            1u,
+            MR_VISUAL_BINDING_WORLD,
+            MR_INVALID_INDEX,
+            tissueFixtureSemantic,
+            3100u + static_cast<std::uint32_t>(index),
+            stableId++,
+            "tissue_fixed_end_fixture_" + std::to_string(index),
+            ""
+        );
+    }
+    result.metrics.tissueFixtureTriangleCount =
+        static_cast<std::uint32_t>(
+            (pack.indices.size() - fixtureIndexBegin) / 3u
+        );
 
     pack.contentHash = computeVisualAssetPackContentHash(pack);
     std::string reason;

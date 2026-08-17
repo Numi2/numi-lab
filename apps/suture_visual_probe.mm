@@ -23,6 +23,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <iterator>
 #include <limits>
 #include <map>
 #include <memory>
@@ -45,6 +46,7 @@ constexpr std::uint32_t kNeedleSemantic = 201u;
 constexpr std::uint32_t kThreadSemantic = 202u;
 constexpr std::uint32_t kFieldSemantic = 301u;
 constexpr std::uint32_t kTissueSemantic = 302u;
+constexpr std::uint32_t kTissueFixtureSemantic = 303u;
 constexpr std::uint32_t kQualifiedThreadNodeCount = 25u;
 constexpr double kQualifiedThreadRadius = 1.2e-4;
 constexpr double kQualifiedThreadLength = 0.18;
@@ -132,6 +134,7 @@ struct VisibilityMetrics {
     std::size_t threadPixels = 0u;
     std::size_t fieldPixels = 0u;
     std::size_t tissuePixels = 0u;
+    std::size_t tissueFixturePixels = 0u;
     std::size_t validPixels = 0u;
     float minimumDepth = std::numeric_limits<float>::infinity();
     float maximumDepth = 0.0f;
@@ -1255,12 +1258,19 @@ metalrobo::WorldTemplate makeWorldTemplate(
             ? mr_float4{1600.0f, 1600.0f, 640.0f, 480.0f}
             : mr_float4{1250.0f, 1250.0f, 640.0f, 480.0f};
     const mr_float4 closePosition = state.dualHandoff
-        ? mr_float4{
-              needlePosition.x - 0.050f,
-              needlePosition.y - 0.070f,
-              needlePosition.z + 0.045f,
-              1.0f,
-          }
+        ? state.matterSnapshot != nullptr
+            ? mr_float4{
+                  needlePosition.x - 0.075f,
+                  needlePosition.y - 0.020f,
+                  needlePosition.z + 0.018f,
+                  1.0f,
+              }
+            : mr_float4{
+                  needlePosition.x - 0.050f,
+                  needlePosition.y - 0.070f,
+                  needlePosition.z + 0.045f,
+                  1.0f,
+              }
         : mr_float4{
               needlePosition.x +
                   (state.medicallyMatchedSinglePickup
@@ -1631,6 +1641,154 @@ metalrobo::DvrkSutureVisualScene makeHandoffVisualScene(
         !result.tissueTriangles.empty(),
         "jejunal coupon produced no visual boundary"
     );
+
+    // The live snapshot remains authoritative, but the renderer only consumes
+    // the extracted two-manifold boundary. Compact away FEM interior nodes so
+    // they do not occupy unified-memory vertex bandwidth or acquire invented
+    // placeholder normals in the presentation pack. The remap is purely
+    // topological: every retained position is copied byte-for-byte and every
+    // boundary triangle keeps its original winding.
+    std::vector<std::uint32_t> boundaryRemap(
+        result.tissuePositions.size(),
+        NM_INVALID_INDEX
+    );
+    std::vector<std::array<double, 3>> boundaryPositions;
+    boundaryPositions.reserve(result.tissueTriangles.size());
+    for (auto& triangle : result.tissueTriangles) {
+        for (std::uint32_t& node : triangle) {
+            require(
+                node < result.tissuePositions.size(),
+                "jejunal visual boundary references an absent FEM node"
+            );
+            if (boundaryRemap[node] == NM_INVALID_INDEX) {
+                boundaryRemap[node] = static_cast<std::uint32_t>(
+                    boundaryPositions.size()
+                );
+                boundaryPositions.push_back(result.tissuePositions[node]);
+            }
+            node = boundaryRemap[node];
+        }
+    }
+    result.tissuePositions = std::move(boundaryPositions);
+    if (state.matterSnapshot != nullptr) {
+        std::array<double, 3> lower{
+            std::numeric_limits<double>::infinity(),
+            std::numeric_limits<double>::infinity(),
+            std::numeric_limits<double>::infinity(),
+        };
+        std::array<double, 3> upper{
+            -std::numeric_limits<double>::infinity(),
+            -std::numeric_limits<double>::infinity(),
+            -std::numeric_limits<double>::infinity(),
+        };
+        for (const auto& position : result.tissuePositions) {
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                lower[axis] = std::min(lower[axis], position[axis]);
+                upper[axis] = std::max(upper[axis], position[axis]);
+            }
+        }
+        const std::array<double, 3> extent{
+            upper[0u] - lower[0u],
+            upper[1u] - lower[1u],
+            upper[2u] - lower[2u],
+        };
+        const std::size_t longitudinalAxis =
+            static_cast<std::size_t>(std::distance(
+                extent.begin(),
+                std::ranges::max_element(extent)
+            ));
+        const std::size_t thicknessAxis =
+            static_cast<std::size_t>(std::distance(
+                extent.begin(),
+                std::ranges::min_element(extent)
+            ));
+        require(
+            longitudinalAxis != thicknessAxis &&
+                extent[longitudinalAxis] >= 0.8 * state.tissueLength &&
+                extent[thicknessAxis] <=
+                    0.25 * extent[3u - longitudinalAxis - thicknessAxis],
+            "live tissue bounds do not identify the authored suspended "
+                "coupon frame: extents=" +
+                std::to_string(extent[0u]) + "," +
+                std::to_string(extent[1u]) + "," +
+                std::to_string(extent[2u]) +
+                " longitudinal_axis=" +
+                std::to_string(longitudinalAxis) +
+                " thickness_axis=" + std::to_string(thicknessAxis)
+        );
+        const std::size_t circumferentialAxis =
+            3u - longitudinalAxis - thicknessAxis;
+        require(
+            extent[circumferentialAxis] >= 0.8 * state.tissueWidth,
+            "live tissue fixture lost its circumferential span"
+        );
+        const double endpointTolerance = std::max(
+            1.0e-7,
+            1.0e-4 * extent[longitudinalAxis]
+        );
+        for (const double endpoint : {
+                 lower[longitudinalAxis],
+                 upper[longitudinalAxis],
+             }) {
+            double endCircumferentialLower =
+                std::numeric_limits<double>::infinity();
+            double endCircumferentialUpper =
+                -std::numeric_limits<double>::infinity();
+            double endThicknessUpper =
+                -std::numeric_limits<double>::infinity();
+            std::size_t endpointNodeCount = 0u;
+            for (const auto& position : result.tissuePositions) {
+                if (std::abs(position[longitudinalAxis] - endpoint) >
+                    endpointTolerance) {
+                    continue;
+                }
+                endCircumferentialLower = std::min(
+                    endCircumferentialLower,
+                    position[circumferentialAxis]
+                );
+                endCircumferentialUpper = std::max(
+                    endCircumferentialUpper,
+                    position[circumferentialAxis]
+                );
+                endThicknessUpper = std::max(
+                    endThicknessUpper,
+                    position[thicknessAxis]
+                );
+                ++endpointNodeCount;
+            }
+            require(
+                endpointNodeCount >= 4u &&
+                    endCircumferentialUpper - endCircumferentialLower >=
+                        0.8 * state.tissueWidth,
+                "live tissue fixture could not recover a fixed-end strip"
+            );
+            std::array<double, 3> fixtureHalfExtent{};
+            fixtureHalfExtent[longitudinalAxis] = 8.0e-4;
+            fixtureHalfExtent[circumferentialAxis] =
+                0.5 * (endCircumferentialUpper -
+                       endCircumferentialLower) +
+                1.5e-3;
+            fixtureHalfExtent[thicknessAxis] = 1.2e-3;
+            std::array<double, 3> fixtureCenter{
+                0.5 * (lower[0u] + upper[0u]),
+                0.5 * (lower[1u] + upper[1u]),
+                0.5 * (lower[2u] + upper[2u]),
+            };
+            fixtureCenter[longitudinalAxis] = endpoint;
+            fixtureCenter[circumferentialAxis] =
+                0.5 * (endCircumferentialLower +
+                       endCircumferentialUpper);
+            fixtureCenter[thicknessAxis] =
+                endThicknessUpper + fixtureHalfExtent[thicknessAxis];
+            // This plate touches only the inferred fixed-end strip and sits
+            // behind the wall in the evidence camera. It exposes the FEM
+            // Dirichlet boundary without pretending to be collision geometry.
+            result.tissueFixtureBoxes.push_back({
+                .centerM = fixtureCenter,
+                .halfExtentM = fixtureHalfExtent,
+            });
+        }
+    }
     return result;
 }
 
@@ -1763,6 +1921,9 @@ std::vector<std::uint8_t> identityImage(
         case kTissueSemantic:
             color = {190u, 74u, 68u};
             break;
+        case kTissueFixtureSemantic:
+            color = {88u, 108u, 126u};
+            break;
         default:
             break;
         }
@@ -1800,6 +1961,9 @@ VisibilityMetrics visibility(
         case kTissueSemantic:
             ++result.tissuePixels;
             break;
+        case kTissueFixtureSemantic:
+            ++result.tissueFixturePixels;
+            break;
         default:
             break;
         }
@@ -1834,7 +1998,7 @@ void writeEvidence(
     }
     const std::string_view schema = pickup.dualHandoff
         ? pickup.matterSnapshot != nullptr
-            ? "numi.dual-psm-suture-handoff-visual-evidence.v2"
+            ? "numi.dual-psm-suture-handoff-visual-evidence.v3"
             : "numi.dual-psm-suture-handoff-visual-evidence.v1"
         : pickup.medicallyMatchedSinglePickup
             ? "numi.surgical-suture-visual-evidence.v2"
@@ -1843,7 +2007,8 @@ void writeEvidence(
         ? pickup.matterSnapshot != nullptr
             ? "accepted Apple Metal articulated/contact state plus DER thread "
               "and the same checkpoint's verified live FEM nodes and active "
-              "topology; the reconstructed surface remains presentation-only"
+              "topology; the reconstructed surface and fixed-end fixture "
+              "markers remain presentation-only"
             : "accepted Apple Metal articulated/contact handoff plus DER "
               "thread; the jejunal surface is generated from the calibrated "
               "FEM rest mesh and remains presentation-only"
@@ -1907,6 +2072,8 @@ void writeEvidence(
         << asset.metrics.threadTriangleCount << ",\n"
         << "  \"tissue_triangles\": "
         << asset.metrics.tissueTriangleCount << ",\n"
+        << "  \"tissue_fixture_triangles\": "
+        << asset.metrics.tissueFixtureTriangleCount << ",\n"
         << "  \"thread_centerline_length_m\": "
         << asset.metrics.threadCenterlineLengthM << ",\n"
         << "  \"render_ms\": " << render.elapsedMilliseconds << ",\n"
@@ -1925,6 +2092,8 @@ void writeEvidence(
             << "\"thread_pixels\": " << view.threadPixels << ", "
             << "\"field_pixels\": " << view.fieldPixels << ", "
             << "\"tissue_pixels\": " << view.tissuePixels << ", "
+            << "\"tissue_fixture_pixels\": "
+            << view.tissueFixturePixels << ", "
             << "\"valid_pixels\": " << view.validPixels << ", "
             << "\"minimum_depth_m\": " << view.minimumDepth << ", "
             << "\"maximum_depth_m\": " << view.maximumDepth << "}"
@@ -2016,6 +2185,8 @@ int main(const int argumentCount, char* argv[]) {
                     << visualAsset.metrics.threadTriangleCount
                     << " tissue_triangles="
                     << visualAsset.metrics.tissueTriangleCount
+                    << " tissue_fixture_triangles="
+                    << visualAsset.metrics.tissueFixtureTriangleCount
                     << " tissue_geometry_source="
                     << (pickup.matterSnapshot != nullptr
                             ? "verified_live_matter_fem_snapshot"
@@ -2254,6 +2425,9 @@ int main(const int argumentCount, char* argv[]) {
                             minimumCoverage[camera][4u] &&
                         viewMetrics[camera].tissuePixels >=
                             minimumCoverage[camera][5u] &&
+                        (pickup.matterSnapshot == nullptr ||
+                         viewMetrics[camera].tissueFixturePixels >=
+                            (camera == 0u ? 1000u : 100u)) &&
                         viewMetrics[camera].validPixels >=
                             minimumCoverage[camera][6u],
                     std::string{"visual binding coverage failed for "} +
@@ -2272,6 +2446,10 @@ int main(const int argumentCount, char* argv[]) {
                         std::to_string(viewMetrics[camera].fieldPixels) +
                         " tissue=" +
                         std::to_string(viewMetrics[camera].tissuePixels) +
+                        " fixture=" +
+                        std::to_string(
+                            viewMetrics[camera].tissueFixturePixels
+                        ) +
                         " valid=" +
                         std::to_string(viewMetrics[camera].validPixels)
                 );
@@ -2298,6 +2476,8 @@ int main(const int argumentCount, char* argv[]) {
                 << visualAsset.metrics.threadTriangleCount
                 << " tissue_triangles="
                 << visualAsset.metrics.tissueTriangleCount
+                << " tissue_fixture_triangles="
+                << visualAsset.metrics.tissueFixtureTriangleCount
                 << " tissue_geometry_source="
                 << (livePickup.matterSnapshot != nullptr
                         ? "verified_live_matter_fem_snapshot"
@@ -2310,14 +2490,16 @@ int main(const int argumentCount, char* argv[]) {
                 << viewMetrics[0u].needlePixels << "/"
                 << viewMetrics[0u].threadPixels << "/"
                 << viewMetrics[0u].fieldPixels << "/"
-                << viewMetrics[0u].tissuePixels
+                << viewMetrics[0u].tissuePixels << "/"
+                << viewMetrics[0u].tissueFixturePixels
                 << " overview_pixels="
                 << viewMetrics[1u].instrumentPixels << "/"
                 << viewMetrics[1u].receiverInstrumentPixels << "/"
                 << viewMetrics[1u].needlePixels << "/"
                 << viewMetrics[1u].threadPixels << "/"
                 << viewMetrics[1u].fieldPixels << "/"
-                << viewMetrics[1u].tissuePixels
+                << viewMetrics[1u].tissuePixels << "/"
+                << viewMetrics[1u].tissueFixturePixels
                 << " pack_hash=" << visualAsset.pack.contentHash
                 << " scene_fingerprint=" << evidenceManifest.fingerprint
                 << " source=simulation clinical_validation=no\n";
