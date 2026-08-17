@@ -725,6 +725,18 @@ struct RuntimeStateSnapshot {
     std::string message;
     // Stable authored-physics identity, independent of allocation growth.
     std::uint64_t sourcePhysicsFingerprint = 0u;
+    // Exact cooked layout, runtime policy, ABI, and metallib identity. A live
+    // restore requires this identity; source equivalence alone is not enough
+    // to establish byte-compatible private arenas.
+    std::uint64_t deviceProgramFingerprint = 0u;
+    // Completed transaction cursor and automatic-identification ownership.
+    // These are restored with the private state so a replay does not silently
+    // advance a scheduled update twice.
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t identificationGeneration = 0u;
+    std::uint32_t identificationCheckpoint = 0u;
+    bool identificationAdvanced = false;
     // Live DER edge bound to each compiled strand-proxy slot, in slot order.
     // The revision advances only after a completed phase-boundary GPU update.
     std::vector<std::uint32_t> sutureProxyEdges;
@@ -853,6 +865,14 @@ public:
     ) noexcept;
     [[nodiscard]] std::uint32_t coupledTimestepDivisor() const noexcept;
     [[nodiscard]] float timestepSeconds() const noexcept;
+    // Synchronously restores a completion-boundary snapshot into an already
+    // initialized runtime with the exact same device-program fingerprint.
+    // All transactional accepted/candidate/checkpoint mirrors are updated as
+    // one bounded Metal command. Validation failures occur before submission;
+    // any device-command failure is reported to the caller.
+    [[nodiscard]] RuntimeDiagnostics restore(
+        const RuntimeStateSnapshot& snapshot
+    );
     [[nodiscard]] RuntimeStateSnapshot snapshot() const;
     [[nodiscard]] void* eventBuffer() const noexcept;
     [[nodiscard]] void* statusBuffer() const noexcept;

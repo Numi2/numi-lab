@@ -377,6 +377,14 @@ coupled timestep divisor between command buffers. Matter, DER, rigid bodies,
 and commands all use the exact refined step; physical-duration preservation is
 owned by the caller's expanded command stream. The canonical multiplier and
 divisor are snapshot evidence, and selecting either resets the other to one.
+An explicit runtime restore requires the exact device-program fingerprint and
+a completed command boundary. It repopulates the accepted, candidate, and
+checkpoint mirrors together, including constitutive state, fields, contact
+histories, scheduler ownership, coupled cadence, and the live strand-proxy
+window. Stateful MPM/FEM probes require both byte-exact readback after restore
+and byte-identical continuation. A snapshot whose allocation generation differs
+from the cooked generation is rejected until rebuilt FEM incidence is included
+in the exported authority.
 The v1 MetalWorld contract owns one articulation per environment; all of its
 collision proxies therefore share one articulated generalized/q reserve, while
 each distinct free body contributes exactly six additional coordinates.

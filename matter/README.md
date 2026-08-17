@@ -182,6 +182,15 @@ Rigid generalized increments are part of Matter's primal Krylov vector. MetalWor
 
 The runtime consumes borrowed body, wrench, scene-state and environment-status arenas. It never commits or waits on the borrowed command buffer. Device-physics capabilities distinguish programs that write external body wrenches from programs that require accepted rigid-contact evidence. Continuum-only contact can therefore drive free-motion ABA or free scene bodies without constructing an unused rigid contact graph, while adaptive promotion still requires the post-solve contact arena. A Matter failure is translated into the enclosing `MetalWorld` status before rigid publication, and a later rigid failure restores MPM, FEM, persistent material state, scheduler state and event evidence to the same control-step checkpoint. Inverse-identification update and antithetic sampling execute at most once at the beginning of a fully encoded rollout command buffer; all later control steps in that submission consume the same candidate overlay.
 
+`Runtime::restore` provides an explicit completion-boundary rewind for an exact
+device program. It requires the snapshot's cooked layout, runtime policy, ABI,
+metallib fingerprint, arena sizes, cadence, and suture-proxy window to match,
+then restores accepted/candidate/checkpoint mirrors in one bounded Metal blit.
+The stateful MPM and FEM probes require byte-exact immediate readback and a
+byte-identical deterministic continuation after rewind. Snapshots taken after
+allocation growth are rejected for now because rebuilt topology incidence is
+not yet exported; source-physics fingerprint equality alone is insufficient.
+
 ### Transactional topology and arena growth
 
 Mutable FEM objects cook dormant node/tetrahedron slots into private arenas. GPU commands support cohesive separation, plane/cylinder erosion, explicit deactivation, edge split/collapse, 2–3 and 3–2 flips, and vertex smoothing. `target = NM_INVALID_INDEX` requests a deterministic on-device quality proposal; stable priority, identifier, target, and source order resolve competing commands. Every accepted generation rebuilds mass, node/tetrahedron incidence, exposed contact faces, active contact work, and preconditioner connectivity.

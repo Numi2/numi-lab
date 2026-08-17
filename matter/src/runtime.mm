@@ -6088,6 +6088,437 @@ float Runtime::timestepSeconds() const noexcept {
         : 0.0f;
 }
 
+RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
+    RuntimeDiagnostics diagnostics;
+    if (state_ == nullptr) {
+        diagnostics.message = "Matter runtime is not initialized";
+        return diagnostics;
+    }
+    State& state = *state_;
+    const auto ownership = state.commandOwnership;
+    std::unique_lock lock(ownership->mutex);
+    if (ownership->activeCommandBuffer != nullptr ||
+        ownership->preDynamicsOpen) {
+        diagnostics.message =
+            "Matter snapshot restore requires a completed command boundary";
+        return diagnostics;
+    }
+    {
+        const std::lock_guard growthLock(state.growthOwnership->mutex);
+        if (state.growthOwnership->pending.required) {
+            diagnostics.message =
+                "Matter snapshot restore cannot bypass pending topology growth";
+            return diagnostics;
+        }
+    }
+    if (!snapshot.available ||
+        snapshot.sourcePhysicsFingerprint != state.sourcePhysicsFingerprint ||
+        snapshot.deviceProgramFingerprint != state.executionFingerprint ||
+        snapshot.materialStateStride != state.dispatch.materialStateStride) {
+        diagnostics.message =
+            "Matter snapshot does not match the initialized device program";
+        return diagnostics;
+    }
+    // Topology incidence is rebuilt by the allocation-growth path and is not
+    // yet part of RuntimeStateSnapshot. Refuse a mutated allocation rather
+    // than restoring topology arrays against stale incidence.
+    std::uint32_t cookedAllocationGeneration = 0u;
+    for (const NMContinuumObjectGPU& object : state.objectLayout) {
+        if (object.representation != NM_REPRESENTATION_FEM) {
+            continue;
+        }
+        cookedAllocationGeneration = std::max(
+            cookedAllocationGeneration,
+            object.topologyGeneration
+        );
+    }
+    if (snapshot.allocationGeneration != cookedAllocationGeneration) {
+        diagnostics.message =
+            "Matter snapshot restore does not yet support grown topology incidence";
+        return diagnostics;
+    }
+    const auto powerOfTwo = [](const std::uint32_t value) {
+        return value != 0u && (value & (value - 1u)) == 0u;
+    };
+    if (!powerOfTwo(snapshot.coupledTimestepMultiplier) ||
+        !powerOfTwo(snapshot.coupledTimestepDivisor) ||
+        (snapshot.coupledTimestepMultiplier != 1u &&
+         snapshot.coupledTimestepDivisor != 1u) ||
+        snapshot.coupledTimestepMultiplier >
+            (1u << NM_MAX_RATE_EXPONENT) ||
+        snapshot.coupledTimestepDivisor >
+            (1u << NM_MAX_RATE_EXPONENT) ||
+        (!state.requiresRodNodes &&
+         (snapshot.coupledTimestepMultiplier != 1u ||
+          snapshot.coupledTimestepDivisor != 1u))) {
+        diagnostics.message =
+            "Matter snapshot has an invalid coupled timestep cadence";
+        return diagnostics;
+    }
+
+    bool dimensionsValid = true;
+    const auto exactArena = [&](const auto& values,
+                                id<MTLBuffer> target,
+                                const char* label) {
+        using Value = typename std::decay_t<decltype(values)>::value_type;
+        const std::size_t bytes = values.size() * sizeof(Value);
+        if (target == nil || bytes != target.length) {
+            dimensionsValid = false;
+            if (diagnostics.message.empty()) {
+                diagnostics.message = std::string{"Matter snapshot "} +
+                    label + " arena size changed";
+            }
+        }
+    };
+    const auto boundedArena = [&](const auto& values,
+                                  id<MTLBuffer> target,
+                                  const char* label) {
+        using Value = typename std::decay_t<decltype(values)>::value_type;
+        const std::size_t bytes = values.size() * sizeof(Value);
+        if (target == nil || bytes > target.length) {
+            dimensionsValid = false;
+            if (diagnostics.message.empty()) {
+                diagnostics.message = std::string{"Matter snapshot "} +
+                    label + " logical size exceeds its arena";
+            }
+        }
+    };
+    exactArena(snapshot.particles, state.particleAccepted, "particle");
+    exactArena(snapshot.femNodes, state.femAccepted, "FEM-node");
+    exactArena(
+        snapshot.particleMaterialState,
+        state.particleMaterialStateAccepted,
+        "particle-material-state"
+    );
+    exactArena(
+        snapshot.femMaterialState,
+        state.femMaterialStateAccepted,
+        "FEM-material-state"
+    );
+    exactArena(snapshot.femFields, state.femFieldsAccepted, "FEM-field");
+    exactArena(
+        snapshot.solverCertificates,
+        state.solverCertificates,
+        "solver-certificate"
+    );
+    exactArena(snapshot.learnedWeights, state.learnedWeightsAccepted,
+        "learned-weight");
+    exactArena(snapshot.femTopologyNodes,
+        state.femTopologyNodesAccepted, "topology-node");
+    exactArena(snapshot.femTopologyTetrahedra,
+        state.femTetrahedraAccepted, "topology-tetrahedron");
+    exactArena(snapshot.cohesiveFaces,
+        state.cohesiveFacesAccepted, "cohesive-face");
+    exactArena(snapshot.punctureChannels,
+        state.punctureChannelsAccepted, "puncture-channel");
+    exactArena(snapshot.topologyStates,
+        state.topologyStatesAccepted, "topology-state");
+    exactArena(snapshot.adaptive, state.adaptive, "adaptive");
+    exactArena(snapshot.schedulers, state.schedulers, "scheduler");
+    exactArena(snapshot.reactions, state.frameReactions, "reaction");
+    exactArena(snapshot.identification,
+        state.identificationDistributions, "identification");
+    exactArena(snapshot.environmentParameters,
+        state.environmentParameters, "environment-parameter");
+    boundedArena(snapshot.statuses, state.statuses, "status");
+    boundedArena(snapshot.mpmActiveNodeIndices,
+        state.mpmActiveNodeIndices, "MPM-active-index");
+    boundedArena(snapshot.mpmNodeToActive,
+        state.mpmNodeToActive, "MPM-node-map");
+    boundedArena(snapshot.mpmActiveNodeCounts,
+        state.mpmActiveNodeCounts, "MPM-active-count");
+    boundedArena(snapshot.rigidGeneralizedCandidate,
+        state.coupledGeneralizedCandidate, "rigid-generalized-candidate");
+    boundedArena(snapshot.contactHistories,
+        state.contactHistoriesAccepted, "contact-history");
+    boundedArena(snapshot.deformableContactHistories,
+        state.deformableContactHistoriesAccepted,
+        "deformable-contact-history");
+    boundedArena(snapshot.rigidStates, state.rigidStates, "rigid-state");
+    if (state.captureDiagnostics) {
+        boundedArena(
+            snapshot.contactSamples,
+            state.contactSamples,
+            "contact-sample"
+        );
+    } else if (!snapshot.contactSamples.empty()) {
+        dimensionsValid = false;
+        diagnostics.message =
+            "Matter snapshot carries diagnostics for a non-diagnostic runtime";
+    }
+    if (!dimensionsValid) {
+        return diagnostics;
+    }
+
+    std::vector<NMRigidProxyGPU> restoredProxyLayout =
+        state.rigidProxyLayout;
+    if (snapshot.sutureProxyEdges.size() !=
+        state.sutureProxyIndices.size()) {
+        diagnostics.message =
+            "Matter snapshot suture-proxy window width changed";
+        return diagnostics;
+    }
+    if (!snapshot.sutureProxyEdges.empty()) {
+        std::vector<std::uint32_t> sorted = snapshot.sutureProxyEdges;
+        std::ranges::sort(sorted);
+        for (std::size_t slot = 0u; slot < sorted.size(); ++slot) {
+            if (sorted[slot] + 1u >= state.requiredRodNodeCount ||
+                sorted[slot] != sorted.front() + slot) {
+                diagnostics.message =
+                    "Matter snapshot suture-proxy window is invalid";
+                return diagnostics;
+            }
+            const std::uint32_t proxy = state.sutureProxyIndices[slot];
+            restoredProxyLayout[proxy].bodyIndex =
+                snapshot.sutureProxyEdges[slot];
+            restoredProxyLayout[proxy].sceneBodyIndex =
+                snapshot.sutureProxyEdges[slot] + 1u;
+        }
+    }
+
+    @autoreleasepool {
+        bool stagingValid = true;
+        const auto stage = [&](const auto& values,
+                               const char* label) -> id<MTLBuffer> {
+            using Value = typename std::decay_t<decltype(values)>::value_type;
+            const NSUInteger bytes = static_cast<NSUInteger>(
+                values.size() * sizeof(Value)
+            );
+            if (bytes == 0u) {
+                return nil;
+            }
+            id<MTLBuffer> result = [state.device
+                newBufferWithBytes:values.data()
+                            length:bytes
+                           options:MTLResourceStorageModeShared];
+            if (result == nil) {
+                stagingValid = false;
+                if (diagnostics.message.empty()) {
+                    diagnostics.message = std::string{
+                        "failed to allocate Matter snapshot "
+                    } + label + " staging";
+                }
+            }
+            return result;
+        };
+        id<MTLBuffer> particles = stage(snapshot.particles, "particle");
+        id<MTLBuffer> femNodes = stage(snapshot.femNodes, "FEM-node");
+        id<MTLBuffer> particleMaterialState = stage(
+            snapshot.particleMaterialState,
+            "particle-material-state"
+        );
+        id<MTLBuffer> femMaterialState = stage(
+            snapshot.femMaterialState,
+            "FEM-material-state"
+        );
+        id<MTLBuffer> femFields = stage(snapshot.femFields, "FEM-field");
+        id<MTLBuffer> solverCertificates = stage(
+            snapshot.solverCertificates,
+            "solver-certificate"
+        );
+        id<MTLBuffer> statuses = stage(snapshot.statuses, "status");
+        id<MTLBuffer> activeNodeIndices = stage(
+            snapshot.mpmActiveNodeIndices,
+            "MPM-active-index"
+        );
+        id<MTLBuffer> nodeToActive = stage(
+            snapshot.mpmNodeToActive,
+            "MPM-node-map"
+        );
+        id<MTLBuffer> activeNodeCounts = stage(
+            snapshot.mpmActiveNodeCounts,
+            "MPM-active-count"
+        );
+        id<MTLBuffer> rigidGeneralized = stage(
+            snapshot.rigidGeneralizedCandidate,
+            "rigid-generalized-candidate"
+        );
+        id<MTLBuffer> learnedWeights = stage(
+            snapshot.learnedWeights,
+            "learned-weight"
+        );
+        const std::array learnedRevision{snapshot.learnedWeightRevision};
+        id<MTLBuffer> learnedRevisionBuffer = stage(
+            learnedRevision,
+            "learned-revision"
+        );
+        id<MTLBuffer> topologyNodes = stage(
+            snapshot.femTopologyNodes,
+            "topology-node"
+        );
+        id<MTLBuffer> topologyTetrahedra = stage(
+            snapshot.femTopologyTetrahedra,
+            "topology-tetrahedron"
+        );
+        id<MTLBuffer> cohesiveFaces = stage(
+            snapshot.cohesiveFaces,
+            "cohesive-face"
+        );
+        id<MTLBuffer> punctureChannels = stage(
+            snapshot.punctureChannels,
+            "puncture-channel"
+        );
+        id<MTLBuffer> topologyStates = stage(
+            snapshot.topologyStates,
+            "topology-state"
+        );
+        id<MTLBuffer> contactHistories = stage(
+            snapshot.contactHistories,
+            "contact-history"
+        );
+        id<MTLBuffer> deformableContactHistories = stage(
+            snapshot.deformableContactHistories,
+            "deformable-contact-history"
+        );
+        id<MTLBuffer> adaptive = stage(snapshot.adaptive, "adaptive");
+        id<MTLBuffer> schedulers = stage(snapshot.schedulers, "scheduler");
+        id<MTLBuffer> reactions = stage(snapshot.reactions, "reaction");
+        id<MTLBuffer> rigidStates = stage(
+            snapshot.rigidStates,
+            "rigid-state"
+        );
+        id<MTLBuffer> contactSamples = state.captureDiagnostics
+            ? stage(snapshot.contactSamples, "contact-sample")
+            : nil;
+        id<MTLBuffer> identification = stage(
+            snapshot.identification,
+            "identification"
+        );
+        id<MTLBuffer> environmentParameters = stage(
+            snapshot.environmentParameters,
+            "environment-parameter"
+        );
+        id<MTLBuffer> rigidProxies = stage(
+            restoredProxyLayout,
+            "rigid-proxy"
+        );
+        if (!stagingValid) {
+            return diagnostics;
+        }
+
+        id<MTLCommandBuffer> commandBuffer = [state.queue commandBuffer];
+        id<MTLBlitCommandEncoder> blit = [commandBuffer blitCommandEncoder];
+        if (commandBuffer == nil || blit == nil) {
+            diagnostics.message =
+                "failed to encode Matter snapshot restore";
+            return diagnostics;
+        }
+        [blit setLabel:@"Numi Matter snapshot restore"];
+        const auto copy = [&](id<MTLBuffer> source,
+                              id<MTLBuffer> destination) {
+            if (destination.length != 0u) {
+                [blit fillBuffer:destination
+                           range:NSMakeRange(0u, destination.length)
+                           value:0u];
+            }
+            if (source != nil && source.length != 0u) {
+                [blit copyFromBuffer:source sourceOffset:0u
+                            toBuffer:destination destinationOffset:0u
+                                size:source.length];
+            }
+        };
+        const auto mirror = [&](id<MTLBuffer> source,
+                                id<MTLBuffer> accepted,
+                                id<MTLBuffer> candidate,
+                                id<MTLBuffer> checkpoint) {
+            copy(source, accepted);
+            copy(source, candidate);
+            copy(source, checkpoint);
+        };
+        mirror(particles, state.particleAccepted,
+            state.particleCandidate, state.particleCheckpoint);
+        mirror(particleMaterialState,
+            state.particleMaterialStateAccepted,
+            state.particleMaterialStateCandidate,
+            state.particleMaterialStateCheckpoint);
+        mirror(femNodes, state.femAccepted,
+            state.femCandidate, state.femCheckpoint);
+        mirror(femMaterialState,
+            state.femMaterialStateAccepted,
+            state.femMaterialStateCandidate,
+            state.femMaterialStateCheckpoint);
+        mirror(femFields, state.femFieldsAccepted,
+            state.femFieldsCandidate, state.femFieldsCheckpoint);
+        copy(femFields, state.femFieldsWork);
+        mirror(learnedWeights, state.learnedWeightsAccepted,
+            state.learnedWeightsCandidate, state.learnedWeightsCheckpoint);
+        mirror(learnedRevisionBuffer, state.learnedRevisionAccepted,
+            state.learnedRevisionCandidate, state.learnedRevisionCheckpoint);
+        mirror(topologyNodes, state.femTopologyNodesAccepted,
+            state.femTopologyNodesCandidate,
+            state.femTopologyNodesCheckpoint);
+        mirror(topologyTetrahedra, state.femTetrahedraAccepted,
+            state.femTetrahedraCandidate,
+            state.femTetrahedraCheckpoint);
+        mirror(cohesiveFaces, state.cohesiveFacesAccepted,
+            state.cohesiveFacesCandidate, state.cohesiveFacesCheckpoint);
+        mirror(punctureChannels, state.punctureChannelsAccepted,
+            state.punctureChannelsCandidate,
+            state.punctureChannelsCheckpoint);
+        mirror(topologyStates, state.topologyStatesAccepted,
+            state.topologyStatesCandidate, state.topologyStatesCheckpoint);
+        mirror(contactHistories, state.contactHistoriesAccepted,
+            state.contactHistoriesCandidate,
+            state.contactHistoriesCheckpoint);
+        mirror(deformableContactHistories,
+            state.deformableContactHistoriesAccepted,
+            state.deformableContactHistoriesCandidate,
+            state.deformableContactHistoriesCheckpoint);
+        copy(solverCertificates, state.solverCertificates);
+        copy(statuses, state.statuses);
+        copy(activeNodeIndices, state.mpmActiveNodeIndices);
+        copy(nodeToActive, state.mpmNodeToActive);
+        copy(activeNodeCounts, state.mpmActiveNodeCounts);
+        copy(rigidGeneralized, state.coupledGeneralizedCandidate);
+        copy(adaptive, state.adaptive);
+        copy(schedulers, state.schedulers);
+        copy(schedulers, state.schedulerPrevious);
+        copy(schedulers, state.schedulerCheckpoint);
+        copy(reactions, state.frameReactions);
+        copy(rigidStates, state.rigidStates);
+        if (state.captureDiagnostics) {
+            copy(contactSamples, state.contactSamples);
+        }
+        copy(identification, state.identificationDistributions);
+        copy(environmentParameters, state.environmentParameters);
+        copy(rigidProxies, state.rigidProxies);
+        [blit endEncoding];
+        [commandBuffer commit];
+        [commandBuffer waitUntilCompleted];
+        if (commandBuffer.status != MTLCommandBufferStatusCompleted) {
+            diagnostics.message =
+                "Matter snapshot restore command failed: " +
+                errorString(commandBuffer.error);
+            return diagnostics;
+        }
+    }
+
+    state.rigidProxyLayout = std::move(restoredProxyLayout);
+    state.sutureProxyEdges = snapshot.sutureProxyEdges;
+    state.sutureProxyBindingRevision = snapshot.sutureProxyBindingRevision;
+    state.coupledTimestepMultiplier.store(
+        snapshot.coupledTimestepMultiplier,
+        std::memory_order_release
+    );
+    state.coupledTimestepDivisor.store(
+        snapshot.coupledTimestepDivisor,
+        std::memory_order_release
+    );
+    ownership->controlStep = snapshot.controlStep;
+    ownership->physicsSubstep = snapshot.physicsSubstep;
+    ownership->identificationGeneration =
+        snapshot.identificationGeneration;
+    ownership->identificationCheckpoint =
+        snapshot.identificationCheckpoint;
+    ownership->identificationAdvanced = snapshot.identificationAdvanced;
+    diagnostics.encoded = true;
+    diagnostics.residentBytes = state.residentBytes;
+    diagnostics.device = nsString(state.device.name);
+    diagnostics.message =
+        "Numi Matter completion-boundary snapshot restored";
+    return diagnostics;
+}
+
 RuntimeStateSnapshot Runtime::snapshot() const {
     RuntimeStateSnapshot snapshot;
     if (state_ == nullptr) {
@@ -6095,6 +6526,7 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         return snapshot;
     }
     snapshot.sourcePhysicsFingerprint = state_->sourcePhysicsFingerprint;
+    snapshot.deviceProgramFingerprint = state_->executionFingerprint;
     const auto ownership = state_->commandOwnership;
     {
         const std::lock_guard lock(ownership->mutex);
@@ -6114,6 +6546,13 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             state_->coupledTimestepDivisor.load(
                 std::memory_order_acquire
             );
+        snapshot.controlStep = ownership->controlStep;
+        snapshot.physicsSubstep = ownership->physicsSubstep;
+        snapshot.identificationGeneration =
+            ownership->identificationGeneration;
+        snapshot.identificationCheckpoint =
+            ownership->identificationCheckpoint;
+        snapshot.identificationAdvanced = ownership->identificationAdvanced;
     }
     @autoreleasepool {
         const auto copy = [&](id<MTLBuffer> source) -> id<MTLBuffer> {
