@@ -210,7 +210,7 @@ bool isAcceptedDualHandoffVisualPhase(const std::string_view phase) {
     // Every entry is a transactionally published q/v + rigid + DER snapshot.
     // Keep this finite so an arbitrary or partially written phase cannot be
     // presented as operative evidence merely because its array widths match.
-    static constexpr std::array<std::string_view, 30u> phases{
+    static constexpr std::array<std::string_view, 36u> phases{
         "giver-closed",
         "giver-lift",
         "giver-handoff-stage",
@@ -241,6 +241,12 @@ bool isAcceptedDualHandoffVisualPhase(const std::string_view phase) {
         "tissue-opposing-bite-reoriented",
         "tissue-opposing-bite-ready",
         "tissue-opposing-bite-passage",
+        "tissue-opposing-bite-thread-root",
+        "tissue-suture-pull-stroke",
+        "tissue-suture-pull-complete",
+        "tissue-thread-approached",
+        "tissue-thread-acquired",
+        "tissue-knot-first-throw-staged",
     };
     return std::ranges::find(phases, phase) != phases.end();
 }
