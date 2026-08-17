@@ -3131,8 +3131,13 @@ ReceiverAlignmentSolution solveReceiverAlignmentTarget(
         }
     };
 
-    for (std::int32_t roll = -10; roll <= 10; ++roll) {
-        for (std::int32_t wrist = -10; wrist <= 10; ++wrist) {
+    // One 40-segment needle interval changes the local tangent by pi/40.
+    // The inward receiver correction therefore needs more than the former
+    // +/-0.25 rad coarse window from the live open-jaw posture. Keep the
+    // search bounded inside the PSM wrist range while covering that authored
+    // geometric shift without relaxing any frame residual.
+    for (std::int32_t roll = -14; roll <= 14; ++roll) {
+        for (std::int32_t wrist = -14; wrist <= 14; ++wrist) {
             evaluate(0.025 * roll, 0.025 * wrist);
         }
     }
@@ -3154,7 +3159,15 @@ ReceiverAlignmentSolution solveReceiverAlignmentTarget(
         best.centeringResidual <= 2.0e-5 &&
             best.railTangentAngle <= 0.03 &&
             best.separationFrameAngle <= 0.12,
-        "receiver alignment search could not recover the live needle frame"
+        "receiver alignment search could not recover the live needle frame: "
+        "centering_m=" + std::to_string(best.centeringResidual) +
+        " rail_angle_rad=" + std::to_string(best.railTangentAngle) +
+        " separation_angle_rad=" +
+            std::to_string(best.separationFrameAngle) +
+        " tool_roll_departure_rad=" +
+            std::to_string(best.toolRollDeparture) +
+        " wrist_yaw_departure_rad=" +
+            std::to_string(best.wristYawDeparture)
     );
     return best;
 }
