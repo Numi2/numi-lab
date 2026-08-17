@@ -30,10 +30,11 @@ struct JejunalScalar {
 ) noexcept;
 
 // Porcine jejunal-wall calibration from Bellini et al., J Mech Behav Biomed
-// Mater 2011. The published planar Fung coefficients and mean wall thickness
-// are source values. Coupon extent, incision, density, volumetric penalty and
-// missing 3-D shear regularization are kept visibly separate as simulator
-// choices; this is not an identified patient or a whole-organ model.
+// Mater 2011. The published planar Fung coefficients and tested-jejunum mean
+// wall thickness (0.82 +/- 0.18 mm) are source values. Coupon extent,
+// incision, density, volumetric penalty and missing 3-D shear regularization
+// are kept visibly separate as simulator choices; this is not an identified
+// patient or a whole-organ model.
 struct PorcineJejunumFungSpec {
     JejunalScalar lengthM{
         0.030,
@@ -44,7 +45,7 @@ struct PorcineJejunumFungSpec {
         JejunalValueBasis::researchDefault,
     };
     JejunalScalar thicknessM{
-        0.00077,
+        0.00082,
         JejunalValueBasis::belliniPorcineBiaxialStudy,
     };
     JejunalScalar incisionLengthM{

@@ -124,7 +124,7 @@ constexpr double kCurvedPassageMaximumExtensionM = 5.0e-4;
 constexpr std::uint32_t kCurvedPassageChunkSteps = 32u;
 constexpr std::uint32_t kCurvedPassageContactSegmentCount = 2u;
 // Two 1.97 mm DER capsules are sufficient for one edge in each of the two
-// 0.77 mm puncture tracts. Phase-boundary material selection uses both slots as
+// 0.82 mm puncture tracts. Phase-boundary material selection uses both slots as
 // overlap while only one tract is occupied, then sparsely owns one edge per
 // tract. This keeps the contact graph fixed instead of evaluating the remote
 // packaged coil against every tissue boundary node.
@@ -451,7 +451,7 @@ constexpr double kMaximumReceiverBridgeNeedleDriftM = 3.0e-4;
 constexpr double kMaximumReceiverBridgeTissueIncrementM = 5.0e-5;
 // Receiver acquisition must exchange jaw preload without silently beginning
 // the extraction.  Half a millimetre is larger than the finite-groove reseat
-// allowance yet smaller than the 0.77 mm coupon wall, so crossing this bound
+// allowance yet smaller than the 0.82 mm coupon wall, so crossing this bound
 // means the handoff phase displaced rather than merely secured the needle.
 constexpr double kMaximumReceiverAcquisitionNeedleTravelM = 5.0e-4;
 // The final pull is geometry-derived so the complete half-circle needle and
@@ -5606,7 +5606,7 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
             matterCompileErrors(parsed.diagnostics)
     );
 
-    // Retain the source-sized 30 x 24 x 0.77 mm porcine coupon and 16 mm
+    // Retain the source-sized 30 x 24 x 0.82 mm porcine coupon and 16 mm
     // enterotomy. The contact-only swage regression uses the smallest
     // qualified 6x6x1 transaction mesh. A puncture uses the production
     // 18x16x2 wall so entry crosses a through-thickness volume rather than the

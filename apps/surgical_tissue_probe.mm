@@ -555,7 +555,15 @@ int main(const int argc, const char* const argv[]) {
         const auto production =
             numi::matter::makePorcineJejunumClosureCoupon(0u);
         require(
-            production.metadata.nodeCount >= 900u &&
+            production.spec.thicknessM.basis ==
+                    numi::matter::JejunalValueBasis::
+                        belliniPorcineBiaxialStudy &&
+                production.spec.thicknessM.value == 0.00082 &&
+                production.spec.fungCpa.value == 690.0 &&
+                production.spec.longitudinalCoefficient.value == 81.2 &&
+                production.spec.circumferentialCoefficient.value == 72.4 &&
+                production.spec.couplingCoefficient.value == 19.7 &&
+                production.metadata.nodeCount >= 900u &&
                 production.metadata.tetrahedronCount == 3456u &&
                 !production.metadata.incisionLipNodePairs.empty() &&
                 !production.object.femContactNodes.empty() &&
@@ -563,7 +571,8 @@ int main(const int argc, const char* const argv[]) {
                     production.metadata.nodeCount &&
                 production.object.mutationPolicy.enabled &&
                 production.object.femCapacity.punctureChannels >= 32u,
-            "high-resolution jejunal closure asset lost required topology"
+            "source-calibrated jejunal closure asset lost its material or "
+            "topology contract"
         );
         std::vector<bool> productionContactNodes(
             production.metadata.nodeCount,

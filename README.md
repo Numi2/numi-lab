@@ -69,13 +69,16 @@ The terminal taper and its adjacent widening segment both remain live tissue
 contact geometry; the physically swaged 250 mm monofilament is carried by the
 DER constraints rather than prescribed along the needle orbit.
 
-On Apple M4, the current 0.77 mm porcine-jejunum coupon qualification reached
+On Apple M4, the superseded 0.77 mm porcine-jejunum coupon qualification reached
 190.3 um of clearance beyond the *deformed* distal surface after 884 62.5 us
 microsteps. It retained all 3,456 tetrahedra with zero removed tissue mass,
 formed seven connected tract segments with 5.13 um maximum orbit error and
 2.42 um radial-error range, retained a 0.999941 minimum determinant, ended at
 6.64 um hard-swage error, used at most six FGMRES columns, and reported zero
-failed steps. A coupon-specific five-Newton/ten-column budget retains 43 percent
+failed steps. Bellini's tested-jejunum mean is 0.82 +/- 0.18 mm; the
+source-corrected 0.82 mm default therefore requires a fresh qualification and
+the preceding measurement is retained only as historical solver evidence. A
+coupon-specific five-Newton/ten-column budget retains 43 percent
 Krylov headroom above that live high-water and reduced the same-host passage
 from 589.3 to 300.0 GPU seconds (1.96x). This is a deterministic workload
 measurement, not a universal solver speedup. The tract is a mass-conserving
