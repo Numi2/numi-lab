@@ -20250,6 +20250,10 @@ int main(const int argc, const char* const argv[]) {
             double normalImpulse = 0.0;
             double punctureTipNormalImpulse = 0.0;
             double punctureTipAcceptedImpulse = 0.0;
+            double punctureTipAxialImpulse = 0.0;
+            double punctureTipAcceptedAxialImpulse = 0.0;
+            double representativePunctureAxialImpulse = -1.0;
+            double representativePunctureAlignment = 0.0;
             double sutureStrandNormalImpulse = 0.0;
             double maximumContactSpecificImpulseMps = 0.0;
             double minimumContactNodeMassKg =
@@ -20283,6 +20287,89 @@ int main(const int argc, const char* const argv[]) {
                             snapshot.contactHistories.size()) {
                             punctureTipAcceptedImpulse +=
                                 snapshot.contactHistories[contactIndex].w;
+                        }
+                        // This compiled operative world owns one FEM tissue
+                        // object at index zero. Mirror the live Metal detector's
+                        // forward, tip-local axial resultant exactly so the
+                        // qualification reports the same fracture authority.
+                        if (sample.identity.z == 0u &&
+                            sample.identity.y < snapshot.rigidStates.size() &&
+                            sample.admissionVelocityAndNormal.w < -1.0e-6f &&
+                            contactIndex <
+                                snapshot.contactHistories.size() &&
+                            std::isfinite(sample.impulseAndNormal.w) &&
+                            sample.impulseAndNormal.w >= 0.0f &&
+                            std::isfinite(
+                                snapshot.contactHistories[contactIndex].w
+                            ) &&
+                            snapshot.contactHistories[contactIndex].w >=
+                                0.0f) {
+                            const NMRigidStateGPU& tipState =
+                                snapshot.rigidStates[sample.identity.y];
+                            const Vec3 tipFirst = vector(
+                                tipState.centerAndRadius
+                            );
+                            const Vec3 tipEdge =
+                                vector(tipState.extent) - tipFirst;
+                            const double tipEdgeLength = norm(tipEdge);
+                            const double tipRadius =
+                                tipState.centerAndRadius.w;
+                            const Vec3 contactNormal = vector(
+                                sample.normalAndVelocity
+                            );
+                            const double normalLength = norm(contactNormal);
+                            if (tipEdgeLength > 0.0 && tipRadius > 0.0 &&
+                                normalLength > 0.0) {
+                                const Vec3 geometricDirection =
+                                    tipEdge * (-1.0 / tipEdgeLength);
+                                Vec3 tipDirection = geometricDirection;
+                                const Vec3 tipVelocity = vector(
+                                    tipState.linearVelocityAndInverseMass
+                                );
+                                const double tipSpeed = norm(tipVelocity);
+                                if (tipSpeed > 1.0e-5) {
+                                    const Vec3 motionDirection =
+                                        tipVelocity * (1.0 / tipSpeed);
+                                    if (dot(
+                                            motionDirection,
+                                            geometricDirection
+                                        ) >= 0.75) {
+                                        tipDirection = motionDirection;
+                                    }
+                                }
+                                const Vec3 inward = contactNormal *
+                                    (1.0 / normalLength);
+                                const double alignment = dot(
+                                    tipDirection, inward
+                                );
+                                const Vec3 witness = vector(
+                                    sample.pointAndSeparation
+                                );
+                                const Vec3 contactCenter =
+                                    witness - inward * tipRadius;
+                                if (alignment > 0.0 &&
+                                    norm(contactCenter - tipFirst) <=
+                                        std::max(
+                                            0.25 * tipEdgeLength,
+                                            2.0 * tipRadius
+                                        )) {
+                                    const double currentAxial = alignment *
+                                        sample.impulseAndNormal.w;
+                                    const double acceptedAxial = alignment *
+                                        snapshot.contactHistories[
+                                            contactIndex].w;
+                                    punctureTipAxialImpulse += currentAxial;
+                                    punctureTipAcceptedAxialImpulse +=
+                                        acceptedAxial;
+                                    if (currentAxial >
+                                        representativePunctureAxialImpulse) {
+                                        representativePunctureAxialImpulse =
+                                            currentAxial;
+                                        representativePunctureAlignment =
+                                            alignment;
+                                    }
+                                }
+                            }
                         }
                     }
                     if ((proxyFlags & NM_RIGID_SUTURE_STRAND) != 0u) {
@@ -20544,6 +20631,14 @@ int main(const int argc, const char* const argv[]) {
                     << punctureTipNormalImpulse
                     << " puncture_tip_accepted_impulse_ns="
                     << punctureTipAcceptedImpulse
+                    << " puncture_tip_axial_impulse_ns="
+                    << punctureTipAxialImpulse
+                    << " puncture_tip_accepted_axial_impulse_ns="
+                    << punctureTipAcceptedAxialImpulse
+                    << " representative_axial_impulse_ns="
+                    << representativePunctureAxialImpulse
+                    << " representative_normal_alignment="
+                    << representativePunctureAlignment
                     << " suture_strand_contacts="
                     << activeSutureStrandContacts
                     << " suture_strand_impulse_ns="
@@ -20648,8 +20743,16 @@ int main(const int argc, const char* const argv[]) {
                         channelAxisAlignment >= 0.999 &&
                         activeContacts >= 1u &&
                         activePunctureTipContacts >= 1u &&
-                        punctureTipNormalImpulse >=
+                        std::isfinite(punctureTipAxialImpulse) &&
+                        punctureTipAxialImpulse >=
                             kPunctureImpulseThresholdNs &&
+                        std::isfinite(
+                            punctureTipAcceptedAxialImpulse
+                        ) &&
+                        punctureTipAcceptedAxialImpulse >=
+                            kPunctureImpulseThresholdNs &&
+                        representativePunctureAxialImpulse >= 0.0 &&
+                        representativePunctureAlignment >= 0.75 &&
                         std::isfinite(minimumContactSeparation) &&
                         minimumContactSeparation > 0.0 &&
                         std::isfinite(minimumAdmissionNormalVelocity) &&
@@ -20680,6 +20783,16 @@ int main(const int argc, const char* const argv[]) {
                             std::to_string(punctureTipNormalImpulse) +
                         " puncture_tip_accepted_impulse=" +
                             std::to_string(punctureTipAcceptedImpulse) +
+                        " puncture_tip_axial_impulse=" +
+                            std::to_string(punctureTipAxialImpulse) +
+                        " puncture_tip_accepted_axial_impulse=" +
+                            std::to_string(
+                                punctureTipAcceptedAxialImpulse
+                            ) +
+                        " representative_normal_alignment=" +
+                            std::to_string(
+                                representativePunctureAlignment
+                            ) +
                         " minimum_contact_separation=" +
                         std::to_string(minimumContactSeparation) +
                         " minimum_contact_normal_velocity=" +
@@ -20758,6 +20871,8 @@ int main(const int argc, const char* const argv[]) {
                         << activePunctureTipContacts
                         << " puncture_tip_impulse_ns="
                         << punctureTipNormalImpulse
+                        << " puncture_tip_axial_impulse_ns="
+                        << punctureTipAxialImpulse
                         << " suture_strand_contacts="
                         << activeSutureStrandContacts
                         << " strand_proxy_count="

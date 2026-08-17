@@ -563,7 +563,8 @@ kernel void nm_topology_detect_puncture(
                 if (!(normalLength > 1.0e-12f) ||
                     !finite3(contactNormal)) continue;
                 const float3 inward = contactNormal / normalLength;
-                if (dot(tipDirection, inward) < 0.75f) continue;
+                const float tipAlignment = dot(tipDirection, inward);
+                if (!(tipAlignment > 0.0f)) continue;
                 const float3 contactCenter =
                     sample.pointAndSeparation.xyz - radius * inward;
                 if (length(contactCenter - first) >
@@ -571,19 +572,24 @@ kernel void nm_topology_detect_puncture(
 
                 // A sharp tip load is a physical resultant, not a per-node
                 // material property. Refinement distributes the same tip force
-                // over more FEM surface nodes, so test the deterministic sum of
-                // aligned, tip-local rows against the authored impulse gate.
-                // Summing arbitrary shaft/side rows would let generic capsule
-                // contact manufacture a puncture and is deliberately excluded.
+                // over more FEM surface nodes, so test the deterministic axial
+                // projection of every forward, tip-local row against the
+                // authored impulse gate. Summing arbitrary shaft/side rows
+                // would let generic capsule contact manufacture a puncture and
+                // is deliberately excluded.
                 const float historyImpulse =
                     acceptedHistories[pairBase + pairIndex].w;
                 if (!isfinite(historyImpulse) || historyImpulse < 0.0f ||
                     !isfinite(sample.impulseAndNormal.w) ||
                     sample.impulseAndNormal.w < 0.0f) continue;
-                acceptedNormalImpulse += historyImpulse;
-                currentNormalImpulse += sample.impulseAndNormal.w;
-                if (sample.impulseAndNormal.w > representativeImpulse) {
-                    representativeImpulse = sample.impulseAndNormal.w;
+                const float acceptedAxialImpulse =
+                    tipAlignment * historyImpulse;
+                const float currentAxialImpulse =
+                    tipAlignment * sample.impulseAndNormal.w;
+                acceptedNormalImpulse += acceptedAxialImpulse;
+                currentNormalImpulse += currentAxialImpulse;
+                if (currentAxialImpulse > representativeImpulse) {
+                    representativeImpulse = currentAxialImpulse;
                     acceptedSample = sample;
                 }
             }
