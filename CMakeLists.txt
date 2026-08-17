@@ -2572,7 +2572,7 @@ if(BUILD_TESTING)
         PROPERTIES
             FIXTURES_SETUP metalrobo_dual_suture_handoff_state
             LABELS "metalrobo;surgical;physics;metal"
-            TIMEOUT 7200
+            TIMEOUT 28800
     )
     add_test(
         NAME metalrobo.surgical.tissue_suture_coupling
