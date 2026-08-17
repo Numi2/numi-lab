@@ -6498,7 +6498,12 @@ bool isLiveTissueCheckpointPhase(const std::string_view phase) {
         phase == "tissue-thread-approached" ||
         phase == "tissue-thread-acquired" ||
         phase == "tissue-knot-first-throw-staged" ||
-        phase == "tissue-knot-first-double-throw";
+        phase == "tissue-knot-first-double-throw" ||
+        phase == "tissue-knot-square-throw-1" ||
+        phase == "tissue-knot-square-throw-2" ||
+        phase == "tissue-knot-square-throw-3" ||
+        phase == "tissue-knot-square-throw-4" ||
+        phase == "tissue-knot-square-throw-5";
 }
 
 bool isSupportedTissueCheckpointPhase(const std::string_view phase) {
@@ -6537,6 +6542,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-knot-first-throw-preflight-only" ||
             argument == "--tissue-knot-first-throw-stage-only" ||
             argument == "--tissue-knot-first-double-throw-only" ||
+            argument == "--tissue-knot-next-square-throw-only" ||
             argument == "--thread-frame-ik-only" ||
             argument == "--receiver-frame-ik-only" ||
             argument == "--receiver-extraction-geometry-only" ||
@@ -7103,7 +7109,8 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         result.mode == "--tissue-thread-acquisition-only" ||
         result.mode == "--tissue-knot-first-throw-preflight-only" ||
         result.mode == "--tissue-knot-first-throw-stage-only" ||
-        result.mode == "--tissue-knot-first-double-throw-only";
+        result.mode == "--tissue-knot-first-double-throw-only" ||
+        result.mode == "--tissue-knot-next-square-throw-only";
     require(
         tissueCheckpointMode ==
             !result.resumeTissueCheckpointPath.empty(),
@@ -7128,6 +7135,20 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.resumeTissueCheckpointPhase ==
                 "tissue-knot-first-throw-staged",
         "first double throw requires the immutable staged checkpoint"
+    );
+    require(
+        result.mode != "--tissue-knot-next-square-throw-only" ||
+            result.resumeTissueCheckpointPhase ==
+                "tissue-knot-first-double-throw" ||
+            result.resumeTissueCheckpointPhase ==
+                "tissue-knot-square-throw-1" ||
+            result.resumeTissueCheckpointPhase ==
+                "tissue-knot-square-throw-2" ||
+            result.resumeTissueCheckpointPhase ==
+                "tissue-knot-square-throw-3" ||
+            result.resumeTissueCheckpointPhase ==
+                "tissue-knot-square-throw-4",
+        "next square throw requires the prior accepted throw checkpoint"
     );
     require(
         result.mode != "--tissue-suture-pull-stroke-only" ||
@@ -8277,6 +8298,8 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-knot-first-throw-stage-only";
         const bool tissueKnotFirstDoubleThrowOnly =
             options.mode == "--tissue-knot-first-double-throw-only";
+        const bool tissueKnotNextSquareThrowOnly =
+            options.mode == "--tissue-knot-next-square-throw-only";
         const bool tissueSuturePullStrokeOnly =
             options.mode == "--tissue-suture-pull-stroke-only";
         const bool tissueCheckpointResume =
@@ -8285,6 +8308,7 @@ int main(const int argc, const char* const argv[]) {
             tissueKnotFirstThrowPreflightOnly ||
             tissueKnotFirstThrowStageOnly ||
             tissueKnotFirstDoubleThrowOnly ||
+            tissueKnotNextSquareThrowOnly ||
             tissueSuturePullStrokeOnly;
         const bool resumeTissueRestCheckpoint =
             tissueCheckpointResume &&
@@ -14698,7 +14722,10 @@ int main(const int argc, const char* const argv[]) {
                     options.resumeTissueCheckpointPhase ==
                         "tissue-knot-first-throw-staged" ||
                     options.resumeTissueCheckpointPhase ==
-                        "tissue-knot-first-double-throw";
+                        "tissue-knot-first-double-throw" ||
+                    options.resumeTissueCheckpointPhase.starts_with(
+                        "tissue-knot-square-throw-"
+                    );
                 require(
                     resumedKnotCheckpoint.available == knotCheckpointPhase,
                     knotCheckpointPhase
@@ -15863,12 +15890,11 @@ int main(const int argc, const char* const argv[]) {
                     << " failed_steps=0\n";
                 return 0;
             }
-            if (tissueKnotFirstDoubleThrowOnly) {
+            if (tissueKnotFirstDoubleThrowOnly ||
+                tissueKnotNextSquareThrowOnly) {
                 require(
-                    options.resumeTissueCheckpointPhase ==
-                            "tissue-knot-first-throw-staged" &&
-                        resumedKnotCheckpoint.available,
-                    "first double throw requires an exact staged knot frame"
+                    resumedKnotCheckpoint.available,
+                    "live knot throw requires an exact continuation frame"
                 );
                 const auto protocol =
                     metalrobo::makeSurgeonsKnotInstrumentProtocol();
@@ -15880,23 +15906,85 @@ int main(const int argc, const char* const argv[]) {
                     metalrobo::certifySurgeonsKnotInstrumentProtocol(
                         protocol
                     );
-                const auto& firstThrow = protocol.firstDoubleThrow;
+                const auto acceptedThrowPhase = [] (
+                    const std::uint32_t throwIndex
+                ) {
+                    return throwIndex == 0u
+                        ? std::string{"tissue-knot-first-double-throw"}
+                        : std::string{"tissue-knot-square-throw-"} +
+                            std::to_string(throwIndex);
+                };
+                const metalrobo::SurgicalThrowPath* checkpointThrow =
+                    &protocol.firstDoubleThrow;
+                const metalrobo::SurgicalThrowPath* activeThrow =
+                    &protocol.firstDoubleThrow;
+                const metalrobo::SurgicalThrowDiagnostics*
+                    activeThrowDiagnostics =
+                        &protocolDiagnostics.firstDoubleThrow;
+                std::uint32_t outputThrowIndex = 0u;
+                if (tissueKnotNextSquareThrowOnly) {
+                    require(
+                        resumedKnotCheckpoint.throwIndex <
+                            protocol.squareSingleThrows.size(),
+                        "all five square securing throws are already "
+                            "complete"
+                    );
+                    if (resumedKnotCheckpoint.throwIndex != 0u) {
+                        checkpointThrow = &protocol.squareSingleThrows[
+                            resumedKnotCheckpoint.throwIndex - 1u
+                        ];
+                    }
+                    activeThrow = &protocol.squareSingleThrows[
+                        resumedKnotCheckpoint.throwIndex
+                    ];
+                    activeThrowDiagnostics =
+                        &protocolDiagnostics.squareSingleThrows[
+                            resumedKnotCheckpoint.throwIndex
+                        ];
+                    outputThrowIndex =
+                        resumedKnotCheckpoint.throwIndex + 1u;
+                    require(
+                        options.resumeTissueCheckpointPhase ==
+                                acceptedThrowPhase(
+                                    resumedKnotCheckpoint.throwIndex
+                                ) &&
+                            resumedKnotCheckpoint.completedSample ==
+                                checkpointThrow->samples.size() - 1u,
+                        "square securing throw does not continue the prior "
+                            "accepted protocol endpoint"
+                    );
+                } else {
+                    require(
+                        options.resumeTissueCheckpointPhase ==
+                                "tissue-knot-first-throw-staged" &&
+                            resumedKnotCheckpoint.throwIndex == 0u &&
+                            resumedKnotCheckpoint.completedSample == 0u,
+                        "first double throw requires the exact staged "
+                            "protocol start"
+                    );
+                }
+                const auto& throwPath = *activeThrow;
+                const std::string outputThrowPhase =
+                    acceptedThrowPhase(outputThrowIndex);
+                const std::string liveThrowLabel =
+                    "live " + outputThrowPhase;
+                const std::uint32_t expectedResolvedWrapCount =
+                    2u + outputThrowIndex;
                 require(
                     protocolDiagnostics.succeeded() &&
                         resumedKnotCheckpoint.protocolRevision == 1u &&
                         resumedKnotCheckpoint.protocolFingerprint ==
                             protocolFingerprint &&
-                        resumedKnotCheckpoint.throwIndex == 0u &&
-                        resumedKnotCheckpoint.completedSample == 0u &&
                         resumedKnotCheckpoint.expectedWholeTurns ==
-                            firstThrow.expectedWholeTurns &&
+                            checkpointThrow->expectedWholeTurns &&
                         resumedKnotCheckpoint.expectedWindingSign ==
-                            firstThrow.expectedWindingSign &&
+                            checkpointThrow->expectedWindingSign &&
                         resumedKnotCheckpoint.expectedTransferSign ==
-                            firstThrow.expectedTransferSign &&
-                        firstThrow.samples.size() >= 2u,
-                    "staged knot protocol does not match the live first "
-                        "double throw"
+                            checkpointThrow->expectedTransferSign &&
+                        throwPath.samples.size() >= 2u &&
+                        activeThrowDiagnostics->succeeded(),
+                    "knot checkpoint protocol identity does not match the "
+                        "live throw"
                 );
 
                 const Vec3 knotOrigin = resumedKnotCheckpoint.origin;
@@ -15974,11 +16062,15 @@ int main(const int argc, const char* const argv[]) {
                     zeroVelocity
                 );
                 constexpr double kKnotContinuationSeamToleranceM = 5.0e-4;
+                const auto& checkpointEndpoint =
+                    tissueKnotNextSquareThrowOnly
+                        ? checkpointThrow->samples.back()
+                        : throwPath.samples.front();
                 const Vec3 expectedStandingStart = place(
-                    firstThrow.samples.front().standingJawCenterM
+                    checkpointEndpoint.standingJawCenterM
                 );
                 const Vec3 expectedWorkingStart = place(
-                    firstThrow.samples.front().workingJawCenterM
+                    checkpointEndpoint.workingJawCenterM
                 );
                 const double standingSeamErrorM = norm(
                     standingStart.midpoint - expectedStandingStart
@@ -15996,7 +16088,7 @@ int main(const int argc, const char* const argv[]) {
                             kKnotContinuationSeamToleranceM &&
                         standingMaterialSeatErrorM <=
                             kMaximumTransitionGraspReseating,
-                    "staged first-throw seam changed tool or material "
+                    "continued knot seam changed tool or material "
                         "ownership"
                 );
 
@@ -16004,12 +16096,12 @@ int main(const int argc, const char* const argv[]) {
                     orthonormalJawFrame(
                         standingStart.railDirection,
                         standingStart.separationDirection,
-                        "continued first-throw standing frame"
+                        "continued knot-throw standing frame"
                     );
                 const OrthonormalJawFrame workingFrame = orthonormalJawFrame(
                     workingStart.railDirection,
                     workingStart.separationDirection,
-                    "continued first-throw working frame"
+                    "continued knot-throw working frame"
                 );
                 const metalrobo::SurgicalBasePose standingBase = armBasePose(
                     world.model,
@@ -16067,19 +16159,66 @@ int main(const int argc, const char* const argv[]) {
                     Vec3 standing{};
                 };
                 std::vector<PlacedThrowSample> placedSamples;
-                placedSamples.reserve(firstThrow.samples.size() - 1u);
+                constexpr std::uint32_t kKnotRecenterSamples = 128u;
+                const Vec3 activeStandingStart = place(
+                    throwPath.samples.front().standingJawCenterM
+                );
+                const Vec3 activeWorkingStart = place(
+                    throwPath.samples.front().workingJawCenterM
+                );
+                const double maximumRecenterDistanceM = std::max(
+                    norm(activeStandingStart - standingStart.midpoint),
+                    norm(activeWorkingStart - workingStart.midpoint)
+                );
+                const double recenterDurationSeconds =
+                    tissueKnotNextSquareThrowOnly
+                        ? std::max(
+                              0.5,
+                              1.5 * maximumRecenterDistanceM /
+                                  throwPath.maximumJawCenterSpeedMps
+                          )
+                        : 0.0;
+                placedSamples.reserve(
+                    throwPath.samples.size() - 1u +
+                    (tissueKnotNextSquareThrowOnly
+                         ? kKnotRecenterSamples
+                         : 0u)
+                );
+                if (tissueKnotNextSquareThrowOnly) {
+                    for (std::uint32_t sample = 1u;
+                         sample <= kKnotRecenterSamples;
+                         ++sample) {
+                        const double linearFraction =
+                            static_cast<double>(sample) /
+                            static_cast<double>(kKnotRecenterSamples);
+                        const double smoothFraction =
+                            linearFraction * linearFraction *
+                            (3.0 - 2.0 * linearFraction);
+                        placedSamples.push_back({
+                            .timeSeconds =
+                                recenterDurationSeconds * linearFraction,
+                            .working = workingStart.midpoint +
+                                (activeWorkingStart -
+                                 workingStart.midpoint) * smoothFraction,
+                            .standing = standingStart.midpoint +
+                                (activeStandingStart -
+                                 standingStart.midpoint) * smoothFraction,
+                        });
+                    }
+                }
                 for (std::size_t sample = 1u;
-                     sample < firstThrow.samples.size();
+                     sample < throwPath.samples.size();
                      ++sample) {
                     placedSamples.push_back({
                         .timeSeconds =
-                            firstThrow.samples[sample].timeSeconds,
+                            recenterDurationSeconds +
+                            throwPath.samples[sample].timeSeconds,
                         .working = place(
-                            firstThrow.samples[sample]
+                            throwPath.samples[sample]
                                 .workingJawCenterM
                         ),
                         .standing = place(
-                            firstThrow.samples[sample]
+                            throwPath.samples[sample]
                                 .standingJawCenterM
                         ),
                     });
@@ -16087,7 +16226,7 @@ int main(const int argc, const char* const argv[]) {
                 require(
                     !placedSamples.empty() &&
                         placedSamples.back().timeSeconds > 0.0,
-                    "continued first throw contains no advancing samples"
+                    "continued knot throw contains no advancing samples"
                 );
 
                 struct KnotPathAudit {
@@ -16186,7 +16325,7 @@ int main(const int argc, const char* const argv[]) {
                     require(
                         standingClearance.succeeded() &&
                             workingClearance.succeeded(),
-                        "continued first-throw jaw-surface audit failed"
+                        "continued knot-throw jaw-surface audit failed"
                     );
                     audit.minimumStandingTissueClearanceM = std::min(
                         audit.minimumStandingTissueClearanceM,
@@ -16314,8 +16453,8 @@ int main(const int argc, const char* const argv[]) {
                         sparseAudit.minimumNeedleTissueClearanceM >=
                             kKnotTissueClearanceM &&
                         sparseAudit.minimumInstrumentClearanceM >=
-                            firstThrow.minimumInstrumentClearanceM,
-                    "continued first double throw has no reachable, "
+                            throwPath.minimumInstrumentClearanceM,
+                    "continued knot throw has no reachable, "
                         "collision-free articulated path"
                 );
 
@@ -16329,7 +16468,7 @@ int main(const int argc, const char* const argv[]) {
                         stepConfig.physicsSubsteps ==
                             kSuturePullMatterRateMultiplier &&
                         stepConfig.devicePhysicsProgram.valid(),
-                    "continued first throw lost its staged Matter cadence"
+                    "continued knot throw lost its staged Matter cadence"
                 );
                 const double throwTimestepSeconds =
                     stepConfig.timestepSeconds;
@@ -16342,7 +16481,7 @@ int main(const int argc, const char* const argv[]) {
                 require(
                     throwSteps > placedSamples.size() &&
                         throwSteps < 100000u,
-                    "continued first-throw dense cadence is invalid"
+                    "continued knot-throw dense cadence is invalid"
                 );
                 std::vector<float> throwDesiredQ;
                 throwDesiredQ.reserve(
@@ -16475,8 +16614,8 @@ int main(const int argc, const char* const argv[]) {
                         denseAudit.minimumNeedleTissueClearanceM >=
                             kKnotTissueClearanceM &&
                         denseAudit.minimumInstrumentClearanceM >=
-                            firstThrow.minimumInstrumentClearanceM,
-                    "continued dense first throw violates speed, collision, "
+                            throwPath.minimumInstrumentClearanceM,
+                    "continued dense knot throw violates speed, collision, "
                         "or operative-field clearance"
                 );
                 const std::vector<float> throwEfforts =
@@ -16745,7 +16884,7 @@ int main(const int argc, const char* const argv[]) {
                             metrics.minimumNeedleTissueClearanceM >=
                                 kKnotTissueClearanceM &&
                             metrics.instrumentClearanceM >=
-                                firstThrow.minimumInstrumentClearanceM,
+                                throwPath.minimumInstrumentClearanceM,
                         phase + " lost a grasp, material edge, physical "
                             "certificate, or operative-field clearance"
                     );
@@ -16820,7 +16959,7 @@ int main(const int argc, const char* const argv[]) {
                             throwResident,
                             chunkEfforts,
                             chunkSteps,
-                            "live first double throw"
+                            liveThrowLabel
                         );
                     }
                     throwGpuMilliseconds +=
@@ -16829,11 +16968,13 @@ int main(const int argc, const char* const argv[]) {
                     completedThrowSteps += chunkSteps;
                     terminalMetrics = validateBoundary(
                         throwState,
-                        "live first double throw"
+                        liveThrowLabel
                     );
                     accumulateSelfFriction(terminalMetrics.rod);
                     std::cout << std::setprecision(9)
-                        << "tissue_knot_first_double_throw_progress_steps="
+                        << "tissue_knot_throw_progress_phase="
+                        << outputThrowPhase
+                        << " steps="
                         << completedThrowSteps << '/' << throwSteps
                         << " standing_seat_error_m="
                         << terminalMetrics.materialSeatErrorM
@@ -16871,7 +17012,7 @@ int main(const int argc, const char* const argv[]) {
                         throwResident,
                         holdEfforts,
                         chunkSteps,
-                        "live first double throw hold"
+                        liveThrowLabel + " hold"
                     );
                     throwGpuMilliseconds +=
                         held.diagnostics.gpuElapsedMilliseconds;
@@ -16879,7 +17020,7 @@ int main(const int argc, const char* const argv[]) {
                     completedHoldSteps += chunkSteps;
                     terminalMetrics = validateBoundary(
                         throwState,
-                        "live first double throw hold"
+                        liveThrowLabel + " hold"
                     );
                     accumulateSelfFriction(terminalMetrics.rod);
                     const bool quiescent =
@@ -16892,7 +17033,9 @@ int main(const int argc, const char* const argv[]) {
                         ? consecutiveQuiescentBoundaries + 1u
                         : 0u;
                     std::cout << std::setprecision(9)
-                        << "tissue_knot_first_double_throw_hold_steps="
+                        << "tissue_knot_throw_hold_phase="
+                        << outputThrowPhase
+                        << " steps="
                         << completedHoldSteps
                         << " quiescent=" << quiescent
                         << " consecutive_quiescent="
@@ -16906,7 +17049,7 @@ int main(const int argc, const char* const argv[]) {
                 }
                 require(
                     consecutiveQuiescentBoundaries >= 2u,
-                    "first double throw did not become quiescent within its "
+                    "knot throw did not become quiescent within its "
                         "fixed hold ceiling"
                 );
                 std::vector<metalrobo::SurgicalKnotPoint> knotNodes;
@@ -16930,24 +17073,24 @@ int main(const int argc, const char* const argv[]) {
                                 kThreadClearanceReadbackTolerance,
                             .minimumMaterialEdgeSeparation = 2u,
                             .minimumContactPairCount =
-                                firstThrow.expectedWholeTurns,
+                                expectedResolvedWrapCount,
                         }
                     );
                 require(
                     knotContacts.succeeded() &&
                         maximumSelfContactCount >=
-                            firstThrow.expectedWholeTurns &&
+                            expectedResolvedWrapCount &&
                         maximumSelfNormalImpulseNs > 0.0 &&
                         maximumSelfTangentialImpulseNs > 0.0 &&
                         maximumSelfFrictionUtilization <= 1.0001,
-                    "first double throw lacks resolved material-separated "
+                    "knot throw lacks resolved material-separated "
                         "frictional strand contacts"
                 );
                 const numi::matter::RuntimeStateSnapshot finalMatter =
                     tissueRuntime.snapshot();
                 terminalMetrics.matter = validateMatter(
                     finalMatter,
-                    "first double throw checkpoint"
+                    outputThrowPhase + " checkpoint"
                 );
                 const std::uint64_t outputStateStep =
                     resumedTissueCheckpointStep +
@@ -16956,13 +17099,20 @@ int main(const int argc, const char* const argv[]) {
                     ) * stepConfig.physicsSubsteps;
                 KnotContinuationCheckpoint completedKnotCheckpoint =
                     resumedKnotCheckpoint;
+                completedKnotCheckpoint.throwIndex = outputThrowIndex;
                 completedKnotCheckpoint.completedSample =
                     static_cast<std::uint32_t>(
-                        firstThrow.samples.size() - 1u
+                        throwPath.samples.size() - 1u
                     );
+                completedKnotCheckpoint.expectedWholeTurns =
+                    throwPath.expectedWholeTurns;
+                completedKnotCheckpoint.expectedWindingSign =
+                    throwPath.expectedWindingSign;
+                completedKnotCheckpoint.expectedTransferSign =
+                    throwPath.expectedTransferSign;
                 writeHandoffStateArtifact(
                     options.stateOutputDirectory,
-                    "tissue-knot-first-double-throw",
+                    outputThrowPhase,
                     outputStateStep,
                     world,
                     sutureSpec,
@@ -16971,15 +17121,19 @@ int main(const int argc, const char* const argv[]) {
                     &completedKnotCheckpoint
                 );
                 std::cout << std::setprecision(9)
-                    << "tissue_knot_first_double_throw=ok"
+                    << "tissue_knot_throw=ok"
                     << " source_phase="
                     << options.resumeTissueCheckpointPhase
-                    << " output_phase=tissue-knot-first-double-throw"
+                    << " output_phase=" << outputThrowPhase
+                    << " throw_index=" << outputThrowIndex
                     << " protocol_fingerprint=0x" << std::hex
                     << protocolFingerprint << std::dec
                     << " signed_winding_turns="
-                    << protocolDiagnostics.firstDoubleThrow
-                           .signedWindingTurns
+                    << activeThrowDiagnostics->signedWindingTurns
+                    << " recenter_duration_s="
+                    << recenterDurationSeconds
+                    << " recenter_distance_m="
+                    << maximumRecenterDistanceM
                     << " throw_steps=" << completedThrowSteps
                     << " hold_steps=" << completedHoldSteps
                     << " timestep_s=" << throwTimestepSeconds
@@ -17032,8 +17186,13 @@ int main(const int argc, const char* const argv[]) {
                     << terminalMetrics.contactVelocityResidualMps
                     << " gpu_ms=" << throwGpuMilliseconds
                     << " failed_steps=0"
-                    << " boundary=physical_double_throw_not_complete_"
-                        "2_1_1_1_1_1_knot_or_load_retention\n";
+                    << " boundary="
+                    << (outputThrowIndex < 5u
+                            ? "physical_partial_2_1_1_1_1_1_knot_"
+                              "not_complete_or_load_tested"
+                            : "physical_2_1_1_1_1_1_instrument_sequence_"
+                              "complete_not_load_retention_tested")
+                    << '\n';
                 return 0;
             }
             if (tissueThreadTargetOnly ||

@@ -629,16 +629,42 @@ material ownership. This proves a physical double first throw when executed on
 an earned checkpoint; it explicitly does not certify the remaining five
 alternating single throws or opposing-load retention.
 
+`--tissue-knot-next-square-throw-only` makes each remaining throw its own
+immutable transaction. It accepts only `tissue-knot-first-double-throw` or
+`tissue-knot-square-throw-1` through `-4`, verifies that the persisted phase,
+throw index, completed sample, expected winding/transfer signs, and full
+protocol fingerprint identify the prior terminal endpoint, and rejects skipped
+or replayed throws. Before the next alternating path, both PSMs traverse a
+128-sample cubic smoothstep recenter whose duration bounds the analytical peak
+jaw speed. Sparse and dense articulated audits cover that join and the new
+winding as one continuous path.
+
+Live execution preserves the same exact short-tail material window, working
+needle grasp, hard swage, two tract proxy edges and binding revision, tissue
+topology/mass, finite LND and needle clearances, and accepted DER/Matter
+certificates. Promotion of square throw `i` additionally requires at least
+`2+i` materially separated terminal centreline contacts and at least that many
+live Metal self-friction contacts, with nonzero normal/tangential impulse and a
+bounded Coulomb ratio. The output phases are
+`tissue-knot-square-throw-1` through `-5`; their visual manifests must carry the
+matching throw index and a completed sample. These boundaries are implemented
+but remain pending earned-checkpoint Apple Metal replay. Phase `-5` establishes
+only completion of the authored `2=1=1=1=1=1` instrument sequence; a separate
+opposing-load transaction must still establish knot retention.
+
 The surgical visual probe accepts the finite set of transactionally published
 dual-PSM operative checkpoints through receiver extraction and the opposing
 bite. It binds the checkpoint's exact articulated state, rigid needle pose, and
 all DER nodes into the Metal renderer. Tissue checkpoints use the v3 text
 manifest plus an atomically published, content-hashed Matter binary sidecar
 containing the exact private completion authority. The visual probe verifies
-the sidecar identity but does not yet ingest its FEM nodes, so its jejunal
-surface remains the calibrated rest mesh; it is presentation context, not
-evidence of the live deformed tissue state. Legacy v2 visual states remain
-readable but are not resumable Matter checkpoints.
+that sidecar identity, filters its active tetrahedra and nodes, derives the
+oriented exterior boundary, and binds the archived deformed FEM positions
+directly in the live world frame. Thus a v3 frame presents the same tissue
+geometry that reached the physics boundary; rendering still remains visual
+evidence rather than a substitute for the archived solver/contact
+certificates. Legacy v2 visual states remain readable with the calibrated rest
+mesh but are not resumable Matter checkpoints.
 
 `--tissue-checkpoint-restore-only --resume-tissue-checkpoint PHASE STATE.tsv`
 is the executable pre-advance gate for v3 tissue checkpoints. It rebuilds the

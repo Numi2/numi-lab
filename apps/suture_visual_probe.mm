@@ -228,14 +228,33 @@ std::uint64_t integer(const std::string& text, const char* field) {
 
 bool isKnotVisualPhase(const std::string_view phase) {
     return phase == "tissue-knot-first-throw-staged" ||
-        phase == "tissue-knot-first-double-throw";
+        phase == "tissue-knot-first-double-throw" ||
+        phase == "tissue-knot-square-throw-1" ||
+        phase == "tissue-knot-square-throw-2" ||
+        phase == "tissue-knot-square-throw-3" ||
+        phase == "tissue-knot-square-throw-4" ||
+        phase == "tissue-knot-square-throw-5";
+}
+
+std::uint32_t knotVisualThrowIndex(const std::string_view phase) {
+    if (phase == "tissue-knot-first-throw-staged" ||
+        phase == "tissue-knot-first-double-throw") {
+        return 0u;
+    }
+    constexpr std::string_view prefix{"tissue-knot-square-throw-"};
+    if (phase.size() == prefix.size() + 1u &&
+        phase.starts_with(prefix) && phase.back() >= '1' &&
+        phase.back() <= '5') {
+        return static_cast<std::uint32_t>(phase.back() - '0');
+    }
+    return std::numeric_limits<std::uint32_t>::max();
 }
 
 bool isAcceptedDualHandoffVisualPhase(const std::string_view phase) {
     // Every entry is a transactionally published q/v + rigid + DER snapshot.
     // Keep this finite so an arbitrary or partially written phase cannot be
     // presented as operative evidence merely because its array widths match.
-    static constexpr std::array<std::string_view, 38u> phases{
+    static constexpr std::array<std::string_view, 43u> phases{
         "giver-closed",
         "giver-lift",
         "giver-handoff-stage",
@@ -274,6 +293,11 @@ bool isAcceptedDualHandoffVisualPhase(const std::string_view phase) {
         "tissue-thread-acquired",
         "tissue-knot-first-throw-staged",
         "tissue-knot-first-double-throw",
+        "tissue-knot-square-throw-1",
+        "tissue-knot-square-throw-2",
+        "tissue-knot-square-throw-3",
+        "tissue-knot-square-throw-4",
+        "tissue-knot-square-throw-5",
     };
     return std::ranges::find(phases, phase) != phases.end();
 }
@@ -720,7 +744,8 @@ PickupState readPickupState(const std::filesystem::path& path) {
         static_cast<std::uint32_t>(result.knotFrameYSeen) +
         static_cast<std::uint32_t>(result.knotFrameZSeen);
     const bool knotMetadataValid = isKnotVisualPhase(result.phase)
-        ? knotMetadataRows == 6u && result.knotThrowIndex == 0u &&
+        ? knotMetadataRows == 6u &&
+            result.knotThrowIndex == knotVisualThrowIndex(result.phase) &&
             (result.phase == "tissue-knot-first-throw-staged"
                 ? result.knotCompletedSample == 0u
                 : result.knotCompletedSample > 0u)

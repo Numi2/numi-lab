@@ -339,6 +339,29 @@ complete `2=1=1=1=1=1` knot or its retention proof.
   --state-output-dir build-coupled-dev/testing/suture/first-double-throw
 ```
 
+`--tissue-knot-next-square-throw-only` advances exactly one of the five
+alternating securing throws. It accepts only the immediately preceding
+published throw, verifies that checkpoint against the canonical prior terminal
+sample and handedness, and uses a 128-sample smooth, speed-bounded recenter
+before executing the next winding, bight transfer, and cinch. The same live
+grasp, hard-swage, DER, FEM, collision, clearance, and quiescence gates remain
+mandatory. Each promoted phase increases the required count of materially
+separated, friction-loaded strand contacts from three through seven and writes
+`tissue-knot-square-throw-1` through `-5` with the newly completed protocol
+sample. Repeat the command with the latest output phase until `-5`. This path is
+implemented and build-qualified but still awaits an earned live checkpoint and
+sequential Apple Metal replay. The final `-5` phase proves completion of the
+authored `2=1=1=1=1=1` instrument sequence only; opposing-load retention is a
+separate required transaction.
+
+```sh
+./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-knot-next-square-throw-only \
+  --resume-tissue-checkpoint tissue-knot-first-double-throw \
+  build-coupled-dev/testing/suture/first-double-throw/tissue-knot-first-double-throw.tsv \
+  --state-output-dir build-coupled-dev/testing/suture/square-throw-1
+```
+
 ```sh
 ./build-coupled-dev/bin/metalrobo_surgical_knot_protocol_probe
 ```
