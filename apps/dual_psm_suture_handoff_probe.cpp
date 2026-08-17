@@ -15605,12 +15605,50 @@ int main(const int argc, const char* const argv[]) {
                     "post-bite thread targeting requires the accepted "
                     "completed pull-through checkpoint"
                 );
+                std::vector<std::uint32_t> completedPullTractEdges =
+                    restored.sutureProxyEdges;
+                std::ranges::sort(completedPullTractEdges);
+                require(
+                    completedPullTractEdges.size() == 2u &&
+                        completedPullTractEdges[0] <
+                            completedPullTractEdges[1],
+                    "completed pull checkpoint lost two distinct tract "
+                        "material edges"
+                );
+                const auto completedPullMaterialPlan =
+                    metalrobo::planSurgicalSuturePullThrough(
+                        world.rods[0].model.restPositions,
+                        completedPullTractEdges[1],
+                        completedPullTractEdges[0],
+                        {
+                            .targetFreeTailLengthM =
+                                kKnotTargetFreeTailLengthM,
+                            .freeTailToleranceM =
+                                kKnotFreeTailToleranceM,
+                            .minimumWorkingArcLengthM =
+                                kKnotMinimumWorkingArcLengthM,
+                            .minimumStitchArcLengthM =
+                                kKnotMinimumStitchArcLengthM,
+                            .maximumDrawPerStrokeM =
+                                kKnotMaximumDrawPerStrokeM,
+                            .maximumStrokeCount =
+                                kKnotMaximumPullStrokeCount,
+                        }
+                    );
+                require(
+                    completedPullMaterialPlan.succeeded() &&
+                        completedPullMaterialPlan.requiredDrawLengthM <=
+                            1.0e-12,
+                    "thread targeting checkpoint has not reached the "
+                        "planned short-tail reserve"
+                );
                 std::vector<metalrobo::SurgicalThreadTargetPoint>
                     threadNodes;
                 threadNodes.reserve(
                     world.rods[0].defaultState.positions.size()
                 );
-                Vec3 meanThreadPosition{};
+                Vec3 meanTailPosition{};
+                std::uint32_t tailPositionCount = 0u;
                 for (const auto& position :
                      world.rods[0].defaultState.positions) {
                     const Vec3 point{
@@ -15619,14 +15657,43 @@ int main(const int argc, const char* const argv[]) {
                         position[2],
                     };
                     threadNodes.push_back(targetingPoint(point));
-                    meanThreadPosition = meanThreadPosition + point;
+                    if (threadNodes.size() - 1u >
+                        completedPullTractEdges[1]) {
+                        meanTailPosition = meanTailPosition + point;
+                        ++tailPositionCount;
+                    }
                 }
                 require(
-                    !threadNodes.empty(),
-                    "post-bite thread targeting lost the DER strand"
+                    !threadNodes.empty() && tailPositionCount >= 2u,
+                    "post-bite thread targeting lost the short-tail arc"
                 );
-                meanThreadPosition = meanThreadPosition *
-                    (1.0 / static_cast<double>(threadNodes.size()));
+                meanTailPosition = meanTailPosition *
+                    (1.0 / static_cast<double>(tailPositionCount));
+                std::vector<double> liveThreadArc(
+                    threadNodes.size(),
+                    0.0
+                );
+                for (std::size_t node = 1u;
+                     node < threadNodes.size();
+                     ++node) {
+                    liveThreadArc[node] = liveThreadArc[node - 1u] +
+                        norm(
+                            targetingVector(threadNodes[node]) -
+                            targetingVector(threadNodes[node - 1u])
+                        );
+                }
+                const std::uint32_t firstTractEdge =
+                    completedPullTractEdges[1];
+                require(
+                    firstTractEdge + 1u < liveThreadArc.size(),
+                    "short-tail material boundary is outside the DER strand"
+                );
+                const double firstTractLiveArcM = 0.5 * (
+                    liveThreadArc[firstTractEdge] +
+                    liveThreadArc[firstTractEdge + 1u]
+                );
+                const double liveFreeTailM =
+                    liveThreadArc.back() - firstTractLiveArcM;
 
                 std::vector<metalrobo::SurgicalThreadTargetPoint>
                     tissueNodes;
@@ -15653,7 +15720,7 @@ int main(const int argc, const char* const argv[]) {
                 );
                 const double approachSide =
                     dot(
-                        meanThreadPosition - liveBiteSites.frameOrigin,
+                        meanTailPosition - liveBiteSites.frameOrigin,
                         liveBiteSites.thicknessAxis
                     ) >= 0.0
                     ? 1.0 : -1.0;
@@ -15663,25 +15730,35 @@ int main(const int argc, const char* const argv[]) {
                     threadInsertContactLength(psm);
                 const double jawEnvelopeRadiusM =
                     0.5 * jawMetadata.instrumentDiameter;
+                const double minimumTailArcFromTractM = std::max(
+                    jawContactLengthM,
+                    2.0e-3
+                );
+                const double minimumTailEndReserveM = std::max(
+                    0.5 * jawContactLengthM +
+                        2.0 * sutureSpec.threadRadiusM.value,
+                    3.0e-3
+                );
+                require(
+                    liveFreeTailM >=
+                        minimumTailArcFromTractM +
+                            minimumTailEndReserveM +
+                            jawContactLengthM,
+                    "planned short tail cannot admit the finite LND patch"
+                );
                 const metalrobo::SurgicalThreadTargetingSpec
                     targetingSpec{
                         .threadRadiusM =
                             sutureSpec.threadRadiusM.value,
                         .jawEnvelopeRadiusM = jawEnvelopeRadiusM,
                         .jawContactLengthM = jawContactLengthM,
-                        .minimumArcLengthFromSwageM = std::max(
-                            2.0 * static_cast<double>(
-                                jawMetadata.largeNeedleDriverJawLength
-                            ),
-                            2.0e-2
-                        ),
-                        .minimumFreeTailLengthM = std::max(
-                            4.0 * static_cast<double>(
-                                jawMetadata.largeNeedleDriverJawLength
-                            ),
-                            7.5e-2
-                        ),
-                        .preferredArcLengthFromSwageM = 3.5e-2,
+                        .minimumArcLengthFromSwageM =
+                            firstTractLiveArcM +
+                            minimumTailArcFromTractM,
+                        .minimumFreeTailLengthM =
+                            minimumTailEndReserveM,
+                        .preferredArcLengthFromSwageM =
+                            firstTractLiveArcM + 0.5 * liveFreeTailM,
                         .maximumCenterlineDeviationM =
                             0.5 * sutureSpec.threadRadiusM.value,
                         .maximumTurningAngleRad =
@@ -15700,8 +15777,12 @@ int main(const int argc, const char* const argv[]) {
                         targetingSpec
                     );
                 require(
-                    targetDiagnostics.succeeded(),
-                    "post-bite DER strand has no accessible LND target: " +
+                    targetDiagnostics.succeeded() &&
+                        targetDiagnostics.target.centerEdge >
+                            firstTractEdge &&
+                        targetDiagnostics.target.windowFirstNode >
+                            firstTractEdge,
+                    "post-bite short tail has no accessible LND target: " +
                         std::string(
                             metalrobo::surgicalThreadTargetStatusName(
                                 targetDiagnostics.status
@@ -16051,10 +16132,18 @@ int main(const int argc, const char* const argv[]) {
                 );
                 std::cout << std::setprecision(9)
                     << "tissue_thread_target=ok"
+                    << " target_role=short_tail"
                     << " center_edge=" << target.centerEdge
                     << " center_arc_m="
                     << target.arcLengthFromSwageM
                     << " free_tail_m=" << target.freeTailLengthM
+                    << " first_tract_edge=" << firstTractEdge
+                    << " first_tract_live_arc_m="
+                    << firstTractLiveArcM
+                    << " complete_live_free_tail_m="
+                    << liveFreeTailM
+                    << " planned_free_tail_m="
+                    << completedPullMaterialPlan.current.freeTailLengthM
                     << " jaw_contact_length_m=" << jawContactLengthM
                     << " jaw_envelope_radius_m="
                     << jawEnvelopeRadiusM

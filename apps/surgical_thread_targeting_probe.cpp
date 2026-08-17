@@ -223,6 +223,46 @@ int main() {
             "needle obstacle did not displace the preferred grasp"
         );
 
+        auto shortTailSpec = spec;
+        constexpr double kFirstTractArcM = 8.0e-2;
+        shortTailSpec.minimumArcLengthFromSwageM =
+            kFirstTractArcM + 2.0e-3;
+        shortTailSpec.minimumFreeTailLengthM = 3.0e-3;
+        shortTailSpec.preferredArcLengthFromSwageM = 9.0e-2;
+        const auto shortTailDiagnostics =
+            metalrobo::selectSurgicalThreadGraspTarget(
+                threadNodes,
+                tissueNodes,
+                tissueTriangles,
+                obstacleCapsules,
+                shortTailSpec
+            );
+        require(
+            shortTailDiagnostics.succeeded() &&
+                shortTailDiagnostics.target.centerEdge > 80u &&
+                shortTailDiagnostics.target.windowFirstNode > 80u &&
+                shortTailDiagnostics.target.arcLengthFromSwageM >=
+                    shortTailSpec.minimumArcLengthFromSwageM &&
+                shortTailDiagnostics.target.freeTailLengthM >=
+                    shortTailSpec.minimumFreeTailLengthM,
+            "source-bounded short-tail target escaped the free-tail arc"
+        );
+        auto insufficientTailSpec = shortTailSpec;
+        insufficientTailSpec.minimumArcLengthFromSwageM = 9.7e-2;
+        const auto insufficientTailDiagnostics =
+            metalrobo::selectSurgicalThreadGraspTarget(
+                threadNodes,
+                tissueNodes,
+                tissueTriangles,
+                obstacleCapsules,
+                insufficientTailSpec
+            );
+        require(
+            insufficientTailDiagnostics.status ==
+                metalrobo::SurgicalThreadTargetStatus::invalidDimensions,
+            "undersized short tail was not rejected before targeting"
+        );
+
         auto closeTissueNodes = tissueNodes;
         for (Point& node : closeTissueNodes) {
             node[2] = 4.8e-3;
@@ -391,6 +431,13 @@ int main() {
             << " negative_tissue_clearance=reject"
             << " negative_jaw_envelope_penetration=reject"
             << " negative_surface_topology=reject"
+            << " short_tail_center_edge="
+            << shortTailDiagnostics.target.centerEdge
+            << " short_tail_center_arc_m="
+            << shortTailDiagnostics.target.arcLengthFromSwageM
+            << " short_tail_free_end_m="
+            << shortTailDiagnostics.target.freeTailLengthM
+            << " negative_short_tail_length=reject"
             << " contact_edges="
             << twoTractSelection.edges[0] << ','
             << twoTractSelection.edges[1]

@@ -330,11 +330,13 @@ checkpoint is intentionally insufficient: the hard-swaged DER root and the
 complete steel needle must first clear the live wall, then measured
 source-material transfer must leave the planned short tail while one edge
 remains in each accepted tract. The target gate restores the exact Matter and
-MetalWorld reset, builds the surface from live FEM nodes, uses the restored DER
-nodes and needle pose, then requires velocity-limited giver PSM IK plus sampled
-cross-arm, support-pad, and needle clearance on the open-jaw approach. This
-command does not advance physics or claim thread contact, frictional retention,
-or robot-tied knot formation.
+MetalWorld reset, verifies that no draw remains, and bounds every candidate to
+the DER arc beyond the live first-tract material edge. It prefers the middle of
+the measured ~19 mm tail while retaining finite clearance from both the tract
+and free end, builds the surface from live FEM nodes, then requires
+velocity-limited giver PSM IK plus sampled cross-arm, support-pad, and needle
+clearance on the open-jaw approach. This command does not advance physics or
+claim thread contact, frictional retention, or robot-tied knot formation.
 
 ```sh
 ./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
@@ -344,8 +346,8 @@ or robot-tied knot formation.
 ```
 
 `--tissue-thread-acquisition-only` crosses the next boundary while keeping the
-same required input checkpoint. The free giver follows the certified thread-
-patch frame to a 2 mm standoff, approaches open, closes the four dedicated PDO
+same required input checkpoint. The free giver follows the certified short-
+tail patch frame to a 2 mm standoff, approaches open, closes the four dedicated PDO
 patches to the independently calibrated 15 um preload, settles, then moves
 0.5 mm away from tissue at a bounded 2 mm/s and holds the load. It publishes a
 v3 approached checkpoint before closure and an acquired checkpoint only if the

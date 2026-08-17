@@ -510,14 +510,20 @@ It returns a deterministic right-handed rail/separation/approach frame. The
 standalone probe supplies exact replay and blocked-needle, near-surface, and
 malformed-topology controls. The operative `--tissue-thread-target-only` mode
 is stricter: it requires a v3 `tissue-suture-pull-complete` checkpoint, uses
-its restored DER, needle, and deformed FEM state, applies the conservative 4 mm
-radius of the 8 mm instrument as the target envelope, then runs velocity-limited
-giver IK and sampled cross-arm, support, and needle collision audits. It
-reports `physics_advanced=no`; jaw closure, live thread contact, retention, and
-throw execution remain subsequent authorities.
+its restored DER, needle, and deformed FEM state, and first proves that the
+source-coordinate draw is complete. The larger proxy edge identifies the first
+tract in material order; candidates are restricted beyond that boundary and
+scored around the middle of the measured short tail with finite tract-side and
+free-end reserves. The gate applies the conservative 4 mm radius of the 8 mm
+instrument as the target envelope, then runs velocity-limited giver IK and
+sampled cross-arm, support, and needle collision audits. It reports
+`physics_advanced=no`; jaw closure, live thread contact, retention, and throw
+execution remain subsequent authorities.
 
 The related `--tissue-thread-acquisition-only` continuation advances those
-authorities without treating the distal needle groove as the PDO frame. A
+authorities and gives the two PSMs opposite knot ends: the receiver retains the
+needle/working side while the giver closes on the bounded short tail. It does
+not treat the distal needle groove as the PDO frame. A
 dedicated regression resolves the actual proximal thread patches and measures
 their 2.696 mm longitudinal offset from the needle groove. The live command
 executes a velocity-limited open approach, 15 um calibrated thread preload,
