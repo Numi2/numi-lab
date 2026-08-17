@@ -5662,7 +5662,7 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     // qualified 6x6x1 transaction mesh. A puncture uses the production
     // 18x16x2 wall so entry crosses a through-thickness volume rather than the
     // former single-layer contact surrogate. Pull-through increases this to a
-    // 34x40x4 mesh and grades it about the 3 mm bite: the local cell dimensions
+    // 34x40x5 mesh and grades it about the 3 mm bite: the local cell dimensions
     // resolve both the 0.126 mm terminal taper and the 0.20 mm strand/contact
     // band without shrinking the specimen.
     numi::matter::PorcineJejunumFungSpec spec;
@@ -5676,7 +5676,7 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     } else if (sutureContactSegmentCount != 0u) {
         spec.longitudinalCells = 34u;
         spec.circumferentialCells = 40u;
-        spec.throughThicknessCells = 4u;
+        spec.throughThicknessCells = 5u;
     }
     spec.fixLongitudinalEnds = true;
     std::string materialError;
@@ -5694,8 +5694,9 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
         // to specimen geometry or material calibration. Piecewise monotone
         // quadratic maps keep the coupon boundary, 16 mm incision endpoints,
         // 0.60 mm lip gap and 3 mm bite fixed while redistributing existing
-        // degrees of freedom toward the strand. The fourth through-thickness
-        // layer makes the local elements nearly isotropic at suture scale.
+        // degrees of freedom toward the strand. Five through-thickness cells
+        // resolve the sourced 0.82 mm wall at 164 um, strictly inside the
+        // 200 um strand/contact activation reach.
         constexpr double kLongitudinalGrade = 0.999;
         constexpr double kLowerCircumferentialGrade = 0.80;
         constexpr double kUpperCircumferentialGrade = 0.999;
