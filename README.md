@@ -264,6 +264,21 @@ workspace-invalid long translation. The live opposing-bite root continuation
 now instantiates the same plan from the two material edges measured in the
 accepted tissue tracts; the strokes themselves are not yet live PSM evidence.
 
+After the short tail is physically acquired, the first-throw preflight maps the
+two-wrap protocol into the checkpoint's live deformed-tissue frame and solves
+both full PSMs through staging, winding, bight transfer, and opposing cinch. It
+checks the carried curved needle, distal instrument envelopes, cross-arm
+geometry, and authored joint-speed limits at every sample. This command does
+not advance physics or claim a formed knot; the subsequent loaded DER replay
+owns that evidence.
+
+```sh
+./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-knot-first-throw-preflight-only \
+  --resume-tissue-checkpoint tissue-thread-acquired \
+  build-coupled-dev/testing/suture/tissue-thread-acquired.tsv
+```
+
 ```sh
 ./build-coupled-dev/bin/metalrobo_surgical_knot_protocol_probe
 ```

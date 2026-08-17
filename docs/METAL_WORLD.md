@@ -539,6 +539,22 @@ and residual certificates remain accepted. The command is implemented but is
 not recorded as live-qualified until an earned completed-pull v3 checkpoint is
 available.
 
+`--tissue-knot-first-throw-preflight-only` consumes that loaded two-ended
+checkpoint rather than reconstructing a synthetic thread. It re-identifies the
+standing LND's short-tail material window, certifies the source-sized two-wrap
+first throw, and rigidly places the protocol in the current deformed-tissue
+frame. The standing centre is 32 mm above the measured operative surface; this
+is a collision-clear research placement, not a clinical spacing prescription.
+The gate joins the accepted jaw state to the throw with 128 smooth staging
+samples, then solves both complete six-coordinate PSM frames at every protocol
+sample while preserving the standing PDO insert frame and receiver needle
+frame. Each sample translates the complete curved-needle geometry with the
+working jaw and audits the two finite LND envelopes against current exterior
+FEM triangles, all receiver/needle contacts, joint-speed limits, and cross-arm
+collision. The output remains `physics_advanced=no`: it proves an articulated
+placement for the already grasped ends, not DER winding, bight transfer,
+self-contact topology, cinch load, or knot retention.
+
 The surgical visual probe accepts the finite set of transactionally published
 dual-PSM operative checkpoints through receiver extraction and the opposing
 bite. It binds the checkpoint's exact articulated state, rigid needle pose, and
