@@ -45,6 +45,13 @@ struct MatterSnapshotArchiveResult {
     numi::matter::RuntimeStateSnapshot& output
 );
 
+// Compares only the state that owns deterministic continuation. Diagnostic
+// availability text is deliberately excluded.
+[[nodiscard]] bool sameMatterSnapshotAuthority(
+    const numi::matter::RuntimeStateSnapshot& left,
+    const numi::matter::RuntimeStateSnapshot& right
+) noexcept;
+
 [[nodiscard]] const char* matterSnapshotArchiveStatusName(
     MatterSnapshotArchiveStatus status
 ) noexcept;

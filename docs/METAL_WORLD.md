@@ -500,6 +500,17 @@ surface remains the calibrated rest mesh; it is presentation context, not
 evidence of the live deformed tissue state. Legacy v2 visual states remain
 readable but are not resumable Matter checkpoints.
 
+`--tissue-checkpoint-restore-only --resume-tissue-checkpoint PHASE STATE.tsv`
+is the executable pre-advance gate for v3 tissue checkpoints. It rebuilds the
+phase's original Matter contact program, restores the manifest's exact
+articulated/needle/DER reset and binary FEM/contact authority, recompiles that
+MetalWorld reset, and rejects any byte or physical-certificate mismatch. The
+reported `physics_advanced=no` boundary is deliberate: the gate proves an exact
+resume point, while phase continuation remains a subsequent physical command.
+The CTest fixture publishes and consumes a real `tissue-rest` checkpoint; the
+same gate accepts every transactionally published receiver and opposing-bite
+phase.
+
 The dual-PSM operative probe keeps post-extraction needle transport separate
 from the next bite. It first translates the receiver-held complete half-circle
 needle without changing attitude, then performs the half-turn only on a distal

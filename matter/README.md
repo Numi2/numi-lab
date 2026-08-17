@@ -195,7 +195,9 @@ content-hashed binary payload. It writes a same-directory temporary file and
 publishes with atomic rename; decode checks magic, version, endian marker,
 Matter ABI, byte counts, content hash, and both physics/program identities
 before replacing the caller's output. A corrupt payload control must reject
-without modifying the destination snapshot.
+without modifying the destination snapshot. `sameMatterSnapshotAuthority`
+compares every scalar and raw GPU record that owns deterministic continuation;
+diagnostic availability text is intentionally outside that equality.
 
 ### Transactional topology and arena growth
 

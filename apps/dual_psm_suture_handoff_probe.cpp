@@ -5837,6 +5837,8 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
 struct Arguments {
     std::string mode;
     std::filesystem::path stateOutputDirectory;
+    std::string resumeTissueCheckpointPhase;
+    std::filesystem::path resumeTissueCheckpointPath;
     std::filesystem::path resumeTissueReceiverDynamicBridgePath;
     std::filesystem::path resumeApproachHeldPath;
     std::filesystem::path resumeGiverClosedPath;
@@ -5904,6 +5906,23 @@ struct Arguments {
     bool receiverScanHandoffOffsetYProvided = false;
 };
 
+bool isLiveTissueCheckpointPhase(const std::string_view phase) {
+    return phase == "tissue-receiver-bridge-start" ||
+        phase == "tissue-receiver-dynamic-bridge" ||
+        phase == "tissue-receiver-alignment-motion" ||
+        phase == "tissue-receiver-alignment-settled" ||
+        phase == "tissue-receiver-acquisition" ||
+        phase == "tissue-receiver-extraction" ||
+        phase == "tissue-opposing-bite-distal-clearance" ||
+        phase == "tissue-opposing-bite-reorientation" ||
+        phase == "tissue-opposing-bite-ready" ||
+        phase == "tissue-opposing-bite-passage";
+}
+
+bool isSupportedTissueCheckpointPhase(const std::string_view phase) {
+    return phase == "tissue-rest" || isLiveTissueCheckpointPhase(phase);
+}
+
 Arguments parseArguments(const int argc, const char* const argv[]) {
     Arguments result;
     for (int index = 1; index < argc; ++index) {
@@ -5927,6 +5946,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-receiver-extraction-only" ||
             argument == "--tissue-opposing-bite-reorientation-only" ||
             argument == "--tissue-opposing-bite-passage-only" ||
+            argument == "--tissue-checkpoint-restore-only" ||
             argument == "--receiver-frame-ik-only" ||
             argument == "--receiver-extraction-geometry-only" ||
             argument == "--receiver-extraction-giver-hold-only" ||
@@ -5956,6 +5976,21 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
                 "--state-output-dir requires exactly one path"
             );
             result.stateOutputDirectory = argv[++index];
+        } else if (argument == "--resume-tissue-checkpoint") {
+            require(
+                result.resumeTissueCheckpointPath.empty() &&
+                    result.resumeTissueCheckpointPhase.empty() &&
+                    index + 2 < argc,
+                "--resume-tissue-checkpoint requires one phase and one path"
+            );
+            result.resumeTissueCheckpointPhase = argv[++index];
+            result.resumeTissueCheckpointPath = argv[++index];
+            require(
+                isSupportedTissueCheckpointPhase(
+                    result.resumeTissueCheckpointPhase
+                ),
+                "unsupported surgical tissue checkpoint phase"
+            );
         } else if (argument ==
                    "--resume-tissue-receiver-dynamic-bridge") {
             require(
@@ -6440,6 +6475,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         }
     }
     const std::uint32_t resumeCount =
+        (!result.resumeTissueCheckpointPath.empty() ? 1u : 0u) +
         (!result.resumeTissueReceiverDynamicBridgePath.empty() ? 1u : 0u) +
         (!result.resumeApproachHeldPath.empty() ? 1u : 0u) +
         (!result.resumeGiverClosedPath.empty() ? 1u : 0u) +
@@ -6463,6 +6499,16 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         (!result.resumeExtractionPreloadReleasePath.empty() ? 1u : 0u) +
         (!result.resumeExtractionRetractionMotionPath.empty() ? 1u : 0u);
     require(resumeCount <= 1u, "handoff resumes are mutually exclusive");
+    require(
+        result.resumeTissueCheckpointPath.empty() ==
+            result.resumeTissueCheckpointPhase.empty(),
+        "surgical tissue checkpoint phase and path must be provided together"
+    );
+    require(
+        (result.mode == "--tissue-checkpoint-restore-only") ==
+            !result.resumeTissueCheckpointPath.empty(),
+        "tissue checkpoint restore mode requires exactly one v3 checkpoint"
+    );
     require(
         result.resumeTissueReceiverDynamicBridgePath.empty() ||
             result.mode == "--tissue-receiver-alignment-replay-only" ||
@@ -7434,8 +7480,19 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--settle-only";
         const bool tissueCouplingOnly =
             options.mode == "--tissue-coupling-only";
+        const bool tissueCheckpointRestoreOnly =
+            options.mode == "--tissue-checkpoint-restore-only";
+        const bool resumeTissueRestCheckpoint =
+            tissueCheckpointRestoreOnly &&
+            options.resumeTissueCheckpointPhase == "tissue-rest";
+        const bool resumeLiveTissueCheckpoint =
+            tissueCheckpointRestoreOnly &&
+            isLiveTissueCheckpointPhase(
+                options.resumeTissueCheckpointPhase
+            );
         const bool tissueRestOnly =
-            options.mode == "--tissue-rest-only";
+            options.mode == "--tissue-rest-only" ||
+            resumeTissueRestCheckpoint;
         const bool tissueSutureEntryOnly =
             options.mode == "--tissue-suture-entry-only";
         const bool tissueSutureCadenceOnly =
@@ -7470,7 +7527,8 @@ int main(const int argc, const char* const argv[]) {
             tissueReceiverAcquisitionOnly ||
             tissueReceiverExtractionOnly ||
             tissueOpposingBiteReorientationOnly ||
-            tissueOpposingBitePassageOnly;
+            tissueOpposingBitePassageOnly ||
+            resumeLiveTissueCheckpoint;
         const bool tissuePunctureOnly =
             options.mode == "--tissue-puncture-only" ||
             options.mode == "--tissue-puncture-advance-only" ||
@@ -13415,6 +13473,8 @@ int main(const int argc, const char* const argv[]) {
         numi::matter::PorcineJejunumClosureCoupon tissueCoupon;
         std::optional<CurvedNeedleOrbit> tissueNeedleOrbit;
         double tissueNeedleAngularSpeedRadPerS = 0.0;
+        numi::matter::RuntimeStateSnapshot resumedTissueCheckpoint;
+        std::uint64_t resumedTissueCheckpointStep = 0u;
         if (tissueMatterOnly) {
             const NeedleTipCapsuleGeometry tip = needleTipCapsuleGeometry(
                 needleForPlacement,
@@ -13727,6 +13787,50 @@ int main(const int argc, const char* const argv[]) {
                 "needle-suture tissue runtime initialization failed: " +
                     initialized.message
             );
+            if (tissueCheckpointRestoreOnly) {
+                if (resumeLiveTissueCheckpoint) {
+                    // The authored passage program begins with a prescribed
+                    // kinematic needle, but every resumable receiver phase is
+                    // captured after ownership returns to the dynamic body.
+                    world.model.bodies[needleSceneBody] =
+                        authoredDynamicNeedleProperties;
+                    MRBodyStateGPU& resumedNeedle =
+                        world.defaultSceneBodies.at(0u);
+                    resumedNeedle.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
+                    resumedNeedle.linearVelocityAndInverseMass.w =
+                        authoredDynamicNeedleProperties.massAndInverseMass.y;
+                    updateNeedleInverseInertia(
+                        authoredDynamicNeedleProperties,
+                        resumedNeedle
+                    );
+                }
+                resumedTissueCheckpointStep = loadHandoffState(
+                    options.resumeTissueCheckpointPath,
+                    options.resumeTissueCheckpointPhase,
+                    world,
+                    &resumedTissueCheckpoint
+                );
+                require(
+                    resumedTissueCheckpoint.available,
+                    "surgical tissue resume requires a v3 Matter checkpoint"
+                );
+                world.fingerprint =
+                    metalrobo::heterogeneousWorldFingerprint(world);
+                std::string resumedWorldReason;
+                require(
+                    world.valid(&resumedWorldReason),
+                    "surgical checkpoint Metal reset is invalid: " +
+                        resumedWorldReason
+                );
+                const auto restored = tissueRuntime.restore(
+                    resumedTissueCheckpoint
+                );
+                require(
+                    restored.encoded,
+                    "surgical Matter checkpoint restore failed: " +
+                        restored.message
+                );
+            }
         }
 
         metalrobo::CompiledWorld compiled;
@@ -13802,6 +13906,119 @@ int main(const int argc, const char* const argv[]) {
                 "tissue runtime did not publish the required MetalWorld "
                 "coupling direction"
             );
+        }
+
+        if (tissueCheckpointRestoreOnly) {
+            const numi::matter::RuntimeStateSnapshot restored =
+                tissueRuntime.snapshot();
+            require(
+                restored.available &&
+                    metalrobo::sameMatterSnapshotAuthority(
+                        restored,
+                        resumedTissueCheckpoint
+                    ),
+                "surgical Matter checkpoint changed at the restore boundary"
+            );
+            std::uint32_t activeChannels = 0u;
+            std::uint32_t activeTetrahedra = 0u;
+            double removedMassKg = 0.0;
+            double minimumDeterminant =
+                std::numeric_limits<double>::infinity();
+            double maximumResidual = 0.0;
+            bool certificatesAccepted =
+                !restored.solverCertificates.empty();
+            for (const NMPunctureChannelGPU& channel :
+                 restored.punctureChannels) {
+                activeChannels +=
+                    (channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+            }
+            for (const NMTetrahedronGPU& tetrahedron :
+                 restored.femTopologyTetrahedra) {
+                activeTetrahedra +=
+                    (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+            }
+            for (const NMFEMTopologyStateGPU& topology :
+                 restored.topologyStates) {
+                removedMassKg += topology.accounting.y;
+            }
+            for (const NMSolverCertificateGPU& certificate :
+                 restored.solverCertificates) {
+                certificatesAccepted = certificatesAccepted &&
+                    certificate.validity.w > 0.5f;
+                minimumDeterminant = std::min(
+                    minimumDeterminant,
+                    static_cast<double>(certificate.validity.x)
+                );
+                maximumResidual = std::max({
+                    maximumResidual,
+                    static_cast<double>(certificate.nonlinear.x),
+                    static_cast<double>(certificate.nonlinear.z),
+                    static_cast<double>(certificate.nonlinear.w),
+                });
+            }
+            require(
+                restored.femNodes.size() >=
+                        tissueCoupon.metadata.nodeCount &&
+                    activeTetrahedra ==
+                        tissueCoupon.metadata.tetrahedronCount &&
+                    removedMassKg == 0.0 && certificatesAccepted &&
+                    std::isfinite(minimumDeterminant) &&
+                    minimumDeterminant > 0.0 &&
+                    std::isfinite(maximumResidual) &&
+                    (resumeLiveTissueCheckpoint
+                        ? activeChannels > 0u
+                        : activeChannels == 0u) &&
+                    compiled.defaultRodNodes().size() ==
+                        world.rods[0].model.restPositions.size() &&
+                    (!resumeLiveTissueCheckpoint ||
+                     (world.defaultSceneBodies.at(0u).flagsAndIndices[0] ==
+                          MR_MOTION_DYNAMIC &&
+                      world.defaultSceneBodies.at(0u)
+                              .linearVelocityAndInverseMass.w > 0.0f)),
+                "restored surgical checkpoint failed physical invariants: "
+                    "fem_nodes=" +
+                    std::to_string(restored.femNodes.size()) +
+                    " authored_nodes=" +
+                    std::to_string(tissueCoupon.metadata.nodeCount) +
+                    " active_tetrahedra=" +
+                    std::to_string(activeTetrahedra) +
+                    " authored_tetrahedra=" +
+                    std::to_string(tissueCoupon.metadata.tetrahedronCount) +
+                    " active_channels=" +
+                    std::to_string(activeChannels) +
+                    " removed_mass=" + std::to_string(removedMassKg) +
+                    " certificates=" +
+                    std::to_string(certificatesAccepted) +
+                    " minimum_determinant=" +
+                    std::to_string(minimumDeterminant) +
+                    " maximum_residual=" +
+                    std::to_string(maximumResidual) +
+                    " compiled_rod_nodes=" +
+                    std::to_string(compiled.defaultRodNodes().size()) +
+                    " authored_rod_nodes=" +
+                    std::to_string(
+                        world.rods[0].model.restPositions.size()
+                    )
+            );
+            std::cout << std::setprecision(9)
+                << "tissue_checkpoint_restore=ok"
+                << " phase=" << options.resumeTissueCheckpointPhase
+                << " state_step=" << resumedTissueCheckpointStep
+                << " source_fingerprint=0x" << std::hex
+                << restored.sourcePhysicsFingerprint
+                << " device_program_fingerprint=0x"
+                << restored.deviceProgramFingerprint << std::dec
+                << " control_step=" << restored.controlStep
+                << " physics_substep=" << restored.physicsSubstep
+                << " active_puncture_channels=" << activeChannels
+                << " active_tetrahedra=" << activeTetrahedra
+                << " removed_tissue_mass_kg=" << removedMassKg
+                << " matter_minimum_determinant="
+                << minimumDeterminant
+                << " matter_maximum_residual=" << maximumResidual
+                << " authority_byte_exact=yes"
+                << " physics_advanced=no\n";
+            return 0;
         }
 
         std::vector<float> targetStart = world.model.defaultQ;
@@ -14347,6 +14564,15 @@ int main(const int argc, const char* const argv[]) {
                         std::to_string(swageError) +
                         " relative_correction=" +
                         std::to_string(maximumRelativeCorrection)
+                );
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    "tissue-rest",
+                    1u,
+                    world,
+                    sutureSpec,
+                    coupled.result,
+                    &snapshot
                 );
             } else if (tissuePunctureOnly) {
                 require(

@@ -389,7 +389,13 @@ The matching binary snapshot archive retains raw GPU records rather than
 rounding them through text. Its version, endian marker, Matter ABI, payload
 length, content hash, source-physics fingerprint, and exact device-program
 fingerprint are validated before decode. Publication is temporary-file plus
-atomic rename, and corruption leaves the destination snapshot unchanged.
+atomic rename, and corruption leaves the destination snapshot unchanged. The
+surgical v3 consumer first reconstructs the original authored Matter program,
+then loads the articulated/rigid/DER reset and restores the decoded private
+arenas. It requires byte-exact authority and physical FEM/topology certificates
+before allowing a later command to advance physics; compiling Matter directly
+from a deformed checkpoint would change the owning program identity and is not
+a valid resume.
 The v1 MetalWorld contract owns one articulation per environment; all of its
 collision proxies therefore share one articulated generalized/q reserve, while
 each distinct free body contributes exactly six additional coordinates.

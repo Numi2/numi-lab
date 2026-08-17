@@ -63,6 +63,20 @@ std::uint64_t hashBytes(const std::span<const std::byte> bytes) {
     return hash == 0u ? 1u : hash;
 }
 
+template <typename T>
+bool equalBytes(
+    const std::vector<T>& left,
+    const std::vector<T>& right
+) noexcept {
+    static_assert(std::is_trivially_copyable_v<T>);
+    return left.size() == right.size() &&
+        (left.empty() || std::memcmp(
+            left.data(),
+            right.data(),
+            left.size() * sizeof(T)
+        ) == 0);
+}
+
 class PayloadWriter {
 public:
     template <typename T>
@@ -452,6 +466,64 @@ MatterSnapshotArchiveResult readMatterSnapshotArchive(
             exception.what()
         );
     }
+}
+
+bool sameMatterSnapshotAuthority(
+    const numi::matter::RuntimeStateSnapshot& left,
+    const numi::matter::RuntimeStateSnapshot& right
+) noexcept {
+    return left.available == right.available &&
+        left.sourcePhysicsFingerprint == right.sourcePhysicsFingerprint &&
+        left.deviceProgramFingerprint == right.deviceProgramFingerprint &&
+        left.controlStep == right.controlStep &&
+        left.physicsSubstep == right.physicsSubstep &&
+        left.identificationGeneration == right.identificationGeneration &&
+        left.identificationCheckpoint == right.identificationCheckpoint &&
+        left.identificationAdvanced == right.identificationAdvanced &&
+        left.sutureProxyBindingRevision ==
+            right.sutureProxyBindingRevision &&
+        left.coupledTimestepMultiplier ==
+            right.coupledTimestepMultiplier &&
+        left.coupledTimestepDivisor == right.coupledTimestepDivisor &&
+        left.allocationGeneration == right.allocationGeneration &&
+        left.learnedWeightRevision == right.learnedWeightRevision &&
+        left.materialStateStride == right.materialStateStride &&
+        equalBytes(left.sutureProxyEdges, right.sutureProxyEdges) &&
+        equalBytes(left.particles, right.particles) &&
+        equalBytes(left.femNodes, right.femNodes) &&
+        equalBytes(left.femFields, right.femFields) &&
+        equalBytes(left.femTopologyNodes, right.femTopologyNodes) &&
+        equalBytes(
+            left.femTopologyTetrahedra,
+            right.femTopologyTetrahedra
+        ) &&
+        equalBytes(left.cohesiveFaces, right.cohesiveFaces) &&
+        equalBytes(left.punctureChannels, right.punctureChannels) &&
+        equalBytes(left.topologyStates, right.topologyStates) &&
+        equalBytes(left.statuses, right.statuses) &&
+        equalBytes(left.solverCertificates, right.solverCertificates) &&
+        equalBytes(left.mpmActiveNodeIndices, right.mpmActiveNodeIndices) &&
+        equalBytes(left.mpmNodeToActive, right.mpmNodeToActive) &&
+        equalBytes(left.mpmActiveNodeCounts, right.mpmActiveNodeCounts) &&
+        equalBytes(
+            left.rigidGeneralizedCandidate,
+            right.rigidGeneralizedCandidate
+        ) &&
+        equalBytes(left.learnedWeights, right.learnedWeights) &&
+        equalBytes(left.adaptive, right.adaptive) &&
+        equalBytes(left.schedulers, right.schedulers) &&
+        equalBytes(left.reactions, right.reactions) &&
+        equalBytes(left.rigidStates, right.rigidStates) &&
+        equalBytes(left.contactSamples, right.contactSamples) &&
+        equalBytes(left.contactHistories, right.contactHistories) &&
+        equalBytes(
+            left.deformableContactHistories,
+            right.deformableContactHistories
+        ) &&
+        equalBytes(left.particleMaterialState, right.particleMaterialState) &&
+        equalBytes(left.femMaterialState, right.femMaterialState) &&
+        equalBytes(left.identification, right.identification) &&
+        equalBytes(left.environmentParameters, right.environmentParameters);
 }
 
 const char* matterSnapshotArchiveStatusName(
