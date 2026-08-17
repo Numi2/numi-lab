@@ -640,6 +640,11 @@ struct RodStateMetrics {
     double maximumEdgeLengthError = 0.0;
     double minimumNonNeighbourSurfaceClearance =
         std::numeric_limits<double>::infinity();
+    double selfFrictionContactCount = 0.0;
+    double maximumSelfNormalImpulseNs = 0.0;
+    double maximumSelfTangentialImpulseNs = 0.0;
+    double maximumSelfFrictionUtilization = 0.0;
+    bool selfFrictionEvidenceValid = false;
 };
 
 RodStateMetrics rodStateMetrics(
@@ -677,6 +682,26 @@ RodStateMetrics rodStateMetrics(
             state,
             world.rods[0].model.radius
         );
+    if (state.rodStatuses.size() == world.rods.size() &&
+        state.rodStatuses.front().environment == 0u &&
+        state.rodStatuses.front().code == MR_ROD_GPU_SUCCESS) {
+        const mr_float4 evidence =
+            state.rodStatuses.front().selfContactFriction;
+        result.selfFrictionContactCount = evidence.x;
+        result.maximumSelfNormalImpulseNs = evidence.y;
+        result.maximumSelfTangentialImpulseNs = evidence.z;
+        result.maximumSelfFrictionUtilization = evidence.w;
+        result.selfFrictionEvidenceValid =
+            std::isfinite(evidence.x) && evidence.x >= 0.0f &&
+            evidence.x <=
+                static_cast<float>(
+                    MR_ROD_GPU_MAX_SELF_FRICTION_CONTACTS
+                ) &&
+            std::floor(evidence.x) == evidence.x &&
+            std::isfinite(evidence.y) && evidence.y >= 0.0f &&
+            std::isfinite(evidence.z) && evidence.z >= 0.0f &&
+            std::isfinite(evidence.w) && evidence.w >= 0.0f;
+    }
     return result;
 }
 
@@ -687,7 +712,9 @@ bool qualifiedTerminalRod(const RodStateMetrics& metrics) {
             kMaximumTerminalRodEdgeLengthError &&
         metrics.minimumNonNeighbourSurfaceClearance >=
             kMinimumThreadSelfCollisionClearance -
-                kThreadClearanceReadbackTolerance;
+                kThreadClearanceReadbackTolerance &&
+        metrics.selfFrictionEvidenceValid &&
+        metrics.maximumSelfFrictionUtilization <= 1.0001;
 }
 
 bool qualifiedTransitionRod(const RodStateMetrics& metrics) {
@@ -696,7 +723,9 @@ bool qualifiedTransitionRod(const RodStateMetrics& metrics) {
             kMaximumTerminalRodEdgeLengthError &&
         metrics.minimumNonNeighbourSurfaceClearance >=
             kMinimumThreadSelfCollisionClearance -
-                kThreadClearanceReadbackTolerance;
+                kThreadClearanceReadbackTolerance &&
+        metrics.selfFrictionEvidenceValid &&
+        metrics.maximumSelfFrictionUtilization <= 1.0001;
 }
 
 Quaternion multiply(const Quaternion a, const Quaternion b) {
@@ -4674,6 +4703,8 @@ ContactCounts contactCounts(
 struct ThreadGraspContactCounts {
     std::array<std::uint32_t, 2u> jawContacts{};
     std::array<std::uint32_t, 2u> jawPatchMasks{};
+    std::array<std::uint32_t, 2u> targetWindowJawContacts{};
+    std::array<std::uint32_t, 2u> targetWindowJawPatchMasks{};
     std::uint32_t targetWindowContacts = 0u;
     std::uint32_t centerEdgeContacts = 0u;
     std::uint32_t nonTargetWindowContacts = 0u;
@@ -4751,6 +4782,10 @@ ThreadGraspContactCounts threadGraspContactCounts(
             edge >= target.windowFirstNode &&
             edge < target.windowLastNode;
         counts.targetWindowContacts += targetWindow;
+        if (targetWindow) {
+            ++counts.targetWindowJawContacts[jaw];
+            counts.targetWindowJawPatchMasks[jaw] |= 1u << patch;
+        }
         counts.centerEdgeContacts += edge == target.centerEdge;
         counts.nonTargetWindowContacts += !targetWindow;
         counts.maximumNormalImpulseNs = std::max(
@@ -6423,6 +6458,29 @@ struct Arguments {
     bool receiverScanHandoffOffsetYProvided = false;
 };
 
+// Exact cross-process ownership for an in-progress instrument throw.  The
+// articulated state alone does not identify which material window is held by
+// the standing LND or the operative frame in which the source-pinned path was
+// placed.  Persist both so a continuation cannot silently retarget a nearby
+// strand edge after deformation.
+struct KnotContinuationCheckpoint {
+    bool available = false;
+    std::uint32_t protocolRevision = 0u;
+    std::uint64_t protocolFingerprint = 0u;
+    std::uint32_t throwIndex = 0u;
+    std::uint32_t completedSample = 0u;
+    std::uint32_t expectedWholeTurns = 0u;
+    std::int32_t expectedWindingSign = 0;
+    std::int32_t expectedTransferSign = 0;
+    std::uint32_t standingCenterEdge = 0u;
+    std::uint32_t standingWindowFirstNode = 0u;
+    std::uint32_t standingWindowLastNode = 0u;
+    Vec3 origin{};
+    Vec3 axisX{};
+    Vec3 axisY{};
+    Vec3 axisZ{};
+};
+
 bool isLiveTissueCheckpointPhase(const std::string_view phase) {
     return phase == "tissue-receiver-bridge-start" ||
         phase == "tissue-receiver-dynamic-bridge" ||
@@ -6431,7 +6489,7 @@ bool isLiveTissueCheckpointPhase(const std::string_view phase) {
         phase == "tissue-receiver-acquisition" ||
         phase == "tissue-receiver-extraction" ||
         phase == "tissue-opposing-bite-distal-clearance" ||
-        phase == "tissue-opposing-bite-reorientation" ||
+        phase == "tissue-opposing-bite-reoriented" ||
         phase == "tissue-opposing-bite-ready" ||
         phase == "tissue-opposing-bite-passage" ||
         phase == "tissue-opposing-bite-thread-root" ||
@@ -6439,7 +6497,8 @@ bool isLiveTissueCheckpointPhase(const std::string_view phase) {
         phase == "tissue-suture-pull-complete" ||
         phase == "tissue-thread-approached" ||
         phase == "tissue-thread-acquired" ||
-        phase == "tissue-knot-first-throw-staged";
+        phase == "tissue-knot-first-throw-staged" ||
+        phase == "tissue-knot-first-double-throw";
 }
 
 bool isSupportedTissueCheckpointPhase(const std::string_view phase) {
@@ -6477,6 +6536,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-thread-acquisition-only" ||
             argument == "--tissue-knot-first-throw-preflight-only" ||
             argument == "--tissue-knot-first-throw-stage-only" ||
+            argument == "--tissue-knot-first-double-throw-only" ||
             argument == "--thread-frame-ik-only" ||
             argument == "--receiver-frame-ik-only" ||
             argument == "--receiver-extraction-geometry-only" ||
@@ -7042,7 +7102,8 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         result.mode == "--tissue-thread-target-only" ||
         result.mode == "--tissue-thread-acquisition-only" ||
         result.mode == "--tissue-knot-first-throw-preflight-only" ||
-        result.mode == "--tissue-knot-first-throw-stage-only";
+        result.mode == "--tissue-knot-first-throw-stage-only" ||
+        result.mode == "--tissue-knot-first-double-throw-only";
     require(
         tissueCheckpointMode ==
             !result.resumeTissueCheckpointPath.empty(),
@@ -7061,6 +7122,12 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.resumeTissueCheckpointPhase ==
                 "tissue-thread-acquired",
         "first-throw preparation requires the loaded two-ended thread phase"
+    );
+    require(
+        result.mode != "--tissue-knot-first-double-throw-only" ||
+            result.resumeTissueCheckpointPhase ==
+                "tissue-knot-first-throw-staged",
+        "first double throw requires the immutable staged checkpoint"
     );
     require(
         result.mode != "--tissue-suture-pull-stroke-only" ||
@@ -7448,7 +7515,8 @@ std::uint64_t loadHandoffState(
     const std::filesystem::path& path,
     const std::string_view expectedPhase,
     metalrobo::HeterogeneousWorld& world,
-    numi::matter::RuntimeStateSnapshot* matterSnapshot = nullptr
+    numi::matter::RuntimeStateSnapshot* matterSnapshot = nullptr,
+    KnotContinuationCheckpoint* knotCheckpoint = nullptr
 ) {
     std::ifstream input(path);
     require(input.good(), "could not open handoff resume state");
@@ -7472,6 +7540,13 @@ std::uint64_t loadHandoffState(
     std::uint64_t matterPayloadBytes = 0u;
     std::uint64_t matterSourceFingerprint = 0u;
     std::uint64_t matterProgramFingerprint = 0u;
+    KnotContinuationCheckpoint parsedKnotCheckpoint;
+    bool knotProtocol = false;
+    bool knotTarget = false;
+    bool knotOrigin = false;
+    bool knotAxisX = false;
+    bool knotAxisY = false;
+    bool knotAxisZ = false;
     bool phase = false;
     bool needlePosition = false;
     bool needleOrientation = false;
@@ -7574,6 +7649,86 @@ std::uint64_t loadHandoffState(
                 0.0f,
             };
             haveEdge[index] = true;
+        } else if (fields[0] == "knot_protocol") {
+            require(
+                fields.size() == 8u && !knotProtocol,
+                "invalid knot continuation protocol"
+            );
+            parsedKnotCheckpoint.protocolRevision = parseIndex(
+                fields[1], "knot protocol revision"
+            );
+            parsedKnotCheckpoint.protocolFingerprint = parseUnsigned64(
+                fields[2], "knot protocol fingerprint"
+            );
+            parsedKnotCheckpoint.throwIndex = parseIndex(
+                fields[3], "knot throw index"
+            );
+            parsedKnotCheckpoint.completedSample = parseIndex(
+                fields[4], "knot completed sample"
+            );
+            parsedKnotCheckpoint.expectedWholeTurns = parseIndex(
+                fields[5], "knot whole turns"
+            );
+            const double windingSign = parseNumber(
+                fields[6], "knot winding sign"
+            );
+            const double transferSign = parseNumber(
+                fields[7], "knot transfer sign"
+            );
+            require(
+                std::floor(windingSign) == windingSign &&
+                    std::abs(windingSign) == 1.0 &&
+                    std::floor(transferSign) == transferSign &&
+                    std::abs(transferSign) == 1.0,
+                "invalid knot continuation signs"
+            );
+            parsedKnotCheckpoint.expectedWindingSign =
+                static_cast<std::int32_t>(windingSign);
+            parsedKnotCheckpoint.expectedTransferSign =
+                static_cast<std::int32_t>(transferSign);
+            knotProtocol = true;
+        } else if (fields[0] == "knot_standing_target") {
+            require(
+                fields.size() == 4u && !knotTarget,
+                "invalid knot standing target"
+            );
+            parsedKnotCheckpoint.standingCenterEdge = parseIndex(
+                fields[1], "knot standing center edge"
+            );
+            parsedKnotCheckpoint.standingWindowFirstNode = parseIndex(
+                fields[2], "knot standing first node"
+            );
+            parsedKnotCheckpoint.standingWindowLastNode = parseIndex(
+                fields[3], "knot standing last node"
+            );
+            knotTarget = true;
+        } else if (fields[0] == "knot_frame_origin" ||
+                   fields[0] == "knot_frame_x" ||
+                   fields[0] == "knot_frame_y" ||
+                   fields[0] == "knot_frame_z") {
+            require(fields.size() == 4u, "invalid knot frame vector");
+            const Vec3 value{
+                parseNumber(fields[1], "knot frame x"),
+                parseNumber(fields[2], "knot frame y"),
+                parseNumber(fields[3], "knot frame z"),
+            };
+            if (fields[0] == "knot_frame_origin") {
+                require(!knotOrigin, "duplicate knot frame origin");
+                parsedKnotCheckpoint.origin = value;
+                knotOrigin = true;
+            } else if (fields[0] == "knot_frame_x") {
+                require(!knotAxisX, "duplicate knot frame x axis");
+                parsedKnotCheckpoint.axisX = value;
+                knotAxisX = true;
+            } else if (fields[0] == "knot_frame_y") {
+                require(!knotAxisY, "duplicate knot frame y axis");
+                parsedKnotCheckpoint.axisY = value;
+                knotAxisY = true;
+            } else {
+                require(!knotAxisZ, "duplicate knot frame z axis");
+                parsedKnotCheckpoint.axisZ = value;
+                knotAxisZ = true;
+            }
         } else if (fields[0] == "matter_snapshot") {
             require(
                 fields.size() == 6u && !matterSeen,
@@ -7623,6 +7778,21 @@ std::uint64_t loadHandoffState(
             }),
         "handoff resume state is incomplete or has the wrong phase"
     );
+    const std::uint32_t knotFieldCount =
+        static_cast<std::uint32_t>(knotProtocol) +
+        static_cast<std::uint32_t>(knotTarget) +
+        static_cast<std::uint32_t>(knotOrigin) +
+        static_cast<std::uint32_t>(knotAxisX) +
+        static_cast<std::uint32_t>(knotAxisY) +
+        static_cast<std::uint32_t>(knotAxisZ);
+    require(
+        knotFieldCount == 0u || knotFieldCount == 6u,
+        "handoff knot continuation metadata is partial"
+    );
+    parsedKnotCheckpoint.available = knotFieldCount == 6u;
+    if (knotCheckpoint != nullptr) {
+        *knotCheckpoint = parsedKnotCheckpoint;
+    }
     if (matterRequired) {
         numi::matter::RuntimeStateSnapshot decodedMatter;
         const metalrobo::MatterSnapshotArchiveResult archive =
@@ -7722,7 +7892,8 @@ void writeHandoffStateArtifact(
     const metalrobo::HeterogeneousWorld& world,
     const metalrobo::BowelAnastomosisSutureSpec& suture,
     const metalrobo::MetalWorldResult& state,
-    const numi::matter::RuntimeStateSnapshot* matterSnapshot = nullptr
+    const numi::matter::RuntimeStateSnapshot* matterSnapshot = nullptr,
+    const KnotContinuationCheckpoint* knotCheckpoint = nullptr
 ) {
     if (directory.empty()) {
         return;
@@ -7737,6 +7908,31 @@ void writeHandoffStateArtifact(
                 world.rods[0].model.restTwists.size(),
         "handoff visual state is incomplete"
     );
+    if (knotCheckpoint != nullptr) {
+        const auto finiteVector = [](const Vec3 value) {
+            return std::isfinite(value.x) && std::isfinite(value.y) &&
+                std::isfinite(value.z);
+        };
+        require(
+            knotCheckpoint->available &&
+                knotCheckpoint->protocolRevision != 0u &&
+                knotCheckpoint->protocolFingerprint != 0u &&
+                knotCheckpoint->expectedWholeTurns != 0u &&
+                std::abs(knotCheckpoint->expectedWindingSign) == 1 &&
+                std::abs(knotCheckpoint->expectedTransferSign) == 1 &&
+                knotCheckpoint->standingWindowFirstNode <=
+                    knotCheckpoint->standingCenterEdge &&
+                knotCheckpoint->standingCenterEdge <
+                    knotCheckpoint->standingWindowLastNode &&
+                knotCheckpoint->standingWindowLastNode <
+                    state.finalRodNodes.size() &&
+                finiteVector(knotCheckpoint->origin) &&
+                finiteVector(knotCheckpoint->axisX) &&
+                finiteVector(knotCheckpoint->axisY) &&
+                finiteVector(knotCheckpoint->axisZ),
+            "handoff knot continuation metadata is invalid"
+        );
+    }
     std::error_code error;
     std::filesystem::create_directories(directory, error);
     require(!error, "could not create handoff state output directory");
@@ -7812,6 +8008,32 @@ void writeHandoffStateArtifact(
             << '\t' << matterArchive.payloadBytes
             << '\t' << matterSnapshot->sourcePhysicsFingerprint
             << '\t' << matterSnapshot->deviceProgramFingerprint << '\n';
+    }
+    if (knotCheckpoint != nullptr) {
+        output
+            << "knot_protocol\t" << knotCheckpoint->protocolRevision
+            << '\t' << knotCheckpoint->protocolFingerprint
+            << '\t' << knotCheckpoint->throwIndex
+            << '\t' << knotCheckpoint->completedSample
+            << '\t' << knotCheckpoint->expectedWholeTurns
+            << '\t' << knotCheckpoint->expectedWindingSign
+            << '\t' << knotCheckpoint->expectedTransferSign << '\n'
+            << "knot_standing_target\t"
+            << knotCheckpoint->standingCenterEdge << '\t'
+            << knotCheckpoint->standingWindowFirstNode << '\t'
+            << knotCheckpoint->standingWindowLastNode << '\n'
+            << "knot_frame_origin\t" << knotCheckpoint->origin.x << '\t'
+            << knotCheckpoint->origin.y << '\t'
+            << knotCheckpoint->origin.z << '\n'
+            << "knot_frame_x\t" << knotCheckpoint->axisX.x << '\t'
+            << knotCheckpoint->axisX.y << '\t'
+            << knotCheckpoint->axisX.z << '\n'
+            << "knot_frame_y\t" << knotCheckpoint->axisY.x << '\t'
+            << knotCheckpoint->axisY.y << '\t'
+            << knotCheckpoint->axisY.z << '\n'
+            << "knot_frame_z\t" << knotCheckpoint->axisZ.x << '\t'
+            << knotCheckpoint->axisZ.y << '\t'
+            << knotCheckpoint->axisZ.z << '\n';
     }
     for (std::size_t node = 0u; node < state.finalRodNodes.size(); ++node) {
         const MRRodNodeStateGPU& value = state.finalRodNodes[node];
@@ -8053,6 +8275,8 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-knot-first-throw-preflight-only";
         const bool tissueKnotFirstThrowStageOnly =
             options.mode == "--tissue-knot-first-throw-stage-only";
+        const bool tissueKnotFirstDoubleThrowOnly =
+            options.mode == "--tissue-knot-first-double-throw-only";
         const bool tissueSuturePullStrokeOnly =
             options.mode == "--tissue-suture-pull-stroke-only";
         const bool tissueCheckpointResume =
@@ -8060,6 +8284,7 @@ int main(const int argc, const char* const argv[]) {
             tissueThreadTargetOnly || tissueThreadAcquisitionOnly ||
             tissueKnotFirstThrowPreflightOnly ||
             tissueKnotFirstThrowStageOnly ||
+            tissueKnotFirstDoubleThrowOnly ||
             tissueSuturePullStrokeOnly;
         const bool resumeTissueRestCheckpoint =
             tissueCheckpointResume &&
@@ -14127,6 +14352,7 @@ int main(const int argc, const char* const argv[]) {
         std::optional<CurvedNeedleOrbit> tissueNeedleOrbit;
         double tissueNeedleAngularSpeedRadPerS = 0.0;
         numi::matter::RuntimeStateSnapshot resumedTissueCheckpoint;
+        KnotContinuationCheckpoint resumedKnotCheckpoint;
         std::uint64_t resumedTissueCheckpointStep = 0u;
         if (tissueMatterOnly) {
             const NeedleTipCapsuleGeometry tip = needleTipCapsuleGeometry(
@@ -14461,11 +14687,24 @@ int main(const int argc, const char* const argv[]) {
                     options.resumeTissueCheckpointPath,
                     options.resumeTissueCheckpointPhase,
                     world,
-                    &resumedTissueCheckpoint
+                    &resumedTissueCheckpoint,
+                    &resumedKnotCheckpoint
                 );
                 require(
                     resumedTissueCheckpoint.available,
                     "surgical tissue resume requires a v3 Matter checkpoint"
+                );
+                const bool knotCheckpointPhase =
+                    options.resumeTissueCheckpointPhase ==
+                        "tissue-knot-first-throw-staged" ||
+                    options.resumeTissueCheckpointPhase ==
+                        "tissue-knot-first-double-throw";
+                require(
+                    resumedKnotCheckpoint.available == knotCheckpointPhase,
+                    knotCheckpointPhase
+                        ? "knot checkpoint lost its exact continuation frame"
+                        : "non-knot checkpoint carries unexpected knot "
+                            "continuation metadata"
                 );
                 world.fingerprint =
                     metalrobo::heterogeneousWorldFingerprint(world);
@@ -15624,6 +15863,1179 @@ int main(const int argc, const char* const argv[]) {
                     << " failed_steps=0\n";
                 return 0;
             }
+            if (tissueKnotFirstDoubleThrowOnly) {
+                require(
+                    options.resumeTissueCheckpointPhase ==
+                            "tissue-knot-first-throw-staged" &&
+                        resumedKnotCheckpoint.available,
+                    "first double throw requires an exact staged knot frame"
+                );
+                const auto protocol =
+                    metalrobo::makeSurgeonsKnotInstrumentProtocol();
+                const std::uint64_t protocolFingerprint =
+                    metalrobo::surgeonsKnotInstrumentProtocolFingerprint(
+                        protocol
+                    );
+                const auto protocolDiagnostics =
+                    metalrobo::certifySurgeonsKnotInstrumentProtocol(
+                        protocol
+                    );
+                const auto& firstThrow = protocol.firstDoubleThrow;
+                require(
+                    protocolDiagnostics.succeeded() &&
+                        resumedKnotCheckpoint.protocolRevision == 1u &&
+                        resumedKnotCheckpoint.protocolFingerprint ==
+                            protocolFingerprint &&
+                        resumedKnotCheckpoint.throwIndex == 0u &&
+                        resumedKnotCheckpoint.completedSample == 0u &&
+                        resumedKnotCheckpoint.expectedWholeTurns ==
+                            firstThrow.expectedWholeTurns &&
+                        resumedKnotCheckpoint.expectedWindingSign ==
+                            firstThrow.expectedWindingSign &&
+                        resumedKnotCheckpoint.expectedTransferSign ==
+                            firstThrow.expectedTransferSign &&
+                        firstThrow.samples.size() >= 2u,
+                    "staged knot protocol does not match the live first "
+                        "double throw"
+                );
+
+                const Vec3 knotOrigin = resumedKnotCheckpoint.origin;
+                const Vec3 knotX = resumedKnotCheckpoint.axisX;
+                const Vec3 knotY = resumedKnotCheckpoint.axisY;
+                const Vec3 knotAxis = resumedKnotCheckpoint.axisZ;
+                const auto finiteVector = [](const Vec3 value) {
+                    return std::isfinite(value.x) &&
+                        std::isfinite(value.y) &&
+                        std::isfinite(value.z);
+                };
+                require(
+                    finiteVector(knotOrigin) && finiteVector(knotX) &&
+                        finiteVector(knotY) && finiteVector(knotAxis) &&
+                        std::abs(norm(knotX) - 1.0) <= 1.0e-9 &&
+                        std::abs(norm(knotY) - 1.0) <= 1.0e-9 &&
+                        std::abs(norm(knotAxis) - 1.0) <= 1.0e-9 &&
+                        std::abs(dot(knotX, knotY)) <= 1.0e-9 &&
+                        std::abs(dot(knotX, knotAxis)) <= 1.0e-9 &&
+                        std::abs(dot(knotY, knotAxis)) <= 1.0e-9 &&
+                        dot(cross(knotX, knotY), knotAxis) >=
+                            1.0 - 1.0e-9,
+                    "staged knot frame is not finite right-handed "
+                        "orthonormal data"
+                );
+                const auto place = [&](const auto& point) {
+                    const Vec3 local = vector(point);
+                    return knotOrigin + knotX * local.x +
+                        knotY * local.y + knotAxis * local.z;
+                };
+
+                require(
+                    resumedKnotCheckpoint.standingCenterEdge + 1u <
+                            world.rods[0].defaultState.positions.size() &&
+                        resumedKnotCheckpoint.standingWindowFirstNode <=
+                            resumedKnotCheckpoint.standingCenterEdge &&
+                        resumedKnotCheckpoint.standingCenterEdge <
+                            resumedKnotCheckpoint
+                                .standingWindowLastNode &&
+                        resumedKnotCheckpoint.standingWindowLastNode <
+                            world.rods[0].defaultState.positions.size(),
+                    "staged standing-end material window is outside the "
+                        "restored DER topology"
+                );
+                metalrobo::SurgicalThreadTarget standingTarget;
+                standingTarget.centerEdge =
+                    resumedKnotCheckpoint.standingCenterEdge;
+                standingTarget.windowFirstNode =
+                    resumedKnotCheckpoint.standingWindowFirstNode;
+                standingTarget.windowLastNode =
+                    resumedKnotCheckpoint.standingWindowLastNode;
+                const Vec3 standingMaterialCenter =
+                    (vector(world.rods[0].defaultState.positions[
+                         standingTarget.centerEdge]) +
+                     vector(world.rods[0].defaultState.positions[
+                         standingTarget.centerEdge + 1u])) *
+                    0.5;
+                standingTarget.centerM =
+                    targetingPoint(standingMaterialCenter);
+
+                const std::vector<float> zeroVelocity(
+                    world.model.world.nv,
+                    0.0f
+                );
+                const JawGeometry standingStart = worldThreadJawGeometry(
+                    world.model,
+                    0u,
+                    world.model.defaultQ,
+                    zeroVelocity
+                );
+                const JawGeometry workingStart = worldJawGeometry(
+                    world.model,
+                    1u,
+                    world.model.defaultQ,
+                    zeroVelocity
+                );
+                constexpr double kKnotContinuationSeamToleranceM = 5.0e-4;
+                const Vec3 expectedStandingStart = place(
+                    firstThrow.samples.front().standingJawCenterM
+                );
+                const Vec3 expectedWorkingStart = place(
+                    firstThrow.samples.front().workingJawCenterM
+                );
+                const double standingSeamErrorM = norm(
+                    standingStart.midpoint - expectedStandingStart
+                );
+                const double workingSeamErrorM = norm(
+                    workingStart.midpoint - expectedWorkingStart
+                );
+                const double standingMaterialSeatErrorM = norm(
+                    standingMaterialCenter - standingStart.midpoint
+                );
+                require(
+                    standingSeamErrorM <=
+                            kKnotContinuationSeamToleranceM &&
+                        workingSeamErrorM <=
+                            kKnotContinuationSeamToleranceM &&
+                        standingMaterialSeatErrorM <=
+                            kMaximumTransitionGraspReseating,
+                    "staged first-throw seam changed tool or material "
+                        "ownership"
+                );
+
+                const OrthonormalJawFrame standingFrame =
+                    orthonormalJawFrame(
+                        standingStart.railDirection,
+                        standingStart.separationDirection,
+                        "continued first-throw standing frame"
+                    );
+                const OrthonormalJawFrame workingFrame = orthonormalJawFrame(
+                    workingStart.railDirection,
+                    workingStart.separationDirection,
+                    "continued first-throw working frame"
+                );
+                const metalrobo::SurgicalBasePose standingBase = armBasePose(
+                    world.model,
+                    0u,
+                    world.model.defaultQ
+                );
+                const metalrobo::SurgicalBasePose workingBase = armBasePose(
+                    world.model,
+                    1u,
+                    world.model.defaultQ
+                );
+                std::vector<double> standingLocal = armLocalQ(
+                    world.model,
+                    0u,
+                    world.model.defaultQ
+                );
+                std::vector<double> workingLocal = armLocalQ(
+                    world.model,
+                    1u,
+                    world.model.defaultQ
+                );
+                const double standingJawCoordinate = 0.5 *
+                    (standingLocal[7] - standingLocal[6]);
+                const double workingJawCoordinate = 0.5 *
+                    (workingLocal[7] - workingLocal[6]);
+
+                std::vector<metalrobo::SurgicalThreadTargetPoint>
+                    tissueNodes;
+                tissueNodes.reserve(restored.femNodes.size());
+                double tissueTopProjection =
+                    -std::numeric_limits<double>::infinity();
+                for (const NMFEMNodeStateGPU& node : restored.femNodes) {
+                    const Vec3 position = vector(node.positionAndMass);
+                    tissueNodes.push_back(targetingPoint(position));
+                    tissueTopProjection = std::max(
+                        tissueTopProjection,
+                        dot(position, knotAxis)
+                    );
+                }
+                const auto tissueTriangles =
+                    exteriorTissueTargetingTriangles(
+                        tissueWorld,
+                        restored
+                    );
+                const double jawContactLengthM = threadInsertContactLength(
+                    psm
+                );
+                const double jawEnvelopeRadiusM =
+                    0.5 * jawMetadata.instrumentDiameter;
+                constexpr double kKnotTissueClearanceM = 2.0e-3;
+
+                struct PlacedThrowSample {
+                    double timeSeconds = 0.0;
+                    Vec3 working{};
+                    Vec3 standing{};
+                };
+                std::vector<PlacedThrowSample> placedSamples;
+                placedSamples.reserve(firstThrow.samples.size() - 1u);
+                for (std::size_t sample = 1u;
+                     sample < firstThrow.samples.size();
+                     ++sample) {
+                    placedSamples.push_back({
+                        .timeSeconds =
+                            firstThrow.samples[sample].timeSeconds,
+                        .working = place(
+                            firstThrow.samples[sample]
+                                .workingJawCenterM
+                        ),
+                        .standing = place(
+                            firstThrow.samples[sample]
+                                .standingJawCenterM
+                        ),
+                    });
+                }
+                require(
+                    !placedSamples.empty() &&
+                        placedSamples.back().timeSeconds > 0.0,
+                    "continued first throw contains no advancing samples"
+                );
+
+                struct KnotPathAudit {
+                    double minimumStandingTissueClearanceM =
+                        std::numeric_limits<double>::infinity();
+                    double minimumWorkingTissueClearanceM =
+                        std::numeric_limits<double>::infinity();
+                    double minimumNeedleTissueClearanceM =
+                        std::numeric_limits<double>::infinity();
+                    double minimumInstrumentClearanceM =
+                        std::numeric_limits<double>::infinity();
+                    std::uint32_t giverNeedleContactSamples = 0u;
+                    std::uint32_t crossArmContactSamples = 0u;
+                    std::uint32_t unsafeReceiverNeedleSamples = 0u;
+                    std::array<std::uint32_t, 2u>
+                        minimumReceiverJawContacts{
+                            std::numeric_limits<std::uint32_t>::max(),
+                            std::numeric_limits<std::uint32_t>::max(),
+                        };
+                    std::uint32_t minimumReceiverGraspZoneContacts =
+                        std::numeric_limits<std::uint32_t>::max();
+                };
+                const MRBodyStateGPU startNeedle =
+                    world.defaultSceneBodies.at(0u);
+                const auto auditPose = [&](const std::span<const float> q,
+                                           KnotPathAudit& audit) {
+                    const JawGeometry standingJaw =
+                        worldThreadJawGeometry(
+                            world.model,
+                            0u,
+                            q,
+                            zeroVelocity
+                        );
+                    const JawGeometry workingJaw = worldJawGeometry(
+                        world.model,
+                        1u,
+                        q,
+                        zeroVelocity
+                    );
+                    MRBodyStateGPU needleTarget = startNeedle;
+                    const Vec3 needleTranslation =
+                        workingJaw.midpoint - workingStart.midpoint;
+                    needleTarget.position.x +=
+                        static_cast<float>(needleTranslation.x);
+                    needleTarget.position.y +=
+                        static_cast<float>(needleTranslation.y);
+                    needleTarget.position.z +=
+                        static_cast<float>(needleTranslation.z);
+                    needleTarget.linearVelocityAndInverseMass.x = 0.0f;
+                    needleTarget.linearVelocityAndInverseMass.y = 0.0f;
+                    needleTarget.linearVelocityAndInverseMass.z = 0.0f;
+                    needleTarget.angularVelocity = {};
+                    const KinematicNeedleObservation observation =
+                        observeKinematicNeedleContacts(
+                            world,
+                            needleForPlacement.metadata,
+                            q,
+                            &needleTarget
+                        );
+                    audit.giverNeedleContactSamples +=
+                        observation.giverNeedleContacts != 0u;
+                    audit.crossArmContactSamples +=
+                        observation.crossArmContacts != 0u;
+                    audit.unsafeReceiverNeedleSamples +=
+                        observation.receiverNeedleContacts !=
+                            observation.receiverJawContacts[0] +
+                                observation.receiverJawContacts[1];
+                    for (std::uint32_t jaw = 0u; jaw < 2u; ++jaw) {
+                        audit.minimumReceiverJawContacts[jaw] = std::min(
+                            audit.minimumReceiverJawContacts[jaw],
+                            observation.receiverJawContacts[jaw]
+                        );
+                    }
+                    audit.minimumReceiverGraspZoneContacts = std::min(
+                        audit.minimumReceiverGraspZoneContacts,
+                        observation.receiverGraspZoneContacts
+                    );
+                    const auto standingClearance = metalrobo::
+                        evaluateSurgicalThreadJawSurfaceClearance(
+                            targetingPoint(standingJaw.midpoint),
+                            targetingPoint(standingJaw.railDirection),
+                            jawContactLengthM,
+                            jawEnvelopeRadiusM,
+                            tissueNodes,
+                            tissueTriangles
+                        );
+                    const auto workingClearance = metalrobo::
+                        evaluateSurgicalThreadJawSurfaceClearance(
+                            targetingPoint(workingJaw.midpoint),
+                            targetingPoint(workingJaw.railDirection),
+                            jawMetadata.largeNeedleDriverJawLength,
+                            jawEnvelopeRadiusM,
+                            tissueNodes,
+                            tissueTriangles
+                        );
+                    require(
+                        standingClearance.succeeded() &&
+                            workingClearance.succeeded(),
+                        "continued first-throw jaw-surface audit failed"
+                    );
+                    audit.minimumStandingTissueClearanceM = std::min(
+                        audit.minimumStandingTissueClearanceM,
+                        standingClearance.minimumEnvelopeClearanceM
+                    );
+                    audit.minimumWorkingTissueClearanceM = std::min(
+                        audit.minimumWorkingTissueClearanceM,
+                        workingClearance.minimumEnvelopeClearanceM
+                    );
+                    audit.minimumNeedleTissueClearanceM = std::min(
+                        audit.minimumNeedleTissueClearanceM,
+                        wholeNeedleProjectionRange(
+                            needleForPlacement,
+                            needleTarget,
+                            knotAxis
+                        ).minimum - tissueTopProjection
+                    );
+                    audit.minimumInstrumentClearanceM = std::min(
+                        audit.minimumInstrumentClearanceM,
+                        norm(
+                            workingJaw.midpoint - standingJaw.midpoint
+                        ) - 2.0 * jawEnvelopeRadiusM
+                    );
+                };
+
+                std::vector<float> previousQ = world.model.defaultQ;
+                std::vector<float> placedSampleQ;
+                placedSampleQ.reserve(
+                    placedSamples.size() * world.model.world.nq
+                );
+                KnotPathAudit sparseAudit;
+                double maximumPositionResidualM = 0.0;
+                double maximumOrientationResidualRad = 0.0;
+                double sparseMaximumVelocityRatio = 0.0;
+                double previousTimeSeconds = 0.0;
+                for (const PlacedThrowSample& sample : placedSamples) {
+                    const JawFrameIKSolution standingIK =
+                        solvePsmJawFrameTarget(
+                            psm,
+                            standingBase,
+                            std::move(standingLocal),
+                            sample.standing,
+                            standingFrame.rail,
+                            standingFrame.separation,
+                            standingJawCoordinate,
+                            kReceiverBridgeIKPositionToleranceM,
+                            kReceiverBridgeIKOrientationToleranceRad,
+                            true
+                        );
+                    standingLocal = standingIK.localQ;
+                    const JawFrameIKSolution workingIK =
+                        solvePsmJawFrameTarget(
+                            psm,
+                            workingBase,
+                            std::move(workingLocal),
+                            sample.working,
+                            workingFrame.rail,
+                            workingFrame.separation,
+                            workingJawCoordinate,
+                            kReceiverBridgeIKPositionToleranceM,
+                            kReceiverBridgeIKOrientationToleranceRad
+                        );
+                    workingLocal = workingIK.localQ;
+                    maximumPositionResidualM = std::max({
+                        maximumPositionResidualM,
+                        standingIK.positionResidual,
+                        workingIK.positionResidual,
+                    });
+                    maximumOrientationResidualRad = std::max({
+                        maximumOrientationResidualRad,
+                        standingIK.orientationResidual,
+                        workingIK.orientationResidual,
+                    });
+                    std::vector<float> q = world.model.defaultQ;
+                    setArmTarget(q, world.model, 0u, standingLocal);
+                    setArmTarget(q, world.model, 1u, workingLocal);
+                    const double elapsed =
+                        sample.timeSeconds - previousTimeSeconds;
+                    require(
+                        elapsed > 0.0 && std::isfinite(elapsed),
+                        "continued first-throw samples are not time ordered"
+                    );
+                    for (std::uint32_t dof = 0u;
+                         dof < world.model.world.nv;
+                         ++dof) {
+                        const MRDofPropertiesGPU& properties =
+                            world.model.dofs[dof];
+                        if (properties.qIndex == MR_INVALID_INDEX ||
+                            (properties.flags & MR_DOF_FLAG_ROOT) != 0u ||
+                            (properties.flags &
+                             MR_DOF_FLAG_VELOCITY_LIMIT) == 0u ||
+                            !(properties.limits.z > 0.0f)) {
+                            continue;
+                        }
+                        sparseMaximumVelocityRatio = std::max(
+                            sparseMaximumVelocityRatio,
+                            std::abs(
+                                static_cast<double>(q[properties.qIndex]) -
+                                previousQ[properties.qIndex]
+                            ) / (elapsed * properties.limits.z)
+                        );
+                    }
+                    auditPose(q, sparseAudit);
+                    placedSampleQ.insert(
+                        placedSampleQ.end(),
+                        q.begin(),
+                        q.end()
+                    );
+                    previousQ = std::move(q);
+                    previousTimeSeconds = sample.timeSeconds;
+                }
+                require(
+                    sparseMaximumVelocityRatio <=
+                            kMaximumCommandVelocityRatio &&
+                        sparseAudit.giverNeedleContactSamples == 0u &&
+                        sparseAudit.crossArmContactSamples == 0u &&
+                        sparseAudit.unsafeReceiverNeedleSamples == 0u &&
+                        sparseAudit.minimumReceiverJawContacts[0] >= 2u &&
+                        sparseAudit.minimumReceiverJawContacts[1] >= 2u &&
+                        sparseAudit.minimumReceiverGraspZoneContacts >= 4u &&
+                        sparseAudit.minimumStandingTissueClearanceM >=
+                            kKnotTissueClearanceM &&
+                        sparseAudit.minimumWorkingTissueClearanceM >=
+                            kKnotTissueClearanceM &&
+                        sparseAudit.minimumNeedleTissueClearanceM >=
+                            kKnotTissueClearanceM &&
+                        sparseAudit.minimumInstrumentClearanceM >=
+                            firstThrow.minimumInstrumentClearanceM,
+                    "continued first double throw has no reachable, "
+                        "collision-free articulated path"
+                );
+
+                require(
+                    restored.coupledTimestepMultiplier ==
+                            kSuturePullMatterRateMultiplier &&
+                        restored.coupledTimestepDivisor == 1u &&
+                        tissueRuntime.coupledTimestepMultiplier() ==
+                            kSuturePullMatterRateMultiplier &&
+                        tissueRuntime.coupledTimestepDivisor() == 1u &&
+                        stepConfig.physicsSubsteps ==
+                            kSuturePullMatterRateMultiplier &&
+                        stepConfig.devicePhysicsProgram.valid(),
+                    "continued first throw lost its staged Matter cadence"
+                );
+                const double throwTimestepSeconds =
+                    stepConfig.timestepSeconds;
+                const double throwDurationSeconds =
+                    placedSamples.back().timeSeconds;
+                const std::uint32_t throwSteps =
+                    static_cast<std::uint32_t>(std::ceil(
+                        throwDurationSeconds / throwTimestepSeconds
+                    ));
+                require(
+                    throwSteps > placedSamples.size() &&
+                        throwSteps < 100000u,
+                    "continued first-throw dense cadence is invalid"
+                );
+                std::vector<float> throwDesiredQ;
+                throwDesiredQ.reserve(
+                    static_cast<std::size_t>(throwSteps) *
+                    world.model.world.nq
+                );
+                std::size_t upperSparseSample = 0u;
+                double denseMaximumVelocityRatio = 0.0;
+                std::vector<float> densePreviousQ = world.model.defaultQ;
+                for (std::uint32_t step = 0u; step < throwSteps; ++step) {
+                    const double sampleTimeSeconds = std::min(
+                        throwDurationSeconds,
+                        static_cast<double>(step + 1u) *
+                            throwTimestepSeconds
+                    );
+                    while (upperSparseSample + 1u < placedSamples.size() &&
+                           placedSamples[upperSparseSample].timeSeconds <
+                               sampleTimeSeconds) {
+                        ++upperSparseSample;
+                    }
+                    const double lowerTimeSeconds =
+                        upperSparseSample == 0u
+                            ? 0.0
+                            : placedSamples[upperSparseSample - 1u]
+                                  .timeSeconds;
+                    const double upperTimeSeconds =
+                        placedSamples[upperSparseSample].timeSeconds;
+                    require(
+                        upperTimeSeconds > lowerTimeSeconds &&
+                            sampleTimeSeconds >=
+                                lowerTimeSeconds - 1.0e-12 &&
+                            sampleTimeSeconds <=
+                                upperTimeSeconds + 1.0e-12,
+                        "continued dense throw escaped its sparse interval"
+                    );
+                    const double fraction = std::clamp(
+                        (sampleTimeSeconds - lowerTimeSeconds) /
+                            (upperTimeSeconds - lowerTimeSeconds),
+                        0.0,
+                        1.0
+                    );
+                    const float* lowerQ =
+                        upperSparseSample == 0u
+                            ? world.model.defaultQ.data()
+                            : placedSampleQ.data() +
+                                (upperSparseSample - 1u) *
+                                    world.model.world.nq;
+                    const float* upperQ = placedSampleQ.data() +
+                        upperSparseSample * world.model.world.nq;
+                    std::vector<float> q(world.model.world.nq);
+                    for (std::uint32_t coordinate = 0u;
+                         coordinate < world.model.world.nq;
+                         ++coordinate) {
+                        q[coordinate] = static_cast<float>(
+                            static_cast<double>(lowerQ[coordinate]) +
+                            fraction *
+                                (static_cast<double>(upperQ[coordinate]) -
+                                 static_cast<double>(lowerQ[coordinate]))
+                        );
+                    }
+                    for (std::uint32_t dof = 0u;
+                         dof < world.model.world.nv;
+                         ++dof) {
+                        const MRDofPropertiesGPU& properties =
+                            world.model.dofs[dof];
+                        if (properties.qIndex == MR_INVALID_INDEX ||
+                            (properties.flags & MR_DOF_FLAG_ROOT) != 0u ||
+                            (properties.flags &
+                             MR_DOF_FLAG_VELOCITY_LIMIT) == 0u ||
+                            !(properties.limits.z > 0.0f)) {
+                            continue;
+                        }
+                        denseMaximumVelocityRatio = std::max(
+                            denseMaximumVelocityRatio,
+                            std::abs(
+                                static_cast<double>(q[properties.qIndex]) -
+                                densePreviousQ[properties.qIndex]
+                            ) /
+                                (throwTimestepSeconds *
+                                 properties.limits.z)
+                        );
+                    }
+                    throwDesiredQ.insert(
+                        throwDesiredQ.end(),
+                        q.begin(),
+                        q.end()
+                    );
+                    densePreviousQ = std::move(q);
+                }
+                KnotPathAudit denseAudit;
+                for (std::uint32_t step = 0u; step < throwSteps; ++step) {
+                    auditPose(
+                        std::span<const float>{
+                            throwDesiredQ.data() +
+                                static_cast<std::size_t>(step) *
+                                    world.model.world.nq,
+                            world.model.world.nq,
+                        },
+                        denseAudit
+                    );
+                }
+                const std::vector<float> throwFinalTarget(
+                    throwDesiredQ.end() - world.model.world.nq,
+                    throwDesiredQ.end()
+                );
+                const CrossArmCollisionScan denseCollision =
+                    scanCrossArmTargetPath(
+                        world,
+                        world.model.defaultQ,
+                        throwFinalTarget,
+                        throwSteps,
+                        throwDesiredQ
+                    );
+                require(
+                    denseMaximumVelocityRatio <=
+                            kMaximumCommandVelocityRatio &&
+                        denseCollision.samplesWithContact == 0u &&
+                        denseCollision.samplesWithGiverPadContact == 0u &&
+                        denseCollision.samplesWithReceiverPadContact == 0u &&
+                        denseAudit.giverNeedleContactSamples == 0u &&
+                        denseAudit.crossArmContactSamples == 0u &&
+                        denseAudit.unsafeReceiverNeedleSamples == 0u &&
+                        denseAudit.minimumReceiverJawContacts[0] >= 2u &&
+                        denseAudit.minimumReceiverJawContacts[1] >= 2u &&
+                        denseAudit.minimumReceiverGraspZoneContacts >= 4u &&
+                        denseAudit.minimumStandingTissueClearanceM >=
+                            kKnotTissueClearanceM &&
+                        denseAudit.minimumWorkingTissueClearanceM >=
+                            kKnotTissueClearanceM &&
+                        denseAudit.minimumNeedleTissueClearanceM >=
+                            kKnotTissueClearanceM &&
+                        denseAudit.minimumInstrumentClearanceM >=
+                            firstThrow.minimumInstrumentClearanceM,
+                    "continued dense first throw violates speed, collision, "
+                        "or operative-field clearance"
+                );
+                const std::vector<float> throwEfforts =
+                    computedTorqueTrajectory(
+                        world.model,
+                        world.model.defaultQ,
+                        throwDesiredQ,
+                        throwSteps,
+                        throwTimestepSeconds
+                    );
+
+                const GraspReference workingNeedleReference =
+                    graspReference(
+                        world,
+                        needleForPlacement,
+                        world.model.defaultQ,
+                        world.model.defaultV,
+                        startNeedle,
+                        1u,
+                        kExtractionNeedleShape
+                    );
+                const std::vector<std::uint32_t> fixedProxyEdges =
+                    restored.sutureProxyEdges;
+                const std::uint64_t fixedProxyBindingRevision =
+                    restored.sutureProxyBindingRevision;
+                struct KnotMatterMetrics {
+                    std::uint32_t activeChannels = 0u;
+                    std::uint32_t activeTetrahedra = 0u;
+                    double removedMassKg = 0.0;
+                    double minimumDeterminant =
+                        std::numeric_limits<double>::infinity();
+                    double maximumResidual = 0.0;
+                    bool certificatesAccepted = false;
+                };
+                const auto validateMatter = [&] (
+                    const numi::matter::RuntimeStateSnapshot& snapshot,
+                    const std::string& phase
+                ) {
+                    KnotMatterMetrics metrics;
+                    metrics.certificatesAccepted =
+                        !snapshot.solverCertificates.empty();
+                    for (const NMPunctureChannelGPU& channel :
+                         snapshot.punctureChannels) {
+                        metrics.activeChannels +=
+                            (channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+                    }
+                    for (const NMTetrahedronGPU& tetrahedron :
+                         snapshot.femTopologyTetrahedra) {
+                        metrics.activeTetrahedra +=
+                            (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+                    }
+                    for (const NMFEMTopologyStateGPU& topology :
+                         snapshot.topologyStates) {
+                        metrics.removedMassKg += topology.accounting.y;
+                    }
+                    for (const NMSolverCertificateGPU& certificate :
+                         snapshot.solverCertificates) {
+                        metrics.certificatesAccepted =
+                            metrics.certificatesAccepted &&
+                            certificate.validity.w > 0.5f;
+                        metrics.minimumDeterminant = std::min(
+                            metrics.minimumDeterminant,
+                            static_cast<double>(certificate.validity.x)
+                        );
+                        metrics.maximumResidual = std::max({
+                            metrics.maximumResidual,
+                            static_cast<double>(certificate.nonlinear.x),
+                            static_cast<double>(certificate.nonlinear.z),
+                            static_cast<double>(certificate.nonlinear.w),
+                        });
+                    }
+                    require(
+                        snapshot.available &&
+                            metrics.activeChannels == activeChannels &&
+                            sameVectorBytes(
+                                snapshot.punctureChannels,
+                                restored.punctureChannels
+                            ) &&
+                            metrics.activeTetrahedra ==
+                                tissueCoupon.metadata.tetrahedronCount &&
+                            sameVectorBytes(
+                                snapshot.femTopologyTetrahedra,
+                                restored.femTopologyTetrahedra
+                            ) &&
+                            metrics.removedMassKg == 0.0 &&
+                            metrics.certificatesAccepted &&
+                            std::isfinite(metrics.minimumDeterminant) &&
+                            metrics.minimumDeterminant > 0.0 &&
+                            std::isfinite(metrics.maximumResidual) &&
+                            snapshot.sutureProxyEdges == fixedProxyEdges &&
+                            snapshot.sutureProxyBindingRevision ==
+                                fixedProxyBindingRevision,
+                        phase + " changed tissue topology, mass, tracts, or "
+                            "fixed DER ownership"
+                    );
+                    return metrics;
+                };
+                struct KnotBoundaryMetrics {
+                    ThreadGraspContactCounts standingThread;
+                    ContactCounts workingNeedle;
+                    GraspKinematics workingGrasp;
+                    RodStateMetrics rod;
+                    KnotMatterMetrics matter;
+                    double materialSeatErrorM = 0.0;
+                    double swageErrorM = 0.0;
+                    double needleLinearSpeedMps = 0.0;
+                    double needleAngularSpeedRadps = 0.0;
+                    double minimumStandingTissueClearanceM = 0.0;
+                    double minimumWorkingTissueClearanceM = 0.0;
+                    double minimumNeedleTissueClearanceM = 0.0;
+                    double instrumentClearanceM = 0.0;
+                    double contactVelocityResidualMps = 0.0;
+                };
+                const auto validateBoundary = [&] (
+                    const metalrobo::MetalWorldResult& state,
+                    const std::string& phase
+                ) {
+                    KnotBoundaryMetrics metrics;
+                    metrics.standingThread = threadGraspContactCounts(
+                        world,
+                        state,
+                        standingTarget
+                    );
+                    metrics.workingNeedle = contactCounts(
+                        world,
+                        state,
+                        needleForPlacement.metadata,
+                        kNeedleFirstShape
+                    );
+                    metrics.workingGrasp = graspKinematics(
+                        world,
+                        needleForPlacement,
+                        state,
+                        1u,
+                        kExtractionNeedleShape,
+                        workingNeedleReference
+                    );
+                    metrics.rod = rodStateMetrics(world, state);
+                    metrics.swageErrorM = swageAttachmentError(world, state);
+                    require(
+                        state.finalRodNodes.size() >
+                            standingTarget.centerEdge + 1u,
+                        phase + " lost the standing material edge"
+                    );
+                    const Vec3 materialCenter =
+                        (vector(state.finalRodNodes[
+                             standingTarget.centerEdge].position) +
+                         vector(state.finalRodNodes[
+                             standingTarget.centerEdge + 1u].position)) *
+                        0.5;
+                    const JawGeometry standingJaw = worldThreadJawGeometry(
+                        world.model,
+                        0u,
+                        state.finalQ,
+                        state.finalV
+                    );
+                    const JawGeometry workingJaw = worldJawGeometry(
+                        world.model,
+                        1u,
+                        state.finalQ,
+                        state.finalV
+                    );
+                    metrics.materialSeatErrorM = norm(
+                        materialCenter - standingJaw.midpoint
+                    );
+                    const MRBodyStateGPU& liveNeedle =
+                        state.finalSceneBodies.at(0u);
+                    metrics.needleLinearSpeedMps = norm(
+                        vector(liveNeedle.linearVelocityAndInverseMass)
+                    );
+                    metrics.needleAngularSpeedRadps = norm(
+                        vector(liveNeedle.angularVelocity)
+                    );
+                    const auto matterSnapshot = tissueRuntime.snapshot();
+                    metrics.matter = validateMatter(matterSnapshot, phase);
+                    std::vector<metalrobo::SurgicalThreadTargetPoint>
+                        liveTissueNodes;
+                    liveTissueNodes.reserve(matterSnapshot.femNodes.size());
+                    double liveTissueTopProjection =
+                        -std::numeric_limits<double>::infinity();
+                    for (const NMFEMNodeStateGPU& node :
+                         matterSnapshot.femNodes) {
+                        const Vec3 position = vector(node.positionAndMass);
+                        liveTissueNodes.push_back(targetingPoint(position));
+                        liveTissueTopProjection = std::max(
+                            liveTissueTopProjection,
+                            dot(position, knotAxis)
+                        );
+                    }
+                    const auto standingClearance = metalrobo::
+                        evaluateSurgicalThreadJawSurfaceClearance(
+                            targetingPoint(standingJaw.midpoint),
+                            targetingPoint(standingJaw.railDirection),
+                            jawContactLengthM,
+                            jawEnvelopeRadiusM,
+                            liveTissueNodes,
+                            tissueTriangles
+                        );
+                    const auto workingClearance = metalrobo::
+                        evaluateSurgicalThreadJawSurfaceClearance(
+                            targetingPoint(workingJaw.midpoint),
+                            targetingPoint(workingJaw.railDirection),
+                            jawMetadata.largeNeedleDriverJawLength,
+                            jawEnvelopeRadiusM,
+                            liveTissueNodes,
+                            tissueTriangles
+                        );
+                    require(
+                        standingClearance.succeeded() &&
+                            workingClearance.succeeded(),
+                        phase + " live jaw-surface audit failed"
+                    );
+                    metrics.minimumStandingTissueClearanceM =
+                        standingClearance.minimumEnvelopeClearanceM;
+                    metrics.minimumWorkingTissueClearanceM =
+                        workingClearance.minimumEnvelopeClearanceM;
+                    metrics.minimumNeedleTissueClearanceM =
+                        wholeNeedleProjectionRange(
+                            needleForPlacement,
+                            liveNeedle,
+                            knotAxis
+                        ).minimum - liveTissueTopProjection;
+                    metrics.instrumentClearanceM = norm(
+                        workingJaw.midpoint - standingJaw.midpoint
+                    ) - 2.0 * jawEnvelopeRadiusM;
+                    const MRMetalWorldContactStatusGPU& residual =
+                        requireTerminalResidual(state, phase);
+                    metrics.contactVelocityResidualMps = residual.residuals.y;
+                    require(
+                        metrics.standingThread.jawContacts[0] != 0u &&
+                            metrics.standingThread.jawContacts[1] != 0u &&
+                            metrics.standingThread.jawPatchMasks[0] != 0u &&
+                            metrics.standingThread.jawPatchMasks[1] != 0u &&
+                            metrics.standingThread
+                                    .targetWindowJawContacts[0] != 0u &&
+                            metrics.standingThread
+                                    .targetWindowJawContacts[1] != 0u &&
+                            metrics.standingThread
+                                    .targetWindowJawPatchMasks[0] != 0u &&
+                            metrics.standingThread
+                                    .targetWindowJawPatchMasks[1] != 0u &&
+                            metrics.standingThread.targetWindowContacts >= 2u &&
+                            metrics.standingThread.centerEdgeContacts != 0u &&
+                            metrics.standingThread.maximumNormalImpulseNs >
+                                0.0 &&
+                            metrics.materialSeatErrorM <=
+                                kMaximumTransitionGraspReseating &&
+                            bilateral(metrics.workingNeedle, 1u) &&
+                            distributedInsertCoverage(
+                                metrics.workingNeedle,
+                                1u
+                            ) &&
+                            cleanNeedleInteraction(
+                                metrics.workingNeedle,
+                                false,
+                                true
+                            ) &&
+                            qualifiedTransitionGrasp(metrics.workingGrasp) &&
+                            qualifiedTransitionRod(metrics.rod) &&
+                            metrics.swageErrorM <
+                                kMaximumSwageAttachmentError &&
+                            metrics.minimumStandingTissueClearanceM >=
+                                kKnotTissueClearanceM &&
+                            metrics.minimumWorkingTissueClearanceM >=
+                                kKnotTissueClearanceM &&
+                            metrics.minimumNeedleTissueClearanceM >=
+                                kKnotTissueClearanceM &&
+                            metrics.instrumentClearanceM >=
+                                firstThrow.minimumInstrumentClearanceM,
+                        phase + " lost a grasp, material edge, physical "
+                            "certificate, or operative-field clearance"
+                    );
+                    return metrics;
+                };
+
+                constexpr std::uint32_t kKnotThrowChunkSteps = 64u;
+                constexpr std::uint32_t kKnotThrowMaximumHoldSteps = 512u;
+                metalrobo::MetalWorldContext throwContext;
+                metalrobo::MetalWorldResidentState throwResident;
+                bool throwResidentInitialized = false;
+                metalrobo::MetalWorldResult throwState;
+                KnotBoundaryMetrics terminalMetrics;
+                double throwGpuMilliseconds = 0.0;
+                double maximumSelfContactCount = 0.0;
+                double maximumSelfNormalImpulseNs = 0.0;
+                double maximumSelfTangentialImpulseNs = 0.0;
+                double maximumSelfFrictionUtilization = 0.0;
+                const auto accumulateSelfFriction = [&] (
+                    const RodStateMetrics& rod
+                ) {
+                    maximumSelfContactCount = std::max(
+                        maximumSelfContactCount,
+                        rod.selfFrictionContactCount
+                    );
+                    maximumSelfNormalImpulseNs = std::max(
+                        maximumSelfNormalImpulseNs,
+                        rod.maximumSelfNormalImpulseNs
+                    );
+                    maximumSelfTangentialImpulseNs = std::max(
+                        maximumSelfTangentialImpulseNs,
+                        rod.maximumSelfTangentialImpulseNs
+                    );
+                    maximumSelfFrictionUtilization = std::max(
+                        maximumSelfFrictionUtilization,
+                        rod.maximumSelfFrictionUtilization
+                    );
+                };
+                std::uint32_t completedThrowSteps = 0u;
+                while (completedThrowSteps < throwSteps) {
+                    const std::uint32_t chunkSteps = std::min(
+                        kKnotThrowChunkSteps,
+                        throwSteps - completedThrowSteps
+                    );
+                    const std::size_t effortBegin =
+                        static_cast<std::size_t>(completedThrowSteps) *
+                        world.model.world.nv;
+                    const std::size_t effortEnd = effortBegin +
+                        static_cast<std::size_t>(chunkSteps) *
+                            world.model.world.nv;
+                    const std::vector<float> chunkEfforts(
+                        throwEfforts.begin() + effortBegin,
+                        throwEfforts.begin() + effortEnd
+                    );
+                    PhaseResult chunk;
+                    if (!throwResidentInitialized) {
+                        chunk = initializePhase(
+                            throwContext,
+                            compiled,
+                            world,
+                            stepConfig,
+                            throwResident,
+                            chunkEfforts,
+                            chunkSteps
+                        );
+                        throwResidentInitialized = true;
+                    } else {
+                        chunk = continuePhase(
+                            throwContext,
+                            compiled,
+                            stepConfig,
+                            throwResident,
+                            chunkEfforts,
+                            chunkSteps,
+                            "live first double throw"
+                        );
+                    }
+                    throwGpuMilliseconds +=
+                        chunk.diagnostics.gpuElapsedMilliseconds;
+                    throwState = std::move(chunk.result);
+                    completedThrowSteps += chunkSteps;
+                    terminalMetrics = validateBoundary(
+                        throwState,
+                        "live first double throw"
+                    );
+                    accumulateSelfFriction(terminalMetrics.rod);
+                    std::cout << std::setprecision(9)
+                        << "tissue_knot_first_double_throw_progress_steps="
+                        << completedThrowSteps << '/' << throwSteps
+                        << " standing_seat_error_m="
+                        << terminalMetrics.materialSeatErrorM
+                        << " working_seat_drift_m="
+                        << terminalMetrics.workingGrasp.seatDrift
+                        << " thread_self_contacts="
+                        << terminalMetrics.rod.selfFrictionContactCount
+                        << " thread_maximum_edge_error_m="
+                        << terminalMetrics.rod.maximumEdgeLengthError
+                        << " matter_minimum_determinant="
+                        << terminalMetrics.matter.minimumDeterminant
+                        << " chunk_gpu_ms="
+                        << chunk.diagnostics.gpuElapsedMilliseconds << '\n';
+                }
+
+                std::uint32_t completedHoldSteps = 0u;
+                std::uint32_t consecutiveQuiescentBoundaries = 0u;
+                while (completedHoldSteps < kKnotThrowMaximumHoldSteps &&
+                       consecutiveQuiescentBoundaries < 2u) {
+                    const std::uint32_t chunkSteps = std::min(
+                        kKnotThrowChunkSteps,
+                        kKnotThrowMaximumHoldSteps - completedHoldSteps
+                    );
+                    const std::vector<float> holdEfforts = interpolateTargets(
+                        world.model,
+                        throwState.finalQ,
+                        throwFinalTarget,
+                        chunkSteps,
+                        throwTimestepSeconds
+                    );
+                    PhaseResult held = continuePhase(
+                        throwContext,
+                        compiled,
+                        stepConfig,
+                        throwResident,
+                        holdEfforts,
+                        chunkSteps,
+                        "live first double throw hold"
+                    );
+                    throwGpuMilliseconds +=
+                        held.diagnostics.gpuElapsedMilliseconds;
+                    throwState = std::move(held.result);
+                    completedHoldSteps += chunkSteps;
+                    terminalMetrics = validateBoundary(
+                        throwState,
+                        "live first double throw hold"
+                    );
+                    accumulateSelfFriction(terminalMetrics.rod);
+                    const bool quiescent =
+                        qualifiedTerminalRod(terminalMetrics.rod) &&
+                        terminalMetrics.needleLinearSpeedMps <=
+                            kMaximumSettledNeedleLinearSpeed &&
+                        terminalMetrics.needleAngularSpeedRadps <=
+                            kMaximumSettledNeedleAngularSpeed;
+                    consecutiveQuiescentBoundaries = quiescent
+                        ? consecutiveQuiescentBoundaries + 1u
+                        : 0u;
+                    std::cout << std::setprecision(9)
+                        << "tissue_knot_first_double_throw_hold_steps="
+                        << completedHoldSteps
+                        << " quiescent=" << quiescent
+                        << " consecutive_quiescent="
+                        << consecutiveQuiescentBoundaries
+                        << " needle_linear_speed_mps="
+                        << terminalMetrics.needleLinearSpeedMps
+                        << " thread_maximum_speed_mps="
+                        << terminalMetrics.rod.maximumNodeSpeed
+                        << " chunk_gpu_ms="
+                        << held.diagnostics.gpuElapsedMilliseconds << '\n';
+                }
+                require(
+                    consecutiveQuiescentBoundaries >= 2u,
+                    "first double throw did not become quiescent within its "
+                        "fixed hold ceiling"
+                );
+                std::vector<metalrobo::SurgicalKnotPoint> knotNodes;
+                knotNodes.reserve(throwState.finalRodNodes.size());
+                for (const MRRodNodeStateGPU& node :
+                     throwState.finalRodNodes) {
+                    knotNodes.push_back({
+                        node.position.x,
+                        node.position.y,
+                        node.position.z,
+                    });
+                }
+                const auto knotContacts =
+                    metalrobo::certifySurgicalKnotContacts(
+                        knotNodes,
+                        {
+                            .threadRadiusM = world.rods[0].model.radius,
+                            .contactMarginM =
+                                kMinimumThreadSelfCollisionClearance,
+                            .separationToleranceM =
+                                kThreadClearanceReadbackTolerance,
+                            .minimumMaterialEdgeSeparation = 2u,
+                            .minimumContactPairCount =
+                                firstThrow.expectedWholeTurns,
+                        }
+                    );
+                require(
+                    knotContacts.succeeded() &&
+                        maximumSelfContactCount >=
+                            firstThrow.expectedWholeTurns &&
+                        maximumSelfNormalImpulseNs > 0.0 &&
+                        maximumSelfTangentialImpulseNs > 0.0 &&
+                        maximumSelfFrictionUtilization <= 1.0001,
+                    "first double throw lacks resolved material-separated "
+                        "frictional strand contacts"
+                );
+                const numi::matter::RuntimeStateSnapshot finalMatter =
+                    tissueRuntime.snapshot();
+                terminalMetrics.matter = validateMatter(
+                    finalMatter,
+                    "first double throw checkpoint"
+                );
+                const std::uint64_t outputStateStep =
+                    resumedTissueCheckpointStep +
+                    static_cast<std::uint64_t>(
+                        completedThrowSteps + completedHoldSteps
+                    ) * stepConfig.physicsSubsteps;
+                KnotContinuationCheckpoint completedKnotCheckpoint =
+                    resumedKnotCheckpoint;
+                completedKnotCheckpoint.completedSample =
+                    static_cast<std::uint32_t>(
+                        firstThrow.samples.size() - 1u
+                    );
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    "tissue-knot-first-double-throw",
+                    outputStateStep,
+                    world,
+                    sutureSpec,
+                    throwState,
+                    &finalMatter,
+                    &completedKnotCheckpoint
+                );
+                std::cout << std::setprecision(9)
+                    << "tissue_knot_first_double_throw=ok"
+                    << " source_phase="
+                    << options.resumeTissueCheckpointPhase
+                    << " output_phase=tissue-knot-first-double-throw"
+                    << " protocol_fingerprint=0x" << std::hex
+                    << protocolFingerprint << std::dec
+                    << " signed_winding_turns="
+                    << protocolDiagnostics.firstDoubleThrow
+                           .signedWindingTurns
+                    << " throw_steps=" << completedThrowSteps
+                    << " hold_steps=" << completedHoldSteps
+                    << " timestep_s=" << throwTimestepSeconds
+                    << " standing_center_edge="
+                    << standingTarget.centerEdge
+                    << " standing_seam_error_m=" << standingSeamErrorM
+                    << " working_seam_error_m=" << workingSeamErrorM
+                    << " standing_material_seat_error_m="
+                    << terminalMetrics.materialSeatErrorM
+                    << " standing_target_jaw_contacts="
+                    << terminalMetrics.standingThread
+                           .targetWindowJawContacts[0]
+                    << '/'
+                    << terminalMetrics.standingThread
+                           .targetWindowJawContacts[1]
+                    << " standing_incidental_wrap_contacts="
+                    << terminalMetrics.standingThread
+                           .nonTargetWindowContacts
+                    << " minimum_planned_instrument_clearance_m="
+                    << denseAudit.minimumInstrumentClearanceM
+                    << " minimum_planned_standing_tissue_clearance_m="
+                    << denseAudit.minimumStandingTissueClearanceM
+                    << " minimum_planned_working_tissue_clearance_m="
+                    << denseAudit.minimumWorkingTissueClearanceM
+                    << " minimum_planned_needle_tissue_clearance_m="
+                    << denseAudit.minimumNeedleTissueClearanceM
+                    << " knot_contact_pairs="
+                    << knotContacts.contactPairCount
+                    << " knot_minimum_surface_gap_m="
+                    << knotContacts.minimumContactSurfaceGapM
+                    << " maximum_self_friction_contacts="
+                    << maximumSelfContactCount
+                    << " maximum_self_normal_impulse_ns="
+                    << maximumSelfNormalImpulseNs
+                    << " maximum_self_tangential_impulse_ns="
+                    << maximumSelfTangentialImpulseNs
+                    << " maximum_self_friction_utilization="
+                    << maximumSelfFrictionUtilization
+                    << " active_puncture_channels="
+                    << terminalMetrics.matter.activeChannels
+                    << " active_tetrahedra="
+                    << terminalMetrics.matter.activeTetrahedra
+                    << " removed_tissue_mass_kg="
+                    << terminalMetrics.matter.removedMassKg
+                    << " matter_minimum_determinant="
+                    << terminalMetrics.matter.minimumDeterminant
+                    << " matter_maximum_residual="
+                    << terminalMetrics.matter.maximumResidual
+                    << " contact_velocity_residual_mps="
+                    << terminalMetrics.contactVelocityResidualMps
+                    << " gpu_ms=" << throwGpuMilliseconds
+                    << " failed_steps=0"
+                    << " boundary=physical_double_throw_not_complete_"
+                        "2_1_1_1_1_1_knot_or_load_retention\n";
+                return 0;
+            }
             if (tissueThreadTargetOnly ||
                 tissueThreadAcquisitionOnly ||
                 tissueKnotFirstThrowPreflightOnly ||
@@ -16777,6 +18189,14 @@ int main(const int argc, const char* const argv[]) {
                               metrics.standingThread.jawContacts[1] != 0u &&
                               metrics.standingThread.jawPatchMasks[0] != 0u &&
                               metrics.standingThread.jawPatchMasks[1] != 0u &&
+                              metrics.standingThread
+                                      .targetWindowJawContacts[0] != 0u &&
+                              metrics.standingThread
+                                      .targetWindowJawContacts[1] != 0u &&
+                              metrics.standingThread
+                                      .targetWindowJawPatchMasks[0] != 0u &&
+                              metrics.standingThread
+                                      .targetWindowJawPatchMasks[1] != 0u &&
                               metrics.standingThread.targetWindowContacts >=
                                   2u &&
                               metrics.standingThread.centerEdgeContacts != 0u &&
@@ -16920,15 +18340,37 @@ int main(const int argc, const char* const argv[]) {
                     static_cast<std::uint64_t>(completedStageSteps +
                                                completedHoldSteps) *
                         stepConfig.physicsSubsteps;
+                const KnotContinuationCheckpoint stagedKnotCheckpoint{
+                    .available = true,
+                    .protocolRevision = 1u,
+                    .protocolFingerprint = metalrobo::
+                        surgeonsKnotInstrumentProtocolFingerprint(protocol),
+                    .throwIndex = 0u,
+                    .completedSample = 0u,
+                    .expectedWholeTurns = firstThrow.expectedWholeTurns,
+                    .expectedWindingSign = firstThrow.expectedWindingSign,
+                    .expectedTransferSign = firstThrow.expectedTransferSign,
+                    .standingCenterEdge = target.centerEdge,
+                    .standingWindowFirstNode = target.windowFirstNode,
+                    .standingWindowLastNode = target.windowLastNode,
+                    .origin = knotOrigin,
+                    .axisX = knotX,
+                    .axisY = knotY,
+                    .axisZ = knotAxis,
+                };
                 writeHandoffStateArtifact(options.stateOutputDirectory,
                                           "tissue-knot-first-throw-staged",
                                           stagedStateStep, world, sutureSpec,
-                                          stageState, &stagedMatter);
+                                          stageState, &stagedMatter,
+                                          &stagedKnotCheckpoint);
                 std::cout << std::setprecision(9)
                           << "tissue_knot_first_throw_stage=ok"
                           << " source_phase="
                           << options.resumeTissueCheckpointPhase
                           << " output_phase=tissue-knot-first-throw-staged"
+                          << " protocol_fingerprint=0x" << std::hex
+                          << stagedKnotCheckpoint.protocolFingerprint
+                          << std::dec
                           << " standing_center_edge=" << target.centerEdge
                           << " stage_steps=" << completedStageSteps
                           << " hold_steps=" << completedHoldSteps
@@ -18037,7 +19479,10 @@ int main(const int argc, const char* const argv[]) {
                 world,
                 sutureSpec,
                 first.result,
-                &firstMatter
+                &firstMatter,
+                resumedKnotCheckpoint.available
+                    ? &resumedKnotCheckpoint
+                    : nullptr
             );
             std::uint64_t continuedStateHash = 1469598103934665603ull;
             appendStateHash(continuedStateHash, first.result.finalQ);

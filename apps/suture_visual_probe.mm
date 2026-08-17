@@ -3,6 +3,7 @@
 #import <ImageIO/ImageIO.h>
 
 #include "metalrobo/EngineModelComposer.hpp"
+#include "metalrobo/MatterSnapshotArchive.hpp"
 #include "metalrobo/MetalHybridRenderer.hpp"
 #include "metalrobo/MetalWorldFamily.hpp"
 #include "metalrobo/SurgicalAssets.hpp"
@@ -23,6 +24,7 @@
 #include <iostream>
 #include <limits>
 #include <map>
+#include <memory>
 #include <span>
 #include <sstream>
 #include <stdexcept>
@@ -41,6 +43,7 @@ constexpr std::uint32_t kReceiverInstrumentSemantic = 102u;
 constexpr std::uint32_t kNeedleSemantic = 201u;
 constexpr std::uint32_t kThreadSemantic = 202u;
 constexpr std::uint32_t kFieldSemantic = 301u;
+constexpr std::uint32_t kTissueSemantic = 302u;
 constexpr std::uint32_t kQualifiedThreadNodeCount = 25u;
 constexpr double kQualifiedThreadRadius = 1.2e-4;
 constexpr double kQualifiedThreadLength = 0.18;
@@ -52,6 +55,7 @@ constexpr double kHandoffTissueCenterX = 0.042;
 struct Arguments {
     std::filesystem::path statePath;
     std::filesystem::path outputDirectory;
+    bool geometryOnly = false;
 };
 
 struct PickupState {
@@ -79,6 +83,7 @@ struct PickupState {
     std::uint64_t matterSnapshotPayloadBytes = 0u;
     std::uint64_t matterSourcePhysicsFingerprint = 0u;
     std::uint64_t matterDeviceProgramFingerprint = 0u;
+    std::shared_ptr<const numi::matter::RuntimeStateSnapshot> matterSnapshot;
     double needleLift = 0.0;
     double jawTravel = 0.0;
     double followRatio = 0.0;
@@ -99,6 +104,15 @@ struct PickupState {
     bool tissueModelSeen = false;
     bool matterSnapshotRequired = false;
     bool matterSnapshotSeen = false;
+    std::uint64_t knotProtocolFingerprint = 0u;
+    std::uint32_t knotThrowIndex = 0u;
+    std::uint32_t knotCompletedSample = 0u;
+    bool knotProtocolSeen = false;
+    bool knotTargetSeen = false;
+    bool knotFrameOriginSeen = false;
+    bool knotFrameXSeen = false;
+    bool knotFrameYSeen = false;
+    bool knotFrameZSeen = false;
     bool needleLiftSeen = false;
     bool jawTravelSeen = false;
     bool followRatioSeen = false;
@@ -116,6 +130,7 @@ struct VisibilityMetrics {
     std::size_t needlePixels = 0u;
     std::size_t threadPixels = 0u;
     std::size_t fieldPixels = 0u;
+    std::size_t tissuePixels = 0u;
     std::size_t validPixels = 0u;
     float minimumDepth = std::numeric_limits<float>::infinity();
     float maximumDepth = 0.0f;
@@ -146,22 +161,27 @@ Arguments parseArguments(
     Arguments result;
     for (int index = 1; index < argumentCount; ++index) {
         const std::string_view argument{arguments[index]};
-        if (argument == "--state" && index + 1 < argumentCount) {
+        if (argument == "--state" && result.statePath.empty() &&
+            index + 1 < argumentCount) {
             result.statePath = arguments[++index];
         } else if (argument == "--output-dir" &&
+                   result.outputDirectory.empty() &&
                    index + 1 < argumentCount) {
             result.outputDirectory = arguments[++index];
+        } else if (argument == "--geometry-only" &&
+                   !result.geometryOnly) {
+            result.geometryOnly = true;
         } else {
             throw std::invalid_argument(
                 "usage: metalrobo_suture_visual_probe --state PATH "
-                "--output-dir DIRECTORY"
+                "--output-dir DIRECTORY [--geometry-only]"
             );
         }
     }
     if (result.statePath.empty() || result.outputDirectory.empty()) {
         throw std::invalid_argument(
             "usage: metalrobo_suture_visual_probe --state PATH "
-            "--output-dir DIRECTORY"
+            "--output-dir DIRECTORY [--geometry-only]"
         );
     }
     return result;
@@ -206,11 +226,16 @@ std::uint64_t integer(const std::string& text, const char* field) {
     return value;
 }
 
+bool isKnotVisualPhase(const std::string_view phase) {
+    return phase == "tissue-knot-first-throw-staged" ||
+        phase == "tissue-knot-first-double-throw";
+}
+
 bool isAcceptedDualHandoffVisualPhase(const std::string_view phase) {
     // Every entry is a transactionally published q/v + rigid + DER snapshot.
     // Keep this finite so an arbitrary or partially written phase cannot be
     // presented as operative evidence merely because its array widths match.
-    static constexpr std::array<std::string_view, 36u> phases{
+    static constexpr std::array<std::string_view, 38u> phases{
         "giver-closed",
         "giver-lift",
         "giver-handoff-stage",
@@ -231,6 +256,7 @@ bool isAcceptedDualHandoffVisualPhase(const std::string_view phase) {
         "receiver-extraction-preload-released",
         "receiver-extraction-retraction-settled",
         "receiver-extraction-retracted",
+        "tissue-rest",
         "tissue-receiver-bridge-start",
         "tissue-receiver-dynamic-bridge",
         "tissue-receiver-alignment-motion",
@@ -247,6 +273,7 @@ bool isAcceptedDualHandoffVisualPhase(const std::string_view phase) {
         "tissue-thread-approached",
         "tissue-thread-acquired",
         "tissue-knot-first-throw-staged",
+        "tissue-knot-first-double-throw",
     };
     return std::ranges::find(phases, phase) != phases.end();
 }
@@ -556,6 +583,73 @@ PickupState readPickupState(const std::filesystem::path& path) {
                 "handoff Matter snapshot identity is invalid"
             );
             result.matterSnapshotSeen = true;
+        } else if (fields[0] == "knot_protocol") {
+            require(
+                fields.size() == 8u && !result.knotProtocolSeen,
+                "handoff knot protocol row is invalid"
+            );
+            const std::uint64_t throwIndex = integer(
+                fields[3],
+                "knot throw index"
+            );
+            const std::uint64_t completedSample = integer(
+                fields[4],
+                "knot completed sample"
+            );
+            const std::uint64_t protocolFingerprint = integer(
+                fields[2],
+                "knot protocol fingerprint"
+            );
+            require(
+                integer(fields[1], "knot protocol revision") != 0u &&
+                    protocolFingerprint != 0u &&
+                    integer(fields[5], "knot whole turns") != 0u &&
+                    throwIndex <=
+                        std::numeric_limits<std::uint32_t>::max() &&
+                    completedSample <=
+                        std::numeric_limits<std::uint32_t>::max() &&
+                    std::abs(number(fields[6], "knot winding sign")) ==
+                        1.0 &&
+                    std::abs(number(fields[7], "knot transfer sign")) ==
+                        1.0,
+                "handoff knot protocol row is invalid"
+            );
+            result.knotThrowIndex =
+                static_cast<std::uint32_t>(throwIndex);
+            result.knotProtocolFingerprint = protocolFingerprint;
+            result.knotCompletedSample =
+                static_cast<std::uint32_t>(completedSample);
+            result.knotProtocolSeen = true;
+        } else if (fields[0] == "knot_standing_target") {
+            require(
+                fields.size() == 4u && !result.knotTargetSeen &&
+                    integer(fields[2], "knot window first") <=
+                        integer(fields[1], "knot center edge") &&
+                    integer(fields[1], "knot center edge") <
+                        integer(fields[3], "knot window last"),
+                "handoff knot target row is invalid"
+            );
+            result.knotTargetSeen = true;
+        } else if (fields[0] == "knot_frame_origin" ||
+                   fields[0] == "knot_frame_x" ||
+                   fields[0] == "knot_frame_y" ||
+                   fields[0] == "knot_frame_z") {
+            require(
+                fields.size() == 4u,
+                "handoff knot frame row is invalid"
+            );
+            (void)number(fields[1], "knot frame x");
+            (void)number(fields[2], "knot frame y");
+            (void)number(fields[3], "knot frame z");
+            bool* seen = fields[0] == "knot_frame_origin"
+                ? &result.knotFrameOriginSeen
+                : (fields[0] == "knot_frame_x"
+                    ? &result.knotFrameXSeen
+                    : (fields[0] == "knot_frame_y"
+                        ? &result.knotFrameYSeen
+                        : &result.knotFrameZSeen));
+            require(!*seen, "duplicate handoff knot frame row");
+            *seen = true;
         } else {
             throw std::invalid_argument(
                 "pickup state contains an unknown row: " + fields[0]
@@ -618,10 +712,45 @@ PickupState readPickupState(const std::filesystem::path& path) {
         ) &&
         std::abs(result.threadRadius - kHandoffThreadRadius) <= 1.0e-12 &&
         std::abs(result.threadLength - kHandoffThreadLength) <= 1.0e-12;
+    const std::uint32_t knotMetadataRows =
+        static_cast<std::uint32_t>(result.knotProtocolSeen) +
+        static_cast<std::uint32_t>(result.knotTargetSeen) +
+        static_cast<std::uint32_t>(result.knotFrameOriginSeen) +
+        static_cast<std::uint32_t>(result.knotFrameXSeen) +
+        static_cast<std::uint32_t>(result.knotFrameYSeen) +
+        static_cast<std::uint32_t>(result.knotFrameZSeen);
+    const bool knotMetadataValid = isKnotVisualPhase(result.phase)
+        ? knotMetadataRows == 6u && result.knotThrowIndex == 0u &&
+            (result.phase == "tissue-knot-first-throw-staged"
+                ? result.knotCompletedSample == 0u
+                : result.knotCompletedSample > 0u)
+        : knotMetadataRows == 0u;
     require(
-        commonValid && (singlePickupValid || dualHandoffValid),
+        commonValid && (singlePickupValid || dualHandoffValid) &&
+            (!result.dualHandoff || knotMetadataValid),
         "pickup state did not pass the physical acquisition contract"
     );
+    if (result.matterSnapshotRequired) {
+        auto snapshot =
+            std::make_shared<numi::matter::RuntimeStateSnapshot>();
+        const metalrobo::MatterSnapshotArchiveResult archive =
+            metalrobo::readMatterSnapshotArchive(
+                path.parent_path() / result.matterSnapshotFilename,
+                *snapshot
+            );
+        require(
+            archive.succeeded() && snapshot->available &&
+                archive.contentHash == result.matterSnapshotContentHash &&
+                archive.payloadBytes == result.matterSnapshotPayloadBytes &&
+                snapshot->sourcePhysicsFingerprint ==
+                    result.matterSourcePhysicsFingerprint &&
+                snapshot->deviceProgramFingerprint ==
+                    result.matterDeviceProgramFingerprint,
+            "Matter visual snapshot failed archive identity validation: " +
+                archive.message
+        );
+        result.matterSnapshot = std::move(snapshot);
+    }
     return result;
 }
 
@@ -915,9 +1044,51 @@ void assignRotatedInverseInertia(
     };
 }
 
+std::array<double, 3> visualTissueCenter(
+    const PickupState& state,
+    const metalrobo::DvrkSutureVisualScene& scene
+) {
+    const metalrobo::SurgicalNeutralZonePadSpec pad;
+    if (scene.tissuePositions.empty()) {
+        return {
+            kHandoffTissueCenterX,
+            0.0,
+            0.5 * pad.thicknessM.value + 0.5 * state.tissueThickness,
+        };
+    }
+    std::array<double, 3> lower{
+        std::numeric_limits<double>::infinity(),
+        std::numeric_limits<double>::infinity(),
+        std::numeric_limits<double>::infinity(),
+    };
+    std::array<double, 3> upper{
+        -std::numeric_limits<double>::infinity(),
+        -std::numeric_limits<double>::infinity(),
+        -std::numeric_limits<double>::infinity(),
+    };
+    for (const auto& position : scene.tissuePositions) {
+        for (std::size_t axis = 0u; axis < 3u; ++axis) {
+            const double value =
+                position[axis] + scene.tissueTranslationM[axis];
+            require(
+                std::isfinite(value),
+                "visual tissue bounds contain a non-finite node"
+            );
+            lower[axis] = std::min(lower[axis], value);
+            upper[axis] = std::max(upper[axis], value);
+        }
+    }
+    return {
+        0.5 * (lower[0] + upper[0]),
+        0.5 * (lower[1] + upper[1]),
+        0.5 * (lower[2] + upper[2]),
+    };
+}
+
 metalrobo::WorldTemplate makeWorldTemplate(
     const metalrobo::EngineModel& model,
-    const PickupState& state
+    const PickupState& state,
+    const metalrobo::DvrkSutureVisualScene& visualScene
 ) {
     metalrobo::EpisodeTwin episode;
     episode.id = state.dualHandoff
@@ -1074,17 +1245,18 @@ metalrobo::WorldTemplate makeWorldTemplate(
         : state.medicallyMatchedSinglePickup
             ? mr_float4{1700.0f, 1700.0f, 640.0f, 480.0f}
             : mr_float4{1030.0f, 1030.0f, 640.0f, 480.0f};
-    const metalrobo::SurgicalNeutralZonePadSpec pad;
-    const float tissueCenterZ = static_cast<float>(
-        0.5 * pad.thicknessM.value + 0.5 * state.tissueThickness
+    const std::array<double, 3> tissueCenter = visualTissueCenter(
+        state,
+        visualScene
     );
     const mr_float4 overviewTarget = state.dualHandoff
         ? mr_float4{
               0.35f * needlePosition.x + 0.40f * threadCenter.x +
-                  0.25f * static_cast<float>(kHandoffTissueCenterX),
-              0.35f * needlePosition.y + 0.40f * threadCenter.y,
+                  0.25f * static_cast<float>(tissueCenter[0]),
+              0.35f * needlePosition.y + 0.40f * threadCenter.y +
+                  0.25f * static_cast<float>(tissueCenter[1]),
               0.35f * needlePosition.z + 0.40f * threadCenter.z +
-                  0.25f * tissueCenterZ,
+                  0.25f * static_cast<float>(tissueCenter[2]),
               1.0f,
           }
         : mr_float4{
@@ -1202,16 +1374,15 @@ metalrobo::DvrkSutureVisualScene makeHandoffVisualScene(
         .jawBBodyIndex = 17u,
         .needleBodyIndex = 18u,
     };
-    const numi::matter::PorcineJejunumClosureCoupon coupon =
-        numi::matter::makePorcineJejunumClosureCoupon(0u);
+    const numi::matter::PorcineJejunumFungSpec tissueSpec;
     require(
-        std::abs(state.tissueLength - coupon.spec.lengthM.value) <= 1.0e-12 &&
-            std::abs(state.tissueWidth - coupon.spec.widthM.value) <=
+        std::abs(state.tissueLength - tissueSpec.lengthM.value) <= 1.0e-12 &&
+            std::abs(state.tissueWidth - tissueSpec.widthM.value) <=
                 1.0e-12 &&
-            std::abs(state.tissueThickness - coupon.spec.thicknessM.value) <=
+            std::abs(state.tissueThickness - tissueSpec.thicknessM.value) <=
                 1.0e-12 &&
             std::abs(state.tissueIncisionGap -
-                     coupon.spec.incisionGapM.value) <= 1.0e-12,
+                     tissueSpec.incisionGapM.value) <= 1.0e-12,
         "handoff replay tissue does not match the authored coupon"
     );
     const metalrobo::SurgicalNeutralZonePadSpec pad;
@@ -1222,14 +1393,101 @@ metalrobo::DvrkSutureVisualScene makeHandoffVisualScene(
         0.5 * pad.sizeYM.value,
         0.5 * pad.thicknessM.value,
     };
-    result.tissuePositions = coupon.object.femNodes;
-    // The coupon rests on the same 3 mm neutral-zone pad as the needle/thread,
-    // offset laterally so it is ready for the subsequent closure experiment.
-    result.tissueTranslationM = {
-        kHandoffTissueCenterX,
-        0.0,
-        0.5 * pad.thicknessM.value + 0.5 * coupon.spec.thicknessM.value,
-    };
+    std::vector<std::array<std::uint32_t, 4>> activeTetrahedra;
+    if (state.matterSnapshot != nullptr) {
+        const numi::matter::RuntimeStateSnapshot& snapshot =
+            *state.matterSnapshot;
+        require(
+            snapshot.available && !snapshot.femNodes.empty() &&
+                !snapshot.femTopologyTetrahedra.empty(),
+            "live Matter visual snapshot has no FEM state"
+        );
+        std::vector<std::array<std::uint32_t, 4>> sourceTetrahedra;
+        std::vector<std::uint8_t> referenced(snapshot.femNodes.size(), 0u);
+        for (const NMTetrahedronGPU& tetrahedron :
+             snapshot.femTopologyTetrahedra) {
+            if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) {
+                continue;
+            }
+            const std::array<std::uint32_t, 4> nodes{
+                tetrahedron.nodes.x,
+                tetrahedron.nodes.y,
+                tetrahedron.nodes.z,
+                tetrahedron.nodes.w,
+            };
+            for (const std::uint32_t node : nodes) {
+                require(
+                    node < snapshot.femNodes.size() &&
+                        (snapshot.femTopologyNodes.empty() ||
+                         (node < snapshot.femTopologyNodes.size() &&
+                          (snapshot.femTopologyNodes[node].identity.w &
+                           NM_TOPOLOGY_ACTIVE) != 0u)),
+                    "live Matter visual topology references an inactive node"
+                );
+                referenced[node] = 1u;
+            }
+            sourceTetrahedra.push_back(nodes);
+        }
+        require(
+            !sourceTetrahedra.empty(),
+            "live Matter visual snapshot has no active tetrahedron"
+        );
+        std::vector<std::uint32_t> remap(
+            snapshot.femNodes.size(),
+            NM_INVALID_INDEX
+        );
+        result.tissuePositions.reserve(snapshot.femNodes.size());
+        for (std::size_t node = 0u; node < snapshot.femNodes.size(); ++node) {
+            if (referenced[node] == 0u) {
+                continue;
+            }
+            const nm_float4 position =
+                snapshot.femNodes[node].positionAndMass;
+            require(
+                std::isfinite(position.x) && std::isfinite(position.y) &&
+                    std::isfinite(position.z),
+                "live Matter visual FEM node is non-finite"
+            );
+            remap[node] = static_cast<std::uint32_t>(
+                result.tissuePositions.size()
+            );
+            result.tissuePositions.push_back({
+                static_cast<double>(position.x),
+                static_cast<double>(position.y),
+                static_cast<double>(position.z),
+            });
+        }
+        activeTetrahedra.reserve(sourceTetrahedra.size());
+        for (const auto& source : sourceTetrahedra) {
+            activeTetrahedra.push_back({
+                remap[source[0]],
+                remap[source[1]],
+                remap[source[2]],
+                remap[source[3]],
+            });
+        }
+        // Snapshot FEM positions are already in the live world frame; adding
+        // the legacy neutral-zone offset would render a second, false coupon.
+        result.tissueTranslationM = {};
+    } else {
+        const numi::matter::PorcineJejunumClosureCoupon coupon =
+            numi::matter::makePorcineJejunumClosureCoupon(0u);
+        result.tissuePositions = coupon.object.femNodes;
+        activeTetrahedra.reserve(coupon.object.tetrahedra.size());
+        for (const numi::matter::TetrahedronSource& tetrahedron :
+             coupon.object.tetrahedra) {
+            activeTetrahedra.push_back(tetrahedron.nodes);
+        }
+        // The pre-tissue neutral-zone fixture keeps its authored coupon on the
+        // pad beside the pickup. Live v3 tissue checkpoints take the branch
+        // above and never receive this presentation-only translation.
+        result.tissueTranslationM = {
+            kHandoffTissueCenterX,
+            0.0,
+            0.5 * pad.thicknessM.value +
+                0.5 * tissueSpec.thicknessM.value,
+        };
+    }
 
     struct BoundaryFace {
         std::array<std::uint32_t, 3> oriented{};
@@ -1263,21 +1521,29 @@ metalrobo::DvrkSutureVisualScene makeHandoffVisualScene(
         return left[0] * right[0] + left[1] * right[1] +
             left[2] * right[2];
     };
-    for (const numi::matter::TetrahedronSource& tetrahedron :
-         coupon.object.tetrahedra) {
+    for (const std::array<std::uint32_t, 4>& tetrahedron :
+         activeTetrahedra) {
         for (const auto& local : localFaces) {
             std::array<std::uint32_t, 3> oriented{
-                tetrahedron.nodes[local[0]],
-                tetrahedron.nodes[local[1]],
-                tetrahedron.nodes[local[2]],
+                tetrahedron[local[0]],
+                tetrahedron[local[1]],
+                tetrahedron[local[2]],
             };
-            const std::uint32_t opposite = tetrahedron.nodes[local[3]];
+            const std::uint32_t opposite = tetrahedron[local[3]];
             const auto& a = result.tissuePositions[oriented[0]];
             const auto& b = result.tissuePositions[oriented[1]];
             const auto& c = result.tissuePositions[oriented[2]];
             const auto& d = result.tissuePositions[opposite];
-            if (dot3(cross3(subtract(b, a), subtract(c, a)),
-                     subtract(d, a)) > 0.0) {
+            const double signedSixVolume = dot3(
+                cross3(subtract(b, a), subtract(c, a)),
+                subtract(d, a)
+            );
+            require(
+                std::isfinite(signedSixVolume) &&
+                    std::abs(signedSixVolume) > 1.0e-24,
+                "live visual tissue contains a degenerate tetrahedron"
+            );
+            if (signedSixVolume > 0.0) {
                 std::swap(oriented[1], oriented[2]);
             }
             std::array<std::uint32_t, 3> key = oriented;
@@ -1432,6 +1698,9 @@ std::vector<std::uint8_t> identityImage(
         case kFieldSemantic:
             color = {20u, 120u, 100u};
             break;
+        case kTissueSemantic:
+            color = {190u, 74u, 68u};
+            break;
         default:
             break;
         }
@@ -1466,6 +1735,9 @@ VisibilityMetrics visibility(
         case kFieldSemantic:
             ++result.fieldPixels;
             break;
+        case kTissueSemantic:
+            ++result.tissuePixels;
+            break;
         default:
             break;
         }
@@ -1499,14 +1771,20 @@ void writeEvidence(
         throw std::runtime_error("could not open visual evidence output");
     }
     const std::string_view schema = pickup.dualHandoff
-        ? "numi.dual-psm-suture-handoff-visual-evidence.v1"
+        ? pickup.matterSnapshot != nullptr
+            ? "numi.dual-psm-suture-handoff-visual-evidence.v2"
+            : "numi.dual-psm-suture-handoff-visual-evidence.v1"
         : pickup.medicallyMatchedSinglePickup
             ? "numi.surgical-suture-visual-evidence.v2"
             : "numi.surgical-suture-visual-evidence.v1";
     const std::string_view physicsBoundary = pickup.dualHandoff
-        ? "accepted Apple Metal articulated/contact handoff plus DER thread; "
-          "the jejunal surface is generated from the calibrated FEM rest "
-          "mesh and remains presentation-only"
+        ? pickup.matterSnapshot != nullptr
+            ? "accepted Apple Metal articulated/contact state plus DER thread "
+              "and the same checkpoint's verified live FEM nodes and active "
+              "topology; the reconstructed surface remains presentation-only"
+            : "accepted Apple Metal articulated/contact handoff plus DER "
+              "thread; the jejunal surface is generated from the calibrated "
+              "FEM rest mesh and remains presentation-only"
         : pickup.medicallyMatchedSinglePickup
             ? "accepted deterministic CPU articulated/contact pickup plus "
               "CPU DER thread; Apple Metal owns this render only; the support "
@@ -1540,7 +1818,23 @@ void writeEvidence(
             << "  \"matter_device_program_fingerprint\": "
             << pickup.matterDeviceProgramFingerprint << ",\n";
     }
+    if (pickup.knotProtocolSeen) {
+        output
+            << "  \"knot_protocol_fingerprint\": "
+            << pickup.knotProtocolFingerprint << ",\n"
+            << "  \"knot_throw_index\": "
+            << pickup.knotThrowIndex << ",\n"
+            << "  \"knot_completed_sample\": "
+            << pickup.knotCompletedSample << ",\n";
+    }
     output
+        << "  \"tissue_geometry_source\": \""
+        << (pickup.matterSnapshot != nullptr
+                ? "verified_live_matter_fem_snapshot"
+                : pickup.dualHandoff
+                    ? "authored_fem_rest_mesh"
+                    : "none")
+        << "\",\n"
         << "  \"visual_pack_hash\": \"" << asset.pack.contentHash << "\",\n"
         << "  \"visual_scene_fingerprint\": " << manifest.fingerprint << ",\n"
         << "  \"vertices\": " << asset.metrics.vertexCount << ",\n"
@@ -1568,6 +1862,7 @@ void writeEvidence(
             << "\"needle_pixels\": " << view.needlePixels << ", "
             << "\"thread_pixels\": " << view.threadPixels << ", "
             << "\"field_pixels\": " << view.fieldPixels << ", "
+            << "\"tissue_pixels\": " << view.tissuePixels << ", "
             << "\"valid_pixels\": " << view.validPixels << ", "
             << "\"minimum_depth_m\": " << view.minimumDepth << ", "
             << "\"maximum_depth_m\": " << view.maximumDepth << "}"
@@ -1644,6 +1939,33 @@ int main(const int argumentCount, char* argv[]) {
                     {},
                     visualScene
                 );
+            if (options.geometryOnly) {
+                std::cout << std::setprecision(12)
+                    << "suture_visual_geometry status=ok"
+                    << " phase=\""
+                    << (pickup.dualHandoff
+                            ? pickup.phase
+                            : "single-pickup")
+                    << "\" vertices=" << visualAsset.metrics.vertexCount
+                    << " triangles=" << visualAsset.metrics.triangleCount
+                    << " needle_triangles="
+                    << visualAsset.metrics.needleTriangleCount
+                    << " thread_triangles="
+                    << visualAsset.metrics.threadTriangleCount
+                    << " tissue_triangles="
+                    << visualAsset.metrics.tissueTriangleCount
+                    << " tissue_geometry_source="
+                    << (pickup.matterSnapshot != nullptr
+                            ? "verified_live_matter_fem_snapshot"
+                            : pickup.dualHandoff
+                                ? "authored_fem_rest_mesh"
+                                : "none")
+                    << " matter_content_hash="
+                    << pickup.matterSnapshotContentHash
+                    << " pack_hash=" << visualAsset.pack.contentHash
+                    << " gpu_dispatched=no\n";
+                return 0;
+            }
             const std::filesystem::path packPath =
                 options.outputDirectory /
                 (pickup.dualHandoff
@@ -1678,7 +2000,8 @@ int main(const int argumentCount, char* argv[]) {
 
             const metalrobo::WorldTemplate world = makeWorldTemplate(
                 model,
-                livePickup
+                livePickup,
+                visualScene
             );
             const metalrobo::WorldFamily family = makeWorldFamily(world);
             metalrobo::MetalWorldFamilyContext worlds;
@@ -1797,15 +2120,23 @@ int main(const int argumentCount, char* argv[]) {
                 pickup.dualHandoff ? "handoff-close" : "pickup-close",
                 pickup.dualHandoff ? "handoff-overview" : "pickup-overview",
             };
-            const std::array<std::array<std::size_t, 5u>, 2u>
+            const std::array<std::array<std::size_t, 7u>, 2u>
                 minimumCoverage = pickup.dualHandoff
-                    ? std::array<std::array<std::size_t, 5u>, 2u>{{
-                          {{15000u, 15000u, 1200u, 1000u, 100000u}},
-                          {{2500u, 2500u, 250u, 400u, 100000u}},
+                    ? std::array<std::array<std::size_t, 7u>, 2u>{{
+                          {{15000u, 15000u, 1200u, 1000u, 5000u, 500u,
+                            100000u}},
+                          {{2500u, 2500u, 250u, 400u, 1000u, 200u,
+                            100000u}},
                       }}
-                    : std::array<std::array<std::size_t, 5u>, 2u>{{
-                          {{30000u, 0u, 1800u, 1000u, 100000u}},
-                          {{5000u, 0u, 250u, 400u, 100000u}},
+                    : std::array<std::array<std::size_t, 7u>, 2u>{{
+                          {{30000u, 0u, 1800u, 1000u,
+                            pickup.medicallyMatchedSinglePickup ? 5000u : 0u,
+                            pickup.medicallyMatchedSinglePickup ? 500u : 0u,
+                            100000u}},
+                          {{5000u, 0u, 250u, 400u,
+                            pickup.medicallyMatchedSinglePickup ? 1000u : 0u,
+                            pickup.medicallyMatchedSinglePickup ? 200u : 0u,
+                            100000u}},
                       }};
             std::array<VisibilityMetrics, 2u> viewMetrics{};
             metalrobo::MetalHybridRendererDiagnostics lastRender;
@@ -1857,8 +2188,12 @@ int main(const int argumentCount, char* argv[]) {
                             minimumCoverage[camera][2u] &&
                         viewMetrics[camera].threadPixels >=
                             minimumCoverage[camera][3u] &&
+                        viewMetrics[camera].fieldPixels >=
+                            minimumCoverage[camera][4u] &&
+                        viewMetrics[camera].tissuePixels >=
+                            minimumCoverage[camera][5u] &&
                         viewMetrics[camera].validPixels >=
-                            minimumCoverage[camera][4u],
+                            minimumCoverage[camera][6u],
                     std::string{"visual binding coverage failed for "} +
                         names[camera] +
                         " instrument=" +
@@ -1873,6 +2208,8 @@ int main(const int argumentCount, char* argv[]) {
                         std::to_string(viewMetrics[camera].threadPixels) +
                         " field=" +
                         std::to_string(viewMetrics[camera].fieldPixels) +
+                        " tissue=" +
+                        std::to_string(viewMetrics[camera].tissuePixels) +
                         " valid=" +
                         std::to_string(viewMetrics[camera].validPixels)
                 );
@@ -1899,16 +2236,26 @@ int main(const int argumentCount, char* argv[]) {
                 << visualAsset.metrics.threadTriangleCount
                 << " tissue_triangles="
                 << visualAsset.metrics.tissueTriangleCount
+                << " tissue_geometry_source="
+                << (livePickup.matterSnapshot != nullptr
+                        ? "verified_live_matter_fem_snapshot"
+                        : livePickup.dualHandoff
+                            ? "authored_fem_rest_mesh"
+                            : "none")
                 << " close_pixels="
                 << viewMetrics[0u].instrumentPixels << "/"
                 << viewMetrics[0u].receiverInstrumentPixels << "/"
                 << viewMetrics[0u].needlePixels << "/"
-                << viewMetrics[0u].threadPixels
+                << viewMetrics[0u].threadPixels << "/"
+                << viewMetrics[0u].fieldPixels << "/"
+                << viewMetrics[0u].tissuePixels
                 << " overview_pixels="
                 << viewMetrics[1u].instrumentPixels << "/"
                 << viewMetrics[1u].receiverInstrumentPixels << "/"
                 << viewMetrics[1u].needlePixels << "/"
-                << viewMetrics[1u].threadPixels
+                << viewMetrics[1u].threadPixels << "/"
+                << viewMetrics[1u].fieldPixels << "/"
+                << viewMetrics[1u].tissuePixels
                 << " pack_hash=" << visualAsset.pack.contentHash
                 << " scene_fingerprint=" << evidenceManifest.fingerprint
                 << " source=simulation clinical_validation=no\n";

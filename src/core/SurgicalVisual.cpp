@@ -911,6 +911,7 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
     constexpr std::uint32_t needleSemantic = 201u;
     constexpr std::uint32_t threadSemantic = 202u;
     constexpr std::uint32_t fieldSemantic = 301u;
+    constexpr std::uint32_t tissueSemantic = 302u;
     std::uint32_t stableId = 1u;
 
     const auto cylinder = [&](
@@ -1290,7 +1291,7 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
             6u,
             MR_VISUAL_BINDING_WORLD,
             MR_INVALID_INDEX,
-            fieldSemantic,
+            tissueSemantic,
             3002u,
             stableId++,
             "porcine_jejunum_enterotomy_coupon",
@@ -1313,7 +1314,7 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
             6u,
             MR_VISUAL_BINDING_WORLD,
             MR_INVALID_INDEX,
-            fieldSemantic,
+            tissueSemantic,
             3002u,
             stableId++,
             "suture_practice_tissue",
@@ -1331,7 +1332,7 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
             7u,
             MR_VISUAL_BINDING_WORLD,
             MR_INVALID_INDEX,
-            fieldSemantic,
+            tissueSemantic,
             3003u,
             stableId++,
             "suture_practice_incision",

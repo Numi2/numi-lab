@@ -613,7 +613,11 @@ int main() {
         require(
             frictionlessDiagnostics.succeeded() &&
                 frictionDiagnostics.succeeded() &&
-                cpuFrictionDiagnostics.succeeded(),
+                cpuFrictionDiagnostics.succeeded() &&
+                frictionlessResult.states.size() == environmentCount &&
+                frictionResult.states.size() == environmentCount &&
+                frictionlessResult.statuses.size() == environmentCount &&
+                frictionResult.statuses.size() == environmentCount,
             "Metal/CPU DER frictional self-contact solve failed: "
             "frictionless=\"" + frictionlessDiagnostics.message +
                 "\" friction=\"" + frictionDiagnostics.message +
@@ -664,6 +668,30 @@ int main() {
             require(
                 frictionState.positions ==
                         frictionlessState.positions &&
+                    frictionlessResult.statuses[environment].code ==
+                        MR_ROD_GPU_SUCCESS &&
+                    frictionResult.statuses[environment].code ==
+                        MR_ROD_GPU_SUCCESS &&
+                    frictionlessResult.statuses[environment].environment ==
+                        environment &&
+                    frictionResult.statuses[environment].environment ==
+                        environment &&
+                    frictionlessResult.statuses[environment]
+                            .selfContactFriction.x == 0.0F &&
+                    frictionlessResult.statuses[environment]
+                            .selfContactFriction.y == 0.0F &&
+                    frictionlessResult.statuses[environment]
+                            .selfContactFriction.z == 0.0F &&
+                    frictionlessResult.statuses[environment]
+                            .selfContactFriction.w == 0.0F &&
+                    frictionResult.statuses[environment]
+                            .selfContactFriction.x > 0.0F &&
+                    frictionResult.statuses[environment]
+                            .selfContactFriction.y > 0.0F &&
+                    frictionResult.statuses[environment]
+                            .selfContactFriction.z > 0.0F &&
+                    frictionResult.statuses[environment]
+                            .selfContactFriction.w <= 1.0001F &&
                     frictionSlip < 0.9 * frictionlessSlip,
                 "Metal DER Coulomb self-contact did not reduce slip: "
                 "frictionless=" + std::to_string(frictionlessSlip) +
@@ -689,7 +717,9 @@ int main() {
             );
         bool frictionReplayExact =
             frictionReplay.states.size() ==
-            frictionResult.states.size();
+                frictionResult.states.size() &&
+            frictionReplay.statuses.size() ==
+                frictionResult.statuses.size();
         for (std::size_t environment = 0u;
              frictionReplayExact &&
              environment < frictionResult.states.size();
@@ -702,7 +732,23 @@ int main() {
                 frictionReplay.states[environment].twists ==
                     frictionResult.states[environment].twists &&
                 frictionReplay.states[environment].twistRates ==
-                    frictionResult.states[environment].twistRates;
+                    frictionResult.states[environment].twistRates &&
+                frictionReplay.statuses[environment]
+                        .selfContactFriction.x ==
+                    frictionResult.statuses[environment]
+                        .selfContactFriction.x &&
+                frictionReplay.statuses[environment]
+                        .selfContactFriction.y ==
+                    frictionResult.statuses[environment]
+                        .selfContactFriction.y &&
+                frictionReplay.statuses[environment]
+                        .selfContactFriction.z ==
+                    frictionResult.statuses[environment]
+                        .selfContactFriction.z &&
+                frictionReplay.statuses[environment]
+                        .selfContactFriction.w ==
+                    frictionResult.statuses[environment]
+                        .selfContactFriction.w;
         }
         require(
             frictionReplayDiagnostics.succeeded() &&
@@ -959,6 +1005,14 @@ int main() {
             << firstFrictionlessSlip
             << " frictional_slip_mps="
             << firstFrictionalSlip
+            << " self_friction_contacts="
+            << frictionResult.statuses[0].selfContactFriction.x
+            << " self_normal_impulse_ns="
+            << frictionResult.statuses[0].selfContactFriction.y
+            << " self_tangential_impulse_ns="
+            << frictionResult.statuses[0].selfContactFriction.z
+            << " self_friction_utilization="
+            << frictionResult.statuses[0].selfContactFriction.w
             << " friction_oracle_error_mps="
             << maximumFrictionSlipError
             << " friction_momentum_error_kg_mps="

@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_ROD_GPU_ABI_VERSION 10u
+#define MR_ROD_GPU_ABI_VERSION 11u
 #define MR_ROD_GPU_MAX_NODES 128u
 #define MR_ROD_GPU_MAX_ATTACHMENTS 8u
 #define MR_ROD_GPU_MAX_SELF_FRICTION_CONTACTS 64u
@@ -238,6 +238,11 @@ typedef struct MR_ALIGN16 MRRodGPUStatus {
     // correction in metres, maximum self penetration, projected
     // self-contact count.
     mr_float4 diagnostics;
+    // Friction-active self-contact count, maximum inferred normal impulse,
+    // maximum accumulated tangential impulse, and maximum Coulomb-disk
+    // utilization. These completion-boundary values are zero when
+    // self-friction is disabled or no load-bearing pair is present.
+    mr_float4 selfContactFriction;
 } MRRodGPUStatus;
 
 #ifdef __cplusplus
@@ -249,7 +254,7 @@ static_assert(sizeof(MRRodGPURigidBinding) == 32);
 static_assert(alignof(MRRodGPURigidBinding) == 16);
 static_assert(sizeof(MRRodGPUAttachmentReaction) == 48);
 static_assert(alignof(MRRodGPUAttachmentReaction) == 16);
-static_assert(sizeof(MRRodGPUStatus) == 32);
+static_assert(sizeof(MRRodGPUStatus) == 48);
 static_assert(alignof(MRRodGPUStatus) == 16);
 static_assert(sizeof(MRRodColliderGPU) == 64);
 static_assert(alignof(MRRodColliderGPU) == 16);

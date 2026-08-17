@@ -201,6 +201,13 @@ struct SurgicalSutureMaterialPlan {
 [[nodiscard]] SurgeonsKnotInstrumentProtocol
 makeSurgeonsKnotInstrumentProtocol();
 
+// Canonical content identity for the complete ordered throw protocol.  Knot
+// checkpoints persist this value so a continuation cannot resume against
+// different samples, dimensions, speed limits, or throw ordering.
+[[nodiscard]] std::uint64_t surgeonsKnotInstrumentProtocolFingerprint(
+    const SurgeonsKnotInstrumentProtocol& protocol
+) noexcept;
+
 [[nodiscard]] SurgicalThrowDiagnostics certifySurgicalThrowPath(
     const SurgicalThrowPath& path
 ) noexcept;

@@ -148,6 +148,20 @@ exposure samples.
 compute encoder. It commits no command buffer and performs no readback. RGB,
 depth, identity, normal, motion, and validity buffers stay device-resident and
 are exposed through `nativeBuffer` for MLX, Core ML, or another Metal stage.
+Surgical v3 replay is equally state-bound: `metalrobo_suture_visual_probe`
+reads the checkpoint's Matter archive, verifies its content hash, byte count,
+source-physics fingerprint, and device-program fingerprint, then reconstructs
+the visible jejunal boundary from the archive's live FEM positions and active
+tetrahedra. It applies no neutral-zone translation and has no rest-mesh
+fallback for a v3 checkpoint. Older v2 handoff fixtures, which predate live
+tissue coupling, retain their explicitly authored rest-coupon presentation.
+Knot-stage and double-throw manifests are accepted only when all six exact
+continuation rows are present (protocol, material window, origin, and three
+frame axes); partial knot metadata or knot rows on another phase are rejected
+before rendering.
+The support field retains semantic identity `301`; tissue uses independent
+identity `302`, so render qualification must observe the jejunal surface in
+both surgical views rather than satisfying coverage with the pad alone.
 `MetalHybridObjectTracker` is the native closed-loop adapter: it renders on a
 borrowed `MetalWorld` command buffer, reduces metric depth and instance
 identity into compact root-local object position and velocity tracks, and

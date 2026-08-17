@@ -1830,6 +1830,7 @@ kernel void mr_discrete_elastic_rod_step(
         );
         completedIterations = 0u;
         converged = 0u;
+        selfFrictionContactCount = 0u;
         if (dispatch.abiVersion != MR_ROD_GPU_ABI_VERSION ||
             dispatch.environmentCount == 0u ||
             dispatch.nodeCount < 2u ||
@@ -2466,6 +2467,44 @@ kernel void mr_discrete_elastic_rod_step(
                 &projectedContactCount,
                 memory_order_relaxed
             ))
+        );
+        float maximumSelfNormalImpulse = 0.0f;
+        float maximumSelfTangentialImpulse = 0.0f;
+        float maximumSelfFrictionUtilization = 0.0f;
+        if (failureCode == MR_ROD_GPU_SUCCESS) {
+            for (uint contact = 0u;
+                 contact < selfFrictionContactCount;
+                 ++contact) {
+                const float normalImpulse =
+                    selfFrictionNormalImpulses[contact];
+                const float tangentialImpulse = length(
+                    selfFrictionImpulses[contact]
+                );
+                const float frictionLimit =
+                    dispatch.selfCollision.w * normalImpulse;
+                maximumSelfNormalImpulse = max(
+                    maximumSelfNormalImpulse,
+                    normalImpulse
+                );
+                maximumSelfTangentialImpulse = max(
+                    maximumSelfTangentialImpulse,
+                    tangentialImpulse
+                );
+                maximumSelfFrictionUtilization = max(
+                    maximumSelfFrictionUtilization,
+                    frictionLimit > 0.0f
+                        ? tangentialImpulse / frictionLimit
+                        : 0.0f
+                );
+            }
+        }
+        status.selfContactFriction = float4(
+            failureCode == MR_ROD_GPU_SUCCESS
+                ? float(selfFrictionContactCount)
+                : 0.0f,
+            maximumSelfNormalImpulse,
+            maximumSelfTangentialImpulse,
+            maximumSelfFrictionUtilization
         );
         statuses[environment] = status;
     }

@@ -601,9 +601,14 @@ int main() {
         require(
             metalFrictionlessDiagnostics.succeeded() &&
                 metalFrictionDiagnostics.succeeded() &&
+                metalFrictionless.states.size() == environmentCount &&
                 metalFriction.states.size() == environmentCount &&
+                metalFrictionless.reactions.size() ==
+                    environmentCount * attachments.size() &&
                 metalFriction.reactions.size() ==
-                    environmentCount * attachments.size(),
+                    environmentCount * attachments.size() &&
+                metalFrictionless.statuses.size() == environmentCount &&
+                metalFriction.statuses.size() == environmentCount,
             "Apple Metal loaded-knot solve failed: frictionless=\"" +
                 metalFrictionlessDiagnostics.message +
                 "\" friction=\"" +
@@ -614,6 +619,10 @@ int main() {
         double maximumMetalFrictionlessSlip = 0.0;
         double maximumMetalOracleError = 0.0;
         double maximumMetalLoad = 0.0;
+        double maximumSelfFrictionContactCount = 0.0;
+        double maximumSelfNormalImpulseNs = 0.0;
+        double maximumSelfTangentialImpulseNs = 0.0;
+        double maximumSelfFrictionUtilization = 0.0;
         for (std::size_t environment = 0u;
              environment < environmentCount;
              ++environment) {
@@ -629,14 +638,52 @@ int main() {
                 contactMargin,
                 frictionConfig.constraintTolerance
             );
+            const mr_float4 frictionlessEvidence =
+                metalFrictionless.statuses[environment]
+                    .selfContactFriction;
+            const mr_float4 frictionEvidence =
+                metalFriction.statuses[environment]
+                    .selfContactFriction;
             require(
                 frictionMotion.count >= 5u &&
+                    metalFrictionless.statuses[environment].code ==
+                        MR_ROD_GPU_SUCCESS &&
+                    metalFriction.statuses[environment].code ==
+                        MR_ROD_GPU_SUCCESS &&
+                    metalFrictionless.statuses[environment].environment ==
+                        environment &&
+                    metalFriction.statuses[environment].environment ==
+                        environment &&
+                    frictionlessEvidence.x == 0.0F &&
+                    frictionlessEvidence.y == 0.0F &&
+                    frictionlessEvidence.z == 0.0F &&
+                    frictionlessEvidence.w == 0.0F &&
+                    frictionEvidence.x >= 5.0F &&
+                    frictionEvidence.y > 0.0F &&
+                    frictionEvidence.z > 0.0F &&
+                    frictionEvidence.w <= 1.0001F &&
                     frictionMotion.rmsTangentialSlip() <
                         0.9 *
                             frictionlessMotion.rmsTangentialSlip() &&
                     metalFriction.states[environment].positions ==
                         metalFrictionless.states[environment].positions,
                 "Apple Metal PDO knot friction did not reduce loaded slip"
+            );
+            maximumSelfFrictionContactCount = std::max(
+                maximumSelfFrictionContactCount,
+                static_cast<double>(frictionEvidence.x)
+            );
+            maximumSelfNormalImpulseNs = std::max(
+                maximumSelfNormalImpulseNs,
+                static_cast<double>(frictionEvidence.y)
+            );
+            maximumSelfTangentialImpulseNs = std::max(
+                maximumSelfTangentialImpulseNs,
+                static_cast<double>(frictionEvidence.z)
+            );
+            maximumSelfFrictionUtilization = std::max(
+                maximumSelfFrictionUtilization,
+                static_cast<double>(frictionEvidence.w)
             );
             maximumMetalSlip = std::max(
                 maximumMetalSlip,
@@ -686,7 +733,8 @@ int main() {
         bool replayExact =
             replayDiagnostics.succeeded() &&
             replay.states.size() == metalFriction.states.size() &&
-            replay.reactions.size() == metalFriction.reactions.size();
+            replay.reactions.size() == metalFriction.reactions.size() &&
+            replay.statuses.size() == metalFriction.statuses.size();
         for (std::size_t environment = 0u;
              replayExact && environment < replay.states.size();
              ++environment) {
@@ -694,7 +742,23 @@ int main() {
                 replay.states[environment].positions ==
                     metalFriction.states[environment].positions &&
                 replay.states[environment].velocities ==
-                    metalFriction.states[environment].velocities;
+                    metalFriction.states[environment].velocities &&
+                replay.statuses[environment]
+                        .selfContactFriction.x ==
+                    metalFriction.statuses[environment]
+                        .selfContactFriction.x &&
+                replay.statuses[environment]
+                        .selfContactFriction.y ==
+                    metalFriction.statuses[environment]
+                        .selfContactFriction.y &&
+                replay.statuses[environment]
+                        .selfContactFriction.z ==
+                    metalFriction.statuses[environment]
+                        .selfContactFriction.z &&
+                replay.statuses[environment]
+                        .selfContactFriction.w ==
+                    metalFriction.statuses[environment]
+                        .selfContactFriction.w;
         }
         for (std::size_t reaction = 0u;
              replayExact && reaction < replay.reactions.size();
@@ -750,6 +814,14 @@ int main() {
             << maximumMetalFrictionlessSlip
             << " metal_frictional_slip_mps="
             << maximumMetalSlip
+            << " metal_self_friction_contacts="
+            << maximumSelfFrictionContactCount
+            << " metal_self_normal_impulse_ns="
+            << maximumSelfNormalImpulseNs
+            << " metal_self_tangential_impulse_ns="
+            << maximumSelfTangentialImpulseNs
+            << " metal_self_friction_utilization="
+            << maximumSelfFrictionUtilization
             << " metal_oracle_error_mps="
             << maximumMetalOracleError
             << " maximum_attachment_load_n="

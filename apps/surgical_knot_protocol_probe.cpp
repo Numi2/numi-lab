@@ -41,6 +41,23 @@ int main() {
                     diagnostics.squareSingleThrows[0].status
                 )
         );
+        const std::uint64_t protocolFingerprint =
+            metalrobo::surgeonsKnotInstrumentProtocolFingerprint(protocol);
+        auto fingerprintControl = protocol;
+        fingerprintControl.firstDoubleThrow.samples[1u]
+            .workingJawCenterM[0] += 1.0e-9;
+        require(
+            protocolFingerprint != 0u &&
+                protocolFingerprint ==
+                    metalrobo::surgeonsKnotInstrumentProtocolFingerprint(
+                        protocol
+                    ) &&
+                protocolFingerprint !=
+                    metalrobo::surgeonsKnotInstrumentProtocolFingerprint(
+                        fingerprintControl
+                    ),
+            "knot protocol content fingerprint is stale or non-deterministic"
+        );
 
         auto sameHanded = protocol;
         sameHanded.squareSingleThrows[0].expectedWindingSign = 1;
@@ -285,6 +302,8 @@ int main() {
             << diagnostics.squareSingleThrows[0].signedWindingTurns
             << " square_single_throws="
             << diagnostics.squareSingleThrows.size()
+            << " protocol_fingerprint=0x" << std::hex
+            << protocolFingerprint << std::dec
             << " first_minimum_instrument_clearance_m="
             << diagnostics.firstDoubleThrow
                 .minimumInstrumentClearanceM

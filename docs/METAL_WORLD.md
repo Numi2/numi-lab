@@ -460,7 +460,13 @@ constraint-induced normal velocity change. Capacity overflow rejects the
 transaction instead of dropping a contact. The surgical PDO preset uses its
 conservative dynamic calibration for this single-coefficient self-friction
 path. The versioned heterogeneous rod program validates and fingerprints the
-coefficient. Resolved surface-spin torque, distinct static and dynamic
+coefficient. ABI v11 retains the friction-active pair count, maximum inferred
+normal impulse, maximum accumulated tangential impulse, and maximum
+Coulomb-disk utilization in each completion-boundary rod status. The
+frictionless control must publish zero values, while the frictional replay must
+publish nonzero load and remain bit-exact. This record lets a live throw prove
+that final strand proximity was dynamically load bearing rather than merely
+geometric. Resolved surface-spin torque, distinct static and dynamic
 self-friction, and stronger coupled rod/rigid iterations remain open fidelity
 boundaries.
 
@@ -590,10 +596,38 @@ Matter certificates remain mandatory. The two exact DER material edges in the
 tracts and their binding revision are immutable throughout this phase: unlike
 pull-through, knot staging has no proxy-rebind maintenance path. After the
 motion, two consecutive quiescent boundaries below the existing needle and
-strand speed gates publish `tissue-knot-first-throw-staged`. This is an
-implemented execution boundary pending an earned upstream replay; it is not
-evidence of winding, self-contact formation, bight transfer, cinch loading, or
-knot retention.
+strand speed gates publish `tissue-knot-first-throw-staged`. The v3 manifest
+also persists a canonical fingerprint over every ordered protocol field and
+sample, the completed sample, exact held material window, and placed
+right-handed knot frame. Continuations reject missing, partial, or
+content-mismatched metadata, which prevents deformation or a process boundary
+from silently retargeting another DER edge or changed throw. This is an
+implemented execution boundary pending
+an earned upstream replay; it is not evidence of winding, self-contact
+formation, bight transfer, cinch loading, or knot retention.
+
+`--tissue-knot-first-double-throw-only` is the next transactional boundary. It
+accepts only the immutable staged phase and requires the persisted protocol
+identity to match the current source-sized two-wrap throw. Starting at sample
+one, it solves both complete PSM frames, densely resamples at the restored 1 ms
+Matter / sixteen-substep DER cadence, and audits every state for joint speed,
+full curved-needle contact ownership, both finite distal LND envelopes,
+cross-arm collision, and live-FEM clearance before dispatch. The dynamic replay
+is completion-bounded in 64 ms chunks. At every boundary the standing LND must
+retain its exact short-tail edge and the working LND must retain the needle;
+the hard swage, DER bounds, contact residual, two puncture channels, tract proxy
+edges/revision, tetrahedra, mass, determinant, and nonlinear certificates stay
+authoritative.
+
+After two quiescent hold boundaries, the terminal DER centreline must contain
+at least two non-neighbouring, radius-correct contacts in the 50 um collision
+shell without interpenetration. ABI v11 must independently report nonzero
+normal and tangential self-contact impulse during the throw and Coulomb
+utilization no greater than one. Only then is
+`tissue-knot-first-double-throw` published with the same continuation frame and
+material ownership. This proves a physical double first throw when executed on
+an earned checkpoint; it explicitly does not certify the remaining five
+alternating single throws or opposing-load retention.
 
 The surgical visual probe accepts the finite set of transactionally published
 dual-PSM operative checkpoints through receiver extraction and the opposing

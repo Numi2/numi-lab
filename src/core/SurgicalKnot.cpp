@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -247,6 +248,53 @@ SurgicalThrowPath makeThrow(
     return path;
 }
 
+struct ProtocolHash {
+    std::uint64_t value = 14695981039346656037ull;
+
+    void word(const std::uint64_t word) noexcept {
+        for (std::uint32_t byte = 0u; byte < 8u; ++byte) {
+            value ^= (word >> (8u * byte)) & 0xffu;
+            value *= 1099511628211ull;
+        }
+    }
+
+    void scalar(const double scalar) noexcept {
+        word(std::bit_cast<std::uint64_t>(scalar));
+    }
+
+    void point(const Point& point) noexcept {
+        scalar(point[0]);
+        scalar(point[1]);
+        scalar(point[2]);
+    }
+
+    void path(const SurgicalThrowPath& path) noexcept {
+        word(path.samples.size());
+        word(path.windingEndSample);
+        word(path.transferEndSample);
+        point(path.windingAxis);
+        point(path.transferGateCenterM);
+        point(path.transferGateNormal);
+        scalar(path.transferGateRadiusM);
+        scalar(path.instrumentEnvelopeRadiusM);
+        scalar(path.minimumInstrumentClearanceM);
+        scalar(path.maximumJawCenterSpeedMps);
+        scalar(path.minimumCinchSeparationGainM);
+        word(path.expectedWholeTurns);
+        word(static_cast<std::uint64_t>(
+            static_cast<std::int64_t>(path.expectedWindingSign)
+        ));
+        word(static_cast<std::uint64_t>(
+            static_cast<std::int64_t>(path.expectedTransferSign)
+        ));
+        for (const SurgicalKnotInstrumentSample& sample : path.samples) {
+            scalar(sample.timeSeconds);
+            point(sample.workingJawCenterM);
+            point(sample.standingJawCenterM);
+        }
+    }
+};
+
 } // namespace
 
 SurgeonsKnotInstrumentProtocol makeSurgeonsKnotInstrumentProtocol() {
@@ -283,6 +331,20 @@ SurgeonsKnotInstrumentProtocol makeSurgeonsKnotInstrumentProtocol() {
         );
     }
     return result;
+}
+
+std::uint64_t surgeonsKnotInstrumentProtocolFingerprint(
+    const SurgeonsKnotInstrumentProtocol& protocol
+) noexcept {
+    ProtocolHash hash;
+    // Domain-separate the wire identity from any other FNV-backed contract.
+    hash.word(0x6e756d692e6b6e74ull); // "numi.knt"
+    hash.path(protocol.firstDoubleThrow);
+    hash.word(protocol.squareSingleThrows.size());
+    for (const SurgicalThrowPath& path : protocol.squareSingleThrows) {
+        hash.path(path);
+    }
+    return hash.value == 0u ? 1u : hash.value;
 }
 
 SurgicalThrowDiagnostics certifySurgicalThrowPath(

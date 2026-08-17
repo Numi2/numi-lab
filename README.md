@@ -299,10 +299,14 @@ mass to remain accepted. The two material edges occupying the puncture tracts
 and their binding revision must remain exactly unchanged; staging is not
 allowed to hide an unintended pull-through by rebinding proxies. Two
 consecutive quiescent hold boundaries are required before publishing the v3
-`tissue-knot-first-throw-staged` checkpoint. The path is implemented but is not
-reported as live-qualified until an earned `tissue-thread-acquired` checkpoint
-has executed it on Apple Metal. It does not yet form a wrap, bight transfer,
-cinch, or retained knot.
+`tissue-knot-first-throw-staged` checkpoint. That checkpoint also records the
+exact right-handed knot frame, full protocol content fingerprint/sample, and
+the held DER material window; a later process must continue the same throw
+rather than selecting a nearby strand edge or changed trajectory. The path is
+implemented but is not reported as
+live-qualified until an earned `tissue-thread-acquired` checkpoint has executed
+it on Apple Metal. It does not yet form a wrap, bight transfer, cinch, or
+retained knot.
 
 ```sh
 ./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
@@ -310,6 +314,29 @@ cinch, or retained knot.
   --resume-tissue-checkpoint tissue-thread-acquired \
   build-coupled-dev/testing/suture/tissue-thread-acquired.tsv \
   --state-output-dir build-coupled-dev/testing/suture/first-throw-stage
+```
+
+`--tissue-knot-first-double-throw-only` consumes only that exact staged
+checkpoint. It resumes after protocol sample zero, densely executes both
+winding turns, the bight crossing, and the opposing cinch with the needle and
+short tail carried by physical LND contacts. Every completion-bounded chunk
+retains the same standing material edge and two tissue-tract proxy edges,
+checks both live grasps, hard swage, DER stretch/self-clearance, full needle and
+instrument clearance, accepted FEM determinant/residual certificates, all
+tetrahedra, and zero removed tissue mass. Promotion additionally requires at
+least two radius-correct, materially separated final strand contacts plus
+nonzero Metal self-contact normal and tangential impulse under the Coulomb
+bound. It publishes `tissue-knot-first-double-throw` only after a quiescent
+hold. The command is implemented but awaits an earned 0.82 mm-tissue staged
+checkpoint and Apple Metal replay; even a passing double throw is not the
+complete `2=1=1=1=1=1` knot or its retention proof.
+
+```sh
+./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-knot-first-double-throw-only \
+  --resume-tissue-checkpoint tissue-knot-first-throw-staged \
+  build-coupled-dev/testing/suture/first-throw-stage/tissue-knot-first-throw-staged.tsv \
+  --state-output-dir build-coupled-dev/testing/suture/first-double-throw
 ```
 
 ```sh
@@ -423,6 +450,15 @@ up to 64 load-bearing contacts, performs eight alternating projected
 Gauss-Seidel sweeps with accumulated Coulomb-disk multipliers, and rejects an
 overflow rather than silently dropping a crossing. The FP64 oracle uses the
 same alternating accumulated-impulse update.
+
+Rod ABI v11 also preserves the friction solve's completion evidence instead
+of discarding its threadgroup accumulators: every accepted rod status reports
+the friction-active pair count, maximum inferred normal impulse, maximum
+accumulated tangential impulse, and maximum Coulomb-disk utilization. A
+frictionless crossing must publish zeros; the matched frictional crossing must
+publish nonzero normal and tangential impulses, utilization no greater than
+one within FP32 allowance, and bit-exact replay. This gives live knot execution
+an impulse authority independent of its final geometric contact certificate.
 
 The deterministic Apple M4 fixture uses the authored 250 mm PDO 3-0
 monofilament (0.20 mm diameter), 128 rod nodes, and a pre-tied five-crossing
