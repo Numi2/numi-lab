@@ -8044,6 +8044,7 @@ void writeHandoffStateArtifact(
     std::filesystem::path temporary = path;
     temporary += ".tmp";
     std::filesystem::path matterPath;
+    std::filesystem::path pendingMatterPath;
     metalrobo::MatterSnapshotArchiveResult matterArchive;
     if (matterSnapshot != nullptr) {
         require(
@@ -8051,17 +8052,31 @@ void writeHandoffStateArtifact(
             "handoff Matter checkpoint is unavailable: " +
                 matterSnapshot->message
         );
-        matterPath = directory /
-            (std::string{phase} + ".matter.bin");
+        pendingMatterPath = directory /
+            (std::string{phase} + ".pending.matter.bin");
         matterArchive = metalrobo::writeMatterSnapshotArchive(
             *matterSnapshot,
-            matterPath
+            pendingMatterPath
         );
         require(
             matterArchive.succeeded(),
             "could not publish handoff Matter checkpoint: " +
                 matterArchive.message
         );
+        matterPath = directory /
+            (std::string{phase} + "." +
+             std::to_string(matterArchive.contentHash) + ".matter.bin");
+        if (std::rename(
+                pendingMatterPath.c_str(),
+                matterPath.c_str()
+            ) != 0) {
+            std::error_code ignored;
+            std::filesystem::remove(pendingMatterPath, ignored);
+            require(
+                false,
+                "could not publish content-addressed Matter checkpoint"
+            );
+        }
     }
     std::ofstream output(temporary, std::ios::trunc);
     require(output.good(), "could not open handoff state artifact");
@@ -8157,17 +8172,11 @@ void writeHandoffStateArtifact(
     if (!output.good()) {
         std::error_code ignored;
         std::filesystem::remove(temporary, ignored);
-        if (!matterPath.empty()) {
-            std::filesystem::remove(matterPath, ignored);
-        }
         require(false, "could not write handoff state artifact");
     }
     if (std::rename(temporary.c_str(), path.c_str()) != 0) {
         std::error_code ignored;
         std::filesystem::remove(temporary, ignored);
-        if (!matterPath.empty()) {
-            std::filesystem::remove(matterPath, ignored);
-        }
         require(false, "could not publish handoff state artifact");
     }
 }

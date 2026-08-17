@@ -678,9 +678,12 @@ dual-PSM operative checkpoints through receiver extraction and the opposing
 bite. It binds the checkpoint's exact articulated state, rigid needle pose, and
 all DER nodes into the Metal renderer. Tissue checkpoints use the v3 text
 manifest plus an atomically published, content-hashed Matter binary sidecar
-containing the exact private completion authority. The visual probe verifies
-that sidecar identity, filters its active tetrahedra and nodes, derives the
-oriented exterior boundary, and binds the archived deformed FEM positions
+containing the exact private completion authority. Sidecar filenames include
+their content hash: a new sidecar generation is complete before the text
+manifest is atomically replaced, so an interrupted publication cannot replace
+the Matter bytes still named by the preceding valid manifest. The visual probe
+verifies that sidecar identity, filters its active tetrahedra and nodes, derives
+the oriented exterior boundary, and binds the archived deformed FEM positions
 directly in the live world frame. Thus a v3 frame presents the same tissue
 geometry that reached the physics boundary; rendering still remains visual
 evidence rather than a substitute for the archived solver/contact
