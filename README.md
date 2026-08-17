@@ -261,16 +261,18 @@ PSMs, or that a live tissue-coupled robot sequence executed.
 The separate PDO clamp fixture places the authored 0.20 mm 3-0 strand inside
 four finite flat proximal medial Large Needle Driver insert patches while
 preserving the qualified eight-patch distal needle groove. A 65-node local
-specimen begins aligned between open jaws; a 120 ms source-rate-bounded closure
-establishes 15 um geometric preload before the far-end support is released and
-the strand is pulled at 2 mm/s. Acceptance requires bilateral normal contact
-plus a frictional response distinct from an otherwise identical zero-friction
-Metal solve. The checked Apple M4 run first made bilateral contact at closure
-step 44, held it for 37/40 loaded steps, cut absolute centre-node slip by 96%
+specimen is aligned with the instrument axis while the open jaws begin at a
+2 mm insertion standoff. The source PSM advances for 200 ms at no more than
+15 mm/s, then closes for 120 ms below its 0.16 rad/s jaw limit to establish
+15 um geometric preload before the far-end support is released and the strand
+is pulled at 2 mm/s. Acceptance requires bilateral normal contact plus a
+frictional response distinct from an otherwise identical zero-friction Metal
+solve. The checked Apple M4 run first made bilateral contact at global step
+244, held it for 37/40 loaded steps, cut absolute centre-node slip by 96%
 relative to the control, replayed exactly, and reported zero failed steps. This
-qualifies aligned jaw closure and temporary thread retention; articulated
-approach to a strand on the table, capture from post-bite geometry, and a
-robot-formed throw remain separate execution boundaries.
+qualifies insertion-axis approach, jaw closure, and temporary retention;
+six-axis targeting of the post-bite strand and a robot-formed throw remain
+separate execution boundaries.
 
 ```sh
 ./build-coupled-dev/bin/metalrobo_surgical_thread_grasp_probe

@@ -30,8 +30,10 @@ constexpr std::array<std::uint32_t, 2> kJawBShapes{
     25u,
     27u,
 };
+constexpr std::uint32_t kAcquisitionApproachSteps = 200u;
 constexpr std::uint32_t kAcquisitionClosureSteps = 120u;
 constexpr std::uint32_t kAcquisitionSettleSteps = 12u;
+constexpr double kAcquisitionInsertionStandoffM = 0.002;
 
 void require(const bool condition, const std::string& message) {
     if (!condition) {
@@ -460,12 +462,30 @@ AcquisitionOutcome acquireClamp(
         clampConfig(toolModel);
 
     for (std::uint32_t step = 0u;
-         step < kAcquisitionClosureSteps + kAcquisitionSettleSteps;
+         step < kAcquisitionApproachSteps + kAcquisitionClosureSteps +
+             kAcquisitionSettleSteps;
          ++step) {
-        double jawCoordinate = closedJawCoordinate;
+        double jawCoordinate = openJawCoordinate;
         double jawCoordinateRate = 0.0;
-        if (step < kAcquisitionClosureSteps) {
+        double insertion = toolModel.defaultQ.at(2u);
+        double insertionRate = 0.0;
+        if (step < kAcquisitionApproachSteps) {
             const double t = static_cast<double>(step + 1u) /
+                static_cast<double>(kAcquisitionApproachSteps);
+            const double smooth = t * t * (3.0 - 2.0 * t);
+            const double smoothRate =
+                6.0 * t * (1.0 - t) /
+                (static_cast<double>(kAcquisitionApproachSteps) * timestep);
+            insertion = toolModel.defaultQ.at(2u) -
+                kAcquisitionInsertionStandoffM * (1.0 - smooth);
+            insertionRate =
+                kAcquisitionInsertionStandoffM * smoothRate;
+        } else if (step <
+                   kAcquisitionApproachSteps +
+                       kAcquisitionClosureSteps) {
+            const std::uint32_t closureStep =
+                step - kAcquisitionApproachSteps;
+            const double t = static_cast<double>(closureStep + 1u) /
                 static_cast<double>(kAcquisitionClosureSteps);
             const double smooth = t * t * (3.0 - 2.0 * t);
             const double smoothRate =
@@ -475,12 +495,16 @@ AcquisitionOutcome acquireClamp(
                 (closedJawCoordinate - openJawCoordinate) * smooth;
             jawCoordinateRate =
                 (closedJawCoordinate - openJawCoordinate) * smoothRate;
+        } else {
+            jawCoordinate = closedJawCoordinate;
         }
-        const std::vector<double> q = jawConfiguration(
+        std::vector<double> q = jawConfiguration(
             toolModel,
             jawCoordinate
         );
+        q[2] = insertion;
         std::vector<double> velocity(toolModel.world.nv, 0.0);
+        velocity[2] = insertionRate;
         velocity[6] = -jawCoordinateRate;
         velocity[7] = jawCoordinateRate;
         const auto toolBodies = kinematicBodyStates(
@@ -762,6 +786,22 @@ int main() {
             frictionalTool,
             jawConfiguration(frictionalTool, openJawCoordinate)
         );
+        std::vector<double> approachStartQ = jawConfiguration(
+            frictionalTool,
+            openJawCoordinate
+        );
+        approachStartQ[2] -= kAcquisitionInsertionStandoffM;
+        const JawGeometry approachStartJaws = jawGeometry(
+            frictionalTool,
+            approachStartQ
+        );
+        const double achievedApproachStandoffM = length(subtract(
+            approachStartJaws.midpoint,
+            openJaws.midpoint
+        ));
+        const double maximumApproachSpeedMps =
+            1.5 * kAcquisitionInsertionStandoffM /
+            (1.0e-3 * static_cast<double>(kAcquisitionApproachSteps));
         const double maximumJawCoordinateRate =
             1.5 * (openJawCoordinate - jawCoordinate) /
             (1.0e-3 * static_cast<double>(kAcquisitionClosureSteps));
@@ -769,6 +809,13 @@ int main() {
             2.0 * frictionalTool.shapes.at(kJawAShapes[0]).dimensions.x;
         require(
             openJawCoordinate < 0.12 &&
+                approachStartQ[2] >=
+                    frictionalTool.dofs.at(2u).limits.x &&
+                achievedApproachStandoffM >=
+                    0.95 * kAcquisitionInsertionStandoffM &&
+                maximumApproachSpeedMps <= 0.02 &&
+                maximumApproachSpeedMps <=
+                    frictionalTool.dofs.at(2u).limits.z &&
                 openSurfaceGap >=
                     2.0 * sutureSpec.threadRadiusM.value + 2.0e-5 &&
                 maximumJawCoordinateRate <=
@@ -833,9 +880,11 @@ int main() {
             replayAcquisition.firstBilateralContactStep ==
                 frictionalAcquisition.firstBilateralContactStep;
         const bool acquired =
-            frictionalAcquisition.firstAnyContactStep > 0u &&
+            frictionalAcquisition.firstAnyContactStep >
+                    kAcquisitionApproachSteps &&
                 frictionalAcquisition.firstAnyContactStep <
-                    kAcquisitionClosureSteps &&
+                    kAcquisitionApproachSteps +
+                        kAcquisitionClosureSteps &&
                 frictionalAcquisition.firstBilateralContactStep !=
                     MR_INVALID_INDEX &&
                 frictionalAcquisition.jawAContactSteps > 0u &&
@@ -966,7 +1015,14 @@ int main() {
             << " open_jaw_surface_gap_m=" << openSurfaceGap
             << " radial_preload_m=" << radialPreloadM
             << " acquisition_steps="
-            << kAcquisitionClosureSteps + kAcquisitionSettleSteps
+            << kAcquisitionApproachSteps + kAcquisitionClosureSteps +
+                kAcquisitionSettleSteps
+            << " acquisition_approach_steps="
+            << kAcquisitionApproachSteps
+            << " acquisition_approach_standoff_m="
+            << achievedApproachStandoffM
+            << " acquisition_maximum_approach_speed_mps="
+            << maximumApproachSpeedMps
             << " acquisition_maximum_jaw_rate_radps="
             << maximumJawCoordinateRate
             << " acquisition_first_contact_step="
@@ -1006,7 +1062,7 @@ int main() {
             << frictional.graspNodeDisplacementM
             << " deterministic=yes"
             << " failed_steps=" << frictional.failedSteps
-            << " boundary=aligned_closure_fixture_not_articulated_approach_or_knot"
+            << " boundary=insertion_axis_approach_fixture_not_post_bite_targeting_or_knot"
             << '\n';
         return 0;
     } catch (const std::exception& exception) {
