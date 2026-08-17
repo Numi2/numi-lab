@@ -32334,16 +32334,22 @@ int main(const int argc, const char* const argv[]) {
             0u,
             kGiverNeedleShape
         );
-        writeHandoffStateArtifact(
-            options.stateOutputDirectory,
-            "receiver-approach",
-            preReceiverSuccessfulSteps +
-                receiverApproachMotionStepsThisRun +
-                receiverApproachSettleStepsThisRun,
-            world,
-            sutureSpec,
-            receiverApproached.result
-        );
+        // A resumed checkpoint is immutable evidence. Its re-entry hold is a
+        // new physical continuation and must never replace the source phase
+        // merely because input and output directories happen to match.
+        if (!receiverApproachAlreadyCompleted &&
+            !receiverAlignmentAlreadyCompleted) {
+            writeHandoffStateArtifact(
+                options.stateOutputDirectory,
+                "receiver-approach",
+                preReceiverSuccessfulSteps +
+                    receiverApproachMotionStepsThisRun +
+                    receiverApproachSettleStepsThisRun,
+                world,
+                sutureSpec,
+                receiverApproached.result
+            );
+        }
         if (receiverApproachOnly) {
             std::cout << std::setprecision(9)
                 << "dual_psm_suture_handoff_receiver_approach=ok"
