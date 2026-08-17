@@ -4,6 +4,7 @@
 #include "numi/matter/matter.hpp"
 #include "numi/matter/metal_world.hpp"
 #include "metalrobo/EngineModel.hpp"
+#include "metalrobo/MatterSnapshotArchive.hpp"
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/engine_types.h"
 
@@ -13,6 +14,7 @@
 #include <cstdio>
 #include <cstdint>
 #include <cstring>
+#include <filesystem>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -1192,7 +1194,34 @@ void runStatefulMaterial(
             "rejected Matter snapshot restore mutated live state"
         );
 
-        const auto restore = runtime.restore(evolved);
+        const std::filesystem::path archivePath =
+            std::filesystem::temp_directory_path() /
+            (
+                std::string{"metalrobo-matter-stateful-"} +
+                (representation == numi::matter::Representation::mpm
+                    ? "mpm-"
+                    : "fem-") +
+                std::to_string(evolved.deviceProgramFingerprint) + ".bin"
+            );
+        const auto archiveWritten =
+            metalrobo::writeMatterSnapshotArchive(evolved, archivePath);
+        require(archiveWritten.succeeded(), archiveWritten.message);
+        numi::matter::RuntimeStateSnapshot decoded;
+        const auto archiveRead = metalrobo::readMatterSnapshotArchive(
+            archivePath,
+            decoded
+        );
+        require(
+            archiveRead.succeeded() &&
+                archiveRead.contentHash == archiveWritten.contentHash &&
+                archiveRead.payloadBytes == archiveWritten.payloadBytes &&
+                sameAuthority(decoded, evolved),
+            archiveRead.message.empty()
+                ? "serialized Matter snapshot changed authority"
+                : archiveRead.message
+        );
+
+        const auto restore = runtime.restore(decoded);
         require(restore.encoded, restore.message);
         const auto explicitlyRestored = runtime.snapshot();
         require(
@@ -1202,7 +1231,7 @@ void runStatefulMaterial(
         runStep(4u, false);
         const auto continued = runtime.snapshot();
         require(continued.available, continued.message);
-        const auto rewind = runtime.restore(evolved);
+        const auto rewind = runtime.restore(decoded);
         require(rewind.encoded, rewind.message);
         runStep(4u, false);
         const auto replayed = runtime.snapshot();
@@ -1210,6 +1239,12 @@ void runStatefulMaterial(
         require(
             sameAuthority(replayed, continued),
             "restored Matter continuation was not deterministic"
+        );
+        std::error_code removeError;
+        std::filesystem::remove(archivePath, removeError);
+        require(
+            !removeError,
+            "could not remove serialized Matter checkpoint fixture"
         );
 
         std::cout
@@ -1225,6 +1260,7 @@ void runStatefulMaterial(
             << maximumAccumulatedStrain
             << ",\"rollback_exact\":true"
             << ",\"mismatched_program_rejected\":true"
+            << ",\"archive_restore_exact\":true"
             << ",\"explicit_restore_exact\":true"
             << ",\"continuation_exact\":true}\n";
     }

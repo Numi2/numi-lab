@@ -1,5 +1,6 @@
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/HeterogeneousWorld.hpp"
+#include "metalrobo/MatterSnapshotArchive.hpp"
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/SurgicalAssets.hpp"
 #include "metalrobo/SurgicalPSM.hpp"
@@ -13,6 +14,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
@@ -6746,6 +6748,20 @@ std::uint32_t parseIndex(
     return static_cast<std::uint32_t>(value);
 }
 
+std::uint64_t parseUnsigned64(
+    const std::string_view text,
+    const std::string_view label
+) {
+    std::size_t consumed = 0u;
+    const std::string owned{text};
+    const unsigned long long value = std::stoull(owned, &consumed);
+    require(
+        consumed == owned.size(),
+        "handoff resume contains an invalid " + std::string{label}
+    );
+    return static_cast<std::uint64_t>(value);
+}
+
 void updateNeedleInverseInertia(
     const MRBodyPropertiesGPU& properties,
     MRBodyStateGPU& state
@@ -6824,7 +6840,8 @@ void updateNeedleInverseInertia(
 std::uint64_t loadHandoffState(
     const std::filesystem::path& path,
     const std::string_view expectedPhase,
-    metalrobo::HeterogeneousWorld& world
+    metalrobo::HeterogeneousWorld& world,
+    numi::matter::RuntimeStateSnapshot* matterSnapshot = nullptr
 ) {
     std::ifstream input(path);
     require(input.good(), "could not open handoff resume state");
@@ -6841,6 +6858,13 @@ std::uint64_t loadHandoffState(
     std::vector<bool> haveVelocity(nodes.size(), false);
     std::vector<bool> haveEdge(edges.size(), false);
     bool schema = false;
+    bool matterRequired = false;
+    bool matterSeen = false;
+    std::filesystem::path matterFilename;
+    std::uint64_t matterContentHash = 0u;
+    std::uint64_t matterPayloadBytes = 0u;
+    std::uint64_t matterSourceFingerprint = 0u;
+    std::uint64_t matterProgramFingerprint = 0u;
     bool phase = false;
     bool needlePosition = false;
     bool needleOrientation = false;
@@ -6856,7 +6880,12 @@ std::uint64_t loadHandoffState(
         }
         if (fields[0] == "schema") {
             schema = fields.size() == 2u &&
-                fields[1] == "numi.dual-psm-suture-handoff-state.v2";
+                (fields[1] ==
+                     "numi.dual-psm-suture-handoff-state.v2" ||
+                 fields[1] ==
+                     "numi.dual-psm-suture-handoff-state.v3");
+            matterRequired = schema && fields[1] ==
+                "numi.dual-psm-suture-handoff-state.v3";
         } else if (fields[0] == "phase") {
             phase = fields.size() == 2u && fields[1] == expectedPhase;
         } else if (fields[0] == "step") {
@@ -6938,10 +6967,43 @@ std::uint64_t loadHandoffState(
                 0.0f,
             };
             haveEdge[index] = true;
+        } else if (fields[0] == "matter_snapshot") {
+            require(
+                fields.size() == 6u && !matterSeen,
+                "invalid handoff Matter snapshot reference"
+            );
+            matterFilename = std::filesystem::path{fields[1]};
+            matterContentHash = parseUnsigned64(
+                fields[2],
+                "Matter snapshot content hash"
+            );
+            matterPayloadBytes = parseUnsigned64(
+                fields[3],
+                "Matter snapshot payload bytes"
+            );
+            matterSourceFingerprint = parseUnsigned64(
+                fields[4],
+                "Matter source fingerprint"
+            );
+            matterProgramFingerprint = parseUnsigned64(
+                fields[5],
+                "Matter program fingerprint"
+            );
+            require(
+                !matterFilename.empty() &&
+                    matterFilename == matterFilename.filename() &&
+                    matterFilename.string().ends_with(".matter.bin") &&
+                    matterContentHash != 0u && matterPayloadBytes != 0u &&
+                    matterSourceFingerprint != 0u &&
+                    matterProgramFingerprint != 0u,
+                "invalid handoff Matter snapshot identity"
+            );
+            matterSeen = true;
         }
     }
     require(
         schema && phase && haveStep &&
+            (!matterRequired || matterSeen) &&
             q.size() == world.model.world.nq &&
             v.size() == world.model.world.nv &&
             needlePosition && needleOrientation &&
@@ -6954,6 +7016,30 @@ std::uint64_t loadHandoffState(
             }),
         "handoff resume state is incomplete or has the wrong phase"
     );
+    if (matterRequired) {
+        numi::matter::RuntimeStateSnapshot decodedMatter;
+        const metalrobo::MatterSnapshotArchiveResult archive =
+            metalrobo::readMatterSnapshotArchive(
+                path.parent_path() / matterFilename,
+                decodedMatter
+            );
+        require(
+            archive.succeeded() &&
+                archive.contentHash == matterContentHash &&
+                archive.payloadBytes == matterPayloadBytes &&
+                decodedMatter.sourcePhysicsFingerprint ==
+                    matterSourceFingerprint &&
+                decodedMatter.deviceProgramFingerprint ==
+                    matterProgramFingerprint,
+            "handoff Matter snapshot archive failed identity validation: " +
+                archive.message
+        );
+        if (matterSnapshot != nullptr) {
+            *matterSnapshot = std::move(decodedMatter);
+        }
+    } else if (matterSnapshot != nullptr) {
+        *matterSnapshot = {};
+    }
     if (!std::ranges::all_of(haveEdge, [](const bool value) {
             return value;
         })) {
@@ -7028,7 +7114,8 @@ void writeHandoffStateArtifact(
     const std::uint64_t step,
     const metalrobo::HeterogeneousWorld& world,
     const metalrobo::BowelAnastomosisSutureSpec& suture,
-    const metalrobo::MetalWorldResult& state
+    const metalrobo::MetalWorldResult& state,
+    const numi::matter::RuntimeStateSnapshot* matterSnapshot = nullptr
 ) {
     if (directory.empty()) {
         return;
@@ -7048,12 +7135,38 @@ void writeHandoffStateArtifact(
     require(!error, "could not create handoff state output directory");
     const std::filesystem::path path =
         directory / (std::string{phase} + ".tsv");
-    std::ofstream output(path, std::ios::trunc);
+    std::filesystem::path temporary = path;
+    temporary += ".tmp";
+    std::filesystem::path matterPath;
+    metalrobo::MatterSnapshotArchiveResult matterArchive;
+    if (matterSnapshot != nullptr) {
+        require(
+            matterSnapshot->available,
+            "handoff Matter checkpoint is unavailable: " +
+                matterSnapshot->message
+        );
+        matterPath = directory /
+            (std::string{phase} + ".matter.bin");
+        matterArchive = metalrobo::writeMatterSnapshotArchive(
+            *matterSnapshot,
+            matterPath
+        );
+        require(
+            matterArchive.succeeded(),
+            "could not publish handoff Matter checkpoint: " +
+                matterArchive.message
+        );
+    }
+    std::ofstream output(temporary, std::ios::trunc);
     require(output.good(), "could not open handoff state artifact");
     const MRBodyStateGPU& needle = state.finalSceneBodies[0];
     const numi::matter::PorcineJejunumFungSpec tissue;
     output << std::setprecision(17)
-        << "schema\tnumi.dual-psm-suture-handoff-state.v2\n"
+        << "schema\t"
+        << (matterSnapshot == nullptr
+            ? "numi.dual-psm-suture-handoff-state.v2"
+            : "numi.dual-psm-suture-handoff-state.v3")
+        << '\n'
         << "phase\t" << phase << '\n'
         << "step\t" << step << '\n'
         << "control_timestep_s\t" << kControlTimestep << '\n'
@@ -7086,6 +7199,13 @@ void writeHandoffStateArtifact(
         << tissue.lengthM.value << '\t' << tissue.widthM.value << '\t'
         << tissue.thicknessM.value << '\t' << tissue.incisionGapM.value
         << '\n';
+    if (matterSnapshot != nullptr) {
+        output << "matter_snapshot\t" << matterPath.filename().string()
+            << '\t' << matterArchive.contentHash
+            << '\t' << matterArchive.payloadBytes
+            << '\t' << matterSnapshot->sourcePhysicsFingerprint
+            << '\t' << matterSnapshot->deviceProgramFingerprint << '\n';
+    }
     for (std::size_t node = 0u; node < state.finalRodNodes.size(); ++node) {
         const MRRodNodeStateGPU& value = state.finalRodNodes[node];
         output << "thread_position\t" << node << '\t'
@@ -7102,7 +7222,22 @@ void writeHandoffStateArtifact(
             << '\n';
     }
     output.close();
-    require(output.good(), "could not publish handoff state artifact");
+    if (!output.good()) {
+        std::error_code ignored;
+        std::filesystem::remove(temporary, ignored);
+        if (!matterPath.empty()) {
+            std::filesystem::remove(matterPath, ignored);
+        }
+        require(false, "could not write handoff state artifact");
+    }
+    if (std::rename(temporary.c_str(), path.c_str()) != 0) {
+        std::error_code ignored;
+        std::filesystem::remove(temporary, ignored);
+        if (!matterPath.empty()) {
+            std::filesystem::remove(matterPath, ignored);
+        }
+        require(false, "could not publish handoff state artifact");
+    }
 }
 
 PhaseResult initializePhase(
@@ -16110,7 +16245,8 @@ int main(const int argc, const char* const argv[]) {
                             bridgeBaseDERSubsteps,
                             world,
                             sutureSpec,
-                            bridgeStartState
+                            bridgeStartState,
+                            &preBridgeMatter
                         );
                         selectCoupledCadence(
                             kSuturePullMatterRateMultiplier,
@@ -16552,7 +16688,8 @@ int main(const int argc, const char* const argv[]) {
                             postBridgeBaseDERSubsteps,
                             world,
                             sutureSpec,
-                            dynamicBridge.result
+                            dynamicBridge.result,
+                            &postBridgeMatter
                         );
                         if (tissueReceiverStateBridgeOnly) {
                             return 0;
@@ -17451,6 +17588,8 @@ int main(const int argc, const char* const argv[]) {
                                 "tissue_receiver_alignment",
                                 receiverTissueSpec.thicknessM.value
                             );
+                        const numi::matter::RuntimeStateSnapshot
+                            alignmentMotionMatter = tissueRuntime.snapshot();
                         writeHandoffStateArtifact(
                             options.stateOutputDirectory,
                             "tissue-receiver-alignment-motion",
@@ -17460,7 +17599,8 @@ int main(const int argc, const char* const argv[]) {
                                 ) * embeddedNeedleCadenceBaseDERSubsteps,
                             world,
                             sutureSpec,
-                            liveAlignmentStream.terminal.result
+                            liveAlignmentStream.terminal.result,
+                            &alignmentMotionMatter
                         );
                         PhaseResult liveAlignmentMotion = std::move(
                             liveAlignmentStream.terminal
@@ -17661,6 +17801,8 @@ int main(const int argc, const char* const argv[]) {
                         PhaseResult liveAligned = std::move(
                             liveAlignmentSettleStream.terminal
                         );
+                        const numi::matter::RuntimeStateSnapshot
+                            alignmentSettledMatter = tissueRuntime.snapshot();
                         writeHandoffStateArtifact(
                             options.stateOutputDirectory,
                             "tissue-receiver-alignment-settled",
@@ -17671,7 +17813,8 @@ int main(const int argc, const char* const argv[]) {
                                 ) * embeddedNeedleCadenceBaseDERSubsteps,
                             world,
                             sutureSpec,
-                            liveAligned.result
+                            liveAligned.result,
+                            &alignmentSettledMatter
                         );
                         const MRBodyStateGPU& settledNeedle =
                             liveAligned.result.finalSceneBodies.at(0u);
@@ -18204,7 +18347,8 @@ int main(const int argc, const char* const argv[]) {
                                 liveAcquisitionBaseDERSubsteps,
                             world,
                             sutureSpec,
-                            liveLoadExchanged.result
+                            liveLoadExchanged.result,
+                            &acquisitionMatter
                         );
                         std::cout << std::setprecision(9)
                             << "tissue_receiver_acquisition=ok"
@@ -18762,7 +18906,8 @@ int main(const int argc, const char* const argv[]) {
                                     stepConfig.physicsSubsteps,
                             world,
                             sutureSpec,
-                            liveExtracted.result
+                            liveExtracted.result,
+                            &extractionMatter
                         );
                         const double liveReceiverGpuMilliseconds =
                             dynamicBridge.diagnostics
@@ -19200,7 +19345,8 @@ int main(const int argc, const char* const argv[]) {
                                 opposingDistalBaseDERSubsteps,
                             world,
                             sutureSpec,
-                            liveDistalCleared.terminal.result
+                            liveDistalCleared.terminal.result,
+                            &distalClearanceMatter
                         );
                         std::cout << std::setprecision(9)
                             << "tissue_opposing_bite_distal_clearance=ok"
@@ -19462,7 +19608,8 @@ int main(const int argc, const char* const argv[]) {
                                 opposingReorientationBaseSubsteps,
                             world,
                             sutureSpec,
-                            liveReoriented.terminal.result
+                            liveReoriented.terminal.result,
+                            &reorientationMatter
                         );
                         std::cout << std::setprecision(9)
                             << "tissue_opposing_bite_reorientation=ok"
@@ -19756,7 +19903,8 @@ int main(const int argc, const char* const argv[]) {
                                 opposingApproachBaseSubsteps,
                             world,
                             sutureSpec,
-                            liveOpposingReady.terminal.result
+                            liveOpposingReady.terminal.result,
+                            &opposingReadyMatter
                         );
                         const double opposingTransportGpuMilliseconds =
                             liveDistalCleared.gpuMilliseconds +
@@ -20354,7 +20502,8 @@ int main(const int argc, const char* const argv[]) {
                                 opposingPassageBaseSubsteps,
                             world,
                             sutureSpec,
-                            opposingPassage.result
+                            opposingPassage.result,
+                            &opposingPassageMatter
                         );
                         std::cout << std::setprecision(9)
                             << "tissue_opposing_bite_passage=ok"

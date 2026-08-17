@@ -74,6 +74,11 @@ struct PickupState {
     double tissueWidth = 0.0;
     double tissueThickness = 0.0;
     double tissueIncisionGap = 0.0;
+    std::string matterSnapshotFilename;
+    std::uint64_t matterSnapshotContentHash = 0u;
+    std::uint64_t matterSnapshotPayloadBytes = 0u;
+    std::uint64_t matterSourcePhysicsFingerprint = 0u;
+    std::uint64_t matterDeviceProgramFingerprint = 0u;
     double needleLift = 0.0;
     double jawTravel = 0.0;
     double followRatio = 0.0;
@@ -92,6 +97,8 @@ struct PickupState {
     bool needleAngularVelocitySeen = false;
     bool threadModelSeen = false;
     bool tissueModelSeen = false;
+    bool matterSnapshotRequired = false;
+    bool matterSnapshotSeen = false;
     bool needleLiftSeen = false;
     bool jawTravelSeen = false;
     bool followRatioSeen = false;
@@ -263,7 +270,9 @@ PickupState readPickupState(const std::filesystem::path& path) {
                     (fields[1] == "numi.surgical-pickup-state.v1" ||
                      fields[1] == "numi.surgical-pickup-state.v2" ||
                      fields[1] ==
-                         "numi.dual-psm-suture-handoff-state.v2"),
+                         "numi.dual-psm-suture-handoff-state.v2" ||
+                     fields[1] ==
+                         "numi.dual-psm-suture-handoff-state.v3"),
                 "pickup state schema is unsupported"
             );
             result.dualHandoff = fields[1] !=
@@ -274,6 +283,8 @@ PickupState readPickupState(const std::filesystem::path& path) {
             if (result.dualHandoff) {
                 result.controlTimestepSeconds = 0.002;
             }
+            result.matterSnapshotRequired = fields[1] ==
+                "numi.dual-psm-suture-handoff-state.v3";
             schema = true;
         } else if (fields[0] == "phase") {
             require(
@@ -505,6 +516,40 @@ PickupState readPickupState(const std::filesystem::path& path) {
             result.tissueThickness = thickness;
             result.tissueIncisionGap = incisionGap;
             result.tissueModelSeen = true;
+        } else if (fields[0] == "matter_snapshot") {
+            require(
+                fields.size() == 6u && result.dualHandoff &&
+                    !result.matterSnapshotSeen,
+                "handoff Matter snapshot row is invalid"
+            );
+            const std::filesystem::path filename = fields[1];
+            result.matterSnapshotFilename = fields[1];
+            result.matterSnapshotContentHash = integer(
+                fields[2],
+                "Matter snapshot content hash"
+            );
+            result.matterSnapshotPayloadBytes = integer(
+                fields[3],
+                "Matter snapshot payload bytes"
+            );
+            result.matterSourcePhysicsFingerprint = integer(
+                fields[4],
+                "Matter source physics fingerprint"
+            );
+            result.matterDeviceProgramFingerprint = integer(
+                fields[5],
+                "Matter device program fingerprint"
+            );
+            require(
+                !filename.empty() && filename == filename.filename() &&
+                    result.matterSnapshotFilename.ends_with(".matter.bin") &&
+                    result.matterSnapshotContentHash != 0u &&
+                    result.matterSnapshotPayloadBytes != 0u &&
+                    result.matterSourcePhysicsFingerprint != 0u &&
+                    result.matterDeviceProgramFingerprint != 0u,
+                "handoff Matter snapshot identity is invalid"
+            );
+            result.matterSnapshotSeen = true;
         } else {
             throw std::invalid_argument(
                 "pickup state contains an unknown row: " + fields[0]
@@ -554,6 +599,7 @@ PickupState readPickupState(const std::filesystem::path& path) {
     const bool dualHandoffValid = result.dualHandoff &&
         result.phaseSeen && result.controlTimestepSeen &&
         result.tissueModelSeen &&
+        (!result.matterSnapshotRequired || result.matterSnapshotSeen) &&
         result.model == "dual_psm_bowel_suture_neutral_zone_world" &&
         result.q.size() == metalrobo::kDualPsmQCount &&
         result.v.size() == metalrobo::kDualPsmVCount &&
@@ -1473,6 +1519,22 @@ void writeEvidence(
         << "\",\n"
         << "  \"dual_instrument\": "
         << (pickup.dualHandoff ? "true" : "false") << ",\n"
+        << "  \"matter_checkpoint\": "
+        << (pickup.matterSnapshotSeen ? "true" : "false") << ",\n";
+    if (pickup.matterSnapshotSeen) {
+        output
+            << "  \"matter_snapshot_file\": \""
+            << pickup.matterSnapshotFilename << "\",\n"
+            << "  \"matter_snapshot_content_hash\": "
+            << pickup.matterSnapshotContentHash << ",\n"
+            << "  \"matter_snapshot_payload_bytes\": "
+            << pickup.matterSnapshotPayloadBytes << ",\n"
+            << "  \"matter_source_physics_fingerprint\": "
+            << pickup.matterSourcePhysicsFingerprint << ",\n"
+            << "  \"matter_device_program_fingerprint\": "
+            << pickup.matterDeviceProgramFingerprint << ",\n";
+    }
+    output
         << "  \"visual_pack_hash\": \"" << asset.pack.contentHash << "\",\n"
         << "  \"visual_scene_fingerprint\": " << manifest.fingerprint << ",\n"
         << "  \"vertices\": " << asset.metrics.vertexCount << ",\n"

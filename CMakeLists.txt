@@ -633,6 +633,7 @@ add_library(
     src/core/CompiledMetalMultiArticulatedContactProgram.cpp
     src/core/WorldCompiler.cpp
     src/core/WorldPack.cpp
+    src/core/MatterSnapshotArchive.cpp
     src/core/EpisodeTwinCompiler.cpp
     src/core/R2S2R.cpp
     src/core/VisualPlatform.cpp
@@ -1718,6 +1719,30 @@ set_target_properties(
 )
 
 add_executable(
+    metalrobo_matter_snapshot_archive_probe
+    apps/matter_snapshot_archive_probe.cpp
+)
+target_compile_options(
+    metalrobo_matter_snapshot_archive_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_matter_snapshot_archive_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_matter_snapshot_archive_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
     metalrobo_surgical_tissue_probe
     apps/surgical_tissue_probe.mm
 )
@@ -1752,6 +1777,16 @@ set_target_properties(
 )
 
 if(BUILD_TESTING)
+    add_test(
+        NAME matter.runtime.snapshot_archive
+        COMMAND
+            $<TARGET_FILE:metalrobo_matter_snapshot_archive_probe>
+            "${CMAKE_CURRENT_BINARY_DIR}/matter-snapshot-archive-probe.bin"
+    )
+    set_tests_properties(
+        matter.runtime.snapshot_archive
+        PROPERTIES LABELS "matter;checkpoint" TIMEOUT 30
+    )
     add_test(
         NAME matter.scene.surgical_jejunal_closure_coupon
         COMMAND $<TARGET_FILE:metalrobo_surgical_tissue_probe>

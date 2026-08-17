@@ -492,9 +492,13 @@ sequence remain open execution boundaries.
 The surgical visual probe accepts the finite set of transactionally published
 dual-PSM operative checkpoints through receiver extraction and the opposing
 bite. It binds the checkpoint's exact articulated state, rigid needle pose, and
-all DER nodes into the Metal renderer. The current v2 checkpoint does not carry
-Matter FEM nodes, so the rendered jejunal surface is the calibrated rest mesh;
-it is presentation context, not evidence of the live deformed tissue state.
+all DER nodes into the Metal renderer. Tissue checkpoints use the v3 text
+manifest plus an atomically published, content-hashed Matter binary sidecar
+containing the exact private completion authority. The visual probe verifies
+the sidecar identity but does not yet ingest its FEM nodes, so its jejunal
+surface remains the calibrated rest mesh; it is presentation context, not
+evidence of the live deformed tissue state. Legacy v2 visual states remain
+readable but are not resumable Matter checkpoints.
 
 The dual-PSM operative probe keeps post-extraction needle transport separate
 from the next bite. It first translates the receiver-held complete half-circle

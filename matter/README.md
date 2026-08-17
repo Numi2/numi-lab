@@ -190,6 +190,12 @@ The stateful MPM and FEM probes require byte-exact immediate readback and a
 byte-identical deterministic continuation after rewind. Snapshots taken after
 allocation growth are rejected for now because rebuilt topology incidence is
 not yet exported; source-physics fingerprint equality alone is insufficient.
+`MatterSnapshotArchive` stores that completion authority in an ABI-bound,
+content-hashed binary payload. It writes a same-directory temporary file and
+publishes with atomic rename; decode checks magic, version, endian marker,
+Matter ABI, byte counts, content hash, and both physics/program identities
+before replacing the caller's output. A corrupt payload control must reject
+without modifying the destination snapshot.
 
 ### Transactional topology and arena growth
 

@@ -385,6 +385,11 @@ window. Stateful MPM/FEM probes require both byte-exact readback after restore
 and byte-identical continuation. A snapshot whose allocation generation differs
 from the cooked generation is rejected until rebuilt FEM incidence is included
 in the exported authority.
+The matching binary snapshot archive retains raw GPU records rather than
+rounding them through text. Its version, endian marker, Matter ABI, payload
+length, content hash, source-physics fingerprint, and exact device-program
+fingerprint are validated before decode. Publication is temporary-file plus
+atomic rename, and corruption leaves the destination snapshot unchanged.
 The v1 MetalWorld contract owns one articulation per environment; all of its
 collision proxies therefore share one articulated generalized/q reserve, while
 each distinct free body contributes exactly six additional coordinates.
