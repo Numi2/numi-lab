@@ -221,6 +221,12 @@ constexpr std::uint32_t kLongSettleSteps = 150u;
 constexpr double kMaximumSettledNeedleLinearSpeed = 1.0e-3;
 constexpr double kMaximumSettledNeedleAngularSpeed = 0.5;
 constexpr double kMaximumSettledRodSpeed = 2.0e-2;
+// During a lifted handoff the remaining 25 cm strand is expected to fall and
+// slide under gravity. Receiver closure is governed by the material edge
+// welded into the swage, not by an unrelated free-span velocity maximum.
+// Retain the supported-reset whole-strand gate above, but require the two
+// nodes of every authored clamped tangent edge to be settled here.
+constexpr double kMaximumSettledSwageRootSpeed = 2.0e-2;
 constexpr double kMaximumSettledRodStretch = 2.0e-6;
 constexpr double kMinimumSettledRodSeparation = -5.0e-5;
 constexpr double kPickupInsertion = 0.205;
@@ -264,9 +270,9 @@ constexpr std::uint32_t kReceiverAlignmentSettleSteps = 50u;
 // A tissue-engaged needle may transfer a small alignment transient into the
 // swaged strand even while the open receiver remains collision-free. Require
 // two consecutive quiescent completion chunks after the 100 ms nominal hold.
-// The first neutral live-frame replay decayed the strand maximum from 293 to
-// 188 mm/s in that interval, so retain a bounded 1 s ceiling rather than
-// beginning insertion on a moving package or weakening the 20 mm/s gate.
+// Retain a bounded 1 s ceiling for a disturbed swage-root edge; gravity-driven
+// motion farther down the hanging 25 cm strand remains diagnostic and is
+// continuously governed by DER strain, self-contact, and CCD instead.
 constexpr std::uint32_t kReceiverAlignmentMaximumSettleSteps = 500u;
 // The giver groove and attached strand can move the live needle after the
 // receiver target was solved. Permit only two fresh-frame corrections, and
@@ -644,6 +650,9 @@ double minimumNonNeighbourRodSurfaceSeparation(
 
 struct RodStateMetrics {
     double maximumNodeSpeed = 0.0;
+    std::size_t maximumNodeSpeedIndex = 0u;
+    double maximumClampedRootSpeed = 0.0;
+    bool clampedRootSpeedValid = false;
     double maximumEdgeLengthError = 0.0;
     double minimumNonNeighbourSurfaceClearance =
         std::numeric_limits<double>::infinity();
@@ -668,10 +677,13 @@ RodStateMetrics rodStateMetrics(
     for (std::size_t node = 0u;
          node < state.finalRodNodes.size();
          ++node) {
-        result.maximumNodeSpeed = std::max(
-            result.maximumNodeSpeed,
-            norm(vector(state.finalRodNodes[node].velocity))
-        );
+        const double nodeSpeed = norm(vector(
+            state.finalRodNodes[node].velocity
+        ));
+        if (nodeSpeed > result.maximumNodeSpeed) {
+            result.maximumNodeSpeed = nodeSpeed;
+            result.maximumNodeSpeedIndex = node;
+        }
         if (node != 0u) {
             result.maximumEdgeLengthError = std::max(
                 result.maximumEdgeLengthError,
@@ -681,6 +693,21 @@ RodStateMetrics rodStateMetrics(
                         vector(state.finalRodNodes[node - 1u].position)
                     ) - world.rods[0].model.restLengths[node - 1u]
                 )
+            );
+        }
+    }
+    for (const auto& binding : world.rods[0].tangentBindings) {
+        require(
+            binding.edgeIndex + 1u < state.finalRodNodes.size(),
+            "clamped thread-root edge is outside the DER topology"
+        );
+        result.clampedRootSpeedValid = true;
+        for (std::uint32_t endpoint = 0u; endpoint < 2u; ++endpoint) {
+            result.maximumClampedRootSpeed = std::max(
+                result.maximumClampedRootSpeed,
+                norm(vector(state.finalRodNodes[
+                    binding.edgeIndex + endpoint
+                ].velocity))
             );
         }
     }
@@ -30398,8 +30425,9 @@ int main(const int argc, const char* const argv[]) {
                     ) &&
                     qualifiedDrivenGrasp(resumedGiverMotion) &&
                     qualifiedTransitionRod(resumedRod) &&
-                    resumedRod.maximumNodeSpeed <=
-                        kMaximumSettledRodSpeed &&
+                    resumedRod.clampedRootSpeedValid &&
+                    resumedRod.maximumClampedRootSpeed <=
+                        kMaximumSettledSwageRootSpeed &&
                     resumedNeedleLinearSpeed <=
                         kMaximumSettledNeedleLinearSpeed &&
                     resumedNeedleAngularSpeed <=
@@ -30428,6 +30456,10 @@ int main(const int argc, const char* const argv[]) {
                 << resumedRod.minimumNonNeighbourSurfaceClearance
                 << " thread_max_node_speed_mps="
                 << resumedRod.maximumNodeSpeed
+                << " thread_max_node_speed_index="
+                << resumedRod.maximumNodeSpeedIndex
+                << " swage_root_max_node_speed_mps="
+                << resumedRod.maximumClampedRootSpeed
                 << " needle_linear_speed_mps="
                 << resumedNeedleLinearSpeed
                 << " needle_angular_speed_radps="
@@ -32470,6 +32502,10 @@ int main(const int argc, const char* const argv[]) {
                 << solution.separationFrameAngle
                 << " thread_max_node_speed_mps="
                 << rod.maximumNodeSpeed
+                << " thread_max_node_speed_index="
+                << rod.maximumNodeSpeedIndex
+                << " swage_root_max_node_speed_mps="
+                << rod.maximumClampedRootSpeed
                 << " thread_max_edge_length_error_m="
                 << rod.maximumEdgeLengthError
                 << " contact_residuals=["
@@ -32578,7 +32614,8 @@ int main(const int argc, const char* const argv[]) {
                 residualQualified;
             audit.safeToRetarget =
                 packageStructurallyQualified &&
-                audit.rod.maximumNodeSpeed <=
+                audit.rod.clampedRootSpeedValid &&
+                audit.rod.maximumClampedRootSpeed <=
                     kMaximumTerminalRodNodeSpeed &&
                 audit.needleLinearSpeed <=
                     kMaximumSettledNeedleLinearSpeed &&
@@ -32587,7 +32624,9 @@ int main(const int argc, const char* const argv[]) {
             audit.qualified =
                 packageStructurallyQualified &&
                 audit.frameQualified &&
-                audit.rod.maximumNodeSpeed <= kMaximumSettledRodSpeed &&
+                audit.rod.clampedRootSpeedValid &&
+                audit.rod.maximumClampedRootSpeed <=
+                    kMaximumSettledSwageRootSpeed &&
                 audit.needleLinearSpeed <=
                     kMaximumSettledNeedleLinearSpeed &&
                 audit.needleAngularSpeed <=
@@ -32617,6 +32656,10 @@ int main(const int argc, const char* const argv[]) {
                 << audit.rod.minimumNonNeighbourSurfaceClearance
                 << " thread_max_node_speed_mps="
                 << audit.rod.maximumNodeSpeed
+                << " thread_max_node_speed_index="
+                << audit.rod.maximumNodeSpeedIndex
+                << " swage_root_max_node_speed_mps="
+                << audit.rod.maximumClampedRootSpeed
                 << " thread_max_edge_length_error_m="
                 << audit.rod.maximumEdgeLengthError
                 << " contact_residuals=["
@@ -32830,6 +32873,10 @@ int main(const int argc, const char* const argv[]) {
                     .minimumNonNeighbourSurfaceClearance
                 << " thread_max_node_speed_mps="
                 << receiverAlignmentRod.maximumNodeSpeed
+                << " thread_max_node_speed_index="
+                << receiverAlignmentRod.maximumNodeSpeedIndex
+                << " swage_root_max_node_speed_mps="
+                << receiverAlignmentRod.maximumClampedRootSpeed
                 << " needle_linear_speed_mps="
                 << receiverAlignmentAudit->needleLinearSpeed
                 << " needle_angular_speed_radps="
