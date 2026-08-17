@@ -233,13 +233,17 @@ bool isKnotVisualPhase(const std::string_view phase) {
         phase == "tissue-knot-square-throw-2" ||
         phase == "tissue-knot-square-throw-3" ||
         phase == "tissue-knot-square-throw-4" ||
-        phase == "tissue-knot-square-throw-5";
+        phase == "tissue-knot-square-throw-5" ||
+        phase == "tissue-knot-load-retained";
 }
 
 std::uint32_t knotVisualThrowIndex(const std::string_view phase) {
     if (phase == "tissue-knot-first-throw-staged" ||
         phase == "tissue-knot-first-double-throw") {
         return 0u;
+    }
+    if (phase == "tissue-knot-load-retained") {
+        return 5u;
     }
     constexpr std::string_view prefix{"tissue-knot-square-throw-"};
     if (phase.size() == prefix.size() + 1u &&
@@ -254,7 +258,7 @@ bool isAcceptedDualHandoffVisualPhase(const std::string_view phase) {
     // Every entry is a transactionally published q/v + rigid + DER snapshot.
     // Keep this finite so an arbitrary or partially written phase cannot be
     // presented as operative evidence merely because its array widths match.
-    static constexpr std::array<std::string_view, 43u> phases{
+    static constexpr std::array<std::string_view, 44u> phases{
         "giver-closed",
         "giver-lift",
         "giver-handoff-stage",
@@ -298,6 +302,7 @@ bool isAcceptedDualHandoffVisualPhase(const std::string_view phase) {
         "tissue-knot-square-throw-3",
         "tissue-knot-square-throw-4",
         "tissue-knot-square-throw-5",
+        "tissue-knot-load-retained",
     };
     return std::ranges::find(phases, phase) != phases.end();
 }

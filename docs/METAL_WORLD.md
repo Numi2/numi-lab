@@ -652,6 +652,27 @@ but remain pending earned-checkpoint Apple Metal replay. Phase `-5` establishes
 only completion of the authored `2=1=1=1=1=1` instrument sequence; a separate
 opposing-load transaction must still establish knot retention.
 
+That final transaction is `--tissue-knot-retention-only`, and it accepts only
+`tissue-knot-square-throw-5`. The prior checkpoint must already expose the
+seven-contact centreline certificate. Without releasing either live grasp, a
+128-sample cubic smoothstep moves the standing LND 0.5 mm along negative knot
+X and the needle-owning LND 0.5 mm along positive knot X at a 2 mm/s peak-speed
+budget. The same sparse/dense full-articulation, needle, instrument, and tissue
+audits run before dispatch, and the dynamic path retains all throw-boundary
+authorities.
+
+Promotion requires at least 0.4 mm achieved displacement at each end and 0.8
+mm projected jaw-separation gain, preservation of at least seven
+material-separated terminal contacts, nonzero bounded DER self-friction, and
+at least 0.05 N at both load paths. The standing load is derived from its
+target-window tangential contact impulse; the working load comes from the
+three-axis hard-swage attachment impulse. Each is divided by the actual 62.5
+us physics substep, not the outer 1 ms Matter transaction. Two quiescent loaded
+boundaries publish `tissue-knot-load-retained` with the unchanged protocol and
+material-window identity. This is an executable source-scaled simulation gate,
+not package-calibrated tensile strength or clinical validation, and remains
+pending earned full-sequence Apple Metal execution.
+
 The surgical visual probe accepts the finite set of transactionally published
 dual-PSM operative checkpoints through receiver extraction and the opposing
 bite. It binds the checkpoint's exact articulated state, rigid needle pose, and

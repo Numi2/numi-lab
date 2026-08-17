@@ -362,6 +362,29 @@ separate required transaction.
   --state-output-dir build-coupled-dev/testing/suture/square-throw-1
 ```
 
+`--tissue-knot-retention-only` consumes only
+`tissue-knot-square-throw-5`. Both LNDs keep their physically certified end
+ownership while a 128-sample smooth trajectory pulls the standing tail and
+working needle 0.5 mm in opposite knot-frame directions. Every 64 ms boundary
+must preserve the target-only short-tail grasp, distributed needle grasp, hard
+swage, seven materially separated knot contacts, live DER self-friction, both
+puncture tracts, FEM topology/mass/certificates, and operative clearance. The
+accepted hold must achieve at least 0.4 mm per end and 0.8 mm total projected
+separation, while both the standing-jaw tangential reaction and hard-swage
+reaction reach 0.05 N from the final physics-substep impulses. It publishes
+`tissue-knot-load-retained` only after two quiescent loaded boundaries. The
+threshold is a conservative executable simulation gate for the source-scaled
+PDO model, not package-calibrated knot-pull strength or clinical evidence; the
+mode remains pending an earned full-knot Apple Metal replay.
+
+```sh
+./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-knot-retention-only \
+  --resume-tissue-checkpoint tissue-knot-square-throw-5 \
+  build-coupled-dev/testing/suture/square-throw-5/tissue-knot-square-throw-5.tsv \
+  --state-output-dir build-coupled-dev/testing/suture/knot-retained
+```
+
 ```sh
 ./build-coupled-dev/bin/metalrobo_surgical_knot_protocol_probe
 ```

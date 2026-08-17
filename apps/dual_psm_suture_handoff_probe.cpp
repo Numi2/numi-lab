@@ -6503,7 +6503,8 @@ bool isLiveTissueCheckpointPhase(const std::string_view phase) {
         phase == "tissue-knot-square-throw-2" ||
         phase == "tissue-knot-square-throw-3" ||
         phase == "tissue-knot-square-throw-4" ||
-        phase == "tissue-knot-square-throw-5";
+        phase == "tissue-knot-square-throw-5" ||
+        phase == "tissue-knot-load-retained";
 }
 
 bool isSupportedTissueCheckpointPhase(const std::string_view phase) {
@@ -6543,6 +6544,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-knot-first-throw-stage-only" ||
             argument == "--tissue-knot-first-double-throw-only" ||
             argument == "--tissue-knot-next-square-throw-only" ||
+            argument == "--tissue-knot-retention-only" ||
             argument == "--thread-frame-ik-only" ||
             argument == "--receiver-frame-ik-only" ||
             argument == "--receiver-extraction-geometry-only" ||
@@ -7110,7 +7112,8 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         result.mode == "--tissue-knot-first-throw-preflight-only" ||
         result.mode == "--tissue-knot-first-throw-stage-only" ||
         result.mode == "--tissue-knot-first-double-throw-only" ||
-        result.mode == "--tissue-knot-next-square-throw-only";
+        result.mode == "--tissue-knot-next-square-throw-only" ||
+        result.mode == "--tissue-knot-retention-only";
     require(
         tissueCheckpointMode ==
             !result.resumeTissueCheckpointPath.empty(),
@@ -7149,6 +7152,12 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.resumeTissueCheckpointPhase ==
                 "tissue-knot-square-throw-4",
         "next square throw requires the prior accepted throw checkpoint"
+    );
+    require(
+        result.mode != "--tissue-knot-retention-only" ||
+            result.resumeTissueCheckpointPhase ==
+                "tissue-knot-square-throw-5",
+        "knot retention requires the complete accepted throw sequence"
     );
     require(
         result.mode != "--tissue-suture-pull-stroke-only" ||
@@ -8300,6 +8309,8 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-knot-first-double-throw-only";
         const bool tissueKnotNextSquareThrowOnly =
             options.mode == "--tissue-knot-next-square-throw-only";
+        const bool tissueKnotRetentionOnly =
+            options.mode == "--tissue-knot-retention-only";
         const bool tissueSuturePullStrokeOnly =
             options.mode == "--tissue-suture-pull-stroke-only";
         const bool tissueCheckpointResume =
@@ -8309,6 +8320,7 @@ int main(const int argc, const char* const argv[]) {
             tissueKnotFirstThrowStageOnly ||
             tissueKnotFirstDoubleThrowOnly ||
             tissueKnotNextSquareThrowOnly ||
+            tissueKnotRetentionOnly ||
             tissueSuturePullStrokeOnly;
         const bool resumeTissueRestCheckpoint =
             tissueCheckpointResume &&
@@ -14725,7 +14737,9 @@ int main(const int argc, const char* const argv[]) {
                         "tissue-knot-first-double-throw" ||
                     options.resumeTissueCheckpointPhase.starts_with(
                         "tissue-knot-square-throw-"
-                    );
+                    ) ||
+                    options.resumeTissueCheckpointPhase ==
+                        "tissue-knot-load-retained";
                 require(
                     resumedKnotCheckpoint.available == knotCheckpointPhase,
                     knotCheckpointPhase
@@ -15891,7 +15905,8 @@ int main(const int argc, const char* const argv[]) {
                 return 0;
             }
             if (tissueKnotFirstDoubleThrowOnly ||
-                tissueKnotNextSquareThrowOnly) {
+                tissueKnotNextSquareThrowOnly ||
+                tissueKnotRetentionOnly) {
                 require(
                     resumedKnotCheckpoint.available,
                     "live knot throw requires an exact continuation frame"
@@ -15922,7 +15937,22 @@ int main(const int argc, const char* const argv[]) {
                     activeThrowDiagnostics =
                         &protocolDiagnostics.firstDoubleThrow;
                 std::uint32_t outputThrowIndex = 0u;
-                if (tissueKnotNextSquareThrowOnly) {
+                if (tissueKnotRetentionOnly) {
+                    checkpointThrow = &protocol.squareSingleThrows.back();
+                    activeThrow = nullptr;
+                    activeThrowDiagnostics = nullptr;
+                    outputThrowIndex = 5u;
+                    require(
+                        options.resumeTissueCheckpointPhase ==
+                                acceptedThrowPhase(outputThrowIndex) &&
+                            resumedKnotCheckpoint.throwIndex ==
+                                outputThrowIndex &&
+                            resumedKnotCheckpoint.completedSample ==
+                                checkpointThrow->samples.size() - 1u,
+                        "knot retention does not continue the complete "
+                            "accepted throw sequence"
+                    );
+                } else if (tissueKnotNextSquareThrowOnly) {
                     require(
                         resumedKnotCheckpoint.throwIndex <
                             protocol.squareSingleThrows.size(),
@@ -15963,9 +15993,12 @@ int main(const int argc, const char* const argv[]) {
                             "protocol start"
                     );
                 }
-                const auto& throwPath = *activeThrow;
+                const auto& throwPath = activeThrow != nullptr
+                    ? *activeThrow : *checkpointThrow;
                 const std::string outputThrowPhase =
-                    acceptedThrowPhase(outputThrowIndex);
+                    tissueKnotRetentionOnly
+                        ? std::string{"tissue-knot-load-retained"}
+                        : acceptedThrowPhase(outputThrowIndex);
                 const std::string liveThrowLabel =
                     "live " + outputThrowPhase;
                 const std::uint32_t expectedResolvedWrapCount =
@@ -15982,10 +16015,36 @@ int main(const int argc, const char* const argv[]) {
                         resumedKnotCheckpoint.expectedTransferSign ==
                             checkpointThrow->expectedTransferSign &&
                         throwPath.samples.size() >= 2u &&
-                        activeThrowDiagnostics->succeeded(),
+                        (activeThrowDiagnostics == nullptr ||
+                         activeThrowDiagnostics->succeeded()),
                     "knot checkpoint protocol identity does not match the "
                         "live throw"
                 );
+                std::optional<
+                    metalrobo::SurgicalKnotContactDiagnostics
+                > initialRetentionContacts;
+                if (tissueKnotRetentionOnly) {
+                    initialRetentionContacts =
+                        metalrobo::certifySurgicalKnotContacts(
+                            world.rods[0].defaultState.positions,
+                            {
+                                .threadRadiusM =
+                                    world.rods[0].model.radius,
+                                .contactMarginM =
+                                    kMinimumThreadSelfCollisionClearance,
+                                .separationToleranceM =
+                                    kThreadClearanceReadbackTolerance,
+                                .minimumMaterialEdgeSeparation = 2u,
+                                .minimumContactPairCount =
+                                    expectedResolvedWrapCount,
+                            }
+                        );
+                    require(
+                        initialRetentionContacts->succeeded(),
+                        "complete knot checkpoint has no seven-contact "
+                            "load-test baseline"
+                    );
+                }
 
                 const Vec3 knotOrigin = resumedKnotCheckpoint.origin;
                 const Vec3 knotX = resumedKnotCheckpoint.axisX;
@@ -16063,7 +16122,8 @@ int main(const int argc, const char* const argv[]) {
                 );
                 constexpr double kKnotContinuationSeamToleranceM = 5.0e-4;
                 const auto& checkpointEndpoint =
-                    tissueKnotNextSquareThrowOnly
+                    tissueKnotNextSquareThrowOnly ||
+                        tissueKnotRetentionOnly
                         ? checkpointThrow->samples.back()
                         : throwPath.samples.front();
                 const Vec3 expectedStandingStart = place(
@@ -16159,44 +16219,60 @@ int main(const int argc, const char* const argv[]) {
                     Vec3 standing{};
                 };
                 std::vector<PlacedThrowSample> placedSamples;
-                constexpr std::uint32_t kKnotRecenterSamples = 128u;
-                const Vec3 activeStandingStart = place(
-                    throwPath.samples.front().standingJawCenterM
-                );
-                const Vec3 activeWorkingStart = place(
-                    throwPath.samples.front().workingJawCenterM
-                );
-                const double maximumRecenterDistanceM = std::max(
+                constexpr std::uint32_t kKnotTransitionSamples = 128u;
+                constexpr double kKnotRetentionPullM = 5.0e-4;
+                constexpr double kKnotRetentionPullSpeedMps = 2.0e-3;
+                constexpr double kKnotMinimumRetentionLoadN = 5.0e-2;
+                const Vec3 activeStandingStart = tissueKnotRetentionOnly
+                    ? standingStart.midpoint -
+                        knotX * kKnotRetentionPullM
+                    : place(
+                          throwPath.samples.front().standingJawCenterM
+                      );
+                const Vec3 activeWorkingStart = tissueKnotRetentionOnly
+                    ? workingStart.midpoint +
+                        knotX * kKnotRetentionPullM
+                    : place(
+                          throwPath.samples.front().workingJawCenterM
+                      );
+                const double maximumTransitionDistanceM = std::max(
                     norm(activeStandingStart - standingStart.midpoint),
                     norm(activeWorkingStart - workingStart.midpoint)
                 );
-                const double recenterDurationSeconds =
-                    tissueKnotNextSquareThrowOnly
+                const double transitionSpeedMps =
+                    tissueKnotRetentionOnly
+                        ? kKnotRetentionPullSpeedMps
+                        : throwPath.maximumJawCenterSpeedMps;
+                const double transitionDurationSeconds =
+                    tissueKnotNextSquareThrowOnly ||
+                            tissueKnotRetentionOnly
                         ? std::max(
                               0.5,
-                              1.5 * maximumRecenterDistanceM /
-                                  throwPath.maximumJawCenterSpeedMps
+                              1.5 * maximumTransitionDistanceM /
+                                  transitionSpeedMps
                           )
                         : 0.0;
                 placedSamples.reserve(
-                    throwPath.samples.size() - 1u +
-                    (tissueKnotNextSquareThrowOnly
-                         ? kKnotRecenterSamples
-                         : 0u)
+                    (tissueKnotRetentionOnly
+                         ? 0u : throwPath.samples.size() - 1u) +
+                    (tissueKnotNextSquareThrowOnly ||
+                             tissueKnotRetentionOnly
+                         ? kKnotTransitionSamples : 0u)
                 );
-                if (tissueKnotNextSquareThrowOnly) {
+                if (tissueKnotNextSquareThrowOnly ||
+                    tissueKnotRetentionOnly) {
                     for (std::uint32_t sample = 1u;
-                         sample <= kKnotRecenterSamples;
+                         sample <= kKnotTransitionSamples;
                          ++sample) {
                         const double linearFraction =
                             static_cast<double>(sample) /
-                            static_cast<double>(kKnotRecenterSamples);
+                            static_cast<double>(kKnotTransitionSamples);
                         const double smoothFraction =
                             linearFraction * linearFraction *
                             (3.0 - 2.0 * linearFraction);
                         placedSamples.push_back({
                             .timeSeconds =
-                                recenterDurationSeconds * linearFraction,
+                                transitionDurationSeconds * linearFraction,
                             .working = workingStart.midpoint +
                                 (activeWorkingStart -
                                  workingStart.midpoint) * smoothFraction,
@@ -16206,22 +16282,24 @@ int main(const int argc, const char* const argv[]) {
                         });
                     }
                 }
-                for (std::size_t sample = 1u;
-                     sample < throwPath.samples.size();
-                     ++sample) {
-                    placedSamples.push_back({
-                        .timeSeconds =
-                            recenterDurationSeconds +
-                            throwPath.samples[sample].timeSeconds,
-                        .working = place(
-                            throwPath.samples[sample]
-                                .workingJawCenterM
-                        ),
-                        .standing = place(
-                            throwPath.samples[sample]
-                                .standingJawCenterM
-                        ),
-                    });
+                if (!tissueKnotRetentionOnly) {
+                    for (std::size_t sample = 1u;
+                         sample < throwPath.samples.size();
+                         ++sample) {
+                        placedSamples.push_back({
+                            .timeSeconds =
+                                transitionDurationSeconds +
+                                throwPath.samples[sample].timeSeconds,
+                            .working = place(
+                                throwPath.samples[sample]
+                                    .workingJawCenterM
+                            ),
+                            .standing = place(
+                                throwPath.samples[sample]
+                                    .standingJawCenterM
+                            ),
+                        });
+                    }
                 }
                 require(
                     !placedSamples.empty() &&
@@ -16728,6 +16806,8 @@ int main(const int argc, const char* const argv[]) {
                     double minimumNeedleTissueClearanceM = 0.0;
                     double instrumentClearanceM = 0.0;
                     double contactVelocityResidualMps = 0.0;
+                    Vec3 standingJawCenter{};
+                    Vec3 workingJawCenter{};
                 };
                 const auto validateBoundary = [&] (
                     const metalrobo::MetalWorldResult& state,
@@ -16778,6 +16858,8 @@ int main(const int argc, const char* const argv[]) {
                         state.finalQ,
                         state.finalV
                     );
+                    metrics.standingJawCenter = standingJaw.midpoint;
+                    metrics.workingJawCenter = workingJaw.midpoint;
                     metrics.materialSeatErrorM = norm(
                         materialCenter - standingJaw.midpoint
                     );
@@ -16903,6 +16985,8 @@ int main(const int argc, const char* const argv[]) {
                 double maximumSelfNormalImpulseNs = 0.0;
                 double maximumSelfTangentialImpulseNs = 0.0;
                 double maximumSelfFrictionUtilization = 0.0;
+                double maximumStandingTangentialImpulseNs = 0.0;
+                double maximumSwageAttachmentImpulseNs = 0.0;
                 const auto accumulateSelfFriction = [&] (
                     const RodStateMetrics& rod
                 ) {
@@ -16921,6 +17005,24 @@ int main(const int argc, const char* const argv[]) {
                     maximumSelfFrictionUtilization = std::max(
                         maximumSelfFrictionUtilization,
                         rod.maximumSelfFrictionUtilization
+                    );
+                };
+                const auto accumulateRetentionLoad = [&] (
+                    const KnotBoundaryMetrics& metrics
+                ) {
+                    maximumStandingTangentialImpulseNs = std::max(
+                        maximumStandingTangentialImpulseNs,
+                        metrics.standingThread.maximumTangentialImpulseNs
+                    );
+                    const auto& impulse =
+                        metrics.workingNeedle.rodAttachmentImpulses[0u];
+                    maximumSwageAttachmentImpulseNs = std::max(
+                        maximumSwageAttachmentImpulseNs,
+                        std::sqrt(
+                            impulse[0] * impulse[0] +
+                            impulse[1] * impulse[1] +
+                            impulse[2] * impulse[2]
+                        )
                     );
                 };
                 std::uint32_t completedThrowSteps = 0u;
@@ -16971,6 +17073,7 @@ int main(const int argc, const char* const argv[]) {
                         liveThrowLabel
                     );
                     accumulateSelfFriction(terminalMetrics.rod);
+                    accumulateRetentionLoad(terminalMetrics);
                     std::cout << std::setprecision(9)
                         << "tissue_knot_throw_progress_phase="
                         << outputThrowPhase
@@ -17023,6 +17126,7 @@ int main(const int argc, const char* const argv[]) {
                         liveThrowLabel + " hold"
                     );
                     accumulateSelfFriction(terminalMetrics.rod);
+                    accumulateRetentionLoad(terminalMetrics);
                     const bool quiescent =
                         qualifiedTerminalRod(terminalMetrics.rod) &&
                         terminalMetrics.needleLinearSpeedMps <=
@@ -17086,6 +17190,71 @@ int main(const int argc, const char* const argv[]) {
                     "knot throw lacks resolved material-separated "
                         "frictional strand contacts"
                 );
+                const double physicsSubstepSeconds =
+                    throwTimestepSeconds /
+                    static_cast<double>(stepConfig.physicsSubsteps);
+                const double maximumStandingRetentionLoadN =
+                    maximumStandingTangentialImpulseNs /
+                    physicsSubstepSeconds;
+                const double maximumSwageRetentionLoadN =
+                    maximumSwageAttachmentImpulseNs /
+                    physicsSubstepSeconds;
+                const double terminalStandingRetentionLoadN =
+                    terminalMetrics.standingThread
+                        .maximumTangentialImpulseNs /
+                    physicsSubstepSeconds;
+                const auto& terminalSwageImpulse =
+                    terminalMetrics.workingNeedle
+                        .rodAttachmentImpulses[0u];
+                const double terminalSwageRetentionLoadN = std::sqrt(
+                    terminalSwageImpulse[0] * terminalSwageImpulse[0] +
+                    terminalSwageImpulse[1] * terminalSwageImpulse[1] +
+                    terminalSwageImpulse[2] * terminalSwageImpulse[2]
+                ) / physicsSubstepSeconds;
+                const double achievedStandingPullM = dot(
+                    standingStart.midpoint -
+                        terminalMetrics.standingJawCenter,
+                    knotX
+                );
+                const double achievedWorkingPullM = dot(
+                    terminalMetrics.workingJawCenter -
+                        workingStart.midpoint,
+                    knotX
+                );
+                const double achievedOpposingSeparationGainM = dot(
+                    (terminalMetrics.workingJawCenter -
+                     terminalMetrics.standingJawCenter) -
+                        (workingStart.midpoint - standingStart.midpoint),
+                    knotX
+                );
+                if (tissueKnotRetentionOnly) {
+                    require(
+                        initialRetentionContacts.has_value() &&
+                            achievedStandingPullM >=
+                                0.8 * kKnotRetentionPullM &&
+                            achievedWorkingPullM >=
+                                0.8 * kKnotRetentionPullM &&
+                            achievedOpposingSeparationGainM >=
+                                1.6 * kKnotRetentionPullM &&
+                            terminalStandingRetentionLoadN >=
+                                kKnotMinimumRetentionLoadN &&
+                            terminalSwageRetentionLoadN >=
+                                kKnotMinimumRetentionLoadN &&
+                            terminalMetrics.workingNeedle
+                                    .rodAttachmentConstraints >= 3u &&
+                            terminalMetrics.rod
+                                    .selfFrictionContactCount >=
+                                expectedResolvedWrapCount &&
+                            terminalMetrics.rod
+                                    .maximumSelfNormalImpulseNs > 0.0 &&
+                            terminalMetrics.rod
+                                    .maximumSelfTangentialImpulseNs > 0.0 &&
+                            knotContacts.contactPairCount >=
+                                expectedResolvedWrapCount,
+                        "complete knot did not retain seven contacts under "
+                            "the opposing instrument load"
+                    );
+                }
                 const numi::matter::RuntimeStateSnapshot finalMatter =
                     tissueRuntime.snapshot();
                 terminalMetrics.matter = validateMatter(
@@ -17121,7 +17290,9 @@ int main(const int argc, const char* const argv[]) {
                     &completedKnotCheckpoint
                 );
                 std::cout << std::setprecision(9)
-                    << "tissue_knot_throw=ok"
+                    << (tissueKnotRetentionOnly
+                            ? "tissue_knot_retention=ok"
+                            : "tissue_knot_throw=ok")
                     << " source_phase="
                     << options.resumeTissueCheckpointPhase
                     << " output_phase=" << outputThrowPhase
@@ -17129,11 +17300,14 @@ int main(const int argc, const char* const argv[]) {
                     << " protocol_fingerprint=0x" << std::hex
                     << protocolFingerprint << std::dec
                     << " signed_winding_turns="
-                    << activeThrowDiagnostics->signedWindingTurns
-                    << " recenter_duration_s="
-                    << recenterDurationSeconds
-                    << " recenter_distance_m="
-                    << maximumRecenterDistanceM
+                    << (activeThrowDiagnostics != nullptr
+                            ? activeThrowDiagnostics->signedWindingTurns
+                            : protocolDiagnostics.squareSingleThrows.back()
+                                  .signedWindingTurns)
+                    << " transition_duration_s="
+                    << transitionDurationSeconds
+                    << " transition_distance_m="
+                    << maximumTransitionDistanceM
                     << " throw_steps=" << completedThrowSteps
                     << " hold_steps=" << completedHoldSteps
                     << " timestep_s=" << throwTimestepSeconds
@@ -17162,6 +17336,10 @@ int main(const int argc, const char* const argv[]) {
                     << denseAudit.minimumNeedleTissueClearanceM
                     << " knot_contact_pairs="
                     << knotContacts.contactPairCount
+                    << " initial_knot_contact_pairs="
+                    << (initialRetentionContacts.has_value()
+                            ? initialRetentionContacts->contactPairCount
+                            : 0u)
                     << " knot_minimum_surface_gap_m="
                     << knotContacts.minimumContactSurfaceGapM
                     << " maximum_self_friction_contacts="
@@ -17172,6 +17350,32 @@ int main(const int argc, const char* const argv[]) {
                     << maximumSelfTangentialImpulseNs
                     << " maximum_self_friction_utilization="
                     << maximumSelfFrictionUtilization
+                    << " terminal_self_friction_contacts="
+                    << terminalMetrics.rod.selfFrictionContactCount
+                    << " terminal_self_normal_impulse_ns="
+                    << terminalMetrics.rod.maximumSelfNormalImpulseNs
+                    << " terminal_self_tangential_impulse_ns="
+                    << terminalMetrics.rod.maximumSelfTangentialImpulseNs
+                    << " achieved_standing_pull_m="
+                    << achievedStandingPullM
+                    << " achieved_working_pull_m="
+                    << achievedWorkingPullM
+                    << " achieved_opposing_separation_gain_m="
+                    << achievedOpposingSeparationGainM
+                    << " retention_pull_target_per_end_m="
+                    << (tissueKnotRetentionOnly
+                            ? kKnotRetentionPullM : 0.0)
+                    << " minimum_retention_load_n="
+                    << (tissueKnotRetentionOnly
+                            ? kKnotMinimumRetentionLoadN : 0.0)
+                    << " maximum_standing_retention_load_n="
+                    << maximumStandingRetentionLoadN
+                    << " maximum_swage_retention_load_n="
+                    << maximumSwageRetentionLoadN
+                    << " terminal_standing_retention_load_n="
+                    << terminalStandingRetentionLoadN
+                    << " terminal_swage_retention_load_n="
+                    << terminalSwageRetentionLoadN
                     << " active_puncture_channels="
                     << terminalMetrics.matter.activeChannels
                     << " active_tetrahedra="
@@ -17187,7 +17391,10 @@ int main(const int argc, const char* const argv[]) {
                     << " gpu_ms=" << throwGpuMilliseconds
                     << " failed_steps=0"
                     << " boundary="
-                    << (outputThrowIndex < 5u
+                    << (tissueKnotRetentionOnly
+                            ? "physical_2_1_1_1_1_1_opposing_load_"
+                              "retained_in_simulation_not_clinical_evidence"
+                        : outputThrowIndex < 5u
                             ? "physical_partial_2_1_1_1_1_1_knot_"
                               "not_complete_or_load_tested"
                             : "physical_2_1_1_1_1_1_instrument_sequence_"
