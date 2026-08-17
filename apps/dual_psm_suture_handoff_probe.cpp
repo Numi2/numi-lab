@@ -279,6 +279,11 @@ constexpr std::uint32_t kReceiverAlignmentMaximumSettleSteps = 500u;
 // only after the package has fallen below the terminal dynamic bounds. Every
 // correction is independently swept through the CPU collision oracle.
 constexpr std::uint32_t kReceiverAlignmentMaximumCorrections = 2u;
+// Restoring a bilateral-contact checkpoint cold-starts temporal-cone
+// warm-start state. Re-prove it in bounded 100 ms resident chunks and require
+// two consecutive accepted completions before changing either jaw preload.
+constexpr std::uint32_t kPositiveControlResumeProofChunkSteps = 50u;
+constexpr std::uint32_t kPositiveControlResumeMaximumProofSteps = 500u;
 // Receiver closure creates a new eight-patch steel contact and must be held
 // before the temporal-cone residual is interpreted as dual positive control.
 constexpr std::uint32_t kReceiverClosureSettleSteps = 100u;
@@ -30476,10 +30481,11 @@ int main(const int argc, const char* const argv[]) {
             receiverAlignmentAlreadyCompleted = true;
             qualifiedLift.emplace(std::move(resumed));
         } else if (!options.resumePositiveControlOverlapPath.empty()) {
-            const std::uint32_t resumeHoldSteps =
-                options.settleStepLimit != 0u
+            const bool explicitResumeProof =
+                options.settleStepLimit != 0u;
+            std::uint32_t resumeHoldSteps = explicitResumeProof
                 ? options.settleStepLimit
-                : 50u;
+                : kPositiveControlResumeProofChunkSteps;
             metalrobo::MetalWorldResult loadedPositiveControlState;
             loadedPositiveControlState.finalQ = world.model.defaultQ;
             loadedPositiveControlState.finalV = world.model.defaultV;
@@ -30493,35 +30499,10 @@ int main(const int argc, const char* const argv[]) {
                     1u,
                     kReceiverNeedleShape
                 );
-            efforts = interpolateTargets(
-                world.model,
-                targetStart,
-                targetStart,
-                resumeHoldSteps
-            );
-            PhaseResult resumed = initializePhase(
-                context,
-                compiled,
-                world,
-                stepConfig,
-                resident,
-                efforts,
-                resumeHoldSteps
-            );
-            const ContactCounts resumedContacts = contactCounts(
-                world,
-                resumed.result,
-                needleForPlacement.metadata,
-                kNeedleFirstShape
-            );
-            const double resumedSwageError =
-                swageAttachmentError(world, resumed.result);
-            const double resumedSwageTangentError =
-                swageTangentAngleError(world, resumed.result);
             giverGraspReference = graspReference(
                 world,
                 needleForPlacement,
-                resumed.result,
+                loadedPositiveControlState,
                 0u,
                 kGiverNeedleShape
             );
@@ -30545,47 +30526,216 @@ int main(const int argc, const char* const argv[]) {
                     kGiverNeedleShape
                 );
             }
-            const GraspKinematics resumedGiverMotion = graspKinematics(
-                world,
-                needleForPlacement,
-                resumed.result,
-                0u,
-                kGiverNeedleShape,
-                *giverGraspReference
+            efforts = interpolateTargets(
+                world.model,
+                targetStart,
+                targetStart,
+                resumeHoldSteps
             );
-            const GraspKinematics resumedReceiverMotion = graspKinematics(
+            PhaseResult resumed = initializePhase(
+                context,
+                compiled,
                 world,
-                needleForPlacement,
-                resumed.result,
-                1u,
-                kReceiverNeedleShape,
-                receiverCheckpointReference
+                stepConfig,
+                resident,
+                efforts,
+                resumeHoldSteps
             );
-            const MRMetalWorldContactStatusGPU& resumedResidual =
-                requireTerminalResidual(
-                    resumed.result,
-                    "positive-control checkpoint"
+            std::uint64_t resumeSuccessfulSteps =
+                resumed.diagnostics.successfulStepCount;
+            double resumeGpuMilliseconds =
+                resumed.diagnostics.gpuElapsedMilliseconds;
+            struct PositiveControlResumeAudit {
+                ContactCounts contacts{};
+                GraspKinematics giverMotion{};
+                GraspKinematics receiverMotion{};
+                RodStateMetrics rod{};
+                MRMetalWorldContactStatusGPU residual{};
+                double swageError =
+                    std::numeric_limits<double>::infinity();
+                double swageTangentError =
+                    std::numeric_limits<double>::infinity();
+                double needleLinearSpeed =
+                    std::numeric_limits<double>::infinity();
+                double needleAngularSpeed =
+                    std::numeric_limits<double>::infinity();
+                bool qualified = false;
+            };
+            const auto auditPositiveControlResume = [&] (
+                const PhaseResult& state,
+                const std::uint32_t completedSteps
+            ) {
+                PositiveControlResumeAudit audit;
+                audit.contacts = contactCounts(
+                    world,
+                    state.result,
+                    needleForPlacement.metadata,
+                    kNeedleFirstShape
                 );
-            require(
-                bilateral(resumedContacts, 0u) &&
-                    bilateral(resumedContacts, 1u) &&
+                audit.giverMotion = graspKinematics(
+                    world,
+                    needleForPlacement,
+                    state.result,
+                    0u,
+                    kGiverNeedleShape,
+                    *giverGraspReference
+                );
+                audit.receiverMotion = graspKinematics(
+                    world,
+                    needleForPlacement,
+                    state.result,
+                    1u,
+                    kReceiverNeedleShape,
+                    receiverCheckpointReference
+                );
+                audit.rod = rodStateMetrics(world, state.result);
+                audit.swageError = swageAttachmentError(
+                    world,
+                    state.result
+                );
+                audit.swageTangentError = swageTangentAngleError(
+                    world,
+                    state.result
+                );
+                const MRBodyStateGPU& needle =
+                    state.result.finalSceneBodies[0];
+                audit.needleLinearSpeed = norm(vector(
+                    needle.linearVelocityAndInverseMass
+                ));
+                audit.needleAngularSpeed = norm(vector(
+                    needle.angularVelocity
+                ));
+                audit.residual = requireTerminalResidual(
+                    state.result,
+                    "positive-control checkpoint candidate",
+                    false
+                );
+                audit.qualified =
+                    bilateral(audit.contacts, 0u) &&
+                    bilateral(audit.contacts, 1u) &&
                     cleanNeedleInteraction(
-                        resumedContacts,
+                        audit.contacts,
                         true,
                         true
                     ) &&
                     (
                         options.giverGraspReferencePath.empty()
-                        ? qualifiedDrivenGrasp(resumedGiverMotion)
-                        : qualifiedTransitionGrasp(resumedGiverMotion)
+                        ? qualifiedDrivenGrasp(audit.giverMotion)
+                        : qualifiedTransitionGrasp(audit.giverMotion)
                     ) &&
-                    qualifiedDrivenGrasp(resumedReceiverMotion) &&
-                    resumedSwageError < kMaximumSwageAttachmentError &&
-                    resumedSwageTangentError <
-                        maximumSwageTangentAngleError(world),
-                "positive-control checkpoint did not retain two independent "
-                "needle grasps: " + contactSummary(resumedContacts)
+                    qualifiedDrivenGrasp(audit.receiverMotion) &&
+                    qualifiedTransitionRod(audit.rod) &&
+                    audit.rod.clampedRootSpeedValid &&
+                    audit.rod.maximumClampedRootSpeed <=
+                        kMaximumSettledSwageRootSpeed &&
+                    audit.needleLinearSpeed <=
+                        kMaximumSettledNeedleLinearSpeed &&
+                    audit.needleAngularSpeed <=
+                        kMaximumSettledNeedleAngularSpeed &&
+                    audit.swageError < kMaximumSwageAttachmentError &&
+                    audit.swageTangentError <
+                        maximumSwageTangentAngleError(world) &&
+                    audit.residual.residuals.y <=
+                        kMaximumTerminalContactVelocityResidual &&
+                    audit.residual.residuals.z <=
+                        kMaximumTerminalConeViolation;
+                std::cerr
+                    << "handoff_phase=positive_control_resume_candidate"
+                    << " completed_steps=" << completedSteps
+                    << " qualified=" << audit.qualified
+                    << " hard_swage_root_error_m="
+                    << audit.swageError
+                    << " giver_seat_drift_m="
+                    << audit.giverMotion.seatDrift
+                    << " receiver_seat_drift_m="
+                    << audit.receiverMotion.seatDrift
+                    << " needle_linear_speed_mps="
+                    << audit.needleLinearSpeed
+                    << " needle_angular_speed_radps="
+                    << audit.needleAngularSpeed
+                    << " thread_max_node_speed_mps="
+                    << audit.rod.maximumNodeSpeed
+                    << " thread_max_node_speed_index="
+                    << audit.rod.maximumNodeSpeedIndex
+                    << " swage_root_max_node_speed_mps="
+                    << audit.rod.maximumClampedRootSpeed
+                    << " contact_residuals=["
+                    << audit.residual.residuals.x << ','
+                    << audit.residual.residuals.y << ','
+                    << audit.residual.residuals.z << ','
+                    << audit.residual.residuals.w << ']'
+                    << contactSummary(audit.contacts) << '\n';
+                return audit;
+            };
+            std::optional<PositiveControlResumeAudit> resumeAudit =
+                auditPositiveControlResume(resumed, resumeHoldSteps);
+            std::uint32_t consecutiveQualifiedProofs =
+                resumeAudit->qualified ? 1u : 0u;
+            const std::uint32_t requiredQualifiedProofs =
+                explicitResumeProof ? 1u : 2u;
+            const std::uint32_t maximumResumeProofSteps =
+                explicitResumeProof
+                ? resumeHoldSteps
+                : kPositiveControlResumeMaximumProofSteps;
+            while (
+                consecutiveQualifiedProofs < requiredQualifiedProofs &&
+                resumeHoldSteps < maximumResumeProofSteps
+            ) {
+                const std::uint32_t extensionSteps = std::min(
+                    kPositiveControlResumeProofChunkSteps,
+                    maximumResumeProofSteps - resumeHoldSteps
+                );
+                efforts = interpolateTargets(
+                    world.model,
+                    resumed.result.finalQ,
+                    targetStart,
+                    extensionSteps
+                );
+                PhaseResult extension = continuePhase(
+                    context,
+                    compiled,
+                    stepConfig,
+                    resident,
+                    efforts,
+                    extensionSteps,
+                    "positive-control checkpoint proof extension"
+                );
+                resumeSuccessfulSteps +=
+                    extension.diagnostics.successfulStepCount;
+                resumeGpuMilliseconds +=
+                    extension.diagnostics.gpuElapsedMilliseconds;
+                resumeHoldSteps += extensionSteps;
+                resumed = std::move(extension);
+                resumeAudit = auditPositiveControlResume(
+                    resumed,
+                    resumeHoldSteps
+                );
+                consecutiveQualifiedProofs = resumeAudit->qualified
+                    ? consecutiveQualifiedProofs + 1u
+                    : 0u;
+            }
+            require(
+                consecutiveQualifiedProofs >= requiredQualifiedProofs,
+                "positive-control checkpoint did not reach bounded, "
+                "quiescent dual control"
             );
+            resumed.diagnostics.successfulStepCount = resumeSuccessfulSteps;
+            resumed.diagnostics.gpuElapsedMilliseconds =
+                resumeGpuMilliseconds;
+            (void)requireTerminalResidual(
+                resumed.result,
+                "positive-control checkpoint"
+            );
+            const ContactCounts& resumedContacts = resumeAudit->contacts;
+            const double resumedSwageError = resumeAudit->swageError;
+            const double resumedSwageTangentError =
+                resumeAudit->swageTangentError;
+            const GraspKinematics& resumedGiverMotion =
+                resumeAudit->giverMotion;
+            const GraspKinematics& resumedReceiverMotion =
+                resumeAudit->receiverMotion;
+            const MRMetalWorldContactStatusGPU& resumedResidual =
+                resumeAudit->residual;
             std::cerr << "handoff_phase=positive_control_overlap_resume"
                 << " hard_swage_root_error_m=" << resumedSwageError
                 << " swage_tangent_angle_error_rad="
