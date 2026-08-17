@@ -4369,6 +4369,125 @@ ArmTrajectory frameArmTrajectory(
     return trajectory;
 }
 
+ArmTrajectory coordinatedNeedleLoadExchangeTrajectory(
+    const metalrobo::EngineModel& worldModel,
+    const metalrobo::EngineModel& psm,
+    const std::vector<float>& begin,
+    const double giverEndJawCoordinate,
+    const double receiverEndJawCoordinate,
+    const std::uint32_t steps,
+    const double trajectoryTimestepSeconds = kControlTimestep
+) {
+    require(
+        begin.size() == worldModel.defaultQ.size() &&
+            worldModel.articulations.size() == 2u && steps != 0u,
+        "coordinated needle load exchange has invalid dimensions"
+    );
+    const std::vector<float> zeroV(worldModel.world.nv, 0.0f);
+    const JawGeometry giverBeginJaw = worldJawGeometry(
+        worldModel,
+        0u,
+        begin,
+        zeroV
+    );
+    const JawGeometry receiverBeginJaw = worldJawGeometry(
+        worldModel,
+        1u,
+        begin,
+        zeroV
+    );
+    const std::vector<double> giverBeginQ = armLocalQ(
+        worldModel,
+        0u,
+        begin
+    );
+    const std::vector<double> receiverBeginQ = armLocalQ(
+        worldModel,
+        1u,
+        begin
+    );
+    // LND jaws pivot rather than translating in parallel. A bare jaw-angle
+    // interpolation therefore sweeps the finite insert midpoint along the
+    // needle while preload is exchanged. Keep each accepted insert frame
+    // fixed in world space and let the PSM IK compensate that scissor motion.
+    const ArmTrajectory giver = frameArmTrajectory(
+        worldModel,
+        psm,
+        0u,
+        armBasePose(worldModel, 0u, begin),
+        begin,
+        giverBeginJaw.midpoint,
+        giverBeginJaw.midpoint,
+        giverBeginJaw.railDirection,
+        giverBeginJaw.separationDirection,
+        giverBeginQ[7],
+        giverEndJawCoordinate,
+        steps,
+        trajectoryTimestepSeconds
+    );
+    const ArmTrajectory receiver = frameArmTrajectory(
+        worldModel,
+        psm,
+        1u,
+        armBasePose(worldModel, 1u, begin),
+        begin,
+        receiverBeginJaw.midpoint,
+        receiverBeginJaw.midpoint,
+        receiverBeginJaw.railDirection,
+        receiverBeginJaw.separationDirection,
+        receiverBeginQ[7],
+        receiverEndJawCoordinate,
+        steps,
+        trajectoryTimestepSeconds
+    );
+
+    ArmTrajectory result;
+    result.desiredQ.assign(
+        static_cast<std::size_t>(steps) * worldModel.world.nq,
+        0.0f
+    );
+    result.finalTarget = begin;
+    for (std::uint32_t step = 0u; step < steps; ++step) {
+        float* merged = result.desiredQ.data() +
+            static_cast<std::size_t>(step) * worldModel.world.nq;
+        std::copy(begin.begin(), begin.end(), merged);
+        for (std::uint32_t arm = 0u; arm < 2u; ++arm) {
+            const ArmTrajectory& source = arm == 0u ? giver : receiver;
+            const std::uint32_t offset =
+                worldModel.articulations[arm].qOffset + 7u;
+            const float* sourceStep = source.desiredQ.data() +
+                static_cast<std::size_t>(step) * worldModel.world.nq;
+            std::copy_n(sourceStep + offset, 8u, merged + offset);
+        }
+    }
+    for (std::uint32_t arm = 0u; arm < 2u; ++arm) {
+        const ArmTrajectory& source = arm == 0u ? giver : receiver;
+        const std::uint32_t offset =
+            worldModel.articulations[arm].qOffset + 7u;
+        std::copy_n(
+            source.finalTarget.begin() + offset,
+            8u,
+            result.finalTarget.begin() + offset
+        );
+    }
+    const ArmTrajectory& limiting =
+        giver.maximumVelocityRatio >= receiver.maximumVelocityRatio
+            ? giver : receiver;
+    result.maximumVelocityRatio = limiting.maximumVelocityRatio;
+    result.maximumVelocity = limiting.maximumVelocity;
+    result.limitingVelocity = limiting.limitingVelocity;
+    result.maximumVelocityDof = limiting.maximumVelocityDof;
+    result.maximumVelocityStep = limiting.maximumVelocityStep;
+    result.efforts = computedTorqueTrajectory(
+        worldModel,
+        begin,
+        result.desiredQ,
+        steps,
+        trajectoryTimestepSeconds
+    );
+    return result;
+}
+
 ArmTrajectory needleGraspArmTrajectory(
     const metalrobo::EngineModel& worldModel,
     const metalrobo::EngineModel& psm,
@@ -9245,6 +9364,24 @@ int main(const int argc, const char* const argv[]) {
                 << nominalDistalPadGap
                 << " nominal_tooth_needle_gap_m="
                 << nominalToothNeedleGap << '\n';
+            std::vector<double> giverUnloadNominal =
+                giverPickupClosedNominal;
+            giverUnloadNominal[6] = -receiverOverlapJawCoordinate;
+            giverUnloadNominal[7] = receiverOverlapJawCoordinate;
+            std::vector<double> receiverLoadNominal =
+                receiverHandoffOverlapNominal;
+            receiverLoadNominal[6] = -closeJawCoordinate;
+            receiverLoadNominal[7] = closeJawCoordinate;
+            std::cout << "uncompensated_giver_midpoint_sweep_m="
+                << norm(
+                       jawGeometry(psm, giverUnloadNominal).midpoint -
+                       giverLocalJaw.midpoint
+                   )
+                << " uncompensated_receiver_midpoint_sweep_m="
+                << norm(
+                       jawGeometry(psm, receiverLoadNominal).midpoint -
+                       receiverLocalJaw.midpoint
+                   ) << '\n';
             const double centerlineRadius =
                 sutureSpec.needle.arcLengthM.value /
                 sutureSpec.needle.arcAngleRad.value;
@@ -13087,12 +13224,106 @@ int main(const int argc, const char* const argv[]) {
                     receiverLoadExchange
                 );
             }
-            fixtureEfforts = interpolateTargets(
-                world.model,
-                receiverOverlapHeld.result.finalQ,
-                loadExchangeTarget,
-                loadExchangeSteps
-            );
+            std::optional<ArmTrajectory> distalLoadExchangeTrajectory;
+            double distalUncompensatedGiverMidpointSweep = 0.0;
+            double distalUncompensatedReceiverMidpointSweep = 0.0;
+            double distalCompensatedGiverMidpointDrift = 0.0;
+            double distalCompensatedReceiverMidpointDrift = 0.0;
+            if (!resumedExtractionLoadExchange) {
+                const std::vector<float> zeroLoadExchangeVelocity(
+                    world.model.world.nv,
+                    0.0f
+                );
+                const JawGeometry giverLoadStartJaw = worldJawGeometry(
+                    world.model,
+                    0u,
+                    receiverOverlapHeld.result.finalQ,
+                    zeroLoadExchangeVelocity
+                );
+                const JawGeometry receiverLoadStartJaw = worldJawGeometry(
+                    world.model,
+                    1u,
+                    receiverOverlapHeld.result.finalQ,
+                    zeroLoadExchangeVelocity
+                );
+                distalUncompensatedGiverMidpointSweep = norm(
+                    worldJawGeometry(
+                        world.model,
+                        0u,
+                        loadExchangeTarget,
+                        zeroLoadExchangeVelocity
+                    ).midpoint - giverLoadStartJaw.midpoint
+                );
+                distalUncompensatedReceiverMidpointSweep = norm(
+                    worldJawGeometry(
+                        world.model,
+                        1u,
+                        loadExchangeTarget,
+                        zeroLoadExchangeVelocity
+                    ).midpoint - receiverLoadStartJaw.midpoint
+                );
+                distalLoadExchangeTrajectory.emplace(
+                    coordinatedNeedleLoadExchangeTrajectory(
+                        world.model,
+                        psm,
+                        receiverOverlapHeld.result.finalQ,
+                        receiverOverlapJawCoordinate,
+                        closeJawCoordinate,
+                        loadExchangeSteps
+                    )
+                );
+                loadExchangeTarget =
+                    distalLoadExchangeTrajectory->finalTarget;
+                distalCompensatedGiverMidpointDrift = norm(
+                    worldJawGeometry(
+                        world.model,
+                        0u,
+                        loadExchangeTarget,
+                        zeroLoadExchangeVelocity
+                    ).midpoint - giverLoadStartJaw.midpoint
+                );
+                distalCompensatedReceiverMidpointDrift = norm(
+                    worldJawGeometry(
+                        world.model,
+                        1u,
+                        loadExchangeTarget,
+                        zeroLoadExchangeVelocity
+                    ).midpoint - receiverLoadStartJaw.midpoint
+                );
+                require(
+                    distalLoadExchangeTrajectory->maximumVelocityRatio <=
+                            kMaximumCommandVelocityRatio &&
+                        distalCompensatedGiverMidpointDrift <= 2.0e-5 &&
+                        distalCompensatedReceiverMidpointDrift <= 2.0e-5,
+                    "frame-compensated distal load exchange exceeds the "
+                    "PSM command envelope"
+                );
+                const CrossArmCollisionScan loadExchangePreflight =
+                    scanCrossArmTargetPath(
+                        world,
+                        receiverOverlapHeld.result.finalQ,
+                        loadExchangeTarget,
+                        loadExchangeSteps,
+                        distalLoadExchangeTrajectory->desiredQ
+                    );
+                require(
+                    loadExchangePreflight.samplesWithContact == 0u &&
+                        loadExchangePreflight.samplesWithGiverPadContact ==
+                            0u &&
+                        loadExchangePreflight.samplesWithReceiverPadContact ==
+                            0u,
+                    "frame-compensated distal load exchange intersects an "
+                    "instrument or fixture"
+                );
+                fixtureEfforts = distalLoadExchangeTrajectory->efforts;
+            } else {
+                fixtureEfforts = interpolateTargets(
+                    world.model,
+                    receiverOverlapHeld.result.finalQ,
+                    loadExchangeTarget,
+                    loadExchangeSteps
+                );
+            }
             PhaseResult loadExchangeMotion = continuePhase(
                 fixtureContext,
                 fixtureCompiled,
@@ -13193,6 +13424,24 @@ int main(const int argc, const char* const argv[]) {
                     << loadExchanged.diagnostics.deviceName << "\""
                     << ",\"load_exchange_steps\":"
                     << loadExchangeSteps
+                    << ",\"load_exchange_command\":\""
+                    << (resumedExtractionLoadExchange
+                            ? "checkpoint_hold"
+                            : "frame_compensated")
+                    << "\""
+                    << ",\"command_velocity_ratio\":"
+                    << (distalLoadExchangeTrajectory.has_value()
+                            ? distalLoadExchangeTrajectory
+                                  ->maximumVelocityRatio
+                            : 0.0)
+                    << ",\"uncompensated_giver_midpoint_sweep_m\":"
+                    << distalUncompensatedGiverMidpointSweep
+                    << ",\"uncompensated_receiver_midpoint_sweep_m\":"
+                    << distalUncompensatedReceiverMidpointSweep
+                    << ",\"compensated_giver_midpoint_drift_m\":"
+                    << distalCompensatedGiverMidpointDrift
+                    << ",\"compensated_receiver_midpoint_drift_m\":"
+                    << distalCompensatedReceiverMidpointDrift
                     << ",\"giver_jaw_contacts\":["
                     << loadExchangeContacts.jawContacts[0][0] << ','
                     << loadExchangeContacts.jawContacts[0][1] << ']'
@@ -33399,6 +33648,7 @@ int main(const int argc, const char* const argv[]) {
                     kControlTimestep
                 )
             )) + 4u;
+        std::vector<float> uncompensatedLoadExchangeTarget = targetStart;
         auto giverLoadExchanged = armLocalQ(
             world.model,
             0u,
@@ -33414,23 +33664,90 @@ int main(const int argc, const char* const argv[]) {
         receiverLoadExchanged[6] = -closeJawCoordinate;
         receiverLoadExchanged[7] = closeJawCoordinate;
         setArmTarget(
-            target,
+            uncompensatedLoadExchangeTarget,
             world.model,
             0u,
             giverLoadExchanged
         );
         setArmTarget(
-            target,
+            uncompensatedLoadExchangeTarget,
             world.model,
             1u,
             receiverLoadExchanged
+        );
+        const std::vector<float> zeroLoadExchangeVelocity(
+            world.model.world.nv,
+            0.0f
+        );
+        const JawGeometry giverLoadStartJaw = worldJawGeometry(
+            world.model,
+            0u,
+            targetStart,
+            zeroLoadExchangeVelocity
+        );
+        const JawGeometry receiverLoadStartJaw = worldJawGeometry(
+            world.model,
+            1u,
+            targetStart,
+            zeroLoadExchangeVelocity
+        );
+        const double uncompensatedGiverMidpointSweep = norm(
+            worldJawGeometry(
+                world.model,
+                0u,
+                uncompensatedLoadExchangeTarget,
+                zeroLoadExchangeVelocity
+            ).midpoint - giverLoadStartJaw.midpoint
+        );
+        const double uncompensatedReceiverMidpointSweep = norm(
+            worldJawGeometry(
+                world.model,
+                1u,
+                uncompensatedLoadExchangeTarget,
+                zeroLoadExchangeVelocity
+            ).midpoint - receiverLoadStartJaw.midpoint
+        );
+        const ArmTrajectory loadExchangeTrajectory =
+            coordinatedNeedleLoadExchangeTrajectory(
+                world.model,
+                psm,
+                targetStart,
+                receiverOverlapJawCoordinate,
+                closeJawCoordinate,
+                kLoadExchangeSteps
+            );
+        target = loadExchangeTrajectory.finalTarget;
+        const double compensatedGiverMidpointDrift = norm(
+            worldJawGeometry(
+                world.model,
+                0u,
+                target,
+                zeroLoadExchangeVelocity
+            ).midpoint - giverLoadStartJaw.midpoint
+        );
+        const double compensatedReceiverMidpointDrift = norm(
+            worldJawGeometry(
+                world.model,
+                1u,
+                target,
+                zeroLoadExchangeVelocity
+            ).midpoint - receiverLoadStartJaw.midpoint
+        );
+        require(
+            loadExchangeTrajectory.maximumVelocityRatio <=
+                    kMaximumCommandVelocityRatio &&
+                compensatedGiverMidpointDrift <= 2.0e-5 &&
+                compensatedReceiverMidpointDrift <= 2.0e-5,
+            "frame-compensated load exchange exceeds the PSM command "
+            "envelope"
         );
         const CrossArmCollisionScan loadExchangePreflight =
             scanCrossArmTargetPath(
                 world,
                 targetStart,
                 target,
-                kLoadExchangeSteps
+                kLoadExchangeSteps,
+                loadExchangeTrajectory.desiredQ
             );
         require(
             loadExchangePreflight.samplesWithContact == 0u &&
@@ -33439,12 +33756,7 @@ int main(const int argc, const char* const argv[]) {
             "coordinated handoff load exchange intersects an instrument or "
             "the table"
         );
-        efforts = interpolateTargets(
-            world.model,
-            targetStart,
-            target,
-            kLoadExchangeSteps
-        );
+        efforts = loadExchangeTrajectory.efforts;
         PhaseResult loadExchangeMotion = continuePhase(
             context,
             compiled,
@@ -33498,6 +33810,16 @@ int main(const int argc, const char* const argv[]) {
             << " motion_steps=" << kLoadExchangeSteps
             << " relative_jaw_speed_limit_radps="
             << kLoadExchangeRelativeJawSpeedRadPerS
+            << " command_velocity_ratio="
+            << loadExchangeTrajectory.maximumVelocityRatio
+            << " uncompensated_giver_midpoint_sweep_m="
+            << uncompensatedGiverMidpointSweep
+            << " uncompensated_receiver_midpoint_sweep_m="
+            << uncompensatedReceiverMidpointSweep
+            << " compensated_giver_midpoint_drift_m="
+            << compensatedGiverMidpointDrift
+            << " compensated_receiver_midpoint_drift_m="
+            << compensatedReceiverMidpointDrift
             << " giver_seat_drift_m="
             << loadExchangeMotionGiver.seatDrift
             << " receiver_seat_drift_m="
