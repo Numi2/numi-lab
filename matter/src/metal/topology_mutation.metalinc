@@ -608,9 +608,16 @@ kernel void nm_topology_detect_puncture(
         // channel advancement can extend this finite tract as the same tip
         // progresses; the entry transaction must not pre-cut the full wall.
         const float tractLength = 2.0f * radius;
-        const float3 tractFirst = acceptedSample.pointAndSeparation.xyz;
+        // The resultant puncture load can be distributed across several FEM
+        // nodes on the terminal hemisphere.  The largest individual row is
+        // therefore an acceptance witness, not the cutting centreline: using
+        // its generally off-axis surface point can make a valid sharp-apex
+        // impact miss the tissue mesh.  Seed fracture at the authored terminal
+        // apex and retain the live terminal tangent for the finite tract.
+        const float3 tractFirst =
+            first + radius * geometricTipDirection;
         // The accepted tissue normal admits fracture, but the finite cutting
-        // tract follows the explicitly authored sharp-tip axis. Using a
+        // tract follows the explicitly authored sharp-tip motion. Using a
         // discretized/deformed surface normal as cutting direction makes the
         // embedded channel drift away from a curved needle even after a valid
         // aligned impact.
