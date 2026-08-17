@@ -394,13 +394,16 @@ same alternating accumulated-impulse update.
 The deterministic Apple M4 fixture uses the authored 250 mm PDO 3-0
 monofilament (0.20 mm diameter), 128 rod nodes, and a pre-tied five-crossing
 core under 0.5 mm opposing endpoint displacement. Fourteen edge pairs occupy
-the 50 um contact shell. Dynamic self-friction at the explicit research value
-of 0.12 reduced RMS crossing slip from 3.182 to 1.605 mm/s on Metal and from
-5.966 to 4.170 mm/s in FP64 while the Metal fixture carried 0.483 mN endpoint
-preload and replayed exactly. The 2.565 mm/s Metal/FP64 slip difference remains
-an open nonlinear-parity boundary. This fixture qualifies loaded multi-contact
-mechanics only: it is pre-tied, is not a square or surgeon's knot executed by
-the robots, and is not package-calibrated or clinical strength evidence.
+the 50 um contact shell. The shared material-separated certificate recovered
+all 14 with 2.346-39.267 um surface gaps, while straight-thread and
+interpenetrating controls reject. Dynamic self-friction at the explicit
+research value of 0.12 reduced RMS crossing slip from 3.182 to 1.605 mm/s on
+Metal and from 5.966 to 4.170 mm/s in FP64 while the Metal fixture carried
+0.483 mN endpoint preload and replayed exactly. The 2.565 mm/s Metal/FP64 slip
+difference remains an open nonlinear-parity boundary. This fixture qualifies
+loaded multi-contact mechanics only: it is pre-tied, is not a square or
+surgeon's knot executed by the robots, and is not package-calibrated or
+clinical strength evidence.
 
 ```sh
 ./build-coupled-dev/bin/metalrobo_surgical_knot_mechanics_probe

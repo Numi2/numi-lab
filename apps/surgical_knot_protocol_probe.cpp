@@ -82,6 +82,55 @@ int main() {
             "missing first-throw wrap was not rejected"
         );
 
+        constexpr metalrobo::SurgicalKnotContactSpec contactSpec{
+            .threadRadiusM = 1.0e-4,
+            .contactMarginM = 5.0e-5,
+            .separationToleranceM = 1.0e-9,
+            .minimumMaterialEdgeSeparation = 2u,
+            .minimumContactPairCount = 1u,
+        };
+        const std::array<metalrobo::SurgicalKnotPoint, 6u>
+            separatedThread{{
+                {0.000, 0.0, 0.0},
+                {0.001, 0.0, 0.0},
+                {0.002, 0.0, 0.0},
+                {0.003, 0.0, 0.0},
+                {0.004, 0.0, 0.0},
+                {0.005, 0.0, 0.0},
+            }};
+        const auto separatedContact =
+            metalrobo::certifySurgicalKnotContacts(
+                separatedThread,
+                contactSpec
+            );
+        require(
+            separatedContact.status ==
+                    metalrobo::SurgicalKnotContactStatus::
+                        insufficientContacts &&
+                separatedContact.contactPairCount == 0u,
+            "a straight separated strand was accepted as a knot contact"
+        );
+        const std::array<metalrobo::SurgicalKnotPoint, 5u>
+            intersectingThread{{
+                {-0.001, 0.000, 0.0},
+                {0.001, 0.000, 0.0},
+                {0.002, 0.001, 0.0},
+                {0.000, -0.001, 0.0},
+                {0.000, 0.001, 0.0},
+            }};
+        const auto intersectingContact =
+            metalrobo::certifySurgicalKnotContacts(
+                intersectingThread,
+                contactSpec
+            );
+        require(
+            intersectingContact.status ==
+                    metalrobo::SurgicalKnotContactStatus::
+                        interpenetratingContact &&
+                intersectingContact.interpenetratingPairCount > 0u,
+            "an interpenetrating strand crossing was accepted as physical"
+        );
+
         constexpr std::uint32_t kThreadNodeCount = 128u;
         constexpr double kThreadLengthM = 0.25;
         std::vector<metalrobo::SurgicalKnotPoint> threadRestNodes;

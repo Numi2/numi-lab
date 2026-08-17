@@ -1,4 +1,5 @@
 #include "metalrobo/MetalDiscreteElasticRod.hpp"
+#include "metalrobo/SurgicalKnot.hpp"
 #include "metalrobo/SurgicalWorld.hpp"
 
 #include <algorithm>
@@ -425,8 +426,22 @@ int main() {
             contactMargin,
             0.0
         );
+        const auto authoredContactCertificate =
+            metalrobo::certifySurgicalKnotContacts(
+                fixture.state.positions,
+                {
+                    .threadRadiusM = fixture.model.radius,
+                    .contactMarginM = contactMargin,
+                    .separationToleranceM = 1.0e-12,
+                    .minimumMaterialEdgeSeparation = 2u,
+                    .minimumContactPairCount = 5u,
+                }
+            );
         require(
             authored.count >= 5u &&
+                authoredContactCertificate.succeeded() &&
+                authoredContactCertificate.contactPairCount ==
+                    authored.count &&
                 authored.minimumCenterlineDistance >=
                     2.0 * fixture.model.radius &&
                 authored.minimumCenterlineDistance <=
@@ -712,6 +727,12 @@ int main() {
             << " nodes=" << fixture.model.restPositions.size()
             << " core_length_m=" << fixture.coreLength
             << " topological_crossings=5"
+            << " certified_contact_pairs="
+            << authoredContactCertificate.contactPairCount
+            << " minimum_contact_surface_gap_m="
+            << authoredContactCertificate.minimumContactSurfaceGapM
+            << " maximum_contact_surface_gap_m="
+            << authoredContactCertificate.maximumContactSurfaceGapM
             << " contact_edge_pairs=" << authored.count
             << " authored_min_clearance_m="
             << authored.minimumCenterlineDistance -

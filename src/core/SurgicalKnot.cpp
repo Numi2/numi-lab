@@ -74,6 +74,53 @@ Point normalized(const Point& value) {
     return multiply(value, 1.0 / magnitude);
 }
 
+double segmentDistance(
+    const Point& firstA,
+    const Point& firstB,
+    const Point& secondA,
+    const Point& secondB
+) {
+    const Point first = subtract(firstB, firstA);
+    const Point second = subtract(secondB, secondA);
+    const Point offset = subtract(firstA, secondA);
+    const double aa = dot(first, first);
+    const double bb = dot(second, second);
+    const double ab = dot(first, second);
+    const double ao = dot(first, offset);
+    const double bo = dot(second, offset);
+    const double denominator = aa * bb - ab * ab;
+    double firstParameter = denominator > 1.0e-14 * aa * bb
+        ? std::clamp(
+              (ab * bo - ao * bb) / denominator,
+              0.0,
+              1.0
+          )
+        : 0.0;
+    const double secondNumerator = ab * firstParameter + bo;
+    double secondParameter = 0.0;
+    if (secondNumerator < 0.0) {
+        firstParameter = std::clamp(-ao / aa, 0.0, 1.0);
+    } else if (secondNumerator > bb) {
+        secondParameter = 1.0;
+        firstParameter = std::clamp(
+            (ab - ao) / aa,
+            0.0,
+            1.0
+        );
+    } else {
+        secondParameter = secondNumerator / bb;
+    }
+    const Point firstPoint = add(
+        firstA,
+        multiply(first, firstParameter)
+    );
+    const Point secondPoint = add(
+        secondA,
+        multiply(second, secondParameter)
+    );
+    return length(subtract(secondPoint, firstPoint));
+}
+
 void appendSample(
     SurgicalThrowPath& path,
     const Point& working,
@@ -481,6 +528,110 @@ SurgeonsKnotProtocolDiagnostics certifySurgeonsKnotInstrumentProtocol(
     return diagnostics;
 }
 
+SurgicalKnotContactDiagnostics certifySurgicalKnotContacts(
+    const std::span<const SurgicalKnotPoint> threadNodes,
+    const SurgicalKnotContactSpec& spec
+) noexcept {
+    SurgicalKnotContactDiagnostics diagnostics;
+    diagnostics.minimumCenterlineDistanceM =
+        std::numeric_limits<double>::infinity();
+    diagnostics.minimumContactSurfaceGapM =
+        std::numeric_limits<double>::infinity();
+    diagnostics.maximumContactSurfaceGapM =
+        -std::numeric_limits<double>::infinity();
+    diagnostics.minimumContactMaterialEdgeSeparation =
+        std::numeric_limits<std::uint32_t>::max();
+    if (!std::isfinite(spec.threadRadiusM) ||
+        !std::isfinite(spec.contactMarginM) ||
+        !std::isfinite(spec.separationToleranceM) ||
+        !(spec.threadRadiusM > 0.0) ||
+        spec.contactMarginM < 0.0 ||
+        spec.separationToleranceM < 0.0 ||
+        spec.minimumMaterialEdgeSeparation < 2u) {
+        diagnostics.status =
+            SurgicalKnotContactStatus::invalidSpecification;
+        return diagnostics;
+    }
+    if (threadNodes.size() < 4u ||
+        spec.minimumMaterialEdgeSeparation >= threadNodes.size() - 1u) {
+        diagnostics.status = SurgicalKnotContactStatus::invalidTopology;
+        return diagnostics;
+    }
+    for (std::size_t node = 0u; node < threadNodes.size(); ++node) {
+        if (!finite(threadNodes[node])) {
+            diagnostics.status = SurgicalKnotContactStatus::nonfiniteNode;
+            return diagnostics;
+        }
+        if (node > 0u &&
+            !(length(subtract(
+                threadNodes[node],
+                threadNodes[node - 1u]
+            )) > 1.0e-12)) {
+            diagnostics.status = SurgicalKnotContactStatus::degenerateEdge;
+            return diagnostics;
+        }
+    }
+
+    const std::size_t edgeCount = threadNodes.size() - 1u;
+    const double diameter = 2.0 * spec.threadRadiusM;
+    const double contactDistance =
+        diameter + spec.contactMarginM + spec.separationToleranceM;
+    for (std::size_t firstEdge = 0u;
+         firstEdge < edgeCount;
+         ++firstEdge) {
+        for (std::size_t secondEdge =
+                 firstEdge + spec.minimumMaterialEdgeSeparation;
+             secondEdge < edgeCount;
+             ++secondEdge) {
+            ++diagnostics.testedPairCount;
+            const double distance = segmentDistance(
+                threadNodes[firstEdge],
+                threadNodes[firstEdge + 1u],
+                threadNodes[secondEdge],
+                threadNodes[secondEdge + 1u]
+            );
+            if (!std::isfinite(distance)) {
+                diagnostics.status =
+                    SurgicalKnotContactStatus::invalidTopology;
+                return diagnostics;
+            }
+            diagnostics.minimumCenterlineDistanceM = std::min(
+                diagnostics.minimumCenterlineDistanceM,
+                distance
+            );
+            if (distance < diameter - spec.separationToleranceM) {
+                ++diagnostics.interpenetratingPairCount;
+            }
+            if (distance > contactDistance) {
+                continue;
+            }
+            ++diagnostics.contactPairCount;
+            diagnostics.minimumContactMaterialEdgeSeparation = std::min(
+                diagnostics.minimumContactMaterialEdgeSeparation,
+                static_cast<std::uint32_t>(secondEdge - firstEdge)
+            );
+            const double surfaceGap = distance - diameter;
+            diagnostics.minimumContactSurfaceGapM = std::min(
+                diagnostics.minimumContactSurfaceGapM,
+                surfaceGap
+            );
+            diagnostics.maximumContactSurfaceGapM = std::max(
+                diagnostics.maximumContactSurfaceGapM,
+                surfaceGap
+            );
+        }
+    }
+    if (diagnostics.interpenetratingPairCount != 0u) {
+        diagnostics.status =
+            SurgicalKnotContactStatus::interpenetratingContact;
+    } else if (diagnostics.contactPairCount <
+               spec.minimumContactPairCount) {
+        diagnostics.status =
+            SurgicalKnotContactStatus::insufficientContacts;
+    }
+    return diagnostics;
+}
+
 SurgicalSutureMaterialPlan planSurgicalSuturePullThrough(
     const std::span<const SurgicalKnotPoint> threadRestNodes,
     const std::uint32_t firstTractEdge,
@@ -713,6 +864,28 @@ const char* surgeonsKnotProtocolStatusName(
         return "invalid_reversing_throw";
     case SurgeonsKnotProtocolStatus::invalidThrowSequence:
         return "invalid_throw_sequence";
+    }
+    return "unknown";
+}
+
+const char* surgicalKnotContactStatusName(
+    const SurgicalKnotContactStatus status
+) noexcept {
+    switch (status) {
+    case SurgicalKnotContactStatus::success:
+        return "success";
+    case SurgicalKnotContactStatus::invalidSpecification:
+        return "invalid_specification";
+    case SurgicalKnotContactStatus::invalidTopology:
+        return "invalid_topology";
+    case SurgicalKnotContactStatus::nonfiniteNode:
+        return "nonfinite_node";
+    case SurgicalKnotContactStatus::degenerateEdge:
+        return "degenerate_edge";
+    case SurgicalKnotContactStatus::interpenetratingContact:
+        return "interpenetrating_contact";
+    case SurgicalKnotContactStatus::insufficientContacts:
+        return "insufficient_contacts";
     }
     return "unknown";
 }

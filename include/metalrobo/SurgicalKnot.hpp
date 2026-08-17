@@ -96,6 +96,45 @@ struct SurgeonsKnotProtocolDiagnostics {
     }
 };
 
+struct SurgicalKnotContactSpec {
+    double threadRadiusM = 0.0;
+    double contactMarginM = 0.0;
+    double separationToleranceM = 0.0;
+    std::uint32_t minimumMaterialEdgeSeparation = 0u;
+    std::uint32_t minimumContactPairCount = 0u;
+};
+
+enum class SurgicalKnotContactStatus : std::uint32_t {
+    success = 0u,
+    invalidSpecification,
+    invalidTopology,
+    nonfiniteNode,
+    degenerateEdge,
+    interpenetratingContact,
+    insufficientContacts,
+};
+
+// Radius-correct, material-separated DER self-contact evidence. This proves
+// that a resolved centreline contains a requested number of non-neighbouring
+// strand contacts without centreline interpenetration. It does not infer a
+// surgical throw from proximity alone; live use combines it with the
+// instrument-path certificate, jaw retention, and an opposing load test.
+struct SurgicalKnotContactDiagnostics {
+    SurgicalKnotContactStatus status =
+        SurgicalKnotContactStatus::success;
+    std::uint64_t testedPairCount = 0u;
+    std::uint32_t contactPairCount = 0u;
+    std::uint32_t interpenetratingPairCount = 0u;
+    std::uint32_t minimumContactMaterialEdgeSeparation = 0u;
+    double minimumCenterlineDistanceM = 0.0;
+    double minimumContactSurfaceGapM = 0.0;
+    double maximumContactSurfaceGapM = 0.0;
+
+    [[nodiscard]] bool succeeded() const noexcept {
+        return status == SurgicalKnotContactStatus::success;
+    }
+};
+
 struct SurgicalSutureMaterialPlanSpec {
     double targetFreeTailLengthM = 0.0;
     double freeTailToleranceM = 0.0;
@@ -165,6 +204,12 @@ certifySurgeonsKnotInstrumentProtocol(
     const SurgeonsKnotInstrumentProtocol& protocol
 ) noexcept;
 
+[[nodiscard]] SurgicalKnotContactDiagnostics
+certifySurgicalKnotContacts(
+    std::span<const SurgicalKnotPoint> threadNodes,
+    const SurgicalKnotContactSpec& spec
+) noexcept;
+
 // Partitions source material coordinates, not stretched world-space length.
 // DER node zero is the needle/swage end and the final node is the free tail.
 // The return tract must therefore precede the first tract in material order.
@@ -183,6 +228,10 @@ certifySurgeonsKnotInstrumentProtocol(
 
 [[nodiscard]] const char* surgeonsKnotProtocolStatusName(
     SurgeonsKnotProtocolStatus status
+) noexcept;
+
+[[nodiscard]] const char* surgicalKnotContactStatusName(
+    SurgicalKnotContactStatus status
 ) noexcept;
 
 [[nodiscard]] const char* surgicalSutureMaterialPlanStatusName(

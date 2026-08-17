@@ -475,6 +475,18 @@ instrument path. The DER self-contact network, temporary jaw/thread grasp,
 articulated reachability, and loaded-knot retention remain independent live
 physics authorities.
 
+The shared DER knot-contact certificate now owns the first of those missing
+authorities. It measures closest witnesses for every materially separated pair
+of finite-radius thread edges, rejects any centreline distance below the 0.20
+mm PDO diameter (apart from an explicit readback tolerance), and requires a
+caller-selected count inside the contact shell. Straight-thread and geometric
+interpenetration controls reject. On the deterministic Apple M4 five-crossing
+loaded fixture it independently recovered all 14 discrete edge pairs in the
+50 um shell, with 2.346-39.267 um surface gaps and no interpenetrating pair.
+Proximity is not called a knot by itself: live promotion must combine this
+certificate with the executed throw, retained jaws, frictional impulses, and
+an opposing load test.
+
 Knot preparation now has a separate material-coordinate certificate. It uses
 DER rest arc from the needle swage to the return tract, between the two tracts,
 and from the first tract to the free end; these three intervals must conserve
