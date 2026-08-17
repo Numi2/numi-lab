@@ -3,6 +3,7 @@
 #include "metalrobo/MatterSnapshotArchive.hpp"
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/SurgicalAssets.hpp"
+#include "metalrobo/SurgicalKnot.hpp"
 #include "metalrobo/SurgicalPSM.hpp"
 #include "metalrobo/SurgicalThreadTargeting.hpp"
 #include "metalrobo/VisualPlatform.hpp"
@@ -173,6 +174,23 @@ constexpr double kSuturePullDecelerationClearanceM = 2.0e-3;
 // expensive pair graph.
 constexpr double kSutureBiteFieldRadiusM = 4.5e-3;
 constexpr double kSutureTissueContactSlopM = 1.0e-4;
+// Thread-root continuation stops only after the hard-swaged DER root has
+// cleared the live proximal wall and one material edge is measured in each
+// tract. The tool envelope retains a finite 20 um clearance in the sampled
+// deformed-surface audit; this is a research execution gate, not a clinical
+// clearance recommendation.
+constexpr double kOpposingThreadRootClearanceM =
+    kCurvedPassageExitClearanceM;
+constexpr double kOpposingDriveJawTissueClearanceM = 2.0e-5;
+// Intracorporeal knot preparation keeps a short free end near 20 mm and
+// partitions the 250 mm source strand into finite regrasp strokes. These
+// values plan material motion only; live jaw retention owns every stroke.
+constexpr double kKnotTargetFreeTailLengthM = 1.9e-2;
+constexpr double kKnotFreeTailToleranceM = 1.0e-3;
+constexpr double kKnotMinimumWorkingArcLengthM = 1.8e-1;
+constexpr double kKnotMinimumStitchArcLengthM = 6.0e-3;
+constexpr double kKnotMaximumDrawPerStrokeM = 2.5e-2;
+constexpr std::uint32_t kKnotMaximumPullStrokeCount = 16u;
 // The receiver frame must retain at least 20 um of physical clearance from
 // the accepted, deformed distal surface. Author a full millimetre of exposed
 // needle in the nominal construction so the distal gripper has a visually
@@ -6407,6 +6425,7 @@ bool isLiveTissueCheckpointPhase(const std::string_view phase) {
         phase == "tissue-opposing-bite-reorientation" ||
         phase == "tissue-opposing-bite-ready" ||
         phase == "tissue-opposing-bite-passage" ||
+        phase == "tissue-opposing-bite-thread-root" ||
         phase == "tissue-thread-approached" ||
         phase == "tissue-thread-acquired";
 }
@@ -6438,6 +6457,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-receiver-extraction-only" ||
             argument == "--tissue-opposing-bite-reorientation-only" ||
             argument == "--tissue-opposing-bite-passage-only" ||
+            argument == "--tissue-opposing-bite-thread-root-only" ||
             argument == "--tissue-checkpoint-restore-only" ||
             argument == "--tissue-checkpoint-hold-only" ||
             argument == "--tissue-thread-target-only" ||
@@ -7014,8 +7034,8 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         (result.mode != "--tissue-thread-target-only" &&
          result.mode != "--tissue-thread-acquisition-only") ||
             result.resumeTissueCheckpointPhase ==
-                "tissue-opposing-bite-passage",
-        "post-bite thread targeting requires the opposing-passage phase"
+                "tissue-opposing-bite-thread-root",
+        "post-bite thread targeting requires the opposing thread-root phase"
     );
     require(
         result.resumeTissueReceiverDynamicBridgePath.empty() ||
@@ -8036,6 +8056,8 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-opposing-bite-reorientation-only";
         const bool tissueOpposingBitePassageOnly =
             options.mode == "--tissue-opposing-bite-passage-only";
+        const bool tissueOpposingBiteThreadRootOnly =
+            options.mode == "--tissue-opposing-bite-thread-root-only";
         const bool tissueReceiverLiveSequence =
             tissueOpposingBiteTopologyOnly ||
             tissueReceiverStateBridgeOnly ||
@@ -8045,6 +8067,7 @@ int main(const int argc, const char* const argv[]) {
             tissueReceiverExtractionOnly ||
             tissueOpposingBiteReorientationOnly ||
             tissueOpposingBitePassageOnly ||
+            tissueOpposingBiteThreadRootOnly ||
             resumeLiveTissueCheckpoint;
         const bool tissuePunctureOnly =
             options.mode == "--tissue-puncture-only" ||
@@ -14620,9 +14643,9 @@ int main(const int argc, const char* const argv[]) {
                 tissueThreadAcquisitionOnly) {
                 require(
                     options.resumeTissueCheckpointPhase ==
-                        "tissue-opposing-bite-passage",
+                        "tissue-opposing-bite-thread-root",
                     "post-bite thread targeting requires the accepted "
-                    "opposing-passage checkpoint"
+                    "opposing thread-root checkpoint"
                 );
                 std::vector<metalrobo::SurgicalThreadTargetPoint>
                     threadNodes;
@@ -17471,6 +17494,9 @@ int main(const int argc, const char* const argv[]) {
                         entryAngleRad +
                         anglePerPassageStepRad * totalPassageSteps;
                     bool secondSutureTractOwnershipEstablished = false;
+                    std::optional<
+                        metalrobo::SurgicalThreadContactSelection
+                    > occupiedSutureTracts;
                     const auto advanceSutureContactOwnership = [&] (
                         const metalrobo::MetalWorldResult& state,
                         const numi::matter::RuntimeStateSnapshot& snapshot,
@@ -17602,6 +17628,17 @@ int main(const int argc, const char* const argv[]) {
                         secondSutureTractOwnershipEstablished =
                             secondSutureTractOwnershipEstablished ||
                             ownsSecondTract;
+                        if (ownsSecondTract) {
+                            require(
+                                selection.tractEdges.size() == 2u &&
+                                    selection
+                                        .tractSurfaceSeparationsM.size() ==
+                                        2u,
+                                phase + " did not preserve ordered two-tract "
+                                    "material evidence"
+                            );
+                            occupiedSutureTracts = selection;
+                        }
                         if (!ownsSecondTract) {
                             selection =
                                 metalrobo::selectSurgicalThreadContactEdges(
@@ -21368,7 +21405,8 @@ int main(const int argc, const char* const argv[]) {
                         }
                         require(
                             tissueOpposingBiteReorientationOnly ||
-                                tissueOpposingBitePassageOnly,
+                                tissueOpposingBitePassageOnly ||
+                                tissueOpposingBiteThreadRootOnly,
                             "live extraction has no selected continuation"
                         );
 
@@ -22334,7 +22372,8 @@ int main(const int argc, const char* const argv[]) {
                             return 0;
                         }
                         require(
-                            tissueOpposingBitePassageOnly,
+                            tissueOpposingBitePassageOnly ||
+                                tissueOpposingBiteThreadRootOnly,
                             "opposing-bite ready state has no selected "
                                 "continuation"
                         );
@@ -22844,6 +22883,16 @@ int main(const int argc, const char* const argv[]) {
                                 completedOpposingPassageSteps +
                                 liveOpposingSettleSteps
                             ) * stepConfig.physicsSubsteps;
+                        const std::uint64_t
+                            opposingPassageTotalBaseSubsteps =
+                                postBridgeBaseDERSubsteps +
+                                liveAcquisitionBaseDERSubsteps +
+                                liveExtractionPhaseSteps *
+                                    stepConfig.physicsSubsteps +
+                                opposingDistalBaseDERSubsteps +
+                                opposingReorientationBaseSubsteps +
+                                opposingApproachBaseSubsteps +
+                                opposingPassageBaseSubsteps;
                         std::uint64_t opposingPassageStateHash =
                             1469598103934665603ull;
                         appendStateHash(
@@ -22886,14 +22935,7 @@ int main(const int argc, const char* const argv[]) {
                         writeHandoffStateArtifact(
                             options.stateOutputDirectory,
                             "tissue-opposing-bite-passage",
-                            postBridgeBaseDERSubsteps +
-                                liveAcquisitionBaseDERSubsteps +
-                                liveExtractionPhaseSteps *
-                                    stepConfig.physicsSubsteps +
-                                opposingDistalBaseDERSubsteps +
-                                opposingReorientationBaseSubsteps +
-                                opposingApproachBaseSubsteps +
-                                opposingPassageBaseSubsteps,
+                            opposingPassageTotalBaseSubsteps,
                             world,
                             sutureSpec,
                             opposingPassage.result,
@@ -22942,6 +22984,690 @@ int main(const int argc, const char* const argv[]) {
                             << opposingPassageGpuMilliseconds
                             << " passage_state_fnv64=0x" << std::hex
                             << opposingPassageStateHash << std::dec
+                            << " failed_steps=0\n";
+                        if (tissueOpposingBitePassageOnly) {
+                            return 0;
+                        }
+                        require(
+                            tissueOpposingBiteThreadRootOnly,
+                            "opposing passage has no selected material-root "
+                                "continuation"
+                        );
+
+                        // Once the sharp tip has admitted a complete second
+                        // tract, group four 16 kHz DER substeps per Matter
+                        // transaction. At 20 mm/s the carried package moves
+                        // only 5 um per solve, retaining twenty samples across
+                        // the 100 um tissue-contact band while avoiding four
+                        // redundant full-coupon Newton solves.
+                        selectCoupledCadence(
+                            kSuturePassageMatterRateMultiplier,
+                            "opposing-bite thread-root drive"
+                        );
+                        const double opposingRootTimestepS =
+                            static_cast<double>(stepConfig.timestepSeconds);
+                        const MRBodyStateGPU opposingRootStartNeedle =
+                            opposingPassage.result.finalSceneBodies.at(0u);
+                        const CurvedNeedleOrbit opposingRootOrbit =
+                            curvedNeedleOrbit(
+                                needleForPlacement,
+                                opposingRootStartNeedle
+                            );
+                        const double opposingRootAngularSpeedRadPerS =
+                            kCurvedPassageSpeedMps /
+                            opposingRootOrbit.centerlineRadiusM;
+                        const double opposingRootAnglePerStepRad =
+                            opposingRootAngularSpeedRadPerS *
+                            opposingRootTimestepS;
+                        const double maximumOpposingRootAngleRad =
+                            needleForPlacement.spec.arcAngleRad.value +
+                            (
+                                opposingPassageWallThicknessM +
+                                2.0 * (
+                                    needleForPlacement.spec
+                                        .crossSectionRadiusM.value +
+                                    kOpposingThreadRootClearanceM
+                                )
+                            ) / opposingRootOrbit.centerlineRadiusM;
+                        const std::uint32_t maximumOpposingRootSteps =
+                            static_cast<std::uint32_t>(std::ceil(
+                                maximumOpposingRootAngleRad /
+                                    opposingRootAnglePerStepRad
+                            )) + 4u;
+                        require(
+                            opposingRootTimestepS > 0.0 &&
+                                opposingRootAnglePerStepRad > 0.0 &&
+                                maximumOpposingRootSteps > 1u &&
+                                maximumOpposingRootSteps < 100000u,
+                            "opposing thread-root drive has an invalid "
+                                "bounded orbit"
+                        );
+
+                        std::vector<MRBodyStateGPU>
+                            opposingRootNeedleTargets;
+                        opposingRootNeedleTargets.reserve(
+                            maximumOpposingRootSteps
+                        );
+                        for (std::uint32_t step = 0u;
+                             step < maximumOpposingRootSteps;
+                             ++step) {
+                            opposingRootNeedleTargets.push_back(
+                                curvedNeedleTarget(
+                                    opposingRootStartNeedle,
+                                    opposingRootOrbit,
+                                    opposingRootAnglePerStepRad *
+                                        static_cast<double>(step + 1u),
+                                    opposingRootAngularSpeedRadPerS
+                                )
+                            );
+                        }
+                        const ArmTrajectory opposingRootTrajectory =
+                            needleGraspArmTrajectory(
+                                world.model,
+                                psm,
+                                1u,
+                                bridgeReceiverBase,
+                                opposingPassage.result.finalQ,
+                                needleForPlacement,
+                                kExtractionNeedleShape,
+                                liveReceiverReference,
+                                opposingRootNeedleTargets,
+                                receiverTransportJawCoordinate,
+                                opposingRootTimestepS
+                            );
+                        const CrossArmCollisionScan opposingRootPreflight =
+                            scanCrossArmTargetPath(
+                                world,
+                                opposingPassage.result.finalQ,
+                                opposingRootTrajectory.finalTarget,
+                                maximumOpposingRootSteps,
+                                opposingRootTrajectory.desiredQ
+                            );
+                        const CarriedNeedlePathAudit opposingRootNeedleAudit =
+                            auditCarriedNeedlePath(
+                                world,
+                                needleForPlacement.metadata,
+                                opposingRootTrajectory,
+                                opposingRootNeedleTargets
+                            );
+
+                        std::vector<
+                            metalrobo::SurgicalThreadTargetPoint
+                        > opposingRootSurfaceNodes;
+                        opposingRootSurfaceNodes.reserve(
+                            opposingPassageMatter.femNodes.size()
+                        );
+                        for (const NMFEMNodeStateGPU& node :
+                             opposingPassageMatter.femNodes) {
+                            opposingRootSurfaceNodes.push_back(
+                                targetingPoint(
+                                    vector(node.positionAndMass)
+                                )
+                            );
+                        }
+                        const auto opposingRootSurfaceTriangles =
+                            exteriorTissueTargetingTriangles(
+                                tissueWorld,
+                                opposingPassageMatter
+                            );
+                        const std::vector<float> opposingRootZeroVelocity(
+                            world.model.world.nv,
+                            0.0f
+                        );
+                        const double opposingRootJawEnvelopeRadiusM =
+                            0.5 * jawMetadata.instrumentDiameter;
+                        const auto receiverJawTissueClearance = [&] (
+                            const std::span<const float> q,
+                            const std::span<
+                                const metalrobo::SurgicalThreadTargetPoint
+                            > surfaceNodes
+                        ) {
+                            const JawGeometry jaw = worldJawGeometry(
+                                world.model,
+                                1u,
+                                q,
+                                opposingRootZeroVelocity
+                            );
+                            return metalrobo::
+                                evaluateSurgicalThreadJawSurfaceClearance(
+                                    targetingPoint(jaw.midpoint),
+                                    targetingPoint(jaw.railDirection),
+                                    jawMetadata.largeNeedleDriverJawLength,
+                                    opposingRootJawEnvelopeRadiusM,
+                                    surfaceNodes,
+                                    opposingRootSurfaceTriangles
+                                );
+                        };
+                        double opposingRootMinimumPlannedJawClearanceM =
+                            std::numeric_limits<double>::infinity();
+                        std::uint32_t opposingRootFirstUnsafeJawSample =
+                            MR_INVALID_INDEX;
+                        for (std::uint32_t step = 0u;
+                             step < maximumOpposingRootSteps;
+                             ++step) {
+                            const std::span<const float> q{
+                                opposingRootTrajectory.desiredQ.data() +
+                                    static_cast<std::size_t>(step) *
+                                        world.model.world.nq,
+                                world.model.world.nq,
+                            };
+                            const auto clearance =
+                                receiverJawTissueClearance(
+                                    q,
+                                    opposingRootSurfaceNodes
+                                );
+                            require(
+                                clearance.succeeded(),
+                                "opposing thread-root jaw/tissue preflight "
+                                    "could not evaluate the deformed surface"
+                            );
+                            opposingRootMinimumPlannedJawClearanceM =
+                                std::min(
+                                    opposingRootMinimumPlannedJawClearanceM,
+                                    clearance.minimumEnvelopeClearanceM
+                                );
+                            if (clearance.minimumEnvelopeClearanceM <
+                                    kOpposingDriveJawTissueClearanceM) {
+                                opposingRootFirstUnsafeJawSample = std::min(
+                                    opposingRootFirstUnsafeJawSample,
+                                    step
+                                );
+                            }
+                        }
+                        require(
+                            opposingRootTrajectory.maximumVelocityRatio <=
+                                    kMaximumCommandVelocityRatio &&
+                                opposingRootPreflight.samplesWithContact ==
+                                    0u &&
+                                opposingRootPreflight
+                                    .samplesWithGiverPadContact == 0u &&
+                                opposingRootPreflight
+                                    .samplesWithReceiverPadContact == 0u &&
+                                opposingRootNeedleAudit.unsafeSamples == 0u &&
+                                opposingRootFirstUnsafeJawSample ==
+                                    MR_INVALID_INDEX &&
+                                opposingRootMinimumPlannedJawClearanceM >=
+                                    kOpposingDriveJawTissueClearanceM,
+                            "opposing thread-root drive requires a needle "
+                                "regrasp before the receiver jaw reaches the "
+                                "deformed tissue: first_unsafe_sample=" +
+                                std::to_string(
+                                    opposingRootFirstUnsafeJawSample
+                                ) +
+                                " minimum_jaw_clearance=" +
+                                std::to_string(
+                                    opposingRootMinimumPlannedJawClearanceM
+                                )
+                        );
+
+                        const std::uint32_t opposingRootChunkSteps =
+                            std::max<std::uint32_t>(
+                                1u,
+                                static_cast<std::uint32_t>(std::llround(
+                                    kLiveReceiverChunkDurationS /
+                                        opposingRootTimestepS
+                                ))
+                            );
+                        PhaseResult opposingThreadRoot = opposingPassage;
+                        std::uint32_t completedOpposingRootSteps = 0u;
+                        double opposingRootGpuMilliseconds = 0.0;
+                        bool opposingThreadRootCleared = false;
+                        bool opposingNeedleCleared = false;
+                        double opposingThreadRootClearanceM =
+                            -std::numeric_limits<double>::infinity();
+                        double opposingNeedleProximalClearanceM =
+                            -std::numeric_limits<double>::infinity();
+                        double opposingRootMinimumLiveJawClearanceM =
+                            std::numeric_limits<double>::infinity();
+                        while (completedOpposingRootSteps <
+                               maximumOpposingRootSteps) {
+                            const std::uint32_t chunkSteps = std::min(
+                                opposingRootChunkSteps,
+                                maximumOpposingRootSteps -
+                                    completedOpposingRootSteps
+                            );
+                            const std::size_t effortBegin =
+                                static_cast<std::size_t>(
+                                    completedOpposingRootSteps
+                                ) * world.model.world.nv;
+                            const std::size_t effortEnd = effortBegin +
+                                static_cast<std::size_t>(chunkSteps) *
+                                    world.model.world.nv;
+                            const std::vector<float> chunkEfforts(
+                                opposingRootTrajectory.efforts.begin() +
+                                    effortBegin,
+                                opposingRootTrajectory.efforts.begin() +
+                                    effortEnd
+                            );
+                            LiveReceiverStreamResult rootChunk =
+                                continueLiveReceiverStream(
+                                    chunkEfforts,
+                                    chunkSteps,
+                                    "live receiver-driven opposing thread "
+                                        "root passage",
+                                    "tissue_opposing_bite_thread_root",
+                                    2.0 *
+                                        receiverTissueSpec.thicknessM.value,
+                                    true
+                                );
+                            opposingThreadRoot = std::move(
+                                rootChunk.terminal
+                            );
+                            opposingRootGpuMilliseconds +=
+                                rootChunk.gpuMilliseconds;
+                            completedOpposingRootSteps += chunkSteps;
+
+                            // Re-evaluate with zero predictive reach after the
+                            // accepted chunk. This is the physical occupancy
+                            // gate; a future edge cannot establish a tract.
+                            advanceSutureContactOwnership(
+                                opposingThreadRoot.result,
+                                tissueRuntime.snapshot(),
+                                0.0,
+                                "opposing thread-root accepted boundary"
+                            );
+                            const numi::matter::RuntimeStateSnapshot
+                                progressMatter = tissueRuntime.snapshot();
+                            const LiveTissueMetrics progressTissue =
+                                liveTissueMetrics(
+                                    progressMatter,
+                                    "live opposing thread-root progress"
+                                );
+                            opposingThreadRootClearanceM = dot(
+                                vector(
+                                    opposingThreadRoot.result
+                                        .finalRodNodes.at(0u).position
+                                ),
+                                thicknessAxis
+                            ) - progressTissue.topProjection -
+                                world.rods[0].model.radius;
+                            opposingThreadRootCleared =
+                                opposingThreadRootClearanceM >=
+                                    kOpposingThreadRootClearanceM;
+                            opposingNeedleProximalClearanceM =
+                                wholeNeedleProjectionRange(
+                                    needleForPlacement,
+                                    opposingThreadRoot.result
+                                        .finalSceneBodies.at(0u),
+                                    thicknessAxis
+                                ).minimum - progressTissue.topProjection;
+                            opposingNeedleCleared =
+                                opposingNeedleProximalClearanceM >=
+                                    kOpposingThreadRootClearanceM;
+
+                            std::vector<
+                                metalrobo::SurgicalThreadTargetPoint
+                            > liveSurfaceNodes;
+                            liveSurfaceNodes.reserve(
+                                progressMatter.femNodes.size()
+                            );
+                            for (const NMFEMNodeStateGPU& node :
+                                 progressMatter.femNodes) {
+                                liveSurfaceNodes.push_back(targetingPoint(
+                                    vector(node.positionAndMass)
+                                ));
+                            }
+                            const auto liveJawClearance =
+                                receiverJawTissueClearance(
+                                    opposingThreadRoot.result.finalQ,
+                                    liveSurfaceNodes
+                                );
+                            require(
+                                liveJawClearance.succeeded(),
+                                "opposing thread-root live jaw/tissue "
+                                    "clearance could not be evaluated"
+                            );
+                            opposingRootMinimumLiveJawClearanceM = std::min(
+                                opposingRootMinimumLiveJawClearanceM,
+                                liveJawClearance
+                                    .minimumEnvelopeClearanceM
+                            );
+                            require(
+                                liveJawClearance
+                                        .minimumEnvelopeClearanceM >=
+                                    kOpposingDriveJawTissueClearanceM,
+                                "opposing thread-root drive reached the "
+                                    "deformed tissue tool envelope"
+                            );
+                            std::cout << std::setprecision(9)
+                                << "tissue_opposing_bite_thread_root_candidate"
+                                << " completed_steps="
+                                << completedOpposingRootSteps << '/'
+                                << maximumOpposingRootSteps
+                                << " thread_root_clearance_m="
+                                << opposingThreadRootClearanceM
+                                << " whole_needle_proximal_clearance_m="
+                                << opposingNeedleProximalClearanceM
+                                << " two_tract_material_ownership="
+                                << secondSutureTractOwnershipEstablished
+                                << " jaw_tissue_clearance_m="
+                                << liveJawClearance
+                                       .minimumEnvelopeClearanceM
+                                << " matter_minimum_determinant="
+                                << progressTissue.minimumDeterminant
+                                << " chunk_gpu_ms="
+                                << rootChunk.gpuMilliseconds << '\n';
+                            if (opposingThreadRootCleared &&
+                                opposingNeedleCleared &&
+                                secondSutureTractOwnershipEstablished) {
+                                break;
+                            }
+                        }
+                        require(
+                            opposingThreadRootCleared &&
+                                opposingNeedleCleared &&
+                                secondSutureTractOwnershipEstablished &&
+                                occupiedSutureTracts.has_value() &&
+                                completedOpposingRootSteps != 0u,
+                            "bounded opposing drive did not place the DER "
+                                "root through both accepted tissue tracts"
+                        );
+
+                        std::vector<float> opposingRootReachedTarget(
+                            world.model.world.nq
+                        );
+                        std::copy_n(
+                            opposingRootTrajectory.desiredQ.data() +
+                                static_cast<std::size_t>(
+                                    completedOpposingRootSteps - 1u
+                                ) * world.model.world.nq,
+                            world.model.world.nq,
+                            opposingRootReachedTarget.begin()
+                        );
+                        const std::uint32_t opposingRootSettleSteps =
+                            liveReceiverSteps(kOpposingBiteSettleSteps);
+                        const std::vector<float> opposingRootHoldEfforts =
+                            interpolateLiveReceiverTargets(
+                                opposingThreadRoot.result.finalQ,
+                                opposingRootReachedTarget,
+                                opposingRootSettleSteps
+                            );
+                        LiveReceiverStreamResult opposingRootHold =
+                            continueLiveReceiverStream(
+                                opposingRootHoldEfforts,
+                                opposingRootSettleSteps,
+                                "live opposing thread-root settling hold",
+                                "tissue_opposing_bite_thread_root_hold",
+                                2.0 * receiverTissueSpec.thicknessM.value,
+                                true
+                            );
+                        opposingThreadRoot = std::move(
+                            opposingRootHold.terminal
+                        );
+                        opposingRootGpuMilliseconds +=
+                            opposingRootHold.gpuMilliseconds;
+                        advanceSutureContactOwnership(
+                            opposingThreadRoot.result,
+                            tissueRuntime.snapshot(),
+                            0.0,
+                            "opposing thread-root terminal boundary"
+                        );
+
+                        const numi::matter::RuntimeStateSnapshot
+                            opposingRootMatter = tissueRuntime.snapshot();
+                        const LiveTissueMetrics opposingRootTissue =
+                            liveTissueMetrics(
+                                opposingRootMatter,
+                                "live opposing thread-root terminal"
+                            );
+                        const auto& occupied = *occupiedSutureTracts;
+                        std::vector<std::uint32_t> terminalProxyEdges =
+                            opposingRootMatter.sutureProxyEdges;
+                        std::ranges::sort(terminalProxyEdges);
+                        opposingThreadRootClearanceM = dot(
+                            vector(
+                                opposingThreadRoot.result
+                                    .finalRodNodes.at(0u).position
+                            ),
+                            thicknessAxis
+                        ) - opposingRootTissue.topProjection -
+                            world.rods[0].model.radius;
+                        const NeedleProjectionRange terminalNeedleRange =
+                            wholeNeedleProjectionRange(
+                                needleForPlacement,
+                                opposingThreadRoot.result
+                                    .finalSceneBodies.at(0u),
+                                thicknessAxis
+                            );
+                        opposingNeedleProximalClearanceM =
+                            terminalNeedleRange.minimum -
+                            opposingRootTissue.topProjection;
+                        std::vector<
+                            metalrobo::SurgicalThreadTargetPoint
+                        > terminalSurfaceNodes;
+                        terminalSurfaceNodes.reserve(
+                            opposingRootMatter.femNodes.size()
+                        );
+                        for (const NMFEMNodeStateGPU& node :
+                             opposingRootMatter.femNodes) {
+                            terminalSurfaceNodes.push_back(targetingPoint(
+                                vector(node.positionAndMass)
+                            ));
+                        }
+                        const auto terminalJawClearance =
+                            receiverJawTissueClearance(
+                                opposingThreadRoot.result.finalQ,
+                                terminalSurfaceNodes
+                            );
+                        const metalrobo::SurgicalSutureMaterialPlanSpec
+                            materialSpec{
+                                .targetFreeTailLengthM =
+                                    kKnotTargetFreeTailLengthM,
+                                .freeTailToleranceM =
+                                    kKnotFreeTailToleranceM,
+                                .minimumWorkingArcLengthM =
+                                    kKnotMinimumWorkingArcLengthM,
+                                .minimumStitchArcLengthM =
+                                    kKnotMinimumStitchArcLengthM,
+                                .maximumDrawPerStrokeM =
+                                    kKnotMaximumDrawPerStrokeM,
+                                .maximumStrokeCount =
+                                    kKnotMaximumPullStrokeCount,
+                            };
+                        const auto materialPlan =
+                            metalrobo::planSurgicalSuturePullThrough(
+                                world.rods[0].model.restPositions,
+                                occupied.tractEdges.at(0u),
+                                occupied.tractEdges.at(1u),
+                                materialSpec
+                            );
+                        const ContactCounts opposingRootContacts =
+                            contactCounts(
+                                world,
+                                opposingThreadRoot.result,
+                                needleForPlacement.metadata,
+                                kNeedleFirstShape
+                            );
+                        const GraspKinematics opposingRootGrasp =
+                            graspKinematics(
+                                world,
+                                needleForPlacement,
+                                opposingThreadRoot.result,
+                                1u,
+                                kExtractionNeedleShape,
+                                liveReceiverReference
+                            );
+                        const RodStateMetrics opposingRootRod =
+                            rodStateMetrics(
+                                world,
+                                opposingThreadRoot.result
+                            );
+                        const MRMetalWorldContactStatusGPU&
+                            opposingRootResidual = requireTerminalResidual(
+                                opposingThreadRoot.result,
+                                "live opposing thread-root hold"
+                            );
+                        require(
+                            firstPassageChannelsPreserved(
+                                opposingRootMatter
+                            ) &&
+                                opposingRootTissue.activeChannels ==
+                                    passageChannels.size() +
+                                        opposingPassageChannels.size() &&
+                                opposingRootTissue.activeTetrahedra ==
+                                    tissueCoupon.metadata.tetrahedronCount &&
+                                opposingRootTissue.removedMassKg == 0.0 &&
+                                opposingRootTissue.certificatesAccepted &&
+                                opposingRootTissue.minimumDeterminant > 0.0 &&
+                                opposingThreadRootClearanceM >=
+                                    kOpposingThreadRootClearanceM &&
+                                opposingNeedleProximalClearanceM >=
+                                    kOpposingThreadRootClearanceM &&
+                                terminalJawClearance.succeeded() &&
+                                terminalJawClearance
+                                        .minimumEnvelopeClearanceM >=
+                                    kOpposingDriveJawTissueClearanceM &&
+                                terminalProxyEdges == occupied.edges &&
+                                occupied.tractEdges.size() == 2u &&
+                                occupied.tractSurfaceSeparationsM.size() ==
+                                    2u &&
+                                occupied.maximumSurfaceSeparationM <=
+                                    kSutureTissueContactSlopM &&
+                                materialPlan.succeeded() &&
+                                materialPlan.current.conservationErrorM <=
+                                    1.0e-12 &&
+                                materialPlan.target.conservationErrorM <=
+                                    1.0e-12 &&
+                                std::abs(
+                                    materialPlan.target.freeTailLengthM -
+                                        kKnotTargetFreeTailLengthM
+                                ) <= 1.0e-12 &&
+                                bilateral(opposingRootContacts, 1u) &&
+                                distributedInsertCoverage(
+                                    opposingRootContacts,
+                                    1u
+                                ) &&
+                                cleanNeedleInteraction(
+                                    opposingRootContacts,
+                                    false,
+                                    true
+                                ) &&
+                                qualifiedDrivenGrasp(opposingRootGrasp) &&
+                                qualifiedTerminalRod(opposingRootRod) &&
+                                swageAttachmentError(
+                                    world,
+                                    opposingThreadRoot.result
+                                ) < kMaximumSwageAttachmentError &&
+                                opposingRootResidual.residuals.y <=
+                                    kMaximumTerminalContactVelocityResidual &&
+                                opposingRootResidual.residuals.z <=
+                                    kMaximumTerminalConeViolation,
+                            "opposing thread root did not retain a "
+                                "mass-conserving, two-tract live state: " +
+                                std::string(
+                                    metalrobo::
+                                        surgicalSutureMaterialPlanStatusName(
+                                            materialPlan.status
+                                        )
+                                )
+                        );
+
+                        const std::uint64_t opposingRootBaseSubsteps =
+                            static_cast<std::uint64_t>(
+                                completedOpposingRootSteps +
+                                    opposingRootSettleSteps
+                            ) * stepConfig.physicsSubsteps;
+                        std::uint64_t opposingRootStateHash =
+                            1469598103934665603ull;
+                        appendStateHash(
+                            opposingRootStateHash,
+                            opposingThreadRoot.result.finalQ
+                        );
+                        appendStateHash(
+                            opposingRootStateHash,
+                            opposingThreadRoot.result.finalV
+                        );
+                        appendStateHash(
+                            opposingRootStateHash,
+                            opposingThreadRoot.result.finalSceneBodies
+                        );
+                        appendStateHash(
+                            opposingRootStateHash,
+                            opposingThreadRoot.result.finalRodNodes
+                        );
+                        appendStateHash(
+                            opposingRootStateHash,
+                            opposingRootMatter.femNodes
+                        );
+                        appendStateHash(
+                            opposingRootStateHash,
+                            opposingRootMatter.punctureChannels
+                        );
+                        appendStateHash(
+                            opposingRootStateHash,
+                            opposingRootMatter.sutureProxyEdges
+                        );
+                        appendStateHash(
+                            opposingRootStateHash,
+                            &opposingRootMatter
+                                .sutureProxyBindingRevision,
+                            sizeof(
+                                opposingRootMatter
+                                    .sutureProxyBindingRevision
+                            )
+                        );
+                        writeHandoffStateArtifact(
+                            options.stateOutputDirectory,
+                            "tissue-opposing-bite-thread-root",
+                            opposingPassageTotalBaseSubsteps +
+                                opposingRootBaseSubsteps,
+                            world,
+                            sutureSpec,
+                            opposingThreadRoot.result,
+                            &opposingRootMatter
+                        );
+                        std::cout << std::setprecision(9)
+                            << "tissue_opposing_bite_thread_root=ok"
+                            << " root_drive_steps="
+                            << completedOpposingRootSteps
+                            << " matter_timestep_multiplier="
+                            << stepConfig.physicsSubsteps
+                            << " thread_root_clearance_m="
+                            << opposingThreadRootClearanceM
+                            << " whole_needle_proximal_clearance_m="
+                            << opposingNeedleProximalClearanceM
+                            << " minimum_planned_jaw_tissue_clearance_m="
+                            << opposingRootMinimumPlannedJawClearanceM
+                            << " minimum_live_jaw_tissue_clearance_m="
+                            << opposingRootMinimumLiveJawClearanceM
+                            << " first_tract_edge="
+                            << occupied.tractEdges[0]
+                            << " opposing_tract_edge="
+                            << occupied.tractEdges[1]
+                            << " maximum_tract_surface_separation_m="
+                            << occupied.maximumSurfaceSeparationM
+                            << " current_working_arc_m="
+                            << materialPlan.current.workingArcLengthM
+                            << " stitch_arc_m="
+                            << materialPlan.current.stitchArcLengthM
+                            << " current_free_tail_m="
+                            << materialPlan.current.freeTailLengthM
+                            << " required_draw_m="
+                            << materialPlan.requiredDrawLengthM
+                            << " pull_strokes="
+                            << materialPlan.strokes.size()
+                            << " target_free_tail_m="
+                            << materialPlan.target.freeTailLengthM
+                            << " target_working_arc_m="
+                            << materialPlan.target.workingArcLengthM
+                            << " active_puncture_channels="
+                            << opposingRootTissue.activeChannels
+                            << " active_tetrahedra="
+                            << opposingRootTissue.activeTetrahedra
+                            << " removed_tissue_mass_kg="
+                            << opposingRootTissue.removedMassKg
+                            << " matter_minimum_determinant="
+                            << opposingRootTissue.minimumDeterminant
+                            << " thread_maximum_edge_error_m="
+                            << opposingRootRod.maximumEdgeLengthError
+                            << " receiver_seat_drift_m="
+                            << opposingRootGrasp.seatDrift
+                            << " terminal_contact_velocity_residual_mps="
+                            << opposingRootResidual.residuals.y
+                            << " root_gpu_ms="
+                            << opposingRootGpuMilliseconds
+                            << " root_state_fnv64=0x" << std::hex
+                            << opposingRootStateHash << std::dec
                             << " failed_steps=0\n";
                         return 0;
                     }

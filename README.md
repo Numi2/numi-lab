@@ -260,7 +260,9 @@ edges. Its source-aware setup targets a 19 mm intracorporeal short end with a
 least 180 mm of working arc for the double throw, then emits eight bounded
 25 mm-or-shorter draw strokes while conserving the inter-tract stitch span.
 This turns pull-through into an explicit regrasp plan rather than one
-workspace-invalid long translation; the strokes are not yet live PSM evidence.
+workspace-invalid long translation. The live opposing-bite root continuation
+now instantiates the same plan from the two material edges measured in the
+accepted tissue tracts; the strokes themselves are not yet live PSM evidence.
 
 ```sh
 ./build-coupled-dev/bin/metalrobo_surgical_knot_protocol_probe
@@ -300,7 +302,10 @@ topology.
 ```
 
 The operative `--tissue-thread-target-only` gate accepts only a v3
-`tissue-opposing-bite-passage` checkpoint. It restores the exact Matter and
+`tissue-opposing-bite-thread-root` checkpoint. A needle-tip passage checkpoint
+is intentionally insufficient: the hard-swaged DER root and the complete steel
+needle must first clear the live wall while one material edge remains measured
+in each accepted tract. The target gate restores the exact Matter and
 MetalWorld reset, builds the surface from live FEM nodes, uses the restored DER
 nodes and needle pose, then requires velocity-limited giver PSM IK plus sampled
 cross-arm, support-pad, and needle clearance on the open-jaw approach. This
@@ -310,8 +315,8 @@ or robot-tied knot formation.
 ```sh
 ./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
   --tissue-thread-target-only \
-  --resume-tissue-checkpoint tissue-opposing-bite-passage \
-  build-coupled-dev/testing/suture/tissue-opposing-bite-passage.tsv
+  --resume-tissue-checkpoint tissue-opposing-bite-thread-root \
+  build-coupled-dev/testing/suture/tissue-opposing-bite-thread-root.tsv
 ```
 
 `--tissue-thread-acquisition-only` crosses the next boundary while keeping the
@@ -331,8 +336,8 @@ been qualified from an earned opposing-passage v3 checkpoint.
 ```sh
 ./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
   --tissue-thread-acquisition-only \
-  --resume-tissue-checkpoint tissue-opposing-bite-passage \
-  build-coupled-dev/testing/suture/tissue-opposing-bite-passage.tsv \
+  --resume-tissue-checkpoint tissue-opposing-bite-thread-root \
+  build-coupled-dev/testing/suture/tissue-opposing-bite-thread-root.tsv \
   --state-output-dir build-coupled-dev/testing/suture/thread-acquisition
 ```
 

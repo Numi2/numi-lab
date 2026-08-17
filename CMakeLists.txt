@@ -2778,6 +2778,18 @@ if(BUILD_TESTING)
             TIMEOUT 54000
     )
     add_test(
+        NAME metalrobo.surgical.live_tissue_opposing_bite_thread_root
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-opposing-bite-thread-root-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.live_tissue_opposing_bite_thread_root
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal;long"
+            TIMEOUT 64800
+    )
+    add_test(
         NAME metalrobo.surgical.curved_needle_through_wall_passage
         COMMAND
             $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>

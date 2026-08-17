@@ -509,7 +509,7 @@ surface encroachment, and collision with the complete finite-capsule needle.
 It returns a deterministic right-handed rail/separation/approach frame. The
 standalone probe supplies exact replay and blocked-needle, near-surface, and
 malformed-topology controls. The operative `--tissue-thread-target-only` mode
-is stricter: it requires a v3 `tissue-opposing-bite-passage` checkpoint, uses
+is stricter: it requires a v3 `tissue-opposing-bite-thread-root` checkpoint, uses
 its restored DER, needle, and deformed FEM state, applies the conservative 4 mm
 radius of the 8 mm instrument as the target envelope, then runs velocity-limited
 giver IK and sampled cross-arm, support, and needle collision audits. It
@@ -588,6 +588,20 @@ clearance beyond the live proximal wall. Acceptance requires a connected new
 tract spanning the current tissue thickness, all tetrahedra and mass retained,
 the receiver grasp and hard swage intact, and the terminal Matter/DER/contact
 certificates accepted.
+
+`--tissue-opposing-bite-thread-root-only` crosses the next material boundary.
+After the connected second tract is accepted it switches to the four-substep
+shank cadence, retaining 5 um of carried motion per Matter transaction, and
+continues the measured circular drive only while the complete Large Needle
+Driver envelope remains outside the live FEM surface. It stops only when the
+full steel needle and hard-swaged DER root clear the proximal wall and the
+fixed contact graph owns one measured material edge in each tract. The
+terminal checkpoint records those ordered tract edges and derives the bounded
+source-coordinate pull strokes needed to leave a 19 mm free tail without
+changing the stitch span. A preflight that finds the receiver jaw would reach
+tissue fails before dispatch and explicitly requires a needle regrasp; it does
+not tunnel the tool through tissue. The continuation and its downstream stroke
+execution still require long Apple-Metal qualification.
 
 Live strand/tissue ownership no longer assumes that proxy slot zero is DER
 edge zero. Before every bounded pull, bridge, acquisition, extraction, and
