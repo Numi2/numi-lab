@@ -127,6 +127,11 @@ constexpr double kJawInsertCenter = 0.00920;
 // to resist needle roll under swage torque. They are a collision-level
 // approximation of a finite serrated insert, not a manufacturer tooth scan.
 constexpr double kJawInsertRowHalfSpacing = 0.00025;
+// A separate proximal medial strip resolves 0.20 mm 3-0 thread without
+// changing the distal needle groove. It remains inside the 9.7 mm jaw length
+// and uses the same unresolved insert material; location and patching are
+// research geometry pending manufacturer CAD.
+constexpr double kJawThreadInsertCenter = 0.00650;
 // Whole-system normal compliance of the unresolved insert, clevis, drive,
 // and local contact patch. A controlled Apple-GPU pickup sweep selected
 // 50 um/N: it removes the mutually over-constrained hard-rail kinetic mode
@@ -146,6 +151,14 @@ constexpr std::array<std::uint32_t, 4u> kJawBInsertShapeIndices{
     19u,
     21u,
     23u,
+};
+constexpr std::array<std::uint32_t, 2u> kJawAThreadInsertShapeIndices{
+    24u,
+    26u,
+};
+constexpr std::array<std::uint32_t, 2u> kJawBThreadInsertShapeIndices{
+    25u,
+    27u,
 };
 constexpr double kFoldedToolYawMass =
     kOrbitToolYawLinkMass + kOrbitFixedToolTipMass;
@@ -480,6 +493,30 @@ constexpr std::array<ShapeSource, kSurgicalPSMShapeCount> kShapes{{
       kJawInsertCenter + kJawInsertRowHalfSpacing}, kIdentity,
      {kJawInsertRailRadius, kJawInsertPatchHalfLength, 0.0},
      kJawInsertRailRadius + kJawInsertPatchHalfLength, 1u},
+    // Proximal medial thread-handling strip: two finite flat patches per jaw.
+    // The flat capsule-box manifold avoids the collinear capsule degeneracy of
+    // a 0.20 mm strand while remaining separate from the eight distal needle
+    // patches. Dimensions are research geometry, not a serration scan.
+    {7u, MR_SHAPE_BOX,
+     {kJawInsertRailRadius, -kJawInsertPatchOffset,
+      kJawThreadInsertCenter}, kIdentity,
+     {kJawInsertRailRadius, 2.0 * kJawInsertPatchHalfLength,
+      kJawInsertRailRadius}, 0.0004123105626, 1u},
+    {8u, MR_SHAPE_BOX,
+     {-kJawInsertRailRadius, -kJawInsertPatchOffset,
+      kJawThreadInsertCenter}, kIdentity,
+     {kJawInsertRailRadius, 2.0 * kJawInsertPatchHalfLength,
+      kJawInsertRailRadius}, 0.0004123105626, 1u},
+    {7u, MR_SHAPE_BOX,
+     {kJawInsertRailRadius, kJawInsertPatchOffset,
+      kJawThreadInsertCenter}, kIdentity,
+     {kJawInsertRailRadius, 2.0 * kJawInsertPatchHalfLength,
+      kJawInsertRailRadius}, 0.0004123105626, 1u},
+    {8u, MR_SHAPE_BOX,
+     {-kJawInsertRailRadius, kJawInsertPatchOffset,
+      kJawThreadInsertCenter}, kIdentity,
+     {kJawInsertRailRadius, 2.0 * kJawInsertPatchHalfLength,
+      kJawInsertRailRadius}, 0.0004123105626, 1u},
 }};
 
 constexpr std::array<float, kSurgicalPSMJointCount> kDefaultQ{{
@@ -680,13 +717,14 @@ const SurgicalPSMModelMetadata& surgicalPSMMetadata() noexcept {
     static const SurgicalPSMModelMetadata metadata = [] {
         SurgicalPSMModelMetadata value{};
         value.modelName =
-            "dvrk_psm_classic_lnd_source_coupled_abi_v3";
+            "dvrk_psm_classic_lnd_source_coupled_abi_v4";
         value.fidelityContract =
             "source-grounded serial RCM mechanism; JHU limits/efforts/LND "
             "actuator coupling and executable symmetric jaw gear; ORBIT "
             "masses/reset/drive with fixed tooltip folded into yaw; authored "
             "primitive inertias/collision; official 8 mm, 9.7 mm LND jaw "
-            "envelope with research grooved-insert primitives; no "
+            "envelope with research grooved needle and flat thread-insert "
+            "primitives; no "
             "hardware-specific calibration or clinical validation";
 
         value.orbitRepository =
@@ -767,6 +805,10 @@ const SurgicalPSMModelMetadata& surgicalPSMMetadata() noexcept {
             static_cast<float>(kNeedleInsertEffectiveDynamicFriction);
         value.jawAInsertShapeIndices = kJawAInsertShapeIndices;
         value.jawBInsertShapeIndices = kJawBInsertShapeIndices;
+        value.jawAThreadInsertShapeIndices =
+            kJawAThreadInsertShapeIndices;
+        value.jawBThreadInsertShapeIndices =
+            kJawBThreadInsertShapeIndices;
         value.intuitiveInstrumentCatalog =
             "https://www.intuitive.com/fr-fr/-/media/ISI/Intuitive/Pdf/"
             "da-vinci-x-xi-instrument-accessory-catalogue-eu-1075017.pdf";

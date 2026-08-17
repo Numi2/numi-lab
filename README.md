@@ -258,6 +258,22 @@ PSMs, or that a live tissue-coupled robot sequence executed.
 ./build-coupled-dev/bin/metalrobo_surgical_knot_protocol_probe
 ```
 
+The separate PDO clamp fixture places the authored 0.20 mm 3-0 strand inside
+four finite flat proximal medial Large Needle Driver insert patches while
+preserving the qualified eight-patch distal needle groove. A 65-node local
+specimen is closed with 14 um geometric preload, pulled at 2 mm/s, and required
+to retain bilateral normal contact plus a frictional response distinct from an
+otherwise identical zero-friction Metal solve. The checked Apple M4 run held
+bilateral contact for 39/40 loaded steps, cut centre-node slip by 32% relative
+to the control, replayed exactly, and reported zero failed steps. This
+qualifies the contact mechanism needed for temporary thread handling; the
+fixture starts pre-seated and therefore does not yet prove articulated thread
+acquisition or a robot-formed throw.
+
+```sh
+./build-coupled-dev/bin/metalrobo_surgical_thread_grasp_probe
+```
+
 ## Loaded PDO knot-contact mechanics
 
 The rod solver now resolves a bounded network of frictional thread/thread

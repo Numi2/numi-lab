@@ -475,6 +475,17 @@ instrument path. The DER self-contact network, temporary jaw/thread grasp,
 articulated reachability, and loaded-knot retention remain independent live
 physics authorities.
 
+Temporary thread handling uses the rod/tool contact graph rather than adding a
+second attachment kind. The focused clamp fixture seats the 0.20 mm PDO 3-0
+strand in four flat proximal medial LND insert patches, distinct from the
+unchanged eight-patch distal needle groove, then pulls one endpoint at 2 mm/s.
+Acceptance requires at least 36/40 bilateral loaded steps, terminal bilateral
+contact, exact replay, nonzero tangential impulse, greater pull resistance, and
+less centre-node slip than the same Metal solve with zero insert friction. It
+starts with the strand pre-seated, so articulated jaw approach/closure, capture
+from the live post-bite geometry, and retention throughout the throw sequence
+remain open execution boundaries.
+
 The dual-PSM operative probe keeps post-extraction needle transport separate
 from the next bite. It first translates the receiver-held complete half-circle
 needle without changing attitude, then performs the half-turn only on a distal

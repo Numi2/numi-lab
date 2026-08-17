@@ -13,7 +13,7 @@ namespace metalrobo {
 
 inline constexpr std::size_t kSurgicalPSMBodyCount = 9u;
 inline constexpr std::size_t kSurgicalPSMJointCount = 8u;
-inline constexpr std::size_t kSurgicalPSMShapeCount = 24u;
+inline constexpr std::size_t kSurgicalPSMShapeCount = 28u;
 inline constexpr std::size_t kSurgicalPSMJawCount = 2u;
 inline constexpr std::size_t kSurgicalPSMArmDofCount = 6u;
 inline constexpr std::size_t
@@ -84,6 +84,10 @@ struct SurgicalPSMModelMetadata {
     float targetNeedleInsertDynamicFriction = 0.0f;
     std::array<std::uint32_t, 4u> jawAInsertShapeIndices{};
     std::array<std::uint32_t, 4u> jawBInsertShapeIndices{};
+    // Separate proximal medial patches resolve thin monofilament without
+    // changing the qualified distal two-row needle groove.
+    std::array<std::uint32_t, 2u> jawAThreadInsertShapeIndices{};
+    std::array<std::uint32_t, 2u> jawBThreadInsertShapeIndices{};
     std::string_view intuitiveInstrumentCatalog;
     std::string_view intuitiveInstrumentPartNumber;
     float orbitToolYawLinkMass = 0.0f;

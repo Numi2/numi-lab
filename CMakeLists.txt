@@ -1388,6 +1388,33 @@ set_target_properties(
 )
 
 add_executable(
+    metalrobo_surgical_thread_grasp_probe
+    apps/surgical_thread_grasp_probe.mm
+)
+target_compile_options(
+    metalrobo_surgical_thread_grasp_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_surgical_thread_grasp_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_surgical_thread_grasp_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
     metalrobo_metal_unified_quality_probe
     apps/metal_unified_quality_probe.cpp
 )
@@ -2433,6 +2460,16 @@ if(BUILD_TESTING)
         PROPERTIES
             LABELS "metalrobo;surgical;geometry"
             TIMEOUT 30
+    )
+    add_test(
+        NAME metalrobo.surgical.thread_grasp_mechanics
+        COMMAND $<TARGET_FILE:metalrobo_surgical_thread_grasp_probe>
+    )
+    set_tests_properties(
+        metalrobo.surgical.thread_grasp_mechanics
+        PROPERTIES
+            LABELS "metalrobo;surgical;physics;metal"
+            TIMEOUT 180
     )
     add_test(
         NAME metalrobo.surgical.dual_psm_suture_handoff

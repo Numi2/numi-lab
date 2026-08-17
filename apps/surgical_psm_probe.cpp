@@ -608,6 +608,10 @@ int main() {
                     std::array<std::uint32_t, 4u>{15u, 18u, 20u, 22u} &&
                 metadata.jawBInsertShapeIndices ==
                     std::array<std::uint32_t, 4u>{17u, 19u, 21u, 23u} &&
+                metadata.jawAThreadInsertShapeIndices ==
+                    std::array<std::uint32_t, 2u>{24u, 26u} &&
+                metadata.jawBThreadInsertShapeIndices ==
+                    std::array<std::uint32_t, 2u>{25u, 27u} &&
                 close(
                     model.materials[1].response.z,
                     metadata.insertSystemNormalComplianceMPerN
@@ -622,6 +626,50 @@ int main() {
                 !metadata.clinicallyValidated,
             "surgical PSM provenance/fidelity metadata changed"
         );
+        constexpr std::array<std::uint32_t, 4u>
+            threadInsertShapeIndices{24u, 25u, 26u, 27u};
+        constexpr std::array<std::array<double, 3u>, 4u>
+            expectedThreadInsertCenters{{
+                {0.00020, -0.00040, 0.00650},
+                {-0.00020, -0.00040, 0.00650},
+                {0.00020, 0.00040, 0.00650},
+                {-0.00020, 0.00040, 0.00650},
+            }};
+        for (std::size_t insert = 0u;
+             insert < threadInsertShapeIndices.size();
+             ++insert) {
+            const std::uint32_t shapeIndex =
+                threadInsertShapeIndices[insert];
+            const MRShapeGPU& shape = model.shapes.at(shapeIndex);
+            const MRBodyPropertiesGPU& body =
+                model.bodies.at(shape.bodyIndex);
+            require(
+                shape.shapeType == MR_SHAPE_BOX &&
+                    shape.materialIndex == 1u &&
+                    close(shape.dimensions.x, 0.00020, 2.0e-8) &&
+                    close(shape.dimensions.y, 0.00030, 2.0e-8) &&
+                    close(shape.dimensions.z, 0.00020, 2.0e-8) &&
+                    close(
+                        static_cast<double>(shape.localPosition.x) +
+                            body.centerOfMass.x,
+                        expectedThreadInsertCenters[insert][0],
+                        2.0e-8
+                    ) &&
+                    close(
+                        static_cast<double>(shape.localPosition.y) +
+                            body.centerOfMass.y,
+                        expectedThreadInsertCenters[insert][1],
+                        2.0e-8
+                    ) &&
+                    close(
+                        static_cast<double>(shape.localPosition.z) +
+                            body.centerOfMass.z,
+                        expectedThreadInsertCenters[insert][2],
+                        2.0e-8
+                    ),
+                "surgical PSM proximal thread patch changed"
+            );
+        }
         MRMaterialGPU calibratedInsert = model.materials[1u];
         MRMaterialGPU needleMaterial{};
         needleMaterial.friction = {0.75f, 0.50f, 0.0f, 0.0f};
@@ -1309,7 +1357,7 @@ int main() {
         );
 
         std::cout
-            << "surgical_psm=abi_v3"
+            << "surgical_psm=abi_v4"
             << " model=\"" << model.name << "\""
             << " bodies=" << model.world.bodyCount
             << " dofs=" << model.world.nv
