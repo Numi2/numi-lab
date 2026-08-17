@@ -261,22 +261,28 @@ SurgeonsKnotInstrumentProtocol makeSurgeonsKnotInstrumentProtocol() {
         0.5 * static_cast<double>(psm.instrumentDiameter);
     const double jawLength =
         static_cast<double>(psm.largeNeedleDriverJawLength);
-    return {
-        .firstDoubleThrow = makeThrow(
-            2u,
-            1,
-            -1,
-            envelopeRadius,
-            jawLength
-        ),
-        .reversingSingleThrow = makeThrow(
+    SurgeonsKnotInstrumentProtocol result;
+    result.firstDoubleThrow = makeThrow(
+        2u,
+        1,
+        -1,
+        envelopeRadius,
+        jawLength
+    );
+    for (std::size_t throwIndex = 0u;
+         throwIndex < result.squareSingleThrows.size();
+         ++throwIndex) {
+        const std::int32_t windingSign =
+            (throwIndex & 1u) == 0u ? -1 : 1;
+        result.squareSingleThrows[throwIndex] = makeThrow(
             1u,
-            -1,
-            1,
+            windingSign,
+            -windingSign,
             envelopeRadius,
             jawLength
-        ),
-    };
+        );
+    }
+    return result;
 }
 
 SurgicalThrowDiagnostics certifySurgicalThrowPath(
@@ -508,22 +514,41 @@ SurgeonsKnotProtocolDiagnostics certifySurgeonsKnotInstrumentProtocol(
             SurgeonsKnotProtocolStatus::invalidFirstThrow;
         return diagnostics;
     }
-    diagnostics.reversingSingleThrow = certifySurgicalThrowPath(
-        protocol.reversingSingleThrow
-    );
-    if (!diagnostics.reversingSingleThrow.succeeded()) {
-        diagnostics.status =
-            SurgeonsKnotProtocolStatus::invalidReversingThrow;
-        return diagnostics;
-    }
     const SurgicalThrowPath& first = protocol.firstDoubleThrow;
-    const SurgicalThrowPath& second = protocol.reversingSingleThrow;
-    if (first.expectedWholeTurns != 2u ||
-        second.expectedWholeTurns != 1u ||
-        first.expectedWindingSign != -second.expectedWindingSign ||
-        first.expectedTransferSign != -second.expectedTransferSign) {
+    if (first.expectedWholeTurns != 2u) {
         diagnostics.status =
             SurgeonsKnotProtocolStatus::invalidThrowSequence;
+        return diagnostics;
+    }
+    std::int32_t previousWindingSign = first.expectedWindingSign;
+    std::int32_t previousTransferSign = first.expectedTransferSign;
+    for (std::size_t throwIndex = 0u;
+         throwIndex < protocol.squareSingleThrows.size();
+         ++throwIndex) {
+        const SurgicalThrowPath& current =
+            protocol.squareSingleThrows[throwIndex];
+        diagnostics.squareSingleThrows[throwIndex] =
+            certifySurgicalThrowPath(current);
+        if (!diagnostics.squareSingleThrows[throwIndex].succeeded()) {
+            diagnostics.status =
+                SurgeonsKnotProtocolStatus::invalidSingleThrow;
+            diagnostics.rejectedThrow = static_cast<std::uint32_t>(
+                throwIndex + 2u
+            );
+            return diagnostics;
+        }
+        if (current.expectedWholeTurns != 1u ||
+            current.expectedWindingSign != -previousWindingSign ||
+            current.expectedTransferSign != -previousTransferSign) {
+            diagnostics.status =
+                SurgeonsKnotProtocolStatus::invalidThrowSequence;
+            diagnostics.rejectedThrow = static_cast<std::uint32_t>(
+                throwIndex + 2u
+            );
+            return diagnostics;
+        }
+        previousWindingSign = current.expectedWindingSign;
+        previousTransferSign = current.expectedTransferSign;
     }
     return diagnostics;
 }
@@ -860,8 +885,8 @@ const char* surgeonsKnotProtocolStatusName(
         return "success";
     case SurgeonsKnotProtocolStatus::invalidFirstThrow:
         return "invalid_first_throw";
-    case SurgeonsKnotProtocolStatus::invalidReversingThrow:
-        return "invalid_reversing_throw";
+    case SurgeonsKnotProtocolStatus::invalidSingleThrow:
+        return "invalid_single_throw";
     case SurgeonsKnotProtocolStatus::invalidThrowSequence:
         return "invalid_throw_sequence";
     }

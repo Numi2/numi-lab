@@ -38,14 +38,14 @@ int main() {
                     diagnostics.firstDoubleThrow.status
                 ) + " second=" +
                 metalrobo::surgicalThrowStatusName(
-                    diagnostics.reversingSingleThrow.status
+                    diagnostics.squareSingleThrows[0].status
                 )
         );
 
         auto sameHanded = protocol;
-        sameHanded.reversingSingleThrow.expectedWindingSign = 1;
+        sameHanded.squareSingleThrows[0].expectedWindingSign = 1;
         for (auto& sample :
-             sameHanded.reversingSingleThrow.samples) {
+             sameHanded.squareSingleThrows[0].samples) {
             sample.workingJawCenterM[1] *= -1.0;
         }
         const auto sameHandedDiagnostics =
@@ -56,8 +56,29 @@ int main() {
             sameHandedDiagnostics.status ==
                 metalrobo::SurgeonsKnotProtocolStatus::
                     invalidThrowSequence &&
-                sameHandedDiagnostics.reversingSingleThrow.succeeded(),
+                sameHandedDiagnostics.squareSingleThrows[0].succeeded() &&
+                sameHandedDiagnostics.rejectedThrow == 2u,
             "same-handed second throw was not rejected structurally"
+        );
+
+        auto repeatedHandedness = protocol;
+        repeatedHandedness.squareSingleThrows[3].expectedWindingSign = -1;
+        for (auto& sample :
+             repeatedHandedness.squareSingleThrows[3].samples) {
+            sample.workingJawCenterM[1] *= -1.0;
+        }
+        const auto repeatedHandednessDiagnostics =
+            metalrobo::certifySurgeonsKnotInstrumentProtocol(
+                repeatedHandedness
+            );
+        require(
+            repeatedHandednessDiagnostics.status ==
+                    metalrobo::SurgeonsKnotProtocolStatus::
+                        invalidThrowSequence &&
+                repeatedHandednessDiagnostics.squareSingleThrows[3]
+                    .succeeded() &&
+                repeatedHandednessDiagnostics.rejectedThrow == 5u,
+            "same-handed additional square throw was not rejected"
         );
 
         auto missedGate = protocol.firstDoubleThrow;
@@ -261,30 +282,32 @@ int main() {
             << " first_signed_turns="
             << diagnostics.firstDoubleThrow.signedWindingTurns
             << " reversing_signed_turns="
-            << diagnostics.reversingSingleThrow.signedWindingTurns
+            << diagnostics.squareSingleThrows[0].signedWindingTurns
+            << " square_single_throws="
+            << diagnostics.squareSingleThrows.size()
             << " first_minimum_instrument_clearance_m="
             << diagnostics.firstDoubleThrow
                 .minimumInstrumentClearanceM
             << " reversing_minimum_instrument_clearance_m="
-            << diagnostics.reversingSingleThrow
+            << diagnostics.squareSingleThrows[0]
                 .minimumInstrumentClearanceM
             << " first_transfer_gate_clearance_m="
             << diagnostics.firstDoubleThrow.transferGateClearanceM
             << " reversing_transfer_gate_clearance_m="
-            << diagnostics.reversingSingleThrow
+            << diagnostics.squareSingleThrows[0]
                 .transferGateClearanceM
             << " maximum_jaw_center_speed_mps="
             << std::max(
                 diagnostics.firstDoubleThrow.maximumWorkingJawSpeedMps,
-                diagnostics.reversingSingleThrow
+                diagnostics.squareSingleThrows[0]
                     .maximumWorkingJawSpeedMps
             )
             << " first_cinch_gain_m="
             << diagnostics.firstDoubleThrow.finalCinchSeparationM -
                 diagnostics.firstDoubleThrow.initialCinchSeparationM
             << " reversing_cinch_gain_m="
-            << diagnostics.reversingSingleThrow.finalCinchSeparationM -
-                diagnostics.reversingSingleThrow
+            << diagnostics.squareSingleThrows[0].finalCinchSeparationM -
+                diagnostics.squareSingleThrows[0]
                     .initialCinchSeparationM
             << " material_current_working_arc_m="
             << materialPlan.current.workingArcLengthM
@@ -302,6 +325,7 @@ int main() {
             << " pull_maximum_stroke_m="
             << materialSpec.maximumDrawPerStrokeM
             << " negative_same_handed=reject"
+            << " negative_additional_same_handed=reject"
             << " negative_missing_wrap=reject"
             << " negative_gate_miss=reject"
             << " negative_reversed_tract_order=reject"

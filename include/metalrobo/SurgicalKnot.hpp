@@ -75,13 +75,18 @@ struct SurgicalThrowDiagnostics {
 
 struct SurgeonsKnotInstrumentProtocol {
     SurgicalThrowPath firstDoubleThrow;
-    SurgicalThrowPath reversingSingleThrow;
+    // PDS II is a monofilament. Retain five alternating square single throws
+    // after the double first throw (2=1=1=1=1=1) so the protocol includes
+    // the additional securing throw used by the published USP 0 PDS II
+    // mechanical study. This conservative research sequence is not a
+    // clinical throw-count prescription for the authored USP 3-0 strand.
+    std::array<SurgicalThrowPath, 5u> squareSingleThrows;
 };
 
 enum class SurgeonsKnotProtocolStatus : std::uint32_t {
     success = 0u,
     invalidFirstThrow,
-    invalidReversingThrow,
+    invalidSingleThrow,
     invalidThrowSequence,
 };
 
@@ -89,7 +94,8 @@ struct SurgeonsKnotProtocolDiagnostics {
     SurgeonsKnotProtocolStatus status =
         SurgeonsKnotProtocolStatus::success;
     SurgicalThrowDiagnostics firstDoubleThrow{};
-    SurgicalThrowDiagnostics reversingSingleThrow{};
+    std::array<SurgicalThrowDiagnostics, 5u> squareSingleThrows{};
+    std::uint32_t rejectedThrow = 0u;
 
     [[nodiscard]] bool succeeded() const noexcept {
         return status == SurgeonsKnotProtocolStatus::success;

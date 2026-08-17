@@ -249,10 +249,16 @@ boundaries.
 
 The deterministic protocol gate derives the instrument envelope from the
 source-pinned 8 mm Large Needle Driver and verifies the jaw-centre geometry of
-a two-wrap first throw followed by a single reversing throw. It integrates the
-signed winding from sampled motion, requires a finite-clearance tail transfer
-through the bight gate, bounds jaw-centre speed, and requires monotone opposing
-cinch motion. Same-handed, missing-wrap, and missed-gate controls are rejected.
+a two-wrap first throw followed by five alternating square single throws
+(`2=1=1=1=1=1`). The extra securing throw follows a [published PDS II knot
+mechanics study](https://pmc.ncbi.nlm.nih.gov/articles/PMC4167833/), while the
+product instructions require flat square ties and note that monofilament may
+need additional throws. That study used USP 0, so its count is a conservative
+research protocol rather than a clinical prescription for this USP 3-0
+strand. Every throw integrates signed winding from sampled motion, requires a
+finite-clearance tail transfer through the bight gate, bounds jaw-centre speed,
+and requires monotone opposing cinch motion. Same-handed, missing-wrap, and
+missed-gate controls are rejected.
 This is an instrument-trajectory authority only; it is not evidence that the
 thread formed or retained a knot, that the path is reachable by the articulated
 PSMs, or that a live tissue-coupled robot sequence executed.
