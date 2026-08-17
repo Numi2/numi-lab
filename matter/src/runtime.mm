@@ -6264,10 +6264,12 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
                 environments * tetrahedraPerEnvironment;
             const std::size_t incidenceCapacity =
                 state.femNodeIncidence.length / sizeof(std::uint32_t);
+            const std::size_t incidencePerEnvironment = environments == 0u
+                ? 0u : incidenceCapacity / environments;
             const bool arenaShapeValid =
+                environments != 0u &&
                 state.femNodeIncidence.length % sizeof(std::uint32_t) == 0u &&
-                incidenceCapacity ==
-                    environments * tetrahedraPerEnvironment * 4u &&
+                incidenceCapacity % environments == 0u &&
                 incidenceCapacity <=
                     std::numeric_limits<std::uint32_t>::max() &&
                 state.femNodeIncidenceCheckpoint.length ==
@@ -6284,7 +6286,32 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
                 snapshot.femTopologyTetrahedra.size() == tetrahedronCount;
             if (!arenaShapeValid) {
                 diagnostics.message =
-                    "Matter snapshot topology incidence arena shape changed";
+                    "Matter snapshot topology incidence arena shape changed: "
+                    "incidence_bytes=" +
+                    std::to_string(state.femNodeIncidence.length) +
+                    " incidence_checkpoint_bytes=" +
+                    std::to_string(
+                        state.femNodeIncidenceCheckpoint.length
+                    ) +
+                    " incidence_capacity=" +
+                    std::to_string(incidenceCapacity) +
+                    " incidence_per_environment=" +
+                    std::to_string(incidencePerEnvironment) +
+                    " tetrahedron_slot_incidence=" +
+                    std::to_string(tetrahedraPerEnvironment * 4u) +
+                    " range_bytes=" +
+                    std::to_string(state.femNodeRanges.length) +
+                    " range_checkpoint_bytes=" +
+                    std::to_string(state.femNodeRangesCheckpoint.length) +
+                    " expected_nodes=" + std::to_string(nodeCount) +
+                    " snapshot_nodes=" +
+                    std::to_string(snapshot.femTopologyNodes.size()) +
+                    " expected_tetrahedra=" +
+                    std::to_string(tetrahedronCount) +
+                    " snapshot_tetrahedra=" +
+                    std::to_string(
+                        snapshot.femTopologyTetrahedra.size()
+                    );
                 return diagnostics;
             }
 
@@ -6365,7 +6392,7 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
                 const std::size_t nodeBase =
                     environment * nodesPerEnvironment;
                 const std::size_t incidenceBase =
-                    environment * tetrahedraPerEnvironment * 4u;
+                    environment * incidencePerEnvironment;
                 std::size_t running = 0u;
                 for (std::size_t localNode = 0u;
                      localNode < nodesPerEnvironment; ++localNode) {
@@ -6386,6 +6413,8 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
                     range.reserved = 0u;
                     running += counts[node];
                 }
+                topologyValid = topologyValid &&
+                    running <= incidencePerEnvironment;
             }
             if (topologyValid) {
                 for (std::size_t environment = 0u;

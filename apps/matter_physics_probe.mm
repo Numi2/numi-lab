@@ -1315,6 +1315,7 @@ struct Outcome {
     float maximumTangentialImpulse = 0.0f;
     float maximumContactEnergy = 0.0f;
     float transportResidual = 0.0f;
+    bool topologySnapshotRestored = false;
 };
 
 Outcome runCase(
@@ -1324,7 +1325,8 @@ Outcome runCase(
     bool requireDescent,
     std::uint32_t controlSteps,
     bool forceRollback = false,
-    bool updateLearned = false
+    bool updateLearned = false,
+    bool verifyTopologyRestore = false
 );
 
 void runIdentification() {
@@ -2837,7 +2839,8 @@ Outcome runCase(
     const bool requireDescent,
     const std::uint32_t controlSteps,
     const bool forceRollback,
-    const bool updateLearned
+    const bool updateLearned,
+    const bool verifyTopologyRestore
 ) {
     @autoreleasepool {
         const std::uint32_t environmentCount = world.dispatch.environmentCount;
@@ -3181,6 +3184,45 @@ Outcome runCase(
                 );
             }
             recordSnapshot(runtime.snapshot());
+            if (verifyTopologyRestore && step == 0u) {
+                const auto mutated = runtime.snapshot();
+                require(
+                    mutated.available,
+                    label + std::string(" mutated snapshot: ") +
+                        mutated.message
+                );
+                std::uint32_t cookedGeneration = 0u;
+                for (const NMContinuumObjectGPU& object : world.objects) {
+                    if (object.representation == NM_REPRESENTATION_FEM) {
+                        cookedGeneration = std::max(
+                            cookedGeneration,
+                            object.topologyGeneration
+                        );
+                    }
+                }
+                require(
+                    mutated.allocationGeneration > cookedGeneration,
+                    label + std::string(
+                        " did not advance accepted topology generation"
+                    )
+                );
+                const auto restoredMutation = runtime.restore(mutated);
+                require(
+                    restoredMutation.encoded,
+                    label + std::string(" topology restore: ") +
+                        restoredMutation.message
+                );
+                require(
+                    metalrobo::sameMatterSnapshotAuthority(
+                        runtime.snapshot(),
+                        mutated
+                    ),
+                    label + std::string(
+                        " topology restore changed accepted snapshot authority"
+                    )
+                );
+                outcome.topologySnapshotRestored = true;
+            }
         }
         if (forceRollback) {
             const auto restored = runtime.snapshot();
@@ -3485,7 +3527,12 @@ int main(int argc, const char* argv[]) {
                     1.0 / 240.0, 1u, 0u, 0u, false, false, true
                 ),
                 topologyRollback ? "topology rollback" : "topology mutation",
-                false, false, 1u, topologyRollback
+                false,
+                false,
+                topologyRollback ? 1u : 2u,
+                topologyRollback,
+                false,
+                !topologyRollback
             );
             if (!topologyRollback) {
                 require(outcome.activeTetrahedra == 0u,
@@ -3496,6 +3543,8 @@ int main(int argc, const char* argv[]) {
                 << ",\"representation\":\"topology_mutation\""
                 << ",\"rollback\":" << (topologyRollback ? "true" : "false")
                 << ",\"active_tetrahedra\":" << outcome.activeTetrahedra
+                << ",\"topology_snapshot_restored\":"
+                << (outcome.topologySnapshotRestored ? "true" : "false")
                 << "}\n";
         }
         if (cohesiveMutation) {
