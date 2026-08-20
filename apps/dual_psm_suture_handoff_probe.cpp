@@ -160,18 +160,15 @@ constexpr std::uint32_t kSuturePullMatterRateMultiplier = 16u;
 // This removes the load-bearing 20 um jump that can destabilize the temporal
 // rod/tool contact block while retaining the 16x free-space fast path.
 constexpr std::uint32_t kSutureContactMatterRateMultiplier = 1u;
-// The dynamic receiver bridge exposed a real strand-wall boundary case during
-// the nominal hold: a 6.04 mm/s inward DER proxy predictor advanced 30.6 nm
-// below Matter's unchanged 5 um IPC feasibility floor before the next Newton
-// correction.  A subsequent resident replay showed that the same boundary can
-// be reached during the open receiver's collision-free frame-alignment motion,
-// before the former settling-only refinement was selected.  Refine the complete
-// receiver-alignment interval to 31.25 us.  Before returning to the 62.5 us
-// operative cadence, require every live contact's measured admission velocity
-// to predict a strictly feasible full base step and execute one complete
-// base-cadence proof chunk.  This preserves the authored contact tolerance
-// rather than accepting a penetrated iterate.
-constexpr std::uint32_t kReceiverAlignmentTimestepDivisor = 2u;
+// Keep receiver alignment at the already-proven 62.5 us contact cadence. Six
+// needle/tissue IPC barriers are live at the bridge checkpoint. Halving dt
+// while those barriers carry load quadruples their inertial stiffness
+// (k proportional to 1 / dt^2); the exact replay then ejected the needle into
+// a tract-wall node at 0.407 m/s even though collision-free alignment and
+// stationary rigid/DER branches were byte-identical. Preserve barrier physics
+// through alignment, then retain the existing predictive feasibility guard
+// before any later cadence transition.
+constexpr std::uint32_t kReceiverAlignmentTimestepDivisor = 1u;
 // The 2 mm guard is larger than the 0.35 mm tract radius, 0.10 mm strand
 // radius, and 0.10 mm contact band combined, so the base cadence is active
 // before the first possible rim interaction.
@@ -290,15 +287,28 @@ constexpr std::uint32_t kPositiveControlResumeMaximumProofSteps = 500u;
 // Receiver closure creates a new eight-patch steel contact and must be held
 // before the temporal-cone residual is interpreted as dual positive control.
 constexpr std::uint32_t kReceiverClosureSettleSteps = 100u;
-// Exchange preload before the giver clears the needle: the receiver ramps
-// from gentle 15 um overlap to the qualified 60 um seat while the giver ramps
-// down by the same amount. The former 0.18 rad/s relative-jaw trajectory ended
-// its 100 ms cubic move with 63.9 mm/s needle translation and 11.6 rad/s needle
-// rotation, then settled into a rejected 0.48 mm common reseat. Limit this
+// Exchange preload before the giver clears the needle: first ramp the receiver
+// from gentle 15 um overlap to the qualified 60 um seat while the giver remains
+// fully loaded, prove that dual-control state, and only then ramp the giver down
+// by the same amount. The former simultaneous 0.18 rad/s trajectory ended its
+// 100 ms cubic move with 63.9 mm/s needle translation and 11.6 rad/s needle
+// rotation, then settled into a rejected 0.48 mm common reseat. Limit each
 // force-transfer motion to one third of that relative-jaw speed and reject its
 // endpoint unless both physical seats remain inside the transition envelope;
 // a later hold must dissipate only bounded residual motion, not hide a snap.
 constexpr double kLoadExchangeRelativeJawSpeedRadPerS = 0.06;
+// If full receiver preload settles onto only one longitudinal insert row, first
+// open it to a calibrated 80 um diametral needle clearance, recenter the
+// released LND frame under giver authority, and only then reload at a fixed
+// frame. The wider 0.30 mm aperture remains reserved for approach and visible
+// release; traversing it during a corrective re-grasp unnecessarily dragged the
+// loaded needle 0.84 mm through the giver. Two
+// millimetres per second is the recentering ceiling; the duration is increased
+// when any PSM joint needs a slower path. Translating either engaged LND is
+// physically overconstrained and is rejected rather than treated as a re-grasp.
+constexpr double kReceiverPreloadReseatSpeedMps = 2.0e-3;
+constexpr std::uint32_t kReceiverPreloadReseatMaximumSteps = 500u;
+constexpr double kReceiverRegraspDiametralClearanceM = 8.0e-5;
 // Re-prove the full receiver seat in consecutive 100 ms chunks, with a bounded
 // 1 s ceiling; only then may the giver continue to a visibly open clearance.
 constexpr std::uint32_t kLoadExchangeSettleSteps = 50u;
@@ -5060,6 +5070,79 @@ bool distributedInsertCoverage(
         spansBothLongitudinalRows;
 }
 
+Vec3 longitudinalGraspFrameCorrection(
+    const JawGeometry& jaw,
+    const Vec3 desiredMidpoint,
+    const metalrobo::EngineModel& psm
+) {
+    Vec3 longitudinal = cross(
+        jaw.separationDirection,
+        jaw.railDirection
+    );
+    const double longitudinalLength = norm(longitudinal);
+    require(
+        longitudinalLength > 1.0e-9,
+        "longitudinal insert correction frame is degenerate"
+    );
+    longitudinal = longitudinal * (1.0 / longitudinalLength);
+    const double rowHalfSpacing = 0.5 * std::abs(
+        static_cast<double>(
+            psm.shapes.at(kJawATeeth[1]).localPosition.z
+        ) - static_cast<double>(
+            psm.shapes.at(kJawATeeth[0]).localPosition.z
+        )
+    );
+    require(
+        rowHalfSpacing > 0.0 &&
+            rowHalfSpacing <= kMaximumTransitionGraspReseating,
+        "authored longitudinal insert row spacing is invalid"
+    );
+    const double signedCorrection = dot(
+        desiredMidpoint - jaw.midpoint,
+        longitudinal
+    );
+    require(
+        std::isfinite(signedCorrection) &&
+            std::abs(signedCorrection) > 1.0e-6 &&
+            std::abs(signedCorrection) <=
+                kMaximumTransitionGraspReseating &&
+            std::abs(signedCorrection) <= 1.25 * rowHalfSpacing,
+        "longitudinal insert correction is outside the accepted grasp "
+        "frame"
+    );
+    // The transported positive-control frame, rather than an assumed whole-row
+    // translation, supplies the signed displacement needed to restore the
+    // exact accepted seat.
+    return longitudinal * signedCorrection;
+}
+
+Vec3 missingLongitudinalRowCorrection(
+    const ContactCounts& counts,
+    const std::uint32_t arm,
+    const JawGeometry& jaw,
+    const Vec3 desiredMidpoint,
+    const metalrobo::EngineModel& psm
+) {
+    require(
+        arm < counts.jawInsertPatchMasks.size(),
+        "longitudinal insert correction has an invalid arm"
+    );
+    const std::uint32_t combined =
+        counts.jawInsertPatchMasks[arm][0] |
+        counts.jawInsertPatchMasks[arm][1];
+    const bool lowRow = (combined & 0b0101u) != 0u;
+    const bool highRow = (combined & 0b1010u) != 0u;
+    require(
+        lowRow != highRow && transverseInsertCoverage(counts, arm),
+        "longitudinal insert correction requires exactly one contacted row"
+    );
+    return longitudinalGraspFrameCorrection(
+        jaw,
+        desiredMidpoint,
+        psm
+    );
+}
+
 bool cleanNeedleInteraction(
     const ContactCounts& counts,
     const bool giverControlsNeedle,
@@ -6635,6 +6718,12 @@ struct Arguments {
     std::filesystem::path giverLiftReferencePath;
     std::filesystem::path giverGraspReferencePath;
     std::filesystem::path resumePositiveControlOverlapPath;
+    std::filesystem::path resumeReceiverPreloadCandidatePath;
+    std::filesystem::path resumeReceiverPreloadPath;
+    std::filesystem::path resumeReceiverPreloadGiverLatchedPath;
+    std::filesystem::path resumeReceiverPreloadRecenteredPath;
+    std::filesystem::path resumeReceiverPreloadCorrectionAuthorityPath;
+    std::filesystem::path resumeReceiverPreloadUnloadedPath;
     std::filesystem::path resumeGiverReleaseMotionPath;
     std::filesystem::path resumeGiverReleasePath;
     std::filesystem::path resumeReceiverTransferMotionPath;
@@ -7226,6 +7315,57 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
                 "--resume-positive-control-overlap requires exactly one path"
             );
             result.resumePositiveControlOverlapPath = argv[++index];
+        } else if (argument == "--resume-receiver-preload-candidate") {
+            require(
+                result.resumeReceiverPreloadCandidatePath.empty() &&
+                    index + 1 < argc,
+                "--resume-receiver-preload-candidate requires exactly one "
+                "path"
+            );
+            result.resumeReceiverPreloadCandidatePath = argv[++index];
+        } else if (argument == "--resume-receiver-preload") {
+            require(
+                result.resumeReceiverPreloadPath.empty() &&
+                    index + 1 < argc,
+                "--resume-receiver-preload requires exactly one path"
+            );
+            result.resumeReceiverPreloadPath = argv[++index];
+        } else if (argument ==
+                   "--resume-receiver-preload-giver-latched") {
+            require(
+                result.resumeReceiverPreloadGiverLatchedPath.empty() &&
+                    index + 1 < argc,
+                "--resume-receiver-preload-giver-latched requires exactly "
+                "one path"
+            );
+            result.resumeReceiverPreloadGiverLatchedPath = argv[++index];
+        } else if (argument ==
+                   "--resume-receiver-preload-recentered") {
+            require(
+                result.resumeReceiverPreloadRecenteredPath.empty() &&
+                    index + 1 < argc,
+                "--resume-receiver-preload-recentered requires exactly one "
+                "path"
+            );
+            result.resumeReceiverPreloadRecenteredPath = argv[++index];
+        } else if (argument ==
+                   "--resume-receiver-preload-correction-authority") {
+            require(
+                result.resumeReceiverPreloadCorrectionAuthorityPath.empty() &&
+                    index + 1 < argc,
+                "--resume-receiver-preload-correction-authority requires "
+                "exactly one path"
+            );
+            result.resumeReceiverPreloadCorrectionAuthorityPath =
+                argv[++index];
+        } else if (argument == "--resume-receiver-preload-unloaded") {
+            require(
+                result.resumeReceiverPreloadUnloadedPath.empty() &&
+                    index + 1 < argc,
+                "--resume-receiver-preload-unloaded requires exactly one "
+                "path"
+            );
+            result.resumeReceiverPreloadUnloadedPath = argv[++index];
         } else if (argument == "--resume-giver-release-motion") {
             require(
                 result.resumeGiverReleaseMotionPath.empty() &&
@@ -7366,6 +7506,14 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         (!result.resumeReceiverAlignedPath.empty() ? 1u : 0u) +
         (!result.resumePositiveControlMotionPath.empty() ? 1u : 0u) +
         (!result.resumePositiveControlOverlapPath.empty() ? 1u : 0u) +
+        (!result.resumeReceiverPreloadCandidatePath.empty() ? 1u : 0u) +
+        (!result.resumeReceiverPreloadPath.empty() ? 1u : 0u) +
+        (!result.resumeReceiverPreloadGiverLatchedPath.empty() ? 1u : 0u) +
+        (!result.resumeReceiverPreloadRecenteredPath.empty() ? 1u : 0u) +
+        (!result.resumeReceiverPreloadCorrectionAuthorityPath.empty()
+            ? 1u
+            : 0u) +
+        (!result.resumeReceiverPreloadUnloadedPath.empty() ? 1u : 0u) +
         (!result.resumeGiverReleaseMotionPath.empty() ? 1u : 0u) +
         (!result.resumeGiverReleasePath.empty() ? 1u : 0u) +
         (!result.resumeReceiverTransferMotionPath.empty() ? 1u : 0u) +
@@ -7525,6 +7673,12 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             (resumeCount == 0u && result.mode != "--geometry-only") ||
             !result.resumePositiveControlMotionPath.empty() ||
             !result.resumePositiveControlOverlapPath.empty() ||
+            !result.resumeReceiverPreloadCandidatePath.empty() ||
+            !result.resumeReceiverPreloadPath.empty() ||
+            !result.resumeReceiverPreloadGiverLatchedPath.empty() ||
+            !result.resumeReceiverPreloadRecenteredPath.empty() ||
+            !result.resumeReceiverPreloadCorrectionAuthorityPath.empty() ||
+            !result.resumeReceiverPreloadUnloadedPath.empty() ||
             !result.resumeGiverReleaseMotionPath.empty() ||
             !result.resumeReceiverTransferMotionPath.empty(),
         "settle step limit requires a fresh state, positive-control "
@@ -7571,9 +7725,15 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         result.giverGraspReferencePath.empty() ||
             !result.resumeReceiverApproachMotionPath.empty() ||
             !result.resumePositiveControlMotionPath.empty() ||
-            !result.resumePositiveControlOverlapPath.empty(),
+            !result.resumePositiveControlOverlapPath.empty() ||
+            !result.resumeReceiverPreloadCandidatePath.empty() ||
+            !result.resumeReceiverPreloadPath.empty() ||
+            !result.resumeReceiverPreloadGiverLatchedPath.empty() ||
+            !result.resumeReceiverPreloadRecenteredPath.empty() ||
+            !result.resumeReceiverPreloadCorrectionAuthorityPath.empty() ||
+            !result.resumeReceiverPreloadUnloadedPath.empty(),
         "giver grasp reference requires receiver approach-motion or "
-        "positive-control resume"
+        "dual-control resume"
     );
     require(
         result.resumeReceiverApproachPath.empty() || result.mode.empty() ||
@@ -7654,14 +7814,43 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.mode.empty() || result.mode == "--load-exchange-only",
         "positive-control resume only supports load-exchange-only"
     );
+    require(
+        (result.resumeReceiverPreloadCandidatePath.empty() &&
+         result.resumeReceiverPreloadPath.empty() &&
+         result.resumeReceiverPreloadGiverLatchedPath.empty() &&
+         result.resumeReceiverPreloadRecenteredPath.empty() &&
+         result.resumeReceiverPreloadCorrectionAuthorityPath.empty() &&
+         result.resumeReceiverPreloadUnloadedPath.empty()) ||
+            result.mode.empty() || result.mode == "--load-exchange-only",
+        "receiver-preload resume only supports load-exchange-only"
+    );
+    require(
+        (result.resumeReceiverPreloadCandidatePath.empty() &&
+         result.resumeReceiverPreloadPath.empty() &&
+         result.resumeReceiverPreloadGiverLatchedPath.empty() &&
+         result.resumeReceiverPreloadRecenteredPath.empty() &&
+         result.resumeReceiverPreloadCorrectionAuthorityPath.empty() &&
+         result.resumeReceiverPreloadUnloadedPath.empty()) ||
+            (!result.giverGraspReferencePath.empty() &&
+             !result.receiverGraspReferencePath.empty()),
+        "receiver-preload resume requires the original giver and "
+        "receiver grasp references"
+    );
     const bool terminalResume =
         !result.resumeGiverReleaseMotionPath.empty() ||
         !result.resumeGiverReleasePath.empty() ||
         !result.resumeReceiverTransferMotionPath.empty();
     require(
-        terminalResume == !result.receiverGraspReferencePath.empty(),
-        "terminal handoff resume requires exactly one load-exchange "
-        "receiver grasp reference"
+        (terminalResume ||
+         !result.resumeReceiverPreloadCandidatePath.empty() ||
+         !result.resumeReceiverPreloadPath.empty() ||
+         !result.resumeReceiverPreloadGiverLatchedPath.empty() ||
+         !result.resumeReceiverPreloadRecenteredPath.empty() ||
+         !result.resumeReceiverPreloadCorrectionAuthorityPath.empty() ||
+         !result.resumeReceiverPreloadUnloadedPath.empty()) ==
+            !result.receiverGraspReferencePath.empty(),
+        "terminal or receiver-preload resume requires exactly one receiver "
+        "grasp reference"
     );
     require(
         result.resumeGiverReleasePath.empty() || result.mode.empty() ||
@@ -8903,9 +9092,24 @@ int main(const int argc, const char* const argv[]) {
             sutureSpec.needle.crossSectionRadiusM.value,
             3.0e-4
         );
+        // A corrective re-grasp must actually release the receiver manifold,
+        // but it need not traverse the much wider approach aperture. The former
+        // half-preload retained bilateral friction; the 0.30 mm aperture then
+        // dragged the needle during a needlessly long decay path. A calibrated
+        // positive 80 um diametral clearance stays local while preserving
+        // contact-free margin through the measured cross-row correction.
+        const double receiverRegraspJawCoordinate = calibratedJawCoordinate(
+            psm,
+            sutureSpec.needle.crossSectionRadiusM.value,
+            kReceiverRegraspDiametralClearanceM
+        );
         require(
             openJawCoordinate > receiverOverlapJawCoordinate &&
+                openJawCoordinate > receiverRegraspJawCoordinate &&
+                receiverRegraspJawCoordinate >
+                    receiverOverlapJawCoordinate &&
                 receiverOverlapJawCoordinate > closeJawCoordinate &&
+                receiverRegraspJawCoordinate > closeJawCoordinate &&
                 closeJawCoordinate > receiverTransportJawCoordinate &&
                 openJawCoordinate - closeJawCoordinate < 0.08,
             "gauge-calibrated jaw travel is outside the physical jaw range"
@@ -13931,6 +14135,12 @@ int main(const int argc, const char* const argv[]) {
             options.resumeReceiverAlignedPath.empty() &&
             options.resumePositiveControlMotionPath.empty() &&
             options.resumePositiveControlOverlapPath.empty() &&
+            options.resumeReceiverPreloadCandidatePath.empty() &&
+            options.resumeReceiverPreloadPath.empty() &&
+            options.resumeReceiverPreloadGiverLatchedPath.empty() &&
+            options.resumeReceiverPreloadRecenteredPath.empty() &&
+            options.resumeReceiverPreloadCorrectionAuthorityPath.empty() &&
+            options.resumeReceiverPreloadUnloadedPath.empty() &&
             options.resumeGiverReleaseMotionPath.empty() &&
             options.resumeGiverReleasePath.empty() &&
             options.resumeReceiverTransferMotionPath.empty() &&
@@ -14014,6 +14224,44 @@ int main(const int argc, const char* const argv[]) {
             loadedStateStep = loadHandoffState(
                 options.resumePositiveControlOverlapPath,
                 "positive-control-overlap",
+                world
+            );
+        } else if (!options.resumeReceiverPreloadCandidatePath.empty()) {
+            loadedStateStep = loadHandoffState(
+                options.resumeReceiverPreloadCandidatePath,
+                "receiver-preload-candidate",
+                world
+            );
+        } else if (!options.resumeReceiverPreloadPath.empty()) {
+            loadedStateStep = loadHandoffState(
+                options.resumeReceiverPreloadPath,
+                "receiver-preload",
+                world
+            );
+        } else if (!options.resumeReceiverPreloadGiverLatchedPath.empty()) {
+            loadedStateStep = loadHandoffState(
+                options.resumeReceiverPreloadGiverLatchedPath,
+                "receiver-preload-giver-latched",
+                world
+            );
+        } else if (!options.resumeReceiverPreloadRecenteredPath.empty()) {
+            loadedStateStep = loadHandoffState(
+                options.resumeReceiverPreloadRecenteredPath,
+                "receiver-preload-recentered",
+                world
+            );
+        } else if (!options
+                        .resumeReceiverPreloadCorrectionAuthorityPath
+                        .empty()) {
+            loadedStateStep = loadHandoffState(
+                options.resumeReceiverPreloadCorrectionAuthorityPath,
+                "load-exchange-correction-giver-reloaded",
+                world
+            );
+        } else if (!options.resumeReceiverPreloadUnloadedPath.empty()) {
+            loadedStateStep = loadHandoffState(
+                options.resumeReceiverPreloadUnloadedPath,
+                "receiver-preload-unloaded",
                 world
             );
         } else if (!options.resumeGiverReleaseMotionPath.empty()) {
@@ -20419,6 +20667,10 @@ int main(const int argc, const char* const argv[]) {
         bool receiverApproachMotionAlreadyCompleted = false;
         bool receiverApproachAlreadyCompleted = false;
         bool receiverAlignmentAlreadyCompleted = false;
+        bool receiverPreloadCandidateAlreadyCompleted = false;
+        bool receiverPreloadGiverLatchAlreadyCompleted = false;
+        bool receiverPreloadUnloadAlreadyCompleted = false;
+        bool receiverPreloadReseatAlreadyCompleted = false;
         std::optional<GraspReference> giverGraspReference;
         std::optional<GraspReference> receiverGraspReference;
         std::uint64_t preReceiverSuccessfulSteps = 0u;
@@ -23442,12 +23694,38 @@ int main(const int argc, const char* const argv[]) {
                                             preciseScalar(
                                                 sample.normalAndVelocity.w
                                             ) +
+                                            " sample_normal=(" +
+                                            preciseScalar(
+                                                sample.normalAndVelocity.x
+                                            ) +
+                                            "," + preciseScalar(
+                                                sample.normalAndVelocity.y
+                                            ) +
+                                            "," + preciseScalar(
+                                                sample.normalAndVelocity.z
+                                            ) + ")" +
                                             " sample_admission_velocity=" +
                                             preciseScalar(
                                                 sample
                                                     .admissionVelocityAndNormal
                                                     .w
                                             ) +
+                                            " sample_admission_vector=(" +
+                                            preciseScalar(
+                                                sample
+                                                    .admissionVelocityAndNormal
+                                                    .x
+                                            ) +
+                                            "," + preciseScalar(
+                                                sample
+                                                    .admissionVelocityAndNormal
+                                                    .y
+                                            ) +
+                                            "," + preciseScalar(
+                                                sample
+                                                    .admissionVelocityAndNormal
+                                                    .z
+                                            ) + ")" +
                                             " sample_barrier=(" +
                                             preciseScalar(sample.barrier.x) +
                                             "," +
@@ -31268,6 +31546,102 @@ int main(const int argc, const char* const argv[]) {
             preReleaseGpuMilliseconds =
                 resumed.diagnostics.gpuElapsedMilliseconds;
             qualifiedOverlap.emplace(std::move(resumed));
+        } else if (!options.resumeReceiverPreloadCandidatePath.empty() ||
+                   !options.resumeReceiverPreloadPath.empty() ||
+                   !options.resumeReceiverPreloadGiverLatchedPath.empty() ||
+                   !options.resumeReceiverPreloadRecenteredPath.empty() ||
+                   !options
+                        .resumeReceiverPreloadCorrectionAuthorityPath
+                        .empty() ||
+                   !options.resumeReceiverPreloadUnloadedPath
+                        .empty()) {
+            metalrobo::HeterogeneousWorld giverReferenceWorld = world;
+            (void)loadHandoffState(
+                options.giverGraspReferencePath,
+                "receiver-aligned",
+                giverReferenceWorld
+            );
+            metalrobo::MetalWorldResult giverReferenceState;
+            giverReferenceState.finalQ =
+                giverReferenceWorld.model.defaultQ;
+            giverReferenceState.finalV =
+                giverReferenceWorld.model.defaultV;
+            giverReferenceState.finalSceneBodies =
+                giverReferenceWorld.defaultSceneBodies;
+            giverGraspReference = graspReference(
+                world,
+                needleForPlacement,
+                giverReferenceState,
+                0u,
+                kGiverNeedleShape
+            );
+
+            metalrobo::HeterogeneousWorld receiverReferenceWorld = world;
+            (void)loadHandoffState(
+                options.receiverGraspReferencePath,
+                "positive-control-overlap",
+                receiverReferenceWorld
+            );
+            metalrobo::MetalWorldResult receiverReferenceState;
+            receiverReferenceState.finalQ =
+                receiverReferenceWorld.model.defaultQ;
+            receiverReferenceState.finalV =
+                receiverReferenceWorld.model.defaultV;
+            receiverReferenceState.finalSceneBodies =
+                receiverReferenceWorld.defaultSceneBodies;
+            receiverGraspReference = graspReference(
+                world,
+                needleForPlacement,
+                receiverReferenceState,
+                1u,
+                kReceiverNeedleShape
+            );
+
+            // A handoff checkpoint does not serialize the temporal-contact
+            // warm start. Re-enter at a fixed command for one full proof chunk
+            // and subject that cold-started endpoint to the same physical
+            // preload audit before any corrective motion.
+            efforts = interpolateTargets(
+                world.model,
+                targetStart,
+                targetStart,
+                kLoadExchangeSettleSteps
+            );
+            PhaseResult resumed = initializePhase(
+                context,
+                compiled,
+                world,
+                stepConfig,
+                resident,
+                efforts,
+                kLoadExchangeSettleSteps
+            );
+            preReleaseSuccessfulSteps = loadedStateStep;
+            preReleaseGpuMilliseconds = 0.0;
+            receiverPreloadCandidateAlreadyCompleted = true;
+            receiverPreloadGiverLatchAlreadyCompleted =
+                !options.resumeReceiverPreloadGiverLatchedPath.empty() ||
+                !options.resumeReceiverPreloadRecenteredPath.empty();
+            receiverPreloadReseatAlreadyCompleted =
+                !options.resumeReceiverPreloadRecenteredPath.empty();
+            if (!options.resumeReceiverPreloadUnloadedPath.empty() ||
+                receiverPreloadReseatAlreadyCompleted) {
+                const std::vector<double> resumedReceiverQ = armLocalQ(
+                    world.model,
+                    1u,
+                    targetStart
+                );
+                receiverPreloadUnloadAlreadyCompleted = std::abs(
+                    resumedReceiverQ[7] - receiverRegraspJawCoordinate
+                ) <= 1.0e-3;
+                require(
+                    !receiverPreloadReseatAlreadyCompleted ||
+                        receiverPreloadUnloadAlreadyCompleted,
+                    "recentered receiver preload checkpoint did not retain "
+                    "its calibrated jaw clearance"
+                );
+            }
+            qualifiedOverlap.emplace(std::move(resumed));
         } else if (!options.resumeGiverClosedPath.empty()) {
             constexpr std::uint32_t kResumeHoldSteps = 1u;
             auto resumeEfforts = interpolateTargets(
@@ -33809,18 +34183,1695 @@ int main(const int argc, const char* const argv[]) {
                     kControlTimestep
                 )
             )) + 4u;
+
+        // Establish the receiver's full preload before relaxing the giver.
+        // Simultaneously swapping both contact manifolds left neither jaw as
+        // a fixed load-path authority and produced a rejected 3.58 mm common
+        // reseat despite micrometre-scale commanded insert-frame motion. The
+        // staged sequence mirrors a surgical handoff: acquire, prove the new
+        // seat under dual control, then unload the giver.
+        const std::vector<float> zeroLoadExchangeVelocity(
+            world.model.world.nv,
+            0.0f
+        );
+        std::uint32_t receiverPreloadMotionSteps = 0u;
+        std::uint32_t receiverPreloadSettleSteps =
+            kLoadExchangeSettleSteps;
+        std::uint64_t receiverPreloadMotionSuccessfulSteps = 0u;
+        double receiverPreloadMotionGpuMilliseconds = 0.0;
+        std::vector<float> receiverPreloadHoldTarget;
+        PhaseResult receiverPreloaded;
+        if (receiverPreloadCandidateAlreadyCompleted) {
+            receiverPreloaded = overlap;
+            receiverPreloadHoldTarget = receiverPreloaded.result.finalQ;
+            std::cerr << "handoff_phase=receiver_preload_candidate_resume"
+                << " cold_start_proof_steps="
+                << kLoadExchangeSettleSteps << '\n';
+        } else {
+            const JawGeometry receiverPreloadGiverStartJaw =
+                worldJawGeometry(
+                    world.model,
+                    0u,
+                    targetStart,
+                    zeroLoadExchangeVelocity
+                );
+            const JawGeometry receiverPreloadReceiverStartJaw =
+                worldJawGeometry(
+                    world.model,
+                    1u,
+                    targetStart,
+                    zeroLoadExchangeVelocity
+                );
+            const std::vector<double> receiverPreloadGiverQ = armLocalQ(
+                world.model,
+                0u,
+                targetStart
+            );
+            const ArmTrajectory receiverPreloadTrajectory =
+                coordinatedNeedleLoadExchangeTrajectory(
+                    world.model,
+                    psm,
+                    targetStart,
+                    receiverPreloadGiverQ[7],
+                    closeJawCoordinate,
+                    kLoadExchangeSteps
+                );
+            const double receiverPreloadGiverFrameDrift = norm(
+                worldJawGeometry(
+                    world.model,
+                    0u,
+                    receiverPreloadTrajectory.finalTarget,
+                    zeroLoadExchangeVelocity
+                ).midpoint - receiverPreloadGiverStartJaw.midpoint
+            );
+            const double receiverPreloadReceiverFrameDrift = norm(
+                worldJawGeometry(
+                    world.model,
+                    1u,
+                    receiverPreloadTrajectory.finalTarget,
+                    zeroLoadExchangeVelocity
+                ).midpoint - receiverPreloadReceiverStartJaw.midpoint
+            );
+            require(
+                receiverPreloadTrajectory.maximumVelocityRatio <=
+                        kMaximumCommandVelocityRatio &&
+                    receiverPreloadGiverFrameDrift <= 2.0e-5 &&
+                    receiverPreloadReceiverFrameDrift <= 2.0e-5,
+                "receiver preload exceeds the PSM command envelope"
+            );
+            const CrossArmCollisionScan receiverPreloadPreflight =
+                scanCrossArmTargetPath(
+                    world,
+                    targetStart,
+                    receiverPreloadTrajectory.finalTarget,
+                    kLoadExchangeSteps,
+                    receiverPreloadTrajectory.desiredQ
+                );
+            require(
+                receiverPreloadPreflight.samplesWithContact == 0u &&
+                    receiverPreloadPreflight
+                            .samplesWithGiverPadContact == 0u &&
+                    receiverPreloadPreflight
+                            .samplesWithReceiverPadContact == 0u,
+                "receiver preload intersects an instrument or the table"
+            );
+            efforts = receiverPreloadTrajectory.efforts;
+            PhaseResult receiverPreloadMotion = continuePhase(
+                context,
+                compiled,
+                stepConfig,
+                resident,
+                efforts,
+                kLoadExchangeSteps,
+                "receiver preload acquisition"
+            );
+            receiverPreloadMotionSteps = kLoadExchangeSteps;
+            receiverPreloadMotionSuccessfulSteps =
+                receiverPreloadMotion.diagnostics.successfulStepCount;
+            receiverPreloadMotionGpuMilliseconds =
+                receiverPreloadMotion.diagnostics.gpuElapsedMilliseconds;
+            const ContactCounts receiverPreloadMotionContacts = contactCounts(
+                world,
+                receiverPreloadMotion.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+            );
+            const GraspKinematics receiverPreloadMotionGiver =
+                graspKinematics(
+                    world,
+                    needleForPlacement,
+                    receiverPreloadMotion.result,
+                    0u,
+                    kGiverNeedleShape,
+                    *giverGraspReference
+                );
+            const GraspKinematics receiverPreloadMotionReceiver =
+                graspKinematics(
+                    world,
+                    needleForPlacement,
+                    receiverPreloadMotion.result,
+                    1u,
+                    kReceiverNeedleShape,
+                    *receiverGraspReference
+                );
+            const RodStateMetrics receiverPreloadMotionRod = rodStateMetrics(
+                world,
+                receiverPreloadMotion.result
+            );
+            const double receiverPreloadMotionSwageError =
+                swageAttachmentError(world, receiverPreloadMotion.result);
+            const double receiverPreloadMotionSwageTangentError =
+                swageTangentAngleError(world, receiverPreloadMotion.result);
+            std::cerr << "handoff_phase=receiver_preload_motion"
+                << " motion_steps=" << kLoadExchangeSteps
+                << " command_velocity_ratio="
+                << receiverPreloadTrajectory.maximumVelocityRatio
+                << " giver_commanded_frame_drift_m="
+                << receiverPreloadGiverFrameDrift
+                << " receiver_commanded_frame_drift_m="
+                << receiverPreloadReceiverFrameDrift
+                << " giver_seat_drift_m="
+                << receiverPreloadMotionGiver.seatDrift
+                << " receiver_seat_drift_m="
+                << receiverPreloadMotionReceiver.seatDrift
+                << contactSummary(receiverPreloadMotionContacts) << '\n';
+            require(
+                bilateral(receiverPreloadMotionContacts, 0u) &&
+                    transverseInsertCoverage(
+                        receiverPreloadMotionContacts,
+                        0u
+                    ) &&
+                    bilateral(receiverPreloadMotionContacts, 1u) &&
+                    distributedInsertCoverage(
+                        receiverPreloadMotionContacts,
+                        1u
+                    ) &&
+                    cleanNeedleInteraction(
+                        receiverPreloadMotionContacts,
+                        true,
+                        true
+                    ) &&
+                    receiverPreloadMotionGiver.seatDrift <=
+                        kMaximumTransitionGraspReseating &&
+                    receiverPreloadMotionReceiver.seatDrift <=
+                        kMaximumTransitionGraspReseating &&
+                    qualifiedTransitionRod(receiverPreloadMotionRod) &&
+                    receiverPreloadMotionSwageError <
+                        kMaximumSwageAttachmentError &&
+                    receiverPreloadMotionSwageTangentError <
+                        maximumSwageTangentAngleError(world),
+                "receiver preload acquisition snapped or lost dual positive "
+                "control"
+            );
+            writeHandoffStateArtifact(
+                options.stateOutputDirectory,
+                "receiver-preload-motion",
+                preReleaseSuccessfulSteps + kLoadExchangeSteps,
+                world,
+                sutureSpec,
+                receiverPreloadMotion.result
+            );
+            receiverPreloadHoldTarget =
+                receiverPreloadTrajectory.finalTarget;
+            efforts = interpolateTargets(
+                world.model,
+                receiverPreloadMotion.result.finalQ,
+                receiverPreloadHoldTarget,
+                receiverPreloadSettleSteps
+            );
+            receiverPreloaded = continuePhase(
+                context,
+                compiled,
+                stepConfig,
+                resident,
+                efforts,
+                receiverPreloadSettleSteps,
+                "receiver preload dual-control proof"
+            );
+        }
+        std::uint64_t receiverPreloadSuccessfulSteps =
+            receiverPreloaded.diagnostics.successfulStepCount;
+        double receiverPreloadGpuMilliseconds =
+            receiverPreloaded.diagnostics.gpuElapsedMilliseconds;
+        struct ReceiverPreloadAudit {
+            ContactCounts contacts{};
+            GraspKinematics giver{};
+            GraspKinematics receiver{};
+            RodStateMetrics rod{};
+            MRMetalWorldContactStatusGPU residual{};
+            double swageError =
+                std::numeric_limits<double>::infinity();
+            double swageTangentError =
+                std::numeric_limits<double>::infinity();
+            double needleLinearSpeed =
+                std::numeric_limits<double>::infinity();
+            double needleAngularSpeed =
+                std::numeric_limits<double>::infinity();
+            bool qualified = false;
+        };
+        const auto auditReceiverPreload = [&] (
+            const PhaseResult& state,
+            const std::uint32_t completedSettleSteps
+        ) {
+            ReceiverPreloadAudit audit;
+            audit.contacts = contactCounts(
+                world,
+                state.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+            );
+            audit.giver = graspKinematics(
+                world,
+                needleForPlacement,
+                state.result,
+                0u,
+                kGiverNeedleShape,
+                *giverGraspReference
+            );
+            audit.receiver = graspKinematics(
+                world,
+                needleForPlacement,
+                state.result,
+                1u,
+                kReceiverNeedleShape,
+                *receiverGraspReference
+            );
+            audit.rod = rodStateMetrics(world, state.result);
+            audit.swageError = swageAttachmentError(world, state.result);
+            audit.swageTangentError = swageTangentAngleError(
+                world,
+                state.result
+            );
+            const MRBodyStateGPU& needle =
+                state.result.finalSceneBodies.at(0u);
+            audit.needleLinearSpeed = norm(vector(
+                needle.linearVelocityAndInverseMass
+            ));
+            audit.needleAngularSpeed = norm(vector(
+                needle.angularVelocity
+            ));
+            audit.residual = requireTerminalResidual(
+                state.result,
+                "receiver preload dual-control proof candidate",
+                false
+            );
+            audit.qualified =
+                bilateral(audit.contacts, 0u) &&
+                transverseInsertCoverage(audit.contacts, 0u) &&
+                bilateral(audit.contacts, 1u) &&
+                distributedInsertCoverage(audit.contacts, 1u) &&
+                cleanNeedleInteraction(audit.contacts, true, true) &&
+                qualifiedTransitionGrasp(audit.giver) &&
+                qualifiedTransitionGrasp(audit.receiver) &&
+                qualifiedTransitionRod(audit.rod) &&
+                audit.rod.clampedRootSpeedValid &&
+                audit.rod.maximumClampedRootSpeed <=
+                    kMaximumSettledSwageRootSpeed &&
+                audit.needleLinearSpeed <=
+                    kMaximumSettledNeedleLinearSpeed &&
+                audit.needleAngularSpeed <=
+                    kMaximumSettledNeedleAngularSpeed &&
+                audit.swageError < kMaximumSwageAttachmentError &&
+                audit.swageTangentError <
+                    maximumSwageTangentAngleError(world) &&
+                audit.residual.residuals.y <=
+                    kMaximumTerminalContactVelocityResidual &&
+                audit.residual.residuals.z <=
+                    kMaximumTerminalConeViolation;
+            std::cerr << "handoff_phase=receiver_preload_candidate"
+                << " completed_settle_steps=" << completedSettleSteps
+                << " qualified=" << audit.qualified
+                << " giver_seat_drift_m=" << audit.giver.seatDrift
+                << " receiver_seat_drift_m="
+                << audit.receiver.seatDrift
+                << " giver_relative_point_speed_mps="
+                << audit.giver.relativePointSpeed
+                << " receiver_relative_point_speed_mps="
+                << audit.receiver.relativePointSpeed
+                << " needle_linear_speed_mps="
+                << audit.needleLinearSpeed
+                << " needle_angular_speed_radps="
+                << audit.needleAngularSpeed
+                << " hard_swage_root_error_m="
+                << audit.swageError
+                << " thread_max_node_speed_mps="
+                << audit.rod.maximumNodeSpeed
+                << " swage_root_max_node_speed_mps="
+                << audit.rod.maximumClampedRootSpeed
+                << " thread_max_edge_length_error_m="
+                << audit.rod.maximumEdgeLengthError
+                << " contact_residuals=["
+                << audit.residual.residuals.x << ','
+                << audit.residual.residuals.y << ','
+                << audit.residual.residuals.z << ','
+                << audit.residual.residuals.w << ']'
+                << contactSummary(audit.contacts) << '\n';
+            return audit;
+        };
+        std::optional<ReceiverPreloadAudit> receiverPreloadAudit =
+            auditReceiverPreload(
+                receiverPreloaded,
+                receiverPreloadSettleSteps
+        );
+        writeHandoffStateArtifact(
+            options.stateOutputDirectory,
+            "receiver-preload-candidate",
+            preReleaseSuccessfulSteps + receiverPreloadMotionSteps +
+                receiverPreloadSettleSteps,
+            world,
+            sutureSpec,
+            receiverPreloaded.result
+        );
+        std::uint32_t consecutiveQualifiedReceiverPreloadProofs =
+            receiverPreloadAudit->qualified ? 1u : 0u;
+        std::uint32_t receiverPreloadGiverLatchSteps = 0u;
+        std::uint32_t receiverPreloadGiverLatchSettleSteps = 0u;
+        std::uint32_t receiverPreloadUnloadSteps = 0u;
+        std::uint32_t receiverPreloadReleaseSettleSteps = 0u;
+        std::uint32_t receiverPreloadReseatSteps = 0u;
+        std::uint32_t receiverPreloadLowForceSettleSteps = 0u;
+        std::uint32_t receiverPreloadOverlapReloadSteps = 0u;
+        std::uint32_t receiverPreloadOverlapSettleSteps = 0u;
+        std::uint32_t receiverPreloadReloadSteps = 0u;
+        std::uint32_t receiverPreloadGiverUnlatchSteps = 0u;
+        std::uint32_t receiverPreloadGiverUnlatchSettleSteps = 0u;
+        // A single distributed endpoint is not enough: the cold checkpoint
+        // replay briefly recovered both longitudinal rows, then returned to a
+        // one-row seat in the next proof chunk. Probe persistence before
+        // deciding whether a low-force re-grasp is necessary.
+        while (
+            consecutiveQualifiedReceiverPreloadProofs < 2u &&
+            distributedInsertCoverage(
+                receiverPreloadAudit->contacts,
+                1u
+            ) &&
+            receiverPreloadSettleSteps <
+                kLoadExchangeMaximumSettleSteps
+        ) {
+            const std::uint32_t extensionSteps = std::min(
+                kLoadExchangeSettleSteps,
+                kLoadExchangeMaximumSettleSteps -
+                    receiverPreloadSettleSteps
+            );
+            efforts = interpolateTargets(
+                world.model,
+                receiverPreloaded.result.finalQ,
+                receiverPreloadHoldTarget,
+                extensionSteps
+            );
+            PhaseResult persistenceProof = continuePhase(
+                context,
+                compiled,
+                stepConfig,
+                resident,
+                efforts,
+                extensionSteps,
+                "receiver preload persistence proof"
+            );
+            receiverPreloadSuccessfulSteps +=
+                persistenceProof.diagnostics.successfulStepCount;
+            receiverPreloadGpuMilliseconds +=
+                persistenceProof.diagnostics.gpuElapsedMilliseconds;
+            receiverPreloadSettleSteps += extensionSteps;
+            receiverPreloaded = std::move(persistenceProof);
+            receiverPreloadAudit = auditReceiverPreload(
+                receiverPreloaded,
+                receiverPreloadSettleSteps
+            );
+            writeHandoffStateArtifact(
+                options.stateOutputDirectory,
+                "receiver-preload-candidate",
+                preReleaseSuccessfulSteps + receiverPreloadMotionSteps +
+                    receiverPreloadSettleSteps,
+                world,
+                sutureSpec,
+                receiverPreloaded.result
+            );
+            consecutiveQualifiedReceiverPreloadProofs =
+                receiverPreloadAudit->qualified
+                ? consecutiveQualifiedReceiverPreloadProofs + 1u
+                : 0u;
+        }
+        if (!distributedInsertCoverage(
+                receiverPreloadAudit->contacts,
+                1u
+            )) {
+            const auto regraspNumericsBounded = [&] {
+                return
+                    receiverPreloadAudit->rod.clampedRootSpeedValid &&
+                    receiverPreloadAudit->rod.maximumClampedRootSpeed <=
+                        kMaximumSettledSwageRootSpeed &&
+                    receiverPreloadAudit->needleLinearSpeed <=
+                        kMaximumSettledNeedleLinearSpeed &&
+                    receiverPreloadAudit->needleAngularSpeed <=
+                        kMaximumSettledNeedleAngularSpeed &&
+                    receiverPreloadAudit->residual.residuals.y <=
+                        kMaximumTerminalContactVelocityResidual &&
+                    receiverPreloadAudit->residual.residuals.z <=
+                        kMaximumTerminalConeViolation;
+            };
+            while (
+                !regraspNumericsBounded() &&
+                receiverPreloadSettleSteps <
+                    kLoadExchangeMaximumSettleSteps
+            ) {
+                const std::uint32_t extensionSteps = std::min(
+                    kLoadExchangeSettleSteps,
+                    kLoadExchangeMaximumSettleSteps -
+                        receiverPreloadSettleSteps
+                );
+                efforts = interpolateTargets(
+                    world.model,
+                    receiverPreloaded.result.finalQ,
+                    receiverPreloadHoldTarget,
+                    extensionSteps
+                );
+                PhaseResult convergenceProof = continuePhase(
+                    context,
+                    compiled,
+                    stepConfig,
+                    resident,
+                    efforts,
+                    extensionSteps,
+                    "receiver preload pre-regrasp convergence proof"
+                );
+                receiverPreloadSuccessfulSteps +=
+                    convergenceProof.diagnostics.successfulStepCount;
+                receiverPreloadGpuMilliseconds +=
+                    convergenceProof.diagnostics.gpuElapsedMilliseconds;
+                receiverPreloadSettleSteps += extensionSteps;
+                receiverPreloaded = std::move(convergenceProof);
+                receiverPreloadAudit = auditReceiverPreload(
+                    receiverPreloaded,
+                    receiverPreloadSettleSteps
+                );
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    "receiver-preload-candidate",
+                    preReleaseSuccessfulSteps +
+                        receiverPreloadMotionSteps +
+                        receiverPreloadSettleSteps,
+                    world,
+                    sutureSpec,
+                    receiverPreloaded.result
+                );
+            }
+            const bool receiverStateReadyToReseat =
+                receiverPreloadUnloadAlreadyCompleted
+                ? receiverPreloadAudit->contacts.jawContacts[1][0] == 0u &&
+                    receiverPreloadAudit->contacts.jawContacts[1][1] == 0u &&
+                    cleanNeedleInteraction(
+                        receiverPreloadAudit->contacts,
+                        true,
+                        false
+                    )
+                : bilateral(receiverPreloadAudit->contacts, 1u) &&
+                    transverseInsertCoverage(
+                        receiverPreloadAudit->contacts,
+                        1u
+                    ) &&
+                    cleanNeedleInteraction(
+                        receiverPreloadAudit->contacts,
+                        true,
+                        true
+                    ) &&
+                    qualifiedTransitionGrasp(
+                        receiverPreloadAudit->receiver
+                    );
+            const bool safeToReseat =
+                bilateral(receiverPreloadAudit->contacts, 0u) &&
+                transverseInsertCoverage(
+                    receiverPreloadAudit->contacts,
+                    0u
+                ) &&
+                receiverStateReadyToReseat &&
+                qualifiedTransitionGrasp(
+                    receiverPreloadAudit->giver
+                ) &&
+                qualifiedTransitionRod(receiverPreloadAudit->rod) &&
+                receiverPreloadAudit->rod.clampedRootSpeedValid &&
+                receiverPreloadAudit->rod.maximumClampedRootSpeed <=
+                    kMaximumSettledSwageRootSpeed &&
+                receiverPreloadAudit->needleLinearSpeed <=
+                    kMaximumSettledNeedleLinearSpeed &&
+                receiverPreloadAudit->needleAngularSpeed <=
+                    kMaximumSettledNeedleAngularSpeed &&
+                receiverPreloadAudit->swageError <
+                    kMaximumSwageAttachmentError &&
+                receiverPreloadAudit->swageTangentError <
+                    maximumSwageTangentAngleError(world) &&
+                receiverPreloadAudit->residual.residuals.y <=
+                    kMaximumTerminalContactVelocityResidual &&
+                receiverPreloadAudit->residual.residuals.z <=
+                    kMaximumTerminalConeViolation;
+            require(
+                safeToReseat,
+                "receiver preload lost more than longitudinal insert "
+                "centering before its corrective reseat"
+            );
+
+            if (!receiverPreloadUnloadAlreadyCompleted &&
+                !receiverPreloadGiverLatchAlreadyCompleted) {
+                const std::vector<double> latchGiverQ = armLocalQ(
+                    world.model,
+                    0u,
+                    receiverPreloaded.result.finalQ
+                );
+                const std::vector<double> latchReceiverQ = armLocalQ(
+                    world.model,
+                    1u,
+                    receiverPreloaded.result.finalQ
+                );
+                receiverPreloadGiverLatchSteps =
+                    static_cast<std::uint32_t>(std::ceil(
+                        3.0 * std::abs(
+                            receiverTransportJawCoordinate - latchGiverQ[7]
+                        ) / (
+                            kLoadExchangeRelativeJawSpeedRadPerS *
+                            kControlTimestep
+                        )
+                    )) + 4u;
+                const ArmTrajectory giverLatch =
+                    coordinatedNeedleLoadExchangeTrajectory(
+                        world.model,
+                        psm,
+                        receiverPreloaded.result.finalQ,
+                        receiverTransportJawCoordinate,
+                        latchReceiverQ[7],
+                        receiverPreloadGiverLatchSteps
+                    );
+                require(
+                    giverLatch.maximumVelocityRatio <=
+                        kMaximumCommandVelocityRatio,
+                    "receiver correction giver latch exceeds the PSM command "
+                    "envelope"
+                );
+                const CrossArmCollisionScan giverLatchPreflight =
+                    scanCrossArmTargetPath(
+                        world,
+                        receiverPreloaded.result.finalQ,
+                        giverLatch.finalTarget,
+                        receiverPreloadGiverLatchSteps,
+                        giverLatch.desiredQ
+                    );
+                require(
+                    giverLatchPreflight.samplesWithContact == 0u &&
+                        giverLatchPreflight
+                                .samplesWithGiverPadContact == 0u &&
+                        giverLatchPreflight
+                                .samplesWithReceiverPadContact == 0u,
+                    "receiver correction giver latch intersects an instrument "
+                    "or the table"
+                );
+                PhaseResult giverLatched = continuePhase(
+                    context,
+                    compiled,
+                    stepConfig,
+                    resident,
+                    giverLatch.efforts,
+                    receiverPreloadGiverLatchSteps,
+                    "receiver correction giver transport latch"
+                );
+                receiverPreloadSuccessfulSteps +=
+                    giverLatched.diagnostics.successfulStepCount;
+                receiverPreloadGpuMilliseconds +=
+                    giverLatched.diagnostics.gpuElapsedMilliseconds;
+                receiverPreloaded = std::move(giverLatched);
+                receiverPreloadHoldTarget = giverLatch.finalTarget;
+                receiverPreloadAudit = auditReceiverPreload(
+                    receiverPreloaded,
+                    receiverPreloadSettleSteps
+                );
+                require(
+                    bilateral(receiverPreloadAudit->contacts, 0u) &&
+                        distributedInsertCoverage(
+                            receiverPreloadAudit->contacts,
+                            0u
+                        ) &&
+                        bilateral(receiverPreloadAudit->contacts, 1u) &&
+                        transverseInsertCoverage(
+                            receiverPreloadAudit->contacts,
+                            1u
+                        ) &&
+                        cleanNeedleInteraction(
+                            receiverPreloadAudit->contacts,
+                            true,
+                            true
+                        ) &&
+                        receiverPreloadAudit->giver.seatDrift <=
+                            kMaximumTransitionGraspReseating &&
+                        receiverPreloadAudit->receiver.seatDrift <=
+                            kMaximumTransitionGraspReseating &&
+                        qualifiedTransitionRod(receiverPreloadAudit->rod) &&
+                        receiverPreloadAudit->swageError <
+                            kMaximumSwageAttachmentError &&
+                        receiverPreloadAudit->swageTangentError <
+                            maximumSwageTangentAngleError(world),
+                    "temporary giver transport latch lost dual control"
+                );
+                const auto giverLatchQualified = [&] {
+                    return
+                        bilateral(receiverPreloadAudit->contacts, 0u) &&
+                        distributedInsertCoverage(
+                            receiverPreloadAudit->contacts,
+                            0u
+                        ) &&
+                        bilateral(receiverPreloadAudit->contacts, 1u) &&
+                        transverseInsertCoverage(
+                            receiverPreloadAudit->contacts,
+                            1u
+                        ) &&
+                        cleanNeedleInteraction(
+                            receiverPreloadAudit->contacts,
+                            true,
+                            true
+                        ) &&
+                        qualifiedTransitionGrasp(
+                            receiverPreloadAudit->giver
+                        ) &&
+                        qualifiedTransitionGrasp(
+                            receiverPreloadAudit->receiver
+                        ) &&
+                        qualifiedTransitionRod(receiverPreloadAudit->rod) &&
+                        receiverPreloadAudit->rod.clampedRootSpeedValid &&
+                        receiverPreloadAudit->rod.maximumClampedRootSpeed <=
+                            kMaximumSettledSwageRootSpeed &&
+                        receiverPreloadAudit->needleLinearSpeed <=
+                            kMaximumSettledNeedleLinearSpeed &&
+                        receiverPreloadAudit->needleAngularSpeed <=
+                            kMaximumSettledNeedleAngularSpeed &&
+                        receiverPreloadAudit->swageError <
+                            kMaximumSwageAttachmentError &&
+                        receiverPreloadAudit->swageTangentError <
+                            maximumSwageTangentAngleError(world) &&
+                        receiverPreloadAudit->residual.residuals.y <=
+                            kMaximumTerminalContactVelocityResidual &&
+                        receiverPreloadAudit->residual.residuals.z <=
+                            kMaximumTerminalConeViolation;
+                };
+                do {
+                    require(
+                        receiverPreloadGiverLatchSettleSteps <
+                            kLoadExchangeMaximumSettleSteps,
+                        "temporary giver transport latch did not converge"
+                    );
+                    const std::uint32_t extensionSteps = std::min(
+                        kLoadExchangeSettleSteps,
+                        kLoadExchangeMaximumSettleSteps -
+                            receiverPreloadGiverLatchSettleSteps
+                    );
+                    efforts = interpolateTargets(
+                        world.model,
+                        receiverPreloaded.result.finalQ,
+                        receiverPreloadHoldTarget,
+                        extensionSteps
+                    );
+                    PhaseResult latchProof = continuePhase(
+                        context,
+                        compiled,
+                        stepConfig,
+                        resident,
+                        efforts,
+                        extensionSteps,
+                        "receiver correction giver latch proof"
+                    );
+                    receiverPreloadSuccessfulSteps +=
+                        latchProof.diagnostics.successfulStepCount;
+                    receiverPreloadGpuMilliseconds +=
+                        latchProof.diagnostics.gpuElapsedMilliseconds;
+                    receiverPreloadGiverLatchSettleSteps += extensionSteps;
+                    receiverPreloaded = std::move(latchProof);
+                    receiverPreloadAudit = auditReceiverPreload(
+                        receiverPreloaded,
+                        receiverPreloadSettleSteps
+                    );
+                } while (
+                    receiverPreloadGiverLatchSettleSteps <
+                        kLoadExchangeSettleSteps ||
+                    !giverLatchQualified()
+                );
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    "receiver-preload-giver-latched",
+                    preReleaseSuccessfulSteps +
+                        receiverPreloadMotionSteps +
+                        receiverPreloadSettleSteps +
+                        receiverPreloadGiverLatchSteps +
+                        receiverPreloadGiverLatchSettleSteps,
+                    world,
+                    sutureSpec,
+                    receiverPreloaded.result
+                );
+                std::cerr << "handoff_phase=receiver_preload_giver_latched"
+                    << " latch_steps="
+                    << receiverPreloadGiverLatchSteps
+                    << " proof_steps="
+                    << receiverPreloadGiverLatchSettleSteps
+                    << contactSummary(receiverPreloadAudit->contacts) << '\n';
+            }
+
+            const JawGeometry engagedReceiverJaw = worldJawGeometry(
+                world.model,
+                1u,
+                receiverPreloaded.result.finalQ,
+                receiverPreloaded.result.finalV
+            );
+            const GraspFrameTarget desiredReceiverFrame = graspFrameTarget(
+                needleForPlacement,
+                receiverPreloaded.result.finalSceneBodies.at(0u),
+                kReceiverNeedleShape,
+                *receiverGraspReference
+            );
+            if (!receiverPreloadUnloadAlreadyCompleted) {
+                (void)missingLongitudinalRowCorrection(
+                    receiverPreloadAudit->contacts,
+                    1u,
+                    engagedReceiverJaw,
+                    desiredReceiverFrame.midpoint,
+                    psm
+                );
+            }
+
+            // Do not translate any receiver that still carries a positive
+            // needle impulse. Open it through the authored clearance while
+            // both jaw frames remain fixed; the giver stays the sole load-path
+            // authority until the receiver is recentered and reclosed.
+            if (!receiverPreloadUnloadAlreadyCompleted) {
+            const std::vector<double> unloadGiverQ = armLocalQ(
+                world.model,
+                0u,
+                receiverPreloaded.result.finalQ
+            );
+            const std::vector<double> unloadReceiverQ = armLocalQ(
+                world.model,
+                1u,
+                receiverPreloaded.result.finalQ
+            );
+            receiverPreloadUnloadSteps =
+                static_cast<std::uint32_t>(std::ceil(
+                    3.0 * std::abs(
+                        receiverRegraspJawCoordinate - unloadReceiverQ[7]
+                    ) / (
+                        kLoadExchangeRelativeJawSpeedRadPerS *
+                        kControlTimestep
+                    )
+                )) + 4u;
+            const ArmTrajectory receiverPreloadUnload =
+                coordinatedNeedleLoadExchangeTrajectory(
+                    world.model,
+                    psm,
+                    receiverPreloaded.result.finalQ,
+                    unloadGiverQ[7],
+                    receiverRegraspJawCoordinate,
+                    receiverPreloadUnloadSteps
+                );
+            require(
+                receiverPreloadUnload.maximumVelocityRatio <=
+                    kMaximumCommandVelocityRatio,
+                "receiver preload unload exceeds the PSM command envelope"
+            );
+            const CrossArmCollisionScan receiverPreloadUnloadPreflight =
+                scanCrossArmTargetPath(
+                    world,
+                    receiverPreloaded.result.finalQ,
+                    receiverPreloadUnload.finalTarget,
+                    receiverPreloadUnloadSteps,
+                    receiverPreloadUnload.desiredQ
+                );
+            require(
+                receiverPreloadUnloadPreflight.samplesWithContact == 0u &&
+                    receiverPreloadUnloadPreflight
+                            .samplesWithGiverPadContact == 0u &&
+                    receiverPreloadUnloadPreflight
+                            .samplesWithReceiverPadContact == 0u,
+                "receiver preload unload intersects an instrument or the "
+                "table"
+            );
+            PhaseResult receiverPreloadUnloaded = continuePhase(
+                context,
+                compiled,
+                stepConfig,
+                resident,
+                receiverPreloadUnload.efforts,
+                receiverPreloadUnloadSteps,
+                "receiver preload controlled unload"
+            );
+            receiverPreloadSuccessfulSteps +=
+                receiverPreloadUnloaded.diagnostics.successfulStepCount;
+            receiverPreloadGpuMilliseconds +=
+                receiverPreloadUnloaded.diagnostics.gpuElapsedMilliseconds;
+            receiverPreloaded = std::move(receiverPreloadUnloaded);
+            receiverPreloadHoldTarget = receiverPreloadUnload.finalTarget;
+            receiverPreloadAudit = auditReceiverPreload(
+                receiverPreloaded,
+                receiverPreloadSettleSteps
+            );
+            require(
+                bilateral(receiverPreloadAudit->contacts, 0u) &&
+                    transverseInsertCoverage(
+                        receiverPreloadAudit->contacts,
+                        0u
+                    ) &&
+                    receiverPreloadAudit->contacts.jawContacts[1][0] == 0u &&
+                    receiverPreloadAudit->contacts.jawContacts[1][1] == 0u &&
+                    cleanNeedleInteraction(
+                        receiverPreloadAudit->contacts,
+                        true,
+                        false
+                    ) &&
+                    qualifiedTransitionGrasp(
+                        receiverPreloadAudit->giver
+                    ) &&
+                    qualifiedTransitionRod(receiverPreloadAudit->rod) &&
+                    receiverPreloadAudit->swageError <
+                        kMaximumSwageAttachmentError &&
+                    receiverPreloadAudit->swageTangentError <
+                        maximumSwageTangentAngleError(world),
+                "receiver preload release lost giver authority or retained "
+                "receiver needle load"
+            );
+            std::cerr << "handoff_phase=receiver_preload_release"
+                << " unload_steps=" << receiverPreloadUnloadSteps
+                << " command_velocity_ratio="
+                << receiverPreloadUnload.maximumVelocityRatio
+                << contactSummary(receiverPreloadAudit->contacts) << '\n';
+            writeHandoffStateArtifact(
+                options.stateOutputDirectory,
+                "receiver-preload-unloaded",
+                preReleaseSuccessfulSteps + receiverPreloadMotionSteps +
+                    receiverPreloadSettleSteps +
+                    receiverPreloadUnloadSteps,
+                world,
+                sutureSpec,
+                receiverPreloaded.result
+            );
+            } else {
+                std::cerr
+                    << "handoff_phase=receiver_preload_release_resume"
+                    << " cold_start_proof_steps="
+                    << receiverPreloadSettleSteps
+                    << contactSummary(receiverPreloadAudit->contacts)
+                    << '\n';
+            }
+
+            const auto receiverReleasedUnderGiverAuthority = [&] {
+                return
+                    bilateral(receiverPreloadAudit->contacts, 0u) &&
+                    transverseInsertCoverage(
+                        receiverPreloadAudit->contacts,
+                        0u
+                    ) &&
+                    receiverPreloadAudit->contacts
+                            .jawContacts[1][0] == 0u &&
+                    receiverPreloadAudit->contacts
+                            .jawContacts[1][1] == 0u &&
+                    cleanNeedleInteraction(
+                        receiverPreloadAudit->contacts,
+                        true,
+                        false
+                    ) &&
+                    qualifiedTransitionGrasp(
+                        receiverPreloadAudit->giver
+                    ) &&
+                    qualifiedTransitionRod(receiverPreloadAudit->rod) &&
+                    receiverPreloadAudit->rod.clampedRootSpeedValid &&
+                    receiverPreloadAudit->rod.maximumClampedRootSpeed <=
+                        kMaximumSettledSwageRootSpeed &&
+                    receiverPreloadAudit->needleLinearSpeed <=
+                        kMaximumSettledNeedleLinearSpeed &&
+                    receiverPreloadAudit->needleAngularSpeed <=
+                        kMaximumSettledNeedleAngularSpeed &&
+                    receiverPreloadAudit->swageError <
+                        kMaximumSwageAttachmentError &&
+                    receiverPreloadAudit->swageTangentError <
+                        maximumSwageTangentAngleError(world) &&
+                    receiverPreloadAudit->residual.residuals.y <=
+                        kMaximumTerminalContactVelocityResidual &&
+                    receiverPreloadAudit->residual.residuals.z <=
+                        kMaximumTerminalConeViolation;
+            };
+            do {
+                const std::uint32_t extensionSteps = std::min(
+                    kLoadExchangeSettleSteps,
+                    kLoadExchangeMaximumSettleSteps -
+                        receiverPreloadReleaseSettleSteps
+                );
+                require(
+                    extensionSteps != 0u,
+                    "receiver preload release did not converge under giver "
+                    "authority"
+                );
+                efforts = interpolateTargets(
+                    world.model,
+                    receiverPreloaded.result.finalQ,
+                    receiverPreloadHoldTarget,
+                    extensionSteps
+                );
+                PhaseResult releaseProof = continuePhase(
+                    context,
+                    compiled,
+                    stepConfig,
+                    resident,
+                    efforts,
+                    extensionSteps,
+                    "receiver preload release proof"
+                );
+                receiverPreloadSuccessfulSteps +=
+                    releaseProof.diagnostics.successfulStepCount;
+                receiverPreloadGpuMilliseconds +=
+                    releaseProof.diagnostics.gpuElapsedMilliseconds;
+                receiverPreloadReleaseSettleSteps += extensionSteps;
+                receiverPreloaded = std::move(releaseProof);
+                receiverPreloadAudit = auditReceiverPreload(
+                    receiverPreloaded,
+                    receiverPreloadSettleSteps
+                );
+            } while (!receiverReleasedUnderGiverAuthority());
+            writeHandoffStateArtifact(
+                options.stateOutputDirectory, "receiver-preload-unloaded",
+                preReleaseSuccessfulSteps + receiverPreloadMotionSteps +
+                    receiverPreloadSettleSteps + receiverPreloadUnloadSteps +
+                    receiverPreloadReleaseSettleSteps,
+                world, sutureSpec, receiverPreloaded.result);
+            std::cerr << "handoff_phase=receiver_preload_released"
+                      << " proof_steps=" << receiverPreloadReleaseSettleSteps
+                      << contactSummary(receiverPreloadAudit->contacts) << '\n';
+
+            if (receiverPreloadReseatAlreadyCompleted) {
+                std::cerr << "handoff_phase=receiver_preload_released_recenter_"
+                          << "resume"
+                          << " cold_start_proof_steps="
+                          << receiverPreloadReleaseSettleSteps
+                          << contactSummary(receiverPreloadAudit->contacts)
+                          << '\n';
+            }
+            {
+                const JawGeometry preloadReceiverJaw = worldJawGeometry(
+                    world.model, 1u, receiverPreloaded.result.finalQ,
+                    receiverPreloaded.result.finalV);
+                const GraspFrameTarget releasedDesiredReceiverFrame =
+                    graspFrameTarget(
+                        needleForPlacement,
+                        receiverPreloaded.result.finalSceneBodies.at(0u),
+                        kReceiverNeedleShape, *receiverGraspReference);
+                const OrthonormalJawFrame preloadReceiverFrame =
+                    orthonormalJawFrame(preloadReceiverJaw.railDirection,
+                                        preloadReceiverJaw.separationDirection,
+                                        "receiver preload released frame");
+                const Vec3 receiverPreloadFrameCorrection =
+                    releasedDesiredReceiverFrame.midpoint -
+                    preloadReceiverJaw.midpoint;
+                const Vec3 receiverPreloadReseatTarget =
+                    releasedDesiredReceiverFrame.midpoint;
+                const double receiverPreloadReseatDistanceM =
+                    norm(receiverPreloadFrameCorrection);
+                const double receiverPreloadReseatOrientationRad = std::max(
+                    std::acos(
+                        std::clamp(dot(preloadReceiverFrame.rail,
+                                       releasedDesiredReceiverFrame.frame.rail),
+                                   -1.0, 1.0)),
+                    std::acos(std::clamp(
+                        dot(preloadReceiverFrame.separation,
+                            releasedDesiredReceiverFrame.frame.separation),
+                        -1.0, 1.0)));
+                require(std::isfinite(receiverPreloadReseatDistanceM) &&
+                            receiverPreloadReseatDistanceM <=
+                                kMaximumTransitionGraspReseating &&
+                            std::isfinite(receiverPreloadReseatOrientationRad),
+                        "receiver preload corrective frame is outside the "
+                        "accepted transition envelope");
+                receiverPreloadReseatSteps = std::max<std::uint32_t>(
+                    kLoadExchangeSettleSteps,
+                    static_cast<std::uint32_t>(std::ceil(
+                        1.5 * receiverPreloadReseatDistanceM /
+                        (kReceiverPreloadReseatSpeedMps * kControlTimestep))) +
+                        4u);
+                const std::vector<double> preloadReceiverQ =
+                    armLocalQ(world.model, 1u, receiverPreloaded.result.finalQ);
+                const auto makeReceiverPreloadReseat = [&](const std::uint32_t
+                                                               steps) {
+                    return frameArmTrajectory(
+                        world.model, psm, 1u,
+                        armBasePose(world.model, 1u,
+                                    receiverPreloaded.result.finalQ),
+                        receiverPreloaded.result.finalQ,
+                        preloadReceiverJaw.midpoint,
+                        receiverPreloadReseatTarget,
+                        // The receiver is contact-free at the calibrated
+                        // 80 um clearance. Restore the complete transported
+                        // positive-control frame before re-closing: correcting
+                        // only its longitudinal midpoint left a small angular
+                        // mismatch, so first contact selected one finite insert
+                        // row and translated the needle into the opposite giver
+                        // row. The released frame may safely correct both pose
+                        // components while the giver remains sole authority.
+                        releasedDesiredReceiverFrame.frame.rail,
+                        releasedDesiredReceiverFrame.frame.separation,
+                        preloadReceiverQ[7], receiverRegraspJawCoordinate,
+                        steps);
+                };
+                ArmTrajectory receiverPreloadReseat =
+                    makeReceiverPreloadReseat(receiverPreloadReseatSteps);
+                while (receiverPreloadReseat.maximumVelocityRatio >
+                       kMaximumCommandVelocityRatio) {
+                    require(std::isfinite(
+                                receiverPreloadReseat.maximumVelocityRatio) &&
+                                receiverPreloadReseat.maximumVelocityRatio >
+                                    0.0,
+                            "receiver preload corrective reseat produced an "
+                            "invalid PSM joint velocity");
+                    const std::uint32_t endpointLimitedSteps =
+                        velocityLimitedTargetSteps(
+                            world.model, receiverPreloaded.result.finalQ,
+                            receiverPreloadReseat.finalTarget,
+                            receiverPreloadReseatSteps);
+                    const std::uint32_t measuredLimitedSteps =
+                        static_cast<std::uint32_t>(std::ceil(
+                            1.05 * receiverPreloadReseatSteps *
+                            receiverPreloadReseat.maximumVelocityRatio /
+                            kMaximumCommandVelocityRatio)) +
+                        4u;
+                    const std::uint32_t refinedSteps =
+                        std::max(endpointLimitedSteps, measuredLimitedSteps);
+                    std::cerr
+                        << "handoff_phase=receiver_preload_low_force_recenter_"
+                        << "duration_refinement"
+                        << " prior_steps=" << receiverPreloadReseatSteps
+                        << " endpoint_limited_steps=" << endpointLimitedSteps
+                        << " measured_limited_steps=" << measuredLimitedSteps
+                        << " refined_steps=" << refinedSteps
+                        << " measured_velocity_ratio="
+                        << receiverPreloadReseat.maximumVelocityRatio << '\n';
+                    require(
+                        refinedSteps > receiverPreloadReseatSteps &&
+                            refinedSteps <= kReceiverPreloadReseatMaximumSteps,
+                        "receiver preload corrective reseat needs an "
+                        "unbounded duration to satisfy the PSM joint envelope");
+                    receiverPreloadReseatSteps = refinedSteps;
+                    receiverPreloadReseat =
+                        makeReceiverPreloadReseat(receiverPreloadReseatSteps);
+                }
+                std::cerr
+                    << "handoff_phase=receiver_preload_low_force_recenter_"
+                    << "preflight"
+                    << " correction_distance_m="
+                    << receiverPreloadReseatDistanceM
+                    << " correction_orientation_rad="
+                    << receiverPreloadReseatOrientationRad
+                    << " correction_steps=" << receiverPreloadReseatSteps
+                    << " max_velocity_ratio="
+                    << receiverPreloadReseat.maximumVelocityRatio
+                    << " max_velocity=" << receiverPreloadReseat.maximumVelocity
+                    << " velocity_limit="
+                    << receiverPreloadReseat.limitingVelocity
+                    << " velocity_dof="
+                    << receiverPreloadReseat.maximumVelocityDof << '\n';
+                require(receiverPreloadReseat.maximumVelocityRatio <=
+                            kMaximumCommandVelocityRatio,
+                        "receiver preload low-force recenter exceeds the PSM "
+                        "command envelope");
+                const CrossArmCollisionScan receiverPreloadReseatPreflight =
+                    scanCrossArmTargetPath(world,
+                                           receiverPreloaded.result.finalQ,
+                                           receiverPreloadReseat.finalTarget,
+                                           receiverPreloadReseatSteps,
+                                           receiverPreloadReseat.desiredQ);
+                require(receiverPreloadReseatPreflight.samplesWithContact ==
+                                0u &&
+                            receiverPreloadReseatPreflight
+                                    .samplesWithGiverPadContact == 0u &&
+                            receiverPreloadReseatPreflight
+                                    .samplesWithReceiverPadContact == 0u,
+                        "receiver preload low-force recenter intersects an "
+                        "instrument or the table");
+                PhaseResult receiverPreloadReseated = continuePhase(
+                    context, compiled, stepConfig, resident,
+                    receiverPreloadReseat.efforts, receiverPreloadReseatSteps,
+                    "receiver preload low-force frame recenter");
+                receiverPreloadSuccessfulSteps +=
+                    receiverPreloadReseated.diagnostics.successfulStepCount;
+                receiverPreloadGpuMilliseconds +=
+                    receiverPreloadReseated.diagnostics.gpuElapsedMilliseconds;
+                receiverPreloaded = std::move(receiverPreloadReseated);
+                receiverPreloadHoldTarget = receiverPreloadReseat.finalTarget;
+                receiverPreloadLowForceSettleSteps = kLoadExchangeSettleSteps;
+                efforts = interpolateTargets(
+                    world.model, receiverPreloaded.result.finalQ,
+                    receiverPreloadHoldTarget,
+                    receiverPreloadLowForceSettleSteps);
+                PhaseResult receiverPreloadLowForceSettled =
+                    continuePhase(context, compiled, stepConfig, resident,
+                                  efforts, receiverPreloadLowForceSettleSteps,
+                                  "receiver preload low-force recenter proof");
+                receiverPreloadSuccessfulSteps +=
+                    receiverPreloadLowForceSettled.diagnostics
+                        .successfulStepCount;
+                receiverPreloadGpuMilliseconds +=
+                    receiverPreloadLowForceSettled.diagnostics
+                        .gpuElapsedMilliseconds;
+                receiverPreloaded = std::move(receiverPreloadLowForceSettled);
+                receiverPreloadAudit = auditReceiverPreload(
+                    receiverPreloaded, receiverPreloadSettleSteps);
+                require(
+                    receiverReleasedUnderGiverAuthority(),
+                    "receiver preload released-frame recenter did not preserve "
+                    "giver authority");
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory, "receiver-preload-recentered",
+                    preReleaseSuccessfulSteps + receiverPreloadMotionSteps +
+                        receiverPreloadSettleSteps +
+                        receiverPreloadGiverLatchSteps +
+                        receiverPreloadGiverLatchSettleSteps +
+                        receiverPreloadUnloadSteps +
+                        receiverPreloadReleaseSettleSteps +
+                        receiverPreloadReseatSteps +
+                        receiverPreloadLowForceSettleSteps,
+                    world, sutureSpec, receiverPreloaded.result);
+                std::cerr << "handoff_phase=receiver_preload_released_recenter"
+                          << " correction_distance_m="
+                          << receiverPreloadReseatDistanceM
+                          << " correction_orientation_rad="
+                          << receiverPreloadReseatOrientationRad
+                          << " correction_steps=" << receiverPreloadReseatSteps
+                          << " proof_steps="
+                          << receiverPreloadLowForceSettleSteps
+                          << " command_velocity_ratio="
+                          << receiverPreloadReseat.maximumVelocityRatio
+                          << contactSummary(receiverPreloadAudit->contacts)
+                          << '\n';
+            }
+
+            // Re-establish the contact manifold at the already-qualified
+            // 15 um overlap before adding the remaining preload. Closing
+            // directly from 80 um clearance to the 60 um preload recovered
+            // ideal 11/11/11/11 patch geometry but generated a rejected
+            // 1.27 mm common reseat and 50.8 mm/s needle translation. The
+            // gentle overlap therefore owns a persistent quiescent proof;
+            // only its accepted fixed frame may continue to full preload.
+            const std::vector<double> overlapReloadGiverQ = armLocalQ(
+                world.model,
+                0u,
+                receiverPreloaded.result.finalQ
+            );
+            const std::vector<double> overlapReloadReceiverQ = armLocalQ(
+                world.model,
+                1u,
+                receiverPreloaded.result.finalQ
+            );
+            receiverPreloadOverlapReloadSteps =
+                static_cast<std::uint32_t>(std::ceil(
+                    3.0 * std::abs(
+                        receiverOverlapJawCoordinate -
+                            overlapReloadReceiverQ[7]
+                    ) / (
+                        kLoadExchangeRelativeJawSpeedRadPerS *
+                        kControlTimestep
+                    )
+                )) + 4u;
+            const ArmTrajectory receiverPreloadOverlapReload =
+                coordinatedNeedleLoadExchangeTrajectory(
+                    world.model,
+                    psm,
+                    receiverPreloaded.result.finalQ,
+                    overlapReloadGiverQ[7],
+                    receiverOverlapJawCoordinate,
+                    receiverPreloadOverlapReloadSteps
+                );
+            require(
+                receiverPreloadOverlapReload.maximumVelocityRatio <=
+                    kMaximumCommandVelocityRatio,
+                "receiver gentle-overlap reload exceeds the PSM command "
+                "envelope"
+            );
+            const CrossArmCollisionScan receiverPreloadOverlapPreflight =
+                scanCrossArmTargetPath(
+                    world,
+                    receiverPreloaded.result.finalQ,
+                    receiverPreloadOverlapReload.finalTarget,
+                    receiverPreloadOverlapReloadSteps,
+                    receiverPreloadOverlapReload.desiredQ
+                );
+            require(
+                receiverPreloadOverlapPreflight.samplesWithContact == 0u &&
+                    receiverPreloadOverlapPreflight
+                            .samplesWithGiverPadContact == 0u &&
+                    receiverPreloadOverlapPreflight
+                            .samplesWithReceiverPadContact == 0u,
+                "receiver gentle-overlap reload intersects an instrument "
+                "or the table"
+            );
+            PhaseResult receiverPreloadOverlapReloaded = continuePhase(
+                context,
+                compiled,
+                stepConfig,
+                resident,
+                receiverPreloadOverlapReload.efforts,
+                receiverPreloadOverlapReloadSteps,
+                "receiver preload gentle-overlap reload"
+            );
+            receiverPreloadSuccessfulSteps +=
+                receiverPreloadOverlapReloaded
+                    .diagnostics.successfulStepCount;
+            receiverPreloadGpuMilliseconds +=
+                receiverPreloadOverlapReloaded
+                    .diagnostics.gpuElapsedMilliseconds;
+            receiverPreloaded = std::move(receiverPreloadOverlapReloaded);
+            receiverPreloadHoldTarget =
+                receiverPreloadOverlapReload.finalTarget;
+            receiverPreloadAudit = auditReceiverPreload(
+                receiverPreloaded,
+                receiverPreloadSettleSteps
+            );
+            require(
+                bilateral(receiverPreloadAudit->contacts, 0u) &&
+                    transverseInsertCoverage(
+                        receiverPreloadAudit->contacts,
+                        0u
+                    ) &&
+                    bilateral(receiverPreloadAudit->contacts, 1u) &&
+                    distributedInsertCoverage(
+                        receiverPreloadAudit->contacts,
+                        1u
+                    ) &&
+                    cleanNeedleInteraction(
+                        receiverPreloadAudit->contacts,
+                        true,
+                        true
+                    ) &&
+                    receiverPreloadAudit->giver.seatDrift <=
+                        kMaximumTransitionGraspReseating &&
+                    receiverPreloadAudit->receiver.seatDrift <=
+                        kMaximumTransitionGraspReseating &&
+                    qualifiedTransitionRod(receiverPreloadAudit->rod) &&
+                    receiverPreloadAudit->swageError <
+                        kMaximumSwageAttachmentError &&
+                    receiverPreloadAudit->swageTangentError <
+                        maximumSwageTangentAngleError(world),
+                "receiver gentle-overlap reload snapped or lost distributed "
+                "dual control"
+            );
+            writeHandoffStateArtifact(
+                options.stateOutputDirectory,
+                "receiver-preload-regrasp-overlap-motion",
+                preReleaseSuccessfulSteps + receiverPreloadMotionSteps +
+                    receiverPreloadSettleSteps +
+                    receiverPreloadGiverLatchSteps +
+                    receiverPreloadGiverLatchSettleSteps +
+                    receiverPreloadUnloadSteps +
+                    receiverPreloadReleaseSettleSteps +
+                    receiverPreloadReseatSteps +
+                    receiverPreloadLowForceSettleSteps +
+                    receiverPreloadOverlapReloadSteps,
+                world,
+                sutureSpec,
+                receiverPreloaded.result
+            );
+            std::uint32_t consecutiveQualifiedOverlapProofs = 0u;
+            do {
+                require(
+                    receiverPreloadOverlapSettleSteps <
+                        kLoadExchangeMaximumSettleSteps,
+                    "receiver gentle-overlap reload did not converge"
+                );
+                const std::uint32_t extensionSteps = std::min(
+                    receiverPreloadOverlapSettleSteps == 0u
+                        ? kReceiverClosureSettleSteps
+                        : kLoadExchangeSettleSteps,
+                    kLoadExchangeMaximumSettleSteps -
+                        receiverPreloadOverlapSettleSteps
+                );
+                efforts = interpolateTargets(
+                    world.model,
+                    receiverPreloaded.result.finalQ,
+                    receiverPreloadHoldTarget,
+                    extensionSteps
+                );
+                PhaseResult overlapProof = continuePhase(
+                    context,
+                    compiled,
+                    stepConfig,
+                    resident,
+                    efforts,
+                    extensionSteps,
+                    "receiver preload gentle-overlap proof"
+                );
+                receiverPreloadSuccessfulSteps +=
+                    overlapProof.diagnostics.successfulStepCount;
+                receiverPreloadGpuMilliseconds +=
+                    overlapProof.diagnostics.gpuElapsedMilliseconds;
+                receiverPreloadOverlapSettleSteps += extensionSteps;
+                receiverPreloaded = std::move(overlapProof);
+                receiverPreloadAudit = auditReceiverPreload(
+                    receiverPreloaded,
+                    receiverPreloadOverlapSettleSteps
+                );
+                consecutiveQualifiedOverlapProofs =
+                    receiverPreloadAudit->qualified
+                    ? consecutiveQualifiedOverlapProofs + 1u
+                    : 0u;
+            } while (consecutiveQualifiedOverlapProofs < 2u);
+            writeHandoffStateArtifact(
+                options.stateOutputDirectory,
+                "receiver-preload-regrasp-overlap",
+                preReleaseSuccessfulSteps + receiverPreloadMotionSteps +
+                    receiverPreloadSettleSteps +
+                    receiverPreloadGiverLatchSteps +
+                    receiverPreloadGiverLatchSettleSteps +
+                    receiverPreloadUnloadSteps +
+                    receiverPreloadReleaseSettleSteps +
+                    receiverPreloadReseatSteps +
+                    receiverPreloadLowForceSettleSteps +
+                    receiverPreloadOverlapReloadSteps +
+                    receiverPreloadOverlapSettleSteps,
+                world,
+                sutureSpec,
+                receiverPreloaded.result
+            );
+            std::cerr << "handoff_phase=receiver_preload_regrasp_overlap"
+                << " reload_steps="
+                << receiverPreloadOverlapReloadSteps
+                << " proof_steps="
+                << receiverPreloadOverlapSettleSteps
+                << " command_velocity_ratio="
+                << receiverPreloadOverlapReload.maximumVelocityRatio
+                << contactSummary(receiverPreloadAudit->contacts) << '\n';
+
+            // With gentle dual control now persistent, add only the remaining
+            // 45 um diametral preload while both insert frames stay fixed.
+            const std::vector<double> reloadGiverQ =
+                armLocalQ(world.model, 0u, receiverPreloaded.result.finalQ);
+            const std::vector<double> reloadReceiverQ =
+                armLocalQ(world.model, 1u, receiverPreloaded.result.finalQ);
+            receiverPreloadReloadSteps =
+                static_cast<std::uint32_t>(std::ceil(
+                    3.0 * std::abs(closeJawCoordinate - reloadReceiverQ[7]) /
+                    (kLoadExchangeRelativeJawSpeedRadPerS * kControlTimestep)
+                )) +
+                4u;
+            const ArmTrajectory receiverPreloadReload =
+                coordinatedNeedleLoadExchangeTrajectory(
+                    world.model,
+                    psm,
+                    receiverPreloaded.result.finalQ,
+                    reloadGiverQ[7],
+                    closeJawCoordinate,
+                    receiverPreloadReloadSteps
+                );
+            require(
+                receiverPreloadReload.maximumVelocityRatio <=
+                    kMaximumCommandVelocityRatio,
+                "receiver preload reload exceeds the PSM command envelope"
+            );
+            const CrossArmCollisionScan receiverPreloadReloadPreflight =
+                scanCrossArmTargetPath(
+                    world,
+                    receiverPreloaded.result.finalQ,
+                    receiverPreloadReload.finalTarget,
+                    receiverPreloadReloadSteps,
+                    receiverPreloadReload.desiredQ
+                );
+            require(
+                receiverPreloadReloadPreflight.samplesWithContact == 0u &&
+                    receiverPreloadReloadPreflight.samplesWithGiverPadContact ==
+                        0u &&
+                    receiverPreloadReloadPreflight
+                            .samplesWithReceiverPadContact == 0u,
+                "receiver preload reload intersects an instrument or the "
+                "table"
+            );
+            PhaseResult receiverPreloadReloaded = continuePhase(
+                context,
+                compiled,
+                stepConfig,
+                resident,
+                receiverPreloadReload.efforts,
+                receiverPreloadReloadSteps,
+                "receiver preload controlled reload"
+            );
+            receiverPreloadSuccessfulSteps +=
+                receiverPreloadReloaded.diagnostics.successfulStepCount;
+            receiverPreloadGpuMilliseconds +=
+                receiverPreloadReloaded.diagnostics.gpuElapsedMilliseconds;
+            receiverPreloaded = std::move(receiverPreloadReloaded);
+            receiverPreloadHoldTarget = receiverPreloadReload.finalTarget;
+            receiverPreloadAudit = auditReceiverPreload(
+                receiverPreloaded, receiverPreloadSettleSteps
+            );
+            require(
+                bilateral(receiverPreloadAudit->contacts, 0u) &&
+                    transverseInsertCoverage(
+                        receiverPreloadAudit->contacts, 0u
+                    ) &&
+                    bilateral(receiverPreloadAudit->contacts, 1u) &&
+                    distributedInsertCoverage(
+                        receiverPreloadAudit->contacts, 1u
+                    ) &&
+                    cleanNeedleInteraction(
+                        receiverPreloadAudit->contacts, true, true
+                    ) &&
+                    receiverPreloadAudit->giver.seatDrift <=
+                        kMaximumTransitionGraspReseating &&
+                    receiverPreloadAudit->receiver.seatDrift <=
+                        kMaximumTransitionGraspReseating &&
+                    qualifiedTransitionRod(receiverPreloadAudit->rod) &&
+                    receiverPreloadAudit->swageError <
+                        kMaximumSwageAttachmentError &&
+                    receiverPreloadAudit->swageTangentError <
+                        maximumSwageTangentAngleError(world),
+                "receiver preload reload did not retain distributed dual "
+                "control"
+            );
+            consecutiveQualifiedReceiverPreloadProofs = 0u;
+            std::cerr << "handoff_phase=receiver_preload_reload"
+                      << " reload_steps=" << receiverPreloadReloadSteps
+                      << " command_velocity_ratio="
+                      << receiverPreloadReload.maximumVelocityRatio
+                      << contactSummary(receiverPreloadAudit->contacts) << '\n';
+
+            // The stronger giver latch exists only while the receiver is
+            // released. Once distributed receiver control is restored, return
+            // the giver to the standard 60 um exchange preload at a fixed
+            // frame before starting the ordinary load exchange.
+            const std::vector<double> unlatchGiverQ =
+                armLocalQ(world.model, 0u, receiverPreloaded.result.finalQ);
+            const std::vector<double> unlatchReceiverQ =
+                armLocalQ(world.model, 1u, receiverPreloaded.result.finalQ);
+            receiverPreloadGiverUnlatchSteps =
+                static_cast<std::uint32_t>(std::ceil(
+                    3.0 * std::abs(closeJawCoordinate - unlatchGiverQ[7]) /
+                    (kLoadExchangeRelativeJawSpeedRadPerS * kControlTimestep)
+                )) +
+                4u;
+            const ArmTrajectory giverUnlatch =
+                coordinatedNeedleLoadExchangeTrajectory(
+                    world.model,
+                    psm,
+                    receiverPreloaded.result.finalQ,
+                    closeJawCoordinate,
+                    unlatchReceiverQ[7],
+                    receiverPreloadGiverUnlatchSteps
+                );
+            require(
+                giverUnlatch.maximumVelocityRatio <=
+                    kMaximumCommandVelocityRatio,
+                "receiver correction giver unlatch exceeds the PSM command "
+                "envelope"
+            );
+            const CrossArmCollisionScan giverUnlatchPreflight =
+                scanCrossArmTargetPath(
+                    world,
+                    receiverPreloaded.result.finalQ,
+                    giverUnlatch.finalTarget,
+                    receiverPreloadGiverUnlatchSteps,
+                    giverUnlatch.desiredQ
+                );
+            require(
+                giverUnlatchPreflight.samplesWithContact == 0u &&
+                    giverUnlatchPreflight.samplesWithGiverPadContact == 0u &&
+                    giverUnlatchPreflight.samplesWithReceiverPadContact == 0u,
+                "receiver correction giver unlatch intersects an instrument "
+                "or the table"
+            );
+            PhaseResult giverUnlatched = continuePhase(
+                context,
+                compiled,
+                stepConfig,
+                resident,
+                giverUnlatch.efforts,
+                receiverPreloadGiverUnlatchSteps,
+                "receiver correction giver transport unlatch"
+            );
+            receiverPreloadSuccessfulSteps +=
+                giverUnlatched.diagnostics.successfulStepCount;
+            receiverPreloadGpuMilliseconds +=
+                giverUnlatched.diagnostics.gpuElapsedMilliseconds;
+            receiverPreloaded = std::move(giverUnlatched);
+            receiverPreloadHoldTarget = giverUnlatch.finalTarget;
+            receiverPreloadAudit = auditReceiverPreload(
+                receiverPreloaded, receiverPreloadSettleSteps
+            );
+            require(
+                bilateral(receiverPreloadAudit->contacts, 0u) &&
+                    distributedInsertCoverage(
+                        receiverPreloadAudit->contacts, 0u
+                    ) &&
+                    bilateral(receiverPreloadAudit->contacts, 1u) &&
+                    distributedInsertCoverage(
+                        receiverPreloadAudit->contacts, 1u
+                    ) &&
+                    cleanNeedleInteraction(
+                        receiverPreloadAudit->contacts, true, true
+                    ) &&
+                    receiverPreloadAudit->giver.seatDrift <=
+                        kMaximumTransitionGraspReseating &&
+                    receiverPreloadAudit->receiver.seatDrift <=
+                        kMaximumTransitionGraspReseating &&
+                    qualifiedTransitionRod(receiverPreloadAudit->rod) &&
+                    receiverPreloadAudit->swageError <
+                        kMaximumSwageAttachmentError &&
+                    receiverPreloadAudit->swageTangentError <
+                        maximumSwageTangentAngleError(world),
+                "temporary giver transport unlatch lost distributed dual "
+                "control"
+            );
+            do {
+                require(
+                    receiverPreloadGiverUnlatchSettleSteps <
+                        kLoadExchangeMaximumSettleSteps,
+                    "temporary giver transport unlatch did not converge"
+                );
+                const std::uint32_t extensionSteps = std::min(
+                    kLoadExchangeSettleSteps,
+                    kLoadExchangeMaximumSettleSteps -
+                        receiverPreloadGiverUnlatchSettleSteps
+                );
+                efforts = interpolateTargets(
+                    world.model,
+                    receiverPreloaded.result.finalQ,
+                    receiverPreloadHoldTarget,
+                    extensionSteps
+                );
+                PhaseResult unlatchProof = continuePhase(
+                    context,
+                    compiled,
+                    stepConfig,
+                    resident,
+                    efforts,
+                    extensionSteps,
+                    "receiver correction giver unlatch proof"
+                );
+                receiverPreloadSuccessfulSteps +=
+                    unlatchProof.diagnostics.successfulStepCount;
+                receiverPreloadGpuMilliseconds +=
+                    unlatchProof.diagnostics.gpuElapsedMilliseconds;
+                receiverPreloadGiverUnlatchSettleSteps += extensionSteps;
+                receiverPreloaded = std::move(unlatchProof);
+                receiverPreloadAudit = auditReceiverPreload(
+                    receiverPreloaded,
+                    receiverPreloadSettleSteps
+                );
+            } while (
+                receiverPreloadGiverUnlatchSettleSteps <
+                    kLoadExchangeSettleSteps ||
+                !receiverPreloadAudit->qualified
+            );
+            writeHandoffStateArtifact(
+                options.stateOutputDirectory,
+                "receiver-preload-giver-unlatched",
+                preReleaseSuccessfulSteps + receiverPreloadMotionSteps +
+                    receiverPreloadSettleSteps +
+                    receiverPreloadGiverLatchSteps +
+                    receiverPreloadGiverLatchSettleSteps +
+                    receiverPreloadUnloadSteps +
+                    receiverPreloadReleaseSettleSteps +
+                    receiverPreloadReseatSteps +
+                    receiverPreloadLowForceSettleSteps +
+                    receiverPreloadOverlapReloadSteps +
+                    receiverPreloadOverlapSettleSteps +
+                    receiverPreloadReloadSteps +
+                    receiverPreloadGiverUnlatchSteps +
+                    receiverPreloadGiverUnlatchSettleSteps,
+                world,
+                sutureSpec,
+                receiverPreloaded.result
+            );
+            std::cerr << "handoff_phase=receiver_preload_giver_unlatched"
+                << " unlatch_steps="
+                << receiverPreloadGiverUnlatchSteps
+                << " proof_steps="
+                << receiverPreloadGiverUnlatchSettleSteps
+                << contactSummary(receiverPreloadAudit->contacts) << '\n';
+        }
+        while (
+            consecutiveQualifiedReceiverPreloadProofs < 2u &&
+            receiverPreloadSettleSteps <
+                kLoadExchangeMaximumSettleSteps
+        ) {
+            const std::uint32_t extensionSteps = std::min(
+                kLoadExchangeSettleSteps,
+                kLoadExchangeMaximumSettleSteps -
+                    receiverPreloadSettleSteps
+            );
+            efforts = interpolateTargets(
+                world.model,
+                receiverPreloaded.result.finalQ,
+                receiverPreloadHoldTarget,
+                extensionSteps
+            );
+            PhaseResult extension = continuePhase(
+                context,
+                compiled,
+                stepConfig,
+                resident,
+                efforts,
+                extensionSteps,
+                "receiver preload proof extension"
+            );
+            receiverPreloadSuccessfulSteps +=
+                extension.diagnostics.successfulStepCount;
+            receiverPreloadGpuMilliseconds +=
+                extension.diagnostics.gpuElapsedMilliseconds;
+            receiverPreloadSettleSteps += extensionSteps;
+            receiverPreloaded = std::move(extension);
+            receiverPreloadAudit = auditReceiverPreload(
+                receiverPreloaded,
+                receiverPreloadSettleSteps
+            );
+            consecutiveQualifiedReceiverPreloadProofs =
+                receiverPreloadAudit->qualified
+                ? consecutiveQualifiedReceiverPreloadProofs + 1u
+                : 0u;
+        }
+        require(
+            consecutiveQualifiedReceiverPreloadProofs >= 2u,
+            "receiver preload did not reach two consecutive quiescent "
+            "dual-control completions"
+        );
+        receiverPreloaded.diagnostics.successfulStepCount =
+            receiverPreloadSuccessfulSteps;
+        receiverPreloaded.diagnostics.gpuElapsedMilliseconds =
+            receiverPreloadGpuMilliseconds;
+        writeHandoffStateArtifact(
+            options.stateOutputDirectory,
+            "receiver-preload",
+            preReleaseSuccessfulSteps + receiverPreloadMotionSteps +
+                receiverPreloadGiverLatchSteps +
+                receiverPreloadGiverLatchSettleSteps +
+                receiverPreloadUnloadSteps +
+                receiverPreloadReleaseSettleSteps +
+                receiverPreloadReseatSteps +
+                receiverPreloadLowForceSettleSteps +
+                receiverPreloadOverlapReloadSteps +
+                receiverPreloadOverlapSettleSteps +
+                receiverPreloadReloadSteps +
+                receiverPreloadGiverUnlatchSteps +
+                receiverPreloadGiverUnlatchSettleSteps +
+                receiverPreloadSettleSteps,
+            world,
+            sutureSpec,
+            receiverPreloaded.result
+        );
+        preReleaseSuccessfulSteps +=
+            receiverPreloadMotionSuccessfulSteps +
+            receiverPreloaded.diagnostics.successfulStepCount;
+        preReleaseGpuMilliseconds +=
+            receiverPreloadMotionGpuMilliseconds +
+            receiverPreloaded.diagnostics.gpuElapsedMilliseconds;
+        targetStart = receiverPreloaded.result.finalQ;
+        target = targetStart;
+
         std::vector<float> uncompensatedLoadExchangeTarget = targetStart;
         auto giverLoadExchanged = armLocalQ(
             world.model,
             0u,
-            overlap.result.finalQ
+            targetStart
         );
         giverLoadExchanged[6] = -receiverOverlapJawCoordinate;
         giverLoadExchanged[7] = receiverOverlapJawCoordinate;
         auto receiverLoadExchanged = armLocalQ(
             world.model,
             1u,
-            overlap.result.finalQ
+            targetStart
         );
         receiverLoadExchanged[6] = -closeJawCoordinate;
         receiverLoadExchanged[7] = closeJawCoordinate;
@@ -33835,10 +35886,6 @@ int main(const int argc, const char* const argv[]) {
             world.model,
             1u,
             receiverLoadExchanged
-        );
-        const std::vector<float> zeroLoadExchangeVelocity(
-            world.model.world.nv,
-            0.0f
         );
         const JawGeometry giverLoadStartJaw = worldJawGeometry(
             world.model,
@@ -34169,13 +36216,23 @@ int main(const int argc, const char* const argv[]) {
                 loadExchanged,
                 loadExchangeSettleStepsThisRun
             );
+        writeHandoffStateArtifact(
+            options.stateOutputDirectory,
+            "load-exchange-candidate",
+            preReleaseSuccessfulSteps + loadExchangeSuccessfulSteps,
+            world,
+            sutureSpec,
+            loadExchanged.result
+        );
         std::uint32_t consecutiveQualifiedLoadExchangeProofs =
             loadExchangeAudit->qualified ? 1u : 0u;
-        while (
-            consecutiveQualifiedLoadExchangeProofs < 2u &&
-            loadExchangeSettleStepsThisRun <
-                kLoadExchangeMaximumSettleSteps
-        ) {
+        std::uint32_t consecutiveOneRowLoadExchangeProofs =
+            distributedInsertCoverage(loadExchangeAudit->contacts, 1u)
+            ? 0u
+            : 1u;
+        std::uint32_t loadExchangeCorrectionMotionSteps = 0u;
+        std::uint32_t loadExchangeCorrectionSettleSteps = 0u;
+        const auto advanceLoadExchangeProof = [&] {
             const std::uint32_t extensionSteps = std::min(
                 kLoadExchangeSettleSteps,
                 kLoadExchangeMaximumSettleSteps -
@@ -34210,6 +36267,622 @@ int main(const int argc, const char* const argv[]) {
                 loadExchangeAudit->qualified
                 ? consecutiveQualifiedLoadExchangeProofs + 1u
                 : 0u;
+            consecutiveOneRowLoadExchangeProofs =
+                distributedInsertCoverage(
+                    loadExchangeAudit->contacts,
+                    1u
+                )
+                ? 0u
+                : consecutiveOneRowLoadExchangeProofs + 1u;
+            writeHandoffStateArtifact(
+                options.stateOutputDirectory,
+                "load-exchange-candidate",
+                preReleaseSuccessfulSteps + loadExchangeSuccessfulSteps,
+                world,
+                sutureSpec,
+                loadExchanged.result
+            );
+        };
+        while (
+            consecutiveQualifiedLoadExchangeProofs < 2u &&
+            consecutiveOneRowLoadExchangeProofs < 2u &&
+            loadExchangeSettleStepsThisRun <
+                kLoadExchangeMaximumSettleSteps
+        ) {
+            advanceLoadExchangeProof();
+        }
+        if (consecutiveOneRowLoadExchangeProofs >= 2u) {
+            const auto safeLoadExchangeTransition = [&] (
+                const bool requireDistributedReceiver
+            ) {
+                return
+                    bilateral(loadExchangeAudit->contacts, 0u) &&
+                    transverseInsertCoverage(
+                        loadExchangeAudit->contacts,
+                        0u
+                    ) &&
+                    bilateral(loadExchangeAudit->contacts, 1u) &&
+                    transverseInsertCoverage(
+                        loadExchangeAudit->contacts,
+                        1u
+                    ) &&
+                    (!requireDistributedReceiver ||
+                     distributedInsertCoverage(
+                         loadExchangeAudit->contacts,
+                         1u
+                     )) &&
+                    cleanNeedleInteraction(
+                        loadExchangeAudit->contacts,
+                        true,
+                        true
+                    ) &&
+                    qualifiedTransitionGrasp(
+                        loadExchangeAudit->giverMotion
+                    ) &&
+                    qualifiedTransitionGrasp(
+                        loadExchangeAudit->receiverMotion
+                    ) &&
+                    qualifiedTransitionRod(loadExchangeAudit->rod) &&
+                    loadExchangeAudit->rod.clampedRootSpeedValid &&
+                    loadExchangeAudit->rod.maximumClampedRootSpeed <=
+                        kMaximumSettledSwageRootSpeed &&
+                    loadExchangeAudit->needleLinearSpeed <=
+                        kMaximumSettledNeedleLinearSpeed &&
+                    loadExchangeAudit->needleAngularSpeed <=
+                        kMaximumSettledNeedleAngularSpeed &&
+                    loadExchangeAudit->swageError <
+                        kMaximumSwageAttachmentError &&
+                    loadExchangeAudit->swageTangentError <
+                        maximumSwageTangentAngleError(world) &&
+                    loadExchangeAudit->residual.residuals.y <=
+                        kMaximumTerminalContactVelocityResidual &&
+                    loadExchangeAudit->residual.residuals.z <=
+                        kMaximumTerminalConeViolation;
+            };
+            require(
+                safeLoadExchangeTransition(false),
+                "persistent one-row load exchange lost more than receiver "
+                "longitudinal centering"
+            );
+
+            const auto runFixedFrameLoadChange = [&] (
+                const double giverEndJawCoordinate,
+                const double receiverEndJawCoordinate,
+                const std::string& phaseName,
+                const std::string& artifactPhase
+            ) {
+                const std::vector<double> currentGiverQ = armLocalQ(
+                    world.model,
+                    0u,
+                    loadExchanged.result.finalQ
+                );
+                const std::vector<double> currentReceiverQ = armLocalQ(
+                    world.model,
+                    1u,
+                    loadExchanged.result.finalQ
+                );
+                const double maximumJawTravel = std::max(
+                    std::abs(giverEndJawCoordinate - currentGiverQ[7]),
+                    std::abs(
+                        receiverEndJawCoordinate - currentReceiverQ[7]
+                    )
+                );
+                const std::uint32_t motionSteps =
+                    static_cast<std::uint32_t>(std::ceil(
+                        3.0 * maximumJawTravel / (
+                            kLoadExchangeRelativeJawSpeedRadPerS *
+                            kControlTimestep
+                        )
+                    )) + 4u;
+                const ArmTrajectory trajectory =
+                    coordinatedNeedleLoadExchangeTrajectory(
+                        world.model,
+                        psm,
+                        loadExchanged.result.finalQ,
+                        giverEndJawCoordinate,
+                        receiverEndJawCoordinate,
+                        motionSteps
+                    );
+                require(
+                    trajectory.maximumVelocityRatio <=
+                        kMaximumCommandVelocityRatio,
+                    phaseName + " exceeds the PSM command envelope"
+                );
+                const CrossArmCollisionScan preflight =
+                    scanCrossArmTargetPath(
+                        world,
+                        loadExchanged.result.finalQ,
+                        trajectory.finalTarget,
+                        motionSteps,
+                        trajectory.desiredQ
+                    );
+                require(
+                    preflight.samplesWithContact == 0u &&
+                        preflight.samplesWithGiverPadContact == 0u &&
+                        preflight.samplesWithReceiverPadContact == 0u,
+                    phaseName + " intersects an instrument or the table"
+                );
+                PhaseResult phase = continuePhase(
+                    context,
+                    compiled,
+                    stepConfig,
+                    resident,
+                    trajectory.efforts,
+                    motionSteps,
+                    phaseName
+                );
+                loadExchangeSuccessfulSteps +=
+                    phase.diagnostics.successfulStepCount;
+                loadExchangeGpuMilliseconds +=
+                    phase.diagnostics.gpuElapsedMilliseconds;
+                loadExchangeCorrectionMotionSteps += motionSteps;
+                loadExchanged = std::move(phase);
+                target = trajectory.finalTarget;
+                loadExchangeAudit = auditLoadExchange(
+                    loadExchanged,
+                    loadExchangeSettleStepsThisRun
+                );
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    artifactPhase,
+                    preReleaseSuccessfulSteps +
+                        loadExchangeSuccessfulSteps,
+                    world,
+                    sutureSpec,
+                    loadExchanged.result
+                );
+                std::cerr << "handoff_phase=" << artifactPhase
+                    << " motion_steps=" << motionSteps
+                    << " command_velocity_ratio="
+                    << trajectory.maximumVelocityRatio
+                    << contactSummary(loadExchangeAudit->contacts) << '\n';
+            };
+            const auto settleCorrectiveLoadChange = [&] (
+                const bool requireDistributedReceiver,
+                const std::string& phaseName,
+                const std::string& artifactPhase
+            ) {
+                while (
+                    !safeLoadExchangeTransition(
+                        requireDistributedReceiver
+                    ) &&
+                    loadExchangeSettleStepsThisRun <
+                        kLoadExchangeMaximumSettleSteps
+                ) {
+                    const std::uint32_t extensionSteps = std::min(
+                        kLoadExchangeSettleSteps,
+                        kLoadExchangeMaximumSettleSteps -
+                            loadExchangeSettleStepsThisRun
+                    );
+                    efforts = interpolateTargets(
+                        world.model,
+                        loadExchanged.result.finalQ,
+                        target,
+                        extensionSteps
+                    );
+                    PhaseResult settled = continuePhase(
+                        context,
+                        compiled,
+                        stepConfig,
+                        resident,
+                        efforts,
+                        extensionSteps,
+                        phaseName
+                    );
+                    loadExchangeSuccessfulSteps +=
+                        settled.diagnostics.successfulStepCount;
+                    loadExchangeGpuMilliseconds +=
+                        settled.diagnostics.gpuElapsedMilliseconds;
+                    loadExchangeCorrectionSettleSteps += extensionSteps;
+                    loadExchangeSettleStepsThisRun += extensionSteps;
+                    loadExchanged = std::move(settled);
+                    loadExchangeAudit = auditLoadExchange(
+                        loadExchanged,
+                        loadExchangeSettleStepsThisRun
+                    );
+                    writeHandoffStateArtifact(
+                        options.stateOutputDirectory,
+                        artifactPhase,
+                        preReleaseSuccessfulSteps +
+                            loadExchangeSuccessfulSteps,
+                        world,
+                        sutureSpec,
+                        loadExchanged.result
+                    );
+                }
+                require(
+                    safeLoadExchangeTransition(
+                        requireDistributedReceiver
+                    ),
+                    phaseName + " did not converge to bounded dual control"
+                );
+            };
+
+            // Restore the effort-bounded transport latch on the giver before
+            // changing the receiver seat; the standard exchange preload was
+            // friction-limited during an actual receiver release.
+            const std::vector<double> receiverBeforeGiverReload = armLocalQ(
+                world.model,
+                1u,
+                loadExchanged.result.finalQ
+            );
+            runFixedFrameLoadChange(
+                receiverTransportJawCoordinate,
+                receiverBeforeGiverReload[7],
+                "load-exchange corrective giver reload",
+                "load-exchange-correction-giver-reloaded"
+            );
+            settleCorrectiveLoadChange(
+                false,
+                "load-exchange corrective giver reload proof",
+                "load-exchange-correction-giver-reloaded-settled"
+            );
+
+            const JawGeometry engagedCorrectiveReceiverJaw =
+                worldJawGeometry(
+                    world.model,
+                    1u,
+                    loadExchanged.result.finalQ,
+                    loadExchanged.result.finalV
+                );
+            const GraspFrameTarget desiredCorrectiveReceiverFrame =
+                graspFrameTarget(
+                    needleForPlacement,
+                    loadExchanged.result.finalSceneBodies.at(0u),
+                    kReceiverNeedleShape,
+                    *receiverGraspReference
+                );
+            (void)missingLongitudinalRowCorrection(
+                loadExchangeAudit->contacts,
+                1u,
+                engagedCorrectiveReceiverJaw,
+                desiredCorrectiveReceiverFrame.midpoint,
+                psm
+            );
+
+            const std::vector<double> giverBeforeReceiverUnload = armLocalQ(
+                world.model,
+                0u,
+                loadExchanged.result.finalQ
+            );
+            runFixedFrameLoadChange(
+                giverBeforeReceiverUnload[7],
+                receiverRegraspJawCoordinate,
+                "load-exchange corrective receiver unload",
+                "load-exchange-correction-receiver-unloaded"
+            );
+            const auto receiverReleasedDuringLoadExchange = [&] {
+                return
+                    bilateral(loadExchangeAudit->contacts, 0u) &&
+                    transverseInsertCoverage(
+                        loadExchangeAudit->contacts,
+                        0u
+                    ) &&
+                    loadExchangeAudit->contacts
+                            .jawContacts[1][0] == 0u &&
+                    loadExchangeAudit->contacts
+                            .jawContacts[1][1] == 0u &&
+                    cleanNeedleInteraction(
+                        loadExchangeAudit->contacts,
+                        true,
+                        false
+                    ) &&
+                    qualifiedTransitionGrasp(
+                        loadExchangeAudit->giverMotion
+                    ) &&
+                    qualifiedTransitionRod(loadExchangeAudit->rod) &&
+                    loadExchangeAudit->rod.clampedRootSpeedValid &&
+                    loadExchangeAudit->rod.maximumClampedRootSpeed <=
+                        kMaximumSettledSwageRootSpeed &&
+                    loadExchangeAudit->needleLinearSpeed <=
+                        kMaximumSettledNeedleLinearSpeed &&
+                    loadExchangeAudit->needleAngularSpeed <=
+                        kMaximumSettledNeedleAngularSpeed &&
+                    loadExchangeAudit->swageError <
+                        kMaximumSwageAttachmentError &&
+                    loadExchangeAudit->swageTangentError <
+                        maximumSwageTangentAngleError(world) &&
+                    loadExchangeAudit->residual.residuals.y <=
+                        kMaximumTerminalContactVelocityResidual &&
+                    loadExchangeAudit->residual.residuals.z <=
+                        kMaximumTerminalConeViolation;
+            };
+            std::uint32_t receiverReleaseProofSteps = 0u;
+            do {
+                require(
+                    loadExchangeSettleStepsThisRun <
+                        kLoadExchangeMaximumSettleSteps,
+                    "load-exchange receiver release did not converge under "
+                    "giver authority"
+                );
+                const std::uint32_t extensionSteps = std::min(
+                    kLoadExchangeSettleSteps,
+                    kLoadExchangeMaximumSettleSteps -
+                        loadExchangeSettleStepsThisRun
+                );
+                efforts = interpolateTargets(
+                    world.model,
+                    loadExchanged.result.finalQ,
+                    target,
+                    extensionSteps
+                );
+                PhaseResult releaseProof = continuePhase(
+                    context,
+                    compiled,
+                    stepConfig,
+                    resident,
+                    efforts,
+                    extensionSteps,
+                    "load-exchange corrective receiver release proof"
+                );
+                loadExchangeSuccessfulSteps +=
+                    releaseProof.diagnostics.successfulStepCount;
+                loadExchangeGpuMilliseconds +=
+                    releaseProof.diagnostics.gpuElapsedMilliseconds;
+                loadExchangeCorrectionSettleSteps += extensionSteps;
+                loadExchangeSettleStepsThisRun += extensionSteps;
+                receiverReleaseProofSteps += extensionSteps;
+                loadExchanged = std::move(releaseProof);
+                loadExchangeAudit = auditLoadExchange(
+                    loadExchanged,
+                    loadExchangeSettleStepsThisRun
+                );
+            } while (
+                receiverReleaseProofSteps < kLoadExchangeSettleSteps ||
+                !receiverReleasedDuringLoadExchange()
+            );
+            writeHandoffStateArtifact(
+                options.stateOutputDirectory,
+                "load-exchange-correction-receiver-unloaded-settled",
+                preReleaseSuccessfulSteps + loadExchangeSuccessfulSteps,
+                world,
+                sutureSpec,
+                loadExchanged.result
+            );
+
+            const JawGeometry correctiveReceiverJaw = worldJawGeometry(
+                world.model,
+                1u,
+                loadExchanged.result.finalQ,
+                loadExchanged.result.finalV
+            );
+            const GraspFrameTarget releasedCorrectiveReceiverFrame =
+                graspFrameTarget(
+                    needleForPlacement,
+                    loadExchanged.result.finalSceneBodies.at(0u),
+                    kReceiverNeedleShape,
+                    *receiverGraspReference
+                );
+            const Vec3 correctiveReceiverRowCorrection =
+                longitudinalGraspFrameCorrection(
+                    correctiveReceiverJaw,
+                    releasedCorrectiveReceiverFrame.midpoint,
+                    psm
+                );
+            const Vec3 correctiveReceiverTarget =
+                correctiveReceiverJaw.midpoint +
+                correctiveReceiverRowCorrection;
+            const double correctiveReceiverDistanceM = norm(
+                correctiveReceiverRowCorrection
+            );
+            require(
+                correctiveReceiverDistanceM > 0.0 &&
+                    correctiveReceiverDistanceM <=
+                        kMaximumTransitionGraspReseating,
+                "load-exchange receiver recenter is outside the accepted "
+                "transition envelope"
+            );
+            std::uint32_t correctiveReceiverSteps =
+                std::max<std::uint32_t>(
+                    kLoadExchangeSettleSteps,
+                    static_cast<std::uint32_t>(std::ceil(
+                        1.5 * correctiveReceiverDistanceM /
+                        (
+                            kReceiverPreloadReseatSpeedMps *
+                            kControlTimestep
+                        )
+                    )) + 4u
+                );
+            const std::vector<double> correctiveReceiverQ = armLocalQ(
+                world.model,
+                1u,
+                loadExchanged.result.finalQ
+            );
+            const auto makeCorrectiveReceiverRecenter = [&] (
+                const std::uint32_t steps
+            ) {
+                return frameArmTrajectory(
+                    world.model,
+                    psm,
+                    1u,
+                    armBasePose(
+                        world.model,
+                        1u,
+                        loadExchanged.result.finalQ
+                    ),
+                    loadExchanged.result.finalQ,
+                    correctiveReceiverJaw.midpoint,
+                    correctiveReceiverTarget,
+                    correctiveReceiverJaw.railDirection,
+                    correctiveReceiverJaw.separationDirection,
+                    correctiveReceiverQ[7],
+                    receiverRegraspJawCoordinate,
+                    steps
+                );
+            };
+            ArmTrajectory correctiveReceiverRecenter =
+                makeCorrectiveReceiverRecenter(correctiveReceiverSteps);
+            while (
+                correctiveReceiverRecenter.maximumVelocityRatio >
+                    kMaximumCommandVelocityRatio
+            ) {
+                require(
+                    std::isfinite(
+                        correctiveReceiverRecenter.maximumVelocityRatio
+                    ) &&
+                        correctiveReceiverRecenter.maximumVelocityRatio > 0.0,
+                    "load-exchange receiver recenter produced an invalid PSM "
+                    "joint velocity"
+                );
+                const std::uint32_t endpointLimitedSteps =
+                    velocityLimitedTargetSteps(
+                        world.model,
+                        loadExchanged.result.finalQ,
+                        correctiveReceiverRecenter.finalTarget,
+                        correctiveReceiverSteps
+                    );
+                const std::uint32_t measuredLimitedSteps =
+                    static_cast<std::uint32_t>(std::ceil(
+                        1.05 * correctiveReceiverSteps *
+                        correctiveReceiverRecenter.maximumVelocityRatio /
+                        kMaximumCommandVelocityRatio
+                    )) + 4u;
+                const std::uint32_t refinedSteps = std::max(
+                    endpointLimitedSteps,
+                    measuredLimitedSteps
+                );
+                require(
+                    refinedSteps > correctiveReceiverSteps &&
+                        refinedSteps <=
+                            kReceiverPreloadReseatMaximumSteps,
+                    "load-exchange receiver recenter needs an unbounded "
+                    "duration"
+                );
+                correctiveReceiverSteps = refinedSteps;
+                correctiveReceiverRecenter =
+                    makeCorrectiveReceiverRecenter(
+                        correctiveReceiverSteps
+                    );
+            }
+            const CrossArmCollisionScan correctiveReceiverPreflight =
+                scanCrossArmTargetPath(
+                    world,
+                    loadExchanged.result.finalQ,
+                    correctiveReceiverRecenter.finalTarget,
+                    correctiveReceiverSteps,
+                    correctiveReceiverRecenter.desiredQ
+                );
+            require(
+                correctiveReceiverPreflight.samplesWithContact == 0u &&
+                    correctiveReceiverPreflight
+                            .samplesWithGiverPadContact == 0u &&
+                    correctiveReceiverPreflight
+                            .samplesWithReceiverPadContact == 0u,
+                "load-exchange receiver recenter intersects an instrument "
+                "or the table"
+            );
+            PhaseResult correctiveReceiverRecentered = continuePhase(
+                context,
+                compiled,
+                stepConfig,
+                resident,
+                correctiveReceiverRecenter.efforts,
+                correctiveReceiverSteps,
+                "load-exchange low-force receiver recenter"
+            );
+            loadExchangeSuccessfulSteps +=
+                correctiveReceiverRecentered
+                    .diagnostics.successfulStepCount;
+            loadExchangeGpuMilliseconds +=
+                correctiveReceiverRecentered
+                    .diagnostics.gpuElapsedMilliseconds;
+            loadExchangeCorrectionMotionSteps += correctiveReceiverSteps;
+            loadExchanged = std::move(correctiveReceiverRecentered);
+            target = correctiveReceiverRecenter.finalTarget;
+
+            efforts = interpolateTargets(
+                world.model,
+                loadExchanged.result.finalQ,
+                target,
+                kLoadExchangeSettleSteps
+            );
+            PhaseResult correctiveReceiverSettled = continuePhase(
+                context,
+                compiled,
+                stepConfig,
+                resident,
+                efforts,
+                kLoadExchangeSettleSteps,
+                "load-exchange low-force receiver recenter proof"
+            );
+            loadExchangeSuccessfulSteps +=
+                correctiveReceiverSettled.diagnostics.successfulStepCount;
+            loadExchangeGpuMilliseconds +=
+                correctiveReceiverSettled
+                    .diagnostics.gpuElapsedMilliseconds;
+            loadExchangeCorrectionSettleSteps +=
+                kLoadExchangeSettleSteps;
+            loadExchangeSettleStepsThisRun +=
+                kLoadExchangeSettleSteps;
+            loadExchanged = std::move(correctiveReceiverSettled);
+            loadExchangeAudit = auditLoadExchange(
+                loadExchanged,
+                loadExchangeSettleStepsThisRun
+            );
+            require(
+                receiverReleasedDuringLoadExchange(),
+                "released receiver recenter did not preserve giver authority"
+            );
+            writeHandoffStateArtifact(
+                options.stateOutputDirectory,
+                "load-exchange-correction-recentered",
+                preReleaseSuccessfulSteps + loadExchangeSuccessfulSteps,
+                world,
+                sutureSpec,
+                loadExchanged.result
+            );
+            std::cerr << "handoff_phase=load_exchange_correction_recentered"
+                << " correction_distance_m="
+                << correctiveReceiverDistanceM
+                << " correction_steps=" << correctiveReceiverSteps
+                << " proof_steps=" << kLoadExchangeSettleSteps
+                << contactSummary(loadExchangeAudit->contacts) << '\n';
+
+            const std::vector<double> giverBeforeReceiverReload = armLocalQ(
+                world.model,
+                0u,
+                loadExchanged.result.finalQ
+            );
+            runFixedFrameLoadChange(
+                giverBeforeReceiverReload[7],
+                closeJawCoordinate,
+                "load-exchange corrective receiver reload",
+                "load-exchange-correction-receiver-reloaded"
+            );
+            settleCorrectiveLoadChange(
+                true,
+                "load-exchange corrective receiver reload proof",
+                "load-exchange-correction-receiver-reloaded-settled"
+            );
+
+            const std::vector<double> receiverBeforeFinalGiverUnload =
+                armLocalQ(
+                    world.model,
+                    1u,
+                    loadExchanged.result.finalQ
+                );
+            runFixedFrameLoadChange(
+                receiverOverlapJawCoordinate,
+                receiverBeforeFinalGiverUnload[7],
+                "load-exchange corrective final giver unload",
+                "load-exchange-correction-giver-unloaded"
+            );
+            settleCorrectiveLoadChange(
+                true,
+                "load-exchange corrective final giver unload proof",
+                "load-exchange-correction-giver-unloaded-settled"
+            );
+            consecutiveQualifiedLoadExchangeProofs =
+                loadExchangeAudit->qualified ? 1u : 0u;
+            consecutiveOneRowLoadExchangeProofs = 0u;
+        }
+        while (
+            consecutiveQualifiedLoadExchangeProofs < 2u &&
+            consecutiveOneRowLoadExchangeProofs < 2u &&
+            loadExchangeSettleStepsThisRun <
+                kLoadExchangeMaximumSettleSteps
+        ) {
+            advanceLoadExchangeProof();
         }
         require(
             consecutiveQualifiedLoadExchangeProofs >= 2u,
@@ -34284,8 +36957,7 @@ int main(const int argc, const char* const argv[]) {
         writeHandoffStateArtifact(
             options.stateOutputDirectory,
             "load-exchange",
-            preReleaseSuccessfulSteps + kLoadExchangeSteps +
-                loadExchangeSettleStepsThisRun,
+            preReleaseSuccessfulSteps + loadExchangeSuccessfulSteps,
             world,
             sutureSpec,
             loadExchanged.result
@@ -34293,7 +36965,38 @@ int main(const int argc, const char* const argv[]) {
         if (loadExchangeOnly) {
             std::cout << std::setprecision(9)
                 << "dual_psm_suture_handoff_load_exchange=ok"
-                << " motion_steps=" << kLoadExchangeSteps
+                << " receiver_preload_motion_steps="
+                << receiverPreloadMotionSteps
+                << " receiver_preload_settling_steps="
+                << receiverPreloadSettleSteps
+                << " receiver_preload_giver_latch_steps="
+                << receiverPreloadGiverLatchSteps
+                << " receiver_preload_giver_latch_settling_steps="
+                << receiverPreloadGiverLatchSettleSteps
+                << " receiver_preload_unload_steps="
+                << receiverPreloadUnloadSteps
+                << " receiver_preload_release_settling_steps="
+                << receiverPreloadReleaseSettleSteps
+                << " receiver_preload_released_recenter_steps="
+                << receiverPreloadReseatSteps
+                << " receiver_preload_recenter_settling_steps="
+                << receiverPreloadLowForceSettleSteps
+                << " receiver_preload_overlap_reload_steps="
+                << receiverPreloadOverlapReloadSteps
+                << " receiver_preload_overlap_settling_steps="
+                << receiverPreloadOverlapSettleSteps
+                << " receiver_preload_reload_steps="
+                << receiverPreloadReloadSteps
+                << " receiver_preload_giver_unlatch_steps="
+                << receiverPreloadGiverUnlatchSteps
+                << " receiver_preload_giver_unlatch_settling_steps="
+                << receiverPreloadGiverUnlatchSettleSteps
+                << " giver_unload_motion_steps="
+                << kLoadExchangeSteps
+                << " correction_motion_steps="
+                << loadExchangeCorrectionMotionSteps
+                << " correction_settling_steps="
+                << loadExchangeCorrectionSettleSteps
                 << " settling_steps="
                 << loadExchangeSettleStepsThisRun
                 << " giver_seat_drift_m="
@@ -34703,7 +37406,37 @@ int main(const int argc, const char* const argv[]) {
             << loadExchangeReceiverMotion.seatDrift
             << ",\"load_exchange_giver_reseating_m\":"
             << loadExchangeGiverMotion.seatDrift
+            << ",\"receiver_preload_motion_steps\":"
+            << receiverPreloadMotionSteps
+            << ",\"receiver_preload_giver_latch_steps\":"
+            << receiverPreloadGiverLatchSteps
+            << ",\"receiver_preload_giver_latch_settling_steps\":"
+            << receiverPreloadGiverLatchSettleSteps
+            << ",\"receiver_preload_unload_steps\":"
+            << receiverPreloadUnloadSteps
+            << ",\"receiver_preload_release_settling_steps\":"
+            << receiverPreloadReleaseSettleSteps
+            << ",\"receiver_preload_released_recenter_steps\":"
+            << receiverPreloadReseatSteps
+            << ",\"receiver_preload_recenter_settling_steps\":"
+            << receiverPreloadLowForceSettleSteps
+            << ",\"receiver_preload_overlap_reload_steps\":"
+            << receiverPreloadOverlapReloadSteps
+            << ",\"receiver_preload_overlap_settling_steps\":"
+            << receiverPreloadOverlapSettleSteps
+            << ",\"receiver_preload_reload_steps\":"
+            << receiverPreloadReloadSteps
+            << ",\"receiver_preload_giver_unlatch_steps\":"
+            << receiverPreloadGiverUnlatchSteps
+            << ",\"receiver_preload_giver_unlatch_settling_steps\":"
+            << receiverPreloadGiverUnlatchSettleSteps
+            << ",\"receiver_preload_settling_steps\":"
+            << receiverPreloadSettleSteps
             << ",\"load_exchange_steps\":" << kLoadExchangeSteps
+            << ",\"load_exchange_correction_motion_steps\":"
+            << loadExchangeCorrectionMotionSteps
+            << ",\"load_exchange_correction_settling_steps\":"
+            << loadExchangeCorrectionSettleSteps
             << ",\"giver_release_steps\":" << kReleaseSteps
             << ",\"receiver_transfer_steps\":"
             << kReceiverTransferSteps
