@@ -6748,6 +6748,7 @@ struct Arguments {
     std::filesystem::path resumeGiverReleasePath;
     std::filesystem::path resumeReceiverTransferMotionPath;
     std::filesystem::path receiverGraspReferencePath;
+    std::filesystem::path receiverPreloadOverlapReferencePath;
     std::filesystem::path receiverTransferStartReferencePath;
     std::filesystem::path resumeExtractionGiverHoldPath;
     std::filesystem::path resumeExtractionApproachPath;
@@ -7304,6 +7305,14 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
                 "--receiver-grasp-reference requires one path"
             );
             result.receiverGraspReferencePath = argv[++index];
+        } else if (argument ==
+                   "--receiver-preload-overlap-reference") {
+            require(
+                result.receiverPreloadOverlapReferencePath.empty() &&
+                    index + 1 < argc,
+                "--receiver-preload-overlap-reference requires one path"
+            );
+            result.receiverPreloadOverlapReferencePath = argv[++index];
         } else if (argument == "--receiver-transfer-start-reference") {
             require(
                 result.receiverTransferStartReferencePath.empty() &&
@@ -7875,6 +7884,16 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
              !result.receiverGraspReferencePath.empty()),
         "receiver-preload resume requires the original giver and "
         "receiver grasp references"
+    );
+    require(
+        result.receiverPreloadOverlapReferencePath.empty() ||
+            !result.resumeReceiverPreloadCandidatePath.empty() ||
+            !result.resumeReceiverPreloadGiverLatchedPath.empty() ||
+            !result.resumeReceiverPreloadRecenteredPath.empty() ||
+            !result.resumeReceiverPreloadCorrectionAuthorityPath.empty() ||
+            !result.resumeReceiverPreloadUnloadedPath.empty(),
+        "receiver preload overlap reference requires a corrective "
+        "receiver-preload resume"
     );
     const bool terminalResume =
         !result.resumeGiverReleaseMotionPath.empty() ||
@@ -20720,6 +20739,7 @@ int main(const int argc, const char* const argv[]) {
         bool receiverPreloadReseatAlreadyCompleted = false;
         std::optional<GraspReference> giverGraspReference;
         std::optional<GraspReference> receiverGraspReference;
+        std::optional<GraspReference> receiverPreloadOverlapReference;
         std::uint64_t preReceiverSuccessfulSteps = 0u;
         double preReceiverGpuMilliseconds = 0.0;
         std::uint64_t preReleaseSuccessfulSteps = 0u;
@@ -31643,6 +31663,70 @@ int main(const int argc, const char* const argv[]) {
                 1u,
                 kReceiverNeedleShape
             );
+            if (!options.receiverPreloadOverlapReferencePath.empty()) {
+                metalrobo::HeterogeneousWorld overlapReferenceWorld = world;
+                (void)loadHandoffState(
+                    options.receiverPreloadOverlapReferencePath,
+                    "receiver-preload-regrasp-overlap",
+                    overlapReferenceWorld
+                );
+                metalrobo::MetalWorldResult overlapReferenceState;
+                overlapReferenceState.finalQ =
+                    overlapReferenceWorld.model.defaultQ;
+                overlapReferenceState.finalV =
+                    overlapReferenceWorld.model.defaultV;
+                overlapReferenceState.finalSceneBodies =
+                    overlapReferenceWorld.defaultSceneBodies;
+                receiverPreloadOverlapReference = graspReference(
+                    world,
+                    needleForPlacement,
+                    overlapReferenceState,
+                    1u,
+                    kReceiverNeedleShape
+                );
+                const double referenceOffsetDeltaM = norm(
+                    receiverPreloadOverlapReference
+                            ->jawMidpointOffsetInNeedleFrame -
+                        receiverGraspReference
+                            ->jawMidpointOffsetInNeedleFrame
+                );
+                const double referenceRailDeltaRad = std::acos(std::clamp(
+                    dot(
+                        receiverPreloadOverlapReference
+                            ->jawRailInNeedleFrame,
+                        receiverGraspReference->jawRailInNeedleFrame
+                    ),
+                    -1.0,
+                    1.0
+                ));
+                const double referenceSeparationDeltaRad = std::acos(
+                    std::clamp(
+                        dot(
+                            receiverPreloadOverlapReference
+                                ->jawSeparationInNeedleFrame,
+                            receiverGraspReference
+                                ->jawSeparationInNeedleFrame
+                        ),
+                        -1.0,
+                        1.0
+                    )
+                );
+                require(
+                    std::isfinite(referenceOffsetDeltaM) &&
+                        referenceOffsetDeltaM <=
+                            kMaximumTransitionGraspReseating &&
+                        std::isfinite(referenceRailDeltaRad) &&
+                        std::isfinite(referenceSeparationDeltaRad),
+                    "qualified receiver overlap reference is outside the "
+                    "accepted transition frame"
+                );
+                std::cerr
+                    << "handoff_phase=receiver_preload_overlap_reference"
+                    << " midpoint_delta_m=" << referenceOffsetDeltaM
+                    << " rail_delta_rad=" << referenceRailDeltaRad
+                    << " separation_delta_rad="
+                    << referenceSeparationDeltaRad << '\n';
+            }
 
             // A handoff checkpoint does not serialize the temporal-contact
             // warm start. Re-enter at a fixed command for one full proof chunk
@@ -35315,7 +35399,10 @@ int main(const int argc, const char* const argv[]) {
                     graspFrameTarget(
                         needleForPlacement,
                         receiverPreloaded.result.finalSceneBodies.at(0u),
-                        kReceiverNeedleShape, *receiverGraspReference);
+                        kReceiverNeedleShape,
+                        receiverPreloadOverlapReference.has_value()
+                            ? *receiverPreloadOverlapReference
+                            : *receiverGraspReference);
                 const OrthonormalJawFrame preloadReceiverFrame =
                     orthonormalJawFrame(preloadReceiverJaw.railDirection,
                                         preloadReceiverJaw.separationDirection,
@@ -35598,6 +35685,25 @@ int main(const int argc, const char* const argv[]) {
                 receiverPreloaded,
                 receiverPreloadSettleSteps
             );
+            // Persist the mechanically measured closure endpoint before
+            // interpreting it. A rejected contact capture must remain an exact
+            // resumable artifact instead of forcing another hour-long prefix.
+            writeHandoffStateArtifact(
+                options.stateOutputDirectory,
+                "receiver-preload-regrasp-overlap-motion",
+                preReleaseSuccessfulSteps + receiverPreloadMotionSteps +
+                    receiverPreloadSettleSteps +
+                    receiverPreloadGiverLatchSteps +
+                    receiverPreloadGiverLatchSettleSteps +
+                    receiverPreloadUnloadSteps +
+                    receiverPreloadReleaseSettleSteps +
+                    receiverPreloadReseatSteps +
+                    receiverPreloadLowForceSettleSteps +
+                    receiverPreloadOverlapReloadSteps,
+                world,
+                sutureSpec,
+                receiverPreloaded.result
+            );
             require(
                 bilateral(receiverPreloadAudit->contacts, 0u) &&
                     transverseInsertCoverage(
@@ -35625,22 +35731,6 @@ int main(const int argc, const char* const argv[]) {
                         maximumSwageTangentAngleError(world),
                 "receiver gentle-overlap reload snapped or lost distributed "
                 "dual control"
-            );
-            writeHandoffStateArtifact(
-                options.stateOutputDirectory,
-                "receiver-preload-regrasp-overlap-motion",
-                preReleaseSuccessfulSteps + receiverPreloadMotionSteps +
-                    receiverPreloadSettleSteps +
-                    receiverPreloadGiverLatchSteps +
-                    receiverPreloadGiverLatchSettleSteps +
-                    receiverPreloadUnloadSteps +
-                    receiverPreloadReleaseSettleSteps +
-                    receiverPreloadReseatSteps +
-                    receiverPreloadLowForceSettleSteps +
-                    receiverPreloadOverlapReloadSteps,
-                world,
-                sutureSpec,
-                receiverPreloaded.result
             );
             std::uint32_t consecutiveQualifiedOverlapProofs = 0u;
             do {
