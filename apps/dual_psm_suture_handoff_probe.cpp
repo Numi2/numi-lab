@@ -6480,17 +6480,20 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     source.deterministic = true;
     // Entry reaches the identical accepted state by the fifth Newton pass and
     // tenth Arnoldi column. The long-horizon receiver world, however, retains
-    // a dynamic free-needle block and has observed a valid-residual candidate
-    // exhaust all ten columns after 295.75 ms. Give that production path the
-    // ABI-supported seven Newton passes and one complete SIMD16 Arnoldi cycle.
-    // Converged lanes remain inert in the statically encoded tail, so this is
-    // a bounded difficult-step budget rather than a weaker acceptance gate.
+    // a dynamic free-needle block. Its tissue-engaged alignment replay reached
+    // the unchanged 5e-4 residual boundary after 34 ms and exhausted all 16
+    // Arnoldi columns with a 5.00249e-4 linear residual. Matter's restarted
+    // FGMRES reuses the same compiled SIMD16 basis, so give this production
+    // path one additional restart cycle while retaining the exact Newton,
+    // contact, and publication tolerances. Converged lanes remain inert in the
+    // statically encoded tail; this is a bounded difficult-step budget, not a
+    // weaker acceptance gate or a larger Krylov allocation.
     source.mixedSolver.newtonIterations = freeNeedleCapability
         ? NM_MIXED_NEWTON_ITERATIONS : 5u;
     source.mixedSolver.fgmresRestart = freeNeedleCapability
         ? NM_MIXED_FGMRES_RESTART : 10u;
     source.mixedSolver.fgmresIterations = freeNeedleCapability
-        ? NM_MIXED_FGMRES_RESTART : 10u;
+        ? 2u * NM_MIXED_FGMRES_RESTART : 10u;
     // Match the authored budget to the live Metal bound instead of claiming
     // four backtracking trials that the kernel cannot dispatch.
     source.mixedSolver.lineSearchSteps = NM_MIXED_LINE_SEARCH_STEPS;
