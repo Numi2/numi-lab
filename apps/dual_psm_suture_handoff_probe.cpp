@@ -6493,20 +6493,22 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     source.deterministic = true;
     // Entry reaches the identical accepted state by the fifth Newton pass and
     // tenth Arnoldi column. The long-horizon receiver world, however, retains
-    // a dynamic free-needle block. Its tissue-engaged alignment replay reached
-    // the unchanged 5e-4 residual boundary after 34 ms and exhausted all 16
-    // Arnoldi columns with a 5.00249e-4 linear residual. Matter's restarted
-    // FGMRES reuses the same compiled SIMD16 basis, so give this production
-    // path one additional restart cycle while retaining the exact Newton,
-    // contact, and publication tolerances. Converged lanes remain inert in the
-    // statically encoded tail; this is a bounded difficult-step budget, not a
-    // weaker acceptance gate or a larger Krylov allocation.
+    // a dynamic free-needle block. Its tissue-engaged alignment replay first
+    // reached the unchanged 5e-4 residual boundary after 34 ms and exhausted
+    // all 16 Arnoldi columns with a 5.00249e-4 linear residual. The later
+    // 640/800 alignment checkpoint preserved all seven puncture channels and
+    // J >= 0.9946, then a harder step exhausted two complete restart cycles at
+    // 5.02576e-4. Matter's restarted FGMRES reuses the same compiled SIMD16
+    // basis, so give this production path a third bounded cycle while retaining
+    // the exact Newton, contact, and publication tolerances. Converged lanes
+    // remain inert in the statically encoded tail; this adds difficult-step
+    // work, not a weaker acceptance gate or a larger Krylov allocation.
     source.mixedSolver.newtonIterations = freeNeedleCapability
         ? NM_MIXED_NEWTON_ITERATIONS : 5u;
     source.mixedSolver.fgmresRestart = freeNeedleCapability
         ? NM_MIXED_FGMRES_RESTART : 10u;
     source.mixedSolver.fgmresIterations = freeNeedleCapability
-        ? 2u * NM_MIXED_FGMRES_RESTART : 10u;
+        ? 3u * NM_MIXED_FGMRES_RESTART : 10u;
     // Match the authored budget to the live Metal bound instead of claiming
     // four backtracking trials that the kernel cannot dispatch.
     source.mixedSolver.lineSearchSteps = NM_MIXED_LINE_SEARCH_STEPS;
