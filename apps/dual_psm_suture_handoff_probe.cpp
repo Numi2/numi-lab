@@ -34650,6 +34650,40 @@ int main(const int argc, const char* const argv[]) {
             receiverPreloadSettleSteps += chunkSteps;
             return result;
         };
+        const auto advanceReceiverPreloadPersistenceProof = [&] (
+            const std::string& phase
+        ) {
+            require(
+                kLoadExchangeMaximumSettleSteps -
+                        receiverPreloadSettleSteps >=
+                    kLoadExchangeSettleSteps,
+                "receiver preload lacks a complete persistence-proof window"
+            );
+            // A native-cadence search may stop partway through a precomputed
+            // hold stream.  Once it discovers an admissible distributed
+            // boundary, start a fresh complete 100 ms proof from the measured
+            // state; no 2 ms search sample is itself a qualification proof.
+            receiverPreloadAssessmentEfforts.clear();
+            receiverPreloadAssessmentPlanSteps = 0u;
+            receiverPreloadAssessmentPlanOffset = 0u;
+            const std::vector<float> proofEfforts = interpolateTargets(
+                world.model,
+                receiverPreloaded.result.finalQ,
+                receiverPreloadHoldTarget,
+                kLoadExchangeSettleSteps
+            );
+            PhaseResult result = continuePhase(
+                context,
+                compiled,
+                stepConfig,
+                resident,
+                proofEfforts,
+                kLoadExchangeSettleSteps,
+                phase
+            );
+            receiverPreloadSettleSteps += kLoadExchangeSettleSteps;
+            return result;
+        };
         // A single distributed endpoint is not enough: the cold checkpoint
         // replay briefly recovered both longitudinal rows, then returned to a
         // one-row seat in the next proof chunk. Probe persistence before
@@ -34663,10 +34697,17 @@ int main(const int argc, const char* const argv[]) {
             receiverPreloadSettleSteps <
                 kLoadExchangeMaximumSettleSteps
         ) {
-            PhaseResult persistenceProof =
-                advanceReceiverPreloadAssessment(
-                    "receiver preload persistence proof"
-                );
+            const bool completePersistenceProof =
+                receiverPreloadAssessmentSteps ==
+                    kLoadExchangeSettleSteps ||
+                receiverPreloadAudit->qualified;
+            PhaseResult persistenceProof = completePersistenceProof
+                ? advanceReceiverPreloadPersistenceProof(
+                      "receiver preload persistence proof"
+                  )
+                : advanceReceiverPreloadAssessment(
+                      "receiver preload persistence search"
+                  );
             receiverPreloadSuccessfulSteps +=
                 persistenceProof.diagnostics.successfulStepCount;
             receiverPreloadGpuMilliseconds +=
@@ -34686,7 +34727,8 @@ int main(const int argc, const char* const argv[]) {
                 receiverPreloaded.result
             );
             consecutiveQualifiedReceiverPreloadProofs =
-                receiverPreloadAudit->qualified
+                completePersistenceProof &&
+                    receiverPreloadAudit->qualified
                 ? consecutiveQualifiedReceiverPreloadProofs + 1u
                 : 0u;
         }
@@ -34751,26 +34793,44 @@ int main(const int argc, const char* const argv[]) {
                     receiverPreloadAudit->residual.residuals.z <=
                         kMaximumTerminalConeViolation;
             };
+            const auto receiverHasDistributedControl = [&] {
+                return distributedInsertCoverage(
+                    receiverPreloadAudit->contacts,
+                    1u
+                );
+            };
             // A low residual is not sufficient authority to open the receiver.
             // The measured candidate first became numerically quiet while the
             // giver remained 3.264 um outside the unchanged seat envelope and
             // the DER still moved at 313 mm/s. Continue the identical planned
             // effort stream until every geometric, contact, rod, swage, and
-            // convergence predicate admits the corrective release.
+            // convergence predicate admits the corrective release. If both
+            // longitudinal rows recover first, do not execute the stale
+            // one-row correction: start complete persistence proofs from that
+            // measured boundary instead.
             while (
-                !safeToReseat() &&
+                consecutiveQualifiedReceiverPreloadProofs < 2u &&
                 receiverPreloadSettleSteps <
                     kLoadExchangeMaximumSettleSteps
             ) {
-                PhaseResult convergenceProof =
-                    advanceReceiverPreloadAssessment(
-                        "receiver preload pre-regrasp convergence proof"
-                    );
+                if (!receiverHasDistributedControl() && safeToReseat()) {
+                    break;
+                }
+                const bool completePersistenceProof =
+                    receiverHasDistributedControl() &&
+                    receiverPreloadAudit->qualified;
+                PhaseResult boundaryProof = completePersistenceProof
+                    ? advanceReceiverPreloadPersistenceProof(
+                          "receiver preload recovered-distribution proof"
+                      )
+                    : advanceReceiverPreloadAssessment(
+                          "receiver preload pre-regrasp convergence search"
+                      );
                 receiverPreloadSuccessfulSteps +=
-                    convergenceProof.diagnostics.successfulStepCount;
+                    boundaryProof.diagnostics.successfulStepCount;
                 receiverPreloadGpuMilliseconds +=
-                    convergenceProof.diagnostics.gpuElapsedMilliseconds;
-                receiverPreloaded = std::move(convergenceProof);
+                    boundaryProof.diagnostics.gpuElapsedMilliseconds;
+                receiverPreloaded = std::move(boundaryProof);
                 receiverPreloadAudit = auditReceiverPreload(
                     receiverPreloaded,
                     receiverPreloadSettleSteps
@@ -34785,15 +34845,35 @@ int main(const int argc, const char* const argv[]) {
                     sutureSpec,
                     receiverPreloaded.result
                 );
+                consecutiveQualifiedReceiverPreloadProofs =
+                    completePersistenceProof &&
+                        receiverPreloadAudit->qualified
+                    ? consecutiveQualifiedReceiverPreloadProofs + 1u
+                    : 0u;
             }
-            require(
-                safeToReseat(),
-                "receiver preload lost more than longitudinal insert "
-                "centering before its corrective reseat"
-            );
+            const bool recoveredPersistentDistributedControl =
+                consecutiveQualifiedReceiverPreloadProofs >= 2u &&
+                receiverPreloadAudit->qualified &&
+                receiverHasDistributedControl();
+            if (recoveredPersistentDistributedControl) {
+                std::cerr
+                    << "handoff_phase=receiver_preload_distributed_recovery"
+                    << " completed_settle_steps="
+                    << receiverPreloadSettleSteps
+                    << " consecutive_proofs="
+                    << consecutiveQualifiedReceiverPreloadProofs
+                    << contactSummary(receiverPreloadAudit->contacts)
+                    << '\n';
+            }
+            if (!recoveredPersistentDistributedControl) {
+                require(
+                    !receiverHasDistributedControl() && safeToReseat(),
+                    "receiver preload lost more than longitudinal insert "
+                    "centering before its corrective reseat"
+                );
 
-            if (!receiverPreloadUnloadAlreadyCompleted &&
-                !receiverPreloadGiverLatchAlreadyCompleted) {
+                if (!receiverPreloadUnloadAlreadyCompleted &&
+                    !receiverPreloadGiverLatchAlreadyCompleted) {
                 const std::vector<double> latchGiverQ = armLocalQ(
                     world.model,
                     0u,
@@ -35631,6 +35711,7 @@ int main(const int argc, const char* const argv[]) {
                 << " command_velocity_ratio="
                 << receiverPreloadOverlapReload.maximumVelocityRatio
                 << contactSummary(receiverPreloadAudit->contacts) << '\n';
+            }
         }
         if (reuseQualifiedRegraspOverlap) {
             std::cerr
