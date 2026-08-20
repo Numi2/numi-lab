@@ -591,14 +591,14 @@ the moving interval must also publish tangential load, and the receiver must
 retain bilateral distributed needle contact with bounded relative seat motion.
 The DER edge/stretch and self-clearance certificate, hard swage, terminal cone
 residual, live instrument/tissue clearance, active puncture channels, all
-32,640 tetrahedra, zero removed mass, positive determinant, and accepted
-Matter certificates remain mandatory. The two exact DER material edges in the
-tracts and their binding revision are immutable throughout this phase: unlike
-pull-through, knot staging has no proxy-rebind maintenance path. After the
-motion, two consecutive quiescent boundaries below the existing needle and
-strand speed gates publish `tissue-knot-first-throw-staged`. The v3 manifest
-also persists a canonical fingerprint over every ordered protocol field and
-sample, the completed sample, exact held material window, and placed
+compiled operative tetrahedra, zero removed mass, positive determinant, and
+accepted Matter certificates remain mandatory. The two exact DER material
+edges in the tracts and their binding revision are immutable throughout this
+phase: unlike pull-through, knot staging has no proxy-rebind maintenance path.
+After the motion, two consecutive quiescent boundaries below the existing
+needle and strand speed gates publish `tissue-knot-first-throw-staged`. The v3
+manifest also persists a canonical fingerprint over every ordered protocol
+field and sample, the completed sample, exact held material window, and placed
 right-handed knot frame. Continuations reject missing, partial, or
 content-mismatched metadata, which prevents deformation or a process boundary
 from silently retargeting another DER edge or changed throw. This is an
