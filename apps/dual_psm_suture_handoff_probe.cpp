@@ -308,6 +308,14 @@ constexpr double kLoadExchangeRelativeJawSpeedRadPerS = 0.06;
 // physically overconstrained and is rejected rather than treated as a re-grasp.
 constexpr double kReceiverPreloadReseatSpeedMps = 2.0e-3;
 constexpr std::uint32_t kReceiverPreloadReseatMaximumSteps = 500u;
+// A slow frame correction advances by only a few micrometres and tens of
+// microradians per control step. The general 5 um / 2 mrad IK stop can then
+// hold several waypoints before jumping to the next accepted solution, so
+// adding duration does not reduce the measured joint velocity. Resolve every
+// corrective waypoint below its commanded increment instead; the unchanged
+// joint-velocity audit remains the physical acceptance authority.
+constexpr double kReceiverPreloadReseatIKPositionToleranceM = 1.0e-6;
+constexpr double kReceiverPreloadReseatIKOrientationToleranceRad = 1.0e-5;
 constexpr double kReceiverRegraspDiametralClearanceM = 8.0e-5;
 // Re-prove the full receiver seat in consecutive 100 ms chunks, with a bounded
 // 1 s ceiling; only then may the giver continue to a visibly open clearance.
@@ -35208,10 +35216,24 @@ int main(const int argc, const char* const argv[]) {
                         releasedDesiredReceiverFrame.frame.rail,
                         releasedDesiredReceiverFrame.frame.separation,
                         preloadReceiverQ[7], receiverRegraspJawCoordinate,
-                        steps);
+                        steps, kControlTimestep,
+                        kReceiverPreloadReseatIKPositionToleranceM,
+                        kReceiverPreloadReseatIKOrientationToleranceRad);
                 };
                 ArmTrajectory receiverPreloadReseat =
                     makeReceiverPreloadReseat(receiverPreloadReseatSteps);
+                std::cerr
+                    << "handoff_phase=receiver_preload_low_force_recenter_"
+                    << "trajectory"
+                    << " correction_distance_m="
+                    << receiverPreloadReseatDistanceM
+                    << " correction_orientation_rad="
+                    << receiverPreloadReseatOrientationRad
+                    << " initial_steps=" << receiverPreloadReseatSteps
+                    << " initial_velocity_ratio="
+                    << receiverPreloadReseat.maximumVelocityRatio
+                    << " velocity_dof="
+                    << receiverPreloadReseat.maximumVelocityDof << '\n';
                 while (receiverPreloadReseat.maximumVelocityRatio >
                        kMaximumCommandVelocityRatio) {
                     require(std::isfinite(
@@ -36653,22 +36675,39 @@ int main(const int argc, const char* const argv[]) {
                     kReceiverNeedleShape,
                     *receiverGraspReference
                 );
-            const Vec3 correctiveReceiverRowCorrection =
-                longitudinalGraspFrameCorrection(
-                    correctiveReceiverJaw,
-                    releasedCorrectiveReceiverFrame.midpoint,
-                    psm
+            const OrthonormalJawFrame correctiveReceiverFrame =
+                orthonormalJawFrame(
+                    correctiveReceiverJaw.railDirection,
+                    correctiveReceiverJaw.separationDirection,
+                    "load-exchange released receiver frame"
                 );
+            const Vec3 correctiveReceiverFrameCorrection =
+                releasedCorrectiveReceiverFrame.midpoint -
+                correctiveReceiverJaw.midpoint;
             const Vec3 correctiveReceiverTarget =
-                correctiveReceiverJaw.midpoint +
-                correctiveReceiverRowCorrection;
+                releasedCorrectiveReceiverFrame.midpoint;
             const double correctiveReceiverDistanceM = norm(
-                correctiveReceiverRowCorrection
+                correctiveReceiverFrameCorrection
+            );
+            const double correctiveReceiverOrientationRad = std::max(
+                std::acos(std::clamp(
+                    dot(correctiveReceiverFrame.rail,
+                        releasedCorrectiveReceiverFrame.frame.rail),
+                    -1.0,
+                    1.0
+                )),
+                std::acos(std::clamp(
+                    dot(correctiveReceiverFrame.separation,
+                        releasedCorrectiveReceiverFrame.frame.separation),
+                    -1.0,
+                    1.0
+                ))
             );
             require(
-                correctiveReceiverDistanceM > 0.0 &&
+                std::isfinite(correctiveReceiverDistanceM) &&
                     correctiveReceiverDistanceM <=
-                        kMaximumTransitionGraspReseating,
+                        kMaximumTransitionGraspReseating &&
+                    std::isfinite(correctiveReceiverOrientationRad),
                 "load-exchange receiver recenter is outside the accepted "
                 "transition envelope"
             );
@@ -36703,15 +36742,34 @@ int main(const int argc, const char* const argv[]) {
                     loadExchanged.result.finalQ,
                     correctiveReceiverJaw.midpoint,
                     correctiveReceiverTarget,
-                    correctiveReceiverJaw.railDirection,
-                    correctiveReceiverJaw.separationDirection,
+                    // Match the complete transported positive-control frame.
+                    // The receiver is contact-free here and the giver remains
+                    // the sole load path, so retaining a stale angular frame
+                    // would only select one insert row on the next closure.
+                    releasedCorrectiveReceiverFrame.frame.rail,
+                    releasedCorrectiveReceiverFrame.frame.separation,
                     correctiveReceiverQ[7],
                     receiverRegraspJawCoordinate,
-                    steps
+                    steps,
+                    kControlTimestep,
+                    kReceiverPreloadReseatIKPositionToleranceM,
+                    kReceiverPreloadReseatIKOrientationToleranceRad
                 );
             };
             ArmTrajectory correctiveReceiverRecenter =
                 makeCorrectiveReceiverRecenter(correctiveReceiverSteps);
+            std::cerr
+                << "handoff_phase=load_exchange_low_force_receiver_"
+                << "recenter_trajectory"
+                << " correction_distance_m="
+                << correctiveReceiverDistanceM
+                << " correction_orientation_rad="
+                << correctiveReceiverOrientationRad
+                << " initial_steps=" << correctiveReceiverSteps
+                << " initial_velocity_ratio="
+                << correctiveReceiverRecenter.maximumVelocityRatio
+                << " velocity_dof="
+                << correctiveReceiverRecenter.maximumVelocityDof << '\n';
             while (
                 correctiveReceiverRecenter.maximumVelocityRatio >
                     kMaximumCommandVelocityRatio
