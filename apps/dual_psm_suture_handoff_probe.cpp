@@ -35722,17 +35722,36 @@ int main(const int argc, const char* const argv[]) {
                 "receiver preload reload did not retain distributed dual "
                 "control"
             );
-            consecutiveQualifiedReceiverPreloadProofs = 0u;
             std::cerr << "handoff_phase=receiver_preload_reload"
                       << " reload_steps=" << receiverPreloadReloadSteps
                       << " command_velocity_ratio="
                       << receiverPreloadReload.maximumVelocityRatio
                       << contactSummary(receiverPreloadAudit->contacts) << '\n';
+        }
+
+        const bool reuseQualifiedReloadCandidate =
+            options.resumeReceiverPreloadReloadCandidate &&
+            consecutiveQualifiedReceiverPreloadProofs >= 2u &&
+            receiverPreloadAudit->qualified;
+        if (reuseQualifiedReloadCandidate) {
+            std::cerr
+                << "handoff_phase=receiver_preload_reload_candidate_resume"
+                << " cold_start_proof_steps="
+                << receiverPreloadSettleSteps
+                << contactSummary(receiverPreloadAudit->contacts)
+                << '\n';
+        }
+        const bool receiverPreloadNeedsGiverUnlatch =
+            receiverPreloadNeedsFullReload ||
+            reuseQualifiedReloadCandidate;
+        if (receiverPreloadNeedsGiverUnlatch) {
+            consecutiveQualifiedReceiverPreloadProofs = 0u;
 
             // The stronger giver latch exists only while the receiver is
-            // released. Once distributed receiver control is restored, return
-            // the giver to the standard 60 um exchange preload at a fixed
-            // frame before starting the ordinary load exchange.
+            // released. Once distributed receiver control is restored--either
+            // in this run or by cold-proving a saved full-load candidate--
+            // return the giver to the standard 60 um exchange preload at a
+            // fixed frame before starting the ordinary load exchange.
             const std::vector<double> unlatchGiverQ =
                 armLocalQ(world.model, 0u, receiverPreloaded.result.finalQ);
             const std::vector<double> unlatchReceiverQ =
