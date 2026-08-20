@@ -503,10 +503,23 @@ constexpr double kReceiverBridgeDecelerationDistanceM = 4.0e-3;
 constexpr double kReceiverBridgeDecelerationSeconds = 1.0e-1;
 constexpr std::uint32_t kReceiverBridgeKinematicHoldSteps = 32u;
 // After replacing prescribed needle motion with the dynamic needle held by
-// the giver, keep the same private Matter state live for 25 ms.  This is long
-// enough to expose an impulsive or mismatched bridge while avoiding a hidden
-// reset or an independently reconstructed tissue fixture.
-constexpr std::uint32_t kReceiverBridgeDynamicHoldSteps = 25u;
+// the giver, keep the same private Matter state live for 25 ms.  Preserve the
+// 62.5 us embedded-contact cadence before changing body ownership.  The
+// accepted 250 us deceleration cadence can carry the prescribed body, but a
+// dynamic replay accumulated a 7.456 mm/s contact residual and rolled back at
+// 20.25 ms.  Four hundred base transactions retain the original 400 DER
+// substeps and 25 ms duration without changing a contact or convergence
+// tolerance.
+constexpr std::uint32_t kReceiverBridgeDynamicMatterRateMultiplier =
+    kSutureContactMatterRateMultiplier;
+constexpr std::uint32_t kReceiverBridgeDynamicHoldBaseDERSubsteps = 400u;
+static_assert(
+    kReceiverBridgeDynamicHoldBaseDERSubsteps %
+        kReceiverBridgeDynamicMatterRateMultiplier == 0u
+);
+constexpr std::uint32_t kReceiverBridgeDynamicHoldSteps =
+    kReceiverBridgeDynamicHoldBaseDERSubsteps /
+    kReceiverBridgeDynamicMatterRateMultiplier;
 constexpr double kMaximumReceiverBridgeNeedleDriftM = 3.0e-4;
 constexpr double kMaximumReceiverBridgeTissueIncrementM = 5.0e-5;
 // Receiver acquisition must exchange jaw preload without silently beginning
@@ -6924,6 +6937,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-curved-pull-through-only" ||
             argument == "--tissue-opposing-bite-topology-only" ||
             argument == "--tissue-receiver-state-bridge-only" ||
+            argument == "--tissue-receiver-bridge-resume-only" ||
             argument == "--tissue-receiver-alignment-replay-only" ||
             argument == "--tissue-receiver-dynamics-replay-only" ||
             argument == "--tissue-receiver-acquisition-only" ||
@@ -7589,6 +7603,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
     const bool tissueCheckpointMode =
         result.mode == "--tissue-checkpoint-restore-only" ||
         result.mode == "--tissue-checkpoint-hold-only" ||
+        result.mode == "--tissue-receiver-bridge-resume-only" ||
         result.mode == "--tissue-suture-pull-stroke-only" ||
         result.mode == "--tissue-thread-target-only" ||
         result.mode == "--tissue-thread-acquisition-only" ||
@@ -7601,6 +7616,12 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         tissueCheckpointMode ==
             !result.resumeTissueCheckpointPath.empty(),
         "tissue checkpoint mode requires exactly one v3 checkpoint"
+    );
+    require(
+        result.mode != "--tissue-receiver-bridge-resume-only" ||
+            result.resumeTissueCheckpointPhase ==
+                "tissue-receiver-bridge-start",
+        "receiver bridge resume requires the exact bridge-start checkpoint"
     );
     require(
         (result.mode != "--tissue-thread-target-only" &&
@@ -8898,6 +8919,8 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-checkpoint-restore-only";
         const bool tissueCheckpointHoldOnly =
             options.mode == "--tissue-checkpoint-hold-only";
+        const bool tissueReceiverBridgeResumeOnly =
+            options.mode == "--tissue-receiver-bridge-resume-only";
         const bool tissueThreadTargetOnly =
             options.mode == "--tissue-thread-target-only";
         const bool tissueThreadAcquisitionOnly =
@@ -8916,6 +8939,7 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-suture-pull-stroke-only";
         const bool tissueCheckpointResume =
             tissueCheckpointRestoreOnly || tissueCheckpointHoldOnly ||
+            tissueReceiverBridgeResumeOnly ||
             tissueThreadTargetOnly || tissueThreadAcquisitionOnly ||
             tissueKnotFirstThrowPreflightOnly ||
             tissueKnotFirstThrowStageOnly ||
@@ -20504,28 +20528,157 @@ int main(const int argc, const char* const argv[]) {
             }
 
             require(
-                tissueCheckpointHoldOnly,
+                tissueCheckpointHoldOnly ||
+                    tissueReceiverBridgeResumeOnly,
                 "unsupported surgical checkpoint continuation mode"
+            );
+            const auto selectResumedBridgeCadence = [&] {
+                require(
+                    tissueRuntime.setCoupledTimestepMultiplier(
+                        kReceiverBridgeDynamicMatterRateMultiplier
+                    ),
+                    "restored bridge could not select the production "
+                    "dynamic-ownership cadence"
+                );
+                stepConfig.timestepSeconds = static_cast<float>(
+                    (kControlTimestep /
+                        static_cast<double>(kPhysicsSubsteps)) *
+                    static_cast<double>(
+                        kReceiverBridgeDynamicMatterRateMultiplier
+                    )
+                );
+                stepConfig.physicsSubsteps =
+                    kReceiverBridgeDynamicMatterRateMultiplier;
+                require(
+                    tissueRuntime.coupledTimestepMultiplier() ==
+                            kReceiverBridgeDynamicMatterRateMultiplier &&
+                        tissueRuntime.coupledTimestepDivisor() == 1u &&
+                        tissueRuntime.timestepSeconds() ==
+                            stepConfig.timestepSeconds,
+                    "restored bridge Matter and MetalWorld cadences "
+                    "diverged"
+                );
+            };
+            if (tissueReceiverBridgeResumeOnly) {
+                selectResumedBridgeCadence();
+            }
+            const std::uint32_t checkpointHoldSteps =
+                tissueReceiverBridgeResumeOnly
+                    ? kReceiverBridgeDynamicHoldSteps
+                    : 1u;
+            const Vec3 checkpointNeedlePosition = vector(
+                world.defaultSceneBodies.at(0u).position
             );
             const std::vector<float> holdEfforts = interpolateTargets(
                 world.model,
                 world.model.defaultQ,
                 world.model.defaultQ,
-                1u
+                checkpointHoldSteps
             );
             metalrobo::MetalWorldContext firstContext;
             metalrobo::MetalWorldResidentState firstResident;
-            const PhaseResult first = initializePhase(
-                firstContext,
-                compiled,
-                world,
-                stepConfig,
-                firstResident,
-                holdEfforts,
-                1u
-            );
+            const PhaseResult first = tissueReceiverBridgeResumeOnly
+                ? initializePhaseUnchecked(
+                    firstContext,
+                    compiled,
+                    world,
+                    stepConfig,
+                    firstResident,
+                    holdEfforts,
+                    checkpointHoldSteps
+                )
+                : initializePhase(
+                    firstContext,
+                    compiled,
+                    world,
+                    stepConfig,
+                    firstResident,
+                    holdEfforts,
+                    checkpointHoldSteps
+                );
             const numi::matter::RuntimeStateSnapshot firstMatter =
                 tissueRuntime.snapshot();
+            const auto requireBridgeResumeSucceeded = [&] (
+                const PhaseResult& phase,
+                const numi::matter::RuntimeStateSnapshot& matter,
+                const std::string& label
+            ) {
+                if (!tissueReceiverBridgeResumeOnly ||
+                    (phase.diagnostics.succeeded() &&
+                     phase.diagnostics.failedStepCount == 0u)) {
+                    return;
+                }
+                std::string failure = label + " failed: " +
+                    phase.diagnostics.message;
+                for (const MRMetalWorldStatusGPU& status :
+                     phase.result.statuses) {
+                    if (status.code == MR_STEP_SUCCESS) {
+                        continue;
+                    }
+                    failure +=
+                        " world_status=" + std::to_string(status.code) +
+                        " control_step=" +
+                            std::to_string(status.controlStep) +
+                        " successful_substeps=" +
+                            std::to_string(status.successfulSubsteps) +
+                        " failing_substep=" +
+                            std::to_string(status.failingSubstep) +
+                        " failing_index=" +
+                            std::to_string(status.failingIndex) +
+                        " diagnostics=(" +
+                            preciseScalar(status.diagnostics.x) + "," +
+                            preciseScalar(status.diagnostics.y) + "," +
+                            preciseScalar(status.diagnostics.z) + "," +
+                            preciseScalar(status.diagnostics.w) + ")";
+                    break;
+                }
+                for (const NMMatterStatusGPU& status : matter.statuses) {
+                    if (status.code == NM_STATUS_SUCCESS) {
+                        continue;
+                    }
+                    failure +=
+                        " matter_status=" + std::to_string(status.code) +
+                        " object=" +
+                            std::to_string(status.objectIndex) +
+                        " failing_index=" +
+                            std::to_string(status.failingIndex) +
+                        " completed_microsteps=" +
+                            std::to_string(status.completedMicrosteps) +
+                        " fgmres_iterations=" +
+                            std::to_string(status.fgmresIterations) +
+                        " diagnostics=(" +
+                            preciseScalar(status.diagnostics.x) + "," +
+                            preciseScalar(status.diagnostics.y) + "," +
+                            preciseScalar(status.diagnostics.z) + "," +
+                            preciseScalar(status.diagnostics.w) + ")";
+                    if (status.failingIndex < matter.contactSamples.size()) {
+                        const NMContactSampleGPU& sample =
+                            matter.contactSamples[status.failingIndex];
+                        failure +=
+                            " sample_separation=" + preciseScalar(
+                                sample.pointAndSeparation.w
+                            ) +
+                            " sample_normal_velocity=" + preciseScalar(
+                                sample.normalAndVelocity.w
+                            ) +
+                            " sample_admission_velocity=" + preciseScalar(
+                                sample.admissionVelocityAndNormal.w
+                            ) +
+                            " sample_barrier=(" +
+                                preciseScalar(sample.barrier.x) + "," +
+                                preciseScalar(sample.barrier.y) + "," +
+                                preciseScalar(sample.barrier.z) + "," +
+                                preciseScalar(sample.barrier.w) + ")";
+                    }
+                    break;
+                }
+                require(false, failure);
+            };
+            requireBridgeResumeSucceeded(
+                first,
+                firstMatter,
+                "resumed dynamic giver receiver bridge"
+            );
             require(
                 firstMatter.available,
                 "resumed tissue hold did not publish Matter state"
@@ -20538,19 +20691,37 @@ int main(const int argc, const char* const argv[]) {
                 rewound.encoded,
                 "could not rewind resumed tissue hold: " + rewound.message
             );
+            if (tissueReceiverBridgeResumeOnly) {
+                selectResumedBridgeCadence();
+            }
             metalrobo::MetalWorldContext replayContext;
             metalrobo::MetalWorldResidentState replayResident;
-            const PhaseResult replay = initializePhase(
-                replayContext,
-                compiled,
-                world,
-                stepConfig,
-                replayResident,
-                holdEfforts,
-                1u
-            );
+            const PhaseResult replay = tissueReceiverBridgeResumeOnly
+                ? initializePhaseUnchecked(
+                    replayContext,
+                    compiled,
+                    world,
+                    stepConfig,
+                    replayResident,
+                    holdEfforts,
+                    checkpointHoldSteps
+                )
+                : initializePhase(
+                    replayContext,
+                    compiled,
+                    world,
+                    stepConfig,
+                    replayResident,
+                    holdEfforts,
+                    checkpointHoldSteps
+                );
             const numi::matter::RuntimeStateSnapshot replayMatter =
                 tissueRuntime.snapshot();
+            requireBridgeResumeSucceeded(
+                replay,
+                replayMatter,
+                "replayed dynamic giver receiver bridge"
+            );
             const bool replayExact =
                 metalrobo::sameMatterSnapshotAuthority(
                     firstMatter,
@@ -20665,11 +20836,105 @@ int main(const int argc, const char* const argv[]) {
                     qualifiedTransitionRod(continuedRod),
                 "resumed tissue hold violated physical invariants"
             );
+            if (tissueReceiverBridgeResumeOnly) {
+                const ContactCounts bridgeContacts = contactCounts(
+                    world,
+                    first.result,
+                    needleForPlacement.metadata,
+                    kNeedleFirstShape
+                );
+                const double bridgeNeedleDriftM = norm(
+                    vector(
+                        first.result.finalSceneBodies.at(0u).position
+                    ) - checkpointNeedlePosition
+                );
+                const double bridgeNeedleSpeedMps = norm(vector(
+                    first.result.finalSceneBodies.at(0u)
+                        .linearVelocityAndInverseMass
+                ));
+                const MRMetalWorldContactStatusGPU& bridgeResidual =
+                    requireTerminalResidual(
+                        first.result,
+                        "resumed dynamic giver receiver bridge hold",
+                        false
+                    );
+                std::cout << std::setprecision(9)
+                    << "dynamic_receiver_bridge_resume_candidate"
+                    << " hold_steps=" << checkpointHoldSteps
+                    << " matter_timestep_multiplier="
+                    << firstMatter.coupledTimestepMultiplier
+                    << " giver_jaw_contacts="
+                    << bridgeContacts.jawContacts[0][0] << '/'
+                    << bridgeContacts.jawContacts[0][1]
+                    << " giver_insert_patch_masks="
+                    << bridgeContacts.jawInsertPatchMasks[0][0] << '/'
+                    << bridgeContacts.jawInsertPatchMasks[0][1]
+                    << " receiver_jaw_contacts="
+                    << bridgeContacts.jawContacts[1][0] << '/'
+                    << bridgeContacts.jawContacts[1][1]
+                    << " cross_arm_contacts="
+                    << bridgeContacts.crossArmContacts
+                    << " puncture_channels_unchanged="
+                    << punctureChannelsUnchanged
+                    << " active_tetrahedra=" << continuedTetrahedra
+                    << " expected_tetrahedra="
+                    << tissueCoupon.metadata.tetrahedronCount
+                    << " removed_tissue_mass_kg="
+                    << continuedRemovedMassKg
+                    << " certificates_accepted="
+                    << continuedCertificatesAccepted
+                    << " matter_minimum_determinant="
+                    << continuedMinimumDeterminant
+                    << " matter_maximum_residual="
+                    << continuedMaximumResidual
+                    << " maximum_tissue_increment_m="
+                    << maximumTissueIncrementM
+                    << " needle_drift_m=" << bridgeNeedleDriftM
+                    << " needle_speed_mps=" << bridgeNeedleSpeedMps
+                    << " hard_swage_root_error_m="
+                    << continuedSwageErrorM
+                    << " thread_maximum_node_speed_mps="
+                    << continuedRod.maximumNodeSpeed
+                    << " thread_maximum_edge_error_m="
+                    << continuedRod.maximumEdgeLengthError
+                    << " thread_minimum_clearance_m="
+                    << continuedRod
+                           .minimumNonNeighbourSurfaceClearance
+                    << " terminal_contact_velocity_residual_mps="
+                    << bridgeResidual.residuals.y
+                    << " terminal_cone_violation="
+                    << bridgeResidual.residuals.z << '\n';
+                require(
+                    bilateral(bridgeContacts, 0u) &&
+                        distributedInsertCoverage(bridgeContacts, 0u) &&
+                        cleanNeedleInteraction(
+                            bridgeContacts,
+                            true,
+                            false
+                        ) &&
+                        bridgeNeedleDriftM <=
+                            kMaximumReceiverBridgeNeedleDriftM &&
+                        qualifiedTerminalRod(continuedRod) &&
+                        bridgeResidual.residuals.y <=
+                            kMaximumTerminalContactVelocityResidual &&
+                        bridgeResidual.residuals.z <=
+                            kMaximumTerminalConeViolation,
+                    "resumed dynamic giver did not inherit the accepted "
+                    "needle/strand/tissue state: " +
+                        contactSummary(bridgeContacts)
+                );
+            }
             const std::uint64_t continuedStateStep =
-                resumedTissueCheckpointStep + stepConfig.physicsSubsteps;
+                resumedTissueCheckpointStep +
+                static_cast<std::uint64_t>(checkpointHoldSteps) *
+                    stepConfig.physicsSubsteps;
+            const std::string continuedCheckpointPhase =
+                tissueReceiverBridgeResumeOnly
+                    ? "tissue-receiver-dynamic-bridge"
+                    : options.resumeTissueCheckpointPhase;
             writeHandoffStateArtifact(
                 options.stateOutputDirectory,
-                options.resumeTissueCheckpointPhase,
+                continuedCheckpointPhase,
                 continuedStateStep,
                 world,
                 sutureSpec,
@@ -20697,8 +20962,9 @@ int main(const int argc, const char* const argv[]) {
             );
             std::cout << std::setprecision(9)
                 << "tissue_checkpoint_hold=ok"
-                << " phase=" << options.resumeTissueCheckpointPhase
+                << " phase=" << continuedCheckpointPhase
                 << " state_step=" << continuedStateStep
+                << " hold_steps=" << checkpointHoldSteps
                 << " timestep_s=" << stepConfig.timestepSeconds
                 << " cadence_multiplier="
                 << firstMatter.coupledTimestepMultiplier
@@ -23628,7 +23894,7 @@ int main(const int argc, const char* const argv[]) {
                             &preBridgeMatter
                         );
                         selectCoupledCadence(
-                            kSuturePullMatterRateMultiplier,
+                            kReceiverBridgeDynamicMatterRateMultiplier,
                             "dynamic giver receiver bridge hold"
                         );
                         const std::vector<float> dynamicBridgeEfforts =
