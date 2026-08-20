@@ -6727,6 +6727,8 @@ struct Arguments {
     std::filesystem::path giverGraspReferencePath;
     std::filesystem::path resumePositiveControlOverlapPath;
     std::filesystem::path resumeReceiverPreloadCandidatePath;
+    bool resumeReceiverPreloadRegraspOverlap = false;
+    bool resumeReceiverPreloadReloadCandidate = false;
     std::filesystem::path resumeReceiverPreloadPath;
     std::filesystem::path resumeReceiverPreloadGiverLatchedPath;
     std::filesystem::path resumeReceiverPreloadRecenteredPath;
@@ -7331,6 +7333,26 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
                 "path"
             );
             result.resumeReceiverPreloadCandidatePath = argv[++index];
+        } else if (argument ==
+                   "--resume-receiver-preload-regrasp-overlap") {
+            require(
+                result.resumeReceiverPreloadCandidatePath.empty() &&
+                    index + 1 < argc,
+                "--resume-receiver-preload-regrasp-overlap requires "
+                "exactly one path"
+            );
+            result.resumeReceiverPreloadCandidatePath = argv[++index];
+            result.resumeReceiverPreloadRegraspOverlap = true;
+        } else if (argument ==
+                   "--resume-receiver-preload-reload-candidate") {
+            require(
+                result.resumeReceiverPreloadCandidatePath.empty() &&
+                    index + 1 < argc,
+                "--resume-receiver-preload-reload-candidate requires "
+                "exactly one path"
+            );
+            result.resumeReceiverPreloadCandidatePath = argv[++index];
+            result.resumeReceiverPreloadReloadCandidate = true;
         } else if (argument == "--resume-receiver-preload") {
             require(
                 result.resumeReceiverPreloadPath.empty() &&
@@ -14235,9 +14257,15 @@ int main(const int argc, const char* const argv[]) {
                 world
             );
         } else if (!options.resumeReceiverPreloadCandidatePath.empty()) {
+            const std::string_view expectedPhase =
+                options.resumeReceiverPreloadRegraspOverlap
+                    ? "receiver-preload-regrasp-overlap"
+                    : options.resumeReceiverPreloadReloadCandidate
+                        ? "receiver-preload-reload-candidate"
+                        : "receiver-preload-candidate";
             loadedStateStep = loadHandoffState(
                 options.resumeReceiverPreloadCandidatePath,
-                "receiver-preload-candidate",
+                expectedPhase,
                 world
             );
         } else if (!options.resumeReceiverPreloadPath.empty()) {
@@ -20677,6 +20705,7 @@ int main(const int argc, const char* const argv[]) {
         bool receiverAlignmentAlreadyCompleted = false;
         bool receiverPreloadCandidateAlreadyCompleted = false;
         bool receiverPreloadGiverLatchAlreadyCompleted = false;
+        bool receiverPreloadRegraspOverlapAlreadyCompleted = false;
         bool receiverPreloadUnloadAlreadyCompleted = false;
         bool receiverPreloadReseatAlreadyCompleted = false;
         std::optional<GraspReference> giverGraspReference;
@@ -31628,8 +31657,12 @@ int main(const int argc, const char* const argv[]) {
             preReleaseGpuMilliseconds = 0.0;
             receiverPreloadCandidateAlreadyCompleted = true;
             receiverPreloadGiverLatchAlreadyCompleted =
+                options.resumeReceiverPreloadRegraspOverlap ||
+                options.resumeReceiverPreloadReloadCandidate ||
                 !options.resumeReceiverPreloadGiverLatchedPath.empty() ||
                 !options.resumeReceiverPreloadRecenteredPath.empty();
+            receiverPreloadRegraspOverlapAlreadyCompleted =
+                options.resumeReceiverPreloadRegraspOverlap;
             receiverPreloadReseatAlreadyCompleted =
                 !options.resumeReceiverPreloadRecenteredPath.empty();
             if (!options.resumeReceiverPreloadUnloadedPath.empty() ||
@@ -34521,9 +34554,15 @@ int main(const int argc, const char* const argv[]) {
                 receiverPreloaded,
                 receiverPreloadSettleSteps
         );
+        const std::string_view receiverPreloadCandidateArtifactPhase =
+            options.resumeReceiverPreloadRegraspOverlap
+                ? "receiver-preload-regrasp-overlap"
+                : options.resumeReceiverPreloadReloadCandidate
+                    ? "receiver-preload-reload-candidate"
+                    : "receiver-preload-candidate";
         writeHandoffStateArtifact(
             options.stateOutputDirectory,
-            "receiver-preload-candidate",
+            receiverPreloadCandidateArtifactPhase,
             preReleaseSuccessfulSteps + receiverPreloadMotionSteps +
                 receiverPreloadSettleSteps,
             world,
@@ -34588,7 +34627,7 @@ int main(const int argc, const char* const argv[]) {
             );
             writeHandoffStateArtifact(
                 options.stateOutputDirectory,
-                "receiver-preload-candidate",
+                receiverPreloadCandidateArtifactPhase,
                 preReleaseSuccessfulSteps + receiverPreloadMotionSteps +
                     receiverPreloadSettleSteps,
                 world,
@@ -34600,6 +34639,10 @@ int main(const int argc, const char* const argv[]) {
                 ? consecutiveQualifiedReceiverPreloadProofs + 1u
                 : 0u;
         }
+        const bool reuseQualifiedRegraspOverlap =
+            receiverPreloadRegraspOverlapAlreadyCompleted &&
+            consecutiveQualifiedReceiverPreloadProofs >= 2u &&
+            receiverPreloadAudit->qualified;
         if (!distributedInsertCoverage(
                 receiverPreloadAudit->contacts,
                 1u
@@ -34655,7 +34698,7 @@ int main(const int argc, const char* const argv[]) {
                 );
                 writeHandoffStateArtifact(
                     options.stateOutputDirectory,
-                    "receiver-preload-candidate",
+                    receiverPreloadCandidateArtifactPhase,
                     preReleaseSuccessfulSteps +
                         receiverPreloadMotionSteps +
                         receiverPreloadSettleSteps,
@@ -35557,6 +35600,19 @@ int main(const int argc, const char* const argv[]) {
                 << " command_velocity_ratio="
                 << receiverPreloadOverlapReload.maximumVelocityRatio
                 << contactSummary(receiverPreloadAudit->contacts) << '\n';
+        }
+        if (reuseQualifiedRegraspOverlap) {
+            std::cerr
+                << "handoff_phase=receiver_preload_regrasp_overlap_resume"
+                << " cold_start_proof_steps="
+                << receiverPreloadSettleSteps
+                << contactSummary(receiverPreloadAudit->contacts)
+                << '\n';
+        }
+        const bool receiverPreloadNeedsFullReload =
+            reuseQualifiedRegraspOverlap ||
+            receiverPreloadOverlapReloadSteps != 0u;
+        if (receiverPreloadNeedsFullReload) {
 
             // With gentle dual control now persistent, add only the remaining
             // 45 um diametral preload while both insert frames stay fixed.
@@ -35618,6 +35674,29 @@ int main(const int argc, const char* const argv[]) {
             receiverPreloadHoldTarget = receiverPreloadReload.finalTarget;
             receiverPreloadAudit = auditReceiverPreload(
                 receiverPreloaded, receiverPreloadSettleSteps
+            );
+            // Persist the full-preload endpoint before interpreting its row
+            // coverage.  A dynamically bounded one-row seat is rejected, but
+            // it is also the physically authoritative starting point for a
+            // second contact-free frame correction under the existing giver
+            // transport latch.
+            writeHandoffStateArtifact(
+                options.stateOutputDirectory,
+                "receiver-preload-reload-candidate",
+                preReleaseSuccessfulSteps + receiverPreloadMotionSteps +
+                    receiverPreloadSettleSteps +
+                    receiverPreloadGiverLatchSteps +
+                    receiverPreloadGiverLatchSettleSteps +
+                    receiverPreloadUnloadSteps +
+                    receiverPreloadReleaseSettleSteps +
+                    receiverPreloadReseatSteps +
+                    receiverPreloadLowForceSettleSteps +
+                    receiverPreloadOverlapReloadSteps +
+                    receiverPreloadOverlapSettleSteps +
+                    receiverPreloadReloadSteps,
+                world,
+                sutureSpec,
+                receiverPreloaded.result
             );
             require(
                 bilateral(receiverPreloadAudit->contacts, 0u) &&
