@@ -34698,8 +34698,43 @@ int main(const int argc, const char* const argv[]) {
                 receiverPreloadAudit->contacts,
                 1u
             )) {
-            const auto regraspNumericsBounded = [&] {
+            const auto receiverStateReadyToReseat = [&] {
+                return receiverPreloadUnloadAlreadyCompleted
+                    ? receiverPreloadAudit->contacts
+                              .jawContacts[1][0] == 0u &&
+                        receiverPreloadAudit->contacts
+                              .jawContacts[1][1] == 0u &&
+                        cleanNeedleInteraction(
+                            receiverPreloadAudit->contacts,
+                            true,
+                            false
+                        )
+                    : bilateral(receiverPreloadAudit->contacts, 1u) &&
+                        transverseInsertCoverage(
+                            receiverPreloadAudit->contacts,
+                            1u
+                        ) &&
+                        cleanNeedleInteraction(
+                            receiverPreloadAudit->contacts,
+                            true,
+                            true
+                        ) &&
+                        qualifiedTransitionGrasp(
+                            receiverPreloadAudit->receiver
+                        );
+            };
+            const auto safeToReseat = [&] {
                 return
+                    bilateral(receiverPreloadAudit->contacts, 0u) &&
+                    transverseInsertCoverage(
+                        receiverPreloadAudit->contacts,
+                        0u
+                    ) &&
+                    receiverStateReadyToReseat() &&
+                    qualifiedTransitionGrasp(
+                        receiverPreloadAudit->giver
+                    ) &&
+                    qualifiedTransitionRod(receiverPreloadAudit->rod) &&
                     receiverPreloadAudit->rod.clampedRootSpeedValid &&
                     receiverPreloadAudit->rod.maximumClampedRootSpeed <=
                         kMaximumSettledSwageRootSpeed &&
@@ -34707,13 +34742,23 @@ int main(const int argc, const char* const argv[]) {
                         kMaximumSettledNeedleLinearSpeed &&
                     receiverPreloadAudit->needleAngularSpeed <=
                         kMaximumSettledNeedleAngularSpeed &&
+                    receiverPreloadAudit->swageError <
+                        kMaximumSwageAttachmentError &&
+                    receiverPreloadAudit->swageTangentError <
+                        maximumSwageTangentAngleError(world) &&
                     receiverPreloadAudit->residual.residuals.y <=
                         kMaximumTerminalContactVelocityResidual &&
                     receiverPreloadAudit->residual.residuals.z <=
                         kMaximumTerminalConeViolation;
             };
+            // A low residual is not sufficient authority to open the receiver.
+            // The measured candidate first became numerically quiet while the
+            // giver remained 3.264 um outside the unchanged seat envelope and
+            // the DER still moved at 313 mm/s. Continue the identical planned
+            // effort stream until every geometric, contact, rod, swage, and
+            // convergence predicate admits the corrective release.
             while (
-                !regraspNumericsBounded() &&
+                !safeToReseat() &&
                 receiverPreloadSettleSteps <
                     kLoadExchangeMaximumSettleSteps
             ) {
@@ -34741,56 +34786,8 @@ int main(const int argc, const char* const argv[]) {
                     receiverPreloaded.result
                 );
             }
-            const bool receiverStateReadyToReseat =
-                receiverPreloadUnloadAlreadyCompleted
-                ? receiverPreloadAudit->contacts.jawContacts[1][0] == 0u &&
-                    receiverPreloadAudit->contacts.jawContacts[1][1] == 0u &&
-                    cleanNeedleInteraction(
-                        receiverPreloadAudit->contacts,
-                        true,
-                        false
-                    )
-                : bilateral(receiverPreloadAudit->contacts, 1u) &&
-                    transverseInsertCoverage(
-                        receiverPreloadAudit->contacts,
-                        1u
-                    ) &&
-                    cleanNeedleInteraction(
-                        receiverPreloadAudit->contacts,
-                        true,
-                        true
-                    ) &&
-                    qualifiedTransitionGrasp(
-                        receiverPreloadAudit->receiver
-                    );
-            const bool safeToReseat =
-                bilateral(receiverPreloadAudit->contacts, 0u) &&
-                transverseInsertCoverage(
-                    receiverPreloadAudit->contacts,
-                    0u
-                ) &&
-                receiverStateReadyToReseat &&
-                qualifiedTransitionGrasp(
-                    receiverPreloadAudit->giver
-                ) &&
-                qualifiedTransitionRod(receiverPreloadAudit->rod) &&
-                receiverPreloadAudit->rod.clampedRootSpeedValid &&
-                receiverPreloadAudit->rod.maximumClampedRootSpeed <=
-                    kMaximumSettledSwageRootSpeed &&
-                receiverPreloadAudit->needleLinearSpeed <=
-                    kMaximumSettledNeedleLinearSpeed &&
-                receiverPreloadAudit->needleAngularSpeed <=
-                    kMaximumSettledNeedleAngularSpeed &&
-                receiverPreloadAudit->swageError <
-                    kMaximumSwageAttachmentError &&
-                receiverPreloadAudit->swageTangentError <
-                    maximumSwageTangentAngleError(world) &&
-                receiverPreloadAudit->residual.residuals.y <=
-                    kMaximumTerminalContactVelocityResidual &&
-                receiverPreloadAudit->residual.residuals.z <=
-                    kMaximumTerminalConeViolation;
             require(
-                safeToReseat,
+                safeToReseat(),
                 "receiver preload lost more than longitudinal insert "
                 "centering before its corrective reseat"
             );
