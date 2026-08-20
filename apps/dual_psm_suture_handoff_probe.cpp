@@ -386,10 +386,10 @@ constexpr double kMaximumSwageTangentBendingStrain = 1.0e-2;
 // rigid rotation. The remaining explicit research tolerances are 2 mm/s
 // point slip and 0.6 rad/s relative angular motion at a commanded endpoint.
 constexpr double kMaximumQualifiedGraspSeatDrift = 1.0e-4;
-// During the long collision-free receiver approach, the controlling needle
-// may settle deeper into the giver's finite V-groove. Permit one bounded,
-// stable reseat below the 0.35 mm needle radius, then establish a fresh
-// pre-closure reference. Subsequent grasp phases retain the 0.10 mm bound.
+// At the first authored-to-contact latch, the needle may settle deeper into
+// the giver's finite V-groove. Permit one bounded, stable reseat below the
+// 0.35 mm needle radius, then establish a fresh dynamic reference. The long
+// receiver approach and every subsequent grasp phase retain the 0.10 mm bound.
 constexpr double kMaximumTransitionGraspReseating = 3.0e-4;
 constexpr double kMaximumQualifiedRelativePointSpeed = 2.0e-3;
 constexpr double kMaximumQualifiedRelativeAngularSpeed = 0.6;
@@ -3585,12 +3585,12 @@ GraspReference graspReference(
         needleShape,
         body
     );
-    const Quaternion orientation{
+    const Quaternion orientation = normalizedQuaternion({
         body.orientation.x,
         body.orientation.y,
         body.orientation.z,
         body.orientation.w,
-    };
+    });
     return {
         .jawMidpointOffsetInNeedleFrame = rotate(
             conjugate(orientation),
@@ -3640,12 +3640,12 @@ GraspFrameTarget graspFrameTarget(
     const std::uint32_t needleShape,
     const GraspReference& reference
 ) {
-    const Quaternion orientation{
+    const Quaternion orientation = normalizedQuaternion({
         body.orientation.x,
         body.orientation.y,
         body.orientation.z,
         body.orientation.w,
-    };
+    });
     const Vec3 needlePoint = needleShapeWorldCenter(
         needle,
         needleShape,
@@ -12854,7 +12854,13 @@ int main(const int argc, const char* const argv[]) {
                     (
                         resumedExtractionLoadExchange
                             ? qualifiedTransitionGrasp(giverHoldMotion)
-                            : qualifiedDrivenGrasp(giverHoldMotion)
+                        : resumedPositiveControlAtHold
+                            ? qualifiedDrivenGrasp(giverHoldMotion)
+                            // This is the sole authored-to-contact latch.
+                            // Accept only the existing bounded transition
+                            // reseat here; giverReference above captures the
+                            // seated frame used by every later 100 um gate.
+                            : qualifiedTransitionGrasp(giverHoldMotion)
                     );
             if (receiverExtractionGiverHoldOnly) {
                 const double giverHoldSwageError = swageAttachmentError(
