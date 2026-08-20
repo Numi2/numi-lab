@@ -322,9 +322,10 @@ constexpr double kReceiverRegraspDiametralClearanceM = 8.0e-5;
 // candidate recovered inside the unchanged 0.30 mm reseat envelope at 200 ms,
 // then became quiescent on one longitudinal row only 3.039 um beyond that
 // envelope at 300 ms. Observe that transition at the native 2 ms control
-// boundary so the already-gated corrective release can start while it is still
-// admissible. This cadence cannot qualify the preload; the accepted seat still
-// requires two consecutive 100 ms proofs below.
+// boundary by slicing one precomputed 100 ms effort stream, so the already-
+// gated corrective release can start while it is still admissible without
+// changing the commanded trajectory. This cadence cannot qualify the preload;
+// the accepted seat still requires two consecutive 100 ms proofs below.
 constexpr std::uint32_t kReceiverPreloadCandidateAssessmentSteps = 1u;
 // Re-prove the full receiver seat in consecutive 100 ms chunks, with a bounded
 // 1 s ceiling; only then may the giver continue to a visibly open clearance.
@@ -34595,6 +34596,60 @@ int main(const int argc, const char* const argv[]) {
             options.resumeReceiverPreloadReloadCandidate
             ? kReceiverPreloadCandidateAssessmentSteps
             : kLoadExchangeSettleSteps;
+        std::vector<float> receiverPreloadAssessmentEfforts;
+        std::uint32_t receiverPreloadAssessmentPlanSteps = 0u;
+        std::uint32_t receiverPreloadAssessmentPlanOffset = 0u;
+        const auto advanceReceiverPreloadAssessment = [&] (
+            const std::string& phase
+        ) {
+            if (receiverPreloadAssessmentPlanOffset ==
+                receiverPreloadAssessmentPlanSteps) {
+                receiverPreloadAssessmentPlanSteps = std::min(
+                    kLoadExchangeSettleSteps,
+                    kLoadExchangeMaximumSettleSteps -
+                        receiverPreloadSettleSteps
+                );
+                require(
+                    receiverPreloadAssessmentPlanSteps != 0u,
+                    "receiver preload assessment exceeded its bounded hold"
+                );
+                receiverPreloadAssessmentEfforts = interpolateTargets(
+                    world.model,
+                    receiverPreloaded.result.finalQ,
+                    receiverPreloadHoldTarget,
+                    receiverPreloadAssessmentPlanSteps
+                );
+                receiverPreloadAssessmentPlanOffset = 0u;
+            }
+            const std::uint32_t chunkSteps = std::min(
+                receiverPreloadAssessmentSteps,
+                receiverPreloadAssessmentPlanSteps -
+                    receiverPreloadAssessmentPlanOffset
+            );
+            const std::size_t first =
+                static_cast<std::size_t>(
+                    receiverPreloadAssessmentPlanOffset
+                ) * world.model.world.nv;
+            const std::size_t count =
+                static_cast<std::size_t>(chunkSteps) *
+                    world.model.world.nv;
+            const std::vector<float> effortChunk(
+                receiverPreloadAssessmentEfforts.begin() + first,
+                receiverPreloadAssessmentEfforts.begin() + first + count
+            );
+            PhaseResult result = continuePhase(
+                context,
+                compiled,
+                stepConfig,
+                resident,
+                effortChunk,
+                chunkSteps,
+                phase
+            );
+            receiverPreloadAssessmentPlanOffset += chunkSteps;
+            receiverPreloadSettleSteps += chunkSteps;
+            return result;
+        };
         // A single distributed endpoint is not enough: the cold checkpoint
         // replay briefly recovered both longitudinal rows, then returned to a
         // one-row seat in the next proof chunk. Probe persistence before
@@ -34608,31 +34663,14 @@ int main(const int argc, const char* const argv[]) {
             receiverPreloadSettleSteps <
                 kLoadExchangeMaximumSettleSteps
         ) {
-            const std::uint32_t extensionSteps = std::min(
-                receiverPreloadAssessmentSteps,
-                kLoadExchangeMaximumSettleSteps -
-                    receiverPreloadSettleSteps
-            );
-            efforts = interpolateTargets(
-                world.model,
-                receiverPreloaded.result.finalQ,
-                receiverPreloadHoldTarget,
-                extensionSteps
-            );
-            PhaseResult persistenceProof = continuePhase(
-                context,
-                compiled,
-                stepConfig,
-                resident,
-                efforts,
-                extensionSteps,
-                "receiver preload persistence proof"
-            );
+            PhaseResult persistenceProof =
+                advanceReceiverPreloadAssessment(
+                    "receiver preload persistence proof"
+                );
             receiverPreloadSuccessfulSteps +=
                 persistenceProof.diagnostics.successfulStepCount;
             receiverPreloadGpuMilliseconds +=
                 persistenceProof.diagnostics.gpuElapsedMilliseconds;
-            receiverPreloadSettleSteps += extensionSteps;
             receiverPreloaded = std::move(persistenceProof);
             receiverPreloadAudit = auditReceiverPreload(
                 receiverPreloaded,
@@ -34679,31 +34717,14 @@ int main(const int argc, const char* const argv[]) {
                 receiverPreloadSettleSteps <
                     kLoadExchangeMaximumSettleSteps
             ) {
-                const std::uint32_t extensionSteps = std::min(
-                    receiverPreloadAssessmentSteps,
-                    kLoadExchangeMaximumSettleSteps -
-                        receiverPreloadSettleSteps
-                );
-                efforts = interpolateTargets(
-                    world.model,
-                    receiverPreloaded.result.finalQ,
-                    receiverPreloadHoldTarget,
-                    extensionSteps
-                );
-                PhaseResult convergenceProof = continuePhase(
-                    context,
-                    compiled,
-                    stepConfig,
-                    resident,
-                    efforts,
-                    extensionSteps,
-                    "receiver preload pre-regrasp convergence proof"
-                );
+                PhaseResult convergenceProof =
+                    advanceReceiverPreloadAssessment(
+                        "receiver preload pre-regrasp convergence proof"
+                    );
                 receiverPreloadSuccessfulSteps +=
                     convergenceProof.diagnostics.successfulStepCount;
                 receiverPreloadGpuMilliseconds +=
                     convergenceProof.diagnostics.gpuElapsedMilliseconds;
-                receiverPreloadSettleSteps += extensionSteps;
                 receiverPreloaded = std::move(convergenceProof);
                 receiverPreloadAudit = auditReceiverPreload(
                     receiverPreloaded,
