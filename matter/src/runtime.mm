@@ -333,6 +333,10 @@ struct Runtime::State {
     std::uint64_t sutureProxyBindingRevision = 0u;
     std::atomic<std::uint32_t> coupledTimestepMultiplier{1u};
     std::atomic<std::uint32_t> coupledTimestepDivisor{1u};
+    // Zero canonically selects mixedSolverValue.nonlinearIterations.z.
+    // A nonzero phase-boundary override changes encoded work only; the
+    // restarted basis allocation and every convergence tolerance stay fixed.
+    std::atomic<std::uint32_t> fgmresIterationBudgetOverride{0u};
     std::shared_ptr<CommandOwnership> commandOwnership =
         std::make_shared<CommandOwnership>();
     std::shared_ptr<GrowthOwnership> growthOwnership =
@@ -3692,8 +3696,16 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             const std::uint32_t restart = std::min(
                 state.mixedSolverValue.nonlinearIterations.y,
                 static_cast<std::uint32_t>(NM_MIXED_FGMRES_RESTART));
+            const std::uint32_t budgetOverride =
+                state.fgmresIterationBudgetOverride.load(
+                    std::memory_order_acquire
+                );
             const std::uint32_t linearIterationBudget = std::max(
-                restart, state.mixedSolverValue.nonlinearIterations.z);
+                restart,
+                budgetOverride == 0u
+                    ? state.mixedSolverValue.nonlinearIterations.z
+                    : budgetOverride
+            );
             const std::uint32_t restartCycleCount =
                 (linearIterationBudget + restart - 1u) / restart;
             const float nonlinearTolerance = std::max(
@@ -6088,6 +6100,62 @@ float Runtime::timestepSeconds() const noexcept {
         : 0.0f;
 }
 
+bool Runtime::setFGMRESIterationBudget(
+    const std::uint32_t iterations
+) noexcept {
+    if (state_ == nullptr || iterations == 0u) {
+        return false;
+    }
+    try {
+        const std::uint32_t restart = std::min(
+            state_->mixedSolverValue.nonlinearIterations.y,
+            static_cast<std::uint32_t>(NM_MIXED_FGMRES_RESTART)
+        );
+        if (restart == 0u || iterations < restart ||
+            iterations >
+                std::numeric_limits<std::uint32_t>::max() - restart + 1u) {
+            return false;
+        }
+        const auto ownership = state_->commandOwnership;
+        const std::lock_guard lock(ownership->mutex);
+        if (ownership->activeCommandBuffer != nullptr ||
+            ownership->preDynamicsOpen) {
+            return false;
+        }
+        const std::uint32_t cooked = std::max(
+            restart,
+            state_->mixedSolverValue.nonlinearIterations.z
+        );
+        state_->fgmresIterationBudgetOverride.store(
+            iterations == cooked ? 0u : iterations,
+            std::memory_order_release
+        );
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+std::uint32_t Runtime::fgmresIterationBudget() const noexcept {
+    if (state_ == nullptr) {
+        return 0u;
+    }
+    const std::uint32_t restart = std::min(
+        state_->mixedSolverValue.nonlinearIterations.y,
+        static_cast<std::uint32_t>(NM_MIXED_FGMRES_RESTART)
+    );
+    const std::uint32_t budgetOverride =
+        state_->fgmresIterationBudgetOverride.load(
+            std::memory_order_acquire
+        );
+    return std::max(
+        restart,
+        budgetOverride == 0u
+            ? state_->mixedSolverValue.nonlinearIterations.z
+            : budgetOverride
+    );
+}
+
 RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
     RuntimeDiagnostics diagnostics;
     if (state_ == nullptr) {
@@ -6152,6 +6220,21 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
           snapshot.coupledTimestepDivisor != 1u))) {
         diagnostics.message =
             "Matter snapshot has an invalid coupled timestep cadence";
+        return diagnostics;
+    }
+    const std::uint32_t fgmresRestart = std::min(
+        state.mixedSolverValue.nonlinearIterations.y,
+        static_cast<std::uint32_t>(NM_MIXED_FGMRES_RESTART)
+    );
+    const std::uint32_t fgmresBudget =
+        snapshot.fgmresIterationBudgetOverride == 0u
+            ? state.mixedSolverValue.nonlinearIterations.z
+            : snapshot.fgmresIterationBudgetOverride;
+    if (fgmresRestart == 0u || fgmresBudget < fgmresRestart ||
+        fgmresBudget >
+            std::numeric_limits<std::uint32_t>::max() - fgmresRestart + 1u) {
+        diagnostics.message =
+            "Matter snapshot has an invalid FGMRES iteration budget";
         return diagnostics;
     }
 
@@ -6743,6 +6826,10 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
         snapshot.coupledTimestepDivisor,
         std::memory_order_release
     );
+    state.fgmresIterationBudgetOverride.store(
+        snapshot.fgmresIterationBudgetOverride,
+        std::memory_order_release
+    );
     ownership->controlStep = snapshot.controlStep;
     ownership->physicsSubstep = snapshot.physicsSubstep;
     ownership->identificationGeneration =
@@ -6783,6 +6870,10 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             );
         snapshot.coupledTimestepDivisor =
             state_->coupledTimestepDivisor.load(
+                std::memory_order_acquire
+            );
+        snapshot.fgmresIterationBudgetOverride =
+            state_->fgmresIterationBudgetOverride.load(
                 std::memory_order_acquire
             );
         snapshot.controlStep = ownership->controlStep;

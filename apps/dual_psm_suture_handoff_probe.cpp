@@ -169,6 +169,16 @@ constexpr std::uint32_t kSutureContactMatterRateMultiplier = 1u;
 // through alignment, then retain the existing predictive feasibility guard
 // before any later cadence transition.
 constexpr std::uint32_t kReceiverAlignmentTimestepDivisor = 1u;
+// The accepted r7 bridge used exactly two 16-column restart cycles and held
+// all strict tissue/contact certificates for 25 ms. The difficult alignment
+// later exhausted those 32 columns at a 5.02576e-4 linear residual, just above
+// the unchanged 5e-4 boundary. Preserve the proven bridge execution, then add
+// one bounded restart cycle only once the alignment phase begins. The basis,
+// residual/contact tolerances, and accepted-state transaction are unchanged.
+constexpr std::uint32_t kReceiverBridgeFGMRESIterationBudget =
+    2u * NM_MIXED_FGMRES_RESTART;
+constexpr std::uint32_t kReceiverAlignmentFGMRESIterationBudget =
+    3u * NM_MIXED_FGMRES_RESTART;
 // The 2 mm guard is larger than the 0.35 mm tract radius, 0.10 mm strand
 // radius, and 0.10 mm contact band combined, so the base cadence is active
 // before the first possible rim interaction.
@@ -6492,23 +6502,19 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     source.maximumDepenetrationSpeed = 0.05;
     source.deterministic = true;
     // Entry reaches the identical accepted state by the fifth Newton pass and
-    // tenth Arnoldi column. The long-horizon receiver world, however, retains
-    // a dynamic free-needle block. Its tissue-engaged alignment replay first
-    // reached the unchanged 5e-4 residual boundary after 34 ms and exhausted
-    // all 16 Arnoldi columns with a 5.00249e-4 linear residual. The later
-    // 640/800 alignment checkpoint preserved all seven puncture channels and
-    // J >= 0.9946, then a harder step exhausted two complete restart cycles at
-    // 5.02576e-4. Matter's restarted FGMRES reuses the same compiled SIMD16
-    // basis, so give this production path a third bounded cycle while retaining
-    // the exact Newton, contact, and publication tolerances. Converged lanes
-    // remain inert in the statically encoded tail; this adds difficult-step
-    // work, not a weaker acceptance gate or a larger Krylov allocation.
+    // tenth Arnoldi column. Keep two complete restart cycles as the cooked
+    // free-needle budget: r7 passed the exact 25 ms dynamic bridge with that
+    // execution, whereas globally cooking three cycles changed accepted bridge
+    // dynamics and reached a strict IPC contact-feasibility rollback. The live
+    // sequence raises only the alignment-and-later runtime budget at its
+    // completion boundary. Restart width, allocation, Newton iterations, and
+    // every residual/contact/publication tolerance remain immutable.
     source.mixedSolver.newtonIterations = freeNeedleCapability
         ? NM_MIXED_NEWTON_ITERATIONS : 5u;
     source.mixedSolver.fgmresRestart = freeNeedleCapability
         ? NM_MIXED_FGMRES_RESTART : 10u;
     source.mixedSolver.fgmresIterations = freeNeedleCapability
-        ? 3u * NM_MIXED_FGMRES_RESTART : 10u;
+        ? kReceiverBridgeFGMRESIterationBudget : 10u;
     // Match the authored budget to the live Metal bound instead of claiming
     // four backtracking trials that the kernel cannot dispatch.
     source.mixedSolver.lineSearchSteps = NM_MIXED_LINE_SEARCH_STEPS;
@@ -25402,6 +25408,32 @@ int main(const int argc, const char* const argv[]) {
                             );
                         };
 
+                        require(
+                            tissueRuntime.fgmresIterationBudget() ==
+                                    kReceiverBridgeFGMRESIterationBudget &&
+                                tissueRuntime.setFGMRESIterationBudget(
+                                    kReceiverAlignmentFGMRESIterationBudget
+                                ) &&
+                                tissueRuntime.fgmresIterationBudget() ==
+                                    kReceiverAlignmentFGMRESIterationBudget,
+                            "receiver alignment could not select its bounded "
+                            "third FGMRES restart cycle"
+                        );
+                        std::cout << std::setprecision(9)
+                            << "tissue_receiver_alignment_solver_budget=ok"
+                            << " bridge_fgmres_iterations="
+                            << kReceiverBridgeFGMRESIterationBudget
+                            << " alignment_fgmres_iterations="
+                            << tissueRuntime.fgmresIterationBudget()
+                            << " fgmres_restart="
+                            << tissueWorld.mixedSolver
+                                   .nonlinearIterations.y
+                            << " relative_residual_tolerance="
+                            << tissueWorld.mixedSolver
+                                   .residualTolerances.x
+                            << " contact_separation_ratio="
+                            << tissueWorld.mixedSolver
+                                   .contactAcceptance.x << '\n';
                         selectCoupledCadence(
                             1u,
                             "receiver alignment contact-safe motion and "

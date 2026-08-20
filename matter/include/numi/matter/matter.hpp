@@ -746,6 +746,11 @@ struct RuntimeStateSnapshot {
     // differs from one, so the ratio has a canonical replay representation.
     std::uint32_t coupledTimestepMultiplier = 1u;
     std::uint32_t coupledTimestepDivisor = 1u;
+    // Zero selects the iteration budget fingerprinted into the cooked world.
+    // A nonzero value is a completion-boundary runtime override and is part of
+    // deterministic continuation authority even though it does not resize the
+    // fixed restarted-FGMRES basis.
+    std::uint32_t fgmresIterationBudgetOverride = 0u;
     std::vector<NMParticleStateGPU> particles;
     std::vector<NMFEMNodeStateGPU> femNodes;
     std::vector<NMFEMFieldStateGPU> femFields;
@@ -867,6 +872,14 @@ public:
     ) noexcept;
     [[nodiscard]] std::uint32_t coupledTimestepDivisor() const noexcept;
     [[nodiscard]] float timestepSeconds() const noexcept;
+    // Select a bounded total restarted-FGMRES iteration budget between
+    // completed command buffers. The restart width, allocated basis, solver
+    // tolerances, and accepted physical state remain unchanged. Passing the
+    // cooked budget removes the runtime override.
+    [[nodiscard]] bool setFGMRESIterationBudget(
+        std::uint32_t iterations
+    ) noexcept;
+    [[nodiscard]] std::uint32_t fgmresIterationBudget() const noexcept;
     // Synchronously restores a completion-boundary snapshot into an already
     // initialized runtime with the exact same device-program fingerprint.
     // All transactional accepted/candidate/checkpoint mirrors are updated as

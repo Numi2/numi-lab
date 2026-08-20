@@ -184,6 +184,7 @@ std::vector<std::byte> serialize(
     writer.pod(snapshot.sutureProxyBindingRevision);
     writer.pod(snapshot.coupledTimestepMultiplier);
     writer.pod(snapshot.coupledTimestepDivisor);
+    writer.pod(snapshot.fgmresIterationBudgetOverride);
     writer.pod(snapshot.allocationGeneration);
     writer.pod(snapshot.learnedWeightRevision);
     writer.pod(snapshot.materialStateStride);
@@ -220,7 +221,8 @@ std::vector<std::byte> serialize(
 
 bool deserialize(
     const std::span<const std::byte> payload,
-    numi::matter::RuntimeStateSnapshot& snapshot
+    numi::matter::RuntimeStateSnapshot& snapshot,
+    const std::uint32_t formatVersion
 ) {
     PayloadReader reader(payload);
     std::uint32_t identificationAdvanced = 0u;
@@ -234,8 +236,18 @@ bool deserialize(
         identificationAdvanced > 1u ||
         !reader.pod(snapshot.sutureProxyBindingRevision) ||
         !reader.pod(snapshot.coupledTimestepMultiplier) ||
-        !reader.pod(snapshot.coupledTimestepDivisor) ||
-        !reader.pod(snapshot.allocationGeneration) ||
+        !reader.pod(snapshot.coupledTimestepDivisor)) {
+        return false;
+    }
+    // v1 snapshots predate the phase-local solver-budget selector. Zero is
+    // its exact legacy meaning: use the budget already fingerprinted into the
+    // cooked device program.
+    snapshot.fgmresIterationBudgetOverride = 0u;
+    if (formatVersion >= 2u &&
+        !reader.pod(snapshot.fgmresIterationBudgetOverride)) {
+        return false;
+    }
+    if (!reader.pod(snapshot.allocationGeneration) ||
         !reader.pod(snapshot.learnedWeightRevision) ||
         !reader.pod(snapshot.materialStateStride) ||
         !reader.podVector(snapshot.sutureProxyEdges) ||
@@ -402,7 +414,8 @@ MatterSnapshotArchiveResult readMatterSnapshotArchive(
                 "Matter snapshot archive magic is invalid"
             );
         }
-        if (header.formatVersion != kMatterSnapshotArchiveVersion ||
+        if ((header.formatVersion != 1u &&
+             header.formatVersion != kMatterSnapshotArchiveVersion) ||
             header.endianMarker != kEndianMarker ||
             header.matterAbiVersion != NM_MATTER_ABI_VERSION) {
             return fail(
@@ -440,7 +453,7 @@ MatterSnapshotArchiveResult readMatterSnapshotArchive(
             );
         }
         numi::matter::RuntimeStateSnapshot candidate;
-        if (!deserialize(payload, candidate) ||
+        if (!deserialize(payload, candidate, header.formatVersion) ||
             candidate.sourcePhysicsFingerprint !=
                 header.sourcePhysicsFingerprint ||
             candidate.deviceProgramFingerprint !=
@@ -485,6 +498,8 @@ bool sameMatterSnapshotAuthority(
         left.coupledTimestepMultiplier ==
             right.coupledTimestepMultiplier &&
         left.coupledTimestepDivisor == right.coupledTimestepDivisor &&
+        left.fgmresIterationBudgetOverride ==
+            right.fgmresIterationBudgetOverride &&
         left.allocationGeneration == right.allocationGeneration &&
         left.learnedWeightRevision == right.learnedWeightRevision &&
         left.materialStateStride == right.materialStateStride &&
