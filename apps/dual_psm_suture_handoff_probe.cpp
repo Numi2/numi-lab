@@ -317,6 +317,15 @@ constexpr std::uint32_t kReceiverPreloadReseatMaximumSteps = 500u;
 constexpr double kReceiverPreloadReseatIKPositionToleranceM = 1.0e-6;
 constexpr double kReceiverPreloadReseatIKOrientationToleranceRad = 1.0e-5;
 constexpr double kReceiverRegraspDiametralClearanceM = 8.0e-5;
+// A restored full-preload candidate can leave distributed receiver contact in
+// a much narrower interval than the 100 ms acceptance proof: the measured
+// candidate recovered inside the unchanged 0.30 mm reseat envelope at 200 ms,
+// then became quiescent on one longitudinal row only 3.039 um beyond that
+// envelope at 300 ms. Observe that transition at the native 2 ms control
+// boundary so the already-gated corrective release can start while it is still
+// admissible. This cadence cannot qualify the preload; the accepted seat still
+// requires two consecutive 100 ms proofs below.
+constexpr std::uint32_t kReceiverPreloadCandidateAssessmentSteps = 1u;
 // Re-prove the full receiver seat in consecutive 100 ms chunks, with a bounded
 // 1 s ceiling; only then may the giver continue to a visibly open clearance.
 constexpr std::uint32_t kLoadExchangeSettleSteps = 50u;
@@ -34582,6 +34591,10 @@ int main(const int argc, const char* const argv[]) {
         std::uint32_t receiverPreloadReloadSteps = 0u;
         std::uint32_t receiverPreloadGiverUnlatchSteps = 0u;
         std::uint32_t receiverPreloadGiverUnlatchSettleSteps = 0u;
+        const std::uint32_t receiverPreloadAssessmentSteps =
+            options.resumeReceiverPreloadReloadCandidate
+            ? kReceiverPreloadCandidateAssessmentSteps
+            : kLoadExchangeSettleSteps;
         // A single distributed endpoint is not enough: the cold checkpoint
         // replay briefly recovered both longitudinal rows, then returned to a
         // one-row seat in the next proof chunk. Probe persistence before
@@ -34596,7 +34609,7 @@ int main(const int argc, const char* const argv[]) {
                 kLoadExchangeMaximumSettleSteps
         ) {
             const std::uint32_t extensionSteps = std::min(
-                kLoadExchangeSettleSteps,
+                receiverPreloadAssessmentSteps,
                 kLoadExchangeMaximumSettleSteps -
                     receiverPreloadSettleSteps
             );
@@ -34667,7 +34680,7 @@ int main(const int argc, const char* const argv[]) {
                     kLoadExchangeMaximumSettleSteps
             ) {
                 const std::uint32_t extensionSteps = std::min(
-                    kLoadExchangeSettleSteps,
+                    receiverPreloadAssessmentSteps,
                     kLoadExchangeMaximumSettleSteps -
                         receiverPreloadSettleSteps
                 );
