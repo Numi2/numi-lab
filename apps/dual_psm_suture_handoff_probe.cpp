@@ -35811,124 +35811,34 @@ int main(const int argc, const char* const argv[]) {
                 << contactSummary(receiverPreloadAudit->contacts)
                 << '\n';
         }
-        const bool receiverPreloadNeedsFullReload =
+        const bool directLoadExchangeFromQualifiedOverlap =
             reuseQualifiedRegraspOverlap ||
             receiverPreloadOverlapReloadSteps != 0u;
-        if (receiverPreloadNeedsFullReload) {
-
-            // With gentle dual control now persistent, add only the remaining
-            // 45 um diametral preload while both insert frames stay fixed.
-            const std::vector<double> reloadGiverQ =
-                armLocalQ(world.model, 0u, receiverPreloaded.result.finalQ);
-            const std::vector<double> reloadReceiverQ =
-                armLocalQ(world.model, 1u, receiverPreloaded.result.finalQ);
-            receiverPreloadReloadSteps =
-                static_cast<std::uint32_t>(std::ceil(
-                    3.0 * std::abs(closeJawCoordinate - reloadReceiverQ[7]) /
-                    (kLoadExchangeRelativeJawSpeedRadPerS * kControlTimestep)
-                )) +
-                4u;
-            const ArmTrajectory receiverPreloadReload =
-                coordinatedNeedleLoadExchangeTrajectory(
-                    world.model,
-                    psm,
-                    receiverPreloaded.result.finalQ,
-                    reloadGiverQ[7],
-                    closeJawCoordinate,
-                    receiverPreloadReloadSteps
-                );
-            require(
-                receiverPreloadReload.maximumVelocityRatio <=
-                    kMaximumCommandVelocityRatio,
-                "receiver preload reload exceeds the PSM command envelope"
-            );
-            const CrossArmCollisionScan receiverPreloadReloadPreflight =
-                scanCrossArmTargetPath(
-                    world,
-                    receiverPreloaded.result.finalQ,
-                    receiverPreloadReload.finalTarget,
-                    receiverPreloadReloadSteps,
-                    receiverPreloadReload.desiredQ
-                );
-            require(
-                receiverPreloadReloadPreflight.samplesWithContact == 0u &&
-                    receiverPreloadReloadPreflight.samplesWithGiverPadContact ==
-                        0u &&
-                    receiverPreloadReloadPreflight
-                            .samplesWithReceiverPadContact == 0u,
-                "receiver preload reload intersects an instrument or the "
-                "table"
-            );
-            PhaseResult receiverPreloadReloaded = continuePhase(
-                context,
-                compiled,
-                stepConfig,
-                resident,
-                receiverPreloadReload.efforts,
-                receiverPreloadReloadSteps,
-                "receiver preload controlled reload"
-            );
-            receiverPreloadSuccessfulSteps +=
-                receiverPreloadReloaded.diagnostics.successfulStepCount;
-            receiverPreloadGpuMilliseconds +=
-                receiverPreloadReloaded.diagnostics.gpuElapsedMilliseconds;
-            receiverPreloaded = std::move(receiverPreloadReloaded);
-            receiverPreloadHoldTarget = receiverPreloadReload.finalTarget;
-            receiverPreloadAudit = auditReceiverPreload(
-                receiverPreloaded, receiverPreloadSettleSteps
-            );
-            // Persist the full-preload endpoint before interpreting its row
-            // coverage.  A dynamically bounded one-row seat is rejected, but
-            // it is also the physically authoritative starting point for a
-            // second contact-free frame correction under the existing giver
-            // transport latch.
-            writeHandoffStateArtifact(
-                options.stateOutputDirectory,
-                "receiver-preload-reload-candidate",
-                preReleaseSuccessfulSteps + receiverPreloadMotionSteps +
-                    receiverPreloadSettleSteps +
-                    receiverPreloadGiverLatchSteps +
-                    receiverPreloadGiverLatchSettleSteps +
-                    receiverPreloadUnloadSteps +
-                    receiverPreloadReleaseSettleSteps +
-                    receiverPreloadReseatSteps +
-                    receiverPreloadLowForceSettleSteps +
-                    receiverPreloadOverlapReloadSteps +
-                    receiverPreloadOverlapSettleSteps +
-                    receiverPreloadReloadSteps,
-                world,
-                sutureSpec,
-                receiverPreloaded.result
-            );
-            require(
-                bilateral(receiverPreloadAudit->contacts, 0u) &&
-                    transverseInsertCoverage(
-                        receiverPreloadAudit->contacts, 0u
-                    ) &&
-                    bilateral(receiverPreloadAudit->contacts, 1u) &&
-                    distributedInsertCoverage(
-                        receiverPreloadAudit->contacts, 1u
-                    ) &&
-                    cleanNeedleInteraction(
-                        receiverPreloadAudit->contacts, true, true
-                    ) &&
-                    receiverPreloadAudit->giver.seatDrift <=
-                        kMaximumTransitionGraspReseating &&
-                    receiverPreloadAudit->receiver.seatDrift <=
-                        kMaximumTransitionGraspReseating &&
-                    qualifiedTransitionRod(receiverPreloadAudit->rod) &&
-                    receiverPreloadAudit->swageError <
-                        kMaximumSwageAttachmentError &&
-                    receiverPreloadAudit->swageTangentError <
-                        maximumSwageTangentAngleError(world),
-                "receiver preload reload did not retain distributed dual "
-                "control"
-            );
-            std::cerr << "handoff_phase=receiver_preload_reload"
-                      << " reload_steps=" << receiverPreloadReloadSteps
-                      << " command_velocity_ratio="
-                      << receiverPreloadReload.maximumVelocityRatio
-                      << contactSummary(receiverPreloadAudit->contacts) << '\n';
+        if (directLoadExchangeFromQualifiedOverlap) {
+            // This measured state already has persistent distributed contact:
+            // the giver owns the stronger transport preload while the receiver
+            // owns the qualified 15 um overlap. Closing only the receiver from
+            // here overconstrained the curved needle and produced 0.55--0.64 mm
+            // of rejected common reseating. Preserve a non-zero load path in
+            // both jaws and let the fixed-frame exchange below simultaneously
+            // close the receiver while relaxing the giver to overlap preload.
+            // Its ordinary motion, rod, swage, contact, drift, and two-window
+            // convergence gates remain authoritative.
+            std::cerr
+                << "handoff_phase=receiver_preload_overlap_exchange_ready"
+                << " giver_jaw_coordinate_rad="
+                << armLocalQ(
+                       world.model,
+                       0u,
+                       receiverPreloaded.result.finalQ
+                   )[7]
+                << " receiver_jaw_coordinate_rad="
+                << armLocalQ(
+                       world.model,
+                       1u,
+                       receiverPreloaded.result.finalQ
+                   )[7]
+                << contactSummary(receiverPreloadAudit->contacts) << '\n';
         }
 
         const bool reuseQualifiedReloadCandidate =
@@ -35944,7 +35854,6 @@ int main(const int argc, const char* const argv[]) {
                 << '\n';
         }
         const bool receiverPreloadNeedsGiverUnlatch =
-            receiverPreloadNeedsFullReload ||
             reuseQualifiedReloadCandidate;
         if (receiverPreloadNeedsGiverUnlatch) {
             consecutiveQualifiedReceiverPreloadProofs = 0u;
