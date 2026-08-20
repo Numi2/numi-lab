@@ -287,15 +287,18 @@ constexpr std::uint32_t kPositiveControlResumeMaximumProofSteps = 500u;
 // Receiver closure creates a new eight-patch steel contact and must be held
 // before the temporal-cone residual is interpreted as dual positive control.
 constexpr std::uint32_t kReceiverClosureSettleSteps = 100u;
-// Exchange preload before the giver clears the needle: first ramp the receiver
-// from gentle 15 um overlap to the qualified 60 um seat while the giver remains
-// fully loaded, prove that dual-control state, and only then ramp the giver down
-// by the same amount. The former simultaneous 0.18 rad/s trajectory ended its
-// 100 ms cubic move with 63.9 mm/s needle translation and 11.6 rad/s needle
-// rotation, then settled into a rejected 0.48 mm common reseat. Limit each
-// force-transfer motion to one third of that relative-jaw speed and reject its
-// endpoint unless both physical seats remain inside the transition envelope;
-// a later hold must dissipate only bounded residual motion, not hide a snap.
+// Exchange preload before the giver clears the needle. A normal full-preload
+// state can unload the giver directly. A corrected overlap state instead starts
+// with the giver's 75 um transport latch and the receiver's qualified 15 um
+// overlap; transfer exactly the receiver's added closure out of that measured
+// giver state so the summed radial preload stays constant. The r19 trajectory
+// incorrectly targeted the ordinary 15 um giver endpoint from this stronger
+// start: it removed 60 um while adding only 45 um and traversed the giver jaw at
+// 0.075 rad/s despite this 0.06 rad/s bound. The resulting endpoint still
+// carried 14 mm/s contact-relative motion and reseated both frames beyond the
+// unchanged 0.30 mm transition envelope. Derive the motion duration from the
+// actual maximum jaw travel and reject every endpoint that does not preserve
+// the existing contact, drift, rod, swage, and convergence gates.
 constexpr double kLoadExchangeRelativeJawSpeedRadPerS = 0.06;
 // If full receiver preload settles onto only one longitudinal insert row, first
 // open it to a calibrated 80 um diametral needle clearance, recenter the
@@ -34319,12 +34322,10 @@ int main(const int argc, const char* const argv[]) {
                 )
             )) + 4u;
 
-        // Establish the receiver's full preload before relaxing the giver.
-        // Simultaneously swapping both contact manifolds left neither jaw as
-        // a fixed load-path authority and produced a rejected 3.58 mm common
-        // reseat despite micrometre-scale commanded insert-frame motion. The
-        // staged sequence mirrors a surgical handoff: acquire, prove the new
-        // seat under dual control, then unload the giver.
+        // Nominal duration for one 45 um preload-transfer leg. The final
+        // exchange recomputes its duration from the measured starting jaw
+        // coordinates because a corrected overlap can retain the stronger
+        // temporary giver transport latch.
         const std::vector<float> zeroLoadExchangeVelocity(
             world.model.world.nv,
             0.0f
@@ -36091,19 +36092,67 @@ int main(const int argc, const char* const argv[]) {
         targetStart = receiverPreloaded.result.finalQ;
         target = targetStart;
 
-        std::vector<float> uncompensatedLoadExchangeTarget = targetStart;
-        auto giverLoadExchanged = armLocalQ(
+        const std::vector<double> giverLoadStartQ = armLocalQ(
             world.model,
             0u,
             targetStart
         );
-        giverLoadExchanged[6] = -receiverOverlapJawCoordinate;
-        giverLoadExchanged[7] = receiverOverlapJawCoordinate;
-        auto receiverLoadExchanged = armLocalQ(
+        const std::vector<double> receiverLoadStartQ = armLocalQ(
             world.model,
             1u,
             targetStart
         );
+        // The corrective path starts at 75 um giver / 15 um receiver radial
+        // preload. Closing the receiver to 60 um therefore relaxes the giver
+        // by the same 45 um, ending near 30 um rather than prematurely dropping
+        // it to the ordinary 15 um overlap. This keeps the summed authored
+        // preload constant until the receiver has a qualified full seat.
+        const double loadExchangeGiverEndJawCoordinate =
+            directLoadExchangeFromQualifiedOverlap
+            ? giverLoadStartQ[7] +
+                (receiverLoadStartQ[7] - closeJawCoordinate)
+            : receiverOverlapJawCoordinate;
+        require(
+            std::isfinite(loadExchangeGiverEndJawCoordinate) &&
+                loadExchangeGiverEndJawCoordinate >= closeJawCoordinate &&
+                loadExchangeGiverEndJawCoordinate <=
+                    receiverOverlapJawCoordinate,
+            "balanced giver exchange preload is outside the calibrated "
+            "jaw interval"
+        );
+        const double loadExchangeJawSumChange =
+            loadExchangeGiverEndJawCoordinate + closeJawCoordinate -
+            giverLoadStartQ[7] - receiverLoadStartQ[7];
+        require(
+            !directLoadExchangeFromQualifiedOverlap ||
+                std::abs(loadExchangeJawSumChange) <= 1.0e-9,
+            "corrective load exchange did not conserve summed jaw preload"
+        );
+        const double loadExchangeMaximumJawTravel = std::max(
+            std::abs(
+                loadExchangeGiverEndJawCoordinate - giverLoadStartQ[7]
+            ),
+            std::abs(closeJawCoordinate - receiverLoadStartQ[7])
+        );
+        const std::uint32_t loadExchangeMotionSteps =
+            static_cast<std::uint32_t>(std::ceil(
+                3.0 * loadExchangeMaximumJawTravel /
+                (
+                    kLoadExchangeRelativeJawSpeedRadPerS *
+                    kControlTimestep
+                )
+            )) +
+            4u;
+        require(
+            loadExchangeMotionSteps > 4u,
+            "load exchange has no calibrated jaw travel"
+        );
+
+        std::vector<float> uncompensatedLoadExchangeTarget = targetStart;
+        auto giverLoadExchanged = giverLoadStartQ;
+        giverLoadExchanged[6] = -loadExchangeGiverEndJawCoordinate;
+        giverLoadExchanged[7] = loadExchangeGiverEndJawCoordinate;
+        auto receiverLoadExchanged = receiverLoadStartQ;
         receiverLoadExchanged[6] = -closeJawCoordinate;
         receiverLoadExchanged[7] = closeJawCoordinate;
         setArmTarget(
@@ -36151,9 +36200,9 @@ int main(const int argc, const char* const argv[]) {
                 world.model,
                 psm,
                 targetStart,
-                receiverOverlapJawCoordinate,
+                loadExchangeGiverEndJawCoordinate,
                 closeJawCoordinate,
-                kLoadExchangeSteps
+                loadExchangeMotionSteps
             );
         target = loadExchangeTrajectory.finalTarget;
         const double compensatedGiverMidpointDrift = norm(
@@ -36185,7 +36234,7 @@ int main(const int argc, const char* const argv[]) {
                 world,
                 targetStart,
                 target,
-                kLoadExchangeSteps,
+                loadExchangeMotionSteps,
                 loadExchangeTrajectory.desiredQ
             );
         require(
@@ -36202,7 +36251,7 @@ int main(const int argc, const char* const argv[]) {
             stepConfig,
             resident,
             efforts,
-            kLoadExchangeSteps,
+            loadExchangeMotionSteps,
             "coordinated handoff load exchange"
         );
         const ContactCounts loadExchangeMotionContacts = contactCounts(
@@ -36246,9 +36295,19 @@ int main(const int argc, const char* const argv[]) {
             loadExchangeMotionNeedle.angularVelocity
         ));
         std::cerr << "handoff_phase=load_exchange_motion"
-            << " motion_steps=" << kLoadExchangeSteps
+            << " motion_steps=" << loadExchangeMotionSteps
             << " relative_jaw_speed_limit_radps="
             << kLoadExchangeRelativeJawSpeedRadPerS
+            << " giver_start_jaw_coordinate_rad="
+            << giverLoadStartQ[7]
+            << " giver_end_jaw_coordinate_rad="
+            << loadExchangeGiverEndJawCoordinate
+            << " receiver_start_jaw_coordinate_rad="
+            << receiverLoadStartQ[7]
+            << " receiver_end_jaw_coordinate_rad="
+            << closeJawCoordinate
+            << " jaw_sum_change_rad="
+            << loadExchangeJawSumChange
             << " command_velocity_ratio="
             << loadExchangeTrajectory.maximumVelocityRatio
             << " uncompensated_giver_midpoint_sweep_m="
@@ -36303,7 +36362,7 @@ int main(const int argc, const char* const argv[]) {
         writeHandoffStateArtifact(
             options.stateOutputDirectory,
             "load-exchange-motion",
-            preReleaseSuccessfulSteps + kLoadExchangeSteps,
+            preReleaseSuccessfulSteps + loadExchangeMotionSteps,
             world,
             sutureSpec,
             loadExchangeMotion.result
@@ -37259,7 +37318,7 @@ int main(const int argc, const char* const argv[]) {
                 << " receiver_preload_giver_unlatch_settling_steps="
                 << receiverPreloadGiverUnlatchSettleSteps
                 << " giver_unload_motion_steps="
-                << kLoadExchangeSteps
+                << loadExchangeMotionSteps
                 << " correction_motion_steps="
                 << loadExchangeCorrectionMotionSteps
                 << " correction_settling_steps="
@@ -37341,7 +37400,7 @@ int main(const int argc, const char* const argv[]) {
         writeHandoffStateArtifact(
             options.stateOutputDirectory,
             "giver-release-motion",
-            preReleaseSuccessfulSteps + kLoadExchangeSteps +
+            preReleaseSuccessfulSteps + loadExchangeMotionSteps +
                 loadExchangeSettleStepsThisRun + kReleaseSteps,
             world,
             sutureSpec,
@@ -37433,7 +37492,7 @@ int main(const int argc, const char* const argv[]) {
         writeHandoffStateArtifact(
             options.stateOutputDirectory,
             "giver-release",
-            preReleaseSuccessfulSteps + kLoadExchangeSteps +
+            preReleaseSuccessfulSteps + loadExchangeMotionSteps +
                 loadExchangeSettleStepsThisRun + kReleaseSteps +
                 kGiverReleaseSettleSteps,
             world,
@@ -37494,7 +37553,7 @@ int main(const int argc, const char* const argv[]) {
         writeHandoffStateArtifact(
             options.stateOutputDirectory,
             "receiver-transfer-motion",
-            preReleaseSuccessfulSteps + kLoadExchangeSteps +
+            preReleaseSuccessfulSteps + loadExchangeMotionSteps +
                 loadExchangeSettleStepsThisRun + kReleaseSteps +
                 kGiverReleaseSettleSteps + kReceiverTransferSteps,
             world,
@@ -37594,7 +37653,7 @@ int main(const int argc, const char* const argv[]) {
         writeHandoffStateArtifact(
             options.stateOutputDirectory,
             "receiver-transfer",
-            preReleaseSuccessfulSteps + kLoadExchangeSteps +
+            preReleaseSuccessfulSteps + loadExchangeMotionSteps +
                 loadExchangeSettleStepsThisRun + kReleaseSteps +
                 kGiverReleaseSettleSteps + kReceiverTransferSteps +
                 kReceiverTransferSettleSteps,
@@ -37605,7 +37664,7 @@ int main(const int argc, const char* const argv[]) {
 
         const auto stats = context.stats();
         const std::uint64_t successfulSteps =
-            preReleaseSuccessfulSteps + kLoadExchangeSteps +
+            preReleaseSuccessfulSteps + loadExchangeMotionSteps +
             loadExchangeSettleStepsThisRun + kReleaseSteps +
             kGiverReleaseSettleSteps + kReceiverTransferSteps +
             kReceiverTransferSettleSteps;
@@ -37699,7 +37758,7 @@ int main(const int argc, const char* const argv[]) {
             << receiverPreloadGiverUnlatchSettleSteps
             << ",\"receiver_preload_settling_steps\":"
             << receiverPreloadSettleSteps
-            << ",\"load_exchange_steps\":" << kLoadExchangeSteps
+            << ",\"load_exchange_steps\":" << loadExchangeMotionSteps
             << ",\"load_exchange_correction_motion_steps\":"
             << loadExchangeCorrectionMotionSteps
             << ",\"load_exchange_correction_settling_steps\":"
