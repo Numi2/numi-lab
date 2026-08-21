@@ -186,14 +186,20 @@ constexpr std::uint32_t kReceiverAlignmentTimestepDivisor = 1u;
 // exhausted all 96 columns at 5.03027e-4. The determinant remained 0.994306,
 // contact status was clean, and every fixed capacity retained ample headroom.
 // Preserve the proven six-cycle motion and expose a seventh cycle only once
-// settling begins. The allocated 16-column basis, residual/contact tolerances,
-// and accepted-state transaction remain unchanged.
+// settling begins. That seventh cycle carried 256 complete settle steps in
+// r13 before control step 51 of the next bounded chunk exhausted all 112
+// columns at a 5.07512e-4 linear residual. The determinant remained 0.994254,
+// contact status was clean, and the pair/raw/manifold/constraint capacities
+// remained 39/3120, 18/73916, 18/15359, and 130/61456. Preserve the proven
+// seven-cycle settling trajectory and expose an eighth cycle only during
+// settling. The allocated 16-column basis, residual/contact tolerances, and
+// accepted-state transaction remain unchanged.
 constexpr std::uint32_t kReceiverBridgeFGMRESIterationBudget =
     2u * NM_MIXED_FGMRES_RESTART;
 constexpr std::uint32_t kReceiverAlignmentFGMRESIterationBudget =
     6u * NM_MIXED_FGMRES_RESTART;
 constexpr std::uint32_t kReceiverAlignmentSettleFGMRESIterationBudget =
-    7u * NM_MIXED_FGMRES_RESTART;
+    8u * NM_MIXED_FGMRES_RESTART;
 // The 2 mm guard is larger than the 0.35 mm tract radius, 0.10 mm strand
 // radius, and 0.10 mm contact band combined, so the base cadence is active
 // before the first possible rim interaction.
