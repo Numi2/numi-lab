@@ -176,14 +176,18 @@ constexpr std::uint32_t kReceiverAlignmentTimestepDivisor = 1u;
 // motion plus 28 ms of settling before a later solve exhausted all 48 columns
 // at 5.01216e-4. A fourth cycle carried the full alignment plus 52 ms of
 // settling before exhausting all 64 columns at 5.00348e-4, only 3.48e-7 above
-// the unchanged boundary. Preserve the proven bridge execution, then expose
+// the unchanged boundary. A fifth cycle then preserved the bridge, base-cadence
+// proof, and 768/800 alignment steps before the next solve exhausted all 80
+// columns at 5.02560e-4. Its determinant, contact certificates, and capacities
+// remained healthy, so this is still bounded Krylov exhaustion rather than a
+// contact or tissue failure. Preserve the proven bridge execution, then expose
 // one more bounded restart cycle only once alignment begins. The allocated
 // 16-column basis, residual/contact tolerances, and accepted-state transaction
 // remain unchanged.
 constexpr std::uint32_t kReceiverBridgeFGMRESIterationBudget =
     2u * NM_MIXED_FGMRES_RESTART;
 constexpr std::uint32_t kReceiverAlignmentFGMRESIterationBudget =
-    5u * NM_MIXED_FGMRES_RESTART;
+    6u * NM_MIXED_FGMRES_RESTART;
 // The 2 mm guard is larger than the 0.35 mm tract radius, 0.10 mm strand
 // radius, and 0.10 mm contact band combined, so the base cadence is active
 // before the first possible rim interaction.
@@ -25422,7 +25426,7 @@ int main(const int argc, const char* const argv[]) {
                                 tissueRuntime.fgmresIterationBudget() ==
                                     kReceiverAlignmentFGMRESIterationBudget,
                             "receiver alignment could not select its bounded "
-                            "fifth FGMRES restart cycle"
+                            "sixth FGMRES restart cycle"
                         );
                         std::cout << std::setprecision(9)
                             << "tissue_receiver_alignment_solver_budget=ok"
