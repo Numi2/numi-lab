@@ -172,13 +172,16 @@ constexpr std::uint32_t kReceiverAlignmentTimestepDivisor = 1u;
 // The accepted r7 bridge used exactly two 16-column restart cycles and held
 // all strict tissue/contact certificates for 25 ms. The difficult alignment
 // later exhausted those 32 columns at a 5.02576e-4 linear residual, just above
-// the unchanged 5e-4 boundary. Preserve the proven bridge execution, then add
-// one bounded restart cycle only once the alignment phase begins. The basis,
-// residual/contact tolerances, and accepted-state transaction are unchanged.
+// the unchanged 5e-4 boundary. A phase-local third cycle carried the exact
+// motion plus 28 ms of settling before a later solve exhausted all 48 columns
+// at 5.01216e-4. Preserve the proven bridge execution, then expose one more
+// bounded restart cycle only once alignment begins. The allocated 16-column
+// basis, residual/contact tolerances, and accepted-state transaction remain
+// unchanged.
 constexpr std::uint32_t kReceiverBridgeFGMRESIterationBudget =
     2u * NM_MIXED_FGMRES_RESTART;
 constexpr std::uint32_t kReceiverAlignmentFGMRESIterationBudget =
-    3u * NM_MIXED_FGMRES_RESTART;
+    4u * NM_MIXED_FGMRES_RESTART;
 // The 2 mm guard is larger than the 0.35 mm tract radius, 0.10 mm strand
 // radius, and 0.10 mm contact band combined, so the base cadence is active
 // before the first possible rim interaction.
