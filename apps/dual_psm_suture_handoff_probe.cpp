@@ -181,13 +181,19 @@ constexpr std::uint32_t kReceiverAlignmentTimestepDivisor = 1u;
 // columns at 5.02560e-4. Its determinant, contact certificates, and capacities
 // remained healthy, so this is still bounded Krylov exhaustion rather than a
 // contact or tissue failure. Preserve the proven bridge execution, then expose
-// one more bounded restart cycle only once alignment begins. The allocated
-// 16-column basis, residual/contact tolerances, and accepted-state transaction
-// remain unchanged.
+// one more bounded restart cycle only once alignment begins. That sixth cycle
+// completed all 800 alignment steps in r12, then the 22nd settling step
+// exhausted all 96 columns at 5.03027e-4. The determinant remained 0.994306,
+// contact status was clean, and every fixed capacity retained ample headroom.
+// Preserve the proven six-cycle motion and expose a seventh cycle only once
+// settling begins. The allocated 16-column basis, residual/contact tolerances,
+// and accepted-state transaction remain unchanged.
 constexpr std::uint32_t kReceiverBridgeFGMRESIterationBudget =
     2u * NM_MIXED_FGMRES_RESTART;
 constexpr std::uint32_t kReceiverAlignmentFGMRESIterationBudget =
     6u * NM_MIXED_FGMRES_RESTART;
+constexpr std::uint32_t kReceiverAlignmentSettleFGMRESIterationBudget =
+    7u * NM_MIXED_FGMRES_RESTART;
 // The 2 mm guard is larger than the 0.35 mm tract radius, 0.10 mm strand
 // radius, and 0.10 mm contact band combined, so the base cadence is active
 // before the first possible rim interaction.
@@ -25544,6 +25550,30 @@ int main(const int argc, const char* const argv[]) {
                         PhaseResult liveAlignmentMotion = std::move(
                             liveAlignmentStream.terminal
                         );
+                        require(
+                            tissueRuntime.fgmresIterationBudget() ==
+                                    kReceiverAlignmentFGMRESIterationBudget &&
+                                tissueRuntime.setFGMRESIterationBudget(
+                                    kReceiverAlignmentSettleFGMRESIterationBudget
+                                ) &&
+                                tissueRuntime.fgmresIterationBudget() ==
+                                    kReceiverAlignmentSettleFGMRESIterationBudget,
+                            "receiver alignment settle could not select its "
+                            "bounded seventh FGMRES restart cycle"
+                        );
+                        std::cout << std::setprecision(9)
+                            << "tissue_receiver_alignment_settle_solver_budget=ok"
+                            << " alignment_fgmres_iterations="
+                            << kReceiverAlignmentFGMRESIterationBudget
+                            << " settle_fgmres_iterations="
+                            << tissueRuntime.fgmresIterationBudget()
+                            << " fgmres_restart="
+                            << tissueWorld.mixedSolver.nonlinearIterations.y
+                            << " relative_residual_tolerance="
+                            << tissueWorld.mixedSolver.residualTolerances.x
+                            << " contact_separation_ratio="
+                            << tissueWorld.mixedSolver.contactAcceptance.x
+                            << '\n';
                         const std::uint32_t
                             liveAlignmentMinimumSettleSteps =
                                 liveReceiverSteps(
