@@ -196,15 +196,20 @@ constexpr std::uint32_t kReceiverAlignmentTimestepDivisor = 1u;
 // control step 36 of the next bounded chunk exhausted all 128 columns at a
 // 5.05893e-4 linear residual. The determinant remained 0.994070, contact status
 // was clean, and the same capacities retained ample headroom. Preserve that
-// accepted trajectory and expose a ninth cycle only during settling. The
-// allocated 16-column basis, residual/contact tolerances, and accepted-state
-// transaction remain unchanged.
+// accepted trajectory and expose a ninth cycle only during settling. That
+// ninth cycle carried 896 complete settle steps in r15 before control step 57
+// of the next bounded chunk exhausted all 144 columns at a 5.01287e-4 linear
+// residual. The determinant remained 0.993891, contact status was clean, and
+// the same capacities retained ample headroom. Preserve that accepted
+// trajectory and expose a tenth cycle only during settling. The allocated
+// 16-column basis, residual/contact tolerances, and accepted-state transaction
+// remain unchanged.
 constexpr std::uint32_t kReceiverBridgeFGMRESIterationBudget =
     2u * NM_MIXED_FGMRES_RESTART;
 constexpr std::uint32_t kReceiverAlignmentFGMRESIterationBudget =
     6u * NM_MIXED_FGMRES_RESTART;
 constexpr std::uint32_t kReceiverAlignmentSettleFGMRESIterationBudget =
-    9u * NM_MIXED_FGMRES_RESTART;
+    10u * NM_MIXED_FGMRES_RESTART;
 // The 2 mm guard is larger than the 0.35 mm tract radius, 0.10 mm strand
 // radius, and 0.10 mm contact band combined, so the base cadence is active
 // before the first possible rim interaction.
@@ -25570,7 +25575,7 @@ int main(const int argc, const char* const argv[]) {
                                 tissueRuntime.fgmresIterationBudget() ==
                                     kReceiverAlignmentSettleFGMRESIterationBudget,
                             "receiver alignment settle could not select its "
-                            "bounded ninth FGMRES restart cycle"
+                            "bounded tenth FGMRES restart cycle"
                         );
                         std::cout << std::setprecision(9)
                             << "tissue_receiver_alignment_settle_solver_budget=ok"
