@@ -1795,12 +1795,16 @@ kernel void nm_fgmres_finalize_cycle(
         solver.residualTolerances.x * max(state.nonlinear.x, 1.0f));
     const bool reachedNonlinearTarget = used > 0u &&
         state.diagnostics.x <= nonlinearThreshold;
-    const bool finalAccepted = converged || reachedNonlinearTarget ||
+    const bool cycleAccepted = converged || reachedNonlinearTarget ||
         (used > 0u && relativeResidual <= clamp(
             forcing, solver.residualTolerances.x, 0.5f));
-    if (finalRestartCycle != 0u)
-        state.diagnostics.z = finalAccepted ? 1.0f : 0.0f;
-    if ((finalRestartCycle != 0u && !finalAccepted) ||
+    // Completion belongs to the accepted cycle, not to the configured upper
+    // bound on restart cycles. Latch it here so increasing that upper bound
+    // preserves the already accepted Krylov prefix; the statically encoded
+    // tail observes diagnostics.z and becomes a no-op. Only the final cycle
+    // may publish exhaustion as a linear-solver failure.
+    state.diagnostics.z = cycleAccepted ? 1.0f : 0.0f;
+    if ((finalRestartCycle != 0u && !cycleAccepted) ||
         !isfinite(state.diagnostics.x)) {
         recordFailure(
             statuses[environment], NM_STATUS_LINEAR_SOLVER_FAILURE,

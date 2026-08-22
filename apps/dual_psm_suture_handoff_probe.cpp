@@ -203,7 +203,9 @@ constexpr std::uint32_t kReceiverAlignmentTimestepDivisor = 1u;
 // the same capacities retained ample headroom. Preserve that accepted
 // trajectory and expose a tenth cycle only during settling. The allocated
 // 16-column basis, residual/contact tolerances, and accepted-state transaction
-// remain unchanged.
+// remain unchanged. Each accepted restart boundary is prefix-invariant: the
+// tenth cycle is available only if the first nine have not already met the
+// unchanged linear/nonlinear acceptance rule.
 constexpr std::uint32_t kReceiverBridgeFGMRESIterationBudget =
     2u * NM_MIXED_FGMRES_RESTART;
 constexpr std::uint32_t kReceiverAlignmentFGMRESIterationBudget =
@@ -308,6 +310,10 @@ constexpr double kLiveReceiverChunkDurationS = 4.0e-3;
 // clear before introducing the first receiver contact.
 constexpr std::uint32_t kReceiverAlignmentMinimumSteps = 100u;
 constexpr std::uint32_t kReceiverAlignmentSettleSteps = 50u;
+// Re-run one complete 4 ms resident settle chunk from the exact alignment
+// checkpoint, crossing the former control-step-17 failure, then rewind and
+// demand byte-identical replay before accepting a restart-semantics change.
+constexpr std::uint32_t kReceiverAlignmentCheckpointReplaySteps = 64u;
 // A tissue-engaged needle may transfer a small alignment transient into the
 // swaged strand even while the open receiver remains collision-free. Require
 // two consecutive quiescent completion chunks after the 100 ms nominal hold.
@@ -20577,6 +20583,10 @@ int main(const int argc, const char* const argv[]) {
                     tissueReceiverBridgeResumeOnly,
                 "unsupported surgical checkpoint continuation mode"
             );
+            const bool resumeReceiverAlignmentMotion =
+                tissueCheckpointHoldOnly &&
+                options.resumeTissueCheckpointPhase ==
+                    "tissue-receiver-alignment-motion";
             const auto selectResumedBridgeCadence = [&] {
                 require(
                     tissueRuntime.setCoupledTimestepMultiplier(
@@ -20604,13 +20614,29 @@ int main(const int argc, const char* const argv[]) {
                     "diverged"
                 );
             };
+            const auto selectReceiverAlignmentSettleBudget = [&] {
+                require(
+                    tissueRuntime.setFGMRESIterationBudget(
+                        kReceiverAlignmentSettleFGMRESIterationBudget
+                    ) &&
+                        tissueRuntime.fgmresIterationBudget() ==
+                            kReceiverAlignmentSettleFGMRESIterationBudget,
+                    "restored receiver alignment could not select the "
+                    "production settle FGMRES budget"
+                );
+            };
             if (tissueReceiverBridgeResumeOnly) {
                 selectResumedBridgeCadence();
+            }
+            if (resumeReceiverAlignmentMotion) {
+                selectReceiverAlignmentSettleBudget();
             }
             const std::uint32_t checkpointHoldSteps =
                 tissueReceiverBridgeResumeOnly
                     ? kReceiverBridgeDynamicHoldSteps
-                    : 1u;
+                    : (resumeReceiverAlignmentMotion
+                        ? kReceiverAlignmentCheckpointReplaySteps
+                        : 1u);
             const Vec3 checkpointNeedlePosition = vector(
                 world.defaultSceneBodies.at(0u).position
             );
@@ -20738,6 +20764,9 @@ int main(const int argc, const char* const argv[]) {
             );
             if (tissueReceiverBridgeResumeOnly) {
                 selectResumedBridgeCadence();
+            }
+            if (resumeReceiverAlignmentMotion) {
+                selectReceiverAlignmentSettleBudget();
             }
             metalrobo::MetalWorldContext replayContext;
             metalrobo::MetalWorldResidentState replayResident;
