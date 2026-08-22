@@ -567,6 +567,17 @@ static_assert(
 constexpr std::uint32_t kReceiverBridgeDynamicHoldSteps =
     kReceiverBridgeDynamicHoldBaseDERSubsteps /
     kReceiverBridgeDynamicMatterRateMultiplier;
+// Keep the same 400 transactional 62.5 us steps, but publish completion every
+// 4 ms.  The former single 25 ms physical interval occupied one Apple GPU
+// command buffer for more than half an hour on the full tissue/contact graph;
+// an unrelated device recovery then discarded the entire accepted prefix as
+// an innocent victim.  Resident MetalWorld and Matter authority spans these
+// submission boundaries, so this partitions execution without changing the
+// cadence, solver, contact, convergence, tissue, or retention contracts.
+constexpr std::uint32_t kReceiverBridgeDynamicChunkSteps = 64u;
+static_assert(
+    kReceiverBridgeDynamicChunkSteps <= kReceiverBridgeDynamicHoldSteps
+);
 constexpr double kMaximumReceiverBridgeNeedleDriftM = 3.0e-4;
 constexpr double kMaximumReceiverBridgeTissueIncrementM = 5.0e-5;
 // Receiver acquisition must exchange jaw preload without silently beginning
@@ -8946,6 +8957,105 @@ PhaseResult continuePhaseUnchecked(
     );
     PhaseResult phase;
     phase.diagnostics = submission.wait(phase.result);
+    return phase;
+}
+
+PhaseResult initializePhaseChunkedUnchecked(
+    metalrobo::MetalWorldContext& context,
+    const metalrobo::CompiledWorld& compiled,
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::MetalWorldStepConfig& config,
+    metalrobo::MetalWorldResidentState& resident,
+    const std::vector<float>& efforts,
+    const std::uint32_t steps,
+    const std::uint32_t chunkSteps,
+    const std::string& name,
+    const std::string& progressKey
+) {
+    require(
+        steps != 0u && chunkSteps != 0u &&
+            efforts.size() == static_cast<std::size_t>(steps) *
+                world.model.world.nv,
+        name + " has invalid chunk or effort dimensions"
+    );
+
+    std::uint32_t completedSteps = 0u;
+    double gpuElapsedMilliseconds = 0.0;
+    double submissionElapsedMilliseconds = 0.0;
+    PhaseResult phase;
+    while (completedSteps < steps) {
+        const std::uint32_t count = std::min(
+            chunkSteps,
+            steps - completedSteps
+        );
+        const std::size_t effortBegin =
+            static_cast<std::size_t>(completedSteps) * world.model.world.nv;
+        const std::size_t effortEnd = effortBegin +
+            static_cast<std::size_t>(count) * world.model.world.nv;
+        const std::vector<float> chunkEfforts(
+            efforts.begin() + effortBegin,
+            efforts.begin() + effortEnd
+        );
+
+        PhaseResult chunk = completedSteps == 0u
+            ? initializePhaseUnchecked(
+                context,
+                compiled,
+                world,
+                config,
+                resident,
+                chunkEfforts,
+                count
+            )
+            : continuePhaseUnchecked(
+                context,
+                compiled,
+                config,
+                resident,
+                chunkEfforts,
+                count,
+                name
+            );
+        gpuElapsedMilliseconds +=
+            chunk.diagnostics.gpuElapsedMilliseconds;
+        submissionElapsedMilliseconds +=
+            chunk.diagnostics.submissionElapsedMilliseconds;
+
+        if (!chunk.diagnostics.succeeded() ||
+            chunk.diagnostics.failedStepCount != 0u) {
+            chunk.diagnostics.successfulStepCount += completedSteps;
+            if (chunk.diagnostics.firstFailingControlStep !=
+                MR_INVALID_INDEX) {
+                chunk.diagnostics.firstFailingControlStep += completedSteps;
+            }
+            for (MRMetalWorldStatusGPU& status : chunk.result.statuses) {
+                if (status.code != MR_STEP_SUCCESS &&
+                    status.controlStep != MR_INVALID_INDEX) {
+                    status.controlStep += completedSteps;
+                }
+            }
+            chunk.diagnostics.gpuElapsedMilliseconds =
+                gpuElapsedMilliseconds;
+            chunk.diagnostics.submissionElapsedMilliseconds =
+                submissionElapsedMilliseconds;
+            chunk.diagnostics.message = name + " after " +
+                std::to_string(completedSteps) + " accepted steps: " +
+                chunk.diagnostics.message;
+            return chunk;
+        }
+
+        completedSteps += count;
+        phase = std::move(chunk);
+        std::cout << progressKey << '=' << completedSteps << '/' << steps
+            << " chunk_gpu_ms="
+            << phase.diagnostics.gpuElapsedMilliseconds << '\n';
+        std::cout.flush();
+    }
+
+    phase.diagnostics.successfulStepCount = steps;
+    phase.diagnostics.gpuElapsedMilliseconds = gpuElapsedMilliseconds;
+    phase.diagnostics.submissionElapsedMilliseconds =
+        submissionElapsedMilliseconds;
     return phase;
 }
 
@@ -20649,14 +20759,17 @@ int main(const int argc, const char* const argv[]) {
             metalrobo::MetalWorldContext firstContext;
             metalrobo::MetalWorldResidentState firstResident;
             const PhaseResult first = tissueReceiverBridgeResumeOnly
-                ? initializePhaseUnchecked(
+                ? initializePhaseChunkedUnchecked(
                     firstContext,
                     compiled,
                     world,
                     stepConfig,
                     firstResident,
                     holdEfforts,
-                    checkpointHoldSteps
+                    checkpointHoldSteps,
+                    kReceiverBridgeDynamicChunkSteps,
+                    "resumed dynamic giver receiver bridge",
+                    "receiver_bridge_dynamic_resume_progress"
                 )
                 : initializePhase(
                     firstContext,
@@ -20771,14 +20884,17 @@ int main(const int argc, const char* const argv[]) {
             metalrobo::MetalWorldContext replayContext;
             metalrobo::MetalWorldResidentState replayResident;
             const PhaseResult replay = tissueReceiverBridgeResumeOnly
-                ? initializePhaseUnchecked(
+                ? initializePhaseChunkedUnchecked(
                     replayContext,
                     compiled,
                     world,
                     stepConfig,
                     replayResident,
                     holdEfforts,
-                    checkpointHoldSteps
+                    checkpointHoldSteps,
+                    kReceiverBridgeDynamicChunkSteps,
+                    "replayed dynamic giver receiver bridge",
+                    "receiver_bridge_dynamic_replay_progress"
                 )
                 : initializePhase(
                     replayContext,
@@ -23981,14 +24097,17 @@ int main(const int argc, const char* const argv[]) {
                         metalrobo::MetalWorldContext bridgeContext;
                         metalrobo::MetalWorldResidentState bridgeResident;
                         const PhaseResult dynamicBridge =
-                            initializePhaseUnchecked(
+                            initializePhaseChunkedUnchecked(
                             bridgeContext,
                             bridgeCompiled,
                             world,
                             stepConfig,
                             bridgeResident,
                             dynamicBridgeEfforts,
-                            kReceiverBridgeDynamicHoldSteps
+                            kReceiverBridgeDynamicHoldSteps,
+                            kReceiverBridgeDynamicChunkSteps,
+                            "dynamic giver receiver bridge hold",
+                            "receiver_bridge_dynamic_progress"
                         );
                         const numi::matter::RuntimeStateSnapshot
                             postBridgeMatter = tissueRuntime.snapshot();
