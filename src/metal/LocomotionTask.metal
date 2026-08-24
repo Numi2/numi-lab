@@ -4888,7 +4888,10 @@ kernel void mr_locomotion_task_complete(
             value = dot(baseAngular.xy, baseAngular.xy);
             break;
         case MR_TASK_REWARD_TILT_SQUARED:
-            value = tilt * tilt;
+            // Keep the supported walking policy inside the held-out tilt
+            // gate.  Later liftoff and flight bands require learned banking,
+            // so they intentionally receive no extra ground-stability term.
+            value = avianSupportedGroundStage ? tilt * tilt : 0.0f;
             break;
         case MR_TASK_REWARD_PROJECTED_GRAVITY_HORIZONTAL_SQUARED:
             value = dot(gravity.xy, gravity.xy);

@@ -1944,6 +1944,10 @@ TaskPack makeBirdFlowDoveFlightTaskPack(
             // visible flight volume.
             {2.0f, 1.0f, 20.0f, 3.2f}},
         {TaskRewardOperator::uprightness, {}, {}, 0.15f},
+        // The Metal task gates this penalty to the supported standing and
+        // walking bands.  Flight remains free to bank under its own path and
+        // attitude objectives.
+        {TaskRewardOperator::tiltSquared, {}, {}, -0.50f},
         {TaskRewardOperator::forbiddenContact, "non_foot_contact", {}, -1.0f},
         {TaskRewardOperator::jointGroupPostureAbsolute, "legs", {}, -0.015f},
         {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.005f},
