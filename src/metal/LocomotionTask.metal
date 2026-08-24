@@ -3629,13 +3629,12 @@ kernel void mr_locomotion_task_apply_actions(
             state.episode.z == 2u;
         // The live action sweep brackets the estimated hybrid's transition:
         // +0.100 remains ground-bound whereas +0.125 repeatedly reaches the
-        // altitude boundary.  A positive tail trim reduces that same sweep's
-        // forward/attitude excursion.  Use the previous accepted root height
-        // and finite-difference vertical rate to trim inside the narrow wing
-        // band, with the observed tail setting as a bounded baseline.  The
-        // lower wing limit must remain below the static-liftoff threshold so
-        // the carrier can remove thrust after a real climb instead of merely
-        // reducing an otherwise still-positive stroke.
+        // altitude boundary.  A positive stroke-plane tilt then supplies
+        // forward authority, so trim on the previous accepted root height,
+        // vertical rate, and yaw-frame forward speed together.  The lower
+        // wing limit must remain below the static-liftoff threshold: after a
+        // real climb or forward overspeed the carrier must be able to remove
+        // thrust, not merely reduce an always-positive stroke.
         // This is a Metal-resident controller of the actual wing positions,
         // never an injected aerodynamic force or a prerecorded trajectory.
         float avianLiftoffWingCarrier = 0.0f;
@@ -3643,9 +3642,12 @@ kernel void mr_locomotion_task_apply_actions(
             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION) {
             const float heightError = 0.85f - state.airReturnTracking.y;
             const float verticalRate = state.commandExtension.w;
+            const float forwardSpeedError =
+                state.commandExtension.z - 0.35f;
             avianLiftoffWingCarrier = clamp(
-                0.110f + 0.080f * heightError - 0.020f * verticalRate,
-                -0.250f,
+                -0.050f + 0.200f * heightError - 0.060f * verticalRate -
+                    0.100f * forwardSpeedError,
+                -0.750f,
                 0.125f
             );
         }
