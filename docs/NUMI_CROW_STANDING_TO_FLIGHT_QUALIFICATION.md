@@ -441,6 +441,32 @@ enough for further system identification. They cannot select a policy or
 authorize a replay, GIF, picture, README entry, claim of American-crow
 kinematics, or a follow-on PPO sweep.
 
+### Outcome: physically bounded, but no useful transport signal
+
+The initial capture invocation stopped during argument validation because a
+state trace requires `--chunk 1`; it executed no physics step. The reissued
+run changed only that capture setting. On the Apple M4 Pro it completed the
+pre-registered 64 × 5,000 condition in `16.1333 s` (`13,959.49` GPU ms;
+`19,834.75` environment control steps/s). All 64 environments reached the
+normal authored timeout (reason 4), with zero failed environment steps and
+zero non-timeout physical-boundary terminations.
+
+| Action source | Tracking | Height (m) | Mean / max tilt (rad) | Final forward progress (m) | Result |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Requalified zero-action incumbent | 0.500636 | 1.040978 | 0.063570 / 0.124799 | 16.877927 | reference |
+| Existing low-amplitude leg probe | 0.500605 | 1.041254 | 0.063502 / 0.124808 | 16.684748 | bounded, no tracking gain |
+
+The existing support-gait perturbation is therefore safe at this amplitude but
+does not show a useful standing-to-liftoff transport effect. It is not a
+counter-movement reconstruction, does not validate a stronger leg sequence,
+and does not authorize policy training. The immutable reissued record is
+`.numi/runs/crow-leg-authority-transport-20260824-v1/ground-gait-probe-64x5000-reissued/`;
+it contains the evidence JSON, environment-0 trace, runtime/source hashes, and
+artifact checksums. No Crow policy, replay, GIF, picture, or README media was
+created. A valid next controller experiment requires the licensed event- and
+kinematics-resolved Crow data specified in the data-intake record, rather than
+inventing a higher-amplitude biological trajectory from aggregate literature.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
