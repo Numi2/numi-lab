@@ -791,6 +791,37 @@ qualification; it cannot deploy this counterfactual PolicyPack, start a
 learner, or create a policy replay, GIF, picture, or README media. A failure
 ends this amplitude explanation without another scale.
 
+### Native-policy action-scale counterfactual outcome — rejected
+
+The native writer's identity round trip passed: its output is byte-identical
+to the retained candidate PolicyPack and retains SHA-256
+`e5b6a6119c311a9010956e920ab2f3134d6a4818c8078f91544018c571da4a93`.
+The one authorized counterfactual PolicyPack changes only action scales 7--12
+to `0.20`; its SHA-256 is
+`3e97d127b3cbf1085317cd921403217a72f9b17e9db394bfc45ac550d85974cc`.
+The actor weights, biases, policy identity and revision, semantic contract,
+task fingerprint, and run fingerprint remain unchanged. It therefore applies
+the scale inside the same native Metal policy-inference path, rather than the
+rejected host action-stream path.
+
+The prescribed M4 evaluation had task and run fingerprints
+`3198934467138572318` and `8498436949874751629`, zero failed environment
+steps, zero physics errors, and 64 ordinary timeouts. It did not pass the
+pre-registered causal criteria: tracking was `0.9109834`, below the required
+`0.9119823`, and mean tilt was `0.0109013` rad, above the required
+`0.0089169` rad. Its maximum tilt was `0.0158081` rad and final forward
+progress `0.0672778 m`. The evaluation evidence and state-trace SHA-256 values
+are respectively
+`89013f05de5673ec08d4daad4996ee2ba8bac978c288f15e8b94155435f0f08c` and
+`f09731ad51853f0ac4f832b52a1dc5a6f0060448365ed233cf5aed0688eb3fcc`.
+
+The fixed 0.05 effective leg envelope is therefore rejected as a sufficient
+explanation or a qualifying task setting. No source residual-scale change,
+second scale, learner, deployment, replay, GIF, picture, or README media is
+authorized from this result. The retained artifact may inform a distinct,
+separately pre-registered hypothesis about the learning objective, but it is
+not a Crow flight result.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
