@@ -1323,6 +1323,81 @@ ends the carryover protocol: no follow-up parameter variant, replay, GIF,
 picture, README entry, standing-to-flight claim, or Crow-biomechanics claim is
 authorized from it.
 
+### Frozen-base Stage-2 residual architecture (pre-registration gate)
+
+The rejected carryover has a specific, source-visible failure mechanism. Its
+single PPO actor was initialized from the selected Stage-1 policy, but every
+subsequent update changed that shared actor on both bands. The final candidate
+therefore degraded protected band-1 tracking from `0.9978596903` to
+`0.9931453329` while also failing band 2. A reduced learning rate, a new seed,
+or another joint-curriculum run would not test a new causal mechanism and is
+not authorized.
+
+The only proposed successor is a new *two-policy execution architecture*:
+the selected Stage-1 deployment remains an immutable deterministic base actor,
+and a newly initialized PPO residual actor is the sole trainable controller.
+At bands 0 and 1 the runtime must use the base actor action alone. At band 2 it
+must apply the fixed, documented composition `clamp(base_action +
+residual_action, action_clip)` before the existing task action mapping; the
+residual Gaussian alone supplies the PPO latent, likelihood, and critic value.
+This is motivated by residual reinforcement learning's controller-plus-learned
+residual decomposition ([Johannink et al., 2019](https://arxiv.org/abs/1812.03201))
+and by frozen prior columns as a way to avoid catastrophic forgetting
+([Rusu et al., 2016](https://arxiv.org/abs/1606.04671)). Those papers motivate
+the architecture; they neither validate the estimated/hybrid Crow model nor
+provide flight parameters.
+
+This is an architecture hypothesis, not a carrier, reward, morphology,
+aerodynamic, solver, observation, reset, termination, action-scale, or
+curriculum variant. It requires a separately compiled base program and residual
+program, an explicit composition kernel, and rollout provenance containing both
+PolicyPack content hashes, both compiled policy fingerprints, the composition
+opcode, and the selected task fingerprint. The old one-policy format and
+native inference path cannot represent this experiment; a wrapper that merely
+loads the Stage-1 actor and then updates it is expressly insufficient.
+
+No learning run is authorized until all of the following Apple M4 Pro controls
+pass at a source-pinned revision:
+
+1. The normal native build and `metalrobo_run_program_check` prove that the two
+   compiled contracts have the same task/observation/action fingerprints and
+   that the residual program cannot replace or mutate the base artifact.
+2. With any residual pack whose output is exactly zero, deterministic band-0
+   and band-1 action streams must be byte-identical to the selected Stage-1
+   base policy for every environment and control step; their accepted states,
+   termination reasons, and state-trace hashes must also match. This is an
+   executable non-forgetting control, not an aggregate-score comparison.
+3. The same zero-residual composite must be action-identical to the base actor
+   on band 2. The primary band-2 task, observation, and physics contracts must
+   remain unchanged; the composition layer is recorded as runtime provenance,
+   not silently folded into a new task fingerprint.
+4. A source test must demonstrate that changing only the residual pack changes
+   band-2 action output, while bands 0 and 1 remain byte-identical to the base
+   stream. A failed compile, incompatible hash, non-finite value, or missing
+   base policy must reject the rollout atomically.
+
+Only if every control passes, one fresh M4-native residual learner is
+pre-authorized: band 2 only; 128 environments x 128 steps x 512 updates;
+chunk 8; fixed learning rate `1e-4`; initial residual log standard deviation
+`-3`; learner seed `2650443590`; and checkpoint interval 128. The base input
+is exactly the Stage-1 deployment SHA-256
+`99e5b165e77a929cd8478568693abaee36d7d4ca2cc80784e30b991f9eeb4939` and is
+never optimized. A fresh residual critic may train; no candidate may change
+the base pack. One held-out selector at seed `2650443591` evaluates the
+immutable zero-residual composite, every checkpoint, and the final candidate
+on band 2 (64 environments x 5,000 no-reset steps, one repeat, chunk 1), while
+also re-running the exact action-stream controls on protected bands 0 and 1.
+
+Promotion still requires band-2 tracking >= `0.70`, zero failed environment
+steps, zero non-timeout physical-boundary failures, a positive staged score,
+and mean tilt no more than the zero-residual incumbent plus `0.005` rad. It
+also requires byte-identical protected-band actions and states, not merely no
+metric regression. The run is one-shot: a rejected selector or any failed
+control preserves its artifacts and ends this frozen-base residual hypothesis.
+Neither outcome authorizes a replay, GIF, picture, README addition,
+standing-to-flight claim, or real/biomechanical Crow claim without the
+separate deterministic replay qualification described above.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
