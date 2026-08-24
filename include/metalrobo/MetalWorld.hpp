@@ -429,6 +429,12 @@ struct MetalWorldStepConfig {
     // Optional generic native inference program. With no policy program,
     // normalized actions remain an explicit learner/deployment input.
     CompiledPolicyProgram policyProgram{};
+    // Optional immutable deterministic actor composed with ``policyProgram``.
+    // When present, bands 0--1 use this actor's transformed action exactly;
+    // band 2 adds the trainable policyProgram action before the existing task
+    // action mapping. The primary program remains the stochastic PPO behavior
+    // policy and owns its score/value stream.
+    CompiledPolicyProgram basePolicyProgram{};
     // Optional compiled robot actuator program. This is an execution program,
     // not a constructor hint; its complete contents participate in the run
     // fingerprint before reaching MetalWorld.

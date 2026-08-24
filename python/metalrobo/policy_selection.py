@@ -40,6 +40,7 @@ _VALUE_OPTIONS = frozenset(
         "--ball-visual-pack-dir",
         "--visual-observation-config",
         "--visual-environment-pack",
+        "--base-policy-pack",
     }
 )
 _FLAG_OPTIONS = frozenset(
@@ -87,7 +88,7 @@ def _evaluation_contract(evaluator: Path, arguments: Sequence[str]) -> str:
     """Fingerprint the exact native rollout contract for resumable evidence."""
 
     file_fingerprints: dict[str, str] = {}
-    for option in ("--metallib", "--policy-pack"):
+    for option in ("--metallib", "--policy-pack", "--base-policy-pack"):
         value = _option_value(arguments, option)
         if value is None:
             continue

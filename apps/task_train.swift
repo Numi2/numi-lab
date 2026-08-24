@@ -16,6 +16,7 @@ private struct Options {
     var mlxPython: String?
     var pythonRoot = "python"
     var policyPack: String?
+    var basePolicyPack: String?
     var initializePolicyID: String?
     var zeroActorOutput = false
     var initializeActorPolicyPack: String?
@@ -138,6 +139,9 @@ private struct Options {
                 index += 1
             case "--policy-pack":
                 policyPack = try value()
+                index += 1
+            case "--base-policy-pack":
+                basePolicyPack = try value()
                 index += 1
             case "--initialize-policy":
                 initializePolicyID = try value()
@@ -1438,6 +1442,11 @@ private enum TaskTrainMain {
             try context.loadPolicy(
                 at: URL(fileURLWithPath: learner.policyPackPath)
             )
+            if let basePolicyPack = options.basePolicyPack {
+                try context.loadBasePolicy(
+                    at: URL(fileURLWithPath: basePolicyPack)
+                )
+            }
             let layout = context.layout
             guard learner.revision != 0,
                   learner.actorObservationCount ==

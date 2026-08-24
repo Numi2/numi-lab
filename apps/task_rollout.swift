@@ -179,6 +179,7 @@ private struct Options {
     var birdFlowGroundGaitProbe = false
     var scheduledResets = true
     var policyPack: String?
+    var basePolicyPack: String?
     var rolloutPack: String?
     var interactionPack: String?
     var interactionClip: String?
@@ -370,6 +371,9 @@ private struct Options {
                 index += 1
             case "--policy-pack":
                 policyPack = try value()
+                index += 1
+            case "--base-policy-pack":
+                basePolicyPack = try value()
                 index += 1
             case "--rollout-pack":
                 rolloutPack = try value()
@@ -1598,6 +1602,11 @@ private enum TaskRolloutMain {
                 try context.loadPolicy(
                     at: URL(fileURLWithPath: policyPack)
                 )
+                if let basePolicyPack = options.basePolicyPack {
+                    try context.loadBasePolicy(
+                        at: URL(fileURLWithPath: basePolicyPack)
+                    )
+                }
             } else if options.nativePolicy {
                 let layout = context.layout
                 let hiddenCount = 64

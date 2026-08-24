@@ -46,6 +46,20 @@ case "$crow_action" in
         if crow_has_option --policy-pack "$@"; then
             exec "$crow_dispatcher" train --birdflow-american-crow "$@"
         fi
+        if crow_has_option --base-policy-pack "$@"; then
+            # The base actor is a separately loaded, immutable policy. The
+            # residual learner must start from exact zero output rather than
+            # importing and mutating that base actor.
+            if crow_has_option --initialize-actor-policy-pack "$@"; then
+                crow_die \
+                    '--base-policy-pack cannot be combined with --initialize-actor-policy-pack'
+            fi
+            exec "$crow_dispatcher" train \
+                --birdflow-american-crow \
+                --initialize-policy birdflow_american_crow_stage2_residual \
+                --zero-actor-output \
+                "$@"
+        fi
         if crow_has_option --initialize-actor-policy-pack "$@"; then
             # A staged curriculum must retain the selected preceding actor.
             # The generic initializer applies zero-actor-output *after*

@@ -1579,6 +1579,17 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         }
     }
 
+    public func loadBasePolicy(at url: URL) throws {
+        let status = url.path.withCString {
+            mr_task_rollout_load_base_policy_pack(handle, $0)
+        }
+        guard status == 0 else {
+            throw MetalRoboTaskRolloutError.native(
+                Self.lastError()
+            )
+        }
+    }
+
     public var installedPolicyRevision: UInt64 {
         mr_task_rollout_policy_revision(handle)
     }

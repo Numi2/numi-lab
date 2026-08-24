@@ -609,6 +609,15 @@ MR_API int mr_task_rollout_load_policy_pack(
     MRTaskRolloutHandle* handle,
     const char* policy_pack_path
 );
+// Loads an immutable deterministic actor used as the base of a staged
+// residual policy. The primary policy remains the PPO behavior policy; when
+// installed, the base action is used unchanged outside the current lift-off
+// band and composed with the primary residual in that band. A failed load
+// leaves the previous base program unchanged.
+MR_API int mr_task_rollout_load_base_policy_pack(
+    MRTaskRolloutHandle* handle,
+    const char* policy_pack_path
+);
 // Returns the immutable revision of the currently installed compiled policy,
 // or zero when no policy is installed.
 MR_API uint64_t mr_task_rollout_policy_revision(

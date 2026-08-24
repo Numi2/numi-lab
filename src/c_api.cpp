@@ -1904,6 +1904,36 @@ void installPolicyPack(
     handle.stepConfig.policyProgram = std::move(compiled);
 }
 
+void installBasePolicyPack(
+    MRTaskRolloutHandle& handle,
+    const metalrobo::PolicyPack& authored
+) {
+    // A base actor is an immutable deterministic action source. Keeping its
+    // stochastic head or critic would make protected-band behavior depend on
+    // a second random stream and break the exact non-forgetting control.
+    if (!authored.criticLayers.empty() ||
+        !authored.actionLogStandardDeviation.empty()) {
+        throw std::invalid_argument(
+            "residual base PolicyPack must be deterministic and actor-only"
+        );
+    }
+    metalrobo::CompiledPolicyProgram compiled;
+    const metalrobo::PolicyCompileDiagnostics status =
+        metalrobo::compilePolicyProgram(
+            authored,
+            handle.taskProgram,
+            compiled
+        );
+    if (!status.succeeded()) {
+        throw std::invalid_argument(
+            std::string{"base PolicyPack compile failed ["} +
+            metalrobo::policyCompileStatusName(status.status) +
+            "]: " + status.element + ": " + status.message
+        );
+    }
+    handle.stepConfig.basePolicyProgram = std::move(compiled);
+}
+
 std::runtime_error worldFamilyError(
     const char* operation,
     const metalrobo::MetalWorldFamilyDiagnostics& diagnostics
@@ -3654,6 +3684,33 @@ int mr_task_rollout_load_policy_pack(
     });
 }
 
+int mr_task_rollout_load_base_policy_pack(
+    MRTaskRolloutHandle* handle,
+    const char* policy_pack_path
+) {
+    if (!requireTaskRolloutHandle(handle)) {
+        return -1;
+    }
+    if (policy_pack_path == nullptr ||
+        policy_pack_path[0] == '\0') {
+        gLastError = "base PolicyPack path is empty.";
+        return -1;
+    }
+    return translateErrors([&] {
+        metalrobo::PolicyPack authored;
+        const metalrobo::LearningPackResult loaded =
+            metalrobo::readPolicyPack(policy_pack_path, authored);
+        if (!loaded.succeeded()) {
+            throw std::invalid_argument(
+                std::string{"base PolicyPack load failed ["} +
+                metalrobo::learningPackStatusName(loaded.status) +
+                "]: " + loaded.message
+            );
+        }
+        installBasePolicyPack(*handle, authored);
+    });
+}
+
 uint64_t mr_task_rollout_policy_revision(
     const MRTaskRolloutHandle* handle
 ) {
@@ -3671,6 +3728,7 @@ int mr_task_rollout_clear_policy(
         return -1;
     }
     handle->stepConfig.policyProgram = {};
+    handle->stepConfig.basePolicyProgram = {};
     gLastError.clear();
     return 0;
 }

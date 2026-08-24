@@ -35,7 +35,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 243u;
+constexpr std::size_t kRawBufferCount = 248u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -300,6 +300,11 @@ enum BufferIndex : std::size_t {
     kFlappingWingDispatch = 240u,
     kFlappingTail = 241u,
     kFlappingFuselage = 242u,
+    kBasePolicyProgramHeader = 243u,
+    kBasePolicyProgramArena = 244u,
+    kBasePolicyScratchA = 245u,
+    kBasePolicyScratchB = 246u,
+    kBasePolicyActorMean = 247u,
 };
 
 struct BufferRequirement {
@@ -395,6 +400,7 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> flappingWingPipeline = nil;
     __strong id<MTLComputePipelineState> policyDensePipeline = nil;
     __strong id<MTLComputePipelineState> policySamplePipeline = nil;
+    __strong id<MTLComputePipelineState> policyResidualSamplePipeline = nil;
     __strong id<MTLComputePipelineState> contactPreparePipeline = nil;
     __strong id<MTLComputePipelineState>
         observationStateSelectPipeline = nil;
@@ -509,6 +515,7 @@ struct MetalWorldContextState {
     std::uint64_t boundModelFingerprint = 0u;
     std::uint64_t boundTaskFingerprint = 0u;
     std::uint64_t boundPolicyFingerprint = 0u;
+    std::uint64_t boundBasePolicyFingerprint = 0u;
     std::uint64_t boundMulticopterFingerprint = 0u;
     std::uint64_t boundFlappingWingFingerprint = 0u;
     std::uint64_t stateArenaGeneration = 0u;
@@ -1546,6 +1553,7 @@ bool buildRequirements(
     const MetalWorldLayout& layout,
     const CompiledTaskProgram& taskProgram,
     const CompiledPolicyProgram& policyProgram,
+    const CompiledPolicyProgram& basePolicyProgram,
     const MetalWorldMulticopterProgram& multicopterProgram,
     const MetalWorldFlappingWingProgram& flappingWingProgram,
     RequiredBuffers& requirements,
@@ -1577,6 +1585,7 @@ bool buildRequirements(
         : 0u;
     const bool nativeTask = taskProgram.valid();
     const bool nativePolicy = policyProgram.valid();
+    const bool nativeBasePolicy = basePolicyProgram.valid();
     const std::size_t taskEnvironments =
         nativeTask ? environments : 0u;
     const TaskProgramLayout& taskLayout =
@@ -1589,6 +1598,8 @@ bool buildRequirements(
     std::size_t taskContactElements = 0u;
     std::size_t policyScratchElements = 0u;
     std::size_t policyActorMeanElements = 0u;
+    std::size_t basePolicyScratchElements = 0u;
+    std::size_t basePolicyActorMeanElements = 0u;
     if (!checkedMultiply(
             taskLayout.delayStateCount,
             taskLayout.actionCount,
@@ -1630,6 +1641,16 @@ bool buildRequirements(
             nativePolicy ? taskEnvironments : 0u,
             policyProgram.layout().actionCount,
             policyActorMeanElements
+        ) ||
+        !checkedMultiply(
+            nativeBasePolicy ? taskEnvironments : 0u,
+            basePolicyProgram.layout().maximumHiddenCount,
+            basePolicyScratchElements
+        ) ||
+        !checkedMultiply(
+            nativeBasePolicy ? taskEnvironments : 0u,
+            basePolicyProgram.layout().actionCount,
+            basePolicyActorMeanElements
         )) {
         return false;
     }
@@ -3082,6 +3103,31 @@ bool buildRequirements(
             "native policy values",
             layout.policyValueElements,
             requirements.entries[kPolicyValues]
+        ) ||
+        !makeRequirement<MRPolicyProgramHeaderGPU>(
+            "compiled base policy header",
+            nativeBasePolicy ? 1u : 0u,
+            requirements.entries[kBasePolicyProgramHeader]
+        ) ||
+        !makeRequirement<std::uint8_t>(
+            "compiled base policy arena",
+            basePolicyProgram.arena().size(),
+            requirements.entries[kBasePolicyProgramArena]
+        ) ||
+        !makeRequirement<float>(
+            "native base policy scratch A",
+            basePolicyScratchElements,
+            requirements.entries[kBasePolicyScratchA]
+        ) ||
+        !makeRequirement<float>(
+            "native base policy scratch B",
+            basePolicyScratchElements,
+            requirements.entries[kBasePolicyScratchB]
+        ) ||
+        !makeRequirement<float>(
+            "native base policy actor mean",
+            basePolicyActorMeanElements,
+            requirements.entries[kBasePolicyActorMean]
         )) {
         return false;
     }
@@ -3139,6 +3185,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
     }
     const bool nativeTask = config.taskProgram.valid();
     const bool nativePolicy = config.policyProgram.valid();
+    const bool nativeBasePolicy = config.basePolicyProgram.valid();
     const bool hasBodyWrenches = config.multicopterProgram.valid() ||
         config.flappingWingProgram.valid() ||
         (nativeTask && taskHasActuatorKind(
@@ -3409,6 +3456,26 @@ MetalWorldDiagnostics validateAndBuildLayout(
             std::move(diagnostics),
             MetalWorldHostStatus::invalidDimensions,
             "compiled policy does not match the task observation/action contract or revision"
+        );
+    }
+    if (nativeBasePolicy &&
+        (
+            !nativePolicy ||
+            !nativeTask ||
+            !config.basePolicyProgram.criticLayers().empty() ||
+            config.basePolicyProgram.layout().stochastic ||
+            config.basePolicyProgram.taskFingerprint() !=
+                config.taskProgram.fingerprint() ||
+            config.basePolicyProgram.layout()
+                    .actorObservationCount !=
+                config.taskProgram.layout().actorObservationSize ||
+            config.basePolicyProgram.layout().actionCount !=
+                config.taskProgram.layout().actionCount
+        )) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "compiled base policy must be a deterministic actor matching the primary policy task contract"
         );
     }
     if (qualityMode &&
@@ -4364,6 +4431,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
             layout,
             config.taskProgram,
             config.policyProgram,
+            config.basePolicyProgram,
             config.multicopterProgram,
             config.flappingWingProgram,
             requirements,
@@ -4752,12 +4820,22 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld compiled policy header";
     case kPolicyProgramArena:
         return @"MetalWorld compiled policy arena";
+    case kBasePolicyProgramHeader:
+        return @"MetalWorld compiled base policy header";
+    case kBasePolicyProgramArena:
+        return @"MetalWorld compiled base policy arena";
     case kPolicyScratchA:
         return @"MetalWorld policy scratch A";
     case kPolicyScratchB:
         return @"MetalWorld policy scratch B";
     case kPolicyActorMean:
         return @"MetalWorld policy actor mean";
+    case kBasePolicyScratchA:
+        return @"MetalWorld base policy scratch A";
+    case kBasePolicyScratchB:
+        return @"MetalWorld base policy scratch B";
+    case kBasePolicyActorMean:
+        return @"MetalWorld base policy actor mean";
     case kPolicyLatents:
         return @"MetalWorld policy Gaussian samples";
     case kPolicyLogProbabilities:
@@ -5012,6 +5090,7 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> flappingWing = nil;
     __strong id<MTLComputePipelineState> policyDense = nil;
     __strong id<MTLComputePipelineState> policySample = nil;
+    __strong id<MTLComputePipelineState> policyResidualSample = nil;
     __strong id<MTLComputePipelineState> contactPrepare = nil;
     __strong id<MTLComputePipelineState> observationStateSelect = nil;
     __strong id<MTLComputePipelineState> bodyProjection = nil;
@@ -5153,6 +5232,9 @@ MetalWorldDiagnostics initializeContext(
         createContactPipeline(@"mr_policy_dense_layer");
     policySample = createContactPipeline(
         @"mr_policy_sample_and_score"
+    );
+    policyResidualSample = createContactPipeline(
+        @"mr_policy_residual_sample_and_score"
     );
     contactPrepare =
         createContactPipeline(@"mr_world_prepare_contact_step");
@@ -5395,6 +5477,7 @@ MetalWorldDiagnostics initializeContext(
         flappingWing == nil ||
         policyDense == nil ||
         policySample == nil ||
+        policyResidualSample == nil ||
         contactPrepare == nil ||
         observationStateSelect == nil ||
         bodyProjection == nil ||
@@ -5515,6 +5598,7 @@ MetalWorldDiagnostics initializeContext(
         multicopterCommit.maxTotalThreadsPerThreadgroup == 0u ||
         policyDense.maxTotalThreadsPerThreadgroup == 0u ||
         policySample.maxTotalThreadsPerThreadgroup == 0u ||
+        policyResidualSample.maxTotalThreadsPerThreadgroup == 0u ||
         contactPrepare.maxTotalThreadsPerThreadgroup == 0u ||
         bodyProjection.maxTotalThreadsPerThreadgroup == 0u ||
         scenePrediction.maxTotalThreadsPerThreadgroup == 0u ||
@@ -5710,6 +5794,7 @@ MetalWorldDiagnostics initializeContext(
     context.flappingWingPipeline = flappingWing;
     context.policyDensePipeline = policyDense;
     context.policySamplePipeline = policySample;
+    context.policyResidualSamplePipeline = policyResidualSample;
     context.contactPreparePipeline = contactPrepare;
     context.observationStateSelectPipeline =
         observationStateSelect;
@@ -5952,6 +6037,9 @@ bool privateTransientBuffer(const std::size_t index) {
     case kPolicyScratchA:
     case kPolicyScratchB:
     case kPolicyActorMean:
+    case kBasePolicyScratchA:
+    case kBasePolicyScratchB:
+    case kBasePolicyActorMean:
         return true;
     default:
         return false;
@@ -6031,6 +6119,8 @@ bool privateImmutableBuffer(const std::size_t index) {
          index <= kTaskProgramArena) ||
         (index >= kPolicyProgramHeader &&
          index <= kPolicyProgramArena) ||
+        (index >= kBasePolicyProgramHeader &&
+         index <= kBasePolicyProgramArena) ||
         (index >= kParallelScheduleArticulations &&
          index <= kParallelScheduleChildIndices) ||
         index == kShapes ||
@@ -6484,6 +6574,7 @@ MetalWorldDiagnostics ensureBufferArena(
         context.boundModelFingerprint = 0u;
         context.boundTaskFingerprint = 0u;
         context.boundPolicyFingerprint = 0u;
+        context.boundBasePolicyFingerprint = 0u;
         context.boundMulticopterFingerprint = 0u;
         context.boundFlappingWingFingerprint = 0u;
     }
@@ -7266,6 +7357,7 @@ void uploadBatch(
 
     const bool nativeTask = config.taskProgram.valid();
     const bool nativePolicy = config.policyProgram.valid();
+    const bool nativeBasePolicy = config.basePolicyProgram.valid();
     if (nativeTask &&
         context.boundTaskFingerprint !=
             config.taskProgram.fingerprint()) {
@@ -7446,6 +7538,44 @@ void uploadBatch(
         }
         context.boundPolicyFingerprint =
             config.policyProgram.fingerprint();
+    }
+    if (nativeBasePolicy &&
+        context.boundBasePolicyFingerprint !=
+            config.basePolicyProgram.fingerprint()) {
+        id<MTLBlitCommandEncoder> policyUpload = nil;
+        if (context.config.preferPrivateHeaps) {
+            policyUpload = [commandBuffer blitCommandEncoder];
+            if (policyUpload == nil) {
+                throw std::runtime_error(
+                    "failed to create compiled-base-policy upload encoder"
+                );
+            }
+            policyUpload.label =
+                @"MetalWorld immutable compiled base policy upload";
+        }
+        const auto stageBasePolicy =
+            [&](const std::size_t index, const void* source) {
+                stagePrivateBuffer(
+                    context,
+                    index,
+                    source,
+                    requirements.entries[index],
+                    policyUpload
+                );
+            };
+        stageBasePolicy(
+            kBasePolicyProgramHeader,
+            &config.basePolicyProgram.header()
+        );
+        stageBasePolicy(
+            kBasePolicyProgramArena,
+            config.basePolicyProgram.arena().data()
+        );
+        if (policyUpload != nil) {
+            [policyUpload endEncoding];
+        }
+        context.boundBasePolicyFingerprint =
+            config.basePolicyProgram.fingerprint();
     }
 
     copyToBuffer(
@@ -9636,6 +9766,94 @@ bool encodeTaskMotionFeatures(
     );
 }
 
+bool encodePolicyActor(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const CompiledPolicyProgram& program,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t environmentCount,
+    const std::size_t programHeaderBuffer,
+    const std::size_t programArenaBuffer,
+    const std::size_t scratchA,
+    const std::size_t scratchB,
+    const std::size_t actorMeanBuffer,
+    NSString* label
+) {
+    const auto& header = program.header();
+    const auto& layers = program.actorLayers();
+    for (std::size_t layerIndex = 0u;
+         layerIndex < layers.size();
+         ++layerIndex) {
+        const MRPolicyDenseLayerGPU& layer = layers[layerIndex];
+        const bool first = layerIndex == 0u;
+        const bool final = layerIndex + 1u == layers.size();
+        const std::size_t source =
+            first
+            ? kTaskActorObservations
+            : ((layerIndex - 1u) & 1u) == 0u
+            ? scratchA
+            : scratchB;
+        const std::size_t destination =
+            final
+            ? actorMeanBuffer
+            : (layerIndex & 1u) == 0u
+            ? scratchA
+            : scratchB;
+        MRPolicyDenseDispatchGPU dispatch{};
+        dispatch.counts = {
+            static_cast<mr_u32>(environmentCount),
+            layer.counts.x,
+            layer.counts.y,
+            layer.counts.z,
+        };
+        dispatch.strides = {
+            layer.counts.x,
+            final ? header.counts1.x : layer.counts.y,
+            first
+                ? static_cast<mr_u32>(
+                      pass.controlStep * environmentCount *
+                      header.counts0.z
+                  )
+                : 0u,
+            0u,
+        };
+        dispatch.offsets0 = {
+            layer.offsets.x,
+            layer.offsets.y,
+            header.offsets0.z,
+            header.offsets0.w,
+        };
+        dispatch.offsets1 = {0u, 0u, layer.counts.w, 0u};
+        dispatch.limits = header.limits;
+        dispatch.policyFingerprint = program.fingerprint();
+        dispatch.taskFingerprint = program.taskFingerprint();
+        if (!encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.policyDensePipeline,
+                label,
+                {
+                    {0u, programHeaderBuffer},
+                    {1u, programArenaBuffer},
+                    {3u, source},
+                    {4u, destination},
+                    {5u, kTaskTransitions},
+                },
+                nullptr,
+                0u,
+                environmentCount * layer.counts.y,
+                false,
+                0u,
+                &dispatch,
+                sizeof(dispatch),
+                2u
+            )) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool encodePolicyInference(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -9643,8 +9861,25 @@ bool encodePolicyInference(
     const MRMetalWorldPassGPU& pass,
     const std::size_t environmentCount,
     const bool terminalValueOnly = false,
-    const mr_u32 terminalObservationStep = 0u
+    const mr_u32 terminalObservationStep = 0u,
+    const CompiledPolicyProgram* baseProgram = nullptr
 ) {
+    if (!terminalValueOnly && baseProgram != nullptr &&
+        !encodePolicyActor(
+            context,
+            commandBuffer,
+            *baseProgram,
+            pass,
+            environmentCount,
+            kBasePolicyProgramHeader,
+            kBasePolicyProgramArena,
+            kBasePolicyScratchA,
+            kBasePolicyScratchB,
+            kBasePolicyActorMean,
+            @"compiled frozen base actor inference"
+        )) {
+        return false;
+    }
     const auto& header = program.header();
     const auto encodeNetwork = [&](
         const std::span<const MRPolicyDenseLayerGPU> layers,
@@ -9825,21 +10060,51 @@ bool encodePolicyInference(
     };
     dispatch.policyFingerprint = program.fingerprint();
     dispatch.taskFingerprint = program.taskFingerprint();
+    if (baseProgram == nullptr) {
+        return encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.policySamplePipeline,
+            @"compiled policy sampling and scoring",
+            {
+                {0u, kPolicyProgramHeader},
+                {1u, kPolicyProgramArena},
+                {3u, kTaskDispatch},
+                {4u, kTaskState},
+                {5u, kPolicyActorMean},
+                {6u, kTaskActions},
+                {7u, kPolicyLatents},
+                {8u, kPolicyLogProbabilities},
+                {9u, kPolicyValues},
+            },
+            nullptr,
+            0u,
+            environmentCount,
+            false,
+            0u,
+            &dispatch,
+            sizeof(dispatch),
+            2u
+        );
+    }
     return encodeContactThreadKernel(
         context,
         commandBuffer,
-        context.policySamplePipeline,
-        @"compiled policy sampling and scoring",
+        context.policyResidualSamplePipeline,
+        @"compiled frozen-base residual policy sampling and scoring",
         {
             {0u, kPolicyProgramHeader},
             {1u, kPolicyProgramArena},
-            {3u, kTaskDispatch},
-            {4u, kTaskState},
-            {5u, kPolicyActorMean},
-            {6u, kTaskActions},
-            {7u, kPolicyLatents},
-            {8u, kPolicyLogProbabilities},
-            {9u, kPolicyValues},
+            {2u, kBasePolicyProgramHeader},
+            {3u, kBasePolicyProgramArena},
+            {4u, kTaskDispatch},
+            {5u, kTaskState},
+            {6u, kPolicyActorMean},
+            {7u, kBasePolicyActorMean},
+            {8u, kTaskActions},
+            {9u, kPolicyLatents},
+            {10u, kPolicyLogProbabilities},
+            {11u, kPolicyValues},
         },
         nullptr,
         0u,
@@ -17228,7 +17493,12 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 commandBuffer,
                                 config.policyProgram,
                                 pass,
-                                batch.environmentCount
+                                batch.environmentCount,
+                                false,
+                                0u,
+                                config.basePolicyProgram.valid()
+                                ? &config.basePolicyProgram
+                                : nullptr
                             )) {
                         return reject(
                             std::move(diagnostics),
