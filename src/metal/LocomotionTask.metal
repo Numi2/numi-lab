@@ -3652,7 +3652,13 @@ kernel void mr_locomotion_task_apply_actions(
             const float forwardSpeedError =
                 state.commandExtension.z - 0.35f;
             avianLiftoffWingCarrier = clamp(
-                -0.150f + 0.400f * heightError - 0.120f * verticalRate -
+                // The full-horizon bilateral wing probe establishes that a
+                // larger resolved flap residual reduces forward progress in
+                // this hybrid. Raise the physical wing target above the
+                // requested yaw-frame speed and reduce it below the command;
+                // tail-speed feedback remains unchanged for this isolated
+                // wing-sign qualification.
+                -0.150f + 0.400f * heightError - 0.120f * verticalRate +
                     0.100f * forwardSpeedError,
                 -1.000f,
                 0.125f
