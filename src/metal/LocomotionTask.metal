@@ -3629,8 +3629,10 @@ kernel void mr_locomotion_task_apply_actions(
             state.episode.z == 2u;
         // The live action sweep brackets the estimated hybrid's transition:
         // +0.100 remains ground-bound whereas +0.125 repeatedly reaches the
-        // altitude boundary.  Use the previous accepted root height and
-        // finite-difference vertical rate to trim inside that narrow band.
+        // altitude boundary.  A positive tail trim reduces that same sweep's
+        // forward/attitude excursion.  Use the previous accepted root height
+        // and finite-difference vertical rate to trim inside the narrow wing
+        // band, with the observed tail setting as a bounded baseline.
         // This is a Metal-resident controller of the actual wing positions,
         // never an injected aerodynamic force or a prerecorded trajectory.
         float avianLiftoffWingCarrier = 0.0f;
@@ -3639,9 +3641,9 @@ kernel void mr_locomotion_task_apply_actions(
             const float heightError = 0.85f - state.airReturnTracking.y;
             const float verticalRate = state.commandExtension.w;
             avianLiftoffWingCarrier = clamp(
-                0.110f + 0.035f * heightError - 0.012f * verticalRate,
-                0.080f,
-                0.150f
+                0.102f + 0.032f * heightError - 0.008f * verticalRate,
+                0.090f,
+                0.125f
             );
         }
         const float avianWingPolicyCommand = avianCrowLiftoffTrimCarrier
@@ -3696,6 +3698,18 @@ kernel void mr_locomotion_task_apply_actions(
         // liftoff and flight bands retain their full policy authority.
         const float avianGroundResidualScale =
             avianCrowGroundGaitCarrier ? 0.25f : 1.0f;
+        const float avianLiftoffTailCarrier =
+            avianCrowLiftoffTrimCarrier && binding.indices.x == 2u
+            ? 0.25f
+            : 0.0f;
+        const float avianNonWingCommand =
+            avianLiftoffTailCarrier != 0.0f
+            ? clamp(
+                avianLiftoffTailCarrier + 0.25f * filtered,
+                -1.0f,
+                1.0f
+            )
+            : filtered * avianGroundResidualScale + avianGroundGaitCarrier;
         const float studentTarget =
             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
             ? defaultQ[binding.indices.z] +
@@ -3711,7 +3725,7 @@ kernel void mr_locomotion_task_apply_actions(
                     sin(state.commandAndPhase.w)
             : defaultQ[binding.indices.z] +
                 binding.parameters.x *
-                    (filtered * avianGroundResidualScale + avianGroundGaitCarrier) *
+                    avianNonWingCommand *
                     (avianStandingCurriculum ? 0.0f : 1.0f);
         float targetCandidate = studentTarget;
         if (interactionReference) {
