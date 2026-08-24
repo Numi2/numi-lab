@@ -728,6 +728,37 @@ protocol; it does not select this rejected actor, authorize a learner, or
 create policy replay, GIF, picture, or README media. A failed counterfactual
 ends this amplitude explanation without a scale sweep.
 
+### Fixed leg-amplitude counterfactual outcome — control rejected
+
+At source `a828700a08ff9cda0720020eb3254b2dd4163452`, the candidate action
+latents were decoded into the prescribed Float32 stream. Its SHA-256 is
+`7428ea026cb492b95d20c784d26578416a5c5b30a286e6029c709880d9edc1b1`.
+The unmodified-stream control ran on the same M4 task and retained task and
+run fingerprints `3198934467138572318` and `8498436949874751629`, zero failed
+environment steps, and 64 ordinary timeouts. It was close to, but did not
+exactly reproduce, the candidate execution: tracking was `0.9898425` rather
+than `0.9899237`, mean tilt was `0.0791258` rather than `0.0790510` rad, and
+final forward progress was `10.7266606` rather than `10.6673941 m`.
+
+Most importantly, the control environment-0 trace hashes to
+`0f0b3de382743d26026c18fb94fa42c1cdb270ac080bba35d597dad5a8a7c177`, not the
+required candidate trace hash
+`1cfffbc9ce5d63b9a977092f81c453bb3105f1a53286def45e481668494a5e3d`.
+The early rows differ only at floating-point round-off scale and then diverge
+over the long contact trajectory, but the pre-registered requirement was
+byte-identical execution, not approximate agreement. The decoded latent record
+is therefore insufficient as an exact external action-stream replay of the
+compiled-policy path.
+
+The generated 0.20 leg stream (SHA-256
+`a797a01e5b193c1abe980d5bfdb926c40ad9186a8e2a101bc8ffd3d40f4ac3ab`) was
+retained but not executed. No scaled counterfactual, source amplitude change,
+learner, policy deployment, replay, GIF, picture, or README media is authorized
+from this failed control. A later experiment would first need a separately
+qualified way to apply scaling inside the same native policy-execution path;
+that is an instrumentation problem, not evidence that the proposed 0.05
+residual is safe or effective.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
