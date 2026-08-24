@@ -2482,7 +2482,7 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             return value;
         };
         pack.id = "birdflow_american_crow_estimated_hybrid";
-        pack.revision = 12u;
+        pack.revision = 13u;
         pack.sourceRepository =
             "BirdFlowMetal American-crow estimated hybrid visual model";
         pack.sourceRevision =
@@ -2580,13 +2580,14 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             // the 0.25 forward tilt still outran lift even under live speed
             // trim. The strengthened controller holds altitude at 0.10 but
             // remains backward, while 0.1375 skims forward into contact. The
-            // 0.1125 bracket holds altitude but remains rearward, so test only
-            // the next 0.11875 stroke-plane tilt with the same altitude,
-            // vertical-rate, and forward-speed trim. It remains an
+            // tail speed servo makes 0.11875 nearly stationary but exhausts
+            // its low-pitch authority before reaching the 0.35 m/s command,
+            // so test only the local 0.120 stroke-plane tilt with the same
+            // altitude, vertical-rate, and forward-speed trim. It remains an
             // estimated-model bracket until independently validated flight
             // evidence exists.
             wing.unsteadyCoefficients.x = 8.0f;
-            wing.unsteadyCoefficients.y = 0.11875f;
+            wing.unsteadyCoefficients.y = 0.120f;
         }
         aerodynamic.tail.rootToCenterAndArea.x *= lengthScale;
         aerodynamic.tail.rootToCenterAndArea.y *= lengthScale;
