@@ -484,14 +484,15 @@ evidence only. The estimated-hybrid mechanics, visual lock, 4.6 Hz clock,
 ABA/contact solver, aerodynamic closure, reward, termination conditions,
 action ABI, and `tracking >= 0.70` lift-off gate remain unchanged.
 
-The protocol allows at most two remote Apple M4 Pro learner runs, both with a
-new zero-actor-output Crow policy, 128 environments × 128 steps × 512 updates
-(`8,388,608` samples), chunk 8, fixed learning rate `1e-4`, initial log
-standard deviation `-3`, learner seed `2650443581`, and checkpoints every 128
-updates. Stage 1 uses band 1 only. Its 64-environment, 5,000-step, no-reset,
-held-out selector evaluates band 1 plus protected band 0. It may advance only
-if it has no failed environment steps, no new non-timeout physical-boundary
-failure, a positive staged outcome comparison, and no band-0 regression.
+The protocol allows at most two remote Apple M4 Pro learner runs, each with
+128 environments × 128 steps × 512 updates (`8,388,608` samples), chunk 8,
+fixed learning rate `1e-4`, initial log standard deviation `-3`, learner seed
+`2650443581`, and checkpoints every 128 updates. Stage 1 begins from a new
+zero-actor-output Crow policy and uses band 1 only. Its 64-environment,
+5,000-step, no-reset, held-out selector evaluates band 1 plus protected band
+0. It may advance only if it has no failed environment steps, no new
+non-timeout physical-boundary failure, a positive staged outcome comparison,
+and no band-0 regression.
 
 Stage 2 is conditional on a selected Stage-1 deployment. It initializes that
 actor with a fresh critic, trains on bands 1--2, and uses the same held-out
@@ -501,6 +502,11 @@ zero non-timeout physical-boundary failures, has positive staged progress, and
 does not regress walking. Failed checks preserve the incumbent and terminate
 this pre-registered protocol; no parameter sweep, policy replay, GIF, picture,
 or README entry follows from a rejected candidate.
+
+The `numi crow train` hand-off rejects `--zero-actor-output` when an actor
+PolicyPack is supplied. This is an integration safeguard, not a change to the
+pre-registered experiment: actor transfer must not be silently replaced by a
+zeroed policy.
 
 ## Articulated-pronation response
 

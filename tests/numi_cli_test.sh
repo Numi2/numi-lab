@@ -128,6 +128,42 @@ test -s "$numi_train_run/selection.log"
 grep '"candidate_retained": true' \
     "$numi_train_run/selection/selection.json" >/dev/null
 
+crow_actor_run=$numi_temp/runs/crow-actor-transfer
+crow_actor_source=$numi_temp/crow-stage-one.policypack
+printf 'selected stage-one actor\n' > "$crow_actor_source"
+crow_actor_output=$(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$crow_actor_run \
+        "$numi_repo/tools/numi" crow train \
+            --initialize-actor-policy-pack "$crow_actor_source" \
+            --initialize-actor-fresh-critic \
+            --updates 1
+)
+printf '%s\n' "$crow_actor_output" | grep '"status":"trained"' >/dev/null
+grep -- '--birdflow-american-crow' "$crow_actor_run/arguments.txt" >/dev/null
+grep -- '--initialize-policy' "$crow_actor_run/arguments.txt" >/dev/null
+grep -- '--initialize-actor-policy-pack' "$crow_actor_run/arguments.txt" >/dev/null
+if grep -- '--zero-actor-output' "$crow_actor_run/arguments.txt" >/dev/null; then
+    printf '%s\n' 'crow actor transfer was unexpectedly zeroed' >&2
+    exit 1
+fi
+
+if (
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+        "$numi_repo/tools/numi" crow train \
+            --initialize-actor-policy-pack "$crow_actor_source" \
+            --zero-actor-output \
+            --updates 1
+) > "$numi_temp/crow-invalid-transfer.log" 2>&1; then
+    printf '%s\n' 'crow accepted a contradictory actor-transfer request' >&2
+    exit 1
+fi
+grep -- \
+    '--zero-actor-output cannot be combined with --initialize-actor-policy-pack' \
+    "$numi_temp/crow-invalid-transfer.log" >/dev/null
+
 numi_evaluate_run=$numi_temp/runs/evaluate
 numi_evaluate_output=$(
     cd "$numi_repo"

@@ -31,6 +31,11 @@ crow_has_option() {
     return 1
 }
 
+crow_die() {
+    printf 'numi crow: %s\n' "$*" >&2
+    exit 2
+}
+
 crow_action=${1:-help}
 if [ "$#" -gt 0 ]; then
     shift
@@ -40,6 +45,20 @@ case "$crow_action" in
     train)
         if crow_has_option --policy-pack "$@"; then
             exec "$crow_dispatcher" train --birdflow-american-crow "$@"
+        fi
+        if crow_has_option --initialize-actor-policy-pack "$@"; then
+            # A staged curriculum must retain the selected preceding actor.
+            # The generic initializer applies zero-actor-output *after*
+            # loading an actor PolicyPack, so combining the two would silently
+            # discard the transfer requested by the caller.
+            if crow_has_option --zero-actor-output "$@"; then
+                crow_die \
+                    '--zero-actor-output cannot be combined with --initialize-actor-policy-pack'
+            fi
+            exec "$crow_dispatcher" train \
+                --birdflow-american-crow \
+                --initialize-policy birdflow_american_crow_standing_to_flight_brain \
+                "$@"
         fi
         # The initial actor mean is exactly the physics-verified default pose.
         # Exploration still comes from the stochastic head; a learned update
