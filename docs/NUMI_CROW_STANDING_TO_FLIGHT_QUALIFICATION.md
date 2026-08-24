@@ -589,6 +589,8 @@ coordinates or registered surfaces, side labels, toe-off and wingbeat events,
 specimen mass properties, and atmosphere/force measurements. It must then
 enter the provenance-locked schema as a new hybrid or same-specimen record;
 until then, this lead remains literature evidence rather than a training input.
+The unsent acquisition and acceptance specification is maintained in
+[American-crow kinematic data intake](AMERICAN_CROW_KINEMATIC_DATA_INTAKE.md).
 
 ## Three-joint 14-action stage-2 PPO (rejected)
 
