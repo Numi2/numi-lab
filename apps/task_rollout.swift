@@ -1099,10 +1099,13 @@ private func birdFlowGroundGaitProbeActions(
             let base = (step * environmentCount + environment) * actionCount
             let leftLift = max(leftSwing, 0.0)
             let rightLift = max(rightSwing, 0.0)
-            result[base + 3] = 0.014 * leftSwing
+            // The held-out long-horizon calibration fixed this sign: the
+            // opposite hip sweep remained stable but translated backward.
+            // Keep lift timing unchanged while reversing only fore/aft swing.
+            result[base + 3] = -0.014 * leftSwing
             result[base + 4] = 0.018 * leftLift
             result[base + 5] = -0.010 * leftLift
-            result[base + 6] = 0.014 * rightSwing
+            result[base + 6] = -0.014 * rightSwing
             result[base + 7] = 0.018 * rightLift
             result[base + 8] = -0.010 * rightLift
         }
