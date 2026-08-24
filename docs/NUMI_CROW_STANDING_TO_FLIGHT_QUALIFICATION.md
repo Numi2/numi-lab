@@ -519,16 +519,50 @@ override the predeclared tracking and physical-boundary gate. Sweep therefore
 remains a bounded residual action only; it does not receive a new carrier,
 PPO seed, deployment pack, replay, GIF, or README entry.
 
+## Phase-aware sweep waveform (rejected)
+
+Commit `8b8d4c0` adds a qualification-only host waveform with an explicit
+normalized amplitude and phase. It enters only the two already-compiled sweep
+position action lanes. It does not edit the device-resident carrier, the ABA
+mechanics, the aerodynamic closure, or any PolicyPack. The companion
+[pigeon free-flight study](https://pmc.ncbi.nlm.nih.gov/articles/PMC12087764/)
+reports flight-stage-dependent coupled sweep behavior, which motivates testing
+a phase grid; it neither calibrates this estimated crow nor authorizes a
+pigeon waveform as its controller.
+
+The same M4 Pro, 16-environment, 5,000-step, band-2, fixed-seed, no-reset
+protocol tested a zero-mean wave using `--birdflow-stroke-amplitude 0`, which
+leaves the live stage-2 flap carrier active while holding its policy residual
+at zero. The accepted sweep ranges below come from each full environment-0
+state trace. Contact reason 3 is a non-timeout physical failure; reason 4 is
+the normal authored timeout.
+
+| Sweep-wave amplitude / phase | Accepted sweep L / R range (rad) | Tracking | Mean height (m) | Mean / max tilt (rad) | Mean yaw-frame forward speed during pulse (m/s) | Contact / timeout terminations | Decision |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 0.25 / 0 | -0.01024..+0.01085 / -0.01054..+0.00974 | 0.501347 | 1.003638 | 0.063251 / 0.124397 | -0.932510 | 0 / 16 | clean, but below flight gate |
+| 0.25 / +pi/2 | -0.04939..+0.04046 / -0.05720..+0.02294 | 0.504432 | 0.971187 | 0.121789 / 0.788345 | +3.038712 | 36 / 0 | reject: contact failure and attitude excursion |
+| 0.25 / pi (3.14 rad) | -0.01060..+0.01044 / -0.01200..+0.01007 | 0.504071 | 0.989411 | 0.103923 / 0.758107 | +1.596971 | 19 / 0 | reject: contact failure and attitude excursion |
+| 0.25 / -pi/2 | -0.01060..+0.01063 / -0.01035..+0.01011 | 0.501651 | 0.969545 | 0.090300 / 0.152706 | -0.928630 | 0 / 16 | clean, but below flight gate |
+| 0.50 / -pi/2 | -0.02870..+0.02123 / -0.05607..+0.03960 | 0.514779 | 0.732963 | 0.219484 / 0.837239 | +0.736750 | 52 / 0 | reject: contact failure, height regression, and attitude excursion |
+
+This phase grid is a negative control result, not a sparse policy search. The
+two clean quarter-amplitude phases leave tracking at about 0.501, while every
+condition with a larger local response crosses the physical-boundary gate.
+Phase-aware sweep therefore remains unpromoted. No learner run, candidate
+selection, deterministic replay, GIF, or README media is authorized from this
+evidence.
+
 ## Required next evidence
 
 The next control experiment must identify a coordinated, phase-aware physical
 response that materially improves yaw-frame speed tracking while preserving the
 qualified height and attitude envelope. It must not fit the unmeasured
-stroke-plane closure to a forward-flight target: both the scalar stroke-plane
-and constant symmetric-sweep brackets are closed. Single symmetric residuals
-trade height for displacement; persistent negative sweep residuals contact;
-and the tested wing-only feedback signs do not regulate speed. Promote only a
-held-out candidate that reaches tracking >= 0.70 with zero non-timeout
+stroke-plane closure to a forward-flight target: the scalar stroke-plane,
+constant symmetric-sweep, and tested phase-aware sweep brackets are closed.
+The next hypothesis needs either provenance-adequate measured crow kinematics
+or a separately specified coupled articulation/control law with a fresh fixed
+seed, amplitude, phase, and physical gate declared before execution. Promote
+only a held-out candidate that reaches tracking >= 0.70 with zero non-timeout
 physical-boundary failures. Then capture a deterministic replay and inspect
 its frames before linking it from the compact README showcase. Until then, no
 Numi crow flight GIF belongs in the README.
