@@ -46,6 +46,10 @@ enum MRTaskProgramFlags : mr_u32 {
     // than unconditionally from episode time.
     MR_TASK_PROGRAM_INTERACTION_PHYSICS_GATED = 1u << 10u,
     MR_TASK_PROGRAM_INTERACTION_ALIGN_REFERENCE_YAW = 1u << 11u,
+    // Bird standing and walking bands must not receive a policy-independent
+    // wingbeat. This flag makes their grounded curriculum an explicit,
+    // fingerprinted task contract consumed by the Metal action pass.
+    MR_TASK_PROGRAM_AVIAN_GROUND_CURRICULUM = 1u << 12u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {

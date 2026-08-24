@@ -4055,6 +4055,14 @@ TaskCompileDiagnostics compileTaskProgram(
         // the Metal hot loop consumes only this flag and numeric tables.
         staged->header.schedule.w |= MR_TASK_PROGRAM_CLOCK_STRESS;
     }
+    if (pack.id == "birdflow_deetjen_dove_takeoff_flight_figure_eight" ||
+        pack.id == "birdflow_american_crow_standing_to_flight") {
+        // Stage zero and stage one are grounded support tasks. Wing actuation
+        // begins only in the lift-off band, keeping the curriculum physically
+        // possible before flight practice.
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_AVIAN_GROUND_CURRICULUM;
+    }
     if (threatGroup != MR_INVALID_INDEX) {
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_THREAT_TEACHER;

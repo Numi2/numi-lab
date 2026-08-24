@@ -3609,6 +3609,25 @@ kernel void mr_locomotion_task_apply_actions(
         const bool interactionReference =
             (program.schedule.w &
              MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u;
+        const bool avianActionSet =
+            program.counts0.x >= 9u &&
+            actions[0].actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION &&
+            actions[1].actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION;
+        const bool avianGroundCurriculum = avianActionSet &&
+            (program.schedule.w &
+             MR_TASK_PROGRAM_AVIAN_GROUND_CURRICULUM) != 0u &&
+            state.episode.z < 2u;
+        const bool avianStandingCurriculum = avianGroundCurriculum &&
+            state.episode.z == 0u;
+        const float avianWingAmplitude =
+            avianGroundCurriculum &&
+            binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+            ? 0.0f
+            : clamp(
+                binding.drive.z + binding.drive.w * filtered,
+                0.0f,
+                1.0f
+            );
         const float studentTarget =
             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
             ? defaultQ[binding.indices.z] +
@@ -3620,14 +3639,11 @@ kernel void mr_locomotion_task_apply_actions(
                     // The compiled flapping binding supplies its own
                     // zero-action trim and bounded residual span, so initial
                     // policy exploration begins in the viable wingbeat band.
-                    clamp(
-                        binding.drive.z + binding.drive.w * filtered,
-                        0.0f,
-                        1.0f
-                    ) *
+                    avianWingAmplitude *
                     sin(state.commandAndPhase.w)
             : defaultQ[binding.indices.z] +
-                binding.parameters.x * filtered;
+                binding.parameters.x * filtered *
+                    (avianStandingCurriculum ? 0.0f : 1.0f);
         float targetCandidate = studentTarget;
         if (interactionReference) {
             const float frameReference = interactionJointTargets[
