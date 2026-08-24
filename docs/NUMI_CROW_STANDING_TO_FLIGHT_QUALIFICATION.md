@@ -668,6 +668,66 @@ authorize a learner, policy deployment, flight replay, GIF, picture, or README
 media. It can only identify whether a single subsequently pre-registered
 leg-authority intervention is scientifically warranted.
 
+### Leg-residual attribution outcome
+
+The two pre-registered M4 executions reproduced their retained held-out
+records exactly. The candidate's 64 × 5,000 record has the same tracking
+(`0.9899237`), mean tilt (`0.0790510` rad), maximum tilt (`0.1199241` rad),
+final forward progress (`10.6673941 m`), zero failed environment steps, and
+environment-0 state-trace SHA-256
+`1cfffbc9ce5d63b9a977092f81c453bb3105f1a53286def45e481668494a5e3d` as the
+selector record. The incumbent likewise reproduced its metrics and its
+environment-0 trace SHA-256
+`f9a4dfd48cb3b3f65fee533ee16583849972312e8b70728cdb5127be0ec2110b`.
+
+The incumbent PolicyPack (revision 1) has exactly zero normalized output on
+all 14 channels. The rejected candidate (revision 513) emits nonzero commands
+on masked channels 0--6 (combined RMS `0.0852032`), but the earlier
+action-isolation result proves they cannot affect band-1 physics. Its six live
+leg channels have combined RMS `0.3898442`; after the fixed `0.25` residual
+multiplier, that is an RMS effective leg command of `0.0974611`.
+
+| Live leg action | Raw mean | Raw RMS | Mean absolute | 95th percentile absolute | Maximum absolute |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| left hip | -0.21539 | 0.49786 | 0.40470 | 0.94413 | 1.17195 |
+| left knee | -0.12432 | 0.16920 | 0.14136 | 0.29160 | 0.39321 |
+| left ankle | -0.23508 | 0.38517 | 0.33412 | 0.61382 | 0.65901 |
+| right hip | -0.23344 | 0.55560 | 0.49310 | 0.85301 | 0.97550 |
+| right knee | -0.15897 | 0.34447 | 0.31241 | 0.52265 | 0.67356 |
+| right ankle | -0.11892 | 0.24426 | 0.19291 | 0.45058 | 0.54411 |
+
+This is execution evidence that the only live learned authority is substantial
+leg authority; it does not by itself prove that a lower residual envelope will
+pass the tilt gate or describe biological Crow gait.
+
+### Fixed leg-amplitude counterfactual (pre-registered)
+
+One nonvisual physical-control counterfactual is authorized. It decodes the
+verified candidate `PolicyRolloutPack` latents into a little-endian Float32
+action stream in the native step-major/environment-major/action-major order.
+First, that unmodified stream must reproduce the candidate trace and evidence
+above under the same M4 task, band 1, 64 environments, 5,000 steps, one
+repeat, chunk 1, seed `2650443582`, and no scheduled resets. This validates
+the artifact decoder and action ordering.
+
+The only counterfactual then multiplies lanes 7--12 by `0.20`, leaving all
+other raw lanes and every run condition byte-for-byte unchanged. Because the
+task's live leg residual is fixed at `0.25`, this tests an effective residual
+multiplier of `0.05` without changing the policy, morphology, reward, solver,
+aerodynamics, action ABI, or task fingerprint. The value was fixed before
+running the counterfactual: it changes the observed candidate leg RMS envelope
+from `0.0974611` to `0.0194922`, while retaining a nonzero residual around the
+existing gait carrier.
+
+The counterfactual is informative only if it has zero failed environment
+steps, zero non-timeout physical failures, tracking at least the incumbent's
+`0.9119823`, and mean tilt no more than the incumbent plus the existing gate
+(`0.0089169` rad). Passing authorizes only a separately pre-registered task
+change from the `0.25` ground-leg residual to `0.05` and a fresh qualification
+protocol; it does not select this rejected actor, authorize a learner, or
+create policy replay, GIF, picture, or README media. A failed counterfactual
+ends this amplitude explanation without a scale sweep.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
