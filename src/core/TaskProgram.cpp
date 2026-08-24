@@ -4084,12 +4084,6 @@ TaskCompileDiagnostics compileTaskProgram(
         // never to the Dove, passive standing, lift-off, or flight bands.
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_AVIAN_CROW_GROUND_TILT_ENVELOPE;
-        // Band-one carrier actions are anti-phase. Retain only the
-        // corresponding differential learned residual so a static bilateral
-        // trim cannot silently alter the ground-attitude contract. This is a
-        // Crow-only action-space projection, not a residual-scale change.
-        staged->header.schedule.w |=
-            MR_TASK_PROGRAM_AVIAN_CROW_GROUND_LEG_COMMON_MODE_REJECT;
         // Band two is a standing-to-liftoff system-identification problem,
         // not yet curved flight.  The compiled carrier closes the observed
         // narrow actuation gap while preserving the policy's later flight

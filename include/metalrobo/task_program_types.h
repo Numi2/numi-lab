@@ -71,11 +71,6 @@ enum MRTaskProgramFlags : mr_u32 {
     // objective shaping in the compiled task contract so neither a Dove
     // policy nor a prior Crow PolicyPack can silently opt into it.
     MR_TASK_PROGRAM_AVIAN_CROW_GROUND_TILT_ENVELOPE = 1u << 16u,
-    // Carrier-supported Crow walking rejects the bilateral common component
-    // of each hip, knee, and ankle residual pair before filtering. The
-    // anti-phase carrier and each pair's differential policy command remain
-    // live; encode this action-subspace contract in the task fingerprint.
-    MR_TASK_PROGRAM_AVIAN_CROW_GROUND_LEG_COMMON_MODE_REJECT = 1u << 17u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {

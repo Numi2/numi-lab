@@ -1006,6 +1006,55 @@ hypothesis only; it still authorizes no learner, Stage 2, replay, GIF,
 picture, README media, flight assertion, or claim of Crow biomechanics. A
 failure ends this common-mode explanation without a projection variant.
 
+### Bilateral common-mode rejection outcome — rejected
+
+At source `a6ad92dc2fdac4cb0e08ac61bfa2302df34b1204`, the remote Apple M4 Pro
+rebuilt the Metal task and passed `metalrobo_run_program_check`. The new task
+fingerprint was `11608351420320865043`. Its prescribed zero-action isolation
+completed with zero failed environment steps and 64 ordinary timeouts; tracking
+`0.9119822925`, mean tilt `0.0039169387` rad, and mean root height
+`0.1873070948 m` reproduced the control. Its physical trace is byte-identical
+to the prior control at
+`f9a4dfd48cb3b3f65fee533ee16583849972312e8b70728cdb5127be0ec2110b`.
+
+The canonical writer re-emitted the final candidate and incumbent at the new
+task contract without a learner update. Actor signatures, every actor tensor,
+normalization/action vector, policy ID, and revision were bitwise identical:
+candidate revision 513 has actor SHA-256
+`f57733109025a8b13bb71b9ccd5d7b7144efbeaa7d15ead7a6ba9471583caba3`, and
+incumbent revision 1 has actor SHA-256
+`52684a9455d2d46f5a068e35c7f42bb21886fede0a8f363053acd443c5501e2a`.
+Only the task contract and resulting PolicyPack content hashes differ.
+
+The one 64 × 5,000 current-band evaluation at held-out seed `2650443584` was
+physically clean: the projected candidate had zero failed environment steps,
+zero non-timeout physical failures, and 64 ordinary horizon timeouts. It
+improved tracking to `0.9785153` from the matched incumbent's `0.9119822` and
+reduced mean tilt from the unreprojected candidate's `0.09179525` to
+`0.02100372` rad. It nevertheless fails the pre-registered current-band
+ceiling: the matched incumbent tilt is `0.00391697` rad, making the ceiling
+`0.00891697` rad; the candidate remains `0.01208676` rad above it. Its
+maximum tilt was `0.03275902` rad and mean final forward progress was
+`14.243936 m`.
+
+The protected band remained clean and did not regress: candidate versus
+incumbent tracking was `0.9999999844` versus `0.9999999843`, mean tilt was
+`0.0005029530` versus `0.0005014059` rad, and both runs had only 64 ordinary
+timeouts. This does not waive the failed current-band attitude gate. The
+common-mode projection therefore is not a qualifying explanation and is
+reverted from the active task. No projection variant, learner run, Stage 2,
+deployment, replay, GIF, picture, README media, or standing-to-flight claim is
+authorized from this result.
+
+The retained current-band candidate evidence and trace SHA-256 values are
+`509b734f20a09c94ae88cf9da9e914fc28867da92fc2d09a29f370bc1f1af17a` and
+`e3545233e1dfe66071c49063f02cf09e24f63c3cbbaa3f413efb148771e4b12d`.
+The zero-action evidence and manifest hashes are
+`70d22612ed5dd6f8620b61594b2be379cf4fa01ae3f0d23f46bdea3e53f2776b` and
+`3443e15540088ded3733431f69886b1adb22f025707afe1ce8fae2c749ac0c11`.
+All artifacts remain under
+`.numi/runs/crow-ground-common-mode-20260824-v1/` on the M4.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
