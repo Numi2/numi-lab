@@ -410,6 +410,37 @@ and artifact checksums. The selector records `selected = incumbent`,
 `candidate_advanced_deployment = false`. Consequently there is no accepted
 Crow policy, replay, GIF, picture, or README media entry from this experiment.
 
+## Stage-2 leg-authority transport probe (pre-registered)
+
+The current band-2 carrier begins its resolved wing actuation with all six leg
+residual actions at zero. This does not recreate an American-crow takeoff: the
+available Corvidae study reports a pre-lift-off counter-movement and partial
+first downstroke before toe-off, but does not publish the per-frame leg and
+wing data needed to reconstruct one. It does identify a causal gap worth
+testing: whether the existing, physical leg-action path can transmit a small
+support-to-liftoff perturbation through the estimated hybrid without a solver
+error or contact failure. The literature is rationale only, not an input
+trajectory or parameter fit.
+
+The one authorized test uses the already compiled
+`--birdflow-ground-gait-probe` action stream at source `b365888`. It sends the
+existing symmetric, zero-mean, 0.50-s alternating leg residual through action
+lanes 7--12; all wing, sweep, pronation, and tail policy lanes remain zero,
+while the unchanged Metal-resident stage-2 wing, pronation, and tail carriers
+remain live. This is a leg-actuator transport control, not a learned gait, a
+counter-movement reconstruction, or a policy-training run.
+
+It will run once on the remote Apple M4 Pro: 64 environments × 5,000 control
+steps, band 2 only, no scheduled resets, seed `2650443581`, with environment-0
+state trace. It is compared with the requalified zero-action incumbent. The
+probe is considered physically bounded only if it has zero failed environment
+steps and zero non-timeout physical-boundary terminations, mean root height in
+`[0.85, 1.30] m`, mean tilt at most `0.15 rad`, and maximum tilt at most
+`0.20 rad`. Those checks determine only whether the action path remains safe
+enough for further system identification. They cannot select a policy or
+authorize a replay, GIF, picture, README entry, claim of American-crow
+kinematics, or a follow-on PPO sweep.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
