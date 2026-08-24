@@ -169,6 +169,7 @@ private struct Options {
     var birdFlowPronation: Float?
     var birdFlowPronationWavePhase: Float?
     var birdFlowWingPulseAmplitude: Float?
+    var birdFlowWingPulseTarget: String?
     var birdFlowWingPulseStartStep: Int?
     var birdFlowWingPulseDurationSteps: Int?
     var birdFlowGroundGaitProbe = false
@@ -528,6 +529,17 @@ private struct Options {
                 }
                 birdFlowWingPulseAmplitude = amplitude
                 index += 1
+            case "--birdflow-wing-pulse-target":
+                let target = try value()
+                guard target == "wings" || target == "pronation" ||
+                      target == "tail"
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-wing-pulse-target requires wings, pronation, or tail."
+                    )
+                }
+                birdFlowWingPulseTarget = target
+                index += 1
             case "--birdflow-wing-pulse-start-step":
                 birdFlowWingPulseStartStep = try Self.integer(value(), option)
                 index += 1
@@ -591,6 +603,7 @@ private struct Options {
         }
         let hasBirdFlowWingPulse =
             birdFlowWingPulseAmplitude != nil ||
+            birdFlowWingPulseTarget != nil ||
             birdFlowWingPulseStartStep != nil ||
             birdFlowWingPulseDurationSteps != nil
         if hasBirdFlowWingPulse &&
@@ -1217,14 +1230,15 @@ private func birdFlowStrokeActions(
     return result
 }
 
-// A late-horizon local action-response probe. It applies a bilateral wing
-// residual through the ordinary policy-action lanes only over the selected
-// interval; the live Metal carrier, aerodynamic solve, and articulated ABA
-// joints remain authoritative. This identifies whether the policy's bounded
-// residual can regulate an already airborne speed state before another learner
-// run is authorized.
+// A late-horizon local action-response probe. It applies a selected bilateral
+// flight-control residual through ordinary policy-action lanes only over the
+// selected interval; the live Metal carrier, aerodynamic solve, and
+// articulated ABA joints remain authoritative. This identifies whether the
+// policy's bounded residual can regulate an already airborne speed state
+// before another learner run is authorized.
 private func birdFlowWingPulseActions(
     amplitude: Float,
+    target: String,
     pulseStartStep: Int,
     pulseDurationSteps: Int,
     startStep: Int,
@@ -1233,6 +1247,17 @@ private func birdFlowWingPulseActions(
     actionCount: Int
 ) -> [Float] {
     precondition(actionCount == 12)
+    let targetActions: [Int]
+    switch target {
+    case "wings":
+        targetActions = [0, 1]
+    case "pronation":
+        targetActions = [2, 3]
+    case "tail":
+        targetActions = [4]
+    default:
+        preconditionFailure("Unsupported BirdFlow wing-pulse target.")
+    }
     let pulseEndStep = pulseStartStep + pulseDurationSteps
     var result = [Float](
         repeating: 0,
@@ -1247,8 +1272,9 @@ private func birdFlowWingPulseActions(
         }
         for environment in 0..<environmentCount {
             let base = (step * environmentCount + environment) * actionCount
-            result[base] = amplitude
-            result[base + 1] = amplitude
+            for action in targetActions {
+                result[base + action] = amplitude
+            }
         }
     }
     return result
@@ -1904,6 +1930,8 @@ private enum TaskRolloutMain {
                         {
                             actionBatch = birdFlowWingPulseActions(
                                 amplitude: amplitude,
+                                target: options.birdFlowWingPulseTarget ??
+                                    "wings",
                                 pulseStartStep: pulseStartStep,
                                 pulseDurationSteps: pulseDurationSteps,
                                 startStep: globalStep,
@@ -2765,7 +2793,7 @@ private enum TaskRolloutMain {
                     : options.birdFlowFlapScript
                     ? "birdflow_4hz_flap_qualification"
                     : options.birdFlowWingPulseAmplitude != nil
-                    ? "birdflow_late_wing_pulse_qualification"
+                    ? "birdflow_late_flight_control_pulse_qualification"
                     : options.birdFlowStrokeAmplitude != nil
                     ? options.birdFlowPronationWavePhase != nil
                         ? "birdflow_stroke_amplitude_pronation_wave_qualification"
@@ -2785,6 +2813,8 @@ private enum TaskRolloutMain {
                     options.birdFlowPronationWavePhase ?? 0,
                 "birdflow_wing_pulse_amplitude":
                     options.birdFlowWingPulseAmplitude ?? 0,
+                "birdflow_wing_pulse_target":
+                    options.birdFlowWingPulseTarget ?? "wings",
                 "birdflow_wing_pulse_start_step":
                     options.birdFlowWingPulseStartStep ?? 0,
                 "birdflow_wing_pulse_duration_steps":
