@@ -2790,7 +2790,7 @@ private enum TaskRolloutMain {
                 "birdflow_wing_pulse_duration_steps":
                     options.birdFlowWingPulseDurationSteps ?? 0,
                 "action_carrier": options.birdFlowAmericanCrow
-                    ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_band_1;stage2_live_altitude_vertical_rate_and_airspeed_trim_plus_phase_calibrated_pronation_target_amplitude_0.20_phase_2.62_plus_bounded_residual_0.25_wing_and_pronation_residual_0.25_tail_residual_0.10_leg_residual_0.00_band_2"
+                    ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_band_1;stage2_live_altitude_vertical_rate_and_airspeed_trim_plus_phase_calibrated_pronation_target_amplitude_0.20_phase_2.62_plus_bounded_residual_0.25_wing_and_leg_residual_0.25_tail_residual_0.10_band_2"
                     : "none",
                 "device": context.deviceName,
                 "solver_mode": "temporal_cone",

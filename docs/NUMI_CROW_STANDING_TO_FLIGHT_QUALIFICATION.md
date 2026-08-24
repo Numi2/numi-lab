@@ -226,13 +226,13 @@ residual held from steps 3,000--5,000 was also clean (mean/max tilt 0.0604 /
 tracking. This brackets the existing action carrier as an altitude authority,
 not a proven speed regulator.
 
-The next curriculum revision therefore freezes only crow action lanes 5--10
-(legs) after stage-2 lift-off. Wing lanes 0--1, pronation lanes 2--3, and tail
-lane 4 retain their existing bounded residual authority. This is an
-action-space partition, not an aerodynamic, reward, termination, or body-force
-change. It does not establish that leg exploration caused the prior failure;
-the required fresh baseline and held-out learner evaluations will test that
-specific hypothesis.
+## Flight-control action-space partition (rejected)
+
+The action-space trial froze only crow action lanes 5--10 (legs) after
+stage-2 lift-off; wing lanes 0--1, pronation lanes 2--3, and tail lane 4 kept
+their existing bounded residual authority. This was an action-space partition,
+not an aerodynamic, reward, termination, or body-force change. It did not
+establish that leg exploration caused the prior failure.
 
 The fresh post-partition baseline ran at revision `87bef2f` on Apple M4 Pro:
 64 environments, 5,000 steps, band 2 only, seed `2650443581`, and no scheduled
@@ -241,6 +241,27 @@ zero height/tilt terminations. Mean tracking was 0.49955, mean root height was
 1.04621 m, and mean/max tilt was 0.06176 / 0.12276 rad. The zero action result
 therefore preserves the previously qualified mechanical carrier; it is a gate
 for the constrained-control learner, not a flight promotion.
+
+Run `crow-flight-controls-20260824-v1/train-128x128x256` then trained the
+partitioned action space from a zero-output actor at revision `9e0ce56` with
+the same 128 environments, 128 steps/update, 256 updates, fixed `1e-4`
+learning rate, and initial log standard deviation `-2`. It completed 4,194,304
+samples with zero failed environment steps in 199.383 s (147,323.5 ms measured
+GPU time; 21,036.4 end-to-end environment steps/s). Each checkpoint and final
+candidate was evaluated at the same 64-environment, 5,000-step held-out seed.
+
+| Held-out policy | Tracking | Mean height (m) | Mean tilt (rad) | Physical failures/environment | Decision |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Protected incumbent | 0.49955 | 1.04621 | 0.06176 | 0 | retained |
+| Revision 65 (best tracking) | 0.51991 | 0.55898 | 0.28704 | 1.98438 | reject: failures, height, and tilt |
+| Revision 129 | 0.51284 | 0.54814 | 0.46079 | 0 | reject: tracking, height, and tilt |
+| Revision 193 | 0.49641 | 1.33017 | 0.28715 | 9.53125 | reject: failures and tilt |
+| Final revision 257 | 0.49801 | 1.22218 | 0.30364 | 10.79688 | reject: failures and tilt |
+
+The selector retained the immutable incumbent. Since the partition does not
+meet the held-out flight gate and its causal benefit was not demonstrated, it
+was reverted; the next test starts from the qualified all-lane residual
+carrier rather than stacking unvalidated restrictions.
 
 ## Required next evidence
 

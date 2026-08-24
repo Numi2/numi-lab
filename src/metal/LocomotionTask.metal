@@ -3709,19 +3709,13 @@ kernel void mr_locomotion_task_apply_actions(
         // without trivially cancelling the stable walking cycle. The isolated
         // lift-off band is likewise a residual problem around live wing and
         // tail control: full-range leg or tail actions otherwise bypass the
-        // measured speed/altitude loop before a flight skill exists. The six
-        // leg lanes are frozen after lift-off. They remain available to the
-        // stage-1 gait policy, but have no aerodynamic authority once the
-        // articulated bird is airborne; keeping them neutral prevents PPO
-        // exploration from turning stance joints into aerial attitude noise.
+        // measured speed/altitude loop before a flight skill exists.
         const float avianGroundResidualScale =
             avianCrowGroundGaitCarrier ? 0.25f : 1.0f;
         const float avianLiftoffNonWingResidualScale =
             avianCrowLiftoffTrimCarrier ? 0.25f : 1.0f;
         const float avianLiftoffTailResidualScale =
             avianCrowLiftoffTrimCarrier ? 0.10f : 1.0f;
-        const float avianLiftoffLegResidualScale =
-            avianCrowLiftoffTrimCarrier ? 0.0f : 1.0f;
         const float avianLiftoffPronationCarrier =
             avianCrowLiftoffPronationAction
             ? 0.20f * sin(state.commandAndPhase.w + 2.62f)
@@ -3764,8 +3758,7 @@ kernel void mr_locomotion_task_apply_actions(
                 1.0f
             )
             : filtered * avianGroundResidualScale *
-                    avianLiftoffNonWingResidualScale *
-                    avianLiftoffLegResidualScale +
+                    avianLiftoffNonWingResidualScale +
                 avianGroundGaitCarrier;
         const float studentTarget =
             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
