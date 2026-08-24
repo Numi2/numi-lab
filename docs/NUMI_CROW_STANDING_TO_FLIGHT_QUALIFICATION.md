@@ -425,6 +425,51 @@ therefore blocks promotion. Its candidate/deployment packs, state traces, and
 selector JSON are retained with the remote run for reproducibility, but no
 candidate receives a deterministic replay, GIF, or README showcase entry.
 
+## Articulated tail and wing--tail pulse response (rejected)
+
+Commit `8cf1af9` adds a host-only secondary pulse lane so two disjoint,
+already-compiled action groups can be perturbed over one interval. It does not
+change the Metal carrier, ABA mechanics, reward, policy ABI, or aerodynamics.
+This permits a causal interaction test rather than inferring a coordinated
+controller from PPO telemetry.
+
+The first tail step-response set used the qualified source, Apple M4 Pro, 16
+environments, 5,000 control steps, band 2 only, one-step submissions, no
+scheduled resets, and seed `2650443581`. The two pulse conditions used the
+ordinary tail residual lane only from steps 1,000--1,599. Its normalized
+amplitude is still bounded by the live 0.10 tail-residual scale. All rows had
+zero failed environment steps and zero physical-boundary terminations.
+
+| Condition | Tracking | Mean height (m) | Mean tilt (rad) | World-X final (m) | Mean yaw-frame forward speed during pulse (m/s) | Accepted tail position during pulse (rad) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Zero residual | 0.499551 | 1.046273 | 0.061750 | 23.689 | -1.077856 | 0.066167 |
+| Tail `+1.0` | 0.499514 | 1.044719 | 0.062396 | 24.843 | -1.029897 | 0.111258 |
+| Tail `-1.0` | 0.499595 | 1.047691 | 0.061098 | 22.297 | -1.153109 | 0.021067 |
+
+The state traces share the exact pre-pulse trajectory. Raising the physically
+accepted tail coordinate by about 0.045 rad improves the local yaw-frame
+forward response by 0.048 m/s; lowering it worsens it by 0.075 m/s. The effect
+returns after the pulse and does not materially improve the held-out aggregate
+tracking score, so a tail-only feedback change is not authorized.
+
+The secondary lane then tested a fixed `-0.5` bilateral-wing residual with
+and without a simultaneous `+1.0` tail residual over that same interval and
+protocol. The wing residual acts through the existing flapping position drives;
+the tail remains an articulated pitch joint. These are action response probes,
+not learned policies.
+
+| Condition | Tracking | Mean height (m) | Mean / maximum tilt (rad) | World-X final (m) | Mean yaw-frame forward speed during pulse (m/s) | Decision |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Wing `-0.5` | 0.501629 | 0.999438 | 0.083008 / 0.731176 | -12.828 | -1.705678 | reject: severe transient attitude excursion |
+| Wing `-0.5` + tail `+1.0` | 0.499527 | 1.006819 | 0.062347 / 0.122496 | 23.996 | -1.156404 | reject: stable but no forward-speed improvement |
+
+The paired response proves that the real tail joint can counter the tested
+wing-amplitude transient: its recovery trace returns to -1.028 m/s and the
+maximum tilt returns to the baseline envelope. It does not prove a viable
+forward-flight controller--the coordinated pulse remains slower than the
+baseline during actuation. No source flight controller, policy, replay, GIF,
+or README media is promoted from this experiment.
+
 ## Required next evidence
 
 The next control experiment must identify a coordinated physical response that
