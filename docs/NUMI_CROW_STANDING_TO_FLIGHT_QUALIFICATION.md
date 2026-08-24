@@ -508,6 +508,33 @@ PolicyPack is supplied. This is an integration safeguard, not a change to the
 pre-registered experiment: actor transfer must not be silently replaced by a
 zeroed policy.
 
+### Stage 1 outcome — rejected
+
+The pre-registered Stage-1 run completed on the remote Apple M4 Pro at source
+`d1181af481d3d9d2d7531aab48afa2a6eb3d5da3`. Its immutable artifact root is
+`.numi/runs/crow-staged-curriculum-20260824-v1/stage1-band1-128x128x512/`.
+It trained the new zero actor for all 512 updates (`8,388,608` samples) in
+536.3824 s, reporting 429,268.085 GPU ms, 15,639.232 end-to-end environment
+steps/s, and zero failed environment steps. Those are learner-runtime facts,
+not held-out flight evidence.
+
+The fixed selector then evaluated the incumbent, every scheduled checkpoint,
+and the final candidate with 64 environments × 5,000 no-reset steps and held-
+out seed `2650443581` on band 1 and protected band 0. The final candidate had
+zero physical-boundary failures on both rungs and materially higher band-1
+tracking (`0.995926` versus `0.911982`), but its mean tilt was `0.033954` rad
+versus the incumbent's `0.003917` rad. That increase is a hard regression
+under the pre-registered selector, so the champion is the incumbent,
+`candidate_advanced_deployment` is `false`, and the learned candidate remains
+retained only for diagnosis. The protected band-0 comparison had no
+regressions.
+
+Accordingly Stage 2 was not started. No Crow policy replay, GIF, picture, or
+README media was created. The run's SHA-256 checksums are `95f6ce…60d0a` for
+`evidence.json`, `a9bb72…7cfe` for `selection/selection.json`, and
+`704e53…99d14` for `artifacts.sha256`; the complete values are in the retained
+remote artifact root.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
