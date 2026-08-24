@@ -2170,13 +2170,12 @@ TaskPack makeBirdFlowAmericanCrowFlightTaskPack(
         });
     }
     observations.critic = observations.actorFrame;
-    // Jackson and Dial's primary American-crow experiment reports a 6.4 Hz
-    // wingbeat frequency during maximal vertical escape takeoff. This changes
-    // only the crow task clock; it does not reinterpret that experiment as a
-    // same-specimen forward-flight trajectory, mass/inertia calibration, or
-    // aerodynamic coefficient. The trainable airframe still begins from
-    // physical ground support and progresses through push-off and lift-off.
-    task.gaitPeriodSeconds = 1.0f / 6.4f;
+    // The active hybrid retains the 4.6 Hz presentation clock. A separately
+    // recorded 6.4 Hz maximal-takeoff timing candidate exceeded the
+    // pre-registered height envelope in the live M4 Pro guard, so it remains
+    // evidence-only rather than changing this qualified model. The task still
+    // begins from physical ground support and progresses through lift-off.
+    task.gaitPeriodSeconds = 1.0f / 4.6f;
     task.commands.lower.x = 0.75f;
     task.commands.upper.x = 0.75f;
     task.commands.limitLower.x = 0.75f;
@@ -2625,14 +2624,12 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             return value;
         };
         pack.id = "birdflow_american_crow_estimated_hybrid";
-        pack.revision = 18u;
+        pack.revision = 17u;
         pack.sourceRepository =
-            "BirdFlowMetal American-crow estimated hybrid visual model; "
-            "Jackson and Dial 2011, J Exp Biol 214:452-461";
+            "BirdFlowMetal American-crow estimated hybrid visual model";
         pack.sourceRevision =
-            "american-crow-numi-hybrid-v2"
-            "@visual-563e600ff8da2fb7461b00228d421e05c1826d1fe025840e319e0aef4e719714"
-            ";jeb-046789-american-crow-takeoff-wingbeat-6.4hz";
+            "american-crow-hybrid-visual-v1"
+            "@563e600ff8da2fb7461b00228d421e05c1826d1fe025840e319e0aef4e719714";
         pack.license = "estimated-hybrid-modelled-properties";
         pack.capabilities.push_back("standing_to_flight");
         pack.capabilities.push_back("estimated_crow_model");

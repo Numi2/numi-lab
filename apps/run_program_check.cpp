@@ -382,8 +382,8 @@ int main() {
             "BirdFlow American-crow training width must match its held-out tracking metric"
         );
         require(
-            std::abs(crow.task.gaitPeriodSeconds - 1.0f / 6.4f) < 1.0e-6f,
-            "BirdFlow American-crow task must use the published 6.4 Hz takeoff clock"
+            std::abs(crow.task.gaitPeriodSeconds - 1.0f / 4.6f) < 1.0e-6f,
+            "BirdFlow American-crow task must retain its qualified 4.6 Hz clock"
         );
         crow.reality.id = "birdflow_american_crow_nominal_reality";
         crow.teacher.id = "no_teacher";

@@ -229,6 +229,27 @@ fresh 64-environment incumbent for 5,000 no-reset band-2 steps at that held-out
 seed. A replay, Crow GIF, picture, README entry, or protected deployment still
 requires `tracking >= 0.70` and zero non-timeout physical-boundary failures.
 
+### Outcome: rejected by the height gate
+
+Source revision `6b1dcdb` compiled on the Apple M4 Pro and
+`metalrobo_run_program_check` passed. The pre-registered zero-action Crow
+guard then ran 64 environments × 5,000 steps, band 2, no scheduled resets,
+and seed `2650443581` at the published 6.4 Hz clock. All 64 environments
+reached normal timeout with zero failed environment steps, zero non-timeout
+physical-boundary failures, and mean / maximum tilt `0.0675752 / 0.1075437
+rad`. However, mean root height was `1.5651201 m`, exceeding the `1.30 m`
+upper gate; tracking was `0.4994149`, mean final forward progress was
+`-35.36499 m`, and maximum forward progress was `0 m`. The immutable artifact
+root is `.numi/runs/crow-published-takeoff-clock-20260824-v1/zero-baseline-64x5000/`.
+
+The candidate is therefore rejected before PPO. The active source restores the
+qualified 4.6 Hz visual-hybrid clock exactly; the v2 provenance record and all
+M4 Pro evidence remain retained. This demonstrates that the published maximal
+vertical-takeoff frequency is not interchangeable with the present hybrid's
+full-horizon forward-flight clock. It does not refute the source experiment or
+establish a calibrated Crow flight model. No deployment, replay, GIF, picture,
+or README media is authorized from this timing variant.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
