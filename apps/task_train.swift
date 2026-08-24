@@ -1789,7 +1789,7 @@ private enum TaskTrainMain {
                 "learner": "mlx",
                 "world_source": worldSource,
                 "action_carrier": options.birdFlowAmericanCrow
-                    ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_band_1;stage2_live_altitude_vertical_rate_and_airspeed_trim_plus_wing_and_leg_residual_0.25_tail_residual_0.10_band_2"
+                    ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_band_1;stage2_live_altitude_vertical_rate_and_airspeed_trim_plus_phase_synchronous_pronation_target_0.25_plus_bounded_residual_0.25_wing_and_leg_residual_0.25_tail_residual_0.10_band_2"
                     : "none",
                 "device": context.deviceName,
                 "visual_observation":

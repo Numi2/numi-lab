@@ -3627,6 +3627,10 @@ kernel void mr_locomotion_task_apply_actions(
             (program.schedule.w &
              MR_TASK_PROGRAM_AVIAN_CROW_LIFTOFF_TRIM_CARRIER) != 0u &&
             state.episode.z == 2u;
+        const bool avianCrowLiftoffPronationAction =
+            avianCrowLiftoffTrimCarrier &&
+            binding.actuator.x == MR_TASK_ACTUATOR_JOINT_POSITION &&
+            (binding.indices.x == 2u || binding.indices.x == 3u);
         // The live action sweep brackets the estimated hybrid's transition:
         // +0.100 remains ground-bound whereas +0.125 repeatedly reaches the
         // altitude boundary.  A positive stroke-plane tilt then supplies
@@ -3712,6 +3716,10 @@ kernel void mr_locomotion_task_apply_actions(
             avianCrowLiftoffTrimCarrier ? 0.25f : 1.0f;
         const float avianLiftoffTailResidualScale =
             avianCrowLiftoffTrimCarrier ? 0.10f : 1.0f;
+        const float avianLiftoffPronationCarrier =
+            avianCrowLiftoffPronationAction
+            ? 0.25f * sin(state.commandAndPhase.w)
+            : 0.0f;
         const float avianLiftoffTailCarrier =
             avianCrowLiftoffTrimCarrier && binding.indices.x == 4u
             ? clamp(
@@ -3733,6 +3741,19 @@ kernel void mr_locomotion_task_apply_actions(
             ? clamp(
                 avianLiftoffTailCarrier +
                     avianLiftoffTailResidualScale * filtered,
+                -1.0f,
+                1.0f
+            )
+            : avianCrowLiftoffPronationAction
+            ? clamp(
+                // Feathering is a real distal span-axis target with zero
+                // mean over a wingbeat.  Its 0.25 normalized amplitude maps
+                // through the authored 0.30-rad actuator scale to +/-0.075
+                // rad: the existing long-horizon static probe bounds this
+                // range, while a fixed offset was rejected as a flight trim.
+                // The bounded policy residual is additive and never changes
+                // the blade-element coefficients or injects a wrench.
+                avianLiftoffPronationCarrier + 0.25f * filtered,
                 -1.0f,
                 1.0f
             )
