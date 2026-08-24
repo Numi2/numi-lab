@@ -144,6 +144,49 @@ trial followed by the existing immutable 64-environment selector. The
 unchanged `tracking >= 0.70` plus zero physical-boundary-failure promotion gate
 still governs deployment, replay, GIF, and README eligibility.
 
+### Outcome: baselines pass; protected PPO rejected
+
+At source revision `4ee45ae`, the Apple M4 Pro rebuilt the Metal program and
+`metalrobo_run_program_check` passed. The fresh crow zero-action guard used 64
+environments, 5,000 steps, band 2 only, no scheduled resets, and seed
+`2650443581`. All 64 environments reached normal timeout with zero failed
+environment steps and zero non-timeout physical-boundary failures. Mean
+tracking was `0.5006364`, mean root height `1.0409775 m`, and mean / maximum
+tilt `0.0635701 / 0.1247985 rad`. Its immutable root is
+`.numi/runs/crow-articulated-wrench-placement-20260824-v1/zero-baseline-64x5000/`.
+
+The matching Dove guard at the same source revision also passed: zero failed
+environment steps; its expected 3,840 reason-1 task transitions and no new
+termination reason; tracking `0.5652682`; mean root height `1.0363976 m`; and mean /
+maximum tilt `0.1355671 / 0.2533256 rad`. Its immutable root is
+`.numi/runs/birdflow-dove-articulated-load-path-20260824-v1/wrench-placement-zero-64x5000/`.
+These paired zero-output results qualify the mechanics correction for the one
+pre-registered PPO experiment; they do not demonstrate trained crow flight.
+
+That PPO trial used 128 environments × 128 steps × 256 updates (4,194,304
+samples), chunk 8, fixed learning rate `1e-4`, initial log standard deviation
+`-2`, learner seed `2650443581`, and checkpoints every 64 updates. The native
+training submission took `192.807 s`. The immutable selector compared every
+checkpoint and the final policy against the fresh 64-environment incumbent for
+5,000 no-reset band-2 steps at held-out seed `2650443581`. Physical failures
+below are non-timeout physical-boundary terminations per environment.
+
+| Held-out policy | Tracking | Mean height (m) | Mean tilt (rad) | Physical failures/environment | Decision |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Immutable fresh incumbent | 0.500636 | 1.040978 | 0.063570 | 0 | retained |
+| Revision 65 | 0.546855 | 0.575657 | 0.239204 | 2.015625 | reject: physical failures, tracking, and tilt |
+| Revision 129 | 0.500126 | 0.962596 | 0.270468 | 10.031250 | reject: physical failures, tracking, and tilt |
+| Revision 193 | 0.499649 | 0.800986 | 0.329394 | 12.812500 | reject: physical failures, tracking, height, and tilt |
+| Final revision 257 | 0.490202 | 0.608797 | 0.414522 | 14.640625 | reject: physical failures, tracking, height, and tilt |
+
+The selector retained the incumbent and advanced no candidate deployment. The
+load-path correction remains a mechanically motivated, zero-output-qualified
+change; this PPO result is negative evidence for the present estimated crow
+hybrid and residual-control objective. The retained candidates, selector JSON,
+per-policy evidence, state traces, arguments, and hashes remain at
+`.numi/runs/crow-articulated-wrench-placement-20260824-v1/train-128x128x256/`.
+No candidate earns a deterministic replay, Crow GIF, picture, or README entry.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
