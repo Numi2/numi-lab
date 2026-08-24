@@ -3190,6 +3190,12 @@ MetalWorldDiagnostics validateAndBuildLayout(
                     wings.articulationIndex ||
                 wing.flapQIndex >= model.world.nq ||
                 wing.flapVIndex >= model.world.nv ||
+                ((wing.sweepQIndex == MR_INVALID_INDEX) !=
+                 (wing.sweepVIndex == MR_INVALID_INDEX)) ||
+                (wing.sweepQIndex != MR_INVALID_INDEX &&
+                 (wing.sweepQIndex >= model.world.nq ||
+                  wing.sweepVIndex >= model.world.nv ||
+                  !finite(wing.sweepAxisAndReserved))) ||
                 ((wing.pronationQIndex == MR_INVALID_INDEX) !=
                  (wing.pronationVIndex == MR_INVALID_INDEX)) ||
                 (wing.pronationQIndex != MR_INVALID_INDEX &&

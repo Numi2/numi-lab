@@ -414,6 +414,10 @@ int main() {
                 compiledCrow.flappingWingProgram()->wings[1u]
                     .pronationQIndex != MR_INVALID_INDEX &&
                 compiledCrow.flappingWingProgram()->wings[0u]
+                    .sweepQIndex == MR_INVALID_INDEX &&
+                compiledCrow.flappingWingProgram()->wings[1u]
+                    .sweepQIndex == MR_INVALID_INDEX &&
+                compiledCrow.flappingWingProgram()->wings[0u]
                     .rootToCenterAndArea.w == 0.075f &&
                 compiledCrow.flappingWingProgram()->wings[1u]
                     .rootToCenterAndArea.w == 0.075f,

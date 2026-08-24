@@ -7,23 +7,34 @@
 // run compiler; Metal never selects a bird by name.
 typedef struct MR_ALIGN16 MRFlappingWingGPU {
     mr_u32 bodyIndex;
-    // The root-connected stroke joint.  These are always resolved by the
-    // compiler, including for a legacy one-joint wing.
+    // The flapping/stroke joint. These are always resolved by the compiler,
+    // including for a legacy one-joint wing.
     mr_u32 flapQIndex;
     mr_u32 flapVIndex;
     mr_u32 reserved0;
+
+    // Optional proximal fore-aft sweep joint. Both lanes are invalid for the
+    // existing direct and flap-plus-pronation wing topologies.
+    mr_u32 sweepQIndex;
+    mr_u32 sweepVIndex;
+    mr_u32 reserved1;
+    mr_u32 reserved2;
 
     // Optional distal feathering/pronation joint. Both lanes are invalid for
     // a direct one-joint wing, keeping previously-authored birds executable.
     mr_u32 pronationQIndex;
     mr_u32 pronationVIndex;
-    mr_u32 reserved1;
-    mr_u32 reserved2;
+    mr_u32 reserved3;
+    mr_u32 reserved4;
 
     // xyz = neutral root-COM vector in the airframe frame, w = planform area.
     mr_float4 rootToCenterAndArea;
     // xyz = unit hinge axis in the airframe frame, w = mean chord [m].
     mr_float4 hingeAxisAndChord;
+    // xyz = unit sweep axis in the airframe frame, w reserved. It is zero
+    // when no proximal sweep joint exists and is resolved from that joint,
+    // rather than supplied as an aerodynamic force-direction parameter.
+    mr_float4 sweepAxisAndReserved;
     // xyz = unit pronation axis in the flapped wing frame, w reserved. It is
     // zero for a one-joint wing and is resolved from the articulated joint,
     // rather than supplied as an aerodynamic force-direction parameter.
@@ -88,7 +99,7 @@ typedef struct MR_ALIGN16 MRCompiledFlappingWingDispatchGPU {
 } MRCompiledFlappingWingDispatchGPU;
 
 #ifndef __METAL_VERSION__
-static_assert(sizeof(MRFlappingWingGPU) == 112);
+static_assert(sizeof(MRFlappingWingGPU) == 144);
 static_assert(sizeof(MRAeroTailGPU) == 48);
 static_assert(sizeof(MRAeroFuselageGPU) == 48);
 static_assert(sizeof(MRCompiledFlappingWingDispatchGPU) == 48);

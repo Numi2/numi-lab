@@ -1267,24 +1267,42 @@ RunCompileDiagnostics compileRun(
                 ];
                 const bool directWing = wingBody.parentBody ==
                     program.rootBodyIndex;
-                const std::uint32_t shoulderBodyIndex = directWing
+                const std::uint32_t flapBodyIndex = directWing
                     ? MR_INVALID_INDEX
                     : wingBody.parentBody;
                 if (!directWing &&
-                    (shoulderBodyIndex >= model.bodies.size() ||
-                     model.bodies[shoulderBodyIndex].parentBody !=
-                         program.rootBodyIndex ||
-                     model.bodies[shoulderBodyIndex].inboundJoint >=
+                    (flapBodyIndex >= model.bodies.size() ||
+                     model.bodies[flapBodyIndex].inboundJoint >=
                          model.joints.size())) {
                     return reject(
                         RunCompileStatus::invalidRobot,
                         manifest.robot.id + ".flapping_wings",
-                        "a two-joint wing requires a shoulder directly attached to the airframe"
+                        "an articulated wing requires an inbound flap joint"
+                    );
+                }
+                const std::uint32_t sweepBodyIndex = directWing
+                    ? MR_INVALID_INDEX
+                    : model.bodies[flapBodyIndex].parentBody;
+                const bool hasSweep = !directWing &&
+                    sweepBodyIndex != program.rootBodyIndex;
+                if (hasSweep &&
+                    (sweepBodyIndex >= model.bodies.size() ||
+                     model.bodies[sweepBodyIndex].parentBody !=
+                         program.rootBodyIndex ||
+                     model.bodies[sweepBodyIndex].inboundJoint >=
+                         model.joints.size())) {
+                    return reject(
+                        RunCompileStatus::invalidRobot,
+                        manifest.robot.id + ".flapping_wings",
+                        "a three-joint wing requires a sweep link directly attached to the airframe"
                     );
                 }
                 const MRJointDescriptorGPU& flapJoint = directWing
                     ? distalJoint
-                    : model.joints[model.bodies[shoulderBodyIndex].inboundJoint];
+                    : model.joints[model.bodies[flapBodyIndex].inboundJoint];
+                const MRJointDescriptorGPU* sweepJoint = hasSweep
+                    ? &model.joints[model.bodies[sweepBodyIndex].inboundJoint]
+                    : nullptr;
                 if (flapJoint.jointType != MR_JOINT_REVOLUTE ||
                     flapJoint.nq != 1u || flapJoint.nv != 1u ||
                     (!directWing &&
@@ -1294,6 +1312,15 @@ RunCompileDiagnostics compileRun(
                         RunCompileStatus::invalidRobot,
                         manifest.robot.id + ".flapping_wings",
                         "wing stroke and optional pronation joints must be single-DOF revolutes"
+                    );
+                }
+                if (sweepJoint != nullptr &&
+                    (sweepJoint->jointType != MR_JOINT_REVOLUTE ||
+                     sweepJoint->nq != 1u || sweepJoint->nv != 1u)) {
+                    return reject(
+                        RunCompileStatus::invalidRobot,
+                        manifest.robot.id + ".flapping_wings",
+                        "optional wing sweep joint must be a single-DOF revolute"
                     );
                 }
                 MRFlappingWingGPU resolved = authored.wings[side];
@@ -1314,6 +1341,10 @@ RunCompileDiagnostics compileRun(
                 resolved.bodyIndex = bodyIndex;
                 resolved.flapQIndex = flapJoint.qOffset;
                 resolved.flapVIndex = flapJoint.vOffset;
+                resolved.sweepQIndex = sweepJoint == nullptr
+                    ? MR_INVALID_INDEX : sweepJoint->qOffset;
+                resolved.sweepVIndex = sweepJoint == nullptr
+                    ? MR_INVALID_INDEX : sweepJoint->vOffset;
                 resolved.pronationQIndex = directWing
                     ? MR_INVALID_INDEX : distalJoint.qOffset;
                 resolved.pronationVIndex = directWing
@@ -1321,6 +1352,8 @@ RunCompileDiagnostics compileRun(
                 resolved.hingeAxisAndChord.x = flapJoint.axis0.x;
                 resolved.hingeAxisAndChord.y = flapJoint.axis0.y;
                 resolved.hingeAxisAndChord.z = flapJoint.axis0.z;
+                resolved.sweepAxisAndReserved = sweepJoint == nullptr
+                    ? mr_float4{} : sweepJoint->axis0;
                 resolved.pronationAxisAndReserved = directWing
                     ? mr_float4{}
                     : distalJoint.axis0;

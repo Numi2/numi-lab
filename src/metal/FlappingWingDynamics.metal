@@ -134,6 +134,8 @@ kernel void mr_step_compiled_flapping_wings(
         if (wing.bodyIndex >= dispatch.bodyStride ||
             wing.flapQIndex < dispatch.qOffset ||
             wing.flapVIndex < dispatch.vOffset ||
+            ((wing.sweepQIndex == MR_INVALID_INDEX) !=
+             (wing.sweepVIndex == MR_INVALID_INDEX)) ||
             ((wing.pronationQIndex == MR_INVALID_INDEX) !=
              (wing.pronationVIndex == MR_INVALID_INDEX)) ||
             !finite4(wing.rootToCenterAndArea) ||
@@ -148,9 +150,20 @@ kernel void mr_step_compiled_flapping_wings(
             continue;
         }
         const bool hasPronation = wing.pronationQIndex != MR_INVALID_INDEX;
+        const bool hasSweep = wing.sweepQIndex != MR_INVALID_INDEX;
+        const float3 sweepAxis = hasSweep
+            ? safeNormal(wing.sweepAxisAndReserved.xyz)
+            : float3(0.0f);
         const float3 pronationAxis = hasPronation
             ? safeNormal(wing.pronationAxisAndReserved.xyz)
             : float3(0.0f);
+        if (hasSweep &&
+            (wing.sweepQIndex < dispatch.qOffset ||
+             wing.sweepVIndex < dispatch.vOffset ||
+             !finite4(wing.sweepAxisAndReserved) ||
+             dot(sweepAxis, sweepAxis) == 0.0f)) {
+            continue;
+        }
         if (hasPronation &&
             (wing.pronationQIndex < dispatch.qOffset ||
              wing.pronationVIndex < dispatch.vOffset ||
@@ -164,6 +177,12 @@ kernel void mr_step_compiled_flapping_wings(
         const float flapAngularRate = vState[
             environment * dispatch.vStride + wing.flapVIndex
         ];
+        const float sweepAngle = hasSweep
+            ? qState[environment * dispatch.qStride + wing.sweepQIndex]
+            : 0.0f;
+        const float sweepAngularRate = hasSweep
+            ? vState[environment * dispatch.vStride + wing.sweepVIndex]
+            : 0.0f;
         const float pronationAngle = hasPronation
             ? qState[environment * dispatch.qStride + wing.pronationQIndex]
             : 0.0f;
@@ -171,22 +190,38 @@ kernel void mr_step_compiled_flapping_wings(
             ? vState[environment * dispatch.vStride + wing.pronationVIndex]
             : 0.0f;
         if (!isfinite(flapAngle) || !isfinite(flapAngularRate) ||
+            !isfinite(sweepAngle) || !isfinite(sweepAngularRate) ||
             !isfinite(pronationAngle) || !isfinite(pronationAngularRate)) {
             continue;
         }
+        const float4 sweepRotation = axisAngle(sweepAxis, sweepAngle);
         const float4 hingeRotation = axisAngle(hingeAxis, flapAngle);
         const float4 pronationRotation = axisAngle(
             pronationAxis, pronationAngle
         );
         const float4 wingOrientation = multiplyQuaternion(
-            multiplyQuaternion(normalizeQuaternion(rootOrientation), hingeRotation),
+            multiplyQuaternion(
+                multiplyQuaternion(normalizeQuaternion(rootOrientation),
+                                   sweepRotation),
+                hingeRotation
+            ),
             pronationRotation
         );
-        const float3 hingeAxisWorld = rotate(rootOrientation, hingeAxis);
+        const float3 sweepAxisWorld = hasSweep
+            ? rotate(rootOrientation, sweepAxis)
+            : float3(0.0f);
+        const float3 hingeAxisWorld = rotate(
+            multiplyQuaternion(normalizeQuaternion(rootOrientation),
+                               sweepRotation),
+            hingeAxis
+        );
         const float3 pronationAxisWorld = hasPronation
             ? rotate(
-                multiplyQuaternion(normalizeQuaternion(rootOrientation),
-                                   hingeRotation),
+                multiplyQuaternion(
+                    multiplyQuaternion(normalizeQuaternion(rootOrientation),
+                                       sweepRotation),
+                    hingeRotation
+                ),
                 pronationAxis
             )
             : float3(0.0f);
@@ -228,12 +263,20 @@ kernel void mr_step_compiled_flapping_wings(
             );
             const float3 rootToPoint = rotate(
                 rootOrientation,
-                rotate(hingeRotation, rotate(pronationRotation, neutralPoint))
+                rotate(
+                    sweepRotation,
+                    rotate(hingeRotation,
+                           rotate(pronationRotation, neutralPoint))
+                )
             );
+            const float3 sweepStrokeVelocity = hasSweep
+                ? cross(sweepAxisWorld * sweepAngularRate, rootToPoint)
+                : float3(0.0f);
             const float3 flapStrokeVelocity = cross(
                 hingeAxisWorld * flapAngularRate, rootToPoint
             );
             const float3 strokeVelocity = flapStrokeVelocity +
+                sweepStrokeVelocity +
                 (hasPronation
                     ? cross(pronationAxisWorld * pronationAngularRate,
                             rootToPoint)
