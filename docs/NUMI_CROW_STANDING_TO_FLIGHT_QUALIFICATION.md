@@ -71,6 +71,16 @@ progress. This rejects widening the stage-2 pronation residual from 0.25 to
 full authority: a phase-independent feathering offset is not a forward-flight
 trim.
 
+An in-phase, zero-mean sinusoidal pronation carrier was also compiled directly
+into the two ABA position targets at the same +/-0.075-rad range. Its 16 by
+256 stage-2 smoke probe was clean and lowered mean tilt to 0.01113 rad, but a
+64-environment, 5,000-step, no-scheduled-reset probe produced 132 non-foot
+contact terminations, mean / maximum tilt 0.247 / 0.786 rad, mean height
+0.504 m, tracking 0.520, and zero forward progress. No physics-error steps
+occurred, but the physical outcome rejects this phase convention. The carrier
+was removed before any policy training; a short stable horizon is not enough
+to qualify a wingbeat controller.
+
 ## Fixed-policy brackets
 
 Every row used four environments, 5,000 control steps, band 2 only,
@@ -129,10 +139,10 @@ retained candidate's
 
 ## Required next evidence
 
-The next control experiment should test a phase-synchronous, still-bounded
-pronation carrier against the existing zero-pronation residual baseline; a
-constant feathering offset is now rejected. Train from a clean run directory
-and promote only a held-out candidate that reaches tracking >= 0.70 with zero
-non-timeout physical-boundary failures. Then capture a deterministic replay
-and inspect its frames before linking it from the compact README showcase.
-Until then, no Numi crow flight GIF belongs in the README.
+The next control experiment must identify a safe feathering phase and amplitude
+with fixed-policy long-horizon probes before it becomes a device carrier. Both
+a constant offset and the initial in-phase convention are rejected. Train from
+a clean run directory and promote only a held-out candidate that reaches
+tracking >= 0.70 with zero non-timeout physical-boundary failures. Then capture
+a deterministic replay and inspect its frames before linking it from the compact
+README showcase. Until then, no Numi crow flight GIF belongs in the README.
