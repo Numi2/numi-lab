@@ -23,7 +23,9 @@ or an injected body force:
   their rates; it does not use pronation as a force-direction parameter.
 - Flap targets remain the live stroke amplitude plus a Metal-resident
   altitude, vertical-rate, and yaw-frame-speed trim. Pronation is an
-  independently bounded joint-position residual.
+  independently bounded joint-position target. Its current stage-2 baseline
+  is a zero-mean, filter-calibrated wingbeat carrier at normalized amplitude
+  0.20 and phase 2.62 rad, with an additive 0.25 policy residual.
 - The articulated tail pitch is trimmed from the same accepted state, with an
   altitude guard; it is not an external aerodynamic correction.
 - Stage-2 learner authority is deliberately bounded around that carrier:
@@ -80,6 +82,21 @@ contact terminations, mean / maximum tilt 0.247 / 0.786 rad, mean height
 occurred, but the physical outcome rejects this phase convention. The carrier
 was removed before any policy training; a short stable horizon is not enough
 to qualify a wingbeat controller.
+
+To identify a replacement without hard-coding another force direction, a
+qualification-only host action sweep sent sinusoidal normalized commands
+through the same live pronation position drives. The in-phase convention
+remained unsafe (23 contact terminations, mean tilt 0.313 rad). The `+pi/2`,
+`-pi/2`, and `pi` conditions had zero non-timeout failures but were stationary;
+their mean tilt was 0.0652, 0.0649, and 0.0616 rad respectively. The host
+action filters a 4.6 Hz command with a 20 ms first-order response. The retained
+device carrier therefore uses its equivalent compensated phase 2.62 rad and a
+slightly smaller normalized amplitude 0.20. Its direct device-resident
+64-environment, 5,000-step probe produced zero physics errors and zero
+non-timeout physical failures; all environments reached timeout with mean
+height 1.046 m, mean / maximum tilt 0.0618 / 0.1230 rad, tracking 0.4996, and
+zero forward progress. This is a safe training baseline only, not a flight
+qualification or a claim of a biologically measured feathering phase.
 
 ## Fixed-policy brackets
 
