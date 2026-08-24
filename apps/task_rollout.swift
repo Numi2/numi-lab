@@ -1076,7 +1076,9 @@ private func birdFlowStrokeActions(
 // A deterministic action-authority calibration, not an imitation target or a
 // learned gait.  The low-amplitude alternating leg residuals expose whether
 // the imported hybrid can remain supported under a physically plausible
-// left/right stepping cadence before the learner is asked to discover it.
+// left/right stepping cadence before the learner is asked to discover it. The
+// residual cap is one tenth of the failed first probe and stays inside the
+// roughly 0.02-rad leg envelope observed in the held-out learned candidate.
 private func birdFlowGroundGaitProbeActions(
     startStep: Int,
     stepCount: Int,
@@ -1097,12 +1099,12 @@ private func birdFlowGroundGaitProbeActions(
             let base = (step * environmentCount + environment) * actionCount
             let leftLift = max(leftSwing, 0.0)
             let rightLift = max(rightSwing, 0.0)
-            result[base + 3] = 0.14 * leftSwing
-            result[base + 4] = 0.18 * leftLift
-            result[base + 5] = -0.10 * leftLift
-            result[base + 6] = 0.14 * rightSwing
-            result[base + 7] = 0.18 * rightLift
-            result[base + 8] = -0.10 * rightLift
+            result[base + 3] = 0.014 * leftSwing
+            result[base + 4] = 0.018 * leftLift
+            result[base + 5] = -0.010 * leftLift
+            result[base + 6] = 0.014 * rightSwing
+            result[base + 7] = 0.018 * rightLift
+            result[base + 8] = -0.010 * rightLift
         }
     }
     return result
