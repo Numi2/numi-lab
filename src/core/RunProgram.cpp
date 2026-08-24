@@ -2482,7 +2482,7 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             return value;
         };
         pack.id = "birdflow_american_crow_estimated_hybrid";
-        pack.revision = 4u;
+        pack.revision = 5u;
         pack.sourceRepository =
             "BirdFlowMetal American-crow estimated hybrid visual model";
         pack.sourceRevision =
@@ -2575,20 +2575,14 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             wing.rootToCenterAndArea.w = 0.075f;
             wing.hingeAxisAndChord.w = 0.160f;
             // This is an explicit hybrid closure, not a crow force, power,
-            // or CFD measurement.  The former 16.0 coefficient drove every
-            // bounded zero-action lift-off probe into its altitude ceiling;
-            // 5.0 is the next device-calibrated value in the observed
-            // supported-contact to runaway-lift bracket.  It remains an
-            // estimated-model parameter until an independently validated
-            // flight envelope is available.
-            wing.unsteadyCoefficients.x = 5.0f;
-            // The live bracket bounds this estimated closure: the inherited
-            // +0.50 forward term causes sustained horizontal acceleration,
-            // while a body-up-only zero term cannot lift even at +0.300 wing
-            // residual.  Use the explicit midpoint for the next native
-            // stability test; it is not a crow force, power, or CFD
-            // measurement and must remain subject to held-out validation.
-            wing.unsteadyCoefficients.y = 0.25f;
+            // or CFD measurement.  With the old 5.0/0.0 pair, even +0.300
+            // residual wing action failed to sustain a body-up liftoff. Test
+            // the dove's 8.0 stroke strength without its inherited forward
+            // bias: resolved attitude, blade lift, drag, and live tail trim
+            // must supply all forward motion.  It remains an estimated-model
+            // bracket until independently validated flight evidence exists.
+            wing.unsteadyCoefficients.x = 8.0f;
+            wing.unsteadyCoefficients.y = 0.0f;
         }
         aerodynamic.tail.rootToCenterAndArea.x *= lengthScale;
         aerodynamic.tail.rootToCenterAndArea.y *= lengthScale;
