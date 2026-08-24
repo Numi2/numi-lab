@@ -866,6 +866,26 @@ matched incumbent. This reissue authorizes no Stage 2, policy deployment,
 replay, GIF, picture, or README media; any later flight stage requires its own
 pre-registration after a selected Stage-1 policy.
 
+### Ground-tilt objective isolation outcome — passed
+
+At source `4e7aa2be5b86e8346c4d3aad6f1be766e48c89cf`, the remote Apple M4 Pro
+rebuilt the Metal library and passed `metalrobo_run_program_check`. The
+prescribed zero-action band-1 run is retained at
+`.numi/runs/crow-ground-tilt-envelope-20260824-v1/zero-actions/`. It has the
+new task fingerprint `1967076388838221657` and run fingerprint
+`7217577838424799429`, zero failed environment steps, 64 ordinary timeouts,
+zero height and tilt terminations, tracking `0.9119822925`, mean tilt
+`0.0039169387` rad, and mean root height `0.1873070948 m`.
+
+Its environment-0 physical trace is byte-identical to the preceding ground
+carrier control and hashes to
+`f9a4dfd48cb3b3f65fee533ee16583849972312e8b70728cdb5127be0ec2110b`.
+The evidence hash is
+`af91a17789b58669b8fb03df83fcc65b5f14f4436b084782d75aafc8f79f5819`.
+This verifies the narrow boundary claimed above: the objective and its task
+fingerprint changed, but the zero-action physical path did not. It authorizes
+the single fresh Stage-1 learner exactly as pre-registered.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
