@@ -231,6 +231,7 @@ int main() {
                 contains(doveRobot->capabilities, "load_responsive_aero") &&
                 contains(crowRobot->capabilities, "standing_to_flight") &&
                 contains(crowRobot->capabilities, "estimated_crow_model") &&
+                contains(crowRobot->capabilities, "articulated_wing_pronation") &&
                 !contains(px4Robot->capabilities, "aerial_manipulation"),
             "robot catalog is incomplete"
         );
@@ -384,13 +385,21 @@ int main() {
             compiledCrow.valid() &&
                 compiledCrow.flappingWingProgram() != nullptr &&
                 compiledCrow.multicopterProgram() == nullptr &&
-                compiledCrow.model().bodies.size() == 11u &&
-                compiledCrow.model().joints.size() == 9u &&
-                compiledCrow.task().actionBindings().size() == 10u &&
+                compiledCrow.model().bodies.size() == 13u &&
+                compiledCrow.model().joints.size() == 11u &&
+                compiledCrow.task().actionBindings().size() == 12u &&
                 compiledCrow.task().actionBindings()[0u].actuator.x ==
                     MR_TASK_ACTUATOR_FLAPPING_POSITION &&
                 compiledCrow.task().actionBindings()[1u].actuator.x ==
                     MR_TASK_ACTUATOR_FLAPPING_POSITION &&
+                compiledCrow.task().actionBindings()[2u].actuator.x ==
+                    MR_TASK_ACTUATOR_JOINT_POSITION &&
+                compiledCrow.task().actionBindings()[3u].actuator.x ==
+                    MR_TASK_ACTUATOR_JOINT_POSITION &&
+                compiledCrow.flappingWingProgram()->wings[0u]
+                    .pronationQIndex != MR_INVALID_INDEX &&
+                compiledCrow.flappingWingProgram()->wings[1u]
+                    .pronationQIndex != MR_INVALID_INDEX &&
                 compiledCrow.flappingWingProgram()->wings[0u]
                     .rootToCenterAndArea.w == 0.075f &&
                 compiledCrow.flappingWingProgram()->wings[1u]

@@ -2564,6 +2564,7 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         pack.license = "estimated-hybrid-modelled-properties";
         pack.capabilities.push_back("standing_to_flight");
         pack.capabilities.push_back("estimated_crow_model");
+        pack.capabilities.push_back("articulated_wing_pronation");
         pack.mechanics.name = crowIdentifier(std::move(pack.mechanics.name));
         for (std::string& name : pack.mechanics.bodyNames) {
             name = crowIdentifier(std::move(name));
