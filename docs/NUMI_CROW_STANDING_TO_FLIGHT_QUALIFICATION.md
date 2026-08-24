@@ -608,6 +608,36 @@ regression, and no mean-tilt regression. There is no parameter sweep. Failed
 gates retain artifacts but prohibit further learner runs, policy replay, GIF,
 picture, or README media under this reissued protocol.
 
+### Reissued Stage 1 outcome — rejected
+
+The authorized reissued Stage-1 run completed on the remote Apple M4 Pro at
+source `640f7b37d8ab2dd4ae21bcb96dd9e9d2ff00db06` (including the task-program
+change introduced at `4d4c2a4`). Its immutable artifact root is
+`.numi/runs/crow-ground-leg-residual-20260824-v1/stage1-band1-128x128x512/`.
+It trained the zero actor for all 512 updates (`8,388,608` samples) in
+537.3569 seconds, with 430,137.8354 measured GPU milliseconds and 15,610.87
+end-to-end environment steps per second. The learner reported zero failed
+environment steps.
+
+The prescribed 64-environment, 5,000-step, no-reset held-out selector chose
+the incumbent for current band 1. The candidate's tracking score improved from
+`0.9119823` to `0.9899237`, and both candidate and incumbent had zero physical
+failure rate, but mean tilt increased from `0.0039169` to `0.0790510` rad. The
+`0.0751340`-rad increase exceeds the pre-registered `0.005`-rad ceiling, so
+the selector records `mean tilt increased`, retains the candidate only as an
+artifact, and sets `candidate_advanced_deployment` false. The candidate did
+pass its protected band-0 comparison without regressions; that support result
+does not waive the current-band tilt gate.
+
+Accordingly, Stage 2 is not authorized. No Crow policy replay, GIF, picture,
+or README media was created from this run. SHA-256 checksums are
+`d19d6fb2e6af151bd79972c8d158328663d117e3717e3aca5e1b05f1f60d9b08` for
+`evidence.json`,
+`c4e89e9706977d36182fb5f89ddbca951db3bd5a2491a0f14050a7837da0fcbb` for
+`selection/selection.json`, and
+`1c80145457e8c16b6ed4c8797c3b0d69577d6641be5d9d519306fa3e98512a51` for
+`artifacts.sha256`. The full evidence remains at the remote artifact root.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
