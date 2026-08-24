@@ -619,6 +619,48 @@ claim. In particular, high displacement or height does not satisfy yaw-frame
 forward-speed tracking. The rejected candidate does not receive a replay,
 GIF, or README showcase entry.
 
+## Coordinated sweep--tail control bracket (rejected)
+
+The 14-action response tool was used after the rejected PPO run to test a
+specific coordinated physical control direction before changing another
+learner. Its primary lane sends bilateral shoulder-sweep targets; its
+non-overlapping secondary lane sends the tail-pitch target. No run changed the
+Metal carrier, force model, aerodynamic coefficients, policy ABI, or terminal
+conditions. The pulse starts at step 1,000; it therefore observes the same
+supported takeoff prefix as the 14-action zero baseline before acting through
+the live articulated position drives.
+
+At sweep `+0.25` plus tail `+1.0`, a 600-step 16-environment M4 Pro probe was
+clean. A kernel-aligned finite difference of the environment-0 trace measured
+mean yaw-frame forward speed of `-0.638374` m/s over the pulse, compared with
+`-1.044208` m/s for the identical zero trace. This establishes a real local
+coupled response, not a force injection. It did not improve aggregate tracking
+(`0.500493` versus `0.500851`) and raised maximum tilt to `0.145055` rad.
+
+The persistent 4,000-step bracket used the same 16 environments, 5,000-step
+horizon, no scheduled resets, and seed `2650443581`. Every successful row
+ended by normal timeout; `Contact` is compiled non-foot-contact termination
+reason 3. `World-X` is diagnostic only and must not be read as forward-flight
+success.
+
+| Sweep / tail residual | Tracking | Mean height (m) | Mean / max tilt (rad) | Contact / timeout terminations | World-X final (m) | Decision |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Zero carrier | 0.500851 | 1.046268 | 0.062061 / 0.122280 | 0 / 16 | 23.709 | retained reference |
+| +0.25 / +1.0, 600-step pulse | 0.500493 | 1.025456 | 0.069645 / 0.145055 | 0 / 16 | 20.032 | clean local response; no aggregate gain |
+| +0.25 / +1.0 persistent | 0.498346 | 0.903664 | 0.113421 / 0.145055 | 0 / 16 | 67.168 | clean but tracking and attitude regress |
+| +0.28125 / +1.0 persistent | 0.498078 | 0.872487 | 0.121802 / 0.151056 | 0 / 16 | 71.237 | clean but tracking and attitude regress |
+| +0.3125 / +1.0 persistent | 0.511010 | 0.698529 | 0.208260 / 0.829751 | 30 / 0 | 4.477 | reject: physical boundary failures |
+| +0.375 / +1.0 persistent | 0.525286 | 0.586371 | 0.273438 / 0.845913 | 53 / 0 | 15.676 | reject: physical boundary failures |
+| +0.50 / +1.0 persistent | 0.536301 | 0.546074 | 0.306798 / 0.869224 | 76 / 0 | 6.916 | reject: physical boundary failures |
+
+The constant coordination law is therefore closed. Below the discontinuous
+contact boundary, it worsens the held-out tracking measure; above it, it gains
+some tracking only by losing the height/attitude envelope and repeatedly
+striking the ground. It must not become a PPO initialization, native carrier,
+deployment pack, replay, GIF, or README item. Any successor must be a
+separately specified state-gated coupled articulation law and must requalify
+from a fresh zero-output baseline under the same gate.
+
 ## Required next evidence
 
 The next control experiment must identify a coordinated, phase-aware physical
