@@ -166,6 +166,7 @@ private struct Options {
     var birdFlowFlapScript = false
     var birdFlowStrokeAmplitude: Float?
     var birdFlowTailPitch: Float?
+    var birdFlowPronation: Float?
     var birdFlowGroundGaitProbe = false
     var scheduledResets = true
     var policyPack: String?
@@ -493,6 +494,16 @@ private struct Options {
                 }
                 birdFlowTailPitch = pitch
                 index += 1
+            case "--birdflow-pronation":
+                guard let pronation = Float(try value()), pronation.isFinite,
+                      pronation >= -1, pronation <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-pronation requires a finite value in [-1, 1]."
+                    )
+                }
+                birdFlowPronation = pronation
+                index += 1
             case "--birdflow-ground-gait-probe":
                 birdFlowGroundGaitProbe = true
             default:
@@ -547,6 +558,7 @@ private struct Options {
             )
         }
         if (birdFlowFlapScript || birdFlowStrokeAmplitude != nil ||
+            birdFlowPronation != nil ||
             birdFlowGroundGaitProbe) &&
             (!(birdFlowDove || birdFlowAmericanCrow) ||
                 zeroActions || actionStream != nil ||
@@ -567,6 +579,16 @@ private struct Options {
         if birdFlowTailPitch != nil && birdFlowStrokeAmplitude == nil {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--birdflow-tail-pitch requires --birdflow-stroke-amplitude."
+            )
+        }
+        if birdFlowPronation != nil && birdFlowStrokeAmplitude == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-pronation requires --birdflow-stroke-amplitude."
+            )
+        }
+        if birdFlowPronation != nil && !birdFlowAmericanCrow {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-pronation is available only for --birdflow-american-crow."
             )
         }
         if rolloutPack != nil &&
@@ -1079,11 +1101,13 @@ private func birdFlowFlapActions(
 private func birdFlowStrokeActions(
     amplitude: Float,
     tailPitch: Float,
+    pronation: Float?,
     stepCount: Int,
     environmentCount: Int,
     actionCount: Int
 ) -> [Float] {
-    precondition(actionCount >= 3)
+    precondition(actionCount == 10 || actionCount == 12)
+    precondition(pronation == nil || actionCount == 12)
     var result = [Float](
         repeating: 0,
         count: stepCount * environmentCount * actionCount
@@ -1091,12 +1115,19 @@ private func birdFlowStrokeActions(
     for step in 0..<stepCount {
         for environment in 0..<environmentCount {
             let base = (step * environmentCount + environment) * actionCount
-            // The first two bindings are the left/right flapping actuators;
-            // the third is tail pitch. Leave leg actions neutral during this
-            // calibration.
+            // The crow inserts bilateral distal-wing pronation after the
+            // first two flap lanes. Equal command signs are mirror-symmetric
+            // because the two physical span axes are mirrored in its pack.
+            // Leave all leg actions neutral during this calibration.
             result[base] = amplitude
             result[base + 1] = amplitude
-            result[base + 2] = tailPitch
+            if actionCount == 12 {
+                result[base + 2] = pronation ?? 0
+                result[base + 3] = pronation ?? 0
+                result[base + 4] = tailPitch
+            } else {
+                result[base + 2] = tailPitch
+            }
         }
     }
     return result
@@ -1735,6 +1766,7 @@ private enum TaskRolloutMain {
                             actionBatch = birdFlowStrokeActions(
                                 amplitude: amplitude,
                                 tailPitch: options.birdFlowTailPitch ?? 0,
+                                pronation: options.birdFlowPronation,
                                 stepCount: stepCount,
                                 environmentCount: options.environments,
                                 actionCount: context.layout.actionCount
@@ -2593,7 +2625,9 @@ private enum TaskRolloutMain {
                     : options.birdFlowFlapScript
                     ? "birdflow_4hz_flap_qualification"
                     : options.birdFlowStrokeAmplitude != nil
-                    ? options.birdFlowTailPitch != nil
+                    ? options.birdFlowPronation != nil
+                        ? "birdflow_stroke_amplitude_pronation_qualification"
+                        : options.birdFlowTailPitch != nil
                         ? "birdflow_stroke_amplitude_tail_qualification"
                         : "birdflow_stroke_amplitude_qualification"
                     : options.birdFlowGroundGaitProbe
@@ -2602,6 +2636,7 @@ private enum TaskRolloutMain {
                 "action_stream": options.actionStream ?? "",
                 "birdflow_stroke_amplitude": options.birdFlowStrokeAmplitude ?? 0,
                 "birdflow_tail_pitch": options.birdFlowTailPitch ?? 0,
+                "birdflow_pronation": options.birdFlowPronation ?? 0,
                 "action_carrier": options.birdFlowAmericanCrow
                     ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_band_1;stage2_live_altitude_vertical_rate_and_airspeed_trim_plus_wing_and_leg_residual_0.25_tail_residual_0.10_band_2"
                     : "none",
