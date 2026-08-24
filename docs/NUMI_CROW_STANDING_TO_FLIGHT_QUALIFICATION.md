@@ -661,6 +661,36 @@ deployment pack, replay, GIF, or README item. Any successor must be a
 separately specified state-gated coupled articulation law and must requalify
 from a fresh zero-output baseline under the same gate.
 
+## State-gated sweep--tail co-trim: fresh baseline and bounded PPO pilot
+
+Source revision `c5e804f` adds a deliberately narrow successor hypothesis: in
+stage 2 only, the existing articulated shoulder-sweep and tail position targets
+receive the previously clean `+0.28125` / `+1.0` coordination magnitude only
+while all of the following live state gates have headroom: yaw-frame forward
+speed is below 0.35 m/s, root height is below 0.95 m, tilt is below 0.14 rad,
+and vertical speed is below 0.40 m/s. It changes neither the articulated ABA
+model nor aerodynamic/force parameters, terminal conditions, action ABI, or
+the 0.70 selection floor. The new compiled task fingerprint is
+`3198934467138572318`; `metalrobo_run_program_check` passed before evaluation.
+
+The fresh zero-output baseline was evaluated on the Apple M4 Pro with 64
+environments, 5,000 steps, no scheduled resets, band 2 only, and held-out seed
+`2650443581`. All 64 environments reached normal timeout, with zero
+non-timeout physical-boundary failures. Mean tracking was `0.501385`, mean
+root height `1.041576` m, mean tilt `0.063515` rad, and maximum tilt
+`0.133755` rad. The result is a clean incumbent for the changed task program,
+not evidence of controlled flight and not a cross-fingerprint promotion over
+the previous carrier.
+
+The predeclared next test is one protected 256-update PPO pilot at 128
+environments x 128 steps, chunk 8, fixed learning rate `1e-4`, initial log
+standard deviation `-2`, learner seed `2650443581`, checkpoints every 64
+updates, and the same 64-environment / 5,000-step / no-reset held-out selector.
+The selector retains the immutable fresh incumbent unless a candidate reaches
+tracking >= 0.70 with zero non-timeout physical-boundary failures. Regardless
+of observed displacement, an unselected candidate receives no replay, GIF, or
+README showcase entry.
+
 ## Required next evidence
 
 The next control experiment must identify a coordinated, phase-aware physical
