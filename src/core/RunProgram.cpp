@@ -2482,7 +2482,7 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             return value;
         };
         pack.id = "birdflow_american_crow_estimated_hybrid";
-        pack.revision = 1u;
+        pack.revision = 2u;
         pack.sourceRepository =
             "BirdFlowMetal American-crow estimated hybrid visual model";
         pack.sourceRevision =
@@ -2574,10 +2574,14 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             wing.rootToCenterAndArea.z *= lengthScale;
             wing.rootToCenterAndArea.w = 0.075f;
             wing.hingeAxisAndChord.w = 0.160f;
-            // This is an explicit hybrid closure, sized so the selected
-            // 4.6 Hz crow wingbeat can lift the selected 0.45 kg estimate.
-            // It is not a crow force, power, or CFD measurement.
-            wing.unsteadyCoefficients.x = 16.0f;
+            // This is an explicit hybrid closure, not a crow force, power,
+            // or CFD measurement.  The former 16.0 coefficient drove every
+            // bounded zero-action lift-off probe into its altitude ceiling;
+            // 5.0 is the next device-calibrated value in the observed
+            // supported-contact to runaway-lift bracket.  It remains an
+            // estimated-model parameter until an independently validated
+            // flight envelope is available.
+            wing.unsteadyCoefficients.x = 5.0f;
         }
         aerodynamic.tail.rootToCenterAndArea.x *= lengthScale;
         aerodynamic.tail.rootToCenterAndArea.y *= lengthScale;
