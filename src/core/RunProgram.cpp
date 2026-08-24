@@ -2482,7 +2482,7 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             return value;
         };
         pack.id = "birdflow_american_crow_estimated_hybrid";
-        pack.revision = 2u;
+        pack.revision = 3u;
         pack.sourceRepository =
             "BirdFlowMetal American-crow estimated hybrid visual model";
         pack.sourceRevision =
@@ -2582,6 +2582,15 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             // estimated-model parameter until an independently validated
             // flight envelope is available.
             wing.unsteadyCoefficients.x = 5.0f;
+            // The dove-derived +0.50 forward component produces sustained
+            // horizontal acceleration on the scaled crow even when the live
+            // tail trim is asking for its 0.35 m/s launch command.  Keep this
+            // estimated closure body-up only: forward speed must now arise
+            // from resolved body attitude, blade lift, and drag rather than
+            // an inherited always-forward unsteady term.  This is a model
+            // correction qualified by the native bracket, not a crow flight
+            // measurement or aerodynamic calibration.
+            wing.unsteadyCoefficients.y = 0.0f;
         }
         aerodynamic.tail.rootToCenterAndArea.x *= lengthScale;
         aerodynamic.tail.rootToCenterAndArea.y *= lengthScale;
