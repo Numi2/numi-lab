@@ -278,6 +278,47 @@ final X +19.70 m). Neither direction improves the held-out objective, so all
 frequency-feedback variants were reverted. These are single-environment
 response probes, not population-level qualification.
 
+## Speed-focused stage-2 reward (rejected)
+
+Commit `4bf3f41` tested one causal objective change only: in the crow's
+stage-2 band it removed the signed root-height-progress weight and raised the
+existing linear-velocity-tracking weight from 2 to 5. The articulated model,
+action interface, terminal conditions, command, held-out evaluator, and all
+other reward terms were unchanged. This was intended to prevent a learner from
+trading commanded speed for a ballistic climb; it was not a physical-model or
+force change.
+
+The fresh zero-action reference at that revision ran on the Apple M4 Pro with
+64 environments, 5,000 steps, band 2 only, seed `2650443581`, and scheduled
+resets disabled. All 64 episodes timed out normally: zero failed environment
+steps and zero non-timeout physical-boundary failures. Mean tracking was
+0.4995507, mean root height 1.0462137 m, and mean / maximum tilt
+0.0617644 / 0.1227599 rad. Its altered mean reward (0.0558224) is not
+comparable to previous rewards because the reward weights changed; the
+physical baseline did not.
+
+Run `crow-speed-reward-20260824-v1/train-128x128x256` then started from the
+same zero-output actor and trained 128 environments for 128 steps/update over
+256 updates, chunk 8, fixed learning rate `1e-4`, initial log standard
+deviation `-2`, and checkpoint interval 64. The 4,194,304 training samples
+completed with zero failed environment steps. The immutable evaluator scored
+the incumbent and revisions 65, 129, 193, and 257 with the same 64-environment,
+5,000-step, no-scheduled-reset held-out rollout and seed.
+
+| Held-out policy | Tracking | Mean height (m) | Mean tilt (rad) | Physical failures/environment | World-X final (m) | Decision |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Protected incumbent | 0.49955 | 1.04621 | 0.06176 | 0 | 23.709 | retained |
+| Revision 65 | 0.51106 | 0.67049 | 0.08538 | 0 | 44.719 | reject: below gate and tilt regression |
+| Revision 129 | 0.59346 | 0.40546 | 0.22865 | 4.00000 | 10.137 | reject: failures and below gate |
+| Revision 193 | 0.60883 | 0.39079 | 0.22054 | 5.10938 | 6.331 | reject: failures and below gate |
+| Final revision 257 | 0.61144 | 0.53379 | 0.21828 | 5.18750 | 5.608 | reject: failures and below gate |
+
+The selector retained the immutable incumbent and did not advance deployment.
+Although tracking improved on the held-out rollout, no checkpoint reached the
+predeclared 0.70 threshold; the later checkpoints also introduced physical
+boundary terminations and an attitude regression. The stage-2 reward change
+was therefore reverted. It supplies no replay or README GIF evidence.
+
 ## Required next evidence
 
 The next control experiment must first identify a bounded, long-horizon
