@@ -170,6 +170,8 @@ private struct Options {
     var birdFlowPronationWavePhase: Float?
     var birdFlowWingPulseAmplitude: Float?
     var birdFlowWingPulseTarget: String?
+    var birdFlowWingPulseSecondaryAmplitude: Float?
+    var birdFlowWingPulseSecondaryTarget: String?
     var birdFlowWingPulseStartStep: Int?
     var birdFlowWingPulseDurationSteps: Int?
     var birdFlowGroundGaitProbe = false
@@ -541,6 +543,28 @@ private struct Options {
                 }
                 birdFlowWingPulseTarget = target
                 index += 1
+            case "--birdflow-wing-pulse-secondary-amplitude":
+                guard let amplitude = Float(try value()), amplitude.isFinite,
+                      amplitude >= -1, amplitude <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-wing-pulse-secondary-amplitude requires a finite value in [-1, 1]."
+                    )
+                }
+                birdFlowWingPulseSecondaryAmplitude = amplitude
+                index += 1
+            case "--birdflow-wing-pulse-secondary-target":
+                let target = try value()
+                guard target == "wings" || target == "left-wing" ||
+                      target == "right-wing" || target == "pronation" ||
+                      target == "tail"
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-wing-pulse-secondary-target requires wings, left-wing, right-wing, pronation, or tail."
+                    )
+                }
+                birdFlowWingPulseSecondaryTarget = target
+                index += 1
             case "--birdflow-wing-pulse-start-step":
                 birdFlowWingPulseStartStep = try Self.integer(value(), option)
                 index += 1
@@ -605,6 +629,8 @@ private struct Options {
         let hasBirdFlowWingPulse =
             birdFlowWingPulseAmplitude != nil ||
             birdFlowWingPulseTarget != nil ||
+            birdFlowWingPulseSecondaryAmplitude != nil ||
+            birdFlowWingPulseSecondaryTarget != nil ||
             birdFlowWingPulseStartStep != nil ||
             birdFlowWingPulseDurationSteps != nil
         if hasBirdFlowWingPulse &&
@@ -617,6 +643,26 @@ private struct Options {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "BirdFlow wing pulse requires amplitude, non-negative start step, and positive duration."
             )
+        }
+        if (birdFlowWingPulseSecondaryAmplitude == nil) !=
+            (birdFlowWingPulseSecondaryTarget == nil) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "BirdFlow secondary wing pulse requires both target and amplitude."
+            )
+        }
+        if let secondaryTarget = birdFlowWingPulseSecondaryTarget {
+            let primaryTarget = birdFlowWingPulseTarget ?? "wings"
+            let primaryActions = Set(
+                birdFlowWingPulseActionIndices(target: primaryTarget)
+            )
+            let secondaryActions = Set(
+                birdFlowWingPulseActionIndices(target: secondaryTarget)
+            )
+            if !primaryActions.isDisjoint(with: secondaryActions) {
+                throw MetalRoboTaskRolloutError.invalidShape(
+                    "BirdFlow primary and secondary pulse targets must not overlap."
+                )
+            }
         }
         if (birdFlowFlapScript || birdFlowStrokeAmplitude != nil ||
             birdFlowPronation != nil || birdFlowPronationWavePhase != nil ||
@@ -1237,9 +1283,28 @@ private func birdFlowStrokeActions(
 // articulated ABA joints remain authoritative. This identifies whether the
 // policy's bounded residual can regulate an already airborne speed state
 // before another learner run is authorized.
+private func birdFlowWingPulseActionIndices(target: String) -> [Int] {
+    switch target {
+    case "wings":
+        return [0, 1]
+    case "left-wing":
+        return [0]
+    case "right-wing":
+        return [1]
+    case "pronation":
+        return [2, 3]
+    case "tail":
+        return [4]
+    default:
+        preconditionFailure("Unsupported BirdFlow wing-pulse target.")
+    }
+}
+
 private func birdFlowWingPulseActions(
     amplitude: Float,
     target: String,
+    secondaryAmplitude: Float?,
+    secondaryTarget: String?,
     pulseStartStep: Int,
     pulseDurationSteps: Int,
     startStep: Int,
@@ -1248,21 +1313,13 @@ private func birdFlowWingPulseActions(
     actionCount: Int
 ) -> [Float] {
     precondition(actionCount == 12)
-    let targetActions: [Int]
-    switch target {
-    case "wings":
-        targetActions = [0, 1]
-    case "left-wing":
-        targetActions = [0]
-    case "right-wing":
-        targetActions = [1]
-    case "pronation":
-        targetActions = [2, 3]
-    case "tail":
-        targetActions = [4]
-    default:
-        preconditionFailure("Unsupported BirdFlow wing-pulse target.")
-    }
+    let targetActions = birdFlowWingPulseActionIndices(target: target)
+    let secondaryActions = secondaryTarget.map {
+        birdFlowWingPulseActionIndices(target: $0)
+    } ?? []
+    precondition(
+        Set(targetActions).isDisjoint(with: Set(secondaryActions))
+    )
     let pulseEndStep = pulseStartStep + pulseDurationSteps
     var result = [Float](
         repeating: 0,
@@ -1279,6 +1336,11 @@ private func birdFlowWingPulseActions(
             let base = (step * environmentCount + environment) * actionCount
             for action in targetActions {
                 result[base + action] = amplitude
+            }
+            if let secondaryAmplitude {
+                for action in secondaryActions {
+                    result[base + action] = secondaryAmplitude
+                }
             }
         }
     }
@@ -1937,6 +1999,10 @@ private enum TaskRolloutMain {
                                 amplitude: amplitude,
                                 target: options.birdFlowWingPulseTarget ??
                                     "wings",
+                                secondaryAmplitude:
+                                    options.birdFlowWingPulseSecondaryAmplitude,
+                                secondaryTarget:
+                                    options.birdFlowWingPulseSecondaryTarget,
                                 pulseStartStep: pulseStartStep,
                                 pulseDurationSteps: pulseDurationSteps,
                                 startStep: globalStep,
@@ -2820,6 +2886,10 @@ private enum TaskRolloutMain {
                     options.birdFlowWingPulseAmplitude ?? 0,
                 "birdflow_wing_pulse_target":
                     options.birdFlowWingPulseTarget ?? "wings",
+                "birdflow_wing_pulse_secondary_amplitude":
+                    options.birdFlowWingPulseSecondaryAmplitude ?? 0,
+                "birdflow_wing_pulse_secondary_target":
+                    options.birdFlowWingPulseSecondaryTarget ?? "",
                 "birdflow_wing_pulse_start_step":
                     options.birdFlowWingPulseStartStep ?? 0,
                 "birdflow_wing_pulse_duration_steps":
