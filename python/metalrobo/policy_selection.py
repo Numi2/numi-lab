@@ -491,6 +491,15 @@ def compare_evidence(
             regressions.append(
                 f"{tracking_label} tracking is below the authored success threshold"
             )
+        # A shorter sequence of crashes is useful diagnostic evidence, but
+        # it is not a promotable lift-off or flight capability.  The grounded
+        # bands can legitimately complete by timeout; once the task asks for
+        # vertical flight, every held-out physical-boundary termination must
+        # be resolved before a candidate is eligible for deployment.
+        if maximum_band >= 2 and candidate_termination > 1.0e-12:
+            regressions.append(
+                "candidate has physical-boundary terminations in flight curriculum"
+            )
     elif generic_task:
         # A velocity actor commands an ongoing balance/locomotion task.  A
         # marginally lower reset count is not deployable progress if every
