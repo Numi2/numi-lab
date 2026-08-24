@@ -2169,6 +2169,17 @@ TaskPack makeBirdFlowAmericanCrowFlightTaskPack(
             .target = action,
         });
     }
+    // Band one is driven by a 0.50 s bilateral leg carrier, not by this
+    // task's inherited 4.6 Hz wingbeat clock. Its phase must be observable
+    // to a feed-forward residual policy if it is to choose phase-specific
+    // corrections rather than static posture trims. The operator publishes
+    // zero outside the fingerprinted Crow ground carrier contract.
+    for (std::uint32_t component = 0u; component < 2u; ++component) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::crowGroundCarrierPhase,
+            .component = component,
+        });
+    }
     observations.critic = observations.actorFrame;
     // The active hybrid retains the 4.6 Hz presentation clock. A separately
     // recorded 6.4 Hz maximal-takeoff timing candidate exceeded the

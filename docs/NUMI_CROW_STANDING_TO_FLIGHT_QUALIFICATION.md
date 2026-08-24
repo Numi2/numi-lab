@@ -1161,6 +1161,62 @@ active task. No gate-shape variant, learner run, Stage 2, deployment, replay,
 GIF, picture, README media, standing-to-flight claim, or Crow-biomechanics
 claim is authorized from this evidence.
 
+### Ground-carrier phase observability qualification (pre-registered)
+
+This is a distinct observability hypothesis, not another action allocation,
+gate shape, amplitude, reward, carrier, or morphology variant. The active
+band-1 leg carrier alternates at a 0.50 s period, while the actor's inherited
+two-element `cyclicPhase` input reports the independent 4.6 Hz wing clock
+(`1 / 4.6` s). The rejected final candidate's retained action record was
+predominantly DC, and its fixed action phase was therefore not aligned to the
+carrier it perturbed. Support-patch contact measurements are present, but
+intermittent physical contact is not an explicit clock for a feed-forward
+policy.
+
+The causal hypothesis is that exposing the exact *next* bilateral ground
+carrier phase lets a new stage-1 policy make phase-specific leg corrections,
+rather than seeking forward tracking through a static trim that raises pitch.
+The source adds two actor and critic scalars, `sin` and `cos` of
+`2*pi*episodeStep*dt / 0.50`, under the Crow-only fingerprinted
+`MR_TASK_PROGRAM_AVIAN_CROW_GROUND_CARRIER_PHASE_OBSERVATION` flag. Task
+completion increments `episodeStep` before the next policy decision, so these
+are the phase of the next live carrier command. The feature is zero outside
+band 1.
+
+The 4.6 Hz wing clock remains present. No action, action scale, action filter,
+carrier waveform or phase, reward, observation other than these two scalars,
+morphology, mass/inertia, aerodynamics, solver, reset, terminal condition,
+optimizer, or curriculum schedule changes. The Corvidae escape-flight study
+documents the same species beginning the first downstroke before toe-off in a
+vertical chamber, but supplies no per-frame importable trajectory; it motivates
+preserving a phase-resolved transition boundary, not reconstructing a Crow gait
+from figures or movies.
+
+Before learning, the M4 must rebuild and pass `metalrobo_run_program_check`,
+including proof of the new flag, exactly two carrier-phase operators, and the
+83-value actor/critic contract. A 64-environment, 5,000-step, no-reset,
+chunk-1, zero-action band-1 isolation at seed `2650443582` must have zero
+failed environment steps and reproduce the physical state trace SHA-256
+`f9a4dfd48cb3b3f65fee533ee16583849972312e8b70728cdb5127be0ec2110b`.
+The task and observation fingerprints must be new; the unchanged zero-action
+physics, rather than an old fingerprint, is the isolation requirement.
+
+Only after that control passes, one fresh zero-actor Stage-1 learner is
+authorized: band 1 only; 128 environments × 128 steps × 512 updates; chunk 8;
+learning rate `1e-4`; initial log standard deviation `-3`; learner seed
+`2650443586`; checkpoint interval 128; and source-pinned M4 artifacts. Its
+one held-out selector uses seed `2650443587`, evaluates every checkpoint plus
+the final candidate against the fresh zero-action incumbent in current band 1
+and protected band 0 (64 environments × 5,000 steps, one repeat, chunk 1,
+no scheduled resets). A candidate may advance only with zero failed
+environment steps, zero non-timeout physical failures, strictly higher
+current-band tracking than its matched incumbent, mean current-band tilt no
+more than incumbent plus `0.005` rad, and no protected-band regression. A
+pass authorizes neither Stage 2 nor deployment/replay/media; it only identifies
+whether observability is a viable Stage-1 mechanism. A failure ends this
+phase-observability hypothesis without an observation-shape variant or another
+learner.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow

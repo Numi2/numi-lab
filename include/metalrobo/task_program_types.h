@@ -71,6 +71,10 @@ enum MRTaskProgramFlags : mr_u32 {
     // objective shaping in the compiled task contract so neither a Dove
     // policy nor a prior Crow PolicyPack can silently opt into it.
     MR_TASK_PROGRAM_AVIAN_CROW_GROUND_TILT_ENVELOPE = 1u << 16u,
+    // Carrier-supported Crow walking exposes the 0.50 s bilateral leg-carrier
+    // phase to its policy. This is a policy-observation contract, not a
+    // prescribed action or a change to the carrier itself.
+    MR_TASK_PROGRAM_AVIAN_CROW_GROUND_CARRIER_PHASE_OBSERVATION = 1u << 18u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {
@@ -184,6 +188,10 @@ enum MRTaskObservationOpcode : mr_u32 {
     // phase. Unlike gait phase, it remains available to cyclic actuators
     // during a zero-velocity or station-keeping command.
     MR_TASK_OBSERVE_CYCLIC_PHASE = 32u,
+    // Sin/cos of the 0.50 s carrier used by the estimated American-crow
+    // supported-ground task. The task flag guards this source so it cannot
+    // silently expose a clock in an unrelated locomotion contract.
+    MR_TASK_OBSERVE_CROW_GROUND_CARRIER_PHASE = 33u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {

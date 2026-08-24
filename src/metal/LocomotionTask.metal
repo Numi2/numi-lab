@@ -1131,6 +1131,21 @@ inline float cleanObservation(
             ? sin(state.commandAndPhase.w)
             : cos(state.commandAndPhase.w);
         break;
+    case MR_TASK_OBSERVE_CROW_GROUND_CARRIER_PHASE: {
+        // Task completion has advanced episode.x before the next policy
+        // decision, so this is the exact phase of the following accepted
+        // ground-carrier command rather than a stale action-phase label.
+        const bool crowGroundCarrier = state.episode.z == 1u &&
+            (program.schedule.w &
+             MR_TASK_PROGRAM_AVIAN_CROW_GROUND_CARRIER_PHASE_OBSERVATION) !=
+                0u;
+        const float phase = kTwoPi * float(state.episode.x) *
+            controlStepSeconds / 0.50f;
+        value = crowGroundCarrier
+            ? (operation.source.z == 0u ? sin(phase) : cos(phase))
+            : 0.0f;
+        break;
+    }
     case MR_TASK_OBSERVE_RECOVERY_EVENT:
         switch (operation.source.z) {
         case 0u:

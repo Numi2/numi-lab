@@ -39,6 +39,8 @@ enum class TaskObservationSource : std::uint32_t {
         MR_TASK_OBSERVE_CONTACT_WRENCH_LOCAL,
     gaitPhase = MR_TASK_OBSERVE_GAIT_PHASE,
     cyclicPhase = MR_TASK_OBSERVE_CYCLIC_PHASE,
+    crowGroundCarrierPhase =
+        MR_TASK_OBSERVE_CROW_GROUND_CARRIER_PHASE,
     recoveryEvent = MR_TASK_OBSERVE_RECOVERY_EVENT,
     objectTrack = MR_TASK_OBSERVE_OBJECT_TRACK,
     maskedDepth = MR_TASK_OBSERVE_MASKED_DEPTH,

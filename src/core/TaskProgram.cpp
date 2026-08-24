@@ -718,6 +718,7 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::objectTrack:
             case TaskObservationSource::maskedDepth:
             case TaskObservationSource::cyclicPhase:
+            case TaskObservationSource::crowGroundCarrierPhase:
                 return true;
             default:
                 return false;
@@ -2245,6 +2246,7 @@ TaskCompileDiagnostics compileTaskProgram(
             }
             case TaskObservationSource::gaitPhase:
             case TaskObservationSource::cyclicPhase:
+            case TaskObservationSource::crowGroundCarrierPhase:
                 componentLimit = 2u;
                 break;
             case TaskObservationSource::recoveryEvent:
@@ -4084,6 +4086,12 @@ TaskCompileDiagnostics compileTaskProgram(
         // never to the Dove, passive standing, lift-off, or flight bands.
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_AVIAN_CROW_GROUND_TILT_ENVELOPE;
+        // The walking carrier has a 0.50 s bilateral period, whereas the
+        // inherited cyclic observation reports the independent 4.6 Hz wing
+        // clock. Keep this added sensor contract explicit and fingerprinted:
+        // it grants phase observability only and cannot prescribe a leg drive.
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_AVIAN_CROW_GROUND_CARRIER_PHASE_OBSERVATION;
         // Band two is a standing-to-liftoff system-identification problem,
         // not yet curved flight.  The compiled carrier closes the observed
         // narrow actuation gap while preserving the policy's later flight

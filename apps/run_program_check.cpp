@@ -423,6 +423,19 @@ int main() {
                  MR_TASK_PROGRAM_AVIAN_CROW_GROUND_LEG_RESIDUAL) != 0u &&
                 (compiledCrow.task().header().schedule.w &
                  MR_TASK_PROGRAM_AVIAN_CROW_GROUND_TILT_ENVELOPE) != 0u &&
+                (compiledCrow.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_GROUND_CARRIER_PHASE_OBSERVATION) !=
+                    0u &&
+                compiledCrow.task().layout().actorObservationSize == 83u &&
+                compiledCrow.task().layout().criticObservationSize == 83u &&
+                std::count_if(
+                    compiledCrow.task().actorOperators().begin(),
+                    compiledCrow.task().actorOperators().end(),
+                    [](const MRTaskObservationOperatorGPU& operation) {
+                        return operation.source.x ==
+                            MR_TASK_OBSERVE_CROW_GROUND_CARRIER_PHASE;
+                    }
+                ) == 2 &&
                 compiledCrow.flappingWingProgram()->wings[0u]
                     .pronationQIndex != MR_INVALID_INDEX &&
                 compiledCrow.flappingWingProgram()->wings[1u]
