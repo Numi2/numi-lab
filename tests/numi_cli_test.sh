@@ -128,6 +128,23 @@ test -s "$numi_train_run/selection.log"
 grep '"candidate_retained": true' \
     "$numi_train_run/selection/selection.json" >/dev/null
 
+# A remote supervisor may capture the command's output directly into the
+# durable run logs. That must retain native records exactly once rather than
+# feeding a live log back into `cat` until the training volume is full.
+numi_self_capture_run=$numi_temp/runs/self-capture
+mkdir -p "$numi_self_capture_run"
+(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$numi_self_capture_run \
+        "$numi_repo/tools/numi" train --updates 1 \
+            > "$numi_self_capture_run/stdout.log" \
+            2> "$numi_self_capture_run/stderr.log"
+)
+grep '"status":"trained"' "$numi_self_capture_run/stdout.log" >/dev/null
+test "$(wc -c < "$numi_self_capture_run/stdout.log" | tr -d ' ')" -lt 65536
+test "$(wc -c < "$numi_self_capture_run/stderr.log" | tr -d ' ')" -lt 65536
+
 crow_actor_run=$numi_temp/runs/crow-actor-transfer
 crow_actor_source=$numi_temp/crow-stage-one.policypack
 printf 'selected stage-one actor\n' > "$crow_actor_source"

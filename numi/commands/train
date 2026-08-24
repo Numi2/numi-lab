@@ -213,10 +213,27 @@ printf 'numi train: artifacts %s\n' "$numi_run" >&2
 # the native process has exited. Completion must reach evidence/selection so
 # the next curriculum band can start; live monitoring can read these durable
 # logs without owning a pipe in the trainer's process tree.
+#
+# Before replaying a capture for an interactive caller, ensure its destination
+# is not the capture itself. A supervisor can reasonably redirect `numi train`
+# output to these same paths; copying a file to its own live descriptor then
+# feeds the appended bytes back into `cat`, converting a few progress records
+# into an unbounded log and exhausting the training host. The retained files
+# remain authoritative in that case.
 "$numi_trainer" "$@" > "$numi_run/stdout.log" 2> "$numi_run/stderr.log"
 numi_status=$?
-cat "$numi_run/stderr.log" >&2
-cat "$numi_run/stdout.log"
+if [ "$numi_run/stderr.log" -ef /dev/fd/2 ]; then
+    printf 'numi train: stderr retained in %s/stderr.log (same output target)\n' \
+        "$numi_run" >&2
+else
+    cat "$numi_run/stderr.log" >&2
+fi
+if [ "$numi_run/stdout.log" -ef /dev/fd/1 ]; then
+    printf 'numi train: stdout retained in %s/stdout.log (same output target)\n' \
+        "$numi_run" >&2
+else
+    cat "$numi_run/stdout.log"
+fi
 if [ "$numi_status" -eq 0 ] && [ -s "$numi_run/stdout.log" ]; then
     cp "$numi_run/stdout.log" "$numi_run/evidence.json"
 fi
