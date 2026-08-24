@@ -338,6 +338,16 @@ before PPO. The active source therefore restores the earlier residual envelope
 guard artifacts remain retained as negative controller evidence. No candidate
 policy, deployment, replay, GIF, picture, or README entry is authorized.
 
+After rollback source revision `cb0f514`, the Apple M4 Pro regenerated the
+Metal library, rebuilt both Swift evaluation/training executables, and passed
+`metalrobo_run_program_check`. A fresh restored 64 × 5,000-step zero-action
+guard at the same held-out seed reported the original residual label and
+reproduced the active baseline exactly: `0` failed environment steps, `64`
+normal timeouts, mean / maximum height `1.0409775 / 1.0953953 m`, mean /
+maximum tilt `0.0635701 / 0.1247985 rad`, tracking `0.5006364`, and mean /
+maximum forward progress `16.8779269 / 17.9386941 m`. Its immutable root is
+`.numi/runs/crow-residual-envelope-20260824-v1/restored-v1-zero-64x5000/`.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
