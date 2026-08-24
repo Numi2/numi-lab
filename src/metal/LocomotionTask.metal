@@ -3632,7 +3632,10 @@ kernel void mr_locomotion_task_apply_actions(
         // altitude boundary.  A positive tail trim reduces that same sweep's
         // forward/attitude excursion.  Use the previous accepted root height
         // and finite-difference vertical rate to trim inside the narrow wing
-        // band, with the observed tail setting as a bounded baseline.
+        // band, with the observed tail setting as a bounded baseline.  The
+        // lower wing limit must remain below the static-liftoff threshold so
+        // the carrier can remove thrust after a real climb instead of merely
+        // reducing an otherwise still-positive stroke.
         // This is a Metal-resident controller of the actual wing positions,
         // never an injected aerodynamic force or a prerecorded trajectory.
         float avianLiftoffWingCarrier = 0.0f;
@@ -3641,8 +3644,8 @@ kernel void mr_locomotion_task_apply_actions(
             const float heightError = 0.85f - state.airReturnTracking.y;
             const float verticalRate = state.commandExtension.w;
             avianLiftoffWingCarrier = clamp(
-                0.102f + 0.032f * heightError - 0.008f * verticalRate,
-                0.090f,
+                0.110f + 0.080f * heightError - 0.020f * verticalRate,
+                -0.250f,
                 0.125f
             );
         }
@@ -3700,7 +3703,12 @@ kernel void mr_locomotion_task_apply_actions(
             avianCrowGroundGaitCarrier ? 0.25f : 1.0f;
         const float avianLiftoffTailCarrier =
             avianCrowLiftoffTrimCarrier && binding.indices.x == 2u
-            ? 0.25f
+            ? clamp(
+                0.25f + 0.030f *
+                    (state.commandExtension.z - 0.35f),
+                0.0f,
+                0.50f
+            )
             : 0.0f;
         const float avianNonWingCommand =
             avianLiftoffTailCarrier != 0.0f
@@ -4672,6 +4680,12 @@ kernel void mr_locomotion_task_complete(
             yawBasis.x *
                 rootLinearVelocity.y
     );
+    if (avianGroundCurriculum && avianCurriculumBand == 2u) {
+        // The action kernel consumes this accepted-state value on the next
+        // control step.  Keeping the feedback inside task state avoids a
+        // host readback loop and preserves transactional replay semantics.
+        state.commandExtension.z = yawFrameLinear.x;
+    }
     const float2 trackingDelta =
         yawFrameLinear - state.commandAndPhase.xy;
     const float trackingError =
