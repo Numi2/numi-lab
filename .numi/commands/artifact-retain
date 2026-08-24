@@ -1,0 +1,168 @@
+#!/bin/bash
+
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+usage: numi artifact-retain [--apply] [--receipt PATH] RUN_DIRECTORY...
+
+Prune raw rollout payloads from completed runs while retaining the promoted
+deployment PolicyPack, learner state, selection evidence, and provenance.
+
+The command is a dry run unless --apply is supplied. Every run must contain:
+  deployment.policypack
+  revision.txt
+  selection/selection.json or selection.log
+
+The command refuses broad roots, open rollout files, and runs without a
+protected deployment policy. A tab-separated receipt is written on --apply.
+EOF
+}
+
+if [[ "${1:-}" == "--numi-describe" ]]; then
+    printf '%s\n' "fail-closed pruning of raw rollout payloads after policy promotion"
+    exit 0
+fi
+
+apply=0
+receipt=""
+declare -a runs=()
+
+while (($#)); do
+    case "$1" in
+        --apply)
+            apply=1
+            shift
+            ;;
+        --receipt)
+            if (($# < 2)); then
+                printf '%s\n' "numi artifact-retain: --receipt requires a path" >&2
+                exit 2
+            fi
+            receipt=$2
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        --*)
+            printf 'numi artifact-retain: unknown option: %s\n' "$1" >&2
+            exit 2
+            ;;
+        *)
+            runs+=("$1")
+            shift
+            ;;
+    esac
+done
+
+if ((${#runs[@]} == 0)); then
+    usage >&2
+    exit 2
+fi
+
+if [[ -n "$receipt" && $apply -eq 0 ]]; then
+    printf '%s\n' "numi artifact-retain: --receipt requires --apply" >&2
+    exit 2
+fi
+
+temporary=$(mktemp -d "${TMPDIR:-/tmp}/numi-artifact-retain.XXXXXX")
+trap 'rm -rf "$temporary"' EXIT
+inventory="$temporary/inventory.tsv"
+metadata="$temporary/metadata.tsv"
+: > "$inventory"
+: > "$metadata"
+
+total_bytes=0
+total_files=0
+
+for requested_run in "${runs[@]}"; do
+    if [[ ! -d "$requested_run" ]]; then
+        printf 'numi artifact-retain: run is not a directory: %s\n' "$requested_run" >&2
+        exit 2
+    fi
+
+    run=$(cd "$requested_run" && pwd -P)
+    case "$run" in
+        /|"$HOME")
+            printf 'numi artifact-retain: refusing broad root: %s\n' "$run" >&2
+            exit 2
+            ;;
+    esac
+
+    deployment="$run/deployment.policypack"
+    revision="$run/revision.txt"
+    selection=""
+    if [[ -f "$run/selection/selection.json" ]]; then
+        selection="$run/selection/selection.json"
+    elif [[ -f "$run/selection.log" ]]; then
+        selection="$run/selection.log"
+    fi
+
+    if [[ ! -f "$deployment" || ! -f "$revision" || -z "$selection" ]]; then
+        printf 'numi artifact-retain: refusing unpromoted run: %s\n' "$run" >&2
+        printf '%s\n' "  required: deployment.policypack, revision.txt, selection evidence" >&2
+        exit 2
+    fi
+
+    deployment_bytes=$(stat -f '%z' "$deployment")
+    deployment_sha256=$(shasum -a 256 "$deployment" | awk '{print $1}')
+    printf 'run\t%s\tdeployment_bytes\t%s\tdeployment_sha256\t%s\tselection\t%s\n' \
+        "$run" "$deployment_bytes" "$deployment_sha256" "$selection" >> "$metadata"
+
+    candidates="$temporary/candidates-$total_files.txt"
+    find "$run" -type f -name '*rollout*pack' -print0 > "$candidates"
+    while IFS= read -r -d '' artifact; do
+        [[ -n "$artifact" ]] || continue
+        if [[ "$artifact" == *$'\t'* || "$artifact" == *$'\n'* ]]; then
+            printf 'numi artifact-retain: unsupported artifact path: %s\n' "$artifact" >&2
+            exit 2
+        fi
+        if command -v lsof >/dev/null 2>&1 && lsof "$artifact" 2>/dev/null | tail -n +2 | grep -q .; then
+            printf 'numi artifact-retain: refusing open artifact: %s\n' "$artifact" >&2
+            exit 2
+        fi
+        bytes=$(stat -f '%z' "$artifact")
+        printf 'delete\t%s\t%s\n' "$bytes" "$artifact" >> "$inventory"
+        total_bytes=$((total_bytes + bytes))
+        total_files=$((total_files + 1))
+    done < "$candidates"
+done
+
+cat "$metadata"
+cat "$inventory"
+printf 'summary\tfiles\t%s\tbytes\t%s\tmode\t%s\n' \
+    "$total_files" "$total_bytes" "$([[ $apply -eq 1 ]] && printf apply || printf dry-run)"
+
+if ((apply == 0)); then
+    exit 0
+fi
+
+if [[ -z "$receipt" ]]; then
+    receipt="${runs[0]%/}/retention-receipt-$(date -u +%Y%m%dT%H%M%SZ).tsv"
+fi
+receipt_directory=$(dirname "$receipt")
+mkdir -p "$receipt_directory"
+receipt_pending="${receipt}.pending"
+if [[ -e "$receipt" || -e "$receipt_pending" ]]; then
+    printf 'numi artifact-retain: refusing to overwrite receipt: %s\n' "$receipt" >&2
+    exit 2
+fi
+receipt_temporary="$temporary/receipt.tsv"
+{
+    printf 'schema\tnumi.artifact-retention.v1\n'
+    cat "$metadata"
+    cat "$inventory"
+    printf 'summary\tfiles\t%s\tbytes\t%s\tmode\tapply\n' "$total_files" "$total_bytes"
+} > "$receipt_temporary"
+mv "$receipt_temporary" "$receipt_pending"
+
+while IFS=$'\t' read -r operation bytes artifact; do
+    [[ "$operation" == "delete" ]] || continue
+    rm -- "$artifact"
+done < "$inventory"
+
+printf 'completed_utc\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$receipt_pending"
+mv "$receipt_pending" "$receipt"
+printf 'receipt\t%s\n' "$receipt"

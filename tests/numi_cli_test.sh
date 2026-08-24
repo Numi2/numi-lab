@@ -147,4 +147,38 @@ test -s "$numi_evaluate_run/revision.txt"
 test -s "$numi_evaluate_run/runtime.sha256"
 test -s "$numi_evaluate_run/artifacts.sha256"
 
+numi_retention_run=$numi_temp/runs/retention
+mkdir -p "$numi_retention_run/selection"
+printf 'deployment\n' > "$numi_retention_run/deployment.policypack"
+printf 'learner\n' > "$numi_retention_run/learner.safetensors"
+printf 'revision\n' > "$numi_retention_run/revision.txt"
+printf '{}\n' > "$numi_retention_run/selection/selection.json"
+printf 'raw rollout\n' > "$numi_retention_run/rollout.policyrolloutpack"
+
+numi_retention_dry=$(
+    cd "$numi_repo"
+    "$numi_repo/tools/numi" artifact-retain "$numi_retention_run"
+)
+numi_retention_dry_summary=$(printf 'summary\tfiles\t1\tbytes\t12\tmode\tdry-run')
+printf '%s\n' "$numi_retention_dry" | \
+    grep "$numi_retention_dry_summary" >/dev/null
+test -s "$numi_retention_run/rollout.policyrolloutpack"
+
+numi_retention_receipt=$numi_temp/runs/retention-receipt.tsv
+numi_retention_apply=$(
+    cd "$numi_repo"
+    "$numi_repo/tools/numi" artifact-retain \
+        --apply \
+        --receipt "$numi_retention_receipt" \
+        "$numi_retention_run"
+)
+printf '%s\n' "$numi_retention_apply" | grep '^receipt' >/dev/null
+test ! -e "$numi_retention_run/rollout.policyrolloutpack"
+test -s "$numi_retention_run/deployment.policypack"
+test -s "$numi_retention_run/learner.safetensors"
+numi_retention_apply_summary=$(printf 'summary\tfiles\t1\tbytes\t12\tmode\tapply')
+grep "$numi_retention_apply_summary" \
+    "$numi_retention_receipt" >/dev/null
+grep '^completed_utc' "$numi_retention_receipt" >/dev/null
+
 printf 'numi CLI discovery and override checks passed\n'

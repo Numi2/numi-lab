@@ -87,6 +87,12 @@ ignored by Git. Set `NUMI_RUNS_DIR` or `NUMI_RUN_DIR` to place it elsewhere.
 Each bundled command records its arguments, source revision, stdout, and native
 artifacts without changing the underlying runtime interface.
 
+Completed promoted runs can shed their raw rollout payloads without discarding
+the learned actor or continuation state. `numi artifact-retain` is dry-run by
+default and refuses runs without a protected deployment PolicyPack, provenance,
+selection evidence, or with an open rollout file. See
+[Policy retention and consolidation](POLICY_RETENTION.md).
+
 Generated contact-first intent uses the same generic training and evaluation
 capabilities. The InteractionPack and selected clip compile into the native
 task before either command executes:
