@@ -10097,14 +10097,14 @@ bool encodePolicyInference(
             {1u, kPolicyProgramArena},
             {2u, kBasePolicyProgramHeader},
             {3u, kBasePolicyProgramArena},
-            {4u, kTaskDispatch},
-            {5u, kTaskState},
-            {6u, kPolicyActorMean},
-            {7u, kBasePolicyActorMean},
-            {8u, kTaskActions},
-            {9u, kPolicyLatents},
-            {10u, kPolicyLogProbabilities},
-            {11u, kPolicyValues},
+            {5u, kTaskDispatch},
+            {6u, kTaskState},
+            {7u, kPolicyActorMean},
+            {8u, kBasePolicyActorMean},
+            {9u, kTaskActions},
+            {10u, kPolicyLatents},
+            {11u, kPolicyLogProbabilities},
+            {12u, kPolicyValues},
         },
         nullptr,
         0u,
@@ -10113,7 +10113,7 @@ bool encodePolicyInference(
         0u,
         &dispatch,
         sizeof(dispatch),
-        2u
+        4u
     );
 }
 
