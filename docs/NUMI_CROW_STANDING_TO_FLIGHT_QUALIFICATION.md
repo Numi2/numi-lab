@@ -263,6 +263,35 @@ meet the held-out flight gate and its causal benefit was not demonstrated, it
 was reverted; the next test starts from the qualified all-lane residual
 carrier rather than stacking unvalidated restrictions.
 
+## Tracking audit and stroke-plane bracket (rejected)
+
+The published `tracking` outcome is deliberately composite, not world-axis
+displacement: the device computes `0.5 * (linearVelocityTracking +
+yawVelocityTracking)`. A one-environment, 5,000-step, no-reset state trace
+at the protected seed was independently finite-differenced in the root yaw
+frame. It estimates mean forward speed of -1.016 m/s against the +0.35 m/s
+command. The trace-derived mean linear score was about 0.0108 while its yaw
+score was about 0.9947. These reconstructed values are a diagnostic only--the
+native evaluator remains authoritative--but they explain why the approximately
+0.50 aggregate cannot be promoted by world-X displacement or yaw changes.
+
+The current 0.11875 fixed stroke-plane tilt is an explicit estimated-hybrid
+closure: the flapping kernel resolves its unsteady load in the direction
+`airframeUp + tilt * airframeForward`. It is not a measured crow incidence.
+To test the nearest bounded alternative, `0.125` was run at source revision
+`b601de7` with zero actions, 64 environments, 5,000 steps, band 2 only,
+seed `2650443581`, and scheduled resets disabled. All 64 episodes timed out
+normally with zero failed steps and zero non-timeout physical-boundary
+failures. Mean tracking was only 0.50099, mean root height 1.00231 m, and
+mean / maximum tilt 0.07381 / 0.13527 rad: stable but not a material tracking
+improvement over the 0.11875 incumbent.
+
+The midpoint `0.13125` was then tested as a one-environment pilot under the
+same fixed conditions. It produced two non-timeout contact resets, mean root
+height 0.46872 m, and mean / maximum tilt 0.26618 / 0.78026 rad. The bracket
+is therefore closed and the source restores 0.11875. Neither closure is a
+flight calibration or supports training or README media.
+
 ## Wing-authority response ladder (rejected feedback variants)
 
 The post-selection system-identification sweep used the restored qualified
@@ -361,10 +390,11 @@ was therefore reverted. It supplies no replay or README GIF evidence.
 
 The next control experiment must identify a coordinated physical response that
 materially improves yaw-frame speed tracking while preserving the qualified
-height and attitude envelope. Single symmetric residuals trade height for
-forward displacement; persistent unilateral residuals contact; and the tested
-wing-only feedback signs do not regulate speed. Promote only a held-out
-candidate that reaches tracking >= 0.70 with zero non-timeout
-physical-boundary failures. Then capture a deterministic replay and inspect
-its frames before linking it from the compact README showcase. Until then, no
-Numi crow flight GIF belongs in the README.
+height and attitude envelope. It must not fit the unmeasured stroke-plane
+closure to a forward-flight target: the scalar bracket is closed. Single
+symmetric residuals trade height for displacement; persistent unilateral
+residuals contact; and the tested wing-only feedback signs do not regulate
+speed. Promote only a held-out candidate that reaches tracking >= 0.70 with
+zero non-timeout physical-boundary failures. Then capture a deterministic
+replay and inspect its frames before linking it from the compact README
+showcase. Until then, no Numi crow flight GIF belongs in the README.

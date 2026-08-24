@@ -2846,15 +2846,14 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             // trim. The strengthened controller holds altitude at 0.10 but
             // remains backward, while 0.1375 skims forward into contact. The
             // tail speed servo keeps the 0.11875 bracket near stationarity.
-            // The full feedback 0.25 re-test still entered contact, so the
-            // current 0.13125 pilot is a bounded intermediate bracket while
-            // the articulated pronation controller searches its separate
-            // wingbeat-synchronous target. The task trace exposed persistent
-            // negative yaw-frame forward velocity at 0.11875; this remains an
+            // The full feedback 0.25 re-test still entered contact, so retain
+            // the stable 0.11875 stroke-plane tilt while the articulated
+            // pronation controller searches its separate wingbeat-synchronous
+            // target. It remains an
             // estimated-model bracket until independently validated flight
             // evidence exists.
             wing.unsteadyCoefficients.x = 8.0f;
-            wing.unsteadyCoefficients.y = 0.13125f;
+            wing.unsteadyCoefficients.y = 0.11875f;
         }
         aerodynamic.tail.rootToCenterAndArea.x *= lengthScale;
         aerodynamic.tail.rootToCenterAndArea.y *= lengthScale;
