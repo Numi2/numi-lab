@@ -2121,6 +2121,16 @@ TaskPack makeBirdFlowAmericanCrowFlightTaskPack(
     task.commands.upper.x = 0.75f;
     task.commands.limitLower.x = 0.75f;
     task.commands.limitUpper.x = 0.75f;
+    // Selection measures linear-velocity tracking with a 0.25 m^2/s^2
+    // exponential width. Train against that same width instead of the dove
+    // pack's looser 0.35 width, so optimization cannot improve a different
+    // surrogate while missing the fixed held-out promotion gate.
+    for (TaskRewardOperatorSpec& reward : task.rewards) {
+        if (reward.operation == TaskRewardOperator::linearVelocityTracking) {
+            reward.parameters.x = 0.25f;
+            break;
+        }
+    }
     task.baseHeightTarget = 0.85f;
     for (TaskRandomizationOperatorSpec& randomization : reset.operators) {
         if (randomization.operation == TaskRandomizationOperator::rootHeight) {

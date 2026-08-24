@@ -366,6 +366,19 @@ int main() {
         crow.task = metalrobo::makeBirdFlowAmericanCrowFlightTaskPack(
             crow.sensors.observation, crow.reality.reset
         );
+        const auto crowTrackingReward = std::find_if(
+            crow.task.rewards.begin(),
+            crow.task.rewards.end(),
+            [](const metalrobo::TaskRewardOperatorSpec& reward) {
+                return reward.operation ==
+                    metalrobo::TaskRewardOperator::linearVelocityTracking;
+            }
+        );
+        require(
+            crowTrackingReward != crow.task.rewards.end() &&
+                crowTrackingReward->parameters.x == 0.25f,
+            "BirdFlow American-crow training width must match its held-out tracking metric"
+        );
         crow.reality.id = "birdflow_american_crow_nominal_reality";
         crow.teacher.id = "no_teacher";
         crow.profile.id = "birdflow_american_crow_check_profile";

@@ -3723,13 +3723,11 @@ kernel void mr_locomotion_task_apply_actions(
         const float avianLiftoffTailCarrier =
             avianCrowLiftoffTrimCarrier && binding.indices.x == 4u
             ? clamp(
-                // The measured tail residual response has the opposite
-                // yaw-frame sign: increasing pitch adds forward travel.
-                // Negative feedback therefore raises tail pitch below the
-                // requested speed and lowers it above that speed.  The lower
-                // bound remains inside the sampled joint range, not a force
-                // clamp, because fixed low pitch eventually contacts.
-                0.25f - 0.075f *
+                // The long-horizon response sweep retains this qualified
+                // speed-and-height trim: forcing lower tail pitch eventually
+                // contacts. The lower bound is deliberately inside the
+                // sampled joint range, not a force clamp.
+                0.25f + 0.075f *
                     (state.commandExtension.z - 0.35f) +
                     0.300f * (0.85f - state.airReturnTracking.y),
                 0.15f,
