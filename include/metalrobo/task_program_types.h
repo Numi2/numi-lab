@@ -75,7 +75,7 @@ enum MRTaskProgramFlags : mr_u32 {
     // to the matching swing half-cycle. The support half retains the
     // qualified carrier command, and this temporal action contract remains
     // explicit in the task fingerprint.
-    MR_TASK_PROGRAM_AVIAN_CROW_GROUND_LEG_SWING_RESIDUAL = 1u << 17u,
+    MR_TASK_PROGRAM_AVIAN_CROW_GROUND_LEG_SWING_RESIDUAL = 1u << 18u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {
