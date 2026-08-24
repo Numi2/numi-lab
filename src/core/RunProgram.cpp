@@ -1357,6 +1357,11 @@ RunCompileDiagnostics compileRun(
                 resolved.pronationAxisAndReserved = directWing
                     ? mr_float4{}
                     : distalJoint.axis0;
+                const MRJointDescriptorGPU& rootJoint = sweepJoint == nullptr
+                    ? flapJoint : *sweepJoint;
+                resolved.rootJointParentAnchor = rootJoint.parentAnchor;
+                resolved.rootJointChildAnchor = rootJoint.childAnchor;
+                resolved.bodyCenterOfMass = wingBody.centerOfMass;
                 program.wings[side] = resolved;
             }
             const RobotSemanticRole* tailRole = role(

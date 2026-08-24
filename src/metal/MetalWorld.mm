@@ -3204,6 +3204,9 @@ MetalWorldDiagnostics validateAndBuildLayout(
                   !finite(wing.pronationAxisAndReserved))) ||
                 !(wing.rootToCenterAndArea.w > 0.0f) ||
                 !(wing.hingeAxisAndChord.w > 0.0f) ||
+                !finite(wing.rootJointParentAnchor) ||
+                !finite(wing.rootJointChildAnchor) ||
+                !finite(wing.bodyCenterOfMass) ||
                 !(wing.coefficients.x > 0.0f) ||
                 wing.coefficients.y < 0.0f || wing.coefficients.z < 0.0f ||
                 !(wing.coefficients.w > 0.0f) ||

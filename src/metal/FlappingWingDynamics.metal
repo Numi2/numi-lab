@@ -332,11 +332,33 @@ kernel void mr_step_compiled_flapping_wings(
         if (!all(isfinite(force)) || !all(isfinite(torque))) {
             continue;
         }
+        // The load integral is formed about the airframe root because that is
+        // the common aerodynamic reference. ABA body wrenches are instead
+        // defined about each body's COM. Resolve the live distal-wing COM
+        // from the compiled root joint and re-express the same resultant
+        // wrench before it enters the articulated chain. This preserves the
+        // net force and root moment for a locked wing while exposing the
+        // physical reaction to finite sweep, flap, and pronation drives.
+        const float4 rootJointRotation = hasSweep
+            ? sweepRotation : hingeRotation;
+        const float3 rootToWingOrigin = rotate(
+            rootOrientation,
+            wing.rootJointParentAnchor.xyz - rotate(
+                rootJointRotation, wing.rootJointChildAnchor.xyz
+            )
+        );
+        const float3 rootToWingCOM = rootToWingOrigin + rotate(
+            wingOrientation, wing.bodyCenterOfMass.xyz
+        );
+        const float3 wingTorque = torque - cross(rootToWingCOM, force);
+        if (!all(isfinite(rootToWingCOM)) || !all(isfinite(wingTorque))) {
+            continue;
+        }
         const uint wrenchIndex =
-            environment * dispatch.bodyStride + dispatch.rootBodyIndex;
+            environment * dispatch.bodyStride + wing.bodyIndex;
         MRABABodyWrenchGPU wrench = wrenches[wrenchIndex];
         wrench.force.xyz += force;
-        wrench.torque.xyz += torque;
+        wrench.torque.xyz += wingTorque;
         wrenches[wrenchIndex] = wrench;
     }
     // Differential live stroke energy produces a bounded yaw moment. It

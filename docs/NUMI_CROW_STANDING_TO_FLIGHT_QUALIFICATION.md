@@ -100,6 +100,50 @@ complete physical model; it establishes only that this uncalibrated expansion
 is unsafe in the present estimated hybrid and cannot be promoted as a crow
 flight improvement.
 
+## Articulated wing-wrench placement (pre-registered)
+
+`MRABABodyWrenchGPU` defines force and torque about the receiving body's
+center of mass. The existing blade-element kernel integrates each wing's load
+about the airframe root and writes that whole wrench directly to the root.
+That preserves the net airframe resultant but bypasses the finite articulated
+sweep, flap, and pronation drives--they receive no aerodynamic reaction. The
+next experiment changes only the wrench reference/recipient: the compiler
+resolves the parent and child anchors of the root-most wing joint plus the
+distal wing-body COM; Metal reconstructs its current world position and uses
+`tau_COM = tau_root - r_root_to_COM x force` before writing the same force and
+resultant moment to the wing body. It adds no aerodynamic coefficient, force,
+action, controller, reward, termination, or crow-specific calibration.
+
+This is an articulated-mechanics correction, not a claim of measured bird
+aerodynamics. The broader model limitation remains explicit: detailed bird
+wing kinematics and unsteady profiles require data beyond a generic
+blade-element closure ([Tobalske, 2007](https://journals.biologists.com/jeb/article/210/18/3135/17027/Biomechanics-of-bird-flight)).
+
+The pre-change crow reference is the same exact `54c2eb8` run reported above:
+64 environments × 5,000 steps, band 2, zero actions, no scheduled resets,
+seed `2650443581`, zero failed environment steps/physical-boundary failures,
+tracking `0.5008565`, height `1.0462196 m`, and mean / maximum tilt
+`0.0620805 / 0.1222802 rad`. The shared Dove guard used that identical
+environment/step/seed protocol with zero actions at source `83f624e`; it had
+zero failed environment steps, tracking `0.5655592`, height `1.0373152 m`,
+and mean / maximum tilt `0.1361817 / 0.2532357 rad`. Its expected 3,840
+reason-1 task transitions are a pre-existing task outcome, not solver errors.
+The immutable roots are respectively
+`.numi/runs/crow-articulated-sweep-20260824-v1/all-articulated-velocity-prechange-zero-64x5000/`
+and
+`.numi/runs/birdflow-dove-articulated-load-path-20260824-v1/prechange-zero-64x5000/`.
+
+The candidate must pass native program compilation and both 64×5,000
+zero-action regressions. Crow must retain zero failed environment steps and
+zero non-timeout physical-boundary failures, mean height in `[0.85, 1.30] m`,
+mean tilt at most `0.15 rad`, and maximum tilt at most `0.30 rad`. Dove must
+retain zero failed environment steps, no new termination reason, tracking at
+least `0.55`, height in `[0.90, 1.20] m`, and maximum tilt at most `0.30 rad`.
+Only if both gates pass may the crow receive one protected 128×128×256 PPO
+trial followed by the existing immutable 64-environment selector. The
+unchanged `tracking >= 0.70` plus zero physical-boundary-failure promotion gate
+still governs deployment, replay, GIF, and README eligibility.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow

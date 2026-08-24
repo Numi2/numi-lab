@@ -39,6 +39,14 @@ typedef struct MR_ALIGN16 MRFlappingWingGPU {
     // zero for a one-joint wing and is resolved from the articulated joint,
     // rather than supplied as an aerodynamic force-direction parameter.
     mr_float4 pronationAxisAndReserved;
+    // Parent and child anchors of the root-most wing joint. The compiler
+    // resolves sweep when present and flap otherwise, allowing the load
+    // kernel to recover the live wing-body COM without hard-coding a bird
+    // topology.
+    mr_float4 rootJointParentAnchor;
+    mr_float4 rootJointChildAnchor;
+    // Center of mass in the resolved distal wing-body frame.
+    mr_float4 bodyCenterOfMass;
     // lift slope [1/rad], profile drag, induced drag and coefficient limit.
     mr_float4 coefficients;
     // x = rotational/unsteady stroke-lift closure, y = forward stroke-plane
@@ -99,7 +107,7 @@ typedef struct MR_ALIGN16 MRCompiledFlappingWingDispatchGPU {
 } MRCompiledFlappingWingDispatchGPU;
 
 #ifndef __METAL_VERSION__
-static_assert(sizeof(MRFlappingWingGPU) == 144);
+static_assert(sizeof(MRFlappingWingGPU) == 192);
 static_assert(sizeof(MRAeroTailGPU) == 48);
 static_assert(sizeof(MRAeroFuselageGPU) == 48);
 static_assert(sizeof(MRCompiledFlappingWingDispatchGPU) == 48);

@@ -423,6 +423,14 @@ int main() {
                 compiledCrow.flappingWingProgram()->wings[1u]
                     .sweepQIndex != MR_INVALID_INDEX &&
                 compiledCrow.flappingWingProgram()->wings[0u]
+                    .rootJointParentAnchor.y != 0.0f &&
+                compiledCrow.flappingWingProgram()->wings[0u]
+                    .rootJointChildAnchor.y != 0.0f &&
+                compiledCrow.flappingWingProgram()->wings[1u]
+                    .rootJointParentAnchor.y != 0.0f &&
+                compiledCrow.flappingWingProgram()->wings[1u]
+                    .rootJointChildAnchor.y != 0.0f &&
+                compiledCrow.flappingWingProgram()->wings[0u]
                     .rootToCenterAndArea.w == 0.075f &&
                 compiledCrow.flappingWingProgram()->wings[1u]
                     .rootToCenterAndArea.w == 0.075f,
