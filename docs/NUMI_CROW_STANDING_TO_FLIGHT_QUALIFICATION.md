@@ -1453,6 +1453,53 @@ measurement, a replay, or media. They unlock exactly the pre-registered
 single band-2 learner below; its held-out selector remains the sole promotion
 decision.
 
+### Frozen-base residual learner: completed and rejected
+
+The pre-registered learner ran once on the remote Apple M4 Pro from source
+revision `b271a1b`: 128 environments x 128 steps x 512 updates, chunk 8,
+band 2 only, learner/environment seed `2650443590`, fixed learning rate
+`1e-4`, initial log standard deviation `-3`, and checkpoints every 128
+updates. It completed all `8,388,608` samples with zero failed environment
+steps and retained revisions 129, 257, 385, and 513. The final candidate
+deployment SHA-256 is
+`f4c77d14b14c6013e9fcf27eaa1f291c1a5c279083e6a20ede0da58daf58f6a9`.
+
+The one-shot selector then evaluated the immutable incumbent, all four
+checkpoints, and the final candidate at seed `2650443591`: 64 environments,
+5,000 no-reset steps, one repeat, chunk 1, on current band 2 and protected
+band 1 (twelve matched records). It selected the incumbent and did not
+advance deployment. On band 2 the incumbent versus final candidate had
+tracking `0.5068977427` versus `0.4993916188`, non-timeout physical-boundary
+terminations `282` versus `585`, and mean tilt `0.1737816687` versus
+`0.2624627040` rad. The candidate did improve neither the authored tracking
+threshold (`0.70`) nor the physical-boundary gate; its less-negative final
+progress is diagnostic only and cannot waive those failures. The selector
+also records the candidate's increased termination rate and tilt. Its first
+checkpoint reduced termination and tilt, but still failed the tracking and
+zero-physical-boundary-termination gates, so it was not eligible either.
+
+The final candidate also passed the required protected action/state controls
+on the same remote hardware at seed `2650443591`, 64 environments, and 5,000
+no-reset steps per band. On band 0 the base and candidate-composite action
+trace hash was
+`6f2c6f3242500e1ebaf0e304808f5d7e23174e160d992b26a7fabade4218d49f` and
+the state-trace hash was
+`1d13b4d784528d4a9798e557df3d6b77808e6deb8cae33886d10e39d40d1daec`.
+On band 1 the corresponding hashes were
+`9ed8e0ba3c70ec71510d09faa5c7fa08f17f961d5dd3a53878b17b1e0f8090df` and
+`5024193ceef6f0eaf28b22356fea12b2aedeb512c5eacdd697880ad79bb7fdad`.
+Thus the frozen-base architecture preserved the protected controllers
+exactly, but it did not produce a promotable band-2 residual policy.
+
+The protected deployment is byte-identical to the zero-residual incumbent
+SHA-256 `262503397e261112bb986bae0873e76db21ca0b6c35e9514d229abe6042c4c3d`.
+All training, checkpoints, selector evidence, and protected-control traces
+remain retained under
+`.numi/runs/crow-frozen-base-residual-train-20260824-v1/` on the M4. This
+ends the frozen-base residual hypothesis: no parameter retry, follow-up
+learner, replay, GIF, picture, README addition, standing-to-flight claim,
+Crow flight claim, or biomechanical claim is authorized from this result.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
