@@ -234,6 +234,14 @@ change. It does not establish that leg exploration caused the prior failure;
 the required fresh baseline and held-out learner evaluations will test that
 specific hypothesis.
 
+The fresh post-partition baseline ran at revision `87bef2f` on Apple M4 Pro:
+64 environments, 5,000 steps, band 2 only, seed `2650443581`, and no scheduled
+resets. All 64 episodes timed out normally with zero failed physics steps and
+zero height/tilt terminations. Mean tracking was 0.49955, mean root height was
+1.04621 m, and mean/max tilt was 0.06176 / 0.12276 rad. The zero action result
+therefore preserves the previously qualified mechanical carrier; it is a gate
+for the constrained-control learner, not a flight promotion.
+
 ## Required next evidence
 
 The next control experiment must first identify a bounded, long-horizon
