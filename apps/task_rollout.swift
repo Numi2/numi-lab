@@ -534,11 +534,11 @@ private struct Options {
             case "--birdflow-wing-pulse-target":
                 let target = try value()
                 guard target == "wings" || target == "left-wing" ||
-                      target == "right-wing" || target == "pronation" ||
-                      target == "tail"
+                      target == "right-wing" || target == "sweep" ||
+                      target == "pronation" || target == "tail"
                 else {
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--birdflow-wing-pulse-target requires wings, left-wing, right-wing, pronation, or tail."
+                        "--birdflow-wing-pulse-target requires wings, left-wing, right-wing, sweep, pronation, or tail."
                     )
                 }
                 birdFlowWingPulseTarget = target
@@ -556,11 +556,11 @@ private struct Options {
             case "--birdflow-wing-pulse-secondary-target":
                 let target = try value()
                 guard target == "wings" || target == "left-wing" ||
-                      target == "right-wing" || target == "pronation" ||
-                      target == "tail"
+                      target == "right-wing" || target == "sweep" ||
+                      target == "pronation" || target == "tail"
                 else {
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--birdflow-wing-pulse-secondary-target requires wings, left-wing, right-wing, pronation, or tail."
+                        "--birdflow-wing-pulse-secondary-target requires wings, left-wing, right-wing, sweep, pronation, or tail."
                     )
                 }
                 birdFlowWingPulseSecondaryTarget = target
@@ -652,13 +652,7 @@ private struct Options {
         }
         if let secondaryTarget = birdFlowWingPulseSecondaryTarget {
             let primaryTarget = birdFlowWingPulseTarget ?? "wings"
-            let primaryActions = Set(
-                birdFlowWingPulseActionIndices(target: primaryTarget)
-            )
-            let secondaryActions = Set(
-                birdFlowWingPulseActionIndices(target: secondaryTarget)
-            )
-            if !primaryActions.isDisjoint(with: secondaryActions) {
+            if birdFlowWingPulseTargetsOverlap(primaryTarget, secondaryTarget) {
                 throw MetalRoboTaskRolloutError.invalidShape(
                     "BirdFlow primary and secondary pulse targets must not overlap."
                 )
@@ -1240,9 +1234,9 @@ private func birdFlowStrokeActions(
     environmentCount: Int,
     actionCount: Int
 ) -> [Float] {
-    precondition(actionCount == 10 || actionCount == 12)
-    precondition(pronation == nil || actionCount == 12)
-    precondition(pronationWavePhase == nil || actionCount == 12)
+    precondition(actionCount == 10 || actionCount == 12 || actionCount == 14)
+    precondition(pronation == nil || actionCount == 12 || actionCount == 14)
+    precondition(pronationWavePhase == nil || actionCount == 12 || actionCount == 14)
     var result = [Float](
         repeating: 0,
         count: stepCount * environmentCount * actionCount
@@ -1250,13 +1244,14 @@ private func birdFlowStrokeActions(
     for step in 0..<stepCount {
         for environment in 0..<environmentCount {
             let base = (step * environmentCount + environment) * actionCount
-            // The crow inserts bilateral distal-wing pronation after the
-            // first two flap lanes. Equal command signs are mirror-symmetric
-            // because the two physical span axes are mirrored in its pack.
+            // The current crow inserts bilateral sweep and distal-wing
+            // pronation after the first two flap lanes. Equal command signs
+            // are mirror-symmetric because the physical axes are mirrored in
+            // its pack. Leave sweep neutral in this pronation-specific probe.
             // Leave all leg actions neutral during this calibration.
             result[base] = amplitude
             result[base + 1] = amplitude
-            if actionCount == 12 {
+            if actionCount == 12 || actionCount == 14 {
                 // This is a deterministic response probe, not the deployed
                 // controller. It exercises the same normalized position
                 // bindings as a learned policy while sweeping feathering
@@ -1266,9 +1261,10 @@ private func birdFlowStrokeActions(
                         Float(startStep + step) * 0.020 * 4.6 + phase)
                 }
                 let pronationAction = pronation ?? wave ?? 0
-                result[base + 2] = pronationAction
-                result[base + 3] = pronationAction
-                result[base + 4] = tailPitch
+                let pronationOffset = actionCount == 14 ? 4 : 2
+                result[base + pronationOffset] = pronationAction
+                result[base + pronationOffset + 1] = pronationAction
+                result[base + pronationOffset + 2] = tailPitch
             } else {
                 result[base + 2] = tailPitch
             }
@@ -1283,7 +1279,27 @@ private func birdFlowStrokeActions(
 // articulated ABA joints remain authoritative. This identifies whether the
 // policy's bounded residual can regulate an already airborne speed state
 // before another learner run is authorized.
-private func birdFlowWingPulseActionIndices(target: String) -> [Int] {
+private func birdFlowWingPulseTargetsOverlap(
+    _ first: String,
+    _ second: String
+) -> Bool {
+    if first == second {
+        return true
+    }
+    if first == "wings" {
+        return second == "left-wing" || second == "right-wing"
+    }
+    if second == "wings" {
+        return first == "left-wing" || first == "right-wing"
+    }
+    return false
+}
+
+private func birdFlowWingPulseActionIndices(
+    target: String,
+    actionCount: Int
+) -> [Int] {
+    precondition(actionCount == 12 || actionCount == 14)
     switch target {
     case "wings":
         return [0, 1]
@@ -1291,10 +1307,13 @@ private func birdFlowWingPulseActionIndices(target: String) -> [Int] {
         return [0]
     case "right-wing":
         return [1]
-    case "pronation":
+    case "sweep":
+        precondition(actionCount == 14)
         return [2, 3]
+    case "pronation":
+        return actionCount == 14 ? [4, 5] : [2, 3]
     case "tail":
-        return [4]
+        return actionCount == 14 ? [6] : [4]
     default:
         preconditionFailure("Unsupported BirdFlow wing-pulse target.")
     }
@@ -1312,10 +1331,13 @@ private func birdFlowWingPulseActions(
     environmentCount: Int,
     actionCount: Int
 ) -> [Float] {
-    precondition(actionCount == 12)
-    let targetActions = birdFlowWingPulseActionIndices(target: target)
+    precondition(actionCount == 12 || actionCount == 14)
+    let targetActions = birdFlowWingPulseActionIndices(
+        target: target,
+        actionCount: actionCount
+    )
     let secondaryActions = secondaryTarget.map {
-        birdFlowWingPulseActionIndices(target: $0)
+        birdFlowWingPulseActionIndices(target: $0, actionCount: actionCount)
     } ?? []
     precondition(
         Set(targetActions).isDisjoint(with: Set(secondaryActions))
@@ -1359,7 +1381,7 @@ private func birdFlowGroundGaitProbeActions(
     environmentCount: Int,
     actionCount: Int
 ) -> [Float] {
-    precondition(actionCount == 10 || actionCount == 12)
+    precondition(actionCount == 10 || actionCount == 12 || actionCount == 14)
     var result = [Float](
         repeating: 0,
         count: stepCount * environmentCount * actionCount
@@ -1376,7 +1398,7 @@ private func birdFlowGroundGaitProbeActions(
             // The held-out long-horizon calibration fixed this sign: the
             // opposite hip sweep remained stable but translated backward.
             // Keep lift timing unchanged while reversing only fore/aft swing.
-            let legOffset = actionCount == 12 ? 5 : 3
+            let legOffset = actionCount == 14 ? 7 : actionCount == 12 ? 5 : 3
             result[base + legOffset] = -0.014 * leftSwing
             result[base + legOffset + 1] = 0.018 * leftLift
             result[base + legOffset + 2] = -0.010 * leftLift
@@ -2895,7 +2917,7 @@ private enum TaskRolloutMain {
                 "birdflow_wing_pulse_duration_steps":
                     options.birdFlowWingPulseDurationSteps ?? 0,
                 "action_carrier": options.birdFlowAmericanCrow
-                    ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_band_1;stage2_live_altitude_vertical_rate_and_airspeed_trim_plus_phase_calibrated_pronation_target_amplitude_0.20_phase_2.62_plus_bounded_residual_0.25_wing_and_leg_residual_0.25_tail_residual_0.10_band_2"
+                    ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_band_1;stage2_live_altitude_vertical_rate_and_airspeed_trim_plus_phase_calibrated_pronation_target_amplitude_0.20_phase_2.62_plus_bounded_residual_0.25_wing_sweep_pronation_and_leg_residual_0.25_tail_residual_0.10_band_2"
                     : "none",
                 "device": context.deviceName,
                 "solver_mode": "temporal_cone",

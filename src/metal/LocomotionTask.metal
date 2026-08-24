@@ -3630,7 +3630,7 @@ kernel void mr_locomotion_task_apply_actions(
         const bool avianCrowLiftoffPronationAction =
             avianCrowLiftoffTrimCarrier &&
             binding.actuator.x == MR_TASK_ACTUATOR_JOINT_POSITION &&
-            (binding.indices.x == 2u || binding.indices.x == 3u);
+            (binding.indices.x == 4u || binding.indices.x == 5u);
         // The live action sweep brackets the estimated hybrid's transition:
         // +0.100 remains ground-bound whereas +0.125 repeatedly reaches the
         // altitude boundary.  A positive stroke-plane tilt then supplies
@@ -3681,22 +3681,22 @@ kernel void mr_locomotion_task_apply_actions(
             const float leftSwing = sin(phase);
             const float rightSwing = -leftSwing;
             switch (binding.indices.x) {
-            case 5u:
+            case 7u:
                 avianGroundGaitCarrier = -0.014f * leftSwing;
                 break;
-            case 6u:
+            case 8u:
                 avianGroundGaitCarrier = 0.018f * max(leftSwing, 0.0f);
                 break;
-            case 7u:
+            case 9u:
                 avianGroundGaitCarrier = -0.010f * max(leftSwing, 0.0f);
                 break;
-            case 8u:
+            case 10u:
                 avianGroundGaitCarrier = -0.014f * rightSwing;
                 break;
-            case 9u:
+            case 11u:
                 avianGroundGaitCarrier = 0.018f * max(rightSwing, 0.0f);
                 break;
-            case 10u:
+            case 12u:
                 avianGroundGaitCarrier = -0.010f * max(rightSwing, 0.0f);
                 break;
             default:
@@ -3721,7 +3721,7 @@ kernel void mr_locomotion_task_apply_actions(
             ? 0.20f * sin(state.commandAndPhase.w + 2.62f)
             : 0.0f;
         const float avianLiftoffTailCarrier =
-            avianCrowLiftoffTrimCarrier && binding.indices.x == 4u
+            avianCrowLiftoffTrimCarrier && binding.indices.x == 6u
             ? clamp(
                 // The long-horizon response sweep retains this qualified
                 // speed-and-height trim: forcing lower tail pitch eventually
