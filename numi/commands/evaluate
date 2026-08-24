@@ -92,6 +92,7 @@ if ! numi_has_option --policy-pack "$@" &&
    ! numi_has_option --action-stream "$@" &&
    ! numi_has_option --birdflow-flap-script "$@" &&
    ! numi_has_option --birdflow-stroke-amplitude "$@" &&
+   ! numi_has_option --birdflow-wing-pulse-amplitude "$@" &&
    ! numi_has_option --birdflow-ground-gait-probe "$@"; then
     set -- --native-policy "$@"
 fi
