@@ -3717,7 +3717,7 @@ kernel void mr_locomotion_task_apply_actions(
                 // inside the sampled joint range, not a force clamp.
                 0.25f + 0.075f *
                     (state.commandExtension.z - 0.35f) +
-                    0.100f * (0.85f - state.airReturnTracking.y),
+                    0.300f * (0.85f - state.airReturnTracking.y),
                 0.15f,
                 0.50f
             )
