@@ -567,6 +567,28 @@ environment steps and zero non-timeout physical failures, and their
 environment-0 physical state traces must be byte-identical. Any difference
 rejects this reissue and starts no learner.
 
+### Actuation-isolation outcome — passed
+
+At source `4d4c2a4`, the remote Apple M4 Pro rebuilt the Metal library and
+passed `metalrobo_run_program_check`. The two prescribed band-1 rollouts are
+retained under `.numi/runs/crow-ground-leg-residual-20260824-v1/zero-actions/`
+and `.../nonleg-masked-actions/`. Both used the exact 64 × 5,000 no-reset
+configuration and seed `2650443582`; both have task fingerprint
+`3198934467138572318`, run fingerprint `8498436949874751629`, zero failed
+environment steps, 64 ordinary timeouts, zero height/tilt terminations,
+tracking `0.9119822925`, root height `0.1873070948 m`, and mean tilt
+`0.0039169387 rad`.
+
+The latter stream drives only action lanes 2--6 (sweep, pronation, and tail)
+at full normalized amplitude and has SHA-256
+`ed4953c7346fa7346c192e70428773bf83e58523a3bfc2c9254998514d60aeab`.
+Despite those requests, the environment-0 physical traces are byte-identical:
+both hash to
+`f9a4dfd48cb3b3f65fee533ee16583849972312e8b70728cdb5127be0ec2110b`.
+This proves the implemented band-1 action boundary, not that a flight policy
+has been learned. It satisfies the isolation gate and authorizes the one
+fresh Stage-1 learner run below.
+
 Only after that isolation gate passes, one fresh zero-actor Stage-1 learner
 run is authorized: 128 environments × 128 steps × 512 updates (`8,388,608`
 samples), chunk 8, fixed learning rate `1e-4`, initial log standard deviation
