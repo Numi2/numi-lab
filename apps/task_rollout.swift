@@ -168,6 +168,8 @@ private struct Options {
     var birdFlowTailPitch: Float?
     var birdFlowPronation: Float?
     var birdFlowPronationWavePhase: Float?
+    var birdFlowSweepWaveAmplitude: Float?
+    var birdFlowSweepWavePhase: Float?
     var birdFlowWingPulseAmplitude: Float?
     var birdFlowWingPulseTarget: String?
     var birdFlowWingPulseSecondaryAmplitude: Float?
@@ -521,6 +523,26 @@ private struct Options {
                 }
                 birdFlowPronationWavePhase = phase
                 index += 1
+            case "--birdflow-sweep-wave-amplitude":
+                guard let amplitude = Float(try value()), amplitude.isFinite,
+                      amplitude >= -1, amplitude <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-sweep-wave-amplitude requires a finite value in [-1, 1]."
+                    )
+                }
+                birdFlowSweepWaveAmplitude = amplitude
+                index += 1
+            case "--birdflow-sweep-wave-phase":
+                guard let phase = Float(try value()), phase.isFinite,
+                      phase >= -Float.pi, phase <= Float.pi
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-sweep-wave-phase requires radians in [-pi, pi]."
+                    )
+                }
+                birdFlowSweepWavePhase = phase
+                index += 1
             case "--birdflow-wing-pulse-amplitude":
                 guard let amplitude = Float(try value()), amplitude.isFinite,
                       amplitude >= -1, amplitude <= 1
@@ -660,6 +682,8 @@ private struct Options {
         }
         if (birdFlowFlapScript || birdFlowStrokeAmplitude != nil ||
             birdFlowPronation != nil || birdFlowPronationWavePhase != nil ||
+            birdFlowSweepWaveAmplitude != nil ||
+            birdFlowSweepWavePhase != nil ||
             hasBirdFlowWingPulse ||
             birdFlowGroundGaitProbe) &&
             (!(birdFlowDove || birdFlowAmericanCrow) ||
@@ -697,6 +721,18 @@ private struct Options {
                 "--birdflow-pronation-wave-phase requires --birdflow-stroke-amplitude."
             )
         }
+        if birdFlowSweepWaveAmplitude != nil &&
+            birdFlowStrokeAmplitude == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-sweep-wave-amplitude requires --birdflow-stroke-amplitude."
+            )
+        }
+        if birdFlowSweepWavePhase != nil &&
+            birdFlowStrokeAmplitude == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-sweep-wave-phase requires --birdflow-stroke-amplitude."
+            )
+        }
         if birdFlowPronation != nil && !birdFlowAmericanCrow {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--birdflow-pronation is available only for --birdflow-american-crow."
@@ -707,6 +743,12 @@ private struct Options {
                 "--birdflow-pronation-wave-phase is available only for --birdflow-american-crow."
             )
         }
+        if (birdFlowSweepWaveAmplitude != nil ||
+            birdFlowSweepWavePhase != nil) && !birdFlowAmericanCrow {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "BirdFlow sweep wave is available only for --birdflow-american-crow."
+            )
+        }
         if hasBirdFlowWingPulse && !birdFlowAmericanCrow {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "BirdFlow wing pulse is available only for --birdflow-american-crow."
@@ -715,6 +757,12 @@ private struct Options {
         if birdFlowPronation != nil && birdFlowPronationWavePhase != nil {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--birdflow-pronation and --birdflow-pronation-wave-phase are mutually exclusive."
+            )
+        }
+        if (birdFlowSweepWaveAmplitude == nil) !=
+            (birdFlowSweepWavePhase == nil) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "BirdFlow sweep wave requires both amplitude and phase."
             )
         }
         if rolloutPack != nil &&
@@ -1229,6 +1277,8 @@ private func birdFlowStrokeActions(
     tailPitch: Float,
     pronation: Float?,
     pronationWavePhase: Float?,
+    sweepWaveAmplitude: Float?,
+    sweepWavePhase: Float?,
     startStep: Int,
     stepCount: Int,
     environmentCount: Int,
@@ -1237,6 +1287,9 @@ private func birdFlowStrokeActions(
     precondition(actionCount == 10 || actionCount == 12 || actionCount == 14)
     precondition(pronation == nil || actionCount == 12 || actionCount == 14)
     precondition(pronationWavePhase == nil || actionCount == 12 || actionCount == 14)
+    precondition(sweepWaveAmplitude == nil || actionCount == 14)
+    precondition(sweepWavePhase == nil || actionCount == 14)
+    precondition((sweepWaveAmplitude == nil) == (sweepWavePhase == nil))
     var result = [Float](
         repeating: 0,
         count: stepCount * environmentCount * actionCount
@@ -1252,6 +1305,23 @@ private func birdFlowStrokeActions(
             result[base] = amplitude
             result[base + 1] = amplitude
             if actionCount == 12 || actionCount == 14 {
+                let sweepAction: Float
+                if let sweepWaveAmplitude, let sweepWavePhase {
+                    sweepAction = sweepWaveAmplitude * sin(
+                        2.0 * Float.pi *
+                            Float(startStep + step) * 0.020 * 4.6 +
+                            sweepWavePhase
+                    )
+                } else {
+                    sweepAction = 0
+                }
+                if actionCount == 14 {
+                    // Qualification-only phase sweep through the two real
+                    // ABA position drives. It is not a deployed carrier or
+                    // a bird-kinematics reconstruction.
+                    result[base + 2] = sweepAction
+                    result[base + 3] = sweepAction
+                }
                 // This is a deterministic response probe, not the deployed
                 // controller. It exercises the same normalized position
                 // bindings as a learned policy while sweeping feathering
@@ -2005,6 +2075,9 @@ private enum TaskRolloutMain {
                                 pronation: options.birdFlowPronation,
                                 pronationWavePhase:
                                     options.birdFlowPronationWavePhase,
+                                sweepWaveAmplitude:
+                                    options.birdFlowSweepWaveAmplitude,
+                                sweepWavePhase: options.birdFlowSweepWavePhase,
                                 startStep: globalStep,
                                 stepCount: stepCount,
                                 environmentCount: options.environments,
@@ -2888,7 +2961,9 @@ private enum TaskRolloutMain {
                     : options.birdFlowWingPulseAmplitude != nil
                     ? "birdflow_late_flight_control_pulse_qualification"
                     : options.birdFlowStrokeAmplitude != nil
-                    ? options.birdFlowPronationWavePhase != nil
+                    ? options.birdFlowSweepWavePhase != nil
+                        ? "birdflow_stroke_amplitude_sweep_wave_qualification"
+                        : options.birdFlowPronationWavePhase != nil
                         ? "birdflow_stroke_amplitude_pronation_wave_qualification"
                         : options.birdFlowPronation != nil
                         ? "birdflow_stroke_amplitude_pronation_qualification"
@@ -2904,6 +2979,10 @@ private enum TaskRolloutMain {
                 "birdflow_pronation": options.birdFlowPronation ?? 0,
                 "birdflow_pronation_wave_phase":
                     options.birdFlowPronationWavePhase ?? 0,
+                "birdflow_sweep_wave_amplitude":
+                    options.birdFlowSweepWaveAmplitude ?? 0,
+                "birdflow_sweep_wave_phase":
+                    options.birdFlowSweepWavePhase ?? 0,
                 "birdflow_wing_pulse_amplitude":
                     options.birdFlowWingPulseAmplitude ?? 0,
                 "birdflow_wing_pulse_target":

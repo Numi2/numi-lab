@@ -24,7 +24,8 @@ is selected. Common options:
   --visual-observation-config PATH
   --native-policy | --zero-actions | --action-stream actions.f32
   --birdflow-stroke-amplitude F [--birdflow-tail-pitch F]
-                                            Scripted wing/tail calibration
+  [--birdflow-sweep-wave-amplitude F --birdflow-sweep-wave-phase R]
+                                            Scripted wing/tail or sweep-wave calibration
   --birdflow-wing-pulse-amplitude F --birdflow-wing-pulse-target wings|left-wing|right-wing|sweep|pronation|tail
   [--birdflow-wing-pulse-secondary-amplitude F --birdflow-wing-pulse-secondary-target wings|left-wing|right-wing|sweep|pronation|tail]
   --birdflow-wing-pulse-start-step N --birdflow-wing-pulse-duration-steps N
