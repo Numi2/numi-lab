@@ -62,8 +62,8 @@ _EVALUATION_OVERRIDE_OPTIONS = frozenset(
 )
 
 # This is the authored BirdFlow task's successTrackingThreshold. Relative
-# progress before terminal flight is useful training evidence, not a basis for
-# claiming qualified flight.
+# progress in any airborne band is useful training evidence, not a basis for
+# deploying a standing-to-flight policy before it tracks its commanded launch.
 _BIRDFLOW_TRACKING_FLOOR = 0.70
 
 
@@ -479,14 +479,18 @@ def compare_evidence(
             if candidate_drift > max(0.50, incumbent_drift + 0.25):
                 regressions.append("ground station-keeping regressed")
         if (
-            maximum_band >= 3
+            maximum_band >= 2
             and float(candidate.get("mean_tracking_score", 0.0))
             < _BIRDFLOW_TRACKING_FLOOR
         ):
             tracking_label = (
                 "figure-eight"
                 if task == "birdflow-figure-eight"
-                else "standing-to-flight forward"
+                else (
+                    "standing-to-flight forward"
+                    if maximum_band >= 3
+                    else "standing-to-flight liftoff"
+                )
             )
             regressions.append(
                 f"{tracking_label} tracking is below the authored success threshold"
@@ -705,7 +709,7 @@ def compare_evidence(
             and not regressions
             and candidate_termination <= incumbent_termination + 1.0e-12
             and (
-                maximum_band < 3
+                maximum_band < 2
                 or float(candidate.get("mean_tracking_score", 0.0))
                 >= _BIRDFLOW_TRACKING_FLOOR
             )

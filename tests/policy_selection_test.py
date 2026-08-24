@@ -667,6 +667,38 @@ class PolicySelectionTest(unittest.TestCase):
         )
         self.assertIn("--birdflow-dove", arguments)
 
+    def test_birdflow_liftoff_tracking_floor_blocks_deployment(self) -> None:
+        incumbent = {
+            "task": "birdflow_american_crow_standing_to_flight",
+            "maximum_sampled_difficulty_band": 2,
+            "termination_count": 1,
+            "timeout_count": 1,
+            "height_or_tilt_termination_count": 0,
+            "termination_count_by_environment": [1],
+            "failed_environment_steps": 0,
+            "mean_tracking_score": 0.49,
+            "mean_tilt": 0.46,
+            "outcomes": {
+                "liftoff": {"mean": 0.8, "direction": 1},
+                "push_off": {"mean": 0.1, "direction": 1},
+            },
+        }
+        candidate = {
+            **incumbent,
+            "mean_tracking_score": 0.69,
+            "mean_tilt": 0.36,
+            "outcomes": {
+                "liftoff": {"mean": 0.9, "direction": 1},
+                "push_off": {"mean": 0.2, "direction": 1},
+            },
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertIn(
+            "standing-to-flight liftoff tracking is below the authored success threshold",
+            decision["regressions"],
+        )
+
     def test_adult_selection_isolated_to_highest_training_band(self) -> None:
         arguments = evaluation_arguments(
             [
