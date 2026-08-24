@@ -154,12 +154,52 @@ deployment SHA-256 is therefore the incumbent's
 retained candidate's
 `09240a50d578eb9226a313ad2169af3b532aae72f288ff466e2f86e9554cfb99`.
 
+## Aligned-objective extended trial (rejected)
+
+The current velocity gate reports `exp(-squared speed error / 0.25)`, while
+the inherited dove training reward used the looser 0.35 width. Commit
+`4ac0bcb` changes the crow copy only to the same 0.25 width and adds a native
+program-check assertion. It does not lower the 0.70 gate, alter the measured
+state, inject a force, or change a termination condition.
+
+Before training, two controller-sign ablations were run on the Apple M4 Pro
+at held-out seed `2650443581`, band 2 only, 64 environments, 5,000 steps, and
+no scheduled resets. Reversing both wing and tail speed terms retained zero
+physics errors but collapsed mean height to 0.398 m, so it was rejected. The
+tail-only reversal remained physically clean (mean height 1.029 m, mean/max
+tilt 0.0689 / 0.1229 rad) but lowered tracking to 0.4990 and its deterministic
+trace still accelerated from reverse motion to +1.30 m/s. That variant was
+also rejected; the published live carrier stays unchanged.
+
+Run `crow-pronation-aligned-20260824-v1` trained the aligned objective from a
+zero-output actor at source revision `4ac0bcb` with 128 environments, 128
+steps/update, 256 updates, fixed learning rate `1e-4`, initial log standard
+deviation `-2`, and checkpoint interval 32. It completed 4,194,304 samples
+with zero failed environment steps in 192.091 s (139,998.2 ms measured GPU
+time; 21,835 end-to-end environment steps/s). Every checkpoint and final
+candidate was evaluated on the unchanged held-out 64-environment, 5,000-step,
+no-scheduled-reset rollout at seed `2650443581`.
+
+| Held-out policy | Tracking | Mean height (m) | Mean tilt (rad) | Physical failures/environment | World-X final (m) | Decision |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Protected incumbent | 0.4996 | 1.0462 | 0.0618 | 0 | 23.709 | retained |
+| Revision 33 | 0.4996 | 1.0177 | 0.0621 | 0 | 33.105 | reject: tracking below gate |
+| Revision 65 (best tracking) | 0.5497 | 0.4997 | 0.3049 | 2.59375 | 18.136 | reject: failures and tracking below gate |
+| Final revision 257 | 0.5030 | 1.0170 | 0.4101 | 0 | 125.339 | reject: tracking below gate and tilt regression |
+
+The selector chose the immutable incumbent and did not advance deployment.
+The aligned loss therefore remains a source-level experiment, not evidence of
+successful crow flight. Its result is especially clear: higher displacement
+alone is not commanded-speed tracking. No replay or README GIF is authorized
+from this run.
+
 ## Required next evidence
 
-The next control experiment must identify a safe feathering phase and amplitude
-with fixed-policy long-horizon probes before it becomes a device carrier. Both
-a constant offset and the initial in-phase convention are rejected. Train from
-a clean run directory and promote only a held-out candidate that reaches
-tracking >= 0.70 with zero non-timeout physical-boundary failures. Then capture
-a deterministic replay and inspect its frames before linking it from the compact
-README showcase. Until then, no Numi crow flight GIF belongs in the README.
+The next control experiment must first identify a bounded, long-horizon
+speed-control response around the retained safe feathering carrier. It must
+distinguish commanded-speed regulation from unbounded forward displacement,
+then be tested before another long learner run. Promote only a held-out
+candidate that reaches tracking >= 0.70 with zero non-timeout
+physical-boundary failures. Then capture a deterministic replay and inspect
+its frames before linking it from the compact README showcase. Until then, no
+Numi crow flight GIF belongs in the README.
