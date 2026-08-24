@@ -2840,7 +2840,7 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             };
             configureSweep(0u, 1u, 1.0f);
             configureSweep(1u, 2u, -1.0f);
-            for (const std::uint32_t side = 0u; side < 2u; ++side) {
+            for (std::uint32_t side = 0u; side < 2u; ++side) {
                 MRJointDescriptorGPU& flap = mechanics.joints[2u + side];
                 flap.parentBody = 1u + side;
                 flap.childBody = 3u + side;
@@ -2903,7 +2903,7 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
                     MR_DOF_FLAG_DRIVE;
                 dof.limits = {-0.20f, 0.20f, 15.0f, 0.12f};
                 dof.drive = {30.0f, 0.30f, 0.00002f, 0.0f};
-            }
+            };
             configureSweepDof(6u);
             configureSweepDof(7u);
             const auto configurePronationDof = [&](const std::uint32_t index,
