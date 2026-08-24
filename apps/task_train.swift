@@ -17,6 +17,7 @@ private struct Options {
     var pythonRoot = "python"
     var policyPack: String?
     var initializePolicyID: String?
+    var zeroActorOutput = false
     var initializeActorPolicyPack: String?
     var initializeActorFreshCritic = false
     var actorObservationExtensionOffset: Int?
@@ -141,6 +142,8 @@ private struct Options {
             case "--initialize-policy":
                 initializePolicyID = try value()
                 index += 1
+            case "--zero-actor-output":
+                zeroActorOutput = true
             case "--initialize-actor-policy-pack":
                 initializeActorPolicyPack = try value()
                 index += 1
@@ -828,6 +831,9 @@ private func initializePolicyIfRequested(
         "--initial-log-standard-deviation",
         String(options.initialLogStandardDeviation),
     ]
+    if options.zeroActorOutput {
+        arguments.append("--zero-actor-output")
+    }
     if let actor = options.initializeActorPolicyPack {
         let extensionMean =
             options.actorObservationExtensionMean ??

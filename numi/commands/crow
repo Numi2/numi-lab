@@ -22,6 +22,15 @@ not measured American-crow flight or hardware-flight evidence.
 EOF
 }
 
+crow_has_option() {
+    crow_sought_option=$1
+    shift
+    for crow_argument do
+        [ "$crow_argument" = "$crow_sought_option" ] && return 0
+    done
+    return 1
+}
+
 crow_action=${1:-help}
 if [ "$#" -gt 0 ]; then
     shift
@@ -29,9 +38,16 @@ fi
 
 case "$crow_action" in
     train)
+        if crow_has_option --policy-pack "$@"; then
+            exec "$crow_dispatcher" train --birdflow-american-crow "$@"
+        fi
+        # The initial actor mean is exactly the physics-verified default pose.
+        # Exploration still comes from the stochastic head; a learned update
+        # must earn any nonzero joint residual through held-out evaluation.
         exec "$crow_dispatcher" train \
             --birdflow-american-crow \
             --initialize-policy birdflow_american_crow_standing_to_flight_brain \
+            --zero-actor-output \
             "$@"
         ;;
     evaluate)
