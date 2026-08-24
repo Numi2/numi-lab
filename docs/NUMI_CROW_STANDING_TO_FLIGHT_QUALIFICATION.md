@@ -42,7 +42,7 @@ has not yet produced sustained forward velocity at the 0.35 m/s stage-2
 command. Its angle limits, connector inertia, and drive constants are explicit
 hybrid-model closures, not crow measurements.
 
-## All-articulated wing-velocity closure (pre-registered)
+## All-articulated wing-velocity closure (rejected)
 
 The current crow blade-element kernel resolves the section point velocity as
 the sum of flap, sweep, and pronation velocities. Until this experiment, its
@@ -82,6 +82,23 @@ candidate needs tracking at least `0.70`, zero non-timeout physical-boundary
 failures, and no attitude/height regression before any protected deployment,
 deterministic replay, GIF, or README media can advance. Otherwise the model
 variant is recorded as rejected and the retained source stays unchanged.
+
+At source revision `2874407`, the M4 Pro rebuilt the Metal library and passed
+the native program check. The corrected zero-action rollout retained zero
+failed environment steps but violated the physical gate: 240 non-foot contact
+terminations occurred across 64 environments (no normal timeouts), the mean
+tilt was `0.1505679 rad`, and the maximum tilt was `0.7760603 rad`. Mean root
+height was `1.0087967 m`; the superficially higher tracking score of
+`0.5065342` cannot outweigh the boundary failure. The complete immutable
+artifact root is
+`.numi/runs/crow-articulated-sweep-20260824-v1/all-articulated-velocity-zero-baseline-64x5000/`.
+
+The variant receives no PPO run, candidate policy, deployment artifact,
+replay, GIF, or README media. The source restores the qualified flap-only
+rate closure. This negative result does not establish that flap-only is a
+complete physical model; it establishes only that this uncalibrated expansion
+is unsafe in the present estimated hybrid and cannot be promoted as a crow
+flight improvement.
 
 ## Articulated-pronation response
 
