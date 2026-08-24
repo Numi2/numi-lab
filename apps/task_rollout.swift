@@ -165,6 +165,7 @@ private struct Options {
     var actionStream: String?
     var birdFlowFlapScript = false
     var birdFlowStrokeAmplitude: Float?
+    var birdFlowGroundGaitProbe = false
     var scheduledResets = true
     var policyPack: String?
     var rolloutPack: String?
@@ -481,6 +482,8 @@ private struct Options {
                 }
                 birdFlowStrokeAmplitude = amplitude
                 index += 1
+            case "--birdflow-ground-gait-probe":
+                birdFlowGroundGaitProbe = true
             default:
                 throw MetalRoboTaskRolloutError.invalidShape(
                     "Unknown option \(option)."
@@ -532,7 +535,8 @@ private struct Options {
                 "--birdflow-dove and --birdflow-american-crow are mutually exclusive."
             )
         }
-        if (birdFlowFlapScript || birdFlowStrokeAmplitude != nil) &&
+        if (birdFlowFlapScript || birdFlowStrokeAmplitude != nil ||
+            birdFlowGroundGaitProbe) &&
             (!(birdFlowDove || birdFlowAmericanCrow) ||
                 zeroActions || actionStream != nil ||
                 nativePolicy || policyPack != nil)
@@ -541,9 +545,12 @@ private struct Options {
                 "BirdFlow qualification actions require one BirdFlow bird source and cannot be combined with another action source."
             )
         }
-        if birdFlowFlapScript && birdFlowStrokeAmplitude != nil {
+        if (birdFlowFlapScript && birdFlowStrokeAmplitude != nil) ||
+            (birdFlowGroundGaitProbe &&
+             (birdFlowFlapScript || birdFlowStrokeAmplitude != nil))
+        {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "--birdflow-flap-script and --birdflow-stroke-amplitude are mutually exclusive."
+                "BirdFlow scripted action sources are mutually exclusive."
             )
         }
         if rolloutPack != nil &&
@@ -1064,6 +1071,41 @@ private func birdFlowStrokeActions(
         repeating: amplitude,
         count: stepCount * environmentCount * actionCount
     )
+}
+
+// A deterministic action-authority calibration, not an imitation target or a
+// learned gait.  The low-amplitude alternating leg residuals expose whether
+// the imported hybrid can remain supported under a physically plausible
+// left/right stepping cadence before the learner is asked to discover it.
+private func birdFlowGroundGaitProbeActions(
+    startStep: Int,
+    stepCount: Int,
+    environmentCount: Int,
+    actionCount: Int
+) -> [Float] {
+    precondition(actionCount == 10)
+    var result = [Float](
+        repeating: 0,
+        count: stepCount * environmentCount * actionCount
+    )
+    for step in 0..<stepCount {
+        let phase = 2.0 * Double.pi *
+            Double(startStep + step) * 0.02 / 0.50
+        let leftSwing = Float(sin(phase))
+        let rightSwing = -leftSwing
+        for environment in 0..<environmentCount {
+            let base = (step * environmentCount + environment) * actionCount
+            let leftLift = max(leftSwing, 0.0)
+            let rightLift = max(rightSwing, 0.0)
+            result[base + 3] = 0.14 * leftSwing
+            result[base + 4] = 0.18 * leftLift
+            result[base + 5] = -0.10 * leftLift
+            result[base + 6] = 0.14 * rightSwing
+            result[base + 7] = 0.18 * rightLift
+            result[base + 8] = -0.10 * rightLift
+        }
+    }
+    return result
 }
 
 private func masks(
@@ -1657,6 +1699,13 @@ private enum TaskRolloutMain {
                         } else if let amplitude = options.birdFlowStrokeAmplitude {
                             actionBatch = birdFlowStrokeActions(
                                 amplitude: amplitude,
+                                stepCount: stepCount,
+                                environmentCount: options.environments,
+                                actionCount: context.layout.actionCount
+                            )
+                        } else if options.birdFlowGroundGaitProbe {
+                            actionBatch = birdFlowGroundGaitProbeActions(
+                                startStep: globalStep,
                                 stepCount: stepCount,
                                 environmentCount: options.environments,
                                 actionCount: context.layout.actionCount
@@ -2509,6 +2558,8 @@ private enum TaskRolloutMain {
                     ? "birdflow_4hz_flap_qualification"
                     : options.birdFlowStrokeAmplitude != nil
                     ? "birdflow_stroke_amplitude_qualification"
+                    : options.birdFlowGroundGaitProbe
+                    ? "birdflow_ground_gait_action_probe"
                     : "host_stream",
                 "action_stream": options.actionStream ?? "",
                 "device": context.deviceName,
