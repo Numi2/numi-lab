@@ -723,8 +723,11 @@ private func makeInspectionVisual(
     inspection.width = UInt32(options.inspectionWidth)
     inspection.height = UInt32(options.inspectionHeight)
     // Inspection is a presentation path, never a media-export configuration.
-    inspection.captureWidth = 0
-    inspection.captureHeight = 0
+    // The native visual runtime still needs a nonzero presentation surface to
+    // compile the inspector sidecar. These dimensions are not an exported
+    // capture and never enter the policy observation contract.
+    inspection.captureWidth = inspection.width
+    inspection.captureHeight = inspection.height
     inspection.capturePolicyCamera = false
     return inspection
 }
