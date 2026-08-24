@@ -1288,6 +1288,41 @@ claim follows. A pass authorizes only a separately specified deterministic
 simulation replay qualification; it does not itself authorize public media or
 real-flight language.
 
+### Stage-2 phase-observability carryover outcome — rejected
+
+The single authorized transfer run completed on the Apple M4 Pro at source
+`ef1e92e96c0c746fc701b57bd1c006fa8b95feab`. Its arguments record the exact
+Stage-1 deployment actor input, `--initialize-actor-fresh-critic`, bands 1--2,
+learner seed `2650443588`, and all fixed learner settings. The current
+compiled task, observation, and action fingerprints are unchanged from the
+Stage-1 contract (`16623482433480953061`, `3540106866115945537`, and
+`3265647670364576923`); the final candidate run fingerprint is
+`376010373886578981`.
+
+The one-shot held-out selector completed all twelve records at seed
+`2650443589`, with no `selection_error`, and selected the immutable
+post-import incumbent. On current band 2, the final candidate had tracking
+`0.5038491507` versus `0.5069474734`, below the authored `0.70` threshold;
+physical-boundary termination rate `6.75` versus `4.421875`; and mean tilt
+`0.2141634180` rad versus `0.1731762864` rad. It records both increased
+termination and the flight-boundary failure, while its push-off improvement is
+not sufficient to waive those hard gates. On protected band 1, the candidate's
+tracking fell from `0.9978596903` to `0.9931453329` and mean tilt rose from
+`0.0052286344` to `0.0650602647` rad, violating both protected-band criteria.
+
+Accordingly `candidate_advanced_deployment` is `false`; the retained
+deployment is byte-identical to the Stage-2 incumbent at SHA-256
+`7e9cf69c31c724a28ebbeb44329f0d7ff74d497751c0bf46ae9b4d06f81dc7a1`.
+The selector and final candidate current/protected-band evidence hashes are
+`4eca0553350076957e0c30260a3004b86d8f4bd64f512b45d55981c236d5f09e`,
+`cb0aba42b9165b841660e4a4c913ed5a93460a48bb5a1c6f68d44c55717d76e8`, and
+`4568bbe6bb89a9f4f3144e186de040e7e956814d109466ff0d1cbc7618c0515c`.
+All artifacts remain retained under
+`.numi/runs/crow-phase-stage2-carryover-20260824-v1/` on the M4. This failure
+ends the carryover protocol: no follow-up parameter variant, replay, GIF,
+picture, README entry, standing-to-flight claim, or Crow-biomechanics claim is
+authorized from it.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
