@@ -1055,6 +1055,55 @@ The zero-action evidence and manifest hashes are
 All artifacts remain under
 `.numi/runs/crow-ground-common-mode-20260824-v1/` on the M4.
 
+### Swing-phase residual allocation counterfactual (pre-registered)
+
+This is not a variant of the rejected common-mode spatial projection. That
+experiment removed a bilateral coordinate subspace at every control step; the
+present hypothesis instead allocates the unchanged per-leg residual in time.
+The final actor's 16,384 captured training observations are finite, as are its
+evaluated outputs. The output is predominantly DC rather than carrier-phase
+locked: the left/right hip means are `-0.21648` / `-0.27576` with phase-series
+AC RMS `0.02408` / `0.02650`; the left/right ankle means are `-0.31944` /
+`-0.14062` with AC RMS `0.01816` / `0.01352`. This is diagnostic-only
+training-batch evidence, not a held-out rollout or an estimate of Crow gait.
+
+The distinct hypothesis is: persistent learned residuals perturb the carrier's
+supporting leg as well as its swing leg, creating the observed pitch despite
+the physical carrier's anti-phase gait. In band 1 only, the new Crow-only
+fingerprinted task flag will preserve each live policy residual exactly when
+its corresponding carrier leg is in swing and set its requested residual to
+zero during that leg's support half-cycle. The three left actions (7--9) use
+`sin(2*pi*t/0.50) > 0`; the three right actions (10--12) use the opposite
+sign. The binary gate acts before the existing delay and first-order filter, so
+the action history and subsequent policy observation represent the command
+that actually reaches the drive.
+
+This changes neither residual scale (`0.25`), action ABI, actor weights,
+carrier phase, reward, morphology, solver, aerodynamics, reset, terminal
+conditions, optimizer, or training schedule. It does not reconstruct a
+measured avian support sequence; it is a one-shot causal allocation test in
+the estimated hybrid.
+
+The M4 must rebuild and pass `metalrobo_run_program_check`, followed by a
+64-environment, 5,000-step, no-reset, chunk-1 zero-action isolation at seed
+`2650443582`. It must have zero failed environment steps and reproduce the
+physical state trace SHA-256
+`f9a4dfd48cb3b3f65fee533ee16583849972312e8b70728cdb5127be0ec2110b`.
+The rejected candidate and incumbent must then be re-emitted through the
+canonical writer with only the new task contract, retaining bitwise-identical
+actor tensors, normalization/action vectors, policy IDs, and revisions.
+
+One matched nonvisual counterfactual is authorized at held-out seed
+`2650443585`: re-bound candidate and incumbent each run current band 1 and
+protected band 0 at 64 environments × 5,000 no-reset steps, one repeat, and
+chunk 1. The candidate must have zero failed environment steps, zero
+non-timeout physical failures, current-band tracking at least its matched
+incumbent, no protected-band regression, and mean current-band tilt no more
+than the matched incumbent plus `0.005` rad. A pass identifies only an action
+allocation mechanism; it authorizes no learner, Stage 2, deployment, replay,
+GIF, picture, README media, flight assertion, or Crow-biomechanics claim. A
+failure ends this support-phase hypothesis without a gate-shape variant.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
