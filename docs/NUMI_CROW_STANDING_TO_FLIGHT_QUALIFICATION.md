@@ -759,6 +759,38 @@ qualified way to apply scaling inside the same native policy-execution path;
 that is an instrumentation problem, not evidence that the proposed 0.05
 residual is safe or effective.
 
+### Native-policy action-scale counterfactual (pre-registered)
+
+The rejected external-stream control does not invalidate the recorded action
+amplitudes; it invalidates substituting a host-uploaded action buffer for the
+compiled policy path. The successor diagnostic therefore applies the one
+fixed intervention through the existing PolicyPack action-scale field, which
+the live Metal inference kernel multiplies into its device-resident action
+buffer before the task consumes it.
+
+First, the native writer must deserialize and reserialize the candidate
+PolicyPack without changing any field. The resulting identity artifact must be
+byte-identical to the retained candidate hash
+`e5b6a6119c311a9010956e920ab2f3134d6a4818c8078f91544018c571da4a93`.
+Only then may it write one counterfactual PolicyPack with the same actor,
+critic absence, observations, bias, clip, contract, identity, and revision;
+the sole changed values are action-scale lanes 7--12, each from `1.0` to
+`0.20`. The masked channels retain their original scale because their task
+authority is already zero. This is an exact native-policy execution change:
+the existing `0.25` task residual makes it a `0.05` effective leg envelope.
+
+The M4 evaluation uses the counterfactual PolicyPack directly (not an action
+stream) at source `0196028`, band 1, 64 environments, 5,000 steps, one repeat,
+chunk 1, held-out seed `2650443582`, and no scheduled resets. Its task and run
+fingerprints must remain `3198934467138572318` and `8498436949874751629`.
+It is eligible only as a causal amplitude result if it has zero failed
+environment steps, zero non-timeout physical failures, tracking at least
+`0.9119823`, and mean tilt at most `0.0089169` rad. A pass can authorize a
+separate source-pinned `0.05` ground-leg residual task change and fresh
+qualification; it cannot deploy this counterfactual PolicyPack, start a
+learner, or create a policy replay, GIF, picture, or README media. A failure
+ends this amplitude explanation without another scale.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
