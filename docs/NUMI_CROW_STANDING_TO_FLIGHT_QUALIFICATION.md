@@ -187,6 +187,48 @@ per-policy evidence, state traces, arguments, and hashes remain at
 `.numi/runs/crow-articulated-wrench-placement-20260824-v1/train-128x128x256/`.
 No candidate earns a deterministic replay, Crow GIF, picture, or README entry.
 
+## Published takeoff wingbeat clock (pre-registered)
+
+The imported visual profile uses a 4.6 Hz presentation wingbeat. The primary
+[Jackson and Dial (2011) Corvidae experiment](https://journals.biologists.com/jeb/article/214/3/452/33507/Scaling-of-mechanical-power-output-during-burst)
+instead reports `6.4 Hz` for American crow maximal takeoff; its flight chamber
+uses synchronized high-speed cameras and a forceplate, and the published
+results contain three American crows. The work is directly relevant to the
+initial standing-to-lift-off regime, but it is vertical escape flight rather
+than the current task's forward reference. It supplies neither a reusable
+per-frame trajectory nor a wing-angle phase convention, so this experiment
+must not derive a phase target, replay, force, mass/inertia, or aerodynamic
+coefficient from it.
+
+The new
+[`american-crow-numi-hybrid-v2` provenance record](../assets/birdflow/american-crow-numi-hybrid-v2.json)
+therefore changes exactly one compiled parameter: the crow task gait period
+from `1 / 4.6 s` to `1 / 6.4 s`. The BirdFlow visual surface lock, all body
+dimensions and masses, blade-element and unsteady coefficients, action ABI,
+rewards, resets, terminations, carrier amplitudes, and the `tracking >= 0.70`
+selection floor remain unchanged. `run_program_check` asserts the new clock;
+both Dove and Crow programs must compile, but only the Crow task fingerprint
+and rollout need a new physical guard.
+
+The prior reference is the `4ee45ae` articulated-wrench zero-action Crow
+baseline: 64 environments × 5,000 steps, band 2, no scheduled resets, seed
+`2650443581`, zero failed environment steps, zero non-timeout physical-boundary
+failures, tracking `0.5006364`, mean root height `1.0409775 m`, and mean /
+maximum tilt `0.0635701 / 0.1247985 rad`. Before training, the 6.4 Hz variant
+must pass the same M4 Pro zero-action protocol with zero failed environment
+steps and zero non-timeout physical-boundary failures, mean height in
+`[0.85, 1.30] m`, mean tilt at most `0.15 rad`, and maximum tilt at most
+`0.30 rad`. Failure restores the 4.6 Hz source and records a negative model
+result; no learner is authorized.
+
+If the guard passes, it receives exactly one 128-environment × 128-step ×
+256-update PPO trial (chunk 8, fixed learning rate `1e-4`, initial log standard
+deviation `-2`, learner seed `2650443581`, checkpoints every 64 updates). The
+immutable selector evaluates every checkpoint and final candidate against the
+fresh 64-environment incumbent for 5,000 no-reset band-2 steps at that held-out
+seed. A replay, Crow GIF, picture, README entry, or protected deployment still
+requires `tracking >= 0.70` and zero non-timeout physical-boundary failures.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow

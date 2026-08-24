@@ -2,6 +2,7 @@
 #include "metalrobo/FrankaWorld.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -379,6 +380,10 @@ int main() {
             crowTrackingReward != crow.task.rewards.end() &&
                 crowTrackingReward->parameters.x == 0.25f,
             "BirdFlow American-crow training width must match its held-out tracking metric"
+        );
+        require(
+            std::abs(crow.task.gaitPeriodSeconds - 1.0f / 6.4f) < 1.0e-6f,
+            "BirdFlow American-crow task must use the published 6.4 Hz takeoff clock"
         );
         crow.reality.id = "birdflow_american_crow_nominal_reality";
         crow.teacher.id = "no_teacher";

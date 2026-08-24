@@ -5,12 +5,17 @@ American-crow visual profile into Numi Lab as a trainable *estimated hybrid*.
 It is deliberately distinct from the Deetjen-derived dove hybrid and from the
 BirdFlow renderer's native crow showcase.
 
-The import lock is
-[`assets/birdflow/american-crow-numi-hybrid-v1.json`](../assets/birdflow/american-crow-numi-hybrid-v1.json).
-It binds this package to BirdFlow's selected 0.45 kg, 0.91 m wingspan, 0.174 m
-tail chord, 57 mm tarsus, and 4.6 Hz presentation-wingbeat estimates. The
-BirdFlow input itself declares these as estimated hybrid values; Numi preserves
-that classification rather than turning them into specimen measurements.
+The active import lock is
+[`assets/birdflow/american-crow-numi-hybrid-v2.json`](../assets/birdflow/american-crow-numi-hybrid-v2.json).
+It preserves the BirdFlow visual lock and its selected 0.45 kg, 0.91 m
+wingspan, 0.174 m tail chord, and 57 mm tarsus estimates. It replaces only the
+4.6 Hz presentation clock with a 6.4 Hz American-crow maximal-takeoff timing
+anchor from [Jackson and Dial (2011)](https://journals.biologists.com/jeb/article/214/3/452/33507/Scaling-of-mechanical-power-output-during-burst).
+The source records vertical escape takeoff, not a forward-flight trajectory,
+inertia, or aerodynamic calibration. The original
+[`v1` lock](../assets/birdflow/american-crow-numi-hybrid-v1.json) remains
+unchanged, and the active package remains an estimated hybrid rather than a
+specimen measurement.
 
 ## Native task
 
