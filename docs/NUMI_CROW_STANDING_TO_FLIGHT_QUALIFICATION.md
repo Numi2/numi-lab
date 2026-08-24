@@ -886,6 +886,59 @@ This verifies the narrow boundary claimed above: the objective and its task
 fingerprint changed, but the zero-action physical path did not. It authorizes
 the single fresh Stage-1 learner exactly as pre-registered.
 
+### Ground-tilt objective Stage-1 outcome — rejected
+
+The one authorized learner completed on the remote Apple M4 Pro at source
+`638874bf11a74853d540b806fc874df635edd1e3`. Its immutable artifact root is
+`.numi/runs/crow-ground-tilt-envelope-20260824-v1/stage1-band1-128x128x512/`.
+It completed all 512 updates (`8,388,608` samples) with zero failed
+environment steps in `536.1245 s`, consuming `429,087.2512` GPU ms
+(`15,646.75` end-to-end environment steps/s). The compiled task fingerprint
+was `1967076388838221657`; the retained world label remains
+`birdflow_american_crow_estimated_hybrid`, so this is not an empirical Crow
+locomotion result.
+
+The fixed held-out selector evaluated the incumbent and every checkpoint
+(revisions 129, 257, 385, and 513) on current band 1 and protected band 0:
+64 environments, 5,000 no-reset steps per condition, seed `2650443583`.
+Every candidate checkpoint violated the current-band tilt condition. The final
+candidate (revision 513) had zero non-timeout physical failures: all 64
+terminations were ordinary horizon timeouts. It improved tracking to
+`0.9911406` from the incumbent's `0.9119823` and showed `18.6141 m` mean
+final forward progress, but its mean tilt was `0.09179525` rad rather than the
+incumbent's `0.00391692` rad. The pre-registered ceiling was `0.00891692` rad
+(the matched incumbent plus `0.005` rad), so the candidate exceeded it by
+`0.08287833` rad. The selector therefore records `selected = incumbent`,
+`candidate_advanced_deployment = false`, and the sole current-band regression
+`mean tilt increased`.
+
+Protected band 0 did not regress: the final candidate had zero non-timeout
+physical failures, tracking `0.9999999872` versus `0.9999999872`, and mean
+tilt `0.00050899` versus `0.00050364` rad for the incumbent. That safety
+preservation cannot override the failed current-band tilt gate. Checkpoint 257
+also had a `0.328125` physical-failure/termination rate in current band, while
+the other screened checkpoints still exceeded the tilt ceiling; the selector
+thus did not hide a favorable intermediate checkpoint.
+
+The retained evidence hashes are
+`05d5eac1c9aade47641b751b39fa3069b1440baab346fca0a9a7f7fd7865830f`
+(`evidence.json`),
+`4354111304a2dc96f77ae920037f3cfb1a8525b7b0d4a13a023ddfeaac1cc031`
+(`selection/selection.json`), and
+`60b78a2f0701f3e82f7bddea1b9b5bea23ab69e3bb213b8971bbc5e0d4350f24`
+(`artifacts.sha256`). The final candidate and incumbent current-band state
+traces hash to
+`cc6f9b3a6a51788107f0913344605cb27d7a7b5f9dcd7af375f9c7f884c69a68`
+and
+`1d8ff1d8f9e2dc0c0d7c84599267d0ecab660cceb62b64571323e5283c3006ad`,
+respectively.
+
+This rejects the hinge reward as a sufficient Stage-1 objective alignment. It
+does not authorize Stage 2, deployment, replay, GIFs, pictures, README media,
+or a standing-to-flight claim. The candidate and all evidence remain retained;
+any new experiment must name and pre-register a distinct causal hypothesis
+before another learner run.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
