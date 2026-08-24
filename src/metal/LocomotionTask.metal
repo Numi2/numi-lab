@@ -4462,6 +4462,13 @@ kernel void mr_locomotion_task_complete(
     const bool avianGroundCurriculum =
         (program.schedule.w & MR_TASK_PROGRAM_AVIAN_GROUND_CURRICULUM) != 0u;
     const uint avianCurriculumBand = state.episode.z;
+    // The first two avian bands are supported standing and walking, not
+    // flight.  The 0.1873 m target is the measured mean root height from the
+    // held default-pose standing rollout on the imported hybrid; it prevents
+    // an airborne height objective from competing with legged locomotion.
+    constexpr float avianGroundRootHeightTarget = 0.1873f;
+    const bool avianSupportedGroundStage =
+        avianGroundCurriculum && avianCurriculumBand < 2u;
     for (uint rewardIndex = 0u;
          rewardIndex < program.counts1.w;
          ++rewardIndex) {
@@ -4888,27 +4895,37 @@ kernel void mr_locomotion_task_complete(
             break;
         case MR_TASK_REWARD_ROOT_HEIGHT_ERROR_SQUARED: {
             const float error =
-                height - program.locomotion.x;
+                height - (avianSupportedGroundStage
+                    ? avianGroundRootHeightTarget
+                    : program.locomotion.x);
             value = error * error;
             break;
         }
         case MR_TASK_REWARD_ROOT_HEIGHT_NORMALIZED:
-            value = clamp(
-                height / max(program.locomotion.x, 1.0e-6f),
-                0.0f,
-                1.0f
-            );
+            if (avianSupportedGroundStage) {
+                const float error =
+                    height - avianGroundRootHeightTarget;
+                value = exp(-error * error / 0.0025f);
+            } else {
+                value = clamp(
+                    height / max(program.locomotion.x, 1.0e-6f),
+                    0.0f,
+                    1.0f
+                );
+            }
             break;
         case MR_TASK_REWARD_ROOT_HEIGHT_PROGRESS:
             // Signed potential progress: rising earns exactly what settling
             // back down loses, preventing repeated bounce from manufacturing
             // height reward without a higher final physical state.
-            value = clamp(
-                (height - state.airReturnTracking.y) /
-                    dispatch.timing.x,
-                -2.0f,
-                2.0f
-            );
+            value = avianSupportedGroundStage
+                ? 0.0f
+                : clamp(
+                      (height - state.airReturnTracking.y) /
+                          dispatch.timing.x,
+                      -2.0f,
+                      2.0f
+                  );
             break;
         case MR_TASK_REWARD_UPRIGHTNESS:
             // Horizontal is not half-standing. Reward only the component of
