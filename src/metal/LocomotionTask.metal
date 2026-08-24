@@ -3638,10 +3638,11 @@ kernel void mr_locomotion_task_apply_actions(
         // vertical rate, and yaw-frame forward speed together.  The lower
         // wing limit must remain below the static-liftoff threshold: after a
         // real climb or forward overspeed the carrier must be able to remove
-        // thrust, not merely reduce an always-positive stroke. The 0.10
-        // forward-bias bracket still reached the height boundary under the
-        // shallower controller, so altitude and vertical-rate feedback are
-        // deliberately strong enough to cross through zero wing command.
+        // thrust, not merely reduce an always-positive stroke. The reduced
+        // 0.05 speed gain keeps altitude and vertical-rate feedback dominant
+        // while the long-horizon response probe measures whether it avoids
+        // reinforcing the current carrier's early reverse/late overspeed
+        // trajectory.
         // This is a Metal-resident controller of the actual wing positions,
         // never an injected aerodynamic force or a prerecorded trajectory.
         float avianLiftoffWingCarrier = 0.0f;
@@ -3653,7 +3654,7 @@ kernel void mr_locomotion_task_apply_actions(
                 state.commandExtension.z - 0.35f;
             avianLiftoffWingCarrier = clamp(
                 -0.150f + 0.400f * heightError - 0.120f * verticalRate -
-                    0.100f * forwardSpeedError,
+                    0.050f * forwardSpeedError,
                 -1.000f,
                 0.125f
             );
