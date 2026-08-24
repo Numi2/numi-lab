@@ -167,6 +167,7 @@ private struct Options {
     var birdFlowStrokeAmplitude: Float?
     var birdFlowTailPitch: Float?
     var birdFlowPronation: Float?
+    var birdFlowPronationWavePhase: Float?
     var birdFlowGroundGaitProbe = false
     var scheduledResets = true
     var policyPack: String?
@@ -504,6 +505,16 @@ private struct Options {
                 }
                 birdFlowPronation = pronation
                 index += 1
+            case "--birdflow-pronation-wave-phase":
+                guard let phase = Float(try value()), phase.isFinite,
+                      phase >= -Float.pi, phase <= Float.pi
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-pronation-wave-phase requires radians in [-pi, pi]."
+                    )
+                }
+                birdFlowPronationWavePhase = phase
+                index += 1
             case "--birdflow-ground-gait-probe":
                 birdFlowGroundGaitProbe = true
             default:
@@ -558,7 +569,7 @@ private struct Options {
             )
         }
         if (birdFlowFlapScript || birdFlowStrokeAmplitude != nil ||
-            birdFlowPronation != nil ||
+            birdFlowPronation != nil || birdFlowPronationWavePhase != nil ||
             birdFlowGroundGaitProbe) &&
             (!(birdFlowDove || birdFlowAmericanCrow) ||
                 zeroActions || actionStream != nil ||
@@ -586,9 +597,25 @@ private struct Options {
                 "--birdflow-pronation requires --birdflow-stroke-amplitude."
             )
         }
+        if birdFlowPronationWavePhase != nil &&
+            birdFlowStrokeAmplitude == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-pronation-wave-phase requires --birdflow-stroke-amplitude."
+            )
+        }
         if birdFlowPronation != nil && !birdFlowAmericanCrow {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--birdflow-pronation is available only for --birdflow-american-crow."
+            )
+        }
+        if birdFlowPronationWavePhase != nil && !birdFlowAmericanCrow {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-pronation-wave-phase is available only for --birdflow-american-crow."
+            )
+        }
+        if birdFlowPronation != nil && birdFlowPronationWavePhase != nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-pronation and --birdflow-pronation-wave-phase are mutually exclusive."
             )
         }
         if rolloutPack != nil &&
@@ -1102,12 +1129,15 @@ private func birdFlowStrokeActions(
     amplitude: Float,
     tailPitch: Float,
     pronation: Float?,
+    pronationWavePhase: Float?,
+    startStep: Int,
     stepCount: Int,
     environmentCount: Int,
     actionCount: Int
 ) -> [Float] {
     precondition(actionCount == 10 || actionCount == 12)
     precondition(pronation == nil || actionCount == 12)
+    precondition(pronationWavePhase == nil || actionCount == 12)
     var result = [Float](
         repeating: 0,
         count: stepCount * environmentCount * actionCount
@@ -1122,8 +1152,17 @@ private func birdFlowStrokeActions(
             result[base] = amplitude
             result[base + 1] = amplitude
             if actionCount == 12 {
-                result[base + 2] = pronation ?? 0
-                result[base + 3] = pronation ?? 0
+                // This is a deterministic response probe, not the deployed
+                // controller. It exercises the same normalized position
+                // bindings as a learned policy while sweeping feathering
+                // phase against the 4.6 Hz authored wingbeat.
+                let wave = pronationWavePhase.map { phase in
+                    sin(2.0 * Float.pi *
+                        Float(startStep + step) * 0.020 * 4.6 + phase)
+                }
+                let pronationAction = pronation ?? wave ?? 0
+                result[base + 2] = pronationAction
+                result[base + 3] = pronationAction
                 result[base + 4] = tailPitch
             } else {
                 result[base + 2] = tailPitch
@@ -1767,6 +1806,9 @@ private enum TaskRolloutMain {
                                 amplitude: amplitude,
                                 tailPitch: options.birdFlowTailPitch ?? 0,
                                 pronation: options.birdFlowPronation,
+                                pronationWavePhase:
+                                    options.birdFlowPronationWavePhase,
+                                startStep: globalStep,
                                 stepCount: stepCount,
                                 environmentCount: options.environments,
                                 actionCount: context.layout.actionCount
@@ -2625,7 +2667,9 @@ private enum TaskRolloutMain {
                     : options.birdFlowFlapScript
                     ? "birdflow_4hz_flap_qualification"
                     : options.birdFlowStrokeAmplitude != nil
-                    ? options.birdFlowPronation != nil
+                    ? options.birdFlowPronationWavePhase != nil
+                        ? "birdflow_stroke_amplitude_pronation_wave_qualification"
+                        : options.birdFlowPronation != nil
                         ? "birdflow_stroke_amplitude_pronation_qualification"
                         : options.birdFlowTailPitch != nil
                         ? "birdflow_stroke_amplitude_tail_qualification"
@@ -2637,6 +2681,8 @@ private enum TaskRolloutMain {
                 "birdflow_stroke_amplitude": options.birdFlowStrokeAmplitude ?? 0,
                 "birdflow_tail_pitch": options.birdFlowTailPitch ?? 0,
                 "birdflow_pronation": options.birdFlowPronation ?? 0,
+                "birdflow_pronation_wave_phase":
+                    options.birdFlowPronationWavePhase ?? 0,
                 "action_carrier": options.birdFlowAmericanCrow
                     ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_band_1;stage2_live_altitude_vertical_rate_and_airspeed_trim_plus_wing_and_leg_residual_0.25_tail_residual_0.10_band_2"
                     : "none",
