@@ -1788,6 +1788,9 @@ private enum TaskTrainMain {
                 "physics": "metal",
                 "learner": "mlx",
                 "world_source": worldSource,
+                "action_carrier": options.birdFlowAmericanCrow
+                    ? "stage1_crow_gait_plus_policy_residual"
+                    : "none",
                 "device": context.deviceName,
                 "visual_observation":
                     context.visualSceneFingerprint != 0,
