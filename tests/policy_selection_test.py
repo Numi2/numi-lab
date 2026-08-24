@@ -860,6 +860,54 @@ class PolicySelectionTest(unittest.TestCase):
             decision["regressions"],
         )
 
+    def test_crow_previous_band_tracking_regression_blocks_flight_progress(
+        self,
+    ) -> None:
+        current_incumbent = {
+            "task": "birdflow_american_crow_standing_to_flight",
+            "maximum_sampled_difficulty_band": 2,
+            "termination_count_by_environment": [0] * 8,
+            "failed_environment_steps": 0,
+            "mean_tracking_score": 0.70,
+            "mean_tilt": 0.10,
+            "outcomes": {
+                "liftoff": {"mean": 0.40, "direction": 1},
+                "push_off": {"mean": 0.10, "direction": 1},
+            },
+        }
+        current_candidate = {
+            **current_incumbent,
+            "mean_tracking_score": 0.75,
+            "outcomes": {
+                "liftoff": {"mean": 0.50, "direction": 1},
+                "push_off": {"mean": 0.20, "direction": 1},
+            },
+        }
+        previous_incumbent = {
+            **current_incumbent,
+            "maximum_sampled_difficulty_band": 1,
+            "mean_tracking_score": 0.60,
+            "outcomes": {
+                "ground_support": {"mean": 0.80, "direction": 1},
+                "walking_contact": {"mean": 0.50, "direction": 1},
+            },
+        }
+        previous_candidate = {
+            **previous_incumbent,
+            "mean_tracking_score": 0.59,
+        }
+        decision = compare_staged_bands(
+            current_incumbent,
+            current_candidate,
+            previous_incumbent,
+            previous_candidate,
+        )
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertIn(
+            "previous-band: tracking score decreased",
+            decision["regressions"],
+        )
+
     def test_checkpoint_comparisons_are_json_serializable(self) -> None:
         incumbent = {
             "task": "adult-locomotion",

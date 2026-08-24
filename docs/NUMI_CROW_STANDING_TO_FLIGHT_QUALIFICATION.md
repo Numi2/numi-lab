@@ -1217,6 +1217,77 @@ whether observability is a viable Stage-1 mechanism. A failure ends this
 phase-observability hypothesis without an observation-shape variant or another
 learner.
 
+### Ground-carrier phase observability outcome — selected
+
+The one authorized Stage-1 learner completed on the Apple M4 Pro. Its compiled
+task/runtime remains the reviewed `c0ed042` implementation; the subsequent
+`b4100f2` shell-only log-capture guard changed neither the Metal binary nor the
+task program. The held-out selector completed at seed `2650443587` after a
+storage interruption was resolved, with all twelve expected evidence records
+present: incumbent plus five candidates, each at current band 1 and protected
+band 0. Its final `selection.json` has no `selection_error` and selects
+`candidate-004`, the byte-identical `revision-00000513.candidate.policypack`
+deployment.
+
+The selected current-band candidate has task, observation, action, and run
+fingerprints `16623482433480953061`, `3540106866115945537`,
+`3265647670364576923`, and `2731390968159996995`, respectively. Across the
+64-environment, 5,000-step no-reset band-1 evaluation, it has zero failed
+environment steps and zero physical failures, tracking `0.9978584346` versus
+the incumbent's `0.9119822234`, mean tilt `0.0052289185` rad versus
+`0.0039169103` rad, and mean root height `0.1873259441` m versus
+`0.1873070999` m. The `0.0013120082`-rad attitude change remains below the
+pre-registered `0.005`-rad limit. On protected band 0, tracking is unchanged
+to the displayed precision (`0.9999999868` versus `0.9999999867`) and neither
+the authored ground outcomes nor the physical-failure rate regress.
+
+The full selector hash is
+`5080c943d6e96907e4e6e49cc958354e38591117f97f2d6b02bbe897224bb4d8`; the
+selected deployment and `revision-00000513.candidate.policypack` share
+`99e5b165e77a929cd8478568693abaee36d7d4ca2cc80784e30b991f9eeb4939`.
+The selected current- and protected-band evidence hashes are
+`d069cb601be5199ce27b4654d1fc2d7023ffe4369eba7c24fbeaaf3b5e7c4032` and
+`37bb45eae3c18d49a6d049f7b0f9987f75debb89d8b49c2c7b423066f89c68f9`.
+This is simulated evidence for the explicitly estimated/hybrid Crow world; it
+does not establish measured American-crow biomechanics or a real flight result.
+
+### Stage-2 phase-observability carryover (pre-registered)
+
+The selected Stage-1 actor is a sufficient prerequisite for one new test of
+the transition hypothesis: a retained, carrier-phase-aware ground policy can
+be adapted by a fresh critic to the already-authored band-2 lift-off task
+without losing the protected band-1 behavior. The exact input actor is the
+selected deployment above, SHA-256
+`99e5b165e77a929cd8478568693abaee36d7d4ca2cc80784e30b991f9eeb4939`. The
+actor must be imported unchanged through `--initialize-actor-policy-pack` with
+`--initialize-actor-fresh-critic`; `--zero-actor-output` is prohibited.
+
+This protocol changes only the training range from band 1 to bands 1--2 and
+creates a fresh critic. It changes no observation, action, carrier waveform,
+reward, morphology, aerodynamics, solver, termination, optimizer, or reset
+rule. It authorizes exactly one remote M4 run: 128 environments × 128 steps ×
+512 updates (`8,388,608` samples), chunk 8, fixed learning rate `1e-4`, initial
+log standard deviation `-3`, learner seed `2650443588`, and checkpoints every
+128 updates. The native runner must record its exact runtime hashes and the
+initial actor-transfer contract before training.
+
+One new held-out selector at seed `2650443589` evaluates the immutable
+post-import incumbent, every scheduled checkpoint, and the final candidate at
+64 environments × 5,000 no-reset steps, one repeat, chunk 1. It evaluates band
+2 directly and protects band 1. A candidate may advance only with zero failed
+environment steps; zero non-timeout physical-boundary failures on both bands;
+band-2 tracking at least `0.70`; positive staged selector score; current-band
+mean tilt no more than the matched incumbent plus `0.005` rad; and no protected
+band-1 decrease in ground support, walking contact, or tracking by more than
+`0.001`. The selector enforces the protected tracking criterion as well as
+the authored outcome criteria.
+
+Failure preserves all artifacts and ends this carryover protocol: no replay,
+GIF, picture, README entry, standing-to-flight claim, or Crow-biomechanics
+claim follows. A pass authorizes only a separately specified deterministic
+simulation replay qualification; it does not itself authorize public media or
+real-flight language.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow

@@ -938,6 +938,15 @@ def compare_staged_bands(
                 _outcome_mean(previous_incumbent, identifier) - 1.0e-6
             ):
                 previous["regressions"].append(f"{identifier} decreased")
+        # A preserved contact fraction is not sufficient when the established
+        # ground controller can no longer follow its command.  Protect the
+        # prior rung's tracking signal as well as its authored outcomes before
+        # accepting a harder BirdFlow stage.
+        if float(previous_candidate.get("mean_tracking_score", 0.0)) < (
+            float(previous_incumbent.get("mean_tracking_score", 0.0))
+            - 0.001
+        ):
+            previous["regressions"].append("tracking score decreased")
     decision["previous_band_comparison"] = previous
     if previous["regressions"]:
         decision["regressions"].extend(
