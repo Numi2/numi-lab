@@ -3652,7 +3652,12 @@ kernel void mr_locomotion_task_apply_actions(
             const float forwardSpeedError =
                 state.commandExtension.z - 0.35f;
             avianLiftoffWingCarrier = clamp(
-                -0.150f + 0.400f * heightError - 0.120f * verticalRate -
+                // The measured residual response is inverse in this
+                // airframe: a larger flap command moves it rearward in the
+                // yaw frame.  Therefore a positive forward-speed error must
+                // increase this command to brake, while a negative error
+                // must reduce it to regain commanded forward travel.
+                -0.150f + 0.400f * heightError - 0.120f * verticalRate +
                     0.100f * forwardSpeedError,
                 -1.000f,
                 0.125f
@@ -3723,13 +3728,13 @@ kernel void mr_locomotion_task_apply_actions(
         const float avianLiftoffTailCarrier =
             avianCrowLiftoffTrimCarrier && binding.indices.x == 4u
             ? clamp(
-                // The tail sweep establishes that reducing pitch redirects
-                // the resolved stroke toward the commanded travel direction,
-                // but a fixed low value eventually contacts.  Servo the real
-                // tail joint from accepted yaw-frame speed and retain pitch
-                // when altitude is short.  The lower bound is deliberately
-                // inside the sampled joint range, not a force clamp.
-                0.25f + 0.075f *
+                // The measured tail residual response has the opposite
+                // yaw-frame sign: increasing pitch adds forward travel.
+                // Negative feedback therefore raises tail pitch below the
+                // requested speed and lowers it above that speed.  The lower
+                // bound remains inside the sampled joint range, not a force
+                // clamp, because fixed low pitch eventually contacts.
+                0.25f - 0.075f *
                     (state.commandExtension.z - 0.35f) +
                     0.300f * (0.85f - state.airReturnTracking.y),
                 0.15f,
