@@ -45,6 +45,7 @@ failure.
 | Configuration | Mean height (m) | Mean tilt (rad) | World-X final / peak (m) | Boundary result |
 | --- | ---: | ---: | ---: | --- |
 | 0.11875, strong wing/tail trim, zero policy | 1.004 | 0.114 | -5.665 / 0.011 | 8 contacts |
+| 0.11875 plus speed-fed mean flap-angle trim, zero policy | 1.009 | 0.139 | -7.813 / 0.035 | 18 contacts, 1 tilt |
 | 0.120 local bracket, zero policy | 1.046 | 0.082 | -20.025 / 0.003 | 4 contacts |
 | 0.250 under the complete feedback stack, zero policy | 0.298 | 0.469 | 4.554 / 31.230 | 54 contacts |
 
@@ -53,6 +54,11 @@ these values do not justify interpolation or a forward-flight claim. The
 0.11875 configuration is retained as the current diagnostic bracket because
 the 0.250 configuration is materially less safe, not because it qualifies as
 flight.
+
+The existing flap hinge was also tested as a bounded speed-fed mean-angle
+carrier. It remains an actual ABA position target, but it shares the flap axis
+and did not provide independent stroke-plane/pronation authority; the result
+increased contact and tilt failures. It is not retained in the default model.
 
 ## Training and promotion gate
 

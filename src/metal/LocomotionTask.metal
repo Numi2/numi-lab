@@ -3641,7 +3641,6 @@ kernel void mr_locomotion_task_apply_actions(
         // This is a Metal-resident controller of the actual wing positions,
         // never an injected aerodynamic force or a prerecorded trajectory.
         float avianLiftoffWingCarrier = 0.0f;
-        float avianLiftoffWingStrokeCenter = 0.0f;
         if (avianCrowLiftoffTrimCarrier &&
             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION) {
             const float heightError = 0.85f - state.airReturnTracking.y;
@@ -3653,17 +3652,6 @@ kernel void mr_locomotion_task_apply_actions(
                     0.100f * forwardSpeedError,
                 -1.000f,
                 0.125f
-            );
-            // The current flap joint is an articulated shoulder rotation,
-            // not just an aerodynamic amplitude scalar. Shift its mean target
-            // from the accepted yaw-frame speed so the resolved wing geometry
-            // can redirect blade loads before adding a separate control DOF.
-            // This remains a position target consumed by the ABA solve; it
-            // never writes an aerodynamic force directly.
-            avianLiftoffWingStrokeCenter = clamp(
-                -0.100f * forwardSpeedError,
-                -0.100f,
-                0.100f
             );
         }
         const float avianWingPolicyCommand = avianCrowLiftoffTrimCarrier
@@ -3754,8 +3742,6 @@ kernel void mr_locomotion_task_apply_actions(
         const float studentTarget =
             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
             ? defaultQ[binding.indices.z] +
-                binding.parameters.x *
-                    avianLiftoffWingStrokeCenter +
                 binding.parameters.x *
                     // The clock is robot-owned, while each policy output is
                     // a bilateral stroke-amplitude residual. Resolved
