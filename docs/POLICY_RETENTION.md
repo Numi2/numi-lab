@@ -32,12 +32,19 @@ numi artifact-retain --apply --receipt /path/to/receipt.tsv \
 The first command is a dry run. Application requires a protected deployment
 PolicyPack, revision, selection evidence, and no open rollout payloads.
 
-## One learned model
+## One learned model per robot
 
-The production target is one multitask student artifact, not a directory of
-independently selected specialists. Existing PolicyPacks are bound to exact
-world, task, observation, and action contracts, so policies with incompatible
-contracts cannot be merged by averaging or concatenating weights.
+The production target is one multitask student artifact for each robot, not a
+directory of independently selected task or experiment specialists. Vastly
+different embodiments naturally retain separate networks. A G1 student, crow
+student, and dove student are different production artifacts because their
+mechanics, sensors, observation semantics, and action spaces differ.
+
+Within one robot lineage, existing PolicyPacks remain bound to exact world,
+task, observation, and action contracts. Task specialists cannot be merged by
+averaging or concatenating weights. The consolidated robot policy must define
+one stable superset observation contract, one action contract, and explicit
+task conditioning.
 
 Until the multitask artifact format and executor exist, promoted specialists
 remain frozen teachers. Consolidation must train a shared student from fresh,
@@ -46,8 +53,8 @@ Schema-specific input and output adapters may surround one shared learned
 trunk, but they are part of the same fingerprinted artifact and may not select
 independent hidden policies.
 
-The single student replaces its teachers only when matched held-out evaluation
-demonstrates, for every retained capability:
+Each robot's single student replaces that robot's teachers only when matched
+held-out evaluation demonstrates, for every retained capability:
 
 - deterministic replay and fixed observation/action semantics;
 - physical outcomes no worse than the corresponding promoted teacher;
