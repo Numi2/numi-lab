@@ -3702,10 +3702,16 @@ kernel void mr_locomotion_task_apply_actions(
         // Stage 1 is a residual-learning problem around the qualified gait
         // carrier.  The learned action has a deliberately narrower authority
         // than the carrier: early policy updates can improve timing and trim
-        // without trivially cancelling the stable walking cycle.  Later
-        // liftoff and flight bands retain their full policy authority.
+        // without trivially cancelling the stable walking cycle. The isolated
+        // lift-off band is likewise a residual problem around live wing and
+        // tail control: full-range leg or tail actions otherwise bypass the
+        // measured speed/altitude loop before a flight skill exists.
         const float avianGroundResidualScale =
             avianCrowGroundGaitCarrier ? 0.25f : 1.0f;
+        const float avianLiftoffNonWingResidualScale =
+            avianCrowLiftoffTrimCarrier ? 0.25f : 1.0f;
+        const float avianLiftoffTailResidualScale =
+            avianCrowLiftoffTrimCarrier ? 0.10f : 1.0f;
         const float avianLiftoffTailCarrier =
             avianCrowLiftoffTrimCarrier && binding.indices.x == 2u
             ? clamp(
@@ -3725,11 +3731,14 @@ kernel void mr_locomotion_task_apply_actions(
         const float avianNonWingCommand =
             avianLiftoffTailCarrier != 0.0f
             ? clamp(
-                avianLiftoffTailCarrier + 0.25f * filtered,
+                avianLiftoffTailCarrier +
+                    avianLiftoffTailResidualScale * filtered,
                 -1.0f,
                 1.0f
             )
-            : filtered * avianGroundResidualScale + avianGroundGaitCarrier;
+            : filtered * avianGroundResidualScale *
+                    avianLiftoffNonWingResidualScale +
+                avianGroundGaitCarrier;
         const float studentTarget =
             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
             ? defaultQ[binding.indices.z] +
