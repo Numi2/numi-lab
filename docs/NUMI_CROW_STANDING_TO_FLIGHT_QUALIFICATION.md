@@ -638,6 +638,36 @@ or README media was created from this run. SHA-256 checksums are
 `1c80145457e8c16b6ed4c8797c3b0d69577d6641be5d9d519306fa3e98512a51` for
 `artifacts.sha256`. The full evidence remains at the remote artifact root.
 
+### Leg-residual attribution (pre-registered)
+
+The new rejection establishes a current-band attitude regression but not the
+size or temporal structure of the six live leg commands that produced it. One
+nonvisual, no-learning attribution evaluation is therefore authorized before
+any future task change. It is a diagnostic execution record, not a policy
+promotion, replay, or media capture.
+
+At source `7fb13e3`, with the same compiled task fingerprint
+`3198934467138572318`, the remote Apple M4 Pro will evaluate exactly the
+retained Stage-1 candidate PolicyPack
+`e5b6a6119c311a9010956e920ab2f3134d6a4818c8078f91544018c571da4a93` and the
+protected incumbent PolicyPack
+`3b6684fc91010f9b00dfd1f9612147b890eedb3a21a46022ce6004a200b404d9`. Each
+uses band 1 only, 64 environments, 5,000 steps, one repeat, chunk 1,
+`--no-scheduled-resets`, seed `2650443582`, and a `PolicyRolloutPack` plus an
+environment-0 physical state trace. The pack records the device-generated
+normalized policy latents for every action at every time step; its action bias
+is zero and action scale is one, so those records are the normalized commands
+that enter the live residual path before that path's fixed `0.25` multiplier.
+
+The analysis will report per-action mean, RMS, mean absolute value, and
+maximum absolute value, separately for masked channels 0--6 and live leg
+channels 7--12. The candidate execution must reproduce its retained selector
+metrics and state trace hash before those command summaries are interpreted.
+The incumbent establishes the fixed-carrier baseline. This diagnostic cannot
+authorize a learner, policy deployment, flight replay, GIF, picture, or README
+media. It can only identify whether a single subsequently pre-registered
+leg-authority intervention is scientifically warranted.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
