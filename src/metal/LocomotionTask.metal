@@ -6304,8 +6304,22 @@ kernel void mr_locomotion_task_complete(
             value = 0.0f;
             break;
         }
-        const float contribution =
-            operation.parameters.x * value;
+        // The isolated crow liftoff band already has a live altitude carrier.
+        // Once airborne, retaining the generic signed climb reward lets PPO
+        // exchange commanded airspeed for a ballistic rise. Remove that
+        // stage-2-only incentive and make the reward use the same measured
+        // linear-velocity shape as held-out selection. Height normalization,
+        // error, tilt, and physical terminations remain in force.
+        float rewardWeight = operation.parameters.x;
+        if (avianGroundCurriculum && avianCurriculumBand == 2u) {
+            if (operation.source.x == MR_TASK_REWARD_ROOT_HEIGHT_PROGRESS) {
+                rewardWeight = 0.0f;
+            } else if (operation.source.x ==
+                MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING) {
+                rewardWeight = 5.0f;
+            }
+        }
+        const float contribution = rewardWeight * value;
         interactionTrackingSum += interactionMetric;
         interactionTrackingWeight += interactionMetricWeight;
         reward += contribution;
