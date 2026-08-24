@@ -531,11 +531,12 @@ private struct Options {
                 index += 1
             case "--birdflow-wing-pulse-target":
                 let target = try value()
-                guard target == "wings" || target == "pronation" ||
+                guard target == "wings" || target == "left-wing" ||
+                      target == "right-wing" || target == "pronation" ||
                       target == "tail"
                 else {
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--birdflow-wing-pulse-target requires wings, pronation, or tail."
+                        "--birdflow-wing-pulse-target requires wings, left-wing, right-wing, pronation, or tail."
                     )
                 }
                 birdFlowWingPulseTarget = target
@@ -1251,6 +1252,10 @@ private func birdFlowWingPulseActions(
     switch target {
     case "wings":
         targetActions = [0, 1]
+    case "left-wing":
+        targetActions = [0]
+    case "right-wing":
+        targetActions = [1]
     case "pronation":
         targetActions = [2, 3]
     case "tail":

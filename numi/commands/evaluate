@@ -25,7 +25,7 @@ is selected. Common options:
   --native-policy | --zero-actions | --action-stream actions.f32
   --birdflow-stroke-amplitude F [--birdflow-tail-pitch F]
                                             Scripted wing/tail calibration
-  --birdflow-wing-pulse-amplitude F --birdflow-wing-pulse-target wings|pronation|tail
+  --birdflow-wing-pulse-amplitude F --birdflow-wing-pulse-target wings|left-wing|right-wing|pronation|tail
   --birdflow-wing-pulse-start-step N --birdflow-wing-pulse-duration-steps N
                                             Late-horizon crow flight-control response probe
   --birdflow-ground-gait-probe            Scripted crow leg-action calibration
