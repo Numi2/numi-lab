@@ -562,6 +562,17 @@ wing and body marker coordinates. That is valuable evidence that a
 same-species kinematic record existed, but it is not an importable Numi data
 package as published on the reviewed article page.
 
+The downloadable 112-page source dissertation, [The allometry of bird flight
+performance](https://scholarworks.umt.edu/etd/960/), was independently
+reviewed on 2026-08-24. Its Appendix III is a one-page species-level table of
+mean, standard error, and maximum kinematic summaries--including an American
+crow row--for travel angle, wing angular velocity, stroke-plane measures,
+wing angle of attack, stroke amplitude, body angle/velocity, and tail values.
+It is useful literature context, but it contains no per-frame marker series,
+camera calibration, specimen linkage, or registered surface sequence. These
+aggregates must not be used to fit a purported measured crow trajectory or
+promote an estimated controller.
+
 The reported task is constrained vertical burst flight in a chamber, not the
 current unassisted standing-to-forward-flight target. The article's accessible
 material supplies methods, aggregate values, figures, and a supplementary
