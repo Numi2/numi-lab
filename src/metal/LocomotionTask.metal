@@ -3660,7 +3660,13 @@ kernel void mr_locomotion_task_apply_actions(
         }
         const float avianWingPolicyCommand = avianCrowLiftoffTrimCarrier
             ? clamp(
-                avianLiftoffWingCarrier + 0.25f * filtered,
+                // The requalified zero-action carrier is stable, while the
+                // preceding full residual PPO run produced boundary failures
+                // as its residual authority grew. Keep learner exploration
+                // inside two fifths of the former amplitude authority; this
+                // is a controller-envelope change, not a new aerodynamic
+                // force, coefficient, trajectory, or species calibration.
+                avianLiftoffWingCarrier + 0.10f * filtered,
                 -1.0f,
                 1.0f
             )
@@ -3713,9 +3719,9 @@ kernel void mr_locomotion_task_apply_actions(
         const float avianGroundResidualScale =
             avianCrowGroundGaitCarrier ? 0.25f : 1.0f;
         const float avianLiftoffNonWingResidualScale =
-            avianCrowLiftoffTrimCarrier ? 0.25f : 1.0f;
-        const float avianLiftoffTailResidualScale =
             avianCrowLiftoffTrimCarrier ? 0.10f : 1.0f;
+        const float avianLiftoffTailResidualScale =
+            avianCrowLiftoffTrimCarrier ? 0.05f : 1.0f;
         const float avianLiftoffPronationCarrier =
             avianCrowLiftoffPronationAction
             ? 0.20f * sin(state.commandAndPhase.w + 2.62f)
@@ -3752,8 +3758,10 @@ kernel void mr_locomotion_task_apply_actions(
                 // 0.20 normalized amplitude maps to +/-0.060 rad, inside the
                 // verified static +/-0.075-rad position-target envelope.
                 // This never edits an aerodynamic coefficient or wrench;
-                // the learner only adds its existing bounded residual.
-                avianLiftoffPronationCarrier + 0.25f * filtered,
+                // the learner only adds its pre-registered, tighter bounded
+                // residual so carrier plus residual remains inside that
+                // static envelope.
+                avianLiftoffPronationCarrier + 0.05f * filtered,
                 -1.0f,
                 1.0f
             )

@@ -26,12 +26,13 @@ or an injected body force:
   altitude, vertical-rate, and yaw-frame-speed trim. Pronation is an
   independently bounded joint-position target. Its current stage-2 baseline
   is a zero-mean, filter-calibrated wingbeat carrier at normalized amplitude
-  0.20 and phase 2.62 rad, with an additive 0.25 policy residual.
+  0.20 and phase 2.62 rad, with an additive 0.05 policy residual.
 - The articulated tail pitch is trimmed from the same accepted state, with an
   altitude guard; it is not an external aerodynamic correction.
-- Stage-2 learner authority is deliberately bounded around that carrier:
-  flap, sweep, pronation, and leg residuals are 0.25 of the normalized action
-  span; tail is 0.10. Later flight bands retain their authored action space.
+- The pre-registered stage-2 controller candidate tightens authority around
+  that carrier: flap, sweep, and leg residuals are 0.10 of the normalized
+  action span; pronation and tail residuals are 0.05. Later flight bands
+  retain their authored action space.
 - The blade-element force uses the current root and hinge state. The remaining
   `unsteadyCoefficients.y = 0.11875` is an estimated fixed stroke-plane
   direction, not a crow measurement.
