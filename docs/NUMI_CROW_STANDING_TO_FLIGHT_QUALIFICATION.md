@@ -26,13 +26,14 @@ or an injected body force:
   altitude, vertical-rate, and yaw-frame-speed trim. Pronation is an
   independently bounded joint-position target. Its current stage-2 baseline
   is a zero-mean, filter-calibrated wingbeat carrier at normalized amplitude
-  0.20 and phase 2.62 rad, with an additive 0.05 policy residual.
+  0.20 and phase 2.62 rad, with an additive 0.25 policy residual.
 - The articulated tail pitch is trimmed from the same accepted state, with an
   altitude guard; it is not an external aerodynamic correction.
-- The pre-registered stage-2 controller candidate tightens authority around
-  that carrier: flap, sweep, and leg residuals are 0.10 of the normalized
-  action span; pronation and tail residuals are 0.05. Later flight bands
-  retain their authored action space.
+- Stage-2 learner authority is deliberately bounded around that carrier:
+  flap, sweep, pronation, and leg residuals are 0.25 of the normalized action
+  span; tail is 0.10. The narrower controller candidate below was rejected by
+  its pre-registered full-envelope stress guard. Later flight bands retain
+  their authored action space.
 - The blade-element force uses the current root and hinge state. The remaining
   `unsteadyCoefficients.y = 0.11875` is an estimated fixed stroke-plane
   direction, not a crow measurement.
@@ -308,6 +309,34 @@ updates). The existing immutable 64-environment, 5,000-step held-out selector
 evaluates every checkpoint and final candidate. Nothing advances to deployment,
 replay, GIF, picture, or README unless tracking is at least `0.70` with zero
 non-timeout physical-boundary failures.
+
+### Outcome: rejected by full-envelope stress guard
+
+At source revision `0491bf6`, the Apple M4 Pro rebuilt the Metal kernel,
+`metalrobo_task_rollout`, `metalrobo_task_train`, and
+`metalrobo_run_program_check`; the program check passed. The correctly labelled
+zero-action guard then reproduced the active baseline: `0` failed environment
+steps, `64` normal timeouts, mean / maximum height `1.0409775 / 1.0953953 m`,
+mean / maximum tilt `0.0635701 / 0.1247985 rad`, tracking `0.5006364`, and
+mean final forward progress `16.8779269 m`. Its immutable root is
+`.numi/runs/crow-residual-envelope-20260824-v1/zero-baseline-64x5000-labeled/`.
+
+The persisted stress stream has 14 action lanes for 64 environments and 5,000
+control steps, holds each SplitMix64-keyed Rademacher vector for eight steps,
+uses seed `2650443581`, and has SHA-256
+`cfb160d076d46fc6efbebd2bb45a3e5d2c864a76095f8266b8231b4e0755102f`.
+The full-envelope M4 Pro rollout had `0` failed environment steps but `377`
+non-timeout physical-boundary terminations (reason 3), no normal timeouts,
+mean height `0.9254082 m`, mean / maximum tilt `0.2148062 / 1.1162999 rad`,
+tracking `0.4997821`, and mean final forward progress `-9.3169223 m`. Its
+immutable root is
+`.numi/runs/crow-residual-envelope-20260824-v1/stress-rademacher-64x5000/`.
+
+The candidate fails the pre-registered physical-boundary and attitude gates
+before PPO. The active source therefore restores the earlier residual envelope
+(`0.25` flap/non-wing/pronation, `0.10` tail). The v3 provenance lock and both
+guard artifacts remain retained as negative controller evidence. No candidate
+policy, deployment, replay, GIF, picture, or README entry is authorized.
 
 ## Articulated-pronation response
 
