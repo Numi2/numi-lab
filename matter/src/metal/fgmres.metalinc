@@ -1801,11 +1801,17 @@ kernel void nm_fgmres_finalize_cycle(
     // Completion belongs to the accepted cycle, not to the configured upper
     // bound on restart cycles. Latch it here so increasing that upper bound
     // preserves the already accepted Krylov prefix; the statically encoded
-    // tail observes diagnostics.z and becomes a no-op. Only the final cycle
-    // may publish exhaustion as a linear-solver failure.
+    // tail observes diagnostics.z and becomes a no-op.
+    //
+    // A finite final-cycle exhaustion still owns a valid best correction.
+    // Keep it available to the Armijo/globalization pass and let the final
+    // reassembled KKT certificate enforce the unchanged residual, volume,
+    // pressure, contact, and transport tolerances. Pre-emptively poisoning
+    // the transaction here can reject a candidate whose post-correction KKT
+    // residual already satisfies those physical acceptance gates. Non-finite
+    // Krylov state remains an immediate linear-solver failure.
     state.diagnostics.z = cycleAccepted ? 1.0f : 0.0f;
-    if ((finalRestartCycle != 0u && !cycleAccepted) ||
-        !isfinite(state.diagnostics.x)) {
+    if (!isfinite(state.diagnostics.x)) {
         recordFailure(
             statuses[environment], NM_STATUS_LINEAR_SOLVER_FAILURE,
             NM_INVALID_INDEX, used,

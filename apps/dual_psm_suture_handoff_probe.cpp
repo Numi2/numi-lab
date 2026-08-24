@@ -205,11 +205,16 @@ constexpr std::uint32_t kReceiverAlignmentTimestepDivisor = 1u;
 // carried 576 complete settle steps in r19 before control step 54 of the next
 // bounded chunk exhausted all 160 columns at a 5.02720e-4 linear residual.
 // The determinant remained 0.997141, contact status was clean, and the same
-// capacities retained ample headroom. Preserve that accepted trajectory and
-// expose an eleventh cycle only during settling. The allocated 16-column
-// basis, residual/contact tolerances, and accepted-state transaction remain
-// unchanged. Each accepted restart boundary is prefix-invariant: the eleventh
-// cycle is available only if the first ten have not already met the unchanged
+// capacities retained ample headroom. r21 reproduced the exact 5.0270057e-4
+// residual with 176 columns, proving that an eleventh restart cycle made no
+// Krylov progress. Its already assembled candidate nevertheless reported a
+// strict 8.36003e-6 nonlinear KKT certificate, so finite inner exhaustion now
+// proceeds to the unchanged post-correction certificate instead of poisoning
+// the transaction before that authority can decide. Retain the bounded
+// eleventh cycle as the production ceiling; the allocated 16-column basis and
+// every residual/contact/publication tolerance remain unchanged. Each
+// accepted restart boundary is prefix-invariant: the eleventh cycle is
+// available only if the first ten have not already met the unchanged
 // linear/nonlinear acceptance rule.
 constexpr std::uint32_t kReceiverBridgeFGMRESIterationBudget =
     2u * NM_MIXED_FGMRES_RESTART;
