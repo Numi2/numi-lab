@@ -17,10 +17,11 @@ passes and a replay is visually inspected.
 The stage-2 task is a real articulated simulation, not a recorded trajectory
 or an injected body force:
 
-- Each wing is now an explicit two-joint ABA chain: root-connected flap
-  shoulder, then a mirrored span-axis pronation joint on the distal lifting
-  body. The Metal blade-element kernel composes both accepted coordinates and
-  their rates; it does not use pronation as a force-direction parameter.
+- Each wing is now an explicit three-joint ABA chain: root-connected fore-aft
+  sweep, a mass-light flap link, then a mirrored span-axis pronation joint on
+  the distal lifting body. The Metal blade-element kernel composes all three
+  accepted coordinates and their rates; it does not use either sweep or
+  pronation as a force-direction parameter.
 - Flap targets remain the live stroke amplitude plus a Metal-resident
   altitude, vertical-rate, and yaw-frame-speed trim. Pronation is an
   independently bounded joint-position target. Its current stage-2 baseline
@@ -29,14 +30,14 @@ or an injected body force:
 - The articulated tail pitch is trimmed from the same accepted state, with an
   altitude guard; it is not an external aerodynamic correction.
 - Stage-2 learner authority is deliberately bounded around that carrier:
-  flap, pronation, and leg residuals are 0.25 of the normalized action span;
-  tail is 0.10. Later flight bands retain their authored action space.
+  flap, sweep, pronation, and leg residuals are 0.25 of the normalized action
+  span; tail is 0.10. Later flight bands retain their authored action space.
 - The blade-element force uses the current root and hinge state. The remaining
   `unsteadyCoefficients.y = 0.11875` is an estimated fixed stroke-plane
   direction, not a crow measurement.
 
-The prior one-hinge model had no independently articulated feathering control.
-That boundary is removed structurally, but the new estimated two-link model
+The prior two-joint model had no independently articulated fore-aft sweep.
+That boundary is removed structurally, but the new estimated three-link model
 has not yet produced sustained forward velocity at the 0.35 m/s stage-2
 command. Its angle limits, connector inertia, and drive constants are explicit
 hybrid-model closures, not crow measurements.
@@ -470,15 +471,64 @@ forward-flight controller--the coordinated pulse remains slower than the
 baseline during actuation. No source flight controller, policy, replay, GIF,
 or README media is promoted from this experiment.
 
+## Articulated-wing-sweep import and response (rejected)
+
+Commit `9ef2f4d` adds an explicit shoulder sweep coordinate ahead of the
+existing flap and pronation coordinates; `6e20478` fixes the native C++
+compilation of that model. The resolved stage-2 crow has 14 robot bodies, 13
+joints, 20 generalized coordinates, 19 generalized velocities, 14 actions,
+and 81 actor observations; the ground scene produces a 15-body compiled
+model. The Apple M4 Pro native program check passed at `6e20478` with zero
+failed probe steps before any rollout was accepted.
+
+The kinematic motivation is deliberately narrower than calibration. A
+[pigeon joint-kinematics study](https://pmc.ncbi.nlm.nih.gov/articles/PMC12068018/)
+describes sweep/fold with out-of-plane shoulder, elbow, and wrist yaw terms,
+which supports representing a separate sweep degree of freedom. It does not
+identify American-crow sweep range, phase, mass properties, or aerodynamic
+coefficients. Those values remain estimated hybrid closures and this section
+does not make a species-performance claim.
+
+The fixed-seed protocol used Apple M4 Pro native Metal, band 2 only, 16
+environments, 5,000 control steps, one-step submissions, no scheduled resets,
+and seed `2650443581`. The artifact root is
+`.numi/runs/crow-articulated-sweep-20260824-v1/`; every condition contains the
+exact arguments, revision, hashes, JSON evidence, and a 5,001-row environment
+0 state trace. The pulse was steps 1,000--1,599. The stage-2 residual limit
+maps a normalized sweep action of `+/-1.0` to approximately `+/-0.05` rad;
+the table reports the accepted left/right sweep coordinates from that window,
+not a requested or prerecorded angle. `Contact` is the compiled termination
+reason 3 and is a non-timeout physical-boundary failure.
+
+| Sweep action | Accepted sweep L / R (rad) | Tracking | Mean height (m) | Mean / max tilt (rad) | Mean yaw-frame forward speed during pulse (m/s) | Contact / timeout terminations | Decision |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 0.0 | +0.00004 / -0.00042 | 0.500851 | 1.046268 | 0.062061 / 0.122280 | -1.039950 | 0 / 16 | clean zero baseline |
+| +0.25 | +0.01264 / +0.01214 | 0.500525 | 1.027522 | 0.069052 / 0.142192 | -0.610084 | 0 / 16 | clean but lower held-out tracking |
+| -0.0625 | -0.00315 / -0.00358 | 0.503426 | 1.026824 | 0.087096 / 0.758473 | -1.325660 | 16 / 0 | reject: contact failure and attitude excursion |
+| -0.125 | -0.00647 / -0.00691 | 0.503345 | 1.030624 | 0.078907 / 0.747134 | -2.355280 | 16 / 0 | reject: contact failure and attitude excursion |
+| -0.25 | -0.01265 / -0.01310 | 0.501876 | 1.030189 | 0.080753 / 0.787822 | +0.926167 | 16 / 0 | reject: contact failure despite local response |
+| +1.0 | +0.05045 / +0.04997 | 0.507821 | 0.868389 | 0.140844 / 0.859601 | +0.600024 | 24 / 0 | reject: contact failure and loss of height |
+| -1.0 | -0.04991 / -0.05062 | 0.504148 | 1.002755 | 0.108644 / 0.972284 | +1.447660 | 44 / 0 | reject: contact failure and severe attitude excursion |
+
+The identical pre-pulse trace, accepted-coordinate sign changes, and response
+windows establish that the physical sweep drives are live. They do not supply
+an eligible flight controller: the sole clean nonzero condition is slightly
+worse than the zero baseline, while every tested negative condition terminates
+through contact. Higher reward or local speed in an unsafe row does not
+override the predeclared tracking and physical-boundary gate. Sweep therefore
+remains a bounded residual action only; it does not receive a new carrier,
+PPO seed, deployment pack, replay, GIF, or README entry.
+
 ## Required next evidence
 
-The next control experiment must identify a coordinated physical response that
-materially improves yaw-frame speed tracking while preserving the qualified
-height and attitude envelope. It must not fit the unmeasured stroke-plane
-closure to a forward-flight target: the scalar bracket is closed. Single
-symmetric residuals trade height for displacement; persistent unilateral
-residuals contact; and the tested wing-only feedback signs do not regulate
-speed. Promote only a held-out candidate that reaches tracking >= 0.70 with
-zero non-timeout physical-boundary failures. Then capture a deterministic
-replay and inspect its frames before linking it from the compact README
-showcase. Until then, no Numi crow flight GIF belongs in the README.
+The next control experiment must identify a coordinated, phase-aware physical
+response that materially improves yaw-frame speed tracking while preserving the
+qualified height and attitude envelope. It must not fit the unmeasured
+stroke-plane closure to a forward-flight target: both the scalar stroke-plane
+and constant symmetric-sweep brackets are closed. Single symmetric residuals
+trade height for displacement; persistent negative sweep residuals contact;
+and the tested wing-only feedback signs do not regulate speed. Promote only a
+held-out candidate that reaches tracking >= 0.70 with zero non-timeout
+physical-boundary failures. Then capture a deterministic replay and inspect
+its frames before linking it from the compact README showcase. Until then, no
+Numi crow flight GIF belongs in the README.
