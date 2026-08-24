@@ -216,6 +216,24 @@ reverted. The retained carrier is therefore the already-qualified
 `-0.100 * forwardSpeedError` term, while the next probe may only promote a
 response that improves held-out tracking without an attitude regression.
 
+The follow-up fixed-seed pulse sweep confirms why another unconstrained PPO
+run is not yet justified. Early raw wing residuals -0.10, -0.20, -0.35, and
+-0.425 (steps 1,000--2,000) were all physically clean, with tracking only
+0.49946--0.49967; the -0.425 trace increased reverse speed during its window
+but returned to the original late +1.14 m/s acceleration. A positive +1.0
+residual held from steps 3,000--5,000 was also clean (mean/max tilt 0.0604 /
+0.1206 rad) but raised mean height to 1.288 m and reached only 0.49979
+tracking. This brackets the existing action carrier as an altitude authority,
+not a proven speed regulator.
+
+The next curriculum revision therefore freezes only crow action lanes 5--10
+(legs) after stage-2 lift-off. Wing lanes 0--1, pronation lanes 2--3, and tail
+lane 4 retain their existing bounded residual authority. This is an
+action-space partition, not an aerodynamic, reward, termination, or body-force
+change. It does not establish that leg exploration caused the prior failure;
+the required fresh baseline and held-out learner evaluations will test that
+specific hypothesis.
+
 ## Required next evidence
 
 The next control experiment must first identify a bounded, long-horizon
