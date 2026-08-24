@@ -467,6 +467,41 @@ created. A valid next controller experiment requires the licensed event- and
 kinematics-resolved Crow data specified in the data-intake record, rather than
 inventing a higher-amplitude biological trajectory from aggregate literature.
 
+## Curriculum-protected standing-to-flight learning (pre-registered)
+
+The preceding controls rule out treating the existing small ground-gait probe
+as a Crow takeoff target. They do not rule out learning the already-authored
+ground-support and lift-off task as a curriculum. Its first three physical
+bands are passive bilateral support (0), carrier-supported walking (1), and
+articulated lift-off (2). The earlier PPO trials trained only
+band 2, so they asked a zero actor to explore wing, leg, tail, sweep, and
+pronation residuals without first learning the task's supported walking rung.
+
+Source `0a817bb` corrects the selector for this experiment: a mixed BirdFlow
+curriculum is evaluated on its newest band, and a separate held-out evaluation
+must show that the preceding band did not regress. This changes selection
+evidence only. The estimated-hybrid mechanics, visual lock, 4.6 Hz clock,
+ABA/contact solver, aerodynamic closure, reward, termination conditions,
+action ABI, and `tracking >= 0.70` lift-off gate remain unchanged.
+
+The protocol allows at most two remote Apple M4 Pro learner runs, both with a
+new zero-actor-output Crow policy, 128 environments × 128 steps × 512 updates
+(`8,388,608` samples), chunk 8, fixed learning rate `1e-4`, initial log
+standard deviation `-3`, learner seed `2650443581`, and checkpoints every 128
+updates. Stage 1 uses band 1 only. Its 64-environment, 5,000-step, no-reset,
+held-out selector evaluates band 1 plus protected band 0. It may advance only
+if it has no failed environment steps, no new non-timeout physical-boundary
+failure, a positive staged outcome comparison, and no band-0 regression.
+
+Stage 2 is conditional on a selected Stage-1 deployment. It initializes that
+actor with a fresh critic, trains on bands 1--2, and uses the same held-out
+width, horizon, and seed. Its selector evaluates band 2 directly and protects
+band 1. It may advance only if it also reaches tracking at least `0.70`, has
+zero non-timeout physical-boundary failures, has positive staged progress, and
+does not regress walking. Failed checks preserve the incumbent and terminate
+this pre-registered protocol; no parameter sweep, policy replay, GIF, picture,
+or README entry follows from a rejected candidate.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
