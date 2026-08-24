@@ -217,14 +217,20 @@ int main() {
         const auto doveRobot = metalrobo::builtinRobotPack(
             "birdflow_deetjen_dove_hybrid"
         );
+        const auto crowRobot = metalrobo::builtinRobotPack(
+            "birdflow_american_crow_estimated_hybrid"
+        );
         require(
-            ids.size() == 5u &&
+            ids.size() == 6u &&
                 metalrobo::builtinRobotPack("franka_panda").has_value() &&
                 metalrobo::builtinRobotPack("dvrk_psm").has_value() &&
                 px4Robot.has_value() &&
                 doveRobot.has_value() &&
+                crowRobot.has_value() &&
                 contains(doveRobot->capabilities, "articulated_flight") &&
                 contains(doveRobot->capabilities, "load_responsive_aero") &&
+                contains(crowRobot->capabilities, "standing_to_flight") &&
+                contains(crowRobot->capabilities, "estimated_crow_model") &&
                 !contains(px4Robot->capabilities, "aerial_manipulation"),
             "robot catalog is incomplete"
         );
@@ -331,33 +337,65 @@ int main() {
             compiledDove.valid() &&
                 compiledDove.flappingWingProgram() != nullptr &&
                 compiledDove.multicopterProgram() == nullptr &&
-                compiledDove.model().bodies.size() == 5u &&
-                compiledDove.model().joints.size() == 3u &&
-                compiledDove.task().actionBindings().size() == 2u &&
-                std::all_of(
-                    compiledDove.task().actionBindings().begin(),
-                    compiledDove.task().actionBindings().end(),
-                    [](const MRTaskActionBindingGPU& binding) {
-                        return binding.actuator.x ==
-                            MR_TASK_ACTUATOR_FLAPPING_POSITION &&
-                            binding.drive.z == 0.88f &&
-                            binding.drive.w == 0.04f;
-                    }) &&
+                compiledDove.model().bodies.size() == 11u &&
+                compiledDove.model().joints.size() == 9u &&
+                compiledDove.task().actionBindings().size() == 10u &&
+                compiledDove.task().actionBindings()[0u].actuator.x ==
+                    MR_TASK_ACTUATOR_FLAPPING_POSITION &&
+                compiledDove.task().actionBindings()[1u].actuator.x ==
+                    MR_TASK_ACTUATOR_FLAPPING_POSITION &&
+                compiledDove.task().actionBindings()[2u].actuator.x ==
+                    MR_TASK_ACTUATOR_JOINT_POSITION &&
                 compiledDove.flappingWingProgram()->tail.bodyIndex !=
                     MR_INVALID_INDEX &&
                 compiledDove.flappingWingProgram()->fuselage.bodyIndex ==
                     compiledDove.flappingWingProgram()->rootBodyIndex &&
                 compiledDove.flappingWingProgram()->fuselage
                     .referenceAreasAndDrag.w > 0.0f &&
-                std::any_of(
-                    compiledDove.task().terminationOperators().begin(),
-                    compiledDove.task().terminationOperators().end(),
-                    [](const MRTaskTerminationOperatorGPU& termination) {
-                        return termination.source.x ==
-                                MR_TASK_TERMINATE_MAXIMUM_ROOT_HEIGHT &&
-                            termination.parameters.x == 2.50f;
-                    }),
-            "BirdFlow dove CompiledRun lost its trim, altitude boundary, or aerodynamic program"
+                compiledDove.flappingWingProgram()->tail.qIndex !=
+                    MR_INVALID_INDEX,
+            "BirdFlow dove CompiledRun lost its whole-body action or aerodynamic program"
+        );
+
+        metalrobo::RunManifest crow;
+        crow.id = "birdflow_american_crow_compiled_run_check";
+        crow.robot = *crowRobot;
+        crow.scene = metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
+        crow.sensors.id = "birdflow_american_crow_state_sensors";
+        crow.task = metalrobo::makeBirdFlowAmericanCrowFlightTaskPack(
+            crow.sensors.observation, crow.reality.reset
+        );
+        crow.reality.id = "birdflow_american_crow_nominal_reality";
+        crow.teacher.id = "no_teacher";
+        crow.profile.id = "birdflow_american_crow_check_profile";
+        crow.profile.environmentCount = 8u;
+        crow.profile.controlSteps = 64u;
+        crow.profile.physicsSubsteps = 4u;
+        crow.profile.controlTimestepSeconds = 1.0f / 60.0f;
+        metalrobo::CompiledRun compiledCrow;
+        const auto crowStatus = metalrobo::compileRun(crow, compiledCrow);
+        require(
+            crowStatus.succeeded(),
+            "BirdFlow American-crow CompiledRun failed [" +
+                std::string(metalrobo::runCompileStatusName(crowStatus.status)) +
+                "] " + crowStatus.element + ": " + crowStatus.message
+        );
+        require(
+            compiledCrow.valid() &&
+                compiledCrow.flappingWingProgram() != nullptr &&
+                compiledCrow.multicopterProgram() == nullptr &&
+                compiledCrow.model().bodies.size() == 11u &&
+                compiledCrow.model().joints.size() == 9u &&
+                compiledCrow.task().actionBindings().size() == 10u &&
+                compiledCrow.task().actionBindings()[0u].actuator.x ==
+                    MR_TASK_ACTUATOR_FLAPPING_POSITION &&
+                compiledCrow.task().actionBindings()[1u].actuator.x ==
+                    MR_TASK_ACTUATOR_FLAPPING_POSITION &&
+                compiledCrow.flappingWingProgram()->wings[0u]
+                    .rootToCenterAndArea.w == 0.075f &&
+                compiledCrow.flappingWingProgram()->wings[1u]
+                    .rootToCenterAndArea.w == 0.075f,
+            "BirdFlow American-crow CompiledRun lost its standing-to-flight or aerodynamic program"
         );
         std::cout
             << "run_program_check=ok"
