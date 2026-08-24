@@ -4063,6 +4063,14 @@ TaskCompileDiagnostics compileTaskProgram(
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_AVIAN_GROUND_CURRICULUM;
     }
+    if (pack.id == "birdflow_american_crow_standing_to_flight") {
+        // This narrow residual-learning carrier is a calibrated property of
+        // the estimated crow hybrid, not a generic avian or dove behavior.
+        // It stays in the compiled task ABI so replay and held-out selection
+        // can identify the exact policy baseline it supplied.
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_AVIAN_CROW_GROUND_GAIT_CARRIER;
+    }
     if (threatGroup != MR_INVALID_INDEX) {
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_THREAT_TEACHER;

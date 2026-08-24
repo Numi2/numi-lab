@@ -3619,6 +3619,10 @@ kernel void mr_locomotion_task_apply_actions(
             state.episode.z < 2u;
         const bool avianStandingCurriculum = avianGroundCurriculum &&
             state.episode.z == 0u;
+        const bool avianCrowGroundGaitCarrier = avianActionSet &&
+            (program.schedule.w &
+             MR_TASK_PROGRAM_AVIAN_CROW_GROUND_GAIT_CARRIER) != 0u &&
+            state.episode.z == 1u;
         const float avianWingAmplitude =
             avianGroundCurriculum &&
             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
@@ -3628,6 +3632,35 @@ kernel void mr_locomotion_task_apply_actions(
                 0.0f,
                 1.0f
             );
+        float avianGroundGaitCarrier = 0.0f;
+        if (avianCrowGroundGaitCarrier) {
+            const float phase = kTwoPi *
+                float(state.episode.x) * dispatch.timing.x / 0.50f;
+            const float leftSwing = sin(phase);
+            const float rightSwing = -leftSwing;
+            switch (binding.indices.x) {
+            case 3u:
+                avianGroundGaitCarrier = -0.014f * leftSwing;
+                break;
+            case 4u:
+                avianGroundGaitCarrier = 0.018f * max(leftSwing, 0.0f);
+                break;
+            case 5u:
+                avianGroundGaitCarrier = -0.010f * max(leftSwing, 0.0f);
+                break;
+            case 6u:
+                avianGroundGaitCarrier = -0.014f * rightSwing;
+                break;
+            case 7u:
+                avianGroundGaitCarrier = 0.018f * max(rightSwing, 0.0f);
+                break;
+            case 8u:
+                avianGroundGaitCarrier = -0.010f * max(rightSwing, 0.0f);
+                break;
+            default:
+                break;
+            }
+        }
         const float studentTarget =
             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
             ? defaultQ[binding.indices.z] +
@@ -3642,7 +3675,8 @@ kernel void mr_locomotion_task_apply_actions(
                     avianWingAmplitude *
                     sin(state.commandAndPhase.w)
             : defaultQ[binding.indices.z] +
-                binding.parameters.x * filtered *
+                binding.parameters.x *
+                    (filtered + avianGroundGaitCarrier) *
                     (avianStandingCurriculum ? 0.0f : 1.0f);
         float targetCandidate = studentTarget;
         if (interactionReference) {

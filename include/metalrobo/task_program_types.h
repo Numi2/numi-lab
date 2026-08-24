@@ -50,6 +50,11 @@ enum MRTaskProgramFlags : mr_u32 {
     // wingbeat. This flag makes their grounded curriculum an explicit,
     // fingerprinted task contract consumed by the Metal action pass.
     MR_TASK_PROGRAM_AVIAN_GROUND_CURRICULUM = 1u << 12u,
+    // The estimated crow's first walking band starts from a separately
+    // qualified, low-amplitude leg carrier. Learned actions remain residuals
+    // around that carrier and must be evaluated against it, not confused with
+    // an independently learned gait.
+    MR_TASK_PROGRAM_AVIAN_CROW_GROUND_GAIT_CARRIER = 1u << 13u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {

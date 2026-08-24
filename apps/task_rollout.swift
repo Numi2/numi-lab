@@ -2567,6 +2567,9 @@ private enum TaskRolloutMain {
                     ? "birdflow_ground_gait_action_probe"
                     : "host_stream",
                 "action_stream": options.actionStream ?? "",
+                "action_carrier": options.birdFlowAmericanCrow
+                    ? "stage1_crow_gait_plus_policy_residual"
+                    : "none",
                 "device": context.deviceName,
                 "solver_mode": "temporal_cone",
                 "articulated_contact_responses":
