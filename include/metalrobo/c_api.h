@@ -708,6 +708,11 @@ MR_API const float* mr_task_rollout_motion_features(
 MR_API const float* mr_task_rollout_teacher_actions(
     const MRTaskRolloutHandle* handle
 );
+// Exact accepted normalized task actions, packed
+// [control step][environment][action] for the latest submission.
+MR_API const float* mr_task_rollout_policy_actions(
+    const MRTaskRolloutHandle* handle
+);
 MR_API const MRTaskTransitionC* mr_task_rollout_transitions(
     const MRTaskRolloutHandle* handle
 );

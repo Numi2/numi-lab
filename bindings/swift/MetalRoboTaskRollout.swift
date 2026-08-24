@@ -2006,6 +2006,26 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         )
     }
 
+    public func policyActions(
+        controlStepCount: Int
+    ) throws -> [Float] {
+        let current = layout
+        let count =
+            controlStepCount *
+            current.environmentCount *
+            current.actionCount
+        guard let values =
+                mr_task_rollout_policy_actions(handle)
+        else {
+            throw MetalRoboTaskRolloutError.native(
+                "Policy action stream is unavailable."
+            )
+        }
+        return Array(
+            UnsafeBufferPointer(start: values, count: count)
+        )
+    }
+
     public func policyLogProbabilities(
         controlStepCount: Int
     ) throws -> [Float] {

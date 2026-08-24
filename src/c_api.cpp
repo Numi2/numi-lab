@@ -4361,6 +4361,15 @@ const float* mr_task_rollout_teacher_actions(
         : nullptr;
 }
 
+const float* mr_task_rollout_policy_actions(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle) &&
+        !handle->result.policyActions.empty()
+        ? handle->result.policyActions.data()
+        : nullptr;
+}
+
 const MRTaskTransitionC* mr_task_rollout_transitions(
     const MRTaskRolloutHandle* handle
 ) {

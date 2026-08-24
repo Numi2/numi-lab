@@ -680,6 +680,10 @@ struct MetalWorldResult {
     // Canonical normalized actions relative to the deployment task's default
     // pose. Populated when generated imagination is physically executed.
     std::vector<float> teacherActions;
+    // Exact post-policy normalized actions accepted by the task graph, packed
+    // [control step][environment][action]. This is the evidence stream used
+    // to verify a frozen base actor is byte-identical on protected bands.
+    std::vector<float> policyActions;
     std::vector<float> policyLatents;
     std::vector<float> policyLogProbabilities;
     std::vector<float> policyValues;

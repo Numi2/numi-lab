@@ -14402,6 +14402,7 @@ MetalWorldDiagnostics validateAndPublish(
             !finiteFloats(staged.criticObservations) ||
             !finiteFloats(staged.motionFeatures) ||
             !finiteFloats(staged.teacherActions) ||
+            !finiteFloats(staged.policyActions) ||
             !finiteFloats(staged.policyLatents) ||
             !finiteFloats(
                 staged.policyLogProbabilities
@@ -16563,6 +16564,9 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 staged.teacherActions.resize(
                     staged.layout.teacherActionElements
                 );
+                staged.policyActions.resize(
+                    staged.layout.actionElements
+                );
                 staged.policyLatents.resize(
                     staged.layout.policyLatentElements
                 );
@@ -16722,6 +16726,10 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 copyOutput(
                     staged.teacherActions,
                     buffers[kTaskTeacherActions]
+                );
+                copyOutput(
+                    staged.policyActions,
+                    buffers[kTaskActions]
                 );
                 if (staged.layout.policyLatentElements != 0u) {
                     copyOutput(

@@ -202,6 +202,7 @@ private struct Options {
     var interactionResetMaximumPhase: Float?
     var stateTrace: String?
     var stateTraceEnvironment = 0
+    var policyActionTrace: String?
     var g1VisualPackDirectory: String?
     var ballVisualPackDirectory: String?
     var visualEnvironmentPack: String?
@@ -445,6 +446,9 @@ private struct Options {
                 index += 1
             case "--state-trace-environment":
                 stateTraceEnvironment = try Self.integer(value(), option)
+                index += 1
+            case "--policy-action-trace":
+                policyActionTrace = try value()
                 index += 1
             case "--g1-visual-pack-dir":
                 g1VisualPackDirectory = try value()
@@ -849,6 +853,11 @@ private struct Options {
         if stateTrace == nil && stateTraceEnvironment != 0 {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--state-trace-environment requires --state-trace."
+            )
+        }
+        if policyActionTrace != nil && policyPack == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--policy-action-trace requires --policy-pack."
             )
         }
         if stateTraceEnvironment < 0 ||
@@ -2011,6 +2020,14 @@ private enum TaskRolloutMain {
                     "environment=\(options.stateTraceEnvironment)"
                 )
             }
+            var policyActionTraceLines: [String] = []
+            if options.policyActionTrace != nil {
+                let traceLayout = context.layout
+                policyActionTraceLines.append(
+                    "# step actions=\(traceLayout.actionCount) " +
+                    "environment=\(options.stateTraceEnvironment)"
+                )
+            }
             let captureDirectory = options.captureDirectory.map {
                 URL(fileURLWithPath: $0, isDirectory: true)
             }
@@ -2477,6 +2494,25 @@ private enum TaskRolloutMain {
                         )
                     }
                     failedSteps += advance.failedEnvironmentSteps
+                    if options.policyActionTrace != nil {
+                        let traceLayout = context.layout
+                        let actions = try context.policyActions(
+                            controlStepCount: stepCount
+                        )
+                        for localStep in 0..<stepCount {
+                            let start =
+                                (localStep * options.environments +
+                                 options.stateTraceEnvironment) *
+                                traceLayout.actionCount
+                            let end = start + traceLayout.actionCount
+                            let payload = actions[start..<end].map {
+                                String(format: "%.9g", $0)
+                            }.joined(separator: "\t")
+                            policyActionTraceLines.append(
+                                "\(globalStep + localStep + 1)\t\(payload)"
+                            )
+                        }
+                    }
                     if options.stateTrace != nil {
                         let traceLayout = context.layout
                         let environment = options.stateTraceEnvironment
@@ -2652,6 +2688,14 @@ private enum TaskRolloutMain {
                 try (stateTraceLines.joined(separator: "\n") + "\n")
                     .write(
                         to: URL(fileURLWithPath: stateTrace),
+                        atomically: true,
+                        encoding: .utf8
+                    )
+            }
+            if let policyActionTrace = options.policyActionTrace {
+                try (policyActionTraceLines.joined(separator: "\n") + "\n")
+                    .write(
+                        to: URL(fileURLWithPath: policyActionTrace),
                         atomically: true,
                         encoding: .utf8
                     )
@@ -3037,6 +3081,7 @@ private enum TaskRolloutMain {
                 "visual_observation_config":
                     options.visualObservationConfig ?? "",
                 "state_trace": options.stateTrace ?? "",
+                "policy_action_trace": options.policyActionTrace ?? "",
                 "environments": options.environments,
                 "steps_per_repeat": options.steps,
                 "maximum_episode_steps":
