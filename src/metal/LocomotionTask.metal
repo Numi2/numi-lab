@@ -3659,7 +3659,7 @@ kernel void mr_locomotion_task_apply_actions(
                 // tail-speed feedback remains unchanged for this isolated
                 // wing-sign qualification.
                 -0.150f + 0.400f * heightError - 0.120f * verticalRate +
-                    0.100f * forwardSpeedError,
+                    0.025f * forwardSpeedError,
                 -1.000f,
                 0.125f
             );
