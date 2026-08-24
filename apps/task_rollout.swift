@@ -1447,6 +1447,7 @@ private enum TaskRolloutMain {
                 options.worldPack == nil && options.urdf == nil &&
                 options.unitreeG1Task == .ballDodge
             var terminationReasonCounts: [String: Int] = [:]
+            var timeoutCount = 0
             var terminationCountByEnvironment = [Int](
                 repeating: 0,
                 count: options.environments
@@ -1991,6 +1992,11 @@ private enum TaskRolloutMain {
                                 reason,
                                 default: 0
                             ] += 1
+                            if transition.terminationReason ==
+                                MetalRoboTaskTerminationReason.timeout.rawValue
+                            {
+                                timeoutCount += 1
+                            }
                         }
                     }
                     totalResets += advance.hostRequestedResets
@@ -2600,6 +2606,7 @@ private enum TaskRolloutMain {
                 "stage_high_water": stageHighWater,
                 "failed_environment_steps": failedSteps,
                 "termination_count": terminationCount,
+                "timeout_count": timeoutCount,
                 "termination_reason_counts":
                     terminationReasonCounts,
                 "termination_count_by_environment":
