@@ -226,17 +226,17 @@ def evaluation_arguments(
             if value == "--interaction-student-authority":
                 skip = True
                 continue
-            if value == "--interaction-reset-only":
-                continue
             filtered.append(value)
-        # Preserve the authored interaction task contract.  In particular,
-        # `--interaction-reset-only` changes the compiled task fingerprint
-        # for physics-gated InteractionPacks, so adding it here would make
-        # candidate selection reject the very PolicyPack just trained.
         projected = filtered + [
             "--interaction-student-authority",
             "0",
         ]
+        # Selection must retain the accepted teacher reset while evaluating
+        # the autonomous student.  This flag is part of the compiled contract,
+        # so append it only when the source invocation did not already carry
+        # it.
+        if "--interaction-reset-only" not in projected:
+            projected.append("--interaction-reset-only")
 
     # Staged adult and BirdFlow tasks deliberately mix previous and current
     # bands during training. Promotion must answer the stricter question: did
