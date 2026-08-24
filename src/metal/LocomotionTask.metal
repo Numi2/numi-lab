@@ -3546,7 +3546,28 @@ kernel void mr_locomotion_task_apply_actions(
         // resulting position target to the joint range below, so policies
         // trained with residuals outside [-1, 1] retain their source action
         // semantics without weakening physical target safety.
-        const float requested = actionStream[actionBase + action];
+        const MRTaskActionBindingGPU binding =
+            actions[action];
+        const bool avianCrowGroundCommonModeReject =
+            state.episode.z == 1u &&
+            (program.schedule.w &
+             MR_TASK_PROGRAM_AVIAN_CROW_GROUND_LEG_COMMON_MODE_REJECT) != 0u &&
+            binding.actuator.x == MR_TASK_ACTUATOR_JOINT_POSITION &&
+            action >= 7u && action <= 12u;
+        const uint bilateralPeerAction =
+            avianCrowGroundCommonModeReject
+            ? (action < 10u ? action + 3u : action - 3u)
+            : MR_INVALID_INDEX;
+        const float requestedRaw = actionStream[actionBase + action];
+        // Pair members have the same response time and delay contract, so
+        // projecting before their first-order filters exactly preserves each
+        // normalized differential residual while rejecting its common mode.
+        // Raw policy output remains recorded below; action history contains
+        // the command that actually reaches the physical position drive.
+        const float requested = bilateralPeerAction != MR_INVALID_INDEX
+            ? 0.5f * (requestedRaw -
+                       actionStream[actionBase + bilateralPeerAction])
+            : requestedRaw;
         rawPolicyActions[
             environment * program.counts0.x + action
         ] = rawPolicyLatents[actionBase + action];
@@ -3555,8 +3576,6 @@ kernel void mr_locomotion_task_apply_actions(
             filterSlot * program.counts0.x +
             action
         ];
-        const MRTaskActionBindingGPU binding =
-            actions[action];
         const float responseTimeSeconds = binding.parameters.w;
         const float responseFraction =
             responseTimeSeconds > 0.0f
