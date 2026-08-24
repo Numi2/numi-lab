@@ -1104,6 +1104,63 @@ allocation mechanism; it authorizes no learner, Stage 2, deployment, replay,
 GIF, picture, README media, flight assertion, or Crow-biomechanics claim. A
 failure ends this support-phase hypothesis without a gate-shape variant.
 
+### Swing-phase residual allocation outcome — rejected
+
+Source `f9d4880a` first introduced the counterfactual, but its flag reused bit
+17 and therefore collided with the previously rejected common-mode task
+fingerprint (`11608351420320865043`). The first zero-action artifact is
+retained at `.numi/runs/crow-ground-swing-phase-20260824-v1/zero-actions/`,
+but is explicitly inadmissible provenance evidence: execution stopped before
+either actor was rebound or evaluated. Source `2f1e1c1c57803a2152d490f388b2500e8bd383bb`
+assigned the experiment its own bit 18 and the M4 rebuilt it successfully with
+`metalrobo_run_program_check`.
+
+The corrected zero-action isolation, at 64 environments × 5,000 no-reset
+steps, chunk 1, seed `2650443582`, had task fingerprint
+`15631006314005615029`, run fingerprint `10524091870655699159`, zero failed
+environment steps, and only 64 authored timeouts. Its state trace was the
+required SHA-256
+`f9a4dfd48cb3b3f65fee533ee16583849972312e8b70728cdb5127be0ec2110b`;
+the evidence and runtime-manifest SHA-256 values were
+`7117cef5655ef646ad5d46f7dae43ddc72072baf44843db2a3476d0079e76e24` and
+`bc77783aa1830ccf362e661aee9a35ff2dcdeef4ef8f36f1e8b1ccb7a23c7bb5`.
+
+The canonical writer rebound the final candidate and incumbent only to that
+new task contract. The actor tensors, normalization/action vectors, policy
+ID, and revision were bit-identical before and after: candidate actor SHA-256
+`7fd1eaf41c4e327c404a791de41f7f069ea03e3ebb175554b8ec26fc7eed3d9d`
+(revision 513) and incumbent actor SHA-256
+`1a7a9e1051d7643aa639e28a1d2269727a08f42600450f647fce324f73f27192`
+(revision 1). The rebound-policy SHA-256 values were
+`438cfb3fee5d1ca2bdba129a105453c4e2925e7361868ea4502dc20bba5ec3a9`
+(candidate) and
+`7676df35bc96bd51730257cb7380d92a617706a943e8390482b5e7cee2966456`
+(incumbent).
+
+On the one authorized held-out seed `2650443585`, all four 64-environment,
+5,000-step, no-reset, chunk-1 M4 runs had zero failed environment steps and
+only 64 authored timeouts. In current band 1, the candidate's tracking was
+`0.9022161313` versus the incumbent's `0.9119821667`, and its mean tilt was
+`0.0131824957` rad versus `0.0039168835` rad. The registered tilt ceiling was
+therefore `0.0089168835` rad, which the candidate exceeded by
+`0.0042656122` rad; it also failed the tracking gate. The protected band 0
+comparison was effectively unchanged (candidate / incumbent tracking
+`0.9999999866` / `0.9999999867`, mean tilt `0.0005083765` /
+`0.0005041855` rad), but that does not waive the current-band failure.
+
+The four evidence SHA-256 values, in candidate-band-1, incumbent-band-1,
+candidate-band-0, incumbent-band-0 order, are
+`1188671d0aa1f94d7e6577029deb15fd0566f514a3177d2e3bc8eaff9118f00d`,
+`545203da0314c4d9d1c453d956df379758163e62051ed62e157793f68f11e3f5`,
+`f20fa20832c04a2d01c9a40a728ae9d7c2284b05f806f87b3f34d1f14740ef2d`,
+and `e3e070ac97f14d1daf7c90d93a5cd65f4a7388d9a8120cfcd5dcf6542522d04b`.
+The matching state traces are retained under
+`.numi/runs/crow-ground-swing-phase-20260824-v1/` on the M4. The temporal
+support-phase hypothesis is rejected, so the action gate is removed from the
+active task. No gate-shape variant, learner run, Stage 2, deployment, replay,
+GIF, picture, README media, standing-to-flight claim, or Crow-biomechanics
+claim is authorized from this evidence.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
