@@ -66,6 +66,11 @@ enum MRTaskProgramFlags : mr_u32 {
     // controller. Keep the authority boundary in the compiled task contract
     // so policy packs cannot silently change what their band-one actions do.
     MR_TASK_PROGRAM_AVIAN_CROW_GROUND_LEG_RESIDUAL = 1u << 15u,
+    // Carrier-supported walking must train against the same narrow attitude
+    // envelope used by its held-out promotion gate. Keep this Crow-specific
+    // objective shaping in the compiled task contract so neither a Dove
+    // policy nor a prior Crow PolicyPack can silently opt into it.
+    MR_TASK_PROGRAM_AVIAN_CROW_GROUND_TILT_ENVELOPE = 1u << 16u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {

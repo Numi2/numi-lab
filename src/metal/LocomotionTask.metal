@@ -4620,6 +4620,10 @@ kernel void mr_locomotion_task_complete(
     constexpr float avianGroundRootHeightTarget = 0.1873f;
     const bool avianSupportedGroundStage =
         avianGroundCurriculum && avianCurriculumBand < 2u;
+    const bool avianCrowGroundTiltEnvelope =
+        avianGroundCurriculum && avianCurriculumBand == 1u &&
+        (program.schedule.w &
+         MR_TASK_PROGRAM_AVIAN_CROW_GROUND_TILT_ENVELOPE) != 0u;
     for (uint rewardIndex = 0u;
          rewardIndex < program.counts1.w;
          ++rewardIndex) {
@@ -5069,7 +5073,16 @@ kernel void mr_locomotion_task_complete(
             // climb.  The threshold comes from the held-out zero-policy mean
             // (about 0.29 rad) with margin for a physical push-off; later
             // figure-eight flight retains unconstrained learned banking.
-            if (avianGroundCurriculum && avianCurriculumBand == 2u) {
+            if (avianCrowGroundTiltEnvelope) {
+                // Band-one policy selection rejects mean tilt above 0.0089
+                // rad. Start this Crow-only hinge below that gate, so the
+                // learned walking objective cannot buy tracking with the
+                // large attitude excursion the held-out criterion forbids.
+                // The -0.50 authored reward weight yields a -2.0 quadratic
+                // coefficient above the 0.0075-rad training envelope.
+                const float excessTilt = max(tilt - 0.0075f, 0.0f);
+                value = 4.0f * excessTilt * excessTilt;
+            } else if (avianGroundCurriculum && avianCurriculumBand == 2u) {
                 const float excessTilt = max(tilt - 0.35f, 0.0f);
                 // The task's existing -0.50 reward weight yields a -3.0
                 // quadratic coefficient beyond the launch envelope.

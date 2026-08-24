@@ -4078,6 +4078,12 @@ TaskCompileDiagnostics compileTaskProgram(
         // retain the full standing-to-flight action set.
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_AVIAN_CROW_GROUND_LEG_RESIDUAL;
+        // The held-out band-one gate is deliberately much narrower than the
+        // generic ground tilt reward. Make the alignment explicit and
+        // fingerprinted: it applies only to carrier-supported Crow walking,
+        // never to the Dove, passive standing, lift-off, or flight bands.
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_AVIAN_CROW_GROUND_TILT_ENVELOPE;
         // Band two is a standing-to-liftoff system-identification problem,
         // not yet curved flight.  The compiled carrier closes the observed
         // narrow actuation gap while preserving the policy's later flight
