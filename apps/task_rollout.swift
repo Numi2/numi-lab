@@ -2568,7 +2568,7 @@ private enum TaskRolloutMain {
                     : "host_stream",
                 "action_stream": options.actionStream ?? "",
                 "action_carrier": options.birdFlowAmericanCrow
-                    ? "stage1_crow_gait_plus_policy_residual"
+                    ? "stage1_crow_gait_plus_bounded_policy_residual_0.25"
                     : "none",
                 "device": context.deviceName,
                 "solver_mode": "temporal_cone",

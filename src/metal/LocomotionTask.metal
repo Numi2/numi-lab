@@ -3661,6 +3661,13 @@ kernel void mr_locomotion_task_apply_actions(
                 break;
             }
         }
+        // Stage 1 is a residual-learning problem around the qualified gait
+        // carrier.  The learned action has a deliberately narrower authority
+        // than the carrier: early policy updates can improve timing and trim
+        // without trivially cancelling the stable walking cycle.  Later
+        // liftoff and flight bands retain their full policy authority.
+        const float avianGroundResidualScale =
+            avianCrowGroundGaitCarrier ? 0.25f : 1.0f;
         const float studentTarget =
             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
             ? defaultQ[binding.indices.z] +
@@ -3676,7 +3683,7 @@ kernel void mr_locomotion_task_apply_actions(
                     sin(state.commandAndPhase.w)
             : defaultQ[binding.indices.z] +
                 binding.parameters.x *
-                    (filtered + avianGroundGaitCarrier) *
+                    (filtered * avianGroundResidualScale + avianGroundGaitCarrier) *
                     (avianStandingCurriculum ? 0.0f : 1.0f);
         float targetCandidate = studentTarget;
         if (interactionReference) {
