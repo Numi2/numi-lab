@@ -4795,25 +4795,10 @@ kernel void mr_locomotion_task_complete(
         state.commandAndPhase.xyz
     );
     const bool moving = commandMagnitude > 0.1f;
-    // The amplitude, tail, and pronation response probes leave the stage-2
-    // crow without a bounded speed-control direction. Modulate the live
-    // wingbeat clock instead: a positive yaw-frame speed error lengthens the
-    // period (reducing frequency), while an underspeed shortens it. This
-    // changes only real flapping-position targets; aerodynamic loads and
-    // articulated ABA remain authoritative. The +/-5% envelope preserves
-    // the imported 4.6 Hz estimate as the neutral operating point.
-    const float avianFlightPhasePeriod =
-        avianGroundCurriculum && avianCurriculumBand == 2u
-        ? program.locomotion.y * clamp(
-            1.0f + 0.020f * (yawFrameLinear.x - 0.35f),
-            0.95f,
-            1.05f
-        )
-        : program.locomotion.y;
     float phase =
         state.commandAndPhase.w +
         kTwoPi * dispatch.timing.x /
-            avianFlightPhasePeriod;
+            program.locomotion.y;
     phase = fmod(phase, kTwoPi);
 
     bool recoveryConfigured = false;

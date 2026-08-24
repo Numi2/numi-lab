@@ -263,6 +263,21 @@ meet the held-out flight gate and its causal benefit was not demonstrated, it
 was reverted; the next test starts from the qualified all-lane residual
 carrier rather than stacking unvalidated restrictions.
 
+## Wingbeat-frequency feedback (rejected)
+
+Frequency is a real flapping-position control direction, so it was tested as
+a bounded controller on the same live 4.6 Hz wingbeat clock rather than as an
+added aerodynamic force. All probes used one environment, 5,000 steps, band
+2, held-out seed `2650443581`, and no scheduled resets. Lengthening the period
+on overspeed at a 12% bound was physically clean but produced a high, backward
+trajectory (tracking 0.49943, mean height 1.27287 m, final X -9.85 m).
+Reversing that sign was also clean but accelerated to final X +47.81 m with
+tracking 0.49897 and mean height 0.81204 m. Reducing the first sign to a 2%
+gain remained clean but reached only 0.49936 tracking (mean height 1.09570 m,
+final X +19.70 m). Neither direction improves the held-out objective, so all
+frequency-feedback variants were reverted. These are single-environment
+response probes, not population-level qualification.
+
 ## Required next evidence
 
 The next control experiment must first identify a bounded, long-horizon
