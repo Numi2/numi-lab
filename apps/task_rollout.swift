@@ -165,6 +165,7 @@ private struct Options {
     var actionStream: String?
     var birdFlowFlapScript = false
     var birdFlowStrokeAmplitude: Float?
+    var birdFlowTailPitch: Float?
     var birdFlowGroundGaitProbe = false
     var scheduledResets = true
     var policyPack: String?
@@ -482,6 +483,16 @@ private struct Options {
                 }
                 birdFlowStrokeAmplitude = amplitude
                 index += 1
+            case "--birdflow-tail-pitch":
+                guard let pitch = Float(try value()), pitch.isFinite,
+                      pitch >= -1, pitch <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-tail-pitch requires a finite value in [-1, 1]."
+                    )
+                }
+                birdFlowTailPitch = pitch
+                index += 1
             case "--birdflow-ground-gait-probe":
                 birdFlowGroundGaitProbe = true
             default:
@@ -551,6 +562,11 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "BirdFlow scripted action sources are mutually exclusive."
+            )
+        }
+        if birdFlowTailPitch != nil && birdFlowStrokeAmplitude == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-tail-pitch requires --birdflow-stroke-amplitude."
             )
         }
         if rolloutPack != nil &&
@@ -1062,11 +1078,12 @@ private func birdFlowFlapActions(
 
 private func birdFlowStrokeActions(
     amplitude: Float,
+    tailPitch: Float,
     stepCount: Int,
     environmentCount: Int,
     actionCount: Int
 ) -> [Float] {
-    precondition(actionCount >= 2)
+    precondition(actionCount >= 3)
     var result = [Float](
         repeating: 0,
         count: stepCount * environmentCount * actionCount
@@ -1075,9 +1092,11 @@ private func birdFlowStrokeActions(
         for environment in 0..<environmentCount {
             let base = (step * environmentCount + environment) * actionCount
             // The first two bindings are the left/right flapping actuators;
-            // leave tail and leg actions neutral during this calibration.
+            // the third is tail pitch. Leave leg actions neutral during this
+            // calibration.
             result[base] = amplitude
             result[base + 1] = amplitude
+            result[base + 2] = tailPitch
         }
     }
     return result
@@ -1714,6 +1733,7 @@ private enum TaskRolloutMain {
                         } else if let amplitude = options.birdFlowStrokeAmplitude {
                             actionBatch = birdFlowStrokeActions(
                                 amplitude: amplitude,
+                                tailPitch: options.birdFlowTailPitch ?? 0,
                                 stepCount: stepCount,
                                 environmentCount: options.environments,
                                 actionCount: context.layout.actionCount
@@ -2572,11 +2592,15 @@ private enum TaskRolloutMain {
                     : options.birdFlowFlapScript
                     ? "birdflow_4hz_flap_qualification"
                     : options.birdFlowStrokeAmplitude != nil
-                    ? "birdflow_stroke_amplitude_qualification"
+                    ? options.birdFlowTailPitch != nil
+                        ? "birdflow_stroke_amplitude_tail_qualification"
+                        : "birdflow_stroke_amplitude_qualification"
                     : options.birdFlowGroundGaitProbe
                     ? "birdflow_ground_gait_action_probe"
                     : "host_stream",
                 "action_stream": options.actionStream ?? "",
+                "birdflow_stroke_amplitude": options.birdFlowStrokeAmplitude ?? 0,
+                "birdflow_tail_pitch": options.birdFlowTailPitch ?? 0,
                 "action_carrier": options.birdFlowAmericanCrow
                     ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_when_band_1"
                     : "none",
