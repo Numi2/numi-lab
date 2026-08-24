@@ -348,6 +348,32 @@ maximum tilt `0.0635701 / 0.1247985 rad`, tracking `0.5006364`, and mean /
 maximum forward progress `16.8779269 / 17.9386941 m`. Its immutable root is
 `.numi/runs/crow-residual-envelope-20260824-v1/restored-v1-zero-64x5000/`.
 
+## Low-exploration PPO trial (pre-registered)
+
+The two controller-envelope experiments are rejected, and the active 4.6 Hz
+hybrid and its physical task are now independently requalified. The remaining
+direct evidence from the prior matched PPO run is that its initial
+`log standard deviation = -2` corresponds to mean action standard deviation
+`0.13514`, and the learner accumulated contact terminations before its
+held-out candidates failed. The next test changes only the initial exploration
+scale to `log standard deviation = -3` (standard deviation about `0.04979`).
+It does not alter the model, action bounds, controller, reward, curriculum,
+physics, optimizer, learning rate, seed, policy architecture, checkpoint
+schedule, or selector. This is an RL stability experiment, not a claim about
+Crow control or movement.
+
+The one authorized run starts a new zero-actor-output Crow policy at source
+`73bad6b`, using 128 environments × 128 steps × 256 updates, chunk 8, fixed
+learning rate `1e-4`, learner seed `2650443581`, and checkpoints every 64
+updates. The immutable selector uses 64 environments, 5,000 no-reset band-2
+steps, and held-out seed `2650443581` to compare every checkpoint and final
+candidate against the fresh incumbent. A candidate must reach tracking at
+least `0.70`, have zero non-timeout physical-boundary failures, and not regress
+the height/attitude envelope before any deployment, replay, GIF, picture, or
+README entry. Otherwise the incumbent remains active and the result is
+negative evidence; no follow-on hyperparameter sweep is authorized by this
+pre-registration.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
