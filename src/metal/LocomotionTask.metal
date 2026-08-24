@@ -3627,6 +3627,10 @@ kernel void mr_locomotion_task_apply_actions(
             (program.schedule.w &
              MR_TASK_PROGRAM_AVIAN_CROW_LIFTOFF_TRIM_CARRIER) != 0u &&
             state.episode.z == 2u;
+        const bool avianCrowLiftoffPronationAction =
+            avianCrowLiftoffTrimCarrier &&
+            binding.actuator.x == MR_TASK_ACTUATOR_JOINT_POSITION &&
+            (binding.indices.x == 2u || binding.indices.x == 3u);
         // The live action sweep brackets the estimated hybrid's transition:
         // +0.100 remains ground-bound whereas +0.125 repeatedly reaches the
         // altitude boundary.  A positive stroke-plane tilt then supplies
@@ -3712,6 +3716,10 @@ kernel void mr_locomotion_task_apply_actions(
             avianCrowLiftoffTrimCarrier ? 0.25f : 1.0f;
         const float avianLiftoffTailResidualScale =
             avianCrowLiftoffTrimCarrier ? 0.10f : 1.0f;
+        const float avianLiftoffPronationCarrier =
+            avianCrowLiftoffPronationAction
+            ? 0.20f * sin(state.commandAndPhase.w + 2.62f)
+            : 0.0f;
         const float avianLiftoffTailCarrier =
             avianCrowLiftoffTrimCarrier && binding.indices.x == 4u
             ? clamp(
@@ -3733,6 +3741,21 @@ kernel void mr_locomotion_task_apply_actions(
             ? clamp(
                 avianLiftoffTailCarrier +
                     avianLiftoffTailResidualScale * filtered,
+                -1.0f,
+                1.0f
+            )
+            : avianCrowLiftoffPronationAction
+            ? clamp(
+                // The long-horizon host position-drive sweep rejected an
+                // in-phase feathering signal but retained the filtered pi
+                // phase convention. Compensate its 20 ms first-order action
+                // filter (about 0.52 rad at 4.6 Hz) here, where the carrier
+                // directly targets the actual ABA pronation coordinates. The
+                // 0.20 normalized amplitude maps to +/-0.060 rad, inside the
+                // verified static +/-0.075-rad position-target envelope.
+                // This never edits an aerodynamic coefficient or wrench;
+                // the learner only adds its existing bounded residual.
+                avianLiftoffPronationCarrier + 0.25f * filtered,
                 -1.0f,
                 1.0f
             )
