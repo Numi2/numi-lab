@@ -1398,6 +1398,61 @@ Neither outcome authorizes a replay, GIF, picture, README addition,
 standing-to-flight claim, or real/biomechanical Crow claim without the
 separate deterministic replay qualification described above.
 
+### Frozen-base residual execution gate: passed (no learner result)
+
+The first attempted action-stream control is retained under
+`.numi/runs/crow-frozen-base-residual-controls-20260824-v1/` on the remote M4,
+but is not evidence: it found an implementation fault before any learner ran.
+The residual sampling encoder placed `MRPolicySampleDispatchGPU` at Metal
+buffer index 2, overwriting the frozen base-policy header required by the
+composition kernel. The kernel correctly rejected that malformed contract and
+left the action stream at zero. Commit `6dc0d6f` fixes the binding layout:
+primary header/arena at 0--1, base header/arena at 2--3, dispatch constant at
+4, and runtime buffers at 5--12. The Mini rebuilt all affected targets and
+the transactional `metalrobo_run_program_check` passed before controls were
+restarted.
+
+Fresh M4 controls in
+`.numi/runs/crow-frozen-base-residual-controls-20260824-v2/` then compared the
+selected Stage-1 deployment directly with the zero-residual composite. Every
+run used 64 environments, 5,000 no-reset control steps, one repeat, chunk 1,
+seed `2650443590`, and the unchanged task/observation/action fingerprints.
+The deterministic zero-residual primary is SHA-256
+`262503397e261112bb986bae0873e76db21ca0b6c35e9514d229abe6042c4c3d`; the
+frozen base is the selected Stage-1 deployment SHA-256
+`99e5b165e77a929cd8478568693abaee36d7d4ca2cc80784e30b991f9eeb4939`.
+
+| Fixed band | Exact action-trace SHA-256 | Exact state-trace SHA-256 | Result |
+| ---: | --- | --- | --- |
+| 0 | `ef21ba097761717861cf2b569b456a09e835063a98d41e66f990c8bf5b76d5de` | `450013c69bf897fa20d0d830146479d3900d9eef067147031151b8e0699af6a0` | base = zero-residual composite |
+| 1 | `c0e6056d4e77a282ef8277f5dfc4eb21acc02eeff8dc9d6b412b85813a5ee431` | `140cb111d4fd5f7523b535d6076a42d50882272e0a0bb8e53dd4696f467f27e2` | base = zero-residual composite |
+| 2 | `6d51219dcb81273e429f7c1dac76a22291bf0cca456a0d955c6126e3e4af3cb9` | `e8fc677141303c2fd78d4506db81a16c648276d094d2eceade165f21dc6b0b6f` | base = zero-residual composite |
+
+The required band-separation test used a deliberately labelled,
+non-trainable fixture only: revision 2 of a deterministic residual with its
+final actor bias at action 0 changed from `0` to `+0.05` (fixture SHA-256
+`55b07cef9b529fad9aaed5452c1beb25527df28a453ab06b527f1e8868051b27`). It
+ran 64 environments for 100 no-reset steps against the same base. Bands 0 and
+1 were byte-identical to the zero-residual composite in both actions and
+state; their action/state prefix hashes were respectively
+`4754a4e11c3bda92643e861320a592b0b80a58d8346ab4e10bfda5992e331abc` /
+`eb5b08feb2628596dced9cc5cebcc1257d33275bf59e7d395ad49d08b38f0684` and
+`4534e26e3504cef7b56e66bc06fca350c82afca3157ddf089a8d5458258f7405` /
+`b0b790d0c08a35a151c4e16f59c1bdfc950224836b9d55b5fafcd80425162142`.
+Band 2 was non-identical: its first differing element was step 1, action 0,
+delta `+0.0500000008`; 1,387 of the 1,400 traced action values differed after
+the deliberately changed first action altered subsequent physical state. Its
+zero-residual and fixture action-prefix hashes were
+`107f4cd672d14199c74da248458975191759f8d7e0221773afe31de494b912da` and
+`3018d289fc74da5c0840721f00056e65d2c28d0dd239888d08801fe7d9290d97`.
+
+These tests qualify only the two-policy execution boundary and the stated
+non-forgetting invariant. They do not report a residual learner outcome,
+successful standing-to-flight behavior, a Crow flight, a biomechanical
+measurement, a replay, or media. They unlock exactly the pre-registered
+single band-2 learner below; its held-out selector remains the sole promotion
+decision.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
