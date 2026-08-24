@@ -61,6 +61,16 @@ pronation lowers tilt over the short fixed probe, but does not establish a
 forward trim or justify seeding a fixed pronation carrier. Training therefore
 starts from zero pronation with bounded residual authority.
 
+That short response did not persist over the selected task horizon. A second
+remote M4 Pro probe held `--birdflow-pronation 1` at stage 2 for 64
+environments and 5,000 control steps with scheduled resets disabled. It had
+zero failed environment steps and zero non-timeout physical failures, but all
+64 environments reached the authored timeout with mean height 0.616 m, mean /
+maximum tilt 0.235 / 0.475 rad, tracking 0.503, and zero reported forward
+progress. This rejects widening the stage-2 pronation residual from 0.25 to
+full authority: a phase-independent feathering offset is not a forward-flight
+trim.
+
 ## Fixed-policy brackets
 
 Every row used four environments, 5,000 control steps, band 2 only,
@@ -88,30 +98,41 @@ increased contact and tilt failures. It is not retained in the default model.
 
 ## Training and promotion gate
 
-The most recent bounded-residual run used 128 environments, 128 steps/update,
-64 updates, 1,048,576 samples, fixed learning rate `1e-4`, initial log standard
-deviation `-2`, and matched 64-environment held-out evaluation. Training
-completed with zero failed environment steps and 36,075.8 ms GPU time.
+The first clean training run after the articulated-pronation import was
+`crow-pronation-20260824-v1` at source revision `d8bf334`. It used 128
+environments, 128 steps/update, 64 updates, 1,048,576 samples, fixed learning
+rate `1e-4`, initial log standard deviation `-2`, and checkpointed revisions
+17, 33, 49, and 65. Native Metal/MLX training on the Apple M4 Pro completed
+with zero failed environment steps in 64.065 seconds (50,878.4 ms measured GPU
+time; 16,367 end-to-end environment steps/s). The final learner batch's 0.941
+tracking is an optimization statistic, not a held-out flight result.
 
-The final held-out candidate was rejected:
+The selector evaluated every checkpoint, the final candidate, and the
+immutable pre-training incumbent on the same 64-environment, 5,000-step,
+no-scheduled-reset rollout with held-out seed `2650443581`. The final candidate
+was rejected:
 
-| Metric | Incumbent | Candidate |
+| Metric | Incumbent | Final candidate |
 | --- | ---: | ---: |
-| Mean tracking score | 0.5055 | 0.5292 |
-| Non-timeout physical failures/environment | 2.0 | 3.0 |
-| Mean root height (m) | 1.0327 | 0.5548 |
-| Mean tilt (rad) | 0.0918 | 0.2288 |
-| World-X final progress (m) | -9.083 | 1.437 |
+| Mean tracking score | 0.8360 | 0.8248 |
+| Non-timeout physical failures/environment | 0.171875 (11 / 64) | 0.171875 (11 / 64) |
+| Mean / maximum tilt (rad) | 0.01877 / 0.12785 | 0.04415 / 0.56926 |
+| Mean root height (m) | 0.4095 | 0.4379 |
+| World-X final / peak progress (m) | -22.637 / 0.199 | -29.852 / 0.090 |
+| Failed environment steps | 0 | 0 |
 
-The candidate missed the authored 0.70 tracking floor, added physical-boundary
-terminations, and increased tilt. The protected deployment pack therefore
-remained byte-identical to the immutable incumbent
-`c789e9d32760796f36d9fecb205691e5e4b10db4c2b44bc67a6b4999dbe0b6b6`.
+No checkpoint cleared the zero-physical-boundary-failure gate. The protected
+deployment SHA-256 is therefore the incumbent's
+`3cb1f9bd88cd5c1538a921b7e1a9a0c7b13aa9d52f513d05203e172ee58215d8`, not the
+retained candidate's
+`09240a50d578eb9226a313ad2169af3b532aae72f288ff466e2f86e9554cfb99`.
 
 ## Required next evidence
 
-Train from a clean run directory and promote only a held-out candidate that
-reaches tracking >= 0.70 with zero non-timeout physical-boundary failures.
-Then capture a deterministic replay and inspect its frames before linking it
-from the compact README showcase. Until then, no Numi crow flight GIF belongs
-in the README.
+The next control experiment should test a phase-synchronous, still-bounded
+pronation carrier against the existing zero-pronation residual baseline; a
+constant feathering offset is now rejected. Train from a clean run directory
+and promote only a held-out candidate that reaches tracking >= 0.70 with zero
+non-timeout physical-boundary failures. Then capture a deterministic replay
+and inspect its frames before linking it from the compact README showcase.
+Until then, no Numi crow flight GIF belongs in the README.
