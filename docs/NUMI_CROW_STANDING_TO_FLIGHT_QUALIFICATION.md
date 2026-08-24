@@ -939,6 +939,73 @@ or a standing-to-flight claim. The candidate and all evidence remain retained;
 any new experiment must name and pre-register a distinct causal hypothesis
 before another learner run.
 
+### Bilateral common-mode rejection counterfactual (pre-registered)
+
+The tilt rejection is not evidence that left/right asymmetry is the cause. The
+environment-0 held-out final-candidate trace is, however, strongly
+pitch-dominated: root quaternion `y` has RMS `0.045909124` and maximum absolute
+value `0.048993524`, while quaternion `x` has RMS `0.001700220` and maximum
+absolute value `0.003578208`. The matched incumbent values are respectively
+`0.001917251` and `0.000621338`. Thus a left/right symmetry-only explanation
+is not supported by this trace.
+
+A separate, non-qualifying actor inspection used the immutable final training
+`rollout.rolloutpack` (16,384 training samples, not the held-out selector) and
+the final deterministic actor at revision 513. Its common components
+`(left + right)/2` are `-0.24612`, `-0.14338`, and `-0.23003` for hip, knee,
+and ankle respectively; their corresponding differentials `left - right` are
+`0.05928`, `0.03266`, and `-0.17883`. In band 1 the compiled carrier itself
+is anti-phase. This does not prove the common residual caused pitch, but it
+motivates one falsifiable action-subspace test rather than another reward or
+amplitude sweep.
+
+The hypothesis is: removing only the bilateral *common* residual component
+will prevent the candidate from buying forward tracking with a persistent
+fore-aft pitch, while retaining each pair's differential residual and the
+unchanged anti-phase ground carrier. The new Crow-only, fingerprinted task
+flag will apply in band 1 to the three fixed pairs `(7,10)`, `(8,11)`, and
+`(9,12)` before their existing delay and per-joint first-order filters:
+
+```
+r_left  = 0.5 * (a_left - a_right)
+r_right = 0.5 * (a_right - a_left)
+```
+
+The policy's raw latents remain recorded as generated, but its action history
+will contain the projected commands actually sent to the six live leg drives;
+the next observation therefore reports executed rather than discarded
+residuals. Non-leg lanes remain masked as before. This is a rank-three
+common-mode projection, not a residual-scale change: it leaves each pair's
+signed differential unchanged, leaves the `0.25` residual multiplier intact,
+and introduces no additional learned or host-side controller.
+
+Before any candidate execution, the remote Apple M4 Pro must rebuild the
+Metal library and pass `metalrobo_run_program_check`. Its band-1 zero-action
+isolation uses 64 environments, 5,000 no-reset steps, chunk 1, and seed
+`2650443582`. It must have zero failed environment steps and reproduce the
+existing environment-0 physical trace byte-for-byte with SHA-256
+`f9a4dfd48cb3b3f65fee533ee16583849972312e8b70728cdb5127be0ec2110b`.
+
+Because the added task flag correctly changes the semantic task fingerprint,
+the rejected final actor and its incumbent must each be re-emitted through the
+native PolicyPack writer with only the new semantic contract. Before rollout,
+the M4 check must prove every actor layer weight, bias, observation
+normalization vector, action bias/scale vector, policy ID, and revision is
+bitwise identical to its source pack; only the task fingerprint and resulting
+artifact content hash may differ. This is a contract rebind, not training or a
+policy update.
+
+One nonvisual M4 counterfactual is then authorized: the re-bound final
+candidate and re-bound incumbent run current band 1 and protected band 0, each
+at 64 environments × 5,000 no-reset steps, one repeat, chunk 1, held-out seed
+`2650443584`. The candidate must have zero failed environment steps, zero
+non-timeout physical failures, tracking at least the matched incumbent, no
+protected-band regression, and mean current-band tilt no more than the matched
+incumbent plus `0.005` rad. A pass identifies a viable action-subspace
+hypothesis only; it still authorizes no learner, Stage 2, replay, GIF,
+picture, README media, flight assertion, or claim of Crow biomechanics. A
+failure ends this common-mode explanation without a projection variant.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
