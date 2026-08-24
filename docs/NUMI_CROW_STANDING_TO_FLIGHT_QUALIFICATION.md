@@ -264,6 +264,50 @@ mean tracking `0.5006364`, and mean / maximum forward progress
 This is rollback evidence only; the 4.6 Hz hybrid still does not meet the
 separate held-out PPO selection gate for a flight-policy replay or media.
 
+## Controller-only residual envelope (pre-registered)
+
+The retained 4.6 Hz baseline has zero physical-boundary failures, whereas the
+first articulated-load PPO trial first improved tracking to `0.546855` but
+already incurred `2.015625` physical failures per environment at revision 65;
+later checkpoints further increased tilt and failures. This identifies a
+controller-authority problem, not evidence for a new Crow morphology,
+aerodynamic coefficient, or target trajectory. In the live stage-2 task,
+the previous normalized `0.25` wing residual changes the flapping-amplitude
+command by up to `0.125`; the same residual changes the pronation target by
+up to `0.075 rad` in addition to its verified carrier. Those excursions can
+cancel or overwhelm the qualified state-feedback carrier before PPO has
+learned a safe correction.
+
+The candidate therefore changes only the stage-2 residual multipliers in the
+Metal action-application kernel: flapping and non-wing residuals `0.25 →
+0.10`, tail residual `0.10 → 0.05`, and pronation residual `0.25 → 0.05`.
+The resulting maximum residuals are respectively `±0.050` flapping-amplitude
+command, `±0.020 rad` sweep, `±0.015 rad` pronation, and half of the previous
+tail correction. The task clock, articulated mechanics, Blade-element and
+unsteady coefficients, observation/action ABI, curriculum, rewards, resets,
+terminations, policy architecture, optimizer, and held-out selector remain
+unchanged. This is an exploration-envelope test for an estimated hybrid, not
+a biological control claim.
+
+Before PPO, the candidate must build on the Apple M4 Pro and pass
+`metalrobo_run_program_check`, then pass two 64-environment × 5,000-step,
+band-2, no-scheduled-reset guards at seed `2650443581`: (1) zero actions and
+(2) a persisted, deterministic full-envelope Rademacher action stream with
+each 14-lane vector held for eight control steps. Both require zero failed
+environment steps, zero non-timeout physical-boundary failures, mean height in
+`[0.85, 1.30] m`, mean tilt at most `0.15 rad`, and maximum tilt at most
+`0.30 rad`. The stress stream is only a controller-safety probe; it is neither
+a Crow kinematic target nor training data. Failure restores the qualified
+residual multipliers and records a negative result before PPO.
+
+If both guards pass, the candidate receives exactly one matched 128-environment
+× 128-step × 256-update PPO run (chunk 8, learning rate `1e-4`, initial log
+standard deviation `-2`, learner seed `2650443581`, checkpoints every 64
+updates). The existing immutable 64-environment, 5,000-step held-out selector
+evaluates every checkpoint and final candidate. Nothing advances to deployment,
+replay, GIF, picture, or README unless tracking is at least `0.70` with zero
+non-timeout physical-boundary failures.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
