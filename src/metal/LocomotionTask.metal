@@ -4459,6 +4459,9 @@ kernel void mr_locomotion_task_complete(
     bool figureEightConfigured = false;
     bool figureEightActive = false;
     float figureEightPathErrorSquared = 0.0f;
+    const bool avianGroundCurriculum =
+        (program.schedule.w & MR_TASK_PROGRAM_AVIAN_GROUND_CURRICULUM) != 0u;
+    const uint avianCurriculumBand = state.episode.z;
     for (uint rewardIndex = 0u;
          rewardIndex < program.counts1.w;
          ++rewardIndex) {
@@ -4474,6 +4477,27 @@ kernel void mr_locomotion_task_complete(
         const float takeoffSeconds = operation.auxiliary.x;
         const float episodeSeconds =
             float(state.episode.x + 1u) * dispatch.timing.x;
+        if (avianGroundCurriculum && avianCurriculumBand == 0u) {
+            state.commandExtension = float4(
+                rootWorldPosition(program, q).xy,
+                0.0f,
+                0.0f
+            );
+            state.commandAndPhase.xyz = float3(0.0f);
+            break;
+        }
+        if (avianGroundCurriculum && avianCurriculumBand == 1u) {
+            state.commandExtension = float4(
+                rootWorldPosition(program, q).xy,
+                0.0f,
+                0.0f
+            );
+            // A modest target leaves forward progress, bilateral support,
+            // and uprightness as the learning signal while wings remain
+            // folded in the ground curriculum.
+            state.commandAndPhase.xyz = float3(0.22f, 0.0f, 0.0f);
+            break;
+        }
         if (episodeSeconds <= takeoffSeconds) {
             state.commandExtension = float4(
                 rootWorldPosition(program, q).xy,
