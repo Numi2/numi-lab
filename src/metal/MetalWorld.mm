@@ -3188,7 +3188,14 @@ MetalWorldDiagnostics validateAndBuildLayout(
             if (wing.bodyIndex >= model.bodies.size() ||
                 model.bodies[wing.bodyIndex].articulationIndex !=
                     wings.articulationIndex ||
-                wing.qIndex >= model.world.nq || wing.vIndex >= model.world.nv ||
+                wing.flapQIndex >= model.world.nq ||
+                wing.flapVIndex >= model.world.nv ||
+                ((wing.pronationQIndex == MR_INVALID_INDEX) !=
+                 (wing.pronationVIndex == MR_INVALID_INDEX)) ||
+                (wing.pronationQIndex != MR_INVALID_INDEX &&
+                 (wing.pronationQIndex >= model.world.nq ||
+                  wing.pronationVIndex >= model.world.nv ||
+                  !finite(wing.pronationAxisAndReserved))) ||
                 !(wing.rootToCenterAndArea.w > 0.0f) ||
                 !(wing.hingeAxisAndChord.w > 0.0f) ||
                 !(wing.coefficients.x > 0.0f) ||

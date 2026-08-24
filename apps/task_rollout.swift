@@ -1114,7 +1114,7 @@ private func birdFlowGroundGaitProbeActions(
     environmentCount: Int,
     actionCount: Int
 ) -> [Float] {
-    precondition(actionCount == 10)
+    precondition(actionCount == 10 || actionCount == 12)
     var result = [Float](
         repeating: 0,
         count: stepCount * environmentCount * actionCount
@@ -1131,12 +1131,13 @@ private func birdFlowGroundGaitProbeActions(
             // The held-out long-horizon calibration fixed this sign: the
             // opposite hip sweep remained stable but translated backward.
             // Keep lift timing unchanged while reversing only fore/aft swing.
-            result[base + 3] = -0.014 * leftSwing
-            result[base + 4] = 0.018 * leftLift
-            result[base + 5] = -0.010 * leftLift
-            result[base + 6] = -0.014 * rightSwing
-            result[base + 7] = 0.018 * rightLift
-            result[base + 8] = -0.010 * rightLift
+            let legOffset = actionCount == 12 ? 5 : 3
+            result[base + legOffset] = -0.014 * leftSwing
+            result[base + legOffset + 1] = 0.018 * leftLift
+            result[base + legOffset + 2] = -0.010 * leftLift
+            result[base + legOffset + 3] = -0.014 * rightSwing
+            result[base + legOffset + 4] = 0.018 * rightLift
+            result[base + legOffset + 5] = -0.010 * rightLift
         }
     }
     return result

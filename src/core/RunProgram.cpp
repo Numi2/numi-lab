@@ -1253,19 +1253,49 @@ RunCompileDiagnostics compileRun(
                     wing - model.bodyNames.begin()
                 );
                 if (bodyIndex >= model.bodies.size() ||
-                    model.bodies[bodyIndex].parentBody !=
-                        program.rootBodyIndex ||
                     model.bodies[bodyIndex].inboundJoint >=
                         model.joints.size()) {
                     return reject(
                         RunCompileStatus::invalidRobot,
                         manifest.robot.id + ".flapping_wings",
-                        "each wing must be a direct articulated child of the airframe"
+                        "each wing requires one inbound articulated joint"
                     );
                 }
-                const MRJointDescriptorGPU& joint = model.joints[
-                    model.bodies[bodyIndex].inboundJoint
+                const MRBodyPropertiesGPU& wingBody = model.bodies[bodyIndex];
+                const MRJointDescriptorGPU& distalJoint = model.joints[
+                    wingBody.inboundJoint
                 ];
+                const bool directWing = wingBody.parentBody ==
+                    program.rootBodyIndex;
+                const std::uint32_t shoulderBodyIndex = directWing
+                    ? MR_INVALID_INDEX
+                    : wingBody.parentBody;
+                if (!directWing &&
+                    (shoulderBodyIndex >= model.bodies.size() ||
+                     model.bodies[shoulderBodyIndex].parentBody !=
+                         program.rootBodyIndex ||
+                     model.bodies[shoulderBodyIndex].inboundJoint >=
+                         model.joints.size())) {
+                    return reject(
+                        RunCompileStatus::invalidRobot,
+                        manifest.robot.id + ".flapping_wings",
+                        "a two-joint wing requires a shoulder directly attached to the airframe"
+                    );
+                }
+                const MRJointDescriptorGPU& flapJoint = directWing
+                    ? distalJoint
+                    : model.joints[model.bodies[shoulderBodyIndex].inboundJoint];
+                if (flapJoint.jointType != MR_JOINT_REVOLUTE ||
+                    flapJoint.nq != 1u || flapJoint.nv != 1u ||
+                    (!directWing &&
+                     (distalJoint.jointType != MR_JOINT_REVOLUTE ||
+                      distalJoint.nq != 1u || distalJoint.nv != 1u))) {
+                    return reject(
+                        RunCompileStatus::invalidRobot,
+                        manifest.robot.id + ".flapping_wings",
+                        "wing stroke and optional pronation joints must be single-DOF revolutes"
+                    );
+                }
                 MRFlappingWingGPU resolved = authored.wings[side];
                 if (!(resolved.rootToCenterAndArea.w > 0.0f) ||
                     !(resolved.hingeAxisAndChord.w > 0.0f) ||
@@ -1282,8 +1312,18 @@ RunCompileDiagnostics compileRun(
                     );
                 }
                 resolved.bodyIndex = bodyIndex;
-                resolved.qIndex = joint.qOffset;
-                resolved.vIndex = joint.vOffset;
+                resolved.flapQIndex = flapJoint.qOffset;
+                resolved.flapVIndex = flapJoint.vOffset;
+                resolved.pronationQIndex = directWing
+                    ? MR_INVALID_INDEX : distalJoint.qOffset;
+                resolved.pronationVIndex = directWing
+                    ? MR_INVALID_INDEX : distalJoint.vOffset;
+                resolved.hingeAxisAndChord.x = flapJoint.axis0.x;
+                resolved.hingeAxisAndChord.y = flapJoint.axis0.y;
+                resolved.hingeAxisAndChord.z = flapJoint.axis0.z;
+                resolved.pronationAxisAndReserved = directWing
+                    ? mr_float4{}
+                    : distalJoint.axis0;
                 program.wings[side] = resolved;
             }
             const RobotSemanticRole* tailRole = role(
@@ -2013,6 +2053,14 @@ TaskPack makeBirdFlowAmericanCrowFlightTaskPack(
         return value;
     };
     task.id = "birdflow_american_crow_standing_to_flight";
+    // Preserve the first two wingbeat lanes used by the native flapping
+    // carrier, then add a bilateral distal-wing pronation command before the
+    // tail and leg bindings.  These actions target physical revolute drives;
+    // they do not alter a lift coefficient or inject a force.
+    task.actions.insert(
+        task.actions.begin() + 2,
+        {{"wing.left_pronation"}, {"wing.right_pronation"}}
+    );
     for (TaskActionBinding& action : task.actions) {
         action.actuator = crowIdentifier(std::move(action.actuator));
     }
@@ -2039,6 +2087,31 @@ TaskPack makeBirdFlowAmericanCrowFlightTaskPack(
     for (TaskRewardOperatorSpec& reward : task.rewards) {
         reward.target = crowIdentifier(std::move(reward.target));
     }
+    // The flap phase is already observable through the inherited hinge
+    // observations. Add the new distal coordinate and its prior policy
+    // command explicitly, so this two-link airframe remains Markov to both
+    // actor and critic rather than hiding feathering state in the solver.
+    for (const char* joint : {
+             "crow_left_wing_pronation", "crow_right_wing_pronation"}) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::jointPositionError,
+            .target = joint,
+            .scale = 1.0f / 0.35f,
+        });
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::jointVelocity,
+            .target = joint,
+            .scale = 1.0f / 25.0f,
+        });
+    }
+    for (const char* action : {
+             "wing.left_pronation", "wing.right_pronation"}) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::previousAction,
+            .target = action,
+        });
+    }
+    observations.critic = observations.actorFrame;
     // The imported profile locks a 4.6 Hz presentation wingbeat.  The
     // trainable airframe uses that selected estimate and keeps the full
     // ground-support, push-off, lift-off, and flight task path of the dove
@@ -2482,7 +2555,7 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             return value;
         };
         pack.id = "birdflow_american_crow_estimated_hybrid";
-        pack.revision = 15u;
+        pack.revision = 16u;
         pack.sourceRepository =
             "BirdFlowMetal American-crow estimated hybrid visual model";
         pack.sourceRevision =
@@ -2513,6 +2586,21 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             actuator.id = crowIdentifier(std::move(actuator.id));
             actuator.target = crowIdentifier(std::move(actuator.target));
         }
+        pack.actuators.insert(
+            pack.actuators.begin() + 2,
+            {
+                {.id = "wing.left_pronation",
+                 .kind = RobotActuatorKind::jointPosition,
+                 .target = "crow_left_wing_pronation",
+                 .scale = 0.30f,
+                 .responseTimeSeconds = 0.020f},
+                {.id = "wing.right_pronation",
+                 .kind = RobotActuatorKind::jointPosition,
+                 .target = "crow_right_wing_pronation",
+                 .scale = 0.30f,
+                 .responseTimeSeconds = 0.020f},
+            }
+        );
 
         constexpr float massScale = 0.45f / 0.32f;
         constexpr float lengthScale = 1.15f;
@@ -2566,6 +2654,172 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             pack.mechanics.joints[hipJoint].parentAnchor.x -= 0.030f;
         }
         pack.mechanics.defaultQ[2u] *= lengthScale;
+
+        // The Dove source owns a single shoulder flap joint.  The estimated
+        // crow keeps that measured-surface-compatible flap geometry, but adds
+        // one mass-light shoulder link per side and a second resolved
+        // revolute DOF before the aerodynamic wing body.  This makes
+        // pronation an ABA-controlled orientation coordinate, rather than a
+        // change to an aerodynamic force coefficient or a shifted flap mean.
+        {
+            EngineModel& mechanics = pack.mechanics;
+            const std::vector<MRBodyPropertiesGPU> oldBodies = std::move(
+                mechanics.bodies
+            );
+            const std::vector<MRJointDescriptorGPU> oldJoints = std::move(
+                mechanics.joints
+            );
+            const std::vector<MRDofPropertiesGPU> oldDofs = std::move(
+                mechanics.dofs
+            );
+            const auto remapBody = [](const std::uint32_t index) {
+                return index == 0u ? 0u : index + 2u;
+            };
+            const auto remapJoint = [](const std::uint32_t index) {
+                return index < 2u ? index : index + 2u;
+            };
+
+            mechanics.bodies.resize(12u);
+            mechanics.bodies[0u] = oldBodies[0u];
+            for (std::uint32_t index = 1u; index < oldBodies.size(); ++index) {
+                MRBodyPropertiesGPU copied = oldBodies[index];
+                copied.parentBody = copied.parentBody == MR_INVALID_INDEX
+                    ? MR_INVALID_INDEX : remapBody(copied.parentBody);
+                copied.inboundJoint = copied.inboundJoint == MR_INVALID_INDEX
+                    ? MR_INVALID_INDEX : remapJoint(copied.inboundJoint);
+                mechanics.bodies[remapBody(index)] = copied;
+            }
+            const auto configureShoulder = [&](const std::uint32_t bodyIndex,
+                                               const std::uint32_t jointIndex) {
+                MRBodyPropertiesGPU& shoulder = mechanics.bodies[bodyIndex];
+                shoulder.articulationIndex = 0u;
+                shoulder.parentBody = 0u;
+                shoulder.inboundJoint = jointIndex;
+                shoulder.motionType = MR_MOTION_DYNAMIC;
+                // A 10 mg estimated connector avoids duplicating the distal
+                // wing's existing mass while keeping an explicit dynamic
+                // articulated link for the second drive.
+                shoulder.massAndInverseMass = {
+                    0.00001f, 100000.0f, 0.0f, 0.0f
+                };
+                shoulder.inertiaRow0 = {0.00000001f, 0.0f, 0.0f, 0.0f};
+                shoulder.inertiaRow1 = {0.0f, 0.00000002f, 0.0f, 0.0f};
+                shoulder.inertiaRow2 = {0.0f, 0.0f, 0.00000002f, 0.0f};
+                shoulder.inverseInertiaRow0 = {
+                    100000000.0f, 0.0f, 0.0f, 0.0f
+                };
+                shoulder.inverseInertiaRow1 = {
+                    0.0f, 50000000.0f, 0.0f, 0.0f
+                };
+                shoulder.inverseInertiaRow2 = {
+                    0.0f, 0.0f, 50000000.0f, 0.0f
+                };
+                shoulder.dampingAndSpeedLimits = {
+                    0.02f, 0.02f, 30.0f, 45.0f
+                };
+            };
+            configureShoulder(1u, 0u);
+            configureShoulder(2u, 1u);
+            mechanics.bodies[3u].parentBody = 1u;
+            mechanics.bodies[3u].inboundJoint = 2u;
+            mechanics.bodies[4u].parentBody = 2u;
+            mechanics.bodies[4u].inboundJoint = 3u;
+
+            mechanics.joints.resize(11u);
+            for (std::uint32_t index = 0u; index < oldJoints.size(); ++index) {
+                MRJointDescriptorGPU copied = oldJoints[index];
+                copied.parentBody = remapBody(copied.parentBody);
+                copied.childBody = remapBody(copied.childBody);
+                if (index >= 2u) {
+                    copied.qOffset += 2u;
+                    copied.vOffset += 2u;
+                }
+                mechanics.joints[remapJoint(index)] = copied;
+            }
+            mechanics.joints[0u].childBody = 1u;
+            mechanics.joints[1u].childBody = 2u;
+            const auto configurePronation = [&](const std::uint32_t jointIndex,
+                                                const std::uint32_t parentBody,
+                                                const std::uint32_t childBody,
+                                                const float side) {
+                MRJointDescriptorGPU& joint = mechanics.joints[jointIndex];
+                joint.parentBody = parentBody;
+                joint.childBody = childBody;
+                joint.jointType = MR_JOINT_REVOLUTE;
+                joint.qOffset = 9u + (jointIndex - 2u);
+                joint.nq = 1u;
+                joint.vOffset = 8u + (jointIndex - 2u);
+                joint.nv = 1u;
+                // This span-axis rotation feathers the distal lifting
+                // surface after its shoulder flap transform.  The bilateral
+                // sign keeps equal commands mirror-symmetric.
+                joint.axis0 = {0.0f, side, 0.0f, 0.0f};
+                joint.parentAnchor = {};
+                joint.childAnchor = {};
+                joint.parentRotation = {0.0f, 0.0f, 0.0f, 1.0f};
+                joint.childRotation = {0.0f, 0.0f, 0.0f, 1.0f};
+            };
+            configurePronation(2u, 1u, 3u, 1.0f);
+            configurePronation(3u, 2u, 4u, -1.0f);
+
+            mechanics.dofs.resize(17u);
+            for (std::uint32_t index = 0u; index < 8u; ++index) {
+                mechanics.dofs[index] = oldDofs[index];
+            }
+            for (std::uint32_t index = 8u; index < oldDofs.size(); ++index) {
+                MRDofPropertiesGPU copied = oldDofs[index];
+                copied.jointIndex += 2u;
+                copied.qIndex += 2u;
+                copied.vIndex += 2u;
+                mechanics.dofs[index + 2u] = copied;
+            }
+            const auto configurePronationDof = [&](const std::uint32_t index,
+                                                   const std::uint32_t jointIndex) {
+                MRDofPropertiesGPU& dof = mechanics.dofs[index];
+                dof.articulationIndex = 0u;
+                dof.jointIndex = jointIndex;
+                dof.qIndex = 9u + (index - 8u);
+                dof.vIndex = 8u + (index - 8u);
+                dof.localDof = 0u;
+                dof.flags = MR_DOF_FLAG_ACTUATED | MR_DOF_FLAG_POSITION_LIMIT |
+                    MR_DOF_FLAG_VELOCITY_LIMIT | MR_DOF_FLAG_EFFORT_LIMIT |
+                    MR_DOF_FLAG_DRIVE;
+                dof.limits = {-0.35f, 0.35f, 25.0f, 0.15f};
+                dof.drive = {45.0f, 0.45f, 0.00002f, 0.0f};
+            };
+            configurePronationDof(8u, 2u);
+            configurePronationDof(9u, 3u);
+
+            mechanics.bodyNames.insert(
+                mechanics.bodyNames.begin() + 1,
+                {"crow_left_wing_shoulder", "crow_right_wing_shoulder"}
+            );
+            mechanics.jointNames.insert(
+                mechanics.jointNames.begin() + 2,
+                {"crow_left_wing_pronation", "crow_right_wing_pronation"}
+            );
+            mechanics.dofNames.insert(
+                mechanics.dofNames.begin() + 8,
+                {"crow_left_wing_pronation", "crow_right_wing_pronation"}
+            );
+            mechanics.defaultQ.insert(
+                mechanics.defaultQ.begin() + 9, 2u, 0.0f
+            );
+            mechanics.defaultV.insert(
+                mechanics.defaultV.begin() + 8, 2u, 0.0f
+            );
+            for (MRShapeGPU& shape : mechanics.shapes) {
+                shape.bodyIndex = remapBody(shape.bodyIndex);
+            }
+            mechanics.articulations[0u].bodyCount = 12u;
+            mechanics.articulations[0u].jointCount = 11u;
+            mechanics.articulations[0u].nq = 18u;
+            mechanics.articulations[0u].nv = 17u;
+            mechanics.world.bodyCount = 12u;
+            mechanics.world.jointCount = 11u;
+            mechanics.world.nq = 18u;
+            mechanics.world.nv = 17u;
+        }
 
         FlappingWingActuatorPack& aerodynamic = *pack.flappingWings;
         for (MRFlappingWingGPU& wing : aerodynamic.wings) {

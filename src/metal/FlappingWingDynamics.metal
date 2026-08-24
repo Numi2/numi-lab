@@ -132,7 +132,10 @@ kernel void mr_step_compiled_flapping_wings(
     for (uint side = 0u; side < 2u; ++side) {
         const MRFlappingWingGPU wing = wings[side];
         if (wing.bodyIndex >= dispatch.bodyStride ||
-            wing.qIndex < dispatch.qOffset || wing.vIndex < dispatch.vOffset ||
+            wing.flapQIndex < dispatch.qOffset ||
+            wing.flapVIndex < dispatch.vOffset ||
+            ((wing.pronationQIndex == MR_INVALID_INDEX) !=
+             (wing.pronationVIndex == MR_INVALID_INDEX)) ||
             !finite4(wing.rootToCenterAndArea) ||
             !finite4(wing.hingeAxisAndChord) || !finite4(wing.coefficients) ||
             !finite4(wing.unsteadyCoefficients) ||
@@ -144,16 +147,49 @@ kernel void mr_step_compiled_flapping_wings(
         if (dot(hingeAxis, hingeAxis) == 0.0f) {
             continue;
         }
-        const float angle = qState[environment * dispatch.qStride + wing.qIndex];
-        const float angularRate = vState[environment * dispatch.vStride + wing.vIndex];
-        if (!isfinite(angle) || !isfinite(angularRate)) {
+        const bool hasPronation = wing.pronationQIndex != MR_INVALID_INDEX;
+        const float3 pronationAxis = hasPronation
+            ? safeNormal(wing.pronationAxisAndReserved.xyz)
+            : float3(0.0f);
+        if (hasPronation &&
+            (wing.pronationQIndex < dispatch.qOffset ||
+             wing.pronationVIndex < dispatch.vOffset ||
+             !finite4(wing.pronationAxisAndReserved) ||
+             dot(pronationAxis, pronationAxis) == 0.0f)) {
             continue;
         }
-        const float4 hingeRotation = axisAngle(hingeAxis, angle);
+        const float flapAngle = qState[
+            environment * dispatch.qStride + wing.flapQIndex
+        ];
+        const float flapAngularRate = vState[
+            environment * dispatch.vStride + wing.flapVIndex
+        ];
+        const float pronationAngle = hasPronation
+            ? qState[environment * dispatch.qStride + wing.pronationQIndex]
+            : 0.0f;
+        const float pronationAngularRate = hasPronation
+            ? vState[environment * dispatch.vStride + wing.pronationVIndex]
+            : 0.0f;
+        if (!isfinite(flapAngle) || !isfinite(flapAngularRate) ||
+            !isfinite(pronationAngle) || !isfinite(pronationAngularRate)) {
+            continue;
+        }
+        const float4 hingeRotation = axisAngle(hingeAxis, flapAngle);
+        const float4 pronationRotation = axisAngle(
+            pronationAxis, pronationAngle
+        );
         const float4 wingOrientation = multiplyQuaternion(
-            normalizeQuaternion(rootOrientation), hingeRotation
+            multiplyQuaternion(normalizeQuaternion(rootOrientation), hingeRotation),
+            pronationRotation
         );
         const float3 hingeAxisWorld = rotate(rootOrientation, hingeAxis);
+        const float3 pronationAxisWorld = hasPronation
+            ? rotate(
+                multiplyQuaternion(normalizeQuaternion(rootOrientation),
+                                   hingeRotation),
+                pronationAxis
+            )
+            : float3(0.0f);
         const float3 chord = rotate(wingOrientation, float3(1.0f, 0.0f, 0.0f));
         // The authored root-to-center vector carries the bilateral span sign;
         // a mirrored wing cannot share the left wing's positive-y span basis.
@@ -191,11 +227,17 @@ kernel void mr_step_compiled_flapping_wings(
                 wing.rootToCenterAndArea.z
             );
             const float3 rootToPoint = rotate(
-                rootOrientation, rotate(hingeRotation, neutralPoint)
+                rootOrientation,
+                rotate(hingeRotation, rotate(pronationRotation, neutralPoint))
             );
-            const float3 strokeVelocity = cross(
-                hingeAxisWorld * angularRate, rootToPoint
+            const float3 flapStrokeVelocity = cross(
+                hingeAxisWorld * flapAngularRate, rootToPoint
             );
+            const float3 strokeVelocity = flapStrokeVelocity +
+                (hasPronation
+                    ? cross(pronationAxisWorld * pronationAngularRate,
+                            rootToPoint)
+                    : float3(0.0f));
             const float3 pointVelocity = rootVelocity +
                 cross(rootAngularVelocity, rootToPoint) + strokeVelocity;
             const float3 incomingAir =
@@ -224,7 +266,7 @@ kernel void mr_step_compiled_flapping_wings(
                 dispatch.windVelocityAndDensity.w * speedSquared;
             const float3 liftDirection = safeNormal(cross(span, flow));
             const float strokeSpeedSquared = dot(
-                strokeVelocity, strokeVelocity
+                flapStrokeVelocity, flapStrokeVelocity
             );
             wingStrokeSpeedSquared +=
                 ellipticWeight * strokeSpeedSquared /

@@ -3677,22 +3677,22 @@ kernel void mr_locomotion_task_apply_actions(
             const float leftSwing = sin(phase);
             const float rightSwing = -leftSwing;
             switch (binding.indices.x) {
-            case 3u:
+            case 5u:
                 avianGroundGaitCarrier = -0.014f * leftSwing;
                 break;
-            case 4u:
+            case 6u:
                 avianGroundGaitCarrier = 0.018f * max(leftSwing, 0.0f);
                 break;
-            case 5u:
+            case 7u:
                 avianGroundGaitCarrier = -0.010f * max(leftSwing, 0.0f);
                 break;
-            case 6u:
+            case 8u:
                 avianGroundGaitCarrier = -0.014f * rightSwing;
                 break;
-            case 7u:
+            case 9u:
                 avianGroundGaitCarrier = 0.018f * max(rightSwing, 0.0f);
                 break;
-            case 8u:
+            case 10u:
                 avianGroundGaitCarrier = -0.010f * max(rightSwing, 0.0f);
                 break;
             default:
@@ -3713,7 +3713,7 @@ kernel void mr_locomotion_task_apply_actions(
         const float avianLiftoffTailResidualScale =
             avianCrowLiftoffTrimCarrier ? 0.10f : 1.0f;
         const float avianLiftoffTailCarrier =
-            avianCrowLiftoffTrimCarrier && binding.indices.x == 2u
+            avianCrowLiftoffTrimCarrier && binding.indices.x == 4u
             ? clamp(
                 // The tail sweep establishes that reducing pitch redirects
                 // the resolved stroke toward the commanded travel direction,
