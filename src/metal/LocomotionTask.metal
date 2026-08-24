@@ -4942,10 +4942,20 @@ kernel void mr_locomotion_task_complete(
             value = dot(baseAngular.xy, baseAngular.xy);
             break;
         case MR_TASK_REWARD_TILT_SQUARED:
-            // Keep the supported walking policy inside the held-out tilt
-            // gate.  Later liftoff and flight bands require learned banking,
-            // so they intentionally receive no extra ground-stability term.
-            value = avianSupportedGroundStage ? tilt * tilt : 0.0f;
+            // The isolated liftoff band is not yet a banking task.  Keep a
+            // modest launch-pitch allowance, then penalize excess attitude so
+            // height reward cannot be collected by an uncontrolled ballistic
+            // climb.  The threshold comes from the held-out zero-policy mean
+            // (about 0.29 rad) with margin for a physical push-off; later
+            // figure-eight flight retains unconstrained learned banking.
+            if (avianGroundCurriculum && avianCurriculumBand == 2u) {
+                const float excessTilt = max(tilt - 0.35f, 0.0f);
+                // The task's existing -0.50 reward weight yields a -3.0
+                // quadratic coefficient beyond the launch envelope.
+                value = 6.0f * excessTilt * excessTilt;
+            } else {
+                value = avianSupportedGroundStage ? tilt * tilt : 0.0f;
+            }
             break;
         case MR_TASK_REWARD_PROJECTED_GRAVITY_HORIZONTAL_SQUARED:
             value = dot(gravity.xy, gravity.xy);
