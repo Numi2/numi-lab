@@ -4076,12 +4076,6 @@ TaskCompileDiagnostics compileTaskProgram(
         // authority and its explicit replay provenance.
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_AVIAN_CROW_LIFTOFF_TRIM_CARRIER;
-        // Keep the experimental sweep/tail co-trim explicit in the compiled
-        // task fingerprint. The Metal action pass consumes only accepted task
-        // state and resolved joint targets; this bit does not change the
-        // aerodynamic model or add a body force.
-        staged->header.schedule.w |=
-            MR_TASK_PROGRAM_AVIAN_CROW_SWEEP_TAIL_COTRIM;
     }
     if (threatGroup != MR_INVALID_INDEX) {
         staged->header.schedule.w |=

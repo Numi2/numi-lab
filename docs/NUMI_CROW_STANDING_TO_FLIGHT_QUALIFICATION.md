@@ -661,7 +661,7 @@ deployment pack, replay, GIF, or README item. Any successor must be a
 separately specified state-gated coupled articulation law and must requalify
 from a fresh zero-output baseline under the same gate.
 
-## State-gated sweep--tail co-trim: fresh baseline and bounded PPO pilot
+## State-gated sweep--tail co-trim and PPO pilot (rejected)
 
 Source revision `c5e804f` adds a deliberately narrow successor hypothesis: in
 stage 2 only, the existing articulated shoulder-sweep and tail position targets
@@ -682,26 +682,40 @@ root height `1.041576` m, mean tilt `0.063515` rad, and maximum tilt
 not evidence of controlled flight and not a cross-fingerprint promotion over
 the previous carrier.
 
-The predeclared next test is one protected 256-update PPO pilot at 128
-environments x 128 steps, chunk 8, fixed learning rate `1e-4`, initial log
-standard deviation `-2`, learner seed `2650443581`, checkpoints every 64
-updates, and the same 64-environment / 5,000-step / no-reset held-out selector.
-The selector retains the immutable fresh incumbent unless a candidate reaches
-tracking >= 0.70 with zero non-timeout physical-boundary failures. Regardless
-of observed displacement, an unselected candidate receives no replay, GIF, or
-README showcase entry.
+The predeclared 256-update PPO pilot completed 4,194,304 samples in 167.712
+seconds of native submission time, with 128 environments x 128 steps, chunk 8,
+fixed learning rate `1e-4`, initial log standard deviation `-2`, learner seed
+`2650443581`, and checkpoints every 64 updates. The fixed selector compared the
+immutable fresh incumbent and every candidate at 64 environments x 5,000 steps,
+without scheduled resets, at the same held-out seed. `Physical failures` is the
+selector's mean non-timeout physical-boundary termination rate per environment;
+`World-X` is diagnostic only.
+
+| Held-out policy | Tracking | Mean height (m) | Mean tilt (rad) | Physical failures/environment | World-X final (m) | Decision |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Immutable fresh incumbent | 0.501385 | 1.041576 | 0.063515 | 0 | 12.056 | retained |
+| Revision 65 | 0.517294 | 0.629447 | 0.217466 | 2.000000 | -1.595 | reject: physical failures, tracking, and tilt |
+| Revision 129 | 0.500475 | 1.207358 | 0.199190 | 6.000000 | -9.304 | reject: physical failures, tracking, and tilt |
+| Revision 193 | 0.500925 | 1.153037 | 0.188046 | 5.671875 | -11.132 | reject: physical failures, tracking, and tilt |
+| Final revision 257 | 0.500611 | 1.099808 | 0.119961 | 3.000000 | -15.282 | reject: physical failures and tracking |
+
+The comparison champion is the incumbent and no candidate advanced deployment.
+The state-gated co-trim is therefore closed, and its default task-program flag
+and Metal target contribution are removed after this record. The retained
+candidates, selector JSON, per-policy evidence, state traces, arguments, and
+hashes remain in the run root. This is a negative result about the estimated
+hybrid and residual-control objective, not flight evidence: no candidate earns
+a deterministic replay, GIF, picture, or README showcase entry.
 
 ## Required next evidence
 
-The next control experiment must identify a coordinated, phase-aware physical
-response that materially improves yaw-frame speed tracking while preserving the
-qualified height and attitude envelope. It must not fit the unmeasured
-stroke-plane closure to a forward-flight target: the scalar stroke-plane,
-constant symmetric-sweep, and tested phase-aware sweep brackets are closed.
-The next hypothesis needs either provenance-adequate measured crow kinematics
-or a separately specified coupled articulation/control law with a fresh fixed
-seed, amplitude, phase, and physical gate declared before execution. Promote
-only a held-out candidate that reaches tracking >= 0.70 with zero non-timeout
+The next research stage is provenance and model identification, not another
+hand-tuned carrier: the scalar stroke-plane, constant symmetric-sweep,
+phase-aware sweep, and state-gated sweep--tail hypotheses are closed. A new
+control hypothesis needs provenance-adequate measured crow kinematics or a
+separately specified coupled articulation/model change, declared with a fresh
+fixed seed and physical gate before execution. Promote only a held-out
+candidate that reaches tracking >= 0.70 with zero non-timeout
 physical-boundary failures. Then capture a deterministic replay and inspect
 its frames before linking it from the compact README showcase. Until then, no
 Numi crow flight GIF belongs in the README.

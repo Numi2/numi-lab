@@ -3627,17 +3627,10 @@ kernel void mr_locomotion_task_apply_actions(
             (program.schedule.w &
              MR_TASK_PROGRAM_AVIAN_CROW_LIFTOFF_TRIM_CARRIER) != 0u &&
             state.episode.z == 2u;
-        const bool avianCrowSweepTailCoTrim = avianCrowLiftoffTrimCarrier &&
-            (program.schedule.w &
-             MR_TASK_PROGRAM_AVIAN_CROW_SWEEP_TAIL_COTRIM) != 0u;
         const bool avianCrowLiftoffPronationAction =
             avianCrowLiftoffTrimCarrier &&
             binding.actuator.x == MR_TASK_ACTUATOR_JOINT_POSITION &&
             (binding.indices.x == 4u || binding.indices.x == 5u);
-        const bool avianCrowLiftoffSweepAction =
-            avianCrowSweepTailCoTrim &&
-            binding.actuator.x == MR_TASK_ACTUATOR_JOINT_POSITION &&
-            (binding.indices.x == 2u || binding.indices.x == 3u);
         // The live action sweep brackets the estimated hybrid's transition:
         // +0.100 remains ground-bound whereas +0.125 repeatedly reaches the
         // altitude boundary.  A positive stroke-plane tilt then supplies
@@ -3681,41 +3674,6 @@ kernel void mr_locomotion_task_apply_actions(
                 0.0f,
                 1.0f
             );
-        // A constant +0.28125 sweep / +1.0 tail residual was physically
-        // clean but lost aggregate tracking, while +0.3125 crossed the
-        // contact boundary. Use that last-clean magnitude only when the
-        // previous accepted state still has launch headroom, low tilt, a
-        // forward-speed deficit, and no rapid climb. This is a physical
-        // position-target co-trim, not an aerodynamic force correction.
-        float avianLiftoffSweepTailAuthority = 0.0f;
-        if (avianCrowSweepTailCoTrim) {
-            const float forwardNeed = clamp(
-                (0.35f - state.commandExtension.z) / 1.35f,
-                0.0f,
-                1.0f
-            );
-            const float heightHeadroom = clamp(
-                (0.95f - state.airReturnTracking.y) / 0.15f,
-                0.0f,
-                1.0f
-            );
-            const float tiltHeadroom = clamp(
-                (0.14f - state.recovery.x) / 0.06f,
-                0.0f,
-                1.0f
-            );
-            const float climbHeadroom = clamp(
-                (0.40f - state.commandExtension.w) / 0.40f,
-                0.0f,
-                1.0f
-            );
-            avianLiftoffSweepTailAuthority =
-                forwardNeed * heightHeadroom * tiltHeadroom * climbHeadroom;
-        }
-        const float avianLiftoffSweepCarrier =
-            avianCrowLiftoffSweepAction
-            ? 0.0703125f * avianLiftoffSweepTailAuthority
-            : 0.0f;
         float avianGroundGaitCarrier = 0.0f;
         if (avianCrowGroundGaitCarrier) {
             const float phase = kTwoPi *
@@ -3780,15 +3738,7 @@ kernel void mr_locomotion_task_apply_actions(
             avianLiftoffTailCarrier != 0.0f
             ? clamp(
                 avianLiftoffTailCarrier +
-                    0.10f * avianLiftoffSweepTailAuthority +
                     avianLiftoffTailResidualScale * filtered,
-                -1.0f,
-                1.0f
-            )
-            : avianCrowLiftoffSweepAction
-            ? clamp(
-                avianLiftoffSweepCarrier +
-                    avianLiftoffNonWingResidualScale * filtered,
                 -1.0f,
                 1.0f
             )

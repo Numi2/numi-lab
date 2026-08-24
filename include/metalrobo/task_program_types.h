@@ -60,11 +60,6 @@ enum MRTaskProgramFlags : mr_u32 {
     // residual around this device-side baseline; later flight bands retain
     // full policy authority.
     MR_TASK_PROGRAM_AVIAN_CROW_LIFTOFF_TRIM_CARRIER = 1u << 14u,
-    // The estimated crow's sweep/tail pair has a measured local yaw-frame
-    // speed response but no safe constant offset. This flag fingerprints the
-    // separately gated, accepted-state co-trim used only during the stage-two
-    // identification experiment.
-    MR_TASK_PROGRAM_AVIAN_CROW_SWEEP_TAIL_COTRIM = 1u << 15u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {
