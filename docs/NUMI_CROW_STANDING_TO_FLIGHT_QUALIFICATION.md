@@ -386,6 +386,45 @@ predeclared 0.70 threshold; the later checkpoints also introduced physical
 boundary terminations and an attitude regression. The stage-2 reward change
 was therefore reverted. It supplies no replay or README GIF evidence.
 
+## Extended phase-aware stage-2 learning (rejected)
+
+The unchanged qualified articulated carrier at source revision `1ad06cf` was
+given a deliberately longer fixed-budget test before further model changes:
+run `crow-phase-aware-stage2-20260824-v1/train-128x128x1024`. It started from
+the zero-output actor, used only curriculum band 2, 128 environments, 128
+control steps/update, 1,024 updates, chunk 8, fixed learning rate `1e-4`,
+initial log standard deviation `-2`, and a checkpoint interval of 128
+updates. Native Metal/MLX execution on Apple M4 Pro completed 16,777,216
+training samples in 749.342 s, with zero failed environment steps.
+
+The immutable selector evaluated the protected incumbent, every checkpoint,
+and the final candidate with 64 environments, 5,000 steps, scheduled resets
+disabled, and held-out seed `2650443581`. It retained the incumbent and did
+not advance a deployment pack. `World-X` below is a diagnostic position
+quantity, not the flight criterion: the native `tracking` score remains the
+yaw-frame velocity and yaw-rate measure described above.
+
+| Held-out policy | Tracking | Mean height (m) | Mean tilt (rad) | Physical failures/environment | World-X final (m) | Decision |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Protected incumbent | 0.49955 | 1.04621 | 0.06176 | 0 | 23.709 | retained |
+| Revision 129 | 0.50067 | 1.15568 | 0.19909 | 6.09375 | -10.483 | reject: failures and tilt |
+| Revision 257 | 0.50304 | 1.01702 | 0.41014 | 0 | 125.339 | reject: tracking and tilt |
+| Revision 385 | 0.49762 | 1.41679 | 0.21658 | 6.64063 | -12.787 | reject: failures and tilt |
+| Revision 513 | 0.49794 | 1.66072 | 0.19425 | 4.46875 | -7.687 | reject: failures and tilt |
+| Revision 641 | 0.49381 | 1.62733 | 0.22702 | 7.01563 | -15.358 | reject: failures and tilt |
+| Revision 769 | 0.50232 | 2.13823 | 0.30065 | 0 | 112.241 | reject: tracking, height, and tilt |
+| Revision 897 | 0.50614 | 2.29948 | 0.07804 | 0 | 18.905 | reject: tracking and height |
+| Final revision 1,025 | 0.50090 | 2.31089 | 0.08088 | 0.04688 | 11.026 | reject: failure, tracking, and height |
+
+This test is a negative result, not a flight claim. The longest run did expose
+policies that produce large raw `World-X` values, but none supplied the
+required yaw-frame speed tracking; most also produced a large altitude or
+attitude regression, and several crossed a physical boundary. The predeclared
+`tracking >= 0.70` plus zero non-timeout physical-boundary failure gate
+therefore blocks promotion. Its candidate/deployment packs, state traces, and
+selector JSON are retained with the remote run for reproducibility, but no
+candidate receives a deterministic replay, GIF, or README showcase entry.
+
 ## Required next evidence
 
 The next control experiment must identify a coordinated physical response that
