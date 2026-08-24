@@ -17,23 +17,49 @@ passes and a replay is visually inspected.
 The stage-2 task is a real articulated simulation, not a recorded trajectory
 or an injected body force:
 
-- Wing joints remain position-driven flapping joints. Their submitted targets
-  are the live stroke amplitude plus a Metal-resident altitude, vertical-rate,
-  and yaw-frame-speed trim.
+- Each wing is now an explicit two-joint ABA chain: root-connected flap
+  shoulder, then a mirrored span-axis pronation joint on the distal lifting
+  body. The Metal blade-element kernel composes both accepted coordinates and
+  their rates; it does not use pronation as a force-direction parameter.
+- Flap targets remain the live stroke amplitude plus a Metal-resident
+  altitude, vertical-rate, and yaw-frame-speed trim. Pronation is an
+  independently bounded joint-position residual.
 - The articulated tail pitch is trimmed from the same accepted state, with an
   altitude guard; it is not an external aerodynamic correction.
 - Stage-2 learner authority is deliberately bounded around that carrier:
-  wing and leg residuals are 0.25 of the normalized action span, tail is
-  0.10. Later flight bands retain their authored action space.
+  flap, pronation, and leg residuals are 0.25 of the normalized action span;
+  tail is 0.10. Later flight bands retain their authored action space.
 - The blade-element force uses the current root and hinge state. The remaining
   `unsteadyCoefficients.y = 0.11875` is an estimated fixed stroke-plane
   direction, not a crow measurement.
 
-The current model exposes flap amplitude and tail pitch, but no independently
-articulated wing pronation/stroke-plane degree of freedom. That is the key
-remaining control-model boundary: a fixed stroke-plane direction plus tail
-trim has not produced sustained forward velocity at the 0.35 m/s stage-2
-command.
+The prior one-hinge model had no independently articulated feathering control.
+That boundary is removed structurally, but the new estimated two-link model
+has not yet produced sustained forward velocity at the 0.35 m/s stage-2
+command. Its angle limits, connector inertia, and drive constants are explicit
+hybrid-model closures, not crow measurements.
+
+## Articulated-pronation response
+
+The remote Apple M4 Pro response sweep used the real compiled 12-action crow
+program, 16 environments, 256 control steps, stage 2 only, the deterministic
+`--birdflow-stroke-amplitude 0` carrier, and symmetric static pronation action.
+All 16 environments completed without a termination or physics error for every
+row. The action is mapped through the two physical position drives; it is not
+a recorded wing angle.
+
+| Symmetric pronation action | Mean height (m) | Mean / max tilt (rad) | Final / peak forward progress (m) | Result |
+| ---: | ---: | ---: | ---: | --- |
+| -1.0 | 0.7603 | 0.01325 / 0.07817 | 0.000 / 0.000 | clean, no forward response |
+| -0.5 | 0.7599 | 0.01255 / 0.07213 | 0.000 / 0.000 | clean, no forward response |
+| 0.0 | 0.7597 | 0.01185 / 0.06531 | 0.000 / 0.000 | clean baseline |
+| +0.5 | 0.7599 | 0.01120 / 0.05860 | 0.000 / 0.000 | clean, lower tilt |
+| +1.0 | 0.7604 | 0.01062 / 0.05342 | 0.000 / 0.000 | clean, lower tilt |
+
+This is an actuator-response result, not a flight result. Positive symmetric
+pronation lowers tilt over the short fixed probe, but does not establish a
+forward trim or justify seeding a fixed pronation carrier. Training therefore
+starts from zero pronation with bounded residual authority.
 
 ## Fixed-policy brackets
 
@@ -84,9 +110,8 @@ remained byte-identical to the immutable incumbent
 
 ## Required next evidence
 
-Before publishing a Numi crow flight GIF, add and qualify an independently
-articulated wing-pronation/stroke-plane control; repeat fixed-policy response
-tests; train from a clean run directory; and promote only a held-out candidate
-that reaches tracking >= 0.70 with zero non-timeout physical-boundary failures.
+Train from a clean run directory and promote only a held-out candidate that
+reaches tracking >= 0.70 with zero non-timeout physical-boundary failures.
 Then capture a deterministic replay and inspect its frames before linking it
-from the compact README showcase.
+from the compact README showcase. Until then, no Numi crow flight GIF belongs
+in the README.
