@@ -579,6 +579,46 @@ specimen mass properties, and atmosphere/force measurements. It must then
 enter the provenance-locked schema as a new hybrid or same-specimen record;
 until then, this lead remains literature evidence rather than a training input.
 
+## Three-joint 14-action stage-2 PPO (rejected)
+
+Run `crow-articulated-sweep-20260824-v1/train-stage2-14action-128x128x1024`
+trained the current three-joint-per-wing crow on the Apple M4 Pro at source
+revision `d1aca2a`. It used band 2 only, 128 environments, 128 control steps
+per update, 1,024 updates, chunk 8, fixed learning rate `1e-4`, learner seed
+`2650443581`, initial log standard deviation `-2`, and a checkpoint every 128
+updates. The initial 14-action actor was exactly zero-output around the
+previously qualified live flap, pronation, tail, and speed/height trim carrier.
+It completed 16,777,216 samples with zero failed environment steps in 575.526
+seconds of native submission time.
+
+The selector then evaluated the immutable initial incumbent, every checkpoint,
+and the final candidate with the same 64-environment, 5,000-step,
+no-scheduled-reset rollout at held-out seed `2650443581`. The population did
+discover large displacement and lift-off outcomes, but it did not control the
+authored body-frame 0.35 m/s target: its velocity tracking remained below the
+fixed 0.70 floor and its attitude regressed. `World-X` remains diagnostic only;
+the native tracking metric and physical failures decide the result.
+
+| Held-out policy | Tracking | Mean height (m) | Mean tilt (rad) | Physical failures/environment | World-X final (m) | Decision |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Immutable 14-action incumbent | 0.500856 | 1.046220 | 0.062081 | 0 | 9.898 | retained |
+| Revision 129 | 0.516157 | 0.682267 | 0.332499 | 0 | 51.178 | reject: below tracking floor and tilt regression |
+| Revision 257 | 0.495837 | 1.142578 | 0.279128 | 9.562500 | -11.261 | reject: physical failures, tracking, and tilt |
+| Revision 385 | 0.482384 | 1.791199 | 0.331104 | 7.453125 | -13.154 | reject: physical failures, tracking, and tilt |
+| Revision 513 | 0.473239 | 2.359165 | 0.578180 | 0 | 278.671 | reject: tracking and tilt |
+| Revision 641 | 0.497192 | 2.241771 | 0.728765 | 0 | 112.285 | reject: tracking and tilt |
+| Revision 769 | 0.496461 | 2.198720 | 0.789204 | 0 | 155.865 | reject: tracking and tilt |
+| Revision 897 | 0.492188 | 2.247146 | 0.837163 | 0 | 322.051 | reject: tracking and tilt |
+| Final revision 1,025 | 0.477147 | 2.365752 | 0.650030 | 0 | 148.775 | reject: tracking and tilt |
+
+The selector retained the initial incumbent, set
+`candidate_advanced_deployment` to false, and retained all candidate packs,
+checkpoints, state traces, arguments, and hashes under the run root. This is a
+negative result about the current residual-control objective, not a flight
+claim. In particular, high displacement or height does not satisfy yaw-frame
+forward-speed tracking. The rejected candidate does not receive a replay,
+GIF, or README showcase entry.
+
 ## Required next evidence
 
 The next control experiment must identify a coordinated, phase-aware physical
