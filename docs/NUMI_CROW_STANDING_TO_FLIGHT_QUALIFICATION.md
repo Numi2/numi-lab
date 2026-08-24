@@ -193,6 +193,29 @@ successful crow flight. Its result is especially clear: higher displacement
 alone is not commanded-speed tracking. No replay or README GIF is authorized
 from this run.
 
+## Wing-speed response identification (rejected variants)
+
+Commit `08d297d` added a deterministic host-side bilateral wing-pulse probe.
+It changes only the normal policy action lanes before they enter the live
+articulated-wing Metal controller; it injects no body force and is retained as
+a diagnostic, not as a flight policy. At the held-out seed, band 2, one
+environment, 5,000 steps, and no scheduled resets, the zero-action baseline
+ended at +23.84 m with tracking 0.4995, mean height 1.0466 m, and mean/max
+tilt 0.0617 / 0.1206 rad. A late raw -1.0 pulse (steps 3,000--4,000) did alter
+the speed trace but reached 0.7246 rad maximum tilt and ended at -7.83 m;
+short early raw -0.5 pulses also reached about 0.72 rad tilt. These are not
+bounded tracking responses suitable for a training target.
+
+Two closed-loop wing-speed variants were separately tested for 64
+environments, 5,000 steps, with the same held-out seed and no scheduled
+resets. Halving the existing speed feedback was physically clean but reduced
+mean height to 0.8758 m and tracking to 0.5002. A height-gated correction
+completed without non-timeout failures, but reduced mean height to 0.8300 m
+and tracking to 0.4997 (mean/max tilt 0.0625 / 0.1189 rad). Both changes were
+reverted. The retained carrier is therefore the already-qualified
+`-0.100 * forwardSpeedError` term, while the next probe may only promote a
+response that improves held-out tracking without an attitude regression.
+
 ## Required next evidence
 
 The next control experiment must first identify a bounded, long-horizon
