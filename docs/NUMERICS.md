@@ -379,6 +379,13 @@ coupled timestep divisor between command buffers. Matter, DER, rigid bodies,
 and commands all use the exact refined step; physical-duration preservation is
 owned by the caller's expanded command stream. The canonical multiplier and
 divisor are snapshot evidence, and selecting either resets the other to one.
+Completion-boundary runtime selectors may likewise raise the total FGMRES
+column budget or outer Newton reassembly/correction count for a bounded phase.
+They change encoded work only: restart width, allocated arenas, residual and
+contact tolerances, line search, and publication certificates remain the
+cooked program's authority. Zero denotes the cooked budget, while every
+nonzero override is snapshot and archive continuation authority and must be
+explicitly restored when the bounded phase ends.
 An explicit runtime restore requires the exact device-program fingerprint and
 a completed command boundary. It repopulates the accepted, candidate, and
 checkpoint mirrors together, including constitutive state, fields, contact

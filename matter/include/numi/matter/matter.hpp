@@ -751,6 +751,10 @@ struct RuntimeStateSnapshot {
     // deterministic continuation authority even though it does not resize the
     // fixed restarted-FGMRES basis.
     std::uint32_t fgmresIterationBudgetOverride = 0u;
+    // Zero selects the outer Newton budget fingerprinted into the cooked world.
+    // A nonzero completion-boundary override changes only host-encoded outer
+    // reassembly/correction work and is deterministic continuation authority.
+    std::uint32_t newtonIterationBudgetOverride = 0u;
     std::vector<NMParticleStateGPU> particles;
     std::vector<NMFEMNodeStateGPU> femNodes;
     std::vector<NMFEMFieldStateGPU> femFields;
@@ -880,6 +884,14 @@ public:
         std::uint32_t iterations
     ) noexcept;
     [[nodiscard]] std::uint32_t fgmresIterationBudget() const noexcept;
+    // Select a positive outer Newton reassembly/correction budget between
+    // completed command buffers. Solver tolerances, the inner Krylov policy,
+    // allocated arenas, and accepted physical state remain unchanged. Passing
+    // the cooked budget removes the runtime override.
+    [[nodiscard]] bool setNewtonIterationBudget(
+        std::uint32_t iterations
+    ) noexcept;
+    [[nodiscard]] std::uint32_t newtonIterationBudget() const noexcept;
     // Synchronously restores a completion-boundary snapshot into an already
     // initialized runtime with the exact same device-program fingerprint.
     // All transactional accepted/candidate/checkpoint mirrors are updated as

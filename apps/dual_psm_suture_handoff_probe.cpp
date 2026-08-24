@@ -214,13 +214,16 @@ constexpr std::uint32_t kReceiverAlignmentTimestepDivisor = 1u;
 // the actual seventh-pass candidate: its equilibrium and pressure residuals
 // were 5.010481691e-4 and 5.009786692e-4, only 0.21% above the unchanged 5e-4
 // gates, while minimum J was 0.997104, volume residual was 9.36901e-5, and
-// contact/transport remained clean. Give that finite candidate one final outer
-// Newton reassembly and correction. Retain the bounded eleventh Krylov cycle as
-// the production ceiling; the allocated 16-column basis and every
-// residual/contact/publication tolerance remain unchanged. Both extensions are
-// prefix-invariant: they are useful only when the preceding passes have not
-// already produced a zero correction under the unchanged acceptance rule.
-constexpr std::uint32_t kReceiverNewtonIterationBudget =
+// contact/transport remained clean. r23 proved that cooking an eighth pass
+// globally is not prefix-invariant at the complete runtime-state boundary: its
+// visible passage prefix matched r22, but changed hidden solver/contact history
+// failed the already-qualified dynamic bridge after 64 accepted steps. Keep the
+// cooked seven-pass bridge and alignment-motion execution. Expose one final
+// outer reassembly/correction only after alignment motion, while the bounded
+// eleventh Krylov cycle is active, then restore the cooked budget before the
+// base-cadence proof. The allocated 16-column basis and every residual,
+// contact, tissue, convergence, and publication tolerance remain unchanged.
+constexpr std::uint32_t kReceiverAlignmentSettleNewtonIterationBudget =
     NM_MIXED_NEWTON_ITERATIONS + 1u;
 constexpr std::uint32_t kReceiverBridgeFGMRESIterationBudget =
     2u * NM_MIXED_FGMRES_RESTART;
@@ -6570,13 +6573,13 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     // free-needle budget: r7 passed the exact 25 ms dynamic bridge with that
     // execution, whereas globally cooking three cycles changed accepted bridge
     // dynamics and reached a strict IPC contact-feasibility rollback. The live
-    // sequence raises only the alignment-and-later runtime Krylov budget at its
-    // completion boundary. Cook one additional outer reassembly/correction for
-    // the finite seventh-pass candidate observed in r22. Restart width,
-    // allocation, and every residual/contact/publication tolerance remain
-    // immutable.
+    // sequence raises only phase-local iteration budgets at completion
+    // boundaries. Keep the proven seven-pass cooked bridge; the finite r22
+    // candidate receives one additional outer reassembly/correction only
+    // during alignment settling. Restart width, allocation, and every
+    // residual/contact/publication tolerance remain immutable.
     source.mixedSolver.newtonIterations = freeNeedleCapability
-        ? kReceiverNewtonIterationBudget : 5u;
+        ? NM_MIXED_NEWTON_ITERATIONS : 5u;
     source.mixedSolver.fgmresRestart = freeNeedleCapability
         ? NM_MIXED_FGMRES_RESTART : 10u;
     source.mixedSolver.fgmresIterations = freeNeedleCapability
@@ -25608,6 +25611,8 @@ int main(const int argc, const char* const argv[]) {
                         require(
                             tissueRuntime.fgmresIterationBudget() ==
                                     kReceiverBridgeFGMRESIterationBudget &&
+                                tissueRuntime.newtonIterationBudget() ==
+                                    NM_MIXED_NEWTON_ITERATIONS &&
                                 tissueRuntime.setFGMRESIterationBudget(
                                     kReceiverAlignmentFGMRESIterationBudget
                                 ) &&
@@ -25623,8 +25628,7 @@ int main(const int argc, const char* const argv[]) {
                             << " alignment_fgmres_iterations="
                             << tissueRuntime.fgmresIterationBudget()
                             << " newton_iterations="
-                            << tissueWorld.mixedSolver
-                                   .nonlinearIterations.x
+                            << tissueRuntime.newtonIterationBudget()
                             << " fgmres_restart="
                             << tissueWorld.mixedSolver
                                    .nonlinearIterations.y
@@ -25742,9 +25746,17 @@ int main(const int argc, const char* const argv[]) {
                                     kReceiverAlignmentSettleFGMRESIterationBudget
                                 ) &&
                                 tissueRuntime.fgmresIterationBudget() ==
-                                    kReceiverAlignmentSettleFGMRESIterationBudget,
+                                    kReceiverAlignmentSettleFGMRESIterationBudget &&
+                                tissueRuntime.newtonIterationBudget() ==
+                                    NM_MIXED_NEWTON_ITERATIONS &&
+                                tissueRuntime.setNewtonIterationBudget(
+                                    kReceiverAlignmentSettleNewtonIterationBudget
+                                ) &&
+                                tissueRuntime.newtonIterationBudget() ==
+                                    kReceiverAlignmentSettleNewtonIterationBudget,
                             "receiver alignment settle could not select its "
-                            "bounded eleventh FGMRES restart cycle"
+                            "bounded eleventh FGMRES restart cycle and final "
+                            "outer Newton correction"
                         );
                         std::cout << std::setprecision(9)
                             << "tissue_receiver_alignment_settle_solver_budget=ok"
@@ -25753,7 +25765,7 @@ int main(const int argc, const char* const argv[]) {
                             << " settle_fgmres_iterations="
                             << tissueRuntime.fgmresIterationBudget()
                             << " newton_iterations="
-                            << tissueWorld.mixedSolver.nonlinearIterations.x
+                            << tissueRuntime.newtonIterationBudget()
                             << " fgmres_restart="
                             << tissueWorld.mixedSolver.nonlinearIterations.y
                             << " relative_residual_tolerance="
@@ -26100,6 +26112,22 @@ int main(const int argc, const char* const argv[]) {
                             refinedAlignmentSettleBaseDERSubsteps =
                                 liveAlignmentSettleStream.completedSteps /
                                 kReceiverAlignmentTimestepDivisor;
+                        require(
+                            tissueRuntime.newtonIterationBudget() ==
+                                    kReceiverAlignmentSettleNewtonIterationBudget &&
+                                tissueRuntime.setNewtonIterationBudget(
+                                    NM_MIXED_NEWTON_ITERATIONS
+                                ) &&
+                                tissueRuntime.newtonIterationBudget() ==
+                                    NM_MIXED_NEWTON_ITERATIONS,
+                            "receiver alignment settle could not restore the "
+                            "cooked Newton budget before base-cadence proof"
+                        );
+                        std::cout
+                            << "tissue_receiver_alignment_settle_newton_budget_"
+                               "reset=ok"
+                            << " newton_iterations="
+                            << tissueRuntime.newtonIterationBudget() << '\n';
                         selectCoupledCadence(
                             kSutureContactMatterRateMultiplier,
                             "receiver alignment base-cadence proof"

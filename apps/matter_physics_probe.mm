@@ -1115,6 +1115,8 @@ void runStatefulMaterial(
                     right.coupledTimestepDivisor &&
                 left.fgmresIterationBudgetOverride ==
                     right.fgmresIterationBudgetOverride &&
+                left.newtonIterationBudgetOverride ==
+                    right.newtonIterationBudgetOverride &&
                 left.allocationGeneration == right.allocationGeneration &&
                 left.learnedWeightRevision == right.learnedWeightRevision &&
                 left.materialStateStride == right.materialStateStride &&
@@ -2063,14 +2065,22 @@ void runSutureProxyWindow() {
             world.mixedSolver.nonlinearIterations.z
         );
         const std::uint32_t phaseFGMRESBudget = 2u * fgmresRestart;
+        const std::uint32_t cookedNewtonBudget =
+            world.mixedSolver.nonlinearIterations.x;
+        const std::uint32_t phaseNewtonBudget = cookedNewtonBudget + 1u;
         require(
             fgmresRestart > 1u &&
+                cookedNewtonBudget != 0u &&
                 runtime.fgmresIterationBudget() == cookedFGMRESBudget &&
                 !runtime.setFGMRESIterationBudget(fgmresRestart - 1u) &&
                 runtime.setFGMRESIterationBudget(phaseFGMRESBudget) &&
-                runtime.fgmresIterationBudget() == phaseFGMRESBudget,
-            "suture proxy window could not select a phase-local FGMRES "
-            "iteration budget"
+                runtime.fgmresIterationBudget() == phaseFGMRESBudget &&
+                runtime.newtonIterationBudget() == cookedNewtonBudget &&
+                !runtime.setNewtonIterationBudget(0u) &&
+                runtime.setNewtonIterationBudget(phaseNewtonBudget) &&
+                runtime.newtonIterationBudget() == phaseNewtonBudget,
+            "suture proxy window could not select phase-local FGMRES and "
+            "Newton iteration budgets"
         );
         const std::array<std::uint32_t, 2u> discontinuous{3u, 4u};
         const auto rejected = runtime.setSutureProxyEdges(discontinuous, 6u);
@@ -2157,6 +2167,8 @@ void runSutureProxyWindow() {
                     projected.coupledTimestepDivisor == 2u &&
                     projected.fgmresIterationBudgetOverride ==
                         phaseFGMRESBudget &&
+                    projected.newtonIterationBudgetOverride ==
+                        phaseNewtonBudget &&
                     projected.rigidStates.size() == 2u &&
                     std::abs(projected.rigidStates[0].centerAndRadius.x -
                         rodNodes[3].position.x) <= 1.0e-7f &&
@@ -2192,7 +2204,11 @@ void runSutureProxyWindow() {
                     restoredRuntime.fgmresIterationBudget() ==
                         phaseFGMRESBudget &&
                     restoredSnapshot.fgmresIterationBudgetOverride ==
-                        phaseFGMRESBudget,
+                        phaseFGMRESBudget &&
+                    restoredRuntime.newtonIterationBudget() ==
+                        phaseNewtonBudget &&
+                    restoredSnapshot.newtonIterationBudgetOverride ==
+                        phaseNewtonBudget,
             "fresh runtime did not retain sparse suture proxy authority");
         std::cout
             << "{\"schema\":\"numi.matter.suture-window.v1\""
@@ -2206,6 +2222,8 @@ void runSutureProxyWindow() {
             << projected.coupledTimestepDivisor << "\""
             << ",\"fgmres_iteration_budget\":"
             << restoredRuntime.fgmresIterationBudget()
+            << ",\"newton_iteration_budget\":"
+            << restoredRuntime.newtonIterationBudget()
             << ",\"slot0_endpoints\":["
             << projected.rigidStates[0].centerAndRadius.x << ','
             << projected.rigidStates[0].extent.x << "]}\n";

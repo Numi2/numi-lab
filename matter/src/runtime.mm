@@ -337,6 +337,10 @@ struct Runtime::State {
     // A nonzero phase-boundary override changes encoded work only; the
     // restarted basis allocation and every convergence tolerance stay fixed.
     std::atomic<std::uint32_t> fgmresIterationBudgetOverride{0u};
+    // Zero canonically selects mixedSolverValue.nonlinearIterations.x. This
+    // completion-boundary override changes only the number of encoded outer
+    // residual reassemblies/corrections; device arenas and tolerances stay fixed.
+    std::atomic<std::uint32_t> newtonIterationBudgetOverride{0u};
     std::shared_ptr<CommandOwnership> commandOwnership =
         std::make_shared<CommandOwnership>();
     std::shared_ptr<GrowthOwnership> growthOwnership =
@@ -3443,9 +3447,16 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             };
             const NSUInteger rigidGeneralizedTotalForResidual = environments *
                 state.dispatch.rigidGeneralizedCapacity;
+            const std::uint32_t nonlinearBudgetOverride =
+                state.newtonIterationBudgetOverride.load(
+                    std::memory_order_acquire
+                );
+            const std::uint32_t nonlinearIterationBudget =
+                nonlinearBudgetOverride == 0u
+                    ? state.mixedSolverValue.nonlinearIterations.x
+                    : nonlinearBudgetOverride;
             for (std::uint32_t nonlinearIteration = 0u;
-                 nonlinearIteration <
-                    state.mixedSolverValue.nonlinearIterations.x;
+                 nonlinearIteration < nonlinearIterationBudget;
                  ++nonlinearIteration) {
             micro.solverIteration = nonlinearIteration;
             // Reassemble the backward-Euler field residual at this Newton
@@ -6156,6 +6167,44 @@ std::uint32_t Runtime::fgmresIterationBudget() const noexcept {
     );
 }
 
+bool Runtime::setNewtonIterationBudget(
+    const std::uint32_t iterations
+) noexcept {
+    if (state_ == nullptr || iterations == 0u) {
+        return false;
+    }
+    try {
+        const auto ownership = state_->commandOwnership;
+        const std::lock_guard lock(ownership->mutex);
+        if (ownership->activeCommandBuffer != nullptr ||
+            ownership->preDynamicsOpen) {
+            return false;
+        }
+        const std::uint32_t cooked =
+            state_->mixedSolverValue.nonlinearIterations.x;
+        state_->newtonIterationBudgetOverride.store(
+            iterations == cooked ? 0u : iterations,
+            std::memory_order_release
+        );
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+std::uint32_t Runtime::newtonIterationBudget() const noexcept {
+    if (state_ == nullptr) {
+        return 0u;
+    }
+    const std::uint32_t budgetOverride =
+        state_->newtonIterationBudgetOverride.load(
+            std::memory_order_acquire
+        );
+    return budgetOverride == 0u
+        ? state_->mixedSolverValue.nonlinearIterations.x
+        : budgetOverride;
+}
+
 RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
     RuntimeDiagnostics diagnostics;
     if (state_ == nullptr) {
@@ -6235,6 +6284,15 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             std::numeric_limits<std::uint32_t>::max() - fgmresRestart + 1u) {
         diagnostics.message =
             "Matter snapshot has an invalid FGMRES iteration budget";
+        return diagnostics;
+    }
+    const std::uint32_t newtonBudget =
+        snapshot.newtonIterationBudgetOverride == 0u
+            ? state.mixedSolverValue.nonlinearIterations.x
+            : snapshot.newtonIterationBudgetOverride;
+    if (newtonBudget == 0u) {
+        diagnostics.message =
+            "Matter snapshot has an invalid Newton iteration budget";
         return diagnostics;
     }
 
@@ -6830,6 +6888,10 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
         snapshot.fgmresIterationBudgetOverride,
         std::memory_order_release
     );
+    state.newtonIterationBudgetOverride.store(
+        snapshot.newtonIterationBudgetOverride,
+        std::memory_order_release
+    );
     ownership->controlStep = snapshot.controlStep;
     ownership->physicsSubstep = snapshot.physicsSubstep;
     ownership->identificationGeneration =
@@ -6874,6 +6936,10 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             );
         snapshot.fgmresIterationBudgetOverride =
             state_->fgmresIterationBudgetOverride.load(
+                std::memory_order_acquire
+            );
+        snapshot.newtonIterationBudgetOverride =
+            state_->newtonIterationBudgetOverride.load(
                 std::memory_order_acquire
             );
         snapshot.controlStep = ownership->controlStep;

@@ -185,6 +185,7 @@ std::vector<std::byte> serialize(
     writer.pod(snapshot.coupledTimestepMultiplier);
     writer.pod(snapshot.coupledTimestepDivisor);
     writer.pod(snapshot.fgmresIterationBudgetOverride);
+    writer.pod(snapshot.newtonIterationBudgetOverride);
     writer.pod(snapshot.allocationGeneration);
     writer.pod(snapshot.learnedWeightRevision);
     writer.pod(snapshot.materialStateStride);
@@ -239,12 +240,17 @@ bool deserialize(
         !reader.pod(snapshot.coupledTimestepDivisor)) {
         return false;
     }
-    // v1 snapshots predate the phase-local solver-budget selector. Zero is
-    // its exact legacy meaning: use the budget already fingerprinted into the
-    // cooked device program.
+    // v1 snapshots predate the phase-local FGMRES selector and v1/v2 predate
+    // the phase-local Newton selector. Zero is their exact legacy meaning: use
+    // the corresponding budget fingerprinted into the cooked device program.
     snapshot.fgmresIterationBudgetOverride = 0u;
+    snapshot.newtonIterationBudgetOverride = 0u;
     if (formatVersion >= 2u &&
         !reader.pod(snapshot.fgmresIterationBudgetOverride)) {
+        return false;
+    }
+    if (formatVersion >= 3u &&
+        !reader.pod(snapshot.newtonIterationBudgetOverride)) {
         return false;
     }
     if (!reader.pod(snapshot.allocationGeneration) ||
@@ -415,6 +421,7 @@ MatterSnapshotArchiveResult readMatterSnapshotArchive(
             );
         }
         if ((header.formatVersion != 1u &&
+             header.formatVersion != 2u &&
              header.formatVersion != kMatterSnapshotArchiveVersion) ||
             header.endianMarker != kEndianMarker ||
             header.matterAbiVersion != NM_MATTER_ABI_VERSION) {
@@ -500,6 +507,8 @@ bool sameMatterSnapshotAuthority(
         left.coupledTimestepDivisor == right.coupledTimestepDivisor &&
         left.fgmresIterationBudgetOverride ==
             right.fgmresIterationBudgetOverride &&
+        left.newtonIterationBudgetOverride ==
+            right.newtonIterationBudgetOverride &&
         left.allocationGeneration == right.allocationGeneration &&
         left.learnedWeightRevision == right.learnedWeightRevision &&
         left.materialStateStride == right.materialStateStride &&

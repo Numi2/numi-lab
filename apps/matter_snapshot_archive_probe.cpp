@@ -32,6 +32,7 @@ numi::matter::RuntimeStateSnapshot fixture() {
     result.coupledTimestepMultiplier = 1u;
     result.coupledTimestepDivisor = 4u;
     result.fgmresIterationBudgetOverride = 48u;
+    result.newtonIterationBudgetOverride = 8u;
     result.allocationGeneration = 3u;
     result.learnedWeightRevision = 12u;
     result.materialStateStride = 2u;
