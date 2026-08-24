@@ -25,6 +25,8 @@ is selected. Common options:
   --native-policy | --zero-actions | --action-stream actions.f32
   --birdflow-stroke-amplitude F [--birdflow-tail-pitch F]
                                             Scripted wing/tail calibration
+  --birdflow-wing-pulse-amplitude F --birdflow-wing-pulse-start-step N
+  --birdflow-wing-pulse-duration-steps N  Late-horizon crow wing-response probe
   --birdflow-ground-gait-probe            Scripted crow leg-action calibration
   --task velocity|disturbance-recovery|supine-get-up|developmental-recovery|adult-locomotion|g1-legs-locomotion|ball-recovery|ball-dodge
   --minimum-difficulty-band N --maximum-difficulty-band N

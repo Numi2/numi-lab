@@ -168,6 +168,9 @@ private struct Options {
     var birdFlowTailPitch: Float?
     var birdFlowPronation: Float?
     var birdFlowPronationWavePhase: Float?
+    var birdFlowWingPulseAmplitude: Float?
+    var birdFlowWingPulseStartStep: Int?
+    var birdFlowWingPulseDurationSteps: Int?
     var birdFlowGroundGaitProbe = false
     var scheduledResets = true
     var policyPack: String?
@@ -515,6 +518,24 @@ private struct Options {
                 }
                 birdFlowPronationWavePhase = phase
                 index += 1
+            case "--birdflow-wing-pulse-amplitude":
+                guard let amplitude = Float(try value()), amplitude.isFinite,
+                      amplitude >= -1, amplitude <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-wing-pulse-amplitude requires a finite value in [-1, 1]."
+                    )
+                }
+                birdFlowWingPulseAmplitude = amplitude
+                index += 1
+            case "--birdflow-wing-pulse-start-step":
+                birdFlowWingPulseStartStep = try Self.integer(value(), option)
+                index += 1
+            case "--birdflow-wing-pulse-duration-steps":
+                birdFlowWingPulseDurationSteps = try Self.integer(
+                    value(), option
+                )
+                index += 1
             case "--birdflow-ground-gait-probe":
                 birdFlowGroundGaitProbe = true
             default:
@@ -568,8 +589,24 @@ private struct Options {
                 "--birdflow-dove and --birdflow-american-crow are mutually exclusive."
             )
         }
+        let hasBirdFlowWingPulse =
+            birdFlowWingPulseAmplitude != nil ||
+            birdFlowWingPulseStartStep != nil ||
+            birdFlowWingPulseDurationSteps != nil
+        if hasBirdFlowWingPulse &&
+            (birdFlowWingPulseAmplitude == nil ||
+             birdFlowWingPulseStartStep == nil ||
+             birdFlowWingPulseDurationSteps == nil ||
+             birdFlowWingPulseStartStep! < 0 ||
+             birdFlowWingPulseDurationSteps! <= 0)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "BirdFlow wing pulse requires amplitude, non-negative start step, and positive duration."
+            )
+        }
         if (birdFlowFlapScript || birdFlowStrokeAmplitude != nil ||
             birdFlowPronation != nil || birdFlowPronationWavePhase != nil ||
+            hasBirdFlowWingPulse ||
             birdFlowGroundGaitProbe) &&
             (!(birdFlowDove || birdFlowAmericanCrow) ||
                 zeroActions || actionStream != nil ||
@@ -580,6 +617,9 @@ private struct Options {
             )
         }
         if (birdFlowFlapScript && birdFlowStrokeAmplitude != nil) ||
+            (hasBirdFlowWingPulse &&
+             (birdFlowFlapScript || birdFlowStrokeAmplitude != nil ||
+              birdFlowGroundGaitProbe)) ||
             (birdFlowGroundGaitProbe &&
              (birdFlowFlapScript || birdFlowStrokeAmplitude != nil))
         {
@@ -611,6 +651,11 @@ private struct Options {
         if birdFlowPronationWavePhase != nil && !birdFlowAmericanCrow {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--birdflow-pronation-wave-phase is available only for --birdflow-american-crow."
+            )
+        }
+        if hasBirdFlowWingPulse && !birdFlowAmericanCrow {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "BirdFlow wing pulse is available only for --birdflow-american-crow."
             )
         }
         if birdFlowPronation != nil && birdFlowPronationWavePhase != nil {
@@ -1167,6 +1212,43 @@ private func birdFlowStrokeActions(
             } else {
                 result[base + 2] = tailPitch
             }
+        }
+    }
+    return result
+}
+
+// A late-horizon local action-response probe. It applies a bilateral wing
+// residual through the ordinary policy-action lanes only over the selected
+// interval; the live Metal carrier, aerodynamic solve, and articulated ABA
+// joints remain authoritative. This identifies whether the policy's bounded
+// residual can regulate an already airborne speed state before another learner
+// run is authorized.
+private func birdFlowWingPulseActions(
+    amplitude: Float,
+    pulseStartStep: Int,
+    pulseDurationSteps: Int,
+    startStep: Int,
+    stepCount: Int,
+    environmentCount: Int,
+    actionCount: Int
+) -> [Float] {
+    precondition(actionCount == 12)
+    let pulseEndStep = pulseStartStep + pulseDurationSteps
+    var result = [Float](
+        repeating: 0,
+        count: stepCount * environmentCount * actionCount
+    )
+    for step in 0..<stepCount {
+        let absoluteStep = startStep + step
+        guard absoluteStep >= pulseStartStep,
+              absoluteStep < pulseEndStep
+        else {
+            continue
+        }
+        for environment in 0..<environmentCount {
+            let base = (step * environmentCount + environment) * actionCount
+            result[base] = amplitude
+            result[base + 1] = amplitude
         }
     }
     return result
@@ -1808,6 +1890,22 @@ private enum TaskRolloutMain {
                                 pronation: options.birdFlowPronation,
                                 pronationWavePhase:
                                     options.birdFlowPronationWavePhase,
+                                startStep: globalStep,
+                                stepCount: stepCount,
+                                environmentCount: options.environments,
+                                actionCount: context.layout.actionCount
+                            )
+                        } else if let amplitude =
+                            options.birdFlowWingPulseAmplitude,
+                            let pulseStartStep =
+                                options.birdFlowWingPulseStartStep,
+                            let pulseDurationSteps =
+                                options.birdFlowWingPulseDurationSteps
+                        {
+                            actionBatch = birdFlowWingPulseActions(
+                                amplitude: amplitude,
+                                pulseStartStep: pulseStartStep,
+                                pulseDurationSteps: pulseDurationSteps,
                                 startStep: globalStep,
                                 stepCount: stepCount,
                                 environmentCount: options.environments,
@@ -2666,6 +2764,8 @@ private enum TaskRolloutMain {
                     ? "foundation_action_stream"
                     : options.birdFlowFlapScript
                     ? "birdflow_4hz_flap_qualification"
+                    : options.birdFlowWingPulseAmplitude != nil
+                    ? "birdflow_late_wing_pulse_qualification"
                     : options.birdFlowStrokeAmplitude != nil
                     ? options.birdFlowPronationWavePhase != nil
                         ? "birdflow_stroke_amplitude_pronation_wave_qualification"
@@ -2683,6 +2783,12 @@ private enum TaskRolloutMain {
                 "birdflow_pronation": options.birdFlowPronation ?? 0,
                 "birdflow_pronation_wave_phase":
                     options.birdFlowPronationWavePhase ?? 0,
+                "birdflow_wing_pulse_amplitude":
+                    options.birdFlowWingPulseAmplitude ?? 0,
+                "birdflow_wing_pulse_start_step":
+                    options.birdFlowWingPulseStartStep ?? 0,
+                "birdflow_wing_pulse_duration_steps":
+                    options.birdFlowWingPulseDurationSteps ?? 0,
                 "action_carrier": options.birdFlowAmericanCrow
                     ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_band_1;stage2_live_altitude_vertical_rate_and_airspeed_trim_plus_phase_calibrated_pronation_target_amplitude_0.20_phase_2.62_plus_bounded_residual_0.25_wing_and_leg_residual_0.25_tail_residual_0.10_band_2"
                     : "none",
