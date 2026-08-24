@@ -552,6 +552,33 @@ Phase-aware sweep therefore remains unpromoted. No learner run, candidate
 selection, deterministic replay, GIF, or README media is authorized from this
 evidence.
 
+## American-crow kinematics source screening
+
+The most relevant source screened here is the Journal of Experimental Biology
+[Corvidae escape-flight study](https://journals.biologists.com/jeb/article/214/3/452/33507/Scaling-of-mechanical-power-output-during-burst).
+It reports vertical escape takeoffs from three American crows, captured with
+three synchronized 250 Hz high-speed cameras and digitized into calibrated 3D
+wing and body marker coordinates. That is valuable evidence that a
+same-species kinematic record existed, but it is not an importable Numi data
+package as published on the reviewed article page.
+
+The reported task is constrained vertical burst flight in a chamber, not the
+current unassisted standing-to-forward-flight target. The article's accessible
+material supplies methods, aggregate values, figures, and a supplementary
+movie; it does not supply the numerical marker-coordinate series, camera
+calibration, coordinate transform, bilateral time-varying surfaces, mass/COM/
+inertia record, or a reuse license for such a package. Figures and video frames
+must not be digitized opportunistically into a purported measured crow model,
+and these data cannot be merged with the independent estimated BirdFlow visual
+surface as though they came from one specimen.
+
+An eventual data request or acquisition must obtain an explicit license plus
+the original timebase, camera calibration and world axes, 3D wing/body marker
+coordinates or registered surfaces, side labels, toe-off and wingbeat events,
+specimen mass properties, and atmosphere/force measurements. It must then
+enter the provenance-locked schema as a new hybrid or same-specimen record;
+until then, this lead remains literature evidence rather than a training input.
+
 ## Required next evidence
 
 The next control experiment must identify a coordinated, phase-aware physical
