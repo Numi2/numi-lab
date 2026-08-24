@@ -45,8 +45,10 @@ _VALUE_OPTIONS = frozenset(
 _FLAG_OPTIONS = frozenset(
     {
         "--birdflow-dove",
+        "--birdflow-american-crow",
         "--interaction-reset-only",
         "--materialize-articulated-contact-responses",
+        "--no-scheduled-resets",
     }
 )
 
@@ -58,6 +60,11 @@ _EVALUATION_OVERRIDE_OPTIONS = frozenset(
         "--seed",
     }
 )
+
+# This is the authored BirdFlow task's successTrackingThreshold. Relative
+# progress before terminal flight is useful training evidence, not a basis for
+# claiming qualified flight.
+_BIRDFLOW_TRACKING_FLOOR = 0.70
 
 
 def _option_value(arguments: Sequence[str], option: str) -> str | None:
@@ -101,6 +108,10 @@ def _task_kind(task_id: str) -> str:
     """Map authored task IDs onto the stable promotion-policy vocabulary."""
 
     normalized = task_id.strip().lower().replace("_", "-")
+    if "birdflow" in normalized and "figure-eight" in normalized:
+        return "birdflow-figure-eight"
+    if "birdflow" in normalized and "standing-to-flight" in normalized:
+        return "birdflow-standing-to-flight"
     if "adult" in normalized and "locomotion" in normalized:
         return "adult-locomotion"
     if "developmental" in normalized and "recovery" in normalized:
@@ -231,6 +242,14 @@ def evaluation_arguments(
             )
         )
 
+    # Scheduled resets are a generic stress instrument, not evidence for a
+    # continuous BirdFlow standing-to-flight trajectory.
+    if (
+        {"--birdflow-dove", "--birdflow-american-crow"}
+        & set(training_arguments)
+    ) and "--no-scheduled-resets" not in projected:
+        projected.append("--no-scheduled-resets")
+
     # Appended values win if a caller supplied the same option earlier.
     projected.extend(
         (
@@ -294,7 +313,16 @@ def _physical_failure_rate(record: dict[str, Any]) -> float:
     environments = max(
         len(record.get("termination_count_by_environment", [])), 1
     )
-    if (
+    is_birdflow_task = str(record.get("task", "")).startswith("birdflow_")
+    if is_birdflow_task:
+        # Bird tasks terminate on non-foot contact. Their generic height/tilt
+        # counter is intentionally empty, so use all non-timeout terminations.
+        failures = max(
+            int(record.get("termination_count", 0))
+            - int(record.get("timeout_count", 0)),
+            0,
+        )
+    elif (
         "height_or_tilt_termination_count" in record
         and str(record.get("world_source", ""))
         not in _GENERIC_WORLD_SOURCES
@@ -338,6 +366,11 @@ def _authored_outcomes(record: dict[str, Any]) -> dict[str, tuple[float, int]]:
         except (KeyError, TypeError, ValueError):
             continue
     return outcomes
+
+
+def _outcome_mean(record: dict[str, Any], identifier: str) -> float:
+    outcome = _authored_outcomes(record).get(identifier)
+    return 0.0 if outcome is None else outcome[0]
 
 
 def _compare_adult_authored_outcomes(
@@ -418,7 +451,47 @@ def compare_evidence(
     elif candidate_termination < incumbent_termination - 1.0e-12:
         improvements.append("termination rate decreased")
 
-    if generic_task:
+    if task in {"birdflow-figure-eight", "birdflow-standing-to-flight"}:
+        maximum_band = int(candidate.get("maximum_sampled_difficulty_band", 3))
+        terminal_outcomes = (
+            ("figure_eight_tracking", "liftoff")
+            if task == "birdflow-figure-eight"
+            else ("forward_flight_tracking", "liftoff", "push_off")
+        )
+        stage_outcomes = {
+            0: ("ground_support",),
+            1: ("ground_support", "walking_contact"),
+            2: ("liftoff", "push_off"),
+            3: terminal_outcomes,
+        }[min(maximum_band, 3)]
+        for identifier in stage_outcomes:
+            if _outcome_mean(candidate, identifier) > (
+                _outcome_mean(incumbent, identifier) + 1.0e-6
+            ):
+                improvements.append(f"{identifier} increased")
+        if maximum_band == 0:
+            incumbent_drift = abs(float(
+                incumbent.get("mean_final_forward_progress_m", 0.0)
+            ))
+            candidate_drift = abs(float(
+                candidate.get("mean_final_forward_progress_m", 0.0)
+            ))
+            if candidate_drift > max(0.50, incumbent_drift + 0.25):
+                regressions.append("ground station-keeping regressed")
+        if (
+            maximum_band >= 3
+            and float(candidate.get("mean_tracking_score", 0.0))
+            < _BIRDFLOW_TRACKING_FLOOR
+        ):
+            tracking_label = (
+                "figure-eight"
+                if task == "birdflow-figure-eight"
+                else "standing-to-flight forward"
+            )
+            regressions.append(
+                f"{tracking_label} tracking is below the authored success threshold"
+            )
+    elif generic_task:
         # A velocity actor commands an ongoing balance/locomotion task.  A
         # marginally lower reset count is not deployable progress if every
         # held-out environment still collapses before its requested horizon.
@@ -582,7 +655,59 @@ def compare_evidence(
 
     selection_score: float | None = None
     selection_method = "task_physical_comparison"
-    if generic_task:
+    if task in {"birdflow-figure-eight", "birdflow-standing-to-flight"}:
+        maximum_band = int(candidate.get("maximum_sampled_difficulty_band", 3))
+        if maximum_band <= 0:
+            weights = {"ground_support": 0.70, "tracking": 0.30}
+        elif maximum_band == 1:
+            weights = {
+                "walking_contact": 0.55,
+                "ground_support": 0.25,
+                "tracking": 0.20,
+            }
+        elif maximum_band == 2:
+            weights = {"push_off": 0.35, "liftoff": 0.35, "tracking": 0.30}
+        elif task == "birdflow-figure-eight":
+            weights = {
+                "figure_eight_tracking": 0.55,
+                "liftoff": 0.20,
+                "walking_contact": 0.10,
+                "ground_support": 0.05,
+                "tracking": 0.10,
+            }
+        else:
+            weights = {
+                "forward_flight_tracking": 0.55,
+                "liftoff": 0.20,
+                "push_off": 0.10,
+                "ground_support": 0.05,
+                "tracking": 0.10,
+            }
+        selection_score = sum(
+            weight * _relative_progress(
+                _outcome_mean(incumbent, identifier),
+                _outcome_mean(candidate, identifier),
+                0.01,
+            )
+            for identifier, weight in weights.items()
+        ) + incumbent_termination - candidate_termination
+        selected = (
+            int(candidate.get("failed_environment_steps", 0)) == 0
+            and not regressions
+            and candidate_termination <= incumbent_termination + 1.0e-12
+            and (
+                maximum_band < 3
+                or float(candidate.get("mean_tracking_score", 0.0))
+                >= _BIRDFLOW_TRACKING_FLOOR
+            )
+            and selection_score > 1.0e-12
+        )
+        selection_method = (
+            "birdflow_staged_embodied_flight"
+            if task == "birdflow-figure-eight"
+            else "birdflow_staged_embodied_standing_to_flight"
+        )
+    elif generic_task:
         old_task_reward = float(incumbent.get("mean_task_reward", 0))
         new_task_reward = float(candidate.get("mean_task_reward", 0))
         old_reward = float(incumbent.get("mean_reward", 0))
