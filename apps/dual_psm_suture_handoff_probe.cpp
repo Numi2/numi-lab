@@ -218,13 +218,23 @@ constexpr std::uint32_t kReceiverAlignmentTimestepDivisor = 1u;
 // globally is not prefix-invariant at the complete runtime-state boundary: its
 // visible passage prefix matched r22, but changed hidden solver/contact history
 // failed the already-qualified dynamic bridge after 64 accepted steps. Keep the
-// cooked seven-pass bridge and alignment-motion execution. Expose one final
-// outer reassembly/correction only after alignment motion, while the bounded
-// eleventh Krylov cycle is active, then restore the cooked budget before the
-// base-cadence proof. The allocated 16-column basis and every residual,
-// contact, tissue, convergence, and publication tolerance remain unchanged.
-constexpr std::uint32_t kReceiverAlignmentSettleNewtonIterationBudget =
+// cooked seven-pass bridge and alignment-motion execution. r24 proved the
+// phase-local eighth pass preserves that entire prefix plus 1152 accepted
+// settle steps. Control step 34 of the next 64-step chunk then reached healthy
+// J=0.995701 and clean contact/capacity certificates but exhausted its eighth
+// correction at equilibrium and pressure residuals 5.04524e-4 and 5.04459e-4.
+// Since r23 also proved that extra passes are not prefix-invariant, retain the
+// exact eight-pass trajectory for those first 72 ms and expose a ninth pass
+// only at its completed-state boundary. Restore the cooked budget before the
+// base-cadence proof. The required 100 ms hold, allocated 16-column basis, and
+// every residual, contact, tissue, convergence, and publication tolerance
+// remain unchanged.
+constexpr std::uint32_t kReceiverAlignmentSettleInitialNewtonIterationBudget =
     NM_MIXED_NEWTON_ITERATIONS + 1u;
+constexpr std::uint32_t kReceiverAlignmentSettleFinalNewtonIterationBudget =
+    NM_MIXED_NEWTON_ITERATIONS + 2u;
+constexpr std::uint32_t kReceiverAlignmentSettleInitialNewtonNominalSteps =
+    36u;
 constexpr std::uint32_t kReceiverBridgeFGMRESIterationBudget =
     2u * NM_MIXED_FGMRES_RESTART;
 constexpr std::uint32_t kReceiverAlignmentFGMRESIterationBudget =
@@ -6978,6 +6988,7 @@ bool isLiveTissueCheckpointPhase(const std::string_view phase) {
         phase == "tissue-receiver-dynamic-bridge" ||
         phase == "tissue-receiver-cadence-proof" ||
         phase == "tissue-receiver-alignment-motion" ||
+        phase == "tissue-receiver-alignment-settle-eight-newton" ||
         phase == "tissue-receiver-alignment-settled" ||
         phase == "tissue-receiver-acquisition" ||
         phase == "tissue-receiver-extraction" ||
@@ -20751,9 +20762,14 @@ int main(const int argc, const char* const argv[]) {
                         kReceiverAlignmentSettleFGMRESIterationBudget
                     ) &&
                         tissueRuntime.fgmresIterationBudget() ==
-                            kReceiverAlignmentSettleFGMRESIterationBudget,
+                            kReceiverAlignmentSettleFGMRESIterationBudget &&
+                        tissueRuntime.setNewtonIterationBudget(
+                            kReceiverAlignmentSettleInitialNewtonIterationBudget
+                        ) &&
+                        tissueRuntime.newtonIterationBudget() ==
+                            kReceiverAlignmentSettleInitialNewtonIterationBudget,
                     "restored receiver alignment could not select the "
-                    "production settle FGMRES budget"
+                    "production settle FGMRES and Newton budgets"
                 );
             };
             if (tissueReceiverBridgeResumeOnly) {
@@ -25750,10 +25766,10 @@ int main(const int argc, const char* const argv[]) {
                                 tissueRuntime.newtonIterationBudget() ==
                                     NM_MIXED_NEWTON_ITERATIONS &&
                                 tissueRuntime.setNewtonIterationBudget(
-                                    kReceiverAlignmentSettleNewtonIterationBudget
+                                    kReceiverAlignmentSettleInitialNewtonIterationBudget
                                 ) &&
                                 tissueRuntime.newtonIterationBudget() ==
-                                    kReceiverAlignmentSettleNewtonIterationBudget,
+                                    kReceiverAlignmentSettleInitialNewtonIterationBudget,
                             "receiver alignment settle could not select its "
                             "bounded eleventh FGMRES restart cycle and final "
                             "outer Newton correction"
@@ -25789,20 +25805,121 @@ int main(const int argc, const char* const argv[]) {
                             "live receiver alignment settling window is "
                             "invalid"
                         );
-                        std::vector<float> liveAlignmentHoldEfforts =
+                        const std::uint32_t maximumSettleChunkSteps =
+                            std::max<std::uint32_t>(
+                                1u,
+                                static_cast<std::uint32_t>(std::llround(
+                                    kLiveReceiverChunkDurationS /
+                                    static_cast<double>(
+                                        stepConfig.timestepSeconds
+                                    )
+                                ))
+                            );
+                        const std::uint32_t
+                            liveAlignmentInitialNewtonSettleSteps =
+                                liveReceiverSteps(
+                                    kReceiverAlignmentSettleInitialNewtonNominalSteps
+                                );
+                        require(
+                            liveAlignmentInitialNewtonSettleSteps > 0u &&
+                                liveAlignmentInitialNewtonSettleSteps <
+                                    liveAlignmentMinimumSettleSteps &&
+                                liveAlignmentInitialNewtonSettleSteps %
+                                        maximumSettleChunkSteps ==
+                                    0u,
+                            "receiver alignment Newton transition is not a "
+                            "complete settle-chunk boundary"
+                        );
+                        const std::vector<float>
+                            liveAlignmentMinimumHoldEfforts =
                             interpolateLiveReceiverTargets(
                                 liveAlignmentMotion.result.finalQ,
                                 liveReceiverAlignment.finalTarget,
                                 liveAlignmentMinimumSettleSteps
                             );
+                        const std::size_t initialNewtonEffortCount =
+                            static_cast<std::size_t>(
+                                liveAlignmentInitialNewtonSettleSteps
+                            ) * world.model.world.nv;
+                        std::vector<float> liveAlignmentHoldEfforts(
+                            liveAlignmentMinimumHoldEfforts.begin(),
+                            liveAlignmentMinimumHoldEfforts.begin() +
+                                initialNewtonEffortCount
+                        );
                         LiveReceiverStreamResult liveAlignmentSettleStream =
                             continueLiveReceiverStream(
                                 liveAlignmentHoldEfforts,
-                                liveAlignmentMinimumSettleSteps,
+                                liveAlignmentInitialNewtonSettleSteps,
                                 "live tissue receiver alignment settle",
-                                "tissue_receiver_alignment_settle",
+                                "tissue_receiver_alignment_settle_eight_newton",
                                 receiverTissueSpec.thicknessM.value
                             );
+                        const numi::matter::RuntimeStateSnapshot
+                            initialNewtonSettleMatter =
+                                tissueRuntime.snapshot();
+                        writeHandoffStateArtifact(
+                            options.stateOutputDirectory,
+                            "tissue-receiver-alignment-settle-eight-newton",
+                            liveReceiverStartBaseDERSubsteps +
+                                refinedAlignmentMotionBaseDERSubsteps +
+                                liveAlignmentInitialNewtonSettleSteps,
+                            world,
+                            sutureSpec,
+                            liveAlignmentSettleStream.terminal.result,
+                            &initialNewtonSettleMatter
+                        );
+                        require(
+                            tissueRuntime.newtonIterationBudget() ==
+                                    kReceiverAlignmentSettleInitialNewtonIterationBudget &&
+                                tissueRuntime.setNewtonIterationBudget(
+                                    kReceiverAlignmentSettleFinalNewtonIterationBudget
+                                ) &&
+                                tissueRuntime.newtonIterationBudget() ==
+                                    kReceiverAlignmentSettleFinalNewtonIterationBudget,
+                            "receiver alignment settle could not select its "
+                            "ninth outer Newton correction at the accepted "
+                            "1152-step boundary"
+                        );
+                        std::cout << std::setprecision(9)
+                            << "tissue_receiver_alignment_settle_final_newton_"
+                               "budget=ok"
+                            << " transition_steps="
+                            << liveAlignmentInitialNewtonSettleSteps
+                            << " transition_time_s="
+                            << static_cast<double>(
+                                   liveAlignmentInitialNewtonSettleSteps
+                               ) * static_cast<double>(
+                                   stepConfig.timestepSeconds
+                               )
+                            << " newton_iterations="
+                            << tissueRuntime.newtonIterationBudget() << '\n';
+                        const std::uint32_t finalNewtonMinimumSettleSteps =
+                            liveAlignmentMinimumSettleSteps -
+                                liveAlignmentInitialNewtonSettleSteps;
+                        liveAlignmentHoldEfforts.assign(
+                            liveAlignmentMinimumHoldEfforts.begin() +
+                                initialNewtonEffortCount,
+                            liveAlignmentMinimumHoldEfforts.end()
+                        );
+                        LiveReceiverStreamResult finalNewtonSettleStream =
+                            continueLiveReceiverStream(
+                                liveAlignmentHoldEfforts,
+                                finalNewtonMinimumSettleSteps,
+                                "live tissue receiver final-Newton alignment "
+                                "settle",
+                                "tissue_receiver_alignment_settle_nine_"
+                                "newton",
+                                receiverTissueSpec.thicknessM.value
+                            );
+                        liveAlignmentSettleStream.gpuMilliseconds +=
+                            finalNewtonSettleStream.gpuMilliseconds;
+                        liveAlignmentSettleStream.completedSteps +=
+                            finalNewtonSettleStream.completedSteps;
+                        liveAlignmentSettleStream.chunks +=
+                            finalNewtonSettleStream.chunks;
+                        liveAlignmentSettleStream.terminal = std::move(
+                            finalNewtonSettleStream.terminal
+                        );
                         struct AlignmentContactGuard {
                             std::uint32_t activeContacts = 0u;
                             double minimumSeparationM =
@@ -26042,16 +26159,6 @@ int main(const int argc, const char* const argv[]) {
                                 liveAlignmentSettleStream.terminal,
                                 liveAlignmentSettleStream.completedSteps
                             ) ? 1u : 0u;
-                        const std::uint32_t maximumSettleChunkSteps =
-                            std::max<std::uint32_t>(
-                                1u,
-                                static_cast<std::uint32_t>(std::llround(
-                                    kLiveReceiverChunkDurationS /
-                                    static_cast<double>(
-                                        stepConfig.timestepSeconds
-                                    )
-                                ))
-                            );
                         while (
                             consecutiveQuiescentChunks < 2u &&
                             liveAlignmentSettleStream.completedSteps <
@@ -26114,7 +26221,7 @@ int main(const int argc, const char* const argv[]) {
                                 kReceiverAlignmentTimestepDivisor;
                         require(
                             tissueRuntime.newtonIterationBudget() ==
-                                    kReceiverAlignmentSettleNewtonIterationBudget &&
+                                    kReceiverAlignmentSettleFinalNewtonIterationBudget &&
                                 tissueRuntime.setNewtonIterationBudget(
                                     NM_MIXED_NEWTON_ITERATIONS
                                 ) &&
