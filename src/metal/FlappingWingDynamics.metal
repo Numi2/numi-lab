@@ -308,8 +308,13 @@ kernel void mr_step_compiled_flapping_wings(
             const float dynamicPressure = 0.5f *
                 dispatch.windVelocityAndDensity.w * speedSquared;
             const float3 liftDirection = safeNormal(cross(span, flow));
+            // The quasi-steady point velocity above already includes every
+            // accepted articulated wing coordinate.  Keep the unsteady
+            // fraction, tail-wash proxy, and bilateral energy bookkeeping on
+            // that same relative wing velocity rather than silently dropping
+            // sweep and pronation rates after adding those physical joints.
             const float strokeSpeedSquared = dot(
-                flapStrokeVelocity, flapStrokeVelocity
+                strokeVelocity, strokeVelocity
             );
             wingStrokeSpeedSquared +=
                 ellipticWeight * strokeSpeedSquared /

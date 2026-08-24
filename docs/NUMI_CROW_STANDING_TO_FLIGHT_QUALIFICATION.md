@@ -42,6 +42,47 @@ has not yet produced sustained forward velocity at the 0.35 m/s stage-2
 command. Its angle limits, connector inertia, and drive constants are explicit
 hybrid-model closures, not crow measurements.
 
+## All-articulated wing-velocity closure (pre-registered)
+
+The current crow blade-element kernel resolves the section point velocity as
+the sum of flap, sweep, and pronation velocities. Until this experiment, its
+unsteady-force fraction, tail-wash proxy, and differential wing-energy
+bookkeeping used only the flap component. That mismatch became material after
+the sweep and pronation joints were added: a physical sweep or pronation rate
+could affect quasi-steady flow but not those three rate-sensitive closures.
+
+The only planned model change is to use the already computed complete
+relative-wing velocity `flap + sweep + pronation` for those quantities. It
+adds no force term, coefficient, action, reward, controller, termination, or
+species calibration. It is a generic kinematic-consistency correction, not a
+claim that the estimated crow has measured aerodynamic loads. The motivation
+is independently checkable: a blade-element analysis of flapping birds
+computes each section's velocity from both flapping and morphing motion, and
+the bird-flight review describes strips moving from both bird flight velocity
+and wing angular velocity ([Morris et al., 2024](https://pmc.ncbi.nlm.nih.gov/articles/PMC10942624/);
+[Tobalske, 2007](https://journals.biologists.com/jeb/article/210/18/3135/17027/Biomechanics-of-bird-flight)).
+
+Before the source change, the exact `54c2eb8` reference used Apple M4 Pro,
+64 environments, 5,000 control steps, band 2 only, zero actions, no scheduled
+resets, and held-out seed `2650443581`. It completed with zero failed
+environment steps and zero non-timeout physical-boundary failures; all 64
+environments timed out normally. The mean tracking score was `0.5008565`,
+mean root height `1.0462196 m`, and mean / maximum tilt `0.0620805 / 0.1222802
+rad`. Its immutable artifact root is
+`.numi/runs/crow-articulated-sweep-20260824-v1/all-articulated-velocity-prechange-zero-64x5000/`.
+
+The corrected source must first pass the native program checker, then repeat
+that exact zero-action rollout. It is eligible for one protected
+128-environment × 128-step × 256-update PPO run only if that rollout has zero
+failed environment steps, zero non-timeout physical-boundary failures, mean
+root height in `[0.85, 1.30] m`, mean tilt at most `0.15 rad`, and maximum tilt
+at most `0.30 rad`. The immutable 64-environment held-out selector then
+compares every checkpoint and final candidate to its matched incumbent. A
+candidate needs tracking at least `0.70`, zero non-timeout physical-boundary
+failures, and no attitude/height regression before any protected deployment,
+deterministic replay, GIF, or README media can advance. Otherwise the model
+variant is recorded as rejected and the retained source stays unchanged.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
