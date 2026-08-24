@@ -374,6 +374,42 @@ README entry. Otherwise the incumbent remains active and the result is
 negative evidence; no follow-on hyperparameter sweep is authorized by this
 pre-registration.
 
+### Outcome: incumbent retained; low exploration did not clear the gate
+
+The first wrapper invocation was a configuration-only failure: it omitted the
+explicit checkpoint directory required by the checkpoint interval, and stopped
+before launching the learner. The reissued command added that path without
+changing the pre-registered training parameters. Its source revision was
+`713ea69`; the executable Crow code remained the independently requalified
+`73bad6b` code. The remote Apple M4 Pro completed all 256 updates
+(`4,194,304` samples) in `213.7332 s`, reporting `160,336.31` GPU ms and
+`19,624.02` end-to-end environment steps/s. Training reported zero failed
+environment steps; that is a trainer-health observation, not a flight result.
+
+The held-out selector evaluated each persisted checkpoint and the final
+candidate over the pre-registered 64-environment, 5,000-step condition. The
+figures below are mean tracking, mean root height, mean tilt, and non-timeout
+physical-boundary terminations per evaluation environment. None met the
+tracking threshold or zero-physical-failure requirement, so each was rejected
+and the incumbent was retained.
+
+| Policy | Tracking | Height (m) | Tilt (rad) | Physical terminations / env | Selector result |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Incumbent | 0.500636 | 1.040978 | 0.063570 | 0.000000 | retained |
+| Update 65 | 0.507202 | 1.037329 | 0.135742 | 2.812500 | rejected |
+| Update 129 | 0.560095 | 0.545074 | 0.240295 | 3.000000 | rejected |
+| Update 193 | 0.579314 | 0.563368 | 0.235984 | 2.984375 | rejected |
+| Update 257 (final) | 0.502275 | 1.062237 | 0.156605 | 4.609375 | rejected |
+
+The immutable record is
+`.numi/runs/crow-low-exploration-20260824-v1/train-128x128x256-reissued/`,
+including the initial/final policies, all four checkpoints, 64-environment
+state traces, evidence JSON, selector decision, source revision, runtime hash,
+and artifact checksums. The selector records `selected = incumbent`,
+`comparison_champion = incumbent`, and
+`candidate_advanced_deployment = false`. Consequently there is no accepted
+Crow policy, replay, GIF, picture, or README media entry from this experiment.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
