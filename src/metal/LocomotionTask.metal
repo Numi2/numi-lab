@@ -3651,9 +3651,25 @@ kernel void mr_locomotion_task_apply_actions(
             const float verticalRate = state.commandExtension.w;
             const float forwardSpeedError =
                 state.commandExtension.z - 0.35f;
+            // The direct late-horizon residual probes show that wing-speed
+            // authority is useful only after a physical lift has been
+            // established. Keep it inactive through push-off, then blend a
+            // bounded correcting residual over the accepted root-height
+            // interval. This is a position target for the live articulated
+            // wings, not an injected body force or a recorded trajectory.
+            const float airborneSpeedRegulation = smoothstep(
+                0.70f,
+                0.90f,
+                state.airReturnTracking.y
+            ) * clamp(
+                0.150f * forwardSpeedError,
+                -0.120f,
+                0.120f
+            );
             avianLiftoffWingCarrier = clamp(
                 -0.150f + 0.400f * heightError - 0.120f * verticalRate -
-                    0.100f * forwardSpeedError,
+                    0.100f * forwardSpeedError +
+                    airborneSpeedRegulation,
                 -1.000f,
                 0.125f
             );
