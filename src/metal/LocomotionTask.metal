@@ -3652,12 +3652,7 @@ kernel void mr_locomotion_task_apply_actions(
             const float forwardSpeedError =
                 state.commandExtension.z - 0.35f;
             avianLiftoffWingCarrier = clamp(
-                // The measured residual response is inverse in this
-                // airframe: a larger flap command moves it rearward in the
-                // yaw frame.  Therefore a positive forward-speed error must
-                // increase this command to brake, while a negative error
-                // must reduce it to regain commanded forward travel.
-                -0.150f + 0.400f * heightError - 0.120f * verticalRate +
+                -0.150f + 0.400f * heightError - 0.120f * verticalRate -
                     0.100f * forwardSpeedError,
                 -1.000f,
                 0.125f
