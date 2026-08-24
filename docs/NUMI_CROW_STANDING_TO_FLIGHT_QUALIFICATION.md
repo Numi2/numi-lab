@@ -822,6 +822,50 @@ authorized from this result. The retained artifact may inform a distinct,
 separately pre-registered hypothesis about the learning objective, but it is
 not a Crow flight result.
 
+### Ground-tilt objective reissue (pre-registered)
+
+Source `07628e0cfc564eb44f1690799ec4bb0534044a57` introduces one Crow-only,
+fingerprinted task flag:
+`MR_TASK_PROGRAM_AVIAN_CROW_GROUND_TILT_ENVELOPE`. In carrier-supported band 1
+only, `tiltSquared` now uses `4 * max(tilt - 0.0075, 0)^2` before the existing
+`-0.50` reward weight, producing a `-2 * max(tilt - 0.0075, 0)^2` hinge
+penalty. Standing, lift-off, and flight bands retain their prior reward
+behavior; the Dove, robot model, action ABI, gait carrier, residual scale,
+solver, aerodynamics, resets, terminations, 4.6 Hz clock, policy architecture,
+and learning hyperparameters are unchanged.
+
+This is an objective-alignment hypothesis, not an amplitude sweep. In the
+rejected Stage-1 candidate, the observed task-reward gain was `0.0064682`
+(`0.0766220 - 0.0701539`) while mean tilt was `0.0790510` rad. Since the hinge
+is convex and tilt is nonnegative, its expected additional penalty at that
+mean is at least `2 * (0.0790510 - 0.0075)^2 = 0.0102391`; it exceeds the
+observed reward advantage while the incumbent mean tilt (`0.0039169` rad) is
+below the hinge. The `0.0075`-rad onset leaves a buffer below the unchanged
+held-out mean-tilt ceiling of `0.0089169` rad. This bound motivates one test;
+it does not guarantee a learned gait or describe biological Crow control.
+
+Before learning, the M4 must rebuild the Metal program and pass
+`metalrobo_run_program_check`. A zero-action band-1 isolation run then uses 64
+environments, 5,000 no-reset steps, seed `2650443582`, and an environment-0
+state trace. It must have zero failed environment steps and be byte-identical
+to the retained ground-carrier trace
+`f9a4dfd48cb3b3f65fee533ee16583849972312e8b70728cdb5127be0ec2110b`.
+The reward is allowed to differ; the test is specifically a physical-path
+guard that the objective-only change does not alter zero-action dynamics.
+
+Only after that isolation passes, one fresh Stage-1 learner is authorized at
+this source: zero actor, band 1 only, 128 environments × 128 steps × 512
+updates (`8,388,608` samples), chunk 8, fixed learning rate `1e-4`, initial
+log standard deviation `-3`, learner seed `2650443583`, checkpoint interval
+128, and source-pinned remote artifacts. Its 64-environment, 5,000-step,
+no-reset held-out selector uses the same seed and evaluates current band 1
+plus protected band 0. It may be retained only with zero failed environment
+steps, zero non-timeout physical failures, positive current-band progress, no
+protected-band regression, and mean tilt no more than `0.005` rad above the
+matched incumbent. This reissue authorizes no Stage 2, policy deployment,
+replay, GIF, picture, or README media; any later flight stage requires its own
+pre-registration after a selected Stage-1 policy.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
