@@ -45,6 +45,7 @@ enum MRTaskProgramFlags : mr_u32 {
     // advanced from accepted physical support/tracking state rather
     // than unconditionally from episode time.
     MR_TASK_PROGRAM_INTERACTION_PHYSICS_GATED = 1u << 10u,
+    MR_TASK_PROGRAM_INTERACTION_ALIGN_REFERENCE_YAW = 1u << 11u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {
@@ -139,10 +140,25 @@ enum MRTaskObservationOpcode : mr_u32 {
     // transaction.  This preserves policies trained from sampled encoders
     // rather than the simulator's instantaneous generalized velocity.
     MR_TASK_OBSERVE_JOINT_FINITE_DIFFERENCE_VELOCITY = 27u,
+    // Current joint target from the selected InteractionPack clip. This is
+    // distinct from the tracking error: imported motion-conditioned actors
+    // consume their published reference directly.
+    MR_TASK_OBSERVE_INTERACTION_JOINT_TARGET = 28u,
+    // Forward finite difference of the selected InteractionPack joint target.
+    // This matches source motion runtimes that publish sampled reference
+    // velocity rather than simulator generalized velocity.
+    MR_TASK_OBSERVE_INTERACTION_JOINT_TARGET_VELOCITY = 29u,
+    // Six-dimensional (two-column) torso-orientation anchor built from the
+    // selected root target, its waist target, and the live floating root.
+    MR_TASK_OBSERVE_INTERACTION_ANCHOR_ORIENTATION = 30u,
+    // Raw PolicyPack output from the preceding accepted control transaction.
+    // This remains distinct from the post-transform actuator target stored in
+    // the ordinary action history.
+    MR_TASK_OBSERVE_PREVIOUS_POLICY_ACTION = 31u,
     // Unconditionally advancing task clock: sin/cos of the configured task
     // phase. Unlike gait phase, it remains available to cyclic actuators
     // during a zero-velocity or station-keeping command.
-    MR_TASK_OBSERVE_CYCLIC_PHASE = 28u,
+    MR_TASK_OBSERVE_CYCLIC_PHASE = 32u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {

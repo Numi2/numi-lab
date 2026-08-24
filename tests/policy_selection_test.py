@@ -102,6 +102,32 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertEqual(decision["selected"], "incumbent")
         self.assertIn("mean root height decreased", decision["regressions"])
 
+    def test_imported_velocity_requires_a_clean_horizon_to_deploy(self) -> None:
+        incumbent = {
+            "task": "robotis_ai_sapiens_k1_velocity_v1",
+            "world_source": "urdf",
+            "termination_count": 800,
+            "termination_count_by_environment": [50] * 16,
+            "clean_horizon_environment_rate": 0.0,
+            "failed_environment_steps": 0,
+            "mean_reward": -0.09,
+            "mean_task_reward": 0.0,
+            "mean_tracking_score": 0.28,
+        }
+        candidate = {
+            **incumbent,
+            "termination_count": 736,
+            "termination_count_by_environment": [46] * 16,
+            "mean_reward": -0.08,
+            "mean_tracking_score": 0.17,
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertFalse(decision["candidate_advanced_deployment"])
+        self.assertIn(
+            "candidate completed no clean horizon", decision["regressions"]
+        )
+
     def test_forward_reach_is_explicit_progress(self) -> None:
         incumbent = {
             "task": "velocity",
@@ -599,6 +625,12 @@ class PolicySelectionTest(unittest.TestCase):
                 "workcell.mrworld",
                 "--task-pack",
                 "grasp.taskpack",
+                "--robot-actuator-pack",
+                "grasp.actuatorpack",
+                "--sensor-program-pack",
+                "grasp.sensorpack",
+                "--reality-program-pack",
+                "grasp.realitypack",
                 "--visual-observation-config",
                 "cameras.json",
                 "--visual-environment-pack",
@@ -615,6 +647,9 @@ class PolicySelectionTest(unittest.TestCase):
         for option, value in (
             ("--world-pack", "workcell.mrworld"),
             ("--task-pack", "grasp.taskpack"),
+            ("--robot-actuator-pack", "grasp.actuatorpack"),
+            ("--sensor-program-pack", "grasp.sensorpack"),
+            ("--reality-program-pack", "grasp.realitypack"),
             ("--visual-observation-config", "cameras.json"),
             ("--visual-environment-pack", "studio.mrenv"),
         ):

@@ -80,86 +80,30 @@ def write_surface_parts(surface: Path, output: Path) -> None:
         (output / filenames[name]).write_text("\n".join(lines) + "\n")
 
 
-def append_box(lines: list[str], center: tuple[float, float, float],
-               half: tuple[float, float, float], material: str) -> None:
-    cx, cy, cz = center
-    hx, hy, hz = half
-    first = 1 + sum(1 for line in lines if line.startswith("v "))
-    for x, y, z in (
-        (-hx, -hy, -hz), (hx, -hy, -hz), (hx, hy, -hz), (-hx, hy, -hz),
-        (-hx, -hy, hz), (hx, -hy, hz), (hx, hy, hz), (-hx, hy, hz),
-    ):
-        lines.append(f"v {cx + x:.4f} {cy + y:.4f} {cz + z:.4f}")
-    lines.append(f"usemtl {material}")
-    for face in (
-        (0, 2, 1), (0, 3, 2), (4, 5, 6), (4, 6, 7),
-        (0, 1, 5), (0, 5, 4), (1, 2, 6), (1, 6, 5),
-        (2, 3, 7), (2, 7, 6), (3, 0, 4), (3, 4, 7),
-    ):
-        lines.append("f " + " ".join(str(first + index) for index in face))
-
-
-def append_cell_plane(lines: list[str], center: tuple[float, float, float],
-                      axis: str, half: float, material: str) -> None:
-    cx, cy, cz = center
-    first = 1 + sum(1 for line in lines if line.startswith("v "))
-    if axis == "x":
-        vertices = (
-            (cx - half, cy, cz - half), (cx + half, cy, cz - half),
-            (cx + half, cy, cz + half), (cx - half, cy, cz + half),
-        )
-    elif axis == "y":
-        vertices = (
-            (cx, cy - half, cz - half), (cx, cy + half, cz - half),
-            (cx, cy + half, cz + half), (cx, cy - half, cz + half),
-        )
-    else:
-        vertices = (
-            (cx - half, cy - half, cz), (cx + half, cy - half, cz),
-            (cx + half, cy + half, cz), (cx - half, cy + half, cz),
-        )
-    lines.extend(f"v {x:.4f} {y:.4f} {z:.4f}" for x, y, z in vertices)
-    lines.append(f"usemtl {material}")
-    lines.append(f"f {first} {first + 1} {first + 2}")
-    lines.append(f"f {first} {first + 2} {first + 3}")
-
-
-def append_text(lines: list[str], origin: tuple[float, float, float],
-                axis: str, inward: float, scale: float = 0.36) -> None:
-    ox, oy, oz = origin
-    cursor = 0
-    for letter in "NUMI LAB":
-        for row, pattern in enumerate(FONT[letter]):
-            for column, filled in enumerate(pattern):
-                if filled != "1":
-                    continue
-                horizontal = (cursor + column) * scale
-                vertical = (6 - row) * scale
-                if axis == "x":
-                    append_cell_plane(
-                        lines, (ox + horizontal, oy + inward, oz + vertical),
-                        "x", scale * 0.42, "numi_blue"
-                    )
-                elif axis == "y":
-                    append_cell_plane(
-                        lines, (ox + inward, oy + horizontal, oz + vertical),
-                        "y", scale * 0.42, "numi_blue"
-                    )
-                else:
-                    append_cell_plane(
-                        lines, (ox + horizontal, oy + vertical, oz + inward),
-                        "z", scale * 0.42, "numi_blue"
-                    )
-        cursor += 6
+def usda_header() -> list[str]:
+    # The measured Deetjen surface and authored flight hall are in meters and
+    # MetalRobo is Z-up. Without explicit stage metadata Model I/O assumes
+    # centimetres and Y-up, shrinking and rotating the complete presentation.
+    return [
+        "#usda 1.0",
+        "(",
+        '    defaultPrim = "Scene"',
+        "    metersPerUnit = 1",
+        '    upAxis = "Z"',
+        ")",
+    ]
 
 
 def write_room(output: Path) -> None:
-    width = height = 512
-    pixels = bytearray((205, 210, 220) * (width * height))
+    # Two complete phrases per row and eight rows per tile. Keeping phrase
+    # boundaries inside the tile avoids the former "LAB NUMI" seam, while the
+    # darker field preserves contrast against the light measured dove.
+    width, height = 432, 448
+    pixels = bytearray((56, 65, 82, 255) * (width * height))
     scale = 4
     phrase_width = len("NUMI LAB") * 6 * scale
     for origin_y in range(8, height, 56):
-        for origin_x in range(-phrase_width // 2, width, phrase_width + 24):
+        for origin_x in range(8, width, phrase_width + 24):
             cursor = 0
             for letter in "NUMI LAB":
                 for row, pattern in enumerate(FONT[letter]):
@@ -171,8 +115,8 @@ def write_room(output: Path) -> None:
                                 x = origin_x + (cursor + column) * scale + dx
                                 y = origin_y + row * scale + dy
                                 if 0 <= x < width and 0 <= y < height:
-                                    offset = (y * width + x) * 3
-                                    pixels[offset : offset + 3] = bytes((13, 82, 242))
+                                    offset = (y * width + x) * 4
+                                    pixels[offset : offset + 4] = bytes((24, 115, 255, 255))
                 cursor += 6
 
     def png_chunk(kind: bytes, payload: bytes) -> bytes:
@@ -182,11 +126,11 @@ def write_room(output: Path) -> None:
         )
 
     scanlines = b"".join(
-        b"\x00" + bytes(pixels[row * width * 3 : (row + 1) * width * 3])
+        b"\x00" + bytes(pixels[row * width * 4 : (row + 1) * width * 4])
         for row in range(height)
     )
     png = b"\x89PNG\r\n\x1a\n"
-    png += png_chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0))
+    png += png_chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 6, 0, 0, 0))
     png += png_chunk(b"IDAT", zlib.compress(scanlines, 9))
     png += png_chunk(b"IEND", b"")
     (output / "numi-lab-surface.png").write_bytes(png)
@@ -194,15 +138,15 @@ def write_room(output: Path) -> None:
     # Six quads only. Repeated UVs make NUMI LAB intrinsic to every wall,
     # floor, and ceiling surface rather than additional scene geometry.
     surfaces = {
-        "floor": ((-25, -30, 0), (55, -30, 0), (55, 30, 0), (-25, 30, 0), 8, 6),
-        "ceiling": ((-25, 30, 25), (55, 30, 25), (55, -30, 25), (-25, -30, 25), 8, 6),
-        "south": ((-25, -30, 0), (55, -30, 0), (55, -30, 25), (-25, -30, 25), 8, 2.5),
-        "north": ((55, 30, 0), (-25, 30, 0), (-25, 30, 25), (55, 30, 25), 8, 2.5),
-        "west": ((-25, 30, 0), (-25, -30, 0), (-25, -30, 25), (-25, 30, 25), 6, 2.5),
-        "east": ((55, -30, 0), (55, 30, 0), (55, 30, 25), (55, -30, 25), 6, 2.5),
+        "floor": ((-8, -15, 0), (8, -15, 0), (8, 15, 0), (-8, 15, 0), 2, 4),
+        "ceiling": ((-8, 15, 8), (8, 15, 8), (8, -15, 8), (-8, -15, 8), 2, 4),
+        "south": ((-8, -15, 8), (8, -15, 8), (8, -15, 0), (-8, -15, 0), 2, 1),
+        "north": ((8, 15, 8), (-8, 15, 8), (-8, 15, 0), (8, 15, 0), 2, 1),
+        "west": ((-8, 15, 8), (-8, -15, 8), (-8, -15, 0), (-8, 15, 0), 4, 1),
+        "east": ((8, -15, 8), (8, 15, 8), (8, 15, 0), (8, -15, 0), 4, 1),
     }
-    lines = [
-        "#usda 1.0", 'def Xform "Scene"', "{",
+    lines = usda_header() + [
+        'def Xform "Scene"', "{",
         '    def Material "numi_surface"', "    {",
         '        token outputs:surface.connect = </Scene/numi_surface/Surface.outputs:surface>',
         '        def Shader "UV"', "        {",
@@ -220,6 +164,8 @@ def write_room(output: Path) -> None:
         '        def Shader "Surface"', "        {",
         '            uniform token info:id = "UsdPreviewSurface"',
         '            color3f inputs:diffuseColor.connect = </Scene/numi_surface/Texture.outputs:rgb>',
+        '            color3f inputs:emissiveColor.connect = </Scene/numi_surface/Texture.outputs:rgb>',
+        '            float inputs:opacity = 1.0',
         '            float inputs:roughness = 0.82',
         '            token outputs:surface', "        }", "    }",
     ]
@@ -265,7 +211,7 @@ def write_usda_from_obj(obj: Path, output: Path) -> None:
         "wall": (0.78, 0.80, 0.84),
         "numi_blue": (0.05, 0.32, 0.95),
     }
-    lines = ["#usda 1.0", 'def Xform "Scene"', "{"]
+    lines = usda_header() + ['def Xform "Scene"', "{"]
     for name, material_faces in faces.items():
         used = sorted({index for face in material_faces for index in face})
         remap = {source: target for target, source in enumerate(used)}
@@ -279,6 +225,8 @@ def write_usda_from_obj(obj: Path, output: Path) -> None:
             "        {",
             '            uniform token info:id = "UsdPreviewSurface"',
             f"            color3f inputs:diffuseColor = ({r}, {g}, {b})",
+            f"            color3f inputs:emissiveColor = ({0.55 * r}, {0.55 * g}, {0.55 * b})",
+            "            float inputs:opacity = 1.0",
             "            float inputs:roughness = 0.72",
             "            token outputs:surface",
             "        }",

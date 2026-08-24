@@ -31,6 +31,7 @@ struct CompiledTaskProgram::Storage {
     TaskProgramLayout layout{};
     MRTaskProgramHeaderGPU header{};
     std::vector<MRTaskActionBindingGPU> actionBindings;
+    std::vector<float> initialActionPositions;
     std::vector<MRTaskActuatorTermGPU> actuatorTerms;
     std::vector<CompiledTaskOutcomeSpec> outcomes;
     std::vector<std::uint32_t> outcomeRewardOperations;
@@ -707,6 +708,7 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::jointVelocity:
             case TaskObservationSource::jointFiniteDifferenceVelocity:
             case TaskObservationSource::previousAction:
+            case TaskObservationSource::previousPolicyAction:
             case TaskObservationSource::delayedAction:
             case TaskObservationSource::contactMetric:
             case TaskObservationSource::bodyParameterMean:
@@ -919,6 +921,18 @@ TaskCompileDiagnostics compileTaskProgram(
             "task identity, dimensions, timing, or scalar parameters are invalid"
         );
     }
+    if ((!pack.initialActionPositions.empty() &&
+         pack.initialActionPositions.size() != pack.actions.size()) ||
+        !std::ranges::all_of(
+            pack.initialActionPositions,
+            [](const float value) { return std::isfinite(value); }
+        )) {
+        return reject(
+            TaskCompileStatus::invalidPack,
+            "initialActionPositions",
+            "initial action positions must be finite and match task actions"
+        );
+    }
     const bool hasVisualProgram = observations.visual.width != 0u ||
         observations.visual.height != 0u ||
         !observations.visual.frameOffsets.empty();
@@ -1020,6 +1034,7 @@ TaskCompileDiagnostics compileTaskProgram(
     }
 
     auto staged = std::make_shared<CompiledTaskProgram::Storage>();
+    staged->initialActionPositions = pack.initialActionPositions;
     staged->worldFingerprint = world.fingerprint();
     std::vector<std::string> outcomeIds{
         "reward", "task_reward", "done", "timeout", "physics_error",
@@ -1414,7 +1429,20 @@ TaskCompileDiagnostics compileTaskProgram(
             drive.z = actuator->parameters.x;
             drive.w = actuator->parameters.y;
         }
-        if (actuator->kind == RobotActuatorKind::jointVelocity) {
+        if (actuator->kind == RobotActuatorKind::jointPosition &&
+            (actuator->parameters.x != 0.0f ||
+             actuator->parameters.y != 0.0f)) {
+            if (!(actuator->parameters.x > 0.0f) ||
+                actuator->parameters.y < 0.0f) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    actuator->id,
+                    "joint-position actuator gain override requires positive stiffness and non-negative damping"
+                );
+            }
+            drive.x = actuator->parameters.x;
+            drive.y = actuator->parameters.y;
+        } else if (actuator->kind == RobotActuatorKind::jointVelocity) {
             const float speedLimit =
                 (dofFound->flags & MR_DOF_FLAG_VELOCITY_LIMIT) != 0u &&
                     dofFound->limits.z > 0.0f
@@ -1845,7 +1873,12 @@ TaskCompileDiagnostics compileTaskProgram(
                         "InteractionPack joint target exceeds the compiled mechanism limit"
                     );
                 }
-                if (frame == 0u ||
+                // A reset/observation-only InteractionPack may preserve a
+                // source trajectory whose sampled derivative exceeds this
+                // mechanism's drive limit.  It is not an executable target
+                // in that mode; the policy's ordinary position action and
+                // all solver/drive limits remain authoritative.
+                if (!pack.interactionControlReference || frame == 0u ||
                     (properties.flags & MR_DOF_FLAG_VELOCITY_LIMIT) == 0u) {
                     continue;
                 }
@@ -2064,6 +2097,7 @@ TaskCompileDiagnostics compileTaskProgram(
                 break;
             }
             case TaskObservationSource::previousAction:
+            case TaskObservationSource::previousPolicyAction:
             case TaskObservationSource::delayedAction: {
                 bool ambiguous = false;
                 sourceIndex = uniqueIndex(actionIds, spec.target, ambiguous);
@@ -2082,7 +2116,10 @@ TaskCompileDiagnostics compileTaskProgram(
                 }
                 break;
             }
-            case TaskObservationSource::interactionJointPositionError: {
+            case TaskObservationSource::interactionJointPositionError:
+            case TaskObservationSource::interactionJointTarget:
+            case TaskObservationSource::interactionJointTargetVelocity:
+            case TaskObservationSource::interactionAnchorOrientation: {
                 if (interactionClip == nullptr) {
                     return reject(
                         TaskCompileStatus::invalidPack,
@@ -2108,6 +2145,10 @@ TaskCompileDiagnostics compileTaskProgram(
                         spec.target,
                         "interaction joint observation has no task action binding"
                     );
+                }
+                if (spec.source ==
+                        TaskObservationSource::interactionAnchorOrientation) {
+                    componentLimit = 6u;
                 }
                 break;
             }
@@ -4019,8 +4060,10 @@ TaskCompileDiagnostics compileTaskProgram(
             MR_TASK_PROGRAM_THREAT_TEACHER;
     }
     if (interactionClip != nullptr) {
-        staged->header.schedule.w |=
-            MR_TASK_PROGRAM_INTERACTION_RESET;
+        if (pack.interactionInitializeFromReference) {
+            staged->header.schedule.w |=
+                MR_TASK_PROGRAM_INTERACTION_RESET;
+        }
         if (pack.interactionControlReference) {
             staged->header.schedule.w |=
                 MR_TASK_PROGRAM_INTERACTION_REFERENCE;
@@ -4028,6 +4071,10 @@ TaskCompileDiagnostics compileTaskProgram(
         if (pack.interactionPhysicsGated) {
             staged->header.schedule.w |=
                 MR_TASK_PROGRAM_INTERACTION_PHYSICS_GATED;
+        }
+        if (pack.interactionAlignReferenceYaw) {
+            staged->header.schedule.w |=
+                MR_TASK_PROGRAM_INTERACTION_ALIGN_REFERENCE_YAW;
         }
     }
     staged->header.locomotion = {
@@ -4385,8 +4432,12 @@ TaskCompileDiagnostics compileTaskProgram(
             }
         ),
         actuatorTermCount,
-        0u,
-        0u,
+        appendArena(
+            std::span<const float>{staged->initialActionPositions}
+        ),
+        static_cast<std::uint32_t>(
+            staged->initialActionPositions.size()
+        ),
     };
     if (staged->header.interactionOffsets0.x == MR_INVALID_INDEX ||
         staged->header.interactionOffsets0.y == MR_INVALID_INDEX ||
@@ -4395,7 +4446,8 @@ TaskCompileDiagnostics compileTaskProgram(
         staged->header.interactionOffsets1.x == MR_INVALID_INDEX ||
         staged->header.interactionOffsets1.y == MR_INVALID_INDEX ||
         staged->header.interactionOffsets1.z == MR_INVALID_INDEX ||
-        staged->header.actuatorTerms.x == MR_INVALID_INDEX) {
+        staged->header.actuatorTerms.x == MR_INVALID_INDEX ||
+        staged->header.actuatorTerms.z == MR_INVALID_INDEX) {
         return reject(
             TaskCompileStatus::arithmeticOverflow,
             "interaction",

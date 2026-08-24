@@ -15,3 +15,10 @@ __pycache__/
 *.so
 *.dSYM/
 compile_commands.json
+website/node_modules/
+website/dist/
+website/.vercel/
+.playwright-cli/
+output/playwright/
+.numi/*.png
+.numi/*.gif

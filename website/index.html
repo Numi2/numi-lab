@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Numi Lab studies intelligence through physical simulation, biological organization, and artificial life." />
+    <meta name="theme-color" content="#101816" />
+    <title>Numi Lab — Worlds that answer back</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css" />
+    <style>
+      .directory { display:grid; grid-template-columns:.84fr 1.16fr; gap:8vw; padding:110px 8vw; background:var(--sky); }
+      .directory h2 { margin:14px 0 24px; font:600 clamp(40px,4.8vw,69px)/.94 var(--serif); letter-spacing:-.065em; }
+      .directory > div > p:last-child { max-width:360px; margin:0; color:#53645b; font-size:14px; line-height:1.65; }
+      .directory-links { border-top:1px solid rgba(23,35,31,.28); }
+      .directory-links a { display:grid; grid-template-columns:1fr 1.5fr 16px; gap:20px; align-items:baseline; min-height:68px; padding:18px 0; border-bottom:1px solid rgba(23,35,31,.28); }
+      .directory-links a:hover { color:#416e5b; }
+      .directory-links strong { font-size:14px; letter-spacing:-.02em; }
+      .directory-links span { color:#506159; font:10px var(--mono); text-transform:uppercase; letter-spacing:.04em; }
+      .directory-links b { font-size:16px; font-weight:400; }
+      .directory-links .directory-all { margin-top:24px; border-top:1px solid var(--ink); background:rgba(244,241,233,.34); padding:18px; }
+      .metalrobo { background:#071417; color:#f4f8f7; }
+      .metalrobo .system-number, .metalrobo .system-copy a { color:#13dce6; border-color:#13dce6; }
+      .metalrobo .system-copy>p:not(.system-number) { color:#b7c7c8; }
+      .automata { background:#172a28; color:#f0f6f0; }
+      .automata .system-number, .automata .system-copy a { color:#a9dbc4; border-color:#a9dbc4; }
+      .automata .system-copy>p:not(.system-number) { color:#c8d7ce; }
+      .birdflow { background:#173d50; color:#eff8f7; }
+      .birdflow .system-number, .birdflow .system-copy a { color:#f2b28b; border-color:#f2b28b; }
+      .birdflow .system-copy>p:not(.system-number) { color:#c6dde1; }
+      .hero { background:radial-gradient(ellipse 58% 76% at 92% 54%, rgba(137,180,163,.22), transparent 72%), #101816; }
+      .hero::before { opacity:.24; mask-image:linear-gradient(90deg, #000 0 68%, transparent 100%); }
+      .hero-title { max-width:none; margin:auto 0 54px; }
+      .hero-title h1 { display:grid; margin:0; font:600 clamp(104px,18vw,286px)/.67 var(--serif); letter-spacing:-.105em; }
+      .hero-title h1 span { display:block; }
+      .hero-title h1 em { display:block; padding-left:17vw; color:#b9d8c8; font-style:normal; }
+      .hero-bottom p { max-width:330px; color:#b8c9c0; font:10px/1.6 var(--mono); letter-spacing:.06em; text-transform:uppercase; }
+      .hero .field { display:none; }
+      @media (max-width:760px) { .hero-title { margin:auto 0 45px; } .hero-title h1 { font-size:clamp(94px,27vw,150px); line-height:.7; } .hero-title h1 em { padding-left:15vw; } .hero-bottom p { max-width:240px; font-size:9px; } }
+      @media (max-width:760px) { .directory { grid-template-columns:1fr; gap:42px; padding:82px 20px; } .directory h2 { font-size:50px; } .directory-links a { grid-template-columns:1fr 15px; gap:6px; min-height:0; } .directory-links span { grid-column:1; grid-row:2; } .directory-links b { grid-column:2; grid-row:1; } }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="topbar">
+      <a class="wordmark" href="#top" aria-label="Numi Lab home"><span aria-hidden="true">●</span> Numi Lab</a>
+      <nav aria-label="Main navigation"><a href="#work">Work</a><a href="#questions">Questions</a><a href="#archive">Archive</a></nav>
+      <a class="github" href="https://github.com/Numi2/numi-lab" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <p class="index">NUMI LAB / 01</p>
+        <div class="hero-title"><h1 id="hero-title"><span>Numi</span><em>Lab</em></h1></div>
+        <div class="hero-bottom"><p>Physical intelligence · Artificial life · Biological systems</p><a href="#work">Selected systems <span aria-hidden="true">↓</span></a></div>
+      </section>
+
+      <section class="proposition" aria-labelledby="proposition-title">
+        <p class="index">LAB THESIS / 02</p>
+        <div><h2 id="proposition-title">A model cannot understand the world from the outside.</h2><p>It has to encounter consequences: force, uncertainty, repair, other agents, and the irreversible passage of time. Numi Lab is a place to build those encounters.</p></div>
+      </section>
+
+      <section class="work" id="work" aria-labelledby="work-title">
+        <div class="section-head"><p class="index">SELECTED SYSTEMS / 03</p><h2 id="work-title">The work</h2></div>
+        <article class="system metalrobo">
+          <div class="system-image"><img src="https://raw.githubusercontent.com/Numi2/numi-lab/main/docs/media/ardy-g1-run-forward-kinematic.gif" alt="ARDY running in a Numi Lab physical world" /><span>Native physical rollout</span></div>
+          <div class="system-copy"><p class="system-number">01 / PHYSICAL INTELLIGENCE</p><h3>Numi Lab</h3><p>An Apple-native laboratory for compiled physical worlds: robots, contact, sensing, inference, and learning.</p><a href="https://github.com/Numi2/numi-lab" target="_blank" rel="noreferrer">Explore Numi Lab <span aria-hidden="true">↗</span></a></div>
+        </article>
+        <article class="system automata">
+          <div class="system-copy"><p class="system-number">02 / ARTIFICIAL LIFE</p><h3>Numi<br />Automata</h3><p>A bottom-up Metal world where coupled fields, cells, organisms, inheritance, and ecology evolve together.</p><a href="https://github.com/Numi2/numi-life-automata" target="_blank" rel="noreferrer">Explore Numi Automata <span aria-hidden="true">↗</span></a></div>
+          <div class="system-image"><img src="https://raw.githubusercontent.com/Numi2/numi-life-automata/main/Docs/Media/numi-automata-levels.gif" alt="Numi Automata's coupled artificial-life field world in motion" /><span>Persistent multi-scale world</span></div>
+        </article>
+        <article class="system birdflow">
+          <div class="system-image"><img src="https://raw.githubusercontent.com/Numi2/numi-gpu-physics-pigeon-sim/main/Docs/Media/Progress/2026-07-18-v7-cinematic-wake-bridge.gif" alt="BirdFlowMetal's simulated flock and wake field in motion" /><span>D3Q19 / wake study</span></div>
+          <div class="system-copy"><p class="system-number">03 / AERIAL PHYSICS</p><h3>BirdFlowMetal</h3><p>A GPU-native fluid–body laboratory for articulated bird flight, measured-motion replay, and strict validation.</p><a href="https://github.com/Numi2/numi-gpu-physics-pigeon-sim" target="_blank" rel="noreferrer">Explore BirdFlowMetal <span aria-hidden="true">↗</span></a></div>
+        </article>
+      </section>
+
+      <section class="questions" id="questions" aria-labelledby="questions-title">
+        <div class="section-head"><p class="index">RESEARCH PROGRAM / 04</p><h2 id="questions-title">Problems under study.</h2></div>
+        <ol>
+          <li><span>01</span><p>How do neural policies retain control through contact, delay, and surprise?</p><em>Embodied learning</em></li>
+          <li><span>02</span><p>What must a simulator preserve for learned behavior to remain valid?</p><em>Physics fidelity</em></li>
+          <li><span>03</span><p>How do molecular interactions organize into stable cells, organisms, and ecologies?</p><em>Multiscale biology</em></li>
+          <li><span>04</span><p>Which mechanisms let artificial organisms adapt, repair, and reproduce?</p><em>Artificial life</em></li>
+          <li><span>05</span><p>How do we measure novelty without defining it away in advance?</p><em>Open-endedness</em></li>
+        </ol>
+      </section>
+
+      <section class="directory" aria-labelledby="directory-title">
+        <div><p class="index">NUMI2 RESEARCH DIRECTORY / 05</p><h2 id="directory-title">More worlds<br />under study.</h2><p>The public Numi2 research portfolio extends beyond the three systems above. Each project keeps its own methods, source, and evidence boundary.</p></div>
+        <div class="directory-links">
+          <a href="https://github.com/Numi2/drAnmar" target="_blank" rel="noreferrer"><strong>Dr.Anmar</strong><span>Contact-driven surgical robotics simulation</span><b>↗</b></a>
+          <a href="https://github.com/Numi2/dr-assets" target="_blank" rel="noreferrer"><strong>Dr.Anmar Assets</strong><span>Surgical assets and patient-effect substrate</span><b>↗</b></a>
+          <a href="https://github.com/Numi2/Robot-Apples" target="_blank" rel="noreferrer"><strong>Robot Scene Studio</strong><span>Capture, robot scenes, and spatial review</span><b>↗</b></a>
+          <a href="https://github.com/Numi2/isaac-fighter" target="_blank" rel="noreferrer"><strong>Isaac Fight</strong><span>Emergent humanoid self-play</span><b>↗</b></a>
+          <a href="https://github.com/Numi2/metal-terrain-diffusion" target="_blank" rel="noreferrer"><strong>MetalTerrainDiffusion</strong><span>Infinite terrain synthesis on Apple Metal</span><b>↗</b></a>
+          <a class="directory-all" href="https://github.com/Numi2?tab=repositories" target="_blank" rel="noreferrer"><strong>All public Numi2 projects</strong><span>Source archive</span><b>↗</b></a>
+        </div>
+      </section>
+
+      <section class="archive" id="archive" aria-labelledby="archive-title">
+        <div><p class="index">OPEN RECORD / 05</p><h2 id="archive-title">Research is a record<br />of what survives contact.</h2></div>
+        <div class="archive-links">
+          <a href="https://github.com/Numi2/numi-lab" target="_blank" rel="noreferrer"><span>01</span><strong>Numi Lab platform direction</strong><i>Physical intelligence</i><b>↗</b></a>
+          <a href="https://github.com/Numi2/numi-life-automata" target="_blank" rel="noreferrer"><span>02</span><strong>Numi Automata: a coupled artificial-life world</strong><i>Methods & observations</i><b>↗</b></a>
+          <a href="https://github.com/Numi2/numi-gpu-physics-pigeon-sim" target="_blank" rel="noreferrer"><span>03</span><strong>BirdFlowMetal: measuring flight in a physical field</strong><i>Flight & fluid dynamics</i><b>↗</b></a>
+        </div>
+      </section>
+    </main>
+
+    <footer><a class="wordmark" href="#top"><span aria-hidden="true">●</span> Numi Lab</a><p>Physics, intelligence, and life.<br />Studied together.</p><span>2026 / RESEARCH IN PROGRESS</span></footer>
+  </body>
+</html>

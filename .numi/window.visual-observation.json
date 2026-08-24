@@ -1,41 +1,46 @@
 {
   "format": "numi.visual-observation.v1",
   "id": "birdflow_deetjen_dove_numi_flight_hall",
-  "environment_pack": "../assets/dove_window/room.mrvpack",
   "packs": [
     {
       "path": "../assets/dove_window/body.mrvpack",
-      "asset_id": "dove_body/collision_body",
+      "asset_id": "robot",
       "semantic_id": 1,
       "instance_id": 1
     },
     {
       "path": "../assets/dove_window/left-wing.mrvpack",
-      "asset_id": "dove_left_wing/collision",
+      "asset_id": "robot",
       "semantic_id": 2,
       "instance_id": 2
     },
     {
       "path": "../assets/dove_window/right-wing.mrvpack",
-      "asset_id": "dove_right_wing/collision",
+      "asset_id": "robot",
       "semantic_id": 2,
       "instance_id": 3
     },
     {
       "path": "../assets/dove_window/tail.mrvpack",
-      "asset_id": "dove_tail/collision",
+      "asset_id": "robot",
       "semantic_id": 3,
       "instance_id": 4
+    },
+    {
+      "path": "../assets/dove_window/room.mrvpack",
+      "asset_id": "locomotion_ground",
+      "semantic_id": 4,
+      "instance_id": 5
     }
   ],
   "camera": {
     "parent_body": "dove_body",
-    "position": [-2.8, -2.2, 1.4],
-    "orientation": [0.0, 0.70710678, 0.0, 0.70710678],
-    "width": 160,
-    "height": 90,
+    "position": [0.0, 0.0, 7.8],
+    "orientation": [1.0, 0.0, 0.0, 0.0],
+    "width": 1440,
+    "height": 810,
     "minimum_visible_pixels": 1,
-    "vertical_field_of_view_degrees": 62.0,
+    "vertical_field_of_view_degrees": 125.0,
     "nominal_rate_hz": 30.0,
     "maximum_retained_bytes": 268435456
   }

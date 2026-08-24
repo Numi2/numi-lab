@@ -225,6 +225,14 @@ inline float4 quaternionProduct(
     );
 }
 
+inline float4 yawQuaternion(const float4 orientation) {
+    const float yaw = atan2(
+        2.0f * (orientation.w * orientation.z + orientation.x * orientation.y),
+        1.0f - 2.0f * (orientation.y * orientation.y + orientation.z * orientation.z)
+    );
+    return float4(0.0f, 0.0f, sin(0.5f * yaw), cos(0.5f * yaw));
+}
+
 inline float3 quaternionWorldAngularVelocity(
     const float4 first,
     const float4 second,
@@ -596,6 +604,7 @@ inline float cleanObservation(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* previousPolicyAction,
     device const float* previousJointPosition,
     device const float* compactContact,
     device const float4* bodyParameters,
@@ -653,6 +662,9 @@ inline float cleanObservation(
     case MR_TASK_OBSERVE_PREVIOUS_ACTION:
         value = previousAction[operation.source.y];
         break;
+    case MR_TASK_OBSERVE_PREVIOUS_POLICY_ACTION:
+        value = previousPolicyAction[operation.source.y];
+        break;
     case MR_TASK_OBSERVE_DELAYED_ACTION:
         value = previousAction[
             operation.source.y -
@@ -683,6 +695,116 @@ inline float cleanObservation(
             blend
         );
         value = q[binding.indices.z] - reference;
+        break;
+    }
+    case MR_TASK_OBSERVE_INTERACTION_JOINT_TARGET:
+    case MR_TASK_OBSERVE_INTERACTION_JOINT_TARGET_VELOCITY: {
+        const uint frame = interactionFrame(
+            program,
+            state,
+            controlStepSeconds
+        );
+        const uint nextFrame = interactionNextFrame(program, frame);
+        const float blend = interactionFrameBlend(
+            program,
+            state,
+            controlStepSeconds
+        );
+        device const float* targets = taskTable<float>(
+            arena,
+            program.interactionOffsets0.y
+        );
+        const float current = targets[
+            frame * program.interaction.y + operation.source.y
+        ];
+        const float next = targets[
+            nextFrame * program.interaction.y + operation.source.y
+        ];
+        value = operation.source.x == MR_TASK_OBSERVE_INTERACTION_JOINT_TARGET
+            ? mix(current, next, blend)
+            : (next - current) * program.interactionTiming.x;
+        break;
+    }
+    case MR_TASK_OBSERVE_INTERACTION_ANCHOR_ORIENTATION: {
+        const uint frame = interactionFrame(
+            program,
+            state,
+            controlStepSeconds
+        );
+        const uint nextFrame = interactionNextFrame(program, frame);
+        const float blend = interactionFrameBlend(
+            program,
+            state,
+            controlStepSeconds
+        );
+        device const float* rootTargets = taskTable<float>(
+            arena,
+            program.interactionOffsets0.x
+        );
+        device const float* jointTargets = taskTable<float>(
+            arena,
+            program.interactionOffsets0.y
+        );
+        const uint rootBase = frame * 7u;
+        const uint nextRootBase = nextFrame * 7u;
+        float4 referenceRoot = quaternionInterpolate(
+            float4(
+                rootTargets[rootBase + 3u], rootTargets[rootBase + 4u],
+                rootTargets[rootBase + 5u], rootTargets[rootBase + 6u]
+            ),
+            float4(
+                rootTargets[nextRootBase + 3u], rootTargets[nextRootBase + 4u],
+                rootTargets[nextRootBase + 5u], rootTargets[nextRootBase + 6u]
+            ),
+            blend
+        );
+        if ((program.schedule.w &
+             MR_TASK_PROGRAM_INTERACTION_ALIGN_REFERENCE_YAW) != 0u) {
+            const float4 initialReferenceRoot = float4(
+                rootTargets[3u], rootTargets[4u], rootTargets[5u], rootTargets[6u]
+            );
+            const float4 referenceYaw = yawQuaternion(initialReferenceRoot);
+            const float4 alignment = quaternionProduct(
+                yawQuaternion(rootOrientation(program, defaultQ)),
+                float4(-referenceYaw.xyz, referenceYaw.w)
+            );
+            referenceRoot = quaternionProduct(alignment, referenceRoot);
+        }
+        const float referenceWaist = mix(
+            jointTargets[frame * program.interaction.y + operation.source.y],
+            jointTargets[nextFrame * program.interaction.y + operation.source.y],
+            blend
+        );
+        const MRTaskActionBindingGPU binding = actions[operation.source.y];
+        const float liveWaist = q[binding.indices.z];
+        const float4 referenceTorso = quaternionProduct(
+            referenceRoot,
+            float4(0.0f, 0.0f, sin(0.5f * referenceWaist),
+                   cos(0.5f * referenceWaist))
+        );
+        const float4 liveTorso = quaternionProduct(
+            orientation,
+            float4(0.0f, 0.0f, sin(0.5f * liveWaist),
+                   cos(0.5f * liveWaist))
+        );
+        // The source publishes the transpose of this relative rotation's
+        // first two columns as its six-dimensional anchor representation.
+        const float4 relative = quaternionProduct(
+            float4(-referenceTorso.xyz, referenceTorso.w), liveTorso
+        );
+        const float x = relative.x;
+        const float y = relative.y;
+        const float z = relative.z;
+        const float w = relative.w;
+        const float values[6] = {
+            1.0f - 2.0f * (y * y + z * z),
+            2.0f * (x * y + z * w),
+            2.0f * (x * y - z * w),
+            1.0f - 2.0f * (x * x + z * z),
+            2.0f * (x * z + y * w),
+            2.0f * (y * z - x * w),
+        };
+        value = values[operation.source.z];
         break;
     }
     case MR_TASK_OBSERVE_INTERACTION_CONTACT_MODE: {
@@ -1086,6 +1208,7 @@ inline void writeFrame(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* previousPolicyAction,
     device const float* previousJointPosition,
     device const float* sensorBias,
     device const float* compactContact,
@@ -1126,6 +1249,7 @@ inline void writeFrame(
             defaultQ,
             state,
             previousAction,
+            previousPolicyAction,
             previousJointPosition,
             compactContact,
             bodyParameters,
@@ -1175,6 +1299,7 @@ inline void writeFrame(
             defaultQ,
             state,
             previousAction,
+            previousPolicyAction,
             previousJointPosition,
             compactContact,
             bodyParameters,
@@ -1226,6 +1351,7 @@ inline void writeCurrentActor(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* previousPolicyAction,
     device const float* previousJointPosition,
     device const float* sensorBias,
     device const float* compactContact,
@@ -1253,6 +1379,7 @@ inline void writeCurrentActor(
             defaultQ,
             state,
             previousAction,
+            previousPolicyAction,
             previousJointPosition,
             compactContact,
             bodyParameters,
@@ -1291,6 +1418,7 @@ inline void writeCriticFrame(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* previousPolicyAction,
     device const float* previousJointPosition,
     device const float* compactContact,
     device const float4* bodyParameters,
@@ -1319,6 +1447,7 @@ inline void writeCriticFrame(
             defaultQ,
             state,
             previousAction,
+            previousPolicyAction,
             previousJointPosition,
             compactContact,
             bodyParameters,
@@ -2123,6 +2252,10 @@ kernel void mr_locomotion_task_observe(
             arena,
             program.interactionOffsets0.y
         );
+    device const float* initialActionPositions = taskTable<float>(
+        arena,
+        program.actuatorTerms.z
+    );
     device const float* interactionRootTargets =
         taskTable<float>(
             arena,
@@ -2177,6 +2310,9 @@ kernel void mr_locomotion_task_observe(
         environment *
         program.layout.w *
         program.counts0.x;
+    device float* rawPolicyActions =
+        actionHistory +
+        dispatch.counts.x * program.layout.w * program.counts0.x;
     const uint historyElements =
         program.layout.x * program.layout.y;
     const uint historyBase =
@@ -2220,6 +2356,12 @@ kernel void mr_locomotion_task_observe(
              ++coordinate) {
             resetQ[qBase + coordinate] =
                 defaultQ[coordinate];
+        }
+        if (program.actuatorTerms.w == program.counts0.x) {
+            for (uint action = 0u; action < program.counts0.x; ++action) {
+                resetQ[qBase + actions[action].indices.z] =
+                    initialActionPositions[action];
+            }
         }
         if ((program.schedule.w &
              MR_TASK_PROGRAM_INTERACTION_RESET) != 0u) {
@@ -2307,6 +2449,9 @@ kernel void mr_locomotion_task_observe(
                     action
                 ] = 0.0f;
             }
+            rawPolicyActions[
+                environment * program.counts0.x + action
+            ] = 0.0f;
         }
         for (uint index = 0u;
              index < program.layout.z;
@@ -2946,6 +3091,7 @@ kernel void mr_locomotion_task_observe(
             defaultQ,
             state,
             actionHistory + delayBase,
+            rawPolicyActions + environment * program.counts0.x,
             previousJointVelocity + previousVelocityBase + program.counts0.x,
             sensorBias + biasBase,
             compactContact + contactBase,
@@ -2991,6 +3137,7 @@ kernel void mr_locomotion_task_observe(
             defaultQ,
             state,
             actionHistory + delayBase,
+            rawPolicyActions + environment * program.counts0.x,
             previousJointVelocity + previousVelocityBase + program.counts0.x,
             compactContact + contactBase,
             bodyParameters + bodyParameterBase,
@@ -3189,6 +3336,12 @@ kernel void mr_locomotion_task_observe(
                 scheduled.linearVelocityAndInverseMass.xyz =
                     float3(0.0f);
                 scheduled.angularVelocity = float4(0.0f);
+            } else {
+                // A delayed projectile is parked at reset, so resetScene
+                // deliberately has zero velocity.  Restore the authored
+                // launch state on its exact episode tick rather than letting
+                // it fall vertically from its staging point.
+                scheduled = initialScene[sceneBase + localScene];
             }
             sourceScene[sceneBase + localScene] = scheduled;
         }
@@ -3242,6 +3395,7 @@ kernel void mr_locomotion_task_observe(
         defaultQ,
         state,
         actionHistory + delayBase,
+        rawPolicyActions + environment * program.counts0.x,
         previousJointVelocity + previousVelocityBase + program.counts0.x,
         sensorBias + biasBase,
         compactContact + contactBase,
@@ -3303,6 +3457,7 @@ kernel void mr_locomotion_task_apply_actions(
     device const MRTaskStateGPU* taskStates [[buffer(8)]],
     device float* actionHistory [[buffer(9)]],
     device float* teacherActions [[buffer(10)]],
+    device const float* rawPolicyLatents [[buffer(11)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.counts.x ||
@@ -3339,6 +3494,9 @@ kernel void mr_locomotion_task_apply_actions(
         environment *
         program.layout.w *
         program.counts0.x;
+    device float* rawPolicyActions =
+        actionHistory +
+        dispatch.counts.x * program.layout.w * program.counts0.x;
     const MRTaskStateGPU state = taskStates[environment];
     const uint referenceFrame = interactionFrame(
         program,
@@ -3389,6 +3547,9 @@ kernel void mr_locomotion_task_apply_actions(
         // trained with residuals outside [-1, 1] retain their source action
         // semantics without weakening physical target safety.
         const float requested = actionStream[actionBase + action];
+        rawPolicyActions[
+            environment * program.counts0.x + action
+        ] = rawPolicyLatents[actionBase + action];
         const float previous = actionHistory[
             delayBase +
             filterSlot * program.counts0.x +
@@ -3911,6 +4072,9 @@ kernel void mr_locomotion_task_complete(
         environment *
         program.layout.w *
         program.counts0.x;
+    device const float* rawPolicyActions =
+        actionHistory +
+        dispatch.counts.x * program.layout.w * program.counts0.x;
     const uint historyElements =
         program.layout.x * program.layout.y;
     const uint historyBase =
@@ -6486,6 +6650,7 @@ kernel void mr_locomotion_task_complete(
             state,
             actionHistory + delayBase +
                 (program.layout.w - 2u) * program.counts0.x,
+            rawPolicyActions + environment * program.counts0.x,
             previousJointVelocity + previousVelocityBase + program.counts0.x,
             sensorBias + biasBase,
             compactContact + compactBase,
@@ -6552,6 +6717,7 @@ kernel void mr_locomotion_task_complete(
             defaultQ,
             state,
             currentAction,
+            rawPolicyActions + environment * program.counts0.x,
             previousJointVelocity + previousVelocityBase + program.counts0.x,
             compactContact + compactBase,
             bodyParameters + bodyParameterBase,
@@ -6612,6 +6778,7 @@ kernel void mr_locomotion_task_complete(
             state,
             actionHistory + delayBase +
                 (program.layout.w - 2u) * program.counts0.x,
+            rawPolicyActions + environment * program.counts0.x,
             previousJointVelocity + previousVelocityBase + program.counts0.x,
             sensorBias + biasBase,
             compactContact + compactBase,

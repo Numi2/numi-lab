@@ -31,6 +31,9 @@ _VALUE_OPTIONS = frozenset(
         "--interaction-clip",
         "--world-pack",
         "--task-pack",
+        "--robot-actuator-pack",
+        "--sensor-program-pack",
+        "--reality-program-pack",
         "--urdf",
         "--srdf",
         "--g1-visual-pack-dir",
@@ -399,6 +402,12 @@ def compare_evidence(
     )
     incumbent_termination = _physical_failure_rate(incumbent)
     candidate_termination = _physical_failure_rate(candidate)
+    incumbent_clean_horizon = float(
+        incumbent.get("clean_horizon_environment_rate", 0.0)
+    )
+    candidate_clean_horizon = float(
+        candidate.get("clean_horizon_environment_rate", 0.0)
+    )
     regressions: list[str] = []
     improvements: list[str] = []
 
@@ -410,6 +419,17 @@ def compare_evidence(
         improvements.append("termination rate decreased")
 
     if generic_task:
+        # A velocity actor commands an ongoing balance/locomotion task.  A
+        # marginally lower reset count is not deployable progress if every
+        # held-out environment still collapses before its requested horizon.
+        # Keep this narrowly scoped to imported velocity tasks: other generic
+        # tasks can intentionally terminate on success before the horizon.
+        if (
+            task == "velocity"
+            and "clean_horizon_environment_rate" in candidate
+            and candidate_clean_horizon <= 0.0
+        ):
+            regressions.append("candidate completed no clean horizon")
         old_task_reward = float(incumbent.get("mean_task_reward", 0))
         new_task_reward = float(candidate.get("mean_task_reward", 0))
         if new_task_reward < old_task_reward - 1.0e-12:
@@ -582,6 +602,11 @@ def compare_evidence(
         )
         selected = (
             int(candidate.get("failed_environment_steps", 0)) == 0
+            and not (
+                task == "velocity"
+                and "clean_horizon_environment_rate" in candidate
+                and candidate_clean_horizon <= 0.0
+            )
             and selection_score > 1.0e-12
         )
         selection_method = "continuous_authored_task_outcome"
@@ -670,6 +695,10 @@ def compare_evidence(
             "candidate_termination_rate": candidate_termination,
             "incumbent_physical_failure_rate": incumbent_termination,
             "candidate_physical_failure_rate": candidate_termination,
+            "incumbent_clean_horizon_environment_rate":
+                incumbent_clean_horizon,
+            "candidate_clean_horizon_environment_rate":
+                candidate_clean_horizon,
             "incumbent_mean_tilt": old_tilt,
             "candidate_mean_tilt": new_tilt,
             "incumbent_mean_root_height": old_height,

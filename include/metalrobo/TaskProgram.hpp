@@ -55,6 +55,14 @@ enum class TaskObservationSource : std::uint32_t {
         MR_TASK_OBSERVE_INTERACTION_CONTACT_VALIDITY,
     interactionRootTrackingError =
         MR_TASK_OBSERVE_INTERACTION_ROOT_TRACKING_ERROR,
+    interactionJointTarget =
+        MR_TASK_OBSERVE_INTERACTION_JOINT_TARGET,
+    interactionJointTargetVelocity =
+        MR_TASK_OBSERVE_INTERACTION_JOINT_TARGET_VELOCITY,
+    interactionAnchorOrientation =
+        MR_TASK_OBSERVE_INTERACTION_ANCHOR_ORIENTATION,
+    previousPolicyAction =
+        MR_TASK_OBSERVE_PREVIOUS_POLICY_ACTION,
 };
 
 enum class TaskRewardOperator : std::uint32_t {
@@ -473,9 +481,14 @@ struct TaskPack {
     // away from frame zero and how far through the clip it may begin.
     float interactionResetPhaseProbability = -1.0f;
     float interactionResetMaximumPhase = -1.0f;
+    // Optional source-controller entry posture, ordered like actions. These
+    // positions are applied at reset independently of an interaction clip.
+    std::vector<float> initialActionPositions;
     // When false, an InteractionPack still supplies the initial physical
     // state but no longer supplies runtime joint targets or teacher actions.
     bool interactionControlReference = true;
+    bool interactionInitializeFromReference = true;
+    bool interactionAlignReferenceYaw = false;
     // ARDY_PHYSICS_GATED_REFERENCE_V4. Runtime-only compilation
     // choice: preserve the InteractionPack as absolute target authority,
     // but advance it only when physical support and tracking permit.

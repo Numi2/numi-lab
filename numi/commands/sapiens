@@ -1,0 +1,107 @@
+#!/bin/sh
+set -eu
+
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf '%s\n' "Import and qualify ROBOTIS AI Sapiens K1 in Numi Lab."
+    exit 0
+fi
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+    cat <<'EOF'
+usage: numi sapiens import --source AI_SAPIENS_CHECKOUT --output ARTIFACT_DIRECTORY
+
+Pins the clean official K1 source, writes the native URDF collision and owner
+packs, compiles all four published ONNX actors into fingerprint-bound
+PolicyPacks, and runs native Metal policy rollout qualifications.
+EOF
+    exit 0
+fi
+
+[ "${1:-}" = import ] || { printf 'usage: numi sapiens import --source PATH --output PATH\n' >&2; exit 2; }
+shift
+numi_source=
+numi_output=
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --source) numi_source=${2:?--source requires a value}; shift 2 ;;
+        --output) numi_output=${2:?--output requires a value}; shift 2 ;;
+        *) printf 'unknown option: %s\n' "$1" >&2; exit 2 ;;
+    esac
+done
+[ -n "$numi_source" ] && [ -n "$numi_output" ] || {
+    printf 'numi sapiens: --source and --output are required\n' >&2; exit 2;
+}
+
+numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+numi_build=${NUMI_BUILD_DIR:-$numi_root/build}
+numi_compiler=$numi_build/bin/metalrobo_ai_sapiens_compile
+numi_rollout=$numi_build/bin/metalrobo_task_rollout
+numi_metallib=$numi_build/shaders/MetalRobo.metallib
+numi_library=$numi_build/lib/libmetalrobo.dylib
+for numi_required in "$numi_compiler" "$numi_rollout" "$numi_metallib" "$numi_library"; do
+    [ -e "$numi_required" ] || {
+        printf 'numi sapiens: missing %s; run numi doctor\n' "$numi_required" >&2
+        exit 1
+    }
+done
+
+mkdir -p "$numi_output"
+"$numi_compiler" --source "$numi_source" --output "$numi_output"
+"$numi_rollout" --metallib "$numi_metallib" \
+    --scene ground \
+    --urdf "$numi_output/k1-collision.urdf" \
+    --task-pack "$numi_output/k1-velocity.taskpack" \
+    --robot-actuator-pack "$numi_output/k1-velocity.actuatorpack" \
+    --sensor-program-pack "$numi_output/k1-velocity.sensorpack" \
+    --reality-program-pack "$numi_output/k1-velocity.realitypack" \
+    --envs 1 --steps 1 --repeats 1 --chunk 1 --zero-actions \
+    > "$numi_output/k1-velocity-layout.json"
+PYTHONPATH="$numi_root/python${PYTHONPATH:+:$PYTHONPATH}" \
+python3 "$numi_root/tools/import_ai_sapiens_k1_velocity_policy.py" \
+    --source "$numi_source" \
+    --run-evidence "$numi_output/k1-velocity-layout.json" \
+    --output "$numi_output/k1-velocity.policypack" \
+    --library "$numi_library" \
+    > "$numi_output/k1-velocity-policy.json"
+"$numi_rollout" --metallib "$numi_metallib" \
+    --scene ground \
+    --urdf "$numi_output/k1-collision.urdf" \
+    --task-pack "$numi_output/k1-velocity.taskpack" \
+    --robot-actuator-pack "$numi_output/k1-velocity.actuatorpack" \
+    --sensor-program-pack "$numi_output/k1-velocity.sensorpack" \
+    --reality-program-pack "$numi_output/k1-velocity.realitypack" \
+    --policy-pack "$numi_output/k1-velocity.policypack" \
+    --envs 1 --steps 8 --repeats 1 --chunk 1 \
+    > "$numi_output/k1-velocity-rollout.json"
+for numi_mimic in squat dance1 dance2; do
+    "$numi_rollout" --metallib "$numi_metallib" \
+        --scene ground \
+        --urdf "$numi_output/k1-collision.urdf" \
+        --task-pack "$numi_output/k1-mimic.taskpack" \
+        --robot-actuator-pack "$numi_output/k1-mimic.actuatorpack" \
+        --sensor-program-pack "$numi_output/k1-mimic.sensorpack" \
+        --reality-program-pack "$numi_output/k1-mimic.realitypack" \
+        --interaction-pack "$numi_output/k1-$numi_mimic.interactionpack" \
+        --interaction-clip "$numi_mimic" \
+        --envs 1 --steps 1 --repeats 1 --chunk 1 --zero-actions \
+        > "$numi_output/k1-$numi_mimic-layout.json"
+    PYTHONPATH="$numi_root/python${PYTHONPATH:+:$PYTHONPATH}" \
+    python3 "$numi_root/tools/import_ai_sapiens_k1_velocity_policy.py" \
+        --source "$numi_source" --policy "$numi_mimic" \
+        --run-evidence "$numi_output/k1-$numi_mimic-layout.json" \
+        --output "$numi_output/k1-$numi_mimic.policypack" \
+        --library "$numi_library" \
+        > "$numi_output/k1-$numi_mimic-policy.json"
+    "$numi_rollout" --metallib "$numi_metallib" \
+        --scene ground \
+        --urdf "$numi_output/k1-collision.urdf" \
+        --task-pack "$numi_output/k1-mimic.taskpack" \
+        --robot-actuator-pack "$numi_output/k1-mimic.actuatorpack" \
+        --sensor-program-pack "$numi_output/k1-mimic.sensorpack" \
+        --reality-program-pack "$numi_output/k1-mimic.realitypack" \
+        --interaction-pack "$numi_output/k1-$numi_mimic.interactionpack" \
+        --interaction-clip "$numi_mimic" \
+        --policy-pack "$numi_output/k1-$numi_mimic.policypack" \
+        --envs 1 --steps 8 --repeats 1 --chunk 1 \
+        > "$numi_output/k1-$numi_mimic-rollout.json"
+done
+printf 'numi sapiens: native K1 policy artifacts and entry-rollout qualification: %s\n' "$numi_output"

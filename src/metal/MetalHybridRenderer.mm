@@ -5627,6 +5627,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                 }
             );
         auto sensorProfiles = std::move(runtime.sensors);
+        const std::uint32_t textureBindingCount =
+            static_cast<std::uint32_t>(
+                runtime.textureBindings.size()
+            );
         std::vector<MRHybridGaussianGPU>{}.swap(runtime.gaussians);
         std::vector<RuntimeVisualScene::GeometrySource>{}.swap(
             runtime.geometrySources
@@ -5703,10 +5707,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         state_->exposureWorkspaces.clear();
         state_->layout = layout;
         state_->assetCount = sceneAssetCount;
-        state_->textureBindingCount =
-            static_cast<std::uint32_t>(
-                runtime.textureBindings.size()
-            );
+        state_->textureBindingCount = textureBindingCount;
         state_->sensorProfiles = std::move(sensorProfiles);
         state_->rendererProfile = profile;
         state_->environment = std::move(sceneEnvironment);
@@ -6252,6 +6253,11 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encodeGraph(
         EncodePassOptions options;
         options.currentBodyOffset = liveState.currentBodyOffset;
         options.previousBodyOffset = liveState.previousBodyOffset;
+        // Graph consumers (the live inspector and device observation) need
+        // the same exposure setup as the owned-command-buffer render path.
+        // Without it, the presentation graph can bypass the scene's physical
+        // camera response even though it produces an RGB buffer.
+        options.physicalExposure = true;
         options.outputs = &outputs;
         return encodeLocked(
             *state_,

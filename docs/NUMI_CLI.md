@@ -37,6 +37,21 @@ The first executable with the requested name wins. A custom capability only
 needs to implement normal command-line behavior and may optionally answer
 `--numi-describe` with a one-line description for `numi context`.
 
+`numi window` is the workspace's one-command live renderer. It builds an
+isolated presentation runtime, finds the saved authored scene, and opens an
+`MTKView` preview of environment zero:
+
+```sh
+numi window
+```
+
+The first setup only needs an authored `numi.visual-observation.v1` file:
+place or link it at `.numi/window.visual-observation.json`. Subsequent preview
+runs need no executable, metallib, scene, or display flags. The preview uses a
+GPU-private three-slot ring and drops stale frames rather than delaying the
+native rollout; closing the window ends that preview run. See
+`numi window --help` for scene discovery and optional rollout overrides.
+
 Motion imagination is another discovered capability. It executes a provider
 without giving that provider authority over robot actions or physical truth:
 

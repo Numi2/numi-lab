@@ -2959,7 +2959,8 @@ bool buildRequirements(
         ) ||
         !makeRequirement<float>(
             "native delayed action history",
-            taskActionHistoryElements,
+            taskActionHistoryElements +
+                taskEnvironments * taskLayout.actionCount,
             requirements.entries[kTaskActionHistory]
         ) ||
         !makeRequirement<float>(
@@ -3252,6 +3253,14 @@ MetalWorldDiagnostics validateAndBuildLayout(
             std::move(diagnostics),
             MetalWorldHostStatus::invalidDimensions,
             "device observation program requires a complete callback, native task, and native policy"
+        );
+    }
+    if (config.inspectionProgram.configured() &&
+        !config.inspectionProgram.valid()) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "inspection program requires a complete callback"
         );
     }
     if (!std::isfinite(config.timestepSeconds) ||
@@ -9841,6 +9850,7 @@ bool encodeTaskApplyActions(
             {8u, kTaskState},
             {9u, kTaskActionHistory},
             {10u, kTaskTeacherActions},
+            {11u, kPolicyLatents},
         },
         &pass,
         4u,
@@ -17672,6 +17682,58 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                         std::move(diagnostics),
                         MetalWorldHostStatus::metalCommandFailure,
                         "failed to encode terminal native policy evaluation"
+                    );
+                }
+            }
+
+            if (config.inspectionProgram.valid()) {
+                // Use the final accepted (or atomically reset) state after
+                // the entire chunk. This is presentation-only: it writes the
+                // existing global-body projection and neither changes task
+                // state nor enters policy inference.
+                MRMetalWorldPassGPU inspectionStatePass{};
+                inspectionStatePass.controlStep =
+                    diagnostics.layout.dispatch.controlStepCount;
+                inspectionStatePass.physicsSubstep = MR_INVALID_INDEX;
+                if (!encodeDeviceObservationBodies(
+                        *selectedState,
+                        commandBuffer,
+                        inspectionStatePass,
+                        sourceQ,
+                        destinationQ,
+                        sourceScene,
+                        destinationScene,
+                        batch.environmentCount
+                    )) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalCommandFailure,
+                        "failed to encode final inspection body projection"
+                    );
+                }
+                const MetalWorldInspectionPass inspection{
+                    .commandBuffer = (__bridge void*)commandBuffer,
+                    .currentBodies =
+                        (__bridge void*)selectedState->buffers[kCurrentBodies],
+                    .seed = config.taskSeed,
+                    .submissionIndex =
+                        selectedState->stats.submissionCount + 1u,
+                    .controlStepCount =
+                        diagnostics.layout.dispatch.controlStepCount,
+                    .environmentCount =
+                        static_cast<std::uint32_t>(batch.environmentCount),
+                    .bodyCount = static_cast<std::uint32_t>(
+                        world.model().bodies.size()
+                    ),
+                };
+                if (!config.inspectionProgram.encode(
+                        config.inspectionProgram.context,
+                        inspection
+                    )) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalCommandFailure,
+                        "inspection program rejected final rollout state"
                     );
                 }
             }

@@ -1,5 +1,6 @@
 import Foundation
 import Darwin
+import AppKit
 
 private struct Options {
     var environments = 32
@@ -53,6 +54,9 @@ private struct Options {
     var visualEnvironmentPack: String?
     var visualObservationConfig: String?
     var birdFlowDove = false
+    var inspectionScene: String?
+    var inspectionWidth = 640
+    var inspectionHeight = 360
     var updateEpochs = 5
     // Zero derives the batch size from minibatchesPerEpoch so environment
     // scaling increases Apple-GPU matrix width instead of optimizer launches.
@@ -304,6 +308,15 @@ private struct Options {
                 index += 1
             case "--birdflow-dove":
                 birdFlowDove = true
+            case "--inspect-scene":
+                inspectionScene = try value()
+                index += 1
+            case "--inspect-width":
+                inspectionWidth = try Self.integer(value(), option)
+                index += 1
+            case "--inspect-height":
+                inspectionHeight = try Self.integer(value(), option)
+                index += 1
             case "--scene":
                 switch try value() {
                 case "ground":
@@ -556,6 +569,12 @@ private struct Options {
                 "Ball-dodge training requires authored G1 and ball Visual Presentation packs."
             )
         }
+        if inspectionScene != nil &&
+            (inspectionWidth <= 0 || inspectionHeight <= 0) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--inspect-width and --inspect-height must be positive."
+            )
+        }
         let ppoValues = [
             learningRate,
             minimumLearningRate,
@@ -635,15 +654,13 @@ private struct Options {
             )
         }
         if interactionPack != nil &&
-            (worldPack != nil || urdf != nil || taskPack != nil ||
-             robotActuatorPack != nil || sensorProgramPack != nil ||
-             realityProgramPack != nil ||
+            (worldPack != nil ||
              (unitreeG1Task != .velocity &&
               unitreeG1Task != .ballDodge &&
               unitreeG1Task != .supineGetUpDiscovery))
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "InteractionPack training uses bundled G1 velocity, ball-dodge, or supine-get-up mechanics and cannot be combined with imported mechanics."
+                "InteractionPack training supports imported URDF owner packs or bundled G1 velocity, ball-dodge, and supine-get-up mechanics; it cannot be combined with a WorldPack."
             )
         }
         let importing = worldPack != nil || urdf != nil
@@ -712,6 +729,23 @@ private func makeVisualObservation(
             URL(fileURLWithPath: $0)
         }
     )
+}
+
+private func makeInspectionVisual(
+    options: Options
+) throws -> MetalRoboTaskVisualObservationConfiguration? {
+    guard let path = options.inspectionScene else {
+        return nil
+    }
+    var inspection = try MetalRoboTaskVisualObservationConfiguration.loadArtifact(
+        at: URL(fileURLWithPath: path)
+    )
+    inspection.width = UInt32(options.inspectionWidth)
+    inspection.height = UInt32(options.inspectionHeight)
+    inspection.captureWidth = 0
+    inspection.captureHeight = 0
+    inspection.capturePolicyCamera = false
+    return inspection
 }
 
 private func mlxEnvironment(options: Options) -> [String: String] {
@@ -1153,6 +1187,7 @@ private func makeContext(
     options: Options
 ) throws -> (MetalRoboTaskRolloutContext, String) {
     let visualSensor = try makeVisualObservation(options: options)
+    let inspectionVisual = try makeInspectionVisual(options: options)
     let dynamicSpheres: [MetalRoboDynamicSphere] =
         options.unitreeG1Task == .ballDodge
         ? MetalRoboDynamicSphere.g1BallDodgeDefaults
@@ -1197,7 +1232,8 @@ private func makeContext(
         )
     }
     if let interactionPack = options.interactionPack,
-       let interactionClip = options.interactionClip
+       let interactionClip = options.interactionClip,
+       options.urdf == nil
     {
         return (
             try MetalRoboTaskRolloutContext(
@@ -1205,6 +1241,7 @@ private func makeContext(
                     source: .unitreeG1,
                     sensorsAndPhysics: configuration,
                     visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual,
                     teacher: MetalRoboTeacherSource(
                         pack: URL(fileURLWithPath: interactionPack),
                         clipID: interactionClip
@@ -1232,7 +1269,8 @@ private func makeContext(
                         realityPack: URL(fileURLWithPath: realityPack)
                     ),
                     sensorsAndPhysics: configuration,
-                    visualSensor: visualSensor
+                    visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual
                 ),
                 metallibPath: options.metallib
             ),
@@ -1259,7 +1297,16 @@ private func makeContext(
                         realityPack: URL(fileURLWithPath: realityPack)
                     ),
                     sensorsAndPhysics: configuration,
-                    visualSensor: visualSensor
+                    visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual,
+                    teacher: options.interactionPack.flatMap { pack in
+                        options.interactionClip.map {
+                            MetalRoboTeacherSource(
+                                pack: URL(fileURLWithPath: pack),
+                                clipID: $0
+                            )
+                        }
+                    }
                 ),
                 metallibPath: options.metallib
             ),
@@ -1271,7 +1318,8 @@ private func makeContext(
             manifest: MetalRoboRunManifest(
                 source: .unitreeG1,
                 sensorsAndPhysics: configuration,
-                visualSensor: visualSensor
+                visualSensor: visualSensor,
+                inspectionVisual: inspectionVisual
             ),
             metallibPath: options.metallib
         ),
@@ -1279,13 +1327,61 @@ private func makeContext(
     )
 }
 
+private func publishInspectionFrame(
+    from context: MetalRoboTaskRolloutContext,
+    to inspector: MetalRoboRunInspectorBridge?,
+    loadPolicy: ((URL) throws -> UInt64)? = nil
+) throws {
+    guard let inspector else {
+        return
+    }
+    if let enabled = inspector.takePendingNativeInspectionEnabled() {
+        try context.setInspectionEnabled(enabled)
+    }
+    func install(_ url: URL) {
+        guard let loadPolicy else {
+            inspector.reportPolicyStatus("policy reload unavailable")
+            return
+        }
+        do {
+            let revision = try loadPolicy(url)
+            inspector.reportPolicyInstalled(url, revision: revision)
+        } catch {
+            // A rejected replacement cannot change the compiled policy that
+            // remains active for the current training submission.
+            inspector.reportPolicyRejected()
+        }
+    }
+    let latestRequested = inspector.takeLatestPolicyReloadRequest()
+    if let selected = inspector.takePolicySelection() {
+        install(selected)
+    } else if latestRequested {
+        guard let selected = inspector.selectedPolicy else {
+            inspector.reportPolicyStatus("select a policy first")
+            return
+        }
+        install(selected)
+    }
+    guard inspector.acceptsFrames else {
+        if inspector.isClosed {
+            throw MetalRoboRunInspectorError.closed
+        }
+        // Pause and window occlusion gate only presentation encoding at this
+        // scheduler-owned boundary; training keeps its original cadence.
+        return
+    }
+    guard let frame = try context.acquireInspectionFrame() else {
+        return
+    }
+    inspector.publish(frame: frame, context: context)
+}
+
 @main
 private enum TaskTrainMain {
-    static func main() {
-        do {
-            let options = try Options(
-                arguments: CommandLine.arguments
-            )
+    private static func run(
+        options: Options,
+        inspector: MetalRoboRunInspectorBridge?
+    ) throws {
             let (context, worldSource) =
                 try makeContext(options: options)
             try initializePolicyIfRequested(
@@ -1344,6 +1440,17 @@ private enum TaskTrainMain {
             let warmup = try context.advanceWithPolicy(
                 controlStepCount: 1,
                 policyRevision: installedRevision
+            )
+            try publishInspectionFrame(
+                from: context,
+                to: inspector,
+                loadPolicy: { url in
+                    try context.loadPolicy(
+                        at: url
+                    )
+                    installedRevision = context.installedPolicyRevision
+                    return installedRevision
+                }
             )
             guard warmup.failedEnvironmentSteps == 0,
                   try context.transitions(
@@ -1441,6 +1548,17 @@ private enum TaskTrainMain {
                         policyRevision: installedRevision,
                         evaluateFinalPolicy:
                             completed + stepCount == options.steps
+                    )
+                    try publishInspectionFrame(
+                        from: context,
+                        to: inspector,
+                        loadPolicy: { url in
+                            try context.loadPolicy(
+                                at: url
+                            )
+                            installedRevision = context.installedPolicyRevision
+                            return installedRevision
+                        }
                     )
                     guard advance.failedEnvironmentSteps == 0 else {
                         throw MetalRoboTaskRolloutError.native(
@@ -1744,6 +1862,43 @@ private enum TaskTrainMain {
                 options: [.prettyPrinted, .sortedKeys]
             )
             print(String(decoding: data, as: UTF8.self))
+    }
+
+    static func main() {
+        do {
+            let options = try Options(arguments: CommandLine.arguments)
+            guard options.inspectionScene != nil else {
+                try run(options: options, inspector: nil)
+                return
+            }
+            let policyChoices = metalRoboInspectorPolicyCatalog()
+            let initialPolicyURL = (options.updatedPolicyPack ??
+                options.policyPack).map {
+                    URL(fileURLWithPath: $0)
+                }
+            let inspector = try MetalRoboRunInspectorBridge.launch(
+                canReloadLatestPolicy:
+                    initialPolicyURL != nil || !policyChoices.isEmpty,
+                policyChoices: policyChoices,
+                initialPolicyURL: initialPolicyURL
+            )
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    try run(options: options, inspector: inspector)
+                } catch {
+                    if case MetalRoboRunInspectorError.closed = error {
+                        // Closing the window ends its preview run cleanly.
+                    } else {
+                        FileHandle.standardError.write(
+                            Data("task_train failed: \(error)\n".utf8)
+                        )
+                    }
+                }
+                DispatchQueue.main.async {
+                    NSApplication.shared.terminate(nil)
+                }
+            }
+            NSApplication.shared.run()
         } catch {
             FileHandle.standardError.write(
                 Data("task_train failed: \(error)\n".utf8)

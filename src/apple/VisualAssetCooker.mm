@@ -2951,15 +2951,45 @@ std::uint32_t appendModelTextureBinding(
                 std::to_string(pack.textures.size());
         }
         bool decodedTexture = false;
+        // Loose USD stages commonly expose relative texture URLs. Loading
+        // them through MDLAsset::loadTextures can replace an otherwise valid
+        // PNG/JPEG with a black placeholder on some Model I/O versions. Read
+        // the authored file directly first; keep MTKTextureLoader as the
+        // fallback for resolved USDZ/package and procedural textures.
+        NSURL* authoredURL = property.URLValue;
+        if (authoredURL == nil &&
+            [texture isKindOfClass:MDLURLTexture.class]) {
+            authoredURL = static_cast<MDLURLTexture*>(texture).URL;
+        }
+        if (authoredURL != nil && authoredURL.isFileURL) {
+            std::filesystem::path texturePath{
+                utf8(authoredURL.path)
+            };
+            if (texturePath.is_relative()) {
+                texturePath = std::filesystem::path{pack.sourceUri}
+                                  .parent_path() / texturePath;
+            }
+            if (const auto encoded = readBytes(texturePath)) {
+                decodedTexture = decodeTexture(
+                    *encoded,
+                    srgb,
+                    options.generateMipmaps,
+                    id,
+                    decoded
+                );
+            }
+        }
         @autoreleasepool {
-            decodedTexture = decodeModelTexture(
-                textureLoader,
-                texture,
-                srgb,
-                options.generateMipmaps,
-                id,
-                decoded
-            );
+            if (!decodedTexture) {
+                decodedTexture = decodeModelTexture(
+                    textureLoader,
+                    texture,
+                    srgb,
+                    options.generateMipmaps,
+                    id,
+                    decoded
+                );
+            }
         }
         if (!decodedTexture) {
             message =
@@ -3063,6 +3093,7 @@ std::uint32_t appendModelTextureBinding(
 std::uint32_t importModelMaterial(
     MTKTextureLoader* textureLoader,
     MDLMaterial* material,
+    const bool forceNeutralMaterial,
     const VisualAssetCookOptions& options,
     std::unordered_map<void*, std::uint32_t>& materialMap,
     ModelTextureCache& textureCache,
@@ -3120,23 +3151,39 @@ std::uint32_t importModelMaterial(
             MDLMaterialSemanticOpacity
         );
     MRVisualMaterialGPUV2 result{};
-    result.baseColorAndOpacity = materialColor(
-        material,
-        MDLMaterialSemanticBaseColor,
-        {1.0f, 1.0f, 1.0f, 1.0f}
-    );
+    // In USD Preview Surface a connected texture replaces the numeric socket
+    // default. Model I/O exposes both properties, including the default 0.18
+    // diffuse value, but multiplying them would incorrectly darken every
+    // connected texture. glTF factor modulation is handled by its own import
+    // path and does not pass through here.
+    result.baseColorAndOpacity = baseColorTexture == nil
+        ? materialColor(
+              material,
+              MDLMaterialSemanticBaseColor,
+              {1.0f, 1.0f, 1.0f, 1.0f}
+          )
+        : mr_float4{1.0f, 1.0f, 1.0f, 1.0f};
+    if (forceNeutralMaterial) {
+        // Binary STL carries geometry but no interoperable PBR material. A
+        // neutral presentation keeps source-derived URDF geometry legible
+        // without inventing robot-specific appearance.
+        result.baseColorAndOpacity = {0.58f, 0.61f, 0.66f, 1.0f};
+    }
     result.baseColorAndOpacity.w *= materialScalar(
         material,
         MDLMaterialSemanticOpacity,
         1.0f
     );
-    result.emissionAndStrength = materialColor(
-        material,
-        MDLMaterialSemanticEmission,
-        emissionTexture == nil
-            ? mr_float4{0.0f, 0.0f, 0.0f, 1.0f}
-            : mr_float4{1.0f, 1.0f, 1.0f, 1.0f}
-    );
+    result.emissionAndStrength = emissionTexture == nil
+        ? materialColor(
+              material,
+              MDLMaterialSemanticEmission,
+              {0.0f, 0.0f, 0.0f, 1.0f}
+          )
+        : mr_float4{1.0f, 1.0f, 1.0f, 1.0f};
+    if (forceNeutralMaterial) {
+        result.emissionAndStrength = {0.58f, 0.61f, 0.66f, 1.0f};
+    }
     result.surface = {
         std::clamp(
             materialScalar(
@@ -3265,7 +3312,7 @@ std::uint32_t importModelMaterial(
         result.coatingAndAlphaCutoff.w =
             std::clamp(cutoff.floatValue, 0.0f, 1.0f);
     }
-    const bool unlit =
+    const bool unlit = forceNeutralMaterial ||
         materialPropertyContaining(material, "unlit") != nil;
     result.flags = {
         alphaMode,
@@ -3590,6 +3637,7 @@ bool appendModelMesh(
     MDLMesh* objectMesh,
     const std::uint32_t objectOrdinal,
     const Matrix4& stageConversion,
+    const bool forceNeutralMaterial,
     const VisualAssetCookOptions& options,
     std::unordered_map<void*, std::uint32_t>& materialMap,
     ModelTextureCache& textureCache,
@@ -3953,6 +4001,7 @@ bool appendModelMesh(
             importModelMaterial(
                 textureLoader,
                 triangles.material,
+                forceNeutralMaterial,
                 options,
                 materialMap,
                 textureCache,
@@ -4142,16 +4191,18 @@ MDLVertexDescriptor* canonicalModelVertexDescriptor() {
     return descriptor;
 }
 
-VisualAssetCookDiagnostics cookUsd(
+VisualAssetCookDiagnostics cookModelIOAsset(
     const std::filesystem::path& source,
     std::string sourceHash,
     VisualAssetPackV2& output,
-    const VisualAssetCookOptions& options
+    const VisualAssetCookOptions& options,
+    const bool sourceIsUSD
 ) {
     VisualAssetCookDiagnostics diagnostics;
     std::string message;
     UsdStageMetadata metadata;
-    if (!readUsdStageMetadata(source, metadata, message)) {
+    if (sourceIsUSD &&
+        !readUsdStageMetadata(source, metadata, message)) {
         return reject(
             std::move(diagnostics),
             VisualAssetCookStatus::malformedAsset,
@@ -4163,7 +4214,7 @@ VisualAssetCookDiagnostics cookUsd(
         return reject(
             std::move(diagnostics),
             VisualAssetCookStatus::internalFailure,
-            "Metal device is unavailable for USD cooking"
+            "Metal device is unavailable for Model I/O cooking"
         );
     }
     id<MTLCommandQueue> cookQueue = [device newCommandQueue];
@@ -4188,7 +4239,7 @@ VisualAssetCookDiagnostics cookUsd(
         return reject(
             std::move(diagnostics),
             VisualAssetCookStatus::internalFailure,
-            "USD residual Metal pipeline is unavailable: " +
+            "Model I/O residual Metal pipeline is unavailable: " +
                 utf8(metalError.localizedDescription)
         );
     }
@@ -4206,19 +4257,22 @@ VisualAssetCookDiagnostics cookUsd(
         return reject(
             std::move(diagnostics),
             VisualAssetCookStatus::malformedAsset,
-            "Model I/O could not compose the USD stage"
+            "Model I/O could not compose the visual source"
         );
     }
-    // Model I/O performs USDZ package resolution here. Texture pixel
-    // conversion remains one-material-at-a-time through MTKTextureLoader.
-    [asset loadTextures];
+    // USDZ requires Model I/O package resolution. Loose USD keeps authored
+    // texture URLs intact so appendModelTextureBinding can decode their bytes
+    // directly and deterministically.
+    if (source.extension() == ".usdz") {
+        [asset loadTextures];
+    }
     NSArray<MDLObject*>* meshObjects =
         [asset childObjectsOfClass:MDLMesh.class];
     if (meshObjects.count == 0u) {
         return reject(
             std::move(diagnostics),
             VisualAssetCookStatus::invalidGeometry,
-            "USD stage contains no triangle meshes"
+            "visual source contains no triangle meshes"
         );
     }
 
@@ -4231,11 +4285,13 @@ VisualAssetCookDiagnostics cookUsd(
     candidate.license = options.license;
     candidate.preprocessingProvenance =
         options.preprocessingProvenance +
-        ";input=usd;importer=ModelIO+MTKMeshBufferAllocator" +
+        ";input=" + std::string{sourceIsUSD ? "usd" : "stl"} +
+        ";importer=ModelIO+MTKMeshBufferAllocator" +
         ";metersPerUnit=" +
-        std::to_string(metadata.metersPerUnit) +
-        ";upAxis=" + std::string{metadata.upAxis} +
-        ";defaultPrim=" + metadata.defaultPrim +
+        std::to_string(sourceIsUSD ? metadata.metersPerUnit : 1.0) +
+        ";upAxis=" + std::string{sourceIsUSD ? metadata.upAxis : 'Z'} +
+        ";defaultPrim=" +
+        (sourceIsUSD ? metadata.defaultPrim : std::string{}) +
         ";modelio=" + frameworkVersion(MDLAsset.class) +
         ";sdk=" +
         std::to_string(__MAC_OS_X_VERSION_MAX_ALLOWED) +
@@ -4250,7 +4306,14 @@ VisualAssetCookDiagnostics cookUsd(
         (options.generateMipmaps
              ? "semantic-linear-box-v2"
              : "none");
-    const Matrix4 conversion = usdCoordinateTransform(metadata);
+    Matrix4 conversion{};
+    if (sourceIsUSD) {
+        conversion = usdCoordinateTransform(metadata);
+    } else {
+        for (std::size_t axis = 0u; axis < 4u; ++axis) {
+            conversion.value[axis][axis] = 1.0;
+        }
+    }
     std::unordered_map<void*, std::uint32_t> materialMap;
     ModelTextureCache textureCache;
     std::unordered_map<std::string, ReusedModelGeometry>
@@ -4267,7 +4330,8 @@ VisualAssetCookDiagnostics cookUsd(
                 static_cast<MDLMesh*>(object),
                 objectOrdinal,
                 conversion,
-                    options,
+                !sourceIsUSD,
+                options,
                     materialMap,
                     textureCache,
                     geometryMap,
@@ -4292,7 +4356,7 @@ VisualAssetCookDiagnostics cookUsd(
         return reject(
             std::move(diagnostics),
             VisualAssetCookStatus::invalidGeometry,
-            "USD stage has no visible mesh instances"
+            "visual source has no visible mesh instances"
         );
     }
     CC_SHA256_CTX dependencyContext{};
@@ -4374,11 +4438,29 @@ VisualAssetCookDiagnostics cookVisualAsset(
                     "USD source could not be hashed"
                 );
             }
-            return cookUsd(
+            return cookModelIOAsset(
                 source,
                 std::move(sourceHash),
                 output,
-                options
+                options,
+                true
+            );
+        }
+        if (extension == ".stl") {
+            std::string sourceHash = sha256File(source);
+            if (sourceHash.empty()) {
+                return reject(
+                    std::move(diagnostics),
+                    VisualAssetCookStatus::ioFailure,
+                    "STL source could not be hashed"
+                );
+            }
+            return cookModelIOAsset(
+                source,
+                std::move(sourceHash),
+                output,
+                options,
+                false
             );
         }
         if (extension == ".dae") {
@@ -4392,7 +4474,7 @@ VisualAssetCookDiagnostics cookVisualAsset(
         return reject(
             std::move(diagnostics),
             VisualAssetCookStatus::unsupportedFormat,
-            "visual source must be GLB/glTF or a Model I/O USD asset"
+            "visual source must be GLB/glTF, STL, or a Model I/O USD asset"
         );
     } catch (const std::bad_alloc&) {
         return reject(
@@ -4506,6 +4588,29 @@ VisualAssetCookDiagnostics cookUrdfVisualDescription(
                     std::move(diagnostics),
                     VisualAssetCookStatus::invalidBinding,
                     "URDF visual origin or mesh scale is invalid"
+                );
+            }
+            if (const auto centerOfMass =
+                    options.linkCenterOfMassOffsets.find(linkName);
+                centerOfMass != options.linkCenterOfMassOffsets.end()) {
+                // Physics state describes the body COM, whereas URDF visual
+                // coordinates are relative to the link origin.  Convert the
+                // mesh from link coordinates into the COM-centred runtime
+                // frame before applying the authored visual origin/scale.
+                Matrix4 originFromCenterOfMass{};
+                originFromCenterOfMass.value[0][0] = 1.0;
+                originFromCenterOfMass.value[1][1] = 1.0;
+                originFromCenterOfMass.value[2][2] = 1.0;
+                originFromCenterOfMass.value[3][3] = 1.0;
+                originFromCenterOfMass.value[0][3] =
+                    -centerOfMass->second.x;
+                originFromCenterOfMass.value[1][3] =
+                    -centerOfMass->second.y;
+                originFromCenterOfMass.value[2][3] =
+                    -centerOfMass->second.z;
+                authoredTransform = multiply(
+                    originFromCenterOfMass,
+                    authoredTransform
                 );
             }
             for (std::uint32_t instanceIndex = 0u;
