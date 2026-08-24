@@ -3546,7 +3546,26 @@ kernel void mr_locomotion_task_apply_actions(
         // resulting position target to the joint range below, so policies
         // trained with residuals outside [-1, 1] retain their source action
         // semantics without weakening physical target safety.
-        const float requested = actionStream[actionBase + action];
+        const MRTaskActionBindingGPU binding =
+            actions[action];
+        const bool avianCrowGroundSwingResidual =
+            state.episode.z == 1u &&
+            (program.schedule.w &
+             MR_TASK_PROGRAM_AVIAN_CROW_GROUND_LEG_SWING_RESIDUAL) != 0u &&
+            binding.actuator.x == MR_TASK_ACTUATOR_JOINT_POSITION &&
+            action >= 7u && action <= 12u;
+        const float avianGroundCarrierPhase = kTwoPi *
+            float(state.episode.x) * dispatch.timing.x / 0.50f;
+        const float avianGroundLegSwing = action <= 9u
+            ? sin(avianGroundCarrierPhase)
+            : -sin(avianGroundCarrierPhase);
+        // Gate before the existing delay/filter state so the next policy
+        // observation reports the command actually accepted by the matching
+        // swing leg. Support legs retain only the calibrated carrier.
+        const float requested =
+            avianCrowGroundSwingResidual && !(avianGroundLegSwing > 0.0f)
+            ? 0.0f
+            : actionStream[actionBase + action];
         rawPolicyActions[
             environment * program.counts0.x + action
         ] = rawPolicyLatents[actionBase + action];
@@ -3555,8 +3574,6 @@ kernel void mr_locomotion_task_apply_actions(
             filterSlot * program.counts0.x +
             action
         ];
-        const MRTaskActionBindingGPU binding =
-            actions[action];
         const float responseTimeSeconds = binding.parameters.w;
         const float responseFraction =
             responseTimeSeconds > 0.0f
