@@ -208,14 +208,20 @@ constexpr std::uint32_t kReceiverAlignmentTimestepDivisor = 1u;
 // capacities retained ample headroom. r21 reproduced the exact 5.0270057e-4
 // residual with 176 columns, proving that an eleventh restart cycle made no
 // Krylov progress. Its already assembled candidate nevertheless reported a
-// strict 8.36003e-6 nonlinear KKT certificate, so finite inner exhaustion now
+// strict 8.36003e-6 assembled KKT residual, so finite inner exhaustion now
 // proceeds to the unchanged post-correction certificate instead of poisoning
-// the transaction before that authority can decide. Retain the bounded
-// eleventh cycle as the production ceiling; the allocated 16-column basis and
-// every residual/contact/publication tolerance remain unchanged. Each
-// accepted restart boundary is prefix-invariant: the eleventh cycle is
-// available only if the first ten have not already met the unchanged
-// linear/nonlinear acceptance rule.
+// the transaction before that authority can decide. r22 consequently exposed
+// the actual seventh-pass candidate: its equilibrium and pressure residuals
+// were 5.010481691e-4 and 5.009786692e-4, only 0.21% above the unchanged 5e-4
+// gates, while minimum J was 0.997104, volume residual was 9.36901e-5, and
+// contact/transport remained clean. Give that finite candidate one final outer
+// Newton reassembly and correction. Retain the bounded eleventh Krylov cycle as
+// the production ceiling; the allocated 16-column basis and every
+// residual/contact/publication tolerance remain unchanged. Both extensions are
+// prefix-invariant: they are useful only when the preceding passes have not
+// already produced a zero correction under the unchanged acceptance rule.
+constexpr std::uint32_t kReceiverNewtonIterationBudget =
+    NM_MIXED_NEWTON_ITERATIONS + 1u;
 constexpr std::uint32_t kReceiverBridgeFGMRESIterationBudget =
     2u * NM_MIXED_FGMRES_RESTART;
 constexpr std::uint32_t kReceiverAlignmentFGMRESIterationBudget =
@@ -6564,11 +6570,13 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     // free-needle budget: r7 passed the exact 25 ms dynamic bridge with that
     // execution, whereas globally cooking three cycles changed accepted bridge
     // dynamics and reached a strict IPC contact-feasibility rollback. The live
-    // sequence raises only the alignment-and-later runtime budget at its
-    // completion boundary. Restart width, allocation, Newton iterations, and
-    // every residual/contact/publication tolerance remain immutable.
+    // sequence raises only the alignment-and-later runtime Krylov budget at its
+    // completion boundary. Cook one additional outer reassembly/correction for
+    // the finite seventh-pass candidate observed in r22. Restart width,
+    // allocation, and every residual/contact/publication tolerance remain
+    // immutable.
     source.mixedSolver.newtonIterations = freeNeedleCapability
-        ? NM_MIXED_NEWTON_ITERATIONS : 5u;
+        ? kReceiverNewtonIterationBudget : 5u;
     source.mixedSolver.fgmresRestart = freeNeedleCapability
         ? NM_MIXED_FGMRES_RESTART : 10u;
     source.mixedSolver.fgmresIterations = freeNeedleCapability
@@ -25614,6 +25622,9 @@ int main(const int argc, const char* const argv[]) {
                             << kReceiverBridgeFGMRESIterationBudget
                             << " alignment_fgmres_iterations="
                             << tissueRuntime.fgmresIterationBudget()
+                            << " newton_iterations="
+                            << tissueWorld.mixedSolver
+                                   .nonlinearIterations.x
                             << " fgmres_restart="
                             << tissueWorld.mixedSolver
                                    .nonlinearIterations.y
@@ -25741,6 +25752,8 @@ int main(const int argc, const char* const argv[]) {
                             << kReceiverAlignmentFGMRESIterationBudget
                             << " settle_fgmres_iterations="
                             << tissueRuntime.fgmresIterationBudget()
+                            << " newton_iterations="
+                            << tissueWorld.mixedSolver.nonlinearIterations.x
                             << " fgmres_restart="
                             << tissueWorld.mixedSolver.nonlinearIterations.y
                             << " relative_residual_tolerance="
