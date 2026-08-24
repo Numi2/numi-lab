@@ -2482,7 +2482,7 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             return value;
         };
         pack.id = "birdflow_american_crow_estimated_hybrid";
-        pack.revision = 7u;
+        pack.revision = 8u;
         pack.sourceRepository =
             "BirdFlowMetal American-crow estimated hybrid visual model";
         pack.sourceRevision =
@@ -2577,13 +2577,13 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             // This is an explicit hybrid closure, not a crow force, power,
             // or CFD measurement.  With the old 5.0/0.0 pair, even +0.300
             // residual wing action failed to sustain a body-up liftoff, while
-            // the 0.25 forward tilt ran without bound under a height-only
-            // carrier. Keep the dove 8.0 stroke strength and restore that
-            // bounded stroke-plane tilt only with the live altitude, vertical
-            // rate, and forward-speed wing trim. It remains an estimated-model
-            // bracket until independently validated flight evidence exists.
+            // the 0.25 forward tilt still outran lift even under live speed
+            // trim. Keep the dove 8.0 stroke strength and bracket a 0.10
+            // stroke-plane tilt with that same altitude, vertical-rate, and
+            // forward-speed controller. It remains an estimated-model bracket
+            // until independently validated flight evidence exists.
             wing.unsteadyCoefficients.x = 8.0f;
-            wing.unsteadyCoefficients.y = 0.25f;
+            wing.unsteadyCoefficients.y = 0.10f;
         }
         aerodynamic.tail.rootToCenterAndArea.x *= lengthScale;
         aerodynamic.tail.rootToCenterAndArea.y *= lengthScale;
