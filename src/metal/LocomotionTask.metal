@@ -4546,6 +4546,19 @@ kernel void mr_locomotion_task_complete(
             state.commandAndPhase.xyz = float3(0.22f, 0.0f, 0.0f);
             break;
         }
+        if (avianGroundCurriculum && avianCurriculumBand == 2u) {
+            state.commandExtension = float4(
+                rootWorldPosition(program, q).xy,
+                0.0f,
+                0.0f
+            );
+            // Learn the vertical transition and a modest forward airspeed
+            // before asking the same policy to solve a curved flight path.
+            // The 0.35 m/s target matches the authored launch-tracking scale;
+            // the figure-eight command is reserved for the later flight band.
+            state.commandAndPhase.xyz = float3(0.35f, 0.0f, 0.0f);
+            break;
+        }
         if (episodeSeconds <= takeoffSeconds) {
             state.commandExtension = float4(
                 rootWorldPosition(program, q).xy,
