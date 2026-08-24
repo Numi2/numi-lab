@@ -1961,6 +1961,10 @@ TaskPack makeBirdFlowDoveFlightTaskPack(
     task.terminations = {
         {TaskTerminationOperator::minimumRootHeight, {},
             MR_TASK_TERMINATION_HEIGHT, 10u, 0.025f, -1.0f},
+        {TaskTerminationOperator::maximumRootHeight, {},
+            MR_TASK_TERMINATION_HEIGHT, 11u, 2.50f, -1.0f},
+        {TaskTerminationOperator::maximumTilt, {},
+            MR_TASK_TERMINATION_TILT, 20u, 1.20f, -1.0f},
         {TaskTerminationOperator::contactGroup, "non_foot_contact",
             MR_TASK_TERMINATION_CONTACT, 30u, 0.0f, -1.0f},
     };
