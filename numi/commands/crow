@@ -1,0 +1,47 @@
+#!/bin/sh
+
+set -eu
+
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf '%s\n' 'Train or evaluate the estimated BirdFlow American-crow standing-to-flight hybrid.'
+    exit 0
+fi
+
+crow_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+crow_dispatcher=$crow_root/tools/numi
+
+crow_usage() {
+    cat <<'EOF'
+Usage: numi crow train|evaluate [native Numi arguments...]
+
+  train      Train the estimated American-crow hybrid through native Metal and MLX.
+  evaluate   Evaluate a crow policy or an explicitly selected action source.
+
+The package is an estimated hybrid. Results are simulated physical evidence,
+not measured American-crow flight or hardware-flight evidence.
+EOF
+}
+
+crow_action=${1:-help}
+if [ "$#" -gt 0 ]; then
+    shift
+fi
+
+case "$crow_action" in
+    train)
+        exec "$crow_dispatcher" train \
+            --birdflow-american-crow \
+            --initialize-policy birdflow_american_crow_standing_to_flight_brain \
+            "$@"
+        ;;
+    evaluate)
+        exec "$crow_dispatcher" evaluate --birdflow-american-crow "$@"
+        ;;
+    help|--help|-h)
+        crow_usage
+        ;;
+    *)
+        crow_usage >&2
+        exit 1
+        ;;
+esac

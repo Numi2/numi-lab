@@ -202,6 +202,7 @@ private struct Options {
     var captureStride = 1
     var capturePolicyCamera = false
     var birdFlowDove = false
+    var birdFlowAmericanCrow = false
 
     init(arguments: [String]) throws {
         var index = 1
@@ -466,6 +467,8 @@ private struct Options {
                 capturePolicyCamera = true
             case "--birdflow-dove":
                 birdFlowDove = true
+            case "--birdflow-american-crow":
+                birdFlowAmericanCrow = true
             case "--birdflow-flap-script":
                 birdFlowFlapScript = true
             case "--birdflow-stroke-amplitude":
@@ -524,12 +527,18 @@ private struct Options {
                 "--action-stream cannot be combined with another action source."
             )
         }
+        if birdFlowDove && birdFlowAmericanCrow {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-dove and --birdflow-american-crow are mutually exclusive."
+            )
+        }
         if (birdFlowFlapScript || birdFlowStrokeAmplitude != nil) &&
-            (!birdFlowDove || zeroActions || actionStream != nil ||
+            (!(birdFlowDove || birdFlowAmericanCrow) ||
+                zeroActions || actionStream != nil ||
                 nativePolicy || policyPack != nil)
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "BirdFlow qualification actions require --birdflow-dove and cannot be combined with another action source."
+                "BirdFlow qualification actions require one BirdFlow bird source and cannot be combined with another action source."
             )
         }
         if birdFlowFlapScript && birdFlowStrokeAmplitude != nil {
@@ -876,6 +885,20 @@ private func makeContext(
                 metallibPath: options.metallib
             ),
             "birdflow_deetjen_dove_hybrid"
+        )
+    }
+    if options.birdFlowAmericanCrow {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .birdFlowAmericanCrow,
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual
+                ),
+                metallibPath: options.metallib
+            ),
+            "birdflow_american_crow_estimated_hybrid"
         )
     }
     if let interactionPack = options.interactionPack,

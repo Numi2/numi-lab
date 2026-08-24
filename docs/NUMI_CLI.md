@@ -37,6 +37,17 @@ The first executable with the requested name wins. A custom capability only
 needs to implement normal command-line behavior and may optionally answer
 `--numi-describe` with a one-line description for `numi context`.
 
+The bundled `crow` capability exposes the estimated BirdFlow American-crow
+standing-to-flight hybrid through the same native Metal and MLX runtime:
+
+```sh
+numi crow train --envs 256 --steps 128 --updates 8 --chunk 8
+numi crow evaluate --policy-pack .numi/runs/crow/deployment.policypack
+```
+
+These are simulated-hybrid runs. They are not evidence of measured American-
+crow aerodynamics or hardware flight.
+
 `numi window` is the workspace's one-command live renderer. It builds an
 isolated presentation runtime, finds the saved authored scene, and opens an
 `MTKView` preview of environment zero:
