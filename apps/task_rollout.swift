@@ -1037,7 +1037,7 @@ private func actions(
 }
 
 // A deterministic full-stroke qualification input, not a policy or a flight
-// result. It proves that the robot-owned 4 Hz wingbeat reaches the device-side
+// result. It proves that the robot-owned wingbeat reaches the device-side
 // aerodynamic coupling through the same amplitude-modulation action contract.
 private func birdFlowFlapActions(
     startStep: Int,
@@ -1045,7 +1045,7 @@ private func birdFlowFlapActions(
     environmentCount: Int,
     actionCount: Int
 ) -> [Float] {
-    precondition(actionCount == 2)
+    precondition(actionCount >= 2)
     var result = [Float](
         repeating: 0,
         count: stepCount * environmentCount * actionCount
@@ -1066,11 +1066,21 @@ private func birdFlowStrokeActions(
     environmentCount: Int,
     actionCount: Int
 ) -> [Float] {
-    precondition(actionCount == 2)
-    return [Float](
-        repeating: amplitude,
+    precondition(actionCount >= 2)
+    var result = [Float](
+        repeating: 0,
         count: stepCount * environmentCount * actionCount
     )
+    for step in 0..<stepCount {
+        for environment in 0..<environmentCount {
+            let base = (step * environmentCount + environment) * actionCount
+            // The first two bindings are the left/right flapping actuators;
+            // leave tail and leg actions neutral during this calibration.
+            result[base] = amplitude
+            result[base + 1] = amplitude
+        }
+    }
+    return result
 }
 
 // A deterministic action-authority calibration, not an imitation target or a
@@ -2568,7 +2578,7 @@ private enum TaskRolloutMain {
                     : "host_stream",
                 "action_stream": options.actionStream ?? "",
                 "action_carrier": options.birdFlowAmericanCrow
-                    ? "stage1_crow_gait_plus_bounded_policy_residual_0.25"
+                    ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_when_band_1"
                     : "none",
                 "device": context.deviceName,
                 "solver_mode": "temporal_cone",
