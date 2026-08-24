@@ -17,16 +17,21 @@ typedef struct MR_ALIGN16 MRFlappingWingGPU {
     mr_float4 hingeAxisAndChord;
     // lift slope [1/rad], profile drag, induced drag and coefficient limit.
     mr_float4 coefficients;
+    // x = rotational/unsteady stroke-lift closure, y = forward stroke-plane
+    // bias, zw reserved. Keeping this separate prevents a force term from
+    // silently inflating the steady CL cap used by the blade elements.
+    mr_float4 unsteadyCoefficients;
 } MRFlappingWingGPU;
 
-// Fixed tail surface associated with a flapping-wing program.
-// Its external wrench is evaluated from accepted root state and the local
-// wing-wash closure; it never replays an externally supplied force trace.
+// Tail surface associated with a flapping-wing program. A direct pitch joint
+// stores its resolved q/v indices in the formerly reserved lanes; fixed tails
+// use MR_INVALID_INDEX. Its external wrench is evaluated from accepted state
+// and the local wing-wash closure; it never replays a supplied force trace.
 typedef struct MR_ALIGN16 MRAeroTailGPU {
     mr_u32 bodyIndex;
     mr_u32 rootBodyIndex;
-    mr_u32 reserved0;
-    mr_u32 reserved1;
+    mr_u32 qIndex;
+    mr_u32 vIndex;
 
     // xyz = neutral root-COM to aerodynamic center; w = area [m^2].
     mr_float4 rootToCenterAndArea;
@@ -70,7 +75,7 @@ typedef struct MR_ALIGN16 MRCompiledFlappingWingDispatchGPU {
 } MRCompiledFlappingWingDispatchGPU;
 
 #ifndef __METAL_VERSION__
-static_assert(sizeof(MRFlappingWingGPU) == 64);
+static_assert(sizeof(MRFlappingWingGPU) == 80);
 static_assert(sizeof(MRAeroTailGPU) == 48);
 static_assert(sizeof(MRAeroFuselageGPU) == 48);
 static_assert(sizeof(MRCompiledFlappingWingDispatchGPU) == 48);

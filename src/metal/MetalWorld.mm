@@ -3193,7 +3193,9 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 !(wing.hingeAxisAndChord.w > 0.0f) ||
                 !(wing.coefficients.x > 0.0f) ||
                 wing.coefficients.y < 0.0f || wing.coefficients.z < 0.0f ||
-                !(wing.coefficients.w > 0.0f)) {
+                !(wing.coefficients.w > 0.0f) ||
+                !finite(wing.unsteadyCoefficients) ||
+                wing.unsteadyCoefficients.x < 0.0f) {
                 return reject(
                     std::move(diagnostics),
                     MetalWorldHostStatus::invalidDimensions,
@@ -3208,8 +3210,14 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 wings.articulationIndex ||
             model.bodies[tail.bodyIndex].parentBody != wings.rootBodyIndex ||
             model.bodies[tail.bodyIndex].inboundJoint >= model.joints.size() ||
-            model.joints[model.bodies[tail.bodyIndex].inboundJoint].jointType !=
-                MR_JOINT_FIXED ||
+            (model.joints[model.bodies[tail.bodyIndex].inboundJoint].jointType !=
+                 MR_JOINT_FIXED &&
+             model.joints[model.bodies[tail.bodyIndex].inboundJoint].jointType !=
+                 MR_JOINT_REVOLUTE) ||
+            ((tail.qIndex == MR_INVALID_INDEX) !=
+             (tail.vIndex == MR_INVALID_INDEX)) ||
+            (tail.qIndex != MR_INVALID_INDEX &&
+             (tail.qIndex >= model.world.nq || tail.vIndex >= model.world.nv)) ||
             !finite(tail.rootToCenterAndArea) ||
             !finite(tail.chordAndCoefficients) ||
             !(tail.rootToCenterAndArea.w > 0.0f) ||

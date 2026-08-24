@@ -126,6 +126,7 @@ kernel void mr_step_compiled_flapping_wings(
         }
     }
     float wingStrokeSpeedSquared = 0.0f;
+    float2 sideStrokeSpeedSquared = float2(0.0f);
     constexpr uint bladeElementCount = 8u;
     constexpr float inverseEllipticAreaIntegral = 4.0f / M_PI_F;
     for (uint side = 0u; side < 2u; ++side) {
@@ -134,6 +135,7 @@ kernel void mr_step_compiled_flapping_wings(
             wing.qIndex < dispatch.qOffset || wing.vIndex < dispatch.vOffset ||
             !finite4(wing.rootToCenterAndArea) ||
             !finite4(wing.hingeAxisAndChord) || !finite4(wing.coefficients) ||
+            !finite4(wing.unsteadyCoefficients) ||
             !(wing.rootToCenterAndArea.w > 0.0f) ||
             !(wing.hingeAxisAndChord.w > 0.0f)) {
             continue;
@@ -160,10 +162,14 @@ kernel void mr_step_compiled_flapping_wings(
             wingOrientation, float3(0.0f, spanSign, 0.0f)
         );
         const float3 normal = safeNormal(cross(chord, span));
-        const float3 airframeUp = rotate(rootOrientation, float3(0.0f, 0.0f, 1.0f));
-        const float3 wingCenter = rotate(
-            rootOrientation,
-            rotate(hingeRotation, wing.rootToCenterAndArea.xyz)
+        const float3 airframeUp = rotate(
+            rootOrientation, float3(0.0f, 0.0f, 1.0f)
+        );
+        const float3 airframeForward = rotate(
+            rootOrientation, float3(1.0f, 0.0f, 0.0f)
+        );
+        const float3 unsteadyDirection = safeNormal(
+            airframeUp + wing.unsteadyCoefficients.y * airframeForward
         );
         float3 force = float3(0.0f);
         float3 torque = float3(0.0f);
@@ -199,8 +205,13 @@ kernel void mr_step_compiled_flapping_wings(
                 continue;
             }
             const float3 flow = incomingAir * rsqrt(speedSquared);
+            // Relative wind points toward the trailing direction while the
+            // section chord points in vehicle travel direction. Incidence is
+            // therefore measured against the opposite vector.
+            const float3 travelDirection = -flow;
             const float angleOfAttack = atan2(
-                dot(flow, normal), dot(flow, chord)
+                dot(travelDirection, normal),
+                dot(travelDirection, chord)
             );
             const float liftCoefficient = clamp(
                 wing.coefficients.x * angleOfAttack,
@@ -218,30 +229,69 @@ kernel void mr_step_compiled_flapping_wings(
             wingStrokeSpeedSquared +=
                 ellipticWeight * strokeSpeedSquared /
                 float(bladeElementCount);
+            sideStrokeSpeedSquared[side] +=
+                ellipticWeight * strokeSpeedSquared /
+                float(bladeElementCount);
             const float strokeFraction = clamp(
                 strokeSpeedSquared / speedSquared, 0.0f, 1.0f
             );
             const float3 elementForce = dynamicPressure * elementArea * (
                 liftCoefficient * liftDirection +
                 dragCoefficient * flow +
-                wing.coefficients.w * strokeFraction * airframeUp
+                wing.unsteadyCoefficients.x * strokeFraction *
+                    unsteadyDirection
             );
             force += elementForce;
-            torque += cross(rootToPoint - wingCenter, elementForce);
+            torque += cross(rootToPoint, elementForce);
         }
         if (!all(isfinite(force)) || !all(isfinite(torque))) {
             continue;
         }
-        const uint wrenchIndex = environment * dispatch.bodyStride + wing.bodyIndex;
+        const uint wrenchIndex =
+            environment * dispatch.bodyStride + dispatch.rootBodyIndex;
         MRABABodyWrenchGPU wrench = wrenches[wrenchIndex];
         wrench.force.xyz += force;
         wrench.torque.xyz += torque;
         wrenches[wrenchIndex] = wrench;
     }
-    // The tail is a separate, fixed surface in the compiled articulation. It
-    // sees the root's resolved translational and angular velocity; the wing
-    // stroke only supplies dynamic pressure for its explicitly authored pitch
-    // damping closure.  This is not a substitute for a coupled D3Q19 wake.
+    // Differential live stroke energy produces a bounded yaw moment. It
+    // vanishes exactly for a bilateral stroke and stays on the accepted-state
+    // aerodynamic timeline rather than replaying an external force trace.
+    const float yawMomentCoefficient = 0.5f * (
+        wings[0].unsteadyCoefficients.z +
+        wings[1].unsteadyCoefficients.z
+    );
+    if (fuselage.bodyIndex == dispatch.rootBodyIndex &&
+        yawMomentCoefficient != 0.0f &&
+        all(isfinite(sideStrokeSpeedSquared))) {
+        const float meanWingArea = 0.5f * (
+            wings[0].rootToCenterAndArea.w +
+            wings[1].rootToCenterAndArea.w
+        );
+        const float meanHalfSpan = 0.5f * (
+            abs(wings[0].rootToCenterAndArea.y) +
+            abs(wings[1].rootToCenterAndArea.y)
+        );
+        const float yawMoment = clamp(
+            0.5f * dispatch.windVelocityAndDensity.w * meanWingArea *
+                meanHalfSpan * yawMomentCoefficient *
+                (sideStrokeSpeedSquared.y - sideStrokeSpeedSquared.x),
+            -0.02f,
+            0.02f
+        );
+        const float3 rootUp = safeNormal(rotate(
+            rootOrientation, float3(0.0f, 0.0f, 1.0f)
+        ));
+        if (all(isfinite(rootUp)) && isfinite(yawMoment)) {
+            const uint rootWrenchIndex =
+                environment * dispatch.bodyStride + dispatch.rootBodyIndex;
+            MRABABodyWrenchGPU rootWrench = wrenches[rootWrenchIndex];
+            rootWrench.torque.xyz += rootUp * yawMoment;
+            wrenches[rootWrenchIndex] = rootWrench;
+        }
+    }
+    // A direct tail-pitch coordinate rotates the local aerodynamic frame;
+    // a fixed tail uses zero deflection. This is not a coupled D3Q19 wake.
     if (tail.bodyIndex >= dispatch.bodyStride ||
         tail.rootBodyIndex != dispatch.rootBodyIndex ||
         !finite4(tail.rootToCenterAndArea) ||
@@ -250,25 +300,39 @@ kernel void mr_step_compiled_flapping_wings(
         !(tail.chordAndCoefficients.x > 0.0f)) {
         return;
     }
+    const bool articulatedTail = tail.qIndex != MR_INVALID_INDEX &&
+        tail.vIndex != MR_INVALID_INDEX &&
+        tail.qIndex < dispatch.qStride && tail.vIndex < dispatch.vStride;
+    const float tailPitch = articulatedTail
+        ? qState[qBase + tail.qIndex] : 0.0f;
+    const float tailPitchRate = articulatedTail
+        ? vState[vBase + tail.vIndex] : 0.0f;
+    const float4 tailOrientation = multiplyQuaternion(
+        rootOrientation, axisAngle(float3(0.0f, 1.0f, 0.0f), tailPitch)
+    );
     const float3 rootToTail = rotate(
         rootOrientation, tail.rootToCenterAndArea.xyz
     );
     const float3 tailVelocity = rootVelocity +
-        cross(rootAngularVelocity, rootToTail);
+        cross(rootAngularVelocity, rootToTail) +
+        cross(rotate(rootOrientation, float3(0.0f, tailPitchRate, 0.0f)),
+              rootToTail);
     const float3 tailAir = dispatch.windVelocityAndDensity.xyz - tailVelocity;
     const float tailAirSpeedSquared = dot(tailAir, tailAir);
     float3 tailForce = float3(0.0f);
     if (tailAirSpeedSquared > 1.0e-8f && isfinite(tailAirSpeedSquared)) {
         const float3 tailFlow = tailAir * rsqrt(tailAirSpeedSquared);
+        const float3 tailTravelDirection = -tailFlow;
         const float3 rootForward = safeNormal(
-            rotate(rootOrientation, float3(1.0f, 0.0f, 0.0f))
+            rotate(tailOrientation, float3(1.0f, 0.0f, 0.0f))
         );
         const float3 rootSpan = safeNormal(
-            rotate(rootOrientation, float3(0.0f, 1.0f, 0.0f))
+            rotate(tailOrientation, float3(0.0f, 1.0f, 0.0f))
         );
         const float3 rootUp = safeNormal(cross(rootForward, rootSpan));
         const float angleOfAttack = atan2(
-            dot(tailFlow, rootUp), dot(tailFlow, rootForward)
+            dot(tailTravelDirection, rootUp),
+            dot(tailTravelDirection, rootForward)
         );
         const float liftCoefficient = clamp(
             tail.chordAndCoefficients.y * angleOfAttack, -1.5f, 1.5f
