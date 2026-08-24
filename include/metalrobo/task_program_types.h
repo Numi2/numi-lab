@@ -55,6 +55,11 @@ enum MRTaskProgramFlags : mr_u32 {
     // around that carrier and must be evaluated against it, not confused with
     // an independently learned gait.
     MR_TASK_PROGRAM_AVIAN_CROW_GROUND_GAIT_CARRIER = 1u << 13u,
+    // The estimated crow's first airborne band uses a bounded, live
+    // altitude-trim wing carrier.  The learned policy supplies only a
+    // residual around this device-side baseline; later flight bands retain
+    // full policy authority.
+    MR_TASK_PROGRAM_AVIAN_CROW_LIFTOFF_TRIM_CARRIER = 1u << 14u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {

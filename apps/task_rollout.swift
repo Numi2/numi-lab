@@ -2602,7 +2602,7 @@ private enum TaskRolloutMain {
                 "birdflow_stroke_amplitude": options.birdFlowStrokeAmplitude ?? 0,
                 "birdflow_tail_pitch": options.birdFlowTailPitch ?? 0,
                 "action_carrier": options.birdFlowAmericanCrow
-                    ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_when_band_1"
+                    ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_band_1;stage2_live_altitude_trim_plus_bounded_wing_residual_0.25_band_2"
                     : "none",
                 "device": context.deviceName,
                 "solver_mode": "temporal_cone",

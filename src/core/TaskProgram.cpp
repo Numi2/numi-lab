@@ -4070,6 +4070,12 @@ TaskCompileDiagnostics compileTaskProgram(
         // can identify the exact policy baseline it supplied.
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_AVIAN_CROW_GROUND_GAIT_CARRIER;
+        // Band two is a standing-to-liftoff system-identification problem,
+        // not yet curved flight.  The compiled carrier closes the observed
+        // narrow actuation gap while preserving the policy's later flight
+        // authority and its explicit replay provenance.
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_AVIAN_CROW_LIFTOFF_TRIM_CARRIER;
     }
     if (threatGroup != MR_INVALID_INDEX) {
         staged->header.schedule.w |=

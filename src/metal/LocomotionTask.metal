@@ -3623,12 +3623,40 @@ kernel void mr_locomotion_task_apply_actions(
             (program.schedule.w &
              MR_TASK_PROGRAM_AVIAN_CROW_GROUND_GAIT_CARRIER) != 0u &&
             state.episode.z == 1u;
+        const bool avianCrowLiftoffTrimCarrier = avianActionSet &&
+            (program.schedule.w &
+             MR_TASK_PROGRAM_AVIAN_CROW_LIFTOFF_TRIM_CARRIER) != 0u &&
+            state.episode.z == 2u;
+        // The live action sweep brackets the estimated hybrid's transition:
+        // +0.100 remains ground-bound whereas +0.125 repeatedly reaches the
+        // altitude boundary.  Use the previous accepted root height and
+        // finite-difference vertical rate to trim inside that narrow band.
+        // This is a Metal-resident controller of the actual wing positions,
+        // never an injected aerodynamic force or a prerecorded trajectory.
+        float avianLiftoffWingCarrier = 0.0f;
+        if (avianCrowLiftoffTrimCarrier &&
+            binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION) {
+            const float heightError = 0.85f - state.airReturnTracking.y;
+            const float verticalRate = state.commandExtension.w;
+            avianLiftoffWingCarrier = clamp(
+                0.110f + 0.035f * heightError - 0.012f * verticalRate,
+                0.080f,
+                0.150f
+            );
+        }
+        const float avianWingPolicyCommand = avianCrowLiftoffTrimCarrier
+            ? clamp(
+                avianLiftoffWingCarrier + 0.25f * filtered,
+                -1.0f,
+                1.0f
+            )
+            : filtered;
         const float avianWingAmplitude =
             avianGroundCurriculum &&
             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
             ? 0.0f
             : clamp(
-                binding.drive.z + binding.drive.w * filtered,
+                binding.drive.z + binding.drive.w * avianWingPolicyCommand,
                 0.0f,
                 1.0f
             );
@@ -4547,10 +4575,15 @@ kernel void mr_locomotion_task_complete(
             break;
         }
         if (avianGroundCurriculum && avianCurriculumBand == 2u) {
+            const float verticalRate = clamp(
+                (height - state.airReturnTracking.y) / dispatch.timing.x,
+                -6.0f,
+                6.0f
+            );
             state.commandExtension = float4(
                 rootWorldPosition(program, q).xy,
                 0.0f,
-                0.0f
+                verticalRate
             );
             // Learn the vertical transition and a modest forward airspeed
             // before asking the same policy to solve a curved flight path.
