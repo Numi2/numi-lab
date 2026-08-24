@@ -263,6 +263,44 @@ meet the held-out flight gate and its causal benefit was not demonstrated, it
 was reverted; the next test starts from the qualified all-lane residual
 carrier rather than stacking unvalidated restrictions.
 
+## Wing-authority response ladder (rejected feedback variants)
+
+The post-selection system-identification sweep used the restored qualified
+carrier, one environment, 5,000 steps, band 2 only, held-out seed
+`2650443581`, no scheduled resets, and a state trace for every row. The
+bilateral action enters the live flapping-position drives as the existing
+0.25-scaled policy residual; it is not an aerodynamic coefficient or body
+force. All four symmetric rows completed normally with zero failed environment
+steps and zero non-timeout physical-boundary failures.
+
+| Full-horizon bilateral raw residual | Tracking | Mean height (m) | Mean / max tilt (rad) | World-X final (m) |
+| ---: | ---: | ---: | ---: | ---: |
+| +0.25 | 0.49868 | 1.20470 | 0.06128 / 0.11916 | 22.265 |
+| -0.25 | 0.50058 | 0.88857 | 0.06224 / 0.12262 | 24.933 |
+| -0.50 | 0.50174 | 0.72817 | 0.06403 / 0.12393 | 27.691 |
+| -0.75 | 0.50260 | 0.56542 | 0.06679 / 0.12432 | 32.542 |
+
+The monotone direction is real, but it trades root height for small tracking
+movement and never approaches the 0.70 gate. It therefore does not justify
+turning a fixed residual into a flight controller.
+
+Commit `da82269` extended the diagnostic so a pulse can select either physical
+wing separately. That extension changes host qualification actions only; it
+does not alter the solver, robot, or policy action contract. Persistent
+left-only `+0.05` and `+0.25` residuals caused 7 and 12 non-foot-contact
+terminations respectively (maximum tilt 0.736 and 0.945 rad). In contrast,
+a 100-step `+/-0.05` left-wing pulse at step 1,000 completed cleanly, but both
+traces returned to the unregulated trajectory (tracking 0.49954 and 0.49949).
+Thus differential wing authority exists but no persistent, safe heading trim
+has been identified.
+
+The separate wing-sign feedback test kept the tail-speed term and every other
+controller term unchanged. A positive wing speed gain of `+0.10` completed
+the one-environment horizon cleanly but reduced mean root height to 0.37856 m
+with tracking 0.50161. Reducing that gain to `+0.025` still reduced mean
+height to 0.62087 m and reached only 0.50077 tracking. Neither pilot merits a
+population rollout or PPO run, so both variants were reverted.
+
 ## Wingbeat-frequency feedback (rejected)
 
 Frequency is a real flapping-position control direction, so it was tested as
@@ -321,10 +359,11 @@ was therefore reverted. It supplies no replay or README GIF evidence.
 
 ## Required next evidence
 
-The next control experiment must first identify a bounded, long-horizon
-speed-control response around the retained safe feathering carrier. It must
-distinguish commanded-speed regulation from unbounded forward displacement,
-then be tested before another long learner run. Promote only a held-out
+The next control experiment must identify a coordinated physical response that
+materially improves yaw-frame speed tracking while preserving the qualified
+height and attitude envelope. Single symmetric residuals trade height for
+forward displacement; persistent unilateral residuals contact; and the tested
+wing-only feedback signs do not regulate speed. Promote only a held-out
 candidate that reaches tracking >= 0.70 with zero non-timeout
 physical-boundary failures. Then capture a deterministic replay and inspect
 its frames before linking it from the compact README showcase. Until then, no
