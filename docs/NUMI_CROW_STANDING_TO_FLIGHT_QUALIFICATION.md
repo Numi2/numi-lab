@@ -707,6 +707,14 @@ hashes remain in the run root. This is a negative result about the estimated
 hybrid and residual-control objective, not flight evidence: no candidate earns
 a deterministic replay, GIF, picture, or README showcase entry.
 
+The removal was independently checked on the Apple M4 Pro at source revision
+`2eea031` using a fresh 64-environment, 5,000-step, band-2, no-reset,
+zero-output rollout at seed `2650443581`. All 64 environments reached normal
+timeout with zero failed environment steps. It restored the original incumbent
+to the shown precision: tracking `0.500856`, mean root height `1.046220` m,
+mean tilt `0.062081` rad, and maximum tilt `0.122280` rad. The reversion is
+therefore a physical restoration check, not a new flight qualification.
+
 ## Required next evidence
 
 The next research stage is provenance and model identification, not another
