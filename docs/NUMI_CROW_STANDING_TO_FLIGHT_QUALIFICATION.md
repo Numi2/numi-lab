@@ -250,6 +250,20 @@ full-horizon forward-flight clock. It does not refute the source experiment or
 establish a calibrated Crow flight model. No deployment, replay, GIF, picture,
 or README media is authorized from this timing variant.
 
+### Restored v1 verification
+
+After the rollback commit, the Apple M4 Pro rebuilt the live package and
+`metalrobo_run_program_check` passed with the restored 4.6 Hz task fingerprint
+`4623727717616635550`. The same zero-action, band-2, no-reset 64 × 5,000-step
+guard and seed `2650443581` reproduced the qualified v1 metrics exactly:
+`0` failed environment steps, `64` normal timeouts, mean / maximum root height
+`1.0409775 / 1.0953953 m`, mean / maximum tilt `0.0635701 / 0.1247985 rad`,
+mean tracking `0.5006364`, and mean / maximum forward progress
+`16.8779269 / 17.9386941 m`. The immutable restored artifact root is
+`.numi/runs/crow-published-takeoff-clock-20260824-v1/restored-v1-zero-64x5000/`.
+This is rollback evidence only; the 4.6 Hz hybrid still does not meet the
+separate held-out PPO selection gate for a flight-policy replay or media.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow
