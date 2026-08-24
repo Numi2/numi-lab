@@ -60,6 +60,12 @@ enum MRTaskProgramFlags : mr_u32 {
     // residual around this device-side baseline; later flight bands retain
     // full policy authority.
     MR_TASK_PROGRAM_AVIAN_CROW_LIFTOFF_TRIM_CARRIER = 1u << 14u,
+    // Carrier-supported walking has a leg-only learned residual. The folded
+    // wing sweep, pronation, and tail coordinates remain at their mechanism
+    // defaults until the dedicated lift-off band enables their live flight
+    // controller. Keep the authority boundary in the compiled task contract
+    // so policy packs cannot silently change what their band-one actions do.
+    MR_TASK_PROGRAM_AVIAN_CROW_GROUND_LEG_RESIDUAL = 1u << 15u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {

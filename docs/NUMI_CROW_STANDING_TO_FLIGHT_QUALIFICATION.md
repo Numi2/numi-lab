@@ -535,6 +535,57 @@ README media was created. The run's SHA-256 checksums are `95f6ce…60d0a` for
 `704e53…99d14` for `artifacts.sha256`; the complete values are in the retained
 remote artifact root.
 
+## Ground-leg residual contract and reissued curriculum (pre-registered)
+
+The rejected Stage-1 candidate reveals one implementation-level confound that
+is separate from Crow biological data: in band 1, the Metal task explicitly
+folds both flap actions, but its generic residual route still exposed the
+shoulder-sweep, distal-pronation, and tail position drives alongside the six
+leg drives. The candidate improved its walking tracking while exceeding the
+tilt gate. That does not prove a particular joint caused the tilt, but it
+makes non-leg residual authority an unnecessary and falsifiable explanation
+to remove before another learner run.
+
+The reissued compiled task adds
+`MR_TASK_PROGRAM_AVIAN_CROW_GROUND_LEG_RESIDUAL`. In carrier-supported band 1,
+only action indices 7--12 (bilateral hip, knee, and ankle position drives)
+retain the existing `0.25` learned residual around the existing live gait
+carrier. Flaps remain folded and sweep, pronation, and tail position targets
+remain at their mechanism defaults. Band 0 retains its passive support
+behavior; band 2 and later retain the existing live altitude, speed, tail,
+and pronation trim controller plus their bounded residuals. This is an action-
+authority and task-fingerprint change only: it does not modify morphology,
+mass/inertia, solver, aerodynamic coefficients, reward weights, termination
+bounds, 4.6 Hz clock, or policy architecture.
+
+Before learning, one remote-M4 actuation-isolation test is authorized. It uses
+the revised compiled task at band 1, 64 environments, 5,000 no-reset steps,
+and seed `2650443582`; it compares zero actions with an otherwise identical
+float32 action stream that drives only the now-masked sweep, pronation, and
+tail lanes. The program check must pass, both rollouts must have zero failed
+environment steps and zero non-timeout physical failures, and their
+environment-0 physical state traces must be byte-identical. Any difference
+rejects this reissue and starts no learner.
+
+Only after that isolation gate passes, one fresh zero-actor Stage-1 learner
+run is authorized: 128 environments × 128 steps × 512 updates (`8,388,608`
+samples), chunk 8, fixed learning rate `1e-4`, initial log standard deviation
+`-3`, learner seed `2650443582`, checkpoint interval 128, and source-pinned
+runtime artifacts. Its selector uses the same 64-environment, 5,000-step,
+no-reset held-out band 1 plus protected band 0 and the same seed. It may
+advance only with zero failed environment steps, zero non-timeout physical
+failures, a positive current-band comparison, no protected-band regression,
+and mean tilt no more than `0.005` rad above the matched incumbent.
+
+At most one Stage 2 is conditional on a selected Stage-1 deployment. It
+transfers that exact actor with a fresh critic, trains bands 1--2 under the
+same learner configuration and seed, and selects on held-out band 2 while
+protecting band 1. It must also achieve tracking at least `0.70`, have zero
+non-timeout physical failures, positive staged progress, no walking
+regression, and no mean-tilt regression. There is no parameter sweep. Failed
+gates retain artifacts but prohibit further learner runs, policy replay, GIF,
+picture, or README media under this reissued protocol.
+
 ## Articulated-pronation response
 
 The remote Apple M4 Pro response sweep used the real compiled 12-action crow

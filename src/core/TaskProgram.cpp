@@ -4070,6 +4070,14 @@ TaskCompileDiagnostics compileTaskProgram(
         // can identify the exact policy baseline it supplied.
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_AVIAN_CROW_GROUND_GAIT_CARRIER;
+        // The walking band is a legged support task. Its wing flaps are
+        // folded by the avian ground curriculum, so leaving sweep,
+        // pronation, or tail residuals enabled would let a walking policy
+        // perturb unrelated airborne coordinates. Encode the leg-only
+        // residual authority in the task fingerprint; band two and later
+        // retain the full standing-to-flight action set.
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_AVIAN_CROW_GROUND_LEG_RESIDUAL;
         // Band two is a standing-to-liftoff system-identification problem,
         // not yet curved flight.  The compiled carrier closes the observed
         // narrow actuation gap while preserving the policy's later flight

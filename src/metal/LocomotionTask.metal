@@ -3623,6 +3623,20 @@ kernel void mr_locomotion_task_apply_actions(
             (program.schedule.w &
              MR_TASK_PROGRAM_AVIAN_CROW_GROUND_GAIT_CARRIER) != 0u &&
             state.episode.z == 1u;
+        const bool avianCrowGroundLegResidual =
+            avianCrowGroundGaitCarrier &&
+            (program.schedule.w &
+             MR_TASK_PROGRAM_AVIAN_CROW_GROUND_LEG_RESIDUAL) != 0u;
+        // Crow action indices 7...12 are the bilateral hip, knee, and ankle
+        // position drives. In the carrier-supported walking band, every
+        // wing and tail position action must remain at its mechanism default:
+        // flapping is already folded by the ground curriculum, and allowing
+        // its sweep/pronation/tail siblings to learn residuals couples a leg
+        // task to irrelevant airborne attitude authority.
+        const bool avianCrowGroundLegAction =
+            avianCrowGroundLegResidual &&
+            binding.actuator.x == MR_TASK_ACTUATOR_JOINT_POSITION &&
+            binding.indices.x >= 7u && binding.indices.x <= 12u;
         const bool avianCrowLiftoffTrimCarrier = avianActionSet &&
             (program.schedule.w &
              MR_TASK_PROGRAM_AVIAN_CROW_LIFTOFF_TRIM_CARRIER) != 0u &&
@@ -3712,6 +3726,10 @@ kernel void mr_locomotion_task_apply_actions(
         // measured speed/altitude loop before a flight skill exists.
         const float avianGroundResidualScale =
             avianCrowGroundGaitCarrier ? 0.25f : 1.0f;
+        const float avianGroundPolicyResidual =
+            avianCrowGroundLegResidual && !avianCrowGroundLegAction
+            ? 0.0f
+            : filtered * avianGroundResidualScale;
         const float avianLiftoffNonWingResidualScale =
             avianCrowLiftoffTrimCarrier ? 0.25f : 1.0f;
         const float avianLiftoffTailResidualScale =
@@ -3757,7 +3775,7 @@ kernel void mr_locomotion_task_apply_actions(
                 -1.0f,
                 1.0f
             )
-            : filtered * avianGroundResidualScale *
+            : avianGroundPolicyResidual *
                     avianLiftoffNonWingResidualScale +
                 avianGroundGaitCarrier;
         const float studentTarget =

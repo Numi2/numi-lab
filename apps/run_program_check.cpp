@@ -419,6 +419,8 @@ int main() {
                     MR_TASK_ACTUATOR_JOINT_POSITION &&
                 compiledCrow.task().actionBindings()[5u].actuator.x ==
                     MR_TASK_ACTUATOR_JOINT_POSITION &&
+                (compiledCrow.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_GROUND_LEG_RESIDUAL) != 0u &&
                 compiledCrow.flappingWingProgram()->wings[0u]
                     .pronationQIndex != MR_INVALID_INDEX &&
                 compiledCrow.flappingWingProgram()->wings[1u]
