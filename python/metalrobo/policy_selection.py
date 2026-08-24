@@ -131,14 +131,29 @@ def _task_kind(task_id: str) -> str:
     return normalized
 
 
-def _adult_evaluation_bands(
+def _training_task_kind(training_arguments: Sequence[str]) -> str:
+    """Infer the selected bundled task before its rollout evidence exists."""
+
+    task = _task_kind(_option_value(training_arguments, "--task") or "")
+    if task:
+        return task
+    if "--birdflow-dove" in training_arguments:
+        return "birdflow-figure-eight"
+    if "--birdflow-american-crow" in training_arguments:
+        return "birdflow-standing-to-flight"
+    return task
+
+
+def _curriculum_evaluation_bands(
     training_arguments: Sequence[str],
 ) -> tuple[int | None, int | None]:
-    """Return the current adult rung and its protected predecessor."""
+    """Return the current rung and its protected predecessor."""
 
-    if _task_kind(_option_value(training_arguments, "--task") or "") != (
-        "adult-locomotion"
-    ):
+    if _training_task_kind(training_arguments) not in {
+        "adult-locomotion",
+        "birdflow-figure-eight",
+        "birdflow-standing-to-flight",
+    }:
         return None, None
     maximum_band = _option_value(
         training_arguments, "--maximum-difficulty-band"
@@ -147,6 +162,16 @@ def _adult_evaluation_bands(
         return None, None
     current_band = int(maximum_band)
     return current_band, current_band - 1 if current_band > 0 else None
+
+
+def _adult_evaluation_bands(
+    training_arguments: Sequence[str],
+) -> tuple[int | None, int | None]:
+    """Retain the adult-only helper used by existing callers and tests."""
+
+    if _training_task_kind(training_arguments) != "adult-locomotion":
+        return None, None
+    return _curriculum_evaluation_bands(training_arguments)
 
 
 def evaluation_arguments(
@@ -213,16 +238,21 @@ def evaluation_arguments(
             "0",
         ]
 
-    # Adult training deliberately mixes the previous and current bands so
-    # the learner retains the earlier balance skill. Promotion evidence must
-    # answer a stricter question: did the candidate survive the newest band
-    # itself? Appending the maximum band makes the native evaluator's last
-    # value authoritative without changing the training rollout contract.
-    task = _task_kind(_option_value(training_arguments, "--task") or "")
+    # Staged adult and BirdFlow tasks deliberately mix previous and current
+    # bands during training. Promotion must answer the stricter question: did
+    # the candidate satisfy the newest rung itself, without losing the
+    # preceding physical capability? Appending the maximum band makes the
+    # native evaluator's last value authoritative without changing the
+    # training rollout contract.
+    task = _training_task_kind(training_arguments)
     maximum_band = _option_value(
         training_arguments, "--maximum-difficulty-band"
     )
-    if task == "adult-locomotion" and maximum_band is not None:
+    if task in {
+        "adult-locomotion",
+        "birdflow-figure-eight",
+        "birdflow-standing-to-flight",
+    } and maximum_band is not None:
         selected_minimum_band = (
             str(evaluation_minimum_band)
             if evaluation_minimum_band is not None
@@ -373,6 +403,22 @@ def _outcome_mean(record: dict[str, Any], identifier: str) -> float:
     return 0.0 if outcome is None else outcome[0]
 
 
+def _birdflow_stage_outcomes(task: str, maximum_band: int) -> tuple[str, ...]:
+    """Return the physical outcomes owned by one BirdFlow curriculum rung."""
+
+    terminal_outcomes = (
+        ("figure_eight_tracking", "liftoff")
+        if task == "birdflow-figure-eight"
+        else ("forward_flight_tracking", "liftoff", "push_off")
+    )
+    return {
+        0: ("ground_support",),
+        1: ("ground_support", "walking_contact"),
+        2: ("liftoff", "push_off"),
+        3: terminal_outcomes,
+    }[min(maximum_band, 3)]
+
+
 def _compare_adult_authored_outcomes(
     incumbent: dict[str, Any], candidate: dict[str, Any]
 ) -> tuple[list[str], list[str], dict[str, dict[str, float | int]]]:
@@ -453,18 +499,7 @@ def compare_evidence(
 
     if task in {"birdflow-figure-eight", "birdflow-standing-to-flight"}:
         maximum_band = int(candidate.get("maximum_sampled_difficulty_band", 3))
-        terminal_outcomes = (
-            ("figure_eight_tracking", "liftoff")
-            if task == "birdflow-figure-eight"
-            else ("forward_flight_tracking", "liftoff", "push_off")
-        )
-        stage_outcomes = {
-            0: ("ground_support",),
-            1: ("ground_support", "walking_contact"),
-            2: ("liftoff", "push_off"),
-            3: terminal_outcomes,
-        }[min(maximum_band, 3)]
-        for identifier in stage_outcomes:
+        for identifier in _birdflow_stage_outcomes(task, maximum_band):
             if _outcome_mean(candidate, identifier) > (
                 _outcome_mean(incumbent, identifier) + 1.0e-6
             ):
@@ -876,7 +911,7 @@ def compare_evidence(
     }
 
 
-def compare_adult_bands(
+def compare_staged_bands(
     current_incumbent: dict[str, Any],
     current_candidate: dict[str, Any],
     previous_incumbent: dict[str, Any],
@@ -886,6 +921,23 @@ def compare_adult_bands(
 
     decision = compare_evidence(current_incumbent, current_candidate)
     previous = compare_evidence(previous_incumbent, previous_candidate)
+    previous_task = _task_kind(str(
+        previous_candidate.get("task", previous_incumbent.get("task", ""))
+    ))
+    if previous_task in {
+        "birdflow-figure-eight",
+        "birdflow-standing-to-flight",
+    }:
+        previous_band = int(
+            previous_candidate.get("maximum_sampled_difficulty_band", 0)
+        )
+        for identifier in _birdflow_stage_outcomes(
+            previous_task, previous_band
+        ):
+            if _outcome_mean(previous_candidate, identifier) < (
+                _outcome_mean(previous_incumbent, identifier) - 1.0e-6
+            ):
+                previous["regressions"].append(f"{identifier} decreased")
     decision["previous_band_comparison"] = previous
     if previous["regressions"]:
         decision["regressions"].extend(
@@ -895,6 +947,22 @@ def compare_adult_bands(
         decision["selected"] = "incumbent"
         decision["candidate_advanced_deployment"] = False
     return decision
+
+
+def compare_adult_bands(
+    current_incumbent: dict[str, Any],
+    current_candidate: dict[str, Any],
+    previous_incumbent: dict[str, Any],
+    previous_candidate: dict[str, Any],
+) -> dict[str, Any]:
+    """Backward-compatible name for the shared staged curriculum gate."""
+
+    return compare_staged_bands(
+        current_incumbent,
+        current_candidate,
+        previous_incumbent,
+        previous_candidate,
+    )
 
 
 def _atomic_copy(source: Path, destination: Path) -> None:
@@ -1049,8 +1117,19 @@ def main() -> int:
     if training_arguments[:1] == ["--"]:
         training_arguments = training_arguments[1:]
 
-    adult_current_band, adult_previous_band = _adult_evaluation_bands(
-        training_arguments
+    curriculum_task = _training_task_kind(training_arguments)
+    curriculum_current_band, curriculum_previous_band = (
+        _curriculum_evaluation_bands(
+            training_arguments
+        )
+    )
+    adult_current_band = (
+        curriculum_current_band
+        if curriculum_task == "adult-locomotion" else None
+    )
+    adult_previous_band = (
+        curriculum_previous_band
+        if curriculum_task == "adult-locomotion" else None
     )
 
     options.evidence_directory.mkdir(parents=True, exist_ok=True)
@@ -1097,7 +1176,7 @@ def main() -> int:
                 ),
                 options.evidence_directory / f"{name}.evidence.json",
             )
-            if adult_previous_band is not None:
+            if curriculum_previous_band is not None:
                 previous_band_records[name] = _evaluate(
                     options.evaluator,
                     evaluation_arguments(
@@ -1111,8 +1190,8 @@ def main() -> int:
                         maximum_environments=options.maximum_environments,
                         held_out_seed=options.held_out_seed,
                         evaluation_steps=options.evaluation_steps,
-                        evaluation_minimum_band=adult_previous_band,
-                        evaluation_maximum_band=adult_previous_band,
+                        evaluation_minimum_band=curriculum_previous_band,
+                        evaluation_maximum_band=curriculum_previous_band,
                     ),
                     options.evidence_directory
                     / f"{name}.previous-band.evidence.json",
@@ -1133,10 +1212,10 @@ def main() -> int:
         return 1
     candidate_names = [name for name in policies if name != "incumbent"]
     comparison_overrides: dict[str, dict[str, Any]] | None = None
-    if adult_previous_band is not None:
+    if curriculum_previous_band is not None:
         comparison_overrides = {}
         for name in candidate_names:
-            comparison_overrides[name] = compare_adult_bands(
+            comparison_overrides[name] = compare_staged_bands(
                 records["incumbent"],
                 records[name],
                 previous_band_records["incumbent"],
@@ -1178,6 +1257,9 @@ def main() -> int:
             "deployment_policy_pack": str(options.deployment),
             "maximum_evaluation_environments": options.maximum_environments,
             "held_out_seed": options.held_out_seed,
+            "curriculum_task": curriculum_task,
+            "curriculum_current_band": curriculum_current_band,
+            "curriculum_previous_band": curriculum_previous_band,
             "adult_current_band": adult_current_band,
             "adult_previous_band": adult_previous_band,
             "evaluated_candidate_policy_packs": [

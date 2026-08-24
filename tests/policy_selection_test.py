@@ -11,7 +11,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "python"))
 
 from metalrobo.policy_selection import (  # noqa: E402
     _adult_evaluation_bands,
+    _curriculum_evaluation_bands,
     _evaluate,
+    compare_staged_bands,
     compare_adult_bands,
     compare_evidence,
     evaluation_arguments,
@@ -755,6 +757,109 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertEqual(arguments[minimum_index + 1], "2")
         self.assertEqual(arguments[maximum_index + 1], "2")
 
+    def test_crow_selection_isolated_to_newest_training_band(self) -> None:
+        arguments = evaluation_arguments(
+            [
+                "--birdflow-american-crow",
+                "--minimum-difficulty-band",
+                "1",
+                "--maximum-difficulty-band",
+                "2",
+                "--envs",
+                "128",
+                "--steps",
+                "64",
+            ],
+            policy_pack=Path("candidate.policypack"),
+            metallib=Path("MetalRobo.metallib"),
+            state_trace=Path("candidate.tsv"),
+            maximum_environments=64,
+            held_out_seed=42,
+        )
+        minimum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--minimum-difficulty-band"
+        )
+        maximum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--maximum-difficulty-band"
+        )
+        self.assertEqual(arguments[minimum_index + 1], "2")
+        self.assertEqual(arguments[maximum_index + 1], "2")
+
+    def test_crow_previous_band_override_is_exact(self) -> None:
+        arguments = evaluation_arguments(
+            [
+                "--birdflow-american-crow",
+                "--minimum-difficulty-band",
+                "1",
+                "--maximum-difficulty-band",
+                "2",
+            ],
+            policy_pack=Path("candidate.policypack"),
+            metallib=Path("MetalRobo.metallib"),
+            state_trace=Path("candidate.tsv"),
+            maximum_environments=64,
+            held_out_seed=42,
+            evaluation_minimum_band=1,
+            evaluation_maximum_band=1,
+        )
+        minimum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--minimum-difficulty-band"
+        )
+        maximum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--maximum-difficulty-band"
+        )
+        self.assertEqual(arguments[minimum_index + 1], "1")
+        self.assertEqual(arguments[maximum_index + 1], "1")
+
+    def test_crow_previous_band_regression_blocks_flight_progress(self) -> None:
+        current_incumbent = {
+            "task": "birdflow_american_crow_standing_to_flight",
+            "maximum_sampled_difficulty_band": 2,
+            "termination_count_by_environment": [0] * 8,
+            "failed_environment_steps": 0,
+            "mean_tracking_score": 0.70,
+            "mean_tilt": 0.10,
+            "outcomes": {
+                "liftoff": {"mean": 0.40, "direction": 1},
+                "push_off": {"mean": 0.10, "direction": 1},
+            },
+        }
+        current_candidate = {
+            **current_incumbent,
+            "mean_tracking_score": 0.75,
+            "outcomes": {
+                "liftoff": {"mean": 0.50, "direction": 1},
+                "push_off": {"mean": 0.20, "direction": 1},
+            },
+        }
+        previous_incumbent = {
+            **current_incumbent,
+            "maximum_sampled_difficulty_band": 1,
+            "mean_tracking_score": 0.60,
+            "outcomes": {
+                "ground_support": {"mean": 0.80, "direction": 1},
+                "walking_contact": {"mean": 0.50, "direction": 1},
+            },
+        }
+        previous_candidate = {
+            **previous_incumbent,
+            "outcomes": {
+                "ground_support": {"mean": 0.60, "direction": 1},
+                "walking_contact": {"mean": 0.40, "direction": 1},
+            },
+        }
+        decision = compare_staged_bands(
+            current_incumbent,
+            current_candidate,
+            previous_incumbent,
+            previous_candidate,
+        )
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertIn(
+            "previous-band: ground_support decreased",
+            decision["regressions"],
+        )
+
     def test_checkpoint_comparisons_are_json_serializable(self) -> None:
         incumbent = {
             "task": "adult-locomotion",
@@ -845,6 +950,18 @@ class PolicySelectionTest(unittest.TestCase):
             ),
             (0, None),
         )
+
+    def test_crow_curriculum_protects_earlier_walking_rung(self) -> None:
+        current, previous = _curriculum_evaluation_bands(
+            [
+                "--birdflow-american-crow",
+                "--minimum-difficulty-band",
+                "1",
+                "--maximum-difficulty-band",
+                "2",
+            ]
+        )
+        self.assertEqual((current, previous), (2, 1))
 
 
 if __name__ == "__main__":
