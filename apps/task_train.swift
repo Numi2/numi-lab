@@ -57,6 +57,7 @@ private struct Options {
     var visualObservationConfig: String?
     var birdFlowDove = false
     var birdFlowAmericanCrow = false
+    var birdFlowAmericanCrowJourney = false
     var inspectionScene: String?
     var inspectionWidth = 640
     var inspectionHeight = 360
@@ -318,6 +319,8 @@ private struct Options {
                 birdFlowDove = true
             case "--birdflow-american-crow":
                 birdFlowAmericanCrow = true
+            case "--birdflow-american-crow-journey":
+                birdFlowAmericanCrowJourney = true
             case "--inspect-scene":
                 inspectionScene = try value()
                 index += 1
@@ -1231,9 +1234,10 @@ private func makeContext(
             options.interactionResetMaximumPhase,
         unitreeG1Task: options.unitreeG1Task
     )
-    if options.birdFlowDove && options.birdFlowAmericanCrow {
+    if [options.birdFlowDove, options.birdFlowAmericanCrow,
+        options.birdFlowAmericanCrowJourney].filter({ $0 }).count > 1 {
         throw MetalRoboTaskRolloutError.invalidShape(
-            "--birdflow-dove and --birdflow-american-crow are mutually exclusive."
+            "BirdFlow bird sources are mutually exclusive."
         )
     }
     if options.birdFlowDove {
@@ -1247,6 +1251,19 @@ private func makeContext(
                 metallibPath: options.metallib
             ),
             "birdflow_deetjen_dove_hybrid"
+        )
+    }
+    if options.birdFlowAmericanCrowJourney {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .birdFlowAmericanCrowJourney,
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor
+                ),
+                metallibPath: options.metallib
+            ),
+            "birdflow_american_crow_journey_showcase_v1"
         )
     }
     if options.birdFlowAmericanCrow {

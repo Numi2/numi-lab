@@ -458,6 +458,54 @@ int main() {
                     .rootToCenterAndArea.w == 0.075f,
             "BirdFlow American-crow CompiledRun lost its standing-to-flight or aerodynamic program"
         );
+
+        metalrobo::RunManifest journey;
+        journey.id = "birdflow_american_crow_journey_compiled_run_check";
+        journey.robot = *crowRobot;
+        journey.scene = metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
+        journey.sensors.id = "birdflow_american_crow_journey_state_sensors";
+        journey.task = metalrobo::makeBirdFlowAmericanCrowJourneyTaskPack(
+            journey.sensors.observation, journey.reality.reset
+        );
+        journey.reality.id = "birdflow_american_crow_journey_reality";
+        journey.teacher.id = "no_teacher";
+        journey.profile.id = "birdflow_american_crow_journey_check_profile";
+        journey.profile.environmentCount = 8u;
+        journey.profile.controlSteps = 64u;
+        journey.profile.physicsSubsteps = 4u;
+        journey.profile.controlTimestepSeconds = 1.0f / 50.0f;
+        metalrobo::CompiledRun compiledJourney;
+        const auto journeyStatus = metalrobo::compileRun(
+            journey, compiledJourney
+        );
+        require(
+            journeyStatus.succeeded(),
+            "BirdFlow American-crow journey CompiledRun failed [" +
+                std::string(metalrobo::runCompileStatusName(
+                    journeyStatus.status)) + "] " + journeyStatus.element +
+                ": " + journeyStatus.message
+        );
+        require(
+            compiledJourney.valid() &&
+                compiledJourney.task().actionBindings().size() == 14u &&
+                compiledJourney.task().layout().actorObservationSize == 82u &&
+                compiledJourney.task().layout().criticObservationSize == 82u &&
+                (compiledJourney.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
+                (compiledJourney.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_GROUND_GAIT_CARRIER) == 0u &&
+                (compiledJourney.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_LIFTOFF_TRIM_CARRIER) == 0u &&
+                std::count_if(
+                    compiledJourney.task().actorOperators().begin(),
+                    compiledJourney.task().actorOperators().end(),
+                    [](const MRTaskObservationOperatorGPU& operation) {
+                        return operation.source.x ==
+                            MR_TASK_OBSERVE_AVIAN_JOURNEY_PHASE;
+                    }
+                ) == 1,
+            "BirdFlow American-crow journey lost its universal-policy contract"
+        );
         std::cout
             << "run_program_check=ok"
             << " run=" << compiled.fingerprint()

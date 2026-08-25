@@ -1010,6 +1010,7 @@ public enum MetalRoboRunSource: Sendable {
     case px4X500
     case birdFlowDove
     case birdFlowAmericanCrow
+    case birdFlowAmericanCrowJourney
     case importedURDF(
         urdf: URL, srdf: URL?, taskPack: URL, actuatorPack: URL,
         sensorPack: URL, realityPack: URL
@@ -1099,6 +1100,8 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
             source = MR_RUN_SOURCE_BIRDFLOW_DOVE.rawValue
         case .birdFlowAmericanCrow:
             source = MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW.rawValue
+        case .birdFlowAmericanCrowJourney:
+            source = MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW_JOURNEY.rawValue
         case let .importedURDF(
             urdf, srdf, taskPack, actuatorPack, sensorPack, realityPack
         ):

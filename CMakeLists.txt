@@ -2219,6 +2219,7 @@ install(PROGRAMS tools/numi DESTINATION bin)
 install(
     PROGRAMS
         numi/commands/codex
+        numi/commands/crow
         numi/commands/train
         numi/commands/evaluate
         numi/commands/foundation
@@ -2247,6 +2248,10 @@ install(
         PATTERN "__pycache__" EXCLUDE
         PATTERN "*.py"
         PATTERN "py.typed"
+)
+install(
+    DIRECTORY assets/crow_journey_window
+    DESTINATION share/numi/assets
 )
 install(DIRECTORY include/ DESTINATION include)
 install(FILES "${METALROBO_METALLIB}" DESTINATION lib/metalrobo)

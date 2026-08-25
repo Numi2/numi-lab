@@ -47,6 +47,7 @@ _FLAG_OPTIONS = frozenset(
     {
         "--birdflow-dove",
         "--birdflow-american-crow",
+        "--birdflow-american-crow-journey",
         "--interaction-reset-only",
         "--materialize-articulated-contact-responses",
         "--no-scheduled-resets",
@@ -113,6 +114,8 @@ def _task_kind(task_id: str) -> str:
         return "birdflow-figure-eight"
     if "birdflow" in normalized and "standing-to-flight" in normalized:
         return "birdflow-standing-to-flight"
+    if "birdflow" in normalized and "crow" in normalized and "journey" in normalized:
+        return "birdflow-crow-journey"
     if "adult" in normalized and "locomotion" in normalized:
         return "adult-locomotion"
     if "developmental" in normalized and "recovery" in normalized:
@@ -142,6 +145,8 @@ def _training_task_kind(training_arguments: Sequence[str]) -> str:
         return "birdflow-figure-eight"
     if "--birdflow-american-crow" in training_arguments:
         return "birdflow-standing-to-flight"
+    if "--birdflow-american-crow-journey" in training_arguments:
+        return "birdflow-crow-journey"
     return task
 
 
@@ -154,6 +159,7 @@ def _curriculum_evaluation_bands(
         "adult-locomotion",
         "birdflow-figure-eight",
         "birdflow-standing-to-flight",
+        "birdflow-crow-journey",
     }:
         return None, None
     maximum_band = _option_value(
@@ -253,6 +259,7 @@ def evaluation_arguments(
         "adult-locomotion",
         "birdflow-figure-eight",
         "birdflow-standing-to-flight",
+        "birdflow-crow-journey",
     } and maximum_band is not None:
         selected_minimum_band = (
             str(evaluation_minimum_band)
@@ -276,7 +283,8 @@ def evaluation_arguments(
     # Scheduled resets are a generic stress instrument, not evidence for a
     # continuous BirdFlow standing-to-flight trajectory.
     if (
-        {"--birdflow-dove", "--birdflow-american-crow"}
+        {"--birdflow-dove", "--birdflow-american-crow",
+         "--birdflow-american-crow-journey"}
         & set(training_arguments)
     ) and "--no-scheduled-resets" not in projected:
         projected.append("--no-scheduled-resets")
@@ -409,7 +417,7 @@ def _birdflow_stage_outcomes(task: str, maximum_band: int) -> tuple[str, ...]:
 
     terminal_outcomes = (
         ("figure_eight_tracking", "liftoff")
-        if task == "birdflow-figure-eight"
+        if task in {"birdflow-figure-eight", "birdflow-crow-journey"}
         else ("forward_flight_tracking", "liftoff", "push_off")
     )
     return {
@@ -498,7 +506,8 @@ def compare_evidence(
     elif candidate_termination < incumbent_termination - 1.0e-12:
         improvements.append("termination rate decreased")
 
-    if task in {"birdflow-figure-eight", "birdflow-standing-to-flight"}:
+    if task in {"birdflow-figure-eight", "birdflow-standing-to-flight",
+                "birdflow-crow-journey"}:
         maximum_band = int(candidate.get("maximum_sampled_difficulty_band", 3))
         for identifier in _birdflow_stage_outcomes(task, maximum_band):
             if _outcome_mean(candidate, identifier) > (
@@ -516,6 +525,7 @@ def compare_evidence(
                 regressions.append("ground station-keeping regressed")
         if (
             maximum_band >= 2
+            and task != "birdflow-crow-journey"
             and float(candidate.get("mean_tracking_score", 0.0))
             < _BIRDFLOW_TRACKING_FLOOR
         ):
@@ -704,7 +714,8 @@ def compare_evidence(
 
     selection_score: float | None = None
     selection_method = "task_physical_comparison"
-    if task in {"birdflow-figure-eight", "birdflow-standing-to-flight"}:
+    if task in {"birdflow-figure-eight", "birdflow-standing-to-flight",
+                "birdflow-crow-journey"}:
         maximum_band = int(candidate.get("maximum_sampled_difficulty_band", 3))
         if maximum_band <= 0:
             weights = {"ground_support": 0.70, "tracking": 0.30}
@@ -716,7 +727,7 @@ def compare_evidence(
             }
         elif maximum_band == 2:
             weights = {"push_off": 0.35, "liftoff": 0.35, "tracking": 0.30}
-        elif task == "birdflow-figure-eight":
+        elif task in {"birdflow-figure-eight", "birdflow-crow-journey"}:
             weights = {
                 "figure_eight_tracking": 0.55,
                 "liftoff": 0.20,
@@ -746,13 +757,16 @@ def compare_evidence(
             and candidate_termination <= incumbent_termination + 1.0e-12
             and (
                 maximum_band < 2
+                or task == "birdflow-crow-journey"
                 or float(candidate.get("mean_tracking_score", 0.0))
                 >= _BIRDFLOW_TRACKING_FLOOR
             )
             and selection_score > 1.0e-12
         )
         selection_method = (
-            "birdflow_staged_embodied_flight"
+            "birdflow_universal_crow_journey_showcase"
+            if task == "birdflow-crow-journey"
+            else "birdflow_staged_embodied_flight"
             if task == "birdflow-figure-eight"
             else "birdflow_staged_embodied_standing_to_flight"
         )
@@ -928,6 +942,7 @@ def compare_staged_bands(
     if previous_task in {
         "birdflow-figure-eight",
         "birdflow-standing-to-flight",
+        "birdflow-crow-journey",
     }:
         previous_band = int(
             previous_candidate.get("maximum_sampled_difficulty_band", 0)

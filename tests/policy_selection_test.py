@@ -811,6 +811,31 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertEqual(arguments[minimum_index + 1], "1")
         self.assertEqual(arguments[maximum_index + 1], "1")
 
+    def test_crow_journey_selection_targets_terminal_journey_band(self) -> None:
+        arguments = evaluation_arguments(
+            [
+                "--birdflow-american-crow-journey",
+                "--minimum-difficulty-band",
+                "0",
+                "--maximum-difficulty-band",
+                "4",
+            ],
+            policy_pack=Path("candidate.policypack"),
+            metallib=Path("MetalRobo.metallib"),
+            state_trace=Path("candidate.tsv"),
+            maximum_environments=8,
+            held_out_seed=42,
+        )
+        self.assertIn("--birdflow-american-crow-journey", arguments)
+        minimum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--minimum-difficulty-band"
+        )
+        maximum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--maximum-difficulty-band"
+        )
+        self.assertEqual(arguments[minimum_index + 1], "4")
+        self.assertEqual(arguments[maximum_index + 1], "4")
+
     def test_crow_previous_band_regression_blocks_flight_progress(self) -> None:
         current_incumbent = {
             "task": "birdflow_american_crow_standing_to_flight",
@@ -1010,6 +1035,18 @@ class PolicySelectionTest(unittest.TestCase):
             ]
         )
         self.assertEqual((current, previous), (2, 1))
+
+    def test_crow_journey_curriculum_protects_prejourney_flight_rung(self) -> None:
+        current, previous = _curriculum_evaluation_bands(
+            [
+                "--birdflow-american-crow-journey",
+                "--minimum-difficulty-band",
+                "0",
+                "--maximum-difficulty-band",
+                "4",
+            ]
+        )
+        self.assertEqual((current, previous), (4, 3))
 
 
 if __name__ == "__main__":

@@ -165,6 +165,7 @@ enum MRRunManifestSourceC {
     MR_RUN_SOURCE_PX4_X500 = 4u,
     MR_RUN_SOURCE_BIRDFLOW_DOVE = 5u,
     MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW = 6u,
+    MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW_JOURNEY = 7u,
 };
 
 // Single native construction boundary for training, evaluation and

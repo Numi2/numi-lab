@@ -1146,6 +1146,12 @@ inline float cleanObservation(
             : 0.0f;
         break;
     }
+    case MR_TASK_OBSERVE_AVIAN_JOURNEY_PHASE:
+        value = (program.schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u
+            ? state.commandExtension.w
+            : 0.0f;
+        break;
     case MR_TASK_OBSERVE_RECOVERY_EVENT:
         switch (operation.source.z) {
         case 0u:
@@ -3628,12 +3634,22 @@ kernel void mr_locomotion_task_apply_actions(
             program.counts0.x >= 9u &&
             actions[0].actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION &&
             actions[1].actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION;
+        const bool avianJourney = avianActionSet &&
+            (program.schedule.w &
+             MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
+            state.episode.z == 4u;
+        const bool avianJourneyGround = avianJourney &&
+            (state.commandExtension.w < 0.40f ||
+             state.commandExtension.w >= 0.80f);
         const bool avianGroundCurriculum = avianActionSet &&
             (program.schedule.w &
              MR_TASK_PROGRAM_AVIAN_GROUND_CURRICULUM) != 0u &&
-            state.episode.z < 2u;
+            (state.episode.z < 2u || avianJourneyGround);
         const bool avianStandingCurriculum = avianGroundCurriculum &&
-            state.episode.z == 0u;
+            (state.episode.z == 0u ||
+             (avianJourney &&
+              (state.commandExtension.w < 0.10f ||
+               state.commandExtension.w >= 0.95f)));
         const bool avianCrowGroundGaitCarrier = avianActionSet &&
             (program.schedule.w &
              MR_TASK_PROGRAM_AVIAN_CROW_GROUND_GAIT_CARRIER) != 0u &&
@@ -4628,13 +4644,22 @@ kernel void mr_locomotion_task_complete(
     const bool avianGroundCurriculum =
         (program.schedule.w & MR_TASK_PROGRAM_AVIAN_GROUND_CURRICULUM) != 0u;
     const uint avianCurriculumBand = state.episode.z;
+    const bool avianJourneyShowcase =
+        (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
+        avianCurriculumBand == 4u;
+    const float avianJourneyPhase = avianJourneyShowcase
+        ? state.commandExtension.w
+        : 0.0f;
     // The first two avian bands are supported standing and walking, not
     // flight.  The 0.1873 m target is the measured mean root height from the
     // held default-pose standing rollout on the imported hybrid; it prevents
     // an airborne height objective from competing with legged locomotion.
     constexpr float avianGroundRootHeightTarget = 0.1873f;
     const bool avianSupportedGroundStage =
-        avianGroundCurriculum && avianCurriculumBand < 2u;
+        avianGroundCurriculum &&
+        (avianCurriculumBand < 2u ||
+         (avianJourneyShowcase &&
+          (avianJourneyPhase < 0.40f || avianJourneyPhase >= 0.80f)));
     const bool avianCrowGroundTiltEnvelope =
         avianGroundCurriculum && avianCurriculumBand == 1u &&
         (program.schedule.w &
@@ -4654,6 +4679,33 @@ kernel void mr_locomotion_task_complete(
         const float takeoffSeconds = operation.auxiliary.x;
         const float episodeSeconds =
             float(state.episode.x + 1u) * dispatch.timing.x;
+        if (avianJourneyShowcase && episodeSeconds < 2.0f) {
+            state.commandExtension = float4(
+                rootWorldPosition(program, q).xy,
+                0.0f,
+                0.0f
+            );
+            state.commandAndPhase.xyz = float3(0.0f);
+            break;
+        }
+        if (avianJourneyShowcase && episodeSeconds < 5.0f) {
+            state.commandExtension.w = 0.20f;
+            state.commandAndPhase.xyz = float3(0.22f, 0.0f, 0.0f);
+            break;
+        }
+        if (avianJourneyShowcase && episodeSeconds < 9.0f) {
+            state.commandExtension.w = 0.40f;
+            state.commandAndPhase.xyz = float3(0.35f, 0.0f, 0.0f);
+            break;
+        }
+        if (avianJourneyShowcase && episodeSeconds >= 21.0f) {
+            const bool landedHold = episodeSeconds >= 27.0f;
+            state.commandExtension.w = landedHold ? 1.0f : 0.80f;
+            state.commandAndPhase.xyz = landedHold
+                ? float3(0.0f)
+                : float3(0.15f, 0.0f, 0.0f);
+            break;
+        }
         if (avianGroundCurriculum && avianCurriculumBand == 0u) {
             state.commandExtension = float4(
                 rootWorldPosition(program, q).xy,
@@ -4730,7 +4782,10 @@ kernel void mr_locomotion_task_complete(
             s * rawAcceleration.x + c * rawAcceleration.y
         );
         state.commandExtension.xy += targetVelocity * dispatch.timing.x;
-        state.commandExtension.zw = float2(theta, 1.0f);
+        state.commandExtension.zw = float2(
+            theta,
+            avianJourneyShowcase ? 0.60f : 1.0f
+        );
         const float2 pathError =
             state.commandExtension.xy - rootWorldPosition(program, q).xy;
         const float2 correctedVelocity =

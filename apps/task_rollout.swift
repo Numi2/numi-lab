@@ -217,6 +217,7 @@ private struct Options {
     var capturePolicyCamera = false
     var birdFlowDove = false
     var birdFlowAmericanCrow = false
+    var birdFlowAmericanCrowJourney = false
 
     init(arguments: [String]) throws {
         var index = 1
@@ -489,6 +490,8 @@ private struct Options {
                 birdFlowDove = true
             case "--birdflow-american-crow":
                 birdFlowAmericanCrow = true
+            case "--birdflow-american-crow-journey":
+                birdFlowAmericanCrowJourney = true
             case "--birdflow-flap-script":
                 birdFlowFlapScript = true
             case "--birdflow-stroke-amplitude":
@@ -651,9 +654,10 @@ private struct Options {
                 "--action-stream cannot be combined with another action source."
             )
         }
-        if birdFlowDove && birdFlowAmericanCrow {
+        if [birdFlowDove, birdFlowAmericanCrow,
+            birdFlowAmericanCrowJourney].filter({ $0 }).count > 1 {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "--birdflow-dove and --birdflow-american-crow are mutually exclusive."
+                "BirdFlow bird sources are mutually exclusive."
             )
         }
         let hasBirdFlowWingPulse =
@@ -694,7 +698,8 @@ private struct Options {
             birdFlowSweepWavePhase != nil ||
             hasBirdFlowWingPulse ||
             birdFlowGroundGaitProbe) &&
-            (!(birdFlowDove || birdFlowAmericanCrow) ||
+            (!(birdFlowDove || birdFlowAmericanCrow ||
+               birdFlowAmericanCrowJourney) ||
                 zeroActions || actionStream != nil ||
                 nativePolicy || policyPack != nil)
         {
@@ -741,23 +746,25 @@ private struct Options {
                 "--birdflow-sweep-wave-phase requires --birdflow-stroke-amplitude."
             )
         }
-        if birdFlowPronation != nil && !birdFlowAmericanCrow {
+        let birdFlowCrow = birdFlowAmericanCrow ||
+            birdFlowAmericanCrowJourney
+        if birdFlowPronation != nil && !birdFlowCrow {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--birdflow-pronation is available only for --birdflow-american-crow."
             )
         }
-        if birdFlowPronationWavePhase != nil && !birdFlowAmericanCrow {
+        if birdFlowPronationWavePhase != nil && !birdFlowCrow {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--birdflow-pronation-wave-phase is available only for --birdflow-american-crow."
             )
         }
         if (birdFlowSweepWaveAmplitude != nil ||
-            birdFlowSweepWavePhase != nil) && !birdFlowAmericanCrow {
+            birdFlowSweepWavePhase != nil) && !birdFlowCrow {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "BirdFlow sweep wave is available only for --birdflow-american-crow."
             )
         }
-        if hasBirdFlowWingPulse && !birdFlowAmericanCrow {
+        if hasBirdFlowWingPulse && !birdFlowCrow {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "BirdFlow wing pulse is available only for --birdflow-american-crow."
             )
@@ -1117,6 +1124,20 @@ private func makeContext(
                 metallibPath: options.metallib
             ),
             "birdflow_deetjen_dove_hybrid"
+        )
+    }
+    if options.birdFlowAmericanCrowJourney {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .birdFlowAmericanCrowJourney,
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual
+                ),
+                metallibPath: options.metallib
+            ),
+            "birdflow_american_crow_journey_showcase_v1"
         )
     }
     if options.birdFlowAmericanCrow {

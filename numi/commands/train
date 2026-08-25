@@ -25,6 +25,7 @@ provided. Every native trainer option passes through unchanged. Common options:
   --urdf PATH [--srdf PATH] --task-pack PATH
   --birdflow-dove                         Train the load-responsive hybrid dove
   --birdflow-american-crow                Train the estimated standing-to-flight crow hybrid
+  --birdflow-american-crow-journey        Train the universal crow journey showcase policy
   --interaction-reset-phase-probability F  Fraction of noncanonical resets
   --interaction-reset-maximum-phase F      Latest normalized clip reset phase
   --visual-observation-config PATH       Authored camera and visual bindings

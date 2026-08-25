@@ -2212,6 +2212,46 @@ TaskPack makeBirdFlowAmericanCrowFlightTaskPack(
     return task;
 }
 
+TaskPack makeBirdFlowAmericanCrowJourneyTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    TaskPack task = makeBirdFlowAmericanCrowFlightTaskPack(
+        observations, reset
+    );
+    task.id = "birdflow_american_crow_journey_showcase_v1";
+
+    // The showcase policy is one fresh universal actor, not a residual around
+    // the research task's ground carrier. Replace that carrier-only clock with
+    // the normalized phase of the native stand-to-landing sequencer.
+    observations.actorFrame.erase(
+        std::remove_if(
+            observations.actorFrame.begin(),
+            observations.actorFrame.end(),
+            [](const TaskObservationOperatorSpec& operation) {
+                return operation.source ==
+                    TaskObservationSource::crowGroundCarrierPhase;
+            }
+        ),
+        observations.actorFrame.end()
+    );
+    observations.actorFrame.push_back({
+        .source = TaskObservationSource::avianJourneyPhase,
+    });
+    observations.critic = observations.actorFrame;
+
+    // Bands 0...3 retain the independently sampleable stand, walk, takeoff,
+    // and flight regions. Band 4 executes their continuous visible journey
+    // and finishes with an approach and supported landing hold.
+    task.difficultyBandCount = 5u;
+    task.maximumEpisodeSteps = 1'600u;
+    task.commands.difficultySamplingExponent = 1.75f;
+    task.commands.minimumDurationSeconds = 32.0f;
+    task.commands.maximumDurationSeconds = 32.0f;
+    task.successTrackingThreshold = 0.0f;
+    return task;
+}
+
 std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
     if (id == "birdflow_deetjen_dove_hybrid") {
         // The Deetjen public surface sequence does not include the complete

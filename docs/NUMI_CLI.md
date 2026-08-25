@@ -43,10 +43,19 @@ standing-to-flight hybrid through the same native Metal and MLX runtime:
 ```sh
 numi crow train --envs 256 --steps 128 --updates 8 --chunk 8
 numi crow evaluate --policy-pack .numi/runs/crow/deployment.policypack
+numi crow journey train --envs 256 --steps 128 --updates 8 --chunk 8
+numi crow journey evaluate --policy-pack .numi/runs/crow-journey/deployment.policypack
+numi crow journey window --policy-pack .numi/runs/crow-journey/deployment.policypack
+numi crow journey capture --policy-pack .numi/runs/crow-journey/deployment.policypack
 ```
 
 These are simulated-hybrid runs. They are not evidence of measured American-
 crow aerodynamics or hardware flight.
+
+The `journey` variant has a separate task fingerprint and one actor for the
+continuous stand, walk/hop, launch, cruise/turn, approach, and supported
+landing sequence. Window and capture require an explicit evaluated PolicyPack;
+they will not silently render the zero actor as a successful showcase.
 
 `numi window` is the workspace's one-command live renderer. It builds an
 isolated presentation runtime, finds the saved authored scene, and opens an

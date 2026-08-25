@@ -21,6 +21,7 @@ is selected. Common options:
   --urdf PATH [--srdf PATH] --task-pack PATH
   --birdflow-dove                         Evaluate the load-responsive hybrid dove
   --birdflow-american-crow                Evaluate the estimated crow hybrid
+  --birdflow-american-crow-journey        Evaluate the universal crow journey showcase
   --visual-observation-config PATH
   --native-policy | --zero-actions | --action-stream actions.f32
   --birdflow-stroke-amplitude F [--birdflow-tail-pitch F]

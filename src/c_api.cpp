@@ -3001,6 +3001,7 @@ static MRTaskRolloutHandle* createPX4X500Run(
 
 static MRTaskRolloutHandle* createBirdFlowDoveRun(
     const MRTaskRolloutConfigC* config,
+    const MRTaskVisualObservationConfigC* visual_sensor,
     const char* metallib_path
 ) {
     if (config == nullptr) {
@@ -3027,7 +3028,7 @@ static MRTaskRolloutHandle* createBirdFlowDoveRun(
         manifest.profile.capacities = manifest.task.capacities;
         auto handle = createCompiledRunTaskRollout(
             std::move(manifest), metallib_path,
-            "BirdFlow Deetjen dove hybrid", nullptr);
+            "BirdFlow Deetjen dove hybrid", visual_sensor);
         result = handle.release();
     });
     return status == 0 ? result : nullptr;
@@ -3035,7 +3036,9 @@ static MRTaskRolloutHandle* createBirdFlowDoveRun(
 
 static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
     const MRTaskRolloutConfigC* config,
-    const char* metallib_path
+    const MRTaskVisualObservationConfigC* visual_sensor,
+    const char* metallib_path,
+    const bool journey
 ) {
     if (config == nullptr) {
         gLastError = "BirdFlow American-crow rollout configuration is required.";
@@ -3053,14 +3056,21 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             );
         }
         metalrobo::RunManifest manifest;
-        manifest.id = "birdflow_american_crow_estimated_hybrid_run";
+        manifest.id = journey
+            ? "birdflow_american_crow_journey_showcase_run"
+            : "birdflow_american_crow_estimated_hybrid_run";
         manifest.robot = std::move(*robot);
         manifest.scene = metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
-        manifest.sensors.id =
-            "birdflow_american_crow_estimated_hybrid_state_sensors";
-        manifest.task = metalrobo::makeBirdFlowAmericanCrowFlightTaskPack(
-            manifest.sensors.observation, manifest.reality.reset
-        );
+        manifest.sensors.id = journey
+            ? "birdflow_american_crow_journey_state_sensors"
+            : "birdflow_american_crow_estimated_hybrid_state_sensors";
+        manifest.task = journey
+            ? metalrobo::makeBirdFlowAmericanCrowJourneyTaskPack(
+                  manifest.sensors.observation, manifest.reality.reset
+              )
+            : metalrobo::makeBirdFlowAmericanCrowFlightTaskPack(
+                  manifest.sensors.observation, manifest.reality.reset
+              );
         manifest.reality.id =
             "birdflow_american_crow_estimated_hybrid_nominal_reality";
         manifest.teacher.id = "no_teacher";
@@ -3068,7 +3078,7 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
         manifest.profile.capacities = manifest.task.capacities;
         auto handle = createCompiledRunTaskRollout(
             std::move(manifest), metallib_path,
-            "BirdFlow American-crow estimated hybrid", nullptr
+            "BirdFlow American-crow estimated hybrid", visual_sensor
         );
         result = handle.release();
     });
@@ -3556,13 +3566,24 @@ MRTaskRolloutHandle* mr_create_task_rollout(
     case MR_RUN_SOURCE_BIRDFLOW_DOVE:
         result = createBirdFlowDoveRun(
             &manifest->profile,
+            manifest->visual_sensor_program,
             manifest->metallib_path
         );
         break;
     case MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW:
         result = createBirdFlowAmericanCrowRun(
             &manifest->profile,
-            manifest->metallib_path
+            manifest->visual_sensor_program,
+            manifest->metallib_path,
+            false
+        );
+        break;
+    case MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW_JOURNEY:
+        result = createBirdFlowAmericanCrowRun(
+            &manifest->profile,
+            manifest->visual_sensor_program,
+            manifest->metallib_path,
+            true
         );
         break;
     default:

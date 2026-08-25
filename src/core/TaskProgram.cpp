@@ -719,6 +719,7 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::maskedDepth:
             case TaskObservationSource::cyclicPhase:
             case TaskObservationSource::crowGroundCarrierPhase:
+            case TaskObservationSource::avianJourneyPhase:
                 return true;
             default:
                 return false;
@@ -2201,6 +2202,7 @@ TaskCompileDiagnostics compileTaskProgram(
                 componentLimit = 12u;
                 break;
             case TaskObservationSource::rootHeight:
+            case TaskObservationSource::avianJourneyPhase:
                 break;
             case TaskObservationSource::supportSense:
                 componentLimit = 3u;
@@ -4058,7 +4060,8 @@ TaskCompileDiagnostics compileTaskProgram(
         staged->header.schedule.w |= MR_TASK_PROGRAM_CLOCK_STRESS;
     }
     if (pack.id == "birdflow_deetjen_dove_takeoff_flight_figure_eight" ||
-        pack.id == "birdflow_american_crow_standing_to_flight") {
+        pack.id == "birdflow_american_crow_standing_to_flight" ||
+        pack.id == "birdflow_american_crow_journey_showcase_v1") {
         // Stage zero and stage one are grounded support tasks. Wing actuation
         // begins only in the lift-off band, keeping the curriculum physically
         // possible before flight practice.
@@ -4098,6 +4101,9 @@ TaskCompileDiagnostics compileTaskProgram(
         // authority and its explicit replay provenance.
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_AVIAN_CROW_LIFTOFF_TRIM_CARRIER;
+    }
+    if (pack.id == "birdflow_american_crow_journey_showcase_v1") {
+        staged->header.schedule.w |= MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY;
     }
     if (threatGroup != MR_INVALID_INDEX) {
         staged->header.schedule.w |=

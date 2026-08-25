@@ -3,7 +3,7 @@
 set -eu
 
 if [ "${1:-}" = "--numi-describe" ]; then
-    printf '%s\n' 'Train or evaluate the estimated BirdFlow American-crow standing-to-flight hybrid.'
+    printf '%s\n' 'Train, evaluate, view, or capture the estimated BirdFlow American-crow hybrids.'
     exit 0
 fi
 
@@ -13,9 +13,14 @@ crow_dispatcher=$crow_root/tools/numi
 crow_usage() {
     cat <<'EOF'
 Usage: numi crow train|evaluate [native Numi arguments...]
+       numi crow journey train|evaluate|window|capture [arguments...]
 
   train      Train the estimated American-crow hybrid through native Metal and MLX.
   evaluate   Evaluate a crow policy or an explicitly selected action source.
+
+The journey variant uses one command-conditioned actor for stand, walk/hop,
+takeoff, cruise/turn, approach, and supported landing. It has a separate task
+and PolicyPack fingerprint from the science-gated standing-to-flight task.
 
 The package is an estimated hybrid. Results are simulated physical evidence,
 not measured American-crow flight or hardware-flight evidence.
@@ -36,6 +41,39 @@ crow_die() {
     exit 2
 }
 
+crow_build_rollout() {
+    crow_build=${NUMI_CROW_BUILD_DIR:-"$crow_root/build-numi-crow-journey"}
+    cmake -S "$crow_root" -B "$crow_build" -G Ninja \
+        -DCMAKE_BUILD_TYPE="${NUMI_CROW_BUILD_TYPE:-Release}"
+    cmake --build "$crow_build" --target metalrobo_task_rollout -j 4
+    crow_rollout=$crow_build/bin/metalrobo_task_rollout
+    crow_metallib=$crow_build/shaders/MetalRobo.metallib
+    [ -x "$crow_rollout" ] && [ -f "$crow_metallib" ] || \
+        crow_die 'native journey inspector build is incomplete'
+}
+
+crow_require_policy() {
+    crow_has_option --policy-pack "$@" || \
+        crow_die 'journey window/capture requires an evaluated --policy-pack'
+}
+
+crow_scene_path() {
+    for crow_candidate in \
+        "$crow_root/assets/crow_journey_window/crow-journey.visual-observation.json" \
+        "$crow_root/share/numi/assets/crow_journey_window/crow-journey.visual-observation.json"; do
+        if [ -f "$crow_candidate" ]; then
+            printf '%s\n' "$crow_candidate"
+            return 0
+        fi
+    done
+    crow_die 'authored crow journey visual scene is unavailable'
+}
+
+crow_variant=qualification
+if [ "${1:-}" = "journey" ]; then
+    crow_variant=journey
+    shift
+fi
 crow_action=${1:-help}
 if [ "$#" -gt 0 ]; then
     shift
@@ -43,6 +81,20 @@ fi
 
 case "$crow_action" in
     train)
+        if [ "$crow_variant" = journey ]; then
+            if crow_has_option --base-policy-pack "$@"; then
+                crow_die 'journey training does not accept a residual base policy'
+            fi
+            if crow_has_option --policy-pack "$@"; then
+                exec "$crow_dispatcher" train \
+                    --birdflow-american-crow-journey "$@"
+            fi
+            exec "$crow_dispatcher" train \
+                --birdflow-american-crow-journey \
+                --initialize-policy birdflow_american_crow_journey_brain \
+                --zero-actor-output \
+                "$@"
+        fi
         if crow_has_option --policy-pack "$@"; then
             exec "$crow_dispatcher" train --birdflow-american-crow "$@"
         fi
@@ -84,7 +136,60 @@ case "$crow_action" in
             "$@"
         ;;
     evaluate)
+        if [ "$crow_variant" = journey ]; then
+            exec "$crow_dispatcher" evaluate \
+                --birdflow-american-crow-journey "$@"
+        fi
         exec "$crow_dispatcher" evaluate --birdflow-american-crow "$@"
+        ;;
+    window)
+        [ "$crow_variant" = journey ] || crow_die 'window is a journey command'
+        crow_require_policy "$@"
+        crow_build_rollout
+        crow_scene=$(crow_scene_path)
+        exec "$crow_rollout" \
+            --metallib "$crow_metallib" \
+            --birdflow-american-crow-journey \
+            --inspect-scene "$crow_scene" \
+            --inspect-width "${NUMI_CROW_WINDOW_WIDTH:-1280}" \
+            --inspect-height "${NUMI_CROW_WINDOW_HEIGHT:-720}" \
+            --envs 1 --steps 1000000 --repeats 1 --chunk 1 \
+            --minimum-difficulty-band 4 --maximum-difficulty-band 4 \
+            --no-scheduled-resets "$@"
+        ;;
+    capture)
+        [ "$crow_variant" = journey ] || crow_die 'capture is a journey command'
+        crow_require_policy "$@"
+        crow_build_rollout
+        crow_scene=$(crow_scene_path)
+        crow_workspace=${NUMI_WORKSPACE_ROOT:-$PWD}
+        mkdir -p "$crow_workspace/.numi/runs"
+        crow_run=$(mktemp -d "$crow_workspace/.numi/runs/crow-journey-capture.XXXXXX")
+        crow_frames=$crow_run/frames
+        mkdir -p "$crow_frames"
+        "$crow_rollout" \
+            --metallib "$crow_metallib" \
+            --birdflow-american-crow-journey \
+            --visual-observation-config "$crow_scene" \
+            --capture-dir "$crow_frames" \
+            --capture-width "${NUMI_CROW_CAPTURE_WIDTH:-1920}" \
+            --capture-height "${NUMI_CROW_CAPTURE_HEIGHT:-1080}" \
+            --capture-stride 1 --capture-policy-camera \
+            --state-trace "$crow_run/state.tsv" \
+            --envs 1 --steps 1600 --repeats 1 --chunk 1 \
+            --minimum-difficulty-band 4 --maximum-difficulty-band 4 \
+            --no-scheduled-resets "$@" > "$crow_run/evidence.json"
+        if command -v ffmpeg >/dev/null 2>&1; then
+            ffmpeg -hide_banner -loglevel error -y -framerate 50 \
+                -i "$crow_frames/frame-%06d.ppm" -c:v libx264 \
+                -pix_fmt yuv420p -crf 18 "$crow_run/crow-journey.mp4"
+            ffmpeg -hide_banner -loglevel error -y -i "$crow_run/crow-journey.mp4" \
+                -vf 'fps=15,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse' \
+                "$crow_run/crow-journey.gif"
+        else
+            printf '%s\n' 'numi crow: ffmpeg unavailable; deterministic PPM frames were retained.' >&2
+        fi
+        printf '%s\n' "$crow_run"
         ;;
     help|--help|-h)
         crow_usage

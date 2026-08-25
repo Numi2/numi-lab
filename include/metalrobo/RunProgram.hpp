@@ -314,6 +314,10 @@ private:
     TaskObservationProgram& observations,
     TaskResetProgram& reset
 );
+[[nodiscard]] TaskPack makeBirdFlowAmericanCrowJourneyTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
 [[nodiscard]] const char* runCompileStatusName(
     RunCompileStatus status
 ) noexcept;

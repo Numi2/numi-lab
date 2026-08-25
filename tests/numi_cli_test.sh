@@ -181,6 +181,22 @@ grep -- \
     '--zero-actor-output cannot be combined with --initialize-actor-policy-pack' \
     "$numi_temp/crow-invalid-transfer.log" >/dev/null
 
+crow_journey_evaluate_run=$numi_temp/runs/crow-journey-evaluate
+crow_journey_output=$(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$crow_journey_evaluate_run \
+        "$numi_repo/tools/numi" crow journey evaluate --zero-actions
+)
+[ "$crow_journey_output" = "fake-evaluate" ]
+grep -- '--birdflow-american-crow-journey' \
+    "$crow_journey_evaluate_run/arguments.txt" >/dev/null
+
+if "$numi_repo/tools/numi" crow journey window > /dev/null 2>&1; then
+    printf '%s\n' 'crow journey window accepted a missing policy' >&2
+    exit 1
+fi
+
 numi_evaluate_run=$numi_temp/runs/evaluate
 numi_evaluate_output=$(
     cd "$numi_repo"

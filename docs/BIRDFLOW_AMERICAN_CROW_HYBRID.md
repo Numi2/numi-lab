@@ -59,3 +59,32 @@ progress, and at least the authored 0.70 forward-tracking score before the
 protected deployment artifact can advance. A launch, a local lift-off metric,
 a positive reward, a PNG, or a GIF does not establish controlled flight;
 none establishes measured American-crow flight.
+
+## Universal journey demonstrator
+
+`birdflow_american_crow_journey_showcase_v1` is a separate visual-demonstrator
+task. Its single 14-lane actor observes a native normalized journey phase and
+must execute stand, walk/hop, launch, figure-eight cruise/turn, approach, and a
+supported landing hold over one deterministic 32-second band-4 episode. It
+does not use the standing-to-flight task's carrier or residual policy, and it
+cannot replace that task's protected deployment artifact.
+
+The authored Numi scene binds the BirdFlow surface to the airframe, both wings,
+and tail. Simple thigh, shank, and foot meshes are explicitly estimated
+presentation geometry matching the hybrid collision proxies; they are not
+measured anatomy. The native renderer can drive both a live inspector and
+deterministic 50 fps MP4/GIF export:
+
+```sh
+numi crow journey train --envs 256 --steps 128 --updates 8 --chunk 8 \
+  --minimum-difficulty-band 0 --maximum-difficulty-band 4
+numi crow journey evaluate --policy-pack PATH --envs 8 --steps 1600 \
+  --minimum-difficulty-band 4 --maximum-difficulty-band 4 --no-scheduled-resets
+numi crow journey window --policy-pack PATH
+numi crow journey capture --policy-pack PATH
+```
+
+Window and capture deliberately require an explicit PolicyPack. A movie is
+showcase evidence only after the matched held-out selector accepts the same
+artifact; simulation remains an estimated-hybrid result rather than measured
+American-crow locomotion or flight.

@@ -75,6 +75,11 @@ enum MRTaskProgramFlags : mr_u32 {
     // phase to its policy. This is a policy-observation contract, not a
     // prescribed action or a change to the carrier itself.
     MR_TASK_PROGRAM_AVIAN_CROW_GROUND_CARRIER_PHASE_OBSERVATION = 1u << 18u,
+    // One universal estimated-crow policy owns stand, ground locomotion,
+    // takeoff, flight, approach, and landing. The active phase is authored by
+    // the native task and observed by the actor; no host animation or carrier
+    // supplies actions.
+    MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY = 1u << 19u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {
@@ -192,6 +197,9 @@ enum MRTaskObservationOpcode : mr_u32 {
     // supported-ground task. The task flag guards this source so it cannot
     // silently expose a clock in an unrelated locomotion contract.
     MR_TASK_OBSERVE_CROW_GROUND_CARRIER_PHASE = 33u,
+    // Normalized phase of the device-resident crow journey sequencer:
+    // stand, walk, takeoff, cruise, approach, and landed hold.
+    MR_TASK_OBSERVE_AVIAN_JOURNEY_PHASE = 34u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
