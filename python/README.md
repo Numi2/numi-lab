@@ -187,10 +187,12 @@ without exploration. Re-running without `--initialize-policy` restores model
 and Adam state from the learner sidecar. Difficulty sampling remains native,
 deterministic episode data and is not checkpointed as learner authority.
 
-PolicyPack v3 is the raw-Gaussian behavior boundary. Historical v2 packs remain
-readable by the independent deployment evaluator with their original tanh
-action semantics, but cannot resume PPO because that stochastic distribution
-has no exact v3 migration.
+PolicyPack v5 retains the v3 raw-Gaussian behavior boundary and the v4 exact
+semantic binding. Its version-2 policy contract can authorize multiple exact
+world/task pairs for one robot actor only when observation and action
+fingerprints remain identical. Historical v2-v4 packs remain readable; v2
+packs cannot resume PPO because their tanh stochastic distribution has no
+exact raw-Gaussian migration.
 
 The learner compiles each PPO minibatch as one forward/backward/clip/Adam
 graph. Swift appends native chunks directly into a single preallocated rollout

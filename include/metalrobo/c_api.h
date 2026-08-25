@@ -386,6 +386,11 @@ typedef struct MRPolicyPackC {
     size_t action_scale_count;
     float observation_clip;
     float action_clip;
+    // Optional version-2 per-robot task authorization. The two arrays are
+    // parallel [compatible_task_count] world/task fingerprint pairs.
+    const uint64_t* compatible_world_fingerprints;
+    const uint64_t* compatible_task_fingerprints;
+    size_t compatible_task_count;
 } MRPolicyPackC;
 
 typedef struct MRPolicyRolloutBatchC {

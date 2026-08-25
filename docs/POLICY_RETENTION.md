@@ -46,12 +46,14 @@ averaging or concatenating weights. The consolidated robot policy must define
 one stable superset observation contract, one action contract, and explicit
 task conditioning.
 
-Until the multitask artifact format and executor exist, promoted specialists
-remain frozen teachers. Consolidation must train a shared student from fresh,
-deterministic teacher queries using explicit embodiment and task conditioning.
-Schema-specific input and output adapters may surround one shared learned
-trunk, but they are part of the same fingerprinted artifact and may not select
-independent hidden policies.
+PolicyPack v5 supplies the multitask artifact boundary: one actor can authorize
+an explicit set of exact world/task pairs when they share observation and
+action semantics. It does not manufacture a multitask actor or prove that one
+is physically competent. Promoted specialists therefore remain frozen teachers
+until consolidation trains a shared student from fresh, deterministic teacher
+queries using explicit task conditioning. Schema-specific input and output
+adapters may surround one shared learned trunk, but they are part of the same
+fingerprinted artifact and may not select independent hidden policies.
 
 Each robot's single student replaces that robot's teachers only when matched
 held-out evaluation demonstrates, for every retained capability:

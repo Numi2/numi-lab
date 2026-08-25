@@ -1841,6 +1841,32 @@ metalrobo::PolicyPack policyPackFromC(
         .observationFingerprint = policy.observation_fingerprint,
         .actionFingerprint = policy.action_fingerprint,
     };
+    if (policy.compatible_task_count >
+        metalrobo::kMaximumPolicyTaskBindings) {
+        throw std::invalid_argument(
+            "policy compatible task count exceeds the artifact boundary"
+        );
+    }
+    if (policy.compatible_task_count != 0u &&
+        (policy.compatible_world_fingerprints == nullptr ||
+         policy.compatible_task_fingerprints == nullptr)) {
+        throw std::invalid_argument(
+            "policy compatible task fingerprint pointer is null"
+        );
+    }
+    authored.contract.compatibleTasks.reserve(
+        policy.compatible_task_count
+    );
+    for (std::size_t index = 0u;
+         index < policy.compatible_task_count;
+         ++index) {
+        authored.contract.compatibleTasks.push_back({
+            .worldFingerprint =
+                policy.compatible_world_fingerprints[index],
+            .taskFingerprint =
+                policy.compatible_task_fingerprints[index],
+        });
+    }
     authored.observationMean = copyPolicyFloats(
         policy.observation_mean,
         policy.observation_mean_count,

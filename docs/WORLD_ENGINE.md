@@ -533,11 +533,14 @@ dodge teacher, a trained dodge policy, or sim-to-real transfer.
 `compilePolicyProgram` verifies actor/action dimensions against the compiled
 TaskPack and fingerprints the complete program. Installation is transactional:
 an incompatible or corrupt pack leaves the active policy unchanged.
-Every PolicyPack must carry a complete version-1 binding to the exact world,
-task, observation, and action fingerprints. Neither `compileRun` nor the live
-C/Swift installation boundary auto-binds an unbound pack. Diagnostic policies
-are authored against the executor layout explicitly, so equal tensor shapes
-can never substitute for semantic compatibility.
+Every PolicyPack must carry a complete semantic binding. Version 1 authorizes
+one exact world/task/observation/action contract. PolicyPack v5 adds a version-2
+per-robot contract: one actor may list multiple exact world/task pairs only
+when every pair shares the same observation and action fingerprints. The list
+is sorted, unique, fingerprinted, and checked before compilation; an unlisted
+task still fails transactionally. Neither `compileRun` nor the live C/Swift
+installation boundary auto-binds an unbound pack. Equal tensor shapes can
+never substitute for semantic compatibility.
 
 The Metal hot loop evaluates the actor between native observation construction
 and action application. A final critic-only evaluation can be appended to the

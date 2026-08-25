@@ -411,7 +411,8 @@ LearningPackResult validatePolicyArtifact(
             "PolicyPack identity, exact semantic contract, revision, layers, or clipping is invalid"
         );
     }
-    if (!countFits(pack.layers.size()) ||
+    if (!countFits(pack.contract.compatibleTasks.size()) ||
+        !countFits(pack.layers.size()) ||
         !countFits(pack.criticLayers.size()) ||
         !countFits(pack.observationMean.size()) ||
         !countFits(
@@ -1752,6 +1753,7 @@ std::vector<std::byte> serializePolicy(
     writer.pod(pack.contract.taskFingerprint);
     writer.pod(pack.contract.observationFingerprint);
     writer.pod(pack.contract.actionFingerprint);
+    writer.vector(pack.contract.compatibleTasks);
     return writer.data();
 }
 
@@ -1804,12 +1806,21 @@ bool deserializePolicy(
         pack.contract = {};
         return true;
     }
-    return formatVersion == 4u &&
+    if (formatVersion == 4u) {
+        return reader.pod(pack.contract.version) &&
+            reader.pod(pack.contract.worldFingerprint) &&
+            reader.pod(pack.contract.taskFingerprint) &&
+            reader.pod(pack.contract.observationFingerprint) &&
+            reader.pod(pack.contract.actionFingerprint) &&
+            pack.contract.exact() && reader.finished();
+    }
+    return formatVersion == 5u &&
         reader.pod(pack.contract.version) &&
         reader.pod(pack.contract.worldFingerprint) &&
         reader.pod(pack.contract.taskFingerprint) &&
         reader.pod(pack.contract.observationFingerprint) &&
         reader.pod(pack.contract.actionFingerprint) &&
+        reader.vector(pack.contract.compatibleTasks) &&
         pack.contract.exact() &&
         reader.finished();
 }

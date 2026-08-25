@@ -218,6 +218,63 @@ void bindPolicyPack(
     };
 }
 
+bool addPolicyTaskBinding(
+    PolicyPack& pack,
+    const CompiledTaskProgram& task
+) {
+    if (!task.valid() || !pack.contract.exact() ||
+        pack.contract.observationFingerprint !=
+            task.observationFingerprint() ||
+        pack.contract.actionFingerprint !=
+            task.actionFingerprint()) {
+        return false;
+    }
+    std::vector<PolicyTaskBinding> bindings =
+        pack.contract.compatibleTasks;
+    if (pack.contract.version == 1u) {
+        bindings.push_back({
+            .worldFingerprint = pack.contract.worldFingerprint,
+            .taskFingerprint = pack.contract.taskFingerprint,
+        });
+    }
+    bindings.push_back({
+        .worldFingerprint = task.worldFingerprint(),
+        .taskFingerprint = task.fingerprint(),
+    });
+    std::sort(
+        bindings.begin(),
+        bindings.end(),
+        [](const PolicyTaskBinding& left,
+           const PolicyTaskBinding& right) {
+            return left.worldFingerprint < right.worldFingerprint ||
+                (left.worldFingerprint == right.worldFingerprint &&
+                 left.taskFingerprint < right.taskFingerprint);
+        }
+    );
+    bindings.erase(
+        std::unique(bindings.begin(), bindings.end()),
+        bindings.end()
+    );
+    if (bindings.size() < 2u) {
+        return true;
+    }
+    if (bindings.size() > kMaximumPolicyTaskBindings) {
+        return false;
+    }
+    PolicyContract candidate = pack.contract;
+    candidate.version = 2u;
+    candidate.worldFingerprint =
+        bindings.front().worldFingerprint;
+    candidate.taskFingerprint =
+        bindings.front().taskFingerprint;
+    candidate.compatibleTasks = std::move(bindings);
+    if (!candidate.exact()) {
+        return false;
+    }
+    pack.contract = std::move(candidate);
+    return true;
+}
+
 PolicyCompileDiagnostics compilePolicyProgram(
     const PolicyPack& pack,
     const CompiledTaskProgram& task,
@@ -255,12 +312,13 @@ PolicyCompileDiagnostics compilePolicyProgram(
         return reject(
             PolicyCompileStatus::invalidPack,
             "contract",
-            "policy contract must be a complete version-1 binding"
+            "policy contract must be a complete version-1 or version-2 binding"
         );
     }
-    if (pack.contract.worldFingerprint !=
-             task.worldFingerprint() ||
-         pack.contract.taskFingerprint != task.fingerprint() ||
+    if (!pack.contract.accepts(
+            task.worldFingerprint(),
+            task.fingerprint()
+        ) ||
          pack.contract.observationFingerprint !=
              task.observationFingerprint() ||
          pack.contract.actionFingerprint !=
@@ -268,6 +326,8 @@ PolicyCompileDiagnostics compilePolicyProgram(
         std::ostringstream details;
         details << "policy=(world=" << pack.contract.worldFingerprint
                 << ",task=" << pack.contract.taskFingerprint
+                << ",compatible_tasks="
+                << pack.contract.compatibleTasks.size()
                 << ",observation=" << pack.contract.observationFingerprint
                 << ",action=" << pack.contract.actionFingerprint
                 << ") task=(world=" << task.worldFingerprint()
@@ -799,6 +859,16 @@ PolicyCompileDiagnostics compilePolicyProgram(
         hash.scalar(pack.contract.taskFingerprint);
         hash.scalar(pack.contract.observationFingerprint);
         hash.scalar(pack.contract.actionFingerprint);
+        if (pack.contract.version == 2u) {
+            hash.scalar(static_cast<std::uint64_t>(
+                pack.contract.compatibleTasks.size()
+            ));
+            for (const PolicyTaskBinding& binding :
+                 pack.contract.compatibleTasks) {
+                hash.scalar(binding.worldFingerprint);
+                hash.scalar(binding.taskFingerprint);
+            }
+        }
     }
     hash.scalar(staged->header);
     hash.bytes(staged->arena.data(), staged->arena.size());
