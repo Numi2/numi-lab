@@ -1205,6 +1205,25 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+# Loads the provenance-locked NumiLab Human Rajagopal rigid-tree payload into
+# the Core FP64 reference. This is deliberately a CPU reference gate: the
+# current Metal ABA path continues to reject FunctionBased joints.
+add_executable(
+    metalrobo_numilab_human_core_reference_probe
+    apps/numilab_human_core_reference_probe.cpp
+)
+target_link_libraries(
+    metalrobo_numilab_human_core_reference_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_numilab_human_core_reference_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
 add_executable(
     metalrobo_articulated_actuation_probe
     apps/articulated_actuation_probe.cpp
