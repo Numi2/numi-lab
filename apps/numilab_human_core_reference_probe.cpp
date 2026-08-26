@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <span>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -131,6 +132,7 @@ static_assert(sizeof(MillardPathPointRecord) == 16u);
 static_assert(sizeof(MillardCurveRecord) == 88u);
 static_assert(sizeof(MillardWrapRecord) == 48u);
 static_assert(sizeof(MRMillardMuscleGPU) == 64u);
+static_assert(sizeof(MRMillardActivationDispatchGPU) == 32u);
 static_assert(sizeof(MRMillardSourceCurveGPU) == 96u);
 static_assert(sizeof(MRMillardCylinderWrapGPU) == 64u);
 static_assert(sizeof(MRMillardMuscleResultGPU) == 32u);
@@ -734,7 +736,8 @@ MRBodyStateGPU staticGroundState(
 MetalWorldFunctionBasedContactMetrics
 verifyMetalWorldFunctionBasedContact(
     const metalrobo::EngineModel& source,
-    const metalrobo::MetalWorldMillardProgram* millardProgram
+    const metalrobo::MetalWorldMillardProgram* millardProgram,
+    const std::span<const float> millardExcitations = {}
 ) {
     metalrobo::EngineModel model = source;
     const MRArticulationGPU& articulation = model.articulations.at(0u);
@@ -856,6 +859,7 @@ verifyMetalWorldFunctionBasedContact(
         .initialQ = model.defaultQ,
         .initialV = model.defaultV,
         .efforts = efforts,
+        .millardExcitations = millardExcitations,
         .initialSceneBodies = scene,
     };
     metalrobo::MetalWorldStepConfig config{
@@ -875,6 +879,14 @@ verifyMetalWorldFunctionBasedContact(
     };
     if (millardProgram != nullptr) {
         config.millardProgram = *millardProgram;
+    }
+    if (!millardExcitations.empty()) {
+        // Explicit probe-only input contract. These values validate the
+        // first-order control surface; they are not a source-parameter claim.
+        config.millardActivationDynamics = {
+            .activationTimeConstantSeconds = 0.01f,
+            .deactivationTimeConstantSeconds = 0.04f,
+        };
     }
     metalrobo::MetalWorldContext context;
     metalrobo::MetalWorldResult result;
@@ -1998,22 +2010,20 @@ int main(const int argc, char** argv) {
         const MetalMillardProgramData millardProgramData = millardPath != nullptr
             ? materializeMetalMillardProgram(millardPayload)
             : MetalMillardProgramData{};
-        MetalMillardProgramData fullyExcitedMillardProgramData =
-            millardProgramData;
-        if (millardPath != nullptr) {
-            for (MRMillardMuscleStateGPU& state :
-                 fullyExcitedMillardProgramData.states) {
-                state.activationAndVelocity.x = 1.0f;
-            }
-        }
         const metalrobo::MetalWorldMillardProgram millardProgram =
             millardPath != nullptr
             ? millardProgramData.program()
             : metalrobo::MetalWorldMillardProgram{};
-        const metalrobo::MetalWorldMillardProgram fullyExcitedMillardProgram =
+        // The contact probe encodes two control periods. Drive both with a
+        // normalized source-muscle excitation and let Metal update its own
+        // private activation state before force projection.
+        const std::vector<float> fullyExcitedMillardControls =
             millardPath != nullptr
-            ? fullyExcitedMillardProgramData.program()
-            : metalrobo::MetalWorldMillardProgram{};
+            ? std::vector<float>(
+                  2u * millardProgram.muscles.size(),
+                  1.0f
+              )
+            : std::vector<float>{};
         const MetalWorldFunctionBasedMetrics metalWorldMetrics = runMetal
             ? verifyMetalWorldFunctionBasedDynamics(model)
             : MetalWorldFunctionBasedMetrics{};
@@ -2027,7 +2037,9 @@ int main(const int argc, char** argv) {
             fullyExcitedMetalWorldContactMetrics = runMetal &&
                 millardPath != nullptr
                 ? verifyMetalWorldFunctionBasedContact(
-                    model, &fullyExcitedMillardProgram
+                    model,
+                    &millardProgram,
+                    fullyExcitedMillardControls
                 )
                 : MetalWorldFunctionBasedContactMetrics{};
         if (runMetal && millardPath != nullptr) {

@@ -557,6 +557,55 @@ inline bool solveStaticEquilibrium(
 
 } // namespace
 
+// Exact first-order hold matching advanceMillardActivation() in the CPU
+// source reference. This is intentionally a separate control-stage kernel:
+// a normalized muscle excitation is not a generalized effort command.
+kernel void mr_millard_activation_update(
+    device const MRMillardActivationDispatchGPU& dispatch [[buffer(0)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(1)]],
+    device const float* excitations [[buffer(2)]],
+    device const MRMillardMuscleGPU* muscles [[buffer(3)]],
+    device MRMillardMuscleStateGPU* states [[buffer(4)]],
+    uint globalIndex [[thread_position_in_grid]]
+) {
+    if (dispatch.abiVersion != MR_MILLARD_ACTIVATION_GPU_ABI_VERSION ||
+        dispatch.muscleCount == 0u ||
+        globalIndex >= dispatch.environmentCount * dispatch.muscleCount ||
+        dispatch.timestepAndTimeConstants.w != 0.0f ||
+        !(isfinite(dispatch.timestepAndTimeConstants.x) &&
+          isfinite(dispatch.timestepAndTimeConstants.y) &&
+          isfinite(dispatch.timestepAndTimeConstants.z)) ||
+        dispatch.timestepAndTimeConstants.x <= 0.0f ||
+        dispatch.timestepAndTimeConstants.y <= 0.0f ||
+        dispatch.timestepAndTimeConstants.z <= 0.0f) {
+        return;
+    }
+    const uint environment = globalIndex / dispatch.muscleCount;
+    const uint muscleIndex = globalIndex - environment * dispatch.muscleCount;
+    const uint excitationIndex =
+        (pass.controlStep * dispatch.environmentCount + environment) *
+        dispatch.muscleCount + muscleIndex;
+    const MRMillardMuscleGPU muscle = muscles[muscleIndex];
+    const float minimumActivation = muscle.dampingAndActivation.z;
+    const float currentActivation = states[globalIndex].activationAndVelocity.x;
+    if (!(isfinite(minimumActivation) && minimumActivation >= 0.0f &&
+          minimumActivation <= 1.0f && isfinite(currentActivation))) {
+        return;
+    }
+    const float target = clamp(excitations[excitationIndex],
+                               minimumActivation, 1.0f);
+    const float tau = target >= currentActivation
+        ? dispatch.timestepAndTimeConstants.y
+        : dispatch.timestepAndTimeConstants.z;
+    const float activation = clamp(
+        target + (currentActivation - target) *
+            exp(-dispatch.timestepAndTimeConstants.x / tau),
+        minimumActivation,
+        1.0f
+    );
+    states[globalIndex].activationAndVelocity.x = activation;
+}
+
 kernel void mr_millard_reference(
     device const MRArticulatedOperatorDispatchGPU& operatorDispatch [[buffer(5)]],
     device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(8)]],

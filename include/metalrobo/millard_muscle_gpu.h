@@ -9,6 +9,7 @@
 #include "metalrobo/engine_types.h"
 
 #define MR_MILLARD_REFERENCE_GPU_ABI_VERSION 2u
+#define MR_MILLARD_ACTIVATION_GPU_ABI_VERSION 1u
 #define MR_MILLARD_REFERENCE_MAX_WRAPS_PER_MUSCLE 16u
 
 enum MRMillardReferenceGPUStatus : mr_u32 {
@@ -60,6 +61,19 @@ typedef struct MR_ALIGN16 MRMillardMuscleGPU {
 typedef struct MR_ALIGN16 MRMillardMuscleStateGPU {
     mr_float4 activationAndVelocity;
 } MRMillardMuscleStateGPU;
+
+// Per-submission activation-control contract. Excitations are packed
+// [control step][environment][muscle]; the reference state remains packed
+// [environment][muscle]. The source importer owns both time constants.
+typedef struct MR_ALIGN16 MRMillardActivationDispatchGPU {
+    mr_u32 abiVersion;
+    mr_u32 muscleCount;
+    mr_u32 environmentCount;
+    mr_u32 flags;
+    // x control-period seconds; y activation tau; z deactivation tau;
+    // w must be zero.
+    mr_float4 timestepAndTimeConstants;
+} MRMillardActivationDispatchGPU;
 
 // A point query that must correspond exactly to an articulated-operator point
 // query in the enclosing batch. The local coordinate itself remains in the
@@ -116,6 +130,8 @@ static_assert(alignof(MRMillardReferenceDispatchGPU) == 16u);
 static_assert(sizeof(MRMillardMuscleGPU) == 64u);
 static_assert(alignof(MRMillardMuscleGPU) == 16u);
 static_assert(sizeof(MRMillardMuscleStateGPU) == 16u);
+static_assert(sizeof(MRMillardActivationDispatchGPU) == 32u);
+static_assert(alignof(MRMillardActivationDispatchGPU) == 16u);
 static_assert(sizeof(MRMillardPathPointGPU) == 16u);
 static_assert(sizeof(MRMillardSourceCurveGPU) == 96u);
 static_assert(sizeof(MRMillardCylinderWrapGPU) == 64u);

@@ -13,6 +13,7 @@
 #include "metalrobo/unified_quality_shared.h"
 
 #include <array>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -257,6 +258,11 @@ struct MetalWorldBatch {
     // [control step][environment][task action] normalized actions and leaves
     // efforts empty; its native control operators produce nv-wide targets.
     std::span<const float> actions{};
+    // Optional source Millard controls, packed
+    // [control step][environment][source muscle]. Entries are normalized
+    // excitations in [0, 1], not generalized efforts. They require a valid
+    // source Millard program and explicit activation time constants below.
+    std::span<const float> millardExcitations{};
     std::uint64_t policyRevision = 0u;
     std::span<const std::uint32_t> resetMasks{};
     std::span<const float> resetQ{};
@@ -593,6 +599,28 @@ struct MetalWorldMillardProgram {
     }
 };
 
+// Caller-owned temporal contract for per-control source Millard excitation.
+// The source model does not provide a universally valid activation default;
+// importers must materialize/provenance both positive time constants before
+// submitting controls. An unconfigured record preserves the static-source
+// state behavior used by existing reference executions.
+struct MetalWorldMillardActivationDynamics {
+    float activationTimeConstantSeconds = 0.0f;
+    float deactivationTimeConstantSeconds = 0.0f;
+
+    [[nodiscard]] bool configured() const noexcept {
+        return activationTimeConstantSeconds != 0.0f ||
+            deactivationTimeConstantSeconds != 0.0f;
+    }
+
+    [[nodiscard]] bool valid() const noexcept {
+        return std::isfinite(activationTimeConstantSeconds) &&
+            std::isfinite(deactivationTimeConstantSeconds) &&
+            activationTimeConstantSeconds > 0.0f &&
+            deactivationTimeConstantSeconds > 0.0f;
+    }
+};
+
 struct MetalWorldStepConfig {
     // Control-period duration. The immutable model gravity is retained and
     // its authored integration timestep is replaced by
@@ -626,6 +654,7 @@ struct MetalWorldStepConfig {
     // task parameterization, and anatomical collider admission remain
     // separate gates.
     MetalWorldMillardProgram millardProgram{};
+    MetalWorldMillardActivationDynamics millardActivationDynamics{};
     // Optional multiphysics pass. It executes before rigid dynamics and again
     // after transactional publication in every physics substep. The pre pass
     // contributes to the shared global body-wrench arena; the post pass may
@@ -722,6 +751,7 @@ struct MetalWorldLayout {
     std::size_t initialSceneBodyElements = 0u;
     std::size_t effortElements = 0u;
     std::size_t actionElements = 0u;
+    std::size_t millardExcitationElements = 0u;
     std::size_t resetMaskElements = 0u;
     std::size_t resetQElements = 0u;
     std::size_t resetVElements = 0u;

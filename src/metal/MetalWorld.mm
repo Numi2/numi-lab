@@ -36,7 +36,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 250u;
+constexpr std::size_t kRawBufferCount = 252u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -346,6 +346,8 @@ enum BufferIndex : std::size_t {
     kMillardWraps = 247u,
     kMillardResults = 248u,
     kMillardGeneralizedForces = 249u,
+    kMillardActivationDispatch = 250u,
+    kMillardExcitations = 251u,
 };
 
 struct BufferRequirement {
@@ -404,6 +406,7 @@ struct MetalWorldContextState {
         functionBasedStreamedResponsePipeline = nil;
     __strong id<MTLComputePipelineState> millardReferencePipeline = nil;
     __strong id<MTLComputePipelineState> millardAccumulatePipeline = nil;
+    __strong id<MTLComputePipelineState> millardActivationPipeline = nil;
     __strong id<MTLComputePipelineState> parameterizedABAPipeline = nil;
     __strong id<MTLComputePipelineState> smallABAPipeline = nil;
     __strong id<MTLComputePipelineState> multiABAPipeline = nil;
@@ -1468,10 +1471,13 @@ bool validMillardProgram(
             !finite(muscle.forceAndLengths) ||
             !finite(muscle.dampingAndActivation) ||
             muscle.dampingAndActivation.w != 0.0f ||
+            muscle.dampingAndActivation.z < 0.0f ||
+            muscle.dampingAndActivation.z > 1.0f ||
             muscle.flags.y != 0u || muscle.flags.z != 0u ||
             muscle.flags.w != 0u || !finite(state.activationAndVelocity) ||
             state.activationAndVelocity.z != 0.0f ||
             state.activationAndVelocity.w != 0.0f ||
+            state.activationAndVelocity.x < 0.0f ||
             state.activationAndVelocity.x > 1.0f ||
             !finite(program.curves[index].values[0u]) ||
             !finite(program.curves[index].values[1u]) ||
@@ -1840,6 +1846,8 @@ bool buildRequirements(
         : 0u;
     const std::size_t millardEnvironments =
         millardProgram.valid() ? environments : 0u;
+    const bool millardExcitationControls =
+        layout.millardExcitationElements != 0u;
     const std::size_t articulatedOperatorEnvironments = std::max(
         contactEnvironments,
         std::max(coupledCandidateEnvironments, millardEnvironments)
@@ -2526,6 +2534,16 @@ bool buildRequirements(
             "source Millard environment states",
             millardEnvironments * millardProgram.states.size(),
             requirements.entries[kMillardStates]
+        ) ||
+        !makeRequirement<MRMillardActivationDispatchGPU>(
+            "source Millard activation dispatch",
+            millardExcitationControls ? 1u : 0u,
+            requirements.entries[kMillardActivationDispatch]
+        ) ||
+        !makeRequirement<float>(
+            "source Millard excitation controls",
+            layout.millardExcitationElements,
+            requirements.entries[kMillardExcitations]
         ) ||
         !makeRequirement<MRMillardPathPointGPU>(
             "source Millard path points",
@@ -3505,6 +3523,8 @@ MetalWorldDiagnostics validateAndBuildLayout(
     const bool nativeTask = config.taskProgram.valid();
     const bool nativePolicy = config.policyProgram.valid();
     const bool hasMillardProgram = config.millardProgram.valid();
+    const bool hasMillardExcitationControls =
+        !batch.millardExcitations.empty();
     const bool devicePhysicsWritesBodyWrenches =
         config.devicePhysicsProgram.valid() &&
         (config.devicePhysicsProgram.flags &
@@ -3557,6 +3577,17 @@ MetalWorldDiagnostics validateAndBuildLayout(
             std::move(diagnostics),
             MetalWorldHostStatus::invalidDimensions,
             "source Millard program does not match the selected articulation, path query, or immutable curve contract"
+        );
+    }
+    if ((hasMillardExcitationControls &&
+         (!hasMillardProgram ||
+          !config.millardActivationDynamics.valid())) ||
+        (!hasMillardExcitationControls &&
+         config.millardActivationDynamics.configured())) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "source Millard excitation controls require a valid source program and explicit positive activation time constants"
         );
     }
     if (hasMillardProgram &&
@@ -3874,6 +3905,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         static_cast<mr_u32>(observationEnvironmentStride);
 
     std::size_t effortStepStride = 0u;
+    std::size_t millardExcitationStepStride = 0u;
     std::size_t resetMaskStepStride = 0u;
     std::size_t observationStepStride = 0u;
     std::size_t accelerationStepStride = 0u;
@@ -3891,6 +3923,15 @@ MetalWorldDiagnostics validateAndBuildLayout(
             batch.environmentCount,
             dispatch.nv,
             accelerationStepStride
+        ) ||
+        !checkedMultiply(
+            hasMillardExcitationControls
+                ? batch.environmentCount
+                : 0u,
+            hasMillardExcitationControls
+                ? config.millardProgram.muscles.size()
+                : 0u,
+            millardExcitationStepStride
         )) {
         return reject(
             std::move(diagnostics),
@@ -4346,6 +4387,11 @@ MetalWorldDiagnostics validateAndBuildLayout(
         ) ||
         !checkedMultiply(
             batch.controlStepCount,
+            millardExcitationStepStride,
+            layout.millardExcitationElements
+        ) ||
+        !checkedMultiply(
+            batch.controlStepCount,
             resetMaskStepStride,
             layout.resetMaskElements
         ) ||
@@ -4654,6 +4700,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         layout.initialVElements,
         layout.effortElements,
         layout.actionElements,
+        layout.millardExcitationElements,
         layout.resetMaskElements,
         layout.resetQElements,
         layout.resetVElements,
@@ -4803,10 +4850,16 @@ MetalWorldDiagnostics validateAndBuildLayout(
         nativeTask && !nativePolicy
         ? layout.actionElements
         : 0u;
+    const std::size_t expectedMillardExcitationElements =
+        hasMillardExcitationControls
+        ? layout.millardExcitationElements
+        : 0u;
     if (batch.initialQ.size() != initialQElements ||
         batch.initialV.size() != initialVElements ||
         batch.efforts.size() != expectedEffortElements ||
         batch.actions.size() != expectedActionElements ||
+        batch.millardExcitations.size() !=
+            expectedMillardExcitationElements ||
         batch.initialSceneBodies.size() !=
             initialSceneBodyElements ||
         (residentContinuation &&
@@ -4819,7 +4872,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::invalidDimensions,
-            "initial state, effort, or kinematic trajectory has the wrong "
+            "initial state, effort, Millard excitation, or kinematic trajectory has the wrong "
             "packed element count"
         );
     }
@@ -4901,12 +4954,26 @@ MetalWorldDiagnostics validateAndBuildLayout(
         (!residentContinuation &&
          !finiteFloats(batch.initialV)) ||
         !finiteFloats(batch.efforts) ||
-        !finiteFloats(batch.actions)) {
+        !finiteFloats(batch.actions) ||
+        !finiteFloats(batch.millardExcitations)) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::nonfiniteInput,
-            "initial state or effort contains a non-finite value "
+            "initial state, effort, or Millard excitation contains a non-finite value "
             "or invalid floating-root quaternion"
+        );
+    }
+    if (std::any_of(
+            batch.millardExcitations.begin(),
+            batch.millardExcitations.end(),
+            [](const float excitation) {
+                return excitation < 0.0f || excitation > 1.0f;
+            }
+        )) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "source Millard excitations must be normalized values in [0, 1]"
         );
     }
     if (!residentContinuation &&
@@ -5166,6 +5233,10 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld source Millard results";
     case kMillardGeneralizedForces:
         return @"MetalWorld source Millard generalized forces";
+    case kMillardActivationDispatch:
+        return @"MetalWorld source Millard activation dispatch";
+    case kMillardExcitations:
+        return @"MetalWorld source Millard excitation controls";
     default:
         return @"MetalWorld buffer";
     }
@@ -5664,6 +5735,21 @@ MetalWorldDiagnostics initializeContext(
             std::move(diagnostics),
             MetalWorldHostStatus::metalPipelineFailure,
             "failed to create FunctionBased streamed-contact response pipeline: " +
+                describeError(error)
+        );
+    }
+    error = nil;
+    id<MTLComputePipelineState> millardActivation = makePipeline(
+        device,
+        library,
+        @"mr_millard_activation_update",
+        &error
+    );
+    if (millardActivation == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create Millard activation-control pipeline: " +
                 describeError(error)
         );
     }
@@ -6306,6 +6392,7 @@ MetalWorldDiagnostics initializeContext(
             kABAThreadsPerThreadgroup ||
         functionBasedStreamedResponse.maxTotalThreadsPerThreadgroup <
             kABAThreadsPerThreadgroup ||
+        millardActivation.maxTotalThreadsPerThreadgroup == 0u ||
         millardReference.maxTotalThreadsPerThreadgroup <
             kOperatorThreadsPerThreadgroup ||
         millardAccumulate.maxTotalThreadsPerThreadgroup == 0u ||
@@ -6318,6 +6405,8 @@ MetalWorldDiagnostics initializeContext(
         functionBasedDenseDynamics.staticThreadgroupMemoryLength >
             device.maxThreadgroupMemoryLength ||
         functionBasedStreamedResponse.staticThreadgroupMemoryLength >
+            device.maxThreadgroupMemoryLength ||
+        millardActivation.staticThreadgroupMemoryLength >
             device.maxThreadgroupMemoryLength ||
         millardReference.staticThreadgroupMemoryLength >
             device.maxThreadgroupMemoryLength ||
@@ -6528,6 +6617,7 @@ MetalWorldDiagnostics initializeContext(
         functionBasedDenseDynamics;
     context.functionBasedStreamedResponsePipeline =
         functionBasedStreamedResponse;
+    context.millardActivationPipeline = millardActivation;
     context.millardReferencePipeline = millardReference;
     context.millardAccumulatePipeline = millardAccumulate;
     context.parameterizedABAPipeline = parameterizedABA;
@@ -6675,7 +6765,7 @@ MetalWorldDiagnostics initializeContext(
             pairNarrowphase.threadExecutionWidth
         );
     context.initialized = true;
-    context.stats.pipelineCreationCount += 69u;
+    context.stats.pipelineCreationCount += 70u;
     diagnostics = ensureHybridCCDPipeline(
         context,
         std::move(diagnostics)
@@ -8287,6 +8377,33 @@ void uploadBatch(
         }
         stageMillard(kMillardDispatch, &millardDispatch);
         stageMillard(kMillardStates, expandedStates.data());
+        if (!batch.millardExcitations.empty()) {
+            MRMillardActivationDispatchGPU activationDispatch{};
+            activationDispatch.abiVersion =
+                MR_MILLARD_ACTIVATION_GPU_ABI_VERSION;
+            activationDispatch.muscleCount = static_cast<mr_u32>(
+                millard.muscles.size()
+            );
+            activationDispatch.environmentCount =
+                layout.dispatch.environmentCount;
+            activationDispatch.timestepAndTimeConstants = {
+                config.timestepSeconds,
+                config.millardActivationDynamics
+                    .activationTimeConstantSeconds,
+                config.millardActivationDynamics
+                    .deactivationTimeConstantSeconds,
+                0.0f,
+            };
+            stageMillard(
+                kMillardActivationDispatch,
+                &activationDispatch
+            );
+            copyToBuffer(
+                context.buffers[kMillardExcitations],
+                batch.millardExcitations.data(),
+                requirements.entries[kMillardExcitations]
+            );
+        }
         stageMillard(kPointQueries, expandedPoints.data());
         if (programUpload != nil) {
             [programUpload endEncoding];
@@ -12688,6 +12805,55 @@ bool encodeFunctionBasedDenseDynamics(
         threadsPerThreadgroup:MTLSizeMake(
             kABAThreadsPerThreadgroup, 1u, 1u
         )];
+    [encoder endEncoding];
+    return true;
+}
+
+// The source Millard activation control advances once per control period,
+// before its FunctionBased kinematics/Jacobian projection and all contained
+// physics microsteps. It deliberately consumes a packed muscle-control
+// stream, never the generic generalized-effort trajectory.
+bool encodeMillardActivation(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t environmentCount,
+    const std::size_t muscleCount
+) {
+    id<MTLComputeCommandEncoder> encoder =
+        [commandBuffer computeCommandEncoder];
+    if (encoder == nil) {
+        return false;
+    }
+    encoder.label = @"MetalWorld source Millard activation control";
+    [encoder setComputePipelineState:context.millardActivationPipeline];
+    [encoder setBuffer:context.buffers[kMillardActivationDispatch]
+               offset:0u
+              atIndex:0u];
+    [encoder setBytes:&pass length:sizeof(pass) atIndex:1u];
+    [encoder setBuffer:context.buffers[kMillardExcitations]
+               offset:0u
+              atIndex:2u];
+    [encoder setBuffer:context.buffers[kMillardMuscles]
+               offset:0u
+              atIndex:3u];
+    [encoder setBuffer:context.buffers[kMillardStates]
+               offset:0u
+              atIndex:4u];
+    const NSUInteger threads = std::min<NSUInteger>(
+        std::max<NSUInteger>(
+            context.millardActivationPipeline.threadExecutionWidth,
+            1u
+        ),
+        context.millardActivationPipeline.maxTotalThreadsPerThreadgroup
+    );
+    [encoder
+        dispatchThreads:MTLSizeMake(
+            static_cast<NSUInteger>(environmentCount * muscleCount),
+            1u,
+            1u
+        )
+        threadsPerThreadgroup:MTLSizeMake(threads, 1u, 1u)];
     [encoder endEncoding];
     return true;
 }
@@ -19758,6 +19924,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 !world.model().functionBasedJointPrograms.empty();
             const bool hasMillardProgram =
                 config.millardProgram.valid();
+            const bool hasMillardExcitationControls =
+                !batch.millardExcitations.empty();
             id<MTLComputePipelineState> selectedABAPipeline =
                 nativeTask
                 ? (useParallelABA
@@ -20079,6 +20247,20 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                         std::move(diagnostics),
                         MetalWorldHostStatus::metalCommandFailure,
                         "failed to encode rod checkpoint/reset pass"
+                    );
+                }
+                if (hasMillardExcitationControls &&
+                    !encodeMillardActivation(
+                        *selectedState,
+                        commandBuffer,
+                        pass,
+                        batch.environmentCount,
+                        config.millardProgram.muscles.size()
+                    )) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalCommandFailure,
+                        "failed to encode source Millard activation control"
                     );
                 }
 
