@@ -191,6 +191,10 @@ crow_journey_output=$(
 [ "$crow_journey_output" = "fake-evaluate" ]
 grep -- '--birdflow-american-crow-journey' \
     "$crow_journey_evaluate_run/arguments.txt" >/dev/null
+grep -- '--birdflow-journey-variant' \
+    "$crow_journey_evaluate_run/arguments.txt" >/dev/null
+grep -- '^v7-hierarchical$' \
+    "$crow_journey_evaluate_run/arguments.txt" >/dev/null
 grep -- '--minimum-difficulty-band' \
     "$crow_journey_evaluate_run/arguments.txt" >/dev/null
 grep -- '^4$' "$crow_journey_evaluate_run/arguments.txt" >/dev/null
@@ -242,6 +246,45 @@ crow_full_journey_output=$(
 grep -- '--minimum-difficulty-band' \
     "$crow_full_journey_run/arguments.txt" >/dev/null
 grep -- '^10$' "$crow_full_journey_run/arguments.txt" >/dev/null
+
+crow_neural_journey_run=$numi_temp/runs/crow-neural-journey-evaluate
+crow_neural_journey_output=$(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$crow_neural_journey_run \
+        "$numi_repo/tools/numi" crow journey evaluate \
+            --variant v8-neural --milestone approach --zero-actions
+)
+[ "$crow_neural_journey_output" = "fake-evaluate" ]
+grep -- '^v8-neural$' \
+    "$crow_neural_journey_run/arguments.txt" >/dev/null
+grep -- '^7$' "$crow_neural_journey_run/arguments.txt" >/dev/null
+
+crow_visual_journey_run=$numi_temp/runs/crow-visual-journey-evaluate
+crow_visual_journey_output=$(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$crow_visual_journey_run \
+        "$numi_repo/tools/numi" crow journey evaluate \
+            --variant v9-visual-neural --milestone approach --zero-actions
+)
+[ "$crow_visual_journey_output" = "fake-evaluate" ]
+grep -- '^v9-visual-neural$' \
+    "$crow_visual_journey_run/arguments.txt" >/dev/null
+grep -- 'crow-journey.sensor-fast.visual-observation.json$' \
+    "$crow_visual_journey_run/arguments.txt" >/dev/null
+
+if (
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+        "$numi_repo/tools/numi" crow journey evaluate \
+            --variant unknown --zero-actions
+) > "$numi_temp/crow-invalid-variant.log" 2>&1; then
+    printf '%s\n' 'crow accepted an unknown journey variant' >&2
+    exit 1
+fi
+grep -- 'journey variant requires v7-hierarchical, v8-neural, or v9-visual-neural' \
+    "$numi_temp/crow-invalid-variant.log" >/dev/null
 
 if "$numi_repo/tools/numi" crow journey window > /dev/null 2>&1; then
     printf '%s\n' 'crow journey window accepted a missing policy' >&2

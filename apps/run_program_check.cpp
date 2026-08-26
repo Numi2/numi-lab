@@ -515,6 +515,101 @@ int main() {
                 ) == 1,
             "BirdFlow American-crow journey lost its universal-policy contract"
         );
+
+        metalrobo::RunManifest neuralJourney;
+        neuralJourney.id =
+            "birdflow_american_crow_neural_journey_compiled_run_check";
+        neuralJourney.robot = *crowRobot;
+        neuralJourney.scene =
+            metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
+        neuralJourney.sensors.id =
+            "birdflow_american_crow_neural_journey_state_sensors";
+        neuralJourney.task =
+            metalrobo::makeBirdFlowAmericanCrowNeuralJourneyTaskPack(
+                neuralJourney.sensors.observation,
+                neuralJourney.reality.reset
+            );
+        neuralJourney.reality.id =
+            "birdflow_american_crow_neural_journey_reality";
+        neuralJourney.teacher.id = "no_teacher";
+        neuralJourney.profile.id =
+            "birdflow_american_crow_neural_journey_check_profile";
+        neuralJourney.profile.environmentCount = 8u;
+        neuralJourney.profile.controlSteps = 64u;
+        neuralJourney.profile.physicsSubsteps = 4u;
+        neuralJourney.profile.controlTimestepSeconds = 1.0f / 50.0f;
+        metalrobo::CompiledRun compiledNeuralJourney;
+        const auto neuralJourneyStatus = metalrobo::compileRun(
+            neuralJourney, compiledNeuralJourney
+        );
+        require(
+            neuralJourneyStatus.succeeded(),
+            "BirdFlow neural-only Crow journey CompiledRun failed [" +
+                std::string(metalrobo::runCompileStatusName(
+                    neuralJourneyStatus.status)) + "] " +
+                neuralJourneyStatus.element + ": " +
+                neuralJourneyStatus.message
+        );
+        const auto neuralOutcomes = compiledNeuralJourney.task().outcomes();
+        require(
+            compiledNeuralJourney.valid() &&
+                compiledNeuralJourney.task().actionBindings().size() == 15u &&
+                compiledNeuralJourney.task().layout().actorObservationSize ==
+                    84u &&
+                (compiledNeuralJourney.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
+                (compiledNeuralJourney.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_APPROACH_ENVELOPE) == 0u &&
+                compiledNeuralJourney.task().fingerprint() !=
+                    compiledJourney.task().fingerprint() &&
+                neuralOutcomes.size() == 10u &&
+                neuralOutcomes[8u].id ==
+                    "approach_pitch_warning_fraction" &&
+                neuralOutcomes[8u].source == static_cast<std::uint32_t>(
+                    metalrobo::TaskOutcomeSource::
+                        avianJourneyApproachWarning
+                ) &&
+                neuralOutcomes[9u].id ==
+                    "approach_pitch_full_envelope_fraction" &&
+                neuralOutcomes[9u].source == static_cast<std::uint32_t>(
+                    metalrobo::TaskOutcomeSource::
+                        avianJourneyApproachFull
+                ),
+            "BirdFlow neural-only Crow journey retained hidden supervisor authority or lost shadow diagnostics"
+        );
+        metalrobo::RunManifest visualJourney = neuralJourney;
+        visualJourney.id =
+            "birdflow_american_crow_visual_neural_journey_compiled_run_check";
+        visualJourney.sensors.observation = {};
+        visualJourney.reality.reset = {};
+        visualJourney.task =
+            metalrobo::makeBirdFlowAmericanCrowVisualJourneyTaskPack(
+                visualJourney.sensors.observation,
+                visualJourney.reality.reset
+            );
+        metalrobo::CompiledRun compiledVisualJourney;
+        const auto visualJourneyStatus = metalrobo::compileRun(
+            visualJourney, compiledVisualJourney
+        );
+        require(
+            visualJourneyStatus.succeeded() &&
+                compiledVisualJourney.valid() &&
+                compiledVisualJourney.task().layout().actorObservationSize ==
+                    84u + 16u * 9u * 4u +
+                        MR_TASK_MASKED_DEPTH_FEATURE_COUNT &&
+                compiledVisualJourney.task().layout().criticObservationSize ==
+                    84u &&
+                compiledVisualJourney.task().header().visualLayout.x == 16u &&
+                compiledVisualJourney.task().header().visualLayout.y == 9u &&
+                compiledVisualJourney.task().header().visualLayout.z == 4u &&
+                (compiledVisualJourney.task().header().schedule.w &
+                 MR_TASK_PROGRAM_MASKED_DEPTH_FEATURES) != 0u &&
+                (compiledVisualJourney.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_APPROACH_ENVELOPE) == 0u &&
+                compiledVisualJourney.task().observationFingerprint() !=
+                    compiledNeuralJourney.task().observationFingerprint(),
+            "BirdFlow v9 visual journey lost its distinct sensor-fast actor ABI"
+        );
         std::cout
             << "run_program_check=ok"
             << " run=" << compiled.fingerprint()
@@ -531,6 +626,12 @@ int main() {
             << " franka_task=" << compiledFranka.task().fingerprint()
             << " px4_run=" << compiledPX4.fingerprint()
             << " px4_task=" << compiledPX4.task().fingerprint()
+            << " crow_journey_v7_task="
+            << compiledJourney.task().fingerprint()
+            << " crow_journey_v8_task="
+            << compiledNeuralJourney.task().fingerprint()
+            << " crow_journey_v9_task="
+            << compiledVisualJourney.task().fingerprint()
             << " transactional=yes\n";
         return 0;
     } catch (const std::exception& error) {

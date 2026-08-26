@@ -602,6 +602,12 @@ public struct MetalRoboPolicyPack: Sendable {
     }
 }
 
+public enum MetalRoboBirdFlowJourneyVariant: UInt32, Sendable {
+    case v7Hierarchical = 0
+    case v8Neural = 1
+    case v9VisualNeural = 2
+}
+
 public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var environmentCount: UInt32
     public var surface: MetalRoboLocomotionSurface
@@ -621,6 +627,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var interactionResetMaximumPhase: Float?
     public var birdFlowJourneyTeacher: Bool
     public var birdFlowJourneyStudentAuthority: Float
+    public var birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant
     public var unitreeG1Task: MetalRoboUnitreeG1Task
 
     public init(
@@ -643,6 +650,8 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         interactionResetMaximumPhase: Float? = nil,
         birdFlowJourneyTeacher: Bool = false,
         birdFlowJourneyStudentAuthority: Float = 0.0,
+        birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant =
+            .v7Hierarchical,
         unitreeG1Task: MetalRoboUnitreeG1Task = .velocity
     ) {
         self.environmentCount = environmentCount
@@ -666,6 +675,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         self.birdFlowJourneyTeacher = birdFlowJourneyTeacher
         self.birdFlowJourneyStudentAuthority =
             birdFlowJourneyStudentAuthority
+        self.birdFlowJourneyVariant = birdFlowJourneyVariant
         self.unitreeG1Task = unitreeG1Task
     }
 }
@@ -678,6 +688,7 @@ public struct MetalRoboTaskRolloutLayout: Sendable {
     public let actorObservationCount: Int
     public let criticObservationCount: Int
     public let sceneBodyCount: Int
+    public let bodyCount: Int
     public let motionFeatureCount: Int
     public let maximumEpisodeSteps: Int
     public let worldFingerprint: UInt64
@@ -711,6 +722,7 @@ public struct MetalRoboTaskRolloutLayout: Sendable {
         criticObservationCount =
             Int(native.critic_observation_count)
         sceneBodyCount = Int(native.scene_body_count)
+        bodyCount = Int(native.body_count)
         motionFeatureCount = Int(native.motion_feature_count)
         maximumEpisodeSteps = Int(native.maximum_episode_steps)
         worldFingerprint = native.world_fingerprint
@@ -1250,6 +1262,8 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
             configuration.birdFlowJourneyTeacher ? 1 : 0
         native.birdflow_journey_student_authority =
             configuration.birdFlowJourneyStudentAuthority
+        native.birdflow_journey_variant =
+            configuration.birdFlowJourneyVariant.rawValue
         return native
     }
 
@@ -2098,6 +2112,37 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         return Array(
             UnsafeBufferPointer(start: values, count: count)
         )
+    }
+
+    public func finalVelocity() throws -> [Float] {
+        let count = layout.environmentCount * layout.velocityCount
+        guard let values = mr_task_rollout_final_v(handle) else {
+            throw MetalRoboTaskRolloutError.native(
+                "Final velocity is unavailable."
+            )
+        }
+        return Array(UnsafeBufferPointer(start: values, count: count))
+    }
+
+    public var bodyNames: [String] {
+        (0..<layout.bodyCount).compactMap { index in
+            mr_task_rollout_body_name(handle, UInt32(index)).map(String.init(cString:))
+        }
+    }
+
+    public func finalBodyStates() throws -> [Float] {
+        let current = layout
+        let count = current.environmentCount * current.bodyCount * 13
+        var output = [Float](repeating: 0, count: count)
+        let status = output.withUnsafeMutableBufferPointer { buffer in
+            mr_task_rollout_copy_final_body_states(
+                handle, buffer.baseAddress, buffer.count
+            )
+        }
+        guard status == 0 else {
+            throw MetalRoboTaskRolloutError.native(Self.lastError())
+        }
+        return output
     }
 
     public func finalSceneStates() throws -> [Float] {

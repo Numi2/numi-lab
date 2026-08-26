@@ -6864,6 +6864,22 @@ kernel void mr_locomotion_task_complete(
     outcomeChannels0 *= dispatch.timing.x;
     outcomeChannels1 *= dispatch.timing.x;
 
+    // V8 omits the actuating approach-envelope flag but retains these two
+    // direct shadow diagnostics. They are per-transition indicators, not
+    // reward terms, and occupy the two channels unused by the inherited Crow
+    // journey outcome schema.
+    const bool neuralOnlyAvianJourney =
+        (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
+        (program.schedule.w &
+         MR_TASK_PROGRAM_AVIAN_CROW_APPROACH_ENVELOPE) == 0u;
+    const bool shadowApproachActive = neuralOnlyAvianJourney &&
+        state.commandExtension.w >= (18.0f / 32.0f);
+    const float shadowAbsolutePitch = abs(state.threatGeometry.w);
+    outcomeChannels1.z = shadowApproachActive &&
+        shadowAbsolutePitch > 0.16f ? 1.0f : 0.0f;
+    outcomeChannels1.w = shadowApproachActive &&
+        shadowAbsolutePitch > 0.22f ? 1.0f : 0.0f;
+
     const float tracking = exp(-trackingError / 0.25f);
     const float yawTracking = exp(-yawError / 0.25f);
     const uint episodeSteps = state.episode.x + 1u;

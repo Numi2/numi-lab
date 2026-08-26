@@ -26,6 +26,7 @@ _VALUE_OPTIONS = frozenset(
         "--task",
         "--minimum-difficulty-band",
         "--maximum-difficulty-band",
+        "--birdflow-journey-variant",
         "--interaction-student-authority",
         "--interaction-pack",
         "--interaction-clip",
@@ -460,6 +461,27 @@ def _crow_journey_contract_regressions(
         record.get("maximum_root_height", 0.0)
     ) < 0.55:
         regressions.append("airborne milestone did not reach 0.55 m")
+    task_id = str(record.get("task", ""))
+    if task_id in {
+        "birdflow_american_crow_journey_v8_neural",
+        "birdflow_american_crow_journey_v9_visual_neural",
+    } and band in {
+        7, 8, 9, 10
+    }:
+        outcomes = _authored_outcomes(record)
+        warning = outcomes.get("approach_pitch_warning_fraction")
+        full = outcomes.get("approach_pitch_full_envelope_fraction")
+        if warning is None or full is None:
+            regressions.append("neural approach-envelope diagnostics unavailable")
+        else:
+            if warning[0] > 0.05:
+                regressions.append(
+                    "neural approach warning-envelope occupancy exceeds 0.05"
+                )
+            if full[0] > 1.0e-6:
+                regressions.append(
+                    "neural approach full-envelope occupancy is nonzero"
+                )
     return regressions
 
 

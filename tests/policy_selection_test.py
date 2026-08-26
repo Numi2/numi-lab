@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "python"))
 from metalrobo.policy_selection import (  # noqa: E402
     _adult_evaluation_bands,
     _curriculum_evaluation_bands,
+    _crow_journey_contract_regressions,
     _evaluate,
     compare_protected_bands,
     compare_staged_bands,
@@ -1178,6 +1179,50 @@ class PolicySelectionTest(unittest.TestCase):
             ]
         )
         self.assertEqual((current, previous), (4, 3))
+
+    def test_visual_crow_selection_retains_variant(self) -> None:
+        arguments = evaluation_arguments(
+            [
+                "--birdflow-american-crow-journey",
+                "--birdflow-journey-variant", "v9-visual-neural",
+                "--visual-observation-config", "/tmp/crow-visual.json",
+                "--updates", "10",
+            ],
+            policy_pack=Path("/tmp/policy.policypack"),
+            metallib=Path("/tmp/MetalRobo.metallib"),
+            state_trace=Path("/tmp/crow.tsv"),
+            maximum_environments=2,
+            held_out_seed=7,
+            evaluation_steps=4,
+        )
+        self.assertIn("--birdflow-journey-variant", arguments)
+        self.assertIn("v9-visual-neural", arguments)
+
+    def test_neural_crow_approach_requires_shadow_envelope_clearance(self) -> None:
+        record = {
+            "task": "birdflow_american_crow_journey_v8_neural",
+            "failed_environment_steps": 0,
+            "termination_count": 0,
+            "timeout_count": 0,
+            "mean_tracking_score": 0.8,
+            "mean_tilt": 0.1,
+            "maximum_tilt": 0.2,
+            "maximum_root_height": 0.8,
+            "outcomes": {
+                "approach_pitch_warning_fraction": {
+                    "mean": 0.06, "direction": 2,
+                },
+                "approach_pitch_full_envelope_fraction": {
+                    "mean": 0.0, "direction": 2,
+                },
+            },
+        }
+        self.assertIn(
+            "neural approach warning-envelope occupancy exceeds 0.05",
+            _crow_journey_contract_regressions(record, 7),
+        )
+        record["outcomes"]["approach_pitch_warning_fraction"]["mean"] = 0.01
+        self.assertEqual(_crow_journey_contract_regressions(record, 7), [])
 
 
 if __name__ == "__main__":

@@ -51,6 +51,12 @@ typedef enum MRInteractionReferenceModeC {
     MR_INTERACTION_REFERENCE_RESET_ONLY = 2,
 } MRInteractionReferenceModeC;
 
+typedef enum MRBirdFlowJourneyVariantC {
+    MR_BIRDFLOW_JOURNEY_V7_HIERARCHICAL = 0,
+    MR_BIRDFLOW_JOURNEY_V8_NEURAL = 1,
+    MR_BIRDFLOW_JOURNEY_V9_VISUAL_NEURAL = 2,
+} MRBirdFlowJourneyVariantC;
+
 typedef struct MRTaskRolloutDynamicSphereC {
     float position[3];
     float linear_velocity[3];
@@ -93,6 +99,10 @@ typedef struct MRTaskRolloutConfigC {
     // Fraction of normalized student action executed when the journey
     // teacher is enabled. Blended transitions remain distillation-only.
     float birdflow_journey_student_authority;
+    // Selects the exact fingerprinted journey TaskPack. V7 retains its
+    // approach supervisor; V8 is neural-only during execution while still
+    // permitting invocation-scoped teacher labels during training.
+    uint32_t birdflow_journey_variant;
 } MRTaskRolloutConfigC;
 
 typedef struct MRTaskVisualPackC {
@@ -141,6 +151,7 @@ typedef struct MRTaskRolloutLayoutC {
     uint32_t actor_observation_count;
     uint32_t critic_observation_count;
     uint32_t scene_body_count;
+    uint32_t body_count;
     uint32_t motion_feature_count;
     uint32_t maximum_episode_steps;
     uint64_t world_fingerprint;
@@ -760,6 +771,24 @@ MR_API const float* mr_task_rollout_bootstrap_policy_values(
 );
 MR_API const float* mr_task_rollout_final_q(
     const MRTaskRolloutHandle* handle
+);
+MR_API const float* mr_task_rollout_final_v(
+    const MRTaskRolloutHandle* handle
+);
+// Stable model-owned name for a composed body index. The pointer remains
+// valid until the rollout handle is destroyed.
+MR_API const char* mr_task_rollout_body_name(
+    const MRTaskRolloutHandle* handle,
+    uint32_t body_index
+);
+// Copies accepted final model-body states as packed
+// [environment][body][position xyz, orientation xyzw,
+// linear velocity xyz, angular velocity xyz]. Articulated bodies are composed
+// from final q/v; scene bodies retain the accepted solver state.
+MR_API int mr_task_rollout_copy_final_body_states(
+    const MRTaskRolloutHandle* handle,
+    float* output,
+    size_t output_count
 );
 // Copies accepted final scene-body states as packed
 // [environment][scene body][position xyz, orientation xyzw,

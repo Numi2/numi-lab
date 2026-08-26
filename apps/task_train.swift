@@ -60,6 +60,8 @@ private struct Options {
     var birdFlowAmericanCrowJourney = false
     var birdFlowJourneyTeacher = false
     var birdFlowJourneyStudentAuthority: Float = 0.0
+    var birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant =
+        .v7Hierarchical
     var inspectionScene: String?
     var inspectionWidth = 640
     var inspectionHeight = 360
@@ -325,6 +327,20 @@ private struct Options {
                 birdFlowAmericanCrowJourney = true
             case "--birdflow-journey-teacher":
                 birdFlowJourneyTeacher = true
+            case "--birdflow-journey-variant":
+                switch try value() {
+                case "v7", "v7-hierarchical":
+                    birdFlowJourneyVariant = .v7Hierarchical
+                case "v8", "v8-neural":
+                    birdFlowJourneyVariant = .v8Neural
+                case "v9", "v9-visual", "v9-visual-neural":
+                    birdFlowJourneyVariant = .v9VisualNeural
+                default:
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, or v9-visual-neural."
+                    )
+                }
+                index += 1
             case "--birdflow-journey-student-authority":
                 guard let authority = Float(try value()),
                       authority.isFinite,
@@ -1264,6 +1280,7 @@ private func makeContext(
         birdFlowJourneyTeacher: options.birdFlowJourneyTeacher,
         birdFlowJourneyStudentAuthority:
             options.birdFlowJourneyStudentAuthority,
+        birdFlowJourneyVariant: options.birdFlowJourneyVariant,
         unitreeG1Task: options.unitreeG1Task
     )
     if [options.birdFlowDove, options.birdFlowAmericanCrow,
@@ -1295,7 +1312,11 @@ private func makeContext(
                 ),
                 metallibPath: options.metallib
             ),
-            "birdflow_american_crow_journey_v7"
+            options.birdFlowJourneyVariant == .v9VisualNeural
+                ? "birdflow_american_crow_journey_v9_visual_neural"
+                : options.birdFlowJourneyVariant == .v8Neural
+                ? "birdflow_american_crow_journey_v8_neural"
+                : "birdflow_american_crow_journey_v7"
         )
     }
     if options.birdFlowAmericanCrow {
@@ -1849,7 +1870,11 @@ private enum TaskTrainMain {
                 "action_carrier": options.birdFlowJourneyTeacher
                     ? "birdflow_assisted_journey_teacher"
                     : options.birdFlowAmericanCrowJourney
-                    ? "v7_state_triggered_approach_supervisor_pitch_0.16_0.22_full_authority"
+                    ? options.birdFlowJourneyVariant == .v9VisualNeural
+                        ? "v9_visual_neural_only_masked_depth_history"
+                        : options.birdFlowJourneyVariant == .v8Neural
+                        ? "v8_neural_only_shadow_approach_envelope"
+                        : "v7_state_triggered_approach_supervisor_pitch_0.16_0.22_full_authority"
                     : options.birdFlowAmericanCrow
                     ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_band_1;stage2_live_altitude_vertical_rate_and_airspeed_trim_plus_phase_calibrated_pronation_target_amplitude_0.20_phase_2.62_plus_bounded_residual_0.25_wing_sweep_pronation_and_leg_residual_0.25_tail_residual_0.10_band_2"
                     : "none",
@@ -1857,6 +1882,11 @@ private enum TaskTrainMain {
                     options.birdFlowJourneyTeacher,
                 "birdflow_journey_student_authority":
                     options.birdFlowJourneyStudentAuthority,
+                "birdflow_journey_variant":
+                    options.birdFlowJourneyVariant == .v9VisualNeural
+                    ? "v9-visual-neural"
+                    : options.birdFlowJourneyVariant == .v8Neural
+                    ? "v8-neural" : "v7-hierarchical",
                 "device": context.deviceName,
                 "visual_observation":
                     context.visualSceneFingerprint != 0,

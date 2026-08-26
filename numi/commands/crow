@@ -13,15 +13,20 @@ crow_dispatcher=$crow_root/tools/numi
 crow_usage() {
     cat <<'EOF'
 Usage: numi crow train|evaluate [native Numi arguments...]
-       numi crow journey train|evaluate|window|capture \
+       numi crow journey train|evaluate|window|capture|curriculum \
+           [--variant v7-hierarchical|v8-neural|v9-visual-neural] \
            [--milestone standing|walking|takeoff|cruise|takeoff-cruise|turn-left|turn-right|approach|touchdown|landed-hold|full-journey] [arguments...]
 
   train      Train the estimated American-crow hybrid through native Metal and MLX.
   evaluate   Evaluate a crow policy or an explicitly selected action source.
+  curriculum Run the durable v8 all-milestone held-out supervisor.
 
 The journey variant uses one command-conditioned actor for stand, walk/hop,
 takeoff, cruise/turn, approach, and supported landing. It has a separate task
 and PolicyPack fingerprint from the science-gated standing-to-flight task.
+V7 retains the qualified state-triggered approach supervisor. V8 is a distinct
+neural-only TaskPack and reports the former supervisor envelope as a shadow
+diagnostic without granting it actuator authority.
 
 Journey capture runs an explicitly assisted native teacher when no
 --policy-pack is supplied. Window and policy-backed capture are autonomous.
@@ -87,24 +92,52 @@ fi
 
 crow_milestone=takeoff-cruise
 crow_milestone_band=4
-if [ "$crow_variant" = journey ] && [ "${1:-}" = "--milestone" ]; then
-    [ "$#" -ge 2 ] || crow_die '--milestone requires a value'
-    crow_milestone=$2
-    shift 2
-    case "$crow_milestone" in
-        standing) crow_milestone_band=0 ;;
-        walking) crow_milestone_band=1 ;;
-        takeoff) crow_milestone_band=2 ;;
-        cruise) crow_milestone_band=3 ;;
-        takeoff-cruise) crow_milestone_band=4 ;;
-        turn-left) crow_milestone_band=5 ;;
-        turn-right) crow_milestone_band=6 ;;
-        approach) crow_milestone_band=7 ;;
-        touchdown) crow_milestone_band=8 ;;
-        landed-hold) crow_milestone_band=9 ;;
-        full-journey) crow_milestone_band=10 ;;
-        *) crow_die 'unknown journey milestone' ;;
-    esac
+crow_journey_variant=v7-hierarchical
+if [ "$crow_variant" = journey ]; then
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            --milestone)
+                [ "$#" -ge 2 ] || crow_die '--milestone requires a value'
+                crow_milestone=$2
+                shift 2
+                case "$crow_milestone" in
+                    standing) crow_milestone_band=0 ;;
+                    walking) crow_milestone_band=1 ;;
+                    takeoff) crow_milestone_band=2 ;;
+                    cruise) crow_milestone_band=3 ;;
+                    takeoff-cruise) crow_milestone_band=4 ;;
+                    turn-left) crow_milestone_band=5 ;;
+                    turn-right) crow_milestone_band=6 ;;
+                    approach) crow_milestone_band=7 ;;
+                    touchdown) crow_milestone_band=8 ;;
+                    landed-hold) crow_milestone_band=9 ;;
+                    full-journey) crow_milestone_band=10 ;;
+                    *) crow_die 'unknown journey milestone' ;;
+                esac
+                ;;
+            --variant)
+                [ "$#" -ge 2 ] || crow_die '--variant requires a value'
+                case "$2" in
+                    v7|v7-hierarchical)
+                        crow_journey_variant=v7-hierarchical ;;
+                    v8|v8-neural)
+                        crow_journey_variant=v8-neural ;;
+                    v9|v9-visual|v9-visual-neural)
+                        crow_journey_variant=v9-visual-neural ;;
+                    *) crow_die 'journey variant requires v7-hierarchical, v8-neural, or v9-visual-neural' ;;
+                esac
+                shift 2
+                ;;
+            *) break ;;
+        esac
+    done
+    set -- --birdflow-journey-variant "$crow_journey_variant" "$@"
+    if [ "$crow_journey_variant" = v9-visual-neural ] &&
+       ! crow_has_option --visual-observation-config "$@"; then
+        set -- --visual-observation-config \
+            "$crow_root/assets/crow_journey_window/crow-journey.sensor-fast.visual-observation.json" \
+            "$@"
+    fi
 fi
 if [ "$crow_variant" = journey ] &&
    { crow_has_option --minimum-difficulty-band "$@" ||
@@ -113,6 +146,10 @@ if [ "$crow_variant" = journey ] &&
 fi
 
 case "$crow_action" in
+    curriculum)
+        [ "$crow_variant" = journey ] || crow_die 'curriculum requires crow journey'
+        exec "$crow_root/tools/crow_journey_curriculum_supervisor.sh"
+        ;;
     train)
         if [ "$crow_variant" = journey ]; then
             if crow_has_option --base-policy-pack "$@"; then
@@ -132,7 +169,7 @@ case "$crow_action" in
                 exec "$crow_dispatcher" train \
                     --birdflow-american-crow-journey \
                     --birdflow-journey-teacher \
-                    --initialize-policy birdflow_american_crow_journey_v7_brain \
+                    --initialize-policy "birdflow_american_crow_journey_${crow_journey_variant}_brain" \
                     --minimum-difficulty-band "$crow_milestone_band" \
                     --maximum-difficulty-band "$crow_milestone_band" \
                     "$@"
@@ -140,7 +177,7 @@ case "$crow_action" in
             exec "$crow_dispatcher" train \
                 --birdflow-american-crow-journey \
                 --birdflow-journey-teacher \
-                --initialize-policy birdflow_american_crow_journey_v7_brain \
+                --initialize-policy "birdflow_american_crow_journey_${crow_journey_variant}_brain" \
                 --zero-actor-output \
                 --minimum-difficulty-band "$crow_milestone_band" \
                 --maximum-difficulty-band "$crow_milestone_band" \

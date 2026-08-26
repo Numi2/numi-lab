@@ -1050,7 +1050,8 @@ TaskCompileDiagnostics compileTaskProgram(
         const auto direction = static_cast<std::uint32_t>(outcome.direction);
         const bool taskAuthoredSource =
             (source >= 2u && source <= 4u) ||
-            source == 8u || source == 9u;
+            source == 8u || source == 9u ||
+            source == 15u || source == 16u;
         if (outcome.id.empty() || outcome.unit.empty() ||
             !taskAuthoredSource ||
             direction > 2u ||
@@ -4063,7 +4064,9 @@ TaskCompileDiagnostics compileTaskProgram(
     }
     if (pack.id == "birdflow_deetjen_dove_takeoff_flight_figure_eight" ||
         pack.id == "birdflow_american_crow_standing_to_flight" ||
-        pack.id == "birdflow_american_crow_journey_v7") {
+        pack.id == "birdflow_american_crow_journey_v7" ||
+        pack.id == "birdflow_american_crow_journey_v8_neural" ||
+        pack.id == "birdflow_american_crow_journey_v9_visual_neural") {
         // Stage zero and stage one are grounded support tasks. Wing actuation
         // begins only in the lift-off band, keeping the curriculum physically
         // possible before flight practice.
@@ -4108,6 +4111,13 @@ TaskCompileDiagnostics compileTaskProgram(
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY |
             MR_TASK_PROGRAM_AVIAN_CROW_APPROACH_ENVELOPE;
+    }
+    if (pack.id == "birdflow_american_crow_journey_v8_neural" ||
+        pack.id == "birdflow_american_crow_journey_v9_visual_neural") {
+        // V8 deliberately omits AVIAN_CROW_APPROACH_ENVELOPE. The policy is
+        // the sole deployment action authority; the task only records shadow
+        // envelope occupancy through direct outcome channels.
+        staged->header.schedule.w |= MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY;
     }
     if (threatGroup != MR_INVALID_INDEX) {
         staged->header.schedule.w |=

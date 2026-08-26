@@ -1,0 +1,28 @@
+{
+  "format": "numi.visual-observation.v1",
+  "id": "birdflow_american_crow_journey_sensor_fast_v1",
+  "packs": [
+    {"path":"body.mrvpack","asset_id":"robot","semantic_id":1,"instance_id":1},
+    {"path":"left-wing.mrvpack","asset_id":"robot","semantic_id":2,"instance_id":2},
+    {"path":"right-wing.mrvpack","asset_id":"robot","semantic_id":2,"instance_id":3},
+    {"path":"tail.mrvpack","asset_id":"robot","semantic_id":3,"instance_id":4},
+    {"path":"left-thigh.mrvpack","asset_id":"robot","semantic_id":5,"instance_id":5},
+    {"path":"left-shank.mrvpack","asset_id":"robot","semantic_id":5,"instance_id":6},
+    {"path":"left-foot.mrvpack","asset_id":"robot","semantic_id":6,"instance_id":7},
+    {"path":"right-thigh.mrvpack","asset_id":"robot","semantic_id":5,"instance_id":8},
+    {"path":"right-shank.mrvpack","asset_id":"robot","semantic_id":5,"instance_id":9},
+    {"path":"right-foot.mrvpack","asset_id":"robot","semantic_id":6,"instance_id":10},
+    {"path":"room.mrvpack","asset_id":"locomotion_ground","semantic_id":4,"instance_id":11}
+  ],
+  "camera": {
+    "parent_body": "crow_body",
+    "position": [-0.85, -0.85, 0.45],
+    "orientation": [-0.759210401, 0.314475245, -0.218064050, 0.526453187],
+    "width": 16,
+    "height": 9,
+    "minimum_visible_pixels": 1,
+    "vertical_field_of_view_degrees": 55.0,
+    "nominal_rate_hz": 15.0,
+    "maximum_retained_bytes": 67108864
+  }
+}

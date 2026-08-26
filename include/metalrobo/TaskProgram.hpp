@@ -232,6 +232,12 @@ enum class TaskOutcomeSource : std::uint32_t {
     // The compiler assigns one of eight generic native outcome channels and
     // accumulates every matching reward-operator contribution into it.
     rewardContribution = 9u,
+    // Direct diagnostic channels owned by the neural-only Crow journey.
+    // They report the fraction of accepted approach states that enter the
+    // former V7 supervisor's warning or full-authority pitch envelopes; they
+    // never contribute reward or actuator authority.
+    avianJourneyApproachWarning = 15u,
+    avianJourneyApproachFull = 16u,
 };
 
 enum class TaskOutcomeDirection : std::uint32_t {

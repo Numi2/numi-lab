@@ -2261,6 +2261,73 @@ TaskPack makeBirdFlowAmericanCrowJourneyTaskPack(
     return task;
 }
 
+TaskPack makeBirdFlowAmericanCrowNeuralJourneyTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    TaskPack task = makeBirdFlowAmericanCrowJourneyTaskPack(
+        observations, reset
+    );
+    task.id = "birdflow_american_crow_journey_v8_neural";
+    task.outcomes.push_back({
+        "approach_pitch_warning_fraction", "ratio",
+        TaskOutcomeSource::avianJourneyApproachWarning,
+        TaskOutcomeDirection::lowerIsBetter,
+    });
+    task.outcomes.push_back({
+        "approach_pitch_full_envelope_fraction", "ratio",
+        TaskOutcomeSource::avianJourneyApproachFull,
+        TaskOutcomeDirection::lowerIsBetter,
+    });
+    return task;
+}
+
+TaskPack makeBirdFlowAmericanCrowVisualJourneyTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    TaskPack task = makeBirdFlowAmericanCrowNeuralJourneyTaskPack(
+        observations, reset
+    );
+    task.id = "birdflow_american_crow_journey_v9_visual_neural";
+    observations.visual = {
+        .width = 16u,
+        .height = 9u,
+        .frameOffsets = {0u, 3u, 8u, 18u},
+        .nearDepthMeters = 0.1f,
+        .farDepthMeters = 8.0f,
+        .fullDropoutProbability = 0.005f,
+        .pixelDropoutProbability = 0.03f,
+        .depthJitterMeters = 0.05f,
+        .depthNoiseSigmaMeters = 0.01f,
+        .edgeFlickerProbability = 0.20f,
+        .difficultyCorruptionGain = 1.0f,
+        .includeDerivedFeatures = true,
+    };
+    const std::uint32_t pixels =
+        observations.visual.width * observations.visual.height;
+    const std::uint32_t visualFrames = static_cast<std::uint32_t>(
+        observations.visual.frameOffsets.size()
+    );
+    for (std::uint32_t frame = 0u; frame < visualFrames; ++frame) {
+        for (std::uint32_t pixel = 0u; pixel < pixels; ++pixel) {
+            observations.actorFrame.push_back({
+                .source = TaskObservationSource::maskedDepth,
+                .component = frame * pixels + pixel,
+            });
+        }
+    }
+    for (std::uint32_t feature = 0u;
+         feature < MR_TASK_MASKED_DEPTH_FEATURE_COUNT;
+         ++feature) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::maskedDepth,
+            .component = visualFrames * pixels + feature,
+        });
+    }
+    return task;
+}
+
 std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
     if (id == "birdflow_deetjen_dove_hybrid") {
         // The Deetjen public surface sequence does not include the complete

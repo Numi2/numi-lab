@@ -583,6 +583,12 @@ void validateTaskRolloutConfiguration(
             "task-rollout journey student authority must be in [0, 1]"
         );
     }
+    if (config.birdflow_journey_variant >
+        MR_BIRDFLOW_JOURNEY_V9_VISUAL_NEURAL) {
+        throw std::invalid_argument(
+            "task-rollout BirdFlow journey variant is invalid"
+        );
+    }
     if (config.override_difficulty_band_range > 1u ||
         (config.override_difficulty_band_range != 0u &&
          config.minimum_difficulty_band >
@@ -2035,6 +2041,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     std::map<std::uint32_t, float> positionScales;
     std::map<std::uint32_t, float> velocityScales;
     std::unordered_set<std::uint32_t> trackedSceneBodies;
+    std::unordered_set<std::uint32_t> maskedDepthSceneBodies;
     std::uint32_t maskedDepthOffset = MR_INVALID_INDEX;
     std::uint32_t maskedDepthCount = 0u;
     if (deviceObservation) {
@@ -2120,6 +2127,19 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             "visual runtime requires device observations or presentation capture"
         );
     }
+    if (maskedDepthCount != 0u) {
+        maskedDepthSceneBodies = trackedSceneBodies;
+        if (maskedDepthSceneBodies.empty()) {
+            // Navigation/perching actors may consume the visible authored
+            // environment without a privileged object-track channel. Keep
+            // every scene body eligible for the instance-masked depth plane;
+            // ordinary object-tracking tasks retain their narrow target set.
+            for (std::uint32_t local = 0u;
+                 local < sceneIndices.size(); ++local) {
+                maskedDepthSceneBodies.insert(local);
+            }
+        }
+    }
 
     metalrobo::EpisodeTwin episode;
     episode.id = handle.model.name + ".visual_rollout";
@@ -2151,6 +2171,8 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         const std::string& id = handle.model.bodyNames[body];
         const std::uint32_t motion = handle.model.bodies[body].motionType;
         const bool tracked = trackedSceneBodies.contains(local);
+        const bool maskedDepthVisible =
+            maskedDepthSceneBodies.contains(local);
         const std::uint32_t role = tracked && manipulatedAsset.empty()
             ? MR_WORLD_ASSET_MANIPULATED
             : motion == MR_MOTION_STATIC
@@ -2166,7 +2188,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             id,
             {body},
             role,
-            (tracked || !deviceObservation)
+            (tracked || maskedDepthVisible || !deviceObservation)
                 ? MR_WORLD_RENDER_MESH_PBR
                 : MR_WORLD_RENDER_NONE,
             dynamics
@@ -2212,9 +2234,10 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         episode.assets.push_back(std::move(asset));
     }
     if (deviceObservationEnabled &&
-        (manipulatedAsset.empty() || targetAsset.empty())) {
+        (targetAsset.empty() ||
+         (!trackedOffsets.empty() && manipulatedAsset.empty()))) {
         throw std::invalid_argument(
-            "visual object tracking requires a tracked rigid object and static scene asset"
+            "visual sensing requires a static scene asset and object tracking additionally requires a tracked rigid object"
         );
     }
 
@@ -2316,7 +2339,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         presentation.maximumDepthMeters = 12.0f;
         episode.sensors.push_back(std::move(presentation));
     }
-    episode.task = deviceObservationEnabled
+    episode.task = !trackedOffsets.empty()
         ? metalrobo::TaskSpec{
               "compiled_task_visual_observation",
               "robot",
@@ -2327,7 +2350,9 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
               20.0,
           }
         : metalrobo::TaskSpec{
-              deviceObservation
+              deviceObservationEnabled
+                  ? "compiled_task_masked_depth_observation"
+                  : deviceObservation
                   ? "compiled_task_presentation_capture"
                   : "inspection_presentation",
               "robot",
@@ -2424,12 +2449,14 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
                     sceneName - handle.model.bodyNames.begin()
                 );
             const auto local = std::ranges::find(sceneIndices, body);
+            const std::uint32_t localIndex = local == sceneIndices.end()
+                ? MR_INVALID_INDEX
+                : static_cast<std::uint32_t>(
+                      local - sceneIndices.begin()
+                  );
             if (local != sceneIndices.end() &&
-                trackedSceneBodies.contains(
-                    static_cast<std::uint32_t>(
-                        local - sceneIndices.begin()
-                    )
-                )) {
+                (trackedSceneBodies.contains(localIndex) ||
+                 maskedDepthSceneBodies.contains(localIndex))) {
                 const bool rigidBound = std::ranges::any_of(
                     pack.symbolicBindings,
                     [&](const metalrobo::VisualSymbolicBindingV2& binding) {
@@ -2438,10 +2465,16 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
                                 MR_VISUAL_BINDING_RIGID_BODY;
                     }
                 );
-                if (!rigidBound) {
+                const bool objectTracked =
+                    trackedSceneBodies.contains(localIndex);
+                const bool staticMaskedDepth =
+                    maskedDepthSceneBodies.contains(localIndex) &&
+                    handle.model.bodies[body].motionType ==
+                        MR_MOTION_STATIC;
+                if (!rigidBound && (objectTracked || !staticMaskedDepth)) {
                     throw std::invalid_argument(
                         std::string{
-                            "tracked visual pack is not bound to physics body: "
+                            "sensor-visible visual pack is not bound to physics body: "
                         } + source.assetId
                     );
                 }
@@ -2672,7 +2705,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             taskHeader.schedule.z;
         trackerConfig.maskedDepthFeatureCount =
             maskedDepthFeatureCount;
-        for (const std::uint32_t sceneIndex : trackedSceneBodies) {
+        for (const std::uint32_t sceneIndex : maskedDepthSceneBodies) {
             const std::string& assetId =
                 handle.model.bodyNames[sceneIndices[sceneIndex]];
             const auto instance = trackedInstances.find(assetId);
@@ -3063,18 +3096,40 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             );
         }
         metalrobo::RunManifest manifest;
+        const bool visualNeuralJourney = journey &&
+            config->birdflow_journey_variant ==
+                MR_BIRDFLOW_JOURNEY_V9_VISUAL_NEURAL;
+        const bool neuralJourney = journey &&
+            config->birdflow_journey_variant ==
+                MR_BIRDFLOW_JOURNEY_V8_NEURAL;
         manifest.id = journey
-            ? "birdflow_american_crow_journey_v7_run"
+            ? visualNeuralJourney
+                ? "birdflow_american_crow_journey_v9_visual_neural_run"
+                : neuralJourney
+                ? "birdflow_american_crow_journey_v8_neural_run"
+                : "birdflow_american_crow_journey_v7_run"
             : "birdflow_american_crow_estimated_hybrid_run";
         manifest.robot = std::move(*robot);
         manifest.scene = metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
         manifest.sensors.id = journey
-            ? "birdflow_american_crow_journey_v7_state_sensors"
+            ? visualNeuralJourney
+                ? "birdflow_american_crow_journey_v9_visual_neural_sensors"
+                : neuralJourney
+                ? "birdflow_american_crow_journey_v8_neural_state_sensors"
+                : "birdflow_american_crow_journey_v7_state_sensors"
             : "birdflow_american_crow_estimated_hybrid_state_sensors";
         manifest.task = journey
-            ? metalrobo::makeBirdFlowAmericanCrowJourneyTaskPack(
-                  manifest.sensors.observation, manifest.reality.reset
-              )
+            ? visualNeuralJourney
+                ? metalrobo::makeBirdFlowAmericanCrowVisualJourneyTaskPack(
+                      manifest.sensors.observation, manifest.reality.reset
+                  )
+                : neuralJourney
+                ? metalrobo::makeBirdFlowAmericanCrowNeuralJourneyTaskPack(
+                      manifest.sensors.observation, manifest.reality.reset
+                  )
+                : metalrobo::makeBirdFlowAmericanCrowJourneyTaskPack(
+                      manifest.sensors.observation, manifest.reality.reset
+                  )
             : metalrobo::makeBirdFlowAmericanCrowFlightTaskPack(
                   manifest.sensors.observation, manifest.reality.reset
               );
@@ -4211,6 +4266,9 @@ MRTaskRolloutLayoutC mr_task_rollout_layout(
         static_cast<std::uint32_t>(
             handle->defaultSceneBodies.size()
         );
+    result.body_count = static_cast<std::uint32_t>(
+        handle->model.bodies.size()
+    );
     result.motion_feature_count =
         handle->taskProgram.layout().motionFeatureCount;
     result.maximum_episode_steps =
@@ -4531,6 +4589,77 @@ const float* mr_task_rollout_final_q(
         !handle->result.finalQ.empty()
         ? handle->result.finalQ.data()
         : nullptr;
+}
+
+const float* mr_task_rollout_final_v(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle) &&
+        !handle->result.finalV.empty()
+        ? handle->result.finalV.data()
+        : nullptr;
+}
+
+const char* mr_task_rollout_body_name(
+    const MRTaskRolloutHandle* handle,
+    const uint32_t body_index
+) {
+    if (!requireTaskRolloutHandle(handle) ||
+        body_index >= handle->model.bodyNames.size()) {
+        gLastError = "task-rollout body index is out of range";
+        return nullptr;
+    }
+    return handle->model.bodyNames[body_index].c_str();
+}
+
+int mr_task_rollout_copy_final_body_states(
+    const MRTaskRolloutHandle* handle,
+    float* output,
+    const size_t output_count
+) {
+    if (!requireTaskRolloutHandle(handle)) {
+        return -1;
+    }
+    constexpr std::size_t stride = 13u;
+    const std::size_t required =
+        static_cast<std::size_t>(handle->environmentCount) *
+        handle->model.bodies.size() * stride;
+    if (required == 0u || output == nullptr ||
+        output_count != required) {
+        gLastError = "final composed body-state output has the wrong size";
+        return -1;
+    }
+    std::vector<MRBodyStateGPU> states;
+    std::string reason;
+    if (!metalrobo::composeVisualBodyStates(
+            handle->model,
+            handle->environmentCount,
+            handle->result.finalQ,
+            handle->result.finalV,
+            handle->result.finalSceneBodies,
+            states,
+            &reason
+        )) {
+        gLastError = "final composed body-state export failed: " + reason;
+        return -1;
+    }
+    std::size_t cursor = 0u;
+    for (const MRBodyStateGPU& state : states) {
+        for (const float value : {
+            state.position.x, state.position.y, state.position.z,
+            state.orientation.x, state.orientation.y,
+            state.orientation.z, state.orientation.w,
+            state.linearVelocityAndInverseMass.x,
+            state.linearVelocityAndInverseMass.y,
+            state.linearVelocityAndInverseMass.z,
+            state.angularVelocity.x, state.angularVelocity.y,
+            state.angularVelocity.z,
+        }) {
+            output[cursor++] = value;
+        }
+    }
+    gLastError.clear();
+    return 0;
 }
 
 int mr_task_rollout_copy_final_scene_states(

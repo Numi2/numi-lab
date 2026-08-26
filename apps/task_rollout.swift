@@ -2,6 +2,35 @@ import Foundation
 import Darwin
 import AppKit
 
+private func sha256Hex(_ data: Data) throws -> String {
+    let process = Process()
+    let input = Pipe()
+    let output = Pipe()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/shasum")
+    process.arguments = ["-a", "256"]
+    process.standardInput = input
+    process.standardOutput = output
+    try process.run()
+    input.fileHandleForWriting.write(data)
+    try input.fileHandleForWriting.close()
+    process.waitUntilExit()
+    guard process.terminationStatus == 0 else {
+        throw MetalRoboTaskRolloutError.native(
+            "Unable to compute CrowReplayPack SHA-256."
+        )
+    }
+    let digest = String(
+        decoding: output.fileHandleForReading.readDataToEndOfFile(),
+        as: UTF8.self
+    ).split(separator: " ").first.map(String.init) ?? ""
+    guard digest.count == 64 else {
+        throw MetalRoboTaskRolloutError.native(
+            "CrowReplayPack SHA-256 output is malformed."
+        )
+    }
+    return digest
+}
+
 private struct SplitMix64 {
     private var state: UInt64
 
@@ -202,6 +231,7 @@ private struct Options {
     var interactionResetMaximumPhase: Float?
     var stateTrace: String?
     var stateTraceEnvironment = 0
+    var crowReplayPack: String?
     var policyActionTrace: String?
     var g1VisualPackDirectory: String?
     var ballVisualPackDirectory: String?
@@ -220,6 +250,8 @@ private struct Options {
     var birdFlowAmericanCrowJourney = false
     var birdFlowJourneyTeacher = false
     var birdFlowJourneyStudentAuthority: Float = 0.0
+    var birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant =
+        .v7Hierarchical
 
     init(arguments: [String]) throws {
         var index = 1
@@ -450,6 +482,9 @@ private struct Options {
             case "--state-trace-environment":
                 stateTraceEnvironment = try Self.integer(value(), option)
                 index += 1
+            case "--crow-replay-pack":
+                crowReplayPack = try value()
+                index += 1
             case "--policy-action-trace":
                 policyActionTrace = try value()
                 index += 1
@@ -496,6 +531,20 @@ private struct Options {
                 birdFlowAmericanCrowJourney = true
             case "--birdflow-journey-teacher":
                 birdFlowJourneyTeacher = true
+            case "--birdflow-journey-variant":
+                switch try value() {
+                case "v7", "v7-hierarchical":
+                    birdFlowJourneyVariant = .v7Hierarchical
+                case "v8", "v8-neural":
+                    birdFlowJourneyVariant = .v8Neural
+                case "v9", "v9-visual", "v9-visual-neural":
+                    birdFlowJourneyVariant = .v9VisualNeural
+                default:
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, or v9-visual-neural."
+                    )
+                }
+                index += 1
             case "--birdflow-journey-student-authority":
                 guard let authority = Float(try value()),
                       authority.isFinite,
@@ -884,6 +933,16 @@ private struct Options {
                 "--state-trace requires --repeats 1 --chunk 1."
             )
         }
+        if crowReplayPack != nil && (repeats != 1 || chunk != 1) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--crow-replay-pack requires --repeats 1 --chunk 1."
+            )
+        }
+        if crowReplayPack != nil && !birdFlowAmericanCrowJourney {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--crow-replay-pack requires --birdflow-american-crow-journey."
+            )
+        }
         if stateTrace == nil && stateTraceEnvironment != 0 {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--state-trace-environment requires --state-trace."
@@ -1140,6 +1199,7 @@ private func makeContext(
         birdFlowJourneyTeacher: options.birdFlowJourneyTeacher,
         birdFlowJourneyStudentAuthority:
             options.birdFlowJourneyStudentAuthority,
+        birdFlowJourneyVariant: options.birdFlowJourneyVariant,
         unitreeG1Task: options.unitreeG1Task
     )
     if options.birdFlowDove {
@@ -1167,7 +1227,11 @@ private func makeContext(
                 ),
                 metallibPath: options.metallib
             ),
-            "birdflow_american_crow_journey_v7"
+            options.birdFlowJourneyVariant == .v9VisualNeural
+                ? "birdflow_american_crow_journey_v9_visual_neural"
+                : options.birdFlowJourneyVariant == .v8Neural
+                ? "birdflow_american_crow_journey_v8_neural"
+                : "birdflow_american_crow_journey_v7"
         )
     }
     if options.birdFlowAmericanCrow {
@@ -1632,7 +1696,8 @@ private enum TaskRolloutMain {
                 try makeContext(options: options)
             let visualObservationEnabled =
                 context.visualSceneFingerprint != 0
-            if options.stateTrace != nil || options.captureDirectory != nil {
+            if options.stateTrace != nil || options.crowReplayPack != nil ||
+                options.captureDirectory != nil {
                 try context.setStateReadback(true)
             }
             let streamedActions: [Float]? = try options.actionStream.map {
@@ -2062,6 +2127,7 @@ private enum TaskRolloutMain {
             var collectedPolicyBatches:
                 [MetalRoboPolicyRolloutBatch] = []
             var stateTraceLines: [String] = []
+            var crowReplayFrames: [[String: Any]] = []
             if options.stateTrace != nil {
                 let traceLayout = context.layout
                 stateTraceLines.append(
@@ -2564,7 +2630,8 @@ private enum TaskRolloutMain {
                             )
                         }
                     }
-                    if options.stateTrace != nil {
+                    if options.stateTrace != nil ||
+                        options.crowReplayPack != nil {
                         let traceLayout = context.layout
                         let environment = options.stateTraceEnvironment
                         let allConfigurations =
@@ -2715,6 +2782,53 @@ private enum TaskRolloutMain {
                         stateTraceLines.append(
                             "\(globalStep + stepCount)\t\(payload)"
                         )
+                        if options.crowReplayPack != nil {
+                            let allVelocities = try context.finalVelocity()
+                            let vStart = environment * traceLayout.velocityCount
+                            let velocity = Array(
+                                allVelocities[
+                                    vStart..<(vStart + traceLayout.velocityCount)
+                                ]
+                            )
+                            let allBodies = try context.finalBodyStates()
+                            let bodyStride = traceLayout.bodyCount * 13
+                            let bodyStart = environment * bodyStride
+                            let bodies = Array(
+                                allBodies[bodyStart..<(bodyStart + bodyStride)]
+                            )
+                            let allActions = try context.policyActions(
+                                controlStepCount: stepCount
+                            )
+                            let actionStart = environment * traceLayout.actionCount
+                            let actions = Array(
+                                allActions[
+                                    actionStart..<(actionStart + traceLayout.actionCount)
+                                ]
+                            )
+                            let transition = observedTransitions[environment]
+                            let outcomeBase = environment * outcomeSchema.count
+                            let outcomes = Dictionary(uniqueKeysWithValues:
+                                outcomeSchema.enumerated().map { index, descriptor in
+                                    (descriptor.id, typedOutcomes[outcomeBase + index])
+                                }
+                            )
+                            crowReplayFrames.append([
+                                "step": globalStep + stepCount,
+                                "q": configuration,
+                                "v": velocity,
+                                "body_states": bodies,
+                                "accepted_actions": actions,
+                                "reward": transition.reward,
+                                "tracking_score": transition.trackingScore,
+                                "root_height": transition.rootHeight,
+                                "tilt": transition.tilt,
+                                "difficulty_band": transition.difficultyBand,
+                                "done": transition.done,
+                                "timeout": transition.timeout,
+                                "termination_reason": transition.terminationReason,
+                                "outcomes": outcomes,
+                            ])
+                        }
                     }
                     completed += stepCount
                     globalStep += stepCount
@@ -2742,6 +2856,65 @@ private enum TaskRolloutMain {
                         atomically: true,
                         encoding: .utf8
                     )
+            }
+            var crowReplayPayloadSHA256 = ""
+            if let crowReplayPack = options.crowReplayPack {
+                let replayLayout = context.layout
+                let payload: [String: Any] = [
+                    "classification": "simulated accepted-state replay",
+                    "task": context.taskID,
+                    "journey_variant": options.birdFlowJourneyVariant == .v9VisualNeural
+                        ? "v9-visual-neural"
+                        : options.birdFlowJourneyVariant == .v8Neural
+                        ? "v8-neural" : "v7-hierarchical",
+                    "timestep_seconds": 0.02,
+                    "environment": options.stateTraceEnvironment,
+                    "frame_count": crowReplayFrames.count,
+                    "nq": replayLayout.configurationCount,
+                    "nv": replayLayout.velocityCount,
+                    "action_count": replayLayout.actionCount,
+                    "body_count": replayLayout.bodyCount,
+                    "body_state_stride": 13,
+                    "body_state_layout": [
+                        "position_x", "position_y", "position_z",
+                        "orientation_x", "orientation_y", "orientation_z",
+                        "orientation_w", "linear_velocity_x",
+                        "linear_velocity_y", "linear_velocity_z",
+                        "angular_velocity_x", "angular_velocity_y",
+                        "angular_velocity_z",
+                    ],
+                    "body_names": context.bodyNames,
+                    "world_fingerprint": String(replayLayout.worldFingerprint),
+                    "task_fingerprint": String(replayLayout.taskFingerprint),
+                    "observation_fingerprint": String(
+                        replayLayout.observationFingerprint
+                    ),
+                    "action_fingerprint": String(replayLayout.actionFingerprint),
+                    "run_fingerprint": String(replayLayout.runFingerprint),
+                    "policy_rollout_fingerprint": usesCompiledPolicy
+                        ? String(policyRolloutFingerprint) : "",
+                    "controller_authority": options.birdFlowJourneyVariant != .v7Hierarchical
+                        ? "neural-only; approach envelope is diagnostic-only"
+                        : "hierarchical; state-triggered approach supervisor",
+                    "frames": crowReplayFrames,
+                ]
+                let payloadData = try JSONSerialization.data(
+                    withJSONObject: payload, options: [.sortedKeys]
+                )
+                crowReplayPayloadSHA256 = try sha256Hex(payloadData)
+                let envelope: [String: Any] = [
+                    "schema": "numi.crow-replay.v1",
+                    "payload_sha256": crowReplayPayloadSHA256,
+                    "payload": payload,
+                ]
+                let replayData = try JSONSerialization.data(
+                    withJSONObject: envelope,
+                    options: [.prettyPrinted, .sortedKeys]
+                )
+                try replayData.write(
+                    to: URL(fileURLWithPath: crowReplayPack),
+                    options: .atomic
+                )
             }
             if let policyActionTrace = options.policyActionTrace {
                 try (policyActionTraceLines.joined(separator: "\n") + "\n")
@@ -3085,6 +3258,11 @@ private enum TaskRolloutMain {
                     options.birdFlowJourneyTeacher,
                 "birdflow_journey_student_authority":
                     options.birdFlowJourneyStudentAuthority,
+                "birdflow_journey_variant":
+                    options.birdFlowJourneyVariant == .v9VisualNeural
+                    ? "v9-visual-neural"
+                    : options.birdFlowJourneyVariant == .v8Neural
+                    ? "v8-neural" : "v7-hierarchical",
                 "action_stream": options.actionStream ?? "",
                 "birdflow_stroke_amplitude": options.birdFlowStrokeAmplitude ?? 0,
                 "birdflow_tail_pitch": options.birdFlowTailPitch ?? 0,
@@ -3108,7 +3286,11 @@ private enum TaskRolloutMain {
                 "birdflow_wing_pulse_duration_steps":
                     options.birdFlowWingPulseDurationSteps ?? 0,
                 "action_carrier": options.birdFlowAmericanCrowJourney
-                    ? "v7_state_triggered_approach_supervisor_pitch_0.16_0.22_full_authority"
+                    ? options.birdFlowJourneyVariant == .v9VisualNeural
+                        ? "v9_visual_neural_only_masked_depth_history"
+                        : options.birdFlowJourneyVariant == .v8Neural
+                        ? "v8_neural_only_shadow_approach_envelope"
+                        : "v7_state_triggered_approach_supervisor_pitch_0.16_0.22_full_authority"
                     : options.birdFlowAmericanCrow
                     ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_band_1;stage2_live_altitude_vertical_rate_and_airspeed_trim_plus_phase_calibrated_pronation_target_amplitude_0.20_phase_2.62_plus_bounded_residual_0.25_wing_sweep_pronation_and_leg_residual_0.25_tail_residual_0.10_band_2"
                     : "none",
@@ -3142,6 +3324,8 @@ private enum TaskRolloutMain {
                 "visual_observation_config":
                     options.visualObservationConfig ?? "",
                 "state_trace": options.stateTrace ?? "",
+                "crow_replay_pack": options.crowReplayPack ?? "",
+                "crow_replay_payload_sha256": crowReplayPayloadSHA256,
                 "policy_action_trace": options.policyActionTrace ?? "",
                 "environments": options.environments,
                 "steps_per_repeat": options.steps,
