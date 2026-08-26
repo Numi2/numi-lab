@@ -331,6 +331,8 @@ grep -- '--initialize-actor-fresh-critic' \
 grep -- '--birdflow-journey-student-authority' \
     "$crow_sensor_run/arguments.txt" >/dev/null
 grep -- '^0.25$' "$crow_sensor_run/arguments.txt" >/dev/null
+grep -- '--checkpoint-interval' "$crow_sensor_run/arguments.txt" >/dev/null
+grep -- '^50$' "$crow_sensor_run/arguments.txt" >/dev/null
 if grep -- '--policy-pack' "$crow_sensor_run/arguments.txt" >/dev/null; then
     printf '%s\n' 'sensor-fast supervisor attempted cross-ABI PPO resume' >&2
     exit 1

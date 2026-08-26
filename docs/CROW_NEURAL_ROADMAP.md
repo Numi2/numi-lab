@@ -43,6 +43,9 @@ only on teacher trajectories; configure this with
 `NUMI_CROW_TEACHER_STUDENT_AUTHORITY`. Set
 `NUMI_CROW_TEACHER_DISTILLATION=0` and student authority 0 only for a
 pre-registered no-teacher ablation.
+Checkpoint selection defaults to 50-update spacing and still includes the
+final candidate; override it with `NUMI_CROW_CHECKPOINT_INTERVAL` when a
+pre-registered experiment needs denser temporal sampling.
 
 State-only neural curriculum:
 

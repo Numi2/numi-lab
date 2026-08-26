@@ -20,6 +20,7 @@ environments=${NUMI_CROW_ENVIRONMENTS:-2048}
 steps=${NUMI_CROW_STEPS:-32}
 updates=${NUMI_CROW_UPDATES:-250}
 chunk=${NUMI_CROW_CHUNK:-16}
+checkpoint_interval=${NUMI_CROW_CHECKPOINT_INTERVAL:-50}
 selection_environments=${NUMI_CROW_SELECTION_ENVIRONMENTS:-512}
 selection_seed=${NUMI_CROW_SELECTION_SEED:-2650443581}
 seed_base=${NUMI_CROW_SEED_BASE:-2650445000}
@@ -59,6 +60,9 @@ esac
 }
 [ "$start_band" -le "$maximum_band" ] || {
   echo "Crow start band exceeds maximum band" >&2; exit 2;
+}
+[[ "$checkpoint_interval" =~ ^[1-9][0-9]*$ ]] || {
+  echo "NUMI_CROW_CHECKPOINT_INTERVAL must be a positive integer" >&2; exit 2;
 }
 [ -x "$build/bin/metalrobo_task_train" ] && [ -x "$mlx" ] || {
   echo "Crow curriculum requires a built trainer and MLX Python" >&2; exit 2;
@@ -118,7 +122,8 @@ while [ "$band" -le "$maximum_band" ]; do
       journey train --variant "$journey_variant" --milestone "$milestone"
       --envs "$environments" --steps "$steps" --updates "$updates"
       --chunk "$chunk" --seed "$seed" --learner-seed "$seed"
-      --checkpoint-directory "$run/checkpoints" --checkpoint-interval 20
+      --checkpoint-directory "$run/checkpoints"
+      --checkpoint-interval "$checkpoint_interval"
       --verbose
     )
     if [ -n "$visual_config" ]; then
