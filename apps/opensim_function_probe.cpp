@@ -76,11 +76,26 @@ int main() {
         requireNear(splineInterior.derivative, 2.0, "spline interior derivative");
         requireNear(splineExtrapolated.value, -1.0, "spline extrapolated value");
         requireNear(splineExtrapolated.derivative, 2.0, "spline extrapolated derivative");
+        const auto compiledSpline = metalrobo::compileOpenSimFunction(spline);
+        require(compiledSpline.succeeded(), "spline compilation failed");
+        const auto repeatedSpline = metalrobo::evaluateOpenSimFunction(
+            compiledSpline.function,
+            0.25
+        );
+        require(repeatedSpline.succeeded(), "compiled spline evaluation failed");
+        requireNear(repeatedSpline.value, splineInterior.value, "compiled spline value");
+        requireNear(
+            repeatedSpline.derivative,
+            splineInterior.derivative,
+            "compiled spline derivative"
+        );
 
         const auto invalid = metalrobo::evaluateOpenSimFunction(
-            {.kind = OpenSimFunctionKind::simmSpline,
-             .abscissae = {0.0, 0.0},
-             .ordinates = {0.0, 1.0}},
+            OpenSimFunctionDefinition{
+                .kind = OpenSimFunctionKind::simmSpline,
+                .abscissae = {0.0, 0.0},
+                .ordinates = {0.0, 1.0},
+            },
             0.0
         );
         require(

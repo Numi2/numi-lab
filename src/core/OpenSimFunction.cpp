@@ -119,51 +119,99 @@ OpenSimFunctionEvaluation result(const double value, const double derivative) {
 
 } // namespace
 
-OpenSimFunctionEvaluation evaluateOpenSimFunction(
-    const OpenSimFunctionDefinition& definition,
-    const double argument
+OpenSimFunctionCompilation compileOpenSimFunction(
+    const OpenSimFunctionDefinition& definition
 ) {
+    OpenSimFunctionCompilation compiled{};
+    CompiledOpenSimFunction& function = compiled.function;
+    function.kind = definition.kind;
+    function.coefficients = definition.coefficients;
+    switch (definition.kind) {
+    case OpenSimFunctionKind::constant:
+        if (function.coefficients.size() != 1u ||
+            !finiteValues(function.coefficients)) {
+            compiled.status = OpenSimFunctionStatus::invalidDefinition;
+        }
+        return compiled;
+    case OpenSimFunctionKind::linear:
+        if (function.coefficients.size() != 2u ||
+            !finiteValues(function.coefficients)) {
+            compiled.status = OpenSimFunctionStatus::invalidDefinition;
+        }
+        return compiled;
+    case OpenSimFunctionKind::polynomial:
+        if (function.coefficients.empty() ||
+            !finiteValues(function.coefficients)) {
+            compiled.status = OpenSimFunctionStatus::invalidDefinition;
+        }
+        return compiled;
+    case OpenSimFunctionKind::simmSpline: {
+        function.abscissae = definition.abscissae;
+        function.ordinates = definition.ordinates;
+        if (!simmCoefficients(
+                definition,
+                function.splineSlope,
+                function.splineQuadratic,
+                function.splineCubic
+            )) {
+            compiled.status = OpenSimFunctionStatus::invalidDefinition;
+        }
+        return compiled;
+    }
+    }
+    compiled.status = OpenSimFunctionStatus::invalidDefinition;
+    return compiled;
+}
+
+OpenSimFunctionEvaluation evaluateOpenSimFunction(
+    const CompiledOpenSimFunction& function,
+    const double argument
+) noexcept {
     if (!finite(argument)) {
         return {.status = OpenSimFunctionStatus::nonfiniteArgument};
     }
-    switch (definition.kind) {
+    switch (function.kind) {
     case OpenSimFunctionKind::constant:
-        if (definition.coefficients.size() != 1u ||
-            !finiteValues(definition.coefficients)) {
+        if (function.coefficients.size() != 1u ||
+            !finiteValues(function.coefficients)) {
             return {.status = OpenSimFunctionStatus::invalidDefinition};
         }
-        return result(definition.coefficients[0], 0.0);
+        return result(function.coefficients[0], 0.0);
     case OpenSimFunctionKind::linear:
-        if (definition.coefficients.size() != 2u ||
-            !finiteValues(definition.coefficients)) {
+        if (function.coefficients.size() != 2u ||
+            !finiteValues(function.coefficients)) {
             return {.status = OpenSimFunctionStatus::invalidDefinition};
         }
         return result(
-            definition.coefficients[0] * argument + definition.coefficients[1],
-            definition.coefficients[0]
+            function.coefficients[0] * argument + function.coefficients[1],
+            function.coefficients[0]
         );
     case OpenSimFunctionKind::polynomial: {
-        if (definition.coefficients.empty() ||
-            !finiteValues(definition.coefficients)) {
+        if (function.coefficients.empty() ||
+            !finiteValues(function.coefficients)) {
             return {.status = OpenSimFunctionStatus::invalidDefinition};
         }
         double value = 0.0;
         double derivative = 0.0;
-        for (const double coefficient : definition.coefficients) {
+        for (const double coefficient : function.coefficients) {
             derivative = derivative * argument + value;
             value = value * argument + coefficient;
         }
         return result(value, derivative);
     }
     case OpenSimFunctionKind::simmSpline: {
-        std::vector<double> slope;
-        std::vector<double> quadratic;
-        std::vector<double> cubic;
-        if (!simmCoefficients(definition, slope, quadratic, cubic)) {
+        const auto& x = function.abscissae;
+        const auto& y = function.ordinates;
+        const auto& slope = function.splineSlope;
+        const auto& quadratic = function.splineQuadratic;
+        const auto& cubic = function.splineCubic;
+        if (x.size() < 2u || x.size() != y.size() ||
+            x.size() != slope.size() || x.size() != quadratic.size() ||
+            x.size() != cubic.size() || !finiteValues(x) || !finiteValues(y) ||
+            !finiteValues(slope) || !finiteValues(quadratic) ||
+            !finiteValues(cubic)) {
             return {.status = OpenSimFunctionStatus::invalidDefinition};
         }
-        const auto& x = definition.abscissae;
-        const auto& y = definition.ordinates;
         const std::size_t final = x.size() - 1u;
         if (argument < x[0]) {
             return result(y[0] + (argument - x[0]) * slope[0], slope[0]);
@@ -202,6 +250,17 @@ OpenSimFunctionEvaluation evaluateOpenSimFunction(
     }
     }
     return {.status = OpenSimFunctionStatus::invalidDefinition};
+}
+
+OpenSimFunctionEvaluation evaluateOpenSimFunction(
+    const OpenSimFunctionDefinition& definition,
+    const double argument
+) {
+    const OpenSimFunctionCompilation compiled = compileOpenSimFunction(definition);
+    if (!compiled.succeeded()) {
+        return {.status = compiled.status};
+    }
+    return evaluateOpenSimFunction(compiled.function, argument);
 }
 
 const char* openSimFunctionStatusName(const OpenSimFunctionStatus status) noexcept {

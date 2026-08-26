@@ -44,6 +44,37 @@ struct OpenSimFunctionEvaluation {
     }
 };
 
+// Immutable compiled form. SimmSpline's cubic coefficients are derived once,
+// so repeated evaluation only reads stable vectors and performs arithmetic.
+// This is the payload a future Metal function-based-joint compiler uploads.
+struct CompiledOpenSimFunction {
+    OpenSimFunctionKind kind = OpenSimFunctionKind::constant;
+    std::vector<double> coefficients;
+    std::vector<double> abscissae;
+    std::vector<double> ordinates;
+    std::vector<double> splineSlope;
+    std::vector<double> splineQuadratic;
+    std::vector<double> splineCubic;
+};
+
+struct OpenSimFunctionCompilation {
+    OpenSimFunctionStatus status = OpenSimFunctionStatus::success;
+    CompiledOpenSimFunction function{};
+
+    [[nodiscard]] bool succeeded() const noexcept {
+        return status == OpenSimFunctionStatus::success;
+    }
+};
+
+[[nodiscard]] OpenSimFunctionCompilation compileOpenSimFunction(
+    const OpenSimFunctionDefinition& definition
+);
+
+[[nodiscard]] OpenSimFunctionEvaluation evaluateOpenSimFunction(
+    const CompiledOpenSimFunction& function,
+    double argument
+) noexcept;
+
 [[nodiscard]] OpenSimFunctionEvaluation evaluateOpenSimFunction(
     const OpenSimFunctionDefinition& definition,
     double argument
