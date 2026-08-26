@@ -37,7 +37,11 @@ band. Rejected candidates remain on disk but never become a later parent.
 The native journey teacher remains connected during resumed training by
 default so harder rungs retain physically executed imitation targets. It has
 zero authority in autonomous held-out evaluation and is never embedded in the
-deployment PolicyPack. Set `NUMI_CROW_TEACHER_DISTILLATION=0` only for a
+deployment PolicyPack. Training defaults to 0.25 student authority so the
+actor encounters states influenced by its own actions instead of learning
+only on teacher trajectories; configure this with
+`NUMI_CROW_TEACHER_STUDENT_AUTHORITY`. Set
+`NUMI_CROW_TEACHER_DISTILLATION=0` and student authority 0 only for a
 pre-registered no-teacher ablation.
 
 State-only neural curriculum:

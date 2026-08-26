@@ -328,6 +328,9 @@ grep -- '--initialize-actor-policy-pack' \
     "$crow_sensor_run/arguments.txt" >/dev/null
 grep -- '--initialize-actor-fresh-critic' \
     "$crow_sensor_run/arguments.txt" >/dev/null
+grep -- '--birdflow-journey-student-authority' \
+    "$crow_sensor_run/arguments.txt" >/dev/null
+grep -- '^0.25$' "$crow_sensor_run/arguments.txt" >/dev/null
 if grep -- '--policy-pack' "$crow_sensor_run/arguments.txt" >/dev/null; then
     printf '%s\n' 'sensor-fast supervisor attempted cross-ABI PPO resume' >&2
     exit 1
@@ -350,6 +353,8 @@ crow_resume_run=$(find "$crow_resume_runs" -maxdepth 1 -type d \
 test -n "$crow_resume_run"
 grep -- '--policy-pack' "$crow_resume_run/arguments.txt" >/dev/null
 grep -- '--birdflow-journey-teacher' \
+    "$crow_resume_run/arguments.txt" >/dev/null
+grep -- '--birdflow-journey-student-authority' \
     "$crow_resume_run/arguments.txt" >/dev/null
 test -s "$crow_resume_run/learner.safetensors"
 

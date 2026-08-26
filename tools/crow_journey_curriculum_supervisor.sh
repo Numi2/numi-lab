@@ -25,6 +25,7 @@ selection_seed=${NUMI_CROW_SELECTION_SEED:-2650443581}
 seed_base=${NUMI_CROW_SEED_BASE:-2650445000}
 maximum_retries=${NUMI_CROW_MAXIMUM_RETRIES:-3}
 teacher_distillation=${NUMI_CROW_TEACHER_DISTILLATION:-1}
+teacher_student_authority=${NUMI_CROW_TEACHER_STUDENT_AUTHORITY:-0.25}
 
 case "$course" in
   state)
@@ -62,6 +63,12 @@ esac
 [ -x "$build/bin/metalrobo_task_train" ] && [ -x "$mlx" ] || {
   echo "Crow curriculum requires a built trainer and MLX Python" >&2; exit 2;
 }
+if ! "$mlx" -c \
+  'import math,sys; value=float(sys.argv[1]); enabled=int(sys.argv[2]); sys.exit(0 if math.isfinite(value) and 0.0 <= value <= 1.0 and (enabled or value == 0.0) else 1)' \
+  "$teacher_student_authority" "$teacher_distillation"; then
+  echo "Crow teacher student authority must be in [0,1] and zero when teacher distillation is disabled" >&2
+  exit 2
+fi
 if [ "$parent_mode" = actor-transfer ]; then
   [ "$course" = sensor-fast ] && [ "$start_band" -eq 0 ] && \
     [ -n "$parent_policy" ] && [ -s "$parent_policy" ] && \
@@ -117,6 +124,12 @@ while [ "$band" -le "$maximum_band" ]; do
     if [ -n "$visual_config" ]; then
       common+=(--visual-observation-config "$visual_config")
     fi
+    if [ "$teacher_distillation" -eq 1 ]; then
+      common+=(
+        --birdflow-journey-teacher
+        --birdflow-journey-student-authority "$teacher_student_authority"
+      )
+    fi
     if [ "$parent_mode" = actor-transfer ]; then
       common+=(
         --initialize-actor-policy-pack "$parent_policy"
@@ -124,9 +137,6 @@ while [ "$band" -le "$maximum_band" ]; do
       )
     elif [ -n "$parent_policy" ]; then
       common+=(--policy-pack "$parent_policy")
-      if [ "$teacher_distillation" -eq 1 ]; then
-        common+=(--birdflow-journey-teacher)
-      fi
     fi
     echo "launching neural Crow $course band $band ($milestone), retry $retry"
     if NUMI_LAB_ROOT="$root" NUMI_BUILD_DIR="$build" \
