@@ -1659,6 +1659,65 @@ bool taskHasActuatorKind(
     );
 }
 
+// A source Millard program retains ordered source-muscle records but not the
+// task-authoring strings that named them.  The task bridge therefore admits
+// only a complete, exactly ordered action surface: one opaque source-muscle
+// action per immutable source muscle, with no joint/body/tendon side effect.
+// The compiler fingerprints the author-facing identities independently.
+bool taskIsMillardExcitationProgram(
+    const CompiledTaskProgram& task,
+    const std::size_t muscleCount
+) {
+    if (!task.valid() || muscleCount == 0u ||
+        task.layout().actionCount != muscleCount) {
+        return false;
+    }
+    const auto actions = task.actionBindings();
+    if (actions.size() != muscleCount) {
+        return false;
+    }
+    for (std::size_t index = 0u; index < actions.size(); ++index) {
+        const MRTaskActionBindingGPU& action = actions[index];
+        if (action.indices.x != index ||
+            action.indices.y != MR_INVALID_INDEX ||
+            action.indices.z != MR_INVALID_INDEX ||
+            action.indices.w != MR_INVALID_INDEX ||
+            action.parameters.x != 1.0f ||
+            action.parameters.y != -1.0f ||
+            action.parameters.z != 1.0f ||
+            !std::isfinite(action.parameters.w) ||
+            action.parameters.w < 0.0f ||
+            action.drive.x != 0.0f || action.drive.y != 0.0f ||
+            action.drive.z != 0.0f || action.drive.w != 0.0f ||
+            action.actuator.x != MR_TASK_ACTUATOR_MILLARD_EXCITATION ||
+            action.actuator.y != index || action.actuator.z != 0u ||
+            action.actuator.w != 0u) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// FunctionBased source dynamics has no parameterized-articulated-operator
+// implementation. Reject task programs that would otherwise mutate generic
+// body/controller parameter arenas and silently become inert when the source
+// transform operator is selected for Millard kinematics.
+bool taskUsesUnsupportedFunctionBasedParameters(
+    const CompiledTaskProgram& task
+) {
+    return std::ranges::any_of(
+        task.randomizationOperators(),
+        [](const MRTaskRandomizationOperatorGPU& operation) {
+            return operation.target.x == MR_TASK_RANDOMIZE_BODY_PARAMETER ||
+                operation.target.x == MR_TASK_RANDOMIZE_BODY_PAYLOAD ||
+                operation.target.x ==
+                    MR_TASK_RANDOMIZE_CONTROLLER_PARAMETER ||
+                operation.target.x ==
+                    MR_TASK_RANDOMIZE_WORLD_BODY_PARAMETER;
+        }
+    );
+}
+
 std::vector<MRActuatorProfileGPU> executionActuatorProfiles(
     const EngineModel& model
 ) {
@@ -1811,6 +1870,7 @@ bool buildRequirements(
     const MetalWorldMulticopterProgram& multicopterProgram,
     const MetalWorldDevicePhysicsProgram& devicePhysicsProgram,
     const MetalWorldMillardProgram& millardProgram,
+    const bool millardActivationControls,
     RequiredBuffers& requirements,
     std::size_t& totalRequiredBytes
 ) {
@@ -1846,8 +1906,6 @@ bool buildRequirements(
         : 0u;
     const std::size_t millardEnvironments =
         millardProgram.valid() ? environments : 0u;
-    const bool millardExcitationControls =
-        layout.millardExcitationElements != 0u;
     const std::size_t articulatedOperatorEnvironments = std::max(
         contactEnvironments,
         std::max(coupledCandidateEnvironments, millardEnvironments)
@@ -2537,7 +2595,7 @@ bool buildRequirements(
         ) ||
         !makeRequirement<MRMillardActivationDispatchGPU>(
             "source Millard activation dispatch",
-            millardExcitationControls ? 1u : 0u,
+            millardActivationControls ? 1u : 0u,
             requirements.entries[kMillardActivationDispatch]
         ) ||
         !makeRequirement<float>(
@@ -3525,6 +3583,16 @@ MetalWorldDiagnostics validateAndBuildLayout(
     const bool hasMillardProgram = config.millardProgram.valid();
     const bool hasMillardExcitationControls =
         !batch.millardExcitations.empty();
+    const bool hasMillardTaskExcitationControls =
+        hasMillardProgram && nativeTask &&
+        taskIsMillardExcitationProgram(
+            config.taskProgram,
+            config.millardProgram.muscles.size()
+        ) && !taskUsesUnsupportedFunctionBasedParameters(
+            config.taskProgram
+        );
+    const bool hasMillardActivationControls =
+        hasMillardExcitationControls || hasMillardTaskExcitationControls;
     const bool devicePhysicsWritesBodyWrenches =
         config.devicePhysicsProgram.valid() &&
         (config.devicePhysicsProgram.flags &
@@ -3579,29 +3647,39 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "source Millard program does not match the selected articulation, path query, or immutable curve contract"
         );
     }
-    if ((hasMillardExcitationControls &&
+    if ((hasMillardActivationControls &&
          (!hasMillardProgram ||
           !config.millardActivationDynamics.valid())) ||
-        (!hasMillardExcitationControls &&
+        (!hasMillardActivationControls &&
          config.millardActivationDynamics.configured())) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::invalidDimensions,
-            "source Millard excitation controls require a valid source program and explicit positive activation time constants"
+            "source Millard activation controls require a valid source program and explicit positive activation time constants"
+        );
+    }
+    if (hasMillardExcitationControls &&
+        hasMillardTaskExcitationControls) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "source Millard controls must use either packed host excitations or one native task action surface, never both"
         );
     }
     if (hasMillardProgram &&
-        (!hasFunctionBasedDynamics || nativeTask ||
+        (!hasFunctionBasedDynamics ||
+         (nativeTask && !hasMillardTaskExcitationControls) ||
          config.devicePhysicsProgram.valid() || world.rodCount() != 0u ||
          config.actuationMode != MetalWorldActuationMode::effort)) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::unsupportedTopology,
-            "source Millard actuation requires the bounded fixed-root FunctionBased direct-effort path"
+            "source Millard actuation requires the bounded fixed-root FunctionBased direct-effort path and, when task-driven, one complete ordered source-muscle action surface without generic body/controller parameterization"
         );
     }
     if (hasFunctionBasedDynamics &&
-        (world.articulationCount() != 1u || nativeTask ||
+        (world.articulationCount() != 1u ||
+         (nativeTask && !hasMillardTaskExcitationControls) ||
          config.devicePhysicsProgram.valid() || world.rodCount() != 0u ||
          (contactMode &&
           config.actuationMode != MetalWorldActuationMode::effort))) {
@@ -3609,8 +3687,9 @@ MetalWorldDiagnostics validateAndBuildLayout(
             std::move(diagnostics),
             MetalWorldHostStatus::unsupportedTopology,
             "bounded FunctionBased dynamics admits one fixed-root direct-effort "
-            "articulation; native-task parameterization, implicit drives, rods, "
-            "and device-physics coupling remain separate admission gates"
+            "articulation; only the complete source-Millard task action surface "
+            "may join it, while implicit drives, rods, and device-physics coupling "
+            "remain separate admission gates"
         );
     }
     if (config.devicePhysicsProgram.configured() &&
@@ -3723,9 +3802,10 @@ MetalWorldDiagnostics validateAndBuildLayout(
     if (nativeTask &&
         (
             !contactMode ||
-            config.actuationMode !=
-                MetalWorldActuationMode::
-                    implicitPositionDrive ||
+            (!hasMillardTaskExcitationControls &&
+             config.actuationMode !=
+                 MetalWorldActuationMode::
+                     implicitPositionDrive) ||
             world.rodCount() != 0u ||
             config.taskProgram.worldFingerprint() !=
                 world.fingerprint()
@@ -3733,8 +3813,9 @@ MetalWorldDiagnostics validateAndBuildLayout(
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::unsupportedTopology,
-            "native locomotion requires an implicit-drive contact world "
-            "matching the compiled task fingerprint"
+            "native locomotion requires an implicit-drive contact world, unless "
+            "it is the complete fixed-root source-Millard excitation task bridge, "
+            "and must match the compiled task fingerprint"
         );
     }
     if (nativePolicy &&
@@ -4805,6 +4886,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
             config.multicopterProgram,
             config.devicePhysicsProgram,
             config.millardProgram,
+            hasMillardActivationControls,
             requirements,
             totalRequiredBytes
         )) {
@@ -8377,7 +8459,16 @@ void uploadBatch(
         }
         stageMillard(kMillardDispatch, &millardDispatch);
         stageMillard(kMillardStates, expandedStates.data());
-        if (!batch.millardExcitations.empty()) {
+        const bool nativeMillardTaskControls =
+            config.taskProgram.valid() &&
+            taskIsMillardExcitationProgram(
+                config.taskProgram,
+                millard.muscles.size()
+            ) && !taskUsesUnsupportedFunctionBasedParameters(
+                config.taskProgram
+            );
+        if (!batch.millardExcitations.empty() ||
+            nativeMillardTaskControls) {
             MRMillardActivationDispatchGPU activationDispatch{};
             activationDispatch.abiVersion =
                 MR_MILLARD_ACTIVATION_GPU_ABI_VERSION;
@@ -8386,6 +8477,9 @@ void uploadBatch(
             );
             activationDispatch.environmentCount =
                 layout.dispatch.environmentCount;
+            activationDispatch.flags = nativeMillardTaskControls
+                ? MR_MILLARD_ACTIVATION_FROM_NATIVE_TASK
+                : 0u;
             activationDispatch.timestepAndTimeConstants = {
                 config.timestepSeconds,
                 config.millardActivationDynamics
@@ -8398,11 +8492,13 @@ void uploadBatch(
                 kMillardActivationDispatch,
                 &activationDispatch
             );
-            copyToBuffer(
-                context.buffers[kMillardExcitations],
-                batch.millardExcitations.data(),
-                requirements.entries[kMillardExcitations]
-            );
+            if (!batch.millardExcitations.empty()) {
+                copyToBuffer(
+                    context.buffers[kMillardExcitations],
+                    batch.millardExcitations.data(),
+                    requirements.entries[kMillardExcitations]
+                );
+            }
         }
         stageMillard(kPointQueries, expandedPoints.data());
         if (programUpload != nil) {
@@ -9987,8 +10083,14 @@ bool encodeArticulatedOperator(
         return false;
     }
     encoder.label = label;
+    // Native task body-parameterization belongs to the generic articulated
+    // operator. FunctionBased source joints require their immutable OpenSim
+    // spatial-transform table at slot 15, so a source-Millard task keeps the
+    // FunctionBased operator even while it consumes task action history.
+    const bool useTaskParameters =
+        context.useTaskBodyParameters && !context.usesFunctionBasedDynamics;
     id<MTLComputePipelineState> pipeline =
-        context.useTaskBodyParameters
+        useTaskParameters
         ? context.parameterizedOperatorPipeline
         : context.operatorPipeline;
     [encoder setComputePipelineState:pipeline];
@@ -10014,7 +10116,7 @@ bool encodeArticulatedOperator(
         1u,
         1u
     );
-    if (context.useTaskBodyParameters) {
+    if (useTaskParameters) {
         [encoder setBuffer:context.buffers[kTaskBodyParameters]
                      offset:0u
                     atIndex:15u];
@@ -12840,6 +12942,12 @@ bool encodeMillardActivation(
     [encoder setBuffer:context.buffers[kMillardStates]
                offset:0u
               atIndex:4u];
+    [encoder setBuffer:context.buffers[kTaskProgramHeader]
+               offset:0u
+              atIndex:5u];
+    [encoder setBuffer:context.buffers[kTaskActionHistory]
+               offset:0u
+              atIndex:6u];
     const NSUInteger threads = std::min<NSUInteger>(
         std::max<NSUInteger>(
             context.millardActivationPipeline.threadExecutionWidth,
@@ -16039,7 +16147,14 @@ MetalWorldDiagnostics validateAndPublish(
                 return reject(
                     std::move(diagnostics),
                     MetalWorldHostStatus::gpuEnvironmentFailure,
-                    "GPU rejected a source Millard muscle during MetalWorld actuation"
+                    "GPU rejected a source Millard muscle during MetalWorld actuation (status=" +
+                        std::to_string(muscle.status) +
+                        ", environment=" + std::to_string(environment) +
+                        ", muscle=" + std::to_string(muscleIndex) +
+                        ", partial_path_length=" +
+                        std::to_string(
+                            muscle.pathFiberTendonResidual.x
+                        ) + ")"
                 );
             }
             if (!finite(state.activationAndVelocity) ||
@@ -19945,6 +20060,17 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 config.millardProgram.valid();
             const bool hasMillardExcitationControls =
                 !batch.millardExcitations.empty();
+            const bool hasMillardTaskExcitationControls =
+                hasMillardProgram && nativeTask &&
+                taskIsMillardExcitationProgram(
+                    config.taskProgram,
+                    config.millardProgram.muscles.size()
+                ) && !taskUsesUnsupportedFunctionBasedParameters(
+                    config.taskProgram
+                );
+            const bool hasMillardActivationControls =
+                hasMillardExcitationControls ||
+                hasMillardTaskExcitationControls;
             id<MTLComputePipelineState> selectedABAPipeline =
                 nativeTask
                 ? (useParallelABA
@@ -20268,7 +20394,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                         "failed to encode rod checkpoint/reset pass"
                     );
                 }
-                if (hasMillardExcitationControls &&
+                if (hasMillardActivationControls &&
                     !encodeMillardActivation(
                         *selectedState,
                         commandBuffer,

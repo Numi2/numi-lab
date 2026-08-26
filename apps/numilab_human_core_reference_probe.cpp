@@ -738,9 +738,30 @@ MetalWorldFunctionBasedContactMetrics
 verifyMetalWorldFunctionBasedContact(
     const metalrobo::EngineModel& source,
     const metalrobo::MetalWorldMillardProgram* millardProgram,
-    const std::span<const float> millardExcitations = {}
+    const std::span<const float> millardExcitations = {},
+    const bool taskDrivenMillardExcitation = false
 ) {
     metalrobo::EngineModel model = source;
+    if (taskDrivenMillardExcitation) {
+        // The compact Human reference payload intentionally carries no
+        // display semantics. Native tasks, by contrast, bind a compiled-world
+        // semantic table. Materialize deterministic probe-only identities so
+        // the executable bridge exercises that normal task admission path.
+        if (model.bodyNames.empty()) {
+            model.bodyNames.reserve(model.bodies.size());
+            for (std::size_t body = 0u; body < model.bodies.size(); ++body) {
+                model.bodyNames.push_back("source_body_" +
+                    std::to_string(body));
+            }
+        }
+        if (model.jointNames.empty()) {
+            model.jointNames.reserve(model.joints.size());
+            for (std::size_t joint = 0u; joint < model.joints.size(); ++joint) {
+                model.jointNames.push_back("source_joint_" +
+                    std::to_string(joint));
+            }
+        }
+    }
     const MRArticulationGPU& articulation = model.articulations.at(0u);
     const std::uint32_t contactBody =
         articulation.firstBody + articulation.bodyCount - 1u;
@@ -845,9 +866,68 @@ verifyMetalWorldFunctionBasedContact(
     );
 
     constexpr std::size_t controlSteps = 2u;
+    require(
+        !taskDrivenMillardExcitation ||
+            (millardProgram != nullptr && millardExcitations.empty()),
+        "task-driven Millard probe requires a source program and no packed host excitation stream"
+    );
     const std::vector<float> efforts(
         controlSteps * static_cast<std::size_t>(world.nv()), 0.0f
     );
+    std::vector<float> taskActions;
+    std::vector<std::uint32_t> taskResetMasks;
+    metalrobo::CompiledTaskProgram taskProgram;
+    if (taskDrivenMillardExcitation) {
+        const std::size_t muscleCount = millardProgram->muscles.size();
+        metalrobo::TaskPack task;
+        task.id = "numilab_human_source_millard_task_bridge_v1";
+        task.maximumEpisodeSteps = 64u;
+        task.difficultyBandCount = 1u;
+        task.rewards = {{
+            .operation = metalrobo::TaskRewardOperator::constant,
+            .weight = 0.0f,
+        }};
+        metalrobo::TaskObservationProgram observations;
+        observations.actorHistoryLength = 1u;
+        observations.criticHistoryLength = 1u;
+        std::vector<metalrobo::RobotActuatorSpec> actuators;
+        actuators.reserve(muscleCount);
+        for (std::size_t muscle = 0u; muscle < muscleCount; ++muscle) {
+            const std::string id = "source_muscle_" +
+                std::to_string(muscle);
+            task.actions.push_back({.actuator = id});
+            actuators.push_back({
+                .id = id,
+                .kind = metalrobo::RobotActuatorKind::millardExcitation,
+                .target = id,
+                .scale = 1.0f,
+            });
+            observations.actorFrame.push_back({
+                .source = metalrobo::TaskObservationSource::previousAction,
+                .target = id,
+            });
+            observations.critic.push_back({
+                .source = metalrobo::TaskObservationSource::previousAction,
+                .target = id,
+            });
+        }
+        const auto taskDiagnostics = metalrobo::compileTaskProgram(
+            task,
+            actuators,
+            observations,
+            {},
+            world,
+            taskProgram
+        );
+        require(
+            taskDiagnostics.succeeded() && taskProgram.valid() &&
+                taskProgram.layout().actionCount == muscleCount,
+            "source Millard native task compilation failed: " +
+                taskDiagnostics.element + " " + taskDiagnostics.message
+        );
+        taskActions.assign(controlSteps * muscleCount, 1.0f);
+        taskResetMasks.assign(controlSteps, 1u);
+    }
     const std::vector<MRBodyStateGPU> scene{
         staticGroundState(
             groundBody,
@@ -859,8 +939,12 @@ verifyMetalWorldFunctionBasedContact(
         .controlStepCount = controlSteps,
         .initialQ = model.defaultQ,
         .initialV = model.defaultV,
-        .efforts = efforts,
+        .efforts = taskDrivenMillardExcitation
+            ? std::span<const float>{}
+            : std::span<const float>{efforts},
+        .actions = taskActions,
         .millardExcitations = millardExcitations,
+        .resetMasks = taskResetMasks,
         .initialSceneBodies = scene,
     };
     metalrobo::MetalWorldStepConfig config{
@@ -881,13 +965,16 @@ verifyMetalWorldFunctionBasedContact(
     if (millardProgram != nullptr) {
         config.millardProgram = *millardProgram;
     }
-    if (!millardExcitations.empty()) {
+    if (!millardExcitations.empty() || taskDrivenMillardExcitation) {
         // Explicit probe-only input contract. These values validate the
         // first-order control surface; they are not a source-parameter claim.
         config.millardActivationDynamics = {
             .activationTimeConstantSeconds = 0.01f,
             .deactivationTimeConstantSeconds = 0.04f,
         };
+    }
+    if (taskDrivenMillardExcitation) {
+        config.taskProgram = taskProgram;
     }
     metalrobo::MetalWorldContext context;
     metalrobo::MetalWorldResult result;
@@ -903,7 +990,11 @@ verifyMetalWorldFunctionBasedContact(
                 deviceDiagnostics.status
             ) + " " + deviceDiagnostics.message +
             " first_gpu_status=" +
-            std::to_string(deviceDiagnostics.firstGPUStatusCode)
+            std::to_string(deviceDiagnostics.firstGPUStatusCode) +
+            " final_q0=" +
+            (result.finalQ.empty()
+                ? std::string{"unpublished"}
+                : std::to_string(result.finalQ.front()))
     );
     MetalWorldFunctionBasedContactMetrics metrics;
     metrics.deviceName = deviceDiagnostics.deviceName;
@@ -940,7 +1031,7 @@ verifyMetalWorldFunctionBasedContact(
             metrics.millardGeneralizedForceL1 > 1.0e-3,
             "FunctionBased streamed-contact probe did not apply nonzero source Millard effort"
         );
-        if (!millardExcitations.empty()) {
+        if (!millardExcitations.empty() || taskDrivenMillardExcitation) {
             const double timestep = config.timestepSeconds;
             for (std::size_t muscle = 0u;
                  muscle < millardProgram->muscles.size();
@@ -952,9 +1043,12 @@ verifyMetalWorldFunctionBasedContact(
                 for (std::size_t controlStep = 0u;
                      controlStep < controlSteps;
                      ++controlStep) {
-                    const double excitation = millardExcitations[
-                        controlStep * millardProgram->muscles.size() + muscle
-                    ];
+                    const double excitation = taskDrivenMillardExcitation
+                        ? 1.0
+                        : millardExcitations[
+                              controlStep *
+                                  millardProgram->muscles.size() + muscle
+                          ];
                     const double target = std::clamp(
                         excitation, minimumActivation, 1.0
                     );
@@ -2099,11 +2193,28 @@ int main(const int argc, char** argv) {
                     fullyExcitedMillardControls
                 )
                 : MetalWorldFunctionBasedContactMetrics{};
+        const MetalWorldFunctionBasedContactMetrics
+            taskDrivenMetalWorldContactMetrics = runMetal &&
+                millardPath != nullptr
+                ? verifyMetalWorldFunctionBasedContact(
+                    model,
+                    &millardProgram,
+                    {},
+                    true
+                )
+                : MetalWorldFunctionBasedContactMetrics{};
         if (runMetal && millardPath != nullptr) {
             require(
                 fullyExcitedMetalWorldContactMetrics.millardGeneralizedForceL1 >
                     metalWorldContactMetrics.millardGeneralizedForceL1 * 1.05,
                 "fully excited source Millard contact probe did not exceed default activation force"
+            );
+            require(
+                taskDrivenMetalWorldContactMetrics
+                    .millardGeneralizedForceL1 >
+                    metalWorldContactMetrics.millardGeneralizedForceL1 *
+                        1.05,
+                "native task source-Millard contact probe did not exceed default activation force"
             );
         }
         const MetalMillardReferenceMetrics metalMillardMetrics =
@@ -2145,6 +2256,9 @@ int main(const int argc, char** argv) {
                           : "")
                   << (runMetal && millardPath != nullptr
                           ? " metal_function_based_millard_excitation_response=ok"
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_function_based_millard_native_task_bridge=ok"
                           : "")
                   << (runMetal
                           ? " metal_device=" + metalMetrics.deviceName
@@ -2203,6 +2317,13 @@ int main(const int argc, char** argv) {
                                 std::to_string(
                                     fullyExcitedMetalWorldContactMetrics.
                                         maximumMillardActivationError
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_world_task_millard_force_l1=" +
+                                std::to_string(
+                                    taskDrivenMetalWorldContactMetrics.
+                                        millardGeneralizedForceL1
                                 )
                           : "")
                   << (runMetal

@@ -269,7 +269,7 @@ LearningPackResult validateRobotActuatorArtifact(
                     RobotActuatorKind::tendonPosition;
                 return static_cast<std::uint32_t>(actuator.kind) <=
                         static_cast<std::uint32_t>(
-                            RobotActuatorKind::bodyWrench) &&
+                            RobotActuatorKind::millardExcitation) &&
                     stringFits(actuator.id) &&
                     stringFits(actuator.target) &&
                     !actuator.id.empty() && !actuator.target.empty() &&

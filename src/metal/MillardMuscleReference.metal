@@ -2,6 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 #include "metalrobo/millard_muscle_gpu.h"
+#include "metalrobo/task_program_types.h"
 
 using namespace metal;
 
@@ -566,11 +567,14 @@ kernel void mr_millard_activation_update(
     device const float* excitations [[buffer(2)]],
     device const MRMillardMuscleGPU* muscles [[buffer(3)]],
     device MRMillardMuscleStateGPU* states [[buffer(4)]],
+    device const MRTaskProgramHeaderGPU* taskProgram [[buffer(5)]],
+    device const float* taskActionHistory [[buffer(6)]],
     uint globalIndex [[thread_position_in_grid]]
 ) {
     if (dispatch.abiVersion != MR_MILLARD_ACTIVATION_GPU_ABI_VERSION ||
         dispatch.muscleCount == 0u ||
         globalIndex >= dispatch.environmentCount * dispatch.muscleCount ||
+        (dispatch.flags & ~MR_MILLARD_ACTIVATION_FROM_NATIVE_TASK) != 0u ||
         dispatch.timestepAndTimeConstants.w != 0.0f ||
         !(isfinite(dispatch.timestepAndTimeConstants.x) &&
           isfinite(dispatch.timestepAndTimeConstants.y) &&
@@ -582,9 +586,6 @@ kernel void mr_millard_activation_update(
     }
     const uint environment = globalIndex / dispatch.muscleCount;
     const uint muscleIndex = globalIndex - environment * dispatch.muscleCount;
-    const uint excitationIndex =
-        (pass.controlStep * dispatch.environmentCount + environment) *
-        dispatch.muscleCount + muscleIndex;
     const MRMillardMuscleGPU muscle = muscles[muscleIndex];
     const float minimumActivation = muscle.dampingAndActivation.z;
     const float currentActivation = states[globalIndex].activationAndVelocity.x;
@@ -592,8 +593,33 @@ kernel void mr_millard_activation_update(
           minimumActivation <= 1.0f && isfinite(currentActivation))) {
         return;
     }
-    const float target = clamp(excitations[excitationIndex],
-                               minimumActivation, 1.0f);
+    float excitation = 0.0f;
+    if ((dispatch.flags & MR_MILLARD_ACTIVATION_FROM_NATIVE_TASK) != 0u) {
+        const MRTaskProgramHeaderGPU program = taskProgram[0];
+        if (program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
+            program.counts0.x != dispatch.muscleCount ||
+            program.layout.w < 2u) {
+            return;
+        }
+        const uint historyStride = program.layout.w * program.counts0.x;
+        const uint filteredSlot = program.layout.w - 1u;
+        const uint historyIndex = environment * historyStride +
+            filteredSlot * program.counts0.x + muscleIndex;
+        const float action = taskActionHistory[historyIndex];
+        if (!isfinite(action)) {
+            return;
+        }
+        // The policy/task ABI is signed; physiology is normalized. Keeping
+        // this affine map in the activation kernel means the task layer never
+        // writes a hidden generalized-effort substitute for a muscle.
+        excitation = clamp(0.5f * (action + 1.0f), 0.0f, 1.0f);
+    } else {
+        const uint excitationIndex =
+            (pass.controlStep * dispatch.environmentCount + environment) *
+            dispatch.muscleCount + muscleIndex;
+        excitation = excitations[excitationIndex];
+    }
+    const float target = clamp(excitation, minimumActivation, 1.0f);
     const float tau = target >= currentActivation
         ? dispatch.timestepAndTimeConstants.y
         : dispatch.timestepAndTimeConstants.z;
@@ -727,6 +753,10 @@ kernel void mr_millard_reference(
     }
     if (!validPath || !(totalLength > kMinimumLength) || !isfinite(totalLength)) {
         result.status = MR_MILLARD_REFERENCE_INVALID_PATH;
+        // Retain the partial path length as a diagnostic only. The status
+        // remains authoritative and no force is projected from this record.
+        result.pathFiberTendonResidual =
+            float4(totalLength, 0.0f, 0.0f, 0.0f);
         results[globalIndex] = result;
         return;
     }

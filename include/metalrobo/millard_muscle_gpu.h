@@ -9,7 +9,7 @@
 #include "metalrobo/engine_types.h"
 
 #define MR_MILLARD_REFERENCE_GPU_ABI_VERSION 2u
-#define MR_MILLARD_ACTIVATION_GPU_ABI_VERSION 1u
+#define MR_MILLARD_ACTIVATION_GPU_ABI_VERSION 2u
 #define MR_MILLARD_REFERENCE_MAX_WRAPS_PER_MUSCLE 16u
 
 enum MRMillardReferenceGPUStatus : mr_u32 {
@@ -69,11 +69,16 @@ typedef struct MR_ALIGN16 MRMillardActivationDispatchGPU {
     mr_u32 abiVersion;
     mr_u32 muscleCount;
     mr_u32 environmentCount;
+    // Zero reads caller-packed [control][environment][muscle] excitations.
+    // Bit zero reads the filtered native task action history instead, mapping
+    // its conventional [-1, 1] action range to normalized excitation [0, 1].
     mr_u32 flags;
     // x control-period seconds; y activation tau; z deactivation tau;
     // w must be zero.
     mr_float4 timestepAndTimeConstants;
 } MRMillardActivationDispatchGPU;
+
+#define MR_MILLARD_ACTIVATION_FROM_NATIVE_TASK 1u
 
 // A point query that must correspond exactly to an articulated-operator point
 // query in the enclosing batch. The local coordinate itself remains in the

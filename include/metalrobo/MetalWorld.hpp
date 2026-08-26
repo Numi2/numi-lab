@@ -650,9 +650,10 @@ struct MetalWorldStepConfig {
     MetalWorldMulticopterProgram multicopterProgram{};
     // Optional source Millard muscle-tendon program. It is admitted only by
     // the bounded fixed-root FunctionBased direct-effort path: free motion
-    // or the streamed temporal-cone contact response. Mobile roots, native
-    // task parameterization, and anatomical collider admission remain
-    // separate gates.
+    // or the streamed temporal-cone contact response. A native task may join
+    // only through its complete ordered `millardExcitation` action surface;
+    // generic task body/controller parameterization, mobile roots, and
+    // anatomical collider admission remain separate gates.
     MetalWorldMillardProgram millardProgram{};
     MetalWorldMillardActivationDynamics millardActivationDynamics{};
     // Optional multiphysics pass. It executes before rigid dynamics and again

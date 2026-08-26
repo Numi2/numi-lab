@@ -3758,7 +3758,8 @@ kernel void mr_locomotion_task_apply_native_actuators(
         const uint kind = binding.actuator.x;
         if (kind == MR_TASK_ACTUATOR_JOINT_POSITION ||
             kind == MR_TASK_ACTUATOR_GRIPPER_POSITION ||
-            kind == MR_TASK_ACTUATOR_ROTOR_MIXER) {
+            kind == MR_TASK_ACTUATOR_ROTOR_MIXER ||
+            kind == MR_TASK_ACTUATOR_MILLARD_EXCITATION) {
             continue;
         }
         const float filtered = actionHistory[historyBase + action];
