@@ -126,6 +126,10 @@ static_assert(sizeof(MillardMuscleRecord) == 48u);
 static_assert(sizeof(MillardPathPointRecord) == 16u);
 static_assert(sizeof(MillardCurveRecord) == 88u);
 static_assert(sizeof(MillardWrapRecord) == 36u);
+static_assert(sizeof(MRMillardMuscleGPU) == 64u);
+static_assert(sizeof(MRMillardSourceCurveGPU) == 96u);
+static_assert(sizeof(MRMillardCylinderWrapGPU) == 64u);
+static_assert(sizeof(MRMillardMuscleResultGPU) == 32u);
 
 void require(const bool condition, const std::string& message) {
     if (!condition) {
@@ -446,6 +450,14 @@ struct MillardReferenceMetrics {
     double totalPathLength = 0.0;
     double generalizedForceL1 = 0.0;
     double maximumEquilibriumResidual = 0.0;
+    struct MuscleSample {
+        double pathLength = 0.0;
+        double tendonForce = 0.0;
+        double equilibriumResidual = 0.0;
+        double generalizedForceL1 = 0.0;
+        std::uint32_t appliedCylinderWrapCount = 0u;
+    };
+    std::vector<MuscleSample> samples;
 };
 
 bool allFinite(const std::vector<double>& values);
@@ -575,6 +587,7 @@ MillardReferenceMetrics verifyMillardReference(
     metrics.muscleCount = payload.header.muscleCount;
     metrics.pathPointCount = payload.header.pathPointCount;
     metrics.sourceWrapCount = payload.header.pathWrapCount;
+    metrics.samples.reserve(payload.muscles.size());
     for (std::size_t index = 0u; index < payload.muscles.size(); ++index) {
         const MillardMuscleRecord& record = payload.muscles[index];
         const metalrobo::MillardMuscleDefinition definition =
@@ -626,9 +639,16 @@ MillardReferenceMetrics verifyMillardReference(
         metrics.maximumEquilibriumResidual = std::max(
             metrics.maximumEquilibriumResidual, std::abs(force.equilibriumResidual)
         );
+        MillardReferenceMetrics::MuscleSample sample;
+        sample.pathLength = path.length;
+        sample.tendonForce = force.tendonForce;
+        sample.equilibriumResidual = force.equilibriumResidual;
+        sample.appliedCylinderWrapCount = path.appliedCylinderWrapCount;
         for (const double effort : generalizedForce) {
             metrics.generalizedForceL1 += std::abs(effort);
+            sample.generalizedForceL1 += std::abs(effort);
         }
+        metrics.samples.push_back(sample);
     }
     require(
         std::isfinite(metrics.totalPathLength) &&
@@ -654,6 +674,223 @@ struct MetalReferenceMetrics {
     double massError = 0.0;
     double massScaledError = 0.0;
 };
+
+struct MetalMillardReferenceMetrics {
+    std::string deviceName;
+    std::uint32_t appliedCylinderWrapCount = 0u;
+    double maximumPathLengthRelativeError = 0.0;
+    double maximumTendonForceRelativeError = 0.0;
+    double maximumGeneralizedForceL1RelativeError = 0.0;
+    double maximumEquilibriumResidual = 0.0;
+};
+
+double relativeError(const double actual, const double reference) {
+    return std::abs(actual - reference) /
+        std::max(1.0, std::abs(reference));
+}
+
+MetalMillardReferenceMetrics verifyMetalMillardReference(
+    const metalrobo::EngineModel& model,
+    const MillardPayload& payload,
+    const MillardReferenceMetrics& cpuMetrics
+) {
+    const MRArticulationGPU& articulation = model.articulations.at(0u);
+    require(
+        cpuMetrics.samples.size() == payload.muscles.size(),
+        "CPU Millard source samples do not match the payload"
+    );
+
+    std::vector<MRArticulatedPointImpulseGPU> points(
+        payload.pathPoints.size()
+    );
+    std::vector<MRMillardPathPointGPU> gpuPathPoints(
+        payload.pathPoints.size()
+    );
+    for (std::size_t index = 0u; index < payload.pathPoints.size(); ++index) {
+        const MillardPathPointRecord& source = payload.pathPoints[index];
+        points[index] = {
+            .bodyIndex = source.bodyIndex,
+            .flags = 0u,
+            .reserved0 = 0u,
+            .reserved1 = 0u,
+            .localPoint = {source.x, source.y, source.z, 0.0f},
+            .worldImpulse = {0.0f, 0.0f, 0.0f, 0.0f},
+        };
+        gpuPathPoints[index] = {
+            .pointQueryIndex = static_cast<std::uint32_t>(index),
+            .bodyIndex = source.bodyIndex,
+            .reserved0 = 0u,
+            .reserved1 = 0u,
+        };
+    }
+
+    std::vector<MRMillardMuscleGPU> muscles(payload.muscles.size());
+    std::vector<MRMillardMuscleStateGPU> states(payload.muscles.size());
+    std::vector<MRMillardSourceCurveGPU> curves(payload.curves.size());
+    for (std::size_t index = 0u; index < payload.muscles.size(); ++index) {
+        const MillardMuscleRecord& source = payload.muscles[index];
+        muscles[index] = {
+            .forceAndLengths = {
+                source.maxIsometricForce,
+                source.optimalFiberLength,
+                source.tendonSlackLength,
+                source.pennationAngleAtOptimal,
+            },
+            .dampingAndActivation = {
+                source.fiberDamping,
+                source.defaultActivation,
+                source.minimumActivation,
+                0.0f,
+            },
+            .pathAndWrap = {
+                source.pathPointOffset,
+                source.pathPointCount,
+                source.pathWrapOffset,
+                source.pathWrapCount,
+            },
+            .flags = {source.flags, 0u, 0u, 0u},
+        };
+        states[index] = {
+            .activationAndVelocity = {
+                std::max(source.defaultActivation, source.minimumActivation),
+                0.0f,
+                0.0f,
+                0.0f,
+            },
+        };
+        const MillardCurveRecord& sourceCurve = payload.curves[index];
+        const std::array<float, 22u> sourceValues{
+            sourceCurve.minNormActiveFiberLength,
+            sourceCurve.transitionNormFiberLength,
+            sourceCurve.maxNormActiveFiberLength,
+            sourceCurve.shallowAscendingSlope,
+            sourceCurve.activeMinimumValue,
+            sourceCurve.concentricSlopeAtVmax,
+            sourceCurve.concentricSlopeNearVmax,
+            sourceCurve.isometricSlope,
+            sourceCurve.eccentricSlopeAtVmax,
+            sourceCurve.eccentricSlopeNearVmax,
+            sourceCurve.maxEccentricVelocityForceMultiplier,
+            sourceCurve.concentricCurviness,
+            sourceCurve.eccentricCurviness,
+            sourceCurve.fiberStrainAtZeroForce,
+            sourceCurve.fiberStrainAtOneNormForce,
+            sourceCurve.fiberStiffnessAtLowForce,
+            sourceCurve.fiberStiffnessAtOneNormForce,
+            sourceCurve.fiberCurviness,
+            sourceCurve.tendonStrainAtOneNormForce,
+            sourceCurve.tendonStiffnessAtOneNormForce,
+            sourceCurve.tendonNormForceAtToeEnd,
+            sourceCurve.tendonCurviness,
+        };
+        float* gpuCurveValues = &curves[index].values[0u].x;
+        for (std::size_t value = 0u; value < sourceValues.size(); ++value) {
+            gpuCurveValues[value] = sourceValues[value];
+        }
+    }
+    std::vector<MRMillardCylinderWrapGPU> wraps(payload.wraps.size());
+    for (std::size_t index = 0u; index < payload.wraps.size(); ++index) {
+        const MillardWrapRecord& source = payload.wraps[index];
+        wraps[index] = {
+            .bodyIndex = source.bodyIndex,
+            .reserved0 = 0u,
+            .reserved1 = 0u,
+            .reserved2 = 0u,
+            .center = {source.centerX, source.centerY, source.centerZ, 0.0f},
+            .rotationAndRadius = {
+                source.rotationX,
+                source.rotationY,
+                source.rotationZ,
+                source.radius,
+            },
+            .length = {source.length, 0.0f, 0.0f, 0.0f},
+        };
+    }
+
+    metalrobo::MetalArticulatedOperatorInput input{
+        .articulationIndex = 0u,
+        .environmentCount = 1u,
+        .pointCount = points.size(),
+        .q = model.defaultQ,
+        .points = points,
+        .millard = {
+            .muscles = muscles,
+            .states = states,
+            .pathPoints = gpuPathPoints,
+            .curves = curves,
+            .cylinderWraps = wraps,
+        },
+    };
+    metalrobo::MetalArticulatedOperatorConfig config{
+        .pointJacobiansOnly = true,
+    };
+    metalrobo::MetalArticulatedOperatorResult gpu;
+    const auto diagnostics = metalrobo::runMetalArticulatedOperator(
+        model, input, gpu, config
+    );
+    require(
+        diagnostics.succeeded() && diagnostics.dispatched && diagnostics.published &&
+            gpu.millardResults.size() == muscles.size() &&
+            gpu.millardGeneralizedForces.size() ==
+                muscles.size() * articulation.nv,
+        std::string("Metal Millard reference pass failed: ") +
+            metalrobo::metalArticulatedOperatorHostStatusName(diagnostics.status) +
+            " " + diagnostics.message
+    );
+
+    MetalMillardReferenceMetrics metrics;
+    metrics.deviceName = diagnostics.deviceName;
+    for (std::size_t index = 0u; index < muscles.size(); ++index) {
+        const MRMillardMuscleResultGPU& result = gpu.millardResults[index];
+        const MillardReferenceMetrics::MuscleSample& cpu =
+            cpuMetrics.samples[index];
+        require(
+            result.status == MR_MILLARD_REFERENCE_SUCCESS &&
+                result.environment == 0u && result.muscleIndex == index &&
+                std::isfinite(result.pathFiberTendonResidual.x) &&
+                std::isfinite(result.pathFiberTendonResidual.y) &&
+                std::isfinite(result.pathFiberTendonResidual.z) &&
+                std::isfinite(result.pathFiberTendonResidual.w),
+            "Metal Millard result is malformed at muscle " + std::to_string(index)
+        );
+        double forceL1 = 0.0;
+        for (std::size_t dof = 0u; dof < articulation.nv; ++dof) {
+            forceL1 += std::abs(static_cast<double>(gpu.millardGeneralizedForces[
+                index * articulation.nv + dof
+            ]));
+        }
+        metrics.appliedCylinderWrapCount += result.appliedCylinderWrapCount;
+        metrics.maximumPathLengthRelativeError = std::max(
+            metrics.maximumPathLengthRelativeError,
+            relativeError(result.pathFiberTendonResidual.x, cpu.pathLength)
+        );
+        metrics.maximumTendonForceRelativeError = std::max(
+            metrics.maximumTendonForceRelativeError,
+            relativeError(result.pathFiberTendonResidual.z, cpu.tendonForce)
+        );
+        metrics.maximumGeneralizedForceL1RelativeError = std::max(
+            metrics.maximumGeneralizedForceL1RelativeError,
+            relativeError(forceL1, cpu.generalizedForceL1)
+        );
+        metrics.maximumEquilibriumResidual = std::max(
+            metrics.maximumEquilibriumResidual,
+            std::abs(static_cast<double>(result.pathFiberTendonResidual.w))
+        );
+        require(
+            result.appliedCylinderWrapCount == cpu.appliedCylinderWrapCount,
+            "Metal Millard wrap selection disagrees with the source bridge at muscle " +
+                std::to_string(index)
+        );
+    }
+    require(
+        metrics.maximumPathLengthRelativeError < 2.0e-4 &&
+            metrics.maximumTendonForceRelativeError < 5.0e-3 &&
+            metrics.maximumGeneralizedForceL1RelativeError < 1.0e-2 &&
+            metrics.maximumEquilibriumResidual < 0.1,
+        "Metal Millard reference parity exceeded its FP32 source-bridge gate"
+    );
+    return metrics;
+}
 
 MetalReferenceMetrics verifyMetalFunctionBasedOperator(
     const metalrobo::EngineModel& model
@@ -1044,6 +1281,10 @@ int main(const int argc, char** argv) {
         const MillardReferenceMetrics millardMetrics = millardPath != nullptr
             ? verifyMillardReference(model, millardPayload)
             : MillardReferenceMetrics{};
+        const MetalMillardReferenceMetrics metalMillardMetrics =
+            runMetal && millardPath != nullptr
+                ? verifyMetalMillardReference(model, millardPayload, millardMetrics)
+                : MetalMillardReferenceMetrics{};
 
         std::cout << std::scientific << std::setprecision(6)
                   << "numilab_human_core_reference=ok"
@@ -1128,6 +1369,43 @@ int main(const int argc, char** argv) {
                           ? " millard_equilibrium_residual=" +
                                 std::to_string(
                                     millardMetrics.maximumEquilibriumResidual
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_millard_reference=ok"
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_millard_applied_cylinder_wraps=" +
+                                std::to_string(
+                                    metalMillardMetrics.appliedCylinderWrapCount
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_millard_path_relative_error=" +
+                                std::to_string(
+                                    metalMillardMetrics.
+                                        maximumPathLengthRelativeError
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_millard_tendon_relative_error=" +
+                                std::to_string(
+                                    metalMillardMetrics.
+                                        maximumTendonForceRelativeError
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_millard_force_l1_relative_error=" +
+                                std::to_string(
+                                    metalMillardMetrics.
+                                        maximumGeneralizedForceL1RelativeError
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_millard_equilibrium_residual=" +
+                                std::to_string(
+                                    metalMillardMetrics.
+                                        maximumEquilibriumResidual
                                 )
                           : "")
                   << '\n';

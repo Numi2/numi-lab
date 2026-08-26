@@ -1,6 +1,7 @@
 #pragma once
 
 #include "metalrobo/EngineModel.hpp"
+#include "metalrobo/millard_muscle_gpu.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -46,16 +47,35 @@ articulatedOperatorThreadgroupBytes(
 }
 } // namespace detail
 
+// Immutable source program and mutable state sidecar for the Millard
+// reference pass. It is optional: all spans empty preserves the articulated
+// operator's historical kinematics/mass behavior. When present, the muscle
+// pass executes after the FunctionBased kinematics/Jacobian kernel in the
+// same command buffer and receives no CPU-restaged pose or Jacobian data.
+struct MetalMillardReferenceInput {
+    std::span<const MRMillardMuscleGPU> muscles{};
+    std::span<const MRMillardMuscleStateGPU> states{};
+    std::span<const MRMillardPathPointGPU> pathPoints{};
+    std::span<const MRMillardSourceCurveGPU> curves{};
+    std::span<const MRMillardCylinderWrapGPU> cylinderWraps{};
+
+    [[nodiscard]] bool enabled() const noexcept {
+        return !muscles.empty();
+    }
+};
+
 // Packed, environment-major input for the synchronous Metal articulated
 // operator. q contains environmentCount * articulation.nq floats. points
 // contains environmentCount * pointCount records. All query body indices are
-// global EngineModel body indices.
+// global EngineModel body indices. A Millard source program indexes `points`
+// directly and therefore retains one authoritative device kinematics stream.
 struct MetalArticulatedOperatorInput {
     std::uint32_t articulationIndex = 0u;
     std::size_t environmentCount = 0u;
     std::size_t pointCount = 0u;
     std::span<const float> q{};
     std::span<const MRArticulatedPointImpulseGPU> points{};
+    MetalMillardReferenceInput millard{};
 };
 
 struct MetalArticulatedOperatorConfig {
@@ -115,6 +135,20 @@ struct MetalArticulatedOperatorLayout {
     std::size_t generalizedBytes = 0u;
     std::size_t statusElements = 0u;
     std::size_t statusBytes = 0u;
+    std::size_t millardMuscleElements = 0u;
+    std::size_t millardMuscleBytes = 0u;
+    std::size_t millardStateElements = 0u;
+    std::size_t millardStateBytes = 0u;
+    std::size_t millardPathPointElements = 0u;
+    std::size_t millardPathPointBytes = 0u;
+    std::size_t millardCurveElements = 0u;
+    std::size_t millardCurveBytes = 0u;
+    std::size_t millardWrapElements = 0u;
+    std::size_t millardWrapBytes = 0u;
+    std::size_t millardResultElements = 0u;
+    std::size_t millardResultBytes = 0u;
+    std::size_t millardGeneralizedForceElements = 0u;
+    std::size_t millardGeneralizedForceBytes = 0u;
     // Includes immutable model buffers and one-element placeholders required
     // to bind logically empty Metal buffers.
     std::size_t totalAllocatedBytes = 0u;
@@ -129,6 +163,8 @@ struct MetalArticulatedOperatorResult {
     std::vector<float> generalizedImpulse;
     std::vector<float> deltaVelocity;
     std::vector<MRArticulatedOperatorStatusGPU> statuses;
+    std::vector<MRMillardMuscleResultGPU> millardResults;
+    std::vector<float> millardGeneralizedForces;
 };
 
 struct MetalArticulatedOperatorDiagnostics {
@@ -205,7 +241,7 @@ private:
 
 // Reusable execution context for steady-state simulation. Device discovery,
 // metallib loading, command-queue creation, and pipeline compilation happen at
-// most once. Its 15-buffer arena is reused and grows geometrically as batch
+// most once. Its 24-buffer arena is reused and grows geometrically as batch
 // sizes increase. Calls are thread-safe, but a context deliberately admits
 // only one in-flight submission because every batch shares the same arena;
 // independent contexts provide safe overlap when multiple queues are useful.

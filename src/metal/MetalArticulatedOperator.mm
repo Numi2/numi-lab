@@ -30,7 +30,18 @@ namespace {
 
 // The final stream carries one canonical packed OpenSim SpatialTransform per
 // global joint. Non-FunctionBased slots are all-zero and are never consumed.
-constexpr std::size_t kRawBufferCount = 16u;
+// Shared kernel ABI. The first sixteen slots are the established articulated
+// operator stream; the Millard sidecar consumes those private outputs and
+// occupies slots 16..23 in the same command buffer.
+constexpr std::size_t kRawBufferCount = 24u;
+constexpr std::size_t kMillardDispatchBuffer = 16u;
+constexpr std::size_t kMillardMusclesBuffer = 17u;
+constexpr std::size_t kMillardStatesBuffer = 18u;
+constexpr std::size_t kMillardPathPointsBuffer = 19u;
+constexpr std::size_t kMillardCurvesBuffer = 20u;
+constexpr std::size_t kMillardWrapsBuffer = 21u;
+constexpr std::size_t kMillardResultsBuffer = 22u;
+constexpr std::size_t kMillardForcesBuffer = 23u;
 constexpr NSUInteger kThreadsPerThreadgroup = 32u;
 constexpr float kQuaternionHostTolerance = 1.9e-5f;
 constexpr std::uint64_t kShaderAddressableElements =
@@ -68,6 +79,7 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLCommandQueue> queue = nil;
     __strong id<MTLLibrary> library = nil;
     __strong id<MTLComputePipelineState> pipeline = nil;
+    __strong id<MTLComputePipelineState> millardPipeline = nil;
     __strong id<MTLBuffer> buffers[kRawBufferCount] = {};
     std::array<std::size_t, kRawBufferCount> capacities{};
     MetalArticulatedOperatorContextStats stats{};
@@ -100,6 +112,8 @@ struct MetalArticulatedOperatorSubmissionState {
     MRArticulationGPU articulation{};
     std::uint32_t articulationIndex = 0u;
     std::size_t pointCount = 0u;
+    bool hasMillardReference = false;
+    std::size_t millardMuscleCount = 0u;
     bool ownsInFlight = false;
 };
 
@@ -370,6 +384,106 @@ bool validPoints(
     return true;
 }
 
+bool validMillardReference(
+    const MRArticulationGPU& articulation,
+    const std::size_t environmentCount,
+    const std::span<const MRArticulatedPointImpulseGPU> operatorPoints,
+    const MetalMillardReferenceInput& millard,
+    std::string& reason
+) {
+    const bool enabled = millard.enabled();
+    if (!enabled) {
+        if (!millard.states.empty() || !millard.pathPoints.empty() ||
+            !millard.curves.empty() || !millard.cylinderWraps.empty()) {
+            reason = "Millard sidecar has data but no muscle definitions";
+            return false;
+        }
+        return true;
+    }
+    if (millard.muscles.size() > std::numeric_limits<mr_u32>::max() ||
+        millard.pathPoints.size() > std::numeric_limits<mr_u32>::max() ||
+        millard.cylinderWraps.size() > std::numeric_limits<mr_u32>::max() ||
+        millard.curves.size() != millard.muscles.size()) {
+        reason = "Millard source dimensions do not fit the device ABI";
+        return false;
+    }
+    std::size_t expectedStateCount = 0u;
+    if (!checkedMultiply(
+            environmentCount,
+            millard.muscles.size(),
+            expectedStateCount
+        ) || millard.states.size() != expectedStateCount) {
+        reason = "Millard state stream is not environment-major";
+        return false;
+    }
+    const std::uint64_t bodyEnd =
+        static_cast<std::uint64_t>(articulation.firstBody) +
+        articulation.bodyCount;
+    for (std::size_t index = 0u; index < millard.muscles.size(); ++index) {
+        const MRMillardMuscleGPU& muscle = millard.muscles[index];
+        if (!finite(muscle.forceAndLengths) ||
+            !finite(muscle.dampingAndActivation) ||
+            muscle.dampingAndActivation.w != 0.0f ||
+            muscle.pathAndWrap.y < 2u ||
+            muscle.pathAndWrap.x > millard.pathPoints.size() ||
+            muscle.pathAndWrap.y >
+                millard.pathPoints.size() - muscle.pathAndWrap.x ||
+            muscle.pathAndWrap.z > millard.cylinderWraps.size() ||
+            muscle.pathAndWrap.w >
+                millard.cylinderWraps.size() - muscle.pathAndWrap.z ||
+            muscle.pathAndWrap.w >
+                MR_MILLARD_REFERENCE_MAX_WRAPS_PER_MUSCLE ||
+            muscle.flags.y != 0u || muscle.flags.z != 0u ||
+            muscle.flags.w != 0u) {
+            reason = "Millard muscle definition is malformed";
+            return false;
+        }
+        const MRMillardSourceCurveGPU& curve = millard.curves[index];
+        for (const mr_float4 block : curve.values) {
+            if (!finite(block)) {
+                reason = "Millard source curves contain non-finite values";
+                return false;
+            }
+        }
+        if (curve.values[5u].z != 0.0f || curve.values[5u].w != 0.0f) {
+            reason = "Millard source curve padding is nonzero";
+            return false;
+        }
+    }
+    for (const MRMillardMuscleStateGPU& state : millard.states) {
+        if (!finite(state.activationAndVelocity) ||
+            state.activationAndVelocity.z != 0.0f ||
+            state.activationAndVelocity.w != 0.0f) {
+            reason = "Millard state stream is non-finite or noncanonical";
+            return false;
+        }
+    }
+    for (const MRMillardPathPointGPU& point : millard.pathPoints) {
+        if (point.pointQueryIndex >= operatorPoints.size() ||
+            point.bodyIndex < articulation.firstBody ||
+            static_cast<std::uint64_t>(point.bodyIndex) >= bodyEnd ||
+            point.bodyIndex != operatorPoints[point.pointQueryIndex].bodyIndex ||
+            point.reserved0 != 0u || point.reserved1 != 0u) {
+            reason = "Millard path point does not match an operator query";
+            return false;
+        }
+    }
+    for (const MRMillardCylinderWrapGPU& wrap : millard.cylinderWraps) {
+        if (wrap.bodyIndex < articulation.firstBody ||
+            static_cast<std::uint64_t>(wrap.bodyIndex) >= bodyEnd ||
+            wrap.reserved0 != 0u || wrap.reserved1 != 0u ||
+            wrap.reserved2 != 0u || !finite(wrap.center) ||
+            !finite(wrap.rotationAndRadius) || !finite(wrap.length) ||
+            wrap.center.w != 0.0f || wrap.length.y != 0.0f ||
+            wrap.length.z != 0.0f || wrap.length.w != 0.0f ||
+            !(wrap.rotationAndRadius.w > 0.0f) || !(wrap.length.x > 0.0f)) {
+            reason = "Millard cylinder wrap is malformed";
+            return false;
+        }
+    }
+    return true;
+}
+
 bool buildRequirements(
     const EngineModel& model,
     const MetalArticulatedOperatorLayout& layout,
@@ -457,6 +571,46 @@ bool buildRequirements(
             "FunctionBased programs",
             jointElements,
             requirements.entries[15]
+        ) ||
+        !makeRequirement<MRMillardReferenceDispatchGPU>(
+            "Millard dispatch",
+            1u,
+            requirements.entries[kMillardDispatchBuffer]
+        ) ||
+        !makeRequirement<MRMillardMuscleGPU>(
+            "Millard muscles",
+            layout.millardMuscleElements,
+            requirements.entries[kMillardMusclesBuffer]
+        ) ||
+        !makeRequirement<MRMillardMuscleStateGPU>(
+            "Millard states",
+            layout.millardStateElements,
+            requirements.entries[kMillardStatesBuffer]
+        ) ||
+        !makeRequirement<MRMillardPathPointGPU>(
+            "Millard path points",
+            layout.millardPathPointElements,
+            requirements.entries[kMillardPathPointsBuffer]
+        ) ||
+        !makeRequirement<MRMillardSourceCurveGPU>(
+            "Millard source curves",
+            layout.millardCurveElements,
+            requirements.entries[kMillardCurvesBuffer]
+        ) ||
+        !makeRequirement<MRMillardCylinderWrapGPU>(
+            "Millard cylinder wraps",
+            layout.millardWrapElements,
+            requirements.entries[kMillardWrapsBuffer]
+        ) ||
+        !makeRequirement<MRMillardMuscleResultGPU>(
+            "Millard results",
+            layout.millardResultElements,
+            requirements.entries[kMillardResultsBuffer]
+        ) ||
+        !makeRequirement<float>(
+            "Millard generalized forces",
+            layout.millardGeneralizedForceElements,
+            requirements.entries[kMillardForcesBuffer]
         )) {
         return false;
     }
@@ -671,6 +825,29 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
     }
     layout.statusElements = input.environmentCount;
 
+    if (input.millard.enabled()) {
+        layout.millardMuscleElements = input.millard.muscles.size();
+        layout.millardStateElements = input.millard.states.size();
+        layout.millardPathPointElements = input.millard.pathPoints.size();
+        layout.millardCurveElements = input.millard.curves.size();
+        layout.millardWrapElements = input.millard.cylinderWraps.size();
+        if (!checkedMultiply(
+                input.environmentCount,
+                layout.millardMuscleElements,
+                layout.millardResultElements
+            ) || !checkedMultiply(
+                layout.millardResultElements,
+                articulation.nv,
+                layout.millardGeneralizedForceElements
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+                "derived Millard output element-count overflow"
+            );
+        }
+    }
+
     const auto exceedsShaderAddressing =
         [](const std::size_t elements) {
             return static_cast<std::uint64_t>(elements) >
@@ -685,7 +862,14 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             layout.pointJacobianElements
         ) ||
         exceedsShaderAddressing(layout.generalizedElements) ||
-        exceedsShaderAddressing(layout.statusElements)) {
+        exceedsShaderAddressing(layout.statusElements) ||
+        exceedsShaderAddressing(layout.millardMuscleElements) ||
+        exceedsShaderAddressing(layout.millardStateElements) ||
+        exceedsShaderAddressing(layout.millardPathPointElements) ||
+        exceedsShaderAddressing(layout.millardCurveElements) ||
+        exceedsShaderAddressing(layout.millardWrapElements) ||
+        exceedsShaderAddressing(layout.millardResultElements) ||
+        exceedsShaderAddressing(layout.millardGeneralizedForceElements)) {
         return reject(
             std::move(diagnostics),
             MetalArticulatedOperatorHostStatus::arithmeticOverflow,
@@ -721,6 +905,20 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         requirements.entries[12].logicalBytes;
     layout.statusBytes =
         requirements.entries[14].logicalBytes;
+    layout.millardMuscleBytes =
+        requirements.entries[kMillardMusclesBuffer].logicalBytes;
+    layout.millardStateBytes =
+        requirements.entries[kMillardStatesBuffer].logicalBytes;
+    layout.millardPathPointBytes =
+        requirements.entries[kMillardPathPointsBuffer].logicalBytes;
+    layout.millardCurveBytes =
+        requirements.entries[kMillardCurvesBuffer].logicalBytes;
+    layout.millardWrapBytes =
+        requirements.entries[kMillardWrapsBuffer].logicalBytes;
+    layout.millardResultBytes =
+        requirements.entries[kMillardResultsBuffer].logicalBytes;
+    layout.millardGeneralizedForceBytes =
+        requirements.entries[kMillardForcesBuffer].logicalBytes;
     layout.totalAllocatedBytes = totalAllocatedBytes;
     diagnostics.layout = layout;
 
@@ -748,6 +946,20 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             std::move(diagnostics),
             MetalArticulatedOperatorHostStatus::invalidPointQuery,
             "point query is non-finite, reserved, or outside articulation"
+        );
+    }
+    std::string millardReason;
+    if (!validMillardReference(
+            articulation,
+            input.environmentCount,
+            input.points,
+            input.millard,
+            millardReason
+        )) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidDimensions,
+            "invalid Millard reference program: " + millardReason
         );
     }
     return diagnostics;
@@ -785,6 +997,24 @@ NSString* bufferLabel(const std::size_t index) {
         return @"delta velocity output";
     case 14u:
         return @"articulated status output";
+    case 15u:
+        return @"FunctionBased programs";
+    case kMillardDispatchBuffer:
+        return @"Millard dispatch";
+    case kMillardMusclesBuffer:
+        return @"Millard muscles";
+    case kMillardStatesBuffer:
+        return @"Millard states";
+    case kMillardPathPointsBuffer:
+        return @"Millard path points";
+    case kMillardCurvesBuffer:
+        return @"Millard source curves";
+    case kMillardWrapsBuffer:
+        return @"Millard cylinder wraps";
+    case kMillardResultsBuffer:
+        return @"Millard results";
+    case kMillardForcesBuffer:
+        return @"Millard generalized forces";
     default:
         return @"articulated buffer";
     }
@@ -899,11 +1129,35 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             "device cannot execute the articulated threadgroup"
         );
     }
+    id<MTLFunction> millardFunction = [library
+        newFunctionWithName:@"mr_millard_reference"];
+    if (millardFunction == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+            "metallib does not contain the Millard reference operator"
+        );
+    }
+    error = nil;
+    id<MTLComputePipelineState> millardPipeline = [device
+        newComputePipelineStateWithFunction:millardFunction
+                                       error:&error];
+    if (millardPipeline == nil ||
+        millardPipeline.maxTotalThreadsPerThreadgroup <
+            kThreadsPerThreadgroup) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+            "failed to create Millard reference pipeline: " +
+                describeError(error)
+        );
+    }
 
     context.device = device;
     context.queue = queue;
     context.library = library;
     context.pipeline = pipeline;
+    context.millardPipeline = millardPipeline;
     context.initialized = true;
     ++context.stats.pipelineCreationCount;
     return diagnostics;
@@ -1137,6 +1391,83 @@ void uploadBatch(
         packedPrograms.data(),
         requirements.entries[15u]
     );
+
+    MRMillardReferenceDispatchGPU millardDispatch{};
+    if (input.millard.enabled()) {
+        const MRArticulationGPU& articulation =
+            model.articulations[input.articulationIndex];
+        millardDispatch.abiVersion = MR_MILLARD_REFERENCE_GPU_ABI_VERSION;
+        millardDispatch.muscleCount = static_cast<mr_u32>(
+            input.millard.muscles.size()
+        );
+        millardDispatch.pathPointCount = static_cast<mr_u32>(
+            input.millard.pathPoints.size()
+        );
+        millardDispatch.wrapCount = static_cast<mr_u32>(
+            input.millard.cylinderWraps.size()
+        );
+        millardDispatch.environmentCount = static_cast<mr_u32>(
+            input.environmentCount
+        );
+        millardDispatch.dofCount = articulation.nv;
+        millardDispatch.pointWorldStride = layout.dispatch.pointWorldStride;
+        millardDispatch.pointJacobianStride =
+            layout.dispatch.pointJacobianStride;
+        millardDispatch.bodyPoseStride = layout.dispatch.bodyPoseStride;
+        millardDispatch.articulationFirstBody = articulation.firstBody;
+    }
+    copyToBuffer(
+        context.buffers[kMillardDispatchBuffer],
+        &millardDispatch,
+        requirements.entries[kMillardDispatchBuffer]
+    );
+    const auto uploadMillard = [&](const std::size_t index, const void* source) {
+        copyToBuffer(
+            context.buffers[index],
+            source,
+            requirements.entries[index]
+        );
+    };
+    uploadMillard(
+        kMillardMusclesBuffer,
+        input.millard.muscles.empty()
+            ? nullptr
+            : static_cast<const void*>(input.millard.muscles.data())
+    );
+    uploadMillard(
+        kMillardStatesBuffer,
+        input.millard.states.empty()
+            ? nullptr
+            : static_cast<const void*>(input.millard.states.data())
+    );
+    uploadMillard(
+        kMillardPathPointsBuffer,
+        input.millard.pathPoints.empty()
+            ? nullptr
+            : static_cast<const void*>(input.millard.pathPoints.data())
+    );
+    uploadMillard(
+        kMillardCurvesBuffer,
+        input.millard.curves.empty()
+            ? nullptr
+            : static_cast<const void*>(input.millard.curves.data())
+    );
+    uploadMillard(
+        kMillardWrapsBuffer,
+        input.millard.cylinderWraps.empty()
+            ? nullptr
+            : static_cast<const void*>(input.millard.cylinderWraps.data())
+    );
+    std::memset(
+        context.buffers[kMillardResultsBuffer].contents,
+        0,
+        requirements.entries[kMillardResultsBuffer].allocationBytes
+    );
+    std::memset(
+        context.buffers[kMillardForcesBuffer].contents,
+        0,
+        requirements.entries[kMillardForcesBuffer].allocationBytes
+    );
 }
 
 // The standalone compatibility entry point still uses an isolated arena so
@@ -1250,6 +1581,20 @@ bool finitePayload(
             [](const float value) {
                 return std::isfinite(value);
             }
+        ) &&
+        std::all_of(
+            result.millardResults.begin(),
+            result.millardResults.end(),
+            [](const MRMillardMuscleResultGPU& value) {
+                return finite(value.pathFiberTendonResidual);
+            }
+        ) &&
+        std::all_of(
+            result.millardGeneralizedForces.begin(),
+            result.millardGeneralizedForces.end(),
+            [](const float value) {
+                return std::isfinite(value);
+            }
         );
 }
 
@@ -1334,6 +1679,10 @@ MetalArticulatedOperatorSubmission::wait(
                 layout.generalizedElements
             );
             staged.statuses.resize(layout.statusElements);
+            staged.millardResults.resize(layout.millardResultElements);
+            staged.millardGeneralizedForces.resize(
+                layout.millardGeneralizedForceElements
+            );
 
             const auto& buffers = pending->context->buffers;
             copyOutput(staged.bodyPoses, buffers[8]);
@@ -1349,6 +1698,14 @@ MetalArticulatedOperatorSubmission::wait(
             );
             copyOutput(staged.deltaVelocity, buffers[13]);
             copyOutput(staged.statuses, buffers[14]);
+            copyOutput(
+                staged.millardResults,
+                buffers[kMillardResultsBuffer]
+            );
+            copyOutput(
+                staged.millardGeneralizedForces,
+                buffers[kMillardForcesBuffer]
+            );
         }
 
         for (std::size_t environment = 0u;
@@ -1395,6 +1752,28 @@ MetalArticulatedOperatorSubmission::wait(
                         status.code;
                 }
                 ++diagnostics.failedEnvironmentCount;
+            }
+        }
+        if (pending->hasMillardReference) {
+            for (std::size_t index = 0u;
+                 index < staged.millardResults.size();
+                 ++index) {
+                const MRMillardMuscleResultGPU& millard =
+                    staged.millardResults[index];
+                const std::size_t environment =
+                    index / pending->millardMuscleCount;
+                const std::size_t muscle =
+                    index - environment * pending->millardMuscleCount;
+                if (millard.status != MR_MILLARD_REFERENCE_SUCCESS ||
+                    millard.environment != environment ||
+                    millard.muscleIndex != muscle ||
+                    !finite(millard.pathFiberTendonResidual)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::gpuEnvironmentFailure,
+                        "GPU rejected a Millard source-reference muscle"
+                    );
+                }
             }
         }
         if (!finitePayload(staged)) {
@@ -1582,6 +1961,44 @@ MetalArticulatedOperatorContext::submit(
                 )];
             [encoder endEncoding];
 
+            if (input.millard.enabled()) {
+                id<MTLComputeCommandEncoder> millardEncoder =
+                    [commandBuffer computeCommandEncoder];
+                if (millardEncoder == nil) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                        "failed to create Millard reference encoder"
+                    );
+                }
+                [millardEncoder setComputePipelineState:state_->millardPipeline];
+                for (NSUInteger index = 0u;
+                     index < kRawBufferCount;
+                     ++index) {
+                    [millardEncoder
+                        setBuffer:state_->buffers[index]
+                           offset:0u
+                          atIndex:index];
+                }
+                const std::size_t threadCount =
+                    diagnostics.layout.millardResultElements;
+                [millardEncoder
+                    dispatchThreadgroups:MTLSizeMake(
+                        static_cast<NSUInteger>(
+                            (threadCount + kThreadsPerThreadgroup - 1u) /
+                                kThreadsPerThreadgroup
+                        ),
+                        1u,
+                        1u
+                    )
+                    threadsPerThreadgroup:MTLSizeMake(
+                        kThreadsPerThreadgroup,
+                        1u,
+                        1u
+                    )];
+                [millardEncoder endEncoding];
+            }
+
             auto pending = std::make_unique<
                 detail::MetalArticulatedOperatorSubmissionState
             >();
@@ -1594,6 +2011,8 @@ MetalArticulatedOperatorContext::submit(
             pending->articulationIndex =
                 input.articulationIndex;
             pending->pointCount = input.pointCount;
+            pending->hasMillardReference = input.millard.enabled();
+            pending->millardMuscleCount = input.millard.muscles.size();
             pending->start =
                 std::chrono::steady_clock::now();
             pending->ownsInFlight = true;
@@ -1807,8 +2226,35 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                     std::move(diagnostics),
                     MetalArticulatedOperatorHostStatus::
                         metalDeviceUnsupported,
-                    "device cannot execute the articulated threadgroup"
+                        "device cannot execute the articulated threadgroup"
                 );
+            }
+
+            id<MTLComputePipelineState> millardPipeline = nil;
+            if (input.millard.enabled()) {
+                id<MTLFunction> millardFunction = [library
+                    newFunctionWithName:@"mr_millard_reference"];
+                if (millardFunction == nil) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                        "metallib does not contain the Millard reference operator"
+                    );
+                }
+                error = nil;
+                millardPipeline = [device
+                    newComputePipelineStateWithFunction:millardFunction
+                                                   error:&error];
+                if (millardPipeline == nil ||
+                    millardPipeline.maxTotalThreadsPerThreadgroup <
+                        kThreadsPerThreadgroup) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                        "failed to create Millard reference pipeline: " +
+                            describeError(error)
+                    );
+                }
             }
 
             id<MTLBuffer> buffers[kRawBufferCount] = {};
@@ -1915,6 +2361,90 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                 requirements.entries[15],
                 @"FunctionBased programs"
             );
+            MRMillardReferenceDispatchGPU millardDispatch{};
+            if (input.millard.enabled()) {
+                const MRArticulationGPU& millardArticulation =
+                    model.articulations[input.articulationIndex];
+                millardDispatch.abiVersion =
+                    MR_MILLARD_REFERENCE_GPU_ABI_VERSION;
+                millardDispatch.muscleCount = static_cast<mr_u32>(
+                    input.millard.muscles.size()
+                );
+                millardDispatch.pathPointCount = static_cast<mr_u32>(
+                    input.millard.pathPoints.size()
+                );
+                millardDispatch.wrapCount = static_cast<mr_u32>(
+                    input.millard.cylinderWraps.size()
+                );
+                millardDispatch.environmentCount = static_cast<mr_u32>(
+                    input.environmentCount
+                );
+                millardDispatch.dofCount = millardArticulation.nv;
+                millardDispatch.pointWorldStride =
+                    layout.dispatch.pointWorldStride;
+                millardDispatch.pointJacobianStride =
+                    layout.dispatch.pointJacobianStride;
+                millardDispatch.bodyPoseStride =
+                    layout.dispatch.bodyPoseStride;
+                millardDispatch.articulationFirstBody =
+                    millardArticulation.firstBody;
+            }
+            buffers[kMillardDispatchBuffer] = makeInputBuffer(
+                device,
+                &millardDispatch,
+                requirements.entries[kMillardDispatchBuffer],
+                @"Millard dispatch"
+            );
+            buffers[kMillardMusclesBuffer] = makeInputBuffer(
+                device,
+                input.millard.muscles.empty()
+                    ? nullptr
+                    : static_cast<const void*>(input.millard.muscles.data()),
+                requirements.entries[kMillardMusclesBuffer],
+                @"Millard muscles"
+            );
+            buffers[kMillardStatesBuffer] = makeInputBuffer(
+                device,
+                input.millard.states.empty()
+                    ? nullptr
+                    : static_cast<const void*>(input.millard.states.data()),
+                requirements.entries[kMillardStatesBuffer],
+                @"Millard states"
+            );
+            buffers[kMillardPathPointsBuffer] = makeInputBuffer(
+                device,
+                input.millard.pathPoints.empty()
+                    ? nullptr
+                    : static_cast<const void*>(input.millard.pathPoints.data()),
+                requirements.entries[kMillardPathPointsBuffer],
+                @"Millard path points"
+            );
+            buffers[kMillardCurvesBuffer] = makeInputBuffer(
+                device,
+                input.millard.curves.empty()
+                    ? nullptr
+                    : static_cast<const void*>(input.millard.curves.data()),
+                requirements.entries[kMillardCurvesBuffer],
+                @"Millard source curves"
+            );
+            buffers[kMillardWrapsBuffer] = makeInputBuffer(
+                device,
+                input.millard.cylinderWraps.empty()
+                    ? nullptr
+                    : static_cast<const void*>(input.millard.cylinderWraps.data()),
+                requirements.entries[kMillardWrapsBuffer],
+                @"Millard cylinder wraps"
+            );
+            buffers[kMillardResultsBuffer] = makeOutputBuffer(
+                device,
+                requirements.entries[kMillardResultsBuffer],
+                @"Millard results"
+            );
+            buffers[kMillardForcesBuffer] = makeOutputBuffer(
+                device,
+                requirements.entries[kMillardForcesBuffer],
+                @"Millard generalized forces"
+            );
 
             for (std::size_t index = 0u;
                  index < kRawBufferCount;
@@ -1989,6 +2519,40 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                 )];
             [encoder endEncoding];
 
+            if (input.millard.enabled()) {
+                id<MTLComputeCommandEncoder> millardEncoder =
+                    [commandBuffer computeCommandEncoder];
+                if (millardEncoder == nil) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                        "failed to create Millard reference encoder"
+                    );
+                }
+                [millardEncoder setComputePipelineState:millardPipeline];
+                for (NSUInteger index = 0u;
+                     index < kRawBufferCount;
+                     ++index) {
+                    [millardEncoder setBuffer:buffers[index] offset:0u atIndex:index];
+                }
+                const std::size_t threadCount = layout.millardResultElements;
+                [millardEncoder
+                    dispatchThreadgroups:MTLSizeMake(
+                        static_cast<NSUInteger>(
+                            (threadCount + kThreadsPerThreadgroup - 1u) /
+                                kThreadsPerThreadgroup
+                        ),
+                        1u,
+                        1u
+                    )
+                    threadsPerThreadgroup:MTLSizeMake(
+                        kThreadsPerThreadgroup,
+                        1u,
+                        1u
+                    )];
+                [millardEncoder endEncoding];
+            }
+
             const auto start =
                 std::chrono::steady_clock::now();
             diagnostics.dispatched = true;
@@ -2030,6 +2594,10 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                 layout.generalizedElements
             );
             staged.statuses.resize(layout.statusElements);
+            staged.millardResults.resize(layout.millardResultElements);
+            staged.millardGeneralizedForces.resize(
+                layout.millardGeneralizedForceElements
+            );
             copyOutput(staged.bodyPoses, buffers[8]);
             copyOutput(staged.pointWorld, buffers[9]);
             copyOutput(
@@ -2043,6 +2611,14 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
             );
             copyOutput(staged.deltaVelocity, buffers[13]);
             copyOutput(staged.statuses, buffers[14]);
+            copyOutput(
+                staged.millardResults,
+                buffers[kMillardResultsBuffer]
+            );
+            copyOutput(
+                staged.millardGeneralizedForces,
+                buffers[kMillardForcesBuffer]
+            );
         }
 
         for (std::size_t environment = 0u;
@@ -2088,6 +2664,28 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                     diagnostics.firstGPUStatusCode = status.code;
                 }
                 ++diagnostics.failedEnvironmentCount;
+            }
+        }
+        if (input.millard.enabled()) {
+            for (std::size_t index = 0u;
+                 index < staged.millardResults.size();
+                 ++index) {
+                const MRMillardMuscleResultGPU& millard =
+                    staged.millardResults[index];
+                const std::size_t environment =
+                    index / input.millard.muscles.size();
+                const std::size_t muscle =
+                    index - environment * input.millard.muscles.size();
+                if (millard.status != MR_MILLARD_REFERENCE_SUCCESS ||
+                    millard.environment != environment ||
+                    millard.muscleIndex != muscle ||
+                    !finite(millard.pathFiberTendonResidual)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::gpuEnvironmentFailure,
+                        "GPU rejected a Millard source-reference muscle"
+                    );
+                }
             }
         }
         if (!finitePayload(staged)) {

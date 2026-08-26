@@ -124,11 +124,24 @@ then re-pack is byte-identical; the device probe compares source-order pose,
 byte-for-byte. A paired device primitive also projects a source-frame wrench
 with `H transpose` and returns `Hdot*qdot` at zero generalized acceleration.
 This GPU program/projection path accepts source-derived immutable programs
-without a hand-entered fixture, but current Metal ABA/operator/MetalWorld
-kernels explicitly reject `MR_JOINT_FUNCTION_BASED`: they do not yet assemble
-or advance an accelerated multi-body FunctionBased articulation. Universal
-joints are also not admitted. Neither contract establishes contact or muscle
-dynamics.
+without a hand-entered fixture. The bounded generic articulated operator also
+admits them for source-tree kinematics, point Jacobians, dense mass, and impulse
+response. Current Metal ABA and MetalWorld state kernels still explicitly
+reject `MR_JOINT_FUNCTION_BASED`: they do not yet assemble or advance an
+accelerated multi-body FunctionBased articulation. Universal joints are also
+not admitted. Neither contract establishes contact or muscle dynamics.
+
+The optional `MetalMillardReferenceInput` is a separate device-side source
+reference pass attached to the generic articulated operator. In the same
+command buffer it consumes the operator's private body poses, path-point world
+positions, and analytic point Jacobians; it reconstructs the source-materialized
+Millard curves, applies the finite-cylinder GeometryPath rule, solves static
+fiber-tendon equilibrium, and publishes one generalized-force vector per
+muscle. It is an active force evaluation at supplied activation/normalized
+fiber velocity, not a persistent activation/fiber/tendon state integrator.
+`MetalWorld` has no lowering for this program and continues to reject
+FunctionBased joints, so the pass must not be represented as a human world
+state step, contact simulation, or OpenSim binary-equivalence result.
 
 ## Free-body integration
 
