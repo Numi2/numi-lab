@@ -1,6 +1,7 @@
 #pragma once
 
 #include "metalrobo/ArticulatedDynamics.hpp"
+#include "metalrobo/millard_muscle_gpu.h"
 
 #include <array>
 #include <cstdint>
