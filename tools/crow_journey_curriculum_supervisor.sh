@@ -98,16 +98,39 @@ while [ "$band" -le "$maximum_band" ]; do
     fi
   fi
 
+  if ! "$mlx" -c \
+    'import json,sys; data=json.load(open(sys.argv[1])); sys.exit(0 if not data.get("selection_error") else 1)' \
+    "$selection"; then
+    echo "Crow band $band selection/runtime failed; retained evidence: $selection" >&2
+    exit 5
+  fi
+
   if "$mlx" -c \
     'import json,sys; sys.exit(0 if json.load(open(sys.argv[1])).get("candidate_advanced_deployment", False) else 1)' \
     "$selection"; then
-    parent_policy="$run/deployment.policypack"
-    parent_state="$run/learner.safetensors"
-    [ -s "$parent_policy" ] || {
-      echo "selected Crow deployment is missing: $parent_policy" >&2; exit 5;
+    selected_label=$("$mlx" -c \
+      'import json,sys; print(json.load(open(sys.argv[1])).get("selected_candidate_label") or "candidate")' \
+      "$selection")
+    selected_revision=${selected_label#candidate-}
+    checkpoint_policy="$run/checkpoints/revision-$selected_revision.policypack"
+    checkpoint_state="$run/checkpoints/revision-$selected_revision.safetensors"
+    if [ "$selected_revision" != "$selected_label" ] && \
+      [ -s "$checkpoint_policy" ] && [ -s "$checkpoint_state" ]; then
+      parent_policy="$checkpoint_policy"
+      parent_state="$checkpoint_state"
+    else
+      parent_policy="$run/candidate.policypack"
+      parent_state="$run/learner.safetensors"
+    fi
+    deployment_policy="$run/deployment.policypack"
+    [ -s "$deployment_policy" ] && [ -s "$parent_policy" ] && \
+      [ -s "$parent_state" ] || {
+      echo "selected Crow deployment/training parent is incomplete for $selected_label" >&2
+      exit 5
     }
-    printf '{"schema":"numi.crow-curriculum-progress.v1","variant":"%s","course":"%s","completed_band":%s,"milestone":"%s","deployment":"%s","selection":"%s"}\n' \
-      "$journey_variant" "$course" "$band" "$milestone" "$parent_policy" "$selection" \
+    printf '{"schema":"numi.crow-curriculum-progress.v1","variant":"%s","course":"%s","completed_band":%s,"milestone":"%s","deployment":"%s","training_parent":"%s","learner_state":"%s","selection":"%s"}\n' \
+      "$journey_variant" "$course" "$band" "$milestone" \
+      "$deployment_policy" "$parent_policy" "$parent_state" "$selection" \
       > "$runs/progress.json"
     band=$((band + 1))
     retry=0
