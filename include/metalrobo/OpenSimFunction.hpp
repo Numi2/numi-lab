@@ -6,9 +6,9 @@
 namespace metalrobo {
 
 // OpenSim Function kinds used by the pinned Rajagopal CustomJoint
-// SpatialTransforms. This is deliberately a small, allocation-free-at-eval
-// value/derivative primitive; a future function-based articulated joint owns
-// frame composition, coordinate selection, and generalized-force projection.
+// SpatialTransforms. This is deliberately a small host-side value/derivative
+// primitive; a future function-based articulated joint owns frame composition,
+// coordinate selection, generalized-force projection, and device-side storage.
 enum class OpenSimFunctionKind : std::uint32_t {
     constant = 0u,
     linear,
