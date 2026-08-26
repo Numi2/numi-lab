@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 
+import contextlib
+import io
 import json
 import sys
 import tempfile
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "python"))
 
+import metalrobo.policy_selection as policy_selection  # noqa: E402
 from metalrobo.policy_selection import (  # noqa: E402
     _adult_evaluation_bands,
     _curriculum_evaluation_bands,
@@ -1245,6 +1249,103 @@ class PolicySelectionTest(unittest.TestCase):
             decision["selection_method"],
             "birdflow_crow_journey_absolute_protected_contract",
         )
+
+    def test_crow_current_contract_failure_is_sufficient_to_reject(self) -> None:
+        incumbent = {
+            "task": "birdflow_american_crow_journey_v8_neural",
+            "failed_environment_steps": 0,
+            "termination_count": 512,
+            "timeout_count": 512,
+            "mean_tracking_score": 0.92,
+            "mean_tilt": 0.01,
+            "maximum_tilt": 0.02,
+            "maximum_root_height": 0.19,
+            "minimum_sampled_difficulty_band": 1,
+            "maximum_sampled_difficulty_band": 1,
+        }
+        candidate = {
+            **incumbent,
+            "mean_tracking_score": 0.91,
+            "mean_tilt": 0.36,
+        }
+        failures = _crow_journey_contract_regressions(candidate, 1)
+        self.assertIn("mean tilt exceeds 0.35 rad", failures)
+        decision = compare_protected_bands(incumbent, candidate, {})
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertFalse(decision["candidate_advanced_deployment"])
+        self.assertIn("mean tilt exceeds 0.35 rad", decision["regressions"])
+
+    def test_crow_selector_skips_protected_replay_after_current_failure(self) -> None:
+        record = {
+            "task": "birdflow_american_crow_journey_v8_neural",
+            "failed_environment_steps": 0,
+            "termination_count": 512,
+            "timeout_count": 512,
+            "mean_tracking_score": 0.92,
+            "mean_tilt": 0.01,
+            "maximum_tilt": 0.02,
+            "maximum_root_height": 0.19,
+            "minimum_sampled_difficulty_band": 1,
+            "maximum_sampled_difficulty_band": 1,
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            incumbent = root / "incumbent.policypack"
+            candidate = root / "candidate.policypack"
+            deployment = root / "deployment.policypack"
+            evidence = root / "selection"
+            evaluator = root / "evaluator"
+            metallib = root / "MetalRobo.metallib"
+            for path in (incumbent, candidate, evaluator, metallib):
+                path.write_text(path.name, encoding="utf-8")
+
+            evaluated: list[str] = []
+
+            def fake_evaluate(
+                _evaluator: Path,
+                _arguments: list[str],
+                evidence_path: Path,
+            ) -> dict[str, object]:
+                evaluated.append(evidence_path.name)
+                if evidence_path.name == "candidate.evidence.json":
+                    return {**record, "mean_tilt": 0.36}
+                if evidence_path.name.startswith("candidate.protected-band"):
+                    self.fail("failed current candidate reached protected replay")
+                return dict(record)
+
+            arguments = [
+                "policy_selection.py",
+                "--evaluator", str(evaluator),
+                "--metallib", str(metallib),
+                "--incumbent", str(incumbent),
+                "--candidate", str(candidate),
+                "--deployment", str(deployment),
+                "--evidence-directory", str(evidence),
+                "--maximum-environments", "512",
+                "--evaluation-steps", "1600",
+                "--",
+                "--birdflow-american-crow-journey",
+                "--minimum-difficulty-band", "1",
+                "--maximum-difficulty-band", "1",
+            ]
+            with patch.object(sys, "argv", arguments), patch.object(
+                policy_selection, "_evaluate", side_effect=fake_evaluate
+            ), contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(policy_selection.main(), 0)
+
+            self.assertEqual(
+                evaluated,
+                [
+                    "incumbent.evidence.json",
+                    "incumbent.protected-band-0.evidence.json",
+                    "candidate.evidence.json",
+                ],
+            )
+            decision = json.loads(
+                (evidence / "selection.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(decision["selected"], "incumbent")
+            self.assertEqual(decision["protected_bands_skipped"], [0])
 
 
 if __name__ == "__main__":

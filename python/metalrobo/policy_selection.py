@@ -1336,6 +1336,7 @@ def main() -> int:
 
     records: dict[str, dict[str, Any]] = {}
     protected_band_records: dict[int, dict[str, dict[str, Any]]] = {}
+    skipped_protected_band_failures: dict[str, list[str]] = {}
     protected_bands = (
         list(range(curriculum_current_band))
         if curriculum_task == "birdflow-crow-journey"
@@ -1373,6 +1374,24 @@ def main() -> int:
                 ),
                 options.evidence_directory / f"{name}.evidence.json",
             )
+            # Earlier-band replay cannot rescue a Crow candidate that has
+            # already failed the absolute contract for its current rung.
+            # Reject it fail-closed and retain the current evidence instead
+            # of spending O(protected bands) rollout time proving the same
+            # rejection repeatedly. The incumbent is always replayed because
+            # every viable candidate still needs its matched protected
+            # baseline.
+            if (
+                name != "incumbent"
+                and curriculum_task == "birdflow-crow-journey"
+                and curriculum_current_band is not None
+            ):
+                current_failures = _crow_journey_contract_regressions(
+                    records[name], curriculum_current_band
+                )
+                if current_failures:
+                    skipped_protected_band_failures[name] = current_failures
+                    continue
             for protected_band in protected_bands:
                 band_records = protected_band_records.setdefault(
                     protected_band, {}
@@ -1422,17 +1441,25 @@ def main() -> int:
     ):
         comparison_overrides = {}
         for name in candidate_names:
-            comparison_overrides[name] = compare_protected_bands(
+            protected = {
+                band: (
+                    protected_band_records[band]["incumbent"],
+                    protected_band_records[band][name],
+                )
+                for band in protected_bands
+                if name in protected_band_records[band]
+            }
+            comparison = compare_protected_bands(
                 records["incumbent"],
                 records[name],
-                {
-                    band: (
-                        protected_band_records[band]["incumbent"],
-                        protected_band_records[band][name],
-                    )
-                    for band in protected_bands
-                },
+                protected,
             )
+            if name in skipped_protected_band_failures:
+                comparison["protected_bands_skipped"] = protected_bands
+                comparison["protected_band_skip_reason"] = (
+                    "current Crow milestone absolute contract failed"
+                )
+            comparison_overrides[name] = comparison
     champion, comparisons = select_candidate_champion(
         records["incumbent"],
         {name: records[name] for name in candidate_names},
