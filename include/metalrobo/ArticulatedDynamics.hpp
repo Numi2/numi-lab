@@ -159,6 +159,18 @@ computeArticulatedMassMatrix(
     const ArticulatedDynamicsConfig& config = {}
 );
 
+// FP64 reference for device contact-response columns. rhs and response are
+// row-major [columnCount][nv], and FunctionBased source joints are retained.
+[[nodiscard]] ArticulatedDynamicsDiagnostics
+computeArticulatedInverseMassResponses(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<const double> q,
+    std::span<const double> rhsRowMajor,
+    std::span<double> responseRowMajor,
+    const ArticulatedDynamicsConfig& config = {}
+);
+
 [[nodiscard]] ArticulatedDynamicsDiagnostics
 computeArticulatedInverseDynamics(
     const EngineModel& model,

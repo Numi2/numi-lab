@@ -1704,6 +1704,23 @@ int main(const int argc, char** argv) {
             massDiagnostics.minimumCholeskyPivot > 0.0 && allFinite(massMatrix),
             "full Rajagopal mass matrix is not finite positive definite"
         );
+        std::vector<double> responseRhs(v.size(), 0.0);
+        responseRhs.front() = 1.0;
+        std::vector<double> inverseMassResponse(v.size(), 0.0);
+        const auto responseDiagnostics = metalrobo::computeArticulatedInverseMassResponses(
+            model, 0u, q, responseRhs, inverseMassResponse, config
+        );
+        require(responseDiagnostics.succeeded() && allFinite(inverseMassResponse),
+            "FunctionBased inverse-mass response failed");
+        double responseRecoveryError = 0.0;
+        for (std::size_t row = 0u; row < v.size(); ++row) {
+            double recovered = 0.0;
+            for (std::size_t column = 0u; column < v.size(); ++column) {
+                recovered += massMatrix[row * v.size() + column] * inverseMassResponse[column];
+            }
+            responseRecoveryError = std::max(responseRecoveryError, std::abs(recovered - responseRhs[row]));
+        }
+        require(responseRecoveryError < 1.0e-10, "FunctionBased inverse-mass response recovery failed");
 
         double massSymmetryError = 0.0;
         for (std::size_t row = 0u; row < v.size(); ++row) {

@@ -2088,6 +2088,33 @@ ArticulatedDynamicsDiagnostics computeArticulatedMassMatrix(
     return diagnostics;
 }
 
+ArticulatedDynamicsDiagnostics computeArticulatedInverseMassResponses(
+    const EngineModel& model, const std::uint32_t articulationIndex,
+    const std::span<const double> q, const std::span<const double> rhsRowMajor,
+    const std::span<double> responseRowMajor, const ArticulatedDynamicsConfig& config
+) {
+    Topology topology;
+    ArticulatedDynamicsDiagnostics diagnostics = preflight(model, articulationIndex, q, {}, {}, {}, config, topology);
+    if (!diagnostics.succeeded()) return diagnostics;
+    const std::size_t nv = topology.articulation->nv;
+    if (rhsRowMajor.empty() || rhsRowMajor.size() % nv != 0u || responseRowMajor.size() != rhsRowMajor.size() || !finiteSpan(rhsRowMajor)) {
+        diagnostics.status = ArticulatedDynamicsStatus::invalidDimensions;
+        return diagnostics;
+    }
+    std::vector<double> mass;
+    diagnostics = assembleMassMatrix(model, articulationIndex, topology, q, config, mass);
+    if (!diagnostics.succeeded()) return diagnostics;
+    const Factorization factor = choleskyFactor(mass, nv);
+    if (!factor.succeeded) { diagnostics.status = ArticulatedDynamicsStatus::massMatrixNotPositiveDefinite; return diagnostics; }
+    for (std::size_t offset = 0u; offset < rhsRowMajor.size(); offset += nv) {
+        std::vector<double> solved;
+        if (!choleskySolve(factor, rhsRowMajor.subspan(offset, nv), solved)) { diagnostics.status = ArticulatedDynamicsStatus::massMatrixNotPositiveDefinite; return diagnostics; }
+        std::ranges::copy(solved, responseRowMajor.begin() + offset);
+    }
+    diagnostics.minimumCholeskyPivot = factor.minimumPivot;
+    return diagnostics;
+}
+
 ArticulatedDynamicsDiagnostics computeArticulatedInverseDynamics(
     const EngineModel& model,
     const std::uint32_t articulationIndex,
