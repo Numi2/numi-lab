@@ -27,6 +27,7 @@ seed_base=${NUMI_CROW_SEED_BASE:-2650445000}
 maximum_retries=${NUMI_CROW_MAXIMUM_RETRIES:-3}
 teacher_distillation=${NUMI_CROW_TEACHER_DISTILLATION:-1}
 teacher_student_authority=${NUMI_CROW_TEACHER_STUDENT_AUTHORITY:-0.25}
+rehearsal_depth=${NUMI_CROW_REHEARSAL_DEPTH:-0}
 
 case "$course" in
   state)
@@ -63,6 +64,9 @@ esac
 }
 [[ "$checkpoint_interval" =~ ^[1-9][0-9]*$ ]] || {
   echo "NUMI_CROW_CHECKPOINT_INTERVAL must be a positive integer" >&2; exit 2;
+}
+[[ "$rehearsal_depth" =~ ^([0-9]|10)$ ]] || {
+  echo "NUMI_CROW_REHEARSAL_DEPTH must be an integer in 0...10" >&2; exit 2;
 }
 [ -x "$build/bin/metalrobo_task_train" ] && [ -x "$mlx" ] || {
   echo "Crow curriculum requires a built trainer and MLX Python" >&2; exit 2;
@@ -119,7 +123,6 @@ while [ "$band" -le "$maximum_band" ]; do
       cp "$parent_state" "$run/learner.safetensors"
     fi
     common=(
-      journey train --variant "$journey_variant" --milestone "$milestone"
       --envs "$environments" --steps "$steps" --updates "$updates"
       --chunk "$chunk" --seed "$seed" --learner-seed "$seed"
       --checkpoint-directory "$run/checkpoints"
@@ -144,11 +147,28 @@ while [ "$band" -le "$maximum_band" ]; do
       common+=(--policy-pack "$parent_policy")
     fi
     echo "launching neural Crow $course band $band ($milestone), retry $retry"
+    training_minimum_band=$((band - rehearsal_depth))
+    [ "$training_minimum_band" -ge 0 ] || training_minimum_band=0
+    if [ "$training_minimum_band" -lt "$band" ] && \
+       [ "$parent_mode" = resume ] && [ -n "$parent_policy" ]; then
+      launch=(
+        "$root/tools/numi" train --birdflow-american-crow-journey
+        --birdflow-journey-variant "$journey_variant"
+        --minimum-difficulty-band "$training_minimum_band"
+        --maximum-difficulty-band "$band"
+      )
+      echo "rehearsing protected Crow bands $training_minimum_band-$band"
+    else
+      launch=(
+        "$root/tools/numi" crow journey train
+        --variant "$journey_variant" --milestone "$milestone"
+      )
+    fi
     if NUMI_LAB_ROOT="$root" NUMI_BUILD_DIR="$build" \
       NUMI_MLX_PYTHON="$mlx" NUMI_RUN_DIR="$run" \
       NUMI_SELECTION_ENVS="$selection_environments" \
       NUMI_SELECTION_SEED="$selection_seed" \
-      "$root/tools/numi" crow "${common[@]}"; then
+      "${launch[@]}" "${common[@]}"; then
       :
     elif [ ! -s "$selection" ]; then
       echo "Crow band $band failed without a durable selection" >&2

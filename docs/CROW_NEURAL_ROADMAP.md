@@ -46,6 +46,11 @@ pre-registered no-teacher ablation.
 Checkpoint selection defaults to 50-update spacing and still includes the
 final candidate; override it with `NUMI_CROW_CHECKPOINT_INTERVAL` when a
 pre-registered experiment needs denser temporal sampling.
+When held-out evidence shows repeatable catastrophic forgetting, set
+`NUMI_CROW_REHEARSAL_DEPTH` to train on the current band plus that many recent
+protected bands. The default is zero so retries do not silently change their
+data distribution. Selection remains fixed-band and replays every earlier
+milestone regardless of the rehearsal window.
 
 State-only neural curriculum:
 

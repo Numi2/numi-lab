@@ -349,6 +349,7 @@ NUMI_CROW_PARENT_POLICY=$crow_sensor_run/candidate.policypack \
 NUMI_CROW_PARENT_STATE=$crow_sensor_run/learner.safetensors \
 NUMI_CROW_START_BAND=1 \
 NUMI_CROW_MAXIMUM_BAND=1 \
+NUMI_CROW_REHEARSAL_DEPTH=1 \
     "$numi_repo/tools/crow_journey_curriculum_supervisor.sh" >/dev/null
 crow_resume_run=$(find "$crow_resume_runs" -maxdepth 1 -type d \
     -name 'v8-neural-band1-*' -print | head -1)
@@ -358,6 +359,10 @@ grep -- '--birdflow-journey-teacher' \
     "$crow_resume_run/arguments.txt" >/dev/null
 grep -- '--birdflow-journey-student-authority' \
     "$crow_resume_run/arguments.txt" >/dev/null
+grep -- '--minimum-difficulty-band' "$crow_resume_run/arguments.txt" >/dev/null
+grep -- '^0$' "$crow_resume_run/arguments.txt" >/dev/null
+grep -- '--maximum-difficulty-band' "$crow_resume_run/arguments.txt" >/dev/null
+grep -- '^1$' "$crow_resume_run/arguments.txt" >/dev/null
 test -s "$crow_resume_run/learner.safetensors"
 
 if (
