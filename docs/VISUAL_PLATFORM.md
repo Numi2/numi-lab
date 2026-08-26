@@ -290,6 +290,12 @@ updates to four per second. Its drawable is capped to the authored frame's
 useful resolution instead of implicitly shading a 2x Retina surface. Those UI
 choices never add a wait, readback, or second simulation command buffer.
 
+`metalrobo_bodyparts3d_visual_probe` is a separate source-static inspection
+utility. It reads a cooked BodyParts3D pack and exports three PPM views from
+world-up-stable cameras. It intentionally binds the source surface only to a
+static asset; it is not a BodyParts3D-to-OpenSim registration, a skinned Human
+renderer, or a mechanics/contact qualification.
+
 Fixed and wrist cameras in `FrankaPickPlaceWorldFamily` are the reference
 integration. The fixed camera is calibrated toward the manipulation
 workspace; the wrist camera is bound to the final articulated link.

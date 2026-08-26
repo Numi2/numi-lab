@@ -3351,6 +3351,36 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+# Renders a source-static BodyParts3D pack from three inspection cameras.  The
+# probe deliberately does not register the anatomical geometry to an OpenSim
+# articulation, so it can qualify visual conversion without implying mechanics.
+add_executable(
+    metalrobo_bodyparts3d_visual_probe
+    apps/bodyparts3d_visual_probe.mm
+)
+target_link_libraries(
+    metalrobo_bodyparts3d_visual_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+target_compile_options(
+    metalrobo_bodyparts3d_visual_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_bodyparts3d_visual_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
 add_executable(
     metalrobo_visual_platform_probe
     apps/visual_platform_probe.cpp
