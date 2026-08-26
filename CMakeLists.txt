@@ -642,6 +642,7 @@ add_library(
     src/core/TactileDebug.cpp
     src/core/RobotDescriptionCooker.cpp
     src/core/GeometryCooker.cpp
+    src/core/OpenSimFunction.cpp
     src/core/G1.cpp
     src/core/LocomotionWorld.cpp
     src/core/TaskProgram.cpp
@@ -831,6 +832,21 @@ add_executable(metalrobo_cpu_probe apps/cpu_probe.cpp)
 target_link_libraries(metalrobo_cpu_probe PRIVATE metalrobo)
 set_target_properties(
     metalrobo_cpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_opensim_function_probe
+    apps/opensim_function_probe.cpp
+)
+target_link_libraries(
+    metalrobo_opensim_function_probe
+    PRIVATE metalrobo
+)
+set_target_properties(
+    metalrobo_opensim_function_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
