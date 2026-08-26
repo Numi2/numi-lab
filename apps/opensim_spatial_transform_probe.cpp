@@ -170,6 +170,8 @@ int main() {
                 packed.axes[3u].coefficientCount == 5u,
             "walker knee GPU payload mismatch"
         );
+        const auto decoded = metalrobo::unpackOpenSimSpatialTransformGPU(packed);
+        require(decoded.succeeded(), "walker knee GPU payload decode failed");
 
         constexpr double coordinate = 0.43;
         constexpr double velocity = -0.71;
@@ -182,6 +184,22 @@ int main() {
         requireNear(evaluated.translation[0], 0.0002713671579462591, 1.0e-15, "knee tx");
         requireNear(evaluated.translation[1], -0.00006392948537864571, 1.0e-15, "knee ty");
         requireNear(evaluated.translation[2], 0.0024798183998249526, 1.0e-15, "knee tz");
+        const auto decodedEvaluation = metalrobo::evaluateOpenSimSpatialTransform(
+            decoded.transform,
+            {coordinate},
+            {velocity}
+        );
+        require(decodedEvaluation.succeeded(), "decoded walker knee evaluation failed");
+        requireNear(
+            decodedEvaluation.translation[0], evaluated.translation[0], 1.0e-8, "decoded knee tx"
+        );
+
+        MROpenSimSpatialTransformGPU malformed = packed;
+        malformed.reserved0 = 1u;
+        require(
+            !metalrobo::unpackOpenSimSpatialTransformGPU(malformed).succeeded(),
+            "non-canonical GPU payload was accepted"
+        );
 
         // Hdot is checked independently by a centred directional derivative
         // of H along qdot. This catches both the source-order rotation terms

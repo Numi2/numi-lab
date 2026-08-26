@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 
 namespace metalrobo {
 namespace {
@@ -102,6 +103,49 @@ bool finite(const Matrix& value) {
 
 bool independent(const Vector& left, const Vector& right) {
     return dot(cross(left, right), cross(left, right)) > kAxisTolerance;
+}
+
+float packedScalar(const mr_float4* blocks, const std::size_t index) {
+    const mr_float4& block = blocks[index / 4u];
+    switch (index % 4u) {
+    case 0u:
+        return block.x;
+    case 1u:
+        return block.y;
+    case 2u:
+        return block.z;
+    default:
+        return block.w;
+    }
+}
+
+bool finiteBlocks(const mr_float4* blocks, const std::size_t capacity) {
+    for (std::size_t index = 0u; index < capacity; ++index) {
+        if (!finite(static_cast<double>(packedScalar(blocks, index)))) {
+            return false;
+        }
+    }
+    return true;
+}
+
+std::vector<double> unpackBlocks(
+    const mr_float4* blocks,
+    const std::size_t count
+) {
+    std::vector<double> values;
+    values.reserve(count);
+    for (std::size_t index = 0u; index < count; ++index) {
+        values.push_back(static_cast<double>(packedScalar(blocks, index)));
+    }
+    return values;
+}
+
+bool strictlyIncreasing(const std::vector<double>& values) {
+    return std::adjacent_find(
+        values.begin(), values.end(), [](const double left, const double right) {
+            return right <= left;
+        }
+    ) == values.end();
 }
 
 OpenSimSpatialTransformEvaluation failure(
@@ -395,6 +439,123 @@ OpenSimSpatialTransformStatus packOpenSimSpatialTransformGPU(
     }
     program = staged;
     return OpenSimSpatialTransformStatus::success;
+}
+
+OpenSimSpatialTransformCompilation unpackOpenSimSpatialTransformGPU(
+    const MROpenSimSpatialTransformGPU& program
+) {
+    OpenSimSpatialTransformCompilation decoded{};
+    if (program.abiVersion != MR_OPENSIM_SPATIAL_TRANSFORM_GPU_ABI_VERSION ||
+        program.coordinateCount == 0u ||
+        program.coordinateCount > MR_OPENSIM_SPATIAL_MAX_COORDINATES ||
+        program.reserved0 != 0u || program.reserved1 != 0u) {
+        decoded.status = OpenSimSpatialTransformStatus::invalidDefinition;
+        return decoded;
+    }
+    CompiledOpenSimSpatialTransform& transform = decoded.transform;
+    transform.coordinateCount = program.coordinateCount;
+    for (std::size_t index = 0u; index < kOpenSimSpatialAxisCount; ++index) {
+        const MROpenSimFunctionGPU& source = program.axes[index];
+        if (source.kind > MR_OPENSIM_FUNCTION_SIMM_SPLINE ||
+            source.axis.w != 0.0f ||
+            !finite(static_cast<double>(source.axis.x)) ||
+            !finite(static_cast<double>(source.axis.y)) ||
+            !finite(static_cast<double>(source.axis.z)) ||
+            !finiteBlocks(
+                source.coefficients, MR_OPENSIM_SPATIAL_MAX_COEFFICIENTS
+            ) ||
+            !finiteBlocks(source.abscissae, MR_OPENSIM_SPATIAL_MAX_KNOTS) ||
+            !finiteBlocks(source.ordinates, MR_OPENSIM_SPATIAL_MAX_KNOTS) ||
+            !finiteBlocks(source.splineSlope, MR_OPENSIM_SPATIAL_MAX_KNOTS) ||
+            !finiteBlocks(source.splineQuadratic, MR_OPENSIM_SPATIAL_MAX_KNOTS) ||
+            !finiteBlocks(source.splineCubic, MR_OPENSIM_SPATIAL_MAX_KNOTS)) {
+            decoded.status = OpenSimSpatialTransformStatus::invalidDefinition;
+            return decoded;
+        }
+        CompiledOpenSimSpatialAxis& target = transform.axes[index];
+        target.axis = {
+            static_cast<double>(source.axis.x),
+            static_cast<double>(source.axis.y),
+            static_cast<double>(source.axis.z),
+        };
+        if (!(dot(target.axis, target.axis) > kAxisTolerance)) {
+            decoded.status = OpenSimSpatialTransformStatus::invalidDefinition;
+            return decoded;
+        }
+        target.coordinateIndex = source.coordinateIndex;
+        target.function.kind = static_cast<OpenSimFunctionKind>(source.kind);
+        const bool constant = target.function.kind == OpenSimFunctionKind::constant;
+        if ((constant && target.coordinateIndex != kOpenSimNoCoordinate) ||
+            (!constant &&
+             (target.coordinateIndex == kOpenSimNoCoordinate ||
+              target.coordinateIndex >= transform.coordinateCount))) {
+            decoded.status = OpenSimSpatialTransformStatus::invalidDefinition;
+            return decoded;
+        }
+        switch (target.function.kind) {
+        case OpenSimFunctionKind::constant:
+            if (source.coefficientCount != 1u || source.knotCount != 0u) {
+                decoded.status = OpenSimSpatialTransformStatus::invalidDefinition;
+                return decoded;
+            }
+            target.function.coefficients = unpackBlocks(source.coefficients, 1u);
+            break;
+        case OpenSimFunctionKind::linear:
+            if (source.coefficientCount != 2u || source.knotCount != 0u) {
+                decoded.status = OpenSimSpatialTransformStatus::invalidDefinition;
+                return decoded;
+            }
+            target.function.coefficients = unpackBlocks(source.coefficients, 2u);
+            break;
+        case OpenSimFunctionKind::polynomial:
+            if (source.coefficientCount == 0u ||
+                source.coefficientCount > MR_OPENSIM_SPATIAL_MAX_COEFFICIENTS ||
+                source.knotCount != 0u) {
+                decoded.status = OpenSimSpatialTransformStatus::invalidDefinition;
+                return decoded;
+            }
+            target.function.coefficients = unpackBlocks(
+                source.coefficients, source.coefficientCount
+            );
+            break;
+        case OpenSimFunctionKind::simmSpline:
+            if (source.coefficientCount != 0u || source.knotCount < 2u ||
+                source.knotCount > MR_OPENSIM_SPATIAL_MAX_KNOTS) {
+                decoded.status = OpenSimSpatialTransformStatus::invalidDefinition;
+                return decoded;
+            }
+            target.function.abscissae = unpackBlocks(source.abscissae, source.knotCount);
+            target.function.ordinates = unpackBlocks(source.ordinates, source.knotCount);
+            target.function.splineSlope = unpackBlocks(source.splineSlope, source.knotCount);
+            target.function.splineQuadratic = unpackBlocks(
+                source.splineQuadratic, source.knotCount
+            );
+            target.function.splineCubic = unpackBlocks(source.splineCubic, source.knotCount);
+            if (!strictlyIncreasing(target.function.abscissae)) {
+                decoded.status = OpenSimSpatialTransformStatus::invalidDefinition;
+                return decoded;
+            }
+            break;
+        }
+    }
+    for (std::size_t group = 0u; group < 2u; ++group) {
+        const std::size_t first = group * 3u;
+        if (!independent(transform.axes[first].axis, transform.axes[first + 1u].axis) ||
+            !independent(transform.axes[first].axis, transform.axes[first + 2u].axis) ||
+            !independent(
+                transform.axes[first + 1u].axis, transform.axes[first + 2u].axis
+            )) {
+            decoded.status = OpenSimSpatialTransformStatus::invalidDefinition;
+            return decoded;
+        }
+    }
+    MROpenSimSpatialTransformGPU repacked{};
+    if (packOpenSimSpatialTransformGPU(transform, repacked) !=
+            OpenSimSpatialTransformStatus::success ||
+        std::memcmp(&program, &repacked, sizeof(program)) != 0) {
+        decoded.status = OpenSimSpatialTransformStatus::invalidDefinition;
+    }
+    return decoded;
 }
 
 const char* openSimSpatialTransformStatusName(

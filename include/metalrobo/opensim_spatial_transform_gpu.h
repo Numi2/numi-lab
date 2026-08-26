@@ -53,6 +53,14 @@ typedef struct MR_ALIGN16 MROpenSimSpatialTransformGPU {
     MROpenSimFunctionGPU axes[6];
 } MROpenSimSpatialTransformGPU;
 
+// One state for one source SpatialTransform. Each two-float4 group carries
+// six coordinate values/rates followed by two required-zero padding lanes.
+// It is the portable binary sidecar companion to MROpenSimSpatialTransformGPU.
+typedef struct MR_ALIGN16 MROpenSimSpatialTransformInputGPU {
+    mr_float4 coordinateBlocks[2];
+    mr_float4 coordinateVelocityBlocks[2];
+} MROpenSimSpatialTransformInputGPU;
+
 typedef struct MR_ALIGN16 MROpenSimSpatialTransformResultGPU {
     mr_u32 status;
     mr_u32 coordinateCount;
@@ -76,6 +84,8 @@ static_assert(sizeof(MROpenSimFunctionGPU) == 416u);
 static_assert(alignof(MROpenSimFunctionGPU) == 16u);
 static_assert(sizeof(MROpenSimSpatialTransformGPU) == 2512u);
 static_assert(alignof(MROpenSimSpatialTransformGPU) == 16u);
+static_assert(sizeof(MROpenSimSpatialTransformInputGPU) == 64u);
+static_assert(alignof(MROpenSimSpatialTransformInputGPU) == 16u);
 static_assert(sizeof(MROpenSimSpatialTransformResultGPU) == 464u);
 static_assert(alignof(MROpenSimSpatialTransformResultGPU) == 16u);
 #endif

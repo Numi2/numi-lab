@@ -106,6 +106,16 @@ checks multi-step q/v/acceleration against the FP64 generalized oracle. On the
 same device and build its complete output/status stream replays bitwise.
 Neither internal agreement is an external-simulator accuracy promise.
 
+OpenSim `FunctionBased` SpatialTransforms currently have a separate bounded
+kinematic-program ABI. `MROpenSimSpatialTransformGPU` and its fixed
+`MROpenSimSpatialTransformInputGPU` sidecar are canonical only when a decode
+then re-pack is byte-identical; the device probe compares source-order pose,
+`H`, and `Hdot` against the decoded FP64 evaluator and repeats the GPU result
+byte-for-byte. This accepts source-derived immutable programs without using a
+hand-entered fixture, but does not admit a FunctionBased or Universal joint to
+ABA, project generalized forces, advance an articulation, or establish contact
+or muscle dynamics.
+
 ## Free-body integration
 
 Independent free bodies include the gyroscopic term

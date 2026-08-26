@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <fstream>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -27,6 +28,7 @@ using metalrobo::OpenSimSpatialTransformDefinition;
 using metalrobo::OpenSimSpatialTransformEvaluation;
 
 static_assert(sizeof(MROpenSimSpatialTransformGPU) == 2512u);
+static_assert(sizeof(MROpenSimSpatialTransformInputGPU) == 64u);
 static_assert(sizeof(MROpenSimSpatialTransformResultGPU) == 464u);
 
 void require(const bool condition, const std::string& message) {
@@ -131,10 +133,71 @@ struct GPUResult {
     std::string deviceName;
 };
 
+float inputScalar(const mr_float4* blocks, const std::size_t index) {
+    const mr_float4& block = blocks[index / 4u];
+    switch (index % 4u) {
+    case 0u:
+        return block.x;
+    case 1u:
+        return block.y;
+    case 2u:
+        return block.z;
+    default:
+        return block.w;
+    }
+}
+
+std::vector<double> inputValues(
+    const MROpenSimSpatialTransformInputGPU& input,
+    const std::uint32_t coordinateCount,
+    const bool velocities
+) {
+    require(
+        coordinateCount > 0u && coordinateCount <= MR_OPENSIM_SPATIAL_MAX_COORDINATES,
+        "invalid input coordinate count"
+    );
+    const mr_float4* blocks = velocities
+        ? input.coordinateVelocityBlocks
+        : input.coordinateBlocks;
+    std::vector<double> values;
+    values.reserve(coordinateCount);
+    for (std::size_t index = 0u; index < 8u; ++index) {
+        const float value = inputScalar(blocks, index);
+        require(std::isfinite(value), "non-finite spatial-transform input");
+        if (index < coordinateCount) {
+            values.push_back(static_cast<double>(value));
+        } else {
+            require(value == 0.0f, "non-canonical spatial-transform input padding");
+        }
+    }
+    return values;
+}
+
+template <typename T>
+T readArtifact(const std::string& path, const std::string& label) {
+    std::ifstream stream(path, std::ios::binary);
+    require(stream.is_open(), "could not open " + label + " artifact: " + path);
+    T result{};
+    stream.read(reinterpret_cast<char*>(&result), sizeof(result));
+    require(
+        stream.gcount() == static_cast<std::streamsize>(sizeof(result)),
+        label + " artifact has the wrong byte size: " + path
+    );
+    char extra = '\0';
+    stream.read(&extra, 1);
+    require(stream.gcount() == 0, label + " artifact has trailing bytes: " + path);
+    return result;
+}
+
+struct ProbeCase {
+    MROpenSimSpatialTransformGPU program{};
+    MROpenSimSpatialTransformInputGPU input{};
+    std::string source = "built_in_walker_knee";
+};
+
 GPUResult runMetal(
     const MROpenSimSpatialTransformGPU& program,
-    const std::array<float, MR_OPENSIM_SPATIAL_MAX_COORDINATES>& coordinates,
-    const std::array<float, MR_OPENSIM_SPATIAL_MAX_COORDINATES>& velocities
+    const MROpenSimSpatialTransformInputGPU& input
 ) {
     @autoreleasepool {
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
@@ -168,12 +231,7 @@ GPUResult runMetal(
 
         MROpenSimSpatialTransformResultGPU result{};
         id<MTLBuffer> programBuffer = buffer(device, &program, 1u, @"OpenSim program");
-        id<MTLBuffer> coordinateBuffer = buffer(
-            device, coordinates.data(), coordinates.size(), @"OpenSim coordinates"
-        );
-        id<MTLBuffer> velocityBuffer = buffer(
-            device, velocities.data(), velocities.size(), @"OpenSim velocities"
-        );
+        id<MTLBuffer> inputBuffer = buffer(device, &input, 1u, @"OpenSim input");
         id<MTLBuffer> resultBuffer = buffer(device, &result, 1u, @"OpenSim result");
         id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
         id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
@@ -183,8 +241,7 @@ GPUResult runMetal(
         );
         [encoder setComputePipelineState:pipeline];
         [encoder setBuffer:programBuffer offset:0 atIndex:0];
-        [encoder setBuffer:coordinateBuffer offset:0 atIndex:1];
-        [encoder setBuffer:velocityBuffer offset:0 atIndex:2];
+        [encoder setBuffer:inputBuffer offset:0 atIndex:1];
         [encoder setBuffer:resultBuffer offset:0 atIndex:3];
         [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
 threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
@@ -218,7 +275,8 @@ void compare(
     const OpenSimSpatialTransformEvaluation& cpu
 ) {
     require(
-        gpu.status == MR_OPENSIM_SPATIAL_SUCCESS && gpu.coordinateCount == 1u,
+        gpu.status == MR_OPENSIM_SPATIAL_SUCCESS &&
+            gpu.coordinateCount == cpu.motionSubspace.size(),
         "GPU spatial-transform status failed"
     );
     const std::array<mr_float4, 3u> rows{
@@ -234,62 +292,86 @@ void compare(
     requireNear(gpu.translation.x, cpu.translation[0u], "translation x");
     requireNear(gpu.translation.y, cpu.translation[1u], "translation y");
     requireNear(gpu.translation.z, cpu.translation[2u], "translation z");
-    for (std::size_t component = 0u; component < 3u; ++component) {
+    for (std::size_t coordinate = 0u; coordinate < cpu.motionSubspace.size(); ++coordinate) {
         const std::array<float, 3u> angular{
-            gpu.motionAngular[0u].x,
-            gpu.motionAngular[0u].y,
-            gpu.motionAngular[0u].z,
+            gpu.motionAngular[coordinate].x,
+            gpu.motionAngular[coordinate].y,
+            gpu.motionAngular[coordinate].z,
         };
         const std::array<float, 3u> linear{
-            gpu.motionLinear[0u].x,
-            gpu.motionLinear[0u].y,
-            gpu.motionLinear[0u].z,
+            gpu.motionLinear[coordinate].x,
+            gpu.motionLinear[coordinate].y,
+            gpu.motionLinear[coordinate].z,
         };
         const std::array<float, 3u> angularDot{
-            gpu.motionAngularDot[0u].x,
-            gpu.motionAngularDot[0u].y,
-            gpu.motionAngularDot[0u].z,
+            gpu.motionAngularDot[coordinate].x,
+            gpu.motionAngularDot[coordinate].y,
+            gpu.motionAngularDot[coordinate].z,
         };
         const std::array<float, 3u> linearDot{
-            gpu.motionLinearDot[0u].x,
-            gpu.motionLinearDot[0u].y,
-            gpu.motionLinearDot[0u].z,
+            gpu.motionLinearDot[coordinate].x,
+            gpu.motionLinearDot[coordinate].y,
+            gpu.motionLinearDot[coordinate].z,
         };
-        requireNear(angular[component], cpu.motionSubspace[0u].angular[component], "H angular");
-        requireNear(linear[component], cpu.motionSubspace[0u].linear[component], "H linear");
-        requireNear(angularDot[component], cpu.motionSubspaceDot[0u].angular[component], "Hdot angular");
-        requireNear(linearDot[component], cpu.motionSubspaceDot[0u].linear[component], "Hdot linear");
+        for (std::size_t component = 0u; component < 3u; ++component) {
+            requireNear(
+                angular[component], cpu.motionSubspace[coordinate].angular[component], "H angular"
+            );
+            requireNear(
+                linear[component], cpu.motionSubspace[coordinate].linear[component], "H linear"
+            );
+            requireNear(
+                angularDot[component],
+                cpu.motionSubspaceDot[coordinate].angular[component],
+                "Hdot angular"
+            );
+            requireNear(
+                linearDot[component], cpu.motionSubspaceDot[coordinate].linear[component], "Hdot linear"
+            );
+        }
     }
 }
 
 } // namespace
 
-int main() {
+int main(int argc, char* argv[]) {
     try {
-        const auto compiled = metalrobo::compileOpenSimSpatialTransform(walkerKnee());
-        require(compiled.succeeded(), "walker knee compilation failed");
-        MROpenSimSpatialTransformGPU program{};
-        require(
-            metalrobo::packOpenSimSpatialTransformGPU(compiled.transform, program) ==
-                metalrobo::OpenSimSpatialTransformStatus::success,
-            "walker knee GPU packing failed"
+        ProbeCase probe;
+        if (argc == 1) {
+            const auto compiled = metalrobo::compileOpenSimSpatialTransform(walkerKnee());
+            require(compiled.succeeded(), "walker knee compilation failed");
+            require(
+                metalrobo::packOpenSimSpatialTransformGPU(compiled.transform, probe.program) ==
+                    metalrobo::OpenSimSpatialTransformStatus::success,
+                "walker knee GPU packing failed"
+            );
+            probe.input.coordinateBlocks[0].x = 0.43f;
+            probe.input.coordinateVelocityBlocks[0].x = -0.71f;
+        } else {
+            require(
+                argc == 5 && std::string(argv[1]) == "--program" &&
+                    std::string(argv[3]) == "--input",
+                "usage: metalrobo_opensim_spatial_transform_gpu_probe "
+                "[--program PATH --input PATH]"
+            );
+            probe.program = readArtifact<MROpenSimSpatialTransformGPU>(argv[2], "program");
+            probe.input = readArtifact<MROpenSimSpatialTransformInputGPU>(argv[4], "input");
+            probe.source = argv[2];
+        }
+        const auto decoded = metalrobo::unpackOpenSimSpatialTransformGPU(probe.program);
+        require(decoded.succeeded(), "spatial-transform program ABI decode failed");
+        const std::vector<double> coordinates = inputValues(
+            probe.input, decoded.transform.coordinateCount, false
         );
-        constexpr float coordinate = 0.43f;
-        constexpr float velocity = -0.71f;
+        const std::vector<double> velocities = inputValues(
+            probe.input, decoded.transform.coordinateCount, true
+        );
         const auto cpu = metalrobo::evaluateOpenSimSpatialTransform(
-            compiled.transform,
-            {static_cast<double>(coordinate)},
-            {static_cast<double>(velocity)}
+            decoded.transform, coordinates, velocities
         );
-        require(cpu.succeeded(), "walker knee CPU evaluation failed");
-        const std::array<float, MR_OPENSIM_SPATIAL_MAX_COORDINATES> coordinates{
-            coordinate, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        };
-        const std::array<float, MR_OPENSIM_SPATIAL_MAX_COORDINATES> velocities{
-            velocity, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        };
-        const GPUResult first = runMetal(program, coordinates, velocities);
-        const GPUResult second = runMetal(program, coordinates, velocities);
+        require(cpu.succeeded(), "spatial-transform CPU evaluation failed");
+        const GPUResult first = runMetal(probe.program, probe.input);
+        const GPUResult second = runMetal(probe.program, probe.input);
         compare(first.result, cpu);
         compare(second.result, cpu);
         require(
@@ -298,6 +380,7 @@ int main() {
         );
         std::cout << "opensim_spatial_transform_gpu=ok"
                   << " device=" << first.deviceName
+                  << " source=" << probe.source
                   << " tx=" << first.result.translation.x
                   << " h_angular_x=" << first.result.motionAngular[0u].x
                   << " hdot_linear_x=" << first.result.motionLinearDot[0u].x

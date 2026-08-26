@@ -13,6 +13,13 @@ inline float packedScalar(
     return blocks[index >> 2u][index & 3u];
 }
 
+inline float inputScalar(
+    thread const mr_float4* blocks,
+    const uint index
+) {
+    return blocks[index >> 2u][index & 3u];
+}
+
 inline bool finite3(const float3 value) {
     return all(isfinite(value));
 }
@@ -165,13 +172,12 @@ inline void writeFailure(
 
 } // namespace
 
-// One thread evaluates one immutable source transform. Coordinates and rates
-// have a fixed six-float stride; entries beyond each program's coordinateCount
-// are ignored and result entries are zero.
+// One thread evaluates one immutable source transform plus its fixed-size
+// source-state sidecar. Entries beyond coordinateCount are required-zero
+// padding and result entries beyond coordinateCount remain zero.
 kernel void mr_opensim_spatial_transform_evaluate(
     device const MROpenSimSpatialTransformGPU* programs [[buffer(0)]],
-    device const float* coordinates [[buffer(1)]],
-    device const float* velocities [[buffer(2)]],
+    device const MROpenSimSpatialTransformInputGPU* inputs [[buffer(1)]],
     device MROpenSimSpatialTransformResultGPU* results [[buffer(3)]],
     const uint programIndex [[thread_position_in_grid]]
 ) {
@@ -184,12 +190,10 @@ kernel void mr_opensim_spatial_transform_evaluate(
         results[programIndex] = result;
         return;
     }
-    device const float* q = coordinates +
-        programIndex * MR_OPENSIM_SPATIAL_MAX_COORDINATES;
-    device const float* qdot = velocities +
-        programIndex * MR_OPENSIM_SPATIAL_MAX_COORDINATES;
+    const MROpenSimSpatialTransformInputGPU input = inputs[programIndex];
     for (uint coordinate = 0u; coordinate < program.coordinateCount; ++coordinate) {
-        if (!isfinite(q[coordinate]) || !isfinite(qdot[coordinate])) {
+        if (!isfinite(inputScalar(input.coordinateBlocks, coordinate)) ||
+            !isfinite(inputScalar(input.coordinateVelocityBlocks, coordinate))) {
             writeFailure(result, MR_OPENSIM_SPATIAL_NONFINITE_INPUT, program.coordinateCount);
             results[programIndex] = result;
             return;
@@ -213,7 +217,9 @@ kernel void mr_opensim_spatial_transform_evaluate(
         }
         coordinateIndex[index] = function.coordinateIndex;
         axes[index] = normalize(function.axis.xyz);
-        const float argument = isConstant ? 0.0f : q[function.coordinateIndex];
+        const float argument = isConstant
+            ? 0.0f
+            : inputScalar(input.coordinateBlocks, function.coordinateIndex);
         if (!evaluateFunction(function, argument, values[index])) {
             writeFailure(result, MR_OPENSIM_SPATIAL_INVALID_PROGRAM, program.coordinateCount);
             results[programIndex] = result;
@@ -239,10 +245,14 @@ kernel void mr_opensim_spatial_transform_evaluate(
     };
     const float thetaDot0 = coordinateIndex[0] == MR_OPENSIM_SPATIAL_NO_COORDINATE
         ? 0.0f
-        : values[0].y * qdot[coordinateIndex[0]];
+        : values[0].y * inputScalar(
+            input.coordinateVelocityBlocks, coordinateIndex[0]
+        );
     const float thetaDot1 = coordinateIndex[1] == MR_OPENSIM_SPATIAL_NO_COORDINATE
         ? 0.0f
-        : values[1].y * qdot[coordinateIndex[1]];
+        : values[1].y * inputScalar(
+            input.coordinateVelocityBlocks, coordinateIndex[1]
+        );
     const float3 angularAxisDots[3] = {
         float3(0.0f),
         cross(angularAxes[0] * thetaDot0, angularAxes[1]),
@@ -257,7 +267,9 @@ kernel void mr_opensim_spatial_transform_evaluate(
             continue;
         }
         const float derivative = values[index].y;
-        const float derivativeDot = values[index].z * qdot[coordinate];
+        const float derivativeDot = values[index].z * inputScalar(
+            input.coordinateVelocityBlocks, coordinate
+        );
         if (index < 3u) {
             result.motionAngular[coordinate].xyz += angularAxes[index] * derivative;
             result.motionAngularDot[coordinate].xyz +=

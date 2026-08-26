@@ -99,6 +99,14 @@ struct OpenSimSpatialTransformEvaluation {
     MROpenSimSpatialTransformGPU& program
 );
 
+// Validates and decodes a canonical fixed-capacity Metal program sidecar.
+// A successful decode round-trips byte-for-byte through the packer. This is
+// a program-loader boundary only; it does not admit the transform as an ABA
+// joint type.
+[[nodiscard]] OpenSimSpatialTransformCompilation unpackOpenSimSpatialTransformGPU(
+    const MROpenSimSpatialTransformGPU& program
+);
+
 [[nodiscard]] const char* openSimSpatialTransformStatusName(
     OpenSimSpatialTransformStatus status
 ) noexcept;
