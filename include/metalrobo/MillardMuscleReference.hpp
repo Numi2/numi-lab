@@ -109,6 +109,26 @@ struct MillardMuscleState {
     MillardCurveValues curves{};
 };
 
+struct MillardMuscleReferenceDiagnostics;
+
+// Persistent control state for a source-materialized equilibrium muscle. The
+// activation time constants are explicit caller-owned contract values: source
+// importers must materialize and provenance them before a rollout may use this
+// helper. Fiber/tendon equilibrium remains evaluated by the existing solver.
+struct MillardActivationState {
+    double activation = 0.0;
+    double fiberLengthWarmStart = 0.0;
+};
+
+[[nodiscard]] MillardMuscleReferenceDiagnostics advanceMillardActivation(
+    MillardActivationState& state,
+    double excitation,
+    double minimumActivation,
+    double activationTimeConstant,
+    double deactivationTimeConstant,
+    double timestep
+);
+
 struct MillardMuscleForce {
     double fiberForce = 0.0;
     double tendonForce = 0.0;

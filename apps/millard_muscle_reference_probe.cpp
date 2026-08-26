@@ -51,6 +51,19 @@ int main() {
         std::vector<double> v(articulation.nv, 0.0);
         const auto definition = makeDefinition(6u, 12u);
 
+        metalrobo::MillardActivationState activationState{
+            .activation = definition.minimumActivation,
+            .fiberLengthWarmStart = definition.optimalFiberLength,
+        };
+        const auto activationDiagnostics = metalrobo::advanceMillardActivation(
+            activationState, 0.8, definition.minimumActivation, 0.015, 0.050, 0.010
+        );
+        require(
+            activationDiagnostics.succeeded() && activationState.activation > definition.minimumActivation &&
+                activationState.activation < 0.8,
+            "persistent Millard activation update failed"
+        );
+
         metalrobo::MillardMuscleState state;
         state.activation = 0.5;
         state.normalizedFiberVelocity = 0.0;

@@ -797,6 +797,30 @@ MillardMuscleReferenceDiagnostics projectMillardMuscleTension(
     return {};
 }
 
+MillardMuscleReferenceDiagnostics advanceMillardActivation(
+    MillardActivationState& state,
+    const double excitation,
+    const double minimumActivation,
+    const double activationTimeConstant,
+    const double deactivationTimeConstant,
+    const double timestep
+) {
+    if (!finite(state.activation) || !finite(state.fiberLengthWarmStart) ||
+        !finite(excitation) || !finite(minimumActivation) ||
+        !finite(activationTimeConstant) || !finite(deactivationTimeConstant) ||
+        !finite(timestep) || minimumActivation < 0.0 || minimumActivation > 1.0 ||
+        activationTimeConstant <= 0.0 || deactivationTimeConstant <= 0.0 || timestep <= 0.0) {
+        return failure(MillardMuscleReferenceStatus::invalidState);
+    }
+    const double target = std::clamp(excitation, minimumActivation, 1.0);
+    const double tau = target >= state.activation ? activationTimeConstant : deactivationTimeConstant;
+    // Exact first-order hold: stable for all positive step sizes and deterministic
+    // across callers that use the same source-materialized timestep.
+    state.activation = target + (state.activation - target) * std::exp(-timestep / tau);
+    state.activation = std::clamp(state.activation, minimumActivation, 1.0);
+    return {};
+}
+
 const char* millardMuscleReferenceStatusName(
     const MillardMuscleReferenceStatus status
 ) noexcept {
