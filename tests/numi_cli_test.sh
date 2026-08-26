@@ -334,6 +334,25 @@ if grep -- '--policy-pack' "$crow_sensor_run/arguments.txt" >/dev/null; then
 fi
 test -s "$crow_curriculum_runs/progress.json"
 
+crow_resume_runs=$numi_temp/runs/crow-state-resume-curriculum
+NUMI_CROW_CURRICULUM_ROOT=$crow_curriculum_root \
+NUMI_CROW_CURRICULUM_BUILD=$crow_curriculum_build \
+NUMI_CROW_CURRICULUM_MLX=/usr/bin/python3 \
+NUMI_CROW_CURRICULUM_RUNS=$crow_resume_runs \
+NUMI_CROW_COURSE=state \
+NUMI_CROW_PARENT_POLICY=$crow_sensor_run/candidate.policypack \
+NUMI_CROW_PARENT_STATE=$crow_sensor_run/learner.safetensors \
+NUMI_CROW_START_BAND=1 \
+NUMI_CROW_MAXIMUM_BAND=1 \
+    "$numi_repo/tools/crow_journey_curriculum_supervisor.sh" >/dev/null
+crow_resume_run=$(find "$crow_resume_runs" -maxdepth 1 -type d \
+    -name 'v8-neural-band1-*' -print | head -1)
+test -n "$crow_resume_run"
+grep -- '--policy-pack' "$crow_resume_run/arguments.txt" >/dev/null
+grep -- '--birdflow-journey-teacher' \
+    "$crow_resume_run/arguments.txt" >/dev/null
+test -s "$crow_resume_run/learner.safetensors"
+
 if (
     NUMI_CROW_CURRICULUM_ROOT=$crow_curriculum_root \
     NUMI_CROW_CURRICULUM_BUILD=$crow_curriculum_build \

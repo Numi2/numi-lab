@@ -24,6 +24,7 @@ selection_environments=${NUMI_CROW_SELECTION_ENVIRONMENTS:-512}
 selection_seed=${NUMI_CROW_SELECTION_SEED:-2650443581}
 seed_base=${NUMI_CROW_SEED_BASE:-2650445000}
 maximum_retries=${NUMI_CROW_MAXIMUM_RETRIES:-3}
+teacher_distillation=${NUMI_CROW_TEACHER_DISTILLATION:-1}
 
 case "$course" in
   state)
@@ -47,6 +48,10 @@ case "$parent_mode" in
     ;;
   actor-transfer|resume) ;;
   *) echo "NUMI_CROW_PARENT_MODE must be auto, actor-transfer, or resume" >&2; exit 2 ;;
+esac
+case "$teacher_distillation" in
+  0|1) ;;
+  *) echo "NUMI_CROW_TEACHER_DISTILLATION must be 0 or 1" >&2; exit 2 ;;
 esac
 [[ "$start_band" =~ ^([0-9]|10)$ && "$maximum_band" =~ ^([0-9]|10)$ ]] || {
   echo "Crow curriculum bands must be integers in 0...10" >&2; exit 2;
@@ -119,6 +124,9 @@ while [ "$band" -le "$maximum_band" ]; do
       )
     elif [ -n "$parent_policy" ]; then
       common+=(--policy-pack "$parent_policy")
+      if [ "$teacher_distillation" -eq 1 ]; then
+        common+=(--birdflow-journey-teacher)
+      fi
     fi
     echo "launching neural Crow $course band $band ($milestone), retry $retry"
     if NUMI_LAB_ROOT="$root" NUMI_BUILD_DIR="$build" \

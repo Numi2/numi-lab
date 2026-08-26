@@ -34,6 +34,11 @@ standing, walking, takeoff, cruise, takeoff-cruise, left turn, right turn,
 approach, touchdown, landed hold, and full journey. Each candidate is evaluated
 against its incumbent on the same held-out seed and every earlier protected
 band. Rejected candidates remain on disk but never become a later parent.
+The native journey teacher remains connected during resumed training by
+default so harder rungs retain physically executed imitation targets. It has
+zero authority in autonomous held-out evaluation and is never embedded in the
+deployment PolicyPack. Set `NUMI_CROW_TEACHER_DISTILLATION=0` only for a
+pre-registered no-teacher ablation.
 
 State-only neural curriculum:
 
