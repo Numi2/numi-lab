@@ -16013,6 +16013,7 @@ MetalWorldDiagnostics validateAndPublish(
             expectedMuscleResults * dispatch.nv;
         if (staged.millardResults.size() != expectedMuscleResults ||
             staged.millardGeneralizedForces.size() != expectedForces ||
+            staged.millardStates.size() != expectedMuscleResults ||
             !finiteFloats(staged.millardGeneralizedForces)) {
             return reject(
                 std::move(diagnostics),
@@ -16025,6 +16026,8 @@ MetalWorldDiagnostics validateAndPublish(
              ++index) {
             const MRMillardMuscleResultGPU& muscle =
                 staged.millardResults[index];
+            const MRMillardMuscleStateGPU& state =
+                staged.millardStates[index];
             const std::size_t environment =
                 index / staged.layout.millardMuscleCount;
             const std::size_t muscleIndex =
@@ -16037,6 +16040,17 @@ MetalWorldDiagnostics validateAndPublish(
                     std::move(diagnostics),
                     MetalWorldHostStatus::gpuEnvironmentFailure,
                     "GPU rejected a source Millard muscle during MetalWorld actuation"
+                );
+            }
+            if (!finite(state.activationAndVelocity) ||
+                state.activationAndVelocity.x < 0.0f ||
+                state.activationAndVelocity.x > 1.0f ||
+                state.activationAndVelocity.z != 0.0f ||
+                state.activationAndVelocity.w != 0.0f) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::gpuEnvironmentFailure,
+                    "GPU published an invalid source Millard muscle state"
                 );
             }
         }
@@ -19152,6 +19166,7 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 staged.millardGeneralizedForces.resize(
                     muscleResults * staged.layout.dispatch.nv
                 );
+                staged.millardStates.resize(muscleResults);
             }
             staged.statuses.resize(
                 staged.layout.statusElements
@@ -19305,6 +19320,10 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 copyOutput(
                     staged.millardGeneralizedForces,
                     stateOutputBuffer(kMillardGeneralizedForces)
+                );
+                copyOutput(
+                    staged.millardStates,
+                    stateOutputBuffer(kMillardStates)
                 );
             }
             if (pending->nativeTask) {
@@ -20837,6 +20856,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             if (hasMillardProgram) {
                 readbackIndices.push_back(kMillardResults);
                 readbackIndices.push_back(kMillardGeneralizedForces);
+                readbackIndices.push_back(kMillardStates);
             }
             if (config.captureContactEvidence) {
                 readbackIndices.push_back(

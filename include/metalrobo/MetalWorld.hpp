@@ -926,6 +926,10 @@ struct MetalWorldResult {
     // a host-restaged aggregate, drove the accepted state.
     std::vector<MRMillardMuscleResultGPU> millardResults;
     std::vector<float> millardGeneralizedForces;
+    // Final private source-muscle state, packed [environment][muscle]. This
+    // lets an activation-control audit verify the exact device-updated state
+    // that produced the final force records without publishing a host update.
+    std::vector<MRMillardMuscleStateGPU> millardStates;
     std::vector<MRMetalWorldStatusGPU> statuses;
     std::vector<MRMetalWorldContactStatusGPU> contactStatuses;
     // One record per environment when qualityNewton is selected.

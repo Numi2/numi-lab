@@ -718,6 +718,7 @@ struct MetalWorldFunctionBasedContactMetrics {
     std::uint32_t maximumActiveContacts = 0u;
     std::uint32_t maximumConstraints = 0u;
     double millardGeneralizedForceL1 = 0.0;
+    double maximumMillardActivationError = 0.0;
 };
 
 MRBodyStateGPU staticGroundState(
@@ -924,8 +925,9 @@ verifyMetalWorldFunctionBasedContact(
         require(
             result.millardResults.size() == millardProgram->muscles.size() &&
                 result.millardGeneralizedForces.size() ==
-                    millardProgram->muscles.size() * model.articulations.at(0u).nv,
-            "FunctionBased streamed-contact probe did not publish source Millard forces"
+                    millardProgram->muscles.size() * model.articulations.at(0u).nv &&
+                result.millardStates.size() == millardProgram->muscles.size(),
+            "FunctionBased streamed-contact probe did not publish source Millard state and forces"
         );
         for (const float force : result.millardGeneralizedForces) {
             require(
@@ -938,6 +940,61 @@ verifyMetalWorldFunctionBasedContact(
             metrics.millardGeneralizedForceL1 > 1.0e-3,
             "FunctionBased streamed-contact probe did not apply nonzero source Millard effort"
         );
+        if (!millardExcitations.empty()) {
+            const double timestep = config.timestepSeconds;
+            for (std::size_t muscle = 0u;
+                 muscle < millardProgram->muscles.size();
+                 ++muscle) {
+                double expected =
+                    millardProgram->states[muscle].activationAndVelocity.x;
+                const double minimumActivation =
+                    millardProgram->muscles[muscle].dampingAndActivation.z;
+                for (std::size_t controlStep = 0u;
+                     controlStep < controlSteps;
+                     ++controlStep) {
+                    const double excitation = millardExcitations[
+                        controlStep * millardProgram->muscles.size() + muscle
+                    ];
+                    const double target = std::clamp(
+                        excitation, minimumActivation, 1.0
+                    );
+                    const double tau = target >= expected
+                        ? config.millardActivationDynamics
+                              .activationTimeConstantSeconds
+                        : config.millardActivationDynamics
+                              .deactivationTimeConstantSeconds;
+                    expected = std::clamp(
+                        target + (expected - target) *
+                            std::exp(-timestep / tau),
+                        minimumActivation,
+                        1.0
+                    );
+                }
+                const MRMillardMuscleStateGPU& observed =
+                    result.millardStates[muscle];
+                require(
+                    std::isfinite(observed.activationAndVelocity.x) &&
+                        observed.activationAndVelocity.y ==
+                            millardProgram->states[muscle]
+                                .activationAndVelocity.y &&
+                        observed.activationAndVelocity.z == 0.0f &&
+                        observed.activationAndVelocity.w == 0.0f,
+                    "FunctionBased streamed-contact probe published malformed device activation state"
+                );
+                metrics.maximumMillardActivationError = std::max(
+                    metrics.maximumMillardActivationError,
+                    std::abs(
+                        static_cast<double>(
+                            observed.activationAndVelocity.x
+                        ) - expected
+                    )
+                );
+            }
+            require(
+                metrics.maximumMillardActivationError < 3.0e-6,
+                "device Millard activation update diverged from exact first-order hold"
+            );
+        }
     }
     return metrics;
 }
@@ -2139,6 +2196,13 @@ int main(const int argc, char** argv) {
                                 std::to_string(
                                     fullyExcitedMetalWorldContactMetrics.
                                         millardGeneralizedForceL1
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_world_contact_millard_activation_error=" +
+                                std::to_string(
+                                    fullyExcitedMetalWorldContactMetrics.
+                                        maximumMillardActivationError
                                 )
                           : "")
                   << (runMetal
