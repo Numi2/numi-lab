@@ -1,0 +1,513 @@
+{
+  "schema": "numi.solver-catalog.v1",
+  "solvers": [
+    {
+      "schema": "numi.solver.v1",
+      "id": "dynamics.articulated-aba-metal",
+      "name": "Metal articulated-body dynamics",
+      "domain": "dynamics",
+      "summary": "Device-resident articulated free dynamics with ordered or SIMD32 ABA frontiers.",
+      "backend": "metal",
+      "precision": "fp32",
+      "role": "production",
+      "availability": "production",
+      "owner": {
+        "implementation": "src/metal/MetalArticulatedABA.mm",
+        "configuration": "metalrobo::MetalWorldConfig and metalrobo::MetalWorldStepConfig",
+        "documentation": "docs/METAL_WORLD.md"
+      },
+      "selection": {
+        "kind": "runtime-config",
+        "selector": "MetalWorldConfig.preferParallelABA=true",
+        "targets": ["MetalWorldContext", "CompiledRun"]
+      },
+      "parameters": {
+        "apply_body_damping": {"type": "boolean", "default": true},
+        "prefer_parallel_aba": {"type": "boolean", "default": true}
+      },
+      "evidence_boundary": [
+        "Production Metal path; deterministic replay and FP64 parity are separate gates.",
+        "Selecting serial ABA is an oracle/performance comparison, not another physics model."
+      ]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "dynamics.articulated-crba-cholesky-fp64",
+      "name": "FP64 articulated CRBA/Cholesky dynamics",
+      "domain": "dynamics",
+      "summary": "Dense composite-rigid-body mass construction and Cholesky reference dynamics.",
+      "backend": "cpu",
+      "precision": "fp64",
+      "role": "oracle",
+      "availability": "reference",
+      "owner": {
+        "implementation": "src/core/ArticulatedDynamics.cpp",
+        "configuration": "metalrobo::ArticulatedDynamicsConfig",
+        "documentation": "docs/NUMERICS.md"
+      },
+      "selection": {"kind": "component-config", "selector": "forwardDynamicsCRBA API", "targets": ["ArticulatedDynamics API"]},
+      "parameters": {
+        "apply_body_damping": {"type": "boolean", "default": true},
+        "enforce_body_speed_limits": {"type": "boolean", "default": false},
+        "nonlinear_iterations": {"type": "integer", "default": 10, "minimum": 1},
+        "nonlinear_tolerance": {"type": "number", "default": 1e-11, "minimum": 0}
+      },
+      "evidence_boundary": [
+        "CPU reference/component path; not an Apple-GPU throughput result.",
+        "Internal parity does not establish external-simulator accuracy."
+      ]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "contact.reference-projected-gradient-fp64",
+      "name": "FP64 exact-cone projected-gradient oracle",
+      "domain": "contact",
+      "summary": "Independent accelerated projected-gradient oracle for exact circular Coulomb cones.",
+      "backend": "cpu",
+      "precision": "fp64",
+      "role": "oracle",
+      "availability": "reference",
+      "owner": {
+        "implementation": "src/core/ReferenceConicSolver.cpp",
+        "configuration": "metalrobo::ReferenceConicSolverConfig",
+        "documentation": "docs/NUMERICS.md"
+      },
+      "selection": {"kind": "component-config", "selector": "solveReferenceConicProblem API", "targets": ["ReferenceConicSolver API"]},
+      "parameters": {
+        "maximum_iterations": {"type": "integer", "default": 20000, "minimum": 1},
+        "optimality_tolerance": {"type": "number", "default": 1e-10, "minimum": 0},
+        "enable_warm_start": {"type": "boolean", "default": true},
+        "enable_acceleration": {"type": "boolean", "default": true}
+      },
+      "evidence_boundary": [
+        "Independent correctness oracle, not a production throughput path.",
+        "Requires converged residual and cone diagnostics before comparison."
+      ]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "contact.quality-semismooth-newton-fp64",
+      "name": "FP64 quality semismooth Newton contact",
+      "domain": "contact",
+      "summary": "Globalized semismooth Newton exact-cone solve with guarded fallback paths and KKT certificates.",
+      "backend": "cpu",
+      "precision": "fp64",
+      "role": "quality",
+      "availability": "quality",
+      "owner": {
+        "implementation": "src/core/QualityContactSolver.cpp",
+        "configuration": "metalrobo::QualityContactSolverConfig",
+        "documentation": "docs/NUMERICS.md"
+      },
+      "selection": {"kind": "component-config", "selector": "solveQualityContactProblem API", "targets": ["QualityContactSolver API", "MultiArticulatedContact API", "CoupledArticulatedRigidContact API", "ArticulatedJointLimits and ArticulatedMixedConstraints APIs"]},
+      "parameters": {
+        "maximum_iterations": {"type": "integer", "default": 200, "minimum": 1},
+        "maximum_line_search_iterations": {"type": "integer", "default": 32, "minimum": 1},
+        "kkt_tolerance": {"type": "number", "default": 1e-11, "minimum": 0},
+        "enable_warm_start": {"type": "boolean", "default": true}
+      },
+      "evidence_boundary": [
+        "Quality CPU path; success requires the KKT and cone certificate.",
+        "Fallback use is retained telemetry and must not be hidden."
+      ]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "contact.quality-semismooth-newton-metal",
+      "name": "Metal quality semismooth Newton contact",
+      "domain": "contact",
+      "summary": "FP32 Metal quality solve over a physical contact-space operator with KKT certification.",
+      "backend": "metal",
+      "precision": "fp32",
+      "role": "quality",
+      "availability": "quality",
+      "owner": {
+        "implementation": "src/metal/MetalQualityContactSolver.mm and src/metal/MetalQualityContactSolver.metal",
+        "configuration": "metalrobo::MetalQualityContactSolverConfig",
+        "documentation": "docs/METAL_WORLD.md"
+      },
+      "selection": {"kind": "component-config", "selector": "solveMetalQualityContactSpace API", "targets": ["Metal quality contact API", "MetalMultiArticulatedContact quality configuration"]},
+      "parameters": {
+        "maximum_newton_iterations": {"type": "integer", "default": 48, "minimum": 1},
+        "maximum_cg_iterations": {"type": "integer", "default": 96, "minimum": 1},
+        "maximum_line_search_iterations": {"type": "integer", "default": 16, "minimum": 1},
+        "convergence_tolerance": {"type": "number", "default": 2e-5, "minimum": 0},
+        "enable_warm_start": {"type": "boolean", "default": true}
+      },
+      "evidence_boundary": [
+        "Standalone Metal contact-space API; it is not the MetalWorld quality configuration.",
+        "Device status, KKT certificate, failed steps, and matched outcomes remain required."
+      ]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "constraints.unified-quality-newton-metal",
+      "name": "Metal unified quality Newton solver",
+      "domain": "constraints",
+      "summary": "Batched unified dynamics-and-constraint quality solve over a matrix-free HVP contract.",
+      "backend": "metal",
+      "precision": "fp32",
+      "role": "quality",
+      "availability": "component",
+      "owner": {
+        "implementation": "src/metal/MetalUnifiedQualitySolver.mm and src/metal/MetalUnifiedQualitySolver.metal",
+        "configuration": "metalrobo::MetalUnifiedQualityConfig",
+        "documentation": "docs/NUMERICS.md"
+      },
+      "selection": {"kind": "component-config", "selector": "solveMetalUnifiedQuality API", "targets": ["MetalUnifiedQuality API", "world adapters implementing its HVP contract"]},
+      "parameters": {
+        "maximum_newton_iterations": {"type": "integer", "default": 20, "minimum": 1},
+        "maximum_pcg_iterations": {"type": "integer", "default": 128, "minimum": 1},
+        "maximum_line_search_iterations": {"type": "integer", "default": 8, "minimum": 1},
+        "direct_maximum_generalized_velocities": {"type": "integer", "default": 64, "minimum": 1},
+        "direct_maximum_rows": {"type": "integer", "default": 256, "minimum": 1},
+        "optimality_tolerance": {"type": "number", "default": 1e-5, "minimum": 0},
+        "feasibility_tolerance": {"type": "number", "default": 2e-5, "minimum": 0}
+      },
+      "evidence_boundary": [
+        "This public component requires an adapter with an equivalent dynamics HVP contract.",
+        "Transactional device status and per-problem certificates govern publication."
+      ]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "contact.quality-newton-metal-world",
+      "name": "MetalWorld quality Newton contact",
+      "domain": "contact",
+      "summary": "MetalWorld quality contact mode with direct or matrix-free semismooth Newton solves.",
+      "backend": "metal",
+      "precision": "fp32",
+      "role": "quality",
+      "availability": "quality",
+      "owner": {
+        "implementation": "src/metal/MetalWorld.mm and src/metal/MetalWorldContact.metal",
+        "configuration": "metalrobo::MetalWorldQualityConfig",
+        "documentation": "docs/METAL_WORLD.md"
+      },
+      "selection": {"kind": "runtime-config", "selector": "MetalWorldStepConfig.solverMode=qualityNewton", "targets": ["MetalWorld qualityNewton mode", "CompiledRun task rollout"]},
+      "parameters": {
+        "maximum_newton_iterations": {"type": "integer", "default": 20, "minimum": 1},
+        "maximum_pcg_iterations": {"type": "integer", "default": 128, "minimum": 1},
+        "maximum_line_search_iterations": {"type": "integer", "default": 16, "minimum": 1},
+        "direct_maximum_generalized_velocities": {"type": "integer", "default": 64, "minimum": 1},
+        "direct_maximum_rows": {"type": "integer", "default": 256, "minimum": 1},
+        "optimality_tolerance": {"type": "number", "default": 1e-5, "minimum": 0},
+        "feasibility_tolerance": {"type": "number", "default": 2e-5, "minimum": 0}
+      },
+      "evidence_boundary": [
+        "Quality mode is selectable only where MetalWorld owns the runtime target.",
+        "A profile is configuration evidence; device status, replay, physical outcomes, and matched performance remain separate."
+      ]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "contact.temporal-cone-metal",
+      "name": "Metal temporal-cone contact",
+      "domain": "contact",
+      "summary": "Conditioned device-resident articulated contact path and current CompiledRun production default.",
+      "backend": "metal",
+      "precision": "fp32",
+      "role": "production",
+      "availability": "production",
+      "owner": {
+        "implementation": "src/metal/MetalWorld.mm and src/metal/MetalWorldContact.metal",
+        "configuration": "metalrobo::MetalWorldStepConfig",
+        "documentation": "docs/METAL_WORLD.md"
+      },
+      "selection": {"kind": "runtime-config", "selector": "MetalWorldStepConfig.solverMode=temporalCone", "targets": ["MetalWorld temporalCone mode", "CompiledRun task rollout"]},
+      "parameters": {
+        "velocity_iterations": {"type": "integer", "default": 4, "minimum": 1},
+        "final_velocity_iterations": {"type": "integer", "default": 2, "minimum": 0},
+        "warm_start": {"type": "boolean", "default": true},
+        "matrix_free_articulated_contact": {"type": "boolean", "default": true},
+        "streamed_articulated_contact_responses": {"type": "boolean", "default": true}
+      },
+      "evidence_boundary": [
+        "Production default is conditioned temporal cone, not temporal Gauss-Seidel.",
+        "Changing iterations or response materialization changes the run fingerprint and requires replay/outcome checks."
+      ]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "contact.throughput-pgs",
+      "name": "Fixed-budget throughput PGS contact",
+      "domain": "contact",
+      "summary": "CPU/Metal fixed-budget projected Gauss-Seidel contact with radial tangent projection and warm starts.",
+      "backend": "hybrid",
+      "precision": "fp32-fp64",
+      "role": "throughput",
+      "availability": "component",
+      "owner": {
+        "implementation": "src/core/ConstraintSolver.cpp and src/metal/ConstraintSolver.metal",
+        "configuration": "metalrobo::ContactSolverConfig",
+        "documentation": "docs/NUMERICS.md"
+      },
+      "selection": {"kind": "component-config", "selector": "solveVelocityConstraints API", "targets": ["RigidBodyWorld", "throughput contact batches"]},
+      "parameters": {
+        "velocity_iterations": {"type": "integer", "default": 32, "minimum": 1},
+        "impulse_tolerance": {"type": "number", "default": 1e-8, "minimum": 0},
+        "enable_warm_start": {"type": "boolean", "default": true},
+        "enable_early_exit": {"type": "boolean", "default": true},
+        "deterministic": {"type": "boolean", "default": true}
+      },
+      "evidence_boundary": [
+        "Fixed-budget PGS is not TGS and does not own rolling resistance.",
+        "One connected island above 128 contacts is rejected rather than truncated."
+      ]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "constraints.multi-articulated-pgs-cpu",
+      "name": "CPU multi-articulated generalized PGS",
+      "domain": "constraints",
+      "summary": "Transactional FP64 multi-tree generalized ConstraintIR reference step.",
+      "backend": "cpu",
+      "precision": "fp64",
+      "role": "reference",
+      "availability": "component",
+      "owner": {
+        "implementation": "src/core/MultiArticulatedWorld.cpp",
+        "configuration": "metalrobo::MultiArticulatedWorldConfig",
+        "documentation": "docs/NUMERICS.md"
+      },
+      "selection": {"kind": "component-config", "selector": "stepMultiArticulatedWorld API", "targets": ["MultiArticulatedWorld CPU API"]},
+      "parameters": {
+        "solver_iterations": {"type": "integer", "default": 64, "minimum": 1},
+        "solver_tolerance": {"type": "number", "default": 1e-9, "minimum": 0}
+      },
+      "evidence_boundary": [
+        "Correctness/component path; it is not production Metal throughput evidence.",
+        "ConstraintIR residual and factor diagnostics govern acceptance."
+      ]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "constraints.multi-articulated-pgs-metal",
+      "name": "Metal multi-articulated generalized PGS",
+      "domain": "constraints",
+      "summary": "Fixed-budget device generalized-constraint solve over compiled multi-articulation programs.",
+      "backend": "metal",
+      "precision": "fp32",
+      "role": "throughput",
+      "availability": "production",
+      "owner": {
+        "implementation": "src/metal/MetalMultiArticulatedConstraints.mm and src/metal/MetalGeneralizedConstraints.metal",
+        "configuration": "metalrobo::MetalMultiArticulatedConstraintConfig",
+        "documentation": "docs/METAL_WORLD.md"
+      },
+      "selection": {"kind": "component-config", "selector": "MetalMultiArticulatedConstraintConfig.solverMode=throughputPGS", "targets": ["Metal multi-articulated constraint API"]},
+      "parameters": {
+        "solver_iterations": {"type": "integer", "default": 128, "minimum": 1},
+        "convergence_tolerance": {"type": "number", "default": 2e-5, "minimum": 0},
+        "diagonal_floor": {"type": "number", "default": 1e-12, "minimum": 0}
+      },
+      "evidence_boundary": [
+        "Fixed-budget throughput mode; do not report convergence without its residual.",
+        "Compiled topology and exact constraint semantics must match comparisons."
+      ]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "constraints.multi-articulated-quality-metal",
+      "name": "Metal multi-articulated quality Newton",
+      "domain": "constraints",
+      "summary": "Quality semismooth-Newton generalized constraint mode with bounded CG and line search.",
+      "backend": "metal",
+      "precision": "fp32",
+      "role": "quality",
+      "availability": "quality",
+      "owner": {
+        "implementation": "src/metal/MetalMultiArticulatedConstraints.mm and src/metal/MetalGeneralizedConstraints.metal",
+        "configuration": "metalrobo::MetalMultiArticulatedConstraintConfig",
+        "documentation": "docs/METAL_WORLD.md"
+      },
+      "selection": {"kind": "component-config", "selector": "MetalMultiArticulatedConstraintConfig.solverMode=qualitySemismoothNewton", "targets": ["Metal multi-articulated constraint API"]},
+      "parameters": {
+        "quality_cg_iterations": {"type": "integer", "default": 96, "minimum": 1},
+        "quality_line_search_iterations": {"type": "integer", "default": 16, "minimum": 1},
+        "convergence_tolerance": {"type": "number", "default": 2e-5, "minimum": 0},
+        "quality_normal_equation_regularization": {"type": "number", "default": 1e-8, "minimum": 0}
+      },
+      "evidence_boundary": [
+        "Quality component mode; publication still requires residual and device status.",
+        "A quality-mode result is not automatically a production-policy improvement."
+      ]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "integration.free-body-symplectic-euler",
+      "name": "Free-body symplectic Euler",
+      "domain": "integration",
+      "summary": "Throughput-oriented free-body velocity and pose integration with SO(3) composition.",
+      "backend": "cpu-metal",
+      "precision": "fp32-fp64",
+      "role": "production",
+      "availability": "production",
+      "owner": {
+        "implementation": "src/core/FreeBodyDynamics.cpp and src/metal/FreeBodyDynamics.metal",
+        "configuration": "metalrobo::FreeBodyIntegratorConfig",
+        "documentation": "docs/NUMERICS.md"
+      },
+      "selection": {"kind": "component-config", "selector": "FreeBodyIntegratorConfig.integrator=symplecticEuler", "targets": ["FreeBodyDynamics API", "MetalWorld free motion"]},
+      "parameters": {
+        "integrator": {"type": "string", "default": "symplectic-euler", "choices": ["symplectic-euler"]},
+        "timestep": {"type": "number", "default": 0.001, "minimum": 1e-9},
+        "nonlinear_iterations": {"type": "integer", "default": 12, "minimum": 1},
+        "nonlinear_tolerance": {"type": "number", "default": 1e-12, "minimum": 0}
+      },
+      "evidence_boundary": ["Integrator selection does not provide collision time-of-impact handling."]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "integration.free-body-implicit-midpoint",
+      "name": "Free-body implicit midpoint",
+      "domain": "integration",
+      "summary": "Conservation-oriented nonlinear free-body angular integration reference.",
+      "backend": "cpu",
+      "precision": "fp64",
+      "role": "reference",
+      "availability": "reference",
+      "owner": {
+        "implementation": "src/core/FreeBodyDynamics.cpp",
+        "configuration": "metalrobo::FreeBodyIntegratorConfig",
+        "documentation": "docs/NUMERICS.md"
+      },
+      "selection": {"kind": "component-config", "selector": "FreeBodyIntegratorConfig.integrator=implicitMidpoint", "targets": ["FreeBodyDynamics API"]},
+      "parameters": {
+        "integrator": {"type": "string", "default": "implicit-midpoint", "choices": ["implicit-midpoint"]},
+        "timestep": {"type": "number", "default": 0.001, "minimum": 1e-9},
+        "nonlinear_iterations": {"type": "integer", "default": 12, "minimum": 1},
+        "nonlinear_tolerance": {"type": "number", "default": 1e-12, "minimum": 0}
+      },
+      "evidence_boundary": ["CPU conservation reference; not a Metal throughput path or CCD solver."]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "integration.articulated-symplectic-euler",
+      "name": "Articulated symplectic Euler",
+      "domain": "integration",
+      "summary": "Production-oriented articulated coordinate integration after forward dynamics.",
+      "backend": "cpu-metal",
+      "precision": "fp32-fp64",
+      "role": "production",
+      "availability": "production",
+      "owner": {
+        "implementation": "src/core/ArticulatedDynamics.cpp and src/metal/ArticulatedABA.metal",
+        "configuration": "metalrobo::ArticulatedDynamicsConfig",
+        "documentation": "docs/NUMERICS.md"
+      },
+      "selection": {"kind": "component-config", "selector": "ArticulatedDynamicsConfig.integrator=symplecticEuler", "targets": ["ArticulatedDynamics API", "MetalWorld"]},
+      "parameters": {
+        "integrator": {"type": "string", "default": "symplectic-euler", "choices": ["symplectic-euler"]},
+        "timestep": {"type": "number", "default": 0.001, "minimum": 1e-9},
+        "apply_body_damping": {"type": "boolean", "default": true}
+      },
+      "evidence_boundary": ["Coordinate integration follows accepted dynamics; it is not independently physical proof."]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "integration.articulated-implicit-midpoint",
+      "name": "Articulated implicit midpoint",
+      "domain": "integration",
+      "summary": "FP64 nonlinear articulated midpoint reference with transactional failure.",
+      "backend": "cpu",
+      "precision": "fp64",
+      "role": "reference",
+      "availability": "reference",
+      "owner": {
+        "implementation": "src/core/ArticulatedDynamics.cpp",
+        "configuration": "metalrobo::ArticulatedDynamicsConfig",
+        "documentation": "docs/NUMERICS.md"
+      },
+      "selection": {"kind": "component-config", "selector": "ArticulatedDynamicsConfig.integrator=implicitMidpoint", "targets": ["ArticulatedDynamics API"]},
+      "parameters": {
+        "integrator": {"type": "string", "default": "implicit-midpoint", "choices": ["implicit-midpoint"]},
+        "timestep": {"type": "number", "default": 0.001, "minimum": 1e-9},
+        "nonlinear_iterations": {"type": "integer", "default": 10, "minimum": 1},
+        "nonlinear_tolerance": {"type": "number", "default": 1e-11, "minimum": 0}
+      },
+      "evidence_boundary": ["CPU reference integrator; unsupported runtime composition must fail rather than silently fall back."]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "continuum.matter-newton-fgmres-metal",
+      "name": "Matter monolithic Newton/FGMRES",
+      "domain": "continuum",
+      "summary": "Environment-wide nonlinear variational solve with matrix-free restarted flexible GMRES.",
+      "backend": "metal",
+      "precision": "fp32",
+      "role": "production",
+      "availability": "production",
+      "owner": {
+        "implementation": "matter/src/runtime.mm and matter/src/matter_kernels.metal",
+        "configuration": "numi::matter::MixedSolverSource",
+        "documentation": "docs/NUMERICS.md"
+      },
+      "selection": {"kind": "compile-config", "selector": "WorldSource.mixedSolver", "targets": ["Matter WorldSource", "NumiMatterPackage"]},
+      "parameters": {
+        "newton_iterations": {"type": "integer", "default": 7, "minimum": 1},
+        "fgmres_restart": {"type": "integer", "default": 10, "minimum": 1},
+        "fgmres_iterations": {"type": "integer", "default": 10, "minimum": 1},
+        "line_search_steps": {"type": "integer", "default": 8, "minimum": 1},
+        "relative_residual": {"type": "number", "default": 0.0001, "minimum": 0}
+      },
+      "evidence_boundary": [
+        "FGMRES is the sole linear convergence owner; fixed-pass preconditioner components are not separate solvers.",
+        "Equilibrium, volume, pressure, transport, contact, and transaction certificates govern publication."
+      ]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "rod.der-xpbd-cpu",
+      "name": "CPU discrete-elastic-rod XPBD",
+      "domain": "rod",
+      "summary": "Transactional CPU DER projection solve for stretch, bend, twist, attachments, and optional self-contact.",
+      "backend": "cpu",
+      "precision": "fp64",
+      "role": "reference",
+      "availability": "component",
+      "owner": {
+        "implementation": "src/core/DiscreteElasticRod.cpp",
+        "configuration": "metalrobo::DiscreteElasticRodStepConfig",
+        "documentation": "docs/NUMERICS.md"
+      },
+      "selection": {"kind": "component-config", "selector": "stepDiscreteElasticRod API", "targets": ["DiscreteElasticRod CPU API"]},
+      "parameters": {
+        "solver_iterations": {"type": "integer", "default": 24, "minimum": 1},
+        "constraint_tolerance": {"type": "number", "default": 1e-7, "minimum": 0},
+        "linear_damping": {"type": "number", "default": 0.02, "minimum": 0},
+        "twist_damping": {"type": "number", "default": 0.02, "minimum": 0},
+        "enable_self_collision": {"type": "boolean", "default": false}
+      },
+      "evidence_boundary": ["CPU DER component; convergence and energy diagnostics are required before physical claims."]
+    },
+    {
+      "schema": "numi.solver.v1",
+      "id": "rod.der-xpbd-metal",
+      "name": "Metal discrete-elastic-rod XPBD",
+      "domain": "rod",
+      "summary": "Batched Metal DER projection with coupled attachment/tool contact and typed device status.",
+      "backend": "metal",
+      "precision": "fp32",
+      "role": "production",
+      "availability": "production",
+      "owner": {
+        "implementation": "src/metal/MetalDiscreteElasticRod.mm and src/metal/DiscreteElasticRod.metal",
+        "configuration": "metalrobo::MetalDiscreteElasticRodConfig",
+        "documentation": "docs/METAL_WORLD.md"
+      },
+      "selection": {"kind": "runtime-config", "selector": "runMetalDiscreteElasticRod API", "targets": ["MetalDiscreteElasticRod API", "MetalWorld rod program"]},
+      "parameters": {
+        "solver_iterations": {"type": "integer", "default": 24, "minimum": 1},
+        "constraint_tolerance": {"type": "number", "default": 1e-7, "minimum": 0},
+        "tool_outer_iterations": {"type": "integer", "default": 2, "minimum": 1},
+        "tool_warm_start": {"type": "boolean", "default": true},
+        "tool_ccd": {"type": "boolean", "default": false}
+      },
+      "evidence_boundary": [
+        "Metal device status and per-environment rod diagnostics are mandatory.",
+        "CPU agreement alone is not tool-contact, knot-retention, or hardware evidence."
+      ]
+    }
+  ]
+}

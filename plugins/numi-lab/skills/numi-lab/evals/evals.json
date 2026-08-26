@@ -101,6 +101,21 @@
         "Does not duplicate an active or expensive workload",
         "Provides the exact next safe command when recovery is possible"
       ]
+    },
+    {
+      "id": 9,
+      "category": "solver-configuration",
+      "should_activate": true,
+      "prompt": "Configure our best contact solver for this Numi training run, and also make my external solver available.",
+      "expected_output": "Discovers and inspects solver descriptors, separates production task-rollout targets from reference/component paths, creates fingerprinted profiles, and validates an external overlay without inventing compatibility.",
+      "files": [],
+      "expectations": [
+        "Runs numi solvers list and inspects the relevant solver descriptors",
+        "Does not equate best with one universal solver ranking",
+        "Uses selection targets to decide whether a profile can reach train or evaluate",
+        "Validates external descriptor provenance before registration",
+        "Requires new replay, outcome, and profiler evidence after solver changes"
+      ]
     }
   ]
 }

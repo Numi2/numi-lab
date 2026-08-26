@@ -1,6 +1,6 @@
 {
   "name": "numi-lab",
-  "version": "0.1.1+codex.20260826044529",
+  "version": "0.1.1+codex.20260826053514",
   "description": "Operate, profile, train, evaluate, and extend Apple-native robotics and coupled physics through Codex.",
   "author": {
     "name": "Numi Lab"
@@ -25,6 +25,7 @@
       "Local robot training",
       "Metal simulation",
       "Coupled physics profiling",
+      "Solver discovery and configuration",
       "MLX learning",
       "Policy evaluation",
       "Foundation and motion providers",

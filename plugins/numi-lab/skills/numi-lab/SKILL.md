@@ -22,7 +22,12 @@ integrate or migrate them with Numi Lab.
    a robot. Use its authored capabilities and semantic roles rather than
    assuming G1 joints, humanoid sensors, or locomotion outcomes.
 4. Run `numi <capability> --help` before operating that capability.
-5. Inspect the owning repository code when the request needs behavior that the
+5. For solver choice, run `numi solvers list` (filter with `--target` for an
+   intended runtime), inspect the selected descriptor, and create or resolve a
+   fingerprinted solver profile. Respect its domain, role, exact selector,
+   targets, and evidence boundary; never treat every solver as an
+   interchangeable `train` or `evaluate` backend.
+6. Inspect the owning repository code when the request needs behavior that the
    installed commands do not already provide.
 
 Discover missing inputs from context, catalogs, capability help, and existing
@@ -91,6 +96,8 @@ then trace its live code path:
   `docs/VISUAL_PLATFORM.md`.
 - FP32/FP64 parity, contact correctness, transactionality, and solver evidence:
   `docs/NUMERICS.md`.
+- Solver discovery, profiles, compatibility, and external overlays:
+  `docs/NUMI_SOLVERS.md`.
 - Tactile geometry, contact fields, and sensor bridge work:
   `docs/TACTILE_GEOMETRY_BRIDGE.md`.
 - Foundation action proposers: `docs/FOUNDATION_POLICIES.md`.

@@ -2077,6 +2077,17 @@ if(BUILD_TESTING)
             metalrobo.skill.contract
             PROPERTIES LABELS "metalrobo;cli;skill" TIMEOUT 120
         )
+        add_test(
+            NAME metalrobo.solver.catalog
+            COMMAND
+                "${_metalrobo_stdlib_python}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/solver_catalog_test.py"
+                -v
+        )
+        set_tests_properties(
+            metalrobo.solver.catalog
+            PROPERTIES LABELS "metalrobo;cli;solver" TIMEOUT 120
+        )
     endif()
 endif()
 
@@ -3322,11 +3333,16 @@ install(
         numi/commands/matter
         numi/commands/motion
         numi/commands/robots
+        numi/commands/solvers
     DESTINATION libexec/numi
 )
 install(
     DIRECTORY plugins/numi-lab
     DESTINATION plugins
+)
+install(
+    DIRECTORY numi/solvers
+    DESTINATION share/numi
 )
 install(
     FILES .agents/plugins/marketplace.json

@@ -30,6 +30,8 @@ class SkillContractTests(unittest.TestCase):
         self.assertIn("For discovery commands", skill)
         self.assertIn("Before real hardware can move", skill)
         self.assertIn("give the next safe recovery command", skill)
+        self.assertIn("numi solvers list", skill)
+        self.assertIn("docs/NUMI_SOLVERS.md", skill)
         self.assertLessEqual(len(skill.splitlines()), 155)
 
     def test_representative_eval_classes(self):
@@ -46,6 +48,7 @@ class SkillContractTests(unittest.TestCase):
                 "edge-hardware",
                 "edge-evidence",
                 "edge-failure-recovery",
+                "solver-configuration",
             }.issubset(categories)
         )
         self.assertEqual(len({case["id"] for case in cases}), len(cases))

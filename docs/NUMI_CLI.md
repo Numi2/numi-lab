@@ -11,6 +11,7 @@ the installed runtime and the user's overlays.
 ./tools/numi context
 ./tools/numi context --paths
 ./tools/numi help train
+./tools/numi solvers list
 ./tools/numi run train --help
 ./tools/numi version
 ```
@@ -20,6 +21,10 @@ Core commands reject unsupported arguments instead of silently ignoring them.
 `numi context --paths` shows the resolved owner executable after overlay
 precedence is applied. Unknown capabilities offer a close dynamic match when
 one is available.
+
+Solver discovery is another capability rather than core CLI schema. See
+[Numi solver configuration](NUMI_SOLVERS.md) for the bundled portfolio,
+fingerprinted profiles, compatibility boundaries, and external overlays.
 
 `numi doctor` validates the Apple/Metal toolchain, native trainer and rollout
 executables, MLX availability, and robot-catalog list-to-inspect coherence. A

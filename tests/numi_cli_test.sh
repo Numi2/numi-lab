@@ -154,6 +154,34 @@ printf '%s\n' "$numi_context_paths" | \
 printf '%s\n' "$numi_context_paths" | \
     grep "source: $numi_temp/extra/custom" >/dev/null
 
+numi_solver_list=$(
+    cd "$numi_temp/workspace"
+    NUMI_LAB_ROOT=$numi_repo \
+        "$numi_repo/tools/numi" solvers list --domain contact
+)
+printf '%s\n' "$numi_solver_list" | \
+    grep 'contact.temporal-cone-metal' >/dev/null
+printf '%s\n' "$numi_solver_list" | \
+    grep 'contact.quality-newton-metal-world' >/dev/null
+
+(
+    cd "$numi_temp/workspace"
+    NUMI_LAB_ROOT=$numi_repo \
+        "$numi_repo/tools/numi" solvers configure \
+            contact.temporal-cone-metal \
+            --profile cli-contact \
+            --set velocity_iterations=6 >/dev/null
+)
+numi_solver_profile=$(
+    cd "$numi_temp/workspace"
+    NUMI_LAB_ROOT=$numi_repo \
+        "$numi_repo/tools/numi" solvers show cli-contact --json
+)
+printf '%s\n' "$numi_solver_profile" | \
+    grep '"status": "current"' >/dev/null
+printf '%s\n' "$numi_solver_profile" | \
+    grep '"velocity_iterations": 6' >/dev/null
+
 numi_plugin_version=$(sed -n \
     's/^[[:space:]]*"version":[[:space:]]*"\([^"]*\)".*/\1/p' \
     "$numi_repo/plugins/numi-lab/.codex-plugin/plugin.json")

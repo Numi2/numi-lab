@@ -1,0 +1,58 @@
+#!/bin/sh
+
+set -u
+
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf 'Discover, validate, and configure owned or external physics solvers.\n'
+    exit 0
+fi
+
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+    cat <<'EOF'
+Usage: numi solvers COMMAND [arguments...]
+
+  list [--domain DOMAIN] [--target TEXT] [--json]
+                                         List resolved solver descriptors
+  inspect SOLVER_ID [--json]             Show compatibility and parameters
+  configure SOLVER_ID --profile NAME     Write a fingerprinted solver profile
+      [--scope workspace|user] [--set KEY=VALUE ...]
+  show PROFILE [--json]                  Inspect a profile and drift status
+  validate PATH                          Validate a descriptor or profile
+  register PATH [--scope workspace|user] Register an external descriptor
+  paths                                  Show overlay and profile search paths
+
+Workspace descriptors under .numi/solvers override extra, user, then bundled
+descriptors by solver ID. A profile records exact descriptor provenance; it
+does not imply that a component/reference solver can execute every workload.
+EOF
+    exit 0
+fi
+
+numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+numi_workspace=${NUMI_WORKSPACE_ROOT:-$numi_root}
+if [ -f "$numi_root/python/metalrobo/solver_catalog.py" ]; then
+    numi_solver_tool=$numi_root/python/metalrobo/solver_catalog.py
+    numi_solver_catalog=$numi_root/numi/solvers/catalog.json
+else
+    numi_solver_tool=$numi_root/share/numi/python/metalrobo/solver_catalog.py
+    numi_solver_catalog=$numi_root/share/numi/solvers/catalog.json
+fi
+[ -f "$numi_solver_tool" ] || {
+    printf 'numi solvers: missing catalog tool %s\n' "$numi_solver_tool" >&2
+    exit 1
+}
+[ -f "$numi_solver_catalog" ] || {
+    printf 'numi solvers: missing bundled catalog %s\n' "$numi_solver_catalog" >&2
+    exit 1
+}
+numi_solver_python=$(command -v python3 2>/dev/null || true)
+[ -x "$numi_solver_python" ] || {
+    printf 'numi solvers: python3 is required for validated JSON configuration\n' >&2
+    exit 1
+}
+
+exec "$numi_solver_python" "$numi_solver_tool" \
+    --runtime-root "$numi_root" \
+    --workspace "$numi_workspace" \
+    --catalog "$numi_solver_catalog" \
+    "$@"
