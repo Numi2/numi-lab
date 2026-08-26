@@ -20,6 +20,8 @@ class SkillContractTests(unittest.TestCase):
         manifest = json.loads((PLUGIN / ".codex-plugin" / "plugin.json").read_text())
         self.assertEqual(manifest["name"], "numi-lab")
         self.assertEqual(manifest["skills"], "./skills/")
+        self.assertEqual(len(manifest["interface"]["defaultPrompt"]), 3)
+        self.assertIn("what is ready", manifest["interface"]["defaultPrompt"][0])
         self.assertIn("name: numi-lab", skill)
         self.assertIn("numi doctor", skill)
         self.assertIn("numi context", skill)
@@ -27,7 +29,8 @@ class SkillContractTests(unittest.TestCase):
         self.assertIn("Ask only when live discovery cannot resolve", skill)
         self.assertIn("For discovery commands", skill)
         self.assertIn("Before real hardware can move", skill)
-        self.assertLessEqual(len(skill.splitlines()), 150)
+        self.assertIn("give the next safe recovery command", skill)
+        self.assertLessEqual(len(skill.splitlines()), 155)
 
     def test_representative_eval_classes(self):
         corpus = json.loads(EVALS.read_text())
@@ -42,6 +45,7 @@ class SkillContractTests(unittest.TestCase):
                 "non-trigger",
                 "edge-hardware",
                 "edge-evidence",
+                "edge-failure-recovery",
             }.issubset(categories)
         )
         self.assertEqual(len({case["id"] for case in cases}), len(cases))

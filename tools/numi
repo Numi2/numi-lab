@@ -125,6 +125,15 @@ numi_find_mlx_python() {
 }
 
 numi_doctor() {
+    [ "$#" -le 1 ] || numi_die "doctor accepts at most one option; run 'numi doctor --help'"
+    case "${1:-}" in
+        "") ;;
+        --help|-h)
+            printf 'Usage: numi doctor\n\nVerify Apple/Metal, native runtimes, the robot catalog, and MLX readiness.\n'
+            return 0
+            ;;
+        *) numi_die "doctor does not accept arguments; run 'numi doctor --help'" ;;
+    esac
     numi_doctor_status=0
     printf 'Numi Lab doctor\n\n'
     printf 'Runtime root: %s\n' "$NUMI_LAB_ROOT"
@@ -192,10 +201,30 @@ numi_doctor() {
 
     printf '\nCapabilities:\n'
     numi_list_commands | sed 's/^/  /'
+    if [ "$numi_doctor_status" -eq 0 ]; then
+        printf '\nStatus: ready. Run `numi context` to choose a capability.\n'
+    else
+        printf '\nStatus: action required. Resolve the items above, then rerun `numi doctor`.\n'
+    fi
     return "$numi_doctor_status"
 }
 
 numi_context() {
+    [ "$#" -le 1 ] || numi_die "context accepts at most one option; run 'numi context --help'"
+    case "${1:-}" in
+        "") numi_context_show_paths=0 ;;
+        --paths) numi_context_show_paths=1 ;;
+        --help|-h)
+            cat <<'EOF'
+Usage: numi context [--paths]
+
+Describe the live runtime, workspace overlays, and discovered capabilities.
+Use --paths to include the resolved executable that owns each capability.
+EOF
+            return 0
+            ;;
+        *) numi_die "unknown context option '$1'; run 'numi context --help'" ;;
+    esac
     printf 'Numi Lab %s\n\n' "$(numi_version)"
     printf 'Runtime root: %s\n' "$NUMI_LAB_ROOT"
     printf 'Workspace:    %s\n' "$NUMI_WORKSPACE_ROOT"
@@ -225,13 +254,21 @@ numi_context() {
     [ "$numi_overlay_count" -gt 0 ] || printf '  none\n'
 
     printf '\nAvailable capabilities:\n'
-    numi_list_commands | while IFS= read -r numi_capability; do
+    numi_context_capabilities=$(numi_list_commands)
+    numi_context_width=$(printf '%s\n' "$numi_context_capabilities" | \
+        awk 'length($0) > width { width = length($0) } END { print width + 0 }')
+    printf '%s\n' "$numi_context_capabilities" | while IFS= read -r numi_capability; do
+        [ -n "$numi_capability" ] || continue
         numi_capability_path=$(numi_find_command "$numi_capability") || continue
         numi_description=$(
             "$numi_capability_path" --numi-describe 2>/dev/null | sed -n '1p'
         )
         [ "$numi_description" != "" ] || numi_description='No description provided.'
-        printf '  %-12s %s\n' "$numi_capability" "$numi_description"
+        printf '  %-*s  %s\n' \
+            "$numi_context_width" "$numi_capability" "$numi_description"
+        if [ "$numi_context_show_paths" -eq 1 ]; then
+            printf '  %-*s  %s\n' "$numi_context_width" "" "source: $numi_capability_path"
+        fi
     done
 
     printf '\nFreedom model:\n'
@@ -252,19 +289,62 @@ Core commands:
   context                Describe the live lab, overlays, and capabilities
   run <capability> ...   Run a discovered capability
   version                Print the Numi Lab version
-  help                   Show this help
+  help [capability]      Show core or capability help
 
-Any other command is discovered from workspace, user, extra, bundled, then
+Any other command is discovered from workspace, extra, user, bundled, then
 installed command directories. Add an executable to .numi/commands to teach
 this workspace a new capability without changing the CLI.
 EOF
 }
 
+numi_suggest_command() {
+    numi_suggestion_query=$1
+    {
+        printf '%s\n' doctor context run version help
+        numi_list_commands
+    } | awk -v query="$numi_suggestion_query" '
+        function minimum(a, b, c) {
+            value = a < b ? a : b
+            return value < c ? value : c
+        }
+        function distance(left, right, i, j, cost, current) {
+            delete old
+            delete current
+            for (j = 0; j <= length(right); j++) old[j] = j
+            for (i = 1; i <= length(left); i++) {
+                current[0] = i
+                for (j = 1; j <= length(right); j++) {
+                    cost = substr(left, i, 1) == substr(right, j, 1) ? 0 : 1
+                    current[j] = minimum(current[j - 1] + 1, old[j] + 1, old[j - 1] + cost)
+                }
+                for (j = 0; j <= length(right); j++) old[j] = current[j]
+            }
+            return old[length(right)]
+        }
+        {
+            score = distance(query, $0)
+            if (best == "" || score < best_score) {
+                best = $0
+                best_score = score
+            }
+        }
+        END {
+            limit = length(query) <= 4 ? 1 : 2
+            if (best_score <= limit) print best
+        }
+    '
+}
+
 numi_dispatch() {
     numi_dispatch_name=$1
     shift
-    numi_dispatch_path=$(numi_find_command "$numi_dispatch_name") ||
+    if ! numi_dispatch_path=$(numi_find_command "$numi_dispatch_name"); then
+        numi_dispatch_suggestion=$(numi_suggest_command "$numi_dispatch_name")
+        if [ -n "$numi_dispatch_suggestion" ]; then
+            numi_die "unknown capability '$numi_dispatch_name'; did you mean '$numi_dispatch_suggestion'?"
+        fi
         numi_die "unknown capability '$numi_dispatch_name'; run 'numi context'"
+    fi
     exec "$numi_dispatch_path" "$@"
 }
 
@@ -274,10 +354,28 @@ if [ "$#" -gt 0 ]; then
 fi
 
 case "$numi_main_command" in
-    help|-h|--help)
+    help)
+        if [ "$#" -eq 0 ]; then
+            numi_help
+        elif [ "$#" -eq 1 ]; then
+            case "$1" in
+                doctor) numi_doctor --help ;;
+                context) numi_context --help ;;
+                run) printf 'Usage: numi run CAPABILITY [arguments...]\n' ;;
+                version) printf 'Usage: numi version\n' ;;
+                help) numi_help ;;
+                *) numi_dispatch "$1" --help ;;
+            esac
+        else
+            numi_die "help accepts at most one capability"
+        fi
+        ;;
+    -h|--help)
+        [ "$#" -eq 0 ] || numi_die "'$numi_main_command' does not accept arguments"
         numi_help
         ;;
     version|--version)
+        [ "$#" -eq 0 ] || numi_die "version does not accept arguments"
         numi_version
         ;;
     doctor)
@@ -287,7 +385,13 @@ case "$numi_main_command" in
         numi_context "$@"
         ;;
     run)
-        [ "$#" -gt 0 ] || numi_die "run requires a capability"
+        case "${1:-}" in
+            --help|-h)
+                printf 'Usage: numi run CAPABILITY [arguments...]\n'
+                exit 0
+                ;;
+            "") numi_die "run requires a capability; run 'numi context'" ;;
+        esac
         numi_run_name=$1
         shift
         numi_dispatch "$numi_run_name" "$@"

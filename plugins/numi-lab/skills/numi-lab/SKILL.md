@@ -30,6 +30,11 @@ artifacts. Ask only when live discovery cannot resolve a required robot, task,
 artifact, outcome, or hardware-arming choice; never guess paths, fingerprints,
 physical results, or approval.
 
+Keep the user-facing flow concise: lead with the outcome or blocker, summarize
+large catalog/help/JSON output, and give the next safe recovery command. On a
+failed run, inspect its typed failure and retained artifacts before retrying;
+never duplicate an expensive workload merely because it stopped.
+
 ## Apple Silicon execution model
 
 Use Numi Lab as one Apple-native system, not as a Python simulator wrapped by

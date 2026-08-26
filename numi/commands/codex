@@ -21,6 +21,7 @@ numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
 numi_marketplace=$numi_root/.agents/plugins/marketplace.json
 
 numi_verify_install() {
+    numi_verify_quiet=${1:-}
     command -v codex >/dev/null 2>&1 || {
         printf 'numi codex: Codex CLI is not on PATH\n' >&2
         return 1
@@ -38,9 +39,16 @@ numi_verify_install() {
         return 1
     }
     numi_codex_root=${CODEX_HOME:-${HOME:?}/.codex}
-    codex plugin list --json | "$numi_python" "$numi_plugin_check" \
-        --source "$numi_plugin_source" \
-        --cache-root "$numi_codex_root/plugins/cache"
+    if [ "$numi_verify_quiet" = "quiet" ]; then
+        codex plugin list --json | "$numi_python" "$numi_plugin_check" \
+            --source "$numi_plugin_source" \
+            --cache-root "$numi_codex_root/plugins/cache" \
+            --quiet
+    else
+        codex plugin list --json | "$numi_python" "$numi_plugin_check" \
+            --source "$numi_plugin_source" \
+            --cache-root "$numi_codex_root/plugins/cache"
+    fi
 }
 
 case "$numi_action" in
@@ -84,10 +92,12 @@ case "$numi_action" in
             ln -s "$numi_dispatcher" "$numi_user_bin/numi"
         fi
 
-        codex plugin marketplace add "$numi_root" --json
-        codex plugin add numi-lab@numi-lab --json
-        numi_verify_install
-        printf 'Numi Lab is installed in Codex. Start a new task to load it.\n'
+        codex plugin marketplace add "$numi_root" --json >/dev/null
+        codex plugin add numi-lab@numi-lab --json >/dev/null
+        numi_verify_install quiet
+        printf 'Numi Lab installed and verified.\n'
+        printf 'Dispatcher: %s/numi -> %s\n' "$numi_user_bin" "$numi_dispatcher"
+        printf 'Next: start a new Codex task to load the updated skill.\n'
         ;;
     status)
         numi_verify_install

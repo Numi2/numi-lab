@@ -87,6 +87,20 @@
         "Does not call a timeline-only trace detailed GPU performance proof",
         "Separates source, replay, physical, and profiler evidence"
       ]
+    },
+    {
+      "id": 8,
+      "category": "edge-failure-recovery",
+      "should_activate": true,
+      "prompt": "My long Numi training run failed at update 6. Just launch it again and keep trying until it works.",
+      "expected_output": "Inspects the typed failure, retained artifacts, active workloads, and checkpoint state before choosing a bounded recovery instead of blindly duplicating the run.",
+      "files": [],
+      "expectations": [
+        "Leads with the diagnosed blocker or recovery outcome",
+        "Preserves and inspects existing evidence before retrying",
+        "Does not duplicate an active or expensive workload",
+        "Provides the exact next safe command when recovery is possible"
+      ]
     }
   ]
 }

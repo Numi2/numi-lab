@@ -28,6 +28,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", required=True, type=Path)
     parser.add_argument("--cache-root", required=True, type=Path)
+    parser.add_argument("--quiet", action="store_true")
     arguments = parser.parse_args()
 
     manifest_path = arguments.source / ".codex-plugin" / "plugin.json"
@@ -90,7 +91,8 @@ def main() -> int:
         )
         return 7
 
-    print(f"Numi Lab is installed, enabled, and current ({expected_version}).")
+    if not arguments.quiet:
+        print(f"Numi Lab is installed, enabled, and current ({expected_version}).")
     return 0
 
 

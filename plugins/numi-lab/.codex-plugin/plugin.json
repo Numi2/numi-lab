@@ -1,6 +1,6 @@
 {
   "name": "numi-lab",
-  "version": "0.1.1+codex.20260826042428",
+  "version": "0.1.1+codex.20260826044529",
   "description": "Operate, profile, train, evaluate, and extend Apple-native robotics and coupled physics through Codex.",
   "author": {
     "name": "Numi Lab"
@@ -32,9 +32,9 @@
       "User extensions"
     ],
     "defaultPrompt": [
+      "Check my Numi Lab setup and show me what is ready to run.",
       "Train a G1 robot to dodge incoming objects.",
-      "Evaluate my strongest policy on held-out trials.",
-      "Add a new robot capability to this Numi Lab."
+      "Evaluate my strongest policy on held-out trials."
     ],
     "brandColor": "#7C5CFF",
     "composerIcon": "./assets/icon.png",
