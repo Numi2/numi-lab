@@ -14,7 +14,7 @@ using namespace metal;
 // ArticulatedDynamics.cpp: exact source SpatialTransform kinematics and
 // Sdot*qdot bias, dense M(q), recursive Newton-Euler bias, then a Cholesky
 // solve.  It is deliberately bounded to the existing full ABA bucket and is
-// selected only for fixed-root FunctionBased articulations.
+// selected for one bounded fixed- or floating-root FunctionBased articulation.
 
 namespace {
 
@@ -88,6 +88,50 @@ inline bool normalizedQuaternion(const float4 input, thread float4& output) {
     if (!(normSquared > kQuaternionMinimum) || !isfinite(normSquared)) return false;
     output = input * rsqrt(normSquared);
     return finite4(output);
+}
+
+inline bool quaternionFromRotationVector(
+    const float3 rotationVector,
+    thread float4& output
+) {
+    if (!finite3(rotationVector)) return false;
+    const float angleSquared = dot(rotationVector, rotationVector);
+    if (!isfinite(angleSquared) || angleSquared < 0.0f) return false;
+    if (angleSquared < 1.0e-12f) {
+        return normalizedQuaternion(
+            float4(0.5f * rotationVector, 1.0f), output
+        );
+    }
+    const float angle = sqrt(angleSquared);
+    return normalizedQuaternion(
+        float4(rotationVector * (sin(0.5f * angle) / angle),
+            cos(0.5f * angle)),
+        output
+    );
+}
+
+inline bool zero4(const float4 value) {
+    return all(value == float4(0.0f));
+}
+
+inline bool validFloatingRootDof(
+    device const MRDofPropertiesGPU& dof,
+    device const MRArticulationGPU& articulation,
+    const uint articulationIndex,
+    const uint localDof
+) {
+    const uint expectedQ = localDof < 3u
+        ? articulation.qOffset + localDof
+        : MR_INVALID_INDEX;
+    return dof.articulationIndex == articulationIndex &&
+        dof.jointIndex == MR_INVALID_INDEX &&
+        dof.qIndex == expectedQ &&
+        dof.vIndex == articulation.vOffset + localDof &&
+        dof.localDof == localDof &&
+        dof.flags == MR_DOF_FLAG_ROOT &&
+        dof.reserved0 == 0u && dof.reserved1 == 0u &&
+        finite4(dof.limits) && finite4(dof.drive) &&
+        zero4(dof.limits) && zero4(dof.drive);
 }
 
 inline float4 axisAngleQuaternion(const float3 axis, const float angle) {
@@ -274,6 +318,20 @@ inline Motion bodyMotionForDof(
 ) {
     Motion result{};
     const uint rootLocal = articulation.rootBody - articulation.firstBody;
+    if (articulation.rootType == MR_ROOT_FLOATING) {
+        if (dof < 3u) {
+            result.linear[dof] = 1.0f;
+            return result;
+        }
+        if (dof < 6u) {
+            result.angular[dof - 3u] = 1.0f;
+            result.linear = cross(
+                result.angular,
+                bodyPosition[localBody] - bodyPosition[rootLocal]
+            );
+            return result;
+        }
+    }
     uint cursor = localBody;
     for (uint depth = 0u; depth < articulation.bodyCount && cursor != rootLocal; ++depth) {
         const uint globalJoint = inboundJoint[cursor];
@@ -346,7 +404,9 @@ kernel void mr_function_based_dense_dynamics_step(
     status.bodyCount = articulation.bodyCount;
     status.nq = articulation.nq;
     status.nv = articulation.nv;
-    if (articulation.rootType != MR_ROOT_FIXED || articulation.bodyCount == 0u ||
+    if ((articulation.rootType != MR_ROOT_FIXED &&
+         articulation.rootType != MR_ROOT_FLOATING) ||
+        articulation.bodyCount == 0u ||
         articulation.bodyCount > kMaxBodies || articulation.nv == 0u ||
         articulation.nv > kMaxDofs || articulation.nq > kMaxQ ||
         articulation.jointCount + 1u != articulation.bodyCount ||
@@ -369,8 +429,21 @@ kernel void mr_function_based_dense_dynamics_step(
         scratch.parentLocal[body] = MR_INVALID_INDEX;
         scratch.known[body] = 0u;
     }
-    uint expectedQ = 0u;
-    uint expectedV = 0u;
+    const uint rootQ = articulation.rootType == MR_ROOT_FLOATING ? 7u : 0u;
+    const uint rootV = articulation.rootType == MR_ROOT_FLOATING ? 6u : 0u;
+    for (uint localDof = 0u; localDof < rootV; ++localDof) {
+        if (!validFloatingRootDof(
+                dofs[articulation.vOffset + localDof], articulation,
+                dispatch.articulationIndex, localDof
+            )) {
+            fail(status, MR_ABA_INVALID_MODEL,
+                articulation.vOffset + localDof);
+            statuses[environment] = status;
+            return;
+        }
+    }
+    uint expectedQ = rootQ;
+    uint expectedV = rootV;
     for (uint localJoint = 0u; localJoint < articulation.jointCount; ++localJoint) {
         const uint globalJoint = articulation.firstJoint + localJoint;
         device const MRJointDescriptorGPU& joint = joints[globalJoint];
@@ -459,13 +532,28 @@ kernel void mr_function_based_dense_dynamics_step(
             return;
         }
     }
-    scratch.bodyPosition[rootLocal] = float3(0.0f);
-    scratch.bodyRotation[rootLocal] = float4(0.0f, 0.0f, 0.0f, 1.0f);
-    scratch.angularVelocity[rootLocal] = float3(0.0f);
-    scratch.linearVelocity[rootLocal] = float3(0.0f);
+    float4 rootRotation = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    if (articulation.rootType == MR_ROOT_FLOATING &&
+        (!finite3(float3(q[0], q[1], q[2])) ||
+         !normalizedQuaternion(float4(q[3], q[4], q[5], q[6]),
+             rootRotation))) {
+        fail(status, MR_ABA_NONFINITE_INPUT, 0u);
+        statuses[environment] = status;
+        return;
+    }
+    scratch.bodyPosition[rootLocal] = articulation.rootType == MR_ROOT_FLOATING
+        ? float3(q[0], q[1], q[2])
+        : float3(0.0f);
+    scratch.bodyRotation[rootLocal] = rootRotation;
+    scratch.angularVelocity[rootLocal] = articulation.rootType == MR_ROOT_FLOATING
+        ? float3(v[3], v[4], v[5])
+        : float3(0.0f);
+    scratch.linearVelocity[rootLocal] = articulation.rootType == MR_ROOT_FLOATING
+        ? float3(v[0], v[1], v[2])
+        : float3(0.0f);
     scratch.angularAcceleration[rootLocal] = float3(0.0f);
     scratch.linearAcceleration[rootLocal] = float3(0.0f);
-    scratch.jointPosition[rootLocal] = float3(0.0f);
+    scratch.jointPosition[rootLocal] = scratch.bodyPosition[rootLocal];
     scratch.jointAxis[rootLocal] = float3(0.0f);
     for (uint order = 1u; order < articulation.bodyCount; ++order) {
         const uint child = scratch.traversal[order];
@@ -651,13 +739,58 @@ kernel void mr_function_based_dense_dynamics_step(
             return;
         }
         scratch.nextV[index] = v[index] + timestep * scratch.acceleration[index];
-        scratch.nextQ[index] = q[index] + timestep * scratch.nextV[index];
-        if (!isfinite(scratch.nextV[index]) || !isfinite(scratch.nextQ[index])) {
+        if (!isfinite(scratch.nextV[index])) {
             fail(status, MR_ABA_NONFINITE_RESULT, index);
             statuses[environment] = status;
             return;
         }
         maximumAcceleration = max(maximumAcceleration, abs(scratch.acceleration[index]));
+    }
+    if (articulation.rootType == MR_ROOT_FLOATING) {
+        scratch.nextQ[0] = q[0] + timestep * scratch.nextV[0];
+        scratch.nextQ[1] = q[1] + timestep * scratch.nextV[1];
+        scratch.nextQ[2] = q[2] + timestep * scratch.nextV[2];
+        float4 rootOrientation;
+        float4 rootIncrement;
+        if (!normalizedQuaternion(
+                float4(q[3], q[4], q[5], q[6]), rootOrientation
+            ) || !quaternionFromRotationVector(
+                timestep * float3(
+                    scratch.nextV[3], scratch.nextV[4], scratch.nextV[5]
+                ), rootIncrement
+            ) || !normalizedQuaternion(
+                quaternionMultiply(rootIncrement, rootOrientation),
+                rootOrientation
+            )) {
+            fail(status, MR_ABA_NONFINITE_RESULT, 3u);
+            statuses[environment] = status;
+            return;
+        }
+        scratch.nextQ[3] = rootOrientation.x;
+        scratch.nextQ[4] = rootOrientation.y;
+        scratch.nextQ[5] = rootOrientation.z;
+        scratch.nextQ[6] = rootOrientation.w;
+    }
+    for (uint localJoint = 0u; localJoint < articulation.jointCount;
+         ++localJoint) {
+        device const MRJointDescriptorGPU& joint =
+            joints[articulation.firstJoint + localJoint];
+        if (joint.nq == joint.nv) {
+            const uint localQ = joint.qOffset - articulation.qOffset;
+            const uint localV = joint.vOffset - articulation.vOffset;
+            for (uint localDof = 0u; localDof < joint.nv; ++localDof) {
+                scratch.nextQ[localQ + localDof] =
+                    q[localQ + localDof] + timestep *
+                        scratch.nextV[localV + localDof];
+            }
+        }
+    }
+    for (uint index = 0u; index < articulation.nq; ++index) {
+        if (!isfinite(scratch.nextQ[index])) {
+            fail(status, MR_ABA_NONFINITE_RESULT, index);
+            statuses[environment] = status;
+            return;
+        }
     }
     const uint accelerationBase = environment * dispatch.accelerationStride + articulation.vOffset;
     const uint nextVBase = environment * dispatch.nextVStride + articulation.vOffset;
@@ -665,6 +798,8 @@ kernel void mr_function_based_dense_dynamics_step(
     for (uint index = 0u; index < articulation.nv; ++index) {
         accelerationOutput[accelerationBase + index] = scratch.acceleration[index];
         nextVOutput[nextVBase + index] = scratch.nextV[index];
+    }
+    for (uint index = 0u; index < articulation.nq; ++index) {
         nextQOutput[nextQBase + index] = scratch.nextQ[index];
     }
     status.diagnostics = float4(isfinite(minimumPivot) ? minimumPivot : 0.0f, maximumPivot, maximumAcceleration, 0.0f);
@@ -856,7 +991,8 @@ kernel void mr_function_based_streamed_contact_response(
     status.bodyCount = articulation.bodyCount;
     status.nq = articulation.nq;
     status.nv = articulation.nv;
-    if (articulation.rootType != MR_ROOT_FIXED ||
+    if ((articulation.rootType != MR_ROOT_FIXED &&
+         articulation.rootType != MR_ROOT_FLOATING) ||
         articulation.bodyCount == 0u || articulation.bodyCount > kMaxBodies ||
         articulation.nv == 0u || articulation.nv > kMaxDofs ||
         articulation.nq > kMaxQ ||
@@ -887,8 +1023,23 @@ kernel void mr_function_based_streamed_contact_response(
         scratch.parentLocal[body] = MR_INVALID_INDEX;
         scratch.known[body] = 0u;
     }
-    uint expectedQ = 0u;
-    uint expectedV = 0u;
+    const uint rootQ = articulation.rootType == MR_ROOT_FLOATING ? 7u : 0u;
+    const uint rootV = articulation.rootType == MR_ROOT_FLOATING ? 6u : 0u;
+    for (uint localDof = 0u; localDof < rootV; ++localDof) {
+        if (!validFloatingRootDof(
+                dofs[articulation.vOffset + localDof], articulation,
+                dispatch.articulationIndex, localDof
+            )) {
+            failResponse(status, MR_INVERSE_MASS_INVALID_MODEL,
+                articulation.vOffset + localDof);
+            statuses[environment] = status;
+            publishFunctionBasedResponseFailure(contactStatuses, environment,
+                status);
+            return;
+        }
+    }
+    uint expectedQ = rootQ;
+    uint expectedV = rootV;
     for (uint localJoint = 0u; localJoint < articulation.jointCount; ++localJoint) {
         const uint globalJoint = articulation.firstJoint + localJoint;
         device const MRJointDescriptorGPU& joint = joints[globalJoint];
@@ -971,7 +1122,7 @@ kernel void mr_function_based_streamed_contact_response(
         return;
     }
     const uint qBase = environment * dispatch.qStride;
-    device const float* q = qInput + qBase;
+    device const float* q = qInput + qBase + articulation.qOffset;
     for (uint index = 0u; index < articulation.nq; ++index) {
         if (!isfinite(q[index])) {
             failResponse(status, MR_INVERSE_MASS_NONFINITE_INPUT, index);
@@ -980,9 +1131,22 @@ kernel void mr_function_based_streamed_contact_response(
             return;
         }
     }
-    scratch.bodyPosition[rootLocal] = float3(0.0f);
-    scratch.bodyRotation[rootLocal] = float4(0.0f, 0.0f, 0.0f, 1.0f);
-    scratch.jointPosition[rootLocal] = float3(0.0f);
+    float4 rootRotation = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    if (articulation.rootType == MR_ROOT_FLOATING &&
+        (!finite3(float3(q[0], q[1], q[2])) ||
+         !normalizedQuaternion(float4(q[3], q[4], q[5], q[6]),
+             rootRotation))) {
+        failResponse(status, MR_INVERSE_MASS_NONFINITE_INPUT, 0u);
+        statuses[environment] = status;
+        publishFunctionBasedResponseFailure(contactStatuses, environment,
+            status);
+        return;
+    }
+    scratch.bodyPosition[rootLocal] = articulation.rootType == MR_ROOT_FLOATING
+        ? float3(q[0], q[1], q[2])
+        : float3(0.0f);
+    scratch.bodyRotation[rootLocal] = rootRotation;
+    scratch.jointPosition[rootLocal] = scratch.bodyPosition[rootLocal];
     scratch.jointAxis[rootLocal] = float3(0.0f);
     for (uint order = 1u; order < articulation.bodyCount; ++order) {
         const uint child = scratch.traversal[order];

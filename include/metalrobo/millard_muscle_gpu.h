@@ -4,7 +4,7 @@
 // reference. The program consumes the private pose, point-world, and analytic
 // point-Jacobian streams emitted by the generic articulated operator in the
 // same Metal command buffer. MetalWorld admits this program only for its
-// bounded fixed-root FunctionBased dense-dynamics path.
+// bounded FunctionBased dense-dynamics path.
 
 #include "metalrobo/engine_types.h"
 

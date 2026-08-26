@@ -1347,13 +1347,12 @@ bool supportedTopology(
             return false;
         }
         if (joint.jointType == MR_JOINT_FUNCTION_BASED &&
-            (articulation.rootType != MR_ROOT_FIXED ||
-             joint.nq == 0u ||
+            (joint.nq == 0u ||
              joint.nq > MR_OPENSIM_SPATIAL_MAX_COORDINATES ||
              joint.nq != joint.nv)) {
             reason =
-                "FunctionBased MetalWorld dynamics require a fixed root "
-                "and matching one-to-one q/v source coordinates";
+                "FunctionBased MetalWorld dynamics require matching "
+                "one-to-one q/v source coordinates";
             return false;
         }
     }
@@ -3674,7 +3673,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::unsupportedTopology,
-            "source Millard actuation requires the bounded fixed-root FunctionBased direct-effort path and, when task-driven, one complete ordered source-muscle action surface without generic body/controller parameterization"
+            "source Millard actuation requires the bounded FunctionBased direct-effort path and, when task-driven, one complete ordered source-muscle action surface without generic body/controller parameterization"
         );
     }
     if (hasFunctionBasedDynamics &&
@@ -3686,7 +3685,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::unsupportedTopology,
-            "bounded FunctionBased dynamics admits one fixed-root direct-effort "
+            "bounded FunctionBased dynamics admits one direct-effort "
             "articulation; only the complete source-Millard task action surface "
             "may join it, while implicit drives, rods, and device-physics coupling "
             "remain separate admission gates"

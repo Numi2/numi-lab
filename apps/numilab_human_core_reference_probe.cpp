@@ -244,6 +244,237 @@ metalrobo::EngineModel loadReference(const char* path, PayloadHeader& header) {
     return model;
 }
 
+// The persisted Human payload retains `ground_pelvis` as its source-authored
+// six-coordinate FunctionBased joint below a synthetic fixed anchor.  The
+// mobile dynamics admission has a different state representation: the same
+// source-default pelvis pose becomes the physical floating root (3 COM
+// translation coordinates plus a quaternion, 6 velocities), while the
+// remaining source joints and FunctionBased programs remain immutable. This
+// reference reduction is deliberately limited to the exact source default;
+// it is a dynamics test model, not a claim that Euler-coordinate perturbations
+// of `ground_pelvis` are interchangeable with a free-root quaternion state.
+metalrobo::EngineModel mobileRootReferenceFromFixed(
+    const metalrobo::EngineModel& source
+) {
+    require(source.articulations.size() == 1u && source.bodies.size() >= 2u &&
+        !source.joints.empty() && source.dofs.size() >= 6u,
+        "mobile-root reduction requires one nonempty source articulation");
+    const MRArticulationGPU& fixed = source.articulations.front();
+    const MRJointDescriptorGPU& sourceRoot = source.joints.front();
+    require(fixed.rootType == MR_ROOT_FIXED && fixed.rootBody == 0u &&
+        fixed.firstBody == 0u && fixed.firstJoint == 0u &&
+        sourceRoot.parentBody == 0u && sourceRoot.childBody == 1u &&
+        sourceRoot.jointType == MR_JOINT_FUNCTION_BASED &&
+        sourceRoot.qOffset == 0u && sourceRoot.vOffset == 0u &&
+        sourceRoot.nq == 6u && sourceRoot.nv == 6u,
+        "mobile-root reduction requires the source ground_pelvis FunctionBased root");
+    bool hasSourceRootProgram = false;
+    for (const metalrobo::FunctionBasedJointProgram& program :
+         source.functionBasedJointPrograms) {
+        hasSourceRootProgram = hasSourceRootProgram || program.jointIndex == 0u;
+    }
+    require(hasSourceRootProgram,
+        "mobile-root reduction is missing the source ground_pelvis program");
+
+    std::vector<double> sourceQ(
+        source.defaultQ.begin(), source.defaultQ.end()
+    );
+    std::vector<double> sourceV(
+        source.defaultV.begin(), source.defaultV.end()
+    );
+    std::vector<metalrobo::ArticulatedBodyKinematics> sourcePoses(
+        fixed.bodyCount
+    );
+    const auto poseDiagnostics = metalrobo::computeArticulatedBodyKinematics(
+        source, 0u, sourceQ, sourceV, sourcePoses
+    );
+    require(poseDiagnostics.succeeded(),
+        "source default pose failed before mobile-root reduction");
+    const metalrobo::ArticulatedBodyKinematics& sourceRootPose =
+        sourcePoses.at(1u);
+
+    metalrobo::EngineModel model = source;
+    model.name = "numilab_human_rajagopal_mobile_root_reference";
+    model.bodies.erase(model.bodies.begin());
+    for (std::size_t bodyIndex = 0u; bodyIndex < model.bodies.size();
+         ++bodyIndex) {
+        MRBodyPropertiesGPU& body = model.bodies[bodyIndex];
+        if (bodyIndex == 0u) {
+            body.parentBody = MR_INVALID_INDEX;
+            body.inboundJoint = MR_INVALID_INDEX;
+        } else {
+            require(body.parentBody != MR_INVALID_INDEX &&
+                body.parentBody > 0u && body.inboundJoint > 0u,
+                "mobile-root reduction found malformed source body ownership");
+            --body.parentBody;
+            --body.inboundJoint;
+        }
+    }
+    model.joints.erase(model.joints.begin());
+    for (MRJointDescriptorGPU& joint : model.joints) {
+        require(joint.parentBody > 0u && joint.childBody > 0u &&
+            joint.qOffset >= sourceRoot.nq &&
+            joint.vOffset >= sourceRoot.nv,
+            "mobile-root reduction found malformed source joint ownership");
+        --joint.parentBody;
+        --joint.childBody;
+        ++joint.qOffset;
+    }
+    std::vector<metalrobo::FunctionBasedJointProgram> programs;
+    programs.reserve(model.functionBasedJointPrograms.size() - 1u);
+    for (metalrobo::FunctionBasedJointProgram program :
+         model.functionBasedJointPrograms) {
+        if (program.jointIndex == 0u) continue;
+        require(program.jointIndex > 0u,
+            "mobile-root reduction found an invalid FunctionBased program");
+        --program.jointIndex;
+        programs.push_back(std::move(program));
+    }
+    model.functionBasedJointPrograms = std::move(programs);
+
+    std::vector<MRDofPropertiesGPU> dofs;
+    dofs.reserve(source.dofs.size());
+    for (std::uint32_t localDof = 0u; localDof < 6u; ++localDof) {
+        MRDofPropertiesGPU rootDof{};
+        rootDof.articulationIndex = 0u;
+        rootDof.jointIndex = MR_INVALID_INDEX;
+        rootDof.qIndex = localDof < 3u ? localDof : MR_INVALID_INDEX;
+        rootDof.vIndex = localDof;
+        rootDof.localDof = localDof;
+        rootDof.flags = MR_DOF_FLAG_ROOT;
+        dofs.push_back(rootDof);
+    }
+    for (std::size_t sourceDof = sourceRoot.nv;
+         sourceDof < source.dofs.size(); ++sourceDof) {
+        MRDofPropertiesGPU dof = source.dofs[sourceDof];
+        require(dof.jointIndex > 0u && dof.qIndex != MR_INVALID_INDEX,
+            "mobile-root reduction found malformed source DoF ownership");
+        --dof.jointIndex;
+        ++dof.qIndex;
+        dofs.push_back(dof);
+    }
+    model.dofs = std::move(dofs);
+
+    model.defaultQ = {
+        static_cast<float>(sourceRootPose.centerOfMassPosition[0]),
+        static_cast<float>(sourceRootPose.centerOfMassPosition[1]),
+        static_cast<float>(sourceRootPose.centerOfMassPosition[2]),
+        static_cast<float>(sourceRootPose.orientation[0]),
+        static_cast<float>(sourceRootPose.orientation[1]),
+        static_cast<float>(sourceRootPose.orientation[2]),
+        static_cast<float>(sourceRootPose.orientation[3]),
+    };
+    model.defaultQ.insert(
+        model.defaultQ.end(),
+        source.defaultQ.begin() + sourceRoot.nq,
+        source.defaultQ.end()
+    );
+    model.defaultV.assign(6u, 0.0f);
+    model.defaultV.insert(
+        model.defaultV.end(),
+        source.defaultV.begin() + sourceRoot.nv,
+        source.defaultV.end()
+    );
+
+    if (!model.bodyNames.empty()) {
+        model.bodyNames.erase(model.bodyNames.begin());
+    }
+    if (!model.jointNames.empty()) {
+        model.jointNames.erase(model.jointNames.begin());
+    }
+    if (!model.dofNames.empty()) {
+        model.dofNames.erase(model.dofNames.begin(),
+            model.dofNames.begin() + sourceRoot.nv);
+        model.dofNames.insert(model.dofNames.begin(), {
+            "root_tx", "root_ty", "root_tz", "root_rx", "root_ry", "root_rz",
+        });
+    }
+
+    MRArticulationGPU& floating = model.articulations.front();
+    floating.rootBody = 0u;
+    floating.rootType = MR_ROOT_FLOATING;
+    floating.firstBody = 0u;
+    floating.bodyCount = static_cast<mr_u32>(model.bodies.size());
+    floating.firstJoint = 0u;
+    floating.jointCount = static_cast<mr_u32>(model.joints.size());
+    floating.qOffset = 0u;
+    floating.nq = static_cast<mr_u32>(model.defaultQ.size());
+    floating.vOffset = 0u;
+    floating.nv = static_cast<mr_u32>(model.defaultV.size());
+    model.world.bodyCount = static_cast<mr_u32>(model.bodies.size());
+    model.world.jointCount = static_cast<mr_u32>(model.joints.size());
+    model.world.nq = floating.nq;
+    model.world.nv = floating.nv;
+
+    std::string reason;
+    require(model.valid(&reason),
+        "mobile-root reference model invalid: " + reason);
+    return model;
+}
+
+struct MobileRootReferenceMetrics {
+    double maximumDefaultPosePositionError = 0.0;
+    double maximumDefaultPoseOrientationError = 0.0;
+};
+
+MobileRootReferenceMetrics verifyMobileRootDefaultPose(
+    const metalrobo::EngineModel& fixed,
+    const metalrobo::EngineModel& mobile
+) {
+    const MRArticulationGPU& fixedArticulation = fixed.articulations.front();
+    const MRArticulationGPU& mobileArticulation = mobile.articulations.front();
+    require(fixedArticulation.bodyCount == mobileArticulation.bodyCount + 1u &&
+        fixedArticulation.rootType == MR_ROOT_FIXED &&
+        mobileArticulation.rootType == MR_ROOT_FLOATING &&
+        mobileArticulation.nq == fixedArticulation.nq + 1u &&
+        mobileArticulation.nv == fixedArticulation.nv,
+        "mobile-root reduction changed the expected source topology");
+    std::vector<double> fixedQ(fixed.defaultQ.begin(), fixed.defaultQ.end());
+    std::vector<double> fixedV(fixed.defaultV.begin(), fixed.defaultV.end());
+    std::vector<double> mobileQ(mobile.defaultQ.begin(), mobile.defaultQ.end());
+    std::vector<double> mobileV(mobile.defaultV.begin(), mobile.defaultV.end());
+    std::vector<metalrobo::ArticulatedBodyKinematics> fixedBodies(
+        fixedArticulation.bodyCount
+    );
+    std::vector<metalrobo::ArticulatedBodyKinematics> mobileBodies(
+        mobileArticulation.bodyCount
+    );
+    require(
+        metalrobo::computeArticulatedBodyKinematics(
+            fixed, 0u, fixedQ, fixedV, fixedBodies
+        ).succeeded() &&
+        metalrobo::computeArticulatedBodyKinematics(
+            mobile, 0u, mobileQ, mobileV, mobileBodies
+        ).succeeded(),
+        "CPU default-pose continuity check failed for mobile-root reduction"
+    );
+    MobileRootReferenceMetrics metrics;
+    for (std::size_t body = 0u; body < mobileBodies.size(); ++body) {
+        const auto& fixedPose = fixedBodies[body + 1u];
+        const auto& mobilePose = mobileBodies[body];
+        for (std::size_t axis = 0u; axis < 3u; ++axis) {
+            metrics.maximumDefaultPosePositionError = std::max(
+                metrics.maximumDefaultPosePositionError,
+                std::abs(fixedPose.centerOfMassPosition[axis] -
+                    mobilePose.centerOfMassPosition[axis])
+            );
+        }
+        const double orientationDot =
+            fixedPose.orientation[0] * mobilePose.orientation[0] +
+            fixedPose.orientation[1] * mobilePose.orientation[1] +
+            fixedPose.orientation[2] * mobilePose.orientation[2] +
+            fixedPose.orientation[3] * mobilePose.orientation[3];
+        metrics.maximumDefaultPoseOrientationError = std::max(
+            metrics.maximumDefaultPoseOrientationError,
+            1.0 - std::abs(orientationDot)
+        );
+    }
+    require(metrics.maximumDefaultPosePositionError < 1.0e-10 &&
+        metrics.maximumDefaultPoseOrientationError < 1.0e-12,
+        "mobile-root reduction does not preserve the source default pose");
+    return metrics;
+}
+
 struct MillardPayload {
     MillardPayloadHeader header{};
     std::vector<MillardMuscleRecord> muscles;
@@ -1236,6 +1467,27 @@ MetalMillardProgramData materializeMetalMillardProgram(
     return data;
 }
 
+MetalMillardProgramData mobileRootMillardProgram(
+    const MetalMillardProgramData& fixedProgram
+) {
+    MetalMillardProgramData mobile = fixedProgram;
+    const auto remapBody = [](mr_u32& bodyIndex) {
+        require(bodyIndex != MR_INVALID_INDEX && bodyIndex > 0u,
+            "mobile-root Millard program references the removed synthetic anchor");
+        --bodyIndex;
+    };
+    for (MRArticulatedPointImpulseGPU& point : mobile.points) {
+        remapBody(point.bodyIndex);
+    }
+    for (MRMillardPathPointGPU& point : mobile.pathPoints) {
+        remapBody(point.bodyIndex);
+    }
+    for (MRMillardCylinderWrapGPU& wrap : mobile.wraps) {
+        remapBody(wrap.bodyIndex);
+    }
+    return mobile;
+}
+
 MetalMillardReferenceMetrics verifyMetalMillardReference(
     const metalrobo::EngineModel& model,
     const MillardPayload& payload,
@@ -1444,7 +1696,27 @@ MetalReferenceMetrics verifyMetalFunctionBasedOperator(
 ) {
     const MRArticulationGPU& articulation = model.articulations.at(0u);
     std::vector<float> q = model.defaultQ;
-    for (std::size_t index = 0u; index < q.size(); ++index) {
+    const std::size_t firstJointQ = articulation.rootType == MR_ROOT_FLOATING
+        ? 7u
+        : 0u;
+    if (articulation.rootType == MR_ROOT_FLOATING) {
+        q[0] += 0.05f;
+        q[1] -= 0.03f;
+        q[2] += 0.02f;
+        q[3] += 0.03f;
+        q[4] -= 0.02f;
+        q[5] += 0.01f;
+        const float rootNorm = std::sqrt(
+            q[3] * q[3] + q[4] * q[4] + q[5] * q[5] + q[6] * q[6]
+        );
+        require(rootNorm > 1.0e-6f,
+            "mobile-root operator witness has a zero quaternion");
+        q[3] /= rootNorm;
+        q[4] /= rootNorm;
+        q[5] /= rootNorm;
+        q[6] /= rootNorm;
+    }
+    for (std::size_t index = firstJointQ; index < q.size(); ++index) {
         q[index] += 0.05f * std::sin(
             0.43f * static_cast<float>(index + 1u)
         );
@@ -1721,10 +1993,33 @@ MetalWorldFunctionBasedMetrics verifyMetalWorldFunctionBasedDynamics(
     constexpr float timestep = 1.0f / 240.0f;
     std::vector<float> initialQ = model.defaultQ;
     std::vector<float> initialV = model.defaultV;
-    for (std::size_t index = 0u; index < initialQ.size(); ++index) {
+    const std::size_t firstJointQ = articulation.rootType == MR_ROOT_FLOATING
+        ? 7u
+        : 0u;
+    if (articulation.rootType == MR_ROOT_FLOATING) {
+        initialQ[0] += 0.025f;
+        initialQ[1] -= 0.015f;
+        initialQ[2] += 0.01f;
+        initialQ[3] += 0.02f;
+        initialQ[4] -= 0.01f;
+        initialQ[5] += 0.005f;
+        const float rootNorm = std::sqrt(
+            initialQ[3] * initialQ[3] + initialQ[4] * initialQ[4] +
+            initialQ[5] * initialQ[5] + initialQ[6] * initialQ[6]
+        );
+        require(rootNorm > 1.0e-6f,
+            "mobile-root dynamics witness has a zero quaternion");
+        initialQ[3] /= rootNorm;
+        initialQ[4] /= rootNorm;
+        initialQ[5] /= rootNorm;
+        initialQ[6] /= rootNorm;
+    }
+    for (std::size_t index = firstJointQ; index < initialQ.size(); ++index) {
         initialQ[index] += 0.025f * std::sin(
             0.37f * static_cast<float>(index + 1u)
         );
+    }
+    for (std::size_t index = 0u; index < initialV.size(); ++index) {
         initialV[index] = 0.06f * std::cos(
             0.29f * static_cast<float>(index + 1u)
         );
@@ -1835,6 +2130,8 @@ MetalWorldFunctionBasedMetrics verifyMetalWorldFunctionBasedDynamics(
             metrics.maximumConfigurationError,
             std::abs(static_cast<double>(result.finalQ[index]) - q[index])
         );
+    }
+    for (std::size_t index = 0u; index < v.size(); ++index) {
         metrics.maximumVelocityError = std::max(
             metrics.maximumVelocityError,
             std::abs(static_cast<double>(result.finalV[index]) - v[index])
@@ -2053,6 +2350,10 @@ int main(const int argc, char** argv) {
         }
         PayloadHeader header{};
         const metalrobo::EngineModel model = loadReference(argv[1], header);
+        const metalrobo::EngineModel mobileRootModel =
+            mobileRootReferenceFromFixed(model);
+        const MobileRootReferenceMetrics mobileRootReferenceMetrics =
+            verifyMobileRootDefaultPose(model, mobileRootModel);
         const MillardPayload millardPayload = millardPath != nullptr
             ? loadMillardReference(millardPath, header, model)
             : MillardPayload{};
@@ -2165,6 +2466,14 @@ int main(const int argc, char** argv) {
             millardPath != nullptr
             ? millardProgramData.program()
             : metalrobo::MetalWorldMillardProgram{};
+        const MetalMillardProgramData mobileRootMillardProgramData =
+            millardPath != nullptr
+            ? mobileRootMillardProgram(millardProgramData)
+            : MetalMillardProgramData{};
+        const metalrobo::MetalWorldMillardProgram mobileRootMillardProgram =
+            millardPath != nullptr
+            ? mobileRootMillardProgramData.program()
+            : metalrobo::MetalWorldMillardProgram{};
         // The contact probe encodes two control periods. Drive both with a
         // normalized source-muscle excitation and let Metal update its own
         // private activation state before force projection.
@@ -2178,6 +2487,42 @@ int main(const int argc, char** argv) {
         const MetalWorldFunctionBasedMetrics metalWorldMetrics = runMetal
             ? verifyMetalWorldFunctionBasedDynamics(model)
             : MetalWorldFunctionBasedMetrics{};
+        const MetalReferenceMetrics mobileRootMetalMetrics = runMetal
+            ? verifyMetalFunctionBasedOperator(mobileRootModel)
+            : MetalReferenceMetrics{};
+        const MetalWorldFunctionBasedMetrics mobileRootMetalWorldMetrics =
+            runMetal
+            ? verifyMetalWorldFunctionBasedDynamics(mobileRootModel)
+            : MetalWorldFunctionBasedMetrics{};
+        const MetalWorldFunctionBasedContactMetrics
+            mobileRootMetalWorldContactMetrics = runMetal
+                ? verifyMetalWorldFunctionBasedContact(mobileRootModel, nullptr)
+                : MetalWorldFunctionBasedContactMetrics{};
+        const MetalWorldFunctionBasedContactMetrics
+            mobileRootMillardContactMetrics = runMetal && millardPath != nullptr
+                ? verifyMetalWorldFunctionBasedContact(
+                    mobileRootModel, &mobileRootMillardProgram
+                )
+                : MetalWorldFunctionBasedContactMetrics{};
+        const MetalWorldFunctionBasedContactMetrics
+            mobileRootFullyExcitedMillardContactMetrics = runMetal &&
+                millardPath != nullptr
+                ? verifyMetalWorldFunctionBasedContact(
+                    mobileRootModel,
+                    &mobileRootMillardProgram,
+                    fullyExcitedMillardControls
+                )
+                : MetalWorldFunctionBasedContactMetrics{};
+        const MetalWorldFunctionBasedContactMetrics
+            mobileRootTaskMillardContactMetrics = runMetal &&
+                millardPath != nullptr
+                ? verifyMetalWorldFunctionBasedContact(
+                    mobileRootModel,
+                    &mobileRootMillardProgram,
+                    {},
+                    true
+                )
+                : MetalWorldFunctionBasedContactMetrics{};
         const MetalWorldFunctionBasedContactMetrics
             metalWorldContactMetrics = runMetal
                 ? verifyMetalWorldFunctionBasedContact(
@@ -2216,6 +2561,19 @@ int main(const int argc, char** argv) {
                         1.05,
                 "native task source-Millard contact probe did not exceed default activation force"
             );
+            require(
+                mobileRootFullyExcitedMillardContactMetrics
+                    .millardGeneralizedForceL1 >
+                    mobileRootMillardContactMetrics.millardGeneralizedForceL1 *
+                        1.05,
+                "mobile-root fully excited source Millard contact probe did not exceed default activation force"
+            );
+            require(
+                mobileRootTaskMillardContactMetrics.millardGeneralizedForceL1 >
+                    mobileRootMillardContactMetrics.millardGeneralizedForceL1 *
+                        1.05,
+                "mobile-root native task source-Millard contact probe did not exceed default activation force"
+            );
         }
         const MetalMillardReferenceMetrics metalMillardMetrics =
             runMetal && millardPath != nullptr
@@ -2237,6 +2595,16 @@ int main(const int argc, char** argv) {
                   << " nq=" << header.nq
                   << " nv=" << header.nv
                   << " function_based_programs=" << header.functionProgramCount
+                  << " mobile_root_nq=" << mobileRootModel.world.nq
+                  << " mobile_root_nv=" << mobileRootModel.world.nv
+                  << " mobile_root_function_based_programs=" <<
+                         mobileRootModel.functionBasedJointPrograms.size()
+                  << " mobile_root_default_pose_position_error=" <<
+                         mobileRootReferenceMetrics.
+                             maximumDefaultPosePositionError
+                  << " mobile_root_default_pose_orientation_error=" <<
+                         mobileRootReferenceMetrics.
+                             maximumDefaultPoseOrientationError
                   << " mass_pivot=" << massDiagnostics.minimumCholeskyPivot
                   << " mass_symmetry_error=" << massSymmetryError
                   << " forward_inverse_error=" << forwardInverseError
@@ -2250,6 +2618,21 @@ int main(const int argc, char** argv) {
                           : "")
                   << (runMetal
                           ? " metal_function_based_streamed_contact=ok"
+                          : "")
+                  << (runMetal
+                          ? " metal_function_based_mobile_root_operator=ok"
+                          : "")
+                  << (runMetal
+                          ? " metal_function_based_mobile_root_dynamics=ok"
+                          : "")
+                  << (runMetal
+                          ? " metal_function_based_mobile_root_streamed_contact=ok"
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_function_based_mobile_root_millard_streamed_contact=ok"
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_function_based_mobile_root_millard_native_task_bridge=ok"
                           : "")
                   << (runMetal && millardPath != nullptr
                           ? " metal_function_based_millard_streamed_contact=ok"
@@ -2296,6 +2679,100 @@ int main(const int argc, char** argv) {
                                 std::to_string(
                                     metalWorldContactMetrics.
                                         maximumConstraints
+                                )
+                          : "")
+                  << (runMetal
+                          ? " metal_mobile_root_world_device=" +
+                                mobileRootMetalMetrics.deviceName
+                          : "")
+                  << (runMetal
+                          ? " metal_mobile_root_world_successful_steps=" +
+                                std::to_string(
+                                    mobileRootMetalWorldMetrics.
+                                        successfulStepCount
+                                )
+                          : "")
+                  << (runMetal
+                          ? " metal_mobile_root_contact_successful_steps=" +
+                                std::to_string(
+                                    mobileRootMetalWorldContactMetrics.
+                                        successfulStepCount
+                                )
+                          : "")
+                  << (runMetal
+                          ? " metal_mobile_root_contact_active_contacts=" +
+                                std::to_string(
+                                    mobileRootMetalWorldContactMetrics.
+                                        maximumActiveContacts
+                                )
+                          : "")
+                  << (runMetal
+                          ? " metal_mobile_root_contact_constraints=" +
+                                std::to_string(
+                                    mobileRootMetalWorldContactMetrics.
+                                        maximumConstraints
+                                )
+                          : "")
+                  << (runMetal
+                          ? " metal_mobile_root_body_position_error=" +
+                                std::to_string(
+                                    mobileRootMetalMetrics.bodyPositionError
+                                )
+                          : "")
+                  << (runMetal
+                          ? " metal_mobile_root_body_orientation_error=" +
+                                std::to_string(
+                                    mobileRootMetalMetrics.
+                                        bodyOrientationError
+                                )
+                          : "")
+                  << (runMetal
+                          ? " metal_mobile_root_acceleration_error=" +
+                                std::to_string(
+                                    mobileRootMetalWorldMetrics.
+                                        maximumAccelerationError
+                                )
+                          : "")
+                  << (runMetal
+                          ? " metal_mobile_root_velocity_error=" +
+                                std::to_string(
+                                    mobileRootMetalWorldMetrics.
+                                        maximumVelocityError
+                                )
+                          : "")
+                  << (runMetal
+                          ? " metal_mobile_root_configuration_error=" +
+                                std::to_string(
+                                    mobileRootMetalWorldMetrics.
+                                        maximumConfigurationError
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_mobile_root_contact_millard_force_l1=" +
+                                std::to_string(
+                                    mobileRootMillardContactMetrics.
+                                        millardGeneralizedForceL1
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_mobile_root_contact_fully_excited_millard_force_l1=" +
+                                std::to_string(
+                                    mobileRootFullyExcitedMillardContactMetrics.
+                                        millardGeneralizedForceL1
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_mobile_root_contact_millard_activation_error=" +
+                                std::to_string(
+                                    mobileRootFullyExcitedMillardContactMetrics.
+                                        maximumMillardActivationError
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_mobile_root_task_millard_force_l1=" +
+                                std::to_string(
+                                    mobileRootTaskMillardContactMetrics.
+                                        millardGeneralizedForceL1
                                 )
                           : "")
                   << (runMetal && millardPath != nullptr
