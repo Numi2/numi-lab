@@ -651,7 +651,7 @@ kernel void mr_millard_reference(
             const MRMillardCylinderWrapGPU wrap = wraps[wrapOffset + wrapLocal];
             if (wrap.bodyIndex < dispatch.articulationFirstBody ||
                 wrap.bodyIndex >= dispatch.articulationFirstBody + dispatch.bodyPoseStride ||
-                wrap.reserved0 != 0u || !validPathWrapRange(wrap, pathCount) ||
+                !validPathWrapRange(wrap, pathCount) ||
                 wrap.center.w != 0.0f || wrap.length.y != 0.0f ||
                 wrap.length.z != 0.0f || wrap.length.w != 0.0f) {
                 validPath = false;

@@ -1506,7 +1506,7 @@ bool validMillardProgram(
         }
     }
     for (const MRMillardCylinderWrapGPU& wrap : program.cylinderWraps) {
-        if (!ownsBody(wrap.bodyIndex) || wrap.reserved0 != 0u ||
+        if (!ownsBody(wrap.bodyIndex) ||
             !finite(wrap.center) || !finite(wrap.rotationAndRadius) ||
             !finite(wrap.length) || wrap.center.w != 0.0f ||
             wrap.length.y != 0.0f || wrap.length.z != 0.0f ||

@@ -840,7 +840,6 @@ MetalMillardProgramData materializeMetalMillardProgram(
             .startPoint = source.startPoint,
             .endPoint = source.endPoint,
             .method = source.method,
-            .reserved0 = 0u,
             .center = {source.centerX, source.centerY, source.centerZ, 0.0f},
             .rotationAndRadius = {
                 source.rotationX,
@@ -961,7 +960,6 @@ MetalMillardReferenceMetrics verifyMetalMillardReference(
             .startPoint = source.startPoint,
             .endPoint = source.endPoint,
             .method = source.method,
-            .reserved0 = 0u,
             .center = {source.centerX, source.centerY, source.centerZ, 0.0f},
             .rotationAndRadius = {
                 source.rotationX,
