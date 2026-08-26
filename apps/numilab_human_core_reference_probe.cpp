@@ -254,7 +254,7 @@ MetalReferenceMetrics verifyMetalFunctionBasedOperator(
         .points = gpuPoints,
     };
     metalrobo::MetalArticulatedOperatorConfig config{
-        .writeDiagnosticMassMatrix = true,
+        .pointJacobiansOnly = true,
     };
     metalrobo::MetalArticulatedOperatorResult gpuResult;
     const auto gpuDiagnostics = metalrobo::runMetalArticulatedOperator(
@@ -278,7 +278,7 @@ MetalReferenceMetrics verifyMetalFunctionBasedOperator(
             gpuDiagnostics.published &&
             gpuDiagnostics.successfulEnvironmentCount == 1u &&
             gpuDiagnostics.failedEnvironmentCount == 0u,
-        std::string("Metal FunctionBased operator failed: ") +
+        std::string("Metal FunctionBased kinematics/Jacobian operator failed: ") +
             metalrobo::metalArticulatedOperatorHostStatusName(
                 gpuDiagnostics.status
             ) + " " + gpuDiagnostics.message +
@@ -289,9 +289,8 @@ MetalReferenceMetrics verifyMetalFunctionBasedOperator(
     require(
         gpuResult.bodyPoses.size() == cpuBodies.size() &&
             gpuResult.pointWorld.size() == cpuPointKinematics.size() &&
-            gpuResult.pointJacobians.size() == cpuJacobians.size() &&
-            gpuResult.diagnosticMassMatrix.size() == cpuMass.size(),
-        "Metal FunctionBased operator published an unexpected layout"
+            gpuResult.pointJacobians.size() == cpuJacobians.size(),
+        "Metal FunctionBased kinematics/Jacobian operator published an unexpected layout"
     );
 
     MetalReferenceMetrics metrics;
@@ -362,9 +361,54 @@ MetalReferenceMetrics verifyMetalFunctionBasedOperator(
             )
         );
     }
+    require(
+        metrics.bodyPositionError < 2.0e-4 &&
+            metrics.bodyOrientationError < 2.0e-4 &&
+            metrics.pointPositionError < 2.0e-4 &&
+            metrics.pointJacobianError < 5.0e-4,
+        "Metal FunctionBased kinematics/Jacobian parity exceeded FP32 tolerance"
+    );
+
+    metalrobo::MetalArticulatedOperatorConfig massConfig{
+        .writeDiagnosticMassMatrix = true,
+    };
+    metalrobo::MetalArticulatedOperatorResult massResult;
+    const auto massDiagnostics = metalrobo::runMetalArticulatedOperator(
+        model, input, massResult, massConfig
+    );
+    std::string massFailureDetail;
+    if (!massResult.statuses.empty()) {
+        const MRArticulatedOperatorStatusGPU& status =
+            massResult.statuses.front();
+        massFailureDetail =
+            " gpu_status=" + std::to_string(status.code) +
+            " gpu_failing_index=" + std::to_string(status.failingIndex) +
+            " gpu_diagnostics=" +
+            std::to_string(status.diagnostics.x) + "," +
+            std::to_string(status.diagnostics.y) + "," +
+            std::to_string(status.diagnostics.z) + "," +
+            std::to_string(status.diagnostics.w);
+    }
+    require(
+        massDiagnostics.succeeded() && massDiagnostics.dispatched &&
+            massDiagnostics.published &&
+            massDiagnostics.successfulEnvironmentCount == 1u &&
+            massDiagnostics.failedEnvironmentCount == 0u,
+        std::string("Metal FunctionBased mass operator failed: ") +
+            metalrobo::metalArticulatedOperatorHostStatusName(
+                massDiagnostics.status
+            ) + " " + massDiagnostics.message +
+            " first_gpu_status=" +
+            std::to_string(massDiagnostics.firstGPUStatusCode) +
+            massFailureDetail
+    );
+    require(
+        massResult.diagnosticMassMatrix.size() == cpuMass.size(),
+        "Metal FunctionBased mass operator published an unexpected layout"
+    );
     for (std::size_t index = 0u; index < cpuMass.size(); ++index) {
         const double error = std::abs(
-            static_cast<double>(gpuResult.diagnosticMassMatrix[index]) -
+            static_cast<double>(massResult.diagnosticMassMatrix[index]) -
             cpuMass[index]
         );
         metrics.massError = std::max(metrics.massError, error);
@@ -374,13 +418,9 @@ MetalReferenceMetrics verifyMetalFunctionBasedOperator(
         );
     }
     require(
-        metrics.bodyPositionError < 2.0e-4 &&
-            metrics.bodyOrientationError < 2.0e-4 &&
-            metrics.pointPositionError < 2.0e-4 &&
-            metrics.pointJacobianError < 5.0e-4 &&
-            metrics.massError < 5.0e-3 &&
+        metrics.massError < 5.0e-3 &&
             metrics.massScaledError < 2.0e-4,
-        "Metal FunctionBased operator parity exceeded FP32 tolerance"
+        "Metal FunctionBased mass parity exceeded FP32 tolerance"
     );
     return metrics;
 }
