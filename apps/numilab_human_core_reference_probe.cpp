@@ -182,10 +182,10 @@ MetalReferenceMetrics verifyMetalFunctionBasedOperator(
     }
 
     std::vector<MRArticulatedPointImpulseGPU> gpuPoints(
-        articulation.bodyCount
+        static_cast<std::size_t>(articulation.bodyCount) * 3u
     );
     std::vector<metalrobo::ArticulatedPointQuery> cpuPoints(
-        articulation.bodyCount
+        static_cast<std::size_t>(articulation.bodyCount) * 3u
     );
     for (std::size_t localBody = 0u;
          localBody < articulation.bodyCount;
@@ -198,19 +198,38 @@ MetalReferenceMetrics verifyMetalFunctionBasedOperator(
             0.003 * std::cos(0.47 * static_cast<double>(phase)),
             0.002 * std::sin(0.59 * static_cast<double>(phase)),
         };
-        MRArticulatedPointImpulseGPU& gpuPoint = gpuPoints[localBody];
-        gpuPoint.bodyIndex = globalBody;
-        gpuPoint.flags = 0u;
-        gpuPoint.reserved0 = 0u;
-        gpuPoint.reserved1 = 0u;
-        gpuPoint.localPoint = {
-            static_cast<float>(localPoint[0]),
-            static_cast<float>(localPoint[1]),
-            static_cast<float>(localPoint[2]),
-            0.0f,
+        const std::array<std::array<double, 3u>, 3u> pointsForBody{
+            localPoint,
+            {
+                localPoint[0] + 0.071,
+                localPoint[1] - 0.019,
+                localPoint[2] + 0.013,
+            },
+            {
+                localPoint[0] - 0.023,
+                localPoint[1] + 0.067,
+                localPoint[2] - 0.017,
+            },
         };
-        gpuPoint.worldImpulse = {0.0f, 0.0f, 0.0f, 0.0f};
-        cpuPoints[localBody] = {globalBody, localPoint};
+        for (std::size_t pointInBody = 0u;
+             pointInBody < pointsForBody.size();
+             ++pointInBody) {
+            const std::size_t pointIndex = localBody * 3u + pointInBody;
+            const std::array<double, 3u>& point = pointsForBody[pointInBody];
+            MRArticulatedPointImpulseGPU& gpuPoint = gpuPoints[pointIndex];
+            gpuPoint.bodyIndex = globalBody;
+            gpuPoint.flags = 0u;
+            gpuPoint.reserved0 = 0u;
+            gpuPoint.reserved1 = 0u;
+            gpuPoint.localPoint = {
+                static_cast<float>(point[0]),
+                static_cast<float>(point[1]),
+                static_cast<float>(point[2]),
+                0.0f,
+            };
+            gpuPoint.worldImpulse = {0.0f, 0.0f, 0.0f, 0.0f};
+            cpuPoints[pointIndex] = {globalBody, point};
+        }
     }
 
     const std::vector<double> qDouble(q.begin(), q.end());
