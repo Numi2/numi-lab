@@ -25,13 +25,13 @@ seed_base=${NUMI_CROW_SEED_BASE:-2650445000}
 maximum_retries=${NUMI_CROW_MAXIMUM_RETRIES:-3}
 
 case "$course" in
-  state) journey_variant=v8-neural; visual_arguments=() ;;
+  state)
+    journey_variant=v8-neural
+    visual_config=
+    ;;
   sensor-fast)
     journey_variant=v9-visual-neural
-    visual_arguments=(
-      --visual-observation-config
-      "$root/assets/crow_journey_window/crow-journey.sensor-fast.visual-observation.json"
-    )
+    visual_config="$root/assets/crow_journey_window/crow-journey.sensor-fast.visual-observation.json"
     ;;
   *) echo "NUMI_CROW_COURSE must be state or sensor-fast" >&2; exit 2 ;;
 esac
@@ -77,8 +77,11 @@ while [ "$band" -le "$maximum_band" ]; do
       --envs "$environments" --steps "$steps" --updates "$updates"
       --chunk "$chunk" --seed "$seed" --learner-seed "$seed"
       --checkpoint-directory "$run/checkpoints" --checkpoint-interval 20
-      "${visual_arguments[@]}" --verbose
+      --verbose
     )
+    if [ -n "$visual_config" ]; then
+      common+=(--visual-observation-config "$visual_config")
+    fi
     if [ -n "$parent_policy" ] && [ -s "$parent_policy" ]; then
       common+=(--policy-pack "$parent_policy")
     fi
