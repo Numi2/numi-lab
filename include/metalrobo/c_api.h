@@ -90,6 +90,9 @@ typedef struct MRTaskRolloutConfigC {
     // position/body-wrench actions and publishes those normalized actions for
     // distillation; it is not a force or trajectory injection.
     uint32_t birdflow_journey_teacher;
+    // Fraction of normalized student action executed when the journey
+    // teacher is enabled. Blended transitions remain distillation-only.
+    float birdflow_journey_student_authority;
 } MRTaskRolloutConfigC;
 
 typedef struct MRTaskVisualPackC {

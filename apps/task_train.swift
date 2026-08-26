@@ -59,6 +59,7 @@ private struct Options {
     var birdFlowAmericanCrow = false
     var birdFlowAmericanCrowJourney = false
     var birdFlowJourneyTeacher = false
+    var birdFlowJourneyStudentAuthority: Float = 0.0
     var inspectionScene: String?
     var inspectionWidth = 640
     var inspectionHeight = 360
@@ -324,6 +325,17 @@ private struct Options {
                 birdFlowAmericanCrowJourney = true
             case "--birdflow-journey-teacher":
                 birdFlowJourneyTeacher = true
+            case "--birdflow-journey-student-authority":
+                guard let authority = Float(try value()),
+                      authority.isFinite,
+                      authority >= 0.0, authority <= 1.0
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-journey-student-authority requires a finite value in [0, 1]."
+                    )
+                }
+                birdFlowJourneyStudentAuthority = authority
+                index += 1
             case "--inspect-scene":
                 inspectionScene = try value()
                 index += 1
@@ -1212,6 +1224,13 @@ private func makeContext(
             "--birdflow-journey-teacher requires --birdflow-american-crow-journey."
         )
     }
+    if options.birdFlowJourneyStudentAuthority != 0.0 &&
+        !options.birdFlowJourneyTeacher
+    {
+        throw MetalRoboTaskRolloutError.invalidShape(
+            "--birdflow-journey-student-authority requires --birdflow-journey-teacher."
+        )
+    }
     let visualSensor = try makeVisualObservation(options: options)
     let inspectionVisual = try makeInspectionVisual(options: options)
     let dynamicSpheres: [MetalRoboDynamicSphere] =
@@ -1243,6 +1262,8 @@ private func makeContext(
         interactionResetMaximumPhase:
             options.interactionResetMaximumPhase,
         birdFlowJourneyTeacher: options.birdFlowJourneyTeacher,
+        birdFlowJourneyStudentAuthority:
+            options.birdFlowJourneyStudentAuthority,
         unitreeG1Task: options.unitreeG1Task
     )
     if [options.birdFlowDove, options.birdFlowAmericanCrow,
@@ -1274,7 +1295,7 @@ private func makeContext(
                 ),
                 metallibPath: options.metallib
             ),
-            "birdflow_american_crow_journey_showcase_v1"
+            "birdflow_american_crow_journey_v2"
         )
     }
     if options.birdFlowAmericanCrow {
@@ -1832,6 +1853,8 @@ private enum TaskTrainMain {
                     : "none",
                 "birdflow_journey_teacher":
                     options.birdFlowJourneyTeacher,
+                "birdflow_journey_student_authority":
+                    options.birdFlowJourneyStudentAuthority,
                 "device": context.deviceName,
                 "visual_observation":
                     context.visualSceneFingerprint != 0,

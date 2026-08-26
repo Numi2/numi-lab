@@ -576,6 +576,13 @@ void validateTaskRolloutConfiguration(
             "materialized articulated-contact response flag is invalid"
         );
     }
+    if (!std::isfinite(config.birdflow_journey_student_authority) ||
+        config.birdflow_journey_student_authority < 0.0f ||
+        config.birdflow_journey_student_authority > 1.0f) {
+        throw std::invalid_argument(
+            "task-rollout journey student authority must be in [0, 1]"
+        );
+    }
     if (config.override_difficulty_band_range > 1u ||
         (config.override_difficulty_band_range != 0u &&
          config.minimum_difficulty_band >
@@ -3057,12 +3064,12 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
         }
         metalrobo::RunManifest manifest;
         manifest.id = journey
-            ? "birdflow_american_crow_journey_showcase_run"
+            ? "birdflow_american_crow_journey_v2_run"
             : "birdflow_american_crow_estimated_hybrid_run";
         manifest.robot = std::move(*robot);
         manifest.scene = metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
         manifest.sensors.id = journey
-            ? "birdflow_american_crow_journey_state_sensors"
+            ? "birdflow_american_crow_journey_v2_state_sensors"
             : "birdflow_american_crow_estimated_hybrid_state_sensors";
         manifest.task = journey
             ? metalrobo::makeBirdFlowAmericanCrowJourneyTaskPack(
@@ -3085,6 +3092,10 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
         );
         handle->stepConfig.birdFlowJourneyTeacher =
             journey && config->birdflow_journey_teacher != 0u;
+        handle->stepConfig.birdFlowJourneyStudentAuthority =
+            journey
+            ? config->birdflow_journey_student_authority
+            : 0.0f;
         if (handle->stepConfig.birdFlowJourneyTeacher) {
             // createTaskRolloutHandle establishes the resident allocation
             // before source-specific invocation flags are known. Recreate the

@@ -838,6 +838,40 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertEqual(arguments[minimum_index + 1], "4")
         self.assertEqual(arguments[maximum_index + 1], "4")
 
+    def test_crow_takeoff_cruise_requires_absolute_physical_gate(self) -> None:
+        incumbent = {
+            "task": "birdflow_american_crow_journey_v2",
+            "maximum_sampled_difficulty_band": 4,
+            "termination_count_by_environment": [0] * 8,
+            "failed_environment_steps": 0,
+            "maximum_root_height": 0.30,
+            "maximum_tilt": 0.10,
+            "mean_tracking_score": 0.60,
+            "mean_tilt": 0.10,
+            "outcomes": {
+                "figure_eight_tracking": {"mean": 0.0, "direction": 1},
+                "liftoff": {"mean": 0.1, "direction": 1},
+                "walking_contact": {"mean": 0.0, "direction": 1},
+                "ground_support": {"mean": 0.1, "direction": 1},
+                "tracking": {"mean": 0.6, "direction": 1},
+            },
+        }
+        candidate = {
+            **incumbent,
+            "maximum_root_height": 0.50,
+            "mean_tracking_score": 0.64,
+            "outcomes": {
+                **incumbent["outcomes"],
+                "liftoff": {"mean": 0.2, "direction": 1},
+            },
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertIn(
+            "takeoff-cruise candidate did not reach the 0.55 m liftoff gate",
+            decision["regressions"],
+        )
+
     def test_crow_previous_band_regression_blocks_flight_progress(self) -> None:
         current_incumbent = {
             "task": "birdflow_american_crow_standing_to_flight",

@@ -42,6 +42,7 @@ enum class TaskObservationSource : std::uint32_t {
     crowGroundCarrierPhase =
         MR_TASK_OBSERVE_CROW_GROUND_CARRIER_PHASE,
     avianJourneyPhase = MR_TASK_OBSERVE_AVIAN_JOURNEY_PHASE,
+    avianJourneyStage = MR_TASK_OBSERVE_AVIAN_JOURNEY_STAGE,
     recoveryEvent = MR_TASK_OBSERVE_RECOVERY_EVENT,
     objectTrack = MR_TASK_OBSERVE_OBJECT_TRACK,
     maskedDepth = MR_TASK_OBSERVE_MASKED_DEPTH,

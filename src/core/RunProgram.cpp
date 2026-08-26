@@ -2219,7 +2219,7 @@ TaskPack makeBirdFlowAmericanCrowJourneyTaskPack(
     TaskPack task = makeBirdFlowAmericanCrowFlightTaskPack(
         observations, reset
     );
-    task.id = "birdflow_american_crow_journey_showcase_v1";
+    task.id = "birdflow_american_crow_journey_v2";
 
     // The showcase policy is one fresh universal actor, not a residual around
     // the research task's ground carrier. Replace that carrier-only clock with
@@ -2238,12 +2238,16 @@ TaskPack makeBirdFlowAmericanCrowJourneyTaskPack(
     observations.actorFrame.push_back({
         .source = TaskObservationSource::avianJourneyPhase,
     });
+    observations.actorFrame.push_back({
+        .source = TaskObservationSource::avianJourneyStage,
+    });
     observations.critic = observations.actorFrame;
 
-    // Bands 0...3 retain the independently sampleable stand, walk, takeoff,
-    // and flight regions. Band 4 executes their continuous visible journey
-    // and finishes with an approach and supported landing hold.
-    task.difficultyBandCount = 5u;
+    // Bands 0...3 retain independently sampleable stand, walk, takeoff, and
+    // airborne cruise regions. Band 4 is the first autonomous gate: a
+    // physical ground start, takeoff, and straight cruise. Band 5 retains the
+    // complete visible journey including turns, approach, and supported hold.
+    task.difficultyBandCount = 6u;
     task.maximumEpisodeSteps = 1'600u;
     task.commands.difficultySamplingExponent = 1.75f;
     task.commands.minimumDurationSeconds = 32.0f;

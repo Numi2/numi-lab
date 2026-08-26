@@ -13,7 +13,8 @@ crow_dispatcher=$crow_root/tools/numi
 crow_usage() {
     cat <<'EOF'
 Usage: numi crow train|evaluate [native Numi arguments...]
-       numi crow journey train|evaluate|window|capture [arguments...]
+       numi crow journey train|evaluate|window|capture \
+           [--milestone takeoff-cruise|full-journey] [arguments...]
 
   train      Train the estimated American-crow hybrid through native Metal and MLX.
   evaluate   Evaluate a crow policy or an explicitly selected action source.
@@ -84,6 +85,24 @@ if [ "$#" -gt 0 ]; then
     shift
 fi
 
+crow_milestone=takeoff-cruise
+crow_milestone_band=4
+if [ "$crow_variant" = journey ] && [ "${1:-}" = "--milestone" ]; then
+    [ "$#" -ge 2 ] || crow_die '--milestone requires a value'
+    crow_milestone=$2
+    shift 2
+    case "$crow_milestone" in
+        takeoff-cruise) crow_milestone_band=4 ;;
+        full-journey) crow_milestone_band=5 ;;
+        *) crow_die '--milestone must be takeoff-cruise or full-journey' ;;
+    esac
+fi
+if [ "$crow_variant" = journey ] &&
+   { crow_has_option --minimum-difficulty-band "$@" ||
+     crow_has_option --maximum-difficulty-band "$@"; }; then
+    crow_die 'journey difficulty is selected with --milestone'
+fi
+
 case "$crow_action" in
     train)
         if [ "$crow_variant" = journey ]; then
@@ -92,13 +111,17 @@ case "$crow_action" in
             fi
             if crow_has_option --policy-pack "$@"; then
                 exec "$crow_dispatcher" train \
-                    --birdflow-american-crow-journey "$@"
+                    --birdflow-american-crow-journey \
+                    --minimum-difficulty-band "$crow_milestone_band" \
+                    --maximum-difficulty-band "$crow_milestone_band" "$@"
             fi
             exec "$crow_dispatcher" train \
                 --birdflow-american-crow-journey \
                 --birdflow-journey-teacher \
                 --initialize-policy birdflow_american_crow_journey_brain \
                 --zero-actor-output \
+                --minimum-difficulty-band "$crow_milestone_band" \
+                --maximum-difficulty-band "$crow_milestone_band" \
                 "$@"
         fi
         if crow_has_option --policy-pack "$@"; then
@@ -144,7 +167,9 @@ case "$crow_action" in
     evaluate)
         if [ "$crow_variant" = journey ]; then
             exec "$crow_dispatcher" evaluate \
-                --birdflow-american-crow-journey "$@"
+                --birdflow-american-crow-journey \
+                --minimum-difficulty-band "$crow_milestone_band" \
+                --maximum-difficulty-band "$crow_milestone_band" "$@"
         fi
         exec "$crow_dispatcher" evaluate --birdflow-american-crow "$@"
         ;;
@@ -160,7 +185,8 @@ case "$crow_action" in
             --inspect-width "${NUMI_CROW_WINDOW_WIDTH:-1280}" \
             --inspect-height "${NUMI_CROW_WINDOW_HEIGHT:-720}" \
             --envs 1 --steps 1000000 --repeats 1 --chunk 1 \
-            --minimum-difficulty-band 4 --maximum-difficulty-band 4 \
+            --minimum-difficulty-band "$crow_milestone_band" \
+            --maximum-difficulty-band "$crow_milestone_band" \
             --no-scheduled-resets "$@"
         ;;
     capture)
@@ -188,7 +214,8 @@ case "$crow_action" in
             --capture-stride 1 --capture-policy-camera \
             --state-trace "$crow_run/state.tsv" \
             --envs 1 --steps 1600 --repeats 1 --chunk 1 \
-            --minimum-difficulty-band 4 --maximum-difficulty-band 4 \
+            --minimum-difficulty-band "$crow_milestone_band" \
+            --maximum-difficulty-band "$crow_milestone_band" \
             --no-scheduled-resets "$@" > "$crow_run/evidence.json"
         printf '%s\n' "$crow_capture_mode" > "$crow_run/capture-mode.txt"
         if command -v ffmpeg >/dev/null 2>&1; then

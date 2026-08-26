@@ -191,6 +191,9 @@ crow_journey_output=$(
 [ "$crow_journey_output" = "fake-evaluate" ]
 grep -- '--birdflow-american-crow-journey' \
     "$crow_journey_evaluate_run/arguments.txt" >/dev/null
+grep -- '--minimum-difficulty-band' \
+    "$crow_journey_evaluate_run/arguments.txt" >/dev/null
+grep -- '^4$' "$crow_journey_evaluate_run/arguments.txt" >/dev/null
 
 crow_journey_train_run=$numi_temp/runs/crow-journey-train
 crow_journey_train_output=$(
@@ -204,6 +207,22 @@ grep -- '--birdflow-american-crow-journey' \
     "$crow_journey_train_run/arguments.txt" >/dev/null
 grep -- '--birdflow-journey-teacher' \
     "$crow_journey_train_run/arguments.txt" >/dev/null
+grep -- '--maximum-difficulty-band' \
+    "$crow_journey_train_run/arguments.txt" >/dev/null
+grep -- '^4$' "$crow_journey_train_run/arguments.txt" >/dev/null
+
+crow_full_journey_run=$numi_temp/runs/crow-full-journey-evaluate
+crow_full_journey_output=$(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$crow_full_journey_run \
+        "$numi_repo/tools/numi" crow journey evaluate \
+            --milestone full-journey --zero-actions
+)
+[ "$crow_full_journey_output" = "fake-evaluate" ]
+grep -- '--minimum-difficulty-band' \
+    "$crow_full_journey_run/arguments.txt" >/dev/null
+grep -- '^5$' "$crow_full_journey_run/arguments.txt" >/dev/null
 
 if "$numi_repo/tools/numi" crow journey window > /dev/null 2>&1; then
     printf '%s\n' 'crow journey window accepted a missing policy' >&2

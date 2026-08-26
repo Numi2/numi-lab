@@ -454,6 +454,7 @@ struct MetalWorldStepConfig {
     // distilled with the carrier can be evaluated with this disabled against
     // the identical observation/action contract.
     bool birdFlowJourneyTeacher = false;
+    float birdFlowJourneyStudentAuthority = 0.0f;
     std::uint64_t taskSeed = 0u;
     // Invocation-scoped reset sampling. These select an overlapping region of
     // one compiled TaskPack; they never alter reward, success, or promotion.

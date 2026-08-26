@@ -7922,6 +7922,12 @@ void uploadBatch(
             static_cast<mr_u32>(model.bodies.size()),
             config.birdFlowJourneyTeacher ? 1u : 0u,
         };
+        task.assistance = {
+            config.birdFlowJourneyStudentAuthority,
+            0.0f,
+            0.0f,
+            0.0f,
+        };
         task.seed = config.taskSeed;
         task.policyRevision =
             nativePolicy

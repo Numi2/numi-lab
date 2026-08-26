@@ -488,20 +488,29 @@ int main() {
         require(
             compiledJourney.valid() &&
                 compiledJourney.task().actionBindings().size() == 14u &&
-                compiledJourney.task().layout().actorObservationSize == 82u &&
-                compiledJourney.task().layout().criticObservationSize == 82u &&
+                compiledJourney.task().layout().actorObservationSize == 83u &&
+                compiledJourney.task().layout().criticObservationSize == 83u &&
                 (compiledJourney.task().header().schedule.w &
                  MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
                 (compiledJourney.task().header().schedule.w &
                  MR_TASK_PROGRAM_AVIAN_CROW_GROUND_GAIT_CARRIER) == 0u &&
                 (compiledJourney.task().header().schedule.w &
                  MR_TASK_PROGRAM_AVIAN_CROW_LIFTOFF_TRIM_CARRIER) == 0u &&
+                compiledJourney.task().header().schedule.z == 6u &&
                 std::count_if(
                     compiledJourney.task().actorOperators().begin(),
                     compiledJourney.task().actorOperators().end(),
                     [](const MRTaskObservationOperatorGPU& operation) {
                         return operation.source.x ==
                             MR_TASK_OBSERVE_AVIAN_JOURNEY_PHASE;
+                    }
+                ) == 1 &&
+                std::count_if(
+                    compiledJourney.task().actorOperators().begin(),
+                    compiledJourney.task().actorOperators().end(),
+                    [](const MRTaskObservationOperatorGPU& operation) {
+                        return operation.source.x ==
+                            MR_TASK_OBSERVE_AVIAN_JOURNEY_STAGE;
                     }
                 ) == 1,
             "BirdFlow American-crow journey lost its universal-policy contract"

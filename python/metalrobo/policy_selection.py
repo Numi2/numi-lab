@@ -415,9 +415,14 @@ def _outcome_mean(record: dict[str, Any], identifier: str) -> float:
 def _birdflow_stage_outcomes(task: str, maximum_band: int) -> tuple[str, ...]:
     """Return the physical outcomes owned by one BirdFlow curriculum rung."""
 
+    if task == "birdflow-crow-journey":
+        if maximum_band >= 5:
+            return ("figure_eight_tracking", "liftoff")
+        if maximum_band >= 2:
+            return ("forward_flight_tracking", "liftoff", "push_off")
     terminal_outcomes = (
         ("figure_eight_tracking", "liftoff")
-        if task in {"birdflow-figure-eight", "birdflow-crow-journey"}
+        if task == "birdflow-figure-eight"
         else ("forward_flight_tracking", "liftoff", "push_off")
     )
     return {
@@ -550,6 +555,26 @@ def compare_evidence(
             regressions.append(
                 "candidate has physical-boundary terminations in flight curriculum"
             )
+        if task == "birdflow-crow-journey" and maximum_band == 4:
+            # The first v2 deployment gate is absolute, not merely relative
+            # to an untrained incumbent: ground-supported takeoff followed by
+            # stable straight cruise must be present in held-out physics.
+            if float(candidate.get("maximum_root_height", 0.0)) < 0.55:
+                regressions.append(
+                    "takeoff-cruise candidate did not reach the 0.55 m liftoff gate"
+                )
+            if float(candidate.get("mean_tracking_score", 0.0)) < 0.65:
+                regressions.append(
+                    "takeoff-cruise tracking is below 0.65"
+                )
+            if float(candidate.get("mean_tilt", 0.0)) > 0.35:
+                regressions.append(
+                    "takeoff-cruise mean tilt exceeds 0.35 rad"
+                )
+            if float(candidate.get("maximum_tilt", 0.0)) >= 0.80:
+                regressions.append(
+                    "takeoff-cruise maximum tilt reaches 0.80 rad"
+                )
     elif generic_task:
         # A velocity actor commands an ongoing balance/locomotion task.  A
         # marginally lower reset count is not deployable progress if every
@@ -727,6 +752,14 @@ def compare_evidence(
             }
         elif maximum_band == 2:
             weights = {"push_off": 0.35, "liftoff": 0.35, "tracking": 0.30}
+        elif task == "birdflow-crow-journey" and maximum_band == 4:
+            weights = {
+                "forward_flight_tracking": 0.55,
+                "liftoff": 0.20,
+                "push_off": 0.10,
+                "ground_support": 0.05,
+                "tracking": 0.10,
+            }
         elif task in {"birdflow-figure-eight", "birdflow-crow-journey"}:
             weights = {
                 "figure_eight_tracking": 0.55,
@@ -1143,6 +1176,10 @@ def main() -> int:
         training_arguments = training_arguments[1:]
 
     curriculum_task = _training_task_kind(training_arguments)
+    if options.advance_candidate and curriculum_task == "birdflow-crow-journey":
+        parser.error(
+            "crow journey deployment cannot bypass held-out selection"
+        )
     curriculum_current_band, curriculum_previous_band = (
         _curriculum_evaluation_bands(
             training_arguments

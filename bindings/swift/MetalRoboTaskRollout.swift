@@ -620,6 +620,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var interactionResetPhaseProbability: Float?
     public var interactionResetMaximumPhase: Float?
     public var birdFlowJourneyTeacher: Bool
+    public var birdFlowJourneyStudentAuthority: Float
     public var unitreeG1Task: MetalRoboUnitreeG1Task
 
     public init(
@@ -641,6 +642,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         interactionResetPhaseProbability: Float? = nil,
         interactionResetMaximumPhase: Float? = nil,
         birdFlowJourneyTeacher: Bool = false,
+        birdFlowJourneyStudentAuthority: Float = 0.0,
         unitreeG1Task: MetalRoboUnitreeG1Task = .velocity
     ) {
         self.environmentCount = environmentCount
@@ -662,6 +664,8 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
             interactionResetPhaseProbability
         self.interactionResetMaximumPhase = interactionResetMaximumPhase
         self.birdFlowJourneyTeacher = birdFlowJourneyTeacher
+        self.birdFlowJourneyStudentAuthority =
+            birdFlowJourneyStudentAuthority
         self.unitreeG1Task = unitreeG1Task
     }
 }
@@ -1244,6 +1248,8 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         }
         native.birdflow_journey_teacher =
             configuration.birdFlowJourneyTeacher ? 1 : 0
+        native.birdflow_journey_student_authority =
+            configuration.birdFlowJourneyStudentAuthority
         return native
     }
 

@@ -200,6 +200,10 @@ enum MRTaskObservationOpcode : mr_u32 {
     // Normalized phase of the device-resident crow journey sequencer:
     // stand, walk, takeoff, cruise, approach, and landed hold.
     MR_TASK_OBSERVE_AVIAN_JOURNEY_PHASE = 34u,
+    // Normalized authored journey curriculum stage. This is distinct from
+    // phase: isolated stand, takeoff, and airborne-reset episodes may share
+    // the same local clock while requiring different control behavior.
+    MR_TASK_OBSERVE_AVIAN_JOURNEY_STAGE = 35u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
@@ -405,6 +409,10 @@ typedef struct MR_ALIGN16 MRTaskDispatchGPU {
     // invocation-scoped BirdFlow journey teacher enabled.
     // MR_INVALID_INDEX in y selects the compiled TaskPack upper bound.
     mr_uint4 sampling;
+    // Journey student authority in x. Zero executes the native teacher,
+    // one executes the sampled policy, and intermediate values blend their
+    // normalized actuator commands while marking PPO attribution invalid.
+    mr_float4 assistance;
     mr_u64 seed;
     mr_u64 policyRevision;
     mr_u64 taskFingerprint;
@@ -696,7 +704,7 @@ typedef struct MR_ALIGN16 MRLearningTransitionGPU {
 
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
-static_assert(sizeof(MRTaskDispatchGPU) == 112u);
+static_assert(sizeof(MRTaskDispatchGPU) == 128u);
 static_assert(sizeof(MRTaskProgramHeaderGPU) == 592u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 64u);
 static_assert(sizeof(MRTaskActuatorTermGPU) == 32u);
