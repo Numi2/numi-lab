@@ -192,6 +192,19 @@ crow_journey_output=$(
 grep -- '--birdflow-american-crow-journey' \
     "$crow_journey_evaluate_run/arguments.txt" >/dev/null
 
+crow_journey_train_run=$numi_temp/runs/crow-journey-train
+crow_journey_train_output=$(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$crow_journey_train_run \
+        "$numi_repo/tools/numi" crow journey train --updates 1
+)
+printf '%s\n' "$crow_journey_train_output" | grep '"status":"trained"' >/dev/null
+grep -- '--birdflow-american-crow-journey' \
+    "$crow_journey_train_run/arguments.txt" >/dev/null
+grep -- '--birdflow-journey-teacher' \
+    "$crow_journey_train_run/arguments.txt" >/dev/null
+
 if "$numi_repo/tools/numi" crow journey window > /dev/null 2>&1; then
     printf '%s\n' 'crow journey window accepted a missing policy' >&2
     exit 1

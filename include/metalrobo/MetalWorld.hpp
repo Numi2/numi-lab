@@ -449,6 +449,11 @@ struct MetalWorldStepConfig {
     // Publish V(s_T) from the accepted post-rollout state in the same command
     // buffer. This does not apply the sampled action or advance physics.
     bool evaluateFinalPolicy = false;
+    // Invocation-scoped, journey-only assisted action carrier. It deliberately
+    // does not participate in the compiled TaskPack fingerprint so a policy
+    // distilled with the carrier can be evaluated with this disabled against
+    // the identical observation/action contract.
+    bool birdFlowJourneyTeacher = false;
     std::uint64_t taskSeed = 0u;
     // Invocation-scoped reset sampling. These select an overlapping region of
     // one compiled TaskPack; they never alter reward, success, or promotion.

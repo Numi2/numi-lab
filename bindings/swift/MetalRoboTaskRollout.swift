@@ -619,6 +619,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var interactionResetPhaseFraction: Float?
     public var interactionResetPhaseProbability: Float?
     public var interactionResetMaximumPhase: Float?
+    public var birdFlowJourneyTeacher: Bool
     public var unitreeG1Task: MetalRoboUnitreeG1Task
 
     public init(
@@ -639,6 +640,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         interactionResetPhaseFraction: Float? = nil,
         interactionResetPhaseProbability: Float? = nil,
         interactionResetMaximumPhase: Float? = nil,
+        birdFlowJourneyTeacher: Bool = false,
         unitreeG1Task: MetalRoboUnitreeG1Task = .velocity
     ) {
         self.environmentCount = environmentCount
@@ -659,6 +661,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         self.interactionResetPhaseProbability =
             interactionResetPhaseProbability
         self.interactionResetMaximumPhase = interactionResetMaximumPhase
+        self.birdFlowJourneyTeacher = birdFlowJourneyTeacher
         self.unitreeG1Task = unitreeG1Task
     }
 }
@@ -1239,6 +1242,8 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
             native.interaction_reset_maximum_phase = maximumPhase
             native.override_interaction_reset_maximum_phase = 1
         }
+        native.birdflow_journey_teacher =
+            configuration.birdFlowJourneyTeacher ? 1 : 0
         return native
     }
 

@@ -3465,6 +3465,93 @@ kernel void mr_locomotion_task_observe(
 
 }
 
+// A deliberately simple, observable showcase teacher. Every value is a
+// normalized TaskPack action: the ordinary flapping joints, articulated leg
+// drives, tail drive, and bounded yaw body-wrench remain the only physical
+// authority. The continuous 32-second journey phase and wing clock are both
+// actor observations, so a feed-forward student can actually distill this
+// schedule instead of depending on hidden host time.
+inline float birdFlowJourneyTeacherAction(
+    const uint action,
+    const MRTaskStateGPU state,
+    const float controlStepSeconds
+) {
+    const float seconds =
+        float(state.episode.x) * controlStepSeconds;
+    const bool airborne = seconds >= 5.0f && seconds < 27.0f;
+    float targetHeight = 0.1873f;
+    if (seconds >= 5.0f && seconds < 9.0f) {
+        targetHeight = mix(
+            0.1873f,
+            0.85f,
+            clamp((seconds - 5.0f) / 4.0f, 0.0f, 1.0f)
+        );
+    } else if (seconds >= 9.0f && seconds < 21.0f) {
+        targetHeight = 0.85f;
+    } else if (seconds >= 21.0f && seconds < 27.0f) {
+        targetHeight = mix(
+            0.85f,
+            0.20f,
+            clamp((seconds - 21.0f) / 6.0f, 0.0f, 1.0f)
+        );
+    }
+    const float heightError =
+        targetHeight - state.airReturnTracking.y;
+    const float turnPhase =
+        kTwoPi * clamp((seconds - 9.0f) / 12.0f, 0.0f, 1.0f);
+
+    if (action < 2u) {
+        return airborne
+            ? clamp(-0.150f + 0.400f * heightError, -0.350f, 0.125f)
+            : 0.0f;
+    }
+    if (action == 2u || action == 3u) {
+        if (seconds < 9.0f || seconds >= 24.0f) {
+            return 0.0f;
+        }
+        const float sweep = 0.10f * sin(turnPhase);
+        return action == 2u ? sweep : -sweep;
+    }
+    if (action == 4u || action == 5u) {
+        return airborne
+            ? 0.20f * sin(state.commandAndPhase.w + 2.62f)
+            : 0.0f;
+    }
+    if (action == 6u) {
+        return airborne
+            ? clamp(0.25f + 0.30f * heightError, 0.12f, 0.50f)
+            : 0.0f;
+    }
+    if (action >= 7u && action <= 12u) {
+        const uint legAction = action - 7u;
+        const bool right = legAction >= 3u;
+        const uint joint = legAction % 3u;
+        if (seconds >= 2.0f && seconds < 5.0f) {
+            const float phase = kTwoPi * seconds / 0.50f;
+            const float swing = right ? -sin(phase) : sin(phase);
+            const float lift = max(swing, 0.0f);
+            return joint == 0u
+                ? -0.014f * swing
+                : joint == 1u
+                ? 0.018f * lift
+                : -0.010f * lift;
+        }
+        if (seconds >= 5.0f && seconds < 24.0f) {
+            return joint == 0u ? -0.10f : joint == 1u ? 0.18f : -0.08f;
+        }
+        if (seconds >= 24.0f && seconds < 27.0f) {
+            const float tuck = (27.0f - seconds) / 3.0f;
+            return tuck *
+                (joint == 0u ? -0.10f : joint == 1u ? 0.18f : -0.08f);
+        }
+        return 0.0f;
+    }
+    if (action == 13u && seconds >= 9.0f && seconds < 24.0f) {
+        return 0.10f * sin(turnPhase);
+    }
+    return 0.0f;
+}
+
 kernel void mr_locomotion_task_apply_actions(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
@@ -3567,7 +3654,21 @@ kernel void mr_locomotion_task_apply_actions(
         // resulting position target to the joint range below, so policies
         // trained with residuals outside [-1, 1] retain their source action
         // semantics without weakening physical target safety.
-        const float requested = actionStream[actionBase + action];
+        const bool avianJourneyTeacher =
+            dispatch.sampling.w != 0u &&
+            (program.schedule.w &
+             MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
+            state.episode.z == 4u;
+        const float requested = avianJourneyTeacher
+            ? birdFlowJourneyTeacherAction(
+                  action,
+                  state,
+                  dispatch.timing.x
+              )
+            : actionStream[actionBase + action];
+        if (avianJourneyTeacher) {
+            teacherActions[actionBase + action] = requested;
+        }
         rawPolicyActions[
             environment * program.counts0.x + action
         ] = rawPolicyLatents[actionBase + action];
@@ -3639,8 +3740,8 @@ kernel void mr_locomotion_task_apply_actions(
              MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
             state.episode.z == 4u;
         const bool avianJourneyGround = avianJourney &&
-            (state.commandExtension.w < 0.40f ||
-             state.commandExtension.w >= 0.80f);
+            (state.commandExtension.w < 0.15625f ||
+             state.commandExtension.w >= 0.84375f);
         const bool avianGroundCurriculum = avianActionSet &&
             (program.schedule.w &
              MR_TASK_PROGRAM_AVIAN_GROUND_CURRICULUM) != 0u &&
@@ -3648,7 +3749,7 @@ kernel void mr_locomotion_task_apply_actions(
         const bool avianStandingCurriculum = avianGroundCurriculum &&
             (state.episode.z == 0u ||
              (avianJourney &&
-              (state.commandExtension.w < 0.10f ||
+              (state.commandExtension.w < 0.0625f ||
                state.commandExtension.w >= 0.95f)));
         const bool avianCrowGroundGaitCarrier = avianActionSet &&
             (program.schedule.w &
@@ -4659,7 +4760,8 @@ kernel void mr_locomotion_task_complete(
         avianGroundCurriculum &&
         (avianCurriculumBand < 2u ||
          (avianJourneyShowcase &&
-          (avianJourneyPhase < 0.40f || avianJourneyPhase >= 0.80f)));
+          (avianJourneyPhase < 0.15625f ||
+           avianJourneyPhase >= 0.84375f)));
     const bool avianCrowGroundTiltEnvelope =
         avianGroundCurriculum && avianCurriculumBand == 1u &&
         (program.schedule.w &
@@ -4679,28 +4781,30 @@ kernel void mr_locomotion_task_complete(
         const float takeoffSeconds = operation.auxiliary.x;
         const float episodeSeconds =
             float(state.episode.x + 1u) * dispatch.timing.x;
+        const float avianJourneyNormalizedPhase =
+            clamp(episodeSeconds / 32.0f, 0.0f, 1.0f);
         if (avianJourneyShowcase && episodeSeconds < 2.0f) {
             state.commandExtension = float4(
                 rootWorldPosition(program, q).xy,
                 0.0f,
-                0.0f
+                avianJourneyNormalizedPhase
             );
             state.commandAndPhase.xyz = float3(0.0f);
             break;
         }
         if (avianJourneyShowcase && episodeSeconds < 5.0f) {
-            state.commandExtension.w = 0.20f;
+            state.commandExtension.w = avianJourneyNormalizedPhase;
             state.commandAndPhase.xyz = float3(0.22f, 0.0f, 0.0f);
             break;
         }
         if (avianJourneyShowcase && episodeSeconds < 9.0f) {
-            state.commandExtension.w = 0.40f;
+            state.commandExtension.w = avianJourneyNormalizedPhase;
             state.commandAndPhase.xyz = float3(0.35f, 0.0f, 0.0f);
             break;
         }
         if (avianJourneyShowcase && episodeSeconds >= 21.0f) {
             const bool landedHold = episodeSeconds >= 27.0f;
-            state.commandExtension.w = landedHold ? 1.0f : 0.80f;
+            state.commandExtension.w = avianJourneyNormalizedPhase;
             state.commandAndPhase.xyz = landedHold
                 ? float3(0.0f)
                 : float3(0.15f, 0.0f, 0.0f);
@@ -4784,7 +4888,9 @@ kernel void mr_locomotion_task_complete(
         state.commandExtension.xy += targetVelocity * dispatch.timing.x;
         state.commandExtension.zw = float2(
             theta,
-            avianJourneyShowcase ? 0.60f : 1.0f
+            avianJourneyShowcase
+                ? avianJourneyNormalizedPhase
+                : 1.0f
         );
         const float2 pathError =
             state.commandExtension.xy - rootWorldPosition(program, q).xy;
@@ -7178,9 +7284,13 @@ kernel void mr_locomotion_task_complete(
                 ? MR_TASK_OUTCOME_POLICY_RESIDUAL : 0u
             ) |
             (
-                (program.schedule.w &
-                 MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u &&
-                    program.interactionTiming.z == 0.0f
+                ((program.schedule.w &
+                  MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u &&
+                     program.interactionTiming.z == 0.0f) ||
+                (dispatch.sampling.w != 0u &&
+                 (program.schedule.w &
+                  MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
+                 curriculum == 4u)
                 ? MR_TASK_OUTCOME_INTERACTION_TEACHER : 0u
             )
     );

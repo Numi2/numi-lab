@@ -85,6 +85,11 @@ typedef struct MRTaskRolloutConfigC {
     uint32_t override_interaction_reset_phase_probability;
     float interaction_reset_maximum_phase;
     uint32_t override_interaction_reset_maximum_phase;
+    // Invocation-scoped assisted teacher for the separately fingerprinted
+    // BirdFlow crow journey task. The carrier executes ordinary articulated
+    // position/body-wrench actions and publishes those normalized actions for
+    // distillation; it is not a force or trajectory injection.
+    uint32_t birdflow_journey_teacher;
 } MRTaskRolloutConfigC;
 
 typedef struct MRTaskVisualPackC {

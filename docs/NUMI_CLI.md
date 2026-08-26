@@ -46,16 +46,26 @@ numi crow evaluate --policy-pack .numi/runs/crow/deployment.policypack
 numi crow journey train --envs 256 --steps 128 --updates 8 --chunk 8
 numi crow journey evaluate --policy-pack .numi/runs/crow-journey/deployment.policypack
 numi crow journey window --policy-pack .numi/runs/crow-journey/deployment.policypack
+numi crow journey capture
 numi crow journey capture --policy-pack .numi/runs/crow-journey/deployment.policypack
 ```
 
 These are simulated-hybrid runs. They are not evidence of measured American-
 crow aerodynamics or hardware flight.
 
-The `journey` variant has a separate task fingerprint and one actor for the
-continuous stand, walk/hop, launch, cruise/turn, approach, and supported
-landing sequence. Window and capture require an explicit evaluated PolicyPack;
-they will not silently render the zero actor as a successful showcase.
+The `journey` variant has a separate task fingerprint and one 14-action actor
+with 82 observations for the continuous stand, walk/hop, launch, cruise/turn,
+approach, and supported landing sequence. Fresh training invokes the native
+journey teacher for physical execution and MLX distillation; policy-resume
+training is autonomous unless the caller explicitly supplies the teacher flag.
+Window requires an explicit evaluated PolicyPack. Capture with a PolicyPack is
+autonomous; capture without one invokes the deterministic native journey
+teacher and labels its evidence assisted. It never renders the zero actor as a
+successful showcase.
+
+The Numi visual packs are body-bound physics-debug proxies. High-detail
+feathered, multi-angle presentation remains a BirdFlow workspace concern and
+must stay distinct from native sensor pixels and autonomous policy evidence.
 
 `numi window` is the workspace's one-command live renderer. It builds an
 isolated presentation runtime, finds the saved authored scene, and opens an

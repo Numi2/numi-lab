@@ -4148,7 +4148,8 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 layout.motionFeatureElements
             ) ||
             !checkedMultiply(
-                taskLayout.interactionFrameCount != 0u
+                (taskLayout.interactionFrameCount != 0u ||
+                 config.birdFlowJourneyTeacher)
                     ? transitionCount
                     : 0u,
                 taskLayout.actionCount,
@@ -7919,7 +7920,7 @@ void uploadBatch(
             config.minimumDifficultyBand,
             config.maximumDifficultyBand,
             static_cast<mr_u32>(model.bodies.size()),
-            0u,
+            config.birdFlowJourneyTeacher ? 1u : 0u,
         };
         task.seed = config.taskSeed;
         task.policyRevision =

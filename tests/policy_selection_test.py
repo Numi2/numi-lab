@@ -815,6 +815,7 @@ class PolicySelectionTest(unittest.TestCase):
         arguments = evaluation_arguments(
             [
                 "--birdflow-american-crow-journey",
+                "--birdflow-journey-teacher",
                 "--minimum-difficulty-band",
                 "0",
                 "--maximum-difficulty-band",
@@ -827,6 +828,7 @@ class PolicySelectionTest(unittest.TestCase):
             held_out_seed=42,
         )
         self.assertIn("--birdflow-american-crow-journey", arguments)
+        self.assertNotIn("--birdflow-journey-teacher", arguments)
         minimum_index = len(arguments) - 1 - arguments[::-1].index(
             "--minimum-difficulty-band"
         )

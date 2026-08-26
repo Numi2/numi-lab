@@ -3074,12 +3074,24 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
         manifest.reality.id =
             "birdflow_american_crow_estimated_hybrid_nominal_reality";
         manifest.teacher.id = "no_teacher";
+        if (config->disable_task_terminations != 0u) {
+            manifest.task.terminations.clear();
+        }
         applyRunProfile(manifest, *config);
         manifest.profile.capacities = manifest.task.capacities;
         auto handle = createCompiledRunTaskRollout(
             std::move(manifest), metallib_path,
             "BirdFlow American-crow estimated hybrid", visual_sensor
         );
+        handle->stepConfig.birdFlowJourneyTeacher =
+            journey && config->birdflow_journey_teacher != 0u;
+        if (handle->stepConfig.birdFlowJourneyTeacher) {
+            // createTaskRolloutHandle establishes the resident allocation
+            // before source-specific invocation flags are known. Recreate the
+            // initial resident state once so its rollout layout includes the
+            // journey teacher-action stream from control step zero.
+            resetTaskRolloutState(*handle, config->seed);
+        }
         result = handle.release();
     });
     return status == 0 ? result : nullptr;
@@ -4375,8 +4387,9 @@ const float* mr_task_rollout_teacher_actions(
     const MRTaskRolloutHandle* handle
 ) {
     return requireTaskRolloutHandle(handle) &&
-        (handle->taskProgram.header().schedule.w &
-         MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u &&
+        ((handle->taskProgram.header().schedule.w &
+          MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u ||
+         handle->stepConfig.birdFlowJourneyTeacher) &&
         !handle->result.teacherActions.empty()
         ? handle->result.teacherActions.data()
         : nullptr;

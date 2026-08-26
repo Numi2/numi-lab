@@ -218,6 +218,7 @@ private struct Options {
     var birdFlowDove = false
     var birdFlowAmericanCrow = false
     var birdFlowAmericanCrowJourney = false
+    var birdFlowJourneyTeacher = false
 
     init(arguments: [String]) throws {
         var index = 1
@@ -492,6 +493,8 @@ private struct Options {
                 birdFlowAmericanCrow = true
             case "--birdflow-american-crow-journey":
                 birdFlowAmericanCrowJourney = true
+            case "--birdflow-journey-teacher":
+                birdFlowJourneyTeacher = true
             case "--birdflow-flap-script":
                 birdFlowFlapScript = true
             case "--birdflow-stroke-amplitude":
@@ -658,6 +661,11 @@ private struct Options {
             birdFlowAmericanCrowJourney].filter({ $0 }).count > 1 {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "BirdFlow bird sources are mutually exclusive."
+            )
+        }
+        if birdFlowJourneyTeacher && !birdFlowAmericanCrowJourney {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-journey-teacher requires --birdflow-american-crow-journey."
             )
         }
         let hasBirdFlowWingPulse =
@@ -1110,6 +1118,7 @@ private func makeContext(
             options.interactionResetPhaseProbability,
         interactionResetMaximumPhase:
             options.interactionResetMaximumPhase,
+        birdFlowJourneyTeacher: options.birdFlowJourneyTeacher,
         unitreeG1Task: options.unitreeG1Task
     )
     if options.birdFlowDove {
@@ -3022,7 +3031,11 @@ private enum TaskRolloutMain {
                 ),
                 "world_source": worldSource,
                 "action_source":
-                    options.policyPack != nil
+                    options.birdFlowJourneyTeacher
+                    ? options.policyPack != nil || options.nativePolicy
+                        ? "birdflow_assisted_teacher_with_observed_policy"
+                        : "birdflow_assisted_teacher"
+                    : options.policyPack != nil
                     ? "policy_pack"
                     : options.nativePolicy
                     ? "compiled_policy"
@@ -3047,6 +3060,8 @@ private enum TaskRolloutMain {
                     : options.birdFlowGroundGaitProbe
                     ? "birdflow_ground_gait_action_probe"
                     : "host_stream",
+                "birdflow_journey_teacher":
+                    options.birdFlowJourneyTeacher,
                 "action_stream": options.actionStream ?? "",
                 "birdflow_stroke_amplitude": options.birdFlowStrokeAmplitude ?? 0,
                 "birdflow_tail_pitch": options.birdFlowTailPitch ?? 0,

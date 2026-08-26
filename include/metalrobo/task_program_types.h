@@ -401,7 +401,8 @@ typedef struct MR_ALIGN16 MRTaskDispatchGPU {
     mr_uint4 outputs;
     // control dt, physics dt, publish final actor, publish terminal critic.
     mr_float4 timing;
-    // sampled difficulty-band lower/upper bound, compiled body count, reserved.
+    // sampled difficulty-band lower/upper bound, compiled body count,
+    // invocation-scoped BirdFlow journey teacher enabled.
     // MR_INVALID_INDEX in y selects the compiled TaskPack upper bound.
     mr_uint4 sampling;
     mr_u64 seed;

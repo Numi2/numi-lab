@@ -22,6 +22,11 @@ The journey variant uses one command-conditioned actor for stand, walk/hop,
 takeoff, cruise/turn, approach, and supported landing. It has a separate task
 and PolicyPack fingerprint from the science-gated standing-to-flight task.
 
+Journey capture runs an explicitly assisted native teacher when no
+--policy-pack is supplied. Window and policy-backed capture are autonomous.
+The native capture is a physics-debug view; the BirdFlow workspace owns the
+high-quality feathered multi-camera presentation replay.
+
 The package is an estimated hybrid. Results are simulated physical evidence,
 not measured American-crow flight or hardware-flight evidence.
 EOF
@@ -41,6 +46,11 @@ crow_die() {
     exit 2
 }
 
+crow_require_policy() {
+    crow_has_option --policy-pack "$@" || \
+        crow_die 'journey window requires an evaluated --policy-pack'
+}
+
 crow_build_rollout() {
     crow_build=${NUMI_CROW_BUILD_DIR:-"$crow_root/build-numi-crow-journey"}
     cmake -S "$crow_root" -B "$crow_build" -G Ninja \
@@ -50,11 +60,6 @@ crow_build_rollout() {
     crow_metallib=$crow_build/shaders/MetalRobo.metallib
     [ -x "$crow_rollout" ] && [ -f "$crow_metallib" ] || \
         crow_die 'native journey inspector build is incomplete'
-}
-
-crow_require_policy() {
-    crow_has_option --policy-pack "$@" || \
-        crow_die 'journey window/capture requires an evaluated --policy-pack'
 }
 
 crow_scene_path() {
@@ -91,6 +96,7 @@ case "$crow_action" in
             fi
             exec "$crow_dispatcher" train \
                 --birdflow-american-crow-journey \
+                --birdflow-journey-teacher \
                 --initialize-policy birdflow_american_crow_journey_brain \
                 --zero-actor-output \
                 "$@"
@@ -159,7 +165,12 @@ case "$crow_action" in
         ;;
     capture)
         [ "$crow_variant" = journey ] || crow_die 'capture is a journey command'
-        crow_require_policy "$@"
+        crow_capture_mode=autonomous_policy
+        if ! crow_has_option --policy-pack "$@"; then
+            crow_capture_mode=assisted_teacher
+            set -- --birdflow-journey-teacher --zero-actions \
+                --continue-after-termination "$@"
+        fi
         crow_build_rollout
         crow_scene=$(crow_scene_path)
         crow_workspace=${NUMI_WORKSPACE_ROOT:-$PWD}
@@ -179,13 +190,14 @@ case "$crow_action" in
             --envs 1 --steps 1600 --repeats 1 --chunk 1 \
             --minimum-difficulty-band 4 --maximum-difficulty-band 4 \
             --no-scheduled-resets "$@" > "$crow_run/evidence.json"
+        printf '%s\n' "$crow_capture_mode" > "$crow_run/capture-mode.txt"
         if command -v ffmpeg >/dev/null 2>&1; then
             ffmpeg -hide_banner -loglevel error -y -framerate 50 \
                 -i "$crow_frames/frame-%06d.ppm" -c:v libx264 \
-                -pix_fmt yuv420p -crf 18 "$crow_run/crow-journey.mp4"
-            ffmpeg -hide_banner -loglevel error -y -i "$crow_run/crow-journey.mp4" \
+                -pix_fmt yuv420p -crf 18 "$crow_run/crow-journey-physics-debug.mp4"
+            ffmpeg -hide_banner -loglevel error -y -i "$crow_run/crow-journey-physics-debug.mp4" \
                 -vf 'fps=15,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse' \
-                "$crow_run/crow-journey.gif"
+                "$crow_run/crow-journey-physics-debug.gif"
         else
             printf '%s\n' 'numi crow: ffmpeg unavailable; deterministic PPM frames were retained.' >&2
         fi

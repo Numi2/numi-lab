@@ -16,12 +16,12 @@
   ],
   "camera": {
     "parent_body": "crow_body",
-    "position": [0.0, 0.0, 1.15],
-    "orientation": [1.0, 0.0, 0.0, 0.0],
+    "position": [-0.85, -0.85, 0.45],
+    "orientation": [-0.759210401, 0.314475245, -0.218064050, 0.526453187],
     "width": 1440,
     "height": 810,
     "minimum_visible_pixels": 1,
-    "vertical_field_of_view_degrees": 68.0,
+    "vertical_field_of_view_degrees": 55.0,
     "nominal_rate_hz": 30.0,
     "maximum_retained_bytes": 268435456
   }

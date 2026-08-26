@@ -69,11 +69,11 @@ supported landing hold over one deterministic 32-second band-4 episode. It
 does not use the standing-to-flight task's carrier or residual policy, and it
 cannot replace that task's protected deployment artifact.
 
-The authored Numi scene binds the BirdFlow surface to the airframe, both wings,
-and tail. Simple thigh, shank, and foot meshes are explicitly estimated
-presentation geometry matching the hybrid collision proxies; they are not
-measured anatomy. The native renderer can drive both a live inspector and
-deterministic 50 fps MP4/GIF export:
+The authored Numi scene binds separate physics-debug packs to the airframe,
+both wings, tail, thighs, shanks, and feet using the owning body indices. These
+meshes are deliberately simple collision-linked proxies; they are not the
+high-detail BirdFlow feather renderer or measured anatomy. The native renderer
+can drive both a live inspector and deterministic 50 fps MP4/GIF export:
 
 ```sh
 numi crow journey train --envs 256 --steps 128 --updates 8 --chunk 8 \
@@ -81,10 +81,22 @@ numi crow journey train --envs 256 --steps 128 --updates 8 --chunk 8 \
 numi crow journey evaluate --policy-pack PATH --envs 8 --steps 1600 \
   --minimum-difficulty-band 4 --maximum-difficulty-band 4 --no-scheduled-resets
 numi crow journey window --policy-pack PATH
+numi crow journey capture
 numi crow journey capture --policy-pack PATH
 ```
 
-Window and capture deliberately require an explicit PolicyPack. A movie is
-showcase evidence only after the matched held-out selector accepts the same
-artifact; simulation remains an estimated-hybrid result rather than measured
-American-crow locomotion or flight.
+`--birdflow-journey-teacher` is an invocation-scoped native action source for
+the journey task. It writes its normalized 14-action stream into the rollout's
+teacher buffer, so MLX can distill the physically executed transitions. It is
+not embedded into a PolicyPack and is disconnected during autonomous held-out
+evaluation. Fresh `numi crow journey train` runs use this teacher by default;
+training resumed from `--policy-pack` does not unless requested explicitly.
+
+Window deliberately requires an explicit PolicyPack. Capture with a PolicyPack
+is autonomous; capture without one runs the native teacher, continues through
+the episode boundary for presentation, and labels the JSON action source
+`birdflow_assisted_teacher`. A teacher movie is assisted diagnostic evidence,
+not a successful neural policy. A policy movie is showcase evidence only after
+the matched held-out selector accepts the same artifact. High-detail feathered
+multi-camera media is rendered separately in the BirdFlow workspace and is not
+the Numi native visual sensor or a joint-exact state replay.

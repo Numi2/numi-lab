@@ -58,6 +58,7 @@ private struct Options {
     var birdFlowDove = false
     var birdFlowAmericanCrow = false
     var birdFlowAmericanCrowJourney = false
+    var birdFlowJourneyTeacher = false
     var inspectionScene: String?
     var inspectionWidth = 640
     var inspectionHeight = 360
@@ -321,6 +322,8 @@ private struct Options {
                 birdFlowAmericanCrow = true
             case "--birdflow-american-crow-journey":
                 birdFlowAmericanCrowJourney = true
+            case "--birdflow-journey-teacher":
+                birdFlowJourneyTeacher = true
             case "--inspect-scene":
                 inspectionScene = try value()
                 index += 1
@@ -1202,6 +1205,13 @@ private final class MLXLearnerWorker {
 private func makeContext(
     options: Options
 ) throws -> (MetalRoboTaskRolloutContext, String) {
+    if options.birdFlowJourneyTeacher &&
+        !options.birdFlowAmericanCrowJourney
+    {
+        throw MetalRoboTaskRolloutError.invalidShape(
+            "--birdflow-journey-teacher requires --birdflow-american-crow-journey."
+        )
+    }
     let visualSensor = try makeVisualObservation(options: options)
     let inspectionVisual = try makeInspectionVisual(options: options)
     let dynamicSpheres: [MetalRoboDynamicSphere] =
@@ -1232,6 +1242,7 @@ private func makeContext(
             options.interactionResetPhaseProbability,
         interactionResetMaximumPhase:
             options.interactionResetMaximumPhase,
+        birdFlowJourneyTeacher: options.birdFlowJourneyTeacher,
         unitreeG1Task: options.unitreeG1Task
     )
     if [options.birdFlowDove, options.birdFlowAmericanCrow,
@@ -1814,9 +1825,13 @@ private enum TaskTrainMain {
                 "physics": "metal",
                 "learner": "mlx",
                 "world_source": worldSource,
-                "action_carrier": options.birdFlowAmericanCrow
+                "action_carrier": options.birdFlowJourneyTeacher
+                    ? "birdflow_assisted_journey_teacher"
+                    : options.birdFlowAmericanCrow
                     ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_band_1;stage2_live_altitude_vertical_rate_and_airspeed_trim_plus_phase_calibrated_pronation_target_amplitude_0.20_phase_2.62_plus_bounded_residual_0.25_wing_sweep_pronation_and_leg_residual_0.25_tail_residual_0.10_band_2"
                     : "none",
+                "birdflow_journey_teacher":
+                    options.birdFlowJourneyTeacher,
                 "device": context.deviceName,
                 "visual_observation":
                     context.visualSceneFingerprint != 0,
