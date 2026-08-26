@@ -13,6 +13,11 @@ the installed runtime and the user's overlays.
 ./tools/numi version
 ```
 
+`numi doctor` validates the Apple/Metal toolchain, native trainer and rollout
+executables, MLX availability, and robot-catalog list-to-inspect coherence. A
+catalog executable built against an incompatible runtime library fails the
+doctor check instead of advertising robot inspection that cannot execute.
+
 Make the local runtime available throughout Codex with one command:
 
 ```sh

@@ -1992,9 +1992,14 @@ if(BUILD_TESTING)
         NAME metalrobo.runtime.run_program
         COMMAND $<TARGET_FILE:metalrobo_run_program_check>
     )
+    add_test(
+        NAME metalrobo.runtime.robot_catalog
+        COMMAND $<TARGET_FILE:metalrobo_robot_catalog> --self-check
+    )
     set_tests_properties(
         metalrobo.runtime.task_program
         metalrobo.runtime.run_program
+        metalrobo.runtime.robot_catalog
         PROPERTIES LABELS "metalrobo;runtime" TIMEOUT 180
     )
 

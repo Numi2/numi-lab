@@ -1,6 +1,6 @@
 ---
 name: numi-lab
-description: Use when the user wants Codex to configure, operate, train, evaluate, simulate, or extend robots through the local Apple-native Numi Lab runtime.
+description: Use when the user wants Codex to configure, operate, profile, train, evaluate, simulate, or extend Apple-native robotics and coupled-physics workflows through the local Numi Lab runtime.
 ---
 
 # Numi Lab
@@ -13,6 +13,8 @@ Do not force requests into a fixed robotics schema or invent a second planner.
 1. Run `numi doctor` when machine or installation readiness matters.
 2. Run `numi context` before choosing a workflow. It is the current source for
    installed capabilities, overlays, paths, revision, and extension points.
+   Resolve Numi source and owner documentation relative to its reported
+   `Runtime root`; resolve user overlays relative to its reported `Workspace`.
 3. Run `numi robots list` or `numi robots inspect ROBOT_ID` before configuring
    a robot. Use its authored capabilities and semantic roles rather than
    assuming G1 joints, humanoid sensors, or locomotion outcomes.
@@ -25,7 +27,7 @@ Do not force requests into a fixed robotics schema or invent a second planner.
 Use Numi Lab as one Apple-native system, not as a Python simulator wrapped by
 Codex:
 
-- The native `CompiledRun` boundary composes `RobotPack`, scene objects,
+- The native `CompiledRun` boundary composes `RobotPack`, `ScenePack`,
   `SensorPack`, `TaskPack`, `RealityPack`, optional `TeacherPack`, exact
   `PolicyPack`, and `RunProfile` into stable indices, fixed-capacity tables,
   and fingerprints. A new robot is authored mechanics, semantic roles and
@@ -64,9 +66,11 @@ status, and physical or replay evidence produced by the run.
 
 ## Infrastructure routing
 
-Load only the owner documentation needed for the request, then trace its live
-code path:
+Load only the owner documentation needed for the request from the runtime root,
+then trace its live code path:
 
+- CLI discovery, overlays, generated evidence, and installation:
+  `docs/NUMI_CLI.md`.
 - Robot, task, policy, artifact, or compiler architecture: `docs/WORLD_ENGINE.md`.
 - Metal execution, submissions, private heaps, unified-memory scale, and native
   training: `docs/METAL_WORLD.md`.
@@ -76,6 +80,10 @@ code path:
   `docs/NUMERICS.md`.
 - Tactile geometry, contact fields, and sensor bridge work:
   `docs/TACTILE_GEOMETRY_BRIDGE.md`.
+- Foundation action proposers: `docs/FOUNDATION_POLICIES.md`.
+- Motion-imagination providers and physical realization:
+  `docs/MOTION_PROVIDERS.md`.
+- PX4 X500 source, flight control, and evidence boundaries: `docs/PX4_X500.md`.
 
 For cross-layer changes, preserve the ownership boundary: C++ compiles and
 validates the world, Metal executes the hot loop, Swift schedules bounded
@@ -99,10 +107,20 @@ future Codex model can inspect and improve.
 
 ## Completion contract
 
-For training or evaluation, return the exact revision, arguments, artifact
-directory, policy/checkpoint paths, failed environment steps, throughput,
-memory, replay/fingerprint evidence, and task-specific physical outcomes that
-the run actually produced. Reward or test success alone is not physical proof.
+For every executed capability, return the exact runtime revision and worktree
+state, arguments, artifact directory, relevant runtime and artifact hashes,
+stdout/stderr or typed failure, and the actual device/runtime used. For
+simulation, training, evaluation, and profiling, also return failed environment
+steps, throughput, retained and peak memory, replay/fingerprint evidence,
+available traces or counters, and task-specific physical outcomes. State when a
+requested profiler gate or physical outcome was unavailable. A build, test,
+reward, liveness check, or timeline-only trace is not physical or detailed GPU
+performance proof.
+
+Before a long Metal, training, evaluation, or profiling run, inspect active
+workloads and existing artifacts. Do not duplicate a live run or contend for a
+dedicated GPU; use isolated build/worktree paths and checkpointed execution
+when the workload warrants them.
 
 Retain every physically valid candidate and its measured outcome. Changing the
 configured production policy is an explicit evidence-backed selection, not a

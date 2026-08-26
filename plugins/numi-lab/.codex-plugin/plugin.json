@@ -1,7 +1,7 @@
 {
   "name": "numi-lab",
-  "version": "0.1.0+codex.20260802230144",
-  "description": "Train, evaluate, and extend robots locally through Codex and Apple Silicon.",
+  "version": "0.1.1+codex.20260826040432",
+  "description": "Operate, profile, train, evaluate, and extend Apple-native robotics and coupled physics through Codex.",
   "author": {
     "name": "Numi Lab"
   },
@@ -18,14 +18,17 @@
   "interface": {
     "displayName": "Numi Lab",
     "shortDescription": "Your Apple-native robotics laboratory inside Codex.",
-    "longDescription": "Turn natural-language intent into local robot simulation, training, evaluation, and new capabilities on Apple Silicon. Codex configures and extends the laboratory while Numi runs native Metal physics and MLX learning, preserves reproducible evidence, and keeps the user in control.",
+    "longDescription": "Turn natural-language intent into local robot simulation, coupled-physics profiling, training, evaluation, provider workflows, and new capabilities on Apple Silicon. Codex configures and extends the laboratory while Numi runs native Metal physics and MLX learning, preserves reproducible evidence, and keeps the user in control.",
     "developerName": "Numi Lab",
     "category": "Developer Tools",
     "capabilities": [
       "Local robot training",
       "Metal simulation",
+      "Coupled physics profiling",
       "MLX learning",
       "Policy evaluation",
+      "Foundation and motion providers",
+      "Live GPU inspection",
       "User extensions"
     ],
     "defaultPrompt": [

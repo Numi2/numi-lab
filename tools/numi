@@ -166,6 +166,22 @@ numi_doctor() {
         fi
     done
 
+    if [ -x "$numi_build_dir/bin/metalrobo_robot_catalog" ]; then
+        numi_robot_catalog=$numi_build_dir/bin/metalrobo_robot_catalog
+    else
+        numi_robot_catalog=$NUMI_LAB_ROOT/bin/metalrobo_robot_catalog
+    fi
+    if [ ! -x "$numi_robot_catalog" ]; then
+        printf '%-18s missing (%s)\n' "robot catalog:" "$numi_robot_catalog"
+        numi_doctor_status=1
+    elif "$numi_robot_catalog" --self-check >/dev/null 2>&1; then
+        printf '%-18s ok\n' "robot catalog:"
+    else
+        printf '%-18s incompatible (%s)\n' \
+            "robot catalog:" "$numi_robot_catalog"
+        numi_doctor_status=1
+    fi
+
     numi_python=$(numi_find_mlx_python || true)
     if [ "$numi_python" != "" ]; then
         printf 'MLX learner:  ok (%s)\n' "$numi_python"

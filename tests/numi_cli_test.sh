@@ -72,6 +72,16 @@ printf '%s\n' '#!/bin/sh' \
     'esac' \
     > "$numi_temp/fake-build/bin/metalrobo_task_rollout"
 chmod +x "$numi_temp/fake-build/bin/metalrobo_task_rollout"
+
+printf '%s\n' '#!/bin/sh' \
+    'case "${1:-}" in' \
+    '  --self-check) printf "{\"schema\":\"numi.robot-catalog-check.v1\",\"robots\":1,\"status\":\"ok\"}\\n" ;;' \
+    '  "") printf "{\"schema\":\"numi.robot-catalog.v1\",\"robots\":[{\"id\":\"unitree_g1\"}]}\\n" ;;' \
+    '  unitree_g1) printf "{\"schema\":\"numi.robot-pack.v1\",\"robot\":{\"id\":\"unitree_g1\"}}\\n" ;;' \
+    '  *) printf "unknown robot: %s\\n" "$1" >&2; exit 2 ;;' \
+    'esac' \
+    > "$numi_temp/fake-build/bin/metalrobo_robot_catalog"
+chmod +x "$numi_temp/fake-build/bin/metalrobo_robot_catalog"
 printf 'fake native library\n' > "$numi_temp/fake-build/lib/libmetalrobo.dylib"
 printf 'fake metal library\n' > "$numi_temp/fake-build/shaders/MetalRobo.metallib"
 
@@ -112,6 +122,30 @@ numi_custom=$(
         "$numi_repo/tools/numi" run custom gamma
 )
 [ "$numi_custom" = "extra:gamma" ]
+
+numi_robot=$(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+        "$numi_repo/tools/numi" robots inspect unitree_g1
+)
+printf '%s\n' "$numi_robot" | grep '"id":"unitree_g1"' >/dev/null
+
+numi_doctor=$(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+        "$numi_repo/tools/numi" doctor || true
+)
+printf '%s\n' "$numi_doctor" | grep 'robot catalog:.*ok' >/dev/null
+
+printf '%s\n' '#!/bin/sh' 'exit 2' \
+    > "$numi_temp/fake-build/bin/metalrobo_robot_catalog"
+chmod +x "$numi_temp/fake-build/bin/metalrobo_robot_catalog"
+numi_doctor=$(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+        "$numi_repo/tools/numi" doctor || true
+)
+printf '%s\n' "$numi_doctor" | grep 'robot catalog:.*incompatible' >/dev/null
 
 numi_train_run=$numi_temp/runs/train
 numi_train_output=$(
