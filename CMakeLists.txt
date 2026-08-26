@@ -692,6 +692,7 @@ add_library(
     src/core/GeometryCooker.cpp
     src/core/OpenSimFunction.cpp
     src/core/OpenSimSpatialTransform.cpp
+    src/core/OpenSimMobileRoot.cpp
     src/core/G1.cpp
     src/core/LocomotionWorld.cpp
     src/core/TaskProgram.cpp

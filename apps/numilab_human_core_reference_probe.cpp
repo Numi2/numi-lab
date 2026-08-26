@@ -2,6 +2,7 @@
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/MillardMuscleReference.hpp"
+#include "metalrobo/OpenSimMobileRoot.hpp"
 #include "metalrobo/OpenSimSpatialTransform.hpp"
 
 #include <algorithm>
@@ -241,174 +242,6 @@ metalrobo::EngineModel loadReference(const char* path, PayloadHeader& header) {
     );
     std::string reason;
     require(model.valid(&reason), "Core reference model invalid: " + reason);
-    return model;
-}
-
-// The persisted Human payload retains `ground_pelvis` as its source-authored
-// six-coordinate FunctionBased joint below a synthetic fixed anchor.  The
-// mobile dynamics admission has a different state representation: the same
-// source-default pelvis pose becomes the physical floating root (3 COM
-// translation coordinates plus a quaternion, 6 velocities), while the
-// remaining source joints and FunctionBased programs remain immutable. This
-// reference reduction is deliberately limited to the exact source default;
-// it is a dynamics test model, not a claim that Euler-coordinate perturbations
-// of `ground_pelvis` are interchangeable with a free-root quaternion state.
-metalrobo::EngineModel mobileRootReferenceFromFixed(
-    const metalrobo::EngineModel& source
-) {
-    require(source.articulations.size() == 1u && source.bodies.size() >= 2u &&
-        !source.joints.empty() && source.dofs.size() >= 6u,
-        "mobile-root reduction requires one nonempty source articulation");
-    const MRArticulationGPU& fixed = source.articulations.front();
-    const MRJointDescriptorGPU& sourceRoot = source.joints.front();
-    require(fixed.rootType == MR_ROOT_FIXED && fixed.rootBody == 0u &&
-        fixed.firstBody == 0u && fixed.firstJoint == 0u &&
-        sourceRoot.parentBody == 0u && sourceRoot.childBody == 1u &&
-        sourceRoot.jointType == MR_JOINT_FUNCTION_BASED &&
-        sourceRoot.qOffset == 0u && sourceRoot.vOffset == 0u &&
-        sourceRoot.nq == 6u && sourceRoot.nv == 6u,
-        "mobile-root reduction requires the source ground_pelvis FunctionBased root");
-    bool hasSourceRootProgram = false;
-    for (const metalrobo::FunctionBasedJointProgram& program :
-         source.functionBasedJointPrograms) {
-        hasSourceRootProgram = hasSourceRootProgram || program.jointIndex == 0u;
-    }
-    require(hasSourceRootProgram,
-        "mobile-root reduction is missing the source ground_pelvis program");
-
-    std::vector<double> sourceQ(
-        source.defaultQ.begin(), source.defaultQ.end()
-    );
-    std::vector<double> sourceV(
-        source.defaultV.begin(), source.defaultV.end()
-    );
-    std::vector<metalrobo::ArticulatedBodyKinematics> sourcePoses(
-        fixed.bodyCount
-    );
-    const auto poseDiagnostics = metalrobo::computeArticulatedBodyKinematics(
-        source, 0u, sourceQ, sourceV, sourcePoses
-    );
-    require(poseDiagnostics.succeeded(),
-        "source default pose failed before mobile-root reduction");
-    const metalrobo::ArticulatedBodyKinematics& sourceRootPose =
-        sourcePoses.at(1u);
-
-    metalrobo::EngineModel model = source;
-    model.name = "numilab_human_rajagopal_mobile_root_reference";
-    model.bodies.erase(model.bodies.begin());
-    for (std::size_t bodyIndex = 0u; bodyIndex < model.bodies.size();
-         ++bodyIndex) {
-        MRBodyPropertiesGPU& body = model.bodies[bodyIndex];
-        if (bodyIndex == 0u) {
-            body.parentBody = MR_INVALID_INDEX;
-            body.inboundJoint = MR_INVALID_INDEX;
-        } else {
-            require(body.parentBody != MR_INVALID_INDEX &&
-                body.parentBody > 0u && body.inboundJoint > 0u,
-                "mobile-root reduction found malformed source body ownership");
-            --body.parentBody;
-            --body.inboundJoint;
-        }
-    }
-    model.joints.erase(model.joints.begin());
-    for (MRJointDescriptorGPU& joint : model.joints) {
-        require(joint.parentBody > 0u && joint.childBody > 0u &&
-            joint.qOffset >= sourceRoot.nq &&
-            joint.vOffset >= sourceRoot.nv,
-            "mobile-root reduction found malformed source joint ownership");
-        --joint.parentBody;
-        --joint.childBody;
-        ++joint.qOffset;
-    }
-    std::vector<metalrobo::FunctionBasedJointProgram> programs;
-    programs.reserve(model.functionBasedJointPrograms.size() - 1u);
-    for (metalrobo::FunctionBasedJointProgram program :
-         model.functionBasedJointPrograms) {
-        if (program.jointIndex == 0u) continue;
-        require(program.jointIndex > 0u,
-            "mobile-root reduction found an invalid FunctionBased program");
-        --program.jointIndex;
-        programs.push_back(std::move(program));
-    }
-    model.functionBasedJointPrograms = std::move(programs);
-
-    std::vector<MRDofPropertiesGPU> dofs;
-    dofs.reserve(source.dofs.size());
-    for (std::uint32_t localDof = 0u; localDof < 6u; ++localDof) {
-        MRDofPropertiesGPU rootDof{};
-        rootDof.articulationIndex = 0u;
-        rootDof.jointIndex = MR_INVALID_INDEX;
-        rootDof.qIndex = localDof < 3u ? localDof : MR_INVALID_INDEX;
-        rootDof.vIndex = localDof;
-        rootDof.localDof = localDof;
-        rootDof.flags = MR_DOF_FLAG_ROOT;
-        dofs.push_back(rootDof);
-    }
-    for (std::size_t sourceDof = sourceRoot.nv;
-         sourceDof < source.dofs.size(); ++sourceDof) {
-        MRDofPropertiesGPU dof = source.dofs[sourceDof];
-        require(dof.jointIndex > 0u && dof.qIndex != MR_INVALID_INDEX,
-            "mobile-root reduction found malformed source DoF ownership");
-        --dof.jointIndex;
-        ++dof.qIndex;
-        dofs.push_back(dof);
-    }
-    model.dofs = std::move(dofs);
-
-    model.defaultQ = {
-        static_cast<float>(sourceRootPose.centerOfMassPosition[0]),
-        static_cast<float>(sourceRootPose.centerOfMassPosition[1]),
-        static_cast<float>(sourceRootPose.centerOfMassPosition[2]),
-        static_cast<float>(sourceRootPose.orientation[0]),
-        static_cast<float>(sourceRootPose.orientation[1]),
-        static_cast<float>(sourceRootPose.orientation[2]),
-        static_cast<float>(sourceRootPose.orientation[3]),
-    };
-    model.defaultQ.insert(
-        model.defaultQ.end(),
-        source.defaultQ.begin() + sourceRoot.nq,
-        source.defaultQ.end()
-    );
-    model.defaultV.assign(6u, 0.0f);
-    model.defaultV.insert(
-        model.defaultV.end(),
-        source.defaultV.begin() + sourceRoot.nv,
-        source.defaultV.end()
-    );
-
-    if (!model.bodyNames.empty()) {
-        model.bodyNames.erase(model.bodyNames.begin());
-    }
-    if (!model.jointNames.empty()) {
-        model.jointNames.erase(model.jointNames.begin());
-    }
-    if (!model.dofNames.empty()) {
-        model.dofNames.erase(model.dofNames.begin(),
-            model.dofNames.begin() + sourceRoot.nv);
-        model.dofNames.insert(model.dofNames.begin(), {
-            "root_tx", "root_ty", "root_tz", "root_rx", "root_ry", "root_rz",
-        });
-    }
-
-    MRArticulationGPU& floating = model.articulations.front();
-    floating.rootBody = 0u;
-    floating.rootType = MR_ROOT_FLOATING;
-    floating.firstBody = 0u;
-    floating.bodyCount = static_cast<mr_u32>(model.bodies.size());
-    floating.firstJoint = 0u;
-    floating.jointCount = static_cast<mr_u32>(model.joints.size());
-    floating.qOffset = 0u;
-    floating.nq = static_cast<mr_u32>(model.defaultQ.size());
-    floating.vOffset = 0u;
-    floating.nv = static_cast<mr_u32>(model.defaultV.size());
-    model.world.bodyCount = static_cast<mr_u32>(model.bodies.size());
-    model.world.jointCount = static_cast<mr_u32>(model.joints.size());
-    model.world.nq = floating.nq;
-    model.world.nv = floating.nv;
-
-    std::string reason;
-    require(model.valid(&reason),
-        "mobile-root reference model invalid: " + reason);
     return model;
 }
 
@@ -2350,8 +2183,76 @@ int main(const int argc, char** argv) {
         }
         PayloadHeader header{};
         const metalrobo::EngineModel model = loadReference(argv[1], header);
+        metalrobo::EngineModel sourceWithActuatorProfiles = model;
+        sourceWithActuatorProfiles.actuatorProfiles.resize(model.dofs.size());
+        for (std::size_t dof = 0u; dof < model.dofs.size(); ++dof) {
+            sourceWithActuatorProfiles.actuatorProfiles[dof].identity.x =
+                static_cast<mr_u32>(dof);
+        }
+        metalrobo::FunctionBasedMobileRootReduction rejectedReduction;
+        const auto rejectedDiagnostics =
+            metalrobo::reduceFixedFunctionBasedRootToMobileDefaultPose(
+                sourceWithActuatorProfiles, rejectedReduction
+            );
+        require(
+            rejectedDiagnostics.status ==
+                metalrobo::FunctionBasedMobileRootStatus::unsupportedTopology,
+            "mobile-root reduction must reject actuator-profile remapping"
+        );
+        metalrobo::EngineModel sourceWithRootVelocity = model;
+        sourceWithRootVelocity.defaultV.front() =
+            std::numeric_limits<float>::denorm_min();
+        metalrobo::FunctionBasedMobileRootReduction movingRootReduction;
+        const auto movingRootDiagnostics =
+            metalrobo::reduceFixedFunctionBasedRootToMobileDefaultPose(
+                sourceWithRootVelocity, movingRootReduction
+            );
+        require(
+            movingRootDiagnostics.status ==
+                metalrobo::FunctionBasedMobileRootStatus::unsupportedTopology,
+            "mobile-root reduction must reject a moving source default root"
+        );
+        metalrobo::FunctionBasedMobileRootReduction mobileRootReduction;
+        const auto mobileRootDiagnostics =
+            metalrobo::reduceFixedFunctionBasedRootToMobileDefaultPose(
+                model, mobileRootReduction
+            );
+        require(
+            mobileRootDiagnostics.succeeded(),
+            std::string("mobile-root reference reduction failed: ") +
+                metalrobo::functionBasedMobileRootStatusName(
+                    mobileRootDiagnostics.status
+                ) + " " + mobileRootDiagnostics.message
+        );
+        require(
+            mobileRootReduction.sourceBodyToMobileBody.size() ==
+                model.bodies.size() &&
+            mobileRootReduction.sourceJointToMobileJoint.size() ==
+                model.joints.size(),
+            "mobile-root reduction did not return complete source index maps"
+        );
+        for (std::size_t sourceBody = 0u;
+             sourceBody < model.bodies.size(); ++sourceBody) {
+            const std::uint32_t expected = sourceBody == 0u
+                ? MR_INVALID_INDEX
+                : static_cast<std::uint32_t>(sourceBody - 1u);
+            require(
+                mobileRootReduction.sourceBodyToMobileBody[sourceBody] == expected,
+                "mobile-root reduction body index map is not canonical"
+            );
+        }
+        for (std::size_t sourceJoint = 0u;
+             sourceJoint < model.joints.size(); ++sourceJoint) {
+            const std::uint32_t expected = sourceJoint == 0u
+                ? MR_INVALID_INDEX
+                : static_cast<std::uint32_t>(sourceJoint - 1u);
+            require(
+                mobileRootReduction.sourceJointToMobileJoint[sourceJoint] == expected,
+                "mobile-root reduction joint index map is not canonical"
+            );
+        }
         const metalrobo::EngineModel mobileRootModel =
-            mobileRootReferenceFromFixed(model);
+            std::move(mobileRootReduction.model);
         const MobileRootReferenceMetrics mobileRootReferenceMetrics =
             verifyMobileRootDefaultPose(model, mobileRootModel);
         const MillardPayload millardPayload = millardPath != nullptr
