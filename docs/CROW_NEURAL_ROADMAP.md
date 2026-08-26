@@ -67,6 +67,21 @@ uses full PolicyPack plus learner-state resume only between promoted v9 rungs.
 `NUMI_CROW_PARENT_MODE=actor-transfer` makes this boundary explicit. Do not
 transfer a rejected smoke pack or skip protected v9 milestones.
 
+After band 10 advances, run the final three-seed matrix and accepted-state
+replay export with the promoted deployment PolicyPack:
+
+```sh
+NUMI_CROW_QUALIFICATION_ROOT="$PWD" \
+NUMI_CROW_QUALIFICATION_BUILD="$PWD/build-crow-journey-ninja" \
+NUMI_CROW_QUALIFICATION_POLICY=/path/to/promoted/deployment.policypack \
+NUMI_CROW_QUALIFICATION_RUNS="$PWD/.numi/runs/crow-v9-qualification" \
+./tools/crow_journey_qualification.sh
+```
+
+The command fails closed unless all 33 autonomous runs meet the physical and
+milestone gates. It emits `qualification.json`, SHA manifests, and one
+`accepted-full-journey.crowreplay.json` for BirdFlow's multi-angle renderer.
+
 ## Research choices and breakthrough gates
 
 - High-degree-of-freedom bird-inspired flapping control has demonstrated
