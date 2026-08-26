@@ -260,6 +260,14 @@ MetalReferenceMetrics verifyMetalFunctionBasedOperator(
     const auto gpuDiagnostics = metalrobo::runMetalArticulatedOperator(
         model, input, gpuResult, config
     );
+    std::string gpuFailureDetail;
+    if (!gpuResult.statuses.empty()) {
+        const MRArticulatedOperatorStatusGPU& status =
+            gpuResult.statuses.front();
+        gpuFailureDetail =
+            " gpu_status=" + std::to_string(status.code) +
+            " gpu_failing_index=" + std::to_string(status.failingIndex);
+    }
     require(
         gpuDiagnostics.succeeded() && gpuDiagnostics.dispatched &&
             gpuDiagnostics.published &&
@@ -268,7 +276,10 @@ MetalReferenceMetrics verifyMetalFunctionBasedOperator(
         std::string("Metal FunctionBased operator failed: ") +
             metalrobo::metalArticulatedOperatorHostStatusName(
                 gpuDiagnostics.status
-            ) + " " + gpuDiagnostics.message
+            ) + " " + gpuDiagnostics.message +
+            " first_gpu_status=" +
+            std::to_string(gpuDiagnostics.firstGPUStatusCode) +
+            gpuFailureDetail
     );
     require(
         gpuResult.bodyPoses.size() == cpuBodies.size() &&
