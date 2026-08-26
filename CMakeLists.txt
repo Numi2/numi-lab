@@ -716,6 +716,7 @@ add_library(
     src/core/ArticulatedDynamics.cpp
     src/core/ArticulatedActuation.cpp
     src/core/MillardMuscleReference.cpp
+    src/core/MujocoMuscleReference.cpp
     src/core/ArticulatedJointLimits.cpp
     src/core/ArticulatedContact.cpp
     src/core/CoupledArticulatedRigidContact.cpp
@@ -1253,6 +1254,25 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_numilab_human_core_reference_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+# Source-complete MyoSim full-body CPU reference: floating rigid tree plus
+# MuJoCo general-muscle spatial tendon paths.  It intentionally does not
+# claim the bounded Metal kernels can yet admit this 157-body/128-DoF model.
+add_executable(
+    metalrobo_numilab_human_myosim_reference_probe
+    apps/numilab_human_myosim_reference_probe.cpp
+)
+target_link_libraries(
+    metalrobo_numilab_human_myosim_reference_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_numilab_human_myosim_reference_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"

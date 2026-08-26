@@ -158,6 +158,17 @@ bool finite(const Mat3& value) {
     return true;
 }
 
+bool zero(const Mat3& value) {
+    for (std::size_t row = 0; row < 3; ++row) {
+        for (std::size_t column = 0; column < 3; ++column) {
+            if (value.m[row][column] != 0.0) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 bool finite(const Quaternion value) {
     return finite(value.x) && finite(value.y) && finite(value.z) &&
         finite(value.w);
@@ -758,26 +769,37 @@ ArticulatedDynamicsStatus buildTopology(
             body.inverseInertiaRow2
         );
         if (body.articulationIndex != articulationIndex ||
-            body.motionType != MR_MOTION_DYNAMIC ||
             !finite(body.massAndInverseMass) ||
-            !(body.massAndInverseMass.x > 0.0f) ||
-            !(body.massAndInverseMass.y > 0.0f) ||
-            std::abs(
-                static_cast<double>(body.massAndInverseMass.x) *
-                    body.massAndInverseMass.y -
-                1.0
-            ) > 3.0e-5 ||
             !finite(body.centerOfMass) ||
             !finite(inertia) ||
             !finite(inverseInertia) ||
-            !symmetricPositiveDefinite(inertia) ||
-            !symmetricPositiveDefinite(inverseInertia) ||
-            !inverseConsistent(inertia, inverseInertia) ||
             !finite(body.dampingAndSpeedLimits) ||
             body.dampingAndSpeedLimits.x < 0.0f ||
             body.dampingAndSpeedLimits.y < 0.0f ||
             body.dampingAndSpeedLimits.z < 0.0f ||
             body.dampingAndSpeedLimits.w < 0.0f) {
+            return ArticulatedDynamicsStatus::invalidModel;
+        }
+        if (body.motionType == MR_MOTION_DYNAMIC) {
+            if (!(body.massAndInverseMass.x > 0.0f) ||
+                !(body.massAndInverseMass.y > 0.0f) ||
+                std::abs(
+                    static_cast<double>(body.massAndInverseMass.x) *
+                        body.massAndInverseMass.y -
+                    1.0
+                ) > 3.0e-5 ||
+                !symmetricPositiveDefinite(inertia) ||
+                !symmetricPositiveDefinite(inverseInertia) ||
+                !inverseConsistent(inertia, inverseInertia)) {
+                return ArticulatedDynamicsStatus::invalidModel;
+            }
+        } else if (body.motionType != MR_MOTION_STATIC ||
+                   body.massAndInverseMass.x != 0.0f ||
+                   body.massAndInverseMass.y != 0.0f ||
+                   !zero(inertia) || !zero(inverseInertia)) {
+            // A source body can own several serial joints.  Core represents
+            // the intermediate frames with exact zero-inertia transform
+            // carriers; they contribute kinematics but no invented mass.
             return ArticulatedDynamicsStatus::invalidModel;
         }
         if (localBody == localRoot) {
