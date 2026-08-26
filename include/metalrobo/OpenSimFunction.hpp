@@ -38,6 +38,9 @@ struct OpenSimFunctionEvaluation {
     OpenSimFunctionStatus status = OpenSimFunctionStatus::success;
     double value = 0.0;
     double derivative = 0.0;
+    // The time derivative of derivative is secondDerivative * qdot for a
+    // single-coordinate Function. FunctionBased uses this to construct Hdot.
+    double secondDerivative = 0.0;
 
     [[nodiscard]] bool succeeded() const noexcept {
         return status == OpenSimFunctionStatus::success;

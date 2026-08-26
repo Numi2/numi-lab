@@ -50,6 +50,7 @@ int main() {
         );
         requireNear(constant.value, 4.0, "constant value");
         requireNear(constant.derivative, 0.0, "constant derivative");
+        requireNear(constant.secondDerivative, 0.0, "constant second derivative");
 
         const auto linear = evaluate(
             {.kind = OpenSimFunctionKind::linear, .coefficients = {2.0, 1.0}},
@@ -57,6 +58,7 @@ int main() {
         );
         requireNear(linear.value, 1.5, "linear value");
         requireNear(linear.derivative, 2.0, "linear derivative");
+        requireNear(linear.secondDerivative, 0.0, "linear second derivative");
 
         const auto polynomial = evaluate(
             {.kind = OpenSimFunctionKind::polynomial, .coefficients = {3.0, 2.0, 1.0}},
@@ -64,6 +66,7 @@ int main() {
         );
         requireNear(polynomial.value, 1.6875, "polynomial value");
         requireNear(polynomial.derivative, 3.5, "polynomial derivative");
+        requireNear(polynomial.secondDerivative, 6.0, "polynomial second derivative");
 
         const OpenSimFunctionDefinition spline{
             .kind = OpenSimFunctionKind::simmSpline,
@@ -74,6 +77,7 @@ int main() {
         const auto splineExtrapolated = evaluate(spline, -0.5);
         requireNear(splineInterior.value, 0.5, "spline interior value");
         requireNear(splineInterior.derivative, 2.0, "spline interior derivative");
+        requireNear(splineInterior.secondDerivative, 0.0, "spline interior second derivative");
         requireNear(splineExtrapolated.value, -1.0, "spline extrapolated value");
         requireNear(splineExtrapolated.derivative, 2.0, "spline extrapolated derivative");
         const auto compiledSpline = metalrobo::compileOpenSimFunction(spline);

@@ -113,6 +113,9 @@ set(METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE
 set(METALROBO_ARTICULATED_INVERSE_MASS_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedInverseMass.metal"
 )
+set(METALROBO_OPENSIM_SPATIAL_TRANSFORM_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/OpenSimSpatialTransform.metal"
+)
 set(METALROBO_WORLD_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MetalWorld.metal"
 )
@@ -214,6 +217,9 @@ set(METALROBO_MULTI_ARTICULATED_CONTACT_AIR
 )
 set(METALROBO_ARTICULATED_INVERSE_MASS_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboArticulatedInverseMass.air"
+)
+set(METALROBO_OPENSIM_SPATIAL_TRANSFORM_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboOpenSimSpatialTransform.air"
 )
 set(METALROBO_MULTI_ARTICULATED_INVERSE_MASS_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboMultiArticulatedInverseMass.air"
@@ -412,6 +418,13 @@ add_custom_command(
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_OPENSIM_SPATIAL_TRANSFORM_SOURCE}"
+            -o "${METALROBO_OPENSIM_SPATIAL_TRANSFORM_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -DMR_INVERSE_MASS_KERNEL_NAME=mr_multi_articulated_inverse_mass
             -DMR_INVERSE_MASS_MULTI_ARTICULATION=1
@@ -525,6 +538,7 @@ add_custom_command(
             "${METALROBO_GENERALIZED_CONSTRAINT_AIR}"
             "${METALROBO_MULTI_ARTICULATED_CONTACT_AIR}"
             "${METALROBO_ARTICULATED_INVERSE_MASS_AIR}"
+            "${METALROBO_OPENSIM_SPATIAL_TRANSFORM_AIR}"
             "${METALROBO_MULTI_ARTICULATED_INVERSE_MASS_AIR}"
             "${METALROBO_PARAMETERIZED_MULTI_ARTICULATED_INVERSE_MASS_AIR}"
             "${METALROBO_STREAMING_ARTICULATED_INVERSE_MASS_AIR}"
@@ -554,6 +568,7 @@ add_custom_command(
         "${METALROBO_GENERALIZED_CONSTRAINT_SOURCE}"
         "${METALROBO_MULTI_ARTICULATED_CONTACT_SOURCE}"
         "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
+        "${METALROBO_OPENSIM_SPATIAL_TRANSFORM_SOURCE}"
         "${METALROBO_WORLD_SOURCE}"
         "${METALROBO_WORLD_CONTACT_SOURCE}"
         "${METALROBO_WORLD_COMPILER_SOURCE}"
@@ -574,6 +589,7 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/quality_solver_shared.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/unified_quality_shared.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/parallel_aba_shared.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/opensim_spatial_transform_gpu.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/rod_gpu_shared.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/generalized_constraint_shared.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/multi_contact_shared.h"
@@ -643,6 +659,7 @@ add_library(
     src/core/RobotDescriptionCooker.cpp
     src/core/GeometryCooker.cpp
     src/core/OpenSimFunction.cpp
+    src/core/OpenSimSpatialTransform.cpp
     src/core/G1.cpp
     src/core/LocomotionWorld.cpp
     src/core/TaskProgram.cpp
@@ -844,6 +861,56 @@ add_executable(
 target_link_libraries(
     metalrobo_opensim_function_probe
     PRIVATE metalrobo
+)
+
+add_executable(
+    metalrobo_opensim_spatial_transform_probe
+    apps/opensim_spatial_transform_probe.cpp
+)
+target_link_libraries(
+    metalrobo_opensim_spatial_transform_probe
+    PRIVATE metalrobo
+)
+set_target_properties(
+    metalrobo_opensim_spatial_transform_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_opensim_spatial_transform_gpu_probe
+    apps/opensim_spatial_transform_gpu_probe.mm
+)
+add_dependencies(
+    metalrobo_opensim_spatial_transform_gpu_probe
+    metalrobo_shaders
+)
+target_compile_definitions(
+    metalrobo_opensim_spatial_transform_gpu_probe
+    PRIVATE
+        METALROBO_OPENSIM_SPATIAL_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_opensim_spatial_transform_gpu_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+)
+target_link_libraries(
+    metalrobo_opensim_spatial_transform_gpu_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_opensim_spatial_transform_gpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 set_target_properties(
     metalrobo_opensim_function_probe

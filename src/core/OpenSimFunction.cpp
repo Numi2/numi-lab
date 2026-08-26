@@ -110,11 +110,19 @@ bool simmCoefficients(
     return finiteValues(slope) && finiteValues(quadratic) && finiteValues(cubic);
 }
 
-OpenSimFunctionEvaluation result(const double value, const double derivative) {
-    if (!finite(value) || !finite(derivative)) {
+OpenSimFunctionEvaluation result(
+    const double value,
+    const double derivative,
+    const double secondDerivative
+) {
+    if (!finite(value) || !finite(derivative) || !finite(secondDerivative)) {
         return {.status = OpenSimFunctionStatus::nonfiniteResult};
     }
-    return {.value = value, .derivative = derivative};
+    return {
+        .value = value,
+        .derivative = derivative,
+        .secondDerivative = secondDerivative,
+    };
 }
 
 } // namespace
@@ -176,7 +184,7 @@ OpenSimFunctionEvaluation evaluateOpenSimFunction(
             !finiteValues(function.coefficients)) {
             return {.status = OpenSimFunctionStatus::invalidDefinition};
         }
-        return result(function.coefficients[0], 0.0);
+        return result(function.coefficients[0], 0.0, 0.0);
     case OpenSimFunctionKind::linear:
         if (function.coefficients.size() != 2u ||
             !finiteValues(function.coefficients)) {
@@ -184,7 +192,8 @@ OpenSimFunctionEvaluation evaluateOpenSimFunction(
         }
         return result(
             function.coefficients[0] * argument + function.coefficients[1],
-            function.coefficients[0]
+            function.coefficients[0],
+            0.0
         );
     case OpenSimFunctionKind::polynomial: {
         if (function.coefficients.empty() ||
@@ -193,11 +202,13 @@ OpenSimFunctionEvaluation evaluateOpenSimFunction(
         }
         double value = 0.0;
         double derivative = 0.0;
+        double secondDerivative = 0.0;
         for (const double coefficient : function.coefficients) {
+            secondDerivative = secondDerivative * argument + 2.0 * derivative;
             derivative = derivative * argument + value;
             value = value * argument + coefficient;
         }
-        return result(value, derivative);
+        return result(value, derivative, secondDerivative);
     }
     case OpenSimFunctionKind::simmSpline: {
         const auto& x = function.abscissae;
@@ -214,18 +225,24 @@ OpenSimFunctionEvaluation evaluateOpenSimFunction(
         }
         const std::size_t final = x.size() - 1u;
         if (argument < x[0]) {
-            return result(y[0] + (argument - x[0]) * slope[0], slope[0]);
+            return result(
+                y[0] + (argument - x[0]) * slope[0],
+                slope[0],
+                0.0
+            );
         }
         if (argument > x[final]) {
             return result(
-                y[final] + (argument - x[final]) * slope[final], slope[final]
+                y[final] + (argument - x[final]) * slope[final],
+                slope[final],
+                0.0
             );
         }
         if (std::abs(argument - x[0]) <= kSimmRoundoff) {
-            return result(y[0], slope[0]);
+            return result(y[0], slope[0], 2.0 * quadratic[0]);
         }
         if (std::abs(argument - x[final]) <= kSimmRoundoff) {
-            return result(y[final], slope[final]);
+            return result(y[final], slope[final], 2.0 * quadratic[final]);
         }
         std::size_t low = 0u;
         std::size_t high = final;
@@ -245,7 +262,8 @@ OpenSimFunctionEvaluation evaluateOpenSimFunction(
             y[index] + delta * (slope[index] + delta *
                 (quadratic[index] + delta * cubic[index])),
             slope[index] + delta * (2.0 * quadratic[index] +
-                3.0 * delta * cubic[index])
+                3.0 * delta * cubic[index]),
+            2.0 * quadratic[index] + 6.0 * delta * cubic[index]
         );
     }
     }
