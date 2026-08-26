@@ -266,7 +266,12 @@ MetalReferenceMetrics verifyMetalFunctionBasedOperator(
             gpuResult.statuses.front();
         gpuFailureDetail =
             " gpu_status=" + std::to_string(status.code) +
-            " gpu_failing_index=" + std::to_string(status.failingIndex);
+            " gpu_failing_index=" + std::to_string(status.failingIndex) +
+            " gpu_diagnostics=" +
+            std::to_string(status.diagnostics.x) + "," +
+            std::to_string(status.diagnostics.y) + "," +
+            std::to_string(status.diagnostics.z) + "," +
+            std::to_string(status.diagnostics.w);
     }
     require(
         gpuDiagnostics.succeeded() && gpuDiagnostics.dispatched &&
