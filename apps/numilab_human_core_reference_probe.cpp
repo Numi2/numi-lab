@@ -1,4 +1,5 @@
 #include "metalrobo/ArticulatedDynamics.hpp"
+#include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/OpenSimSpatialTransform.hpp"
 
 #include <algorithm>
@@ -159,11 +160,223 @@ bool allFinite(const std::vector<double>& values) {
     });
 }
 
+struct MetalReferenceMetrics {
+    std::string deviceName;
+    double bodyPositionError = 0.0;
+    double bodyOrientationError = 0.0;
+    double pointPositionError = 0.0;
+    double pointJacobianError = 0.0;
+    double massError = 0.0;
+    double massScaledError = 0.0;
+};
+
+MetalReferenceMetrics verifyMetalFunctionBasedOperator(
+    const metalrobo::EngineModel& model
+) {
+    const MRArticulationGPU& articulation = model.articulations.at(0u);
+    std::vector<float> q = model.defaultQ;
+    for (std::size_t index = 0u; index < q.size(); ++index) {
+        q[index] += 0.05f * std::sin(
+            0.43f * static_cast<float>(index + 1u)
+        );
+    }
+
+    std::vector<MRArticulatedPointImpulseGPU> gpuPoints(
+        articulation.bodyCount
+    );
+    std::vector<metalrobo::ArticulatedPointQuery> cpuPoints(
+        articulation.bodyCount
+    );
+    for (std::size_t localBody = 0u;
+         localBody < articulation.bodyCount;
+         ++localBody) {
+        const std::uint32_t globalBody =
+            articulation.firstBody + static_cast<std::uint32_t>(localBody);
+        const float phase = static_cast<float>(localBody + 1u);
+        const std::array<double, 3u> localPoint{
+            0.004 * std::sin(0.31 * static_cast<double>(phase)),
+            0.003 * std::cos(0.47 * static_cast<double>(phase)),
+            0.002 * std::sin(0.59 * static_cast<double>(phase)),
+        };
+        MRArticulatedPointImpulseGPU& gpuPoint = gpuPoints[localBody];
+        gpuPoint.bodyIndex = globalBody;
+        gpuPoint.flags = 0u;
+        gpuPoint.reserved0 = 0u;
+        gpuPoint.reserved1 = 0u;
+        gpuPoint.localPoint = {
+            static_cast<float>(localPoint[0]),
+            static_cast<float>(localPoint[1]),
+            static_cast<float>(localPoint[2]),
+            0.0f,
+        };
+        gpuPoint.worldImpulse = {0.0f, 0.0f, 0.0f, 0.0f};
+        cpuPoints[localBody] = {globalBody, localPoint};
+    }
+
+    const std::vector<double> qDouble(q.begin(), q.end());
+    const std::vector<double> zeroVelocity(articulation.nv, 0.0);
+    std::vector<metalrobo::ArticulatedBodyKinematics> cpuBodies(
+        articulation.bodyCount
+    );
+    auto cpuDiagnostics = metalrobo::computeArticulatedBodyKinematics(
+        model, 0u, qDouble, zeroVelocity, cpuBodies
+    );
+    require(cpuDiagnostics.succeeded(), "CPU FunctionBased body reference failed");
+    std::vector<metalrobo::ArticulatedPointKinematics> cpuPointKinematics(
+        cpuPoints.size()
+    );
+    std::vector<double> cpuJacobians(
+        cpuPoints.size() * 3u * articulation.nv
+    );
+    cpuDiagnostics = metalrobo::computeArticulatedPointJacobians(
+        model,
+        0u,
+        qDouble,
+        zeroVelocity,
+        cpuPoints,
+        cpuPointKinematics,
+        cpuJacobians
+    );
+    require(cpuDiagnostics.succeeded(), "CPU FunctionBased Jacobian reference failed");
+    std::vector<double> cpuMass(
+        static_cast<std::size_t>(articulation.nv) * articulation.nv
+    );
+    cpuDiagnostics = metalrobo::computeArticulatedMassMatrix(
+        model, 0u, qDouble, cpuMass
+    );
+    require(cpuDiagnostics.succeeded(), "CPU FunctionBased mass reference failed");
+
+    metalrobo::MetalArticulatedOperatorInput input{
+        .articulationIndex = 0u,
+        .environmentCount = 1u,
+        .pointCount = gpuPoints.size(),
+        .q = q,
+        .points = gpuPoints,
+    };
+    metalrobo::MetalArticulatedOperatorConfig config{
+        .writeDiagnosticMassMatrix = true,
+    };
+    metalrobo::MetalArticulatedOperatorResult gpuResult;
+    const auto gpuDiagnostics = metalrobo::runMetalArticulatedOperator(
+        model, input, gpuResult, config
+    );
+    require(
+        gpuDiagnostics.succeeded() && gpuDiagnostics.dispatched &&
+            gpuDiagnostics.published &&
+            gpuDiagnostics.successfulEnvironmentCount == 1u &&
+            gpuDiagnostics.failedEnvironmentCount == 0u,
+        std::string("Metal FunctionBased operator failed: ") +
+            metalrobo::metalArticulatedOperatorHostStatusName(
+                gpuDiagnostics.status
+            ) + " " + gpuDiagnostics.message
+    );
+    require(
+        gpuResult.bodyPoses.size() == cpuBodies.size() &&
+            gpuResult.pointWorld.size() == cpuPointKinematics.size() &&
+            gpuResult.pointJacobians.size() == cpuJacobians.size() &&
+            gpuResult.diagnosticMassMatrix.size() == cpuMass.size(),
+        "Metal FunctionBased operator published an unexpected layout"
+    );
+
+    MetalReferenceMetrics metrics;
+    metrics.deviceName = gpuDiagnostics.deviceName;
+    for (std::size_t body = 0u; body < cpuBodies.size(); ++body) {
+        const MRArticulatedBodyPoseGPU& gpuBody = gpuResult.bodyPoses[body];
+        const std::array<float, 3u> gpuPosition{
+            gpuBody.position.x, gpuBody.position.y, gpuBody.position.z,
+        };
+        for (std::size_t axis = 0u; axis < 3u; ++axis) {
+            metrics.bodyPositionError = std::max(
+                metrics.bodyPositionError,
+                std::abs(
+                    static_cast<double>(gpuPosition[axis]) -
+                    cpuBodies[body].centerOfMassPosition[axis]
+                )
+            );
+        }
+        const std::array<float, 4u> gpuOrientation{
+            gpuBody.orientation.x,
+            gpuBody.orientation.y,
+            gpuBody.orientation.z,
+            gpuBody.orientation.w,
+        };
+        double sameSign = 0.0;
+        double flippedSign = 0.0;
+        for (std::size_t component = 0u; component < 4u; ++component) {
+            sameSign = std::max(
+                sameSign,
+                std::abs(
+                    static_cast<double>(gpuOrientation[component]) -
+                    cpuBodies[body].orientation[component]
+                )
+            );
+            flippedSign = std::max(
+                flippedSign,
+                std::abs(
+                    static_cast<double>(gpuOrientation[component]) +
+                    cpuBodies[body].orientation[component]
+                )
+            );
+        }
+        metrics.bodyOrientationError = std::max(
+            metrics.bodyOrientationError, std::min(sameSign, flippedSign)
+        );
+    }
+    for (std::size_t point = 0u; point < cpuPointKinematics.size(); ++point) {
+        const mr_float4 gpuPoint = gpuResult.pointWorld[point].position;
+        const std::array<float, 3u> gpuPosition{
+            gpuPoint.x, gpuPoint.y, gpuPoint.z,
+        };
+        for (std::size_t axis = 0u; axis < 3u; ++axis) {
+            metrics.pointPositionError = std::max(
+                metrics.pointPositionError,
+                std::abs(
+                    static_cast<double>(gpuPosition[axis]) -
+                    cpuPointKinematics[point].position[axis]
+                )
+            );
+        }
+    }
+    for (std::size_t index = 0u; index < cpuJacobians.size(); ++index) {
+        metrics.pointJacobianError = std::max(
+            metrics.pointJacobianError,
+            std::abs(
+                static_cast<double>(gpuResult.pointJacobians[index]) -
+                cpuJacobians[index]
+            )
+        );
+    }
+    for (std::size_t index = 0u; index < cpuMass.size(); ++index) {
+        const double error = std::abs(
+            static_cast<double>(gpuResult.diagnosticMassMatrix[index]) -
+            cpuMass[index]
+        );
+        metrics.massError = std::max(metrics.massError, error);
+        metrics.massScaledError = std::max(
+            metrics.massScaledError,
+            error / (1.0 + std::abs(cpuMass[index]))
+        );
+    }
+    require(
+        metrics.bodyPositionError < 2.0e-4 &&
+            metrics.bodyOrientationError < 2.0e-4 &&
+            metrics.pointPositionError < 2.0e-4 &&
+            metrics.pointJacobianError < 5.0e-4 &&
+            metrics.massError < 5.0e-3 &&
+            metrics.massScaledError < 2.0e-4,
+        "Metal FunctionBased operator parity exceeded FP32 tolerance"
+    );
+    return metrics;
+}
+
 } // namespace
 
 int main(const int argc, char** argv) {
     try {
-        require(argc == 2, "usage: metalrobo_numilab_human_core_reference_probe <payload.nhrigid>");
+        require(
+            argc == 2 || (argc == 3 && std::string(argv[2]) == "--metal"),
+            "usage: metalrobo_numilab_human_core_reference_probe <payload.nhrigid> [--metal]"
+        );
         PayloadHeader header{};
         const metalrobo::EngineModel model = loadReference(argv[1], header);
         std::vector<double> q(model.defaultQ.begin(), model.defaultQ.end());
@@ -245,6 +458,11 @@ int main(const int argc, char** argv) {
             "full Rajagopal invariants are non-finite"
         );
 
+        const bool runMetal = argc == 3;
+        const MetalReferenceMetrics metalMetrics = runMetal
+            ? verifyMetalFunctionBasedOperator(model)
+            : MetalReferenceMetrics{};
+
         std::cout << std::scientific << std::setprecision(6)
                   << "numilab_human_core_reference=ok"
                   << " source_sha256=" << hexSha256(header.sourceSha256)
@@ -259,6 +477,36 @@ int main(const int argc, char** argv) {
                   << " forward_inverse_error=" << forwardInverseError
                   << " kinetic_energy=" << invariants.kineticEnergy
                   << " total_energy=" << invariants.totalEnergy
+                  << (runMetal
+                          ? " metal_function_based_operator=ok"
+                          : "")
+                  << (runMetal
+                          ? " metal_device=" + metalMetrics.deviceName
+                          : "")
+                  << (runMetal
+                          ? " metal_body_position_error=" +
+                                std::to_string(metalMetrics.bodyPositionError)
+                          : "")
+                  << (runMetal
+                          ? " metal_body_orientation_error=" +
+                                std::to_string(metalMetrics.bodyOrientationError)
+                          : "")
+                  << (runMetal
+                          ? " metal_point_position_error=" +
+                                std::to_string(metalMetrics.pointPositionError)
+                          : "")
+                  << (runMetal
+                          ? " metal_point_jacobian_error=" +
+                                std::to_string(metalMetrics.pointJacobianError)
+                          : "")
+                  << (runMetal
+                          ? " metal_mass_error=" +
+                                std::to_string(metalMetrics.massError)
+                          : "")
+                  << (runMetal
+                          ? " metal_mass_scaled_error=" +
+                                std::to_string(metalMetrics.massScaledError)
+                          : "")
                   << '\n';
         return 0;
     } catch (const std::exception& error) {

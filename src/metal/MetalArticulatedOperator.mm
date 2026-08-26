@@ -28,7 +28,9 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 15u;
+// The final stream carries one canonical packed OpenSim SpatialTransform per
+// global joint. Non-FunctionBased slots are all-zero and are never consumed.
+constexpr std::size_t kRawBufferCount = 16u;
 constexpr NSUInteger kThreadsPerThreadgroup = 32u;
 constexpr float kQuaternionHostTolerance = 1.9e-5f;
 constexpr std::uint64_t kShaderAddressableElements =
@@ -253,10 +255,11 @@ bool supportedTopology(
         if (joint.jointType != MR_JOINT_REVOLUTE &&
             joint.jointType != MR_JOINT_CONTINUOUS &&
             joint.jointType != MR_JOINT_PRISMATIC &&
-            joint.jointType != MR_JOINT_FIXED) {
+            joint.jointType != MR_JOINT_FIXED &&
+            joint.jointType != MR_JOINT_FUNCTION_BASED) {
             reason =
                 "Metal articulated operator supports revolute, prismatic, "
-                "continuous, and fixed joints";
+                "continuous, fixed, and FunctionBased joints";
             return false;
         }
     }
@@ -270,6 +273,36 @@ bool supportedTopology(
             MR_MOTION_DYNAMIC) {
             reason =
                 "every body owned by a Metal articulation must be dynamic";
+            return false;
+        }
+    }
+    return true;
+}
+
+bool packFunctionPrograms(
+    const EngineModel& model,
+    std::vector<MROpenSimSpatialTransformGPU>& packed,
+    std::string* reason = nullptr
+) {
+    packed.assign(std::max<std::size_t>(model.joints.size(), 1u), {});
+    for (const FunctionBasedJointProgram& program :
+         model.functionBasedJointPrograms) {
+        if (program.jointIndex >= model.joints.size()) {
+            if (reason != nullptr) {
+                *reason = "FunctionBased program joint index is outside model";
+            }
+            return false;
+        }
+        const OpenSimSpatialTransformStatus status =
+            packOpenSimSpatialTransformGPU(
+                program.transform,
+                packed[program.jointIndex]
+            );
+        if (status != OpenSimSpatialTransformStatus::success) {
+            if (reason != nullptr) {
+                *reason = std::string("FunctionBased program packing failed: ") +
+                    openSimSpatialTransformStatusName(status);
+            }
             return false;
         }
     }
@@ -419,6 +452,11 @@ bool buildRequirements(
             "statuses",
             layout.statusElements,
             requirements.entries[14]
+        ) ||
+        !makeRequirement<MROpenSimSpatialTransformGPU>(
+            "FunctionBased programs",
+            jointElements,
+            requirements.entries[15]
         )) {
         return false;
     }
@@ -451,6 +489,14 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             std::move(diagnostics),
             MetalArticulatedOperatorHostStatus::invalidModel,
             "invalid EngineModel: " + modelReason
+        );
+    }
+    std::vector<MROpenSimSpatialTransformGPU> packedPrograms;
+    if (!packFunctionPrograms(model, packedPrograms, &modelReason)) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidModel,
+            "invalid FunctionBased program stream: " + modelReason
         );
     }
     if (input.articulationIndex >=
@@ -1065,7 +1111,7 @@ void uploadBatch(
         );
     }
     for (std::size_t index = sources.size();
-         index < kRawBufferCount;
+         index < 15u;
          ++index) {
         std::memset(
             context.buffers[index].contents,
@@ -1073,6 +1119,24 @@ void uploadBatch(
             requirements.entries[index].allocationBytes
         );
     }
+    std::vector<MROpenSimSpatialTransformGPU> packedPrograms;
+    const bool packed = packFunctionPrograms(model, packedPrograms);
+    // validateAndBuildLayout() has already validated this exact immutable
+    // stream. Retaining the defensive branch makes a future model mutation
+    // between validation and upload fail closed rather than dispatch zeros.
+    if (!packed) {
+        std::memset(
+            context.buffers[15u].contents,
+            0,
+            requirements.entries[15u].allocationBytes
+        );
+        return;
+    }
+    copyToBuffer(
+        context.buffers[15u],
+        packedPrograms.data(),
+        requirements.entries[15u]
+    );
 }
 
 // The standalone compatibility entry point still uses an isolated arena so
@@ -1836,6 +1900,20 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                 device,
                 requirements.entries[14],
                 @"articulated status output"
+            );
+            std::vector<MROpenSimSpatialTransformGPU> packedPrograms;
+            if (!packFunctionPrograms(model, packedPrograms)) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::invalidModel,
+                    "FunctionBased program packing failed before Metal allocation"
+                );
+            }
+            buffers[15] = makeInputBuffer(
+                device,
+                packedPrograms.data(),
+                requirements.entries[15],
+                @"FunctionBased programs"
             );
 
             for (std::size_t index = 0u;

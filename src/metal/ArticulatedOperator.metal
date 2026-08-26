@@ -1,6 +1,7 @@
 #include <metal_stdlib>
 
 #include "metalrobo/engine_types.h"
+#include "metalrobo/opensim_spatial_transform_gpu.h"
 
 using namespace metal;
 
@@ -25,6 +26,25 @@ struct MotionColumn {
     float3 linear;
     float3 angular;
 };
+
+// This is the in-kernel form of one immutable OpenSim FunctionBased joint.
+// The GPU program ABI remains identical to the independently qualified
+// spatial-transform kernel; this operator consumes the same packed source
+// table rather than approximating it as a serial chain.
+struct FunctionBasedJointKinematics {
+    float4 rotation;
+    float3 translation;
+    float3 angular[MR_OPENSIM_SPATIAL_MAX_COORDINATES];
+    float3 linear[MR_OPENSIM_SPATIAL_MAX_COORDINATES];
+    uint coordinateCount;
+};
+
+inline float opensimPackedScalar(
+    thread const mr_float4* blocks,
+    const uint index
+) {
+    return blocks[index >> 2u][index & 3u];
+}
 
 inline bool finite3(const float3 value) {
     return all(isfinite(value));
@@ -99,6 +119,196 @@ inline float4 axisAngleQuaternion(
         normalizedAxis * sin(halfAngle),
         cos(halfAngle)
     );
+}
+
+inline bool evaluateOpenSimFunction(
+    thread const MROpenSimFunctionGPU& function,
+    const float argument,
+    thread float3& result
+) {
+    if (!isfinite(argument)) {
+        return false;
+    }
+    const uint coefficientCount = function.coefficientCount;
+    const uint knotCount = function.knotCount;
+    if (function.kind == MR_OPENSIM_FUNCTION_CONSTANT) {
+        if (coefficientCount != 1u || knotCount != 0u) {
+            return false;
+        }
+        result = float3(
+            opensimPackedScalar(function.coefficients, 0u),
+            0.0f,
+            0.0f
+        );
+        return isfinite(result.x);
+    }
+    if (function.kind == MR_OPENSIM_FUNCTION_LINEAR) {
+        if (coefficientCount != 2u || knotCount != 0u) {
+            return false;
+        }
+        const float slope = opensimPackedScalar(function.coefficients, 0u);
+        result = float3(
+            slope * argument +
+                opensimPackedScalar(function.coefficients, 1u),
+            slope,
+            0.0f
+        );
+        return finite3(result);
+    }
+    if (function.kind == MR_OPENSIM_FUNCTION_POLYNOMIAL) {
+        if (coefficientCount == 0u ||
+            coefficientCount > MR_OPENSIM_SPATIAL_MAX_COEFFICIENTS ||
+            knotCount != 0u) {
+            return false;
+        }
+        float value = 0.0f;
+        float derivative = 0.0f;
+        float secondDerivative = 0.0f;
+        for (uint index = 0u; index < coefficientCount; ++index) {
+            secondDerivative =
+                secondDerivative * argument + 2.0f * derivative;
+            derivative = derivative * argument + value;
+            value = value * argument +
+                opensimPackedScalar(function.coefficients, index);
+        }
+        result = float3(value, derivative, secondDerivative);
+        return finite3(result);
+    }
+    if (function.kind != MR_OPENSIM_FUNCTION_SIMM_SPLINE ||
+        coefficientCount != 0u || knotCount < 2u ||
+        knotCount > MR_OPENSIM_SPATIAL_MAX_KNOTS) {
+        return false;
+    }
+    for (uint index = 0u; index < knotCount; ++index) {
+        const float x = opensimPackedScalar(function.abscissae, index);
+        const float y = opensimPackedScalar(function.ordinates, index);
+        const float slope = opensimPackedScalar(function.splineSlope, index);
+        const float quadratic = opensimPackedScalar(
+            function.splineQuadratic,
+            index
+        );
+        const float cubic = opensimPackedScalar(function.splineCubic, index);
+        if (!isfinite(x) || !isfinite(y) || !isfinite(slope) ||
+            !isfinite(quadratic) || !isfinite(cubic) ||
+            (index > 0u && !(x > opensimPackedScalar(
+                function.abscissae,
+                index - 1u
+            )))) {
+            return false;
+        }
+    }
+    const uint final = knotCount - 1u;
+    const float firstX = opensimPackedScalar(function.abscissae, 0u);
+    const float finalX = opensimPackedScalar(function.abscissae, final);
+    if (argument < firstX || argument > finalX) {
+        const uint endpoint = argument < firstX ? 0u : final;
+        const float x = opensimPackedScalar(function.abscissae, endpoint);
+        const float y = opensimPackedScalar(function.ordinates, endpoint);
+        const float slope = opensimPackedScalar(function.splineSlope, endpoint);
+        result = float3(y + (argument - x) * slope, slope, 0.0f);
+        return finite3(result);
+    }
+    uint low = 0u;
+    uint high = final;
+    uint interval = 0u;
+    for (uint iteration = 0u; iteration < 5u; ++iteration) {
+        interval = (low + high) >> 1u;
+        if (argument < opensimPackedScalar(function.abscissae, interval)) {
+            high = interval;
+        } else if (argument > opensimPackedScalar(
+                       function.abscissae,
+                       interval + 1u
+                   )) {
+            low = interval;
+        } else {
+            break;
+        }
+    }
+    const float delta = argument -
+        opensimPackedScalar(function.abscissae, interval);
+    const float slope = opensimPackedScalar(function.splineSlope, interval);
+    const float quadratic = opensimPackedScalar(
+        function.splineQuadratic,
+        interval
+    );
+    const float cubic = opensimPackedScalar(function.splineCubic, interval);
+    result = float3(
+        opensimPackedScalar(function.ordinates, interval) + delta *
+            (slope + delta * (quadratic + delta * cubic)),
+        slope + delta * (2.0f * quadratic + 3.0f * delta * cubic),
+        2.0f * quadratic + 6.0f * delta * cubic
+    );
+    return finite3(result);
+}
+
+inline bool evaluateFunctionBasedJoint(
+    device const MROpenSimSpatialTransformGPU& program,
+    device const float* coordinates,
+    thread FunctionBasedJointKinematics& result
+) {
+    result = {};
+    if (program.abiVersion != MR_OPENSIM_SPATIAL_TRANSFORM_GPU_ABI_VERSION ||
+        program.coordinateCount == 0u ||
+        program.coordinateCount > MR_OPENSIM_SPATIAL_MAX_COORDINATES ||
+        program.reserved0 != 0u || program.reserved1 != 0u) {
+        return false;
+    }
+    float3 values[6];
+    float3 axes[6];
+    uint coordinateIndex[6];
+    for (uint index = 0u; index < 6u; ++index) {
+        const MROpenSimFunctionGPU function = program.axes[index];
+        const bool functionIsConstant =
+            function.kind == MR_OPENSIM_FUNCTION_CONSTANT;
+        if ((functionIsConstant &&
+             function.coordinateIndex != MR_OPENSIM_SPATIAL_NO_COORDINATE) ||
+            (!functionIsConstant &&
+             (function.coordinateIndex == MR_OPENSIM_SPATIAL_NO_COORDINATE ||
+              function.coordinateIndex >= program.coordinateCount)) ||
+            !finite4(function.axis) || function.axis.w != 0.0f ||
+            !(dot(function.axis.xyz, function.axis.xyz) > 1.0e-10f)) {
+            return false;
+        }
+        coordinateIndex[index] = function.coordinateIndex;
+        axes[index] = normalize(function.axis.xyz);
+        const float argument = functionIsConstant
+            ? 0.0f
+            : coordinates[function.coordinateIndex];
+        if (!evaluateOpenSimFunction(function, argument, values[index])) {
+            return false;
+        }
+    }
+    const float4 rotation0 = axisAngleQuaternion(axes[0], values[0].x);
+    const float4 rotation01 = quaternionMultiply(
+        rotation0,
+        axisAngleQuaternion(axes[1], values[1].x)
+    );
+    result.rotation = quaternionMultiply(
+        rotation01,
+        axisAngleQuaternion(axes[2], values[2].x)
+    );
+    result.translation =
+        axes[3] * values[3].x +
+        axes[4] * values[4].x +
+        axes[5] * values[5].x;
+    const float3 angularAxes[3] = {
+        axes[0],
+        quaternionRotate(rotation0, axes[1]),
+        quaternionRotate(rotation01, axes[2]),
+    };
+    for (uint index = 0u; index < 6u; ++index) {
+        const uint coordinate = coordinateIndex[index];
+        if (coordinate == MR_OPENSIM_SPATIAL_NO_COORDINATE) {
+            continue;
+        }
+        if (index < 3u) {
+            result.angular[coordinate] += angularAxes[index] * values[index].y;
+        } else {
+            result.linear[coordinate] += axes[index] * values[index].y;
+        }
+    }
+    result.coordinateCount = program.coordinateCount;
+    return finite4(result.rotation) && finite3(result.translation);
 }
 
 inline float3 inertiaMultiply(
@@ -310,7 +520,10 @@ inline MotionColumn bodyMotionForDof(
     const uint dof,
     device const MRArticulationGPU& articulation,
     device const MRJointDescriptorGPU* joints,
+    device const MROpenSimSpatialTransformGPU* functionPrograms,
+    device const float* q,
     threadgroup const float3* bodyPosition,
+    threadgroup const float4* bodyRotation,
     threadgroup const float3* jointPosition,
     threadgroup const float3* jointAxis,
     threadgroup const uint* inboundJoint,
@@ -347,8 +560,39 @@ inline MotionColumn bodyMotionForDof(
         }
         device const MRJointDescriptorGPU& joint =
             joints[globalJoint];
+        const uint jointLocalV =
+            joint.vOffset - articulation.vOffset;
+        if (joint.jointType == MR_JOINT_FUNCTION_BASED &&
+            dof >= jointLocalV && dof - jointLocalV < joint.nv) {
+            FunctionBasedJointKinematics functionState;
+            const uint localQ = joint.qOffset - articulation.qOffset;
+            if (!evaluateFunctionBasedJoint(
+                    functionPrograms[globalJoint],
+                    q + localQ,
+                    functionState
+                ) || functionState.coordinateCount != joint.nv) {
+                return result;
+            }
+            const float4 parentToJointRotation = quaternionMultiply(
+                bodyRotation[parentLocal[cursor]],
+                joint.parentRotation
+            );
+            const uint localDof = dof - jointLocalV;
+            result.angular = quaternionRotate(
+                parentToJointRotation,
+                functionState.angular[localDof]
+            );
+            result.linear = quaternionRotate(
+                parentToJointRotation,
+                functionState.linear[localDof]
+            ) + cross(
+                result.angular,
+                bodyPosition[localBody] - jointPosition[cursor]
+            );
+            return result;
+        }
         if (joint.nv == 1u &&
-            joint.vOffset - articulation.vOffset == dof) {
+            jointLocalV == dof) {
             if (joint.jointType == MR_JOINT_PRISMATIC) {
                 result.linear = jointAxis[cursor];
             } else {
@@ -371,6 +615,8 @@ inline float massElement(
     const uint column,
     device const MRArticulationGPU& articulation,
     device const MRJointDescriptorGPU* joints,
+    device const MROpenSimSpatialTransformGPU* functionPrograms,
+    device const float* q,
     device const MRBodyPropertiesGPU* bodies,
 #if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
     device const float4* bodyParameters,
@@ -392,7 +638,10 @@ inline float massElement(
             row,
             articulation,
             joints,
+            functionPrograms,
+            q,
             bodyPosition,
+            bodyRotation,
             jointPosition,
             jointAxis,
             inboundJoint,
@@ -403,7 +652,10 @@ inline float massElement(
             column,
             articulation,
             joints,
+            functionPrograms,
+            q,
             bodyPosition,
+            bodyRotation,
             jointPosition,
             jointAxis,
             inboundJoint,
@@ -508,6 +760,7 @@ inline bool validModelAndLayout(
     device const MRWorldGPU& world,
     device const MRArticulationGPU& articulation,
     device const MRJointDescriptorGPU* joints,
+    device const MROpenSimSpatialTransformGPU* functionPrograms,
     device const MRDofPropertiesGPU* dofs,
     device const MRBodyPropertiesGPU* bodies,
     device const MRArticulatedOperatorDispatchGPU& dispatch,
@@ -626,6 +879,32 @@ inline bool validModelAndLayout(
             joint.jointType == MR_JOINT_PRISMATIC) {
             jointNq = 1u;
             jointNv = 1u;
+        } else if (joint.jointType == MR_JOINT_FUNCTION_BASED) {
+            if (functionPrograms == nullptr) {
+                setFailure(
+                    status,
+                    MR_ARTICULATED_OPERATOR_UNSUPPORTED_TOPOLOGY,
+                    globalJoint
+                );
+                return false;
+            }
+            const MROpenSimSpatialTransformGPU program =
+                functionPrograms[globalJoint];
+            if (program.abiVersion !=
+                    MR_OPENSIM_SPATIAL_TRANSFORM_GPU_ABI_VERSION ||
+                program.coordinateCount == 0u ||
+                program.coordinateCount >
+                    MR_OPENSIM_SPATIAL_MAX_COORDINATES ||
+                program.coordinateCount != joint.nq) {
+                setFailure(
+                    status,
+                    MR_ARTICULATED_OPERATOR_INVALID_MODEL,
+                    globalJoint
+                );
+                return false;
+            }
+            jointNq = joint.nq;
+            jointNv = joint.nv;
         } else if (joint.jointType != MR_JOINT_FIXED) {
             setFailure(
                 status,
@@ -649,7 +928,8 @@ inline bool validModelAndLayout(
             );
             return false;
         }
-        if (jointNv == 1u) {
+        if (jointNv == 1u &&
+            joint.jointType != MR_JOINT_FUNCTION_BASED) {
             const float axisNormSquared =
                 dot(joint.axis0.xyz, joint.axis0.xyz);
             if (!finite4(joint.axis0) ||
@@ -661,8 +941,7 @@ inline bool validModelAndLayout(
                 );
                 return false;
             }
-            device const MRDofPropertiesGPU& dof =
-                dofs[joint.vOffset];
+            device const MRDofPropertiesGPU& dof = dofs[joint.vOffset];
             if (dof.articulationIndex !=
                     dispatch.articulationIndex ||
                 dof.jointIndex != globalJoint ||
@@ -680,6 +959,29 @@ inline bool validModelAndLayout(
                     joint.vOffset
                 );
                 return false;
+            }
+        }
+        if (joint.jointType == MR_JOINT_FUNCTION_BASED) {
+            for (uint localDof = 0u; localDof < jointNv; ++localDof) {
+                device const MRDofPropertiesGPU& dof =
+                    dofs[joint.vOffset + localDof];
+                if (dof.articulationIndex != dispatch.articulationIndex ||
+                    dof.jointIndex != globalJoint ||
+                    dof.qIndex != joint.qOffset + localDof ||
+                    dof.vIndex != joint.vOffset + localDof ||
+                    dof.localDof != localDof ||
+                    !validDofParameters(
+                        dof,
+                        false,
+                        joint.jointType
+                    )) {
+                    setFailure(
+                        status,
+                        MR_ARTICULATED_OPERATOR_INVALID_MODEL,
+                        joint.vOffset + localDof
+                    );
+                    return false;
+                }
             }
         }
         float4 checkedRotation;
@@ -801,6 +1103,7 @@ inline bool validModelAndLayout(
 inline bool buildKinematics(
     device const MRArticulationGPU& articulation,
     device const MRJointDescriptorGPU* joints,
+    device const MROpenSimSpatialTransformGPU* functionPrograms,
     device const float* q,
     threadgroup float3* bodyPosition,
     threadgroup float4* bodyRotation,
@@ -885,8 +1188,27 @@ inline bool buildKinematics(
             float4 motionRotation =
                 float4(0.0f, 0.0f, 0.0f, 1.0f);
             float3 axisInJoint = float3(1.0f, 0.0f, 0.0f);
+            float3 translationInJoint = float3(0.0f);
             float jointCoordinate = 0.0f;
-            if (joint.nv == 1u) {
+            if (joint.jointType == MR_JOINT_FUNCTION_BASED) {
+                const uint localQ =
+                    joint.qOffset - articulation.qOffset;
+                FunctionBasedJointKinematics functionState;
+                if (!evaluateFunctionBasedJoint(
+                        functionPrograms[globalJoint],
+                        q + localQ,
+                        functionState
+                    ) || functionState.coordinateCount != joint.nq) {
+                    setFailure(
+                        status,
+                        MR_ARTICULATED_OPERATOR_INVALID_MODEL,
+                        globalJoint
+                    );
+                    return false;
+                }
+                motionRotation = functionState.rotation;
+                translationInJoint = functionState.translation;
+            } else if (joint.nv == 1u) {
                 const float axisMagnitude =
                     length(joint.axis0.xyz);
                 axisInJoint = joint.axis0.xyz / axisMagnitude;
@@ -941,9 +1263,14 @@ inline bool buildKinematics(
                     bodyRotation[localParent],
                     joint.parentAnchor.xyz
                 ) +
-                (joint.jointType == MR_JOINT_PRISMATIC
-                    ? jointAxis[localChild] * jointCoordinate
-                    : float3(0.0f));
+                (joint.jointType == MR_JOINT_FUNCTION_BASED
+                    ? quaternionRotate(
+                        parentToJointRotation,
+                        translationInJoint
+                    )
+                    : (joint.jointType == MR_JOINT_PRISMATIC
+                        ? jointAxis[localChild] * jointCoordinate
+                        : float3(0.0f)));
             bodyPosition[localChild] =
                 jointPosition[localChild] -
                 quaternionRotate(
@@ -1165,6 +1492,9 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
 #if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
     device const float4* bodyParameters [[buffer(15)]],
     device const float4* controllerParameters [[buffer(16)]],
+#else
+    device const MROpenSimSpatialTransformGPU* functionPrograms
+        [[buffer(15)]],
 #endif
     threadgroup uchar* scratch [[threadgroup(0)]],
     uint environment [[threadgroup_position_in_grid]],
@@ -1188,6 +1518,11 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     threadgroup_barrier(mem_flags::mem_threadgroup);
 
     device const MRWorldGPU& world = worlds[0];
+#if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
+    // Parameterized world paths retain their existing FunctionBased host
+    // rejection. This null program is never dereferenced in that mode.
+    device const MROpenSimSpatialTransformGPU* functionPrograms = nullptr;
+#endif
     if (lane == 0u) {
         initializationSucceeded =
             validDispatch(world, dispatch, status) ? 1u : 0u;
@@ -1295,6 +1630,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 world,
                 articulation,
                 joints,
+                functionPrograms,
                 dofs,
                 bodies,
                 dispatch,
@@ -1306,6 +1642,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             buildKinematics(
                 articulation,
                 joints,
+                functionPrograms,
                 environmentQ,
                 bodyPosition,
                 bodyRotation,
@@ -1390,7 +1727,10 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                         dof,
                         articulation,
                         joints,
+                        functionPrograms,
+                        environmentQ,
                         bodyPosition,
+                        bodyRotation,
                         jointPosition,
                         jointAxis,
                         inboundJoint,
@@ -1466,6 +1806,8 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             column,
             articulation,
             joints,
+            functionPrograms,
+            environmentQ,
             bodies,
 #if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
             bodyParameters,
@@ -1648,7 +1990,10 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 dof,
                 articulation,
                 joints,
+                functionPrograms,
+                environmentQ,
                 bodyPosition,
+                bodyRotation,
                 jointPosition,
                 jointAxis,
                 inboundJoint,
@@ -1827,7 +2172,10 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 dof,
                 articulation,
                 joints,
+                functionPrograms,
+                environmentQ,
                 bodyPosition,
+                bodyRotation,
                 jointPosition,
                 jointAxis,
                 inboundJoint,
@@ -1952,7 +2300,10 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 dof,
                 articulation,
                 joints,
+                functionPrograms,
+                environmentQ,
                 bodyPosition,
+                bodyRotation,
                 jointPosition,
                 jointAxis,
                 inboundJoint,
@@ -2137,6 +2488,7 @@ kernel void mr_articulated_materialize_body_velocities(
                 world,
                 articulation,
                 joints,
+                nullptr,
                 dofs,
                 bodies,
                 dispatch,
@@ -2148,6 +2500,7 @@ kernel void mr_articulated_materialize_body_velocities(
             buildKinematics(
                 articulation,
                 joints,
+                nullptr,
                 environmentQ,
                 bodyPosition,
                 bodyRotation,
