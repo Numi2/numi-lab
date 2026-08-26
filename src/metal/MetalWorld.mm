@@ -400,6 +400,8 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> abaPipeline = nil;
     __strong id<MTLComputePipelineState>
         functionBasedDenseDynamicsPipeline = nil;
+    __strong id<MTLComputePipelineState>
+        functionBasedStreamedResponsePipeline = nil;
     __strong id<MTLComputePipelineState> millardReferencePipeline = nil;
     __strong id<MTLComputePipelineState> millardAccumulatePipeline = nil;
     __strong id<MTLComputePipelineState> parameterizedABAPipeline = nil;
@@ -560,6 +562,7 @@ struct MetalWorldContextState {
         boundFactorDispatches;
     MRMetalWorldContactDispatchGPU boundContactDispatch{};
     bool useTaskBodyParameters = false;
+    bool usesFunctionBasedDynamics = false;
     std::uint64_t boundModelFingerprint = 0u;
     std::uint64_t boundTaskFingerprint = 0u;
     std::uint64_t boundPolicyFingerprint = 0u;
@@ -3567,15 +3570,16 @@ MetalWorldDiagnostics validateAndBuildLayout(
         );
     }
     if (hasFunctionBasedDynamics &&
-        (world.articulationCount() != 1u || contactMode || nativeTask ||
-         config.devicePhysicsProgram.valid() || world.rodCount() != 0u)) {
+        (world.articulationCount() != 1u || nativeTask ||
+         config.devicePhysicsProgram.valid() || world.rodCount() != 0u ||
+         (contactMode &&
+          config.actuationMode != MetalWorldActuationMode::effort))) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::unsupportedTopology,
-            "bounded FunctionBased dynamics currently admits one fixed-root "
-            "free-motion articulation with direct effort only; contact, "
-            "native-task parameterization, rods, and device-physics coupling "
-            "remain separate admission gates"
+            "bounded FunctionBased dynamics admits one fixed-root direct-effort "
+            "articulation; native-task parameterization, implicit drives, rods, "
+            "and device-physics coupling remain separate admission gates"
         );
     }
     if (config.devicePhysicsProgram.configured() &&
@@ -4145,7 +4149,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         );
     if (config.matrixFreeArticulatedContact &&
         config.streamedArticulatedContactResponses &&
-        nativeTask &&
+        (nativeTask || hasFunctionBasedDynamics) &&
         config.solverMode == MetalWorldSolverMode::temporalCone &&
         world.articulationCount() == 1u &&
         contact.rodNodeCount == 0u &&
@@ -4715,16 +4719,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         (layout.contactDispatch.flags &
          MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES) != 0u;
     if (preferParallelABA || streamedResponses) {
-        if (hasFunctionBasedDynamics) {
-            if (streamedResponses) {
-                return reject(
-                    std::move(diagnostics),
-                    MetalWorldHostStatus::unsupportedTopology,
-                    "streamed articulated responses do not yet admit "
-                    "FunctionBased dense dynamics"
-                );
-            }
-        } else {
+        if (!hasFunctionBasedDynamics) {
         const ParallelABASchedule& schedule =
             world.parallelABASchedule();
         for (const MRParallelABAArticulationGPU& articulation :
@@ -5657,6 +5652,22 @@ MetalWorldDiagnostics initializeContext(
         );
     }
     error = nil;
+    id<MTLComputePipelineState> functionBasedStreamedResponse =
+        makePipeline(
+            device,
+            library,
+            @"mr_function_based_streamed_contact_response",
+            &error
+        );
+    if (functionBasedStreamedResponse == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create FunctionBased streamed-contact response pipeline: " +
+                describeError(error)
+        );
+    }
+    error = nil;
     id<MTLComputePipelineState> millardReference = makePipeline(
         device,
         library,
@@ -6293,6 +6304,8 @@ MetalWorldDiagnostics initializeContext(
             kABAThreadsPerThreadgroup ||
         functionBasedDenseDynamics.maxTotalThreadsPerThreadgroup <
             kABAThreadsPerThreadgroup ||
+        functionBasedStreamedResponse.maxTotalThreadsPerThreadgroup <
+            kABAThreadsPerThreadgroup ||
         millardReference.maxTotalThreadsPerThreadgroup <
             kOperatorThreadsPerThreadgroup ||
         millardAccumulate.maxTotalThreadsPerThreadgroup == 0u ||
@@ -6303,6 +6316,8 @@ MetalWorldDiagnostics initializeContext(
         aba.staticThreadgroupMemoryLength >
             device.maxThreadgroupMemoryLength ||
         functionBasedDenseDynamics.staticThreadgroupMemoryLength >
+            device.maxThreadgroupMemoryLength ||
+        functionBasedStreamedResponse.staticThreadgroupMemoryLength >
             device.maxThreadgroupMemoryLength ||
         millardReference.staticThreadgroupMemoryLength >
             device.maxThreadgroupMemoryLength ||
@@ -6511,6 +6526,8 @@ MetalWorldDiagnostics initializeContext(
     context.abaPipeline = aba;
     context.functionBasedDenseDynamicsPipeline =
         functionBasedDenseDynamics;
+    context.functionBasedStreamedResponsePipeline =
+        functionBasedStreamedResponse;
     context.millardReferencePipeline = millardReference;
     context.millardAccumulatePipeline = millardAccumulate;
     context.parameterizedABAPipeline = parameterizedABA;
@@ -8179,6 +8196,8 @@ void uploadBatch(
             [immutableUpload endEncoding];
         }
         context.boundModelFingerprint = world.fingerprint();
+        context.usesFunctionBasedDynamics =
+            !model.functionBasedJointPrograms.empty();
         context.boundArticulations.assign(
             model.articulations.begin(),
             model.articulations.end()
@@ -10141,9 +10160,10 @@ bool encodeStreamedArticulatedResponses(
          MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES) == 0u) {
         return true;
     }
+    const bool functionBased = context.usesFunctionBasedDynamics;
     if (context.boundArticulations.size() != 1u ||
         context.boundFactorDispatches.size() != 1u ||
-        !context.useTaskBodyParameters) {
+        (!functionBased && !context.useTaskBodyParameters)) {
         return false;
     }
     id<MTLComputeCommandEncoder> encoder =
@@ -10151,9 +10171,13 @@ bool encodeStreamedArticulatedResponses(
     if (encoder == nil) {
         return false;
     }
-    encoder.label = @"MetalWorld streamed articulated responses";
-    [encoder setComputePipelineState:context.streamedInversePipeline];
-    const std::array<std::size_t, 26u> buffers{{
+    encoder.label = functionBased
+        ? @"MetalWorld FunctionBased streamed contact responses"
+        : @"MetalWorld streamed articulated responses";
+    [encoder setComputePipelineState:functionBased
+        ? context.functionBasedStreamedResponsePipeline
+        : context.streamedInversePipeline];
+    std::array<std::size_t, 26u> buffers{{
         kWorld,
         kArticulations,
         kJoints,
@@ -10181,6 +10205,12 @@ bool encodeStreamedArticulatedResponses(
         kContacts,
         kEvaluatedRows,
     }};
+    if (functionBased) {
+        // The source dense kernel consumes this immutable transform table at
+        // slot 10; slots 11–19 retain the shared streamed-response ABI but
+        // are intentionally unused by that kernel.
+        buffers[10u] = kFunctionBasedPrograms;
+    }
     for (NSUInteger argument = 0u;
          argument < buffers.size();
          ++argument) {

@@ -710,6 +710,202 @@ struct MetalWorldFunctionBasedMetrics {
     std::uint32_t successfulStepCount = 0u;
 };
 
+struct MetalWorldFunctionBasedContactMetrics {
+    std::string deviceName;
+    std::uint32_t successfulStepCount = 0u;
+    std::uint32_t maximumActiveContacts = 0u;
+    std::uint32_t maximumConstraints = 0u;
+};
+
+MRBodyStateGPU staticGroundState(
+    const std::uint32_t bodyIndex,
+    const float height
+) {
+    MRBodyStateGPU state{};
+    state.position = {0.0f, height, 0.0f, 1.0f};
+    state.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+    state.flagsAndIndices[0] = MR_MOTION_STATIC;
+    state.flagsAndIndices[1] = MR_INVALID_INDEX;
+    state.flagsAndIndices[2] = bodyIndex;
+    return state;
+}
+
+MetalWorldFunctionBasedContactMetrics
+verifyMetalWorldFunctionBasedContact(
+    const metalrobo::EngineModel& source
+) {
+    metalrobo::EngineModel model = source;
+    const MRArticulationGPU& articulation = model.articulations.at(0u);
+    const std::uint32_t contactBody =
+        articulation.firstBody + articulation.bodyCount - 1u;
+    std::vector<double> q(
+        model.defaultQ.begin(), model.defaultQ.end()
+    );
+    std::vector<double> v(model.defaultV.size(), 0.0);
+    std::vector<metalrobo::ArticulatedBodyKinematics> poses(
+        articulation.bodyCount
+    );
+    const auto poseDiagnostics =
+        metalrobo::computeArticulatedBodyKinematics(
+            model, 0u, q, v, poses
+        );
+    require(
+        poseDiagnostics.succeeded(),
+        "CPU source kinematics failed before FunctionBased contact probe"
+    );
+    const std::uint32_t localContactBody =
+        contactBody - articulation.firstBody;
+    const float contactHeight = static_cast<float>(
+        poses.at(localContactBody).centerOfMassPosition[1]
+    );
+    require(
+        std::isfinite(contactHeight),
+        "source contact witness has non-finite height"
+    );
+
+    const std::uint32_t groundBody =
+        static_cast<std::uint32_t>(model.bodies.size());
+    MRBodyPropertiesGPU ground{};
+    ground.articulationIndex = MR_INVALID_INDEX;
+    ground.parentBody = MR_INVALID_INDEX;
+    ground.inboundJoint = MR_INVALID_INDEX;
+    ground.motionType = MR_MOTION_STATIC;
+    ground.dampingAndSpeedLimits = {0.0f, 0.0f, 1.0e6f, 1.0e6f};
+    model.bodies.push_back(ground);
+    if (!model.bodyNames.empty()) {
+        model.bodyNames.push_back("source_contact_response_ground");
+    }
+
+    MRMaterialGPU material{};
+    material.friction = {0.8f, 0.6f, 0.0f, 0.0f};
+    material.response = {0.0f, 0.5f, 0.0f, 0.0f};
+    material.geometry = {0.001f, 0.0f, 0.0f, 0.0f};
+    model.materials.push_back(material);
+
+    constexpr float radius = 0.06f;
+    MRShapeGPU plane{};
+    plane.bodyIndex = groundBody;
+    plane.shapeType = MR_SHAPE_PLANE;
+    plane.materialIndex = 0u;
+    plane.collisionGroup = 1u;
+    plane.collisionMask = ~0u;
+    plane.slotGeneration = 1u;
+    plane.localRotation = {0.0f, 0.0f, 0.0f, 1.0f};
+    model.shapes.push_back(plane);
+
+    MRShapeGPU witness{};
+    witness.bodyIndex = contactBody;
+    witness.shapeType = MR_SHAPE_SPHERE;
+    witness.materialIndex = 0u;
+    witness.collisionGroup = 1u;
+    witness.collisionMask = ~0u;
+    witness.slotGeneration = 1u;
+    witness.localRotation = {0.0f, 0.0f, 0.0f, 1.0f};
+    witness.dimensions = {radius, 0.0f, 0.0f, 0.0f};
+    witness.contactRestAndBoundingRadius =
+        {0.001f, 0.0f, radius, 0.0f};
+    model.shapes.push_back(witness);
+    if (!model.shapeNames.empty()) {
+        model.shapeNames.push_back("source_contact_response_plane");
+        model.shapeNames.push_back("source_contact_response_witness");
+    }
+    model.world.bodyCount = static_cast<std::uint32_t>(
+        model.bodies.size()
+    );
+    model.world.materialCount = static_cast<std::uint32_t>(
+        model.materials.size()
+    );
+    model.world.shapeCount = static_cast<std::uint32_t>(
+        model.shapes.size()
+    );
+    std::string modelReason;
+    require(
+        model.valid(&modelReason),
+        "synthetic FunctionBased contact model is invalid: " + modelReason
+    );
+
+    metalrobo::CompiledWorld world;
+    const auto compileDiagnostics = metalrobo::compileMetalWorld(
+        model, 0u, world
+    );
+    require(
+        compileDiagnostics.succeeded() && world.valid() &&
+            world.sceneBodyCount() == 1u &&
+            world.eligiblePairCount() == 1u,
+        std::string("synthetic FunctionBased contact compilation failed: ") +
+            metalrobo::metalWorldHostStatusName(
+                compileDiagnostics.status
+            ) + " " + compileDiagnostics.message
+    );
+
+    constexpr std::size_t controlSteps = 2u;
+    const std::vector<float> efforts(
+        controlSteps * static_cast<std::size_t>(world.nv()), 0.0f
+    );
+    const std::vector<MRBodyStateGPU> scene{
+        staticGroundState(
+            groundBody,
+            contactHeight - radius + 0.004f
+        ),
+    };
+    const metalrobo::MetalWorldBatch batch{
+        .environmentCount = 1u,
+        .controlStepCount = controlSteps,
+        .initialQ = model.defaultQ,
+        .initialV = model.defaultV,
+        .efforts = efforts,
+        .initialSceneBodies = scene,
+    };
+    const metalrobo::MetalWorldStepConfig config{
+        .timestepSeconds = 1.0f / 240.0f,
+        .physicsSubsteps = 1u,
+        .solverMode = metalrobo::MetalWorldSolverMode::temporalCone,
+        .actuationMode = metalrobo::MetalWorldActuationMode::effort,
+        .velocityIterations = 4u,
+        .finalVelocityIterations = 2u,
+        .ccdMode = metalrobo::MetalWorldCCDMode::disabled,
+        .deterministic = true,
+        .warmStart = false,
+        .matrixFreeArticulatedContact = true,
+        .streamedArticulatedContactResponses = true,
+        .captureContactEvidence = true,
+        .publishFinalState = true,
+    };
+    metalrobo::MetalWorldContext context;
+    metalrobo::MetalWorldResult result;
+    const auto deviceDiagnostics = context.run(world, batch, config, result);
+    require(
+        deviceDiagnostics.succeeded() && deviceDiagnostics.dispatched &&
+            deviceDiagnostics.published &&
+            deviceDiagnostics.successfulStepCount == controlSteps &&
+            deviceDiagnostics.failedStepCount == 0u &&
+            result.contactStatuses.size() == controlSteps,
+        std::string("FunctionBased streamed-contact execution failed: ") +
+            metalrobo::metalWorldHostStatusName(
+                deviceDiagnostics.status
+            ) + " " + deviceDiagnostics.message +
+            " first_gpu_status=" +
+            std::to_string(deviceDiagnostics.firstGPUStatusCode)
+    );
+    MetalWorldFunctionBasedContactMetrics metrics;
+    metrics.deviceName = deviceDiagnostics.deviceName;
+    metrics.successfulStepCount = deviceDiagnostics.successfulStepCount;
+    for (const MRMetalWorldContactStatusGPU& status : result.contactStatuses) {
+        metrics.maximumActiveContacts = std::max(
+            metrics.maximumActiveContacts, status.activeContacts
+        );
+        metrics.maximumConstraints = std::max(
+            metrics.maximumConstraints, status.requiredConstraints
+        );
+    }
+    require(
+        metrics.maximumActiveContacts > 0u &&
+            metrics.maximumConstraints > 0u,
+        "FunctionBased streamed-contact probe did not reach a device constraint"
+    );
+    return metrics;
+}
+
 struct MetalMillardReferenceMetrics {
     std::string deviceName;
     std::uint32_t appliedCylinderWrapCount = 0u;
@@ -1778,6 +1974,10 @@ int main(const int argc, char** argv) {
         const MetalWorldFunctionBasedMetrics metalWorldMetrics = runMetal
             ? verifyMetalWorldFunctionBasedDynamics(model)
             : MetalWorldFunctionBasedMetrics{};
+        const MetalWorldFunctionBasedContactMetrics
+            metalWorldContactMetrics = runMetal
+                ? verifyMetalWorldFunctionBasedContact(model)
+                : MetalWorldFunctionBasedContactMetrics{};
         const MetalMillardReferenceMetrics metalMillardMetrics =
             runMetal && millardPath != nullptr
                 ? verifyMetalMillardReference(model, millardPayload, millardMetrics)
@@ -1810,6 +2010,9 @@ int main(const int argc, char** argv) {
                           ? " metal_function_based_dynamics=ok"
                           : "")
                   << (runMetal
+                          ? " metal_function_based_streamed_contact=ok"
+                          : "")
+                  << (runMetal
                           ? " metal_device=" + metalMetrics.deviceName
                           : "")
                   << (runMetal
@@ -1820,6 +2023,31 @@ int main(const int argc, char** argv) {
                           ? " metal_world_successful_steps=" +
                                 std::to_string(
                                     metalWorldMetrics.successfulStepCount
+                                )
+                          : "")
+                  << (runMetal
+                          ? " metal_world_contact_device=" +
+                                metalWorldContactMetrics.deviceName
+                          : "")
+                  << (runMetal
+                          ? " metal_world_contact_successful_steps=" +
+                                std::to_string(
+                                    metalWorldContactMetrics.
+                                        successfulStepCount
+                                )
+                          : "")
+                  << (runMetal
+                          ? " metal_world_contact_active_contacts=" +
+                                std::to_string(
+                                    metalWorldContactMetrics.
+                                        maximumActiveContacts
+                                )
+                          : "")
+                  << (runMetal
+                          ? " metal_world_contact_constraints=" +
+                                std::to_string(
+                                    metalWorldContactMetrics.
+                                        maximumConstraints
                                 )
                           : "")
                   << (runMetal

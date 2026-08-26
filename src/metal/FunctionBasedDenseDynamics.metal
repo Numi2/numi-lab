@@ -670,3 +670,539 @@ kernel void mr_function_based_dense_dynamics_step(
     status.diagnostics = float4(isfinite(minimumPivot) ? minimumPivot : 0.0f, maximumPivot, maximumAcceleration, 0.0f);
     statuses[environment] = status;
 }
+
+// Contact's streamed response ABI normally uses the scalar-tree ABA
+// factorization.  FunctionBased CustomJoints instead retain their source
+// SpatialTransform, so construct the same configuration-dependent dense mass
+// matrix as the source dynamics stage and solve M(q) x = J^T n one response
+// column at a time.  The command encoder deliberately binds the source
+// spatial-transform table at slot 10 in place of the unused ABA schedule.
+namespace {
+
+inline bool responseStridesAreValid(
+    const uint vectorStride,
+    const uint environmentStride,
+    const uint vectorCount,
+    const uint vectorWidth
+) {
+    if (vectorStride < vectorWidth || vectorCount == 0u) return false;
+    const ulong required =
+        ulong(vectorCount - 1u) * ulong(vectorStride) +
+        ulong(vectorWidth);
+    return required <= ulong(environmentStride);
+}
+
+inline void publishFunctionBasedResponseFailure(
+    device MRMetalWorldContactStatusGPU* contactStatuses,
+    const uint environment,
+    thread const MRInverseMassStatusGPU& inverse
+) {
+    if (inverse.code == MR_INVERSE_MASS_SUCCESS) return;
+    MRMetalWorldContactStatusGPU contact = contactStatuses[environment];
+    if (contact.code != MR_STEP_SUCCESS) return;
+    contact.code =
+        inverse.code == MR_INVERSE_MASS_NONFINITE_INPUT
+        ? MR_STEP_NONFINITE_INPUT
+        : inverse.code == MR_INVERSE_MASS_FACTORIZATION_FAILED
+        ? MR_STEP_FACTORIZATION_FAILED
+        : inverse.code == MR_INVERSE_MASS_NONFINITE_RESULT
+        ? MR_STEP_NONFINITE_RESULT
+        : MR_STEP_UNSUPPORTED;
+    contact.firstFailingConstraint = inverse.failingIndex;
+    contact.diagnostics = float4(
+        float(inverse.code),
+        float(inverse.failingIndex),
+        inverse.diagnostics.x,
+        inverse.diagnostics.y
+    );
+    contactStatuses[environment] = contact;
+}
+
+inline float functionBasedContactRhs(
+    constant const MRMetalWorldContactDispatchGPU& contactDispatch,
+    device const float* pointJacobians,
+    device const MRBodyStateGPU* candidateBodies,
+    device const MRContactConstraintGPU* contacts,
+    device const MREvaluatedConstraintIRRowGPU* evaluatedRows,
+    const uint environment,
+    const uint rhsIndex,
+    const uint dof
+) {
+    const uint localConstraint = rhsIndex / 3u;
+    const uint axis = rhsIndex - 3u * localConstraint;
+    const uint constraintBase = environment * contactDispatch.constraintStride;
+    const uint rowBase = environment * contactDispatch.rowStride;
+    const uint bodyBase = environment * contactDispatch.bodyStateStride;
+    const uint pointJacobianBase = environment *
+        (contactDispatch.pointQueryStride * 3u * contactDispatch.nv);
+    device const MRContactConstraintGPU& contact =
+        contacts[constraintBase + localConstraint];
+    if ((contact.flags & MR_CONSTRAINT_FLAG_ROD_ENDPOINT) != 0u) {
+        return 0.0f;
+    }
+    device const MRBodyStateGPU* bodies = candidateBodies + bodyBase;
+    float3 jacobianColumn = float3(0.0f);
+    const uint queryA = 2u * localConstraint;
+    const uint queryB = queryA + 1u;
+    if (bodies[contact.bodyA].flagsAndIndices[1] != MR_INVALID_INDEX) {
+        jacobianColumn -= float3(
+            pointJacobians[pointJacobianBase + (queryA * 3u + 0u) * contactDispatch.nv + dof],
+            pointJacobians[pointJacobianBase + (queryA * 3u + 1u) * contactDispatch.nv + dof],
+            pointJacobians[pointJacobianBase + (queryA * 3u + 2u) * contactDispatch.nv + dof]
+        );
+    }
+    if (bodies[contact.bodyB].flagsAndIndices[1] != MR_INVALID_INDEX) {
+        jacobianColumn += float3(
+            pointJacobians[pointJacobianBase + (queryB * 3u + 0u) * contactDispatch.nv + dof],
+            pointJacobians[pointJacobianBase + (queryB * 3u + 1u) * contactDispatch.nv + dof],
+            pointJacobians[pointJacobianBase + (queryB * 3u + 2u) * contactDispatch.nv + dof]
+        );
+    }
+    return dot(
+        evaluatedRows[rowBase + 3u * localConstraint + axis].direction.xyz,
+        jacobianColumn
+    );
+}
+
+inline void failResponse(
+    thread MRInverseMassStatusGPU& status,
+    const uint code,
+    const uint index
+) {
+    status.code = code;
+    status.failingIndex = index;
+}
+
+} // namespace
+
+// One SIMD32 threadgroup owns an environment. Lane zero keeps dense source
+// factorization and all RHS solves deterministic; the remaining lanes exist
+// to preserve the established streamed-contact launch geometry.
+kernel void mr_function_based_streamed_contact_response(
+    device const MRWorldGPU* worlds [[buffer(0)]],
+    device const MRArticulationGPU* articulations [[buffer(1)]],
+    device const MRJointDescriptorGPU* joints [[buffer(2)]],
+    device const MRDofPropertiesGPU* dofs [[buffer(3)]],
+    device const MRBodyPropertiesGPU* bodies [[buffer(4)]],
+    constant const MRInverseMassDispatchGPU& dispatch [[buffer(5)]],
+    device const float* qInput [[buffer(6)]],
+    device const float* unusedInput [[buffer(7)]],
+    device float* responseColumns [[buffer(8)]],
+    device MRInverseMassStatusGPU* statuses [[buffer(9)]],
+    device const MROpenSimSpatialTransformGPU* programs [[buffer(10)]],
+    device const MRMetalWorldContactStatusGPU* unusedScheduleLevels [[buffer(11)]],
+    device const uint* unusedScheduleParentReductions [[buffer(12)]],
+    device const uint* unusedScheduleLevelBodies [[buffer(13)]],
+    device const uint* unusedScheduleParentLocal [[buffer(14)]],
+    device const uint* unusedScheduleInboundJoint [[buffer(15)]],
+    device const uint* unusedScheduleChildOffsets [[buffer(16)]],
+    device const uint* unusedScheduleChildIndices [[buffer(17)]],
+    device const float4* unusedBodyParameters [[buffer(18)]],
+    device const float4* unusedControllerParameters [[buffer(19)]],
+    device MRMetalWorldContactStatusGPU* contactStatuses [[buffer(20)]],
+    constant const MRMetalWorldContactDispatchGPU& contactDispatch [[buffer(21)]],
+    device const float* pointJacobians [[buffer(22)]],
+    device const MRBodyStateGPU* candidateBodies [[buffer(23)]],
+    device const MRContactConstraintGPU* contacts [[buffer(24)]],
+    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(25)]],
+    uint environment [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    (void)unusedInput;
+    (void)unusedScheduleLevels;
+    (void)unusedScheduleParentReductions;
+    (void)unusedScheduleLevelBodies;
+    (void)unusedScheduleParentLocal;
+    (void)unusedScheduleInboundJoint;
+    (void)unusedScheduleChildOffsets;
+    (void)unusedScheduleChildIndices;
+    (void)unusedBodyParameters;
+    (void)unusedControllerParameters;
+    if (lane != 0u || environment >= dispatch.environmentCount) return;
+
+    threadgroup DenseScratch storage;
+    threadgroup DenseScratch& scratch = storage;
+    MRInverseMassStatusGPU status{};
+    status.code = MR_INVERSE_MASS_SUCCESS;
+    status.environment = environment;
+    status.articulationIndex = dispatch.articulationIndex;
+    status.failingIndex = MR_INVALID_INDEX;
+
+    const MRMetalWorldContactStatusGPU contactStatus =
+        contactStatuses[environment];
+    const uint activeRhsCount = contactStatus.code == MR_STEP_SUCCESS
+        ? min(dispatch.rhsCount, 3u * contactStatus.requiredConstraints)
+        : 0u;
+    status.rhsCount = activeRhsCount;
+    if (activeRhsCount == 0u) {
+        status.diagnostics = float4(0.0f);
+        statuses[environment] = status;
+        return;
+    }
+
+    device const MRWorldGPU& world = worlds[0];
+    if (world.abiVersion != MR_ENGINE_ABI_VERSION ||
+        dispatch.articulationIndex >= world.articulationCount ||
+        dispatch.environmentCount == 0u || dispatch.rhsCount == 0u ||
+        dispatch.flags != 0u || dispatch.reserved1 != 0u ||
+        dispatch.reserved2 != 0u || dispatch.reserved3 != 0u) {
+        failResponse(status, MR_INVERSE_MASS_INVALID_DISPATCH, MR_INVALID_INDEX);
+        statuses[environment] = status;
+        publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+        return;
+    }
+    device const MRArticulationGPU& articulation =
+        articulations[dispatch.articulationIndex];
+    status.bodyCount = articulation.bodyCount;
+    status.nq = articulation.nq;
+    status.nv = articulation.nv;
+    if (articulation.rootType != MR_ROOT_FIXED ||
+        articulation.bodyCount == 0u || articulation.bodyCount > kMaxBodies ||
+        articulation.nv == 0u || articulation.nv > kMaxDofs ||
+        articulation.nq > kMaxQ ||
+        articulation.jointCount + 1u != articulation.bodyCount ||
+        articulation.firstBody + articulation.bodyCount > world.bodyCount ||
+        articulation.firstJoint + articulation.jointCount > world.jointCount ||
+        articulation.qOffset + articulation.nq > world.nq ||
+        articulation.vOffset + articulation.nv > world.nv ||
+        dispatch.qStride < world.nq ||
+        !responseStridesAreValid(
+            dispatch.outputVectorStride, dispatch.outputEnvironmentStride,
+            dispatch.rhsCount, articulation.nv
+        )) {
+        failResponse(status, MR_INVERSE_MASS_UNSUPPORTED_TOPOLOGY, MR_INVALID_INDEX);
+        statuses[environment] = status;
+        publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+        return;
+    }
+    const uint rootLocal = articulation.rootBody - articulation.firstBody;
+    if (rootLocal >= articulation.bodyCount) {
+        failResponse(status, MR_INVERSE_MASS_INVALID_MODEL, articulation.rootBody);
+        statuses[environment] = status;
+        publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+        return;
+    }
+    for (uint body = 0u; body < articulation.bodyCount; ++body) {
+        scratch.inboundJoint[body] = MR_INVALID_INDEX;
+        scratch.parentLocal[body] = MR_INVALID_INDEX;
+        scratch.known[body] = 0u;
+    }
+    uint expectedQ = 0u;
+    uint expectedV = 0u;
+    for (uint localJoint = 0u; localJoint < articulation.jointCount; ++localJoint) {
+        const uint globalJoint = articulation.firstJoint + localJoint;
+        device const MRJointDescriptorGPU& joint = joints[globalJoint];
+        const bool scalar = joint.jointType == MR_JOINT_REVOLUTE ||
+            joint.jointType == MR_JOINT_CONTINUOUS ||
+            joint.jointType == MR_JOINT_PRISMATIC;
+        const bool fixed = joint.jointType == MR_JOINT_FIXED;
+        const bool functionBased = joint.jointType == MR_JOINT_FUNCTION_BASED;
+        if (joint.flags != 0u ||
+            joint.parentBody < articulation.firstBody ||
+            joint.parentBody >= articulation.firstBody + articulation.bodyCount ||
+            joint.childBody < articulation.firstBody ||
+            joint.childBody >= articulation.firstBody + articulation.bodyCount ||
+            joint.childBody == articulation.rootBody ||
+            joint.parentBody == joint.childBody ||
+            (!scalar && !fixed && !functionBased) ||
+            (scalar && (joint.nq != 1u || joint.nv != 1u)) ||
+            (fixed && (joint.nq != 0u || joint.nv != 0u)) ||
+            (functionBased && (joint.nq == 0u ||
+                joint.nq > MR_OPENSIM_SPATIAL_MAX_COORDINATES ||
+                joint.nq != joint.nv)) ||
+            joint.qOffset != articulation.qOffset + expectedQ ||
+            joint.vOffset != articulation.vOffset + expectedV ||
+            !finite4(joint.parentAnchor) || !finite4(joint.childAnchor) ||
+            !finite4(joint.parentRotation) || !finite4(joint.childRotation)) {
+            failResponse(status, MR_INVERSE_MASS_INVALID_MODEL, globalJoint);
+            statuses[environment] = status;
+            publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+            return;
+        }
+        if (scalar && (!finite4(joint.axis0) ||
+            !(dot(joint.axis0.xyz, joint.axis0.xyz) > 1.0e-12f))) {
+            failResponse(status, MR_INVERSE_MASS_INVALID_MODEL, globalJoint);
+            statuses[environment] = status;
+            publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+            return;
+        }
+        const uint child = joint.childBody - articulation.firstBody;
+        if (scratch.inboundJoint[child] != MR_INVALID_INDEX) {
+            failResponse(status, MR_INVERSE_MASS_UNSUPPORTED_TOPOLOGY, joint.childBody);
+            statuses[environment] = status;
+            publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+            return;
+        }
+        scratch.inboundJoint[child] = globalJoint;
+        scratch.parentLocal[child] = joint.parentBody - articulation.firstBody;
+        expectedQ += joint.nq;
+        expectedV += joint.nv;
+    }
+    if (expectedQ != articulation.nq || expectedV != articulation.nv ||
+        scratch.inboundJoint[rootLocal] != MR_INVALID_INDEX) {
+        failResponse(status, MR_INVERSE_MASS_INVALID_MODEL, MR_INVALID_INDEX);
+        statuses[environment] = status;
+        publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+        return;
+    }
+    scratch.known[rootLocal] = 1u;
+    scratch.traversal[0] = rootLocal;
+    uint discovered = 1u;
+    for (uint pass = 0u; pass < articulation.bodyCount &&
+             discovered < articulation.bodyCount; ++pass) {
+        bool progressed = false;
+        for (uint localJoint = 0u; localJoint < articulation.jointCount; ++localJoint) {
+            const uint globalJoint = articulation.firstJoint + localJoint;
+            device const MRJointDescriptorGPU& joint = joints[globalJoint];
+            const uint parent = joint.parentBody - articulation.firstBody;
+            const uint child = joint.childBody - articulation.firstBody;
+            if (scratch.known[parent] != 0u && scratch.known[child] == 0u) {
+                scratch.known[child] = 1u;
+                scratch.traversal[discovered++] = child;
+                progressed = true;
+            }
+        }
+        if (!progressed) break;
+    }
+    if (discovered != articulation.bodyCount) {
+        failResponse(status, MR_INVERSE_MASS_UNSUPPORTED_TOPOLOGY, MR_INVALID_INDEX);
+        statuses[environment] = status;
+        publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+        return;
+    }
+    const uint qBase = environment * dispatch.qStride;
+    device const float* q = qInput + qBase;
+    for (uint index = 0u; index < articulation.nq; ++index) {
+        if (!isfinite(q[index])) {
+            failResponse(status, MR_INVERSE_MASS_NONFINITE_INPUT, index);
+            statuses[environment] = status;
+            publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+            return;
+        }
+    }
+    scratch.bodyPosition[rootLocal] = float3(0.0f);
+    scratch.bodyRotation[rootLocal] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    scratch.jointPosition[rootLocal] = float3(0.0f);
+    scratch.jointAxis[rootLocal] = float3(0.0f);
+    for (uint order = 1u; order < articulation.bodyCount; ++order) {
+        const uint child = scratch.traversal[order];
+        const uint globalJoint = scratch.inboundJoint[child];
+        device const MRJointDescriptorGPU& joint = joints[globalJoint];
+        const uint parent = scratch.parentLocal[child];
+        float4 parentRotation;
+        float4 childRotation;
+        if (!normalizedQuaternion(joint.parentRotation, parentRotation) ||
+            !normalizedQuaternion(joint.childRotation, childRotation)) {
+            failResponse(status, MR_INVERSE_MASS_INVALID_QUATERNION, globalJoint);
+            statuses[environment] = status;
+            publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+            return;
+        }
+        const float4 parentToJoint = quaternionMultiply(
+            scratch.bodyRotation[parent], parentRotation
+        );
+        float4 motionRotation = float4(0.0f, 0.0f, 0.0f, 1.0f);
+        float3 translation = float3(0.0f);
+        float3 axis = float3(1.0f, 0.0f, 0.0f);
+        if (joint.jointType == MR_JOINT_FUNCTION_BASED) {
+            const uint localQ = joint.qOffset - articulation.qOffset;
+            const uint localV = joint.vOffset - articulation.vOffset;
+            FunctionKinematics state;
+            // The mass matrix is configuration-only. `bodyMotionForDof`
+            // consumes spatial columns but not Sdot*qdot, so q is a valid
+            // finite backing vector for the unused velocity derivatives here.
+            if (!evaluateFunctionBasedJoint(
+                    programs[globalJoint], q + localQ, q + localV, state
+                ) || state.coordinateCount != joint.nv) {
+                failResponse(status, MR_INVERSE_MASS_INVALID_MODEL, globalJoint);
+                statuses[environment] = status;
+                publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+                return;
+            }
+            motionRotation = state.rotation;
+            translation = state.translation;
+        } else if (joint.nv == 1u) {
+            axis = normalize(joint.axis0.xyz);
+            const uint localQ = joint.qOffset - articulation.qOffset;
+            if (joint.jointType == MR_JOINT_REVOLUTE ||
+                joint.jointType == MR_JOINT_CONTINUOUS) {
+                motionRotation = axisAngleQuaternion(axis, q[localQ]);
+            } else if (joint.jointType == MR_JOINT_PRISMATIC) {
+                translation = axis * q[localQ];
+            }
+        }
+        float4 candidateRotation;
+        if (!normalizedQuaternion(
+                quaternionMultiply(
+                    quaternionMultiply(parentToJoint, motionRotation),
+                    quaternionConjugate(childRotation)
+                ), candidateRotation
+            )) {
+            failResponse(status, MR_INVERSE_MASS_NONFINITE_RESULT, joint.childBody);
+            statuses[environment] = status;
+            publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+            return;
+        }
+        scratch.bodyRotation[child] = candidateRotation;
+        scratch.jointAxis[child] = quaternionRotate(parentToJoint, axis);
+        scratch.jointPosition[child] = scratch.bodyPosition[parent] +
+            quaternionRotate(scratch.bodyRotation[parent], joint.parentAnchor.xyz) +
+            quaternionRotate(parentToJoint, translation);
+        scratch.bodyPosition[child] = scratch.jointPosition[child] -
+            quaternionRotate(candidateRotation, joint.childAnchor.xyz);
+        if (!finite3(scratch.bodyPosition[child]) ||
+            !finite4(scratch.bodyRotation[child])) {
+            failResponse(status, MR_INVERSE_MASS_NONFINITE_RESULT, joint.childBody);
+            statuses[environment] = status;
+            publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+            return;
+        }
+    }
+    for (uint row = 0u; row < articulation.nv; ++row) {
+        for (uint column = 0u; column < articulation.nv; ++column) {
+            scratch.mass[row * kMaxDofs + column] = 0.0f;
+        }
+    }
+    for (uint localBody = 0u; localBody < articulation.bodyCount; ++localBody) {
+        const uint globalBody = articulation.firstBody + localBody;
+        device const MRBodyPropertiesGPU& body = bodies[globalBody];
+        if (body.articulationIndex != dispatch.articulationIndex ||
+            body.motionType != MR_MOTION_DYNAMIC ||
+            !(body.massAndInverseMass.x > 0.0f) ||
+            !finite4(body.massAndInverseMass) || !finite4(body.inertiaRow0) ||
+            !finite4(body.inertiaRow1) || !finite4(body.inertiaRow2)) {
+            failResponse(status, MR_INVERSE_MASS_INVALID_MODEL, globalBody);
+            statuses[environment] = status;
+            publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+            return;
+        }
+        for (uint row = 0u; row < articulation.nv; ++row) {
+            const Motion left = bodyMotionForDof(
+                localBody, row, articulation, joints, programs, q, q,
+                scratch.bodyPosition, scratch.bodyRotation,
+                scratch.jointPosition, scratch.jointAxis,
+                scratch.inboundJoint, scratch.parentLocal
+            );
+            for (uint column = row; column < articulation.nv; ++column) {
+                const Motion right = bodyMotionForDof(
+                    localBody, column, articulation, joints, programs, q, q,
+                    scratch.bodyPosition, scratch.bodyRotation,
+                    scratch.jointPosition, scratch.jointAxis,
+                    scratch.inboundJoint, scratch.parentLocal
+                );
+                const float value =
+                    dot(left.angular, worldInertiaMultiply(
+                        body, scratch.bodyRotation[localBody], right.angular
+                    )) + body.massAndInverseMass.x *
+                        dot(left.linear, right.linear);
+                scratch.mass[row * kMaxDofs + column] += value;
+                if (row != column) {
+                    scratch.mass[column * kMaxDofs + row] += value;
+                }
+            }
+        }
+    }
+    float minimumPivot = INFINITY;
+    float maximumPivot = 0.0f;
+    for (uint row = 0u; row < articulation.nv; ++row) {
+        const MRDofPropertiesGPU dof = dofs[articulation.vOffset + row];
+        if (!finite4(dof.drive) || dof.drive.z < 0.0f) {
+            failResponse(status, MR_INVERSE_MASS_INVALID_MODEL, articulation.vOffset + row);
+            statuses[environment] = status;
+            publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+            return;
+        }
+        for (uint column = 0u; column < articulation.nv; ++column) {
+            scratch.factor[row * kMaxDofs + column] =
+                scratch.mass[row * kMaxDofs + column];
+        }
+        scratch.factor[row * kMaxDofs + row] += dof.drive.z;
+    }
+    for (uint row = 0u; row < articulation.nv; ++row) {
+        float diagonalScale = 0.0f;
+        for (uint column = 0u; column < articulation.nv; ++column) {
+            diagonalScale = max(diagonalScale,
+                abs(scratch.factor[row * kMaxDofs + column]));
+        }
+        for (uint column = 0u; column <= row; ++column) {
+            float value = scratch.factor[row * kMaxDofs + column];
+            for (uint inner = 0u; inner < column; ++inner) {
+                value -= scratch.factor[row * kMaxDofs + inner] *
+                    scratch.factor[column * kMaxDofs + inner];
+            }
+            if (row == column) {
+                if (!(value > max(kPivotFloor,
+                        diagonalScale * 6.0f * kEpsilon)) || !isfinite(value)) {
+                    failResponse(status, MR_INVERSE_MASS_FACTORIZATION_FAILED, row);
+                    status.diagnostics = float4(minimumPivot, maximumPivot,
+                        value, diagonalScale);
+                    statuses[environment] = status;
+                    publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+                    return;
+                }
+                const float pivot = sqrt(value);
+                scratch.factor[row * kMaxDofs + row] = pivot;
+                minimumPivot = min(minimumPivot, pivot);
+                maximumPivot = max(maximumPivot, pivot);
+            } else {
+                scratch.factor[row * kMaxDofs + column] = value /
+                    scratch.factor[column * kMaxDofs + column];
+            }
+        }
+    }
+    float maximumInput = 0.0f;
+    float maximumOutput = 0.0f;
+    for (uint rhs = 0u; rhs < activeRhsCount; ++rhs) {
+        for (uint row = 0u; row < articulation.nv; ++row) {
+            const float value = functionBasedContactRhs(
+                contactDispatch, pointJacobians, candidateBodies, contacts,
+                evaluatedRows, environment, rhs, row
+            );
+            if (!isfinite(value)) {
+                failResponse(status, MR_INVERSE_MASS_NONFINITE_INPUT,
+                    rhs * articulation.nv + row);
+                statuses[environment] = status;
+                publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+                return;
+            }
+            scratch.acceleration[row] = value;
+            maximumInput = max(maximumInput, abs(value));
+        }
+        for (uint row = 0u; row < articulation.nv; ++row) {
+            float value = scratch.acceleration[row];
+            for (uint column = 0u; column < row; ++column) {
+                value -= scratch.factor[row * kMaxDofs + column] *
+                    scratch.acceleration[column];
+            }
+            scratch.acceleration[row] = value /
+                scratch.factor[row * kMaxDofs + row];
+        }
+        for (uint reverse = 0u; reverse < articulation.nv; ++reverse) {
+            const uint row = articulation.nv - 1u - reverse;
+            float value = scratch.acceleration[row];
+            for (uint column = row + 1u; column < articulation.nv; ++column) {
+                value -= scratch.factor[column * kMaxDofs + row] *
+                    scratch.acceleration[column];
+            }
+            const float response = value /
+                scratch.factor[row * kMaxDofs + row];
+            if (!isfinite(response)) {
+                failResponse(status, MR_INVERSE_MASS_NONFINITE_RESULT,
+                    rhs * articulation.nv + row);
+                statuses[environment] = status;
+                publishFunctionBasedResponseFailure(contactStatuses, environment, status);
+                return;
+            }
+            scratch.acceleration[row] = response;
+            maximumOutput = max(maximumOutput, abs(response));
+        }
+        const uint outputBase = environment * dispatch.outputEnvironmentStride +
+            rhs * dispatch.outputVectorStride;
+        for (uint row = 0u; row < articulation.nv; ++row) {
+            responseColumns[outputBase + row] = scratch.acceleration[row];
+        }
+    }
+    status.diagnostics = float4(minimumPivot, maximumPivot,
+        maximumOutput, maximumInput);
+    statuses[environment] = status;
+}
