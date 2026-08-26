@@ -1998,9 +1998,21 @@ int main(const int argc, char** argv) {
         const MetalMillardProgramData millardProgramData = millardPath != nullptr
             ? materializeMetalMillardProgram(millardPayload)
             : MetalMillardProgramData{};
+        MetalMillardProgramData fullyExcitedMillardProgramData =
+            millardProgramData;
+        if (millardPath != nullptr) {
+            for (MRMillardMuscleStateGPU& state :
+                 fullyExcitedMillardProgramData.states) {
+                state.activationAndVelocity.x = 1.0f;
+            }
+        }
         const metalrobo::MetalWorldMillardProgram millardProgram =
             millardPath != nullptr
             ? millardProgramData.program()
+            : metalrobo::MetalWorldMillardProgram{};
+        const metalrobo::MetalWorldMillardProgram fullyExcitedMillardProgram =
+            millardPath != nullptr
+            ? fullyExcitedMillardProgramData.program()
             : metalrobo::MetalWorldMillardProgram{};
         const MetalWorldFunctionBasedMetrics metalWorldMetrics = runMetal
             ? verifyMetalWorldFunctionBasedDynamics(model)
@@ -2011,6 +2023,20 @@ int main(const int argc, char** argv) {
                     model, millardPath != nullptr ? &millardProgram : nullptr
                 )
                 : MetalWorldFunctionBasedContactMetrics{};
+        const MetalWorldFunctionBasedContactMetrics
+            fullyExcitedMetalWorldContactMetrics = runMetal &&
+                millardPath != nullptr
+                ? verifyMetalWorldFunctionBasedContact(
+                    model, &fullyExcitedMillardProgram
+                )
+                : MetalWorldFunctionBasedContactMetrics{};
+        if (runMetal && millardPath != nullptr) {
+            require(
+                fullyExcitedMetalWorldContactMetrics.millardGeneralizedForceL1 >
+                    metalWorldContactMetrics.millardGeneralizedForceL1 * 1.05,
+                "fully excited source Millard contact probe did not exceed default activation force"
+            );
+        }
         const MetalMillardReferenceMetrics metalMillardMetrics =
             runMetal && millardPath != nullptr
                 ? verifyMetalMillardReference(model, millardPayload, millardMetrics)
@@ -2047,6 +2073,9 @@ int main(const int argc, char** argv) {
                           : "")
                   << (runMetal && millardPath != nullptr
                           ? " metal_function_based_millard_streamed_contact=ok"
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_function_based_millard_excitation_response=ok"
                           : "")
                   << (runMetal
                           ? " metal_device=" + metalMetrics.deviceName
@@ -2090,6 +2119,13 @@ int main(const int argc, char** argv) {
                           ? " metal_world_contact_millard_force_l1=" +
                                 std::to_string(
                                     metalWorldContactMetrics.
+                                        millardGeneralizedForceL1
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_world_contact_fully_excited_millard_force_l1=" +
+                                std::to_string(
+                                    fullyExcitedMetalWorldContactMetrics.
                                         millardGeneralizedForceL1
                                 )
                           : "")
