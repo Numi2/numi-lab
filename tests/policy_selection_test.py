@@ -841,7 +841,7 @@ class PolicySelectionTest(unittest.TestCase):
 
     def test_crow_takeoff_cruise_requires_absolute_physical_gate(self) -> None:
         incumbent = {
-            "task": "birdflow_american_crow_journey_v3",
+            "task": "birdflow_american_crow_journey_v7",
             "maximum_sampled_difficulty_band": 4,
             "termination_count_by_environment": [0] * 8,
             "failed_environment_steps": 0,
@@ -972,7 +972,7 @@ class PolicySelectionTest(unittest.TestCase):
 
     def test_crow_journey_protects_every_prior_band(self) -> None:
         current = {
-            "task": "birdflow_american_crow_journey_v3",
+            "task": "birdflow_american_crow_journey_v7",
             "maximum_sampled_difficulty_band": 10,
             "termination_count_by_environment": [0] * 8,
             "failed_environment_steps": 0,
@@ -995,6 +995,7 @@ class PolicySelectionTest(unittest.TestCase):
         }
         protected_candidate = {
             **protected_incumbent,
+            "mean_tracking_score": 0.80,
             "outcomes": {
                 "ground_support": {"mean": 0.7, "direction": 1},
             },
@@ -1006,8 +1007,61 @@ class PolicySelectionTest(unittest.TestCase):
         )
         self.assertEqual(decision["selected"], "incumbent")
         self.assertIn(
-            "protected-band-0: ground_support decreased",
+            "protected-band-0: tracking below milestone floor 0.95",
             decision["regressions"],
+        )
+
+    def test_crow_journey_allows_safe_relative_tradeoff(self) -> None:
+        full = {
+            "task": "birdflow_american_crow_journey_v7",
+            "maximum_sampled_difficulty_band": 10,
+            "termination_count": 8,
+            "timeout_count": 8,
+            "termination_count_by_environment": [1] * 8,
+            "failed_environment_steps": 0,
+            "maximum_root_height": 0.85,
+            "maximum_tilt": 0.40,
+            "mean_tilt": 0.10,
+            "mean_tracking_score": 0.70,
+            "outcomes": {
+                "tracking": {"mean": 0.70, "direction": 1},
+                "liftoff": {"mean": 0.5, "direction": 1},
+                "ground_support": {"mean": 0.5, "direction": 1},
+            },
+        }
+        protected_incumbent = {
+            **full,
+            "maximum_sampled_difficulty_band": 2,
+            "maximum_root_height": 0.90,
+            "mean_tracking_score": 0.80,
+            "outcomes": {
+                "forward_flight_tracking": {"mean": 0.8, "direction": 1},
+                "liftoff": {"mean": 0.8, "direction": 1},
+                "push_off": {"mean": 0.2, "direction": 1},
+            },
+        }
+        protected_candidate = {
+            **protected_incumbent,
+            "maximum_root_height": 0.75,
+            "mean_tracking_score": 0.72,
+            "outcomes": {
+                "forward_flight_tracking": {"mean": 0.7, "direction": 1},
+                "liftoff": {"mean": 0.7, "direction": 1},
+                "push_off": {"mean": 0.1, "direction": 1},
+            },
+        }
+        decision = compare_protected_bands(
+            full,
+            {**full, "mean_tracking_score": 0.71},
+            {2: (protected_incumbent, protected_candidate)},
+        )
+        self.assertEqual(decision["selected"], "candidate")
+        self.assertEqual(decision["regressions"], [])
+        self.assertIn(
+            "forward_flight_tracking decreased",
+            decision["protected_band_comparisons"]["2"][
+                "relative_regressions"
+            ],
         )
 
     def test_checkpoint_comparisons_are_json_serializable(self) -> None:

@@ -437,6 +437,32 @@ def _birdflow_stage_outcomes(task: str, maximum_band: int) -> tuple[str, ...]:
     }[min(maximum_band, 3)]
 
 
+def _crow_journey_contract_regressions(
+    record: dict[str, Any], band: int
+) -> list[str]:
+    """Return absolute physical-contract failures for one journey milestone."""
+
+    regressions: list[str] = []
+    if int(record.get("failed_environment_steps", 0)) != 0:
+        regressions.append("failed environment steps")
+    if _physical_failure_rate(record) > 1.0e-12:
+        regressions.append("physical-boundary termination")
+    tracking_floor = 0.95 if band in {0, 9} else 0.85 if band == 1 else 0.65
+    if float(record.get("mean_tracking_score", 0.0)) < tracking_floor:
+        regressions.append(
+            f"tracking below milestone floor {tracking_floor:.2f}"
+        )
+    if float(record.get("mean_tilt", 0.0)) > 0.35:
+        regressions.append("mean tilt exceeds 0.35 rad")
+    if float(record.get("maximum_tilt", 0.0)) >= 0.80:
+        regressions.append("maximum tilt reaches 0.80 rad")
+    if band in {2, 3, 4, 5, 6, 7, 10} and float(
+        record.get("maximum_root_height", 0.0)
+    ) < 0.55:
+        regressions.append("airborne milestone did not reach 0.55 m")
+    return regressions
+
+
 def _compare_adult_authored_outcomes(
     incumbent: dict[str, Any], candidate: dict[str, Any]
 ) -> tuple[list[str], list[str], dict[str, dict[str, float | int]]]:
@@ -1036,6 +1062,18 @@ def compare_protected_bands(
     """Require progress on the current rung while retaining every protected rung."""
 
     decision = compare_evidence(current_incumbent, current_candidate)
+    task = _task_kind(str(
+        current_candidate.get("task", current_incumbent.get("task", ""))
+    ))
+    journey_contract = task == "birdflow-crow-journey"
+    if journey_contract:
+        current_band = int(
+            current_candidate.get("maximum_sampled_difficulty_band", 10)
+        )
+        decision["relative_regressions"] = list(decision["regressions"])
+        decision["regressions"] = _crow_journey_contract_regressions(
+            current_candidate, current_band
+        )
     comparisons: dict[str, dict[str, Any]] = {}
     for band, (incumbent, candidate) in sorted(protected.items()):
         comparison = compare_staged_bands(
@@ -1044,6 +1082,13 @@ def compare_protected_bands(
             incumbent,
             candidate,
         )["previous_band_comparison"]
+        if journey_contract:
+            comparison["relative_regressions"] = list(
+                comparison["regressions"]
+            )
+            comparison["regressions"] = _crow_journey_contract_regressions(
+                candidate, band
+            )
         comparisons[str(band)] = comparison
         if comparison["regressions"]:
             decision["regressions"].extend(
@@ -1054,6 +1099,16 @@ def compare_protected_bands(
     if any(comparison["regressions"] for comparison in comparisons.values()):
         decision["selected"] = "incumbent"
         decision["candidate_advanced_deployment"] = False
+    elif journey_contract and not decision["regressions"]:
+        decision["selected"] = "candidate"
+        decision["candidate_advanced_deployment"] = True
+        decision["relative_selection_score"] = decision.get(
+            "selection_score"
+        )
+        decision["selection_score"] = 1.0
+        decision["selection_method"] = (
+            "birdflow_crow_journey_absolute_protected_contract"
+        )
     return decision
 
 

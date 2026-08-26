@@ -1295,7 +1295,7 @@ private func makeContext(
                 ),
                 metallibPath: options.metallib
             ),
-            "birdflow_american_crow_journey_v3"
+            "birdflow_american_crow_journey_v7"
         )
     }
     if options.birdFlowAmericanCrow {
@@ -1848,6 +1848,8 @@ private enum TaskTrainMain {
                 "world_source": worldSource,
                 "action_carrier": options.birdFlowJourneyTeacher
                     ? "birdflow_assisted_journey_teacher"
+                    : options.birdFlowAmericanCrowJourney
+                    ? "v7_state_triggered_approach_supervisor_pitch_0.16_0.22_full_authority"
                     : options.birdFlowAmericanCrow
                     ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_band_1;stage2_live_altitude_vertical_rate_and_airspeed_trim_plus_phase_calibrated_pronation_target_amplitude_0.20_phase_2.62_plus_bounded_residual_0.25_wing_sweep_pronation_and_leg_residual_0.25_tail_residual_0.10_band_2"
                     : "none",

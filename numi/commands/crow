@@ -132,7 +132,7 @@ case "$crow_action" in
                 exec "$crow_dispatcher" train \
                     --birdflow-american-crow-journey \
                     --birdflow-journey-teacher \
-                    --initialize-policy birdflow_american_crow_journey_brain \
+                    --initialize-policy birdflow_american_crow_journey_v7_brain \
                     --minimum-difficulty-band "$crow_milestone_band" \
                     --maximum-difficulty-band "$crow_milestone_band" \
                     "$@"
@@ -140,7 +140,7 @@ case "$crow_action" in
             exec "$crow_dispatcher" train \
                 --birdflow-american-crow-journey \
                 --birdflow-journey-teacher \
-                --initialize-policy birdflow_american_crow_journey_brain \
+                --initialize-policy birdflow_american_crow_journey_v7_brain \
                 --zero-actor-output \
                 --minimum-difficulty-band "$crow_milestone_band" \
                 --maximum-difficulty-band "$crow_milestone_band" \

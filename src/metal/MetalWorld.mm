@@ -10240,6 +10240,7 @@ bool encodeTaskNativeActuators(
             {10u, kBodyPoses},
             {11u, kWorkingEffort},
             {12u, kBodyWrenchPlaceholder},
+            {13u, kTaskState},
         },
         &pass,
         4u,

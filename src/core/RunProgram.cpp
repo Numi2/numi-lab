@@ -2219,12 +2219,13 @@ TaskPack makeBirdFlowAmericanCrowJourneyTaskPack(
     TaskPack task = makeBirdFlowAmericanCrowFlightTaskPack(
         observations, reset
     );
-    task.id = "birdflow_american_crow_journey_v3";
+    task.id = "birdflow_american_crow_journey_v7";
     task.actions.push_back({"body.pitch_moment"});
 
-    // The showcase policy is one fresh universal actor, not a residual around
-    // the research task's ground carrier. Replace that carrier-only clock with
-    // the normalized phase of the native stand-to-landing sequencer.
+    // The showcase policy is one universal actor, not a residual around the
+    // research task's ground carrier. Replace that carrier-only clock with the
+    // normalized phase of the native stand-to-landing sequencer. Journey v7
+    // adds only the separately fingerprinted out-of-envelope pitch supervisor.
     observations.actorFrame.erase(
         std::remove_if(
             observations.actorFrame.begin(),

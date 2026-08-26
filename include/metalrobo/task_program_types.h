@@ -71,14 +71,20 @@ enum MRTaskProgramFlags : mr_u32 {
     // objective shaping in the compiled task contract so neither a Dove
     // policy nor a prior Crow PolicyPack can silently opt into it.
     MR_TASK_PROGRAM_AVIAN_CROW_GROUND_TILT_ENVELOPE = 1u << 16u,
+    // The universal journey actor retains full authority before approach.
+    // From approach through landed hold, excess accepted pitch blends the
+    // bounded teacher action vector in while retaining a neural residual.
+    // This explicit, fingerprinted safety supervisor is neither a pose
+    // override nor an injected aerodynamic force.
+    MR_TASK_PROGRAM_AVIAN_CROW_APPROACH_ENVELOPE = 1u << 17u,
     // Carrier-supported Crow walking exposes the 0.50 s bilateral leg-carrier
     // phase to its policy. This is a policy-observation contract, not a
     // prescribed action or a change to the carrier itself.
     MR_TASK_PROGRAM_AVIAN_CROW_GROUND_CARRIER_PHASE_OBSERVATION = 1u << 18u,
     // One universal estimated-crow policy owns stand, ground locomotion,
     // takeoff, flight, approach, and landing. The active phase is authored by
-    // the native task and observed by the actor; no host animation or carrier
-    // supplies actions.
+    // the native task and observed by the actor; no host animation supplies
+    // actions.
     MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY = 1u << 19u,
 };
 

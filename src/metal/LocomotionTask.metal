@@ -3775,8 +3775,21 @@ kernel void mr_locomotion_task_apply_actions(
             (program.schedule.w &
              MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
             true;
+        const bool avianJourneyApproachEnvelope =
+            (program.schedule.w &
+             MR_TASK_PROGRAM_AVIAN_CROW_APPROACH_ENVELOPE) != 0u &&
+            state.commandExtension.w >= (18.0f / 32.0f);
+        const float approachSupervisorBlend =
+            avianJourneyApproachEnvelope
+            ? smoothstep(
+                  0.16f,
+                  0.22f,
+                  abs(state.threatGeometry.w)
+              )
+            : 0.0f;
         const float studentRequested = actionStream[actionBase + action];
-        const float teacherRequested = avianJourneyTeacher
+        const float teacherRequested =
+            avianJourneyTeacher || approachSupervisorBlend > 0.0f
             ? birdFlowJourneyTeacherAction(
                   action,
                   state,
@@ -3789,7 +3802,11 @@ kernel void mr_locomotion_task_apply_actions(
                   studentRequested,
                   clamp(dispatch.assistance.x, 0.0f, 1.0f)
               )
-            : studentRequested;
+            : mix(
+                  studentRequested,
+                  teacherRequested,
+                  approachSupervisorBlend
+              );
         if (avianJourneyTeacher) {
             teacherActions[actionBase + action] = teacherRequested;
         }
@@ -4179,6 +4196,7 @@ kernel void mr_locomotion_task_apply_native_actuators(
     device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(10)]],
     device float* workingEffort [[buffer(11)]],
     device MRABABodyWrenchGPU* bodyWrenches [[buffer(12)]],
+    device const MRTaskStateGPU* taskStates [[buffer(13)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.counts.x ||
@@ -4292,8 +4310,47 @@ kernel void mr_locomotion_task_apply_native_actuators(
             const MRArticulatedBodyPoseGPU pose =
                 bodyPoses[wrenchIndex];
             const uint component = binding.actuator.z;
+            float requested = filtered;
+            if ((program.schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_APPROACH_ENVELOPE) != 0u &&
+                action == 14u && component == 4u &&
+                taskStates[environment].commandExtension.w >=
+                    (21.0f / 32.0f)) {
+                const float4 orientation = rootOrientation(
+                    program,
+                    qState + qBase
+                );
+                const float pitch = asin(clamp(
+                    2.0f * (
+                        orientation.w * orientation.y -
+                        orientation.z * orientation.x
+                    ),
+                    -1.0f,
+                    1.0f
+                ));
+                const float bodyPitchRate = rotateInverse(
+                    orientation,
+                    rootWorldAngularVelocity(program, vState + vBase)
+                ).y;
+                // Rejected soft and late coupled envelopes activated too late
+                // to remove every failure in 640 full journeys. V7 makes the
+                // coupled state trigger eligible at 18 seconds and retains
+                // this direct pitch loop from the authored approach boundary
+                // through landed hold. The only physical authority remains
+                // the existing 0.020 N m actuator.
+                const float safetyRequested = clamp(
+                    -2.40f * pitch - 0.25f * bodyPitchRate,
+                    -1.0f,
+                    1.0f
+                );
+                requested = clamp(
+                    safetyRequested + 0.15f * filtered,
+                    -1.0f,
+                    1.0f
+                );
+            }
             float3 local = float3(0.0f);
-            local[component % 3u] = binding.parameters.x * filtered;
+            local[component % 3u] = binding.parameters.x * requested;
             const float3 world = rotate(pose.orientation, local);
             MRABABodyWrenchGPU wrench = bodyWrenches[wrenchIndex];
             if (component < 3u) {
