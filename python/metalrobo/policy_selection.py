@@ -1412,7 +1412,14 @@ def main() -> int:
         return 1
     candidate_names = [name for name in policies if name != "incumbent"]
     comparison_overrides: dict[str, dict[str, Any]] | None = None
-    if protected_bands:
+    # Band zero has no earlier bands to replay, but it still owns the same
+    # absolute Crow milestone contract as every later rung.  Running the
+    # absolute gate with an empty protected set lets a ceiling-equal standing
+    # policy qualify without weakening any later protected-band requirement.
+    if (
+        curriculum_task == "birdflow-crow-journey"
+        and curriculum_current_band is not None
+    ):
         comparison_overrides = {}
         for name in candidate_names:
             comparison_overrides[name] = compare_protected_bands(

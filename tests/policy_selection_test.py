@@ -1224,6 +1224,28 @@ class PolicySelectionTest(unittest.TestCase):
         record["outcomes"]["approach_pitch_warning_fraction"]["mean"] = 0.01
         self.assertEqual(_crow_journey_contract_regressions(record, 7), [])
 
+    def test_crow_band_zero_uses_absolute_contract_without_protected_bands(self) -> None:
+        record = {
+            "task": "birdflow_american_crow_journey_v8_neural",
+            "failed_environment_steps": 0,
+            "termination_count": 512,
+            "timeout_count": 512,
+            "mean_tracking_score": 1.0,
+            "mean_tilt": 0.001,
+            "maximum_tilt": 0.01,
+            "maximum_root_height": 0.19,
+            "minimum_sampled_difficulty_band": 0,
+            "maximum_sampled_difficulty_band": 0,
+        }
+        decision = compare_protected_bands(record, record, {})
+        self.assertEqual(decision["selected"], "candidate")
+        self.assertTrue(decision["candidate_advanced_deployment"])
+        self.assertEqual(decision["regressions"], [])
+        self.assertEqual(
+            decision["selection_method"],
+            "birdflow_crow_journey_absolute_protected_contract",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
