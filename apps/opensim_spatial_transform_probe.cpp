@@ -184,6 +184,26 @@ int main() {
         requireNear(evaluated.translation[0], 0.0002713671579462591, 1.0e-15, "knee tx");
         requireNear(evaluated.translation[1], -0.00006392948537864571, 1.0e-15, "knee ty");
         requireNear(evaluated.translation[2], 0.0024798183998249526, 1.0e-15, "knee tz");
+        const metalrobo::OpenSimSpatialWrench wrench{
+            .angular = {0.31, -0.27, 0.41},
+            .linear = {12.5, -9.75, 4.25},
+        };
+        const auto projected = metalrobo::projectOpenSimSpatialWrench(
+            evaluated, {velocity}, wrench
+        );
+        require(projected.succeeded(), "walker knee wrench projection failed");
+        require(projected.generalizedForces.size() == 1u, "walker knee projection size");
+        requireNear(
+            projected.generalizedForces[0u],
+            evaluated.motionSubspace[0u].angular[0u] * wrench.angular[0u] +
+                evaluated.motionSubspace[0u].angular[1u] * wrench.angular[1u] +
+                evaluated.motionSubspace[0u].angular[2u] * wrench.angular[2u] +
+                evaluated.motionSubspace[0u].linear[0u] * wrench.linear[0u] +
+                evaluated.motionSubspace[0u].linear[1u] * wrench.linear[1u] +
+                evaluated.motionSubspace[0u].linear[2u] * wrench.linear[2u],
+            1.0e-15,
+            "walker knee generalized force"
+        );
         const auto decodedEvaluation = metalrobo::evaluateOpenSimSpatialTransform(
             decoded.transform,
             {coordinate},

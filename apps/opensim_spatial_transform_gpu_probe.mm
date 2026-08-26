@@ -24,12 +24,15 @@ namespace {
 using metalrobo::OpenSimFunctionDefinition;
 using metalrobo::OpenSimFunctionKind;
 using metalrobo::OpenSimSpatialAxisDefinition;
+using metalrobo::OpenSimSpatialForceProjection;
 using metalrobo::OpenSimSpatialTransformDefinition;
 using metalrobo::OpenSimSpatialTransformEvaluation;
+using metalrobo::OpenSimSpatialWrench;
 
 static_assert(sizeof(MROpenSimSpatialTransformGPU) == 2512u);
 static_assert(sizeof(MROpenSimSpatialTransformInputGPU) == 64u);
 static_assert(sizeof(MROpenSimSpatialTransformResultGPU) == 464u);
+static_assert(sizeof(MROpenSimSpatialForceProjectionResultGPU) == 80u);
 
 void require(const bool condition, const std::string& message) {
     if (!condition) {
@@ -130,6 +133,7 @@ OpenSimSpatialTransformDefinition walkerKnee() {
 
 struct GPUResult {
     MROpenSimSpatialTransformResultGPU result{};
+    MROpenSimSpatialForceProjectionResultGPU projection{};
     std::string deviceName;
 };
 
@@ -197,7 +201,8 @@ struct ProbeCase {
 
 GPUResult runMetal(
     const MROpenSimSpatialTransformGPU& program,
-    const MROpenSimSpatialTransformInputGPU& input
+    const MROpenSimSpatialTransformInputGPU& input,
+    const MROpenSimSpatialWrenchGPU& wrench
 ) {
     @autoreleasepool {
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
@@ -228,11 +233,26 @@ GPUResult runMetal(
             pipeline != nil,
             "failed to create OpenSim spatial-transform pipeline: " + errorText(error)
         );
+        id<MTLFunction> projectionFunction = [library
+            newFunctionWithName:@"mr_opensim_spatial_transform_project_wrench"];
+        require(projectionFunction != nil, "OpenSim spatial-force projection kernel is missing");
+        error = nil;
+        id<MTLComputePipelineState> projectionPipeline = [device
+            newComputePipelineStateWithFunction:projectionFunction error:&error];
+        require(
+            projectionPipeline != nil,
+            "failed to create OpenSim spatial-force projection pipeline: " + errorText(error)
+        );
 
         MROpenSimSpatialTransformResultGPU result{};
+        MROpenSimSpatialForceProjectionResultGPU projection{};
         id<MTLBuffer> programBuffer = buffer(device, &program, 1u, @"OpenSim program");
         id<MTLBuffer> inputBuffer = buffer(device, &input, 1u, @"OpenSim input");
+        id<MTLBuffer> wrenchBuffer = buffer(device, &wrench, 1u, @"OpenSim wrench");
         id<MTLBuffer> resultBuffer = buffer(device, &result, 1u, @"OpenSim result");
+        id<MTLBuffer> projectionBuffer = buffer(
+            device, &projection, 1u, @"OpenSim force projection"
+        );
         id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
         id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
         require(
@@ -246,6 +266,16 @@ GPUResult runMetal(
         [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
 threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
         [encoder endEncoding];
+        id<MTLComputeCommandEncoder> projectionEncoder = [commandBuffer computeCommandEncoder];
+        require(projectionEncoder != nil, "failed to create OpenSim force projection encoder");
+        [projectionEncoder setComputePipelineState:projectionPipeline];
+        [projectionEncoder setBuffer:resultBuffer offset:0 atIndex:0];
+        [projectionEncoder setBuffer:inputBuffer offset:0 atIndex:1];
+        [projectionEncoder setBuffer:wrenchBuffer offset:0 atIndex:2];
+        [projectionEncoder setBuffer:projectionBuffer offset:0 atIndex:3];
+        [projectionEncoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
+threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
+        [projectionEncoder endEncoding];
         [commandBuffer commit];
         [commandBuffer waitUntilCompleted];
         require(
@@ -254,6 +284,7 @@ threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
         );
         GPUResult output;
         std::memcpy(&output.result, resultBuffer.contents, sizeof(output.result));
+        std::memcpy(&output.projection, projectionBuffer.contents, sizeof(output.projection));
         output.deviceName = text(device.name);
         return output;
     }
@@ -332,6 +363,42 @@ void compare(
     }
 }
 
+void compareProjection(
+    const MROpenSimSpatialForceProjectionResultGPU& gpu,
+    const OpenSimSpatialForceProjection& cpu
+) {
+    require(
+        gpu.status == MR_OPENSIM_SPATIAL_SUCCESS &&
+            gpu.coordinateCount == cpu.generalizedForces.size(),
+        "GPU spatial-force projection status failed"
+    );
+    for (std::size_t component = 0u; component < 3u; ++component) {
+        const std::array<float, 3u> angular{
+            gpu.spatialBiasAngular.x,
+            gpu.spatialBiasAngular.y,
+            gpu.spatialBiasAngular.z,
+        };
+        const std::array<float, 3u> linear{
+            gpu.spatialBiasLinear.x,
+            gpu.spatialBiasLinear.y,
+            gpu.spatialBiasLinear.z,
+        };
+        requireNear(
+            angular[component], cpu.spatialBiasAcceleration.angular[component], "Hdot qdot angular"
+        );
+        requireNear(
+            linear[component], cpu.spatialBiasAcceleration.linear[component], "Hdot qdot linear"
+        );
+    }
+    for (std::size_t coordinate = 0u; coordinate < cpu.generalizedForces.size(); ++coordinate) {
+        requireNear(
+            inputScalar(gpu.generalizedForces, coordinate),
+            cpu.generalizedForces[coordinate],
+            "generalized force"
+        );
+    }
+}
+
 } // namespace
 
 int main(int argc, char* argv[]) {
@@ -370,13 +437,32 @@ int main(int argc, char* argv[]) {
             decoded.transform, coordinates, velocities
         );
         require(cpu.succeeded(), "spatial-transform CPU evaluation failed");
-        const GPUResult first = runMetal(probe.program, probe.input);
-        const GPUResult second = runMetal(probe.program, probe.input);
+        const MROpenSimSpatialWrenchGPU wrench{
+            .angular = {0.31f, -0.27f, 0.41f, 0.0f},
+            .linear = {12.5f, -9.75f, 4.25f, 0.0f},
+        };
+        const auto projected = metalrobo::projectOpenSimSpatialWrench(
+            cpu,
+            velocities,
+            OpenSimSpatialWrench{
+                .angular = {0.31, -0.27, 0.41},
+                .linear = {12.5, -9.75, 4.25},
+            }
+        );
+        require(projected.succeeded(), "spatial-force CPU projection failed");
+        const GPUResult first = runMetal(probe.program, probe.input, wrench);
+        const GPUResult second = runMetal(probe.program, probe.input, wrench);
         compare(first.result, cpu);
         compare(second.result, cpu);
+        compareProjection(first.projection, projected);
+        compareProjection(second.projection, projected);
         require(
             std::memcmp(&first.result, &second.result, sizeof(first.result)) == 0,
             "OpenSim spatial-transform GPU output was not deterministic"
+        );
+        require(
+            std::memcmp(&first.projection, &second.projection, sizeof(first.projection)) == 0,
+            "OpenSim spatial-force projection GPU output was not deterministic"
         );
         std::cout << "opensim_spatial_transform_gpu=ok"
                   << " device=" << first.deviceName
@@ -384,6 +470,7 @@ int main(int argc, char* argv[]) {
                   << " tx=" << first.result.translation.x
                   << " h_angular_x=" << first.result.motionAngular[0u].x
                   << " hdot_linear_x=" << first.result.motionLinearDot[0u].x
+                  << " tau0=" << inputScalar(first.projection.generalizedForces, 0u)
                   << '\n';
         return 0;
     } catch (const std::exception& error) {

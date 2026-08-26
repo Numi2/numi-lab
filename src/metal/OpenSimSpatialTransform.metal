@@ -290,3 +290,67 @@ kernel void mr_opensim_spatial_transform_evaluate(
     result.coordinateCount = program.coordinateCount;
     results[programIndex] = result;
 }
+
+// Projects a source-frame spatial wrench through a previously evaluated H and
+// computes Hdot*qdot. This deliberately stops before articulated-body mass,
+// bias-force, and tree-recursion assembly.
+kernel void mr_opensim_spatial_transform_project_wrench(
+    device const MROpenSimSpatialTransformResultGPU* transforms [[buffer(0)]],
+    device const MROpenSimSpatialTransformInputGPU* inputs [[buffer(1)]],
+    device const MROpenSimSpatialWrenchGPU* wrenches [[buffer(2)]],
+    device MROpenSimSpatialForceProjectionResultGPU* results [[buffer(3)]],
+    const uint programIndex [[thread_position_in_grid]]
+) {
+    const MROpenSimSpatialTransformResultGPU transform = transforms[programIndex];
+    const MROpenSimSpatialTransformInputGPU input = inputs[programIndex];
+    const MROpenSimSpatialWrenchGPU wrench = wrenches[programIndex];
+    MROpenSimSpatialForceProjectionResultGPU result{};
+    if (transform.status != MR_OPENSIM_SPATIAL_SUCCESS ||
+        transform.coordinateCount == 0u ||
+        transform.coordinateCount > MR_OPENSIM_SPATIAL_MAX_COORDINATES ||
+        !finite3(wrench.angular.xyz) || !finite3(wrench.linear.xyz) ||
+        wrench.angular.w != 0.0f || wrench.linear.w != 0.0f) {
+        result.status = MR_OPENSIM_SPATIAL_INVALID_PROGRAM;
+        result.coordinateCount = transform.coordinateCount;
+        results[programIndex] = result;
+        return;
+    }
+    for (uint coordinate = 0u; coordinate < transform.coordinateCount; ++coordinate) {
+        const float qdot = inputScalar(input.coordinateVelocityBlocks, coordinate);
+        if (!isfinite(qdot)) {
+            result.status = MR_OPENSIM_SPATIAL_NONFINITE_INPUT;
+            result.coordinateCount = transform.coordinateCount;
+            results[programIndex] = result;
+            return;
+        }
+        const float3 angular = transform.motionAngular[coordinate].xyz;
+        const float3 linear = transform.motionLinear[coordinate].xyz;
+        const float3 angularDot = transform.motionAngularDot[coordinate].xyz;
+        const float3 linearDot = transform.motionLinearDot[coordinate].xyz;
+        if (!finite3(angular) || !finite3(linear) ||
+            !finite3(angularDot) || !finite3(linearDot)) {
+            result.status = MR_OPENSIM_SPATIAL_INVALID_PROGRAM;
+            result.coordinateCount = transform.coordinateCount;
+            results[programIndex] = result;
+            return;
+        }
+        result.generalizedForces[coordinate >> 2u][coordinate & 3u] =
+            dot(angular, wrench.angular.xyz) + dot(linear, wrench.linear.xyz);
+        result.spatialBiasAngular.xyz += angularDot * qdot;
+        result.spatialBiasLinear.xyz += linearDot * qdot;
+    }
+    if (!finite3(result.spatialBiasAngular.xyz) ||
+        !finite3(result.spatialBiasLinear.xyz) ||
+        !finite3(result.generalizedForces[0u].xyz) ||
+        !isfinite(result.generalizedForces[0u].w) ||
+        !finite3(result.generalizedForces[1u].xyz) ||
+        !isfinite(result.generalizedForces[1u].w)) {
+        result.status = MR_OPENSIM_SPATIAL_NONFINITE_RESULT;
+        result.coordinateCount = transform.coordinateCount;
+        results[programIndex] = result;
+        return;
+    }
+    result.status = MR_OPENSIM_SPATIAL_SUCCESS;
+    result.coordinateCount = transform.coordinateCount;
+    results[programIndex] = result;
+}

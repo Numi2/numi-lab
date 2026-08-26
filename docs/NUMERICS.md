@@ -111,9 +111,11 @@ kinematic-program ABI. `MROpenSimSpatialTransformGPU` and its fixed
 `MROpenSimSpatialTransformInputGPU` sidecar are canonical only when a decode
 then re-pack is byte-identical; the device probe compares source-order pose,
 `H`, and `Hdot` against the decoded FP64 evaluator and repeats the GPU result
-byte-for-byte. This accepts source-derived immutable programs without using a
-hand-entered fixture, but does not admit a FunctionBased or Universal joint to
-ABA, project generalized forces, advance an articulation, or establish contact
+byte-for-byte. A paired device primitive also projects a source-frame wrench
+with `H transpose` and returns `Hdot*qdot` at zero generalized acceleration.
+This accepts source-derived immutable programs without using a hand-entered
+fixture, but does not admit a FunctionBased or Universal joint to ABA, assemble
+a multi-body mass/bias system, advance an articulation, or establish contact
 or muscle dynamics.
 
 ## Free-body integration

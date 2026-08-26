@@ -342,6 +342,59 @@ OpenSimSpatialTransformEvaluation evaluateOpenSimSpatialTransform(
     return evaluation;
 }
 
+OpenSimSpatialForceProjection projectOpenSimSpatialWrench(
+    const OpenSimSpatialTransformEvaluation& evaluation,
+    const std::vector<double>& coordinateVelocities,
+    const OpenSimSpatialWrench& wrench
+) {
+    OpenSimSpatialForceProjection projection{};
+    if (!evaluation.succeeded()) {
+        projection.status = evaluation.status;
+        return projection;
+    }
+    if (evaluation.motionSubspace.size() != evaluation.motionSubspaceDot.size() ||
+        coordinateVelocities.size() != evaluation.motionSubspace.size()) {
+        projection.status = OpenSimSpatialTransformStatus::invalidCoordinates;
+        return projection;
+    }
+    if (!finite(wrench.angular) || !finite(wrench.linear) ||
+        !std::all_of(
+            coordinateVelocities.begin(),
+            coordinateVelocities.end(),
+            [](const double value) { return finite(value); }
+        )) {
+        projection.status = OpenSimSpatialTransformStatus::nonfiniteInput;
+        return projection;
+    }
+    projection.generalizedForces.resize(evaluation.motionSubspace.size());
+    for (std::size_t coordinate = 0u;
+         coordinate < evaluation.motionSubspace.size();
+         ++coordinate) {
+        const OpenSimSpatialVector& motion = evaluation.motionSubspace[coordinate];
+        const OpenSimSpatialVector& motionDot = evaluation.motionSubspaceDot[coordinate];
+        projection.generalizedForces[coordinate] =
+            dot(motion.angular, wrench.angular) + dot(motion.linear, wrench.linear);
+        projection.spatialBiasAcceleration.angular = add(
+            projection.spatialBiasAcceleration.angular,
+            scaled(motionDot.angular, coordinateVelocities[coordinate])
+        );
+        projection.spatialBiasAcceleration.linear = add(
+            projection.spatialBiasAcceleration.linear,
+            scaled(motionDot.linear, coordinateVelocities[coordinate])
+        );
+    }
+    if (!finite(projection.spatialBiasAcceleration.angular) ||
+        !finite(projection.spatialBiasAcceleration.linear) ||
+        !std::all_of(
+            projection.generalizedForces.begin(),
+            projection.generalizedForces.end(),
+            [](const double value) { return finite(value); }
+        )) {
+        projection.status = OpenSimSpatialTransformStatus::nonfiniteResult;
+    }
+    return projection;
+}
+
 OpenSimSpatialTransformStatus packOpenSimSpatialTransformGPU(
     const CompiledOpenSimSpatialTransform& transform,
     MROpenSimSpatialTransformGPU& program

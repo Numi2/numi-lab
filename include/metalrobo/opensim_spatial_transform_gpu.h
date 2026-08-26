@@ -61,6 +61,13 @@ typedef struct MR_ALIGN16 MROpenSimSpatialTransformInputGPU {
     mr_float4 coordinateVelocityBlocks[2];
 } MROpenSimSpatialTransformInputGPU;
 
+// A source-frame spatial wrench applied at the FunctionBased joint frame.
+// angular is torque and linear is force; both w lanes are required zero.
+typedef struct MR_ALIGN16 MROpenSimSpatialWrenchGPU {
+    mr_float4 angular;
+    mr_float4 linear;
+} MROpenSimSpatialWrenchGPU;
+
 typedef struct MR_ALIGN16 MROpenSimSpatialTransformResultGPU {
     mr_u32 status;
     mr_u32 coordinateCount;
@@ -79,6 +86,18 @@ typedef struct MR_ALIGN16 MROpenSimSpatialTransformResultGPU {
     mr_float4 motionLinearDot[MR_OPENSIM_SPATIAL_MAX_COORDINATES];
 } MROpenSimSpatialTransformResultGPU;
 
+// Generalized-force projection and the qddot=0 spatial acceleration bias.
+// Entries beyond coordinateCount remain zero.
+typedef struct MR_ALIGN16 MROpenSimSpatialForceProjectionResultGPU {
+    mr_u32 status;
+    mr_u32 coordinateCount;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+    mr_float4 spatialBiasAngular;
+    mr_float4 spatialBiasLinear;
+    mr_float4 generalizedForces[2];
+} MROpenSimSpatialForceProjectionResultGPU;
+
 #ifndef __METAL_VERSION__
 static_assert(sizeof(MROpenSimFunctionGPU) == 416u);
 static_assert(alignof(MROpenSimFunctionGPU) == 16u);
@@ -86,6 +105,10 @@ static_assert(sizeof(MROpenSimSpatialTransformGPU) == 2512u);
 static_assert(alignof(MROpenSimSpatialTransformGPU) == 16u);
 static_assert(sizeof(MROpenSimSpatialTransformInputGPU) == 64u);
 static_assert(alignof(MROpenSimSpatialTransformInputGPU) == 16u);
+static_assert(sizeof(MROpenSimSpatialWrenchGPU) == 32u);
+static_assert(alignof(MROpenSimSpatialWrenchGPU) == 16u);
 static_assert(sizeof(MROpenSimSpatialTransformResultGPU) == 464u);
 static_assert(alignof(MROpenSimSpatialTransformResultGPU) == 16u);
+static_assert(sizeof(MROpenSimSpatialForceProjectionResultGPU) == 80u);
+static_assert(alignof(MROpenSimSpatialForceProjectionResultGPU) == 16u);
 #endif

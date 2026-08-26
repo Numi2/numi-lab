@@ -79,6 +79,23 @@ struct OpenSimSpatialTransformEvaluation {
     }
 };
 
+struct OpenSimSpatialWrench {
+    std::array<double, 3> angular{};
+    std::array<double, 3> linear{};
+};
+
+struct OpenSimSpatialForceProjection {
+    OpenSimSpatialTransformStatus status = OpenSimSpatialTransformStatus::success;
+    // Hdot*qdot at qddot=0, expressed in the parent CustomJoint frame.
+    OpenSimSpatialVector spatialBiasAcceleration{};
+    // H transpose times the supplied source-frame wrench.
+    std::vector<double> generalizedForces;
+
+    [[nodiscard]] bool succeeded() const noexcept {
+        return status == OpenSimSpatialTransformStatus::success;
+    }
+};
+
 [[nodiscard]] OpenSimSpatialTransformCompilation compileOpenSimSpatialTransform(
     const OpenSimSpatialTransformDefinition& definition
 );
@@ -89,6 +106,15 @@ struct OpenSimSpatialTransformEvaluation {
     const CompiledOpenSimSpatialTransform& transform,
     const std::vector<double>& coordinates,
     const std::vector<double>& coordinateVelocities
+);
+
+// Projects a source-frame spatial wrench through evaluated FunctionBased H and
+// evaluates its qddot=0 Hdot*qdot spatial bias. This is a solver primitive;
+// it does not by itself assemble a multi-body mass matrix or advance state.
+[[nodiscard]] OpenSimSpatialForceProjection projectOpenSimSpatialWrench(
+    const OpenSimSpatialTransformEvaluation& evaluation,
+    const std::vector<double>& coordinateVelocities,
+    const OpenSimSpatialWrench& wrench
 );
 
 // Converts immutable source-derived function tables into the fixed-capacity
