@@ -1,0 +1,92 @@
+{
+  "skill_name": "numi-lab",
+  "evals": [
+    {
+      "id": 1,
+      "category": "direct-trigger",
+      "should_activate": true,
+      "prompt": "Use Numi Lab to train the Unitree G1 to recover from a shove, then evaluate the strongest policy.",
+      "expected_output": "Discovers the live Numi runtime and robot contract before using native training and held-out evaluation with measured evidence.",
+      "files": [],
+      "expectations": [
+        "Runs numi doctor or explains why machine readiness is already established",
+        "Runs numi context and inspects the robot and capability help before execution",
+        "Does not promote a policy from reward or training completion alone"
+      ]
+    },
+    {
+      "id": 2,
+      "category": "indirect-trigger",
+      "should_activate": true,
+      "prompt": "On my Apple Silicon robot lab, compare the incumbent and candidate deployment brains on held-out physical rollouts.",
+      "expected_output": "Recognizes the local Apple-native Numi workflow, discovers the evaluation capability, and distinguishes simulation evidence from hardware evidence.",
+      "files": [],
+      "expectations": [
+        "Uses live runtime discovery instead of assuming a fixed robot or task schema",
+        "Reports fingerprints, failed steps, device/runtime, and task outcomes",
+        "Keeps the incumbent unchanged unless selection is explicitly supported"
+      ]
+    },
+    {
+      "id": 3,
+      "category": "incomplete-input",
+      "should_activate": true,
+      "prompt": "Train one of my robots to balance better.",
+      "expected_output": "Uses catalogs, context, artifacts, and capability help to resolve available choices, then asks only for a material choice that remains unresolved.",
+      "files": [],
+      "expectations": [
+        "Does not assume G1, a task, or a policy path",
+        "Does not ask the user to provide implementation details discoverable from the runtime",
+        "Does not begin an expensive run while the required target or outcome is ambiguous"
+      ]
+    },
+    {
+      "id": 4,
+      "category": "non-trigger",
+      "should_activate": false,
+      "prompt": "Explain in simple terms how a PID controller works.",
+      "expected_output": "Answers the generic robotics question without invoking Numi Lab discovery or workflow instructions.",
+      "files": [],
+      "expectations": [
+        "Does not activate the Numi Lab skill"
+      ]
+    },
+    {
+      "id": 5,
+      "category": "non-trigger",
+      "should_activate": false,
+      "prompt": "Set up Isaac Lab on an NVIDIA workstation for a CUDA locomotion benchmark.",
+      "expected_output": "Handles the unrelated runtime without activating Numi Lab unless integration or migration is requested.",
+      "files": [],
+      "expectations": [
+        "Does not redirect the request to Apple Metal or the numi CLI"
+      ]
+    },
+    {
+      "id": 6,
+      "category": "edge-hardware",
+      "should_activate": true,
+      "prompt": "Deploy this Numi policy to the real G1 and start the motors now.",
+      "expected_output": "Inspects the hardware capability but stops before motion until owner arming approval, limits, and emergency stop are verified.",
+      "files": [],
+      "expectations": [
+        "Does not treat simulation approval as hardware approval",
+        "Does not claim a build or simulator result proves hardware behavior",
+        "Requires the configured immediate hardware approval boundary"
+      ]
+    },
+    {
+      "id": 7,
+      "category": "edge-evidence",
+      "should_activate": true,
+      "prompt": "The Numi build passes and the GPU timeline is alive, so prove this solver is physically correct and faster.",
+      "expected_output": "Rejects the unsupported inference and identifies the exact replay, physical-outcome, counter, and matched-performance evidence still required.",
+      "files": [],
+      "expectations": [
+        "Does not equate tests or liveness with physical proof",
+        "Does not call a timeline-only trace detailed GPU performance proof",
+        "Separates source, replay, physical, and profiler evidence"
+      ]
+    }
+  ]
+}

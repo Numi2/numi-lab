@@ -12,13 +12,36 @@ numi_usage() {
 Usage: numi codex install|status
 
   install   Register the Numi marketplace, install the plugin, and expose numi
-  status    Verify that Codex reports the Numi Lab plugin as installed
+  status    Verify the enabled plugin version and cached content match this runtime
 EOF
 }
 
 numi_action=${1:-status}
 numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
 numi_marketplace=$numi_root/.agents/plugins/marketplace.json
+
+numi_verify_install() {
+    command -v codex >/dev/null 2>&1 || {
+        printf 'numi codex: Codex CLI is not on PATH\n' >&2
+        return 1
+    }
+    numi_plugin_source=$numi_root/plugins/numi-lab
+    numi_plugin_check=$numi_plugin_source/scripts/check_install.py
+    [ -f "$numi_plugin_check" ] || {
+        printf 'numi codex: missing install checker %s\n' \
+            "$numi_plugin_check" >&2
+        return 1
+    }
+    numi_python=$(command -v python3 2>/dev/null || true)
+    [ -x "$numi_python" ] || {
+        printf 'numi codex: python3 is required to verify plugin JSON and cache content\n' >&2
+        return 1
+    }
+    numi_codex_root=${CODEX_HOME:-${HOME:?}/.codex}
+    codex plugin list --json | "$numi_python" "$numi_plugin_check" \
+        --source "$numi_plugin_source" \
+        --cache-root "$numi_codex_root/plugins/cache"
+}
 
 case "$numi_action" in
     --help|-h|help)
@@ -63,20 +86,11 @@ case "$numi_action" in
 
         codex plugin marketplace add "$numi_root" --json
         codex plugin add numi-lab@numi-lab --json
+        numi_verify_install
         printf 'Numi Lab is installed in Codex. Start a new task to load it.\n'
         ;;
     status)
-        command -v codex >/dev/null 2>&1 || {
-            printf 'numi codex: Codex CLI is not on PATH\n' >&2
-            exit 1
-        }
-        if codex plugin list --json | \
-            grep '"pluginId": "numi-lab@numi-lab"' >/dev/null; then
-            printf 'Numi Lab is installed and available to Codex.\n'
-        else
-            printf 'Numi Lab is not installed. Run `numi codex install`.\n' >&2
-            exit 1
-        fi
+        numi_verify_install
         ;;
     *)
         numi_usage >&2

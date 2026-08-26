@@ -1,6 +1,6 @@
 {
   "name": "numi-lab",
-  "version": "0.1.1+codex.20260826040432",
+  "version": "0.1.1+codex.20260826042428",
   "description": "Operate, profile, train, evaluate, and extend Apple-native robotics and coupled physics through Codex.",
   "author": {
     "name": "Numi Lab"

@@ -99,6 +99,15 @@ numi_foundation_description=$($numi_repo/tools/numi foundation --numi-describe)
 [ "$numi_foundation_description" = \
     "Inspect or run a foundation model as a fingerprinted action-chunk proposer." ]
 
+for numi_command in "$numi_repo"/numi/commands/*; do
+    [ -x "$numi_command" ] || continue
+    numi_command_description=$(NUMI_LAB_ROOT=$numi_repo \
+        "$numi_command" --numi-describe)
+    [ -n "$numi_command_description" ]
+    [ "$(printf '%s\n' "$numi_command_description" | wc -l | tr -d ' ')" = 1 ]
+    NUMI_LAB_ROOT=$numi_repo "$numi_command" --help >/dev/null
+done
+
 numi_context=$(
     cd "$numi_temp/workspace"
     NUMI_LAB_ROOT=$numi_repo \

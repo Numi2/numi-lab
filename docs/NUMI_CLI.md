@@ -29,6 +29,11 @@ plugin, and links the dispatcher into `${XDG_BIN_HOME:-~/.local/bin}` without
 replacing an existing command. Start a new Codex task after installation so its
 Numi Lab skill is loaded.
 
+Use `numi codex status` to verify more than registration. It fails when the
+plugin is disabled, Codex reports another source or version, the versioned cache
+is absent, or any cached plugin file differs from this runtime's source. This
+prevents an old cached skill from being reported as current after a source edit.
+
 `numi train` and `numi evaluate` are discovered commands, not core CLI logic.
 The dispatcher searches in this order:
 
@@ -154,6 +159,11 @@ held-out physical rollout to compare deployment actor with deployment actor.
 The plugin under `plugins/numi-lab` intentionally contains a small skill. It
 teaches Codex to begin with `numi context`; changing robotics knowledge remains
 owned by the live installation, its commands, and its source.
+
+Representative activation, incomplete-input, non-trigger, hardware, and
+evidence-boundary requests live in the skill's `evals/evals.json`. The stdlib
+contract test validates that corpus and the plugin install/cache checker; prompt
+quality still requires evaluation in a fresh Codex task after reinstall.
 
 Validate the plugin from the plugin-creator skill root:
 

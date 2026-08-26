@@ -7,6 +7,9 @@ description: Use when the user wants Codex to configure, operate, profile, train
 
 Treat Codex as the roboticist and Numi Lab as the user-owned local laboratory.
 Do not force requests into a fixed robotics schema or invent a second planner.
+Use this skill for work through Numi Lab or its `numi` CLI. Do not activate it
+for generic robotics explanations or unrelated runtimes unless the user asks to
+integrate or migrate them with Numi Lab.
 
 ## Start from live truth
 
@@ -21,6 +24,11 @@ Do not force requests into a fixed robotics schema or invent a second planner.
 4. Run `numi <capability> --help` before operating that capability.
 5. Inspect the owning repository code when the request needs behavior that the
    installed commands do not already provide.
+
+Discover missing inputs from context, catalogs, capability help, and existing
+artifacts. Ask only when live discovery cannot resolve a required robot, task,
+artifact, outcome, or hardware-arming choice; never guess paths, fingerprints,
+physical results, or approval.
 
 ## Apple Silicon execution model
 
@@ -107,15 +115,16 @@ future Codex model can inspect and improve.
 
 ## Completion contract
 
-For every executed capability, return the exact runtime revision and worktree
-state, arguments, artifact directory, relevant runtime and artifact hashes,
-stdout/stderr or typed failure, and the actual device/runtime used. For
-simulation, training, evaluation, and profiling, also return failed environment
-steps, throughput, retained and peak memory, replay/fingerprint evidence,
-available traces or counters, and task-specific physical outcomes. State when a
-requested profiler gate or physical outcome was unavailable. A build, test,
-reward, liveness check, or timeline-only trace is not physical or detailed GPU
-performance proof.
+For discovery commands, return the relevant version, resolved path, status, and
+output or typed failure. For commands that execute or produce artifacts, return
+the exact runtime revision and worktree state, arguments, artifact directory,
+relevant runtime and artifact hashes, stdout/stderr or typed failure, and the
+actual device/runtime used. For simulation, training, evaluation, and profiling,
+also return failed environment steps, throughput, retained and peak memory,
+replay/fingerprint evidence, available traces or counters, and task-specific
+physical outcomes. State when a requested profiler gate or physical outcome was
+unavailable. A build, test, reward, liveness check, or timeline-only trace is not
+physical or detailed GPU performance proof.
 
 Before a long Metal, training, evaluation, or profiling run, inspect active
 workloads and existing artifacts. Do not duplicate a live run or contend for a
@@ -126,5 +135,6 @@ Retain every physically valid candidate and its measured outcome. Changing the
 configured production policy is an explicit evidence-backed selection, not a
 binary verdict that erases partial progress.
 Simulator evidence is not hardware evidence. Simulation, authoring, and local
-training may be autonomous; real hardware execution must obey the owner's
-configured arming, limits, emergency stop, and approval policy.
+training may be autonomous. Before real hardware can move, stop and obtain the
+owner approval required by the configured arming policy, and verify limits and
+an emergency stop; never infer that authority from approval to simulate.

@@ -2063,6 +2063,21 @@ if(BUILD_TESTING)
         metalrobo.cli.discovery
         PROPERTIES LABELS "metalrobo;cli" TIMEOUT 120
     )
+
+    find_program(_metalrobo_stdlib_python NAMES python3)
+    if(_metalrobo_stdlib_python)
+        add_test(
+            NAME metalrobo.skill.contract
+            COMMAND
+                "${_metalrobo_stdlib_python}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_skill_contract_test.py"
+                -v
+        )
+        set_tests_properties(
+            metalrobo.skill.contract
+            PROPERTIES LABELS "metalrobo;cli;skill" TIMEOUT 120
+        )
+    endif()
 endif()
 
 add_executable(metalrobo_collision_gpu_probe apps/collision_gpu_probe.mm)
