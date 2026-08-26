@@ -45,6 +45,18 @@ static_assert(
 );
 static_assert(sizeof(WorldPackFileHeader) == 88u);
 
+// File-stable form for the vector-owning host-side FunctionBased program.
+// The transform is serialized through the versioned fixed-capacity program
+// rather than the implementation details of CompiledOpenSimFunction.
+struct FunctionBasedJointProgramFile {
+    std::uint32_t jointIndex = MR_INVALID_INDEX;
+    std::uint32_t reserved0 = 0u;
+    std::uint64_t reserved1 = 0u;
+    MROpenSimSpatialTransformGPU transform{};
+};
+
+static_assert(std::is_trivially_copyable_v<FunctionBasedJointProgramFile>);
+
 WorldPackResult fail(
     const WorldPackStatus status,
     std::string message
@@ -440,6 +452,23 @@ void writeEngineModel(
     writer.pod(model.world);
     writer.podVector(model.articulations);
     writer.podVector(model.joints);
+    std::vector<FunctionBasedJointProgramFile> functionBasedPrograms;
+    functionBasedPrograms.reserve(model.functionBasedJointPrograms.size());
+    for (const FunctionBasedJointProgram& program :
+         model.functionBasedJointPrograms) {
+        FunctionBasedJointProgramFile encoded{};
+        encoded.jointIndex = program.jointIndex;
+        const OpenSimSpatialTransformStatus status =
+            packOpenSimSpatialTransformGPU(program.transform, encoded.transform);
+        // EngineModel::valid has already established this invariant before a
+        // WorldPack can be compiled; retaining the zero record on violation
+        // makes accidental direct serialization fail its later validation.
+        if (status != OpenSimSpatialTransformStatus::success) {
+            encoded.transform = {};
+        }
+        functionBasedPrograms.push_back(encoded);
+    }
+    writer.podVector(functionBasedPrograms);
     writer.podVector(model.dofs);
     writer.podVector(model.actuatorProfiles);
     writer.podVector(model.bodies);
@@ -472,10 +501,31 @@ bool readEngineModel(
     PayloadReader& reader,
     EngineModel& model
 ) {
-    return reader.pod(model.world) &&
-        reader.podVector(model.articulations) &&
-        reader.podVector(model.joints) &&
-        reader.podVector(model.dofs) &&
+    std::vector<FunctionBasedJointProgramFile> functionBasedPrograms;
+    if (!(reader.pod(model.world) &&
+          reader.podVector(model.articulations) &&
+          reader.podVector(model.joints) &&
+          reader.podVector(functionBasedPrograms))) {
+        return false;
+    }
+    model.functionBasedJointPrograms.clear();
+    model.functionBasedJointPrograms.reserve(functionBasedPrograms.size());
+    for (const FunctionBasedJointProgramFile& encoded :
+         functionBasedPrograms) {
+        if (encoded.reserved0 != 0u || encoded.reserved1 != 0u) {
+            return false;
+        }
+        const OpenSimSpatialTransformCompilation decoded =
+            unpackOpenSimSpatialTransformGPU(encoded.transform);
+        if (!decoded.succeeded()) {
+            return false;
+        }
+        model.functionBasedJointPrograms.push_back({
+            .jointIndex = encoded.jointIndex,
+            .transform = decoded.transform,
+        });
+    }
+    return reader.podVector(model.dofs) &&
         reader.podVector(model.actuatorProfiles) &&
         reader.podVector(model.bodies) &&
         reader.podVector(model.shapes) &&

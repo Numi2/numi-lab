@@ -10,7 +10,7 @@
 #include "metalrobo/gpu_types.h"
 #include "metalrobo/constraint_ir_shared.h"
 
-#define MR_ENGINE_ABI_VERSION 4u
+#define MR_ENGINE_ABI_VERSION 5u
 #define MR_INVALID_INDEX 0xffffffffu
 #define MR_MAX_CONTACTS_PER_SOLVER_BATCH 128u
 #define MR_MAX_BODIES_PER_SOLVER_BATCH \
@@ -131,6 +131,12 @@ enum MRJointTypeExt : mr_u32 {
     MR_JOINT_PLANAR = 4u,
     MR_JOINT_FIXED = 5u,
     MR_JOINT_FREE = 6u,
+    // Variable-DoF OpenSim CustomJoint evaluated from an immutable
+    // FunctionBased SpatialTransform program owned by EngineModel. The
+    // generic CPU articulated reference admits this type; current fixed-size
+    // Metal ABA/operator kernels reject it explicitly until their multi-DoF
+    // program stream is implemented.
+    MR_JOINT_FUNCTION_BASED = 7u,
 };
 
 enum MRConstraintType : mr_u32 {

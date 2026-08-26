@@ -62,7 +62,12 @@ struct BodyKinematics {
     Vec3 centerOfMassLinearAcceleration{};
     Vec3 angularAcceleration{};
     Vec3 inboundJointPosition{};
-    Vec3 inboundJointAxis{};
+    // Spatial columns of the inbound joint evaluated at the current state.
+    // They are world-frame twists at inboundJointPosition and remain one
+    // entry per joint velocity coordinate. Scalar legacy joints simply have
+    // one column; FunctionBased CustomJoints retain all source coordinates.
+    std::vector<SpatialMotion> inboundMotionSubspace;
+    std::vector<SpatialMotion> inboundMotionSubspaceDot;
     Mat3 inertiaWorld{};
 };
 
@@ -74,6 +79,19 @@ struct Topology {
     std::uint32_t rootQCount = 0u;
     std::uint32_t rootVCount = 0u;
 };
+
+const CompiledOpenSimSpatialTransform* functionBasedTransform(
+    const EngineModel& model,
+    const std::uint32_t jointIndex
+) {
+    for (const FunctionBasedJointProgram& program :
+         model.functionBasedJointPrograms) {
+        if (program.jointIndex == jointIndex) {
+            return &program.transform;
+        }
+    }
+    return nullptr;
+}
 
 Vec3 operator+(const Vec3 left, const Vec3 right) {
     return {left.x + right.x, left.y + right.y, left.z + right.z};
@@ -639,6 +657,16 @@ ArticulatedDynamicsStatus buildTopology(
             joint.jointType == MR_JOINT_PRISMATIC) {
             expectedJointNq = 1u;
             expectedJointNv = 1u;
+        } else if (joint.jointType == MR_JOINT_FUNCTION_BASED) {
+            const CompiledOpenSimSpatialTransform* transform =
+                functionBasedTransform(model, globalJoint);
+            if (transform == nullptr || joint.nq == 0u || joint.nq > 6u ||
+                joint.nq != joint.nv ||
+                transform->coordinateCount != joint.nq) {
+                return ArticulatedDynamicsStatus::invalidModel;
+            }
+            expectedJointNq = joint.nq;
+            expectedJointNv = joint.nv;
         } else if (joint.jointType != MR_JOINT_FIXED) {
             return ArticulatedDynamicsStatus::unsupportedTopology;
         }
@@ -656,18 +684,25 @@ ArticulatedDynamicsStatus buildTopology(
             !finite(joint.childRotation)) {
             return ArticulatedDynamicsStatus::invalidModel;
         }
-        if (expectedJointNv == 1u) {
+        if (expectedJointNv == 1u &&
+            joint.jointType != MR_JOINT_FUNCTION_BASED) {
             const Vec3 axis = xyz(joint.axis0);
             if (!finite(axis) || !(norm(axis) > 1.0e-12)) {
                 return ArticulatedDynamicsStatus::invalidModel;
             }
+        }
+        for (std::uint32_t localDof = 0u;
+             localDof < expectedJointNv;
+             ++localDof) {
+            const std::uint32_t expectedQ =
+                joint.qOffset + localDof;
             const MRDofPropertiesGPU& dof =
-                model.dofs[joint.vOffset];
+                model.dofs[joint.vOffset + localDof];
             if (dof.articulationIndex != articulationIndex ||
                 dof.jointIndex != globalJoint ||
-                dof.qIndex != joint.qOffset ||
-                dof.vIndex != joint.vOffset ||
-                dof.localDof != 0u ||
+                dof.qIndex != expectedQ ||
+                dof.vIndex != joint.vOffset + localDof ||
+                dof.localDof != localDof ||
                 !validDofDynamicsParameters(
                     dof,
                     false,
@@ -926,95 +961,171 @@ ArticulatedDynamicsStatus buildKinematics(
             rotationMatrix(normalized(quaternion(joint.childRotation)));
         const Mat3 parentToJoint =
             parent.rotation * parentJointRotation;
-        Vec3 axisJoint{1.0, 0.0, 0.0};
         Mat3 motionRotation = identityMatrix();
-        double jointPosition = 0.0;
-        double jointRate = 0.0;
-        double jointAcceleration = 0.0;
-        if (joint.nv == 1u) {
-            axisJoint = xyz(joint.axis0);
+        Vec3 translationJoint{};
+        std::vector<SpatialMotion> localMotionSubspace(joint.nv);
+        std::vector<SpatialMotion> localMotionSubspaceDot(joint.nv);
+        if (joint.jointType == MR_JOINT_FUNCTION_BASED) {
+            const CompiledOpenSimSpatialTransform* transform =
+                functionBasedTransform(model, globalJoint);
+            if (transform == nullptr) {
+                return ArticulatedDynamicsStatus::invalidModel;
+            }
+            std::vector<double> coordinates(joint.nq);
+            std::vector<double> velocities(joint.nv, 0.0);
+            for (std::size_t localDof = 0u;
+                 localDof < coordinates.size();
+                 ++localDof) {
+                coordinates[localDof] = q[
+                    joint.qOffset - articulation.qOffset + localDof
+                ];
+                if (!v.empty()) {
+                    velocities[localDof] = v[
+                        joint.vOffset - articulation.vOffset + localDof
+                    ];
+                }
+            }
+            const OpenSimSpatialTransformEvaluation evaluation =
+                evaluateOpenSimSpatialTransform(
+                    *transform,
+                    coordinates,
+                    velocities
+                );
+            if (!evaluation.succeeded()) {
+                return evaluation.status ==
+                        OpenSimSpatialTransformStatus::nonfiniteInput
+                    ? ArticulatedDynamicsStatus::nonfiniteInput
+                    : ArticulatedDynamicsStatus::invalidModel;
+            }
+            motionRotation = {{
+                {evaluation.rotation[0], evaluation.rotation[1], evaluation.rotation[2]},
+                {evaluation.rotation[3], evaluation.rotation[4], evaluation.rotation[5]},
+                {evaluation.rotation[6], evaluation.rotation[7], evaluation.rotation[8]},
+            }};
+            translationJoint = {
+                evaluation.translation[0],
+                evaluation.translation[1],
+                evaluation.translation[2],
+            };
+            for (std::size_t localDof = 0u;
+                 localDof < localMotionSubspace.size();
+                 ++localDof) {
+                localMotionSubspace[localDof].angular = {
+                    evaluation.motionSubspace[localDof].angular[0],
+                    evaluation.motionSubspace[localDof].angular[1],
+                    evaluation.motionSubspace[localDof].angular[2],
+                };
+                localMotionSubspace[localDof].linear = {
+                    evaluation.motionSubspace[localDof].linear[0],
+                    evaluation.motionSubspace[localDof].linear[1],
+                    evaluation.motionSubspace[localDof].linear[2],
+                };
+                localMotionSubspaceDot[localDof].angular = {
+                    evaluation.motionSubspaceDot[localDof].angular[0],
+                    evaluation.motionSubspaceDot[localDof].angular[1],
+                    evaluation.motionSubspaceDot[localDof].angular[2],
+                };
+                localMotionSubspaceDot[localDof].linear = {
+                    evaluation.motionSubspaceDot[localDof].linear[0],
+                    evaluation.motionSubspaceDot[localDof].linear[1],
+                    evaluation.motionSubspaceDot[localDof].linear[2],
+                };
+            }
+        } else if (joint.nv == 1u) {
+            Vec3 axisJoint = xyz(joint.axis0);
             axisJoint = axisJoint / norm(axisJoint);
             const std::size_t qIndex =
                 joint.qOffset - articulation.qOffset;
-            const std::size_t vIndex =
-                joint.vOffset - articulation.vOffset;
-            jointPosition = q[qIndex];
+            const double jointPosition = q[qIndex];
             if (joint.jointType == MR_JOINT_REVOLUTE ||
                 joint.jointType == MR_JOINT_CONTINUOUS) {
                 motionRotation =
                     rotationAroundAxis(axisJoint, jointPosition);
-            }
-            if (!v.empty()) {
-                jointRate = v[vIndex];
-            }
-            if (!acceleration.empty()) {
-                jointAcceleration = acceleration[vIndex];
+                localMotionSubspace[0u].angular = axisJoint;
+            } else if (joint.jointType == MR_JOINT_PRISMATIC) {
+                translationJoint = axisJoint * jointPosition;
+                localMotionSubspace[0u].linear = axisJoint;
             }
         }
 
         child.rotation =
             parentToJoint * motionRotation *
             transpose(childJointRotation);
-        child.inboundJointAxis = parentToJoint * axisJoint;
         child.inboundJointPosition =
             parent.originPosition +
             parent.rotation * xyz(joint.parentAnchor) +
-            (
-                joint.jointType == MR_JOINT_PRISMATIC
-                    ? child.inboundJointAxis * jointPosition
-                    : Vec3{}
-            );
+            parentToJoint * translationJoint;
+        child.inboundMotionSubspace.resize(joint.nv);
+        child.inboundMotionSubspaceDot.resize(joint.nv);
+        for (std::size_t localDof = 0u;
+             localDof < child.inboundMotionSubspace.size();
+             ++localDof) {
+            child.inboundMotionSubspace[localDof].angular =
+                parentToJoint * localMotionSubspace[localDof].angular;
+            child.inboundMotionSubspace[localDof].linear =
+                parentToJoint * localMotionSubspace[localDof].linear;
+            child.inboundMotionSubspaceDot[localDof].angular =
+                parentToJoint * localMotionSubspaceDot[localDof].angular;
+            child.inboundMotionSubspaceDot[localDof].linear =
+                parentToJoint * localMotionSubspaceDot[localDof].linear;
+        }
         const Vec3 childAnchorWorld =
             child.rotation * xyz(joint.childAnchor);
         child.originPosition =
             child.inboundJointPosition - childAnchorWorld;
 
-        const Vec3 parentToJointVector =
+        const Vec3 parentToChildJointVector =
             child.inboundJointPosition - parent.originPosition;
-        const Vec3 jointLinearVelocity =
-            parent.originLinearVelocity +
-            cross(parent.angularVelocity, parentToJointVector) +
-            (
-                joint.jointType == MR_JOINT_PRISMATIC
-                    ? child.inboundJointAxis * jointRate
-                    : Vec3{}
-            );
-        child.angularVelocity = parent.angularVelocity;
-        if (joint.jointType == MR_JOINT_REVOLUTE ||
-            joint.jointType == MR_JOINT_CONTINUOUS) {
-            child.angularVelocity +=
-                child.inboundJointAxis * jointRate;
+        Vec3 relativeAngularVelocity{};
+        Vec3 relativeLinearVelocity{};
+        Vec3 relativeAngularAcceleration{};
+        Vec3 relativeLinearAcceleration{};
+        for (std::size_t localDof = 0u;
+             localDof < child.inboundMotionSubspace.size();
+             ++localDof) {
+            const std::size_t velocityIndex =
+                joint.vOffset - articulation.vOffset + localDof;
+            const double rate = v.empty() ? 0.0 : v[velocityIndex];
+            const double jointAcceleration = acceleration.empty()
+                ? 0.0
+                : acceleration[velocityIndex];
+            relativeAngularVelocity +=
+                child.inboundMotionSubspace[localDof].angular * rate;
+            relativeLinearVelocity +=
+                child.inboundMotionSubspace[localDof].linear * rate;
+            relativeAngularAcceleration +=
+                child.inboundMotionSubspace[localDof].angular *
+                    jointAcceleration +
+                child.inboundMotionSubspaceDot[localDof].angular * rate;
+            relativeLinearAcceleration +=
+                child.inboundMotionSubspace[localDof].linear *
+                    jointAcceleration +
+                child.inboundMotionSubspaceDot[localDof].linear * rate;
         }
+        const Vec3 childJointLinearVelocity =
+            parent.originLinearVelocity +
+            cross(parent.angularVelocity, parentToChildJointVector) +
+            relativeLinearVelocity;
+        child.angularVelocity =
+            parent.angularVelocity + relativeAngularVelocity;
         child.originLinearVelocity =
-            jointLinearVelocity -
+            childJointLinearVelocity -
             cross(child.angularVelocity, childAnchorWorld);
 
-        Vec3 jointLinearAcceleration =
+        const Vec3 childJointLinearAcceleration =
             parent.originLinearAcceleration +
-            cross(parent.angularAcceleration, parentToJointVector) +
+            cross(parent.angularAcceleration, parentToChildJointVector) +
             cross(
                 parent.angularVelocity,
-                cross(parent.angularVelocity, parentToJointVector)
-            );
-        child.angularAcceleration = parent.angularAcceleration;
-        if (joint.jointType == MR_JOINT_REVOLUTE ||
-            joint.jointType == MR_JOINT_CONTINUOUS) {
-            child.angularAcceleration +=
-                child.inboundJointAxis * jointAcceleration +
-                cross(
-                    parent.angularVelocity,
-                    child.inboundJointAxis
-                ) * jointRate;
-        } else if (joint.jointType == MR_JOINT_PRISMATIC) {
-            jointLinearAcceleration +=
-                child.inboundJointAxis * jointAcceleration +
-                cross(
-                    parent.angularVelocity,
-                    child.inboundJointAxis
-                ) * (2.0 * jointRate);
-        }
+                cross(parent.angularVelocity, parentToChildJointVector)
+            ) +
+            cross(parent.angularVelocity, relativeLinearVelocity) * 2.0 +
+            relativeLinearAcceleration;
+        child.angularAcceleration = parent.angularAcceleration +
+            cross(parent.angularVelocity, relativeAngularVelocity) +
+            relativeAngularAcceleration;
         child.originLinearAcceleration =
-            jointLinearAcceleration -
+            childJointLinearAcceleration -
             cross(child.angularAcceleration, childAnchorWorld) -
             cross(
                 child.angularVelocity,
@@ -1106,23 +1217,21 @@ std::vector<SpatialMotion> bodyJacobian(
         const std::uint32_t globalJoint =
             topology.inboundJoint[localCursor];
         const MRJointDescriptorGPU& joint = model.joints[globalJoint];
-        if (joint.nv == 1u) {
+        const BodyKinematics& cursorKinematics =
+            kinematics[localCursor];
+        for (std::size_t localDof = 0u;
+             localDof < cursorKinematics.inboundMotionSubspace.size();
+             ++localDof) {
             const std::size_t velocityIndex =
-                joint.vOffset - articulation.vOffset;
-            const Vec3 axis =
-                kinematics[localCursor].inboundJointAxis;
-            if (joint.jointType == MR_JOINT_PRISMATIC) {
-                jacobian[velocityIndex].linear = axis;
-            } else {
-                jacobian[velocityIndex].angular = axis;
-                jacobian[velocityIndex].linear =
-                    cross(
-                        axis,
-                        body.centerOfMassPosition -
-                            kinematics[localCursor].
-                                inboundJointPosition
-                    );
-            }
+                joint.vOffset - articulation.vOffset + localDof;
+            SpatialMotion motion =
+                cursorKinematics.inboundMotionSubspace[localDof];
+            motion.linear += cross(
+                motion.angular,
+                body.centerOfMassPosition -
+                    cursorKinematics.inboundJointPosition
+            );
+            jacobian[velocityIndex] = motion;
         }
         cursor = joint.parentBody;
     }
@@ -1144,15 +1253,6 @@ double motionComponent(
     return index < 3u
         ? (&motion.angular.x)[index]
         : (&motion.linear.x)[index - 3u];
-}
-
-double forceComponent(
-    const SpatialForce force,
-    const std::size_t index
-) {
-    return index < 3u
-        ? (&force.torque.x)[index]
-        : (&force.force.x)[index - 3u];
 }
 
 void setForceComponent(
@@ -1181,21 +1281,6 @@ SpatialMatrix spatialInertia(
     return result;
 }
 
-SpatialMatrix motionTransform(const Vec3 parentToChildCom) {
-    SpatialMatrix result{};
-    for (std::size_t axis = 0u; axis < 6u; ++axis) {
-        result.m[axis][axis] = 1.0;
-    }
-    // v_child = v_parent + omega_parent x r.
-    result.m[3][1] = parentToChildCom.z;
-    result.m[3][2] = -parentToChildCom.y;
-    result.m[4][0] = -parentToChildCom.z;
-    result.m[4][2] = parentToChildCom.x;
-    result.m[5][0] = parentToChildCom.y;
-    result.m[5][1] = -parentToChildCom.x;
-    return result;
-}
-
 SpatialForce operator*(
     const SpatialMatrix& matrixValue,
     const SpatialMotion motion
@@ -1209,72 +1294,6 @@ SpatialForce operator*(
                 motionComponent(motion, column);
         }
         setForceComponent(result, row, value);
-    }
-    return result;
-}
-
-SpatialForce transformForceToParent(
-    const SpatialMatrix& motionTransformValue,
-    const SpatialForce childForce
-) {
-    SpatialForce result{};
-    for (std::size_t row = 0u; row < 6u; ++row) {
-        double value = 0.0;
-        for (std::size_t column = 0u; column < 6u; ++column) {
-            value +=
-                motionTransformValue.m[column][row] *
-                forceComponent(childForce, column);
-        }
-        setForceComponent(result, row, value);
-    }
-    return result;
-}
-
-SpatialMatrix transformInertiaToParent(
-    const SpatialMatrix& motionTransformValue,
-    const SpatialMatrix& childInertia
-) {
-    SpatialMatrix intermediate{};
-    SpatialMatrix result{};
-    for (std::size_t row = 0u; row < 6u; ++row) {
-        for (std::size_t column = 0u; column < 6u; ++column) {
-            for (std::size_t inner = 0u; inner < 6u; ++inner) {
-                intermediate.m[row][column] +=
-                    childInertia.m[row][inner] *
-                    motionTransformValue.m[inner][column];
-            }
-        }
-    }
-    for (std::size_t row = 0u; row < 6u; ++row) {
-        for (std::size_t column = 0u; column < 6u; ++column) {
-            for (std::size_t inner = 0u; inner < 6u; ++inner) {
-                result.m[row][column] +=
-                    motionTransformValue.m[inner][row] *
-                    intermediate.m[inner][column];
-            }
-        }
-    }
-    return result;
-}
-
-SpatialMatrix& operator+=(
-    SpatialMatrix& left,
-    const SpatialMatrix& right
-) {
-    for (std::size_t row = 0u; row < 6u; ++row) {
-        for (std::size_t column = 0u; column < 6u; ++column) {
-            left.m[row][column] += right.m[row][column];
-        }
-    }
-    return left;
-}
-
-SpatialMotion rootMotionSubspace(const std::size_t dof) {
-    SpatialMotion result{};
-    if (dof < 3u) {
-        result.linear = basis(dof);
-    } else {
-        result.angular = basis(dof - 3u);
     }
     return result;
 }
@@ -1518,165 +1537,36 @@ ArticulatedDynamicsDiagnostics assembleMassMatrix(
     }
 
     const MRArticulationGPU& articulation = *topology.articulation;
-    std::vector<SpatialMatrix> compositeInertia(
-        articulation.bodyCount
-    );
-    std::vector<SpatialMatrix> parentToBodyTransform(
-        articulation.bodyCount
-    );
-    std::vector<SpatialMotion> jointMotionSubspace(
-        articulation.bodyCount
-    );
-    const std::uint32_t localRoot =
-        articulation.rootBody - articulation.firstBody;
+    // This dense FP64 reference is deliberately assembled from the analytic
+    // tree Jacobian rather than finite differences. It therefore accepts any
+    // number of FunctionBased H columns while retaining exactly the same
+    // rigid-body inertia operator as the scalar-joint path. The throughput
+    // Metal ABA remains a separate bounded implementation.
+    massMatrix.assign(dofCount * dofCount, 0.0);
     for (const std::uint32_t globalBody : topology.traversal) {
         const std::uint32_t localBody =
             globalBody - articulation.firstBody;
         const MRBodyPropertiesGPU& body = model.bodies[globalBody];
-        compositeInertia[localBody] = spatialInertia(
+        const SpatialMatrix inertia = spatialInertia(
             body.massAndInverseMass.x,
             kinematics[localBody].inertiaWorld
         );
-        if (globalBody == articulation.rootBody) {
-            continue;
-        }
-        const MRJointDescriptorGPU& joint =
-            model.joints[topology.inboundJoint[localBody]];
-        const std::uint32_t localParent =
-            joint.parentBody - articulation.firstBody;
-        parentToBodyTransform[localBody] = motionTransform(
-            kinematics[localBody].centerOfMassPosition -
-                kinematics[localParent].centerOfMassPosition
+        const std::vector<SpatialMotion> jacobian = bodyJacobian(
+            model,
+            topology,
+            kinematics,
+            globalBody
         );
-        if (joint.nv == 1u) {
-            if (joint.jointType == MR_JOINT_PRISMATIC) {
-                jointMotionSubspace[localBody].linear =
-                    kinematics[localBody].inboundJointAxis;
-            } else {
-                jointMotionSubspace[localBody].angular =
-                    kinematics[localBody].inboundJointAxis;
-                jointMotionSubspace[localBody].linear = cross(
-                    kinematics[localBody].inboundJointAxis,
-                    kinematics[localBody].centerOfMassPosition -
-                        kinematics[localBody].inboundJointPosition
-                );
-            }
-        }
-    }
-
-    // World-coordinate composite-rigid-body algorithm. Each spatial frame is
-    // aligned with world axes and translated to a body COM, so X contains only
-    // the COM translation. This is an actual backward composite-inertia
-    // recursion; no finite differencing or unit-acceleration columns are used.
-    massMatrix.assign(dofCount * dofCount, 0.0);
-    for (std::size_t reverseIndex = 0u;
-         reverseIndex < topology.traversal.size();
-         ++reverseIndex) {
-        const std::uint32_t globalBody =
-            topology.traversal[
-                topology.traversal.size() - 1u - reverseIndex
-            ];
-        const std::uint32_t localBody =
-            globalBody - articulation.firstBody;
-        if (globalBody != articulation.rootBody) {
-            const MRJointDescriptorGPU& bodyJoint =
-                model.joints[topology.inboundJoint[localBody]];
-            if (bodyJoint.nv == 1u) {
-                const std::size_t bodyDof =
-                    bodyJoint.vOffset - articulation.vOffset;
-                SpatialForce propagatedForce =
-                    compositeInertia[localBody] *
-                    jointMotionSubspace[localBody];
-                massMatrix[bodyDof * dofCount + bodyDof] =
-                    spatialDot(
-                        jointMotionSubspace[localBody],
-                        propagatedForce
-                    );
-
-                std::uint32_t cursorBody = globalBody;
-                while (cursorBody != articulation.rootBody) {
-                    const std::uint32_t localCursor =
-                        cursorBody - articulation.firstBody;
-                    const MRJointDescriptorGPU& cursorJoint =
-                        model.joints[
-                            topology.inboundJoint[localCursor]
-                        ];
-                    propagatedForce = transformForceToParent(
-                        parentToBodyTransform[localCursor],
-                        propagatedForce
-                    );
-                    cursorBody = cursorJoint.parentBody;
-                    if (cursorBody == articulation.rootBody) {
-                        if (articulation.rootType ==
-                            MR_ROOT_FLOATING) {
-                            for (std::size_t rootDof = 0u;
-                                 rootDof < 6u;
-                                 ++rootDof) {
-                                const double coupling = spatialDot(
-                                    rootMotionSubspace(rootDof),
-                                    propagatedForce
-                                );
-                                massMatrix[
-                                    bodyDof * dofCount + rootDof
-                                ] = coupling;
-                                massMatrix[
-                                    rootDof * dofCount + bodyDof
-                                ] = coupling;
-                            }
-                        }
-                    } else {
-                        const std::uint32_t localCursorParent =
-                            cursorBody - articulation.firstBody;
-                        const MRJointDescriptorGPU& ancestorJoint =
-                            model.joints[
-                                topology.inboundJoint[
-                                    localCursorParent
-                                ]
-                            ];
-                        if (ancestorJoint.nv == 1u) {
-                            const std::size_t ancestorDof =
-                                ancestorJoint.vOffset -
-                                articulation.vOffset;
-                            const double coupling = spatialDot(
-                                jointMotionSubspace[
-                                    localCursorParent
-                                ],
-                                propagatedForce
-                            );
-                            massMatrix[
-                                bodyDof * dofCount + ancestorDof
-                            ] = coupling;
-                            massMatrix[
-                                ancestorDof * dofCount + bodyDof
-                            ] = coupling;
-                        }
-                    }
-                }
-            }
-
-            const MRJointDescriptorGPU& joint =
-                model.joints[topology.inboundJoint[localBody]];
-            const std::uint32_t localParent =
-                joint.parentBody - articulation.firstBody;
-            compositeInertia[localParent] +=
-                transformInertiaToParent(
-                    parentToBodyTransform[localBody],
-                    compositeInertia[localBody]
-                );
-        }
-    }
-    if (articulation.rootType == MR_ROOT_FLOATING) {
-        for (std::size_t row = 0u; row < 6u; ++row) {
-            const SpatialMotion rowMotion =
-                rootMotionSubspace(row);
-            for (std::size_t column = row; column < 6u; ++column) {
+        for (std::size_t row = 0u; row < dofCount; ++row) {
+            for (std::size_t column = row; column < dofCount; ++column) {
                 const double value = spatialDot(
-                    rowMotion,
-                    compositeInertia[localRoot] *
-                        rootMotionSubspace(column)
+                    jacobian[row],
+                    inertia * jacobian[column]
                 );
-                massMatrix[row * dofCount + column] = value;
-                massMatrix[column * dofCount + row] = value;
+                massMatrix[row * dofCount + column] += value;
+                if (row != column) {
+                    massMatrix[column * dofCount + row] += value;
+                }
             }
         }
     }
@@ -1870,13 +1760,20 @@ ArticulatedDynamicsStatus integrateConfiguration(
          ++localJoint) {
         const MRJointDescriptorGPU& joint =
             model.joints[articulation.firstJoint + localJoint];
-        if (joint.nv == 1u) {
-            const std::size_t qIndex =
-                joint.qOffset - articulation.qOffset;
-            const std::size_t velocityIndex =
-                joint.vOffset - articulation.vOffset;
-            integrated[qIndex] +=
-                timestep * velocity[velocityIndex];
+        // FunctionBased CustomJoints have source scalar coordinates (nq ==
+        // nv), as do the legacy one-DoF joints. Quaternion joints remain
+        // outside this reference integrator's admitted topology.
+        if (joint.nq == joint.nv) {
+            for (std::size_t localDof = 0u;
+                 localDof < joint.nv;
+                 ++localDof) {
+                const std::size_t qIndex =
+                    joint.qOffset - articulation.qOffset + localDof;
+                const std::size_t velocityIndex =
+                    joint.vOffset - articulation.vOffset + localDof;
+                integrated[qIndex] +=
+                    timestep * velocity[velocityIndex];
+            }
         }
     }
     return finiteSpan(integrated)

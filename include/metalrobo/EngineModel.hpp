@@ -2,6 +2,7 @@
 
 #include "metalrobo/Collision.hpp"
 #include "metalrobo/ConstraintIR.hpp"
+#include "metalrobo/OpenSimSpatialTransform.hpp"
 #include "metalrobo/engine_types.h"
 
 #include <cstdint>
@@ -9,6 +10,15 @@
 #include <vector>
 
 namespace metalrobo {
+
+// Immutable program backing one MR_JOINT_FUNCTION_BASED descriptor. The
+// program is intentionally outside the pointer-free GPU ABI: current Metal
+// articulated kernels reject FunctionBased joints rather than silently
+// dropping their coupling. jointIndex is global in EngineModel::joints.
+struct FunctionBasedJointProgram {
+    std::uint32_t jointIndex = MR_INVALID_INDEX;
+    CompiledOpenSimSpatialTransform transform{};
+};
 
 // Canonical, compiled engine model. Unlike the v0 Franka Model, generalized
 // configuration and velocity storage are explicitly different (nq != nv).
@@ -18,6 +28,10 @@ struct EngineModel {
     MRWorldGPU world{};
     std::vector<MRArticulationGPU> articulations;
     std::vector<MRJointDescriptorGPU> joints;
+    // Exact source-order OpenSim CustomJoint programs. Every
+    // MR_JOINT_FUNCTION_BASED descriptor has exactly one entry; no other
+    // joint type may own one.
+    std::vector<FunctionBasedJointProgram> functionBasedJointPrograms;
     // Exactly one authoritative record per generalized velocity coordinate,
     // stored in global v order.
     std::vector<MRDofPropertiesGPU> dofs;

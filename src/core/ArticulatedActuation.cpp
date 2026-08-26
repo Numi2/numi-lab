@@ -56,6 +56,7 @@ mr_u32 expectedQIndex(
     case MR_JOINT_PRISMATIC:
     case MR_JOINT_CONTINUOUS:
     case MR_JOINT_PLANAR:
+    case MR_JOINT_FUNCTION_BASED:
         return joint.qOffset + localDof;
     case MR_JOINT_FREE:
         return localDof < 3u

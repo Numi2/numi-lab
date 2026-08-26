@@ -59,10 +59,11 @@ transaction.
 ## Articulated dynamics
 
 The generalized CPU reference supports fixed or floating trees containing
-revolute, continuous, and fixed joints. It:
+revolute, prismatic, continuous, fixed, and immutable OpenSim
+`FunctionBased` joints. It:
 
-- forms a dense FP64 mass matrix with a world-coordinate
-  composite-rigid-body recursion;
+- forms a dense FP64 mass matrix from analytic world-coordinate tree
+  Jacobians and COM spatial inertias (not configuration finite differences);
 - verifies positive definiteness and solves forward dynamics with Cholesky;
 - computes velocity, gyroscopic, gravity, damping, and external-wrench terms
   through recursive Newton-Euler kinematics and analytic generalized-force
@@ -106,17 +107,28 @@ checks multi-step q/v/acceleration against the FP64 generalized oracle. On the
 same device and build its complete output/status stream replays bitwise.
 Neither internal agreement is an external-simulator accuracy promise.
 
-OpenSim `FunctionBased` SpatialTransforms currently have a separate bounded
-kinematic-program ABI. `MROpenSimSpatialTransformGPU` and its fixed
+OpenSim `FunctionBased` SpatialTransforms have two deliberately separate
+contracts. The CPU reference admits an immutable
+`FunctionBasedJointProgram` only when it is canonically packable and owned by
+exactly one `MR_JOINT_FUNCTION_BASED` descriptor. It evaluates source-order
+pose, `H`, and `Hdot`, uses all `H` columns in the tree Jacobian/mass matrix,
+and uses `Hdot*qdot` in recursive acceleration and bias evaluation. The
+CPU articulated probe closes forward/inverse dynamics on the actual pinned
+Rajagopal `walker_knee_r` program; that is a unit-scale solver contract, not
+whole-human or experimental validation.
+
+`MROpenSimSpatialTransformGPU` and its fixed
 `MROpenSimSpatialTransformInputGPU` sidecar are canonical only when a decode
 then re-pack is byte-identical; the device probe compares source-order pose,
 `H`, and `Hdot` against the decoded FP64 evaluator and repeats the GPU result
 byte-for-byte. A paired device primitive also projects a source-frame wrench
 with `H transpose` and returns `Hdot*qdot` at zero generalized acceleration.
-This accepts source-derived immutable programs without using a hand-entered
-fixture, but does not admit a FunctionBased or Universal joint to ABA, assemble
-a multi-body mass/bias system, advance an articulation, or establish contact
-or muscle dynamics.
+This GPU program/projection path accepts source-derived immutable programs
+without a hand-entered fixture, but current Metal ABA/operator/MetalWorld
+kernels explicitly reject `MR_JOINT_FUNCTION_BASED`: they do not yet assemble
+or advance an accelerated multi-body FunctionBased articulation. Universal
+joints are also not admitted. Neither contract establishes contact or muscle
+dynamics.
 
 ## Free-body integration
 

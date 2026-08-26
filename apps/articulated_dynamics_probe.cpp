@@ -188,6 +188,131 @@ metalrobo::EngineModel makePendulumModel(const double length) {
     return model;
 }
 
+metalrobo::OpenSimSpatialTransformDefinition rajagopalWalkerKneeTransform() {
+    // Exact walker_knee_r source coefficients from the pinned
+    // RajagopalLaiUhlrich2023 model. This is intentionally the real
+    // FunctionBased program rather than a surrogate one-DoF screw.
+    using Axis = metalrobo::OpenSimSpatialAxisDefinition;
+    using Function = metalrobo::OpenSimFunctionDefinition;
+    using Kind = metalrobo::OpenSimFunctionKind;
+    const auto axis = [](
+                          const std::array<double, 3> direction,
+                          const Function& function
+                      ) {
+        return Axis{
+            .axis = direction,
+            .coordinateIndex = 0u,
+            .function = function,
+        };
+    };
+    metalrobo::OpenSimSpatialTransformDefinition source{};
+    source.coordinateCount = 1u;
+    source.axes = {
+        axis({1.0, 0.0, 0.0}, {.kind = Kind::linear, .coefficients = {1.0, 0.0}}),
+        axis({0.0, 0.0, 1.0}, {.kind = Kind::polynomial, .coefficients = {
+            0.010832094539863, -0.025218325501241,
+            -0.032847810398852, 0.079100011967027,
+            -1.473252350900463e-08,
+        }}),
+        axis({0.0, 1.0, 0.0}, {.kind = Kind::polynomial, .coefficients = {
+            0.025165762727423, -0.16948005139054,
+            0.369499348688249, -4.430358308836305e-08,
+        }}),
+        axis({1.0, 0.0, 0.0}, {.kind = Kind::polynomial, .coefficients = {
+            0.0001590447878850381, -0.001015149915669,
+            0.001817510974968, 2.64142664519923e-05,
+            -7.746563532471892e-07,
+        }}),
+        axis({0.0, 1.0, 0.0}, {.kind = Kind::polynomial, .coefficients = {
+            -0.0005796878052338684, 0.005079765745626,
+            -0.011442375726364, 0.003936908668844,
+            -2.516350383213525e-05,
+        }}),
+        axis({0.0, 0.0, 1.0}, {.kind = Kind::polynomial, .coefficients = {
+            0.001208086889206, -0.004453611224706,
+            0.000611649407298173, 0.006265429606387,
+            -1.461912533723326e-05,
+        }}),
+    };
+    return source;
+}
+
+metalrobo::EngineModel makeFunctionBasedWalkerKneeModel(
+    const double length
+) {
+    metalrobo::EngineModel model;
+    model.name = "rajagopal_walker_knee_function_based_reference";
+    model.world.abiVersion = MR_ENGINE_ABI_VERSION;
+    model.world.bodyCount = 2u;
+    model.world.articulationCount = 1u;
+    model.world.jointCount = 1u;
+    model.world.nq = 1u;
+    model.world.nv = 1u;
+    model.world.pairCapacity = 1u;
+    model.world.contactCapacity = 1u;
+    model.world.constraintCapacity = 1u;
+    model.world.islandCapacity = 1u;
+    model.world.solverType = MR_SOLVER_REFERENCE_FP64;
+    model.world.frictionConeType = MR_FRICTION_CONE_ELLIPTIC;
+    model.world.gravityAndTimestep = f4(0.0, -9.81, 0.0, 1.0 / 1000.0);
+    model.world.solverScales = f4(1.0e-8, 1.0e-9, 2.0, 1.0e-4);
+
+    MRArticulationGPU articulation{};
+    articulation.rootBody = 0u;
+    articulation.rootType = MR_ROOT_FIXED;
+    articulation.firstBody = 0u;
+    articulation.bodyCount = 2u;
+    articulation.firstJoint = 0u;
+    articulation.jointCount = 1u;
+    articulation.qOffset = 0u;
+    articulation.nq = 1u;
+    articulation.vOffset = 0u;
+    articulation.nv = 1u;
+    model.articulations.push_back(articulation);
+    model.bodies.push_back(body(
+        MR_INVALID_INDEX,
+        MR_INVALID_INDEX,
+        9.0,
+        {0.0, 0.0, 0.0},
+        {1.3, 1.4, 1.5}
+    ));
+    model.bodies.push_back(body(
+        0u,
+        0u,
+        2.1,
+        {length, 0.0, 0.0},
+        {0.12, 0.16, 0.19}
+    ));
+
+    MRJointDescriptorGPU joint{};
+    joint.parentBody = 0u;
+    joint.childBody = 1u;
+    joint.jointType = MR_JOINT_FUNCTION_BASED;
+    joint.qOffset = 0u;
+    joint.nq = 1u;
+    joint.vOffset = 0u;
+    joint.nv = 1u;
+    joint.parentAnchor = f4(0.0, 0.0, 0.0);
+    joint.childAnchor = f4(-length, 0.0, 0.0);
+    joint.parentRotation = f4(0.0, 0.0, 0.0, 1.0);
+    joint.childRotation = f4(0.0, 0.0, 0.0, 1.0);
+    model.joints.push_back(joint);
+    model.dofs.push_back(passiveJointDof(0u, 0u, 0u));
+    const auto compiled = metalrobo::compileOpenSimSpatialTransform(
+        rajagopalWalkerKneeTransform()
+    );
+    if (!compiled.succeeded()) {
+        throw std::runtime_error("Rajagopal walker knee compilation failed");
+    }
+    model.functionBasedJointPrograms.push_back({
+        .jointIndex = 0u,
+        .transform = compiled.transform,
+    });
+    model.defaultQ = {0.0f};
+    model.defaultV = {0.0f};
+    return model;
+}
+
 metalrobo::EngineModel makeFloatingChainModel() {
     metalrobo::EngineModel model;
     model.name = "floating_two_joint_chain";
@@ -449,6 +574,128 @@ int main() {
         require(
             pendulumError < 2.0e-11,
             "one-link analytical acceleration exceeded tolerance"
+        );
+
+        // Real source-derived FunctionBased CustomJoint admission. The
+        // point at the child joint frame must reproduce the source
+        // SpatialTransform translation, velocity H*qdot, and H's linear
+        // Jacobian exactly; forward/inverse closure also exercises Hdot in
+        // the recursive acceleration and bias paths.
+        constexpr double kneeLength = 0.25;
+        const metalrobo::EngineModel walkerKneeModel =
+            makeFunctionBasedWalkerKneeModel(kneeLength);
+        std::string walkerKneeReason;
+        require(
+            walkerKneeModel.valid(&walkerKneeReason),
+            "FunctionBased EngineModel validation failed: " + walkerKneeReason
+        );
+        constexpr double kneeCoordinate = 0.43;
+        constexpr double kneeVelocity = -0.71;
+        const std::vector<double> walkerKneeQ{kneeCoordinate};
+        const std::vector<double> walkerKneeV{kneeVelocity};
+        const auto walkerKneeEvaluation =
+            metalrobo::evaluateOpenSimSpatialTransform(
+                walkerKneeModel.functionBasedJointPrograms[0u].transform,
+                {kneeCoordinate},
+                {kneeVelocity}
+            );
+        require(
+            walkerKneeEvaluation.succeeded(),
+            "source walker knee evaluation failed"
+        );
+        std::vector<metalrobo::ArticulatedPointKinematics>
+            walkerKneePoint(1u);
+        std::vector<double> walkerKneeJacobian(3u, 0.0);
+        const std::vector<metalrobo::ArticulatedPointQuery>
+            walkerKneeQuery{{
+                .bodyIndex = 1u,
+                .localPoint = {-kneeLength, 0.0, 0.0},
+            }};
+        const auto walkerKneePointDiagnostics =
+            metalrobo::computeArticulatedPointJacobians(
+                walkerKneeModel,
+                0u,
+                walkerKneeQ,
+                walkerKneeV,
+                walkerKneeQuery,
+                walkerKneePoint,
+                walkerKneeJacobian,
+                config
+            );
+        require(
+            walkerKneePointDiagnostics.succeeded(),
+            "FunctionBased point/Jacobian evaluation failed: status=" +
+                std::to_string(
+                    static_cast<std::uint32_t>(
+                        walkerKneePointDiagnostics.status
+                    )
+                )
+        );
+        double walkerKneeKinematicError = 0.0;
+        for (std::size_t axis = 0u; axis < 3u; ++axis) {
+            walkerKneeKinematicError = std::max(
+                walkerKneeKinematicError,
+                std::abs(
+                    walkerKneePoint[0u].position[axis] -
+                    walkerKneeEvaluation.translation[axis]
+                )
+            );
+            walkerKneeKinematicError = std::max(
+                walkerKneeKinematicError,
+                std::abs(
+                    walkerKneePoint[0u].linearVelocity[axis] -
+                    walkerKneeEvaluation.motionSubspace[0u].linear[axis] *
+                        kneeVelocity
+                )
+            );
+            walkerKneeKinematicError = std::max(
+                walkerKneeKinematicError,
+                std::abs(
+                    walkerKneeJacobian[axis] -
+                    walkerKneeEvaluation.motionSubspace[0u].linear[axis]
+                )
+            );
+        }
+        require(
+            walkerKneeKinematicError < 2.0e-12,
+            "FunctionBased source kinematics/Jacobian mismatch"
+        );
+        std::vector<double> walkerKneeForce(1u, 0.0);
+        const std::vector<double> walkerKneeAcceleration{0.62};
+        const auto walkerKneeInverseDiagnostics =
+            metalrobo::computeArticulatedInverseDynamics(
+                walkerKneeModel,
+                0u,
+                walkerKneeQ,
+                walkerKneeV,
+                walkerKneeAcceleration,
+                {},
+                walkerKneeForce,
+                config
+            );
+        require(
+            walkerKneeInverseDiagnostics.succeeded(),
+            "FunctionBased inverse dynamics failed"
+        );
+        std::vector<double> walkerKneeRecoveredAcceleration(1u, 0.0);
+        const auto walkerKneeForwardDiagnostics =
+            metalrobo::computeArticulatedForwardDynamics(
+                walkerKneeModel,
+                0u,
+                walkerKneeQ,
+                walkerKneeV,
+                walkerKneeForce,
+                {},
+                walkerKneeRecoveredAcceleration,
+                config
+            );
+        const double walkerKneeForwardInverseError = std::abs(
+            walkerKneeRecoveredAcceleration[0u] - 0.62
+        );
+        require(
+            walkerKneeForwardDiagnostics.succeeded() &&
+                walkerKneeForwardInverseError < 2.0e-11,
+            "FunctionBased forward/inverse closure failed"
         );
 
         // Floating multi-link forward/inverse and dense spatial mass matrix.
@@ -1031,9 +1278,13 @@ int main() {
 
         std::cout
             << std::scientific << std::setprecision(6)
-            << "articulated=cpu_fp64_crba_rnea"
+            << "articulated=cpu_fp64_analytic_jacobian_rnea"
             << " free_body_error=" << freeBodyError
             << " pendulum_error=" << pendulumError
+            << " function_based_walker_knee_kinematic_error="
+            << walkerKneeKinematicError
+            << " function_based_walker_knee_forward_inverse_error="
+            << walkerKneeForwardInverseError
             << " forward_inverse_error=" << forwardInverseError
             << " mass_symmetry_error=" << massSymmetryError
             << " min_mass_pivot="

@@ -152,6 +152,10 @@ std::pair<mr_u32, mr_u32> expectedJointCoordinates(const mr_u32 type) {
         return {0u, 0u};
     case MR_JOINT_FREE:
         return {7u, 6u};
+    case MR_JOINT_FUNCTION_BASED:
+        // The descriptor carries the source transform's variable coordinate
+        // count. It is validated against FunctionBasedJointProgram below.
+        return {MR_INVALID_INDEX, MR_INVALID_INDEX};
     default:
         return {MR_INVALID_INDEX, MR_INVALID_INDEX};
     }
@@ -179,6 +183,7 @@ mr_u32 expectedJointQIndex(
     case MR_JOINT_PRISMATIC:
     case MR_JOINT_CONTINUOUS:
     case MR_JOINT_PLANAR:
+    case MR_JOINT_FUNCTION_BASED:
         return joint.qOffset + localDof;
     case MR_JOINT_FREE:
         return localDof < 3u
@@ -189,6 +194,41 @@ mr_u32 expectedJointQIndex(
     default:
         return MR_INVALID_INDEX;
     }
+}
+
+bool validFunctionBasedPrograms(
+    const std::vector<MRJointDescriptorGPU>& joints,
+    const std::vector<FunctionBasedJointProgram>& programs,
+    std::string* reason
+) {
+    std::vector<std::uint8_t> owner(joints.size(), 0u);
+    for (const FunctionBasedJointProgram& program : programs) {
+        if (program.jointIndex >= joints.size() ||
+            owner[program.jointIndex] != 0u) {
+            return fail(reason, "FunctionBased program ownership is invalid");
+        }
+        owner[program.jointIndex] = 1u;
+        const MRJointDescriptorGPU& joint = joints[program.jointIndex];
+        if (joint.jointType != MR_JOINT_FUNCTION_BASED ||
+            joint.nq == 0u || joint.nq > 6u || joint.nq != joint.nv ||
+            program.transform.coordinateCount != joint.nq) {
+            return fail(reason, "FunctionBased program dimensions are invalid");
+        }
+        MROpenSimSpatialTransformGPU packed{};
+        if (packOpenSimSpatialTransformGPU(program.transform, packed) !=
+                OpenSimSpatialTransformStatus::success ||
+            !unpackOpenSimSpatialTransformGPU(packed).succeeded()) {
+            return fail(reason, "FunctionBased program is not canonical");
+        }
+    }
+    for (std::size_t index = 0u; index < joints.size(); ++index) {
+        const bool functionBased =
+            joints[index].jointType == MR_JOINT_FUNCTION_BASED;
+        if (functionBased != (owner[index] != 0u)) {
+            return fail(reason, "FunctionBased descriptor/program ownership is incomplete");
+        }
+    }
+    return true;
 }
 
 bool validDofParameters(
@@ -416,6 +456,13 @@ bool EngineModel::valid(std::string* reason) const {
             "constraint program exceeds the world block capacity"
         );
     }
+    if (!validFunctionBasedPrograms(
+            joints,
+            functionBasedJointPrograms,
+            reason
+        )) {
+        return false;
+    }
 
     std::vector<std::uint8_t> bodyOwner(bodies.size(), 0u);
     std::vector<std::uint8_t> qOwner(defaultQ.size(), 0u);
@@ -534,8 +581,14 @@ bool EngineModel::valid(std::string* reason) const {
             const MRJointDescriptorGPU& joint = joints[jointIndex];
             const auto [jointNq, jointNv] =
                 expectedJointCoordinates(joint.jointType);
-            if (jointNq == MR_INVALID_INDEX ||
-                joint.nq != jointNq || joint.nv != jointNv) {
+            const bool functionBased =
+                joint.jointType == MR_JOINT_FUNCTION_BASED;
+            if ((!functionBased &&
+                 (jointNq == MR_INVALID_INDEX ||
+                  joint.nq != jointNq || joint.nv != jointNv)) ||
+                (functionBased &&
+                 (joint.nq == 0u || joint.nq > 6u ||
+                  joint.nq != joint.nv))) {
                 return fail(reason, "joint nq/nv does not match its type");
             }
             if (static_cast<std::size_t>(joint.parentBody) < firstBody ||
