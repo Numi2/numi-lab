@@ -1164,6 +1164,25 @@ def _atomic_copy(source: Path, destination: Path) -> None:
         temporary.unlink(missing_ok=True)
 
 
+def _deduplicate_policy_paths(
+    policies: Sequence[Path],
+) -> tuple[list[Path], dict[str, str]]:
+    """Keep the first path for each exact PolicyPack payload."""
+
+    unique: list[Path] = []
+    retained_by_sha256: dict[str, Path] = {}
+    duplicates: dict[str, str] = {}
+    for policy in policies:
+        digest = _sha256_file(policy)
+        retained = retained_by_sha256.get(digest)
+        if retained is not None:
+            duplicates[str(policy)] = str(retained)
+            continue
+        retained_by_sha256[digest] = policy
+        unique.append(policy)
+    return unique, duplicates
+
+
 def select_candidate_champion(
     incumbent: dict[str, Any],
     candidates: dict[str, dict[str, Any]],
@@ -1333,6 +1352,9 @@ def main() -> int:
         ))
     candidate_policies.extend(options.candidate)
     candidate_policies = list(dict.fromkeys(candidate_policies))
+    candidate_policies, duplicate_candidate_policies = (
+        _deduplicate_policy_paths(candidate_policies)
+    )
 
     records: dict[str, dict[str, Any]] = {}
     protected_band_records: dict[int, dict[str, dict[str, Any]]] = {}
@@ -1505,6 +1527,7 @@ def main() -> int:
             "evaluated_candidate_policy_packs": [
                 str(policies[name]) for name in candidate_names
             ],
+            "duplicate_candidate_policy_packs": duplicate_candidate_policies,
             "selected_candidate_label": deployment_candidate
             if deployment_candidate != "incumbent" else None,
             "comparison_champion": champion,

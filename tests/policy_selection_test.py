@@ -17,6 +17,7 @@ from metalrobo.policy_selection import (  # noqa: E402
     _adult_evaluation_bands,
     _curriculum_evaluation_bands,
     _crow_journey_contract_regressions,
+    _deduplicate_policy_paths,
     _evaluate,
     compare_protected_bands,
     compare_staged_bands,
@@ -28,6 +29,21 @@ from metalrobo.policy_selection import (  # noqa: E402
 
 
 class PolicySelectionTest(unittest.TestCase):
+    def test_exact_duplicate_policy_packs_are_evaluated_once(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            checkpoint = root / "revision-00000050.candidate.policypack"
+            final = root / "candidate.policypack"
+            distinct = root / "revision-00000100.candidate.policypack"
+            checkpoint.write_bytes(b"same policy")
+            final.write_bytes(b"same policy")
+            distinct.write_bytes(b"distinct policy")
+            policies, duplicates = _deduplicate_policy_paths(
+                [checkpoint, distinct, final]
+            )
+            self.assertEqual(policies, [checkpoint, distinct])
+            self.assertEqual(duplicates, {str(final): str(checkpoint)})
+
     def test_catastrophic_get_up_candidate_never_advances(self) -> None:
         incumbent = {
             "task": "supine-get-up",
