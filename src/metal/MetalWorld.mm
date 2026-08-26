@@ -3,6 +3,7 @@
 
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
+#include "metalrobo/OpenSimSpatialTransform.hpp"
 #include "metalrobo/ParallelABASchedule.hpp"
 #include "metalrobo/unified_quality_shared.h"
 
@@ -35,7 +36,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 241u;
+constexpr std::size_t kRawBufferCount = 250u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -331,6 +332,20 @@ enum BufferIndex : std::size_t {
     kMulticopterDispatch = 238u,
     kRodReferenceTangents = 239u,
     kRodReferenceDirectors = 240u,
+    // One packed spatial-transform record per global joint. Non-
+    // FunctionBased slots are zero; the bounded dense source-dynamics path
+    // consumes only the source-authored CustomJoint entries.
+    kFunctionBasedPrograms = 241u,
+    // Immutable source Millard program plus per-submission muscle state and
+    // audit outputs. Appended to preserve the existing MetalWorld ABI.
+    kMillardDispatch = 242u,
+    kMillardMuscles = 243u,
+    kMillardStates = 244u,
+    kMillardPathPoints = 245u,
+    kMillardCurves = 246u,
+    kMillardWraps = 247u,
+    kMillardResults = 248u,
+    kMillardGeneralizedForces = 249u,
 };
 
 struct BufferRequirement {
@@ -383,6 +398,10 @@ struct MetalWorldContextState {
     __strong id<MTLCommandQueue> queue = nil;
     __strong id<MTLLibrary> library = nil;
     __strong id<MTLComputePipelineState> abaPipeline = nil;
+    __strong id<MTLComputePipelineState>
+        functionBasedDenseDynamicsPipeline = nil;
+    __strong id<MTLComputePipelineState> millardReferencePipeline = nil;
+    __strong id<MTLComputePipelineState> millardAccumulatePipeline = nil;
     __strong id<MTLComputePipelineState> parameterizedABAPipeline = nil;
     __strong id<MTLComputePipelineState> smallABAPipeline = nil;
     __strong id<MTLComputePipelineState> multiABAPipeline = nil;
@@ -546,6 +565,7 @@ struct MetalWorldContextState {
     std::uint64_t boundPolicyFingerprint = 0u;
     std::uint64_t boundMulticopterFingerprint = 0u;
     std::uint64_t boundDevicePhysicsFingerprint = 0u;
+    std::uint64_t boundMillardFingerprint = 0u;
     std::uint64_t stateArenaGeneration = 0u;
     std::weak_ptr<MetalWorldResidentStateData> residentOwner;
     MetalWorldContextStats stats{};
@@ -590,6 +610,7 @@ struct MetalWorldResidentStateData {
     std::uint64_t worldFingerprint = 0u;
     std::uint64_t taskFingerprint = 0u;
     std::uint64_t devicePhysicsFingerprint = 0u;
+    std::uint64_t millardProgramFingerprint = 0u;
     std::uint64_t taskSeed = 0u;
     std::uint64_t stateArenaGeneration = 0u;
     std::size_t environmentCount = 0u;
@@ -706,6 +727,7 @@ struct MetalWorldSubmissionState {
     std::uint64_t policyRevision = 0u;
     bool hasRods = false;
     bool contactMode = false;
+    bool hasMillardProgram = false;
     bool nativeTask = false;
     bool captureContactEvidence = false;
     bool publishFinalState = true;
@@ -1311,10 +1333,21 @@ bool supportedTopology(
         if (joint.jointType != MR_JOINT_REVOLUTE &&
             joint.jointType != MR_JOINT_CONTINUOUS &&
             joint.jointType != MR_JOINT_PRISMATIC &&
-            joint.jointType != MR_JOINT_FIXED) {
+            joint.jointType != MR_JOINT_FIXED &&
+            joint.jointType != MR_JOINT_FUNCTION_BASED) {
             reason =
-                "free-motion Metal world supports revolute, "
-                "continuous, prismatic, and fixed joints";
+                "free-motion Metal world supports revolute, continuous, "
+                "prismatic, fixed, and bounded FunctionBased joints";
+            return false;
+        }
+        if (joint.jointType == MR_JOINT_FUNCTION_BASED &&
+            (articulation.rootType != MR_ROOT_FIXED ||
+             joint.nq == 0u ||
+             joint.nq > MR_OPENSIM_SPATIAL_MAX_COORDINATES ||
+             joint.nq != joint.nv)) {
+            reason =
+                "FunctionBased MetalWorld dynamics require a fixed root "
+                "and matching one-to-one q/v source coordinates";
             return false;
         }
     }
@@ -1329,6 +1362,140 @@ bool supportedTopology(
             MR_MOTION_DYNAMIC) {
             reason =
                 "every body in the selected articulation must be dynamic";
+            return false;
+        }
+    }
+    return true;
+}
+
+bool packFunctionPrograms(
+    const EngineModel& model,
+    std::vector<MROpenSimSpatialTransformGPU>& packed,
+    std::string* reason = nullptr
+) {
+    packed.assign(std::max<std::size_t>(model.joints.size(), 1u), {});
+    for (const FunctionBasedJointProgram& program :
+         model.functionBasedJointPrograms) {
+        if (program.jointIndex >= model.joints.size()) {
+            if (reason != nullptr) {
+                *reason = "FunctionBased program joint index is outside model";
+            }
+            return false;
+        }
+        const OpenSimSpatialTransformStatus status =
+            packOpenSimSpatialTransformGPU(
+                program.transform,
+                packed[program.jointIndex]
+            );
+        if (status != OpenSimSpatialTransformStatus::success) {
+            if (reason != nullptr) {
+                *reason = std::string("FunctionBased program packing failed: ") +
+                    openSimSpatialTransformStatusName(status);
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
+std::uint64_t millardProgramFingerprint(
+    const MetalWorldMillardProgram& program
+) {
+    if (!program.valid()) {
+        return 0u;
+    }
+    std::uint64_t hash = kFNVOffset;
+    const auto append = [&](const void* bytes, const std::size_t count) {
+        const auto* values = static_cast<const std::byte*>(bytes);
+        for (std::size_t index = 0u; index < count; ++index) {
+            hash ^= std::to_integer<std::uint8_t>(values[index]);
+            hash *= kFNVPrime;
+        }
+    };
+    append(&program.articulationIndex, sizeof(program.articulationIndex));
+    const auto appendSpan = [&](const auto values) {
+        const std::size_t size = values.size();
+        append(&size, sizeof(size));
+        append(values.data(), values.size_bytes());
+    };
+    appendSpan(program.pointQueries);
+    appendSpan(program.muscles);
+    appendSpan(program.states);
+    appendSpan(program.pathPoints);
+    appendSpan(program.curves);
+    appendSpan(program.cylinderWraps);
+    return hash == 0u ? 1u : hash;
+}
+
+bool validMillardProgram(
+    const CompiledWorld& world,
+    const MetalWorldMillardProgram& program
+) {
+    if (!program.valid() ||
+        program.articulationIndex != world.articulationIndex() ||
+        program.articulationIndex >= world.articulationCount() ||
+        program.pointQueries.size() > MR_ARTICULATED_OPERATOR_MAX_POINTS) {
+        return false;
+    }
+    const MRArticulationGPU& articulation =
+        world.model().articulations[program.articulationIndex];
+    const auto ownsBody = [&](const mr_u32 bodyIndex) {
+        return bodyIndex >= articulation.firstBody &&
+            bodyIndex < articulation.firstBody + articulation.bodyCount;
+    };
+    for (const MRArticulatedPointImpulseGPU& point : program.pointQueries) {
+        if (!ownsBody(point.bodyIndex) || point.flags != 0u ||
+            point.reserved0 != 0u || point.reserved1 != 0u ||
+            !finite(point.localPoint) || !finite(point.worldImpulse) ||
+            point.localPoint.w != 0.0f || point.worldImpulse.w != 0.0f) {
+            return false;
+        }
+    }
+    for (std::size_t index = 0u; index < program.muscles.size(); ++index) {
+        const MRMillardMuscleGPU& muscle = program.muscles[index];
+        const MRMillardMuscleStateGPU& state = program.states[index];
+        if (muscle.pathAndWrap.y < 2u ||
+            muscle.pathAndWrap.x > program.pathPoints.size() ||
+            muscle.pathAndWrap.y >
+                program.pathPoints.size() - muscle.pathAndWrap.x ||
+            muscle.pathAndWrap.z > program.cylinderWraps.size() ||
+            muscle.pathAndWrap.w >
+                program.cylinderWraps.size() - muscle.pathAndWrap.z ||
+            muscle.pathAndWrap.w > MR_MILLARD_REFERENCE_MAX_WRAPS_PER_MUSCLE ||
+            !finite(muscle.forceAndLengths) ||
+            !finite(muscle.dampingAndActivation) ||
+            muscle.dampingAndActivation.w != 0.0f ||
+            muscle.flags.y != 0u || muscle.flags.z != 0u ||
+            muscle.flags.w != 0u || !finite(state.activationAndVelocity) ||
+            state.activationAndVelocity.z != 0.0f ||
+            state.activationAndVelocity.w != 0.0f ||
+            state.activationAndVelocity.x > 1.0f ||
+            !finite(program.curves[index].values[0u]) ||
+            !finite(program.curves[index].values[1u]) ||
+            !finite(program.curves[index].values[2u]) ||
+            !finite(program.curves[index].values[3u]) ||
+            !finite(program.curves[index].values[4u]) ||
+            !finite(program.curves[index].values[5u])) {
+            return false;
+        }
+    }
+    for (const MRMillardPathPointGPU& point : program.pathPoints) {
+        if (point.pointQueryIndex >= program.pointQueries.size() ||
+            !ownsBody(point.bodyIndex) || point.reserved0 != 0u ||
+            point.reserved1 != 0u ||
+            program.pointQueries[point.pointQueryIndex].bodyIndex !=
+                point.bodyIndex) {
+            return false;
+        }
+    }
+    for (const MRMillardCylinderWrapGPU& wrap : program.cylinderWraps) {
+        if (!ownsBody(wrap.bodyIndex) || wrap.reserved0 != 0u ||
+            wrap.reserved1 != 0u || wrap.reserved2 != 0u ||
+            !finite(wrap.center) || !finite(wrap.rotationAndRadius) ||
+            !finite(wrap.length) || wrap.center.w != 0.0f ||
+            wrap.length.y != 0.0f || wrap.length.z != 0.0f ||
+            wrap.length.w != 0.0f || wrap.rotationAndRadius.w <= 0.0f ||
+            wrap.length.x <= 0.0f) {
             return false;
         }
     }
@@ -1618,6 +1785,7 @@ bool buildRequirements(
     const CompiledPolicyProgram& policyProgram,
     const MetalWorldMulticopterProgram& multicopterProgram,
     const MetalWorldDevicePhysicsProgram& devicePhysicsProgram,
+    const MetalWorldMillardProgram& millardProgram,
     RequiredBuffers& requirements,
     std::size_t& totalRequiredBytes
 ) {
@@ -1651,9 +1819,11 @@ bool buildRequirements(
          MetalWorldDevicePhysicsOwnsCoupledCandidate) != 0u
         ? environments
         : 0u;
+    const std::size_t millardEnvironments =
+        millardProgram.valid() ? environments : 0u;
     const std::size_t articulatedOperatorEnvironments = std::max(
         contactEnvironments,
-        coupledCandidateEnvironments
+        std::max(coupledCandidateEnvironments, millardEnvironments)
     );
     // Device physics needs accepted articulated/scene body projections even
     // when MetalWorld's own rigid contact solver is disabled. Keep this arena
@@ -1661,7 +1831,7 @@ bool buildRequirements(
     // through external wrenches in free-motion worlds.
     const std::size_t bodyProjectionEnvironments = std::max(
         contactEnvironments,
-        devicePhysicsEnvironments
+        std::max(devicePhysicsEnvironments, millardEnvironments)
     );
     const bool nativeTask = taskProgram.valid();
     const bool nativePolicy = policyProgram.valid();
@@ -1750,6 +1920,11 @@ bool buildRequirements(
             "body properties",
             model.bodies.size(),
             requirements.entries[kBodies]
+        ) ||
+        !makeRequirement<MROpenSimSpatialTransformGPU>(
+            "FunctionBased spatial-transform programs",
+            std::max<std::size_t>(model.joints.size(), 1u),
+            requirements.entries[kFunctionBasedPrograms]
         ) ||
         !makeRequirement<MRMultiABADispatchGPU>(
             "multi-articulation ABA dispatches",
@@ -1922,6 +2097,7 @@ bool buildRequirements(
     std::size_t pointWorldElements = 0u;
     std::size_t nativePointWorldElements = 0u;
     std::size_t coupledPointWorldElements = 0u;
+    std::size_t millardPointWorldElements = 0u;
     std::size_t factorElements = 0u;
     std::size_t pointJacobianElements = 0u;
     std::size_t endpointElements = 0u;
@@ -1970,12 +2146,17 @@ bool buildRequirements(
             coupledCandidateEnvironments,
             devicePhysicsProgram.coupledCandidatePointCapacity,
             coupledPointWorldElements
+        ) ||
+        !checkedMultiply(
+            millardEnvironments,
+            millardProgram.pointQueries.size(),
+            millardPointWorldElements
         )) {
         return false;
     }
     pointWorldElements = std::max(
         nativePointWorldElements,
-        coupledPointWorldElements
+        std::max(coupledPointWorldElements, millardPointWorldElements)
     );
     if (!checkedMultiply(
             contactEnvironments,
@@ -2045,6 +2226,11 @@ bool buildRequirements(
         !checkedMultiply(
             nativePointWorldElements,
             world.articulationCount(),
+            pointQueryElements
+        ) ||
+        !checkedAdd(
+            pointQueryElements,
+            millardPointWorldElements,
             pointQueryElements
         ) ||
         !checkedMultiply(
@@ -2306,6 +2492,47 @@ bool buildRequirements(
                 ? 0u
                 : layout.initialVElements,
             requirements.entries[kDeltaVelocity]
+        ) ||
+        !makeRequirement<MRMillardReferenceDispatchGPU>(
+            "source Millard dispatch",
+            millardProgram.valid() ? 1u : 0u,
+            requirements.entries[kMillardDispatch]
+        ) ||
+        !makeRequirement<MRMillardMuscleGPU>(
+            "source Millard muscles",
+            millardProgram.muscles.size(),
+            requirements.entries[kMillardMuscles]
+        ) ||
+        !makeRequirement<MRMillardMuscleStateGPU>(
+            "source Millard environment states",
+            millardEnvironments * millardProgram.states.size(),
+            requirements.entries[kMillardStates]
+        ) ||
+        !makeRequirement<MRMillardPathPointGPU>(
+            "source Millard path points",
+            millardProgram.pathPoints.size(),
+            requirements.entries[kMillardPathPoints]
+        ) ||
+        !makeRequirement<MRMillardSourceCurveGPU>(
+            "source Millard curves",
+            millardProgram.curves.size(),
+            requirements.entries[kMillardCurves]
+        ) ||
+        !makeRequirement<MRMillardCylinderWrapGPU>(
+            "source Millard cylinder wraps",
+            millardProgram.cylinderWraps.size(),
+            requirements.entries[kMillardWraps]
+        ) ||
+        !makeRequirement<MRMillardMuscleResultGPU>(
+            "source Millard muscle results",
+            millardEnvironments * millardProgram.muscles.size(),
+            requirements.entries[kMillardResults]
+        ) ||
+        !makeRequirement<float>(
+            "source Millard generalized forces",
+            millardEnvironments * millardProgram.muscles.size() *
+                layout.dispatch.nv,
+            requirements.entries[kMillardGeneralizedForces]
         ) ||
         !makeRequirement<MRArticulatedOperatorStatusGPU>(
             "articulated operator statuses",
@@ -3258,6 +3485,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
     }
     const bool nativeTask = config.taskProgram.valid();
     const bool nativePolicy = config.policyProgram.valid();
+    const bool hasMillardProgram = config.millardProgram.valid();
     const bool devicePhysicsWritesBodyWrenches =
         config.devicePhysicsProgram.valid() &&
         (config.devicePhysicsProgram.flags &
@@ -3302,6 +3530,38 @@ MetalWorldDiagnostics validateAndBuildLayout(
         config.solverMode != MetalWorldSolverMode::freeMotionABA;
     const bool qualityMode =
         config.solverMode == MetalWorldSolverMode::qualityNewton;
+    const bool hasFunctionBasedDynamics =
+        !world.model().functionBasedJointPrograms.empty();
+    if (config.millardProgram.configured() &&
+        !validMillardProgram(world, config.millardProgram)) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "source Millard program does not match the selected articulation, path query, or immutable curve contract"
+        );
+    }
+    if (hasMillardProgram &&
+        (!hasFunctionBasedDynamics || contactMode || nativeTask ||
+         config.devicePhysicsProgram.valid() || world.rodCount() != 0u ||
+         config.actuationMode != MetalWorldActuationMode::effort)) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::unsupportedTopology,
+            "source Millard actuation requires the bounded fixed-root FunctionBased free-motion direct-effort path"
+        );
+    }
+    if (hasFunctionBasedDynamics &&
+        (world.articulationCount() != 1u || contactMode || nativeTask ||
+         config.devicePhysicsProgram.valid() || world.rodCount() != 0u)) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::unsupportedTopology,
+            "bounded FunctionBased dynamics currently admits one fixed-root "
+            "free-motion articulation with direct effort only; contact, "
+            "native-task parameterization, rods, and device-physics coupling "
+            "remain separate admission gates"
+        );
+    }
     if (config.devicePhysicsProgram.configured() &&
         (!config.devicePhysicsProgram.valid() ||
          (devicePhysicsRequiresRigidContactEvidence && !contactMode) ||
@@ -3515,6 +3775,13 @@ MetalWorldDiagnostics validateAndBuildLayout(
         config.devicePhysicsProgram.valid()
         ? config.devicePhysicsProgram.fingerprint
         : 0u;
+    layout.millardProgramFingerprint =
+        hasMillardProgram
+        ? millardProgramFingerprint(config.millardProgram)
+        : 0u;
+    layout.millardMuscleCount = hasMillardProgram
+        ? static_cast<mr_u32>(config.millardProgram.muscles.size())
+        : 0u;
     MRMetalWorldDispatchGPU& dispatch = layout.dispatch;
     dispatch.abiVersion = MR_METAL_WORLD_ABI_VERSION;
     dispatch.articulationIndex = world.articulationIndex();
@@ -3702,6 +3969,19 @@ MetalWorldDiagnostics validateAndBuildLayout(
         kinematics.bodyPoseStride =
             static_cast<mr_u32>(world.bodyCount());
         kinematics.generalizedStride = dispatch.vStride;
+        if (hasMillardProgram &&
+            owner == config.millardProgram.articulationIndex) {
+            const std::size_t pointCount =
+                config.millardProgram.pointQueries.size();
+            kinematics.pointCount = static_cast<mr_u32>(pointCount);
+            kinematics.flags =
+                MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY;
+            kinematics.pointStride = static_cast<mr_u32>(pointCount);
+            kinematics.pointWorldStride = static_cast<mr_u32>(pointCount);
+            kinematics.pointJacobianStride = static_cast<mr_u32>(
+                pointCount * 3u * owned.nv
+            );
+        }
         layout.kinematicsDispatches.push_back(kinematics);
     }
 
@@ -4419,6 +4699,16 @@ MetalWorldDiagnostics validateAndBuildLayout(
         (layout.contactDispatch.flags &
          MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES) != 0u;
     if (preferParallelABA || streamedResponses) {
+        if (hasFunctionBasedDynamics) {
+            if (streamedResponses) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::unsupportedTopology,
+                    "streamed articulated responses do not yet admit "
+                    "FunctionBased dense dynamics"
+                );
+            }
+        } else {
         const ParallelABASchedule& schedule =
             world.parallelABASchedule();
         for (const MRParallelABAArticulationGPU& articulation :
@@ -4445,6 +4735,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         layout.usesParallelABA =
             preferParallelABA && simd32Schedule &&
             hasProductiveBodyFrontier;
+        }
     }
 
     std::size_t totalRequiredBytes = 0u;
@@ -4455,6 +4746,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
             config.policyProgram,
             config.multicopterProgram,
             config.devicePhysicsProgram,
+            config.millardProgram,
             requirements,
             totalRequiredBytes
         )) {
@@ -4845,6 +5137,24 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld policy log probabilities";
     case kPolicyValues:
         return @"MetalWorld policy values";
+    case kFunctionBasedPrograms:
+        return @"MetalWorld FunctionBased source programs";
+    case kMillardDispatch:
+        return @"MetalWorld source Millard dispatch";
+    case kMillardMuscles:
+        return @"MetalWorld source Millard muscles";
+    case kMillardStates:
+        return @"MetalWorld source Millard states";
+    case kMillardPathPoints:
+        return @"MetalWorld source Millard path points";
+    case kMillardCurves:
+        return @"MetalWorld source Millard curves";
+    case kMillardWraps:
+        return @"MetalWorld source Millard cylinder wraps";
+    case kMillardResults:
+        return @"MetalWorld source Millard results";
+    case kMillardGeneralizedForces:
+        return @"MetalWorld source Millard generalized forces";
     default:
         return @"MetalWorld buffer";
     }
@@ -5311,6 +5621,52 @@ MetalWorldDiagnostics initializeContext(
             std::move(diagnostics),
             MetalWorldHostStatus::metalPipelineFailure,
             "failed to create ABA pipeline: " +
+                describeError(error)
+        );
+    }
+    error = nil;
+    id<MTLComputePipelineState> functionBasedDenseDynamics =
+        makePipeline(
+            device,
+            library,
+            @"mr_function_based_dense_dynamics_step",
+            &error
+        );
+    if (functionBasedDenseDynamics == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create FunctionBased dense-dynamics pipeline: " +
+                describeError(error)
+        );
+    }
+    error = nil;
+    id<MTLComputePipelineState> millardReference = makePipeline(
+        device,
+        library,
+        @"mr_millard_reference",
+        &error
+    );
+    if (millardReference == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create Millard reference pipeline: " +
+                describeError(error)
+        );
+    }
+    error = nil;
+    id<MTLComputePipelineState> millardAccumulate = makePipeline(
+        device,
+        library,
+        @"mr_millard_accumulate_effort",
+        &error
+    );
+    if (millardAccumulate == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create Millard effort-accumulation pipeline: " +
                 describeError(error)
         );
     }
@@ -5919,11 +6275,22 @@ MetalWorldDiagnostics initializeContext(
 
     if (aba.maxTotalThreadsPerThreadgroup <
             kABAThreadsPerThreadgroup ||
+        functionBasedDenseDynamics.maxTotalThreadsPerThreadgroup <
+            kABAThreadsPerThreadgroup ||
+        millardReference.maxTotalThreadsPerThreadgroup <
+            kOperatorThreadsPerThreadgroup ||
+        millardAccumulate.maxTotalThreadsPerThreadgroup == 0u ||
         smallABA.maxTotalThreadsPerThreadgroup <
             kABAThreadsPerThreadgroup ||
         multiABA.maxTotalThreadsPerThreadgroup <
             kABAThreadsPerThreadgroup ||
         aba.staticThreadgroupMemoryLength >
+            device.maxThreadgroupMemoryLength ||
+        functionBasedDenseDynamics.staticThreadgroupMemoryLength >
+            device.maxThreadgroupMemoryLength ||
+        millardReference.staticThreadgroupMemoryLength >
+            device.maxThreadgroupMemoryLength ||
+        millardAccumulate.staticThreadgroupMemoryLength >
             device.maxThreadgroupMemoryLength ||
         smallABA.staticThreadgroupMemoryLength >
             device.maxThreadgroupMemoryLength ||
@@ -6126,6 +6493,10 @@ MetalWorldDiagnostics initializeContext(
     context.queue = queue;
     context.library = library;
     context.abaPipeline = aba;
+    context.functionBasedDenseDynamicsPipeline =
+        functionBasedDenseDynamics;
+    context.millardReferencePipeline = millardReference;
+    context.millardAccumulatePipeline = millardAccumulate;
     context.parameterizedABAPipeline = parameterizedABA;
     context.smallABAPipeline = smallABA;
     context.multiABAPipeline = multiABA;
@@ -6271,7 +6642,7 @@ MetalWorldDiagnostics initializeContext(
             pairNarrowphase.threadExecutionWidth
         );
     context.initialized = true;
-    context.stats.pipelineCreationCount += 67u;
+    context.stats.pipelineCreationCount += 69u;
     diagnostics = ensureHybridCCDPipeline(
         context,
         std::move(diagnostics)
@@ -6307,6 +6678,8 @@ std::size_t growthCapacity(
 bool privateTransientBuffer(const std::size_t index) {
     switch (index) {
     case kWorkingEffort:
+    case kMillardResults:
+    case kMillardGeneralizedForces:
     case kBodyWrenchPlaceholder:
     case kMulticopterCandidateState:
     case kCandidateAcceleration:
@@ -6483,6 +6856,7 @@ bool privatePersistentInputBuffer(const std::size_t index) {
     case kRodNodesA:
     case kRodEdgesA:
     case kTaskEvidenceState:
+    case kPointQueries:
         return true;
     default:
         return false;
@@ -6519,6 +6893,11 @@ bool privateImmutableBuffer(const std::size_t index) {
          index <= kRodTwistStiffness) ||
         index == kRodReferenceTangents ||
         index == kRodReferenceDirectors ||
+        index == kFunctionBasedPrograms ||
+        index == kMillardMuscles ||
+        index == kMillardPathPoints ||
+        index == kMillardCurves ||
+        index == kMillardWraps ||
         (index >= kGeometryHeaders &&
          index <= kMeshTriangles);
 }
@@ -6953,6 +7332,7 @@ MetalWorldDiagnostics ensureBufferArena(
         context.boundPolicyFingerprint = 0u;
         context.boundMulticopterFingerprint = 0u;
         context.boundDevicePhysicsFingerprint = 0u;
+        context.boundMillardFingerprint = 0u;
     }
     if (persistentStateBufferReplaced) {
         ++context.stateArenaGeneration;
@@ -7263,6 +7643,26 @@ void uploadBatch(
                 immutableUpload
             );
         }
+        std::vector<MROpenSimSpatialTransformGPU>
+            functionPrograms;
+        std::string functionProgramReason;
+        if (!packFunctionPrograms(
+                model,
+                functionPrograms,
+                &functionProgramReason
+            )) {
+            throw std::runtime_error(
+                "failed to pack MetalWorld FunctionBased programs: " +
+                functionProgramReason
+            );
+        }
+        stagePrivateBuffer(
+            context,
+            kFunctionBasedPrograms,
+            functionPrograms.data(),
+            requirements.entries[kFunctionBasedPrograms],
+            immutableUpload
+        );
         const ParallelABASchedule& parallelSchedule =
             world.parallelABASchedule();
         const std::array<std::pair<std::size_t, const void*>, 8u>
@@ -7768,6 +8168,96 @@ void uploadBatch(
             model.articulations.end()
         );
         ++context.stats.modelUploadCount;
+    }
+
+    const std::uint64_t millardHash =
+        millardProgramFingerprint(config.millardProgram);
+    if (config.millardProgram.valid()) {
+        const MetalWorldMillardProgram& millard = config.millardProgram;
+        const MRArticulationGPU& articulation =
+            model.articulations[millard.articulationIndex];
+        MRMillardReferenceDispatchGPU millardDispatch{};
+        millardDispatch.abiVersion = MR_MILLARD_REFERENCE_GPU_ABI_VERSION;
+        millardDispatch.muscleCount = static_cast<mr_u32>(
+            millard.muscles.size()
+        );
+        millardDispatch.pathPointCount = static_cast<mr_u32>(
+            millard.pathPoints.size()
+        );
+        millardDispatch.wrapCount = static_cast<mr_u32>(
+            millard.cylinderWraps.size()
+        );
+        millardDispatch.environmentCount = layout.dispatch.environmentCount;
+        millardDispatch.dofCount = articulation.nv;
+        millardDispatch.pointWorldStride = static_cast<mr_u32>(
+            millard.pointQueries.size()
+        );
+        millardDispatch.pointJacobianStride = static_cast<mr_u32>(
+            millard.pointQueries.size() * 3u * articulation.nv
+        );
+        millardDispatch.bodyPoseStride =
+            static_cast<mr_u32>(world.bodyCount());
+        millardDispatch.articulationFirstBody = articulation.firstBody;
+
+        std::vector<MRMillardMuscleStateGPU> expandedStates;
+        std::vector<MRArticulatedPointImpulseGPU> expandedPoints;
+        expandedStates.reserve(
+            batch.environmentCount * millard.states.size()
+        );
+        expandedPoints.reserve(
+            batch.environmentCount * millard.pointQueries.size()
+        );
+        for (std::size_t environment = 0u;
+             environment < batch.environmentCount;
+             ++environment) {
+            expandedStates.insert(
+                expandedStates.end(), millard.states.begin(), millard.states.end()
+            );
+            expandedPoints.insert(
+                expandedPoints.end(),
+                millard.pointQueries.begin(),
+                millard.pointQueries.end()
+            );
+        }
+
+        id<MTLBlitCommandEncoder> programUpload = nil;
+        if (context.config.preferPrivateHeaps) {
+            programUpload = [commandBuffer blitCommandEncoder];
+            if (programUpload == nil) {
+                throw std::runtime_error(
+                    "failed to create source Millard upload encoder"
+                );
+            }
+            programUpload.label =
+                @"MetalWorld source Millard program upload";
+        }
+        const auto stageMillard = [&](const std::size_t index,
+                                      const void* source) {
+            stagePrivateBuffer(
+                context,
+                index,
+                source,
+                requirements.entries[index],
+                programUpload
+            );
+        };
+        if (context.boundMillardFingerprint != millardHash) {
+            stageMillard(kMillardMuscles, millard.muscles.data());
+            stageMillard(kMillardPathPoints, millard.pathPoints.data());
+            stageMillard(kMillardCurves, millard.curves.data());
+            stageMillard(kMillardWraps, millard.cylinderWraps.empty()
+                ? nullptr
+                : static_cast<const void*>(millard.cylinderWraps.data()));
+            context.boundMillardFingerprint = millardHash;
+        }
+        stageMillard(kMillardDispatch, &millardDispatch);
+        stageMillard(kMillardStates, expandedStates.data());
+        stageMillard(kPointQueries, expandedPoints.data());
+        if (programUpload != nil) {
+            [programUpload endEncoding];
+        }
+    } else {
+        context.boundMillardFingerprint = 0u;
     }
 
     const bool nativeTask = config.taskProgram.valid();
@@ -9380,6 +9870,10 @@ bool encodeArticulatedOperator(
                      context.buffers[kTaskControllerParameters]
                      offset:0u
                     atIndex:16u];
+    } else {
+        [encoder setBuffer:context.buffers[kFunctionBasedPrograms]
+                     offset:0u
+                    atIndex:15u];
     }
 
     // Kinematics is a composed world operation: encode one dispatch for every
@@ -12097,6 +12591,148 @@ bool encodeABA(
             1u
         )];
     [encoder endEncoding];
+    return true;
+}
+
+// FunctionBased CustomJoints retain their source multi-coordinate spatial
+// transforms.  Their bounded dense dynamics kernel is still an ordinary
+// MetalWorld stage: it reads the resident q/v/effort arenas and publishes to
+// the same candidate buffers consumed by transactional commit.
+bool encodeFunctionBasedDenseDynamics(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const std::size_t sourceQ,
+    const std::size_t sourceV,
+    const std::size_t environmentCount
+) {
+    id<MTLComputeCommandEncoder> encoder =
+        [commandBuffer computeCommandEncoder];
+    if (encoder == nil) {
+        return false;
+    }
+    encoder.label = @"MetalWorld FunctionBased dense dynamics";
+    [encoder setComputePipelineState:
+                 context.functionBasedDenseDynamicsPipeline];
+    const std::array<std::size_t, 15u> buffers{{
+        kWorld,
+        kArticulations,
+        kJoints,
+        kDofs,
+        kBodies,
+        kABADispatch,
+        sourceQ,
+        sourceV,
+        kWorkingEffort,
+        kBodyWrenchPlaceholder,
+        kCandidateAcceleration,
+        kCandidateV,
+        kCandidateQ,
+        kABAStatuses,
+        kFunctionBasedPrograms,
+    }};
+    for (NSUInteger index = 0u; index < buffers.size(); ++index) {
+        [encoder setBuffer:context.buffers[buffers[index]]
+                     offset:0u
+                    atIndex:index];
+    }
+    [encoder
+        dispatchThreadgroups:MTLSizeMake(
+            static_cast<NSUInteger>(environmentCount), 1u, 1u
+        )
+        threadsPerThreadgroup:MTLSizeMake(
+            kABAThreadsPerThreadgroup, 1u, 1u
+        )];
+    [encoder endEncoding];
+    return true;
+}
+
+// The source Millard stage follows the generic FunctionBased kinematics and
+// Jacobian operator in this exact command buffer. Its force records remain
+// individually addressable, then a deterministic DoF-wise reduction adds the
+// resulting tensile effort to the same resident arena consumed by dense
+// source dynamics.
+bool encodeMillardActuation(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const std::size_t environmentCount,
+    const std::size_t muscleCount,
+    const std::size_t dofCount
+) {
+    id<MTLComputeCommandEncoder> reference =
+        [commandBuffer computeCommandEncoder];
+    if (reference == nil) {
+        return false;
+    }
+    reference.label = @"MetalWorld source Millard force projection";
+    [reference setComputePipelineState:context.millardReferencePipeline];
+    const std::array<std::pair<std::size_t, NSUInteger>, 10u> bindings{{
+        {kOperatorKinematicsDispatch, 5u},
+        {kBodyPoses, 8u},
+        {kPointWorld, 9u},
+        {kPointJacobians, 11u},
+        {kMillardDispatch, 16u},
+        {kMillardMuscles, 17u},
+        {kMillardStates, 18u},
+        {kMillardPathPoints, 19u},
+        {kMillardCurves, 20u},
+        {kMillardWraps, 21u},
+    }};
+    for (const auto& [buffer, index] : bindings) {
+        [reference setBuffer:context.buffers[buffer]
+                     offset:0u
+                    atIndex:index];
+    }
+    [reference setBuffer:context.buffers[kMillardResults]
+                 offset:0u
+                atIndex:22u];
+    [reference setBuffer:context.buffers[kMillardGeneralizedForces]
+                 offset:0u
+                atIndex:23u];
+    const std::size_t resultCount = environmentCount * muscleCount;
+    [reference
+        dispatchThreadgroups:MTLSizeMake(
+            static_cast<NSUInteger>(
+                (resultCount + kOperatorThreadsPerThreadgroup - 1u) /
+                kOperatorThreadsPerThreadgroup
+            ),
+            1u,
+            1u
+        )
+        threadsPerThreadgroup:MTLSizeMake(
+            kOperatorThreadsPerThreadgroup, 1u, 1u
+        )];
+    [reference endEncoding];
+
+    id<MTLComputeCommandEncoder> reduction =
+        [commandBuffer computeCommandEncoder];
+    if (reduction == nil) {
+        return false;
+    }
+    reduction.label = @"MetalWorld source Millard effort reduction";
+    [reduction setComputePipelineState:context.millardAccumulatePipeline];
+    [reduction setBuffer:context.buffers[kMillardDispatch]
+                 offset:0u
+                atIndex:0u];
+    [reduction setBuffer:context.buffers[kMillardGeneralizedForces]
+                 offset:0u
+                atIndex:1u];
+    [reduction setBuffer:context.buffers[kWorkingEffort]
+                 offset:0u
+                atIndex:2u];
+    const std::size_t effortCount = environmentCount * dofCount;
+    const NSUInteger reductionThreads = std::min<NSUInteger>(
+        std::max<NSUInteger>(
+            context.millardAccumulatePipeline.threadExecutionWidth,
+            1u
+        ),
+        context.millardAccumulatePipeline.maxTotalThreadsPerThreadgroup
+    );
+    [reduction
+        dispatchThreads:MTLSizeMake(
+            static_cast<NSUInteger>(effortCount), 1u, 1u
+        )
+        threadsPerThreadgroup:MTLSizeMake(reductionThreads, 1u, 1u)];
+    [reduction endEncoding];
     return true;
 }
 
@@ -15157,6 +15793,42 @@ MetalWorldDiagnostics validateAndPublish(
         diagnostics.layout.contactDispatch;
     const std::size_t observationWidth =
         dispatch.observationEnvironmentStride;
+    if (staged.layout.millardProgramFingerprint != 0u) {
+        const std::size_t expectedMuscleResults =
+            static_cast<std::size_t>(dispatch.environmentCount) *
+            staged.layout.millardMuscleCount;
+        const std::size_t expectedForces =
+            expectedMuscleResults * dispatch.nv;
+        if (staged.millardResults.size() != expectedMuscleResults ||
+            staged.millardGeneralizedForces.size() != expectedForces ||
+            !finiteFloats(staged.millardGeneralizedForces)) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::internalFailure,
+                "GPU published malformed source Millard force output"
+            );
+        }
+        for (std::size_t index = 0u;
+             index < staged.millardResults.size();
+             ++index) {
+            const MRMillardMuscleResultGPU& muscle =
+                staged.millardResults[index];
+            const std::size_t environment =
+                index / staged.layout.millardMuscleCount;
+            const std::size_t muscleIndex =
+                index - environment * staged.layout.millardMuscleCount;
+            if (muscle.status != MR_MILLARD_REFERENCE_SUCCESS ||
+                muscle.environment != environment ||
+                muscle.muscleIndex != muscleIndex ||
+                !finite(muscle.pathFiberTendonResidual)) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::gpuEnvironmentFailure,
+                    "GPU rejected a source Millard muscle during MetalWorld actuation"
+                );
+            }
+        }
+    }
     staged.environmentStatuses.resize(
         dispatch.environmentCount
     );
@@ -18259,6 +18931,16 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                     staged.layout.accelerationElements
                 );
             }
+            if (pending->hasMillardProgram) {
+                const std::size_t muscleResults =
+                    static_cast<std::size_t>(
+                        staged.layout.dispatch.environmentCount
+                    ) * staged.layout.millardMuscleCount;
+                staged.millardResults.resize(muscleResults);
+                staged.millardGeneralizedForces.resize(
+                    muscleResults * staged.layout.dispatch.nv
+                );
+            }
             staged.statuses.resize(
                 staged.layout.statusElements
             );
@@ -18403,6 +19085,16 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 staged.statuses,
                 buffers[kPublicStatuses]
             );
+            if (pending->hasMillardProgram) {
+                copyOutput(
+                    staged.millardResults,
+                    stateOutputBuffer(kMillardResults)
+                );
+                copyOutput(
+                    staged.millardGeneralizedForces,
+                    stateOutputBuffer(kMillardGeneralizedForces)
+                );
+            }
             if (pending->nativeTask) {
                 id<MTLBuffer> evidenceBuffer =
                     stateOutputBuffer(kTaskEvidenceState);
@@ -18769,6 +19461,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     (config.devicePhysicsProgram.valid()
                          ? config.devicePhysicsProgram.fingerprint
                          : 0u) ||
+                residentData->millardProgramFingerprint !=
+                    millardProgramFingerprint(config.millardProgram) ||
                 residentData->taskSeed != config.taskSeed ||
                 residentData->environmentCount !=
                     batch.environmentCount) {
@@ -18875,6 +19569,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     config.devicePhysicsProgram.valid()
                     ? config.devicePhysicsProgram.fingerprint
                     : 0u;
+                residentData->millardProgramFingerprint =
+                    millardProgramFingerprint(config.millardProgram);
                 residentData->taskSeed = config.taskSeed;
                 residentData->environmentCount =
                     batch.environmentCount;
@@ -19012,6 +19708,10 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
 
             const bool useParallelABA =
                 diagnostics.layout.usesParallelABA;
+            const bool useFunctionBasedDenseDynamics =
+                !world.model().functionBasedJointPrograms.empty();
+            const bool hasMillardProgram =
+                config.millardProgram.valid();
             id<MTLComputePipelineState> selectedABAPipeline =
                 nativeTask
                 ? (useParallelABA
@@ -19426,16 +20126,47 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             )
                         ) &&
                         (
-                            useHybridContact ||
-                            encodeABA(
-                                *selectedState,
-                                commandBuffer,
-                                selectedABAPipeline,
-                                sourceQ,
-                                sourceV,
-                                world.articulationCount(),
-                                batch.environmentCount
+                            !hasMillardProgram ||
+                            (
+                                encodeArticulatedOperator(
+                                    *selectedState,
+                                    commandBuffer,
+                                    kOperatorKinematicsDispatch,
+                                    sourceQ,
+                                    kPointQueries,
+                                    kBodyPoses,
+                                    batch.environmentCount,
+                                    @"MetalWorld source Millard kinematics and Jacobians",
+                                    false
+                                ) &&
+                                encodeMillardActuation(
+                                    *selectedState,
+                                    commandBuffer,
+                                    batch.environmentCount,
+                                    config.millardProgram.muscles.size(),
+                                    world.nv()
+                                )
                             )
+                        ) &&
+                        (
+                            useHybridContact ||
+                            (useFunctionBasedDenseDynamics
+                                ? encodeFunctionBasedDenseDynamics(
+                                      *selectedState,
+                                      commandBuffer,
+                                      sourceQ,
+                                      sourceV,
+                                      batch.environmentCount
+                                  )
+                                : encodeABA(
+                                      *selectedState,
+                                      commandBuffer,
+                                      selectedABAPipeline,
+                                      sourceQ,
+                                      sourceV,
+                                      world.articulationCount(),
+                                      batch.environmentCount
+                                  ))
                         );
                     const bool encodedRod =
                         encodedABA &&
@@ -19875,6 +20606,10 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             if (world.rodCount() != 0u) {
                 readbackIndices.push_back(kRodStatuses);
             }
+            if (hasMillardProgram) {
+                readbackIndices.push_back(kMillardResults);
+                readbackIndices.push_back(kMillardGeneralizedForces);
+            }
             if (config.captureContactEvidence) {
                 readbackIndices.push_back(
                     sourceManifoldHeaders
@@ -19945,6 +20680,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 : batch.policyRevision;
             pending->hasRods = world.rodCount() != 0u;
             pending->contactMode = contactMode;
+            pending->hasMillardProgram = hasMillardProgram;
             pending->nativeTask = nativeTask;
             pending->captureContactEvidence =
                 config.captureContactEvidence;

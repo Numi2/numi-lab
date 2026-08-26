@@ -1,5 +1,6 @@
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
+#include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/MillardMuscleReference.hpp"
 #include "metalrobo/OpenSimSpatialTransform.hpp"
 
@@ -456,6 +457,7 @@ struct MillardReferenceMetrics {
         double equilibriumResidual = 0.0;
         double generalizedForceL1 = 0.0;
         std::uint32_t appliedCylinderWrapCount = 0u;
+        std::vector<double> generalizedForces;
     };
     std::vector<MuscleSample> samples;
 };
@@ -644,6 +646,7 @@ MillardReferenceMetrics verifyMillardReference(
         sample.tendonForce = force.tendonForce;
         sample.equilibriumResidual = force.equilibriumResidual;
         sample.appliedCylinderWrapCount = path.appliedCylinderWrapCount;
+        sample.generalizedForces = generalizedForce;
         for (const double effort : generalizedForce) {
             metrics.generalizedForceL1 += std::abs(effort);
             sample.generalizedForceL1 += std::abs(effort);
@@ -675,6 +678,14 @@ struct MetalReferenceMetrics {
     double massScaledError = 0.0;
 };
 
+struct MetalWorldFunctionBasedMetrics {
+    std::string deviceName;
+    double maximumAccelerationError = 0.0;
+    double maximumVelocityError = 0.0;
+    double maximumConfigurationError = 0.0;
+    std::uint32_t successfulStepCount = 0u;
+};
+
 struct MetalMillardReferenceMetrics {
     std::string deviceName;
     std::uint32_t appliedCylinderWrapCount = 0u;
@@ -687,6 +698,135 @@ struct MetalMillardReferenceMetrics {
 double relativeError(const double actual, const double reference) {
     return std::abs(actual - reference) /
         std::max(1.0, std::abs(reference));
+}
+
+struct MetalMillardProgramData {
+    std::vector<MRArticulatedPointImpulseGPU> points;
+    std::vector<MRMillardMuscleGPU> muscles;
+    std::vector<MRMillardMuscleStateGPU> states;
+    std::vector<MRMillardPathPointGPU> pathPoints;
+    std::vector<MRMillardSourceCurveGPU> curves;
+    std::vector<MRMillardCylinderWrapGPU> wraps;
+
+    [[nodiscard]] metalrobo::MetalWorldMillardProgram program() const {
+        return {
+            .articulationIndex = 0u,
+            .pointQueries = points,
+            .muscles = muscles,
+            .states = states,
+            .pathPoints = pathPoints,
+            .curves = curves,
+            .cylinderWraps = wraps,
+        };
+    }
+};
+
+MetalMillardProgramData materializeMetalMillardProgram(
+    const MillardPayload& payload
+) {
+    MetalMillardProgramData data;
+    data.points.resize(payload.pathPoints.size());
+    data.pathPoints.resize(payload.pathPoints.size());
+    for (std::size_t index = 0u; index < payload.pathPoints.size(); ++index) {
+        const MillardPathPointRecord& source = payload.pathPoints[index];
+        data.points[index] = {
+            .bodyIndex = source.bodyIndex,
+            .flags = 0u,
+            .reserved0 = 0u,
+            .reserved1 = 0u,
+            .localPoint = {source.x, source.y, source.z, 0.0f},
+            .worldImpulse = {0.0f, 0.0f, 0.0f, 0.0f},
+        };
+        data.pathPoints[index] = {
+            .pointQueryIndex = static_cast<std::uint32_t>(index),
+            .bodyIndex = source.bodyIndex,
+            .reserved0 = 0u,
+            .reserved1 = 0u,
+        };
+    }
+    data.muscles.resize(payload.muscles.size());
+    data.states.resize(payload.muscles.size());
+    data.curves.resize(payload.curves.size());
+    for (std::size_t index = 0u; index < payload.muscles.size(); ++index) {
+        const MillardMuscleRecord& source = payload.muscles[index];
+        data.muscles[index] = {
+            .forceAndLengths = {
+                source.maxIsometricForce,
+                source.optimalFiberLength,
+                source.tendonSlackLength,
+                source.pennationAngleAtOptimal,
+            },
+            .dampingAndActivation = {
+                source.fiberDamping,
+                source.defaultActivation,
+                source.minimumActivation,
+                0.0f,
+            },
+            .pathAndWrap = {
+                source.pathPointOffset,
+                source.pathPointCount,
+                source.pathWrapOffset,
+                source.pathWrapCount,
+            },
+            .flags = {source.flags, 0u, 0u, 0u},
+        };
+        data.states[index] = {
+            .activationAndVelocity = {
+                std::max(source.defaultActivation, source.minimumActivation),
+                0.0f,
+                0.0f,
+                0.0f,
+            },
+        };
+        const MillardCurveRecord& sourceCurve = payload.curves[index];
+        const std::array<float, 22u> sourceValues{
+            sourceCurve.minNormActiveFiberLength,
+            sourceCurve.transitionNormFiberLength,
+            sourceCurve.maxNormActiveFiberLength,
+            sourceCurve.shallowAscendingSlope,
+            sourceCurve.activeMinimumValue,
+            sourceCurve.concentricSlopeAtVmax,
+            sourceCurve.concentricSlopeNearVmax,
+            sourceCurve.isometricSlope,
+            sourceCurve.eccentricSlopeAtVmax,
+            sourceCurve.eccentricSlopeNearVmax,
+            sourceCurve.maxEccentricVelocityForceMultiplier,
+            sourceCurve.concentricCurviness,
+            sourceCurve.eccentricCurviness,
+            sourceCurve.fiberStrainAtZeroForce,
+            sourceCurve.fiberStrainAtOneNormForce,
+            sourceCurve.fiberStiffnessAtLowForce,
+            sourceCurve.fiberStiffnessAtOneNormForce,
+            sourceCurve.fiberCurviness,
+            sourceCurve.tendonStrainAtOneNormForce,
+            sourceCurve.tendonStiffnessAtOneNormForce,
+            sourceCurve.tendonNormForceAtToeEnd,
+            sourceCurve.tendonCurviness,
+        };
+        float* gpuCurveValues = &data.curves[index].values[0u].x;
+        for (std::size_t value = 0u; value < sourceValues.size(); ++value) {
+            gpuCurveValues[value] = sourceValues[value];
+        }
+    }
+    data.wraps.resize(payload.wraps.size());
+    for (std::size_t index = 0u; index < payload.wraps.size(); ++index) {
+        const MillardWrapRecord& source = payload.wraps[index];
+        data.wraps[index] = {
+            .bodyIndex = source.bodyIndex,
+            .reserved0 = 0u,
+            .reserved1 = 0u,
+            .reserved2 = 0u,
+            .center = {source.centerX, source.centerY, source.centerZ, 0.0f},
+            .rotationAndRadius = {
+                source.rotationX,
+                source.rotationY,
+                source.rotationZ,
+                source.radius,
+            },
+            .length = {source.length, 0.0f, 0.0f, 0.0f},
+        };
+    }
+    return data;
 }
 
 MetalMillardReferenceMetrics verifyMetalMillardReference(
@@ -1166,6 +1306,319 @@ MetalReferenceMetrics verifyMetalFunctionBasedOperator(
     return metrics;
 }
 
+MetalWorldFunctionBasedMetrics verifyMetalWorldFunctionBasedDynamics(
+    const metalrobo::EngineModel& model
+) {
+    const MRArticulationGPU& articulation = model.articulations.at(0u);
+    constexpr std::size_t controlSteps = 3u;
+    constexpr float timestep = 1.0f / 240.0f;
+    std::vector<float> initialQ = model.defaultQ;
+    std::vector<float> initialV = model.defaultV;
+    for (std::size_t index = 0u; index < initialQ.size(); ++index) {
+        initialQ[index] += 0.025f * std::sin(
+            0.37f * static_cast<float>(index + 1u)
+        );
+        initialV[index] = 0.06f * std::cos(
+            0.29f * static_cast<float>(index + 1u)
+        );
+    }
+    std::vector<float> efforts(
+        controlSteps * static_cast<std::size_t>(articulation.nv),
+        0.0f
+    );
+
+    metalrobo::CompiledWorld world;
+    const auto compileDiagnostics = metalrobo::compileMetalWorld(
+        model, 0u, world
+    );
+    require(
+        compileDiagnostics.succeeded() && world.valid(),
+        std::string("MetalWorld FunctionBased compilation failed: ") +
+            metalrobo::metalWorldHostStatusName(
+                compileDiagnostics.status
+            ) + " " + compileDiagnostics.message
+    );
+
+    const metalrobo::MetalWorldBatch batch{
+        .environmentCount = 1u,
+        .controlStepCount = controlSteps,
+        .initialQ = initialQ,
+        .initialV = initialV,
+        .efforts = efforts,
+    };
+    const metalrobo::MetalWorldStepConfig config{
+        .timestepSeconds = timestep,
+        .physicsSubsteps = 1u,
+        .solverMode = metalrobo::MetalWorldSolverMode::freeMotionABA,
+        .actuationMode = metalrobo::MetalWorldActuationMode::effort,
+        .applyBodyDamping = true,
+        .deterministic = true,
+        .publishFinalState = true,
+        .publishStateTrajectory = true,
+    };
+    metalrobo::MetalWorldContext context;
+    metalrobo::MetalWorldResult result;
+    const auto deviceDiagnostics = context.run(
+        world, batch, config, result
+    );
+    require(
+        deviceDiagnostics.succeeded() && deviceDiagnostics.dispatched &&
+            deviceDiagnostics.published &&
+            deviceDiagnostics.successfulStepCount == controlSteps &&
+            deviceDiagnostics.failedStepCount == 0u,
+        std::string("MetalWorld FunctionBased dense dynamics failed: ") +
+            metalrobo::metalWorldHostStatusName(
+                deviceDiagnostics.status
+            ) + " " + deviceDiagnostics.message +
+            " first_gpu_status=" +
+            std::to_string(deviceDiagnostics.firstGPUStatusCode)
+    );
+    require(
+        result.finalQ.size() == initialQ.size() &&
+            result.finalV.size() == initialV.size() &&
+            result.accelerations.size() == efforts.size(),
+        "MetalWorld FunctionBased dynamics published an unexpected state layout"
+    );
+
+    metalrobo::ArticulatedDynamicsConfig cpuConfig;
+    cpuConfig.gravity = {
+        static_cast<double>(model.world.gravityAndTimestep.x),
+        static_cast<double>(model.world.gravityAndTimestep.y),
+        static_cast<double>(model.world.gravityAndTimestep.z),
+    };
+    cpuConfig.timestep = timestep;
+    cpuConfig.applyBodyDamping = true;
+    cpuConfig.integrator = metalrobo::ArticulatedIntegrator::symplecticEuler;
+    std::vector<double> q(initialQ.begin(), initialQ.end());
+    std::vector<double> v(initialV.begin(), initialV.end());
+    std::vector<double> force(articulation.nv, 0.0);
+    std::vector<double> acceleration(articulation.nv, 0.0);
+
+    MetalWorldFunctionBasedMetrics metrics;
+    metrics.deviceName = deviceDiagnostics.deviceName;
+    metrics.successfulStepCount = deviceDiagnostics.successfulStepCount;
+    for (std::size_t step = 0u; step < controlSteps; ++step) {
+        const auto forwardDiagnostics =
+            metalrobo::computeArticulatedForwardDynamics(
+                model, 0u, q, v, force, {}, acceleration, cpuConfig
+            );
+        require(
+            forwardDiagnostics.succeeded(),
+            "CPU FunctionBased forward dynamics failed during device parity"
+        );
+        for (std::size_t dof = 0u; dof < acceleration.size(); ++dof) {
+            const double deviceAcceleration = result.accelerations[
+                step * acceleration.size() + dof
+            ];
+            metrics.maximumAccelerationError = std::max(
+                metrics.maximumAccelerationError,
+                std::abs(deviceAcceleration - acceleration[dof])
+            );
+        }
+        const auto integrateDiagnostics = metalrobo::integrateArticulatedState(
+            model, 0u, q, v, force, {}, cpuConfig
+        );
+        require(
+            integrateDiagnostics.succeeded(),
+            "CPU FunctionBased state integration failed during device parity"
+        );
+    }
+    for (std::size_t index = 0u; index < q.size(); ++index) {
+        metrics.maximumConfigurationError = std::max(
+            metrics.maximumConfigurationError,
+            std::abs(static_cast<double>(result.finalQ[index]) - q[index])
+        );
+        metrics.maximumVelocityError = std::max(
+            metrics.maximumVelocityError,
+            std::abs(static_cast<double>(result.finalV[index]) - v[index])
+        );
+    }
+    require(
+        metrics.maximumAccelerationError < 2.5e-2 &&
+            metrics.maximumVelocityError < 3.0e-4 &&
+            metrics.maximumConfigurationError < 3.0e-5,
+        "MetalWorld FunctionBased dense dynamics exceeded FP32 source parity"
+    );
+    return metrics;
+}
+
+struct MetalWorldMillardActuationMetrics {
+    std::string deviceName;
+    double maximumAccelerationError = 0.0;
+    double maximumAccelerationRelativeError = 0.0;
+    double accelerationL1RelativeError = 0.0;
+    double generalizedForceL1RelativeError = 0.0;
+    double maximumVelocityDeltaFromPassive = 0.0;
+    double generalizedForceL1 = 0.0;
+    std::uint32_t muscleCount = 0u;
+};
+
+MetalWorldMillardActuationMetrics verifyMetalWorldMillardActuation(
+    const metalrobo::EngineModel& model,
+    const MillardPayload& payload,
+    const MillardReferenceMetrics& cpuMillard
+) {
+    const MRArticulationGPU& articulation = model.articulations.at(0u);
+    constexpr float timestep = 1.0f / 240.0f;
+    const std::vector<float> efforts(articulation.nv, 0.0f);
+    const metalrobo::MetalWorldBatch batch{
+        .environmentCount = 1u,
+        .controlStepCount = 1u,
+        .initialQ = model.defaultQ,
+        .initialV = model.defaultV,
+        .efforts = efforts,
+    };
+    const metalrobo::MetalWorldStepConfig baseConfig{
+        .timestepSeconds = timestep,
+        .physicsSubsteps = 1u,
+        .solverMode = metalrobo::MetalWorldSolverMode::freeMotionABA,
+        .actuationMode = metalrobo::MetalWorldActuationMode::effort,
+        .applyBodyDamping = true,
+        .deterministic = true,
+        .publishFinalState = true,
+        .publishStateTrajectory = true,
+    };
+    metalrobo::CompiledWorld world;
+    const auto compileDiagnostics = metalrobo::compileMetalWorld(
+        model, 0u, world
+    );
+    require(
+        compileDiagnostics.succeeded() && world.valid(),
+        "MetalWorld Millard actuation compilation failed"
+    );
+
+    metalrobo::MetalWorldContext passiveContext;
+    metalrobo::MetalWorldResult passive;
+    const auto passiveDiagnostics = passiveContext.run(
+        world, batch, baseConfig, passive
+    );
+    require(
+        passiveDiagnostics.succeeded() && passiveDiagnostics.published,
+        "passive MetalWorld reference failed before Millard actuation"
+    );
+
+    const MetalMillardProgramData programData =
+        materializeMetalMillardProgram(payload);
+    metalrobo::MetalWorldStepConfig activeConfig = baseConfig;
+    activeConfig.millardProgram = programData.program();
+    metalrobo::MetalWorldContext activeContext;
+    metalrobo::MetalWorldResult active;
+    const auto activeDiagnostics = activeContext.run(
+        world, batch, activeConfig, active
+    );
+    require(
+        activeDiagnostics.succeeded() && activeDiagnostics.dispatched &&
+            activeDiagnostics.published &&
+            active.millardResults.size() == payload.muscles.size() &&
+            active.millardGeneralizedForces.size() ==
+                payload.muscles.size() * articulation.nv,
+        std::string("MetalWorld Millard actuation failed: ") +
+            metalrobo::metalWorldHostStatusName(activeDiagnostics.status) +
+            " " + activeDiagnostics.message
+    );
+
+    std::vector<double> cpuEffort(articulation.nv, 0.0);
+    for (const MillardReferenceMetrics::MuscleSample& sample :
+         cpuMillard.samples) {
+        require(
+            sample.generalizedForces.size() == articulation.nv,
+            "CPU Millard source force sample has an unexpected DoF layout"
+        );
+        for (std::size_t dof = 0u; dof < cpuEffort.size(); ++dof) {
+            cpuEffort[dof] += sample.generalizedForces[dof];
+        }
+    }
+    metalrobo::ArticulatedDynamicsConfig cpuConfig;
+    cpuConfig.gravity = {
+        static_cast<double>(model.world.gravityAndTimestep.x),
+        static_cast<double>(model.world.gravityAndTimestep.y),
+        static_cast<double>(model.world.gravityAndTimestep.z),
+    };
+    cpuConfig.timestep = timestep;
+    cpuConfig.applyBodyDamping = true;
+    cpuConfig.integrator = metalrobo::ArticulatedIntegrator::symplecticEuler;
+    std::vector<double> q(model.defaultQ.begin(), model.defaultQ.end());
+    std::vector<double> v(model.defaultV.begin(), model.defaultV.end());
+    std::vector<double> cpuAcceleration(articulation.nv, 0.0);
+    const auto cpuDiagnostics = metalrobo::computeArticulatedForwardDynamics(
+        model, 0u, q, v, cpuEffort, {}, cpuAcceleration, cpuConfig
+    );
+    require(
+        cpuDiagnostics.succeeded(),
+        "CPU Millard-actuated forward dynamics failed"
+    );
+
+    MetalWorldMillardActuationMetrics metrics;
+    metrics.deviceName = activeDiagnostics.deviceName;
+    metrics.muscleCount = static_cast<std::uint32_t>(payload.muscles.size());
+    std::vector<double> deviceEffort(articulation.nv, 0.0);
+    for (std::size_t muscle = 0u; muscle < payload.muscles.size(); ++muscle) {
+        for (std::size_t dof = 0u; dof < articulation.nv; ++dof) {
+            deviceEffort[dof] += active.millardGeneralizedForces[
+                muscle * articulation.nv + dof
+            ];
+        }
+    }
+    double cpuForceL1 = 0.0;
+    double forceDifferenceL1 = 0.0;
+    double cpuAccelerationL1 = 0.0;
+    double accelerationDifferenceL1 = 0.0;
+    for (std::size_t dof = 0u; dof < articulation.nv; ++dof) {
+        cpuForceL1 += std::abs(cpuEffort[dof]);
+        forceDifferenceL1 += std::abs(deviceEffort[dof] - cpuEffort[dof]);
+        metrics.generalizedForceL1 += std::abs(deviceEffort[dof]);
+        metrics.maximumAccelerationError = std::max(
+            metrics.maximumAccelerationError,
+            std::abs(
+                static_cast<double>(active.accelerations[dof]) -
+                cpuAcceleration[dof]
+            )
+        );
+        metrics.maximumAccelerationRelativeError = std::max(
+            metrics.maximumAccelerationRelativeError,
+            std::abs(
+                static_cast<double>(active.accelerations[dof]) -
+                cpuAcceleration[dof]
+            ) / std::max(1.0, std::abs(cpuAcceleration[dof]))
+        );
+        cpuAccelerationL1 += std::abs(cpuAcceleration[dof]);
+        accelerationDifferenceL1 += std::abs(
+            static_cast<double>(active.accelerations[dof]) -
+            cpuAcceleration[dof]
+        );
+        metrics.maximumVelocityDeltaFromPassive = std::max(
+            metrics.maximumVelocityDeltaFromPassive,
+            std::abs(
+                static_cast<double>(active.finalV[dof]) -
+                passive.finalV[dof]
+            )
+        );
+    }
+    metrics.generalizedForceL1RelativeError = forceDifferenceL1 /
+        std::max(1.0, cpuForceL1);
+    metrics.accelerationL1RelativeError = accelerationDifferenceL1 /
+        std::max(1.0, cpuAccelerationL1);
+    require(
+        metrics.generalizedForceL1 > 1.0e-3 &&
+            metrics.maximumVelocityDeltaFromPassive > 1.0e-6 &&
+            metrics.generalizedForceL1RelativeError < 3.0e-3 &&
+            metrics.accelerationL1RelativeError < 5.0e-4,
+        "MetalWorld Millard source effort did not meet active device/CPU parity gates "
+            "force_l1=" + std::to_string(metrics.generalizedForceL1) +
+            " force_relative_error=" +
+            std::to_string(metrics.generalizedForceL1RelativeError) +
+            " acceleration_error=" +
+            std::to_string(metrics.maximumAccelerationError) +
+            " acceleration_relative_error=" +
+            std::to_string(metrics.maximumAccelerationRelativeError) +
+            " acceleration_l1_relative_error=" +
+            std::to_string(metrics.accelerationL1RelativeError) +
+            " velocity_delta=" +
+            std::to_string(metrics.maximumVelocityDeltaFromPassive)
+    );
+    return metrics;
+}
+
 } // namespace
 
 int main(const int argc, char** argv) {
@@ -1281,10 +1734,19 @@ int main(const int argc, char** argv) {
         const MillardReferenceMetrics millardMetrics = millardPath != nullptr
             ? verifyMillardReference(model, millardPayload)
             : MillardReferenceMetrics{};
+        const MetalWorldFunctionBasedMetrics metalWorldMetrics = runMetal
+            ? verifyMetalWorldFunctionBasedDynamics(model)
+            : MetalWorldFunctionBasedMetrics{};
         const MetalMillardReferenceMetrics metalMillardMetrics =
             runMetal && millardPath != nullptr
                 ? verifyMetalMillardReference(model, millardPayload, millardMetrics)
                 : MetalMillardReferenceMetrics{};
+        const MetalWorldMillardActuationMetrics metalWorldMillardMetrics =
+            runMetal && millardPath != nullptr
+                ? verifyMetalWorldMillardActuation(
+                    model, millardPayload, millardMetrics
+                )
+                : MetalWorldMillardActuationMetrics{};
 
         std::cout << std::scientific << std::setprecision(6)
                   << "numilab_human_core_reference=ok"
@@ -1304,7 +1766,91 @@ int main(const int argc, char** argv) {
                           ? " metal_function_based_operator=ok"
                           : "")
                   << (runMetal
+                          ? " metal_function_based_dynamics=ok"
+                          : "")
+                  << (runMetal
                           ? " metal_device=" + metalMetrics.deviceName
+                          : "")
+                  << (runMetal
+                          ? " metal_world_device=" +
+                                metalWorldMetrics.deviceName
+                          : "")
+                  << (runMetal
+                          ? " metal_world_successful_steps=" +
+                                std::to_string(
+                                    metalWorldMetrics.successfulStepCount
+                                )
+                          : "")
+                  << (runMetal
+                          ? " metal_world_acceleration_error=" +
+                                std::to_string(
+                                    metalWorldMetrics.
+                                        maximumAccelerationError
+                                )
+                          : "")
+                  << (runMetal
+                          ? " metal_world_velocity_error=" +
+                                std::to_string(
+                                    metalWorldMetrics.
+                                        maximumVelocityError
+                                )
+                          : "")
+                  << (runMetal
+                          ? " metal_world_configuration_error=" +
+                                std::to_string(
+                                    metalWorldMetrics.
+                                        maximumConfigurationError
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_world_millard_actuation=ok"
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_world_millard_muscles=" +
+                                std::to_string(
+                                    metalWorldMillardMetrics.muscleCount
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_world_millard_force_l1=" +
+                                std::to_string(
+                                    metalWorldMillardMetrics.generalizedForceL1
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_world_millard_force_l1_relative_error=" +
+                                std::to_string(
+                                    metalWorldMillardMetrics.
+                                        generalizedForceL1RelativeError
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_world_millard_acceleration_error=" +
+                                std::to_string(
+                                    metalWorldMillardMetrics.
+                                        maximumAccelerationError
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_world_millard_acceleration_relative_error=" +
+                                std::to_string(
+                                    metalWorldMillardMetrics.
+                                        maximumAccelerationRelativeError
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_world_millard_acceleration_l1_relative_error=" +
+                                std::to_string(
+                                    metalWorldMillardMetrics.
+                                        accelerationL1RelativeError
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_world_millard_velocity_delta=" +
+                                std::to_string(
+                                    metalWorldMillardMetrics.
+                                        maximumVelocityDeltaFromPassive
+                                )
                           : "")
                   << (runMetal
                           ? " metal_body_position_error=" +

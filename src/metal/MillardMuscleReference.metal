@@ -721,3 +721,34 @@ kernel void mr_millard_reference(
     result.pathFiberTendonResidual = float4(totalLength, fiberLength, tendonForce, residual);
     results[globalIndex] = result;
 }
+
+// Deterministic dense reduction for the bounded MetalWorld source-muscle
+// path. Each lane owns one environment/DoF entry, preserving every individual
+// muscle force record for audit while contributing the summed tensile effort
+// directly to MetalWorld's resident working-effort arena.
+kernel void mr_millard_accumulate_effort(
+    device const MRMillardReferenceDispatchGPU& dispatch [[buffer(0)]],
+    device const float* generalizedForces [[buffer(1)]],
+    device float* workingEffort [[buffer(2)]],
+    uint index [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.dofCount;
+    if (index >= total || dispatch.abiVersion !=
+            MR_MILLARD_REFERENCE_GPU_ABI_VERSION ||
+        dispatch.muscleCount == 0u || dispatch.dofCount == 0u) {
+        return;
+    }
+    const uint environment = index / dispatch.dofCount;
+    const uint dof = index - environment * dispatch.dofCount;
+    float sum = 0.0f;
+    const uint forceBase =
+        environment * dispatch.muscleCount * dispatch.dofCount + dof;
+    for (uint muscle = 0u; muscle < dispatch.muscleCount; ++muscle) {
+        sum += generalizedForces[
+            forceBase + muscle * dispatch.dofCount
+        ];
+    }
+    if (isfinite(sum)) {
+        workingEffort[index] += sum;
+    }
+}

@@ -9,6 +9,7 @@
 #include "metalrobo/TaskProgram.hpp"
 #include "metalrobo/parallel_aba_shared.h"
 #include "metalrobo/rod_gpu_shared.h"
+#include "metalrobo/millard_muscle_gpu.h"
 #include "metalrobo/unified_quality_shared.h"
 
 #include <array>
@@ -560,6 +561,38 @@ struct MetalWorldMulticopterProgram {
     }
 };
 
+// Immutable source-materialized Millard program executed inside every
+// MetalWorld FunctionBased microstep.  `states` is one source state per
+// muscle; MetalWorld expands it across environments privately, evaluates the
+// path/Jacobian force on device, and adds the reduced generalized effort to
+// the resident effort arena before source dynamics.  Activation control is
+// intentionally not inferred from generic effort actions: callers must
+// provide an explicit muscle-state program when that control contract is
+// authored.
+struct MetalWorldMillardProgram {
+    std::uint32_t articulationIndex = MR_INVALID_INDEX;
+    std::span<const MRArticulatedPointImpulseGPU> pointQueries{};
+    std::span<const MRMillardMuscleGPU> muscles{};
+    std::span<const MRMillardMuscleStateGPU> states{};
+    std::span<const MRMillardPathPointGPU> pathPoints{};
+    std::span<const MRMillardSourceCurveGPU> curves{};
+    std::span<const MRMillardCylinderWrapGPU> cylinderWraps{};
+
+    [[nodiscard]] bool configured() const noexcept {
+        return articulationIndex != MR_INVALID_INDEX ||
+            !pointQueries.empty() || !muscles.empty() || !states.empty() ||
+            !pathPoints.empty() || !curves.empty() ||
+            !cylinderWraps.empty();
+    }
+
+    [[nodiscard]] bool valid() const noexcept {
+        return articulationIndex != MR_INVALID_INDEX &&
+            !pointQueries.empty() && !muscles.empty() &&
+            states.size() == muscles.size() &&
+            curves.size() == muscles.size() && !pathPoints.empty();
+    }
+};
+
 struct MetalWorldStepConfig {
     // Control-period duration. The immutable model gravity is retained and
     // its authored integration timestep is replaced by
@@ -587,6 +620,9 @@ struct MetalWorldStepConfig {
     // not a constructor hint; its complete contents participate in the run
     // fingerprint before reaching MetalWorld.
     MetalWorldMulticopterProgram multicopterProgram{};
+    // Optional source Millard muscle-tendon program. It is admitted only by
+    // the bounded fixed-root FunctionBased free-motion path.
+    MetalWorldMillardProgram millardProgram{};
     // Optional multiphysics pass. It executes before rigid dynamics and again
     // after transactional publication in every physics substep. The pre pass
     // contributes to the shared global body-wrench arena; the post pass may
@@ -665,6 +701,8 @@ struct MetalWorldMemoryPlan {
 struct MetalWorldLayout {
     MRMetalWorldDispatchGPU dispatch{};
     std::uint64_t devicePhysicsFingerprint = 0u;
+    std::uint64_t millardProgramFingerprint = 0u;
+    std::uint32_t millardMuscleCount = 0u;
     bool usesParallelABA = false;
     std::uint32_t parallelABAMaximumLevelWidth = 0u;
     MRABADispatchGPU abaDispatch{};
@@ -849,6 +887,12 @@ struct MetalWorldResult {
     // Packed [control step][environment][local v]. Failed steps publish zero
     // acceleration and preserve their pre-step accepted state.
     std::vector<float> accelerations;
+    // Final source-muscle evaluation in this command-buffer submission.
+    // Individual generalized forces remain unpacked [environment][muscle][v]
+    // so an audit can establish that the active source elements, rather than
+    // a host-restaged aggregate, drove the accepted state.
+    std::vector<MRMillardMuscleResultGPU> millardResults;
+    std::vector<float> millardGeneralizedForces;
     std::vector<MRMetalWorldStatusGPU> statuses;
     std::vector<MRMetalWorldContactStatusGPU> contactStatuses;
     // One record per environment when qualityNewton is selected.

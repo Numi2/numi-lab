@@ -57,7 +57,11 @@ bool scalarOrFixedJoint(const std::uint32_t type) {
         type == MR_JOINT_FIXED ||
         type == MR_JOINT_REVOLUTE ||
         type == MR_JOINT_CONTINUOUS ||
-        type == MR_JOINT_PRISMATIC;
+        type == MR_JOINT_PRISMATIC ||
+        // The schedule only records tree ownership/frontiers. FunctionBased
+        // joints are never dispatched through ParallelABA.metal; MetalWorld
+        // selects its serial dense source-dynamics stage for them.
+        type == MR_JOINT_FUNCTION_BASED;
 }
 
 std::uint64_t hashBytes(
