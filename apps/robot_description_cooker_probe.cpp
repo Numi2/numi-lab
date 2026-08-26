@@ -1,13 +1,16 @@
 #include "metalrobo/RobotDescriptionCooker.hpp"
+#include "metalrobo/MetalArticulatedABA.hpp"
 #include "metalrobo/MetalMultiArticulatedConstraints.hpp"
 
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 #include <filesystem>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace {
 
@@ -15,6 +18,41 @@ void require(const bool condition, const std::string& message) {
     if (!condition) {
         throw std::runtime_error(message);
     }
+}
+
+// This is a compact replay identifier for the numerical payload returned by a
+// completed ABA submission.  It is intentionally an evidence aid, not a
+// portable serialization format: two runs are comparable only when they use
+// the same binary, model, and platform.
+std::uint64_t stateFingerprint(
+    const metalrobo::MetalArticulatedABAResult& result
+) {
+    constexpr std::uint64_t offset = 14695981039346656037ull;
+    constexpr std::uint64_t prime = 1099511628211ull;
+    std::uint64_t hash = offset;
+    const auto append = [&hash, prime](const auto& values) {
+        const auto* const bytes = reinterpret_cast<const unsigned char*>(
+            values.data()
+        );
+        const std::size_t count = values.size() * sizeof(values.front());
+        for (std::size_t index = 0u; index < count; ++index) {
+            hash ^= static_cast<std::uint64_t>(bytes[index]);
+            hash *= prime;
+        }
+    };
+    if (!result.acceleration.empty()) {
+        append(result.acceleration);
+    }
+    if (!result.nextV.empty()) {
+        append(result.nextV);
+    }
+    if (!result.nextQ.empty()) {
+        append(result.nextQ);
+    }
+    if (!result.statuses.empty()) {
+        append(result.statuses);
+    }
+    return hash;
 }
 
 constexpr std::string_view kUrdf = R"(
@@ -95,7 +133,9 @@ constexpr std::string_view kSrdf = R"(
 
 int main(const int argc, const char* const* argv) {
     try {
-        if (argc == 2) {
+        const bool runMetal = argc == 3 &&
+            std::string_view{argv[1]} == "--metal";
+        if (argc == 2 || runMetal) {
             metalrobo::RobotDescriptionCookOptions options;
             options.rootMode =
                 metalrobo::RobotDescriptionRootMode::floating;
@@ -104,7 +144,7 @@ int main(const int argc, const char* const* argv) {
             metalrobo::EngineModel imported;
             const auto importedDiagnostics =
                 metalrobo::cookRobotDescriptionFiles(
-                    argv[1],
+                    argv[runMetal ? 2 : 1],
                     {},
                     imported,
                     options
@@ -122,6 +162,45 @@ int main(const int argc, const char* const* argv) {
                 imported.valid(&importedReason),
                 "external cooked model invalid: " + importedReason
             );
+            if (runMetal) {
+                const MRArticulationGPU& articulation =
+                    imported.articulations.front();
+                std::vector<float> effort(articulation.nv, 0.0f);
+                metalrobo::MetalArticulatedABAInput input{
+                    .articulationIndex = 0u,
+                    .environmentCount = 1u,
+                    .q = imported.defaultQ,
+                    .v = imported.defaultV,
+                    .effort = effort,
+                    .bodyWrenches = {},
+                    .applyBodyDamping = true,
+                };
+                metalrobo::MetalArticulatedABAResult result;
+                const auto metal = metalrobo::runMetalArticulatedABA(
+                    imported,
+                    input,
+                    result
+                );
+                require(
+                    metal.succeeded() &&
+                        metal.dispatched && metal.published &&
+                        metal.successfulEnvironmentCount == 1u &&
+                        result.statuses.size() == 1u &&
+                        result.statuses.front().code == MR_ABA_SUCCESS,
+                    std::string("external URDF Metal ABA failed: ") +
+                        metalrobo::metalArticulatedABAHostStatusName(
+                            metal.status
+                        ) + " " + metal.message
+                );
+                std::cout
+                    << "robot_description_external_metal=ok"
+                    << " device=" << metal.deviceName
+                    << " elapsed_ms=" << metal.elapsedMilliseconds
+                    << " retained_bytes=" << result.layout.totalRequiredBytes
+                    << " gpu_status=" << result.statuses.front().code
+                    << " state_fingerprint=" << stateFingerprint(result)
+                    << '\n';
+            }
             std::cout
                 << "robot_description_external=ok"
                 << " name=" << imported.name
@@ -142,7 +221,7 @@ int main(const int argc, const char* const* argv) {
         }
         require(
             argc == 1,
-            "usage: metalrobo_robot_description_cooker_probe [robot.urdf]"
+            "usage: metalrobo_robot_description_cooker_probe [robot.urdf] | [--metal robot.urdf]"
         );
         metalrobo::EngineModel model;
         const auto diagnostics =
