@@ -39,6 +39,11 @@ struct MillardCylinderWrap {
     std::array<double, 3> xyzBodyRotation{};
     double radius = 0.0;
     double length = 0.0;
+    // OpenSim PathWrap range endpoints are source 1-based point indices. -1
+    // retains the OpenSim default of the first or last source path point.
+    std::int32_t startPoint = -1;
+    std::int32_t endPoint = -1;
+    MRMillardPathWrapMethod method = MR_MILLARD_PATH_WRAP_HYBRID;
 };
 
 struct MillardMuscleDefinition {
@@ -49,8 +54,10 @@ struct MillardMuscleDefinition {
     double fiberDamping = 0.0;
     double minimumActivation = 0.0;
     std::vector<MillardMusclePathPoint> pathPoints;
-    // Source-order GeometryPath wraps. A wrap is applied only when the
-    // corresponding direct segment penetrates its finite cylinder.
+    // Source-order GeometryPath wraps. A finite-cylinder wrap is considered
+    // only inside its authored PathWrap range; `method` is retained verbatim
+    // even though OpenSim's WrapCylinder solver does not select among the
+    // ellipsoid-only hybrid/midpoint/axial algorithms.
     std::vector<MillardCylinderWrap> cylinderWraps;
 };
 

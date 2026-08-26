@@ -119,8 +119,9 @@ struct ArticulatedPointKinematics {
 // or floating root and revolute, prismatic, continuous, fixed, or immutable
 // OpenSim FunctionBased joints. The computation is FP64. The dense mass
 // matrix is assembled from analytic tree Jacobians, while velocity/gravity
-// bias is evaluated by recursive Newton-Euler kinematics. This does not imply
-// Metal ABA admission for FunctionBased joints.
+// bias is evaluated by recursive Newton-Euler kinematics. Generic O(n) Metal
+// ABA does not admit FunctionBased joints; MetalWorld separately admits the
+// bounded fixed-root source tree through its dense source-dynamics kernel.
 //
 // The following two queries expose that same analytic tree recursion to
 // constraint layers. Results are transactional. Point Jacobians are packed

@@ -12,9 +12,10 @@
 namespace metalrobo {
 
 // Immutable program backing one MR_JOINT_FUNCTION_BASED descriptor. The
-// program is intentionally outside the pointer-free GPU ABI: current Metal
-// articulated kernels reject FunctionBased joints rather than silently
-// dropping their coupling. jointIndex is global in EngineModel::joints.
+// program remains outside the pointer-free generic joint descriptor ABI so
+// source SpatialTransform semantics cannot be silently dropped. It is consumed
+// by the articulated operator and the bounded fixed-root MetalWorld dense
+// FunctionBased path. jointIndex is global in EngineModel::joints.
 struct FunctionBasedJointProgram {
     std::uint32_t jointIndex = MR_INVALID_INDEX;
     CompiledOpenSimSpatialTransform transform{};

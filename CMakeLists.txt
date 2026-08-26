@@ -1239,8 +1239,8 @@ set_target_properties(
 )
 
 # Loads the provenance-locked NumiLab Human Rajagopal rigid-tree payload into
-# the Core FP64 reference. This is deliberately a CPU reference gate: the
-# current Metal ABA path continues to reject FunctionBased joints.
+# the Core FP64 reference and, when requested, qualifies the bounded
+# fixed-root FunctionBased MetalWorld dense-dynamics and Millard-actuation path.
 add_executable(
     metalrobo_numilab_human_core_reference_probe
     apps/numilab_human_core_reference_probe.cpp

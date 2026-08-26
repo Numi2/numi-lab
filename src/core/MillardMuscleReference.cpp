@@ -394,7 +394,36 @@ bool finiteCylinder(const MillardCylinderWrap& wrap) {
     return wrap.bodyIndex != MR_INVALID_INDEX && finite(wrap.center) &&
         finite(wrap.xyzBodyRotation) && finite(wrap.radius) &&
         finite(wrap.length) && wrap.radius > kMinimumLength &&
-        wrap.length > kMinimumLength;
+        wrap.length > kMinimumLength &&
+        wrap.method <= MR_MILLARD_PATH_WRAP_AXIAL;
+}
+
+bool validPathWrapRange(
+    const MillardCylinderWrap& wrap,
+    const std::size_t pathPointCount
+) {
+    const auto validEndpoint = [pathPointCount](const std::int32_t endpoint) {
+        return endpoint == -1 ||
+            (endpoint >= 1 && static_cast<std::size_t>(endpoint) <= pathPointCount);
+    };
+    return validEndpoint(wrap.startPoint) && validEndpoint(wrap.endPoint) &&
+        (wrap.startPoint == -1 || wrap.endPoint == -1 ||
+            wrap.startPoint <= wrap.endPoint);
+}
+
+bool wrapCoversSegment(
+    const MillardCylinderWrap& wrap,
+    const std::size_t segment,
+    const std::size_t pathPointCount
+) {
+    if (!validPathWrapRange(wrap, pathPointCount)) {
+        return false;
+    }
+    const std::size_t startPoint = wrap.startPoint < 1
+        ? 0u : static_cast<std::size_t>(wrap.startPoint - 1);
+    const std::size_t endPoint = wrap.endPoint < 1
+        ? pathPointCount - 1u : static_cast<std::size_t>(wrap.endPoint - 1);
+    return segment >= startPoint && segment < endPoint;
 }
 
 // Returns a surface path around an infinite cylinder, then accepts it only
@@ -554,8 +583,12 @@ MillardMuscleReferenceDiagnostics buildPath(
             const MillardCylinderWrap& wrap = definition.cylinderWraps[wrapIndex];
             if (!finiteCylinder(wrap) ||
                 wrap.bodyIndex < articulation.firstBody ||
-                wrap.bodyIndex >= articulation.firstBody + articulation.bodyCount) {
+                wrap.bodyIndex >= articulation.firstBody + articulation.bodyCount ||
+                !validPathWrapRange(wrap, staged.points.size())) {
                 return failure(MillardMuscleReferenceStatus::invalidWrap, static_cast<std::uint32_t>(wrapIndex));
+            }
+            if (!wrapCoversSegment(wrap, segment, staged.points.size())) {
+                continue;
             }
             if (wrappedSegment(
                     first,

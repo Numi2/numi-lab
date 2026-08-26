@@ -437,6 +437,33 @@ inline bool directSegment(
     return true;
 }
 
+inline bool validPathWrapRange(
+    const MRMillardCylinderWrapGPU wrap,
+    const uint pathPointCount
+) {
+    const bool validStart = wrap.startPoint == -1 ||
+        (wrap.startPoint >= 1 && uint(wrap.startPoint) <= pathPointCount);
+    const bool validEnd = wrap.endPoint == -1 ||
+        (wrap.endPoint >= 1 && uint(wrap.endPoint) <= pathPointCount);
+    return validStart && validEnd &&
+        (wrap.startPoint == -1 || wrap.endPoint == -1 ||
+            wrap.startPoint <= wrap.endPoint) &&
+        wrap.method <= MR_MILLARD_PATH_WRAP_AXIAL;
+}
+
+inline bool wrapCoversSegment(
+    const MRMillardCylinderWrapGPU wrap,
+    const uint segment,
+    const uint pathPointCount
+) {
+    if (!validPathWrapRange(wrap, pathPointCount)) {
+        return false;
+    }
+    const uint startPoint = wrap.startPoint < 1 ? 0u : uint(wrap.startPoint - 1);
+    const uint endPoint = wrap.endPoint < 1 ? pathPointCount - 1u : uint(wrap.endPoint - 1);
+    return segment >= startPoint && segment < endPoint;
+}
+
 inline bool evaluateStaticState(
     thread const MRMillardMuscleGPU& muscle,
     thread const MRMillardSourceCurveGPU& curve,
@@ -624,11 +651,14 @@ kernel void mr_millard_reference(
             const MRMillardCylinderWrapGPU wrap = wraps[wrapOffset + wrapLocal];
             if (wrap.bodyIndex < dispatch.articulationFirstBody ||
                 wrap.bodyIndex >= dispatch.articulationFirstBody + dispatch.bodyPoseStride ||
-                wrap.reserved0 != 0u || wrap.reserved1 != 0u || wrap.reserved2 != 0u ||
+                wrap.reserved0 != 0u || !validPathWrapRange(wrap, pathCount) ||
                 wrap.center.w != 0.0f || wrap.length.y != 0.0f ||
                 wrap.length.z != 0.0f || wrap.length.w != 0.0f) {
                 validPath = false;
                 break;
+            }
+            if (!wrapCoversSegment(wrap, segment, pathCount)) {
+                continue;
             }
             const uint localBody = wrap.bodyIndex - dispatch.articulationFirstBody;
             if (wrappedSegment(firstWorld, secondWorld,
@@ -678,6 +708,9 @@ kernel void mr_millard_reference(
                 continue;
             }
             const MRMillardCylinderWrapGPU wrap = wraps[wrapOffset + wrapLocal];
+            if (!wrapCoversSegment(wrap, segment, pathCount)) {
+                continue;
+            }
             const uint localBody = wrap.bodyIndex - dispatch.articulationFirstBody;
             if (wrappedSegment(firstWorld, secondWorld,
                     bodyPoses[environment * dispatch.bodyPoseStride + localBody], wrap,

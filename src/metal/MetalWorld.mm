@@ -1478,6 +1478,23 @@ bool validMillardProgram(
             !finite(program.curves[index].values[5u])) {
             return false;
         }
+        for (std::size_t wrapOffset = 0u;
+             wrapOffset < muscle.pathAndWrap.w; ++wrapOffset) {
+            const MRMillardCylinderWrapGPU& wrap = program.cylinderWraps[
+                static_cast<std::size_t>(muscle.pathAndWrap.z) + wrapOffset
+            ];
+            const auto validEndpoint = [&muscle](const mr_i32 endpoint) {
+                return endpoint == -1 ||
+                    (endpoint >= 1 && static_cast<mr_u32>(endpoint) <=
+                        muscle.pathAndWrap.y);
+            };
+            if (!validEndpoint(wrap.startPoint) || !validEndpoint(wrap.endPoint) ||
+                (wrap.startPoint != -1 && wrap.endPoint != -1 &&
+                    wrap.startPoint > wrap.endPoint) ||
+                wrap.method > MR_MILLARD_PATH_WRAP_AXIAL) {
+                return false;
+            }
+        }
     }
     for (const MRMillardPathPointGPU& point : program.pathPoints) {
         if (point.pointQueryIndex >= program.pointQueries.size() ||
@@ -1490,7 +1507,6 @@ bool validMillardProgram(
     }
     for (const MRMillardCylinderWrapGPU& wrap : program.cylinderWraps) {
         if (!ownsBody(wrap.bodyIndex) || wrap.reserved0 != 0u ||
-            wrap.reserved1 != 0u || wrap.reserved2 != 0u ||
             !finite(wrap.center) || !finite(wrap.rotationAndRadius) ||
             !finite(wrap.length) || wrap.center.w != 0.0f ||
             wrap.length.y != 0.0f || wrap.length.z != 0.0f ||

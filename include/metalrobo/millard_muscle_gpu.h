@@ -3,13 +3,12 @@
 // Typed device ABI for a source-materialized Millard 2012 equilibrium muscle
 // reference. The program consumes the private pose, point-world, and analytic
 // point-Jacobian streams emitted by the generic articulated operator in the
-// same Metal command buffer. It deliberately does not imply that MetalWorld's
-// separate ABA state-step kernel admits variable-coordinate FunctionBased
-// joints.
+// same Metal command buffer. MetalWorld admits this program only for its
+// bounded fixed-root FunctionBased dense-dynamics path.
 
 #include "metalrobo/engine_types.h"
 
-#define MR_MILLARD_REFERENCE_GPU_ABI_VERSION 1u
+#define MR_MILLARD_REFERENCE_GPU_ABI_VERSION 2u
 #define MR_MILLARD_REFERENCE_MAX_WRAPS_PER_MUSCLE 16u
 
 enum MRMillardReferenceGPUStatus : mr_u32 {
@@ -79,11 +78,19 @@ typedef struct MR_ALIGN16 MRMillardSourceCurveGPU {
     mr_float4 values[6];
 } MRMillardSourceCurveGPU;
 
+enum MRMillardPathWrapMethod : mr_u32 {
+    MR_MILLARD_PATH_WRAP_HYBRID = 0u,
+    MR_MILLARD_PATH_WRAP_MIDPOINT = 1u,
+    MR_MILLARD_PATH_WRAP_AXIAL = 2u,
+};
+
 typedef struct MR_ALIGN16 MRMillardCylinderWrapGPU {
     mr_u32 bodyIndex;
-    mr_u32 reserved0;
-    mr_u32 reserved1;
-    mr_u32 reserved2;
+    // OpenSim PathWrap range endpoints are source 1-based path-point indices;
+    // -1 means use the corresponding end of the source path.
+    mr_i32 startPoint;
+    mr_i32 endPoint;
+    mr_u32 method;
     mr_float4 center;
     // xyz uses the source BodyFixedXYZ cylinder rotation; w is radius.
     mr_float4 rotationAndRadius;

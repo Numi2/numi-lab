@@ -27,7 +27,7 @@ constexpr std::uint32_t kPayloadAbi = 1u;
 constexpr std::array<char, 8u> kMillardMagic{
     'N', 'H', 'M', 'U', 'S', 'C', '1', '\0',
 };
-constexpr std::uint32_t kMillardPayloadAbi = 2u;
+constexpr std::uint32_t kMillardPayloadAbi = 3u;
 
 #pragma pack(push, 1)
 struct PayloadHeader {
@@ -112,6 +112,9 @@ struct MillardWrapRecord {
     float rotationZ = 0.0f;
     float radius = 0.0f;
     float length = 0.0f;
+    std::int32_t startPoint = -1;
+    std::int32_t endPoint = -1;
+    std::uint32_t method = MR_MILLARD_PATH_WRAP_HYBRID;
 };
 #pragma pack(pop)
 
@@ -126,7 +129,7 @@ static_assert(sizeof(MillardPayloadHeader) == 64u);
 static_assert(sizeof(MillardMuscleRecord) == 48u);
 static_assert(sizeof(MillardPathPointRecord) == 16u);
 static_assert(sizeof(MillardCurveRecord) == 88u);
-static_assert(sizeof(MillardWrapRecord) == 36u);
+static_assert(sizeof(MillardWrapRecord) == 48u);
 static_assert(sizeof(MRMillardMuscleGPU) == 64u);
 static_assert(sizeof(MRMillardSourceCurveGPU) == 96u);
 static_assert(sizeof(MRMillardCylinderWrapGPU) == 64u);
@@ -320,6 +323,24 @@ MillardPayload loadMillardReference(
             "Millard muscle has invalid path-wrap range at index " +
                 std::to_string(index)
         );
+        for (std::uint32_t wrapIndex = 0u;
+             wrapIndex < muscle.pathWrapCount; ++wrapIndex) {
+            const MillardWrapRecord& wrap =
+                payload.wraps[muscle.pathWrapOffset + wrapIndex];
+            const auto validEndpoint = [&muscle](const std::int32_t endpoint) {
+                return endpoint == -1 ||
+                    (endpoint >= 1 &&
+                        static_cast<std::uint32_t>(endpoint) <= muscle.pathPointCount);
+            };
+            require(
+                validEndpoint(wrap.startPoint) && validEndpoint(wrap.endPoint) &&
+                    (wrap.startPoint == -1 || wrap.endPoint == -1 ||
+                        wrap.startPoint <= wrap.endPoint) &&
+                    wrap.method <= MR_MILLARD_PATH_WRAP_AXIAL,
+                "Millard PathWrap range or method is invalid at index " +
+                    std::to_string(muscle.pathWrapOffset + wrapIndex)
+            );
+        }
     }
     for (std::size_t index = 0u; index < payload.curves.size(); ++index) {
         const MillardCurveRecord& curve = payload.curves[index];
@@ -437,6 +458,9 @@ metalrobo::MillardMuscleDefinition millardDefinition(
             {wrap.rotationX, wrap.rotationY, wrap.rotationZ},
             wrap.radius,
             wrap.length,
+            wrap.startPoint,
+            wrap.endPoint,
+            static_cast<MRMillardPathWrapMethod>(wrap.method),
         });
     }
     return definition;
@@ -813,9 +837,10 @@ MetalMillardProgramData materializeMetalMillardProgram(
         const MillardWrapRecord& source = payload.wraps[index];
         data.wraps[index] = {
             .bodyIndex = source.bodyIndex,
+            .startPoint = source.startPoint,
+            .endPoint = source.endPoint,
+            .method = source.method,
             .reserved0 = 0u,
-            .reserved1 = 0u,
-            .reserved2 = 0u,
             .center = {source.centerX, source.centerY, source.centerZ, 0.0f},
             .rotationAndRadius = {
                 source.rotationX,
@@ -933,9 +958,10 @@ MetalMillardReferenceMetrics verifyMetalMillardReference(
         const MillardWrapRecord& source = payload.wraps[index];
         wraps[index] = {
             .bodyIndex = source.bodyIndex,
+            .startPoint = source.startPoint,
+            .endPoint = source.endPoint,
+            .method = source.method,
             .reserved0 = 0u,
-            .reserved1 = 0u,
-            .reserved2 = 0u,
             .center = {source.centerX, source.centerY, source.centerZ, 0.0f},
             .rotationAndRadius = {
                 source.rotationX,

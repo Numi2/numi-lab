@@ -126,10 +126,11 @@ with `H transpose` and returns `Hdot*qdot` at zero generalized acceleration.
 This GPU program/projection path accepts source-derived immutable programs
 without a hand-entered fixture. The bounded generic articulated operator also
 admits them for source-tree kinematics, point Jacobians, dense mass, and impulse
-response. Current Metal ABA and MetalWorld state kernels still explicitly
-reject `MR_JOINT_FUNCTION_BASED`: they do not yet assemble or advance an
-accelerated multi-body FunctionBased articulation. Universal joints are also
-not admitted. Neither contract establishes contact or muscle dynamics.
+response. Generic Metal ABA still does not admit `MR_JOINT_FUNCTION_BASED`,
+but MetalWorld admits one bounded fixed-root source tree through the dense
+FunctionBased state kernel. That path is free motion with direct effort, not
+contact or broad multi-articulation support. Universal joints remain excluded
+except when source-locked at the exact fixed zero transform.
 
 The optional `MetalMillardReferenceInput` is a separate device-side source
 reference pass attached to the generic articulated operator. In the same
@@ -139,9 +140,11 @@ Millard curves, applies the finite-cylinder GeometryPath rule, solves static
 fiber-tendon equilibrium, and publishes one generalized-force vector per
 muscle. It is an active force evaluation at supplied activation/normalized
 fiber velocity, not a persistent activation/fiber/tendon state integrator.
-`MetalWorld` has no lowering for this program and continues to reject
-FunctionBased joints, so the pass must not be represented as a human world
-state step, contact simulation, or OpenSim binary-equivalence result.
+For the bounded fixed-root FunctionBased path, MetalWorld evaluates this
+program from private pose/Jacobian streams, reduces its generalized force into
+the resident effort arena, and advances the same source state in one command
+buffer. It remains neither a contact simulation nor an OpenSim
+binary-equivalence result.
 
 ## Free-body integration
 
