@@ -1153,10 +1153,14 @@ inline float cleanObservation(
             : 0.0f;
         break;
     case MR_TASK_OBSERVE_AVIAN_JOURNEY_STAGE:
+        // Preserve the v2 values for the five qualified fundamentals. Every
+        // later v3 segment uses the former full-journey value and is
+        // distinguished by the observable phase and velocity/yaw command.
         value = (program.schedule.w &
                  MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u
-            ? float(state.episode.z) /
-                max(float(program.schedule.z - 1u), 1.0f)
+            ? (state.episode.z <= 4u
+                ? 0.2f * float(state.episode.z)
+                : 1.0f)
             : 0.0f;
         break;
     case MR_TASK_OBSERVE_RECOVERY_EVENT:
@@ -2820,20 +2824,39 @@ kernel void mr_locomotion_task_observe(
                 break;
             }
         }
-        // Journey band three isolates cruise stabilization. It starts from a
+        // Journey band three isolates cruise stabilization. Later v3 bands
+        // reset into exact portions of the full 32-second journey.
         // fingerprinted, physically ordinary airborne state rather than
         // asking every cruise episode to rediscover launch from the ground.
-        // Bands four and five still begin on bilateral terrain support and
-        // therefore remain the authoritative ground-to-flight gates.
+        // Band four still begins on bilateral terrain support and remains the
+        // authoritative combined ground-to-flight gate.
         if ((program.schedule.w &
              MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
-            curriculum == 3u) {
-            resetQ[qBase + program.root.z + 2u] = 0.85f;
-            resetV[vBase + program.root.w + 0u] = 0.35f;
+            (curriculum == 3u ||
+             (curriculum >= 5u && curriculum <= 8u))) {
+            const float segmentHeight = curriculum == 8u
+                ? 0.4167f
+                : 0.85f;
+            const float segmentForward = curriculum >= 7u
+                ? 0.0f
+                : 0.35f;
+            resetQ[qBase + program.root.z + 2u] = segmentHeight;
+            resetV[vBase + program.root.w + 0u] = segmentForward;
             resetV[vBase + program.root.w + 1u] = 0.0f;
-            resetV[vBase + program.root.w + 2u] = 0.0f;
+            resetV[vBase + program.root.w + 2u] = curriculum == 8u
+                ? -0.1083f
+                : 0.0f;
         }
         uint interactionResetStep = 0u;
+        if ((program.schedule.w &
+             MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u) {
+            interactionResetStep = curriculum == 5u ? 450u
+                : curriculum == 6u ? 750u
+                : curriculum == 7u ? 1050u
+                : curriculum == 8u ? 1250u
+                : curriculum == 9u ? 1350u
+                : 0u;
+        }
         if ((program.schedule.w &
              MR_TASK_PROGRAM_INTERACTION_RESET) != 0u) {
             if (program.interactionCurriculum.x > 0.0f &&
@@ -3498,11 +3521,14 @@ inline float birdFlowJourneyTeacherAction(
 ) {
     const float seconds =
         float(state.episode.x) * controlStepSeconds;
+    const bool groundOnly = state.episode.z <= 1u;
+    const bool takeoffOnly = state.episode.z == 2u;
     const bool isolatedCruise = state.episode.z == 3u;
     const bool takeoffCruise = state.episode.z == 4u;
-    const bool straightCruise = isolatedCruise || takeoffCruise;
-    const float launchStart = isolatedCruise
-        ? 0.0f
+    const bool straightCruise =
+        takeoffOnly || isolatedCruise || takeoffCruise;
+    const float launchStart = groundOnly ? 32.0f
+        : takeoffOnly || isolatedCruise ? 0.0f
         : takeoffCruise ? 1.0f : 5.0f;
     const float approachStart = straightCruise ? 32.0f : 21.0f;
     const float landingStart = straightCruise ? 32.0f : 27.0f;
@@ -3522,7 +3548,7 @@ inline float birdFlowJourneyTeacherAction(
     } else if (seconds >= approachStart && seconds < landingStart) {
         targetHeight = mix(
             0.85f,
-            0.20f,
+            0.45f,
             clamp(
                 (seconds - approachStart) /
                     max(landingStart - approachStart, 1.0f),
@@ -3533,20 +3559,21 @@ inline float birdFlowJourneyTeacherAction(
     }
     const float heightError =
         targetHeight - state.airReturnTracking.y;
-    const float forwardSpeedError =
-        state.commandExtension.z - 0.35f;
+    const float forwardSpeedError = straightCruise
+        ? state.commandExtension.z - 0.35f
+        : state.threatGeometry.x;
+    const float lateralSpeedError = state.threatGeometry.y;
     const float headingError = state.commandExtension.x;
-    const float yawRate = state.commandExtension.y;
-    const float turnPhase =
-        kTwoPi * clamp((seconds - 9.0f) / 12.0f, 0.0f, 1.0f);
-
+    const float yawRate = straightCruise
+        ? state.commandExtension.y
+        : state.threatGeometry.z;
     if (action < 2u) {
         return airborne
             ? clamp(
-                  -0.150f + 0.400f * heightError -
+                  -0.150f + 1.200f * heightError -
                       0.120f * forwardSpeedError,
                   -0.500f,
-                  0.125f
+                  0.500f
               )
             : 0.0f;
     }
@@ -3562,24 +3589,42 @@ inline float birdFlowJourneyTeacherAction(
         if (seconds < 9.0f || seconds >= 24.0f) {
             return 0.0f;
         }
-        const float sweep = 0.10f * sin(turnPhase);
-        return action == 2u ? sweep : -sweep;
+        const float correction = clamp(
+            -0.18f * lateralSpeedError - 0.10f * yawRate,
+            -0.18f,
+            0.18f
+        );
+        return action == 2u ? correction : -correction;
     }
     if (action == 4u || action == 5u) {
+        const float pitchCorrection = 0.0f;
         return airborne
-            ? 0.20f * sin(state.commandAndPhase.w + 2.62f)
+            ? clamp(
+                  0.20f * sin(state.commandAndPhase.w + 2.62f) +
+                      pitchCorrection,
+                  -0.65f,
+                  0.65f
+              )
             : 0.0f;
     }
     if (action == 6u) {
+        const float pitchError = straightCruise
+            ? 0.0f
+            : state.threatGeometry.w;
         return airborne
-            ? clamp(0.25f + 0.30f * heightError, 0.12f, 0.50f)
+            ? clamp(
+                  -0.20f + 0.60f * heightError - 2.00f * pitchError,
+                  -0.80f,
+                  0.60f
+              )
             : 0.0f;
     }
     if (action >= 7u && action <= 12u) {
         const uint legAction = action - 7u;
         const bool right = legAction >= 3u;
         const uint joint = legAction % 3u;
-        if (!straightCruise && seconds >= 2.0f && seconds < 5.0f) {
+        if ((state.episode.z == 1u || !straightCruise) &&
+            seconds >= 2.0f && seconds < 5.0f) {
             const float phase = kTwoPi * seconds / 0.50f;
             const float swing = right ? -sin(phase) : sin(phase);
             const float lift = max(swing, 0.0f);
@@ -3593,8 +3638,9 @@ inline float birdFlowJourneyTeacherAction(
             seconds < (straightCruise ? 32.0f : 24.0f)) {
             return joint == 0u ? -0.10f : joint == 1u ? 0.18f : -0.08f;
         }
-        if (!straightCruise && seconds >= 24.0f && seconds < 27.0f) {
-            const float tuck = (27.0f - seconds) / 3.0f;
+        if (!straightCruise && seconds >= 24.0f && seconds < landingStart) {
+            const float tuck = (landingStart - seconds) /
+                max(landingStart - 24.0f, 1.0f);
             return tuck *
                 (joint == 0u ? -0.10f : joint == 1u ? 0.18f : -0.08f);
         }
@@ -3607,9 +3653,17 @@ inline float birdFlowJourneyTeacherAction(
             0.30f
         );
     }
-    if (!takeoffCruise && action == 13u &&
+    if (!straightCruise && action == 13u &&
         seconds >= 9.0f && seconds < 24.0f) {
-        return 0.10f * sin(turnPhase);
+        return clamp(
+            -0.30f * yawRate - 0.12f * lateralSpeedError,
+            -0.35f,
+            0.35f
+        );
+    }
+    if (!straightCruise && action == 14u && airborne) {
+        const float pitchError = state.threatGeometry.w;
+        return clamp(-1.60f * pitchError, -0.80f, 0.80f);
     }
     return 0.0f;
 }
@@ -3720,7 +3774,7 @@ kernel void mr_locomotion_task_apply_actions(
             dispatch.sampling.w != 0u &&
             (program.schedule.w &
              MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
-            state.episode.z >= 3u;
+            true;
         const float studentRequested = actionStream[actionBase + action];
         const float teacherRequested = avianJourneyTeacher
             ? birdFlowJourneyTeacherAction(
@@ -4894,12 +4948,28 @@ kernel void mr_locomotion_task_complete(
             state.commandAndPhase.xyz = float3(0.35f, 0.0f, 0.0f);
             break;
         }
+        if (avianJourneyShowcase && episodeSeconds < 21.0f) {
+            // Two independently qualified constant-curvature arcs form the
+            // journey's signed turn sequence. This stays inside the crow's
+            // qualified 0.35 m/s envelope and avoids hiding an infeasible
+            // high-speed lemniscate behind a path reward.
+            const float turnDirection = episodeSeconds < 15.0f
+                ? 1.0f
+                : -1.0f;
+            state.commandExtension.w = avianJourneyNormalizedPhase;
+            state.commandAndPhase.xyz = float3(
+                0.35f,
+                0.0f,
+                0.12f * turnDirection
+            );
+            break;
+        }
         if (avianJourneyShowcase && episodeSeconds >= 21.0f) {
             const bool landedHold = episodeSeconds >= 27.0f;
             state.commandExtension.w = avianJourneyNormalizedPhase;
             state.commandAndPhase.xyz = landedHold
                 ? float3(0.0f)
-                : float3(0.15f, 0.0f, 0.0f);
+                : float3(0.20f, 0.0f, 0.0f);
             break;
         }
         if (avianGroundCurriculum && avianCurriculumBand == 0u) {
@@ -5044,6 +5114,25 @@ kernel void mr_locomotion_task_complete(
     const float yawDelta =
         baseAngular.z - state.commandAndPhase.z;
     const float yawError = yawDelta * yawDelta;
+    if (avianJourneyShowcase && !avianJourneyTakeoffCruise) {
+        // Accepted-state tracking feedback for the next native teacher action.
+        // These lanes are task-private and never replace the actor's command,
+        // phase, root-state, or velocity observations.
+        const float pitchAngle = asin(clamp(
+            2.0f * (
+                orientation.w * orientation.y -
+                orientation.z * orientation.x
+            ),
+            -1.0f,
+            1.0f
+        ));
+        state.threatGeometry = float4(
+            trackingDelta.x,
+            trackingDelta.y,
+            yawDelta,
+            pitchAngle
+        );
+    }
 
     float velocitySquared = 0.0f;
     float accelerationSquared = 0.0f;
@@ -6721,11 +6810,20 @@ kernel void mr_locomotion_task_complete(
     const float tracking = exp(-trackingError / 0.25f);
     const float yawTracking = exp(-yawError / 0.25f);
     const uint episodeSteps = state.episode.x + 1u;
-    const uint episodeLimit =
-        (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
-            avianCurriculumBand == 3u
-        ? 400u
-        : avianJourneyTakeoffCruise ? 650u : program.schedule.x;
+    const bool avianJourney =
+        (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u;
+    const uint episodeLimit = !avianJourney ? program.schedule.x
+        : avianCurriculumBand == 0u ? 250u
+        : avianCurriculumBand == 1u ? 400u
+        : avianCurriculumBand == 2u ? 250u
+        : avianCurriculumBand == 3u ? 400u
+        : avianCurriculumBand == 4u ? 650u
+        : avianCurriculumBand == 5u ? 750u
+        : avianCurriculumBand == 6u ? 1050u
+        : avianCurriculumBand == 7u ? 1250u
+        : avianCurriculumBand == 8u ? 1400u
+        : avianCurriculumBand == 9u ? 1600u
+        : program.schedule.x;
     const bool timeout =
         episodeSteps >= episodeLimit;
     bool done = false;
@@ -7407,7 +7505,7 @@ kernel void mr_locomotion_task_complete(
                  dispatch.assistance.x < 1.0f &&
                  (program.schedule.w &
                   MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
-                 curriculum >= 3u)
+                 true)
                 ? MR_TASK_OUTCOME_INTERACTION_TEACHER : 0u
             )
     );

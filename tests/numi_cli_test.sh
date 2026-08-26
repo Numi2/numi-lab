@@ -211,6 +211,25 @@ grep -- '--maximum-difficulty-band' \
     "$crow_journey_train_run/arguments.txt" >/dev/null
 grep -- '^4$' "$crow_journey_train_run/arguments.txt" >/dev/null
 
+crow_journey_transfer_run=$numi_temp/runs/crow-journey-transfer
+(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$crow_journey_transfer_run \
+        "$numi_repo/tools/numi" crow journey train \
+            --milestone walking \
+            --initialize-actor-policy-pack "$crow_actor_source" \
+            --updates 1 >/dev/null
+)
+grep -- '--initialize-actor-policy-pack' \
+    "$crow_journey_transfer_run/arguments.txt" >/dev/null
+grep -- '^1$' "$crow_journey_transfer_run/arguments.txt" >/dev/null
+if grep -- '--zero-actor-output' \
+    "$crow_journey_transfer_run/arguments.txt" >/dev/null; then
+    printf '%s\n' 'crow journey actor transfer was unexpectedly zeroed' >&2
+    exit 1
+fi
+
 crow_full_journey_run=$numi_temp/runs/crow-full-journey-evaluate
 crow_full_journey_output=$(
     cd "$numi_repo"
@@ -222,7 +241,7 @@ crow_full_journey_output=$(
 [ "$crow_full_journey_output" = "fake-evaluate" ]
 grep -- '--minimum-difficulty-band' \
     "$crow_full_journey_run/arguments.txt" >/dev/null
-grep -- '^5$' "$crow_full_journey_run/arguments.txt" >/dev/null
+grep -- '^10$' "$crow_full_journey_run/arguments.txt" >/dev/null
 
 if "$numi_repo/tools/numi" crow journey window > /dev/null 2>&1; then
     printf '%s\n' 'crow journey window accepted a missing policy' >&2

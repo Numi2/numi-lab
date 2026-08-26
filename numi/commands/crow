@@ -14,7 +14,7 @@ crow_usage() {
     cat <<'EOF'
 Usage: numi crow train|evaluate [native Numi arguments...]
        numi crow journey train|evaluate|window|capture \
-           [--milestone takeoff-cruise|full-journey] [arguments...]
+           [--milestone standing|walking|takeoff|cruise|takeoff-cruise|turn-left|turn-right|approach|touchdown|landed-hold|full-journey] [arguments...]
 
   train      Train the estimated American-crow hybrid through native Metal and MLX.
   evaluate   Evaluate a crow policy or an explicitly selected action source.
@@ -92,9 +92,18 @@ if [ "$crow_variant" = journey ] && [ "${1:-}" = "--milestone" ]; then
     crow_milestone=$2
     shift 2
     case "$crow_milestone" in
+        standing) crow_milestone_band=0 ;;
+        walking) crow_milestone_band=1 ;;
+        takeoff) crow_milestone_band=2 ;;
+        cruise) crow_milestone_band=3 ;;
         takeoff-cruise) crow_milestone_band=4 ;;
-        full-journey) crow_milestone_band=5 ;;
-        *) crow_die '--milestone must be takeoff-cruise or full-journey' ;;
+        turn-left) crow_milestone_band=5 ;;
+        turn-right) crow_milestone_band=6 ;;
+        approach) crow_milestone_band=7 ;;
+        touchdown) crow_milestone_band=8 ;;
+        landed-hold) crow_milestone_band=9 ;;
+        full-journey) crow_milestone_band=10 ;;
+        *) crow_die 'unknown journey milestone' ;;
     esac
 fi
 if [ "$crow_variant" = journey ] &&
@@ -114,6 +123,19 @@ case "$crow_action" in
                     --birdflow-american-crow-journey \
                     --minimum-difficulty-band "$crow_milestone_band" \
                     --maximum-difficulty-band "$crow_milestone_band" "$@"
+            fi
+            if crow_has_option --initialize-actor-policy-pack "$@"; then
+                if crow_has_option --zero-actor-output "$@"; then
+                    crow_die \
+                        '--zero-actor-output cannot be combined with --initialize-actor-policy-pack'
+                fi
+                exec "$crow_dispatcher" train \
+                    --birdflow-american-crow-journey \
+                    --birdflow-journey-teacher \
+                    --initialize-policy birdflow_american_crow_journey_brain \
+                    --minimum-difficulty-band "$crow_milestone_band" \
+                    --maximum-difficulty-band "$crow_milestone_band" \
+                    "$@"
             fi
             exec "$crow_dispatcher" train \
                 --birdflow-american-crow-journey \

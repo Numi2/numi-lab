@@ -3064,12 +3064,12 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
         }
         metalrobo::RunManifest manifest;
         manifest.id = journey
-            ? "birdflow_american_crow_journey_v2_run"
+            ? "birdflow_american_crow_journey_v3_run"
             : "birdflow_american_crow_estimated_hybrid_run";
         manifest.robot = std::move(*robot);
         manifest.scene = metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
         manifest.sensors.id = journey
-            ? "birdflow_american_crow_journey_v2_state_sensors"
+            ? "birdflow_american_crow_journey_v3_state_sensors"
             : "birdflow_american_crow_estimated_hybrid_state_sensors";
         manifest.task = journey
             ? metalrobo::makeBirdFlowAmericanCrowJourneyTaskPack(

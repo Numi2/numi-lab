@@ -1167,7 +1167,7 @@ private func makeContext(
                 ),
                 metallibPath: options.metallib
             ),
-            "birdflow_american_crow_journey_v2"
+            "birdflow_american_crow_journey_v3"
         )
     }
     if options.birdFlowAmericanCrow {

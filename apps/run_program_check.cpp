@@ -487,16 +487,16 @@ int main() {
         );
         require(
             compiledJourney.valid() &&
-                compiledJourney.task().actionBindings().size() == 14u &&
-                compiledJourney.task().layout().actorObservationSize == 83u &&
-                compiledJourney.task().layout().criticObservationSize == 83u &&
+                compiledJourney.task().actionBindings().size() == 15u &&
+                compiledJourney.task().layout().actorObservationSize == 84u &&
+                compiledJourney.task().layout().criticObservationSize == 84u &&
                 (compiledJourney.task().header().schedule.w &
                  MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
                 (compiledJourney.task().header().schedule.w &
                  MR_TASK_PROGRAM_AVIAN_CROW_GROUND_GAIT_CARRIER) == 0u &&
                 (compiledJourney.task().header().schedule.w &
                  MR_TASK_PROGRAM_AVIAN_CROW_LIFTOFF_TRIM_CARRIER) == 0u &&
-                compiledJourney.task().header().schedule.z == 6u &&
+                compiledJourney.task().header().schedule.z == 11u &&
                 std::count_if(
                     compiledJourney.task().actorOperators().begin(),
                     compiledJourney.task().actorOperators().end(),

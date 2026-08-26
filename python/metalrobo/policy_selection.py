@@ -416,8 +416,12 @@ def _birdflow_stage_outcomes(task: str, maximum_band: int) -> tuple[str, ...]:
     """Return the physical outcomes owned by one BirdFlow curriculum rung."""
 
     if task == "birdflow-crow-journey":
-        if maximum_band >= 5:
-            return ("figure_eight_tracking", "liftoff")
+        if maximum_band >= 10:
+            return ("tracking", "liftoff", "ground_support")
+        if maximum_band in {5, 6}:
+            return ("tracking", "liftoff")
+        if maximum_band >= 7:
+            return ("tracking", "ground_support")
         if maximum_band >= 2:
             return ("forward_flight_tracking", "liftoff", "push_off")
     terminal_outcomes = (
@@ -575,6 +579,17 @@ def compare_evidence(
                 regressions.append(
                     "takeoff-cruise maximum tilt reaches 0.80 rad"
                 )
+        if task == "birdflow-crow-journey" and maximum_band >= 5:
+            if float(candidate.get("mean_tracking_score", 0.0)) < 0.65:
+                regressions.append("journey milestone tracking is below 0.65")
+            if float(candidate.get("mean_tilt", 0.0)) > 0.35:
+                regressions.append("journey milestone mean tilt exceeds 0.35 rad")
+            if float(candidate.get("maximum_tilt", 0.0)) >= 0.80:
+                regressions.append("journey milestone maximum tilt reaches 0.80 rad")
+            if maximum_band == 10 and float(
+                candidate.get("maximum_root_height", 0.0)
+            ) < 0.55:
+                regressions.append("full journey did not preserve liftoff")
     elif generic_task:
         # A velocity actor commands an ongoing balance/locomotion task.  A
         # marginally lower reset count is not deployable progress if every
@@ -760,7 +775,13 @@ def compare_evidence(
                 "ground_support": 0.05,
                 "tracking": 0.10,
             }
-        elif task in {"birdflow-figure-eight", "birdflow-crow-journey"}:
+        elif task == "birdflow-crow-journey":
+            weights = {
+                "tracking": 0.65,
+                "liftoff": 0.20,
+                "ground_support": 0.15,
+            }
+        elif task == "birdflow-figure-eight":
             weights = {
                 "figure_eight_tracking": 0.55,
                 "liftoff": 0.20,
@@ -1007,6 +1028,35 @@ def compare_staged_bands(
     return decision
 
 
+def compare_protected_bands(
+    current_incumbent: dict[str, Any],
+    current_candidate: dict[str, Any],
+    protected: dict[int, tuple[dict[str, Any], dict[str, Any]]],
+) -> dict[str, Any]:
+    """Require progress on the current rung while retaining every protected rung."""
+
+    decision = compare_evidence(current_incumbent, current_candidate)
+    comparisons: dict[str, dict[str, Any]] = {}
+    for band, (incumbent, candidate) in sorted(protected.items()):
+        comparison = compare_staged_bands(
+            current_incumbent,
+            current_candidate,
+            incumbent,
+            candidate,
+        )["previous_band_comparison"]
+        comparisons[str(band)] = comparison
+        if comparison["regressions"]:
+            decision["regressions"].extend(
+                f"protected-band-{band}: {reason}"
+                for reason in comparison["regressions"]
+            )
+    decision["protected_band_comparisons"] = comparisons
+    if any(comparison["regressions"] for comparison in comparisons.values()):
+        decision["selected"] = "incumbent"
+        decision["candidate_advanced_deployment"] = False
+    return decision
+
+
 def compare_adult_bands(
     current_incumbent: dict[str, Any],
     current_candidate: dict[str, Any],
@@ -1208,7 +1258,15 @@ def main() -> int:
     candidate_policies = list(dict.fromkeys(candidate_policies))
 
     records: dict[str, dict[str, Any]] = {}
-    previous_band_records: dict[str, dict[str, Any]] = {}
+    protected_band_records: dict[int, dict[str, dict[str, Any]]] = {}
+    protected_bands = (
+        list(range(curriculum_current_band))
+        if curriculum_task == "birdflow-crow-journey"
+        and curriculum_current_band is not None
+        else [curriculum_previous_band]
+        if curriculum_previous_band is not None
+        else []
+    )
     policies: dict[str, Path] = {"incumbent": options.incumbent}
     if len(candidate_policies) == 1:
         policies["candidate"] = candidate_policies[0]
@@ -1238,8 +1296,11 @@ def main() -> int:
                 ),
                 options.evidence_directory / f"{name}.evidence.json",
             )
-            if curriculum_previous_band is not None:
-                previous_band_records[name] = _evaluate(
+            for protected_band in protected_bands:
+                band_records = protected_band_records.setdefault(
+                    protected_band, {}
+                )
+                band_records[name] = _evaluate(
                     options.evaluator,
                     evaluation_arguments(
                         training_arguments,
@@ -1247,16 +1308,16 @@ def main() -> int:
                         metallib=options.metallib,
                         state_trace=(
                             options.evidence_directory
-                            / f"{name}.previous-band.state.tsv"
+                            / f"{name}.protected-band-{protected_band}.state.tsv"
                         ),
                         maximum_environments=options.maximum_environments,
                         held_out_seed=options.held_out_seed,
                         evaluation_steps=options.evaluation_steps,
-                        evaluation_minimum_band=curriculum_previous_band,
-                        evaluation_maximum_band=curriculum_previous_band,
+                        evaluation_minimum_band=protected_band,
+                        evaluation_maximum_band=protected_band,
                     ),
                     options.evidence_directory
-                    / f"{name}.previous-band.evidence.json",
+                    / f"{name}.protected-band-{protected_band}.evidence.json",
                 )
     except Exception as error:
         failure = {
@@ -1274,14 +1335,19 @@ def main() -> int:
         return 1
     candidate_names = [name for name in policies if name != "incumbent"]
     comparison_overrides: dict[str, dict[str, Any]] | None = None
-    if curriculum_previous_band is not None:
+    if protected_bands:
         comparison_overrides = {}
         for name in candidate_names:
-            comparison_overrides[name] = compare_staged_bands(
+            comparison_overrides[name] = compare_protected_bands(
                 records["incumbent"],
                 records[name],
-                previous_band_records["incumbent"],
-                previous_band_records[name],
+                {
+                    band: (
+                        protected_band_records[band]["incumbent"],
+                        protected_band_records[band][name],
+                    )
+                    for band in protected_bands
+                },
             )
     champion, comparisons = select_candidate_champion(
         records["incumbent"],
@@ -1322,6 +1388,7 @@ def main() -> int:
             "curriculum_task": curriculum_task,
             "curriculum_current_band": curriculum_current_band,
             "curriculum_previous_band": curriculum_previous_band,
+            "curriculum_protected_bands": protected_bands,
             "adult_current_band": adult_current_band,
             "adult_previous_band": adult_previous_band,
             "evaluated_candidate_policy_packs": [

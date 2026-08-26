@@ -13,6 +13,7 @@ from metalrobo.policy_selection import (  # noqa: E402
     _adult_evaluation_bands,
     _curriculum_evaluation_bands,
     _evaluate,
+    compare_protected_bands,
     compare_staged_bands,
     compare_adult_bands,
     compare_evidence,
@@ -840,7 +841,7 @@ class PolicySelectionTest(unittest.TestCase):
 
     def test_crow_takeoff_cruise_requires_absolute_physical_gate(self) -> None:
         incumbent = {
-            "task": "birdflow_american_crow_journey_v2",
+            "task": "birdflow_american_crow_journey_v3",
             "maximum_sampled_difficulty_band": 4,
             "termination_count_by_environment": [0] * 8,
             "failed_environment_steps": 0,
@@ -966,6 +967,46 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertEqual(decision["selected"], "incumbent")
         self.assertIn(
             "previous-band: tracking score decreased",
+            decision["regressions"],
+        )
+
+    def test_crow_journey_protects_every_prior_band(self) -> None:
+        current = {
+            "task": "birdflow_american_crow_journey_v3",
+            "maximum_sampled_difficulty_band": 10,
+            "termination_count_by_environment": [0] * 8,
+            "failed_environment_steps": 0,
+            "maximum_root_height": 0.85,
+            "maximum_tilt": 0.40,
+            "mean_tilt": 0.10,
+            "mean_tracking_score": 0.72,
+            "outcomes": {
+                "figure_eight_tracking": {"mean": 0.5, "direction": 1},
+                "liftoff": {"mean": 0.5, "direction": 1},
+            },
+        }
+        protected_incumbent = {
+            **current,
+            "maximum_sampled_difficulty_band": 0,
+            "mean_tracking_score": 0.95,
+            "outcomes": {
+                "ground_support": {"mean": 0.9, "direction": 1},
+            },
+        }
+        protected_candidate = {
+            **protected_incumbent,
+            "outcomes": {
+                "ground_support": {"mean": 0.7, "direction": 1},
+            },
+        }
+        decision = compare_protected_bands(
+            {**current, "mean_tracking_score": 0.70},
+            current,
+            {0: (protected_incumbent, protected_candidate)},
+        )
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertIn(
+            "protected-band-0: ground_support decreased",
             decision["regressions"],
         )
 
