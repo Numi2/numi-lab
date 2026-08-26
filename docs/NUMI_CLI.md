@@ -24,7 +24,8 @@ one is available.
 
 Solver discovery is another capability rather than core CLI schema. See
 [Numi solver configuration](NUMI_SOLVERS.md) for the bundled portfolio,
-fingerprinted profiles, compatibility boundaries, and external overlays.
+nine family-first choices, backend variants, fingerprinted profiles,
+compatibility boundaries, and external overlays.
 
 `numi doctor` validates the Apple/Metal toolchain, native trainer and rollout
 executables, MLX availability, and robot-catalog list-to-inspect coherence. A

@@ -4,6 +4,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "dynamics.articulated-aba-metal",
+      "family": {"id": "articulated-dynamics", "name": "Articulated dynamics", "summary": "Forward dynamics for articulated mechanisms, with production and reference implementations.", "variant": "aba-metal", "default": true},
       "name": "Metal articulated-body dynamics",
       "domain": "dynamics",
       "summary": "Device-resident articulated free dynamics with ordered or SIMD32 ABA frontiers.",
@@ -33,6 +34,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "dynamics.articulated-crba-cholesky-fp64",
+      "family": {"id": "articulated-dynamics", "name": "Articulated dynamics", "summary": "Forward dynamics for articulated mechanisms, with production and reference implementations.", "variant": "crba-cholesky-fp64", "default": false},
       "name": "FP64 articulated CRBA/Cholesky dynamics",
       "domain": "dynamics",
       "summary": "Dense composite-rigid-body mass construction and Cholesky reference dynamics.",
@@ -60,6 +62,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "contact.reference-projected-gradient-fp64",
+      "family": {"id": "reference-projected-gradient", "name": "Reference projected gradient", "summary": "Independent exact-cone projected-gradient correctness oracle.", "variant": "cpu-fp64", "default": true},
       "name": "FP64 exact-cone projected-gradient oracle",
       "domain": "contact",
       "summary": "Independent accelerated projected-gradient oracle for exact circular Coulomb cones.",
@@ -87,6 +90,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "contact.quality-semismooth-newton-fp64",
+      "family": {"id": "quality-newton", "name": "Quality Newton", "summary": "Certificate-bearing semismooth Newton quality solves across CPU and Metal targets.", "variant": "contact-cpu-fp64", "default": false},
       "name": "FP64 quality semismooth Newton contact",
       "domain": "contact",
       "summary": "Globalized semismooth Newton exact-cone solve with guarded fallback paths and KKT certificates.",
@@ -114,6 +118,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "contact.quality-semismooth-newton-metal",
+      "family": {"id": "quality-newton", "name": "Quality Newton", "summary": "Certificate-bearing semismooth Newton quality solves across CPU and Metal targets.", "variant": "contact-metal", "default": false},
       "name": "Metal quality semismooth Newton contact",
       "domain": "contact",
       "summary": "FP32 Metal quality solve over a physical contact-space operator with KKT certification.",
@@ -142,6 +147,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "constraints.unified-quality-newton-metal",
+      "family": {"id": "quality-newton", "name": "Quality Newton", "summary": "Certificate-bearing semismooth Newton quality solves across CPU and Metal targets.", "variant": "unified-metal", "default": false},
       "name": "Metal unified quality Newton solver",
       "domain": "constraints",
       "summary": "Batched unified dynamics-and-constraint quality solve over a matrix-free HVP contract.",
@@ -172,6 +178,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "contact.quality-newton-metal-world",
+      "family": {"id": "quality-newton", "name": "Quality Newton", "summary": "Certificate-bearing semismooth Newton quality solves across CPU and Metal targets.", "variant": "metalworld", "default": true},
       "name": "MetalWorld quality Newton contact",
       "domain": "contact",
       "summary": "MetalWorld quality contact mode with direct or matrix-free semismooth Newton solves.",
@@ -202,6 +209,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "contact.temporal-cone-metal",
+      "family": {"id": "temporal-cone", "name": "Temporal Cone", "summary": "Conditioned device-resident contact for production MetalWorld rollouts.", "variant": "metalworld", "default": true},
       "name": "Metal temporal-cone contact",
       "domain": "contact",
       "summary": "Conditioned device-resident articulated contact path and current CompiledRun production default.",
@@ -230,6 +238,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "contact.throughput-pgs",
+      "family": {"id": "throughput-pgs", "name": "Throughput PGS", "summary": "Fixed-budget projected Gauss-Seidel for contact and generalized constraints.", "variant": "contact-hybrid", "default": true},
       "name": "Fixed-budget throughput PGS contact",
       "domain": "contact",
       "summary": "CPU/Metal fixed-budget projected Gauss-Seidel contact with radial tangent projection and warm starts.",
@@ -258,6 +267,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "constraints.multi-articulated-pgs-cpu",
+      "family": {"id": "throughput-pgs", "name": "Throughput PGS", "summary": "Fixed-budget projected Gauss-Seidel for contact and generalized constraints.", "variant": "multi-articulated-cpu-fp64", "default": false},
       "name": "CPU multi-articulated generalized PGS",
       "domain": "constraints",
       "summary": "Transactional FP64 multi-tree generalized ConstraintIR reference step.",
@@ -283,6 +293,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "constraints.multi-articulated-pgs-metal",
+      "family": {"id": "throughput-pgs", "name": "Throughput PGS", "summary": "Fixed-budget projected Gauss-Seidel for contact and generalized constraints.", "variant": "multi-articulated-metal", "default": false},
       "name": "Metal multi-articulated generalized PGS",
       "domain": "constraints",
       "summary": "Fixed-budget device generalized-constraint solve over compiled multi-articulation programs.",
@@ -309,6 +320,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "constraints.multi-articulated-quality-metal",
+      "family": {"id": "quality-newton", "name": "Quality Newton", "summary": "Certificate-bearing semismooth Newton quality solves across CPU and Metal targets.", "variant": "multi-articulated-metal", "default": false},
       "name": "Metal multi-articulated quality Newton",
       "domain": "constraints",
       "summary": "Quality semismooth-Newton generalized constraint mode with bounded CG and line search.",
@@ -336,6 +348,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "integration.free-body-symplectic-euler",
+      "family": {"id": "symplectic-euler", "name": "Symplectic Euler", "summary": "Throughput-oriented velocity-first integration for free and articulated bodies.", "variant": "free-body", "default": false},
       "name": "Free-body symplectic Euler",
       "domain": "integration",
       "summary": "Throughput-oriented free-body velocity and pose integration with SO(3) composition.",
@@ -360,6 +373,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "integration.free-body-implicit-midpoint",
+      "family": {"id": "implicit-midpoint", "name": "Implicit Midpoint", "summary": "Nonlinear conservation-oriented reference integration for free and articulated bodies.", "variant": "free-body", "default": false},
       "name": "Free-body implicit midpoint",
       "domain": "integration",
       "summary": "Conservation-oriented nonlinear free-body angular integration reference.",
@@ -384,6 +398,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "integration.articulated-symplectic-euler",
+      "family": {"id": "symplectic-euler", "name": "Symplectic Euler", "summary": "Throughput-oriented velocity-first integration for free and articulated bodies.", "variant": "articulated", "default": true},
       "name": "Articulated symplectic Euler",
       "domain": "integration",
       "summary": "Production-oriented articulated coordinate integration after forward dynamics.",
@@ -407,6 +422,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "integration.articulated-implicit-midpoint",
+      "family": {"id": "implicit-midpoint", "name": "Implicit Midpoint", "summary": "Nonlinear conservation-oriented reference integration for free and articulated bodies.", "variant": "articulated", "default": true},
       "name": "Articulated implicit midpoint",
       "domain": "integration",
       "summary": "FP64 nonlinear articulated midpoint reference with transactional failure.",
@@ -431,6 +447,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "continuum.matter-newton-fgmres-metal",
+      "family": {"id": "matter-newton-fgmres", "name": "Matter Newton/FGMRES", "summary": "Monolithic nonlinear continuum solve with restarted flexible GMRES.", "variant": "metal", "default": true},
       "name": "Matter monolithic Newton/FGMRES",
       "domain": "continuum",
       "summary": "Environment-wide nonlinear variational solve with matrix-free restarted flexible GMRES.",
@@ -459,6 +476,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "rod.der-xpbd-cpu",
+      "family": {"id": "der-xpbd", "name": "DER/XPBD", "summary": "Discrete-elastic-rod XPBD for sutures, attachments, and tool contact.", "variant": "cpu-fp64", "default": false},
       "name": "CPU discrete-elastic-rod XPBD",
       "domain": "rod",
       "summary": "Transactional CPU DER projection solve for stretch, bend, twist, attachments, and optional self-contact.",
@@ -484,6 +502,7 @@
     {
       "schema": "numi.solver.v1",
       "id": "rod.der-xpbd-metal",
+      "family": {"id": "der-xpbd", "name": "DER/XPBD", "summary": "Discrete-elastic-rod XPBD for sutures, attachments, and tool contact.", "variant": "metal", "default": true},
       "name": "Metal discrete-elastic-rod XPBD",
       "domain": "rod",
       "summary": "Batched Metal DER projection with coupled attachment/tool contact and typed device status.",

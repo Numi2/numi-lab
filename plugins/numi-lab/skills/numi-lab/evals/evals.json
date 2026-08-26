@@ -107,12 +107,12 @@
       "category": "solver-configuration",
       "should_activate": true,
       "prompt": "Configure our best contact solver for this Numi training run, and also make my external solver available.",
-      "expected_output": "Discovers and inspects solver descriptors, separates production task-rollout targets from reference/component paths, creates fingerprinted profiles, and validates an external overlay without inventing compatibility.",
+      "expected_output": "Starts from the compact solver families, resolves a compatible default or explicit variant, separates production task-rollout targets from reference/component paths, creates a fingerprinted profile, and validates an external overlay without inventing compatibility.",
       "files": [],
       "expectations": [
-        "Runs numi solvers list and inspects the relevant solver descriptors",
+        "Runs numi solvers list and inspects the relevant family before implementation detail",
         "Does not equate best with one universal solver ranking",
-        "Uses selection targets to decide whether a profile can reach train or evaluate",
+        "Uses family variants and selection targets to decide whether a profile can reach train or evaluate",
         "Validates external descriptor provenance before registration",
         "Requires new replay, outcome, and profiler evidence after solver changes"
       ]

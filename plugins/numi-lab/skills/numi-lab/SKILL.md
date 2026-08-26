@@ -22,11 +22,13 @@ integrate or migrate them with Numi Lab.
    a robot. Use its authored capabilities and semantic roles rather than
    assuming G1 joints, humanoid sensors, or locomotion outcomes.
 4. Run `numi <capability> --help` before operating that capability.
-5. For solver choice, run `numi solvers list` (filter with `--target` for an
-   intended runtime), inspect the selected descriptor, and create or resolve a
-   fingerprinted solver profile. Respect its domain, role, exact selector,
-   targets, and evidence boundary; never treat every solver as an
-   interchangeable `train` or `evaluate` backend.
+5. For solver choice, start with the family view from `numi solvers list`
+   (nine bundled, plus overlays; filter with `--target` for an intended
+   runtime), then inspect the family.
+   Use its safe default or an explicit `--variant`; use `--implementations`
+   only when backend detail matters. Create or resolve a fingerprinted profile
+   and respect its role, exact selector, targets, and evidence boundary. Never
+   treat every variant as an interchangeable `train` or `evaluate` backend.
 6. Inspect the owning repository code when the request needs behavior that the
    installed commands do not already provide.
 

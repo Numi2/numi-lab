@@ -2,9 +2,9 @@
 
 Numi Lab exposes solver choice as a provenance-bearing configuration surface,
 not as one global enum that falsely makes unrelated algorithms interchangeable.
-The catalog distinguishes contact, dynamics, generalized constraints,
-integration, continuum, and rod domains. It includes every independently
-selectable or externally configurable solver family in the public runtime.
+The default catalog presents nine stable algorithm families. CPU/Metal
+backends, precision levels, owner APIs, and runtime adapters are variants
+beneath those families instead of being presented as separate algorithms.
 Internal line searches, preconditioner passes, factorization fallbacks, and
 constitutive local iterations remain parts of their owning solver unless they
 have an independent public configuration and publication contract.
@@ -15,31 +15,46 @@ have an independent public configuration and publication contract.
 numi solvers list
 numi solvers list --domain contact
 numi solvers list --target 'CompiledRun task rollout'
-numi solvers inspect contact.temporal-cone-metal
+numi solvers inspect quality-newton
+numi solvers inspect quality-newton --variant unified-metal
+numi solvers list --implementations
+numi solvers inspect contact.quality-newton-metal-world
 numi solvers paths
 ```
 
-Each descriptor names its live implementation, public configuration owner,
-documentation, selection targets, typed parameters and defaults, backend,
-precision, exact selector, role, availability, and evidence boundary. `production`, `quality`,
-`reference`, and `component` describe how an implementation is exposed; they
-are not performance or physical-validity rankings.
+`list` shows the nine families. `inspect FAMILY` shows its default and variants.
+`list --implementations` exposes all exact backend/target records for auditing
+and compatibility. Each implementation descriptor names its live owner,
+documentation, targets, typed parameters, backend, precision, exact selector,
+role, availability, and evidence boundary. `production`, `quality`, `reference`,
+and `component` describe exposure, not performance or physical-validity ranks.
 
 ## Solver profiles
 
-Create an immutable profile from the currently resolved descriptor:
+Create an immutable profile from a family. With no variant or target, Numi uses
+the family's declared default:
 
 ```sh
-numi solvers configure contact.temporal-cone-metal \
+numi solvers configure temporal-cone \
   --profile contact-production \
   --set velocity_iterations=4 \
   --set streamed_articulated_contact_responses=true
+
+numi solvers configure quality-newton \
+  --target 'MetalUnifiedQuality API' \
+  --profile unified-quality
+
+numi solvers configure symplectic-euler \
+  --variant free-body \
+  --profile free-body-integration
 
 numi solvers show contact-production
 ```
 
 The profile defaults to `.numi/profiles/solvers/NAME.json` and records the
-descriptor source and canonical SHA-256. `--scope user` writes beneath the user
+family, variant, exact implementation ID, descriptor source, and canonical
+SHA-256. Exact implementation IDs remain accepted by `configure` for scripts
+written against the original catalog. `--scope user` writes beneath the user
 Numi configuration instead. Existing profiles are never overwritten; make a
 new profile when the solver or its parameters change. `show` fails closed when
 the winning descriptor's fingerprint has drifted.
@@ -49,6 +64,11 @@ does not by itself inject arbitrary parameters into a runtime. Codex must use
 the descriptor's `selection.kind` and `selection.targets` to configure the
 lowest owning API or capability. A reference/component solver that lacks a
 task-rollout target must not be presented as a `numi train` backend.
+
+Profiles created before the family-first catalog lack family/variant metadata
+and retain the earlier descriptor fingerprint. They remain readable but report
+stale; inspect the family and create a new profile instead of silently rebinding
+the old profile to a default variant.
 
 ## External solver overlays
 
@@ -68,6 +88,13 @@ than claiming a runtime it does not own:
 {
   "schema": "numi.solver.v1",
   "id": "contact.acme",
+  "family": {
+    "id": "acme-contact",
+    "name": "Acme contact",
+    "summary": "Externally owned contact solver family.",
+    "variant": "owner-default",
+    "default": true
+  },
   "name": "Acme contact solver",
   "domain": "contact",
   "summary": "Externally owned contact solver.",

@@ -12,18 +12,22 @@ if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
 Usage: numi solvers COMMAND [arguments...]
 
   list [--domain DOMAIN] [--target TEXT] [--json]
-                                         List resolved solver descriptors
-  inspect SOLVER_ID [--json]             Show compatibility and parameters
-  configure SOLVER_ID --profile NAME     Write a fingerprinted solver profile
+                                         List families (nine bundled)
+      [--implementations]                Show every backend/target variant
+  inspect FAMILY_OR_IMPLEMENTATION [--variant ID] [--target TEXT] [--json]
+                                         Show variants or exact parameters
+  configure FAMILY --profile NAME        Configure its safe default variant
+      [--variant ID] [--target TEXT]
       [--scope workspace|user] [--set KEY=VALUE ...]
   show PROFILE [--json]                  Inspect a profile and drift status
   validate PATH                          Validate a descriptor or profile
   register PATH [--scope workspace|user] Register an external descriptor
   paths                                  Show overlay and profile search paths
 
-Workspace descriptors under .numi/solvers override extra, user, then bundled
-descriptors by solver ID. A profile records exact descriptor provenance; it
-does not imply that a component/reference solver can execute every workload.
+The default view groups implementations into stable families. Exact
+implementation IDs remain accepted for compatibility. Workspace descriptors
+under .numi/solvers override extra, user, then bundled descriptors by ID.
+Profiles record the resolved family, variant, implementation, and fingerprint.
 EOF
     exit 0
 fi

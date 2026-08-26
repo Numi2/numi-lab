@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import difflib
 import hashlib
 import json
 import math
@@ -16,6 +17,8 @@ from typing import Any
 
 DESCRIPTOR_SCHEMA = "numi.solver.v1"
 CATALOG_SCHEMA = "numi.solver-catalog.v1"
+FAMILY_CATALOG_SCHEMA = "numi.solver-family-catalog.v1"
+FAMILY_SCHEMA = "numi.solver-family.v1"
 PROFILE_SCHEMA = "numi.solver-profile.v1"
 IDENTIFIER = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 PARAMETER_TYPES = {"boolean", "integer", "number", "string"}
@@ -134,6 +137,21 @@ def validate_descriptor(value: Any, context: str) -> dict[str, Any]:
     solver_id = require_text(value, "id", context)
     if not IDENTIFIER.fullmatch(solver_id):
         raise SolverConfigurationError(f"{context}.id is invalid: {solver_id!r}")
+    family = value.get("family")
+    if not isinstance(family, dict):
+        raise SolverConfigurationError(f"{context}.family must be an object")
+    family_id = require_text(family, "id", f"{context}.family")
+    variant = require_text(family, "variant", f"{context}.family")
+    if not IDENTIFIER.fullmatch(family_id) or not IDENTIFIER.fullmatch(variant):
+        raise SolverConfigurationError(
+            f"{context}.family contains an invalid identifier"
+        )
+    require_text(family, "name", f"{context}.family")
+    require_text(family, "summary", f"{context}.family")
+    if not isinstance(family.get("default"), bool):
+        raise SolverConfigurationError(
+            f"{context}.family.default must be boolean"
+        )
     for key in (
         "name",
         "domain",
@@ -183,6 +201,13 @@ def validate_profile(value: Any, context: str) -> dict[str, Any]:
     solver_id = require_text(value, "solver_id", context)
     if not IDENTIFIER.fullmatch(profile_id) or not IDENTIFIER.fullmatch(solver_id):
         raise SolverConfigurationError(f"{context} contains an invalid identifier")
+    for key in ("family_id", "variant"):
+        if key in value:
+            identifier = require_text(value, key, context)
+            if not IDENTIFIER.fullmatch(identifier):
+                raise SolverConfigurationError(
+                    f"{context}.{key} is an invalid identifier"
+                )
     provenance = value.get("provenance")
     if not isinstance(provenance, dict):
         raise SolverConfigurationError(f"{context}.provenance must be an object")
@@ -198,6 +223,49 @@ def validate_profile(value: Any, context: str) -> dict[str, Any]:
     if not isinstance(parameters, dict):
         raise SolverConfigurationError(f"{context}.parameters must be an object")
     return value
+
+
+def group_solver_families(
+    descriptors: list[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    families: dict[str, dict[str, Any]] = {}
+    for descriptor in descriptors:
+        metadata = descriptor["family"]
+        family_id = metadata["id"]
+        if family_id not in families:
+            families[family_id] = {
+                "schema": FAMILY_SCHEMA,
+                "id": family_id,
+                "name": metadata["name"],
+                "summary": metadata["summary"],
+                "implementations": [],
+            }
+        family = families[family_id]
+        if (
+            family["name"] != metadata["name"]
+            or family["summary"] != metadata["summary"]
+        ):
+            raise SolverConfigurationError(
+                f"solver family {family_id!r} has inconsistent metadata"
+            )
+        family["implementations"].append(descriptor)
+
+    for family_id, family in families.items():
+        implementations = family["implementations"]
+        variants = [item["family"]["variant"] for item in implementations]
+        if len(variants) != len(set(variants)):
+            raise SolverConfigurationError(
+                f"solver family {family_id!r} has duplicate variant IDs"
+            )
+        defaults = [item for item in implementations if item["family"]["default"]]
+        if len(defaults) != 1:
+            raise SolverConfigurationError(
+                f"solver family {family_id!r} requires exactly one default variant"
+            )
+        implementations.sort(key=lambda item: item["family"]["variant"])
+        family["default_implementation"] = defaults[0]["id"]
+        family["default_variant"] = defaults[0]["family"]["variant"]
+    return families
 
 
 class SolverCatalog:
@@ -265,6 +333,69 @@ class SolverCatalog:
                 f"unknown solver {solver_id!r}; run `numi solvers list`"
             ) from error
 
+    def families(self) -> dict[str, dict[str, Any]]:
+        return group_solver_families(list(self.descriptors().values()))
+
+    def resolve(
+        self,
+        reference: str,
+        *,
+        variant: str | None = None,
+        target: str | None = None,
+    ) -> dict[str, Any]:
+        descriptors = self.descriptors()
+        families = group_solver_families(list(descriptors.values()))
+        if reference in descriptors:
+            if variant is not None:
+                raise SolverConfigurationError(
+                    "--variant is only valid with a solver family ID"
+                )
+            candidates = [descriptors[reference]]
+        else:
+            family = families.get(reference)
+            if family is None:
+                choices = sorted([*families, *descriptors])
+                close = difflib.get_close_matches(reference, choices, n=1)
+                suggestion = f"; did you mean {close[0]!r}?" if close else ""
+                raise SolverConfigurationError(
+                    f"unknown solver family or implementation {reference!r}; "
+                    f"run `numi solvers list`{suggestion}"
+                )
+            candidates = list(family["implementations"])
+            if variant is not None:
+                candidates = [
+                    item
+                    for item in candidates
+                    if item["family"]["variant"] == variant or item["id"] == variant
+                ]
+
+        if target is not None:
+            candidates = [
+                item
+                for item in candidates
+                if any(
+                    target.casefold() in candidate_target.casefold()
+                    for candidate_target in item["selection"]["targets"]
+                )
+            ]
+        if not candidates:
+            detail = f" variant {variant!r}" if variant else ""
+            target_detail = f" for target {target!r}" if target else ""
+            raise SolverConfigurationError(
+                f"{reference!r} has no{detail} implementation{target_detail}"
+            )
+        if len(candidates) == 1:
+            return candidates[0]
+        defaults = [item for item in candidates if item["family"]["default"]]
+        if len(defaults) == 1:
+            return defaults[0]
+        choices = ", ".join(
+            f"{item['family']['variant']} ({item['id']})" for item in candidates
+        )
+        raise SolverConfigurationError(
+            f"{reference!r} is ambiguous; use --variant with one of: {choices}"
+        )
+
     def profile_path(self, reference: str) -> Path:
         explicit = Path(reference).expanduser()
         if explicit.is_file():
@@ -311,46 +442,147 @@ def write_new_json(path: Path, value: Any) -> None:
         raise SolverConfigurationError(f"cannot write {path}: {error}") from error
 
 
+def matches_filters(descriptor: dict[str, Any], arguments: argparse.Namespace) -> bool:
+    return (
+        arguments.domain is None or descriptor["domain"] == arguments.domain
+    ) and (
+        arguments.target is None
+        or any(
+            arguments.target.casefold() in target.casefold()
+            for target in descriptor["selection"]["targets"]
+        )
+    )
+
+
+def family_view(
+    family: dict[str, Any], implementations: list[dict[str, Any]] | None = None
+) -> dict[str, Any]:
+    selected = implementations or family["implementations"]
+    variants = [
+        {
+            "id": item["family"]["variant"],
+            "implementation_id": item["id"],
+            "backend": item["backend"],
+            "precision": item["precision"],
+            "role": item["role"],
+            "availability": item["availability"],
+            "domain": item["domain"],
+            "targets": item["selection"]["targets"],
+            "default": item["family"]["default"],
+        }
+        for item in selected
+    ]
+    return {
+        "schema": FAMILY_SCHEMA,
+        "id": family["id"],
+        "name": family["name"],
+        "summary": family["summary"],
+        "default_variant": family["default_variant"],
+        "default_implementation": family["default_implementation"],
+        "variants": variants,
+    }
+
+
 def command_list(catalog: SolverCatalog, arguments: argparse.Namespace) -> None:
+    all_descriptors = catalog.descriptors()
+    families = group_solver_families(list(all_descriptors.values()))
     descriptors = [
         descriptor
-        for descriptor in catalog.descriptors().values()
-        if (arguments.domain is None or descriptor["domain"] == arguments.domain)
-        and (
-            arguments.target is None
-            or any(
-                arguments.target.casefold() in target.casefold()
-                for target in descriptor["selection"]["targets"]
-            )
-        )
+        for descriptor in all_descriptors.values()
+        if matches_filters(descriptor, arguments)
     ]
     descriptors.sort(key=lambda item: (item["domain"], item["id"]))
+    if arguments.implementations:
+        if arguments.json:
+            print(
+                json.dumps(
+                    {"schema": CATALOG_SCHEMA, "solvers": descriptors},
+                    indent=2,
+                    sort_keys=True,
+                )
+            )
+            return
+        if not descriptors:
+            raise SolverConfigurationError("no implementations match the filters")
+        width = max(len(item["id"]) for item in descriptors)
+        for item in descriptors:
+            print(
+                f"{item['id']:<{width}}  {item['backend']:<8}  "
+                f"{item['availability']:<12}  {item['summary']}"
+            )
+        return
+
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for descriptor in descriptors:
+        grouped.setdefault(descriptor["family"]["id"], []).append(descriptor)
+    views = [
+        family_view(families[family_id], implementations)
+        for family_id, implementations in sorted(grouped.items())
+    ]
     if arguments.json:
         print(
             json.dumps(
-                {"schema": CATALOG_SCHEMA, "solvers": descriptors},
+                {"schema": FAMILY_CATALOG_SCHEMA, "families": views},
                 indent=2,
                 sort_keys=True,
             )
         )
         return
-    if not descriptors:
-        raise SolverConfigurationError("no solvers match the requested domain")
-    width = max(len(item["id"]) for item in descriptors)
-    for item in descriptors:
+    if not views:
+        raise SolverConfigurationError("no solver families match the filters")
+    width = max(len(item["id"]) for item in views)
+    for item in views:
+        variant_count = len(item["variants"])
+        variant_label = "variant" if variant_count == 1 else "variants"
         print(
-            f"{item['id']:<{width}}  {item['backend']:<8}  "
-            f"{item['availability']:<12}  {item['summary']}"
+            f"{item['id']:<{width}}  {variant_count} {variant_label:<8}  "
+            f"{item['summary']}"
         )
 
 
 def command_inspect(catalog: SolverCatalog, arguments: argparse.Namespace) -> None:
-    descriptor = catalog.descriptor(arguments.solver_id)
+    families = catalog.families()
+    if (
+        arguments.solver in families
+        and arguments.variant is None
+        and arguments.target is None
+    ):
+        family = families[arguments.solver]
+        view = family_view(family)
+        if arguments.json:
+            print(json.dumps(view, indent=2, sort_keys=True))
+            return
+        print(f"{family['name']} ({family['id']})")
+        print(f"Summary: {family['summary']}")
+        print(
+            f"Default: {family['default_variant']} "
+            f"({family['default_implementation']})"
+        )
+        print("Variants:")
+        for item in family["implementations"]:
+            marker = "*" if item["family"]["default"] else " "
+            print(
+                f" {marker} {item['family']['variant']:<30} "
+                f"{item['backend']}/{item['precision']}  {item['id']}"
+            )
+            print(f"     targets: {', '.join(item['selection']['targets'])}")
+        print("Inspect an implementation ID for parameters and evidence boundaries.")
+        return
+
+    descriptor = catalog.resolve(
+        arguments.solver,
+        variant=arguments.variant,
+        target=arguments.target,
+    )
     if arguments.json:
         print(json.dumps(descriptor, indent=2, sort_keys=True))
         return
     print(f"{descriptor['name']} ({descriptor['id']})")
     print(f"Domain:       {descriptor['domain']}")
+    print(
+        f"Family:       {descriptor['family']['id']} / "
+        f"{descriptor['family']['variant']}"
+    )
     print(f"Backend:      {descriptor['backend']} / {descriptor['precision']}")
     print(f"Role:         {descriptor['role']}")
     print(f"Availability: {descriptor['availability']}")
@@ -377,7 +609,11 @@ def command_inspect(catalog: SolverCatalog, arguments: argparse.Namespace) -> No
 
 
 def command_configure(catalog: SolverCatalog, arguments: argparse.Namespace) -> None:
-    descriptor = catalog.descriptor(arguments.solver_id)
+    descriptor = catalog.resolve(
+        arguments.solver,
+        variant=arguments.variant,
+        target=arguments.target,
+    )
     parameter_specs = descriptor["parameters"]
     parameters = {
         name: spec["default"] for name, spec in parameter_specs.items()
@@ -395,6 +631,8 @@ def command_configure(catalog: SolverCatalog, arguments: argparse.Namespace) -> 
     profile = {
         "schema": PROFILE_SCHEMA,
         "id": arguments.profile,
+        "family_id": descriptor["family"]["id"],
+        "variant": descriptor["family"]["variant"],
         "solver_id": descriptor["id"],
         "parameters": parameters,
         "selection": descriptor["selection"],
@@ -410,7 +648,11 @@ def command_configure(catalog: SolverCatalog, arguments: argparse.Namespace) -> 
         root = catalog.profile_paths[1]
     path = root / f"{arguments.profile}.json"
     write_new_json(path, profile)
-    print(f"Configured {descriptor['id']} as {arguments.profile}")
+    print(
+        f"Configured {descriptor['family']['id']} / "
+        f"{descriptor['family']['variant']} as {arguments.profile}"
+    )
+    print(f"Implementation: {descriptor['id']}")
     print(f"Profile: {path}")
     print(f"Descriptor SHA-256: {descriptor['_provenance']['sha256']}")
 
@@ -419,6 +661,14 @@ def command_show(catalog: SolverCatalog, arguments: argparse.Namespace) -> None:
     path = catalog.profile_path(arguments.profile)
     profile = validate_profile(read_json(path), str(path))
     descriptor = catalog.descriptor(profile["solver_id"])
+    if profile.get("family_id", descriptor["family"]["id"]) != (
+        descriptor["family"]["id"]
+    ) or profile.get("variant", descriptor["family"]["variant"]) != (
+        descriptor["family"]["variant"]
+    ):
+        raise SolverConfigurationError(
+            f"{path} family or variant differs from the current descriptor"
+        )
     expected_parameters = set(descriptor["parameters"])
     provided_parameters = set(profile["parameters"])
     if provided_parameters != expected_parameters:
@@ -451,7 +701,11 @@ def command_show(catalog: SolverCatalog, arguments: argparse.Namespace) -> None:
         print(json.dumps(output, indent=2, sort_keys=True))
     else:
         print(f"Profile: {profile['id']}")
-        print(f"Solver:  {profile['solver_id']}")
+        print(
+            f"Solver:  {descriptor['family']['id']} / "
+            f"{descriptor['family']['variant']}"
+        )
+        print(f"Implementation: {profile['solver_id']}")
         print(f"Status:  {status}")
         print(f"Path:    {path}")
         for name, value in profile["parameters"].items():
@@ -468,6 +722,14 @@ def command_validate(catalog: SolverCatalog, arguments: argparse.Namespace) -> N
     if isinstance(value, dict) and value.get("schema") == PROFILE_SCHEMA:
         profile = validate_profile(value, str(path))
         descriptor = catalog.descriptor(profile["solver_id"])
+        if profile.get("family_id", descriptor["family"]["id"]) != (
+            descriptor["family"]["id"]
+        ) or profile.get("variant", descriptor["family"]["variant"]) != (
+            descriptor["family"]["variant"]
+        ):
+            raise SolverConfigurationError(
+                f"{path} family or variant differs from the current descriptor"
+            )
         if set(profile["parameters"]) != set(descriptor["parameters"]):
             raise SolverConfigurationError(
                 f"{path} parameter set differs from the current descriptor"
@@ -488,7 +750,8 @@ def command_validate(catalog: SolverCatalog, arguments: argparse.Namespace) -> N
             )
         kind = "profile"
     elif isinstance(value, dict) and value.get("schema") == CATALOG_SCHEMA:
-        catalog._descriptors_from_file(path)
+        descriptors = catalog._descriptors_from_file(path)
+        group_solver_families(descriptors)
         kind = "catalog"
     else:
         validate_descriptor(value, str(path))
@@ -504,6 +767,9 @@ def command_register(catalog: SolverCatalog, arguments: argparse.Namespace) -> N
     else:
         root = catalog.user_root / "solvers"
     destination = root / f"{descriptor['id']}.json"
+    prospective = catalog.descriptors()
+    prospective[descriptor["id"]] = descriptor
+    group_solver_families(list(prospective.values()))
     try:
         destination.parent.mkdir(parents=True, exist_ok=True)
         if destination.exists():
@@ -539,16 +805,21 @@ def parser() -> argparse.ArgumentParser:
     list_parser = commands.add_parser("list")
     list_parser.add_argument("--domain")
     list_parser.add_argument("--target")
+    list_parser.add_argument("--implementations", action="store_true")
     list_parser.add_argument("--json", action="store_true")
     list_parser.set_defaults(handler=command_list)
 
     inspect_parser = commands.add_parser("inspect")
-    inspect_parser.add_argument("solver_id")
+    inspect_parser.add_argument("solver")
+    inspect_parser.add_argument("--variant")
+    inspect_parser.add_argument("--target")
     inspect_parser.add_argument("--json", action="store_true")
     inspect_parser.set_defaults(handler=command_inspect)
 
     configure_parser = commands.add_parser("configure")
-    configure_parser.add_argument("solver_id")
+    configure_parser.add_argument("solver")
+    configure_parser.add_argument("--variant")
+    configure_parser.add_argument("--target")
     configure_parser.add_argument("--profile", required=True)
     configure_parser.add_argument(
         "--scope", choices=("workspace", "user"), default="workspace"

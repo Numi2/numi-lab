@@ -50,7 +50,24 @@ class SolverCatalogTests(unittest.TestCase):
         return result
 
     def test_bundled_catalog_covers_domains_and_distinct_quality_configs(self):
-        result = self.run_tool("list", "--json")
+        family_result = self.run_tool("list", "--json")
+        families = json.loads(family_result.stdout)["families"]
+        self.assertEqual(len(families), 9)
+        self.assertEqual(
+            {family["id"] for family in families},
+            {
+                "articulated-dynamics",
+                "throughput-pgs",
+                "temporal-cone",
+                "quality-newton",
+                "reference-projected-gradient",
+                "matter-newton-fgmres",
+                "der-xpbd",
+                "symplectic-euler",
+                "implicit-midpoint",
+            },
+        )
+        result = self.run_tool("list", "--implementations", "--json")
         solvers = json.loads(result.stdout)["solvers"]
         identifiers = {solver["id"] for solver in solvers}
         domains = {solver["domain"] for solver in solvers}
@@ -71,16 +88,16 @@ class SolverCatalogTests(unittest.TestCase):
 
         task_solvers = json.loads(
             self.run_tool("list", "--target", "CompiledRun task rollout", "--json").stdout
-        )["solvers"]
+        )["families"]
         self.assertEqual(
             {solver["id"] for solver in task_solvers},
-            {"contact.temporal-cone-metal", "contact.quality-newton-metal-world"},
+            {"temporal-cone", "quality-newton"},
         )
 
     def test_configure_show_and_validate_fingerprinted_profile(self):
         self.run_tool(
             "configure",
-            "contact.temporal-cone-metal",
+            "temporal-cone",
             "--profile",
             "production-contact",
             "--set",
@@ -98,6 +115,8 @@ class SolverCatalogTests(unittest.TestCase):
         profile = json.loads(profile_path.read_text())
         self.assertEqual(profile["parameters"]["velocity_iterations"], 7)
         self.assertFalse(profile["parameters"]["warm_start"])
+        self.assertEqual(profile["family_id"], "temporal-cone")
+        self.assertEqual(profile["variant"], "metalworld")
         shown = json.loads(
             self.run_tool("show", "production-contact", "--json").stdout
         )
@@ -108,7 +127,7 @@ class SolverCatalogTests(unittest.TestCase):
         )
         refused = self.run_tool(
             "configure",
-            "contact.temporal-cone-metal",
+            "temporal-cone",
             "--profile",
             "production-contact",
             check=False,
@@ -116,10 +135,87 @@ class SolverCatalogTests(unittest.TestCase):
         self.assertEqual(refused.returncode, 2)
         self.assertIn("refusing to overwrite", refused.stderr)
 
+    def test_family_defaults_variants_and_targets_resolve_explicitly(self):
+        quality = json.loads(
+            self.run_tool("inspect", "quality-newton", "--json").stdout
+        )
+        self.assertEqual(quality["default_variant"], "metalworld")
+        self.assertEqual(len(quality["variants"]), 5)
+        unified = json.loads(
+            self.run_tool(
+                "inspect",
+                "quality-newton",
+                "--variant",
+                "unified-metal",
+                "--json",
+            ).stdout
+        )
+        self.assertEqual(
+            unified["id"], "constraints.unified-quality-newton-metal"
+        )
+
+        self.run_tool(
+            "configure",
+            "quality-newton",
+            "--profile",
+            "quality-default",
+        )
+        default_profile = json.loads(
+            (
+                self.workspace
+                / ".numi/profiles/solvers/quality-default.json"
+            ).read_text()
+        )
+        self.assertEqual(
+            default_profile["solver_id"], "contact.quality-newton-metal-world"
+        )
+
+        self.run_tool(
+            "configure",
+            "quality-newton",
+            "--target",
+            "MetalUnifiedQuality API",
+            "--profile",
+            "quality-unified",
+        )
+        target_profile = json.loads(
+            (
+                self.workspace
+                / ".numi/profiles/solvers/quality-unified.json"
+            ).read_text()
+        )
+        self.assertEqual(
+            target_profile["solver_id"],
+            "constraints.unified-quality-newton-metal",
+        )
+
+        self.run_tool(
+            "configure",
+            "symplectic-euler",
+            "--variant",
+            "free-body",
+            "--profile",
+            "free-body-integrator",
+        )
+        variant_profile = json.loads(
+            (
+                self.workspace
+                / ".numi/profiles/solvers/free-body-integrator.json"
+            ).read_text()
+        )
+        self.assertEqual(
+            variant_profile["solver_id"],
+            "integration.free-body-symplectic-euler",
+        )
+
+        typo = self.run_tool("inspect", "tempral-cone", check=False)
+        self.assertEqual(typo.returncode, 2)
+        self.assertIn("did you mean 'temporal-cone'", typo.stderr)
+
     def test_invalid_nonfinite_and_unknown_parameters_fail_closed(self):
         nonfinite = self.run_tool(
             "configure",
-            "contact.temporal-cone-metal",
+            "temporal-cone",
             "--profile",
             "bad",
             "--set",
@@ -130,7 +226,7 @@ class SolverCatalogTests(unittest.TestCase):
         self.assertIn("must have type integer", nonfinite.stderr)
         unknown = self.run_tool(
             "configure",
-            "contact.temporal-cone-metal",
+            "temporal-cone",
             "--profile",
             "bad",
             "--set",
@@ -144,6 +240,13 @@ class SolverCatalogTests(unittest.TestCase):
         descriptor = {
             "schema": "numi.solver.v1",
             "id": "contact.external-example",
+            "family": {
+                "id": "external-example",
+                "name": "External example",
+                "summary": "Test-only external family.",
+                "variant": "owner-default",
+                "default": True,
+            },
             "name": "External example",
             "domain": "contact",
             "summary": "Test-only external descriptor.",
@@ -176,10 +279,33 @@ class SolverCatalogTests(unittest.TestCase):
         self.assertEqual(inspected["owner"]["implementation"], "/opt/example/solver")
         self.assertIn(str(self.workspace / ".numi" / "solvers"), inspected["_provenance"]["source"])
 
+        conflicting = json.loads(json.dumps(descriptor))
+        conflicting["id"] = "contact.external-quality-conflict"
+        conflicting["family"] = {
+            "id": "quality-newton",
+            "name": "Quality Newton",
+            "summary": "Certificate-bearing semismooth Newton quality solves across CPU and Metal targets.",
+            "variant": "external-conflict",
+            "default": True,
+        }
+        conflict_source = Path(self.temporary.name) / "conflict.json"
+        conflict_source.write_text(json.dumps(conflicting))
+        conflict = self.run_tool(
+            "register", str(conflict_source), "--scope", "workspace", check=False
+        )
+        self.assertEqual(conflict.returncode, 2)
+        self.assertIn("exactly one default variant", conflict.stderr)
+        self.assertFalse(
+            (
+                self.workspace
+                / ".numi/solvers/contact.external-quality-conflict.json"
+            ).exists()
+        )
+
     def test_descriptor_drift_and_incomplete_profiles_fail_closed(self):
         self.run_tool(
             "configure",
-            "contact.temporal-cone-metal",
+            "temporal-cone",
             "--profile",
             "drift-check",
         )

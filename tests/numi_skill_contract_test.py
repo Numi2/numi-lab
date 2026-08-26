@@ -31,6 +31,8 @@ class SkillContractTests(unittest.TestCase):
         self.assertIn("Before real hardware can move", skill)
         self.assertIn("give the next safe recovery command", skill)
         self.assertIn("numi solvers list", skill)
+        self.assertIn("nine bundled", skill)
+        self.assertIn("--implementations", skill)
         self.assertIn("docs/NUMI_SOLVERS.md", skill)
         self.assertLessEqual(len(skill.splitlines()), 155)
 

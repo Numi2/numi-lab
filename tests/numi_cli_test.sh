@@ -160,15 +160,26 @@ numi_solver_list=$(
         "$numi_repo/tools/numi" solvers list --domain contact
 )
 printf '%s\n' "$numi_solver_list" | \
-    grep 'contact.temporal-cone-metal' >/dev/null
+    grep '^temporal-cone ' >/dev/null
 printf '%s\n' "$numi_solver_list" | \
+    grep '^quality-newton ' >/dev/null
+
+numi_solver_implementations=$(
+    cd "$numi_temp/workspace"
+    NUMI_LAB_ROOT=$numi_repo \
+        "$numi_repo/tools/numi" solvers list \
+            --domain contact --implementations
+)
+printf '%s\n' "$numi_solver_implementations" | \
+    grep 'contact.temporal-cone-metal' >/dev/null
+printf '%s\n' "$numi_solver_implementations" | \
     grep 'contact.quality-newton-metal-world' >/dev/null
 
 (
     cd "$numi_temp/workspace"
     NUMI_LAB_ROOT=$numi_repo \
         "$numi_repo/tools/numi" solvers configure \
-            contact.temporal-cone-metal \
+            temporal-cone \
             --profile cli-contact \
             --set velocity_iterations=6 >/dev/null
 )
