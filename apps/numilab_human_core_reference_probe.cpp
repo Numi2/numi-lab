@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <array>
+#include <charconv>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -17,6 +18,7 @@
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <vector>
 
@@ -176,6 +178,36 @@ std::string hexSha256(const std::array<std::uint8_t, 32u>& value) {
         result.push_back(digits[byte >> 4u]);
         result.push_back(digits[byte & 0x0fu]);
     }
+    return result;
+}
+
+std::vector<std::uint32_t> parsePilotFootBodies(const std::string_view text) {
+    require(!text.empty(), "--pilot-foot-bodies requires four mobile body indices");
+    std::vector<std::uint32_t> result;
+    std::size_t begin = 0u;
+    while (begin < text.size()) {
+        const std::size_t end = text.find(',', begin);
+        const std::string_view token = text.substr(
+            begin,
+            end == std::string_view::npos ? std::string_view::npos : end - begin
+        );
+        std::uint32_t index = MR_INVALID_INDEX;
+        const auto [parsed, error] = std::from_chars(
+            token.data(), token.data() + token.size(), index
+        );
+        require(
+            error == std::errc{} && parsed == token.data() + token.size(),
+            "--pilot-foot-bodies must be a comma-separated list of unsigned body indices"
+        );
+        require(
+            std::find(result.begin(), result.end(), index) == result.end(),
+            "--pilot-foot-bodies contains a duplicate body index"
+        );
+        result.push_back(index);
+        if (end == std::string_view::npos) break;
+        begin = end + 1u;
+    }
+    require(result.size() == 4u, "--pilot-foot-bodies requires exactly four body indices");
     return result;
 }
 
@@ -781,6 +813,7 @@ struct MetalWorldFunctionBasedContactMetrics {
     std::uint32_t successfulStepCount = 0u;
     std::uint32_t maximumActiveContacts = 0u;
     std::uint32_t maximumConstraints = 0u;
+    std::uint32_t contactShapeCount = 0u;
     double millardGeneralizedForceL1 = 0.0;
     double maximumMillardActivationError = 0.0;
 };
@@ -803,7 +836,8 @@ verifyMetalWorldFunctionBasedContact(
     const metalrobo::EngineModel& source,
     const metalrobo::MetalWorldMillardProgram* millardProgram,
     const std::span<const float> millardExcitations = {},
-    const bool taskDrivenMillardExcitation = false
+    const bool taskDrivenMillardExcitation = false,
+    const std::span<const std::uint32_t> pilotFootBodies = {}
 ) {
     metalrobo::EngineModel model = source;
     if (taskDrivenMillardExcitation) {
@@ -827,8 +861,21 @@ verifyMetalWorldFunctionBasedContact(
         }
     }
     const MRArticulationGPU& articulation = model.articulations.at(0u);
-    const std::uint32_t contactBody =
-        articulation.firstBody + articulation.bodyCount - 1u;
+    std::vector<std::uint32_t> contactBodies;
+    if (pilotFootBodies.empty()) {
+        contactBodies.push_back(
+            articulation.firstBody + articulation.bodyCount - 1u
+        );
+    } else {
+        contactBodies.assign(pilotFootBodies.begin(), pilotFootBodies.end());
+    }
+    for (const std::uint32_t body : contactBodies) {
+        require(
+            body >= articulation.firstBody &&
+                body < articulation.firstBody + articulation.bodyCount,
+            "contact body is outside the source articulation"
+        );
+    }
     std::vector<double> q(
         model.defaultQ.begin(), model.defaultQ.end()
     );
@@ -844,11 +891,14 @@ verifyMetalWorldFunctionBasedContact(
         poseDiagnostics.succeeded(),
         "CPU source kinematics failed before FunctionBased contact probe"
     );
-    const std::uint32_t localContactBody =
-        contactBody - articulation.firstBody;
-    const float contactHeight = static_cast<float>(
-        poses.at(localContactBody).centerOfMassPosition[1]
-    );
+    float contactHeight = std::numeric_limits<float>::infinity();
+    for (const std::uint32_t body : contactBodies) {
+        contactHeight = std::min(
+            contactHeight,
+            static_cast<float>(poses.at(body - articulation.firstBody)
+                .centerOfMassPosition[1])
+        );
+    }
     require(
         std::isfinite(contactHeight),
         "source contact witness has non-finite height"
@@ -873,32 +923,52 @@ verifyMetalWorldFunctionBasedContact(
     material.geometry = {0.001f, 0.0f, 0.0f, 0.0f};
     model.materials.push_back(material);
 
+    const bool pilotFootPads = !pilotFootBodies.empty();
     constexpr float radius = 0.06f;
+    constexpr mr_float4 pilotHalfExtents{0.03f, 0.015f, 0.03f, 0.0f};
     MRShapeGPU plane{};
     plane.bodyIndex = groundBody;
     plane.shapeType = MR_SHAPE_PLANE;
     plane.materialIndex = 0u;
     plane.collisionGroup = 1u;
-    plane.collisionMask = ~0u;
+    plane.collisionMask = pilotFootPads ? 2u : ~0u;
     plane.slotGeneration = 1u;
     plane.localRotation = {0.0f, 0.0f, 0.0f, 1.0f};
     model.shapes.push_back(plane);
 
-    MRShapeGPU witness{};
-    witness.bodyIndex = contactBody;
-    witness.shapeType = MR_SHAPE_SPHERE;
-    witness.materialIndex = 0u;
-    witness.collisionGroup = 1u;
-    witness.collisionMask = ~0u;
-    witness.slotGeneration = 1u;
-    witness.localRotation = {0.0f, 0.0f, 0.0f, 1.0f};
-    witness.dimensions = {radius, 0.0f, 0.0f, 0.0f};
-    witness.contactRestAndBoundingRadius =
-        {0.001f, 0.0f, radius, 0.0f};
-    model.shapes.push_back(witness);
+    for (std::size_t index = 0u; index < contactBodies.size(); ++index) {
+        MRShapeGPU witness{};
+        witness.bodyIndex = contactBodies[index];
+        witness.shapeType = pilotFootPads ? MR_SHAPE_BOX : MR_SHAPE_SPHERE;
+        witness.materialIndex = 0u;
+        witness.collisionGroup = pilotFootPads ? 2u : 1u;
+        witness.collisionMask = pilotFootPads ? 1u : ~0u;
+        witness.slotGeneration = static_cast<std::uint32_t>(index + 1u);
+        witness.localPosition = {0.0f, 0.0f, 0.0f, 1.0f};
+        witness.localRotation = {0.0f, 0.0f, 0.0f, 1.0f};
+        witness.dimensions = pilotFootPads
+            ? pilotHalfExtents
+            : mr_float4{radius, 0.0f, 0.0f, 0.0f};
+        const float boundingRadius = pilotFootPads
+            ? std::sqrt(
+                pilotHalfExtents.x * pilotHalfExtents.x +
+                pilotHalfExtents.y * pilotHalfExtents.y +
+                pilotHalfExtents.z * pilotHalfExtents.z
+            )
+            : radius;
+        witness.contactRestAndBoundingRadius =
+            {0.001f, 0.0f, boundingRadius, 0.0f};
+        model.shapes.push_back(witness);
+    }
     if (!model.shapeNames.empty()) {
         model.shapeNames.push_back("source_contact_response_plane");
-        model.shapeNames.push_back("source_contact_response_witness");
+        for (std::size_t index = 0u; index < contactBodies.size(); ++index) {
+            model.shapeNames.push_back(
+                pilotFootPads
+                    ? "lower_body_pilot_foot_pad_" + std::to_string(index)
+                    : "source_contact_response_witness"
+            );
+        }
     }
     model.world.bodyCount = static_cast<std::uint32_t>(
         model.bodies.size()
@@ -922,7 +992,7 @@ verifyMetalWorldFunctionBasedContact(
     require(
         compileDiagnostics.succeeded() && world.valid() &&
             world.sceneBodyCount() == 1u &&
-            world.eligiblePairCount() == 1u,
+            world.eligiblePairCount() == contactBodies.size(),
         std::string("synthetic FunctionBased contact compilation failed: ") +
             metalrobo::metalWorldHostStatusName(
                 compileDiagnostics.status
@@ -995,7 +1065,8 @@ verifyMetalWorldFunctionBasedContact(
     const std::vector<MRBodyStateGPU> scene{
         staticGroundState(
             groundBody,
-            contactHeight - radius + 0.004f
+            contactHeight - (pilotFootPads ? pilotHalfExtents.y : radius) +
+                0.004f
         ),
     };
     const metalrobo::MetalWorldBatch batch{
@@ -1063,6 +1134,7 @@ verifyMetalWorldFunctionBasedContact(
     MetalWorldFunctionBasedContactMetrics metrics;
     metrics.deviceName = deviceDiagnostics.deviceName;
     metrics.successfulStepCount = deviceDiagnostics.successfulStepCount;
+    metrics.contactShapeCount = static_cast<std::uint32_t>(contactBodies.size());
     for (const MRMetalWorldContactStatusGPU& status : result.contactStatuses) {
         metrics.maximumActiveContacts = std::max(
             metrics.maximumActiveContacts, status.activeContacts
@@ -2163,6 +2235,7 @@ int main(const int argc, char** argv) {
         require(argc >= 2, "missing NHRIGID payload");
         bool runMetal = false;
         const char* millardPath = nullptr;
+        std::vector<std::uint32_t> pilotFootBodies;
         for (int index = 2; index < argc; ++index) {
             const std::string argument(argv[index]);
             if (argument == "--metal") {
@@ -2174,13 +2247,24 @@ int main(const int argc, char** argv) {
                     "--millard requires exactly one payload path"
                 );
                 millardPath = argv[++index];
+            } else if (argument == "--pilot-foot-bodies") {
+                require(
+                    pilotFootBodies.empty() && index + 1 < argc,
+                    "--pilot-foot-bodies requires exactly one comma-separated body-index list"
+                );
+                pilotFootBodies = parsePilotFootBodies(argv[++index]);
             } else {
                 throw std::runtime_error(
                     "usage: metalrobo_numilab_human_core_reference_probe "
-                    "<payload.nhrigid> [--metal] [--millard <payload.nhmuscle>]"
+                    "<payload.nhrigid> [--metal] [--millard <payload.nhmuscle>] "
+                    "[--pilot-foot-bodies <a,b,c,d>]"
                 );
             }
         }
+        require(
+            pilotFootBodies.empty() || (runMetal && millardPath != nullptr),
+            "--pilot-foot-bodies requires --metal and --millard"
+        );
         PayloadHeader header{};
         const metalrobo::EngineModel model = loadReference(argv[1], header);
         metalrobo::EngineModel sourceWithActuatorProfiles = model;
@@ -2424,6 +2508,21 @@ int main(const int argc, char** argv) {
                     true
                 )
                 : MetalWorldFunctionBasedContactMetrics{};
+        const MetalWorldFunctionBasedContactMetrics lowerBodyPilotMetrics =
+            !pilotFootBodies.empty()
+            ? verifyMetalWorldFunctionBasedContact(
+                mobileRootModel,
+                &mobileRootMillardProgram,
+                {},
+                true,
+                pilotFootBodies
+            )
+            : MetalWorldFunctionBasedContactMetrics{};
+        require(
+            pilotFootBodies.empty() ||
+                lowerBodyPilotMetrics.contactShapeCount == pilotFootBodies.size(),
+            "lower-body pilot did not retain all requested foot pads"
+        );
         const MetalWorldFunctionBasedContactMetrics
             metalWorldContactMetrics = runMetal
                 ? verifyMetalWorldFunctionBasedContact(
@@ -2875,6 +2974,25 @@ int main(const int argc, char** argv) {
                                 std::to_string(
                                     metalMillardMetrics.
                                         maximumEquilibriumResidual
+                                )
+                          : "")
+                  << (!pilotFootBodies.empty()
+                          ? " lower_body_pilot=ok"
+                          : "")
+                  << (!pilotFootBodies.empty()
+                          ? " lower_body_pilot_foot_pads=" +
+                                std::to_string(lowerBodyPilotMetrics.contactShapeCount)
+                          : "")
+                  << (!pilotFootBodies.empty()
+                          ? " lower_body_pilot_active_contacts=" +
+                                std::to_string(
+                                    lowerBodyPilotMetrics.maximumActiveContacts
+                                )
+                          : "")
+                  << (!pilotFootBodies.empty()
+                          ? " lower_body_pilot_millard_force_l1=" +
+                                std::to_string(
+                                    lowerBodyPilotMetrics.millardGeneralizedForceL1
                                 )
                           : "")
                   << '\n';
