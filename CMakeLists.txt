@@ -682,6 +682,7 @@ add_library(
     src/core/PX4X500.cpp
     src/core/ArticulatedDynamics.cpp
     src/core/ArticulatedActuation.cpp
+    src/core/MillardMuscleReference.cpp
     src/core/ArticulatedJointLimits.cpp
     src/core/ArticulatedContact.cpp
     src/core/CoupledArticulatedRigidContact.cpp
@@ -1219,6 +1220,22 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_numilab_human_core_reference_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_millard_muscle_reference_probe
+    apps/millard_muscle_reference_probe.cpp
+)
+target_link_libraries(
+    metalrobo_millard_muscle_reference_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_millard_muscle_reference_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
