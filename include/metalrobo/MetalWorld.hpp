@@ -621,7 +621,10 @@ struct MetalWorldStepConfig {
     // fingerprint before reaching MetalWorld.
     MetalWorldMulticopterProgram multicopterProgram{};
     // Optional source Millard muscle-tendon program. It is admitted only by
-    // the bounded fixed-root FunctionBased free-motion path.
+    // the bounded fixed-root FunctionBased direct-effort path: free motion
+    // or the streamed temporal-cone contact response. Mobile roots, native
+    // task parameterization, and anatomical collider admission remain
+    // separate gates.
     MetalWorldMillardProgram millardProgram{};
     // Optional multiphysics pass. It executes before rigid dynamics and again
     // after transactional publication in every physics substep. The pre pass

@@ -715,6 +715,7 @@ struct MetalWorldFunctionBasedContactMetrics {
     std::uint32_t successfulStepCount = 0u;
     std::uint32_t maximumActiveContacts = 0u;
     std::uint32_t maximumConstraints = 0u;
+    double millardGeneralizedForceL1 = 0.0;
 };
 
 MRBodyStateGPU staticGroundState(
@@ -732,7 +733,8 @@ MRBodyStateGPU staticGroundState(
 
 MetalWorldFunctionBasedContactMetrics
 verifyMetalWorldFunctionBasedContact(
-    const metalrobo::EngineModel& source
+    const metalrobo::EngineModel& source,
+    const metalrobo::MetalWorldMillardProgram* millardProgram
 ) {
     metalrobo::EngineModel model = source;
     const MRArticulationGPU& articulation = model.articulations.at(0u);
@@ -856,7 +858,7 @@ verifyMetalWorldFunctionBasedContact(
         .efforts = efforts,
         .initialSceneBodies = scene,
     };
-    const metalrobo::MetalWorldStepConfig config{
+    metalrobo::MetalWorldStepConfig config{
         .timestepSeconds = 1.0f / 240.0f,
         .physicsSubsteps = 1u,
         .solverMode = metalrobo::MetalWorldSolverMode::temporalCone,
@@ -871,6 +873,9 @@ verifyMetalWorldFunctionBasedContact(
         .captureContactEvidence = true,
         .publishFinalState = true,
     };
+    if (millardProgram != nullptr) {
+        config.millardProgram = *millardProgram;
+    }
     metalrobo::MetalWorldContext context;
     metalrobo::MetalWorldResult result;
     const auto deviceDiagnostics = context.run(world, batch, config, result);
@@ -903,6 +908,25 @@ verifyMetalWorldFunctionBasedContact(
             metrics.maximumConstraints > 0u,
         "FunctionBased streamed-contact probe did not reach a device constraint"
     );
+    if (millardProgram != nullptr) {
+        require(
+            result.millardResults.size() == millardProgram->muscles.size() &&
+                result.millardGeneralizedForces.size() ==
+                    millardProgram->muscles.size() * model.articulations.at(0u).nv,
+            "FunctionBased streamed-contact probe did not publish source Millard forces"
+        );
+        for (const float force : result.millardGeneralizedForces) {
+            require(
+                std::isfinite(force),
+                "FunctionBased streamed-contact probe published a non-finite Millard force"
+            );
+            metrics.millardGeneralizedForceL1 += std::abs(static_cast<double>(force));
+        }
+        require(
+            metrics.millardGeneralizedForceL1 > 1.0e-3,
+            "FunctionBased streamed-contact probe did not apply nonzero source Millard effort"
+        );
+    }
     return metrics;
 }
 
@@ -1971,12 +1995,21 @@ int main(const int argc, char** argv) {
         const MillardReferenceMetrics millardMetrics = millardPath != nullptr
             ? verifyMillardReference(model, millardPayload)
             : MillardReferenceMetrics{};
+        const MetalMillardProgramData millardProgramData = millardPath != nullptr
+            ? materializeMetalMillardProgram(millardPayload)
+            : MetalMillardProgramData{};
+        const metalrobo::MetalWorldMillardProgram millardProgram =
+            millardPath != nullptr
+            ? millardProgramData.program()
+            : metalrobo::MetalWorldMillardProgram{};
         const MetalWorldFunctionBasedMetrics metalWorldMetrics = runMetal
             ? verifyMetalWorldFunctionBasedDynamics(model)
             : MetalWorldFunctionBasedMetrics{};
         const MetalWorldFunctionBasedContactMetrics
             metalWorldContactMetrics = runMetal
-                ? verifyMetalWorldFunctionBasedContact(model)
+                ? verifyMetalWorldFunctionBasedContact(
+                    model, millardPath != nullptr ? &millardProgram : nullptr
+                )
                 : MetalWorldFunctionBasedContactMetrics{};
         const MetalMillardReferenceMetrics metalMillardMetrics =
             runMetal && millardPath != nullptr
@@ -2011,6 +2044,9 @@ int main(const int argc, char** argv) {
                           : "")
                   << (runMetal
                           ? " metal_function_based_streamed_contact=ok"
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_function_based_millard_streamed_contact=ok"
                           : "")
                   << (runMetal
                           ? " metal_device=" + metalMetrics.deviceName
@@ -2048,6 +2084,13 @@ int main(const int argc, char** argv) {
                                 std::to_string(
                                     metalWorldContactMetrics.
                                         maximumConstraints
+                                )
+                          : "")
+                  << (runMetal && millardPath != nullptr
+                          ? " metal_world_contact_millard_force_l1=" +
+                                std::to_string(
+                                    metalWorldContactMetrics.
+                                        millardGeneralizedForceL1
                                 )
                           : "")
                   << (runMetal

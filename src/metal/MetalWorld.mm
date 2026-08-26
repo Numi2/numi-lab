@@ -3560,13 +3560,13 @@ MetalWorldDiagnostics validateAndBuildLayout(
         );
     }
     if (hasMillardProgram &&
-        (!hasFunctionBasedDynamics || contactMode || nativeTask ||
+        (!hasFunctionBasedDynamics || nativeTask ||
          config.devicePhysicsProgram.valid() || world.rodCount() != 0u ||
          config.actuationMode != MetalWorldActuationMode::effort)) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::unsupportedTopology,
-            "source Millard actuation requires the bounded fixed-root FunctionBased free-motion direct-effort path"
+            "source Millard actuation requires the bounded fixed-root FunctionBased direct-effort path"
         );
     }
     if (hasFunctionBasedDynamics &&
