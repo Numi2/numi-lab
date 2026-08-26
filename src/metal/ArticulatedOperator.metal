@@ -1896,12 +1896,16 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
 
     float minimumPivot = INFINITY;
     float maximumPivot = 0.0f;
-    // A pivot is rejected relative to the matrix magnitude, dimension, and
-    // FP32 resolution, with an absolute floor only for the all-small regime.
-    // This reports ill-conditioned input instead of silently regularizing M.
+    // A pivot is rejected relative to the matrix magnitude and FP32
+    // roundoff, with an absolute floor only for the all-small regime. The
+    // factor is consumed by the residual gate below, so use a square-root
+    // dimension scale here rather than a linear worst-case summation bound:
+    // otherwise physically valid light anatomical segments are rejected
+    // before their actual solve accuracy can be measured.
     const float pivotFloor = max(
         kFactorAbsolutePivotFloor,
-        maximumMass * float(articulation.nv) * kFloatEpsilon
+        maximumMass * 4.0f * sqrt(float(articulation.nv)) *
+            kFloatEpsilon
     );
     for (uint row = 0u; row < articulation.nv; ++row) {
         for (uint column = 0u;
