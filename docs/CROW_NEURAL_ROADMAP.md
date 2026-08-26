@@ -47,8 +47,13 @@ NUMI_CROW_COURSE=state \
 ```
 
 Sensor-fast curriculum uses `NUMI_CROW_COURSE=sensor-fast` and automatically
-selects the v9 visual ABI and its authored camera. Begin it from a promoted v8
-parent via `NUMI_CROW_PARENT_POLICY`; do not transfer a rejected smoke pack.
+selects the v9 visual ABI and its authored camera. Begin it at band 0 from a
+promoted v8 parent via `NUMI_CROW_PARENT_POLICY`, without setting
+`NUMI_CROW_PARENT_STATE`. The supervisor imports that actor into the larger
+v9 observation ABI with zero-weight visual inputs and a fresh critic, then
+uses full PolicyPack plus learner-state resume only between promoted v9 rungs.
+`NUMI_CROW_PARENT_MODE=actor-transfer` makes this boundary explicit. Do not
+transfer a rejected smoke pack or skip protected v9 milestones.
 
 ## Research choices and breakthrough gates
 

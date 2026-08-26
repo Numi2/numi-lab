@@ -12,6 +12,7 @@ mlx=${NUMI_CROW_CURRICULUM_MLX:?set NUMI_CROW_CURRICULUM_MLX}
 runs=${NUMI_CROW_CURRICULUM_RUNS:?set NUMI_CROW_CURRICULUM_RUNS}
 parent_policy=${NUMI_CROW_PARENT_POLICY:-}
 parent_state=${NUMI_CROW_PARENT_STATE:-}
+parent_mode=${NUMI_CROW_PARENT_MODE:-auto}
 start_band=${NUMI_CROW_START_BAND:-0}
 maximum_band=${NUMI_CROW_MAXIMUM_BAND:-10}
 course=${NUMI_CROW_COURSE:-state}
@@ -35,6 +36,18 @@ case "$course" in
     ;;
   *) echo "NUMI_CROW_COURSE must be state or sensor-fast" >&2; exit 2 ;;
 esac
+case "$parent_mode" in
+  auto)
+    if [ "$course" = sensor-fast ] && [ -n "$parent_policy" ] && \
+      [ -z "$parent_state" ]; then
+      parent_mode=actor-transfer
+    else
+      parent_mode=resume
+    fi
+    ;;
+  actor-transfer|resume) ;;
+  *) echo "NUMI_CROW_PARENT_MODE must be auto, actor-transfer, or resume" >&2; exit 2 ;;
+esac
 [[ "$start_band" =~ ^([0-9]|10)$ && "$maximum_band" =~ ^([0-9]|10)$ ]] || {
   echo "Crow curriculum bands must be integers in 0...10" >&2; exit 2;
 }
@@ -44,6 +57,23 @@ esac
 [ -x "$build/bin/metalrobo_task_train" ] && [ -x "$mlx" ] || {
   echo "Crow curriculum requires a built trainer and MLX Python" >&2; exit 2;
 }
+if [ "$parent_mode" = actor-transfer ]; then
+  [ "$course" = sensor-fast ] && [ "$start_band" -eq 0 ] && \
+    [ -n "$parent_policy" ] && [ -s "$parent_policy" ] && \
+    [ -z "$parent_state" ] || {
+    echo "sensor-fast actor transfer requires a source policy, no learner state, and start band 0" >&2
+    exit 2
+  }
+fi
+if [ "$parent_mode" = resume ]; then
+  if [ -n "$parent_policy" ] || [ -n "$parent_state" ]; then
+    [ -n "$parent_policy" ] && [ -s "$parent_policy" ] && \
+      [ -n "$parent_state" ] && [ -s "$parent_state" ] || {
+      echo "Crow PPO resume requires both a full PolicyPack and learner state" >&2
+      exit 2
+    }
+  fi
+fi
 mkdir -p "$runs"
 
 milestone_for_band() {
@@ -69,7 +99,7 @@ while [ "$band" -le "$maximum_band" ]; do
       exit 7
     }
     mkdir -p "$run"
-    if [ -n "$parent_state" ] && [ -s "$parent_state" ]; then
+    if [ "$parent_mode" = resume ] && [ -n "$parent_state" ]; then
       cp "$parent_state" "$run/learner.safetensors"
     fi
     common=(
@@ -82,7 +112,12 @@ while [ "$band" -le "$maximum_band" ]; do
     if [ -n "$visual_config" ]; then
       common+=(--visual-observation-config "$visual_config")
     fi
-    if [ -n "$parent_policy" ] && [ -s "$parent_policy" ]; then
+    if [ "$parent_mode" = actor-transfer ]; then
+      common+=(
+        --initialize-actor-policy-pack "$parent_policy"
+        --initialize-actor-fresh-critic
+      )
+    elif [ -n "$parent_policy" ]; then
       common+=(--policy-pack "$parent_policy")
     fi
     echo "launching neural Crow $course band $band ($milestone), retry $retry"
@@ -122,6 +157,7 @@ while [ "$band" -le "$maximum_band" ]; do
       parent_policy="$run/candidate.policypack"
       parent_state="$run/learner.safetensors"
     fi
+    parent_mode=resume
     deployment_policy="$run/deployment.policypack"
     [ -s "$deployment_policy" ] && [ -s "$parent_policy" ] && \
       [ -s "$parent_state" ] || {

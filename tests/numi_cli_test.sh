@@ -291,6 +291,68 @@ if "$numi_repo/tools/numi" crow journey window > /dev/null 2>&1; then
     exit 1
 fi
 
+# The durable sensor-fast supervisor crosses the v8/v9 observation ABI only
+# through actor initialization. Treating the v8 pack as a PPO resume would
+# either fail late after launch or silently weaken the transfer contract.
+crow_curriculum_root=$numi_temp/crow-curriculum-root
+crow_curriculum_build=$numi_temp/crow-curriculum-build
+crow_curriculum_runs=$numi_temp/runs/crow-sensor-fast-curriculum
+mkdir -p "$crow_curriculum_root/tools" "$crow_curriculum_build/bin"
+printf '%s\n' '#!/bin/sh' 'exit 0' \
+    > "$crow_curriculum_build/bin/metalrobo_task_train"
+chmod +x "$crow_curriculum_build/bin/metalrobo_task_train"
+printf '%s\n' '#!/bin/sh' \
+    'run=${NUMI_RUN_DIR:?}' \
+    'mkdir -p "$run/selection"' \
+    'printf "%s\n" "$@" > "$run/arguments.txt"' \
+    'printf "initial visual policy\n" > "$run/initial.policypack"' \
+    'printf "candidate training policy\n" > "$run/candidate.policypack"' \
+    'printf "selected deployment\n" > "$run/deployment.policypack"' \
+    'printf "learner state\n" > "$run/learner.safetensors"' \
+    'printf "{\"candidate_advanced_deployment\":true,\"selected_candidate_label\":\"candidate\"}\n" > "$run/selection/selection.json"' \
+    > "$crow_curriculum_root/tools/numi"
+chmod +x "$crow_curriculum_root/tools/numi"
+NUMI_CROW_CURRICULUM_ROOT=$crow_curriculum_root \
+NUMI_CROW_CURRICULUM_BUILD=$crow_curriculum_build \
+NUMI_CROW_CURRICULUM_MLX=/usr/bin/python3 \
+NUMI_CROW_CURRICULUM_RUNS=$crow_curriculum_runs \
+NUMI_CROW_COURSE=sensor-fast \
+NUMI_CROW_PARENT_POLICY=$crow_actor_source \
+NUMI_CROW_START_BAND=0 \
+NUMI_CROW_MAXIMUM_BAND=0 \
+    "$numi_repo/tools/crow_journey_curriculum_supervisor.sh" >/dev/null
+crow_sensor_run=$(find "$crow_curriculum_runs" -maxdepth 1 -type d \
+    -name 'v9-visual-neural-band0-*' -print | head -1)
+test -n "$crow_sensor_run"
+grep -- '--initialize-actor-policy-pack' \
+    "$crow_sensor_run/arguments.txt" >/dev/null
+grep -- '--initialize-actor-fresh-critic' \
+    "$crow_sensor_run/arguments.txt" >/dev/null
+if grep -- '--policy-pack' "$crow_sensor_run/arguments.txt" >/dev/null; then
+    printf '%s\n' 'sensor-fast supervisor attempted cross-ABI PPO resume' >&2
+    exit 1
+fi
+test -s "$crow_curriculum_runs/progress.json"
+
+if (
+    NUMI_CROW_CURRICULUM_ROOT=$crow_curriculum_root \
+    NUMI_CROW_CURRICULUM_BUILD=$crow_curriculum_build \
+    NUMI_CROW_CURRICULUM_MLX=/usr/bin/python3 \
+    NUMI_CROW_CURRICULUM_RUNS=$numi_temp/runs/crow-invalid-transfer \
+    NUMI_CROW_COURSE=sensor-fast \
+    NUMI_CROW_PARENT_MODE=actor-transfer \
+    NUMI_CROW_PARENT_POLICY=$crow_actor_source \
+    NUMI_CROW_PARENT_STATE=$crow_sensor_run/learner.safetensors \
+    NUMI_CROW_START_BAND=0 \
+    NUMI_CROW_MAXIMUM_BAND=0 \
+        "$numi_repo/tools/crow_journey_curriculum_supervisor.sh"
+) > "$numi_temp/crow-invalid-curriculum-transfer.log" 2>&1; then
+    printf '%s\n' 'sensor-fast supervisor accepted actor transfer with learner state' >&2
+    exit 1
+fi
+grep -- 'sensor-fast actor transfer requires a source policy, no learner state' \
+    "$numi_temp/crow-invalid-curriculum-transfer.log" >/dev/null
+
 numi_evaluate_run=$numi_temp/runs/evaluate
 numi_evaluate_output=$(
     cd "$numi_repo"
