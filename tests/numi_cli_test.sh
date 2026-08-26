@@ -349,7 +349,7 @@ NUMI_CROW_PARENT_POLICY=$crow_sensor_run/candidate.policypack \
 NUMI_CROW_PARENT_STATE=$crow_sensor_run/learner.safetensors \
 NUMI_CROW_START_BAND=1 \
 NUMI_CROW_MAXIMUM_BAND=1 \
-NUMI_CROW_REHEARSAL_DEPTH=1 \
+NUMI_CROW_REHEARSAL_MINIMUM_BAND=0 \
     "$numi_repo/tools/crow_journey_curriculum_supervisor.sh" >/dev/null
 crow_resume_run=$(find "$crow_resume_runs" -maxdepth 1 -type d \
     -name 'v8-neural-band1-*' -print | head -1)

@@ -28,6 +28,7 @@ maximum_retries=${NUMI_CROW_MAXIMUM_RETRIES:-3}
 teacher_distillation=${NUMI_CROW_TEACHER_DISTILLATION:-1}
 teacher_student_authority=${NUMI_CROW_TEACHER_STUDENT_AUTHORITY:-0.25}
 rehearsal_depth=${NUMI_CROW_REHEARSAL_DEPTH:-0}
+rehearsal_minimum_band=${NUMI_CROW_REHEARSAL_MINIMUM_BAND:-}
 
 case "$course" in
   state)
@@ -68,6 +69,12 @@ esac
 [[ "$rehearsal_depth" =~ ^([0-9]|10)$ ]] || {
   echo "NUMI_CROW_REHEARSAL_DEPTH must be an integer in 0...10" >&2; exit 2;
 }
+if [ -n "$rehearsal_minimum_band" ]; then
+  [[ "$rehearsal_minimum_band" =~ ^([0-9]|10)$ ]] || {
+    echo "NUMI_CROW_REHEARSAL_MINIMUM_BAND must be an integer in 0...10" >&2
+    exit 2
+  }
+fi
 [ -x "$build/bin/metalrobo_task_train" ] && [ -x "$mlx" ] || {
   echo "Crow curriculum requires a built trainer and MLX Python" >&2; exit 2;
 }
@@ -147,8 +154,14 @@ while [ "$band" -le "$maximum_band" ]; do
       common+=(--policy-pack "$parent_policy")
     fi
     echo "launching neural Crow $course band $band ($milestone), retry $retry"
-    training_minimum_band=$((band - rehearsal_depth))
-    [ "$training_minimum_band" -ge 0 ] || training_minimum_band=0
+    if [ -n "$rehearsal_minimum_band" ]; then
+      training_minimum_band=$rehearsal_minimum_band
+      [ "$training_minimum_band" -le "$band" ] || \
+        training_minimum_band=$band
+    else
+      training_minimum_band=$((band - rehearsal_depth))
+      [ "$training_minimum_band" -ge 0 ] || training_minimum_band=0
+    fi
     if [ "$training_minimum_band" -lt "$band" ] && \
        [ "$parent_mode" = resume ] && [ -n "$parent_policy" ]; then
       launch=(

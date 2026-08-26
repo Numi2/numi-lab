@@ -51,6 +51,10 @@ When held-out evidence shows repeatable catastrophic forgetting, set
 protected bands. The default is zero so retries do not silently change their
 data distribution. Selection remains fixed-band and replays every earlier
 milestone regardless of the rehearsal window.
+For a stable curriculum floor instead of a sliding window, set
+`NUMI_CROW_REHEARSAL_MINIMUM_BAND`; for example, value 2 retains every flight
+competency from takeoff through the current milestone while leaving standing
+and walking to the independent protected selector.
 
 State-only neural curriculum:
 
