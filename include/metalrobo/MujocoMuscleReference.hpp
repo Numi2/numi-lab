@@ -66,12 +66,22 @@ struct MujocoMuscleState {
     double activation = 0.0;
 };
 
+struct MujocoMusclePathSample {
+    // World-space centreline point (m).  Wrapped portions are sampled along
+    // the tangent-preserving sphere/cylinder arc rather than joined through a
+    // wrap centre or by a chord.
+    std::array<double, 3> world{};
+};
+
 struct MujocoMusclePathResult {
     double length = 0.0;
     double velocity = 0.0;
     std::uint32_t appliedWrapCount = 0u;
     // d(length)/d(v), articulation-local velocity order.
     std::vector<double> lengthJacobian;
+    // Ordered, source-route centreline for inspection and rendering. This is
+    // diagnostic geometry only; force/Jacobian evaluation remains analytic.
+    std::vector<MujocoMusclePathSample> centreline;
 };
 
 struct MujocoMuscleResult {

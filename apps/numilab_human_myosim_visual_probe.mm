@@ -41,8 +41,8 @@ constexpr std::uint32_t kBodySemantic = 51001u;
 constexpr std::uint32_t kSiteSemantic = 51002u;
 constexpr std::uint32_t kRouteSemantic = 51003u;
 constexpr std::uint32_t kBoneSemantic = 51004u;
-constexpr std::uint32_t kFrameWidth = 640u;
-constexpr std::uint32_t kFrameHeight = 640u;
+constexpr std::uint32_t kFrameWidth = 1024u;
+constexpr std::uint32_t kFrameHeight = 1024u;
 constexpr std::array<char, 8u> kBoneMagic{
     'N', 'H', 'B', 'O', 'N', 'E', 'S', '1',
 };
@@ -560,40 +560,68 @@ std::vector<MRBodyStateGPU> visualBodyStates(
     return result;
 }
 
-mr_float4 rotateDirection(const mr_float4 orientation, const mr_float4 direction) {
-    const mr_float4 q{orientation.x, orientation.y, orientation.z, 0.0f};
-    const auto cross = [](const mr_float4 left, const mr_float4 right) {
-        return mr_float4{
-            left.y * right.z - left.z * right.y,
-            left.z * right.x - left.x * right.z,
-            left.x * right.y - left.y * right.x,
-            0.0f,
-        };
-    };
-    const mr_float4 first = cross(q, direction);
-    const mr_float4 second = cross(q, first);
-    return {
-        direction.x + 2.0f * (orientation.w * first.x + second.x),
-        direction.y + 2.0f * (orientation.w * first.y + second.y),
-        direction.z + 2.0f * (orientation.w * first.z + second.z),
-        0.0f,
-    };
-}
+struct SourceRouteCentreline {
+    std::uint32_t muscleIndex = 0u;
+    std::vector<mr_float4> points;
+};
 
-mr_float4 worldPoint(
-    const std::span<const MRBodyStateGPU> bodies,
-    const std::uint32_t bodyIndex,
-    const mr_float4 localPoint
+struct SourceRouteCentrelines {
+    std::vector<SourceRouteCentreline> muscles;
+    std::uint32_t appliedWrapCount = 0u;
+};
+
+SourceRouteCentrelines resolveSourceRouteCentrelines(
+    const metalrobo::EngineModel& model,
+    const LoadedMuscles& musclePayload,
+    const std::span<const float> poseQ,
+    const std::span<const std::uint32_t> requestedMuscles
 ) {
-    require(bodyIndex < bodies.size(), "MyoSim visual point body index is out of bounds");
-    const MRBodyStateGPU& body = bodies[bodyIndex];
-    const mr_float4 offset = rotateDirection(body.orientation, localPoint);
-    return {
-        body.position.x + offset.x,
-        body.position.y + offset.y,
-        body.position.z + offset.z,
-        1.0f,
+    require(poseQ.size() == model.world.nq && model.defaultV.size() == model.world.nv,
+            "MyoSim source-route visual pose dimensions are inconsistent");
+    std::vector<double> q(poseQ.begin(), poseQ.end());
+    const std::vector<double> v(model.defaultV.begin(), model.defaultV.end());
+    SourceRouteCentrelines result;
+    const std::size_t expectedCount = requestedMuscles.empty()
+        ? musclePayload.referenceMuscles.size() : requestedMuscles.size();
+    result.muscles.reserve(expectedCount);
+    const metalrobo::MujocoMuscleState state{};
+    const auto resolve = [&](const std::uint32_t index) {
+        require(index < musclePayload.referenceMuscles.size(),
+                "requested MyoSim source-route muscle index is out of bounds");
+        metalrobo::MujocoMuscleResult muscleResult;
+        const auto diagnostics = metalrobo::evaluateMujocoMuscle(
+            model, 0u, q, v, musclePayload.referenceSites,
+            musclePayload.referenceWraps, musclePayload.referenceMuscles[index],
+            state, muscleResult
+        );
+        require(diagnostics.succeeded() && muscleResult.path.centreline.size() >= 2u,
+                "MyoSim source-route resolution failed for muscle " + std::to_string(index) + ": " +
+                    metalrobo::mujocoMuscleReferenceStatusName(diagnostics.status));
+        std::vector<mr_float4> centreline;
+        centreline.reserve(muscleResult.path.centreline.size());
+        for (const metalrobo::MujocoMusclePathSample& sample : muscleResult.path.centreline) {
+            require(std::all_of(sample.world.begin(), sample.world.end(), [](const double value) {
+                        return std::isfinite(value) &&
+                            value >= -static_cast<double>(std::numeric_limits<float>::max()) &&
+                            value <= static_cast<double>(std::numeric_limits<float>::max());
+                    }),
+                    "MyoSim source-route sample is not representable on the renderer");
+            centreline.push_back({
+                static_cast<float>(sample.world[0]), static_cast<float>(sample.world[1]),
+                static_cast<float>(sample.world[2]), 1.0f,
+            });
+        }
+        result.appliedWrapCount += muscleResult.path.appliedWrapCount;
+        result.muscles.push_back({index, std::move(centreline)});
     };
+    if (requestedMuscles.empty()) {
+        for (std::uint32_t index = 0u; index < musclePayload.referenceMuscles.size(); ++index) {
+            resolve(index);
+        }
+    } else {
+        for (const std::uint32_t index : requestedMuscles) resolve(index);
+    }
+    return result;
 }
 
 metalrobo::WorldPose cameraToward(
@@ -674,7 +702,7 @@ metalrobo::SensorSpec makeCamera(
     camera.localPose = cameraToward(position, target);
     camera.width = kFrameWidth;
     camera.height = kFrameHeight;
-    camera.intrinsics = {470.0f, 470.0f, 0.5f * kFrameWidth, 0.5f * kFrameHeight};
+    camera.intrinsics = {750.0f, 750.0f, 0.5f * kFrameWidth, 0.5f * kFrameHeight};
     camera.maximumDepthMeters = 20.0f;
     return camera;
 }
@@ -717,6 +745,9 @@ std::pair<mr_float4, float> frameBounds(
     const float extent = std::max({
         maximum.x - minimum.x, maximum.y - minimum.y, maximum.z - minimum.z,
     });
+    // Keep the known-valid four-camera stand-off.  Resolution is raised to
+    // 1024 px above; a tighter distance caused the oblique frustum to omit
+    // this incomplete whole-body registration.
     return {center, std::max(1.65f * extent, 2.5f)};
 }
 
@@ -975,9 +1006,9 @@ GeometryRange appendWorldTube(
 metalrobo::VisualAssetPackV2 makeMarkerPack(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& musclePayload,
-    const std::span<const MRBodyStateGPU> bodies,
     const LoadedBones* bonePayload,
     const bool muscleDriven,
+    const SourceRouteCentrelines* sourceRouteCentrelines,
     std::uint32_t& renderedBodies,
     std::uint32_t& renderedRouteSegments
 ) {
@@ -995,11 +1026,15 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     pack.preprocessingProvenance =
         bonePayload != nullptr
             ? (muscleDriven
-                ? "bodyparts3d_source_import/provisional_rest_registration/cpu_fp64_mujoco_muscle_projection_and_articulated_free_body_step/metal_articulated_operator_pose_snapshot/native_visual_bone_pack.v1"
-                : "bodyparts3d_source_import/provisional_rest_registration/metal_articulated_operator_pose_snapshot/native_visual_bone_pack.v1")
+                ? "bodyparts3d_source_import/provisional_rest_registration/cpu_fp64_mujoco_muscle_projection_and_articulated_free_body_step/metal_articulated_operator_pose_snapshot/native_visual_bone_pack.v2"
+                : "bodyparts3d_source_import/provisional_rest_registration/metal_articulated_operator_pose_snapshot/native_visual_bone_pack.v2")
             : (muscleDriven
                 ? "cpu_fp64_mujoco_muscle_projection_and_articulated_free_body_step/metal_articulated_operator_pose_snapshot/native_visual_marker_pack.v1"
                 : "metal_articulated_operator_pose_snapshot/native_visual_marker_pack.v1");
+    if (sourceRouteCentrelines != nullptr) {
+        pack.preprocessingProvenance +=
+            "/cpu_fp64_mujoco_tangent_and_wrapped_arc_centreline_at_the_rendered_pose";
+    }
     pack.materials.push_back(makeMaterial(
         {0.82f, 0.86f, 0.88f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}
     ));
@@ -1013,10 +1048,6 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         {0.78f, 0.66f, 0.46f, 1.0f}, {0.02f, 0.012f, 0.004f, 0.0f}
     ));
 
-    const float muscleOverlayScale = bonePayload != nullptr ? 0.0040f : 0.0075f;
-    const GeometryRange siteGeometry = appendEllipsoid(
-        pack, {muscleOverlayScale, muscleOverlayScale, muscleOverlayScale}
-    );
     const auto appendInstance = [&pack](
         const GeometryRange& geometry,
         const std::uint32_t material,
@@ -1079,36 +1110,15 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
             ++renderedBodies;
         }
     }
-    for (std::size_t siteIndex = 0u; siteIndex < musclePayload.sites.size(); ++siteIndex) {
-        const SiteRecord& site = musclePayload.sites[siteIndex];
-        appendInstance(
-            siteGeometry, 1u, kSiteSemantic, MR_VISUAL_BINDING_ARTICULATED_LINK,
-            site.bodyIndex,
-            {site.x, site.y, site.z, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
-            static_cast<std::uint32_t>(siteIndex + 1u)
-        );
-    }
-    const auto routePoint = [&musclePayload, bodies](const RouteRecord& route) {
-        if (route.type == 1u) {
-            const SiteRecord& site = musclePayload.sites[route.targetIndex];
-            return worldPoint(bodies, site.bodyIndex, {site.x, site.y, site.z, 0.0f});
-        }
-        const WrapRecord& wrap = musclePayload.wraps[route.targetIndex];
-        return worldPoint(
-            bodies, wrap.bodyIndex,
-            {wrap.centerX, wrap.centerY, wrap.centerZ, 0.0f}
-        );
-    };
     renderedRouteSegments = 0u;
     std::uint32_t stableRouteId = 1u;
-    for (const MuscleRecord& muscle : musclePayload.muscles) {
-        bool hasPrevious = false;
-        mr_float4 previous{};
-        for (std::uint32_t routeOffset = 0u; routeOffset < muscle.routeCount; ++routeOffset) {
-            const mr_float4 current = routePoint(
-                musclePayload.routes[muscle.routeOffset + routeOffset]
-            );
-            if (hasPrevious) {
+    if (sourceRouteCentrelines != nullptr) {
+        for (const SourceRouteCentreline& route : sourceRouteCentrelines->muscles) {
+            require(route.muscleIndex < musclePayload.muscles.size() && route.points.size() >= 2u,
+                    "MyoSim source-route visual record is malformed");
+            for (std::size_t index = 1u; index < route.points.size(); ++index) {
+                const mr_float4 previous = route.points[index - 1u];
+                const mr_float4 current = route.points[index];
                 const float dx = current.x - previous.x;
                 const float dy = current.y - previous.y;
                 const float dz = current.z - previous.z;
@@ -1116,7 +1126,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                     appendInstance(
                         appendWorldTube(
                             pack, previous, current,
-                            bonePayload != nullptr ? 0.0016f : 0.0032f
+                            bonePayload != nullptr ? 0.0011f : 0.0022f
                         ), 2u,
                         kRouteSemantic, MR_VISUAL_BINDING_WORLD, MR_INVALID_INDEX,
                         {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
@@ -1125,8 +1135,6 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                     ++renderedRouteSegments;
                 }
             }
-            previous = current;
-            hasPrevious = true;
         }
     }
     pack.contentHash = metalrobo::computeVisualAssetPackContentHash(pack);
@@ -1138,9 +1146,18 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
 metalrobo::WorldTemplate makeWorld(
     const metalrobo::EngineModel& model,
     const std::span<const MRBodyStateGPU> bodies,
+    const std::optional<std::uint32_t> focusBodyIndex,
     std::array<std::string, 4u>& cameraNames
 ) {
-    const auto [center, distance] = frameBounds(model, bodies);
+    const auto [center, distance] = [&]() -> std::pair<mr_float4, float> {
+        if (!focusBodyIndex.has_value()) return frameBounds(model, bodies);
+        require(*focusBodyIndex < bodies.size(), "MyoSim visual focus body index is out of bounds");
+        // A 0.70 m stand-off retains a complete major limb around a source
+        // body while making attachment inspection legible at the renderer's
+        // validated 640 px multi-camera resolution.
+        const MRBodyStateGPU& focus = bodies[*focusBodyIndex];
+        return {{focus.position.x, focus.position.y, focus.position.z, 0.0f}, 0.70f};
+    }();
     cameraNames = {"front", "oblique", "side", "rear"};
     metalrobo::EpisodeTwin episode;
     episode.id = "myosim_fullbody_articulated_marker_visualization";
@@ -1276,31 +1293,85 @@ double parseMuscleStepSeconds(const std::string& value) {
     return result;
 }
 
+std::uint32_t parseSourceRouteIndex(const std::string& value) {
+    std::size_t parsed = 0u;
+    unsigned long result = 0ul;
+    try {
+        result = std::stoul(value, &parsed, 10);
+    } catch (const std::exception&) {
+        throw std::runtime_error("--source-route-index must be a non-negative integer");
+    }
+    require(parsed == value.size() && result <= std::numeric_limits<std::uint32_t>::max(),
+            "--source-route-index must be a 32-bit non-negative integer");
+    return static_cast<std::uint32_t>(result);
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
     @autoreleasepool {
         try {
-            int positionalArgumentCount = argc;
             std::optional<double> muscleStepSeconds;
-            if (argc >= 3 && std::string(argv[argc - 2]) == "--muscle-step-seconds") {
-                muscleStepSeconds.emplace(parseMuscleStepSeconds(argv[argc - 1]));
-                positionalArgumentCount -= 2;
+            bool sourceRouteCentrelines = false;
+            std::vector<std::uint32_t> requestedSourceRouteMuscles;
+            std::optional<std::uint32_t> focusBodyIndex;
+            std::vector<std::string> positional;
+            for (int index = 1; index < argc; ++index) {
+                const std::string argument{argv[index]};
+                if (argument == "--muscle-step-seconds") {
+                    require(index + 1 < argc && !muscleStepSeconds.has_value(),
+                            "--muscle-step-seconds requires one value and may be given only once");
+                    muscleStepSeconds.emplace(parseMuscleStepSeconds(argv[++index]));
+                } else if (argument == "--source-route-centrelines") {
+                    require(!sourceRouteCentrelines,
+                            "--source-route-centrelines may be given only once");
+                    sourceRouteCentrelines = true;
+                } else if (argument == "--source-route-index") {
+                    require(index + 1 < argc,
+                            "--source-route-index requires one muscle index");
+                    sourceRouteCentrelines = true;
+                    requestedSourceRouteMuscles.push_back(parseSourceRouteIndex(argv[++index]));
+                } else if (argument == "--focus-body-index") {
+                    require(index + 1 < argc && !focusBodyIndex.has_value(),
+                            "--focus-body-index requires one body index and may be given only once");
+                    focusBodyIndex.emplace(parseSourceRouteIndex(argv[++index]));
+                } else if (!argument.starts_with("--")) {
+                    positional.push_back(argument);
+                } else {
+                    throw std::runtime_error("unknown visual option " + argument);
+                }
             }
-            if (positionalArgumentCount != 4 && positionalArgumentCount != 5) {
+            if (positional.size() != 3u && positional.size() != 4u) {
                 std::cerr << "usage: " << argv[0]
                           << " <myosim-fullbody-core-reference.nhrigid>"
                           << " <myosim-fullbody-muscle-reference.nhmyo>"
                           << " [bodyparts3d-myosim-major-bones.nhbones] <output-directory>"
-                          << " [--muscle-step-seconds <1e-6..1e-3>]\n";
+                          << " [--muscle-step-seconds <1e-6..1e-3>]"
+                          << " [--source-route-centrelines] [--source-route-index <0..415>]..."
+                          << " [--focus-body-index <0..156>]\n";
                 return 2;
             }
-            const bool bodypartsBoneVisual = positionalArgumentCount == 5;
-            const LoadedRigid rigid = loadRigid(argv[1]);
-            const LoadedMuscles musclePayload = loadMuscles(argv[2], rigid.header);
+            const bool bodypartsBoneVisual = positional.size() == 4u;
+            const LoadedRigid rigid = loadRigid(positional[0]);
+            const LoadedMuscles musclePayload = loadMuscles(positional[1], rigid.header);
+            require(!focusBodyIndex.has_value() || *focusBodyIndex < rigid.header.engineBodyCount,
+                    "--focus-body-index exceeds the source body count");
+            std::sort(requestedSourceRouteMuscles.begin(), requestedSourceRouteMuscles.end());
+            const auto duplicate = std::adjacent_find(
+                requestedSourceRouteMuscles.begin(), requestedSourceRouteMuscles.end()
+            );
+            require(duplicate == requestedSourceRouteMuscles.end(),
+                    "--source-route-index values must be unique");
+            require(std::all_of(
+                        requestedSourceRouteMuscles.begin(), requestedSourceRouteMuscles.end(),
+                        [&musclePayload](const std::uint32_t index) {
+                            return index < musclePayload.referenceMuscles.size();
+                        }
+                    ),
+                    "--source-route-index exceeds the source muscle count");
             std::optional<LoadedBones> bonePayload;
             if (bodypartsBoneVisual) {
-                bonePayload.emplace(loadBones(argv[3], rigid.header));
+                bonePayload.emplace(loadBones(positional[2], rigid.header));
             }
             std::optional<MuscleDrivenVisualState> muscleDrivenState;
             std::span<const float> poseQ = rigid.model.defaultQ;
@@ -1329,8 +1400,16 @@ int main(int argc, char** argv) {
             const std::vector<MRBodyStateGPU> bodies = visualBodyStates(
                 rigid.model, poseResult.bodyPoses
             );
+            std::optional<SourceRouteCentrelines> resolvedRouteCentrelines;
+            if (sourceRouteCentrelines) {
+                resolvedRouteCentrelines.emplace(resolveSourceRouteCentrelines(
+                    rigid.model, musclePayload, poseQ, requestedSourceRouteMuscles
+                ));
+            }
             std::array<std::string, 4u> cameraNames;
-            const metalrobo::WorldTemplate world = makeWorld(rigid.model, bodies, cameraNames);
+            const metalrobo::WorldTemplate world = makeWorld(
+                rigid.model, bodies, focusBodyIndex, cameraNames
+            );
             metalrobo::WorldProgram program;
             program.id = bodypartsBoneVisual
                 ? "myosim_fullbody_articulated_bodyparts_bone_visual_program"
@@ -1347,17 +1426,21 @@ int main(int argc, char** argv) {
             std::uint32_t renderedBodies = 0u;
             std::uint32_t renderedRouteSegments = 0u;
             const metalrobo::VisualAssetPackV2 pack = makeMarkerPack(
-                rigid.model, musclePayload, bodies,
+                rigid.model, musclePayload,
                 bonePayload.has_value() ? &*bonePayload : nullptr,
                 muscleDrivenState.has_value(),
+                resolvedRouteCentrelines.has_value() ? &*resolvedRouteCentrelines : nullptr,
                 renderedBodies, renderedRouteSegments
             );
-            const std::filesystem::path outputDirectory{argv[positionalArgumentCount - 1]};
+            const std::filesystem::path outputDirectory{positional.back()};
             std::filesystem::create_directories(outputDirectory);
             const std::string stem = std::string(bodypartsBoneVisual
                 ? "myosim-fullbody-articulated-bodyparts-bones"
                 : "myosim-fullbody-articulated-markers") +
-                (muscleDrivenState.has_value() ? "-muscle-driven" : "");
+                (muscleDrivenState.has_value() ? "-muscle-driven" : "") +
+                (sourceRouteCentrelines ? "-source-route-centrelines" : "") +
+                (focusBodyIndex.has_value()
+                    ? "-focus-body-" + std::to_string(*focusBodyIndex) : "");
             const std::filesystem::path packPath = outputDirectory / (stem + ".mrvpack");
             std::string reason;
             require(metalrobo::writeVisualAssetPack(pack, packPath, &reason),
@@ -1382,7 +1465,10 @@ int main(int argc, char** argv) {
             metalrobo::MetalHybridRendererConfig rendererConfig;
             rendererConfig.width = kFrameWidth;
             rendererConfig.height = kFrameHeight;
-            rendererConfig.maximumReferenceFramesInFlight = 1u;
+            // A reference frame at 1024 px occupies a dedicated ray workspace.
+            // Retain one workspace per fixed camera so that a four-angle
+            // inspection does not reuse an in-flight texture after frame one.
+            rendererConfig.maximumReferenceFramesInFlight = 4u;
             rendererConfig.clearColorAndDepth = {0.002f, 0.006f, 0.012f, 1.0e30f};
             metalrobo::MetalHybridRenderer renderer(rendererConfig);
             const auto rendererCompile = renderer.compile(
@@ -1391,6 +1477,7 @@ int main(int argc, char** argv) {
             );
             require(rendererCompile.succeeded(), "native Human renderer compile failed: " + rendererCompile.message);
             metalrobo::VisualMotionSampleBatchV1 motion = makeMotion(bodies);
+            bool completeVisualCoverage = true;
             for (std::size_t camera = 0u; camera < cameraNames.size(); ++camera) {
                 motion.sensorIdentity = camera + 1u;
                 motion.sensorSequence = static_cast<std::uint32_t>(camera + 1u);
@@ -1407,9 +1494,9 @@ int main(int argc, char** argv) {
                 const std::size_t bonePixels = coverage(observation, kBoneSemantic);
                 const std::size_t sitePixels = coverage(observation, kSiteSemantic);
                 const std::size_t routePixels = coverage(observation, kRouteSemantic);
-                require((bodypartsBoneVisual ? bonePixels > 0u : bodyPixels > 0u) &&
-                            sitePixels > 0u && routePixels > 0u,
-                        "native Human frame has no linked-body, muscle-site, or route coverage");
+                completeVisualCoverage = completeVisualCoverage &&
+                    (bodypartsBoneVisual ? bonePixels > 0u : bodyPixels > 0u) &&
+                    (!sourceRouteCentrelines || routePixels > 0u);
                 std::cout << "view=" << cameraNames[camera]
                           << " body_pixels=" << bodyPixels
                           << " bone_pixels=" << bonePixels
@@ -1417,6 +1504,8 @@ int main(int argc, char** argv) {
                           << " muscle_route_pixels=" << routePixels
                           << " frame=" << frame.string() << '\n';
             }
+            require(completeVisualCoverage,
+                    "one or more native Human frames have no linked-body or requested source-route coverage");
             std::cout << std::setprecision(12)
                       << (bodypartsBoneVisual
                               ? "myosim_articulated_bodyparts_bone_visual=ok"
@@ -1428,6 +1517,13 @@ int main(int argc, char** argv) {
                       << " bodyparts_bones=" << (bonePayload.has_value() ? bonePayload->records.size() : 0u)
                       << " muscle_sites=" << musclePayload.sites.size()
                       << " route_centerline_segments=" << renderedRouteSegments
+                      << " source_route_centrelines=" << (sourceRouteCentrelines ? "true" : "false")
+                      << " source_route_muscles=" << (resolvedRouteCentrelines.has_value()
+                              ? resolvedRouteCentrelines->muscles.size() : 0u)
+                      << " source_route_applied_wraps=" << (resolvedRouteCentrelines.has_value()
+                              ? resolvedRouteCentrelines->appliedWrapCount : 0u)
+                      << " focus_body_index=" << (focusBodyIndex.has_value()
+                              ? std::to_string(*focusBodyIndex) : "none")
                       << " pose_stage_elapsed_ms=" << poseDiagnostics.elapsedMilliseconds
                       << " renderer_compile_ms=" << rendererCompile.elapsedMilliseconds
                       << " pose_source=" << (muscleDrivenState.has_value()
@@ -1448,6 +1544,9 @@ int main(int argc, char** argv) {
                               : (bodypartsBoneVisual
                                   ? "metal_pose_snapshot_to_native_renderer_with_provisional_bodyparts_bone_registration_not_collision_or_live_rollout"
                                   : "metal_pose_snapshot_to_native_renderer_not_bodyparts_registration_or_live_rollout"))
+                      << " route_geometry=" << (sourceRouteCentrelines
+                              ? "cpu_fp64_mujoco_tangent_and_wrapped_arc_centreline_at_same_q_not_an_anatomical_tendon_surface_or_bodyparts3d_surface_attachment_certificate"
+                              : "hidden_until_a_source_route_centreline_inspection_is_requested")
                       << '\n';
             return 0;
         } catch (const std::exception& error) {

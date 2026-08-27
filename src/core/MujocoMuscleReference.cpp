@@ -254,7 +254,18 @@ std::optional<double> wrapInside(std::array<double, 4>& points,
     return 0.0;
 }
 
-struct WrapResult { Vec3 first{}; Vec3 second{}; double length = -1.0; };
+struct WrapResult {
+    Vec3 first{};
+    Vec3 second{};
+    // Geometry-local contact points.  They retain the selected MuJoCo wrap
+    // side, allowing a renderer to reproduce the arc instead of displaying a
+    // straight chord between contacts.
+    Vec3 localFirst{};
+    Vec3 localSecond{};
+    Vec3 center{};
+    Mat3 rotation{};
+    double length = -1.0;
+};
 
 std::optional<WrapResult> wrapGeometry(
     const Vec3& endpoint0, const Vec3& endpoint1, const Vec3& center, const Mat3& rotation,
@@ -320,7 +331,10 @@ std::optional<WrapResult> wrapGeometry(
         second[2] = point0[2] + (point1[2] - point0[2]) * (firstLeg + correctedLength) / denominator;
         correctedLength = std::sqrt(correctedLength * correctedLength + (second[2] - first[2]) * (second[2] - first[2]));
     }
-    return WrapResult{add(matApply(rotation, first), center), add(matApply(rotation, second), center), correctedLength};
+    return WrapResult{
+        add(matApply(rotation, first), center), add(matApply(rotation, second), center),
+        first, second, center, rotation, correctedLength,
+    };
 }
 
 struct ResolvedPoint {
@@ -329,6 +343,82 @@ struct ResolvedPoint {
     Vec3 world{};
 };
 struct Segment { ResolvedPoint first{}; ResolvedPoint second{}; };
+
+void appendCentrelinePoint(MujocoMusclePathResult& result, const Vec3& point) {
+    if (result.centreline.empty() ||
+        norm(subtract(result.centreline.back().world, point)) > kMinimum) {
+        result.centreline.push_back({point});
+    }
+}
+
+Vec3 rotateAroundAxis(const Vec3& point, const Vec3& axis, const double angle) {
+    const double cosine = std::cos(angle);
+    const double sine = std::sin(angle);
+    return add(
+        add(scale(point, cosine), scale(cross(axis, point), sine)),
+        scale(axis, dot(axis, point) * (1.0 - cosine))
+    );
+}
+
+void appendWrapArcSamples(
+    MujocoMusclePathResult& result,
+    const WrapResult& wrap,
+    const MujocoRouteNodeType type,
+    const double radius
+) {
+    if (!(radius > kMinimum) || !finite(wrap.length)) return;
+    const Vec3 localFirst = wrap.localFirst;
+    const Vec3 localSecond = wrap.localSecond;
+    Vec3 axis{};
+    double angle = 0.0;
+    if (type == MujocoRouteNodeType::sphere) {
+        const double firstNorm = norm(localFirst);
+        const double secondNorm = norm(localSecond);
+        if (!(firstNorm > kMinimum) || !(secondNorm > kMinimum)) return;
+        const Vec3 firstUnit = scale(localFirst, 1.0 / firstNorm);
+        const Vec3 secondUnit = scale(localSecond, 1.0 / secondNorm);
+        const Vec3 crossProduct = cross(firstUnit, secondUnit);
+        const double crossNorm = norm(crossProduct);
+        if (!(crossNorm > kMinimum)) return;
+        axis = scale(crossProduct, 1.0 / crossNorm);
+        angle = wrap.length / radius;
+        if (angle > kPi) axis = scale(axis, -1.0);
+    } else if (type == MujocoRouteNodeType::cylinder) {
+        const Vec3 firstRadial{localFirst[0], localFirst[1], 0.0};
+        const Vec3 secondRadial{localSecond[0], localSecond[1], 0.0};
+        const double firstNorm = norm(firstRadial);
+        const double secondNorm = norm(secondRadial);
+        if (!(firstNorm > kMinimum) || !(secondNorm > kMinimum)) return;
+        const double axialDelta = localSecond[2] - localFirst[2];
+        const double planarLengthSquared = std::max(0.0, wrap.length * wrap.length - axialDelta * axialDelta);
+        angle = std::sqrt(planarLengthSquared) / radius;
+        const double crossZ = firstRadial[0] * secondRadial[1] - firstRadial[1] * secondRadial[0];
+        if (std::abs(crossZ) <= kMinimum) return;
+        axis = {0.0, 0.0, crossZ > 0.0 ? 1.0 : -1.0};
+        if (angle > kPi) axis[2] = -axis[2];
+    } else {
+        return;
+    }
+    if (!(angle > kMinimum) || !finite(angle) || !finite(axis)) return;
+    // At most 15 degrees per segment: the chordal approximation has a maximum
+    // radial deviation below 0.9% of the source wrap radius.
+    const std::uint32_t segmentCount = std::clamp(
+        static_cast<std::uint32_t>(std::ceil(angle / (kPi / 12.0))), 1u, 48u
+    );
+    for (std::uint32_t index = 1u; index < segmentCount; ++index) {
+        const double fraction = static_cast<double>(index) / static_cast<double>(segmentCount);
+        Vec3 local{};
+        if (type == MujocoRouteNodeType::sphere) {
+            local = rotateAroundAxis(localFirst, axis, fraction * angle);
+        } else {
+            local = rotateAroundAxis(
+                {localFirst[0], localFirst[1], 0.0}, axis, fraction * angle
+            );
+            local[2] = localFirst[2] + fraction * (localSecond[2] - localFirst[2]);
+        }
+        appendCentrelinePoint(result, add(matApply(wrap.rotation, local), wrap.center));
+    }
+}
 
 bool validDefinition(const MujocoMuscleDefinition& definition,
                      const std::span<const MujocoMuscleSite> sites,
@@ -360,6 +450,7 @@ MujocoMuscleReferenceDiagnostics resolvePath(
     MujocoMusclePathResult& result, const ArticulatedDynamicsConfig& config
 ) {
     if (!validDefinition(definition, sites, wraps)) return failure(MujocoMuscleReferenceStatus::invalidDefinition);
+    result = {};
     const MRArticulationGPU& articulation = model.articulations.at(articulationIndex);
     if (q.size() != articulation.nq || v.size() != articulation.nv) return failure(MujocoMuscleReferenceStatus::invalidState);
     std::vector<ArticulatedBodyKinematics> bodies(articulation.bodyCount);
@@ -405,6 +496,8 @@ MujocoMuscleReferenceDiagnostics resolvePath(
             // normalization contributes a zero Jacobian column there, so
             // retain the zero length but omit a singular native segment.
             if (distance > kMinimum) segments.push_back({*first, *second});
+            appendCentrelinePoint(result, first->world);
+            appendCentrelinePoint(result, second->world);
             length += distance; cursor += 1u; continue;
         }
         if ((nextNode.type != MujocoRouteNodeType::sphere && nextNode.type != MujocoRouteNodeType::cylinder) ||
@@ -430,6 +523,8 @@ MujocoMuscleReferenceDiagnostics resolvePath(
         if (!wrapped) {
             const double distance = norm(subtract(last->world, first->world));
             if (distance > kMinimum) segments.push_back({*first, *last});
+            appendCentrelinePoint(result, first->world);
+            appendCentrelinePoint(result, last->world);
             length += distance;
         } else {
             const std::optional<ResolvedPoint> tangent0 = wrappedPoint(wrap.bodyIndex, wrapped->first);
@@ -440,6 +535,11 @@ MujocoMuscleReferenceDiagnostics resolvePath(
             for (const Segment& segment : std::array<Segment, 3>{{{*first, *tangent0}, {*tangent0, *tangent1}, {*tangent1, *last}}}) {
                 if (norm(subtract(segment.second.world, segment.first.world)) > kMinimum) segments.push_back(segment);
             }
+            appendCentrelinePoint(result, first->world);
+            appendCentrelinePoint(result, tangent0->world);
+            appendWrapArcSamples(result, *wrapped, nextNode.type, wrap.radius);
+            appendCentrelinePoint(result, tangent1->world);
+            appendCentrelinePoint(result, last->world);
             length += norm(subtract(tangent0->world, first->world)) + wrapped->length + norm(subtract(last->world, tangent1->world));
             ++appliedWraps;
         }
@@ -460,7 +560,6 @@ MujocoMuscleReferenceDiagnostics resolvePath(
         model, articulationIndex, q, v, queries, kinematics, jacobians, config
     );
     if (!pointDiagnostics.succeeded()) return failure(MujocoMuscleReferenceStatus::kinematicsFailure);
-    result = {};
     result.length = length;
     result.appliedWrapCount = appliedWraps;
     result.lengthJacobian.assign(articulation.nv, 0.0);

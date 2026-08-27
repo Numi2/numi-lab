@@ -91,7 +91,8 @@ metalrobo::WorldPose cameraToward(
 }
 
 std::pair<mr_float4, float> packCentreAndDistance(
-    const metalrobo::VisualAssetPackV2& pack
+    const metalrobo::VisualAssetPackV2& pack,
+    const bool tightFrame
 ) {
     if (pack.vertices.empty()) {
         throw std::runtime_error("BodyParts3D visual pack has no vertices");
@@ -127,15 +128,15 @@ std::pair<mr_float4, float> packCentreAndDistance(
         maximum.y - minimum.y,
         maximum.z - minimum.z,
     });
-    return {centre, std::max(1.35f * extent, 2.25f)};
+    return {centre, std::max(1.35f * extent, tightFrame ? 0.0f : 2.25f)};
 }
 
 metalrobo::SensorSpec makeCamera(
     const std::string& id,
     const mr_float4 position,
-    const mr_float4 target
+    const mr_float4 target,
+    const std::uint32_t dimension
 ) {
-    constexpr std::uint32_t dimension = 512u;
     metalrobo::SensorSpec camera;
     camera.id = id;
     camera.parentAssetId = "workspace";
@@ -144,7 +145,9 @@ metalrobo::SensorSpec makeCamera(
     camera.localPose = cameraToward(position, target);
     camera.width = dimension;
     camera.height = dimension;
-    camera.intrinsics = {360.0f, 360.0f, 256.0f, 256.0f};
+    const float halfDimension = 0.5f * static_cast<float>(dimension);
+    const float focalLength = 0.703125f * static_cast<float>(dimension);
+    camera.intrinsics = {focalLength, focalLength, halfDimension, halfDimension};
     camera.maximumDepthMeters = 12.0f;
     return camera;
 }
@@ -210,9 +213,31 @@ void writePpm(
 int main(int argc, char** argv) {
     @autoreleasepool {
         try {
-            if (argc != 3) {
-                std::cerr << "usage: metalrobo_bodyparts3d_visual_probe PACK.mrvpack OUTPUT_DIRECTORY\n";
+            if (argc < 3) {
+                std::cerr << "usage: metalrobo_bodyparts3d_visual_probe PACK.mrvpack OUTPUT_DIRECTORY [--dimension <128..4096>] [--tight-frame]\n";
                 return 2;
+            }
+            std::uint32_t dimension = 512u;
+            bool tightFrame = false;
+            for (int argument = 3; argument < argc; ++argument) {
+                const std::string option{argv[argument]};
+                if (option == "--tight-frame") {
+                    if (tightFrame) {
+                        throw std::runtime_error("--tight-frame may only be provided once");
+                    }
+                    tightFrame = true;
+                    continue;
+                }
+                if (option != "--dimension" || ++argument >= argc) {
+                    throw std::runtime_error("expected --dimension <128..4096> or --tight-frame");
+                }
+                const std::string dimensionText{argv[argument]};
+                std::size_t parsed = 0u;
+                const unsigned long candidate = std::stoul(dimensionText, &parsed);
+                if (parsed != dimensionText.size() || candidate < 128u || candidate > 4096u) {
+                    throw std::runtime_error("visual preview dimension must be an integer in [128, 4096]");
+                }
+                dimension = static_cast<std::uint32_t>(candidate);
             }
             const std::filesystem::path packPath{argv[1]};
             const std::filesystem::path outputDirectory{argv[2]};
@@ -221,7 +246,7 @@ int main(int argc, char** argv) {
             if (!metalrobo::readVisualAssetPack(packPath, pack, &reason)) {
                 throw std::runtime_error("could not read visual pack: " + reason);
             }
-            const auto [centre, distance] = packCentreAndDistance(pack);
+            const auto [centre, distance] = packCentreAndDistance(pack, tightFrame);
             const std::array cameraDefinitions{
                 std::pair{"axis_negative_y", mr_float4{centre.x, centre.y - distance, centre.z + 0.08f, 0.0f}},
                 std::pair{"oblique_positive_x_negative_y", mr_float4{centre.x + 0.82f * distance, centre.y - 0.82f * distance, centre.z + 0.24f * distance, 0.0f}},
@@ -233,7 +258,7 @@ int main(int argc, char** argv) {
             episode.id = "bodyparts3d_source_static_preview_v1";
             episode.sensors.clear();
             for (const auto& [id, position] : cameraDefinitions) {
-                episode.sensors.push_back(makeCamera(id, position, centre));
+                episode.sensors.push_back(makeCamera(id, position, centre, dimension));
             }
             metalrobo::WorldTemplate world;
             require(metalrobo::compileEpisodeTwin(episode, model, world), "preview episode compile");
@@ -260,8 +285,8 @@ int main(int argc, char** argv) {
                 throw std::runtime_error("preview scene compile: " + reason);
             }
             metalrobo::MetalHybridRendererConfig configuration;
-            configuration.width = 512u;
-            configuration.height = 512u;
+            configuration.width = dimension;
+            configuration.height = dimension;
             configuration.maximumReferenceFramesInFlight = 1u;
             metalrobo::MetalHybridRenderer renderer(configuration);
             require(

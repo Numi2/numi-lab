@@ -1294,10 +1294,12 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
-# Native visual evidence for the full-body MyoSim route model.  It obtains the
-# articulated pose from the Metal operator, then renders inertia-body and
-# muscle-site markers through the Core visual renderer.  This deliberately does
-# not imply BodyParts3D mesh registration or a live device-resident rollout.
+# Native visual inspection for the full-body MyoSim model. It obtains the
+# articulated pose from the Metal operator, renders BodyParts3D major-bone
+# geometry when supplied, and can opt in to selected CPU-resolved source route
+# centrelines (tangent contacts plus sampled wrap arcs). The route diagnostic
+# is neither tendon-surface geometry nor a BodyParts3D attachment certificate;
+# this deliberately does not imply a live device-resident rollout.
 add_executable(
     metalrobo_numilab_human_myosim_visual_probe
     apps/numilab_human_myosim_visual_probe.mm
