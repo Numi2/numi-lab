@@ -110,6 +110,17 @@ uses full PolicyPack plus learner-state resume only between promoted v9 rungs.
 `NUMI_CROW_PARENT_MODE=actor-transfer` makes this boundary explicit. Do not
 transfer a rejected smoke pack or skip protected v9 milestones.
 
+The sensor-fast visual pack reserves at most 1 GiB of retained renderer memory.
+That is a compile ceiling, not a request to allocate the whole budget. A
+one-update, one-step, 2,048-environment probe on the 24 GiB Apple M4 Pro at
+revision `008bd8f` retained 942,559,086 bytes, reported 809,634,028 transient
+private bytes and 71,509,684 MLX peak bytes, completed with zero failed
+environment steps, and measured 6,110 environment-steps/s. The earlier 64 MiB
+ceiling admitted only 128 environments (64,458,606 retained bytes) and rejected
+the authored 2,048-environment curriculum before its first training step. These
+numbers qualify capacity for this exact probe; they are not a sustained-run
+memory or throughput claim.
+
 After band 10 advances, run the final three-seed matrix and accepted-state
 replay export with the promoted deployment PolicyPack:
 

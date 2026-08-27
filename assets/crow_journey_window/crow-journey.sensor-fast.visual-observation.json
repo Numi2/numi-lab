@@ -23,6 +23,6 @@
     "minimum_visible_pixels": 1,
     "vertical_field_of_view_degrees": 55.0,
     "nominal_rate_hz": 15.0,
-    "maximum_retained_bytes": 67108864
+    "maximum_retained_bytes": 1073741824
   }
 }
