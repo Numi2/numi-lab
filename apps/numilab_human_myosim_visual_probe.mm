@@ -611,7 +611,8 @@ struct MuscleDrivenVisualState {
 MuscleDrivenVisualState integrateMuscleDrivenVisualState(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& muscles,
-    const double timestepSeconds
+    const double timestepSeconds,
+    const double activation
 ) {
     require(std::isfinite(timestepSeconds) &&
                 timestepSeconds >= 1.0e-6 && timestepSeconds <= 1.0e-3,
@@ -620,24 +621,41 @@ MuscleDrivenVisualState integrateMuscleDrivenVisualState(
                 model.defaultV.size() == model.world.nv &&
                 muscles.referenceMuscles.size() == muscles.muscles.size(),
             "muscle-driven visual state has inconsistent MyoSim dimensions");
+    require(std::isfinite(activation) && activation >= 0.0 && activation <= 1.0,
+            "muscle-driven visual activation must be within [0, 1]");
 
     const std::vector<double> initialQ(model.defaultQ.begin(), model.defaultQ.end());
     const std::vector<double> initialV(model.defaultV.begin(), model.defaultV.end());
-    std::vector<double> muscleForce(model.world.nv, 0.0);
+    std::vector<double> activatedForce(model.world.nv, 0.0);
+    std::vector<double> sourceDefaultPassiveForce(model.world.nv, 0.0);
     MuscleDrivenVisualState result;
-    const metalrobo::MujocoMuscleState state{.excitation = 0.5, .activation = 0.5};
+    const metalrobo::MujocoMuscleState state{.excitation = activation, .activation = activation};
+    const metalrobo::MujocoMuscleState passiveState{};
     for (std::size_t index = 0u; index < muscles.referenceMuscles.size(); ++index) {
         metalrobo::MujocoMuscleResult muscleResult;
         const auto diagnostics = metalrobo::projectMujocoMuscleForce(
             model, 0u, initialQ, initialV, muscles.referenceSites,
             muscles.referenceWraps, muscles.referenceMuscles[index], state,
-            muscleForce, &muscleResult
+            activatedForce, &muscleResult
         );
         require(diagnostics.succeeded(),
                 "MyoSim muscle force projection failed for muscle " +
                     std::to_string(index) + ": " +
                     metalrobo::mujocoMuscleReferenceStatusName(diagnostics.status));
+        const auto passiveDiagnostics = metalrobo::projectMujocoMuscleForce(
+            model, 0u, initialQ, initialV, muscles.referenceSites,
+            muscles.referenceWraps, muscles.referenceMuscles[index], passiveState,
+            sourceDefaultPassiveForce
+        );
+        require(passiveDiagnostics.succeeded(),
+                "MyoSim passive muscle-force projection failed for muscle " +
+                    std::to_string(index) + ": " +
+                    metalrobo::mujocoMuscleReferenceStatusName(passiveDiagnostics.status));
         result.appliedWrapCount += muscleResult.path.appliedWrapCount;
+    }
+    std::vector<double> muscleForce(model.world.nv, 0.0);
+    for (std::size_t index = 0u; index < muscleForce.size(); ++index) {
+        muscleForce[index] = activatedForce[index] - sourceDefaultPassiveForce[index];
     }
     require(std::all_of(muscleForce.begin(), muscleForce.end(), [](const double value) {
                 return std::isfinite(value);
@@ -1893,6 +1911,19 @@ double parseMuscleStepSeconds(const std::string& value) {
     return result;
 }
 
+double parseMuscleActivation(const std::string& value) {
+    std::size_t parsed = 0u;
+    double result = 0.0;
+    try {
+        result = std::stod(value, &parsed);
+    } catch (const std::exception&) {
+        throw std::runtime_error("--muscle-activation must be a finite decimal from 0 through 1");
+    }
+    require(parsed == value.size() && std::isfinite(result) && result >= 0.0 && result <= 1.0,
+            "--muscle-activation must be a finite decimal from 0 through 1");
+    return result;
+}
+
 std::uint32_t parseSourceRouteIndex(const std::string& value) {
     std::size_t parsed = 0u;
     unsigned long result = 0ul;
@@ -1925,6 +1956,7 @@ int main(int argc, char** argv) {
     @autoreleasepool {
         try {
             std::optional<double> muscleStepSeconds;
+            std::optional<double> muscleActivation;
             bool sourceRouteCentrelines = false;
             bool surfaceProjectSourceSites = false;
             std::vector<std::uint32_t> requestedSourceRouteMuscles;
@@ -1938,6 +1970,10 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !muscleStepSeconds.has_value(),
                             "--muscle-step-seconds requires one value and may be given only once");
                     muscleStepSeconds.emplace(parseMuscleStepSeconds(argv[++index]));
+                } else if (argument == "--muscle-activation") {
+                    require(index + 1 < argc && !muscleActivation.has_value(),
+                            "--muscle-activation requires one value and may be given only once");
+                    muscleActivation.emplace(parseMuscleActivation(argv[++index]));
                 } else if (argument == "--source-route-centrelines") {
                     require(!sourceRouteCentrelines,
                             "--source-route-centrelines may be given only once");
@@ -1975,6 +2011,7 @@ int main(int argc, char** argv) {
                           << " <myosim-fullbody-muscle-reference.nhmyo>"
                           << " [bodyparts3d-myosim-major-bones.nhbones] <output-directory>"
                           << " [--muscle-step-seconds <1e-6..1e-3>]"
+                          << " [--muscle-activation <0..1>]"
                           << " [--source-route-centrelines] [--source-route-index <0..415>]..."
                           << " [--surface-project-source-sites]"
                           << " [--soft-tissue-payload <NHTISS2>]"
@@ -2013,11 +2050,14 @@ int main(int argc, char** argv) {
             require(!surfaceProjectSourceSites ||
                         (bodypartsBoneVisual && sourceRouteCentrelines),
                     "--surface-project-source-sites requires BodyParts3D bones and a source-route inspection");
+            require(!muscleActivation.has_value() || muscleStepSeconds.has_value(),
+                    "--muscle-activation requires --muscle-step-seconds");
             std::optional<MuscleDrivenVisualState> muscleDrivenState;
             std::span<const float> poseQ = rigid.model.defaultQ;
             if (muscleStepSeconds.has_value()) {
                 muscleDrivenState.emplace(integrateMuscleDrivenVisualState(
-                    rigid.model, musclePayload, *muscleStepSeconds
+                    rigid.model, musclePayload, *muscleStepSeconds,
+                    muscleActivation.value_or(0.5)
                 ));
                 poseQ = muscleDrivenState->q;
             }
@@ -2204,10 +2244,14 @@ int main(int argc, char** argv) {
                       << " pose_stage_elapsed_ms=" << poseDiagnostics.elapsedMilliseconds
                       << " renderer_compile_ms_first_camera=" << rendererCompileMilliseconds
                       << " pose_source=" << (muscleDrivenState.has_value()
-                              ? "cpu_fp64_mujoco_416_muscle_force_to_articulated_free_body_step_then_metal_kinematic_pose"
+                              ? "cpu_fp64_mujoco_416_muscle_incremental_activation_force_to_articulated_free_body_step_then_metal_kinematic_pose"
                               : "source_default_q_to_metal_kinematic_pose")
                       << " muscle_step_seconds=" << (muscleStepSeconds.has_value()
                               ? *muscleStepSeconds : 0.0)
+                      << " muscle_activation=" << (muscleStepSeconds.has_value()
+                              ? muscleActivation.value_or(0.5) : 0.0)
+                      << " muscle_passive_baseline=" << (muscleDrivenState.has_value()
+                              ? "source_default_activation_zero_subtracted" : "none")
                       << " muscle_step_applied_wraps=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->appliedWrapCount : 0u)
                       << " muscle_step_max_velocity_delta=" << (muscleDrivenState.has_value()
@@ -2217,9 +2261,9 @@ int main(int argc, char** argv) {
                       << " boundary=" << (muscleDrivenState.has_value()
                               ? (bodypartsBoneVisual
                                   ? (softTissuePayload.has_value()
-                                      ? "cpu_fp64_complete_416_muscle_force_and_articulated_free_body_step_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_and_two_body_kinematic_source_soft_tissue_visuals_not_contact_or_live_rollout"
-                                      : "cpu_fp64_complete_416_muscle_force_and_articulated_free_body_step_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_not_contact_or_live_rollout")
-                                  : "cpu_fp64_complete_416_muscle_force_and_articulated_free_body_step_to_metal_pose_snapshot_not_contact_or_live_rollout")
+                                      ? "cpu_fp64_complete_416_muscle_incremental_activation_force_and_articulated_free_body_step_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_and_two_body_kinematic_source_soft_tissue_visuals_not_contact_or_live_rollout"
+                                      : "cpu_fp64_complete_416_muscle_incremental_activation_force_and_articulated_free_body_step_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_not_contact_or_live_rollout")
+                                  : "cpu_fp64_complete_416_muscle_incremental_activation_force_and_articulated_free_body_step_to_metal_pose_snapshot_not_contact_or_live_rollout")
                               : (bodypartsBoneVisual
                                   ? (softTissuePayload.has_value()
                                       ? "metal_pose_snapshot_to_native_renderer_with_provisional_bodyparts_bone_registration_and_two_body_kinematic_source_soft_tissue_visuals_not_collision_or_live_rollout"
