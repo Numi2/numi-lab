@@ -446,7 +446,7 @@ extern "C" void* mr_numibrain_myosim_bridge_create(
         );
         bridge->committedStates.resize(bridge->program.muscles.size());
         for (auto& state : bridge->committedStates) {
-            state.excitationAndActivation = {0.0f, 0.5f, 0.0f, 0.0f};
+            state.excitationAndActivation = {0.0f, 0.0f, 0.0f, 0.0f};
         }
         metalrobo::MetalArticulatedOperatorConfig config;
         config.pointJacobiansOnly = true;
