@@ -784,13 +784,21 @@ inline bool validModelAndLayout(
     threadgroup uchar* known,
     thread MRArticulatedOperatorStatusGPU& status
 ) {
+    const bool pointJacobiansOnly =
+        (dispatch.flags &
+         MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY) != 0u;
+    const uint maximumBodies = pointJacobiansOnly
+        ? MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES
+        : MR_ARTICULATED_OPERATOR_MAX_BODIES;
+    const uint maximumDofs = pointJacobiansOnly
+        ? MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_DOFS
+        : MR_ARTICULATED_OPERATOR_MAX_DOFS;
     if ((articulation.rootType != MR_ROOT_FIXED &&
          articulation.rootType != MR_ROOT_FLOATING) ||
         articulation.bodyCount == 0u ||
-        articulation.bodyCount >
-            MR_ARTICULATED_OPERATOR_MAX_BODIES ||
+        articulation.bodyCount > maximumBodies ||
         articulation.nv == 0u ||
-        articulation.nv > MR_ARTICULATED_OPERATOR_MAX_DOFS ||
+        articulation.nv > maximumDofs ||
         articulation.firstBody > world.bodyCount ||
         articulation.bodyCount >
             world.bodyCount - articulation.firstBody ||
@@ -807,10 +815,8 @@ inline bool validModelAndLayout(
         articulation.jointCount + 1u != articulation.bodyCount) {
         setFailure(
             status,
-            articulation.bodyCount >
-                    MR_ARTICULATED_OPERATOR_MAX_BODIES ||
-                articulation.nv >
-                    MR_ARTICULATED_OPERATOR_MAX_DOFS
+            articulation.bodyCount > maximumBodies ||
+                articulation.nv > maximumDofs
                 ? MR_ARTICULATED_OPERATOR_CAPACITY_OVERFLOW
                 : MR_ARTICULATED_OPERATOR_INVALID_MODEL,
             MR_INVALID_INDEX

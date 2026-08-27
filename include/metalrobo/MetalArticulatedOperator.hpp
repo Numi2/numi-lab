@@ -19,7 +19,8 @@ struct MetalArticulatedOperatorSubmissionState;
 [[nodiscard]] constexpr std::size_t
 articulatedOperatorThreadgroupBytes(
     const std::size_t bodyCount,
-    const std::size_t dofCount
+    const std::size_t dofCount,
+    const bool includeDenseDynamics = true
 ) noexcept {
     const auto aligned16 = [](const std::size_t value) {
         return (value + 15u) & ~std::size_t{15u};
@@ -39,10 +40,12 @@ articulatedOperatorThreadgroupBytes(
     append(sizeof(std::uint32_t) * bodyCount); // inbound joint
     append(sizeof(std::uint32_t) * bodyCount); // parent body
     append(sizeof(std::uint8_t) * bodyCount); // topology-known flags
-    append(sizeof(float) * dofCount * dofCount); // dense factor
-    append(sizeof(float) * dofCount); // right-hand side
-    append(sizeof(float) * dofCount); // forward solve
-    append(sizeof(float) * dofCount); // solution
+    if (includeDenseDynamics) {
+        append(sizeof(float) * dofCount * dofCount); // dense factor
+        append(sizeof(float) * dofCount); // right-hand side
+        append(sizeof(float) * dofCount); // forward solve
+        append(sizeof(float) * dofCount); // solution
+    }
     return aligned16(bytes);
 }
 } // namespace detail

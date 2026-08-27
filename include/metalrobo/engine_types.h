@@ -24,6 +24,12 @@
 // threadgroup memory.
 #define MR_ARTICULATED_OPERATOR_MAX_BODIES 64u
 #define MR_ARTICULATED_OPERATOR_MAX_DOFS 64u
+// Kinematics/Jacobian queries never assemble or factor the dense mass matrix.
+// They retain the same one-tree-per-threadgroup ordering but can use a larger
+// fixed-capacity class that still fits the 16 KiB Apple threadgroup floor.
+// Full dynamics remains deliberately bounded by the dense-factor class above.
+#define MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES 192u
+#define MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_DOFS 160u
 // Retained as the legacy standalone operator's recommended allocation class.
 // It is not a runtime limit: checked GPU strides and caller-provided storage
 // now determine the point/contact capacity.

@@ -256,16 +256,25 @@ bool isZeroInertiaTransformCarrier(const MRBodyPropertiesGPU& body) {
 bool supportedTopology(
     const EngineModel& model,
     const MRArticulationGPU& articulation,
+    const bool pointJacobiansOnly,
     std::string& reason
 ) {
+    const std::uint32_t maximumBodies = pointJacobiansOnly
+        ? MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES
+        : MR_ARTICULATED_OPERATOR_MAX_BODIES;
+    const std::uint32_t maximumDofs = pointJacobiansOnly
+        ? MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_DOFS
+        : MR_ARTICULATED_OPERATOR_MAX_DOFS;
     if (articulation.bodyCount == 0u ||
-        articulation.bodyCount >
-            MR_ARTICULATED_OPERATOR_MAX_BODIES ||
+        articulation.bodyCount > maximumBodies ||
         articulation.nv == 0u ||
-        articulation.nv >
-            MR_ARTICULATED_OPERATOR_MAX_DOFS) {
+        articulation.nv > maximumDofs) {
         reason =
-            "articulation exceeds the Metal operator body/DoF bucket";
+            pointJacobiansOnly
+                ? "articulation exceeds the Metal kinematics/Jacobian "
+                  "body/DoF bucket"
+                : "articulation exceeds the dense Metal operator "
+                  "body/DoF bucket";
         return false;
     }
     const std::size_t jointEnd =
@@ -732,13 +741,17 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
     if (!supportedTopology(
             model,
             articulation,
+            config.pointJacobiansOnly,
             topologyReason
         )) {
-        const bool capacity =
-            articulation.bodyCount >
-                MR_ARTICULATED_OPERATOR_MAX_BODIES ||
-            articulation.nv >
-                MR_ARTICULATED_OPERATOR_MAX_DOFS;
+        const std::uint32_t maximumBodies = config.pointJacobiansOnly
+            ? MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES
+            : MR_ARTICULATED_OPERATOR_MAX_BODIES;
+        const std::uint32_t maximumDofs = config.pointJacobiansOnly
+            ? MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_DOFS
+            : MR_ARTICULATED_OPERATOR_MAX_DOFS;
+        const bool capacity = articulation.bodyCount > maximumBodies ||
+            articulation.nv > maximumDofs;
         return reject(
             std::move(diagnostics),
             capacity
@@ -1976,7 +1989,8 @@ MetalArticulatedOperatorContext::submit(
                 setThreadgroupMemoryLength:
                     detail::articulatedOperatorThreadgroupBytes(
                         articulation.bodyCount,
-                        articulation.nv
+                        articulation.nv,
+                        !state_->config.pointJacobiansOnly
                     )
                 atIndex:0u];
             [encoder
@@ -2534,7 +2548,8 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                 setThreadgroupMemoryLength:
                     detail::articulatedOperatorThreadgroupBytes(
                         articulation.bodyCount,
-                        articulation.nv
+                        articulation.nv,
+                        !config.pointJacobiansOnly
                     )
                 atIndex:0u];
             [encoder
