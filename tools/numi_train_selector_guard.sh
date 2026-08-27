@@ -43,7 +43,7 @@ if [ -n "${NUMI_RUN_DIR:-}" ] &&
     fi
     numi_guard_python=${NUMI_MLX_PYTHON:-python3}
     if "$numi_guard_python" -c \
-        'import json,sys,tempfile,os; path=sys.argv[1]; payload={"schema":"numi.policy-selection.v1","selected":"incumbent","candidate_advanced_deployment":False,"candidate_retained":True,"selection_error":sys.argv[2]}; fd,tmp=tempfile.mkstemp(prefix="selection.",suffix=".tmp",dir=os.path.dirname(path)); os.close(fd); open(tmp,"w").write(json.dumps(payload,indent=2,sort_keys=True)+"\\n"); os.replace(tmp,path)' \
+        'import json,sys,tempfile,os; path=sys.argv[1]; payload={"schema":"numi.policy-selection.v1","selected":"incumbent","candidate_advanced_deployment":False,"candidate_retained":True,"selection_error":sys.argv[2]}; fd,tmp=tempfile.mkstemp(prefix="selection.",suffix=".tmp",dir=os.path.dirname(path)); os.close(fd); open(tmp,"w").write(json.dumps(payload,indent=2,sort_keys=True)+"\n"); os.replace(tmp,path)' \
         "$NUMI_RUN_DIR/selection/selection.json" "$numi_guard_error"; then
         # The durable incumbent decision is the supervisor's retry signal.
         # Return success so its set -e launch boundary can consume it.

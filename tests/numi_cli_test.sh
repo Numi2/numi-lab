@@ -148,6 +148,23 @@ grep -- "$numi_repo/tools/numi_train_selector_guard.sh" \
         >/dev/null
 )
 
+# A native or selector failure must leave one parseable incumbent-retaining
+# decision. The supervisor reads this file directly before deciding whether a
+# retry is safe, so even a trailing escaped newline makes recovery fail.
+numi_guard_failure_root=$numi_temp/guard-failure-root
+numi_guard_failure_run=$numi_temp/runs/guard-failure
+mkdir -p "$numi_guard_failure_root/numi/commands"
+printf '%s\n' '#!/bin/sh' 'exit 1' \
+    > "$numi_guard_failure_root/numi/commands/train"
+chmod +x "$numi_guard_failure_root/numi/commands/train"
+NUMI_LAB_ROOT=$numi_guard_failure_root \
+NUMI_RUN_DIR=$numi_guard_failure_run \
+NUMI_MLX_PYTHON=$(command -v python3) \
+    "$numi_repo/tools/numi_train_selector_guard.sh"
+python3 -c \
+    'import json,sys; data=json.load(open(sys.argv[1])); assert data["selected"] == "incumbent" and data["selection_error"] == "selector exited with status 1"' \
+    "$numi_guard_failure_run/selection/selection.json"
+
 # A remote supervisor may capture the command's output directly into the
 # durable run logs. That must retain native records exactly once rather than
 # feeding a live log back into `cat` until the training volume is full.
