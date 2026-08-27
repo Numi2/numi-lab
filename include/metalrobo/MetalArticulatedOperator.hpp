@@ -113,6 +113,12 @@ struct MetalArticulatedOperatorConfig {
     // delta-velocity outputs are deterministically zero. This mode is used by
     // the multi-articulation contact frontend before batched inverse ABA.
     bool pointJacobiansOnly = false;
+    // When non-zero, advance each valid MyoSim activation after its force
+    // reference and reduction pass in the same Metal command buffer. This is
+    // one explicit-Euler step in seconds; callers retain the returned state
+    // sidecar and feed it into their next transaction. Zero preserves the
+    // historical force-only behavior.
+    float mujocoActivationTimestepSeconds = 0.0f;
     // Empty discovers the co-installed metallib relative to the loaded
     // MetalRobo dylib, with the configured build-tree path as a fallback.
     // A non-empty path is an explicit trusted ABI-compatible override.
@@ -211,6 +217,10 @@ struct MetalArticulatedOperatorResult {
     std::vector<MRMillardMuscleResultGPU> millardResults;
     std::vector<float> millardGeneralizedForces;
     std::vector<MRMujocoMuscleResultGPU> mujocoResults;
+    // Device-published activation sidecar after the optional explicit step.
+    // Excitation is preserved; invalid reference records retain their prior
+    // state so a caller can decide whether to retry or reject the transaction.
+    std::vector<MRMujocoMuscleStateGPU> mujocoActivationStates;
     // Device-produced [environment][muscle][dof] source contributions and
     // their deterministic [environment][dof] reduction.
     std::vector<float> mujocoMuscleGeneralizedForces;

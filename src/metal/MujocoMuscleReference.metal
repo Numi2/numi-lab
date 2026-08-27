@@ -619,3 +619,46 @@ kernel void mr_mujoco_muscle_reduce(
         dispatch.muscleCount * dispatch.dofCount;
     muscleAndGeneralizedForces[outputBase + globalIndex] = total;
 }
+
+// The reference pass evaluates force from the activation at the start of the
+// transaction. Advance the sidecar only after that result is available so a
+// step has an unambiguous, explicit-Euler time ordering. Invalid reference
+// records deliberately retain their previous state rather than publishing a
+// fabricated recovery value.
+kernel void mr_mujoco_muscle_activation_step(
+    device MRMujocoMuscleStateGPU* states [[buffer(0)]],
+    device const MRMujocoMuscleResultGPU* results [[buffer(1)]],
+    constant MRMujocoMuscleActivationDispatchGPU& dispatch [[buffer(2)]],
+    uint globalIndex [[thread_position_in_grid]]
+) {
+    if (dispatch.abiVersion != MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION ||
+        dispatch.reserved0 != 0u || dispatch.reserved1 != 0u ||
+        dispatch.timestepSecondsAndReserved.y != 0.0f ||
+        dispatch.timestepSecondsAndReserved.z != 0.0f ||
+        dispatch.timestepSecondsAndReserved.w != 0.0f ||
+        !isfinite(dispatch.timestepSecondsAndReserved.x) ||
+        !(dispatch.timestepSecondsAndReserved.x > 0.0f) ||
+        globalIndex >= dispatch.stateCount) {
+        return;
+    }
+    const MRMujocoMuscleStateGPU current = states[globalIndex];
+    const MRMujocoMuscleResultGPU reference = results[globalIndex];
+    if (reference.status != MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS ||
+        !finite4(current.excitationAndActivation) ||
+        current.excitationAndActivation.z != 0.0f ||
+        current.excitationAndActivation.w != 0.0f ||
+        !finite4(reference.pathForceAndActivationDerivative)) {
+        return;
+    }
+    const float nextActivation = clamp(
+        current.excitationAndActivation.y +
+            dispatch.timestepSecondsAndReserved.x *
+                reference.pathForceAndActivationDerivative.w,
+        0.0f,
+        1.0f
+    );
+    if (!isfinite(nextActivation)) return;
+    MRMujocoMuscleStateGPU next = current;
+    next.excitationAndActivation.y = nextActivation;
+    states[globalIndex] = next;
+}

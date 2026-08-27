@@ -90,6 +90,7 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> millardPipeline = nil;
     __strong id<MTLComputePipelineState> mujocoPipeline = nil;
     __strong id<MTLComputePipelineState> mujocoReducePipeline = nil;
+    __strong id<MTLComputePipelineState> mujocoActivationPipeline = nil;
     __strong id<MTLBuffer> buffers[kRawBufferCount] = {};
     std::array<std::size_t, kRawBufferCount> capacities{};
     MetalArticulatedOperatorContextStats stats{};
@@ -834,6 +835,16 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
 ) {
     MetalArticulatedOperatorDiagnostics diagnostics{};
 
+    if (!std::isfinite(config.mujocoActivationTimestepSeconds) ||
+        config.mujocoActivationTimestepSeconds < 0.0f ||
+        config.mujocoActivationTimestepSeconds > 0.01f) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidDimensions,
+            "MyoSim activation timestep must be finite and within [0, 0.01] seconds"
+        );
+    }
+
     std::string modelReason;
     if (!model.valid(&modelReason)) {
         return reject(
@@ -1502,6 +1513,29 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 describeError(error)
         );
     }
+    id<MTLFunction> mujocoActivationFunction = [library
+        newFunctionWithName:@"mr_mujoco_muscle_activation_step"];
+    if (mujocoActivationFunction == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+            "metallib does not contain the MyoSim activation-step operator"
+        );
+    }
+    error = nil;
+    id<MTLComputePipelineState> mujocoActivationPipeline = [device
+        newComputePipelineStateWithFunction:mujocoActivationFunction
+                                       error:&error];
+    if (mujocoActivationPipeline == nil ||
+        mujocoActivationPipeline.maxTotalThreadsPerThreadgroup <
+            kThreadsPerThreadgroup) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+            "failed to create MyoSim activation-step pipeline: " +
+                describeError(error)
+        );
+    }
 
     context.device = device;
     context.queue = queue;
@@ -1510,6 +1544,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     context.millardPipeline = millardPipeline;
     context.mujocoPipeline = mujocoPipeline;
     context.mujocoReducePipeline = mujocoReducePipeline;
+    context.mujocoActivationPipeline = mujocoActivationPipeline;
     context.initialized = true;
     ++context.stats.pipelineCreationCount;
     return diagnostics;
@@ -2033,6 +2068,15 @@ bool finitePayload(
             }
         ) &&
         std::all_of(
+            result.mujocoActivationStates.begin(),
+            result.mujocoActivationStates.end(),
+            [](const MRMujocoMuscleStateGPU& value) {
+                return finite(value.excitationAndActivation) &&
+                    value.excitationAndActivation.z == 0.0f &&
+                    value.excitationAndActivation.w == 0.0f;
+            }
+        ) &&
+        std::all_of(
             result.mujocoMuscleGeneralizedForces.begin(),
             result.mujocoMuscleGeneralizedForces.end(),
             [](const float value) {
@@ -2134,6 +2178,9 @@ MetalArticulatedOperatorSubmission::wait(
                 layout.millardGeneralizedForceElements
             );
             staged.mujocoResults.resize(layout.mujocoResultElements);
+            staged.mujocoActivationStates.resize(
+                layout.mujocoStateElements
+            );
             staged.mujocoMuscleGeneralizedForces.resize(
                 layout.mujocoMuscleGeneralizedForceElements
             );
@@ -2166,6 +2213,10 @@ MetalArticulatedOperatorSubmission::wait(
             copyOutput(
                 staged.mujocoResults,
                 buffers[kMujocoResultsBuffer]
+            );
+            copyOutput(
+                staged.mujocoActivationStates,
+                buffers[kMujocoStatesBuffer]
             );
             copyOutput(
                 staged.mujocoMuscleGeneralizedForces,
@@ -2570,6 +2621,58 @@ MetalArticulatedOperatorContext::submit(
                         1u
                     )];
                 [mujocoReduceEncoder endEncoding];
+                if (state_->config.mujocoActivationTimestepSeconds > 0.0f) {
+                    MRMujocoMuscleActivationDispatchGPU activationDispatch{};
+                    activationDispatch.abiVersion =
+                        MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION;
+                    activationDispatch.stateCount = static_cast<mr_u32>(
+                        diagnostics.layout.mujocoStateElements
+                    );
+                    activationDispatch.timestepSecondsAndReserved = {
+                        state_->config.mujocoActivationTimestepSeconds,
+                        0.0f,
+                        0.0f,
+                        0.0f,
+                    };
+                    id<MTLComputeCommandEncoder> activationEncoder =
+                        [commandBuffer computeCommandEncoder];
+                    if (activationEncoder == nil) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                            "failed to create MyoSim activation-step encoder"
+                        );
+                    }
+                    [activationEncoder
+                        setComputePipelineState:state_->mujocoActivationPipeline];
+                    [activationEncoder setBuffer:state_->buffers[kMujocoStatesBuffer]
+                                       offset:0u
+                                      atIndex:0u];
+                    [activationEncoder setBuffer:state_->buffers[kMujocoResultsBuffer]
+                                       offset:0u
+                                      atIndex:1u];
+                    [activationEncoder setBytes:&activationDispatch
+                                          length:sizeof(activationDispatch)
+                                         atIndex:2u];
+                    const std::size_t activationThreadCount =
+                        diagnostics.layout.mujocoStateElements;
+                    [activationEncoder
+                        dispatchThreadgroups:MTLSizeMake(
+                            static_cast<NSUInteger>(
+                                (activationThreadCount +
+                                 kThreadsPerThreadgroup - 1u) /
+                                    kThreadsPerThreadgroup
+                            ),
+                            1u,
+                            1u
+                        )
+                        threadsPerThreadgroup:MTLSizeMake(
+                            kThreadsPerThreadgroup,
+                            1u,
+                            1u
+                        )];
+                    [activationEncoder endEncoding];
+                }
             }
 
             auto pending = std::make_unique<
@@ -2833,6 +2936,7 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
             }
             id<MTLComputePipelineState> mujocoPipeline = nil;
             id<MTLComputePipelineState> mujocoReducePipeline = nil;
+            id<MTLComputePipelineState> mujocoActivationPipeline = nil;
             if (input.mujoco.enabled()) {
                 id<MTLFunction> mujocoFunction = [library
                     newFunctionWithName:@"mr_mujoco_muscle_reference"];
@@ -2878,7 +2982,32 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                         MetalArticulatedOperatorHostStatus::metalPipelineFailure,
                         "failed to create MyoSim force-reduction pipeline: " +
                             describeError(error)
-                    );
+                        );
+                }
+                if (config.mujocoActivationTimestepSeconds > 0.0f) {
+                    id<MTLFunction> mujocoActivationFunction = [library
+                        newFunctionWithName:@"mr_mujoco_muscle_activation_step"];
+                    if (mujocoActivationFunction == nil) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                            "metallib does not contain the MyoSim activation-step operator"
+                        );
+                    }
+                    error = nil;
+                    mujocoActivationPipeline = [device
+                        newComputePipelineStateWithFunction:mujocoActivationFunction
+                                                       error:&error];
+                    if (mujocoActivationPipeline == nil ||
+                        mujocoActivationPipeline.maxTotalThreadsPerThreadgroup <
+                            kThreadsPerThreadgroup) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                            "failed to create MyoSim activation-step pipeline: " +
+                                describeError(error)
+                        );
+                    }
                 }
             }
 
@@ -3331,6 +3460,58 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                         1u
                     )];
                 [mujocoReduceEncoder endEncoding];
+                if (config.mujocoActivationTimestepSeconds > 0.0f) {
+                    MRMujocoMuscleActivationDispatchGPU activationDispatch{};
+                    activationDispatch.abiVersion =
+                        MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION;
+                    activationDispatch.stateCount = static_cast<mr_u32>(
+                        layout.mujocoStateElements
+                    );
+                    activationDispatch.timestepSecondsAndReserved = {
+                        config.mujocoActivationTimestepSeconds,
+                        0.0f,
+                        0.0f,
+                        0.0f,
+                    };
+                    id<MTLComputeCommandEncoder> activationEncoder =
+                        [commandBuffer computeCommandEncoder];
+                    if (activationEncoder == nil) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                            "failed to create MyoSim activation-step encoder"
+                        );
+                    }
+                    [activationEncoder
+                        setComputePipelineState:mujocoActivationPipeline];
+                    [activationEncoder setBuffer:buffers[kMujocoStatesBuffer]
+                                       offset:0u
+                                      atIndex:0u];
+                    [activationEncoder setBuffer:buffers[kMujocoResultsBuffer]
+                                       offset:0u
+                                      atIndex:1u];
+                    [activationEncoder setBytes:&activationDispatch
+                                          length:sizeof(activationDispatch)
+                                         atIndex:2u];
+                    const std::size_t activationThreadCount =
+                        layout.mujocoStateElements;
+                    [activationEncoder
+                        dispatchThreadgroups:MTLSizeMake(
+                            static_cast<NSUInteger>(
+                                (activationThreadCount +
+                                 kThreadsPerThreadgroup - 1u) /
+                                    kThreadsPerThreadgroup
+                            ),
+                            1u,
+                            1u
+                        )
+                        threadsPerThreadgroup:MTLSizeMake(
+                            kThreadsPerThreadgroup,
+                            1u,
+                            1u
+                        )];
+                    [activationEncoder endEncoding];
+                }
             }
 
             const auto start =
@@ -3379,6 +3560,9 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                 layout.millardGeneralizedForceElements
             );
             staged.mujocoResults.resize(layout.mujocoResultElements);
+            staged.mujocoActivationStates.resize(
+                layout.mujocoStateElements
+            );
             staged.mujocoMuscleGeneralizedForces.resize(
                 layout.mujocoMuscleGeneralizedForceElements
             );
@@ -3409,6 +3593,10 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
             copyOutput(
                 staged.mujocoResults,
                 buffers[kMujocoResultsBuffer]
+            );
+            copyOutput(
+                staged.mujocoActivationStates,
+                buffers[kMujocoStatesBuffer]
             );
             copyOutput(
                 staged.mujocoMuscleGeneralizedForces,

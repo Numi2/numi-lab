@@ -7,6 +7,7 @@
 #include "metalrobo/engine_types.h"
 
 #define MR_MUJOCO_MUSCLE_REFERENCE_GPU_ABI_VERSION 2u
+#define MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION 1u
 
 enum MRMujocoMuscleReferenceGPUStatus : mr_u32 {
     MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS = 0u,
@@ -95,6 +96,18 @@ typedef struct MR_ALIGN16 MRMujocoMuscleStateGPU {
     mr_float4 excitationAndActivation;
 } MRMujocoMuscleStateGPU;
 
+// One explicit device-side activation update follows the reference pass. It
+// intentionally owns only the mutable activation sidecar: source force and
+// tendon-path evaluation remain in MRMujocoMuscleReferenceDispatchGPU.
+typedef struct MR_ALIGN16 MRMujocoMuscleActivationDispatchGPU {
+    mr_u32 abiVersion;
+    mr_u32 stateCount;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+    // x timestep seconds; yzw required zero.
+    mr_float4 timestepSecondsAndReserved;
+} MRMujocoMuscleActivationDispatchGPU;
+
 typedef struct MR_ALIGN16 MRMujocoMuscleResultGPU {
     mr_u32 status;
     mr_u32 environment;
@@ -111,5 +124,6 @@ static_assert(sizeof(MRMujocoMuscleSiteGPU) == 32u);
 static_assert(sizeof(MRMujocoMuscleWrapGPU) == 96u);
 static_assert(sizeof(MRMujocoMuscleRouteNodeGPU) == 16u);
 static_assert(sizeof(MRMujocoMuscleStateGPU) == 16u);
+static_assert(sizeof(MRMujocoMuscleActivationDispatchGPU) == 32u);
 static_assert(sizeof(MRMujocoMuscleResultGPU) == 32u);
 #endif

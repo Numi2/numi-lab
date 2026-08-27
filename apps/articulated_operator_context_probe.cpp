@@ -118,6 +118,8 @@ bool samePayload(
         byteEqual(left.millardGeneralizedForces,
                   right.millardGeneralizedForces) &&
         byteEqual(left.mujocoResults, right.mujocoResults) &&
+        byteEqual(left.mujocoActivationStates,
+                  right.mujocoActivationStates) &&
         byteEqual(left.mujocoMuscleGeneralizedForces,
                   right.mujocoMuscleGeneralizedForces) &&
         byteEqual(left.mujocoGeneralizedForces,

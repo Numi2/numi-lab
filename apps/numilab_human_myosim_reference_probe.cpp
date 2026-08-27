@@ -343,6 +343,8 @@ struct MetalArticulatedMetrics {
     double maximumMuscleForceError = 0.0;
     double maximumMuscleGeneralizedForceError = 0.0;
     double maximumSummedGeneralizedForceError = 0.0;
+    double maximumActivationStepError = 0.0;
+    double activationTimestepSeconds = 0.0;
     std::uint32_t appliedMuscleWraps = 0u;
 };
 
@@ -448,6 +450,8 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
             kinematicsResult.pointWorld.size() == cpuPointKinematics.size() &&
             kinematicsResult.pointJacobians.size() == cpuJacobians.size() &&
             kinematicsResult.mujocoResults.size() == muscles.muscles.size() &&
+            kinematicsResult.mujocoActivationStates.size() ==
+                muscles.gpuStates.size() &&
             kinematicsResult.mujocoMuscleGeneralizedForces.size() ==
                 muscles.muscles.size() * articulation.nv &&
             kinematicsResult.mujocoGeneralizedForces.size() == articulation.nv,
@@ -547,6 +551,95 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
             ) - expectedGeneralizedForce[dof])
         );
     }
+    // Use deliberately non-equilibrium activation values to verify that the
+    // new Metal sidecar update is performing an actual temporal advance, not
+    // merely echoing the input state. Force parity above remains tied to the
+    // source-default 0.5/0.5 state.
+    constexpr float kActivationTimestepSeconds = 1.0e-4f;
+    std::vector<MRMujocoMuscleStateGPU> activationStates = muscles.gpuStates;
+    for (std::size_t index = 0u; index < activationStates.size(); ++index) {
+        activationStates[index].excitationAndActivation.x =
+            0.2f + 0.2f * static_cast<float>(index % 4u);
+        activationStates[index].excitationAndActivation.y =
+            index % 2u == 0u ? 0.35f : 0.65f;
+    }
+    metalrobo::MetalArticulatedOperatorInput activationInput = input;
+    activationInput.mujoco.states = activationStates;
+    const metalrobo::MetalArticulatedOperatorConfig activationConfig{
+        .pointJacobiansOnly = true,
+        .mujocoActivationTimestepSeconds = kActivationTimestepSeconds,
+    };
+    metalrobo::MetalArticulatedOperatorResult activationResult;
+    const auto activationDiagnostics = metalrobo::runMetalArticulatedOperator(
+        model, activationInput, activationResult, activationConfig
+    );
+    require(
+        activationDiagnostics.succeeded() && activationDiagnostics.dispatched &&
+            activationDiagnostics.published &&
+            activationResult.mujocoActivationStates.size() ==
+                activationStates.size() &&
+            activationResult.mujocoResults.size() == activationStates.size(),
+        std::string("MyoSim Metal activation-step operator failed: ") +
+            metalrobo::metalArticulatedOperatorHostStatusName(
+                activationDiagnostics.status
+            ) + " " + activationDiagnostics.message
+    );
+    // The reusable context is the path a bounded rollout uses. Run the same
+    // source transaction through its retained arena and require byte-identical
+    // activation publication before trusting it as the next device timestep.
+    metalrobo::MetalArticulatedOperatorContext activationContext(
+        activationConfig
+    );
+    metalrobo::MetalArticulatedOperatorResult activationContextResult;
+    const auto activationContextDiagnostics = activationContext.run(
+        model, activationInput, activationContextResult
+    );
+    require(
+        activationContextDiagnostics.succeeded() &&
+            activationContextDiagnostics.dispatched &&
+            activationContextDiagnostics.published &&
+            activationContextResult.mujocoActivationStates.size() ==
+                activationResult.mujocoActivationStates.size() &&
+            std::memcmp(
+                activationContextResult.mujocoActivationStates.data(),
+                activationResult.mujocoActivationStates.data(),
+                activationResult.mujocoActivationStates.size() *
+                    sizeof(MRMujocoMuscleStateGPU)
+            ) == 0,
+        std::string("MyoSim persistent Metal activation-step operator failed: ") +
+            metalrobo::metalArticulatedOperatorHostStatusName(
+                activationContextDiagnostics.status
+            ) + " " + activationContextDiagnostics.message
+    );
+    metrics.activationTimestepSeconds = kActivationTimestepSeconds;
+    for (std::size_t index = 0u;
+         index < activationStates.size();
+         ++index) {
+        const float initialActivation =
+            activationStates[index].excitationAndActivation.y;
+        const float derivative = activationResult.mujocoResults[index]
+            .pathForceAndActivationDerivative.w;
+        const float expectedActivation = std::clamp(
+            initialActivation + kActivationTimestepSeconds * derivative,
+            0.0f,
+            1.0f
+        );
+        const MRMujocoMuscleStateGPU& advanced =
+            activationResult.mujocoActivationStates[index];
+        metrics.maximumActivationStepError = std::max(
+            metrics.maximumActivationStepError,
+            std::abs(static_cast<double>(
+                advanced.excitationAndActivation.y - expectedActivation
+            ))
+        );
+        require(
+            advanced.excitationAndActivation.x ==
+                    activationStates[index].excitationAndActivation.x &&
+                advanced.excitationAndActivation.z == 0.0f &&
+                advanced.excitationAndActivation.w == 0.0f,
+            "MyoSim Metal activation step corrupted the source state sidecar"
+        );
+    }
     require(
         metrics.maximumBodyPositionError < 2.0e-4 &&
             metrics.maximumBodyOrientationComponentError < 2.0e-4 &&
@@ -556,6 +649,7 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
             metrics.maximumMuscleForceError < 5.0e-2 &&
             metrics.maximumMuscleGeneralizedForceError < 5.0e-2 &&
             metrics.maximumSummedGeneralizedForceError < 2.0e-1 &&
+            metrics.maximumActivationStepError < 2.0e-6 &&
             metrics.appliedMuscleWraps == 90u,
         "MyoSim Metal kinematics/Jacobian/muscle-route parity exceeded FP32 tolerance: "
             "body=" + std::to_string(metrics.maximumBodyPositionError) +
@@ -566,6 +660,7 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
             " muscle_force=" + std::to_string(metrics.maximumMuscleForceError) +
             " muscle_generalized_force=" + std::to_string(metrics.maximumMuscleGeneralizedForceError) +
             " summed_generalized_force=" + std::to_string(metrics.maximumSummedGeneralizedForceError) +
+            " activation_step=" + std::to_string(metrics.maximumActivationStepError) +
             " wraps=" + std::to_string(metrics.appliedMuscleWraps)
     );
 
@@ -714,6 +809,10 @@ int run(const char* rigidPath, const char* musclePath, const bool runMetal) {
                << metal.maximumMuscleGeneralizedForceError
                << " metal_max_summed_generalized_force_error="
                << metal.maximumSummedGeneralizedForceError
+               << " metal_activation_timestep_seconds="
+               << metal.activationTimestepSeconds
+               << " metal_max_activation_step_error="
+               << metal.maximumActivationStepError
                << " metal_applied_wraps=" << metal.appliedMuscleWraps;
     }
     output << "\n";

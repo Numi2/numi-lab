@@ -3,6 +3,7 @@
 #include "metalrobo/engine_types.h"
 #include "metalrobo/generalized_constraint_shared.h"
 #include "metalrobo/millard_muscle_gpu.h"
+#include "metalrobo/mujoco_muscle_gpu.h"
 #include "metalrobo/multi_contact_shared.h"
 #include "metalrobo/parallel_aba_shared.h"
 #include "metalrobo/policy_program_types.h"
@@ -129,6 +130,14 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
         hash,
         MR_MILLARD_ACTIVATION_GPU_ABI_VERSION
     );
+    hash = detail::appendRuntimeAbiWord(
+        hash,
+        MR_MUJOCO_MUSCLE_REFERENCE_GPU_ABI_VERSION
+    );
+    hash = detail::appendRuntimeAbiWord(
+        hash,
+        MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION
+    );
 
     hash = detail::appendRuntimeAbiType<MRWorldGPU>(hash);
     hash = detail::appendRuntimeAbiType<MRArticulationGPU>(hash);
@@ -189,6 +198,18 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
     hash = detail::appendRuntimeAbiType<
         MRMillardActivationDispatchGPU
     >(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRMujocoMuscleReferenceDispatchGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<MRMujocoMuscleGPU>(hash);
+    hash = detail::appendRuntimeAbiType<MRMujocoMuscleSiteGPU>(hash);
+    hash = detail::appendRuntimeAbiType<MRMujocoMuscleWrapGPU>(hash);
+    hash = detail::appendRuntimeAbiType<MRMujocoMuscleRouteNodeGPU>(hash);
+    hash = detail::appendRuntimeAbiType<MRMujocoMuscleStateGPU>(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRMujocoMuscleActivationDispatchGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<MRMujocoMuscleResultGPU>(hash);
     return hash;
 }
 
