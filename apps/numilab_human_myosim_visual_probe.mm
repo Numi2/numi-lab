@@ -82,7 +82,8 @@ constexpr std::array<char, 8u> kSkinMagic{
 };
 constexpr std::uint32_t kLegacySkinPayloadAbi = 1u;
 constexpr std::uint32_t kBoundaryLocalSkinPayloadAbi = 2u;
-constexpr std::uint32_t kSkinPayloadAbi = 3u;
+constexpr std::uint32_t kSourceLocalSkinPayloadAbi = 3u;
+constexpr std::uint32_t kSkinPayloadAbi = 4u;
 constexpr std::array<char, 8u> kTorsoAnatomyMagic{
     'N', 'H', 'A', 'N', 'A', 'T', '1', '\0',
 };
@@ -421,6 +422,7 @@ struct LoadedSkin {
     std::vector<std::uint32_t> indices;
     bool usesBoundaryLocalWeights = false;
     bool usesSourceSurfaceLocalWeights = false;
+    bool usesWorldRestNormals = false;
 };
 
 struct LoadedTorsoAnatomy {
@@ -904,7 +906,11 @@ LoadedTorsoAnatomy loadTorsoAnatomy(
                     std::abs(normalLength - 1.0f) <= 2.0e-3f,
                 "BodyParts3D torso anatomy vertex is malformed");
     }
-    std::vector<bool> stableIds(result.records.size() + 1u, false);
+    // Focused Human payloads deliberately retain their global source stable
+    // IDs (for example a four-surface calf subset includes tendon ID 7). IDs
+    // are therefore unique but need not be dense in [1, tissueCount].
+    std::vector<std::uint32_t> stableIds;
+    stableIds.reserve(result.records.size());
     for (const TorsoAnatomyRecord& record : result.records) {
         require(record.bodyIndex < rigid.engineBodyCount && record.vertexCount > 0u &&
                     record.indexCount > 0u && record.indexCount % 3u == 0u &&
@@ -1021,7 +1027,11 @@ LoadedSoftTissues loadSoftTissues(
                     std::abs(vertex.weight[0] + vertex.weight[1] + vertex.weight[2] - 1.0f) <= 2.0e-3f,
                 "BodyParts3D soft-tissue vertex is malformed");
     }
-    std::vector<bool> stableIds(result.records.size() + 1u, false);
+    // Focused Human payloads deliberately retain their global source stable
+    // IDs (for example a four-surface calf subset includes tendon ID 7). IDs
+    // are therefore unique but need not be dense in [1, tissueCount].
+    std::vector<std::uint32_t> stableIds;
+    stableIds.reserve(result.records.size());
     for (const SoftTissueRecord& record : result.records) {
         std::uint32_t bindingCount = 0u;
         for (std::uint32_t binding = 0u; binding < 3u; ++binding) {
@@ -1066,10 +1076,10 @@ LoadedSoftTissues loadSoftTissues(
                     record.vertexCount <= result.vertices.size() - record.firstVertex &&
                     record.firstIndex <= result.indices.size() &&
                     record.indexCount <= result.indices.size() - record.firstIndex &&
-                    record.stableId > 0u && record.stableId < stableIds.size() &&
-                    !stableIds[record.stableId],
+                    record.stableId > 0u &&
+                    std::find(stableIds.begin(), stableIds.end(), record.stableId) == stableIds.end(),
                 "BodyParts3D soft-tissue record is malformed");
-        stableIds[record.stableId] = true;
+        stableIds.push_back(record.stableId);
         for (std::uint32_t offset = 0u; offset < record.indexCount; ++offset) {
             const std::uint32_t index = result.indices[record.firstIndex + offset];
             require(index >= record.firstVertex && index < record.firstVertex + record.vertexCount,
@@ -1091,6 +1101,7 @@ LoadedSkin loadSkin(
     require(result.header.magic == kSkinMagic &&
                 (result.header.payloadAbi == kLegacySkinPayloadAbi ||
                  result.header.payloadAbi == kBoundaryLocalSkinPayloadAbi ||
+                 result.header.payloadAbi == kSourceLocalSkinPayloadAbi ||
                  result.header.payloadAbi == kSkinPayloadAbi) &&
                 result.header.registrationFingerprint == expectedRegistrationFingerprint &&
                 result.header.sourceSha256 == rigid.sourceSha256 &&
@@ -1103,6 +1114,9 @@ LoadedSkin loadSkin(
     result.usesBoundaryLocalWeights =
         result.header.payloadAbi == kBoundaryLocalSkinPayloadAbi;
     result.usesSourceSurfaceLocalWeights =
+        result.header.payloadAbi == kSourceLocalSkinPayloadAbi ||
+        result.header.payloadAbi == kSkinPayloadAbi;
+    result.usesWorldRestNormals =
         result.header.payloadAbi == kSkinPayloadAbi;
     result.bindings = readVector<SkinBindingRecord>(
         input, result.header.bindingCount, "BodyParts3D skinned-shell bindings"
@@ -2757,8 +2771,11 @@ mr_float4 skinVertexWorld(
 mr_float4 skinVertexNormalWorld(
     const LoadedSkin& skin,
     const SkinVertex& vertex,
-    const std::span<const MRBodyStateGPU> bodies
+    const std::span<const MRBodyStateGPU> bodies,
+    const std::span<const MRBodyStateGPU> restBodies
 ) {
+    require(restBodies.size() == bodies.size(),
+            "BodyParts3D skinned-shell rest pose does not match the rendered pose");
     mr_float4 normal{0.0f, 0.0f, 0.0f, 0.0f};
     std::size_t strongestInfluence = 0u;
     for (std::size_t influence = 0u; influence < 4u; ++influence) {
@@ -2768,14 +2785,30 @@ mr_float4 skinVertexNormalWorld(
         const SkinBindingRecord& binding = skin.bindings[vertex.bindingIndex[influence]];
         require(binding.bodyIndex < bodies.size(),
                 "BodyParts3D skinned-shell normal binding exceeds the rendered pose");
-        const mr_float4 world = rotatePoint(
-            bodies[binding.bodyIndex].orientation,
-            rotatePoint(
-                {binding.quaternionX, binding.quaternionY,
-                 binding.quaternionZ, binding.quaternionW},
-                {vertex.normalX, vertex.normalY, vertex.normalZ, 0.0f}
+        const mr_float4 sourceNormal{
+            vertex.normalX, vertex.normalY, vertex.normalZ, 0.0f,
+        };
+        const mr_float4 world = skin.usesWorldRestNormals
+            ? rotatePoint(
+                bodies[binding.bodyIndex].orientation,
+                rotatePoint(
+                    {
+                        -restBodies[binding.bodyIndex].orientation.x,
+                        -restBodies[binding.bodyIndex].orientation.y,
+                        -restBodies[binding.bodyIndex].orientation.z,
+                        restBodies[binding.bodyIndex].orientation.w,
+                    },
+                    sourceNormal
+                )
             )
-        );
+            : rotatePoint(
+                bodies[binding.bodyIndex].orientation,
+                rotatePoint(
+                    {binding.quaternionX, binding.quaternionY,
+                     binding.quaternionZ, binding.quaternionW},
+                    sourceNormal
+                )
+            );
         normal.x += vertex.weight[influence] * world.x;
         normal.y += vertex.weight[influence] * world.y;
         normal.z += vertex.weight[influence] * world.z;
@@ -2794,14 +2827,30 @@ mr_float4 skinVertexNormalWorld(
         // the shell position or pretending this is a continuum skin solve.
         const SkinBindingRecord& binding =
             skin.bindings[vertex.bindingIndex[strongestInfluence]];
-        normal = rotatePoint(
-            bodies[binding.bodyIndex].orientation,
-            rotatePoint(
-                {binding.quaternionX, binding.quaternionY,
-                 binding.quaternionZ, binding.quaternionW},
-                {vertex.normalX, vertex.normalY, vertex.normalZ, 0.0f}
+        const mr_float4 sourceNormal{
+            vertex.normalX, vertex.normalY, vertex.normalZ, 0.0f,
+        };
+        normal = skin.usesWorldRestNormals
+            ? rotatePoint(
+                bodies[binding.bodyIndex].orientation,
+                rotatePoint(
+                    {
+                        -restBodies[binding.bodyIndex].orientation.x,
+                        -restBodies[binding.bodyIndex].orientation.y,
+                        -restBodies[binding.bodyIndex].orientation.z,
+                        restBodies[binding.bodyIndex].orientation.w,
+                    },
+                    sourceNormal
+                )
             )
-        );
+            : rotatePoint(
+                bodies[binding.bodyIndex].orientation,
+                rotatePoint(
+                    {binding.quaternionX, binding.quaternionY,
+                     binding.quaternionZ, binding.quaternionW},
+                    sourceNormal
+                )
+            );
         const float fallbackLength = std::sqrt(
             normal.x * normal.x + normal.y * normal.y + normal.z * normal.z
         );
@@ -2818,7 +2867,8 @@ mr_float4 skinVertexNormalWorld(
 GeometryRange appendSkinGeometry(
     metalrobo::VisualAssetPackV2& pack,
     const LoadedSkin& skin,
-    const std::span<const MRBodyStateGPU> bodies
+    const std::span<const MRBodyStateGPU> bodies,
+    const std::span<const MRBodyStateGPU> restBodies
 ) {
     GeometryRange result;
     result.firstIndex = static_cast<std::uint32_t>(pack.indices.size());
@@ -2833,7 +2883,7 @@ GeometryRange appendSkinGeometry(
     const std::uint32_t vertexBase = static_cast<std::uint32_t>(pack.vertices.size());
     for (const SkinVertex& source : skin.vertices) {
         const mr_float4 position = skinVertexWorld(skin, source, bodies);
-        const mr_float4 normal = skinVertexNormalWorld(skin, source, bodies);
+        const mr_float4 normal = skinVertexNormalWorld(skin, source, bodies, restBodies);
         pack.vertices.push_back({
             position,
             normal,
@@ -2849,6 +2899,8 @@ GeometryRange appendSkinGeometry(
         result.maximum.z = std::max(result.maximum.z, position.z);
     }
     for (const std::uint32_t index : skin.indices) {
+        require(index < skin.vertices.size(),
+                "BodyParts3D skinned-shell visual index exceeds its source vertices");
         pack.indices.push_back(vertexBase + index);
     }
     result.indexCount = static_cast<std::uint32_t>(skin.indices.size());
@@ -3526,7 +3578,9 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     }
     if (skinPayload != nullptr) {
         pack.preprocessingProvenance +=
-            skinPayload->usesSourceSurfaceLocalWeights
+            skinPayload->usesWorldRestNormals
+                ? "/exact_bodyparts3d_outer_skin_sheet_with_four_registered_source_bone_surface_local_linear_blend_and_world_rest_normals"
+                : skinPayload->usesSourceSurfaceLocalWeights
                 ? "/exact_bodyparts3d_skin_shell_with_four_registered_source_bone_surface_local_linear_blend_kinematic_binding"
                 : skinPayload->usesBoundaryLocalWeights
                 ? "/exact_bodyparts3d_skin_shell_with_four_registered_bone_envelope_boundary_local_linear_blend_kinematic_binding"
@@ -3757,7 +3811,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     renderedSkinShells = 0u;
     if (skinPayload != nullptr) {
         appendInstance(
-            appendSkinGeometry(pack, *skinPayload, bodies),
+            appendSkinGeometry(pack, *skinPayload, bodies, restBodies),
             6u, kSkinShellSemantic, MR_VISUAL_BINDING_WORLD, MR_INVALID_INDEX,
             {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1u
         );
@@ -4575,7 +4629,8 @@ int main(int argc, char** argv) {
                 rigid.model, poseResult.bodyPoses
             );
             std::vector<MRBodyStateGPU> restBodies = bodies;
-            if (passiveFEMTissueStableId.has_value()) {
+            if (passiveFEMTissueStableId.has_value() ||
+                (skinPayload.has_value() && skinPayload->usesWorldRestNormals)) {
                 const metalrobo::MetalArticulatedOperatorInput restInput{
                     .articulationIndex = 0u,
                     .environmentCount = 1u,
@@ -4917,7 +4972,9 @@ int main(int argc, char** argv) {
                       << " visual_supplement="
                       << (zAnatomyCalfVisualSupplement ? "zanatomy_right_calf_cc_by_sa" : "none")
                       << " skin_shell_binding=" << (skinPayload.has_value()
-                              ? (skinPayload->usesSourceSurfaceLocalWeights
+                              ? (skinPayload->usesWorldRestNormals
+                                  ? "four_body_registered_source_bone_surface_local_linear_blend_world_rest_normals"
+                                  : skinPayload->usesSourceSurfaceLocalWeights
                                   ? "four_body_registered_source_bone_surface_local_linear_blend_world_surface_snapshot"
                                   : skinPayload->usesBoundaryLocalWeights
                                   ? "four_body_registered_bone_envelope_boundary_local_linear_blend_world_surface_snapshot"
