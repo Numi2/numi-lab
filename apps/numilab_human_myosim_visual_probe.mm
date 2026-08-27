@@ -41,11 +41,19 @@ constexpr std::uint32_t kBodySemantic = 51001u;
 constexpr std::uint32_t kSiteSemantic = 51002u;
 constexpr std::uint32_t kRouteSemantic = 51003u;
 constexpr std::uint32_t kBoneSemantic = 51004u;
+constexpr std::uint32_t kMuscleSurfaceSemantic = 51005u;
+constexpr std::uint32_t kTendonSurfaceSemantic = 51006u;
 constexpr std::uint32_t kDefaultFrameDimension = 1024u;
 constexpr std::array<char, 8u> kBoneMagic{
     'N', 'H', 'B', 'O', 'N', 'E', 'S', '1',
 };
 constexpr std::uint32_t kBonePayloadAbi = 1u;
+constexpr std::array<char, 8u> kSoftTissueMagic{
+    'N', 'H', 'T', 'I', 'S', 'S', '1', '\0',
+};
+constexpr std::uint32_t kSoftTissuePayloadAbi = 1u;
+constexpr std::uint32_t kSoftTissueLayerMuscle = 1u;
+constexpr std::uint32_t kSoftTissueLayerTendon = 2u;
 
 #pragma pack(push, 1)
 struct RigidHeader {
@@ -156,6 +164,34 @@ struct BoneVertex {
     float normalZ = 1.0f;
 };
 
+struct SoftTissueHeader {
+    std::array<char, 8u> magic{};
+    std::uint32_t payloadAbi = 0u;
+    std::uint32_t tissueCount = 0u;
+    std::uint32_t vertexCount = 0u;
+    std::uint32_t indexCount = 0u;
+    std::uint32_t reserved0 = 0u;
+    std::array<std::uint8_t, 32u> sourceSha256{};
+};
+
+struct SoftTissueRecord {
+    std::uint32_t bodyIndex = MR_INVALID_INDEX;
+    std::uint32_t firstVertex = 0u;
+    std::uint32_t vertexCount = 0u;
+    std::uint32_t firstIndex = 0u;
+    std::uint32_t indexCount = 0u;
+    std::uint32_t stableId = 0u;
+    std::uint32_t layer = 0u;
+    float translationX = 0.0f;
+    float translationY = 0.0f;
+    float translationZ = 0.0f;
+    float quaternionX = 0.0f;
+    float quaternionY = 0.0f;
+    float quaternionZ = 0.0f;
+    float quaternionW = 1.0f;
+    float uniformScale = 1.0f;
+};
+
 struct LoadedMuscles {
     MuscleHeader header{};
     std::vector<SiteRecord> sites;
@@ -173,6 +209,13 @@ struct LoadedBones {
     std::vector<BoneVertex> vertices;
     std::vector<std::uint32_t> indices;
 };
+
+struct LoadedSoftTissues {
+    SoftTissueHeader header{};
+    std::vector<SoftTissueRecord> records;
+    std::vector<BoneVertex> vertices;
+    std::vector<std::uint32_t> indices;
+};
 #pragma pack(pop)
 
 static_assert(sizeof(RigidHeader) == 80u);
@@ -185,6 +228,8 @@ static_assert(sizeof(MuscleRecord) == 164u);
 static_assert(sizeof(BoneHeader) == 60u);
 static_assert(sizeof(BoneRecord) == 56u);
 static_assert(sizeof(BoneVertex) == 24u);
+static_assert(sizeof(SoftTissueHeader) == 60u);
+static_assert(sizeof(SoftTissueRecord) == 60u);
 
 void require(const bool condition, const std::string& message) {
     if (!condition) {
@@ -444,6 +489,77 @@ LoadedBones loadBones(
     return result;
 }
 
+LoadedSoftTissues loadSoftTissues(
+    const std::filesystem::path& path,
+    const RigidHeader& rigid
+) {
+    std::ifstream input(path, std::ios::binary);
+    require(input.is_open(), "cannot open BodyParts3D soft-tissue payload " + path.string());
+    LoadedSoftTissues result;
+    readObject(input, result.header, "BodyParts3D soft-tissue header");
+    require(result.header.magic == kSoftTissueMagic &&
+                result.header.payloadAbi == kSoftTissuePayloadAbi &&
+                result.header.reserved0 == 0u &&
+                result.header.sourceSha256 == rigid.sourceSha256 &&
+                result.header.tissueCount > 0u && result.header.tissueCount <= 64u &&
+                result.header.vertexCount > 0u && result.header.indexCount > 0u &&
+                result.header.indexCount % 3u == 0u &&
+                result.header.vertexCount <= 1'000'000u &&
+                result.header.indexCount <= 6'000'000u,
+            "BodyParts3D soft-tissue payload/header disagreement");
+    result.records = readVector<SoftTissueRecord>(
+        input, result.header.tissueCount, "BodyParts3D soft-tissue records"
+    );
+    result.vertices = readVector<BoneVertex>(
+        input, result.header.vertexCount, "BodyParts3D soft-tissue vertices"
+    );
+    result.indices = readVector<std::uint32_t>(
+        input, result.header.indexCount, "BodyParts3D soft-tissue indices"
+    );
+    require(input.peek() == std::char_traits<char>::eof(),
+            "BodyParts3D soft-tissue payload has trailing bytes");
+    for (const BoneVertex& vertex : result.vertices) {
+        const float normalLength = std::sqrt(
+            vertex.normalX * vertex.normalX +
+            vertex.normalY * vertex.normalY +
+            vertex.normalZ * vertex.normalZ
+        );
+        require(std::isfinite(vertex.positionX) && std::isfinite(vertex.positionY) &&
+                    std::isfinite(vertex.positionZ) && std::isfinite(normalLength) &&
+                    std::abs(normalLength - 1.0f) <= 2.0e-3f,
+                "BodyParts3D soft-tissue vertex is malformed");
+    }
+    std::vector<bool> stableIds(result.records.size() + 1u, false);
+    for (const SoftTissueRecord& record : result.records) {
+        const float orientationLength = std::sqrt(
+            record.quaternionX * record.quaternionX + record.quaternionY * record.quaternionY +
+            record.quaternionZ * record.quaternionZ + record.quaternionW * record.quaternionW
+        );
+        require(record.bodyIndex < rigid.engineBodyCount && record.vertexCount > 0u &&
+                    record.indexCount > 0u && record.indexCount % 3u == 0u &&
+                    (record.layer == kSoftTissueLayerMuscle ||
+                     record.layer == kSoftTissueLayerTendon) &&
+                    record.firstVertex <= result.vertices.size() &&
+                    record.vertexCount <= result.vertices.size() - record.firstVertex &&
+                    record.firstIndex <= result.indices.size() &&
+                    record.indexCount <= result.indices.size() - record.firstIndex &&
+                    record.stableId > 0u && record.stableId < stableIds.size() &&
+                    !stableIds[record.stableId] && std::isfinite(record.translationX) &&
+                    std::isfinite(record.translationY) && std::isfinite(record.translationZ) &&
+                    std::isfinite(record.uniformScale) && record.uniformScale > 0.0f &&
+                    std::isfinite(orientationLength) &&
+                    std::abs(orientationLength - 1.0f) <= 2.0e-3f,
+                "BodyParts3D soft-tissue record is malformed");
+        stableIds[record.stableId] = true;
+        for (std::uint32_t offset = 0u; offset < record.indexCount; ++offset) {
+            const std::uint32_t index = result.indices[record.firstIndex + offset];
+            require(index >= record.firstVertex && index < record.firstVertex + record.vertexCount,
+                    "BodyParts3D soft-tissue index escapes its source mesh");
+        }
+    }
+    return result;
+}
+
 struct MuscleDrivenVisualState {
     std::vector<float> q;
     double maximumVelocityDelta = 0.0;
@@ -564,6 +680,10 @@ struct SourceRouteCentreline {
     struct Point {
         mr_float4 world{};
         std::uint32_t attachmentBodyIndex = MR_INVALID_INDEX;
+        // Surface registration is a presentation-only cue.  The source route
+        // keeps its authored site records and force evaluation untouched.
+        bool surfaceProjected = false;
+        mr_float4 surfaceNormalWorld{};
     };
     std::vector<Point> points;
 };
@@ -616,6 +736,8 @@ SourceRouteCentrelines resolveSourceRouteCentrelines(
                     static_cast<float>(sample.world[2]), 1.0f,
                 },
                 sample.attachmentBodyIndex,
+                false,
+                {},
             });
         }
         result.appliedWrapCount += muscleResult.path.appliedWrapCount;
@@ -732,6 +854,27 @@ mr_float4 boneVertexWorld(
     return addPoint(body.position, rotatePoint(body.orientation, local));
 }
 
+mr_float4 boneVertexNormalWorld(
+    const BoneRecord& bone,
+    const BoneVertex& vertex,
+    const MRBodyStateGPU& body
+) {
+    const mr_float4 boneRotation{
+        bone.quaternionX, bone.quaternionY, bone.quaternionZ, bone.quaternionW,
+    };
+    mr_float4 normal = rotatePoint(
+        body.orientation,
+        rotatePoint(boneRotation, {vertex.normalX, vertex.normalY, vertex.normalZ, 0.0f})
+    );
+    const float length = std::sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+    require(length > 1.0e-6f, "BodyParts3D attachment triangle has a degenerate normal");
+    normal.x /= length;
+    normal.y /= length;
+    normal.z /= length;
+    normal.w = 0.0f;
+    return normal;
+}
+
 void projectSourceSiteEndpointsToBoneSurfaces(
     SourceRouteCentrelines& routes,
     const LoadedBones& bones,
@@ -748,6 +891,7 @@ void projectSourceSiteEndpointsToBoneSurfaces(
                 continue;
             }
             mr_float4 closest{};
+            mr_float4 closestNormal{};
             float closestDistanceSquared = std::numeric_limits<float>::infinity();
             for (const BoneRecord& bone : bones.records) {
                 if (bone.bodyIndex != point.attachmentBodyIndex) continue;
@@ -766,11 +910,38 @@ void projectSourceSiteEndpointsToBoneSurfaces(
                     if (distanceSquared < closestDistanceSquared) {
                         closestDistanceSquared = distanceSquared;
                         closest = candidate;
+                        const mr_float4 firstNormal = boneVertexNormalWorld(
+                            bone, bones.vertices[first], bodies[bone.bodyIndex]
+                        );
+                        const mr_float4 secondNormal = boneVertexNormalWorld(
+                            bone, bones.vertices[second], bodies[bone.bodyIndex]
+                        );
+                        const mr_float4 thirdNormal = boneVertexNormalWorld(
+                            bone, bones.vertices[third], bodies[bone.bodyIndex]
+                        );
+                        closestNormal = {
+                            firstNormal.x + secondNormal.x + thirdNormal.x,
+                            firstNormal.y + secondNormal.y + thirdNormal.y,
+                            firstNormal.z + secondNormal.z + thirdNormal.z,
+                            0.0f,
+                        };
+                        const float normalLength = std::sqrt(
+                            closestNormal.x * closestNormal.x +
+                            closestNormal.y * closestNormal.y +
+                            closestNormal.z * closestNormal.z
+                        );
+                        require(normalLength > 1.0e-6f,
+                                "BodyParts3D attachment triangle averaged normal is degenerate");
+                        closestNormal.x /= normalLength;
+                        closestNormal.y /= normalLength;
+                        closestNormal.z /= normalLength;
                     }
                 }
             }
             if (closestDistanceSquared <= maximumProjectionDistanceSquared) {
                 point.world = closest;
+                point.surfaceProjected = true;
+                point.surfaceNormalWorld = closestNormal;
                 ++routes.surfaceProjectedAttachmentCount;
             }
         }
@@ -1051,6 +1222,48 @@ GeometryRange appendBoneGeometry(
     return result;
 }
 
+GeometryRange appendSoftTissueGeometry(
+    metalrobo::VisualAssetPackV2& pack,
+    const LoadedSoftTissues& tissues,
+    const SoftTissueRecord& tissue
+) {
+    GeometryRange result;
+    result.firstIndex = static_cast<std::uint32_t>(pack.indices.size());
+    result.minimum = {
+        std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(), 1.0f,
+    };
+    result.maximum = {
+        -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity(), 1.0f,
+    };
+    const std::uint32_t vertexBase = static_cast<std::uint32_t>(pack.vertices.size());
+    for (std::uint32_t offset = 0u; offset < tissue.vertexCount; ++offset) {
+        const BoneVertex& source = tissues.vertices[tissue.firstVertex + offset];
+        const mr_float4 position{source.positionX, source.positionY, source.positionZ, 1.0f};
+        pack.vertices.push_back({
+            position,
+            {source.normalX, source.normalY, source.normalZ, 1.0f},
+            boneTangent(source),
+            {0.0f, 0.0f, 0.0f, 0.0f},
+            {1.0f, 1.0f, 1.0f, 1.0f},
+        });
+        result.minimum.x = std::min(result.minimum.x, position.x);
+        result.minimum.y = std::min(result.minimum.y, position.y);
+        result.minimum.z = std::min(result.minimum.z, position.z);
+        result.maximum.x = std::max(result.maximum.x, position.x);
+        result.maximum.y = std::max(result.maximum.y, position.y);
+        result.maximum.z = std::max(result.maximum.z, position.z);
+    }
+    for (std::uint32_t offset = 0u; offset < tissue.indexCount; ++offset) {
+        pack.indices.push_back(
+            vertexBase + tissues.indices[tissue.firstIndex + offset] - tissue.firstVertex
+        );
+    }
+    result.indexCount = tissue.indexCount;
+    return result;
+}
+
 std::array<float, 3u> inertiaEllipsoid(const MRBodyPropertiesGPU& body) {
     const float mass = body.massAndInverseMass.x;
     if (!(mass > 1.0e-5f)) {
@@ -1163,9 +1376,11 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& musclePayload,
     const LoadedBones* bonePayload,
+    const LoadedSoftTissues* softTissuePayload,
     const bool muscleDriven,
     const SourceRouteCentrelines* sourceRouteCentrelines,
     std::uint32_t& renderedBodies,
+    std::uint32_t& renderedSoftTissues,
     std::uint32_t& renderedRouteSegments
 ) {
     metalrobo::VisualAssetPackV2 pack;
@@ -1173,10 +1388,14 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         ? "myosim_fullbody_articulated_bodyparts_bones_view"
         : "myosim_fullbody_articulated_marker_view";
     pack.sourceUri = bonePayload != nullptr
-        ? "numi://bodyparts3d/NHBONES1+NHRIGID2+NHMYO1/articulated-bone-view"
+        ? (softTissuePayload != nullptr
+            ? "numi://bodyparts3d/NHBONES1+NHTISS1+NHRIGID2+NHMYO1/articulated-anatomy-view"
+            : "numi://bodyparts3d/NHBONES1+NHRIGID2+NHMYO1/articulated-bone-view")
         : "numi://myosim/NHRIGID2+NHMYO1/articulated-marker-view";
     pack.sourceContentHash = bonePayload != nullptr
-        ? "bodyparts3d-major-bones+runtime-body-and-site-records"
+        ? (softTissuePayload != nullptr
+            ? "bodyparts3d-major-bones+right-posterior-chain+runtime-body-and-site-records"
+            : "bodyparts3d-major-bones+runtime-body-and-site-records")
         : "runtime-body-and-site-records";
     pack.license = bonePayload != nullptr ? "CC-BY-4.0 AND Apache-2.0" : "Apache-2.0";
     pack.preprocessingProvenance =
@@ -1187,6 +1406,10 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
             : (muscleDriven
                 ? "cpu_fp64_mujoco_muscle_projection_and_articulated_free_body_step/metal_articulated_operator_pose_snapshot/native_visual_marker_pack.v1"
                 : "metal_articulated_operator_pose_snapshot/native_visual_marker_pack.v1");
+    if (softTissuePayload != nullptr) {
+        pack.preprocessingProvenance +=
+            "/exact_bodyparts3d_posterior_calf_surfaces_with_single_parent_source_default_visual_binding";
+    }
     if (sourceRouteCentrelines != nullptr) {
         pack.preprocessingProvenance +=
             "/cpu_fp64_mujoco_tangent_and_wrapped_arc_centreline_at_the_rendered_pose";
@@ -1206,6 +1429,12 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     ));
     pack.materials.push_back(makeMaterial(
         {0.78f, 0.66f, 0.46f, 1.0f}, {0.02f, 0.012f, 0.004f, 0.0f}
+    ));
+    pack.materials.push_back(makeMaterial(
+        {0.62f, 0.055f, 0.028f, 1.0f}, {0.03f, 0.0f, 0.0f, 0.0f}
+    ));
+    pack.materials.push_back(makeMaterial(
+        {0.82f, 0.55f, 0.22f, 1.0f}, {0.01f, 0.006f, 0.001f, 0.0f}
     ));
 
     const auto appendInstance = [&pack](
@@ -1270,6 +1499,22 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
             ++renderedBodies;
         }
     }
+    renderedSoftTissues = 0u;
+    if (softTissuePayload != nullptr) {
+        for (const SoftTissueRecord& tissue : softTissuePayload->records) {
+            const GeometryRange geometry = appendSoftTissueGeometry(pack, *softTissuePayload, tissue);
+            const bool isMuscle = tissue.layer == kSoftTissueLayerMuscle;
+            appendInstance(
+                geometry, isMuscle ? 4u : 5u,
+                isMuscle ? kMuscleSurfaceSemantic : kTendonSurfaceSemantic,
+                MR_VISUAL_BINDING_ARTICULATED_LINK, tissue.bodyIndex,
+                {tissue.translationX, tissue.translationY, tissue.translationZ, tissue.uniformScale},
+                {tissue.quaternionX, tissue.quaternionY, tissue.quaternionZ, tissue.quaternionW},
+                tissue.stableId
+            );
+            ++renderedSoftTissues;
+        }
+    }
     renderedRouteSegments = 0u;
     std::uint32_t stableRouteId = 1u;
     if (sourceRouteCentrelines != nullptr) {
@@ -1294,6 +1539,30 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                     );
                     ++renderedRouteSegments;
                 }
+            }
+            // These partially intersect the registered bone surface, making
+            // the resolved route's source origin/insertion visibly terminate
+            // at it.  They are intentionally only endpoint cues, not a
+            // fabricated tendon surface or altered force path.
+            for (const std::size_t pointIndex : {std::size_t{0u}, route.points.size() - 1u}) {
+                const SourceRouteCentreline::Point& point = route.points[pointIndex];
+                if (!point.surfaceProjected) continue;
+                constexpr float kAttachmentCapRadius = 0.0048f;
+                constexpr float kAttachmentCapSurfaceOverlap = 0.0015f;
+                appendInstance(
+                    appendEllipsoid(
+                        pack,
+                        {kAttachmentCapRadius, kAttachmentCapRadius, kAttachmentCapRadius}
+                    ),
+                    1u, kSiteSemantic, MR_VISUAL_BINDING_WORLD, MR_INVALID_INDEX,
+                    {
+                        point.world.x + kAttachmentCapSurfaceOverlap * point.surfaceNormalWorld.x,
+                        point.world.y + kAttachmentCapSurfaceOverlap * point.surfaceNormalWorld.y,
+                        point.world.z + kAttachmentCapSurfaceOverlap * point.surfaceNormalWorld.z,
+                        1.0f,
+                    },
+                    {0.0f, 0.0f, 0.0f, 1.0f}, stableRouteId++
+                );
             }
         }
     }
@@ -1490,6 +1759,7 @@ int main(int argc, char** argv) {
             bool surfaceProjectSourceSites = false;
             std::vector<std::uint32_t> requestedSourceRouteMuscles;
             std::optional<std::uint32_t> focusBodyIndex;
+            std::optional<std::filesystem::path> softTissuePayloadPath;
             std::uint32_t frameDimension = kDefaultFrameDimension;
             std::vector<std::string> positional;
             for (int index = 1; index < argc; ++index) {
@@ -1515,6 +1785,10 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !focusBodyIndex.has_value(),
                             "--focus-body-index requires one body index and may be given only once");
                     focusBodyIndex.emplace(parseSourceRouteIndex(argv[++index]));
+                } else if (argument == "--soft-tissue-payload") {
+                    require(index + 1 < argc && !softTissuePayloadPath.has_value(),
+                            "--soft-tissue-payload requires one path and may be given only once");
+                    softTissuePayloadPath.emplace(argv[++index]);
                 } else if (argument == "--dimension") {
                     require(index + 1 < argc && frameDimension == kDefaultFrameDimension,
                             "--dimension requires one value and may be given only once");
@@ -1533,6 +1807,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-seconds <1e-6..1e-3>]"
                           << " [--source-route-centrelines] [--source-route-index <0..415>]..."
                           << " [--surface-project-source-sites]"
+                          << " [--soft-tissue-payload <NHTISS1>]"
                           << " [--focus-body-index <0..156>]"
                           << " [--dimension <512..2048; multiple-of-64>]\n";
                 return 2;
@@ -1558,6 +1833,12 @@ int main(int argc, char** argv) {
             std::optional<LoadedBones> bonePayload;
             if (bodypartsBoneVisual) {
                 bonePayload.emplace(loadBones(positional[2], rigid.header));
+            }
+            std::optional<LoadedSoftTissues> softTissuePayload;
+            if (softTissuePayloadPath.has_value()) {
+                require(bodypartsBoneVisual,
+                        "--soft-tissue-payload requires a BodyParts3D bone payload");
+                softTissuePayload.emplace(loadSoftTissues(*softTissuePayloadPath, rigid.header));
             }
             require(!surfaceProjectSourceSites ||
                         (bodypartsBoneVisual && sourceRouteCentrelines),
@@ -1618,19 +1899,22 @@ int main(int argc, char** argv) {
             require(worldsSample.succeeded(), "native Human visual world sample failed: " + worldsSample.message);
 
             std::uint32_t renderedBodies = 0u;
+            std::uint32_t renderedSoftTissues = 0u;
             std::uint32_t renderedRouteSegments = 0u;
             const metalrobo::VisualAssetPackV2 pack = makeMarkerPack(
                 rigid.model, musclePayload,
                 bonePayload.has_value() ? &*bonePayload : nullptr,
+                softTissuePayload.has_value() ? &*softTissuePayload : nullptr,
                 muscleDrivenState.has_value(),
                 resolvedRouteCentrelines.has_value() ? &*resolvedRouteCentrelines : nullptr,
-                renderedBodies, renderedRouteSegments
+                renderedBodies, renderedSoftTissues, renderedRouteSegments
             );
             const std::filesystem::path outputDirectory{positional.back()};
             std::filesystem::create_directories(outputDirectory);
             const std::string stem = std::string(bodypartsBoneVisual
                 ? "myosim-fullbody-articulated-bodyparts-bones"
                 : "myosim-fullbody-articulated-markers") +
+                (softTissuePayload.has_value() ? "-source-soft-tissues" : "") +
                 (muscleDrivenState.has_value() ? "-muscle-driven" : "") +
                 (sourceRouteCentrelines ? "-source-route-centrelines" : "") +
                 (surfaceProjectSourceSites ? "-surface-projected-sites" : "") +
@@ -1705,6 +1989,8 @@ int main(int argc, char** argv) {
                 const std::size_t bonePixels = coverage(observation, kBoneSemantic);
                 const std::size_t sitePixels = coverage(observation, kSiteSemantic);
                 const std::size_t routePixels = coverage(observation, kRouteSemantic);
+                const std::size_t muscleSurfacePixels = coverage(observation, kMuscleSurfaceSemantic);
+                const std::size_t tendonSurfacePixels = coverage(observation, kTendonSurfaceSemantic);
                 completeVisualCoverage = completeVisualCoverage &&
                     (bodypartsBoneVisual ? bonePixels > 0u : bodyPixels > 0u) &&
                     (!sourceRouteCentrelines || routePixels > 0u);
@@ -1713,6 +1999,8 @@ int main(int argc, char** argv) {
                           << " bone_pixels=" << bonePixels
                           << " muscle_site_pixels=" << sitePixels
                           << " muscle_route_pixels=" << routePixels
+                          << " muscle_surface_pixels=" << muscleSurfacePixels
+                          << " tendon_surface_pixels=" << tendonSurfacePixels
                           << " frame=" << frame.string() << '\n';
             }
             require(completeVisualCoverage,
@@ -1727,6 +2015,7 @@ int main(int argc, char** argv) {
                       << " core_bodies=" << rigid.header.engineBodyCount
                       << " rendered_link_visuals=" << renderedBodies
                       << " bodyparts_bones=" << (bonePayload.has_value() ? bonePayload->records.size() : 0u)
+                      << " bodyparts_soft_tissues=" << renderedSoftTissues
                       << " muscle_sites=" << musclePayload.sites.size()
                       << " route_centerline_segments=" << renderedRouteSegments
                       << " source_route_centrelines=" << (sourceRouteCentrelines ? "true" : "false")
@@ -1753,10 +2042,14 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->maximumConfigurationDelta : 0.0)
                       << " boundary=" << (muscleDrivenState.has_value()
                               ? (bodypartsBoneVisual
-                                  ? "cpu_fp64_complete_416_muscle_force_and_articulated_free_body_step_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_not_contact_or_live_rollout"
+                                  ? (softTissuePayload.has_value()
+                                      ? "cpu_fp64_complete_416_muscle_force_and_articulated_free_body_step_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_and_rigid_source_soft_tissue_visuals_not_contact_or_live_rollout"
+                                      : "cpu_fp64_complete_416_muscle_force_and_articulated_free_body_step_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_not_contact_or_live_rollout")
                                   : "cpu_fp64_complete_416_muscle_force_and_articulated_free_body_step_to_metal_pose_snapshot_not_contact_or_live_rollout")
                               : (bodypartsBoneVisual
-                                  ? "metal_pose_snapshot_to_native_renderer_with_provisional_bodyparts_bone_registration_not_collision_or_live_rollout"
+                                  ? (softTissuePayload.has_value()
+                                      ? "metal_pose_snapshot_to_native_renderer_with_provisional_bodyparts_bone_registration_and_rigid_source_soft_tissue_visuals_not_collision_or_live_rollout"
+                                      : "metal_pose_snapshot_to_native_renderer_with_provisional_bodyparts_bone_registration_not_collision_or_live_rollout")
                                   : "metal_pose_snapshot_to_native_renderer_not_bodyparts_registration_or_live_rollout"))
                       << " route_geometry=" << (sourceRouteCentrelines
                               ? (surfaceProjectSourceSites
