@@ -54,6 +54,9 @@ constexpr std::uint32_t kTendonSurfaceSemantic = 51006u;
 constexpr std::uint32_t kSkinShellSemantic = 51007u;
 constexpr std::uint32_t kTendonAttachmentCollarSemantic = 51008u;
 constexpr std::uint32_t kPassiveFEMTissueSemantic = 51009u;
+constexpr std::uint32_t kOrganSurfaceSemantic = 51010u;
+constexpr std::uint32_t kVesselSurfaceSemantic = 51011u;
+constexpr std::uint32_t kNerveSurfaceSemantic = 51012u;
 constexpr std::uint32_t kDefaultFrameDimension = 1024u;
 constexpr std::array<char, 8u> kBoneMagic{
     'N', 'H', 'B', 'O', 'N', 'E', 'S', '1',
@@ -75,6 +78,13 @@ constexpr std::array<char, 8u> kSkinMagic{
 constexpr std::uint32_t kLegacySkinPayloadAbi = 1u;
 constexpr std::uint32_t kBoundaryLocalSkinPayloadAbi = 2u;
 constexpr std::uint32_t kSkinPayloadAbi = 3u;
+constexpr std::array<char, 8u> kTorsoAnatomyMagic{
+    'N', 'H', 'A', 'N', 'A', 'T', '1', '\0',
+};
+constexpr std::uint32_t kTorsoAnatomyPayloadAbi = 1u;
+constexpr std::uint32_t kTorsoAnatomyLayerOrgan = 1u;
+constexpr std::uint32_t kTorsoAnatomyLayerVessel = 2u;
+constexpr std::uint32_t kTorsoAnatomyLayerNerve = 3u;
 
 #pragma pack(push, 1)
 struct RigidHeader {
@@ -332,6 +342,41 @@ struct SkinVertex {
     float weight[4]{};
 };
 
+// ``NHANAT1`` is deliberately a separate source-surface payload.  Each
+// selected organ, vessel, or neural component is already expressed in one
+// registered MyoSim inertial link frame by the offline importer.  It therefore
+// follows that link in the native renderer without pretending to supply a
+// continuum or material model.
+struct TorsoAnatomyHeader {
+    std::array<char, 8u> magic{};
+    std::uint32_t payloadAbi = 0u;
+    std::uint32_t surfaceCount = 0u;
+    std::uint32_t vertexCount = 0u;
+    std::uint32_t indexCount = 0u;
+    std::uint32_t registrationFingerprint = 0u;
+    std::array<std::uint8_t, 32u> sourceSha256{};
+};
+
+struct TorsoAnatomyRecord {
+    std::uint32_t bodyIndex = MR_INVALID_INDEX;
+    std::uint32_t firstVertex = 0u;
+    std::uint32_t vertexCount = 0u;
+    std::uint32_t firstIndex = 0u;
+    std::uint32_t indexCount = 0u;
+    std::uint32_t stableId = 0u;
+    std::uint32_t layer = 0u;
+    std::uint32_t reserved0 = 0u;
+};
+
+struct TorsoAnatomyVertex {
+    float positionX = 0.0f;
+    float positionY = 0.0f;
+    float positionZ = 0.0f;
+    float normalX = 0.0f;
+    float normalY = 0.0f;
+    float normalZ = 1.0f;
+};
+
 struct LoadedMuscles {
     MuscleHeader header{};
     std::vector<SiteRecord> sites;
@@ -373,6 +418,13 @@ struct LoadedSkin {
     bool usesSourceSurfaceLocalWeights = false;
 };
 
+struct LoadedTorsoAnatomy {
+    TorsoAnatomyHeader header{};
+    std::vector<TorsoAnatomyRecord> records;
+    std::vector<TorsoAnatomyVertex> vertices;
+    std::vector<std::uint32_t> indices;
+};
+
 struct LoadedSupportContacts {
     SupportContactHeader header{};
     std::vector<SupportContactRecord> records;
@@ -400,6 +452,9 @@ static_assert(sizeof(SoftTissueVertex) == 36u);
 static_assert(sizeof(SkinHeader) == 60u);
 static_assert(sizeof(SkinBindingRecord) == 36u);
 static_assert(sizeof(SkinVertex) == 56u);
+static_assert(sizeof(TorsoAnatomyHeader) == 60u);
+static_assert(sizeof(TorsoAnatomyRecord) == 32u);
+static_assert(sizeof(TorsoAnatomyVertex) == 24u);
 
 void require(const bool condition, const std::string& message) {
     if (!condition) {
@@ -799,6 +854,70 @@ LoadedBones loadBones(
             const std::uint32_t index = result.indices[record.firstIndex + offset];
             require(index >= record.firstVertex && index < record.firstVertex + record.vertexCount,
                     "BodyParts3D bone index escapes its source mesh");
+        }
+    }
+    return result;
+}
+
+LoadedTorsoAnatomy loadTorsoAnatomy(
+    const std::filesystem::path& path,
+    const RigidHeader& rigid,
+    const std::uint32_t expectedRegistrationFingerprint
+) {
+    std::ifstream input(path, std::ios::binary);
+    require(input.is_open(), "cannot open BodyParts3D torso anatomy payload " + path.string());
+    LoadedTorsoAnatomy result;
+    readObject(input, result.header, "BodyParts3D torso anatomy header");
+    require(result.header.magic == kTorsoAnatomyMagic &&
+                result.header.payloadAbi == kTorsoAnatomyPayloadAbi &&
+                result.header.registrationFingerprint == expectedRegistrationFingerprint &&
+                result.header.sourceSha256 == rigid.sourceSha256 &&
+                result.header.surfaceCount > 0u && result.header.surfaceCount <= 64u &&
+                result.header.vertexCount > 0u && result.header.vertexCount <= 1'000'000u &&
+                result.header.indexCount > 0u && result.header.indexCount <= 6'000'000u &&
+                result.header.indexCount % 3u == 0u,
+            "BodyParts3D torso anatomy payload/header disagreement");
+    result.records = readVector<TorsoAnatomyRecord>(
+        input, result.header.surfaceCount, "BodyParts3D torso anatomy records"
+    );
+    result.vertices = readVector<TorsoAnatomyVertex>(
+        input, result.header.vertexCount, "BodyParts3D torso anatomy vertices"
+    );
+    result.indices = readVector<std::uint32_t>(
+        input, result.header.indexCount, "BodyParts3D torso anatomy indices"
+    );
+    require(input.peek() == std::char_traits<char>::eof(),
+            "BodyParts3D torso anatomy payload has trailing bytes");
+    for (const TorsoAnatomyVertex& vertex : result.vertices) {
+        const float normalLength = std::sqrt(
+            vertex.normalX * vertex.normalX +
+            vertex.normalY * vertex.normalY +
+            vertex.normalZ * vertex.normalZ
+        );
+        require(std::isfinite(vertex.positionX) && std::isfinite(vertex.positionY) &&
+                    std::isfinite(vertex.positionZ) && std::isfinite(normalLength) &&
+                    std::abs(normalLength - 1.0f) <= 2.0e-3f,
+                "BodyParts3D torso anatomy vertex is malformed");
+    }
+    std::vector<bool> stableIds(result.records.size() + 1u, false);
+    for (const TorsoAnatomyRecord& record : result.records) {
+        require(record.bodyIndex < rigid.engineBodyCount && record.vertexCount > 0u &&
+                    record.indexCount > 0u && record.indexCount % 3u == 0u &&
+                    record.firstVertex <= result.vertices.size() &&
+                    record.vertexCount <= result.vertices.size() - record.firstVertex &&
+                    record.firstIndex <= result.indices.size() &&
+                    record.indexCount <= result.indices.size() - record.firstIndex &&
+                    record.stableId > 0u && record.stableId < stableIds.size() &&
+                    !stableIds[record.stableId] && record.reserved0 == 0u &&
+                    (record.layer == kTorsoAnatomyLayerOrgan ||
+                     record.layer == kTorsoAnatomyLayerVessel ||
+                     record.layer == kTorsoAnatomyLayerNerve),
+                "BodyParts3D torso anatomy record is malformed");
+        stableIds[record.stableId] = true;
+        for (std::uint32_t offset = 0u; offset < record.indexCount; ++offset) {
+            const std::uint32_t index = result.indices[record.firstIndex + offset];
+            require(index >= record.firstVertex && index < record.firstVertex + record.vertexCount,
+                    "BodyParts3D torso anatomy index escapes its source mesh");
         }
     }
     return result;
@@ -2204,6 +2323,52 @@ GeometryRange appendBoneGeometry(
     return result;
 }
 
+mr_float4 torsoAnatomyTangent(const TorsoAnatomyVertex& vertex) {
+    return normalTangent({vertex.normalX, vertex.normalY, vertex.normalZ, 1.0f});
+}
+
+GeometryRange appendTorsoAnatomyGeometry(
+    metalrobo::VisualAssetPackV2& pack,
+    const LoadedTorsoAnatomy& anatomy,
+    const TorsoAnatomyRecord& surface
+) {
+    GeometryRange result;
+    result.firstIndex = static_cast<std::uint32_t>(pack.indices.size());
+    result.minimum = {
+        std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(), 1.0f,
+    };
+    result.maximum = {
+        -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity(), 1.0f,
+    };
+    const std::uint32_t vertexBase = static_cast<std::uint32_t>(pack.vertices.size());
+    for (std::uint32_t offset = 0u; offset < surface.vertexCount; ++offset) {
+        const TorsoAnatomyVertex& source = anatomy.vertices[surface.firstVertex + offset];
+        const mr_float4 position{source.positionX, source.positionY, source.positionZ, 1.0f};
+        pack.vertices.push_back({
+            position,
+            {source.normalX, source.normalY, source.normalZ, 1.0f},
+            torsoAnatomyTangent(source),
+            {0.0f, 0.0f, 0.0f, 0.0f},
+            {1.0f, 1.0f, 1.0f, 1.0f},
+        });
+        result.minimum.x = std::min(result.minimum.x, position.x);
+        result.minimum.y = std::min(result.minimum.y, position.y);
+        result.minimum.z = std::min(result.minimum.z, position.z);
+        result.maximum.x = std::max(result.maximum.x, position.x);
+        result.maximum.y = std::max(result.maximum.y, position.y);
+        result.maximum.z = std::max(result.maximum.z, position.z);
+    }
+    for (std::uint32_t offset = 0u; offset < surface.indexCount; ++offset) {
+        pack.indices.push_back(
+            vertexBase + anatomy.indices[surface.firstIndex + offset] - surface.firstVertex
+        );
+    }
+    result.indexCount = surface.indexCount;
+    return result;
+}
+
 mr_float4 softTissueVertexWorld(
     const SoftTissueRecord& tissue,
     const SoftTissueVertex& vertex,
@@ -3277,6 +3442,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     const LoadedBones* bonePayload,
     const LoadedSoftTissues* softTissuePayload,
     const LoadedSkin* skinPayload,
+    const LoadedTorsoAnatomy* torsoAnatomyPayload,
     const std::span<const MRBodyStateGPU> bodies,
     const std::span<const MRBodyStateGPU> restBodies,
     const PassiveFEMTissueVisual* passiveFEMTissue,
@@ -3289,6 +3455,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     std::uint32_t& renderedBodies,
     std::uint32_t& renderedSoftTissues,
     std::uint32_t& renderedSkinShells,
+    std::uint32_t& renderedTorsoAnatomySurfaces,
     std::uint32_t& renderedTendonAttachmentCollars,
     std::uint32_t& renderedRouteSegments,
     std::uint32_t& renderedPassiveFEMTissues
@@ -3302,14 +3469,18 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
             ? "numi://bodyparts3d/NHBONES1+NHSKIN1+NHRIGID2+NHMYO1/articulated-shell-view"
             : (softTissuePayload != nullptr
                 ? "numi://bodyparts3d/NHBONES1+NHTISS2-or-NHTISS3+NHRIGID2+NHMYO1/articulated-anatomy-view"
-                : "numi://bodyparts3d/NHBONES1+NHRIGID2+NHMYO1/articulated-bone-view"))
+                : (torsoAnatomyPayload != nullptr
+                    ? "numi://bodyparts3d/NHBONES1+NHANAT1+NHRIGID2+NHMYO1/articulated-torso-anatomy-view"
+                    : "numi://bodyparts3d/NHBONES1+NHRIGID2+NHMYO1/articulated-bone-view")))
         : "numi://myosim/NHRIGID2+NHMYO1/articulated-marker-view";
     pack.sourceContentHash = bonePayload != nullptr
         ? (skinPayload != nullptr
             ? "bodyparts3d-major-bones+skinned-shell+runtime-body-and-site-records"
             : (softTissuePayload != nullptr
                 ? "bodyparts3d-major-bones+right-posterior-chain+runtime-body-and-site-records"
-                : "bodyparts3d-major-bones+runtime-body-and-site-records"))
+                : (torsoAnatomyPayload != nullptr
+                    ? "bodyparts3d-major-bones+selected-torso-anatomy+runtime-body-and-site-records"
+                    : "bodyparts3d-major-bones+runtime-body-and-site-records")))
         : "runtime-body-and-site-records";
     pack.license = bonePayload != nullptr ? "CC-BY-4.0 AND Apache-2.0" : "Apache-2.0";
     pack.preprocessingProvenance =
@@ -3323,6 +3494,10 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     if (softTissuePayload != nullptr) {
         pack.preprocessingProvenance +=
             "/exact_bodyparts3d_surfaces_with_named_body_weighted_kinematic_binding";
+    }
+    if (torsoAnatomyPayload != nullptr) {
+        pack.preprocessingProvenance +=
+            "/exact_bodyparts3d_selected_torso_organ_vessel_and_neural_surfaces_with_single_link_kinematic_binding";
     }
     if (passiveFEMTissue != nullptr) {
         pack.preprocessingProvenance +=
@@ -3393,6 +3568,15 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         // Its relief comes from the exact imported normals and the same light
         // rig as the exposed anatomy—not an emission pass or painted detail.
         {0.74f, 0.37f, 0.25f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.56f, 0.025f
+    ));
+    pack.materials.push_back(makeMaterial(
+        {0.48f, 0.08f, 0.06f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.54f, 0.025f
+    ));
+    pack.materials.push_back(makeMaterial(
+        {0.55f, 0.012f, 0.020f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.48f, 0.035f
+    ));
+    pack.materials.push_back(makeMaterial(
+        {0.76f, 0.54f, 0.12f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.52f, 0.02f
     ));
 
     const auto appendInstance = [&pack](
@@ -3541,6 +3725,23 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
             {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1u
         );
         renderedSkinShells = 1u;
+    }
+    renderedTorsoAnatomySurfaces = 0u;
+    if (torsoAnatomyPayload != nullptr) {
+        for (const TorsoAnatomyRecord& surface : torsoAnatomyPayload->records) {
+            const bool isOrgan = surface.layer == kTorsoAnatomyLayerOrgan;
+            const bool isVessel = surface.layer == kTorsoAnatomyLayerVessel;
+            appendInstance(
+                appendTorsoAnatomyGeometry(pack, *torsoAnatomyPayload, surface),
+                isOrgan ? 7u : (isVessel ? 8u : 9u),
+                isOrgan ? kOrganSurfaceSemantic :
+                    (isVessel ? kVesselSurfaceSemantic : kNerveSurfaceSemantic),
+                MR_VISUAL_BINDING_ARTICULATED_LINK, surface.bodyIndex,
+                {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
+                surface.stableId
+            );
+            ++renderedTorsoAnatomySurfaces;
+        }
     }
     renderedRouteSegments = 0u;
     std::uint32_t stableRouteId = 1u;
@@ -3974,6 +4175,7 @@ int main(int argc, char** argv) {
             std::optional<std::uint32_t> focusBodyIndex;
             std::optional<std::filesystem::path> softTissuePayloadPath;
             std::optional<std::filesystem::path> skinPayloadPath;
+            std::optional<std::filesystem::path> torsoAnatomyPayloadPath;
             std::optional<std::filesystem::path> supportContactPayloadPath;
             std::optional<std::uint32_t> passiveFEMTissueStableId;
             std::optional<std::uint32_t> passiveFEMStepCount;
@@ -4045,6 +4247,10 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !skinPayloadPath.has_value(),
                             "--skin-payload requires one path and may be given only once");
                     skinPayloadPath.emplace(argv[++index]);
+                } else if (argument == "--torso-anatomy-payload") {
+                    require(index + 1 < argc && !torsoAnatomyPayloadPath.has_value(),
+                            "--torso-anatomy-payload requires one path and may be given only once");
+                    torsoAnatomyPayloadPath.emplace(argv[++index]);
                 } else if (argument == "--support-contact-payload") {
                     require(index + 1 < argc && !supportContactPayloadPath.has_value(),
                             "--support-contact-payload requires one path and may be given only once");
@@ -4084,6 +4290,7 @@ int main(int argc, char** argv) {
                           << " [--surface-project-source-sites]"
                           << " [--soft-tissue-payload <NHTISS2-or-NHTISS3>]"
                           << " [--skin-payload <NHSKIN1>]"
+                          << " [--torso-anatomy-payload <NHANAT1>]"
                           << " [--passive-fem-tissue-stable-id <1..N>]"
                           << " [--passive-fem-step-count <1..64>]"
                           << " [--passive-fem-metallib <NumiMatter.metallib>]"
@@ -4184,6 +4391,14 @@ int main(int argc, char** argv) {
                         "--skin-payload requires a BodyParts3D bone payload");
                 skinPayload.emplace(loadSkin(
                     *skinPayloadPath, rigid.header, bonePayload->header.reserved0
+                ));
+            }
+            std::optional<LoadedTorsoAnatomy> torsoAnatomyPayload;
+            if (torsoAnatomyPayloadPath.has_value()) {
+                require(bodypartsBoneVisual,
+                        "--torso-anatomy-payload requires a BodyParts3D bone payload");
+                torsoAnatomyPayload.emplace(loadTorsoAnatomy(
+                    *torsoAnatomyPayloadPath, rigid.header, bonePayload->header.reserved0
                 ));
             }
             require(requestedSoftTissueStableIds.empty() || softTissuePayload.has_value(),
@@ -4334,6 +4549,7 @@ int main(int argc, char** argv) {
             std::uint32_t renderedBodies = 0u;
             std::uint32_t renderedSoftTissues = 0u;
             std::uint32_t renderedSkinShells = 0u;
+            std::uint32_t renderedTorsoAnatomySurfaces = 0u;
             std::uint32_t renderedTendonAttachmentCollars = 0u;
             std::uint32_t renderedRouteSegments = 0u;
             std::uint32_t renderedPassiveFEMTissues = 0u;
@@ -4343,6 +4559,7 @@ int main(int argc, char** argv) {
                 bonePayload.has_value() ? &*bonePayload : nullptr,
                 softTissuePayload.has_value() ? &*softTissuePayload : nullptr,
                 skinPayload.has_value() ? &*skinPayload : nullptr,
+                torsoAnatomyPayload.has_value() ? &*torsoAnatomyPayload : nullptr,
                 bodies, restBodies,
                 passiveFEMTissue.has_value() ? &*passiveFEMTissue : nullptr,
                 muscleDrivenState.has_value(),
@@ -4351,7 +4568,7 @@ int main(int argc, char** argv) {
                 zAnatomyCalfVisualSupplement,
                 tendonAttachmentCollarDiagnostic,
                 resolvedRouteCentrelines.has_value() ? &*resolvedRouteCentrelines : nullptr,
-                renderedBodies, renderedSoftTissues, renderedSkinShells,
+                renderedBodies, renderedSoftTissues, renderedSkinShells, renderedTorsoAnatomySurfaces,
                 renderedTendonAttachmentCollars, renderedRouteSegments,
                 renderedPassiveFEMTissues
             );
@@ -4361,6 +4578,9 @@ int main(int argc, char** argv) {
                     "native Human visual bone selection rendered no source mesh");
             require(!passiveFEMTissue.has_value() || renderedPassiveFEMTissues == 1u,
                     "native Human visual passive FEM tissue selection did not render its source surface");
+            require(!torsoAnatomyPayload.has_value() ||
+                        renderedTorsoAnatomySurfaces == torsoAnatomyPayload->records.size(),
+                    "native Human visual torso anatomy did not render every source surface");
             const CameraFraming cameraFraming = makeCameraFraming(
                 pack, bodies, focusBodyIndex
             );
@@ -4389,6 +4609,7 @@ int main(int argc, char** argv) {
                 (softTissuePayload.has_value() ? "-source-soft-tissues" : "") +
                 (zAnatomyCalfVisualSupplement ? "-zanatomy-calf-supplement" : "") +
                 (skinPayload.has_value() ? "-source-skinned-shell" : "") +
+                (torsoAnatomyPayload.has_value() ? "-source-torso-anatomy" : "") +
                 (passiveFEMTissue.has_value() ? "-passive-fem-tissue" : "") +
                 (muscleDrivenState.has_value() ? "-muscle-driven" : "") +
                 (!selectedSourceMuscleActivations.empty() ? "-selected-actuators" : "") +
@@ -4485,12 +4706,18 @@ int main(int argc, char** argv) {
                     observation, kPassiveFEMTissueSemantic
                 );
                 const std::size_t skinShellPixels = coverage(observation, kSkinShellSemantic);
+                const std::size_t organSurfacePixels = coverage(observation, kOrganSurfaceSemantic);
+                const std::size_t vesselSurfacePixels = coverage(observation, kVesselSurfaceSemantic);
+                const std::size_t nerveSurfacePixels = coverage(observation, kNerveSurfaceSemantic);
                 completeVisualCoverage = completeVisualCoverage &&
                     (skinPayload.has_value()
                         ? skinShellPixels > 0u
                         : (bodypartsBoneVisual ? bonePixels > 0u : bodyPixels > 0u));
                 completeVisualCoverage = completeVisualCoverage &&
                     (!passiveFEMTissue.has_value() || passiveFEMTissuePixels > 0u);
+                completeVisualCoverage = completeVisualCoverage &&
+                    (!torsoAnatomyPayload.has_value() ||
+                     (organSurfacePixels > 0u && vesselSurfacePixels > 0u && nerveSurfacePixels > 0u));
                 anyRequestedRouteVisible = anyRequestedRouteVisible || routePixels > 0u;
                 std::cout << "view=" << cameraNames[camera]
                           << " body_pixels=" << bodyPixels
@@ -4502,6 +4729,9 @@ int main(int argc, char** argv) {
                           << " tendon_attachment_collar_pixels=" << tendonAttachmentCollarPixels
                           << " passive_fem_tissue_pixels=" << passiveFEMTissuePixels
                           << " skin_shell_pixels=" << skinShellPixels
+                          << " organ_surface_pixels=" << organSurfacePixels
+                          << " vessel_surface_pixels=" << vesselSurfacePixels
+                          << " nerve_surface_pixels=" << nerveSurfacePixels
                           << " frame=" << frame.string() << '\n';
             }
             require(completeVisualCoverage,
@@ -4548,6 +4778,10 @@ int main(int argc, char** argv) {
                         ? "_with_four_bone_boundary_local_linear_blend_bodyparts3d_skin_shell_visual_not_deformable_skin_collision_or_tissue_physics"
                         : "_with_four_bone_linear_blend_bodyparts3d_skin_shell_visual_not_deformable_skin_collision_or_tissue_physics";
             }
+            if (torsoAnatomyPayload.has_value()) {
+                evidenceBoundary +=
+                    "_with_selected_exact_bodyparts3d_organ_vessel_and_spinal_cord_surfaces_single_link_kinematic_visual_bindings_not_organ_or_vessel_mechanics";
+            }
             if (passiveFEMTissue.has_value()) {
                 evidenceBoundary +=
                     "_with_source_surface_derived_passive_matter_fem_cage_and_fixed_end_rings_prescribed_from_the_bounded_muscle_driven_myoSim_pose_not_a_calibrated_volumetric_muscle_or_full_body_soft_tissue_coupling";
@@ -4575,6 +4809,9 @@ int main(int argc, char** argv) {
                       << " bodyparts_tendon_attachment_collars="
                       << renderedTendonAttachmentCollars
                       << " bodyparts_skin_shells=" << renderedSkinShells
+                      << " bodyparts_torso_anatomy_surfaces=" << renderedTorsoAnatomySurfaces
+                      << " torso_anatomy_binding=" << (torsoAnatomyPayload.has_value()
+                              ? "registered_single_link_kinematic_source_surfaces" : "none")
                       << " passive_fem_tissues=" << renderedPassiveFEMTissues
                       << " visual_supplement="
                       << (zAnatomyCalfVisualSupplement ? "zanatomy_right_calf_cc_by_sa" : "none")
