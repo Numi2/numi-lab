@@ -521,7 +521,7 @@ LoadedSoftTissues loadSoftTissues(
                 result.header.payloadAbi == kSoftTissuePayloadAbi &&
                 result.header.reserved0 == 0u &&
                 result.header.sourceSha256 == rigid.sourceSha256 &&
-                result.header.tissueCount > 0u && result.header.tissueCount <= 64u &&
+                result.header.tissueCount > 0u && result.header.tissueCount <= 192u &&
                 result.header.vertexCount > 0u && result.header.indexCount > 0u &&
                 result.header.indexCount % 3u == 0u &&
                 result.header.vertexCount <= 1'000'000u &&
