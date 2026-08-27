@@ -50,6 +50,7 @@ constexpr std::uint32_t kBoneSemantic = 51004u;
 constexpr std::uint32_t kMuscleSurfaceSemantic = 51005u;
 constexpr std::uint32_t kTendonSurfaceSemantic = 51006u;
 constexpr std::uint32_t kSkinShellSemantic = 51007u;
+constexpr std::uint32_t kTendonAttachmentCollarSemantic = 51008u;
 constexpr std::uint32_t kDefaultFrameDimension = 1024u;
 constexpr std::array<char, 8u> kBoneMagic{
     'N', 'H', 'B', 'O', 'N', 'E', 'S', '1',
@@ -1931,9 +1932,13 @@ metalrobo::VisualLightRigV1 makeHumanAnatomyLightRig(
     result.id = "human_anatomy_camera_relative_three_point";
     result.contentHash = "builtin:human-anatomy-camera-relative-three-point-v3";
     result.lights = {
-        makeAreaLight(keyPosition, {1.0f, 0.99f, 0.96f, 0.0f}, 150.0f, 0.88f, 0.70f, 201u),
-        makeAreaLight(fillPosition, {0.82f, 0.88f, 1.0f, 0.0f}, 54.0f, 0.96f, 0.78f, 202u),
-        makeAreaLight(rimPosition, {1.0f, 0.95f, 0.86f, 0.0f}, 92.0f, 0.72f, 0.58f, 203u),
+        // A full-body exterior reads best under a wider, higher-exposure
+        // portrait rig than the deliberately contrasty exposed-tissue
+        // diagnostic.  These lights do not alter source geometry or its
+        // kinematic binding; they only make the real surface relief legible.
+        makeAreaLight(keyPosition, {1.0f, 0.94f, 0.88f, 0.0f}, 230.0f, 0.96f, 0.82f, 201u),
+        makeAreaLight(fillPosition, {0.80f, 0.88f, 1.0f, 0.0f}, 82.0f, 1.08f, 0.90f, 202u),
+        makeAreaLight(rimPosition, {1.0f, 0.86f, 0.74f, 0.0f}, 132.0f, 0.84f, 0.68f, 203u),
     };
     return result;
 }
@@ -2125,6 +2130,56 @@ mr_float4 softTissueVertexNormalWorld(
     return normal;
 }
 
+mr_float4 softTissueVertexBlendedWorld(
+    const SoftTissueRecord& tissue,
+    const SoftTissueVertex& vertex,
+    const std::span<const MRBodyStateGPU> bodies
+) {
+    require(tissue.primaryBodyIndex < bodies.size() && tissue.secondaryBodyIndex < bodies.size(),
+            "BodyParts3D soft-tissue body binding exceeds the rendered pose");
+    const mr_float4 primaryPosition = softTissueVertexWorld(
+        tissue, vertex, bodies[tissue.primaryBodyIndex], true
+    );
+    const mr_float4 secondaryPosition = softTissueVertexWorld(
+        tissue, vertex, bodies[tissue.secondaryBodyIndex], false
+    );
+    return addPoint(
+        scalePoint(primaryPosition, vertex.primaryWeight),
+        scalePoint(secondaryPosition, 1.0f - vertex.primaryWeight)
+    );
+}
+
+mr_float4 softTissueVertexBlendedNormalWorld(
+    const SoftTissueRecord& tissue,
+    const SoftTissueVertex& vertex,
+    const std::span<const MRBodyStateGPU> bodies
+) {
+    require(tissue.primaryBodyIndex < bodies.size() && tissue.secondaryBodyIndex < bodies.size(),
+            "BodyParts3D soft-tissue body binding exceeds the rendered pose");
+    const float primaryWeight = vertex.primaryWeight;
+    const float secondaryWeight = 1.0f - primaryWeight;
+    const mr_float4 primaryNormal = softTissueVertexNormalWorld(
+        tissue, vertex, bodies[tissue.primaryBodyIndex], true
+    );
+    const mr_float4 secondaryNormal = softTissueVertexNormalWorld(
+        tissue, vertex, bodies[tissue.secondaryBodyIndex], false
+    );
+    mr_float4 normal{
+        primaryNormal.x * primaryWeight + secondaryNormal.x * secondaryWeight,
+        primaryNormal.y * primaryWeight + secondaryNormal.y * secondaryWeight,
+        primaryNormal.z * primaryWeight + secondaryNormal.z * secondaryWeight,
+        0.0f,
+    };
+    const float normalLength = std::sqrt(
+        normal.x * normal.x + normal.y * normal.y + normal.z * normal.z
+    );
+    require(normalLength > 1.0e-6f, "BodyParts3D blended soft-tissue normal is degenerate");
+    normal.x /= normalLength;
+    normal.y /= normalLength;
+    normal.z /= normalLength;
+    return normal;
+}
+
 GeometryRange appendSoftTissueGeometry(
     metalrobo::VisualAssetPackV2& pack,
     const LoadedSoftTissues& tissues,
@@ -2146,37 +2201,8 @@ GeometryRange appendSoftTissueGeometry(
     const std::uint32_t vertexBase = static_cast<std::uint32_t>(pack.vertices.size());
     for (std::uint32_t offset = 0u; offset < tissue.vertexCount; ++offset) {
         const SoftTissueVertex& source = tissues.vertices[tissue.firstVertex + offset];
-        const float primaryWeight = source.primaryWeight;
-        const float secondaryWeight = 1.0f - primaryWeight;
-        const mr_float4 primaryPosition = softTissueVertexWorld(
-            tissue, source, bodies[tissue.primaryBodyIndex], true
-        );
-        const mr_float4 secondaryPosition = softTissueVertexWorld(
-            tissue, source, bodies[tissue.secondaryBodyIndex], false
-        );
-        const mr_float4 position = addPoint(
-            scalePoint(primaryPosition, primaryWeight),
-            scalePoint(secondaryPosition, secondaryWeight)
-        );
-        const mr_float4 primaryNormal = softTissueVertexNormalWorld(
-            tissue, source, bodies[tissue.primaryBodyIndex], true
-        );
-        const mr_float4 secondaryNormal = softTissueVertexNormalWorld(
-            tissue, source, bodies[tissue.secondaryBodyIndex], false
-        );
-        mr_float4 normal{
-            primaryNormal.x * primaryWeight + secondaryNormal.x * secondaryWeight,
-            primaryNormal.y * primaryWeight + secondaryNormal.y * secondaryWeight,
-            primaryNormal.z * primaryWeight + secondaryNormal.z * secondaryWeight,
-            0.0f,
-        };
-        const float normalLength = std::sqrt(
-            normal.x * normal.x + normal.y * normal.y + normal.z * normal.z
-        );
-        require(normalLength > 1.0e-6f, "BodyParts3D blended soft-tissue normal is degenerate");
-        normal.x /= normalLength;
-        normal.y /= normalLength;
-        normal.z /= normalLength;
+        const mr_float4 position = softTissueVertexBlendedWorld(tissue, source, bodies);
+        mr_float4 normal = softTissueVertexBlendedNormalWorld(tissue, source, bodies);
         normal.w = 1.0f;
         pack.vertices.push_back({
             position,
@@ -2198,6 +2224,244 @@ GeometryRange appendSoftTissueGeometry(
         );
     }
     result.indexCount = tissue.indexCount;
+    return result;
+}
+
+// BodyParts3D's source tendon, muscle, and bone meshes are separate surfaces.
+// A source-triangle proximity lock already keeps the named tendon end on the
+// calcaneus frame, but separate topology can still leave a dark raster seam
+// at either its muscle or bone insertion.  This renders a very short,
+// source-proximity derived collar only along an open tendon boundary and only
+// to a visible muscle sharing its authored endpoint or to the named secondary
+// bone.  It is intentionally presentation geometry: muscle force paths remain
+// the authored MyoSim spatial tendons and this does not add a spring, a weld,
+// contact, or a material law.
+GeometryRange appendTendonAttachmentCollarGeometry(
+    metalrobo::VisualAssetPackV2& pack,
+    const LoadedSoftTissues& tissues,
+    const LoadedBones& bones,
+    const SoftTissueRecord& tendon,
+    const std::span<const MRBodyStateGPU> bodies,
+    const std::span<const std::uint32_t> visibleSoftTissueStableIds
+) {
+    require(tendon.layer == kSoftTissueLayerTendon,
+            "tendon attachment collar requested for a non-tendon surface");
+    require(tendon.secondaryBodyIndex < bodies.size(),
+            "tendon attachment collar secondary body exceeds the rendered pose");
+    constexpr float kMaximumSourceSurfaceGapMeters = 0.030f;
+    constexpr float kSurfaceOverlapMeters = 0.0015f;
+    constexpr float kSecondaryWeightTolerance = 0.02f;
+    GeometryRange result;
+    result.firstIndex = static_cast<std::uint32_t>(pack.indices.size());
+    result.minimum = {
+        std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(), 1.0f,
+    };
+    result.maximum = {
+        -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity(), 1.0f,
+    };
+
+    std::vector<std::pair<std::uint32_t, std::uint32_t>> edges;
+    edges.reserve(tendon.indexCount);
+    const auto appendEdge = [&edges](const std::uint32_t first, const std::uint32_t second) {
+        edges.emplace_back(std::min(first, second), std::max(first, second));
+    };
+    for (std::uint32_t offset = 0u; offset < tendon.indexCount; offset += 3u) {
+        const std::uint32_t first = tissues.indices[tendon.firstIndex + offset];
+        const std::uint32_t second = tissues.indices[tendon.firstIndex + offset + 1u];
+        const std::uint32_t third = tissues.indices[tendon.firstIndex + offset + 2u];
+        appendEdge(first, second);
+        appendEdge(second, third);
+        appendEdge(third, first);
+    }
+    std::sort(edges.begin(), edges.end());
+
+    struct SurfaceClosest {
+        mr_float4 point{};
+        mr_float4 normal{};
+        float distanceSquared = std::numeric_limits<float>::infinity();
+        const SoftTissueRecord* muscle = nullptr;
+    };
+    const auto closestBonePoint = [&bones, &bodies, &tendon](const mr_float4 point) {
+        SurfaceClosest result;
+        for (const BoneRecord& bone : bones.records) {
+            if (bone.bodyIndex != tendon.secondaryBodyIndex) continue;
+            for (std::uint32_t offset = 0u; offset < bone.indexCount; offset += 3u) {
+                const std::uint32_t first = bones.indices[bone.firstIndex + offset];
+                const std::uint32_t second = bones.indices[bone.firstIndex + offset + 1u];
+                const std::uint32_t third = bones.indices[bone.firstIndex + offset + 2u];
+                const mr_float4 candidate = closestPointOnTriangle(
+                    point,
+                    boneVertexWorld(bone, bones.vertices[first], bodies[bone.bodyIndex]),
+                    boneVertexWorld(bone, bones.vertices[second], bodies[bone.bodyIndex]),
+                    boneVertexWorld(bone, bones.vertices[third], bodies[bone.bodyIndex])
+                );
+                const mr_float4 difference = subtractPoint(point, candidate);
+                const float distanceSquared = dotPoint(difference, difference);
+                if (distanceSquared >= result.distanceSquared) continue;
+                const mr_float4 firstNormal = boneVertexNormalWorld(
+                    bone, bones.vertices[first], bodies[bone.bodyIndex]
+                );
+                const mr_float4 secondNormal = boneVertexNormalWorld(
+                    bone, bones.vertices[second], bodies[bone.bodyIndex]
+                );
+                const mr_float4 thirdNormal = boneVertexNormalWorld(
+                    bone, bones.vertices[third], bodies[bone.bodyIndex]
+                );
+                mr_float4 normal{
+                    firstNormal.x + secondNormal.x + thirdNormal.x,
+                    firstNormal.y + secondNormal.y + thirdNormal.y,
+                    firstNormal.z + secondNormal.z + thirdNormal.z,
+                    0.0f,
+                };
+                const float normalLength = std::sqrt(dotPoint(normal, normal));
+                require(normalLength > 1.0e-6f,
+                        "tendon attachment collar encountered a degenerate bone normal");
+                normal = scalePoint(normal, 1.0f / normalLength);
+                result.point = candidate;
+                result.normal = normal;
+                result.distanceSquared = distanceSquared;
+            }
+        }
+        return result;
+    };
+    const auto closestMusclePoint = [&tissues, &bodies, &tendon, &visibleSoftTissueStableIds](
+        const mr_float4 point,
+        const SoftTissueRecord* requiredMuscle
+    ) {
+        SurfaceClosest result;
+        for (const SoftTissueRecord& muscle : tissues.records) {
+            if (muscle.layer != kSoftTissueLayerMuscle ||
+                (requiredMuscle != nullptr && &muscle != requiredMuscle) ||
+                (!visibleSoftTissueStableIds.empty() &&
+                 !std::binary_search(
+                     visibleSoftTissueStableIds.begin(), visibleSoftTissueStableIds.end(), muscle.stableId
+                 )) ||
+                !(muscle.primaryBodyIndex == tendon.primaryBodyIndex ||
+                  muscle.secondaryBodyIndex == tendon.primaryBodyIndex ||
+                  muscle.primaryBodyIndex == tendon.secondaryBodyIndex ||
+                  muscle.secondaryBodyIndex == tendon.secondaryBodyIndex)) {
+                continue;
+            }
+            for (std::uint32_t offset = 0u; offset < muscle.indexCount; offset += 3u) {
+                const std::uint32_t firstIndex = tissues.indices[muscle.firstIndex + offset];
+                const std::uint32_t secondIndex = tissues.indices[muscle.firstIndex + offset + 1u];
+                const std::uint32_t thirdIndex = tissues.indices[muscle.firstIndex + offset + 2u];
+                const mr_float4 first = softTissueVertexBlendedWorld(
+                    muscle, tissues.vertices[firstIndex], bodies
+                );
+                const mr_float4 second = softTissueVertexBlendedWorld(
+                    muscle, tissues.vertices[secondIndex], bodies
+                );
+                const mr_float4 third = softTissueVertexBlendedWorld(
+                    muscle, tissues.vertices[thirdIndex], bodies
+                );
+                const mr_float4 candidate = closestPointOnTriangle(point, first, second, third);
+                const mr_float4 difference = subtractPoint(point, candidate);
+                const float distanceSquared = dotPoint(difference, difference);
+                if (distanceSquared >= result.distanceSquared) continue;
+                const mr_float4 firstNormal = softTissueVertexBlendedNormalWorld(
+                    muscle, tissues.vertices[firstIndex], bodies
+                );
+                const mr_float4 secondNormal = softTissueVertexBlendedNormalWorld(
+                    muscle, tissues.vertices[secondIndex], bodies
+                );
+                const mr_float4 thirdNormal = softTissueVertexBlendedNormalWorld(
+                    muscle, tissues.vertices[thirdIndex], bodies
+                );
+                mr_float4 normal{
+                    firstNormal.x + secondNormal.x + thirdNormal.x,
+                    firstNormal.y + secondNormal.y + thirdNormal.y,
+                    firstNormal.z + secondNormal.z + thirdNormal.z,
+                    0.0f,
+                };
+                const float normalLength = std::sqrt(dotPoint(normal, normal));
+                require(normalLength > 1.0e-6f,
+                        "tendon attachment collar encountered a degenerate muscle normal");
+                result.point = candidate;
+                result.normal = scalePoint(normal, 1.0f / normalLength);
+                result.distanceSquared = distanceSquared;
+                result.muscle = &muscle;
+            }
+        }
+        return result;
+    };
+
+    const auto appendVertex = [&pack, &result](const mr_float4 position, mr_float4 normal) {
+        const float normalLength = std::sqrt(dotPoint(normal, normal));
+        require(normalLength > 1.0e-6f, "tendon attachment collar normal is degenerate");
+        normal = scalePoint(normal, 1.0f / normalLength);
+        normal.w = 1.0f;
+        pack.vertices.push_back({
+            position, normal, normalTangent(normal),
+            {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f},
+        });
+        result.minimum.x = std::min(result.minimum.x, position.x);
+        result.minimum.y = std::min(result.minimum.y, position.y);
+        result.minimum.z = std::min(result.minimum.z, position.z);
+        result.maximum.x = std::max(result.maximum.x, position.x);
+        result.maximum.y = std::max(result.maximum.y, position.y);
+        result.maximum.z = std::max(result.maximum.z, position.z);
+    };
+
+    for (std::size_t begin = 0u; begin < edges.size();) {
+        std::size_t end = begin + 1u;
+        while (end < edges.size() && edges[end] == edges[begin]) ++end;
+        if (end - begin != 1u) {
+            begin = end;
+            continue;
+        }
+        const auto [firstIndex, secondIndex] = edges[begin];
+        const SoftTissueVertex& first = tissues.vertices[firstIndex];
+        const SoftTissueVertex& second = tissues.vertices[secondIndex];
+        const mr_float4 firstSource = softTissueVertexBlendedWorld(tendon, first, bodies);
+        const mr_float4 secondSource = softTissueVertexBlendedWorld(tendon, second, bodies);
+        const mr_float4 middleSource = addPoint(
+            scalePoint(addPoint(firstSource, secondSource), 0.5f), {0.0f, 0.0f, 0.0f, 0.0f}
+        );
+        const SurfaceClosest middleMuscle = closestMusclePoint(middleSource, nullptr);
+        const bool secondaryBoneEnd = first.primaryWeight <= kSecondaryWeightTolerance &&
+            second.primaryWeight <= kSecondaryWeightTolerance;
+        const SurfaceClosest middleBone = secondaryBoneEnd
+            ? closestBonePoint(middleSource) : SurfaceClosest{};
+        const bool useBone = middleBone.distanceSquared <= middleMuscle.distanceSquared;
+        const SurfaceClosest firstClosest = useBone
+            ? closestBonePoint(firstSource)
+            : closestMusclePoint(firstSource, middleMuscle.muscle);
+        const SurfaceClosest secondClosest = useBone
+            ? closestBonePoint(secondSource)
+            : closestMusclePoint(secondSource, middleMuscle.muscle);
+        const float firstDistanceSquared = firstClosest.distanceSquared;
+        const float secondDistanceSquared = secondClosest.distanceSquared;
+        if (!(std::isfinite(firstDistanceSquared) && std::isfinite(secondDistanceSquared)) ||
+            firstDistanceSquared > kMaximumSourceSurfaceGapMeters * kMaximumSourceSurfaceGapMeters ||
+            secondDistanceSquared > kMaximumSourceSurfaceGapMeters * kMaximumSourceSurfaceGapMeters) {
+            begin = end;
+            continue;
+        }
+        const mr_float4 firstDirection = subtractPoint(firstSource, firstClosest.point);
+        const mr_float4 secondDirection = subtractPoint(secondSource, secondClosest.point);
+        const float firstSide = dotPoint(firstDirection, firstClosest.normal) >= 0.0f ? 1.0f : -1.0f;
+        const float secondSide = dotPoint(secondDirection, secondClosest.normal) >= 0.0f ? 1.0f : -1.0f;
+        const mr_float4 firstTarget = addPoint(
+            firstClosest.point, scalePoint(firstClosest.normal, firstSide * kSurfaceOverlapMeters)
+        );
+        const mr_float4 secondTarget = addPoint(
+            secondClosest.point, scalePoint(secondClosest.normal, secondSide * kSurfaceOverlapMeters)
+        );
+        const std::uint32_t vertexBase = static_cast<std::uint32_t>(pack.vertices.size());
+        appendVertex(firstSource, softTissueVertexBlendedNormalWorld(tendon, first, bodies));
+        appendVertex(secondSource, softTissueVertexBlendedNormalWorld(tendon, second, bodies));
+        appendVertex(secondTarget, secondClosest.normal);
+        appendVertex(firstTarget, firstClosest.normal);
+        pack.indices.insert(pack.indices.end(), {
+            vertexBase, vertexBase + 1u, vertexBase + 2u,
+            vertexBase, vertexBase + 2u, vertexBase + 3u,
+        });
+        begin = end;
+    }
+    result.indexCount = static_cast<std::uint32_t>(pack.indices.size()) - result.firstIndex;
     return result;
 }
 
@@ -2456,6 +2720,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     std::uint32_t& renderedBodies,
     std::uint32_t& renderedSoftTissues,
     std::uint32_t& renderedSkinShells,
+    std::uint32_t& renderedTendonAttachmentCollars,
     std::uint32_t& renderedRouteSegments
 ) {
     metalrobo::VisualAssetPackV2 pack;
@@ -2539,7 +2804,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         // The shell remains a neutral source-anatomy presentation material.
         // Its relief comes from the exact imported normals and the same light
         // rig as the exposed anatomy—not an emission pass or painted detail.
-        {0.62f, 0.32f, 0.22f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.46f, 0.10f
+        {0.74f, 0.37f, 0.25f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.56f, 0.025f
     ));
 
     const auto appendInstance = [&pack](
@@ -2637,6 +2902,36 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                 tissue.stableId
             );
             ++renderedSoftTissues;
+        }
+    }
+    renderedTendonAttachmentCollars = 0u;
+    if (bonePayload != nullptr && softTissuePayload != nullptr) {
+        for (const SoftTissueRecord& tissue : softTissuePayload->records) {
+            if (tissue.layer != kSoftTissueLayerTendon ||
+                (!requestedSoftTissueStableIds.empty() &&
+                 !std::binary_search(
+                     requestedSoftTissueStableIds.begin(),
+                     requestedSoftTissueStableIds.end(), tissue.stableId
+                 )) ||
+                (!requestedBoneBodyIndices.empty() &&
+                 !std::binary_search(
+                     requestedBoneBodyIndices.begin(),
+                     requestedBoneBodyIndices.end(), tissue.secondaryBodyIndex
+                 ))) {
+                continue;
+            }
+            const GeometryRange collar = appendTendonAttachmentCollarGeometry(
+                pack, *softTissuePayload, *bonePayload, tissue, bodies,
+                requestedSoftTissueStableIds
+            );
+            if (collar.indexCount == 0u) continue;
+            appendInstance(
+                collar, 5u, kTendonAttachmentCollarSemantic,
+                MR_VISUAL_BINDING_WORLD, MR_INVALID_INDEX,
+                {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
+                1000u + tissue.stableId
+            );
+            ++renderedTendonAttachmentCollars;
         }
     }
     renderedSkinShells = 0u;
@@ -2838,7 +3133,7 @@ CameraFraming makeCameraFraming(
         // to a thumbnail.  Retain the full-body stand-off through its actual
         // extent, while allowing a filtered anatomical insertion inspection
         // to fill the frame with a conservative 0.25 m lower bound.
-        .distance = std::max(1.08f * extent, 0.25f),
+        .distance = std::max(0.92f * extent, 0.25f),
         .sourceExtentMeters = extent,
         .usesSourceGeometryBounds = true,
     };
@@ -3302,6 +3597,7 @@ int main(int argc, char** argv) {
             std::uint32_t renderedBodies = 0u;
             std::uint32_t renderedSoftTissues = 0u;
             std::uint32_t renderedSkinShells = 0u;
+            std::uint32_t renderedTendonAttachmentCollars = 0u;
             std::uint32_t renderedRouteSegments = 0u;
             bool anyRequestedRouteVisible = false;
             const metalrobo::VisualAssetPackV2 pack = makeMarkerPack(
@@ -3314,7 +3610,8 @@ int main(int argc, char** argv) {
                 requestedBoneBodyIndices,
                 requestedSoftTissueStableIds,
                 resolvedRouteCentrelines.has_value() ? &*resolvedRouteCentrelines : nullptr,
-                renderedBodies, renderedSoftTissues, renderedSkinShells, renderedRouteSegments
+                renderedBodies, renderedSoftTissues, renderedSkinShells,
+                renderedTendonAttachmentCollars, renderedRouteSegments
             );
             require(requestedSoftTissueStableIds.empty() || renderedSoftTissues == requestedSoftTissueStableIds.size(),
                     "native Human visual soft-tissue selection did not render every requested source surface");
@@ -3400,7 +3697,10 @@ int main(int argc, char** argv) {
                 rendererConfig.width = frameDimension;
                 rendererConfig.height = frameDimension;
                 rendererConfig.maximumReferenceFramesInFlight = 1u;
-                rendererConfig.clearColorAndDepth = {0.002f, 0.006f, 0.012f, 1.0e30f};
+                // A neutral charcoal keeps the medical/source-validation
+                // framing free of fabricated scenery while preserving enough
+                // shadow separation for an exterior silhouette to read.
+                rendererConfig.clearColorAndDepth = {0.012f, 0.019f, 0.030f, 1.0e30f};
                 metalrobo::MetalHybridRenderer renderer(rendererConfig);
                 const auto rendererCompile = renderer.compile(
                     std::move(cameraManifest.renderScene),
@@ -3431,6 +3731,9 @@ int main(int argc, char** argv) {
                 const std::size_t routePixels = coverage(observation, kRouteSemantic);
                 const std::size_t muscleSurfacePixels = coverage(observation, kMuscleSurfaceSemantic);
                 const std::size_t tendonSurfacePixels = coverage(observation, kTendonSurfaceSemantic);
+                const std::size_t tendonAttachmentCollarPixels = coverage(
+                    observation, kTendonAttachmentCollarSemantic
+                );
                 const std::size_t skinShellPixels = coverage(observation, kSkinShellSemantic);
                 completeVisualCoverage = completeVisualCoverage &&
                     (skinPayload.has_value()
@@ -3444,6 +3747,7 @@ int main(int argc, char** argv) {
                           << " muscle_route_pixels=" << routePixels
                           << " muscle_surface_pixels=" << muscleSurfacePixels
                           << " tendon_surface_pixels=" << tendonSurfacePixels
+                          << " tendon_attachment_collar_pixels=" << tendonAttachmentCollarPixels
                           << " skin_shell_pixels=" << skinShellPixels
                           << " frame=" << frame.string() << '\n';
             }
@@ -3475,6 +3779,10 @@ int main(int argc, char** argv) {
                             ? "bounded_multistep_all_416_mujoco_metal_force_projection_and_activation_state_then_cpu_fp64_dynamics_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_and_two_body_kinematic_source_soft_tissue_visuals_not_contact_or_live_rollout"
                             : "bounded_multistep_all_416_mujoco_metal_force_projection_and_activation_state_then_cpu_fp64_dynamics_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_not_contact_or_live_rollout")
                         : "bounded_multistep_all_416_mujoco_metal_force_projection_and_activation_state_then_cpu_fp64_dynamics_to_metal_pose_snapshot_not_contact_or_live_rollout");
+            if (renderedTendonAttachmentCollars > 0u) {
+                evidenceBoundary +=
+                    "_with_source_proximity_derived_tendon_to_visible_muscle_or_named_bone_visual_collars_not_a_tendon_weld_or_force_transfer";
+            }
             if (skinPayload.has_value()) {
                 evidenceBoundary +=
                     "_with_four_bone_linear_blend_bodyparts3d_skin_shell_visual_not_deformable_skin_collision_or_tissue_physics";
@@ -3495,6 +3803,8 @@ int main(int argc, char** argv) {
                       << " soft_tissue_binding=" << (softTissuePayload.has_value()
                               ? "two_body_linear_blend_world_surface_snapshot"
                               : "none")
+                      << " bodyparts_tendon_attachment_collars="
+                      << renderedTendonAttachmentCollars
                       << " bodyparts_skin_shells=" << renderedSkinShells
                       << " skin_shell_binding=" << (skinPayload.has_value()
                               ? "four_body_registered_bone_envelope_linear_blend_world_surface_snapshot"
