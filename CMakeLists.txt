@@ -1301,6 +1301,28 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+# Process-local NumiBrain/NumanX proof bridge. It accepts the actual resident
+# NumiBrain MTLBuffer object, advances a bounded six-muscle MyoSim reference
+# transaction, and exposes only compact acceptance metadata through a C ABI.
+add_library(
+    metalrobo_numibrain_myosim_bridge
+    SHARED
+    apps/numibrain_myosim_bridge.mm
+)
+target_link_libraries(
+    metalrobo_numibrain_myosim_bridge
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numibrain_myosim_bridge
+    PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
 # Native visual inspection for the full-body MyoSim model. It obtains the
 # articulated pose from the Metal operator, renders BodyParts3D major-bone
 # geometry when supplied, and can opt in to selected CPU-resolved source route
