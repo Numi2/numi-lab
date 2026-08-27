@@ -21,6 +21,7 @@ private struct Options {
     var zeroActorOutput = false
     var initializeActorPolicyPack: String?
     var initializeActorFreshCritic = false
+    var retentionPolicyPack: String?
     var actorObservationExtensionOffset: Int?
     var actorObservationExtensionMean: Double?
     var actorObservationExtensionInverseStandardDeviation = 1.0
@@ -159,6 +160,9 @@ private struct Options {
                 index += 1
             case "--initialize-actor-fresh-critic":
                 initializeActorFreshCritic = true
+            case "--retention-policy-pack":
+                retentionPolicyPack = try value()
+                index += 1
             case "--actor-observation-extension-offset":
                 actorObservationExtensionOffset = try Self.integer(
                     value(),
@@ -547,6 +551,16 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--actor-observation-extension-offset must be non-negative."
+            )
+        }
+        if retentionPolicyPack?.isEmpty == true {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--retention-policy-pack cannot be empty."
+            )
+        }
+        if retentionPolicyPack != nil && birdFlowJourneyTeacher {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--retention-policy-pack cannot be combined with --birdflow-journey-teacher."
             )
         }
         let (sampleCount, sampleOverflow) =
@@ -1037,6 +1051,12 @@ private final class MLXLearnerWorker {
         }
         if options.overrideResumedExploration {
             arguments.append("--override-resumed-exploration")
+        }
+        if let retentionPolicyPack = options.retentionPolicyPack {
+            arguments.append(contentsOf: [
+                "--retention-policy-pack",
+                retentionPolicyPack,
+            ])
         }
         if let offset = options.actorObservationExtensionOffset {
             arguments.append(contentsOf: [
@@ -1895,6 +1915,8 @@ private enum TaskTrainMain {
                     options.birdFlowJourneyTeacher,
                 "birdflow_journey_student_authority":
                     options.birdFlowJourneyStudentAuthority,
+                "retention_policy_pack":
+                    options.retentionPolicyPack ?? "",
                 "difficulty_sampling_exponent_override":
                     options.difficultySamplingExponentOverride,
                 "birdflow_journey_variant":

@@ -92,6 +92,14 @@ pin a conservative positive PPO rate when actor retention is more important
 than fast adaptation. `NUMI_CROW_INITIAL_LOG_STANDARD_DEVIATION` can likewise
 match a transferred actor's exploration head instead of accepting the fresh
 learner default. The supervisor records both controls in run arguments.
+For a reward-only task migration that must retain already promoted behavior,
+set `NUMI_CROW_RETENTION_POLICY` to that promoted PolicyPack, disable the
+scripted teacher, and optionally tune the positive
+`NUMI_CROW_RETENTION_COEFFICIENT` (default `1.0`). The worker evaluates the
+frozen source actor on each current observation and applies the existing
+Huber distillation loss without changing which actor controls physics. A
+retention source is training regularization, not promotion evidence; the
+held-out target and protected-band selector remains authoritative.
 
 Sensor-fast curriculum uses `NUMI_CROW_COURSE=sensor-fast` and automatically
 selects the v9 visual ABI and its authored camera. Begin it at band 0 from a

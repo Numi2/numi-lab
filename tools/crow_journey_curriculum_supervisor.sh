@@ -32,6 +32,8 @@ rehearsal_minimum_band=${NUMI_CROW_REHEARSAL_MINIMUM_BAND:-}
 difficulty_sampling_exponent=${NUMI_CROW_DIFFICULTY_SAMPLING_EXPONENT:-}
 learning_rate=${NUMI_CROW_LEARNING_RATE:-}
 initial_log_standard_deviation=${NUMI_CROW_INITIAL_LOG_STANDARD_DEVIATION:-}
+retention_policy=${NUMI_CROW_RETENTION_POLICY:-}
+retention_coefficient=${NUMI_CROW_RETENTION_COEFFICIENT:-1.0}
 
 case "$course" in
   state)
@@ -105,6 +107,22 @@ if [ -n "$initial_log_standard_deviation" ] && ! "$mlx" -c \
   echo "NUMI_CROW_INITIAL_LOG_STANDARD_DEVIATION must be finite" >&2
   exit 2
 fi
+if [ -n "$retention_policy" ]; then
+  [ -s "$retention_policy" ] || {
+    echo "NUMI_CROW_RETENTION_POLICY must name a readable PolicyPack" >&2
+    exit 2
+  }
+  [ "$teacher_distillation" -eq 0 ] || {
+    echo "Crow retention policy cannot be combined with teacher distillation" >&2
+    exit 2
+  }
+  if ! "$mlx" -c \
+    'import math,sys; value=float(sys.argv[1]); sys.exit(0 if math.isfinite(value) and value > 0.0 else 1)' \
+    "$retention_coefficient"; then
+    echo "NUMI_CROW_RETENTION_COEFFICIENT must be finite and positive" >&2
+    exit 2
+  fi
+fi
 if [ "$parent_mode" = actor-transfer ]; then
   [ -n "$parent_policy" ] && [ -s "$parent_policy" ] && \
     [ -z "$parent_state" ] || {
@@ -175,6 +193,12 @@ while [ "$band" -le "$maximum_band" ]; do
       common+=(
         --initial-log-standard-deviation
         "$initial_log_standard_deviation"
+      )
+    fi
+    if [ -n "$retention_policy" ]; then
+      common+=(
+        --retention-policy-pack "$retention_policy"
+        --imagination-distillation-coefficient "$retention_coefficient"
       )
     fi
     if [ -n "$visual_config" ]; then

@@ -28,6 +28,7 @@ from metalrobo.mlx_policy_worker import (
     _PPO_EXPLICIT_LEARNING_RATE_OVERRIDE_FIELDS,
     _PPO_RESUMABLE_SCHEDULE_FIELDS,
     _configuration_matches,
+    _retention_policy_batch,
     _restore_learner_state,
     _write_learner_state,
 )
@@ -55,6 +56,30 @@ def make_learner() -> MLXPolicyLearner:
         action_fingerprint=4,
     )
     return learner
+
+
+def check_retention_targets() -> None:
+    learner = make_learner()
+    sample_count = 8
+    actor = np.zeros((sample_count, 480), dtype=np.float32)
+    critic = np.zeros((sample_count, 495), dtype=np.float32)
+    batch = MLXPolicyBatch.from_numpy(
+        actor_observations=actor,
+        critic_observations=critic,
+        latents=np.zeros((sample_count, 29), dtype=np.float32),
+        old_log_probabilities=np.zeros(sample_count, dtype=np.float32),
+        old_values=np.zeros(sample_count, dtype=np.float32),
+        advantages=np.zeros(sample_count, dtype=np.float32),
+        returns=np.zeros(sample_count, dtype=np.float32),
+    )
+    anchored = _retention_policy_batch(batch, learner, chunk_size=3)
+    expected = learner.model.actor_mean(mx.array(actor))
+    mx.eval(expected)
+    if not np.array_equal(
+        anchored.teacher_actions,
+        np.asarray(expected, dtype=np.float32),
+    ) or not np.all(anchored.teacher_weights == 1.0):
+        raise RuntimeError("retention targets do not match the frozen actor")
 
 
 def check_gae_boundaries() -> None:
@@ -631,6 +656,7 @@ def main() -> int:
     parser.add_argument("--chunk", type=int, default=4)
     arguments = parser.parse_args()
     check_gae_boundaries()
+    check_retention_targets()
     check_realized_imagination_weighting()
     check_resumable_schedule_contracts()
 

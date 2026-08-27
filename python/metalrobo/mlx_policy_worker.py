@@ -25,6 +25,7 @@ from .mlx_policy_learning import (
     MLXMotionPrior,
     MLXMotionPriorConfiguration,
     MLXPPOConfiguration,
+    MLXPolicyBatch,
     MLXPolicyLearner,
     read_motion_pack,
     read_policy_rollout_pack,
@@ -100,6 +101,54 @@ def _configuration_record(learner: MLXPolicyLearner) -> str:
         sort_keys=True,
         separators=(",", ":"),
         allow_nan=False,
+    )
+
+
+def _retention_policy_batch(
+    batch: MLXPolicyBatch,
+    reference: MLXPolicyLearner,
+    *,
+    chunk_size: int,
+) -> MLXPolicyBatch:
+    """Attach frozen source-actor targets without changing PPO authority."""
+
+    if chunk_size <= 0:
+        raise ValueError("retention target chunk size must be positive")
+    if np.any(batch.teacher_weights != 0.0):
+        raise ValueError(
+            "retention policy cannot be combined with rollout teacher targets"
+        )
+    if (
+        reference.actor_observation_count
+        != int(batch.actor_observations.shape[1])
+        or reference.action_count != int(batch.latents.shape[1])
+    ):
+        raise ValueError(
+            "retention policy disagrees with the actor observation or action contract"
+        )
+    targets: list[np.ndarray] = []
+    for offset in range(0, int(batch.actor_observations.shape[0]), chunk_size):
+        observations = mx.array(
+            batch.actor_observations[offset : offset + chunk_size],
+            dtype=mx.float32,
+        )
+        means = reference.model.actor_mean(observations)
+        mx.eval(means)
+        targets.append(np.asarray(means, dtype=np.float32))
+    return MLXPolicyBatch.from_numpy(
+        actor_observations=batch.actor_observations,
+        critic_observations=batch.critic_observations,
+        latents=batch.latents,
+        old_log_probabilities=batch.old_log_probabilities,
+        old_values=batch.old_values,
+        advantages=batch.advantages,
+        returns=batch.returns,
+        teacher_actions=np.concatenate(targets, axis=0),
+        teacher_weights=np.ones(
+            int(batch.actor_observations.shape[0]),
+            dtype=np.float32,
+        ),
+        policy_weights=batch.policy_weights,
     )
 
 
@@ -714,6 +763,27 @@ def _serve(arguments: argparse.Namespace) -> int:
         library_path=arguments.native_library,
     )
     _bind_contract(learner, arguments)
+    retention_reference = None
+    if arguments.retention_policy_pack is not None:
+        if arguments.imagination_distillation_coefficient <= 0.0:
+            raise ValueError(
+                "retention policy requires a positive distillation coefficient"
+            )
+        retention_reference = MLXPolicyLearner.from_actor_policy_pack(
+            arguments.retention_policy_pack,
+            learner.critic_observation_count,
+            learner.configuration,
+            preserve_critic=False,
+            actor_observation_count=learner.actor_observation_count,
+            actor_observation_extension_offset=(
+                arguments.actor_observation_extension_offset
+            ),
+            library_path=arguments.native_library,
+        )
+        if retention_reference.action_count != learner.action_count:
+            raise ValueError(
+                "retention policy disagrees with the learner action contract"
+            )
     motion_prior = None
     if arguments.motion_pack is not None:
         motion_prior = MLXMotionPrior(
@@ -809,6 +879,12 @@ def _serve(arguments: argparse.Namespace) -> int:
                 restored and arguments.override_resumed_exploration
             ),
             "motion_prior_enabled": motion_prior is not None,
+            "retention_policy_enabled": retention_reference is not None,
+            "retention_policy_pack": (
+                str(arguments.retention_policy_pack)
+                if arguments.retention_policy_pack is not None
+                else None
+            ),
             "motion_pack_hash": (
                 motion_prior.motion_pack.content_hash
                 if motion_prior is not None
@@ -861,6 +937,12 @@ def _serve(arguments: argparse.Namespace) -> int:
                 gae_lambda=learner.configuration.gae_lambda,
                 rewards=learning_rewards,
             )
+            if retention_reference is not None:
+                policy_batch = _retention_policy_batch(
+                    policy_batch,
+                    retention_reference,
+                    chunk_size=learner.configuration.minibatch_size,
+                )
             metrics = learner.update(policy_batch)
             metrics.update(motion_metrics)
             artifact = learner.write_policy_pack(
@@ -1206,6 +1288,14 @@ def main() -> int:
         "--restore-learner-state",
         type=Path,
         help="immutable learner state used only for restoration",
+    )
+    serve.add_argument(
+        "--retention-policy-pack",
+        type=Path,
+        help=(
+            "frozen source actor evaluated on current observations and used "
+            "as all-sample Huber retention targets"
+        ),
     )
     serve.add_argument(
         "--actor-observation-extension-offset",
