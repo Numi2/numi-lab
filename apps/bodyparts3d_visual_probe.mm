@@ -100,7 +100,8 @@ struct PackFraming {
 PackFraming packFraming(
     const metalrobo::VisualAssetPackV2& pack,
     const bool tightFrame,
-    const bool focusLowerThird
+    const bool focusLowerThird,
+    const bool fillFrame
 ) {
     if (pack.vertices.empty()) {
         throw std::runtime_error("BodyParts3D visual pack has no vertices");
@@ -139,7 +140,9 @@ PackFraming packFraming(
     const float verticalExtent = maximum.z - minimum.z;
     const float distance = focusLowerThird
         ? std::max(0.65f * verticalExtent, 0.30f)
-        : std::max(1.35f * extent, tightFrame ? 0.0f : 2.25f);
+        : (fillFrame
+            ? std::max(0.95f * verticalExtent, 0.30f)
+            : std::max(1.35f * extent, tightFrame ? 0.0f : 2.25f));
     return {centre, minimum, maximum, distance};
 }
 
@@ -226,12 +229,13 @@ int main(int argc, char** argv) {
     @autoreleasepool {
         try {
             if (argc < 3) {
-                std::cerr << "usage: metalrobo_bodyparts3d_visual_probe PACK.mrvpack OUTPUT_DIRECTORY [--dimension <128..4096>] [--tight-frame] [--focus-lower-third]\n";
+                std::cerr << "usage: metalrobo_bodyparts3d_visual_probe PACK.mrvpack OUTPUT_DIRECTORY [--dimension <128..4096>] [--tight-frame] [--fill-frame] [--focus-lower-third]\n";
                 return 2;
             }
             std::uint32_t dimension = 512u;
             bool tightFrame = false;
             bool focusLowerThird = false;
+            bool fillFrame = false;
             for (int argument = 3; argument < argc; ++argument) {
                 const std::string option{argv[argument]};
                 if (option == "--tight-frame") {
@@ -242,14 +246,21 @@ int main(int argc, char** argv) {
                     continue;
                 }
                 if (option == "--focus-lower-third") {
-                    if (focusLowerThird) {
-                        throw std::runtime_error("--focus-lower-third may only be provided once");
+                    if (focusLowerThird || fillFrame) {
+                        throw std::runtime_error("--focus-lower-third may only be provided once and cannot be combined with --fill-frame");
                     }
                     focusLowerThird = true;
                     continue;
                 }
+                if (option == "--fill-frame") {
+                    if (fillFrame || focusLowerThird) {
+                        throw std::runtime_error("--fill-frame may only be provided once and cannot be combined with --focus-lower-third");
+                    }
+                    fillFrame = true;
+                    continue;
+                }
                 if (option != "--dimension" || ++argument >= argc) {
-                    throw std::runtime_error("expected --dimension <128..4096>, --tight-frame, or --focus-lower-third");
+                    throw std::runtime_error("expected --dimension <128..4096>, --tight-frame, --fill-frame, or --focus-lower-third");
                 }
                 const std::string dimensionText{argv[argument]};
                 std::size_t parsed = 0u;
@@ -266,7 +277,7 @@ int main(int argc, char** argv) {
             if (!metalrobo::readVisualAssetPack(packPath, pack, &reason)) {
                 throw std::runtime_error("could not read visual pack: " + reason);
             }
-            const PackFraming framing = packFraming(pack, tightFrame, focusLowerThird);
+            const PackFraming framing = packFraming(pack, tightFrame, focusLowerThird, fillFrame);
             mr_float4 target = framing.centre;
             if (focusLowerThird) {
                 target.z = framing.minimum.z + 0.32f * (framing.maximum.z - framing.minimum.z);
