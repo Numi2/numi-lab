@@ -1,0 +1,111 @@
+#pragma once
+
+// Typed device ABI for MyoSim's MuJoCo ``general`` muscle reference.  The
+// source model uses this force law and sphere/cylinder spatial tendon wraps,
+// so it intentionally does not share the OpenSim Millard sidecar ABI.
+
+#include "metalrobo/engine_types.h"
+
+#define MR_MUJOCO_MUSCLE_REFERENCE_GPU_ABI_VERSION 1u
+
+enum MRMujocoMuscleReferenceGPUStatus : mr_u32 {
+    MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS = 0u,
+    MR_MUJOCO_MUSCLE_REFERENCE_INVALID_PROGRAM = 1u,
+    MR_MUJOCO_MUSCLE_REFERENCE_INVALID_STATE = 2u,
+    MR_MUJOCO_MUSCLE_REFERENCE_INVALID_PATH = 3u,
+    MR_MUJOCO_MUSCLE_REFERENCE_NONFINITE_RESULT = 4u,
+};
+
+enum MRMujocoMuscleRouteNodeType : mr_u32 {
+    MR_MUJOCO_MUSCLE_ROUTE_SITE = 1u,
+    MR_MUJOCO_MUSCLE_ROUTE_SPHERE = 2u,
+    MR_MUJOCO_MUSCLE_ROUTE_CYLINDER = 3u,
+};
+
+typedef struct MR_ALIGN16 MRMujocoMuscleReferenceDispatchGPU {
+    mr_u32 abiVersion;
+    mr_u32 muscleCount;
+    mr_u32 siteCount;
+    mr_u32 wrapCount;
+
+    mr_u32 routeNodeCount;
+    mr_u32 environmentCount;
+    mr_u32 bodyPoseStride;
+    mr_u32 articulationFirstBody;
+
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+    mr_u32 reserved2;
+    mr_u32 reserved3;
+} MRMujocoMuscleReferenceDispatchGPU;
+
+// Immutable source program. Every three parameter blocks retain the ten
+// source MuJoCo gain/bias/dynamics values followed by explicit zero padding.
+typedef struct MR_ALIGN16 MRMujocoMuscleGPU {
+    // x route-node offset; y route-node count; zw reserved zero.
+    mr_uint4 route;
+    // x/y tendon length range; z acceleration scale; w reserved zero.
+    mr_float4 lengthRangeAndAcceleration;
+    // x/y control range; zw reserved zero. Retained source metadata.
+    mr_float4 controlRange;
+    mr_float4 gainParameters[3];
+    mr_float4 biasParameters[3];
+    mr_float4 dynamicParameters[3];
+} MRMujocoMuscleGPU;
+
+typedef struct MR_ALIGN16 MRMujocoMuscleSiteGPU {
+    mr_u32 bodyIndex;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+    mr_u32 reserved2;
+    // xyz COM-relative Core body coordinate; w required zero.
+    mr_float4 localPoint;
+} MRMujocoMuscleSiteGPU;
+
+typedef struct MR_ALIGN16 MRMujocoMuscleWrapGPU {
+    mr_u32 bodyIndex;
+    mr_u32 type;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+    // xyz COM-relative Core body coordinate; w required zero.
+    mr_float4 localCenter;
+    // Row-major geometry-to-Core-body rotation; w of each row required zero.
+    mr_float4 rotationRow0;
+    mr_float4 rotationRow1;
+    mr_float4 rotationRow2;
+    // x radius metres; yzw required zero.
+    mr_float4 radius;
+} MRMujocoMuscleWrapGPU;
+
+typedef struct MR_ALIGN16 MRMujocoMuscleRouteNodeGPU {
+    mr_u32 type;
+    // Site index for site nodes and wrap index otherwise.
+    mr_u32 targetIndex;
+    // Optional side-site index, or MR_INVALID_INDEX.
+    mr_u32 sideSiteIndex;
+    mr_u32 reserved0;
+} MRMujocoMuscleRouteNodeGPU;
+
+// State is environment-major. x excitation, y activation; zw required zero.
+typedef struct MR_ALIGN16 MRMujocoMuscleStateGPU {
+    mr_float4 excitationAndActivation;
+} MRMujocoMuscleStateGPU;
+
+typedef struct MR_ALIGN16 MRMujocoMuscleResultGPU {
+    mr_u32 status;
+    mr_u32 environment;
+    mr_u32 muscleIndex;
+    mr_u32 appliedWrapCount;
+    // x path length; y static path velocity; z actuator force; w activation derivative.
+    mr_float4 pathForceAndActivationDerivative;
+} MRMujocoMuscleResultGPU;
+
+#ifndef __METAL_VERSION__
+static_assert(sizeof(MRMujocoMuscleReferenceDispatchGPU) == 48u);
+static_assert(sizeof(MRMujocoMuscleGPU) == 192u);
+static_assert(sizeof(MRMujocoMuscleSiteGPU) == 32u);
+static_assert(sizeof(MRMujocoMuscleWrapGPU) == 96u);
+static_assert(sizeof(MRMujocoMuscleRouteNodeGPU) == 16u);
+static_assert(sizeof(MRMujocoMuscleStateGPU) == 16u);
+static_assert(sizeof(MRMujocoMuscleResultGPU) == 32u);
+#endif

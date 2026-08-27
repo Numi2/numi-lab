@@ -188,6 +188,11 @@ struct LoadedMuscles {
     std::vector<metalrobo::MujocoMuscleSite> sites;
     std::vector<metalrobo::MujocoWrapGeometry> wraps;
     std::vector<metalrobo::MujocoMuscleDefinition> muscles;
+    std::vector<MRMujocoMuscleSiteGPU> gpuSites;
+    std::vector<MRMujocoMuscleWrapGPU> gpuWraps;
+    std::vector<MRMujocoMuscleRouteNodeGPU> gpuRoutes;
+    std::vector<MRMujocoMuscleGPU> gpuMuscles;
+    std::vector<MRMujocoMuscleStateGPU> gpuStates;
     std::vector<double> oracleLength;
     std::vector<double> oracleForce;
 };
@@ -217,20 +222,56 @@ LoadedMuscles loadMuscles(const char* path, const RigidHeader& rigid) {
     const std::vector<MuscleRecord> sourceMuscles = readVector<MuscleRecord>(input, result.header.muscleCount, "MyoSim muscle records");
     require(input.peek() == std::char_traits<char>::eof(), "MyoSim muscle payload has trailing bytes");
     result.sites.reserve(sourceSites.size());
+    result.gpuSites.reserve(sourceSites.size());
     for (const SiteRecord& source : sourceSites) {
         require(source.bodyIndex < rigid.engineBodyCount, "MyoSim site body index is out of bounds");
         result.sites.push_back({source.bodyIndex, {source.x, source.y, source.z}});
+        MRMujocoMuscleSiteGPU gpuSite{};
+        gpuSite.bodyIndex = source.bodyIndex;
+        gpuSite.localPoint = {source.x, source.y, source.z, 0.0f};
+        result.gpuSites.push_back(gpuSite);
     }
     result.wraps.reserve(sourceWraps.size());
+    result.gpuWraps.reserve(sourceWraps.size());
     for (const WrapRecord& source : sourceWraps) {
         require(source.bodyIndex < rigid.engineBodyCount, "MyoSim wrap body index is out of bounds");
+        const auto type = routeType(source.type);
         result.wraps.push_back({
-            source.bodyIndex, routeType(source.type), {source.centerX, source.centerY, source.centerZ},
+            source.bodyIndex, type, {source.centerX, source.centerY, source.centerZ},
             {source.rotation[0], source.rotation[1], source.rotation[2], source.rotation[3], source.rotation[4],
              source.rotation[5], source.rotation[6], source.rotation[7], source.rotation[8]}, source.radius,
         });
+        MRMujocoMuscleWrapGPU gpuWrap{};
+        gpuWrap.bodyIndex = source.bodyIndex;
+        gpuWrap.type = source.type;
+        gpuWrap.localCenter = {
+            source.centerX, source.centerY, source.centerZ, 0.0f,
+        };
+        gpuWrap.rotationRow0 = {
+            source.rotation[0], source.rotation[1], source.rotation[2], 0.0f,
+        };
+        gpuWrap.rotationRow1 = {
+            source.rotation[3], source.rotation[4], source.rotation[5], 0.0f,
+        };
+        gpuWrap.rotationRow2 = {
+            source.rotation[6], source.rotation[7], source.rotation[8], 0.0f,
+        };
+        gpuWrap.radius = {source.radius, 0.0f, 0.0f, 0.0f};
+        result.gpuWraps.push_back(gpuWrap);
+    }
+    result.gpuRoutes.reserve(routes.size());
+    for (const RouteRecord& source : routes) {
+        (void)routeType(source.type);
+        require(source.reserved0 == 0u, "MyoSim route reserved field is nonzero");
+        MRMujocoMuscleRouteNodeGPU gpuRoute{};
+        gpuRoute.type = source.type;
+        gpuRoute.targetIndex = source.targetIndex;
+        gpuRoute.sideSiteIndex = source.sideSiteIndex;
+        result.gpuRoutes.push_back(gpuRoute);
     }
     result.muscles.reserve(sourceMuscles.size());
+    result.gpuMuscles.reserve(sourceMuscles.size());
+    result.gpuStates.reserve(sourceMuscles.size());
     result.oracleLength.reserve(sourceMuscles.size());
     result.oracleForce.reserve(sourceMuscles.size());
     for (const MuscleRecord& source : sourceMuscles) {
@@ -254,6 +295,26 @@ LoadedMuscles loadMuscles(const char* path, const RigidHeader& rigid) {
         result.oracleLength.push_back(source.values[35]);
         result.oracleForce.push_back(source.values[36]);
         result.muscles.push_back(std::move(definition));
+        MRMujocoMuscleGPU gpuMuscle{};
+        gpuMuscle.route = {source.routeOffset, source.routeCount, 0u, 0u};
+        gpuMuscle.lengthRangeAndAcceleration = {
+            source.values[0], source.values[1], source.values[2], 0.0f,
+        };
+        gpuMuscle.controlRange = {
+            source.values[3], source.values[4], 0.0f, 0.0f,
+        };
+        for (std::size_t index = 0u; index < 10u; ++index) {
+            (&gpuMuscle.gainParameters[index / 4u].x)[index % 4u] =
+                source.values[5u + index];
+            (&gpuMuscle.biasParameters[index / 4u].x)[index % 4u] =
+                source.values[15u + index];
+            (&gpuMuscle.dynamicParameters[index / 4u].x)[index % 4u] =
+                source.values[25u + index];
+        }
+        result.gpuMuscles.push_back(gpuMuscle);
+        MRMujocoMuscleStateGPU gpuState{};
+        gpuState.excitationAndActivation = {0.5f, 0.5f, 0.0f, 0.0f};
+        result.gpuStates.push_back(gpuState);
     }
     return result;
 }
@@ -278,10 +339,14 @@ struct MetalArticulatedMetrics {
     double maximumBodyOrientationComponentError = 0.0;
     double maximumPointPositionError = 0.0;
     double maximumPointJacobianError = 0.0;
+    double maximumMuscleLengthError = 0.0;
+    double maximumMuscleForceError = 0.0;
+    std::uint32_t appliedMuscleWraps = 0u;
 };
 
 MetalArticulatedMetrics verifyMetalArticulatedReference(
-    const metalrobo::EngineModel& model
+    const metalrobo::EngineModel& model,
+    const LoadedMuscles& muscles
 ) {
     const MRArticulationGPU& articulation = model.articulations.at(0u);
     std::vector<float> q = model.defaultQ;
@@ -327,6 +392,13 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
         .pointCount = gpuPoints.size(),
         .q = q,
         .points = gpuPoints,
+        .mujoco = {
+            .muscles = muscles.gpuMuscles,
+            .states = muscles.gpuStates,
+            .sites = muscles.gpuSites,
+            .wraps = muscles.gpuWraps,
+            .routeNodes = muscles.gpuRoutes,
+        },
     };
     metalrobo::MetalArticulatedOperatorResult kinematicsResult;
     const metalrobo::MetalArticulatedOperatorConfig kinematicsConfig{
@@ -348,7 +420,8 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
     require(
         kinematicsResult.bodyPoses.size() == cpuBodies.size() &&
             kinematicsResult.pointWorld.size() == cpuPointKinematics.size() &&
-            kinematicsResult.pointJacobians.size() == cpuJacobians.size(),
+            kinematicsResult.pointJacobians.size() == cpuJacobians.size() &&
+            kinematicsResult.mujocoResults.size() == muscles.muscles.size(),
         "MyoSim Metal kinematics/Jacobian result layout is invalid"
     );
 
@@ -395,12 +468,41 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
             std::abs(static_cast<double>(kinematicsResult.pointJacobians[index]) - cpuJacobians[index])
         );
     }
+    for (std::size_t index = 0u;
+         index < kinematicsResult.mujocoResults.size();
+         ++index) {
+        const MRMujocoMuscleResultGPU& gpu =
+            kinematicsResult.mujocoResults[index];
+        metrics.maximumMuscleLengthError = std::max(
+            metrics.maximumMuscleLengthError,
+            std::abs(static_cast<double>(
+                gpu.pathForceAndActivationDerivative.x
+            ) - muscles.oracleLength[index])
+        );
+        metrics.maximumMuscleForceError = std::max(
+            metrics.maximumMuscleForceError,
+            std::abs(static_cast<double>(
+                gpu.pathForceAndActivationDerivative.z
+            ) - muscles.oracleForce[index])
+        );
+        metrics.appliedMuscleWraps += gpu.appliedWrapCount;
+    }
     require(
         metrics.maximumBodyPositionError < 2.0e-4 &&
             metrics.maximumBodyOrientationComponentError < 2.0e-4 &&
             metrics.maximumPointPositionError < 2.0e-4 &&
-            metrics.maximumPointJacobianError < 5.0e-4,
-        "MyoSim Metal kinematics/Jacobian parity exceeded FP32 tolerance"
+            metrics.maximumPointJacobianError < 5.0e-4 &&
+            metrics.maximumMuscleLengthError < 2.0e-4 &&
+            metrics.maximumMuscleForceError < 5.0e-2 &&
+            metrics.appliedMuscleWraps == 90u,
+        "MyoSim Metal kinematics/Jacobian/muscle-route parity exceeded FP32 tolerance: "
+            "body=" + std::to_string(metrics.maximumBodyPositionError) +
+            " orientation=" + std::to_string(metrics.maximumBodyOrientationComponentError) +
+            " point=" + std::to_string(metrics.maximumPointPositionError) +
+            " jacobian=" + std::to_string(metrics.maximumPointJacobianError) +
+            " muscle_length=" + std::to_string(metrics.maximumMuscleLengthError) +
+            " muscle_force=" + std::to_string(metrics.maximumMuscleForceError) +
+            " wraps=" + std::to_string(metrics.appliedMuscleWraps)
     );
 
     return metrics;
@@ -469,7 +571,7 @@ int run(const char* rigidPath, const char* musclePath, const bool runMetal) {
     require(std::all_of(muscleAcceleration.begin(), muscleAcceleration.end(), [](const double value) { return std::isfinite(value); }),
             "MyoSim muscle-driven acceleration is non-finite");
     const MetalArticulatedMetrics metal = runMetal
-        ? verifyMetalArticulatedReference(model)
+        ? verifyMetalArticulatedReference(model, muscles)
         : MetalArticulatedMetrics{};
     auto& output = std::cout << std::setprecision(12)
                              << "myosim_core_reference PASS"
@@ -489,13 +591,18 @@ int run(const char* rigidPath, const char* musclePath, const bool runMetal) {
                              << " mass_min_pivot=" << massDiagnostics.minimumCholeskyPivot
                              << " mass_condition=" << massDiagnostics.estimatedMassMatrixCondition;
     if (runMetal) {
-        output << " metal_stage=kinematics_jacobians"
+        output << " metal_stage=kinematics_jacobians_muscle_route_force"
                << " metal_device=\"" << metal.deviceName << "\""
                << " metal_max_body_position_error_m=" << metal.maximumBodyPositionError
                << " metal_max_body_orientation_component_error="
                << metal.maximumBodyOrientationComponentError
                << " metal_max_point_position_error_m=" << metal.maximumPointPositionError
-               << " metal_max_point_jacobian_error=" << metal.maximumPointJacobianError;
+               << " metal_max_point_jacobian_error=" << metal.maximumPointJacobianError
+               << " metal_max_muscle_length_error_m="
+               << metal.maximumMuscleLengthError
+               << " metal_max_muscle_force_error_n="
+               << metal.maximumMuscleForceError
+               << " metal_applied_wraps=" << metal.appliedMuscleWraps;
     }
     output << "\n";
     return 0;

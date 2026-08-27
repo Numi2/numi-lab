@@ -157,7 +157,11 @@ int main() {
         const auto warmStats = context.stats();
         require(
             warmStats.pipelineCreationCount == 1u &&
-                warmStats.bufferAllocationCount == 15u &&
+                // The fixed binding arena retains the 16 generic slots,
+                // eight Millard slots, and seven MyoSim route-force slots.
+                // Empty source programs deliberately retain one typed
+                // placeholder apiece so every dispatched ABI slot is bound.
+                warmStats.bufferAllocationCount == 31u &&
                 warmStats.bufferGrowthCount == 0u &&
                 warmStats.submissionCount == 1u &&
                 warmStats.completedSubmissionCount == 1u &&

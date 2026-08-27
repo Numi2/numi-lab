@@ -107,6 +107,9 @@ set(METALROBO_ARTICULATED_OPERATOR_SOURCE
 set(METALROBO_MILLARD_MUSCLE_REFERENCE_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MillardMuscleReference.metal"
 )
+set(METALROBO_MUJOCO_MUSCLE_REFERENCE_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MujocoMuscleReference.metal"
+)
 set(METALROBO_ARTICULATED_ABA_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedABA.metal"
 )
@@ -178,6 +181,9 @@ set(METALROBO_ARTICULATED_OPERATOR_AIR
 )
 set(METALROBO_MILLARD_MUSCLE_REFERENCE_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboMillardMuscleReference.air"
+)
+set(METALROBO_MUJOCO_MUSCLE_REFERENCE_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboMujocoMuscleReference.air"
 )
 set(METALROBO_PARAMETERIZED_ARTICULATED_OPERATOR_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboParameterizedArticulatedOperator.air"
@@ -279,6 +285,8 @@ add_custom_command(
     DEPENDS
         "${METALROBO_MILLARD_MUSCLE_REFERENCE_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/millard_muscle_gpu.h"
+        "${METALROBO_MUJOCO_MUSCLE_REFERENCE_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/mujoco_muscle_gpu.h"
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${METALROBO_SHADER_DIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
@@ -345,6 +353,13 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_MILLARD_MUSCLE_REFERENCE_SOURCE}"
             -o "${METALROBO_MILLARD_MUSCLE_REFERENCE_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_MUJOCO_MUSCLE_REFERENCE_SOURCE}"
+            -o "${METALROBO_MUJOCO_MUSCLE_REFERENCE_AIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
@@ -555,6 +570,7 @@ add_custom_command(
             "${METALROBO_BROADPHASE_AIR}"
             "${METALROBO_ARTICULATED_OPERATOR_AIR}"
             "${METALROBO_MILLARD_MUSCLE_REFERENCE_AIR}"
+            "${METALROBO_MUJOCO_MUSCLE_REFERENCE_AIR}"
             "${METALROBO_PARAMETERIZED_ARTICULATED_OPERATOR_AIR}"
             "${METALROBO_ARTICULATED_ABA_AIR}"
             "${METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_AIR}"

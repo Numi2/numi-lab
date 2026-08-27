@@ -2,6 +2,7 @@
 
 #include "metalrobo/EngineModel.hpp"
 #include "metalrobo/millard_muscle_gpu.h"
+#include "metalrobo/mujoco_muscle_gpu.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -67,6 +68,22 @@ struct MetalMillardReferenceInput {
     }
 };
 
+// Immutable MyoSim source program and environment-major activation state for
+// the MuJoCo general-muscle device reference. Its path kernel reads the
+// articulated pose stream produced immediately before it in the same command
+// buffer; no CPU-restaged geometry is admitted.
+struct MetalMujocoMuscleReferenceInput {
+    std::span<const MRMujocoMuscleGPU> muscles{};
+    std::span<const MRMujocoMuscleStateGPU> states{};
+    std::span<const MRMujocoMuscleSiteGPU> sites{};
+    std::span<const MRMujocoMuscleWrapGPU> wraps{};
+    std::span<const MRMujocoMuscleRouteNodeGPU> routeNodes{};
+
+    [[nodiscard]] bool enabled() const noexcept {
+        return !muscles.empty();
+    }
+};
+
 // Packed, environment-major input for the synchronous Metal articulated
 // operator. q contains environmentCount * articulation.nq floats. points
 // contains environmentCount * pointCount records. All query body indices are
@@ -79,6 +96,7 @@ struct MetalArticulatedOperatorInput {
     std::span<const float> q{};
     std::span<const MRArticulatedPointImpulseGPU> points{};
     MetalMillardReferenceInput millard{};
+    MetalMujocoMuscleReferenceInput mujoco{};
 };
 
 struct MetalArticulatedOperatorConfig {
@@ -152,6 +170,18 @@ struct MetalArticulatedOperatorLayout {
     std::size_t millardResultBytes = 0u;
     std::size_t millardGeneralizedForceElements = 0u;
     std::size_t millardGeneralizedForceBytes = 0u;
+    std::size_t mujocoMuscleElements = 0u;
+    std::size_t mujocoMuscleBytes = 0u;
+    std::size_t mujocoStateElements = 0u;
+    std::size_t mujocoStateBytes = 0u;
+    std::size_t mujocoSiteElements = 0u;
+    std::size_t mujocoSiteBytes = 0u;
+    std::size_t mujocoWrapElements = 0u;
+    std::size_t mujocoWrapBytes = 0u;
+    std::size_t mujocoRouteNodeElements = 0u;
+    std::size_t mujocoRouteNodeBytes = 0u;
+    std::size_t mujocoResultElements = 0u;
+    std::size_t mujocoResultBytes = 0u;
     // Includes immutable model buffers and one-element placeholders required
     // to bind logically empty Metal buffers.
     std::size_t totalAllocatedBytes = 0u;
@@ -168,6 +198,7 @@ struct MetalArticulatedOperatorResult {
     std::vector<MRArticulatedOperatorStatusGPU> statuses;
     std::vector<MRMillardMuscleResultGPU> millardResults;
     std::vector<float> millardGeneralizedForces;
+    std::vector<MRMujocoMuscleResultGPU> mujocoResults;
 };
 
 struct MetalArticulatedOperatorDiagnostics {
@@ -244,7 +275,7 @@ private:
 
 // Reusable execution context for steady-state simulation. Device discovery,
 // metallib loading, command-queue creation, and pipeline compilation happen at
-// most once. Its 24-buffer arena is reused and grows geometrically as batch
+// most once. Its fixed-binding buffer arena is reused and grows geometrically as batch
 // sizes increase. Calls are thread-safe, but a context deliberately admits
 // only one in-flight submission because every batch shares the same arena;
 // independent contexts provide safe overlap when multiple queues are useful.
