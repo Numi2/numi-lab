@@ -24,6 +24,7 @@ private struct Options {
     var retentionPolicyPack: String?
     var retentionMaximumDifficultyBand: Int?
     var retentionProtectedActorOnly = false
+    var retentionBalanceDifficultyBands = false
     var actorObservationExtensionOffset: Int?
     var actorObservationExtensionMean: Double?
     var actorObservationExtensionInverseStandardDeviation = 1.0
@@ -172,6 +173,8 @@ private struct Options {
                 index += 1
             case "--retention-protected-actor-only":
                 retentionProtectedActorOnly = true
+            case "--retention-balance-difficulty-bands":
+                retentionBalanceDifficultyBands = true
             case "--actor-observation-extension-offset":
                 actorObservationExtensionOffset = try Self.integer(
                     value(),
@@ -584,6 +587,13 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--retention-protected-actor-only requires a retention policy and maximum difficulty band."
+            )
+        }
+        if retentionBalanceDifficultyBands &&
+           (retentionPolicyPack == nil || retentionMaximumDifficultyBand == nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--retention-balance-difficulty-bands requires a retention policy and maximum difficulty band."
             )
         }
         let (sampleCount, sampleOverflow) =
@@ -1089,6 +1099,9 @@ private final class MLXLearnerWorker {
         }
         if options.retentionProtectedActorOnly {
             arguments.append("--retention-protected-actor-only")
+        }
+        if options.retentionBalanceDifficultyBands {
+            arguments.append("--retention-balance-difficulty-bands")
         }
         if let offset = options.actorObservationExtensionOffset {
             arguments.append(contentsOf: [

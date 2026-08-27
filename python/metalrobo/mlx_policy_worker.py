@@ -104,6 +104,39 @@ def _configuration_record(learner: MLXPolicyLearner) -> str:
     )
 
 
+def _difficulty_balanced_retention_weights(
+    retention_weights: np.ndarray,
+    difficulty_bands: np.ndarray,
+) -> np.ndarray:
+    """Give every represented protected band equal total teacher authority."""
+
+    weights = np.asarray(retention_weights, dtype=np.float32).reshape(-1)
+    bands = np.asarray(difficulty_bands).reshape(-1)
+    if bands.shape != weights.shape:
+        raise ValueError(
+            "retention difficulty bands disagree with the policy batch"
+        )
+    protected_samples = weights > 0.0
+    active_bands, active_counts = np.unique(
+        bands[protected_samples], return_counts=True
+    )
+    if active_bands.size == 0:
+        raise ValueError(
+            "difficulty-balanced retention selects no protected bands"
+        )
+    # The teacher loss is normalized by the sum of these weights. Scaling each
+    # represented band down to the rarest band's total contribution therefore
+    # makes every protected rung equally authoritative without allowing a
+    # per-sample weight above one.
+    samples_per_band = int(np.min(active_counts))
+    balanced = np.zeros_like(weights)
+    for band, count in zip(active_bands, active_counts, strict=True):
+        balanced[np.logical_and(protected_samples, bands == band)] = (
+            np.float32(samples_per_band) / np.float32(count)
+        )
+    return balanced
+
+
 def _retention_policy_batch(
     batch: MLXPolicyBatch,
     reference: MLXPolicyLearner,
@@ -111,6 +144,8 @@ def _retention_policy_batch(
     chunk_size: int,
     teacher_weights: np.ndarray | None = None,
     protected_actor_only: bool = False,
+    difficulty_bands: np.ndarray | None = None,
+    balance_difficulty_bands: bool = False,
 ) -> MLXPolicyBatch:
     """Attach frozen actor targets and optionally reserve protected samples."""
 
@@ -145,9 +180,20 @@ def _retention_policy_batch(
             raise ValueError("retention teacher weights are invalid")
         if not np.any(retention_weights > 0.0):
             raise ValueError("retention teacher weights select no samples")
+    protected_samples = retention_weights > 0.0
+    if balance_difficulty_bands:
+        if teacher_weights is None or difficulty_bands is None:
+            raise ValueError(
+                "difficulty-balanced retention requires selective weights and bands"
+            )
+        retention_weights = _difficulty_balanced_retention_weights(
+            retention_weights, difficulty_bands
+        )
     policy_weights = batch.policy_weights
     if protected_actor_only:
-        policy_weights = batch.policy_weights * (1.0 - retention_weights)
+        policy_weights = batch.policy_weights * (
+            1.0 - protected_samples.astype(np.float32)
+        )
         if not np.any(policy_weights > 0.0):
             raise ValueError(
                 "protected actor-only retention selects no PPO samples"
@@ -914,6 +960,9 @@ def _serve(arguments: argparse.Namespace) -> int:
             "retention_protected_actor_only": (
                 arguments.retention_protected_actor_only
             ),
+            "retention_balance_difficulty_bands": (
+                arguments.retention_balance_difficulty_bands
+            ),
             "motion_pack_hash": (
                 motion_prior.motion_pack.content_hash
                 if motion_prior is not None
@@ -980,6 +1029,12 @@ def _serve(arguments: argparse.Namespace) -> int:
                     teacher_weights=retention_weights,
                     protected_actor_only=(
                         arguments.retention_protected_actor_only
+                    ),
+                    difficulty_bands=(
+                        rollout.transitions["difficulty_band"].reshape(-1)
+                    ),
+                    balance_difficulty_bands=(
+                        arguments.retention_balance_difficulty_bands
                     ),
                 )
             metrics = learner.update(policy_batch)
@@ -1351,6 +1406,14 @@ def main() -> int:
         help=(
             "exclude retention-selected samples from PPO actor and entropy "
             "losses while retaining their critic updates"
+        ),
+    )
+    serve.add_argument(
+        "--retention-balance-difficulty-bands",
+        action="store_true",
+        help=(
+            "equalize frozen-actor loss across represented protected "
+            "difficulty bands"
         ),
     )
     serve.add_argument(

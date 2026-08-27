@@ -36,6 +36,7 @@ retention_policy=${NUMI_CROW_RETENTION_POLICY:-}
 retention_coefficient=${NUMI_CROW_RETENTION_COEFFICIENT:-1.0}
 retention_maximum_band=${NUMI_CROW_RETENTION_MAXIMUM_BAND:-}
 retention_protected_actor_only=${NUMI_CROW_RETENTION_PROTECTED_ACTOR_ONLY:-0}
+retention_balance_difficulty_bands=${NUMI_CROW_RETENTION_BALANCE_DIFFICULTY_BANDS:-0}
 
 case "$course" in
   state)
@@ -67,6 +68,10 @@ esac
 case "$retention_protected_actor_only" in
   0|1) ;;
   *) echo "NUMI_CROW_RETENTION_PROTECTED_ACTOR_ONLY must be 0 or 1" >&2; exit 2 ;;
+esac
+case "$retention_balance_difficulty_bands" in
+  0|1) ;;
+  *) echo "NUMI_CROW_RETENTION_BALANCE_DIFFICULTY_BANDS must be 0 or 1" >&2; exit 2 ;;
 esac
 [[ "$start_band" =~ ^([0-9]|10)$ && "$maximum_band" =~ ^([0-9]|10)$ ]] || {
   echo "Crow curriculum bands must be integers in 0...10" >&2; exit 2;
@@ -138,11 +143,19 @@ if [ -n "$retention_policy" ]; then
     echo "protected actor-only retention requires a maximum band" >&2
     exit 2
   fi
+  if [ "$retention_balance_difficulty_bands" -eq 1 ] && \
+     [ -z "$retention_maximum_band" ]; then
+    echo "difficulty-balanced retention requires a maximum band" >&2
+    exit 2
+  fi
 elif [ -n "$retention_maximum_band" ]; then
   echo "NUMI_CROW_RETENTION_MAXIMUM_BAND requires a retention policy" >&2
   exit 2
 elif [ "$retention_protected_actor_only" -eq 1 ]; then
   echo "protected actor-only retention requires a retention policy" >&2
+  exit 2
+elif [ "$retention_balance_difficulty_bands" -eq 1 ]; then
+  echo "difficulty-balanced retention requires a retention policy" >&2
   exit 2
 fi
 if [ "$parent_mode" = actor-transfer ]; then
@@ -229,6 +242,9 @@ while [ "$band" -le "$maximum_band" ]; do
       fi
       if [ "$retention_protected_actor_only" -eq 1 ]; then
         common+=(--retention-protected-actor-only)
+      fi
+      if [ "$retention_balance_difficulty_bands" -eq 1 ]; then
+        common+=(--retention-balance-difficulty-bands)
       fi
     fi
     if [ -n "$visual_config" ]; then
