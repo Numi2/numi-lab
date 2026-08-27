@@ -3284,6 +3284,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     const std::span<const std::uint32_t> requestedBoneBodyIndices,
     const std::span<const std::uint32_t> requestedSoftTissueStableIds,
     const bool zAnatomyCalfVisualSupplement,
+    const bool tendonAttachmentCollarDiagnostic,
     const SourceRouteCentrelines* sourceRouteCentrelines,
     std::uint32_t& renderedBodies,
     std::uint32_t& renderedSoftTissues,
@@ -3499,7 +3500,12 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         }
     }
     renderedTendonAttachmentCollars = 0u;
-    if (bonePayload != nullptr && softTissuePayload != nullptr) {
+    // Source tendons use their own triangle mesh and per-vertex named-bone
+    // lock.  The optional collar is intentionally a diagnostic because its
+    // generated quads can hide or protrude beyond an otherwise continuous
+    // source insertion, especially in a close Z-Anatomy calf inspection.
+    if (tendonAttachmentCollarDiagnostic &&
+        bonePayload != nullptr && softTissuePayload != nullptr) {
         for (const SoftTissueRecord& tissue : softTissuePayload->records) {
             if (tissue.layer != kSoftTissueLayerTendon ||
                 (!requestedSoftTissueStableIds.empty() &&
@@ -3613,17 +3619,16 @@ CameraFraming makeCameraFraming(
         const MRBodyStateGPU& focus = bodies[*focusBodyIndex];
         return {
             .center = {focus.position.x, focus.position.y, focus.position.z, 0.0f},
-            // The Z-Anatomy calf supplement is deliberately a close visual
-            // anatomy inspection, not a full-body screenshot with a small
-            // lower leg lost in the frame.  Existing focused diagnostics keep
-            // their historical framing.
-            .distance = pack.id == "myosim_zanatomy_calf_articulated_visual_supplement"
-                // A calcaneus focus is a separate insertion inspection.  It
-                // deliberately magnifies the exact tendon-to-bone attachment
-                // band rather than leaving it as a few pixels at the bottom
-                // of a full-calf plate.
-                ? (*focusBodyIndex == 138u ? 0.34f : 0.58f)
-                : 0.70f,
+            // A calcaneus focus is an insertion inspection, regardless of
+            // whether its surface comes from the compact BodyParts3D payload
+            // or the optional detailed Z-Anatomy supplement.  Use the same
+            // close framing for both instead of turning the source tendon
+            // junction into a small feature at the edge of a calf plate.
+            .distance = *focusBodyIndex == 138u
+                ? 0.34f
+                : (pack.id == "myosim_zanatomy_calf_articulated_visual_supplement"
+                    ? 0.58f
+                    : 0.70f),
         };
     }
 
@@ -3965,6 +3970,7 @@ int main(int argc, char** argv) {
             std::vector<std::uint32_t> requestedBoneBodyIndices;
             std::vector<std::uint32_t> requestedSoftTissueStableIds;
             bool zAnatomyCalfVisualSupplement = false;
+            bool tendonAttachmentCollarDiagnostic = false;
             std::optional<std::uint32_t> focusBodyIndex;
             std::optional<std::filesystem::path> softTissuePayloadPath;
             std::optional<std::filesystem::path> skinPayloadPath;
@@ -4017,6 +4023,10 @@ int main(int argc, char** argv) {
                     require(!zAnatomyCalfVisualSupplement,
                             "--zanatomy-calf-visual-supplement may be given only once");
                     zAnatomyCalfVisualSupplement = true;
+                } else if (argument == "--tendon-attachment-collar-diagnostic") {
+                    require(!tendonAttachmentCollarDiagnostic,
+                            "--tendon-attachment-collar-diagnostic may be given only once");
+                    tendonAttachmentCollarDiagnostic = true;
                 } else if (argument == "--visible-bone-body-index") {
                     require(index + 1 < argc,
                             "--visible-bone-body-index requires one articulated body index");
@@ -4080,6 +4090,7 @@ int main(int argc, char** argv) {
                           << " [--visible-bone-body-index <0..156>]..."
                           << " [--soft-tissue-stable-id <1..N>]..."
                           << " [--zanatomy-calf-visual-supplement]"
+                          << " [--tendon-attachment-collar-diagnostic]"
                           << " [--support-contact-payload <NHCNT1>]"
                           << " [--focus-body-index <0..156>]"
                           << " [--dimension <512..2048; multiple-of-64>]\n";
@@ -4338,6 +4349,7 @@ int main(int argc, char** argv) {
                 requestedBoneBodyIndices,
                 requestedSoftTissueStableIds,
                 zAnatomyCalfVisualSupplement,
+                tendonAttachmentCollarDiagnostic,
                 resolvedRouteCentrelines.has_value() ? &*resolvedRouteCentrelines : nullptr,
                 renderedBodies, renderedSoftTissues, renderedSkinShells,
                 renderedTendonAttachmentCollars, renderedRouteSegments,
