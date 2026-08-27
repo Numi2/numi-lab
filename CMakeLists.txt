@@ -1291,6 +1291,8 @@ target_link_libraries(
     metalrobo_numilab_human_myosim_reference_probe
     PRIVATE
         metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
 )
 set_target_properties(
     metalrobo_numilab_human_myosim_reference_probe
