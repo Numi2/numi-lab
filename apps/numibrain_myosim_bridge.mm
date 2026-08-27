@@ -376,6 +376,10 @@ struct CandidateState {
     std::uint64_t transactionFingerprint = 0u;
     std::uint64_t substepFingerprint = 0u;
     float maximumExcitation = 0.0f;
+    float maximumActivation = 0.0f;
+    float maximumCommandedMuscleForce = 0.0f;
+    std::uint32_t maximumCommandedForceMuscleIdentifier =
+        std::numeric_limits<std::uint32_t>::max();
     float maximumAbsoluteGeneralizedForce = 0.0f;
     float maximumAbsoluteMuscleForce = 0.0f;
     std::uint32_t maximumForceMuscleIdentifier =
@@ -585,11 +589,23 @@ extern "C" std::uint32_t mr_numibrain_myosim_bridge_run_candidate(
                 candidate->maximumExcitation,
                 state.excitationAndActivation.x
             );
+            candidate->maximumActivation = std::max(
+                candidate->maximumActivation,
+                state.excitationAndActivation.y
+            );
         }
         for (std::size_t index = 0u; index < result.mujocoResults.size(); ++index) {
             const float absoluteForce = std::abs(
                 result.mujocoResults[index].pathForceAndActivationDerivative.z
             );
+            if (candidate->states[index].excitationAndActivation.x > 0.0f &&
+                (candidate->maximumCommandedForceMuscleIdentifier ==
+                     std::numeric_limits<std::uint32_t>::max() ||
+                 absoluteForce > candidate->maximumCommandedMuscleForce)) {
+                candidate->maximumCommandedMuscleForce = absoluteForce;
+                candidate->maximumCommandedForceMuscleIdentifier =
+                    bridge.program.sourceTendonIdentifiers[index];
+            }
             if (candidate->maximumForceMuscleIdentifier ==
                     std::numeric_limits<std::uint32_t>::max() ||
                 absoluteForce > candidate->maximumAbsoluteMuscleForce) {
@@ -718,6 +734,30 @@ extern "C" float mr_numibrain_myosim_bridge_pending_maximum_excitation(void* han
     const auto* bridge = static_cast<const Bridge*>(handle);
     return bridge != nullptr && bridge->pending != nullptr
         ? bridge->pending->maximumExcitation : 0.0f;
+}
+
+extern "C" float mr_numibrain_myosim_bridge_pending_maximum_activation(void* handle) {
+    const auto* bridge = static_cast<const Bridge*>(handle);
+    return bridge != nullptr && bridge->pending != nullptr
+        ? bridge->pending->maximumActivation : 0.0f;
+}
+
+extern "C" float mr_numibrain_myosim_bridge_pending_maximum_commanded_muscle_force(
+    void* handle
+) {
+    const auto* bridge = static_cast<const Bridge*>(handle);
+    return bridge != nullptr && bridge->pending != nullptr
+        ? bridge->pending->maximumCommandedMuscleForce : 0.0f;
+}
+
+extern "C" std::uint32_t
+mr_numibrain_myosim_bridge_pending_maximum_commanded_force_muscle_identifier(
+    void* handle
+) {
+    const auto* bridge = static_cast<const Bridge*>(handle);
+    return bridge != nullptr && bridge->pending != nullptr
+        ? bridge->pending->maximumCommandedForceMuscleIdentifier
+        : std::numeric_limits<std::uint32_t>::max();
 }
 
 extern "C" float mr_numibrain_myosim_bridge_pending_maximum_force(void* handle) {
