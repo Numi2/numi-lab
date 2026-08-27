@@ -110,8 +110,9 @@ def _retention_policy_batch(
     *,
     chunk_size: int,
     teacher_weights: np.ndarray | None = None,
+    protected_actor_only: bool = False,
 ) -> MLXPolicyBatch:
-    """Attach frozen source-actor targets without changing PPO authority."""
+    """Attach frozen actor targets and optionally reserve protected samples."""
 
     if chunk_size <= 0:
         raise ValueError("retention target chunk size must be positive")
@@ -144,6 +145,13 @@ def _retention_policy_batch(
             raise ValueError("retention teacher weights are invalid")
         if not np.any(retention_weights > 0.0):
             raise ValueError("retention teacher weights select no samples")
+    policy_weights = batch.policy_weights
+    if protected_actor_only:
+        policy_weights = batch.policy_weights * (1.0 - retention_weights)
+        if not np.any(policy_weights > 0.0):
+            raise ValueError(
+                "protected actor-only retention selects no PPO samples"
+            )
     targets: list[np.ndarray] = []
     for offset in range(0, int(batch.actor_observations.shape[0]), chunk_size):
         observations = mx.array(
@@ -163,7 +171,7 @@ def _retention_policy_batch(
         returns=batch.returns,
         teacher_actions=np.concatenate(targets, axis=0),
         teacher_weights=retention_weights,
-        policy_weights=batch.policy_weights,
+        policy_weights=policy_weights,
     )
 
 
@@ -903,6 +911,9 @@ def _serve(arguments: argparse.Namespace) -> int:
             "retention_maximum_difficulty_band": (
                 arguments.retention_maximum_difficulty_band
             ),
+            "retention_protected_actor_only": (
+                arguments.retention_protected_actor_only
+            ),
             "motion_pack_hash": (
                 motion_prior.motion_pack.content_hash
                 if motion_prior is not None
@@ -967,6 +978,9 @@ def _serve(arguments: argparse.Namespace) -> int:
                     retention_reference,
                     chunk_size=learner.configuration.minibatch_size,
                     teacher_weights=retention_weights,
+                    protected_actor_only=(
+                        arguments.retention_protected_actor_only
+                    ),
                 )
             metrics = learner.update(policy_batch)
             metrics.update(motion_metrics)
@@ -1329,6 +1343,14 @@ def main() -> int:
         help=(
             "apply frozen-actor retention only to rollout samples at or "
             "below this difficulty band"
+        ),
+    )
+    serve.add_argument(
+        "--retention-protected-actor-only",
+        action="store_true",
+        help=(
+            "exclude retention-selected samples from PPO actor and entropy "
+            "losses while retaining their critic updates"
         ),
     )
     serve.add_argument(

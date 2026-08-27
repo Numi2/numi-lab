@@ -23,6 +23,7 @@ private struct Options {
     var initializeActorFreshCritic = false
     var retentionPolicyPack: String?
     var retentionMaximumDifficultyBand: Int?
+    var retentionProtectedActorOnly = false
     var actorObservationExtensionOffset: Int?
     var actorObservationExtensionMean: Double?
     var actorObservationExtensionInverseStandardDeviation = 1.0
@@ -169,6 +170,8 @@ private struct Options {
                     value(), option
                 )
                 index += 1
+            case "--retention-protected-actor-only":
+                retentionProtectedActorOnly = true
             case "--actor-observation-extension-offset":
                 actorObservationExtensionOffset = try Self.integer(
                     value(),
@@ -574,6 +577,13 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--retention-maximum-difficulty-band requires a retention policy and a band in 0...10."
+            )
+        }
+        if retentionProtectedActorOnly &&
+           (retentionPolicyPack == nil || retentionMaximumDifficultyBand == nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--retention-protected-actor-only requires a retention policy and maximum difficulty band."
             )
         }
         let (sampleCount, sampleOverflow) =
@@ -1076,6 +1086,9 @@ private final class MLXLearnerWorker {
                 "--retention-maximum-difficulty-band",
                 String(band),
             ])
+        }
+        if options.retentionProtectedActorOnly {
+            arguments.append("--retention-protected-actor-only")
         }
         if let offset = options.actorObservationExtensionOffset {
             arguments.append(contentsOf: [
@@ -1938,6 +1951,8 @@ private enum TaskTrainMain {
                     options.retentionPolicyPack ?? "",
                 "retention_maximum_difficulty_band":
                     options.retentionMaximumDifficultyBand ?? -1,
+                "retention_protected_actor_only":
+                    options.retentionProtectedActorOnly,
                 "difficulty_sampling_exponent_override":
                     options.difficultySamplingExponentOverride,
                 "birdflow_journey_variant":
