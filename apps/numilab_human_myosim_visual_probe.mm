@@ -2354,35 +2354,20 @@ std::uint32_t softTissueLastBinding(const SoftTissueRecord& tissue) {
     throw std::runtime_error("BodyParts3D soft-tissue has no articulated body binding");
 }
 
-bool softTissuesShareAnyBody(
-    const SoftTissueRecord& first,
-    const SoftTissueRecord& second
-) {
-    for (const std::uint32_t firstBody : first.bodyIndex) {
-        if (firstBody == MR_INVALID_INDEX) continue;
-        for (const std::uint32_t secondBody : second.bodyIndex) {
-            if (firstBody == secondBody && secondBody != MR_INVALID_INDEX) return true;
-        }
-    }
-    return false;
-}
-
 // BodyParts3D's source tendon, muscle, and bone meshes are separate surfaces.
 // A source-triangle proximity lock already keeps the named tendon end on the
 // calcaneus frame, but separate topology can still leave a dark raster seam
-// at either its muscle or bone insertion.  This renders a very short,
-// source-proximity derived collar only along an open tendon boundary and only
-// to a visible muscle sharing its authored endpoint or to the named secondary
-// bone.  It is intentionally presentation geometry: muscle force paths remain
-// the authored MyoSim spatial tendons and this does not add a spring, a weld,
-// contact, or a material law.
+// at its bone insertion. This renders a very short source-proximity collar
+// only along an open boundary whose vertices are already locked to the named
+// distal bone. It intentionally does not infer a muscle-to-tendon bridge:
+// muscle force paths remain the authored MyoSim spatial tendons and this does
+// not add a spring, a weld, contact, or a material law.
 GeometryRange appendTendonAttachmentCollarGeometry(
     metalrobo::VisualAssetPackV2& pack,
     const LoadedSoftTissues& tissues,
     const LoadedBones& bones,
     const SoftTissueRecord& tendon,
-    const std::span<const MRBodyStateGPU> bodies,
-    const std::span<const std::uint32_t> visibleSoftTissueStableIds
+    const std::span<const MRBodyStateGPU> bodies
 ) {
     require(tendon.layer == kSoftTissueLayerTendon,
             "tendon attachment collar requested for a non-tendon surface");
@@ -2423,7 +2408,6 @@ GeometryRange appendTendonAttachmentCollarGeometry(
         mr_float4 point{};
         mr_float4 normal{};
         float distanceSquared = std::numeric_limits<float>::infinity();
-        const SoftTissueRecord* muscle = nullptr;
     };
     const auto closestBonePoint = [&bones, &bodies, tendonDistalBody](const mr_float4 point) {
         SurfaceClosest result;
@@ -2468,65 +2452,6 @@ GeometryRange appendTendonAttachmentCollarGeometry(
         }
         return result;
     };
-    const auto closestMusclePoint = [&tissues, &bodies, &tendon, &visibleSoftTissueStableIds](
-        const mr_float4 point,
-        const SoftTissueRecord* requiredMuscle
-    ) {
-        SurfaceClosest result;
-        for (const SoftTissueRecord& muscle : tissues.records) {
-            if (muscle.layer != kSoftTissueLayerMuscle ||
-                (requiredMuscle != nullptr && &muscle != requiredMuscle) ||
-                (!visibleSoftTissueStableIds.empty() &&
-                 !std::binary_search(
-                     visibleSoftTissueStableIds.begin(), visibleSoftTissueStableIds.end(), muscle.stableId
-                 )) ||
-                !softTissuesShareAnyBody(muscle, tendon)) {
-                continue;
-            }
-            for (std::uint32_t offset = 0u; offset < muscle.indexCount; offset += 3u) {
-                const std::uint32_t firstIndex = tissues.indices[muscle.firstIndex + offset];
-                const std::uint32_t secondIndex = tissues.indices[muscle.firstIndex + offset + 1u];
-                const std::uint32_t thirdIndex = tissues.indices[muscle.firstIndex + offset + 2u];
-                const mr_float4 first = softTissueVertexBlendedWorld(
-                    muscle, tissues.vertices[firstIndex], bodies
-                );
-                const mr_float4 second = softTissueVertexBlendedWorld(
-                    muscle, tissues.vertices[secondIndex], bodies
-                );
-                const mr_float4 third = softTissueVertexBlendedWorld(
-                    muscle, tissues.vertices[thirdIndex], bodies
-                );
-                const mr_float4 candidate = closestPointOnTriangle(point, first, second, third);
-                const mr_float4 difference = subtractPoint(point, candidate);
-                const float distanceSquared = dotPoint(difference, difference);
-                if (distanceSquared >= result.distanceSquared) continue;
-                const mr_float4 firstNormal = softTissueVertexBlendedNormalWorld(
-                    muscle, tissues.vertices[firstIndex], bodies
-                );
-                const mr_float4 secondNormal = softTissueVertexBlendedNormalWorld(
-                    muscle, tissues.vertices[secondIndex], bodies
-                );
-                const mr_float4 thirdNormal = softTissueVertexBlendedNormalWorld(
-                    muscle, tissues.vertices[thirdIndex], bodies
-                );
-                mr_float4 normal{
-                    firstNormal.x + secondNormal.x + thirdNormal.x,
-                    firstNormal.y + secondNormal.y + thirdNormal.y,
-                    firstNormal.z + secondNormal.z + thirdNormal.z,
-                    0.0f,
-                };
-                const float normalLength = std::sqrt(dotPoint(normal, normal));
-                require(normalLength > 1.0e-6f,
-                        "tendon attachment collar encountered a degenerate muscle normal");
-                result.point = candidate;
-                result.normal = scalePoint(normal, 1.0f / normalLength);
-                result.distanceSquared = distanceSquared;
-                result.muscle = &muscle;
-            }
-        }
-        return result;
-    };
-
     const auto appendVertex = [&pack, &result](const mr_float4 position, mr_float4 normal) {
         const float normalLength = std::sqrt(dotPoint(normal, normal));
         require(normalLength > 1.0e-6f, "tendon attachment collar normal is degenerate");
@@ -2559,19 +2484,22 @@ GeometryRange appendTendonAttachmentCollarGeometry(
         const mr_float4 middleSource = addPoint(
             scalePoint(addPoint(firstSource, secondSource), 0.5f), {0.0f, 0.0f, 0.0f, 0.0f}
         );
-        const SurfaceClosest middleMuscle = closestMusclePoint(middleSource, nullptr);
         const bool secondaryBoneEnd =
             first.weight[tendonDistalBinding] >= 1.0f - kSecondaryWeightTolerance &&
             second.weight[tendonDistalBinding] >= 1.0f - kSecondaryWeightTolerance;
-        const SurfaceClosest middleBone = secondaryBoneEnd
-            ? closestBonePoint(middleSource) : SurfaceClosest{};
-        const bool useBone = middleBone.distanceSquared <= middleMuscle.distanceSquared;
-        const SurfaceClosest firstClosest = useBone
-            ? closestBonePoint(firstSource)
-            : closestMusclePoint(firstSource, middleMuscle.muscle);
-        const SurfaceClosest secondClosest = useBone
-            ? closestBonePoint(secondSource)
-            : closestMusclePoint(secondSource, middleMuscle.muscle);
+        if (!secondaryBoneEnd) {
+            begin = end;
+            continue;
+        }
+        const SurfaceClosest middleBone = closestBonePoint(middleSource);
+        if (!std::isfinite(middleBone.distanceSquared) ||
+            middleBone.distanceSquared >
+                kMaximumSourceSurfaceGapMeters * kMaximumSourceSurfaceGapMeters) {
+            begin = end;
+            continue;
+        }
+        const SurfaceClosest firstClosest = closestBonePoint(firstSource);
+        const SurfaceClosest secondClosest = closestBonePoint(secondSource);
         const float firstDistanceSquared = firstClosest.distanceSquared;
         const float secondDistanceSquared = secondClosest.distanceSquared;
         if (!(std::isfinite(firstDistanceSquared) && std::isfinite(secondDistanceSquared)) ||
@@ -3061,8 +2989,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                 continue;
             }
             const GeometryRange collar = appendTendonAttachmentCollarGeometry(
-                pack, *softTissuePayload, *bonePayload, tissue, bodies,
-                requestedSoftTissueStableIds
+                pack, *softTissuePayload, *bonePayload, tissue, bodies
             );
             if (collar.indexCount == 0u) continue;
             appendInstance(
@@ -3949,7 +3876,7 @@ int main(int argc, char** argv) {
                         : "bounded_multistep_all_416_mujoco_metal_force_projection_and_activation_state_then_cpu_fp64_dynamics_to_metal_pose_snapshot_not_contact_or_live_rollout");
             if (renderedTendonAttachmentCollars > 0u) {
                 evidenceBoundary +=
-                    "_with_source_proximity_derived_tendon_to_visible_muscle_or_named_bone_visual_collars_not_a_tendon_weld_or_force_transfer";
+                    "_with_source_proximity_derived_tendon_to_named_bone_visual_collars_not_a_tendon_weld_or_force_transfer";
             }
             if (!selectedSourceMuscleActivations.empty()) {
                 evidenceBoundary +=
