@@ -49,9 +49,9 @@ constexpr std::array<char, 8u> kBoneMagic{
 };
 constexpr std::uint32_t kBonePayloadAbi = 1u;
 constexpr std::array<char, 8u> kSoftTissueMagic{
-    'N', 'H', 'T', 'I', 'S', 'S', '1', '\0',
+    'N', 'H', 'T', 'I', 'S', 'S', '2', '\0',
 };
-constexpr std::uint32_t kSoftTissuePayloadAbi = 1u;
+constexpr std::uint32_t kSoftTissuePayloadAbi = 2u;
 constexpr std::uint32_t kSoftTissueLayerMuscle = 1u;
 constexpr std::uint32_t kSoftTissueLayerTendon = 2u;
 
@@ -175,21 +175,40 @@ struct SoftTissueHeader {
 };
 
 struct SoftTissueRecord {
-    std::uint32_t bodyIndex = MR_INVALID_INDEX;
+    std::uint32_t primaryBodyIndex = MR_INVALID_INDEX;
+    std::uint32_t secondaryBodyIndex = MR_INVALID_INDEX;
     std::uint32_t firstVertex = 0u;
     std::uint32_t vertexCount = 0u;
     std::uint32_t firstIndex = 0u;
     std::uint32_t indexCount = 0u;
     std::uint32_t stableId = 0u;
     std::uint32_t layer = 0u;
-    float translationX = 0.0f;
-    float translationY = 0.0f;
-    float translationZ = 0.0f;
-    float quaternionX = 0.0f;
-    float quaternionY = 0.0f;
-    float quaternionZ = 0.0f;
-    float quaternionW = 1.0f;
-    float uniformScale = 1.0f;
+    float primaryTranslationX = 0.0f;
+    float primaryTranslationY = 0.0f;
+    float primaryTranslationZ = 0.0f;
+    float primaryQuaternionX = 0.0f;
+    float primaryQuaternionY = 0.0f;
+    float primaryQuaternionZ = 0.0f;
+    float primaryQuaternionW = 1.0f;
+    float primaryUniformScale = 1.0f;
+    float secondaryTranslationX = 0.0f;
+    float secondaryTranslationY = 0.0f;
+    float secondaryTranslationZ = 0.0f;
+    float secondaryQuaternionX = 0.0f;
+    float secondaryQuaternionY = 0.0f;
+    float secondaryQuaternionZ = 0.0f;
+    float secondaryQuaternionW = 1.0f;
+    float secondaryUniformScale = 1.0f;
+};
+
+struct SoftTissueVertex {
+    float positionX = 0.0f;
+    float positionY = 0.0f;
+    float positionZ = 0.0f;
+    float normalX = 0.0f;
+    float normalY = 0.0f;
+    float normalZ = 1.0f;
+    float primaryWeight = 1.0f;
 };
 
 struct LoadedMuscles {
@@ -213,7 +232,7 @@ struct LoadedBones {
 struct LoadedSoftTissues {
     SoftTissueHeader header{};
     std::vector<SoftTissueRecord> records;
-    std::vector<BoneVertex> vertices;
+    std::vector<SoftTissueVertex> vertices;
     std::vector<std::uint32_t> indices;
 };
 #pragma pack(pop)
@@ -229,7 +248,8 @@ static_assert(sizeof(BoneHeader) == 60u);
 static_assert(sizeof(BoneRecord) == 56u);
 static_assert(sizeof(BoneVertex) == 24u);
 static_assert(sizeof(SoftTissueHeader) == 60u);
-static_assert(sizeof(SoftTissueRecord) == 60u);
+static_assert(sizeof(SoftTissueRecord) == 96u);
+static_assert(sizeof(SoftTissueVertex) == 28u);
 
 void require(const bool condition, const std::string& message) {
     if (!condition) {
@@ -510,7 +530,7 @@ LoadedSoftTissues loadSoftTissues(
     result.records = readVector<SoftTissueRecord>(
         input, result.header.tissueCount, "BodyParts3D soft-tissue records"
     );
-    result.vertices = readVector<BoneVertex>(
+    result.vertices = readVector<SoftTissueVertex>(
         input, result.header.vertexCount, "BodyParts3D soft-tissue vertices"
     );
     result.indices = readVector<std::uint32_t>(
@@ -518,7 +538,7 @@ LoadedSoftTissues loadSoftTissues(
     );
     require(input.peek() == std::char_traits<char>::eof(),
             "BodyParts3D soft-tissue payload has trailing bytes");
-    for (const BoneVertex& vertex : result.vertices) {
+    for (const SoftTissueVertex& vertex : result.vertices) {
         const float normalLength = std::sqrt(
             vertex.normalX * vertex.normalX +
             vertex.normalY * vertex.normalY +
@@ -526,16 +546,29 @@ LoadedSoftTissues loadSoftTissues(
         );
         require(std::isfinite(vertex.positionX) && std::isfinite(vertex.positionY) &&
                     std::isfinite(vertex.positionZ) && std::isfinite(normalLength) &&
-                    std::abs(normalLength - 1.0f) <= 2.0e-3f,
+                    std::abs(normalLength - 1.0f) <= 2.0e-3f &&
+                    std::isfinite(vertex.primaryWeight) &&
+                    vertex.primaryWeight >= 0.0f && vertex.primaryWeight <= 1.0f,
                 "BodyParts3D soft-tissue vertex is malformed");
     }
     std::vector<bool> stableIds(result.records.size() + 1u, false);
     for (const SoftTissueRecord& record : result.records) {
-        const float orientationLength = std::sqrt(
-            record.quaternionX * record.quaternionX + record.quaternionY * record.quaternionY +
-            record.quaternionZ * record.quaternionZ + record.quaternionW * record.quaternionW
+        const float primaryOrientationLength = std::sqrt(
+            record.primaryQuaternionX * record.primaryQuaternionX +
+            record.primaryQuaternionY * record.primaryQuaternionY +
+            record.primaryQuaternionZ * record.primaryQuaternionZ +
+            record.primaryQuaternionW * record.primaryQuaternionW
         );
-        require(record.bodyIndex < rigid.engineBodyCount && record.vertexCount > 0u &&
+        const float secondaryOrientationLength = std::sqrt(
+            record.secondaryQuaternionX * record.secondaryQuaternionX +
+            record.secondaryQuaternionY * record.secondaryQuaternionY +
+            record.secondaryQuaternionZ * record.secondaryQuaternionZ +
+            record.secondaryQuaternionW * record.secondaryQuaternionW
+        );
+        require(record.primaryBodyIndex < rigid.engineBodyCount &&
+                    record.secondaryBodyIndex < rigid.engineBodyCount &&
+                    record.primaryBodyIndex != record.secondaryBodyIndex &&
+                    record.vertexCount > 0u &&
                     record.indexCount > 0u && record.indexCount % 3u == 0u &&
                     (record.layer == kSoftTissueLayerMuscle ||
                      record.layer == kSoftTissueLayerTendon) &&
@@ -544,11 +577,19 @@ LoadedSoftTissues loadSoftTissues(
                     record.firstIndex <= result.indices.size() &&
                     record.indexCount <= result.indices.size() - record.firstIndex &&
                     record.stableId > 0u && record.stableId < stableIds.size() &&
-                    !stableIds[record.stableId] && std::isfinite(record.translationX) &&
-                    std::isfinite(record.translationY) && std::isfinite(record.translationZ) &&
-                    std::isfinite(record.uniformScale) && record.uniformScale > 0.0f &&
-                    std::isfinite(orientationLength) &&
-                    std::abs(orientationLength - 1.0f) <= 2.0e-3f,
+                    !stableIds[record.stableId] &&
+                    std::isfinite(record.primaryTranslationX) &&
+                    std::isfinite(record.primaryTranslationY) &&
+                    std::isfinite(record.primaryTranslationZ) &&
+                    std::isfinite(record.primaryUniformScale) && record.primaryUniformScale > 0.0f &&
+                    std::isfinite(primaryOrientationLength) &&
+                    std::abs(primaryOrientationLength - 1.0f) <= 2.0e-3f &&
+                    std::isfinite(record.secondaryTranslationX) &&
+                    std::isfinite(record.secondaryTranslationY) &&
+                    std::isfinite(record.secondaryTranslationZ) &&
+                    std::isfinite(record.secondaryUniformScale) && record.secondaryUniformScale > 0.0f &&
+                    std::isfinite(secondaryOrientationLength) &&
+                    std::abs(secondaryOrientationLength - 1.0f) <= 2.0e-3f,
                 "BodyParts3D soft-tissue record is malformed");
         stableIds[record.stableId] = true;
         for (std::uint32_t offset = 0u; offset < record.indexCount; ++offset) {
@@ -1080,13 +1121,15 @@ std::pair<mr_float4, float> frameBounds(
 
 MRVisualMaterialGPUV2 makeMaterial(
     const mr_float4 color,
-    const mr_float4 emission
+    const mr_float4 emission,
+    const float roughness = 0.55f,
+    const float clearcoat = 0.0f
 ) {
     MRVisualMaterialGPUV2 material{};
     material.baseColorAndOpacity = color;
     material.emissionAndStrength = emission;
-    material.surface = {0.55f, 0.05f, 1.0f, 1.0f};
-    material.coatingAndAlphaCutoff = {0.0f, 0.0f, 1.0f, 0.5f};
+    material.surface = {roughness, 0.02f, 1.0f, 1.0f};
+    material.coatingAndAlphaCutoff = {clearcoat, 0.22f, 1.0f, 0.5f};
     material.textureIndices0 = {
         MR_INVALID_INDEX, MR_INVALID_INDEX, MR_INVALID_INDEX, MR_INVALID_INDEX,
     };
@@ -1100,6 +1143,30 @@ MRVisualMaterialGPUV2 makeMaterial(
         MR_INVALID_INDEX, MR_INVALID_INDEX, MR_INVALID_INDEX, MR_INVALID_INDEX,
     };
     return material;
+}
+
+metalrobo::VisualLightRigV1 makeHumanAnatomyLightRig() {
+    metalrobo::VisualLightRigV1 result = metalrobo::makeIndoorAreaLightRigV1();
+    result.id = "human_anatomy_three_point";
+    result.contentHash = "builtin:human-anatomy-three-point-v1";
+    result.lights.front().identity.w = 201u;
+
+    MRVisualLightGPUV1 fill = result.lights.front();
+    fill.positionAndRange = {-0.75f, 0.65f, 1.9f, 20.0f};
+    fill.directionAndSpot = {0.30f, -0.25f, -0.92f, -1.0f};
+    fill.colorAndIntensity = {0.68f, 0.78f, 1.0f, 410.0f};
+    fill.shape = {0.72f, 0.62f, -1.0f, 0.08f};
+    fill.identity.w = 202u;
+    result.lights.push_back(fill);
+
+    MRVisualLightGPUV1 rim = result.lights.front();
+    rim.positionAndRange = {0.15f, 1.10f, 2.25f, 20.0f};
+    rim.directionAndSpot = {-0.05f, -0.38f, -0.92f, -1.0f};
+    rim.colorAndIntensity = {1.0f, 0.72f, 0.48f, 300.0f};
+    rim.shape = {0.56f, 0.48f, -1.0f, 0.08f};
+    rim.identity.w = 203u;
+    result.lights.push_back(rim);
+    return result;
 }
 
 struct GeometryRange {
@@ -1159,8 +1226,7 @@ GeometryRange appendEllipsoid(
     return result;
 }
 
-mr_float4 boneTangent(const BoneVertex& vertex) {
-    const mr_float4 normal{vertex.normalX, vertex.normalY, vertex.normalZ, 1.0f};
+mr_float4 normalTangent(const mr_float4 normal) {
     const mr_float4 reference = std::abs(normal.z) < 0.9f
         ? mr_float4{0.0f, 0.0f, 1.0f, 0.0f}
         : mr_float4{0.0f, 1.0f, 0.0f, 0.0f};
@@ -1178,6 +1244,10 @@ mr_float4 boneTangent(const BoneVertex& vertex) {
     tangent.y /= length;
     tangent.z /= length;
     return tangent;
+}
+
+mr_float4 boneTangent(const BoneVertex& vertex) {
+    return normalTangent({vertex.normalX, vertex.normalY, vertex.normalZ, 1.0f});
 }
 
 GeometryRange appendBoneGeometry(
@@ -1222,11 +1292,78 @@ GeometryRange appendBoneGeometry(
     return result;
 }
 
+mr_float4 softTissueVertexWorld(
+    const SoftTissueRecord& tissue,
+    const SoftTissueVertex& vertex,
+    const MRBodyStateGPU& body,
+    const bool primary
+) {
+    const mr_float4 localRotation = primary
+        ? mr_float4{
+            tissue.primaryQuaternionX, tissue.primaryQuaternionY,
+            tissue.primaryQuaternionZ, tissue.primaryQuaternionW,
+        }
+        : mr_float4{
+            tissue.secondaryQuaternionX, tissue.secondaryQuaternionY,
+            tissue.secondaryQuaternionZ, tissue.secondaryQuaternionW,
+        };
+    const mr_float4 localTranslation = primary
+        ? mr_float4{
+            tissue.primaryTranslationX, tissue.primaryTranslationY,
+            tissue.primaryTranslationZ, 0.0f,
+        }
+        : mr_float4{
+            tissue.secondaryTranslationX, tissue.secondaryTranslationY,
+            tissue.secondaryTranslationZ, 0.0f,
+        };
+    const float localScale = primary
+        ? tissue.primaryUniformScale : tissue.secondaryUniformScale;
+    const mr_float4 local = addPoint(
+        localTranslation,
+        scalePoint(
+            rotatePoint(localRotation, {vertex.positionX, vertex.positionY, vertex.positionZ, 0.0f}),
+            localScale
+        )
+    );
+    return addPoint(body.position, rotatePoint(body.orientation, local));
+}
+
+mr_float4 softTissueVertexNormalWorld(
+    const SoftTissueRecord& tissue,
+    const SoftTissueVertex& vertex,
+    const MRBodyStateGPU& body,
+    const bool primary
+) {
+    const mr_float4 localRotation = primary
+        ? mr_float4{
+            tissue.primaryQuaternionX, tissue.primaryQuaternionY,
+            tissue.primaryQuaternionZ, tissue.primaryQuaternionW,
+        }
+        : mr_float4{
+            tissue.secondaryQuaternionX, tissue.secondaryQuaternionY,
+            tissue.secondaryQuaternionZ, tissue.secondaryQuaternionW,
+        };
+    mr_float4 normal = rotatePoint(
+        body.orientation,
+        rotatePoint(localRotation, {vertex.normalX, vertex.normalY, vertex.normalZ, 0.0f})
+    );
+    const float length = std::sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+    require(length > 1.0e-6f, "BodyParts3D soft-tissue normal is degenerate");
+    normal.x /= length;
+    normal.y /= length;
+    normal.z /= length;
+    normal.w = 0.0f;
+    return normal;
+}
+
 GeometryRange appendSoftTissueGeometry(
     metalrobo::VisualAssetPackV2& pack,
     const LoadedSoftTissues& tissues,
-    const SoftTissueRecord& tissue
+    const SoftTissueRecord& tissue,
+    const std::span<const MRBodyStateGPU> bodies
 ) {
+    require(tissue.primaryBodyIndex < bodies.size() && tissue.secondaryBodyIndex < bodies.size(),
+            "BodyParts3D soft-tissue body binding exceeds the rendered pose");
     GeometryRange result;
     result.firstIndex = static_cast<std::uint32_t>(pack.indices.size());
     result.minimum = {
@@ -1239,12 +1376,43 @@ GeometryRange appendSoftTissueGeometry(
     };
     const std::uint32_t vertexBase = static_cast<std::uint32_t>(pack.vertices.size());
     for (std::uint32_t offset = 0u; offset < tissue.vertexCount; ++offset) {
-        const BoneVertex& source = tissues.vertices[tissue.firstVertex + offset];
-        const mr_float4 position{source.positionX, source.positionY, source.positionZ, 1.0f};
+        const SoftTissueVertex& source = tissues.vertices[tissue.firstVertex + offset];
+        const float primaryWeight = source.primaryWeight;
+        const float secondaryWeight = 1.0f - primaryWeight;
+        const mr_float4 primaryPosition = softTissueVertexWorld(
+            tissue, source, bodies[tissue.primaryBodyIndex], true
+        );
+        const mr_float4 secondaryPosition = softTissueVertexWorld(
+            tissue, source, bodies[tissue.secondaryBodyIndex], false
+        );
+        const mr_float4 position = addPoint(
+            scalePoint(primaryPosition, primaryWeight),
+            scalePoint(secondaryPosition, secondaryWeight)
+        );
+        const mr_float4 primaryNormal = softTissueVertexNormalWorld(
+            tissue, source, bodies[tissue.primaryBodyIndex], true
+        );
+        const mr_float4 secondaryNormal = softTissueVertexNormalWorld(
+            tissue, source, bodies[tissue.secondaryBodyIndex], false
+        );
+        mr_float4 normal{
+            primaryNormal.x * primaryWeight + secondaryNormal.x * secondaryWeight,
+            primaryNormal.y * primaryWeight + secondaryNormal.y * secondaryWeight,
+            primaryNormal.z * primaryWeight + secondaryNormal.z * secondaryWeight,
+            0.0f,
+        };
+        const float normalLength = std::sqrt(
+            normal.x * normal.x + normal.y * normal.y + normal.z * normal.z
+        );
+        require(normalLength > 1.0e-6f, "BodyParts3D blended soft-tissue normal is degenerate");
+        normal.x /= normalLength;
+        normal.y /= normalLength;
+        normal.z /= normalLength;
+        normal.w = 1.0f;
         pack.vertices.push_back({
             position,
-            {source.normalX, source.normalY, source.normalZ, 1.0f},
-            boneTangent(source),
+            normal,
+            normalTangent(normal),
             {0.0f, 0.0f, 0.0f, 0.0f},
             {1.0f, 1.0f, 1.0f, 1.0f},
         });
@@ -1377,6 +1545,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     const LoadedMuscles& musclePayload,
     const LoadedBones* bonePayload,
     const LoadedSoftTissues* softTissuePayload,
+    const std::span<const MRBodyStateGPU> bodies,
     const bool muscleDriven,
     const SourceRouteCentrelines* sourceRouteCentrelines,
     std::uint32_t& renderedBodies,
@@ -1389,7 +1558,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         : "myosim_fullbody_articulated_marker_view";
     pack.sourceUri = bonePayload != nullptr
         ? (softTissuePayload != nullptr
-            ? "numi://bodyparts3d/NHBONES1+NHTISS1+NHRIGID2+NHMYO1/articulated-anatomy-view"
+            ? "numi://bodyparts3d/NHBONES1+NHTISS2+NHRIGID2+NHMYO1/articulated-anatomy-view"
             : "numi://bodyparts3d/NHBONES1+NHRIGID2+NHMYO1/articulated-bone-view")
         : "numi://myosim/NHRIGID2+NHMYO1/articulated-marker-view";
     pack.sourceContentHash = bonePayload != nullptr
@@ -1408,7 +1577,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                 : "metal_articulated_operator_pose_snapshot/native_visual_marker_pack.v1");
     if (softTissuePayload != nullptr) {
         pack.preprocessingProvenance +=
-            "/exact_bodyparts3d_posterior_calf_surfaces_with_single_parent_source_default_visual_binding";
+            "/exact_bodyparts3d_posterior_calf_surfaces_with_two_body_linear_blend_kinematic_binding";
     }
     if (sourceRouteCentrelines != nullptr) {
         pack.preprocessingProvenance +=
@@ -1419,22 +1588,22 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         }
     }
     pack.materials.push_back(makeMaterial(
-        {0.82f, 0.86f, 0.88f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}
+        {0.82f, 0.86f, 0.88f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.52f
     ));
     pack.materials.push_back(makeMaterial(
-        {0.80f, 0.04f, 0.03f, 1.0f}, {0.15f, 0.0f, 0.0f, 0.25f}
+        {0.80f, 0.04f, 0.03f, 1.0f}, {0.15f, 0.0f, 0.0f, 0.25f}, 0.40f, 0.10f
     ));
     pack.materials.push_back(makeMaterial(
-        {0.68f, 0.015f, 0.01f, 1.0f}, {0.35f, 0.0f, 0.0f, 0.45f}
+        {0.68f, 0.015f, 0.01f, 1.0f}, {0.35f, 0.0f, 0.0f, 0.45f}, 0.36f, 0.14f
     ));
     pack.materials.push_back(makeMaterial(
-        {0.78f, 0.66f, 0.46f, 1.0f}, {0.02f, 0.012f, 0.004f, 0.0f}
+        {0.74f, 0.70f, 0.62f, 1.0f}, {0.01f, 0.008f, 0.004f, 0.0f}, 0.46f
     ));
     pack.materials.push_back(makeMaterial(
-        {0.62f, 0.055f, 0.028f, 1.0f}, {0.03f, 0.0f, 0.0f, 0.0f}
+        {0.70f, 0.035f, 0.018f, 1.0f}, {0.055f, 0.0f, 0.0f, 0.0f}, 0.38f, 0.10f
     ));
     pack.materials.push_back(makeMaterial(
-        {0.82f, 0.55f, 0.22f, 1.0f}, {0.01f, 0.006f, 0.001f, 0.0f}
+        {0.96f, 0.78f, 0.42f, 1.0f}, {0.025f, 0.016f, 0.004f, 0.0f}, 0.28f, 0.28f
     ));
 
     const auto appendInstance = [&pack](
@@ -1502,14 +1671,15 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     renderedSoftTissues = 0u;
     if (softTissuePayload != nullptr) {
         for (const SoftTissueRecord& tissue : softTissuePayload->records) {
-            const GeometryRange geometry = appendSoftTissueGeometry(pack, *softTissuePayload, tissue);
+            const GeometryRange geometry = appendSoftTissueGeometry(
+                pack, *softTissuePayload, tissue, bodies
+            );
             const bool isMuscle = tissue.layer == kSoftTissueLayerMuscle;
             appendInstance(
                 geometry, isMuscle ? 4u : 5u,
                 isMuscle ? kMuscleSurfaceSemantic : kTendonSurfaceSemantic,
-                MR_VISUAL_BINDING_ARTICULATED_LINK, tissue.bodyIndex,
-                {tissue.translationX, tissue.translationY, tissue.translationZ, tissue.uniformScale},
-                {tissue.quaternionX, tissue.quaternionY, tissue.quaternionZ, tissue.quaternionW},
+                MR_VISUAL_BINDING_WORLD, MR_INVALID_INDEX,
+                {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
                 tissue.stableId
             );
             ++renderedSoftTissues;
@@ -1807,7 +1977,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-seconds <1e-6..1e-3>]"
                           << " [--source-route-centrelines] [--source-route-index <0..415>]..."
                           << " [--surface-project-source-sites]"
-                          << " [--soft-tissue-payload <NHTISS1>]"
+                          << " [--soft-tissue-payload <NHTISS2>]"
                           << " [--focus-body-index <0..156>]"
                           << " [--dimension <512..2048; multiple-of-64>]\n";
                 return 2;
@@ -1905,6 +2075,7 @@ int main(int argc, char** argv) {
                 rigid.model, musclePayload,
                 bonePayload.has_value() ? &*bonePayload : nullptr,
                 softTissuePayload.has_value() ? &*softTissuePayload : nullptr,
+                bodies,
                 muscleDrivenState.has_value(),
                 resolvedRouteCentrelines.has_value() ? &*resolvedRouteCentrelines : nullptr,
                 renderedBodies, renderedSoftTissues, renderedRouteSegments
@@ -1933,7 +2104,7 @@ int main(int argc, char** argv) {
             metalrobo::VisualSceneManifestV3 manifest;
             require(metalrobo::compileVisualSceneManifestV3(
                         world, references, metalrobo::makeNeutralStudioEnvironmentV2(),
-                        metalrobo::makeIndoorAreaLightRigV1(), manifest, &reason
+                        makeHumanAnatomyLightRig(), manifest, &reason
                     ),
                     "native Human visual scene compile failed: " + reason);
             require(metalrobo::writeVisualSceneManifestV3(
@@ -1953,7 +2124,7 @@ int main(int argc, char** argv) {
                 metalrobo::VisualSceneManifestV3 cameraManifest;
                 require(metalrobo::compileVisualSceneManifestV3(
                             world, references, metalrobo::makeNeutralStudioEnvironmentV2(),
-                            metalrobo::makeIndoorAreaLightRigV1(), cameraManifest, &reason
+                            makeHumanAnatomyLightRig(), cameraManifest, &reason
                         ),
                         "native Human per-camera visual scene compile failed: " + reason);
                 metalrobo::MetalHybridRendererConfig rendererConfig;
@@ -2016,6 +2187,9 @@ int main(int argc, char** argv) {
                       << " rendered_link_visuals=" << renderedBodies
                       << " bodyparts_bones=" << (bonePayload.has_value() ? bonePayload->records.size() : 0u)
                       << " bodyparts_soft_tissues=" << renderedSoftTissues
+                      << " soft_tissue_binding=" << (softTissuePayload.has_value()
+                              ? "two_body_linear_blend_world_surface_snapshot"
+                              : "none")
                       << " muscle_sites=" << musclePayload.sites.size()
                       << " route_centerline_segments=" << renderedRouteSegments
                       << " source_route_centrelines=" << (sourceRouteCentrelines ? "true" : "false")
@@ -2043,12 +2217,12 @@ int main(int argc, char** argv) {
                       << " boundary=" << (muscleDrivenState.has_value()
                               ? (bodypartsBoneVisual
                                   ? (softTissuePayload.has_value()
-                                      ? "cpu_fp64_complete_416_muscle_force_and_articulated_free_body_step_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_and_rigid_source_soft_tissue_visuals_not_contact_or_live_rollout"
+                                      ? "cpu_fp64_complete_416_muscle_force_and_articulated_free_body_step_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_and_two_body_kinematic_source_soft_tissue_visuals_not_contact_or_live_rollout"
                                       : "cpu_fp64_complete_416_muscle_force_and_articulated_free_body_step_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_not_contact_or_live_rollout")
                                   : "cpu_fp64_complete_416_muscle_force_and_articulated_free_body_step_to_metal_pose_snapshot_not_contact_or_live_rollout")
                               : (bodypartsBoneVisual
                                   ? (softTissuePayload.has_value()
-                                      ? "metal_pose_snapshot_to_native_renderer_with_provisional_bodyparts_bone_registration_and_rigid_source_soft_tissue_visuals_not_collision_or_live_rollout"
+                                      ? "metal_pose_snapshot_to_native_renderer_with_provisional_bodyparts_bone_registration_and_two_body_kinematic_source_soft_tissue_visuals_not_collision_or_live_rollout"
                                       : "metal_pose_snapshot_to_native_renderer_with_provisional_bodyparts_bone_registration_not_collision_or_live_rollout")
                                   : "metal_pose_snapshot_to_native_renderer_not_bodyparts_registration_or_live_rollout"))
                       << " route_geometry=" << (sourceRouteCentrelines
