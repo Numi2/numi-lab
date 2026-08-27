@@ -7924,7 +7924,7 @@ void uploadBatch(
         };
         task.assistance = {
             config.birdFlowJourneyStudentAuthority,
-            0.0f,
+            config.difficultySamplingExponentOverride,
             0.0f,
             0.0f,
         };

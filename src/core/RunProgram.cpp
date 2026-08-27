@@ -686,6 +686,10 @@ RunCompileDiagnostics compileRun(
             (manifest.profile.maximumDifficultyBand != MR_INVALID_INDEX &&
              manifest.profile.minimumDifficultyBand >
                  manifest.profile.maximumDifficultyBand) ||
+            !std::isfinite(
+                manifest.profile.difficultySamplingExponentOverride
+            ) ||
+            manifest.profile.difficultySamplingExponentOverride < 0.0f ||
             !std::isfinite(manifest.profile.controlTimestepSeconds) ||
             !(manifest.profile.controlTimestepSeconds > 0.0f)) {
             return reject(
@@ -1577,6 +1581,9 @@ RunCompileDiagnostics compileRun(
         runHash.scalar(staged.profile_.streamedArticulatedContactResponses);
         runHash.scalar(staged.profile_.minimumDifficultyBand);
         runHash.scalar(staged.profile_.maximumDifficultyBand);
+        runHash.scalar(
+            staged.profile_.difficultySamplingExponentOverride
+        );
         runHash.bytes(
             &staged.profile_.capacities,
             sizeof(staged.profile_.capacities)

@@ -16,6 +16,7 @@ provided. Every native trainer option passes through unchanged. Common options:
 
   --task velocity|disturbance-recovery|supine-get-up|developmental-recovery|adult-locomotion|g1-legs-locomotion|ball-recovery|ball-dodge
   --minimum-difficulty-band N --maximum-difficulty-band N
+  --difficulty-sampling-exponent F   Positive override; values below 1 bias the active range toward harder bands
   --interaction-pack PATH --interaction-clip ID
   --motion-pack PATH [--motion-activation impact|always]
                                     Visual motion style reward; always is for

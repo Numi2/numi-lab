@@ -1593,7 +1593,12 @@ inline uint sampledDifficultyBand(
     if (sampledBandCount == 1u) {
         return minimumBand;
     }
-    const float exponent = max(program.commandUpper.w, 0.01f);
+    const float exponent = max(
+        dispatch.assistance.y > 0.0f
+            ? dispatch.assistance.y
+            : program.commandUpper.w,
+        0.01f
+    );
     const float sample = pow(
         randomUnit(dispatch, environment, episode, 0u, 15u),
         exponent

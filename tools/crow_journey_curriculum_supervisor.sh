@@ -29,6 +29,7 @@ teacher_distillation=${NUMI_CROW_TEACHER_DISTILLATION:-1}
 teacher_student_authority=${NUMI_CROW_TEACHER_STUDENT_AUTHORITY:-0.25}
 rehearsal_depth=${NUMI_CROW_REHEARSAL_DEPTH:-0}
 rehearsal_minimum_band=${NUMI_CROW_REHEARSAL_MINIMUM_BAND:-}
+difficulty_sampling_exponent=${NUMI_CROW_DIFFICULTY_SAMPLING_EXPONENT:-}
 
 case "$course" in
   state)
@@ -84,6 +85,12 @@ if ! "$mlx" -c \
   echo "Crow teacher student authority must be in [0,1] and zero when teacher distillation is disabled" >&2
   exit 2
 fi
+if [ -n "$difficulty_sampling_exponent" ] && ! "$mlx" -c \
+  'import math,sys; value=float(sys.argv[1]); sys.exit(0 if math.isfinite(value) and value > 0.0 else 1)' \
+  "$difficulty_sampling_exponent"; then
+  echo "NUMI_CROW_DIFFICULTY_SAMPLING_EXPONENT must be finite and positive" >&2
+  exit 2
+fi
 if [ "$parent_mode" = actor-transfer ]; then
   [ "$course" = sensor-fast ] && [ "$start_band" -eq 0 ] && \
     [ -n "$parent_policy" ] && [ -s "$parent_policy" ] && \
@@ -136,6 +143,9 @@ while [ "$band" -le "$maximum_band" ]; do
       --checkpoint-interval "$checkpoint_interval"
       --verbose
     )
+    if [ -n "$difficulty_sampling_exponent" ]; then
+      common+=(--difficulty-sampling-exponent "$difficulty_sampling_exponent")
+    fi
     if [ -n "$visual_config" ]; then
       common+=(--visual-observation-config "$visual_config")
     fi

@@ -55,6 +55,12 @@ For a stable curriculum floor instead of a sliding window, set
 `NUMI_CROW_REHEARSAL_MINIMUM_BAND`; for example, value 2 retains every flight
 competency from takeoff through the current milestone while leaving standing
 and walking to the independent protected selector.
+When the hardest rung is underrepresented in a wide rehearsal range, set
+`NUMI_CROW_DIFFICULTY_SAMPLING_EXPONENT` explicitly. Values below one bias
+resets toward the maximum band while retaining earlier-band rehearsal; this is
+an execution-profile input recorded in evidence and the run fingerprint, not a
+TaskPack or PolicyPack ABI change. For bands 2-10, `0.25` assigns about 37.6%
+of resets to band 10 instead of about 6.5% under the authored `1.75` exponent.
 
 State-only neural curriculum:
 

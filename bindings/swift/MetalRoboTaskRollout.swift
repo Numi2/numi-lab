@@ -620,6 +620,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var disableTaskTerminations: Bool
     public var materializeArticulatedContactResponses: Bool
     public var difficultyBandRange: ClosedRange<UInt32>?
+    public var difficultySamplingExponentOverride: Float
     public var interactionReferenceMode: MetalRoboInteractionReferenceMode
     public var interactionStudentAuthority: Float?
     public var interactionResetPhaseFraction: Float?
@@ -642,6 +643,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         disableTaskTerminations: Bool = false,
         materializeArticulatedContactResponses: Bool = false,
         difficultyBandRange: ClosedRange<UInt32>? = nil,
+        difficultySamplingExponentOverride: Float = 0.0,
         interactionReferenceMode: MetalRoboInteractionReferenceMode =
             .taskDefault,
         interactionStudentAuthority: Float? = nil,
@@ -666,6 +668,8 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         self.materializeArticulatedContactResponses =
             materializeArticulatedContactResponses
         self.difficultyBandRange = difficultyBandRange
+        self.difficultySamplingExponentOverride =
+            difficultySamplingExponentOverride
         self.interactionReferenceMode = interactionReferenceMode
         self.interactionStudentAuthority = interactionStudentAuthority
         self.interactionResetPhaseFraction = interactionResetPhaseFraction
@@ -1264,6 +1268,8 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
             configuration.birdFlowJourneyStudentAuthority
         native.birdflow_journey_variant =
             configuration.birdFlowJourneyVariant.rawValue
+        native.difficulty_sampling_exponent_override =
+            configuration.difficultySamplingExponentOverride
         return native
     }
 

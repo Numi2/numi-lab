@@ -583,6 +583,12 @@ void validateTaskRolloutConfiguration(
             "task-rollout journey student authority must be in [0, 1]"
         );
     }
+    if (!std::isfinite(config.difficulty_sampling_exponent_override) ||
+        config.difficulty_sampling_exponent_override < 0.0f) {
+        throw std::invalid_argument(
+            "task-rollout difficulty sampling exponent must be non-negative"
+        );
+    }
     if (config.birdflow_journey_variant >
         MR_BIRDFLOW_JOURNEY_V9_VISUAL_NEURAL) {
         throw std::invalid_argument(
@@ -1141,6 +1147,8 @@ createTaskRolloutHandle(
         profile.minimumDifficultyBand;
     handle->stepConfig.maximumDifficultyBand =
         profile.maximumDifficultyBand;
+    handle->stepConfig.difficultySamplingExponentOverride =
+        profile.difficultySamplingExponentOverride;
     handle->stepConfig.captureContactEvidence = false;
     handle->stepConfig.publishFinalState = false;
     handle->stepConfig.publishStateTrajectory = false;
@@ -1245,6 +1253,8 @@ void applyRunProfile(
         manifest.profile.maximumDifficultyBand =
             config.maximum_difficulty_band;
     }
+    manifest.profile.difficultySamplingExponentOverride =
+        config.difficulty_sampling_exponent_override;
 }
 
 metalrobo::RunManifest makeUnitreeG1RunManifest(

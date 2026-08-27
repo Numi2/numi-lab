@@ -224,6 +224,7 @@ private struct Options {
     var materializeArticulatedContactResponses = false
     var minimumDifficultyBand: Int?
     var maximumDifficultyBand: Int?
+    var difficultySamplingExponentOverride: Float = 0.0
     var interactionResetOnly = false
     var interactionStudentAuthority: Float?
     var interactionResetPhaseFraction: Float?
@@ -354,6 +355,16 @@ private struct Options {
                 index += 1
             case "--maximum-difficulty-band":
                 maximumDifficultyBand = try Self.integer(value(), option)
+                index += 1
+            case "--difficulty-sampling-exponent":
+                guard let exponent = Float(try value()), exponent.isFinite,
+                      exponent > 0.0
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--difficulty-sampling-exponent requires a finite positive value."
+                    )
+                }
+                difficultySamplingExponentOverride = exponent
                 index += 1
             case "--interaction-reset-only":
                 interactionResetOnly = true
@@ -1185,6 +1196,8 @@ private func makeContext(
             options.minimumDifficultyBand.map {
                 UInt32($0)...UInt32(options.maximumDifficultyBand!)
             },
+        difficultySamplingExponentOverride:
+            options.difficultySamplingExponentOverride,
         interactionReferenceMode: options.interactionResetOnly
             ? .resetOnly
             : .taskDefault,
@@ -3258,6 +3271,8 @@ private enum TaskRolloutMain {
                     options.birdFlowJourneyTeacher,
                 "birdflow_journey_student_authority":
                     options.birdFlowJourneyStudentAuthority,
+                "difficulty_sampling_exponent_override":
+                    options.difficultySamplingExponentOverride,
                 "birdflow_journey_variant":
                     options.birdFlowJourneyVariant == .v9VisualNeural
                     ? "v9-visual-neural"

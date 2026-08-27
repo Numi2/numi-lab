@@ -203,6 +203,9 @@ struct RunProfile {
     bool streamedArticulatedContactResponses = true;
     std::uint32_t minimumDifficultyBand = 0u;
     std::uint32_t maximumDifficultyBand = MR_INVALID_INDEX;
+    // Zero retains the TaskPack exponent. Positive values are fingerprinted
+    // execution semantics used to rebalance overlapping curriculum bands.
+    float difficultySamplingExponentOverride = 0.0f;
 };
 
 struct RunManifest {

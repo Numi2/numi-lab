@@ -103,6 +103,9 @@ typedef struct MRTaskRolloutConfigC {
     // approach supervisor; V8 is neural-only during execution while still
     // permitting invocation-scoped teacher labels during training.
     uint32_t birdflow_journey_variant;
+    // Optional execution-profile override for the authored difficulty-band
+    // sampling exponent. Zero retains the TaskPack exponent.
+    float difficulty_sampling_exponent_override;
 } MRTaskRolloutConfigC;
 
 typedef struct MRTaskVisualPackC {

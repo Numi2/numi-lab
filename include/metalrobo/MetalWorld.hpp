@@ -460,6 +460,7 @@ struct MetalWorldStepConfig {
     // one compiled TaskPack; they never alter reward, success, or promotion.
     std::uint32_t minimumDifficultyBand = 0u;
     std::uint32_t maximumDifficultyBand = MR_INVALID_INDEX;
+    float difficultySamplingExponentOverride = 0.0f;
     std::uint32_t velocityIterations = 1u;
     std::uint32_t finalVelocityIterations = 1u;
     MetalWorldCCDMode ccdMode = MetalWorldCCDMode::speculative;
