@@ -1313,6 +1313,13 @@ target_link_libraries(
         "${COREGRAPHICS_FRAMEWORK}"
         "${IMAGEIO_FRAMEWORK}"
 )
+add_dependencies(metalrobo_numilab_human_myosim_visual_probe numi_matter_shaders)
+target_compile_definitions(
+    metalrobo_numilab_human_myosim_visual_probe
+    PRIVATE
+        NUMI_HUMAN_PASSIVE_TISSUE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/passive_skeletal_muscle_unqualified.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+)
 target_compile_options(
     metalrobo_numilab_human_myosim_visual_probe
     PRIVATE

@@ -11,6 +11,7 @@
 #include "metalrobo/QualityContactSolver.hpp"
 #include "metalrobo/VisualPlatform.hpp"
 #include "metalrobo/WorldCompiler.hpp"
+#include "numi/matter/matter.hpp"
 
 #include <algorithm>
 #include <array>
@@ -23,6 +24,7 @@
 #include <iostream>
 #include <limits>
 #include <numbers>
+#include <numeric>
 #include <optional>
 #include <span>
 #include <stdexcept>
@@ -51,6 +53,7 @@ constexpr std::uint32_t kMuscleSurfaceSemantic = 51005u;
 constexpr std::uint32_t kTendonSurfaceSemantic = 51006u;
 constexpr std::uint32_t kSkinShellSemantic = 51007u;
 constexpr std::uint32_t kTendonAttachmentCollarSemantic = 51008u;
+constexpr std::uint32_t kPassiveFEMTissueSemantic = 51009u;
 constexpr std::uint32_t kDefaultFrameDimension = 1024u;
 constexpr std::array<char, 8u> kBoneMagic{
     'N', 'H', 'B', 'O', 'N', 'E', 'S', '1',
@@ -2784,6 +2787,490 @@ GeometryRange appendWorldTube(
     return result;
 }
 
+// This small continuum cage is intentionally a specimen, not a second
+// anatomical model.  Its two end rings are derived from one exact BodyParts3D
+// source muscle surface and follow that surface's two named MyoSim endpoint
+// bodies.  The six intermediate nodes are free Matter FEM nodes.  This gives
+// us an executable, inspectable deformation bridge without pretending that a
+// coarse cage is a calibrated volumetric segmentation of the whole muscle.
+struct PassiveFEMTissueVisual {
+    std::uint32_t stableId = 0u;
+    std::array<std::uint32_t, 2u> endpointBodies{};
+    std::vector<mr_float4> restNodes;
+    std::vector<mr_float4> nodes;
+    std::uint32_t tetrahedronCount = 0u;
+    std::uint32_t completedSteps = 0u;
+    std::uint32_t fgmresIterations = 0u;
+    float maximumAnchorDisplacementMeters = 0.0f;
+    float maximumFreeDisplacementMeters = 0.0f;
+    float minimumDeterminant = std::numeric_limits<float>::infinity();
+    double gpuMilliseconds = 0.0;
+    std::string deviceName;
+};
+
+mr_float4 femSubtract(const mr_float4& left, const mr_float4& right) {
+    return {left.x - right.x, left.y - right.y, left.z - right.z, 0.0f};
+}
+
+mr_float4 femAdd(const mr_float4& left, const mr_float4& right) {
+    return {left.x + right.x, left.y + right.y, left.z + right.z, 1.0f};
+}
+
+mr_float4 femScale(const mr_float4& value, const float scale) {
+    return {value.x * scale, value.y * scale, value.z * scale, 0.0f};
+}
+
+float femDot(const mr_float4& left, const mr_float4& right) {
+    return left.x * right.x + left.y * right.y + left.z * right.z;
+}
+
+mr_float4 femCross(const mr_float4& left, const mr_float4& right) {
+    return {
+        left.y * right.z - left.z * right.y,
+        left.z * right.x - left.x * right.z,
+        left.x * right.y - left.y * right.x,
+        0.0f,
+    };
+}
+
+float femLength(const mr_float4& value) {
+    return std::sqrt(femDot(value, value));
+}
+
+mr_float4 femNormalized(const mr_float4& value, const char* context) {
+    const float length = femLength(value);
+    require(std::isfinite(length) && length > 1.0e-6f,
+            std::string(context) + " is degenerate");
+    return femScale(value, 1.0f / length);
+}
+
+mr_float4 femLerp(const mr_float4& first, const mr_float4& second, const float t) {
+    return {
+        first.x + (second.x - first.x) * t,
+        first.y + (second.y - first.y) * t,
+        first.z + (second.z - first.z) * t,
+        1.0f,
+    };
+}
+
+mr_float4 femRingCenter(
+    const std::span<const mr_float4> nodes, const std::uint32_t ring
+) {
+    require(nodes.size() == 12u && ring < 4u, "FEM tissue ring is invalid");
+    const std::uint32_t offset = ring * 3u;
+    return {
+        (nodes[offset].x + nodes[offset + 1u].x + nodes[offset + 2u].x) / 3.0f,
+        (nodes[offset].y + nodes[offset + 1u].y + nodes[offset + 2u].y) / 3.0f,
+        (nodes[offset].z + nodes[offset + 1u].z + nodes[offset + 2u].z) / 3.0f,
+        1.0f,
+    };
+}
+
+float femRingRadius(
+    const std::span<const mr_float4> nodes, const std::uint32_t ring
+) {
+    const mr_float4 center = femRingCenter(nodes, ring);
+    float result = 0.0f;
+    for (std::uint32_t side = 0u; side < 3u; ++side) {
+        result += femLength(femSubtract(nodes[ring * 3u + side], center));
+    }
+    result /= 3.0f;
+    require(std::isfinite(result) && result > 1.0e-4f,
+            "FEM tissue ring radius is invalid");
+    return result;
+}
+
+mr_float4 femRotateRestPointToBody(
+    const mr_float4& restPoint,
+    const MRBodyStateGPU& restBody,
+    const MRBodyStateGPU& drivenBody
+) {
+    const mr_float4 inverseRestOrientation{
+        -restBody.orientation.x, -restBody.orientation.y,
+        -restBody.orientation.z, restBody.orientation.w,
+    };
+    const mr_float4 local = rotatePoint(
+        inverseRestOrientation, femSubtract(restPoint, restBody.position)
+    );
+    return femAdd(drivenBody.position, rotatePoint(drivenBody.orientation, local));
+}
+
+double femSignedTetrahedronVolume(
+    const std::vector<std::array<double, 3u>>& nodes,
+    const std::array<std::uint32_t, 4u>& tetrahedron
+) {
+    const auto difference = [&nodes, &tetrahedron](
+        const std::uint32_t left, const std::uint32_t right
+    ) {
+        return std::array<double, 3u>{
+            nodes[tetrahedron[left]][0] - nodes[tetrahedron[right]][0],
+            nodes[tetrahedron[left]][1] - nodes[tetrahedron[right]][1],
+            nodes[tetrahedron[left]][2] - nodes[tetrahedron[right]][2],
+        };
+    };
+    const auto first = difference(1u, 0u);
+    const auto second = difference(2u, 0u);
+    const auto third = difference(3u, 0u);
+    const std::array<double, 3u> cross{
+        first[1] * second[2] - first[2] * second[1],
+        first[2] * second[0] - first[0] * second[2],
+        first[0] * second[1] - first[1] * second[0],
+    };
+    return (cross[0] * third[0] + cross[1] * third[1] + cross[2] * third[2]) / 6.0;
+}
+
+PassiveFEMTissueVisual runPassiveFEMTissue(
+    const LoadedSoftTissues& source,
+    const std::span<const MRBodyStateGPU> restBodies,
+    const std::span<const MRBodyStateGPU> drivenBodies,
+    const std::uint32_t stableId,
+    const double timestepSeconds,
+    const std::uint32_t stepCount,
+    const std::filesystem::path& matterMetallib
+) {
+    require(restBodies.size() == drivenBodies.size() && !restBodies.empty(),
+            "FEM tissue source body poses are inconsistent");
+    require(std::isfinite(timestepSeconds) && timestepSeconds >= 1.0e-6 &&
+                timestepSeconds <= 1.0e-3 && stepCount >= 1u && stepCount <= 64u,
+            "FEM tissue integration range is invalid");
+    const auto selected = std::find_if(
+        source.records.begin(), source.records.end(),
+        [stableId](const SoftTissueRecord& value) {
+            return value.stableId == stableId;
+        }
+    );
+    require(selected != source.records.end(),
+            "requested FEM tissue stable ID is not present");
+    const SoftTissueRecord& tissue = *selected;
+    require(tissue.layer == kSoftTissueLayerMuscle &&
+                tissue.bodyIndex[0] != MR_INVALID_INDEX &&
+                tissue.bodyIndex[1] != MR_INVALID_INDEX &&
+                tissue.bodyIndex[2] == MR_INVALID_INDEX &&
+                tissue.bodyIndex[0] < restBodies.size() &&
+                tissue.bodyIndex[1] < restBodies.size(),
+            "native FEM tissue currently requires one two-body source muscle surface");
+
+    std::vector<mr_float4> surfacePoints;
+    std::vector<mr_float4> firstEndpointPoints;
+    std::vector<mr_float4> secondEndpointPoints;
+    surfacePoints.reserve(tissue.vertexCount);
+    for (std::uint32_t offset = 0u; offset < tissue.vertexCount; ++offset) {
+        const SoftTissueVertex& vertex = source.vertices[tissue.firstVertex + offset];
+        const mr_float4 point = softTissueVertexBlendedWorld(tissue, vertex, restBodies);
+        surfacePoints.push_back(point);
+        if (vertex.weight[0] >= 0.85f) firstEndpointPoints.push_back(point);
+        if (vertex.weight[1] >= 0.85f) secondEndpointPoints.push_back(point);
+    }
+    require(firstEndpointPoints.size() >= 3u && secondEndpointPoints.size() >= 3u,
+            "source muscle has insufficient endpoint-weighted surface samples for FEM");
+    const auto average = [](const std::span<const mr_float4> points) {
+        mr_float4 result{0.0f, 0.0f, 0.0f, 1.0f};
+        for (const mr_float4& point : points) {
+            result.x += point.x;
+            result.y += point.y;
+            result.z += point.z;
+        }
+        const float inverse = 1.0f / static_cast<float>(points.size());
+        result.x *= inverse;
+        result.y *= inverse;
+        result.z *= inverse;
+        return result;
+    };
+    const mr_float4 firstCenter = average(firstEndpointPoints);
+    const mr_float4 secondCenter = average(secondEndpointPoints);
+    const mr_float4 axis = femNormalized(
+        femSubtract(secondCenter, firstCenter), "source muscle endpoint axis"
+    );
+    const auto endpointRadius = [&axis](
+        const std::span<const mr_float4> points, const mr_float4& center
+    ) {
+        std::vector<float> radii;
+        radii.reserve(points.size());
+        for (const mr_float4& point : points) {
+            const mr_float4 difference = femSubtract(point, center);
+            const mr_float4 radial = femSubtract(
+                difference, femScale(axis, femDot(difference, axis))
+            );
+            radii.push_back(femLength(radial));
+        }
+        std::sort(radii.begin(), radii.end());
+        const float result = radii[radii.size() / 2u];
+        require(std::isfinite(result) && result >= 0.004f && result <= 0.120f,
+                "source muscle endpoint radius is not usable for FEM");
+        return result;
+    };
+    const float firstRadius = endpointRadius(firstEndpointPoints, firstCenter);
+    const float secondRadius = endpointRadius(secondEndpointPoints, secondCenter);
+    const mr_float4 reference = std::abs(axis.z) < 0.9f
+        ? mr_float4{0.0f, 0.0f, 1.0f, 0.0f}
+        : mr_float4{0.0f, 1.0f, 0.0f, 0.0f};
+    const mr_float4 basisU = femNormalized(femCross(axis, reference), "source muscle FEM basis");
+    const mr_float4 basisV = femNormalized(femCross(axis, basisU), "source muscle FEM binormal");
+
+    PassiveFEMTissueVisual result;
+    result.stableId = stableId;
+    result.endpointBodies = {tissue.bodyIndex[0], tissue.bodyIndex[1]};
+    result.restNodes.reserve(12u);
+    for (std::uint32_t ring = 0u; ring < 4u; ++ring) {
+        const float fraction = static_cast<float>(ring) / 3.0f;
+        const mr_float4 center = femLerp(firstCenter, secondCenter, fraction);
+        const float radius = firstRadius + (secondRadius - firstRadius) * fraction;
+        for (std::uint32_t side = 0u; side < 3u; ++side) {
+            const float angle = 2.0f * std::numbers::pi_v<float> *
+                static_cast<float>(side) / 3.0f;
+            const mr_float4 radial = femAdd(
+                femScale(basisU, radius * std::cos(angle)),
+                femScale(basisV, radius * std::sin(angle))
+            );
+            const mr_float4 node = femAdd(center, radial);
+            result.restNodes.push_back(node);
+            result.nodes.push_back(node);
+        }
+    }
+    for (std::uint32_t side = 0u; side < 3u; ++side) {
+        const std::uint32_t first = side;
+        const std::uint32_t last = 9u + side;
+        const mr_float4 firstDriven = femRotateRestPointToBody(
+            result.restNodes[first], restBodies[tissue.bodyIndex[0]], drivenBodies[tissue.bodyIndex[0]]
+        );
+        const mr_float4 lastDriven = femRotateRestPointToBody(
+            result.restNodes[last], restBodies[tissue.bodyIndex[1]], drivenBodies[tissue.bodyIndex[1]]
+        );
+        result.maximumAnchorDisplacementMeters = std::max({
+            result.maximumAnchorDisplacementMeters,
+            femLength(femSubtract(firstDriven, result.restNodes[first])),
+            femLength(femSubtract(lastDriven, result.restNodes[last])),
+        });
+        result.nodes[first] = firstDriven;
+        result.nodes[last] = lastDriven;
+    }
+
+    auto material = numi::matter::parseMatterFile(NUMI_HUMAN_PASSIVE_TISSUE_MATERIAL);
+    require(material.succeeded(), "passive skeletal-muscle Matter material did not parse");
+    numi::matter::WorldSource worldSource;
+    worldSource.environmentCount = 1u;
+    worldSource.frameTimestep = timestepSeconds;
+    worldSource.gravity = {0.0, 0.0, 0.0};
+    worldSource.mixedSolver.newtonIterations = 8u;
+    worldSource.mixedSolver.fgmresIterations = 12u;
+    worldSource.materials.push_back(std::move(material.material));
+    numi::matter::ObjectSource object;
+    object.name = "bodyparts3d_source_soleus_passive_fem_specimen";
+    object.materialIndex = 0u;
+    object.representation = numi::matter::Representation::fem;
+    object.mixedFEM = false;
+    object.characteristicLength = std::max(firstRadius, secondRadius);
+    for (const mr_float4& node : result.restNodes) {
+        object.femNodes.push_back({node.x, node.y, node.z});
+    }
+    object.femFixedNodes = {0u, 1u, 2u, 9u, 10u, 11u};
+    const auto appendPrism = [&object, &result](
+        std::uint32_t a0, std::uint32_t a1, std::uint32_t a2,
+        std::uint32_t b0, std::uint32_t b1, std::uint32_t b2
+    ) {
+        const std::vector<std::array<double, 3u>> nodes = [&result] {
+            std::vector<std::array<double, 3u>> value;
+            value.reserve(result.restNodes.size());
+            for (const mr_float4& node : result.restNodes) {
+                value.push_back({node.x, node.y, node.z});
+            }
+            return value;
+        }();
+        for (std::array<std::uint32_t, 4u> tetrahedron : {
+                 std::array<std::uint32_t, 4u>{a0, a1, a2, b0},
+                 std::array<std::uint32_t, 4u>{a1, a2, b0, b1},
+                 std::array<std::uint32_t, 4u>{a2, b0, b1, b2},
+             }) {
+            if (femSignedTetrahedronVolume(nodes, tetrahedron) < 0.0) {
+                std::swap(tetrahedron[0], tetrahedron[1]);
+            }
+            object.tetrahedra.push_back({tetrahedron});
+        }
+    };
+    appendPrism(0u, 1u, 2u, 3u, 4u, 5u);
+    appendPrism(3u, 4u, 5u, 6u, 7u, 8u);
+    appendPrism(6u, 7u, 8u, 9u, 10u, 11u);
+    worldSource.objects.push_back(std::move(object));
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = 0u;
+    auto compiled = numi::matter::compileWorld(worldSource, options);
+    std::string compileMessage;
+    for (const numi::matter::Diagnostic& diagnostic : compiled.diagnostics) {
+        compileMessage += diagnostic.message + "; ";
+    }
+    require(compiled.succeeded(), "source-derived passive FEM tissue did not compile: " + compileMessage);
+    result.tetrahedronCount = static_cast<std::uint32_t>(compiled.world.fem.tetrahedra.size());
+
+    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+    require(device != nil, "no Metal device for Human passive FEM tissue");
+    id<MTLCommandQueue> queue = [device newCommandQueue];
+    require(queue != nil, "could not allocate Human passive FEM command queue");
+    id<MTLBuffer> worldStatuses = [device
+        newBufferWithLength:sizeof(MRMetalWorldStatusGPU)
+        options:MTLResourceStorageModeShared];
+    require(worldStatuses != nil, "could not allocate Human passive FEM status buffer");
+    auto* worldStatus = static_cast<MRMetalWorldStatusGPU*>(worldStatuses.contents);
+    *worldStatus = {};
+    worldStatus->code = MR_STEP_SUCCESS;
+
+    numi::matter::Runtime runtime;
+    const auto initialized = runtime.initialize(
+        compiled.world,
+        {
+            .metallib = matterMetallib,
+            .environmentCount = 1u,
+            .captureEvents = true,
+            .captureDiagnostics = true,
+            .automaticIdentification = false,
+            .adaptiveTransfer = false,
+        }
+    );
+    require(initialized.encoded && runtime.valid(),
+            "could not initialize source-derived passive FEM tissue: " + initialized.message);
+    result.deviceName = initialized.device;
+    auto anchored = runtime.snapshot();
+    require(anchored.available && anchored.femNodes.size() == result.nodes.size(),
+            "could not obtain source-derived passive FEM tissue snapshot");
+    for (std::uint32_t node = 0u; node < anchored.femNodes.size(); ++node) {
+        if (node < 3u || node >= 9u) {
+            anchored.femNodes[node].positionAndMass.x = result.nodes[node].x;
+            anchored.femNodes[node].positionAndMass.y = result.nodes[node].y;
+            anchored.femNodes[node].positionAndMass.z = result.nodes[node].z;
+            anchored.femNodes[node].velocityAndInverseMass.x = 0.0f;
+            anchored.femNodes[node].velocityAndInverseMass.y = 0.0f;
+            anchored.femNodes[node].velocityAndInverseMass.z = 0.0f;
+        }
+    }
+    const auto restored = runtime.restore(anchored);
+    require(restored.encoded, "could not apply MyoSim-driven FEM anchors: " + restored.message);
+    const auto matterStatuses = (__bridge id<MTLBuffer>)runtime.statusBuffer();
+    auto* statuses = static_cast<NMMatterStatusGPU*>(matterStatuses.contents);
+    require(statuses != nullptr, "Human passive FEM Matter statuses are unavailable");
+    for (std::uint32_t step = 0u; step < stepCount; ++step) {
+        id<MTLCommandBuffer> command = [queue commandBuffer];
+        require(command != nil, "could not allocate Human passive FEM command buffer");
+        numi::matter::EncodeRequest request{};
+        request.commandBuffer = (__bridge void*)command;
+        request.environmentStatuses = (__bridge void*)worldStatuses;
+        request.phase = numi::matter::EncodePhase::preDynamics;
+        request.controlStep = step;
+        request.physicsSubstep = 0u;
+        request.physicsSubsteps = 1u;
+        request.timestepSeconds = runtime.timestepSeconds();
+        auto encoded = runtime.encode(request);
+        require(encoded.encoded, "could not encode Human passive FEM pre-dynamics: " + encoded.message);
+        request.phase = numi::matter::EncodePhase::postCommit;
+        encoded = runtime.encode(request);
+        require(encoded.encoded, "could not encode Human passive FEM post-commit: " + encoded.message);
+        [command commit];
+        [command waitUntilCompleted];
+        require(command.status == MTLCommandBufferStatusCompleted,
+                "Human passive FEM command did not complete");
+        const CFTimeInterval gpuStart = command.GPUStartTime;
+        const CFTimeInterval gpuEnd = command.GPUEndTime;
+        if (std::isfinite(gpuStart) && std::isfinite(gpuEnd) && gpuEnd >= gpuStart) {
+            result.gpuMilliseconds += 1000.0 * (gpuEnd - gpuStart);
+        }
+        require(statuses[0].code == NM_STATUS_SUCCESS,
+                "Human passive FEM Matter status=" + std::to_string(statuses[0].code));
+        result.completedSteps = step + 1u;
+        result.fgmresIterations = std::max(result.fgmresIterations, statuses[0].fgmresIterations);
+        result.minimumDeterminant = std::min(result.minimumDeterminant, statuses[0].diagnostics.x);
+    }
+    const auto final = runtime.snapshot();
+    require(final.available && final.femNodes.size() == result.nodes.size(),
+            "Human passive FEM final snapshot is unavailable");
+    for (std::uint32_t node = 0u; node < final.femNodes.size(); ++node) {
+        result.nodes[node] = {
+            final.femNodes[node].positionAndMass.x,
+            final.femNodes[node].positionAndMass.y,
+            final.femNodes[node].positionAndMass.z,
+            1.0f,
+        };
+        if (node >= 3u && node < 9u) {
+            result.maximumFreeDisplacementMeters = std::max(
+                result.maximumFreeDisplacementMeters,
+                femLength(femSubtract(result.nodes[node], result.restNodes[node]))
+            );
+        }
+    }
+    require(result.completedSteps > 0u && std::isfinite(result.minimumDeterminant) &&
+                result.minimumDeterminant > 0.20f,
+            "Human passive FEM tissue did not publish a valid deformation certificate");
+    return result;
+}
+
+mr_float4 passiveFEMMappedPoint(
+    const PassiveFEMTissueVisual& tissue, const mr_float4& point
+) {
+    const mr_float4 restFirst = femRingCenter(tissue.restNodes, 0u);
+    const mr_float4 restLast = femRingCenter(tissue.restNodes, 3u);
+    const mr_float4 restAxisVector = femSubtract(restLast, restFirst);
+    const float restLengthSquared = femDot(restAxisVector, restAxisVector);
+    require(restLengthSquared > 1.0e-8f, "passive FEM tissue rest axis is degenerate");
+    const float fraction = std::clamp(
+        femDot(femSubtract(point, restFirst), restAxisVector) / restLengthSquared,
+        0.0f, 1.0f
+    );
+    const float ringCoordinate = fraction * 3.0f;
+    const std::uint32_t firstRing = std::min(
+        static_cast<std::uint32_t>(std::floor(ringCoordinate)), 2u
+    );
+    const float localFraction = ringCoordinate - static_cast<float>(firstRing);
+    const mr_float4 restCenter = femLerp(
+        femRingCenter(tissue.restNodes, firstRing),
+        femRingCenter(tissue.restNodes, firstRing + 1u), localFraction
+    );
+    const mr_float4 currentCenter = femLerp(
+        femRingCenter(tissue.nodes, firstRing),
+        femRingCenter(tissue.nodes, firstRing + 1u), localFraction
+    );
+    const float restRadius = femRingRadius(tissue.restNodes, firstRing) * (1.0f - localFraction) +
+        femRingRadius(tissue.restNodes, firstRing + 1u) * localFraction;
+    const float currentRadius = femRingRadius(tissue.nodes, firstRing) * (1.0f - localFraction) +
+        femRingRadius(tissue.nodes, firstRing + 1u) * localFraction;
+    return femAdd(currentCenter, femScale(
+        femSubtract(point, restCenter), currentRadius / restRadius
+    ));
+}
+
+GeometryRange appendPassiveFEMMappedSoftTissueGeometry(
+    metalrobo::VisualAssetPackV2& pack,
+    const LoadedSoftTissues& tissues,
+    const SoftTissueRecord& source,
+    const std::span<const MRBodyStateGPU> restBodies,
+    const PassiveFEMTissueVisual& femTissue
+) {
+    GeometryRange result;
+    result.firstIndex = static_cast<std::uint32_t>(pack.indices.size());
+    result.minimum = {std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(), 1.0f};
+    result.maximum = {-std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity(), 1.0f};
+    const std::uint32_t vertexBase = static_cast<std::uint32_t>(pack.vertices.size());
+    for (std::uint32_t offset = 0u; offset < source.vertexCount; ++offset) {
+        const SoftTissueVertex& vertex = tissues.vertices[source.firstVertex + offset];
+        const mr_float4 position = passiveFEMMappedPoint(
+            femTissue, softTissueVertexBlendedWorld(source, vertex, restBodies)
+        );
+        mr_float4 normal = softTissueVertexBlendedNormalWorld(source, vertex, restBodies);
+        normal.w = 1.0f;
+        pack.vertices.push_back({position, normal, normalTangent(normal),
+            {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}});
+        result.minimum.x = std::min(result.minimum.x, position.x);
+        result.minimum.y = std::min(result.minimum.y, position.y);
+        result.minimum.z = std::min(result.minimum.z, position.z);
+        result.maximum.x = std::max(result.maximum.x, position.x);
+        result.maximum.y = std::max(result.maximum.y, position.y);
+        result.maximum.z = std::max(result.maximum.z, position.z);
+    }
+    for (std::uint32_t offset = 0u; offset < source.indexCount; ++offset) {
+        pack.indices.push_back(vertexBase + tissues.indices[source.firstIndex + offset] - source.firstVertex);
+    }
+    result.indexCount = source.indexCount;
+    return result;
+}
+
 metalrobo::VisualAssetPackV2 makeMarkerPack(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& musclePayload,
@@ -2791,6 +3278,8 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     const LoadedSoftTissues* softTissuePayload,
     const LoadedSkin* skinPayload,
     const std::span<const MRBodyStateGPU> bodies,
+    const std::span<const MRBodyStateGPU> restBodies,
+    const PassiveFEMTissueVisual* passiveFEMTissue,
     const bool muscleDriven,
     const std::span<const std::uint32_t> requestedBoneBodyIndices,
     const std::span<const std::uint32_t> requestedSoftTissueStableIds,
@@ -2799,7 +3288,8 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     std::uint32_t& renderedSoftTissues,
     std::uint32_t& renderedSkinShells,
     std::uint32_t& renderedTendonAttachmentCollars,
-    std::uint32_t& renderedRouteSegments
+    std::uint32_t& renderedRouteSegments,
+    std::uint32_t& renderedPassiveFEMTissues
 ) {
     metalrobo::VisualAssetPackV2 pack;
     pack.id = bonePayload != nullptr
@@ -2831,6 +3321,10 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     if (softTissuePayload != nullptr) {
         pack.preprocessingProvenance +=
             "/exact_bodyparts3d_surfaces_with_named_body_weighted_kinematic_binding";
+    }
+    if (passiveFEMTissue != nullptr) {
+        pack.preprocessingProvenance +=
+            "/source_surface_derived_passive_matter_fem_cage_with_myosim_driven_endpoint_anchors";
     }
     if (skinPayload != nullptr) {
         pack.preprocessingProvenance +=
@@ -2963,6 +3457,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         }
     }
     renderedSoftTissues = 0u;
+    renderedPassiveFEMTissues = 0u;
     if (softTissuePayload != nullptr) {
         for (const SoftTissueRecord& tissue : softTissuePayload->records) {
             if (!requestedSoftTissueStableIds.empty() &&
@@ -2972,18 +3467,24 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                 )) {
                 continue;
             }
-            const GeometryRange geometry = appendSoftTissueGeometry(
-                pack, *softTissuePayload, tissue, bodies
-            );
+            const bool usesPassiveFEM = passiveFEMTissue != nullptr &&
+                passiveFEMTissue->stableId == tissue.stableId;
+            const GeometryRange geometry = usesPassiveFEM
+                ? appendPassiveFEMMappedSoftTissueGeometry(
+                    pack, *softTissuePayload, tissue, restBodies, *passiveFEMTissue
+                )
+                : appendSoftTissueGeometry(pack, *softTissuePayload, tissue, bodies);
             const bool isMuscle = tissue.layer == kSoftTissueLayerMuscle;
             appendInstance(
                 geometry, isMuscle ? 4u : 5u,
-                isMuscle ? kMuscleSurfaceSemantic : kTendonSurfaceSemantic,
+                usesPassiveFEM ? kPassiveFEMTissueSemantic :
+                    (isMuscle ? kMuscleSurfaceSemantic : kTendonSurfaceSemantic),
                 MR_VISUAL_BINDING_WORLD, MR_INVALID_INDEX,
                 {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
                 tissue.stableId
             );
             ++renderedSoftTissues;
+            renderedPassiveFEMTissues += usesPassiveFEM ? 1u : 0u;
         }
     }
     renderedTendonAttachmentCollars = 0u;
@@ -3446,6 +3947,9 @@ int main(int argc, char** argv) {
             std::optional<std::filesystem::path> softTissuePayloadPath;
             std::optional<std::filesystem::path> skinPayloadPath;
             std::optional<std::filesystem::path> supportContactPayloadPath;
+            std::optional<std::uint32_t> passiveFEMTissueStableId;
+            std::optional<std::uint32_t> passiveFEMStepCount;
+            std::optional<std::filesystem::path> passiveFEMMetallibPath;
             std::uint32_t frameDimension = kDefaultFrameDimension;
             std::vector<std::string> positional;
             for (int index = 1; index < argc; ++index) {
@@ -3509,6 +4013,18 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !supportContactPayloadPath.has_value(),
                             "--support-contact-payload requires one path and may be given only once");
                     supportContactPayloadPath.emplace(argv[++index]);
+                } else if (argument == "--passive-fem-tissue-stable-id") {
+                    require(index + 1 < argc && !passiveFEMTissueStableId.has_value(),
+                            "--passive-fem-tissue-stable-id requires one source stable ID and may be given only once");
+                    passiveFEMTissueStableId.emplace(parseSourceRouteIndex(argv[++index]));
+                } else if (argument == "--passive-fem-step-count") {
+                    require(index + 1 < argc && !passiveFEMStepCount.has_value(),
+                            "--passive-fem-step-count requires one count and may be given only once");
+                    passiveFEMStepCount.emplace(parseMuscleStepCount(argv[++index]));
+                } else if (argument == "--passive-fem-metallib") {
+                    require(index + 1 < argc && !passiveFEMMetallibPath.has_value(),
+                            "--passive-fem-metallib requires one path and may be given only once");
+                    passiveFEMMetallibPath.emplace(argv[++index]);
                 } else if (argument == "--dimension") {
                     require(index + 1 < argc && frameDimension == kDefaultFrameDimension,
                             "--dimension requires one value and may be given only once");
@@ -3532,6 +4048,9 @@ int main(int argc, char** argv) {
                           << " [--surface-project-source-sites]"
                           << " [--soft-tissue-payload <NHTISS2-or-NHTISS3>]"
                           << " [--skin-payload <NHSKIN1>]"
+                          << " [--passive-fem-tissue-stable-id <1..N>]"
+                          << " [--passive-fem-step-count <1..64>]"
+                          << " [--passive-fem-metallib <NumiMatter.metallib>]"
                           << " [--visible-bone-body-index <0..156>]..."
                           << " [--soft-tissue-stable-id <1..N>]..."
                           << " [--support-contact-payload <NHCNT1>]"
@@ -3660,6 +4179,28 @@ int main(int argc, char** argv) {
                     "--muscle-step-count requires --muscle-step-seconds");
             require(selectedSourceMuscleActivations.empty() || muscleStepSeconds.has_value(),
                     "--activated-source-muscle-index requires --muscle-step-seconds");
+            require(!passiveFEMTissueStableId.has_value() ||
+                        (softTissuePayload.has_value() && muscleStepSeconds.has_value()),
+                    "--passive-fem-tissue-stable-id requires --soft-tissue-payload and --muscle-step-seconds");
+            require(!passiveFEMStepCount.has_value() || passiveFEMTissueStableId.has_value(),
+                    "--passive-fem-step-count requires --passive-fem-tissue-stable-id");
+            require(!passiveFEMMetallibPath.has_value() || passiveFEMTissueStableId.has_value(),
+                    "--passive-fem-metallib requires --passive-fem-tissue-stable-id");
+            if (passiveFEMMetallibPath.has_value()) {
+                require(std::filesystem::is_regular_file(*passiveFEMMetallibPath),
+                        "--passive-fem-metallib is not a regular file");
+            }
+            if (passiveFEMTissueStableId.has_value()) {
+                const auto selected = std::find_if(
+                    softTissuePayload->records.begin(), softTissuePayload->records.end(),
+                    [stableId = *passiveFEMTissueStableId](const SoftTissueRecord& tissue) {
+                        return tissue.stableId == stableId;
+                    }
+                );
+                require(selected != softTissuePayload->records.end() &&
+                            selected->layer == kSoftTissueLayerMuscle,
+                        "--passive-fem-tissue-stable-id must name a source muscle surface");
+            }
             std::optional<MuscleDrivenVisualState> muscleDrivenState;
             std::span<const float> poseQ = rigid.model.defaultQ;
             if (muscleStepSeconds.has_value()) {
@@ -3691,6 +4232,26 @@ int main(int argc, char** argv) {
             const std::vector<MRBodyStateGPU> bodies = visualBodyStates(
                 rigid.model, poseResult.bodyPoses
             );
+            std::vector<MRBodyStateGPU> restBodies = bodies;
+            if (passiveFEMTissueStableId.has_value()) {
+                const metalrobo::MetalArticulatedOperatorInput restInput{
+                    .articulationIndex = 0u,
+                    .environmentCount = 1u,
+                    .pointCount = 0u,
+                    .q = rigid.model.defaultQ,
+                    .points = {},
+                };
+                metalrobo::MetalArticulatedOperatorResult restPoseResult;
+                const auto restPoseDiagnostics = metalrobo::runMetalArticulatedOperator(
+                    rigid.model, restInput, restPoseResult, operatorConfig
+                );
+                require(restPoseDiagnostics.succeeded() && restPoseDiagnostics.dispatched &&
+                            restPoseDiagnostics.published &&
+                            restPoseDiagnostics.successfulEnvironmentCount == 1u,
+                        "native Human Metal rest pose for passive FEM failed: " +
+                            restPoseDiagnostics.message);
+                restBodies = visualBodyStates(rigid.model, restPoseResult.bodyPoses);
+            }
             std::optional<SourceRouteCentrelines> resolvedRouteCentrelines;
             if (sourceRouteCentrelines) {
                 resolvedRouteCentrelines.emplace(resolveSourceRouteCentrelines(
@@ -3702,29 +4263,42 @@ int main(int argc, char** argv) {
                     );
                 }
             }
+            std::optional<PassiveFEMTissueVisual> passiveFEMTissue;
+            if (passiveFEMTissueStableId.has_value()) {
+                passiveFEMTissue.emplace(runPassiveFEMTissue(
+                    *softTissuePayload, restBodies, bodies, *passiveFEMTissueStableId,
+                    *muscleStepSeconds, passiveFEMStepCount.value_or(8u),
+                    passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB)
+                ));
+            }
             std::uint32_t renderedBodies = 0u;
             std::uint32_t renderedSoftTissues = 0u;
             std::uint32_t renderedSkinShells = 0u;
             std::uint32_t renderedTendonAttachmentCollars = 0u;
             std::uint32_t renderedRouteSegments = 0u;
+            std::uint32_t renderedPassiveFEMTissues = 0u;
             bool anyRequestedRouteVisible = false;
             const metalrobo::VisualAssetPackV2 pack = makeMarkerPack(
                 rigid.model, musclePayload,
                 bonePayload.has_value() ? &*bonePayload : nullptr,
                 softTissuePayload.has_value() ? &*softTissuePayload : nullptr,
                 skinPayload.has_value() ? &*skinPayload : nullptr,
-                bodies,
+                bodies, restBodies,
+                passiveFEMTissue.has_value() ? &*passiveFEMTissue : nullptr,
                 muscleDrivenState.has_value(),
                 requestedBoneBodyIndices,
                 requestedSoftTissueStableIds,
                 resolvedRouteCentrelines.has_value() ? &*resolvedRouteCentrelines : nullptr,
                 renderedBodies, renderedSoftTissues, renderedSkinShells,
-                renderedTendonAttachmentCollars, renderedRouteSegments
+                renderedTendonAttachmentCollars, renderedRouteSegments,
+                renderedPassiveFEMTissues
             );
             require(requestedSoftTissueStableIds.empty() || renderedSoftTissues == requestedSoftTissueStableIds.size(),
                     "native Human visual soft-tissue selection did not render every requested source surface");
             require(requestedBoneBodyIndices.empty() || renderedBodies > 0u,
                     "native Human visual bone selection rendered no source mesh");
+            require(!passiveFEMTissue.has_value() || renderedPassiveFEMTissues == 1u,
+                    "native Human visual passive FEM tissue selection did not render its source surface");
             const CameraFraming cameraFraming = makeCameraFraming(
                 pack, bodies, focusBodyIndex
             );
@@ -3752,6 +4326,7 @@ int main(int argc, char** argv) {
                 : "myosim-fullbody-articulated-markers") +
                 (softTissuePayload.has_value() ? "-source-soft-tissues" : "") +
                 (skinPayload.has_value() ? "-source-skinned-shell" : "") +
+                (passiveFEMTissue.has_value() ? "-passive-fem-tissue" : "") +
                 (muscleDrivenState.has_value() ? "-muscle-driven" : "") +
                 (!selectedSourceMuscleActivations.empty() ? "-selected-actuators" : "") +
                 (supportContactPayload.has_value() ? "-source-support-contact" : "") +
@@ -3843,11 +4418,16 @@ int main(int argc, char** argv) {
                 const std::size_t tendonAttachmentCollarPixels = coverage(
                     observation, kTendonAttachmentCollarSemantic
                 );
+                const std::size_t passiveFEMTissuePixels = coverage(
+                    observation, kPassiveFEMTissueSemantic
+                );
                 const std::size_t skinShellPixels = coverage(observation, kSkinShellSemantic);
                 completeVisualCoverage = completeVisualCoverage &&
                     (skinPayload.has_value()
                         ? skinShellPixels > 0u
                         : (bodypartsBoneVisual ? bonePixels > 0u : bodyPixels > 0u));
+                completeVisualCoverage = completeVisualCoverage &&
+                    (!passiveFEMTissue.has_value() || passiveFEMTissuePixels > 0u);
                 anyRequestedRouteVisible = anyRequestedRouteVisible || routePixels > 0u;
                 std::cout << "view=" << cameraNames[camera]
                           << " body_pixels=" << bodyPixels
@@ -3857,6 +4437,7 @@ int main(int argc, char** argv) {
                           << " muscle_surface_pixels=" << muscleSurfacePixels
                           << " tendon_surface_pixels=" << tendonSurfacePixels
                           << " tendon_attachment_collar_pixels=" << tendonAttachmentCollarPixels
+                          << " passive_fem_tissue_pixels=" << passiveFEMTissuePixels
                           << " skin_shell_pixels=" << skinShellPixels
                           << " frame=" << frame.string() << '\n';
             }
@@ -3904,6 +4485,10 @@ int main(int argc, char** argv) {
                         ? "_with_four_bone_boundary_local_linear_blend_bodyparts3d_skin_shell_visual_not_deformable_skin_collision_or_tissue_physics"
                         : "_with_four_bone_linear_blend_bodyparts3d_skin_shell_visual_not_deformable_skin_collision_or_tissue_physics";
             }
+            if (passiveFEMTissue.has_value()) {
+                evidenceBoundary +=
+                    "_with_source_surface_derived_passive_matter_fem_cage_and_fixed_end_rings_prescribed_from_the_bounded_muscle_driven_myoSim_pose_not_a_calibrated_volumetric_muscle_or_full_body_soft_tissue_coupling";
+            }
             std::cout << std::setprecision(12)
                       << (bodypartsBoneVisual
                               ? "myosim_articulated_bodyparts_bone_visual=ok"
@@ -3923,6 +4508,7 @@ int main(int argc, char** argv) {
                       << " bodyparts_tendon_attachment_collars="
                       << renderedTendonAttachmentCollars
                       << " bodyparts_skin_shells=" << renderedSkinShells
+                      << " passive_fem_tissues=" << renderedPassiveFEMTissues
                       << " skin_shell_binding=" << (skinPayload.has_value()
                               ? (skinPayload->usesSourceSurfaceLocalWeights
                                   ? "four_body_registered_source_bone_surface_local_linear_blend_world_surface_snapshot"
@@ -3973,6 +4559,24 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->muscleMetalForceRecordCount : 0u)
                       << " muscle_force_metal_elapsed_ms=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->muscleMetalElapsedMilliseconds : 0.0)
+                      << " passive_fem_tissue_stable_id=" << (passiveFEMTissue.has_value()
+                              ? std::to_string(passiveFEMTissue->stableId) : "none")
+                      << " passive_fem_tetrahedra=" << (passiveFEMTissue.has_value()
+                              ? passiveFEMTissue->tetrahedronCount : 0u)
+                      << " passive_fem_steps=" << (passiveFEMTissue.has_value()
+                              ? passiveFEMTissue->completedSteps : 0u)
+                      << " passive_fem_fgmres_iterations=" << (passiveFEMTissue.has_value()
+                              ? passiveFEMTissue->fgmresIterations : 0u)
+                      << " passive_fem_anchor_displacement_m=" << (passiveFEMTissue.has_value()
+                              ? passiveFEMTissue->maximumAnchorDisplacementMeters : 0.0f)
+                      << " passive_fem_free_displacement_m=" << (passiveFEMTissue.has_value()
+                              ? passiveFEMTissue->maximumFreeDisplacementMeters : 0.0f)
+                      << " passive_fem_minimum_J=" << (passiveFEMTissue.has_value()
+                              ? passiveFEMTissue->minimumDeterminant : 0.0f)
+                      << " passive_fem_gpu_elapsed_ms=" << (passiveFEMTissue.has_value()
+                              ? passiveFEMTissue->gpuMilliseconds : 0.0)
+                      << " passive_fem_device=\"" << (passiveFEMTissue.has_value()
+                              ? passiveFEMTissue->deviceName : "none") << "\""
                       << " muscle_step_max_velocity_delta=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->maximumVelocityDelta : 0.0)
                       << " muscle_step_max_configuration_delta=" << (muscleDrivenState.has_value()
