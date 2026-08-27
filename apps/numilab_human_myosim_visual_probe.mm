@@ -3283,6 +3283,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     const bool muscleDriven,
     const std::span<const std::uint32_t> requestedBoneBodyIndices,
     const std::span<const std::uint32_t> requestedSoftTissueStableIds,
+    const bool zAnatomyCalfVisualSupplement,
     const SourceRouteCentrelines* sourceRouteCentrelines,
     std::uint32_t& renderedBodies,
     std::uint32_t& renderedSoftTissues,
@@ -3325,6 +3326,16 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     if (passiveFEMTissue != nullptr) {
         pack.preprocessingProvenance +=
             "/source_surface_derived_passive_matter_fem_cage_with_myosim_driven_endpoint_anchors";
+    }
+    if (zAnatomyCalfVisualSupplement) {
+        pack.id = "myosim_zanatomy_calf_articulated_visual_supplement";
+        pack.sourceUri =
+            "numi://bodyparts3d+zanatomy-right-calf/NHBONES1+NHTISS3+NHRIGID2+NHMYO1/articulated-anatomy-view";
+        pack.sourceContentHash =
+            "bodyparts3d-major-bones+zanatomy-right-calf-supplement+runtime-body-and-site-records";
+        pack.license = "CC-BY-SA-4.0 AND CC-BY-4.0 AND Apache-2.0";
+        pack.preprocessingProvenance +=
+            "/zanatomy_cc_by_sa_right_calf_visual_supplement_with_transferred_named_bodyparts3d_myosim_nhtiss3_body_weights";
     }
     if (skinPayload != nullptr) {
         pack.preprocessingProvenance +=
@@ -3602,7 +3613,17 @@ CameraFraming makeCameraFraming(
         const MRBodyStateGPU& focus = bodies[*focusBodyIndex];
         return {
             .center = {focus.position.x, focus.position.y, focus.position.z, 0.0f},
-            .distance = 0.70f,
+            // The Z-Anatomy calf supplement is deliberately a close visual
+            // anatomy inspection, not a full-body screenshot with a small
+            // lower leg lost in the frame.  Existing focused diagnostics keep
+            // their historical framing.
+            .distance = pack.id == "myosim_zanatomy_calf_articulated_visual_supplement"
+                // A calcaneus focus is a separate insertion inspection.  It
+                // deliberately magnifies the exact tendon-to-bone attachment
+                // band rather than leaving it as a few pixels at the bottom
+                // of a full-calf plate.
+                ? (*focusBodyIndex == 138u ? 0.34f : 0.58f)
+                : 0.70f,
         };
     }
 
@@ -3943,6 +3964,7 @@ int main(int argc, char** argv) {
             std::vector<std::uint32_t> selectedSourceMuscleActivations;
             std::vector<std::uint32_t> requestedBoneBodyIndices;
             std::vector<std::uint32_t> requestedSoftTissueStableIds;
+            bool zAnatomyCalfVisualSupplement = false;
             std::optional<std::uint32_t> focusBodyIndex;
             std::optional<std::filesystem::path> softTissuePayloadPath;
             std::optional<std::filesystem::path> skinPayloadPath;
@@ -3991,6 +4013,10 @@ int main(int argc, char** argv) {
                     requestedSoftTissueStableIds.push_back(
                         parseSourceRouteIndex(argv[++index])
                     );
+                } else if (argument == "--zanatomy-calf-visual-supplement") {
+                    require(!zAnatomyCalfVisualSupplement,
+                            "--zanatomy-calf-visual-supplement may be given only once");
+                    zAnatomyCalfVisualSupplement = true;
                 } else if (argument == "--visible-bone-body-index") {
                     require(index + 1 < argc,
                             "--visible-bone-body-index requires one articulated body index");
@@ -4053,6 +4079,7 @@ int main(int argc, char** argv) {
                           << " [--passive-fem-metallib <NumiMatter.metallib>]"
                           << " [--visible-bone-body-index <0..156>]..."
                           << " [--soft-tissue-stable-id <1..N>]..."
+                          << " [--zanatomy-calf-visual-supplement]"
                           << " [--support-contact-payload <NHCNT1>]"
                           << " [--focus-body-index <0..156>]"
                           << " [--dimension <512..2048; multiple-of-64>]\n";
@@ -4150,6 +4177,8 @@ int main(int argc, char** argv) {
             }
             require(requestedSoftTissueStableIds.empty() || softTissuePayload.has_value(),
                     "--soft-tissue-stable-id requires --soft-tissue-payload");
+            require(!zAnatomyCalfVisualSupplement || softTissuePayload.has_value(),
+                    "--zanatomy-calf-visual-supplement requires --soft-tissue-payload");
             if (!requestedSoftTissueStableIds.empty()) {
                 for (const std::uint32_t stableId : requestedSoftTissueStableIds) {
                     const bool present = std::any_of(
@@ -4160,6 +4189,26 @@ int main(int argc, char** argv) {
                     );
                     require(present,
                             "--soft-tissue-stable-id is not present in the supplied payload");
+                }
+            }
+            if (zAnatomyCalfVisualSupplement) {
+                constexpr std::array<std::uint32_t, 4u> kExpectedCalfSurfaceIds{1u, 2u, 3u, 4u};
+                require(softTissuePayload->records.size() == kExpectedCalfSurfaceIds.size(),
+                        "Z-Anatomy calf supplement must contain exactly the four scoped right-calf surfaces");
+                require(requestedSoftTissueStableIds.size() == kExpectedCalfSurfaceIds.size() &&
+                            std::equal(
+                                requestedSoftTissueStableIds.begin(), requestedSoftTissueStableIds.end(),
+                                kExpectedCalfSurfaceIds.begin()
+                            ),
+                        "Z-Anatomy calf supplement must render all four scoped right-calf surfaces");
+                for (const std::uint32_t stableId : kExpectedCalfSurfaceIds) {
+                    const auto selected = std::find_if(
+                        softTissuePayload->records.begin(), softTissuePayload->records.end(),
+                        [stableId](const SoftTissueRecord& tissue) { return tissue.stableId == stableId; }
+                    );
+                    require(selected != softTissuePayload->records.end() &&
+                                selected->layer == (stableId == 4u ? kSoftTissueLayerTendon : kSoftTissueLayerMuscle),
+                            "Z-Anatomy calf supplement source layers do not match its fixed calf scope");
                 }
             }
             std::optional<LoadedSupportContacts> supportContactPayload;
@@ -4288,6 +4337,7 @@ int main(int argc, char** argv) {
                 muscleDrivenState.has_value(),
                 requestedBoneBodyIndices,
                 requestedSoftTissueStableIds,
+                zAnatomyCalfVisualSupplement,
                 resolvedRouteCentrelines.has_value() ? &*resolvedRouteCentrelines : nullptr,
                 renderedBodies, renderedSoftTissues, renderedSkinShells,
                 renderedTendonAttachmentCollars, renderedRouteSegments,
@@ -4325,6 +4375,7 @@ int main(int argc, char** argv) {
                 ? "myosim-fullbody-articulated-bodyparts-bones"
                 : "myosim-fullbody-articulated-markers") +
                 (softTissuePayload.has_value() ? "-source-soft-tissues" : "") +
+                (zAnatomyCalfVisualSupplement ? "-zanatomy-calf-supplement" : "") +
                 (skinPayload.has_value() ? "-source-skinned-shell" : "") +
                 (passiveFEMTissue.has_value() ? "-passive-fem-tissue" : "") +
                 (muscleDrivenState.has_value() ? "-muscle-driven" : "") +
@@ -4489,6 +4540,10 @@ int main(int argc, char** argv) {
                 evidenceBoundary +=
                     "_with_source_surface_derived_passive_matter_fem_cage_and_fixed_end_rings_prescribed_from_the_bounded_muscle_driven_myoSim_pose_not_a_calibrated_volumetric_muscle_or_full_body_soft_tissue_coupling";
             }
+            if (zAnatomyCalfVisualSupplement) {
+                evidenceBoundary +=
+                    "_with_cc_by_sa_zanatomy_right_calf_visual_supplement_and_transferred_named_bodyparts3d_myosim_articulated_body_weights_not_a_new_force_path_tendon_law_or_continuum";
+            }
             std::cout << std::setprecision(12)
                       << (bodypartsBoneVisual
                               ? "myosim_articulated_bodyparts_bone_visual=ok"
@@ -4509,6 +4564,8 @@ int main(int argc, char** argv) {
                       << renderedTendonAttachmentCollars
                       << " bodyparts_skin_shells=" << renderedSkinShells
                       << " passive_fem_tissues=" << renderedPassiveFEMTissues
+                      << " visual_supplement="
+                      << (zAnatomyCalfVisualSupplement ? "zanatomy_right_calf_cc_by_sa" : "none")
                       << " skin_shell_binding=" << (skinPayload.has_value()
                               ? (skinPayload->usesSourceSurfaceLocalWeights
                                   ? "four_body_registered_source_bone_surface_local_linear_blend_world_surface_snapshot"
