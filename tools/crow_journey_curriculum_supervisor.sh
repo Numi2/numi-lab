@@ -37,6 +37,8 @@ retention_coefficient=${NUMI_CROW_RETENTION_COEFFICIENT:-1.0}
 retention_maximum_band=${NUMI_CROW_RETENTION_MAXIMUM_BAND:-}
 retention_protected_actor_only=${NUMI_CROW_RETENTION_PROTECTED_ACTOR_ONLY:-0}
 retention_balance_difficulty_bands=${NUMI_CROW_RETENTION_BALANCE_DIFFICULTY_BANDS:-0}
+retention_priority_band=${NUMI_CROW_RETENTION_PRIORITY_BAND:-}
+retention_priority_factor=${NUMI_CROW_RETENTION_PRIORITY_FACTOR:-1.0}
 
 case "$course" in
   state)
@@ -148,6 +150,23 @@ if [ -n "$retention_policy" ]; then
     echo "difficulty-balanced retention requires a maximum band" >&2
     exit 2
   fi
+  if [ -n "$retention_priority_band" ]; then
+    [[ "$retention_priority_band" =~ ^([0-9]|10)$ ]] && \
+      [ "$retention_balance_difficulty_bands" -eq 1 ] && \
+      [ "$retention_priority_band" -le "$retention_maximum_band" ] || {
+        echo "Crow retention priority requires balanced retention and a protected band" >&2
+        exit 2
+      }
+    if ! "$mlx" -c \
+      'import math,sys; value=float(sys.argv[1]); sys.exit(0 if math.isfinite(value) and value >= 1.0 else 1)' \
+      "$retention_priority_factor"; then
+      echo "NUMI_CROW_RETENTION_PRIORITY_FACTOR must be finite and at least one" >&2
+      exit 2
+    fi
+  elif [ "$retention_priority_factor" != 1.0 ]; then
+    echo "NUMI_CROW_RETENTION_PRIORITY_FACTOR requires a priority band" >&2
+    exit 2
+  fi
 elif [ -n "$retention_maximum_band" ]; then
   echo "NUMI_CROW_RETENTION_MAXIMUM_BAND requires a retention policy" >&2
   exit 2
@@ -245,6 +264,12 @@ while [ "$band" -le "$maximum_band" ]; do
       fi
       if [ "$retention_balance_difficulty_bands" -eq 1 ]; then
         common+=(--retention-balance-difficulty-bands)
+      fi
+      if [ -n "$retention_priority_band" ]; then
+        common+=(
+          --retention-priority-difficulty-band "$retention_priority_band"
+          --retention-priority-factor "$retention_priority_factor"
+        )
       fi
     fi
     if [ -n "$visual_config" ]; then

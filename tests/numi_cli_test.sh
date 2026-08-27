@@ -406,6 +406,8 @@ NUMI_CROW_RETENTION_COEFFICIENT=0.5 \
 NUMI_CROW_RETENTION_MAXIMUM_BAND=9 \
 NUMI_CROW_RETENTION_PROTECTED_ACTOR_ONLY=1 \
 NUMI_CROW_RETENTION_BALANCE_DIFFICULTY_BANDS=1 \
+NUMI_CROW_RETENTION_PRIORITY_BAND=6 \
+NUMI_CROW_RETENTION_PRIORITY_FACTOR=1.25 \
 NUMI_CROW_START_BAND=10 \
 NUMI_CROW_MAXIMUM_BAND=10 \
     "$numi_repo/tools/crow_journey_curriculum_supervisor.sh" >/dev/null
@@ -437,6 +439,12 @@ grep -- '--retention-protected-actor-only' \
     "$crow_state_transfer_run/arguments.txt" >/dev/null
 grep -- '--retention-balance-difficulty-bands' \
     "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '--retention-priority-difficulty-band' \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '^6$' "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '--retention-priority-factor' \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '^1.25$' "$crow_state_transfer_run/arguments.txt" >/dev/null
 if grep -- '--birdflow-journey-teacher' \
     "$crow_state_transfer_run/arguments.txt" >/dev/null; then
     printf '%s\n' 'state actor transfer unexpectedly enabled teacher mode' >&2

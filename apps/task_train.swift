@@ -25,6 +25,8 @@ private struct Options {
     var retentionMaximumDifficultyBand: Int?
     var retentionProtectedActorOnly = false
     var retentionBalanceDifficultyBands = false
+    var retentionPriorityDifficultyBand: Int?
+    var retentionPriorityFactor = 1.0
     var actorObservationExtensionOffset: Int?
     var actorObservationExtensionMean: Double?
     var actorObservationExtensionInverseStandardDeviation = 1.0
@@ -175,6 +177,19 @@ private struct Options {
                 retentionProtectedActorOnly = true
             case "--retention-balance-difficulty-bands":
                 retentionBalanceDifficultyBands = true
+            case "--retention-priority-difficulty-band":
+                retentionPriorityDifficultyBand = try Self.integer(
+                    value(), option
+                )
+                index += 1
+            case "--retention-priority-factor":
+                guard let parsed = Double(try value()), parsed.isFinite else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--retention-priority-factor requires a finite value."
+                    )
+                }
+                retentionPriorityFactor = parsed
+                index += 1
             case "--actor-observation-extension-offset":
                 actorObservationExtensionOffset = try Self.integer(
                     value(),
@@ -594,6 +609,22 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--retention-balance-difficulty-bands requires a retention policy and maximum difficulty band."
+            )
+        }
+        if let priorityBand = retentionPriorityDifficultyBand,
+           !retentionBalanceDifficultyBands || priorityBand < 0 ||
+               priorityBand > (retentionMaximumDifficultyBand ?? -1) ||
+               retentionPriorityFactor < 1.0
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "retention priority requires balanced retention, a protected band, and a factor of at least one."
+            )
+        }
+        if retentionPriorityDifficultyBand == nil &&
+           retentionPriorityFactor != 1.0
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--retention-priority-factor requires a priority band."
             )
         }
         let (sampleCount, sampleOverflow) =
@@ -1102,6 +1133,13 @@ private final class MLXLearnerWorker {
         }
         if options.retentionBalanceDifficultyBands {
             arguments.append("--retention-balance-difficulty-bands")
+        }
+        if let band = options.retentionPriorityDifficultyBand {
+            arguments.append(contentsOf: [
+                "--retention-priority-difficulty-band", String(band),
+                "--retention-priority-factor",
+                String(options.retentionPriorityFactor),
+            ])
         }
         if let offset = options.actorObservationExtensionOffset {
             arguments.append(contentsOf: [

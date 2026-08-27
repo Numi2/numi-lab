@@ -107,6 +107,9 @@ def _configuration_record(learner: MLXPolicyLearner) -> str:
 def _difficulty_balanced_retention_weights(
     retention_weights: np.ndarray,
     difficulty_bands: np.ndarray,
+    *,
+    priority_band: int | None = None,
+    priority_factor: float = 1.0,
 ) -> np.ndarray:
     """Give every represented protected band equal total teacher authority."""
 
@@ -124,15 +127,25 @@ def _difficulty_balanced_retention_weights(
         raise ValueError(
             "difficulty-balanced retention selects no protected bands"
         )
+    if not np.isfinite(priority_factor) or priority_factor < 1.0:
+        raise ValueError("retention priority factor must be finite and at least one")
+    if priority_band is not None and priority_band not in active_bands:
+        raise ValueError("retention priority band is absent from protected samples")
     # The teacher loss is normalized by the sum of these weights. Scaling each
     # represented band down to the rarest band's total contribution therefore
     # makes every protected rung equally authoritative without allowing a
     # per-sample weight above one.
     samples_per_band = int(np.min(active_counts))
     balanced = np.zeros_like(weights)
+    maximum_factor = priority_factor if priority_band is not None else 1.0
     for band, count in zip(active_bands, active_counts, strict=True):
+        band_factor = (
+            priority_factor if priority_band is not None and band == priority_band
+            else 1.0
+        )
         balanced[np.logical_and(protected_samples, bands == band)] = (
-            np.float32(samples_per_band) / np.float32(count)
+            np.float32(samples_per_band * band_factor)
+            / np.float32(count * maximum_factor)
         )
     return balanced
 
@@ -146,6 +159,8 @@ def _retention_policy_batch(
     protected_actor_only: bool = False,
     difficulty_bands: np.ndarray | None = None,
     balance_difficulty_bands: bool = False,
+    priority_difficulty_band: int | None = None,
+    priority_factor: float = 1.0,
 ) -> MLXPolicyBatch:
     """Attach frozen actor targets and optionally reserve protected samples."""
 
@@ -187,7 +202,10 @@ def _retention_policy_batch(
                 "difficulty-balanced retention requires selective weights and bands"
             )
         retention_weights = _difficulty_balanced_retention_weights(
-            retention_weights, difficulty_bands
+            retention_weights,
+            difficulty_bands,
+            priority_band=priority_difficulty_band,
+            priority_factor=priority_factor,
         )
     policy_weights = batch.policy_weights
     if protected_actor_only:
@@ -963,6 +981,10 @@ def _serve(arguments: argparse.Namespace) -> int:
             "retention_balance_difficulty_bands": (
                 arguments.retention_balance_difficulty_bands
             ),
+            "retention_priority_difficulty_band": (
+                arguments.retention_priority_difficulty_band
+            ),
+            "retention_priority_factor": arguments.retention_priority_factor,
             "motion_pack_hash": (
                 motion_prior.motion_pack.content_hash
                 if motion_prior is not None
@@ -1036,6 +1058,10 @@ def _serve(arguments: argparse.Namespace) -> int:
                     balance_difficulty_bands=(
                         arguments.retention_balance_difficulty_bands
                     ),
+                    priority_difficulty_band=(
+                        arguments.retention_priority_difficulty_band
+                    ),
+                    priority_factor=arguments.retention_priority_factor,
                 )
             metrics = learner.update(policy_batch)
             metrics.update(motion_metrics)
@@ -1415,6 +1441,18 @@ def main() -> int:
             "equalize frozen-actor loss across represented protected "
             "difficulty bands"
         ),
+    )
+    serve.add_argument(
+        "--retention-priority-difficulty-band",
+        type=int,
+        choices=range(11),
+        help="give one protected band additional relative retention authority",
+    )
+    serve.add_argument(
+        "--retention-priority-factor",
+        type=float,
+        default=1.0,
+        help="relative authority for the priority band; must be at least one",
     )
     serve.add_argument(
         "--actor-observation-extension-offset",
