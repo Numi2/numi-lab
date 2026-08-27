@@ -239,6 +239,20 @@ bool finite(const mr_float4 value) {
         std::isfinite(value.w);
 }
 
+bool zero(const mr_float4 value) {
+    return value.x == 0.0f && value.y == 0.0f && value.z == 0.0f &&
+        value.w == 0.0f;
+}
+
+bool isZeroInertiaTransformCarrier(const MRBodyPropertiesGPU& body) {
+    return body.motionType == MR_MOTION_STATIC &&
+        body.massAndInverseMass.x == 0.0f &&
+        body.massAndInverseMass.y == 0.0f &&
+        zero(body.inertiaRow0) && zero(body.inertiaRow1) &&
+        zero(body.inertiaRow2) && zero(body.inverseInertiaRow0) &&
+        zero(body.inverseInertiaRow1) && zero(body.inverseInertiaRow2);
+}
+
 bool supportedTopology(
     const EngineModel& model,
     const MRArticulationGPU& articulation,
@@ -283,10 +297,12 @@ bool supportedTopology(
     for (std::size_t bodyIndex = articulation.firstBody;
          bodyIndex < bodyEnd;
          ++bodyIndex) {
-        if (model.bodies[bodyIndex].motionType !=
-            MR_MOTION_DYNAMIC) {
+        const MRBodyPropertiesGPU& body = model.bodies[bodyIndex];
+        if (body.motionType != MR_MOTION_DYNAMIC &&
+            !isZeroInertiaTransformCarrier(body)) {
             reason =
-                "every body owned by a Metal articulation must be dynamic";
+                "Metal articulations require dynamic bodies or exact "
+                "zero-inertia transform carriers";
             return false;
         }
     }

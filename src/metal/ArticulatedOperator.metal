@@ -445,6 +445,21 @@ inline bool zero4(const float4 value) {
     return all(value == float4(0.0f));
 }
 
+inline bool validZeroInertiaTransformCarrier(
+    device const MRBodyPropertiesGPU& body
+) {
+    return
+        body.motionType == MR_MOTION_STATIC &&
+        body.massAndInverseMass.x == 0.0f &&
+        body.massAndInverseMass.y == 0.0f &&
+        zero4(body.inertiaRow0) &&
+        zero4(body.inertiaRow1) &&
+        zero4(body.inertiaRow2) &&
+        zero4(body.inverseInertiaRow0) &&
+        zero4(body.inverseInertiaRow1) &&
+        zero4(body.inverseInertiaRow2);
+}
+
 inline uint alignedThreadgroupOffset(const uint value) {
     return (value + 15u) & ~15u;
 }
@@ -1052,19 +1067,27 @@ inline bool validModelAndLayout(
         const uint globalBody =
             articulation.firstBody + localBody;
         device const MRBodyPropertiesGPU& body = bodies[globalBody];
-        if (body.articulationIndex !=
-                dispatch.articulationIndex ||
-            body.motionType != MR_MOTION_DYNAMIC ||
-            !finite4(body.massAndInverseMass) ||
-            !(body.massAndInverseMass.x > 0.0f) ||
-            !(body.massAndInverseMass.y > 0.0f) ||
+        const bool dynamicBody =
+            body.motionType == MR_MOTION_DYNAMIC &&
+            body.massAndInverseMass.x > 0.0f &&
+            body.massAndInverseMass.y > 0.0f &&
             abs(
                 body.massAndInverseMass.x *
                     body.massAndInverseMass.y -
                 1.0f
-            ) > 3.0e-5f ||
+            ) <= 3.0e-5f &&
+            validBodyInertia(body);
+        // MyoSim encodes several serial source joints on a single body. The
+        // native tree inserts a massless transform carrier for each preceding
+        // joint. It owns kinematics but must contribute exactly zero spatial
+        // inertia; admitting only this exact form cannot turn an arbitrary
+        // static body into an articulation member.
+        const bool transformCarrier = validZeroInertiaTransformCarrier(body);
+        if (body.articulationIndex !=
+                dispatch.articulationIndex ||
+            !finite4(body.massAndInverseMass) ||
             !finite4(body.centerOfMass) ||
-            !validBodyInertia(body) ||
+            (!dynamicBody && !transformCarrier) ||
             !finite4(body.dampingAndSpeedLimits) ||
             any(body.dampingAndSpeedLimits < float4(0.0f))) {
             setFailure(
