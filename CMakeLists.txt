@@ -1294,6 +1294,39 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+# Native visual evidence for the full-body MyoSim route model.  It obtains the
+# articulated pose from the Metal operator, then renders inertia-body and
+# muscle-site markers through the Core visual renderer.  This deliberately does
+# not imply BodyParts3D mesh registration or a live device-resident rollout.
+add_executable(
+    metalrobo_numilab_human_myosim_visual_probe
+    apps/numilab_human_myosim_visual_probe.mm
+)
+target_link_libraries(
+    metalrobo_numilab_human_myosim_visual_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+        "${COREGRAPHICS_FRAMEWORK}"
+        "${IMAGEIO_FRAMEWORK}"
+)
+target_compile_options(
+    metalrobo_numilab_human_myosim_visual_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_numilab_human_myosim_visual_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
 add_executable(
     metalrobo_millard_muscle_reference_probe
     apps/millard_muscle_reference_probe.cpp
