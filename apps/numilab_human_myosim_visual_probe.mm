@@ -2,8 +2,10 @@
 #import <ImageIO/ImageIO.h>
 #import <Metal/Metal.h>
 
+#include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/MetalHybridRenderer.hpp"
+#include "metalrobo/MujocoMuscleReference.hpp"
 #include "metalrobo/VisualPlatform.hpp"
 #include "metalrobo/WorldCompiler.hpp"
 
@@ -161,6 +163,9 @@ struct LoadedMuscles {
     std::vector<WrapRecord> wraps;
     std::vector<RouteRecord> routes;
     std::vector<MuscleRecord> muscles;
+    std::vector<metalrobo::MujocoMuscleSite> referenceSites;
+    std::vector<metalrobo::MujocoWrapGeometry> referenceWraps;
+    std::vector<metalrobo::MujocoMuscleDefinition> referenceMuscles;
 };
 
 struct LoadedBones {
@@ -186,6 +191,19 @@ void require(const bool condition, const std::string& message) {
     if (!condition) {
         throw std::runtime_error(message);
     }
+}
+
+metalrobo::MujocoRouteNodeType referenceRouteType(const std::uint32_t type) {
+    switch (type) {
+    case 1u: return metalrobo::MujocoRouteNodeType::site;
+    case 2u: return metalrobo::MujocoRouteNodeType::sphere;
+    case 3u: return metalrobo::MujocoRouteNodeType::cylinder;
+    default: throw std::runtime_error("MyoSim route type is invalid");
+    }
+}
+
+metalrobo::MujocoRouteNodeType referenceWrapType(const std::uint32_t type) {
+    return referenceRouteType(type);
 }
 
 template <typename T>
@@ -318,6 +336,41 @@ LoadedMuscles loadMuscles(
                     muscle.routeCount <= result.routes.size() - muscle.routeOffset,
                 "MyoSim muscle route range is invalid");
     }
+    result.referenceSites.reserve(result.sites.size());
+    for (const SiteRecord& site : result.sites) {
+        result.referenceSites.push_back({site.bodyIndex, {site.x, site.y, site.z}});
+    }
+    result.referenceWraps.reserve(result.wraps.size());
+    for (const WrapRecord& wrap : result.wraps) {
+        result.referenceWraps.push_back({
+            wrap.bodyIndex, referenceWrapType(wrap.type),
+            {wrap.centerX, wrap.centerY, wrap.centerZ},
+            {wrap.rotation[0], wrap.rotation[1], wrap.rotation[2],
+             wrap.rotation[3], wrap.rotation[4], wrap.rotation[5],
+             wrap.rotation[6], wrap.rotation[7], wrap.rotation[8]},
+            wrap.radius,
+        });
+    }
+    result.referenceMuscles.reserve(result.muscles.size());
+    for (const MuscleRecord& muscle : result.muscles) {
+        metalrobo::MujocoMuscleDefinition definition;
+        definition.route.reserve(muscle.routeCount);
+        for (std::uint32_t offset = 0u; offset < muscle.routeCount; ++offset) {
+            const RouteRecord& route = result.routes[muscle.routeOffset + offset];
+            definition.route.push_back({
+                referenceRouteType(route.type), route.targetIndex, route.sideSiteIndex,
+            });
+        }
+        definition.lengthRange = {muscle.values[0], muscle.values[1]};
+        definition.accelerationScale = muscle.values[2];
+        definition.controlRange = {muscle.values[3], muscle.values[4]};
+        for (std::size_t parameter = 0u; parameter < 10u; ++parameter) {
+            definition.gainParameters[parameter] = muscle.values[5u + parameter];
+            definition.biasParameters[parameter] = muscle.values[15u + parameter];
+            definition.dynamicParameters[parameter] = muscle.values[25u + parameter];
+        }
+        result.referenceMuscles.push_back(std::move(definition));
+    }
     return result;
 }
 
@@ -388,6 +441,92 @@ LoadedBones loadBones(
             require(index >= record.firstVertex && index < record.firstVertex + record.vertexCount,
                     "BodyParts3D bone index escapes its source mesh");
         }
+    }
+    return result;
+}
+
+struct MuscleDrivenVisualState {
+    std::vector<float> q;
+    double maximumVelocityDelta = 0.0;
+    double maximumConfigurationDelta = 0.0;
+    std::uint32_t appliedWrapCount = 0u;
+};
+
+MuscleDrivenVisualState integrateMuscleDrivenVisualState(
+    const metalrobo::EngineModel& model,
+    const LoadedMuscles& muscles,
+    const double timestepSeconds
+) {
+    require(std::isfinite(timestepSeconds) &&
+                timestepSeconds >= 1.0e-6 && timestepSeconds <= 1.0e-3,
+            "muscle-driven visual step must be between 1 us and 1 ms");
+    require(model.world.nv > 0u && model.defaultQ.size() == model.world.nq &&
+                model.defaultV.size() == model.world.nv &&
+                muscles.referenceMuscles.size() == muscles.muscles.size(),
+            "muscle-driven visual state has inconsistent MyoSim dimensions");
+
+    const std::vector<double> initialQ(model.defaultQ.begin(), model.defaultQ.end());
+    const std::vector<double> initialV(model.defaultV.begin(), model.defaultV.end());
+    std::vector<double> muscleForce(model.world.nv, 0.0);
+    MuscleDrivenVisualState result;
+    const metalrobo::MujocoMuscleState state{.excitation = 0.5, .activation = 0.5};
+    for (std::size_t index = 0u; index < muscles.referenceMuscles.size(); ++index) {
+        metalrobo::MujocoMuscleResult muscleResult;
+        const auto diagnostics = metalrobo::projectMujocoMuscleForce(
+            model, 0u, initialQ, initialV, muscles.referenceSites,
+            muscles.referenceWraps, muscles.referenceMuscles[index], state,
+            muscleForce, &muscleResult
+        );
+        require(diagnostics.succeeded(),
+                "MyoSim muscle force projection failed for muscle " +
+                    std::to_string(index) + ": " +
+                    metalrobo::mujocoMuscleReferenceStatusName(diagnostics.status));
+        result.appliedWrapCount += muscleResult.path.appliedWrapCount;
+    }
+    require(std::all_of(muscleForce.begin(), muscleForce.end(), [](const double value) {
+                return std::isfinite(value);
+            }),
+            "MyoSim muscle force projection returned a non-finite generalized force");
+
+    metalrobo::ArticulatedDynamicsConfig dynamicsConfig;
+    dynamicsConfig.timestep = timestepSeconds;
+    std::vector<double> passiveQ = initialQ;
+    std::vector<double> passiveV = initialV;
+    std::vector<double> activeQ = initialQ;
+    std::vector<double> activeV = initialV;
+    const std::vector<double> zeroForce(model.world.nv, 0.0);
+    const auto passiveDiagnostics = metalrobo::integrateArticulatedState(
+        model, 0u, passiveQ, passiveV, zeroForce, {}, dynamicsConfig
+    );
+    require(passiveDiagnostics.succeeded(),
+            "passive free-body visual comparison step failed");
+    const auto activeDiagnostics = metalrobo::integrateArticulatedState(
+        model, 0u, activeQ, activeV, muscleForce, {}, dynamicsConfig
+    );
+    require(activeDiagnostics.succeeded(),
+            "muscle-driven free-body visual step failed");
+    for (std::size_t index = 0u; index < activeV.size(); ++index) {
+        result.maximumVelocityDelta = std::max(
+            result.maximumVelocityDelta, std::abs(activeV[index] - passiveV[index])
+        );
+    }
+    for (std::size_t index = 0u; index < activeQ.size(); ++index) {
+        result.maximumConfigurationDelta = std::max(
+            result.maximumConfigurationDelta, std::abs(activeQ[index] - passiveQ[index])
+        );
+    }
+    require(std::isfinite(result.maximumVelocityDelta) &&
+                std::isfinite(result.maximumConfigurationDelta) &&
+                result.maximumVelocityDelta > 1.0e-9 &&
+                result.maximumConfigurationDelta > 1.0e-12,
+            "the complete MyoSim muscle force did not distinguish the visual state step");
+    result.q.reserve(activeQ.size());
+    for (const double coordinate : activeQ) {
+        require(std::isfinite(coordinate) &&
+                    coordinate >= -static_cast<double>(std::numeric_limits<float>::max()) &&
+                    coordinate <= static_cast<double>(std::numeric_limits<float>::max()),
+                "muscle-driven visual configuration is not representable on Metal");
+        result.q.push_back(static_cast<float>(coordinate));
     }
     return result;
 }
@@ -838,6 +977,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     const LoadedMuscles& musclePayload,
     const std::span<const MRBodyStateGPU> bodies,
     const LoadedBones* bonePayload,
+    const bool muscleDriven,
     std::uint32_t& renderedBodies,
     std::uint32_t& renderedRouteSegments
 ) {
@@ -854,8 +994,12 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     pack.license = bonePayload != nullptr ? "CC-BY-4.0 AND Apache-2.0" : "Apache-2.0";
     pack.preprocessingProvenance =
         bonePayload != nullptr
-            ? "bodyparts3d_source_import/provisional_rest_registration/metal_articulated_operator_pose_snapshot/native_visual_bone_pack.v1"
-            : "metal_articulated_operator_pose_snapshot/native_visual_marker_pack.v1";
+            ? (muscleDriven
+                ? "bodyparts3d_source_import/provisional_rest_registration/cpu_fp64_mujoco_muscle_projection_and_articulated_free_body_step/metal_articulated_operator_pose_snapshot/native_visual_bone_pack.v1"
+                : "bodyparts3d_source_import/provisional_rest_registration/metal_articulated_operator_pose_snapshot/native_visual_bone_pack.v1")
+            : (muscleDriven
+                ? "cpu_fp64_mujoco_muscle_projection_and_articulated_free_body_step/metal_articulated_operator_pose_snapshot/native_visual_marker_pack.v1"
+                : "metal_articulated_operator_pose_snapshot/native_visual_marker_pack.v1");
     pack.materials.push_back(makeMaterial(
         {0.82f, 0.86f, 0.88f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}
     ));
@@ -1119,30 +1263,58 @@ std::size_t coverage(
     ));
 }
 
+double parseMuscleStepSeconds(const std::string& value) {
+    std::size_t parsed = 0u;
+    double result = 0.0;
+    try {
+        result = std::stod(value, &parsed);
+    } catch (const std::exception&) {
+        throw std::runtime_error("--muscle-step-seconds must be a finite decimal number");
+    }
+    require(parsed == value.size() && std::isfinite(result),
+            "--muscle-step-seconds must be a finite decimal number");
+    return result;
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
     @autoreleasepool {
         try {
-            if (argc != 4 && argc != 5) {
+            int positionalArgumentCount = argc;
+            std::optional<double> muscleStepSeconds;
+            if (argc >= 3 && std::string(argv[argc - 2]) == "--muscle-step-seconds") {
+                muscleStepSeconds.emplace(parseMuscleStepSeconds(argv[argc - 1]));
+                positionalArgumentCount -= 2;
+            }
+            if (positionalArgumentCount != 4 && positionalArgumentCount != 5) {
                 std::cerr << "usage: " << argv[0]
                           << " <myosim-fullbody-core-reference.nhrigid>"
                           << " <myosim-fullbody-muscle-reference.nhmyo>"
-                          << " [bodyparts3d-myosim-major-bones.nhbones] <output-directory>\n";
+                          << " [bodyparts3d-myosim-major-bones.nhbones] <output-directory>"
+                          << " [--muscle-step-seconds <1e-6..1e-3>]\n";
                 return 2;
             }
-            const bool bodypartsBoneVisual = argc == 5;
+            const bool bodypartsBoneVisual = positionalArgumentCount == 5;
             const LoadedRigid rigid = loadRigid(argv[1]);
             const LoadedMuscles musclePayload = loadMuscles(argv[2], rigid.header);
             std::optional<LoadedBones> bonePayload;
             if (bodypartsBoneVisual) {
                 bonePayload.emplace(loadBones(argv[3], rigid.header));
             }
+            std::optional<MuscleDrivenVisualState> muscleDrivenState;
+            std::span<const float> poseQ = rigid.model.defaultQ;
+            if (muscleStepSeconds.has_value()) {
+                muscleDrivenState.emplace(integrateMuscleDrivenVisualState(
+                    rigid.model, musclePayload, *muscleStepSeconds
+                ));
+                poseQ = muscleDrivenState->q;
+            }
             const metalrobo::MetalArticulatedOperatorInput input{
                 .articulationIndex = 0u,
                 .environmentCount = 1u,
                 .pointCount = 0u,
-                .q = rigid.model.defaultQ,
+                .q = poseQ,
                 .points = {},
             };
             metalrobo::MetalArticulatedOperatorConfig operatorConfig;
@@ -1177,13 +1349,15 @@ int main(int argc, char** argv) {
             const metalrobo::VisualAssetPackV2 pack = makeMarkerPack(
                 rigid.model, musclePayload, bodies,
                 bonePayload.has_value() ? &*bonePayload : nullptr,
+                muscleDrivenState.has_value(),
                 renderedBodies, renderedRouteSegments
             );
-            const std::filesystem::path outputDirectory{argv[bodypartsBoneVisual ? 4 : 3]};
+            const std::filesystem::path outputDirectory{argv[positionalArgumentCount - 1]};
             std::filesystem::create_directories(outputDirectory);
-            const std::string stem = bodypartsBoneVisual
+            const std::string stem = std::string(bodypartsBoneVisual
                 ? "myosim-fullbody-articulated-bodyparts-bones"
-                : "myosim-fullbody-articulated-markers";
+                : "myosim-fullbody-articulated-markers") +
+                (muscleDrivenState.has_value() ? "-muscle-driven" : "");
             const std::filesystem::path packPath = outputDirectory / (stem + ".mrvpack");
             std::string reason;
             require(metalrobo::writeVisualAssetPack(pack, packPath, &reason),
@@ -1256,9 +1430,24 @@ int main(int argc, char** argv) {
                       << " route_centerline_segments=" << renderedRouteSegments
                       << " pose_stage_elapsed_ms=" << poseDiagnostics.elapsedMilliseconds
                       << " renderer_compile_ms=" << rendererCompile.elapsedMilliseconds
-                      << " boundary=" << (bodypartsBoneVisual
-                              ? "metal_pose_snapshot_to_native_renderer_with_provisional_bodyparts_bone_registration_not_collision_or_live_rollout"
-                              : "metal_pose_snapshot_to_native_renderer_not_bodyparts_registration_or_live_rollout")
+                      << " pose_source=" << (muscleDrivenState.has_value()
+                              ? "cpu_fp64_mujoco_416_muscle_force_to_articulated_free_body_step_then_metal_kinematic_pose"
+                              : "source_default_q_to_metal_kinematic_pose")
+                      << " muscle_step_seconds=" << (muscleStepSeconds.has_value()
+                              ? *muscleStepSeconds : 0.0)
+                      << " muscle_step_applied_wraps=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->appliedWrapCount : 0u)
+                      << " muscle_step_max_velocity_delta=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->maximumVelocityDelta : 0.0)
+                      << " muscle_step_max_configuration_delta=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->maximumConfigurationDelta : 0.0)
+                      << " boundary=" << (muscleDrivenState.has_value()
+                              ? (bodypartsBoneVisual
+                                  ? "cpu_fp64_complete_416_muscle_force_and_articulated_free_body_step_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_not_contact_or_live_rollout"
+                                  : "cpu_fp64_complete_416_muscle_force_and_articulated_free_body_step_to_metal_pose_snapshot_not_contact_or_live_rollout")
+                              : (bodypartsBoneVisual
+                                  ? "metal_pose_snapshot_to_native_renderer_with_provisional_bodyparts_bone_registration_not_collision_or_live_rollout"
+                                  : "metal_pose_snapshot_to_native_renderer_not_bodyparts_registration_or_live_rollout"))
                       << '\n';
             return 0;
         } catch (const std::exception& error) {
