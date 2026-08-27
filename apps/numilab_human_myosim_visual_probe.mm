@@ -57,7 +57,11 @@ constexpr std::uint32_t kPassiveFEMTissueSemantic = 51009u;
 constexpr std::uint32_t kOrganSurfaceSemantic = 51010u;
 constexpr std::uint32_t kVesselSurfaceSemantic = 51011u;
 constexpr std::uint32_t kNerveSurfaceSemantic = 51012u;
-constexpr std::uint32_t kDefaultFrameDimension = 1024u;
+// The native exact-reference path is currently qualified through 640 px on
+// the local Apple M4. Larger reference frames can return an all-background
+// image despite successful Metal submission, so a valid native default is
+// better than an unverified nominal 1024 px setting.
+constexpr std::uint32_t kDefaultFrameDimension = 640u;
 constexpr std::array<char, 8u> kBoneMagic{
     'N', 'H', 'B', 'O', 'N', 'E', 'S', '1',
 };
