@@ -570,6 +570,47 @@ int run(const char* rigidPath, const char* musclePath, const bool runMetal) {
     require(muscleDynamics.succeeded(), "MyoSim native muscle force did not drive Core forward dynamics");
     require(std::all_of(muscleAcceleration.begin(), muscleAcceleration.end(), [](const double value) { return std::isfinite(value); }),
             "MyoSim muscle-driven acceleration is non-finite");
+    // A force vector and a forward-dynamics acceleration are not by themselves
+    // evidence that the source muscles advance the articulated state. Compare
+    // the same free floating full body for one deterministic 1 us Core step
+    // with and without the complete 416-muscle generalized force. Gravity,
+    // damping, timestep, and source default state remain identical.
+    std::vector<double> passiveQ = q;
+    std::vector<double> passiveV = v;
+    std::vector<double> muscleDrivenQ = q;
+    std::vector<double> muscleDrivenV = v;
+    const std::vector<double> zeroForce(model.world.nv, 0.0);
+    metalrobo::ArticulatedDynamicsConfig sensitivityConfig;
+    sensitivityConfig.timestep = 1.0e-6;
+    const auto passiveStep = metalrobo::integrateArticulatedState(
+        model, 0u, passiveQ, passiveV, zeroForce, {}, sensitivityConfig
+    );
+    require(passiveStep.succeeded(), "MyoSim passive free-body integration failed");
+    const auto muscleDrivenStep = metalrobo::integrateArticulatedState(
+        model, 0u, muscleDrivenQ, muscleDrivenV, muscleForce, {}, sensitivityConfig
+    );
+    require(muscleDrivenStep.succeeded(), "MyoSim muscle-driven free-body integration failed");
+    double maximumMuscleDrivenVelocityDelta = 0.0;
+    double maximumMuscleDrivenConfigurationDelta = 0.0;
+    for (std::size_t index = 0u; index < muscleDrivenV.size(); ++index) {
+        maximumMuscleDrivenVelocityDelta = std::max(
+            maximumMuscleDrivenVelocityDelta,
+            std::abs(muscleDrivenV[index] - passiveV[index])
+        );
+    }
+    for (std::size_t index = 0u; index < muscleDrivenQ.size(); ++index) {
+        maximumMuscleDrivenConfigurationDelta = std::max(
+            maximumMuscleDrivenConfigurationDelta,
+            std::abs(muscleDrivenQ[index] - passiveQ[index])
+        );
+    }
+    require(
+        std::isfinite(maximumMuscleDrivenVelocityDelta) &&
+            std::isfinite(maximumMuscleDrivenConfigurationDelta) &&
+            maximumMuscleDrivenVelocityDelta > 1.0e-9 &&
+            maximumMuscleDrivenConfigurationDelta > 1.0e-12,
+        "MyoSim muscle force did not produce a distinguishable articulated state step"
+    );
     const MetalArticulatedMetrics metal = runMetal
         ? verifyMetalArticulatedReference(model, muscles)
         : MetalArticulatedMetrics{};
@@ -587,6 +628,9 @@ int run(const char* rigidPath, const char* musclePath, const bool runMetal) {
                              << " max_body_orientation_error_rad=" << maxOrientationError
                              << " max_muscle_length_error_m=" << maxMuscleLengthError
                              << " max_muscle_force_error_n=" << maxMuscleForceError
+                             << " muscle_driven_sensitivity_step_seconds=" << sensitivityConfig.timestep
+                             << " muscle_driven_max_velocity_delta=" << maximumMuscleDrivenVelocityDelta
+                             << " muscle_driven_max_configuration_delta=" << maximumMuscleDrivenConfigurationDelta
                              << " max_inverse_forward_error=" << maxDynamicsError
                              << " mass_min_pivot=" << massDiagnostics.minimumCholeskyPivot
                              << " mass_condition=" << massDiagnostics.estimatedMassMatrixCondition;
