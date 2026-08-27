@@ -349,7 +349,10 @@ int main(int argc, char** argv) {
             metalrobo::MetalHybridRendererConfig configuration;
             configuration.width = dimension;
             configuration.height = dimension;
-            configuration.maximumReferenceFramesInFlight = 1u;
+            // Keep one reference workspace per fixed camera.  At high
+            // resolution, reusing the first camera's workspace can leave a
+            // later multi-angle readback without its source segmentation.
+            configuration.maximumReferenceFramesInFlight = 3u;
             configuration.clearColorAndDepth = {0.012f, 0.018f, 0.028f, 1.0e30f};
             metalrobo::MetalHybridRenderer renderer(configuration);
             require(
