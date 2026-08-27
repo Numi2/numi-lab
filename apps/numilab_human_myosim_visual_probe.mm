@@ -1462,7 +1462,13 @@ metalrobo::SensorSpec makeCamera(
     metalrobo::SensorSpec camera;
     camera.id = id;
     camera.parentAssetId = "myosim_human";
-    camera.parentKind = MR_WORLD_SENSOR_PARENT_ASSET;
+    // ``position`` and ``target`` are calculated from the posed, rendered
+    // geometry in world coordinates.  Parenting that world-space pose to the
+    // articulated asset applies the root transform a second time, which makes
+    // oblique anatomy reviews look off-centre and distant.  Keep the semantic
+    // asset id for world validation, but make the camera genuinely world
+    // anchored.
+    camera.parentKind = MR_WORLD_SENSOR_PARENT_WORLD;
     camera.kind = MR_WORLD_SENSOR_RGBD;
     camera.localPose = cameraToward(position, target);
     camera.width = dimension;
@@ -1946,7 +1952,11 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         {0.82f, 0.86f, 0.88f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.52f
     ));
     pack.materials.push_back(makeMaterial(
-        {0.80f, 0.04f, 0.03f, 1.0f}, {0.15f, 0.0f, 0.0f, 0.25f}, 0.40f, 0.10f
+        // Source muscle mesh detail is conveyed by real surface normals and
+        // the anatomy light rig.  The former red emission lifted all shading
+        // toward a flat, plastic appearance, so do not use self-illumination
+        // as a substitute for an anatomical material.
+        {0.56f, 0.018f, 0.014f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.58f, 0.035f
     ));
     pack.materials.push_back(makeMaterial(
         // Exact force-route diagnostics must remain legible over the red
@@ -2134,6 +2144,10 @@ CameraFraming makeCameraFraming(
         -std::numeric_limits<float>::infinity(),
         -std::numeric_limits<float>::infinity(), 0.0f,
     };
+    double centroidX = 0.0;
+    double centroidY = 0.0;
+    double centroidZ = 0.0;
+    std::size_t centroidVertexCount = 0u;
     std::size_t includedPrimitiveCount = 0u;
     const auto include = [&minimum, &maximum](const mr_float4 point) {
         require(std::isfinite(point.x) && std::isfinite(point.y) &&
@@ -2163,35 +2177,51 @@ CameraFraming makeCameraFraming(
                     "MyoSim visual framing articulated binding is out of bounds");
             body = &bodies[instance.binding.y];
         }
+        const auto worldPoint = [&instance, body](const mr_float4 local) {
+            const mr_float4 instancePoint = addPoint(
+                instance.translationAndScale,
+                rotatePoint(
+                    instance.orientation,
+                    scalePoint(local, instance.translationAndScale.w)
+                )
+            );
+            return body == nullptr
+                ? instancePoint
+                : addPoint(body->position, rotatePoint(body->orientation, instancePoint));
+        };
         for (std::uint32_t primitiveOffset = 0u;
              primitiveOffset < instance.geometry.y; ++primitiveOffset) {
             const MRVisualPrimitiveGPUV2& primitive =
                 pack.primitives[instance.geometry.x + primitiveOffset];
             require(primitive.geometry.w == instanceIndex,
                     "MyoSim visual framing primitive/instance identity drifted");
-            for (std::uint32_t corner = 0u; corner < 8u; ++corner) {
-                const mr_float4 local{
-                    (corner & 1u) == 0u ? primitive.boundsMinimum.x : primitive.boundsMaximum.x,
-                    (corner & 2u) == 0u ? primitive.boundsMinimum.y : primitive.boundsMaximum.y,
-                    (corner & 4u) == 0u ? primitive.boundsMinimum.z : primitive.boundsMaximum.z,
-                    0.0f,
-                };
-                const mr_float4 instancePoint = addPoint(
-                    instance.translationAndScale,
-                    rotatePoint(
-                        instance.orientation,
-                        scalePoint(local, instance.translationAndScale.w)
-                    )
-                );
-                include(body == nullptr
-                    ? instancePoint
-                    : addPoint(body->position, rotatePoint(body->orientation, instancePoint)));
+            require(primitive.geometry.x <= pack.indices.size() &&
+                        primitive.geometry.y <= pack.indices.size() - primitive.geometry.x,
+                    "MyoSim visual framing primitive index range is invalid");
+            // Use the actual rendered vertices for both bounds and target.
+            // An AABB midpoint can land in empty space for an asymmetric
+            // oblique anatomy view, which is why the prior frame showed most
+            // of the body in one corner despite nominally correct bounds.
+            for (std::uint32_t indexOffset = 0u;
+                 indexOffset < primitive.geometry.y; ++indexOffset) {
+                const std::uint32_t vertexIndex =
+                    pack.indices[primitive.geometry.x + indexOffset];
+                require(vertexIndex < pack.vertices.size(),
+                        "MyoSim visual framing primitive references an invalid vertex");
+                const mr_float4 point = worldPoint(pack.vertices[vertexIndex].position);
+                include(point);
+                centroidX += static_cast<double>(point.x);
+                centroidY += static_cast<double>(point.y);
+                centroidZ += static_cast<double>(point.z);
+                ++centroidVertexCount;
             }
             ++includedPrimitiveCount;
         }
     }
     require(includedPrimitiveCount > 0u,
             "MyoSim visual source geometry has no primitives for whole-body framing");
+    require(centroidVertexCount > 0u,
+            "MyoSim visual source geometry has no vertices for whole-body framing");
     const float extent = std::max({
         maximum.x - minimum.x, maximum.y - minimum.y, maximum.z - minimum.z,
     });
@@ -2203,12 +2233,16 @@ CameraFraming makeCameraFraming(
     // whole-body anatomy review into a distant thumbnail.
     return {
         .center = {
-            0.5f * (minimum.x + maximum.x),
-            0.5f * (minimum.y + maximum.y),
-            0.5f * (minimum.z + maximum.z),
+            static_cast<float>(centroidX / static_cast<double>(centroidVertexCount)),
+            static_cast<float>(centroidY / static_cast<double>(centroidVertexCount)),
+            static_cast<float>(centroidZ / static_cast<double>(centroidVertexCount)),
             0.0f,
         },
-        .distance = std::max(1.20f * extent, 2.0f),
+        // The old 1.20x stand-off made a 1.7 m source body read as a small
+        // specimen against mostly empty background.  A 1.08x stand-off puts
+        // the actual BodyParts3D detail in the frame while retaining enough
+        // margin for the elevated rear and oblique cameras.
+        .distance = std::max(1.08f * extent, 1.85f),
         .sourceExtentMeters = extent,
         .usesSourceGeometryBounds = true,
     };
