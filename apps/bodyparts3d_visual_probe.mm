@@ -90,9 +90,17 @@ metalrobo::WorldPose cameraToward(
     return {position, orientation};
 }
 
-std::pair<mr_float4, float> packCentreAndDistance(
+struct PackFraming {
+    mr_float4 centre{};
+    mr_float4 minimum{};
+    mr_float4 maximum{};
+    float distance = 0.0f;
+};
+
+PackFraming packFraming(
     const metalrobo::VisualAssetPackV2& pack,
-    const bool tightFrame
+    const bool tightFrame,
+    const bool focusLowerThird
 ) {
     if (pack.vertices.empty()) {
         throw std::runtime_error("BodyParts3D visual pack has no vertices");
@@ -128,7 +136,11 @@ std::pair<mr_float4, float> packCentreAndDistance(
         maximum.y - minimum.y,
         maximum.z - minimum.z,
     });
-    return {centre, std::max(1.35f * extent, tightFrame ? 0.0f : 2.25f)};
+    const float verticalExtent = maximum.z - minimum.z;
+    const float distance = focusLowerThird
+        ? std::max(0.65f * verticalExtent, 0.30f)
+        : std::max(1.35f * extent, tightFrame ? 0.0f : 2.25f);
+    return {centre, minimum, maximum, distance};
 }
 
 metalrobo::SensorSpec makeCamera(
@@ -214,11 +226,12 @@ int main(int argc, char** argv) {
     @autoreleasepool {
         try {
             if (argc < 3) {
-                std::cerr << "usage: metalrobo_bodyparts3d_visual_probe PACK.mrvpack OUTPUT_DIRECTORY [--dimension <128..4096>] [--tight-frame]\n";
+                std::cerr << "usage: metalrobo_bodyparts3d_visual_probe PACK.mrvpack OUTPUT_DIRECTORY [--dimension <128..4096>] [--tight-frame] [--focus-lower-third]\n";
                 return 2;
             }
             std::uint32_t dimension = 512u;
             bool tightFrame = false;
+            bool focusLowerThird = false;
             for (int argument = 3; argument < argc; ++argument) {
                 const std::string option{argv[argument]};
                 if (option == "--tight-frame") {
@@ -228,8 +241,15 @@ int main(int argc, char** argv) {
                     tightFrame = true;
                     continue;
                 }
+                if (option == "--focus-lower-third") {
+                    if (focusLowerThird) {
+                        throw std::runtime_error("--focus-lower-third may only be provided once");
+                    }
+                    focusLowerThird = true;
+                    continue;
+                }
                 if (option != "--dimension" || ++argument >= argc) {
-                    throw std::runtime_error("expected --dimension <128..4096> or --tight-frame");
+                    throw std::runtime_error("expected --dimension <128..4096>, --tight-frame, or --focus-lower-third");
                 }
                 const std::string dimensionText{argv[argument]};
                 std::size_t parsed = 0u;
@@ -246,11 +266,15 @@ int main(int argc, char** argv) {
             if (!metalrobo::readVisualAssetPack(packPath, pack, &reason)) {
                 throw std::runtime_error("could not read visual pack: " + reason);
             }
-            const auto [centre, distance] = packCentreAndDistance(pack, tightFrame);
+            const PackFraming framing = packFraming(pack, tightFrame, focusLowerThird);
+            mr_float4 target = framing.centre;
+            if (focusLowerThird) {
+                target.z = framing.minimum.z + 0.32f * (framing.maximum.z - framing.minimum.z);
+            }
             const std::array cameraDefinitions{
-                std::pair{"axis_negative_y", mr_float4{centre.x, centre.y - distance, centre.z + 0.08f, 0.0f}},
-                std::pair{"oblique_positive_x_negative_y", mr_float4{centre.x + 0.82f * distance, centre.y - 0.82f * distance, centre.z + 0.24f * distance, 0.0f}},
-                std::pair{"axis_positive_y", mr_float4{centre.x, centre.y + distance, centre.z + 0.08f, 0.0f}},
+                std::pair{"axis_negative_y", mr_float4{target.x, target.y - framing.distance, target.z + 0.08f, 0.0f}},
+                std::pair{"oblique_positive_x_negative_y", mr_float4{target.x + 0.82f * framing.distance, target.y - 0.82f * framing.distance, target.z + 0.24f * framing.distance, 0.0f}},
+                std::pair{"axis_positive_y", mr_float4{target.x, target.y + framing.distance, target.z + 0.08f, 0.0f}},
             };
 
             const metalrobo::EngineModel model = metalrobo::makeFrankaPickPlaceEngineModel();
@@ -258,7 +282,7 @@ int main(int argc, char** argv) {
             episode.id = "bodyparts3d_source_static_preview_v1";
             episode.sensors.clear();
             for (const auto& [id, position] : cameraDefinitions) {
-                episode.sensors.push_back(makeCamera(id, position, centre, dimension));
+                episode.sensors.push_back(makeCamera(id, position, target, dimension));
             }
             metalrobo::WorldTemplate world;
             require(metalrobo::compileEpisodeTwin(episode, model, world), "preview episode compile");
