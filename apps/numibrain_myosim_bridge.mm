@@ -374,6 +374,9 @@ struct CandidateState {
     std::uint64_t substepFingerprint = 0u;
     float maximumExcitation = 0.0f;
     float maximumAbsoluteGeneralizedForce = 0.0f;
+    float maximumAbsoluteMuscleForce = 0.0f;
+    std::uint32_t maximumForceMuscleIdentifier =
+        std::numeric_limits<std::uint32_t>::max();
     double maximumAbsoluteVelocityDelta = 0.0;
     double maximumAbsoluteConfigurationDelta = 0.0;
 };
@@ -546,6 +549,7 @@ extern "C" std::uint32_t mr_numibrain_myosim_bridge_run_candidate(
             diagnostics.succeeded() && diagnostics.dispatched &&
                 diagnostics.published &&
                 result.mujocoActivationStates.size() == muscleCount &&
+                result.mujocoResults.size() == muscleCount &&
                 result.mujocoGeneralizedForces.size() == bridge.rootV.size(),
             "NumanX MyoSim candidate failed"
         );
@@ -562,6 +566,23 @@ extern "C" std::uint32_t mr_numibrain_myosim_bridge_run_candidate(
                 state.excitationAndActivation.x
             );
         }
+        for (std::size_t index = 0u; index < result.mujocoResults.size(); ++index) {
+            const float absoluteForce = std::abs(
+                result.mujocoResults[index].pathForceAndActivationDerivative.z
+            );
+            if (candidate->maximumForceMuscleIdentifier ==
+                    std::numeric_limits<std::uint32_t>::max() ||
+                absoluteForce > candidate->maximumAbsoluteMuscleForce) {
+                candidate->maximumAbsoluteMuscleForce = absoluteForce;
+                candidate->maximumForceMuscleIdentifier =
+                    bridge.program.sourceTendonIdentifiers[index];
+            }
+        }
+        require(
+            candidate->maximumForceMuscleIdentifier !=
+                std::numeric_limits<std::uint32_t>::max(),
+            "NumanX MyoSim candidate has no muscle-force receptor identity"
+        );
         std::vector<double> generalizedForce(result.mujocoGeneralizedForces.begin(),
                                              result.mujocoGeneralizedForces.end());
         for (const double force : generalizedForce) {
@@ -675,6 +696,23 @@ extern "C" float mr_numibrain_myosim_bridge_pending_maximum_force(void* handle) 
     const auto* bridge = static_cast<const Bridge*>(handle);
     return bridge != nullptr && bridge->pending != nullptr
         ? bridge->pending->maximumAbsoluteGeneralizedForce : 0.0f;
+}
+
+extern "C" float mr_numibrain_myosim_bridge_pending_maximum_muscle_force(
+    void* handle
+) {
+    const auto* bridge = static_cast<const Bridge*>(handle);
+    return bridge != nullptr && bridge->pending != nullptr
+        ? bridge->pending->maximumAbsoluteMuscleForce : 0.0f;
+}
+
+extern "C" std::uint32_t mr_numibrain_myosim_bridge_pending_maximum_force_muscle_identifier(
+    void* handle
+) {
+    const auto* bridge = static_cast<const Bridge*>(handle);
+    return bridge != nullptr && bridge->pending != nullptr
+        ? bridge->pending->maximumForceMuscleIdentifier
+        : std::numeric_limits<std::uint32_t>::max();
 }
 
 extern "C" double mr_numibrain_myosim_bridge_pending_maximum_velocity_delta(
