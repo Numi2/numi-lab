@@ -31,6 +31,7 @@ rehearsal_depth=${NUMI_CROW_REHEARSAL_DEPTH:-0}
 rehearsal_minimum_band=${NUMI_CROW_REHEARSAL_MINIMUM_BAND:-}
 difficulty_sampling_exponent=${NUMI_CROW_DIFFICULTY_SAMPLING_EXPONENT:-}
 learning_rate=${NUMI_CROW_LEARNING_RATE:-}
+initial_log_standard_deviation=${NUMI_CROW_INITIAL_LOG_STANDARD_DEVIATION:-}
 
 case "$course" in
   state)
@@ -98,6 +99,12 @@ if [ -n "$learning_rate" ] && ! "$mlx" -c \
   echo "NUMI_CROW_LEARNING_RATE must be finite and positive" >&2
   exit 2
 fi
+if [ -n "$initial_log_standard_deviation" ] && ! "$mlx" -c \
+  'import math,sys; value=float(sys.argv[1]); sys.exit(0 if math.isfinite(value) else 1)' \
+  "$initial_log_standard_deviation"; then
+  echo "NUMI_CROW_INITIAL_LOG_STANDARD_DEVIATION must be finite" >&2
+  exit 2
+fi
 if [ "$parent_mode" = actor-transfer ]; then
   [ -n "$parent_policy" ] && [ -s "$parent_policy" ] && \
     [ -z "$parent_state" ] || {
@@ -162,6 +169,12 @@ while [ "$band" -le "$maximum_band" ]; do
         --minimum-learning-rate "$learning_rate"
         --maximum-learning-rate "$learning_rate"
         --fixed-learning-rate
+      )
+    fi
+    if [ -n "$initial_log_standard_deviation" ]; then
+      common+=(
+        --initial-log-standard-deviation
+        "$initial_log_standard_deviation"
       )
     fi
     if [ -n "$visual_config" ]; then
