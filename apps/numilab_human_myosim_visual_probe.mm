@@ -1474,50 +1474,6 @@ metalrobo::SensorSpec makeCamera(
     return camera;
 }
 
-std::pair<mr_float4, float> frameBounds(
-    const metalrobo::EngineModel& model,
-    const std::span<const MRBodyStateGPU> bodies
-) {
-    require(model.bodies.size() == bodies.size(), "MyoSim visual body bounds size mismatch");
-    mr_float4 minimum{
-        std::numeric_limits<float>::infinity(),
-        std::numeric_limits<float>::infinity(),
-        std::numeric_limits<float>::infinity(), 0.0f,
-    };
-    mr_float4 maximum{
-        -std::numeric_limits<float>::infinity(),
-        -std::numeric_limits<float>::infinity(),
-        -std::numeric_limits<float>::infinity(), 0.0f,
-    };
-    std::size_t includedBodyCount = 0u;
-    for (std::size_t index = 0u; index < bodies.size(); ++index) {
-        if (!(model.bodies[index].massAndInverseMass.x > 1.0e-5f)) {
-            continue;
-        }
-        const MRBodyStateGPU& body = bodies[index];
-        minimum.x = std::min(minimum.x, body.position.x);
-        minimum.y = std::min(minimum.y, body.position.y);
-        minimum.z = std::min(minimum.z, body.position.z);
-        maximum.x = std::max(maximum.x, body.position.x);
-        maximum.y = std::max(maximum.y, body.position.y);
-        maximum.z = std::max(maximum.z, body.position.z);
-        ++includedBodyCount;
-    }
-    require(includedBodyCount > 0u, "MyoSim visual body bounds have no inertial body");
-    const mr_float4 center{
-        0.5f * (minimum.x + maximum.x),
-        0.5f * (minimum.y + maximum.y),
-        0.5f * (minimum.z + maximum.z), 0.0f,
-    };
-    const float extent = std::max({
-        maximum.x - minimum.x, maximum.y - minimum.y, maximum.z - minimum.z,
-    });
-    // Keep the known-valid four-camera stand-off.  Resolution is raised to
-    // 1024 px above; a tighter distance caused the oblique frustum to omit
-    // this incomplete whole-body registration.
-    return {center, std::max(1.65f * extent, 2.5f)};
-}
-
 MRVisualMaterialGPUV2 makeMaterial(
     const mr_float4 color,
     const mr_float4 emission,
@@ -2144,22 +2100,128 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     return pack;
 }
 
+struct CameraFraming {
+    mr_float4 center{};
+    float distance = 0.0f;
+    float sourceExtentMeters = 0.0f;
+    bool usesSourceGeometryBounds = false;
+};
+
+CameraFraming makeCameraFraming(
+    const metalrobo::VisualAssetPackV2& pack,
+    const std::span<const MRBodyStateGPU> bodies,
+    const std::optional<std::uint32_t> focusBodyIndex
+) {
+    if (focusBodyIndex.has_value()) {
+        require(*focusBodyIndex < bodies.size(), "MyoSim visual focus body index is out of bounds");
+        // Focused inspections intentionally retain a close, deterministic
+        // view.  The source-geometry bounds below are for the whole-body
+        // presentation, where COM-only framing cropped the actual anatomy.
+        const MRBodyStateGPU& focus = bodies[*focusBodyIndex];
+        return {
+            .center = {focus.position.x, focus.position.y, focus.position.z, 0.0f},
+            .distance = 0.70f,
+        };
+    }
+
+    mr_float4 minimum{
+        std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(), 0.0f,
+    };
+    mr_float4 maximum{
+        -std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity(), 0.0f,
+    };
+    std::size_t includedPrimitiveCount = 0u;
+    const auto include = [&minimum, &maximum](const mr_float4 point) {
+        require(std::isfinite(point.x) && std::isfinite(point.y) &&
+                    std::isfinite(point.z),
+                "MyoSim visual source geometry has a non-finite world bound");
+        minimum.x = std::min(minimum.x, point.x);
+        minimum.y = std::min(minimum.y, point.y);
+        minimum.z = std::min(minimum.z, point.z);
+        maximum.x = std::max(maximum.x, point.x);
+        maximum.y = std::max(maximum.y, point.y);
+        maximum.z = std::max(maximum.z, point.z);
+    };
+    for (std::size_t instanceIndex = 0u; instanceIndex < pack.instances.size(); ++instanceIndex) {
+        const MRVisualInstanceGPUV2& instance = pack.instances[instanceIndex];
+        require(instance.geometry.x <= pack.primitives.size() &&
+                    instance.geometry.y <= pack.primitives.size() - instance.geometry.x &&
+                    std::isfinite(instance.translationAndScale.w) &&
+                    instance.translationAndScale.w > 0.0f,
+                "MyoSim visual instance has an invalid framing range");
+        const bool articulated =
+            instance.binding.z == MR_VISUAL_BINDING_ARTICULATED_LINK;
+        require(articulated || instance.binding.z == MR_VISUAL_BINDING_WORLD,
+                "MyoSim visual framing only supports world or articulated-link bindings");
+        const MRBodyStateGPU* body = nullptr;
+        if (articulated) {
+            require(instance.binding.y < bodies.size(),
+                    "MyoSim visual framing articulated binding is out of bounds");
+            body = &bodies[instance.binding.y];
+        }
+        for (std::uint32_t primitiveOffset = 0u;
+             primitiveOffset < instance.geometry.y; ++primitiveOffset) {
+            const MRVisualPrimitiveGPUV2& primitive =
+                pack.primitives[instance.geometry.x + primitiveOffset];
+            require(primitive.geometry.w == instanceIndex,
+                    "MyoSim visual framing primitive/instance identity drifted");
+            for (std::uint32_t corner = 0u; corner < 8u; ++corner) {
+                const mr_float4 local{
+                    (corner & 1u) == 0u ? primitive.boundsMinimum.x : primitive.boundsMaximum.x,
+                    (corner & 2u) == 0u ? primitive.boundsMinimum.y : primitive.boundsMaximum.y,
+                    (corner & 4u) == 0u ? primitive.boundsMinimum.z : primitive.boundsMaximum.z,
+                    0.0f,
+                };
+                const mr_float4 instancePoint = addPoint(
+                    instance.translationAndScale,
+                    rotatePoint(
+                        instance.orientation,
+                        scalePoint(local, instance.translationAndScale.w)
+                    )
+                );
+                include(body == nullptr
+                    ? instancePoint
+                    : addPoint(body->position, rotatePoint(body->orientation, instancePoint)));
+            }
+            ++includedPrimitiveCount;
+        }
+    }
+    require(includedPrimitiveCount > 0u,
+            "MyoSim visual source geometry has no primitives for whole-body framing");
+    const float extent = std::max({
+        maximum.x - minimum.x, maximum.y - minimum.y, maximum.z - minimum.z,
+    });
+    require(std::isfinite(extent) && extent > 1.0e-4f,
+            "MyoSim visual source geometry has a degenerate whole-body bound");
+    // The camera's vertical FOV at the reference focal length has a half-angle
+    // of about 34 degrees.  This stand-off leaves a visible margin around the
+    // exact imported mesh in every four-camera angle, without turning the
+    // whole-body anatomy review into a distant thumbnail.
+    return {
+        .center = {
+            0.5f * (minimum.x + maximum.x),
+            0.5f * (minimum.y + maximum.y),
+            0.5f * (minimum.z + maximum.z),
+            0.0f,
+        },
+        .distance = std::max(1.20f * extent, 2.0f),
+        .sourceExtentMeters = extent,
+        .usesSourceGeometryBounds = true,
+    };
+}
+
 metalrobo::WorldTemplate makeWorld(
     const metalrobo::EngineModel& model,
-    const std::span<const MRBodyStateGPU> bodies,
-    const std::optional<std::uint32_t> focusBodyIndex,
+    const CameraFraming& framing,
     const std::uint32_t dimension,
     std::array<std::string, 4u>& cameraNames
 ) {
-    const auto [center, distance] = [&]() -> std::pair<mr_float4, float> {
-        if (!focusBodyIndex.has_value()) return frameBounds(model, bodies);
-        require(*focusBodyIndex < bodies.size(), "MyoSim visual focus body index is out of bounds");
-        // A 0.70 m stand-off retains a complete major limb around a source
-        // body while making attachment inspection legible at the renderer's
-        // validated 640 px multi-camera resolution.
-        const MRBodyStateGPU& focus = bodies[*focusBodyIndex];
-        return {{focus.position.x, focus.position.y, focus.position.z, 0.0f}, 0.70f};
-    }();
+    const mr_float4 center = framing.center;
+    const float distance = framing.distance;
     cameraNames = {"front", "oblique", "side", "rear"};
     metalrobo::EpisodeTwin episode;
     episode.id = "myosim_fullbody_articulated_marker_visualization";
@@ -2490,23 +2552,6 @@ int main(int argc, char** argv) {
                     );
                 }
             }
-            std::array<std::string, 4u> cameraNames;
-            const metalrobo::WorldTemplate world = makeWorld(
-                rigid.model, bodies, focusBodyIndex, frameDimension, cameraNames
-            );
-            metalrobo::WorldProgram program;
-            program.id = bodypartsBoneVisual
-                ? "myosim_fullbody_articulated_bodyparts_bone_visual_program"
-                : "myosim_fullbody_articulated_marker_visual_program";
-            metalrobo::WorldFamily family;
-            const auto familyCompile = metalrobo::compileWorldFamily(world, program, family);
-            require(familyCompile.succeeded(), "native Human visual family compile failed: " + familyCompile.message);
-            metalrobo::MetalWorldFamilyContext worlds;
-            const auto worldsCompile = worlds.compile(family, 1u);
-            require(worldsCompile.succeeded(), "native Human visual device world compile failed: " + worldsCompile.message);
-            const auto worldsSample = worlds.sample(1u, 0x4d594f53494dull);
-            require(worldsSample.succeeded(), "native Human visual world sample failed: " + worldsSample.message);
-
             std::uint32_t renderedBodies = 0u;
             std::uint32_t renderedSoftTissues = 0u;
             std::uint32_t renderedRouteSegments = 0u;
@@ -2520,6 +2565,25 @@ int main(int argc, char** argv) {
                 resolvedRouteCentrelines.has_value() ? &*resolvedRouteCentrelines : nullptr,
                 renderedBodies, renderedSoftTissues, renderedRouteSegments
             );
+            const CameraFraming cameraFraming = makeCameraFraming(
+                pack, bodies, focusBodyIndex
+            );
+            std::array<std::string, 4u> cameraNames;
+            const metalrobo::WorldTemplate world = makeWorld(
+                rigid.model, cameraFraming, frameDimension, cameraNames
+            );
+            metalrobo::WorldProgram program;
+            program.id = bodypartsBoneVisual
+                ? "myosim_fullbody_articulated_bodyparts_bone_visual_program"
+                : "myosim_fullbody_articulated_marker_visual_program";
+            metalrobo::WorldFamily family;
+            const auto familyCompile = metalrobo::compileWorldFamily(world, program, family);
+            require(familyCompile.succeeded(), "native Human visual family compile failed: " + familyCompile.message);
+            metalrobo::MetalWorldFamilyContext worlds;
+            const auto worldsCompile = worlds.compile(family, 1u);
+            require(worldsCompile.succeeded(), "native Human visual device world compile failed: " + worldsCompile.message);
+            const auto worldsSample = worlds.sample(1u, 0x4d594f53494dull);
+            require(worldsSample.succeeded(), "native Human visual world sample failed: " + worldsSample.message);
             const std::filesystem::path outputDirectory{positional.back()};
             std::filesystem::create_directories(outputDirectory);
             const std::string stem = std::string(bodypartsBoneVisual
@@ -2678,6 +2742,10 @@ int main(int argc, char** argv) {
                               ? resolvedRouteCentrelines->surfaceProjectedAttachmentCount : 0u)
                       << " focus_body_index=" << (focusBodyIndex.has_value()
                               ? std::to_string(*focusBodyIndex) : "none")
+                      << " camera_framing=" << (cameraFraming.usesSourceGeometryBounds
+                              ? "exact_rendered_source_geometry_bounds" : "focused_body_inspection")
+                      << " camera_source_extent_m=" << cameraFraming.sourceExtentMeters
+                      << " camera_distance_m=" << cameraFraming.distance
                       << " pose_stage_elapsed_ms=" << poseDiagnostics.elapsedMilliseconds
                       << " renderer_compile_ms_first_camera=" << rendererCompileMilliseconds
                       << " pose_source=" << poseSource
