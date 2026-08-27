@@ -41,8 +41,7 @@ constexpr std::uint32_t kBodySemantic = 51001u;
 constexpr std::uint32_t kSiteSemantic = 51002u;
 constexpr std::uint32_t kRouteSemantic = 51003u;
 constexpr std::uint32_t kBoneSemantic = 51004u;
-constexpr std::uint32_t kFrameWidth = 1024u;
-constexpr std::uint32_t kFrameHeight = 1024u;
+constexpr std::uint32_t kDefaultFrameDimension = 1024u;
 constexpr std::array<char, 8u> kBoneMagic{
     'N', 'H', 'B', 'O', 'N', 'E', 'S', '1',
 };
@@ -846,7 +845,8 @@ metalrobo::WorldPose cameraToward(
 metalrobo::SensorSpec makeCamera(
     const std::string& id,
     const mr_float4 position,
-    const mr_float4 target
+    const mr_float4 target,
+    const std::uint32_t dimension
 ) {
     metalrobo::SensorSpec camera;
     camera.id = id;
@@ -854,9 +854,11 @@ metalrobo::SensorSpec makeCamera(
     camera.parentKind = MR_WORLD_SENSOR_PARENT_ASSET;
     camera.kind = MR_WORLD_SENSOR_RGBD;
     camera.localPose = cameraToward(position, target);
-    camera.width = kFrameWidth;
-    camera.height = kFrameHeight;
-    camera.intrinsics = {750.0f, 750.0f, 0.5f * kFrameWidth, 0.5f * kFrameHeight};
+    camera.width = dimension;
+    camera.height = dimension;
+    const float focalLength = 750.0f * static_cast<float>(dimension) /
+        static_cast<float>(kDefaultFrameDimension);
+    camera.intrinsics = {focalLength, focalLength, 0.5f * dimension, 0.5f * dimension};
     camera.maximumDepthMeters = 20.0f;
     return camera;
 }
@@ -1305,6 +1307,7 @@ metalrobo::WorldTemplate makeWorld(
     const metalrobo::EngineModel& model,
     const std::span<const MRBodyStateGPU> bodies,
     const std::optional<std::uint32_t> focusBodyIndex,
+    const std::uint32_t dimension,
     std::array<std::string, 4u>& cameraNames
 ) {
     const auto [center, distance] = [&]() -> std::pair<mr_float4, float> {
@@ -1333,13 +1336,13 @@ metalrobo::WorldTemplate makeWorld(
     }
     episode.assets.push_back(std::move(human));
     episode.sensors = {
-        makeCamera(cameraNames[0], {center.x, center.y - distance, center.z + 0.10f * distance, 0.0f}, center),
+        makeCamera(cameraNames[0], {center.x, center.y - distance, center.z + 0.10f * distance, 0.0f}, center, dimension),
         makeCamera(cameraNames[1], {
             center.x + 0.72f * distance, center.y - 0.72f * distance,
             center.z + 0.16f * distance, 0.0f,
-        }, center),
-        makeCamera(cameraNames[2], {center.x + distance, center.y, center.z + 0.16f * distance, 0.0f}, center),
-        makeCamera(cameraNames[3], {center.x, center.y + distance, center.z + 0.10f * distance, 0.0f}, center),
+        }, center, dimension),
+        makeCamera(cameraNames[2], {center.x + distance, center.y, center.z + 0.16f * distance, 0.0f}, center, dimension),
+        makeCamera(cameraNames[3], {center.x, center.y + distance, center.z + 0.10f * distance, 0.0f}, center, dimension),
     };
     episode.task.id = "pose_snapshot_visualization";
     episode.task.robotAssetId = "myosim_human";
@@ -1464,6 +1467,19 @@ std::uint32_t parseSourceRouteIndex(const std::string& value) {
     return static_cast<std::uint32_t>(result);
 }
 
+std::uint32_t parseFrameDimension(const std::string& value) {
+    std::size_t parsed = 0u;
+    unsigned long result = 0ul;
+    try {
+        result = std::stoul(value, &parsed);
+    } catch (const std::exception&) {
+        throw std::runtime_error("--dimension must be an integer multiple of 64 from 512 through 2048");
+    }
+    require(parsed == value.size() && result >= 512ul && result <= 2048ul && result % 64ul == 0ul,
+            "--dimension must be an integer multiple of 64 from 512 through 2048");
+    return static_cast<std::uint32_t>(result);
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -1474,6 +1490,7 @@ int main(int argc, char** argv) {
             bool surfaceProjectSourceSites = false;
             std::vector<std::uint32_t> requestedSourceRouteMuscles;
             std::optional<std::uint32_t> focusBodyIndex;
+            std::uint32_t frameDimension = kDefaultFrameDimension;
             std::vector<std::string> positional;
             for (int index = 1; index < argc; ++index) {
                 const std::string argument{argv[index]};
@@ -1498,6 +1515,10 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !focusBodyIndex.has_value(),
                             "--focus-body-index requires one body index and may be given only once");
                     focusBodyIndex.emplace(parseSourceRouteIndex(argv[++index]));
+                } else if (argument == "--dimension") {
+                    require(index + 1 < argc && frameDimension == kDefaultFrameDimension,
+                            "--dimension requires one value and may be given only once");
+                    frameDimension = parseFrameDimension(argv[++index]);
                 } else if (!argument.starts_with("--")) {
                     positional.push_back(argument);
                 } else {
@@ -1512,7 +1533,8 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-seconds <1e-6..1e-3>]"
                           << " [--source-route-centrelines] [--source-route-index <0..415>]..."
                           << " [--surface-project-source-sites]"
-                          << " [--focus-body-index <0..156>]\n";
+                          << " [--focus-body-index <0..156>]"
+                          << " [--dimension <512..2048; multiple-of-64>]\n";
                 return 2;
             }
             const bool bodypartsBoneVisual = positional.size() == 4u;
@@ -1580,7 +1602,7 @@ int main(int argc, char** argv) {
             }
             std::array<std::string, 4u> cameraNames;
             const metalrobo::WorldTemplate world = makeWorld(
-                rigid.model, bodies, focusBodyIndex, cameraNames
+                rigid.model, bodies, focusBodyIndex, frameDimension, cameraNames
             );
             metalrobo::WorldProgram program;
             program.id = bodypartsBoneVisual
@@ -1635,23 +1657,39 @@ int main(int argc, char** argv) {
                     ),
                     "could not write native Human visual manifest: " + reason);
 
-            metalrobo::MetalHybridRendererConfig rendererConfig;
-            rendererConfig.width = kFrameWidth;
-            rendererConfig.height = kFrameHeight;
-            // A reference frame at 1024 px occupies a dedicated ray workspace.
-            // Retain one workspace per fixed camera so that a four-angle
-            // inspection does not reuse an in-flight texture after frame one.
-            rendererConfig.maximumReferenceFramesInFlight = 4u;
-            rendererConfig.clearColorAndDepth = {0.002f, 0.006f, 0.012f, 1.0e30f};
-            metalrobo::MetalHybridRenderer renderer(rendererConfig);
-            const auto rendererCompile = renderer.compile(
-                std::move(manifest.renderScene),
-                metalrobo::VisualRendererProfileV1::sensorReference(), 1u
-            );
-            require(rendererCompile.succeeded(), "native Human renderer compile failed: " + rendererCompile.message);
             metalrobo::VisualMotionSampleBatchV1 motion = makeMotion(bodies);
             bool completeVisualCoverage = true;
+            std::string rendererDeviceName;
+            double rendererCompileMilliseconds = 0.0;
             for (std::size_t camera = 0u; camera < cameraNames.size(); ++camera) {
+                // Reference ray workspaces can retain a large drawable and
+                // acceleration structure.  Build one isolated renderer per
+                // fixed angle so 2048 px anatomy review cannot reuse a prior
+                // camera's in-flight workspace.
+                metalrobo::VisualSceneManifestV3 cameraManifest;
+                require(metalrobo::compileVisualSceneManifestV3(
+                            world, references, metalrobo::makeNeutralStudioEnvironmentV2(),
+                            metalrobo::makeIndoorAreaLightRigV1(), cameraManifest, &reason
+                        ),
+                        "native Human per-camera visual scene compile failed: " + reason);
+                metalrobo::MetalHybridRendererConfig rendererConfig;
+                rendererConfig.width = frameDimension;
+                rendererConfig.height = frameDimension;
+                rendererConfig.maximumReferenceFramesInFlight = 1u;
+                rendererConfig.clearColorAndDepth = {0.002f, 0.006f, 0.012f, 1.0e30f};
+                metalrobo::MetalHybridRenderer renderer(rendererConfig);
+                const auto rendererCompile = renderer.compile(
+                    std::move(cameraManifest.renderScene),
+                    metalrobo::VisualRendererProfileV1::sensorReference(), 1u
+                );
+                require(rendererCompile.succeeded(), "native Human renderer compile failed: " + rendererCompile.message);
+                if (camera == 0u) {
+                    rendererDeviceName = rendererCompile.deviceName;
+                    rendererCompileMilliseconds = rendererCompile.elapsedMilliseconds;
+                } else {
+                    require(rendererCompile.deviceName == rendererDeviceName,
+                            "native Human visual cameras selected different renderer devices");
+                }
                 motion.sensorIdentity = camera + 1u;
                 motion.sensorSequence = static_cast<std::uint32_t>(camera + 1u);
                 motion.frameIndex = camera + 1u;
@@ -1684,7 +1722,8 @@ int main(int argc, char** argv) {
                               ? "myosim_articulated_bodyparts_bone_visual=ok"
                               : "myosim_articulated_marker_visual=ok")
                       << " metal_pose_device=\"" << poseDiagnostics.deviceName << "\""
-                      << " renderer_device=\"" << rendererCompile.deviceName << "\""
+                      << " renderer_device=\"" << rendererDeviceName << "\""
+                      << " frame_dimension=" << frameDimension
                       << " core_bodies=" << rigid.header.engineBodyCount
                       << " rendered_link_visuals=" << renderedBodies
                       << " bodyparts_bones=" << (bonePayload.has_value() ? bonePayload->records.size() : 0u)
@@ -1700,7 +1739,7 @@ int main(int argc, char** argv) {
                       << " focus_body_index=" << (focusBodyIndex.has_value()
                               ? std::to_string(*focusBodyIndex) : "none")
                       << " pose_stage_elapsed_ms=" << poseDiagnostics.elapsedMilliseconds
-                      << " renderer_compile_ms=" << rendererCompile.elapsedMilliseconds
+                      << " renderer_compile_ms_first_camera=" << rendererCompileMilliseconds
                       << " pose_source=" << (muscleDrivenState.has_value()
                               ? "cpu_fp64_mujoco_416_muscle_force_to_articulated_free_body_step_then_metal_kinematic_pose"
                               : "source_default_q_to_metal_kinematic_pose")
