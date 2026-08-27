@@ -2276,6 +2276,18 @@ TaskPack makeBirdFlowAmericanCrowNeuralJourneyTaskPack(
         observations, reset
     );
     task.id = "birdflow_american_crow_journey_v8_neural";
+    // The inherited airborne tilt term is intentionally inactive during
+    // banking flight. Add a separate approach-only pitch hinge so PPO sees
+    // the same boundary that fail-closed selection measures. Parameters are
+    // the 0.12-rad training margin and a 16x quadratic scale; the -1.0 rate
+    // remains a reward signal only and grants no actuator authority.
+    task.rewards.push_back({
+        TaskRewardOperator::tiltSquared,
+        {},
+        {},
+        -1.0f,
+        {0.12f, 16.0f, 0.0f, 0.0f},
+    });
     task.outcomes.push_back({
         "approach_pitch_warning_fraction", "ratio",
         TaskOutcomeSource::avianJourneyApproachWarning,

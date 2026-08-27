@@ -68,6 +68,9 @@ ordinary bounded body-moment actuator; it adds no deployment supervisor.
 At the authored landing boundary for landed-hold and full-journey training,
 the already-qualified actor is retained as both carrier and distillation label
 rather than being blended toward the flight teacher's neutral action.
+V8/V9 also include a fingerprinted reward-only pitch hinge from 18 seconds:
+it begins at 0.12 rad, inside the 0.16-rad held-out warning boundary. This
+aligns PPO with the selection contract without correcting state or actions.
 
 State-only neural curriculum:
 

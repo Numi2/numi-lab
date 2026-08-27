@@ -5485,6 +5485,13 @@ kernel void mr_locomotion_task_complete(
     uint recoveryOutcomeFlags = 0u;
     float4 outcomeChannels0 = float4(0.0f);
     float4 outcomeChannels1 = float4(0.0f);
+    const bool neuralOnlyAvianJourney =
+        (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
+        (program.schedule.w &
+         MR_TASK_PROGRAM_AVIAN_CROW_APPROACH_ENVELOPE) == 0u;
+    const bool shadowApproachActive = neuralOnlyAvianJourney &&
+        state.commandExtension.w >= (18.0f / 32.0f);
+    const float shadowAbsolutePitch = abs(state.threatGeometry.w);
     for (uint rewardIndex = 0u;
          rewardIndex < program.counts1.w;
          ++rewardIndex) {
@@ -5531,6 +5538,21 @@ kernel void mr_locomotion_task_complete(
             value = dot(baseAngular.xy, baseAngular.xy);
             break;
         case MR_TASK_REWARD_TILT_SQUARED:
+            if (neuralOnlyAvianJourney &&
+                operation.parameters.y > 0.0f) {
+                // A second, fingerprinted neural-journey tilt operator aligns
+                // optimization with the held-out pitch envelope. It is a
+                // reward only: no action or state is corrected here.
+                const float excessPitch = shadowApproachActive
+                    ? max(
+                          shadowAbsolutePitch - operation.parameters.y,
+                          0.0f
+                      )
+                    : 0.0f;
+                value = max(operation.parameters.z, 1.0f) *
+                    excessPitch * excessPitch;
+                break;
+            }
             // The isolated liftoff band is not yet a banking task.  Keep a
             // modest launch-pitch allowance, then penalize excess attitude so
             // height reward cannot be collected by an uncontrolled ballistic
@@ -6899,13 +6921,6 @@ kernel void mr_locomotion_task_complete(
     // direct shadow diagnostics. They are per-transition indicators, not
     // reward terms, and occupy the two channels unused by the inherited Crow
     // journey outcome schema.
-    const bool neuralOnlyAvianJourney =
-        (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
-        (program.schedule.w &
-         MR_TASK_PROGRAM_AVIAN_CROW_APPROACH_ENVELOPE) == 0u;
-    const bool shadowApproachActive = neuralOnlyAvianJourney &&
-        state.commandExtension.w >= (18.0f / 32.0f);
-    const float shadowAbsolutePitch = abs(state.threatGeometry.w);
     outcomeChannels1.z = shadowApproachActive &&
         shadowAbsolutePitch > 0.16f ? 1.0f : 0.0f;
     outcomeChannels1.w = shadowApproachActive &&
