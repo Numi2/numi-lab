@@ -87,7 +87,9 @@ When an integrated state-only milestone creates a materially new value
 distribution, explicitly set `NUMI_CROW_PARENT_MODE=actor-transfer`, provide
 the promoted parent PolicyPack, and omit learner state. This retains the actor
 but initializes a fresh critic; selection still compares against the source
-deployment and protects every earlier band.
+deployment and protects every earlier band. Use `NUMI_CROW_LEARNING_RATE` to
+pin a conservative positive PPO rate when actor retention is more important
+than fast adaptation; the supervisor records the fixed rate in run arguments.
 
 Sensor-fast curriculum uses `NUMI_CROW_COURSE=sensor-fast` and automatically
 selects the v9 visual ABI and its authored camera. Begin it at band 0 from a

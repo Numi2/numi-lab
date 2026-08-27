@@ -30,6 +30,7 @@ teacher_student_authority=${NUMI_CROW_TEACHER_STUDENT_AUTHORITY:-0.25}
 rehearsal_depth=${NUMI_CROW_REHEARSAL_DEPTH:-0}
 rehearsal_minimum_band=${NUMI_CROW_REHEARSAL_MINIMUM_BAND:-}
 difficulty_sampling_exponent=${NUMI_CROW_DIFFICULTY_SAMPLING_EXPONENT:-}
+learning_rate=${NUMI_CROW_LEARNING_RATE:-}
 
 case "$course" in
   state)
@@ -91,6 +92,12 @@ if [ -n "$difficulty_sampling_exponent" ] && ! "$mlx" -c \
   echo "NUMI_CROW_DIFFICULTY_SAMPLING_EXPONENT must be finite and positive" >&2
   exit 2
 fi
+if [ -n "$learning_rate" ] && ! "$mlx" -c \
+  'import math,sys; value=float(sys.argv[1]); sys.exit(0 if math.isfinite(value) and value > 0.0 else 1)' \
+  "$learning_rate"; then
+  echo "NUMI_CROW_LEARNING_RATE must be finite and positive" >&2
+  exit 2
+fi
 if [ "$parent_mode" = actor-transfer ]; then
   [ -n "$parent_policy" ] && [ -s "$parent_policy" ] && \
     [ -z "$parent_state" ] || {
@@ -148,6 +155,14 @@ while [ "$band" -le "$maximum_band" ]; do
     )
     if [ -n "$difficulty_sampling_exponent" ]; then
       common+=(--difficulty-sampling-exponent "$difficulty_sampling_exponent")
+    fi
+    if [ -n "$learning_rate" ]; then
+      common+=(
+        --learning-rate "$learning_rate"
+        --minimum-learning-rate "$learning_rate"
+        --maximum-learning-rate "$learning_rate"
+        --fixed-learning-rate
+      )
     fi
     if [ -n "$visual_config" ]; then
       common+=(--visual-observation-config "$visual_config")
