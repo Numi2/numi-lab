@@ -90,6 +90,15 @@ metalrobo::WorldPose cameraToward(
     return {position, orientation};
 }
 
+mr_float4 normalizedDirection(const mr_float4 value, const char* context) {
+    const float lengthSquared = value.x * value.x + value.y * value.y + value.z * value.z;
+    if (!(std::isfinite(lengthSquared) && lengthSquared > 1.0e-10f)) {
+        throw std::runtime_error(std::string(context) + " is degenerate");
+    }
+    const float inverseLength = 1.0f / std::sqrt(lengthSquared);
+    return {value.x * inverseLength, value.y * inverseLength, value.z * inverseLength, 0.0f};
+}
+
 struct PackFraming {
     mr_float4 centre{};
     mr_float4 minimum{};
@@ -167,30 +176,60 @@ metalrobo::SensorSpec makeCamera(
     return camera;
 }
 
-metalrobo::VisualLightRigV1 makeAnatomyStudioLightRig() {
-    metalrobo::VisualLightRigV1 rig = metalrobo::makeIndoorAreaLightRigV1();
-    rig.id = "anatomy_studio_three_point";
-    rig.contentHash = "builtin:anatomy-studio-three-point-v1";
-    MRVisualLightGPUV1 key = rig.lights.front();
-    key.positionAndRange = {0.38f, -0.72f, 1.35f, 12.0f};
-    key.directionAndSpot = {-0.16f, 0.34f, -0.93f, -1.0f};
-    key.colorAndIntensity = {1.0f, 0.94f, 0.86f, 900.0f};
-    key.shape = {0.75f, 0.55f, -1.0f, 0.08f};
-    key.identity.w = 1u;
-    MRVisualLightGPUV1 fill = key;
-    fill.positionAndRange = {-0.64f, -0.34f, 0.84f, 12.0f};
-    fill.directionAndSpot = {0.56f, 0.28f, -0.78f, -1.0f};
-    fill.colorAndIntensity = {0.62f, 0.73f, 1.0f, 260.0f};
-    fill.shape = {0.65f, 0.55f, -1.0f, 0.08f};
-    fill.identity.w = 2u;
-    fill.shadow = {0u, 0u, 4u, 0u};
-    MRVisualLightGPUV1 rim = key;
-    rim.positionAndRange = {-0.05f, 0.72f, 1.18f, 12.0f};
-    rim.directionAndSpot = {0.04f, -0.51f, -0.86f, -1.0f};
-    rim.colorAndIntensity = {0.85f, 0.92f, 1.0f, 480.0f};
-    rim.shape = {0.55f, 0.40f, -1.0f, 0.08f};
-    rim.identity.w = 3u;
-    rig.lights = {key, fill, rim};
+metalrobo::VisualLightRigV1 makeAnatomyStudioLightRig(
+    const mr_float4 centre,
+    const mr_float4 cameraPosition,
+    const float cameraDistance
+) {
+    // This source layer is reviewed from three fixed cameras.  A world-fixed
+    // key made the front skin overexposed and the posterior silhouette flat.
+    // Reframe only the light rig: the exact source vertices remain untouched.
+    const float distance = std::max(cameraDistance, 0.35f);
+    const float intensityScale = distance * distance;
+    const mr_float4 view = normalizedDirection(
+        {cameraPosition.x - centre.x, cameraPosition.y - centre.y,
+         cameraPosition.z - centre.z, 0.0f},
+        "BodyParts3D camera direction"
+    );
+    const mr_float4 target{centre.x, centre.y, centre.z + 0.04f * distance, 0.0f};
+    const auto makeArea = [&] (
+        const mr_float4 position,
+        const mr_float4 color,
+        const float intensity,
+        const float width,
+        const float height,
+        const std::uint32_t id
+    ) {
+        const mr_float4 direction = normalizedDirection(
+            {target.x - position.x, target.y - position.y, target.z - position.z, 0.0f},
+            "BodyParts3D softbox direction"
+        );
+        MRVisualLightGPUV1 light{};
+        light.positionAndRange = {position.x, position.y, position.z, 20.0f};
+        light.directionAndSpot = {direction.x, direction.y, direction.z, -1.0f};
+        light.colorAndIntensity = {color.x, color.y, color.z, intensity * intensityScale};
+        light.shape = {width * distance, height * distance, -1.0f, 0.08f};
+        light.shadow = {1u, 0u, 0u, 0u};
+        light.identity = {MR_VISUAL_LIGHT_RECTANGLE, MR_VISUAL_LIGHT_UNIT_NIT, 0u, id};
+        return light;
+    };
+    const mr_float4 key{cameraPosition.x + 0.24f * distance,
+                        cameraPosition.y - 0.13f * distance,
+                        cameraPosition.z + 0.31f * distance, 0.0f};
+    const mr_float4 fill{cameraPosition.x - 0.32f * distance,
+                         cameraPosition.y + 0.18f * distance,
+                         cameraPosition.z + 0.10f * distance, 0.0f};
+    const mr_float4 rim{centre.x - 0.82f * distance * view.x,
+                        centre.y - 0.82f * distance * view.y,
+                        centre.z - 0.82f * distance * view.z + 0.42f * distance, 0.0f};
+    metalrobo::VisualLightRigV1 rig;
+    rig.id = "anatomy_studio_camera_relative_three_point";
+    rig.contentHash = "builtin:anatomy-studio-camera-relative-three-point-v2";
+    rig.lights = {
+        makeArea(key, {1.0f, 0.98f, 0.95f, 0.0f}, 145.0f, 0.88f, 0.70f, 1u),
+        makeArea(fill, {0.80f, 0.87f, 1.0f, 0.0f}, 48.0f, 0.96f, 0.78f, 2u),
+        makeArea(rim, {1.0f, 0.94f, 0.86f, 0.0f}, 82.0f, 0.72f, 0.58f, 3u),
+    };
     return rig;
 }
 
@@ -335,17 +374,6 @@ int main(int argc, char** argv) {
             const std::array assets{
                 metalrobo::VisualAssetReferenceV3{packPath, pack.contentHash, 0u, 8601u, 1u},
             };
-            metalrobo::VisualSceneManifestV3 manifest;
-            if (!metalrobo::compileVisualSceneManifestV3(
-                    world,
-                    assets,
-                    metalrobo::makeNeutralStudioEnvironmentV2(),
-                    makeAnatomyStudioLightRig(),
-                    manifest,
-                    &reason
-                )) {
-                throw std::runtime_error("preview scene compile: " + reason);
-            }
             metalrobo::MetalHybridRendererConfig configuration;
             configuration.width = dimension;
             configuration.height = dimension;
@@ -363,10 +391,22 @@ int main(int argc, char** argv) {
             std::filesystem::create_directories(outputDirectory);
             for (std::uint32_t camera = 0u; camera < cameraDefinitions.size(); ++camera) {
                 metalrobo::MetalHybridRenderer renderer(configuration);
-                metalrobo::VisualRenderSceneV3 scene = manifest.renderScene;
+                metalrobo::VisualSceneManifestV3 manifest;
+                if (!metalrobo::compileVisualSceneManifestV3(
+                        world,
+                        assets,
+                        metalrobo::makeNeutralStudioEnvironmentV2(),
+                        makeAnatomyStudioLightRig(
+                            framing.centre, cameraDefinitions[camera].second, framing.distance
+                        ),
+                        manifest,
+                        &reason
+                    )) {
+                    throw std::runtime_error("preview scene compile: " + reason);
+                }
                 require(
                     renderer.compile(
-                        std::move(scene),
+                        std::move(manifest.renderScene),
                         metalrobo::VisualRendererProfileV1::sensorReference(),
                         1u
                     ),
