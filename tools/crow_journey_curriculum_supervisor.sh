@@ -34,6 +34,7 @@ learning_rate=${NUMI_CROW_LEARNING_RATE:-}
 initial_log_standard_deviation=${NUMI_CROW_INITIAL_LOG_STANDARD_DEVIATION:-}
 retention_policy=${NUMI_CROW_RETENTION_POLICY:-}
 retention_coefficient=${NUMI_CROW_RETENTION_COEFFICIENT:-1.0}
+retention_maximum_band=${NUMI_CROW_RETENTION_MAXIMUM_BAND:-}
 
 case "$course" in
   state)
@@ -122,6 +123,14 @@ if [ -n "$retention_policy" ]; then
     echo "NUMI_CROW_RETENTION_COEFFICIENT must be finite and positive" >&2
     exit 2
   fi
+  if [ -n "$retention_maximum_band" ] && \
+     ! [[ "$retention_maximum_band" =~ ^([0-9]|10)$ ]]; then
+    echo "NUMI_CROW_RETENTION_MAXIMUM_BAND must be an integer in 0...10" >&2
+    exit 2
+  fi
+elif [ -n "$retention_maximum_band" ]; then
+  echo "NUMI_CROW_RETENTION_MAXIMUM_BAND requires a retention policy" >&2
+  exit 2
 fi
 if [ "$parent_mode" = actor-transfer ]; then
   [ -n "$parent_policy" ] && [ -s "$parent_policy" ] && \
@@ -200,6 +209,11 @@ while [ "$band" -le "$maximum_band" ]; do
         --retention-policy-pack "$retention_policy"
         --imagination-distillation-coefficient "$retention_coefficient"
       )
+      if [ -n "$retention_maximum_band" ]; then
+        common+=(
+          --retention-maximum-difficulty-band "$retention_maximum_band"
+        )
+      fi
     fi
     if [ -n "$visual_config" ]; then
       common+=(--visual-observation-config "$visual_config")

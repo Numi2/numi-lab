@@ -109,6 +109,7 @@ def _retention_policy_batch(
     reference: MLXPolicyLearner,
     *,
     chunk_size: int,
+    teacher_weights: np.ndarray | None = None,
 ) -> MLXPolicyBatch:
     """Attach frozen source-actor targets without changing PPO authority."""
 
@@ -126,6 +127,23 @@ def _retention_policy_batch(
         raise ValueError(
             "retention policy disagrees with the actor observation or action contract"
         )
+    if teacher_weights is None:
+        retention_weights = np.ones(
+            int(batch.actor_observations.shape[0]),
+            dtype=np.float32,
+        )
+    else:
+        retention_weights = np.asarray(
+            teacher_weights, dtype=np.float32
+        ).reshape(-1)
+        if retention_weights.shape != (
+            int(batch.actor_observations.shape[0]),
+        ) or not np.all(np.isfinite(retention_weights)) or np.any(
+            retention_weights < 0.0
+        ) or np.any(retention_weights > 1.0):
+            raise ValueError("retention teacher weights are invalid")
+        if not np.any(retention_weights > 0.0):
+            raise ValueError("retention teacher weights select no samples")
     targets: list[np.ndarray] = []
     for offset in range(0, int(batch.actor_observations.shape[0]), chunk_size):
         observations = mx.array(
@@ -144,10 +162,7 @@ def _retention_policy_batch(
         advantages=batch.advantages,
         returns=batch.returns,
         teacher_actions=np.concatenate(targets, axis=0),
-        teacher_weights=np.ones(
-            int(batch.actor_observations.shape[0]),
-            dtype=np.float32,
-        ),
+        teacher_weights=retention_weights,
         policy_weights=batch.policy_weights,
     )
 
@@ -885,6 +900,9 @@ def _serve(arguments: argparse.Namespace) -> int:
                 if arguments.retention_policy_pack is not None
                 else None
             ),
+            "retention_maximum_difficulty_band": (
+                arguments.retention_maximum_difficulty_band
+            ),
             "motion_pack_hash": (
                 motion_prior.motion_pack.content_hash
                 if motion_prior is not None
@@ -938,10 +956,17 @@ def _serve(arguments: argparse.Namespace) -> int:
                 rewards=learning_rewards,
             )
             if retention_reference is not None:
+                retention_weights = None
+                if arguments.retention_maximum_difficulty_band is not None:
+                    retention_weights = (
+                        rollout.transitions["difficulty_band"].reshape(-1)
+                        <= arguments.retention_maximum_difficulty_band
+                    ).astype(np.float32)
                 policy_batch = _retention_policy_batch(
                     policy_batch,
                     retention_reference,
                     chunk_size=learner.configuration.minibatch_size,
+                    teacher_weights=retention_weights,
                 )
             metrics = learner.update(policy_batch)
             metrics.update(motion_metrics)
@@ -1295,6 +1320,15 @@ def main() -> int:
         help=(
             "frozen source actor evaluated on current observations and used "
             "as all-sample Huber retention targets"
+        ),
+    )
+    serve.add_argument(
+        "--retention-maximum-difficulty-band",
+        type=int,
+        choices=range(11),
+        help=(
+            "apply frozen-actor retention only to rollout samples at or "
+            "below this difficulty band"
         ),
     )
     serve.add_argument(

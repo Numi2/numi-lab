@@ -22,6 +22,7 @@ private struct Options {
     var initializeActorPolicyPack: String?
     var initializeActorFreshCritic = false
     var retentionPolicyPack: String?
+    var retentionMaximumDifficultyBand: Int?
     var actorObservationExtensionOffset: Int?
     var actorObservationExtensionMean: Double?
     var actorObservationExtensionInverseStandardDeviation = 1.0
@@ -162,6 +163,11 @@ private struct Options {
                 initializeActorFreshCritic = true
             case "--retention-policy-pack":
                 retentionPolicyPack = try value()
+                index += 1
+            case "--retention-maximum-difficulty-band":
+                retentionMaximumDifficultyBand = try Self.integer(
+                    value(), option
+                )
                 index += 1
             case "--actor-observation-extension-offset":
                 actorObservationExtensionOffset = try Self.integer(
@@ -561,6 +567,13 @@ private struct Options {
         if retentionPolicyPack != nil && birdFlowJourneyTeacher {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--retention-policy-pack cannot be combined with --birdflow-journey-teacher."
+            )
+        }
+        if let band = retentionMaximumDifficultyBand,
+           retentionPolicyPack == nil || band < 0 || band > 10
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--retention-maximum-difficulty-band requires a retention policy and a band in 0...10."
             )
         }
         let (sampleCount, sampleOverflow) =
@@ -1056,6 +1069,12 @@ private final class MLXLearnerWorker {
             arguments.append(contentsOf: [
                 "--retention-policy-pack",
                 retentionPolicyPack,
+            ])
+        }
+        if let band = options.retentionMaximumDifficultyBand {
+            arguments.append(contentsOf: [
+                "--retention-maximum-difficulty-band",
+                String(band),
             ])
         }
         if let offset = options.actorObservationExtensionOffset {
@@ -1917,6 +1936,8 @@ private enum TaskTrainMain {
                     options.birdFlowJourneyStudentAuthority,
                 "retention_policy_pack":
                     options.retentionPolicyPack ?? "",
+                "retention_maximum_difficulty_band":
+                    options.retentionMaximumDifficultyBand ?? -1,
                 "difficulty_sampling_exponent_override":
                     options.difficultySamplingExponentOverride,
                 "birdflow_journey_variant":
