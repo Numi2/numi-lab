@@ -3667,8 +3667,16 @@ inline float birdFlowJourneyTeacherAction(
         );
     }
     if (!straightCruise && action == 14u && airborne) {
-        const float pitchError = state.threatGeometry.w;
-        return clamp(-1.60f * pitchError, -0.80f, 0.80f);
+        // The invocation-scoped teacher publishes the same live
+        // proportional-and-rate target that qualified the hierarchical
+        // supervisor. It remains an ordinary bounded body-moment action
+        // label; neural deployment receives no supervisor authority.
+        return clamp(
+            -2.40f * state.threatGeometry.w -
+                0.25f * state.threatTeacher.x,
+            -1.0f,
+            1.0f
+        );
     }
     return 0.0f;
 }
@@ -3801,9 +3809,21 @@ kernel void mr_locomotion_task_apply_actions(
                   dispatch.timing.x
               )
             : 0.0f;
+        // Full-journey distillation adds flight and approach to an actor that
+        // has already qualified landed hold. Once the authored landing
+        // boundary is reached, retain that actor as both the executed carrier
+        // and the distillation label instead of blending it toward the
+        // teacher's intentionally neutral post-flight action.
+        const bool avianJourneyLandedActorHandoff =
+            avianJourneyTeacher && state.episode.z >= 9u &&
+            state.commandExtension.w >= (27.0f / 32.0f);
+        const float effectiveTeacherRequested =
+            avianJourneyLandedActorHandoff
+            ? studentRequested
+            : teacherRequested;
         const float requested = avianJourneyTeacher
             ? mix(
-                  teacherRequested,
+                  effectiveTeacherRequested,
                   studentRequested,
                   clamp(dispatch.assistance.x, 0.0f, 1.0f)
               )
@@ -3813,7 +3833,8 @@ kernel void mr_locomotion_task_apply_actions(
                   approachSupervisorBlend
               );
         if (avianJourneyTeacher) {
-            teacherActions[actionBase + action] = teacherRequested;
+            teacherActions[actionBase + action] =
+                effectiveTeacherRequested;
         }
         rawPolicyActions[
             environment * program.counts0.x + action
@@ -5194,6 +5215,11 @@ kernel void mr_locomotion_task_complete(
             yawDelta,
             pitchAngle
         );
+        // Internal accepted-state feedback for the invocation-scoped journey
+        // teacher's pitch-rate term. Crow observation operators do not expose
+        // this threat-teacher lane, and autonomous execution does not consume
+        // the teacher action.
+        state.threatTeacher.x = baseAngular.y;
     }
 
     float velocitySquared = 0.0f;

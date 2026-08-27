@@ -61,6 +61,13 @@ resets toward the maximum band while retaining earlier-band rehearsal; this is
 an execution-profile input recorded in evidence and the run fingerprint, not a
 TaskPack or PolicyPack ABI change. For bands 2-10, `0.25` assigns about 37.6%
 of resets to band 10 instead of about 6.5% under the authored `1.75` exponent.
+The journey teacher's pitch-moment label uses accepted root pitch and
+body-frame pitch rate with the previously qualified proportional-and-rate
+target. This remains an invocation-scoped action label executed through the
+ordinary bounded body-moment actuator; it adds no deployment supervisor.
+At the authored landing boundary for landed-hold and full-journey training,
+the already-qualified actor is retained as both carrier and distillation label
+rather than being blended toward the flight teacher's neutral action.
 
 State-only neural curriculum:
 
