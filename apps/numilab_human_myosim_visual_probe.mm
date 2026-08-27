@@ -945,6 +945,12 @@ struct MuscleDrivenVisualState {
     // capacity boundary.
     std::uint32_t muscleMetalStepCount = 0u;
     std::uint32_t muscleMetalForceRecordCount = 0u;
+    // Zero means that the native task deliberately excited every authored
+    // muscle with the requested common activation.  A nonzero value instead
+    // records an explicit source-actuator subset; every one of the 416 source
+    // paths is still evaluated on device so the comparison never silently
+    // substitutes a smaller mechanical model.
+    std::uint32_t selectedSourceMuscleActivationCount = 0u;
     double muscleMetalElapsedMilliseconds = 0.0;
     std::string muscleMetalDeviceName;
 };
@@ -1238,6 +1244,7 @@ MuscleDrivenVisualState integrateMuscleDrivenVisualState(
     const double timestepSeconds,
     const std::uint32_t stepCount,
     const double activation,
+    const std::span<const std::uint32_t> selectedSourceMuscleIndices,
     const LoadedSupportContacts* supportContacts
 ) {
     require(std::isfinite(timestepSeconds) &&
@@ -1255,6 +1262,18 @@ MuscleDrivenVisualState integrateMuscleDrivenVisualState(
             "muscle-driven visual activation must be within [0, 1]");
     require(stepCount >= 1u && stepCount <= 64u,
             "muscle-driven visual step count must be in [1, 64]");
+    require(std::is_sorted(
+                selectedSourceMuscleIndices.begin(), selectedSourceMuscleIndices.end()
+            ) && std::adjacent_find(
+                selectedSourceMuscleIndices.begin(), selectedSourceMuscleIndices.end()
+            ) == selectedSourceMuscleIndices.end() &&
+                std::all_of(
+                    selectedSourceMuscleIndices.begin(), selectedSourceMuscleIndices.end(),
+                    [&muscles](const std::uint32_t index) {
+                        return index < muscles.gpuMuscles.size();
+                    }
+                ),
+            "selected MyoSim source-muscle activation set is malformed");
 
     std::vector<double> initialQ(model.defaultQ.begin(), model.defaultQ.end());
     const std::vector<double> initialV(model.defaultV.begin(), model.defaultV.end());
@@ -1265,6 +1284,9 @@ MuscleDrivenVisualState integrateMuscleDrivenVisualState(
     }
     MuscleDrivenVisualState result;
     result.stepCount = stepCount;
+    result.selectedSourceMuscleActivationCount = static_cast<std::uint32_t>(
+        selectedSourceMuscleIndices.size()
+    );
     metalrobo::ArticulatedDynamicsConfig dynamicsConfig;
     dynamicsConfig.timestep = timestepSeconds;
     std::vector<double> passiveQ = initialQ;
@@ -1280,10 +1302,19 @@ MuscleDrivenVisualState integrateMuscleDrivenVisualState(
     std::vector<MRMujocoMuscleStateGPU> passiveMuscleStates(
         muscles.gpuMuscles.size()
     );
-    for (MRMujocoMuscleStateGPU& state : activeMuscleStates) {
+    for (std::size_t muscleIndex = 0u;
+         muscleIndex < activeMuscleStates.size();
+         ++muscleIndex) {
+        MRMujocoMuscleStateGPU& state = activeMuscleStates[muscleIndex];
+        const bool selected = selectedSourceMuscleIndices.empty() ||
+            std::binary_search(
+                selectedSourceMuscleIndices.begin(), selectedSourceMuscleIndices.end(),
+                static_cast<std::uint32_t>(muscleIndex)
+            );
+        const float initialActivation = selected ? static_cast<float>(activation) : 0.0f;
         state.excitationAndActivation = {
-            static_cast<float>(activation),
-            static_cast<float>(activation),
+            initialActivation,
+            initialActivation,
             0.0f,
             0.0f,
         };
@@ -3358,6 +3389,7 @@ int main(int argc, char** argv) {
             bool sourceRouteCentrelines = false;
             bool surfaceProjectSourceSites = false;
             std::vector<std::uint32_t> requestedSourceRouteMuscles;
+            std::vector<std::uint32_t> selectedSourceMuscleActivations;
             std::vector<std::uint32_t> requestedBoneBodyIndices;
             std::vector<std::uint32_t> requestedSoftTissueStableIds;
             std::optional<std::uint32_t> focusBodyIndex;
@@ -3380,6 +3412,12 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !muscleActivation.has_value(),
                             "--muscle-activation requires one value and may be given only once");
                     muscleActivation.emplace(parseMuscleActivation(argv[++index]));
+                } else if (argument == "--activated-source-muscle-index") {
+                    require(index + 1 < argc,
+                            "--activated-source-muscle-index requires one muscle index");
+                    selectedSourceMuscleActivations.push_back(
+                        parseSourceRouteIndex(argv[++index])
+                    );
                 } else if (argument == "--source-route-centrelines") {
                     require(!sourceRouteCentrelines,
                             "--source-route-centrelines may be given only once");
@@ -3439,6 +3477,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-seconds <1e-6..1e-3>]"
                           << " [--muscle-step-count <1..64>]"
                           << " [--muscle-activation <0..1>]"
+                          << " [--activated-source-muscle-index <0..415>]..."
                           << " [--source-route-centrelines] [--source-route-index <0..415>]..."
                           << " [--surface-project-source-sites]"
                           << " [--soft-tissue-payload <NHTISS2>]"
@@ -3468,6 +3507,22 @@ int main(int argc, char** argv) {
                         }
                     ),
                     "--source-route-index exceeds the source muscle count");
+            std::sort(
+                selectedSourceMuscleActivations.begin(), selectedSourceMuscleActivations.end()
+            );
+            const auto duplicateActivation = std::adjacent_find(
+                selectedSourceMuscleActivations.begin(), selectedSourceMuscleActivations.end()
+            );
+            require(duplicateActivation == selectedSourceMuscleActivations.end(),
+                    "--activated-source-muscle-index values must be unique");
+            require(std::all_of(
+                        selectedSourceMuscleActivations.begin(),
+                        selectedSourceMuscleActivations.end(),
+                        [&musclePayload](const std::uint32_t index) {
+                            return index < musclePayload.referenceMuscles.size();
+                        }
+                    ),
+                    "--activated-source-muscle-index exceeds the source muscle count");
             std::sort(requestedBoneBodyIndices.begin(), requestedBoneBodyIndices.end());
             const auto duplicateBoneBody = std::adjacent_find(
                 requestedBoneBodyIndices.begin(), requestedBoneBodyIndices.end()
@@ -3553,6 +3608,8 @@ int main(int argc, char** argv) {
                     "--muscle-activation requires --muscle-step-seconds");
             require(!muscleStepCount.has_value() || muscleStepSeconds.has_value(),
                     "--muscle-step-count requires --muscle-step-seconds");
+            require(selectedSourceMuscleActivations.empty() || muscleStepSeconds.has_value(),
+                    "--activated-source-muscle-index requires --muscle-step-seconds");
             std::optional<MuscleDrivenVisualState> muscleDrivenState;
             std::span<const float> poseQ = rigid.model.defaultQ;
             if (muscleStepSeconds.has_value()) {
@@ -3560,6 +3617,7 @@ int main(int argc, char** argv) {
                     rigid.model, musclePayload, *muscleStepSeconds,
                     muscleStepCount.value_or(1u),
                     muscleActivation.value_or(0.5),
+                    selectedSourceMuscleActivations,
                     supportContactPayload.has_value() ? &*supportContactPayload : nullptr
                 ));
                 poseQ = muscleDrivenState->q;
@@ -3645,6 +3703,7 @@ int main(int argc, char** argv) {
                 (softTissuePayload.has_value() ? "-source-soft-tissues" : "") +
                 (skinPayload.has_value() ? "-source-skinned-shell" : "") +
                 (muscleDrivenState.has_value() ? "-muscle-driven" : "") +
+                (!selectedSourceMuscleActivations.empty() ? "-selected-actuators" : "") +
                 (supportContactPayload.has_value() ? "-source-support-contact" : "") +
                 (sourceRouteCentrelines ? "-source-route-centrelines" : "") +
                 (surfaceProjectSourceSites ? "-surface-projected-sites" : "") +
@@ -3783,6 +3842,10 @@ int main(int argc, char** argv) {
                 evidenceBoundary +=
                     "_with_source_proximity_derived_tendon_to_visible_muscle_or_named_bone_visual_collars_not_a_tendon_weld_or_force_transfer";
             }
+            if (!selectedSourceMuscleActivations.empty()) {
+                evidenceBoundary +=
+                    "_with_explicit_source_actuator_subset_excitation_all_416_source_paths_still_evaluated";
+            }
             if (skinPayload.has_value()) {
                 evidenceBoundary +=
                     "_with_four_bone_linear_blend_bodyparts3d_skin_shell_visual_not_deformable_skin_collision_or_tissue_physics";
@@ -3833,6 +3896,13 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->stepCount : 0u)
                       << " muscle_activation=" << (muscleStepSeconds.has_value()
                               ? muscleActivation.value_or(0.5) : 0.0)
+                      << " muscle_activation_scope=" << (muscleDrivenState.has_value()
+                              ? (muscleDrivenState->selectedSourceMuscleActivationCount == 0u
+                                  ? "all_source_muscles"
+                                  : "selected_source_muscles")
+                              : "none")
+                      << " muscle_selected_source_activation_count=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->selectedSourceMuscleActivationCount : 0u)
                       << " muscle_passive_baseline=" << (muscleDrivenState.has_value()
                               ? "source_default_activation_zero_subtracted" : "none")
                       << " muscle_step_applied_wraps=" << (muscleDrivenState.has_value()
