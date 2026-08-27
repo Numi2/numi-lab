@@ -257,6 +257,13 @@ struct LoadedMuscles {
     std::vector<metalrobo::MujocoMuscleSite> referenceSites;
     std::vector<metalrobo::MujocoWrapGeometry> referenceWraps;
     std::vector<metalrobo::MujocoMuscleDefinition> referenceMuscles;
+    // Immutable, source-faithful MyoSim program for the articulated Metal
+    // operator. Mutable excitation/activation state is supplied separately
+    // by each bounded visual transaction.
+    std::vector<MRMujocoMuscleSiteGPU> gpuSites;
+    std::vector<MRMujocoMuscleWrapGPU> gpuWraps;
+    std::vector<MRMujocoMuscleRouteNodeGPU> gpuRoutes;
+    std::vector<MRMujocoMuscleGPU> gpuMuscles;
 };
 
 struct LoadedBones {
@@ -445,10 +452,16 @@ LoadedMuscles loadMuscles(
                 "MyoSim muscle route range is invalid");
     }
     result.referenceSites.reserve(result.sites.size());
+    result.gpuSites.reserve(result.sites.size());
     for (const SiteRecord& site : result.sites) {
         result.referenceSites.push_back({site.bodyIndex, {site.x, site.y, site.z}});
+        MRMujocoMuscleSiteGPU gpuSite{};
+        gpuSite.bodyIndex = site.bodyIndex;
+        gpuSite.localPoint = {site.x, site.y, site.z, 0.0f};
+        result.gpuSites.push_back(gpuSite);
     }
     result.referenceWraps.reserve(result.wraps.size());
+    result.gpuWraps.reserve(result.wraps.size());
     for (const WrapRecord& wrap : result.wraps) {
         result.referenceWraps.push_back({
             wrap.bodyIndex, referenceWrapType(wrap.type),
@@ -458,8 +471,35 @@ LoadedMuscles loadMuscles(
              wrap.rotation[6], wrap.rotation[7], wrap.rotation[8]},
             wrap.radius,
         });
+        MRMujocoMuscleWrapGPU gpuWrap{};
+        gpuWrap.bodyIndex = wrap.bodyIndex;
+        gpuWrap.type = wrap.type;
+        gpuWrap.localCenter = {
+            wrap.centerX, wrap.centerY, wrap.centerZ, 0.0f,
+        };
+        gpuWrap.rotationRow0 = {
+            wrap.rotation[0], wrap.rotation[1], wrap.rotation[2], 0.0f,
+        };
+        gpuWrap.rotationRow1 = {
+            wrap.rotation[3], wrap.rotation[4], wrap.rotation[5], 0.0f,
+        };
+        gpuWrap.rotationRow2 = {
+            wrap.rotation[6], wrap.rotation[7], wrap.rotation[8], 0.0f,
+        };
+        gpuWrap.radius = {wrap.radius, 0.0f, 0.0f, 0.0f};
+        result.gpuWraps.push_back(gpuWrap);
+    }
+    result.gpuRoutes.reserve(result.routes.size());
+    for (const RouteRecord& route : result.routes) {
+        result.gpuRoutes.push_back({
+            route.type,
+            route.targetIndex,
+            route.sideSiteIndex,
+            0u,
+        });
     }
     result.referenceMuscles.reserve(result.muscles.size());
+    result.gpuMuscles.reserve(result.muscles.size());
     for (const MuscleRecord& muscle : result.muscles) {
         metalrobo::MujocoMuscleDefinition definition;
         definition.route.reserve(muscle.routeCount);
@@ -478,7 +518,42 @@ LoadedMuscles loadMuscles(
             definition.dynamicParameters[parameter] = muscle.values[25u + parameter];
         }
         result.referenceMuscles.push_back(std::move(definition));
+        MRMujocoMuscleGPU gpuMuscle{};
+        gpuMuscle.route = {
+            muscle.routeOffset,
+            muscle.routeCount,
+            0u,
+            0u,
+        };
+        gpuMuscle.lengthRangeAndAcceleration = {
+            muscle.values[0],
+            muscle.values[1],
+            muscle.values[2],
+            0.0f,
+        };
+        gpuMuscle.controlRange = {
+            muscle.values[3],
+            muscle.values[4],
+            0.0f,
+            0.0f,
+        };
+        for (std::size_t parameter = 0u; parameter < 10u; ++parameter) {
+            (&gpuMuscle.gainParameters[parameter / 4u].x)[parameter % 4u] =
+                muscle.values[5u + parameter];
+            (&gpuMuscle.biasParameters[parameter / 4u].x)[parameter % 4u] =
+                muscle.values[15u + parameter];
+            (&gpuMuscle.dynamicParameters[parameter / 4u].x)[parameter % 4u] =
+                muscle.values[25u + parameter];
+        }
+        result.gpuMuscles.push_back(gpuMuscle);
     }
+    require(
+        result.gpuSites.size() == result.sites.size() &&
+            result.gpuWraps.size() == result.wraps.size() &&
+            result.gpuRoutes.size() == result.routes.size() &&
+            result.gpuMuscles.size() == result.muscles.size(),
+        "MyoSim Metal source program packing is incomplete"
+    );
     return result;
 }
 
@@ -738,7 +813,128 @@ struct MuscleDrivenVisualState {
     double supportGpuElapsedMilliseconds = 0.0;
     std::string supportDeviceName;
     std::string supportMetalStatus = "not_attempted";
+    // Full-body MyoSim force is evaluated by the articulated Metal sidecar
+    // before the bounded Core state step. These counters are intentionally
+    // separate from support-contact admission, which has a different current
+    // capacity boundary.
+    std::uint32_t muscleMetalStepCount = 0u;
+    std::uint32_t muscleMetalForceRecordCount = 0u;
+    double muscleMetalElapsedMilliseconds = 0.0;
+    std::string muscleMetalDeviceName;
 };
+
+struct MetalMujocoVisualQueries {
+    std::vector<MRArticulatedPointImpulseGPU> points;
+    std::uint32_t bodyJacobianPointOffset = MR_INVALID_INDEX;
+};
+
+MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
+    const metalrobo::EngineModel& model
+) {
+    require(
+        model.articulations.size() == 1u &&
+            model.articulations.front().bodyCount == model.bodies.size() &&
+            model.bodies.size() <=
+                MR_ARTICULATED_OPERATOR_MAX_POINTS / 4u,
+        "MyoSim Metal visual force queries exceed articulated-operator capacity"
+    );
+    MetalMujocoVisualQueries result;
+    result.bodyJacobianPointOffset = 0u;
+    result.points.reserve(4u * model.bodies.size());
+    for (std::uint32_t body = 0u;
+         body < model.bodies.size();
+         ++body) {
+        for (std::uint32_t probe = 0u; probe < 4u; ++probe) {
+            MRArticulatedPointImpulseGPU point{};
+            point.bodyIndex = body;
+            point.localPoint = probe == 0u
+                ? mr_float4{0.0f, 0.0f, 0.0f, 0.0f}
+                : (probe == 1u
+                    ? mr_float4{1.0f, 0.0f, 0.0f, 0.0f}
+                    : (probe == 2u
+                        ? mr_float4{0.0f, 1.0f, 0.0f, 0.0f}
+                        : mr_float4{0.0f, 0.0f, 1.0f, 0.0f}));
+            result.points.push_back(point);
+        }
+    }
+    return result;
+}
+
+std::vector<float> packMetalConfiguration(
+    const std::span<const double> configuration
+) {
+    std::vector<float> result;
+    result.reserve(configuration.size());
+    for (const double coordinate : configuration) {
+        require(
+            std::isfinite(coordinate) &&
+                coordinate >= -static_cast<double>(
+                    std::numeric_limits<float>::max()
+                ) &&
+                coordinate <= static_cast<double>(
+                    std::numeric_limits<float>::max()
+                ),
+            "MyoSim visual configuration is not representable on Metal"
+        );
+        result.push_back(static_cast<float>(coordinate));
+    }
+    return result;
+}
+
+struct MetalMujocoForceStep {
+    std::vector<float> generalizedForce;
+    std::uint32_t appliedWrapCount = 0u;
+    double elapsedMilliseconds = 0.0;
+    std::string deviceName;
+};
+
+MetalMujocoForceStep evaluateMetalMujocoForce(
+    const metalrobo::EngineModel& model,
+    const LoadedMuscles& muscles,
+    const MetalMujocoVisualQueries& queries,
+    const std::span<const double> configuration,
+    std::vector<MRMujocoMuscleStateGPU>& states,
+    metalrobo::MetalArticulatedOperatorContext& context
+) {
+    const std::vector<float> q = packMetalConfiguration(configuration);
+    const metalrobo::MetalArticulatedOperatorInput input{
+        .articulationIndex = 0u,
+        .environmentCount = 1u,
+        .pointCount = queries.points.size(),
+        .q = q,
+        .points = queries.points,
+        .mujoco = {
+            .muscles = muscles.gpuMuscles,
+            .states = states,
+            .sites = muscles.gpuSites,
+            .wraps = muscles.gpuWraps,
+            .routeNodes = muscles.gpuRoutes,
+            .bodyJacobianPointOffset = queries.bodyJacobianPointOffset,
+        },
+    };
+    metalrobo::MetalArticulatedOperatorResult result;
+    const auto diagnostics = context.run(model, input, result);
+    require(
+        diagnostics.succeeded() && diagnostics.dispatched &&
+            diagnostics.published &&
+            diagnostics.successfulEnvironmentCount == 1u &&
+            diagnostics.failedEnvironmentCount == 0u &&
+            result.mujocoResults.size() == muscles.gpuMuscles.size() &&
+            result.mujocoActivationStates.size() == states.size() &&
+            result.mujocoGeneralizedForces.size() == model.world.nv,
+        "MyoSim Metal full-body force transaction failed: " +
+            diagnostics.message
+    );
+    MetalMujocoForceStep output;
+    output.generalizedForce = std::move(result.mujocoGeneralizedForces);
+    output.elapsedMilliseconds = diagnostics.elapsedMilliseconds;
+    output.deviceName = diagnostics.deviceName;
+    for (const MRMujocoMuscleResultGPU& muscle : result.mujocoResults) {
+        output.appliedWrapCount += muscle.appliedWrapCount;
+    }
+    states = std::move(result.mujocoActivationStates);
+    return output;
+}
 
 std::array<double, 3u> crossProduct(
     const std::array<double, 3u>& left,
@@ -923,7 +1119,11 @@ MuscleDrivenVisualState integrateMuscleDrivenVisualState(
             "muscle-driven visual step must be between 1 us and 1 ms");
     require(model.world.nv > 0u && model.defaultQ.size() == model.world.nq &&
                 model.defaultV.size() == model.world.nv &&
-                muscles.referenceMuscles.size() == muscles.muscles.size(),
+                muscles.referenceMuscles.size() == muscles.muscles.size() &&
+                muscles.gpuMuscles.size() == muscles.muscles.size() &&
+                muscles.gpuSites.size() == muscles.sites.size() &&
+                muscles.gpuWraps.size() == muscles.wraps.size() &&
+                muscles.gpuRoutes.size() == muscles.routes.size(),
             "muscle-driven visual state has inconsistent MyoSim dimensions");
     require(std::isfinite(activation) && activation >= 0.0 && activation <= 1.0,
             "muscle-driven visual activation must be within [0, 1]");
@@ -939,8 +1139,6 @@ MuscleDrivenVisualState integrateMuscleDrivenVisualState(
     }
     MuscleDrivenVisualState result;
     result.stepCount = stepCount;
-    const metalrobo::MujocoMuscleState state{.excitation = activation, .activation = activation};
-    const metalrobo::MujocoMuscleState passiveState{};
     metalrobo::ArticulatedDynamicsConfig dynamicsConfig;
     dynamicsConfig.timestep = timestepSeconds;
     std::vector<double> passiveQ = initialQ;
@@ -948,6 +1146,36 @@ MuscleDrivenVisualState integrateMuscleDrivenVisualState(
     std::vector<double> activeQ = initialQ;
     std::vector<double> activeV = initialV;
     const std::vector<double> zeroForce(model.world.nv, 0.0);
+    const MetalMujocoVisualQueries metalQueries =
+        makeMetalMujocoVisualQueries(model);
+    std::vector<MRMujocoMuscleStateGPU> activeMuscleStates(
+        muscles.gpuMuscles.size()
+    );
+    std::vector<MRMujocoMuscleStateGPU> passiveMuscleStates(
+        muscles.gpuMuscles.size()
+    );
+    for (MRMujocoMuscleStateGPU& state : activeMuscleStates) {
+        state.excitationAndActivation = {
+            static_cast<float>(activation),
+            static_cast<float>(activation),
+            0.0f,
+            0.0f,
+        };
+    }
+    metalrobo::MetalArticulatedOperatorConfig activeMetalConfig{
+        .pointJacobiansOnly = true,
+        .mujocoActivationTimestepSeconds =
+            static_cast<float>(timestepSeconds),
+    };
+    metalrobo::MetalArticulatedOperatorConfig passiveMetalConfig{
+        .pointJacobiansOnly = true,
+    };
+    metalrobo::MetalArticulatedOperatorContext activeMetalContext(
+        activeMetalConfig
+    );
+    metalrobo::MetalArticulatedOperatorContext passiveMetalContext(
+        passiveMetalConfig
+    );
     std::vector<double> passiveSupportWarm;
     std::vector<double> activeSupportWarm;
     if (supportContacts != nullptr) {
@@ -1010,33 +1238,46 @@ MuscleDrivenVisualState integrateMuscleDrivenVisualState(
         result.supportContactApplied = true;
     };
     for (std::uint32_t step = 0u; step < stepCount; ++step) {
-        std::vector<double> activatedForce(model.world.nv, 0.0);
-        std::vector<double> sourceDefaultPassiveForce(model.world.nv, 0.0);
-        for (std::size_t index = 0u; index < muscles.referenceMuscles.size(); ++index) {
-            metalrobo::MujocoMuscleResult muscleResult;
-            const auto diagnostics = metalrobo::projectMujocoMuscleForce(
-                model, 0u, activeQ, activeV, muscles.referenceSites,
-                muscles.referenceWraps, muscles.referenceMuscles[index], state,
-                activatedForce, &muscleResult
+        const MetalMujocoForceStep activatedForce = evaluateMetalMujocoForce(
+            model,
+            muscles,
+            metalQueries,
+            activeQ,
+            activeMuscleStates,
+            activeMetalContext
+        );
+        const MetalMujocoForceStep sourceDefaultPassiveForce =
+            evaluateMetalMujocoForce(
+                model,
+                muscles,
+                metalQueries,
+                activeQ,
+                passiveMuscleStates,
+                passiveMetalContext
             );
-            require(diagnostics.succeeded(),
-                    "MyoSim muscle force projection failed for muscle " +
-                        std::to_string(index) + ": " +
-                        metalrobo::mujocoMuscleReferenceStatusName(diagnostics.status));
-            const auto passiveDiagnostics = metalrobo::projectMujocoMuscleForce(
-                model, 0u, activeQ, activeV, muscles.referenceSites,
-                muscles.referenceWraps, muscles.referenceMuscles[index], passiveState,
-                sourceDefaultPassiveForce
-            );
-            require(passiveDiagnostics.succeeded(),
-                    "MyoSim passive muscle-force projection failed for muscle " +
-                        std::to_string(index) + ": " +
-                        metalrobo::mujocoMuscleReferenceStatusName(passiveDiagnostics.status));
-            result.appliedWrapCount += muscleResult.path.appliedWrapCount;
-        }
+        require(
+            activatedForce.generalizedForce.size() == model.world.nv &&
+                sourceDefaultPassiveForce.generalizedForce.size() ==
+                    model.world.nv &&
+                activatedForce.deviceName == sourceDefaultPassiveForce.deviceName,
+            "MyoSim Metal force transactions returned incompatible outputs"
+        );
+        result.muscleMetalStepCount += 2u;
+        result.muscleMetalForceRecordCount += static_cast<std::uint32_t>(
+            muscles.gpuMuscles.size()
+        );
+        result.muscleMetalElapsedMilliseconds +=
+            activatedForce.elapsedMilliseconds +
+            sourceDefaultPassiveForce.elapsedMilliseconds;
+        result.muscleMetalDeviceName = activatedForce.deviceName;
+        result.appliedWrapCount += activatedForce.appliedWrapCount;
         std::vector<double> muscleForce(model.world.nv, 0.0);
         for (std::size_t index = 0u; index < muscleForce.size(); ++index) {
-            muscleForce[index] = activatedForce[index] - sourceDefaultPassiveForce[index];
+            muscleForce[index] = static_cast<double>(
+                activatedForce.generalizedForce[index]
+            ) - static_cast<double>(
+                sourceDefaultPassiveForce.generalizedForce[index]
+            );
         }
         require(std::all_of(muscleForce.begin(), muscleForce.end(), [](const double value) {
                     return std::isfinite(value);
@@ -2903,8 +3144,8 @@ int main(int argc, char** argv) {
             const std::string poseSource = !muscleDrivenState.has_value()
                 ? "source_default_q_to_metal_kinematic_pose"
                 : sourceSupportContact
-                    ? "cpu_fp64_all_416_muscle_multistep_free_dynamics_then_dynamic_source_foot_witness_plane_contact_then_metal_kinematic_pose"
-                    : "cpu_fp64_all_416_muscle_multistep_free_dynamics_then_metal_kinematic_pose";
+                    ? "metal_all_416_mujoco_force_projection_and_activation_state_then_cpu_fp64_free_dynamics_and_dynamic_source_foot_witness_plane_contact_then_metal_kinematic_pose"
+                    : "metal_all_416_mujoco_force_projection_and_activation_state_then_cpu_fp64_free_dynamics_then_metal_kinematic_pose";
             const std::string evidenceBoundary = !muscleDrivenState.has_value()
                 ? (bodypartsBoneVisual
                     ? (softTissuePayload.has_value()
@@ -2914,14 +3155,14 @@ int main(int argc, char** argv) {
                 : sourceSupportContact
                     ? (bodypartsBoneVisual
                         ? (softTissuePayload.has_value()
-                            ? "bounded_multistep_all_416_source_muscle_cpu_fp64_dynamics_with_dynamic_source_foot_witness_plane_contact_and_metal_pose_with_provisional_bodyparts_bones_and_two_body_soft_tissue_visuals_metal_fullbody_contact_not_admitted_not_general_collision_stable_posture_or_live_rollout"
-                            : "bounded_multistep_all_416_source_muscle_cpu_fp64_dynamics_with_dynamic_source_foot_witness_plane_contact_and_metal_pose_with_provisional_bodyparts_bones_metal_fullbody_contact_not_admitted_not_general_collision_stable_posture_or_live_rollout")
-                        : "bounded_multistep_all_416_source_muscle_cpu_fp64_dynamics_with_dynamic_source_foot_witness_plane_contact_and_metal_pose_metal_fullbody_contact_not_admitted_not_general_collision_stable_posture_or_live_rollout")
+                            ? "bounded_multistep_all_416_mujoco_metal_force_projection_and_activation_state_then_cpu_fp64_dynamics_with_dynamic_source_foot_witness_plane_contact_and_metal_pose_with_provisional_bodyparts_bones_and_two_body_soft_tissue_visuals_metal_fullbody_contact_not_admitted_not_general_collision_stable_posture_or_live_rollout"
+                            : "bounded_multistep_all_416_mujoco_metal_force_projection_and_activation_state_then_cpu_fp64_dynamics_with_dynamic_source_foot_witness_plane_contact_and_metal_pose_with_provisional_bodyparts_bones_metal_fullbody_contact_not_admitted_not_general_collision_stable_posture_or_live_rollout")
+                        : "bounded_multistep_all_416_mujoco_metal_force_projection_and_activation_state_then_cpu_fp64_dynamics_with_dynamic_source_foot_witness_plane_contact_and_metal_pose_metal_fullbody_contact_not_admitted_not_general_collision_stable_posture_or_live_rollout")
                     : (bodypartsBoneVisual
                         ? (softTissuePayload.has_value()
-                            ? "bounded_multistep_all_416_source_muscle_cpu_fp64_dynamics_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_and_two_body_kinematic_source_soft_tissue_visuals_not_contact_or_live_rollout"
-                            : "bounded_multistep_all_416_source_muscle_cpu_fp64_dynamics_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_not_contact_or_live_rollout")
-                        : "bounded_multistep_all_416_source_muscle_cpu_fp64_dynamics_to_metal_pose_snapshot_not_contact_or_live_rollout");
+                            ? "bounded_multistep_all_416_mujoco_metal_force_projection_and_activation_state_then_cpu_fp64_dynamics_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_and_two_body_kinematic_source_soft_tissue_visuals_not_contact_or_live_rollout"
+                            : "bounded_multistep_all_416_mujoco_metal_force_projection_and_activation_state_then_cpu_fp64_dynamics_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_not_contact_or_live_rollout")
+                        : "bounded_multistep_all_416_mujoco_metal_force_projection_and_activation_state_then_cpu_fp64_dynamics_to_metal_pose_snapshot_not_contact_or_live_rollout");
             std::cout << std::setprecision(12)
                       << (bodypartsBoneVisual
                               ? "myosim_articulated_bodyparts_bone_visual=ok"
@@ -2966,6 +3207,14 @@ int main(int argc, char** argv) {
                               ? "source_default_activation_zero_subtracted" : "none")
                       << " muscle_step_applied_wraps=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->appliedWrapCount : 0u)
+                      << " muscle_force_metal_device=\"" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->muscleMetalDeviceName : "none") << "\""
+                      << " muscle_force_metal_transactions=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->muscleMetalStepCount : 0u)
+                      << " muscle_force_metal_active_records=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->muscleMetalForceRecordCount : 0u)
+                      << " muscle_force_metal_elapsed_ms=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->muscleMetalElapsedMilliseconds : 0.0)
                       << " muscle_step_max_velocity_delta=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->maximumVelocityDelta : 0.0)
                       << " muscle_step_max_configuration_delta=" << (muscleDrivenState.has_value()
