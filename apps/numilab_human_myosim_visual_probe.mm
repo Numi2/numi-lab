@@ -49,6 +49,7 @@ constexpr std::uint32_t kRouteSemantic = 51003u;
 constexpr std::uint32_t kBoneSemantic = 51004u;
 constexpr std::uint32_t kMuscleSurfaceSemantic = 51005u;
 constexpr std::uint32_t kTendonSurfaceSemantic = 51006u;
+constexpr std::uint32_t kSkinShellSemantic = 51007u;
 constexpr std::uint32_t kDefaultFrameDimension = 1024u;
 constexpr std::array<char, 8u> kBoneMagic{
     'N', 'H', 'B', 'O', 'N', 'E', 'S', '1',
@@ -60,6 +61,10 @@ constexpr std::array<char, 8u> kSoftTissueMagic{
 constexpr std::uint32_t kSoftTissuePayloadAbi = 3u;
 constexpr std::uint32_t kSoftTissueLayerMuscle = 1u;
 constexpr std::uint32_t kSoftTissueLayerTendon = 2u;
+constexpr std::array<char, 8u> kSkinMagic{
+    'N', 'H', 'S', 'K', 'I', 'N', '1', '\0',
+};
+constexpr std::uint32_t kSkinPayloadAbi = 1u;
 
 #pragma pack(push, 1)
 struct RigidHeader {
@@ -248,6 +253,41 @@ struct SoftTissueVertex {
     float primaryWeight = 1.0f;
 };
 
+struct SkinHeader {
+    std::array<char, 8u> magic{};
+    std::uint32_t payloadAbi = 0u;
+    std::uint32_t bindingCount = 0u;
+    std::uint32_t vertexCount = 0u;
+    std::uint32_t indexCount = 0u;
+    std::uint32_t registrationFingerprint = 0u;
+    std::array<std::uint8_t, 32u> sourceSha256{};
+};
+
+struct SkinBindingRecord {
+    std::uint32_t bodyIndex = MR_INVALID_INDEX;
+    float translationX = 0.0f;
+    float translationY = 0.0f;
+    float translationZ = 0.0f;
+    float quaternionX = 0.0f;
+    float quaternionY = 0.0f;
+    float quaternionZ = 0.0f;
+    float quaternionW = 1.0f;
+    float uniformScale = 1.0f;
+};
+
+struct SkinVertex {
+    float positionX = 0.0f;
+    float positionY = 0.0f;
+    float positionZ = 0.0f;
+    float normalX = 0.0f;
+    float normalY = 0.0f;
+    float normalZ = 1.0f;
+    std::uint32_t bindingIndex[4]{
+        MR_INVALID_INDEX, MR_INVALID_INDEX, MR_INVALID_INDEX, MR_INVALID_INDEX,
+    };
+    float weight[4]{};
+};
+
 struct LoadedMuscles {
     MuscleHeader header{};
     std::vector<SiteRecord> sites;
@@ -280,6 +320,13 @@ struct LoadedSoftTissues {
     std::vector<std::uint32_t> indices;
 };
 
+struct LoadedSkin {
+    SkinHeader header{};
+    std::vector<SkinBindingRecord> bindings;
+    std::vector<SkinVertex> vertices;
+    std::vector<std::uint32_t> indices;
+};
+
 struct LoadedSupportContacts {
     SupportContactHeader header{};
     std::vector<SupportContactRecord> records;
@@ -301,6 +348,9 @@ static_assert(sizeof(BoneVertex) == 24u);
 static_assert(sizeof(SoftTissueHeader) == 60u);
 static_assert(sizeof(SoftTissueRecord) == 96u);
 static_assert(sizeof(SoftTissueVertex) == 28u);
+static_assert(sizeof(SkinHeader) == 60u);
+static_assert(sizeof(SkinBindingRecord) == 36u);
+static_assert(sizeof(SkinVertex) == 56u);
 
 void require(const bool condition, const std::string& message) {
     if (!condition) {
@@ -793,6 +843,81 @@ LoadedSoftTissues loadSoftTissues(
             require(index >= record.firstVertex && index < record.firstVertex + record.vertexCount,
                     "BodyParts3D soft-tissue index escapes its source mesh");
         }
+    }
+    return result;
+}
+
+LoadedSkin loadSkin(
+    const std::filesystem::path& path,
+    const RigidHeader& rigid,
+    const std::uint32_t expectedRegistrationFingerprint
+) {
+    std::ifstream input(path, std::ios::binary);
+    require(input.is_open(), "cannot open BodyParts3D skinned-shell payload " + path.string());
+    LoadedSkin result;
+    readObject(input, result.header, "BodyParts3D skinned-shell header");
+    require(result.header.magic == kSkinMagic &&
+                result.header.payloadAbi == kSkinPayloadAbi &&
+                result.header.registrationFingerprint == expectedRegistrationFingerprint &&
+                result.header.sourceSha256 == rigid.sourceSha256 &&
+                result.header.bindingCount >= 4u && result.header.bindingCount <= 256u &&
+                result.header.vertexCount > 0u && result.header.indexCount > 0u &&
+                result.header.indexCount % 3u == 0u &&
+                result.header.vertexCount <= 1'000'000u &&
+                result.header.indexCount <= 6'000'000u,
+            "BodyParts3D skinned-shell payload/header disagreement");
+    result.bindings = readVector<SkinBindingRecord>(
+        input, result.header.bindingCount, "BodyParts3D skinned-shell bindings"
+    );
+    result.vertices = readVector<SkinVertex>(
+        input, result.header.vertexCount, "BodyParts3D skinned-shell vertices"
+    );
+    result.indices = readVector<std::uint32_t>(
+        input, result.header.indexCount, "BodyParts3D skinned-shell indices"
+    );
+    require(input.peek() == std::char_traits<char>::eof(),
+            "BodyParts3D skinned-shell payload has trailing bytes");
+    std::vector<bool> boundBodies(rigid.engineBodyCount, false);
+    for (const SkinBindingRecord& binding : result.bindings) {
+        const float orientationLength = std::sqrt(
+            binding.quaternionX * binding.quaternionX +
+            binding.quaternionY * binding.quaternionY +
+            binding.quaternionZ * binding.quaternionZ +
+            binding.quaternionW * binding.quaternionW
+        );
+        require(binding.bodyIndex < rigid.engineBodyCount && !boundBodies[binding.bodyIndex] &&
+                    std::isfinite(binding.translationX) &&
+                    std::isfinite(binding.translationY) &&
+                    std::isfinite(binding.translationZ) &&
+                    std::isfinite(binding.uniformScale) && binding.uniformScale > 0.0f &&
+                    std::isfinite(orientationLength) &&
+                    std::abs(orientationLength - 1.0f) <= 2.0e-3f,
+                "BodyParts3D skinned-shell binding is malformed");
+        boundBodies[binding.bodyIndex] = true;
+    }
+    for (const SkinVertex& vertex : result.vertices) {
+        const float normalLength = std::sqrt(
+            vertex.normalX * vertex.normalX +
+            vertex.normalY * vertex.normalY +
+            vertex.normalZ * vertex.normalZ
+        );
+        float weightSum = 0.0f;
+        for (std::size_t influence = 0u; influence < 4u; ++influence) {
+            require(vertex.bindingIndex[influence] < result.bindings.size() &&
+                        std::isfinite(vertex.weight[influence]) &&
+                        vertex.weight[influence] >= 0.0f && vertex.weight[influence] <= 1.0f,
+                    "BodyParts3D skinned-shell vertex influence is malformed");
+            weightSum += vertex.weight[influence];
+        }
+        require(std::isfinite(vertex.positionX) && std::isfinite(vertex.positionY) &&
+                    std::isfinite(vertex.positionZ) && std::isfinite(normalLength) &&
+                    std::abs(normalLength - 1.0f) <= 2.0e-3f &&
+                    std::isfinite(weightSum) && std::abs(weightSum - 1.0f) <= 2.0e-3f,
+                "BodyParts3D skinned-shell vertex is malformed");
+    }
+    for (const std::uint32_t index : result.indices) {
+        require(index < result.vertices.size(),
+                "BodyParts3D skinned-shell index escapes its source mesh");
     }
     return result;
 }
@@ -2076,6 +2201,139 @@ GeometryRange appendSoftTissueGeometry(
     return result;
 }
 
+mr_float4 skinVertexWorld(
+    const LoadedSkin& skin,
+    const SkinVertex& vertex,
+    const std::span<const MRBodyStateGPU> bodies
+) {
+    mr_float4 position{0.0f, 0.0f, 0.0f, 1.0f};
+    for (std::size_t influence = 0u; influence < 4u; ++influence) {
+        const SkinBindingRecord& binding = skin.bindings[vertex.bindingIndex[influence]];
+        require(binding.bodyIndex < bodies.size(),
+                "BodyParts3D skinned-shell body binding exceeds the rendered pose");
+        const mr_float4 local = addPoint(
+            {binding.translationX, binding.translationY, binding.translationZ, 0.0f},
+            scalePoint(
+                rotatePoint(
+                    {binding.quaternionX, binding.quaternionY,
+                     binding.quaternionZ, binding.quaternionW},
+                    {vertex.positionX, vertex.positionY, vertex.positionZ, 0.0f}
+                ),
+                binding.uniformScale
+            )
+        );
+        const mr_float4 world = addPoint(
+            bodies[binding.bodyIndex].position,
+            rotatePoint(bodies[binding.bodyIndex].orientation, local)
+        );
+        position.x += vertex.weight[influence] * world.x;
+        position.y += vertex.weight[influence] * world.y;
+        position.z += vertex.weight[influence] * world.z;
+    }
+    return position;
+}
+
+mr_float4 skinVertexNormalWorld(
+    const LoadedSkin& skin,
+    const SkinVertex& vertex,
+    const std::span<const MRBodyStateGPU> bodies
+) {
+    mr_float4 normal{0.0f, 0.0f, 0.0f, 0.0f};
+    std::size_t strongestInfluence = 0u;
+    for (std::size_t influence = 0u; influence < 4u; ++influence) {
+        if (vertex.weight[influence] > vertex.weight[strongestInfluence]) {
+            strongestInfluence = influence;
+        }
+        const SkinBindingRecord& binding = skin.bindings[vertex.bindingIndex[influence]];
+        require(binding.bodyIndex < bodies.size(),
+                "BodyParts3D skinned-shell normal binding exceeds the rendered pose");
+        const mr_float4 world = rotatePoint(
+            bodies[binding.bodyIndex].orientation,
+            rotatePoint(
+                {binding.quaternionX, binding.quaternionY,
+                 binding.quaternionZ, binding.quaternionW},
+                {vertex.normalX, vertex.normalY, vertex.normalZ, 0.0f}
+            )
+        );
+        normal.x += vertex.weight[influence] * world.x;
+        normal.y += vertex.weight[influence] * world.y;
+        normal.z += vertex.weight[influence] * world.z;
+    }
+    const float length = std::sqrt(
+        normal.x * normal.x + normal.y * normal.y + normal.z * normal.z
+    );
+    if (length > 1.0e-6f) {
+        normal.x /= length;
+        normal.y /= length;
+        normal.z /= length;
+    } else {
+        // A linear blend of four independently rotated normals can cancel at
+        // a highly bent joint even though the highest-weight source influence
+        // remains valid.  Preserve a finite geometric normal without changing
+        // the shell position or pretending this is a continuum skin solve.
+        const SkinBindingRecord& binding =
+            skin.bindings[vertex.bindingIndex[strongestInfluence]];
+        normal = rotatePoint(
+            bodies[binding.bodyIndex].orientation,
+            rotatePoint(
+                {binding.quaternionX, binding.quaternionY,
+                 binding.quaternionZ, binding.quaternionW},
+                {vertex.normalX, vertex.normalY, vertex.normalZ, 0.0f}
+            )
+        );
+        const float fallbackLength = std::sqrt(
+            normal.x * normal.x + normal.y * normal.y + normal.z * normal.z
+        );
+        require(fallbackLength > 1.0e-6f,
+                "BodyParts3D strongest skinned-shell normal is degenerate");
+        normal.x /= fallbackLength;
+        normal.y /= fallbackLength;
+        normal.z /= fallbackLength;
+    }
+    normal.w = 1.0f;
+    return normal;
+}
+
+GeometryRange appendSkinGeometry(
+    metalrobo::VisualAssetPackV2& pack,
+    const LoadedSkin& skin,
+    const std::span<const MRBodyStateGPU> bodies
+) {
+    GeometryRange result;
+    result.firstIndex = static_cast<std::uint32_t>(pack.indices.size());
+    result.minimum = {
+        std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(), 1.0f,
+    };
+    result.maximum = {
+        -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity(), 1.0f,
+    };
+    const std::uint32_t vertexBase = static_cast<std::uint32_t>(pack.vertices.size());
+    for (const SkinVertex& source : skin.vertices) {
+        const mr_float4 position = skinVertexWorld(skin, source, bodies);
+        const mr_float4 normal = skinVertexNormalWorld(skin, source, bodies);
+        pack.vertices.push_back({
+            position,
+            normal,
+            normalTangent(normal),
+            {0.0f, 0.0f, 0.0f, 0.0f},
+            {1.0f, 1.0f, 1.0f, 1.0f},
+        });
+        result.minimum.x = std::min(result.minimum.x, position.x);
+        result.minimum.y = std::min(result.minimum.y, position.y);
+        result.minimum.z = std::min(result.minimum.z, position.z);
+        result.maximum.x = std::max(result.maximum.x, position.x);
+        result.maximum.y = std::max(result.maximum.y, position.y);
+        result.maximum.z = std::max(result.maximum.z, position.z);
+    }
+    for (const std::uint32_t index : skin.indices) {
+        pack.indices.push_back(vertexBase + index);
+    }
+    result.indexCount = static_cast<std::uint32_t>(skin.indices.size());
+    return result;
+}
+
 std::array<float, 3u> inertiaEllipsoid(const MRBodyPropertiesGPU& body) {
     const float mass = body.massAndInverseMass.x;
     if (!(mass > 1.0e-5f)) {
@@ -2189,6 +2447,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     const LoadedMuscles& musclePayload,
     const LoadedBones* bonePayload,
     const LoadedSoftTissues* softTissuePayload,
+    const LoadedSkin* skinPayload,
     const std::span<const MRBodyStateGPU> bodies,
     const bool muscleDriven,
     const std::span<const std::uint32_t> requestedBoneBodyIndices,
@@ -2196,6 +2455,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     const SourceRouteCentrelines* sourceRouteCentrelines,
     std::uint32_t& renderedBodies,
     std::uint32_t& renderedSoftTissues,
+    std::uint32_t& renderedSkinShells,
     std::uint32_t& renderedRouteSegments
 ) {
     metalrobo::VisualAssetPackV2 pack;
@@ -2203,14 +2463,18 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         ? "myosim_fullbody_articulated_bodyparts_bones_view"
         : "myosim_fullbody_articulated_marker_view";
     pack.sourceUri = bonePayload != nullptr
-        ? (softTissuePayload != nullptr
-            ? "numi://bodyparts3d/NHBONES1+NHTISS2+NHRIGID2+NHMYO1/articulated-anatomy-view"
-            : "numi://bodyparts3d/NHBONES1+NHRIGID2+NHMYO1/articulated-bone-view")
+        ? (skinPayload != nullptr
+            ? "numi://bodyparts3d/NHBONES1+NHSKIN1+NHRIGID2+NHMYO1/articulated-shell-view"
+            : (softTissuePayload != nullptr
+                ? "numi://bodyparts3d/NHBONES1+NHTISS2+NHRIGID2+NHMYO1/articulated-anatomy-view"
+                : "numi://bodyparts3d/NHBONES1+NHRIGID2+NHMYO1/articulated-bone-view"))
         : "numi://myosim/NHRIGID2+NHMYO1/articulated-marker-view";
     pack.sourceContentHash = bonePayload != nullptr
-        ? (softTissuePayload != nullptr
-            ? "bodyparts3d-major-bones+right-posterior-chain+runtime-body-and-site-records"
-            : "bodyparts3d-major-bones+runtime-body-and-site-records")
+        ? (skinPayload != nullptr
+            ? "bodyparts3d-major-bones+skinned-shell+runtime-body-and-site-records"
+            : (softTissuePayload != nullptr
+                ? "bodyparts3d-major-bones+right-posterior-chain+runtime-body-and-site-records"
+                : "bodyparts3d-major-bones+runtime-body-and-site-records"))
         : "runtime-body-and-site-records";
     pack.license = bonePayload != nullptr ? "CC-BY-4.0 AND Apache-2.0" : "Apache-2.0";
     pack.preprocessingProvenance =
@@ -2224,6 +2488,10 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     if (softTissuePayload != nullptr) {
         pack.preprocessingProvenance +=
             "/exact_bodyparts3d_posterior_calf_surfaces_with_two_body_linear_blend_kinematic_binding";
+    }
+    if (skinPayload != nullptr) {
+        pack.preprocessingProvenance +=
+            "/exact_bodyparts3d_skin_shell_with_four_registered_bone_envelope_linear_blend_kinematic_binding";
     }
     if (sourceRouteCentrelines != nullptr) {
         pack.preprocessingProvenance +=
@@ -2267,6 +2535,12 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         // source-continuous calcaneal insertion inspectable in a single frame.
         {0.91f, 0.75f, 0.53f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.66f, 0.01f
     ));
+    pack.materials.push_back(makeMaterial(
+        // The shell remains a neutral source-anatomy presentation material.
+        // Its relief comes from the exact imported normals and the same light
+        // rig as the exposed anatomy—not an emission pass or painted detail.
+        {0.62f, 0.32f, 0.22f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.46f, 0.10f
+    ));
 
     const auto appendInstance = [&pack](
         const GeometryRange& geometry,
@@ -2302,7 +2576,12 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     };
 
     renderedBodies = 0u;
-    if (bonePayload != nullptr) {
+    // An exterior source shell is opaque presentation geometry.  Retaining
+    // the registered bone pack is still required to verify the shell's rest
+    // frame, but drawing it behind source skin openings creates misleading
+    // blue/ivory peeks that read as broken anatomy rather than an exterior.
+    // Exposed bones remain available through the separate anatomy command.
+    if (bonePayload != nullptr && skinPayload == nullptr) {
         for (const BoneRecord& bone : bonePayload->records) {
             if (!requestedBoneBodyIndices.empty() &&
                 !std::binary_search(
@@ -2320,7 +2599,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
             );
             ++renderedBodies;
         }
-    } else {
+    } else if (bonePayload == nullptr) {
         for (std::size_t bodyIndex = 0u; bodyIndex < model.bodies.size(); ++bodyIndex) {
             const MRBodyPropertiesGPU& body = model.bodies[bodyIndex];
             if (!(body.massAndInverseMass.x > 1.0e-5f)) {
@@ -2359,6 +2638,15 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
             );
             ++renderedSoftTissues;
         }
+    }
+    renderedSkinShells = 0u;
+    if (skinPayload != nullptr) {
+        appendInstance(
+            appendSkinGeometry(pack, *skinPayload, bodies),
+            6u, kSkinShellSemantic, MR_VISUAL_BINDING_WORLD, MR_INVALID_INDEX,
+            {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1u
+        );
+        renderedSkinShells = 1u;
     }
     renderedRouteSegments = 0u;
     std::uint32_t stableRouteId = 1u;
@@ -2779,6 +3067,7 @@ int main(int argc, char** argv) {
             std::vector<std::uint32_t> requestedSoftTissueStableIds;
             std::optional<std::uint32_t> focusBodyIndex;
             std::optional<std::filesystem::path> softTissuePayloadPath;
+            std::optional<std::filesystem::path> skinPayloadPath;
             std::optional<std::filesystem::path> supportContactPayloadPath;
             std::uint32_t frameDimension = kDefaultFrameDimension;
             std::vector<std::string> positional;
@@ -2829,6 +3118,10 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !softTissuePayloadPath.has_value(),
                             "--soft-tissue-payload requires one path and may be given only once");
                     softTissuePayloadPath.emplace(argv[++index]);
+                } else if (argument == "--skin-payload") {
+                    require(index + 1 < argc && !skinPayloadPath.has_value(),
+                            "--skin-payload requires one path and may be given only once");
+                    skinPayloadPath.emplace(argv[++index]);
                 } else if (argument == "--support-contact-payload") {
                     require(index + 1 < argc && !supportContactPayloadPath.has_value(),
                             "--support-contact-payload requires one path and may be given only once");
@@ -2854,6 +3147,7 @@ int main(int argc, char** argv) {
                           << " [--source-route-centrelines] [--source-route-index <0..415>]..."
                           << " [--surface-project-source-sites]"
                           << " [--soft-tissue-payload <NHTISS2>]"
+                          << " [--skin-payload <NHSKIN1>]"
                           << " [--visible-bone-body-index <0..156>]..."
                           << " [--soft-tissue-stable-id <1..N>]..."
                           << " [--support-contact-payload <NHCNT1>]"
@@ -2927,6 +3221,14 @@ int main(int argc, char** argv) {
                     "BodyParts3D bone and soft-tissue payloads have different visual registrations"
                 );
             }
+            std::optional<LoadedSkin> skinPayload;
+            if (skinPayloadPath.has_value()) {
+                require(bodypartsBoneVisual,
+                        "--skin-payload requires a BodyParts3D bone payload");
+                skinPayload.emplace(loadSkin(
+                    *skinPayloadPath, rigid.header, bonePayload->header.reserved0
+                ));
+            }
             require(requestedSoftTissueStableIds.empty() || softTissuePayload.has_value(),
                     "--soft-tissue-stable-id requires --soft-tissue-payload");
             if (!requestedSoftTissueStableIds.empty()) {
@@ -2999,18 +3301,20 @@ int main(int argc, char** argv) {
             }
             std::uint32_t renderedBodies = 0u;
             std::uint32_t renderedSoftTissues = 0u;
+            std::uint32_t renderedSkinShells = 0u;
             std::uint32_t renderedRouteSegments = 0u;
             bool anyRequestedRouteVisible = false;
             const metalrobo::VisualAssetPackV2 pack = makeMarkerPack(
                 rigid.model, musclePayload,
                 bonePayload.has_value() ? &*bonePayload : nullptr,
                 softTissuePayload.has_value() ? &*softTissuePayload : nullptr,
+                skinPayload.has_value() ? &*skinPayload : nullptr,
                 bodies,
                 muscleDrivenState.has_value(),
                 requestedBoneBodyIndices,
                 requestedSoftTissueStableIds,
                 resolvedRouteCentrelines.has_value() ? &*resolvedRouteCentrelines : nullptr,
-                renderedBodies, renderedSoftTissues, renderedRouteSegments
+                renderedBodies, renderedSoftTissues, renderedSkinShells, renderedRouteSegments
             );
             require(requestedSoftTissueStableIds.empty() || renderedSoftTissues == requestedSoftTissueStableIds.size(),
                     "native Human visual soft-tissue selection did not render every requested source surface");
@@ -3042,6 +3346,7 @@ int main(int argc, char** argv) {
                 ? "myosim-fullbody-articulated-bodyparts-bones"
                 : "myosim-fullbody-articulated-markers") +
                 (softTissuePayload.has_value() ? "-source-soft-tissues" : "") +
+                (skinPayload.has_value() ? "-source-skinned-shell" : "") +
                 (muscleDrivenState.has_value() ? "-muscle-driven" : "") +
                 (supportContactPayload.has_value() ? "-source-support-contact" : "") +
                 (sourceRouteCentrelines ? "-source-route-centrelines" : "") +
@@ -3055,7 +3360,10 @@ int main(int argc, char** argv) {
             const std::array references{
                 metalrobo::VisualAssetReferenceV3{
                     packPath, pack.contentHash, 0u,
-                    bodypartsBoneVisual ? kBoneSemantic : kBodySemantic, 1u,
+                    skinPayload.has_value()
+                        ? kSkinShellSemantic
+                        : (bodypartsBoneVisual ? kBoneSemantic : kBodySemantic),
+                    1u,
                 },
             };
             metalrobo::VisualSceneManifestV3 manifest;
@@ -3123,8 +3431,11 @@ int main(int argc, char** argv) {
                 const std::size_t routePixels = coverage(observation, kRouteSemantic);
                 const std::size_t muscleSurfacePixels = coverage(observation, kMuscleSurfaceSemantic);
                 const std::size_t tendonSurfacePixels = coverage(observation, kTendonSurfaceSemantic);
+                const std::size_t skinShellPixels = coverage(observation, kSkinShellSemantic);
                 completeVisualCoverage = completeVisualCoverage &&
-                    (bodypartsBoneVisual ? bonePixels > 0u : bodyPixels > 0u);
+                    (skinPayload.has_value()
+                        ? skinShellPixels > 0u
+                        : (bodypartsBoneVisual ? bonePixels > 0u : bodyPixels > 0u));
                 anyRequestedRouteVisible = anyRequestedRouteVisible || routePixels > 0u;
                 std::cout << "view=" << cameraNames[camera]
                           << " body_pixels=" << bodyPixels
@@ -3133,6 +3444,7 @@ int main(int argc, char** argv) {
                           << " muscle_route_pixels=" << routePixels
                           << " muscle_surface_pixels=" << muscleSurfacePixels
                           << " tendon_surface_pixels=" << tendonSurfacePixels
+                          << " skin_shell_pixels=" << skinShellPixels
                           << " frame=" << frame.string() << '\n';
             }
             require(completeVisualCoverage,
@@ -3146,7 +3458,7 @@ int main(int argc, char** argv) {
                 : sourceSupportContact
                     ? "metal_all_416_mujoco_force_projection_and_activation_state_then_cpu_fp64_free_dynamics_and_dynamic_source_foot_witness_plane_contact_then_metal_kinematic_pose"
                     : "metal_all_416_mujoco_force_projection_and_activation_state_then_cpu_fp64_free_dynamics_then_metal_kinematic_pose";
-            const std::string evidenceBoundary = !muscleDrivenState.has_value()
+            std::string evidenceBoundary = !muscleDrivenState.has_value()
                 ? (bodypartsBoneVisual
                     ? (softTissuePayload.has_value()
                         ? "metal_pose_snapshot_to_native_renderer_with_provisional_bodyparts_bone_registration_and_two_body_kinematic_source_soft_tissue_visuals_not_collision_or_live_rollout"
@@ -3163,6 +3475,10 @@ int main(int argc, char** argv) {
                             ? "bounded_multistep_all_416_mujoco_metal_force_projection_and_activation_state_then_cpu_fp64_dynamics_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_and_two_body_kinematic_source_soft_tissue_visuals_not_contact_or_live_rollout"
                             : "bounded_multistep_all_416_mujoco_metal_force_projection_and_activation_state_then_cpu_fp64_dynamics_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_not_contact_or_live_rollout")
                         : "bounded_multistep_all_416_mujoco_metal_force_projection_and_activation_state_then_cpu_fp64_dynamics_to_metal_pose_snapshot_not_contact_or_live_rollout");
+            if (skinPayload.has_value()) {
+                evidenceBoundary +=
+                    "_with_four_bone_linear_blend_bodyparts3d_skin_shell_visual_not_deformable_skin_collision_or_tissue_physics";
+            }
             std::cout << std::setprecision(12)
                       << (bodypartsBoneVisual
                               ? "myosim_articulated_bodyparts_bone_visual=ok"
@@ -3178,6 +3494,10 @@ int main(int argc, char** argv) {
                       << " requested_soft_tissue_surfaces=" << requestedSoftTissueStableIds.size()
                       << " soft_tissue_binding=" << (softTissuePayload.has_value()
                               ? "two_body_linear_blend_world_surface_snapshot"
+                              : "none")
+                      << " bodyparts_skin_shells=" << renderedSkinShells
+                      << " skin_shell_binding=" << (skinPayload.has_value()
+                              ? "four_body_registered_bone_envelope_linear_blend_world_surface_snapshot"
                               : "none")
                       << " muscle_sites=" << musclePayload.sites.size()
                       << " route_centerline_segments=" << renderedRouteSegments
