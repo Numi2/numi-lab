@@ -203,6 +203,7 @@ struct LoadedMuscles {
     std::vector<MRMujocoMuscleWrapGPU> wraps;
     std::vector<MRMujocoMuscleRouteNodeGPU> routes;
     std::vector<MRMujocoMuscleGPU> muscles;
+    std::vector<std::uint32_t> sourceTendonIdentifiers;
 };
 
 bool validRouteType(const std::uint32_t type) {
@@ -293,15 +294,21 @@ LoadedMuscles loadMuscles(
         loaded.routes.push_back(route);
     }
     loaded.muscles.reserve(requestedMuscles);
+    loaded.sourceTendonIdentifiers.reserve(requestedMuscles);
     for (std::uint32_t muscleIndex = 0u;
          muscleIndex < requestedMuscles;
          ++muscleIndex) {
         const MuscleRecord& source = sourceMuscles[muscleIndex];
         require(
-            source.reserved0 == 0u &&
+            source.sourceTendonIndex < header.sourceTendonCount &&
+                std::ranges::find(
+                    loaded.sourceTendonIdentifiers,
+                    source.sourceTendonIndex
+                ) == loaded.sourceTendonIdentifiers.end() &&
+                source.reserved0 == 0u &&
                 source.routeOffset <= sourceRoutes.size() &&
                 source.routeCount <= sourceRoutes.size() - source.routeOffset,
-            "MyoSim muscle route range is invalid"
+            "MyoSim muscle identifier or route range is invalid"
         );
         MRMujocoMuscleGPU muscle{};
         muscle.route = {source.routeOffset, source.routeCount, 0u, 0u};
@@ -320,6 +327,7 @@ LoadedMuscles loadMuscles(
                 source.values[25u + index];
         }
         loaded.muscles.push_back(muscle);
+        loaded.sourceTendonIdentifiers.push_back(source.sourceTendonIndex);
     }
     return loaded;
 }
@@ -449,6 +457,23 @@ extern "C" void* mr_numibrain_myosim_bridge_create(
 
 extern "C" void mr_numibrain_myosim_bridge_destroy(void* handle) {
     delete static_cast<Bridge*>(handle);
+}
+
+extern "C" std::uint32_t mr_numibrain_myosim_bridge_muscle_count(void* handle) {
+    const auto* bridge = static_cast<const Bridge*>(handle);
+    return bridge == nullptr
+        ? 0u : static_cast<std::uint32_t>(bridge->program.muscles.size());
+}
+
+extern "C" std::uint32_t mr_numibrain_myosim_bridge_muscle_identifier(
+    void* handle,
+    const std::uint32_t muscleIndex
+) {
+    const auto* bridge = static_cast<const Bridge*>(handle);
+    return bridge == nullptr ||
+            muscleIndex >= bridge->program.sourceTendonIdentifiers.size()
+        ? std::numeric_limits<std::uint32_t>::max()
+        : bridge->program.sourceTendonIdentifiers[muscleIndex];
 }
 
 extern "C" std::uint32_t mr_numibrain_myosim_bridge_begin_root(void* handle) {
