@@ -167,6 +167,33 @@ metalrobo::SensorSpec makeCamera(
     return camera;
 }
 
+metalrobo::VisualLightRigV1 makeAnatomyStudioLightRig() {
+    metalrobo::VisualLightRigV1 rig = metalrobo::makeIndoorAreaLightRigV1();
+    rig.id = "anatomy_studio_three_point";
+    rig.contentHash = "builtin:anatomy-studio-three-point-v1";
+    MRVisualLightGPUV1 key = rig.lights.front();
+    key.positionAndRange = {0.38f, -0.72f, 1.35f, 12.0f};
+    key.directionAndSpot = {-0.16f, 0.34f, -0.93f, -1.0f};
+    key.colorAndIntensity = {1.0f, 0.94f, 0.86f, 900.0f};
+    key.shape = {0.75f, 0.55f, -1.0f, 0.08f};
+    key.identity.w = 1u;
+    MRVisualLightGPUV1 fill = key;
+    fill.positionAndRange = {-0.64f, -0.34f, 0.84f, 12.0f};
+    fill.directionAndSpot = {0.56f, 0.28f, -0.78f, -1.0f};
+    fill.colorAndIntensity = {0.62f, 0.73f, 1.0f, 260.0f};
+    fill.shape = {0.65f, 0.55f, -1.0f, 0.08f};
+    fill.identity.w = 2u;
+    fill.shadow = {0u, 0u, 4u, 0u};
+    MRVisualLightGPUV1 rim = key;
+    rim.positionAndRange = {-0.05f, 0.72f, 1.18f, 12.0f};
+    rim.directionAndSpot = {0.04f, -0.51f, -0.86f, -1.0f};
+    rim.colorAndIntensity = {0.85f, 0.92f, 1.0f, 480.0f};
+    rim.shape = {0.55f, 0.40f, -1.0f, 0.08f};
+    rim.identity.w = 3u;
+    rig.lights = {key, fill, rim};
+    return rig;
+}
+
 metalrobo::VisualMotionSampleBatchV1 staticMotion(
     const std::uint32_t bodyCount,
     const std::uint64_t frameIndex
@@ -313,7 +340,7 @@ int main(int argc, char** argv) {
                     world,
                     assets,
                     metalrobo::makeNeutralStudioEnvironmentV2(),
-                    metalrobo::makeIndoorAreaLightRigV1(),
+                    makeAnatomyStudioLightRig(),
                     manifest,
                     &reason
                 )) {
@@ -323,6 +350,7 @@ int main(int argc, char** argv) {
             configuration.width = dimension;
             configuration.height = dimension;
             configuration.maximumReferenceFramesInFlight = 1u;
+            configuration.clearColorAndDepth = {0.012f, 0.018f, 0.028f, 1.0e30f};
             metalrobo::MetalHybridRenderer renderer(configuration);
             require(
                 renderer.compile(
