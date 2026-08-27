@@ -344,11 +344,20 @@ struct ResolvedPoint {
 };
 struct Segment { ResolvedPoint first{}; ResolvedPoint second{}; };
 
-void appendCentrelinePoint(MujocoMusclePathResult& result, const Vec3& point) {
-    if (result.centreline.empty() ||
-        norm(subtract(result.centreline.back().world, point)) > kMinimum) {
-        result.centreline.push_back({point});
+void appendCentrelinePoint(
+    MujocoMusclePathResult& result,
+    const Vec3& point,
+    const std::uint32_t attachmentBodyIndex = MR_INVALID_INDEX
+) {
+    if (!result.centreline.empty() &&
+        norm(subtract(result.centreline.back().world, point)) <= kMinimum) {
+        if (result.centreline.back().attachmentBodyIndex == MR_INVALID_INDEX &&
+            attachmentBodyIndex != MR_INVALID_INDEX) {
+            result.centreline.back().attachmentBodyIndex = attachmentBodyIndex;
+        }
+        return;
     }
+    result.centreline.push_back({point, attachmentBodyIndex});
 }
 
 Vec3 rotateAroundAxis(const Vec3& point, const Vec3& axis, const double angle) {
@@ -496,8 +505,8 @@ MujocoMuscleReferenceDiagnostics resolvePath(
             // normalization contributes a zero Jacobian column there, so
             // retain the zero length but omit a singular native segment.
             if (distance > kMinimum) segments.push_back({*first, *second});
-            appendCentrelinePoint(result, first->world);
-            appendCentrelinePoint(result, second->world);
+            appendCentrelinePoint(result, first->world, first->bodyIndex);
+            appendCentrelinePoint(result, second->world, second->bodyIndex);
             length += distance; cursor += 1u; continue;
         }
         if ((nextNode.type != MujocoRouteNodeType::sphere && nextNode.type != MujocoRouteNodeType::cylinder) ||
@@ -523,8 +532,8 @@ MujocoMuscleReferenceDiagnostics resolvePath(
         if (!wrapped) {
             const double distance = norm(subtract(last->world, first->world));
             if (distance > kMinimum) segments.push_back({*first, *last});
-            appendCentrelinePoint(result, first->world);
-            appendCentrelinePoint(result, last->world);
+            appendCentrelinePoint(result, first->world, first->bodyIndex);
+            appendCentrelinePoint(result, last->world, last->bodyIndex);
             length += distance;
         } else {
             const std::optional<ResolvedPoint> tangent0 = wrappedPoint(wrap.bodyIndex, wrapped->first);
@@ -535,11 +544,11 @@ MujocoMuscleReferenceDiagnostics resolvePath(
             for (const Segment& segment : std::array<Segment, 3>{{{*first, *tangent0}, {*tangent0, *tangent1}, {*tangent1, *last}}}) {
                 if (norm(subtract(segment.second.world, segment.first.world)) > kMinimum) segments.push_back(segment);
             }
-            appendCentrelinePoint(result, first->world);
+            appendCentrelinePoint(result, first->world, first->bodyIndex);
             appendCentrelinePoint(result, tangent0->world);
             appendWrapArcSamples(result, *wrapped, nextNode.type, wrap.radius);
             appendCentrelinePoint(result, tangent1->world);
-            appendCentrelinePoint(result, last->world);
+            appendCentrelinePoint(result, last->world, last->bodyIndex);
             length += norm(subtract(tangent0->world, first->world)) + wrapped->length + norm(subtract(last->world, tangent1->world));
             ++appliedWraps;
         }

@@ -562,12 +562,17 @@ std::vector<MRBodyStateGPU> visualBodyStates(
 
 struct SourceRouteCentreline {
     std::uint32_t muscleIndex = 0u;
-    std::vector<mr_float4> points;
+    struct Point {
+        mr_float4 world{};
+        std::uint32_t attachmentBodyIndex = MR_INVALID_INDEX;
+    };
+    std::vector<Point> points;
 };
 
 struct SourceRouteCentrelines {
     std::vector<SourceRouteCentreline> muscles;
     std::uint32_t appliedWrapCount = 0u;
+    std::uint32_t surfaceProjectedAttachmentCount = 0u;
 };
 
 SourceRouteCentrelines resolveSourceRouteCentrelines(
@@ -597,7 +602,7 @@ SourceRouteCentrelines resolveSourceRouteCentrelines(
         require(diagnostics.succeeded() && muscleResult.path.centreline.size() >= 2u,
                 "MyoSim source-route resolution failed for muscle " + std::to_string(index) + ": " +
                     metalrobo::mujocoMuscleReferenceStatusName(diagnostics.status));
-        std::vector<mr_float4> centreline;
+        std::vector<SourceRouteCentreline::Point> centreline;
         centreline.reserve(muscleResult.path.centreline.size());
         for (const metalrobo::MujocoMusclePathSample& sample : muscleResult.path.centreline) {
             require(std::all_of(sample.world.begin(), sample.world.end(), [](const double value) {
@@ -607,8 +612,11 @@ SourceRouteCentrelines resolveSourceRouteCentrelines(
                     }),
                     "MyoSim source-route sample is not representable on the renderer");
             centreline.push_back({
-                static_cast<float>(sample.world[0]), static_cast<float>(sample.world[1]),
-                static_cast<float>(sample.world[2]), 1.0f,
+                {
+                    static_cast<float>(sample.world[0]), static_cast<float>(sample.world[1]),
+                    static_cast<float>(sample.world[2]), 1.0f,
+                },
+                sample.attachmentBodyIndex,
             });
         }
         result.appliedWrapCount += muscleResult.path.appliedWrapCount;
@@ -622,6 +630,152 @@ SourceRouteCentrelines resolveSourceRouteCentrelines(
         for (const std::uint32_t index : requestedMuscles) resolve(index);
     }
     return result;
+}
+
+mr_float4 subtractPoint(const mr_float4 first, const mr_float4 second) {
+    return {first.x - second.x, first.y - second.y, first.z - second.z, 0.0f};
+}
+
+mr_float4 addPoint(const mr_float4 first, const mr_float4 second) {
+    return {first.x + second.x, first.y + second.y, first.z + second.z, 1.0f};
+}
+
+mr_float4 scalePoint(const mr_float4 point, const float scalar) {
+    return {point.x * scalar, point.y * scalar, point.z * scalar, 0.0f};
+}
+
+float dotPoint(const mr_float4 first, const mr_float4 second) {
+    return first.x * second.x + first.y * second.y + first.z * second.z;
+}
+
+mr_float4 rotatePoint(const mr_float4 quaternion, const mr_float4 point) {
+    const mr_float4 axis{quaternion.x, quaternion.y, quaternion.z, 0.0f};
+    const mr_float4 twiceCross{
+        2.0f * (axis.y * point.z - axis.z * point.y),
+        2.0f * (axis.z * point.x - axis.x * point.z),
+        2.0f * (axis.x * point.y - axis.y * point.x),
+        0.0f,
+    };
+    const mr_float4 correction{
+        quaternion.w * twiceCross.x + axis.y * twiceCross.z - axis.z * twiceCross.y,
+        quaternion.w * twiceCross.y + axis.z * twiceCross.x - axis.x * twiceCross.z,
+        quaternion.w * twiceCross.z + axis.x * twiceCross.y - axis.y * twiceCross.x,
+        0.0f,
+    };
+    return {point.x + correction.x, point.y + correction.y, point.z + correction.z, 0.0f};
+}
+
+mr_float4 closestPointOnTriangle(
+    const mr_float4 point,
+    const mr_float4 first,
+    const mr_float4 second,
+    const mr_float4 third
+) {
+    const mr_float4 firstToPoint = subtractPoint(point, first);
+    const mr_float4 firstToSecond = subtractPoint(second, first);
+    const mr_float4 firstToThird = subtractPoint(third, first);
+    const float dotFirstSecond = dotPoint(firstToSecond, firstToPoint);
+    const float dotFirstThird = dotPoint(firstToThird, firstToPoint);
+    if (dotFirstSecond <= 0.0f && dotFirstThird <= 0.0f) return first;
+
+    const mr_float4 secondToPoint = subtractPoint(point, second);
+    const float dotSecondSecond = dotPoint(firstToSecond, secondToPoint);
+    const float dotSecondThird = dotPoint(firstToThird, secondToPoint);
+    if (dotSecondSecond >= 0.0f && dotSecondThird <= dotSecondSecond) return second;
+
+    const float edgeFirstSecond = dotFirstSecond * dotSecondThird - dotSecondSecond * dotFirstThird;
+    if (edgeFirstSecond <= 0.0f && dotFirstSecond >= 0.0f && dotSecondSecond <= 0.0f) {
+        return addPoint(first, scalePoint(firstToSecond, dotFirstSecond / (dotFirstSecond - dotSecondSecond)));
+    }
+
+    const mr_float4 thirdToPoint = subtractPoint(point, third);
+    const float dotThirdSecond = dotPoint(firstToSecond, thirdToPoint);
+    const float dotThirdThird = dotPoint(firstToThird, thirdToPoint);
+    if (dotThirdThird >= 0.0f && dotThirdSecond <= dotThirdThird) return third;
+
+    const float edgeFirstThird = dotThirdSecond * dotFirstThird - dotFirstSecond * dotThirdThird;
+    if (edgeFirstThird <= 0.0f && dotFirstThird >= 0.0f && dotThirdThird <= 0.0f) {
+        return addPoint(first, scalePoint(firstToThird, dotFirstThird / (dotFirstThird - dotThirdThird)));
+    }
+
+    const float edgeSecondThird = dotSecondSecond * dotThirdThird - dotThirdSecond * dotSecondThird;
+    if (edgeSecondThird <= 0.0f &&
+        dotSecondThird - dotSecondSecond >= 0.0f && dotThirdSecond - dotThirdThird >= 0.0f) {
+        const mr_float4 secondToThird = subtractPoint(third, second);
+        const float ratio = (dotSecondThird - dotSecondSecond) /
+            ((dotSecondThird - dotSecondSecond) + (dotThirdSecond - dotThirdThird));
+        return addPoint(second, scalePoint(secondToThird, ratio));
+    }
+
+    const float barycentricDenominator = edgeFirstSecond + edgeFirstThird + edgeSecondThird;
+    if (std::abs(barycentricDenominator) <= 1.0e-12f) return first;
+    const float denominator = 1.0f / barycentricDenominator;
+    const float secondWeight = edgeFirstThird * denominator;
+    const float thirdWeight = edgeFirstSecond * denominator;
+    return addPoint(first, addPoint(scalePoint(firstToSecond, secondWeight), scalePoint(firstToThird, thirdWeight)));
+}
+
+mr_float4 boneVertexWorld(
+    const BoneRecord& bone,
+    const BoneVertex& vertex,
+    const MRBodyStateGPU& body
+) {
+    const mr_float4 boneRotation{
+        bone.quaternionX, bone.quaternionY, bone.quaternionZ, bone.quaternionW,
+    };
+    const mr_float4 local = addPoint(
+        {bone.translationX, bone.translationY, bone.translationZ, 0.0f},
+        scalePoint(
+            rotatePoint(boneRotation, {vertex.positionX, vertex.positionY, vertex.positionZ, 0.0f}),
+            bone.uniformScale
+        )
+    );
+    return addPoint(body.position, rotatePoint(body.orientation, local));
+}
+
+void projectSourceSiteEndpointsToBoneSurfaces(
+    SourceRouteCentrelines& routes,
+    const LoadedBones& bones,
+    const std::span<const MRBodyStateGPU> bodies
+) {
+    constexpr float maximumProjectionDistance = 0.12f;
+    constexpr float maximumProjectionDistanceSquared =
+        maximumProjectionDistance * maximumProjectionDistance;
+    require(bodies.size() > 0u, "source-route surface projection has no body poses");
+    for (SourceRouteCentreline& route : routes.muscles) {
+        for (SourceRouteCentreline::Point& point : route.points) {
+            if (point.attachmentBodyIndex == MR_INVALID_INDEX ||
+                point.attachmentBodyIndex >= bodies.size()) {
+                continue;
+            }
+            mr_float4 closest{};
+            float closestDistanceSquared = std::numeric_limits<float>::infinity();
+            for (const BoneRecord& bone : bones.records) {
+                if (bone.bodyIndex != point.attachmentBodyIndex) continue;
+                for (std::uint32_t offset = 0u; offset < bone.indexCount; offset += 3u) {
+                    const std::uint32_t first = bones.indices[bone.firstIndex + offset];
+                    const std::uint32_t second = bones.indices[bone.firstIndex + offset + 1u];
+                    const std::uint32_t third = bones.indices[bone.firstIndex + offset + 2u];
+                    const mr_float4 candidate = closestPointOnTriangle(
+                        point.world,
+                        boneVertexWorld(bone, bones.vertices[first], bodies[bone.bodyIndex]),
+                        boneVertexWorld(bone, bones.vertices[second], bodies[bone.bodyIndex]),
+                        boneVertexWorld(bone, bones.vertices[third], bodies[bone.bodyIndex])
+                    );
+                    const mr_float4 difference = subtractPoint(point.world, candidate);
+                    const float distanceSquared = dotPoint(difference, difference);
+                    if (distanceSquared < closestDistanceSquared) {
+                        closestDistanceSquared = distanceSquared;
+                        closest = candidate;
+                    }
+                }
+            }
+            if (closestDistanceSquared <= maximumProjectionDistanceSquared) {
+                point.world = closest;
+                ++routes.surfaceProjectedAttachmentCount;
+            }
+        }
+    }
 }
 
 metalrobo::WorldPose cameraToward(
@@ -1034,6 +1188,10 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     if (sourceRouteCentrelines != nullptr) {
         pack.preprocessingProvenance +=
             "/cpu_fp64_mujoco_tangent_and_wrapped_arc_centreline_at_the_rendered_pose";
+        if (sourceRouteCentrelines->surfaceProjectedAttachmentCount > 0u) {
+            pack.preprocessingProvenance +=
+                "/visual_only_nearest_bodyparts3d_triangle_attachment_projection";
+        }
     }
     pack.materials.push_back(makeMaterial(
         {0.82f, 0.86f, 0.88f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}
@@ -1117,8 +1275,8 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
             require(route.muscleIndex < musclePayload.muscles.size() && route.points.size() >= 2u,
                     "MyoSim source-route visual record is malformed");
             for (std::size_t index = 1u; index < route.points.size(); ++index) {
-                const mr_float4 previous = route.points[index - 1u];
-                const mr_float4 current = route.points[index];
+                const mr_float4 previous = route.points[index - 1u].world;
+                const mr_float4 current = route.points[index].world;
                 const float dx = current.x - previous.x;
                 const float dy = current.y - previous.y;
                 const float dz = current.z - previous.z;
@@ -1313,6 +1471,7 @@ int main(int argc, char** argv) {
         try {
             std::optional<double> muscleStepSeconds;
             bool sourceRouteCentrelines = false;
+            bool surfaceProjectSourceSites = false;
             std::vector<std::uint32_t> requestedSourceRouteMuscles;
             std::optional<std::uint32_t> focusBodyIndex;
             std::vector<std::string> positional;
@@ -1331,6 +1490,10 @@ int main(int argc, char** argv) {
                             "--source-route-index requires one muscle index");
                     sourceRouteCentrelines = true;
                     requestedSourceRouteMuscles.push_back(parseSourceRouteIndex(argv[++index]));
+                } else if (argument == "--surface-project-source-sites") {
+                    require(!surfaceProjectSourceSites,
+                            "--surface-project-source-sites may be given only once");
+                    surfaceProjectSourceSites = true;
                 } else if (argument == "--focus-body-index") {
                     require(index + 1 < argc && !focusBodyIndex.has_value(),
                             "--focus-body-index requires one body index and may be given only once");
@@ -1348,6 +1511,7 @@ int main(int argc, char** argv) {
                           << " [bodyparts3d-myosim-major-bones.nhbones] <output-directory>"
                           << " [--muscle-step-seconds <1e-6..1e-3>]"
                           << " [--source-route-centrelines] [--source-route-index <0..415>]..."
+                          << " [--surface-project-source-sites]"
                           << " [--focus-body-index <0..156>]\n";
                 return 2;
             }
@@ -1373,6 +1537,9 @@ int main(int argc, char** argv) {
             if (bodypartsBoneVisual) {
                 bonePayload.emplace(loadBones(positional[2], rigid.header));
             }
+            require(!surfaceProjectSourceSites ||
+                        (bodypartsBoneVisual && sourceRouteCentrelines),
+                    "--surface-project-source-sites requires BodyParts3D bones and a source-route inspection");
             std::optional<MuscleDrivenVisualState> muscleDrivenState;
             std::span<const float> poseQ = rigid.model.defaultQ;
             if (muscleStepSeconds.has_value()) {
@@ -1405,6 +1572,11 @@ int main(int argc, char** argv) {
                 resolvedRouteCentrelines.emplace(resolveSourceRouteCentrelines(
                     rigid.model, musclePayload, poseQ, requestedSourceRouteMuscles
                 ));
+                if (surfaceProjectSourceSites) {
+                    projectSourceSiteEndpointsToBoneSurfaces(
+                        *resolvedRouteCentrelines, *bonePayload, bodies
+                    );
+                }
             }
             std::array<std::string, 4u> cameraNames;
             const metalrobo::WorldTemplate world = makeWorld(
@@ -1439,6 +1611,7 @@ int main(int argc, char** argv) {
                 : "myosim-fullbody-articulated-markers") +
                 (muscleDrivenState.has_value() ? "-muscle-driven" : "") +
                 (sourceRouteCentrelines ? "-source-route-centrelines" : "") +
+                (surfaceProjectSourceSites ? "-surface-projected-sites" : "") +
                 (focusBodyIndex.has_value()
                     ? "-focus-body-" + std::to_string(*focusBodyIndex) : "");
             const std::filesystem::path packPath = outputDirectory / (stem + ".mrvpack");
@@ -1522,6 +1695,8 @@ int main(int argc, char** argv) {
                               ? resolvedRouteCentrelines->muscles.size() : 0u)
                       << " source_route_applied_wraps=" << (resolvedRouteCentrelines.has_value()
                               ? resolvedRouteCentrelines->appliedWrapCount : 0u)
+                      << " source_route_surface_projected_sites=" << (resolvedRouteCentrelines.has_value()
+                              ? resolvedRouteCentrelines->surfaceProjectedAttachmentCount : 0u)
                       << " focus_body_index=" << (focusBodyIndex.has_value()
                               ? std::to_string(*focusBodyIndex) : "none")
                       << " pose_stage_elapsed_ms=" << poseDiagnostics.elapsedMilliseconds
@@ -1545,7 +1720,9 @@ int main(int argc, char** argv) {
                                   ? "metal_pose_snapshot_to_native_renderer_with_provisional_bodyparts_bone_registration_not_collision_or_live_rollout"
                                   : "metal_pose_snapshot_to_native_renderer_not_bodyparts_registration_or_live_rollout"))
                       << " route_geometry=" << (sourceRouteCentrelines
-                              ? "cpu_fp64_mujoco_tangent_and_wrapped_arc_centreline_at_same_q_not_an_anatomical_tendon_surface_or_bodyparts3d_surface_attachment_certificate"
+                              ? (surfaceProjectSourceSites
+                                  ? "cpu_fp64_mujoco_tangent_and_wrapped_arc_centreline_at_same_q_with_visual_only_nearest_bodyparts3d_triangle_source_site_projection_not_a_force_path_or_tendon_surface_certificate"
+                                  : "cpu_fp64_mujoco_tangent_and_wrapped_arc_centreline_at_same_q_not_an_anatomical_tendon_surface_or_bodyparts3d_surface_attachment_certificate")
                               : "hidden_until_a_source_route_centreline_inspection_is_requested")
                       << '\n';
             return 0;

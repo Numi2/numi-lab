@@ -4,6 +4,7 @@
 
 #include <array>
 #include <cstdint>
+#include <limits>
 #include <span>
 #include <vector>
 
@@ -71,6 +72,10 @@ struct MujocoMusclePathSample {
     // the tangent-preserving sphere/cylinder arc rather than joined through a
     // wrap centre or by a chord.
     std::array<double, 3> world{};
+    // Source-site body for a rendered attachment endpoint. Tangent contacts
+    // and arc samples retain the sentinel: they are analytical path samples,
+    // not authored anatomical attachment sites.
+    std::uint32_t attachmentBodyIndex = std::numeric_limits<std::uint32_t>::max();
 };
 
 struct MujocoMusclePathResult {
