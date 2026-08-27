@@ -26,6 +26,7 @@ constexpr std::array<char, 8u> kMuscleMagic{'N', 'H', 'M', 'Y', 'O', '1', '\0', 
 constexpr std::uint32_t kRigidABI = 1u;
 constexpr std::uint32_t kMuscleABI = 1u;
 constexpr std::uint32_t kBridgeABI = 1u;
+constexpr std::uint32_t kAttachmentCatalogABI = 1u;
 constexpr std::uint64_t kFNVOffset = 14695981039346656037ull;
 constexpr std::uint64_t kFNVPrime = 1099511628211ull;
 
@@ -199,11 +200,21 @@ LoadedRigid loadRigid(const char* path) {
 }
 
 struct LoadedMuscles {
+    struct Attachment {
+        std::uint32_t sourceTendonIdentifier = 0u;
+        std::uint32_t firstBodyIdentifier = MR_INVALID_INDEX;
+        std::uint32_t terminalBodyIdentifier = MR_INVALID_INDEX;
+        std::uint32_t routeNodeCount = 0u;
+        std::array<float, 3u> firstLocalPoint{};
+        std::array<float, 3u> terminalLocalPoint{};
+    };
+
     std::vector<MRMujocoMuscleSiteGPU> sites;
     std::vector<MRMujocoMuscleWrapGPU> wraps;
     std::vector<MRMujocoMuscleRouteNodeGPU> routes;
     std::vector<MRMujocoMuscleGPU> muscles;
     std::vector<std::uint32_t> sourceTendonIdentifiers;
+    std::vector<Attachment> attachments;
 };
 
 bool validRouteType(const std::uint32_t type) {
@@ -286,8 +297,14 @@ LoadedMuscles loadMuscles(
     }
     loaded.routes.reserve(sourceRoutes.size());
     for (const RouteRecord& source : sourceRoutes) {
+        const bool targetValid = source.type == MR_MUJOCO_MUSCLE_ROUTE_SITE
+            ? source.targetIndex < sourceSites.size()
+            : source.targetIndex < sourceWraps.size();
+        const bool sideSiteValid = source.sideSiteIndex == MR_INVALID_INDEX ||
+            source.sideSiteIndex < sourceSites.size();
         require(
-            validRouteType(source.type) && source.reserved0 == 0u,
+            validRouteType(source.type) && targetValid && sideSiteValid &&
+                source.reserved0 == 0u,
             "MyoSim route is invalid"
         );
         MRMujocoMuscleRouteNodeGPU route{};
@@ -298,6 +315,7 @@ LoadedMuscles loadMuscles(
     }
     loaded.muscles.reserve(selectedMuscleCount);
     loaded.sourceTendonIdentifiers.reserve(selectedMuscleCount);
+    loaded.attachments.reserve(selectedMuscleCount);
     for (std::uint32_t muscleIndex = 0u;
          muscleIndex < selectedMuscleCount;
          ++muscleIndex) {
@@ -310,8 +328,19 @@ LoadedMuscles loadMuscles(
                 ) == loaded.sourceTendonIdentifiers.end() &&
                 source.reserved0 == 0u &&
                 source.routeOffset <= sourceRoutes.size() &&
-                source.routeCount <= sourceRoutes.size() - source.routeOffset,
+                source.routeCount <= sourceRoutes.size() - source.routeOffset &&
+                source.routeCount >= 2u,
             "MyoSim muscle identifier or route range is invalid"
+        );
+        const RouteRecord& firstRoute = sourceRoutes[source.routeOffset];
+        const RouteRecord& terminalRoute =
+            sourceRoutes[source.routeOffset + source.routeCount - 1u];
+        require(
+            firstRoute.type == MR_MUJOCO_MUSCLE_ROUTE_SITE &&
+                terminalRoute.type == MR_MUJOCO_MUSCLE_ROUTE_SITE &&
+                firstRoute.targetIndex < sourceSites.size() &&
+                terminalRoute.targetIndex < sourceSites.size(),
+            "MyoSim muscle endpoints are not valid attachment sites"
         );
         MRMujocoMuscleGPU muscle{};
         muscle.route = {source.routeOffset, source.routeCount, 0u, 0u};
@@ -331,6 +360,16 @@ LoadedMuscles loadMuscles(
         }
         loaded.muscles.push_back(muscle);
         loaded.sourceTendonIdentifiers.push_back(source.sourceTendonIndex);
+        const SiteRecord& firstSite = sourceSites[firstRoute.targetIndex];
+        const SiteRecord& terminalSite = sourceSites[terminalRoute.targetIndex];
+        loaded.attachments.push_back({
+            source.sourceTendonIndex,
+            firstSite.bodyIndex,
+            terminalSite.bodyIndex,
+            source.routeCount,
+            {firstSite.x, firstSite.y, firstSite.z},
+            {terminalSite.x, terminalSite.y, terminalSite.z},
+        });
     }
     return loaded;
 }
@@ -357,6 +396,29 @@ std::uint64_t stateFingerprint(
     for (const double value : q) mixValue(hash, value);
     for (const double value : v) mixValue(hash, value);
     for (const auto& state : states) mixValue(hash, state);
+    return hash;
+}
+
+std::uint64_t attachmentCatalogFingerprint(
+    const LoadedMuscles& program,
+    const std::uint32_t bodyCount
+) {
+    std::uint64_t hash = kFNVOffset;
+    mixValue(hash, kAttachmentCatalogABI);
+    mixValue(hash, bodyCount);
+    mixValue(hash, static_cast<std::uint32_t>(program.attachments.size()));
+    for (const LoadedMuscles::Attachment& attachment : program.attachments) {
+        mixValue(hash, attachment.sourceTendonIdentifier);
+        mixValue(hash, attachment.firstBodyIdentifier);
+        mixValue(hash, attachment.terminalBodyIdentifier);
+        mixValue(hash, attachment.routeNodeCount);
+        for (const float coordinate : attachment.firstLocalPoint) {
+            mixValue(hash, coordinate);
+        }
+        for (const float coordinate : attachment.terminalLocalPoint) {
+            mixValue(hash, coordinate);
+        }
+    }
     return hash;
 }
 
@@ -490,6 +552,62 @@ extern "C" std::uint32_t mr_numibrain_myosim_bridge_muscle_identifier(
             muscleIndex >= bridge->program.sourceTendonIdentifiers.size()
         ? std::numeric_limits<std::uint32_t>::max()
         : bridge->program.sourceTendonIdentifiers[muscleIndex];
+}
+
+extern "C" std::uint32_t mr_numibrain_myosim_bridge_body_count(void* handle) {
+    const auto* bridge = static_cast<const Bridge*>(handle);
+    return bridge == nullptr
+        ? 0u : static_cast<std::uint32_t>(bridge->model.bodies.size());
+}
+
+extern "C" std::uint32_t mr_numibrain_myosim_bridge_attachment_route_node_count(
+    void* handle,
+    const std::uint32_t muscleIndex
+) {
+    const auto* bridge = static_cast<const Bridge*>(handle);
+    return bridge == nullptr || muscleIndex >= bridge->program.attachments.size()
+        ? 0u : bridge->program.attachments[muscleIndex].routeNodeCount;
+}
+
+extern "C" std::uint32_t mr_numibrain_myosim_bridge_attachment_body_identifier(
+    void* handle,
+    const std::uint32_t muscleIndex,
+    const std::uint32_t endpoint
+) {
+    const auto* bridge = static_cast<const Bridge*>(handle);
+    if (bridge == nullptr || muscleIndex >= bridge->program.attachments.size() ||
+        endpoint > 1u) {
+        return std::numeric_limits<std::uint32_t>::max();
+    }
+    const auto& attachment = bridge->program.attachments[muscleIndex];
+    return endpoint == 0u
+        ? attachment.firstBodyIdentifier : attachment.terminalBodyIdentifier;
+}
+
+extern "C" float mr_numibrain_myosim_bridge_attachment_local_coordinate(
+    void* handle,
+    const std::uint32_t muscleIndex,
+    const std::uint32_t endpoint,
+    const std::uint32_t axis
+) {
+    const auto* bridge = static_cast<const Bridge*>(handle);
+    if (bridge == nullptr || muscleIndex >= bridge->program.attachments.size() ||
+        endpoint > 1u || axis > 2u) {
+        return std::numeric_limits<float>::quiet_NaN();
+    }
+    const auto& attachment = bridge->program.attachments[muscleIndex];
+    return endpoint == 0u
+        ? attachment.firstLocalPoint[axis] : attachment.terminalLocalPoint[axis];
+}
+
+extern "C" std::uint64_t mr_numibrain_myosim_bridge_attachment_catalog_fingerprint(
+    void* handle
+) {
+    const auto* bridge = static_cast<const Bridge*>(handle);
+    return bridge == nullptr ? 0u : attachmentCatalogFingerprint(
+        bridge->program,
+        static_cast<std::uint32_t>(bridge->model.bodies.size())
+    );
 }
 
 extern "C" std::uint32_t mr_numibrain_myosim_bridge_begin_root(void* handle) {
