@@ -377,6 +377,8 @@ NUMI_CROW_CURRICULUM_RUNS=$crow_state_transfer_runs \
 NUMI_CROW_COURSE=state \
 NUMI_CROW_PARENT_MODE=actor-transfer \
 NUMI_CROW_PARENT_POLICY=$crow_actor_source \
+NUMI_CROW_TEACHER_DISTILLATION=0 \
+NUMI_CROW_TEACHER_STUDENT_AUTHORITY=0 \
 NUMI_CROW_START_BAND=10 \
 NUMI_CROW_MAXIMUM_BAND=10 \
     "$numi_repo/tools/crow_journey_curriculum_supervisor.sh" >/dev/null
@@ -387,6 +389,11 @@ grep -- '--initialize-actor-policy-pack' \
     "$crow_state_transfer_run/arguments.txt" >/dev/null
 grep -- '--initialize-actor-fresh-critic' \
     "$crow_state_transfer_run/arguments.txt" >/dev/null
+if grep -- '--birdflow-journey-teacher' \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null; then
+    printf '%s\n' 'state actor transfer unexpectedly enabled teacher mode' >&2
+    exit 1
+fi
 if grep -- '--policy-pack' "$crow_state_transfer_run/arguments.txt" >/dev/null; then
     printf '%s\n' 'state actor transfer attempted PPO resume' >&2
     exit 1

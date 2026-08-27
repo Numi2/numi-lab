@@ -175,15 +175,23 @@ while [ "$band" -le "$maximum_band" ]; do
       training_minimum_band=$((band - rehearsal_depth))
       [ "$training_minimum_band" -ge 0 ] || training_minimum_band=0
     fi
-    if [ "$training_minimum_band" -lt "$band" ] && \
-       [ "$parent_mode" = resume ] && [ -n "$parent_policy" ]; then
+    explicit_train=0
+    if [ "$parent_mode" = actor-transfer ] || \
+       [ "$teacher_distillation" -eq 0 ] || \
+       { [ "$training_minimum_band" -lt "$band" ] && \
+         [ "$parent_mode" = resume ] && [ -n "$parent_policy" ]; }; then
+      explicit_train=1
+    fi
+    if [ "$explicit_train" -eq 1 ]; then
       launch=(
         "$root/tools/numi" train --birdflow-american-crow-journey
         --birdflow-journey-variant "$journey_variant"
         --minimum-difficulty-band "$training_minimum_band"
         --maximum-difficulty-band "$band"
       )
-      echo "rehearsing protected Crow bands $training_minimum_band-$band"
+      if [ "$training_minimum_band" -lt "$band" ]; then
+        echo "rehearsing protected Crow bands $training_minimum_band-$band"
+      fi
     else
       launch=(
         "$root/tools/numi" crow journey train
