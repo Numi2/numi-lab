@@ -18,6 +18,7 @@
 #include <iostream>
 #include <limits>
 #include <numbers>
+#include <optional>
 #include <span>
 #include <stdexcept>
 #include <string>
@@ -37,8 +38,13 @@ constexpr std::uint32_t kPayloadAbi = 1u;
 constexpr std::uint32_t kBodySemantic = 51001u;
 constexpr std::uint32_t kSiteSemantic = 51002u;
 constexpr std::uint32_t kRouteSemantic = 51003u;
+constexpr std::uint32_t kBoneSemantic = 51004u;
 constexpr std::uint32_t kFrameWidth = 640u;
 constexpr std::uint32_t kFrameHeight = 640u;
+constexpr std::array<char, 8u> kBoneMagic{
+    'N', 'H', 'B', 'O', 'N', 'E', 'S', '1',
+};
+constexpr std::uint32_t kBonePayloadAbi = 1u;
 
 #pragma pack(push, 1)
 struct RigidHeader {
@@ -113,12 +119,55 @@ struct MuscleRecord {
     float values[37]{};
 };
 
+struct BoneHeader {
+    std::array<char, 8u> magic{};
+    std::uint32_t payloadAbi = 0u;
+    std::uint32_t boneCount = 0u;
+    std::uint32_t vertexCount = 0u;
+    std::uint32_t indexCount = 0u;
+    std::uint32_t reserved0 = 0u;
+    std::array<std::uint8_t, 32u> sourceSha256{};
+};
+
+struct BoneRecord {
+    std::uint32_t bodyIndex = MR_INVALID_INDEX;
+    std::uint32_t firstVertex = 0u;
+    std::uint32_t vertexCount = 0u;
+    std::uint32_t firstIndex = 0u;
+    std::uint32_t indexCount = 0u;
+    std::uint32_t stableId = 0u;
+    float translationX = 0.0f;
+    float translationY = 0.0f;
+    float translationZ = 0.0f;
+    float quaternionX = 0.0f;
+    float quaternionY = 0.0f;
+    float quaternionZ = 0.0f;
+    float quaternionW = 1.0f;
+    float uniformScale = 1.0f;
+};
+
+struct BoneVertex {
+    float positionX = 0.0f;
+    float positionY = 0.0f;
+    float positionZ = 0.0f;
+    float normalX = 0.0f;
+    float normalY = 0.0f;
+    float normalZ = 1.0f;
+};
+
 struct LoadedMuscles {
     MuscleHeader header{};
     std::vector<SiteRecord> sites;
     std::vector<WrapRecord> wraps;
     std::vector<RouteRecord> routes;
     std::vector<MuscleRecord> muscles;
+};
+
+struct LoadedBones {
+    BoneHeader header{};
+    std::vector<BoneRecord> records;
+    std::vector<BoneVertex> vertices;
+    std::vector<std::uint32_t> indices;
 };
 #pragma pack(pop)
 
@@ -129,6 +178,9 @@ static_assert(sizeof(SiteRecord) == 16u);
 static_assert(sizeof(WrapRecord) == 64u);
 static_assert(sizeof(RouteRecord) == 16u);
 static_assert(sizeof(MuscleRecord) == 164u);
+static_assert(sizeof(BoneHeader) == 60u);
+static_assert(sizeof(BoneRecord) == 56u);
+static_assert(sizeof(BoneVertex) == 24u);
 
 void require(const bool condition, const std::string& message) {
     if (!condition) {
@@ -265,6 +317,77 @@ LoadedMuscles loadMuscles(
                     muscle.routeOffset <= result.routes.size() &&
                     muscle.routeCount <= result.routes.size() - muscle.routeOffset,
                 "MyoSim muscle route range is invalid");
+    }
+    return result;
+}
+
+LoadedBones loadBones(
+    const std::filesystem::path& path,
+    const RigidHeader& rigid
+) {
+    std::ifstream input(path, std::ios::binary);
+    require(input.is_open(), "cannot open BodyParts3D bone payload " + path.string());
+    LoadedBones result;
+    readObject(input, result.header, "BodyParts3D bone header");
+    require(result.header.magic == kBoneMagic &&
+                result.header.payloadAbi == kBonePayloadAbi &&
+                result.header.reserved0 == 0u &&
+                result.header.sourceSha256 == rigid.sourceSha256 &&
+                result.header.boneCount > 0u &&
+                result.header.vertexCount > 0u &&
+                result.header.indexCount > 0u &&
+                result.header.indexCount % 3u == 0u &&
+                result.header.boneCount <= 256u &&
+                result.header.vertexCount <= 4'000'000u &&
+                result.header.indexCount <= 24'000'000u,
+            "BodyParts3D bone payload/header disagreement");
+    result.records = readVector<BoneRecord>(
+        input, result.header.boneCount, "BodyParts3D bone records"
+    );
+    result.vertices = readVector<BoneVertex>(
+        input, result.header.vertexCount, "BodyParts3D bone vertices"
+    );
+    result.indices = readVector<std::uint32_t>(
+        input, result.header.indexCount, "BodyParts3D bone indices"
+    );
+    require(input.peek() == std::char_traits<char>::eof(),
+            "BodyParts3D bone payload has trailing bytes");
+    for (const BoneVertex& vertex : result.vertices) {
+        const float normalLength = std::sqrt(
+            vertex.normalX * vertex.normalX +
+            vertex.normalY * vertex.normalY +
+            vertex.normalZ * vertex.normalZ
+        );
+        require(std::isfinite(vertex.positionX) && std::isfinite(vertex.positionY) &&
+                    std::isfinite(vertex.positionZ) && std::isfinite(normalLength) &&
+                    std::abs(normalLength - 1.0f) <= 2.0e-3f,
+                "BodyParts3D bone vertex is malformed");
+    }
+    std::vector<bool> stableIds(result.records.size() + 1u, false);
+    for (const BoneRecord& record : result.records) {
+        const float orientationLength = std::sqrt(
+            record.quaternionX * record.quaternionX + record.quaternionY * record.quaternionY +
+            record.quaternionZ * record.quaternionZ + record.quaternionW * record.quaternionW
+        );
+        require(record.bodyIndex < rigid.engineBodyCount && record.vertexCount > 0u &&
+                    record.indexCount > 0u && record.indexCount % 3u == 0u &&
+                    record.firstVertex <= result.vertices.size() &&
+                    record.vertexCount <= result.vertices.size() - record.firstVertex &&
+                    record.firstIndex <= result.indices.size() &&
+                    record.indexCount <= result.indices.size() - record.firstIndex &&
+                    record.stableId > 0u && record.stableId < stableIds.size() &&
+                    !stableIds[record.stableId] && std::isfinite(record.translationX) &&
+                    std::isfinite(record.translationY) && std::isfinite(record.translationZ) &&
+                    std::isfinite(record.uniformScale) && record.uniformScale > 0.0f &&
+                    std::isfinite(orientationLength) &&
+                    std::abs(orientationLength - 1.0f) <= 2.0e-3f,
+                "BodyParts3D bone record is malformed");
+        stableIds[record.stableId] = true;
+        for (std::uint32_t offset = 0u; offset < record.indexCount; ++offset) {
+            const std::uint32_t index = result.indices[record.firstIndex + offset];
+            require(index >= record.firstVertex && index < record.firstVertex + record.vertexCount,
+                    "BodyParts3D bone index escapes its source mesh");
+        }
     }
     return result;
 }
@@ -539,6 +662,69 @@ GeometryRange appendEllipsoid(
     return result;
 }
 
+mr_float4 boneTangent(const BoneVertex& vertex) {
+    const mr_float4 normal{vertex.normalX, vertex.normalY, vertex.normalZ, 1.0f};
+    const mr_float4 reference = std::abs(normal.z) < 0.9f
+        ? mr_float4{0.0f, 0.0f, 1.0f, 0.0f}
+        : mr_float4{0.0f, 1.0f, 0.0f, 0.0f};
+    mr_float4 tangent{
+        reference.y * normal.z - reference.z * normal.y,
+        reference.z * normal.x - reference.x * normal.z,
+        reference.x * normal.y - reference.y * normal.x,
+        0.0f,
+    };
+    const float length = std::sqrt(
+        tangent.x * tangent.x + tangent.y * tangent.y + tangent.z * tangent.z
+    );
+    require(length > 1.0e-6f, "BodyParts3D bone tangent is degenerate");
+    tangent.x /= length;
+    tangent.y /= length;
+    tangent.z /= length;
+    return tangent;
+}
+
+GeometryRange appendBoneGeometry(
+    metalrobo::VisualAssetPackV2& pack,
+    const LoadedBones& bones,
+    const BoneRecord& bone
+) {
+    GeometryRange result;
+    result.firstIndex = static_cast<std::uint32_t>(pack.indices.size());
+    result.minimum = {
+        std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(), 1.0f,
+    };
+    result.maximum = {
+        -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity(), 1.0f,
+    };
+    const std::uint32_t vertexBase = static_cast<std::uint32_t>(pack.vertices.size());
+    for (std::uint32_t offset = 0u; offset < bone.vertexCount; ++offset) {
+        const BoneVertex& source = bones.vertices[bone.firstVertex + offset];
+        const mr_float4 position{source.positionX, source.positionY, source.positionZ, 1.0f};
+        pack.vertices.push_back({
+            position,
+            {source.normalX, source.normalY, source.normalZ, 1.0f},
+            boneTangent(source),
+            {0.0f, 0.0f, 0.0f, 0.0f},
+            {1.0f, 1.0f, 1.0f, 1.0f},
+        });
+        result.minimum.x = std::min(result.minimum.x, position.x);
+        result.minimum.y = std::min(result.minimum.y, position.y);
+        result.minimum.z = std::min(result.minimum.z, position.z);
+        result.maximum.x = std::max(result.maximum.x, position.x);
+        result.maximum.y = std::max(result.maximum.y, position.y);
+        result.maximum.z = std::max(result.maximum.z, position.z);
+    }
+    for (std::uint32_t offset = 0u; offset < bone.indexCount; ++offset) {
+        pack.indices.push_back(
+            vertexBase + bones.indices[bone.firstIndex + offset] - bone.firstVertex
+        );
+    }
+    result.indexCount = bone.indexCount;
+    return result;
+}
+
 std::array<float, 3u> inertiaEllipsoid(const MRBodyPropertiesGPU& body) {
     const float mass = body.massAndInverseMass.x;
     if (!(mass > 1.0e-5f)) {
@@ -651,16 +837,25 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& musclePayload,
     const std::span<const MRBodyStateGPU> bodies,
+    const LoadedBones* bonePayload,
     std::uint32_t& renderedBodies,
     std::uint32_t& renderedRouteSegments
 ) {
     metalrobo::VisualAssetPackV2 pack;
-    pack.id = "myosim_fullbody_articulated_marker_view";
-    pack.sourceUri = "numi://myosim/NHRIGID2+NHMYO1/articulated-marker-view";
-    pack.sourceContentHash = "runtime-body-and-site-records";
-    pack.license = "Apache-2.0";
+    pack.id = bonePayload != nullptr
+        ? "myosim_fullbody_articulated_bodyparts_bones_view"
+        : "myosim_fullbody_articulated_marker_view";
+    pack.sourceUri = bonePayload != nullptr
+        ? "numi://bodyparts3d/NHBONES1+NHRIGID2+NHMYO1/articulated-bone-view"
+        : "numi://myosim/NHRIGID2+NHMYO1/articulated-marker-view";
+    pack.sourceContentHash = bonePayload != nullptr
+        ? "bodyparts3d-major-bones+runtime-body-and-site-records"
+        : "runtime-body-and-site-records";
+    pack.license = bonePayload != nullptr ? "CC-BY-4.0 AND Apache-2.0" : "Apache-2.0";
     pack.preprocessingProvenance =
-        "metal_articulated_operator_pose_snapshot/native_visual_marker_pack.v1";
+        bonePayload != nullptr
+            ? "bodyparts3d_source_import/provisional_rest_registration/metal_articulated_operator_pose_snapshot/native_visual_bone_pack.v1"
+            : "metal_articulated_operator_pose_snapshot/native_visual_marker_pack.v1";
     pack.materials.push_back(makeMaterial(
         {0.82f, 0.86f, 0.88f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}
     ));
@@ -670,9 +865,13 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     pack.materials.push_back(makeMaterial(
         {0.68f, 0.015f, 0.01f, 1.0f}, {0.35f, 0.0f, 0.0f, 0.45f}
     ));
+    pack.materials.push_back(makeMaterial(
+        {0.78f, 0.66f, 0.46f, 1.0f}, {0.02f, 0.012f, 0.004f, 0.0f}
+    ));
 
+    const float muscleOverlayScale = bonePayload != nullptr ? 0.0040f : 0.0075f;
     const GeometryRange siteGeometry = appendEllipsoid(
-        pack, {0.0075f, 0.0075f, 0.0075f}
+        pack, {muscleOverlayScale, muscleOverlayScale, muscleOverlayScale}
     );
     const auto appendInstance = [&pack](
         const GeometryRange& geometry,
@@ -681,12 +880,13 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         const std::uint32_t bindingKind,
         const std::uint32_t bodyIndex,
         const mr_float4 translation,
+        const mr_float4 orientation,
         const std::uint32_t stableId
     ) {
         const std::uint32_t instanceIndex = static_cast<std::uint32_t>(pack.instances.size());
         MRVisualInstanceGPUV2 instance{};
         instance.translationAndScale = translation;
-        instance.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+        instance.orientation = orientation;
         instance.binding = {
             0u, bodyIndex, bindingKind,
             MR_VISUAL_INSTANCE_CASTS_SHADOW |
@@ -707,25 +907,41 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     };
 
     renderedBodies = 0u;
-    for (std::size_t bodyIndex = 0u; bodyIndex < model.bodies.size(); ++bodyIndex) {
-        const MRBodyPropertiesGPU& body = model.bodies[bodyIndex];
-        if (!(body.massAndInverseMass.x > 1.0e-5f)) {
-            continue;
+    if (bonePayload != nullptr) {
+        for (const BoneRecord& bone : bonePayload->records) {
+            const GeometryRange geometry = appendBoneGeometry(pack, *bonePayload, bone);
+            appendInstance(
+                geometry, 3u, kBoneSemantic, MR_VISUAL_BINDING_ARTICULATED_LINK,
+                bone.bodyIndex,
+                {bone.translationX, bone.translationY, bone.translationZ, bone.uniformScale},
+                {bone.quaternionX, bone.quaternionY, bone.quaternionZ, bone.quaternionW},
+                bone.stableId
+            );
+            ++renderedBodies;
         }
-        const GeometryRange geometry = appendEllipsoid(pack, inertiaEllipsoid(body));
-        appendInstance(
-            geometry, 0u, kBodySemantic, MR_VISUAL_BINDING_ARTICULATED_LINK,
-            static_cast<std::uint32_t>(bodyIndex),
-            {0.0f, 0.0f, 0.0f, 1.0f}, static_cast<std::uint32_t>(bodyIndex + 1u)
-        );
-        ++renderedBodies;
+    } else {
+        for (std::size_t bodyIndex = 0u; bodyIndex < model.bodies.size(); ++bodyIndex) {
+            const MRBodyPropertiesGPU& body = model.bodies[bodyIndex];
+            if (!(body.massAndInverseMass.x > 1.0e-5f)) {
+                continue;
+            }
+            const GeometryRange geometry = appendEllipsoid(pack, inertiaEllipsoid(body));
+            appendInstance(
+                geometry, 0u, kBodySemantic, MR_VISUAL_BINDING_ARTICULATED_LINK,
+                static_cast<std::uint32_t>(bodyIndex),
+                {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
+                static_cast<std::uint32_t>(bodyIndex + 1u)
+            );
+            ++renderedBodies;
+        }
     }
     for (std::size_t siteIndex = 0u; siteIndex < musclePayload.sites.size(); ++siteIndex) {
         const SiteRecord& site = musclePayload.sites[siteIndex];
         appendInstance(
             siteGeometry, 1u, kSiteSemantic, MR_VISUAL_BINDING_ARTICULATED_LINK,
             site.bodyIndex,
-            {site.x, site.y, site.z, 1.0f}, static_cast<std::uint32_t>(siteIndex + 1u)
+            {site.x, site.y, site.z, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
+            static_cast<std::uint32_t>(siteIndex + 1u)
         );
     }
     const auto routePoint = [&musclePayload, bodies](const RouteRecord& route) {
@@ -754,9 +970,13 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                 const float dz = current.z - previous.z;
                 if (dx * dx + dy * dy + dz * dz > 1.0e-10f) {
                     appendInstance(
-                        appendWorldTube(pack, previous, current, 0.0032f), 2u,
+                        appendWorldTube(
+                            pack, previous, current,
+                            bonePayload != nullptr ? 0.0016f : 0.0032f
+                        ), 2u,
                         kRouteSemantic, MR_VISUAL_BINDING_WORLD, MR_INVALID_INDEX,
-                        {0.0f, 0.0f, 0.0f, 1.0f}, stableRouteId++
+                        {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
+                        stableRouteId++
                     );
                     ++renderedRouteSegments;
                 }
@@ -774,10 +994,10 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
 metalrobo::WorldTemplate makeWorld(
     const metalrobo::EngineModel& model,
     const std::span<const MRBodyStateGPU> bodies,
-    std::array<std::string, 3u>& cameraNames
+    std::array<std::string, 4u>& cameraNames
 ) {
     const auto [center, distance] = frameBounds(model, bodies);
-    cameraNames = {"front", "side", "rear"};
+    cameraNames = {"front", "oblique", "side", "rear"};
     metalrobo::EpisodeTwin episode;
     episode.id = "myosim_fullbody_articulated_marker_visualization";
     metalrobo::WorldAsset human;
@@ -795,8 +1015,12 @@ metalrobo::WorldTemplate makeWorld(
     episode.assets.push_back(std::move(human));
     episode.sensors = {
         makeCamera(cameraNames[0], {center.x, center.y - distance, center.z + 0.10f * distance, 0.0f}, center),
-        makeCamera(cameraNames[1], {center.x + distance, center.y, center.z + 0.16f * distance, 0.0f}, center),
-        makeCamera(cameraNames[2], {center.x, center.y + distance, center.z + 0.10f * distance, 0.0f}, center),
+        makeCamera(cameraNames[1], {
+            center.x + 0.72f * distance, center.y - 0.72f * distance,
+            center.z + 0.16f * distance, 0.0f,
+        }, center),
+        makeCamera(cameraNames[2], {center.x + distance, center.y, center.z + 0.16f * distance, 0.0f}, center),
+        makeCamera(cameraNames[3], {center.x, center.y + distance, center.z + 0.10f * distance, 0.0f}, center),
     };
     episode.task.id = "pose_snapshot_visualization";
     episode.task.robotAssetId = "myosim_human";
@@ -900,14 +1124,20 @@ std::size_t coverage(
 int main(int argc, char** argv) {
     @autoreleasepool {
         try {
-            if (argc != 4) {
+            if (argc != 4 && argc != 5) {
                 std::cerr << "usage: " << argv[0]
                           << " <myosim-fullbody-core-reference.nhrigid>"
-                          << " <myosim-fullbody-muscle-reference.nhmyo> <output-directory>\n";
+                          << " <myosim-fullbody-muscle-reference.nhmyo>"
+                          << " [bodyparts3d-myosim-major-bones.nhbones] <output-directory>\n";
                 return 2;
             }
+            const bool bodypartsBoneVisual = argc == 5;
             const LoadedRigid rigid = loadRigid(argv[1]);
             const LoadedMuscles musclePayload = loadMuscles(argv[2], rigid.header);
+            std::optional<LoadedBones> bonePayload;
+            if (bodypartsBoneVisual) {
+                bonePayload.emplace(loadBones(argv[3], rigid.header));
+            }
             const metalrobo::MetalArticulatedOperatorInput input{
                 .articulationIndex = 0u,
                 .environmentCount = 1u,
@@ -927,10 +1157,12 @@ int main(int argc, char** argv) {
             const std::vector<MRBodyStateGPU> bodies = visualBodyStates(
                 rigid.model, poseResult.bodyPoses
             );
-            std::array<std::string, 3u> cameraNames;
+            std::array<std::string, 4u> cameraNames;
             const metalrobo::WorldTemplate world = makeWorld(rigid.model, bodies, cameraNames);
             metalrobo::WorldProgram program;
-            program.id = "myosim_fullbody_articulated_marker_visual_program";
+            program.id = bodypartsBoneVisual
+                ? "myosim_fullbody_articulated_bodyparts_bone_visual_program"
+                : "myosim_fullbody_articulated_marker_visual_program";
             metalrobo::WorldFamily family;
             const auto familyCompile = metalrobo::compileWorldFamily(world, program, family);
             require(familyCompile.succeeded(), "native Human visual family compile failed: " + familyCompile.message);
@@ -943,16 +1175,24 @@ int main(int argc, char** argv) {
             std::uint32_t renderedBodies = 0u;
             std::uint32_t renderedRouteSegments = 0u;
             const metalrobo::VisualAssetPackV2 pack = makeMarkerPack(
-                rigid.model, musclePayload, bodies, renderedBodies, renderedRouteSegments
+                rigid.model, musclePayload, bodies,
+                bonePayload.has_value() ? &*bonePayload : nullptr,
+                renderedBodies, renderedRouteSegments
             );
-            const std::filesystem::path outputDirectory{argv[3]};
+            const std::filesystem::path outputDirectory{argv[bodypartsBoneVisual ? 4 : 3]};
             std::filesystem::create_directories(outputDirectory);
-            const std::filesystem::path packPath = outputDirectory / "myosim-fullbody-articulated-markers.mrvpack";
+            const std::string stem = bodypartsBoneVisual
+                ? "myosim-fullbody-articulated-bodyparts-bones"
+                : "myosim-fullbody-articulated-markers";
+            const std::filesystem::path packPath = outputDirectory / (stem + ".mrvpack");
             std::string reason;
             require(metalrobo::writeVisualAssetPack(pack, packPath, &reason),
-                    "could not write native Human marker pack: " + reason);
+                    "could not write native Human visual pack: " + reason);
             const std::array references{
-                metalrobo::VisualAssetReferenceV3{packPath, pack.contentHash, 0u, kBodySemantic, 1u},
+                metalrobo::VisualAssetReferenceV3{
+                    packPath, pack.contentHash, 0u,
+                    bodypartsBoneVisual ? kBoneSemantic : kBodySemantic, 1u,
+                },
             };
             metalrobo::VisualSceneManifestV3 manifest;
             require(metalrobo::compileVisualSceneManifestV3(
@@ -961,7 +1201,7 @@ int main(int argc, char** argv) {
                     ),
                     "native Human visual scene compile failed: " + reason);
             require(metalrobo::writeVisualSceneManifestV3(
-                        manifest, outputDirectory / "myosim-fullbody-articulated-markers.visual.v3.json", &reason
+                        manifest, outputDirectory / (stem + ".visual.v3.json"), &reason
                     ),
                     "could not write native Human visual manifest: " + reason);
 
@@ -987,33 +1227,42 @@ int main(int argc, char** argv) {
                 const auto readback = renderer.readback(observation);
                 require(readback.succeeded(), "native Human render readback failed: " + readback.message);
                 const std::filesystem::path frame = outputDirectory /
-                    ("myosim-fullbody-articulated-" + cameraNames[camera] + ".png");
+                    (stem + "-" + cameraNames[camera] + ".png");
                 require(writePng(frame, observation), "could not write native Human PNG " + frame.string());
                 const std::size_t bodyPixels = coverage(observation, kBodySemantic);
+                const std::size_t bonePixels = coverage(observation, kBoneSemantic);
                 const std::size_t sitePixels = coverage(observation, kSiteSemantic);
                 const std::size_t routePixels = coverage(observation, kRouteSemantic);
-                require(bodyPixels > 0u && sitePixels > 0u && routePixels > 0u,
-                        "native Human frame has no body, muscle-site, or route coverage");
+                require((bodypartsBoneVisual ? bonePixels > 0u : bodyPixels > 0u) &&
+                            sitePixels > 0u && routePixels > 0u,
+                        "native Human frame has no linked-body, muscle-site, or route coverage");
                 std::cout << "view=" << cameraNames[camera]
                           << " body_pixels=" << bodyPixels
+                          << " bone_pixels=" << bonePixels
                           << " muscle_site_pixels=" << sitePixels
                           << " muscle_route_pixels=" << routePixels
                           << " frame=" << frame.string() << '\n';
             }
             std::cout << std::setprecision(12)
-                      << "myosim_articulated_marker_visual=ok"
+                      << (bodypartsBoneVisual
+                              ? "myosim_articulated_bodyparts_bone_visual=ok"
+                              : "myosim_articulated_marker_visual=ok")
                       << " metal_pose_device=\"" << poseDiagnostics.deviceName << "\""
                       << " renderer_device=\"" << rendererCompile.deviceName << "\""
                       << " core_bodies=" << rigid.header.engineBodyCount
-                      << " rendered_inertial_bodies=" << renderedBodies
+                      << " rendered_link_visuals=" << renderedBodies
+                      << " bodyparts_bones=" << (bonePayload.has_value() ? bonePayload->records.size() : 0u)
                       << " muscle_sites=" << musclePayload.sites.size()
                       << " route_centerline_segments=" << renderedRouteSegments
                       << " pose_stage_elapsed_ms=" << poseDiagnostics.elapsedMilliseconds
                       << " renderer_compile_ms=" << rendererCompile.elapsedMilliseconds
-                      << " boundary=metal_pose_snapshot_to_native_renderer_not_bodyparts_registration_or_live_rollout\n";
+                      << " boundary=" << (bodypartsBoneVisual
+                              ? "metal_pose_snapshot_to_native_renderer_with_provisional_bodyparts_bone_registration_not_collision_or_live_rollout"
+                              : "metal_pose_snapshot_to_native_renderer_not_bodyparts_registration_or_live_rollout")
+                      << '\n';
             return 0;
         } catch (const std::exception& error) {
-            std::cerr << "myosim_articulated_marker_visual=failed error=\""
+            std::cerr << "myosim_articulated_visual=failed error=\""
                       << error.what() << "\"\n";
             return 1;
         }
