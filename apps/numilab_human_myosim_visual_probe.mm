@@ -53,11 +53,11 @@ constexpr std::uint32_t kDefaultFrameDimension = 1024u;
 constexpr std::array<char, 8u> kBoneMagic{
     'N', 'H', 'B', 'O', 'N', 'E', 'S', '1',
 };
-constexpr std::uint32_t kBonePayloadAbi = 1u;
+constexpr std::uint32_t kBonePayloadAbi = 2u;
 constexpr std::array<char, 8u> kSoftTissueMagic{
     'N', 'H', 'T', 'I', 'S', 'S', '2', '\0',
 };
-constexpr std::uint32_t kSoftTissuePayloadAbi = 2u;
+constexpr std::uint32_t kSoftTissuePayloadAbi = 3u;
 constexpr std::uint32_t kSoftTissueLayerMuscle = 1u;
 constexpr std::uint32_t kSoftTissueLayerTendon = 2u;
 
@@ -569,7 +569,7 @@ LoadedBones loadBones(
     readObject(input, result.header, "BodyParts3D bone header");
     require(result.header.magic == kBoneMagic &&
                 result.header.payloadAbi == kBonePayloadAbi &&
-                result.header.reserved0 == 0u &&
+                result.header.reserved0 != 0u &&
                 result.header.sourceSha256 == rigid.sourceSha256 &&
                 result.header.boneCount > 0u &&
                 result.header.vertexCount > 0u &&
@@ -640,7 +640,7 @@ LoadedSoftTissues loadSoftTissues(
     readObject(input, result.header, "BodyParts3D soft-tissue header");
     require(result.header.magic == kSoftTissueMagic &&
                 result.header.payloadAbi == kSoftTissuePayloadAbi &&
-                result.header.reserved0 == 0u &&
+                result.header.reserved0 != 0u &&
                 result.header.sourceSha256 == rigid.sourceSha256 &&
                 result.header.tissueCount > 0u && result.header.tissueCount <= 192u &&
                 result.header.vertexCount > 0u && result.header.indexCount > 0u &&
@@ -1210,6 +1210,13 @@ float dotPoint(const mr_float4 first, const mr_float4 second) {
     return first.x * second.x + first.y * second.y + first.z * second.z;
 }
 
+mr_float4 normalizedDirection(const mr_float4 value, const char* context) {
+    const float lengthSquared = dotPoint(value, value);
+    require(std::isfinite(lengthSquared) && lengthSquared > 1.0e-10f,
+            std::string(context) + " is degenerate");
+    return scalePoint(value, 1.0f / std::sqrt(lengthSquared));
+}
+
 mr_float4 rotatePoint(const mr_float4 quaternion, const mr_float4 point) {
     const mr_float4 axis{quaternion.x, quaternion.y, quaternion.z, 0.0f};
     const mr_float4 twiceCross{
@@ -1507,33 +1514,61 @@ MRVisualMaterialGPUV2 makeMaterial(
     return material;
 }
 
-metalrobo::VisualLightRigV1 makeHumanAnatomyLightRig() {
-    metalrobo::VisualLightRigV1 result = metalrobo::makeIndoorAreaLightRigV1();
-    result.id = "human_anatomy_three_point";
-    result.contentHash = "builtin:human-anatomy-three-point-v2";
-    result.lights.front().identity.w = 201u;
+metalrobo::VisualLightRigV1 makeHumanAnatomyLightRig(
+    const mr_float4 center,
+    const mr_float4 cameraPosition,
+    const float cameraDistance
+) {
+    // Use a camera-relative three-point rig.  The source meshes must remain
+    // identical in every view, but a fixed world-space key left posterior and
+    // lateral inspections underlit and made the tendon-to-bone interface read
+    // as a flat colour boundary.  These broad, neutral softboxes present the
+    // same source normals and triangles from each inspected camera direction.
+    const float distance = std::max(cameraDistance, 0.35f);
+    const float intensityScale = distance * distance;
+    const mr_float4 view = normalizedDirection(
+        subtractPoint(cameraPosition, center), "Human anatomy camera direction"
+    );
+    const mr_float4 target = addPoint(center, {0.0f, 0.0f, 0.04f * distance, 0.0f});
+    const auto makeAreaLight = [&target, distance, intensityScale](
+        const mr_float4 position,
+        const mr_float4 color,
+        const float intensity,
+        const float width,
+        const float height,
+        const std::uint32_t stableId
+    ) {
+        MRVisualLightGPUV1 light{};
+        light.positionAndRange = {position.x, position.y, position.z, 20.0f};
+        const mr_float4 direction = normalizedDirection(
+            subtractPoint(target, position), "Human anatomy softbox direction"
+        );
+        light.directionAndSpot = {direction.x, direction.y, direction.z, -1.0f};
+        light.colorAndIntensity = {color.x, color.y, color.z, intensity * intensityScale};
+        light.shape = {width * distance, height * distance, -1.0f, 0.08f};
+        light.shadow = {1u, 0u, 0u, 0u};
+        light.identity = {MR_VISUAL_LIGHT_RECTANGLE, MR_VISUAL_LIGHT_UNIT_NIT, 0u, stableId};
+        return light;
+    };
 
-    // Keep the key neutral and soft.  The former mixed warm/cool rig made the
-    // ivory tendon material read as metallic gold and compressed the already
-    // subtle separation between the source muscle surfaces.
-    result.lights.front().colorAndIntensity = {1.0f, 0.97f, 0.92f, 760.0f};
-    result.lights.front().shape = {0.86f, 0.70f, -1.0f, 0.08f};
-
-    MRVisualLightGPUV1 fill = result.lights.front();
-    fill.positionAndRange = {-0.75f, 0.65f, 1.9f, 20.0f};
-    fill.directionAndSpot = {0.30f, -0.25f, -0.92f, -1.0f};
-    fill.colorAndIntensity = {0.76f, 0.81f, 0.90f, 260.0f};
-    fill.shape = {0.82f, 0.70f, -1.0f, 0.08f};
-    fill.identity.w = 202u;
-    result.lights.push_back(fill);
-
-    MRVisualLightGPUV1 rim = result.lights.front();
-    rim.positionAndRange = {0.15f, 1.10f, 2.25f, 20.0f};
-    rim.directionAndSpot = {-0.05f, -0.38f, -0.92f, -1.0f};
-    rim.colorAndIntensity = {0.96f, 0.91f, 0.80f, 220.0f};
-    rim.shape = {0.72f, 0.58f, -1.0f, 0.08f};
-    rim.identity.w = 203u;
-    result.lights.push_back(rim);
+    const mr_float4 keyPosition = addPoint(
+        cameraPosition, {0.24f * distance, -0.13f * distance, 0.31f * distance, 0.0f}
+    );
+    const mr_float4 fillPosition = addPoint(
+        cameraPosition, {-0.32f * distance, 0.18f * distance, 0.10f * distance, 0.0f}
+    );
+    const mr_float4 rimPosition = addPoint(
+        addPoint(center, scalePoint(view, -0.82f * distance)),
+        {0.0f, 0.08f * distance, 0.42f * distance, 0.0f}
+    );
+    metalrobo::VisualLightRigV1 result;
+    result.id = "human_anatomy_camera_relative_three_point";
+    result.contentHash = "builtin:human-anatomy-camera-relative-three-point-v3";
+    result.lights = {
+        makeAreaLight(keyPosition, {1.0f, 0.99f, 0.96f, 0.0f}, 150.0f, 0.88f, 0.70f, 201u),
+        makeAreaLight(fillPosition, {0.82f, 0.88f, 1.0f, 0.0f}, 54.0f, 0.96f, 0.78f, 202u),
+        makeAreaLight(rimPosition, {1.0f, 0.95f, 0.86f, 0.0f}, 92.0f, 0.72f, 0.58f, 203u),
+    };
     return result;
 }
 
@@ -2269,14 +2304,31 @@ CameraFraming makeCameraFraming(
             static_cast<float>(centroidZ / static_cast<double>(centroidVertexCount)),
             0.0f,
         },
-        // The old 1.20x stand-off made a 1.7 m source body read as a small
-        // specimen against mostly empty background.  A 1.08x stand-off puts
-        // the actual BodyParts3D detail in the frame while retaining enough
-        // margin for the elevated rear and oblique cameras.
-        .distance = std::max(1.08f * extent, 1.85f),
+        // The old global 1.85 m lower bound was appropriate for a 1.7 m
+        // whole-body specimen but reduced a selected ankle or wrist surface
+        // to a thumbnail.  Retain the full-body stand-off through its actual
+        // extent, while allowing a filtered anatomical insertion inspection
+        // to fill the frame with a conservative 0.25 m lower bound.
+        .distance = std::max(1.08f * extent, 0.25f),
         .sourceExtentMeters = extent,
         .usesSourceGeometryBounds = true,
     };
+}
+
+std::array<mr_float4, 4u> cameraPositions(
+    const CameraFraming& framing
+) {
+    const mr_float4 center = framing.center;
+    const float distance = framing.distance;
+    return {{
+        {center.x, center.y - distance, center.z + 0.10f * distance, 0.0f},
+        {
+            center.x + 0.72f * distance, center.y - 0.72f * distance,
+            center.z + 0.16f * distance, 0.0f,
+        },
+        {center.x + distance, center.y, center.z + 0.16f * distance, 0.0f},
+        {center.x, center.y + distance, center.z + 0.10f * distance, 0.0f},
+    }};
 }
 
 metalrobo::WorldTemplate makeWorld(
@@ -2286,7 +2338,7 @@ metalrobo::WorldTemplate makeWorld(
     std::array<std::string, 4u>& cameraNames
 ) {
     const mr_float4 center = framing.center;
-    const float distance = framing.distance;
+    const std::array<mr_float4, 4u> positions = cameraPositions(framing);
     cameraNames = {"front", "oblique", "side", "rear"};
     metalrobo::EpisodeTwin episode;
     episode.id = "myosim_fullbody_articulated_marker_visualization";
@@ -2304,13 +2356,10 @@ metalrobo::WorldTemplate makeWorld(
     }
     episode.assets.push_back(std::move(human));
     episode.sensors = {
-        makeCamera(cameraNames[0], {center.x, center.y - distance, center.z + 0.10f * distance, 0.0f}, center, dimension),
-        makeCamera(cameraNames[1], {
-            center.x + 0.72f * distance, center.y - 0.72f * distance,
-            center.z + 0.16f * distance, 0.0f,
-        }, center, dimension),
-        makeCamera(cameraNames[2], {center.x + distance, center.y, center.z + 0.16f * distance, 0.0f}, center, dimension),
-        makeCamera(cameraNames[3], {center.x, center.y + distance, center.z + 0.10f * distance, 0.0f}, center, dimension),
+        makeCamera(cameraNames[0], positions[0], center, dimension),
+        makeCamera(cameraNames[1], positions[1], center, dimension),
+        makeCamera(cameraNames[2], positions[2], center, dimension),
+        makeCamera(cameraNames[3], positions[3], center, dimension),
     };
     episode.task.id = "pose_snapshot_visualization";
     episode.task.robotAssetId = "myosim_human";
@@ -2632,6 +2681,10 @@ int main(int argc, char** argv) {
                 require(bodypartsBoneVisual,
                         "--soft-tissue-payload requires a BodyParts3D bone payload");
                 softTissuePayload.emplace(loadSoftTissues(*softTissuePayloadPath, rigid.header));
+                require(
+                    bonePayload->header.reserved0 == softTissuePayload->header.reserved0,
+                    "BodyParts3D bone and soft-tissue payloads have different visual registrations"
+                );
             }
             require(requestedSoftTissueStableIds.empty() || softTissuePayload.has_value(),
                     "--soft-tissue-stable-id requires --soft-tissue-payload");
@@ -2725,6 +2778,7 @@ int main(int argc, char** argv) {
             const CameraFraming cameraFraming = makeCameraFraming(
                 pack, bodies, focusBodyIndex
             );
+            const std::array<mr_float4, 4u> positions = cameraPositions(cameraFraming);
             std::array<std::string, 4u> cameraNames;
             const metalrobo::WorldTemplate world = makeWorld(
                 rigid.model, cameraFraming, frameDimension, cameraNames
@@ -2766,7 +2820,9 @@ int main(int argc, char** argv) {
             metalrobo::VisualSceneManifestV3 manifest;
             require(metalrobo::compileVisualSceneManifestV3(
                         world, references, metalrobo::makeNeutralStudioEnvironmentV2(),
-                        makeHumanAnatomyLightRig(), manifest, &reason
+                        makeHumanAnatomyLightRig(
+                            cameraFraming.center, positions.front(), cameraFraming.distance
+                        ), manifest, &reason
                     ),
                     "native Human visual scene compile failed: " + reason);
             require(metalrobo::writeVisualSceneManifestV3(
@@ -2786,7 +2842,9 @@ int main(int argc, char** argv) {
                 metalrobo::VisualSceneManifestV3 cameraManifest;
                 require(metalrobo::compileVisualSceneManifestV3(
                             world, references, metalrobo::makeNeutralStudioEnvironmentV2(),
-                            makeHumanAnatomyLightRig(), cameraManifest, &reason
+                            makeHumanAnatomyLightRig(
+                                cameraFraming.center, positions[camera], cameraFraming.distance
+                            ), cameraManifest, &reason
                         ),
                         "native Human per-camera visual scene compile failed: " + reason);
                 metalrobo::MetalHybridRendererConfig rendererConfig;
