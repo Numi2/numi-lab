@@ -4156,6 +4156,19 @@ std::uint32_t parseFrameDimension(const std::string& value) {
     return static_cast<std::uint32_t>(result);
 }
 
+std::uint32_t parseCameraIndex(const std::string& value) {
+    std::size_t parsed = 0u;
+    unsigned long result = 0ul;
+    try {
+        result = std::stoul(value, &parsed);
+    } catch (const std::exception&) {
+        throw std::runtime_error("--camera-index must be an integer from 0 through 3");
+    }
+    require(parsed == value.size() && result <= 3ul,
+            "--camera-index must be an integer from 0 through 3");
+    return static_cast<std::uint32_t>(result);
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -4180,6 +4193,7 @@ int main(int argc, char** argv) {
             std::optional<std::uint32_t> passiveFEMTissueStableId;
             std::optional<std::uint32_t> passiveFEMStepCount;
             std::optional<std::filesystem::path> passiveFEMMetallibPath;
+            std::optional<std::uint32_t> requestedCameraIndex;
             std::uint32_t frameDimension = kDefaultFrameDimension;
             std::vector<std::string> positional;
             for (int index = 1; index < argc; ++index) {
@@ -4271,6 +4285,10 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && frameDimension == kDefaultFrameDimension,
                             "--dimension requires one value and may be given only once");
                     frameDimension = parseFrameDimension(argv[++index]);
+                } else if (argument == "--camera-index") {
+                    require(index + 1 < argc && !requestedCameraIndex.has_value(),
+                            "--camera-index requires one value and may be given only once");
+                    requestedCameraIndex.emplace(parseCameraIndex(argv[++index]));
                 } else if (!argument.starts_with("--")) {
                     positional.push_back(argument);
                 } else {
@@ -4300,6 +4318,7 @@ int main(int argc, char** argv) {
                           << " [--tendon-attachment-collar-diagnostic]"
                           << " [--support-contact-payload <NHCNT1>]"
                           << " [--focus-body-index <0..156>]"
+                          << " [--camera-index <0..3>]"
                           << " [--dimension <512..2048; multiple-of-64>]\n";
                 return 2;
             }
@@ -4596,11 +4615,6 @@ int main(int argc, char** argv) {
             metalrobo::WorldFamily family;
             const auto familyCompile = metalrobo::compileWorldFamily(world, program, family);
             require(familyCompile.succeeded(), "native Human visual family compile failed: " + familyCompile.message);
-            metalrobo::MetalWorldFamilyContext worlds;
-            const auto worldsCompile = worlds.compile(family, 1u);
-            require(worldsCompile.succeeded(), "native Human visual device world compile failed: " + worldsCompile.message);
-            const auto worldsSample = worlds.sample(1u, 0x4d594f53494dull);
-            require(worldsSample.succeeded(), "native Human visual world sample failed: " + worldsSample.message);
             const std::filesystem::path outputDirectory{positional.back()};
             std::filesystem::create_directories(outputDirectory);
             const std::string stem = std::string(bodypartsBoneVisual
@@ -4646,9 +4660,13 @@ int main(int argc, char** argv) {
 
             metalrobo::VisualMotionSampleBatchV1 motion = makeMotion(bodies);
             bool completeVisualCoverage = true;
+            bool capturedRenderer = false;
             std::string rendererDeviceName;
             double rendererCompileMilliseconds = 0.0;
             for (std::size_t camera = 0u; camera < cameraNames.size(); ++camera) {
+                if (requestedCameraIndex.has_value() && camera != *requestedCameraIndex) {
+                    continue;
+                }
                 // Reference ray workspaces can retain a large drawable and
                 // acceleration structure.  Build one isolated renderer per
                 // fixed angle so 2048 px anatomy review cannot reuse a prior
@@ -4675,9 +4693,10 @@ int main(int argc, char** argv) {
                     metalrobo::VisualRendererProfileV1::sensorReference(), 1u
                 );
                 require(rendererCompile.succeeded(), "native Human renderer compile failed: " + rendererCompile.message);
-                if (camera == 0u) {
+                if (!capturedRenderer) {
                     rendererDeviceName = rendererCompile.deviceName;
                     rendererCompileMilliseconds = rendererCompile.elapsedMilliseconds;
+                    capturedRenderer = true;
                 } else {
                     require(rendererCompile.deviceName == rendererDeviceName,
                             "native Human visual cameras selected different renderer devices");
@@ -4685,6 +4704,16 @@ int main(int argc, char** argv) {
                 motion.sensorIdentity = camera + 1u;
                 motion.sensorSequence = static_cast<std::uint32_t>(camera + 1u);
                 motion.frameIndex = camera + 1u;
+                // MetalWorldFamilyContext owns sampled sensor-side state.  It
+                // must be fresh with the matching reference renderer so no
+                // camera can inherit a prior angle's drawable resources.
+                metalrobo::MetalWorldFamilyContext worlds;
+                const auto worldsCompile = worlds.compile(family, 1u);
+                require(worldsCompile.succeeded(),
+                        "native Human per-camera device world compile failed: " + worldsCompile.message);
+                const auto worldsSample = worlds.sample(1u, 0x4d594f53494dull);
+                require(worldsSample.succeeded(),
+                        "native Human per-camera world sample failed: " + worldsSample.message);
                 const auto render = renderer.renderFrame(worlds, motion, static_cast<std::uint32_t>(camera));
                 require(render.succeeded(), "native Human render failed: " + render.message);
                 metalrobo::HybridObservationBatch observation;
