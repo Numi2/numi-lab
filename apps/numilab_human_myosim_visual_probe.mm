@@ -3863,7 +3863,13 @@ CameraFraming makeCameraFraming(
             // close framing for both instead of turning the source tendon
             // junction into a small feature at the edge of a calf plate.
             .distance = *focusBodyIndex == 138u
-                ? 0.34f
+                // The calcaneal inspection is specifically for the visible
+                // tendon-to-bone junction. The former 34 cm stand-off left
+                // the contralateral ankle in frame and made a millimetre-scale
+                // enthesis read as a vague strip. This still clears the
+                // complete calcaneus, while filling the review frame with the
+                // right insertion from each fixed view.
+                ? 0.25f
                 : (pack.id == "myosim_zanatomy_calf_articulated_visual_supplement"
                     ? 0.58f
                     : 0.70f),
@@ -4705,6 +4711,27 @@ int main(int argc, char** argv) {
             bool capturedRenderer = false;
             std::string rendererDeviceName;
             double rendererCompileMilliseconds = 0.0;
+            // Source/anatomy captures are presentation evidence, rather than
+            // training observations. The regular sensor-reference profile is
+            // deliberately modest (8 temporal / 8 area-light samples) so it
+            // is inexpensive for routine diagnostics, but that leaves grain
+            // on the close, light-coloured calcaneus. The scoped Z-Anatomy
+            // inspection is the one visual intended for human review, so
+            // raise its native ray and softbox integration without changing
+            // geometry, material parameters, pose, or physics state.
+            metalrobo::VisualRendererProfileV1 rendererProfile =
+                metalrobo::VisualRendererProfileV1::sensorReference();
+            if (zAnatomyCalfVisualSupplement) {
+                rendererProfile.id = "human_anatomy_showcase_reference";
+                rendererProfile.temporalSamples = 32u;
+                rendererProfile.shadowMapResolution = 1024u;
+                rendererProfile.areaLightSamples = 32u;
+                rendererProfile.fingerprint =
+                    metalrobo::computeVisualRendererProfileFingerprint(rendererProfile);
+            }
+            std::string rendererProfileReason;
+            require(rendererProfile.valid(&rendererProfileReason),
+                    "native Human renderer profile is invalid: " + rendererProfileReason);
             for (std::size_t camera = 0u; camera < cameraNames.size(); ++camera) {
                 if (requestedCameraIndex.has_value() && camera != *requestedCameraIndex) {
                     continue;
@@ -4732,7 +4759,7 @@ int main(int argc, char** argv) {
                 metalrobo::MetalHybridRenderer renderer(rendererConfig);
                 const auto rendererCompile = renderer.compile(
                     std::move(cameraManifest.renderScene),
-                    metalrobo::VisualRendererProfileV1::sensorReference(), 1u
+                    rendererProfile, 1u
                 );
                 require(rendererCompile.succeeded(), "native Human renderer compile failed: " + rendererCompile.message);
                 if (!capturedRenderer) {
@@ -4868,6 +4895,9 @@ int main(int argc, char** argv) {
                       << " metal_pose_device=\"" << poseDiagnostics.deviceName << "\""
                       << " renderer_device=\"" << rendererDeviceName << "\""
                       << " frame_dimension=" << frameDimension
+                      << " renderer_profile=" << rendererProfile.id
+                      << " renderer_temporal_samples=" << rendererProfile.temporalSamples
+                      << " renderer_area_light_samples=" << rendererProfile.areaLightSamples
                       << " core_bodies=" << rigid.header.engineBodyCount
                       << " rendered_link_visuals=" << renderedBodies
                       << " bodyparts_bones=" << (bonePayload.has_value() ? bonePayload->records.size() : 0u)
