@@ -349,20 +349,12 @@ int main(int argc, char** argv) {
             metalrobo::MetalHybridRendererConfig configuration;
             configuration.width = dimension;
             configuration.height = dimension;
-            // Keep one reference workspace per fixed camera.  At high
-            // resolution, reusing the first camera's workspace can leave a
-            // later multi-angle readback without its source segmentation.
-            configuration.maximumReferenceFramesInFlight = 3u;
+            // A static source-inspection frame owns its reference workspace
+            // for the entire encode/readback pair.  A fresh renderer is made
+            // below for each fixed camera so high-resolution frames never
+            // inherit another camera's retained observation.
+            configuration.maximumReferenceFramesInFlight = 1u;
             configuration.clearColorAndDepth = {0.012f, 0.018f, 0.028f, 1.0e30f};
-            metalrobo::MetalHybridRenderer renderer(configuration);
-            require(
-                renderer.compile(
-                    std::move(manifest.renderScene),
-                    metalrobo::VisualRendererProfileV1::sensorReference(),
-                    1u
-                ),
-                "preview renderer compile"
-            );
             id<MTLDevice> device = MTLCreateSystemDefaultDevice();
             id<MTLCommandQueue> queue = [device newCommandQueue];
             if (device == nil || queue == nil) {
@@ -370,6 +362,16 @@ int main(int argc, char** argv) {
             }
             std::filesystem::create_directories(outputDirectory);
             for (std::uint32_t camera = 0u; camera < cameraDefinitions.size(); ++camera) {
+                metalrobo::MetalHybridRenderer renderer(configuration);
+                metalrobo::VisualRenderSceneV3 scene = manifest.renderScene;
+                require(
+                    renderer.compile(
+                        std::move(scene),
+                        metalrobo::VisualRendererProfileV1::sensorReference(),
+                        1u
+                    ),
+                    "preview renderer compile"
+                );
                 id<MTLCommandBuffer> command = [queue commandBuffer];
                 metalrobo::MetalHybridFrameCommandContext context;
                 context.commandBuffer = (__bridge void*)command;
