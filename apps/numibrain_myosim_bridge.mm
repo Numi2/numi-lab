@@ -396,6 +396,7 @@ struct Bridge {
     std::uint64_t rootGeneration = 0u;
     std::unique_ptr<metalrobo::MetalArticulatedOperatorContext> context;
     std::unique_ptr<CandidateState> pending;
+    std::string lastError;
     bool rootOpen = false;
 };
 
@@ -462,6 +463,11 @@ extern "C" void mr_numibrain_myosim_bridge_destroy(void* handle) {
     delete static_cast<Bridge*>(handle);
 }
 
+extern "C" const char* mr_numibrain_myosim_bridge_last_error(void* handle) {
+    const auto* bridge = static_cast<const Bridge*>(handle);
+    return bridge == nullptr ? "bridge handle is null" : bridge->lastError.c_str();
+}
+
 extern "C" std::uint32_t mr_numibrain_myosim_bridge_muscle_count(void* handle) {
     const auto* bridge = static_cast<const Bridge*>(handle);
     return bridge == nullptr
@@ -506,6 +512,7 @@ extern "C" std::uint32_t mr_numibrain_myosim_bridge_run_candidate(
 ) {
     try {
         auto& bridge = *static_cast<Bridge*>(handle);
+        bridge.lastError.clear();
         require(
             bridge.rootOpen && bridge.pending == nullptr &&
                 excitationMetalBuffer != nullptr &&
@@ -545,14 +552,24 @@ extern "C" std::uint32_t mr_numibrain_myosim_bridge_run_candidate(
         const auto diagnostics = bridge.context->run(
             bridge.model, input, borrowed, result
         );
-        require(
-            diagnostics.succeeded() && diagnostics.dispatched &&
-                diagnostics.published &&
-                result.mujocoActivationStates.size() == muscleCount &&
-                result.mujocoResults.size() == muscleCount &&
-                result.mujocoGeneralizedForces.size() == bridge.rootV.size(),
-            "NumanX MyoSim candidate failed"
-        );
+        if (!diagnostics.succeeded() || !diagnostics.dispatched ||
+            !diagnostics.published ||
+            result.mujocoActivationStates.size() != muscleCount ||
+            result.mujocoResults.size() != muscleCount ||
+            result.mujocoGeneralizedForces.size() != bridge.rootV.size()) {
+            throw std::runtime_error(
+                "NumanX MyoSim candidate failed: host_status=" +
+                std::to_string(static_cast<std::uint32_t>(diagnostics.status)) +
+                " gpu_status=" + std::to_string(diagnostics.firstGPUStatusCode) +
+                " dispatched=" + std::to_string(diagnostics.dispatched) +
+                " published=" + std::to_string(diagnostics.published) +
+                " states=" +
+                std::to_string(result.mujocoActivationStates.size()) +
+                " results=" + std::to_string(result.mujocoResults.size()) +
+                " forces=" +
+                std::to_string(result.mujocoGeneralizedForces.size())
+            );
+        }
         auto candidate = std::make_unique<CandidateState>();
         candidate->q = bridge.rootQ;
         candidate->v = bridge.rootV;
@@ -624,7 +641,15 @@ extern "C" std::uint32_t mr_numibrain_myosim_bridge_run_candidate(
         require(candidate->fingerprint != 0u, "physical candidate has no identity");
         bridge.pending = std::move(candidate);
         return 0u;
+    } catch (const std::exception& exception) {
+        if (handle != nullptr) {
+            static_cast<Bridge*>(handle)->lastError = exception.what();
+        }
+        return 1u;
     } catch (...) {
+        if (handle != nullptr) {
+            static_cast<Bridge*>(handle)->lastError = "unknown physical candidate failure";
+        }
         return 1u;
     }
 }
