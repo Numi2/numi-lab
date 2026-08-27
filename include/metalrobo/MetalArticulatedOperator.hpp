@@ -78,6 +78,11 @@ struct MetalMujocoMuscleReferenceInput {
     std::span<const MRMujocoMuscleSiteGPU> sites{};
     std::span<const MRMujocoMuscleWrapGPU> wraps{};
     std::span<const MRMujocoMuscleRouteNodeGPU> routeNodes{};
+    // Index in the enclosing point-query stream of a dense per-body probe
+    // block: COM, local +X, local +Y, local +Z. The source route kernel uses
+    // it to reconstruct a world-space spatial Jacobian at each authored site
+    // and tangent point, then emits source generalized muscle force on Metal.
+    std::uint32_t bodyJacobianPointOffset = MR_INVALID_INDEX;
 
     [[nodiscard]] bool enabled() const noexcept {
         return !muscles.empty();
@@ -182,6 +187,13 @@ struct MetalArticulatedOperatorLayout {
     std::size_t mujocoRouteNodeBytes = 0u;
     std::size_t mujocoResultElements = 0u;
     std::size_t mujocoResultBytes = 0u;
+    std::size_t mujocoMuscleGeneralizedForceElements = 0u;
+    std::size_t mujocoMuscleGeneralizedForceBytes = 0u;
+    std::size_t mujocoGeneralizedForceElements = 0u;
+    std::size_t mujocoGeneralizedForceBytes = 0u;
+    // Private suballocation in the mutually-exclusive source-muscle force
+    // workspace: per-muscle rows followed by their environment reduction.
+    std::size_t mujocoForceWorkspaceElements = 0u;
     // Includes immutable model buffers and one-element placeholders required
     // to bind logically empty Metal buffers.
     std::size_t totalAllocatedBytes = 0u;
@@ -199,6 +211,10 @@ struct MetalArticulatedOperatorResult {
     std::vector<MRMillardMuscleResultGPU> millardResults;
     std::vector<float> millardGeneralizedForces;
     std::vector<MRMujocoMuscleResultGPU> mujocoResults;
+    // Device-produced [environment][muscle][dof] source contributions and
+    // their deterministic [environment][dof] reduction.
+    std::vector<float> mujocoMuscleGeneralizedForces;
+    std::vector<float> mujocoGeneralizedForces;
 };
 
 struct MetalArticulatedOperatorDiagnostics {

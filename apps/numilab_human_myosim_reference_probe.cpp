@@ -341,6 +341,8 @@ struct MetalArticulatedMetrics {
     double maximumPointJacobianError = 0.0;
     double maximumMuscleLengthError = 0.0;
     double maximumMuscleForceError = 0.0;
+    double maximumMuscleGeneralizedForceError = 0.0;
+    double maximumSummedGeneralizedForceError = 0.0;
     std::uint32_t appliedMuscleWraps = 0u;
 };
 
@@ -353,8 +355,10 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
     std::vector<double> qReference(q.begin(), q.end());
     std::vector<double> zeroVelocity(articulation.nv, 0.0);
 
-    std::vector<MRArticulatedPointImpulseGPU> gpuPoints(articulation.bodyCount);
-    std::vector<metalrobo::ArticulatedPointQuery> cpuPoints(articulation.bodyCount);
+    std::vector<MRArticulatedPointImpulseGPU> gpuPoints;
+    std::vector<metalrobo::ArticulatedPointQuery> cpuPoints;
+    gpuPoints.reserve(5u * articulation.bodyCount);
+    cpuPoints.reserve(5u * articulation.bodyCount);
     for (std::size_t localBody = 0u; localBody < articulation.bodyCount; ++localBody) {
         const std::uint32_t globalBody = articulation.firstBody + static_cast<std::uint32_t>(localBody);
         const double phase = static_cast<double>(localBody + 1u);
@@ -363,16 +367,37 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
             0.003 * std::cos(0.47 * phase),
             0.002 * std::sin(0.59 * phase),
         };
-        gpuPoints[localBody].bodyIndex = globalBody;
-        gpuPoints[localBody].flags = 0u;
-        gpuPoints[localBody].reserved0 = 0u;
-        gpuPoints[localBody].reserved1 = 0u;
-        gpuPoints[localBody].localPoint = {
+        MRArticulatedPointImpulseGPU gpuPoint{};
+        gpuPoint.bodyIndex = globalBody;
+        gpuPoint.localPoint = {
             static_cast<float>(localPoint[0]), static_cast<float>(localPoint[1]),
             static_cast<float>(localPoint[2]), 0.0f,
         };
-        gpuPoints[localBody].worldImpulse = {0.0f, 0.0f, 0.0f, 0.0f};
-        cpuPoints[localBody] = {globalBody, localPoint};
+        gpuPoints.push_back(gpuPoint);
+        cpuPoints.push_back({globalBody, localPoint});
+    }
+    const std::uint32_t bodyJacobianPointOffset = static_cast<std::uint32_t>(
+        gpuPoints.size()
+    );
+    for (std::size_t localBody = 0u; localBody < articulation.bodyCount; ++localBody) {
+        const std::uint32_t globalBody = articulation.firstBody + static_cast<std::uint32_t>(localBody);
+        for (std::size_t probe = 0u; probe < 4u; ++probe) {
+            const std::array<double, 3> localPoint = probe == 0u
+                ? std::array<double, 3>{0.0, 0.0, 0.0}
+                : (probe == 1u
+                    ? std::array<double, 3>{1.0, 0.0, 0.0}
+                    : (probe == 2u
+                        ? std::array<double, 3>{0.0, 1.0, 0.0}
+                        : std::array<double, 3>{0.0, 0.0, 1.0}));
+            MRArticulatedPointImpulseGPU gpuPoint{};
+            gpuPoint.bodyIndex = globalBody;
+            gpuPoint.localPoint = {
+                static_cast<float>(localPoint[0]), static_cast<float>(localPoint[1]),
+                static_cast<float>(localPoint[2]), 0.0f,
+            };
+            gpuPoints.push_back(gpuPoint);
+            cpuPoints.push_back({globalBody, localPoint});
+        }
     }
 
     std::vector<metalrobo::ArticulatedBodyKinematics> cpuBodies(articulation.bodyCount);
@@ -398,6 +423,7 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
             .sites = muscles.gpuSites,
             .wraps = muscles.gpuWraps,
             .routeNodes = muscles.gpuRoutes,
+            .bodyJacobianPointOffset = bodyJacobianPointOffset,
         },
     };
     metalrobo::MetalArticulatedOperatorResult kinematicsResult;
@@ -421,7 +447,10 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
         kinematicsResult.bodyPoses.size() == cpuBodies.size() &&
             kinematicsResult.pointWorld.size() == cpuPointKinematics.size() &&
             kinematicsResult.pointJacobians.size() == cpuJacobians.size() &&
-            kinematicsResult.mujocoResults.size() == muscles.muscles.size(),
+            kinematicsResult.mujocoResults.size() == muscles.muscles.size() &&
+            kinematicsResult.mujocoMuscleGeneralizedForces.size() ==
+                muscles.muscles.size() * articulation.nv &&
+            kinematicsResult.mujocoGeneralizedForces.size() == articulation.nv,
         "MyoSim Metal kinematics/Jacobian result layout is invalid"
     );
 
@@ -487,6 +516,37 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
         );
         metrics.appliedMuscleWraps += gpu.appliedWrapCount;
     }
+    std::vector<double> expectedGeneralizedForce(articulation.nv, 0.0);
+    for (std::size_t muscleIndex = 0u;
+         muscleIndex < muscles.muscles.size();
+         ++muscleIndex) {
+        std::vector<double> expectedMuscleForce(articulation.nv, 0.0);
+        metalrobo::MujocoMuscleResult expectedResult;
+        const auto forceDiagnostics = metalrobo::projectMujocoMuscleForce(
+            model, 0u, qReference, zeroVelocity, muscles.sites, muscles.wraps,
+            muscles.muscles[muscleIndex], {.excitation = 0.5, .activation = 0.5},
+            expectedMuscleForce, &expectedResult
+        );
+        require(forceDiagnostics.succeeded(), "MyoSim CPU force reference failed before Metal parity");
+        for (std::size_t dof = 0u; dof < articulation.nv; ++dof) {
+            const std::size_t gpuIndex = muscleIndex * articulation.nv + dof;
+            metrics.maximumMuscleGeneralizedForceError = std::max(
+                metrics.maximumMuscleGeneralizedForceError,
+                std::abs(static_cast<double>(
+                    kinematicsResult.mujocoMuscleGeneralizedForces[gpuIndex]
+                ) - expectedMuscleForce[dof])
+            );
+            expectedGeneralizedForce[dof] += expectedMuscleForce[dof];
+        }
+    }
+    for (std::size_t dof = 0u; dof < articulation.nv; ++dof) {
+        metrics.maximumSummedGeneralizedForceError = std::max(
+            metrics.maximumSummedGeneralizedForceError,
+            std::abs(static_cast<double>(
+                kinematicsResult.mujocoGeneralizedForces[dof]
+            ) - expectedGeneralizedForce[dof])
+        );
+    }
     require(
         metrics.maximumBodyPositionError < 2.0e-4 &&
             metrics.maximumBodyOrientationComponentError < 2.0e-4 &&
@@ -494,6 +554,8 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
             metrics.maximumPointJacobianError < 5.0e-4 &&
             metrics.maximumMuscleLengthError < 2.0e-4 &&
             metrics.maximumMuscleForceError < 5.0e-2 &&
+            metrics.maximumMuscleGeneralizedForceError < 5.0e-2 &&
+            metrics.maximumSummedGeneralizedForceError < 2.0e-1 &&
             metrics.appliedMuscleWraps == 90u,
         "MyoSim Metal kinematics/Jacobian/muscle-route parity exceeded FP32 tolerance: "
             "body=" + std::to_string(metrics.maximumBodyPositionError) +
@@ -502,6 +564,8 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
             " jacobian=" + std::to_string(metrics.maximumPointJacobianError) +
             " muscle_length=" + std::to_string(metrics.maximumMuscleLengthError) +
             " muscle_force=" + std::to_string(metrics.maximumMuscleForceError) +
+            " muscle_generalized_force=" + std::to_string(metrics.maximumMuscleGeneralizedForceError) +
+            " summed_generalized_force=" + std::to_string(metrics.maximumSummedGeneralizedForceError) +
             " wraps=" + std::to_string(metrics.appliedMuscleWraps)
     );
 
@@ -635,7 +699,7 @@ int run(const char* rigidPath, const char* musclePath, const bool runMetal) {
                              << " mass_min_pivot=" << massDiagnostics.minimumCholeskyPivot
                              << " mass_condition=" << massDiagnostics.estimatedMassMatrixCondition;
     if (runMetal) {
-        output << " metal_stage=kinematics_jacobians_muscle_route_force"
+        output << " metal_stage=kinematics_jacobians_muscle_route_generalized_force"
                << " metal_device=\"" << metal.deviceName << "\""
                << " metal_max_body_position_error_m=" << metal.maximumBodyPositionError
                << " metal_max_body_orientation_component_error="
@@ -646,6 +710,10 @@ int run(const char* rigidPath, const char* musclePath, const bool runMetal) {
                << metal.maximumMuscleLengthError
                << " metal_max_muscle_force_error_n="
                << metal.maximumMuscleForceError
+               << " metal_max_muscle_generalized_force_error="
+               << metal.maximumMuscleGeneralizedForceError
+               << " metal_max_summed_generalized_force_error="
+               << metal.maximumSummedGeneralizedForceError
                << " metal_applied_wraps=" << metal.appliedMuscleWraps;
     }
     output << "\n";

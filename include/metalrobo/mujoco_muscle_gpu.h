@@ -6,7 +6,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_MUJOCO_MUSCLE_REFERENCE_GPU_ABI_VERSION 1u
+#define MR_MUJOCO_MUSCLE_REFERENCE_GPU_ABI_VERSION 2u
 
 enum MRMujocoMuscleReferenceGPUStatus : mr_u32 {
     MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS = 0u,
@@ -33,10 +33,14 @@ typedef struct MR_ALIGN16 MRMujocoMuscleReferenceDispatchGPU {
     mr_u32 bodyPoseStride;
     mr_u32 articulationFirstBody;
 
-    mr_u32 reserved0;
-    mr_u32 reserved1;
-    mr_u32 reserved2;
-    mr_u32 reserved3;
+    // Articulation-local generalized-coordinate count and the enclosing
+    // articulated operator's per-environment Jacobian stride. The source
+    // route kernel projects every current path segment through four supplied
+    // point-Jacobian probes per body: COM, local +X, +Y, and +Z.
+    mr_u32 dofCount;
+    mr_u32 pointJacobianStride;
+    mr_u32 bodyJacobianPointOffset;
+    mr_u32 bodyJacobianPointStride;
 } MRMujocoMuscleReferenceDispatchGPU;
 
 // Immutable source program. Every three parameter blocks retain the ten

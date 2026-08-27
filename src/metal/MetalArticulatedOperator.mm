@@ -33,7 +33,7 @@ namespace {
 // Shared kernel ABI. The first sixteen slots are the established articulated
 // operator stream; the Millard sidecar consumes those private outputs and
 // occupies slots 16..23 in the same command buffer. The MyoSim sidecar owns
-// slots 24..30 and consumes the same private pose output directly.
+// slots 24..30 and consumes the same private pose/Jacobian output directly.
 constexpr std::size_t kRawBufferCount = 31u;
 constexpr std::size_t kMillardDispatchBuffer = 16u;
 constexpr std::size_t kMillardMusclesBuffer = 17u;
@@ -89,6 +89,7 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> pipeline = nil;
     __strong id<MTLComputePipelineState> millardPipeline = nil;
     __strong id<MTLComputePipelineState> mujocoPipeline = nil;
+    __strong id<MTLComputePipelineState> mujocoReducePipeline = nil;
     __strong id<MTLBuffer> buffers[kRawBufferCount] = {};
     std::array<std::size_t, kRawBufferCount> capacities{};
     MetalArticulatedOperatorContextStats stats{};
@@ -540,6 +541,7 @@ bool validMillardReference(
 bool validMujocoReference(
     const MRArticulationGPU& articulation,
     const std::size_t environmentCount,
+    const std::size_t pointCount,
     const MetalMujocoMuscleReferenceInput& mujoco,
     std::string& reason
 ) {
@@ -550,6 +552,13 @@ bool validMujocoReference(
             return false;
         }
         return true;
+    }
+    if (mujoco.bodyJacobianPointOffset == MR_INVALID_INDEX ||
+        mujoco.bodyJacobianPointOffset > pointCount ||
+        articulation.bodyCount >
+            (pointCount - mujoco.bodyJacobianPointOffset) / 4u) {
+        reason = "MyoSim sidecar lacks four body-Jacobian probes per body";
+        return false;
     }
     if (mujoco.muscles.size() > std::numeric_limits<mr_u32>::max() ||
         mujoco.sites.size() > std::numeric_limits<mr_u32>::max() ||
@@ -758,8 +767,11 @@ bool buildRequirements(
             requirements.entries[kMillardResultsBuffer]
         ) ||
         !makeRequirement<float>(
-            "Millard generalized forces",
-            layout.millardGeneralizedForceElements,
+            "source-muscle generalized-force workspace",
+            std::max(
+                layout.millardGeneralizedForceElements,
+                layout.mujocoForceWorkspaceElements
+            ),
             requirements.entries[kMillardForcesBuffer]
         ) ||
         !makeRequirement<MRMujocoMuscleReferenceDispatchGPU>(
@@ -933,6 +945,14 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             "diagnostic mass matrix"
         );
     }
+    if (input.millard.enabled() && input.mujoco.enabled()) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidDimensions,
+            "Millard and MyoSim source-muscle sidecars cannot share one "
+            "operator submission"
+        );
+    }
     dispatch.qStride = articulation.nq;
     dispatch.pointStride = dispatch.pointCount;
     dispatch.bodyPoseStride = articulation.bodyCount;
@@ -1046,6 +1066,18 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
                 input.environmentCount,
                 layout.mujocoMuscleElements,
                 layout.mujocoResultElements
+            ) || !checkedMultiply(
+                layout.mujocoResultElements,
+                articulation.nv,
+                layout.mujocoMuscleGeneralizedForceElements
+            ) || !checkedMultiply(
+                input.environmentCount,
+                articulation.nv,
+                layout.mujocoGeneralizedForceElements
+            ) || !checkedAdd(
+                layout.mujocoMuscleGeneralizedForceElements,
+                layout.mujocoGeneralizedForceElements,
+                layout.mujocoForceWorkspaceElements
             )) {
             return reject(
                 std::move(diagnostics),
@@ -1082,7 +1114,11 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         exceedsShaderAddressing(layout.mujocoSiteElements) ||
         exceedsShaderAddressing(layout.mujocoWrapElements) ||
         exceedsShaderAddressing(layout.mujocoRouteNodeElements) ||
-        exceedsShaderAddressing(layout.mujocoResultElements)) {
+        exceedsShaderAddressing(layout.mujocoResultElements) ||
+        exceedsShaderAddressing(
+            layout.mujocoMuscleGeneralizedForceElements
+        ) ||
+        exceedsShaderAddressing(layout.mujocoGeneralizedForceElements)) {
         return reject(
             std::move(diagnostics),
             MetalArticulatedOperatorHostStatus::arithmeticOverflow,
@@ -1144,6 +1180,21 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         requirements.entries[kMujocoRoutesBuffer].logicalBytes;
     layout.mujocoResultBytes =
         requirements.entries[kMujocoResultsBuffer].logicalBytes;
+    if (!checkedMultiply(
+            layout.mujocoMuscleGeneralizedForceElements,
+            sizeof(float),
+            layout.mujocoMuscleGeneralizedForceBytes
+        ) || !checkedMultiply(
+            layout.mujocoGeneralizedForceElements,
+            sizeof(float),
+            layout.mujocoGeneralizedForceBytes
+        )) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+            "derived MyoSim force-output byte-count overflow"
+        );
+    }
     layout.totalAllocatedBytes = totalAllocatedBytes;
     diagnostics.layout = layout;
 
@@ -1191,6 +1242,7 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
     if (!validMujocoReference(
             articulation,
             input.environmentCount,
+            input.pointCount,
             input.mujoco,
             mujocoReason
         )) {
@@ -1427,6 +1479,29 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 describeError(error)
         );
     }
+    id<MTLFunction> mujocoReduceFunction = [library
+        newFunctionWithName:@"mr_mujoco_muscle_reduce"];
+    if (mujocoReduceFunction == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+            "metallib does not contain the MyoSim force-reduction operator"
+        );
+    }
+    error = nil;
+    id<MTLComputePipelineState> mujocoReducePipeline = [device
+        newComputePipelineStateWithFunction:mujocoReduceFunction
+                                       error:&error];
+    if (mujocoReducePipeline == nil ||
+        mujocoReducePipeline.maxTotalThreadsPerThreadgroup <
+            kThreadsPerThreadgroup) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+            "failed to create MyoSim force-reduction pipeline: " +
+                describeError(error)
+        );
+    }
 
     context.device = device;
     context.queue = queue;
@@ -1434,6 +1509,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     context.pipeline = pipeline;
     context.millardPipeline = millardPipeline;
     context.mujocoPipeline = mujocoPipeline;
+    context.mujocoReducePipeline = mujocoReducePipeline;
     context.initialized = true;
     ++context.stats.pipelineCreationCount;
     return diagnostics;
@@ -1767,6 +1843,12 @@ void uploadBatch(
         );
         mujocoDispatch.bodyPoseStride = layout.dispatch.bodyPoseStride;
         mujocoDispatch.articulationFirstBody = articulation.firstBody;
+        mujocoDispatch.dofCount = articulation.nv;
+        mujocoDispatch.pointJacobianStride =
+            layout.dispatch.pointJacobianStride;
+        mujocoDispatch.bodyJacobianPointOffset =
+            input.mujoco.bodyJacobianPointOffset;
+        mujocoDispatch.bodyJacobianPointStride = 4u;
     }
     copyToBuffer(
         context.buffers[kMujocoDispatchBuffer],
@@ -1949,6 +2031,20 @@ bool finitePayload(
             [](const MRMujocoMuscleResultGPU& value) {
                 return finite(value.pathForceAndActivationDerivative);
             }
+        ) &&
+        std::all_of(
+            result.mujocoMuscleGeneralizedForces.begin(),
+            result.mujocoMuscleGeneralizedForces.end(),
+            [](const float value) {
+                return std::isfinite(value);
+            }
+        ) &&
+        std::all_of(
+            result.mujocoGeneralizedForces.begin(),
+            result.mujocoGeneralizedForces.end(),
+            [](const float value) {
+                return std::isfinite(value);
+            }
         );
 }
 
@@ -2038,6 +2134,12 @@ MetalArticulatedOperatorSubmission::wait(
                 layout.millardGeneralizedForceElements
             );
             staged.mujocoResults.resize(layout.mujocoResultElements);
+            staged.mujocoMuscleGeneralizedForces.resize(
+                layout.mujocoMuscleGeneralizedForceElements
+            );
+            staged.mujocoGeneralizedForces.resize(
+                layout.mujocoGeneralizedForceElements
+            );
 
             const auto& buffers = pending->context->buffers;
             copyOutput(staged.bodyPoses, buffers[8]);
@@ -2065,6 +2167,20 @@ MetalArticulatedOperatorSubmission::wait(
                 staged.mujocoResults,
                 buffers[kMujocoResultsBuffer]
             );
+            copyOutput(
+                staged.mujocoMuscleGeneralizedForces,
+                buffers[kMillardForcesBuffer]
+            );
+            if (!staged.mujocoGeneralizedForces.empty()) {
+                const auto* source = static_cast<const float*>(
+                    buffers[kMillardForcesBuffer].contents
+                ) + layout.mujocoMuscleGeneralizedForceElements;
+                std::copy_n(
+                    source,
+                    staged.mujocoGeneralizedForces.size(),
+                    staged.mujocoGeneralizedForces.begin()
+                );
+            }
         }
 
         for (std::size_t environment = 0u;
@@ -2417,6 +2533,43 @@ MetalArticulatedOperatorContext::submit(
                         1u
                     )];
                 [mujocoEncoder endEncoding];
+                id<MTLComputeCommandEncoder> mujocoReduceEncoder =
+                    [commandBuffer computeCommandEncoder];
+                if (mujocoReduceEncoder == nil) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                        "failed to create MyoSim force-reduction encoder"
+                    );
+                }
+                [mujocoReduceEncoder
+                    setComputePipelineState:state_->mujocoReducePipeline];
+                for (NSUInteger index = 0u;
+                     index < kRawBufferCount;
+                     ++index) {
+                    [mujocoReduceEncoder
+                        setBuffer:state_->buffers[index]
+                           offset:0u
+                          atIndex:index];
+                }
+                const std::size_t reducedThreadCount =
+                    diagnostics.layout.mujocoGeneralizedForceElements;
+                [mujocoReduceEncoder
+                    dispatchThreadgroups:MTLSizeMake(
+                        static_cast<NSUInteger>(
+                            (reducedThreadCount +
+                             kThreadsPerThreadgroup - 1u) /
+                                kThreadsPerThreadgroup
+                        ),
+                        1u,
+                        1u
+                    )
+                    threadsPerThreadgroup:MTLSizeMake(
+                        kThreadsPerThreadgroup,
+                        1u,
+                        1u
+                    )];
+                [mujocoReduceEncoder endEncoding];
             }
 
             auto pending = std::make_unique<
@@ -2679,6 +2832,7 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                 }
             }
             id<MTLComputePipelineState> mujocoPipeline = nil;
+            id<MTLComputePipelineState> mujocoReducePipeline = nil;
             if (input.mujoco.enabled()) {
                 id<MTLFunction> mujocoFunction = [library
                     newFunctionWithName:@"mr_mujoco_muscle_reference"];
@@ -2700,6 +2854,29 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                         std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::metalPipelineFailure,
                         "failed to create MyoSim reference pipeline: " +
+                            describeError(error)
+                        );
+                }
+                id<MTLFunction> mujocoReduceFunction = [library
+                    newFunctionWithName:@"mr_mujoco_muscle_reduce"];
+                if (mujocoReduceFunction == nil) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                        "metallib does not contain the MyoSim force-reduction operator"
+                    );
+                }
+                error = nil;
+                mujocoReducePipeline = [device
+                    newComputePipelineStateWithFunction:mujocoReduceFunction
+                                                   error:&error];
+                if (mujocoReducePipeline == nil ||
+                    mujocoReducePipeline.maxTotalThreadsPerThreadgroup <
+                        kThreadsPerThreadgroup) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                        "failed to create MyoSim force-reduction pipeline: " +
                             describeError(error)
                     );
                 }
@@ -2918,6 +3095,12 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                 mujocoDispatch.bodyPoseStride = layout.dispatch.bodyPoseStride;
                 mujocoDispatch.articulationFirstBody =
                     mujocoArticulation.firstBody;
+                mujocoDispatch.dofCount = mujocoArticulation.nv;
+                mujocoDispatch.pointJacobianStride =
+                    layout.dispatch.pointJacobianStride;
+                mujocoDispatch.bodyJacobianPointOffset =
+                    input.mujoco.bodyJacobianPointOffset;
+                mujocoDispatch.bodyJacobianPointStride = 4u;
             }
             buffers[kMujocoDispatchBuffer] = makeInputBuffer(
                 device,
@@ -3111,6 +3294,43 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                         1u
                     )];
                 [mujocoEncoder endEncoding];
+                id<MTLComputeCommandEncoder> mujocoReduceEncoder =
+                    [commandBuffer computeCommandEncoder];
+                if (mujocoReduceEncoder == nil) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                        "failed to create MyoSim force-reduction encoder"
+                    );
+                }
+                [mujocoReduceEncoder
+                    setComputePipelineState:mujocoReducePipeline];
+                for (NSUInteger index = 0u;
+                     index < kRawBufferCount;
+                     ++index) {
+                    [mujocoReduceEncoder
+                        setBuffer:buffers[index]
+                           offset:0u
+                          atIndex:index];
+                }
+                const std::size_t reducedThreadCount =
+                    layout.mujocoGeneralizedForceElements;
+                [mujocoReduceEncoder
+                    dispatchThreadgroups:MTLSizeMake(
+                        static_cast<NSUInteger>(
+                            (reducedThreadCount +
+                             kThreadsPerThreadgroup - 1u) /
+                                kThreadsPerThreadgroup
+                        ),
+                        1u,
+                        1u
+                    )
+                    threadsPerThreadgroup:MTLSizeMake(
+                        kThreadsPerThreadgroup,
+                        1u,
+                        1u
+                    )];
+                [mujocoReduceEncoder endEncoding];
             }
 
             const auto start =
@@ -3159,6 +3379,12 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                 layout.millardGeneralizedForceElements
             );
             staged.mujocoResults.resize(layout.mujocoResultElements);
+            staged.mujocoMuscleGeneralizedForces.resize(
+                layout.mujocoMuscleGeneralizedForceElements
+            );
+            staged.mujocoGeneralizedForces.resize(
+                layout.mujocoGeneralizedForceElements
+            );
             copyOutput(staged.bodyPoses, buffers[8]);
             copyOutput(staged.pointWorld, buffers[9]);
             copyOutput(
@@ -3184,6 +3410,20 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                 staged.mujocoResults,
                 buffers[kMujocoResultsBuffer]
             );
+            copyOutput(
+                staged.mujocoMuscleGeneralizedForces,
+                buffers[kMillardForcesBuffer]
+            );
+            if (!staged.mujocoGeneralizedForces.empty()) {
+                const auto* source = static_cast<const float*>(
+                    buffers[kMillardForcesBuffer].contents
+                ) + layout.mujocoMuscleGeneralizedForceElements;
+                std::copy_n(
+                    source,
+                    staged.mujocoGeneralizedForces.size(),
+                    staged.mujocoGeneralizedForces.begin()
+                );
+            }
         }
 
         for (std::size_t environment = 0u;

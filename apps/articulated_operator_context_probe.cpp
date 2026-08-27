@@ -113,7 +113,15 @@ bool samePayload(
         byteEqual(left.generalizedImpulse,
                   right.generalizedImpulse) &&
         byteEqual(left.deltaVelocity, right.deltaVelocity) &&
-        byteEqual(left.statuses, right.statuses);
+        byteEqual(left.statuses, right.statuses) &&
+        byteEqual(left.millardResults, right.millardResults) &&
+        byteEqual(left.millardGeneralizedForces,
+                  right.millardGeneralizedForces) &&
+        byteEqual(left.mujocoResults, right.mujocoResults) &&
+        byteEqual(left.mujocoMuscleGeneralizedForces,
+                  right.mujocoMuscleGeneralizedForces) &&
+        byteEqual(left.mujocoGeneralizedForces,
+                  right.mujocoGeneralizedForces);
 }
 
 void requireSuccess(

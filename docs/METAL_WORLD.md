@@ -851,8 +851,13 @@ velocity offsets, retained articulation-local factors apply every
 articulation-articulation and articulation-static contacts without a dense
 global inverse. The Metal articulated operator now has a dedicated
 kinematics-plus-point-Jacobian mode which skips mass assembly, factorization
-and impulse response; it emits deterministic zero generalized payloads while
-preserving point results bitwise against the full operator. The CPU operator
+and impulse response; its generic impulse/delta-velocity payloads remain
+deterministic zero while preserving point results bitwise against the full
+operator. An optional MyoSim MuJoCo sidecar then consumes those private poses
+and four analytic Jacobian probes per body to produce source spatial-route
+`J^T` generalized muscle forces and their deterministic reduction on device.
+That is force projection only; it does not claim that the bounded generic
+dynamics bucket integrates the 157-body Human tree. The CPU operator
 also appends one 6D maximal-coordinate block per dynamic scene body, applies
 world-frame inverse mass/inertia directly, and treats static/kinematic point
 velocity as prescribed. The dual-PSM/needle `HeterogeneousWorld` now enters
