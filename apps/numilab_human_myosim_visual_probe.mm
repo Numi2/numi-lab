@@ -69,7 +69,8 @@ constexpr std::uint32_t kSoftTissueLayerTendon = 2u;
 constexpr std::array<char, 8u> kSkinMagic{
     'N', 'H', 'S', 'K', 'I', 'N', '1', '\0',
 };
-constexpr std::uint32_t kSkinPayloadAbi = 1u;
+constexpr std::uint32_t kLegacySkinPayloadAbi = 1u;
+constexpr std::uint32_t kSkinPayloadAbi = 2u;
 
 #pragma pack(push, 1)
 struct RigidHeader {
@@ -364,6 +365,7 @@ struct LoadedSkin {
     std::vector<SkinBindingRecord> bindings;
     std::vector<SkinVertex> vertices;
     std::vector<std::uint32_t> indices;
+    bool usesBoundaryLocalWeights = false;
 };
 
 struct LoadedSupportContacts {
@@ -952,7 +954,8 @@ LoadedSkin loadSkin(
     LoadedSkin result;
     readObject(input, result.header, "BodyParts3D skinned-shell header");
     require(result.header.magic == kSkinMagic &&
-                result.header.payloadAbi == kSkinPayloadAbi &&
+                (result.header.payloadAbi == kLegacySkinPayloadAbi ||
+                 result.header.payloadAbi == kSkinPayloadAbi) &&
                 result.header.registrationFingerprint == expectedRegistrationFingerprint &&
                 result.header.sourceSha256 == rigid.sourceSha256 &&
                 result.header.bindingCount >= 4u && result.header.bindingCount <= 256u &&
@@ -961,6 +964,7 @@ LoadedSkin loadSkin(
                 result.header.vertexCount <= 1'000'000u &&
                 result.header.indexCount <= 6'000'000u,
             "BodyParts3D skinned-shell payload/header disagreement");
+    result.usesBoundaryLocalWeights = result.header.payloadAbi == kSkinPayloadAbi;
     result.bindings = readVector<SkinBindingRecord>(
         input, result.header.bindingCount, "BodyParts3D skinned-shell bindings"
     );
@@ -2824,7 +2828,9 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     }
     if (skinPayload != nullptr) {
         pack.preprocessingProvenance +=
-            "/exact_bodyparts3d_skin_shell_with_four_registered_bone_envelope_linear_blend_kinematic_binding";
+            skinPayload->usesBoundaryLocalWeights
+                ? "/exact_bodyparts3d_skin_shell_with_four_registered_bone_envelope_boundary_local_linear_blend_kinematic_binding"
+                : "/exact_bodyparts3d_skin_shell_with_four_registered_bone_envelope_linear_blend_kinematic_binding";
     }
     if (sourceRouteCentrelines != nullptr) {
         pack.preprocessingProvenance +=
@@ -3884,7 +3890,9 @@ int main(int argc, char** argv) {
             }
             if (skinPayload.has_value()) {
                 evidenceBoundary +=
-                    "_with_four_bone_linear_blend_bodyparts3d_skin_shell_visual_not_deformable_skin_collision_or_tissue_physics";
+                    skinPayload->usesBoundaryLocalWeights
+                        ? "_with_four_bone_boundary_local_linear_blend_bodyparts3d_skin_shell_visual_not_deformable_skin_collision_or_tissue_physics"
+                        : "_with_four_bone_linear_blend_bodyparts3d_skin_shell_visual_not_deformable_skin_collision_or_tissue_physics";
             }
             std::cout << std::setprecision(12)
                       << (bodypartsBoneVisual
@@ -3906,7 +3914,9 @@ int main(int argc, char** argv) {
                       << renderedTendonAttachmentCollars
                       << " bodyparts_skin_shells=" << renderedSkinShells
                       << " skin_shell_binding=" << (skinPayload.has_value()
-                              ? "four_body_registered_bone_envelope_linear_blend_world_surface_snapshot"
+                              ? (skinPayload->usesBoundaryLocalWeights
+                                  ? "four_body_registered_bone_envelope_boundary_local_linear_blend_world_surface_snapshot"
+                                  : "four_body_registered_bone_envelope_linear_blend_world_surface_snapshot")
                               : "none")
                       << " muscle_sites=" << musclePayload.sites.size()
                       << " route_centerline_segments=" << renderedRouteSegments
