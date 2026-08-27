@@ -366,6 +366,8 @@ struct CandidateState {
     std::uint64_t substepFingerprint = 0u;
     float maximumExcitation = 0.0f;
     float maximumAbsoluteGeneralizedForce = 0.0f;
+    double maximumAbsoluteVelocityDelta = 0.0;
+    double maximumAbsoluteConfigurationDelta = 0.0;
 };
 
 struct Bridge {
@@ -555,6 +557,18 @@ extern "C" std::uint32_t mr_numibrain_myosim_bridge_run_candidate(
             physicalConfig
         );
         require(physical.succeeded(), "NumanX articulated candidate integration failed");
+        for (std::size_t index = 0u; index < candidate->v.size(); ++index) {
+            candidate->maximumAbsoluteVelocityDelta = std::max(
+                candidate->maximumAbsoluteVelocityDelta,
+                std::abs(candidate->v[index] - bridge.rootV[index])
+            );
+        }
+        for (std::size_t index = 0u; index < candidate->q.size(); ++index) {
+            candidate->maximumAbsoluteConfigurationDelta = std::max(
+                candidate->maximumAbsoluteConfigurationDelta,
+                std::abs(candidate->q[index] - bridge.rootQ[index])
+            );
+        }
         candidate->fingerprint = stateFingerprint(
             candidate->q,
             candidate->v,
@@ -636,6 +650,22 @@ extern "C" float mr_numibrain_myosim_bridge_pending_maximum_force(void* handle) 
     const auto* bridge = static_cast<const Bridge*>(handle);
     return bridge != nullptr && bridge->pending != nullptr
         ? bridge->pending->maximumAbsoluteGeneralizedForce : 0.0f;
+}
+
+extern "C" double mr_numibrain_myosim_bridge_pending_maximum_velocity_delta(
+    void* handle
+) {
+    const auto* bridge = static_cast<const Bridge*>(handle);
+    return bridge != nullptr && bridge->pending != nullptr
+        ? bridge->pending->maximumAbsoluteVelocityDelta : 0.0;
+}
+
+extern "C" double mr_numibrain_myosim_bridge_pending_maximum_configuration_delta(
+    void* handle
+) {
+    const auto* bridge = static_cast<const Bridge*>(handle);
+    return bridge != nullptr && bridge->pending != nullptr
+        ? bridge->pending->maximumAbsoluteConfigurationDelta : 0.0;
 }
 
 extern "C" std::uint64_t mr_numibrain_myosim_bridge_committed_fingerprint(void* handle) {
