@@ -36,6 +36,7 @@ constexpr std::array<char, 8u> kMuscleMagic{
 constexpr std::uint32_t kPayloadAbi = 1u;
 constexpr std::uint32_t kBodySemantic = 51001u;
 constexpr std::uint32_t kSiteSemantic = 51002u;
+constexpr std::uint32_t kRouteSemantic = 51003u;
 constexpr std::uint32_t kFrameWidth = 640u;
 constexpr std::uint32_t kFrameHeight = 640u;
 
@@ -110,6 +111,14 @@ struct MuscleRecord {
     std::uint32_t routeCount = 0u;
     std::uint32_t reserved0 = 0u;
     float values[37]{};
+};
+
+struct LoadedMuscles {
+    MuscleHeader header{};
+    std::vector<SiteRecord> sites;
+    std::vector<WrapRecord> wraps;
+    std::vector<RouteRecord> routes;
+    std::vector<MuscleRecord> muscles;
 };
 #pragma pack(pop)
 
@@ -211,35 +220,53 @@ LoadedRigid loadRigid(const std::filesystem::path& path) {
     return result;
 }
 
-std::vector<SiteRecord> loadSites(
+LoadedMuscles loadMuscles(
     const std::filesystem::path& path,
     const RigidHeader& rigid
 ) {
     std::ifstream input(path, std::ios::binary);
     require(input.is_open(), "cannot open MyoSim muscle payload " + path.string());
-    MuscleHeader header{};
-    readObject(input, header, "MyoSim muscle header");
-    require(header.magic == kMuscleMagic && header.payloadAbi == kPayloadAbi &&
-                header.engineBodyCount == rigid.engineBodyCount &&
-                header.sourceSha256 == rigid.sourceSha256 &&
-                header.reserved0 == 0u && header.reserved1 == 0u,
+    LoadedMuscles result;
+    readObject(input, result.header, "MyoSim muscle header");
+    require(result.header.magic == kMuscleMagic && result.header.payloadAbi == kPayloadAbi &&
+                result.header.engineBodyCount == rigid.engineBodyCount &&
+                result.header.sourceSha256 == rigid.sourceSha256 &&
+                result.header.reserved0 == 0u && result.header.reserved1 == 0u,
             "MyoSim muscle payload/header disagreement");
-    std::vector<SiteRecord> sites = readVector<SiteRecord>(
-        input, header.siteCount, "MyoSim sites"
+    result.sites = readVector<SiteRecord>(
+        input, result.header.siteCount, "MyoSim sites"
     );
-    const auto wraps = readVector<WrapRecord>(input, header.wrapCount, "MyoSim wraps");
-    const auto routes = readVector<RouteRecord>(input, header.routeNodeCount, "MyoSim routes");
-    const auto muscles = readVector<MuscleRecord>(input, header.muscleCount, "MyoSim muscles");
-    (void)wraps;
-    (void)routes;
-    (void)muscles;
+    result.wraps = readVector<WrapRecord>(input, result.header.wrapCount, "MyoSim wraps");
+    result.routes = readVector<RouteRecord>(input, result.header.routeNodeCount, "MyoSim routes");
+    result.muscles = readVector<MuscleRecord>(input, result.header.muscleCount, "MyoSim muscles");
     require(input.peek() == std::char_traits<char>::eof(),
             "MyoSim muscle payload has trailing bytes");
-    for (const SiteRecord& site : sites) {
+    for (const SiteRecord& site : result.sites) {
         require(site.bodyIndex < rigid.engineBodyCount,
                 "MyoSim site body index is out of bounds");
     }
-    return sites;
+    for (const WrapRecord& wrap : result.wraps) {
+        require(wrap.bodyIndex < rigid.engineBodyCount,
+                "MyoSim wrap body index is out of bounds");
+    }
+    for (const RouteRecord& route : result.routes) {
+        require(route.reserved0 == 0u && route.type >= 1u && route.type <= 3u,
+                "MyoSim route record is malformed");
+        const std::size_t targetCount = route.type == 1u
+            ? result.sites.size() : result.wraps.size();
+        require(route.targetIndex < targetCount,
+                "MyoSim route target is out of bounds");
+        require(route.sideSiteIndex == MR_INVALID_INDEX ||
+                    route.sideSiteIndex < result.sites.size(),
+                "MyoSim route side site is out of bounds");
+    }
+    for (const MuscleRecord& muscle : result.muscles) {
+        require(muscle.reserved0 == 0u &&
+                    muscle.routeOffset <= result.routes.size() &&
+                    muscle.routeCount <= result.routes.size() - muscle.routeOffset,
+                "MyoSim muscle route range is invalid");
+    }
+    return result;
 }
 
 mr_float4 normalizeQuaternion(const mr_float4 value) {
@@ -269,6 +296,42 @@ std::vector<MRBodyStateGPU> visualBodyStates(
         state.flagsAndIndices[3] = 0u;
     }
     return result;
+}
+
+mr_float4 rotateDirection(const mr_float4 orientation, const mr_float4 direction) {
+    const mr_float4 q{orientation.x, orientation.y, orientation.z, 0.0f};
+    const auto cross = [](const mr_float4 left, const mr_float4 right) {
+        return mr_float4{
+            left.y * right.z - left.z * right.y,
+            left.z * right.x - left.x * right.z,
+            left.x * right.y - left.y * right.x,
+            0.0f,
+        };
+    };
+    const mr_float4 first = cross(q, direction);
+    const mr_float4 second = cross(q, first);
+    return {
+        direction.x + 2.0f * (orientation.w * first.x + second.x),
+        direction.y + 2.0f * (orientation.w * first.y + second.y),
+        direction.z + 2.0f * (orientation.w * first.z + second.z),
+        0.0f,
+    };
+}
+
+mr_float4 worldPoint(
+    const std::span<const MRBodyStateGPU> bodies,
+    const std::uint32_t bodyIndex,
+    const mr_float4 localPoint
+) {
+    require(bodyIndex < bodies.size(), "MyoSim visual point body index is out of bounds");
+    const MRBodyStateGPU& body = bodies[bodyIndex];
+    const mr_float4 offset = rotateDirection(body.orientation, localPoint);
+    return {
+        body.position.x + offset.x,
+        body.position.y + offset.y,
+        body.position.z + offset.z,
+        1.0f,
+    };
 }
 
 metalrobo::WorldPose cameraToward(
@@ -355,8 +418,10 @@ metalrobo::SensorSpec makeCamera(
 }
 
 std::pair<mr_float4, float> frameBounds(
+    const metalrobo::EngineModel& model,
     const std::span<const MRBodyStateGPU> bodies
 ) {
+    require(model.bodies.size() == bodies.size(), "MyoSim visual body bounds size mismatch");
     mr_float4 minimum{
         std::numeric_limits<float>::infinity(),
         std::numeric_limits<float>::infinity(),
@@ -367,14 +432,21 @@ std::pair<mr_float4, float> frameBounds(
         -std::numeric_limits<float>::infinity(),
         -std::numeric_limits<float>::infinity(), 0.0f,
     };
-    for (const MRBodyStateGPU& body : bodies) {
+    std::size_t includedBodyCount = 0u;
+    for (std::size_t index = 0u; index < bodies.size(); ++index) {
+        if (!(model.bodies[index].massAndInverseMass.x > 1.0e-5f)) {
+            continue;
+        }
+        const MRBodyStateGPU& body = bodies[index];
         minimum.x = std::min(minimum.x, body.position.x);
         minimum.y = std::min(minimum.y, body.position.y);
         minimum.z = std::min(minimum.z, body.position.z);
         maximum.x = std::max(maximum.x, body.position.x);
         maximum.y = std::max(maximum.y, body.position.y);
         maximum.z = std::max(maximum.z, body.position.z);
+        ++includedBodyCount;
     }
+    require(includedBodyCount > 0u, "MyoSim visual body bounds have no inertial body");
     const mr_float4 center{
         0.5f * (minimum.x + maximum.x),
         0.5f * (minimum.y + maximum.y),
@@ -470,13 +542,13 @@ GeometryRange appendEllipsoid(
 std::array<float, 3u> inertiaEllipsoid(const MRBodyPropertiesGPU& body) {
     const float mass = body.massAndInverseMass.x;
     if (!(mass > 1.0e-5f)) {
-        return {0.012f, 0.012f, 0.012f};
+        return {0.010f, 0.010f, 0.010f};
     }
     const float ixx = std::max(body.inertiaRow0.x, 1.0e-8f);
     const float iyy = std::max(body.inertiaRow1.y, 1.0e-8f);
     const float izz = std::max(body.inertiaRow2.z, 1.0e-8f);
     const auto semiAxis = [](const float squared) {
-        return std::clamp(std::sqrt(std::max(squared, 1.0e-6f)), 0.018f, 0.220f);
+        return std::clamp(std::sqrt(std::max(squared, 1.0e-6f)), 0.014f, 0.115f);
     };
     return {
         semiAxis(2.5f * (iyy + izz - ixx) / mass),
@@ -485,10 +557,102 @@ std::array<float, 3u> inertiaEllipsoid(const MRBodyPropertiesGPU& body) {
     };
 }
 
+GeometryRange appendWorldTube(
+    metalrobo::VisualAssetPackV2& pack,
+    const mr_float4 start,
+    const mr_float4 end,
+    const float radius
+) {
+    constexpr std::uint32_t kSides = 6u;
+    const mr_float4 axisRaw{
+        end.x - start.x, end.y - start.y, end.z - start.z, 0.0f,
+    };
+    const float axisLength = std::sqrt(
+        axisRaw.x * axisRaw.x + axisRaw.y * axisRaw.y + axisRaw.z * axisRaw.z
+    );
+    require(axisLength > 1.0e-5f && radius > 0.0f, "MyoSim route tube is degenerate");
+    const mr_float4 axis{
+        axisRaw.x / axisLength, axisRaw.y / axisLength, axisRaw.z / axisLength, 0.0f,
+    };
+    const auto cross = [](const mr_float4 left, const mr_float4 right) {
+        return mr_float4{
+            left.y * right.z - left.z * right.y,
+            left.z * right.x - left.x * right.z,
+            left.x * right.y - left.y * right.x,
+            0.0f,
+        };
+    };
+    const mr_float4 reference = std::abs(axis.z) < 0.85f
+        ? mr_float4{0.0f, 0.0f, 1.0f, 0.0f}
+        : mr_float4{0.0f, 1.0f, 0.0f, 0.0f};
+    mr_float4 normal = cross(reference, axis);
+    const float normalLength = std::sqrt(
+        normal.x * normal.x + normal.y * normal.y + normal.z * normal.z
+    );
+    require(normalLength > 1.0e-5f, "MyoSim route tube has no normal basis");
+    normal.x /= normalLength;
+    normal.y /= normalLength;
+    normal.z /= normalLength;
+    const mr_float4 binormal = cross(axis, normal);
+    GeometryRange result;
+    result.firstIndex = static_cast<std::uint32_t>(pack.indices.size());
+    result.minimum = {
+        std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(), 1.0f,
+    };
+    result.maximum = {
+        -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity(), 1.0f,
+    };
+    const std::uint32_t vertexBase = static_cast<std::uint32_t>(pack.vertices.size());
+    for (std::uint32_t ring = 0u; ring < 2u; ++ring) {
+        const mr_float4 center = ring == 0u ? start : end;
+        for (std::uint32_t side = 0u; side < kSides; ++side) {
+            const float angle = 2.0f * std::numbers::pi_v<float> *
+                static_cast<float>(side) / static_cast<float>(kSides);
+            const mr_float4 surfaceNormal{
+                normal.x * std::cos(angle) + binormal.x * std::sin(angle),
+                normal.y * std::cos(angle) + binormal.y * std::sin(angle),
+                normal.z * std::cos(angle) + binormal.z * std::sin(angle),
+                1.0f,
+            };
+            const mr_float4 position{
+                center.x + radius * surfaceNormal.x,
+                center.y + radius * surfaceNormal.y,
+                center.z + radius * surfaceNormal.z,
+                1.0f,
+            };
+            pack.vertices.push_back({
+                position, surfaceNormal, axis,
+                {static_cast<float>(ring), static_cast<float>(side) / static_cast<float>(kSides), 0.0f, 0.0f},
+                {1.0f, 1.0f, 1.0f, 1.0f},
+            });
+            result.minimum.x = std::min(result.minimum.x, position.x);
+            result.minimum.y = std::min(result.minimum.y, position.y);
+            result.minimum.z = std::min(result.minimum.z, position.z);
+            result.maximum.x = std::max(result.maximum.x, position.x);
+            result.maximum.y = std::max(result.maximum.y, position.y);
+            result.maximum.z = std::max(result.maximum.z, position.z);
+        }
+    }
+    for (std::uint32_t side = 0u; side < kSides; ++side) {
+        const std::uint32_t next = (side + 1u) % kSides;
+        const std::uint32_t a = vertexBase + side;
+        const std::uint32_t b = vertexBase + next;
+        const std::uint32_t c = vertexBase + kSides + side;
+        const std::uint32_t d = vertexBase + kSides + next;
+        pack.indices.insert(pack.indices.end(), {a, c, b, b, c, d});
+    }
+    result.indexCount = static_cast<std::uint32_t>(pack.indices.size()) - result.firstIndex;
+    return result;
+}
+
 metalrobo::VisualAssetPackV2 makeMarkerPack(
     const metalrobo::EngineModel& model,
-    const std::span<const SiteRecord> sites,
-    std::uint32_t& renderedBodies
+    const LoadedMuscles& musclePayload,
+    const std::span<const MRBodyStateGPU> bodies,
+    std::uint32_t& renderedBodies,
+    std::uint32_t& renderedRouteSegments
 ) {
     metalrobo::VisualAssetPackV2 pack;
     pack.id = "myosim_fullbody_articulated_marker_view";
@@ -503,14 +667,18 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     pack.materials.push_back(makeMaterial(
         {0.80f, 0.04f, 0.03f, 1.0f}, {0.15f, 0.0f, 0.0f, 0.25f}
     ));
+    pack.materials.push_back(makeMaterial(
+        {0.68f, 0.015f, 0.01f, 1.0f}, {0.35f, 0.0f, 0.0f, 0.45f}
+    ));
 
     const GeometryRange siteGeometry = appendEllipsoid(
-        pack, {0.0038f, 0.0038f, 0.0038f}
+        pack, {0.0075f, 0.0075f, 0.0075f}
     );
     const auto appendInstance = [&pack](
         const GeometryRange& geometry,
         const std::uint32_t material,
         const std::uint32_t semantic,
+        const std::uint32_t bindingKind,
         const std::uint32_t bodyIndex,
         const mr_float4 translation,
         const std::uint32_t stableId
@@ -520,7 +688,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         instance.translationAndScale = translation;
         instance.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
         instance.binding = {
-            0u, bodyIndex, MR_VISUAL_BINDING_ARTICULATED_LINK,
+            0u, bodyIndex, bindingKind,
             MR_VISUAL_INSTANCE_CASTS_SHADOW |
                 MR_VISUAL_INSTANCE_RECEIVES_SHADOW |
                 MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR,
@@ -546,17 +714,56 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         }
         const GeometryRange geometry = appendEllipsoid(pack, inertiaEllipsoid(body));
         appendInstance(
-            geometry, 0u, kBodySemantic, static_cast<std::uint32_t>(bodyIndex),
+            geometry, 0u, kBodySemantic, MR_VISUAL_BINDING_ARTICULATED_LINK,
+            static_cast<std::uint32_t>(bodyIndex),
             {0.0f, 0.0f, 0.0f, 1.0f}, static_cast<std::uint32_t>(bodyIndex + 1u)
         );
         ++renderedBodies;
     }
-    for (std::size_t siteIndex = 0u; siteIndex < sites.size(); ++siteIndex) {
-        const SiteRecord& site = sites[siteIndex];
+    for (std::size_t siteIndex = 0u; siteIndex < musclePayload.sites.size(); ++siteIndex) {
+        const SiteRecord& site = musclePayload.sites[siteIndex];
         appendInstance(
-            siteGeometry, 1u, kSiteSemantic, site.bodyIndex,
+            siteGeometry, 1u, kSiteSemantic, MR_VISUAL_BINDING_ARTICULATED_LINK,
+            site.bodyIndex,
             {site.x, site.y, site.z, 1.0f}, static_cast<std::uint32_t>(siteIndex + 1u)
         );
+    }
+    const auto routePoint = [&musclePayload, bodies](const RouteRecord& route) {
+        if (route.type == 1u) {
+            const SiteRecord& site = musclePayload.sites[route.targetIndex];
+            return worldPoint(bodies, site.bodyIndex, {site.x, site.y, site.z, 0.0f});
+        }
+        const WrapRecord& wrap = musclePayload.wraps[route.targetIndex];
+        return worldPoint(
+            bodies, wrap.bodyIndex,
+            {wrap.centerX, wrap.centerY, wrap.centerZ, 0.0f}
+        );
+    };
+    renderedRouteSegments = 0u;
+    std::uint32_t stableRouteId = 1u;
+    for (const MuscleRecord& muscle : musclePayload.muscles) {
+        bool hasPrevious = false;
+        mr_float4 previous{};
+        for (std::uint32_t routeOffset = 0u; routeOffset < muscle.routeCount; ++routeOffset) {
+            const mr_float4 current = routePoint(
+                musclePayload.routes[muscle.routeOffset + routeOffset]
+            );
+            if (hasPrevious) {
+                const float dx = current.x - previous.x;
+                const float dy = current.y - previous.y;
+                const float dz = current.z - previous.z;
+                if (dx * dx + dy * dy + dz * dz > 1.0e-10f) {
+                    appendInstance(
+                        appendWorldTube(pack, previous, current, 0.0032f), 2u,
+                        kRouteSemantic, MR_VISUAL_BINDING_WORLD, MR_INVALID_INDEX,
+                        {0.0f, 0.0f, 0.0f, 1.0f}, stableRouteId++
+                    );
+                    ++renderedRouteSegments;
+                }
+            }
+            previous = current;
+            hasPrevious = true;
+        }
     }
     pack.contentHash = metalrobo::computeVisualAssetPackContentHash(pack);
     std::string reason;
@@ -569,7 +776,7 @@ metalrobo::WorldTemplate makeWorld(
     const std::span<const MRBodyStateGPU> bodies,
     std::array<std::string, 3u>& cameraNames
 ) {
-    const auto [center, distance] = frameBounds(bodies);
+    const auto [center, distance] = frameBounds(model, bodies);
     cameraNames = {"front", "side", "rear"};
     metalrobo::EpisodeTwin episode;
     episode.id = "myosim_fullbody_articulated_marker_visualization";
@@ -700,7 +907,7 @@ int main(int argc, char** argv) {
                 return 2;
             }
             const LoadedRigid rigid = loadRigid(argv[1]);
-            const std::vector<SiteRecord> sites = loadSites(argv[2], rigid.header);
+            const LoadedMuscles musclePayload = loadMuscles(argv[2], rigid.header);
             const metalrobo::MetalArticulatedOperatorInput input{
                 .articulationIndex = 0u,
                 .environmentCount = 1u,
@@ -734,8 +941,9 @@ int main(int argc, char** argv) {
             require(worldsSample.succeeded(), "native Human visual world sample failed: " + worldsSample.message);
 
             std::uint32_t renderedBodies = 0u;
+            std::uint32_t renderedRouteSegments = 0u;
             const metalrobo::VisualAssetPackV2 pack = makeMarkerPack(
-                rigid.model, sites, renderedBodies
+                rigid.model, musclePayload, bodies, renderedBodies, renderedRouteSegments
             );
             const std::filesystem::path outputDirectory{argv[3]};
             std::filesystem::create_directories(outputDirectory);
@@ -783,11 +991,13 @@ int main(int argc, char** argv) {
                 require(writePng(frame, observation), "could not write native Human PNG " + frame.string());
                 const std::size_t bodyPixels = coverage(observation, kBodySemantic);
                 const std::size_t sitePixels = coverage(observation, kSiteSemantic);
-                require(bodyPixels > 0u && sitePixels > 0u,
-                        "native Human frame has no body or muscle-site coverage");
+                const std::size_t routePixels = coverage(observation, kRouteSemantic);
+                require(bodyPixels > 0u && sitePixels > 0u && routePixels > 0u,
+                        "native Human frame has no body, muscle-site, or route coverage");
                 std::cout << "view=" << cameraNames[camera]
                           << " body_pixels=" << bodyPixels
                           << " muscle_site_pixels=" << sitePixels
+                          << " muscle_route_pixels=" << routePixels
                           << " frame=" << frame.string() << '\n';
             }
             std::cout << std::setprecision(12)
@@ -796,7 +1006,8 @@ int main(int argc, char** argv) {
                       << " renderer_device=\"" << rendererCompile.deviceName << "\""
                       << " core_bodies=" << rigid.header.engineBodyCount
                       << " rendered_inertial_bodies=" << renderedBodies
-                      << " muscle_sites=" << sites.size()
+                      << " muscle_sites=" << musclePayload.sites.size()
+                      << " route_centerline_segments=" << renderedRouteSegments
                       << " pose_stage_elapsed_ms=" << poseDiagnostics.elapsedMilliseconds
                       << " renderer_compile_ms=" << rendererCompile.elapsedMilliseconds
                       << " boundary=metal_pose_snapshot_to_native_renderer_not_bodyparts_registration_or_live_rollout\n";
