@@ -89,6 +89,22 @@ struct MetalMujocoMuscleReferenceInput {
     }
 };
 
+// Transaction-local producer buffer for environment-major MyoSim excitation.
+// nativeMetalBuffer is an unretained opaque id<MTLBuffer>; the reusable
+// context retains it through GPU completion. The producer must establish
+// Metal execution order before submit(), and the byte slice must contain
+// exactly one FP32 excitation for every input.mujoco.states record.
+// This handle is process-local and must never enter checkpoints or replay IDs.
+struct MetalBorrowedMujocoExcitationBuffer {
+    const void* nativeMetalBuffer = nullptr;
+    std::size_t offsetBytes = 0u;
+    std::size_t byteCount = 0u;
+
+    [[nodiscard]] bool enabled() const noexcept {
+        return nativeMetalBuffer != nullptr;
+    }
+};
+
 // Packed, environment-major input for the synchronous Metal articulated
 // operator. q contains environmentCount * articulation.nq floats. points
 // contains environmentCount * pointCount records. All query body indices are
@@ -335,10 +351,26 @@ public:
         MetalArticulatedOperatorSubmission& submission
     );
 
+    // Same physical operator, with excitation read directly from a borrowed
+    // Metal allocation before the MyoSim force pass in this command buffer.
+    [[nodiscard]] MetalArticulatedOperatorDiagnostics submit(
+        const EngineModel& model,
+        const MetalArticulatedOperatorInput& input,
+        const MetalBorrowedMujocoExcitationBuffer& borrowedExcitations,
+        MetalArticulatedOperatorSubmission& submission
+    );
+
     // Convenience synchronous path using submit() followed by wait().
     [[nodiscard]] MetalArticulatedOperatorDiagnostics run(
         const EngineModel& model,
         const MetalArticulatedOperatorInput& input,
+        MetalArticulatedOperatorResult& result
+    );
+
+    [[nodiscard]] MetalArticulatedOperatorDiagnostics run(
+        const EngineModel& model,
+        const MetalArticulatedOperatorInput& input,
+        const MetalBorrowedMujocoExcitationBuffer& borrowedExcitations,
         MetalArticulatedOperatorResult& result
     );
 

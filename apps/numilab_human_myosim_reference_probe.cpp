@@ -2,6 +2,8 @@
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/MujocoMuscleReference.hpp"
 
+#import <Metal/Metal.h>
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -344,6 +346,11 @@ struct MetalArticulatedMetrics {
     double maximumMuscleGeneralizedForceError = 0.0;
     double maximumSummedGeneralizedForceError = 0.0;
     double maximumActivationStepError = 0.0;
+    double maximumBorrowedExcitationError = 0.0;
+    double maximumBorrowedActivationStepError = 0.0;
+    double borrowedGeneralizedForceDelta = 0.0;
+    double borrowedPhysicalVelocityDelta = 0.0;
+    double borrowedPhysicalConfigurationDelta = 0.0;
     double activationTimestepSeconds = 0.0;
     std::uint32_t appliedMuscleWraps = 0u;
 };
@@ -640,6 +647,178 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
             "MyoSim Metal activation step corrupted the source state sidecar"
         );
     }
+
+    // Qualify the external excitation path with a private producer buffer,
+    // matching NumiBrain's resident-output storage class. The staging copy is
+    // probe setup only; the operator receives no host excitation span and
+    // reads the private buffer in its own command buffer before force work.
+    std::vector<float> borrowedExcitations(activationStates.size());
+    std::vector<MRMujocoMuscleStateGPU> borrowedInitial = activationStates;
+    std::vector<MRMujocoMuscleStateGPU> idleInitial = activationStates;
+    for (std::size_t index = 0u; index < borrowedExcitations.size(); ++index) {
+        borrowedExcitations[index] = index % 2u == 0u ? 0.95f : 0.05f;
+        borrowedInitial[index].excitationAndActivation.x = 0.5f;
+        idleInitial[index].excitationAndActivation.x = 0.0f;
+        idleInitial[index].excitationAndActivation.y =
+            borrowedInitial[index].excitationAndActivation.y;
+    }
+    id<MTLDevice> borrowedDevice = MTLCreateSystemDefaultDevice();
+    require(borrowedDevice != nil, "borrowed excitation probe has no Metal device");
+    id<MTLBuffer> borrowedUpload = [borrowedDevice
+        newBufferWithBytes:borrowedExcitations.data()
+                    length:borrowedExcitations.size() * sizeof(float)
+                   options:MTLResourceStorageModeShared];
+    id<MTLBuffer> borrowedPrivate = [borrowedDevice
+        newBufferWithLength:borrowedExcitations.size() * sizeof(float)
+                     options:MTLResourceStorageModePrivate];
+    id<MTLCommandQueue> borrowedQueue = [borrowedDevice newCommandQueue];
+    id<MTLCommandBuffer> borrowedCommand = [borrowedQueue commandBuffer];
+    id<MTLBlitCommandEncoder> borrowedBlit =
+        [borrowedCommand blitCommandEncoder];
+    require(
+        borrowedUpload != nil && borrowedPrivate != nil &&
+            borrowedQueue != nil && borrowedCommand != nil &&
+            borrowedBlit != nil,
+        "borrowed excitation probe could not allocate its private producer buffer"
+    );
+    [borrowedBlit copyFromBuffer:borrowedUpload
+                    sourceOffset:0u
+                        toBuffer:borrowedPrivate
+               destinationOffset:0u
+                            size:borrowedExcitations.size() * sizeof(float)];
+    [borrowedBlit endEncoding];
+    [borrowedCommand commit];
+    [borrowedCommand waitUntilCompleted];
+    require(
+        borrowedCommand.status == MTLCommandBufferStatusCompleted,
+        "borrowed excitation probe setup copy failed"
+    );
+    const metalrobo::MetalBorrowedMujocoExcitationBuffer borrowedBinding{
+        .nativeMetalBuffer = (__bridge const void*)borrowedPrivate,
+        .offsetBytes = 0u,
+        .byteCount = borrowedExcitations.size() * sizeof(float),
+    };
+    metalrobo::MetalArticulatedOperatorInput borrowedInput = activationInput;
+    borrowedInput.mujoco.states = borrowedInitial;
+    metalrobo::MetalArticulatedOperatorResult borrowedFirst;
+    const auto borrowedFirstDiagnostics = activationContext.run(
+        model, borrowedInput, borrowedBinding, borrowedFirst
+    );
+    require(
+        borrowedFirstDiagnostics.succeeded() &&
+            borrowedFirstDiagnostics.dispatched &&
+            borrowedFirstDiagnostics.published &&
+            borrowedFirst.mujocoActivationStates.size() == borrowedInitial.size(),
+        std::string("borrowed MyoSim excitation transaction failed: ") +
+            metalrobo::metalArticulatedOperatorHostStatusName(
+                borrowedFirstDiagnostics.status
+            ) + " " + borrowedFirstDiagnostics.message
+    );
+    metalrobo::MetalArticulatedOperatorInput idleInput = activationInput;
+    idleInput.mujoco.states = idleInitial;
+    metalrobo::MetalArticulatedOperatorResult idleFirst;
+    require(
+        activationContext.run(model, idleInput, idleFirst).succeeded(),
+        "idle MyoSim comparison transaction failed"
+    );
+    for (std::size_t index = 0u; index < borrowedInitial.size(); ++index) {
+        const auto& advanced = borrowedFirst.mujocoActivationStates[index];
+        const float derivative = borrowedFirst.mujocoResults[index]
+            .pathForceAndActivationDerivative.w;
+        const float expectedActivation = std::clamp(
+            borrowedInitial[index].excitationAndActivation.y +
+                kActivationTimestepSeconds * derivative,
+            0.0f,
+            1.0f
+        );
+        metrics.maximumBorrowedExcitationError = std::max(
+            metrics.maximumBorrowedExcitationError,
+            std::abs(static_cast<double>(
+                advanced.excitationAndActivation.x - borrowedExcitations[index]
+            ))
+        );
+        metrics.maximumBorrowedActivationStepError = std::max(
+            metrics.maximumBorrowedActivationStepError,
+            std::abs(static_cast<double>(
+                advanced.excitationAndActivation.y - expectedActivation
+            ))
+        );
+    }
+    borrowedInput.mujoco.states = borrowedFirst.mujocoActivationStates;
+    idleInput.mujoco.states = idleFirst.mujocoActivationStates;
+    metalrobo::MetalArticulatedOperatorResult borrowedSecond;
+    metalrobo::MetalArticulatedOperatorResult idleSecond;
+    require(
+        activationContext.run(
+            model, borrowedInput, borrowedBinding, borrowedSecond
+        ).succeeded(),
+        "second borrowed MyoSim excitation transaction failed"
+    );
+    require(
+        activationContext.run(model, idleInput, idleSecond).succeeded(),
+        "second idle MyoSim comparison transaction failed"
+    );
+    require(
+        borrowedSecond.mujocoGeneralizedForces.size() == articulation.nv &&
+            idleSecond.mujocoGeneralizedForces.size() == articulation.nv,
+        "borrowed MyoSim force comparison has an invalid layout"
+    );
+    std::vector<double> borrowedForce(articulation.nv);
+    std::vector<double> idleForce(articulation.nv);
+    for (std::size_t dof = 0u; dof < articulation.nv; ++dof) {
+        borrowedForce[dof] = borrowedSecond.mujocoGeneralizedForces[dof];
+        idleForce[dof] = idleSecond.mujocoGeneralizedForces[dof];
+        metrics.borrowedGeneralizedForceDelta = std::max(
+            metrics.borrowedGeneralizedForceDelta,
+            std::abs(borrowedForce[dof] - idleForce[dof])
+        );
+    }
+    std::vector<double> borrowedQ(model.defaultQ.begin(), model.defaultQ.end());
+    std::vector<double> idleQ = borrowedQ;
+    std::vector<double> borrowedV(articulation.nv, 0.0);
+    std::vector<double> idleV = borrowedV;
+    metalrobo::ArticulatedDynamicsConfig borrowedPhysicalConfig;
+    borrowedPhysicalConfig.timestep = 1.0e-6;
+    require(
+        metalrobo::integrateArticulatedState(
+            model, 0u, borrowedQ, borrowedV, borrowedForce, {},
+            borrowedPhysicalConfig
+        ).succeeded() &&
+            metalrobo::integrateArticulatedState(
+                model, 0u, idleQ, idleV, idleForce, {},
+                borrowedPhysicalConfig
+            ).succeeded(),
+        "borrowed MyoSim forces did not advance the articulated comparison"
+    );
+    for (std::size_t dof = 0u; dof < articulation.nv; ++dof) {
+        metrics.borrowedPhysicalVelocityDelta = std::max(
+            metrics.borrowedPhysicalVelocityDelta,
+            std::abs(borrowedV[dof] - idleV[dof])
+        );
+    }
+    for (std::size_t coordinate = 0u; coordinate < borrowedQ.size(); ++coordinate) {
+        metrics.borrowedPhysicalConfigurationDelta = std::max(
+            metrics.borrowedPhysicalConfigurationDelta,
+            std::abs(borrowedQ[coordinate] - idleQ[coordinate])
+        );
+    }
+    metalrobo::MetalArticulatedOperatorResult malformedBorrowedResult;
+    const metalrobo::MetalBorrowedMujocoExcitationBuffer malformedBorrowed{
+        .nativeMetalBuffer = (__bridge const void*)borrowedPrivate,
+        .offsetBytes = 0u,
+        .byteCount = borrowedBinding.byteCount - sizeof(float),
+    };
+    const auto malformedBorrowedDiagnostics = activationContext.run(
+        model, borrowedInput, malformedBorrowed, malformedBorrowedResult
+    );
+    require(
+        malformedBorrowedDiagnostics.status ==
+                metalrobo::MetalArticulatedOperatorHostStatus::invalidDimensions &&
+            !malformedBorrowedDiagnostics.dispatched &&
+            !malformedBorrowedDiagnostics.published &&
+            malformedBorrowedResult.mujocoResults.empty(),
+        "malformed borrowed MyoSim excitation did not fail before dispatch"
+    );
     require(
         metrics.maximumBodyPositionError < 2.0e-4 &&
             metrics.maximumBodyOrientationComponentError < 2.0e-4 &&
@@ -650,6 +829,11 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
             metrics.maximumMuscleGeneralizedForceError < 5.0e-2 &&
             metrics.maximumSummedGeneralizedForceError < 2.0e-1 &&
             metrics.maximumActivationStepError < 2.0e-6 &&
+            metrics.maximumBorrowedExcitationError == 0.0 &&
+            metrics.maximumBorrowedActivationStepError < 2.0e-6 &&
+            metrics.borrowedGeneralizedForceDelta > 1.0e-6 &&
+            metrics.borrowedPhysicalVelocityDelta > 1.0e-12 &&
+            metrics.borrowedPhysicalConfigurationDelta > 1.0e-15 &&
             metrics.appliedMuscleWraps == 90u,
         "MyoSim Metal kinematics/Jacobian/muscle-route parity exceeded FP32 tolerance: "
             "body=" + std::to_string(metrics.maximumBodyPositionError) +
@@ -661,6 +845,16 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
             " muscle_generalized_force=" + std::to_string(metrics.maximumMuscleGeneralizedForceError) +
             " summed_generalized_force=" + std::to_string(metrics.maximumSummedGeneralizedForceError) +
             " activation_step=" + std::to_string(metrics.maximumActivationStepError) +
+            " borrowed_excitation=" +
+                std::to_string(metrics.maximumBorrowedExcitationError) +
+            " borrowed_activation=" +
+                std::to_string(metrics.maximumBorrowedActivationStepError) +
+            " borrowed_force_delta=" +
+                std::to_string(metrics.borrowedGeneralizedForceDelta) +
+            " borrowed_velocity_delta=" +
+                std::to_string(metrics.borrowedPhysicalVelocityDelta) +
+            " borrowed_configuration_delta=" +
+                std::to_string(metrics.borrowedPhysicalConfigurationDelta) +
             " wraps=" + std::to_string(metrics.appliedMuscleWraps)
     );
 
@@ -813,6 +1007,16 @@ int run(const char* rigidPath, const char* musclePath, const bool runMetal) {
                << metal.activationTimestepSeconds
                << " metal_max_activation_step_error="
                << metal.maximumActivationStepError
+               << " metal_max_borrowed_excitation_error="
+               << metal.maximumBorrowedExcitationError
+               << " metal_max_borrowed_activation_step_error="
+               << metal.maximumBorrowedActivationStepError
+               << " metal_borrowed_generalized_force_delta="
+               << metal.borrowedGeneralizedForceDelta
+               << " metal_borrowed_physical_velocity_delta="
+               << metal.borrowedPhysicalVelocityDelta
+               << " metal_borrowed_physical_configuration_delta="
+               << metal.borrowedPhysicalConfigurationDelta
                << " metal_applied_wraps=" << metal.appliedMuscleWraps;
     }
     output << "\n";

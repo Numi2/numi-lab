@@ -413,6 +413,22 @@ inline float activationDerivative(
 
 } // namespace
 
+kernel void mr_mujoco_muscle_bind_excitations(
+    device const float* excitations [[buffer(0)]],
+    device MRMujocoMuscleStateGPU* states [[buffer(1)]],
+    constant MRMujocoMuscleExcitationDispatchGPU& dispatch [[buffer(2)]],
+    uint globalIndex [[thread_position_in_grid]]
+) {
+    if (dispatch.abiVersion != MR_MUJOCO_MUSCLE_EXCITATION_GPU_ABI_VERSION ||
+        dispatch.reserved0 != 0u || dispatch.reserved1 != 0u ||
+        globalIndex >= dispatch.stateCount) {
+        return;
+    }
+    MRMujocoMuscleStateGPU state = states[globalIndex];
+    state.excitationAndActivation.x = excitations[globalIndex];
+    states[globalIndex] = state;
+}
+
 kernel void mr_mujoco_muscle_reference(
     device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(8)]],
     device const float* pointJacobians [[buffer(11)]],
@@ -460,7 +476,12 @@ kernel void mr_mujoco_muscle_reference(
         }
     }
     const MRMujocoMuscleStateGPU state = states[globalIndex];
-    if (!finite4(state.excitationAndActivation) || state.excitationAndActivation.z != 0.0f || state.excitationAndActivation.w != 0.0f) {
+    if (!finite4(state.excitationAndActivation) ||
+        state.excitationAndActivation.x < 0.0f ||
+        state.excitationAndActivation.x > 1.0f ||
+        state.excitationAndActivation.y < 0.0f ||
+        state.excitationAndActivation.y > 1.0f ||
+        state.excitationAndActivation.z != 0.0f || state.excitationAndActivation.w != 0.0f) {
         result.status = MR_MUJOCO_MUSCLE_REFERENCE_INVALID_STATE; results[globalIndex] = result; return;
     }
     float totalLength = 0.0f;

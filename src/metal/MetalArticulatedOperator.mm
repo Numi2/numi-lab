@@ -91,6 +91,7 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> mujocoPipeline = nil;
     __strong id<MTLComputePipelineState> mujocoReducePipeline = nil;
     __strong id<MTLComputePipelineState> mujocoActivationPipeline = nil;
+    __strong id<MTLComputePipelineState> mujocoExcitationPipeline = nil;
     __strong id<MTLBuffer> buffers[kRawBufferCount] = {};
     std::array<std::size_t, kRawBufferCount> capacities{};
     MetalArticulatedOperatorContextStats stats{};
@@ -127,6 +128,7 @@ struct MetalArticulatedOperatorSubmissionState {
     std::size_t millardMuscleCount = 0u;
     bool hasMujocoReference = false;
     std::size_t mujocoMuscleCount = 0u;
+    __strong id<MTLBuffer> borrowedMujocoExcitations = nil;
     bool ownsInFlight = false;
 };
 
@@ -635,12 +637,63 @@ bool validMujocoReference(
     }
     for (const MRMujocoMuscleStateGPU& state : mujoco.states) {
         if (!finite(state.excitationAndActivation) ||
+            state.excitationAndActivation.x < 0.0f ||
+            state.excitationAndActivation.x > 1.0f ||
+            state.excitationAndActivation.y < 0.0f ||
+            state.excitationAndActivation.y > 1.0f ||
             state.excitationAndActivation.z != 0.0f ||
             state.excitationAndActivation.w != 0.0f) {
             reason = "MyoSim muscle state is malformed";
             return false;
         }
     }
+    return true;
+}
+
+bool resolveBorrowedMujocoExcitations(
+    const MetalArticulatedOperatorInput& input,
+    const MetalBorrowedMujocoExcitationBuffer& borrowed,
+    id<MTLDevice> device,
+    id<MTLBuffer> __strong& resolved,
+    std::string& reason
+) {
+    resolved = nil;
+    if (!borrowed.enabled()) {
+        if (borrowed.offsetBytes != 0u || borrowed.byteCount != 0u) {
+            reason = "disabled borrowed MyoSim excitation has a non-empty slice";
+            return false;
+        }
+        return true;
+    }
+    if (!input.mujoco.enabled()) {
+        reason = "borrowed MyoSim excitation requires an enabled muscle program";
+        return false;
+    }
+    std::size_t expectedBytes = 0u;
+    if (!checkedMultiply(
+            input.mujoco.states.size(),
+            sizeof(float),
+            expectedBytes
+        ) || borrowed.byteCount != expectedBytes || expectedBytes == 0u) {
+        reason = "borrowed MyoSim excitation slice does not match the state stream";
+        return false;
+    }
+    if (borrowed.offsetBytes % alignof(float) != 0u) {
+        reason = "borrowed MyoSim excitation offset is not FP32 aligned";
+        return false;
+    }
+    id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)borrowed.nativeMetalBuffer;
+    if (buffer == nil || buffer.device != device) {
+        reason = "borrowed MyoSim excitation is not a buffer on the operator device";
+        return false;
+    }
+    const std::size_t length = static_cast<std::size_t>(buffer.length);
+    if (borrowed.offsetBytes > length ||
+        borrowed.byteCount > length - borrowed.offsetBytes) {
+        reason = "borrowed MyoSim excitation slice exceeds its Metal buffer";
+        return false;
+    }
+    resolved = buffer;
     return true;
 }
 
@@ -1513,6 +1566,29 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 describeError(error)
         );
     }
+    id<MTLFunction> mujocoExcitationFunction = [library
+        newFunctionWithName:@"mr_mujoco_muscle_bind_excitations"];
+    if (mujocoExcitationFunction == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+            "metallib does not contain the MyoSim excitation-binding operator"
+        );
+    }
+    error = nil;
+    id<MTLComputePipelineState> mujocoExcitationPipeline = [device
+        newComputePipelineStateWithFunction:mujocoExcitationFunction
+                                       error:&error];
+    if (mujocoExcitationPipeline == nil ||
+        mujocoExcitationPipeline.maxTotalThreadsPerThreadgroup <
+            kThreadsPerThreadgroup) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+            "failed to create MyoSim excitation-binding pipeline: " +
+                describeError(error)
+        );
+    }
     id<MTLFunction> mujocoActivationFunction = [library
         newFunctionWithName:@"mr_mujoco_muscle_activation_step"];
     if (mujocoActivationFunction == nil) {
@@ -1545,6 +1621,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     context.mujocoPipeline = mujocoPipeline;
     context.mujocoReducePipeline = mujocoReducePipeline;
     context.mujocoActivationPipeline = mujocoActivationPipeline;
+    context.mujocoExcitationPipeline = mujocoExcitationPipeline;
     context.initialized = true;
     ++context.stats.pipelineCreationCount;
     return diagnostics;
@@ -2391,6 +2468,21 @@ MetalArticulatedOperatorContext::submit(
     const MetalArticulatedOperatorInput& input,
     MetalArticulatedOperatorSubmission& submission
 ) {
+    return submit(
+        model,
+        input,
+        MetalBorrowedMujocoExcitationBuffer{},
+        submission
+    );
+}
+
+MetalArticulatedOperatorDiagnostics
+MetalArticulatedOperatorContext::submit(
+    const EngineModel& model,
+    const MetalArticulatedOperatorInput& input,
+    const MetalBorrowedMujocoExcitationBuffer& borrowedExcitations,
+    MetalArticulatedOperatorSubmission& submission
+) {
     MetalArticulatedOperatorDiagnostics diagnostics{};
     if (state_ == nullptr) {
         return reject(
@@ -2436,6 +2528,21 @@ MetalArticulatedOperatorContext::submit(
             );
             if (!diagnostics.succeeded()) {
                 return diagnostics;
+            }
+            id<MTLBuffer> borrowedExcitationBuffer = nil;
+            std::string borrowedExcitationReason;
+            if (!resolveBorrowedMujocoExcitations(
+                    input,
+                    borrowedExcitations,
+                    state_->device,
+                    borrowedExcitationBuffer,
+                    borrowedExcitationReason
+                )) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::invalidDimensions,
+                    borrowedExcitationReason
+                );
             }
             diagnostics = ensureBufferArena(
                 *state_,
@@ -2549,6 +2656,53 @@ MetalArticulatedOperatorContext::submit(
             }
 
             if (input.mujoco.enabled()) {
+                if (borrowedExcitationBuffer != nil) {
+                    MRMujocoMuscleExcitationDispatchGPU excitationDispatch{};
+                    excitationDispatch.abiVersion =
+                        MR_MUJOCO_MUSCLE_EXCITATION_GPU_ABI_VERSION;
+                    excitationDispatch.stateCount = static_cast<mr_u32>(
+                        diagnostics.layout.mujocoStateElements
+                    );
+                    id<MTLComputeCommandEncoder> excitationEncoder =
+                        [commandBuffer computeCommandEncoder];
+                    if (excitationEncoder == nil) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                            "failed to create MyoSim excitation-binding encoder"
+                        );
+                    }
+                    [excitationEncoder
+                        setComputePipelineState:state_->mujocoExcitationPipeline];
+                    [excitationEncoder
+                        setBuffer:borrowedExcitationBuffer
+                           offset:borrowedExcitations.offsetBytes
+                          atIndex:0u];
+                    [excitationEncoder setBuffer:state_->buffers[kMujocoStatesBuffer]
+                                         offset:0u
+                                        atIndex:1u];
+                    [excitationEncoder setBytes:&excitationDispatch
+                                          length:sizeof(excitationDispatch)
+                                         atIndex:2u];
+                    const std::size_t excitationThreadCount =
+                        diagnostics.layout.mujocoStateElements;
+                    [excitationEncoder
+                        dispatchThreadgroups:MTLSizeMake(
+                            static_cast<NSUInteger>(
+                                (excitationThreadCount +
+                                 kThreadsPerThreadgroup - 1u) /
+                                    kThreadsPerThreadgroup
+                            ),
+                            1u,
+                            1u
+                        )
+                        threadsPerThreadgroup:MTLSizeMake(
+                            kThreadsPerThreadgroup,
+                            1u,
+                            1u
+                        )];
+                    [excitationEncoder endEncoding];
+                }
                 id<MTLComputeCommandEncoder> mujocoEncoder =
                     [commandBuffer computeCommandEncoder];
                 if (mujocoEncoder == nil) {
@@ -2691,6 +2845,7 @@ MetalArticulatedOperatorContext::submit(
             pending->millardMuscleCount = input.millard.muscles.size();
             pending->hasMujocoReference = input.mujoco.enabled();
             pending->mujocoMuscleCount = input.mujoco.muscles.size();
+            pending->borrowedMujocoExcitations = borrowedExcitationBuffer;
             pending->start =
                 std::chrono::steady_clock::now();
             pending->ownsInFlight = true;
@@ -2725,10 +2880,26 @@ MetalArticulatedOperatorContext::run(
     const MetalArticulatedOperatorInput& input,
     MetalArticulatedOperatorResult& result
 ) {
+    return run(
+        model,
+        input,
+        MetalBorrowedMujocoExcitationBuffer{},
+        result
+    );
+}
+
+MetalArticulatedOperatorDiagnostics
+MetalArticulatedOperatorContext::run(
+    const EngineModel& model,
+    const MetalArticulatedOperatorInput& input,
+    const MetalBorrowedMujocoExcitationBuffer& borrowedExcitations,
+    MetalArticulatedOperatorResult& result
+) {
     MetalArticulatedOperatorSubmission submission;
     MetalArticulatedOperatorDiagnostics diagnostics = submit(
         model,
         input,
+        borrowedExcitations,
         submission
     );
     if (!diagnostics.succeeded()) {

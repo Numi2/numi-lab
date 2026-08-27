@@ -1282,6 +1282,11 @@ add_executable(
     metalrobo_numilab_human_myosim_reference_probe
     apps/numilab_human_myosim_reference_probe.cpp
 )
+set_source_files_properties(
+    apps/numilab_human_myosim_reference_probe.cpp
+    PROPERTIES
+        LANGUAGE OBJCXX
+)
 target_link_libraries(
     metalrobo_numilab_human_myosim_reference_probe
     PRIVATE

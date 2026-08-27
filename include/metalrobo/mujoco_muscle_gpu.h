@@ -8,6 +8,7 @@
 
 #define MR_MUJOCO_MUSCLE_REFERENCE_GPU_ABI_VERSION 2u
 #define MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION 1u
+#define MR_MUJOCO_MUSCLE_EXCITATION_GPU_ABI_VERSION 1u
 
 enum MRMujocoMuscleReferenceGPUStatus : mr_u32 {
     MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS = 0u,
@@ -96,6 +97,17 @@ typedef struct MR_ALIGN16 MRMujocoMuscleStateGPU {
     mr_float4 excitationAndActivation;
 } MRMujocoMuscleStateGPU;
 
+// Dispatch for copying a separately owned, dense FP32 excitation stream into
+// the transaction-owned MyoSim state sidecar. The host binds any source slice
+// offset at the Metal buffer binding, leaving this ABI independent of virtual
+// addresses and allocation identity.
+typedef struct MR_ALIGN16 MRMujocoMuscleExcitationDispatchGPU {
+    mr_u32 abiVersion;
+    mr_u32 stateCount;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+} MRMujocoMuscleExcitationDispatchGPU;
+
 // One explicit device-side activation update follows the reference pass. It
 // intentionally owns only the mutable activation sidecar: source force and
 // tendon-path evaluation remain in MRMujocoMuscleReferenceDispatchGPU.
@@ -124,6 +136,7 @@ static_assert(sizeof(MRMujocoMuscleSiteGPU) == 32u);
 static_assert(sizeof(MRMujocoMuscleWrapGPU) == 96u);
 static_assert(sizeof(MRMujocoMuscleRouteNodeGPU) == 16u);
 static_assert(sizeof(MRMujocoMuscleStateGPU) == 16u);
+static_assert(sizeof(MRMujocoMuscleExcitationDispatchGPU) == 16u);
 static_assert(sizeof(MRMujocoMuscleActivationDispatchGPU) == 32u);
 static_assert(sizeof(MRMujocoMuscleResultGPU) == 32u);
 #endif
