@@ -724,12 +724,15 @@ LoadedSoftTissues loadSoftTissues(
 
 struct MuscleDrivenVisualState {
     std::vector<float> q;
+    std::uint32_t stepCount = 0u;
     double maximumVelocityDelta = 0.0;
     double maximumConfigurationDelta = 0.0;
     std::uint32_t appliedWrapCount = 0u;
     bool supportContactApplied = false;
     std::uint32_t supportWitnessCount = 0u;
     std::uint32_t activeSupportContactCount = 0u;
+    std::uint32_t maximumActiveSupportContactCount = 0u;
+    double minimumSupportPlaneGapMeters = std::numeric_limits<double>::infinity();
     double supportSeedTranslationMeters = 0.0;
     double supportMaximumGpuCpuVelocityError = 0.0;
     double supportGpuElapsedMilliseconds = 0.0;
@@ -762,7 +765,6 @@ std::array<double, 3u> normalizedVector(
 
 struct GroundAlignedSupport {
     std::vector<double> q;
-    std::vector<metalrobo::MultiArticulatedIslandContact> contacts;
     std::uint32_t witnessCount = 0u;
     double seedTranslationMeters = 0.0;
 };
@@ -799,6 +801,33 @@ GroundAlignedSupport makeGroundAlignedSupport(
     }
     result.seedTranslationMeters = minimumGap;
 
+    return result;
+}
+
+struct DynamicSourceSupportContacts {
+    std::vector<metalrobo::MultiArticulatedIslandContact> contacts;
+    std::vector<std::size_t> sourceRecordIndices;
+    double minimumPlaneGapMeters = std::numeric_limits<double>::infinity();
+};
+
+DynamicSourceSupportContacts makeDynamicSourceSupportContacts(
+    const metalrobo::EngineModel& model,
+    const LoadedSupportContacts& support,
+    const metalrobo::ArticulatedDynamicsConfig& dynamicsConfig,
+    const std::span<const double> q,
+    const std::span<const double> velocity,
+    const std::span<const double> warmImpulses
+) {
+    require(model.articulations.size() == 1u && q.size() == model.world.nq &&
+                velocity.size() == model.world.nv &&
+                warmImpulses.size() == 3u * support.records.size(),
+            "MyoSim dynamic source-support dimensions are inconsistent");
+    const std::array<double, 3u> groundPoint{
+        support.header.groundPointX, support.header.groundPointY, support.header.groundPointZ,
+    };
+    const std::array<double, 3u> groundNormal = normalizedVector({
+        support.header.groundNormalX, support.header.groundNormalY, support.header.groundNormalZ,
+    }, "MyoSim source ground normal");
     const std::array<double, 3u> contactNormal{
         -groundNormal[0], -groundNormal[1], -groundNormal[2],
     };
@@ -814,173 +843,78 @@ GroundAlignedSupport makeGroundAlignedSupport(
         tangentReference[0] - normalReferenceDot * contactNormal[0],
         tangentReference[1] - normalReferenceDot * contactNormal[1],
         tangentReference[2] - normalReferenceDot * contactNormal[2],
-    }, "MyoSim support contact tangent");
+    }, "MyoSim dynamic support tangent");
     const std::array<double, 3u> tangentV = crossProduct(contactNormal, tangentU);
-    constexpr double kSeedContactTolerance = 2.0e-5;
+    std::vector<metalrobo::ArticulatedPointQuery> queries;
+    queries.reserve(support.records.size());
     for (const SupportContactRecord& record : support.records) {
-        if (static_cast<double>(record.defaultSignedPlaneDistance) - minimumGap >
-            kSeedContactTolerance) {
-            continue;
-        }
+        queries.push_back({
+            record.bodyIndex, {record.localPointX, record.localPointY, record.localPointZ},
+        });
+    }
+    std::vector<metalrobo::ArticulatedPointKinematics> points(queries.size());
+    std::vector<double> jacobians(queries.size() * 3u * model.world.nv, 0.0);
+    const auto kinematics = metalrobo::computeArticulatedPointJacobians(
+        model, 0u, q, velocity, queries, points, jacobians, dynamicsConfig
+    );
+    require(kinematics.succeeded(),
+            "MyoSim dynamic source-support point kinematics failed");
+    DynamicSourceSupportContacts result;
+    constexpr double kActivationDistanceMeters = 0.002;
+    for (std::size_t index = 0u; index < support.records.size(); ++index) {
+        const SupportContactRecord& record = support.records[index];
+        const std::array<double, 3u>& position = points[index].position;
+        const double gap =
+            (position[0] - groundPoint[0]) * groundNormal[0] +
+            (position[1] - groundPoint[1]) * groundNormal[1] +
+            (position[2] - groundPoint[2]) * groundNormal[2];
+        require(std::isfinite(gap), "MyoSim dynamic source-support plane gap is non-finite");
+        result.minimumPlaneGapMeters = std::min(result.minimumPlaneGapMeters, gap);
+        if (gap > kActivationDistanceMeters) continue;
         require(record.friction > 0.0f,
                 "MyoSim authored support contact has no tangential friction");
+        const double normalRecoveryVelocity = gap < 0.0
+            ? std::min(-gap / dynamicsConfig.timestep, 2.0)
+            : 0.0;
         result.contacts.push_back({
             .endpointA = {
                 metalrobo::MultiContactEndpointKind::articulatedBody,
                 record.bodyIndex,
                 {record.localPointX, record.localPointY, record.localPointZ},
             },
+            // This is reprojected every step so the source witness remains a
+            // unilateral plane contact rather than becoming a hidden fixed
+            // foot weld at its initial world-space tangent coordinates.
             .endpointB = {
                 metalrobo::MultiContactEndpointKind::staticWorld,
                 MR_INVALID_INDEX,
-                {record.worldWitnessX, record.worldWitnessY, record.worldWitnessZ},
+                {
+                    position[0] - gap * groundNormal[0],
+                    position[1] - gap * groundNormal[1],
+                    position[2] - gap * groundNormal[2],
+                },
             },
             .normal = contactNormal,
             .tangentU = tangentU,
             .tangentV = tangentV,
-            .targetVelocity = {},
+            .targetVelocity = {normalRecoveryVelocity, 0.0, 0.0},
             .regularization = {1.0e-8, 1.0e-8, 1.0e-8},
-            .warmImpulse = {},
+            .warmImpulse = {
+                warmImpulses[3u * index], warmImpulses[3u * index + 1u],
+                warmImpulses[3u * index + 2u],
+            },
             .friction = record.friction,
         });
+        result.sourceRecordIndices.push_back(index);
     }
-    require(result.contacts.size() >= 2u,
-            "MyoSim ground-aligned seed did not retain bilateral support witnesses");
     return result;
-}
-
-void applySourceSupportContact(
-    const metalrobo::EngineModel& model,
-    const GroundAlignedSupport& support,
-    const metalrobo::ArticulatedDynamicsConfig& dynamicsConfig,
-    std::vector<double>& passiveVelocity,
-    std::vector<double>& activeVelocity,
-    std::vector<double>& passiveQ,
-    std::vector<double>& activeQ,
-    MuscleDrivenVisualState& result
-) {
-    require(passiveVelocity.size() == model.world.nv &&
-                activeVelocity.size() == model.world.nv,
-            "MyoSim support contact has invalid free velocity dimensions");
-    constexpr std::size_t kEnvironmentCount = 2u;
-    const std::array<std::vector<double>*, kEnvironmentCount> freeStates{
-        &passiveVelocity, &activeVelocity,
-    };
-    const std::array<std::vector<double>*, kEnvironmentCount> outputStates{
-        &passiveQ, &activeQ,
-    };
-    metalrobo::QualityContactSolverConfig cpuConfig;
-    cpuConfig.maximumIterations = 300u;
-    cpuConfig.kktTolerance = 1.0e-10;
-    std::array<std::vector<double>, kEnvironmentCount> cpuPostVelocities;
-    for (std::size_t environment = 0u; environment < kEnvironmentCount; ++environment) {
-        metalrobo::MultiArticulatedContactProblem oracle;
-        const auto build = metalrobo::buildMultiArticulatedIslandContactProblem(
-            model, support.q, *freeStates[environment], {}, support.contacts,
-            oracle, dynamicsConfig
-        );
-        require(build.succeeded(), "MyoSim source-support FP64 contact construction failed");
-        metalrobo::MultiArticulatedContactSolution cpu;
-        const auto solve = metalrobo::solveMultiArticulatedContactProblem(
-            oracle, cpu, cpuConfig
-        );
-        require(solve.succeeded() && cpu.articulatedVelocity.size() == model.world.nv,
-                "MyoSim source-support FP64 contact solve failed");
-        cpuPostVelocities[environment] = std::move(cpu.articulatedVelocity);
-    }
-
-    std::array<std::vector<double>, kEnvironmentCount> postVelocities = cpuPostVelocities;
-    std::vector<float> q(kEnvironmentCount * model.world.nq, 0.0f);
-    std::vector<float> freeVelocity(kEnvironmentCount * model.world.nv, 0.0f);
-    for (std::size_t environment = 0u; environment < kEnvironmentCount; ++environment) {
-        for (std::size_t coordinate = 0u; coordinate < model.world.nq; ++coordinate) {
-            q[environment * model.world.nq + coordinate] =
-                static_cast<float>(support.q[coordinate]);
-        }
-        const std::vector<double>& source = *freeStates[environment];
-        for (std::size_t dof = 0u; dof < model.world.nv; ++dof) {
-            freeVelocity[environment * model.world.nv + dof] =
-                static_cast<float>(source[dof]);
-        }
-    }
-    std::vector<metalrobo::MultiArticulatedIslandContact> contacts;
-    contacts.reserve(kEnvironmentCount * support.contacts.size());
-    for (std::size_t environment = 0u; environment < kEnvironmentCount; ++environment) {
-        contacts.insert(contacts.end(), support.contacts.begin(), support.contacts.end());
-    }
-    metalrobo::CompiledMetalMultiArticulatedContactProgram program;
-    const auto compiled = metalrobo::compileMetalMultiArticulatedContactProgram(model, program);
-    if (compiled.succeeded() && compiled.published && program.valid()) {
-        metalrobo::MetalMultiArticulatedContactInput input;
-        input.environmentCount = kEnvironmentCount;
-        input.contactCount = support.contacts.size();
-        input.sceneBodyCount = 0u;
-        input.q = q;
-        input.freeArticulationVelocity = freeVelocity;
-        input.contacts = contacts;
-        metalrobo::MetalMultiArticulatedContactConfig gpuConfig;
-        gpuConfig.quality.maximumNewtonIterations = 64u;
-        gpuConfig.quality.maximumCGIterations = 128u;
-        gpuConfig.quality.convergenceTolerance = 2.0e-5f;
-        metalrobo::MetalMultiArticulatedContactResult gpu;
-        const auto gpuDiagnostics = metalrobo::solveMetalMultiArticulatedContacts(
-            program, input, gpu, gpuConfig
-        );
-        require(gpuDiagnostics.succeeded() && gpuDiagnostics.dispatched &&
-                    gpuDiagnostics.published &&
-                    gpu.nextVelocity.size() == kEnvironmentCount * model.world.nv,
-                "MyoSim source-support Metal contact failed: " + gpuDiagnostics.message);
-        for (std::size_t environment = 0u; environment < kEnvironmentCount; ++environment) {
-            for (std::size_t dof = 0u; dof < model.world.nv; ++dof) {
-                const double deviceValue = gpu.nextVelocity[environment * model.world.nv + dof];
-                require(std::isfinite(deviceValue),
-                        "MyoSim source-support Metal contact produced a non-finite velocity");
-                result.supportMaximumGpuCpuVelocityError = std::max(
-                    result.supportMaximumGpuCpuVelocityError,
-                    std::abs(deviceValue - cpuPostVelocities[environment][dof])
-                );
-                postVelocities[environment][dof] = deviceValue;
-            }
-        }
-        require(result.supportMaximumGpuCpuVelocityError <= 5.0e-3,
-                "MyoSim source-support Metal/FP64 contact velocity parity exceeded tolerance");
-        result.supportGpuElapsedMilliseconds = gpuDiagnostics.elapsedMilliseconds;
-        result.supportDeviceName = gpuDiagnostics.deviceName;
-        result.supportMetalStatus = "accepted";
-    } else {
-        // The fixed full-dynamics bucket reports this as unsupported topology
-        // when the connected articulated tree itself is too large, and as a
-        // capacity overflow for other size limits.  Both are an explicit
-        // non-admission; the already-solved FP64 reference remains the state
-        // used for this bounded capture.
-        require(
-            compiled.status == metalrobo::MetalMultiArticulatedContactStatus::capacityOverflow ||
-                compiled.status == metalrobo::MetalMultiArticulatedContactStatus::unsupportedTopology,
-            "MyoSim source-support Metal contact program did not compile: " + compiled.message
-        );
-        result.supportDeviceName = "not_admitted";
-        result.supportMetalStatus = "not_admitted_articulation_exceeds_metal_contact_bucket";
-    }
-    for (std::size_t environment = 0u; environment < kEnvironmentCount; ++environment) {
-        std::vector<double> constrainedQ = support.q;
-        const auto integration = metalrobo::integrateArticulatedConfiguration(
-            model, 0u, constrainedQ, postVelocities[environment], dynamicsConfig
-        );
-        require(integration.succeeded(),
-                "MyoSim source-support contact configuration integration failed");
-        *outputStates[environment] = std::move(constrainedQ);
-        *freeStates[environment] = std::move(postVelocities[environment]);
-    }
-    result.supportContactApplied = true;
-    result.supportWitnessCount = support.witnessCount;
-    result.activeSupportContactCount = static_cast<std::uint32_t>(support.contacts.size());
-    result.supportSeedTranslationMeters = support.seedTranslationMeters;
 }
 
 MuscleDrivenVisualState integrateMuscleDrivenVisualState(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& muscles,
     const double timestepSeconds,
+    const std::uint32_t stepCount,
     const double activation,
     const LoadedSupportContacts* supportContacts
 ) {
@@ -993,6 +927,8 @@ MuscleDrivenVisualState integrateMuscleDrivenVisualState(
             "muscle-driven visual state has inconsistent MyoSim dimensions");
     require(std::isfinite(activation) && activation >= 0.0 && activation <= 1.0,
             "muscle-driven visual activation must be within [0, 1]");
+    require(stepCount >= 1u && stepCount <= 64u,
+            "muscle-driven visual step count must be in [1, 64]");
 
     std::vector<double> initialQ(model.defaultQ.begin(), model.defaultQ.end());
     const std::vector<double> initialV(model.defaultV.begin(), model.defaultV.end());
@@ -1001,42 +937,10 @@ MuscleDrivenVisualState integrateMuscleDrivenVisualState(
         support.emplace(makeGroundAlignedSupport(model, *supportContacts));
         initialQ = support->q;
     }
-    std::vector<double> activatedForce(model.world.nv, 0.0);
-    std::vector<double> sourceDefaultPassiveForce(model.world.nv, 0.0);
     MuscleDrivenVisualState result;
+    result.stepCount = stepCount;
     const metalrobo::MujocoMuscleState state{.excitation = activation, .activation = activation};
     const metalrobo::MujocoMuscleState passiveState{};
-    for (std::size_t index = 0u; index < muscles.referenceMuscles.size(); ++index) {
-        metalrobo::MujocoMuscleResult muscleResult;
-        const auto diagnostics = metalrobo::projectMujocoMuscleForce(
-            model, 0u, initialQ, initialV, muscles.referenceSites,
-            muscles.referenceWraps, muscles.referenceMuscles[index], state,
-            activatedForce, &muscleResult
-        );
-        require(diagnostics.succeeded(),
-                "MyoSim muscle force projection failed for muscle " +
-                    std::to_string(index) + ": " +
-                    metalrobo::mujocoMuscleReferenceStatusName(diagnostics.status));
-        const auto passiveDiagnostics = metalrobo::projectMujocoMuscleForce(
-            model, 0u, initialQ, initialV, muscles.referenceSites,
-            muscles.referenceWraps, muscles.referenceMuscles[index], passiveState,
-            sourceDefaultPassiveForce
-        );
-        require(passiveDiagnostics.succeeded(),
-                "MyoSim passive muscle-force projection failed for muscle " +
-                    std::to_string(index) + ": " +
-                    metalrobo::mujocoMuscleReferenceStatusName(passiveDiagnostics.status));
-        result.appliedWrapCount += muscleResult.path.appliedWrapCount;
-    }
-    std::vector<double> muscleForce(model.world.nv, 0.0);
-    for (std::size_t index = 0u; index < muscleForce.size(); ++index) {
-        muscleForce[index] = activatedForce[index] - sourceDefaultPassiveForce[index];
-    }
-    require(std::all_of(muscleForce.begin(), muscleForce.end(), [](const double value) {
-                return std::isfinite(value);
-            }),
-            "MyoSim muscle force projection returned a non-finite generalized force");
-
     metalrobo::ArticulatedDynamicsConfig dynamicsConfig;
     dynamicsConfig.timestep = timestepSeconds;
     std::vector<double> passiveQ = initialQ;
@@ -1044,21 +948,114 @@ MuscleDrivenVisualState integrateMuscleDrivenVisualState(
     std::vector<double> activeQ = initialQ;
     std::vector<double> activeV = initialV;
     const std::vector<double> zeroForce(model.world.nv, 0.0);
-    const auto passiveDiagnostics = metalrobo::integrateArticulatedState(
-        model, 0u, passiveQ, passiveV, zeroForce, {}, dynamicsConfig
-    );
-    require(passiveDiagnostics.succeeded(),
-            "passive free-body visual comparison step failed");
-    const auto activeDiagnostics = metalrobo::integrateArticulatedState(
-        model, 0u, activeQ, activeV, muscleForce, {}, dynamicsConfig
-    );
-    require(activeDiagnostics.succeeded(),
-            "muscle-driven free-body visual step failed");
-    if (support.has_value()) {
-        applySourceSupportContact(
-            model, *support, dynamicsConfig, passiveV, activeV,
-            passiveQ, activeQ, result
+    std::vector<double> passiveSupportWarm;
+    std::vector<double> activeSupportWarm;
+    if (supportContacts != nullptr) {
+        passiveSupportWarm.assign(3u * supportContacts->records.size(), 0.0);
+        activeSupportWarm.assign(3u * supportContacts->records.size(), 0.0);
+        metalrobo::CompiledMetalMultiArticulatedContactProgram program;
+        const auto compiled = metalrobo::compileMetalMultiArticulatedContactProgram(model, program);
+        require(
+            !compiled.succeeded() &&
+                (compiled.status == metalrobo::MetalMultiArticulatedContactStatus::capacityOverflow ||
+                 compiled.status == metalrobo::MetalMultiArticulatedContactStatus::unsupportedTopology),
+            "MyoSim dynamic source-support Metal admission unexpectedly changed: " + compiled.message
         );
+        result.supportDeviceName = "not_admitted";
+        result.supportMetalStatus = "not_admitted_articulation_exceeds_metal_contact_bucket";
+        result.supportWitnessCount = supportContacts->header.contactCount;
+        result.supportSeedTranslationMeters = support->seedTranslationMeters;
+    }
+    metalrobo::QualityContactSolverConfig contactConfig;
+    contactConfig.maximumIterations = 300u;
+    contactConfig.kktTolerance = 1.0e-10;
+    const auto applyDynamicSupport = [&] (
+        std::vector<double>& q,
+        std::vector<double>& velocity,
+        std::vector<double>& warmImpulses,
+        const bool isActive
+    ) {
+        const DynamicSourceSupportContacts contacts = makeDynamicSourceSupportContacts(
+            model, *supportContacts, dynamicsConfig, q, velocity, warmImpulses
+        );
+        result.minimumSupportPlaneGapMeters = std::min(
+            result.minimumSupportPlaneGapMeters, contacts.minimumPlaneGapMeters
+        );
+        if (isActive) {
+            result.activeSupportContactCount = static_cast<std::uint32_t>(contacts.contacts.size());
+            result.maximumActiveSupportContactCount = std::max(
+                result.maximumActiveSupportContactCount, result.activeSupportContactCount
+            );
+        }
+        if (contacts.contacts.empty()) return;
+        metalrobo::MultiArticulatedContactProblem problem;
+        const auto build = metalrobo::buildMultiArticulatedIslandContactProblem(
+            model, q, velocity, {}, contacts.contacts, problem, dynamicsConfig
+        );
+        require(build.succeeded(), "MyoSim dynamic source-support FP64 contact construction failed");
+        metalrobo::MultiArticulatedContactSolution solution;
+        const auto solve = metalrobo::solveMultiArticulatedContactProblem(
+            problem, solution, contactConfig
+        );
+        require(solve.succeeded() && solution.articulatedVelocity.size() == model.world.nv &&
+                    solution.impulses.size() == 3u * contacts.contacts.size(),
+                "MyoSim dynamic source-support FP64 contact solve failed");
+        velocity = std::move(solution.articulatedVelocity);
+        for (std::size_t contact = 0u; contact < contacts.sourceRecordIndices.size(); ++contact) {
+            const std::size_t record = contacts.sourceRecordIndices[contact];
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                warmImpulses[3u * record + axis] = solution.impulses[3u * contact + axis];
+            }
+        }
+        result.supportContactApplied = true;
+    };
+    for (std::uint32_t step = 0u; step < stepCount; ++step) {
+        std::vector<double> activatedForce(model.world.nv, 0.0);
+        std::vector<double> sourceDefaultPassiveForce(model.world.nv, 0.0);
+        for (std::size_t index = 0u; index < muscles.referenceMuscles.size(); ++index) {
+            metalrobo::MujocoMuscleResult muscleResult;
+            const auto diagnostics = metalrobo::projectMujocoMuscleForce(
+                model, 0u, activeQ, activeV, muscles.referenceSites,
+                muscles.referenceWraps, muscles.referenceMuscles[index], state,
+                activatedForce, &muscleResult
+            );
+            require(diagnostics.succeeded(),
+                    "MyoSim muscle force projection failed for muscle " +
+                        std::to_string(index) + ": " +
+                        metalrobo::mujocoMuscleReferenceStatusName(diagnostics.status));
+            const auto passiveDiagnostics = metalrobo::projectMujocoMuscleForce(
+                model, 0u, activeQ, activeV, muscles.referenceSites,
+                muscles.referenceWraps, muscles.referenceMuscles[index], passiveState,
+                sourceDefaultPassiveForce
+            );
+            require(passiveDiagnostics.succeeded(),
+                    "MyoSim passive muscle-force projection failed for muscle " +
+                        std::to_string(index) + ": " +
+                        metalrobo::mujocoMuscleReferenceStatusName(passiveDiagnostics.status));
+            result.appliedWrapCount += muscleResult.path.appliedWrapCount;
+        }
+        std::vector<double> muscleForce(model.world.nv, 0.0);
+        for (std::size_t index = 0u; index < muscleForce.size(); ++index) {
+            muscleForce[index] = activatedForce[index] - sourceDefaultPassiveForce[index];
+        }
+        require(std::all_of(muscleForce.begin(), muscleForce.end(), [](const double value) {
+                    return std::isfinite(value);
+                }),
+                "MyoSim muscle force projection returned a non-finite generalized force");
+        const auto passiveDiagnostics = metalrobo::integrateArticulatedState(
+            model, 0u, passiveQ, passiveV, zeroForce, {}, dynamicsConfig
+        );
+        require(passiveDiagnostics.succeeded(),
+                "passive free-body visual comparison step failed");
+        const auto activeDiagnostics = metalrobo::integrateArticulatedState(
+            model, 0u, activeQ, activeV, muscleForce, {}, dynamicsConfig
+        );
+        require(activeDiagnostics.succeeded(),
+                "muscle-driven free-body visual step failed");
+        if (supportContacts != nullptr) {
+            applyDynamicSupport(passiveQ, passiveV, passiveSupportWarm, false);
+            applyDynamicSupport(activeQ, activeV, activeSupportWarm, true);
+        }
     }
     for (std::size_t index = 0u; index < activeV.size(); ++index) {
         result.maximumVelocityDelta = std::max(
@@ -1075,6 +1072,10 @@ MuscleDrivenVisualState integrateMuscleDrivenVisualState(
                 result.maximumVelocityDelta > 1.0e-9 &&
                 result.maximumConfigurationDelta > 1.0e-12,
             "the complete MyoSim muscle force did not distinguish the visual state step");
+    if (supportContacts != nullptr) {
+        require(std::isfinite(result.minimumSupportPlaneGapMeters),
+                "MyoSim dynamic source-support did not evaluate a source plane gap");
+    }
     result.q.reserve(activeQ.size());
     for (const double coordinate : activeQ) {
         require(std::isfinite(coordinate) &&
@@ -1509,22 +1510,28 @@ MRVisualMaterialGPUV2 makeMaterial(
 metalrobo::VisualLightRigV1 makeHumanAnatomyLightRig() {
     metalrobo::VisualLightRigV1 result = metalrobo::makeIndoorAreaLightRigV1();
     result.id = "human_anatomy_three_point";
-    result.contentHash = "builtin:human-anatomy-three-point-v1";
+    result.contentHash = "builtin:human-anatomy-three-point-v2";
     result.lights.front().identity.w = 201u;
+
+    // Keep the key neutral and soft.  The former mixed warm/cool rig made the
+    // ivory tendon material read as metallic gold and compressed the already
+    // subtle separation between the source muscle surfaces.
+    result.lights.front().colorAndIntensity = {1.0f, 0.97f, 0.92f, 760.0f};
+    result.lights.front().shape = {0.86f, 0.70f, -1.0f, 0.08f};
 
     MRVisualLightGPUV1 fill = result.lights.front();
     fill.positionAndRange = {-0.75f, 0.65f, 1.9f, 20.0f};
     fill.directionAndSpot = {0.30f, -0.25f, -0.92f, -1.0f};
-    fill.colorAndIntensity = {0.68f, 0.78f, 1.0f, 410.0f};
-    fill.shape = {0.72f, 0.62f, -1.0f, 0.08f};
+    fill.colorAndIntensity = {0.76f, 0.81f, 0.90f, 260.0f};
+    fill.shape = {0.82f, 0.70f, -1.0f, 0.08f};
     fill.identity.w = 202u;
     result.lights.push_back(fill);
 
     MRVisualLightGPUV1 rim = result.lights.front();
     rim.positionAndRange = {0.15f, 1.10f, 2.25f, 20.0f};
     rim.directionAndSpot = {-0.05f, -0.38f, -0.92f, -1.0f};
-    rim.colorAndIntensity = {1.0f, 0.72f, 0.48f, 300.0f};
-    rim.shape = {0.56f, 0.48f, -1.0f, 0.08f};
+    rim.colorAndIntensity = {0.96f, 0.91f, 0.80f, 220.0f};
+    rim.shape = {0.72f, 0.58f, -1.0f, 0.08f};
     rim.identity.w = 203u;
     result.lights.push_back(rim);
     return result;
@@ -1908,6 +1915,8 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     const LoadedSoftTissues* softTissuePayload,
     const std::span<const MRBodyStateGPU> bodies,
     const bool muscleDriven,
+    const std::span<const std::uint32_t> requestedBoneBodyIndices,
+    const std::span<const std::uint32_t> requestedSoftTissueStableIds,
     const SourceRouteCentrelines* sourceRouteCentrelines,
     std::uint32_t& renderedBodies,
     std::uint32_t& renderedSoftTissues,
@@ -1965,13 +1974,22 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         {0.035f, 0.82f, 0.98f, 1.0f}, {0.0f, 0.20f, 0.34f, 0.55f}, 0.28f, 0.16f
     ));
     pack.materials.push_back(makeMaterial(
-        {0.74f, 0.70f, 0.62f, 1.0f}, {0.01f, 0.008f, 0.004f, 0.0f}, 0.46f
+        // Keep osseous anatomy a cool, matte ivory.  It is intentionally
+        // distinct from collagen so the calcaneal insertion can be judged at
+        // a glance without a diagnostic outline or false geometry.
+        {0.57f, 0.63f, 0.64f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.62f
     ));
     pack.materials.push_back(makeMaterial(
-        {0.70f, 0.035f, 0.018f, 1.0f}, {0.055f, 0.0f, 0.0f, 0.0f}, 0.38f, 0.10f
+        // Do not add red emission: it flattens the source muscle relief and
+        // makes the layer look painted onto the skeleton rather than like an
+        // anatomical surface.
+        {0.50f, 0.022f, 0.014f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.50f, 0.055f
     ));
     pack.materials.push_back(makeMaterial(
-        {0.96f, 0.78f, 0.42f, 1.0f}, {0.025f, 0.016f, 0.004f, 0.0f}, 0.28f, 0.28f
+        // Tendon is warm, non-metallic collagen—not a glowing route or a gold
+        // overlay.  Its deliberately separate value from bone makes the
+        // source-continuous calcaneal insertion inspectable in a single frame.
+        {0.91f, 0.75f, 0.53f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.66f, 0.01f
     ));
 
     const auto appendInstance = [&pack](
@@ -2010,6 +2028,12 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     renderedBodies = 0u;
     if (bonePayload != nullptr) {
         for (const BoneRecord& bone : bonePayload->records) {
+            if (!requestedBoneBodyIndices.empty() &&
+                !std::binary_search(
+                    requestedBoneBodyIndices.begin(), requestedBoneBodyIndices.end(), bone.bodyIndex
+                )) {
+                continue;
+            }
             const GeometryRange geometry = appendBoneGeometry(pack, *bonePayload, bone);
             appendInstance(
                 geometry, 3u, kBoneSemantic, MR_VISUAL_BINDING_ARTICULATED_LINK,
@@ -2039,6 +2063,13 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     renderedSoftTissues = 0u;
     if (softTissuePayload != nullptr) {
         for (const SoftTissueRecord& tissue : softTissuePayload->records) {
+            if (!requestedSoftTissueStableIds.empty() &&
+                !std::binary_search(
+                    requestedSoftTissueStableIds.begin(),
+                    requestedSoftTissueStableIds.end(), tissue.stableId
+                )) {
+                continue;
+            }
             const GeometryRange geometry = appendSoftTissueGeometry(
                 pack, *softTissuePayload, tissue, bodies
             );
@@ -2404,6 +2435,19 @@ double parseMuscleActivation(const std::string& value) {
     return result;
 }
 
+std::uint32_t parseMuscleStepCount(const std::string& value) {
+    std::size_t parsed = 0u;
+    unsigned long result = 0ul;
+    try {
+        result = std::stoul(value, &parsed, 10);
+    } catch (const std::exception&) {
+        throw std::runtime_error("--muscle-step-count must be an integer from 1 through 64");
+    }
+    require(parsed == value.size() && result >= 1ul && result <= 64ul,
+            "--muscle-step-count must be an integer from 1 through 64");
+    return static_cast<std::uint32_t>(result);
+}
+
 std::uint32_t parseSourceRouteIndex(const std::string& value) {
     std::size_t parsed = 0u;
     unsigned long result = 0ul;
@@ -2437,9 +2481,12 @@ int main(int argc, char** argv) {
         try {
             std::optional<double> muscleStepSeconds;
             std::optional<double> muscleActivation;
+            std::optional<std::uint32_t> muscleStepCount;
             bool sourceRouteCentrelines = false;
             bool surfaceProjectSourceSites = false;
             std::vector<std::uint32_t> requestedSourceRouteMuscles;
+            std::vector<std::uint32_t> requestedBoneBodyIndices;
+            std::vector<std::uint32_t> requestedSoftTissueStableIds;
             std::optional<std::uint32_t> focusBodyIndex;
             std::optional<std::filesystem::path> softTissuePayloadPath;
             std::optional<std::filesystem::path> supportContactPayloadPath;
@@ -2451,6 +2498,10 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !muscleStepSeconds.has_value(),
                             "--muscle-step-seconds requires one value and may be given only once");
                     muscleStepSeconds.emplace(parseMuscleStepSeconds(argv[++index]));
+                } else if (argument == "--muscle-step-count") {
+                    require(index + 1 < argc && !muscleStepCount.has_value(),
+                            "--muscle-step-count requires one value and may be given only once");
+                    muscleStepCount.emplace(parseMuscleStepCount(argv[++index]));
                 } else if (argument == "--muscle-activation") {
                     require(index + 1 < argc && !muscleActivation.has_value(),
                             "--muscle-activation requires one value and may be given only once");
@@ -2468,6 +2519,18 @@ int main(int argc, char** argv) {
                     require(!surfaceProjectSourceSites,
                             "--surface-project-source-sites may be given only once");
                     surfaceProjectSourceSites = true;
+                } else if (argument == "--soft-tissue-stable-id") {
+                    require(index + 1 < argc,
+                            "--soft-tissue-stable-id requires one source stable ID");
+                    requestedSoftTissueStableIds.push_back(
+                        parseSourceRouteIndex(argv[++index])
+                    );
+                } else if (argument == "--visible-bone-body-index") {
+                    require(index + 1 < argc,
+                            "--visible-bone-body-index requires one articulated body index");
+                    requestedBoneBodyIndices.push_back(
+                        parseSourceRouteIndex(argv[++index])
+                    );
                 } else if (argument == "--focus-body-index") {
                     require(index + 1 < argc && !focusBodyIndex.has_value(),
                             "--focus-body-index requires one body index and may be given only once");
@@ -2496,10 +2559,13 @@ int main(int argc, char** argv) {
                           << " <myosim-fullbody-muscle-reference.nhmyo>"
                           << " [bodyparts3d-myosim-major-bones.nhbones] <output-directory>"
                           << " [--muscle-step-seconds <1e-6..1e-3>]"
+                          << " [--muscle-step-count <1..64>]"
                           << " [--muscle-activation <0..1>]"
                           << " [--source-route-centrelines] [--source-route-index <0..415>]..."
                           << " [--surface-project-source-sites]"
                           << " [--soft-tissue-payload <NHTISS2>]"
+                          << " [--visible-bone-body-index <0..156>]..."
+                          << " [--soft-tissue-stable-id <1..N>]..."
                           << " [--support-contact-payload <NHCNT1>]"
                           << " [--focus-body-index <0..156>]"
                           << " [--dimension <512..2048; multiple-of-64>]\n";
@@ -2523,15 +2589,63 @@ int main(int argc, char** argv) {
                         }
                     ),
                     "--source-route-index exceeds the source muscle count");
+            std::sort(requestedBoneBodyIndices.begin(), requestedBoneBodyIndices.end());
+            const auto duplicateBoneBody = std::adjacent_find(
+                requestedBoneBodyIndices.begin(), requestedBoneBodyIndices.end()
+            );
+            require(duplicateBoneBody == requestedBoneBodyIndices.end(),
+                    "--visible-bone-body-index values must be unique");
+            require(std::all_of(
+                        requestedBoneBodyIndices.begin(), requestedBoneBodyIndices.end(),
+                        [&rigid](const std::uint32_t index) {
+                            return index < rigid.header.engineBodyCount;
+                        }
+                    ),
+                    "--visible-bone-body-index exceeds the source body count");
+            std::sort(
+                requestedSoftTissueStableIds.begin(),
+                requestedSoftTissueStableIds.end()
+            );
+            const auto duplicateSoftTissue = std::adjacent_find(
+                requestedSoftTissueStableIds.begin(), requestedSoftTissueStableIds.end()
+            );
+            require(duplicateSoftTissue == requestedSoftTissueStableIds.end(),
+                    "--soft-tissue-stable-id values must be unique");
             std::optional<LoadedBones> bonePayload;
             if (bodypartsBoneVisual) {
                 bonePayload.emplace(loadBones(positional[2], rigid.header));
+            }
+            require(requestedBoneBodyIndices.empty() || bonePayload.has_value(),
+                    "--visible-bone-body-index requires a BodyParts3D bone payload");
+            if (!requestedBoneBodyIndices.empty()) {
+                for (const std::uint32_t bodyIndex : requestedBoneBodyIndices) {
+                    const bool present = std::any_of(
+                        bonePayload->records.begin(), bonePayload->records.end(),
+                        [bodyIndex](const BoneRecord& bone) { return bone.bodyIndex == bodyIndex; }
+                    );
+                    require(present,
+                            "--visible-bone-body-index has no source mesh in the supplied payload");
+                }
             }
             std::optional<LoadedSoftTissues> softTissuePayload;
             if (softTissuePayloadPath.has_value()) {
                 require(bodypartsBoneVisual,
                         "--soft-tissue-payload requires a BodyParts3D bone payload");
                 softTissuePayload.emplace(loadSoftTissues(*softTissuePayloadPath, rigid.header));
+            }
+            require(requestedSoftTissueStableIds.empty() || softTissuePayload.has_value(),
+                    "--soft-tissue-stable-id requires --soft-tissue-payload");
+            if (!requestedSoftTissueStableIds.empty()) {
+                for (const std::uint32_t stableId : requestedSoftTissueStableIds) {
+                    const bool present = std::any_of(
+                        softTissuePayload->records.begin(), softTissuePayload->records.end(),
+                        [stableId](const SoftTissueRecord& tissue) {
+                            return tissue.stableId == stableId;
+                        }
+                    );
+                    require(present,
+                            "--soft-tissue-stable-id is not present in the supplied payload");
+                }
             }
             std::optional<LoadedSupportContacts> supportContactPayload;
             if (supportContactPayloadPath.has_value()) {
@@ -2546,11 +2660,14 @@ int main(int argc, char** argv) {
                     "--surface-project-source-sites requires BodyParts3D bones and a source-route inspection");
             require(!muscleActivation.has_value() || muscleStepSeconds.has_value(),
                     "--muscle-activation requires --muscle-step-seconds");
+            require(!muscleStepCount.has_value() || muscleStepSeconds.has_value(),
+                    "--muscle-step-count requires --muscle-step-seconds");
             std::optional<MuscleDrivenVisualState> muscleDrivenState;
             std::span<const float> poseQ = rigid.model.defaultQ;
             if (muscleStepSeconds.has_value()) {
                 muscleDrivenState.emplace(integrateMuscleDrivenVisualState(
                     rigid.model, musclePayload, *muscleStepSeconds,
+                    muscleStepCount.value_or(1u),
                     muscleActivation.value_or(0.5),
                     supportContactPayload.has_value() ? &*supportContactPayload : nullptr
                 ));
@@ -2596,9 +2713,15 @@ int main(int argc, char** argv) {
                 softTissuePayload.has_value() ? &*softTissuePayload : nullptr,
                 bodies,
                 muscleDrivenState.has_value(),
+                requestedBoneBodyIndices,
+                requestedSoftTissueStableIds,
                 resolvedRouteCentrelines.has_value() ? &*resolvedRouteCentrelines : nullptr,
                 renderedBodies, renderedSoftTissues, renderedRouteSegments
             );
+            require(requestedSoftTissueStableIds.empty() || renderedSoftTissues == requestedSoftTissueStableIds.size(),
+                    "native Human visual soft-tissue selection did not render every requested source surface");
+            require(requestedBoneBodyIndices.empty() || renderedBodies > 0u,
+                    "native Human visual bone selection rendered no source mesh");
             const CameraFraming cameraFraming = makeCameraFraming(
                 pack, bodies, focusBodyIndex
             );
@@ -2719,15 +2842,11 @@ int main(int argc, char** argv) {
                     "requested source route is completely occluded from all native Human cameras");
             const bool sourceSupportContact = muscleDrivenState.has_value() &&
                 muscleDrivenState->supportContactApplied;
-            const bool sourceSupportMetalContact = sourceSupportContact &&
-                muscleDrivenState->supportMetalStatus == "accepted";
             const std::string poseSource = !muscleDrivenState.has_value()
                 ? "source_default_q_to_metal_kinematic_pose"
                 : sourceSupportContact
-                    ? (sourceSupportMetalContact
-                        ? "cpu_fp64_mujoco_416_muscle_incremental_activation_free_velocity_then_metal_exact_cone_source_support_contact_then_cpu_configuration_advance_then_metal_kinematic_pose"
-                        : "cpu_fp64_mujoco_416_muscle_incremental_activation_free_velocity_then_cpu_fp64_exact_cone_source_support_contact_then_cpu_configuration_advance_then_metal_kinematic_pose")
-                    : "cpu_fp64_mujoco_416_muscle_incremental_activation_force_to_articulated_free_body_step_then_metal_kinematic_pose";
+                    ? "cpu_fp64_all_416_muscle_multistep_free_dynamics_then_dynamic_source_foot_witness_plane_contact_then_metal_kinematic_pose"
+                    : "cpu_fp64_all_416_muscle_multistep_free_dynamics_then_metal_kinematic_pose";
             const std::string evidenceBoundary = !muscleDrivenState.has_value()
                 ? (bodypartsBoneVisual
                     ? (softTissuePayload.has_value()
@@ -2735,22 +2854,16 @@ int main(int argc, char** argv) {
                         : "metal_pose_snapshot_to_native_renderer_with_provisional_bodyparts_bone_registration_not_collision_or_live_rollout")
                     : "metal_pose_snapshot_to_native_renderer_not_bodyparts_registration_or_live_rollout")
                 : sourceSupportContact
-                    ? (sourceSupportMetalContact
-                        ? (bodypartsBoneVisual
-                            ? (softTissuePayload.has_value()
-                                ? "all_416_source_muscle_incremental_force_to_cpu_free_velocity_then_metal_exact_cone_two_witness_source_authored_foot_support_contact_with_fp64_oracle_parity_then_cpu_configuration_advance_and_metal_pose_with_provisional_bodyparts_bones_and_two_body_soft_tissue_visuals_not_general_collision_stable_posture_or_live_rollout"
-                                : "all_416_source_muscle_incremental_force_to_cpu_free_velocity_then_metal_exact_cone_two_witness_source_authored_foot_support_contact_with_fp64_oracle_parity_then_cpu_configuration_advance_and_metal_pose_with_provisional_bodyparts_bones_not_general_collision_stable_posture_or_live_rollout")
-                            : "all_416_source_muscle_incremental_force_to_cpu_free_velocity_then_metal_exact_cone_two_witness_source_authored_foot_support_contact_with_fp64_oracle_parity_then_cpu_configuration_advance_and_metal_pose_not_general_collision_stable_posture_or_live_rollout")
-                        : (bodypartsBoneVisual
-                            ? (softTissuePayload.has_value()
-                                ? "all_416_source_muscle_incremental_force_to_cpu_free_velocity_then_cpu_fp64_exact_cone_two_witness_source_authored_foot_support_contact_then_cpu_configuration_advance_and_metal_pose_with_provisional_bodyparts_bones_and_two_body_soft_tissue_visuals_metal_fullbody_contact_not_admitted_articulation_exceeds_metal_contact_bucket_not_general_collision_stable_posture_or_live_rollout"
-                                : "all_416_source_muscle_incremental_force_to_cpu_free_velocity_then_cpu_fp64_exact_cone_two_witness_source_authored_foot_support_contact_then_cpu_configuration_advance_and_metal_pose_with_provisional_bodyparts_bones_metal_fullbody_contact_not_admitted_articulation_exceeds_metal_contact_bucket_not_general_collision_stable_posture_or_live_rollout")
-                            : "all_416_source_muscle_incremental_force_to_cpu_free_velocity_then_cpu_fp64_exact_cone_two_witness_source_authored_foot_support_contact_then_cpu_configuration_advance_and_metal_pose_metal_fullbody_contact_not_admitted_articulation_exceeds_metal_contact_bucket_not_general_collision_stable_posture_or_live_rollout"))
+                    ? (bodypartsBoneVisual
+                        ? (softTissuePayload.has_value()
+                            ? "bounded_multistep_all_416_source_muscle_cpu_fp64_dynamics_with_dynamic_source_foot_witness_plane_contact_and_metal_pose_with_provisional_bodyparts_bones_and_two_body_soft_tissue_visuals_metal_fullbody_contact_not_admitted_not_general_collision_stable_posture_or_live_rollout"
+                            : "bounded_multistep_all_416_source_muscle_cpu_fp64_dynamics_with_dynamic_source_foot_witness_plane_contact_and_metal_pose_with_provisional_bodyparts_bones_metal_fullbody_contact_not_admitted_not_general_collision_stable_posture_or_live_rollout")
+                        : "bounded_multistep_all_416_source_muscle_cpu_fp64_dynamics_with_dynamic_source_foot_witness_plane_contact_and_metal_pose_metal_fullbody_contact_not_admitted_not_general_collision_stable_posture_or_live_rollout")
                     : (bodypartsBoneVisual
                         ? (softTissuePayload.has_value()
-                            ? "cpu_fp64_complete_416_muscle_incremental_activation_force_and_articulated_free_body_step_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_and_two_body_kinematic_source_soft_tissue_visuals_not_contact_or_live_rollout"
-                            : "cpu_fp64_complete_416_muscle_incremental_activation_force_and_articulated_free_body_step_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_not_contact_or_live_rollout")
-                        : "cpu_fp64_complete_416_muscle_incremental_activation_force_and_articulated_free_body_step_to_metal_pose_snapshot_not_contact_or_live_rollout");
+                            ? "bounded_multistep_all_416_source_muscle_cpu_fp64_dynamics_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_and_two_body_kinematic_source_soft_tissue_visuals_not_contact_or_live_rollout"
+                            : "bounded_multistep_all_416_source_muscle_cpu_fp64_dynamics_to_metal_pose_snapshot_with_provisional_bodyparts_bone_registration_not_contact_or_live_rollout")
+                        : "bounded_multistep_all_416_source_muscle_cpu_fp64_dynamics_to_metal_pose_snapshot_not_contact_or_live_rollout");
             std::cout << std::setprecision(12)
                       << (bodypartsBoneVisual
                               ? "myosim_articulated_bodyparts_bone_visual=ok"
@@ -2761,7 +2874,9 @@ int main(int argc, char** argv) {
                       << " core_bodies=" << rigid.header.engineBodyCount
                       << " rendered_link_visuals=" << renderedBodies
                       << " bodyparts_bones=" << (bonePayload.has_value() ? bonePayload->records.size() : 0u)
+                      << " requested_bone_bodies=" << requestedBoneBodyIndices.size()
                       << " bodyparts_soft_tissues=" << renderedSoftTissues
+                      << " requested_soft_tissue_surfaces=" << requestedSoftTissueStableIds.size()
                       << " soft_tissue_binding=" << (softTissuePayload.has_value()
                               ? "two_body_linear_blend_world_surface_snapshot"
                               : "none")
@@ -2785,6 +2900,8 @@ int main(int argc, char** argv) {
                       << " pose_source=" << poseSource
                       << " muscle_step_seconds=" << (muscleStepSeconds.has_value()
                               ? *muscleStepSeconds : 0.0)
+                      << " muscle_step_count=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->stepCount : 0u)
                       << " muscle_activation=" << (muscleStepSeconds.has_value()
                               ? muscleActivation.value_or(0.5) : 0.0)
                       << " muscle_passive_baseline=" << (muscleDrivenState.has_value()
@@ -2800,6 +2917,10 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->supportWitnessCount : 0u)
                       << " source_support_active_contacts=" << (sourceSupportContact
                               ? muscleDrivenState->activeSupportContactCount : 0u)
+                      << " source_support_max_active_contacts=" << (sourceSupportContact
+                              ? muscleDrivenState->maximumActiveSupportContactCount : 0u)
+                      << " source_support_min_plane_gap_m=" << (sourceSupportContact
+                              ? muscleDrivenState->minimumSupportPlaneGapMeters : 0.0)
                       << " source_support_seed_translation_m=" << (sourceSupportContact
                               ? muscleDrivenState->supportSeedTranslationMeters : 0.0)
                       << " source_support_metal_device=\"" << (sourceSupportContact
