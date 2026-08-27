@@ -1,6 +1,7 @@
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/MujocoMuscleReference.hpp"
+#include "metalrobo/NumiHumanTendon.hpp"
 
 #include <algorithm>
 #include <array>
@@ -195,6 +196,12 @@ struct LoadedMuscles {
     std::vector<MRMujocoMuscleStateGPU> gpuStates;
     std::vector<double> oracleLength;
     std::vector<double> oracleForce;
+    std::vector<metalrobo::MujocoMuscleSite> sourceSites;
+    std::vector<metalrobo::MujocoMuscleDefinition> sourceMuscles;
+    std::uint32_t tendonPointBindings = 0u;
+    std::uint32_t tendonTriangleBindings = 0u;
+    double maximumEndpointMigration = 0.0;
+    metalrobo::NumiHumanTendonPayload tendonPayload;
 };
 
 metalrobo::MujocoRouteNodeType routeType(const std::uint32_t value) {
@@ -319,6 +326,84 @@ LoadedMuscles loadMuscles(const char* path, const RigidHeader& rigid) {
     return result;
 }
 
+std::vector<std::byte> readBytes(const char* path) {
+    std::ifstream input(path, std::ios::binary | std::ios::ate);
+    require(input.is_open(), std::string("cannot open tendon payload ") + path);
+    const std::streamsize size = input.tellg();
+    require(size >= 0, "cannot determine tendon payload size");
+    input.seekg(0, std::ios::beg);
+    std::vector<std::byte> bytes(static_cast<std::size_t>(size));
+    if (!bytes.empty()) {
+        input.read(reinterpret_cast<char*>(bytes.data()), size);
+        require(input.good(), "truncated tendon payload");
+    }
+    return bytes;
+}
+
+void applyNumiHumanTendonPayload(
+    const char* path, const RigidHeader& rigid, LoadedMuscles& muscles
+) {
+    const std::vector<std::byte> bytes = readBytes(path);
+    metalrobo::NumiHumanTendonPayload payload;
+    const auto decode = metalrobo::decodeNumiHumanTendonPayload(
+        bytes, rigid.sourceSha256, {}, payload
+    );
+    require(
+        decode.succeeded(),
+        std::string("NHTENDON1 decode failed: ") +
+            metalrobo::numiHumanTendonStatusName(decode.status) +
+            " index=" + std::to_string(decode.failingIndex)
+    );
+    require(
+        payload.bodyCount == rigid.engineBodyCount,
+        "NHTENDON1 body count disagrees with NHRIGID2"
+    );
+    muscles.sourceSites = muscles.sites;
+    muscles.sourceMuscles = muscles.muscles;
+    metalrobo::NumiHumanTendonResolvedProgram resolved;
+    const auto diagnostics = metalrobo::resolveNumiHumanTendonProgram(
+        payload, muscles.sourceSites, muscles.sourceMuscles, resolved
+    );
+    require(
+        diagnostics.succeeded(),
+        std::string("NHTENDON1 endpoint resolution failed: ") +
+            metalrobo::numiHumanTendonStatusName(diagnostics.status) +
+            " index=" + std::to_string(diagnostics.failingIndex)
+    );
+    muscles.sites = std::move(resolved.sites);
+    muscles.muscles = std::move(resolved.muscles);
+    muscles.tendonPointBindings = resolved.pointBindingCount;
+    muscles.tendonTriangleBindings = resolved.triangleBindingCount;
+    muscles.maximumEndpointMigration = resolved.maximumEndpointMigration;
+    muscles.tendonPayload = std::move(payload);
+
+    muscles.gpuSites.clear();
+    muscles.gpuSites.reserve(muscles.sites.size());
+    for (const metalrobo::MujocoMuscleSite& site : muscles.sites) {
+        MRMujocoMuscleSiteGPU gpu{};
+        gpu.bodyIndex = site.bodyIndex;
+        gpu.localPoint = {
+            static_cast<float>(site.localPoint[0]),
+            static_cast<float>(site.localPoint[1]),
+            static_cast<float>(site.localPoint[2]), 0.0f,
+        };
+        muscles.gpuSites.push_back(gpu);
+    }
+    muscles.gpuRoutes.clear();
+    for (std::size_t muscleIndex = 0u; muscleIndex < muscles.muscles.size(); ++muscleIndex) {
+        MRMujocoMuscleGPU& gpuMuscle = muscles.gpuMuscles[muscleIndex];
+        gpuMuscle.route.x = static_cast<std::uint32_t>(muscles.gpuRoutes.size());
+        gpuMuscle.route.y = static_cast<std::uint32_t>(muscles.muscles[muscleIndex].route.size());
+        for (const metalrobo::MujocoRouteNode& node : muscles.muscles[muscleIndex].route) {
+            MRMujocoMuscleRouteNodeGPU gpu{};
+            gpu.type = static_cast<std::uint32_t>(node.type);
+            gpu.targetIndex = node.targetIndex;
+            gpu.sideSiteIndex = node.sideSiteIndex;
+            muscles.gpuRoutes.push_back(gpu);
+        }
+    }
+}
+
 double quaternionAngle(const std::array<double, 4>& left, const SourcePoseRecord& right) {
     const double rightNorm = std::sqrt(
         static_cast<double>(right.quaternionX) * right.quaternionX + static_cast<double>(right.quaternionY) * right.quaternionY +
@@ -331,6 +416,27 @@ double quaternionAngle(const std::array<double, 4>& left, const SourcePoseRecord
 
 double vectorNorm(const std::array<double, 3>& value) {
     return std::sqrt(value[0] * value[0] + value[1] * value[1] + value[2] * value[2]);
+}
+
+std::array<double, 3> quaternionRotate(
+    const std::array<double, 4>& q, const std::array<double, 3>& value
+) {
+    const std::array<double, 3> axis{q[0], q[1], q[2]};
+    const std::array<double, 3> twiceCross{
+        2.0 * (axis[1] * value[2] - axis[2] * value[1]),
+        2.0 * (axis[2] * value[0] - axis[0] * value[2]),
+        2.0 * (axis[0] * value[1] - axis[1] * value[0]),
+    };
+    const std::array<double, 3> crossAgain{
+        axis[1] * twiceCross[2] - axis[2] * twiceCross[1],
+        axis[2] * twiceCross[0] - axis[0] * twiceCross[2],
+        axis[0] * twiceCross[1] - axis[1] * twiceCross[0],
+    };
+    return {
+        value[0] + q[3] * twiceCross[0] + crossAgain[0],
+        value[1] + q[3] * twiceCross[1] + crossAgain[1],
+        value[2] + q[3] * twiceCross[2] + crossAgain[2],
+    };
 }
 
 struct MetalArticulatedMetrics {
@@ -667,9 +773,15 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
     return metrics;
 }
 
-int run(const char* rigidPath, const char* musclePath, const bool runMetal) {
+int run(
+    const char* rigidPath, const char* musclePath,
+    const char* tendonPath, const bool runMetal
+) {
     const LoadedRigid rigid = loadRigid(rigidPath);
-    const LoadedMuscles muscles = loadMuscles(musclePath, rigid.header);
+    LoadedMuscles muscles = loadMuscles(musclePath, rigid.header);
+    if (tendonPath != nullptr) {
+        applyNumiHumanTendonPayload(tendonPath, rigid.header, muscles);
+    }
     const auto& model = rigid.model;
     std::vector<double> q(model.defaultQ.begin(), model.defaultQ.end());
     std::vector<double> v(model.defaultV.begin(), model.defaultV.end());
@@ -710,6 +822,9 @@ int run(const char* rigidPath, const char* musclePath, const bool runMetal) {
     double maxMuscleForceError = 0.0;
     std::uint32_t appliedWraps = 0u;
     std::vector<double> muscleForce(model.world.nv, 0.0);
+    std::vector<double> sourceMuscleForce(model.world.nv, 0.0);
+    double maximumEnthesisForceResidual = 0.0;
+    double maximumEnthesisMomentResidual = 0.0;
     for (std::size_t index = 0; index < muscles.muscles.size(); ++index) {
         metalrobo::MujocoMuscleResult result;
         const metalrobo::MujocoMuscleState state{.excitation = 0.5, .activation = 0.5};
@@ -721,9 +836,95 @@ int run(const char* rigidPath, const char* musclePath, const bool runMetal) {
         maxMuscleLengthError = std::max(maxMuscleLengthError, std::abs(result.path.length - muscles.oracleLength[index]));
         maxMuscleForceError = std::max(maxMuscleForceError, std::abs(result.actuatorForce - muscles.oracleForce[index]));
         appliedWraps += result.path.appliedWrapCount;
+        if (!muscles.tendonPayload.bindings.empty()) {
+            require(result.path.centreline.size() >= 2u, "resolved tendon route has no endpoint direction");
+            for (std::uint32_t endpoint = 0u; endpoint < 2u; ++endpoint) {
+                const metalrobo::NumiHumanTendonBinding& binding =
+                    muscles.tendonPayload.bindings[2u * index + endpoint];
+                const auto& terminal = endpoint == 0u
+                    ? result.path.centreline.front().world : result.path.centreline.back().world;
+                const auto& adjacent = endpoint == 0u
+                    ? result.path.centreline[1u].world
+                    : result.path.centreline[result.path.centreline.size() - 2u].world;
+                const MRArticulationGPU& articulation = model.articulations[0];
+                require(
+                    binding.bodyIndex >= articulation.firstBody &&
+                    binding.bodyIndex < articulation.firstBody + articulation.bodyCount,
+                    "resolved tendon endpoint body is outside the articulation"
+                );
+                const auto& pose = bodies[binding.bodyIndex - articulation.firstBody];
+                std::array<std::array<double, 3>, 3> worldTriangle{};
+                std::span<const std::array<double, 3>> worldTriangleSpan{};
+                if (binding.mode == metalrobo::NumiHumanTendonAttachmentMode::registeredBoneTriangle) {
+                    const auto& triangle = muscles.tendonPayload.triangles[binding.triangleIndex];
+                    for (std::size_t vertex = 0u; vertex < 3u; ++vertex) {
+                        const std::array<double, 3> rotated = quaternionRotate(
+                            pose.orientation, triangle.localVertices[vertex]
+                        );
+                        for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                            worldTriangle[vertex][axis] = pose.centerOfMassPosition[axis] + rotated[axis];
+                        }
+                    }
+                    worldTriangleSpan = worldTriangle;
+                }
+                metalrobo::NumiHumanTendonTractionResult traction;
+                const auto tractionDiagnostics = metalrobo::evaluateNumiHumanTendonTraction(
+                    binding, worldTriangleSpan, terminal, adjacent,
+                    pose.centerOfMassPosition, result.actuatorForce, traction
+                );
+                require(
+                    tractionDiagnostics.succeeded(),
+                    std::string("tendon traction evaluation failed: ") +
+                        metalrobo::numiHumanTendonStatusName(tractionDiagnostics.status)
+                );
+                maximumEnthesisForceResidual = std::max(
+                    maximumEnthesisForceResidual, traction.forceResidual
+                );
+                maximumEnthesisMomentResidual = std::max(
+                    maximumEnthesisMomentResidual, traction.momentResidual
+                );
+            }
+        }
+        if (!muscles.sourceMuscles.empty()) {
+            const auto sourceDiagnostics = metalrobo::projectMujocoMuscleForce(
+                model, 0u, q, v, muscles.sourceSites, muscles.wraps,
+                muscles.sourceMuscles[index], state, sourceMuscleForce
+            );
+            require(sourceDiagnostics.succeeded(), "source endpoint comparison failed");
+        }
+        if (muscles.tendonTriangleBindings > 0u) {
+            // Metal parity compares against the resolved CPU route. The source
+            // oracle delta above remains reported as explicit endpoint migration.
+            muscles.oracleLength[index] = result.path.length;
+            muscles.oracleForce[index] = result.actuatorForce;
+        }
     }
-    require(maxMuscleLengthError <= 2.0e-5, "MyoSim native muscle paths do not match source default lengths");
-    require(maxMuscleForceError <= 1.0e-2, "MyoSim native muscle forces do not match source default forces");
+    if (muscles.tendonTriangleBindings == 0u) {
+        require(maxMuscleLengthError <= 2.0e-5, "MyoSim native muscle paths do not match source default lengths");
+        require(maxMuscleForceError <= 1.0e-2, "MyoSim native muscle forces do not match source default forces");
+    }
+    double maximumEndpointSingleScatterDifference = 0.0;
+    if (!muscles.sourceMuscles.empty()) {
+        for (std::size_t index = 0u; index < muscleForce.size(); ++index) {
+            maximumEndpointSingleScatterDifference = std::max(
+                maximumEndpointSingleScatterDifference,
+                std::abs(muscleForce[index] - sourceMuscleForce[index])
+            );
+        }
+        if (muscles.tendonTriangleBindings == 0u) {
+            require(
+                maximumEndpointSingleScatterDifference <= 1.0e-10,
+                "point-only NHTENDON1 changed or duplicated the authoritative J^T force"
+            );
+        }
+    }
+    require(
+        maximumEnthesisForceResidual <= 1.0e-9 &&
+        maximumEnthesisMomentResidual <= 1.0e-4,
+        "NHTENDON1 traction does not preserve endpoint force and moment: force=" +
+            std::to_string(maximumEnthesisForceResidual) + " moment=" +
+            std::to_string(maximumEnthesisMomentResidual)
+    );
     std::vector<double> muscleAcceleration(model.world.nv);
     const auto muscleDynamics = metalrobo::computeArticulatedForwardDynamics(model, 0u, q, v, muscleForce, {}, muscleAcceleration);
     require(muscleDynamics.succeeded(), "MyoSim native muscle force did not drive Core forward dynamics");
@@ -781,6 +982,15 @@ int run(const char* rigidPath, const char* musclePath, const bool runMetal) {
                              << " nq=" << rigid.header.nq << " nv=" << rigid.header.nv
                              << " muscles=" << muscles.muscles.size()
                              << " route_sites=" << muscles.sites.size()
+                             << " tendon_endpoints="
+                             << muscles.tendonPointBindings + muscles.tendonTriangleBindings
+                             << " tendon_point_bindings=" << muscles.tendonPointBindings
+                             << " tendon_triangle_bindings=" << muscles.tendonTriangleBindings
+                             << " tendon_max_endpoint_migration_m=" << muscles.maximumEndpointMigration
+                             << " tendon_single_scatter_generalized_force_difference="
+                             << maximumEndpointSingleScatterDifference
+                             << " tendon_force_residual_n=" << maximumEnthesisForceResidual
+                             << " tendon_moment_residual_nm=" << maximumEnthesisMomentResidual
                              << " wraps=" << muscles.wraps.size()
                              << " applied_wraps=" << appliedWraps
                              << " max_body_position_error_m=" << maxPositionError
@@ -823,18 +1033,34 @@ int run(const char* rigidPath, const char* musclePath, const bool runMetal) {
 
 int main(int argc, char** argv) {
     try {
-        if (argc != 3 && argc != 4) {
+        if (argc < 3 || argc > 5) {
             std::cerr << "usage: " << argv[0] << " <myosim-fullbody-core-reference.nhrigid> "
-                      << "<myosim-fullbody-muscle-reference.nhmyo> [--metal]\n";
+                      << "<myosim-fullbody-muscle-reference.nhmyo> "
+                      << "[numi-human-tendon-endpoints.nhtendon] [--metal]\n";
             return 2;
         }
-        const bool runMetal = argc == 4;
-        if (runMetal && std::string(argv[3]) != "--metal") {
+        const char* tendonPath = nullptr;
+        bool runMetal = false;
+        for (int index = 3; index < argc; ++index) {
+            if (std::string(argv[index]) == "--metal") {
+                if (runMetal) return 2;
+                runMetal = true;
+            } else if (tendonPath == nullptr) {
+                tendonPath = argv[index];
+            } else {
+                std::cerr << "usage: " << argv[0] << " <myosim-fullbody-core-reference.nhrigid> "
+                          << "<myosim-fullbody-muscle-reference.nhmyo> "
+                          << "[numi-human-tendon-endpoints.nhtendon] [--metal]\n";
+                return 2;
+            }
+        }
+        if (argc == 5 && (!runMetal || tendonPath == nullptr)) {
             std::cerr << "usage: " << argv[0] << " <myosim-fullbody-core-reference.nhrigid> "
-                      << "<myosim-fullbody-muscle-reference.nhmyo> [--metal]\n";
+                      << "<myosim-fullbody-muscle-reference.nhmyo> "
+                      << "[numi-human-tendon-endpoints.nhtendon] [--metal]\n";
             return 2;
         }
-        return run(argv[1], argv[2], runMetal);
+        return run(argv[1], argv[2], tendonPath, runMetal);
     } catch (const std::exception& error) {
         std::cerr << "myosim_core_reference FAIL: " << error.what() << "\n";
         return 1;

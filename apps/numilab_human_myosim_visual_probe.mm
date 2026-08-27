@@ -8,6 +8,7 @@
 #include "metalrobo/MetalMultiArticulatedContact.hpp"
 #include "metalrobo/MultiArticulatedContact.hpp"
 #include "metalrobo/MujocoMuscleReference.hpp"
+#include "metalrobo/NumiHumanTendon.hpp"
 #include "metalrobo/QualityContactSolver.hpp"
 #include "metalrobo/VisualPlatform.hpp"
 #include "metalrobo/WorldCompiler.hpp"
@@ -403,6 +404,8 @@ struct LoadedMuscles {
     std::vector<MRMujocoMuscleWrapGPU> gpuWraps;
     std::vector<MRMujocoMuscleRouteNodeGPU> gpuRoutes;
     std::vector<MRMujocoMuscleGPU> gpuMuscles;
+    std::uint32_t tendonPointBindings = 0u;
+    std::uint32_t tendonTriangleBindings = 0u;
 };
 
 struct LoadedBones {
@@ -720,6 +723,69 @@ LoadedMuscles loadMuscles(
         "MyoSim Metal source program packing is incomplete"
     );
     return result;
+}
+
+void applyNumiHumanTendonPayload(
+    const std::filesystem::path& path,
+    const RigidHeader& rigid,
+    LoadedMuscles& muscles
+) {
+    std::ifstream input(path, std::ios::binary | std::ios::ate);
+    require(input.is_open(), "cannot open NHTENDON1 payload " + path.string());
+    const std::streamsize size = input.tellg();
+    require(size >= 0, "cannot determine NHTENDON1 payload size");
+    input.seekg(0, std::ios::beg);
+    std::vector<std::byte> bytes(static_cast<std::size_t>(size));
+    if (!bytes.empty()) {
+        input.read(reinterpret_cast<char*>(bytes.data()), size);
+        require(input.good(), "truncated NHTENDON1 payload");
+    }
+    metalrobo::NumiHumanTendonPayload payload;
+    const auto decode = metalrobo::decodeNumiHumanTendonPayload(
+        bytes, rigid.sourceSha256, {}, payload
+    );
+    require(
+        decode.succeeded() && payload.bodyCount == rigid.engineBodyCount,
+        std::string("invalid NHTENDON1 visual program: ") +
+            metalrobo::numiHumanTendonStatusName(decode.status)
+    );
+    metalrobo::NumiHumanTendonResolvedProgram resolved;
+    const auto diagnostics = metalrobo::resolveNumiHumanTendonProgram(
+        payload, muscles.referenceSites, muscles.referenceMuscles, resolved
+    );
+    require(
+        diagnostics.succeeded(),
+        std::string("cannot resolve NHTENDON1 visual program: ") +
+            metalrobo::numiHumanTendonStatusName(diagnostics.status)
+    );
+    muscles.referenceSites = std::move(resolved.sites);
+    muscles.referenceMuscles = std::move(resolved.muscles);
+    muscles.tendonPointBindings = resolved.pointBindingCount;
+    muscles.tendonTriangleBindings = resolved.triangleBindingCount;
+    muscles.gpuSites.clear();
+    muscles.gpuSites.reserve(muscles.referenceSites.size());
+    for (const metalrobo::MujocoMuscleSite& site : muscles.referenceSites) {
+        MRMujocoMuscleSiteGPU gpu{};
+        gpu.bodyIndex = site.bodyIndex;
+        gpu.localPoint = {
+            static_cast<float>(site.localPoint[0]), static_cast<float>(site.localPoint[1]),
+            static_cast<float>(site.localPoint[2]), 0.0f,
+        };
+        muscles.gpuSites.push_back(gpu);
+    }
+    muscles.gpuRoutes.clear();
+    for (std::size_t index = 0u; index < muscles.referenceMuscles.size(); ++index) {
+        muscles.gpuMuscles[index].route.x = static_cast<std::uint32_t>(muscles.gpuRoutes.size());
+        muscles.gpuMuscles[index].route.y = static_cast<std::uint32_t>(
+            muscles.referenceMuscles[index].route.size()
+        );
+        for (const metalrobo::MujocoRouteNode& node : muscles.referenceMuscles[index].route) {
+            muscles.gpuRoutes.push_back({
+                static_cast<std::uint32_t>(node.type), node.targetIndex,
+                node.sideSiteIndex, 0u,
+            });
+        }
+    }
 }
 
 LoadedSupportContacts loadSupportContacts(
@@ -2134,8 +2200,7 @@ metalrobo::SensorSpec makeCamera(
     camera.localPose = cameraToward(position, target);
     camera.width = dimension;
     camera.height = dimension;
-    const float focalLength = 750.0f * static_cast<float>(dimension) /
-        static_cast<float>(kDefaultFrameDimension);
+    const float focalLength = 750.0f;
     camera.intrinsics = {focalLength, focalLength, 0.5f * dimension, 0.5f * dimension};
     camera.maximumDepthMeters = 20.0f;
     return camera;
@@ -4027,10 +4092,6 @@ CameraFraming makeCameraFraming(
     });
     require(std::isfinite(extent) && extent > 1.0e-4f,
             "MyoSim visual source geometry has a degenerate whole-body bound");
-    // The camera's vertical FOV at the reference focal length has a half-angle
-    // of about 34 degrees.  This stand-off leaves a visible margin around the
-    // exact imported mesh in every four-camera angle, without turning the
-    // whole-body anatomy review into a distant thumbnail.
     return {
         .center = {
             static_cast<float>(centroidX / static_cast<double>(centroidVertexCount)),
@@ -4291,6 +4352,7 @@ int main(int argc, char** argv) {
             std::optional<std::filesystem::path> skinPayloadPath;
             std::optional<std::filesystem::path> torsoAnatomyPayloadPath;
             std::optional<std::filesystem::path> supportContactPayloadPath;
+            std::optional<std::filesystem::path> tendonPayloadPath;
             std::optional<std::uint32_t> passiveFEMTissueStableId;
             std::optional<std::uint32_t> passiveFEMStepCount;
             std::optional<std::filesystem::path> passiveFEMMetallibPath;
@@ -4370,6 +4432,10 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !supportContactPayloadPath.has_value(),
                             "--support-contact-payload requires one path and may be given only once");
                     supportContactPayloadPath.emplace(argv[++index]);
+                } else if (argument == "--tendon-payload") {
+                    require(index + 1 < argc && !tendonPayloadPath.has_value(),
+                            "--tendon-payload requires one path and may be given only once");
+                    tendonPayloadPath.emplace(argv[++index]);
                 } else if (argument == "--passive-fem-tissue-stable-id") {
                     require(index + 1 < argc && !passiveFEMTissueStableId.has_value(),
                             "--passive-fem-tissue-stable-id requires one source stable ID and may be given only once");
@@ -4418,6 +4484,7 @@ int main(int argc, char** argv) {
                           << " [--zanatomy-calf-visual-supplement]"
                           << " [--tendon-attachment-collar-diagnostic]"
                           << " [--support-contact-payload <NHCNT1>]"
+                          << " [--tendon-payload <NHTENDON1>]"
                           << " [--focus-body-index <0..156>]"
                           << " [--camera-index <0..3>]"
                           << " [--dimension <512..2048; multiple-of-64>]\n";
@@ -4425,7 +4492,16 @@ int main(int argc, char** argv) {
             }
             const bool bodypartsBoneVisual = positional.size() == 4u;
             const LoadedRigid rigid = loadRigid(positional[0]);
-            const LoadedMuscles musclePayload = loadMuscles(positional[1], rigid.header);
+            LoadedMuscles musclePayload = loadMuscles(positional[1], rigid.header);
+            if (tendonPayloadPath.has_value()) {
+                applyNumiHumanTendonPayload(*tendonPayloadPath, rigid.header, musclePayload);
+                std::cout << "tendon_payload=NHTENDON1"
+                          << " tendon_endpoints="
+                          << musclePayload.tendonPointBindings + musclePayload.tendonTriangleBindings
+                          << " tendon_point_bindings=" << musclePayload.tendonPointBindings
+                          << " tendon_triangle_bindings=" << musclePayload.tendonTriangleBindings
+                          << "\n";
+            }
             require(!focusBodyIndex.has_value() || *focusBodyIndex < rigid.header.engineBodyCount,
                     "--focus-body-index exceeds the source body count");
             std::sort(requestedSourceRouteMuscles.begin(), requestedSourceRouteMuscles.end());
