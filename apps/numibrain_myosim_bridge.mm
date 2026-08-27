@@ -221,13 +221,16 @@ LoadedMuscles loadMuscles(
     require(input.is_open(), std::string("cannot open muscle payload ") + path);
     MuscleHeader header{};
     readObject(input, header, "MyoSim muscle header");
+    const std::uint32_t selectedMuscleCount = requestedMuscles == 0u
+        ? header.muscleCount : requestedMuscles;
     require(
         header.magic == kMuscleMagic &&
             header.payloadABI == kMuscleABI &&
             header.reserved0 == 0u && header.reserved1 == 0u &&
             header.engineBodyCount == rigid.engineBodyCount &&
             header.sourceSHA256 == rigid.sourceSHA256 &&
-            requestedMuscles > 0u && requestedMuscles <= header.muscleCount,
+            header.muscleCount > 0u &&
+            selectedMuscleCount <= header.muscleCount,
         "invalid MyoSim muscle header or requested muscle count"
     );
     const auto sourceSites = readVector<SiteRecord>(
@@ -293,10 +296,10 @@ LoadedMuscles loadMuscles(
         route.sideSiteIndex = source.sideSiteIndex;
         loaded.routes.push_back(route);
     }
-    loaded.muscles.reserve(requestedMuscles);
-    loaded.sourceTendonIdentifiers.reserve(requestedMuscles);
+    loaded.muscles.reserve(selectedMuscleCount);
+    loaded.sourceTendonIdentifiers.reserve(selectedMuscleCount);
     for (std::uint32_t muscleIndex = 0u;
-         muscleIndex < requestedMuscles;
+         muscleIndex < selectedMuscleCount;
          ++muscleIndex) {
         const MuscleRecord& source = sourceMuscles[muscleIndex];
         require(
@@ -441,7 +444,7 @@ extern "C" void* mr_numibrain_myosim_bridge_create(
         bridge->committedV.assign(
             bridge->model.defaultV.begin(), bridge->model.defaultV.end()
         );
-        bridge->committedStates.resize(muscleCount);
+        bridge->committedStates.resize(bridge->program.muscles.size());
         for (auto& state : bridge->committedStates) {
             state.excitationAndActivation = {0.0f, 0.5f, 0.0f, 0.0f};
         }
