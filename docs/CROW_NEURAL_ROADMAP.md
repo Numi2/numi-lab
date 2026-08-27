@@ -80,6 +80,12 @@ NUMI_CROW_COURSE=state \
 ./tools/crow_journey_curriculum_supervisor.sh
 ```
 
+When an integrated state-only milestone creates a materially new value
+distribution, explicitly set `NUMI_CROW_PARENT_MODE=actor-transfer`, provide
+the promoted parent PolicyPack, and omit learner state. This retains the actor
+but initializes a fresh critic; selection still compares against the source
+deployment and protects every earlier band.
+
 Sensor-fast curriculum uses `NUMI_CROW_COURSE=sensor-fast` and automatically
 selects the v9 visual ABI and its authored camera. Begin it at band 0 from a
 promoted v8 parent via `NUMI_CROW_PARENT_POLICY`, without setting

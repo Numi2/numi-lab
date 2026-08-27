@@ -92,12 +92,15 @@ if [ -n "$difficulty_sampling_exponent" ] && ! "$mlx" -c \
   exit 2
 fi
 if [ "$parent_mode" = actor-transfer ]; then
-  [ "$course" = sensor-fast ] && [ "$start_band" -eq 0 ] && \
-    [ -n "$parent_policy" ] && [ -s "$parent_policy" ] && \
+  [ -n "$parent_policy" ] && [ -s "$parent_policy" ] && \
     [ -z "$parent_state" ] || {
-    echo "sensor-fast actor transfer requires a source policy, no learner state, and start band 0" >&2
+    echo "Crow actor transfer requires a source policy and no learner state" >&2
     exit 2
   }
+  if [ "$course" = sensor-fast ] && [ "$start_band" -ne 0 ]; then
+    echo "sensor-fast actor transfer requires start band 0" >&2
+    exit 2
+  fi
 fi
 if [ "$parent_mode" = resume ]; then
   if [ -n "$parent_policy" ] || [ -n "$parent_state" ]; then

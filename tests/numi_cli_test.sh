@@ -369,6 +369,29 @@ grep -- '--difficulty-sampling-exponent' \
 grep -- '^0.25$' "$crow_resume_run/arguments.txt" >/dev/null
 test -s "$crow_resume_run/learner.safetensors"
 
+crow_state_transfer_runs=$numi_temp/runs/crow-state-actor-transfer
+NUMI_CROW_CURRICULUM_ROOT=$crow_curriculum_root \
+NUMI_CROW_CURRICULUM_BUILD=$crow_curriculum_build \
+NUMI_CROW_CURRICULUM_MLX=/usr/bin/python3 \
+NUMI_CROW_CURRICULUM_RUNS=$crow_state_transfer_runs \
+NUMI_CROW_COURSE=state \
+NUMI_CROW_PARENT_MODE=actor-transfer \
+NUMI_CROW_PARENT_POLICY=$crow_actor_source \
+NUMI_CROW_START_BAND=10 \
+NUMI_CROW_MAXIMUM_BAND=10 \
+    "$numi_repo/tools/crow_journey_curriculum_supervisor.sh" >/dev/null
+crow_state_transfer_run=$(find "$crow_state_transfer_runs" -maxdepth 1 \
+    -type d -name 'v8-neural-band10-*' -print | head -1)
+test -n "$crow_state_transfer_run"
+grep -- '--initialize-actor-policy-pack' \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '--initialize-actor-fresh-critic' \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null
+if grep -- '--policy-pack' "$crow_state_transfer_run/arguments.txt" >/dev/null; then
+    printf '%s\n' 'state actor transfer attempted PPO resume' >&2
+    exit 1
+fi
+
 if (
     NUMI_CROW_CURRICULUM_ROOT=$crow_curriculum_root \
     NUMI_CROW_CURRICULUM_BUILD=$crow_curriculum_build \
@@ -385,7 +408,7 @@ if (
     printf '%s\n' 'sensor-fast supervisor accepted actor transfer with learner state' >&2
     exit 1
 fi
-grep -- 'sensor-fast actor transfer requires a source policy, no learner state' \
+grep -- 'Crow actor transfer requires a source policy and no learner state' \
     "$numi_temp/crow-invalid-curriculum-transfer.log" >/dev/null
 
 numi_evaluate_run=$numi_temp/runs/evaluate
