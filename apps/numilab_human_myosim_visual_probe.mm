@@ -72,6 +72,11 @@ constexpr std::array<char, 8u> kMultiBodySoftTissueMagic{
 constexpr std::uint32_t kMultiBodySoftTissuePayloadAbi = 4u;
 constexpr std::uint32_t kSoftTissueLayerMuscle = 1u;
 constexpr std::uint32_t kSoftTissueLayerTendon = 2u;
+// Reserved for the narrowly scoped Z-Anatomy calcaneus overlay.  It stays in
+// the existing NHTISS3 transport because it shares the same named articulated
+// body binding format as soft tissue, but renders with osseous material and
+// bone semantics.
+constexpr std::uint32_t kSoftTissueLayerSupplementalBone = 3u;
 constexpr std::array<char, 8u> kSkinMagic{
     'N', 'H', 'S', 'K', 'I', 'N', '1', '\0',
 };
@@ -1022,7 +1027,11 @@ LoadedSoftTissues loadSoftTissues(
         for (std::uint32_t binding = 0u; binding < 3u; ++binding) {
             const std::uint32_t bodyIndex = record.bodyIndex[binding];
             if (bodyIndex == MR_INVALID_INDEX) {
-                require(binding >= 2u, "BodyParts3D soft-tissue binding has a hole");
+                require(
+                    (record.layer == kSoftTissueLayerSupplementalBone && binding >= 1u) ||
+                    binding >= 2u,
+                    "BodyParts3D soft-tissue binding has a hole"
+                );
                 continue;
             }
             require(bodyIndex < rigid.engineBodyCount, "BodyParts3D soft-tissue body binding exceeds model");
@@ -1046,11 +1055,13 @@ LoadedSoftTissues loadSoftTissues(
                         std::abs(orientationLength - 1.0f) <= 2.0e-3f,
                     "BodyParts3D soft-tissue binding transform is malformed");
         }
-        require(bindingCount >= 2u &&
+        const bool supplementalBone = record.layer == kSoftTissueLayerSupplementalBone;
+        require(bindingCount >= (supplementalBone ? 1u : 2u) &&
                     record.reserved0 == 0u && record.vertexCount > 0u &&
                     record.indexCount > 0u && record.indexCount % 3u == 0u &&
                     (record.layer == kSoftTissueLayerMuscle ||
-                     record.layer == kSoftTissueLayerTendon) &&
+                     record.layer == kSoftTissueLayerTendon ||
+                     record.layer == kSoftTissueLayerSupplementalBone) &&
                     record.firstVertex <= result.vertices.size() &&
                     record.vertexCount <= result.vertices.size() - record.firstVertex &&
                     record.firstIndex <= result.indices.size() &&
@@ -3612,6 +3623,23 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         pack.primitives.push_back(primitive);
     };
 
+    std::vector<std::uint32_t> supplementalBoneBodyIndices;
+    if (zAnatomyCalfVisualSupplement && softTissuePayload != nullptr) {
+        for (const SoftTissueRecord& tissue : softTissuePayload->records) {
+            if (tissue.layer != kSoftTissueLayerSupplementalBone) continue;
+            require(tissue.bodyIndex[0] != MR_INVALID_INDEX &&
+                        tissue.bodyIndex[1] == MR_INVALID_INDEX &&
+                        tissue.bodyIndex[2] == MR_INVALID_INDEX,
+                    "Z-Anatomy supplemental bone must have one articulated body binding");
+            supplementalBoneBodyIndices.push_back(tissue.bodyIndex[0]);
+        }
+        std::sort(supplementalBoneBodyIndices.begin(), supplementalBoneBodyIndices.end());
+        require(std::adjacent_find(
+                    supplementalBoneBodyIndices.begin(), supplementalBoneBodyIndices.end()
+                ) == supplementalBoneBodyIndices.end(),
+                "Z-Anatomy supplement repeats a bone overlay body");
+    }
+
     renderedBodies = 0u;
     // An exterior source shell is opaque presentation geometry.  Retaining
     // the registered bone pack is still required to verify the shell's rest
@@ -3620,6 +3648,11 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     // Exposed bones remain available through the separate anatomy command.
     if (bonePayload != nullptr && skinPayload == nullptr) {
         for (const BoneRecord& bone : bonePayload->records) {
+            if (std::binary_search(
+                    supplementalBoneBodyIndices.begin(), supplementalBoneBodyIndices.end(), bone.bodyIndex
+                )) {
+                continue;
+            }
             if (!requestedBoneBodyIndices.empty() &&
                 !std::binary_search(
                     requestedBoneBodyIndices.begin(), requestedBoneBodyIndices.end(), bone.bodyIndex
@@ -3671,15 +3704,19 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                 )
                 : appendSoftTissueGeometry(pack, *softTissuePayload, tissue, bodies);
             const bool isMuscle = tissue.layer == kSoftTissueLayerMuscle;
+            const bool isSupplementalBone = tissue.layer == kSoftTissueLayerSupplementalBone;
             appendInstance(
-                geometry, isMuscle ? 4u : 5u,
+                geometry, isSupplementalBone ? 3u : (isMuscle ? 4u : 5u),
                 usesPassiveFEM ? kPassiveFEMTissueSemantic :
-                    (isMuscle ? kMuscleSurfaceSemantic : kTendonSurfaceSemantic),
-                MR_VISUAL_BINDING_WORLD, MR_INVALID_INDEX,
+                    (isSupplementalBone ? kBoneSemantic :
+                        (isMuscle ? kMuscleSurfaceSemantic : kTendonSurfaceSemantic)),
+                MR_VISUAL_BINDING_WORLD,
+                isSupplementalBone ? tissue.bodyIndex[0] : MR_INVALID_INDEX,
                 {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
                 tissue.stableId
             );
             ++renderedSoftTissues;
+            renderedBodies += isSupplementalBone ? 1u : 0u;
             renderedPassiveFEMTissues += usesPassiveFEM ? 1u : 0u;
         }
     }
@@ -4437,22 +4474,27 @@ int main(int argc, char** argv) {
                 }
             }
             if (zAnatomyCalfVisualSupplement) {
-                constexpr std::array<std::uint32_t, 4u> kExpectedCalfSurfaceIds{1u, 2u, 3u, 4u};
+                constexpr std::array<std::uint32_t, 5u> kExpectedCalfSurfaceIds{1u, 2u, 3u, 4u, 5u};
                 require(softTissuePayload->records.size() == kExpectedCalfSurfaceIds.size(),
-                        "Z-Anatomy calf supplement must contain exactly the four scoped right-calf surfaces");
+                        "Z-Anatomy calf supplement must contain four scoped right-calf surfaces and one calcaneus overlay");
                 require(requestedSoftTissueStableIds.size() == kExpectedCalfSurfaceIds.size() &&
                             std::equal(
                                 requestedSoftTissueStableIds.begin(), requestedSoftTissueStableIds.end(),
                                 kExpectedCalfSurfaceIds.begin()
                             ),
-                        "Z-Anatomy calf supplement must render all four scoped right-calf surfaces");
+                        "Z-Anatomy calf supplement must render all four scoped right-calf surfaces and its calcaneus overlay");
                 for (const std::uint32_t stableId : kExpectedCalfSurfaceIds) {
                     const auto selected = std::find_if(
                         softTissuePayload->records.begin(), softTissuePayload->records.end(),
                         [stableId](const SoftTissueRecord& tissue) { return tissue.stableId == stableId; }
                     );
+                    const std::uint32_t expectedLayer = stableId == 4u
+                        ? kSoftTissueLayerTendon
+                        : (stableId == 5u
+                            ? kSoftTissueLayerSupplementalBone
+                            : kSoftTissueLayerMuscle);
                     require(selected != softTissuePayload->records.end() &&
-                                selected->layer == (stableId == 4u ? kSoftTissueLayerTendon : kSoftTissueLayerMuscle),
+                                selected->layer == expectedLayer,
                             "Z-Anatomy calf supplement source layers do not match its fixed calf scope");
                 }
             }
