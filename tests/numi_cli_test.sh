@@ -128,6 +128,26 @@ test -s "$numi_train_run/selection.log"
 grep '"candidate_retained": true' \
     "$numi_train_run/selection/selection.json" >/dev/null
 
+# The installed user overlay appends its own runtime hash after the bundled
+# train command returns. Its final artifact manifest must cover that appended
+# provenance rather than retaining the bundled command's stale runtime hash.
+numi_guarded_train_run=$numi_temp/runs/guarded-train
+(
+    cd "$numi_repo"
+    NUMI_LAB_ROOT=$numi_repo \
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$numi_guarded_train_run \
+        "$numi_repo/tools/numi_train_selector_guard.sh" --updates 1 \
+        >/dev/null
+)
+grep -- "$numi_repo/tools/numi_train_selector_guard.sh" \
+    "$numi_guarded_train_run/runtime.sha256" >/dev/null
+(
+    cd /
+    shasum -a 256 -c "$numi_guarded_train_run/artifacts.sha256" \
+        >/dev/null
+)
+
 # A remote supervisor may capture the command's output directly into the
 # durable run logs. That must retain native records exactly once rather than
 # feeding a live log back into `cat` until the training volume is full.

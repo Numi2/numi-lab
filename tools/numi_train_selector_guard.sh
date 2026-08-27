@@ -25,6 +25,12 @@ if [ -n "${NUMI_RUN_DIR:-}" ] &&
     fi
     if [ -n "$numi_guard_hash" ]; then
         printf '%s  %s\n' "$numi_guard_hash" "$0" >> "$NUMI_RUN_DIR/runtime.sha256"
+        # The bundled command hashes the run before this overlay records its
+        # own executable. Refresh the enclosing artifact manifest only after
+        # runtime provenance is complete, otherwise runtime.sha256 fails its
+        # own retained verification despite a successful selector run.
+        find "$NUMI_RUN_DIR" -type f ! -name artifacts.sha256 \
+            -exec shasum -a 256 {} \; > "$NUMI_RUN_DIR/artifacts.sha256"
     fi
 fi
 
