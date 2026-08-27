@@ -1291,6 +1291,51 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertFalse(decision["candidate_advanced_deployment"])
         self.assertIn("mean tilt exceeds 0.35 rad", decision["regressions"])
 
+    def test_crow_absolute_failure_cannot_win_on_relative_score(self) -> None:
+        incumbent = {
+            "task": "birdflow_american_crow_journey_v8_neural",
+            "failed_environment_steps": 0,
+            "termination_count": 512,
+            "timeout_count": 0,
+            "mean_tracking_score": 0.64,
+            "mean_tilt": 0.08,
+            "maximum_tilt": 0.70,
+            "maximum_root_height": 0.80,
+            "minimum_sampled_difficulty_band": 10,
+            "maximum_sampled_difficulty_band": 10,
+            "outcomes": {
+                "approach_pitch_warning_fraction": {
+                    "mean": 0.20, "direction": 2,
+                },
+                "approach_pitch_full_envelope_fraction": {
+                    "mean": 0.10, "direction": 2,
+                },
+            },
+        }
+        candidate = {
+            **incumbent,
+            "termination_count": 512,
+            "timeout_count": 512,
+            "mean_tracking_score": 0.67,
+            "mean_tilt": 0.06,
+            "maximum_tilt": 0.60,
+            "outcomes": {
+                "approach_pitch_warning_fraction": {
+                    "mean": 0.01, "direction": 2,
+                },
+                "approach_pitch_full_envelope_fraction": {
+                    "mean": 0.008, "direction": 2,
+                },
+            },
+        }
+        decision = compare_protected_bands(incumbent, candidate, {})
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertFalse(decision["candidate_advanced_deployment"])
+        self.assertIn(
+            "neural approach full-envelope occupancy is nonzero",
+            decision["regressions"],
+        )
+
     def test_crow_selector_skips_protected_replay_after_current_failure(self) -> None:
         record = {
             "task": "birdflow_american_crow_journey_v8_neural",

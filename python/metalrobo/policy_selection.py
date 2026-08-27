@@ -1118,7 +1118,9 @@ def compare_protected_bands(
                 for reason in comparison["regressions"]
             )
     decision["protected_band_comparisons"] = comparisons
-    if any(comparison["regressions"] for comparison in comparisons.values()):
+    if decision["regressions"] or any(
+        comparison["regressions"] for comparison in comparisons.values()
+    ):
         decision["selected"] = "incumbent"
         decision["candidate_advanced_deployment"] = False
     elif journey_contract and not decision["regressions"]:
