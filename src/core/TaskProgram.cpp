@@ -781,6 +781,7 @@ TaskCompileDiagnostics compileTaskProgram(
                 case TaskRandomizationOperator::actionVelocity:
                 case TaskRandomizationOperator::jointPosition:
                 case TaskRandomizationOperator::sceneBodyPosition:
+                case TaskRandomizationOperator::sceneBodyPositionOffset:
                 case TaskRandomizationOperator::sceneBodyVelocity:
                 case TaskRandomizationOperator::sceneBodyLaunchStep:
                 case TaskRandomizationOperator::sceneBodyEventImpact:
@@ -1051,7 +1052,7 @@ TaskCompileDiagnostics compileTaskProgram(
         const bool taskAuthoredSource =
             (source >= 2u && source <= 4u) ||
             source == 8u || source == 9u ||
-            source == 15u || source == 16u;
+            (source >= 15u && source <= 19u);
         if (outcome.id.empty() || outcome.unit.empty() ||
             !taskAuthoredSource ||
             direction > 2u ||
@@ -2890,6 +2891,60 @@ TaskCompileDiagnostics compileTaskProgram(
             }
             break;
         }
+        case TaskRewardOperator::navigationWaypointProgress:
+        case TaskRewardOperator::navigationWaypointReach: {
+            constexpr std::array<std::string_view, 5u> courseBodies{
+                "crow_course_gate_left",
+                "crow_course_gate_right",
+                "crow_course_slalom_a",
+                "crow_course_slalom_b",
+                "crow_course_perch",
+            };
+            if (reward.target != courseBodies.front()) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    reward.target,
+                    "navigation reward requires the first authored crow course body"
+                );
+            }
+            for (std::size_t index = 0u; index < courseBodies.size(); ++index) {
+                bool ambiguous = false;
+                const std::uint32_t body = uniqueIndex(
+                    model.bodyNames,
+                    courseBodies[index],
+                    ambiguous
+                );
+                const auto sceneBody = body == MR_INVALID_INDEX
+                    ? world.sceneBodyIndices().end()
+                    : std::find(
+                          world.sceneBodyIndices().begin(),
+                          world.sceneBodyIndices().end(),
+                          body
+                      );
+                if (ambiguous || sceneBody == world.sceneBodyIndices().end()) {
+                    return reject(
+                        ambiguous
+                            ? TaskCompileStatus::ambiguousSemantic
+                            : TaskCompileStatus::unresolvedSemantic,
+                        std::string(courseBodies[index]),
+                        "navigation course body is unresolved"
+                    );
+                }
+                const std::uint32_t sceneIndex = static_cast<std::uint32_t>(
+                    sceneBody - world.sceneBodyIndices().begin()
+                );
+                if (index == 0u) {
+                    targetIndex = sceneIndex;
+                } else if (sceneIndex != targetIndex + index) {
+                    return reject(
+                        TaskCompileStatus::invalidWorld,
+                        std::string(courseBodies[index]),
+                        "navigation course bodies must be contiguous and ordered"
+                    );
+                }
+            }
+            break;
+        }
         case TaskRewardOperator::figureEightPathTracking:
         case TaskRewardOperator::linearVelocityTracking:
         case TaskRewardOperator::yawVelocityTracking:
@@ -2946,6 +3001,18 @@ TaskCompileDiagnostics compileTaskProgram(
                 TaskCompileStatus::invalidPack,
                 "figure_eight_path",
                 "figure-eight tracking requires positive x/y extents and cycle duration plus a non-negative takeoff transition"
+            );
+        }
+        if ((reward.operation ==
+                 TaskRewardOperator::navigationWaypointProgress ||
+             reward.operation ==
+                 TaskRewardOperator::navigationWaypointReach) &&
+            (!(reward.parameters.x > 0.0f) ||
+             !(reward.parameters.y > 0.0f))) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                reward.target,
+                "navigation reward requires a positive reach radius and maximum signed progress step"
             );
         }
         if (reward.operation ==
@@ -3515,6 +3582,7 @@ TaskCompileDiagnostics compileTaskProgram(
             break;
         }
         case TaskRandomizationOperator::sceneBodyPosition:
+        case TaskRandomizationOperator::sceneBodyPositionOffset:
         case TaskRandomizationOperator::sceneBodyVelocity:
         case TaskRandomizationOperator::sceneBodyLaunchStep:
         case TaskRandomizationOperator::sceneBodyEventImpact: {
@@ -4163,6 +4231,9 @@ TaskCompileDiagnostics compileTaskProgram(
         // the sole deployment action authority; the task only records shadow
         // envelope occupancy through direct outcome channels.
         staged->header.schedule.w |= MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY;
+    }
+    if (pack.id == "birdflow_american_crow_navigation_v10_world_model") {
+        staged->header.schedule.w |= MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION;
     }
     if (threatGroup != MR_INVALID_INDEX) {
         staged->header.schedule.w |=

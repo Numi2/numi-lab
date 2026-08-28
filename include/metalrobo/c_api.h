@@ -327,6 +327,10 @@ typedef struct MRTaskTransitionC {
     uint32_t impact_sequence_index;
     // MR_TASK_IMPACT_* transition flags.
     uint32_t impact_event_flags;
+    float navigation_step_progress;
+    float navigation_cumulative_progress;
+    float navigation_waypoints_reached;
+    float navigation_completion;
 } MRTaskTransitionC;
 
 // Task-dependent typed outcome view. MRTaskTransitionC remains an internal
@@ -356,6 +360,9 @@ typedef enum MRTaskOutcomeSourceC {
     MR_TASK_OUTCOME_CHANNEL_5 = 14,
     MR_TASK_OUTCOME_CHANNEL_6 = 15,
     MR_TASK_OUTCOME_CHANNEL_7 = 16,
+    MR_TASK_OUTCOME_NAVIGATION_PROGRESS = 17,
+    MR_TASK_OUTCOME_NAVIGATION_WAYPOINTS_REACHED = 18,
+    MR_TASK_OUTCOME_NAVIGATION_COMPLETION = 19,
 } MRTaskOutcomeSourceC;
 
 typedef enum MRPolicyActivationC {

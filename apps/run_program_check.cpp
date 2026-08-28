@@ -650,6 +650,24 @@ int main() {
                     compiledVisualJourney.task().layout().actorObservationSize &&
                 compiledNavigation.task().layout().criticObservationSize ==
                     compiledVisualJourney.task().layout().criticObservationSize &&
+                compiledNavigation.task().rewardOperators().size() ==
+                    compiledVisualJourney.task().rewardOperators().size() + 2u &&
+                compiledNavigation.task().rewardOperators()[
+                    compiledNavigation.task().rewardOperators().size() - 2u
+                ].source.x == MR_TASK_REWARD_NAVIGATION_WAYPOINT_PROGRESS &&
+                compiledNavigation.task().rewardOperators().back().source.x ==
+                    MR_TASK_REWARD_NAVIGATION_WAYPOINT_REACH &&
+                compiledNavigation.task().rewardOperators().back().source.z !=
+                    MR_INVALID_INDEX &&
+                compiledNavigation.task().randomizationOperators().size() ==
+                    compiledVisualJourney.task().randomizationOperators().size() + 15u &&
+                std::ranges::count_if(
+                    compiledNavigation.task().randomizationOperators(),
+                    [](const MRTaskRandomizationOperatorGPU& operation) {
+                        return operation.target.x ==
+                            MR_TASK_RANDOMIZE_SCENE_BODY_POSITION_OFFSET;
+                    }
+                ) == 15 &&
                 compiledNavigation.task().fingerprint() !=
                     compiledVisualJourney.task().fingerprint() &&
                 compiledNavigation.world().fingerprint() !=

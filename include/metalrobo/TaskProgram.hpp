@@ -141,6 +141,10 @@ enum class TaskRewardOperator : std::uint32_t {
     objectPlacement = MR_TASK_REWARD_OBJECT_PLACEMENT,
     figureEightPathTracking =
         MR_TASK_REWARD_FIGURE_EIGHT_PATH_TRACKING,
+    navigationWaypointProgress =
+        MR_TASK_REWARD_NAVIGATION_WAYPOINT_PROGRESS,
+    navigationWaypointReach =
+        MR_TASK_REWARD_NAVIGATION_WAYPOINT_REACH,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {
@@ -173,6 +177,8 @@ enum class TaskRandomizationOperator : std::uint32_t {
         MR_TASK_RANDOMIZE_SCENE_BODY_EVENT_IMPACT,
     worldBodyParameter =
         MR_TASK_RANDOMIZE_WORLD_BODY_PARAMETER,
+    sceneBodyPositionOffset =
+        MR_TASK_RANDOMIZE_SCENE_BODY_POSITION_OFFSET,
 };
 
 enum class RobotActuatorKind : std::uint32_t {
@@ -239,6 +245,9 @@ enum class TaskOutcomeSource : std::uint32_t {
     rewardContribution = 9u,
     avianJourneyApproachWarning = 15u,
     avianJourneyApproachFull = 16u,
+    navigationProgress = 17u,
+    navigationWaypointsReached = 18u,
+    navigationCompletion = 19u,
 };
 
 enum class TaskOutcomeDirection : std::uint32_t {

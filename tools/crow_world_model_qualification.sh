@@ -50,6 +50,7 @@ seed_a=$1; seed_b=$2; seed_c=$3
 }
 
 mkdir -p "$runs"
+accepted_replay=$runs/candidate-held-out-a-selected.crowreplay.json
 for controller in baseline candidate; do
   if [ "$controller" = baseline ]; then policy=$baseline; else policy=$candidate; fi
   for course in training held-out-a held-out-b; do
@@ -77,7 +78,55 @@ for controller in baseline candidate; do
   done
 done
 
-"$python" - "$runs" "$baseline" "$candidate" "$environments" "$steps" \
+replay_selection=$(
+  "$python" - "$runs" "$seed_a" "$seed_b" "$seed_c" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+best = None
+for raw_seed in sys.argv[2:]:
+    seed = int(raw_seed)
+    value = json.loads(
+        (root / f"candidate-held-out-a-seed{seed}.json").read_text()
+    )
+    waypoints = value.get("maximum_navigation_waypoints_by_environment", [])
+    progress = value.get("maximum_navigation_progress_by_environment_m", [])
+    for environment, reached in enumerate(waypoints):
+        key = (float(reached), float(progress[environment]), -seed, -environment)
+        if best is None or key > best[0]:
+            best = (key, seed, environment)
+if best is None or best[0][0] < 1.0:
+    raise SystemExit("no held-out-A candidate environment reached a waypoint")
+print(best[1], best[2])
+PY
+)
+set -- $replay_selection
+replay_seed=$1
+replay_environment=$2
+[ ! -e "$accepted_replay" ] || {
+  echo "candidate replay already exists: $accepted_replay" >&2
+  exit 5
+}
+replay_evidence=$runs/candidate-held-out-a-selected-replay.json
+replay_trace=$runs/candidate-held-out-a-selected-replay-state.csv
+echo "capturing accepted Crow v10 replay from held-out-a seed $replay_seed environment $replay_environment"
+"$rollout" \
+  --metallib "$metallib" \
+  --birdflow-american-crow-journey \
+  --birdflow-journey-variant v10-world-model \
+  --birdflow-navigation-course held-out-a \
+  --visual-observation-config "$visual" \
+  --policy-pack "$candidate" \
+  --envs "$environments" --steps "$steps" --repeats 1 --chunk 1 \
+  --no-scheduled-resets \
+  --minimum-difficulty-band 10 --maximum-difficulty-band 10 \
+  --seed "$replay_seed" --state-trace "$replay_trace" \
+  --state-trace-environment "$replay_environment" \
+  --crow-replay-pack "$accepted_replay" > "$replay_evidence"
+
+"$python" - "$runs" "$baseline" "$candidate" "$accepted_replay" "$replay_seed" "$replay_environment" "$environments" "$steps" \
   "$seed_a" "$seed_b" "$seed_c" <<'PY'
 import hashlib
 import json
@@ -85,7 +134,7 @@ import math
 import sys
 from pathlib import Path
 
-runs, baseline, candidate, environments, steps, *seed_values = sys.argv[1:]
+runs, baseline, candidate, accepted_replay, replay_seed, replay_environment, environments, steps, *seed_values = sys.argv[1:]
 root = Path(runs)
 seeds = [int(value) for value in seed_values]
 task = "birdflow_american_crow_navigation_v10_world_model"
@@ -128,6 +177,8 @@ for controller in controllers:
 def aggregate(values):
     items = [value for _, value in values]
     forbidden = sum(int(value.get("termination_reason_counts", {}).get("3", 0)) for value in items)
+    def outcome(value, name):
+        return float(value.get("outcomes", {}).get(name, {}).get("mean", math.nan))
     return {
         "run_count": len(items),
         "termination_count": sum(int(value.get("termination_count", 0)) for value in items),
@@ -136,6 +187,9 @@ def aggregate(values):
         "mean_root_height_m": sum(float(value.get("mean_root_height", math.nan)) for value in items) / len(items),
         "mean_tracking_score": sum(float(value.get("mean_tracking_score", math.nan)) for value in items) / len(items),
         "maximum_tilt": max(float(value.get("maximum_tilt", math.inf)) for value in items),
+        "mean_navigation_progress_m": sum(outcome(value, "navigation_progress") for value in items) / len(items),
+        "mean_navigation_waypoints_reached": sum(outcome(value, "navigation_waypoints_reached") for value in items) / len(items),
+        "mean_navigation_completion": sum(outcome(value, "navigation_completion") for value in items) / len(items),
         "failed_environment_steps": sum(int(value.get("failed_environment_steps", 0)) for value in items),
     }
 
@@ -160,11 +214,18 @@ for course in courses:
         ("mean height retained", cand["mean_root_height_m"] >= base["mean_root_height_m"] - 0.05),
         ("tracking retained", cand["mean_tracking_score"] >= base["mean_tracking_score"] - 0.10),
         ("tilt safety envelope", cand["maximum_tilt"] < 0.85),
+        ("course progress improved", cand["mean_navigation_progress_m"] >= base["mean_navigation_progress_m"] + 0.25),
+        ("waypoint reach improved", cand["mean_navigation_waypoints_reached"] > base["mean_navigation_waypoints_reached"]),
+        ("completion non-regressing", cand["mean_navigation_completion"] >= base["mean_navigation_completion"]),
     )
     for label, passed in course_gates:
         gates.append({"course": course, "gate": label, "passed": bool(passed)})
 
 promoted = not failures and all(item["passed"] for item in gates)
+replay_path = Path(accepted_replay)
+if not replay_path.is_file():
+    failures.append(f"accepted candidate replay is missing: {replay_path}")
+    promoted = False
 evidence_hashes = {
     str(path.relative_to(root)): sha(path)
     for values in records.values() for path, _ in values
@@ -184,6 +245,10 @@ payload = {
     "gates": gates,
     "contract_failures": failures,
     "evidence_sha256": evidence_hashes,
+    "accepted_replay": str(replay_path.resolve()),
+    "accepted_replay_sha256": sha(replay_path) if replay_path.is_file() else "",
+    "accepted_replay_seed": int(replay_seed),
+    "accepted_replay_environment": int(replay_environment),
 }
 canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
 envelope = {

@@ -1692,15 +1692,19 @@ private enum TaskTrainMain {
                     return installedRevision
                 }
             )
+            let warmupTransitions = try context.transitions(
+                controlStepCount: 1
+            )
             guard warmup.failedEnvironmentSteps == 0,
-                  try context.transitions(
-                      controlStepCount: 1
-                  ).allSatisfy({
+                  warmupTransitions.allSatisfy({
                       $0.policyRevision == installedRevision
                   })
             else {
                 throw MetalRoboTaskRolloutError.native(
-                    "Initial PolicyPack failed native warmup."
+                    "Initial PolicyPack failed native warmup: failed "
+                    + "environments=\(warmup.failedEnvironmentSteps), "
+                    + "installed revision=\(installedRevision), observed "
+                    + "revisions=\(warmupTransitions.map(\.policyRevision))."
                 )
             }
             let warmupEvidenceTelemetry =

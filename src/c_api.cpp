@@ -1260,6 +1260,12 @@ float taskOutcomeValue(
         return transition.task_outcome_channel_6;
     case MR_TASK_OUTCOME_CHANNEL_7:
         return transition.task_outcome_channel_7;
+    case MR_TASK_OUTCOME_NAVIGATION_PROGRESS:
+        return transition.navigation_cumulative_progress;
+    case MR_TASK_OUTCOME_NAVIGATION_WAYPOINTS_REACHED:
+        return transition.navigation_waypoints_reached;
+    case MR_TASK_OUTCOME_NAVIGATION_COMPLETION:
+        return transition.navigation_completion;
     default: return 0.0f;
     }
 }

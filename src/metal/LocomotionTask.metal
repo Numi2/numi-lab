@@ -2603,6 +2603,19 @@ kernel void mr_locomotion_task_observe(
                     operation.parameters.y
                 );
                 break;
+            case MR_TASK_RANDOMIZE_SCENE_BODY_POSITION_OFFSET:
+                resetScene[
+                    sceneBase + operation.target.y
+                ].position[operation.target.z] += randomRange(
+                    dispatch,
+                    environment,
+                    episode,
+                    0u,
+                    channel,
+                    operation.parameters.x,
+                    operation.parameters.y
+                );
+                break;
             case MR_TASK_RANDOMIZE_SCENE_BODY_VELOCITY:
                 resetScene[
                     sceneBase + operation.target.y
@@ -3098,6 +3111,7 @@ kernel void mr_locomotion_task_observe(
             0u,
             MR_INVALID_INDEX
         );
+        state.navigation = float4(0.0f);
         const bool projectileEpisode = randomUnit(
             dispatch,
             environment,
@@ -5494,6 +5508,91 @@ kernel void mr_locomotion_task_complete(
     const bool shadowApproachActive = neuralOnlyAvianJourney &&
         state.commandExtension.w >= (18.0f / 32.0f);
     const float shadowAbsolutePitch = abs(state.threatGeometry.w);
+    bool navigationConfigured = false;
+    uint navigationCourseStart = MR_INVALID_INDEX;
+    float navigationReachRadius = 0.0f;
+    float navigationMaximumStep = 0.0f;
+    for (uint rewardIndex = 0u;
+         rewardIndex < program.counts1.w;
+         ++rewardIndex) {
+        const MRTaskRewardOperatorGPU operation = rewards[rewardIndex];
+        if (operation.source.x !=
+                MR_TASK_REWARD_NAVIGATION_WAYPOINT_PROGRESS &&
+            operation.source.x !=
+                MR_TASK_REWARD_NAVIGATION_WAYPOINT_REACH) {
+            continue;
+        }
+        navigationConfigured = true;
+        navigationCourseStart = operation.source.z;
+        navigationReachRadius = operation.parameters.y;
+        navigationMaximumStep = operation.parameters.z;
+        break;
+    }
+    float navigationStepProgress = 0.0f;
+    bool navigationWaypointReached = false;
+    if (navigationConfigured &&
+        navigationCourseStart != MR_INVALID_INDEX) {
+        constexpr uint navigationWaypointCount = 5u;
+        const uint waypoint = min(
+            uint(max(state.navigation.z, 0.0f)),
+            navigationWaypointCount
+        );
+        if (waypoint < navigationWaypointCount) {
+            const float3 gateLeft = sceneState[
+                sceneBase + navigationCourseStart
+            ].position.xyz;
+            const float3 gateRight = sceneState[
+                sceneBase + navigationCourseStart + 1u
+            ].position.xyz;
+            const float3 slalomA = sceneState[
+                sceneBase + navigationCourseStart + 2u
+            ].position.xyz;
+            const float3 slalomB = sceneState[
+                sceneBase + navigationCourseStart + 3u
+            ].position.xyz;
+            const float3 perch = sceneState[
+                sceneBase + navigationCourseStart + 4u
+            ].position.xyz;
+            float3 target = 0.5f * (gateLeft + gateRight);
+            if (waypoint == 1u) {
+                target = slalomA + float3(
+                    0.0f,
+                    slalomA.y >= 0.0f ? -0.75f : 0.75f,
+                    0.25f
+                );
+            } else if (waypoint == 2u) {
+                target = slalomB + float3(
+                    0.0f,
+                    slalomB.y >= 0.0f ? -0.75f : 0.75f,
+                    0.25f
+                );
+            } else if (waypoint == 3u) {
+                target = perch + float3(-0.50f, 0.0f, 0.30f);
+            } else if (waypoint == 4u) {
+                target = perch + float3(0.0f, 0.0f, 0.12f);
+            }
+            const float distance = length(
+                target - rootWorldPosition(program, q)
+            );
+            if (state.navigation.x > 0.0f) {
+                navigationStepProgress = clamp(
+                    state.navigation.x - distance,
+                    -navigationMaximumStep,
+                    navigationMaximumStep
+                );
+            }
+            const uint nextWaypoint = distance <= navigationReachRadius
+                ? waypoint + 1u
+                : waypoint;
+            navigationWaypointReached = nextWaypoint != waypoint;
+            state.navigation = float4(
+                navigationWaypointReached ? 0.0f : distance,
+                state.navigation.y + navigationStepProgress,
+                float(nextWaypoint),
+                nextWaypoint == navigationWaypointCount ? 1.0f : 0.0f
+            );
+        }
+    }
     for (uint rewardIndex = 0u;
          rewardIndex < program.counts1.w;
          ++rewardIndex) {
@@ -5503,6 +5602,14 @@ kernel void mr_locomotion_task_complete(
         float interactionMetric = 0.0f;
         float interactionMetricWeight = 0.0f;
         switch (operation.source.x) {
+        case MR_TASK_REWARD_NAVIGATION_WAYPOINT_PROGRESS:
+            value = navigationStepProgress / dispatch.timing.x;
+            break;
+        case MR_TASK_REWARD_NAVIGATION_WAYPOINT_REACH:
+            value = navigationWaypointReached
+                ? 1.0f / dispatch.timing.x
+                : 0.0f;
+            break;
         case MR_TASK_REWARD_FIGURE_EIGHT_PATH_TRACKING:
             value = figureEightActive
                 ? exp(
@@ -6841,6 +6948,8 @@ kernel void mr_locomotion_task_complete(
             }
         }
         switch (operation.source.x) {
+        case MR_TASK_REWARD_NAVIGATION_WAYPOINT_PROGRESS:
+        case MR_TASK_REWARD_NAVIGATION_WAYPOINT_REACH:
         case MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING:
         case MR_TASK_REWARD_FIGURE_EIGHT_PATH_TRACKING:
         case MR_TASK_REWARD_YAW_VELOCITY_TRACKING:
@@ -7665,6 +7774,12 @@ kernel void mr_locomotion_task_complete(
                  true)
                 ? MR_TASK_OUTCOME_INTERACTION_TEACHER : 0u
             )
+    );
+    transition.navigation = float4(
+        navigationStepProgress,
+        state.navigation.y,
+        state.navigation.z,
+        state.navigation.w
     );
     transitions[transitionIndex] = transition;
 }

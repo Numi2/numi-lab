@@ -1878,7 +1878,8 @@ private enum TaskRolloutMain {
                       revisions.allSatisfy({ $0 == revision })
                 else {
                     throw MetalRoboTaskRolloutError.native(
-                        "Native policy revision was not attached to transitions."
+                        "Native policy revision was not attached to transitions: "
+                        + "\(revisions)."
                     )
                 }
                 installedPolicyRevision = revision
@@ -2160,6 +2161,27 @@ private enum TaskRolloutMain {
                 count: outcomeSchema.count
             )
             var outcomeSampleCount = 0
+            let navigationProgressOutcome = outcomeSchema.firstIndex {
+                $0.id == "navigation_progress"
+            }
+            let navigationWaypointOutcome = outcomeSchema.firstIndex {
+                $0.id == "navigation_waypoints_reached"
+            }
+            let navigationCompletionOutcome = outcomeSchema.firstIndex {
+                $0.id == "navigation_completion"
+            }
+            var maximumNavigationProgressByEnvironment = [Double](
+                repeating: -.infinity,
+                count: options.environments
+            )
+            var maximumNavigationWaypointsByEnvironment = [Double](
+                repeating: 0,
+                count: options.environments
+            )
+            var maximumNavigationCompletionByEnvironment = [Double](
+                repeating: 0,
+                count: options.environments
+            )
             var collectedPolicyBatches:
                 [MetalRoboPolicyRolloutBatch] = []
             var stateTraceLines: [String] = []
@@ -2385,9 +2407,28 @@ private enum TaskRolloutMain {
                     }
                     for transitionIndex in observedTransitions.indices {
                         let base = transitionIndex * outcomeSchema.count
+                        let environment = transitionIndex % options.environments
                         for outcomeIndex in outcomeSchema.indices {
                             outcomeSums[outcomeIndex] += Double(
                                 typedOutcomes[base + outcomeIndex]
+                            )
+                        }
+                        if let navigationProgressOutcome {
+                            maximumNavigationProgressByEnvironment[environment] = max(
+                                maximumNavigationProgressByEnvironment[environment],
+                                Double(typedOutcomes[base + navigationProgressOutcome])
+                            )
+                        }
+                        if let navigationWaypointOutcome {
+                            maximumNavigationWaypointsByEnvironment[environment] = max(
+                                maximumNavigationWaypointsByEnvironment[environment],
+                                Double(typedOutcomes[base + navigationWaypointOutcome])
+                            )
+                        }
+                        if let navigationCompletionOutcome {
+                            maximumNavigationCompletionByEnvironment[environment] = max(
+                                maximumNavigationCompletionByEnvironment[environment],
+                                Double(typedOutcomes[base + navigationCompletionOutcome])
                             )
                         }
                     }
@@ -2943,6 +2984,21 @@ private enum TaskRolloutMain {
                         ? "held-out-a"
                         : options.birdFlowNavigationCourse == .heldOutB
                         ? "held-out-b" : "training",
+                    "geometry_randomization": [
+                        "mode": "deterministic_episode_local_position_offsets",
+                        "seed": String(options.seed),
+                        "ranges_m": [
+                            "crow_course_gate_left": [0.12, 0.12, 0.08],
+                            "crow_course_gate_right": [0.12, 0.12, 0.08],
+                            "crow_course_slalom_a": [0.20, 0.18, 0.08],
+                            "crow_course_slalom_b": [0.20, 0.18, 0.08],
+                            "crow_course_perch": [0.25, 0.20, 0.08],
+                        ],
+                        "realized_positions":
+                            "body_states carries every accepted course pose per frame",
+                    ],
+                    "policy_lighting_contract":
+                        "instance-masked metric depth is invariant to RGB lighting; lighting diversity is a deterministic BirdFlow presentation qualification, not a policy-training claim",
                     "rgbd_contract": [
                         "sensor": "head_rgbd",
                         "policy_plane": "instance_masked_depth",
@@ -3292,6 +3348,14 @@ private enum TaskRolloutMain {
                         )
                     }
                 ),
+                "maximum_navigation_progress_by_environment_m":
+                    maximumNavigationProgressByEnvironment.map {
+                        $0.isFinite ? $0 : 0.0
+                    },
+                "maximum_navigation_waypoints_by_environment":
+                    maximumNavigationWaypointsByEnvironment,
+                "maximum_navigation_completion_by_environment":
+                    maximumNavigationCompletionByEnvironment,
                 "world_source": worldSource,
                 "action_source":
                     options.birdFlowJourneyTeacher

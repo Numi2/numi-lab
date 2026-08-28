@@ -2426,6 +2426,58 @@ TaskPack makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
         observations, reset
     );
     task.id = "birdflow_american_crow_navigation_v10_world_model";
+    task.rewards.push_back({
+        TaskRewardOperator::navigationWaypointProgress,
+        {},
+        "crow_course_gate_left",
+        2.0f,
+        {0.42f, 0.08f, 0.0f, 0.0f},
+    });
+    task.rewards.push_back({
+        TaskRewardOperator::navigationWaypointReach,
+        {},
+        "crow_course_gate_left",
+        0.50f,
+        {0.42f, 0.08f, 0.0f, 0.0f},
+    });
+    task.outcomes.push_back({
+        "navigation_progress", "m",
+        TaskOutcomeSource::navigationProgress,
+        TaskOutcomeDirection::higherIsBetter,
+    });
+    task.outcomes.push_back({
+        "navigation_waypoints_reached", "count",
+        TaskOutcomeSource::navigationWaypointsReached,
+        TaskOutcomeDirection::higherIsBetter,
+    });
+    task.outcomes.push_back({
+        "navigation_completion", "ratio",
+        TaskOutcomeSource::navigationCompletion,
+        TaskOutcomeDirection::higherIsBetter,
+    });
+    struct CourseOffsetRange {
+        const char* body;
+        std::array<float, 3u> xyz;
+    };
+    constexpr std::array<CourseOffsetRange, 5u> courseOffsets{{
+        {"crow_course_gate_left", {0.12f, 0.12f, 0.08f}},
+        {"crow_course_gate_right", {0.12f, 0.12f, 0.08f}},
+        {"crow_course_slalom_a", {0.20f, 0.18f, 0.08f}},
+        {"crow_course_slalom_b", {0.20f, 0.18f, 0.08f}},
+        {"crow_course_perch", {0.25f, 0.20f, 0.08f}},
+    }};
+    for (const CourseOffsetRange& range : courseOffsets) {
+        for (std::uint32_t component = 0u; component < 3u; ++component) {
+            const float amplitude = range.xyz[component];
+            reset.operators.push_back({
+                .operation =
+                    TaskRandomizationOperator::sceneBodyPositionOffset,
+                .target = range.body,
+                .component = component,
+                .parameters = {-amplitude, amplitude, 0.0f, 0.0f},
+            });
+        }
+    }
     // V10 keeps v9's deployable sensor and action dimensions to make the
     // promoted visual actor a meaningful baseline. Distinct task and scene
     // fingerprints prevent a v9 pack from being represented as trained v10.

@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 42u
+#define MR_TASK_PROGRAM_ABI_VERSION 43u
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
 #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
@@ -55,6 +55,10 @@ enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_AVIAN_CROW_APPROACH_ENVELOPE = 1u << 17u,
     MR_TASK_PROGRAM_AVIAN_CROW_GROUND_CARRIER_PHASE_OBSERVATION = 1u << 18u,
     MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY = 1u << 19u,
+    // Five ordered, scene-authored course landmarks drive a stateful native
+    // waypoint objective. The route state is task evidence only and never
+    // writes actions or bypasses the deployed visual observation contract.
+    MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION = 1u << 20u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {
@@ -276,6 +280,10 @@ enum MRTaskRewardOpcode : mr_u32 {
     // linear-speed, and angular-speed squared-error widths.
     MR_TASK_REWARD_OBJECT_PLACEMENT = 48u,
     MR_TASK_REWARD_FIGURE_EIGHT_PATH_TRACKING = 49u,
+    // Dense signed distance reduction to the active course waypoint.
+    MR_TASK_REWARD_NAVIGATION_WAYPOINT_PROGRESS = 50u,
+    // Sparse one-shot evidence when the root enters a waypoint radius.
+    MR_TASK_REWARD_NAVIGATION_WAYPOINT_REACH = 51u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
@@ -321,6 +329,9 @@ enum MRTaskRandomizationOpcode : mr_u32 {
     // Compiled RealityProgram target. This addresses one resolved world body
     // directly, so physics variation does not depend on a task contact group.
     MR_TASK_RANDOMIZE_WORLD_BODY_PARAMETER = 17u,
+    // Deterministic episode-local offset from the authored scene position.
+    // Unlike opcode 13 this preserves split-specific base layouts.
+    MR_TASK_RANDOMIZE_SCENE_BODY_POSITION_OFFSET = 18u,
 };
 
 enum MRTaskImpactTransitionFlags : mr_u32 {
@@ -600,6 +611,9 @@ typedef struct MR_ALIGN16 MRTaskStateGPU {
     // Threatened global body, class, latched escape direction encoded as
     // {-1,+1} shifted to {0,2}, and active impact event index.
     mr_uint4 threatMetadata;
+    // Previous waypoint distance, cumulative signed course progress, active
+    // waypoint index, and completion latch.
+    mr_float4 navigation;
 } MRTaskStateGPU;
 
 // Compact task-wide physical evidence accumulated on device. It does not own
@@ -642,6 +656,9 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
     float episodeTrackingScore;
     // Episode difficulty band and terrain profile.
     mr_uint4 taskProgress;
+    // Step signed course progress, cumulative signed progress, reached
+    // waypoint count, and route completion latch.
+    mr_float4 navigation;
 } MRTaskTransitionGPU;
 
 // Robot/task-independent learner transaction. Task-specific measurements are
@@ -674,9 +691,9 @@ static_assert(sizeof(MRTaskImpactEventGPU) == 48u);
 static_assert(sizeof(MRTaskInteractionContactGPU) == 16u);
 static_assert(sizeof(MRTaskInteractionSampleGPU) == 32u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
-static_assert(sizeof(MRTaskStateGPU) == 176u);
+static_assert(sizeof(MRTaskStateGPU) == 192u);
 static_assert(sizeof(MRTaskEvidenceStateGPU) == 64u);
-static_assert(sizeof(MRTaskTransitionGPU) == 128u);
+static_assert(sizeof(MRTaskTransitionGPU) == 144u);
 static_assert(sizeof(MRLearningTransitionGPU) == 64u);
 #endif
 #endif
