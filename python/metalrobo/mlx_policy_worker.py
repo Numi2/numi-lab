@@ -129,18 +129,23 @@ def _difficulty_balanced_retention_weights(
         )
     if not np.isfinite(priority_factor) or priority_factor < 1.0:
         raise ValueError("retention priority factor must be finite and at least one")
-    if priority_band is not None and priority_band not in active_bands:
-        raise ValueError("retention priority band is absent from protected samples")
+    priority_represented = (
+        priority_band is not None and priority_band in active_bands
+    )
     # The teacher loss is normalized by the sum of these weights. Scaling each
     # represented band down to the rarest band's total contribution therefore
     # makes every protected rung equally authoritative without allowing a
     # per-sample weight above one.
     samples_per_band = int(np.min(active_counts))
     balanced = np.zeros_like(weights)
-    maximum_factor = priority_factor if priority_band is not None else 1.0
+    # A rollout is allowed to omit a low-probability protected rung. In that
+    # case there is nothing to amplify for this update, so retain balanced
+    # authority across the represented rungs. The held-out selector still
+    # evaluates every protected band and remains the fail-closed boundary.
+    maximum_factor = priority_factor if priority_represented else 1.0
     for band, count in zip(active_bands, active_counts, strict=True):
         band_factor = (
-            priority_factor if priority_band is not None and band == priority_band
+            priority_factor if priority_represented and band == priority_band
             else 1.0
         )
         balanced[np.logical_and(protected_samples, bands == band)] = (

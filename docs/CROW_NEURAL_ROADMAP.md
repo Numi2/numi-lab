@@ -61,10 +61,23 @@ resets toward the maximum band while retaining earlier-band rehearsal; this is
 an execution-profile input recorded in evidence and the run fingerprint, not a
 TaskPack or PolicyPack ABI change. For bands 2-10, `0.25` assigns about 37.6%
 of resets to band 10 instead of about 6.5% under the authored `1.75` exponent.
+Balanced retention gives equal total label authority to every protected band
+represented in an update. An explicitly prioritized band receives its factor
+when represented; if stochastic reset persistence omits it from one update,
+the worker balances the remaining represented bands and continues. Promotion
+does not inherit that tolerance: the selector still evaluates every protected
+band independently and fails closed on any missing or regressed evidence.
 The journey teacher's pitch-moment label uses accepted root pitch and
-body-frame pitch rate with the previously qualified proportional-and-rate
-target. This remains an invocation-scoped action label executed through the
-ordinary bounded body-moment actuator; it adds no deployment supervisor.
+body-frame pitch rate. Because the label passes through the ordinary actuator
+response filter before reaching the body moment, its bounded request is
+`clamp(-8 * pitch - 2 * pitchRate, -1, 1)`. This is an
+invocation-scoped training label, not a deployment supervisor. On the fixed
+64-environment full-journey teacher probe at seed `2650443581`, changing only
+that request from `-2.4/-0.25` to `-8/-2` reduced warning-envelope occupancy
+from 0.290332 to 0.007520 and full-envelope occupancy from 0.116787 to
+0.006240. All 64 teacher-controlled environments still terminated, so this
+probe supports the label correction but does not qualify the teacher or a
+deployable policy; autonomous held-out selection remains authoritative.
 At the authored landing boundary for landed-hold and full-journey training,
 the already-qualified actor is retained as both carrier and distillation label
 rather than being blended toward the flight teacher's neutral action.

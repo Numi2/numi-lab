@@ -197,11 +197,19 @@ if command -v shasum >/dev/null 2>&1; then
     numi_command_path=$numi_root/numi/commands/train
     [ -f "$numi_command_path" ] || numi_command_path=$0
     numi_selector_path=$numi_python_root/metalrobo/policy_selection.py
+    numi_worker_path=$numi_python_root/metalrobo/mlx_policy_worker.py
     if [ -f "$numi_selector_path" ]; then
-        shasum -a 256 \
-            "$numi_trainer" "$numi_metallib" "$numi_native_library" \
-            "$numi_command_path" "$numi_selector_path" \
-            > "$numi_run/runtime.sha256"
+        if [ -f "$numi_worker_path" ]; then
+            shasum -a 256 \
+                "$numi_trainer" "$numi_metallib" "$numi_native_library" \
+                "$numi_command_path" "$numi_selector_path" \
+                "$numi_worker_path" > "$numi_run/runtime.sha256"
+        else
+            shasum -a 256 \
+                "$numi_trainer" "$numi_metallib" "$numi_native_library" \
+                "$numi_command_path" "$numi_selector_path" \
+                > "$numi_run/runtime.sha256"
+        fi
     else
         shasum -a 256 \
             "$numi_trainer" "$numi_metallib" "$numi_native_library" \

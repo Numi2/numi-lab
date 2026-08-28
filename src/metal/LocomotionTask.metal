@@ -3668,12 +3668,14 @@ inline float birdFlowJourneyTeacherAction(
     }
     if (!straightCruise && action == 14u && airborne) {
         // The invocation-scoped teacher publishes the same live
-        // proportional-and-rate target that qualified the hierarchical
-        // supervisor. It remains an ordinary bounded body-moment action
-        // label; neural deployment receives no supervisor authority.
+        // proportional-and-rate target as the hierarchical supervisor, but
+        // this action label passes through the ordinary actuator response
+        // filter before reaching the body moment. Compensate for that lag in
+        // the teacher gains; this remains a bounded training-time label and
+        // neural deployment receives no supervisor authority.
         return clamp(
-            -2.40f * state.threatGeometry.w -
-                0.25f * state.threatTeacher.x,
+            -8.00f * state.threatGeometry.w -
+                2.00f * state.threatTeacher.x,
             -1.0f,
             1.0f
         );
