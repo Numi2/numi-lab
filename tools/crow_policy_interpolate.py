@@ -74,6 +74,7 @@ def main() -> int:
     parser.add_argument("--deployment-output", required=True, type=Path)
     parser.add_argument("--record", required=True, type=Path)
     parser.add_argument("--native-library", required=True, type=Path)
+    parser.add_argument("--learner-state-output", type=Path)
     parser.add_argument(
         "--output-actions",
         help="comma-separated output rows; when set, preserve every hidden layer",
@@ -164,6 +165,14 @@ def main() -> int:
         stochastic=False,
         library_path=native_library,
     )
+    learner_state_output: Path | None = None
+    if arguments.learner_state_output is not None:
+        from metalrobo.mlx_policy_worker import _write_learner_state
+
+        learner_state_output = (
+            arguments.learner_state_output.expanduser().resolve()
+        )
+        _write_learner_state(learner, learner_state_output)
     record.write_text(
         json.dumps(
             {
@@ -187,6 +196,16 @@ def main() -> int:
                 "output_sha256": _sha256(output),
                 "deployment_output": str(deployment_output),
                 "deployment_output_sha256": _sha256(deployment_output),
+                "learner_state_output": (
+                    str(learner_state_output)
+                    if learner_state_output is not None
+                    else None
+                ),
+                "learner_state_output_sha256": (
+                    _sha256(learner_state_output)
+                    if learner_state_output is not None
+                    else None
+                ),
                 "world_fingerprint": source_pack.world_fingerprint,
                 "task_fingerprint": source_pack.task_fingerprint,
                 "observation_fingerprint": source_pack.observation_fingerprint,

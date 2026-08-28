@@ -9,8 +9,8 @@ this document is measured animal flight or hardware-flight evidence.
 | Level | Runtime contract | Current evidence |
 |---|---|---|
 | v7 hierarchical | 15-action, 84-observation universal journey actor plus state-triggered approach-pitch supervisor | Existing qualified incumbent; supervisor retains actuator authority |
-| v8 neural-only | Same 15/84 policy ABI; supervisor removed; warning/full pitch envelopes are diagnostic outcomes only | Compile, CLI, Metal rollout, replay export; no promoted neural policy |
-| v9 visual neural | v8 dynamics and authority plus four 16x9 masked-depth frames and 24 derived sensor features; 684 actor inputs, 84 critic inputs | Compile and one-update Metal/MLX smoke; smoke candidate rejected by protected-band selection |
+| v8 neural-only | Same 15/84 policy ABI; supervisor removed; warning/full pitch envelopes are diagnostic outcomes only | Promoted through all 11 protected milestones; independent 33-run qualification and accepted replay complete |
+| v9 visual neural | v8 dynamics and authority plus four 16x9 masked-depth frames and 24 derived sensor features; 684 actor inputs, 84 critic inputs | Actor-transferred only from promoted v8, then promoted through all 11 protected milestones; independent 33-run qualification and accepted replay complete |
 
 Every variant has a different task, observation, run, and PolicyPack
 fingerprint. A state-only pack cannot load as a visual policy. V8 and v9
@@ -26,6 +26,50 @@ Root lift gates the standing-to-flight surface handoff, so a failed takeoff
 cannot become presentation flight merely because render time advanced. Feather
 deformation remains an estimated high-detail retarget, not the native Numi
 sensor image or a claim of exact biological plumage motion.
+
+## Completed neural qualification on 28 August 2026
+
+The state-only v8 curriculum promoted a neural-only policy through all eleven
+milestones with every earlier band re-evaluated after each promotion. Its
+independent final matrix contains 33 autonomous runs: eleven fixed bands at
+three seeds, 32 environments and 1,600 steps per run. Across 1,056 environment
+lanes it recorded zero failed environment steps and zero non-timeout
+terminations. The minimum run-level mean tracking score is `0.6813128`, the
+largest run-level mean tilt is `0.0896696 rad`, the global maximum tilt is
+`0.2198471 rad`, and the largest root height is `0.9389769 m`. The deployed
+PolicyPack SHA-256 is
+`072d842d60a9a4291f2c52d0bb07770702e9026ae6e0d068f721486547def58b`.
+Its accepted-state replay SHA-256 is
+`740c6e801322af25308a524d5a0d60357c60ca03517dbdd59d94e2600a475cc3`;
+the canonical replay payload SHA-256 is
+`a7ae9a76ae6fc802ff0d831c88a0eecca45443e97a0128654900111adbf7d0b8`.
+
+V9 began by actor-transferring that promoted v8 policy into the 684-input
+sensor ABI with zero-weight visual columns and a fresh critic. Rejected v8 and
+v9 candidates were never parents. The final v9 candidate is a fingerprint- and
+ABI-exact neural actor assembly: it retains every hidden layer and 14 of 15
+output rows from promoted v9 revision 2621, while action row 6 (tail pitch)
+comes from v9 revision 2721. The 512-environment selector evaluated the merged
+candidate against the incumbent on full journey and protected bands 0-9 and
+promoted it without an absolute-contract regression. This output-row merge is
+recorded exactly; it is not a teacher, runtime supervisor, or non-neural
+actuator path.
+
+The independent v9 final matrix repeats the same 33-run, three-seed contract.
+It recorded zero failed environment steps and zero non-timeout terminations;
+minimum run-level mean tracking is `0.6708923`, largest run-level mean tilt is
+`0.0863282 rad`, global maximum tilt is `0.1825500 rad`, and largest root height
+is `1.3927420 m`. The deployed PolicyPack SHA-256 is
+`e444223ef9867e8b6323cdb7e8e5030106ab8ef6a7e39a3623ee46d34d2e7bcb`.
+Its accepted-state replay SHA-256 is
+`6ffab1a5b04b977c5b3c2876b452dfd4895cbc259d231350ad9738b014182554`;
+the canonical replay payload SHA-256 is
+`6100dd08e2abecbda833f7a3761cda04c8fb5e36e0ba75ad2bde97b77046a881`.
+
+These results qualify the two simulated milestone contracts at the recorded
+seeds and revisions. They do not establish measured-crow aerodynamics,
+biological fidelity, robustness outside the authored reset distribution, or
+hardware flight.
 
 ## Curriculum operation
 
@@ -180,8 +224,9 @@ milestone gates. It emits `qualification.json`, SHA manifests, and one
   [Hansen et al., 2022](https://proceedings.mlr.press/v162/hansen22a.html),
   [Lin et al., 2026](https://proceedings.mlr.press/v331/lin26a.html).
 
-The next genuine breakthrough is therefore not a larger network. It is a v8
-policy that clears all protected state milestones without supervisor authority,
-followed by a v9 transfer that retains those milestones while improving a
-pre-registered visual obstacle/perch task. Only then should online adaptation,
-world models, or growable modules enter the deployed PolicyPack ABI.
+The next genuine breakthrough is therefore not a larger network. V8 and the
+sensor-fast v9 baseline have cleared their authored milestone contracts; the
+next gate is a pre-registered visual obstacle/perch task with held-out scene,
+lighting, and geometry splits. Only evidence of a temporal-planning or capacity
+failure there should motivate a high-level planner, world model, online
+adaptation, or growable PolicyPack ABI.
