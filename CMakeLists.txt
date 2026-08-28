@@ -765,6 +765,8 @@ add_library(
     src/core/ArticulatedActuation.cpp
     src/core/MillardMuscleReference.cpp
     src/core/MujocoMuscleReference.cpp
+    src/core/NumiHumanJointEquality.cpp
+    src/core/NumiHumanMuscleEquilibrium.cpp
     src/core/NumiHumanTendon.cpp
     src/core/ArticulatedJointLimits.cpp
     src/core/ArticulatedContact.cpp

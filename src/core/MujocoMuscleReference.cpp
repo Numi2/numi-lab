@@ -754,15 +754,40 @@ MujocoMuscleReferenceDiagnostics evaluateMujocoCompliantMuscle(
     );
     double acceptedFiber = acceptedState.fiberLength;
     if (!(acceptedFiber > kMinimum)) {
-        const double initializationLower = std::min(
-            0.2 * architecture.optimalFiberLength,
+        // The zero-state sentinel represents an uninitialized state, not a
+        // hidden 2% tendon pre-strain. Solve the static, zero-velocity
+        // fibre/tendon balance first, then use that accepted state in the
+        // ordinary backward-Euler update below. At a stationary path this
+        // makes the first candidate stationary and prevents an artificial
+        // first-step impulse while retaining genuine active/passive preload.
+        double initializationLower = std::min(
+            0.05 * architecture.optimalFiberLength,
             0.5 * pathLength
         );
-        acceptedFiber = std::clamp(
-            pathLength - 1.02 * architecture.tendonSlackLength,
-            initializationLower,
-            pathLength
-        );
+        double initializationUpper = pathLength;
+        for (std::uint32_t iteration = 0u; iteration < 64u; ++iteration) {
+            const double candidate =
+                0.5 * (initializationLower + initializationUpper);
+            const double normalizedFiber =
+                candidate / architecture.optimalFiberLength;
+            const double tendon = normalizedTendonForce(
+                (pathLength - candidate) / architecture.tendonSlackLength,
+                architecture
+            );
+            const double active = std::clamp(
+                acceptedState.activation, 0.0, 1.0
+            ) * muscleGainLength(
+                normalizedFiber,
+                definition.gainParameters[4],
+                definition.gainParameters[5]
+            );
+            const double staticResidual = tendon - active -
+                normalizedPassiveForce(normalizedFiber, definition);
+            if (staticResidual > 0.0) initializationLower = candidate;
+            else initializationUpper = candidate;
+        }
+        acceptedFiber =
+            0.5 * (initializationLower + initializationUpper);
     }
     double lower = std::min(
         0.05 * architecture.optimalFiberLength,
@@ -844,6 +869,35 @@ MujocoMuscleReferenceDiagnostics evaluateMujocoMuscle(
     const double force = muscleGain(path.length, path.velocity, definition) * state.activation + muscleBias(path.length, definition);
     if (!finite(derivative) || !finite(force)) return failure(MujocoMuscleReferenceStatus::nonfiniteResult);
     result = {.path = std::move(path), .activationDerivative = derivative, .actuatorForce = force};
+    return {};
+}
+
+MujocoMuscleReferenceDiagnostics evaluateMujocoMuscleForceLaw(
+    const double pathLength,
+    const double pathVelocity,
+    const MujocoMuscleDefinition& definition,
+    const MujocoMuscleState& state,
+    double& actuatorForce,
+    double* const derivativeOutput
+) {
+    if (!finite(pathLength) || !finite(pathVelocity) ||
+        !(pathLength > kMinimum)) {
+        return failure(MujocoMuscleReferenceStatus::invalidPath);
+    }
+    if (!finite(state.excitation) || !finite(state.activation)) {
+        return failure(MujocoMuscleReferenceStatus::invalidState);
+    }
+    const double derivative = muscleDynamics(
+        state.excitation, state.activation, definition.dynamicParameters
+    );
+    const double force = muscleGain(
+        pathLength, pathVelocity, definition
+    ) * state.activation + muscleBias(pathLength, definition);
+    if (!finite(derivative) || !finite(force)) {
+        return failure(MujocoMuscleReferenceStatus::nonfiniteResult);
+    }
+    actuatorForce = force;
+    if (derivativeOutput != nullptr) *derivativeOutput = derivative;
     return {};
 }
 

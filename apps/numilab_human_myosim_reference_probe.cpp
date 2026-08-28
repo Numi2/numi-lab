@@ -1,6 +1,8 @@
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/MujocoMuscleReference.hpp"
+#include "metalrobo/NumiHumanJointEquality.hpp"
+#include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
 #include "metalrobo/NumiHumanTendon.hpp"
 #include "metalrobo/NumiHumanTendonMetal.hpp"
 
@@ -377,6 +379,29 @@ LoadedMuscles loadMuscles(const char* path, const RigidHeader& rigid) {
         result.gpuStates.push_back(gpuState);
     }
     return result;
+}
+
+std::vector<std::byte> readBytes(const char* path);
+
+metalrobo::NumiHumanJointEqualityPayload loadJointEqualities(
+    const char* path, const RigidHeader& rigid
+) {
+    const std::vector<std::byte> bytes = readBytes(path);
+    metalrobo::NumiHumanJointEqualityPayload payload;
+    const auto diagnostics = metalrobo::decodeNumiHumanJointEqualityPayload(
+        bytes, rigid.sourceSha256, payload
+    );
+    require(
+        diagnostics.succeeded(),
+        std::string("NHEQ decode failed: ") +
+            metalrobo::numiHumanJointEqualityStatusName(diagnostics.status) +
+            " index=" + std::to_string(diagnostics.failingIndex)
+    );
+    require(
+        payload.nq == rigid.nq && payload.nv == rigid.nv,
+        "NHEQ dimensions disagree with NHRIGID2"
+    );
+    return payload;
 }
 
 std::vector<std::byte> readBytes(const char* path) {
@@ -1057,16 +1082,37 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
 
 int run(
     const char* rigidPath, const char* musclePath,
-    const char* tendonPath, const bool runMetal
+    const char* tendonPath, const char* equalityPath,
+    const bool runMetal, const bool runEquilibrium
 ) {
     const LoadedRigid rigid = loadRigid(rigidPath);
     LoadedMuscles muscles = loadMuscles(musclePath, rigid.header);
     if (tendonPath != nullptr) {
         applyNumiHumanTendonPayload(tendonPath, rigid.header, muscles);
     }
+    const metalrobo::NumiHumanJointEqualityPayload equalities =
+        equalityPath == nullptr
+            ? metalrobo::NumiHumanJointEqualityPayload{}
+            : loadJointEqualities(equalityPath, rigid.header);
     const auto& model = rigid.model;
     std::vector<double> q(model.defaultQ.begin(), model.defaultQ.end());
     std::vector<double> v(model.defaultV.begin(), model.defaultV.end());
+    metalrobo::NumiHumanMuscleEquilibriumResult equilibrium;
+    if (runEquilibrium) {
+        const auto equilibriumDiagnostics =
+            metalrobo::compileNumiHumanMuscleEquilibrium(
+                model, 0u, q, muscles.sites, muscles.wraps, muscles.muscles,
+                muscles.architectures, equalities.records, {}, equilibrium
+            );
+        require(
+            equilibriumDiagnostics.succeeded(),
+            std::string("full-body equilibrium compile failed: ") +
+                metalrobo::numiHumanMuscleEquilibriumStatusName(
+                    equilibriumDiagnostics.status
+                ) + " index=" +
+                std::to_string(equilibriumDiagnostics.failingIndex)
+        );
+    }
     std::vector<metalrobo::ArticulatedBodyKinematics> bodies(model.bodies.size());
     const auto bodyDiagnostics = metalrobo::computeArticulatedBodyKinematics(model, 0u, q, v, bodies);
     require(bodyDiagnostics.succeeded(), "MyoSim Core default body kinematics failed");
@@ -1357,6 +1403,43 @@ int run(
                << " metal_tendon_replay_byte_identical="
                << (metal.tendonReplayByteIdentical ? "true" : "false");
     }
+    if (runEquilibrium) {
+        output << " equilibrium_stage=bounded_pose_recruitment_compile"
+               << " equilibrium_initial_normalized_residual_rms="
+               << equilibrium.diagnostics.initialNormalizedResidualRms
+               << " equilibrium_normalized_residual_rms="
+               << equilibrium.diagnostics.normalizedResidualRms
+               << " equilibrium_max_generalized_residual="
+               << equilibrium.diagnostics.maximumGeneralizedForceResidual
+               << " equilibrium_max_normalized_residual="
+               << equilibrium.diagnostics.maximumNormalizedGeneralizedForceResidual
+               << " equilibrium_max_normalized_residual_dof="
+               << equilibrium.diagnostics.maximumNormalizedResidualDof
+               << " equilibrium_active_muscles="
+               << equilibrium.diagnostics.activeMuscleCount
+               << " equilibrium_recruited_muscles="
+               << equilibrium.diagnostics.recruitedMuscleCount
+               << " equilibrium_max_activation="
+               << equilibrium.diagnostics.maximumActivation
+               << " equilibrium_pose_steps="
+               << equilibrium.diagnostics.acceptedPoseSteps
+               << " equilibrium_joint_equalities="
+               << equilibrium.diagnostics.jointEqualityCount
+               << " equilibrium_max_initial_equality_projection="
+               << equilibrium.diagnostics.maximumInitialEqualityProjection
+               << " equilibrium_max_equality_error="
+               << equilibrium.diagnostics.maximumJointEqualityError
+               << " equilibrium_max_equality_reaction="
+               << equilibrium.diagnostics.maximumJointEqualityReaction
+               << " equilibrium_active_position_limits="
+               << equilibrium.diagnostics.activePositionLimitCount
+               << " equilibrium_max_position_limit_reaction="
+               << equilibrium.diagnostics.maximumPositionLimitReaction
+               << " equilibrium_min_normalized_limit_margin="
+               << equilibrium.diagnostics.minimumNormalizedPositionLimitMargin
+               << " equilibrium_balanced="
+               << (equilibrium.diagnostics.balanced ? "true" : "false");
+    }
     output << "\n";
     return 0;
 }
@@ -1365,34 +1448,43 @@ int run(
 
 int main(int argc, char** argv) {
     try {
-        if (argc < 3 || argc > 5) {
+        if (argc < 3 || argc > 7) {
             std::cerr << "usage: " << argv[0] << " <myosim-fullbody-core-reference.nhrigid> "
                       << "<myosim-fullbody-muscle-reference.nhmyo> "
-                      << "[numi-human-tendon-endpoints.nhtendon] [--metal]\n";
+                      << "[numi-human-tendon-endpoints.nhtendon] [--metal] "
+                         "[myosim-fullbody-joint-equalities.nheq] "
+                         "[--equilibrium]\n";
             return 2;
         }
         const char* tendonPath = nullptr;
+        const char* equalityPath = nullptr;
         bool runMetal = false;
+        bool runEquilibrium = false;
         for (int index = 3; index < argc; ++index) {
             if (std::string(argv[index]) == "--metal") {
                 if (runMetal) return 2;
                 runMetal = true;
+            } else if (std::string(argv[index]) == "--equilibrium") {
+                if (runEquilibrium) return 2;
+                runEquilibrium = true;
+            } else if (std::string(argv[index]).ends_with(".nheq") &&
+                       equalityPath == nullptr) {
+                equalityPath = argv[index];
             } else if (tendonPath == nullptr) {
                 tendonPath = argv[index];
             } else {
                 std::cerr << "usage: " << argv[0] << " <myosim-fullbody-core-reference.nhrigid> "
                           << "<myosim-fullbody-muscle-reference.nhmyo> "
-                          << "[numi-human-tendon-endpoints.nhtendon] [--metal]\n";
+                          << "[numi-human-tendon-endpoints.nhtendon] [--metal] "
+                             "[myosim-fullbody-joint-equalities.nheq] "
+                             "[--equilibrium]\n";
                 return 2;
             }
         }
-        if (argc == 5 && (!runMetal || tendonPath == nullptr)) {
-            std::cerr << "usage: " << argv[0] << " <myosim-fullbody-core-reference.nhrigid> "
-                      << "<myosim-fullbody-muscle-reference.nhmyo> "
-                      << "[numi-human-tendon-endpoints.nhtendon] [--metal]\n";
-            return 2;
-        }
-        return run(argv[1], argv[2], tendonPath, runMetal);
+        return run(
+            argv[1], argv[2], tendonPath, equalityPath, runMetal,
+            runEquilibrium
+        );
     } catch (const std::exception& error) {
         std::cerr << "myosim_core_reference FAIL: " << error.what() << "\n";
         return 1;

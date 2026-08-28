@@ -8,6 +8,8 @@
 #include "metalrobo/MetalMultiArticulatedContact.hpp"
 #include "metalrobo/MultiArticulatedContact.hpp"
 #include "metalrobo/MujocoMuscleReference.hpp"
+#include "metalrobo/NumiHumanJointEquality.hpp"
+#include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
 #include "metalrobo/NumiHumanTendon.hpp"
 #include "metalrobo/NumiHumanTendonMetal.hpp"
 #include "metalrobo/QualityContactSolver.hpp"
@@ -415,6 +417,8 @@ struct LoadedMuscles {
     std::vector<metalrobo::MujocoMuscleSite> referenceSites;
     std::vector<metalrobo::MujocoWrapGeometry> referenceWraps;
     std::vector<metalrobo::MujocoMuscleDefinition> referenceMuscles;
+    std::vector<metalrobo::MujocoCompliantMuscleArchitecture>
+        referenceArchitectures;
     // Immutable, source-faithful MyoSim program for the articulated Metal
     // operator. Mutable excitation/activation state is supplied separately
     // by each bounded visual transaction.
@@ -462,6 +466,10 @@ struct LoadedTorsoAnatomy {
 struct LoadedSupportContacts {
     SupportContactHeader header{};
     std::vector<SupportContactRecord> records;
+};
+
+struct LoadedJointEqualities {
+    metalrobo::NumiHumanJointEqualityPayload payload;
 };
 #pragma pack(pop)
 
@@ -700,6 +708,7 @@ LoadedMuscles loadMuscles(
         });
     }
     result.referenceMuscles.reserve(result.muscles.size());
+    result.referenceArchitectures.reserve(result.muscles.size());
     result.gpuMuscles.reserve(result.muscles.size());
     for (std::size_t muscleIndex = 0u; muscleIndex < result.muscles.size(); ++muscleIndex) {
         const MuscleRecord& muscle = result.muscles[muscleIndex];
@@ -722,6 +731,16 @@ LoadedMuscles loadMuscles(
             definition.dynamicParameters[parameter] = muscle.values[25u + parameter];
         }
         result.referenceMuscles.push_back(std::move(definition));
+        result.referenceArchitectures.push_back({
+            architecture.optimalFiberLength,
+            architecture.tendonSlackLength,
+            architecture.tendonStrainAtOneNormalizedForce,
+            architecture.tendonStiffnessAtOneNormalizedForce,
+            architecture.tendonNormalizedForceAtToeEnd,
+            architecture.tendonCurviness,
+            architecture.normalizedFiberDamping,
+            architecture.fitNormalizedRmse,
+        });
         MRMujocoMuscleGPU gpuMuscle{};
         gpuMuscle.route = {
             muscle.routeOffset,
@@ -767,7 +786,8 @@ LoadedMuscles loadMuscles(
         result.gpuSites.size() == result.sites.size() &&
             result.gpuWraps.size() == result.wraps.size() &&
             result.gpuRoutes.size() == result.routes.size() &&
-            result.gpuMuscles.size() == result.muscles.size(),
+            result.gpuMuscles.size() == result.muscles.size() &&
+            result.referenceArchitectures.size() == result.muscles.size(),
         "MyoSim Metal source program packing is incomplete"
     );
     return result;
@@ -912,6 +932,34 @@ LoadedSupportContacts loadSupportContacts(
     require(std::adjacent_find(sourceGeometryIds.begin(), sourceGeometryIds.end()) ==
                 sourceGeometryIds.end(),
             "MyoSim support-contact geometry identity is duplicated");
+    return result;
+}
+
+LoadedJointEqualities loadJointEqualities(
+    const std::filesystem::path& path,
+    const RigidHeader& rigid
+) {
+    std::ifstream input(path, std::ios::binary | std::ios::ate);
+    require(input.is_open(), "cannot open NHEQ joint-equality payload " +
+                path.string());
+    const std::streamsize size = input.tellg();
+    require(size >= 0, "cannot determine NHEQ joint-equality payload size");
+    input.seekg(0, std::ios::beg);
+    std::vector<std::byte> bytes(static_cast<std::size_t>(size));
+    if (!bytes.empty()) {
+        input.read(reinterpret_cast<char*>(bytes.data()), size);
+        require(input.good(), "truncated NHEQ joint-equality payload");
+    }
+    LoadedJointEqualities result;
+    const auto diagnostics = metalrobo::decodeNumiHumanJointEqualityPayload(
+        bytes, rigid.sourceSha256, result.payload
+    );
+    require(
+        diagnostics.succeeded() && result.payload.nq == rigid.nq &&
+            result.payload.nv == rigid.nv,
+        std::string("invalid NHEQ joint-equality payload: ") +
+            metalrobo::numiHumanJointEqualityStatusName(diagnostics.status)
+    );
     return result;
 }
 
@@ -1336,6 +1384,16 @@ struct MuscleDrivenVisualState {
     std::uint32_t compiledActiveMuscleCount = 0u;
     double compiledActivationResidualRms = 0.0;
     double compiledMaximumActivation = 0.0;
+    std::uint32_t compiledRecruitedMuscleCount = 0u;
+    std::uint32_t compiledActivePositionLimitCount = 0u;
+    std::uint32_t compiledAcceptedPoseSteps = 0u;
+    double compiledMaximumEqualityReaction = 0.0;
+    double compiledMaximumLimitReaction = 0.0;
+    std::uint32_t jointEqualityCount = 0u;
+    double maximumJointEqualityPositionError = 0.0;
+    double maximumJointEqualityVelocityError = 0.0;
+    double maximumJointEqualityImpulse = 0.0;
+    double totalJointEqualityImpulse = 0.0;
     double assistedConfigurationDelta = 0.0;
     double removalConfigurationDelta = 0.0;
     double oneStepParityMaximumQError = 0.0;
@@ -1752,154 +1810,67 @@ DynamicSourceSupportContacts makeDynamicSourceSupportContacts(
 }
 
 struct CompiledStandActivation {
+    std::vector<double> q;
     std::vector<float> activation;
-    std::vector<double> activeGeneralizedForce;
+    std::vector<double> generalizedMuscleForce;
     std::uint32_t activeMuscleCount = 0u;
+    std::uint32_t recruitedMuscleCount = 0u;
+    std::uint32_t activePositionLimitCount = 0u;
+    std::uint32_t acceptedPoseSteps = 0u;
     double normalizedResidualRms = 0.0;
     double maximumActivation = 0.0;
+    double maximumEqualityReaction = 0.0;
+    double maximumLimitReaction = 0.0;
 };
 
 CompiledStandActivation compileStaticStandActivation(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& muscles,
-    const MetalMujocoVisualQueries& queries,
+    const LoadedJointEqualities& jointEqualities,
     const std::span<const double> q,
     const double activationCap,
     const std::span<const std::uint32_t> selectedSourceMuscleIndices
 ) {
-    const std::size_t muscleCount = muscles.gpuMuscles.size();
-    const std::size_t nv = model.world.nv;
-    require(muscleCount != 0u && nv > 6u,
-            "stand activation compiler requires muscles and internal DoFs");
-    std::vector<MRMujocoMuscleStateGPU> passiveStates(muscleCount);
-    std::vector<MRMujocoMuscleStateGPU> unitStates(muscleCount);
-    for (MRMujocoMuscleStateGPU& state : unitStates) {
-        state.excitationAndActivation = {1.0f, 1.0f, 0.0f, 0.0f};
-    }
-    const metalrobo::MetalArticulatedOperatorConfig forceConfig{
-        .pointJacobiansOnly = true,
-    };
-    metalrobo::MetalArticulatedOperatorContext passiveContext(forceConfig);
-    metalrobo::MetalArticulatedOperatorContext unitContext(forceConfig);
-    const MetalMujocoForceStep passive = evaluateMetalMujocoForce(
-        model, muscles, queries, q, passiveStates, passiveContext
+    require(muscles.header.payloadAbi == kMusclePayloadAbi &&
+                muscles.referenceArchitectures.size() ==
+                    muscles.referenceMuscles.size() &&
+                !jointEqualities.payload.records.empty(),
+            "stand equilibrium requires NHMYO2 architecture and NHEQ1 constraints");
+    metalrobo::NumiHumanMuscleEquilibriumConfig config;
+    config.timestep = 1.0e-4;
+    config.activationLimit = activationCap;
+    config.activationSweeps = 240u;
+    metalrobo::NumiHumanMuscleEquilibriumResult compiled;
+    const auto diagnostics = metalrobo::compileNumiHumanMuscleEquilibrium(
+        model, 0u, q, muscles.referenceSites, muscles.referenceWraps,
+        muscles.referenceMuscles, muscles.referenceArchitectures,
+        jointEqualities.payload.records, selectedSourceMuscleIndices,
+        compiled, config
     );
-    const MetalMujocoForceStep unit = evaluateMetalMujocoForce(
-        model, muscles, queries, q, unitStates, unitContext
+    require(
+        diagnostics.succeeded() && diagnostics.balanced,
+        std::string("source-constrained stand equilibrium failed: ") +
+            metalrobo::numiHumanMuscleEquilibriumStatusName(
+                diagnostics.status
+            ) + " residual=" +
+            std::to_string(diagnostics.normalizedResidualRms)
     );
-    require(passive.muscleGeneralizedForces.size() == muscleCount * nv &&
-                unit.muscleGeneralizedForces.size() == muscleCount * nv &&
-                passive.generalizedForce.size() == nv,
-            "stand activation compiler received incomplete Metal force rows");
-
-    std::vector<double> zeroVelocity(nv, 0.0);
-    std::vector<double> zeroAcceleration(nv, 0.0);
-    std::vector<double> target(nv, 0.0);
-    metalrobo::ArticulatedDynamicsConfig dynamicsConfig;
-    dynamicsConfig.gravity = {
-        model.world.gravityAndTimestep.x,
-        model.world.gravityAndTimestep.y,
-        model.world.gravityAndTimestep.z,
-    };
-    const auto inverse = metalrobo::computeArticulatedInverseDynamics(
-        model, 0u, q, zeroVelocity, zeroAcceleration, {}, target,
-        dynamicsConfig
-    );
-    require(inverse.succeeded(),
-            "stand activation compiler could not evaluate the source gravity target");
-
-    const std::size_t rowCount = nv - 6u;
-    std::vector<double> weights(rowCount, 1.0);
-    std::vector<double> residual(rowCount, 0.0);
-    for (std::size_t row = 0u; row < rowCount; ++row) {
-        const std::size_t dof = row + 6u;
-        weights[row] = 1.0 / std::max(25.0, std::abs(target[dof]));
-        residual[row] = weights[row] * (
-            static_cast<double>(passive.generalizedForce[dof]) - target[dof]
-        );
-    }
     CompiledStandActivation result;
-    result.activation.assign(muscleCount, 0.0f);
-    result.activeGeneralizedForce.assign(nv, 0.0);
-    constexpr double kActivationRegularization = 2.5e-4;
-    constexpr std::uint32_t kMaximumSweeps = 240u;
-    for (std::uint32_t sweep = 0u; sweep < kMaximumSweeps; ++sweep) {
-        double maximumChange = 0.0;
-        for (std::size_t muscle = 0u; muscle < muscleCount; ++muscle) {
-            const bool selected = selectedSourceMuscleIndices.empty() ||
-                std::binary_search(
-                    selectedSourceMuscleIndices.begin(),
-                    selectedSourceMuscleIndices.end(),
-                    static_cast<std::uint32_t>(muscle)
-                );
-            if (!selected) continue;
-            double gradient = kActivationRegularization *
-                result.activation[muscle];
-            double curvature = kActivationRegularization;
-            const std::size_t muscleBase = muscle * nv;
-            for (std::size_t row = 0u; row < rowCount; ++row) {
-                const std::size_t dof = row + 6u;
-                const double column = weights[row] * (
-                    static_cast<double>(unit.muscleGeneralizedForces[
-                        muscleBase + dof
-                    ]) -
-                    static_cast<double>(passive.muscleGeneralizedForces[
-                        muscleBase + dof
-                    ])
-                );
-                gradient += column * residual[row];
-                curvature += column * column;
-            }
-            const double oldActivation = result.activation[muscle];
-            const double newActivation = std::clamp(
-                oldActivation - gradient / curvature, 0.0, activationCap
-            );
-            const double delta = newActivation - oldActivation;
-            if (delta == 0.0) continue;
-            result.activation[muscle] = static_cast<float>(newActivation);
-            maximumChange = std::max(maximumChange, std::abs(delta));
-            for (std::size_t row = 0u; row < rowCount; ++row) {
-                const std::size_t dof = row + 6u;
-                const double column = weights[row] * (
-                    static_cast<double>(unit.muscleGeneralizedForces[
-                        muscleBase + dof
-                    ]) -
-                    static_cast<double>(passive.muscleGeneralizedForces[
-                        muscleBase + dof
-                    ])
-                );
-                residual[row] += delta * column;
-            }
-        }
-        if (maximumChange < 1.0e-7) break;
+    result.q = std::move(compiled.q);
+    result.activation.reserve(compiled.activation.size());
+    for (const double value : compiled.activation) {
+        result.activation.push_back(static_cast<float>(value));
     }
-    double residualSquared = 0.0;
-    for (const double value : residual) residualSquared += value * value;
-    result.normalizedResidualRms = std::sqrt(
-        residualSquared / static_cast<double>(rowCount)
-    );
-    for (const float value : result.activation) {
-        if (value > 1.0e-5f) ++result.activeMuscleCount;
-        result.maximumActivation = std::max(
-            result.maximumActivation, static_cast<double>(value)
-        );
-    }
-    for (std::size_t muscle = 0u; muscle < muscleCount; ++muscle) {
-        const std::size_t muscleBase = muscle * nv;
-        for (std::size_t dof = 0u; dof < nv; ++dof) {
-            result.activeGeneralizedForce[dof] +=
-                static_cast<double>(result.activation[muscle]) * (
-                    static_cast<double>(unit.muscleGeneralizedForces[
-                        muscleBase + dof
-                    ]) -
-                    static_cast<double>(passive.muscleGeneralizedForces[
-                        muscleBase + dof
-                    ])
-                );
-        }
-    }
-    require(std::isfinite(result.normalizedResidualRms),
-            "stand activation compiler produced a non-finite residual");
+    result.generalizedMuscleForce =
+        std::move(compiled.generalizedMuscleForce);
+    result.activeMuscleCount = diagnostics.activeMuscleCount;
+    result.recruitedMuscleCount = diagnostics.recruitedMuscleCount;
+    result.activePositionLimitCount = diagnostics.activePositionLimitCount;
+    result.acceptedPoseSteps = diagnostics.acceptedPoseSteps;
+    result.normalizedResidualRms = diagnostics.normalizedResidualRms;
+    result.maximumActivation = diagnostics.maximumActivation;
+    result.maximumEqualityReaction = diagnostics.maximumJointEqualityReaction;
+    result.maximumLimitReaction = diagnostics.maximumPositionLimitReaction;
     return result;
 }
 
@@ -1907,6 +1878,7 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& muscles,
     const LoadedSupportContacts& supportContacts,
+    const LoadedJointEqualities& jointEqualities,
     const double timestepSeconds,
     const std::uint32_t stepCount,
     const double activation,
@@ -1931,7 +1903,16 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
             "assistance removal requires an assisted stand phase");
     const GroundAlignedSupport aligned =
         makeGroundAlignedSupport(model, supportContacts);
-    const std::vector<float> q = packMetalConfiguration(aligned.q);
+    const CompiledStandActivation compiledActivation =
+        compileStaticStandActivation(
+            model,
+            muscles,
+            jointEqualities,
+            aligned.q,
+            activation,
+            selectedSourceMuscleIndices
+        );
+    const std::vector<float> q = packMetalConfiguration(compiledActivation.q);
     std::vector<float> v;
     v.reserve(model.defaultV.size());
     for (const double velocity : model.defaultV) {
@@ -1941,15 +1922,6 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
     }
     const MetalMujocoVisualQueries queries =
         makeMetalMujocoVisualQueries(model, &supportContacts);
-    const CompiledStandActivation compiledActivation =
-        compileStaticStandActivation(
-            model,
-            muscles,
-            queries,
-            aligned.q,
-            activation,
-            selectedSourceMuscleIndices
-        );
     std::vector<MRMujocoMuscleStateGPU> states(muscles.gpuMuscles.size());
     for (std::size_t muscleIndex = 0u;
          muscleIndex < states.size(); ++muscleIndex) {
@@ -1995,6 +1967,7 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
         .stand = {
             .v = v,
             .contacts = queries.supportContacts,
+            .jointEqualities = jointEqualities.payload.records,
             .tendonBindings = tendonProgram.bindings,
             .tendonEnvelopes = tendonProgram.envelopes,
             .stepCount = stepCount,
@@ -2020,10 +1993,10 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
                 : mr_float4{0.0f, 0.0f, 0.0f, 0.0f},
         },
     };
-    std::vector<double> parityQ = aligned.q;
+    std::vector<double> parityQ = compiledActivation.q;
     std::vector<double> parityV(model.defaultV.begin(), model.defaultV.end());
     std::vector<double> parityGeneralizedForce =
-        compiledActivation.activeGeneralizedForce;
+        compiledActivation.generalizedMuscleForce;
     const bool hasCompliantArchitecture = std::any_of(
         muscles.gpuMuscles.begin(), muscles.gpuMuscles.end(),
         [](const MRMujocoMuscleGPU& muscle) {
@@ -2035,7 +2008,7 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
         std::vector<MRMujocoMuscleStateGPU> parityForceStates = states;
         metalrobo::MetalArticulatedOperatorContext parityForceContext(config);
         const MetalMujocoForceStep parityForce = evaluateMetalMujocoForce(
-            model, muscles, queries, aligned.q, parityForceStates,
+            model, muscles, queries, compiledActivation.q, parityForceStates,
             parityForceContext
         );
         parityGeneralizedForce.assign(
@@ -2064,6 +2037,7 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
     metalrobo::MetalArticulatedOperatorInput parityInput = input;
     parityInput.stand.stepCount = 1u;
     parityInput.stand.enableContact = false;
+    parityInput.stand.jointEqualities = {};
     parityInput.stand.enableRootAssistance = false;
     parityInput.stand.assistanceGains = {0.0f, 0.0f, 0.0f, 0.0f};
     metalrobo::MetalArticulatedOperatorResult parityResult;
@@ -2181,7 +2155,10 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
     );
     const MRNumiHumanStandStatusGPU& status = metalResult.standStatuses.front();
     require(status.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
-                status.completedSteps == stepCount,
+                status.completedSteps == stepCount &&
+                status.jointEqualityCounts.x ==
+                    jointEqualities.payload.records.size() &&
+                status.jointEqualityCounts.z == 0u,
             "persistent Human stand returned an incomplete device status");
     const std::size_t tendonEnvelopeBindingCount =
         static_cast<std::size_t>(std::count_if(
@@ -2445,6 +2422,33 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
         compiledActivation.normalizedResidualRms;
     result.compiledMaximumActivation =
         compiledActivation.maximumActivation;
+    result.compiledRecruitedMuscleCount =
+        compiledActivation.recruitedMuscleCount;
+    result.compiledActivePositionLimitCount =
+        compiledActivation.activePositionLimitCount;
+    result.compiledAcceptedPoseSteps = compiledActivation.acceptedPoseSteps;
+    result.compiledMaximumEqualityReaction =
+        compiledActivation.maximumEqualityReaction;
+    result.compiledMaximumLimitReaction =
+        compiledActivation.maximumLimitReaction;
+    result.jointEqualityCount = finalStatus.jointEqualityCounts.x;
+    result.maximumJointEqualityPositionError = std::max(
+        assistedStatus.jointEqualityDiagnostics.x,
+        finalStatus.jointEqualityDiagnostics.x
+    );
+    result.maximumJointEqualityVelocityError = std::max(
+        assistedStatus.jointEqualityDiagnostics.y,
+        finalStatus.jointEqualityDiagnostics.y
+    );
+    result.maximumJointEqualityImpulse = std::max(
+        assistedStatus.jointEqualityDiagnostics.z,
+        finalStatus.jointEqualityDiagnostics.z
+    );
+    result.totalJointEqualityImpulse =
+        assistedStatus.jointEqualityDiagnostics.w +
+        (removeRootAssistance
+             ? finalStatus.jointEqualityDiagnostics.w
+             : 0.0f);
     result.oneStepParityMaximumQError = parityMaximumQError;
     result.oneStepParityMaximumVError = parityMaximumVError;
     result.deterministicReplayVerified = deterministicReplayVerified;
@@ -5360,6 +5364,7 @@ int main(int argc, char** argv) {
             std::optional<std::filesystem::path> torsoAnatomyPayloadPath;
             std::optional<std::filesystem::path> supportContactPayloadPath;
             std::optional<std::filesystem::path> tendonPayloadPath;
+            std::optional<std::filesystem::path> jointEqualityPayloadPath;
             std::optional<std::uint32_t> passiveFEMTissueStableId;
             std::optional<std::uint32_t> passiveFEMStepCount;
             std::optional<std::filesystem::path> passiveFEMMetallibPath;
@@ -5459,6 +5464,11 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !tendonPayloadPath.has_value(),
                             "--tendon-payload requires one path and may be given only once");
                     tendonPayloadPath.emplace(argv[++index]);
+                } else if (argument == "--joint-equality-payload") {
+                    require(index + 1 < argc &&
+                                !jointEqualityPayloadPath.has_value(),
+                            "--joint-equality-payload requires one path and may be given only once");
+                    jointEqualityPayloadPath.emplace(argv[++index]);
                 } else if (argument == "--passive-fem-tissue-stable-id") {
                     require(index + 1 < argc && !passiveFEMTissueStableId.has_value(),
                             "--passive-fem-tissue-stable-id requires one source stable ID and may be given only once");
@@ -5509,6 +5519,7 @@ int main(int argc, char** argv) {
                           << " [--tendon-attachment-collar-diagnostic]"
                           << " [--support-contact-payload <NHCNT1>]"
                           << " [--tendon-payload <NHTENDON1-or-NHTENDON2>]"
+                          << " [--joint-equality-payload <NHEQ1>]"
                           << " [--focus-body-index <0..156>]"
                           << " [--camera-index <0..3>]"
                           << " [--dimension <512..2048; multiple-of-64>]\n";
@@ -5674,6 +5685,15 @@ int main(int argc, char** argv) {
                     *supportContactPayloadPath, rigid.header
                 ));
             }
+            std::optional<LoadedJointEqualities> jointEqualityPayload;
+            if (jointEqualityPayloadPath.has_value()) {
+                jointEqualityPayload.emplace(loadJointEqualities(
+                    *jointEqualityPayloadPath, rigid.header
+                ));
+                std::cout << "joint_equality_payload=NHEQ1 joint_equalities="
+                          << jointEqualityPayload->payload.records.size()
+                          << "\n";
+            }
             require(!surfaceProjectSourceSites ||
                         (bodypartsBoneVisual && sourceRouteCentrelines),
                     "--surface-project-source-sites requires BodyParts3D bones and a source-route inspection");
@@ -5685,8 +5705,9 @@ int main(int argc, char** argv) {
                     "--activated-source-muscle-index requires --muscle-step-seconds");
             require(!persistentMetalStand ||
                         (muscleStepSeconds.has_value() &&
-                         supportContactPayload.has_value()),
-                    "--persistent-metal-stand requires a muscle timestep and support-contact payload");
+                         supportContactPayload.has_value() &&
+                         jointEqualityPayload.has_value()),
+                    "--persistent-metal-stand requires muscle timestep, support contacts, and NHEQ1 joint equalities");
             require(!standRootAssistance || persistentMetalStand,
                     "--stand-root-assistance requires --persistent-metal-stand");
             require(!standRemoveAssistance || standRootAssistance,
@@ -5724,6 +5745,7 @@ int main(int argc, char** argv) {
                             rigid.model,
                             musclePayload,
                             *supportContactPayload,
+                            *jointEqualityPayload,
                             *muscleStepSeconds,
                             muscleStepCount.value_or(1u),
                             muscleActivation.value_or(0.5),
@@ -6231,10 +6253,30 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->persistentRootAssistanceTorque : 0.0)
                       << " compiled_stand_active_muscles=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->compiledActiveMuscleCount : 0u)
+                      << " compiled_stand_recruited_muscles=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledRecruitedMuscleCount : 0u)
+                      << " compiled_stand_active_limits=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledActivePositionLimitCount : 0u)
+                      << " compiled_stand_pose_steps=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledAcceptedPoseSteps : 0u)
                       << " compiled_stand_normalized_residual_rms=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->compiledActivationResidualRms : 0.0)
                       << " compiled_stand_max_activation=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->compiledMaximumActivation : 0.0)
+                      << " compiled_stand_max_equality_reaction=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledMaximumEqualityReaction : 0.0)
+                      << " compiled_stand_max_limit_reaction=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledMaximumLimitReaction : 0.0)
+                      << " stand_joint_equalities=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->jointEqualityCount : 0u)
+                      << " stand_max_equality_position_error=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->maximumJointEqualityPositionError : 0.0)
+                      << " stand_max_equality_velocity_error=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->maximumJointEqualityVelocityError : 0.0)
+                      << " stand_max_equality_impulse=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->maximumJointEqualityImpulse : 0.0)
+                      << " stand_total_equality_impulse=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->totalJointEqualityImpulse : 0.0)
                       << " assisted_configuration_delta=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->assistedConfigurationDelta : 0.0)
                       << " removal_configuration_delta=" << (muscleDrivenState.has_value()

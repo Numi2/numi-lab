@@ -103,9 +103,10 @@ typedef struct MR_ALIGN16 MRMujocoMuscleRouteNodeGPU {
 } MRMujocoMuscleRouteNodeGPU;
 
 // State is environment-major. x excitation, y activation, z accepted fibre
-// length (m; zero requests deterministic initialization), w fibre velocity
-// (m/s). The reference pass publishes a candidate in its result and the
-// sidecar step commits it together with activation.
+// length (m; zero requests deterministic zero-velocity fibre/tendon
+// equilibrium at the current path and activation), w fibre velocity (m/s).
+// The reference pass publishes a candidate in its result and the sidecar step
+// commits it together with activation.
 typedef struct MR_ALIGN16 MRMujocoMuscleStateGPU {
     mr_float4 excitationAndActivation;
 } MRMujocoMuscleStateGPU;

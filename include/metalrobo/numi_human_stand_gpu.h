@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_NUMI_HUMAN_STAND_ABI_VERSION 2u
+#define MR_NUMI_HUMAN_STAND_ABI_VERSION 3u
 #define MR_NUMI_HUMAN_STAND_MAX_BODIES 192u
 #define MR_NUMI_HUMAN_STAND_MAX_DOFS 160u
 #define MR_NUMI_HUMAN_STAND_MAX_Q 161u
@@ -18,12 +18,14 @@ enum MRNumiHumanStandStatusCode {
     MR_NUMI_HUMAN_STAND_CONTACT_FAILED = 5u,
     MR_NUMI_HUMAN_STAND_NONFINITE_RESULT = 6u,
     MR_NUMI_HUMAN_STAND_TENDON_TRANSFER_FAILED = 7u,
+    MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED = 8u,
 };
 
 enum MRNumiHumanStandFlags {
     MR_NUMI_HUMAN_STAND_ENABLE_CONTACT = 1u << 0u,
     MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE = 1u << 1u,
     MR_NUMI_HUMAN_STAND_HAS_TENDON_LOADS = 1u << 2u,
+    MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES = 1u << 3u,
 };
 
 // One source-authored support witness. The point-query index addresses the
@@ -63,7 +65,7 @@ typedef struct MR_ALIGN16 MRNumiHumanStandDispatchGPU {
     mr_u32 tendonEndpointCount;
     mr_u32 tendonEnvelopeCount;
     mr_u32 tendonTransferStride;
-    mr_u32 reserved0;
+    mr_u32 jointEqualityCount;
 
     // xyz = ground point, w = timestep seconds.
     mr_float4 groundPointAndTimestep;
@@ -104,10 +106,16 @@ typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
     // Maximum force residual, source-point moment residual, generalized
     // wrench-equivalence correction, and represented actuator-force norm.
     mr_float4 tendonDiagnostics;
+
+    // active row count, maximum active row count, failed row count, reserved.
+    mr_uint4 jointEqualityCounts;
+    // Maximum pre-projection position error, maximum constrained velocity
+    // error, maximum absolute bilateral impulse, and sum absolute impulses.
+    mr_float4 jointEqualityDiagnostics;
 } MRNumiHumanStandStatusGPU;
 
 #if !defined(__METAL_VERSION__)
 static_assert(sizeof(MRNumiHumanStandContactGPU) == 32);
 static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 160);
-static_assert(sizeof(MRNumiHumanStandStatusGPU) == 96);
+static_assert(sizeof(MRNumiHumanStandStatusGPU) == 128);
 #endif

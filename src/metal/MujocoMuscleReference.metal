@@ -473,15 +473,34 @@ inline bool solveCompliantFiber(
     );
     float acceptedFiber = state.excitationAndActivation.z;
     if (!(acceptedFiber > kMinimum)) {
-        const float initializationLower = min(
-            0.2f * optimalFiberLength,
+        // Zero is an uninitialized-state sentinel. Establish the stationary
+        // active/passive fibre-to-tendon balance before the backward-Euler
+        // update; an arbitrary tendon pre-strain would otherwise become a
+        // large first-step generalized impulse.
+        float initializationLower = min(
+            0.05f * optimalFiberLength,
             0.5f * pathLength
         );
-        acceptedFiber = clamp(
-            pathLength - 1.02f * tendonSlackLength,
-            initializationLower,
-            pathLength
-        );
+        float initializationUpper = pathLength;
+        for (uint iteration = 0u; iteration < 48u; ++iteration) {
+            const float candidate =
+                0.5f * (initializationLower + initializationUpper);
+            const float normalizedFiber = candidate / optimalFiberLength;
+            const float tendon = normalizedTendonForce(
+                (pathLength - candidate) / tendonSlackLength, muscle
+            );
+            const float active = activation * gainLength(
+                normalizedFiber,
+                parameter(muscle.gainParameters, 4u),
+                parameter(muscle.gainParameters, 5u)
+            );
+            const float staticResidual = tendon - active -
+                normalizedPassiveForce(normalizedFiber, muscle);
+            if (staticResidual > 0.0f) initializationLower = candidate;
+            else initializationUpper = candidate;
+        }
+        acceptedFiber =
+            0.5f * (initializationLower + initializationUpper);
     }
     const float effectiveTimestep = max(1.0e-5f, timestep);
     float lower = min(0.05f * optimalFiberLength, 0.5f * predictedPath);

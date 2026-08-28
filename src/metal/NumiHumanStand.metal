@@ -1,5 +1,6 @@
 #include <metal_stdlib>
 
+#include "metalrobo/numi_human_joint_equality_gpu.h"
 #include "metalrobo/numi_human_stand_gpu.h"
 #include "metalrobo/numi_human_tendon_gpu.h"
 
@@ -140,6 +141,53 @@ inline bool inverseSymmetric3x3(
         all(isfinite(inverse2));
 }
 
+inline bool evaluateJointEquality(
+    device const MRNumiHumanJointEqualityGPU& equality,
+    device const float* q,
+    const uint qBase,
+    const uint nq,
+    const uint nv,
+    thread float& target,
+    thread float& derivative,
+    thread float& error
+) {
+    const bool fixed = equality.indices.z == MR_INVALID_INDEX &&
+        equality.indices.w == MR_INVALID_INDEX;
+    const bool coupled = equality.indices.z < nq && equality.indices.w < nv;
+    if (equality.indices.x >= nq || equality.indices.y >= nv ||
+        (!fixed && !coupled) ||
+        (coupled && (equality.indices.x == equality.indices.z ||
+                     equality.indices.y == equality.indices.w)) ||
+        !finite4(equality.referencesAndCoefficients0) ||
+        !finite4(equality.coefficients1) || !finite4(equality.solref) ||
+        !finite4(equality.solimp0) || !finite4(equality.solimp1) ||
+        equality.coefficients1.w != 0.0f || equality.solref.z != 0.0f ||
+        equality.solref.w != 0.0f || equality.solimp1.y != 0.0f ||
+        equality.solimp1.z != 0.0f || equality.solimp1.w != 0.0f) {
+        return false;
+    }
+    const float delta = fixed
+        ? 0.0f
+        : q[qBase + equality.indices.z] -
+            equality.referencesAndCoefficients0.y;
+    const float a0 = equality.referencesAndCoefficients0.z;
+    const float a1 = equality.referencesAndCoefficients0.w;
+    const float a2 = equality.coefficients1.x;
+    const float a3 = equality.coefficients1.y;
+    const float a4 = equality.coefficients1.z;
+    const float polynomial = a0 + delta * (
+        a1 + delta * (a2 + delta * (a3 + delta * a4))
+    );
+    derivative = fixed
+        ? 0.0f
+        : a1 + delta * (
+            2.0f * a2 + delta * (3.0f * a3 + 4.0f * delta * a4)
+        );
+    target = equality.referencesAndCoefficients0.x + polynomial;
+    error = q[qBase + equality.indices.x] - target;
+    return isfinite(target) && isfinite(derivative) && isfinite(error);
+}
+
 inline void fail(
     device MRNumiHumanStandStatusGPU& status,
     const uint code,
@@ -181,6 +229,7 @@ kernel void mr_numi_human_stand_step(
     device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
     device const MRNumiHumanTendonBindingGPU* tendonBindings [[buffer(18)]],
     device const MRNumiHumanTendonTransferResultGPU* tendonTransfers [[buffer(19)]],
+    device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint threadCount [[threads_per_threadgroup]]
@@ -204,15 +253,18 @@ kernel void mr_numi_human_stand_step(
     const uint bodyMotionBase = environment * bodyCount * 2u;
     const uint factorBase = environment * nv * nv;
     const uint vectorStride = 3u * nv +
-        12u * dispatch.supportContactCount;
+        12u * dispatch.supportContactCount + dispatch.jointEqualityCount;
     const uint vectorBase = environment * vectorStride;
     const uint responseBase = environment *
-        dispatch.supportContactCount * 3u * nv;
+        (dispatch.supportContactCount * 3u + dispatch.jointEqualityCount) * nv;
     device float* bias = vectorScratch + vectorBase;
     device float* candidateV = bias + nv;
     device float* workspace = candidateV + nv;
     device float* lambdas = workspace + nv;
-    device float* contactMatrices = lambdas + 3u * dispatch.supportContactCount;
+    device float* equalityLambdas =
+        lambdas + 3u * dispatch.supportContactCount;
+    device float* contactMatrices =
+        equalityLambdas + dispatch.jointEqualityCount;
     device float* factor = factorScratch + factorBase;
 
     if (lane == 0u) {
@@ -248,6 +300,7 @@ kernel void mr_numi_human_stand_step(
             dispatch.pointJacobianStride /
                 max(3u * nv, 1u) < dispatch.pointWorldStride ||
             dispatch.supportContactCount > MR_NUMI_HUMAN_STAND_MAX_CONTACTS ||
+            dispatch.jointEqualityCount > nv ||
             dispatch.contactIterationCount == 0u ||
             dispatch.contactIterationCount > 64u ||
             !(dispatch.groundPointAndTimestep.w > 0.0f) ||
@@ -258,16 +311,19 @@ kernel void mr_numi_human_stand_step(
             !finite4(dispatch.assistanceGains) ||
             dispatch.groundNormal.w != 0.0f ||
             dispatch.targetRootPosition.w != 0.0f ||
-            dispatch.reserved0 != 0u ||
             dispatch.tendonTransferStride < dispatch.tendonEndpointCount ||
             ((dispatch.tendonEndpointCount == 0u) !=
              ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_TENDON_LOADS) == 0u)) ||
             (dispatch.tendonEndpointCount != 0u &&
              (dispatch.tendonEndpointCount % 2u) != 0u) ||
+            ((dispatch.jointEqualityCount == 0u) !=
+             ((dispatch.flags &
+               MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES) == 0u)) ||
             (dispatch.flags & ~(
                 MR_NUMI_HUMAN_STAND_ENABLE_CONTACT |
                 MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE |
-                MR_NUMI_HUMAN_STAND_HAS_TENDON_LOADS
+                MR_NUMI_HUMAN_STAND_HAS_TENDON_LOADS |
+                MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES
             )) != 0u) {
             fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
         } else if (articulation.rootType != MR_ROOT_FLOATING ||
@@ -372,6 +428,42 @@ kernel void mr_numi_human_stand_step(
              index < 3u * dispatch.supportContactCount;
              ++index) {
             lambdas[index] = 0.0f;
+        }
+        for (uint index = 0u;
+             index < dispatch.jointEqualityCount;
+             ++index) {
+            equalityLambdas[index] = 0.0f;
+            device const MRNumiHumanJointEqualityGPU& equality =
+                jointEqualities[index];
+            float target = 0.0f;
+            float derivative = 0.0f;
+            float error = 0.0f;
+            bool valid = evaluateJointEquality(
+                equality, qState, qBase, nq, nv,
+                target, derivative, error
+            );
+            valid = valid &&
+                dofs[articulation.vOffset + equality.indices.y].qIndex ==
+                    articulation.qOffset + equality.indices.x;
+            if (valid && equality.indices.w != MR_INVALID_INDEX) {
+                valid = dofs[
+                    articulation.vOffset + equality.indices.w
+                ].qIndex == articulation.qOffset + equality.indices.z;
+            }
+            for (uint prior = 0u; prior < index && valid; ++prior) {
+                const uint priorDependent = jointEqualities[prior].indices.y;
+                valid = priorDependent != equality.indices.y &&
+                    priorDependent != equality.indices.w;
+            }
+            for (uint later = index + 1u;
+                 later < dispatch.jointEqualityCount && valid; ++later) {
+                valid = jointEqualities[later].indices.y != equality.indices.w;
+            }
+            if (!valid) {
+                ++status.jointEqualityCounts.z;
+                fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED, index);
+                break;
+            }
         }
     }
     threadgroup_barrier(mem_flags::mem_device);
@@ -610,6 +702,10 @@ kernel void mr_numi_human_stand_step(
     const float3 tangent0 = normalize(reference - dot(reference, normal) * normal);
     const float3 tangent1 = cross(normal, tangent0);
     const float3 directions[3] = {normal, tangent0, tangent1};
+    float maximumEqualityPositionError = 0.0f;
+    float maximumEqualityVelocityError = 0.0f;
+    float maximumEqualityImpulse = 0.0f;
+    float totalEqualityImpulse = 0.0f;
 
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
         for (uint contact = 0u; contact < dispatch.supportContactCount; ++contact) {
@@ -748,6 +844,129 @@ kernel void mr_numi_human_stand_step(
         }
     }
 
+    // Equality rows use the same factored mass matrix as contact. Solving
+    // them after the unilateral support pass makes the authored anatomical
+    // manifold exact without injecting a hidden joint motor.
+    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES) != 0u) {
+        for (uint equalityIndex = 0u;
+             equalityIndex < dispatch.jointEqualityCount;
+             ++equalityIndex) {
+            device const MRNumiHumanJointEqualityGPU& equality =
+                jointEqualities[equalityIndex];
+            float target = 0.0f;
+            float derivative = 0.0f;
+            float error = 0.0f;
+            if (!evaluateJointEquality(
+                    equality, qState, qBase, nq, nv,
+                    target, derivative, error
+                )) {
+                ++status.jointEqualityCounts.z;
+                fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
+                     equalityIndex);
+                return;
+            }
+            maximumEqualityPositionError = max(
+                maximumEqualityPositionError, abs(error)
+            );
+            device float* response = responseScratch + responseBase +
+                (3u * dispatch.supportContactCount + equalityIndex) * nv;
+            for (uint dof = 0u; dof < nv; ++dof) response[dof] = 0.0f;
+            response[equality.indices.y] = 1.0f;
+            if (equality.indices.w != MR_INVALID_INDEX) {
+                response[equality.indices.w] = -derivative;
+            }
+            if (!solveFactor(factor, workspace, response, nv)) {
+                ++status.jointEqualityCounts.z;
+                fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
+                     equalityIndex);
+                return;
+            }
+        }
+
+        for (uint iteration = 0u;
+             iteration < dispatch.contactIterationCount;
+             ++iteration) {
+            for (uint equalityIndex = 0u;
+                 equalityIndex < dispatch.jointEqualityCount;
+                 ++equalityIndex) {
+                device const MRNumiHumanJointEqualityGPU& equality =
+                    jointEqualities[equalityIndex];
+                float target = 0.0f;
+                float derivative = 0.0f;
+                float error = 0.0f;
+                if (!evaluateJointEquality(
+                        equality, qState, qBase, nq, nv,
+                        target, derivative, error
+                    )) {
+                    ++status.jointEqualityCounts.z;
+                    fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
+                         equalityIndex);
+                    return;
+                }
+                device const float* response = responseScratch + responseBase +
+                    (3u * dispatch.supportContactCount + equalityIndex) * nv;
+                float effectiveMass = response[equality.indices.y];
+                float constraintVelocity = candidateV[equality.indices.y];
+                if (equality.indices.w != MR_INVALID_INDEX) {
+                    effectiveMass -= derivative * response[equality.indices.w];
+                    constraintVelocity -=
+                        derivative * candidateV[equality.indices.w];
+                }
+                effectiveMass += kResponseRegularization;
+                if (!(effectiveMass > kResponseRegularization) ||
+                    !isfinite(effectiveMass)) {
+                    ++status.jointEqualityCounts.z;
+                    fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
+                         equalityIndex);
+                    return;
+                }
+                const float targetVelocity = clamp(
+                    -0.2f * error / timestep, -4.0f, 4.0f
+                );
+                const float delta =
+                    (targetVelocity - constraintVelocity) / effectiveMass;
+                equalityLambdas[equalityIndex] += delta;
+                for (uint dof = 0u; dof < nv; ++dof) {
+                    candidateV[dof] += delta * response[dof];
+                }
+            }
+        }
+        for (uint equalityIndex = 0u;
+             equalityIndex < dispatch.jointEqualityCount;
+             ++equalityIndex) {
+            device const MRNumiHumanJointEqualityGPU& equality =
+                jointEqualities[equalityIndex];
+            float target = 0.0f;
+            float derivative = 0.0f;
+            float error = 0.0f;
+            if (!evaluateJointEquality(
+                    equality, qState, qBase, nq, nv,
+                    target, derivative, error
+                )) {
+                ++status.jointEqualityCounts.z;
+                fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
+                     equalityIndex);
+                return;
+            }
+            float velocityError = candidateV[equality.indices.y];
+            if (equality.indices.w != MR_INVALID_INDEX) {
+                velocityError -= derivative * candidateV[equality.indices.w];
+            }
+            const float targetVelocity = clamp(
+                -0.2f * error / timestep, -4.0f, 4.0f
+            );
+            maximumEqualityVelocityError = max(
+                maximumEqualityVelocityError,
+                abs(velocityError - targetVelocity)
+            );
+            const float absoluteImpulse = abs(equalityLambdas[equalityIndex]);
+            maximumEqualityImpulse = max(
+                maximumEqualityImpulse, absoluteImpulse
+            );
+            totalEqualityImpulse += absoluteImpulse;
+        }
+    }
+
     for (uint dof = 0u; dof < nv; ++dof) {
         if (!isfinite(candidateV[dof])) {
             fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
@@ -786,6 +1005,40 @@ kernel void mr_numi_human_stand_step(
         qState[qBase + properties.qIndex - articulation.qOffset] +=
             timestep * candidateV[dof];
     }
+    for (uint equalityIndex = 0u;
+         equalityIndex < dispatch.jointEqualityCount;
+         ++equalityIndex) {
+        device const MRNumiHumanJointEqualityGPU& equality =
+            jointEqualities[equalityIndex];
+        float target = 0.0f;
+        float derivative = 0.0f;
+        float error = 0.0f;
+        if (!evaluateJointEquality(
+                equality, qState, qBase, nq, nv,
+                target, derivative, error
+            )) {
+            ++status.jointEqualityCounts.z;
+            fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
+                 equalityIndex);
+            return;
+        }
+        maximumEqualityPositionError = max(
+            maximumEqualityPositionError, abs(error)
+        );
+        qState[qBase + equality.indices.x] = target;
+        const float dependentVelocity =
+            equality.indices.w == MR_INVALID_INDEX
+                ? 0.0f
+                : derivative * vState[vBase + equality.indices.w];
+        if (!isfinite(target) || !isfinite(dependentVelocity)) {
+            ++status.jointEqualityCounts.z;
+            fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
+                 equalityIndex);
+            return;
+        }
+        vState[vBase + equality.indices.y] = dependentVelocity;
+        candidateV[equality.indices.y] = dependentVelocity;
+    }
 
     float totalNormalImpulse = 0.0f;
     for (uint contact = 0u; contact < dispatch.supportContactCount; ++contact) {
@@ -820,4 +1073,18 @@ kernel void mr_numi_human_stand_step(
     status.factorAndAssistance.w = max(
         status.factorAndAssistance.w, length(assistanceTorque)
     );
+    status.jointEqualityCounts.x = dispatch.jointEqualityCount;
+    status.jointEqualityCounts.y = max(
+        status.jointEqualityCounts.y, dispatch.jointEqualityCount
+    );
+    status.jointEqualityDiagnostics.x = max(
+        status.jointEqualityDiagnostics.x, maximumEqualityPositionError
+    );
+    status.jointEqualityDiagnostics.y = max(
+        status.jointEqualityDiagnostics.y, maximumEqualityVelocityError
+    );
+    status.jointEqualityDiagnostics.z = max(
+        status.jointEqualityDiagnostics.z, maximumEqualityImpulse
+    );
+    status.jointEqualityDiagnostics.w += totalEqualityImpulse;
 }

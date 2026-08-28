@@ -35,7 +35,7 @@ namespace {
 // occupies slots 16..23 in the same command buffer. The MyoSim sidecar owns
 // slots 24..30 and consumes the same private pose/Jacobian output directly.
 constexpr std::size_t kRawBufferCount = 31u;
-constexpr std::size_t kStandBufferCount = 12u;
+constexpr std::size_t kStandBufferCount = 13u;
 constexpr std::size_t kStandVelocityBuffer = 0u;
 constexpr std::size_t kStandContactsBuffer = 1u;
 constexpr std::size_t kStandSpatialJacobianBuffer = 2u;
@@ -48,6 +48,7 @@ constexpr std::size_t kStandTendonBindingsBuffer = 8u;
 constexpr std::size_t kStandTendonEnvelopesBuffer = 9u;
 constexpr std::size_t kStandTendonTransfersBuffer = 10u;
 constexpr std::size_t kStandTendonCorrectionsBuffer = 11u;
+constexpr std::size_t kStandJointEqualitiesBuffer = 12u;
 constexpr std::size_t kMillardDispatchBuffer = 16u;
 constexpr std::size_t kMillardMusclesBuffer = 17u;
 constexpr std::size_t kMillardStatesBuffer = 18u;
@@ -163,6 +164,7 @@ struct MetalArticulatedOperatorSubmissionState {
     std::uint32_t standStepCount = 0u;
     std::size_t standTendonBindingCount = 0u;
     std::size_t standTendonEnvelopeBindingCount = 0u;
+    std::size_t standJointEqualityCount = 0u;
     bool ownsInFlight = false;
 };
 
@@ -699,9 +701,10 @@ bool validNumiHumanStand(
     const MetalNumiHumanStandInput& stand = input.stand;
     if (!stand.enabled()) {
         if (!stand.v.empty() || !stand.contacts.empty() ||
+            !stand.jointEqualities.empty() ||
             !stand.tendonBindings.empty() || !stand.tendonEnvelopes.empty() ||
             stand.tendonLoadProgram.configured()) {
-            reason = "stand sidecar has state, contact, or tendon data but zero steps";
+            reason = "stand sidecar has state, contact, equality, or tendon data but zero steps";
             return false;
         }
         return true;
@@ -722,7 +725,8 @@ bool validNumiHumanStand(
     if (stand.stepCount > MR_NUMI_HUMAN_STAND_MAX_STEPS ||
         stand.contactIterationCount == 0u ||
         stand.contactIterationCount > 64u ||
-        stand.contacts.size() > MR_NUMI_HUMAN_STAND_MAX_CONTACTS) {
+        stand.contacts.size() > MR_NUMI_HUMAN_STAND_MAX_CONTACTS ||
+        stand.jointEqualities.size() > articulation.nv) {
         reason = "stand step, contact, or iteration count exceeds the device ABI";
         return false;
     }
@@ -764,6 +768,48 @@ bool validNumiHumanStand(
          std::abs(targetNormSquared - 1.0) > kQuaternionHostTolerance)) {
         reason = "stand ground normal or assisted target quaternion is not normalized";
         return false;
+    }
+
+    std::vector<std::uint8_t> dependentDofs(articulation.nv, 0u);
+    for (std::size_t index = 0u;
+         index < stand.jointEqualities.size(); ++index) {
+        const MRNumiHumanJointEqualityGPU& equality =
+            stand.jointEqualities[index];
+        const bool fixed = equality.indices.z == MR_INVALID_INDEX &&
+            equality.indices.w == MR_INVALID_INDEX;
+        const bool coupled = equality.indices.z < articulation.nq &&
+            equality.indices.w < articulation.nv;
+        const bool dependentMapping =
+            equality.indices.x < articulation.nq &&
+            equality.indices.y < articulation.nv &&
+            model.dofs[articulation.vOffset + equality.indices.y].qIndex ==
+                articulation.qOffset + equality.indices.x;
+        const bool masterMapping = fixed ||
+            (coupled &&
+             model.dofs[articulation.vOffset + equality.indices.w].qIndex ==
+                 articulation.qOffset + equality.indices.z);
+        if (!dependentMapping || (!fixed && !coupled) || !masterMapping ||
+            (coupled && (equality.indices.x == equality.indices.z ||
+                         equality.indices.y == equality.indices.w)) ||
+            !finite(equality.referencesAndCoefficients0) ||
+            !finite(equality.coefficients1) || !finite(equality.solref) ||
+            !finite(equality.solimp0) || !finite(equality.solimp1) ||
+            equality.coefficients1.w != 0.0f || equality.solref.z != 0.0f ||
+            equality.solref.w != 0.0f || equality.solimp1.y != 0.0f ||
+            equality.solimp1.z != 0.0f || equality.solimp1.w != 0.0f ||
+            dependentDofs[equality.indices.y] != 0u) {
+            reason = "stand joint equality is malformed, duplicated, or not scalar-owned";
+            return false;
+        }
+        dependentDofs[equality.indices.y] = 1u;
+    }
+    for (const MRNumiHumanJointEqualityGPU& equality :
+         stand.jointEqualities) {
+        if (equality.indices.w != MR_INVALID_INDEX &&
+            dependentDofs[equality.indices.w] != 0u) {
+            reason = "stand joint equality has a chained dependent master";
+            return false;
+        }
     }
 
     const std::uint64_t bodyEnd =
@@ -1126,7 +1172,7 @@ bool buildRequirements(
             requirements.standEntries[kStandVectorBuffer]
         ) ||
         !makeRequirement<float>(
-            "Numi Human stand contact response",
+            "Numi Human stand constraint response",
             layout.standResponseElements,
             requirements.standEntries[kStandResponseBuffer]
         ) ||
@@ -1154,6 +1200,11 @@ bool buildRequirements(
             "Numi Human tendon generalized corrections",
             layout.standTendonCorrectionElements,
             requirements.standEntries[kStandTendonCorrectionsBuffer]
+        ) ||
+        !makeRequirement<MRNumiHumanJointEqualityGPU>(
+            "Numi Human joint equalities",
+            layout.standJointEqualityElements,
+            requirements.standEntries[kStandJointEqualitiesBuffer]
         )) {
         return false;
     }
@@ -1464,6 +1515,8 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
     if (input.stand.enabled()) {
         layout.standVelocityElements = input.stand.v.size();
         layout.standContactElements = input.stand.contacts.size();
+        layout.standJointEqualityElements =
+            input.stand.jointEqualities.size();
         layout.standStatusElements = input.environmentCount;
         layout.standTendonBindingElements =
             input.stand.tendonBindings.size();
@@ -1474,7 +1527,7 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         std::size_t bodyMotionPerEnvironment = 0u;
         std::size_t factorPerEnvironment = 0u;
         std::size_t vectorPerEnvironment = 0u;
-        std::size_t contactVectorElements = 0u;
+        std::size_t constraintVectorElements = 0u;
         std::size_t responsePerEnvironment = 0u;
         if (!checkedMultiply(
                 input.environmentCount,
@@ -1499,15 +1552,21 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             !checkedMultiply(input.environmentCount, factorPerEnvironment,
                              layout.standFactorElements) ||
             !checkedMultiply(input.stand.contacts.size(), 12u,
-                             contactVectorElements) ||
+                             constraintVectorElements) ||
+            !checkedAdd(constraintVectorElements,
+                        input.stand.jointEqualities.size(),
+                        constraintVectorElements) ||
             !checkedMultiply(articulation.nv, 3u,
                              vectorPerEnvironment) ||
-            !checkedAdd(vectorPerEnvironment, contactVectorElements,
+            !checkedAdd(vectorPerEnvironment, constraintVectorElements,
                         vectorPerEnvironment) ||
             !checkedMultiply(input.environmentCount, vectorPerEnvironment,
                              layout.standVectorElements) ||
             !checkedMultiply(input.stand.contacts.size(), 3u,
                              responsePerEnvironment) ||
+            !checkedAdd(responsePerEnvironment,
+                        input.stand.jointEqualities.size(),
+                        responsePerEnvironment) ||
             !checkedMultiply(responsePerEnvironment, articulation.nv,
                              responsePerEnvironment) ||
             !checkedMultiply(input.environmentCount, responsePerEnvironment,
@@ -1558,6 +1617,7 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         exceedsShaderAddressing(layout.mujocoGeneralizedForceElements) ||
         exceedsShaderAddressing(layout.standVelocityElements) ||
         exceedsShaderAddressing(layout.standContactElements) ||
+        exceedsShaderAddressing(layout.standJointEqualityElements) ||
         exceedsShaderAddressing(layout.standSpatialJacobianElements) ||
         exceedsShaderAddressing(layout.standBodyMotionElements) ||
         exceedsShaderAddressing(layout.standFactorElements) ||
@@ -1633,6 +1693,8 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         requirements.standEntries[kStandVelocityBuffer].logicalBytes;
     layout.standContactBytes =
         requirements.standEntries[kStandContactsBuffer].logicalBytes;
+    layout.standJointEqualityBytes =
+        requirements.standEntries[kStandJointEqualitiesBuffer].logicalBytes;
     layout.standStatusBytes =
         requirements.standEntries[kStandStatusBuffer].logicalBytes;
     layout.standTendonBindingBytes =
@@ -2639,6 +2701,15 @@ void uploadBatch(
                   ),
             requirements.standEntries[kStandTendonEnvelopesBuffer]
         );
+        copyToBuffer(
+            context.standBuffers[kStandJointEqualitiesBuffer],
+            input.stand.jointEqualities.empty()
+                ? nullptr
+                : static_cast<const void*>(
+                      input.stand.jointEqualities.data()
+                  ),
+            requirements.standEntries[kStandJointEqualitiesBuffer]
+        );
     }
 }
 
@@ -3097,7 +3168,7 @@ MetalArticulatedOperatorSubmission::wait(
                 const MRNumiHumanStandStatusGPU& stand =
                     staged.standStatuses[environment];
                 if (stand.environment != environment ||
-                    stand.code > MR_NUMI_HUMAN_STAND_TENDON_TRANSFER_FAILED ||
+                    stand.code > MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED ||
                     (stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
                      stand.completedSteps != pending->standStepCount)) {
                     return reject(
@@ -3122,11 +3193,24 @@ MetalArticulatedOperatorSubmission::wait(
                 }
                 if (!finite(stand.contactAndAcceleration) ||
                     !finite(stand.factorAndAssistance) ||
-                    !finite(stand.tendonDiagnostics)) {
+                    !finite(stand.tendonDiagnostics) ||
+                    !finite(stand.jointEqualityDiagnostics)) {
                     return reject(
                         std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::internalFailure,
                         "GPU Numi Human stand diagnostics are non-finite"
+                    );
+                }
+                if (stand.jointEqualityCounts.x !=
+                        pending->standJointEqualityCount ||
+                    stand.jointEqualityCounts.y !=
+                        pending->standJointEqualityCount ||
+                    stand.jointEqualityCounts.z != 0u ||
+                    stand.jointEqualityCounts.w != 0u) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::internalFailure,
+                        "GPU Numi Human joint-equality accounting is malformed"
                     );
                 }
                 const std::size_t expectedTransfers =
@@ -3696,9 +3780,16 @@ MetalArticulatedOperatorContext::submit(
                 standDispatch.tendonTransferStride = static_cast<mr_u32>(
                     input.stand.tendonBindings.size()
                 );
+                standDispatch.jointEqualityCount = static_cast<mr_u32>(
+                    input.stand.jointEqualities.size()
+                );
                 if (!input.stand.tendonBindings.empty()) {
                     standDispatch.flags |=
                         MR_NUMI_HUMAN_STAND_HAS_TENDON_LOADS;
+                }
+                if (!input.stand.jointEqualities.empty()) {
+                    standDispatch.flags |=
+                        MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES;
                 }
                 standDispatch.groundPointAndTimestep = {
                     input.stand.groundPoint.x,
@@ -3748,6 +3839,8 @@ MetalArticulatedOperatorContext::submit(
                     kStandTendonBindingsBuffer] offset:0u atIndex:18u];
                 [standEncoder setBuffer:state_->standBuffers[
                     kStandTendonTransfersBuffer] offset:0u atIndex:19u];
+                [standEncoder setBuffer:state_->standBuffers[
+                    kStandJointEqualitiesBuffer] offset:0u atIndex:20u];
                 [standEncoder
                     dispatchThreadgroups:MTLSizeMake(
                         static_cast<NSUInteger>(input.environmentCount),
@@ -3838,6 +3931,8 @@ MetalArticulatedOperatorContext::submit(
                             MR_NUMI_HUMAN_TENDON_TRANSFER_DISTRIBUTED_ENVELOPE;
                     }
                 ));
+            pending->standJointEqualityCount =
+                input.stand.jointEqualities.size();
             pending->start =
                 std::chrono::steady_clock::now();
             pending->ownsInFlight = true;

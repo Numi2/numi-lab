@@ -85,7 +85,10 @@ struct MujocoCompliantMuscleArchitecture {
 struct MujocoCompliantMuscleState {
     double excitation = 0.0;
     double activation = 0.0;
-    // Zero requests deterministic initialization from the current path.
+    // Zero requests deterministic zero-velocity fibre/tendon equilibrium at
+    // the current path and activation. It must not imply an arbitrary tendon
+    // preload: that would inject a large, pose-dependent force on the first
+    // accepted dynamics transaction.
     double fiberLength = 0.0;
     double fiberVelocity = 0.0;
 };
@@ -151,6 +154,19 @@ struct MujocoMuscleReferenceDiagnostics {
         return status == MujocoMuscleReferenceStatus::success;
     }
 };
+
+// Evaluates only the source MuJoCo scalar force law at an already-resolved
+// spatial-tendon length/rate. This lets offline compilers sample recruitment
+// without redundantly rebuilding identical path kinematics. The returned
+// force retains MuJoCo's convention: tensile force is negative.
+[[nodiscard]] MujocoMuscleReferenceDiagnostics evaluateMujocoMuscleForceLaw(
+    double pathLength,
+    double pathVelocity,
+    const MujocoMuscleDefinition& definition,
+    const MujocoMuscleState& state,
+    double& actuatorForce,
+    double* activationDerivative = nullptr
+);
 
 // Evaluates MyoSim's source spatial route and MuJoCo general-muscle force at
 // an arbitrary native Core state. Sphere/cylinder wrapping follows MuJoCo

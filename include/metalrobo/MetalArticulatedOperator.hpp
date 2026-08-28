@@ -3,6 +3,7 @@
 #include "metalrobo/EngineModel.hpp"
 #include "metalrobo/millard_muscle_gpu.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
+#include "metalrobo/numi_human_joint_equality_gpu.h"
 #include "metalrobo/numi_human_stand_gpu.h"
 #include "metalrobo/numi_human_tendon_gpu.h"
 
@@ -155,6 +156,10 @@ struct MetalNumiHumanTendonLoadProgram {
 struct MetalNumiHumanStandInput {
     std::span<const float> v{};
     std::span<const MRNumiHumanStandContactGPU> contacts{};
+    // Exact scalar joint manifold imported from the source model. These rows
+    // carry bilateral reaction impulses during dynamics; dependent q/v are
+    // projected back onto the same polynomial after each accepted step.
+    std::span<const MRNumiHumanJointEqualityGPU> jointEqualities{};
     // Optional NHTENDON2 program. When present, one terminal-load transaction
     // executes from the current MyoSim force field before every dynamics step.
     // The rigid-body solver retains MyoSim's original J^T wrench; generalized
@@ -298,6 +303,8 @@ struct MetalArticulatedOperatorLayout {
     std::size_t standVelocityBytes = 0u;
     std::size_t standContactElements = 0u;
     std::size_t standContactBytes = 0u;
+    std::size_t standJointEqualityElements = 0u;
+    std::size_t standJointEqualityBytes = 0u;
     std::size_t standSpatialJacobianElements = 0u;
     std::size_t standBodyMotionElements = 0u;
     std::size_t standFactorElements = 0u;
