@@ -1274,15 +1274,35 @@ struct MuscleDrivenVisualState {
     std::uint32_t selectedSourceMuscleActivationCount = 0u;
     double muscleMetalElapsedMilliseconds = 0.0;
     std::string muscleMetalDeviceName;
+    bool persistentMetalHorizon = false;
+    bool rootAssistanceEnabled = false;
+    bool assistanceRemovalEvaluated = false;
+    std::uint32_t persistentCompletedSteps = 0u;
+    double persistentMaximumAcceleration = 0.0;
+    double persistentMaximumPenetrationMeters = 0.0;
+    double persistentNormalImpulse = 0.0;
+    double persistentRootAssistanceForce = 0.0;
+    double persistentRootAssistanceTorque = 0.0;
+    std::uint32_t compiledActiveMuscleCount = 0u;
+    double compiledActivationResidualRms = 0.0;
+    double compiledMaximumActivation = 0.0;
+    double assistedConfigurationDelta = 0.0;
+    double removalConfigurationDelta = 0.0;
+    double oneStepParityMaximumQError = 0.0;
+    double oneStepParityMaximumVError = 0.0;
+    bool deterministicReplayVerified = false;
+    double deterministicReplayElapsedMilliseconds = 0.0;
 };
 
 struct MetalMujocoVisualQueries {
     std::vector<MRArticulatedPointImpulseGPU> points;
+    std::vector<MRNumiHumanStandContactGPU> supportContacts;
     std::uint32_t bodyJacobianPointOffset = MR_INVALID_INDEX;
 };
 
 MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
-    const metalrobo::EngineModel& model
+    const metalrobo::EngineModel& model,
+    const LoadedSupportContacts* support = nullptr
 ) {
     require(
         model.articulations.size() == 1u &&
@@ -1293,7 +1313,10 @@ MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
     );
     MetalMujocoVisualQueries result;
     result.bodyJacobianPointOffset = 0u;
-    result.points.reserve(4u * model.bodies.size());
+    result.points.reserve(
+        4u * model.bodies.size() +
+        (support == nullptr ? 0u : support->records.size())
+    );
     for (std::uint32_t body = 0u;
          body < model.bodies.size();
          ++body) {
@@ -1308,6 +1331,33 @@ MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
                         ? mr_float4{0.0f, 1.0f, 0.0f, 0.0f}
                         : mr_float4{0.0f, 0.0f, 1.0f, 0.0f}));
             result.points.push_back(point);
+        }
+    }
+    if (support != nullptr) {
+        result.supportContacts.reserve(support->records.size());
+        for (const SupportContactRecord& record : support->records) {
+            MRArticulatedPointImpulseGPU point{};
+            point.bodyIndex = record.bodyIndex;
+            point.localPoint = {
+                record.localPointX,
+                record.localPointY,
+                record.localPointZ,
+                0.0f,
+            };
+            const std::uint32_t pointQueryIndex =
+                static_cast<std::uint32_t>(result.points.size());
+            result.points.push_back(point);
+            MRNumiHumanStandContactGPU contact{};
+            contact.bodyIndex = record.bodyIndex;
+            contact.pointQueryIndex = pointQueryIndex;
+            contact.sourceGeometryIndex = record.sourceGeometryIndex;
+            contact.frictionSlopAndStabilization = {
+                record.friction,
+                0.002f,
+                0.2f,
+                0.0f,
+            };
+            result.supportContacts.push_back(contact);
         }
     }
     return result;
@@ -1336,6 +1386,7 @@ std::vector<float> packMetalConfiguration(
 
 struct MetalMujocoForceStep {
     std::vector<float> generalizedForce;
+    std::vector<float> muscleGeneralizedForces;
     std::uint32_t appliedWrapCount = 0u;
     double elapsedMilliseconds = 0.0;
     std::string deviceName;
@@ -1380,6 +1431,8 @@ MetalMujocoForceStep evaluateMetalMujocoForce(
     );
     MetalMujocoForceStep output;
     output.generalizedForce = std::move(result.mujocoGeneralizedForces);
+    output.muscleGeneralizedForces =
+        std::move(result.mujocoMuscleGeneralizedForces);
     output.elapsedMilliseconds = diagnostics.elapsedMilliseconds;
     output.deviceName = diagnostics.deviceName;
     for (const MRMujocoMuscleResultGPU& muscle : result.mujocoResults) {
@@ -1556,6 +1609,509 @@ DynamicSourceSupportContacts makeDynamicSourceSupportContacts(
         });
         result.sourceRecordIndices.push_back(index);
     }
+    return result;
+}
+
+struct CompiledStandActivation {
+    std::vector<float> activation;
+    std::vector<double> activeGeneralizedForce;
+    std::uint32_t activeMuscleCount = 0u;
+    double normalizedResidualRms = 0.0;
+    double maximumActivation = 0.0;
+};
+
+CompiledStandActivation compileStaticStandActivation(
+    const metalrobo::EngineModel& model,
+    const LoadedMuscles& muscles,
+    const MetalMujocoVisualQueries& queries,
+    const std::span<const double> q,
+    const double activationCap,
+    const std::span<const std::uint32_t> selectedSourceMuscleIndices
+) {
+    const std::size_t muscleCount = muscles.gpuMuscles.size();
+    const std::size_t nv = model.world.nv;
+    require(muscleCount != 0u && nv > 6u,
+            "stand activation compiler requires muscles and internal DoFs");
+    std::vector<MRMujocoMuscleStateGPU> passiveStates(muscleCount);
+    std::vector<MRMujocoMuscleStateGPU> unitStates(muscleCount);
+    for (MRMujocoMuscleStateGPU& state : unitStates) {
+        state.excitationAndActivation = {1.0f, 1.0f, 0.0f, 0.0f};
+    }
+    const metalrobo::MetalArticulatedOperatorConfig forceConfig{
+        .pointJacobiansOnly = true,
+    };
+    metalrobo::MetalArticulatedOperatorContext passiveContext(forceConfig);
+    metalrobo::MetalArticulatedOperatorContext unitContext(forceConfig);
+    const MetalMujocoForceStep passive = evaluateMetalMujocoForce(
+        model, muscles, queries, q, passiveStates, passiveContext
+    );
+    const MetalMujocoForceStep unit = evaluateMetalMujocoForce(
+        model, muscles, queries, q, unitStates, unitContext
+    );
+    require(passive.muscleGeneralizedForces.size() == muscleCount * nv &&
+                unit.muscleGeneralizedForces.size() == muscleCount * nv &&
+                passive.generalizedForce.size() == nv,
+            "stand activation compiler received incomplete Metal force rows");
+
+    std::vector<double> zeroVelocity(nv, 0.0);
+    std::vector<double> zeroAcceleration(nv, 0.0);
+    std::vector<double> target(nv, 0.0);
+    metalrobo::ArticulatedDynamicsConfig dynamicsConfig;
+    dynamicsConfig.gravity = {
+        model.world.gravityAndTimestep.x,
+        model.world.gravityAndTimestep.y,
+        model.world.gravityAndTimestep.z,
+    };
+    const auto inverse = metalrobo::computeArticulatedInverseDynamics(
+        model, 0u, q, zeroVelocity, zeroAcceleration, {}, target,
+        dynamicsConfig
+    );
+    require(inverse.succeeded(),
+            "stand activation compiler could not evaluate the source gravity target");
+
+    const std::size_t rowCount = nv - 6u;
+    std::vector<double> weights(rowCount, 1.0);
+    std::vector<double> residual(rowCount, 0.0);
+    for (std::size_t row = 0u; row < rowCount; ++row) {
+        const std::size_t dof = row + 6u;
+        weights[row] = 1.0 / std::max(25.0, std::abs(target[dof]));
+        residual[row] = -weights[row] * target[dof];
+    }
+    CompiledStandActivation result;
+    result.activation.assign(muscleCount, 0.0f);
+    result.activeGeneralizedForce.assign(nv, 0.0);
+    constexpr double kActivationRegularization = 2.5e-4;
+    constexpr std::uint32_t kMaximumSweeps = 240u;
+    for (std::uint32_t sweep = 0u; sweep < kMaximumSweeps; ++sweep) {
+        double maximumChange = 0.0;
+        for (std::size_t muscle = 0u; muscle < muscleCount; ++muscle) {
+            const bool selected = selectedSourceMuscleIndices.empty() ||
+                std::binary_search(
+                    selectedSourceMuscleIndices.begin(),
+                    selectedSourceMuscleIndices.end(),
+                    static_cast<std::uint32_t>(muscle)
+                );
+            if (!selected) continue;
+            double gradient = kActivationRegularization *
+                result.activation[muscle];
+            double curvature = kActivationRegularization;
+            const std::size_t muscleBase = muscle * nv;
+            for (std::size_t row = 0u; row < rowCount; ++row) {
+                const std::size_t dof = row + 6u;
+                const double column = weights[row] * (
+                    static_cast<double>(unit.muscleGeneralizedForces[
+                        muscleBase + dof
+                    ]) -
+                    static_cast<double>(passive.muscleGeneralizedForces[
+                        muscleBase + dof
+                    ])
+                );
+                gradient += column * residual[row];
+                curvature += column * column;
+            }
+            const double oldActivation = result.activation[muscle];
+            const double newActivation = std::clamp(
+                oldActivation - gradient / curvature, 0.0, activationCap
+            );
+            const double delta = newActivation - oldActivation;
+            if (delta == 0.0) continue;
+            result.activation[muscle] = static_cast<float>(newActivation);
+            maximumChange = std::max(maximumChange, std::abs(delta));
+            for (std::size_t row = 0u; row < rowCount; ++row) {
+                const std::size_t dof = row + 6u;
+                const double column = weights[row] * (
+                    static_cast<double>(unit.muscleGeneralizedForces[
+                        muscleBase + dof
+                    ]) -
+                    static_cast<double>(passive.muscleGeneralizedForces[
+                        muscleBase + dof
+                    ])
+                );
+                residual[row] += delta * column;
+            }
+        }
+        if (maximumChange < 1.0e-7) break;
+    }
+    double residualSquared = 0.0;
+    for (const double value : residual) residualSquared += value * value;
+    result.normalizedResidualRms = std::sqrt(
+        residualSquared / static_cast<double>(rowCount)
+    );
+    for (const float value : result.activation) {
+        if (value > 1.0e-5f) ++result.activeMuscleCount;
+        result.maximumActivation = std::max(
+            result.maximumActivation, static_cast<double>(value)
+        );
+    }
+    for (std::size_t muscle = 0u; muscle < muscleCount; ++muscle) {
+        const std::size_t muscleBase = muscle * nv;
+        for (std::size_t dof = 0u; dof < nv; ++dof) {
+            result.activeGeneralizedForce[dof] +=
+                static_cast<double>(result.activation[muscle]) * (
+                    static_cast<double>(unit.muscleGeneralizedForces[
+                        muscleBase + dof
+                    ]) -
+                    static_cast<double>(passive.muscleGeneralizedForces[
+                        muscleBase + dof
+                    ])
+                );
+        }
+    }
+    require(std::isfinite(result.normalizedResidualRms),
+            "stand activation compiler produced a non-finite residual");
+    return result;
+}
+
+MuscleDrivenVisualState integratePersistentMetalStandVisualState(
+    const metalrobo::EngineModel& model,
+    const LoadedMuscles& muscles,
+    const LoadedSupportContacts& supportContacts,
+    const double timestepSeconds,
+    const std::uint32_t stepCount,
+    const double activation,
+    const std::span<const std::uint32_t> selectedSourceMuscleIndices,
+    const bool enableRootAssistance,
+    const bool removeRootAssistance,
+    const bool verifyDeterminism
+) {
+    require(std::isfinite(timestepSeconds) && timestepSeconds >= 1.0e-6 &&
+                timestepSeconds <= 1.0e-3 && stepCount >= 1u &&
+                stepCount <= MR_NUMI_HUMAN_STAND_MAX_STEPS &&
+                std::isfinite(activation) && activation >= 0.0 &&
+                activation <= 1.0,
+            "persistent Human stand horizon has an invalid timestep or step count");
+    require(model.articulations.size() == 1u && model.world.nq ==
+                model.articulations.front().nq && model.world.nv ==
+                model.articulations.front().nv,
+            "persistent Human stand currently requires one complete articulation");
+    require(!removeRootAssistance || enableRootAssistance,
+            "assistance removal requires an assisted stand phase");
+    const GroundAlignedSupport aligned =
+        makeGroundAlignedSupport(model, supportContacts);
+    const std::vector<float> q = packMetalConfiguration(aligned.q);
+    std::vector<float> v;
+    v.reserve(model.defaultV.size());
+    for (const double velocity : model.defaultV) {
+        require(std::isfinite(velocity),
+                "persistent Human stand default velocity is non-finite");
+        v.push_back(static_cast<float>(velocity));
+    }
+    const MetalMujocoVisualQueries queries =
+        makeMetalMujocoVisualQueries(model, &supportContacts);
+    const CompiledStandActivation compiledActivation =
+        compileStaticStandActivation(
+            model,
+            muscles,
+            queries,
+            aligned.q,
+            activation,
+            selectedSourceMuscleIndices
+        );
+    std::vector<MRMujocoMuscleStateGPU> states(muscles.gpuMuscles.size());
+    for (std::size_t muscleIndex = 0u;
+         muscleIndex < states.size(); ++muscleIndex) {
+        const float initialActivation =
+            compiledActivation.activation[muscleIndex];
+        states[muscleIndex].excitationAndActivation = {
+            initialActivation,
+            initialActivation,
+            0.0f,
+            0.0f,
+        };
+    }
+    const metalrobo::MetalArticulatedOperatorConfig config{
+        .pointJacobiansOnly = true,
+        .mujocoActivationTimestepSeconds = static_cast<float>(timestepSeconds),
+    };
+    metalrobo::MetalArticulatedOperatorContext context(config);
+    metalrobo::MetalArticulatedOperatorInput input{
+        .articulationIndex = 0u,
+        .environmentCount = 1u,
+        .pointCount = queries.points.size(),
+        .q = q,
+        .points = queries.points,
+        .mujoco = {
+            .muscles = muscles.gpuMuscles,
+            .states = states,
+            .sites = muscles.gpuSites,
+            .wraps = muscles.gpuWraps,
+            .routeNodes = muscles.gpuRoutes,
+            .bodyJacobianPointOffset = queries.bodyJacobianPointOffset,
+        },
+        .stand = {
+            .v = v,
+            .contacts = queries.supportContacts,
+            .stepCount = stepCount,
+            .contactIterationCount = 16u,
+            .enableContact = true,
+            .enableRootAssistance = enableRootAssistance,
+            .groundPoint = {
+                supportContacts.header.groundPointX,
+                supportContacts.header.groundPointY,
+                supportContacts.header.groundPointZ,
+                0.0f,
+            },
+            .groundNormal = {
+                supportContacts.header.groundNormalX,
+                supportContacts.header.groundNormalY,
+                supportContacts.header.groundNormalZ,
+                0.0f,
+            },
+            .targetRootPosition = {q[0u], q[1u], q[2u], 0.0f},
+            .targetRootOrientation = {q[3u], q[4u], q[5u], q[6u]},
+            .assistanceGains = enableRootAssistance
+                ? mr_float4{1800.0f, 360.0f, 700.0f, 100.0f}
+                : mr_float4{0.0f, 0.0f, 0.0f, 0.0f},
+        },
+    };
+    std::vector<double> parityQ = aligned.q;
+    std::vector<double> parityV(model.defaultV.begin(), model.defaultV.end());
+    metalrobo::ArticulatedDynamicsConfig parityConfig;
+    parityConfig.gravity = {
+        model.world.gravityAndTimestep.x,
+        model.world.gravityAndTimestep.y,
+        model.world.gravityAndTimestep.z,
+    };
+    parityConfig.timestep = timestepSeconds;
+    const auto parityCpu = metalrobo::integrateArticulatedState(
+        model,
+        0u,
+        parityQ,
+        parityV,
+        compiledActivation.activeGeneralizedForce,
+        {},
+        parityConfig
+    );
+    require(parityCpu.succeeded(),
+            "persistent Human stand CPU one-step parity reference failed");
+    metalrobo::MetalArticulatedOperatorInput parityInput = input;
+    parityInput.stand.stepCount = 1u;
+    parityInput.stand.enableContact = false;
+    parityInput.stand.enableRootAssistance = false;
+    parityInput.stand.assistanceGains = {0.0f, 0.0f, 0.0f, 0.0f};
+    metalrobo::MetalArticulatedOperatorResult parityResult;
+    const auto parityDiagnostics = context.run(model, parityInput, parityResult);
+    require(parityDiagnostics.succeeded() && parityDiagnostics.published &&
+                parityDiagnostics.completedStandSteps == 1u &&
+                parityResult.standQ.size() == parityQ.size() &&
+                parityResult.standV.size() == parityV.size(),
+            "persistent Human stand Metal one-step parity transaction failed: " +
+                parityDiagnostics.message);
+    double parityMaximumQError = 0.0;
+    double parityMaximumVError = 0.0;
+    for (std::size_t index = 0u; index < parityQ.size(); ++index) {
+        parityMaximumQError = std::max(
+            parityMaximumQError,
+            std::abs(static_cast<double>(parityResult.standQ[index]) - parityQ[index])
+        );
+    }
+    for (std::size_t index = 0u; index < parityV.size(); ++index) {
+        parityMaximumVError = std::max(
+            parityMaximumVError,
+            std::abs(static_cast<double>(parityResult.standV[index]) - parityV[index])
+        );
+    }
+    require(std::isfinite(parityMaximumQError) &&
+                std::isfinite(parityMaximumVError) &&
+                parityMaximumQError <= 2.0e-6 &&
+                parityMaximumVError <= 2.0e-3,
+            "persistent Human stand one-step Metal/FP64 parity exceeded tolerance");
+    metalrobo::MetalArticulatedOperatorResult metalResult;
+    auto diagnostics = context.run(model, input, metalResult);
+    require(
+        diagnostics.succeeded() && diagnostics.dispatched &&
+            diagnostics.published && diagnostics.successfulEnvironmentCount == 1u &&
+            diagnostics.failedEnvironmentCount == 0u &&
+            diagnostics.completedStandSteps == stepCount &&
+            metalResult.standQ.size() == q.size() &&
+            metalResult.standV.size() == v.size() &&
+            metalResult.standStatuses.size() == 1u,
+        "persistent Human stand Metal horizon failed: " + diagnostics.message
+    );
+    const MRNumiHumanStandStatusGPU& status = metalResult.standStatuses.front();
+    require(status.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+                status.completedSteps == stepCount,
+            "persistent Human stand returned an incomplete device status");
+    const MRNumiHumanStandStatusGPU assistedStatus = status;
+    const std::vector<float> assistedQ = metalResult.standQ;
+    double totalElapsedMilliseconds = diagnostics.elapsedMilliseconds;
+    std::uint32_t phaseCount = 1u;
+    if (removeRootAssistance) {
+        std::vector<float> removalQ = metalResult.standQ;
+        std::vector<float> removalV = metalResult.standV;
+        std::vector<MRMujocoMuscleStateGPU> removalStates =
+            metalResult.mujocoActivationStates;
+        input.q = removalQ;
+        input.stand.v = removalV;
+        input.mujoco.states = removalStates;
+        input.stand.enableRootAssistance = false;
+        input.stand.assistanceGains = {0.0f, 0.0f, 0.0f, 0.0f};
+        metalrobo::MetalArticulatedOperatorResult removalResult;
+        auto removalDiagnostics = context.run(model, input, removalResult);
+        require(
+            removalDiagnostics.succeeded() && removalDiagnostics.dispatched &&
+                removalDiagnostics.published &&
+                removalDiagnostics.successfulEnvironmentCount == 1u &&
+                removalDiagnostics.failedEnvironmentCount == 0u &&
+                removalDiagnostics.completedStandSteps == stepCount &&
+                removalResult.standQ.size() == q.size() &&
+                removalResult.standV.size() == v.size() &&
+                removalResult.standStatuses.size() == 1u &&
+                removalResult.standStatuses.front().code ==
+                    MR_NUMI_HUMAN_STAND_SUCCESS,
+            "persistent Human assistance-removal horizon failed: " +
+                removalDiagnostics.message
+        );
+        totalElapsedMilliseconds += removalDiagnostics.elapsedMilliseconds;
+        diagnostics = std::move(removalDiagnostics);
+        metalResult = std::move(removalResult);
+        phaseCount = 2u;
+    }
+    const MRNumiHumanStandStatusGPU& finalStatus =
+        metalResult.standStatuses.front();
+    double deterministicReplayElapsedMilliseconds = 0.0;
+    bool deterministicReplayVerified = false;
+    if (verifyDeterminism) {
+        input.q = q;
+        input.stand.v = v;
+        input.mujoco.states = states;
+        input.stand.enableRootAssistance = enableRootAssistance;
+        input.stand.assistanceGains = enableRootAssistance
+            ? mr_float4{1800.0f, 360.0f, 700.0f, 100.0f}
+            : mr_float4{0.0f, 0.0f, 0.0f, 0.0f};
+        metalrobo::MetalArticulatedOperatorResult replayResult;
+        auto replayDiagnostics = context.run(model, input, replayResult);
+        require(replayDiagnostics.succeeded() && replayDiagnostics.published &&
+                    replayDiagnostics.completedStandSteps == stepCount,
+                "persistent Human deterministic assisted replay failed: " +
+                    replayDiagnostics.message);
+        deterministicReplayElapsedMilliseconds +=
+            replayDiagnostics.elapsedMilliseconds;
+        if (removeRootAssistance) {
+            std::vector<float> replayRemovalQ = replayResult.standQ;
+            std::vector<float> replayRemovalV = replayResult.standV;
+            std::vector<MRMujocoMuscleStateGPU> replayRemovalStates =
+                replayResult.mujocoActivationStates;
+            input.q = replayRemovalQ;
+            input.stand.v = replayRemovalV;
+            input.mujoco.states = replayRemovalStates;
+            input.stand.enableRootAssistance = false;
+            input.stand.assistanceGains = {0.0f, 0.0f, 0.0f, 0.0f};
+            metalrobo::MetalArticulatedOperatorResult replayRemovalResult;
+            replayDiagnostics = context.run(
+                model, input, replayRemovalResult
+            );
+            require(replayDiagnostics.succeeded() &&
+                        replayDiagnostics.published &&
+                        replayDiagnostics.completedStandSteps == stepCount,
+                    "persistent Human deterministic removal replay failed: " +
+                        replayDiagnostics.message);
+            deterministicReplayElapsedMilliseconds +=
+                replayDiagnostics.elapsedMilliseconds;
+            replayResult = std::move(replayRemovalResult);
+        }
+        const bool sameQ = replayResult.standQ.size() == metalResult.standQ.size() &&
+            std::memcmp(
+                replayResult.standQ.data(),
+                metalResult.standQ.data(),
+                metalResult.standQ.size() * sizeof(float)
+            ) == 0;
+        const bool sameV = replayResult.standV.size() == metalResult.standV.size() &&
+            std::memcmp(
+                replayResult.standV.data(),
+                metalResult.standV.data(),
+                metalResult.standV.size() * sizeof(float)
+            ) == 0;
+        const bool sameStatus =
+            replayResult.standStatuses.size() ==
+                metalResult.standStatuses.size() &&
+            std::memcmp(
+                replayResult.standStatuses.data(),
+                metalResult.standStatuses.data(),
+                metalResult.standStatuses.size() *
+                    sizeof(MRNumiHumanStandStatusGPU)
+            ) == 0;
+        require(sameQ && sameV && sameStatus,
+                "persistent Human stand replay was not bitwise deterministic");
+        deterministicReplayVerified = true;
+    }
+
+    MuscleDrivenVisualState result;
+    result.q = std::move(metalResult.standQ);
+    result.stepCount = stepCount;
+    result.persistentMetalHorizon = true;
+    result.rootAssistanceEnabled = enableRootAssistance;
+    result.assistanceRemovalEvaluated = removeRootAssistance;
+    result.persistentCompletedSteps = stepCount * phaseCount;
+    result.selectedSourceMuscleActivationCount = static_cast<std::uint32_t>(
+        selectedSourceMuscleIndices.size()
+    );
+    result.muscleMetalStepCount = phaseCount;
+    result.muscleMetalForceRecordCount = static_cast<std::uint32_t>(
+        muscles.gpuMuscles.size() * stepCount * phaseCount
+    );
+    result.muscleMetalElapsedMilliseconds = totalElapsedMilliseconds;
+    result.muscleMetalDeviceName = diagnostics.deviceName;
+    for (const MRMujocoMuscleResultGPU& muscle : metalResult.mujocoResults) {
+        result.appliedWrapCount += muscle.appliedWrapCount;
+    }
+    for (std::size_t index = 0u; index < v.size(); ++index) {
+        result.maximumVelocityDelta = std::max(
+            result.maximumVelocityDelta,
+            std::abs(static_cast<double>(metalResult.standV[index] - v[index]))
+        );
+    }
+    for (std::size_t index = 0u; index < q.size(); ++index) {
+        result.assistedConfigurationDelta = std::max(
+            result.assistedConfigurationDelta,
+            std::abs(static_cast<double>(assistedQ[index] - q[index]))
+        );
+        result.removalConfigurationDelta = std::max(
+            result.removalConfigurationDelta,
+            std::abs(static_cast<double>(result.q[index] - assistedQ[index]))
+        );
+        result.maximumConfigurationDelta = std::max(
+            result.maximumConfigurationDelta,
+            std::abs(static_cast<double>(result.q[index] - q[index]))
+        );
+    }
+    result.supportContactApplied = assistedStatus.maximumActiveContactCount != 0u ||
+        finalStatus.maximumActiveContactCount != 0u;
+    result.supportWitnessCount = supportContacts.header.contactCount;
+    result.activeSupportContactCount = finalStatus.activeContactCount;
+    result.maximumActiveSupportContactCount = std::max(
+        assistedStatus.maximumActiveContactCount,
+        finalStatus.maximumActiveContactCount
+    );
+    result.minimumSupportPlaneGapMeters = std::min(
+        static_cast<double>(assistedStatus.contactAndAcceleration.x),
+        static_cast<double>(finalStatus.contactAndAcceleration.x)
+    );
+    result.supportSeedTranslationMeters = aligned.seedTranslationMeters;
+    result.supportGpuElapsedMilliseconds = totalElapsedMilliseconds;
+    result.supportDeviceName = diagnostics.deviceName;
+    result.supportMetalStatus = "persistent_large_state_metal";
+    result.persistentMaximumPenetrationMeters = std::max(
+        assistedStatus.contactAndAcceleration.y,
+        finalStatus.contactAndAcceleration.y
+    );
+    result.persistentNormalImpulse = finalStatus.contactAndAcceleration.z;
+    result.persistentMaximumAcceleration = std::max(
+        assistedStatus.contactAndAcceleration.w,
+        finalStatus.contactAndAcceleration.w
+    );
+    result.persistentRootAssistanceForce = assistedStatus.factorAndAssistance.z;
+    result.persistentRootAssistanceTorque = assistedStatus.factorAndAssistance.w;
+    result.compiledActiveMuscleCount = compiledActivation.activeMuscleCount;
+    result.compiledActivationResidualRms =
+        compiledActivation.normalizedResidualRms;
+    result.compiledMaximumActivation =
+        compiledActivation.maximumActivation;
+    result.oneStepParityMaximumQError = parityMaximumQError;
+    result.oneStepParityMaximumVError = parityMaximumVError;
+    result.deterministicReplayVerified = deterministicReplayVerified;
+    result.deterministicReplayElapsedMilliseconds =
+        deterministicReplayElapsedMilliseconds;
     return result;
 }
 
@@ -2200,7 +2756,10 @@ metalrobo::SensorSpec makeCamera(
     camera.localPose = cameraToward(position, target);
     camera.width = dimension;
     camera.height = dimension;
-    const float focalLength = 750.0f;
+    // Keep field of view invariant across qualified output dimensions. A
+    // fixed 750 px focal length cropped a 1.7 m body at 512/640 px even when
+    // the source geometry bounds and camera distance were correct.
+    const float focalLength = 0.72f * static_cast<float>(dimension);
     camera.intrinsics = {focalLength, focalLength, 0.5f * dimension, 0.5f * dimension};
     camera.maximumDepthMeters = 20.0f;
     return camera;
@@ -4009,10 +4568,7 @@ CameraFraming makeCameraFraming(
         -std::numeric_limits<float>::infinity(),
         -std::numeric_limits<float>::infinity(), 0.0f,
     };
-    double centroidX = 0.0;
-    double centroidY = 0.0;
-    double centroidZ = 0.0;
-    std::size_t centroidVertexCount = 0u;
+    std::size_t boundedVertexCount = 0u;
     std::size_t includedPrimitiveCount = 0u;
     const auto include = [&minimum, &maximum](const mr_float4 point) {
         require(std::isfinite(point.x) && std::isfinite(point.y) &&
@@ -4075,17 +4631,14 @@ CameraFraming makeCameraFraming(
                         "MyoSim visual framing primitive references an invalid vertex");
                 const mr_float4 point = worldPoint(pack.vertices[vertexIndex].position);
                 include(point);
-                centroidX += static_cast<double>(point.x);
-                centroidY += static_cast<double>(point.y);
-                centroidZ += static_cast<double>(point.z);
-                ++centroidVertexCount;
+                ++boundedVertexCount;
             }
             ++includedPrimitiveCount;
         }
     }
     require(includedPrimitiveCount > 0u,
             "MyoSim visual source geometry has no primitives for whole-body framing");
-    require(centroidVertexCount > 0u,
+    require(boundedVertexCount > 0u,
             "MyoSim visual source geometry has no vertices for whole-body framing");
     const float extent = std::max({
         maximum.x - minimum.x, maximum.y - minimum.y, maximum.z - minimum.z,
@@ -4093,10 +4646,13 @@ CameraFraming makeCameraFraming(
     require(std::isfinite(extent) && extent > 1.0e-4f,
             "MyoSim visual source geometry has a degenerate whole-body bound");
     return {
+        // The vertex centroid is biased toward triangle-dense torso anatomy
+        // and cropped the feet. The posed source AABB midpoint guarantees
+        // whole-body coverage from every fixed validation angle.
         .center = {
-            static_cast<float>(centroidX / static_cast<double>(centroidVertexCount)),
-            static_cast<float>(centroidY / static_cast<double>(centroidVertexCount)),
-            static_cast<float>(centroidZ / static_cast<double>(centroidVertexCount)),
+            0.5f * (minimum.x + maximum.x),
+            0.5f * (minimum.y + maximum.y),
+            0.5f * (minimum.z + maximum.z),
             0.0f,
         },
         // The old global 1.85 m lower bound was appropriate for a 1.7 m
@@ -4339,6 +4895,10 @@ int main(int argc, char** argv) {
             std::optional<double> muscleStepSeconds;
             std::optional<double> muscleActivation;
             std::optional<std::uint32_t> muscleStepCount;
+            bool persistentMetalStand = false;
+            bool standRootAssistance = false;
+            bool standRemoveAssistance = false;
+            bool standDeterministicReplay = false;
             bool sourceRouteCentrelines = false;
             bool surfaceProjectSourceSites = false;
             std::vector<std::uint32_t> requestedSourceRouteMuscles;
@@ -4373,6 +4933,22 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !muscleActivation.has_value(),
                             "--muscle-activation requires one value and may be given only once");
                     muscleActivation.emplace(parseMuscleActivation(argv[++index]));
+                } else if (argument == "--persistent-metal-stand") {
+                    require(!persistentMetalStand,
+                            "--persistent-metal-stand may be given only once");
+                    persistentMetalStand = true;
+                } else if (argument == "--stand-root-assistance") {
+                    require(!standRootAssistance,
+                            "--stand-root-assistance may be given only once");
+                    standRootAssistance = true;
+                } else if (argument == "--stand-remove-assistance") {
+                    require(!standRemoveAssistance,
+                            "--stand-remove-assistance may be given only once");
+                    standRemoveAssistance = true;
+                } else if (argument == "--stand-deterministic-replay") {
+                    require(!standDeterministicReplay,
+                            "--stand-deterministic-replay may be given only once");
+                    standDeterministicReplay = true;
                 } else if (argument == "--activated-source-muscle-index") {
                     require(index + 1 < argc,
                             "--activated-source-muscle-index requires one muscle index");
@@ -4470,6 +5046,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-seconds <1e-6..1e-3>]"
                           << " [--muscle-step-count <1..64>]"
                           << " [--muscle-activation <0..1>]"
+                          << " [--persistent-metal-stand] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay]"
                           << " [--activated-source-muscle-index <0..415>]..."
                           << " [--source-route-centrelines] [--source-route-index <0..415>]..."
                           << " [--surface-project-source-sites]"
@@ -4655,6 +5232,16 @@ int main(int argc, char** argv) {
                     "--muscle-step-count requires --muscle-step-seconds");
             require(selectedSourceMuscleActivations.empty() || muscleStepSeconds.has_value(),
                     "--activated-source-muscle-index requires --muscle-step-seconds");
+            require(!persistentMetalStand ||
+                        (muscleStepSeconds.has_value() &&
+                         supportContactPayload.has_value()),
+                    "--persistent-metal-stand requires a muscle timestep and support-contact payload");
+            require(!standRootAssistance || persistentMetalStand,
+                    "--stand-root-assistance requires --persistent-metal-stand");
+            require(!standRemoveAssistance || standRootAssistance,
+                    "--stand-remove-assistance requires --stand-root-assistance");
+            require(!standDeterministicReplay || persistentMetalStand,
+                    "--stand-deterministic-replay requires --persistent-metal-stand");
             require(!passiveFEMTissueStableId.has_value() ||
                         (softTissuePayload.has_value() && muscleStepSeconds.has_value()),
                     "--passive-fem-tissue-stable-id requires --soft-tissue-payload and --muscle-step-seconds");
@@ -4680,13 +5267,30 @@ int main(int argc, char** argv) {
             std::optional<MuscleDrivenVisualState> muscleDrivenState;
             std::span<const float> poseQ = rigid.model.defaultQ;
             if (muscleStepSeconds.has_value()) {
-                muscleDrivenState.emplace(integrateMuscleDrivenVisualState(
-                    rigid.model, musclePayload, *muscleStepSeconds,
-                    muscleStepCount.value_or(1u),
-                    muscleActivation.value_or(0.5),
-                    selectedSourceMuscleActivations,
-                    supportContactPayload.has_value() ? &*supportContactPayload : nullptr
-                ));
+                if (persistentMetalStand) {
+                    muscleDrivenState.emplace(
+                        integratePersistentMetalStandVisualState(
+                            rigid.model,
+                            musclePayload,
+                            *supportContactPayload,
+                            *muscleStepSeconds,
+                            muscleStepCount.value_or(1u),
+                            muscleActivation.value_or(0.5),
+                            selectedSourceMuscleActivations,
+                            standRootAssistance,
+                            standRemoveAssistance,
+                            standDeterministicReplay
+                        )
+                    );
+                } else {
+                    muscleDrivenState.emplace(integrateMuscleDrivenVisualState(
+                        rigid.model, musclePayload, *muscleStepSeconds,
+                        muscleStepCount.value_or(1u),
+                        muscleActivation.value_or(0.5),
+                        selectedSourceMuscleActivations,
+                        supportContactPayload.has_value() ? &*supportContactPayload : nullptr
+                    ));
+                }
                 poseQ = muscleDrivenState->q;
             }
             const metalrobo::MetalArticulatedOperatorInput input{
@@ -4975,10 +5579,16 @@ int main(int argc, char** argv) {
                 muscleDrivenState->supportContactApplied;
             const std::string poseSource = !muscleDrivenState.has_value()
                 ? "source_default_q_to_metal_kinematic_pose"
+                : muscleDrivenState->persistentMetalHorizon
+                    ? "persistent_metal_current_pose_all_416_mujoco_routes_activation_gravity_large_state_dynamics_and_source_foot_support"
                 : sourceSupportContact
                     ? "metal_all_416_mujoco_force_projection_and_activation_state_then_cpu_fp64_free_dynamics_and_dynamic_source_foot_witness_plane_contact_then_metal_kinematic_pose"
                     : "metal_all_416_mujoco_force_projection_and_activation_state_then_cpu_fp64_free_dynamics_then_metal_kinematic_pose";
-            std::string evidenceBoundary = !muscleDrivenState.has_value()
+            std::string evidenceBoundary =
+                muscleDrivenState.has_value() &&
+                    muscleDrivenState->persistentMetalHorizon
+                ? "bounded_persistent_apple_metal_all_416_mujoco_activation_dependent_route_force_large_state_mass_gravity_low_velocity_bias_and_source_foot_support_horizon_imported_passive_bias_excluded_until_registered_equilibrium_calibration_not_exact_jdot_rnea_joint_limit_general_collision_or_closed_loop_standing_qualification"
+                : !muscleDrivenState.has_value()
                 ? (bodypartsBoneVisual
                     ? (softTissuePayload.has_value()
                         ? "metal_pose_snapshot_to_native_renderer_with_provisional_bodyparts_bone_registration_and_named_body_weighted_source_soft_tissue_visuals_not_collision_or_live_rollout"
@@ -5002,6 +5612,11 @@ int main(int argc, char** argv) {
             if (!selectedSourceMuscleActivations.empty()) {
                 evidenceBoundary +=
                     "_with_explicit_source_actuator_subset_excitation_all_416_source_paths_still_evaluated";
+            }
+            if (muscleDrivenState.has_value() &&
+                muscleDrivenState->assistanceRemovalEvaluated) {
+                evidenceBoundary +=
+                    "_with_sequential_assisted_then_zero_root_wrench_device_horizons";
             }
             if (skinPayload.has_value()) {
                 evidenceBoundary +=
@@ -5092,7 +5707,47 @@ int main(int argc, char** argv) {
                       << " muscle_selected_source_activation_count=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->selectedSourceMuscleActivationCount : 0u)
                       << " muscle_passive_baseline=" << (muscleDrivenState.has_value()
-                              ? "source_default_activation_zero_subtracted" : "none")
+                              ? (muscleDrivenState->persistentMetalHorizon
+                                  ? "source_passive_bias_excluded_not_registered_equilibrium_preload"
+                                  : "source_default_activation_zero_subtracted")
+                              : "none")
+                      << " persistent_metal_horizon=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->persistentMetalHorizon ? "true" : "false")
+                      << " persistent_completed_steps=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentCompletedSteps : 0u)
+                      << " persistent_root_assistance=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->rootAssistanceEnabled ? "world_root_wrench" : "none")
+                      << " persistent_assistance_removal=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->assistanceRemovalEvaluated ? "evaluated" : "not_evaluated")
+                      << " persistent_max_acceleration=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentMaximumAcceleration : 0.0)
+                      << " persistent_max_penetration_m=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentMaximumPenetrationMeters : 0.0)
+                      << " persistent_normal_impulse=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentNormalImpulse : 0.0)
+                      << " persistent_max_root_assistance_force_n=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentRootAssistanceForce : 0.0)
+                      << " persistent_max_root_assistance_torque_nm=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentRootAssistanceTorque : 0.0)
+                      << " compiled_stand_active_muscles=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledActiveMuscleCount : 0u)
+                      << " compiled_stand_normalized_residual_rms=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledActivationResidualRms : 0.0)
+                      << " compiled_stand_max_activation=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledMaximumActivation : 0.0)
+                      << " assisted_configuration_delta=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->assistedConfigurationDelta : 0.0)
+                      << " removal_configuration_delta=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->removalConfigurationDelta : 0.0)
+                      << " stand_one_step_max_q_error=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->oneStepParityMaximumQError : 0.0)
+                      << " stand_one_step_max_v_error=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->oneStepParityMaximumVError : 0.0)
+                      << " stand_deterministic_replay=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->deterministicReplayVerified
+                                  ? "bitwise" : "not_requested")
+                      << " stand_replay_elapsed_ms=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->deterministicReplayElapsedMilliseconds : 0.0)
                       << " muscle_step_applied_wraps=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->appliedWrapCount : 0u)
                       << " muscle_force_metal_device=\"" << (muscleDrivenState.has_value()

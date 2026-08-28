@@ -35,6 +35,15 @@ namespace {
 // occupies slots 16..23 in the same command buffer. The MyoSim sidecar owns
 // slots 24..30 and consumes the same private pose/Jacobian output directly.
 constexpr std::size_t kRawBufferCount = 31u;
+constexpr std::size_t kStandBufferCount = 8u;
+constexpr std::size_t kStandVelocityBuffer = 0u;
+constexpr std::size_t kStandContactsBuffer = 1u;
+constexpr std::size_t kStandSpatialJacobianBuffer = 2u;
+constexpr std::size_t kStandBodyMotionBuffer = 3u;
+constexpr std::size_t kStandFactorBuffer = 4u;
+constexpr std::size_t kStandVectorBuffer = 5u;
+constexpr std::size_t kStandResponseBuffer = 6u;
+constexpr std::size_t kStandStatusBuffer = 7u;
 constexpr std::size_t kMillardDispatchBuffer = 16u;
 constexpr std::size_t kMillardMusclesBuffer = 17u;
 constexpr std::size_t kMillardStatesBuffer = 18u;
@@ -51,6 +60,7 @@ constexpr std::size_t kMujocoWrapsBuffer = 28u;
 constexpr std::size_t kMujocoRoutesBuffer = 29u;
 constexpr std::size_t kMujocoResultsBuffer = 30u;
 constexpr NSUInteger kThreadsPerThreadgroup = 32u;
+constexpr NSUInteger kStandThreadsPerThreadgroup = 256u;
 constexpr float kQuaternionHostTolerance = 1.9e-5f;
 constexpr std::uint64_t kShaderAddressableElements =
     static_cast<std::uint64_t>(
@@ -67,6 +77,7 @@ struct BufferRequirement {
 
 struct RequiredBuffers {
     std::array<BufferRequirement, kRawBufferCount> entries{};
+    std::array<BufferRequirement, kStandBufferCount> standEntries{};
 };
 
 } // namespace
@@ -89,10 +100,14 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> pipeline = nil;
     __strong id<MTLComputePipelineState> millardPipeline = nil;
     __strong id<MTLComputePipelineState> mujocoPipeline = nil;
+    __strong id<MTLComputePipelineState> mujocoActiveForcePipeline = nil;
     __strong id<MTLComputePipelineState> mujocoReducePipeline = nil;
     __strong id<MTLComputePipelineState> mujocoActivationPipeline = nil;
+    __strong id<MTLComputePipelineState> standPipeline = nil;
     __strong id<MTLBuffer> buffers[kRawBufferCount] = {};
+    __strong id<MTLBuffer> standBuffers[kStandBufferCount] = {};
     std::array<std::size_t, kRawBufferCount> capacities{};
+    std::array<std::size_t, kStandBufferCount> standCapacities{};
     MetalArticulatedOperatorContextStats stats{};
 };
 
@@ -127,6 +142,8 @@ struct MetalArticulatedOperatorSubmissionState {
     std::size_t millardMuscleCount = 0u;
     bool hasMujocoReference = false;
     std::size_t mujocoMuscleCount = 0u;
+    bool hasStandHorizon = false;
+    std::uint32_t standStepCount = 0u;
     bool ownsInFlight = false;
 };
 
@@ -644,6 +661,158 @@ bool validMujocoReference(
     return true;
 }
 
+bool validNumiHumanStand(
+    const EngineModel& model,
+    const MRArticulationGPU& articulation,
+    const MetalArticulatedOperatorInput& input,
+    const MetalArticulatedOperatorConfig& config,
+    std::string& reason
+) {
+    const MetalNumiHumanStandInput& stand = input.stand;
+    if (!stand.enabled()) {
+        if (!stand.v.empty() || !stand.contacts.empty()) {
+            reason = "stand sidecar has state or contacts but zero steps";
+            return false;
+        }
+        return true;
+    }
+    if (!config.pointJacobiansOnly || !input.mujoco.enabled() ||
+        !(config.mujocoActivationTimestepSeconds > 0.0f)) {
+        reason = "stand horizon requires point-Jacobian-only MyoSim with activation stepping";
+        return false;
+    }
+    if (articulation.rootType != MR_ROOT_FLOATING ||
+        articulation.bodyCount == 0u ||
+        articulation.bodyCount > MR_NUMI_HUMAN_STAND_MAX_BODIES ||
+        articulation.nv < 6u || articulation.nv > MR_NUMI_HUMAN_STAND_MAX_DOFS ||
+        articulation.nq < 7u || articulation.nq > MR_NUMI_HUMAN_STAND_MAX_Q) {
+        reason = "stand horizon requires a supported floating large-state articulation";
+        return false;
+    }
+    if (stand.stepCount > MR_NUMI_HUMAN_STAND_MAX_STEPS ||
+        stand.contactIterationCount == 0u ||
+        stand.contactIterationCount > 64u ||
+        stand.contacts.size() > MR_NUMI_HUMAN_STAND_MAX_CONTACTS) {
+        reason = "stand step, contact, or iteration count exceeds the device ABI";
+        return false;
+    }
+    std::size_t expectedVelocityCount = 0u;
+    if (!checkedMultiply(input.environmentCount, articulation.nv,
+                         expectedVelocityCount) ||
+        stand.v.size() != expectedVelocityCount ||
+        !std::all_of(stand.v.begin(), stand.v.end(), [](const float value) {
+            return std::isfinite(value);
+        })) {
+        reason = "stand velocity stream is not finite environment-major nv state";
+        return false;
+    }
+    if (!finite(stand.groundPoint) || !finite(stand.groundNormal) ||
+        !finite(stand.targetRootPosition) ||
+        !finite(stand.targetRootOrientation) ||
+        !finite(stand.assistanceGains) || stand.groundPoint.w != 0.0f ||
+        stand.groundNormal.w != 0.0f || stand.targetRootPosition.w != 0.0f ||
+        stand.assistanceGains.x < 0.0f || stand.assistanceGains.y < 0.0f ||
+        stand.assistanceGains.z < 0.0f || stand.assistanceGains.w < 0.0f) {
+        reason = "stand plane, target, or assistance gains are malformed";
+        return false;
+    }
+    const double normalNormSquared =
+        static_cast<double>(stand.groundNormal.x) * stand.groundNormal.x +
+        static_cast<double>(stand.groundNormal.y) * stand.groundNormal.y +
+        static_cast<double>(stand.groundNormal.z) * stand.groundNormal.z;
+    const double targetNormSquared =
+        static_cast<double>(stand.targetRootOrientation.x) *
+            stand.targetRootOrientation.x +
+        static_cast<double>(stand.targetRootOrientation.y) *
+            stand.targetRootOrientation.y +
+        static_cast<double>(stand.targetRootOrientation.z) *
+            stand.targetRootOrientation.z +
+        static_cast<double>(stand.targetRootOrientation.w) *
+            stand.targetRootOrientation.w;
+    if (std::abs(normalNormSquared - 1.0) > 2.0e-4 ||
+        (stand.enableRootAssistance &&
+         std::abs(targetNormSquared - 1.0) > kQuaternionHostTolerance)) {
+        reason = "stand ground normal or assisted target quaternion is not normalized";
+        return false;
+    }
+
+    const std::uint64_t bodyEnd =
+        static_cast<std::uint64_t>(articulation.firstBody) +
+        articulation.bodyCount;
+    const std::array<mr_float4, 4u> expectedProbePoints{{
+        {0.0f, 0.0f, 0.0f, 0.0f},
+        {1.0f, 0.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f, 0.0f},
+        {0.0f, 0.0f, 1.0f, 0.0f},
+    }};
+    for (std::size_t environment = 0u;
+         environment < input.environmentCount; ++environment) {
+        const std::size_t environmentBase = environment * input.pointCount;
+        for (std::uint32_t localBody = 0u;
+             localBody < articulation.bodyCount; ++localBody) {
+            for (std::size_t probe = 0u; probe < expectedProbePoints.size(); ++probe) {
+                const std::size_t queryIndex =
+                    input.mujoco.bodyJacobianPointOffset +
+                    4u * localBody + probe;
+                if (queryIndex >= input.pointCount) {
+                    reason = "stand body-probe query index is outside the point stream";
+                    return false;
+                }
+                const MRArticulatedPointImpulseGPU& query =
+                    input.points[environmentBase + queryIndex];
+                const mr_float4 expected = expectedProbePoints[probe];
+                if (query.bodyIndex != articulation.firstBody + localBody ||
+                    query.flags != 0u || query.localPoint.x != expected.x ||
+                    query.localPoint.y != expected.y ||
+                    query.localPoint.z != expected.z ||
+                    query.localPoint.w != expected.w) {
+                    reason = "stand body-probe block is not canonical COM/+axis order";
+                    return false;
+                }
+            }
+        }
+    }
+    for (std::size_t contactIndex = 0u;
+         contactIndex < stand.contacts.size(); ++contactIndex) {
+        const MRNumiHumanStandContactGPU& contact = stand.contacts[contactIndex];
+        if (contact.bodyIndex < articulation.firstBody ||
+            static_cast<std::uint64_t>(contact.bodyIndex) >= bodyEnd ||
+            contact.pointQueryIndex >= input.pointCount ||
+            contact.reserved0 != 0u ||
+            !finite(contact.frictionSlopAndStabilization) ||
+            contact.frictionSlopAndStabilization.x < 0.0f ||
+            contact.frictionSlopAndStabilization.y < 0.0f ||
+            contact.frictionSlopAndStabilization.z < 0.0f ||
+            contact.frictionSlopAndStabilization.z > 1.0f ||
+            contact.frictionSlopAndStabilization.w != 0.0f) {
+            reason = "stand support-contact record is malformed";
+            return false;
+        }
+        for (std::size_t environment = 0u;
+             environment < input.environmentCount; ++environment) {
+            const MRArticulatedPointImpulseGPU& query = input.points[
+                environment * input.pointCount + contact.pointQueryIndex
+            ];
+            if (query.bodyIndex != contact.bodyIndex || query.flags != 0u) {
+                reason = "stand support contact does not match its active point query";
+                return false;
+            }
+        }
+    }
+    for (std::uint32_t localDof = 6u;
+         localDof < articulation.nv; ++localDof) {
+        const MRDofPropertiesGPU& dof =
+            model.dofs[articulation.vOffset + localDof];
+        if (dof.qIndex == MR_INVALID_INDEX ||
+            dof.qIndex < articulation.qOffset ||
+            dof.qIndex >= articulation.qOffset + articulation.nq) {
+            reason = "stand horizon requires scalar configuration ownership after the root";
+            return false;
+        }
+    }
+    return true;
+}
+
 bool buildRequirements(
     const EngineModel& model,
     const MetalArticulatedOperatorLayout& layout,
@@ -809,13 +978,71 @@ bool buildRequirements(
             "MyoSim results",
             layout.mujocoResultElements,
             requirements.entries[kMujocoResultsBuffer]
+        ) ||
+        !makeRequirement<float>(
+            "Numi Human stand velocity",
+            layout.standVelocityElements,
+            requirements.standEntries[kStandVelocityBuffer]
+        ) ||
+        !makeRequirement<MRNumiHumanStandContactGPU>(
+            "Numi Human stand contacts",
+            layout.standContactElements,
+            requirements.standEntries[kStandContactsBuffer]
+        ) ||
+        !makeRequirement<float>(
+            "Numi Human stand spatial Jacobians",
+            layout.standSpatialJacobianElements,
+            requirements.standEntries[kStandSpatialJacobianBuffer]
+        ) ||
+        !makeRequirement<mr_float4>(
+            "Numi Human stand body motion",
+            layout.standBodyMotionElements,
+            requirements.standEntries[kStandBodyMotionBuffer]
+        ) ||
+        !makeRequirement<float>(
+            "Numi Human stand factor",
+            layout.standFactorElements,
+            requirements.standEntries[kStandFactorBuffer]
+        ) ||
+        !makeRequirement<float>(
+            "Numi Human stand vectors",
+            layout.standVectorElements,
+            requirements.standEntries[kStandVectorBuffer]
+        ) ||
+        !makeRequirement<float>(
+            "Numi Human stand contact response",
+            layout.standResponseElements,
+            requirements.standEntries[kStandResponseBuffer]
+        ) ||
+        !makeRequirement<MRNumiHumanStandStatusGPU>(
+            "Numi Human stand statuses",
+            layout.standStatusElements,
+            requirements.standEntries[kStandStatusBuffer]
         )) {
         return false;
+    }
+
+    // The historical operator does not bind the separate stand arena. Keep
+    // its cold allocation/stats contract unchanged unless a horizon exists.
+    if (layout.standStatusElements == 0u) {
+        for (BufferRequirement& requirement : requirements.standEntries) {
+            requirement.allocationBytes = 0u;
+        }
     }
 
     totalAllocatedBytes = 0u;
     for (const BufferRequirement& requirement :
          requirements.entries) {
+        if (!checkedAdd(
+                totalAllocatedBytes,
+                requirement.allocationBytes,
+                totalAllocatedBytes
+            )) {
+            return false;
+        }
+    }
+    for (const BufferRequirement& requirement :
+         requirements.standEntries) {
         if (!checkedAdd(
                 totalAllocatedBytes,
                 requirement.allocationBytes,
@@ -1097,6 +1324,51 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             );
         }
     }
+    if (input.stand.enabled()) {
+        layout.standVelocityElements = input.stand.v.size();
+        layout.standContactElements = input.stand.contacts.size();
+        layout.standStatusElements = input.environmentCount;
+        std::size_t bodyDofs = 0u;
+        std::size_t environmentBodyDofs = 0u;
+        std::size_t bodyMotionPerEnvironment = 0u;
+        std::size_t factorPerEnvironment = 0u;
+        std::size_t vectorPerEnvironment = 0u;
+        std::size_t contactVectorElements = 0u;
+        std::size_t responsePerEnvironment = 0u;
+        if (!checkedMultiply(articulation.bodyCount, articulation.nv, bodyDofs) ||
+            !checkedMultiply(bodyDofs, 6u, bodyDofs) ||
+            !checkedMultiply(input.environmentCount, bodyDofs,
+                             layout.standSpatialJacobianElements) ||
+            !checkedMultiply(articulation.bodyCount, 2u,
+                             bodyMotionPerEnvironment) ||
+            !checkedMultiply(input.environmentCount, bodyMotionPerEnvironment,
+                             layout.standBodyMotionElements) ||
+            !checkedMultiply(articulation.nv, articulation.nv,
+                             factorPerEnvironment) ||
+            !checkedMultiply(input.environmentCount, factorPerEnvironment,
+                             layout.standFactorElements) ||
+            !checkedMultiply(input.stand.contacts.size(), 12u,
+                             contactVectorElements) ||
+            !checkedMultiply(articulation.nv, 3u,
+                             vectorPerEnvironment) ||
+            !checkedAdd(vectorPerEnvironment, contactVectorElements,
+                        vectorPerEnvironment) ||
+            !checkedMultiply(input.environmentCount, vectorPerEnvironment,
+                             layout.standVectorElements) ||
+            !checkedMultiply(input.stand.contacts.size(), 3u,
+                             responsePerEnvironment) ||
+            !checkedMultiply(responsePerEnvironment, articulation.nv,
+                             responsePerEnvironment) ||
+            !checkedMultiply(input.environmentCount, responsePerEnvironment,
+                             layout.standResponseElements)) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+                "derived Numi Human stand scratch element-count overflow"
+            );
+        }
+        (void)environmentBodyDofs;
+    }
 
     const auto exceedsShaderAddressing =
         [](const std::size_t elements) {
@@ -1129,7 +1401,15 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         exceedsShaderAddressing(
             layout.mujocoMuscleGeneralizedForceElements
         ) ||
-        exceedsShaderAddressing(layout.mujocoGeneralizedForceElements)) {
+        exceedsShaderAddressing(layout.mujocoGeneralizedForceElements) ||
+        exceedsShaderAddressing(layout.standVelocityElements) ||
+        exceedsShaderAddressing(layout.standContactElements) ||
+        exceedsShaderAddressing(layout.standSpatialJacobianElements) ||
+        exceedsShaderAddressing(layout.standBodyMotionElements) ||
+        exceedsShaderAddressing(layout.standFactorElements) ||
+        exceedsShaderAddressing(layout.standVectorElements) ||
+        exceedsShaderAddressing(layout.standResponseElements) ||
+        exceedsShaderAddressing(layout.standStatusElements)) {
         return reject(
             std::move(diagnostics),
             MetalArticulatedOperatorHostStatus::arithmeticOverflow,
@@ -1191,6 +1471,27 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         requirements.entries[kMujocoRoutesBuffer].logicalBytes;
     layout.mujocoResultBytes =
         requirements.entries[kMujocoResultsBuffer].logicalBytes;
+    layout.standVelocityBytes =
+        requirements.standEntries[kStandVelocityBuffer].logicalBytes;
+    layout.standContactBytes =
+        requirements.standEntries[kStandContactsBuffer].logicalBytes;
+    layout.standStatusBytes =
+        requirements.standEntries[kStandStatusBuffer].logicalBytes;
+    layout.standScratchBytes = 0u;
+    for (std::size_t index = kStandSpatialJacobianBuffer;
+         index <= kStandResponseBuffer; ++index) {
+        if (!checkedAdd(
+                layout.standScratchBytes,
+                requirements.standEntries[index].logicalBytes,
+                layout.standScratchBytes
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+                "derived Numi Human stand scratch byte-count overflow"
+            );
+        }
+    }
     if (!checkedMultiply(
             layout.mujocoMuscleGeneralizedForceElements,
             sizeof(float),
@@ -1261,6 +1562,20 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             std::move(diagnostics),
             MetalArticulatedOperatorHostStatus::invalidDimensions,
             "invalid MyoSim reference program: " + mujocoReason
+        );
+    }
+    std::string standReason;
+    if (!validNumiHumanStand(
+            model,
+            articulation,
+            input,
+            config,
+            standReason
+        )) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidDimensions,
+            "invalid Numi Human stand horizon: " + standReason
         );
     }
     return diagnostics;
@@ -1513,6 +1828,29 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 describeError(error)
         );
     }
+    id<MTLFunction> mujocoActiveForceFunction = [library
+        newFunctionWithName:@"mr_mujoco_muscle_active_force_rows"];
+    if (mujocoActiveForceFunction == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+            "metallib does not contain the MyoSim active-force operator"
+        );
+    }
+    error = nil;
+    id<MTLComputePipelineState> mujocoActiveForcePipeline = [device
+        newComputePipelineStateWithFunction:mujocoActiveForceFunction
+                                       error:&error];
+    if (mujocoActiveForcePipeline == nil ||
+        mujocoActiveForcePipeline.maxTotalThreadsPerThreadgroup <
+            kThreadsPerThreadgroup) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+            "failed to create MyoSim active-force pipeline: " +
+                describeError(error)
+        );
+    }
     id<MTLFunction> mujocoActivationFunction = [library
         newFunctionWithName:@"mr_mujoco_muscle_activation_step"];
     if (mujocoActivationFunction == nil) {
@@ -1536,6 +1874,29 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 describeError(error)
         );
     }
+    id<MTLFunction> standFunction = [library
+        newFunctionWithName:@"mr_numi_human_stand_step"];
+    if (standFunction == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+            "metallib does not contain the Numi Human stand operator"
+        );
+    }
+    error = nil;
+    id<MTLComputePipelineState> standPipeline = [device
+        newComputePipelineStateWithFunction:standFunction
+                                       error:&error];
+    if (standPipeline == nil ||
+        standPipeline.maxTotalThreadsPerThreadgroup <
+            kStandThreadsPerThreadgroup) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+            "failed to create Numi Human stand pipeline: " +
+                describeError(error)
+        );
+    }
 
     context.device = device;
     context.queue = queue;
@@ -1543,8 +1904,10 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     context.pipeline = pipeline;
     context.millardPipeline = millardPipeline;
     context.mujocoPipeline = mujocoPipeline;
+    context.mujocoActiveForcePipeline = mujocoActiveForcePipeline;
     context.mujocoReducePipeline = mujocoReducePipeline;
     context.mujocoActivationPipeline = mujocoActivationPipeline;
+    context.standPipeline = standPipeline;
     context.initialized = true;
     ++context.stats.pipelineCreationCount;
     return diagnostics;
@@ -1580,6 +1943,8 @@ MetalArticulatedOperatorDiagnostics ensureBufferArena(
         );
     std::array<std::size_t, kRawBufferCount> proposed =
         context.capacities;
+    std::array<std::size_t, kStandBufferCount> standProposed =
+        context.standCapacities;
     for (std::size_t index = 0u;
          index < kRawBufferCount;
          ++index) {
@@ -1601,6 +1966,24 @@ MetalArticulatedOperatorDiagnostics ensureBufferArena(
             maximumBufferLength
         );
     }
+    for (std::size_t index = 0u;
+         index < kStandBufferCount; ++index) {
+        const BufferRequirement& requirement =
+            requirements.standEntries[index];
+        if (requirement.allocationBytes > maximumBufferLength) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                std::string(requirement.label) +
+                    " exceeds device.maxBufferLength"
+            );
+        }
+        standProposed[index] = growthCapacity(
+            context.standCapacities[index],
+            requirement.allocationBytes,
+            maximumBufferLength
+        );
+    }
 
     std::size_t projectedBytes = 0u;
     for (const std::size_t capacity : proposed) {
@@ -1613,6 +1996,15 @@ MetalArticulatedOperatorDiagnostics ensureBufferArena(
                 std::move(diagnostics),
                 MetalArticulatedOperatorHostStatus::
                     arithmeticOverflow,
+                "persistent Metal arena byte-count overflow"
+            );
+        }
+    }
+    for (const std::size_t capacity : standProposed) {
+        if (!checkedAdd(projectedBytes, capacity, projectedBytes)) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::arithmeticOverflow,
                 "persistent Metal arena byte-count overflow"
             );
         }
@@ -1645,6 +2037,24 @@ MetalArticulatedOperatorDiagnostics ensureBufferArena(
                 );
             }
         }
+        for (std::size_t index = 0u;
+             index < kStandBufferCount; ++index) {
+            standProposed[index] = std::max(
+                context.standCapacities[index],
+                requirements.standEntries[index].allocationBytes
+            );
+            if (!checkedAdd(
+                    projectedBytes,
+                    standProposed[index],
+                    projectedBytes
+                )) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+                    "persistent Metal arena byte-count overflow"
+                );
+            }
+        }
     }
     if (recommendedWorkingSet != 0u &&
         static_cast<std::uint64_t>(projectedBytes) >
@@ -1659,6 +2069,7 @@ MetalArticulatedOperatorDiagnostics ensureBufferArena(
     }
 
     __strong id<MTLBuffer> replacements[kRawBufferCount] = {};
+    __strong id<MTLBuffer> standReplacements[kStandBufferCount] = {};
     for (std::size_t index = 0u;
          index < kRawBufferCount;
          ++index) {
@@ -1683,6 +2094,27 @@ MetalArticulatedOperatorDiagnostics ensureBufferArena(
         }
         replacements[index].label = bufferLabel(index);
     }
+    for (std::size_t index = 0u;
+         index < kStandBufferCount; ++index) {
+        if (standProposed[index] == context.standCapacities[index]) {
+            continue;
+        }
+        standReplacements[index] = [context.device
+            newBufferWithLength:static_cast<NSUInteger>(standProposed[index])
+                       options:MTLResourceStorageModeShared];
+        if (standReplacements[index] == nil ||
+            standReplacements[index].contents == nullptr ||
+            standReplacements[index].length < standProposed[index]) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                std::string("persistent Metal buffer growth failed for ") +
+                    requirements.standEntries[index].label
+            );
+        }
+        standReplacements[index].label = [NSString stringWithUTF8String:
+            requirements.standEntries[index].label];
+    }
 
     for (std::size_t index = 0u;
          index < kRawBufferCount;
@@ -1696,6 +2128,18 @@ MetalArticulatedOperatorDiagnostics ensureBufferArena(
         ++context.stats.bufferAllocationCount;
         context.buffers[index] = replacements[index];
         context.capacities[index] = proposed[index];
+    }
+    for (std::size_t index = 0u;
+         index < kStandBufferCount; ++index) {
+        if (standReplacements[index] == nil) {
+            continue;
+        }
+        if (context.standCapacities[index] != 0u) {
+            ++context.stats.bufferGrowthCount;
+        }
+        ++context.stats.bufferAllocationCount;
+        context.standBuffers[index] = standReplacements[index];
+        context.standCapacities[index] = standProposed[index];
     }
     context.stats.retainedBufferBytes = projectedBytes;
     return diagnostics;
@@ -1932,6 +2376,29 @@ void uploadBatch(
         0,
         requirements.entries[kMujocoResultsBuffer].allocationBytes
     );
+
+    if (input.stand.enabled()) {
+        copyToBuffer(
+            context.standBuffers[kStandVelocityBuffer],
+            input.stand.v.data(),
+            requirements.standEntries[kStandVelocityBuffer]
+        );
+        copyToBuffer(
+            context.standBuffers[kStandContactsBuffer],
+            input.stand.contacts.empty()
+                ? nullptr
+                : static_cast<const void*>(input.stand.contacts.data()),
+            requirements.standEntries[kStandContactsBuffer]
+        );
+        for (std::size_t index = kStandSpatialJacobianBuffer;
+             index < kStandBufferCount; ++index) {
+            std::memset(
+                context.standBuffers[index].contents,
+                0,
+                requirements.standEntries[index].allocationBytes
+            );
+        }
+    }
 }
 
 // The standalone compatibility entry point still uses an isolated arena so
@@ -2089,6 +2556,14 @@ bool finitePayload(
             [](const float value) {
                 return std::isfinite(value);
             }
+        ) &&
+        std::all_of(
+            result.standQ.begin(), result.standQ.end(),
+            [](const float value) { return std::isfinite(value); }
+        ) &&
+        std::all_of(
+            result.standV.begin(), result.standV.end(),
+            [](const float value) { return std::isfinite(value); }
         );
 }
 
@@ -2187,6 +2662,11 @@ MetalArticulatedOperatorSubmission::wait(
             staged.mujocoGeneralizedForces.resize(
                 layout.mujocoGeneralizedForceElements
             );
+            if (pending->hasStandHorizon) {
+                staged.standQ.resize(layout.qElements);
+                staged.standV.resize(layout.standVelocityElements);
+                staged.standStatuses.resize(layout.standStatusElements);
+            }
 
             const auto& buffers = pending->context->buffers;
             copyOutput(staged.bodyPoses, buffers[8]);
@@ -2230,6 +2710,17 @@ MetalArticulatedOperatorSubmission::wait(
                     source,
                     staged.mujocoGeneralizedForces.size(),
                     staged.mujocoGeneralizedForces.begin()
+                );
+            }
+            if (pending->hasStandHorizon) {
+                copyOutput(staged.standQ, buffers[6u]);
+                copyOutput(
+                    staged.standV,
+                    pending->context->standBuffers[kStandVelocityBuffer]
+                );
+                copyOutput(
+                    staged.standStatuses,
+                    pending->context->standBuffers[kStandStatusBuffer]
                 );
             }
         }
@@ -2320,6 +2811,45 @@ MetalArticulatedOperatorSubmission::wait(
                         std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::gpuEnvironmentFailure,
                         "GPU rejected a MyoSim source-reference muscle"
+                    );
+                }
+            }
+        }
+        if (pending->hasStandHorizon) {
+            for (std::size_t environment = 0u;
+                 environment < staged.standStatuses.size(); ++environment) {
+                const MRNumiHumanStandStatusGPU& stand =
+                    staged.standStatuses[environment];
+                if (stand.environment != environment ||
+                    stand.code > MR_NUMI_HUMAN_STAND_NONFINITE_RESULT ||
+                    (stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+                     stand.completedSteps != pending->standStepCount)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::internalFailure,
+                        "GPU returned a malformed Numi Human stand status"
+                    );
+                }
+                diagnostics.completedStandSteps = std::min(
+                    diagnostics.completedStandSteps == 0u
+                        ? stand.completedSteps
+                        : diagnostics.completedStandSteps,
+                    stand.completedSteps
+                );
+                if (stand.code != MR_NUMI_HUMAN_STAND_SUCCESS) {
+                    diagnostics.firstStandGPUStatusCode = stand.code;
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::gpuEnvironmentFailure,
+                        "GPU rejected the Numi Human stand horizon"
+                    );
+                }
+                if (!finite(stand.contactAndAcceleration) ||
+                    !finite(stand.factorAndAssistance)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::internalFailure,
+                        "GPU Numi Human stand diagnostics are non-finite"
                     );
                 }
             }
@@ -2466,6 +2996,11 @@ MetalArticulatedOperatorContext::submit(
             }
             commandBuffer.label =
                 @"MetalRobo persistent articulated operator";
+            const std::uint32_t horizonStepCount = input.stand.enabled()
+                ? input.stand.stepCount
+                : 1u;
+            for (std::uint32_t horizonStep = 0u;
+                 horizonStep < horizonStepCount; ++horizonStep) {
             id<MTLComputeCommandEncoder> encoder =
                 [commandBuffer computeCommandEncoder];
             if (encoder == nil) {
@@ -2584,6 +3119,57 @@ MetalArticulatedOperatorContext::submit(
                         1u
                     )];
                 [mujocoEncoder endEncoding];
+                if (input.stand.enabled()) {
+                    MRMujocoMuscleActiveForceDispatchGPU activeDispatch{};
+                    activeDispatch.abiVersion =
+                        MR_MUJOCO_MUSCLE_ACTIVE_FORCE_GPU_ABI_VERSION;
+                    activeDispatch.muscleCount = static_cast<mr_u32>(
+                        input.mujoco.muscles.size()
+                    );
+                    activeDispatch.environmentCount = static_cast<mr_u32>(
+                        input.environmentCount
+                    );
+                    activeDispatch.dofCount = articulation.nv;
+                    id<MTLComputeCommandEncoder> activeForceEncoder =
+                        [commandBuffer computeCommandEncoder];
+                    if (activeForceEncoder == nil) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                            "failed to create MyoSim active-force encoder"
+                        );
+                    }
+                    [activeForceEncoder setComputePipelineState:
+                        state_->mujocoActiveForcePipeline];
+                    [activeForceEncoder setBuffer:state_->buffers[kMujocoMusclesBuffer]
+                                          offset:0u atIndex:0u];
+                    [activeForceEncoder setBuffer:state_->buffers[kMujocoStatesBuffer]
+                                          offset:0u atIndex:1u];
+                    [activeForceEncoder setBuffer:state_->buffers[kMujocoResultsBuffer]
+                                          offset:0u atIndex:2u];
+                    [activeForceEncoder setBuffer:state_->buffers[kMillardForcesBuffer]
+                                          offset:0u atIndex:3u];
+                    [activeForceEncoder setBytes:&activeDispatch
+                                           length:sizeof(activeDispatch)
+                                          atIndex:4u];
+                    const std::size_t activeThreadCount =
+                        diagnostics.layout.mujocoResultElements;
+                    [activeForceEncoder
+                        dispatchThreadgroups:MTLSizeMake(
+                            static_cast<NSUInteger>(
+                                (activeThreadCount + kThreadsPerThreadgroup - 1u) /
+                                    kThreadsPerThreadgroup
+                            ),
+                            1u,
+                            1u
+                        )
+                        threadsPerThreadgroup:MTLSizeMake(
+                            kThreadsPerThreadgroup,
+                            1u,
+                            1u
+                        )];
+                    [activeForceEncoder endEncoding];
+                }
                 id<MTLComputeCommandEncoder> mujocoReduceEncoder =
                     [commandBuffer computeCommandEncoder];
                 if (mujocoReduceEncoder == nil) {
@@ -2675,6 +3261,99 @@ MetalArticulatedOperatorContext::submit(
                 }
             }
 
+            if (input.stand.enabled()) {
+                MRNumiHumanStandDispatchGPU standDispatch{};
+                standDispatch.abiVersion = MR_NUMI_HUMAN_STAND_ABI_VERSION;
+                standDispatch.environmentCount = static_cast<mr_u32>(
+                    input.environmentCount
+                );
+                standDispatch.articulationIndex = input.articulationIndex;
+                standDispatch.stepIndex = horizonStep;
+                standDispatch.stepCount = input.stand.stepCount;
+                standDispatch.bodyJacobianPointOffset =
+                    input.mujoco.bodyJacobianPointOffset;
+                standDispatch.supportContactCount = static_cast<mr_u32>(
+                    input.stand.contacts.size()
+                );
+                if (input.stand.enableContact) {
+                    standDispatch.flags |= MR_NUMI_HUMAN_STAND_ENABLE_CONTACT;
+                }
+                if (input.stand.enableRootAssistance) {
+                    standDispatch.flags |=
+                        MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE;
+                }
+                standDispatch.qStride = articulation.nq;
+                standDispatch.vStride = articulation.nv;
+                standDispatch.pointWorldStride =
+                    diagnostics.layout.dispatch.pointWorldStride;
+                standDispatch.pointJacobianStride =
+                    diagnostics.layout.dispatch.pointJacobianStride;
+                standDispatch.bodyPoseStride = articulation.bodyCount;
+                standDispatch.generalizedForceStride = articulation.nv;
+                standDispatch.generalizedForceOffset = static_cast<mr_u32>(
+                    diagnostics.layout.mujocoMuscleGeneralizedForceElements
+                );
+                standDispatch.contactIterationCount =
+                    input.stand.contactIterationCount;
+                standDispatch.groundPointAndTimestep = {
+                    input.stand.groundPoint.x,
+                    input.stand.groundPoint.y,
+                    input.stand.groundPoint.z,
+                    state_->config.mujocoActivationTimestepSeconds,
+                };
+                standDispatch.groundNormal = input.stand.groundNormal;
+                standDispatch.targetRootPosition =
+                    input.stand.targetRootPosition;
+                standDispatch.targetRootOrientation =
+                    input.stand.targetRootOrientation;
+                standDispatch.assistanceGains = input.stand.assistanceGains;
+
+                id<MTLComputeCommandEncoder> standEncoder =
+                    [commandBuffer computeCommandEncoder];
+                if (standEncoder == nil) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                        "failed to create Numi Human stand encoder"
+                    );
+                }
+                [standEncoder setComputePipelineState:state_->standPipeline];
+                [standEncoder setBuffer:state_->buffers[0u] offset:0u atIndex:0u];
+                [standEncoder setBuffer:state_->buffers[1u] offset:0u atIndex:1u];
+                [standEncoder setBuffer:state_->buffers[3u] offset:0u atIndex:2u];
+                [standEncoder setBuffer:state_->buffers[4u] offset:0u atIndex:3u];
+                [standEncoder setBytes:&standDispatch
+                                 length:sizeof(standDispatch)
+                                atIndex:4u];
+                [standEncoder setBuffer:state_->buffers[6u] offset:0u atIndex:5u];
+                [standEncoder setBuffer:state_->standBuffers[kStandVelocityBuffer]
+                                  offset:0u atIndex:6u];
+                [standEncoder setBuffer:state_->buffers[8u] offset:0u atIndex:7u];
+                [standEncoder setBuffer:state_->buffers[9u] offset:0u atIndex:8u];
+                [standEncoder setBuffer:state_->buffers[11u] offset:0u atIndex:9u];
+                [standEncoder setBuffer:state_->buffers[kMillardForcesBuffer]
+                                  offset:0u atIndex:10u];
+                for (NSUInteger index = kStandContactsBuffer;
+                     index < kStandBufferCount; ++index) {
+                    [standEncoder setBuffer:state_->standBuffers[index]
+                                      offset:0u
+                                     atIndex:10u + index];
+                }
+                [standEncoder
+                    dispatchThreadgroups:MTLSizeMake(
+                        static_cast<NSUInteger>(input.environmentCount),
+                        1u,
+                        1u
+                    )
+                    threadsPerThreadgroup:MTLSizeMake(
+                        kStandThreadsPerThreadgroup,
+                        1u,
+                        1u
+                    )];
+                [standEncoder endEncoding];
+            }
+            }
+
             auto pending = std::make_unique<
                 detail::MetalArticulatedOperatorSubmissionState
             >();
@@ -2691,6 +3370,8 @@ MetalArticulatedOperatorContext::submit(
             pending->millardMuscleCount = input.millard.muscles.size();
             pending->hasMujocoReference = input.mujoco.enabled();
             pending->mujocoMuscleCount = input.mujoco.muscles.size();
+            pending->hasStandHorizon = input.stand.enabled();
+            pending->standStepCount = input.stand.stepCount;
             pending->start =
                 std::chrono::steady_clock::now();
             pending->ownsInFlight = true;
@@ -2758,6 +3439,13 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
 ) {
     RequiredBuffers requirements{};
     MetalArticulatedOperatorDiagnostics diagnostics{};
+    if (input.stand.enabled()) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidDimensions,
+            "Numi Human stand horizons require MetalArticulatedOperatorContext"
+        );
+    }
     try {
         diagnostics = validateAndBuildLayout(
             model,

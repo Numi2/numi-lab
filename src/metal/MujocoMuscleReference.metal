@@ -598,6 +598,54 @@ kernel void mr_mujoco_muscle_reference(
     results[globalIndex] = result;
 }
 
+// Converts total source force rows to their activation-dependent component
+// after route evaluation and before deterministic reduction. The imported
+// passive MuJoCo bias is retained in the typed result for inspection, but it
+// is not a registered equilibrium preload for Numi Human v1 and therefore is
+// not injected into the standing dynamics horizon.
+kernel void mr_mujoco_muscle_active_force_rows(
+    device const MRMujocoMuscleGPU* muscles [[buffer(0)]],
+    device const MRMujocoMuscleStateGPU* states [[buffer(1)]],
+    device MRMujocoMuscleResultGPU* results [[buffer(2)]],
+    device float* muscleGeneralizedForces [[buffer(3)]],
+    constant MRMujocoMuscleActiveForceDispatchGPU& dispatch [[buffer(4)]],
+    uint globalIndex [[thread_position_in_grid]]
+) {
+    if (dispatch.abiVersion != MR_MUJOCO_MUSCLE_ACTIVE_FORCE_GPU_ABI_VERSION ||
+        dispatch.muscleCount == 0u || dispatch.environmentCount == 0u ||
+        dispatch.dofCount == 0u ||
+        globalIndex >= dispatch.environmentCount * dispatch.muscleCount) {
+        return;
+    }
+    device MRMujocoMuscleResultGPU& result = results[globalIndex];
+    if (result.status != MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS) return;
+    const uint muscleIndex = globalIndex % dispatch.muscleCount;
+    const float totalForce = result.pathForceAndActivationDerivative.z;
+    const float activeForce = muscleGain(
+        result.pathForceAndActivationDerivative.x,
+        muscles[muscleIndex]
+    ) * states[globalIndex].excitationAndActivation.y;
+    const uint forceBase = globalIndex * dispatch.dofCount;
+    if (abs(totalForce) <= kMinimum) {
+        if (abs(activeForce) > kMinimum) {
+            result.status = MR_MUJOCO_MUSCLE_REFERENCE_NONFINITE_RESULT;
+        } else {
+            for (uint dof = 0u; dof < dispatch.dofCount; ++dof) {
+                muscleGeneralizedForces[forceBase + dof] = 0.0f;
+            }
+        }
+        return;
+    }
+    const float scale = activeForce / totalForce;
+    if (!isfinite(scale)) {
+        result.status = MR_MUJOCO_MUSCLE_REFERENCE_NONFINITE_RESULT;
+        return;
+    }
+    for (uint dof = 0u; dof < dispatch.dofCount; ++dof) {
+        muscleGeneralizedForces[forceBase + dof] *= scale;
+    }
+}
+
 kernel void mr_mujoco_muscle_reduce(
     device const MRMujocoMuscleReferenceDispatchGPU& dispatch [[buffer(24)]],
     device float* muscleAndGeneralizedForces [[buffer(23)]],

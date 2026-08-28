@@ -856,8 +856,16 @@ deterministic zero while preserving point results bitwise against the full
 operator. An optional MyoSim MuJoCo sidecar then consumes those private poses
 and four analytic Jacobian probes per body to produce source spatial-route
 `J^T` generalized muscle forces and their deterministic reduction on device.
-That is force projection only; it does not claim that the bounded generic
-dynamics bucket integrates the 157-body Human tree. The CPU operator
+The generic operator remains force projection only. Numi Human now has a
+separate large-state horizon in the same persistent context: it re-encodes
+current-pose kinematics and all MyoSim routes, advances activation, reconstructs
+157-body spatial Jacobians, assembles/factors the 128-DoF mass operator, applies
+gravity and low-velocity bias, projects source-foot Coulomb support, and updates
+q/v without per-step host publication. It is deliberately Human-specific and
+does not increase the generic dense bucket. Its current bias omits exact
+high-velocity `Jdot*v`/RNEA terms and its imported passive muscle bias is
+excluded until registered equilibrium calibration, so it is bounded standing
+evidence rather than a general high-speed articulated dynamics claim. The CPU operator
 also appends one 6D maximal-coordinate block per dynamic scene body, applies
 world-frame inverse mass/inertia directly, and treats static/kinematic point
 velocity as prescribed. The dual-PSM/needle `HeterogeneousWorld` now enters

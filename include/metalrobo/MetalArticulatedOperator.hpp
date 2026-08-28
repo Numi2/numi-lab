@@ -3,6 +3,7 @@
 #include "metalrobo/EngineModel.hpp"
 #include "metalrobo/millard_muscle_gpu.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
+#include "metalrobo/numi_human_stand_gpu.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -89,6 +90,30 @@ struct MetalMujocoMuscleReferenceInput {
     }
 };
 
+// Persistent large-state Human horizon. This is deliberately coupled to the
+// MyoSim sidecar: each device step recomputes source routes and J^T muscle
+// force from the current q before advancing activation and dynamics. Support
+// contacts address source-authored point queries in the enclosing stream.
+// Root assistance is a world wrench on the floating base, never joint torque.
+struct MetalNumiHumanStandInput {
+    std::span<const float> v{};
+    std::span<const MRNumiHumanStandContactGPU> contacts{};
+    std::uint32_t stepCount = 0u;
+    std::uint32_t contactIterationCount = 12u;
+    bool enableContact = true;
+    bool enableRootAssistance = false;
+    mr_float4 groundPoint{0.0f, 0.0f, 0.0f, 0.0f};
+    mr_float4 groundNormal{0.0f, 1.0f, 0.0f, 0.0f};
+    mr_float4 targetRootPosition{0.0f, 0.0f, 0.0f, 0.0f};
+    mr_float4 targetRootOrientation{0.0f, 0.0f, 0.0f, 1.0f};
+    // linear stiffness, linear damping, angular stiffness, angular damping.
+    mr_float4 assistanceGains{0.0f, 0.0f, 0.0f, 0.0f};
+
+    [[nodiscard]] bool enabled() const noexcept {
+        return stepCount != 0u;
+    }
+};
+
 // Packed, environment-major input for the synchronous Metal articulated
 // operator. q contains environmentCount * articulation.nq floats. points
 // contains environmentCount * pointCount records. All query body indices are
@@ -102,6 +127,7 @@ struct MetalArticulatedOperatorInput {
     std::span<const MRArticulatedPointImpulseGPU> points{};
     MetalMillardReferenceInput millard{};
     MetalMujocoMuscleReferenceInput mujoco{};
+    MetalNumiHumanStandInput stand{};
 };
 
 struct MetalArticulatedOperatorConfig {
@@ -200,6 +226,18 @@ struct MetalArticulatedOperatorLayout {
     // Private suballocation in the mutually-exclusive source-muscle force
     // workspace: per-muscle rows followed by their environment reduction.
     std::size_t mujocoForceWorkspaceElements = 0u;
+    std::size_t standVelocityElements = 0u;
+    std::size_t standVelocityBytes = 0u;
+    std::size_t standContactElements = 0u;
+    std::size_t standContactBytes = 0u;
+    std::size_t standSpatialJacobianElements = 0u;
+    std::size_t standBodyMotionElements = 0u;
+    std::size_t standFactorElements = 0u;
+    std::size_t standVectorElements = 0u;
+    std::size_t standResponseElements = 0u;
+    std::size_t standScratchBytes = 0u;
+    std::size_t standStatusElements = 0u;
+    std::size_t standStatusBytes = 0u;
     // Includes immutable model buffers and one-element placeholders required
     // to bind logically empty Metal buffers.
     std::size_t totalAllocatedBytes = 0u;
@@ -225,6 +263,11 @@ struct MetalArticulatedOperatorResult {
     // their deterministic [environment][dof] reduction.
     std::vector<float> mujocoMuscleGeneralizedForces;
     std::vector<float> mujocoGeneralizedForces;
+    // Final device state and cumulative horizon diagnostics. Empty for the
+    // historical one-pass operator path.
+    std::vector<float> standQ;
+    std::vector<float> standV;
+    std::vector<MRNumiHumanStandStatusGPU> standStatuses;
 };
 
 struct MetalArticulatedOperatorDiagnostics {
@@ -238,6 +281,9 @@ struct MetalArticulatedOperatorDiagnostics {
     std::uint32_t firstFailingEnvironment = MR_INVALID_INDEX;
     std::uint32_t firstGPUStatusCode =
         MR_ARTICULATED_OPERATOR_SUCCESS;
+    std::uint32_t completedStandSteps = 0u;
+    std::uint32_t firstStandGPUStatusCode =
+        MR_NUMI_HUMAN_STAND_SUCCESS;
     double elapsedMilliseconds = 0.0;
     std::string deviceName;
     std::string message;

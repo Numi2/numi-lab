@@ -116,6 +116,9 @@ set(METALROBO_ARTICULATED_ABA_SOURCE
 set(METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/FunctionBasedDenseDynamics.metal"
 )
+set(METALROBO_NUMI_HUMAN_STAND_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanStand.metal"
+)
 set(METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedParallelABA.metal"
 )
@@ -193,6 +196,9 @@ set(METALROBO_ARTICULATED_ABA_AIR
 )
 set(METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboFunctionBasedDenseDynamics.air"
+)
+set(METALROBO_NUMI_HUMAN_STAND_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboNumiHumanStand.air"
 )
 set(METALROBO_PARAMETERIZED_ARTICULATED_ABA_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboParameterizedArticulatedABA.air"
@@ -295,6 +301,13 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_SOURCE}"
             -o "${METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_NUMI_HUMAN_STAND_SOURCE}"
+            -o "${METALROBO_NUMI_HUMAN_STAND_AIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
@@ -574,6 +587,7 @@ add_custom_command(
             "${METALROBO_PARAMETERIZED_ARTICULATED_OPERATOR_AIR}"
             "${METALROBO_ARTICULATED_ABA_AIR}"
             "${METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_AIR}"
+            "${METALROBO_NUMI_HUMAN_STAND_AIR}"
             "${METALROBO_PARAMETERIZED_ARTICULATED_ABA_AIR}"
             "${METALROBO_ARTICULATED_ABA_SMALL_AIR}"
             "${METALROBO_MULTI_ARTICULATED_ABA_AIR}"
@@ -611,6 +625,7 @@ add_custom_command(
         "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
         "${METALROBO_ARTICULATED_ABA_SOURCE}"
         "${METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_SOURCE}"
+        "${METALROBO_NUMI_HUMAN_STAND_SOURCE}"
         "${METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE}"
         "${METALROBO_DISCRETE_ELASTIC_ROD_SOURCE}"
         "${METALROBO_GENERALIZED_CONSTRAINT_SOURCE}"
@@ -630,6 +645,7 @@ add_custom_command(
         "${METALROBO_SCENE_QUERY_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_stand_gpu.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/multicopter_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/task_program_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/policy_program_types.h"

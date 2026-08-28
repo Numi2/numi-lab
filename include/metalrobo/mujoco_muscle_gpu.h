@@ -8,6 +8,7 @@
 
 #define MR_MUJOCO_MUSCLE_REFERENCE_GPU_ABI_VERSION 2u
 #define MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION 1u
+#define MR_MUJOCO_MUSCLE_ACTIVE_FORCE_GPU_ABI_VERSION 1u
 
 enum MRMujocoMuscleReferenceGPUStatus : mr_u32 {
     MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS = 0u,
@@ -108,6 +109,16 @@ typedef struct MR_ALIGN16 MRMujocoMuscleActivationDispatchGPU {
     mr_float4 timestepSecondsAndReserved;
 } MRMujocoMuscleActivationDispatchGPU;
 
+// Requests the activation-dependent component of each already-evaluated
+// source row. This is used by the Human standing runtime because the imported
+// passive bias is not an equilibrium preload at the registered v1 pose.
+typedef struct MR_ALIGN16 MRMujocoMuscleActiveForceDispatchGPU {
+    mr_u32 abiVersion;
+    mr_u32 muscleCount;
+    mr_u32 environmentCount;
+    mr_u32 dofCount;
+} MRMujocoMuscleActiveForceDispatchGPU;
+
 typedef struct MR_ALIGN16 MRMujocoMuscleResultGPU {
     mr_u32 status;
     mr_u32 environment;
@@ -125,5 +136,6 @@ static_assert(sizeof(MRMujocoMuscleWrapGPU) == 96u);
 static_assert(sizeof(MRMujocoMuscleRouteNodeGPU) == 16u);
 static_assert(sizeof(MRMujocoMuscleStateGPU) == 16u);
 static_assert(sizeof(MRMujocoMuscleActivationDispatchGPU) == 32u);
+static_assert(sizeof(MRMujocoMuscleActiveForceDispatchGPU) == 16u);
 static_assert(sizeof(MRMujocoMuscleResultGPU) == 32u);
 #endif
