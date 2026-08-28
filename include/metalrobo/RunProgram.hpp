@@ -36,6 +36,16 @@ struct MulticopterActuatorPack {
     mr_float4 windVelocity{};
 };
 
+struct FlappingWingActuatorPack {
+    std::array<MRFlappingWingGPU, 2u> wings{};
+    MRAeroTailGPU tail{};
+    MRAeroFuselageGPU fuselage{};
+    std::string bodyRole;
+    std::array<std::string, 2u> wingRoles;
+    std::string tailRole;
+    mr_float4 windVelocityAndDensity{};
+};
+
 // A robot is mechanics plus stable semantic roles and default sensor mounts.
 // Tasks and policies never own the mechanics. A pack may be copied and
 // configured without changing the bundled default.
@@ -52,6 +62,7 @@ struct RobotPack {
     std::vector<RobotSemanticRole> roles;
     std::vector<RobotActuatorSpec> actuators;
     std::optional<MulticopterActuatorPack> multicopter;
+    std::optional<FlappingWingActuatorPack> flappingWings;
 };
 
 struct SceneObject {
@@ -192,6 +203,9 @@ struct RunProfile {
     bool streamedArticulatedContactResponses = true;
     std::uint32_t minimumDifficultyBand = 0u;
     std::uint32_t maximumDifficultyBand = MR_INVALID_INDEX;
+    // Zero retains the TaskPack exponent. Positive values are fingerprinted
+    // execution semantics used to rebalance overlapping curriculum bands.
+    float difficultySamplingExponentOverride = 0.0f;
 };
 
 struct RunManifest {
@@ -249,6 +263,8 @@ public:
     visualSensorProgram() const noexcept;
     [[nodiscard]] const MetalWorldMulticopterProgram*
     multicopterProgram() const noexcept;
+    [[nodiscard]] const MetalWorldFlappingWingProgram*
+    flappingWingProgram() const noexcept;
 
 private:
     std::uint64_t fingerprint_ = 0u;
@@ -267,6 +283,7 @@ private:
     TeacherPack teacher_;
     std::optional<VisualSensorProgram> visualSensorProgram_;
     std::optional<MetalWorldMulticopterProgram> multicopterProgram_;
+    std::optional<MetalWorldFlappingWingProgram> flappingWingProgram_;
 
     friend RunCompileDiagnostics compileRun(
         const RunManifest&,
@@ -286,7 +303,29 @@ private:
 );
 [[nodiscard]] ScenePack makeFrankaPickPlaceScenePack();
 [[nodiscard]] ScenePack makePX4X500HoverScenePack();
+[[nodiscard]] ScenePack makeBirdFlowDoveFlightScenePack();
+[[nodiscard]] ScenePack makeBirdFlowAmericanCrowFlightScenePack();
 [[nodiscard]] TaskPack makePX4X500HoverTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+[[nodiscard]] TaskPack makeBirdFlowDoveFlightTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+[[nodiscard]] TaskPack makeBirdFlowAmericanCrowFlightTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+[[nodiscard]] TaskPack makeBirdFlowAmericanCrowJourneyTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+[[nodiscard]] TaskPack makeBirdFlowAmericanCrowNeuralJourneyTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+[[nodiscard]] TaskPack makeBirdFlowAmericanCrowVisualJourneyTaskPack(
     TaskObservationProgram& observations,
     TaskResetProgram& reset
 );

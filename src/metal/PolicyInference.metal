@@ -266,3 +266,129 @@ kernel void mr_policy_sample_and_score(
         values[scalarIndex] = 0.0f;
     }
 }
+
+// The base actor is deterministic and immutable.  This kernel deliberately
+// repeats its post-transform action expression on protected bands so the
+// frozen-base control can compare the exact action stream rather than only an
+// aggregate reward.  The PPO distribution, latent, score, and critic remain
+// those of the residual program; only the current lift-off band receives its
+// residual action.
+kernel void mr_policy_residual_sample_and_score(
+    device const MRPolicyProgramHeaderGPU& program
+        [[buffer(0)]],
+    device const uchar* arena [[buffer(1)]],
+    device const MRPolicyProgramHeaderGPU& baseProgram
+        [[buffer(2)]],
+    device const uchar* baseArena [[buffer(3)]],
+    constant MRPolicySampleDispatchGPU& dispatch
+        [[buffer(4)]],
+    device const MRTaskDispatchGPU& task [[buffer(5)]],
+    device const MRTaskStateGPU* taskStates [[buffer(6)]],
+    device const float* actorMean [[buffer(7)]],
+    device const float* baseActorMean [[buffer(8)]],
+    device float* actions [[buffer(9)]],
+    device float* latents [[buffer(10)]],
+    device float* logProbabilities [[buffer(11)]],
+    device float* values [[buffer(12)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x ||
+        program.abi.x != MR_POLICY_PROGRAM_ABI_VERSION ||
+        baseProgram.abi.x != MR_POLICY_PROGRAM_ABI_VERSION ||
+        dispatch.policyFingerprint != program.policyFingerprint ||
+        dispatch.taskFingerprint != program.taskFingerprint ||
+        baseProgram.taskFingerprint != program.taskFingerprint ||
+        task.taskFingerprint != program.taskFingerprint ||
+        dispatch.counts.y != program.counts1.x ||
+        dispatch.counts.y != baseProgram.counts1.x ||
+        dispatch.counts.w != program.counts1.z ||
+        (baseProgram.counts1.z &
+         (MR_POLICY_PROGRAM_HAS_CRITIC |
+          MR_POLICY_PROGRAM_STOCHASTIC)) != 0u) {
+        return;
+    }
+
+    const uint actionBase =
+        dispatch.counts.z * dispatch.strides.x +
+        environment * dispatch.counts.y;
+    const uint scalarIndex =
+        dispatch.counts.z * dispatch.strides.y +
+        environment;
+    const uint meanBase =
+        environment * dispatch.strides.z;
+    device const float* actionBias =
+        policyTable<float>(arena, program.offsets1.z);
+    device const float* actionScale =
+        policyTable<float>(arena, program.offsets1.w);
+    device const float* baseActionBias =
+        policyTable<float>(baseArena, baseProgram.offsets1.z);
+    device const float* baseActionScale =
+        policyTable<float>(baseArena, baseProgram.offsets1.w);
+    const bool stochastic =
+        (dispatch.counts.w &
+         MR_POLICY_PROGRAM_STOCHASTIC) != 0u;
+    device const float* logStandardDeviation =
+        stochastic
+        ? policyTable<float>(arena, program.offsets2.x)
+        : nullptr;
+    const MRTaskStateGPU state = taskStates[environment];
+    const bool liftOffBand = state.episode.z == 2u;
+    ulong randomKey = task.seed;
+    randomKey ^= policyMix64(
+        (ulong(environment) << 32u) |
+        ulong(state.episode.y)
+    );
+    randomKey ^= policyMix64(
+        (ulong(state.episode.x) << 32u) |
+        ulong(dispatch.counts.z)
+    );
+    randomKey ^= policyMix64(program.revision);
+
+    constexpr float kHalfLogTwoPi =
+        0.91893853320467274178f;
+    float logProbability = 0.0f;
+    for (uint action = 0u;
+         action < dispatch.counts.y;
+         ++action) {
+        const float baseAction = clamp(
+            fma(
+                baseActionScale[action],
+                baseActorMean[meanBase + action],
+                baseActionBias[action]
+            ),
+            -baseProgram.limits.y,
+            baseProgram.limits.y
+        );
+        const float mean = actorMean[meanBase + action];
+        float latent = mean;
+        if (stochastic) {
+            const float logStd = logStandardDeviation[action];
+            const float normal = policyNormal(randomKey, action);
+            latent = fma(exp(logStd), normal, mean);
+            logProbability +=
+                -0.5f * normal * normal -
+                logStd -
+                kHalfLogTwoPi;
+        }
+        latents[actionBase + action] = latent;
+        if (liftOffBand) {
+            const float residualAction = clamp(
+                fma(actionScale[action], latent, actionBias[action]),
+                -program.limits.y,
+                program.limits.y
+            );
+            actions[actionBase + action] = clamp(
+                baseAction + residualAction,
+                -program.limits.y,
+                program.limits.y
+            );
+        } else {
+            actions[actionBase + action] = baseAction;
+        }
+    }
+    logProbabilities[scalarIndex] = logProbability;
+    if ((dispatch.counts.w &
+         MR_POLICY_PROGRAM_HAS_CRITIC) == 0u) {
+        values[scalarIndex] = 0.0f;
+    }
+}

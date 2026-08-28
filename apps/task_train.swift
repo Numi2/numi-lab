@@ -16,9 +16,17 @@ private struct Options {
     var mlxPython: String?
     var pythonRoot = "python"
     var policyPack: String?
+    var basePolicyPack: String?
     var initializePolicyID: String?
+    var zeroActorOutput = false
     var initializeActorPolicyPack: String?
     var initializeActorFreshCritic = false
+    var retentionPolicyPack: String?
+    var retentionMaximumDifficultyBand: Int?
+    var retentionProtectedActorOnly = false
+    var retentionBalanceDifficultyBands = false
+    var retentionPriorityDifficultyBand: Int?
+    var retentionPriorityFactor = 1.0
     var actorObservationExtensionOffset: Int?
     var actorObservationExtensionMean: Double?
     var actorObservationExtensionInverseStandardDeviation = 1.0
@@ -42,6 +50,7 @@ private struct Options {
     var materializeArticulatedContactResponses = false
     var minimumDifficultyBand: Int?
     var maximumDifficultyBand: Int?
+    var difficultySamplingExponentOverride: Float = 0.0
     var worldPack: String?
     var taskPack: String?
     var robotActuatorPack: String?
@@ -53,6 +62,13 @@ private struct Options {
     var ballVisualPackDirectory: String?
     var visualEnvironmentPack: String?
     var visualObservationConfig: String?
+    var birdFlowDove = false
+    var birdFlowAmericanCrow = false
+    var birdFlowAmericanCrowJourney = false
+    var birdFlowJourneyTeacher = false
+    var birdFlowJourneyStudentAuthority: Float = 0.0
+    var birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant =
+        .v7Hierarchical
     var inspectionScene: String?
     var inspectionWidth = 640
     var inspectionHeight = 360
@@ -136,14 +152,44 @@ private struct Options {
             case "--policy-pack":
                 policyPack = try value()
                 index += 1
+            case "--base-policy-pack":
+                basePolicyPack = try value()
+                index += 1
             case "--initialize-policy":
                 initializePolicyID = try value()
                 index += 1
+            case "--zero-actor-output":
+                zeroActorOutput = true
             case "--initialize-actor-policy-pack":
                 initializeActorPolicyPack = try value()
                 index += 1
             case "--initialize-actor-fresh-critic":
                 initializeActorFreshCritic = true
+            case "--retention-policy-pack":
+                retentionPolicyPack = try value()
+                index += 1
+            case "--retention-maximum-difficulty-band":
+                retentionMaximumDifficultyBand = try Self.integer(
+                    value(), option
+                )
+                index += 1
+            case "--retention-protected-actor-only":
+                retentionProtectedActorOnly = true
+            case "--retention-balance-difficulty-bands":
+                retentionBalanceDifficultyBands = true
+            case "--retention-priority-difficulty-band":
+                retentionPriorityDifficultyBand = try Self.integer(
+                    value(), option
+                )
+                index += 1
+            case "--retention-priority-factor":
+                guard let parsed = Double(try value()), parsed.isFinite else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--retention-priority-factor requires a finite value."
+                    )
+                }
+                retentionPriorityFactor = parsed
+                index += 1
             case "--actor-observation-extension-offset":
                 actorObservationExtensionOffset = try Self.integer(
                     value(),
@@ -272,6 +318,16 @@ private struct Options {
             case "--maximum-difficulty-band":
                 maximumDifficultyBand = try Self.integer(value(), option)
                 index += 1
+            case "--difficulty-sampling-exponent":
+                guard let exponent = Float(try value()), exponent.isFinite,
+                      exponent > 0.0
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--difficulty-sampling-exponent requires a finite positive value."
+                    )
+                }
+                difficultySamplingExponentOverride = exponent
+                index += 1
             case "--world-pack":
                 worldPack = try value()
                 index += 1
@@ -304,6 +360,39 @@ private struct Options {
                 index += 1
             case "--visual-observation-config":
                 visualObservationConfig = try value()
+                index += 1
+            case "--birdflow-dove":
+                birdFlowDove = true
+            case "--birdflow-american-crow":
+                birdFlowAmericanCrow = true
+            case "--birdflow-american-crow-journey":
+                birdFlowAmericanCrowJourney = true
+            case "--birdflow-journey-teacher":
+                birdFlowJourneyTeacher = true
+            case "--birdflow-journey-variant":
+                switch try value() {
+                case "v7", "v7-hierarchical":
+                    birdFlowJourneyVariant = .v7Hierarchical
+                case "v8", "v8-neural":
+                    birdFlowJourneyVariant = .v8Neural
+                case "v9", "v9-visual", "v9-visual-neural":
+                    birdFlowJourneyVariant = .v9VisualNeural
+                default:
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, or v9-visual-neural."
+                    )
+                }
+                index += 1
+            case "--birdflow-journey-student-authority":
+                guard let authority = Float(try value()),
+                      authority.isFinite,
+                      authority >= 0.0, authority <= 1.0
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-journey-student-authority requires a finite value in [0, 1]."
+                    )
+                }
+                birdFlowJourneyStudentAuthority = authority
                 index += 1
             case "--inspect-scene":
                 inspectionScene = try value()
@@ -489,6 +578,53 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--actor-observation-extension-offset must be non-negative."
+            )
+        }
+        if retentionPolicyPack?.isEmpty == true {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--retention-policy-pack cannot be empty."
+            )
+        }
+        if retentionPolicyPack != nil && birdFlowJourneyTeacher {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--retention-policy-pack cannot be combined with --birdflow-journey-teacher."
+            )
+        }
+        if let band = retentionMaximumDifficultyBand,
+           retentionPolicyPack == nil || band < 0 || band > 10
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--retention-maximum-difficulty-band requires a retention policy and a band in 0...10."
+            )
+        }
+        if retentionProtectedActorOnly &&
+           (retentionPolicyPack == nil || retentionMaximumDifficultyBand == nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--retention-protected-actor-only requires a retention policy and maximum difficulty band."
+            )
+        }
+        if retentionBalanceDifficultyBands &&
+           (retentionPolicyPack == nil || retentionMaximumDifficultyBand == nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--retention-balance-difficulty-bands requires a retention policy and maximum difficulty band."
+            )
+        }
+        if let priorityBand = retentionPriorityDifficultyBand,
+           !retentionBalanceDifficultyBands || priorityBand < 0 ||
+               priorityBand > (retentionMaximumDifficultyBand ?? -1) ||
+               retentionPriorityFactor < 1.0
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "retention priority requires balanced retention, a protected band, and a factor of at least one."
+            )
+        }
+        if retentionPriorityDifficultyBand == nil &&
+           retentionPriorityFactor != 1.0
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--retention-priority-factor requires a priority band."
             )
         }
         let (sampleCount, sampleOverflow) =
@@ -822,6 +958,9 @@ private func initializePolicyIfRequested(
         "--initial-log-standard-deviation",
         String(options.initialLogStandardDeviation),
     ]
+    if options.zeroActorOutput {
+        arguments.append("--zero-actor-output")
+    }
     if let actor = options.initializeActorPolicyPack {
         let extensionMean =
             options.actorObservationExtensionMean ??
@@ -976,6 +1115,31 @@ private final class MLXLearnerWorker {
         }
         if options.overrideResumedExploration {
             arguments.append("--override-resumed-exploration")
+        }
+        if let retentionPolicyPack = options.retentionPolicyPack {
+            arguments.append(contentsOf: [
+                "--retention-policy-pack",
+                retentionPolicyPack,
+            ])
+        }
+        if let band = options.retentionMaximumDifficultyBand {
+            arguments.append(contentsOf: [
+                "--retention-maximum-difficulty-band",
+                String(band),
+            ])
+        }
+        if options.retentionProtectedActorOnly {
+            arguments.append("--retention-protected-actor-only")
+        }
+        if options.retentionBalanceDifficultyBands {
+            arguments.append("--retention-balance-difficulty-bands")
+        }
+        if let band = options.retentionPriorityDifficultyBand {
+            arguments.append(contentsOf: [
+                "--retention-priority-difficulty-band", String(band),
+                "--retention-priority-factor",
+                String(options.retentionPriorityFactor),
+            ])
         }
         if let offset = options.actorObservationExtensionOffset {
             arguments.append(contentsOf: [
@@ -1183,6 +1347,20 @@ private final class MLXLearnerWorker {
 private func makeContext(
     options: Options
 ) throws -> (MetalRoboTaskRolloutContext, String) {
+    if options.birdFlowJourneyTeacher &&
+        !options.birdFlowAmericanCrowJourney
+    {
+        throw MetalRoboTaskRolloutError.invalidShape(
+            "--birdflow-journey-teacher requires --birdflow-american-crow-journey."
+        )
+    }
+    if options.birdFlowJourneyStudentAuthority != 0.0 &&
+        !options.birdFlowJourneyTeacher
+    {
+        throw MetalRoboTaskRolloutError.invalidShape(
+            "--birdflow-journey-student-authority requires --birdflow-journey-teacher."
+        )
+    }
     let visualSensor = try makeVisualObservation(options: options)
     let inspectionVisual = try makeInspectionVisual(options: options)
     let dynamicSpheres: [MetalRoboDynamicSphere] =
@@ -1202,6 +1380,8 @@ private func makeContext(
             options.minimumDifficultyBand.map {
                 UInt32($0)...UInt32(options.maximumDifficultyBand!)
             },
+        difficultySamplingExponentOverride:
+            options.difficultySamplingExponentOverride,
         interactionReferenceMode: options.interactionResetOnly
             ? .resetOnly
             : .taskDefault,
@@ -1213,8 +1393,61 @@ private func makeContext(
             options.interactionResetPhaseProbability,
         interactionResetMaximumPhase:
             options.interactionResetMaximumPhase,
+        birdFlowJourneyTeacher: options.birdFlowJourneyTeacher,
+        birdFlowJourneyStudentAuthority:
+            options.birdFlowJourneyStudentAuthority,
+        birdFlowJourneyVariant: options.birdFlowJourneyVariant,
         unitreeG1Task: options.unitreeG1Task
     )
+    if [options.birdFlowDove, options.birdFlowAmericanCrow,
+        options.birdFlowAmericanCrowJourney].filter({ $0 }).count > 1 {
+        throw MetalRoboTaskRolloutError.invalidShape(
+            "BirdFlow bird sources are mutually exclusive."
+        )
+    }
+    if options.birdFlowDove {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .birdFlowDove,
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor
+                ),
+                metallibPath: options.metallib
+            ),
+            "birdflow_deetjen_dove_hybrid"
+        )
+    }
+    if options.birdFlowAmericanCrowJourney {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .birdFlowAmericanCrowJourney,
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor
+                ),
+                metallibPath: options.metallib
+            ),
+            options.birdFlowJourneyVariant == .v9VisualNeural
+                ? "birdflow_american_crow_journey_v9_visual_neural"
+                : options.birdFlowJourneyVariant == .v8Neural
+                ? "birdflow_american_crow_journey_v8_neural"
+                : "birdflow_american_crow_journey_v7"
+        )
+    }
+    if options.birdFlowAmericanCrow {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .birdFlowAmericanCrow,
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor
+                ),
+                metallibPath: options.metallib
+            ),
+            "birdflow_american_crow_estimated_hybrid"
+        )
+    }
     if let interactionPack = options.interactionPack,
        let interactionClip = options.interactionClip,
        options.urdf == nil
@@ -1395,6 +1628,11 @@ private enum TaskTrainMain {
             try context.loadPolicy(
                 at: URL(fileURLWithPath: learner.policyPackPath)
             )
+            if let basePolicyPack = options.basePolicyPack {
+                try context.loadBasePolicy(
+                    at: URL(fileURLWithPath: basePolicyPack)
+                )
+            }
             let layout = context.layout
             guard learner.revision != 0,
                   learner.actorObservationCount ==
@@ -1745,6 +1983,34 @@ private enum TaskTrainMain {
                 "physics": "metal",
                 "learner": "mlx",
                 "world_source": worldSource,
+                "action_carrier": options.birdFlowJourneyTeacher
+                    ? "birdflow_assisted_journey_teacher"
+                    : options.birdFlowAmericanCrowJourney
+                    ? options.birdFlowJourneyVariant == .v9VisualNeural
+                        ? "v9_visual_neural_only_masked_depth_history"
+                        : options.birdFlowJourneyVariant == .v8Neural
+                        ? "v8_neural_only_shadow_approach_envelope"
+                        : "v7_state_triggered_approach_supervisor_pitch_0.16_0.22_full_authority"
+                    : options.birdFlowAmericanCrow
+                    ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_band_1;stage2_live_altitude_vertical_rate_and_airspeed_trim_plus_phase_calibrated_pronation_target_amplitude_0.20_phase_2.62_plus_bounded_residual_0.25_wing_sweep_pronation_and_leg_residual_0.25_tail_residual_0.10_band_2"
+                    : "none",
+                "birdflow_journey_teacher":
+                    options.birdFlowJourneyTeacher,
+                "birdflow_journey_student_authority":
+                    options.birdFlowJourneyStudentAuthority,
+                "retention_policy_pack":
+                    options.retentionPolicyPack ?? "",
+                "retention_maximum_difficulty_band":
+                    options.retentionMaximumDifficultyBand ?? -1,
+                "retention_protected_actor_only":
+                    options.retentionProtectedActorOnly,
+                "difficulty_sampling_exponent_override":
+                    options.difficultySamplingExponentOverride,
+                "birdflow_journey_variant":
+                    options.birdFlowJourneyVariant == .v9VisualNeural
+                    ? "v9-visual-neural"
+                    : options.birdFlowJourneyVariant == .v8Neural
+                    ? "v8-neural" : "v7-hierarchical",
                 "device": context.deviceName,
                 "visual_observation":
                     context.visualSceneFingerprint != 0,

@@ -585,6 +585,11 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         // result that looks like a rendering failure. Shaded geometry keeps
         // the renderer's own color unchanged.
         return float4(mix(backdrop, shaded, clamp(sample.w, 0.0, 1.0)), 1.0);
+        // A delivered frame is already valid. Alpha belongs to the authored
+        // visual material and cannot be repurposed as frame validity: doing
+        // so hides otherwise valid RGB from opaque cooked assets whose source
+        // format does not carry an alpha channel.
+        return float4(shaded, 1.0);
     }
     """
 }

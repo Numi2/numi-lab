@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "assetIdentifier": "birdflow-american-crow-numi-hybrid-v2",
+  "taxon": "Corvus brachyrhynchos",
+  "evidenceClass": "estimated-hybrid",
+  "inheritsVisualLock": {
+    "assetIdentifier": "birdflow-american-crow-numi-hybrid-v1",
+    "repository": "BirdFlowMetal",
+    "profilePath": "ValidationInputs/american-crow-hybrid-visual-v1.json",
+    "profileSHA256": "563e600ff8da2fb7461b00228d421e05c1826d1fe025840e319e0aef4e719714",
+    "surfaceManifestPath": "ValidationInputs/american-crow-hybrid-surface-v1/manifest.json",
+    "surfaceManifestSHA256": "3154c5877b3498aa9370e215c94be9267950494149aecc88c08ee183f895bcc5"
+  },
+  "publishedTimingAnchor": {
+    "citation": "Jackson BE, Dial KP. 2011. Scaling of mechanical power output during burst escape flight in the Corvidae. Journal of Experimental Biology 214:452-461.",
+    "doi": "10.1242/jeb.046789",
+    "url": "https://journals.biologists.com/jeb/article/214/3/452/33507/Scaling-of-mechanical-power-output-during-burst",
+    "taxon": "Corvus brachyrhynchos",
+    "flightContext": "maximal vertical escape takeoff",
+    "parameter": "wingbeatFrequencyHertz",
+    "value": 6.4,
+    "application": "compiled Crow task gait clock only",
+    "excludedInterpretations": [
+      "same-specimen forward-flight trajectory",
+      "same-specimen mass or inertia",
+      "wing-angle waveform",
+      "aerodynamic coefficient or force calibration"
+    ]
+  },
+  "selectedHybrid": {
+    "bodyMassKilograms": 0.45,
+    "wingspanMeters": 0.91,
+    "meanWingChordMeters": 0.16,
+    "tailChordMeters": 0.174,
+    "tarsusLengthMeters": 0.057,
+    "wingbeatFrequencyHertz": 6.4
+  },
+  "execution": {
+    "task": "ground-supported standing, push-off, lift-off, forward flight, figure-eight tracking",
+    "aerodynamics": "state-responsive eight-station blade-element closure inside the native Metal transaction",
+    "selection": {
+      "evaluationHorizonControlSteps": 5000,
+      "scheduledResets": false,
+      "stateTraceStrideControlSteps": 8,
+      "terminalForwardTrackingFloor": 0.7
+    }
+  },
+  "excludedClaims": [
+    "measured American-crow kinematics",
+    "same-specimen American-crow inertia",
+    "American-crow CFD validation",
+    "American-crow force, power, or free-flight prediction",
+    "hardware flight"
+  ]
+}

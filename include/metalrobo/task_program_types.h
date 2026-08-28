@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 41u
+#define MR_TASK_PROGRAM_ABI_VERSION 42u
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
 #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
@@ -15,6 +15,7 @@
 // The mapping from ordered task actions to ordered source muscles is checked
 // by MetalWorld, where the immutable source program is available.
 #define MR_TASK_ACTUATOR_MILLARD_EXCITATION 7u
+#define MR_TASK_ACTUATOR_FLAPPING_POSITION 8u
 #define MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT 13u
 #define MR_TASK_MASKED_DEPTH_FEATURE_COUNT 24u
 
@@ -46,6 +47,14 @@ enum MRTaskProgramFlags : mr_u32 {
     // than unconditionally from episode time.
     MR_TASK_PROGRAM_INTERACTION_PHYSICS_GATED = 1u << 10u,
     MR_TASK_PROGRAM_INTERACTION_ALIGN_REFERENCE_YAW = 1u << 11u,
+    MR_TASK_PROGRAM_AVIAN_GROUND_CURRICULUM = 1u << 12u,
+    MR_TASK_PROGRAM_AVIAN_CROW_GROUND_GAIT_CARRIER = 1u << 13u,
+    MR_TASK_PROGRAM_AVIAN_CROW_LIFTOFF_TRIM_CARRIER = 1u << 14u,
+    MR_TASK_PROGRAM_AVIAN_CROW_GROUND_LEG_RESIDUAL = 1u << 15u,
+    MR_TASK_PROGRAM_AVIAN_CROW_GROUND_TILT_ENVELOPE = 1u << 16u,
+    MR_TASK_PROGRAM_AVIAN_CROW_APPROACH_ENVELOPE = 1u << 17u,
+    MR_TASK_PROGRAM_AVIAN_CROW_GROUND_CARRIER_PHASE_OBSERVATION = 1u << 18u,
+    MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY = 1u << 19u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {
@@ -155,6 +164,10 @@ enum MRTaskObservationOpcode : mr_u32 {
     // This remains distinct from the post-transform actuator target stored in
     // the ordinary action history.
     MR_TASK_OBSERVE_PREVIOUS_POLICY_ACTION = 31u,
+    MR_TASK_OBSERVE_CYCLIC_PHASE = 32u,
+    MR_TASK_OBSERVE_CROW_GROUND_CARRIER_PHASE = 33u,
+    MR_TASK_OBSERVE_AVIAN_JOURNEY_PHASE = 34u,
+    MR_TASK_OBSERVE_AVIAN_JOURNEY_STAGE = 35u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
@@ -262,6 +275,7 @@ enum MRTaskRewardOpcode : mr_u32 {
     // source.y selects the goal body; authored x/y/z are positive position,
     // linear-speed, and angular-speed squared-error widths.
     MR_TASK_REWARD_OBJECT_PLACEMENT = 48u,
+    MR_TASK_REWARD_FIGURE_EIGHT_PATH_TRACKING = 49u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
@@ -271,6 +285,7 @@ enum MRTaskTerminationOpcode : mr_u32 {
     // Contact-group termination scoped to the active projectile flight. This
     // avoids treating ordinary support contact as a dodge failure.
     MR_TASK_TERMINATE_PROJECTILE_CONTACT = 3u,
+    MR_TASK_TERMINATE_MAXIMUM_ROOT_HEIGHT = 4u,
 };
 
 enum MRTaskTerminationReason : mr_u32 {
@@ -353,6 +368,9 @@ typedef struct MR_ALIGN16 MRTaskDispatchGPU {
     // sampled difficulty-band lower/upper bound, compiled body count, reserved.
     // MR_INVALID_INDEX in y selects the compiled TaskPack upper bound.
     mr_uint4 sampling;
+    // Crow student authority, difficulty-sampling exponent override, reserved,
+    // reserved. Invocation-scoped values do not change TaskPack identity.
+    mr_float4 assistance;
     mr_u64 seed;
     mr_u64 policyRevision;
     mr_u64 taskFingerprint;
@@ -642,7 +660,7 @@ typedef struct MR_ALIGN16 MRLearningTransitionGPU {
 
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
-static_assert(sizeof(MRTaskDispatchGPU) == 112u);
+static_assert(sizeof(MRTaskDispatchGPU) == 128u);
 static_assert(sizeof(MRTaskProgramHeaderGPU) == 592u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 64u);
 static_assert(sizeof(MRTaskActuatorTermGPU) == 32u);

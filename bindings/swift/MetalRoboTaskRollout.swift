@@ -602,6 +602,12 @@ public struct MetalRoboPolicyPack: Sendable {
     }
 }
 
+public enum MetalRoboBirdFlowJourneyVariant: UInt32, Sendable {
+    case v7Hierarchical = 0
+    case v8Neural = 1
+    case v9VisualNeural = 2
+}
+
 public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var environmentCount: UInt32
     public var surface: MetalRoboLocomotionSurface
@@ -614,11 +620,15 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var disableTaskTerminations: Bool
     public var materializeArticulatedContactResponses: Bool
     public var difficultyBandRange: ClosedRange<UInt32>?
+    public var difficultySamplingExponentOverride: Float
     public var interactionReferenceMode: MetalRoboInteractionReferenceMode
     public var interactionStudentAuthority: Float?
     public var interactionResetPhaseFraction: Float?
     public var interactionResetPhaseProbability: Float?
     public var interactionResetMaximumPhase: Float?
+    public var birdFlowJourneyTeacher: Bool
+    public var birdFlowJourneyStudentAuthority: Float
+    public var birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant
     public var unitreeG1Task: MetalRoboUnitreeG1Task
 
     public init(
@@ -633,12 +643,17 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         disableTaskTerminations: Bool = false,
         materializeArticulatedContactResponses: Bool = false,
         difficultyBandRange: ClosedRange<UInt32>? = nil,
+        difficultySamplingExponentOverride: Float = 0.0,
         interactionReferenceMode: MetalRoboInteractionReferenceMode =
             .taskDefault,
         interactionStudentAuthority: Float? = nil,
         interactionResetPhaseFraction: Float? = nil,
         interactionResetPhaseProbability: Float? = nil,
         interactionResetMaximumPhase: Float? = nil,
+        birdFlowJourneyTeacher: Bool = false,
+        birdFlowJourneyStudentAuthority: Float = 0.0,
+        birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant =
+            .v7Hierarchical,
         unitreeG1Task: MetalRoboUnitreeG1Task = .velocity
     ) {
         self.environmentCount = environmentCount
@@ -653,12 +668,18 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         self.materializeArticulatedContactResponses =
             materializeArticulatedContactResponses
         self.difficultyBandRange = difficultyBandRange
+        self.difficultySamplingExponentOverride =
+            difficultySamplingExponentOverride
         self.interactionReferenceMode = interactionReferenceMode
         self.interactionStudentAuthority = interactionStudentAuthority
         self.interactionResetPhaseFraction = interactionResetPhaseFraction
         self.interactionResetPhaseProbability =
             interactionResetPhaseProbability
         self.interactionResetMaximumPhase = interactionResetMaximumPhase
+        self.birdFlowJourneyTeacher = birdFlowJourneyTeacher
+        self.birdFlowJourneyStudentAuthority =
+            birdFlowJourneyStudentAuthority
+        self.birdFlowJourneyVariant = birdFlowJourneyVariant
         self.unitreeG1Task = unitreeG1Task
     }
 }
@@ -671,6 +692,7 @@ public struct MetalRoboTaskRolloutLayout: Sendable {
     public let actorObservationCount: Int
     public let criticObservationCount: Int
     public let sceneBodyCount: Int
+    public let bodyCount: Int
     public let motionFeatureCount: Int
     public let maximumEpisodeSteps: Int
     public let worldFingerprint: UInt64
@@ -704,6 +726,7 @@ public struct MetalRoboTaskRolloutLayout: Sendable {
         criticObservationCount =
             Int(native.critic_observation_count)
         sceneBodyCount = Int(native.scene_body_count)
+        bodyCount = Int(native.body_count)
         motionFeatureCount = Int(native.motion_feature_count)
         maximumEpisodeSteps = Int(native.maximum_episode_steps)
         worldFingerprint = native.world_fingerprint
@@ -1008,6 +1031,9 @@ public enum MetalRoboRunSource: Sendable {
     case unitreeG1
     case frankaPickPlace
     case px4X500
+    case birdFlowDove
+    case birdFlowAmericanCrow
+    case birdFlowAmericanCrowJourney
     case importedURDF(
         urdf: URL, srdf: URL?, taskPack: URL, actuatorPack: URL,
         sensorPack: URL, realityPack: URL
@@ -1093,6 +1119,12 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
             source = MR_RUN_SOURCE_FRANKA_PICK_PLACE.rawValue
         case .px4X500:
             source = MR_RUN_SOURCE_PX4_X500.rawValue
+        case .birdFlowDove:
+            source = MR_RUN_SOURCE_BIRDFLOW_DOVE.rawValue
+        case .birdFlowAmericanCrow:
+            source = MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW.rawValue
+        case .birdFlowAmericanCrowJourney:
+            source = MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW_JOURNEY.rawValue
         case let .importedURDF(
             urdf, srdf, taskPack, actuatorPack, sensorPack, realityPack
         ):
@@ -1230,6 +1262,14 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
             native.interaction_reset_maximum_phase = maximumPhase
             native.override_interaction_reset_maximum_phase = 1
         }
+        native.birdflow_journey_teacher =
+            configuration.birdFlowJourneyTeacher ? 1 : 0
+        native.birdflow_journey_student_authority =
+            configuration.birdFlowJourneyStudentAuthority
+        native.birdflow_journey_variant =
+            configuration.birdFlowJourneyVariant.rawValue
+        native.difficulty_sampling_exponent_override =
+            configuration.difficultySamplingExponentOverride
         return native
     }
 
@@ -1565,6 +1605,17 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
     public func loadPolicy(at url: URL) throws {
         let status = url.path.withCString {
             mr_task_rollout_load_policy_pack(handle, $0)
+        }
+        guard status == 0 else {
+            throw MetalRoboTaskRolloutError.native(
+                Self.lastError()
+            )
+        }
+    }
+
+    public func loadBasePolicy(at url: URL) throws {
+        let status = url.path.withCString {
+            mr_task_rollout_load_base_policy_pack(handle, $0)
         }
         guard status == 0 else {
             throw MetalRoboTaskRolloutError.native(
@@ -1989,6 +2040,26 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         )
     }
 
+    public func policyActions(
+        controlStepCount: Int
+    ) throws -> [Float] {
+        let current = layout
+        let count =
+            controlStepCount *
+            current.environmentCount *
+            current.actionCount
+        guard let values =
+                mr_task_rollout_policy_actions(handle)
+        else {
+            throw MetalRoboTaskRolloutError.native(
+                "Policy action stream is unavailable."
+            )
+        }
+        return Array(
+            UnsafeBufferPointer(start: values, count: count)
+        )
+    }
+
     public func policyLogProbabilities(
         controlStepCount: Int
     ) throws -> [Float] {
@@ -2047,6 +2118,37 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         return Array(
             UnsafeBufferPointer(start: values, count: count)
         )
+    }
+
+    public func finalVelocity() throws -> [Float] {
+        let count = layout.environmentCount * layout.velocityCount
+        guard let values = mr_task_rollout_final_v(handle) else {
+            throw MetalRoboTaskRolloutError.native(
+                "Final velocity is unavailable."
+            )
+        }
+        return Array(UnsafeBufferPointer(start: values, count: count))
+    }
+
+    public var bodyNames: [String] {
+        (0..<layout.bodyCount).compactMap { index in
+            mr_task_rollout_body_name(handle, UInt32(index)).map(String.init(cString:))
+        }
+    }
+
+    public func finalBodyStates() throws -> [Float] {
+        let current = layout
+        let count = current.environmentCount * current.bodyCount * 13
+        var output = [Float](repeating: 0, count: count)
+        let status = output.withUnsafeMutableBufferPointer { buffer in
+            mr_task_rollout_copy_final_body_states(
+                handle, buffer.baseAddress, buffer.count
+            )
+        }
+        guard status == 0 else {
+            throw MetalRoboTaskRolloutError.native(Self.lastError())
+        }
+        return output
     }
 
     public func finalSceneStates() throws -> [Float] {

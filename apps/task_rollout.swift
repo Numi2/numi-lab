@@ -2,6 +2,35 @@ import Foundation
 import Darwin
 import AppKit
 
+private func sha256Hex(_ data: Data) throws -> String {
+    let process = Process()
+    let input = Pipe()
+    let output = Pipe()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/shasum")
+    process.arguments = ["-a", "256"]
+    process.standardInput = input
+    process.standardOutput = output
+    try process.run()
+    input.fileHandleForWriting.write(data)
+    try input.fileHandleForWriting.close()
+    process.waitUntilExit()
+    guard process.terminationStatus == 0 else {
+        throw MetalRoboTaskRolloutError.native(
+            "Unable to compute CrowReplayPack SHA-256."
+        )
+    }
+    let digest = String(
+        decoding: output.fileHandleForReading.readDataToEndOfFile(),
+        as: UTF8.self
+    ).split(separator: " ").first.map(String.init) ?? ""
+    guard digest.count == 64 else {
+        throw MetalRoboTaskRolloutError.native(
+            "CrowReplayPack SHA-256 output is malformed."
+        )
+    }
+    return digest
+}
+
 private struct SplitMix64 {
     private var state: UInt64
 
@@ -163,8 +192,23 @@ private struct Options {
     var nativePolicy = false
     var zeroActions = false
     var actionStream: String?
+    var birdFlowFlapScript = false
+    var birdFlowStrokeAmplitude: Float?
+    var birdFlowTailPitch: Float?
+    var birdFlowPronation: Float?
+    var birdFlowPronationWavePhase: Float?
+    var birdFlowSweepWaveAmplitude: Float?
+    var birdFlowSweepWavePhase: Float?
+    var birdFlowWingPulseAmplitude: Float?
+    var birdFlowWingPulseTarget: String?
+    var birdFlowWingPulseSecondaryAmplitude: Float?
+    var birdFlowWingPulseSecondaryTarget: String?
+    var birdFlowWingPulseStartStep: Int?
+    var birdFlowWingPulseDurationSteps: Int?
+    var birdFlowGroundGaitProbe = false
     var scheduledResets = true
     var policyPack: String?
+    var basePolicyPack: String?
     var rolloutPack: String?
     var interactionPack: String?
     var interactionClip: String?
@@ -180,6 +224,7 @@ private struct Options {
     var materializeArticulatedContactResponses = false
     var minimumDifficultyBand: Int?
     var maximumDifficultyBand: Int?
+    var difficultySamplingExponentOverride: Float = 0.0
     var interactionResetOnly = false
     var interactionStudentAuthority: Float?
     var interactionResetPhaseFraction: Float?
@@ -187,6 +232,8 @@ private struct Options {
     var interactionResetMaximumPhase: Float?
     var stateTrace: String?
     var stateTraceEnvironment = 0
+    var crowReplayPack: String?
+    var policyActionTrace: String?
     var g1VisualPackDirectory: String?
     var ballVisualPackDirectory: String?
     var visualEnvironmentPack: String?
@@ -199,6 +246,13 @@ private struct Options {
     var captureHeight = 270
     var captureStride = 1
     var capturePolicyCamera = false
+    var birdFlowDove = false
+    var birdFlowAmericanCrow = false
+    var birdFlowAmericanCrowJourney = false
+    var birdFlowJourneyTeacher = false
+    var birdFlowJourneyStudentAuthority: Float = 0.0
+    var birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant =
+        .v7Hierarchical
 
     init(arguments: [String]) throws {
         var index = 1
@@ -302,6 +356,16 @@ private struct Options {
             case "--maximum-difficulty-band":
                 maximumDifficultyBand = try Self.integer(value(), option)
                 index += 1
+            case "--difficulty-sampling-exponent":
+                guard let exponent = Float(try value()), exponent.isFinite,
+                      exponent > 0.0
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--difficulty-sampling-exponent requires a finite positive value."
+                    )
+                }
+                difficultySamplingExponentOverride = exponent
+                index += 1
             case "--interaction-reset-only":
                 interactionResetOnly = true
             case "--interaction-student-authority":
@@ -354,6 +418,9 @@ private struct Options {
                 index += 1
             case "--policy-pack":
                 policyPack = try value()
+                index += 1
+            case "--base-policy-pack":
+                basePolicyPack = try value()
                 index += 1
             case "--rollout-pack":
                 rolloutPack = try value()
@@ -426,6 +493,12 @@ private struct Options {
             case "--state-trace-environment":
                 stateTraceEnvironment = try Self.integer(value(), option)
                 index += 1
+            case "--crow-replay-pack":
+                crowReplayPack = try value()
+                index += 1
+            case "--policy-action-trace":
+                policyActionTrace = try value()
+                index += 1
             case "--g1-visual-pack-dir":
                 g1VisualPackDirectory = try value()
                 index += 1
@@ -461,6 +534,155 @@ private struct Options {
                 index += 1
             case "--capture-policy-camera":
                 capturePolicyCamera = true
+            case "--birdflow-dove":
+                birdFlowDove = true
+            case "--birdflow-american-crow":
+                birdFlowAmericanCrow = true
+            case "--birdflow-american-crow-journey":
+                birdFlowAmericanCrowJourney = true
+            case "--birdflow-journey-teacher":
+                birdFlowJourneyTeacher = true
+            case "--birdflow-journey-variant":
+                switch try value() {
+                case "v7", "v7-hierarchical":
+                    birdFlowJourneyVariant = .v7Hierarchical
+                case "v8", "v8-neural":
+                    birdFlowJourneyVariant = .v8Neural
+                case "v9", "v9-visual", "v9-visual-neural":
+                    birdFlowJourneyVariant = .v9VisualNeural
+                default:
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, or v9-visual-neural."
+                    )
+                }
+                index += 1
+            case "--birdflow-journey-student-authority":
+                guard let authority = Float(try value()),
+                      authority.isFinite,
+                      authority >= 0.0, authority <= 1.0
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-journey-student-authority requires a finite value in [0, 1]."
+                    )
+                }
+                birdFlowJourneyStudentAuthority = authority
+                index += 1
+            case "--birdflow-flap-script":
+                birdFlowFlapScript = true
+            case "--birdflow-stroke-amplitude":
+                guard let amplitude = Float(try value()), amplitude.isFinite,
+                      amplitude >= -1, amplitude <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-stroke-amplitude requires a finite value in [-1, 1]."
+                    )
+                }
+                birdFlowStrokeAmplitude = amplitude
+                index += 1
+            case "--birdflow-tail-pitch":
+                guard let pitch = Float(try value()), pitch.isFinite,
+                      pitch >= -1, pitch <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-tail-pitch requires a finite value in [-1, 1]."
+                    )
+                }
+                birdFlowTailPitch = pitch
+                index += 1
+            case "--birdflow-pronation":
+                guard let pronation = Float(try value()), pronation.isFinite,
+                      pronation >= -1, pronation <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-pronation requires a finite value in [-1, 1]."
+                    )
+                }
+                birdFlowPronation = pronation
+                index += 1
+            case "--birdflow-pronation-wave-phase":
+                guard let phase = Float(try value()), phase.isFinite,
+                      phase >= -Float.pi, phase <= Float.pi
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-pronation-wave-phase requires radians in [-pi, pi]."
+                    )
+                }
+                birdFlowPronationWavePhase = phase
+                index += 1
+            case "--birdflow-sweep-wave-amplitude":
+                guard let amplitude = Float(try value()), amplitude.isFinite,
+                      amplitude >= -1, amplitude <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-sweep-wave-amplitude requires a finite value in [-1, 1]."
+                    )
+                }
+                birdFlowSweepWaveAmplitude = amplitude
+                index += 1
+            case "--birdflow-sweep-wave-phase":
+                guard let phase = Float(try value()), phase.isFinite,
+                      phase >= -Float.pi, phase <= Float.pi
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-sweep-wave-phase requires radians in [-pi, pi]."
+                    )
+                }
+                birdFlowSweepWavePhase = phase
+                index += 1
+            case "--birdflow-wing-pulse-amplitude":
+                guard let amplitude = Float(try value()), amplitude.isFinite,
+                      amplitude >= -1, amplitude <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-wing-pulse-amplitude requires a finite value in [-1, 1]."
+                    )
+                }
+                birdFlowWingPulseAmplitude = amplitude
+                index += 1
+            case "--birdflow-wing-pulse-target":
+                let target = try value()
+                guard target == "wings" || target == "left-wing" ||
+                      target == "right-wing" || target == "sweep" ||
+                      target == "pronation" || target == "tail"
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-wing-pulse-target requires wings, left-wing, right-wing, sweep, pronation, or tail."
+                    )
+                }
+                birdFlowWingPulseTarget = target
+                index += 1
+            case "--birdflow-wing-pulse-secondary-amplitude":
+                guard let amplitude = Float(try value()), amplitude.isFinite,
+                      amplitude >= -1, amplitude <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-wing-pulse-secondary-amplitude requires a finite value in [-1, 1]."
+                    )
+                }
+                birdFlowWingPulseSecondaryAmplitude = amplitude
+                index += 1
+            case "--birdflow-wing-pulse-secondary-target":
+                let target = try value()
+                guard target == "wings" || target == "left-wing" ||
+                      target == "right-wing" || target == "sweep" ||
+                      target == "pronation" || target == "tail"
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-wing-pulse-secondary-target requires wings, left-wing, right-wing, sweep, pronation, or tail."
+                    )
+                }
+                birdFlowWingPulseSecondaryTarget = target
+                index += 1
+            case "--birdflow-wing-pulse-start-step":
+                birdFlowWingPulseStartStep = try Self.integer(value(), option)
+                index += 1
+            case "--birdflow-wing-pulse-duration-steps":
+                birdFlowWingPulseDurationSteps = try Self.integer(
+                    value(), option
+                )
+                index += 1
+            case "--birdflow-ground-gait-probe":
+                birdFlowGroundGaitProbe = true
             default:
                 throw MetalRoboTaskRolloutError.invalidShape(
                     "Unknown option \(option)."
@@ -505,6 +727,144 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--action-stream cannot be combined with another action source."
+            )
+        }
+        if [birdFlowDove, birdFlowAmericanCrow,
+            birdFlowAmericanCrowJourney].filter({ $0 }).count > 1 {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "BirdFlow bird sources are mutually exclusive."
+            )
+        }
+        if birdFlowJourneyTeacher && !birdFlowAmericanCrowJourney {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-journey-teacher requires --birdflow-american-crow-journey."
+            )
+        }
+        if birdFlowJourneyStudentAuthority != 0.0 &&
+            !birdFlowJourneyTeacher
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-journey-student-authority requires --birdflow-journey-teacher."
+            )
+        }
+        let hasBirdFlowWingPulse =
+            birdFlowWingPulseAmplitude != nil ||
+            birdFlowWingPulseTarget != nil ||
+            birdFlowWingPulseSecondaryAmplitude != nil ||
+            birdFlowWingPulseSecondaryTarget != nil ||
+            birdFlowWingPulseStartStep != nil ||
+            birdFlowWingPulseDurationSteps != nil
+        if hasBirdFlowWingPulse &&
+            (birdFlowWingPulseAmplitude == nil ||
+             birdFlowWingPulseStartStep == nil ||
+             birdFlowWingPulseDurationSteps == nil ||
+             birdFlowWingPulseStartStep! < 0 ||
+             birdFlowWingPulseDurationSteps! <= 0)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "BirdFlow wing pulse requires amplitude, non-negative start step, and positive duration."
+            )
+        }
+        if (birdFlowWingPulseSecondaryAmplitude == nil) !=
+            (birdFlowWingPulseSecondaryTarget == nil) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "BirdFlow secondary wing pulse requires both target and amplitude."
+            )
+        }
+        if let secondaryTarget = birdFlowWingPulseSecondaryTarget {
+            let primaryTarget = birdFlowWingPulseTarget ?? "wings"
+            if birdFlowWingPulseTargetsOverlap(primaryTarget, secondaryTarget) {
+                throw MetalRoboTaskRolloutError.invalidShape(
+                    "BirdFlow primary and secondary pulse targets must not overlap."
+                )
+            }
+        }
+        if (birdFlowFlapScript || birdFlowStrokeAmplitude != nil ||
+            birdFlowPronation != nil || birdFlowPronationWavePhase != nil ||
+            birdFlowSweepWaveAmplitude != nil ||
+            birdFlowSweepWavePhase != nil ||
+            hasBirdFlowWingPulse ||
+            birdFlowGroundGaitProbe) &&
+            (!(birdFlowDove || birdFlowAmericanCrow ||
+               birdFlowAmericanCrowJourney) ||
+                zeroActions || actionStream != nil ||
+                nativePolicy || policyPack != nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "BirdFlow qualification actions require one BirdFlow bird source and cannot be combined with another action source."
+            )
+        }
+        if (birdFlowFlapScript && birdFlowStrokeAmplitude != nil) ||
+            (hasBirdFlowWingPulse &&
+             (birdFlowFlapScript || birdFlowStrokeAmplitude != nil ||
+              birdFlowGroundGaitProbe)) ||
+            (birdFlowGroundGaitProbe &&
+             (birdFlowFlapScript || birdFlowStrokeAmplitude != nil))
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "BirdFlow scripted action sources are mutually exclusive."
+            )
+        }
+        if birdFlowTailPitch != nil && birdFlowStrokeAmplitude == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-tail-pitch requires --birdflow-stroke-amplitude."
+            )
+        }
+        if birdFlowPronation != nil && birdFlowStrokeAmplitude == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-pronation requires --birdflow-stroke-amplitude."
+            )
+        }
+        if birdFlowPronationWavePhase != nil &&
+            birdFlowStrokeAmplitude == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-pronation-wave-phase requires --birdflow-stroke-amplitude."
+            )
+        }
+        if birdFlowSweepWaveAmplitude != nil &&
+            birdFlowStrokeAmplitude == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-sweep-wave-amplitude requires --birdflow-stroke-amplitude."
+            )
+        }
+        if birdFlowSweepWavePhase != nil &&
+            birdFlowStrokeAmplitude == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-sweep-wave-phase requires --birdflow-stroke-amplitude."
+            )
+        }
+        let birdFlowCrow = birdFlowAmericanCrow ||
+            birdFlowAmericanCrowJourney
+        if birdFlowPronation != nil && !birdFlowCrow {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-pronation is available only for --birdflow-american-crow."
+            )
+        }
+        if birdFlowPronationWavePhase != nil && !birdFlowCrow {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-pronation-wave-phase is available only for --birdflow-american-crow."
+            )
+        }
+        if (birdFlowSweepWaveAmplitude != nil ||
+            birdFlowSweepWavePhase != nil) && !birdFlowCrow {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "BirdFlow sweep wave is available only for --birdflow-american-crow."
+            )
+        }
+        if hasBirdFlowWingPulse && !birdFlowCrow {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "BirdFlow wing pulse is available only for --birdflow-american-crow."
+            )
+        }
+        if birdFlowPronation != nil && birdFlowPronationWavePhase != nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-pronation and --birdflow-pronation-wave-phase are mutually exclusive."
+            )
+        }
+        if (birdFlowSweepWaveAmplitude == nil) !=
+            (birdFlowSweepWavePhase == nil) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "BirdFlow sweep wave requires both amplitude and phase."
             )
         }
         if rolloutPack != nil &&
@@ -557,11 +917,11 @@ private struct Options {
             (worldPack != nil ||
              (unitreeG1Task != .velocity &&
               unitreeG1Task != .ballDodge &&
-              unitreeG1Task != .supineGetUpDiscovery) ||
-             !dynamicSpheres.isEmpty)
+              unitreeG1Task != .supineGetUpDiscovery))
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "InteractionPack evaluation supports imported URDF owner packs or bundled G1 velocity, ball-dodge, and supine-get-up mechanics; it cannot be combined with a WorldPack or --ball."
+                "InteractionPack evaluation supports imported URDF owner packs or bundled G1 velocity, ball-dodge, and supine-get-up mechanics; it cannot be combined with a WorldPack."
             )
         }
         let importing = worldPack != nil || urdf != nil
@@ -585,9 +945,24 @@ private struct Options {
                 "--state-trace requires --repeats 1 --chunk 1."
             )
         }
+        if crowReplayPack != nil && (repeats != 1 || chunk != 1) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--crow-replay-pack requires --repeats 1 --chunk 1."
+            )
+        }
+        if crowReplayPack != nil && !birdFlowAmericanCrowJourney {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--crow-replay-pack requires --birdflow-american-crow-journey."
+            )
+        }
         if stateTrace == nil && stateTraceEnvironment != 0 {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--state-trace-environment requires --state-trace."
+            )
+        }
+        if policyActionTrace != nil && policyPack == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--policy-action-trace requires --policy-pack."
             )
         }
         if stateTraceEnvironment < 0 ||
@@ -728,6 +1103,8 @@ private func makeInspectionVisual(
     // capture and never enter the policy observation contract.
     inspection.captureWidth = inspection.width
     inspection.captureHeight = inspection.height
+    inspection.captureWidth = 0
+    inspection.captureHeight = 0
     inspection.capturePolicyCamera = false
     return inspection
 }
@@ -825,6 +1202,8 @@ private func makeContext(
             options.minimumDifficultyBand.map {
                 UInt32($0)...UInt32(options.maximumDifficultyBand!)
             },
+        difficultySamplingExponentOverride:
+            options.difficultySamplingExponentOverride,
         interactionReferenceMode: options.interactionResetOnly
             ? .resetOnly
             : .taskDefault,
@@ -836,8 +1215,58 @@ private func makeContext(
             options.interactionResetPhaseProbability,
         interactionResetMaximumPhase:
             options.interactionResetMaximumPhase,
+        birdFlowJourneyTeacher: options.birdFlowJourneyTeacher,
+        birdFlowJourneyStudentAuthority:
+            options.birdFlowJourneyStudentAuthority,
+        birdFlowJourneyVariant: options.birdFlowJourneyVariant,
         unitreeG1Task: options.unitreeG1Task
     )
+    if options.birdFlowDove {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .birdFlowDove,
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual
+                ),
+                metallibPath: options.metallib
+            ),
+            "birdflow_deetjen_dove_hybrid"
+        )
+    }
+    if options.birdFlowAmericanCrowJourney {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .birdFlowAmericanCrowJourney,
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual
+                ),
+                metallibPath: options.metallib
+            ),
+            options.birdFlowJourneyVariant == .v9VisualNeural
+                ? "birdflow_american_crow_journey_v9_visual_neural"
+                : options.birdFlowJourneyVariant == .v8Neural
+                ? "birdflow_american_crow_journey_v8_neural"
+                : "birdflow_american_crow_journey_v7"
+        )
+    }
+    if options.birdFlowAmericanCrow {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .birdFlowAmericanCrow,
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual
+                ),
+                metallibPath: options.metallib
+            ),
+            "birdflow_american_crow_estimated_hybrid"
+        )
+    }
     if let interactionPack = options.interactionPack,
        let interactionClip = options.interactionClip,
        options.urdf == nil
@@ -966,6 +1395,238 @@ private func actions(
     return result
 }
 
+// A deterministic full-stroke qualification input, not a policy or a flight
+// result. It proves that the robot-owned wingbeat reaches the device-side
+// aerodynamic coupling through the same amplitude-modulation action contract.
+private func birdFlowFlapActions(
+    startStep: Int,
+    stepCount: Int,
+    environmentCount: Int,
+    actionCount: Int
+) -> [Float] {
+    precondition(actionCount >= 2)
+    var result = [Float](
+        repeating: 0,
+        count: stepCount * environmentCount * actionCount
+    )
+    for step in 0..<stepCount {
+        for environment in 0..<environmentCount {
+            let base = (step * environmentCount + environment) * actionCount
+            result[base] = 1.0
+            result[base + 1] = 1.0
+        }
+    }
+    return result
+}
+
+private func birdFlowStrokeActions(
+    amplitude: Float,
+    tailPitch: Float,
+    pronation: Float?,
+    pronationWavePhase: Float?,
+    sweepWaveAmplitude: Float?,
+    sweepWavePhase: Float?,
+    startStep: Int,
+    stepCount: Int,
+    environmentCount: Int,
+    actionCount: Int
+) -> [Float] {
+    precondition(actionCount == 10 || actionCount == 12 || actionCount == 14)
+    precondition(pronation == nil || actionCount == 12 || actionCount == 14)
+    precondition(pronationWavePhase == nil || actionCount == 12 || actionCount == 14)
+    precondition(sweepWaveAmplitude == nil || actionCount == 14)
+    precondition(sweepWavePhase == nil || actionCount == 14)
+    precondition((sweepWaveAmplitude == nil) == (sweepWavePhase == nil))
+    var result = [Float](
+        repeating: 0,
+        count: stepCount * environmentCount * actionCount
+    )
+    for step in 0..<stepCount {
+        for environment in 0..<environmentCount {
+            let base = (step * environmentCount + environment) * actionCount
+            // The current crow inserts bilateral sweep and distal-wing
+            // pronation after the first two flap lanes. Equal command signs
+            // are mirror-symmetric because the physical axes are mirrored in
+            // its pack. Leave sweep neutral in this pronation-specific probe.
+            // Leave all leg actions neutral during this calibration.
+            result[base] = amplitude
+            result[base + 1] = amplitude
+            if actionCount == 12 || actionCount == 14 {
+                let sweepAction: Float
+                if let sweepWaveAmplitude, let sweepWavePhase {
+                    sweepAction = sweepWaveAmplitude * sin(
+                        2.0 * Float.pi *
+                            Float(startStep + step) * 0.020 * 4.6 +
+                            sweepWavePhase
+                    )
+                } else {
+                    sweepAction = 0
+                }
+                if actionCount == 14 {
+                    // Qualification-only phase sweep through the two real
+                    // ABA position drives. It is not a deployed carrier or
+                    // a bird-kinematics reconstruction.
+                    result[base + 2] = sweepAction
+                    result[base + 3] = sweepAction
+                }
+                // This is a deterministic response probe, not the deployed
+                // controller. It exercises the same normalized position
+                // bindings as a learned policy while sweeping feathering
+                // phase against the 4.6 Hz authored wingbeat.
+                let wave = pronationWavePhase.map { phase in
+                    sin(2.0 * Float.pi *
+                        Float(startStep + step) * 0.020 * 4.6 + phase)
+                }
+                let pronationAction = pronation ?? wave ?? 0
+                let pronationOffset = actionCount == 14 ? 4 : 2
+                result[base + pronationOffset] = pronationAction
+                result[base + pronationOffset + 1] = pronationAction
+                result[base + pronationOffset + 2] = tailPitch
+            } else {
+                result[base + 2] = tailPitch
+            }
+        }
+    }
+    return result
+}
+
+// A late-horizon local action-response probe. It applies a selected bilateral
+// flight-control residual through ordinary policy-action lanes only over the
+// selected interval; the live Metal carrier, aerodynamic solve, and
+// articulated ABA joints remain authoritative. This identifies whether the
+// policy's bounded residual can regulate an already airborne speed state
+// before another learner run is authorized.
+private func birdFlowWingPulseTargetsOverlap(
+    _ first: String,
+    _ second: String
+) -> Bool {
+    if first == second {
+        return true
+    }
+    if first == "wings" {
+        return second == "left-wing" || second == "right-wing"
+    }
+    if second == "wings" {
+        return first == "left-wing" || first == "right-wing"
+    }
+    return false
+}
+
+private func birdFlowWingPulseActionIndices(
+    target: String,
+    actionCount: Int
+) -> [Int] {
+    precondition(actionCount == 12 || actionCount == 14)
+    switch target {
+    case "wings":
+        return [0, 1]
+    case "left-wing":
+        return [0]
+    case "right-wing":
+        return [1]
+    case "sweep":
+        precondition(actionCount == 14)
+        return [2, 3]
+    case "pronation":
+        return actionCount == 14 ? [4, 5] : [2, 3]
+    case "tail":
+        return actionCount == 14 ? [6] : [4]
+    default:
+        preconditionFailure("Unsupported BirdFlow wing-pulse target.")
+    }
+}
+
+private func birdFlowWingPulseActions(
+    amplitude: Float,
+    target: String,
+    secondaryAmplitude: Float?,
+    secondaryTarget: String?,
+    pulseStartStep: Int,
+    pulseDurationSteps: Int,
+    startStep: Int,
+    stepCount: Int,
+    environmentCount: Int,
+    actionCount: Int
+) -> [Float] {
+    precondition(actionCount == 12 || actionCount == 14)
+    let targetActions = birdFlowWingPulseActionIndices(
+        target: target,
+        actionCount: actionCount
+    )
+    let secondaryActions = secondaryTarget.map {
+        birdFlowWingPulseActionIndices(target: $0, actionCount: actionCount)
+    } ?? []
+    precondition(
+        Set(targetActions).isDisjoint(with: Set(secondaryActions))
+    )
+    let pulseEndStep = pulseStartStep + pulseDurationSteps
+    var result = [Float](
+        repeating: 0,
+        count: stepCount * environmentCount * actionCount
+    )
+    for step in 0..<stepCount {
+        let absoluteStep = startStep + step
+        guard absoluteStep >= pulseStartStep,
+              absoluteStep < pulseEndStep
+        else {
+            continue
+        }
+        for environment in 0..<environmentCount {
+            let base = (step * environmentCount + environment) * actionCount
+            for action in targetActions {
+                result[base + action] = amplitude
+            }
+            if let secondaryAmplitude {
+                for action in secondaryActions {
+                    result[base + action] = secondaryAmplitude
+                }
+            }
+        }
+    }
+    return result
+}
+
+// A deterministic action-authority calibration, not an imitation target or a
+// learned gait.  The low-amplitude alternating leg residuals expose whether
+// the imported hybrid can remain supported under a physically plausible
+// left/right stepping cadence before the learner is asked to discover it. The
+// residual cap is one tenth of the failed first probe and stays inside the
+// roughly 0.02-rad leg envelope observed in the held-out learned candidate.
+private func birdFlowGroundGaitProbeActions(
+    startStep: Int,
+    stepCount: Int,
+    environmentCount: Int,
+    actionCount: Int
+) -> [Float] {
+    precondition(actionCount == 10 || actionCount == 12 || actionCount == 14)
+    var result = [Float](
+        repeating: 0,
+        count: stepCount * environmentCount * actionCount
+    )
+    for step in 0..<stepCount {
+        let phase = 2.0 * Double.pi *
+            Double(startStep + step) * 0.02 / 0.50
+        let leftSwing = Float(sin(phase))
+        let rightSwing = -leftSwing
+        for environment in 0..<environmentCount {
+            let base = (step * environmentCount + environment) * actionCount
+            let leftLift = max(leftSwing, 0.0)
+            let rightLift = max(rightSwing, 0.0)
+            // The held-out long-horizon calibration fixed this sign: the
+            // opposite hip sweep remained stable but translated backward.
+            // Keep lift timing unchanged while reversing only fore/aft swing.
+            let legOffset = actionCount == 14 ? 7 : actionCount == 12 ? 5 : 3
+            result[base + legOffset] = -0.014 * leftSwing
+            result[base + legOffset + 1] = 0.018 * leftLift
+            result[base + legOffset + 2] = -0.010 * leftLift
+            result[base + legOffset + 3] = -0.014 * rightSwing
+            result[base + legOffset + 4] = 0.018 * rightLift
+            result[base + legOffset + 5] = -0.010 * rightLift
+        }
+    }
+    return result
+}
+
 private func masks(
     startStep: Int,
     stepCount: Int,
@@ -1054,7 +1715,8 @@ private enum TaskRolloutMain {
                 try makeContext(options: options)
             let visualObservationEnabled =
                 context.visualSceneFingerprint != 0
-            if options.stateTrace != nil || options.captureDirectory != nil {
+            if options.stateTrace != nil || options.crowReplayPack != nil ||
+                options.captureDirectory != nil {
                 try context.setStateReadback(true)
             }
             let streamedActions: [Float]? = try options.actionStream.map {
@@ -1084,6 +1746,11 @@ private enum TaskRolloutMain {
                 try context.loadPolicy(
                     at: URL(fileURLWithPath: policyPack)
                 )
+                if let basePolicyPack = options.basePolicyPack {
+                    try context.loadBasePolicy(
+                        at: URL(fileURLWithPath: basePolicyPack)
+                    )
+                }
             } else if options.nativePolicy {
                 let layout = context.layout
                 let hiddenCount = 64
@@ -1347,6 +2014,7 @@ private enum TaskRolloutMain {
                 options.worldPack == nil && options.urdf == nil &&
                 options.unitreeG1Task == .ballDodge
             var terminationReasonCounts: [String: Int] = [:]
+            var timeoutCount = 0
             var terminationCountByEnvironment = [Int](
                 repeating: 0,
                 count: options.environments
@@ -1478,12 +2146,21 @@ private enum TaskRolloutMain {
             var collectedPolicyBatches:
                 [MetalRoboPolicyRolloutBatch] = []
             var stateTraceLines: [String] = []
+            var crowReplayFrames: [[String: Any]] = []
             if options.stateTrace != nil {
                 let traceLayout = context.layout
                 stateTraceLines.append(
                     "# step nq=\(traceLayout.configurationCount) " +
                     "scene_bodies=\(traceLayout.sceneBodyCount) " +
                     "scene_stride=13 timestep=0.02 " +
+                    "environment=\(options.stateTraceEnvironment)"
+                )
+            }
+            var policyActionTraceLines: [String] = []
+            if options.policyActionTrace != nil {
+                let traceLayout = context.layout
+                policyActionTraceLines.append(
+                    "# step actions=\(traceLayout.actionCount) " +
                     "environment=\(options.stateTraceEnvironment)"
                 )
             }
@@ -1545,6 +2222,57 @@ private enum TaskRolloutMain {
                                     stepCount *
                                     options.environments *
                                     context.layout.actionCount
+                            )
+                        } else if options.birdFlowFlapScript {
+                            actionBatch = birdFlowFlapActions(
+                                startStep: globalStep,
+                                stepCount: stepCount,
+                                environmentCount: options.environments,
+                                actionCount: context.layout.actionCount
+                            )
+                        } else if let amplitude = options.birdFlowStrokeAmplitude {
+                            actionBatch = birdFlowStrokeActions(
+                                amplitude: amplitude,
+                                tailPitch: options.birdFlowTailPitch ?? 0,
+                                pronation: options.birdFlowPronation,
+                                pronationWavePhase:
+                                    options.birdFlowPronationWavePhase,
+                                sweepWaveAmplitude:
+                                    options.birdFlowSweepWaveAmplitude,
+                                sweepWavePhase: options.birdFlowSweepWavePhase,
+                                startStep: globalStep,
+                                stepCount: stepCount,
+                                environmentCount: options.environments,
+                                actionCount: context.layout.actionCount
+                            )
+                        } else if let amplitude =
+                            options.birdFlowWingPulseAmplitude,
+                            let pulseStartStep =
+                                options.birdFlowWingPulseStartStep,
+                            let pulseDurationSteps =
+                                options.birdFlowWingPulseDurationSteps
+                        {
+                            actionBatch = birdFlowWingPulseActions(
+                                amplitude: amplitude,
+                                target: options.birdFlowWingPulseTarget ??
+                                    "wings",
+                                secondaryAmplitude:
+                                    options.birdFlowWingPulseSecondaryAmplitude,
+                                secondaryTarget:
+                                    options.birdFlowWingPulseSecondaryTarget,
+                                pulseStartStep: pulseStartStep,
+                                pulseDurationSteps: pulseDurationSteps,
+                                startStep: globalStep,
+                                stepCount: stepCount,
+                                environmentCount: options.environments,
+                                actionCount: context.layout.actionCount
+                            )
+                        } else if options.birdFlowGroundGaitProbe {
+                            actionBatch = birdFlowGroundGaitProbeActions(
+                                startStep: globalStep,
+                                stepCount: stepCount,
+                                environmentCount: options.environments,
+                                actionCount: context.layout.actionCount
                             )
                         } else {
                             actionBatch = actions(
@@ -1877,6 +2605,11 @@ private enum TaskRolloutMain {
                                 reason,
                                 default: 0
                             ] += 1
+                            if transition.terminationReason ==
+                                MetalRoboTaskTerminationReason.timeout.rawValue
+                            {
+                                timeoutCount += 1
+                            }
                         }
                     }
                     totalResets += advance.hostRequestedResets
@@ -1897,7 +2630,27 @@ private enum TaskRolloutMain {
                         )
                     }
                     failedSteps += advance.failedEnvironmentSteps
-                    if options.stateTrace != nil {
+                    if options.policyActionTrace != nil {
+                        let traceLayout = context.layout
+                        let actions = try context.policyActions(
+                            controlStepCount: stepCount
+                        )
+                        for localStep in 0..<stepCount {
+                            let start =
+                                (localStep * options.environments +
+                                 options.stateTraceEnvironment) *
+                                traceLayout.actionCount
+                            let end = start + traceLayout.actionCount
+                            let payload = actions[start..<end].map {
+                                String(format: "%.9g", $0)
+                            }.joined(separator: "\t")
+                            policyActionTraceLines.append(
+                                "\(globalStep + localStep + 1)\t\(payload)"
+                            )
+                        }
+                    }
+                    if options.stateTrace != nil ||
+                        options.crowReplayPack != nil {
                         let traceLayout = context.layout
                         let environment = options.stateTraceEnvironment
                         let allConfigurations =
@@ -2048,6 +2801,53 @@ private enum TaskRolloutMain {
                         stateTraceLines.append(
                             "\(globalStep + stepCount)\t\(payload)"
                         )
+                        if options.crowReplayPack != nil {
+                            let allVelocities = try context.finalVelocity()
+                            let vStart = environment * traceLayout.velocityCount
+                            let velocity = Array(
+                                allVelocities[
+                                    vStart..<(vStart + traceLayout.velocityCount)
+                                ]
+                            )
+                            let allBodies = try context.finalBodyStates()
+                            let bodyStride = traceLayout.bodyCount * 13
+                            let bodyStart = environment * bodyStride
+                            let bodies = Array(
+                                allBodies[bodyStart..<(bodyStart + bodyStride)]
+                            )
+                            let allActions = try context.policyActions(
+                                controlStepCount: stepCount
+                            )
+                            let actionStart = environment * traceLayout.actionCount
+                            let actions = Array(
+                                allActions[
+                                    actionStart..<(actionStart + traceLayout.actionCount)
+                                ]
+                            )
+                            let transition = observedTransitions[environment]
+                            let outcomeBase = environment * outcomeSchema.count
+                            let outcomes = Dictionary(uniqueKeysWithValues:
+                                outcomeSchema.enumerated().map { index, descriptor in
+                                    (descriptor.id, typedOutcomes[outcomeBase + index])
+                                }
+                            )
+                            crowReplayFrames.append([
+                                "step": globalStep + stepCount,
+                                "q": configuration,
+                                "v": velocity,
+                                "body_states": bodies,
+                                "accepted_actions": actions,
+                                "reward": transition.reward,
+                                "tracking_score": transition.trackingScore,
+                                "root_height": transition.rootHeight,
+                                "tilt": transition.tilt,
+                                "difficulty_band": transition.difficultyBand,
+                                "done": transition.done,
+                                "timeout": transition.timeout,
+                                "termination_reason": transition.terminationReason,
+                                "outcomes": outcomes,
+                            ])
+                        }
                     }
                     completed += stepCount
                     globalStep += stepCount
@@ -2072,6 +2872,73 @@ private enum TaskRolloutMain {
                 try (stateTraceLines.joined(separator: "\n") + "\n")
                     .write(
                         to: URL(fileURLWithPath: stateTrace),
+                        atomically: true,
+                        encoding: .utf8
+                    )
+            }
+            var crowReplayPayloadSHA256 = ""
+            if let crowReplayPack = options.crowReplayPack {
+                let replayLayout = context.layout
+                let payload: [String: Any] = [
+                    "classification": "simulated accepted-state replay",
+                    "task": context.taskID,
+                    "journey_variant": options.birdFlowJourneyVariant == .v9VisualNeural
+                        ? "v9-visual-neural"
+                        : options.birdFlowJourneyVariant == .v8Neural
+                        ? "v8-neural" : "v7-hierarchical",
+                    "timestep_seconds": 0.02,
+                    "environment": options.stateTraceEnvironment,
+                    "frame_count": crowReplayFrames.count,
+                    "nq": replayLayout.configurationCount,
+                    "nv": replayLayout.velocityCount,
+                    "action_count": replayLayout.actionCount,
+                    "body_count": replayLayout.bodyCount,
+                    "body_state_stride": 13,
+                    "body_state_layout": [
+                        "position_x", "position_y", "position_z",
+                        "orientation_x", "orientation_y", "orientation_z",
+                        "orientation_w", "linear_velocity_x",
+                        "linear_velocity_y", "linear_velocity_z",
+                        "angular_velocity_x", "angular_velocity_y",
+                        "angular_velocity_z",
+                    ],
+                    "body_names": context.bodyNames,
+                    "world_fingerprint": String(replayLayout.worldFingerprint),
+                    "task_fingerprint": String(replayLayout.taskFingerprint),
+                    "observation_fingerprint": String(
+                        replayLayout.observationFingerprint
+                    ),
+                    "action_fingerprint": String(replayLayout.actionFingerprint),
+                    "run_fingerprint": String(replayLayout.runFingerprint),
+                    "policy_rollout_fingerprint": usesCompiledPolicy
+                        ? String(policyRolloutFingerprint) : "",
+                    "controller_authority": options.birdFlowJourneyVariant != .v7Hierarchical
+                        ? "neural-only; approach envelope is diagnostic-only"
+                        : "hierarchical; state-triggered approach supervisor",
+                    "frames": crowReplayFrames,
+                ]
+                let payloadData = try JSONSerialization.data(
+                    withJSONObject: payload, options: [.sortedKeys]
+                )
+                crowReplayPayloadSHA256 = try sha256Hex(payloadData)
+                let envelope: [String: Any] = [
+                    "schema": "numi.crow-replay.v1",
+                    "payload_sha256": crowReplayPayloadSHA256,
+                    "payload": payload,
+                ]
+                let replayData = try JSONSerialization.data(
+                    withJSONObject: envelope,
+                    options: [.prettyPrinted, .sortedKeys]
+                )
+                try replayData.write(
+                    to: URL(fileURLWithPath: crowReplayPack),
+                    options: .atomic
+                )
+            }
+            if let policyActionTrace = options.policyActionTrace {
+                try (policyActionTraceLines.joined(separator: "\n") + "\n")
+                    .write(
+                        to: URL(fileURLWithPath: policyActionTrace),
                         atomically: true,
                         encoding: .utf8
                     )
@@ -2377,7 +3244,11 @@ private enum TaskRolloutMain {
                 ),
                 "world_source": worldSource,
                 "action_source":
-                    options.policyPack != nil
+                    options.birdFlowJourneyTeacher
+                    ? options.policyPack != nil || options.nativePolicy
+                        ? "birdflow_assisted_teacher_with_observed_policy"
+                        : "birdflow_assisted_teacher"
+                    : options.policyPack != nil
                     ? "policy_pack"
                     : options.nativePolicy
                     ? "compiled_policy"
@@ -2385,8 +3256,65 @@ private enum TaskRolloutMain {
                     ? "zero"
                     : options.actionStream != nil
                     ? "foundation_action_stream"
+                    : options.birdFlowFlapScript
+                    ? "birdflow_4hz_flap_qualification"
+                    : options.birdFlowWingPulseAmplitude != nil
+                    ? "birdflow_late_flight_control_pulse_qualification"
+                    : options.birdFlowStrokeAmplitude != nil
+                    ? options.birdFlowSweepWavePhase != nil
+                        ? "birdflow_stroke_amplitude_sweep_wave_qualification"
+                        : options.birdFlowPronationWavePhase != nil
+                        ? "birdflow_stroke_amplitude_pronation_wave_qualification"
+                        : options.birdFlowPronation != nil
+                        ? "birdflow_stroke_amplitude_pronation_qualification"
+                        : options.birdFlowTailPitch != nil
+                        ? "birdflow_stroke_amplitude_tail_qualification"
+                        : "birdflow_stroke_amplitude_qualification"
+                    : options.birdFlowGroundGaitProbe
+                    ? "birdflow_ground_gait_action_probe"
                     : "host_stream",
+                "birdflow_journey_teacher":
+                    options.birdFlowJourneyTeacher,
+                "birdflow_journey_student_authority":
+                    options.birdFlowJourneyStudentAuthority,
+                "difficulty_sampling_exponent_override":
+                    options.difficultySamplingExponentOverride,
+                "birdflow_journey_variant":
+                    options.birdFlowJourneyVariant == .v9VisualNeural
+                    ? "v9-visual-neural"
+                    : options.birdFlowJourneyVariant == .v8Neural
+                    ? "v8-neural" : "v7-hierarchical",
                 "action_stream": options.actionStream ?? "",
+                "birdflow_stroke_amplitude": options.birdFlowStrokeAmplitude ?? 0,
+                "birdflow_tail_pitch": options.birdFlowTailPitch ?? 0,
+                "birdflow_pronation": options.birdFlowPronation ?? 0,
+                "birdflow_pronation_wave_phase":
+                    options.birdFlowPronationWavePhase ?? 0,
+                "birdflow_sweep_wave_amplitude":
+                    options.birdFlowSweepWaveAmplitude ?? 0,
+                "birdflow_sweep_wave_phase":
+                    options.birdFlowSweepWavePhase ?? 0,
+                "birdflow_wing_pulse_amplitude":
+                    options.birdFlowWingPulseAmplitude ?? 0,
+                "birdflow_wing_pulse_target":
+                    options.birdFlowWingPulseTarget ?? "wings",
+                "birdflow_wing_pulse_secondary_amplitude":
+                    options.birdFlowWingPulseSecondaryAmplitude ?? 0,
+                "birdflow_wing_pulse_secondary_target":
+                    options.birdFlowWingPulseSecondaryTarget ?? "",
+                "birdflow_wing_pulse_start_step":
+                    options.birdFlowWingPulseStartStep ?? 0,
+                "birdflow_wing_pulse_duration_steps":
+                    options.birdFlowWingPulseDurationSteps ?? 0,
+                "action_carrier": options.birdFlowAmericanCrowJourney
+                    ? options.birdFlowJourneyVariant == .v9VisualNeural
+                        ? "v9_visual_neural_only_masked_depth_history"
+                        : options.birdFlowJourneyVariant == .v8Neural
+                        ? "v8_neural_only_shadow_approach_envelope"
+                        : "v7_state_triggered_approach_supervisor_pitch_0.16_0.22_full_authority"
+                    : options.birdFlowAmericanCrow
+                    ? "stage1_crow_gait_plus_bounded_policy_residual_0.25_band_1;stage2_live_altitude_vertical_rate_and_airspeed_trim_plus_phase_calibrated_pronation_target_amplitude_0.20_phase_2.62_plus_bounded_residual_0.25_wing_sweep_pronation_and_leg_residual_0.25_tail_residual_0.10_band_2"
+                    : "none",
                 "device": context.deviceName,
                 "solver_mode": "temporal_cone",
                 "articulated_contact_responses":
@@ -2417,6 +3345,9 @@ private enum TaskRolloutMain {
                 "visual_observation_config":
                     options.visualObservationConfig ?? "",
                 "state_trace": options.stateTrace ?? "",
+                "crow_replay_pack": options.crowReplayPack ?? "",
+                "crow_replay_payload_sha256": crowReplayPayloadSHA256,
+                "policy_action_trace": options.policyActionTrace ?? "",
                 "environments": options.environments,
                 "steps_per_repeat": options.steps,
                 "maximum_episode_steps":
@@ -2482,6 +3413,7 @@ private enum TaskRolloutMain {
                 "stage_high_water": stageHighWater,
                 "failed_environment_steps": failedSteps,
                 "termination_count": terminationCount,
+                "timeout_count": timeoutCount,
                 "termination_reason_counts":
                     terminationReasonCounts,
                 "termination_count_by_environment":

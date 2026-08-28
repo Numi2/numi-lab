@@ -51,6 +51,12 @@ typedef enum MRInteractionReferenceModeC {
     MR_INTERACTION_REFERENCE_RESET_ONLY = 2,
 } MRInteractionReferenceModeC;
 
+typedef enum MRBirdFlowJourneyVariantC {
+    MR_BIRDFLOW_JOURNEY_V7_HIERARCHICAL = 0,
+    MR_BIRDFLOW_JOURNEY_V8_NEURAL = 1,
+    MR_BIRDFLOW_JOURNEY_V9_VISUAL_NEURAL = 2,
+} MRBirdFlowJourneyVariantC;
+
 typedef struct MRTaskRolloutDynamicSphereC {
     float position[3];
     float linear_velocity[3];
@@ -85,6 +91,21 @@ typedef struct MRTaskRolloutConfigC {
     uint32_t override_interaction_reset_phase_probability;
     float interaction_reset_maximum_phase;
     uint32_t override_interaction_reset_maximum_phase;
+    // Invocation-scoped assisted teacher for the separately fingerprinted
+    // BirdFlow crow journey task. The carrier executes ordinary articulated
+    // position/body-wrench actions and publishes those normalized actions for
+    // distillation; it is not a force or trajectory injection.
+    uint32_t birdflow_journey_teacher;
+    // Fraction of normalized student action executed when the journey
+    // teacher is enabled. Blended transitions remain distillation-only.
+    float birdflow_journey_student_authority;
+    // Selects the exact fingerprinted journey TaskPack. V7 retains its
+    // approach supervisor; V8 is neural-only during execution while still
+    // permitting invocation-scoped teacher labels during training.
+    uint32_t birdflow_journey_variant;
+    // Optional execution-profile override for the authored difficulty-band
+    // sampling exponent. Zero retains the TaskPack exponent.
+    float difficulty_sampling_exponent_override;
 } MRTaskRolloutConfigC;
 
 typedef struct MRTaskVisualPackC {
@@ -133,6 +154,7 @@ typedef struct MRTaskRolloutLayoutC {
     uint32_t actor_observation_count;
     uint32_t critic_observation_count;
     uint32_t scene_body_count;
+    uint32_t body_count;
     uint32_t motion_feature_count;
     uint32_t maximum_episode_steps;
     uint64_t world_fingerprint;
@@ -163,6 +185,9 @@ enum MRRunManifestSourceC {
     MR_RUN_SOURCE_IMPORTED_URDF = 2u,
     MR_RUN_SOURCE_WORLD_PACK = 3u,
     MR_RUN_SOURCE_PX4_X500 = 4u,
+    MR_RUN_SOURCE_BIRDFLOW_DOVE = 5u,
+    MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW = 6u,
+    MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW_JOURNEY = 7u,
 };
 
 // Single native construction boundary for training, evaluation and
@@ -607,6 +632,15 @@ MR_API int mr_task_rollout_load_policy_pack(
     MRTaskRolloutHandle* handle,
     const char* policy_pack_path
 );
+// Loads an immutable deterministic actor used as the base of a staged
+// residual policy. The primary policy remains the PPO behavior policy; when
+// installed, the base action is used unchanged outside the current lift-off
+// band and composed with the primary residual in that band. A failed load
+// leaves the previous base program unchanged.
+MR_API int mr_task_rollout_load_base_policy_pack(
+    MRTaskRolloutHandle* handle,
+    const char* policy_pack_path
+);
 // Returns the immutable revision of the currently installed compiled policy,
 // or zero when no policy is installed.
 MR_API uint64_t mr_task_rollout_policy_revision(
@@ -697,6 +731,11 @@ MR_API const float* mr_task_rollout_motion_features(
 MR_API const float* mr_task_rollout_teacher_actions(
     const MRTaskRolloutHandle* handle
 );
+// Exact accepted normalized task actions, packed
+// [control step][environment][action] for the latest submission.
+MR_API const float* mr_task_rollout_policy_actions(
+    const MRTaskRolloutHandle* handle
+);
 MR_API const MRTaskTransitionC* mr_task_rollout_transitions(
     const MRTaskRolloutHandle* handle
 );
@@ -735,6 +774,24 @@ MR_API const float* mr_task_rollout_bootstrap_policy_values(
 );
 MR_API const float* mr_task_rollout_final_q(
     const MRTaskRolloutHandle* handle
+);
+MR_API const float* mr_task_rollout_final_v(
+    const MRTaskRolloutHandle* handle
+);
+// Stable model-owned name for a composed body index. The pointer remains
+// valid until the rollout handle is destroyed.
+MR_API const char* mr_task_rollout_body_name(
+    const MRTaskRolloutHandle* handle,
+    uint32_t body_index
+);
+// Copies accepted final model-body states as packed
+// [environment][body][position xyz, orientation xyzw,
+// linear velocity xyz, angular velocity xyz]. Articulated bodies are composed
+// from final q/v; scene bodies retain the accepted solver state.
+MR_API int mr_task_rollout_copy_final_body_states(
+    const MRTaskRolloutHandle* handle,
+    float* output,
+    size_t output_count
 );
 // Copies accepted final scene-body states as packed
 // [environment][scene body][position xyz, orientation xyzw,

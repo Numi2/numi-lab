@@ -2,6 +2,7 @@
 #include "metalrobo/FrankaWorld.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -215,11 +216,25 @@ int main() {
         const auto ids = metalrobo::builtinRobotIds();
         const auto px4Robot = metalrobo::builtinRobotPack("px4_x500");
         const auto psmRobot = metalrobo::builtinRobotPack("dvrk_psm");
+        const auto doveRobot = metalrobo::builtinRobotPack(
+            "birdflow_deetjen_dove_hybrid"
+        );
+        const auto crowRobot = metalrobo::builtinRobotPack(
+            "birdflow_american_crow_estimated_hybrid"
+        );
         require(
-            ids.size() == 4u &&
+            ids.size() == 6u &&
                 metalrobo::builtinRobotPack("franka_panda").has_value() &&
                 psmRobot.has_value() &&
                 px4Robot.has_value() &&
+                doveRobot.has_value() &&
+                crowRobot.has_value() &&
+                contains(doveRobot->capabilities, "articulated_flight") &&
+                contains(doveRobot->capabilities, "load_responsive_aero") &&
+                contains(crowRobot->capabilities, "standing_to_flight") &&
+                contains(crowRobot->capabilities, "estimated_crow_model") &&
+                contains(crowRobot->capabilities, "articulated_wing_sweep") &&
+                contains(crowRobot->capabilities, "articulated_wing_pronation") &&
                 !contains(px4Robot->capabilities, "aerial_manipulation"),
             "robot catalog is incomplete"
         );
@@ -313,6 +328,304 @@ int main() {
                     }),
             "PX4 CompiledRun lost its rotor, scene, or action program"
         );
+
+        metalrobo::RunManifest dove;
+        dove.id = "birdflow_deetjen_dove_compiled_run_check";
+        dove.robot = *doveRobot;
+        dove.scene = metalrobo::makeBirdFlowDoveFlightScenePack();
+        dove.sensors.id = "birdflow_deetjen_dove_state_sensors";
+        dove.task = metalrobo::makeBirdFlowDoveFlightTaskPack(
+            dove.sensors.observation, dove.reality.reset);
+        dove.reality.id = "birdflow_deetjen_dove_nominal_reality";
+        dove.teacher.id = "no_teacher";
+        dove.profile.id = "birdflow_deetjen_dove_check_profile";
+        dove.profile.environmentCount = 8u;
+        dove.profile.controlSteps = 64u;
+        dove.profile.physicsSubsteps = 4u;
+        dove.profile.controlTimestepSeconds = 1.0f / 60.0f;
+        metalrobo::CompiledRun compiledDove;
+        const auto doveStatus = metalrobo::compileRun(dove, compiledDove);
+        require(
+            doveStatus.succeeded(),
+            "BirdFlow dove CompiledRun failed [" +
+                std::string(metalrobo::runCompileStatusName(
+                    doveStatus.status)) + "] " + doveStatus.element + ": " +
+                doveStatus.message
+        );
+        require(
+            compiledDove.valid() &&
+                compiledDove.flappingWingProgram() != nullptr &&
+                compiledDove.multicopterProgram() == nullptr &&
+                compiledDove.model().bodies.size() == 11u &&
+                compiledDove.model().joints.size() == 9u &&
+                compiledDove.task().actionBindings().size() == 10u &&
+                compiledDove.task().actionBindings()[0u].actuator.x ==
+                    MR_TASK_ACTUATOR_FLAPPING_POSITION &&
+                compiledDove.task().actionBindings()[1u].actuator.x ==
+                    MR_TASK_ACTUATOR_FLAPPING_POSITION &&
+                compiledDove.task().actionBindings()[2u].actuator.x ==
+                    MR_TASK_ACTUATOR_JOINT_POSITION &&
+                compiledDove.flappingWingProgram()->tail.bodyIndex !=
+                    MR_INVALID_INDEX &&
+                compiledDove.flappingWingProgram()->fuselage.bodyIndex ==
+                    compiledDove.flappingWingProgram()->rootBodyIndex &&
+                compiledDove.flappingWingProgram()->fuselage
+                    .referenceAreasAndDrag.w > 0.0f &&
+                compiledDove.flappingWingProgram()->tail.qIndex !=
+                    MR_INVALID_INDEX,
+            "BirdFlow dove CompiledRun lost its whole-body action or aerodynamic program"
+        );
+
+        metalrobo::RunManifest crow;
+        crow.id = "birdflow_american_crow_compiled_run_check";
+        crow.robot = *crowRobot;
+        crow.scene = metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
+        crow.sensors.id = "birdflow_american_crow_state_sensors";
+        crow.task = metalrobo::makeBirdFlowAmericanCrowFlightTaskPack(
+            crow.sensors.observation, crow.reality.reset
+        );
+        const auto crowTrackingReward = std::find_if(
+            crow.task.rewards.begin(),
+            crow.task.rewards.end(),
+            [](const metalrobo::TaskRewardOperatorSpec& reward) {
+                return reward.operation ==
+                    metalrobo::TaskRewardOperator::linearVelocityTracking;
+            }
+        );
+        require(
+            crowTrackingReward != crow.task.rewards.end() &&
+                crowTrackingReward->parameters.x == 0.25f,
+            "BirdFlow American-crow training width must match its held-out tracking metric"
+        );
+        require(
+            std::abs(crow.task.gaitPeriodSeconds - 1.0f / 4.6f) < 1.0e-6f,
+            "BirdFlow American-crow task must retain its qualified 4.6 Hz clock"
+        );
+        crow.reality.id = "birdflow_american_crow_nominal_reality";
+        crow.teacher.id = "no_teacher";
+        crow.profile.id = "birdflow_american_crow_check_profile";
+        crow.profile.environmentCount = 8u;
+        crow.profile.controlSteps = 64u;
+        crow.profile.physicsSubsteps = 4u;
+        crow.profile.controlTimestepSeconds = 1.0f / 60.0f;
+        metalrobo::CompiledRun compiledCrow;
+        const auto crowStatus = metalrobo::compileRun(crow, compiledCrow);
+        require(
+            crowStatus.succeeded(),
+            "BirdFlow American-crow CompiledRun failed [" +
+                std::string(metalrobo::runCompileStatusName(crowStatus.status)) +
+                "] " + crowStatus.element + ": " + crowStatus.message
+        );
+        require(
+            compiledCrow.valid() &&
+                compiledCrow.flappingWingProgram() != nullptr &&
+                compiledCrow.multicopterProgram() == nullptr &&
+                compiledCrow.model().bodies.size() == 15u &&
+                compiledCrow.model().joints.size() == 13u &&
+                compiledCrow.task().actionBindings().size() == 14u &&
+                compiledCrow.task().actionBindings()[0u].actuator.x ==
+                    MR_TASK_ACTUATOR_FLAPPING_POSITION &&
+                compiledCrow.task().actionBindings()[1u].actuator.x ==
+                    MR_TASK_ACTUATOR_FLAPPING_POSITION &&
+                compiledCrow.task().actionBindings()[2u].actuator.x ==
+                    MR_TASK_ACTUATOR_JOINT_POSITION &&
+                compiledCrow.task().actionBindings()[3u].actuator.x ==
+                    MR_TASK_ACTUATOR_JOINT_POSITION &&
+                compiledCrow.task().actionBindings()[4u].actuator.x ==
+                    MR_TASK_ACTUATOR_JOINT_POSITION &&
+                compiledCrow.task().actionBindings()[5u].actuator.x ==
+                    MR_TASK_ACTUATOR_JOINT_POSITION &&
+                (compiledCrow.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_GROUND_LEG_RESIDUAL) != 0u &&
+                (compiledCrow.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_GROUND_TILT_ENVELOPE) != 0u &&
+                (compiledCrow.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_GROUND_CARRIER_PHASE_OBSERVATION) !=
+                    0u &&
+                compiledCrow.task().layout().actorObservationSize == 83u &&
+                compiledCrow.task().layout().criticObservationSize == 83u &&
+                std::count_if(
+                    compiledCrow.task().actorOperators().begin(),
+                    compiledCrow.task().actorOperators().end(),
+                    [](const MRTaskObservationOperatorGPU& operation) {
+                        return operation.source.x ==
+                            MR_TASK_OBSERVE_CROW_GROUND_CARRIER_PHASE;
+                    }
+                ) == 2 &&
+                compiledCrow.flappingWingProgram()->wings[0u]
+                    .pronationQIndex != MR_INVALID_INDEX &&
+                compiledCrow.flappingWingProgram()->wings[1u]
+                    .pronationQIndex != MR_INVALID_INDEX &&
+                compiledCrow.flappingWingProgram()->wings[0u]
+                    .sweepQIndex != MR_INVALID_INDEX &&
+                compiledCrow.flappingWingProgram()->wings[1u]
+                    .sweepQIndex != MR_INVALID_INDEX &&
+                compiledCrow.flappingWingProgram()->wings[0u]
+                    .rootJointParentAnchor.y != 0.0f &&
+                compiledCrow.flappingWingProgram()->wings[0u]
+                    .rootJointChildAnchor.y != 0.0f &&
+                compiledCrow.flappingWingProgram()->wings[1u]
+                    .rootJointParentAnchor.y != 0.0f &&
+                compiledCrow.flappingWingProgram()->wings[1u]
+                    .rootJointChildAnchor.y != 0.0f &&
+                compiledCrow.flappingWingProgram()->wings[0u]
+                    .rootToCenterAndArea.w == 0.075f &&
+                compiledCrow.flappingWingProgram()->wings[1u]
+                    .rootToCenterAndArea.w == 0.075f,
+            "BirdFlow American-crow CompiledRun lost its standing-to-flight or aerodynamic program"
+        );
+
+        metalrobo::RunManifest journey;
+        journey.id = "birdflow_american_crow_journey_compiled_run_check";
+        journey.robot = *crowRobot;
+        journey.scene = metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
+        journey.sensors.id = "birdflow_american_crow_journey_state_sensors";
+        journey.task = metalrobo::makeBirdFlowAmericanCrowJourneyTaskPack(
+            journey.sensors.observation, journey.reality.reset
+        );
+        journey.reality.id = "birdflow_american_crow_journey_reality";
+        journey.teacher.id = "no_teacher";
+        journey.profile.id = "birdflow_american_crow_journey_check_profile";
+        journey.profile.environmentCount = 8u;
+        journey.profile.controlSteps = 64u;
+        journey.profile.physicsSubsteps = 4u;
+        journey.profile.controlTimestepSeconds = 1.0f / 50.0f;
+        metalrobo::CompiledRun compiledJourney;
+        const auto journeyStatus = metalrobo::compileRun(
+            journey, compiledJourney
+        );
+        require(
+            journeyStatus.succeeded(),
+            "BirdFlow American-crow journey CompiledRun failed [" +
+                std::string(metalrobo::runCompileStatusName(
+                    journeyStatus.status)) + "] " + journeyStatus.element +
+                ": " + journeyStatus.message
+        );
+        require(
+            compiledJourney.valid() &&
+                compiledJourney.task().actionBindings().size() == 15u &&
+                compiledJourney.task().layout().actorObservationSize == 84u &&
+                compiledJourney.task().layout().criticObservationSize == 84u &&
+                (compiledJourney.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
+                (compiledJourney.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_GROUND_GAIT_CARRIER) == 0u &&
+                (compiledJourney.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_LIFTOFF_TRIM_CARRIER) == 0u &&
+                compiledJourney.task().header().schedule.z == 11u &&
+                std::count_if(
+                    compiledJourney.task().actorOperators().begin(),
+                    compiledJourney.task().actorOperators().end(),
+                    [](const MRTaskObservationOperatorGPU& operation) {
+                        return operation.source.x ==
+                            MR_TASK_OBSERVE_AVIAN_JOURNEY_PHASE;
+                    }
+                ) == 1 &&
+                std::count_if(
+                    compiledJourney.task().actorOperators().begin(),
+                    compiledJourney.task().actorOperators().end(),
+                    [](const MRTaskObservationOperatorGPU& operation) {
+                        return operation.source.x ==
+                            MR_TASK_OBSERVE_AVIAN_JOURNEY_STAGE;
+                    }
+                ) == 1,
+            "BirdFlow American-crow journey lost its universal-policy contract"
+        );
+
+        metalrobo::RunManifest neuralJourney;
+        neuralJourney.id =
+            "birdflow_american_crow_neural_journey_compiled_run_check";
+        neuralJourney.robot = *crowRobot;
+        neuralJourney.scene =
+            metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
+        neuralJourney.sensors.id =
+            "birdflow_american_crow_neural_journey_state_sensors";
+        neuralJourney.task =
+            metalrobo::makeBirdFlowAmericanCrowNeuralJourneyTaskPack(
+                neuralJourney.sensors.observation,
+                neuralJourney.reality.reset
+            );
+        neuralJourney.reality.id =
+            "birdflow_american_crow_neural_journey_reality";
+        neuralJourney.teacher.id = "no_teacher";
+        neuralJourney.profile.id =
+            "birdflow_american_crow_neural_journey_check_profile";
+        neuralJourney.profile.environmentCount = 8u;
+        neuralJourney.profile.controlSteps = 64u;
+        neuralJourney.profile.physicsSubsteps = 4u;
+        neuralJourney.profile.controlTimestepSeconds = 1.0f / 50.0f;
+        metalrobo::CompiledRun compiledNeuralJourney;
+        const auto neuralJourneyStatus = metalrobo::compileRun(
+            neuralJourney, compiledNeuralJourney
+        );
+        require(
+            neuralJourneyStatus.succeeded(),
+            "BirdFlow neural-only Crow journey CompiledRun failed [" +
+                std::string(metalrobo::runCompileStatusName(
+                    neuralJourneyStatus.status)) + "] " +
+                neuralJourneyStatus.element + ": " +
+                neuralJourneyStatus.message
+        );
+        const auto neuralOutcomes = compiledNeuralJourney.task().outcomes();
+        require(
+            compiledNeuralJourney.valid() &&
+                compiledNeuralJourney.task().actionBindings().size() == 15u &&
+                compiledNeuralJourney.task().layout().actorObservationSize ==
+                    84u &&
+                (compiledNeuralJourney.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
+                (compiledNeuralJourney.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_APPROACH_ENVELOPE) == 0u &&
+                compiledNeuralJourney.task().fingerprint() !=
+                    compiledJourney.task().fingerprint() &&
+                neuralOutcomes.size() == 10u &&
+                neuralOutcomes[8u].id ==
+                    "approach_pitch_warning_fraction" &&
+                neuralOutcomes[8u].source == static_cast<std::uint32_t>(
+                    metalrobo::TaskOutcomeSource::
+                        avianJourneyApproachWarning
+                ) &&
+                neuralOutcomes[9u].id ==
+                    "approach_pitch_full_envelope_fraction" &&
+                neuralOutcomes[9u].source == static_cast<std::uint32_t>(
+                    metalrobo::TaskOutcomeSource::
+                        avianJourneyApproachFull
+                ),
+            "BirdFlow neural-only Crow journey retained hidden supervisor authority or lost shadow diagnostics"
+        );
+        metalrobo::RunManifest visualJourney = neuralJourney;
+        visualJourney.id =
+            "birdflow_american_crow_visual_neural_journey_compiled_run_check";
+        visualJourney.sensors.observation = {};
+        visualJourney.reality.reset = {};
+        visualJourney.task =
+            metalrobo::makeBirdFlowAmericanCrowVisualJourneyTaskPack(
+                visualJourney.sensors.observation,
+                visualJourney.reality.reset
+            );
+        metalrobo::CompiledRun compiledVisualJourney;
+        const auto visualJourneyStatus = metalrobo::compileRun(
+            visualJourney, compiledVisualJourney
+        );
+        require(
+            visualJourneyStatus.succeeded() &&
+                compiledVisualJourney.valid() &&
+                compiledVisualJourney.task().layout().actorObservationSize ==
+                    84u + 16u * 9u * 4u +
+                        MR_TASK_MASKED_DEPTH_FEATURE_COUNT &&
+                compiledVisualJourney.task().layout().criticObservationSize ==
+                    84u &&
+                compiledVisualJourney.task().header().visualLayout.x == 16u &&
+                compiledVisualJourney.task().header().visualLayout.y == 9u &&
+                compiledVisualJourney.task().header().visualLayout.z == 4u &&
+                (compiledVisualJourney.task().header().schedule.w &
+                 MR_TASK_PROGRAM_MASKED_DEPTH_FEATURES) != 0u &&
+                (compiledVisualJourney.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_APPROACH_ENVELOPE) == 0u &&
+                compiledVisualJourney.task().observationFingerprint() !=
+                    compiledNeuralJourney.task().observationFingerprint(),
+            "BirdFlow v9 visual journey lost its distinct sensor-fast actor ABI"
+        );
         std::cout
             << "run_program_check=ok"
             << " run=" << compiled.fingerprint()
@@ -329,6 +642,12 @@ int main() {
             << " franka_task=" << compiledFranka.task().fingerprint()
             << " px4_run=" << compiledPX4.fingerprint()
             << " px4_task=" << compiledPX4.task().fingerprint()
+            << " crow_journey_v7_task="
+            << compiledJourney.task().fingerprint()
+            << " crow_journey_v8_task="
+            << compiledNeuralJourney.task().fingerprint()
+            << " crow_journey_v9_task="
+            << compiledVisualJourney.task().fingerprint()
             << " transactional=yes\n";
         return 0;
     } catch (const std::exception& error) {

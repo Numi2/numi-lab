@@ -1,17 +1,26 @@
 #!/usr/bin/env python3
 
+import contextlib
+import io
 import json
 import sys
 import tempfile
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "python"))
 
+import metalrobo.policy_selection as policy_selection  # noqa: E402
 from metalrobo.policy_selection import (  # noqa: E402
     _adult_evaluation_bands,
+    _curriculum_evaluation_bands,
+    _crow_journey_contract_regressions,
+    _deduplicate_policy_paths,
     _evaluate,
+    compare_protected_bands,
+    compare_staged_bands,
     compare_adult_bands,
     compare_evidence,
     evaluation_arguments,
@@ -20,6 +29,21 @@ from metalrobo.policy_selection import (  # noqa: E402
 
 
 class PolicySelectionTest(unittest.TestCase):
+    def test_exact_duplicate_policy_packs_are_evaluated_once(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            checkpoint = root / "revision-00000050.candidate.policypack"
+            final = root / "candidate.policypack"
+            distinct = root / "revision-00000100.candidate.policypack"
+            checkpoint.write_bytes(b"same policy")
+            final.write_bytes(b"same policy")
+            distinct.write_bytes(b"distinct policy")
+            policies, duplicates = _deduplicate_policy_paths(
+                [checkpoint, distinct, final]
+            )
+            self.assertEqual(policies, [checkpoint, distinct])
+            self.assertEqual(duplicates, {str(final): str(checkpoint)})
+
     def test_catastrophic_get_up_candidate_never_advances(self) -> None:
         incumbent = {
             "task": "supine-get-up",
@@ -101,6 +125,32 @@ class PolicySelectionTest(unittest.TestCase):
         decision = compare_evidence(incumbent, candidate)
         self.assertEqual(decision["selected"], "incumbent")
         self.assertIn("mean root height decreased", decision["regressions"])
+
+    def test_imported_velocity_requires_a_clean_horizon_to_deploy(self) -> None:
+        incumbent = {
+            "task": "robotis_ai_sapiens_k1_velocity_v1",
+            "world_source": "urdf",
+            "termination_count": 800,
+            "termination_count_by_environment": [50] * 16,
+            "clean_horizon_environment_rate": 0.0,
+            "failed_environment_steps": 0,
+            "mean_reward": -0.09,
+            "mean_task_reward": 0.0,
+            "mean_tracking_score": 0.28,
+        }
+        candidate = {
+            **incumbent,
+            "termination_count": 736,
+            "termination_count_by_environment": [46] * 16,
+            "mean_reward": -0.08,
+            "mean_tracking_score": 0.17,
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertFalse(decision["candidate_advanced_deployment"])
+        self.assertIn(
+            "candidate completed no clean horizon", decision["regressions"]
+        )
 
     def test_forward_reach_is_explicit_progress(self) -> None:
         incumbent = {
@@ -599,6 +649,12 @@ class PolicySelectionTest(unittest.TestCase):
                 "workcell.mrworld",
                 "--task-pack",
                 "grasp.taskpack",
+                "--robot-actuator-pack",
+                "grasp.actuatorpack",
+                "--sensor-program-pack",
+                "grasp.sensorpack",
+                "--reality-program-pack",
+                "grasp.realitypack",
                 "--visual-observation-config",
                 "cameras.json",
                 "--visual-environment-pack",
@@ -615,11 +671,57 @@ class PolicySelectionTest(unittest.TestCase):
         for option, value in (
             ("--world-pack", "workcell.mrworld"),
             ("--task-pack", "grasp.taskpack"),
+            ("--robot-actuator-pack", "grasp.actuatorpack"),
+            ("--sensor-program-pack", "grasp.sensorpack"),
+            ("--reality-program-pack", "grasp.realitypack"),
             ("--visual-observation-config", "cameras.json"),
             ("--visual-environment-pack", "studio.mrenv"),
         ):
             index = arguments.index(option)
             self.assertEqual(arguments[index + 1], value)
+
+    def test_birdflow_dove_source_is_preserved_for_evaluation(self) -> None:
+        arguments = evaluation_arguments(
+            ["--birdflow-dove", "--envs", "8", "--steps", "8"],
+            policy_pack=Path("candidate.policypack"),
+            metallib=Path("MetalRobo.metallib"),
+            state_trace=Path("candidate.state.tsv"),
+            maximum_environments=8,
+            held_out_seed=7,
+        )
+        self.assertIn("--birdflow-dove", arguments)
+
+    def test_birdflow_liftoff_tracking_floor_blocks_deployment(self) -> None:
+        incumbent = {
+            "task": "birdflow_american_crow_standing_to_flight",
+            "maximum_sampled_difficulty_band": 2,
+            "termination_count": 1,
+            "timeout_count": 1,
+            "height_or_tilt_termination_count": 0,
+            "termination_count_by_environment": [1],
+            "failed_environment_steps": 0,
+            "mean_tracking_score": 0.49,
+            "mean_tilt": 0.46,
+            "outcomes": {
+                "liftoff": {"mean": 0.8, "direction": 1},
+                "push_off": {"mean": 0.1, "direction": 1},
+            },
+        }
+        candidate = {
+            **incumbent,
+            "mean_tracking_score": 0.69,
+            "mean_tilt": 0.36,
+            "outcomes": {
+                "liftoff": {"mean": 0.9, "direction": 1},
+                "push_off": {"mean": 0.2, "direction": 1},
+            },
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertIn(
+            "standing-to-flight liftoff tracking is below the authored success threshold",
+            decision["regressions"],
+        )
 
     def test_adult_selection_isolated_to_highest_training_band(self) -> None:
         arguments = evaluation_arguments(
@@ -676,6 +778,312 @@ class PolicySelectionTest(unittest.TestCase):
         )
         self.assertEqual(arguments[minimum_index + 1], "2")
         self.assertEqual(arguments[maximum_index + 1], "2")
+
+    def test_crow_selection_isolated_to_newest_training_band(self) -> None:
+        arguments = evaluation_arguments(
+            [
+                "--birdflow-american-crow",
+                "--minimum-difficulty-band",
+                "1",
+                "--maximum-difficulty-band",
+                "2",
+                "--envs",
+                "128",
+                "--steps",
+                "64",
+            ],
+            policy_pack=Path("candidate.policypack"),
+            metallib=Path("MetalRobo.metallib"),
+            state_trace=Path("candidate.tsv"),
+            maximum_environments=64,
+            held_out_seed=42,
+        )
+        minimum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--minimum-difficulty-band"
+        )
+        maximum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--maximum-difficulty-band"
+        )
+        self.assertEqual(arguments[minimum_index + 1], "2")
+        self.assertEqual(arguments[maximum_index + 1], "2")
+
+    def test_crow_previous_band_override_is_exact(self) -> None:
+        arguments = evaluation_arguments(
+            [
+                "--birdflow-american-crow",
+                "--minimum-difficulty-band",
+                "1",
+                "--maximum-difficulty-band",
+                "2",
+            ],
+            policy_pack=Path("candidate.policypack"),
+            metallib=Path("MetalRobo.metallib"),
+            state_trace=Path("candidate.tsv"),
+            maximum_environments=64,
+            held_out_seed=42,
+            evaluation_minimum_band=1,
+            evaluation_maximum_band=1,
+        )
+        minimum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--minimum-difficulty-band"
+        )
+        maximum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--maximum-difficulty-band"
+        )
+        self.assertEqual(arguments[minimum_index + 1], "1")
+        self.assertEqual(arguments[maximum_index + 1], "1")
+
+    def test_crow_journey_selection_targets_terminal_journey_band(self) -> None:
+        arguments = evaluation_arguments(
+            [
+                "--birdflow-american-crow-journey",
+                "--birdflow-journey-teacher",
+                "--minimum-difficulty-band",
+                "0",
+                "--maximum-difficulty-band",
+                "4",
+            ],
+            policy_pack=Path("candidate.policypack"),
+            metallib=Path("MetalRobo.metallib"),
+            state_trace=Path("candidate.tsv"),
+            maximum_environments=8,
+            held_out_seed=42,
+        )
+        self.assertIn("--birdflow-american-crow-journey", arguments)
+        self.assertNotIn("--birdflow-journey-teacher", arguments)
+        minimum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--minimum-difficulty-band"
+        )
+        maximum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--maximum-difficulty-band"
+        )
+        self.assertEqual(arguments[minimum_index + 1], "4")
+        self.assertEqual(arguments[maximum_index + 1], "4")
+
+    def test_crow_takeoff_cruise_requires_absolute_physical_gate(self) -> None:
+        incumbent = {
+            "task": "birdflow_american_crow_journey_v7",
+            "maximum_sampled_difficulty_band": 4,
+            "termination_count_by_environment": [0] * 8,
+            "failed_environment_steps": 0,
+            "maximum_root_height": 0.30,
+            "maximum_tilt": 0.10,
+            "mean_tracking_score": 0.60,
+            "mean_tilt": 0.10,
+            "outcomes": {
+                "figure_eight_tracking": {"mean": 0.0, "direction": 1},
+                "liftoff": {"mean": 0.1, "direction": 1},
+                "walking_contact": {"mean": 0.0, "direction": 1},
+                "ground_support": {"mean": 0.1, "direction": 1},
+                "tracking": {"mean": 0.6, "direction": 1},
+            },
+        }
+        candidate = {
+            **incumbent,
+            "maximum_root_height": 0.50,
+            "mean_tracking_score": 0.64,
+            "outcomes": {
+                **incumbent["outcomes"],
+                "liftoff": {"mean": 0.2, "direction": 1},
+            },
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertIn(
+            "takeoff-cruise candidate did not reach the 0.55 m liftoff gate",
+            decision["regressions"],
+        )
+
+    def test_crow_previous_band_regression_blocks_flight_progress(self) -> None:
+        current_incumbent = {
+            "task": "birdflow_american_crow_standing_to_flight",
+            "maximum_sampled_difficulty_band": 2,
+            "termination_count_by_environment": [0] * 8,
+            "failed_environment_steps": 0,
+            "mean_tracking_score": 0.70,
+            "mean_tilt": 0.10,
+            "outcomes": {
+                "liftoff": {"mean": 0.40, "direction": 1},
+                "push_off": {"mean": 0.10, "direction": 1},
+            },
+        }
+        current_candidate = {
+            **current_incumbent,
+            "mean_tracking_score": 0.75,
+            "outcomes": {
+                "liftoff": {"mean": 0.50, "direction": 1},
+                "push_off": {"mean": 0.20, "direction": 1},
+            },
+        }
+        previous_incumbent = {
+            **current_incumbent,
+            "maximum_sampled_difficulty_band": 1,
+            "mean_tracking_score": 0.60,
+            "outcomes": {
+                "ground_support": {"mean": 0.80, "direction": 1},
+                "walking_contact": {"mean": 0.50, "direction": 1},
+            },
+        }
+        previous_candidate = {
+            **previous_incumbent,
+            "outcomes": {
+                "ground_support": {"mean": 0.60, "direction": 1},
+                "walking_contact": {"mean": 0.40, "direction": 1},
+            },
+        }
+        decision = compare_staged_bands(
+            current_incumbent,
+            current_candidate,
+            previous_incumbent,
+            previous_candidate,
+        )
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertIn(
+            "previous-band: ground_support decreased",
+            decision["regressions"],
+        )
+
+    def test_crow_previous_band_tracking_regression_blocks_flight_progress(
+        self,
+    ) -> None:
+        current_incumbent = {
+            "task": "birdflow_american_crow_standing_to_flight",
+            "maximum_sampled_difficulty_band": 2,
+            "termination_count_by_environment": [0] * 8,
+            "failed_environment_steps": 0,
+            "mean_tracking_score": 0.70,
+            "mean_tilt": 0.10,
+            "outcomes": {
+                "liftoff": {"mean": 0.40, "direction": 1},
+                "push_off": {"mean": 0.10, "direction": 1},
+            },
+        }
+        current_candidate = {
+            **current_incumbent,
+            "mean_tracking_score": 0.75,
+            "outcomes": {
+                "liftoff": {"mean": 0.50, "direction": 1},
+                "push_off": {"mean": 0.20, "direction": 1},
+            },
+        }
+        previous_incumbent = {
+            **current_incumbent,
+            "maximum_sampled_difficulty_band": 1,
+            "mean_tracking_score": 0.60,
+            "outcomes": {
+                "ground_support": {"mean": 0.80, "direction": 1},
+                "walking_contact": {"mean": 0.50, "direction": 1},
+            },
+        }
+        previous_candidate = {
+            **previous_incumbent,
+            "mean_tracking_score": 0.59,
+        }
+        decision = compare_staged_bands(
+            current_incumbent,
+            current_candidate,
+            previous_incumbent,
+            previous_candidate,
+        )
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertIn(
+            "previous-band: tracking score decreased",
+            decision["regressions"],
+        )
+
+    def test_crow_journey_protects_every_prior_band(self) -> None:
+        current = {
+            "task": "birdflow_american_crow_journey_v7",
+            "maximum_sampled_difficulty_band": 10,
+            "termination_count_by_environment": [0] * 8,
+            "failed_environment_steps": 0,
+            "maximum_root_height": 0.85,
+            "maximum_tilt": 0.40,
+            "mean_tilt": 0.10,
+            "mean_tracking_score": 0.72,
+            "outcomes": {
+                "figure_eight_tracking": {"mean": 0.5, "direction": 1},
+                "liftoff": {"mean": 0.5, "direction": 1},
+            },
+        }
+        protected_incumbent = {
+            **current,
+            "maximum_sampled_difficulty_band": 0,
+            "mean_tracking_score": 0.95,
+            "outcomes": {
+                "ground_support": {"mean": 0.9, "direction": 1},
+            },
+        }
+        protected_candidate = {
+            **protected_incumbent,
+            "mean_tracking_score": 0.80,
+            "outcomes": {
+                "ground_support": {"mean": 0.7, "direction": 1},
+            },
+        }
+        decision = compare_protected_bands(
+            {**current, "mean_tracking_score": 0.70},
+            current,
+            {0: (protected_incumbent, protected_candidate)},
+        )
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertIn(
+            "protected-band-0: tracking below milestone floor 0.95",
+            decision["regressions"],
+        )
+
+    def test_crow_journey_allows_safe_relative_tradeoff(self) -> None:
+        full = {
+            "task": "birdflow_american_crow_journey_v7",
+            "maximum_sampled_difficulty_band": 10,
+            "termination_count": 8,
+            "timeout_count": 8,
+            "termination_count_by_environment": [1] * 8,
+            "failed_environment_steps": 0,
+            "maximum_root_height": 0.85,
+            "maximum_tilt": 0.40,
+            "mean_tilt": 0.10,
+            "mean_tracking_score": 0.70,
+            "outcomes": {
+                "tracking": {"mean": 0.70, "direction": 1},
+                "liftoff": {"mean": 0.5, "direction": 1},
+                "ground_support": {"mean": 0.5, "direction": 1},
+            },
+        }
+        protected_incumbent = {
+            **full,
+            "maximum_sampled_difficulty_band": 2,
+            "maximum_root_height": 0.90,
+            "mean_tracking_score": 0.80,
+            "outcomes": {
+                "forward_flight_tracking": {"mean": 0.8, "direction": 1},
+                "liftoff": {"mean": 0.8, "direction": 1},
+                "push_off": {"mean": 0.2, "direction": 1},
+            },
+        }
+        protected_candidate = {
+            **protected_incumbent,
+            "maximum_root_height": 0.75,
+            "mean_tracking_score": 0.72,
+            "outcomes": {
+                "forward_flight_tracking": {"mean": 0.7, "direction": 1},
+                "liftoff": {"mean": 0.7, "direction": 1},
+                "push_off": {"mean": 0.1, "direction": 1},
+            },
+        }
+        decision = compare_protected_bands(
+            full,
+            {**full, "mean_tracking_score": 0.71},
+            {2: (protected_incumbent, protected_candidate)},
+        )
+        self.assertEqual(decision["selected"], "candidate")
+        self.assertEqual(decision["regressions"], [])
+        self.assertIn(
+            "forward_flight_tracking decreased",
+            decision["protected_band_comparisons"]["2"][
+                "relative_regressions"
+            ],
+        )
 
     def test_checkpoint_comparisons_are_json_serializable(self) -> None:
         incumbent = {
@@ -802,6 +1210,238 @@ class PolicySelectionTest(unittest.TestCase):
             ),
             (0, None),
         )
+
+    def test_crow_curriculum_protects_earlier_walking_rung(self) -> None:
+        current, previous = _curriculum_evaluation_bands(
+            [
+                "--birdflow-american-crow",
+                "--minimum-difficulty-band",
+                "1",
+                "--maximum-difficulty-band",
+                "2",
+            ]
+        )
+        self.assertEqual((current, previous), (2, 1))
+
+    def test_crow_journey_curriculum_protects_prejourney_flight_rung(self) -> None:
+        current, previous = _curriculum_evaluation_bands(
+            [
+                "--birdflow-american-crow-journey",
+                "--minimum-difficulty-band",
+                "0",
+                "--maximum-difficulty-band",
+                "4",
+            ]
+        )
+        self.assertEqual((current, previous), (4, 3))
+
+    def test_visual_crow_selection_retains_variant(self) -> None:
+        arguments = evaluation_arguments(
+            [
+                "--birdflow-american-crow-journey",
+                "--birdflow-journey-variant", "v9-visual-neural",
+                "--visual-observation-config", "/tmp/crow-visual.json",
+                "--updates", "10",
+            ],
+            policy_pack=Path("/tmp/policy.policypack"),
+            metallib=Path("/tmp/MetalRobo.metallib"),
+            state_trace=Path("/tmp/crow.tsv"),
+            maximum_environments=2,
+            held_out_seed=7,
+            evaluation_steps=4,
+        )
+        self.assertIn("--birdflow-journey-variant", arguments)
+        self.assertIn("v9-visual-neural", arguments)
+
+    def test_neural_crow_approach_requires_shadow_envelope_clearance(self) -> None:
+        record = {
+            "task": "birdflow_american_crow_journey_v8_neural",
+            "failed_environment_steps": 0,
+            "termination_count": 0,
+            "timeout_count": 0,
+            "mean_tracking_score": 0.8,
+            "mean_tilt": 0.1,
+            "maximum_tilt": 0.2,
+            "maximum_root_height": 0.8,
+            "outcomes": {
+                "approach_pitch_warning_fraction": {
+                    "mean": 0.06, "direction": 2,
+                },
+                "approach_pitch_full_envelope_fraction": {
+                    "mean": 0.0, "direction": 2,
+                },
+            },
+        }
+        self.assertIn(
+            "neural approach warning-envelope occupancy exceeds 0.05",
+            _crow_journey_contract_regressions(record, 7),
+        )
+        record["outcomes"]["approach_pitch_warning_fraction"]["mean"] = 0.01
+        self.assertEqual(_crow_journey_contract_regressions(record, 7), [])
+
+    def test_crow_band_zero_uses_absolute_contract_without_protected_bands(self) -> None:
+        record = {
+            "task": "birdflow_american_crow_journey_v8_neural",
+            "failed_environment_steps": 0,
+            "termination_count": 512,
+            "timeout_count": 512,
+            "mean_tracking_score": 1.0,
+            "mean_tilt": 0.001,
+            "maximum_tilt": 0.01,
+            "maximum_root_height": 0.19,
+            "minimum_sampled_difficulty_band": 0,
+            "maximum_sampled_difficulty_band": 0,
+        }
+        decision = compare_protected_bands(record, record, {})
+        self.assertEqual(decision["selected"], "candidate")
+        self.assertTrue(decision["candidate_advanced_deployment"])
+        self.assertEqual(decision["regressions"], [])
+        self.assertEqual(
+            decision["selection_method"],
+            "birdflow_crow_journey_absolute_protected_contract",
+        )
+
+    def test_crow_current_contract_failure_is_sufficient_to_reject(self) -> None:
+        incumbent = {
+            "task": "birdflow_american_crow_journey_v8_neural",
+            "failed_environment_steps": 0,
+            "termination_count": 512,
+            "timeout_count": 512,
+            "mean_tracking_score": 0.92,
+            "mean_tilt": 0.01,
+            "maximum_tilt": 0.02,
+            "maximum_root_height": 0.19,
+            "minimum_sampled_difficulty_band": 1,
+            "maximum_sampled_difficulty_band": 1,
+        }
+        candidate = {
+            **incumbent,
+            "mean_tracking_score": 0.91,
+            "mean_tilt": 0.36,
+        }
+        failures = _crow_journey_contract_regressions(candidate, 1)
+        self.assertIn("mean tilt exceeds 0.35 rad", failures)
+        decision = compare_protected_bands(incumbent, candidate, {})
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertFalse(decision["candidate_advanced_deployment"])
+        self.assertIn("mean tilt exceeds 0.35 rad", decision["regressions"])
+
+    def test_crow_absolute_failure_cannot_win_on_relative_score(self) -> None:
+        incumbent = {
+            "task": "birdflow_american_crow_journey_v8_neural",
+            "failed_environment_steps": 0,
+            "termination_count": 512,
+            "timeout_count": 0,
+            "mean_tracking_score": 0.64,
+            "mean_tilt": 0.08,
+            "maximum_tilt": 0.70,
+            "maximum_root_height": 0.80,
+            "minimum_sampled_difficulty_band": 10,
+            "maximum_sampled_difficulty_band": 10,
+            "outcomes": {
+                "approach_pitch_warning_fraction": {
+                    "mean": 0.20, "direction": 2,
+                },
+                "approach_pitch_full_envelope_fraction": {
+                    "mean": 0.10, "direction": 2,
+                },
+            },
+        }
+        candidate = {
+            **incumbent,
+            "termination_count": 512,
+            "timeout_count": 512,
+            "mean_tracking_score": 0.67,
+            "mean_tilt": 0.06,
+            "maximum_tilt": 0.60,
+            "outcomes": {
+                "approach_pitch_warning_fraction": {
+                    "mean": 0.01, "direction": 2,
+                },
+                "approach_pitch_full_envelope_fraction": {
+                    "mean": 0.008, "direction": 2,
+                },
+            },
+        }
+        decision = compare_protected_bands(incumbent, candidate, {})
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertFalse(decision["candidate_advanced_deployment"])
+        self.assertIn(
+            "neural approach full-envelope occupancy is nonzero",
+            decision["regressions"],
+        )
+
+    def test_crow_selector_skips_protected_replay_after_current_failure(self) -> None:
+        record = {
+            "task": "birdflow_american_crow_journey_v8_neural",
+            "failed_environment_steps": 0,
+            "termination_count": 512,
+            "timeout_count": 512,
+            "mean_tracking_score": 0.92,
+            "mean_tilt": 0.01,
+            "maximum_tilt": 0.02,
+            "maximum_root_height": 0.19,
+            "minimum_sampled_difficulty_band": 1,
+            "maximum_sampled_difficulty_band": 1,
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            incumbent = root / "incumbent.policypack"
+            candidate = root / "candidate.policypack"
+            deployment = root / "deployment.policypack"
+            evidence = root / "selection"
+            evaluator = root / "evaluator"
+            metallib = root / "MetalRobo.metallib"
+            for path in (incumbent, candidate, evaluator, metallib):
+                path.write_text(path.name, encoding="utf-8")
+
+            evaluated: list[str] = []
+
+            def fake_evaluate(
+                _evaluator: Path,
+                _arguments: list[str],
+                evidence_path: Path,
+            ) -> dict[str, object]:
+                evaluated.append(evidence_path.name)
+                if evidence_path.name == "candidate.evidence.json":
+                    return {**record, "mean_tilt": 0.36}
+                if evidence_path.name.startswith("candidate.protected-band"):
+                    self.fail("failed current candidate reached protected replay")
+                return dict(record)
+
+            arguments = [
+                "policy_selection.py",
+                "--evaluator", str(evaluator),
+                "--metallib", str(metallib),
+                "--incumbent", str(incumbent),
+                "--candidate", str(candidate),
+                "--deployment", str(deployment),
+                "--evidence-directory", str(evidence),
+                "--maximum-environments", "512",
+                "--evaluation-steps", "1600",
+                "--",
+                "--birdflow-american-crow-journey",
+                "--minimum-difficulty-band", "1",
+                "--maximum-difficulty-band", "1",
+            ]
+            with patch.object(sys, "argv", arguments), patch.object(
+                policy_selection, "_evaluate", side_effect=fake_evaluate
+            ), contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(policy_selection.main(), 0)
+
+            self.assertEqual(
+                evaluated,
+                [
+                    "incumbent.evidence.json",
+                    "incumbent.protected-band-0.evidence.json",
+                    "candidate.evidence.json",
+                ],
+            )
+            decision = json.loads(
+                (evidence / "selection.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(decision["selected"], "incumbent")
+            self.assertEqual(decision["protected_bands_skipped"], [0])
 
 
 if __name__ == "__main__":

@@ -19,8 +19,19 @@ is selected. Common options:
   --interaction-pack PATH --interaction-clip ID
   --world-pack PATH --task-pack PATH
   --urdf PATH [--srdf PATH] --task-pack PATH
+  --birdflow-dove                         Evaluate the load-responsive hybrid dove
+  --birdflow-american-crow                Evaluate the estimated crow hybrid
+  --birdflow-american-crow-journey        Evaluate the universal crow journey showcase
   --visual-observation-config PATH
   --native-policy | --zero-actions | --action-stream actions.f32
+  --birdflow-stroke-amplitude F [--birdflow-tail-pitch F]
+  [--birdflow-sweep-wave-amplitude F --birdflow-sweep-wave-phase R]
+                                            Scripted wing/tail or sweep-wave calibration
+  --birdflow-wing-pulse-amplitude F --birdflow-wing-pulse-target wings|left-wing|right-wing|sweep|pronation|tail
+  [--birdflow-wing-pulse-secondary-amplitude F --birdflow-wing-pulse-secondary-target wings|left-wing|right-wing|sweep|pronation|tail]
+  --birdflow-wing-pulse-start-step N --birdflow-wing-pulse-duration-steps N
+                                            Late-horizon crow flight-control response probe
+  --birdflow-ground-gait-probe            Scripted crow leg-action calibration
   --task velocity|disturbance-recovery|supine-get-up|developmental-recovery|adult-locomotion|g1-legs-locomotion|ball-recovery|ball-dodge
   --minimum-difficulty-band N --maximum-difficulty-band N
   --envs N --steps N --repeats N --chunk N
@@ -82,7 +93,11 @@ numi_has_option --metallib "$@" || set -- --metallib "$numi_metallib" "$@"
 if ! numi_has_option --policy-pack "$@" &&
    ! numi_has_option --native-policy "$@" &&
    ! numi_has_option --zero-actions "$@" &&
-   ! numi_has_option --action-stream "$@"; then
+   ! numi_has_option --action-stream "$@" &&
+   ! numi_has_option --birdflow-flap-script "$@" &&
+   ! numi_has_option --birdflow-stroke-amplitude "$@" &&
+   ! numi_has_option --birdflow-wing-pulse-amplitude "$@" &&
+   ! numi_has_option --birdflow-ground-gait-probe "$@"; then
     set -- --native-policy "$@"
 fi
 

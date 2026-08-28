@@ -717,6 +717,10 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::contactWrenchLocal:
             case TaskObservationSource::objectTrack:
             case TaskObservationSource::maskedDepth:
+            case TaskObservationSource::cyclicPhase:
+            case TaskObservationSource::crowGroundCarrierPhase:
+            case TaskObservationSource::avianJourneyPhase:
+            case TaskObservationSource::avianJourneyStage:
                 return true;
             default:
                 return false;
@@ -1046,7 +1050,8 @@ TaskCompileDiagnostics compileTaskProgram(
         const auto direction = static_cast<std::uint32_t>(outcome.direction);
         const bool taskAuthoredSource =
             (source >= 2u && source <= 4u) ||
-            source == 8u || source == 9u;
+            source == 8u || source == 9u ||
+            source == 15u || source == 16u;
         if (outcome.id.empty() || outcome.unit.empty() ||
             !taskAuthoredSource ||
             direction > 2u ||
@@ -1132,7 +1137,8 @@ TaskCompileDiagnostics compileTaskProgram(
         }
         if (interactionClip != nullptr &&
             actuator->kind != RobotActuatorKind::jointPosition &&
-            actuator->kind != RobotActuatorKind::gripperPosition) {
+            actuator->kind != RobotActuatorKind::gripperPosition &&
+            actuator->kind != RobotActuatorKind::flappingPosition) {
             return reject(
                 TaskCompileStatus::unsupportedOperator,
                 actuator->id,
@@ -1143,7 +1149,8 @@ TaskCompileDiagnostics compileTaskProgram(
             actuator->kind == RobotActuatorKind::jointPosition ||
             actuator->kind == RobotActuatorKind::jointVelocity ||
             actuator->kind == RobotActuatorKind::jointEffort ||
-            actuator->kind == RobotActuatorKind::gripperPosition;
+            actuator->kind == RobotActuatorKind::gripperPosition ||
+            actuator->kind == RobotActuatorKind::flappingPosition;
         if (!jointActuator &&
             actuator->kind != RobotActuatorKind::tendonPosition &&
             actuator->kind != RobotActuatorKind::rotorMixer &&
@@ -1450,6 +1457,25 @@ TaskCompileDiagnostics compileTaskProgram(
             dofFound->limits.w,
             dofFound->limits.z,
         };
+        if (actuator->kind == RobotActuatorKind::flappingPosition) {
+            if (!finite(actuator->parameters) ||
+                !(actuator->parameters.x > 0.0f) ||
+                actuator->parameters.x > 1.0f ||
+                !(actuator->parameters.y > 0.0f) ||
+                actuator->parameters.x - actuator->parameters.y < 0.0f ||
+                actuator->parameters.x + actuator->parameters.y > 1.0f) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    actuator->id,
+                    "flapping actuator requires a finite trim and residual span inside [0, 1]"
+                );
+            }
+            // Position-drive speed/effort lanes are unused by this actuator
+            // kind. Carry its immutable trim contract into the compiled
+            // action binding without expanding the task-program ABI.
+            drive.z = actuator->parameters.x;
+            drive.w = actuator->parameters.y;
+        }
         if (actuator->kind == RobotActuatorKind::jointPosition &&
             (actuator->parameters.x != 0.0f ||
              actuator->parameters.y != 0.0f)) {
@@ -2221,6 +2247,8 @@ TaskCompileDiagnostics compileTaskProgram(
                 componentLimit = 12u;
                 break;
             case TaskObservationSource::rootHeight:
+            case TaskObservationSource::avianJourneyPhase:
+            case TaskObservationSource::avianJourneyStage:
                 break;
             case TaskObservationSource::supportSense:
                 componentLimit = 3u;
@@ -2265,6 +2293,8 @@ TaskCompileDiagnostics compileTaskProgram(
                 break;
             }
             case TaskObservationSource::gaitPhase:
+            case TaskObservationSource::cyclicPhase:
+            case TaskObservationSource::crowGroundCarrierPhase:
                 componentLimit = 2u;
                 break;
             case TaskObservationSource::recoveryEvent:
@@ -2860,6 +2890,7 @@ TaskCompileDiagnostics compileTaskProgram(
             }
             break;
         }
+        case TaskRewardOperator::figureEightPathTracking:
         case TaskRewardOperator::linearVelocityTracking:
         case TaskRewardOperator::yawVelocityTracking:
         case TaskRewardOperator::constant:
@@ -2903,6 +2934,18 @@ TaskCompileDiagnostics compileTaskProgram(
                 TaskCompileStatus::invalidPack,
                 reward.sourceGroup,
                 "tracking and clearance reward widths must be positive"
+            );
+        }
+        if (reward.operation ==
+                TaskRewardOperator::figureEightPathTracking &&
+            (!(reward.parameters.x > 0.0f) ||
+             !(reward.parameters.y > 0.0f) ||
+             !(reward.parameters.z > 0.0f) ||
+             reward.parameters.w < 0.0f)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "figure_eight_path",
+                "figure-eight tracking requires positive x/y extents and cycle duration plus a non-negative takeoff transition"
             );
         }
         if (reward.operation ==
@@ -3210,6 +3253,7 @@ TaskCompileDiagnostics compileTaskProgram(
             }
             break;
         case TaskTerminationOperator::minimumRootHeight:
+        case TaskTerminationOperator::maximumRootHeight:
         case TaskTerminationOperator::maximumTilt:
             break;
         default:
@@ -4060,6 +4104,63 @@ TaskCompileDiagnostics compileTaskProgram(
         // mode in the compiled ABI so it is fingerprinted and replayable;
         // the Metal hot loop consumes only this flag and numeric tables.
         staged->header.schedule.w |= MR_TASK_PROGRAM_CLOCK_STRESS;
+    }
+    if (pack.id == "birdflow_deetjen_dove_takeoff_flight_figure_eight" ||
+        pack.id == "birdflow_american_crow_standing_to_flight" ||
+        pack.id == "birdflow_american_crow_journey_v7" ||
+        pack.id == "birdflow_american_crow_journey_v8_neural" ||
+        pack.id == "birdflow_american_crow_journey_v9_visual_neural") {
+        // Stage zero and stage one are grounded support tasks. Wing actuation
+        // begins only in the lift-off band, keeping the curriculum physically
+        // possible before flight practice.
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_AVIAN_GROUND_CURRICULUM;
+    }
+    if (pack.id == "birdflow_american_crow_standing_to_flight") {
+        // This narrow residual-learning carrier is a calibrated property of
+        // the estimated crow hybrid, not a generic avian or dove behavior.
+        // It stays in the compiled task ABI so replay and held-out selection
+        // can identify the exact policy baseline it supplied.
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_AVIAN_CROW_GROUND_GAIT_CARRIER;
+        // The walking band is a legged support task. Its wing flaps are
+        // folded by the avian ground curriculum, so leaving sweep,
+        // pronation, or tail residuals enabled would let a walking policy
+        // perturb unrelated airborne coordinates. Encode the leg-only
+        // residual authority in the task fingerprint; band two and later
+        // retain the full standing-to-flight action set.
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_AVIAN_CROW_GROUND_LEG_RESIDUAL;
+        // The held-out band-one gate is deliberately much narrower than the
+        // generic ground tilt reward. Make the alignment explicit and
+        // fingerprinted: it applies only to carrier-supported Crow walking,
+        // never to the Dove, passive standing, lift-off, or flight bands.
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_AVIAN_CROW_GROUND_TILT_ENVELOPE;
+        // The walking carrier has a 0.50 s bilateral period, whereas the
+        // inherited cyclic observation reports the independent 4.6 Hz wing
+        // clock. Keep this added sensor contract explicit and fingerprinted:
+        // it grants phase observability only and cannot prescribe a leg drive.
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_AVIAN_CROW_GROUND_CARRIER_PHASE_OBSERVATION;
+        // Band two is a standing-to-liftoff system-identification problem,
+        // not yet curved flight.  The compiled carrier closes the observed
+        // narrow actuation gap while preserving the policy's later flight
+        // authority and its explicit replay provenance.
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_AVIAN_CROW_LIFTOFF_TRIM_CARRIER;
+    }
+    if (pack.id == "birdflow_american_crow_journey_v7") {
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY |
+            MR_TASK_PROGRAM_AVIAN_CROW_APPROACH_ENVELOPE;
+    }
+    if (pack.id == "birdflow_american_crow_journey_v8_neural" ||
+        pack.id == "birdflow_american_crow_journey_v9_visual_neural") {
+        // V8 deliberately omits AVIAN_CROW_APPROACH_ENVELOPE. The policy is
+        // the sole deployment action authority; the task only records shadow
+        // envelope occupancy through direct outcome channels.
+        staged->header.schedule.w |= MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY;
     }
     if (threatGroup != MR_INVALID_INDEX) {
         staged->header.schedule.w |=

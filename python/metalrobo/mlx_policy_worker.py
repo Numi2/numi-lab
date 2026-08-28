@@ -25,6 +25,7 @@ from .mlx_policy_learning import (
     MLXMotionPrior,
     MLXMotionPriorConfiguration,
     MLXPPOConfiguration,
+    MLXPolicyBatch,
     MLXPolicyLearner,
     read_motion_pack,
     read_policy_rollout_pack,
@@ -100,6 +101,146 @@ def _configuration_record(learner: MLXPolicyLearner) -> str:
         sort_keys=True,
         separators=(",", ":"),
         allow_nan=False,
+    )
+
+
+def _difficulty_balanced_retention_weights(
+    retention_weights: np.ndarray,
+    difficulty_bands: np.ndarray,
+    *,
+    priority_band: int | None = None,
+    priority_factor: float = 1.0,
+) -> np.ndarray:
+    """Give every represented protected band equal total teacher authority."""
+
+    weights = np.asarray(retention_weights, dtype=np.float32).reshape(-1)
+    bands = np.asarray(difficulty_bands).reshape(-1)
+    if bands.shape != weights.shape:
+        raise ValueError(
+            "retention difficulty bands disagree with the policy batch"
+        )
+    protected_samples = weights > 0.0
+    active_bands, active_counts = np.unique(
+        bands[protected_samples], return_counts=True
+    )
+    if active_bands.size == 0:
+        raise ValueError(
+            "difficulty-balanced retention selects no protected bands"
+        )
+    if not np.isfinite(priority_factor) or priority_factor < 1.0:
+        raise ValueError("retention priority factor must be finite and at least one")
+    priority_represented = (
+        priority_band is not None and priority_band in active_bands
+    )
+    # The teacher loss is normalized by the sum of these weights. Scaling each
+    # represented band down to the rarest band's total contribution therefore
+    # makes every protected rung equally authoritative without allowing a
+    # per-sample weight above one.
+    samples_per_band = int(np.min(active_counts))
+    balanced = np.zeros_like(weights)
+    # A rollout is allowed to omit a low-probability protected rung. In that
+    # case there is nothing to amplify for this update, so retain balanced
+    # authority across the represented rungs. The held-out selector still
+    # evaluates every protected band and remains the fail-closed boundary.
+    maximum_factor = priority_factor if priority_represented else 1.0
+    for band, count in zip(active_bands, active_counts, strict=True):
+        band_factor = (
+            priority_factor if priority_represented and band == priority_band
+            else 1.0
+        )
+        balanced[np.logical_and(protected_samples, bands == band)] = (
+            np.float32(samples_per_band * band_factor)
+            / np.float32(count * maximum_factor)
+        )
+    return balanced
+
+
+def _retention_policy_batch(
+    batch: MLXPolicyBatch,
+    reference: MLXPolicyLearner,
+    *,
+    chunk_size: int,
+    teacher_weights: np.ndarray | None = None,
+    protected_actor_only: bool = False,
+    difficulty_bands: np.ndarray | None = None,
+    balance_difficulty_bands: bool = False,
+    priority_difficulty_band: int | None = None,
+    priority_factor: float = 1.0,
+) -> MLXPolicyBatch:
+    """Attach frozen actor targets and optionally reserve protected samples."""
+
+    if chunk_size <= 0:
+        raise ValueError("retention target chunk size must be positive")
+    if np.any(batch.teacher_weights != 0.0):
+        raise ValueError(
+            "retention policy cannot be combined with rollout teacher targets"
+        )
+    if (
+        reference.actor_observation_count
+        != int(batch.actor_observations.shape[1])
+        or reference.action_count != int(batch.latents.shape[1])
+    ):
+        raise ValueError(
+            "retention policy disagrees with the actor observation or action contract"
+        )
+    if teacher_weights is None:
+        retention_weights = np.ones(
+            int(batch.actor_observations.shape[0]),
+            dtype=np.float32,
+        )
+    else:
+        retention_weights = np.asarray(
+            teacher_weights, dtype=np.float32
+        ).reshape(-1)
+        if retention_weights.shape != (
+            int(batch.actor_observations.shape[0]),
+        ) or not np.all(np.isfinite(retention_weights)) or np.any(
+            retention_weights < 0.0
+        ) or np.any(retention_weights > 1.0):
+            raise ValueError("retention teacher weights are invalid")
+        if not np.any(retention_weights > 0.0):
+            raise ValueError("retention teacher weights select no samples")
+    protected_samples = retention_weights > 0.0
+    if balance_difficulty_bands:
+        if teacher_weights is None or difficulty_bands is None:
+            raise ValueError(
+                "difficulty-balanced retention requires selective weights and bands"
+            )
+        retention_weights = _difficulty_balanced_retention_weights(
+            retention_weights,
+            difficulty_bands,
+            priority_band=priority_difficulty_band,
+            priority_factor=priority_factor,
+        )
+    policy_weights = batch.policy_weights
+    if protected_actor_only:
+        policy_weights = batch.policy_weights * (
+            1.0 - protected_samples.astype(np.float32)
+        )
+        if not np.any(policy_weights > 0.0):
+            raise ValueError(
+                "protected actor-only retention selects no PPO samples"
+            )
+    targets: list[np.ndarray] = []
+    for offset in range(0, int(batch.actor_observations.shape[0]), chunk_size):
+        observations = mx.array(
+            batch.actor_observations[offset : offset + chunk_size],
+            dtype=mx.float32,
+        )
+        means = reference.model.actor_mean(observations)
+        mx.eval(means)
+        targets.append(np.asarray(means, dtype=np.float32))
+    return MLXPolicyBatch.from_numpy(
+        actor_observations=batch.actor_observations,
+        critic_observations=batch.critic_observations,
+        latents=batch.latents,
+        old_log_probabilities=batch.old_log_probabilities,
+        old_values=batch.old_values,
+        advantages=batch.advantages,
+        returns=batch.returns,
+        teacher_actions=np.concatenate(targets, axis=0),
+        teacher_weights=retention_weights,
+        policy_weights=policy_weights,
     )
 
 
@@ -714,6 +855,27 @@ def _serve(arguments: argparse.Namespace) -> int:
         library_path=arguments.native_library,
     )
     _bind_contract(learner, arguments)
+    retention_reference = None
+    if arguments.retention_policy_pack is not None:
+        if arguments.imagination_distillation_coefficient <= 0.0:
+            raise ValueError(
+                "retention policy requires a positive distillation coefficient"
+            )
+        retention_reference = MLXPolicyLearner.from_actor_policy_pack(
+            arguments.retention_policy_pack,
+            learner.critic_observation_count,
+            learner.configuration,
+            preserve_critic=False,
+            actor_observation_count=learner.actor_observation_count,
+            actor_observation_extension_offset=(
+                arguments.actor_observation_extension_offset
+            ),
+            library_path=arguments.native_library,
+        )
+        if retention_reference.action_count != learner.action_count:
+            raise ValueError(
+                "retention policy disagrees with the learner action contract"
+            )
     motion_prior = None
     if arguments.motion_pack is not None:
         motion_prior = MLXMotionPrior(
@@ -809,6 +971,25 @@ def _serve(arguments: argparse.Namespace) -> int:
                 restored and arguments.override_resumed_exploration
             ),
             "motion_prior_enabled": motion_prior is not None,
+            "retention_policy_enabled": retention_reference is not None,
+            "retention_policy_pack": (
+                str(arguments.retention_policy_pack)
+                if arguments.retention_policy_pack is not None
+                else None
+            ),
+            "retention_maximum_difficulty_band": (
+                arguments.retention_maximum_difficulty_band
+            ),
+            "retention_protected_actor_only": (
+                arguments.retention_protected_actor_only
+            ),
+            "retention_balance_difficulty_bands": (
+                arguments.retention_balance_difficulty_bands
+            ),
+            "retention_priority_difficulty_band": (
+                arguments.retention_priority_difficulty_band
+            ),
+            "retention_priority_factor": arguments.retention_priority_factor,
             "motion_pack_hash": (
                 motion_prior.motion_pack.content_hash
                 if motion_prior is not None
@@ -861,6 +1042,32 @@ def _serve(arguments: argparse.Namespace) -> int:
                 gae_lambda=learner.configuration.gae_lambda,
                 rewards=learning_rewards,
             )
+            if retention_reference is not None:
+                retention_weights = None
+                if arguments.retention_maximum_difficulty_band is not None:
+                    retention_weights = (
+                        rollout.transitions["difficulty_band"].reshape(-1)
+                        <= arguments.retention_maximum_difficulty_band
+                    ).astype(np.float32)
+                policy_batch = _retention_policy_batch(
+                    policy_batch,
+                    retention_reference,
+                    chunk_size=learner.configuration.minibatch_size,
+                    teacher_weights=retention_weights,
+                    protected_actor_only=(
+                        arguments.retention_protected_actor_only
+                    ),
+                    difficulty_bands=(
+                        rollout.transitions["difficulty_band"].reshape(-1)
+                    ),
+                    balance_difficulty_bands=(
+                        arguments.retention_balance_difficulty_bands
+                    ),
+                    priority_difficulty_band=(
+                        arguments.retention_priority_difficulty_band
+                    ),
+                    priority_factor=arguments.retention_priority_factor,
+                )
             metrics = learner.update(policy_batch)
             metrics.update(motion_metrics)
             artifact = learner.write_policy_pack(
@@ -1206,6 +1413,51 @@ def main() -> int:
         "--restore-learner-state",
         type=Path,
         help="immutable learner state used only for restoration",
+    )
+    serve.add_argument(
+        "--retention-policy-pack",
+        type=Path,
+        help=(
+            "frozen source actor evaluated on current observations and used "
+            "as all-sample Huber retention targets"
+        ),
+    )
+    serve.add_argument(
+        "--retention-maximum-difficulty-band",
+        type=int,
+        choices=range(11),
+        help=(
+            "apply frozen-actor retention only to rollout samples at or "
+            "below this difficulty band"
+        ),
+    )
+    serve.add_argument(
+        "--retention-protected-actor-only",
+        action="store_true",
+        help=(
+            "exclude retention-selected samples from PPO actor and entropy "
+            "losses while retaining their critic updates"
+        ),
+    )
+    serve.add_argument(
+        "--retention-balance-difficulty-bands",
+        action="store_true",
+        help=(
+            "equalize frozen-actor loss across represented protected "
+            "difficulty bands"
+        ),
+    )
+    serve.add_argument(
+        "--retention-priority-difficulty-band",
+        type=int,
+        choices=range(11),
+        help="give one protected band additional relative retention authority",
+    )
+    serve.add_argument(
+        "--retention-priority-factor",
+        type=float,
+        default=1.0,
+        help="relative authority for the priority band; must be at least one",
     )
     serve.add_argument(
         "--actor-observation-extension-offset",

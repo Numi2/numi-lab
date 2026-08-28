@@ -27,23 +27,32 @@ _VALUE_OPTIONS = frozenset(
         "--task",
         "--minimum-difficulty-band",
         "--maximum-difficulty-band",
+        "--birdflow-journey-variant",
         "--interaction-student-authority",
         "--interaction-pack",
         "--interaction-clip",
         "--world-pack",
         "--task-pack",
+        "--robot-actuator-pack",
+        "--sensor-program-pack",
+        "--reality-program-pack",
         "--urdf",
         "--srdf",
         "--g1-visual-pack-dir",
         "--ball-visual-pack-dir",
         "--visual-observation-config",
         "--visual-environment-pack",
+        "--base-policy-pack",
     }
 )
 _FLAG_OPTIONS = frozenset(
     {
+        "--birdflow-dove",
+        "--birdflow-american-crow",
+        "--birdflow-american-crow-journey",
         "--interaction-reset-only",
         "--materialize-articulated-contact-responses",
+        "--no-scheduled-resets",
     }
 )
 
@@ -55,6 +64,11 @@ _EVALUATION_OVERRIDE_OPTIONS = frozenset(
         "--seed",
     }
 )
+
+# This is the authored BirdFlow task's successTrackingThreshold. Relative
+# progress in any airborne band is useful training evidence, not a basis for
+# deploying a standing-to-flight policy before it tracks its commanded launch.
+_BIRDFLOW_TRACKING_FLOOR = 0.70
 
 
 def _option_value(arguments: Sequence[str], option: str) -> str | None:
@@ -179,7 +193,7 @@ def _evaluation_contract(evaluator: Path, arguments: Sequence[str]) -> str:
     """Fingerprint the exact native rollout contract for resumable evidence."""
 
     file_fingerprints: dict[str, str] = {}
-    for option in ("--metallib", "--policy-pack"):
+    for option in ("--metallib", "--policy-pack", "--base-policy-pack"):
         value = _option_value(arguments, option)
         if value is None:
             continue
@@ -200,6 +214,12 @@ def _task_kind(task_id: str) -> str:
     """Map authored task IDs onto the stable promotion-policy vocabulary."""
 
     normalized = task_id.strip().lower().replace("_", "-")
+    if "birdflow" in normalized and "figure-eight" in normalized:
+        return "birdflow-figure-eight"
+    if "birdflow" in normalized and "standing-to-flight" in normalized:
+        return "birdflow-standing-to-flight"
+    if "birdflow" in normalized and "crow" in normalized and "journey" in normalized:
+        return "birdflow-crow-journey"
     if "adult" in normalized and "locomotion" in normalized:
         return "adult-locomotion"
     if "developmental" in normalized and "recovery" in normalized:
@@ -219,14 +239,32 @@ def _task_kind(task_id: str) -> str:
     return normalized
 
 
-def _adult_evaluation_bands(
+def _training_task_kind(training_arguments: Sequence[str]) -> str:
+    """Infer the selected bundled task before its rollout evidence exists."""
+
+    task = _task_kind(_option_value(training_arguments, "--task") or "")
+    if task:
+        return task
+    if "--birdflow-dove" in training_arguments:
+        return "birdflow-figure-eight"
+    if "--birdflow-american-crow" in training_arguments:
+        return "birdflow-standing-to-flight"
+    if "--birdflow-american-crow-journey" in training_arguments:
+        return "birdflow-crow-journey"
+    return task
+
+
+def _curriculum_evaluation_bands(
     training_arguments: Sequence[str],
 ) -> tuple[int | None, int | None]:
-    """Return the current adult rung and its protected predecessor."""
+    """Return the current rung and its protected predecessor."""
 
-    if _task_kind(_option_value(training_arguments, "--task") or "") != (
-        "adult-locomotion"
-    ):
+    if _training_task_kind(training_arguments) not in {
+        "adult-locomotion",
+        "birdflow-figure-eight",
+        "birdflow-standing-to-flight",
+        "birdflow-crow-journey",
+    }:
         return None, None
     maximum_band = _option_value(
         training_arguments, "--maximum-difficulty-band"
@@ -235,6 +273,16 @@ def _adult_evaluation_bands(
         return None, None
     current_band = int(maximum_band)
     return current_band, current_band - 1 if current_band > 0 else None
+
+
+def _adult_evaluation_bands(
+    training_arguments: Sequence[str],
+) -> tuple[int | None, int | None]:
+    """Retain the adult-only helper used by existing callers and tests."""
+
+    if _training_task_kind(training_arguments) != "adult-locomotion":
+        return None, None
+    return _curriculum_evaluation_bands(training_arguments)
 
 
 def evaluation_arguments(
@@ -289,8 +337,6 @@ def evaluation_arguments(
             if value == "--interaction-student-authority":
                 skip = True
                 continue
-            if value == "--interaction-reset-only":
-                continue
             filtered.append(value)
         # Preserve the guided source fingerprint while selecting the explicit
         # autonomous task variant. The native runtime accepts this transition
@@ -301,17 +347,29 @@ def evaluation_arguments(
             "0",
             "--interaction-reset-only",
         ]
+        # Selection must retain the accepted teacher reset while evaluating
+        # the autonomous student.  This flag is part of the compiled contract,
+        # so append it only when the source invocation did not already carry
+        # it.
+        if "--interaction-reset-only" not in projected:
+            projected.append("--interaction-reset-only")
 
-    # Adult training deliberately mixes the previous and current bands so
-    # the learner retains the earlier balance skill. Promotion evidence must
-    # answer a stricter question: did the candidate survive the newest band
-    # itself? Appending the maximum band makes the native evaluator's last
-    # value authoritative without changing the training rollout contract.
-    task = _task_kind(_option_value(training_arguments, "--task") or "")
+    # Staged adult and BirdFlow tasks deliberately mix previous and current
+    # bands during training. Promotion must answer the stricter question: did
+    # the candidate satisfy the newest rung itself, without losing the
+    # preceding physical capability? Appending the maximum band makes the
+    # native evaluator's last value authoritative without changing the
+    # training rollout contract.
+    task = _training_task_kind(training_arguments)
     maximum_band = _option_value(
         training_arguments, "--maximum-difficulty-band"
     )
-    if task == "adult-locomotion" and maximum_band is not None:
+    if task in {
+        "adult-locomotion",
+        "birdflow-figure-eight",
+        "birdflow-standing-to-flight",
+        "birdflow-crow-journey",
+    } and maximum_band is not None:
         selected_minimum_band = (
             str(evaluation_minimum_band)
             if evaluation_minimum_band is not None
@@ -330,6 +388,15 @@ def evaluation_arguments(
                 selected_maximum_band,
             )
         )
+
+    # Scheduled resets are a generic stress instrument, not evidence for a
+    # continuous BirdFlow standing-to-flight trajectory.
+    if (
+        {"--birdflow-dove", "--birdflow-american-crow",
+         "--birdflow-american-crow-journey"}
+        & set(training_arguments)
+    ) and "--no-scheduled-resets" not in projected:
+        projected.append("--no-scheduled-resets")
 
     # Appended values win if a caller supplied the same option earlier.
     projected.extend(
@@ -394,7 +461,16 @@ def _physical_failure_rate(record: dict[str, Any]) -> float:
     environments = max(
         len(record.get("termination_count_by_environment", [])), 1
     )
-    if (
+    is_birdflow_task = str(record.get("task", "")).startswith("birdflow_")
+    if is_birdflow_task:
+        # Bird tasks terminate on non-foot contact. Their generic height/tilt
+        # counter is intentionally empty, so use all non-timeout terminations.
+        failures = max(
+            int(record.get("termination_count", 0))
+            - int(record.get("timeout_count", 0)),
+            0,
+        )
+    elif (
         "height_or_tilt_termination_count" in record
         and str(record.get("world_source", ""))
         not in _GENERIC_WORLD_SOURCES
@@ -438,6 +514,83 @@ def _authored_outcomes(record: dict[str, Any]) -> dict[str, tuple[float, int]]:
         except (KeyError, TypeError, ValueError):
             continue
     return outcomes
+
+
+def _outcome_mean(record: dict[str, Any], identifier: str) -> float:
+    outcome = _authored_outcomes(record).get(identifier)
+    return 0.0 if outcome is None else outcome[0]
+
+
+def _birdflow_stage_outcomes(task: str, maximum_band: int) -> tuple[str, ...]:
+    """Return the physical outcomes owned by one BirdFlow curriculum rung."""
+
+    if task == "birdflow-crow-journey":
+        if maximum_band >= 10:
+            return ("tracking", "liftoff", "ground_support")
+        if maximum_band in {5, 6}:
+            return ("tracking", "liftoff")
+        if maximum_band >= 7:
+            return ("tracking", "ground_support")
+        if maximum_band >= 2:
+            return ("forward_flight_tracking", "liftoff", "push_off")
+    terminal_outcomes = (
+        ("figure_eight_tracking", "liftoff")
+        if task == "birdflow-figure-eight"
+        else ("forward_flight_tracking", "liftoff", "push_off")
+    )
+    return {
+        0: ("ground_support",),
+        1: ("ground_support", "walking_contact"),
+        2: ("liftoff", "push_off"),
+        3: terminal_outcomes,
+    }[min(maximum_band, 3)]
+
+
+def _crow_journey_contract_regressions(
+    record: dict[str, Any], band: int
+) -> list[str]:
+    """Return absolute physical-contract failures for one journey milestone."""
+
+    regressions: list[str] = []
+    if int(record.get("failed_environment_steps", 0)) != 0:
+        regressions.append("failed environment steps")
+    if _physical_failure_rate(record) > 1.0e-12:
+        regressions.append("physical-boundary termination")
+    tracking_floor = 0.95 if band in {0, 9} else 0.85 if band == 1 else 0.65
+    if float(record.get("mean_tracking_score", 0.0)) < tracking_floor:
+        regressions.append(
+            f"tracking below milestone floor {tracking_floor:.2f}"
+        )
+    if float(record.get("mean_tilt", 0.0)) > 0.35:
+        regressions.append("mean tilt exceeds 0.35 rad")
+    if float(record.get("maximum_tilt", 0.0)) >= 0.80:
+        regressions.append("maximum tilt reaches 0.80 rad")
+    if band in {2, 3, 4, 5, 6, 7, 10} and float(
+        record.get("maximum_root_height", 0.0)
+    ) < 0.55:
+        regressions.append("airborne milestone did not reach 0.55 m")
+    task_id = str(record.get("task", ""))
+    if task_id in {
+        "birdflow_american_crow_journey_v8_neural",
+        "birdflow_american_crow_journey_v9_visual_neural",
+    } and band in {
+        7, 8, 9, 10
+    }:
+        outcomes = _authored_outcomes(record)
+        warning = outcomes.get("approach_pitch_warning_fraction")
+        full = outcomes.get("approach_pitch_full_envelope_fraction")
+        if warning is None or full is None:
+            regressions.append("neural approach-envelope diagnostics unavailable")
+        else:
+            if warning[0] > 0.05:
+                regressions.append(
+                    "neural approach warning-envelope occupancy exceeds 0.05"
+                )
+            if full[0] > 1.0e-6:
+                regressions.append(
+                    "neural approach full-envelope occupancy is nonzero"
+                )
+    return regressions
 
 
 def _compare_adult_authored_outcomes(
@@ -502,6 +655,12 @@ def compare_evidence(
     )
     incumbent_termination = _physical_failure_rate(incumbent)
     candidate_termination = _physical_failure_rate(candidate)
+    incumbent_clean_horizon = float(
+        incumbent.get("clean_horizon_environment_rate", 0.0)
+    )
+    candidate_clean_horizon = float(
+        candidate.get("clean_horizon_environment_rate", 0.0)
+    )
     regressions: list[str] = []
     improvements: list[str] = []
 
@@ -512,7 +671,93 @@ def compare_evidence(
     elif candidate_termination < incumbent_termination - 1.0e-12:
         improvements.append("termination rate decreased")
 
-    if generic_task:
+    if task in {"birdflow-figure-eight", "birdflow-standing-to-flight",
+                "birdflow-crow-journey"}:
+        maximum_band = int(candidate.get("maximum_sampled_difficulty_band", 3))
+        for identifier in _birdflow_stage_outcomes(task, maximum_band):
+            if _outcome_mean(candidate, identifier) > (
+                _outcome_mean(incumbent, identifier) + 1.0e-6
+            ):
+                improvements.append(f"{identifier} increased")
+        if maximum_band == 0:
+            incumbent_drift = abs(float(
+                incumbent.get("mean_final_forward_progress_m", 0.0)
+            ))
+            candidate_drift = abs(float(
+                candidate.get("mean_final_forward_progress_m", 0.0)
+            ))
+            if candidate_drift > max(0.50, incumbent_drift + 0.25):
+                regressions.append("ground station-keeping regressed")
+        if (
+            maximum_band >= 2
+            and task != "birdflow-crow-journey"
+            and float(candidate.get("mean_tracking_score", 0.0))
+            < _BIRDFLOW_TRACKING_FLOOR
+        ):
+            tracking_label = (
+                "figure-eight"
+                if task == "birdflow-figure-eight"
+                else (
+                    "standing-to-flight forward"
+                    if maximum_band >= 3
+                    else "standing-to-flight liftoff"
+                )
+            )
+            regressions.append(
+                f"{tracking_label} tracking is below the authored success threshold"
+            )
+        # A shorter sequence of crashes is useful diagnostic evidence, but
+        # it is not a promotable lift-off or flight capability.  The grounded
+        # bands can legitimately complete by timeout; once the task asks for
+        # vertical flight, every held-out physical-boundary termination must
+        # be resolved before a candidate is eligible for deployment.
+        if maximum_band >= 2 and candidate_termination > 1.0e-12:
+            regressions.append(
+                "candidate has physical-boundary terminations in flight curriculum"
+            )
+        if task == "birdflow-crow-journey" and maximum_band == 4:
+            # The first v2 deployment gate is absolute, not merely relative
+            # to an untrained incumbent: ground-supported takeoff followed by
+            # stable straight cruise must be present in held-out physics.
+            if float(candidate.get("maximum_root_height", 0.0)) < 0.55:
+                regressions.append(
+                    "takeoff-cruise candidate did not reach the 0.55 m liftoff gate"
+                )
+            if float(candidate.get("mean_tracking_score", 0.0)) < 0.65:
+                regressions.append(
+                    "takeoff-cruise tracking is below 0.65"
+                )
+            if float(candidate.get("mean_tilt", 0.0)) > 0.35:
+                regressions.append(
+                    "takeoff-cruise mean tilt exceeds 0.35 rad"
+                )
+            if float(candidate.get("maximum_tilt", 0.0)) >= 0.80:
+                regressions.append(
+                    "takeoff-cruise maximum tilt reaches 0.80 rad"
+                )
+        if task == "birdflow-crow-journey" and maximum_band >= 5:
+            if float(candidate.get("mean_tracking_score", 0.0)) < 0.65:
+                regressions.append("journey milestone tracking is below 0.65")
+            if float(candidate.get("mean_tilt", 0.0)) > 0.35:
+                regressions.append("journey milestone mean tilt exceeds 0.35 rad")
+            if float(candidate.get("maximum_tilt", 0.0)) >= 0.80:
+                regressions.append("journey milestone maximum tilt reaches 0.80 rad")
+            if maximum_band == 10 and float(
+                candidate.get("maximum_root_height", 0.0)
+            ) < 0.55:
+                regressions.append("full journey did not preserve liftoff")
+    elif generic_task:
+        # A velocity actor commands an ongoing balance/locomotion task.  A
+        # marginally lower reset count is not deployable progress if every
+        # held-out environment still collapses before its requested horizon.
+        # Keep this narrowly scoped to imported velocity tasks: other generic
+        # tasks can intentionally terminate on success before the horizon.
+        if (
+            task == "velocity"
+            and "clean_horizon_environment_rate" in candidate
+            and candidate_clean_horizon <= 0.0
+        ):
+            regressions.append("candidate completed no clean horizon")
         old_task_reward = float(incumbent.get("mean_task_reward", 0))
         new_task_reward = float(candidate.get("mean_task_reward", 0))
         if new_task_reward < old_task_reward - 1.0e-12:
@@ -665,7 +910,77 @@ def compare_evidence(
 
     selection_score: float | None = None
     selection_method = "task_physical_comparison"
-    if generic_task:
+    if task in {"birdflow-figure-eight", "birdflow-standing-to-flight",
+                "birdflow-crow-journey"}:
+        maximum_band = int(candidate.get("maximum_sampled_difficulty_band", 3))
+        if maximum_band <= 0:
+            weights = {"ground_support": 0.70, "tracking": 0.30}
+        elif maximum_band == 1:
+            weights = {
+                "walking_contact": 0.55,
+                "ground_support": 0.25,
+                "tracking": 0.20,
+            }
+        elif maximum_band == 2:
+            weights = {"push_off": 0.35, "liftoff": 0.35, "tracking": 0.30}
+        elif task == "birdflow-crow-journey" and maximum_band == 4:
+            weights = {
+                "forward_flight_tracking": 0.55,
+                "liftoff": 0.20,
+                "push_off": 0.10,
+                "ground_support": 0.05,
+                "tracking": 0.10,
+            }
+        elif task == "birdflow-crow-journey":
+            weights = {
+                "tracking": 0.65,
+                "liftoff": 0.20,
+                "ground_support": 0.15,
+            }
+        elif task == "birdflow-figure-eight":
+            weights = {
+                "figure_eight_tracking": 0.55,
+                "liftoff": 0.20,
+                "walking_contact": 0.10,
+                "ground_support": 0.05,
+                "tracking": 0.10,
+            }
+        else:
+            weights = {
+                "forward_flight_tracking": 0.55,
+                "liftoff": 0.20,
+                "push_off": 0.10,
+                "ground_support": 0.05,
+                "tracking": 0.10,
+            }
+        selection_score = sum(
+            weight * _relative_progress(
+                _outcome_mean(incumbent, identifier),
+                _outcome_mean(candidate, identifier),
+                0.01,
+            )
+            for identifier, weight in weights.items()
+        ) + incumbent_termination - candidate_termination
+        selected = (
+            int(candidate.get("failed_environment_steps", 0)) == 0
+            and not regressions
+            and candidate_termination <= incumbent_termination + 1.0e-12
+            and (
+                maximum_band < 2
+                or task == "birdflow-crow-journey"
+                or float(candidate.get("mean_tracking_score", 0.0))
+                >= _BIRDFLOW_TRACKING_FLOOR
+            )
+            and selection_score > 1.0e-12
+        )
+        selection_method = (
+            "birdflow_universal_crow_journey_showcase"
+            if task == "birdflow-crow-journey"
+            else "birdflow_staged_embodied_flight"
+            if task == "birdflow-figure-eight"
+            else "birdflow_staged_embodied_standing_to_flight"
+        )
+    elif generic_task:
         old_task_reward = float(incumbent.get("mean_task_reward", 0))
         new_task_reward = float(candidate.get("mean_task_reward", 0))
         old_reward = float(incumbent.get("mean_reward", 0))
@@ -685,6 +1000,11 @@ def compare_evidence(
         )
         selected = (
             int(candidate.get("failed_environment_steps", 0)) == 0
+            and not (
+                task == "velocity"
+                and "clean_horizon_environment_rate" in candidate
+                and candidate_clean_horizon <= 0.0
+            )
             and selection_score > 1.0e-12
         )
         selection_method = "continuous_authored_task_outcome"
@@ -773,6 +1093,10 @@ def compare_evidence(
             "candidate_termination_rate": candidate_termination,
             "incumbent_physical_failure_rate": incumbent_termination,
             "candidate_physical_failure_rate": candidate_termination,
+            "incumbent_clean_horizon_environment_rate":
+                incumbent_clean_horizon,
+            "candidate_clean_horizon_environment_rate":
+                candidate_clean_horizon,
             "incumbent_mean_tilt": old_tilt,
             "candidate_mean_tilt": new_tilt,
             "incumbent_mean_root_height": old_height,
@@ -812,7 +1136,7 @@ def compare_evidence(
     }
 
 
-def compare_adult_bands(
+def compare_staged_bands(
     current_incumbent: dict[str, Any],
     current_candidate: dict[str, Any],
     previous_incumbent: dict[str, Any],
@@ -822,6 +1146,33 @@ def compare_adult_bands(
 
     decision = compare_evidence(current_incumbent, current_candidate)
     previous = compare_evidence(previous_incumbent, previous_candidate)
+    previous_task = _task_kind(str(
+        previous_candidate.get("task", previous_incumbent.get("task", ""))
+    ))
+    if previous_task in {
+        "birdflow-figure-eight",
+        "birdflow-standing-to-flight",
+        "birdflow-crow-journey",
+    }:
+        previous_band = int(
+            previous_candidate.get("maximum_sampled_difficulty_band", 0)
+        )
+        for identifier in _birdflow_stage_outcomes(
+            previous_task, previous_band
+        ):
+            if _outcome_mean(previous_candidate, identifier) < (
+                _outcome_mean(previous_incumbent, identifier) - 1.0e-6
+            ):
+                previous["regressions"].append(f"{identifier} decreased")
+        # A preserved contact fraction is not sufficient when the established
+        # ground controller can no longer follow its command.  Protect the
+        # prior rung's tracking signal as well as its authored outcomes before
+        # accepting a harder BirdFlow stage.
+        if float(previous_candidate.get("mean_tracking_score", 0.0)) < (
+            float(previous_incumbent.get("mean_tracking_score", 0.0))
+            - 0.001
+        ):
+            previous["regressions"].append("tracking score decreased")
     decision["previous_band_comparison"] = previous
     if previous["regressions"]:
         decision["regressions"].extend(
@@ -831,6 +1182,82 @@ def compare_adult_bands(
         decision["selected"] = "incumbent"
         decision["candidate_advanced_deployment"] = False
     return decision
+
+
+def compare_protected_bands(
+    current_incumbent: dict[str, Any],
+    current_candidate: dict[str, Any],
+    protected: dict[int, tuple[dict[str, Any], dict[str, Any]]],
+) -> dict[str, Any]:
+    """Require progress on the current rung while retaining every protected rung."""
+
+    decision = compare_evidence(current_incumbent, current_candidate)
+    task = _task_kind(str(
+        current_candidate.get("task", current_incumbent.get("task", ""))
+    ))
+    journey_contract = task == "birdflow-crow-journey"
+    if journey_contract:
+        current_band = int(
+            current_candidate.get("maximum_sampled_difficulty_band", 10)
+        )
+        decision["relative_regressions"] = list(decision["regressions"])
+        decision["regressions"] = _crow_journey_contract_regressions(
+            current_candidate, current_band
+        )
+    comparisons: dict[str, dict[str, Any]] = {}
+    for band, (incumbent, candidate) in sorted(protected.items()):
+        comparison = compare_staged_bands(
+            current_incumbent,
+            current_candidate,
+            incumbent,
+            candidate,
+        )["previous_band_comparison"]
+        if journey_contract:
+            comparison["relative_regressions"] = list(
+                comparison["regressions"]
+            )
+            comparison["regressions"] = _crow_journey_contract_regressions(
+                candidate, band
+            )
+        comparisons[str(band)] = comparison
+        if comparison["regressions"]:
+            decision["regressions"].extend(
+                f"protected-band-{band}: {reason}"
+                for reason in comparison["regressions"]
+            )
+    decision["protected_band_comparisons"] = comparisons
+    if decision["regressions"] or any(
+        comparison["regressions"] for comparison in comparisons.values()
+    ):
+        decision["selected"] = "incumbent"
+        decision["candidate_advanced_deployment"] = False
+    elif journey_contract and not decision["regressions"]:
+        decision["selected"] = "candidate"
+        decision["candidate_advanced_deployment"] = True
+        decision["relative_selection_score"] = decision.get(
+            "selection_score"
+        )
+        decision["selection_score"] = 1.0
+        decision["selection_method"] = (
+            "birdflow_crow_journey_absolute_protected_contract"
+        )
+    return decision
+
+
+def compare_adult_bands(
+    current_incumbent: dict[str, Any],
+    current_candidate: dict[str, Any],
+    previous_incumbent: dict[str, Any],
+    previous_candidate: dict[str, Any],
+) -> dict[str, Any]:
+    """Backward-compatible name for the shared staged curriculum gate."""
+
+    return compare_staged_bands(
+        current_incumbent,
+        current_candidate,
+        previous_incumbent,
+        previous_candidate,
+    )
 
 
 def _atomic_copy(source: Path, destination: Path) -> None:
@@ -845,6 +1272,25 @@ def _atomic_copy(source: Path, destination: Path) -> None:
         os.replace(temporary, destination)
     finally:
         temporary.unlink(missing_ok=True)
+
+
+def _deduplicate_policy_paths(
+    policies: Sequence[Path],
+) -> tuple[list[Path], dict[str, str]]:
+    """Keep the first path for each exact PolicyPack payload."""
+
+    unique: list[Path] = []
+    retained_by_sha256: dict[str, Path] = {}
+    duplicates: dict[str, str] = {}
+    for policy in policies:
+        digest = _sha256_file(policy)
+        retained = retained_by_sha256.get(digest)
+        if retained is not None:
+            duplicates[str(policy)] = str(retained)
+            continue
+        retained_by_sha256[digest] = policy
+        unique.append(policy)
+    return unique, duplicates
 
 
 def select_candidate_champion(
@@ -976,6 +1422,14 @@ def main() -> int:
     parser.add_argument("--maximum-environments", type=int, default=256)
     parser.add_argument("--held-out-seed", type=int, default=2_650_443_581)
     parser.add_argument("--evaluation-steps", type=int)
+    parser.add_argument(
+        "--advance-candidate",
+        action="store_true",
+        help=(
+            "deploy the latest candidate after recording held-out comparison "
+            "metrics instead of using the comparison as an advancement gate"
+        ),
+    )
     parser.add_argument("training_arguments", nargs=argparse.REMAINDER)
     options = parser.parse_args()
     if options.maximum_environments <= 0:
@@ -986,8 +1440,23 @@ def main() -> int:
     if training_arguments[:1] == ["--"]:
         training_arguments = training_arguments[1:]
 
-    adult_current_band, adult_previous_band = _adult_evaluation_bands(
-        training_arguments
+    curriculum_task = _training_task_kind(training_arguments)
+    if options.advance_candidate and curriculum_task == "birdflow-crow-journey":
+        parser.error(
+            "crow journey deployment cannot bypass held-out selection"
+        )
+    curriculum_current_band, curriculum_previous_band = (
+        _curriculum_evaluation_bands(
+            training_arguments
+        )
+    )
+    adult_current_band = (
+        curriculum_current_band
+        if curriculum_task == "adult-locomotion" else None
+    )
+    adult_previous_band = (
+        curriculum_previous_band
+        if curriculum_task == "adult-locomotion" else None
     )
 
     options.evidence_directory.mkdir(parents=True, exist_ok=True)
@@ -1002,9 +1471,21 @@ def main() -> int:
         ))
     candidate_policies.extend(options.candidate)
     candidate_policies = list(dict.fromkeys(candidate_policies))
+    candidate_policies, duplicate_candidate_policies = (
+        _deduplicate_policy_paths(candidate_policies)
+    )
 
     records: dict[str, dict[str, Any]] = {}
-    previous_band_records: dict[str, dict[str, Any]] = {}
+    protected_band_records: dict[int, dict[str, dict[str, Any]]] = {}
+    skipped_protected_band_failures: dict[str, list[str]] = {}
+    protected_bands = (
+        list(range(curriculum_current_band))
+        if curriculum_task == "birdflow-crow-journey"
+        and curriculum_current_band is not None
+        else [curriculum_previous_band]
+        if curriculum_previous_band is not None
+        else []
+    )
     policies: dict[str, Path] = {"incumbent": options.incumbent}
     if len(candidate_policies) == 1:
         policies["candidate"] = candidate_policies[0]
@@ -1034,8 +1515,29 @@ def main() -> int:
                 ),
                 options.evidence_directory / f"{name}.evidence.json",
             )
-            if adult_previous_band is not None:
-                previous_band_records[name] = _evaluate(
+            # Earlier-band replay cannot rescue a Crow candidate that has
+            # already failed the absolute contract for its current rung.
+            # Reject it fail-closed and retain the current evidence instead
+            # of spending O(protected bands) rollout time proving the same
+            # rejection repeatedly. The incumbent is always replayed because
+            # every viable candidate still needs its matched protected
+            # baseline.
+            if (
+                name != "incumbent"
+                and curriculum_task == "birdflow-crow-journey"
+                and curriculum_current_band is not None
+            ):
+                current_failures = _crow_journey_contract_regressions(
+                    records[name], curriculum_current_band
+                )
+                if current_failures:
+                    skipped_protected_band_failures[name] = current_failures
+                    continue
+            for protected_band in protected_bands:
+                band_records = protected_band_records.setdefault(
+                    protected_band, {}
+                )
+                band_records[name] = _evaluate(
                     options.evaluator,
                     evaluation_arguments(
                         training_arguments,
@@ -1043,16 +1545,16 @@ def main() -> int:
                         metallib=options.metallib,
                         state_trace=(
                             options.evidence_directory
-                            / f"{name}.previous-band.state.tsv"
+                            / f"{name}.protected-band-{protected_band}.state.tsv"
                         ),
                         maximum_environments=options.maximum_environments,
                         held_out_seed=options.held_out_seed,
                         evaluation_steps=options.evaluation_steps,
-                        evaluation_minimum_band=adult_previous_band,
-                        evaluation_maximum_band=adult_previous_band,
+                        evaluation_minimum_band=protected_band,
+                        evaluation_maximum_band=protected_band,
                     ),
                     options.evidence_directory
-                    / f"{name}.previous-band.evidence.json",
+                    / f"{name}.protected-band-{protected_band}.evidence.json",
                 )
     except Exception as error:
         failure = {
@@ -1070,15 +1572,35 @@ def main() -> int:
         return 1
     candidate_names = [name for name in policies if name != "incumbent"]
     comparison_overrides: dict[str, dict[str, Any]] | None = None
-    if adult_previous_band is not None:
+    # Band zero has no earlier bands to replay, but it still owns the same
+    # absolute Crow milestone contract as every later rung.  Running the
+    # absolute gate with an empty protected set lets a ceiling-equal standing
+    # policy qualify without weakening any later protected-band requirement.
+    if (
+        curriculum_task == "birdflow-crow-journey"
+        and curriculum_current_band is not None
+    ):
         comparison_overrides = {}
         for name in candidate_names:
-            comparison_overrides[name] = compare_adult_bands(
+            protected = {
+                band: (
+                    protected_band_records[band]["incumbent"],
+                    protected_band_records[band][name],
+                )
+                for band in protected_bands
+                if name in protected_band_records[band]
+            }
+            comparison = compare_protected_bands(
                 records["incumbent"],
                 records[name],
-                previous_band_records["incumbent"],
-                previous_band_records[name],
+                protected,
             )
+            if name in skipped_protected_band_failures:
+                comparison["protected_bands_skipped"] = protected_bands
+                comparison["protected_band_skip_reason"] = (
+                    "current Crow milestone absolute contract failed"
+                )
+            comparison_overrides[name] = comparison
     champion, comparisons = select_candidate_champion(
         records["incumbent"],
         {name: records[name] for name in candidate_names},
@@ -1088,12 +1610,24 @@ def main() -> int:
     reported_candidate = (
         champion if champion != "incumbent" else candidate_names[-1]
     )
+    deployment_candidate = (
+        candidate_names[-1] if options.advance_candidate else champion
+    )
     # Copy the selected comparison before attaching the complete comparison
     # table. Reusing the dictionary here would make checkpoint_comparisons
     # contain itself and fail JSON publication with a circular-reference
     # error after all expensive rollouts had already completed.
     decision = dict(comparisons[reported_candidate])
-    if champion == "incumbent":
+    if options.advance_candidate:
+        # Exploration is continuous for this route: held-out rollouts remain
+        # immutable diagnostics, but they do not veto the learner's next
+        # physical policy.  This preserves every regression signal without
+        # turning the selector into a training gate.
+        decision = dict(comparisons[deployment_candidate])
+        decision["selected"] = deployment_candidate
+        decision["candidate_advanced_deployment"] = True
+        decision["selection_method"] = "continuous_candidate"
+    elif champion == "incumbent":
         decision["selected"] = "incumbent"
         decision["candidate_advanced_deployment"] = False
     decision.update(
@@ -1103,18 +1637,24 @@ def main() -> int:
             "deployment_policy_pack": str(options.deployment),
             "maximum_evaluation_environments": options.maximum_environments,
             "held_out_seed": options.held_out_seed,
+            "curriculum_task": curriculum_task,
+            "curriculum_current_band": curriculum_current_band,
+            "curriculum_previous_band": curriculum_previous_band,
+            "curriculum_protected_bands": protected_bands,
             "adult_current_band": adult_current_band,
             "adult_previous_band": adult_previous_band,
             "evaluated_candidate_policy_packs": [
                 str(policies[name]) for name in candidate_names
             ],
-            "selected_candidate_label": champion
-            if champion != "incumbent" else None,
+            "duplicate_candidate_policy_packs": duplicate_candidate_policies,
+            "selected_candidate_label": deployment_candidate
+            if deployment_candidate != "incumbent" else None,
+            "comparison_champion": champion,
             "checkpoint_comparisons": comparisons,
         }
     )
     if decision["candidate_advanced_deployment"]:
-        _atomic_copy(policies[champion], options.deployment)
+        _atomic_copy(policies[deployment_candidate], options.deployment)
     encoded = json.dumps(decision, indent=2, sort_keys=True) + "\n"
     (options.evidence_directory / "selection.json").write_text(
         encoded, encoding="utf-8"

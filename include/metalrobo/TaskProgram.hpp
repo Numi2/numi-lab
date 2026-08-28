@@ -62,6 +62,11 @@ enum class TaskObservationSource : std::uint32_t {
         MR_TASK_OBSERVE_INTERACTION_ANCHOR_ORIENTATION,
     previousPolicyAction =
         MR_TASK_OBSERVE_PREVIOUS_POLICY_ACTION,
+    cyclicPhase = MR_TASK_OBSERVE_CYCLIC_PHASE,
+    crowGroundCarrierPhase =
+        MR_TASK_OBSERVE_CROW_GROUND_CARRIER_PHASE,
+    avianJourneyPhase = MR_TASK_OBSERVE_AVIAN_JOURNEY_PHASE,
+    avianJourneyStage = MR_TASK_OBSERVE_AVIAN_JOURNEY_STAGE,
 };
 
 enum class TaskRewardOperator : std::uint32_t {
@@ -134,10 +139,13 @@ enum class TaskRewardOperator : std::uint32_t {
     objectLift = MR_TASK_REWARD_OBJECT_LIFT,
     objectPosition = MR_TASK_REWARD_OBJECT_POSITION,
     objectPlacement = MR_TASK_REWARD_OBJECT_PLACEMENT,
+    figureEightPathTracking =
+        MR_TASK_REWARD_FIGURE_EIGHT_PATH_TRACKING,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {
     minimumRootHeight = MR_TASK_TERMINATE_MINIMUM_ROOT_HEIGHT,
+    maximumRootHeight = MR_TASK_TERMINATE_MAXIMUM_ROOT_HEIGHT,
     maximumTilt = MR_TASK_TERMINATE_MAXIMUM_TILT,
     contactGroup = MR_TASK_TERMINATE_CONTACT_GROUP,
     projectileContact = MR_TASK_TERMINATE_PROJECTILE_CONTACT,
@@ -179,6 +187,7 @@ enum class RobotActuatorKind : std::uint32_t {
     // it opaque because the immutable Millard program is admitted later by
     // MetalWorld. Its action is normalized [-1, 1] and maps to [0, 1].
     millardExcitation = 7u,
+    flappingPosition = 8u,
 };
 
 // One sparse tendon Jacobian term. The coefficient maps generalized joint
@@ -228,6 +237,8 @@ enum class TaskOutcomeSource : std::uint32_t {
     // The compiler assigns one of eight generic native outcome channels and
     // accumulates every matching reward-operator contribution into it.
     rewardContribution = 9u,
+    avianJourneyApproachWarning = 15u,
+    avianJourneyApproachFull = 16u,
 };
 
 enum class TaskOutcomeDirection : std::uint32_t {

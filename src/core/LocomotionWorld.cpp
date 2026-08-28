@@ -458,6 +458,11 @@ void appendLocomotionDynamicSpheres(
         shape.materialIndex = materialIndex;
         shape.collisionGroup = 1u;
         shape.collisionMask = ~0u;
+        // Dynamic projectiles can cross a substantial fraction of their
+        // diameter within one control substep.  Mark the projectile endpoint
+        // for exact event CCD; the rollout factory selects hybrid CCD only
+        // when dynamic spheres are actually authored.
+        shape.flags = MR_SHAPE_FLAG_ENABLE_CCD;
         shape.slotGeneration =
             static_cast<std::uint32_t>(index + 1u);
         shape.localPosition.w = 1.0f;

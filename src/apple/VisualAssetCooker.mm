@@ -2951,15 +2951,45 @@ std::uint32_t appendModelTextureBinding(
                 std::to_string(pack.textures.size());
         }
         bool decodedTexture = false;
+        // Loose USD stages commonly expose relative texture URLs. Loading
+        // them through MDLAsset::loadTextures can replace an otherwise valid
+        // PNG/JPEG with a black placeholder on some Model I/O versions. Read
+        // the authored file directly first; keep MTKTextureLoader as the
+        // fallback for resolved USDZ/package and procedural textures.
+        NSURL* authoredURL = property.URLValue;
+        if (authoredURL == nil &&
+            [texture isKindOfClass:MDLURLTexture.class]) {
+            authoredURL = static_cast<MDLURLTexture*>(texture).URL;
+        }
+        if (authoredURL != nil && authoredURL.isFileURL) {
+            std::filesystem::path texturePath{
+                utf8(authoredURL.path)
+            };
+            if (texturePath.is_relative()) {
+                texturePath = std::filesystem::path{pack.sourceUri}
+                                  .parent_path() / texturePath;
+            }
+            if (const auto encoded = readBytes(texturePath)) {
+                decodedTexture = decodeTexture(
+                    *encoded,
+                    srgb,
+                    options.generateMipmaps,
+                    id,
+                    decoded
+                );
+            }
+        }
         @autoreleasepool {
-            decodedTexture = decodeModelTexture(
-                textureLoader,
-                texture,
-                srgb,
-                options.generateMipmaps,
-                id,
-                decoded
-            );
+            if (!decodedTexture) {
+                decodedTexture = decodeModelTexture(
+                    textureLoader,
+                    texture,
+                    srgb,
+                    options.generateMipmaps,
+                    id,
+                    decoded
+                );
+            }
         }
         if (!decodedTexture) {
             message =
@@ -3126,6 +3156,18 @@ std::uint32_t importModelMaterial(
         MDLMaterialSemanticBaseColor,
         {1.0f, 1.0f, 1.0f, 1.0f}
     );
+    // In USD Preview Surface a connected texture replaces the numeric socket
+    // default. Model I/O exposes both properties, including the default 0.18
+    // diffuse value, but multiplying them would incorrectly darken every
+    // connected texture. glTF factor modulation is handled by its own import
+    // path and does not pass through here.
+    result.baseColorAndOpacity = baseColorTexture == nil
+        ? materialColor(
+              material,
+              MDLMaterialSemanticBaseColor,
+              {1.0f, 1.0f, 1.0f, 1.0f}
+          )
+        : mr_float4{1.0f, 1.0f, 1.0f, 1.0f};
     if (forceNeutralMaterial) {
         // Binary STL carries geometry but no interoperable PBR material. A
         // neutral presentation keeps source-derived URDF geometry legible
@@ -3144,6 +3186,13 @@ std::uint32_t importModelMaterial(
             ? mr_float4{0.0f, 0.0f, 0.0f, 1.0f}
             : mr_float4{1.0f, 1.0f, 1.0f, 1.0f}
     );
+    result.emissionAndStrength = emissionTexture == nil
+        ? materialColor(
+              material,
+              MDLMaterialSemanticEmission,
+              {0.0f, 0.0f, 0.0f, 1.0f}
+          )
+        : mr_float4{1.0f, 1.0f, 1.0f, 1.0f};
     if (forceNeutralMaterial) {
         result.emissionAndStrength = {0.58f, 0.61f, 0.66f, 1.0f};
     }
@@ -4223,9 +4272,12 @@ VisualAssetCookDiagnostics cookModelIOAsset(
             "Model I/O could not compose the visual source"
         );
     }
-    // Model I/O performs USDZ package resolution here. Texture pixel
-    // conversion remains one-material-at-a-time through MTKTextureLoader.
-    [asset loadTextures];
+    // USDZ requires Model I/O package resolution. Loose USD keeps authored
+    // texture URLs intact so appendModelTextureBinding can decode their bytes
+    // directly and deterministically.
+    if (source.extension() == ".usdz") {
+        [asset loadTextures];
+    }
     NSArray<MDLObject*>* meshObjects =
         [asset childObjectsOfClass:MDLMesh.class];
     if (meshObjects.count == 0u) {

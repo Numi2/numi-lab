@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "assetIdentifier": "birdflow-american-crow-numi-hybrid-v3",
+  "taxon": "Corvus brachyrhynchos",
+  "evidenceClass": "estimated-hybrid-controller-candidate",
+  "inheritsVisualLock": {
+    "assetIdentifier": "birdflow-american-crow-numi-hybrid-v1",
+    "repository": "BirdFlowMetal",
+    "profilePath": "ValidationInputs/american-crow-hybrid-visual-v1.json",
+    "profileSHA256": "563e600ff8da2fb7461b00228d421e05c1826d1fe025840e319e0aef4e719714",
+    "surfaceManifestPath": "ValidationInputs/american-crow-hybrid-surface-v1/manifest.json",
+    "surfaceManifestSHA256": "3154c5877b3498aa9370e215c94be9267950494149aecc88c08ee183f895bcc5"
+  },
+  "controllerIntervention": {
+    "scope": "stage-2 native Metal policy residual envelope only",
+    "flappingResidualNormalized": 0.1,
+    "nonWingResidualNormalized": 0.1,
+    "tailResidualNormalized": 0.05,
+    "pronationResidualNormalized": 0.05,
+    "unchanged": [
+      "4.6 Hz task clock",
+      "articulated mechanics",
+      "aerodynamic closure and coefficients",
+      "observation and action ABI",
+      "curriculum, rewards, resets, and terminations",
+      "PPO configuration and held-out selector"
+    ]
+  },
+  "preRegisteredGuards": {
+    "device": "Apple M4 Pro",
+    "environments": 64,
+    "controlSteps": 5000,
+    "difficultyBand": 2,
+    "scheduledResets": false,
+    "seed": 2650443581,
+    "actionSources": [
+      "zero",
+      "persisted deterministic full-envelope 14-lane Rademacher stream; 8-step hold"
+    ],
+    "required": {
+      "failedEnvironmentSteps": 0,
+      "nonTimeoutPhysicalBoundaryFailures": 0,
+      "meanRootHeightMeters": [0.85, 1.3],
+      "meanTiltRadiansMaximum": 0.15,
+      "maximumTiltRadiansMaximum": 0.3
+    }
+  },
+  "excludedClaims": [
+    "measured American-crow kinematics or control",
+    "same-specimen American-crow inertia",
+    "American-crow CFD validation",
+    "American-crow force, power, or free-flight prediction",
+    "hardware flight"
+  ]
+}

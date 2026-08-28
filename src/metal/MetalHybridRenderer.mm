@@ -5627,6 +5627,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                 }
             );
         auto sensorProfiles = std::move(runtime.sensors);
+        const std::uint32_t textureBindingCount =
+            static_cast<std::uint32_t>(
+                runtime.textureBindings.size()
+            );
         std::vector<MRHybridGaussianGPU>{}.swap(runtime.gaussians);
         std::vector<RuntimeVisualScene::GeometrySource>{}.swap(
             runtime.geometrySources
@@ -5703,10 +5707,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         state_->exposureWorkspaces.clear();
         state_->layout = layout;
         state_->assetCount = sceneAssetCount;
-        state_->textureBindingCount =
-            static_cast<std::uint32_t>(
-                runtime.textureBindings.size()
-            );
+        state_->textureBindingCount = textureBindingCount;
         state_->sensorProfiles = std::move(sensorProfiles);
         state_->rendererProfile = profile;
         state_->environment = std::move(sceneEnvironment);

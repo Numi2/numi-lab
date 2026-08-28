@@ -4,6 +4,7 @@
 #include "metalrobo/HeterogeneousWorld.hpp"
 #include "metalrobo/MetalWorldCapacity.hpp"
 #include "metalrobo/ParallelABASchedule.hpp"
+#include "metalrobo/flapping_wing_types.h"
 #include "metalrobo/multicopter_types.h"
 #include "metalrobo/PolicyProgram.hpp"
 #include "metalrobo/TaskProgram.hpp"
@@ -621,6 +622,36 @@ struct MetalWorldMillardActivationDynamics {
     }
 };
 
+// Immutable bilateral articulated-wing load program. Policies actuate the
+// authored hinge drives; this program contributes air-relative body loads
+// from accepted articulated state during every physics microstep.
+struct MetalWorldFlappingWingProgram {
+    std::array<MRFlappingWingGPU, 2u> wings{};
+    MRAeroTailGPU tail{};
+    MRAeroFuselageGPU fuselage{};
+    std::uint32_t articulationIndex = MR_INVALID_INDEX;
+    std::uint32_t rootBodyIndex = MR_INVALID_INDEX;
+    mr_float4 windVelocityAndDensity{};
+
+    [[nodiscard]] bool valid() const noexcept {
+        return articulationIndex != MR_INVALID_INDEX &&
+            rootBodyIndex != MR_INVALID_INDEX &&
+            windVelocityAndDensity.w > 0.0f &&
+            wings[0].bodyIndex != MR_INVALID_INDEX &&
+            wings[1].bodyIndex != MR_INVALID_INDEX &&
+            tail.bodyIndex != MR_INVALID_INDEX &&
+            tail.rootBodyIndex == rootBodyIndex &&
+            tail.rootToCenterAndArea.w > 0.0f &&
+            tail.chordAndCoefficients.x > 0.0f &&
+            fuselage.bodyIndex == rootBodyIndex &&
+            fuselage.rootBodyIndex == rootBodyIndex &&
+            fuselage.referenceAreasAndDrag.x > 0.0f &&
+            fuselage.referenceAreasAndDrag.y > 0.0f &&
+            fuselage.referenceAreasAndDrag.z > 0.0f &&
+            fuselage.referenceAreasAndDrag.w >= 0.0f;
+    }
+};
+
 struct MetalWorldStepConfig {
     // Control-period duration. The immutable model gravity is retained and
     // its authored integration timestep is replaced by
@@ -644,10 +675,14 @@ struct MetalWorldStepConfig {
     // Optional generic native inference program. With no policy program,
     // normalized actions remain an explicit learner/deployment input.
     CompiledPolicyProgram policyProgram{};
+    // Optional immutable carrier actor used by staged Crow training. The
+    // primary policy remains the stochastic behavior policy.
+    CompiledPolicyProgram basePolicyProgram{};
     // Optional compiled robot actuator program. This is an execution program,
     // not a constructor hint; its complete contents participate in the run
     // fingerprint before reaching MetalWorld.
     MetalWorldMulticopterProgram multicopterProgram{};
+    MetalWorldFlappingWingProgram flappingWingProgram{};
     // Optional source Millard muscle-tendon program. It is admitted only by
     // the bounded FunctionBased direct-effort path for a fixed or mobile
     // root: free motion
@@ -671,11 +706,16 @@ struct MetalWorldStepConfig {
     // Publish V(s_T) from the accepted post-rollout state in the same command
     // buffer. This does not apply the sampled action or advance physics.
     bool evaluateFinalPolicy = false;
+    // Invocation-scoped assisted labels for Crow journey training. Neither
+    // field participates in autonomous PolicyPack execution.
+    bool birdFlowJourneyTeacher = false;
+    float birdFlowJourneyStudentAuthority = 0.0f;
     std::uint64_t taskSeed = 0u;
     // Invocation-scoped reset sampling. These select an overlapping region of
     // one compiled TaskPack; they never alter reward, success, or promotion.
     std::uint32_t minimumDifficultyBand = 0u;
     std::uint32_t maximumDifficultyBand = MR_INVALID_INDEX;
+    float difficultySamplingExponentOverride = 0.0f;
     std::uint32_t velocityIterations = 1u;
     std::uint32_t finalVelocityIterations = 1u;
     MetalWorldCCDMode ccdMode = MetalWorldCCDMode::speculative;
@@ -916,6 +956,10 @@ struct MetalWorldResult {
     // Canonical normalized actions relative to the deployment task's default
     // pose. Populated when generated imagination is physically executed.
     std::vector<float> teacherActions;
+    // Canonical action selected by the device-resident deployment policy.
+    // Kept separate from teacherActions so policy evaluation and training
+    // evidence never silently substitute one authority for the other.
+    std::vector<float> policyActions;
     std::vector<float> policyLatents;
     std::vector<float> policyLogProbabilities;
     std::vector<float> policyValues;

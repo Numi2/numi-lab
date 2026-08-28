@@ -317,6 +317,369 @@ test -s "$numi_train_run/selection.log"
 grep '"candidate_retained": true' \
     "$numi_train_run/selection/selection.json" >/dev/null
 
+# The installed user overlay appends its own runtime hash after the bundled
+# train command returns. Its final artifact manifest must cover that appended
+# provenance rather than retaining the bundled command's stale runtime hash.
+numi_guarded_train_run=$numi_temp/runs/guarded-train
+(
+    cd "$numi_repo"
+    NUMI_LAB_ROOT=$numi_repo \
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$numi_guarded_train_run \
+        "$numi_repo/tools/numi_train_selector_guard.sh" --updates 1 \
+        >/dev/null
+)
+grep -- "$numi_repo/tools/numi_train_selector_guard.sh" \
+    "$numi_guarded_train_run/runtime.sha256" >/dev/null
+(
+    cd /
+    shasum -a 256 -c "$numi_guarded_train_run/artifacts.sha256" \
+        >/dev/null
+)
+
+# A native or selector failure must leave one parseable incumbent-retaining
+# decision. The supervisor reads this file directly before deciding whether a
+# retry is safe, so even a trailing escaped newline makes recovery fail.
+numi_guard_failure_root=$numi_temp/guard-failure-root
+numi_guard_failure_run=$numi_temp/runs/guard-failure
+mkdir -p "$numi_guard_failure_root/numi/commands"
+printf '%s\n' '#!/bin/sh' 'exit 1' \
+    > "$numi_guard_failure_root/numi/commands/train"
+chmod +x "$numi_guard_failure_root/numi/commands/train"
+NUMI_LAB_ROOT=$numi_guard_failure_root \
+NUMI_RUN_DIR=$numi_guard_failure_run \
+NUMI_MLX_PYTHON=$(command -v python3) \
+    "$numi_repo/tools/numi_train_selector_guard.sh"
+python3 -c \
+    'import json,sys; data=json.load(open(sys.argv[1])); assert data["selected"] == "incumbent" and data["selection_error"] == "selector exited with status 1"' \
+    "$numi_guard_failure_run/selection/selection.json"
+
+# A remote supervisor may capture the command's output directly into the
+# durable run logs. That must retain native records exactly once rather than
+# feeding a live log back into `cat` until the training volume is full.
+numi_self_capture_run=$numi_temp/runs/self-capture
+mkdir -p "$numi_self_capture_run"
+(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$numi_self_capture_run \
+        "$numi_repo/tools/numi" train --updates 1 \
+            > "$numi_self_capture_run/stdout.log" \
+            2> "$numi_self_capture_run/stderr.log"
+)
+grep '"status":"trained"' "$numi_self_capture_run/stdout.log" >/dev/null
+test "$(wc -c < "$numi_self_capture_run/stdout.log" | tr -d ' ')" -lt 65536
+test "$(wc -c < "$numi_self_capture_run/stderr.log" | tr -d ' ')" -lt 65536
+
+crow_actor_run=$numi_temp/runs/crow-actor-transfer
+crow_actor_source=$numi_temp/crow-stage-one.policypack
+printf 'selected stage-one actor\n' > "$crow_actor_source"
+crow_actor_output=$(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$crow_actor_run \
+        "$numi_repo/tools/numi" crow train \
+            --initialize-actor-policy-pack "$crow_actor_source" \
+            --initialize-actor-fresh-critic \
+            --updates 1
+)
+printf '%s\n' "$crow_actor_output" | grep '"status":"trained"' >/dev/null
+grep -- '--birdflow-american-crow' "$crow_actor_run/arguments.txt" >/dev/null
+grep -- '--initialize-policy' "$crow_actor_run/arguments.txt" >/dev/null
+grep -- '--initialize-actor-policy-pack' "$crow_actor_run/arguments.txt" >/dev/null
+if grep -- '--zero-actor-output' "$crow_actor_run/arguments.txt" >/dev/null; then
+    printf '%s\n' 'crow actor transfer was unexpectedly zeroed' >&2
+    exit 1
+fi
+
+if (
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+        "$numi_repo/tools/numi" crow train \
+            --initialize-actor-policy-pack "$crow_actor_source" \
+            --zero-actor-output \
+            --updates 1
+) > "$numi_temp/crow-invalid-transfer.log" 2>&1; then
+    printf '%s\n' 'crow accepted a contradictory actor-transfer request' >&2
+    exit 1
+fi
+grep -- \
+    '--zero-actor-output cannot be combined with --initialize-actor-policy-pack' \
+    "$numi_temp/crow-invalid-transfer.log" >/dev/null
+
+crow_journey_evaluate_run=$numi_temp/runs/crow-journey-evaluate
+crow_journey_output=$(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$crow_journey_evaluate_run \
+        "$numi_repo/tools/numi" crow journey evaluate --zero-actions
+)
+[ "$crow_journey_output" = "fake-evaluate" ]
+grep -- '--birdflow-american-crow-journey' \
+    "$crow_journey_evaluate_run/arguments.txt" >/dev/null
+grep -- '--birdflow-journey-variant' \
+    "$crow_journey_evaluate_run/arguments.txt" >/dev/null
+grep -- '^v7-hierarchical$' \
+    "$crow_journey_evaluate_run/arguments.txt" >/dev/null
+grep -- '--minimum-difficulty-band' \
+    "$crow_journey_evaluate_run/arguments.txt" >/dev/null
+grep -- '^4$' "$crow_journey_evaluate_run/arguments.txt" >/dev/null
+
+crow_journey_train_run=$numi_temp/runs/crow-journey-train
+crow_journey_train_output=$(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$crow_journey_train_run \
+        "$numi_repo/tools/numi" crow journey train --updates 1
+)
+printf '%s\n' "$crow_journey_train_output" | grep '"status":"trained"' >/dev/null
+grep -- '--birdflow-american-crow-journey' \
+    "$crow_journey_train_run/arguments.txt" >/dev/null
+grep -- '--birdflow-journey-teacher' \
+    "$crow_journey_train_run/arguments.txt" >/dev/null
+grep -- '--maximum-difficulty-band' \
+    "$crow_journey_train_run/arguments.txt" >/dev/null
+grep -- '^4$' "$crow_journey_train_run/arguments.txt" >/dev/null
+
+crow_journey_transfer_run=$numi_temp/runs/crow-journey-transfer
+(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$crow_journey_transfer_run \
+        "$numi_repo/tools/numi" crow journey train \
+            --milestone walking \
+            --initialize-actor-policy-pack "$crow_actor_source" \
+            --updates 1 >/dev/null
+)
+grep -- '--initialize-actor-policy-pack' \
+    "$crow_journey_transfer_run/arguments.txt" >/dev/null
+grep -- '^1$' "$crow_journey_transfer_run/arguments.txt" >/dev/null
+if grep -- '--zero-actor-output' \
+    "$crow_journey_transfer_run/arguments.txt" >/dev/null; then
+    printf '%s\n' 'crow journey actor transfer was unexpectedly zeroed' >&2
+    exit 1
+fi
+
+crow_full_journey_run=$numi_temp/runs/crow-full-journey-evaluate
+crow_full_journey_output=$(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$crow_full_journey_run \
+        "$numi_repo/tools/numi" crow journey evaluate \
+            --milestone full-journey --zero-actions
+)
+[ "$crow_full_journey_output" = "fake-evaluate" ]
+grep -- '--minimum-difficulty-band' \
+    "$crow_full_journey_run/arguments.txt" >/dev/null
+grep -- '^10$' "$crow_full_journey_run/arguments.txt" >/dev/null
+
+crow_neural_journey_run=$numi_temp/runs/crow-neural-journey-evaluate
+crow_neural_journey_output=$(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$crow_neural_journey_run \
+        "$numi_repo/tools/numi" crow journey evaluate \
+            --variant v8-neural --milestone approach --zero-actions
+)
+[ "$crow_neural_journey_output" = "fake-evaluate" ]
+grep -- '^v8-neural$' \
+    "$crow_neural_journey_run/arguments.txt" >/dev/null
+grep -- '^7$' "$crow_neural_journey_run/arguments.txt" >/dev/null
+
+crow_visual_journey_run=$numi_temp/runs/crow-visual-journey-evaluate
+crow_visual_journey_output=$(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$crow_visual_journey_run \
+        "$numi_repo/tools/numi" crow journey evaluate \
+            --variant v9-visual-neural --milestone approach --zero-actions
+)
+[ "$crow_visual_journey_output" = "fake-evaluate" ]
+grep -- '^v9-visual-neural$' \
+    "$crow_visual_journey_run/arguments.txt" >/dev/null
+grep -- 'crow-journey.sensor-fast.visual-observation.json$' \
+    "$crow_visual_journey_run/arguments.txt" >/dev/null
+
+if (
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+        "$numi_repo/tools/numi" crow journey evaluate \
+            --variant unknown --zero-actions
+) > "$numi_temp/crow-invalid-variant.log" 2>&1; then
+    printf '%s\n' 'crow accepted an unknown journey variant' >&2
+    exit 1
+fi
+grep -- 'journey variant requires v7-hierarchical, v8-neural, or v9-visual-neural' \
+    "$numi_temp/crow-invalid-variant.log" >/dev/null
+
+if "$numi_repo/tools/numi" crow journey window > /dev/null 2>&1; then
+    printf '%s\n' 'crow journey window accepted a missing policy' >&2
+    exit 1
+fi
+
+# The durable sensor-fast supervisor crosses the v8/v9 observation ABI only
+# through actor initialization. Treating the v8 pack as a PPO resume would
+# either fail late after launch or silently weaken the transfer contract.
+crow_curriculum_root=$numi_temp/crow-curriculum-root
+crow_curriculum_build=$numi_temp/crow-curriculum-build
+crow_curriculum_runs=$numi_temp/runs/crow-sensor-fast-curriculum
+mkdir -p "$crow_curriculum_root/tools" "$crow_curriculum_build/bin"
+printf '%s\n' '#!/bin/sh' 'exit 0' \
+    > "$crow_curriculum_build/bin/metalrobo_task_train"
+chmod +x "$crow_curriculum_build/bin/metalrobo_task_train"
+printf '%s\n' '#!/bin/sh' \
+    'run=${NUMI_RUN_DIR:?}' \
+    'mkdir -p "$run/selection"' \
+    'printf "%s\n" "$@" > "$run/arguments.txt"' \
+    'printf "initial visual policy\n" > "$run/initial.policypack"' \
+    'printf "candidate training policy\n" > "$run/candidate.policypack"' \
+    'printf "selected deployment\n" > "$run/deployment.policypack"' \
+    'printf "learner state\n" > "$run/learner.safetensors"' \
+    'printf "{\"candidate_advanced_deployment\":true,\"selected_candidate_label\":\"candidate\"}\n" > "$run/selection/selection.json"' \
+    > "$crow_curriculum_root/tools/numi"
+chmod +x "$crow_curriculum_root/tools/numi"
+NUMI_CROW_CURRICULUM_ROOT=$crow_curriculum_root \
+NUMI_CROW_CURRICULUM_BUILD=$crow_curriculum_build \
+NUMI_CROW_CURRICULUM_MLX=/usr/bin/python3 \
+NUMI_CROW_CURRICULUM_RUNS=$crow_curriculum_runs \
+NUMI_CROW_COURSE=sensor-fast \
+NUMI_CROW_PARENT_POLICY=$crow_actor_source \
+NUMI_CROW_START_BAND=0 \
+NUMI_CROW_MAXIMUM_BAND=0 \
+    "$numi_repo/tools/crow_journey_curriculum_supervisor.sh" >/dev/null
+crow_sensor_run=$(find "$crow_curriculum_runs" -maxdepth 1 -type d \
+    -name 'v9-visual-neural-band0-*' -print | head -1)
+test -n "$crow_sensor_run"
+grep -- '--initialize-actor-policy-pack' \
+    "$crow_sensor_run/arguments.txt" >/dev/null
+grep -- '--initialize-actor-fresh-critic' \
+    "$crow_sensor_run/arguments.txt" >/dev/null
+grep -- '--birdflow-journey-student-authority' \
+    "$crow_sensor_run/arguments.txt" >/dev/null
+grep -- '^0.25$' "$crow_sensor_run/arguments.txt" >/dev/null
+grep -- '--checkpoint-interval' "$crow_sensor_run/arguments.txt" >/dev/null
+grep -- '^50$' "$crow_sensor_run/arguments.txt" >/dev/null
+if grep -- '--policy-pack' "$crow_sensor_run/arguments.txt" >/dev/null; then
+    printf '%s\n' 'sensor-fast supervisor attempted cross-ABI PPO resume' >&2
+    exit 1
+fi
+test -s "$crow_curriculum_runs/progress.json"
+
+crow_resume_runs=$numi_temp/runs/crow-state-resume-curriculum
+NUMI_CROW_CURRICULUM_ROOT=$crow_curriculum_root \
+NUMI_CROW_CURRICULUM_BUILD=$crow_curriculum_build \
+NUMI_CROW_CURRICULUM_MLX=/usr/bin/python3 \
+NUMI_CROW_CURRICULUM_RUNS=$crow_resume_runs \
+NUMI_CROW_COURSE=state \
+NUMI_CROW_PARENT_POLICY=$crow_sensor_run/candidate.policypack \
+NUMI_CROW_PARENT_STATE=$crow_sensor_run/learner.safetensors \
+NUMI_CROW_START_BAND=1 \
+NUMI_CROW_MAXIMUM_BAND=1 \
+NUMI_CROW_REHEARSAL_MINIMUM_BAND=0 \
+NUMI_CROW_DIFFICULTY_SAMPLING_EXPONENT=0.25 \
+    "$numi_repo/tools/crow_journey_curriculum_supervisor.sh" >/dev/null
+crow_resume_run=$(find "$crow_resume_runs" -maxdepth 1 -type d \
+    -name 'v8-neural-band1-*' -print | head -1)
+test -n "$crow_resume_run"
+grep -- '--policy-pack' "$crow_resume_run/arguments.txt" >/dev/null
+grep -- '--birdflow-journey-teacher' \
+    "$crow_resume_run/arguments.txt" >/dev/null
+grep -- '--birdflow-journey-student-authority' \
+    "$crow_resume_run/arguments.txt" >/dev/null
+grep -- '--minimum-difficulty-band' "$crow_resume_run/arguments.txt" >/dev/null
+grep -- '^0$' "$crow_resume_run/arguments.txt" >/dev/null
+grep -- '--maximum-difficulty-band' "$crow_resume_run/arguments.txt" >/dev/null
+grep -- '^1$' "$crow_resume_run/arguments.txt" >/dev/null
+grep -- '--difficulty-sampling-exponent' \
+    "$crow_resume_run/arguments.txt" >/dev/null
+grep -- '^0.25$' "$crow_resume_run/arguments.txt" >/dev/null
+test -s "$crow_resume_run/learner.safetensors"
+
+crow_state_transfer_runs=$numi_temp/runs/crow-state-actor-transfer
+NUMI_CROW_CURRICULUM_ROOT=$crow_curriculum_root \
+NUMI_CROW_CURRICULUM_BUILD=$crow_curriculum_build \
+NUMI_CROW_CURRICULUM_MLX=/usr/bin/python3 \
+NUMI_CROW_CURRICULUM_RUNS=$crow_state_transfer_runs \
+NUMI_CROW_COURSE=state \
+NUMI_CROW_PARENT_MODE=actor-transfer \
+NUMI_CROW_PARENT_POLICY=$crow_actor_source \
+NUMI_CROW_TEACHER_DISTILLATION=0 \
+NUMI_CROW_TEACHER_STUDENT_AUTHORITY=0 \
+NUMI_CROW_LEARNING_RATE=1e-5 \
+NUMI_CROW_INITIAL_LOG_STANDARD_DEVIATION=-1.983 \
+NUMI_CROW_RETENTION_POLICY=$crow_actor_source \
+NUMI_CROW_RETENTION_COEFFICIENT=0.5 \
+NUMI_CROW_RETENTION_MAXIMUM_BAND=9 \
+NUMI_CROW_RETENTION_PROTECTED_ACTOR_ONLY=1 \
+NUMI_CROW_RETENTION_BALANCE_DIFFICULTY_BANDS=1 \
+NUMI_CROW_RETENTION_PRIORITY_BAND=6 \
+NUMI_CROW_RETENTION_PRIORITY_FACTOR=1.25 \
+NUMI_CROW_START_BAND=10 \
+NUMI_CROW_MAXIMUM_BAND=10 \
+    "$numi_repo/tools/crow_journey_curriculum_supervisor.sh" >/dev/null
+crow_state_transfer_run=$(find "$crow_state_transfer_runs" -maxdepth 1 \
+    -type d -name 'v8-neural-band10-*' -print | head -1)
+test -n "$crow_state_transfer_run"
+grep -- '--initialize-actor-policy-pack' \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '--initialize-actor-fresh-critic' \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '--learning-rate' "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '--fixed-learning-rate' \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '^1e-5$' "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '--initial-log-standard-deviation' \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '^-1.983$' "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '--retention-policy-pack' \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- "$crow_actor_source" \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '--imagination-distillation-coefficient' \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '^0.5$' "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '--retention-maximum-difficulty-band' \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '^9$' "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '--retention-protected-actor-only' \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '--retention-balance-difficulty-bands' \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '--retention-priority-difficulty-band' \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '^6$' "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '--retention-priority-factor' \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null
+grep -- '^1.25$' "$crow_state_transfer_run/arguments.txt" >/dev/null
+if grep -- '--birdflow-journey-teacher' \
+    "$crow_state_transfer_run/arguments.txt" >/dev/null; then
+    printf '%s\n' 'state actor transfer unexpectedly enabled teacher mode' >&2
+    exit 1
+fi
+if grep -- '--policy-pack' "$crow_state_transfer_run/arguments.txt" >/dev/null; then
+    printf '%s\n' 'state actor transfer attempted PPO resume' >&2
+    exit 1
+fi
+
+if (
+    NUMI_CROW_CURRICULUM_ROOT=$crow_curriculum_root \
+    NUMI_CROW_CURRICULUM_BUILD=$crow_curriculum_build \
+    NUMI_CROW_CURRICULUM_MLX=/usr/bin/python3 \
+    NUMI_CROW_CURRICULUM_RUNS=$numi_temp/runs/crow-invalid-transfer \
+    NUMI_CROW_COURSE=sensor-fast \
+    NUMI_CROW_PARENT_MODE=actor-transfer \
+    NUMI_CROW_PARENT_POLICY=$crow_actor_source \
+    NUMI_CROW_PARENT_STATE=$crow_sensor_run/learner.safetensors \
+    NUMI_CROW_START_BAND=0 \
+    NUMI_CROW_MAXIMUM_BAND=0 \
+        "$numi_repo/tools/crow_journey_curriculum_supervisor.sh"
+) > "$numi_temp/crow-invalid-curriculum-transfer.log" 2>&1; then
+    printf '%s\n' 'sensor-fast supervisor accepted actor transfer with learner state' >&2
+    exit 1
+fi
+grep -- 'Crow actor transfer requires a source policy and no learner state' \
+    "$numi_temp/crow-invalid-curriculum-transfer.log" >/dev/null
+
 numi_evaluate_run=$numi_temp/runs/evaluate
 numi_evaluate_output=$(
     cd "$numi_repo"
