@@ -1346,7 +1346,9 @@ struct MuscleDrivenVisualState {
     std::vector<float> q;
     std::uint32_t stepCount = 0u;
     double maximumVelocityDelta = 0.0;
+    std::uint32_t maximumVelocityDeltaDof = MR_INVALID_INDEX;
     double maximumConfigurationDelta = 0.0;
+    std::uint32_t maximumConfigurationDeltaQ = MR_INVALID_INDEX;
     std::uint32_t appliedWrapCount = 0u;
     bool supportContactApplied = false;
     std::uint32_t supportWitnessCount = 0u;
@@ -2371,10 +2373,13 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
         result.appliedWrapCount += muscle.appliedWrapCount;
     }
     for (std::size_t index = 0u; index < v.size(); ++index) {
-        result.maximumVelocityDelta = std::max(
-            result.maximumVelocityDelta,
-            std::abs(static_cast<double>(metalResult.standV[index] - v[index]))
+        const double delta = std::abs(
+            static_cast<double>(metalResult.standV[index] - v[index])
         );
+        if (delta > result.maximumVelocityDelta) {
+            result.maximumVelocityDelta = delta;
+            result.maximumVelocityDeltaDof = static_cast<std::uint32_t>(index);
+        }
     }
     for (std::size_t index = 0u; index < q.size(); ++index) {
         result.assistedConfigurationDelta = std::max(
@@ -2385,10 +2390,14 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
             result.removalConfigurationDelta,
             std::abs(static_cast<double>(result.q[index] - assistedQ[index]))
         );
-        result.maximumConfigurationDelta = std::max(
-            result.maximumConfigurationDelta,
-            std::abs(static_cast<double>(result.q[index] - q[index]))
+        const double delta = std::abs(
+            static_cast<double>(result.q[index] - q[index])
         );
+        if (delta > result.maximumConfigurationDelta) {
+            result.maximumConfigurationDelta = delta;
+            result.maximumConfigurationDeltaQ =
+                static_cast<std::uint32_t>(index);
+        }
     }
     result.supportContactApplied = assistedStatus.maximumActiveContactCount != 0u ||
         finalStatus.maximumActiveContactCount != 0u;
@@ -6320,8 +6329,12 @@ int main(int argc, char** argv) {
                               ? passiveFEMTissue->deviceName : "none") << "\""
                       << " muscle_step_max_velocity_delta=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->maximumVelocityDelta : 0.0)
+                      << " muscle_step_max_velocity_delta_dof=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->maximumVelocityDeltaDof : MR_INVALID_INDEX)
                       << " muscle_step_max_configuration_delta=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->maximumConfigurationDelta : 0.0)
+                      << " muscle_step_max_configuration_delta_q=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->maximumConfigurationDeltaQ : MR_INVALID_INDEX)
                       << " source_support_contact=" << (sourceSupportContact ? "true" : "false")
                       << " source_support_witnesses=" << (sourceSupportContact
                               ? muscleDrivenState->supportWitnessCount : 0u)
