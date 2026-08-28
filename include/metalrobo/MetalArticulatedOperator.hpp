@@ -4,6 +4,7 @@
 #include "metalrobo/millard_muscle_gpu.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
 #include "metalrobo/numi_human_stand_gpu.h"
+#include "metalrobo/numi_human_tendon_gpu.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -90,6 +91,62 @@ struct MetalMujocoMuscleReferenceInput {
     }
 };
 
+// Borrowed device view encoded after tendon transfer and stand validation in
+// every persistent-Human step. Because the host encodes the complete horizon
+// before execution, downstream physical writes must first gate on that
+// environment's stand status being success with completedSteps == stepIndex+1.
+// The callback may encode bone/FEM/MPM work into commandBuffer, but it must not
+// commit, wait, retain, or replace any borrowed object. Transfer records are
+// environment-major [environment][endpoint]. Distributed records address the
+// four immutable local nodes in their envelope; point fallbacks place the
+// source-point force in nodalWorldForces[0].
+struct MetalNumiHumanTendonLoadPass {
+    void* commandBuffer = nullptr;
+    void* bindings = nullptr;
+    void* envelopes = nullptr;
+    void* transfers = nullptr;
+    void* generalizedCorrections = nullptr;
+    void* bodyPoses = nullptr;
+    void* standStatuses = nullptr;
+    std::uint32_t stepIndex = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t endpointCount = 0u;
+    std::uint32_t envelopeCount = 0u;
+    std::uint32_t dofCount = 0u;
+    std::uint32_t bodyPoseStride = 0u;
+    std::uint32_t articulationFirstBody = 0u;
+};
+
+using MetalNumiHumanTendonLoadEncode = bool (*)(
+    void* context,
+    const MetalNumiHumanTendonLoadPass& pass
+);
+
+// Called only if a downstream load pass was encoded but the enclosing Human
+// command buffer is abandoned before commit. It releases consumer-side
+// transaction ownership and must not touch the borrowed Metal resources.
+using MetalNumiHumanTendonLoadAbort = void (*)(
+    void* context,
+    void* commandBuffer
+);
+
+struct MetalNumiHumanTendonLoadProgram {
+    void* context = nullptr;
+    MetalNumiHumanTendonLoadEncode encode = nullptr;
+    MetalNumiHumanTendonLoadAbort abort = nullptr;
+    std::uint64_t fingerprint = 0u;
+
+    [[nodiscard]] bool valid() const noexcept {
+        return context != nullptr && encode != nullptr && abort != nullptr &&
+            fingerprint != 0u;
+    }
+
+    [[nodiscard]] bool configured() const noexcept {
+        return context != nullptr || encode != nullptr || abort != nullptr ||
+            fingerprint != 0u;
+    }
+};
+
 // Persistent large-state Human horizon. This is deliberately coupled to the
 // MyoSim sidecar: each device step recomputes source routes and J^T muscle
 // force from the current q before advancing activation and dynamics. Support
@@ -98,6 +155,13 @@ struct MetalMujocoMuscleReferenceInput {
 struct MetalNumiHumanStandInput {
     std::span<const float> v{};
     std::span<const MRNumiHumanStandContactGPU> contacts{};
+    // Optional NHTENDON2 program. When present, one terminal-load transaction
+    // executes from the current MyoSim force field before every dynamics step.
+    // The rigid-body solver retains MyoSim's original J^T wrench; generalized
+    // corrections are diagnostics and are never added as direct joint torque.
+    std::span<const MRNumiHumanTendonBindingGPU> tendonBindings{};
+    std::span<const MRNumiHumanTendonEnvelopeGPU> tendonEnvelopes{};
+    MetalNumiHumanTendonLoadProgram tendonLoadProgram{};
     std::uint32_t stepCount = 0u;
     std::uint32_t contactIterationCount = 12u;
     bool enableContact = true;
@@ -238,6 +302,14 @@ struct MetalArticulatedOperatorLayout {
     std::size_t standScratchBytes = 0u;
     std::size_t standStatusElements = 0u;
     std::size_t standStatusBytes = 0u;
+    std::size_t standTendonBindingElements = 0u;
+    std::size_t standTendonBindingBytes = 0u;
+    std::size_t standTendonEnvelopeElements = 0u;
+    std::size_t standTendonEnvelopeBytes = 0u;
+    std::size_t standTendonTransferElements = 0u;
+    std::size_t standTendonTransferBytes = 0u;
+    std::size_t standTendonCorrectionElements = 0u;
+    std::size_t standTendonCorrectionBytes = 0u;
     // Includes immutable model buffers and one-element placeholders required
     // to bind logically empty Metal buffers.
     std::size_t totalAllocatedBytes = 0u;
@@ -268,6 +340,11 @@ struct MetalArticulatedOperatorResult {
     std::vector<float> standQ;
     std::vector<float> standV;
     std::vector<MRNumiHumanStandStatusGPU> standStatuses;
+    // Final accepted step's exact endpoint-to-node transaction and its
+    // wrench-equivalence diagnostic. Earlier steps remain device-resident and
+    // are available to an optional per-step borrowed consumer.
+    std::vector<MRNumiHumanTendonTransferResultGPU> standTendonTransfers;
+    std::vector<float> standTendonGeneralizedCorrections;
 };
 
 struct MetalArticulatedOperatorDiagnostics {

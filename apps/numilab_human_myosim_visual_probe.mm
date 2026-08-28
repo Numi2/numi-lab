@@ -9,6 +9,7 @@
 #include "metalrobo/MultiArticulatedContact.hpp"
 #include "metalrobo/MujocoMuscleReference.hpp"
 #include "metalrobo/NumiHumanTendon.hpp"
+#include "metalrobo/NumiHumanTendonMetal.hpp"
 #include "metalrobo/QualityContactSolver.hpp"
 #include "metalrobo/VisualPlatform.hpp"
 #include "metalrobo/WorldCompiler.hpp"
@@ -1297,7 +1298,96 @@ struct MuscleDrivenVisualState {
     double oneStepParityMaximumVError = 0.0;
     bool deterministicReplayVerified = false;
     double deterministicReplayElapsedMilliseconds = 0.0;
+    bool tendonStepTransactionEnabled = false;
+    bool tendonBorrowedConsumerVerified = false;
+    bool tendonRollbackVerified = false;
+    bool tendonRigidStateIdentityVerified = false;
+    std::uint32_t tendonTransferCount = 0u;
+    std::uint32_t tendonEnvelopeTransferCount = 0u;
+    std::uint32_t tendonPointTransferCount = 0u;
+    double tendonMaximumForceResidual = 0.0;
+    double tendonMaximumMomentResidual = 0.0;
+    double tendonMaximumGeneralizedCorrection = 0.0;
 };
+
+struct TendonLoadAuditConsumer {
+    __strong id<MTLBuffer> transferSnapshot = nil;
+    __strong id<MTLBuffer> correctionSnapshot = nil;
+    __strong id<MTLBuffer> statusSnapshot = nil;
+    std::uint32_t encodedPassCount = 0u;
+    std::uint32_t abortCount = 0u;
+    bool reject = false;
+};
+
+bool encodeTendonLoadAudit(
+    void* opaque,
+    const metalrobo::MetalNumiHumanTendonLoadPass& pass
+) {
+    auto* audit = static_cast<TendonLoadAuditConsumer*>(opaque);
+    if (audit == nullptr || pass.commandBuffer == nullptr ||
+        pass.bindings == nullptr || pass.envelopes == nullptr ||
+        pass.transfers == nullptr || pass.generalizedCorrections == nullptr ||
+        pass.bodyPoses == nullptr || pass.standStatuses == nullptr ||
+        pass.environmentCount == 0u || pass.endpointCount == 0u ||
+        pass.dofCount == 0u) {
+        return false;
+    }
+    ++audit->encodedPassCount;
+    if (audit->reject) return false;
+    id<MTLCommandBuffer> command =
+        (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    id<MTLBuffer> transfers = (__bridge id<MTLBuffer>)pass.transfers;
+    id<MTLBuffer> corrections =
+        (__bridge id<MTLBuffer>)pass.generalizedCorrections;
+    id<MTLBuffer> statuses = (__bridge id<MTLBuffer>)pass.standStatuses;
+    const NSUInteger transferBytes = static_cast<NSUInteger>(
+        pass.environmentCount * pass.endpointCount *
+        sizeof(MRNumiHumanTendonTransferResultGPU)
+    );
+    const NSUInteger correctionBytes = static_cast<NSUInteger>(
+        pass.environmentCount * pass.endpointCount * pass.dofCount *
+        sizeof(float)
+    );
+    const NSUInteger statusBytes = static_cast<NSUInteger>(
+        pass.environmentCount * sizeof(MRNumiHumanStandStatusGPU)
+    );
+    if (audit->transferSnapshot == nil) {
+        audit->transferSnapshot = [transfers.device
+            newBufferWithLength:transferBytes
+                       options:MTLResourceStorageModeShared];
+        audit->correctionSnapshot = [transfers.device
+            newBufferWithLength:correctionBytes
+                       options:MTLResourceStorageModeShared];
+        audit->statusSnapshot = [transfers.device
+            newBufferWithLength:statusBytes
+                       options:MTLResourceStorageModeShared];
+    }
+    if (audit->transferSnapshot == nil || audit->correctionSnapshot == nil ||
+        audit->statusSnapshot == nil ||
+        audit->transferSnapshot.length != transferBytes ||
+        audit->correctionSnapshot.length != correctionBytes ||
+        audit->statusSnapshot.length != statusBytes) {
+        return false;
+    }
+    id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
+    if (blit == nil) return false;
+    [blit copyFromBuffer:transfers sourceOffset:0u
+                toBuffer:audit->transferSnapshot destinationOffset:0u
+                    size:transferBytes];
+    [blit copyFromBuffer:corrections sourceOffset:0u
+                toBuffer:audit->correctionSnapshot destinationOffset:0u
+                    size:correctionBytes];
+    [blit copyFromBuffer:statuses sourceOffset:0u
+                toBuffer:audit->statusSnapshot destinationOffset:0u
+                    size:statusBytes];
+    [blit endEncoding];
+    return true;
+}
+
+void abortTendonLoadAudit(void* opaque, void*) {
+    auto* audit = static_cast<TendonLoadAuditConsumer*>(opaque);
+    if (audit != nullptr) ++audit->abortCount;
+}
 
 struct MetalMujocoVisualQueries {
     std::vector<MRArticulatedPointImpulseGPU> points;
@@ -1789,6 +1879,8 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
                 model.articulations.front().nq && model.world.nv ==
                 model.articulations.front().nv,
             "persistent Human stand currently requires one complete articulation");
+    require(muscles.tendonPayload.payloadAbi == 2u,
+            "persistent Human stand requires an NHTENDON2 per-step terminal-load payload");
     require(!removeRootAssistance || enableRootAssistance,
             "assistance removal requires an assisted stand phase");
     const GroundAlignedSupport aligned =
@@ -1824,6 +1916,17 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
             0.0f,
         };
     }
+    metalrobo::NumiHumanTendonMetalProgram tendonProgram;
+    const auto tendonPack = metalrobo::makeNumiHumanTendonMetalProgram(
+        muscles.tendonPayload,
+        tendonProgram
+    );
+    require(
+        tendonPack.succeeded() &&
+            tendonProgram.bindings.size() == 2u * muscles.gpuMuscles.size(),
+        std::string("persistent Human NHTENDON2 packing failed: ") +
+            metalrobo::numiHumanTendonStatusName(tendonPack.status)
+    );
     const metalrobo::MetalArticulatedOperatorConfig config{
         .pointJacobiansOnly = true,
         .mujocoActivationTimestepSeconds = static_cast<float>(timestepSeconds),
@@ -1846,6 +1949,8 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
         .stand = {
             .v = v,
             .contacts = queries.supportContacts,
+            .tendonBindings = tendonProgram.bindings,
+            .tendonEnvelopes = tendonProgram.envelopes,
             .stepCount = stepCount,
             .contactIterationCount = 16u,
             .enableContact = true,
@@ -1899,7 +2004,15 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
     require(parityDiagnostics.succeeded() && parityDiagnostics.published &&
                 parityDiagnostics.completedStandSteps == 1u &&
                 parityResult.standQ.size() == parityQ.size() &&
-                parityResult.standV.size() == parityV.size(),
+                parityResult.standV.size() == parityV.size() &&
+                (tendonProgram.bindings.empty() ||
+                 (parityResult.standTendonTransfers.size() ==
+                      tendonProgram.bindings.size() &&
+                  parityResult.standTendonGeneralizedCorrections.size() ==
+                      tendonProgram.bindings.size() *
+                          model.articulations.front().nv &&
+                  parityResult.standStatuses.front().tendonTransferCount ==
+                      tendonProgram.bindings.size())),
             "persistent Human stand Metal one-step parity transaction failed: " +
                 parityDiagnostics.message);
     double parityMaximumQError = 0.0;
@@ -1921,6 +2034,66 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
                 parityMaximumQError <= 2.0e-6 &&
                 parityMaximumVError <= 2.0e-3,
             "persistent Human stand one-step Metal/FP64 parity exceeded tolerance");
+    bool tendonRollbackVerified = false;
+    bool tendonRigidStateIdentityVerified = false;
+    TendonLoadAuditConsumer acceptedTendonConsumer;
+    if (!tendonProgram.bindings.empty()) {
+        metalrobo::MetalArticulatedOperatorInput noTendonInput = parityInput;
+        noTendonInput.stand.tendonBindings = {};
+        noTendonInput.stand.tendonEnvelopes = {};
+        metalrobo::MetalArticulatedOperatorResult noTendonResult;
+        const auto noTendonDiagnostics = context.run(
+            model, noTendonInput, noTendonResult
+        );
+        tendonRigidStateIdentityVerified =
+            noTendonDiagnostics.succeeded() && noTendonDiagnostics.published &&
+                noTendonResult.standQ.size() == parityResult.standQ.size() &&
+                noTendonResult.standV.size() == parityResult.standV.size() &&
+                std::memcmp(
+                    noTendonResult.standQ.data(), parityResult.standQ.data(),
+                    parityResult.standQ.size() * sizeof(float)
+                ) == 0 &&
+                std::memcmp(
+                    noTendonResult.standV.data(), parityResult.standV.data(),
+                    parityResult.standV.size() * sizeof(float)
+                ) == 0;
+        require(
+            tendonRigidStateIdentityVerified,
+            "persistent Human tendon transfer changed rigid q/v or acted as joint torque"
+        );
+
+        TendonLoadAuditConsumer rejectingConsumer;
+        rejectingConsumer.reject = true;
+        metalrobo::MetalArticulatedOperatorInput rejectedInput = parityInput;
+        rejectedInput.stand.tendonLoadProgram = {
+            .context = &rejectingConsumer,
+            .encode = &encodeTendonLoadAudit,
+            .abort = &abortTendonLoadAudit,
+            .fingerprint = 0x4e4854454e444f4eull,
+        };
+        metalrobo::MetalArticulatedOperatorResult rejectedResult;
+        rejectedResult.standQ = {-321.25f};
+        const auto rejectedDiagnostics = context.run(
+            model, rejectedInput, rejectedResult
+        );
+        tendonRollbackVerified =
+            !rejectedDiagnostics.succeeded() &&
+            !rejectedDiagnostics.dispatched &&
+            !rejectedDiagnostics.published &&
+            rejectedResult.standQ.size() == 1u &&
+            rejectedResult.standQ.front() == -321.25f &&
+            rejectingConsumer.encodedPassCount == 1u &&
+            rejectingConsumer.abortCount == 1u;
+        require(tendonRollbackVerified,
+                "persistent Human tendon consumer rejection did not roll back");
+
+        input.stand.tendonLoadProgram = {
+            .context = &acceptedTendonConsumer,
+            .encode = &encodeTendonLoadAudit,
+            .abort = &abortTendonLoadAudit,
+            .fingerprint = 0x4e4854454e444f4eull,
+        };
+    }
     metalrobo::MetalArticulatedOperatorResult metalResult;
     auto diagnostics = context.run(model, input, metalResult);
     require(
@@ -1930,13 +2103,63 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
             diagnostics.completedStandSteps == stepCount &&
             metalResult.standQ.size() == q.size() &&
             metalResult.standV.size() == v.size() &&
-            metalResult.standStatuses.size() == 1u,
+            metalResult.standStatuses.size() == 1u &&
+            (tendonProgram.bindings.empty() ||
+             (metalResult.standTendonTransfers.size() ==
+                  tendonProgram.bindings.size() &&
+              metalResult.standTendonGeneralizedCorrections.size() ==
+                  tendonProgram.bindings.size() *
+                      model.articulations.front().nv)),
         "persistent Human stand Metal horizon failed: " + diagnostics.message
     );
     const MRNumiHumanStandStatusGPU& status = metalResult.standStatuses.front();
     require(status.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
                 status.completedSteps == stepCount,
             "persistent Human stand returned an incomplete device status");
+    const std::size_t tendonEnvelopeBindingCount =
+        static_cast<std::size_t>(std::count_if(
+            tendonProgram.bindings.begin(), tendonProgram.bindings.end(),
+            [](const MRNumiHumanTendonBindingGPU& binding) {
+                return binding.mode ==
+                    MR_NUMI_HUMAN_TENDON_TRANSFER_DISTRIBUTED_ENVELOPE;
+            }
+        ));
+    bool tendonBorrowedConsumerVerified = false;
+    if (!tendonProgram.bindings.empty()) {
+        tendonBorrowedConsumerVerified =
+            status.tendonTransferCount ==
+                tendonProgram.bindings.size() * stepCount &&
+            status.tendonEnvelopeTransferCount ==
+                tendonEnvelopeBindingCount * stepCount &&
+            status.tendonPointTransferCount ==
+                (tendonProgram.bindings.size() - tendonEnvelopeBindingCount) *
+                    stepCount &&
+            status.tendonFailureCount == 0u &&
+            acceptedTendonConsumer.encodedPassCount == stepCount &&
+            acceptedTendonConsumer.abortCount == 0u &&
+            acceptedTendonConsumer.transferSnapshot != nil &&
+            acceptedTendonConsumer.correctionSnapshot != nil &&
+            acceptedTendonConsumer.statusSnapshot != nil &&
+            std::memcmp(
+                acceptedTendonConsumer.transferSnapshot.contents,
+                metalResult.standTendonTransfers.data(),
+                metalResult.standTendonTransfers.size() *
+                    sizeof(MRNumiHumanTendonTransferResultGPU)
+            ) == 0 &&
+            std::memcmp(
+                acceptedTendonConsumer.correctionSnapshot.contents,
+                metalResult.standTendonGeneralizedCorrections.data(),
+                metalResult.standTendonGeneralizedCorrections.size() *
+                    sizeof(float)
+            ) == 0 &&
+            std::memcmp(
+                acceptedTendonConsumer.statusSnapshot.contents,
+                metalResult.standStatuses.data(),
+                sizeof(MRNumiHumanStandStatusGPU)
+            ) == 0;
+        require(tendonBorrowedConsumerVerified,
+                "persistent Human borrowed tendon-load snapshot disagreed with publication");
+    }
     const MRNumiHumanStandStatusGPU assistedStatus = status;
     const std::vector<float> assistedQ = metalResult.standQ;
     double totalElapsedMilliseconds = diagnostics.elapsedMilliseconds;
@@ -2036,9 +2259,52 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
                 metalResult.standStatuses.size() *
                     sizeof(MRNumiHumanStandStatusGPU)
             ) == 0;
-        require(sameQ && sameV && sameStatus,
+        const bool sameTendonTransfers =
+            replayResult.standTendonTransfers.size() ==
+                metalResult.standTendonTransfers.size() &&
+            (metalResult.standTendonTransfers.empty() ||
+             std::memcmp(
+                 replayResult.standTendonTransfers.data(),
+                 metalResult.standTendonTransfers.data(),
+                 metalResult.standTendonTransfers.size() *
+                     sizeof(MRNumiHumanTendonTransferResultGPU)
+             ) == 0);
+        const bool sameTendonCorrections =
+            replayResult.standTendonGeneralizedCorrections.size() ==
+                metalResult.standTendonGeneralizedCorrections.size() &&
+            (metalResult.standTendonGeneralizedCorrections.empty() ||
+             std::memcmp(
+                 replayResult.standTendonGeneralizedCorrections.data(),
+                 metalResult.standTendonGeneralizedCorrections.data(),
+                 metalResult.standTendonGeneralizedCorrections.size() *
+                     sizeof(float)
+             ) == 0);
+        require(sameQ && sameV && sameStatus && sameTendonTransfers &&
+                    sameTendonCorrections,
                 "persistent Human stand replay was not bitwise deterministic");
         deterministicReplayVerified = true;
+    }
+
+    if (!tendonProgram.bindings.empty()) {
+        const std::uint32_t expectedConsumerPasses =
+            stepCount * phaseCount * (verifyDeterminism ? 2u : 1u);
+        tendonBorrowedConsumerVerified = tendonBorrowedConsumerVerified &&
+            acceptedTendonConsumer.encodedPassCount == expectedConsumerPasses &&
+            acceptedTendonConsumer.abortCount == 0u &&
+            std::memcmp(
+                acceptedTendonConsumer.transferSnapshot.contents,
+                metalResult.standTendonTransfers.data(),
+                metalResult.standTendonTransfers.size() *
+                    sizeof(MRNumiHumanTendonTransferResultGPU)
+            ) == 0 &&
+            std::memcmp(
+                acceptedTendonConsumer.correctionSnapshot.contents,
+                metalResult.standTendonGeneralizedCorrections.data(),
+                metalResult.standTendonGeneralizedCorrections.size() *
+                    sizeof(float)
+            ) == 0;
+        require(tendonBorrowedConsumerVerified,
+                "persistent Human final borrowed tendon-load transaction diverged");
     }
 
     MuscleDrivenVisualState result;
@@ -2117,6 +2383,31 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
     result.deterministicReplayVerified = deterministicReplayVerified;
     result.deterministicReplayElapsedMilliseconds =
         deterministicReplayElapsedMilliseconds;
+    result.tendonStepTransactionEnabled = !tendonProgram.bindings.empty();
+    result.tendonBorrowedConsumerVerified = tendonBorrowedConsumerVerified;
+    result.tendonRollbackVerified = tendonRollbackVerified;
+    result.tendonRigidStateIdentityVerified =
+        tendonRigidStateIdentityVerified;
+    result.tendonTransferCount = static_cast<std::uint32_t>(
+        tendonProgram.bindings.size() * stepCount * phaseCount
+    );
+    result.tendonEnvelopeTransferCount = static_cast<std::uint32_t>(
+        tendonEnvelopeBindingCount * stepCount * phaseCount
+    );
+    result.tendonPointTransferCount = result.tendonTransferCount -
+        result.tendonEnvelopeTransferCount;
+    result.tendonMaximumForceResidual = std::max(
+        assistedStatus.tendonDiagnostics.x,
+        finalStatus.tendonDiagnostics.x
+    );
+    result.tendonMaximumMomentResidual = std::max(
+        assistedStatus.tendonDiagnostics.y,
+        finalStatus.tendonDiagnostics.y
+    );
+    result.tendonMaximumGeneralizedCorrection = std::max(
+        assistedStatus.tendonDiagnostics.z,
+        finalStatus.tendonDiagnostics.z
+    );
     return result;
 }
 
@@ -5714,7 +6005,7 @@ int main(int argc, char** argv) {
             }
             if (renderedTendonAttachmentEnvelopes > 0u) {
                 evidenceBoundary +=
-                    "_with_NHTENDON2_source_point_preserving_force_and_moment_conserving_inferred_surface_envelope_geometry_not_a_clinical_enthesis_certificate_or_deformable_tendon_continuum";
+                    "_with_NHTENDON2_per_step_source_point_preserving_force_and_moment_conserving_terminal_load_transaction_and_same_command_buffer_consumer_boundary_not_a_clinical_enthesis_certificate_or_deformable_tendon_continuum";
             }
             if (!selectedSourceMuscleActivations.empty()) {
                 evidenceBoundary +=
@@ -5824,6 +6115,31 @@ int main(int argc, char** argv) {
                               muscleDrivenState->persistentMetalHorizon ? "true" : "false")
                       << " persistent_completed_steps=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->persistentCompletedSteps : 0u)
+                      << " tendon_step_transaction=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->tendonStepTransactionEnabled
+                                  ? "NHTENDON2" : "none")
+                      << " tendon_borrowed_consumer=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->tendonBorrowedConsumerVerified
+                                  ? "same_command_buffer_exact_snapshot" : "not_verified")
+                      << " tendon_rollback=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->tendonRollbackVerified
+                                  ? "consumer_rejection_preserved_result" : "not_verified")
+                      << " tendon_rigid_state_effect=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->tendonRigidStateIdentityVerified
+                                  ? "bitwise_identical_output_only_no_direct_joint_torque"
+                                  : "not_verified")
+                      << " tendon_step_transfers=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->tendonTransferCount : 0u)
+                      << " tendon_step_envelope_transfers=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->tendonEnvelopeTransferCount : 0u)
+                      << " tendon_step_point_fallbacks=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->tendonPointTransferCount : 0u)
+                      << " tendon_step_max_force_residual_n=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->tendonMaximumForceResidual : 0.0)
+                      << " tendon_step_max_moment_residual_nm=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->tendonMaximumMomentResidual : 0.0)
+                      << " tendon_step_max_generalized_correction=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->tendonMaximumGeneralizedCorrection : 0.0)
                       << " persistent_root_assistance=" << (muscleDrivenState.has_value() &&
                               muscleDrivenState->rootAssistanceEnabled ? "world_root_wrench" : "none")
                       << " persistent_assistance_removal=" << (muscleDrivenState.has_value() &&

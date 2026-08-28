@@ -126,7 +126,12 @@ bool samePayload(
                   right.mujocoGeneralizedForces) &&
         byteEqual(left.standQ, right.standQ) &&
         byteEqual(left.standV, right.standV) &&
-        byteEqual(left.standStatuses, right.standStatuses);
+        byteEqual(left.standStatuses, right.standStatuses) &&
+        byteEqual(left.standTendonTransfers, right.standTendonTransfers) &&
+        byteEqual(
+            left.standTendonGeneralizedCorrections,
+            right.standTendonGeneralizedCorrections
+        );
 }
 
 void requireSuccess(

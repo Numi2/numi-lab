@@ -1,6 +1,7 @@
 #include <metal_stdlib>
 
 #include "metalrobo/numi_human_stand_gpu.h"
+#include "metalrobo/numi_human_tendon_gpu.h"
 
 using namespace metal;
 
@@ -178,6 +179,8 @@ kernel void mr_numi_human_stand_step(
     device float* vectorScratch [[buffer(15)]],
     device float* responseScratch [[buffer(16)]],
     device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
+    device const MRNumiHumanTendonBindingGPU* tendonBindings [[buffer(18)]],
+    device const MRNumiHumanTendonTransferResultGPU* tendonTransfers [[buffer(19)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint threadCount [[threads_per_threadgroup]]
@@ -255,9 +258,16 @@ kernel void mr_numi_human_stand_step(
             !finite4(dispatch.assistanceGains) ||
             dispatch.groundNormal.w != 0.0f ||
             dispatch.targetRootPosition.w != 0.0f ||
+            dispatch.reserved0 != 0u ||
+            dispatch.tendonTransferStride < dispatch.tendonEndpointCount ||
+            ((dispatch.tendonEndpointCount == 0u) !=
+             ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_TENDON_LOADS) == 0u)) ||
+            (dispatch.tendonEndpointCount != 0u &&
+             (dispatch.tendonEndpointCount % 2u) != 0u) ||
             (dispatch.flags & ~(
                 MR_NUMI_HUMAN_STAND_ENABLE_CONTACT |
-                MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE
+                MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE |
+                MR_NUMI_HUMAN_STAND_HAS_TENDON_LOADS
             )) != 0u) {
             fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
         } else if (articulation.rootType != MR_ROOT_FLOATING ||
@@ -276,6 +286,64 @@ kernel void mr_numi_human_stand_step(
                 abs(normalLengthSquared - 1.0f) > 2.0e-4f) {
                 fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
             }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device);
+    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+
+    // Validate the exact per-step terminal-load transaction before any Human
+    // state is advanced. These loads are wrench-equivalent to MyoSim's
+    // existing source-route J^T force; they are exposed to bone/deformable
+    // consumers and deliberately are not added as a second joint torque.
+    if (lane == 0u && dispatch.tendonEndpointCount != 0u) {
+        const uint transferBase = environment * dispatch.tendonTransferStride;
+        for (uint endpoint = 0u; endpoint < dispatch.tendonEndpointCount;
+             ++endpoint) {
+            device const MRNumiHumanTendonBindingGPU& binding =
+                tendonBindings[endpoint];
+            device const MRNumiHumanTendonTransferResultGPU& transfer =
+                tendonTransfers[transferBase + endpoint];
+            bool validTransfer =
+                transfer.status == MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS &&
+                transfer.environment == environment &&
+                transfer.bindingIndex == endpoint &&
+                finite4(transfer.terminalWorldForce) &&
+                finite4(transfer.residualsAndForce) &&
+                transfer.residualsAndForce.x >= 0.0f &&
+                transfer.residualsAndForce.y >= 0.0f &&
+                transfer.residualsAndForce.z >= 0.0f;
+            for (uint node = 0u; node < 4u && validTransfer; ++node) {
+                validTransfer = finite4(transfer.nodalWorldForces[node]) &&
+                    transfer.nodalWorldForces[node].w == 0.0f;
+            }
+            if (binding.mode == MR_NUMI_HUMAN_TENDON_TRANSFER_SOURCE_POINT) {
+                validTransfer = validTransfer &&
+                    transfer.envelopeIndex == MR_INVALID_INDEX;
+            } else if (binding.mode ==
+                       MR_NUMI_HUMAN_TENDON_TRANSFER_DISTRIBUTED_ENVELOPE) {
+                validTransfer = validTransfer &&
+                    binding.envelopeIndex < dispatch.tendonEnvelopeCount &&
+                    transfer.envelopeIndex == binding.envelopeIndex;
+            } else {
+                validTransfer = false;
+            }
+            if (!validTransfer) {
+                ++status.tendonFailureCount;
+                fail(status, MR_NUMI_HUMAN_STAND_TENDON_TRANSFER_FAILED,
+                     endpoint);
+                break;
+            }
+            ++status.tendonTransferCount;
+            if (binding.mode ==
+                MR_NUMI_HUMAN_TENDON_TRANSFER_DISTRIBUTED_ENVELOPE) {
+                ++status.tendonEnvelopeTransferCount;
+            } else {
+                ++status.tendonPointTransferCount;
+            }
+            status.tendonDiagnostics = max(
+                status.tendonDiagnostics,
+                abs(transfer.residualsAndForce)
+            );
         }
     }
     threadgroup_barrier(mem_flags::mem_device);

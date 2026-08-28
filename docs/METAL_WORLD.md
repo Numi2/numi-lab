@@ -865,7 +865,26 @@ q/v without per-step host publication. It is deliberately Human-specific and
 does not increase the generic dense bucket. Its current bias omits exact
 high-velocity `Jdot*v`/RNEA terms and its imported passive muscle bias is
 excluded until registered equilibrium calibration, so it is bounded standing
-evidence rather than a general high-speed articulated dynamics claim. The CPU operator
+evidence rather than a general high-speed articulated dynamics claim.
+
+An optional `NHTENDON2` program now executes after current-pose MyoSim force
+reduction and before each Human state update. It preserves every authored
+endpoint, distributes admitted terminal loads to four immutable BodyParts3D
+bone nodes, retains explicit source-point fallbacks, and records force, moment,
+and generalized-wrench residuals. The stand kernel validates every endpoint
+record before advancing `q`/`v`; a failed transfer leaves the horizon
+unpublished. MyoSim's original source-route `J^T` force remains the rigid-body
+authority, and the generalized correction is diagnostic only, so the tendon
+pass cannot double-count force as direct joint torque. After each stand encoder,
+an optional encode-only callback borrows the command buffer, bindings,
+envelopes, body poses, loads, corrections, and stand statuses for a downstream
+bone/FEM/MPM stage. Because the complete horizon is encoded before execution,
+that stage must gate physical writes on the per-environment success status and
+completed step. Consumer encoding rejection invokes its abort hook before commit.
+This is a device-resident load-composition boundary, not evidence that a
+deformable tendon or bone material model has already consumed the loads.
+
+The CPU operator
 also appends one 6D maximal-coordinate block per dynamic scene body, applies
 world-frame inverse mass/inertia directly, and treats static/kinematic point
 velocity as prescribed. The dual-PSM/needle `HeterogeneousWorld` now enters

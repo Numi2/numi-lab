@@ -35,7 +35,7 @@ namespace {
 // occupies slots 16..23 in the same command buffer. The MyoSim sidecar owns
 // slots 24..30 and consumes the same private pose/Jacobian output directly.
 constexpr std::size_t kRawBufferCount = 31u;
-constexpr std::size_t kStandBufferCount = 8u;
+constexpr std::size_t kStandBufferCount = 12u;
 constexpr std::size_t kStandVelocityBuffer = 0u;
 constexpr std::size_t kStandContactsBuffer = 1u;
 constexpr std::size_t kStandSpatialJacobianBuffer = 2u;
@@ -44,6 +44,10 @@ constexpr std::size_t kStandFactorBuffer = 4u;
 constexpr std::size_t kStandVectorBuffer = 5u;
 constexpr std::size_t kStandResponseBuffer = 6u;
 constexpr std::size_t kStandStatusBuffer = 7u;
+constexpr std::size_t kStandTendonBindingsBuffer = 8u;
+constexpr std::size_t kStandTendonEnvelopesBuffer = 9u;
+constexpr std::size_t kStandTendonTransfersBuffer = 10u;
+constexpr std::size_t kStandTendonCorrectionsBuffer = 11u;
 constexpr std::size_t kMillardDispatchBuffer = 16u;
 constexpr std::size_t kMillardMusclesBuffer = 17u;
 constexpr std::size_t kMillardStatesBuffer = 18u;
@@ -67,6 +71,18 @@ constexpr std::uint64_t kShaderAddressableElements =
         std::numeric_limits<mr_u32>::max()
     ) + 1u;
 const char kMetalRoboImageAnchor = 0;
+
+struct TendonLoadAbortGuard {
+    const MetalNumiHumanTendonLoadProgram* program = nullptr;
+    void* commandBuffer = nullptr;
+    bool armed = false;
+
+    ~TendonLoadAbortGuard() {
+        if (armed && program != nullptr && program->abort != nullptr) {
+            program->abort(program->context, commandBuffer);
+        }
+    }
+};
 
 struct BufferRequirement {
     const char* label = "";
@@ -104,6 +120,7 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> mujocoReducePipeline = nil;
     __strong id<MTLComputePipelineState> mujocoActivationPipeline = nil;
     __strong id<MTLComputePipelineState> standPipeline = nil;
+    __strong id<MTLComputePipelineState> tendonPipeline = nil;
     __strong id<MTLBuffer> buffers[kRawBufferCount] = {};
     __strong id<MTLBuffer> standBuffers[kStandBufferCount] = {};
     std::array<std::size_t, kRawBufferCount> capacities{};
@@ -144,6 +161,8 @@ struct MetalArticulatedOperatorSubmissionState {
     std::size_t mujocoMuscleCount = 0u;
     bool hasStandHorizon = false;
     std::uint32_t standStepCount = 0u;
+    std::size_t standTendonBindingCount = 0u;
+    std::size_t standTendonEnvelopeBindingCount = 0u;
     bool ownsInFlight = false;
 };
 
@@ -677,8 +696,10 @@ bool validNumiHumanStand(
 ) {
     const MetalNumiHumanStandInput& stand = input.stand;
     if (!stand.enabled()) {
-        if (!stand.v.empty() || !stand.contacts.empty()) {
-            reason = "stand sidecar has state or contacts but zero steps";
+        if (!stand.v.empty() || !stand.contacts.empty() ||
+            !stand.tendonBindings.empty() || !stand.tendonEnvelopes.empty() ||
+            stand.tendonLoadProgram.configured()) {
+            reason = "stand sidecar has state, contact, or tendon data but zero steps";
             return false;
         }
         return true;
@@ -746,6 +767,92 @@ bool validNumiHumanStand(
     const std::uint64_t bodyEnd =
         static_cast<std::uint64_t>(articulation.firstBody) +
         articulation.bodyCount;
+    if (stand.tendonLoadProgram.configured() &&
+        !stand.tendonLoadProgram.valid()) {
+        reason = "stand tendon-load consumer is only partially configured";
+        return false;
+    }
+    if (!stand.tendonBindings.empty()) {
+        if ((stand.tendonBindings.size() % 2u) != 0u ||
+            stand.tendonBindings.size() / 2u != input.mujoco.muscles.size() ||
+            stand.tendonBindings.size() >
+                std::numeric_limits<mr_u32>::max() ||
+            stand.tendonBindings.size() >
+                std::numeric_limits<mr_u32>::max() / stand.stepCount ||
+            stand.tendonEnvelopes.size() >
+                std::numeric_limits<mr_u32>::max()) {
+            reason = "stand tendon program does not cover exactly two endpoints per muscle";
+            return false;
+        }
+        for (std::size_t index = 0u;
+             index < stand.tendonEnvelopes.size(); ++index) {
+            const MRNumiHumanTendonEnvelopeGPU& envelope =
+                stand.tendonEnvelopes[index];
+            if (envelope.bodyIndex < articulation.firstBody ||
+                static_cast<std::uint64_t>(envelope.bodyIndex) >= bodyEnd ||
+                envelope.boneStableId == 0u || envelope.nodeCount != 4u ||
+                !finite(envelope.metrics) || !(envelope.metrics.y > 0.0f) ||
+                !(envelope.metrics.z > 0.0f) || !(envelope.metrics.w > 0.0f)) {
+                reason = "stand tendon envelope is malformed or outside the articulation";
+                return false;
+            }
+            for (const mr_float4 node : envelope.localNodes) {
+                if (!finite(node) || node.w != 0.0f) {
+                    reason = "stand tendon envelope node is malformed";
+                    return false;
+                }
+            }
+            for (const mr_float4 row : envelope.forceMapRows) {
+                if (!finite(row) || row.w != 0.0f) {
+                    reason = "stand tendon envelope force map is malformed";
+                    return false;
+                }
+            }
+        }
+        for (std::size_t index = 0u;
+             index < stand.tendonBindings.size(); ++index) {
+            const MRNumiHumanTendonBindingGPU& binding =
+                stand.tendonBindings[index];
+            if (binding.muscleIndex != index / 2u ||
+                binding.endpointOrdinal != index % 2u ||
+                binding.bodyIndex < articulation.firstBody ||
+                static_cast<std::uint64_t>(binding.bodyIndex) >= bodyEnd ||
+                binding.reserved0 != 0u || binding.reserved1 != 0u ||
+                !finite(binding.sourceLocalPoint) ||
+                binding.sourceLocalPoint.w != 0.0f) {
+                reason = "stand tendon binding is malformed, reordered, or outside the articulation";
+                return false;
+            }
+            if (binding.mode == MR_NUMI_HUMAN_TENDON_TRANSFER_SOURCE_POINT) {
+                if (binding.envelopeIndex != MR_INVALID_INDEX ||
+                    binding.boneStableId != 0u) {
+                    reason = "stand tendon point fallback carries an envelope reference";
+                    return false;
+                }
+            } else if (binding.mode ==
+                       MR_NUMI_HUMAN_TENDON_TRANSFER_DISTRIBUTED_ENVELOPE) {
+                if (binding.envelopeIndex >= stand.tendonEnvelopes.size() ||
+                    binding.boneStableId == 0u) {
+                    reason = "stand tendon distributed binding has no valid envelope";
+                    return false;
+                }
+                const MRNumiHumanTendonEnvelopeGPU& envelope =
+                    stand.tendonEnvelopes[binding.envelopeIndex];
+                if (envelope.bodyIndex != binding.bodyIndex ||
+                    envelope.boneStableId != binding.boneStableId) {
+                    reason = "stand tendon binding and envelope identity disagree";
+                    return false;
+                }
+            } else {
+                reason = "stand tendon binding uses an unknown transfer mode";
+                return false;
+            }
+        }
+    } else if (!stand.tendonEnvelopes.empty() ||
+               stand.tendonLoadProgram.configured()) {
+        reason = "stand tendon envelopes or consumer require endpoint bindings";
+        return false;
+    }
     const std::array<mr_float4, 4u> expectedProbePoints{{
         {0.0f, 0.0f, 0.0f, 0.0f},
         {1.0f, 0.0f, 0.0f, 0.0f},
@@ -1025,6 +1132,26 @@ bool buildRequirements(
             "Numi Human stand statuses",
             layout.standStatusElements,
             requirements.standEntries[kStandStatusBuffer]
+        ) ||
+        !makeRequirement<MRNumiHumanTendonBindingGPU>(
+            "Numi Human tendon bindings",
+            layout.standTendonBindingElements,
+            requirements.standEntries[kStandTendonBindingsBuffer]
+        ) ||
+        !makeRequirement<MRNumiHumanTendonEnvelopeGPU>(
+            "Numi Human tendon envelopes",
+            layout.standTendonEnvelopeElements,
+            requirements.standEntries[kStandTendonEnvelopesBuffer]
+        ) ||
+        !makeRequirement<MRNumiHumanTendonTransferResultGPU>(
+            "Numi Human tendon transfer results",
+            layout.standTendonTransferElements,
+            requirements.standEntries[kStandTendonTransfersBuffer]
+        ) ||
+        !makeRequirement<float>(
+            "Numi Human tendon generalized corrections",
+            layout.standTendonCorrectionElements,
+            requirements.standEntries[kStandTendonCorrectionsBuffer]
         )) {
         return false;
     }
@@ -1335,6 +1462,10 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         layout.standVelocityElements = input.stand.v.size();
         layout.standContactElements = input.stand.contacts.size();
         layout.standStatusElements = input.environmentCount;
+        layout.standTendonBindingElements =
+            input.stand.tendonBindings.size();
+        layout.standTendonEnvelopeElements =
+            input.stand.tendonEnvelopes.size();
         std::size_t bodyDofs = 0u;
         std::size_t environmentBodyDofs = 0u;
         std::size_t bodyMotionPerEnvironment = 0u;
@@ -1342,7 +1473,17 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         std::size_t vectorPerEnvironment = 0u;
         std::size_t contactVectorElements = 0u;
         std::size_t responsePerEnvironment = 0u;
-        if (!checkedMultiply(articulation.bodyCount, articulation.nv, bodyDofs) ||
+        if (!checkedMultiply(
+                input.environmentCount,
+                layout.standTendonBindingElements,
+                layout.standTendonTransferElements
+            ) ||
+            !checkedMultiply(
+                layout.standTendonTransferElements,
+                articulation.nv,
+                layout.standTendonCorrectionElements
+            ) ||
+            !checkedMultiply(articulation.bodyCount, articulation.nv, bodyDofs) ||
             !checkedMultiply(bodyDofs, 6u, bodyDofs) ||
             !checkedMultiply(input.environmentCount, bodyDofs,
                              layout.standSpatialJacobianElements) ||
@@ -1371,7 +1512,7 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             return reject(
                 std::move(diagnostics),
                 MetalArticulatedOperatorHostStatus::arithmeticOverflow,
-                "derived Numi Human stand scratch element-count overflow"
+                "derived Numi Human stand or tendon element-count overflow"
             );
         }
         (void)environmentBodyDofs;
@@ -1416,7 +1557,11 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         exceedsShaderAddressing(layout.standFactorElements) ||
         exceedsShaderAddressing(layout.standVectorElements) ||
         exceedsShaderAddressing(layout.standResponseElements) ||
-        exceedsShaderAddressing(layout.standStatusElements)) {
+        exceedsShaderAddressing(layout.standStatusElements) ||
+        exceedsShaderAddressing(layout.standTendonBindingElements) ||
+        exceedsShaderAddressing(layout.standTendonEnvelopeElements) ||
+        exceedsShaderAddressing(layout.standTendonTransferElements) ||
+        exceedsShaderAddressing(layout.standTendonCorrectionElements)) {
         return reject(
             std::move(diagnostics),
             MetalArticulatedOperatorHostStatus::arithmeticOverflow,
@@ -1484,6 +1629,14 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         requirements.standEntries[kStandContactsBuffer].logicalBytes;
     layout.standStatusBytes =
         requirements.standEntries[kStandStatusBuffer].logicalBytes;
+    layout.standTendonBindingBytes =
+        requirements.standEntries[kStandTendonBindingsBuffer].logicalBytes;
+    layout.standTendonEnvelopeBytes =
+        requirements.standEntries[kStandTendonEnvelopesBuffer].logicalBytes;
+    layout.standTendonTransferBytes =
+        requirements.standEntries[kStandTendonTransfersBuffer].logicalBytes;
+    layout.standTendonCorrectionBytes =
+        requirements.standEntries[kStandTendonCorrectionsBuffer].logicalBytes;
     layout.standScratchBytes = 0u;
     for (std::size_t index = kStandSpatialJacobianBuffer;
          index <= kStandResponseBuffer; ++index) {
@@ -1904,6 +2057,29 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 describeError(error)
         );
     }
+    id<MTLFunction> tendonFunction = [library
+        newFunctionWithName:@"mr_numi_human_tendon_transfer"];
+    if (tendonFunction == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+            "metallib does not contain the Numi Human tendon-transfer operator"
+        );
+    }
+    error = nil;
+    id<MTLComputePipelineState> tendonPipeline = [device
+        newComputePipelineStateWithFunction:tendonFunction
+                                       error:&error];
+    if (tendonPipeline == nil ||
+        tendonPipeline.maxTotalThreadsPerThreadgroup <
+            kThreadsPerThreadgroup) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+            "failed to create Numi Human tendon-transfer pipeline: " +
+                describeError(error)
+        );
+    }
 
     context.device = device;
     context.queue = queue;
@@ -1915,6 +2091,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     context.mujocoReducePipeline = mujocoReducePipeline;
     context.mujocoActivationPipeline = mujocoActivationPipeline;
     context.standPipeline = standPipeline;
+    context.tendonPipeline = tendonPipeline;
     context.initialized = true;
     ++context.stats.pipelineCreationCount;
     return diagnostics;
@@ -2405,6 +2582,24 @@ void uploadBatch(
                 requirements.standEntries[index].allocationBytes
             );
         }
+        copyToBuffer(
+            context.standBuffers[kStandTendonBindingsBuffer],
+            input.stand.tendonBindings.empty()
+                ? nullptr
+                : static_cast<const void*>(
+                      input.stand.tendonBindings.data()
+                  ),
+            requirements.standEntries[kStandTendonBindingsBuffer]
+        );
+        copyToBuffer(
+            context.standBuffers[kStandTendonEnvelopesBuffer],
+            input.stand.tendonEnvelopes.empty()
+                ? nullptr
+                : static_cast<const void*>(
+                      input.stand.tendonEnvelopes.data()
+                  ),
+            requirements.standEntries[kStandTendonEnvelopesBuffer]
+        );
     }
 }
 
@@ -2571,6 +2766,24 @@ bool finitePayload(
         std::all_of(
             result.standV.begin(), result.standV.end(),
             [](const float value) { return std::isfinite(value); }
+        ) &&
+        std::all_of(
+            result.standTendonTransfers.begin(),
+            result.standTendonTransfers.end(),
+            [](const MRNumiHumanTendonTransferResultGPU& value) {
+                return finite(value.terminalWorldForce) &&
+                    finite(value.residualsAndForce) &&
+                    std::all_of(
+                        std::begin(value.nodalWorldForces),
+                        std::end(value.nodalWorldForces),
+                        [](const mr_float4 force) { return finite(force); }
+                    );
+            }
+        ) &&
+        std::all_of(
+            result.standTendonGeneralizedCorrections.begin(),
+            result.standTendonGeneralizedCorrections.end(),
+            [](const float value) { return std::isfinite(value); }
         );
 }
 
@@ -2673,6 +2886,12 @@ MetalArticulatedOperatorSubmission::wait(
                 staged.standQ.resize(layout.qElements);
                 staged.standV.resize(layout.standVelocityElements);
                 staged.standStatuses.resize(layout.standStatusElements);
+                staged.standTendonTransfers.resize(
+                    layout.standTendonTransferElements
+                );
+                staged.standTendonGeneralizedCorrections.resize(
+                    layout.standTendonCorrectionElements
+                );
             }
 
             const auto& buffers = pending->context->buffers;
@@ -2728,6 +2947,18 @@ MetalArticulatedOperatorSubmission::wait(
                 copyOutput(
                     staged.standStatuses,
                     pending->context->standBuffers[kStandStatusBuffer]
+                );
+                copyOutput(
+                    staged.standTendonTransfers,
+                    pending->context->standBuffers[
+                        kStandTendonTransfersBuffer
+                    ]
+                );
+                copyOutput(
+                    staged.standTendonGeneralizedCorrections,
+                    pending->context->standBuffers[
+                        kStandTendonCorrectionsBuffer
+                    ]
                 );
             }
         }
@@ -2828,7 +3059,7 @@ MetalArticulatedOperatorSubmission::wait(
                 const MRNumiHumanStandStatusGPU& stand =
                     staged.standStatuses[environment];
                 if (stand.environment != environment ||
-                    stand.code > MR_NUMI_HUMAN_STAND_NONFINITE_RESULT ||
+                    stand.code > MR_NUMI_HUMAN_STAND_TENDON_TRANSFER_FAILED ||
                     (stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
                      stand.completedSteps != pending->standStepCount)) {
                     return reject(
@@ -2852,11 +3083,49 @@ MetalArticulatedOperatorSubmission::wait(
                     );
                 }
                 if (!finite(stand.contactAndAcceleration) ||
-                    !finite(stand.factorAndAssistance)) {
+                    !finite(stand.factorAndAssistance) ||
+                    !finite(stand.tendonDiagnostics)) {
                     return reject(
                         std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::internalFailure,
                         "GPU Numi Human stand diagnostics are non-finite"
+                    );
+                }
+                const std::size_t expectedTransfers =
+                    pending->standTendonBindingCount *
+                    pending->standStepCount;
+                const std::size_t expectedEnvelopeTransfers =
+                    pending->standTendonEnvelopeBindingCount *
+                    pending->standStepCount;
+                if (stand.tendonTransferCount != expectedTransfers ||
+                    stand.tendonEnvelopeTransferCount !=
+                        expectedEnvelopeTransfers ||
+                    stand.tendonPointTransferCount !=
+                        expectedTransfers - expectedEnvelopeTransfers ||
+                    stand.tendonFailureCount != 0u) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::internalFailure,
+                        "GPU Numi Human stand tendon transaction counts disagree"
+                    );
+                }
+            }
+            for (std::size_t index = 0u;
+                 index < staged.standTendonTransfers.size(); ++index) {
+                const MRNumiHumanTendonTransferResultGPU& transfer =
+                    staged.standTendonTransfers[index];
+                const std::size_t environment =
+                    index / pending->standTendonBindingCount;
+                const std::size_t binding =
+                    index - environment * pending->standTendonBindingCount;
+                if (transfer.status !=
+                        MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS ||
+                    transfer.environment != environment ||
+                    transfer.bindingIndex != binding) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::internalFailure,
+                        "GPU Numi Human final tendon transfer is malformed"
                     );
                 }
             }
@@ -3003,6 +3272,13 @@ MetalArticulatedOperatorContext::submit(
             }
             commandBuffer.label =
                 @"MetalRobo persistent articulated operator";
+            TendonLoadAbortGuard tendonLoadAbort{
+                input.stand.tendonLoadProgram.valid()
+                    ? &input.stand.tendonLoadProgram
+                    : nullptr,
+                (__bridge void*)commandBuffer,
+                false,
+            };
             const std::uint32_t horizonStepCount = input.stand.enabled()
                 ? input.stand.stepCount
                 : 1u;
@@ -3214,6 +3490,75 @@ MetalArticulatedOperatorContext::submit(
                         1u
                     )];
                 [mujocoReduceEncoder endEncoding];
+                if (!input.stand.tendonBindings.empty()) {
+                    MRNumiHumanTendonTransferDispatchGPU tendonDispatch{};
+                    tendonDispatch.abiVersion =
+                        MR_NUMI_HUMAN_TENDON_TRANSFER_GPU_ABI_VERSION;
+                    tendonDispatch.endpointCount = static_cast<mr_u32>(
+                        input.stand.tendonBindings.size()
+                    );
+                    tendonDispatch.envelopeCount = static_cast<mr_u32>(
+                        input.stand.tendonEnvelopes.size()
+                    );
+                    tendonDispatch.muscleCount = static_cast<mr_u32>(
+                        input.mujoco.muscles.size()
+                    );
+                    tendonDispatch.environmentCount = static_cast<mr_u32>(
+                        input.environmentCount
+                    );
+                    tendonDispatch.dofCount = articulation.nv;
+                    tendonDispatch.bodyPoseStride = articulation.bodyCount;
+                    tendonDispatch.articulationFirstBody =
+                        articulation.firstBody;
+                    tendonDispatch.pointJacobianStride =
+                        diagnostics.layout.dispatch.pointJacobianStride;
+                    tendonDispatch.bodyJacobianPointOffset =
+                        input.mujoco.bodyJacobianPointOffset;
+                    tendonDispatch.bodyJacobianPointStride = 4u;
+                    id<MTLComputeCommandEncoder> tendonEncoder =
+                        [commandBuffer computeCommandEncoder];
+                    if (tendonEncoder == nil) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                            "failed to create Numi Human tendon-transfer encoder"
+                        );
+                    }
+                    [tendonEncoder setComputePipelineState:state_->tendonPipeline];
+                    [tendonEncoder setBytes:&tendonDispatch
+                                      length:sizeof(tendonDispatch)
+                                     atIndex:0u];
+                    [tendonEncoder setBuffer:state_->standBuffers[
+                        kStandTendonBindingsBuffer] offset:0u atIndex:1u];
+                    [tendonEncoder setBuffer:state_->standBuffers[
+                        kStandTendonEnvelopesBuffer] offset:0u atIndex:2u];
+                    [tendonEncoder setBuffer:state_->buffers[kMujocoResultsBuffer]
+                                      offset:0u atIndex:3u];
+                    [tendonEncoder setBuffer:state_->buffers[8u]
+                                      offset:0u atIndex:4u];
+                    [tendonEncoder setBuffer:state_->buffers[11u]
+                                      offset:0u atIndex:5u];
+                    [tendonEncoder setBuffer:state_->standBuffers[
+                        kStandTendonTransfersBuffer] offset:0u atIndex:6u];
+                    [tendonEncoder setBuffer:state_->standBuffers[
+                        kStandTendonCorrectionsBuffer] offset:0u atIndex:7u];
+                    const std::size_t transferThreadCount =
+                        diagnostics.layout.standTendonTransferElements;
+                    [tendonEncoder
+                        dispatchThreadgroups:MTLSizeMake(
+                            static_cast<NSUInteger>(
+                                (transferThreadCount +
+                                 kThreadsPerThreadgroup - 1u) /
+                                    kThreadsPerThreadgroup
+                            ),
+                            1u,
+                            1u
+                        )
+                        threadsPerThreadgroup:MTLSizeMake(
+                            kThreadsPerThreadgroup, 1u, 1u
+                        )];
+                    [tendonEncoder endEncoding];
+                }
                 if (state_->config.mujocoActivationTimestepSeconds > 0.0f) {
                     MRMujocoMuscleActivationDispatchGPU activationDispatch{};
                     activationDispatch.abiVersion =
@@ -3302,6 +3647,19 @@ MetalArticulatedOperatorContext::submit(
                 );
                 standDispatch.contactIterationCount =
                     input.stand.contactIterationCount;
+                standDispatch.tendonEndpointCount = static_cast<mr_u32>(
+                    input.stand.tendonBindings.size()
+                );
+                standDispatch.tendonEnvelopeCount = static_cast<mr_u32>(
+                    input.stand.tendonEnvelopes.size()
+                );
+                standDispatch.tendonTransferStride = static_cast<mr_u32>(
+                    input.stand.tendonBindings.size()
+                );
+                if (!input.stand.tendonBindings.empty()) {
+                    standDispatch.flags |=
+                        MR_NUMI_HUMAN_STAND_HAS_TENDON_LOADS;
+                }
                 standDispatch.groundPointAndTimestep = {
                     input.stand.groundPoint.x,
                     input.stand.groundPoint.y,
@@ -3341,11 +3699,15 @@ MetalArticulatedOperatorContext::submit(
                 [standEncoder setBuffer:state_->buffers[kMillardForcesBuffer]
                                   offset:0u atIndex:10u];
                 for (NSUInteger index = kStandContactsBuffer;
-                     index < kStandBufferCount; ++index) {
+                     index <= kStandStatusBuffer; ++index) {
                     [standEncoder setBuffer:state_->standBuffers[index]
                                       offset:0u
                                      atIndex:10u + index];
                 }
+                [standEncoder setBuffer:state_->standBuffers[
+                    kStandTendonBindingsBuffer] offset:0u atIndex:18u];
+                [standEncoder setBuffer:state_->standBuffers[
+                    kStandTendonTransfersBuffer] offset:0u atIndex:19u];
                 [standEncoder
                     dispatchThreadgroups:MTLSizeMake(
                         static_cast<NSUInteger>(input.environmentCount),
@@ -3358,6 +3720,52 @@ MetalArticulatedOperatorContext::submit(
                         1u
                     )];
                 [standEncoder endEncoding];
+
+                if (input.stand.tendonLoadProgram.valid()) {
+                    MetalNumiHumanTendonLoadPass pass{};
+                    pass.commandBuffer = (__bridge void*)commandBuffer;
+                    pass.bindings = (__bridge void*)state_->standBuffers[
+                        kStandTendonBindingsBuffer
+                    ];
+                    pass.envelopes = (__bridge void*)state_->standBuffers[
+                        kStandTendonEnvelopesBuffer
+                    ];
+                    pass.transfers = (__bridge void*)state_->standBuffers[
+                        kStandTendonTransfersBuffer
+                    ];
+                    pass.generalizedCorrections =
+                        (__bridge void*)state_->standBuffers[
+                            kStandTendonCorrectionsBuffer
+                        ];
+                    pass.bodyPoses = (__bridge void*)state_->buffers[8u];
+                    pass.standStatuses = (__bridge void*)state_->standBuffers[
+                        kStandStatusBuffer
+                    ];
+                    pass.stepIndex = horizonStep;
+                    pass.environmentCount = static_cast<std::uint32_t>(
+                        input.environmentCount
+                    );
+                    pass.endpointCount = static_cast<std::uint32_t>(
+                        input.stand.tendonBindings.size()
+                    );
+                    pass.envelopeCount = static_cast<std::uint32_t>(
+                        input.stand.tendonEnvelopes.size()
+                    );
+                    pass.dofCount = articulation.nv;
+                    pass.bodyPoseStride = articulation.bodyCount;
+                    pass.articulationFirstBody = articulation.firstBody;
+                    tendonLoadAbort.armed = true;
+                    if (!input.stand.tendonLoadProgram.encode(
+                            input.stand.tendonLoadProgram.context,
+                            pass
+                        )) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                            "Numi Human tendon-load consumer rejected encoding"
+                        );
+                    }
+                }
             }
             }
 
@@ -3379,6 +3787,17 @@ MetalArticulatedOperatorContext::submit(
             pending->mujocoMuscleCount = input.mujoco.muscles.size();
             pending->hasStandHorizon = input.stand.enabled();
             pending->standStepCount = input.stand.stepCount;
+            pending->standTendonBindingCount =
+                input.stand.tendonBindings.size();
+            pending->standTendonEnvelopeBindingCount =
+                static_cast<std::size_t>(std::count_if(
+                    input.stand.tendonBindings.begin(),
+                    input.stand.tendonBindings.end(),
+                    [](const MRNumiHumanTendonBindingGPU& binding) {
+                        return binding.mode ==
+                            MR_NUMI_HUMAN_TENDON_TRANSFER_DISTRIBUTED_ENVELOPE;
+                    }
+                ));
             pending->start =
                 std::chrono::steady_clock::now();
             pending->ownsInFlight = true;
@@ -3386,6 +3805,7 @@ MetalArticulatedOperatorContext::submit(
             state_->inFlight = true;
             state_->stats.hasInFlightSubmission = true;
             ++state_->stats.submissionCount;
+            tendonLoadAbort.armed = false;
             [commandBuffer commit];
             submission.state_ = std::move(pending);
         }

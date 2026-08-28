@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_NUMI_HUMAN_STAND_ABI_VERSION 1u
+#define MR_NUMI_HUMAN_STAND_ABI_VERSION 2u
 #define MR_NUMI_HUMAN_STAND_MAX_BODIES 192u
 #define MR_NUMI_HUMAN_STAND_MAX_DOFS 160u
 #define MR_NUMI_HUMAN_STAND_MAX_Q 161u
@@ -17,11 +17,13 @@ enum MRNumiHumanStandStatusCode {
     MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED = 4u,
     MR_NUMI_HUMAN_STAND_CONTACT_FAILED = 5u,
     MR_NUMI_HUMAN_STAND_NONFINITE_RESULT = 6u,
+    MR_NUMI_HUMAN_STAND_TENDON_TRANSFER_FAILED = 7u,
 };
 
 enum MRNumiHumanStandFlags {
     MR_NUMI_HUMAN_STAND_ENABLE_CONTACT = 1u << 0u,
     MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE = 1u << 1u,
+    MR_NUMI_HUMAN_STAND_HAS_TENDON_LOADS = 1u << 2u,
 };
 
 // One source-authored support witness. The point-query index addresses the
@@ -58,6 +60,11 @@ typedef struct MR_ALIGN16 MRNumiHumanStandDispatchGPU {
     mr_u32 generalizedForceOffset;
     mr_u32 contactIterationCount;
 
+    mr_u32 tendonEndpointCount;
+    mr_u32 tendonEnvelopeCount;
+    mr_u32 tendonTransferStride;
+    mr_u32 reserved0;
+
     // xyz = ground point, w = timestep seconds.
     mr_float4 groundPointAndTimestep;
     // xyz = normalized ground normal, w reserved.
@@ -87,10 +94,20 @@ typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
     // minimum Cholesky pivot, maximum Cholesky pivot,
     // root-assistance force norm, root-assistance torque norm.
     mr_float4 factorAndAssistance;
+
+    // Cumulative accepted endpoint transactions across completed steps.
+    mr_u32 tendonTransferCount;
+    mr_u32 tendonEnvelopeTransferCount;
+    mr_u32 tendonPointTransferCount;
+    mr_u32 tendonFailureCount;
+
+    // Maximum force residual, source-point moment residual, generalized
+    // wrench-equivalence correction, and represented actuator-force norm.
+    mr_float4 tendonDiagnostics;
 } MRNumiHumanStandStatusGPU;
 
 #if !defined(__METAL_VERSION__)
 static_assert(sizeof(MRNumiHumanStandContactGPU) == 32);
-static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 144);
-static_assert(sizeof(MRNumiHumanStandStatusGPU) == 64);
+static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 160);
+static_assert(sizeof(MRNumiHumanStandStatusGPU) == 96);
 #endif
