@@ -14,8 +14,11 @@ crow_usage() {
     cat <<'EOF'
 Usage: numi crow train|evaluate [native Numi arguments...]
        numi crow journey train|evaluate|window|capture|curriculum \
-           [--variant v7-hierarchical|v8-neural|v9-visual-neural] \
+           [--variant v7-hierarchical|v8-neural|v9-visual-neural|v10-world-model] \
+           [--course training|held-out-a|held-out-b] \
            [--milestone standing|walking|takeoff|cruise|takeoff-cruise|turn-left|turn-right|approach|touchdown|landed-hold|full-journey] [arguments...]
+       numi crow navigation collect|train|evaluate|model-train|plan|distill \
+           [--course training|held-out-a|held-out-b] [arguments...]
 
   train      Train the estimated American-crow hybrid through native Metal and MLX.
   evaluate   Evaluate a crow policy or an explicitly selected action source.
@@ -81,8 +84,13 @@ crow_scene_path() {
 }
 
 crow_variant=qualification
+crow_navigation=0
 if [ "${1:-}" = "journey" ]; then
     crow_variant=journey
+    shift
+elif [ "${1:-}" = "navigation" ]; then
+    crow_variant=journey
+    crow_navigation=1
     shift
 fi
 crow_action=${1:-help}
@@ -93,6 +101,24 @@ fi
 crow_milestone=takeoff-cruise
 crow_milestone_band=4
 crow_journey_variant=v7-hierarchical
+crow_navigation_course=training
+if [ "$crow_navigation" -eq 1 ]; then
+    crow_journey_variant=v10-world-model
+fi
+case "$crow_action" in
+    model-train|plan|distill)
+        [ "$crow_navigation" -eq 1 ] || \
+            crow_die "$crow_action requires crow navigation"
+        crow_mlx_python=${NUMI_CROW_MLX_PYTHON:-python3}
+        export PYTHONPATH="$crow_root/python${PYTHONPATH:+:$PYTHONPATH}"
+        case "$crow_action" in
+            model-train) crow_model_action=train ;;
+            *) crow_model_action=$crow_action ;;
+        esac
+        exec "$crow_mlx_python" -m metalrobo.crow_world_model \
+            "$crow_model_action" "$@"
+        ;;
+esac
 if [ "$crow_variant" = journey ]; then
     while [ "$#" -gt 0 ]; do
         case "$1" in
@@ -124,15 +150,32 @@ if [ "$crow_variant" = journey ]; then
                         crow_journey_variant=v8-neural ;;
                     v9|v9-visual|v9-visual-neural)
                         crow_journey_variant=v9-visual-neural ;;
-                    *) crow_die 'journey variant requires v7-hierarchical, v8-neural, or v9-visual-neural' ;;
+                    v10|v10-navigation|v10-world-model)
+                        crow_journey_variant=v10-world-model ;;
+                    *) crow_die 'journey variant requires v7-hierarchical, v8-neural, v9-visual-neural, or v10-world-model' ;;
+                esac
+                shift 2
+                ;;
+            --course)
+                [ "$#" -ge 2 ] || crow_die '--course requires a value'
+                case "$2" in
+                    training|held-out-a|held-out-b)
+                        crow_navigation_course=$2 ;;
+                    *) crow_die 'course requires training, held-out-a, or held-out-b' ;;
                 esac
                 shift 2
                 ;;
             *) break ;;
         esac
     done
-    set -- --birdflow-journey-variant "$crow_journey_variant" "$@"
-    if [ "$crow_journey_variant" = v9-visual-neural ] &&
+    set -- --birdflow-journey-variant "$crow_journey_variant" \
+        --birdflow-navigation-course "$crow_navigation_course" "$@"
+    if [ "$crow_journey_variant" = v10-world-model ] &&
+       ! crow_has_option --visual-observation-config "$@"; then
+        set -- --visual-observation-config \
+            "$crow_root/assets/crow_navigation_course/crow-navigation.sensor-fast.visual-observation.json" \
+            "$@"
+    elif [ "$crow_journey_variant" = v9-visual-neural ] &&
        ! crow_has_option --visual-observation-config "$@"; then
         set -- --visual-observation-config \
             "$crow_root/assets/crow_journey_window/crow-journey.sensor-fast.visual-observation.json" \
@@ -143,6 +186,19 @@ if [ "$crow_variant" = journey ] &&
    { crow_has_option --minimum-difficulty-band "$@" ||
      crow_has_option --maximum-difficulty-band "$@"; }; then
     crow_die 'journey difficulty is selected with --milestone'
+fi
+if [ "$crow_action" = collect ]; then
+    [ "$crow_navigation" -eq 1 ] || \
+        crow_die 'collect requires crow navigation'
+    crow_has_option --crow-replay-pack "$@" || \
+        crow_die 'navigation collect requires --crow-replay-pack'
+    # Full-journey collection must not use the curriculum's scheduled reset
+    # windows. Those windows repeatedly return the bird to the launch pose and
+    # can produce a large but effectively ground-only dataset.
+    if ! crow_has_option --no-scheduled-resets "$@"; then
+        set -- --no-scheduled-resets "$@"
+    fi
+    crow_action=evaluate
 fi
 
 case "$crow_action" in

@@ -604,6 +604,95 @@ LocomotionSceneComponent makeLocomotionDynamicSphereComponent(
     };
 }
 
+LocomotionSceneComponent makeLocomotionStaticBoxComponent(
+    const EngineModel& referenceMechanics,
+    const std::span<const LocomotionStaticBox> boxes
+) {
+    EngineModel mechanics = makeSceneComponentBase(
+        referenceMechanics,
+        "locomotion_static_boxes"
+    );
+    std::vector<MRBodyStateGPU> states;
+    states.reserve(boxes.size());
+    mechanics.bodies.reserve(boxes.size());
+    mechanics.shapes.reserve(boxes.size());
+    mechanics.bodyNames.reserve(boxes.size());
+    mechanics.shapeNames.reserve(boxes.size());
+
+    for (std::size_t index = 0u; index < boxes.size(); ++index) {
+        const LocomotionStaticBox& source = boxes[index];
+        if (source.id.empty() ||
+            !std::isfinite(source.position.x) ||
+            !std::isfinite(source.position.y) ||
+            !std::isfinite(source.position.z) ||
+            !std::isfinite(source.halfExtents.x) ||
+            !std::isfinite(source.halfExtents.y) ||
+            !std::isfinite(source.halfExtents.z) ||
+            !(source.halfExtents.x > 0.0f) ||
+            !(source.halfExtents.y > 0.0f) ||
+            !(source.halfExtents.z > 0.0f) ||
+            std::ranges::any_of(
+                boxes.first(index),
+                [&](const LocomotionStaticBox& previous) {
+                    return previous.id == source.id;
+                }
+            )) {
+            throw std::invalid_argument(
+                "static locomotion boxes require unique IDs, finite poses, and positive half extents"
+            );
+        }
+        const std::uint32_t bodyIndex =
+            static_cast<std::uint32_t>(mechanics.bodies.size());
+        mechanics.bodies.push_back(staticBody());
+        mechanics.bodyNames.push_back(source.id);
+
+        MRShapeGPU shape{};
+        shape.bodyIndex = bodyIndex;
+        shape.shapeType = MR_SHAPE_BOX;
+        shape.materialIndex = 0u;
+        shape.collisionGroup = 1u;
+        shape.collisionMask = ~0u;
+        shape.slotGeneration = bodyIndex + 1u;
+        shape.localPosition.w = 1.0f;
+        shape.localRotation.w = 1.0f;
+        shape.dimensions = source.halfExtents;
+        shape.contactRestAndBoundingRadius = {
+            0.001f,
+            0.0f,
+            std::sqrt(
+                source.halfExtents.x * source.halfExtents.x +
+                source.halfExtents.y * source.halfExtents.y +
+                source.halfExtents.z * source.halfExtents.z
+            ),
+            0.0f,
+        };
+        mechanics.shapes.push_back(shape);
+        mechanics.shapeNames.push_back(source.id + "/collision");
+
+        MRBodyStateGPU state = staticState(bodyIndex);
+        state.position = source.position;
+        state.position.w = 1.0f;
+        state.orientation = normalizedQuaternion(source.orientation);
+        states.push_back(state);
+    }
+    mechanics.world.bodyCount =
+        static_cast<std::uint32_t>(mechanics.bodies.size());
+    mechanics.world.shapeCount =
+        static_cast<std::uint32_t>(mechanics.shapes.size());
+    mechanics.world.materialCount =
+        static_cast<std::uint32_t>(mechanics.materials.size());
+    std::string reason;
+    if (!mechanics.valid(&reason)) {
+        throw std::runtime_error(
+            "locomotion static-box component is invalid: " + reason
+        );
+    }
+    return {
+        .mechanics = std::move(mechanics),
+        .defaultBodyStates = std::move(states),
+    };
+}
+
 LocomotionWorld makeWorldPackLocomotionWorld(
     const MRWorldPack& worldPack
 ) {

@@ -4109,7 +4109,8 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.id == "birdflow_american_crow_standing_to_flight" ||
         pack.id == "birdflow_american_crow_journey_v7" ||
         pack.id == "birdflow_american_crow_journey_v8_neural" ||
-        pack.id == "birdflow_american_crow_journey_v9_visual_neural") {
+        pack.id == "birdflow_american_crow_journey_v9_visual_neural" ||
+        pack.id == "birdflow_american_crow_navigation_v10_world_model") {
         // Stage zero and stage one are grounded support tasks. Wing actuation
         // begins only in the lift-off band, keeping the curriculum physically
         // possible before flight practice.
@@ -4156,7 +4157,8 @@ TaskCompileDiagnostics compileTaskProgram(
             MR_TASK_PROGRAM_AVIAN_CROW_APPROACH_ENVELOPE;
     }
     if (pack.id == "birdflow_american_crow_journey_v8_neural" ||
-        pack.id == "birdflow_american_crow_journey_v9_visual_neural") {
+        pack.id == "birdflow_american_crow_journey_v9_visual_neural" ||
+        pack.id == "birdflow_american_crow_navigation_v10_world_model") {
         // V8 deliberately omits AVIAN_CROW_APPROACH_ENVELOPE. The policy is
         // the sole deployment action authority; the task only records shadow
         // envelope occupancy through direct outcome channels.

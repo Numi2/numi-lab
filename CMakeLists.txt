@@ -3676,6 +3676,10 @@ install(
     DIRECTORY assets/crow_journey_window
     DESTINATION share/numi/assets
 )
+install(
+    DIRECTORY assets/crow_navigation_course
+    DESTINATION share/numi/assets
+)
 install(DIRECTORY include/ DESTINATION include)
 install(FILES "${METALROBO_METALLIB}" DESTINATION lib/metalrobo)
 install(

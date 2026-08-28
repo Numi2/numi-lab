@@ -606,6 +606,13 @@ public enum MetalRoboBirdFlowJourneyVariant: UInt32, Sendable {
     case v7Hierarchical = 0
     case v8Neural = 1
     case v9VisualNeural = 2
+    case v10WorldModelNavigation = 3
+}
+
+public enum MetalRoboBirdFlowNavigationCourse: UInt32, Sendable {
+    case training = 0
+    case heldOutA = 1
+    case heldOutB = 2
 }
 
 public struct MetalRoboTaskRolloutConfiguration: Sendable {
@@ -629,6 +636,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var birdFlowJourneyTeacher: Bool
     public var birdFlowJourneyStudentAuthority: Float
     public var birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant
+    public var birdFlowNavigationCourse: MetalRoboBirdFlowNavigationCourse
     public var unitreeG1Task: MetalRoboUnitreeG1Task
 
     public init(
@@ -654,6 +662,8 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         birdFlowJourneyStudentAuthority: Float = 0.0,
         birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant =
             .v7Hierarchical,
+        birdFlowNavigationCourse: MetalRoboBirdFlowNavigationCourse =
+            .training,
         unitreeG1Task: MetalRoboUnitreeG1Task = .velocity
     ) {
         self.environmentCount = environmentCount
@@ -680,6 +690,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         self.birdFlowJourneyStudentAuthority =
             birdFlowJourneyStudentAuthority
         self.birdFlowJourneyVariant = birdFlowJourneyVariant
+        self.birdFlowNavigationCourse = birdFlowNavigationCourse
         self.unitreeG1Task = unitreeG1Task
     }
 }
@@ -1268,6 +1279,8 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
             configuration.birdFlowJourneyStudentAuthority
         native.birdflow_journey_variant =
             configuration.birdFlowJourneyVariant.rawValue
+        native.birdflow_navigation_course =
+            configuration.birdFlowNavigationCourse.rawValue
         native.difficulty_sampling_exponent_override =
             configuration.difficultySamplingExponentOverride
         return native

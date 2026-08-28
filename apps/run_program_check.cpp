@@ -626,6 +626,36 @@ int main() {
                     compiledNeuralJourney.task().observationFingerprint(),
             "BirdFlow v9 visual journey lost its distinct sensor-fast actor ABI"
         );
+        metalrobo::RunManifest navigation = neuralJourney;
+        navigation.id =
+            "birdflow_american_crow_navigation_v10_compiled_run_check";
+        navigation.scene =
+            metalrobo::makeBirdFlowAmericanCrowNavigationScenePack();
+        navigation.sensors.observation = {};
+        navigation.reality.reset = {};
+        navigation.task =
+            metalrobo::makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
+                navigation.sensors.observation,
+                navigation.reality.reset
+            );
+        metalrobo::CompiledRun compiledNavigation;
+        const auto navigationStatus = metalrobo::compileRun(
+            navigation, compiledNavigation
+        );
+        require(
+            navigationStatus.succeeded() &&
+                compiledNavigation.valid() &&
+                compiledNavigation.model().bodies.size() == 20u &&
+                compiledNavigation.task().layout().actorObservationSize ==
+                    compiledVisualJourney.task().layout().actorObservationSize &&
+                compiledNavigation.task().layout().criticObservationSize ==
+                    compiledVisualJourney.task().layout().criticObservationSize &&
+                compiledNavigation.task().fingerprint() !=
+                    compiledVisualJourney.task().fingerprint() &&
+                compiledNavigation.world().fingerprint() !=
+                    compiledVisualJourney.world().fingerprint(),
+            "BirdFlow v10 navigation lost its split-stable deployment ABI"
+        );
         std::cout
             << "run_program_check=ok"
             << " run=" << compiled.fingerprint()
@@ -648,6 +678,10 @@ int main() {
             << compiledNeuralJourney.task().fingerprint()
             << " crow_journey_v9_task="
             << compiledVisualJourney.task().fingerprint()
+            << " crow_navigation_v10_task="
+            << compiledNavigation.task().fingerprint()
+            << " crow_navigation_v10_world="
+            << compiledNavigation.world().fingerprint()
             << " transactional=yes\n";
         return 0;
     } catch (const std::exception& error) {

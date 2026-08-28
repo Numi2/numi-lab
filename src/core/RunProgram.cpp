@@ -1695,6 +1695,63 @@ ScenePack makeBirdFlowAmericanCrowFlightScenePack() {
     return scene;
 }
 
+ScenePack makeBirdFlowAmericanCrowNavigationScenePack() {
+    const auto robot = builtinRobotPack(
+        "birdflow_american_crow_estimated_hybrid"
+    );
+    if (!robot) {
+        throw std::logic_error(
+            "bundled BirdFlow American-crow RobotPack is unavailable"
+        );
+    }
+    ScenePack scene = makeBirdFlowAmericanCrowFlightScenePack();
+    scene.id = "birdflow_american_crow_navigation_course_v10";
+
+    // Splits retain the same five-box mechanics and differ only in accepted
+    // reset poses. Policy compatibility therefore stays stable while the run
+    // fingerprint records which geometry was trained or evaluated.
+    std::array<LocomotionStaticBox, 5u> boxes{{
+        {"crow_course_gate_left", {}, {0.0f, 0.0f, 0.0f, 1.0f},
+            {0.12f, 0.12f, 0.80f, 0.0f}},
+        {"crow_course_gate_right", {}, {0.0f, 0.0f, 0.0f, 1.0f},
+            {0.12f, 0.12f, 0.80f, 0.0f}},
+        {"crow_course_slalom_a", {}, {0.0f, 0.0f, 0.0f, 1.0f},
+            {0.10f, 0.10f, 0.65f, 0.0f}},
+        {"crow_course_slalom_b", {}, {0.0f, 0.0f, 0.0f, 1.0f},
+            {0.10f, 0.10f, 0.65f, 0.0f}},
+        {"crow_course_perch", {}, {0.0f, 0.0f, 0.0f, 1.0f},
+            {0.10f, 0.72f, 0.055f, 0.0f}},
+    }};
+    constexpr std::array<mr_float4, 5u> poses{{
+        {1.35f, 0.68f, 0.80f, 1.0f},
+        {1.35f, -0.68f, 0.80f, 1.0f},
+        {2.55f, 0.34f, 0.65f, 1.0f},
+        {3.70f, -0.34f, 0.65f, 1.0f},
+        {5.00f, 0.00f, 0.78f, 1.0f},
+    }};
+    for (std::size_t index = 0u; index < boxes.size(); ++index) {
+        // World/Task/Policy fingerprints bind the training layout. Held-out
+        // split poses are applied transactionally to default scene state by
+        // the rollout invocation after policy compatibility is checked.
+        boxes[index].position = poses[index];
+    }
+    LocomotionSceneComponent course = makeLocomotionStaticBoxComponent(
+        robot->mechanics,
+        boxes
+    );
+    scene.objects.push_back({
+        .id = "crow_navigation_course",
+        .semanticClass = "obstacle_course",
+        .role = MR_WORLD_ASSET_CLUTTER,
+        .render = MR_WORLD_RENDER_PROCEDURAL,
+        .collision = MR_WORLD_COLLISION_PRIMITIVES,
+        .dynamics = MR_WORLD_DYNAMICS_STATIC,
+        .mechanics = std::move(course.mechanics),
+        .defaultBodyStates = std::move(course.defaultBodyStates),
+    });
+    return scene;
+}
+
 TaskPack makePX4X500HoverTaskPack(
     TaskObservationProgram& observations,
     TaskResetProgram& reset
@@ -2358,6 +2415,20 @@ TaskPack makeBirdFlowAmericanCrowVisualJourneyTaskPack(
             .component = visualFrames * pixels + feature,
         });
     }
+    return task;
+}
+
+TaskPack makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    TaskPack task = makeBirdFlowAmericanCrowVisualJourneyTaskPack(
+        observations, reset
+    );
+    task.id = "birdflow_american_crow_navigation_v10_world_model";
+    // V10 keeps v9's deployable sensor and action dimensions to make the
+    // promoted visual actor a meaningful baseline. Distinct task and scene
+    // fingerprints prevent a v9 pack from being represented as trained v10.
     return task;
 }
 

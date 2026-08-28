@@ -536,6 +536,57 @@ void resetTaskRolloutState(
     handle.activeContacts.clear();
 }
 
+void applyCrowNavigationCourseSplit(
+    MRTaskRolloutHandle& handle,
+    const std::uint32_t split
+) {
+    if (split == MR_BIRDFLOW_NAVIGATION_COURSE_TRAINING) {
+        return;
+    }
+    constexpr std::array<const char*, 5u> names{{
+        "crow_course_gate_left",
+        "crow_course_gate_right",
+        "crow_course_slalom_a",
+        "crow_course_slalom_b",
+        "crow_course_perch",
+    }};
+    constexpr std::array<std::array<mr_float4, 5u>, 2u> positions{{
+        {{{1.55f, 0.58f, 0.80f, 1.0f},
+          {1.55f, -0.76f, 0.80f, 1.0f},
+          {2.75f, -0.28f, 0.65f, 1.0f},
+          {3.95f, 0.42f, 0.65f, 1.0f},
+          {5.20f, -0.18f, 0.86f, 1.0f}}},
+        {{{1.25f, 0.78f, 0.80f, 1.0f},
+          {1.25f, -0.56f, 0.80f, 1.0f},
+          {2.45f, 0.46f, 0.65f, 1.0f},
+          {3.55f, -0.46f, 0.65f, 1.0f},
+          {4.85f, 0.22f, 0.70f, 1.0f}}},
+    }};
+    const auto sceneBodies = handle.world.sceneBodyIndices();
+    for (std::size_t index = 0u; index < names.size(); ++index) {
+        const auto body = std::ranges::find(handle.model.bodyNames, names[index]);
+        if (body == handle.model.bodyNames.end()) {
+            throw std::logic_error(
+                "compiled Crow navigation course body is missing"
+            );
+        }
+        const std::uint32_t bodyIndex = static_cast<std::uint32_t>(
+            body - handle.model.bodyNames.begin()
+        );
+        const auto scene = std::ranges::find(sceneBodies, bodyIndex);
+        if (scene == sceneBodies.end()) {
+            throw std::logic_error(
+                "compiled Crow navigation course body is not a scene body"
+            );
+        }
+        const std::size_t local = static_cast<std::size_t>(
+            scene - sceneBodies.begin()
+        );
+        handle.defaultSceneBodies.at(local).position =
+            positions[split - 1u][index];
+    }
+}
+
 void validateTaskRolloutConfiguration(
     const MRTaskRolloutConfigC& config
 ) {
@@ -593,9 +644,15 @@ void validateTaskRolloutConfiguration(
         );
     }
     if (config.birdflow_journey_variant >
-        MR_BIRDFLOW_JOURNEY_V9_VISUAL_NEURAL) {
+        MR_BIRDFLOW_JOURNEY_V10_WORLD_MODEL_NAVIGATION) {
         throw std::invalid_argument(
             "task-rollout BirdFlow journey variant is invalid"
+        );
+    }
+    if (config.birdflow_navigation_course >
+        MR_BIRDFLOW_NAVIGATION_COURSE_HELD_OUT_B) {
+        throw std::invalid_argument(
+            "task-rollout BirdFlow navigation course split is invalid"
         );
     }
     if (config.override_difficulty_band_range > 1u ||
@@ -2749,17 +2806,38 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         trackerConfig.maskedDepthFeatureCount =
             maskedDepthFeatureCount;
         for (const std::uint32_t sceneIndex : maskedDepthSceneBodies) {
-            const std::string& assetId =
-                handle.model.bodyNames[sceneIndices[sceneIndex]];
-            const auto instance = trackedInstances.find(assetId);
+            const std::uint32_t bodyIndex = sceneIndices[sceneIndex];
+            const std::string& bodyId = handle.model.bodyNames[bodyIndex];
+            auto instance = trackedInstances.find(bodyId);
+            if (instance == trackedInstances.end()) {
+                // A multi-body static course is authored as one SceneObject
+                // and one visual pack. Resolve each body back to that owning
+                // asset so the complete course shares a stable instance mask.
+                const auto owner = std::ranges::find_if(
+                    runtime->worldTemplate.assets,
+                    [&](const metalrobo::WorldAsset& asset) {
+                        return std::ranges::find(
+                            asset.bodyIndices, bodyIndex
+                        ) != asset.bodyIndices.end();
+                    }
+                );
+                if (owner != runtime->worldTemplate.assets.end()) {
+                    instance = trackedInstances.find(owner->id);
+                }
+            }
             if (instance == trackedInstances.end()) {
                 throw std::invalid_argument(
                     "every masked-depth object requires an authored visual binding"
                 );
             }
-            trackerConfig.maskedDepthInstanceIds.push_back(
-                instance->second
-            );
+            if (std::ranges::find(
+                    trackerConfig.maskedDepthInstanceIds,
+                    instance->second
+                ) == trackerConfig.maskedDepthInstanceIds.end()) {
+                trackerConfig.maskedDepthInstanceIds.push_back(
+                    instance->second
+                );
+            }
         }
     }
     if (deviceObservationEnabled) {
@@ -3139,30 +3217,44 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             );
         }
         metalrobo::RunManifest manifest;
-        const bool visualNeuralJourney = journey &&
+        const bool worldModelNavigation = journey &&
             config->birdflow_journey_variant ==
-                MR_BIRDFLOW_JOURNEY_V9_VISUAL_NEURAL;
+                MR_BIRDFLOW_JOURNEY_V10_WORLD_MODEL_NAVIGATION;
+        const bool visualNeuralJourney = journey &&
+            (config->birdflow_journey_variant ==
+                 MR_BIRDFLOW_JOURNEY_V9_VISUAL_NEURAL ||
+             worldModelNavigation);
         const bool neuralJourney = journey &&
             config->birdflow_journey_variant ==
                 MR_BIRDFLOW_JOURNEY_V8_NEURAL;
         manifest.id = journey
-            ? visualNeuralJourney
+            ? worldModelNavigation
+                ? "birdflow_american_crow_navigation_v10_world_model_run"
+                : visualNeuralJourney
                 ? "birdflow_american_crow_journey_v9_visual_neural_run"
                 : neuralJourney
                 ? "birdflow_american_crow_journey_v8_neural_run"
                 : "birdflow_american_crow_journey_v7_run"
             : "birdflow_american_crow_estimated_hybrid_run";
         manifest.robot = std::move(*robot);
-        manifest.scene = metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
+        manifest.scene = worldModelNavigation
+            ? metalrobo::makeBirdFlowAmericanCrowNavigationScenePack()
+            : metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
         manifest.sensors.id = journey
-            ? visualNeuralJourney
+            ? worldModelNavigation
+                ? "birdflow_american_crow_navigation_v10_rgbd_sensors"
+                : visualNeuralJourney
                 ? "birdflow_american_crow_journey_v9_visual_neural_sensors"
                 : neuralJourney
                 ? "birdflow_american_crow_journey_v8_neural_state_sensors"
                 : "birdflow_american_crow_journey_v7_state_sensors"
             : "birdflow_american_crow_estimated_hybrid_state_sensors";
         manifest.task = journey
-            ? visualNeuralJourney
+            ? worldModelNavigation
+                ? metalrobo::makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
+                      manifest.sensors.observation, manifest.reality.reset
+                  )
+                : visualNeuralJourney
                 ? metalrobo::makeBirdFlowAmericanCrowVisualJourneyTaskPack(
                       manifest.sensors.observation, manifest.reality.reset
                   )
@@ -3188,6 +3280,13 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             std::move(manifest), metallib_path,
             "BirdFlow American-crow estimated hybrid", visual_sensor
         );
+        if (worldModelNavigation) {
+            applyCrowNavigationCourseSplit(
+                *handle,
+                config->birdflow_navigation_course
+            );
+            resetTaskRolloutState(*handle, config->seed);
+        }
         handle->stepConfig.birdFlowJourneyTeacher =
             journey && config->birdflow_journey_teacher != 0u;
         handle->stepConfig.birdFlowJourneyStudentAuthority =

@@ -253,6 +253,8 @@ private struct Options {
     var birdFlowJourneyStudentAuthority: Float = 0.0
     var birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant =
         .v7Hierarchical
+    var birdFlowNavigationCourse: MetalRoboBirdFlowNavigationCourse =
+        .training
 
     init(arguments: [String]) throws {
         var index = 1
@@ -550,9 +552,22 @@ private struct Options {
                     birdFlowJourneyVariant = .v8Neural
                 case "v9", "v9-visual", "v9-visual-neural":
                     birdFlowJourneyVariant = .v9VisualNeural
+                case "v10", "v10-world-model", "v10-navigation":
+                    birdFlowJourneyVariant = .v10WorldModelNavigation
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, or v9-visual-neural."
+                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, or v10-world-model."
+                    )
+                }
+                index += 1
+            case "--birdflow-navigation-course":
+                switch try value() {
+                case "training": birdFlowNavigationCourse = .training
+                case "held-out-a": birdFlowNavigationCourse = .heldOutA
+                case "held-out-b": birdFlowNavigationCourse = .heldOutB
+                default:
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-navigation-course requires training, held-out-a, or held-out-b."
                     )
                 }
                 index += 1
@@ -920,7 +935,6 @@ private struct Options {
               unitreeG1Task != .supineGetUpDiscovery))
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "InteractionPack evaluation supports imported URDF owner packs or bundled G1 velocity, ball-dodge, and supine-get-up mechanics; it cannot be combined with a WorldPack or --ball."
                 "InteractionPack evaluation supports imported URDF owner packs or bundled G1 velocity, ball-dodge, and supine-get-up mechanics; it cannot be combined with a WorldPack."
             )
         }
@@ -1219,6 +1233,7 @@ private func makeContext(
         birdFlowJourneyStudentAuthority:
             options.birdFlowJourneyStudentAuthority,
         birdFlowJourneyVariant: options.birdFlowJourneyVariant,
+        birdFlowNavigationCourse: options.birdFlowNavigationCourse,
         unitreeG1Task: options.unitreeG1Task
     )
     if options.birdFlowDove {
@@ -1246,7 +1261,9 @@ private func makeContext(
                 ),
                 metallibPath: options.metallib
             ),
-            options.birdFlowJourneyVariant == .v9VisualNeural
+            options.birdFlowJourneyVariant == .v10WorldModelNavigation
+                ? "birdflow_american_crow_navigation_v10_world_model"
+                : options.birdFlowJourneyVariant == .v9VisualNeural
                 ? "birdflow_american_crow_journey_v9_visual_neural"
                 : options.birdFlowJourneyVariant == .v8Neural
                 ? "birdflow_american_crow_journey_v8_neural"
@@ -2824,6 +2841,18 @@ private enum TaskRolloutMain {
                                     actionStart..<(actionStart + traceLayout.actionCount)
                                 ]
                             )
+                            let allActorObservations =
+                                try context.actorObservations(
+                                    controlStepCount: stepCount
+                                )
+                            let actorStart = environment *
+                                traceLayout.actorObservationCount
+                            let actorObservation = Array(
+                                allActorObservations[
+                                    actorStart..<(actorStart +
+                                        traceLayout.actorObservationCount)
+                                ]
+                            )
                             let transition = observedTransitions[environment]
                             let outcomeBase = environment * outcomeSchema.count
                             let outcomes = Dictionary(uniqueKeysWithValues:
@@ -2837,6 +2866,7 @@ private enum TaskRolloutMain {
                                 "v": velocity,
                                 "body_states": bodies,
                                 "accepted_actions": actions,
+                                "actor_observation": actorObservation,
                                 "reward": transition.reward,
                                 "tracking_score": transition.trackingScore,
                                 "root_height": transition.rootHeight,
@@ -2882,16 +2912,21 @@ private enum TaskRolloutMain {
                 let payload: [String: Any] = [
                     "classification": "simulated accepted-state replay",
                     "task": context.taskID,
-                    "journey_variant": options.birdFlowJourneyVariant == .v9VisualNeural
+                    "journey_variant": options.birdFlowJourneyVariant == .v10WorldModelNavigation
+                        ? "v10-world-model"
+                        : options.birdFlowJourneyVariant == .v9VisualNeural
                         ? "v9-visual-neural"
                         : options.birdFlowJourneyVariant == .v8Neural
                         ? "v8-neural" : "v7-hierarchical",
                     "timestep_seconds": 0.02,
                     "environment": options.stateTraceEnvironment,
+                    "scheduled_resets": options.scheduledResets,
                     "frame_count": crowReplayFrames.count,
                     "nq": replayLayout.configurationCount,
                     "nv": replayLayout.velocityCount,
                     "action_count": replayLayout.actionCount,
+                    "actor_observation_count":
+                        replayLayout.actorObservationCount,
                     "body_count": replayLayout.bodyCount,
                     "body_state_stride": 13,
                     "body_state_layout": [
@@ -2903,6 +2938,21 @@ private enum TaskRolloutMain {
                         "angular_velocity_z",
                     ],
                     "body_names": context.bodyNames,
+                    "navigation_course":
+                        options.birdFlowNavigationCourse == .heldOutA
+                        ? "held-out-a"
+                        : options.birdFlowNavigationCourse == .heldOutB
+                        ? "held-out-b" : "training",
+                    "rgbd_contract": [
+                        "sensor": "head_rgbd",
+                        "policy_plane": "instance_masked_depth",
+                        "width": 16,
+                        "height": 9,
+                        "history_offsets": [0, 3, 8, 18],
+                        "derived_feature_count": 24,
+                        "near_depth_m": 0.1,
+                        "far_depth_m": 8.0,
+                    ],
                     "world_fingerprint": String(replayLayout.worldFingerprint),
                     "task_fingerprint": String(replayLayout.taskFingerprint),
                     "observation_fingerprint": String(
@@ -3280,10 +3330,17 @@ private enum TaskRolloutMain {
                 "difficulty_sampling_exponent_override":
                     options.difficultySamplingExponentOverride,
                 "birdflow_journey_variant":
-                    options.birdFlowJourneyVariant == .v9VisualNeural
+                    options.birdFlowJourneyVariant == .v10WorldModelNavigation
+                    ? "v10-world-model"
+                    : options.birdFlowJourneyVariant == .v9VisualNeural
                     ? "v9-visual-neural"
                     : options.birdFlowJourneyVariant == .v8Neural
                     ? "v8-neural" : "v7-hierarchical",
+                "birdflow_navigation_course":
+                    options.birdFlowNavigationCourse == .heldOutA
+                    ? "held-out-a"
+                    : options.birdFlowNavigationCourse == .heldOutB
+                    ? "held-out-b" : "training",
                 "action_stream": options.actionStream ?? "",
                 "birdflow_stroke_amplitude": options.birdFlowStrokeAmplitude ?? 0,
                 "birdflow_tail_pitch": options.birdFlowTailPitch ?? 0,
@@ -3307,7 +3364,9 @@ private enum TaskRolloutMain {
                 "birdflow_wing_pulse_duration_steps":
                     options.birdFlowWingPulseDurationSteps ?? 0,
                 "action_carrier": options.birdFlowAmericanCrowJourney
-                    ? options.birdFlowJourneyVariant == .v9VisualNeural
+                    ? options.birdFlowJourneyVariant == .v10WorldModelNavigation
+                        ? "v10_world_model_navigation_rgbd_history"
+                        : options.birdFlowJourneyVariant == .v9VisualNeural
                         ? "v9_visual_neural_only_masked_depth_history"
                         : options.birdFlowJourneyVariant == .v8Neural
                         ? "v8_neural_only_shadow_approach_envelope"

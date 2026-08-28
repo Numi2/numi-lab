@@ -55,7 +55,14 @@ typedef enum MRBirdFlowJourneyVariantC {
     MR_BIRDFLOW_JOURNEY_V7_HIERARCHICAL = 0,
     MR_BIRDFLOW_JOURNEY_V8_NEURAL = 1,
     MR_BIRDFLOW_JOURNEY_V9_VISUAL_NEURAL = 2,
+    MR_BIRDFLOW_JOURNEY_V10_WORLD_MODEL_NAVIGATION = 3,
 } MRBirdFlowJourneyVariantC;
+
+typedef enum MRBirdFlowNavigationCourseC {
+    MR_BIRDFLOW_NAVIGATION_COURSE_TRAINING = 0,
+    MR_BIRDFLOW_NAVIGATION_COURSE_HELD_OUT_A = 1,
+    MR_BIRDFLOW_NAVIGATION_COURSE_HELD_OUT_B = 2,
+} MRBirdFlowNavigationCourseC;
 
 typedef struct MRTaskRolloutDynamicSphereC {
     float position[3];
@@ -103,6 +110,9 @@ typedef struct MRTaskRolloutConfigC {
     // approach supervisor; V8 is neural-only during execution while still
     // permitting invocation-scoped teacher labels during training.
     uint32_t birdflow_journey_variant;
+    // V10 obstacle geometry split. All values retain identical mechanics and
+    // differ only in deterministic scene-body reset poses.
+    uint32_t birdflow_navigation_course;
     // Optional execution-profile override for the authored difficulty-band
     // sampling exponent. Zero retains the TaskPack exponent.
     float difficulty_sampling_exponent_override;

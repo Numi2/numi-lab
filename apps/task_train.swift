@@ -69,6 +69,8 @@ private struct Options {
     var birdFlowJourneyStudentAuthority: Float = 0.0
     var birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant =
         .v7Hierarchical
+    var birdFlowNavigationCourse: MetalRoboBirdFlowNavigationCourse =
+        .training
     var inspectionScene: String?
     var inspectionWidth = 640
     var inspectionHeight = 360
@@ -377,9 +379,22 @@ private struct Options {
                     birdFlowJourneyVariant = .v8Neural
                 case "v9", "v9-visual", "v9-visual-neural":
                     birdFlowJourneyVariant = .v9VisualNeural
+                case "v10", "v10-world-model", "v10-navigation":
+                    birdFlowJourneyVariant = .v10WorldModelNavigation
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, or v9-visual-neural."
+                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, or v10-world-model."
+                    )
+                }
+                index += 1
+            case "--birdflow-navigation-course":
+                switch try value() {
+                case "training": birdFlowNavigationCourse = .training
+                case "held-out-a": birdFlowNavigationCourse = .heldOutA
+                case "held-out-b": birdFlowNavigationCourse = .heldOutB
+                default:
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-navigation-course requires training, held-out-a, or held-out-b."
                     )
                 }
                 index += 1
@@ -1397,6 +1412,7 @@ private func makeContext(
         birdFlowJourneyStudentAuthority:
             options.birdFlowJourneyStudentAuthority,
         birdFlowJourneyVariant: options.birdFlowJourneyVariant,
+        birdFlowNavigationCourse: options.birdFlowNavigationCourse,
         unitreeG1Task: options.unitreeG1Task
     )
     if [options.birdFlowDove, options.birdFlowAmericanCrow,
@@ -1428,7 +1444,9 @@ private func makeContext(
                 ),
                 metallibPath: options.metallib
             ),
-            options.birdFlowJourneyVariant == .v9VisualNeural
+            options.birdFlowJourneyVariant == .v10WorldModelNavigation
+                ? "birdflow_american_crow_navigation_v10_world_model"
+                : options.birdFlowJourneyVariant == .v9VisualNeural
                 ? "birdflow_american_crow_journey_v9_visual_neural"
                 : options.birdFlowJourneyVariant == .v8Neural
                 ? "birdflow_american_crow_journey_v8_neural"
@@ -1986,7 +2004,9 @@ private enum TaskTrainMain {
                 "action_carrier": options.birdFlowJourneyTeacher
                     ? "birdflow_assisted_journey_teacher"
                     : options.birdFlowAmericanCrowJourney
-                    ? options.birdFlowJourneyVariant == .v9VisualNeural
+                    ? options.birdFlowJourneyVariant == .v10WorldModelNavigation
+                        ? "v10_world_model_navigation_rgbd_history"
+                        : options.birdFlowJourneyVariant == .v9VisualNeural
                         ? "v9_visual_neural_only_masked_depth_history"
                         : options.birdFlowJourneyVariant == .v8Neural
                         ? "v8_neural_only_shadow_approach_envelope"
@@ -2007,7 +2027,9 @@ private enum TaskTrainMain {
                 "difficulty_sampling_exponent_override":
                     options.difficultySamplingExponentOverride,
                 "birdflow_journey_variant":
-                    options.birdFlowJourneyVariant == .v9VisualNeural
+                    options.birdFlowJourneyVariant == .v10WorldModelNavigation
+                    ? "v10-world-model"
+                    : options.birdFlowJourneyVariant == .v9VisualNeural
                     ? "v9-visual-neural"
                     : options.birdFlowJourneyVariant == .v8Neural
                     ? "v8-neural" : "v7-hierarchical",

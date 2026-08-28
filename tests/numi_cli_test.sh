@@ -500,6 +500,36 @@ grep -- '^v9-visual-neural$' \
 grep -- 'crow-journey.sensor-fast.visual-observation.json$' \
     "$crow_visual_journey_run/arguments.txt" >/dev/null
 
+crow_navigation_run=$numi_temp/runs/crow-navigation-evaluate
+crow_navigation_output=$(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$crow_navigation_run \
+        "$numi_repo/tools/numi" crow navigation evaluate \
+            --course held-out-a --milestone full-journey --zero-actions
+)
+[ "$crow_navigation_output" = "fake-evaluate" ]
+grep -- '^v10-world-model$' \
+    "$crow_navigation_run/arguments.txt" >/dev/null
+grep -- '^held-out-a$' "$crow_navigation_run/arguments.txt" >/dev/null
+grep -- 'crow-navigation.sensor-fast.visual-observation.json$' \
+    "$crow_navigation_run/arguments.txt" >/dev/null
+
+crow_navigation_collect_run=$numi_temp/runs/crow-navigation-collect
+crow_navigation_collect_output=$(
+    cd "$numi_repo"
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+    NUMI_RUN_DIR=$crow_navigation_collect_run \
+        "$numi_repo/tools/numi" crow navigation collect \
+            --milestone full-journey --zero-actions \
+            --crow-replay-pack "$numi_temp/navigation.crowreplay.json"
+)
+[ "$crow_navigation_collect_output" = "fake-evaluate" ]
+grep -- '--no-scheduled-resets' \
+    "$crow_navigation_collect_run/arguments.txt" >/dev/null
+grep -- "$numi_temp/navigation.crowreplay.json" \
+    "$crow_navigation_collect_run/arguments.txt" >/dev/null
+
 if (
     cd "$numi_repo"
     NUMI_BUILD_DIR=$numi_temp/fake-build \
@@ -509,7 +539,7 @@ if (
     printf '%s\n' 'crow accepted an unknown journey variant' >&2
     exit 1
 fi
-grep -- 'journey variant requires v7-hierarchical, v8-neural, or v9-visual-neural' \
+grep -- 'journey variant requires v7-hierarchical, v8-neural, v9-visual-neural, or v10-world-model' \
     "$numi_temp/crow-invalid-variant.log" >/dev/null
 
 if "$numi_repo/tools/numi" crow journey window > /dev/null 2>&1; then

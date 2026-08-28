@@ -11,6 +11,7 @@ this document is measured animal flight or hardware-flight evidence.
 | v7 hierarchical | 15-action, 84-observation universal journey actor plus state-triggered approach-pitch supervisor | Existing qualified incumbent; supervisor retains actuator authority |
 | v8 neural-only | Same 15/84 policy ABI; supervisor removed; warning/full pitch envelopes are diagnostic outcomes only | Promoted through all 11 protected milestones; independent 33-run qualification and accepted replay complete |
 | v9 visual neural | v8 dynamics and authority plus four 16x9 masked-depth frames and 24 derived sensor features; 684 actor inputs, 84 critic inputs | Actor-transferred only from promoted v8, then promoted through all 11 protected milestones; independent 33-run qualification and accepted replay complete |
+| v10 world-model navigation | v9 actor ABI plus a collidable gate/slalom/perch course, deterministic layout splits, accepted RGB-D replay, MLX latent dynamics, trust-region CEM planning, and incumbent-preserving distillation | Retained candidate passed an 18-run native incumbent comparison across training and two held-out layouts; see [Numi Crow v10 world-model navigation](NUMI_CROW_WORLD_MODEL_NAVIGATION.md) |
 
 Every variant has a different task, observation, run, and PolicyPack
 fingerprint. A state-only pack cannot load as a visual policy. V8 and v9
@@ -70,6 +71,13 @@ These results qualify the two simulated milestone contracts at the recorded
 seeds and revisions. They do not establish measured-crow aerodynamics,
 biological fidelity, robustness outside the authored reset distribution, or
 hardware flight.
+
+V10 now implements the next obstacle/perch gate described below. Its retained
+candidate reduced forbidden-contact terminations on the training course and
+both held-out geometry splits while retaining the declared height, tracking,
+termination, and tilt envelopes. That narrower result is documented in
+[Numi Crow v10 world-model navigation](NUMI_CROW_WORLD_MODEL_NAVIGATION.md);
+it does not supersede the v9 all-milestone qualification.
 
 ## Curriculum operation
 

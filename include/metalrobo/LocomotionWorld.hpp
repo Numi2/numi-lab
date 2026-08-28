@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <span>
+#include <string>
 #include <vector>
 
 namespace metalrobo {
@@ -41,6 +42,16 @@ struct LocomotionDynamicSphere {
     float radius = 0.1f;
     float mass = 0.1f;
     std::uint32_t launchStep = 0u;
+};
+
+// Ordinary static collision geometry used to author obstacle courses without
+// introducing a task-specific collision path. Dimensions are half extents in
+// metres and pose is expressed in the Z-up world frame.
+struct LocomotionStaticBox {
+    std::string id;
+    mr_float4 position{0.0f, 0.0f, 0.0f, 1.0f};
+    mr_float4 orientation{0.0f, 0.0f, 0.0f, 1.0f};
+    mr_float4 halfExtents{0.1f, 0.1f, 0.1f, 0.0f};
 };
 
 // A scene component owns both immutable mechanics and the reset state of each
@@ -108,6 +119,10 @@ void appendLocomotionDynamicSpheres(
 [[nodiscard]] LocomotionSceneComponent makeLocomotionDynamicSphereComponent(
     const EngineModel& referenceMechanics,
     std::span<const LocomotionDynamicSphere> spheres
+);
+[[nodiscard]] LocomotionSceneComponent makeLocomotionStaticBoxComponent(
+    const EngineModel& referenceMechanics,
+    std::span<const LocomotionStaticBox> boxes
 );
 
 // Materializes the authored base state from one complete MRWorldPack. The

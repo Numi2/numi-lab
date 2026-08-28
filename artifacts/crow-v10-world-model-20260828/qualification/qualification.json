@@ -1,0 +1,184 @@
+{
+  "payload": {
+    "baseline_policy_pack": "/private/tmp/crow-v10-v9-baseline.policypack",
+    "baseline_policy_pack_sha256": "83fbc6f59fad1e21b2127e284fa71eea90f1d7c9a71ec4fe7642bbeda4a2dcf1",
+    "candidate_policy_pack": "/Users/n/MetalRobo-crow-world-model-20260828/.numi/runs/crow-v10-world-model-20260828/student-r2-conservative/deployment.policypack",
+    "candidate_policy_pack_sha256": "d4eef1080a77203fa0b4e86394dcd46a99a374df119690a6413ea00792b0f50f",
+    "classification": "simulated native held-out controller qualification",
+    "contract_failures": [],
+    "decision": "promote",
+    "environment_count_per_run": 32,
+    "evidence_sha256": {
+      "baseline-held-out-a-seed2650705001.json": "0e68207781107225dea33d038c097c0c2550f432bbbb83874e3a9a3d1c7e3ee0",
+      "baseline-held-out-a-seed2650705002.json": "ad180bd2bfb67192bfe6d391d93934b48dc7e0d5bae9ff1098b85a69c4639d40",
+      "baseline-held-out-a-seed2650705003.json": "3146641e5a4e81e9a6243af30514d2504357ad470b8c4b99ed73cccf17d82556",
+      "baseline-held-out-b-seed2650705001.json": "48b70205e71bc5aefc233e913f063aabdbc35deb4fc5ba3e081a768a814bf260",
+      "baseline-held-out-b-seed2650705002.json": "35c1cf9c13895d8fa67d1f29653e620e73bf13ff63c25f31fcb8fd0f61647be1",
+      "baseline-held-out-b-seed2650705003.json": "603a640dea34404fee58bfe2bb884e8f096e1053470d5a3308c552f14f1b4674",
+      "baseline-training-seed2650705001.json": "f476863127586f52d6efc01514511bc7a71810d57782cf20d18729629d2a5564",
+      "baseline-training-seed2650705002.json": "a17c279c25ccdf233c4a30705500bdfaa0e9f5218650a0f9068e8780ae7ce3c2",
+      "baseline-training-seed2650705003.json": "c09c07f6f468420404f1586154e8358b1ac7f5a47c46bcd7f276d7256f436d4b",
+      "candidate-held-out-a-seed2650705001.json": "05bb6b3d336acbcc70cf4699b0d5df97f2f6d65419bb52dd2270bbfc1df1dcab",
+      "candidate-held-out-a-seed2650705002.json": "2b92cad1524f6a4180498c4268e910750f5be39126a261116a815cc086359944",
+      "candidate-held-out-a-seed2650705003.json": "82b99d3b10706d23cd93052666c383660a2c75839fcb8729165223d68164ef47",
+      "candidate-held-out-b-seed2650705001.json": "fb9832c5b016d4846b8953648c7f3f8919c118702343002f5ed1dca7e6b72fb9",
+      "candidate-held-out-b-seed2650705002.json": "a4b62f0be506f6c7039874550c76df93597061897e58193468283344f2e523b4",
+      "candidate-held-out-b-seed2650705003.json": "24cfdb8bfc20a597608262e66253bef1eb53865051a507bff2a761d3e1a8ea27",
+      "candidate-training-seed2650705001.json": "e79e103a8944f0bd43c1a28b73ae5fca04e2b8f9754a1a41fdbaa24eccf786b4",
+      "candidate-training-seed2650705002.json": "1c864599811e0ac987872a67e90f253a03f2cb0358a74d89aefd5eed21a5c87c",
+      "candidate-training-seed2650705003.json": "e2d3f4f83b900ea01ae3ac617022903da9578ff69ddc1937519d35a1208bc5da"
+    },
+    "gates": [
+      {
+        "course": "training",
+        "gate": "forbidden contacts non-increasing",
+        "passed": true
+      },
+      {
+        "course": "training",
+        "gate": "terminations non-increasing",
+        "passed": true
+      },
+      {
+        "course": "training",
+        "gate": "mean height retained",
+        "passed": true
+      },
+      {
+        "course": "training",
+        "gate": "tracking retained",
+        "passed": true
+      },
+      {
+        "course": "training",
+        "gate": "tilt safety envelope",
+        "passed": true
+      },
+      {
+        "course": "held-out-a",
+        "gate": "forbidden contacts non-increasing",
+        "passed": true
+      },
+      {
+        "course": "held-out-a",
+        "gate": "terminations non-increasing",
+        "passed": true
+      },
+      {
+        "course": "held-out-a",
+        "gate": "mean height retained",
+        "passed": true
+      },
+      {
+        "course": "held-out-a",
+        "gate": "tracking retained",
+        "passed": true
+      },
+      {
+        "course": "held-out-a",
+        "gate": "tilt safety envelope",
+        "passed": true
+      },
+      {
+        "course": "held-out-b",
+        "gate": "forbidden contacts non-increasing",
+        "passed": true
+      },
+      {
+        "course": "held-out-b",
+        "gate": "terminations non-increasing",
+        "passed": true
+      },
+      {
+        "course": "held-out-b",
+        "gate": "mean height retained",
+        "passed": true
+      },
+      {
+        "course": "held-out-b",
+        "gate": "tracking retained",
+        "passed": true
+      },
+      {
+        "course": "held-out-b",
+        "gate": "tilt safety envelope",
+        "passed": true
+      }
+    ],
+    "metrics": {
+      "baseline": {
+        "held-out-a": {
+          "failed_environment_steps": 0,
+          "forbidden_contact_termination_count": 51,
+          "maximum_tilt": 0.8008314371109009,
+          "mean_root_height_m": 0.6751915174585884,
+          "mean_tracking_score": 0.7359423046012035,
+          "run_count": 3,
+          "termination_count": 96,
+          "timeout_count": 45
+        },
+        "held-out-b": {
+          "failed_environment_steps": 0,
+          "forbidden_contact_termination_count": 39,
+          "maximum_tilt": 0.8003615140914917,
+          "mean_root_height_m": 0.6349103029902714,
+          "mean_tracking_score": 0.7908145528128929,
+          "run_count": 3,
+          "termination_count": 97,
+          "timeout_count": 58
+        },
+        "training": {
+          "failed_environment_steps": 0,
+          "forbidden_contact_termination_count": 58,
+          "maximum_tilt": 0.7934412360191345,
+          "mean_root_height_m": 0.6256100312515628,
+          "mean_tracking_score": 0.7997534239904902,
+          "run_count": 3,
+          "termination_count": 105,
+          "timeout_count": 47
+        }
+      },
+      "candidate": {
+        "held-out-a": {
+          "failed_environment_steps": 0,
+          "forbidden_contact_termination_count": 30,
+          "maximum_tilt": 0.7915321588516235,
+          "mean_root_height_m": 0.6912232103032876,
+          "mean_tracking_score": 0.6892014146768938,
+          "run_count": 3,
+          "termination_count": 96,
+          "timeout_count": 66
+        },
+        "held-out-b": {
+          "failed_environment_steps": 0,
+          "forbidden_contact_termination_count": 26,
+          "maximum_tilt": 0.8008339405059814,
+          "mean_root_height_m": 0.6650951040699147,
+          "mean_tracking_score": 0.7162942745076846,
+          "run_count": 3,
+          "termination_count": 96,
+          "timeout_count": 70
+        },
+        "training": {
+          "failed_environment_steps": 0,
+          "forbidden_contact_termination_count": 28,
+          "maximum_tilt": 0.8004351854324341,
+          "mean_root_height_m": 0.6713039322440939,
+          "mean_tracking_score": 0.725015566133358,
+          "run_count": 3,
+          "termination_count": 96,
+          "timeout_count": 68
+        }
+      }
+    },
+    "seeds": [
+      2650705001,
+      2650705002,
+      2650705003
+    ],
+    "steps_per_run": 1600,
+    "task": "birdflow_american_crow_navigation_v10_world_model"
+  },
+  "payload_sha256": "f07f74cf06f83b67041d4396dd44cbbef1d9e500f7f05b7803de55308d3780e5",
+  "schema": "numi.crow-world-model-qualification.v1"
+}

@@ -305,6 +305,7 @@ private:
 [[nodiscard]] ScenePack makePX4X500HoverScenePack();
 [[nodiscard]] ScenePack makeBirdFlowDoveFlightScenePack();
 [[nodiscard]] ScenePack makeBirdFlowAmericanCrowFlightScenePack();
+[[nodiscard]] ScenePack makeBirdFlowAmericanCrowNavigationScenePack();
 [[nodiscard]] TaskPack makePX4X500HoverTaskPack(
     TaskObservationProgram& observations,
     TaskResetProgram& reset
@@ -326,6 +327,10 @@ private:
     TaskResetProgram& reset
 );
 [[nodiscard]] TaskPack makeBirdFlowAmericanCrowVisualJourneyTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+[[nodiscard]] TaskPack makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
     TaskObservationProgram& observations,
     TaskResetProgram& reset
 );

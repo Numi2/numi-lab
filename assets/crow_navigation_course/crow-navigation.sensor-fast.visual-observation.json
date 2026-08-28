@@ -1,0 +1,33 @@
+{
+  "format": "numi.visual-observation.v1",
+  "id": "birdflow_american_crow_navigation_v10_sensor_fast",
+  "packs": [
+    {"path":"../crow_journey_window/body.mrvpack","asset_id":"robot","semantic_id":1,"instance_id":1},
+    {"path":"../crow_journey_window/left-wing.mrvpack","asset_id":"robot","semantic_id":2,"instance_id":2},
+    {"path":"../crow_journey_window/right-wing.mrvpack","asset_id":"robot","semantic_id":2,"instance_id":3},
+    {"path":"../crow_journey_window/tail.mrvpack","asset_id":"robot","semantic_id":3,"instance_id":4},
+    {"path":"../crow_journey_window/left-thigh.mrvpack","asset_id":"robot","semantic_id":5,"instance_id":5},
+    {"path":"../crow_journey_window/left-shank.mrvpack","asset_id":"robot","semantic_id":5,"instance_id":6},
+    {"path":"../crow_journey_window/left-foot.mrvpack","asset_id":"robot","semantic_id":6,"instance_id":7},
+    {"path":"../crow_journey_window/right-thigh.mrvpack","asset_id":"robot","semantic_id":5,"instance_id":8},
+    {"path":"../crow_journey_window/right-shank.mrvpack","asset_id":"robot","semantic_id":5,"instance_id":9},
+    {"path":"../crow_journey_window/right-foot.mrvpack","asset_id":"robot","semantic_id":6,"instance_id":10},
+    {"path":"../crow_journey_window/room.mrvpack","asset_id":"locomotion_ground","semantic_id":4,"instance_id":11},
+    {"path":"gate-left.mrvpack","asset_id":"crow_course_gate_left","semantic_id":7,"instance_id":12},
+    {"path":"gate-right.mrvpack","asset_id":"crow_course_gate_right","semantic_id":7,"instance_id":13},
+    {"path":"slalom-a.mrvpack","asset_id":"crow_course_slalom_a","semantic_id":7,"instance_id":14},
+    {"path":"slalom-b.mrvpack","asset_id":"crow_course_slalom_b","semantic_id":7,"instance_id":15},
+    {"path":"perch.mrvpack","asset_id":"crow_course_perch","semantic_id":8,"instance_id":16}
+  ],
+  "camera": {
+    "parent_body": "crow_body",
+    "position": [-0.85, -0.85, 0.45],
+    "orientation": [-0.759210401, 0.314475245, -0.218064050, 0.526453187],
+    "width": 16,
+    "height": 9,
+    "minimum_visible_pixels": 1,
+    "vertical_field_of_view_degrees": 55.0,
+    "nominal_rate_hz": 15.0,
+    "maximum_retained_bytes": 1073741824
+  }
+}

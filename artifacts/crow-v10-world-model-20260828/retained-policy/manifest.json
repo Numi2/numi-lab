@@ -1,0 +1,37 @@
+{
+  "payload": {
+    "base_policy_pack": "/private/tmp/crow-v10-v9-baseline.policypack",
+    "base_policy_pack_sha256": "83fbc6f59fad1e21b2127e284fa71eea90f1d7c9a71ec4fe7642bbeda4a2dcf1",
+    "classification": "distilled neural controller; not promoted",
+    "demonstration_count": 512,
+    "fingerprints": {
+      "action_fingerprint": "18214448862083761046",
+      "observation_fingerprint": "14810454783106313075",
+      "task_fingerprint": "12160098085285293512",
+      "world_fingerprint": "4531105942729501771"
+    },
+    "policy_pack": "/Users/n/MetalRobo-crow-world-model-20260828/.numi/runs/crow-v10-world-model-20260828/student-r2-conservative/deployment.policypack",
+    "task": "birdflow_american_crow_navigation_v10_world_model",
+    "topology": [
+      684,
+      512,
+      256,
+      128,
+      15
+    ],
+    "training": {
+      "baseline_imitation_mse": 1.6721818383302889e-06,
+      "epochs": 20,
+      "final_action_mse": 2.3706081719865324e-06,
+      "maximum_action_delta_from_baseline": 0.0065125226974487305,
+      "planner_blend": 0.1,
+      "planner_repeats": 8,
+      "planner_target_mse": 2.816508185787825e-06,
+      "seed": 2650704005
+    },
+    "weights": "student.safetensors",
+    "weights_sha256": "99d75ab5ba8683fc529eb77941082fbf060c63da714369156db77e007531158c"
+  },
+  "payload_sha256": "c932ca607994ef25f2f93c641b8e2273732b5ead6c716f1613b96abe95d68a68",
+  "schema": "numi.crow-world-model-student.v1"
+}
