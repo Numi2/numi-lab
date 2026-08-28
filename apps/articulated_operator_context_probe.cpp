@@ -123,7 +123,10 @@ bool samePayload(
         byteEqual(left.mujocoMuscleGeneralizedForces,
                   right.mujocoMuscleGeneralizedForces) &&
         byteEqual(left.mujocoGeneralizedForces,
-                  right.mujocoGeneralizedForces);
+                  right.mujocoGeneralizedForces) &&
+        byteEqual(left.standQ, right.standQ) &&
+        byteEqual(left.standV, right.standV) &&
+        byteEqual(left.standStatuses, right.standStatuses);
 }
 
 void requireSuccess(
