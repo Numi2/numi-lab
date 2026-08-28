@@ -467,6 +467,10 @@ kernel void mr_mujoco_muscle_reference(
     uint appliedWraps = 0u;
     uint cursor = 0u;
     bool validPath = true;
+    float3 originLengthGradient = float3(0.0f);
+    float3 insertionLengthGradient = float3(0.0f);
+    bool originGradientObserved = false;
+    bool insertionGradientObserved = false;
     while (cursor + 1u < routeCount) {
         const MRMujocoMuscleRouteNodeGPU firstNode = routes[routeOffset + cursor];
         const MRMujocoMuscleRouteNodeGPU nextNode = routes[routeOffset + cursor + 1u];
@@ -477,6 +481,18 @@ kernel void mr_mujoco_muscle_reference(
             float3 secondWorld;
             if (nextNode.reserved0 != 0u || !siteWorld(environment, dispatch, bodyPoses, sites, nextNode.targetIndex, secondWorld)) { validPath = false; break; }
             const MRMujocoMuscleSiteGPU secondSite = sites[nextNode.targetIndex];
+            const float3 endpointDifference = secondWorld - firstWorld;
+            const float endpointDistance = length(endpointDifference);
+            const float3 endpointDirection = endpointDistance > kMinimum
+                ? endpointDifference / endpointDistance : float3(0.0f);
+            if (cursor == 0u) {
+                originLengthGradient = -endpointDirection;
+                originGradientObserved = true;
+            }
+            if (cursor + 1u == routeCount - 1u) {
+                insertionLengthGradient = endpointDirection;
+                insertionGradientObserved = true;
+            }
             if (!addSegmentLengthJacobian(
                     environment, dispatch, bodyPoses, pointJacobians,
                     firstNode.targetIndex < dispatch.siteCount
@@ -538,6 +554,18 @@ kernel void mr_mujoco_muscle_reference(
             wrapped = wrapCircle(projectedFirst, projectedLast, hasProjectedSide, side, wrap.radius.x, contact, wrappingLength);
         }
         if (!wrapped) {
+            const float3 endpointDifference = lastWorld - firstWorld;
+            const float endpointDistance = length(endpointDifference);
+            const float3 endpointDirection = endpointDistance > kMinimum
+                ? endpointDifference / endpointDistance : float3(0.0f);
+            if (cursor == 0u) {
+                originLengthGradient = -endpointDirection;
+                originGradientObserved = true;
+            }
+            if (cursor + 2u == routeCount - 1u) {
+                insertionLengthGradient = endpointDirection;
+                insertionGradientObserved = true;
+            }
             if (!addSegmentLengthJacobian(
                     environment, dispatch, bodyPoses, pointJacobians,
                     sites[firstNode.targetIndex].bodyIndex, firstWorld,
@@ -559,6 +587,18 @@ kernel void mr_mujoco_muscle_reference(
             }
             const float3 worldTangentFirst = center + quaternionRotate(pose.orientation, matrixApply(wrap, tangentFirst));
             const float3 worldTangentLast = center + quaternionRotate(pose.orientation, matrixApply(wrap, tangentLast));
+            if (cursor == 0u) {
+                const float distance = length(worldTangentFirst - firstWorld);
+                originLengthGradient = distance > kMinimum
+                    ? (firstWorld - worldTangentFirst) / distance : float3(0.0f);
+                originGradientObserved = true;
+            }
+            if (cursor + 2u == routeCount - 1u) {
+                const float distance = length(lastWorld - worldTangentLast);
+                insertionLengthGradient = distance > kMinimum
+                    ? (lastWorld - worldTangentLast) / distance : float3(0.0f);
+                insertionGradientObserved = true;
+            }
             if (!addSegmentLengthJacobian(
                     environment, dispatch, bodyPoses, pointJacobians,
                     sites[firstNode.targetIndex].bodyIndex, firstWorld,
@@ -580,7 +620,13 @@ kernel void mr_mujoco_muscle_reference(
         }
         cursor += 2u;
     }
-    if (!validPath || cursor != routeCount - 1u || !(totalLength > kMinimum) || !isfinite(totalLength)) { result.status = MR_MUJOCO_MUSCLE_REFERENCE_INVALID_PATH; results[globalIndex] = result; return; }
+    if (!validPath || cursor != routeCount - 1u || !(totalLength > kMinimum) ||
+        !isfinite(totalLength) || !originGradientObserved || !insertionGradientObserved ||
+        !all(isfinite(originLengthGradient)) || !all(isfinite(insertionLengthGradient))) {
+        result.status = MR_MUJOCO_MUSCLE_REFERENCE_INVALID_PATH;
+        results[globalIndex] = result;
+        return;
+    }
     const float derivative = activationDerivative(muscle, state.excitationAndActivation.x, state.excitationAndActivation.y);
     const float force = muscleGain(totalLength, muscle) * state.excitationAndActivation.y + muscleBias(totalLength, muscle);
     if (!isfinite(derivative) || !isfinite(force)) { result.status = MR_MUJOCO_MUSCLE_REFERENCE_NONFINITE_RESULT; results[globalIndex] = result; return; }
@@ -595,6 +641,9 @@ kernel void mr_mujoco_muscle_reference(
     result.status = MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS;
     result.appliedWrapCount = appliedWraps;
     result.pathForceAndActivationDerivative = float4(totalLength, 0.0f, force, derivative);
+    result.endpointLengthGradients[0] = float4(originLengthGradient, 0.0f);
+    result.endpointLengthGradients[1] = float4(insertionLengthGradient, 0.0f);
+    result.activeForceAndReserved = float4(force, 0.0f, 0.0f, 0.0f);
     results[globalIndex] = result;
 }
 
@@ -625,6 +674,7 @@ kernel void mr_mujoco_muscle_active_force_rows(
         result.pathForceAndActivationDerivative.x,
         muscles[muscleIndex]
     ) * states[globalIndex].excitationAndActivation.y;
+    result.activeForceAndReserved = float4(activeForce, 0.0f, 0.0f, 0.0f);
     const uint forceBase = globalIndex * dispatch.dofCount;
     if (abs(totalForce) <= kMinimum) {
         if (abs(activeForce) > kMinimum) {

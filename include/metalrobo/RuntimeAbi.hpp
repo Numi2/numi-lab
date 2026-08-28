@@ -4,6 +4,7 @@
 #include "metalrobo/generalized_constraint_shared.h"
 #include "metalrobo/millard_muscle_gpu.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
+#include "metalrobo/numi_human_tendon_gpu.h"
 #include "metalrobo/multi_contact_shared.h"
 #include "metalrobo/parallel_aba_shared.h"
 #include "metalrobo/policy_program_types.h"
@@ -138,6 +139,10 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
         hash,
         MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION
     );
+    hash = detail::appendRuntimeAbiWord(
+        hash,
+        MR_NUMI_HUMAN_TENDON_TRANSFER_GPU_ABI_VERSION
+    );
 
     hash = detail::appendRuntimeAbiType<MRWorldGPU>(hash);
     hash = detail::appendRuntimeAbiType<MRArticulationGPU>(hash);
@@ -210,6 +215,14 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
         MRMujocoMuscleActivationDispatchGPU
     >(hash);
     hash = detail::appendRuntimeAbiType<MRMujocoMuscleResultGPU>(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRNumiHumanTendonTransferDispatchGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<MRNumiHumanTendonBindingGPU>(hash);
+    hash = detail::appendRuntimeAbiType<MRNumiHumanTendonEnvelopeGPU>(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRNumiHumanTendonTransferResultGPU
+    >(hash);
     return hash;
 }
 

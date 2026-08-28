@@ -2,6 +2,7 @@
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/MujocoMuscleReference.hpp"
 #include "metalrobo/NumiHumanTendon.hpp"
+#include "metalrobo/NumiHumanTendonMetal.hpp"
 
 #include <algorithm>
 #include <array>
@@ -200,6 +201,7 @@ struct LoadedMuscles {
     std::vector<metalrobo::MujocoMuscleDefinition> sourceMuscles;
     std::uint32_t tendonPointBindings = 0u;
     std::uint32_t tendonTriangleBindings = 0u;
+    std::uint32_t tendonEnvelopeBindings = 0u;
     double maximumEndpointMigration = 0.0;
     metalrobo::NumiHumanTendonPayload tendonPayload;
 };
@@ -350,13 +352,13 @@ void applyNumiHumanTendonPayload(
     );
     require(
         decode.succeeded(),
-        std::string("NHTENDON1 decode failed: ") +
+        std::string("NHTENDON decode failed: ") +
             metalrobo::numiHumanTendonStatusName(decode.status) +
             " index=" + std::to_string(decode.failingIndex)
     );
     require(
         payload.bodyCount == rigid.engineBodyCount,
-        "NHTENDON1 body count disagrees with NHRIGID2"
+        "NHTENDON body count disagrees with NHRIGID2"
     );
     muscles.sourceSites = muscles.sites;
     muscles.sourceMuscles = muscles.muscles;
@@ -366,7 +368,7 @@ void applyNumiHumanTendonPayload(
     );
     require(
         diagnostics.succeeded(),
-        std::string("NHTENDON1 endpoint resolution failed: ") +
+        std::string("NHTENDON endpoint resolution failed: ") +
             metalrobo::numiHumanTendonStatusName(diagnostics.status) +
             " index=" + std::to_string(diagnostics.failingIndex)
     );
@@ -374,6 +376,7 @@ void applyNumiHumanTendonPayload(
     muscles.muscles = std::move(resolved.muscles);
     muscles.tendonPointBindings = resolved.pointBindingCount;
     muscles.tendonTriangleBindings = resolved.triangleBindingCount;
+    muscles.tendonEnvelopeBindings = resolved.envelopeBindingCount;
     muscles.maximumEndpointMigration = resolved.maximumEndpointMigration;
     muscles.tendonPayload = std::move(payload);
 
@@ -450,8 +453,15 @@ struct MetalArticulatedMetrics {
     double maximumMuscleGeneralizedForceError = 0.0;
     double maximumSummedGeneralizedForceError = 0.0;
     double maximumActivationStepError = 0.0;
+    double maximumTendonNodalForceParityError = 0.0;
+    double maximumTendonForceResidual = 0.0;
+    double maximumTendonMomentResidual = 0.0;
+    double maximumTendonGeneralizedCorrection = 0.0;
     double activationTimestepSeconds = 0.0;
     std::uint32_t appliedMuscleWraps = 0u;
+    std::uint32_t tendonTransferCount = 0u;
+    std::uint32_t tendonEnvelopeTransferCount = 0u;
+    bool tendonReplayByteIdentical = false;
 };
 
 MetalArticulatedMetrics verifyMetalArticulatedReference(
@@ -566,6 +576,127 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
 
     MetalArticulatedMetrics metrics;
     metrics.deviceName = kinematicsDiagnostics.deviceName;
+    if (muscles.tendonPayload.payloadAbi == 2u) {
+        metalrobo::NumiHumanTendonMetalProgram tendonProgram;
+        const auto packDiagnostics = metalrobo::makeNumiHumanTendonMetalProgram(
+            muscles.tendonPayload, tendonProgram
+        );
+        require(
+            packDiagnostics.succeeded() &&
+                tendonProgram.bindings.size() == muscles.tendonPayload.bindings.size() &&
+                tendonProgram.envelopes.size() == muscles.tendonPayload.envelopes.size(),
+            std::string("NHTENDON2 Metal packing failed: ") +
+                metalrobo::numiHumanTendonStatusName(packDiagnostics.status)
+        );
+        const metalrobo::NumiHumanTendonMetalInput tendonInput{
+            .environmentCount = 1u,
+            .dofCount = articulation.nv,
+            .bodyPoseStride = articulation.bodyCount,
+            .articulationFirstBody = articulation.firstBody,
+            .pointJacobianStride = kinematicsResult.layout.dispatch.pointJacobianStride,
+            .bodyJacobianPointOffset = bodyJacobianPointOffset,
+            .muscleResults = kinematicsResult.mujocoResults,
+            .bodyPoses = kinematicsResult.bodyPoses,
+            .pointJacobians = kinematicsResult.pointJacobians,
+        };
+        metalrobo::NumiHumanTendonMetalResult tendonResult;
+        const auto tendonDiagnostics = metalrobo::runMetalNumiHumanTendonTransfer(
+            tendonProgram, tendonInput, tendonResult
+        );
+        require(
+            tendonDiagnostics.succeeded() && tendonDiagnostics.dispatched &&
+                tendonDiagnostics.published &&
+                tendonResult.transfers.size() == tendonProgram.bindings.size() &&
+                tendonResult.generalizedCorrections.size() ==
+                    tendonProgram.bindings.size() * articulation.nv,
+            std::string("NHTENDON2 Metal transfer failed: ") +
+                metalrobo::numiHumanTendonMetalStatusName(tendonDiagnostics.status) +
+                " " + tendonDiagnostics.message
+        );
+        metalrobo::NumiHumanTendonMetalResult replayResult;
+        const auto replayDiagnostics = metalrobo::runMetalNumiHumanTendonTransfer(
+            tendonProgram, tendonInput, replayResult
+        );
+        metrics.tendonReplayByteIdentical = replayDiagnostics.succeeded() &&
+            replayResult.transfers.size() == tendonResult.transfers.size() &&
+            replayResult.generalizedCorrections.size() == tendonResult.generalizedCorrections.size() &&
+            std::memcmp(
+                replayResult.transfers.data(), tendonResult.transfers.data(),
+                tendonResult.transfers.size() * sizeof(tendonResult.transfers.front())
+            ) == 0 &&
+            std::memcmp(
+                replayResult.generalizedCorrections.data(),
+                tendonResult.generalizedCorrections.data(),
+                tendonResult.generalizedCorrections.size() * sizeof(float)
+            ) == 0;
+        require(metrics.tendonReplayByteIdentical,
+                "NHTENDON2 Metal transfer replay is not byte-identical");
+        metrics.tendonTransferCount = static_cast<std::uint32_t>(
+            tendonResult.transfers.size()
+        );
+        for (std::size_t index = 0u; index < tendonResult.transfers.size(); ++index) {
+            const auto& transfer = tendonResult.transfers[index];
+            metrics.maximumTendonForceResidual = std::max(
+                metrics.maximumTendonForceResidual,
+                static_cast<double>(transfer.residualsAndForce.x)
+            );
+            metrics.maximumTendonMomentResidual = std::max(
+                metrics.maximumTendonMomentResidual,
+                static_cast<double>(transfer.residualsAndForce.y)
+            );
+            metrics.maximumTendonGeneralizedCorrection = std::max(
+                metrics.maximumTendonGeneralizedCorrection,
+                static_cast<double>(transfer.residualsAndForce.z)
+            );
+            const auto& binding = muscles.tendonPayload.bindings[index];
+            if (binding.mode != metalrobo::NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope) {
+                continue;
+            }
+            ++metrics.tendonEnvelopeTransferCount;
+            const std::size_t localBody = binding.bodyIndex - articulation.firstBody;
+            const mr_float4 orientation = kinematicsResult.bodyPoses[localBody].orientation;
+            const std::array<double, 4> conjugate{
+                -orientation.x, -orientation.y, -orientation.z, orientation.w,
+            };
+            const std::array<double, 3> worldForce{
+                transfer.terminalWorldForce.x,
+                transfer.terminalWorldForce.y,
+                transfer.terminalWorldForce.z,
+            };
+            const std::array<double, 3> localForce = quaternionRotate(conjugate, worldForce);
+            metalrobo::NumiHumanTendonTractionResult cpuTraction;
+            const auto cpuTractionDiagnostics =
+                metalrobo::evaluateNumiHumanTendonEnvelopeTraction(
+                    binding,
+                    muscles.tendonPayload.envelopes[binding.triangleIndex],
+                    localForce, cpuTraction
+                );
+            require(cpuTractionDiagnostics.succeeded(),
+                    "NHTENDON2 CPU traction failed during Metal parity");
+            const std::array<double, 4> rotation{
+                orientation.x, orientation.y, orientation.z, orientation.w,
+            };
+            for (std::size_t node = 0u; node < 4u; ++node) {
+                const std::array<double, 3> expected = quaternionRotate(
+                    rotation, cpuTraction.nodalForces[node]
+                );
+                for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                    metrics.maximumTendonNodalForceParityError = std::max(
+                        metrics.maximumTendonNodalForceParityError,
+                        std::abs(expected[axis] - static_cast<double>(
+                            (&transfer.nodalWorldForces[node].x)[axis]
+                        ))
+                    );
+                }
+            }
+        }
+        for (const float correction : tendonResult.generalizedCorrections) {
+            metrics.maximumTendonGeneralizedCorrection = std::max(
+                metrics.maximumTendonGeneralizedCorrection,
+                std::abs(static_cast<double>(correction))
+            );
+        }
+    }
     for (std::size_t body = 0u; body < cpuBodies.size(); ++body) {
         const MRArticulatedBodyPoseGPU& gpuBody = kinematicsResult.bodyPoses[body];
         for (std::size_t axis = 0u; axis < 3u; ++axis) {
@@ -756,6 +887,10 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
             metrics.maximumMuscleGeneralizedForceError < 5.0e-2 &&
             metrics.maximumSummedGeneralizedForceError < 2.0e-1 &&
             metrics.maximumActivationStepError < 2.0e-6 &&
+            metrics.maximumTendonNodalForceParityError < 2.0e-2 &&
+            metrics.maximumTendonForceResidual < 2.0e-2 &&
+            metrics.maximumTendonMomentResidual < 2.0e-4 &&
+            metrics.maximumTendonGeneralizedCorrection < 2.0e-2 &&
             metrics.appliedMuscleWraps == 90u,
         "MyoSim Metal kinematics/Jacobian/muscle-route parity exceeded FP32 tolerance: "
             "body=" + std::to_string(metrics.maximumBodyPositionError) +
@@ -767,6 +902,10 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
             " muscle_generalized_force=" + std::to_string(metrics.maximumMuscleGeneralizedForceError) +
             " summed_generalized_force=" + std::to_string(metrics.maximumSummedGeneralizedForceError) +
             " activation_step=" + std::to_string(metrics.maximumActivationStepError) +
+            " tendon_nodal_force=" + std::to_string(metrics.maximumTendonNodalForceParityError) +
+            " tendon_force_residual=" + std::to_string(metrics.maximumTendonForceResidual) +
+            " tendon_moment_residual=" + std::to_string(metrics.maximumTendonMomentResidual) +
+            " tendon_generalized_correction=" + std::to_string(metrics.maximumTendonGeneralizedCorrection) +
             " wraps=" + std::to_string(metrics.appliedMuscleWraps)
     );
 
@@ -868,10 +1007,32 @@ int run(
                     worldTriangleSpan = worldTriangle;
                 }
                 metalrobo::NumiHumanTendonTractionResult traction;
-                const auto tractionDiagnostics = metalrobo::evaluateNumiHumanTendonTraction(
-                    binding, worldTriangleSpan, terminal, adjacent,
-                    pose.centerOfMassPosition, result.actuatorForce, traction
-                );
+                metalrobo::NumiHumanTendonDiagnostics tractionDiagnostics;
+                if (binding.mode == metalrobo::NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope) {
+                    const std::array<double, 3> difference{
+                        terminal[0] - adjacent[0], terminal[1] - adjacent[1], terminal[2] - adjacent[2],
+                    };
+                    const double length = vectorNorm(difference);
+                    require(length > 1.0e-12, "distributed tendon endpoint has no terminal direction");
+                    const std::array<double, 3> worldForce{
+                        result.actuatorForce * difference[0] / length,
+                        result.actuatorForce * difference[1] / length,
+                        result.actuatorForce * difference[2] / length,
+                    };
+                    const std::array<double, 4> conjugate{
+                        -pose.orientation[0], -pose.orientation[1], -pose.orientation[2], pose.orientation[3],
+                    };
+                    const std::array<double, 3> localForce = quaternionRotate(conjugate, worldForce);
+                    tractionDiagnostics = metalrobo::evaluateNumiHumanTendonEnvelopeTraction(
+                        binding, muscles.tendonPayload.envelopes[binding.triangleIndex],
+                        localForce, traction
+                    );
+                } else {
+                    tractionDiagnostics = metalrobo::evaluateNumiHumanTendonTraction(
+                        binding, worldTriangleSpan, terminal, adjacent,
+                        pose.centerOfMassPosition, result.actuatorForce, traction
+                    );
+                }
                 require(
                     tractionDiagnostics.succeeded(),
                     std::string("tendon traction evaluation failed: ") +
@@ -914,14 +1075,16 @@ int run(
         if (muscles.tendonTriangleBindings == 0u) {
             require(
                 maximumEndpointSingleScatterDifference <= 1.0e-10,
-                "point-only NHTENDON1 changed or duplicated the authoritative J^T force"
+                "source-point-preserving NHTENDON changed or duplicated the authoritative J^T force"
             );
         }
     }
     require(
-        maximumEnthesisForceResidual <= 1.0e-9 &&
-        maximumEnthesisMomentResidual <= 1.0e-4,
-        "NHTENDON1 traction does not preserve endpoint force and moment: force=" +
+        maximumEnthesisForceResidual <=
+            (muscles.tendonEnvelopeBindings > 0u ? 1.0e-4 : 1.0e-9) &&
+        maximumEnthesisMomentResidual <=
+            (muscles.tendonEnvelopeBindings > 0u ? 1.0e-5 : 1.0e-4),
+        "NHTENDON traction does not preserve endpoint force and moment: force=" +
             std::to_string(maximumEnthesisForceResidual) + " moment=" +
             std::to_string(maximumEnthesisMomentResidual)
     );
@@ -983,9 +1146,11 @@ int run(
                              << " muscles=" << muscles.muscles.size()
                              << " route_sites=" << muscles.sites.size()
                              << " tendon_endpoints="
-                             << muscles.tendonPointBindings + muscles.tendonTriangleBindings
+                             << muscles.tendonPointBindings + muscles.tendonTriangleBindings +
+                                    muscles.tendonEnvelopeBindings
                              << " tendon_point_bindings=" << muscles.tendonPointBindings
                              << " tendon_triangle_bindings=" << muscles.tendonTriangleBindings
+                             << " tendon_envelope_bindings=" << muscles.tendonEnvelopeBindings
                              << " tendon_max_endpoint_migration_m=" << muscles.maximumEndpointMigration
                              << " tendon_single_scatter_generalized_force_difference="
                              << maximumEndpointSingleScatterDifference
@@ -1023,7 +1188,17 @@ int run(
                << metal.activationTimestepSeconds
                << " metal_max_activation_step_error="
                << metal.maximumActivationStepError
-               << " metal_applied_wraps=" << metal.appliedMuscleWraps;
+               << " metal_applied_wraps=" << metal.appliedMuscleWraps
+               << " metal_tendon_transfers=" << metal.tendonTransferCount
+               << " metal_tendon_envelope_transfers=" << metal.tendonEnvelopeTransferCount
+               << " metal_tendon_max_nodal_force_parity_error_n="
+               << metal.maximumTendonNodalForceParityError
+               << " metal_tendon_max_force_residual_n=" << metal.maximumTendonForceResidual
+               << " metal_tendon_max_moment_residual_nm=" << metal.maximumTendonMomentResidual
+               << " metal_tendon_max_generalized_correction="
+               << metal.maximumTendonGeneralizedCorrection
+               << " metal_tendon_replay_byte_identical="
+               << (metal.tendonReplayByteIdentical ? "true" : "false");
     }
     output << "\n";
     return 0;

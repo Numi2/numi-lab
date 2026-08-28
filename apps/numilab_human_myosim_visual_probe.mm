@@ -58,6 +58,7 @@ constexpr std::uint32_t kPassiveFEMTissueSemantic = 51009u;
 constexpr std::uint32_t kOrganSurfaceSemantic = 51010u;
 constexpr std::uint32_t kVesselSurfaceSemantic = 51011u;
 constexpr std::uint32_t kNerveSurfaceSemantic = 51012u;
+constexpr std::uint32_t kTendonAttachmentEnvelopeSemantic = 51013u;
 // The native exact-reference path is currently qualified through 640 px on
 // the local Apple M4. Larger reference frames can return an all-background
 // image despite successful Metal submission, so a valid native default is
@@ -406,6 +407,8 @@ struct LoadedMuscles {
     std::vector<MRMujocoMuscleGPU> gpuMuscles;
     std::uint32_t tendonPointBindings = 0u;
     std::uint32_t tendonTriangleBindings = 0u;
+    std::uint32_t tendonEnvelopeBindings = 0u;
+    metalrobo::NumiHumanTendonPayload tendonPayload;
 };
 
 struct LoadedBones {
@@ -731,14 +734,14 @@ void applyNumiHumanTendonPayload(
     LoadedMuscles& muscles
 ) {
     std::ifstream input(path, std::ios::binary | std::ios::ate);
-    require(input.is_open(), "cannot open NHTENDON1 payload " + path.string());
+    require(input.is_open(), "cannot open NHTENDON payload " + path.string());
     const std::streamsize size = input.tellg();
-    require(size >= 0, "cannot determine NHTENDON1 payload size");
+    require(size >= 0, "cannot determine NHTENDON payload size");
     input.seekg(0, std::ios::beg);
     std::vector<std::byte> bytes(static_cast<std::size_t>(size));
     if (!bytes.empty()) {
         input.read(reinterpret_cast<char*>(bytes.data()), size);
-        require(input.good(), "truncated NHTENDON1 payload");
+        require(input.good(), "truncated NHTENDON payload");
     }
     metalrobo::NumiHumanTendonPayload payload;
     const auto decode = metalrobo::decodeNumiHumanTendonPayload(
@@ -746,7 +749,7 @@ void applyNumiHumanTendonPayload(
     );
     require(
         decode.succeeded() && payload.bodyCount == rigid.engineBodyCount,
-        std::string("invalid NHTENDON1 visual program: ") +
+        std::string("invalid NHTENDON visual program: ") +
             metalrobo::numiHumanTendonStatusName(decode.status)
     );
     metalrobo::NumiHumanTendonResolvedProgram resolved;
@@ -755,13 +758,14 @@ void applyNumiHumanTendonPayload(
     );
     require(
         diagnostics.succeeded(),
-        std::string("cannot resolve NHTENDON1 visual program: ") +
+        std::string("cannot resolve NHTENDON visual program: ") +
             metalrobo::numiHumanTendonStatusName(diagnostics.status)
     );
     muscles.referenceSites = std::move(resolved.sites);
     muscles.referenceMuscles = std::move(resolved.muscles);
     muscles.tendonPointBindings = resolved.pointBindingCount;
     muscles.tendonTriangleBindings = resolved.triangleBindingCount;
+    muscles.tendonEnvelopeBindings = resolved.envelopeBindingCount;
     muscles.gpuSites.clear();
     muscles.gpuSites.reserve(muscles.referenceSites.size());
     for (const metalrobo::MujocoMuscleSite& site : muscles.referenceSites) {
@@ -786,6 +790,7 @@ void applyNumiHumanTendonPayload(
             });
         }
     }
+    muscles.tendonPayload = std::move(payload);
 }
 
 LoadedSupportContacts loadSupportContacts(
@@ -4148,6 +4153,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     std::uint32_t& renderedSkinShells,
     std::uint32_t& renderedTorsoAnatomySurfaces,
     std::uint32_t& renderedTendonAttachmentCollars,
+    std::uint32_t& renderedTendonAttachmentEnvelopes,
     std::uint32_t& renderedRouteSegments,
     std::uint32_t& renderedPassiveFEMTissues
 ) {
@@ -4220,6 +4226,10 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         if (sourceRouteCentrelines->surfaceProjectedAttachmentCount > 0u) {
             pack.preprocessingProvenance +=
                 "/visual_only_nearest_bodyparts3d_triangle_attachment_projection";
+        }
+        if (musclePayload.tendonEnvelopeBindings > 0u) {
+            pack.preprocessingProvenance +=
+                "/NHTENDON2_source_point_preserving_connected_bone_surface_force_moment_envelope";
         }
     }
     pack.materials.push_back(makeMaterial(
@@ -4463,6 +4473,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         }
     }
     renderedRouteSegments = 0u;
+    renderedTendonAttachmentEnvelopes = 0u;
     std::uint32_t stableRouteId = 1u;
     if (sourceRouteCentrelines != nullptr) {
         for (const SourceRouteCentreline& route : sourceRouteCentrelines->muscles) {
@@ -4511,6 +4522,78 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                     {0.0f, 0.0f, 0.0f, 1.0f}, stableRouteId++
                 );
             }
+            if (musclePayload.tendonPayload.payloadAbi == 2u) {
+                require(
+                    bonePayload != nullptr &&
+                        musclePayload.tendonPayload.boneCount == bonePayload->records.size() &&
+                        musclePayload.tendonPayload.registrationFingerprint ==
+                            bonePayload->header.reserved0,
+                    "NHTENDON2 visual envelope does not match the loaded NHBONES1 registration"
+                );
+                for (std::uint32_t endpoint = 0u; endpoint < 2u; ++endpoint) {
+                    const auto& binding = musclePayload.tendonPayload.bindings[
+                        2u * route.muscleIndex + endpoint
+                    ];
+                    if (binding.mode != metalrobo::NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope) {
+                        continue;
+                    }
+                    require(binding.bodyIndex < bodies.size() &&
+                                binding.triangleIndex < musclePayload.tendonPayload.envelopes.size(),
+                            "NHTENDON2 visual envelope binding is out of bounds");
+                    const auto& envelope = musclePayload.tendonPayload.envelopes[binding.triangleIndex];
+                    const MRBodyStateGPU& body = bodies[binding.bodyIndex];
+                    std::array<mr_float4, 4u> nodes{};
+                    for (std::size_t node = 0u; node < nodes.size(); ++node) {
+                        const mr_float4 local{
+                            static_cast<float>(envelope.localNodes[node][0]),
+                            static_cast<float>(envelope.localNodes[node][1]),
+                            static_cast<float>(envelope.localNodes[node][2]), 0.0f,
+                        };
+                        const mr_float4 rotated = rotatePoint(body.orientation, local);
+                        nodes[node] = {
+                            body.position.x + rotated.x,
+                            body.position.y + rotated.y,
+                            body.position.z + rotated.z, 1.0f,
+                        };
+                    }
+                    const mr_float4 terminal = endpoint == 0u
+                        ? route.points.front().world : route.points.back().world;
+                    for (std::size_t node = 0u; node < nodes.size(); ++node) {
+                        const float dx = nodes[node].x - terminal.x;
+                        const float dy = nodes[node].y - terminal.y;
+                        const float dz = nodes[node].z - terminal.z;
+                        if (dx * dx + dy * dy + dz * dz > 1.0e-10f) {
+                            appendInstance(
+                                // A one-millimetre collagen bundle remains a
+                                // diagnostic representation of the exact
+                                // four-node transfer map, but survives the
+                                // 2K presentation filter from every qualified
+                                // camera. It changes no mechanical coordinate
+                                // or force-distribution weight.
+                                appendWorldTube(pack, terminal, nodes[node], 0.00115f),
+                                5u, kTendonAttachmentEnvelopeSemantic,
+                                MR_VISUAL_BINDING_WORLD, MR_INVALID_INDEX,
+                                {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
+                                stableRouteId++
+                            );
+                        }
+                        const mr_float4 next = nodes[(node + 1u) % nodes.size()];
+                        const float ex = next.x - nodes[node].x;
+                        const float ey = next.y - nodes[node].y;
+                        const float ez = next.z - nodes[node].z;
+                        if (ex * ex + ey * ey + ez * ez > 1.0e-10f) {
+                            appendInstance(
+                                appendWorldTube(pack, nodes[node], next, 0.00082f),
+                                5u, kTendonAttachmentEnvelopeSemantic,
+                                MR_VISUAL_BINDING_WORLD, MR_INVALID_INDEX,
+                                {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
+                                stableRouteId++
+                            );
+                        }
+                    }
+                    ++renderedTendonAttachmentEnvelopes;
+                }
+            }
         }
     }
     pack.contentHash = metalrobo::computeVisualAssetPackContentHash(pack);
@@ -4529,7 +4612,8 @@ struct CameraFraming {
 CameraFraming makeCameraFraming(
     const metalrobo::VisualAssetPackV2& pack,
     const std::span<const MRBodyStateGPU> bodies,
-    const std::optional<std::uint32_t> focusBodyIndex
+    const std::optional<std::uint32_t> focusBodyIndex,
+    const bool tendonAttachmentEnvelopeInspection
 ) {
     if (focusBodyIndex.has_value()) {
         require(*focusBodyIndex < bodies.size(), "MyoSim visual focus body index is out of bounds");
@@ -4552,9 +4636,14 @@ CameraFraming makeCameraFraming(
                 // complete calcaneus, while filling the review frame with the
                 // right insertion from each fixed view.
                 ? 0.25f
+                // The v2 envelope is a millimetre-scale enthesis inspection,
+                // so frame the joint rather than the complete limb. The
+                // selected source muscle and both endpoint bones remain in
+                // the asset pack and are merely clipped by the camera.
+                : (tendonAttachmentEnvelopeInspection ? 0.45f
                 : (pack.id == "myosim_zanatomy_calf_articulated_visual_supplement"
                     ? 0.58f
-                    : 0.70f),
+                    : 0.70f)),
         };
     }
 
@@ -5061,7 +5150,7 @@ int main(int argc, char** argv) {
                           << " [--zanatomy-calf-visual-supplement]"
                           << " [--tendon-attachment-collar-diagnostic]"
                           << " [--support-contact-payload <NHCNT1>]"
-                          << " [--tendon-payload <NHTENDON1>]"
+                          << " [--tendon-payload <NHTENDON1-or-NHTENDON2>]"
                           << " [--focus-body-index <0..156>]"
                           << " [--camera-index <0..3>]"
                           << " [--dimension <512..2048; multiple-of-64>]\n";
@@ -5072,11 +5161,13 @@ int main(int argc, char** argv) {
             LoadedMuscles musclePayload = loadMuscles(positional[1], rigid.header);
             if (tendonPayloadPath.has_value()) {
                 applyNumiHumanTendonPayload(*tendonPayloadPath, rigid.header, musclePayload);
-                std::cout << "tendon_payload=NHTENDON1"
+                std::cout << "tendon_payload=NHTENDON" << musclePayload.tendonPayload.payloadAbi
                           << " tendon_endpoints="
-                          << musclePayload.tendonPointBindings + musclePayload.tendonTriangleBindings
+                          << musclePayload.tendonPointBindings + musclePayload.tendonTriangleBindings +
+                                 musclePayload.tendonEnvelopeBindings
                           << " tendon_point_bindings=" << musclePayload.tendonPointBindings
                           << " tendon_triangle_bindings=" << musclePayload.tendonTriangleBindings
+                          << " tendon_envelope_bindings=" << musclePayload.tendonEnvelopeBindings
                           << "\n";
             }
             require(!focusBodyIndex.has_value() || *focusBodyIndex < rigid.header.engineBodyCount,
@@ -5357,6 +5448,7 @@ int main(int argc, char** argv) {
             std::uint32_t renderedSkinShells = 0u;
             std::uint32_t renderedTorsoAnatomySurfaces = 0u;
             std::uint32_t renderedTendonAttachmentCollars = 0u;
+            std::uint32_t renderedTendonAttachmentEnvelopes = 0u;
             std::uint32_t renderedRouteSegments = 0u;
             std::uint32_t renderedPassiveFEMTissues = 0u;
             bool anyRequestedRouteVisible = false;
@@ -5375,7 +5467,8 @@ int main(int argc, char** argv) {
                 tendonAttachmentCollarDiagnostic,
                 resolvedRouteCentrelines.has_value() ? &*resolvedRouteCentrelines : nullptr,
                 renderedBodies, renderedSoftTissues, renderedSkinShells, renderedTorsoAnatomySurfaces,
-                renderedTendonAttachmentCollars, renderedRouteSegments,
+                renderedTendonAttachmentCollars, renderedTendonAttachmentEnvelopes,
+                renderedRouteSegments,
                 renderedPassiveFEMTissues
             );
             require(requestedSoftTissueStableIds.empty() || renderedSoftTissues == requestedSoftTissueStableIds.size(),
@@ -5388,7 +5481,7 @@ int main(int argc, char** argv) {
                         renderedTorsoAnatomySurfaces == torsoAnatomyPayload->records.size(),
                     "native Human visual torso anatomy did not render every source surface");
             const CameraFraming cameraFraming = makeCameraFraming(
-                pack, bodies, focusBodyIndex
+                pack, bodies, focusBodyIndex, renderedTendonAttachmentEnvelopes > 0u
             );
             const std::array<mr_float4, 4u> positions = cameraPositions(cameraFraming);
             std::array<std::string, 4u> cameraNames;
@@ -5416,6 +5509,7 @@ int main(int argc, char** argv) {
                 (!selectedSourceMuscleActivations.empty() ? "-selected-actuators" : "") +
                 (supportContactPayload.has_value() ? "-source-support-contact" : "") +
                 (sourceRouteCentrelines ? "-source-route-centrelines" : "") +
+                (renderedTendonAttachmentEnvelopes > 0u ? "-tendon-attachment-envelopes" : "") +
                 (surfaceProjectSourceSites ? "-surface-projected-sites" : "") +
                 (focusBodyIndex.has_value()
                     ? "-focus-body-" + std::to_string(*focusBodyIndex) : "");
@@ -5447,6 +5541,7 @@ int main(int argc, char** argv) {
 
             metalrobo::VisualMotionSampleBatchV1 motion = makeMotion(bodies);
             bool completeVisualCoverage = true;
+            bool anyTendonAttachmentEnvelopeVisible = false;
             bool capturedRenderer = false;
             std::string rendererDeviceName;
             double rendererCompileMilliseconds = 0.0;
@@ -5539,6 +5634,9 @@ int main(int argc, char** argv) {
                 const std::size_t tendonAttachmentCollarPixels = coverage(
                     observation, kTendonAttachmentCollarSemantic
                 );
+                const std::size_t tendonAttachmentEnvelopePixels = coverage(
+                    observation, kTendonAttachmentEnvelopeSemantic
+                );
                 const std::size_t passiveFEMTissuePixels = coverage(
                     observation, kPassiveFEMTissueSemantic
                 );
@@ -5556,6 +5654,8 @@ int main(int argc, char** argv) {
                     (!torsoAnatomyPayload.has_value() ||
                      (organSurfacePixels > 0u && vesselSurfacePixels > 0u && nerveSurfacePixels > 0u));
                 anyRequestedRouteVisible = anyRequestedRouteVisible || routePixels > 0u;
+                anyTendonAttachmentEnvelopeVisible = anyTendonAttachmentEnvelopeVisible ||
+                    tendonAttachmentEnvelopePixels > 0u;
                 std::cout << "view=" << cameraNames[camera]
                           << " body_pixels=" << bodyPixels
                           << " bone_pixels=" << bonePixels
@@ -5564,6 +5664,7 @@ int main(int argc, char** argv) {
                           << " muscle_surface_pixels=" << muscleSurfacePixels
                           << " tendon_surface_pixels=" << tendonSurfacePixels
                           << " tendon_attachment_collar_pixels=" << tendonAttachmentCollarPixels
+                          << " tendon_attachment_envelope_pixels=" << tendonAttachmentEnvelopePixels
                           << " passive_fem_tissue_pixels=" << passiveFEMTissuePixels
                           << " skin_shell_pixels=" << skinShellPixels
                           << " organ_surface_pixels=" << organSurfacePixels
@@ -5575,6 +5676,8 @@ int main(int argc, char** argv) {
                     "one or more native Human frames have no linked-body coverage");
             require(!sourceRouteCentrelines || anyRequestedRouteVisible,
                     "requested source route is completely occluded from all native Human cameras");
+            require(renderedTendonAttachmentEnvelopes == 0u || anyTendonAttachmentEnvelopeVisible,
+                    "requested NHTENDON2 attachment envelope is completely occluded from all cameras");
             const bool sourceSupportContact = muscleDrivenState.has_value() &&
                 muscleDrivenState->supportContactApplied;
             const std::string poseSource = !muscleDrivenState.has_value()
@@ -5608,6 +5711,10 @@ int main(int argc, char** argv) {
             if (renderedTendonAttachmentCollars > 0u) {
                 evidenceBoundary +=
                     "_with_source_proximity_derived_tendon_to_named_bone_visual_collars_not_a_tendon_weld_or_force_transfer";
+            }
+            if (renderedTendonAttachmentEnvelopes > 0u) {
+                evidenceBoundary +=
+                    "_with_NHTENDON2_source_point_preserving_force_and_moment_conserving_inferred_surface_envelope_geometry_not_a_clinical_enthesis_certificate_or_deformable_tendon_continuum";
             }
             if (!selectedSourceMuscleActivations.empty()) {
                 evidenceBoundary +=
@@ -5659,6 +5766,8 @@ int main(int argc, char** argv) {
                               : "none")
                       << " bodyparts_tendon_attachment_collars="
                       << renderedTendonAttachmentCollars
+                      << " bodyparts_tendon_attachment_envelopes="
+                      << renderedTendonAttachmentEnvelopes
                       << " bodyparts_skin_shells=" << renderedSkinShells
                       << " bodyparts_torso_anatomy_surfaces=" << renderedTorsoAnatomySurfaces
                       << " torso_anatomy_binding=" << (torsoAnatomyPayload.has_value()

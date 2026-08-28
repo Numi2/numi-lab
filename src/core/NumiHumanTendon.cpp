@@ -9,10 +9,14 @@ namespace metalrobo {
 namespace {
 
 constexpr std::array<char, 8> kMagic{'N', 'H', 'T', 'E', 'N', 'D', '1', '\0'};
+constexpr std::array<char, 8> kEnvelopeMagic{'N', 'H', 'T', 'E', 'N', 'D', '2', '\0'};
 constexpr std::uint32_t kAbi = 1u;
+constexpr std::uint32_t kEnvelopeAbi = 2u;
 constexpr std::size_t kHeaderBytes = 104u;
+constexpr std::size_t kEnvelopeHeaderBytes = 144u;
 constexpr std::size_t kBindingBytes = 64u;
 constexpr std::size_t kTriangleBytes = 64u;
+constexpr std::size_t kEnvelopeBytes = 288u;
 constexpr double kPointTolerance = 1.0e-6;
 
 NumiHumanTendonDiagnostics failure(
@@ -70,6 +74,146 @@ NumiHumanTendonDiagnostics decodeNumiHumanTendonPayload(
     NumiHumanTendonPayload& payload
 ) {
     payload = {};
+    if (bytes.size() < 12u) return failure(NumiHumanTendonStatus::truncatedPayload);
+    std::array<char, 8> inspectedMagic{};
+    std::uint32_t inspectedAbi = 0u;
+    std::memcpy(inspectedMagic.data(), bytes.data(), inspectedMagic.size());
+    std::memcpy(&inspectedAbi, bytes.data() + inspectedMagic.size(), sizeof(inspectedAbi));
+    const auto hashesMatch = [&]() {
+        return (expectedSourceSha256.empty() ||
+                (expectedSourceSha256.size() == payload.sourceSha256.size() &&
+                 std::equal(expectedSourceSha256.begin(), expectedSourceSha256.end(),
+                            payload.sourceSha256.begin()))) &&
+            (expectedMusclePayloadSha256.empty() ||
+             (expectedMusclePayloadSha256.size() == payload.musclePayloadSha256.size() &&
+              std::equal(expectedMusclePayloadSha256.begin(), expectedMusclePayloadSha256.end(),
+                         payload.musclePayloadSha256.begin())));
+    };
+    if (inspectedMagic == kEnvelopeMagic) {
+        if (bytes.size() < kEnvelopeHeaderBytes) {
+            return failure(NumiHumanTendonStatus::truncatedPayload);
+        }
+        std::size_t offset = 0u;
+        std::array<char, 8> magic{};
+        std::uint32_t abi = 0u;
+        std::uint32_t endpointCount = 0u;
+        std::uint32_t envelopeCount = 0u;
+        std::uint32_t reserved0 = 0u;
+        std::uint32_t reserved1 = 0u;
+        if (!read(bytes, offset, magic) || !read(bytes, offset, abi) ||
+            !read(bytes, offset, payload.bodyCount) || !read(bytes, offset, payload.muscleCount) ||
+            !read(bytes, offset, payload.sourceSiteCount) || !read(bytes, offset, endpointCount) ||
+            !read(bytes, offset, envelopeCount) || !read(bytes, offset, payload.boneCount) ||
+            !read(bytes, offset, payload.registrationFingerprint) || !read(bytes, offset, reserved0) ||
+            !read(bytes, offset, reserved1) || !read(bytes, offset, payload.sourceSha256) ||
+            !read(bytes, offset, payload.musclePayloadSha256) ||
+            !read(bytes, offset, payload.bonePayloadSha256)) {
+            return failure(NumiHumanTendonStatus::truncatedPayload);
+        }
+        payload.payloadAbi = abi;
+        if (magic != kEnvelopeMagic || abi != kEnvelopeAbi ||
+            payload.bodyCount == 0u || payload.muscleCount == 0u ||
+            payload.sourceSiteCount == 0u || payload.boneCount == 0u ||
+            payload.registrationFingerprint == 0u ||
+            endpointCount != 2u * payload.muscleCount ||
+            reserved0 != 0u || reserved1 != 0u) {
+            return failure(NumiHumanTendonStatus::invalidPayload);
+        }
+        const std::size_t expectedBytes = kEnvelopeHeaderBytes +
+            static_cast<std::size_t>(endpointCount) * kBindingBytes +
+            static_cast<std::size_t>(envelopeCount) * kEnvelopeBytes;
+        if (bytes.size() != expectedBytes) {
+            return failure(NumiHumanTendonStatus::invalidPayload);
+        }
+        if (!hashesMatch()) return failure(NumiHumanTendonStatus::sourceMismatch);
+        payload.bindings.reserve(endpointCount);
+        for (std::uint32_t index = 0u; index < endpointCount; ++index) {
+            std::array<std::uint32_t, 8> integers{};
+            std::array<float, 8> values{};
+            if (!read(bytes, offset, integers) || !read(bytes, offset, values)) {
+                return failure(NumiHumanTendonStatus::truncatedPayload, index);
+            }
+            NumiHumanTendonBinding binding;
+            binding.muscleIndex = integers[0];
+            binding.endpointOrdinal = integers[1];
+            binding.routeNodeIndex = integers[2];
+            binding.sourceSiteIndex = integers[3];
+            binding.bodyIndex = integers[4];
+            if (integers[5] != static_cast<std::uint32_t>(NumiHumanTendonAttachmentMode::sourceSitePoint) &&
+                integers[5] != static_cast<std::uint32_t>(NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope)) {
+                return failure(NumiHumanTendonStatus::invalidBinding, index);
+            }
+            binding.mode = static_cast<NumiHumanTendonAttachmentMode>(integers[5]);
+            binding.triangleIndex = integers[6];
+            binding.boneStableId = integers[7];
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                binding.resolvedLocalPoint[axis] = values[axis];
+            }
+            binding.surfaceDistance = values[3];
+            binding.forceAmplification = values[4];
+            binding.patchRadius = values[5];
+            binding.compiledMomentResidual = values[6];
+            if (values[7] != 0.0f || !finite(binding.resolvedLocalPoint) ||
+                !std::isfinite(binding.surfaceDistance) || binding.surfaceDistance < 0.0 ||
+                !std::isfinite(binding.forceAmplification) || binding.forceAmplification < 0.0 ||
+                !std::isfinite(binding.patchRadius) || binding.patchRadius < 0.0 ||
+                !std::isfinite(binding.compiledMomentResidual) || binding.compiledMomentResidual < 0.0) {
+                return failure(NumiHumanTendonStatus::invalidBinding, index);
+            }
+            payload.bindings.push_back(binding);
+        }
+        payload.envelopes.reserve(envelopeCount);
+        for (std::uint32_t index = 0u; index < envelopeCount; ++index) {
+            std::array<std::uint32_t, 4> integers{};
+            std::array<float, 68> values{};
+            if (!read(bytes, offset, integers) || !read(bytes, offset, values)) {
+                return failure(NumiHumanTendonStatus::truncatedPayload, index);
+            }
+            if (integers[3] != 4u || integers[0] >= payload.bodyCount ||
+                integers[1] == 0u || integers[1] > payload.boneCount) {
+                return failure(NumiHumanTendonStatus::invalidBinding, index);
+            }
+            NumiHumanTendonEnvelope envelope;
+            envelope.bodyIndex = integers[0];
+            envelope.boneStableId = integers[1];
+            envelope.sourceTriangleIndex = integers[2];
+            for (std::size_t node = 0u; node < 4u; ++node) {
+                for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                    envelope.localNodes[node][axis] = values[4u * node + axis];
+                }
+                if (values[4u * node + 3u] != 0.0f || !finite(envelope.localNodes[node])) {
+                    return failure(NumiHumanTendonStatus::invalidBinding, index);
+                }
+                for (std::size_t row = 0u; row < 3u; ++row) {
+                    const std::size_t base = 16u + node * 12u + row * 4u;
+                    for (std::size_t column = 0u; column < 3u; ++column) {
+                        envelope.forceMaps[node][row][column] = values[base + column];
+                    }
+                    if (values[base + 3u] != 0.0f ||
+                        !std::all_of(envelope.forceMaps[node][row].begin(),
+                                     envelope.forceMaps[node][row].end(),
+                                     [](const double value) { return std::isfinite(value); })) {
+                        return failure(NumiHumanTendonStatus::invalidBinding, index);
+                    }
+                }
+            }
+            envelope.surfaceDistance = values[64];
+            envelope.patchRadius = values[65];
+            envelope.forceAmplification = values[66];
+            envelope.l2ForceAmplification = values[67];
+            if (!std::isfinite(envelope.surfaceDistance) || envelope.surfaceDistance < 0.0 ||
+                !std::isfinite(envelope.patchRadius) || !(envelope.patchRadius > 0.0) ||
+                !std::isfinite(envelope.forceAmplification) || !(envelope.forceAmplification > 0.0) ||
+                !std::isfinite(envelope.l2ForceAmplification) || !(envelope.l2ForceAmplification > 0.0)) {
+                return failure(NumiHumanTendonStatus::invalidBinding, index);
+            }
+            payload.envelopes.push_back(envelope);
+        }
+        return {};
+    }
+    if (inspectedMagic != kMagic || inspectedAbi != kAbi) {
+        return failure(NumiHumanTendonStatus::invalidPayload);
+    }
     if (bytes.size() < kHeaderBytes) return failure(NumiHumanTendonStatus::truncatedPayload);
     std::size_t offset = 0u;
     std::array<char, 8> magic{};
@@ -91,18 +235,14 @@ NumiHumanTendonDiagnostics decodeNumiHumanTendonPayload(
         endpointCount != 2u * payload.muscleCount || reserved0 != 0u || reserved1 != 0u) {
         return failure(NumiHumanTendonStatus::invalidPayload);
     }
+    payload.payloadAbi = abi;
     const std::size_t expectedBytes = kHeaderBytes +
         static_cast<std::size_t>(endpointCount) * kBindingBytes +
         static_cast<std::size_t>(triangleCount) * kTriangleBytes;
     if (bytes.size() != expectedBytes) {
         return failure(NumiHumanTendonStatus::invalidPayload);
     }
-    if ((!expectedSourceSha256.empty() &&
-         (expectedSourceSha256.size() != payload.sourceSha256.size() ||
-          !std::equal(expectedSourceSha256.begin(), expectedSourceSha256.end(), payload.sourceSha256.begin()))) ||
-        (!expectedMusclePayloadSha256.empty() &&
-         (expectedMusclePayloadSha256.size() != payload.musclePayloadSha256.size() ||
-          !std::equal(expectedMusclePayloadSha256.begin(), expectedMusclePayloadSha256.end(), payload.musclePayloadSha256.begin())))) {
+    if (!hashesMatch()) {
         return failure(NumiHumanTendonStatus::sourceMismatch);
     }
     payload.bindings.reserve(endpointCount);
@@ -201,10 +341,47 @@ NumiHumanTendonDiagnostics resolveNumiHumanTendonProgram(
                 if (binding.triangleIndex != MR_INVALID_INDEX || binding.boneStableId != 0u ||
                     distance(binding.resolvedLocalPoint, sourceSites[binding.sourceSiteIndex].localPoint) > kPointTolerance ||
                     distance(binding.barycentric, std::array<double, 3>{}) > kPointTolerance ||
-                    binding.endpointMigration > kPointTolerance) {
+                    binding.endpointMigration > kPointTolerance ||
+                    binding.surfaceDistance > kPointTolerance ||
+                    binding.forceAmplification > kPointTolerance ||
+                    binding.patchRadius > kPointTolerance ||
+                    binding.compiledMomentResidual > kPointTolerance) {
                     return failure(NumiHumanTendonStatus::invalidBinding, static_cast<std::uint32_t>(bindingIndex));
                 }
                 ++result.pointBindingCount;
+                continue;
+            }
+            if (binding.mode == NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope) {
+                if (payload.payloadAbi != kEnvelopeAbi ||
+                    binding.triangleIndex >= payload.envelopes.size() || binding.boneStableId == 0u ||
+                    distance(binding.resolvedLocalPoint, sourceSites[binding.sourceSiteIndex].localPoint) > kPointTolerance ||
+                    distance(binding.barycentric, std::array<double, 3>{}) > kPointTolerance ||
+                    binding.endpointMigration > kPointTolerance || !(binding.patchRadius > 0.0) ||
+                    !(binding.forceAmplification > 0.0)) {
+                    return failure(NumiHumanTendonStatus::invalidBinding, static_cast<std::uint32_t>(bindingIndex));
+                }
+                const NumiHumanTendonEnvelope& envelope = payload.envelopes[binding.triangleIndex];
+                if (envelope.bodyIndex != binding.bodyIndex ||
+                    envelope.boneStableId != binding.boneStableId ||
+                    std::abs(envelope.surfaceDistance - binding.surfaceDistance) > 2.0e-6 ||
+                    std::abs(envelope.patchRadius - binding.patchRadius) > 2.0e-6 ||
+                    std::abs(envelope.forceAmplification - binding.forceAmplification) > 2.0e-5) {
+                    return failure(NumiHumanTendonStatus::invalidBinding, static_cast<std::uint32_t>(bindingIndex));
+                }
+                for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                    std::array<double, 3> unit{};
+                    unit[axis] = 1.0;
+                    NumiHumanTendonTractionResult traction;
+                    const auto diagnostics = evaluateNumiHumanTendonEnvelopeTraction(
+                        binding, envelope, unit, traction
+                    );
+                    if (!diagnostics.succeeded() || traction.forceResidual > 2.0e-5 ||
+                        traction.momentResidual > 2.0e-7) {
+                        return failure(NumiHumanTendonStatus::invalidBinding,
+                                       static_cast<std::uint32_t>(bindingIndex));
+                    }
+                }
+                ++result.envelopeBindingCount;
                 continue;
             }
             if (binding.triangleIndex >= payload.triangles.size() || binding.boneStableId == 0u) {
@@ -292,6 +469,52 @@ NumiHumanTendonDiagnostics evaluateNumiHumanTendonTraction(
         subtract(terminalWorld, bodyOriginWorld), result.terminalForce
     );
     result.momentResidual = distance(representedMoment, expectedMoment);
+    if (!std::isfinite(result.forceResidual) || !std::isfinite(result.momentResidual)) {
+        return failure(NumiHumanTendonStatus::nonfiniteResult);
+    }
+    return {};
+}
+
+NumiHumanTendonDiagnostics evaluateNumiHumanTendonEnvelopeTraction(
+    const NumiHumanTendonBinding& binding,
+    const NumiHumanTendonEnvelope& envelope,
+    const std::array<double, 3>& terminalLocalForce,
+    NumiHumanTendonTractionResult& result
+) {
+    result = {};
+    if (binding.mode != NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope ||
+        binding.bodyIndex != envelope.bodyIndex ||
+        binding.boneStableId != envelope.boneStableId ||
+        !finite(binding.resolvedLocalPoint) || !finite(terminalLocalForce)) {
+        return failure(NumiHumanTendonStatus::invalidBinding);
+    }
+    result.terminalForce = terminalLocalForce;
+    std::array<double, 3> resultant{};
+    std::array<double, 3> momentAboutSource{};
+    for (std::size_t node = 0u; node < envelope.localNodes.size(); ++node) {
+        if (!finite(envelope.localNodes[node])) {
+            return failure(NumiHumanTendonStatus::nonfiniteResult);
+        }
+        for (std::size_t row = 0u; row < 3u; ++row) {
+            for (std::size_t column = 0u; column < 3u; ++column) {
+                const double coefficient = envelope.forceMaps[node][row][column];
+                if (!std::isfinite(coefficient)) {
+                    return failure(NumiHumanTendonStatus::nonfiniteResult);
+                }
+                result.nodalForces[node][row] += coefficient * terminalLocalForce[column];
+            }
+            resultant[row] += result.nodalForces[node][row];
+        }
+        const std::array<double, 3> offset = subtract(
+            envelope.localNodes[node], binding.resolvedLocalPoint
+        );
+        const std::array<double, 3> nodalMoment = cross(offset, result.nodalForces[node]);
+        for (std::size_t axis = 0u; axis < 3u; ++axis) {
+            momentAboutSource[axis] += nodalMoment[axis];
+        }
+    }
+    result.forceResidual = distance(resultant, terminalLocalForce);
+    result.momentResidual = distance(momentAboutSource, std::array<double, 3>{});
     if (!std::isfinite(result.forceResidual) || !std::isfinite(result.momentResidual)) {
         return failure(NumiHumanTendonStatus::nonfiniteResult);
     }

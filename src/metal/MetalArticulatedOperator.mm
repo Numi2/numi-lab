@@ -269,6 +269,13 @@ bool finite(const mr_float4 value) {
         std::isfinite(value.w);
 }
 
+bool finite(const MRMujocoMuscleResultGPU& value) {
+    return finite(value.pathForceAndActivationDerivative) &&
+        finite(value.endpointLengthGradients[0]) &&
+        finite(value.endpointLengthGradients[1]) &&
+        finite(value.activeForceAndReserved);
+}
+
 bool zero(const mr_float4 value) {
     return value.x == 0.0f && value.y == 0.0f && value.z == 0.0f &&
         value.w == 0.0f;
@@ -2531,7 +2538,7 @@ bool finitePayload(
             result.mujocoResults.begin(),
             result.mujocoResults.end(),
             [](const MRMujocoMuscleResultGPU& value) {
-                return finite(value.pathForceAndActivationDerivative);
+                return finite(value);
             }
         ) &&
         std::all_of(
@@ -2806,7 +2813,7 @@ MetalArticulatedOperatorSubmission::wait(
                 if (mujoco.status != MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS ||
                     mujoco.environment != environment ||
                     mujoco.muscleIndex != muscle ||
-                    !finite(mujoco.pathForceAndActivationDerivative)) {
+                    !finite(mujoco)) {
                     return reject(
                         std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::gpuEnvironmentFailure,
@@ -4382,7 +4389,7 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                 if (mujoco.status != MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS ||
                     mujoco.environment != environment ||
                     mujoco.muscleIndex != muscle ||
-                    !finite(mujoco.pathForceAndActivationDerivative)) {
+                    !finite(mujoco)) {
                     return reject(
                         std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::gpuEnvironmentFailure,

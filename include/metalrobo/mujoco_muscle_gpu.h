@@ -6,7 +6,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_MUJOCO_MUSCLE_REFERENCE_GPU_ABI_VERSION 2u
+#define MR_MUJOCO_MUSCLE_REFERENCE_GPU_ABI_VERSION 3u
 #define MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION 1u
 #define MR_MUJOCO_MUSCLE_ACTIVE_FORCE_GPU_ABI_VERSION 1u
 
@@ -126,6 +126,13 @@ typedef struct MR_ALIGN16 MRMujocoMuscleResultGPU {
     mr_u32 appliedWrapCount;
     // x path length; y static path velocity; z actuator force; w activation derivative.
     mr_float4 pathForceAndActivationDerivative;
+    // Exact world-space d(length)/d(endpoint position) used by the owning
+    // wrapped route evaluation: origin first, insertion second. w is zero.
+    mr_float4 endpointLengthGradients[2];
+    // x force represented by the currently published generalized-force row.
+    // It is total source force after route evaluation and active-only force
+    // after the optional Human active-force transform. yzw are zero.
+    mr_float4 activeForceAndReserved;
 } MRMujocoMuscleResultGPU;
 
 #ifndef __METAL_VERSION__
@@ -137,5 +144,5 @@ static_assert(sizeof(MRMujocoMuscleRouteNodeGPU) == 16u);
 static_assert(sizeof(MRMujocoMuscleStateGPU) == 16u);
 static_assert(sizeof(MRMujocoMuscleActivationDispatchGPU) == 32u);
 static_assert(sizeof(MRMujocoMuscleActiveForceDispatchGPU) == 16u);
-static_assert(sizeof(MRMujocoMuscleResultGPU) == 32u);
+static_assert(sizeof(MRMujocoMuscleResultGPU) == 80u);
 #endif
