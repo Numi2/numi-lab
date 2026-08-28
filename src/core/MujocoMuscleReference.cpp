@@ -654,7 +654,179 @@ double muscleDynamics(const double excitation, const double activation, const st
     return excess / std::max(kMinimum, tau);
 }
 
+double normalizedPassiveForce(
+    const double normalizedLength,
+    const MujocoMuscleDefinition& definition
+) {
+    const double upperMid = 0.5 * (1.0 + definition.biasParameters[5]);
+    if (normalizedLength <= 1.0) return 0.0;
+    if (normalizedLength <= upperMid) {
+        const double x = (normalizedLength - 1.0) /
+            std::max(kMinimum, upperMid - 1.0);
+        return definition.biasParameters[7] * 0.5 * x * x;
+    }
+    const double x = (normalizedLength - upperMid) /
+        std::max(kMinimum, upperMid - 1.0);
+    return definition.biasParameters[7] * (0.5 + x);
+}
+
+double normalizedVelocityGain(
+    const double fiberVelocity,
+    const double optimalFiberLength,
+    const MujocoMuscleDefinition& definition
+) {
+    const double velocity = fiberVelocity / std::max(
+        kMinimum, optimalFiberLength * definition.gainParameters[6]
+    );
+    const double eccentricLimit = definition.gainParameters[8];
+    const double transition = eccentricLimit - 1.0;
+    if (velocity <= -1.0) return 0.0;
+    if (velocity <= 0.0) return (velocity + 1.0) * (velocity + 1.0);
+    if (velocity <= transition) {
+        return eccentricLimit - (transition - velocity) *
+            (transition - velocity) / std::max(kMinimum, transition);
+    }
+    return eccentricLimit;
+}
+
+double normalizedTendonForce(
+    const double normalizedLength,
+    const MujocoCompliantMuscleArchitecture& architecture
+) {
+    const double strain = normalizedLength - 1.0;
+    if (strain <= 0.0) return 0.0;
+    const double strainAtToe = architecture.tendonStrainAtOneNormalizedForce -
+        (1.0 - architecture.tendonNormalizedForceAtToeEnd) /
+            architecture.tendonStiffnessAtOneNormalizedForce;
+    if (strain >= strainAtToe) {
+        return architecture.tendonNormalizedForceAtToeEnd +
+            architecture.tendonStiffnessAtOneNormalizedForce *
+                (strain - strainAtToe);
+    }
+    const double t = std::clamp(strain / std::max(kMinimum, strainAtToe), 0.0, 1.0);
+    return (-2.0 * t * t * t + 3.0 * t * t) *
+        architecture.tendonNormalizedForceAtToeEnd +
+        (t * t * t - t * t) * strainAtToe *
+            architecture.tendonStiffnessAtOneNormalizedForce;
+}
+
 } // namespace
+
+MujocoMuscleReferenceDiagnostics evaluateMujocoCompliantMuscle(
+    const double pathLength,
+    const double pathVelocity,
+    const double timestepSeconds,
+    const MujocoMuscleDefinition& definition,
+    const MujocoCompliantMuscleArchitecture& architecture,
+    const MujocoCompliantMuscleState& acceptedState,
+    MujocoCompliantMuscleResult& result
+) {
+    const bool validArchitecture =
+        finite(architecture.optimalFiberLength) &&
+        finite(architecture.tendonSlackLength) &&
+        finite(architecture.tendonStrainAtOneNormalizedForce) &&
+        finite(architecture.tendonStiffnessAtOneNormalizedForce) &&
+        finite(architecture.tendonNormalizedForceAtToeEnd) &&
+        finite(architecture.tendonCurviness) &&
+        finite(architecture.normalizedFiberDamping) &&
+        finite(architecture.fitNormalizedRmse) &&
+        architecture.optimalFiberLength > kMinimum &&
+        architecture.tendonSlackLength > kMinimum &&
+        architecture.tendonStrainAtOneNormalizedForce > 0.0 &&
+        architecture.tendonStiffnessAtOneNormalizedForce > 0.0 &&
+        architecture.tendonNormalizedForceAtToeEnd > 0.0 &&
+        architecture.tendonNormalizedForceAtToeEnd < 1.0 &&
+        architecture.normalizedFiberDamping > 0.0;
+    if (!validArchitecture) {
+        return failure(MujocoMuscleReferenceStatus::invalidDefinition);
+    }
+    if (!finite(pathLength) || !finite(pathVelocity) ||
+        !finite(timestepSeconds) || !(pathLength > kMinimum) ||
+        !(timestepSeconds > 0.0) || !finite(acceptedState.excitation) ||
+        !finite(acceptedState.activation) ||
+        !finite(acceptedState.fiberLength) ||
+        !finite(acceptedState.fiberVelocity) ||
+        acceptedState.fiberLength < 0.0) {
+        return failure(MujocoMuscleReferenceStatus::invalidState);
+    }
+    const double predictedPath = std::max(
+        kMinimum, pathLength + timestepSeconds * pathVelocity
+    );
+    double acceptedFiber = acceptedState.fiberLength;
+    if (!(acceptedFiber > kMinimum)) {
+        const double initializationLower = std::min(
+            0.2 * architecture.optimalFiberLength,
+            0.5 * pathLength
+        );
+        acceptedFiber = std::clamp(
+            pathLength - 1.02 * architecture.tendonSlackLength,
+            initializationLower,
+            pathLength
+        );
+    }
+    double lower = std::min(
+        0.05 * architecture.optimalFiberLength,
+        0.5 * predictedPath
+    );
+    double upper = predictedPath;
+    if (!(lower < upper)) {
+        return failure(MujocoMuscleReferenceStatus::invalidState);
+    }
+    double residual = 0.0;
+    for (std::uint32_t iteration = 0u; iteration < 48u; ++iteration) {
+        const double candidate = 0.5 * (lower + upper);
+        const double velocity = (candidate - acceptedFiber) / timestepSeconds;
+        const double normalizedFiber = candidate / architecture.optimalFiberLength;
+        const double tendon = normalizedTendonForce(
+            (predictedPath - candidate) / architecture.tendonSlackLength,
+            architecture
+        );
+        const double active = std::clamp(acceptedState.activation, 0.0, 1.0) *
+            muscleGainLength(
+                normalizedFiber,
+                definition.gainParameters[4],
+                definition.gainParameters[5]
+            ) * normalizedVelocityGain(
+                velocity, architecture.optimalFiberLength, definition
+            );
+        residual = tendon - active -
+            normalizedPassiveForce(normalizedFiber, definition) -
+            architecture.normalizedFiberDamping * velocity /
+                architecture.optimalFiberLength;
+        if (residual > 0.0) lower = candidate;
+        else upper = candidate;
+    }
+    const double fiberLength = 0.5 * (lower + upper);
+    const double fiberVelocity = (fiberLength - acceptedFiber) / timestepSeconds;
+    const double tendonTension = std::max(0.0, normalizedTendonForce(
+        (predictedPath - fiberLength) / architecture.tendonSlackLength,
+        architecture
+    ));
+    double maximumForce = definition.gainParameters[2];
+    if (maximumForce < 0.0) {
+        maximumForce = definition.gainParameters[3] /
+            std::max(kMinimum, definition.accelerationScale);
+    }
+    const double derivative = muscleDynamics(
+        acceptedState.excitation,
+        acceptedState.activation,
+        definition.dynamicParameters
+    );
+    if (!finite(fiberLength) || !finite(fiberVelocity) ||
+        !finite(tendonTension) || !finite(maximumForce) ||
+        !(maximumForce > 0.0) || !finite(derivative) || !finite(residual)) {
+        return failure(MujocoMuscleReferenceStatus::nonfiniteResult);
+    }
+    result = {
+        .activationDerivative = derivative,
+        .candidateFiberLength = fiberLength,
+        .candidateFiberVelocity = fiberVelocity,
+        .tendonTension = tendonTension,
+        .actuatorForce = -maximumForce * tendonTension,
+        .normalizedEquilibriumResidual = residual,
+    };
+    return {};
+}
 
 MujocoMuscleReferenceDiagnostics evaluateMujocoMuscle(
     const EngineModel& model, const std::uint32_t articulationIndex, const std::span<const double> q,

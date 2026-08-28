@@ -368,6 +368,7 @@ inline float forceScale(const mr_float4 parameters[3], const float accelerationS
 
 inline float muscleGain(
     const float pathLength,
+    const float pathVelocity,
     const MRMujocoMuscleGPU muscle
 ) {
     const float optimum = (muscle.lengthRangeAndAcceleration.y - muscle.lengthRangeAndAcceleration.x) /
@@ -375,9 +376,145 @@ inline float muscleGain(
     const float normalized = parameter(muscle.gainParameters, 0u) +
         (pathLength - muscle.lengthRangeAndAcceleration.x) / max(kMinimum, optimum);
     const float lengthGain = gainLength(normalized, parameter(muscle.gainParameters, 4u), parameter(muscle.gainParameters, 5u));
-    const float velocityGain = 1.0f;
+    const float normalizedVelocity = pathVelocity / max(
+        kMinimum, optimum * parameter(muscle.gainParameters, 6u)
+    );
+    const float eccentricLimit = parameter(muscle.gainParameters, 8u);
+    const float transition = eccentricLimit - 1.0f;
+    float velocityGain = 0.0f;
+    if (normalizedVelocity <= -1.0f) velocityGain = 0.0f;
+    else if (normalizedVelocity <= 0.0f) velocityGain =
+        (normalizedVelocity + 1.0f) * (normalizedVelocity + 1.0f);
+    else if (normalizedVelocity <= transition) velocityGain =
+        eccentricLimit - (transition - normalizedVelocity) *
+            (transition - normalizedVelocity) / max(kMinimum, transition);
+    else velocityGain = eccentricLimit;
     return -forceScale(muscle.gainParameters, muscle.lengthRangeAndAcceleration.z) *
         lengthGain * velocityGain;
+}
+
+inline float normalizedPassiveForce(
+    const float normalizedLength,
+    const MRMujocoMuscleGPU muscle
+) {
+    const float upperMid = 0.5f * (1.0f + parameter(muscle.biasParameters, 5u));
+    if (normalizedLength <= 1.0f) return 0.0f;
+    if (normalizedLength <= upperMid) {
+        const float x = (normalizedLength - 1.0f) /
+            max(kMinimum, upperMid - 1.0f);
+        return parameter(muscle.biasParameters, 7u) * 0.5f * x * x;
+    }
+    const float x = (normalizedLength - upperMid) /
+        max(kMinimum, upperMid - 1.0f);
+    return parameter(muscle.biasParameters, 7u) * (0.5f + x);
+}
+
+inline float normalizedVelocityGain(
+    const float fiberVelocity,
+    const float optimalFiberLength,
+    const MRMujocoMuscleGPU muscle
+) {
+    const float normalizedVelocity = fiberVelocity / max(
+        kMinimum,
+        optimalFiberLength * parameter(muscle.gainParameters, 6u)
+    );
+    const float eccentricLimit = parameter(muscle.gainParameters, 8u);
+    const float transition = eccentricLimit - 1.0f;
+    if (normalizedVelocity <= -1.0f) return 0.0f;
+    if (normalizedVelocity <= 0.0f) return
+        (normalizedVelocity + 1.0f) * (normalizedVelocity + 1.0f);
+    if (normalizedVelocity <= transition) return
+        eccentricLimit - (transition - normalizedVelocity) *
+            (transition - normalizedVelocity) / max(kMinimum, transition);
+    return eccentricLimit;
+}
+
+inline float normalizedTendonForce(
+    const float normalizedLength,
+    const MRMujocoMuscleGPU muscle
+) {
+    const float strain = normalizedLength - 1.0f;
+    if (strain <= 0.0f) return 0.0f;
+    const float strainAtOne = muscle.compliantArchitecture0.z;
+    const float stiffness = muscle.compliantArchitecture0.w;
+    const float forceAtToe = muscle.compliantArchitecture1.x;
+    const float strainAtToe = strainAtOne - (1.0f - forceAtToe) /
+        max(kMinimum, stiffness);
+    if (strain >= strainAtToe) {
+        return forceAtToe + stiffness * (strain - strainAtToe);
+    }
+    const float t = clamp(strain / max(kMinimum, strainAtToe), 0.0f, 1.0f);
+    return (-2.0f * t * t * t + 3.0f * t * t) * forceAtToe +
+        (t * t * t - t * t) * strainAtToe * stiffness;
+}
+
+inline bool compliantArchitecture(const MRMujocoMuscleGPU muscle) {
+    return muscle.compliantArchitecture0.x > kMinimum &&
+        muscle.compliantArchitecture0.y > kMinimum;
+}
+
+inline bool solveCompliantFiber(
+    const float pathLength,
+    const float pathVelocity,
+    const float timestep,
+    const float activation,
+    const MRMujocoMuscleStateGPU state,
+    const MRMujocoMuscleGPU muscle,
+    thread float& fiberLength,
+    thread float& fiberVelocity,
+    thread float& tendonForce,
+    thread float& equilibriumResidual
+) {
+    const float optimalFiberLength = muscle.compliantArchitecture0.x;
+    const float tendonSlackLength = muscle.compliantArchitecture0.y;
+    const float damping = muscle.compliantArchitecture1.z;
+    const float predictedPath = max(
+        kMinimum, pathLength + max(0.0f, timestep) * pathVelocity
+    );
+    float acceptedFiber = state.excitationAndActivation.z;
+    if (!(acceptedFiber > kMinimum)) {
+        const float initializationLower = min(
+            0.2f * optimalFiberLength,
+            0.5f * pathLength
+        );
+        acceptedFiber = clamp(
+            pathLength - 1.02f * tendonSlackLength,
+            initializationLower,
+            pathLength
+        );
+    }
+    const float effectiveTimestep = max(1.0e-5f, timestep);
+    float lower = min(0.05f * optimalFiberLength, 0.5f * predictedPath);
+    float upper = predictedPath;
+    if (!(lower < upper)) return false;
+    float residual = 0.0f;
+    float normalizedTension = 0.0f;
+    for (uint iteration = 0u; iteration < 48u; ++iteration) {
+        const float candidate = 0.5f * (lower + upper);
+        const float velocity = (candidate - acceptedFiber) / effectiveTimestep;
+        const float normalizedFiber = candidate / optimalFiberLength;
+        normalizedTension = normalizedTendonForce(
+            (predictedPath - candidate) / tendonSlackLength, muscle
+        );
+        const float active = activation * gainLength(
+            normalizedFiber,
+            parameter(muscle.gainParameters, 4u),
+            parameter(muscle.gainParameters, 5u)
+        ) * normalizedVelocityGain(velocity, optimalFiberLength, muscle);
+        const float passive = normalizedPassiveForce(normalizedFiber, muscle);
+        residual = normalizedTension - active - passive -
+            damping * velocity / optimalFiberLength;
+        if (residual > 0.0f) lower = candidate;
+        else upper = candidate;
+    }
+    fiberLength = 0.5f * (lower + upper);
+    fiberVelocity = (fiberLength - acceptedFiber) / effectiveTimestep;
+    tendonForce = max(0.0f, normalizedTendonForce(
+        (predictedPath - fiberLength) / tendonSlackLength, muscle
+    ));
+    equilibriumResidual = residual;
+    return isfinite(fiberLength) && isfinite(fiberVelocity) &&
+        isfinite(tendonForce) && isfinite(equilibriumResidual);
 }
 
 inline float muscleBias(const float pathLength, const MRMujocoMuscleGPU muscle) {
@@ -414,6 +551,7 @@ inline float activationDerivative(
 } // namespace
 
 kernel void mr_mujoco_muscle_reference(
+    device const float* generalizedVelocities [[buffer(7)]],
     device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(8)]],
     device const float* pointJacobians [[buffer(11)]],
     device const MRMujocoMuscleReferenceDispatchGPU& dispatch [[buffer(24)]],
@@ -437,6 +575,8 @@ kernel void mr_mujoco_muscle_reference(
         dispatch.bodyPoseStride == 0u || dispatch.dofCount == 0u ||
         dispatch.pointJacobianStride == 0u ||
         dispatch.bodyJacobianPointStride != 4u ||
+        !finite4(dispatch.timestepSecondsAndReserved) ||
+        any(dispatch.timestepSecondsAndReserved.yzw != float3(0.0f)) ||
         muscleIndex >= dispatch.muscleCount) {
         results[globalIndex] = result; return;
     }
@@ -450,6 +590,8 @@ kernel void mr_mujoco_muscle_reference(
     if (routeCount < 2u || routeOffset > dispatch.routeNodeCount ||
         routeCount > dispatch.routeNodeCount - routeOffset || muscle.route.z != 0u || muscle.route.w != 0u ||
         !finite4(muscle.lengthRangeAndAcceleration) || !finite4(muscle.controlRange) ||
+        !finite4(muscle.compliantArchitecture0) ||
+        !finite4(muscle.compliantArchitecture1) ||
         muscle.lengthRangeAndAcceleration.w != 0.0f || muscle.controlRange.z != 0.0f || muscle.controlRange.w != 0.0f) {
         results[globalIndex] = result; return;
     }
@@ -460,7 +602,9 @@ kernel void mr_mujoco_muscle_reference(
         }
     }
     const MRMujocoMuscleStateGPU state = states[globalIndex];
-    if (!finite4(state.excitationAndActivation) || state.excitationAndActivation.z != 0.0f || state.excitationAndActivation.w != 0.0f) {
+    if (!finite4(state.excitationAndActivation) || state.excitationAndActivation.z < 0.0f ||
+        (!compliantArchitecture(muscle) &&
+         (state.excitationAndActivation.z != 0.0f || state.excitationAndActivation.w != 0.0f))) {
         result.status = MR_MUJOCO_MUSCLE_REFERENCE_INVALID_STATE; results[globalIndex] = result; return;
     }
     float totalLength = 0.0f;
@@ -627,9 +771,48 @@ kernel void mr_mujoco_muscle_reference(
         results[globalIndex] = result;
         return;
     }
+    float pathVelocity = 0.0f;
+    const uint velocityBase = environment * dispatch.dofCount;
+    for (uint dof = 0u; dof < dispatch.dofCount; ++dof) {
+        pathVelocity += muscleGeneralizedForces[forceBase + dof] *
+            generalizedVelocities[velocityBase + dof];
+    }
     const float derivative = activationDerivative(muscle, state.excitationAndActivation.x, state.excitationAndActivation.y);
-    const float force = muscleGain(totalLength, muscle) * state.excitationAndActivation.y + muscleBias(totalLength, muscle);
-    if (!isfinite(derivative) || !isfinite(force)) { result.status = MR_MUJOCO_MUSCLE_REFERENCE_NONFINITE_RESULT; results[globalIndex] = result; return; }
+    float force = 0.0f;
+    float activeForce = 0.0f;
+    float candidateFiberLength = 0.0f;
+    float candidateFiberVelocity = 0.0f;
+    float tendonTension = 0.0f;
+    float equilibriumResidual = 0.0f;
+    if (compliantArchitecture(muscle)) {
+        if (!solveCompliantFiber(
+                totalLength,
+                pathVelocity,
+                dispatch.timestepSecondsAndReserved.x,
+                state.excitationAndActivation.y,
+                state,
+                muscle,
+                candidateFiberLength,
+                candidateFiberVelocity,
+                tendonTension,
+                equilibriumResidual
+            )) {
+            result.status = MR_MUJOCO_MUSCLE_REFERENCE_NONFINITE_RESULT;
+            results[globalIndex] = result;
+            return;
+        }
+        const float maximumForce = forceScale(
+            muscle.gainParameters, muscle.lengthRangeAndAcceleration.z
+        );
+        force = -maximumForce * tendonTension;
+        activeForce = force;
+    } else {
+        force = muscleGain(totalLength, pathVelocity, muscle) *
+            state.excitationAndActivation.y + muscleBias(totalLength, muscle);
+        activeForce = muscleGain(totalLength, pathVelocity, muscle) *
+            state.excitationAndActivation.y;
+    }
+    if (!isfinite(derivative) || !isfinite(force) || !isfinite(pathVelocity)) { result.status = MR_MUJOCO_MUSCLE_REFERENCE_NONFINITE_RESULT; results[globalIndex] = result; return; }
     for (uint dof = 0u; dof < dispatch.dofCount; ++dof) {
         muscleGeneralizedForces[forceBase + dof] *= force;
         if (!isfinite(muscleGeneralizedForces[forceBase + dof])) {
@@ -640,10 +823,16 @@ kernel void mr_mujoco_muscle_reference(
     }
     result.status = MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS;
     result.appliedWrapCount = appliedWraps;
-    result.pathForceAndActivationDerivative = float4(totalLength, 0.0f, force, derivative);
+    result.pathForceAndActivationDerivative = float4(totalLength, pathVelocity, force, derivative);
     result.endpointLengthGradients[0] = float4(originLengthGradient, 0.0f);
     result.endpointLengthGradients[1] = float4(insertionLengthGradient, 0.0f);
-    result.activeForceAndReserved = float4(force, 0.0f, 0.0f, 0.0f);
+    result.activeForceAndReserved = float4(activeForce, 0.0f, 0.0f, 0.0f);
+    result.fiberStateTendonForceResidual = float4(
+        candidateFiberLength,
+        candidateFiberVelocity,
+        tendonTension,
+        equilibriumResidual
+    );
     results[globalIndex] = result;
 }
 
@@ -670,10 +859,14 @@ kernel void mr_mujoco_muscle_active_force_rows(
     if (result.status != MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS) return;
     const uint muscleIndex = globalIndex % dispatch.muscleCount;
     const float totalForce = result.pathForceAndActivationDerivative.z;
-    const float activeForce = muscleGain(
-        result.pathForceAndActivationDerivative.x,
-        muscles[muscleIndex]
-    ) * states[globalIndex].excitationAndActivation.y;
+    const MRMujocoMuscleGPU muscle = muscles[muscleIndex];
+    const float activeForce = compliantArchitecture(muscle)
+        ? totalForce
+        : muscleGain(
+            result.pathForceAndActivationDerivative.x,
+            result.pathForceAndActivationDerivative.y,
+            muscle
+        ) * states[globalIndex].excitationAndActivation.y;
     result.activeForceAndReserved = float4(activeForce, 0.0f, 0.0f, 0.0f);
     const uint forceBase = globalIndex * dispatch.dofCount;
     if (abs(totalForce) <= kMinimum) {
@@ -745,7 +938,8 @@ kernel void mr_mujoco_muscle_activation_step(
         !finite4(current.excitationAndActivation) ||
         current.excitationAndActivation.z != 0.0f ||
         current.excitationAndActivation.w != 0.0f ||
-        !finite4(reference.pathForceAndActivationDerivative)) {
+        !finite4(reference.pathForceAndActivationDerivative) ||
+        !finite4(reference.fiberStateTendonForceResidual)) {
         return;
     }
     const float nextActivation = clamp(
@@ -758,5 +952,11 @@ kernel void mr_mujoco_muscle_activation_step(
     if (!isfinite(nextActivation)) return;
     MRMujocoMuscleStateGPU next = current;
     next.excitationAndActivation.y = nextActivation;
+    if (reference.fiberStateTendonForceResidual.x > 0.0f) {
+        next.excitationAndActivation.z =
+            reference.fiberStateTendonForceResidual.x;
+        next.excitationAndActivation.w =
+            reference.fiberStateTendonForceResidual.y;
+    }
     states[globalIndex] = next;
 }

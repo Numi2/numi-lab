@@ -40,13 +40,17 @@ namespace {
 constexpr std::array<char, 8u> kRigidMagic{
     'N', 'H', 'R', 'I', 'G', 'I', 'D', '2',
 };
-constexpr std::array<char, 8u> kMuscleMagic{
+constexpr std::array<char, 8u> kLegacyMuscleMagic{
     'N', 'H', 'M', 'Y', 'O', '1', '\0', '\0',
+};
+constexpr std::array<char, 8u> kMuscleMagic{
+    'N', 'H', 'M', 'Y', 'O', '2', '\0', '\0',
 };
 constexpr std::array<char, 8u> kSupportContactMagic{
     'N', 'H', 'C', 'N', 'T', '1', '\0', '\0',
 };
 constexpr std::uint32_t kPayloadAbi = 1u;
+constexpr std::uint32_t kMusclePayloadAbi = 2u;
 constexpr std::uint32_t kBodySemantic = 51001u;
 constexpr std::uint32_t kSiteSemantic = 51002u;
 constexpr std::uint32_t kRouteSemantic = 51003u;
@@ -170,6 +174,17 @@ struct MuscleRecord {
     std::uint32_t routeCount = 0u;
     std::uint32_t reserved0 = 0u;
     float values[37]{};
+};
+
+struct MuscleArchitectureRecord {
+    float optimalFiberLength = 0.0f;
+    float tendonSlackLength = 0.0f;
+    float tendonStrainAtOneNormalizedForce = 0.0f;
+    float tendonStiffnessAtOneNormalizedForce = 0.0f;
+    float tendonNormalizedForceAtToeEnd = 0.0f;
+    float tendonCurviness = 0.0f;
+    float normalizedFiberDamping = 0.0f;
+    float fitNormalizedRmse = 0.0f;
 };
 
 struct SupportContactHeader {
@@ -396,6 +411,7 @@ struct LoadedMuscles {
     std::vector<WrapRecord> wraps;
     std::vector<RouteRecord> routes;
     std::vector<MuscleRecord> muscles;
+    std::vector<MuscleArchitectureRecord> architectures;
     std::vector<metalrobo::MujocoMuscleSite> referenceSites;
     std::vector<metalrobo::MujocoWrapGeometry> referenceWraps;
     std::vector<metalrobo::MujocoMuscleDefinition> referenceMuscles;
@@ -456,6 +472,7 @@ static_assert(sizeof(SiteRecord) == 16u);
 static_assert(sizeof(WrapRecord) == 64u);
 static_assert(sizeof(RouteRecord) == 16u);
 static_assert(sizeof(MuscleRecord) == 164u);
+static_assert(sizeof(MuscleArchitectureRecord) == 32u);
 static_assert(sizeof(SupportContactHeader) == 84u);
 static_assert(sizeof(SupportContactRecord) == 48u);
 static_assert(sizeof(BoneHeader) == 60u);
@@ -585,10 +602,16 @@ LoadedMuscles loadMuscles(
     require(input.is_open(), "cannot open MyoSim muscle payload " + path.string());
     LoadedMuscles result;
     readObject(input, result.header, "MyoSim muscle header");
-    require(result.header.magic == kMuscleMagic && result.header.payloadAbi == kPayloadAbi &&
+    const bool legacy = result.header.magic == kLegacyMuscleMagic &&
+        result.header.payloadAbi == kPayloadAbi &&
+        result.header.reserved0 == 0u && result.header.reserved1 == 0u;
+    const bool compliant = result.header.magic == kMuscleMagic &&
+        result.header.payloadAbi == kMusclePayloadAbi &&
+        result.header.reserved0 == result.header.muscleCount &&
+        result.header.reserved1 == sizeof(MuscleArchitectureRecord);
+    require((legacy || compliant) &&
                 result.header.engineBodyCount == rigid.engineBodyCount &&
-                result.header.sourceSha256 == rigid.sourceSha256 &&
-                result.header.reserved0 == 0u && result.header.reserved1 == 0u,
+                result.header.sourceSha256 == rigid.sourceSha256,
             "MyoSim muscle payload/header disagreement");
     result.sites = readVector<SiteRecord>(
         input, result.header.siteCount, "MyoSim sites"
@@ -596,6 +619,11 @@ LoadedMuscles loadMuscles(
     result.wraps = readVector<WrapRecord>(input, result.header.wrapCount, "MyoSim wraps");
     result.routes = readVector<RouteRecord>(input, result.header.routeNodeCount, "MyoSim routes");
     result.muscles = readVector<MuscleRecord>(input, result.header.muscleCount, "MyoSim muscles");
+    result.architectures = compliant
+        ? readVector<MuscleArchitectureRecord>(
+            input, result.header.muscleCount, "MyoSim compliant architectures"
+        )
+        : std::vector<MuscleArchitectureRecord>(result.header.muscleCount);
     require(input.peek() == std::char_traits<char>::eof(),
             "MyoSim muscle payload has trailing bytes");
     for (const SiteRecord& site : result.sites) {
@@ -617,7 +645,8 @@ LoadedMuscles loadMuscles(
                     route.sideSiteIndex < result.sites.size(),
                 "MyoSim route side site is out of bounds");
     }
-    for (const MuscleRecord& muscle : result.muscles) {
+    for (std::size_t muscleIndex = 0u; muscleIndex < result.muscles.size(); ++muscleIndex) {
+        const MuscleRecord& muscle = result.muscles[muscleIndex];
         require(muscle.reserved0 == 0u &&
                     muscle.routeOffset <= result.routes.size() &&
                     muscle.routeCount <= result.routes.size() - muscle.routeOffset,
@@ -672,7 +701,10 @@ LoadedMuscles loadMuscles(
     }
     result.referenceMuscles.reserve(result.muscles.size());
     result.gpuMuscles.reserve(result.muscles.size());
-    for (const MuscleRecord& muscle : result.muscles) {
+    for (std::size_t muscleIndex = 0u; muscleIndex < result.muscles.size(); ++muscleIndex) {
+        const MuscleRecord& muscle = result.muscles[muscleIndex];
+        const MuscleArchitectureRecord& architecture =
+            result.architectures[muscleIndex];
         metalrobo::MujocoMuscleDefinition definition;
         definition.route.reserve(muscle.routeCount);
         for (std::uint32_t offset = 0u; offset < muscle.routeCount; ++offset) {
@@ -717,6 +749,18 @@ LoadedMuscles loadMuscles(
             (&gpuMuscle.dynamicParameters[parameter / 4u].x)[parameter % 4u] =
                 muscle.values[25u + parameter];
         }
+        gpuMuscle.compliantArchitecture0 = {
+            architecture.optimalFiberLength,
+            architecture.tendonSlackLength,
+            architecture.tendonStrainAtOneNormalizedForce,
+            architecture.tendonStiffnessAtOneNormalizedForce,
+        };
+        gpuMuscle.compliantArchitecture1 = {
+            architecture.tendonNormalizedForceAtToeEnd,
+            architecture.tendonCurviness,
+            architecture.normalizedFiberDamping,
+            architecture.fitNormalizedRmse,
+        };
         result.gpuMuscles.push_back(gpuMuscle);
     }
     require(
@@ -1770,7 +1814,9 @@ CompiledStandActivation compileStaticStandActivation(
     for (std::size_t row = 0u; row < rowCount; ++row) {
         const std::size_t dof = row + 6u;
         weights[row] = 1.0 / std::max(25.0, std::abs(target[dof]));
-        residual[row] = -weights[row] * target[dof];
+        residual[row] = weights[row] * (
+            static_cast<double>(passive.generalizedForce[dof]) - target[dof]
+        );
     }
     CompiledStandActivation result;
     result.activation.assign(muscleCount, 0.0f);
@@ -1976,6 +2022,27 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
     };
     std::vector<double> parityQ = aligned.q;
     std::vector<double> parityV(model.defaultV.begin(), model.defaultV.end());
+    std::vector<double> parityGeneralizedForce =
+        compiledActivation.activeGeneralizedForce;
+    const bool hasCompliantArchitecture = std::any_of(
+        muscles.gpuMuscles.begin(), muscles.gpuMuscles.end(),
+        [](const MRMujocoMuscleGPU& muscle) {
+            return muscle.compliantArchitecture0.x > 0.0f &&
+                muscle.compliantArchitecture0.y > 0.0f;
+        }
+    );
+    if (hasCompliantArchitecture) {
+        std::vector<MRMujocoMuscleStateGPU> parityForceStates = states;
+        metalrobo::MetalArticulatedOperatorContext parityForceContext(config);
+        const MetalMujocoForceStep parityForce = evaluateMetalMujocoForce(
+            model, muscles, queries, aligned.q, parityForceStates,
+            parityForceContext
+        );
+        parityGeneralizedForce.assign(
+            parityForce.generalizedForce.begin(),
+            parityForce.generalizedForce.end()
+        );
+    }
     metalrobo::ArticulatedDynamicsConfig parityConfig;
     parityConfig.gravity = {
         model.world.gravityAndTimestep.x,
@@ -1988,7 +2055,7 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
         0u,
         parityQ,
         parityV,
-        compiledActivation.activeGeneralizedForce,
+        parityGeneralizedForce,
         {},
         parityConfig
     );
@@ -5450,6 +5517,8 @@ int main(int argc, char** argv) {
             const bool bodypartsBoneVisual = positional.size() == 4u;
             const LoadedRigid rigid = loadRigid(positional[0]);
             LoadedMuscles musclePayload = loadMuscles(positional[1], rigid.header);
+            const bool compliantMusclePayload =
+                musclePayload.header.payloadAbi == kMusclePayloadAbi;
             if (tendonPayloadPath.has_value()) {
                 applyNumiHumanTendonPayload(*tendonPayloadPath, rigid.header, musclePayload);
                 std::cout << "tendon_payload=NHTENDON" << musclePayload.tendonPayload.payloadAbi
@@ -5861,6 +5930,7 @@ int main(int argc, char** argv) {
                 if (requestedCameraIndex.has_value() && camera != *requestedCameraIndex) {
                     continue;
                 }
+                @autoreleasepool {
                 // Reference ray workspaces can retain a large drawable and
                 // acceleration structure.  Build one isolated renderer per
                 // fixed angle so 2048 px anatomy review cannot reuse a prior
@@ -5962,6 +6032,7 @@ int main(int argc, char** argv) {
                           << " vessel_surface_pixels=" << vesselSurfacePixels
                           << " nerve_surface_pixels=" << nerveSurfacePixels
                           << " frame=" << frame.string() << '\n';
+                }
             }
             require(completeVisualCoverage,
                     "one or more native Human frames have no linked-body coverage");
@@ -5981,7 +6052,9 @@ int main(int argc, char** argv) {
             std::string evidenceBoundary =
                 muscleDrivenState.has_value() &&
                     muscleDrivenState->persistentMetalHorizon
-                ? "bounded_persistent_apple_metal_all_416_mujoco_activation_dependent_route_force_large_state_mass_gravity_low_velocity_bias_and_source_foot_support_horizon_imported_passive_bias_excluded_until_registered_equilibrium_calibration_not_exact_jdot_rnea_joint_limit_general_collision_or_closed_loop_standing_qualification"
+                ? (compliantMusclePayload
+                    ? "bounded_persistent_apple_metal_all_416_source_routes_with_inferred_positive_fiber_tendon_architecture_damped_backward_euler_equilibrium_explicit_nhtendon2_force_transfer_large_state_mass_gravity_low_velocity_bias_and_source_foot_support_not_anatomically_calibrated_pennation_exact_jdot_rnea_joint_limit_general_collision_or_closed_loop_standing_qualification"
+                    : "bounded_persistent_apple_metal_all_416_mujoco_activation_dependent_route_force_large_state_mass_gravity_low_velocity_bias_and_source_foot_support_horizon_imported_passive_bias_excluded_until_registered_equilibrium_calibration_not_exact_jdot_rnea_joint_limit_general_collision_or_closed_loop_standing_qualification")
                 : !muscleDrivenState.has_value()
                 ? (bodypartsBoneVisual
                     ? (softTissuePayload.has_value()
@@ -6107,7 +6180,9 @@ int main(int argc, char** argv) {
                       << " muscle_selected_source_activation_count=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->selectedSourceMuscleActivationCount : 0u)
                       << " muscle_passive_baseline=" << (muscleDrivenState.has_value()
-                              ? (muscleDrivenState->persistentMetalHorizon
+                              ? (compliantMusclePayload
+                                  ? "nhmyo2_damped_fiber_tendon_equilibrium"
+                                  : muscleDrivenState->persistentMetalHorizon
                                   ? "source_passive_bias_excluded_not_registered_equilibrium_preload"
                                   : "source_default_activation_zero_subtracted")
                               : "none")

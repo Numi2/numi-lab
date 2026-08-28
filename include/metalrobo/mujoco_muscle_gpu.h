@@ -6,8 +6,8 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_MUJOCO_MUSCLE_REFERENCE_GPU_ABI_VERSION 3u
-#define MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION 1u
+#define MR_MUJOCO_MUSCLE_REFERENCE_GPU_ABI_VERSION 4u
+#define MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION 2u
 #define MR_MUJOCO_MUSCLE_ACTIVE_FORCE_GPU_ABI_VERSION 1u
 
 enum MRMujocoMuscleReferenceGPUStatus : mr_u32 {
@@ -43,6 +43,9 @@ typedef struct MR_ALIGN16 MRMujocoMuscleReferenceDispatchGPU {
     mr_u32 pointJacobianStride;
     mr_u32 bodyJacobianPointOffset;
     mr_u32 bodyJacobianPointStride;
+    // x integration timestep used by NHMYO2 backward-Euler fibre equilibrium;
+    // yzw required zero. A nonpositive x keeps the compliant state static.
+    mr_float4 timestepSecondsAndReserved;
 } MRMujocoMuscleReferenceDispatchGPU;
 
 // Immutable source program. Every three parameter blocks retain the ten
@@ -57,6 +60,13 @@ typedef struct MR_ALIGN16 MRMujocoMuscleGPU {
     mr_float4 gainParameters[3];
     mr_float4 biasParameters[3];
     mr_float4 dynamicParameters[3];
+    // NHMYO2 compliant architecture. All-zero preserves the legacy inelastic
+    // MuJoCo path. Otherwise: x L0, y LT, z tendon strain at normalized force
+    // one, w tendon stiffness there.
+    mr_float4 compliantArchitecture0;
+    // x normalized force at toe end, y source-default curviness, z normalized
+    // fibre damping, w offline static force-surface fit NRMSE.
+    mr_float4 compliantArchitecture1;
 } MRMujocoMuscleGPU;
 
 typedef struct MR_ALIGN16 MRMujocoMuscleSiteGPU {
@@ -92,7 +102,10 @@ typedef struct MR_ALIGN16 MRMujocoMuscleRouteNodeGPU {
     mr_u32 reserved0;
 } MRMujocoMuscleRouteNodeGPU;
 
-// State is environment-major. x excitation, y activation; zw required zero.
+// State is environment-major. x excitation, y activation, z accepted fibre
+// length (m; zero requests deterministic initialization), w fibre velocity
+// (m/s). The reference pass publishes a candidate in its result and the
+// sidecar step commits it together with activation.
 typedef struct MR_ALIGN16 MRMujocoMuscleStateGPU {
     mr_float4 excitationAndActivation;
 } MRMujocoMuscleStateGPU;
@@ -124,7 +137,7 @@ typedef struct MR_ALIGN16 MRMujocoMuscleResultGPU {
     mr_u32 environment;
     mr_u32 muscleIndex;
     mr_u32 appliedWrapCount;
-    // x path length; y static path velocity; z actuator force; w activation derivative.
+    // x path length; y J(q)*v path velocity; z actuator force; w activation derivative.
     mr_float4 pathForceAndActivationDerivative;
     // Exact world-space d(length)/d(endpoint position) used by the owning
     // wrapped route evaluation: origin first, insertion second. w is zero.
@@ -133,16 +146,19 @@ typedef struct MR_ALIGN16 MRMujocoMuscleResultGPU {
     // It is total source force after route evaluation and active-only force
     // after the optional Human active-force transform. yzw are zero.
     mr_float4 activeForceAndReserved;
+    // x candidate fibre length; y candidate fibre velocity; z positive tendon
+    // tension; w normalized damped-equilibrium residual.
+    mr_float4 fiberStateTendonForceResidual;
 } MRMujocoMuscleResultGPU;
 
 #ifndef __METAL_VERSION__
-static_assert(sizeof(MRMujocoMuscleReferenceDispatchGPU) == 48u);
-static_assert(sizeof(MRMujocoMuscleGPU) == 192u);
+static_assert(sizeof(MRMujocoMuscleReferenceDispatchGPU) == 64u);
+static_assert(sizeof(MRMujocoMuscleGPU) == 224u);
 static_assert(sizeof(MRMujocoMuscleSiteGPU) == 32u);
 static_assert(sizeof(MRMujocoMuscleWrapGPU) == 96u);
 static_assert(sizeof(MRMujocoMuscleRouteNodeGPU) == 16u);
 static_assert(sizeof(MRMujocoMuscleStateGPU) == 16u);
 static_assert(sizeof(MRMujocoMuscleActivationDispatchGPU) == 32u);
 static_assert(sizeof(MRMujocoMuscleActiveForceDispatchGPU) == 16u);
-static_assert(sizeof(MRMujocoMuscleResultGPU) == 80u);
+static_assert(sizeof(MRMujocoMuscleResultGPU) == 96u);
 #endif

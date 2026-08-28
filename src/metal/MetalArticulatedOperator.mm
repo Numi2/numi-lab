@@ -292,7 +292,8 @@ bool finite(const MRMujocoMuscleResultGPU& value) {
     return finite(value.pathForceAndActivationDerivative) &&
         finite(value.endpointLengthGradients[0]) &&
         finite(value.endpointLengthGradients[1]) &&
-        finite(value.activeForceAndReserved);
+        finite(value.activeForceAndReserved) &&
+        finite(value.fiberStateTendonForceResidual);
 }
 
 bool zero(const mr_float4 value) {
@@ -670,6 +671,8 @@ bool validMujocoReference(
             muscle.route.z != 0u || muscle.route.w != 0u ||
             !finite(muscle.lengthRangeAndAcceleration) ||
             !finite(muscle.controlRange) ||
+            !finite(muscle.compliantArchitecture0) ||
+            !finite(muscle.compliantArchitecture1) ||
             muscle.lengthRangeAndAcceleration.w != 0.0f ||
             muscle.controlRange.z != 0.0f || muscle.controlRange.w != 0.0f) {
             reason = "MyoSim muscle definition is malformed";
@@ -678,8 +681,7 @@ bool validMujocoReference(
     }
     for (const MRMujocoMuscleStateGPU& state : mujoco.states) {
         if (!finite(state.excitationAndActivation) ||
-            state.excitationAndActivation.z != 0.0f ||
-            state.excitationAndActivation.w != 0.0f) {
+            state.excitationAndActivation.z < 0.0f) {
             reason = "MyoSim muscle state is malformed";
             return false;
         }
@@ -1159,8 +1161,9 @@ bool buildRequirements(
     // The historical operator does not bind the separate stand arena. Keep
     // its cold allocation/stats contract unchanged unless a horizon exists.
     if (layout.standStatusElements == 0u) {
-        for (BufferRequirement& requirement : requirements.standEntries) {
-            requirement.allocationBytes = 0u;
+        for (std::size_t index = kStandContactsBuffer;
+             index < kStandBufferCount; ++index) {
+            requirements.standEntries[index].allocationBytes = 0u;
         }
     }
 
@@ -1517,6 +1520,9 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         }
         (void)environmentBodyDofs;
     }
+    if (!input.stand.enabled() && input.mujoco.enabled()) {
+        layout.standVelocityElements = layout.generalizedElements;
+    }
 
     const auto exceedsShaderAddressing =
         [](const std::size_t elements) {
@@ -1676,6 +1682,22 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             std::move(diagnostics),
             MetalArticulatedOperatorHostStatus::invalidDimensions,
             "packed q or point-query span has the wrong element count"
+        );
+    }
+    if (!input.v.empty() && input.v.size() != layout.generalizedElements) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidDimensions,
+            "optional MyoSim velocity span has the wrong element count"
+        );
+    }
+    if (!std::all_of(input.v.begin(), input.v.end(), [](const float value) {
+            return std::isfinite(value);
+        })) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::nonfiniteInput,
+            "optional MyoSim velocity span contains a non-finite value"
         );
     }
     if (!validQ(
@@ -2512,6 +2534,9 @@ void uploadBatch(
         mujocoDispatch.bodyJacobianPointOffset =
             input.mujoco.bodyJacobianPointOffset;
         mujocoDispatch.bodyJacobianPointStride = 4u;
+        mujocoDispatch.timestepSecondsAndReserved = {
+            context.config.mujocoActivationTimestepSeconds, 0.0f, 0.0f, 0.0f,
+        };
     }
     copyToBuffer(
         context.buffers[kMujocoDispatchBuffer],
@@ -2560,13 +2585,27 @@ void uploadBatch(
         0,
         requirements.entries[kMujocoResultsBuffer].allocationBytes
     );
-
     if (input.stand.enabled()) {
         copyToBuffer(
             context.standBuffers[kStandVelocityBuffer],
             input.stand.v.data(),
             requirements.standEntries[kStandVelocityBuffer]
         );
+    } else if (!input.v.empty()) {
+        copyToBuffer(
+            context.standBuffers[kStandVelocityBuffer],
+            input.v.data(),
+            requirements.standEntries[kStandVelocityBuffer]
+        );
+    } else {
+        std::memset(
+            context.standBuffers[kStandVelocityBuffer].contents,
+            0,
+            requirements.standEntries[kStandVelocityBuffer].allocationBytes
+        );
+    }
+
+    if (input.stand.enabled()) {
         copyToBuffer(
             context.standBuffers[kStandContactsBuffer],
             input.stand.contacts.empty()
@@ -2741,8 +2780,7 @@ bool finitePayload(
             result.mujocoActivationStates.end(),
             [](const MRMujocoMuscleStateGPU& value) {
                 return finite(value.excitationAndActivation) &&
-                    value.excitationAndActivation.z == 0.0f &&
-                    value.excitationAndActivation.w == 0.0f;
+                    value.excitationAndActivation.z >= 0.0f;
             }
         ) &&
         std::all_of(
@@ -3385,6 +3423,8 @@ MetalArticulatedOperatorContext::submit(
                            offset:0u
                           atIndex:index];
                 }
+                [mujocoEncoder setBuffer:state_->standBuffers[
+                    kStandVelocityBuffer] offset:0u atIndex:7u];
                 const std::size_t threadCount =
                     diagnostics.layout.mujocoResultElements;
                 [mujocoEncoder
@@ -4345,6 +4385,9 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                 mujocoDispatch.bodyJacobianPointOffset =
                     input.mujoco.bodyJacobianPointOffset;
                 mujocoDispatch.bodyJacobianPointStride = 4u;
+                mujocoDispatch.timestepSecondsAndReserved = {
+                    config.mujocoActivationTimestepSeconds, 0.0f, 0.0f, 0.0f,
+                };
             }
             buffers[kMujocoDispatchBuffer] = makeInputBuffer(
                 device,
@@ -4397,6 +4440,28 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                 requirements.entries[kMujocoResultsBuffer],
                 @"MyoSim results"
             );
+            std::vector<float> zeroMujocoVelocity;
+            if (input.v.empty()) {
+                zeroMujocoVelocity.assign(layout.generalizedElements, 0.0f);
+            }
+            id<MTLBuffer> mujocoVelocityBuffer = makeInputBuffer(
+                device,
+                input.v.empty()
+                    ? static_cast<const void*>(zeroMujocoVelocity.data())
+                    : static_cast<const void*>(input.v.data()),
+                requirements.standEntries[kStandVelocityBuffer],
+                @"MyoSim generalized velocities"
+            );
+            if (!validBuffer(
+                    mujocoVelocityBuffer,
+                    requirements.standEntries[kStandVelocityBuffer]
+                )) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                    "Metal MyoSim velocity buffer allocation failed"
+                );
+            }
 
             for (std::size_t index = 0u;
                  index < kRawBufferCount;
@@ -4522,6 +4587,7 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                      ++index) {
                     [mujocoEncoder setBuffer:buffers[index] offset:0u atIndex:index];
                 }
+                [mujocoEncoder setBuffer:mujocoVelocityBuffer offset:0u atIndex:7u];
                 const std::size_t threadCount = layout.mujocoResultElements;
                 [mujocoEncoder
                     dispatchThreadgroups:MTLSizeMake(

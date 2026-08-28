@@ -67,6 +67,53 @@ struct MujocoMuscleState {
     double activation = 0.0;
 };
 
+// NHMYO2 adds only architecture that MyoSim itself does not identify. Its
+// active/passive/velocity curves, Fmax, activation law, and spatial route
+// remain the source MuJoCo program above. Every muscle shares the same
+// normalized tendon law; only the positive fitted lengths differ.
+struct MujocoCompliantMuscleArchitecture {
+    double optimalFiberLength = 0.0;
+    double tendonSlackLength = 0.0;
+    double tendonStrainAtOneNormalizedForce = 0.049;
+    double tendonStiffnessAtOneNormalizedForce = 1.375 / 0.049;
+    double tendonNormalizedForceAtToeEnd = 2.0 / 3.0;
+    double tendonCurviness = 0.5;
+    double normalizedFiberDamping = 0.1;
+    double fitNormalizedRmse = 0.0;
+};
+
+struct MujocoCompliantMuscleState {
+    double excitation = 0.0;
+    double activation = 0.0;
+    // Zero requests deterministic initialization from the current path.
+    double fiberLength = 0.0;
+    double fiberVelocity = 0.0;
+};
+
+struct MujocoCompliantMuscleResult {
+    double activationDerivative = 0.0;
+    double candidateFiberLength = 0.0;
+    double candidateFiberVelocity = 0.0;
+    double tendonTension = 0.0;
+    double actuatorForce = 0.0;
+    double normalizedEquilibriumResidual = 0.0;
+};
+
+struct MujocoMuscleReferenceDiagnostics;
+
+// One backward-Euler damped fibre/tendon equilibrium update. The returned
+// state is a candidate: a caller commits it only when the enclosing dynamics
+// transaction is accepted.
+[[nodiscard]] MujocoMuscleReferenceDiagnostics evaluateMujocoCompliantMuscle(
+    double pathLength,
+    double pathVelocity,
+    double timestepSeconds,
+    const MujocoMuscleDefinition& definition,
+    const MujocoCompliantMuscleArchitecture& architecture,
+    const MujocoCompliantMuscleState& acceptedState,
+    MujocoCompliantMuscleResult& result
+);
+
 struct MujocoMusclePathSample {
     // World-space centreline point (m).  Wrapped portions are sampled along
     // the tangent-preserving sphere/cylinder arc rather than joined through a

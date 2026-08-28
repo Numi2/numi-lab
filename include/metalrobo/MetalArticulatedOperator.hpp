@@ -188,6 +188,10 @@ struct MetalArticulatedOperatorInput {
     std::size_t environmentCount = 0u;
     std::size_t pointCount = 0u;
     std::span<const float> q{};
+    // Optional environment-major articulation velocity. Required only when a
+    // caller needs nonzero MyoSim path velocity; stand horizons source the
+    // current device-resident velocity sidecar directly.
+    std::span<const float> v{};
     std::span<const MRArticulatedPointImpulseGPU> points{};
     MetalMillardReferenceInput millard{};
     MetalMujocoMuscleReferenceInput mujoco{};
