@@ -2583,9 +2583,9 @@ TaskPack makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
             : !route && component < 19u ? 0.25f : 1.0f;
         observations.actorCurrent.push_back(feedback);
     }
-    // Isolate the terminal approach across waypoints three and four. This
-    // copy is zero over the retained early route, but becomes available soon
-    // enough for filtered wing actions to shape the final arrival geometry.
+    // Isolate the waypoint-four terminal approach. This copy stays zero over
+    // the complete inherited route through waypoint three, so terminal-only
+    // training cannot perturb the upstream WP3-to-WP4 arrival distribution.
     for (std::uint32_t component = 0u; component < 22u; ++component) {
         const bool route = component < 13u;
         TaskObservationOperatorSpec feedback{

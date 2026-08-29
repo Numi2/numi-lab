@@ -416,6 +416,65 @@ def check_realized_imagination_weighting() -> None:
         raise RuntimeError(
             "staged navigation success was not back-labelled at its explicit waypoint"
         )
+    sampled_actions = np.asarray(
+        (0.25, -0.5, 0.75, -1.0), dtype=np.float32
+    )
+    return_weighted_rollout = replace(
+        rejected_navigation_rollout,
+        id="return_weighted_navigation_self_imitation",
+        latents=sampled_actions,
+        outcomes={
+            "root_height": foundation_root_height,
+            "tilt": foundation_tilt,
+            "navigation_waypoints_reached": np.asarray(
+                (3.0, 4.0, 5.0, 3.0), dtype=np.float32
+            ),
+            "navigation_completion": np.asarray(
+                (0.0, 0.0, 1.0, 0.0), dtype=np.float32
+            ),
+        },
+        teacher_actions=np.full(4, -7.0, dtype=np.float32),
+    )
+    expert_navigation = return_weighted_rollout.policy_batch()
+    return_weighted_navigation = return_weighted_rollout.policy_batch(
+        navigation_return_weighted_self_imitation=True
+    )
+    if not np.array_equal(
+        expert_navigation.teacher_actions,
+        np.full((4, 1), -7.0, dtype=np.float32),
+    ):
+        raise RuntimeError("default navigation teacher targets changed")
+    if (
+        not np.array_equal(
+            return_weighted_navigation.teacher_actions[:, 0],
+            sampled_actions,
+        )
+        or np.any(return_weighted_navigation.teacher_weights[:3] <= 0.0)
+        or return_weighted_navigation.teacher_weights[3] != 0.0
+    ):
+        raise RuntimeError(
+            "qualified navigation return did not reinforce sampled actions"
+        )
+    rejected_return_weighted = rejected_navigation_rollout.policy_batch(
+        navigation_return_weighted_self_imitation=True
+    )
+    if np.any(rejected_return_weighted.teacher_weights):
+        raise RuntimeError(
+            "failed navigation return received self-imitation weight"
+        )
+    try:
+        replace(
+            return_weighted_rollout,
+            teacher_actions=np.empty(0, dtype=np.float32),
+        ).policy_batch(
+            navigation_return_weighted_self_imitation=True
+        )
+    except ValueError:
+        pass
+    else:
+        raise RuntimeError(
+            "return-weighted self-imitation accepted a missing teacher stream"
+        )
 
 
 def check_resumable_schedule_contracts() -> None:

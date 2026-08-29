@@ -106,6 +106,7 @@ class NativePolicyRollout:
         gae_lambda: float = 0.95,
         rewards: np.ndarray | None = None,
         navigation_teacher_minimum_waypoint: int = 5,
+        navigation_return_weighted_self_imitation: bool = False,
     ) -> "MLXPolicyBatch":
         """Compute terminal-safe GAE and publish only learner tensors to MLX."""
 
@@ -116,6 +117,14 @@ class NativePolicyRollout:
         if not 1 <= navigation_teacher_minimum_waypoint <= 5:
             raise ValueError(
                 "navigation teacher minimum waypoint must be in [1, 5]"
+            )
+        if (
+            navigation_return_weighted_self_imitation
+            and not self.teacher_actions.size
+        ):
+            raise ValueError(
+                "navigation return-weighted self-imitation requires the "
+                "interaction teacher stream"
             )
         steps = self.control_step_count
         environments = self.environment_count
@@ -177,6 +186,15 @@ class NativePolicyRollout:
             (self.sample_count, self.action_count),
             dtype=np.float32,
         )
+        if navigation_return_weighted_self_imitation:
+            # Actor means and sampled latents share raw Gaussian policy space.
+            # Reinforce the sampled action only when the native physical
+            # episode passes the navigation outcome gate below; failed and
+            # partial routes retain zero teacher weight.
+            teacher_actions = self.latents.reshape(
+                self.sample_count,
+                self.action_count,
+            )
         teacher_weights = np.zeros(
             (steps, environments),
             dtype=np.float32,

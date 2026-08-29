@@ -42,6 +42,7 @@ private struct Options {
     var trainActorRouteResidualNetworkObservationOffset: Int?
     var trainActorRouteResidualNetworkObservationCount: Int?
     var navigationSelfImitationMinimumWaypoint = 5
+    var navigationReturnWeightedSelfImitation = false
     var updatedPolicyPack: String?
     var deploymentPolicyPack: String?
     var incumbentPolicyPack: String?
@@ -291,6 +292,8 @@ private struct Options {
                     option
                 )
                 index += 1
+            case "--navigation-return-weighted-self-imitation":
+                navigationReturnWeightedSelfImitation = true
             case "--updated-policy-pack":
                 updatedPolicyPack = try value()
                 index += 1
@@ -1382,6 +1385,11 @@ private final class MLXLearnerWorker {
             "--navigation-self-imitation-minimum-waypoint",
             String(options.navigationSelfImitationMinimumWaypoint),
         ])
+        if options.navigationReturnWeightedSelfImitation {
+            arguments.append(
+                "--navigation-return-weighted-self-imitation"
+            )
+        }
         if let offset =
                 options.trainActorRouteResidualNetworkObservationOffset,
            let count =
@@ -2291,6 +2299,10 @@ private enum TaskTrainMain {
                     options.retentionProtectedActorOnly,
                 "retention_rollout_teacher_blend":
                     options.retentionRolloutTeacherBlend,
+                "navigation_self_imitation_minimum_waypoint":
+                    options.navigationSelfImitationMinimumWaypoint,
+                "navigation_return_weighted_self_imitation":
+                    options.navigationReturnWeightedSelfImitation,
                 "difficulty_sampling_exponent_override":
                     options.difficultySamplingExponentOverride,
                 "birdflow_journey_variant":

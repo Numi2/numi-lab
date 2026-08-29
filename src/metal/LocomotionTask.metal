@@ -744,6 +744,7 @@ constant float kCrowNavigationStageThreeJourneyPhase[13] = {
 
 #endif
 #include "CrowNavigationStageThreeArrivals.metalh"
+#include "CrowNavigationStageFourArrivals.metalh"
 
 // Root offsets from each captured waypoint target. Stages two and three are
 // refreshed from current deterministic parents; the remaining historical
@@ -754,9 +755,6 @@ constant float3 kCrowNavigationStageRootOffset[4] = {
     float3(-0.097863915f, -0.378361404f, -0.136592746f),
     float3(-0.268202782f, 0.280686274f, -0.138459015f),
 };
-constant float kCrowNavigationStageFourCapturedIncomingYaw =
-    -0.2927187926f;
-
 inline float3 crowNavigationWaypointTarget(
     device const MRBodyStateGPU* sceneBodies,
     const uint courseStart,
@@ -1790,8 +1788,7 @@ inline float cleanObservation(
                 (interGateAdapter && waypoint != 1u) ||
                 (waypointTwoAdapter && waypoint != 2u) ||
                 (waypointThreeAdapter && waypoint != 3u) ||
-                (waypointFourAdapter &&
-                    (waypoint < 3u || waypoint > 4u))
+                (waypointFourAdapter && waypoint != 4u)
             );
         if (gatedLateRouteAdapter) {
             value = 0.0f;
@@ -3837,6 +3834,9 @@ kernel void mr_locomotion_task_observe(
                 const uint stageThreeArrival =
                     (environment + episode) %
                     kCrowNavigationStageThreeArrivalCount;
+                const uint stageFourArrival =
+                    (environment + episode) %
+                    kCrowNavigationStageFourArrivalCount;
                 const uint stageTwoArrival =
                     (environment + episode) %
                     kCrowNavigationStageTwoArrivalCount;
@@ -3857,6 +3857,8 @@ kernel void mr_locomotion_task_observe(
                     ? kCrowNavigationStageTwoStep[stageTwoArrival]
                     : stage == 3u
                     ? kCrowNavigationStageThreeStep[stageThreeArrival]
+                    : stage == 4u
+                    ? kCrowNavigationStageFourStep[stageFourArrival]
                     : stageStep[stage];
                 state.navigation.z = float(stage);
                 if (stage > 0u) {
@@ -3877,6 +3879,10 @@ kernel void mr_locomotion_task_observe(
                             ? kCrowNavigationStageThreeQ[
                                   stageThreeArrival
                               ][index]
+                            : stage == 4u
+                            ? kCrowNavigationStageFourQ[
+                                  stageFourArrival
+                              ][index]
                             : kCrowNavigationStageQ[
                                   templateIndex
                               ][index];
@@ -3896,6 +3902,10 @@ kernel void mr_locomotion_task_observe(
                             : stage == 3u
                             ? kCrowNavigationStageThreeV[
                                   stageThreeArrival
+                              ][index]
+                            : stage == 4u
+                            ? kCrowNavigationStageFourV[
+                                  stageFourArrival
                               ][index]
                             : kCrowNavigationStageV[
                                   templateIndex
@@ -3959,7 +3969,9 @@ kernel void mr_locomotion_task_observe(
                               stageThreeArrival
                           ]
                         : stage == 4u
-                        ? kCrowNavigationStageFourCapturedIncomingYaw
+                        ? kCrowNavigationStageFourCapturedIncomingYaw[
+                              stageFourArrival
+                          ]
                         : acceptedYaw;
                     const float yawDelta = desiredYaw - referenceYaw;
                     const float4 yawRebind = float4(
@@ -3985,6 +3997,10 @@ kernel void mr_locomotion_task_observe(
                         : stage == 3u
                         ? kCrowNavigationStageThreeRootOffset[
                               stageThreeArrival
+                          ]
+                        : stage == 4u
+                        ? kCrowNavigationStageFourRootOffset[
+                              stageFourArrival
                           ]
                         : kCrowNavigationStageRootOffset[templateIndex]
                     );
@@ -4058,6 +4074,10 @@ kernel void mr_locomotion_task_observe(
                             ? kCrowNavigationStageThreeCommandAndPhase[
                                   stageThreeArrival
                               ]
+                            : stage == 4u
+                            ? kCrowNavigationStageFourCommandAndPhase[
+                                  stageFourArrival
+                              ]
                             : kCrowNavigationStageCommandAndPhase[
                                   templateIndex
                               ];
@@ -4073,6 +4093,10 @@ kernel void mr_locomotion_task_observe(
                             : stage == 3u
                             ? kCrowNavigationStageThreeJourneyPhase[
                                   stageThreeArrival
+                              ]
+                            : stage == 4u
+                            ? kCrowNavigationStageFourJourneyPhase[
+                                  stageFourArrival
                               ]
                             : kCrowNavigationStageJourneyPhase[
                                   templateIndex
@@ -4092,6 +4116,10 @@ kernel void mr_locomotion_task_observe(
                                 : stage == 3u
                                 ? kCrowNavigationStageThreeAction[
                                       stageThreeArrival
+                                  ][action]
+                                : stage == 4u
+                                ? kCrowNavigationStageFourAction[
+                                      stageFourArrival
                                   ][action]
                                 : kCrowNavigationStageAction[
                                       templateIndex

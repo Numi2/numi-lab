@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile current autonomous Crow waypoint-three arrivals into Metal data."""
+"""Compile current autonomous Crow route arrivals into Metal reset data."""
 
 from __future__ import annotations
 
@@ -48,7 +48,10 @@ def _waypoint(
     if index == 3:
         x, y, z = _scene_position(scene, 5)
         return x - 0.50, y, z + 0.30
-    raise ValueError("arrival-pool compilation supports route waypoints 1...3")
+    if index == 4:
+        x, y, z = _scene_position(scene, 5)
+        return x, y + 0.55, z + 0.12
+    raise ValueError("arrival-pool compilation supports route waypoints 1...4")
 
 
 def _rotate_inverse(
@@ -79,8 +82,9 @@ def _command_and_phase(
     q: list[float],
     scene: list[float],
     step: int,
+    target_waypoint: int,
 ) -> tuple[float, float, float, float]:
-    target = _waypoint(scene, 3)
+    target = _waypoint(scene, target_waypoint)
     delta = tuple(target[index] - q[index] for index in range(3))
     local = _rotate_inverse(q[3:7], delta)
     planar = math.hypot(local[0], local[1])
@@ -107,7 +111,15 @@ def main() -> int:
     parser.add_argument("inputs", nargs="+", type=Path)
     parser.add_argument("--output-metal", required=True, type=Path)
     parser.add_argument("--output-manifest", required=True, type=Path)
+    parser.add_argument(
+        "--arrival-waypoint",
+        type=int,
+        choices=(3, 4),
+        default=3,
+    )
     arguments = parser.parse_args()
+    arrival_waypoint = arguments.arrival_waypoint
+    stage_name = "StageThree" if arrival_waypoint == 3 else "StageFour"
 
     rows: list[dict[str, Any]] = []
     contract: tuple[str, str, str, str] | None = None
@@ -118,9 +130,9 @@ def main() -> int:
         if envelope.get("schema") != "numi.crow-navigation-arrivals.v1":
             raise ValueError(f"{input_path} has the wrong schema")
         payload = envelope["payload"]
-        if int(payload.get("arrival_waypoint", 3)) != 3:
+        if int(payload.get("arrival_waypoint", 3)) != arrival_waypoint:
             raise ValueError(
-                f"{input_path} is not a waypoint-three arrival pack"
+                f"{input_path} is not a waypoint-{arrival_waypoint} arrival pack"
             )
         if payload.get("scheduled_resets"):
             raise ValueError(f"{input_path} used scheduled resets")
@@ -153,12 +165,21 @@ def main() -> int:
             v = _finite(frame["v"], 19, "v")
             actions = _finite(frame["accepted_actions"], 15, "accepted actions")
             scene = _finite(frame["scene_states"], 6 * 13, "scene states")
-            actor = _finite(frame["actor_observation"], 785, "actor observation")
-            if float(frame["outcomes"]["navigation_waypoints_reached"]) < 3.0:
-                raise ValueError("arrival frame did not reach waypoint three")
+            _finite(
+                frame["actor_observation"],
+                int(payload["actor_observation_count"]),
+                "actor observation",
+            )
+            if (
+                float(frame["outcomes"]["navigation_waypoints_reached"])
+                < float(arrival_waypoint)
+            ):
+                raise ValueError(
+                    f"arrival frame did not reach waypoint {arrival_waypoint}"
+                )
             step = int(frame["step"])
-            start = _waypoint(scene, 2)
-            incoming = _waypoint(scene, 1)
+            start = _waypoint(scene, arrival_waypoint - 1)
+            incoming = _waypoint(scene, arrival_waypoint - 2)
             rows.append({
                 "source_seed": source["seed"],
                 "environment": int(frame["environment"]),
@@ -171,10 +192,11 @@ def main() -> int:
                     start[1] - incoming[1],
                     start[0] - incoming[0],
                 ),
-                "command_and_phase": list(_command_and_phase(q, scene, step)),
+                "command_and_phase": list(
+                    _command_and_phase(q, scene, step, arrival_waypoint)
+                ),
                 "journey_phase": min(max(step / 1600.0, 0.0), 1.0),
                 "maximum_waypoints": float(frame["maximum_waypoints_reached"]),
-                "actor_waypoint": actor[90],
             })
 
     rows.sort(key=lambda row: (int(row["source_seed"]), row["environment"]))
@@ -182,31 +204,31 @@ def main() -> int:
         raise ValueError("arrival-pool compilation requires at least one frame")
     count = len(rows)
     comment = [
-        "// Current autonomous waypoint-three arrivals captured from the exact",
-        "// 785-input v108 transfer of the retained v102 parent. Rows include",
-        "// both successful WP4 continuations and failure-near misses; source",
+        f"// Current autonomous waypoint-{arrival_waypoint} arrivals captured",
+        "// from the accepted parent. Rows include both successful next-waypoint",
+        "// continuations and failure-near misses; source",
         "// hashes and per-row provenance are retained in the generated manifest.",
     ]
     steps = ", ".join(f"{row['step']}u" for row in rows)
     metal = "\n".join(comment + [
-        f"constant uint kCrowNavigationStageThreeArrivalCount = {count}u;",
-        f"constant uint kCrowNavigationStageThreeStep[{count}] = {{{steps}}};",
-        _array("kCrowNavigationStageThreeQ", [row["q"] for row in rows], 20),
-        _array("kCrowNavigationStageThreeV", [row["v"] for row in rows], 19),
-        "constant float3 kCrowNavigationStageThreeRootOffset[" + str(count) + "] = {\n" +
+        f"constant uint kCrowNavigation{stage_name}ArrivalCount = {count}u;",
+        f"constant uint kCrowNavigation{stage_name}Step[{count}] = {{{steps}}};",
+        _array(f"kCrowNavigation{stage_name}Q", [row["q"] for row in rows], 20),
+        _array(f"kCrowNavigation{stage_name}V", [row["v"] for row in rows], 19),
+        f"constant float3 kCrowNavigation{stage_name}RootOffset[" + str(count) + "] = {\n" +
         "\n".join(
             "    float3(" + ", ".join(_float(value) for value in row["root_offset"]) + "),"
             for row in rows
         ) + "\n};",
-        "constant float kCrowNavigationStageThreeCapturedIncomingYaw[" + str(count) + "] = {\n    " +
+        f"constant float kCrowNavigation{stage_name}CapturedIncomingYaw[" + str(count) + "] = {\n    " +
         ", ".join(_float(row["incoming_yaw"]) for row in rows) + "\n};",
-        _array("kCrowNavigationStageThreeAction", [row["actions"] for row in rows], 15),
-        "constant float4 kCrowNavigationStageThreeCommandAndPhase[" + str(count) + "] = {\n" +
+        _array(f"kCrowNavigation{stage_name}Action", [row["actions"] for row in rows], 15),
+        f"constant float4 kCrowNavigation{stage_name}CommandAndPhase[" + str(count) + "] = {\n" +
         "\n".join(
             "    float4(" + ", ".join(_float(value) for value in row["command_and_phase"]) + "),"
             for row in rows
         ) + "\n};",
-        "constant float kCrowNavigationStageThreeJourneyPhase[" + str(count) + "] = {\n    " +
+        f"constant float kCrowNavigation{stage_name}JourneyPhase[" + str(count) + "] = {\n    " +
         ", ".join(_float(row["journey_phase"]) for row in rows) + "\n};",
         "",
     ])
@@ -214,6 +236,7 @@ def main() -> int:
     manifest = {
         "schema": "numi.crow-navigation-arrival-pool.v1",
         "classification": "simulated current-parent curriculum reset states",
+        "arrival_waypoint": arrival_waypoint,
         "contract": {
             "world": contract[0],
             "task": contract[1],
@@ -222,11 +245,13 @@ def main() -> int:
         },
         "sources": sources,
         "row_count": count,
-        "successful_wp4_continuations": sum(
-            row["maximum_waypoints"] >= 4.0 for row in rows
+        "successful_next_waypoint_continuations": sum(
+            row["maximum_waypoints"] >= float(arrival_waypoint + 1)
+            for row in rows
         ),
-        "failed_wp3_continuations": sum(
-            row["maximum_waypoints"] < 4.0 for row in rows
+        "failed_arrival_waypoint_continuations": sum(
+            row["maximum_waypoints"] < float(arrival_waypoint + 1)
+            for row in rows
         ),
         "rows": [
             {

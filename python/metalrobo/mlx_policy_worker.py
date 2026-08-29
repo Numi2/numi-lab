@@ -1153,6 +1153,9 @@ def _serve(arguments: argparse.Namespace) -> int:
                 arguments.retention_priority_difficulty_band
             ),
             "retention_priority_factor": arguments.retention_priority_factor,
+            "navigation_return_weighted_self_imitation": bool(
+                arguments.navigation_return_weighted_self_imitation
+            ),
             "motion_pack_hash": (
                 motion_prior.motion_pack.content_hash
                 if motion_prior is not None
@@ -1206,6 +1209,9 @@ def _serve(arguments: argparse.Namespace) -> int:
                 rewards=learning_rewards,
                 navigation_teacher_minimum_waypoint=(
                     arguments.navigation_self_imitation_minimum_waypoint
+                ),
+                navigation_return_weighted_self_imitation=(
+                    arguments.navigation_return_weighted_self_imitation
                 ),
             )
             if retention_reference is not None:
@@ -1777,6 +1783,14 @@ def main() -> int:
         help=(
             "back-label a physical navigation episode only after it reaches "
             "this waypoint; defaults to terminal completion"
+        ),
+    )
+    serve.add_argument(
+        "--navigation-return-weighted-self-imitation",
+        action="store_true",
+        help=(
+            "replace navigation teacher targets with sampled policy actions "
+            "and retain them only for physically qualified episodes"
         ),
     )
     serve.add_argument(

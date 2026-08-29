@@ -321,9 +321,9 @@ under the wrong Metal constants.
 ### Exact terminal-approach capacity
 
 The V10 actor now exposes another 22 route/state values at indices
-`[185, 207)`. They are identically zero before waypoint three and active only
-across waypoints three and four, leaving enough actuator-response horizon to
-shape the final arrival. Vision history moves intact behind the insertion.
+`[185, 207)`. The current contract makes them identically zero except at
+waypoint four, so terminal training cannot perturb the upstream WP3-to-WP4
+arrival distribution. Vision history moves intact behind the insertion.
 Exact transfer from rejected v120 revision 123 expands the actor from 785 to
 807 inputs and the hidden topology from `[626, 370, 242]` to
 `[670, 414, 286]`; sampled inherited outputs have maximum error `0.0` when
@@ -333,11 +333,45 @@ unchanged.
 Two 614,400-sample authentic-history learners were screened. V121 activated
 the adapter only after waypoint four and changed the lone waypoint-four
 failure's progress by just `0.00017 m`, confirming that the filtered action
-arrived too late. V122 activates the isolated capacity at waypoint three as
-well, but its coarse-seed checkpoints remain at four completions and later
-revisions reduce waypoint-four reach from five to four. Both learners are
-rejected. The exact capacity is retained; its current DAgger objective is not
-treated as terminal-policy evidence.
+arrived too late. A historical V122 screen activated the isolated capacity at
+waypoint three as well, but its coarse-seed checkpoints remained at four
+completions and later revisions reduced waypoint-four reach from five to four.
+Both learners are rejected.
+
+### Measured waypoint-four curriculum and terminal objectives
+
+The arrival-pool compiler now accepts explicit waypoint-three or waypoint-four
+payloads and generates distinct fail-closed Metal constants. The waypoint-four
+pool contains all 15 autonomous v120 crossings: seven later completions and
+eight failed continuations. Curriculum resets restore each row's accepted
+`q`, `v`, action history, command/phase, journey phase, root offset, and
+incoming-course yaw instead of using the former single historical template.
+
+On fresh stage-four seed `2650824401`, the unchanged parent produces 213
+completion events over 32,768 environment steps. Direct accepted-state expert
+authority produces 432 on the same workload, with zero failed environment
+steps in either run. This is a measured corrective-action gap, not full-route
+evidence.
+
+V123 tests binary return-weighted self-imitation: sampled Gaussian policy
+actions become regression targets only for physically completed routes, while
+partial and failed routes retain zero navigation weight. After 614,400
+authentic full-route samples, every screened revision remains exactly
+`[62, 39, 10, 5, 4]` on the coarse seed. The objective is retained as an
+opt-in learner mode but the candidate is rejected.
+
+V124 applies accepted-state DAgger to 196,608 samples drawn from the exact
+waypoint-four pool. Revision 7 improves a fresh local screen from 201 to 238
+completion events (`+18.4%`) and raises eventual completion from 61/64 to
+64/64 environments, with zero physics failures. When the residual was also
+active at waypoint three, however, the authentic full route lost one WP4
+arrival. Strict waypoint-four gating restores the upstream carrier exactly,
+but the three established full-route seeds remain count-neutral at
+`[189, 118, 30, 15, 7]`. A 2x residual dose is neutral on the coarse seed;
+4x reduces completions from four to three and 8x reduces them to zero. V124 is
+therefore rejected and no policy is promoted. The exact capacity and measured
+reset distribution are retained for a future terminal objective, not treated
+as reliable five-waypoint evidence.
 
 ### Retained route-residual candidate
 

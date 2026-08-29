@@ -2317,7 +2317,7 @@ TaskCompileDiagnostics compileTaskProgram(
                 // waypoint two is active. Components 79...100 provide an
                 // independently gated copy only while waypoint three is
                 // active. Components 101...122 isolate the joint waypoint-
-                // three/four terminal approach and landing transaction.
+                // four terminal approach and landing transaction.
                 componentLimit = 123u;
                 break;
             }
