@@ -547,6 +547,9 @@ struct LoadedMuscles {
     std::uint32_t tendonPointBindings = 0u;
     std::uint32_t tendonTriangleBindings = 0u;
     std::uint32_t tendonEnvelopeBindings = 0u;
+    std::uint32_t tendonMigratedEnvelopeBindings = 0u;
+    double maximumTendonReferencePathDelta = 0.0;
+    double maximumTendonArchitectureScaleChange = 0.0;
     metalrobo::NumiHumanTendonPayload tendonPayload;
 };
 
@@ -929,7 +932,7 @@ LoadedMuscles loadMuscles(
 
 void applyNumiHumanTendonPayload(
     const std::filesystem::path& path,
-    const RigidHeader& rigid,
+    const LoadedRigid& rigid,
     LoadedMuscles& muscles
 ) {
     std::ifstream input(path, std::ios::binary | std::ios::ate);
@@ -944,13 +947,15 @@ void applyNumiHumanTendonPayload(
     }
     metalrobo::NumiHumanTendonPayload payload;
     const auto decode = metalrobo::decodeNumiHumanTendonPayload(
-        bytes, rigid.sourceSha256, {}, payload
+        bytes, rigid.header.sourceSha256, {}, payload
     );
     require(
-        decode.succeeded() && payload.bodyCount == rigid.engineBodyCount,
+        decode.succeeded() && payload.bodyCount == rigid.header.engineBodyCount,
         std::string("invalid NHTENDON visual program: ") +
             metalrobo::numiHumanTendonStatusName(decode.status)
     );
+    const auto sourceSites = muscles.referenceSites;
+    const auto sourceMuscles = muscles.referenceMuscles;
     metalrobo::NumiHumanTendonResolvedProgram resolved;
     const auto diagnostics = metalrobo::resolveNumiHumanTendonProgram(
         payload, muscles.referenceSites, muscles.referenceMuscles, resolved
@@ -960,11 +965,33 @@ void applyNumiHumanTendonPayload(
         std::string("cannot resolve NHTENDON visual program: ") +
             metalrobo::numiHumanTendonStatusName(diagnostics.status)
     );
+    if (resolved.migratedEnvelopeBindingCount > 0u) {
+        std::vector<double> referenceQ(
+            rigid.model.defaultQ.begin(), rigid.model.defaultQ.end()
+        );
+        metalrobo::NumiHumanTendonReferenceCalibration calibration;
+        const auto calibrationDiagnostics =
+            metalrobo::calibrateNumiHumanMigratedTendonReference(
+                rigid.model, 0u, referenceQ, muscles.referenceWraps,
+                sourceSites, sourceMuscles, resolved.sites, resolved.muscles,
+                muscles.referenceArchitectures, payload, calibration
+            );
+        require(
+            calibrationDiagnostics.succeeded(),
+            std::string("NHTENDON visual reference calibration failed: ") +
+                metalrobo::numiHumanTendonStatusName(calibrationDiagnostics.status)
+        );
+        muscles.maximumTendonReferencePathDelta =
+            calibration.maximumAbsolutePathLengthDelta;
+        muscles.maximumTendonArchitectureScaleChange =
+            calibration.maximumArchitectureScaleChange;
+    }
     muscles.referenceSites = std::move(resolved.sites);
     muscles.referenceMuscles = std::move(resolved.muscles);
     muscles.tendonPointBindings = resolved.pointBindingCount;
     muscles.tendonTriangleBindings = resolved.triangleBindingCount;
     muscles.tendonEnvelopeBindings = resolved.envelopeBindingCount;
+    muscles.tendonMigratedEnvelopeBindings = resolved.migratedEnvelopeBindingCount;
     muscles.gpuSites.clear();
     muscles.gpuSites.reserve(muscles.referenceSites.size());
     for (const metalrobo::MujocoMuscleSite& site : muscles.referenceSites) {
@@ -981,6 +1008,18 @@ void applyNumiHumanTendonPayload(
         muscles.gpuMuscles[index].route.x = static_cast<std::uint32_t>(muscles.gpuRoutes.size());
         muscles.gpuMuscles[index].route.y = static_cast<std::uint32_t>(
             muscles.referenceMuscles[index].route.size()
+        );
+        muscles.gpuMuscles[index].lengthRangeAndAcceleration.x = static_cast<float>(
+            muscles.referenceMuscles[index].lengthRange[0]
+        );
+        muscles.gpuMuscles[index].lengthRangeAndAcceleration.y = static_cast<float>(
+            muscles.referenceMuscles[index].lengthRange[1]
+        );
+        muscles.gpuMuscles[index].compliantArchitecture0.x = static_cast<float>(
+            muscles.referenceArchitectures[index].optimalFiberLength
+        );
+        muscles.gpuMuscles[index].compliantArchitecture0.y = static_cast<float>(
+            muscles.referenceArchitectures[index].tendonSlackLength
         );
         for (const metalrobo::MujocoRouteNode& node : muscles.referenceMuscles[index].route) {
             muscles.gpuRoutes.push_back({
@@ -2294,8 +2333,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 model.articulations.front().nq && model.world.nv ==
                 model.articulations.front().nv,
             "persistent Human stand currently requires one complete articulation");
-    require(muscles.tendonPayload.payloadAbi == 2u,
-            "persistent Human control requires an NHTENDON2 per-step terminal-load payload");
+    require(muscles.tendonPayload.payloadAbi == 2u || muscles.tendonPayload.payloadAbi == 3u,
+            "persistent Human control requires an NHTENDON2/3 per-step terminal-load payload");
     require(!applySelectedActivationIncrement ||
                 (muscles.header.payloadAbi == kMusclePayloadAbi &&
                  !selectedSourceMuscleIndices.empty() &&
@@ -2378,7 +2417,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     require(
         tendonPack.succeeded() &&
             tendonProgram.bindings.size() == 2u * muscles.gpuMuscles.size(),
-        std::string("persistent Human NHTENDON2 packing failed: ") +
+        std::string("persistent Human NHTENDON2/3 packing failed: ") +
             metalrobo::numiHumanTendonStatusName(tendonPack.status)
     );
     const metalrobo::MetalArticulatedOperatorConfig config{
@@ -5042,7 +5081,7 @@ PectoralisFasciaVisual runPectoralisFascia(
     const std::filesystem::path& matterMetallib
 ) {
     require(!driven.finalTendonTransfers.empty() && stepCount >= 1u && stepCount <= 64u,
-            "load-driven pectoralis fascia requires published NHTENDON2 transfers");
+            "load-driven pectoralis fascia requires published NHTENDON2/3 transfers");
     PectoralisFasciaVisual result;
     result.loadFraction = fascia.header.muscleLoadFraction;
     result.tetrahedronCount = fascia.header.tetrahedronCount;
@@ -5116,7 +5155,7 @@ PectoralisFasciaVisual runPectoralisFascia(
             }
         );
         require(binding != muscles.tendonPayload.bindings.end(),
-                "pectoralis fascia has no named torso-side NHTENDON2 terminal");
+                "pectoralis fascia has no named torso-side NHTENDON2/3 terminal");
         const std::size_t bindingIndex = static_cast<std::size_t>(
             std::distance(muscles.tendonPayload.bindings.begin(), binding)
         );
@@ -5703,7 +5742,9 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         }
         if (musclePayload.tendonEnvelopeBindings > 0u) {
             pack.preprocessingProvenance +=
-                "/NHTENDON2_source_point_preserving_connected_bone_surface_force_moment_envelope";
+                musclePayload.tendonMigratedEnvelopeBindings > 0u
+                    ? "/NHTENDON3_route_private_registered_bone_surface_force_moment_envelope_with_reference_scaled_architecture"
+                    : "/NHTENDON2_source_point_preserving_connected_bone_surface_force_moment_envelope";
         }
     }
     pack.materials.push_back(makeMaterial(
@@ -6020,24 +6061,26 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                     {0.0f, 0.0f, 0.0f, 1.0f}, stableRouteId++
                 );
             }
-            if (musclePayload.tendonPayload.payloadAbi == 2u) {
+            if (musclePayload.tendonPayload.payloadAbi == 2u ||
+                musclePayload.tendonPayload.payloadAbi == 3u) {
                 require(
                     bonePayload != nullptr &&
                         musclePayload.tendonPayload.boneCount == bonePayload->records.size() &&
                         musclePayload.tendonPayload.registrationFingerprint ==
                             bonePayload->header.reserved0,
-                    "NHTENDON2 visual envelope does not match the loaded NHBONES1 registration"
+                    "NHTENDON2/3 visual envelope does not match the loaded NHBONES1 registration"
                 );
                 for (std::uint32_t endpoint = 0u; endpoint < 2u; ++endpoint) {
                     const auto& binding = musclePayload.tendonPayload.bindings[
                         2u * route.muscleIndex + endpoint
                     ];
-                    if (binding.mode != metalrobo::NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope) {
+                    if (binding.mode != metalrobo::NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope &&
+                        binding.mode != metalrobo::NumiHumanTendonAttachmentMode::registeredBoneMigratedDistributedEnvelope) {
                         continue;
                     }
                     require(binding.bodyIndex < bodies.size() &&
                                 binding.triangleIndex < musclePayload.tendonPayload.envelopes.size(),
-                            "NHTENDON2 visual envelope binding is out of bounds");
+                            "NHTENDON2/3 visual envelope binding is out of bounds");
                     const auto& envelope = musclePayload.tendonPayload.envelopes[binding.triangleIndex];
                     const MRBodyStateGPU& body = bodies[binding.bodyIndex];
                     std::array<mr_float4, 4u> nodes{};
@@ -6671,7 +6714,7 @@ int main(int argc, char** argv) {
                           << " [--zanatomy-calf-visual-supplement]"
                           << " [--tendon-attachment-collar-diagnostic]"
                           << " [--support-contact-payload <NHCNT1>]"
-                          << " [--tendon-payload <NHTENDON1-or-NHTENDON2>]"
+                          << " [--tendon-payload <NHTENDON1-or-NHTENDON2-or-NHTENDON3>]"
                           << " [--joint-equality-payload <NHEQ1>]"
                           << " [--focus-body-index <0..156>]"
                           << " [--camera-index <0..3>]"
@@ -6684,7 +6727,7 @@ int main(int argc, char** argv) {
             const bool compliantMusclePayload =
                 musclePayload.header.payloadAbi == kMusclePayloadAbi;
             if (tendonPayloadPath.has_value()) {
-                applyNumiHumanTendonPayload(*tendonPayloadPath, rigid.header, musclePayload);
+                applyNumiHumanTendonPayload(*tendonPayloadPath, rigid, musclePayload);
                 std::cout << "tendon_payload=NHTENDON" << musclePayload.tendonPayload.payloadAbi
                           << " tendon_endpoints="
                           << musclePayload.tendonPointBindings + musclePayload.tendonTriangleBindings +
@@ -6692,6 +6735,12 @@ int main(int argc, char** argv) {
                           << " tendon_point_bindings=" << musclePayload.tendonPointBindings
                           << " tendon_triangle_bindings=" << musclePayload.tendonTriangleBindings
                           << " tendon_envelope_bindings=" << musclePayload.tendonEnvelopeBindings
+                          << " tendon_migrated_envelope_bindings="
+                          << musclePayload.tendonMigratedEnvelopeBindings
+                          << " tendon_max_reference_path_delta_m="
+                          << musclePayload.maximumTendonReferencePathDelta
+                          << " tendon_max_architecture_scale_change="
+                          << musclePayload.maximumTendonArchitectureScaleChange
                           << "\n";
             }
             require(!focusBodyIndex.has_value() || *focusBodyIndex < rigid.header.engineBodyCount,
@@ -6889,8 +6938,9 @@ int main(int argc, char** argv) {
             require(!pectoralisFasciaPayload.has_value() ||
                         ((persistentMetalStand || selectedTendonControl) &&
                          muscleStepSeconds.has_value() &&
-                         musclePayload.tendonPayload.payloadAbi == 2u),
-                    "--pectoralis-fascia-payload requires a persistent NHTENDON2 muscle transaction");
+                         (musclePayload.tendonPayload.payloadAbi == 2u ||
+                          musclePayload.tendonPayload.payloadAbi == 3u)),
+                    "--pectoralis-fascia-payload requires a persistent NHTENDON2/3 muscle transaction");
             require(!pectoralisFasciaStepCount.has_value() ||
                         pectoralisFasciaPayload.has_value(),
                     "--pectoralis-fascia-step-count requires --pectoralis-fascia-payload");
@@ -7264,13 +7314,15 @@ int main(int argc, char** argv) {
             require(!sourceRouteCentrelines || anyRequestedRouteVisible,
                     "requested source route is completely occluded from all native Human cameras");
             require(renderedTendonAttachmentEnvelopes == 0u || anyTendonAttachmentEnvelopeVisible,
-                    "requested NHTENDON2 attachment envelope is completely occluded from all cameras");
+                    "requested NHTENDON2/3 attachment envelope is completely occluded from all cameras");
+            const std::string tendonProgramName = "NHTENDON" +
+                std::to_string(musclePayload.tendonPayload.payloadAbi);
             const bool sourceSupportContact = muscleDrivenState.has_value() &&
                 muscleDrivenState->supportContactApplied;
             const std::string poseSource = !muscleDrivenState.has_value()
                 ? "source_default_q_to_metal_kinematic_pose"
                 : muscleDrivenState->selectedTendonControl
-                    ? "persistent_metal_compiled_posture_baseline_plus_selected_source_activation_increment_all_416_mujoco_routes_nhtendon2_transaction_gravity_joint_equalities_and_source_foot_support"
+                    ? "persistent_metal_compiled_posture_baseline_plus_selected_source_activation_increment_all_416_mujoco_routes_" + tendonProgramName + "_transaction_gravity_joint_equalities_and_source_foot_support"
                 : muscleDrivenState->persistentMetalHorizon
                     ? "persistent_metal_current_pose_all_416_mujoco_routes_activation_gravity_large_state_dynamics_and_source_foot_support"
                 : sourceSupportContact
@@ -7279,11 +7331,11 @@ int main(int argc, char** argv) {
             std::string evidenceBoundary =
                 muscleDrivenState.has_value() &&
                     muscleDrivenState->selectedTendonControl
-                ? "bounded_selected_source_muscle_increment_over_compiled_posture_baseline_on_persistent_apple_metal_with_all_416_routes_nhtendon2_force_transfer_joint_equalities_gravity_and_source_foot_support_not_closed_loop_control_deformable_tendon_or_clinical_validation"
+                ? "bounded_selected_source_muscle_increment_over_compiled_posture_baseline_on_persistent_apple_metal_with_all_416_routes_" + tendonProgramName + "_force_transfer_joint_equalities_gravity_and_source_foot_support_not_closed_loop_control_deformable_tendon_or_clinical_validation"
                 : muscleDrivenState.has_value() &&
                     muscleDrivenState->persistentMetalHorizon
                 ? (compliantMusclePayload
-                    ? "bounded_persistent_apple_metal_all_416_source_routes_with_inferred_positive_fiber_tendon_architecture_damped_backward_euler_equilibrium_explicit_nhtendon2_force_transfer_large_state_mass_gravity_low_velocity_bias_and_source_foot_support_not_anatomically_calibrated_pennation_exact_jdot_rnea_joint_limit_general_collision_or_closed_loop_standing_qualification"
+                    ? "bounded_persistent_apple_metal_all_416_source_routes_with_inferred_positive_fiber_tendon_architecture_damped_backward_euler_equilibrium_explicit_" + tendonProgramName + "_force_transfer_large_state_mass_gravity_low_velocity_bias_and_source_foot_support_not_anatomically_calibrated_pennation_exact_jdot_rnea_joint_limit_general_collision_or_closed_loop_standing_qualification"
                     : "bounded_persistent_apple_metal_all_416_mujoco_activation_dependent_route_force_large_state_mass_gravity_low_velocity_bias_and_source_foot_support_horizon_imported_passive_bias_excluded_until_registered_equilibrium_calibration_not_exact_jdot_rnea_joint_limit_general_collision_or_closed_loop_standing_qualification")
                 : !muscleDrivenState.has_value()
                 ? (bodypartsBoneVisual
@@ -7307,8 +7359,9 @@ int main(int argc, char** argv) {
                     "_with_source_proximity_derived_tendon_to_named_bone_visual_collars_not_a_tendon_weld_or_force_transfer";
             }
             if (renderedTendonAttachmentEnvelopes > 0u) {
-                evidenceBoundary +=
-                    "_with_NHTENDON2_per_step_source_point_preserving_force_and_moment_conserving_terminal_load_transaction_and_same_command_buffer_consumer_boundary_not_a_clinical_enthesis_certificate_or_deformable_tendon_continuum";
+                evidenceBoundary += musclePayload.tendonMigratedEnvelopeBindings > 0u
+                    ? "_with_NHTENDON3_per_step_route_private_exact_registered_bone_surface_endpoints_reference_scaled_fiber_tendon_architecture_and_force_moment_conserving_terminal_load_transaction_same_command_buffer_consumer_boundary_not_clinical_validation_or_deformable_tendon_continuum"
+                    : "_with_NHTENDON2_per_step_source_point_preserving_force_and_moment_conserving_terminal_load_transaction_and_same_command_buffer_consumer_boundary_not_a_clinical_enthesis_certificate_or_deformable_tendon_continuum";
             }
             if (!selectedSourceMuscleActivations.empty()) {
                 evidenceBoundary +=
@@ -7420,7 +7473,7 @@ int main(int argc, char** argv) {
                               : "none")
                       << " muscle_control_mode=" << (muscleDrivenState.has_value()
                               ? (muscleDrivenState->selectedTendonControl
-                                  ? "compiled_posture_plus_selected_increment_nhtendon2_transaction"
+                                  ? "compiled_posture_plus_selected_increment_" + tendonProgramName + "_transaction"
                                   : muscleDrivenState->persistentMetalHorizon
                                   ? "compiled_persistent_stand"
                                   : "bounded_visual_difference")
@@ -7455,7 +7508,7 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->persistentCompletedSteps : 0u)
                       << " tendon_step_transaction=" << (muscleDrivenState.has_value() &&
                               muscleDrivenState->tendonStepTransactionEnabled
-                                  ? "NHTENDON2" : "none")
+                                  ? tendonProgramName : "none")
                       << " tendon_borrowed_consumer=" << (muscleDrivenState.has_value() &&
                               muscleDrivenState->tendonBorrowedConsumerVerified
                                   ? "same_command_buffer_exact_snapshot" : "not_verified")

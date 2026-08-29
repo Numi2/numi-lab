@@ -219,7 +219,10 @@ struct LoadedMuscles {
     std::uint32_t tendonPointBindings = 0u;
     std::uint32_t tendonTriangleBindings = 0u;
     std::uint32_t tendonEnvelopeBindings = 0u;
+    std::uint32_t tendonMigratedEnvelopeBindings = 0u;
     double maximumEndpointMigration = 0.0;
+    double maximumTendonReferencePathDelta = 0.0;
+    double maximumTendonArchitectureScaleChange = 0.0;
     metalrobo::NumiHumanTendonPayload tendonPayload;
 };
 
@@ -419,12 +422,12 @@ std::vector<std::byte> readBytes(const char* path) {
 }
 
 void applyNumiHumanTendonPayload(
-    const char* path, const RigidHeader& rigid, LoadedMuscles& muscles
+    const char* path, const LoadedRigid& rigid, LoadedMuscles& muscles
 ) {
     const std::vector<std::byte> bytes = readBytes(path);
     metalrobo::NumiHumanTendonPayload payload;
     const auto decode = metalrobo::decodeNumiHumanTendonPayload(
-        bytes, rigid.sourceSha256, {}, payload
+        bytes, rigid.header.sourceSha256, {}, payload
     );
     require(
         decode.succeeded(),
@@ -433,7 +436,7 @@ void applyNumiHumanTendonPayload(
             " index=" + std::to_string(decode.failingIndex)
     );
     require(
-        payload.bodyCount == rigid.engineBodyCount,
+        payload.bodyCount == rigid.header.engineBodyCount,
         "NHTENDON body count disagrees with NHRIGID2"
     );
     muscles.sourceSites = muscles.sites;
@@ -448,11 +451,38 @@ void applyNumiHumanTendonPayload(
             metalrobo::numiHumanTendonStatusName(diagnostics.status) +
             " index=" + std::to_string(diagnostics.failingIndex)
     );
+    if (resolved.migratedEnvelopeBindingCount > 0u) {
+        std::vector<double> referenceQ(
+            rigid.model.defaultQ.begin(), rigid.model.defaultQ.end()
+        );
+        metalrobo::NumiHumanTendonReferenceCalibration calibration;
+        const auto calibrationDiagnostics =
+            metalrobo::calibrateNumiHumanMigratedTendonReference(
+                rigid.model, 0u, referenceQ, muscles.wraps,
+                muscles.sourceSites, muscles.sourceMuscles,
+                resolved.sites, resolved.muscles, muscles.architectures,
+                payload, calibration
+            );
+        require(
+            calibrationDiagnostics.succeeded(),
+            std::string("NHTENDON reference calibration failed: ") +
+                metalrobo::numiHumanTendonStatusName(calibrationDiagnostics.status) +
+                " index=" + std::to_string(calibrationDiagnostics.failingIndex)
+        );
+        for (std::size_t index = 0u; index < muscles.oracleLength.size(); ++index) {
+            muscles.oracleLength[index] += calibration.pathLengthDeltas[index];
+        }
+        muscles.maximumTendonReferencePathDelta =
+            calibration.maximumAbsolutePathLengthDelta;
+        muscles.maximumTendonArchitectureScaleChange =
+            calibration.maximumArchitectureScaleChange;
+    }
     muscles.sites = std::move(resolved.sites);
     muscles.muscles = std::move(resolved.muscles);
     muscles.tendonPointBindings = resolved.pointBindingCount;
     muscles.tendonTriangleBindings = resolved.triangleBindingCount;
     muscles.tendonEnvelopeBindings = resolved.envelopeBindingCount;
+    muscles.tendonMigratedEnvelopeBindings = resolved.migratedEnvelopeBindingCount;
     muscles.maximumEndpointMigration = resolved.maximumEndpointMigration;
     muscles.tendonPayload = std::move(payload);
 
@@ -471,6 +501,18 @@ void applyNumiHumanTendonPayload(
     muscles.gpuRoutes.clear();
     for (std::size_t muscleIndex = 0u; muscleIndex < muscles.muscles.size(); ++muscleIndex) {
         MRMujocoMuscleGPU& gpuMuscle = muscles.gpuMuscles[muscleIndex];
+        gpuMuscle.lengthRangeAndAcceleration.x = static_cast<float>(
+            muscles.muscles[muscleIndex].lengthRange[0]
+        );
+        gpuMuscle.lengthRangeAndAcceleration.y = static_cast<float>(
+            muscles.muscles[muscleIndex].lengthRange[1]
+        );
+        gpuMuscle.compliantArchitecture0.x = static_cast<float>(
+            muscles.architectures[muscleIndex].optimalFiberLength
+        );
+        gpuMuscle.compliantArchitecture0.y = static_cast<float>(
+            muscles.architectures[muscleIndex].tendonSlackLength
+        );
         gpuMuscle.route.x = static_cast<std::uint32_t>(muscles.gpuRoutes.size());
         gpuMuscle.route.y = static_cast<std::uint32_t>(muscles.muscles[muscleIndex].route.size());
         for (const metalrobo::MujocoRouteNode& node : muscles.muscles[muscleIndex].route) {
@@ -666,7 +708,7 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
 
     MetalArticulatedMetrics metrics;
     metrics.deviceName = kinematicsDiagnostics.deviceName;
-    if (muscles.tendonPayload.payloadAbi == 2u) {
+    if (muscles.tendonPayload.payloadAbi == 2u || muscles.tendonPayload.payloadAbi == 3u) {
         metalrobo::NumiHumanTendonMetalProgram tendonProgram;
         const auto packDiagnostics = metalrobo::makeNumiHumanTendonMetalProgram(
             muscles.tendonPayload, tendonProgram
@@ -739,7 +781,8 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
                 static_cast<double>(transfer.residualsAndForce.z)
             );
             const auto& binding = muscles.tendonPayload.bindings[index];
-            if (binding.mode != metalrobo::NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope) {
+            if (binding.mode != metalrobo::NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope &&
+                binding.mode != metalrobo::NumiHumanTendonAttachmentMode::registeredBoneMigratedDistributedEnvelope) {
                 continue;
             }
             ++metrics.tendonEnvelopeTransferCount;
@@ -1088,7 +1131,7 @@ int run(
     const LoadedRigid rigid = loadRigid(rigidPath);
     LoadedMuscles muscles = loadMuscles(musclePath, rigid.header);
     if (tendonPath != nullptr) {
-        applyNumiHumanTendonPayload(tendonPath, rigid.header, muscles);
+        applyNumiHumanTendonPayload(tendonPath, rigid, muscles);
     }
     const metalrobo::NumiHumanJointEqualityPayload equalities =
         equalityPath == nullptr
@@ -1197,7 +1240,8 @@ int run(
                 }
                 metalrobo::NumiHumanTendonTractionResult traction;
                 metalrobo::NumiHumanTendonDiagnostics tractionDiagnostics;
-                if (binding.mode == metalrobo::NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope) {
+                if (binding.mode == metalrobo::NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope ||
+                    binding.mode == metalrobo::NumiHumanTendonAttachmentMode::registeredBoneMigratedDistributedEnvelope) {
                     const std::array<double, 3> difference{
                         terminal[0] - adjacent[0], terminal[1] - adjacent[1], terminal[2] - adjacent[2],
                     };
@@ -1242,14 +1286,14 @@ int run(
             );
             require(sourceDiagnostics.succeeded(), "source endpoint comparison failed");
         }
-        if (muscles.tendonTriangleBindings > 0u) {
+        if (muscles.tendonTriangleBindings > 0u || muscles.tendonMigratedEnvelopeBindings > 0u) {
             // Metal parity compares against the resolved CPU route. The source
             // oracle delta above remains reported as explicit endpoint migration.
             muscles.oracleLength[index] = result.path.length;
             muscles.oracleForce[index] = result.actuatorForce;
         }
     }
-    if (muscles.tendonTriangleBindings == 0u) {
+    if (muscles.tendonTriangleBindings == 0u && muscles.tendonMigratedEnvelopeBindings == 0u) {
         require(maxMuscleLengthError <= 2.0e-5, "MyoSim native muscle paths do not match source default lengths");
         require(maxMuscleForceError <= 1.0e-2, "MyoSim native muscle forces do not match source default forces");
     }
@@ -1261,7 +1305,7 @@ int run(
                 std::abs(muscleForce[index] - sourceMuscleForce[index])
             );
         }
-        if (muscles.tendonTriangleBindings == 0u) {
+        if (muscles.tendonTriangleBindings == 0u && muscles.tendonMigratedEnvelopeBindings == 0u) {
             require(
                 maximumEndpointSingleScatterDifference <= 1.0e-10,
                 "source-point-preserving NHTENDON changed or duplicated the authoritative J^T force"
@@ -1340,7 +1384,13 @@ int run(
                              << " tendon_point_bindings=" << muscles.tendonPointBindings
                              << " tendon_triangle_bindings=" << muscles.tendonTriangleBindings
                              << " tendon_envelope_bindings=" << muscles.tendonEnvelopeBindings
+                             << " tendon_migrated_envelope_bindings="
+                             << muscles.tendonMigratedEnvelopeBindings
                              << " tendon_max_endpoint_migration_m=" << muscles.maximumEndpointMigration
+                             << " tendon_max_reference_path_delta_m="
+                             << muscles.maximumTendonReferencePathDelta
+                             << " tendon_max_architecture_scale_change="
+                             << muscles.maximumTendonArchitectureScaleChange
                              << " tendon_single_scatter_generalized_force_difference="
                              << maximumEndpointSingleScatterDifference
                              << " tendon_force_residual_n=" << maximumEnthesisForceResidual

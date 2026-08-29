@@ -160,7 +160,7 @@ struct MetalNumiHumanStandInput {
     // carry bilateral reaction impulses during dynamics; dependent q/v are
     // projected back onto the same polynomial after each accepted step.
     std::span<const MRNumiHumanJointEqualityGPU> jointEqualities{};
-    // Optional NHTENDON2 program. When present, one terminal-load transaction
+    // Optional NHTENDON2/3 program. When present, one terminal-load transaction
     // executes from the current MyoSim force field before every dynamics step.
     // The rigid-body solver retains MyoSim's original J^T wrench; generalized
     // corrections are diagnostics and are never added as direct joint torque.

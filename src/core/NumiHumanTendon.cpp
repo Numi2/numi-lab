@@ -10,8 +10,10 @@ namespace {
 
 constexpr std::array<char, 8> kMagic{'N', 'H', 'T', 'E', 'N', 'D', '1', '\0'};
 constexpr std::array<char, 8> kEnvelopeMagic{'N', 'H', 'T', 'E', 'N', 'D', '2', '\0'};
+constexpr std::array<char, 8> kMigratedEnvelopeMagic{'N', 'H', 'T', 'E', 'N', 'D', '3', '\0'};
 constexpr std::uint32_t kAbi = 1u;
 constexpr std::uint32_t kEnvelopeAbi = 2u;
+constexpr std::uint32_t kMigratedEnvelopeAbi = 3u;
 constexpr std::size_t kHeaderBytes = 104u;
 constexpr std::size_t kEnvelopeHeaderBytes = 144u;
 constexpr std::size_t kBindingBytes = 64u;
@@ -89,7 +91,7 @@ NumiHumanTendonDiagnostics decodeNumiHumanTendonPayload(
               std::equal(expectedMusclePayloadSha256.begin(), expectedMusclePayloadSha256.end(),
                          payload.musclePayloadSha256.begin())));
     };
-    if (inspectedMagic == kEnvelopeMagic) {
+    if (inspectedMagic == kEnvelopeMagic || inspectedMagic == kMigratedEnvelopeMagic) {
         if (bytes.size() < kEnvelopeHeaderBytes) {
             return failure(NumiHumanTendonStatus::truncatedPayload);
         }
@@ -111,7 +113,9 @@ NumiHumanTendonDiagnostics decodeNumiHumanTendonPayload(
             return failure(NumiHumanTendonStatus::truncatedPayload);
         }
         payload.payloadAbi = abi;
-        if (magic != kEnvelopeMagic || abi != kEnvelopeAbi ||
+        const bool sourcePointEnvelope = magic == kEnvelopeMagic && abi == kEnvelopeAbi;
+        const bool migratedEnvelope = magic == kMigratedEnvelopeMagic && abi == kMigratedEnvelopeAbi;
+        if ((!sourcePointEnvelope && !migratedEnvelope) ||
             payload.bodyCount == 0u || payload.muscleCount == 0u ||
             payload.sourceSiteCount == 0u || payload.boneCount == 0u ||
             payload.registrationFingerprint == 0u ||
@@ -140,7 +144,8 @@ NumiHumanTendonDiagnostics decodeNumiHumanTendonPayload(
             binding.sourceSiteIndex = integers[3];
             binding.bodyIndex = integers[4];
             if (integers[5] != static_cast<std::uint32_t>(NumiHumanTendonAttachmentMode::sourceSitePoint) &&
-                integers[5] != static_cast<std::uint32_t>(NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope)) {
+                integers[5] != static_cast<std::uint32_t>(NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope) &&
+                integers[5] != static_cast<std::uint32_t>(NumiHumanTendonAttachmentMode::registeredBoneMigratedDistributedEnvelope)) {
                 return failure(NumiHumanTendonStatus::invalidBinding, index);
             }
             binding.mode = static_cast<NumiHumanTendonAttachmentMode>(integers[5]);
@@ -153,11 +158,16 @@ NumiHumanTendonDiagnostics decodeNumiHumanTendonPayload(
             binding.forceAmplification = values[4];
             binding.patchRadius = values[5];
             binding.compiledMomentResidual = values[6];
-            if (values[7] != 0.0f || !finite(binding.resolvedLocalPoint) ||
+            binding.endpointMigration = values[7];
+            if (!finite(binding.resolvedLocalPoint) ||
                 !std::isfinite(binding.surfaceDistance) || binding.surfaceDistance < 0.0 ||
                 !std::isfinite(binding.forceAmplification) || binding.forceAmplification < 0.0 ||
                 !std::isfinite(binding.patchRadius) || binding.patchRadius < 0.0 ||
-                !std::isfinite(binding.compiledMomentResidual) || binding.compiledMomentResidual < 0.0) {
+                !std::isfinite(binding.compiledMomentResidual) || binding.compiledMomentResidual < 0.0 ||
+                !std::isfinite(binding.endpointMigration) || binding.endpointMigration < 0.0 ||
+                (sourcePointEnvelope &&
+                 (binding.mode == NumiHumanTendonAttachmentMode::registeredBoneMigratedDistributedEnvelope ||
+                  binding.endpointMigration != 0.0))) {
                 return failure(NumiHumanTendonStatus::invalidBinding, index);
             }
             payload.bindings.push_back(binding);
@@ -351,12 +361,19 @@ NumiHumanTendonDiagnostics resolveNumiHumanTendonProgram(
                 ++result.pointBindingCount;
                 continue;
             }
-            if (binding.mode == NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope) {
-                if (payload.payloadAbi != kEnvelopeAbi ||
+            if (binding.mode == NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope ||
+                binding.mode == NumiHumanTendonAttachmentMode::registeredBoneMigratedDistributedEnvelope) {
+                const bool migrated = binding.mode ==
+                    NumiHumanTendonAttachmentMode::registeredBoneMigratedDistributedEnvelope;
+                if ((!migrated && payload.payloadAbi != kEnvelopeAbi && payload.payloadAbi != kMigratedEnvelopeAbi) ||
+                    (migrated && payload.payloadAbi != kMigratedEnvelopeAbi) ||
                     binding.triangleIndex >= payload.envelopes.size() || binding.boneStableId == 0u ||
-                    distance(binding.resolvedLocalPoint, sourceSites[binding.sourceSiteIndex].localPoint) > kPointTolerance ||
+                    (!migrated && distance(binding.resolvedLocalPoint, sourceSites[binding.sourceSiteIndex].localPoint) > kPointTolerance) ||
                     distance(binding.barycentric, std::array<double, 3>{}) > kPointTolerance ||
-                    binding.endpointMigration > kPointTolerance || !(binding.patchRadius > 0.0) ||
+                    (!migrated && binding.endpointMigration > kPointTolerance) ||
+                    (migrated && std::abs(
+                        distance(binding.resolvedLocalPoint, sourceSites[binding.sourceSiteIndex].localPoint) -
+                        binding.endpointMigration) > kPointTolerance) || !(binding.patchRadius > 0.0) ||
                     !(binding.forceAmplification > 0.0)) {
                     return failure(NumiHumanTendonStatus::invalidBinding, static_cast<std::uint32_t>(bindingIndex));
                 }
@@ -380,6 +397,15 @@ NumiHumanTendonDiagnostics resolveNumiHumanTendonProgram(
                         return failure(NumiHumanTendonStatus::invalidBinding,
                                        static_cast<std::uint32_t>(bindingIndex));
                     }
+                }
+                if (migrated) {
+                    const std::uint32_t newSiteIndex = static_cast<std::uint32_t>(result.sites.size());
+                    result.sites.push_back({binding.bodyIndex, binding.resolvedLocalPoint});
+                    result.muscles[muscleIndex].route[localRouteIndex].targetIndex = newSiteIndex;
+                    ++result.migratedEnvelopeBindingCount;
+                    result.maximumEndpointMigration = std::max(
+                        result.maximumEndpointMigration, binding.endpointMigration
+                    );
                 }
                 ++result.envelopeBindingCount;
                 continue;
@@ -417,6 +443,95 @@ NumiHumanTendonDiagnostics resolveNumiHumanTendonProgram(
     if (!std::all_of(observed.begin(), observed.end(), [](const bool value) { return value; })) {
         return failure(NumiHumanTendonStatus::incompleteCoverage);
     }
+    return {};
+}
+
+NumiHumanTendonDiagnostics calibrateNumiHumanMigratedTendonReference(
+    const EngineModel& model,
+    const std::uint32_t articulationIndex,
+    const std::span<const double> referenceQ,
+    const std::span<const MujocoWrapGeometry> wraps,
+    const std::span<const MujocoMuscleSite> sourceSites,
+    const std::span<const MujocoMuscleDefinition> sourceMuscles,
+    const std::span<const MujocoMuscleSite> resolvedSites,
+    const std::span<MujocoMuscleDefinition> resolvedMuscles,
+    const std::span<MujocoCompliantMuscleArchitecture> architectures,
+    const NumiHumanTendonPayload& payload,
+    NumiHumanTendonReferenceCalibration& calibration
+) {
+    calibration = {};
+    if (payload.payloadAbi != kMigratedEnvelopeAbi ||
+        sourceMuscles.size() != resolvedMuscles.size() ||
+        sourceMuscles.size() != architectures.size() ||
+        payload.muscleCount != sourceMuscles.size() ||
+        payload.bindings.size() != 2u * sourceMuscles.size()) {
+        return failure(NumiHumanTendonStatus::invalidPayload);
+    }
+    calibration.pathLengthDeltas.assign(sourceMuscles.size(), 0.0);
+    std::vector<MujocoMuscleDefinition> stagedResolvedMuscles(
+        resolvedMuscles.begin(), resolvedMuscles.end()
+    );
+    std::vector<MujocoCompliantMuscleArchitecture> stagedArchitectures(
+        architectures.begin(), architectures.end()
+    );
+    const std::vector<double> zeroVelocity(model.world.nv, 0.0);
+    const MujocoMuscleState state{0.5, 0.5};
+    for (std::uint32_t muscleIndex = 0u; muscleIndex < sourceMuscles.size(); ++muscleIndex) {
+        const bool migrated = std::any_of(
+            payload.bindings.begin() + 2u * muscleIndex,
+            payload.bindings.begin() + 2u * muscleIndex + 2u,
+            [](const NumiHumanTendonBinding& binding) {
+                return binding.mode ==
+                    NumiHumanTendonAttachmentMode::registeredBoneMigratedDistributedEnvelope;
+            }
+        );
+        if (!migrated) continue;
+        MujocoMuscleResult sourceResult;
+        MujocoMuscleResult resolvedResult;
+        const auto sourceDiagnostics = evaluateMujocoMuscle(
+            model, articulationIndex, referenceQ, zeroVelocity, sourceSites, wraps,
+            sourceMuscles[muscleIndex], state, sourceResult
+        );
+        const auto resolvedDiagnostics = evaluateMujocoMuscle(
+            model, articulationIndex, referenceQ, zeroVelocity, resolvedSites, wraps,
+            resolvedMuscles[muscleIndex], state, resolvedResult
+        );
+        if (!sourceDiagnostics.succeeded() || !resolvedDiagnostics.succeeded()) {
+            return failure(NumiHumanTendonStatus::invalidBinding, muscleIndex);
+        }
+        const double sourceLength = sourceResult.path.length;
+        const double resolvedLength = resolvedResult.path.length;
+        if (!(sourceLength > 1.0e-6) || !(resolvedLength > 1.0e-6) ||
+            !std::isfinite(sourceLength) || !std::isfinite(resolvedLength)) {
+            return failure(NumiHumanTendonStatus::invalidBinding, muscleIndex);
+        }
+        const double delta = resolvedLength - sourceLength;
+        const double scale = resolvedLength / sourceLength;
+        auto& architecture = stagedArchitectures[muscleIndex];
+        if (!std::isfinite(delta) || std::abs(delta) > 0.020 ||
+            !std::isfinite(scale) || scale < 0.75 || scale > 1.25 ||
+            !(architecture.optimalFiberLength > 1.0e-6) ||
+            !(architecture.tendonSlackLength > 1.0e-6)) {
+            return failure(NumiHumanTendonStatus::invalidBinding, muscleIndex);
+        }
+        stagedResolvedMuscles[muscleIndex].lengthRange[0] += delta;
+        stagedResolvedMuscles[muscleIndex].lengthRange[1] += delta;
+        architecture.optimalFiberLength *= scale;
+        architecture.tendonSlackLength *= scale;
+        calibration.pathLengthDeltas[muscleIndex] = delta;
+        ++calibration.calibratedMuscleCount;
+        calibration.maximumAbsolutePathLengthDelta = std::max(
+            calibration.maximumAbsolutePathLengthDelta, std::abs(delta)
+        );
+        calibration.maximumArchitectureScaleChange = std::max(
+            calibration.maximumArchitectureScaleChange, std::abs(scale - 1.0)
+        );
+    }
+    if (calibration.calibratedMuscleCount == 0u) {
+        return failure(NumiHumanTendonStatus::incompleteCoverage);
+    }
+    std::copy(stagedResolvedMuscles.begin(), stagedResolvedMuscles.end(), resolvedMuscles.begin());
+    std::copy(stagedArchitectures.begin(), stagedArchitectures.end(), architectures.begin());
     return {};
 }
 
@@ -482,7 +597,8 @@ NumiHumanTendonDiagnostics evaluateNumiHumanTendonEnvelopeTraction(
     NumiHumanTendonTractionResult& result
 ) {
     result = {};
-    if (binding.mode != NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope ||
+    if ((binding.mode != NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope &&
+         binding.mode != NumiHumanTendonAttachmentMode::registeredBoneMigratedDistributedEnvelope) ||
         binding.bodyIndex != envelope.bodyIndex ||
         binding.boneStableId != envelope.boneStableId ||
         !finite(binding.resolvedLocalPoint) || !finite(terminalLocalForce)) {

@@ -24,6 +24,7 @@ enum class NumiHumanTendonAttachmentMode : std::uint32_t {
     sourceSitePoint = 0u,
     registeredBoneTriangle = 1u,
     registeredBoneDistributedEnvelope = 2u,
+    registeredBoneMigratedDistributedEnvelope = 3u,
 };
 
 struct NumiHumanTendonTriangle {
@@ -85,6 +86,7 @@ struct NumiHumanTendonResolvedProgram {
     std::uint32_t pointBindingCount = 0u;
     std::uint32_t triangleBindingCount = 0u;
     std::uint32_t envelopeBindingCount = 0u;
+    std::uint32_t migratedEnvelopeBindingCount = 0u;
     double maximumEndpointMigration = 0.0;
 };
 
@@ -104,9 +106,16 @@ struct NumiHumanTendonTractionResult {
     double momentResidual = 0.0;
 };
 
-// Decode NHTENDON1 or NHTENDON2. expected hashes may be empty to skip identity
+struct NumiHumanTendonReferenceCalibration {
+    std::vector<double> pathLengthDeltas;
+    std::uint32_t calibratedMuscleCount = 0u;
+    double maximumAbsolutePathLengthDelta = 0.0;
+    double maximumArchitectureScaleChange = 0.0;
+};
+
+// Decode NHTENDON1, NHTENDON2, or NHTENDON3. expected hashes may be empty to skip identity
 // comparison; production callers pass both source identities from
-// NHRIGID2/NHMYO1. NHTENDON2 additionally carries its exact NHBONES1 hash and
+// NHRIGID2/NHMYO1. NHTENDON2/3 additionally carry the exact NHBONES1 hash and
 // registration fingerprint for the caller to bind to loaded geometry.
 [[nodiscard]] NumiHumanTendonDiagnostics decodeNumiHumanTendonPayload(
     std::span<const std::byte> bytes,
@@ -125,6 +134,26 @@ struct NumiHumanTendonTractionResult {
     NumiHumanTendonResolvedProgram& result
 );
 
+// Rebase the source length range and compliant L0/LT at one exact reference
+// pose after NHTENDON3 changes a route endpoint. Scaling both architecture
+// lengths by resolved/source path length preserves its normalized equilibrium
+// at that pose; shifting both source length-range bounds preserves the rigid
+// MuJoCo force-law coordinate. The update commits transactionally only after
+// every migrated muscle passes its bounds. This is not applied to NHTENDON1/2.
+[[nodiscard]] NumiHumanTendonDiagnostics calibrateNumiHumanMigratedTendonReference(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<const double> referenceQ,
+    std::span<const MujocoWrapGeometry> wraps,
+    std::span<const MujocoMuscleSite> sourceSites,
+    std::span<const MujocoMuscleDefinition> sourceMuscles,
+    std::span<const MujocoMuscleSite> resolvedSites,
+    std::span<MujocoMuscleDefinition> resolvedMuscles,
+    std::span<MujocoCompliantMuscleArchitecture> architectures,
+    const NumiHumanTendonPayload& payload,
+    NumiHumanTendonReferenceCalibration& calibration
+);
+
 // Convert the already-evaluated route tension into an inspection traction
 // field. This never scatters generalized force; dynamics continue to use the
 // resolved route site exactly once. For a triangle binding, worldTriangle is
@@ -139,9 +168,10 @@ struct NumiHumanTendonTractionResult {
     NumiHumanTendonTractionResult& result
 );
 
-// Evaluate the NHTENDON2 source-point-preserving distributed attachment in
-// source-body coordinates. Unlike the legacy triangle path this never moves a
-// route endpoint: the four nodal forces reproduce its exact force and moment.
+// Evaluate an NHTENDON2/3 distributed attachment in source-body coordinates.
+// The four nodal forces reproduce the resolved endpoint's exact force and
+// moment. NHTENDON2 resolves to the source site; NHTENDON3 may use a private
+// named-bone surface site without changing the skeleton.
 [[nodiscard]] NumiHumanTendonDiagnostics evaluateNumiHumanTendonEnvelopeTraction(
     const NumiHumanTendonBinding& binding,
     const NumiHumanTendonEnvelope& envelope,

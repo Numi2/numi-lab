@@ -73,7 +73,7 @@ NumiHumanTendonDiagnostics makeNumiHumanTendonMetalProgram(
     NumiHumanTendonMetalProgram& program
 ) {
     program = {};
-    if (payload.payloadAbi != 2u || payload.muscleCount == 0u ||
+    if ((payload.payloadAbi != 2u && payload.payloadAbi != 3u) || payload.muscleCount == 0u ||
         payload.bindings.size() != 2u * payload.muscleCount ||
         payload.envelopes.empty()) {
         return {NumiHumanTendonStatus::invalidPayload, MR_INVALID_INDEX};
@@ -84,14 +84,17 @@ NumiHumanTendonDiagnostics makeNumiHumanTendonMetalProgram(
         if (source.muscleIndex >= payload.muscleCount || source.endpointOrdinal > 1u ||
             source.bodyIndex >= payload.bodyCount ||
             (source.mode != NumiHumanTendonAttachmentMode::sourceSitePoint &&
-             source.mode != NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope)) {
+             source.mode != NumiHumanTendonAttachmentMode::registeredBoneDistributedEnvelope &&
+             source.mode != NumiHumanTendonAttachmentMode::registeredBoneMigratedDistributedEnvelope)) {
             return {NumiHumanTendonStatus::invalidBinding, static_cast<std::uint32_t>(index)};
         }
         MRNumiHumanTendonBindingGPU destination{};
         destination.muscleIndex = source.muscleIndex;
         destination.endpointOrdinal = source.endpointOrdinal;
         destination.bodyIndex = source.bodyIndex;
-        destination.mode = static_cast<std::uint32_t>(source.mode);
+        destination.mode = source.mode == NumiHumanTendonAttachmentMode::sourceSitePoint
+            ? MR_NUMI_HUMAN_TENDON_TRANSFER_SOURCE_POINT
+            : MR_NUMI_HUMAN_TENDON_TRANSFER_DISTRIBUTED_ENVELOPE;
         destination.envelopeIndex = source.triangleIndex;
         destination.boneStableId = source.boneStableId;
         destination.sourceLocalPoint = {
@@ -147,7 +150,7 @@ NumiHumanTendonMetalDiagnostics runMetalNumiHumanTendonTransfer(
     if (program.bindings.empty() || program.bindings.size() % 2u != 0u ||
         program.envelopes.empty()) {
         return reject(std::move(diagnostics), NumiHumanTendonMetalStatus::invalidProgram,
-                      "NHTENDON2 Metal program is empty or incomplete");
+                      "NHTENDON2/3 Metal program is empty or incomplete");
     }
     const std::size_t muscleCount = program.bindings.size() / 2u;
     if (input.environmentCount == 0u || input.dofCount == 0u ||
@@ -162,13 +165,13 @@ NumiHumanTendonMetalDiagnostics runMetalNumiHumanTendonTransfer(
         input.pointJacobians.size() != input.environmentCount * input.pointJacobianStride ||
         input.pointJacobianStride % (3u * input.dofCount) != 0u) {
         return reject(std::move(diagnostics), NumiHumanTendonMetalStatus::invalidInput,
-                      "NHTENDON2 Metal input dimensions are inconsistent");
+                      "NHTENDON2/3 Metal input dimensions are inconsistent");
     }
     const std::size_t pointCount = input.pointJacobianStride / (3u * input.dofCount);
     if (input.bodyJacobianPointOffset > pointCount ||
         4u * input.bodyPoseStride > pointCount - input.bodyJacobianPointOffset) {
         return reject(std::move(diagnostics), NumiHumanTendonMetalStatus::invalidInput,
-                      "NHTENDON2 Metal body-Jacobian probe block is incomplete");
+                      "NHTENDON2/3 Metal body-Jacobian probe block is incomplete");
     }
     const std::size_t resultCount = input.environmentCount * program.bindings.size();
     if (resultCount > std::numeric_limits<NSUInteger>::max() /
@@ -176,7 +179,7 @@ NumiHumanTendonMetalDiagnostics runMetalNumiHumanTendonTransfer(
         resultCount > std::numeric_limits<NSUInteger>::max() /
                           (input.dofCount * sizeof(float))) {
         return reject(std::move(diagnostics), NumiHumanTendonMetalStatus::invalidInput,
-                      "NHTENDON2 Metal output dimensions overflow NSUInteger");
+                      "NHTENDON2/3 Metal output dimensions overflow NSUInteger");
     }
     @autoreleasepool {
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
@@ -206,7 +209,7 @@ NumiHumanTendonMetalDiagnostics runMetalNumiHumanTendonTransfer(
             [device newComputePipelineStateWithFunction:function error:&error];
         if (pipeline == nil || pipeline.maxTotalThreadsPerThreadgroup < kThreadsPerThreadgroup) {
             return reject(std::move(diagnostics), NumiHumanTendonMetalStatus::pipelineFailure,
-                          "cannot create NHTENDON2 Metal pipeline: " + describeError(error));
+                          "cannot create NHTENDON2/3 Metal pipeline: " + describeError(error));
         }
         MRNumiHumanTendonTransferDispatchGPU dispatch{};
         dispatch.abiVersion = MR_NUMI_HUMAN_TENDON_TRANSFER_GPU_ABI_VERSION;
@@ -245,14 +248,14 @@ NumiHumanTendonMetalDiagnostics runMetalNumiHumanTendonTransfer(
             muscleBuffer == nil || poseBuffer == nil || jacobianBuffer == nil ||
             resultBuffer == nil || correctionBuffer == nil) {
             return reject(std::move(diagnostics), NumiHumanTendonMetalStatus::metalUnavailable,
-                          "NHTENDON2 Metal buffer allocation failed");
+                          "NHTENDON2/3 Metal buffer allocation failed");
         }
         id<MTLCommandQueue> queue = [device newCommandQueue];
         id<MTLCommandBuffer> command = [queue commandBuffer];
         id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
         if (queue == nil || command == nil || encoder == nil) {
             return reject(std::move(diagnostics), NumiHumanTendonMetalStatus::commandFailure,
-                          "NHTENDON2 Metal command allocation failed");
+                          "NHTENDON2/3 Metal command allocation failed");
         }
         [encoder setComputePipelineState:pipeline];
         const std::array buffers{dispatchBuffer, bindingBuffer, envelopeBuffer, muscleBuffer,
@@ -272,7 +275,7 @@ NumiHumanTendonMetalDiagnostics runMetalNumiHumanTendonTransfer(
             std::chrono::steady_clock::now() - start).count();
         if (command.status != MTLCommandBufferStatusCompleted) {
             return reject(std::move(diagnostics), NumiHumanTendonMetalStatus::commandFailure,
-                          "NHTENDON2 Metal command failed: " + describeError(command.error));
+                          "NHTENDON2/3 Metal command failed: " + describeError(command.error));
         }
         std::vector<MRNumiHumanTendonTransferResultGPU> transfers(resultCount);
         std::vector<float> corrections(resultCount * input.dofCount);
@@ -291,13 +294,13 @@ NumiHumanTendonMetalDiagnostics runMetalNumiHumanTendonTransfer(
                              std::end(transfer.nodalWorldForces),
                              [](const mr_float4 value) { return finite(value); })) {
                 return reject(std::move(diagnostics), NumiHumanTendonMetalStatus::gpuFailure,
-                              "NHTENDON2 Metal kernel rejected binding " + std::to_string(index));
+                              "NHTENDON2/3 Metal kernel rejected binding " + std::to_string(index));
             }
         }
         if (!std::all_of(corrections.begin(), corrections.end(),
                          [](const float value) { return std::isfinite(value); })) {
             return reject(std::move(diagnostics), NumiHumanTendonMetalStatus::gpuFailure,
-                          "NHTENDON2 Metal kernel produced a non-finite generalized correction");
+                          "NHTENDON2/3 Metal kernel produced a non-finite generalized correction");
         }
         result.transfers = std::move(transfers);
         result.generalizedCorrections = std::move(corrections);
