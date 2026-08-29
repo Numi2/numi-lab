@@ -4922,10 +4922,12 @@ kernel void mr_locomotion_task_apply_actions(
             : action == 13u
             ? teacherRequested
             : studentRequested;
-        // The terminal reach spheres overlap. Teacher authority ends after
-        // waypoint four so the accepted actor owns only the final transaction.
+        // Keep the training-only teacher active through the final target.
+        // Ending at waypoint four taught an aggressive approach crossing but
+        // handed the student a poor terminal arrival geometry. Autonomous
+        // execution still has no teacher authority.
         const float navigationTeacherBlend = avianNavigationTeacher
-            ? (state.navigation.z >= 4.0f ? 0.0f : 1.0f)
+            ? (state.navigation.z >= 5.0f ? 0.0f : 1.0f)
             : 1.0f;
         const float effectiveTeacherRequested =
             avianJourneyLandedActorHandoff
@@ -4949,14 +4951,14 @@ kernel void mr_locomotion_task_apply_actions(
                   approachSupervisorBlend
               );
         if (avianJourneyTeacher) {
-            // Navigation may explicitly run the student as the accepted
-            // carrier for success-filtered self-imitation. In that mode the
-            // distillation target must be the action that actually entered
-            // the response filter, not a counterfactual hand-teacher action.
-            // Zero student authority preserves ordinary teacher labeling.
-            teacherActions[actionBase + action] = avianNavigationTeacher
-                ? requested
-                : effectiveTeacherRequested;
+            // Student authority selects the physically executed blend, while
+            // the label remains the full accepted-state expert action. This
+            // is the DAgger boundary: authority one visits the student's own
+            // states without turning the imitation target into an identity.
+            // Physical outcome filtering still decides which episode labels
+            // are eligible for learning.
+            teacherActions[actionBase + action] =
+                effectiveTeacherRequested;
         }
         rawPolicyActions[
             environment * program.counts0.x + action

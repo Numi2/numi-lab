@@ -260,9 +260,48 @@ waypoint-four success, remains full-route count-neutral on the fresh screen.
 V114 admits teacher labels from all active waypoint-three states, but it also
 fails locally: on fresh stage-three seed `2650820801`, the parent completes
 35/64 while candidate revisions complete only 33...34/64. Both learners are
-rejected. The next development target is a stronger failure-recovery teacher
-or a return-optimized controller on this current-parent pool; repeating the
-same behavior-cloning objective is not justified.
+rejected.
+
+Inspection of their rollout contract found that student-authority one stored
+the student's executed action as its own teacher target while also disabling
+the PPO ratio. The actor therefore received an identity imitation target. The
+training-only navigation boundary now follows DAgger semantics: the student
+still owns the physical trajectory, but the accepted-state expert action is
+stored as the counterfactual label and physical episode outcome controls label
+eligibility. Teacher authority also remains available through the fifth target
+instead of ending as soon as waypoint four is crossed. Neither change adds an
+autonomous supervisor.
+
+Across three 64-lane current-pool seeds, the pre-change teacher reaches
+waypoint four 146/192 times and completes 118/192, versus 123/192 and 105/192
+for the parent. Giving it pitch-moment authority or extending it through the
+terminal target was count-neutral within one completion and was rejected as a
+controller change. The useful signal is the original wing-bank/yaw expert,
+not a broader hand-authored controller.
+
+V115 and v116 confirmed that repeated curriculum-reset high-water counts are
+not a promotion screen. V116 improved a three-seed local stage-three total by
+18 completions, but the exact full-route result regressed from
+`[189, 118, 30, 13, 13]` to `[189, 118, 30, 13, 12]`. Exact full-route
+screening fixes difficulty band 10 and disables scheduled resets; omitting
+either is a different workload.
+
+V117 and v118 then trained on authentic full-route histories rather than the
+reset pool. After 1,228,800 success-filtered samples they remain exactly
+count-neutral at `[189, 118, 30, 13, 13]`. V119 includes physically reached
+waypoint-three failures. It leaves discrete counts unchanged, but moves every
+waypoint-three failure on the coarse seed closer to the target by
+`0.006...0.178 m` (mean `+0.079 m`). Removing its learned yaw row improves
+that mean to `+0.093 m`, so the yaw row is rejected.
+
+The wing-only v120 continuation finally crosses additional waypoint-four
+boundaries. Revision 123 changes the three-seed result to
+`[189, 118, 30, 15, 7]`: two more approach reaches but six fewer terminal
+completions, with zero failed environment steps. It is rejected. This exposes
+the next implementation target precisely: capture the eight new failed
+waypoint-four arrivals and add isolated waypoint-four authority. More
+waypoint-three dose cannot optimize the post-gate landing state after its
+adapter becomes identically zero.
 
 ### Retained route-residual candidate
 
