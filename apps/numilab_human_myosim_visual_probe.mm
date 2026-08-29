@@ -5008,6 +5008,7 @@ struct PectoralisFasciaVisual {
     std::vector<mr_float4> restNodes;
     std::vector<mr_float4> nodes;
     std::vector<std::array<std::uint32_t, 3u>> surfaceTriangles;
+    std::vector<std::uint32_t> sourceStableIds;
     std::uint32_t tetrahedronCount = 0u;
     std::uint32_t fixedNodeCount = 0u;
     std::uint32_t loadNodeCount = 0u;
@@ -5065,6 +5066,7 @@ PectoralisFasciaVisual runPectoralisFascia(
     for (std::uint32_t regionIndex = 0u;
          regionIndex < fascia.regions.size(); ++regionIndex) {
         const PectoralisFasciaRegion& region = fascia.regions[regionIndex];
+        result.sourceStableIds.push_back(region.softTissueStableId);
         const auto tissueIterator = std::find_if(
             tissues.records.begin(), tissues.records.end(),
             [&region](const SoftTissueRecord& value) {
@@ -5693,6 +5695,17 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                     requestedSoftTissueStableIds.begin(),
                     requestedSoftTissueStableIds.end(), tissue.stableId
                 )) {
+                continue;
+            }
+            if (pectoralisFascia != nullptr &&
+                std::find(pectoralisFascia->sourceStableIds.begin(),
+                          pectoralisFascia->sourceStableIds.end(),
+                          tissue.stableId) != pectoralisFascia->sourceStableIds.end()) {
+                // NHFASC1 uses these exact surfaces for rest registration, but
+                // the opaque reference renderer cannot layer a 0.6 mm shell
+                // without depth occlusion. A fascia mechanics capture shows
+                // the owning collagen solid against bone and does not add a
+                // misleading outward display offset.
                 continue;
             }
             const bool usesPassiveFEM = passiveFEMTissue != nullptr &&
@@ -6864,7 +6877,10 @@ int main(int argc, char** argv) {
                 renderedPassiveFEMTissues,
                 renderedPectoralisFascia
             );
-            require(requestedSoftTissueStableIds.empty() || renderedSoftTissues == requestedSoftTissueStableIds.size(),
+            require(requestedSoftTissueStableIds.empty() ||
+                        renderedSoftTissues + (pectoralisFascia.has_value()
+                            ? pectoralisFascia->sourceStableIds.size() : 0u) ==
+                            requestedSoftTissueStableIds.size(),
                     "native Human visual soft-tissue selection did not render every requested source surface");
             require(requestedBoneBodyIndices.empty() || renderedBodies > 0u,
                     "native Human visual bone selection rendered no source mesh");
