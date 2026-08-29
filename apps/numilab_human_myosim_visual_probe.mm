@@ -6465,6 +6465,19 @@ double parseMuscleActivation(const std::string& value) {
     return result;
 }
 
+double parsePoseCoordinate(const std::string& value) {
+    std::size_t parsed = 0u;
+    double result = 0.0;
+    try {
+        result = std::stod(value, &parsed);
+    } catch (const std::exception&) {
+        throw std::runtime_error("--pose-q must use a finite decimal coordinate value");
+    }
+    require(parsed == value.size() && std::isfinite(result) && std::abs(result) <= 10.0,
+            "--pose-q coordinate value must be finite and within [-10, 10]");
+    return result;
+}
+
 std::uint32_t parseMuscleStepCount(const std::string& value) {
     std::size_t parsed = 0u;
     unsigned long result = 0ul;
@@ -6551,6 +6564,7 @@ int main(int argc, char** argv) {
             std::optional<std::filesystem::path> pectoralisFasciaPayloadPath;
             std::optional<std::uint32_t> pectoralisFasciaStepCount;
             std::optional<std::uint32_t> requestedCameraIndex;
+            std::vector<std::pair<std::uint32_t, double>> requestedPoseCoordinates;
             std::uint32_t frameDimension = kDefaultFrameDimension;
             std::vector<std::string> positional;
             for (int index = 1; index < argc; ++index) {
@@ -6683,6 +6697,12 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !requestedCameraIndex.has_value(),
                             "--camera-index requires one value and may be given only once");
                     requestedCameraIndex.emplace(parseCameraIndex(argv[++index]));
+                } else if (argument == "--pose-q") {
+                    require(index + 2 < argc,
+                            "--pose-q requires one q index and one coordinate value");
+                    const std::uint32_t qIndex = parseSourceRouteIndex(argv[++index]);
+                    const double qValue = parsePoseCoordinate(argv[++index]);
+                    requestedPoseCoordinates.emplace_back(qIndex, qValue);
                 } else if (!argument.starts_with("--")) {
                     positional.push_back(argument);
                 } else {
@@ -6718,6 +6738,7 @@ int main(int argc, char** argv) {
                           << " [--joint-equality-payload <NHEQ1>]"
                           << " [--focus-body-index <0..156>]"
                           << " [--camera-index <0..3>]"
+                          << " [--pose-q <q-index> <coordinate-value>]..."
                           << " [--dimension <512..2048; multiple-of-64>]\n";
                 return 2;
             }
@@ -6913,6 +6934,9 @@ int main(int argc, char** argv) {
                     "--muscle-step-count requires --muscle-step-seconds");
             require(selectedSourceMuscleActivations.empty() || muscleStepSeconds.has_value(),
                     "--activated-source-muscle-index requires --muscle-step-seconds");
+            require(requestedPoseCoordinates.empty() ||
+                        (!muscleStepSeconds.has_value() && jointEqualityPayload.has_value()),
+                    "--pose-q requires NHEQ1 joint equalities and cannot be combined with muscle stepping");
             require(!persistentMetalStand ||
                         (muscleStepSeconds.has_value() &&
                          supportContactPayload.has_value() &&
@@ -6964,7 +6988,58 @@ int main(int argc, char** argv) {
                         "--passive-fem-tissue-stable-id must name a source muscle surface");
             }
             std::optional<MuscleDrivenVisualState> muscleDrivenState;
+            std::vector<float> overriddenPoseQ;
             std::span<const float> poseQ = rigid.model.defaultQ;
+            if (!requestedPoseCoordinates.empty()) {
+                std::sort(requestedPoseCoordinates.begin(), requestedPoseCoordinates.end());
+                require(std::adjacent_find(
+                            requestedPoseCoordinates.begin(), requestedPoseCoordinates.end(),
+                            [](const auto& first, const auto& second) {
+                                return first.first == second.first;
+                            }
+                        ) == requestedPoseCoordinates.end(),
+                        "--pose-q may assign each q index only once");
+                std::vector<double> projected(
+                    rigid.model.defaultQ.begin(), rigid.model.defaultQ.end()
+                );
+                for (const auto& [index, value] : requestedPoseCoordinates) {
+                    require(index < projected.size(), "--pose-q index exceeds the source nq");
+                    const auto dof = std::find_if(
+                        rigid.model.dofs.begin(), rigid.model.dofs.end(),
+                        [index](const MRDofPropertiesGPU& candidate) {
+                            return candidate.qIndex == index;
+                        }
+                    );
+                    require(dof != rigid.model.dofs.end(),
+                            "--pose-q may override only a scalar source DoF coordinate");
+                    require((dof->flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u ||
+                                (value >= static_cast<double>(dof->limits.x) - 1.0e-9 &&
+                                 value <= static_cast<double>(dof->limits.y) + 1.0e-9),
+                            "--pose-q coordinate value exceeds its source position range");
+                    projected[index] = value;
+                }
+                double maximumProjection = 0.0;
+                const auto projectionDiagnostics =
+                    metalrobo::projectNumiHumanJointEqualities(
+                        jointEqualityPayload->payload.records, projected,
+                        &maximumProjection
+                    );
+                require(projectionDiagnostics.succeeded(),
+                        std::string("--pose-q equality projection failed: ") +
+                            metalrobo::numiHumanJointEqualityStatusName(
+                                projectionDiagnostics.status
+                            ));
+                overriddenPoseQ.reserve(projected.size());
+                std::transform(
+                    projected.begin(), projected.end(),
+                    std::back_inserter(overriddenPoseQ),
+                    [](const double value) { return static_cast<float>(value); }
+                );
+                poseQ = overriddenPoseQ;
+                std::cout << "pose_q_override_count=" << requestedPoseCoordinates.size()
+                          << " pose_q_equality_maximum_correction=" << maximumProjection
+                          << "\n";
+            }
             if (muscleStepSeconds.has_value()) {
                 if (persistentMetalStand || selectedTendonControl) {
                     muscleDrivenState.emplace(
@@ -7139,6 +7214,7 @@ int main(int argc, char** argv) {
                 (supportContactPayload.has_value() ? "-source-support-contact" : "") +
                 (sourceRouteCentrelines ? "-source-route-centrelines" : "") +
                 (renderedTendonAttachmentEnvelopes > 0u ? "-tendon-attachment-envelopes" : "") +
+                (!requestedPoseCoordinates.empty() ? "-posed" : "") +
                 (surfaceProjectSourceSites ? "-surface-projected-sites" : "") +
                 (focusBodyIndex.has_value()
                     ? "-focus-body-" + std::to_string(*focusBodyIndex) : "");
@@ -7320,7 +7396,9 @@ int main(int argc, char** argv) {
             const bool sourceSupportContact = muscleDrivenState.has_value() &&
                 muscleDrivenState->supportContactApplied;
             const std::string poseSource = !muscleDrivenState.has_value()
-                ? "source_default_q_to_metal_kinematic_pose"
+                ? (!requestedPoseCoordinates.empty()
+                    ? "explicit_source_q_override_projected_through_NHEQ1_to_metal_kinematic_pose"
+                    : "source_default_q_to_metal_kinematic_pose")
                 : muscleDrivenState->selectedTendonControl
                     ? "persistent_metal_compiled_posture_baseline_plus_selected_source_activation_increment_all_416_mujoco_routes_" + tendonProgramName + "_transaction_gravity_joint_equalities_and_source_foot_support"
                 : muscleDrivenState->persistentMetalHorizon
@@ -7366,6 +7444,10 @@ int main(int argc, char** argv) {
             if (!selectedSourceMuscleActivations.empty()) {
                 evidenceBoundary +=
                     "_with_explicit_source_actuator_subset_excitation_all_416_source_paths_still_evaluated";
+            }
+            if (!requestedPoseCoordinates.empty()) {
+                evidenceBoundary +=
+                    "_with_explicit_kinematic_source_coordinate_override_and_exact_dependent_polynomial_projection_not_dynamics_or_loaded_contact_validation";
             }
             if (muscleDrivenState.has_value() &&
                 muscleDrivenState->assistanceRemovalEvaluated) {
@@ -7458,6 +7540,7 @@ int main(int argc, char** argv) {
                       << " pose_stage_elapsed_ms=" << poseDiagnostics.elapsedMilliseconds
                       << " renderer_compile_ms_first_camera=" << rendererCompileMilliseconds
                       << " pose_source=" << poseSource
+                      << " pose_q_override_count=" << requestedPoseCoordinates.size()
                       << " muscle_step_seconds=" << (muscleStepSeconds.has_value()
                               ? *muscleStepSeconds : 0.0)
                       << " muscle_step_count=" << (muscleDrivenState.has_value()

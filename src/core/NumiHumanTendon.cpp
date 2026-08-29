@@ -508,6 +508,20 @@ NumiHumanTendonDiagnostics calibrateNumiHumanMigratedTendonReference(
         const double delta = resolvedLength - sourceLength;
         const double scale = resolvedLength / sourceLength;
         auto& architecture = stagedArchitectures[muscleIndex];
+        // Retain the rejected candidate metrics for actionable diagnostics;
+        // resolved muscles/architectures still commit only after every
+        // migrated route passes.
+        calibration.pathLengthDeltas[muscleIndex] = delta;
+        if (std::isfinite(delta)) {
+            calibration.maximumAbsolutePathLengthDelta = std::max(
+                calibration.maximumAbsolutePathLengthDelta, std::abs(delta)
+            );
+        }
+        if (std::isfinite(scale)) {
+            calibration.maximumArchitectureScaleChange = std::max(
+                calibration.maximumArchitectureScaleChange, std::abs(scale - 1.0)
+            );
+        }
         if (!std::isfinite(delta) || std::abs(delta) > 0.020 ||
             !std::isfinite(scale) || scale < 0.75 || scale > 1.25 ||
             !(architecture.optimalFiberLength > 1.0e-6) ||
@@ -518,14 +532,7 @@ NumiHumanTendonDiagnostics calibrateNumiHumanMigratedTendonReference(
         stagedResolvedMuscles[muscleIndex].lengthRange[1] += delta;
         architecture.optimalFiberLength *= scale;
         architecture.tendonSlackLength *= scale;
-        calibration.pathLengthDeltas[muscleIndex] = delta;
         ++calibration.calibratedMuscleCount;
-        calibration.maximumAbsolutePathLengthDelta = std::max(
-            calibration.maximumAbsolutePathLengthDelta, std::abs(delta)
-        );
-        calibration.maximumArchitectureScaleChange = std::max(
-            calibration.maximumArchitectureScaleChange, std::abs(scale - 1.0)
-        );
     }
     if (calibration.calibratedMuscleCount == 0u) {
         return failure(NumiHumanTendonStatus::incompleteCoverage);

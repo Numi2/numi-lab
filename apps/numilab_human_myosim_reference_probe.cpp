@@ -467,7 +467,32 @@ void applyNumiHumanTendonPayload(
             calibrationDiagnostics.succeeded(),
             std::string("NHTENDON reference calibration failed: ") +
                 metalrobo::numiHumanTendonStatusName(calibrationDiagnostics.status) +
-                " index=" + std::to_string(calibrationDiagnostics.failingIndex)
+                " index=" + std::to_string(calibrationDiagnostics.failingIndex) +
+                " path_delta_m=" + (
+                    calibrationDiagnostics.failingIndex < calibration.pathLengthDeltas.size()
+                    ? std::to_string(calibration.pathLengthDeltas[
+                        calibrationDiagnostics.failingIndex
+                    ])
+                    : std::string("unavailable")
+                ) +
+                " maximum_absolute_path_delta_m=" +
+                    std::to_string(calibration.maximumAbsolutePathLengthDelta) +
+                " maximum_architecture_scale_change=" +
+                    std::to_string(calibration.maximumArchitectureScaleChange) +
+                " optimal_fiber_length_m=" + (
+                    calibrationDiagnostics.failingIndex < muscles.architectures.size()
+                    ? std::to_string(muscles.architectures[
+                        calibrationDiagnostics.failingIndex
+                    ].optimalFiberLength)
+                    : std::string("unavailable")
+                ) +
+                " tendon_slack_length_m=" + (
+                    calibrationDiagnostics.failingIndex < muscles.architectures.size()
+                    ? std::to_string(muscles.architectures[
+                        calibrationDiagnostics.failingIndex
+                    ].tendonSlackLength)
+                    : std::string("unavailable")
+                )
         );
         for (std::size_t index = 0u; index < muscles.oracleLength.size(); ++index) {
             muscles.oracleLength[index] += calibration.pathLengthDeltas[index];
