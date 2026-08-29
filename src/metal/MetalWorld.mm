@@ -9340,8 +9340,10 @@ void uploadBatch(
         task.assistance = {
             config.birdFlowJourneyStudentAuthority,
             config.difficultySamplingExponentOverride,
-            config.birdFlowNavigationCurriculum ? 1.0f : 0.0f,
-            0.0f,
+            static_cast<float>(
+                config.birdFlowNavigationCurriculumMode
+            ),
+            config.birdFlowNavigationDevelopmentReference ? 1.0f : 0.0f,
         };
         task.seed = config.taskSeed;
         task.policyRevision =
@@ -17264,7 +17266,7 @@ MetalWorldDiagnostics validateAndPublish(
                         transition.termination.y <= 1u &&
                         transition.termination.z <= 1u &&
                         transition.termination.w <=
-                            MR_TASK_TERMINATION_PROJECTILE_CONTACT &&
+                            MR_TASK_TERMINATION_NAVIGATION_COMPLETION &&
                         (
                             transition.termination.x != 0u ||
                             transition.termination.w ==

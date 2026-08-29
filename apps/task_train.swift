@@ -31,6 +31,8 @@ private struct Options {
     var actorObservationExtensionOffset: Int?
     var trainActorObservationExtensionOnly = false
     var trainActorObservationExtensionCount: Int?
+    var trainActorObservationExtensionOutputLayer = false
+    var trainActorObservationExtensionOutputActions: String?
     var actorObservationExtensionMean: Double?
     var actorObservationExtensionInverseStandardDeviation = 1.0
     var updatedPolicyPack: String?
@@ -71,6 +73,7 @@ private struct Options {
     var birdFlowJourneyTeacher = false
     var birdFlowJourneyStudentAuthority: Float = 0.0
     var birdFlowNavigationCurriculum = false
+    var birdFlowNavigationCurriculumStage: Int?
     var birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant =
         .v7Hierarchical
     var birdFlowNavigationCourse: MetalRoboBirdFlowNavigationCourse =
@@ -219,6 +222,11 @@ private struct Options {
                     value(),
                     option
                 )
+                index += 1
+            case "--train-actor-observation-extension-output-layer":
+                trainActorObservationExtensionOutputLayer = true
+            case "--train-actor-observation-extension-output-actions":
+                trainActorObservationExtensionOutputActions = try value()
                 index += 1
             case "--actor-observation-extension-mean":
                 guard let parsed = Double(try value()),
@@ -395,6 +403,12 @@ private struct Options {
                 birdFlowJourneyTeacher = true
             case "--birdflow-navigation-curriculum":
                 birdFlowNavigationCurriculum = true
+            case "--birdflow-navigation-curriculum-stage":
+                birdFlowNavigationCurriculumStage = try Self.integer(
+                    value(), option
+                )
+                birdFlowNavigationCurriculum = true
+                index += 1
             case "--birdflow-journey-variant":
                 switch try value() {
                 case "v7", "v7-hierarchical":
@@ -416,9 +430,11 @@ private struct Options {
                 case "training": birdFlowNavigationCourse = .training
                 case "held-out-a": birdFlowNavigationCourse = .heldOutA
                 case "held-out-b": birdFlowNavigationCourse = .heldOutB
+                case "development-reference":
+                    birdFlowNavigationCourse = .developmentReference
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--birdflow-navigation-course requires training, held-out-a, or held-out-b."
+                        "--birdflow-navigation-course requires training, held-out-a, held-out-b, or development-reference."
                     )
                 }
                 index += 1
@@ -633,6 +649,21 @@ private struct Options {
                 "--train-actor-observation-extension-count requires extension-only training and a positive count."
             )
         }
+        if trainActorObservationExtensionOutputLayer &&
+            !trainActorObservationExtensionOnly
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--train-actor-observation-extension-output-layer requires extension-only training."
+            )
+        }
+        if let actions = trainActorObservationExtensionOutputActions,
+           !trainActorObservationExtensionOnly || actions.isEmpty ||
+               trainActorObservationExtensionOutputLayer
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--train-actor-observation-extension-output-actions requires extension-only training and cannot be combined with the complete output layer."
+            )
+        }
         if retentionPolicyPack?.isEmpty == true {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--retention-policy-pack cannot be empty."
@@ -762,6 +793,15 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "Ball-dodge training requires authored G1 and ball Visual Presentation packs."
+            )
+        }
+        if birdFlowAmericanCrowJourney &&
+            (birdFlowJourneyVariant == .v9VisualNeural ||
+             birdFlowJourneyVariant == .v10WorldModelNavigation) &&
+            visualObservationConfig == nil
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "BirdFlow journey V9/V10 training requires --visual-observation-config; masked-depth inputs cannot be silently zero-filled."
             )
         }
         if inspectionScene != nil &&
@@ -1224,6 +1264,19 @@ private final class MLXLearnerWorker {
                 String(count),
             ])
         }
+        if options.trainActorObservationExtensionOutputLayer {
+            arguments.append(
+                "--train-actor-observation-extension-output-layer"
+            )
+        }
+        if let actions =
+                options.trainActorObservationExtensionOutputActions
+        {
+            arguments.append(contentsOf: [
+                "--train-actor-observation-extension-output-actions",
+                actions,
+            ])
+        }
         if let motionPack = options.motionPack {
             arguments.append(contentsOf: [
                 "--motion-pack", motionPack,
@@ -1446,6 +1499,13 @@ private func makeContext(
             "--birdflow-navigation-curriculum requires the V10 BirdFlow American-crow journey."
         )
     }
+    if let stage = options.birdFlowNavigationCurriculumStage,
+       stage < 0 || stage > 4
+    {
+        throw MetalRoboTaskRolloutError.invalidShape(
+            "--birdflow-navigation-curriculum-stage requires an integer in 0...4."
+        )
+    }
     let visualSensor = try makeVisualObservation(options: options)
     let inspectionVisual = try makeInspectionVisual(options: options)
     let dynamicSpheres: [MetalRoboDynamicSphere] =
@@ -1483,6 +1543,8 @@ private func makeContext(
             options.birdFlowJourneyStudentAuthority,
         birdFlowNavigationCurriculum:
             options.birdFlowNavigationCurriculum,
+        birdFlowNavigationCurriculumStage:
+            options.birdFlowNavigationCurriculumStage.map(UInt32.init),
         birdFlowJourneyVariant: options.birdFlowJourneyVariant,
         birdFlowNavigationCourse: options.birdFlowNavigationCourse,
         unitreeG1Task: options.unitreeG1Task
@@ -2102,6 +2164,8 @@ private enum TaskTrainMain {
                     options.birdFlowJourneyStudentAuthority,
                 "birdflow_navigation_curriculum":
                     options.birdFlowNavigationCurriculum,
+                "birdflow_navigation_curriculum_stage":
+                    options.birdFlowNavigationCurriculumStage ?? -1,
                 "retention_policy_pack":
                     options.retentionPolicyPack ?? "",
                 "retention_maximum_difficulty_band":
@@ -2178,8 +2242,7 @@ private enum TaskTrainMain {
                     options.overrideResumedLearningRate &&
                     learner.stateRestored,
                 "resumed_exploration_overridden":
-                    options.overrideResumedExploration &&
-                    learner.stateRestored,
+                    options.overrideResumedExploration,
                 "native_submission_count": NSNumber(
                     value:
                         finalLayout.submissionCount -

@@ -1888,12 +1888,34 @@ def _actor_observation_extension_only_gradients(
     gradients: Any,
     offset: int,
     count: int | None = None,
+    train_output_layer: bool = False,
+    output_action_indices: tuple[int, ...] | None = None,
 ) -> Any:
-    """Keep critic gradients and only the actor's new input columns."""
+    """Keep critic gradients and a protected actor route adapter.
 
+    The default preserves the historical extension-only behavior.  The
+    optional output-layer path also trains the final control projection while
+    freezing every inherited hidden layer and the exploration parameter.
+    """
+
+    flattened = list(tree_flatten(gradients))
+    actor_weight_layers = [
+        (int(name.split(".")[2]), name.rsplit(".", 1)[0])
+        for name, gradient in flattened
+        if name.startswith("actor.layers.")
+        and name.endswith(".weight")
+        and gradient.ndim == 2
+    ]
+    train_any_output = train_output_layer or output_action_indices is not None
+    output_layer = (
+        max(actor_weight_layers)[1]
+        if train_any_output and actor_weight_layers
+        else None
+    )
     masked_gradients: list[tuple[str, mx.array]] = []
     found_first_layer = False
-    for name, gradient in tree_flatten(gradients):
+    found_output_layer = False
+    for name, gradient in flattened:
         if name == "actor.layers.0.weight":
             extension_count = (
                 gradient.shape[1] - offset if count is None else count
@@ -1928,11 +1950,37 @@ def _actor_observation_extension_only_gradients(
             )
             gradient = gradient * extension_mask
             found_first_layer = True
+        elif output_layer is not None and name.startswith(output_layer + "."):
+            if output_action_indices is not None:
+                if (
+                    not output_action_indices
+                    or min(output_action_indices) < 0
+                    or max(output_action_indices) >= gradient.shape[0]
+                    or len(set(output_action_indices)) !=
+                        len(output_action_indices)
+                ):
+                    raise ValueError(
+                        "actor output action range is invalid"
+                    )
+                row_mask = mx.array(
+                    [
+                        1.0 if index in output_action_indices else 0.0
+                        for index in range(gradient.shape[0])
+                    ],
+                    dtype=gradient.dtype,
+                ).reshape(
+                    (gradient.shape[0],) +
+                    (1,) * (gradient.ndim - 1)
+                )
+                gradient = gradient * row_mask
+            found_output_layer = True
         elif name.startswith("actor.") or name == "log_standard_deviation":
             gradient = mx.zeros_like(gradient)
         masked_gradients.append((name, gradient))
     if not found_first_layer:
         raise ValueError("actor gradient tree has no first dense layer")
+    if train_any_output and not found_output_layer:
+        raise ValueError("actor gradient tree has no dense output layer")
     return tree_unflatten(masked_gradients)
 
 
@@ -1970,7 +2018,12 @@ class MLXPolicyLearner:
         self._training_state: list[Any] = []
         self._compiled_training_step: Any = None
         self._actor_observation_extension_only_range: (
-            tuple[int, int | None] | None
+            tuple[
+                int,
+                int | None,
+                bool,
+                tuple[int, ...] | None,
+            ] | None
         ) = None
         self.refresh_compiled_training_state()
         self.policy_id: str | None = None
@@ -2032,6 +2085,9 @@ class MLXPolicyLearner:
         self,
         offset: int,
         count: int | None = None,
+        *,
+        train_output_layer: bool = False,
+        output_action_indices: tuple[int, ...] | None = None,
     ) -> None:
         """Freeze the inherited actor and train only new input columns.
 
@@ -2054,7 +2110,12 @@ class MLXPolicyLearner:
             raise ValueError(
                 "actor observation extension range is invalid"
             )
-        self._actor_observation_extension_only_range = (offset, count)
+        self._actor_observation_extension_only_range = (
+            offset,
+            count,
+            train_output_layer,
+            output_action_indices,
+        )
         self.refresh_compiled_training_state()
 
     def zero_actor_output(self) -> None:
@@ -2077,6 +2138,61 @@ class MLXPolicyLearner:
         self.optimizer.init(self.model.trainable_parameters())
         self.refresh_compiled_training_state()
         mx.eval(self.model.parameters(), self.optimizer.state)
+
+    def zero_actor_observation_range(
+        self,
+        offset: int,
+        count: int,
+    ) -> None:
+        """Disconnect an unqualified observation range from the actor.
+
+        This preserves every inherited bias, hidden layer, and output row.
+        It is intended for a policy that was accidentally optimized while an
+        authored sensor range was identically zero: enabling the live sensor
+        can then begin from the exact qualified non-sensor controller before
+        those first-layer columns are reopened deliberately.
+        """
+
+        if (
+            offset < 0
+            or count <= 0
+            or offset + count > self.actor_observation_count
+        ):
+            raise ValueError("actor observation zero range is invalid")
+        first = next(
+            (
+                layer
+                for layer in self.model.actor.layers
+                if isinstance(layer, nn.Linear)
+            ),
+            None,
+        )
+        if first is None:
+            raise RuntimeError("actor contains no linear input layer")
+        disconnected = first.weight[:, offset:offset + count]
+        zero_input = (
+            -self.model.actor_observation_mean[offset:offset + count]
+            * self.model.actor_observation_inverse_standard_deviation[
+                offset:offset + count
+            ]
+        )
+        if first.bias is None:
+            raise RuntimeError("actor input layer has no bias to preserve")
+        # PolicyPack normalization happens before the first dense layer.
+        # Fold the exact raw-zero contribution into the bias before clearing
+        # these columns, so the transformed actor is numerically equivalent
+        # on the previously observed all-zero sensor contract.
+        first.bias = first.bias + disconnected @ zero_input
+        first.weight = mx.concatenate(
+            (
+                first.weight[:, :offset],
+                mx.zeros_like(first.weight[:, offset:offset + count]),
+                first.weight[:, offset + count:],
+            ),
+            axis=1,
+        )
+        self.refresh_compiled_training_state()
+        mx.eval(self.model.parameters())
 
     @staticmethod
     def _copied_state_tree(state: Any) -> Any:
@@ -3002,11 +3118,15 @@ class MLXPolicyLearner:
             policy_weights,
         )
         if self._actor_observation_extension_only_range is not None:
-            offset, count = self._actor_observation_extension_only_range
+            offset, count, train_output_layer, output_action_indices = (
+                self._actor_observation_extension_only_range
+            )
             gradients = _actor_observation_extension_only_gradients(
                 gradients,
                 offset,
                 count,
+                train_output_layer,
+                output_action_indices,
             )
         _, actor_gradient_norm = optim.clip_grad_norm(
             {

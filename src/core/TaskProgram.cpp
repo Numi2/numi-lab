@@ -3345,7 +3345,7 @@ TaskCompileDiagnostics compileTaskProgram(
             termination.reason ==
                 MR_TASK_TERMINATION_CONTINUING ||
             termination.reason >
-                MR_TASK_TERMINATION_PROJECTILE_CONTACT) {
+                MR_TASK_TERMINATION_NAVIGATION_COMPLETION) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 termination.sourceGroup,

@@ -783,6 +783,19 @@ def distill_student(arguments: argparse.Namespace) -> dict[str, Any]:
     )
     if observation_count <= 0 or action_count <= 0:
         raise ValueError("demonstrations omit actor/action dimensions")
+    if arguments.planner_stage is not None:
+        stage_index = (
+            arguments.route_observation_offset + 8 +
+            arguments.planner_stage
+        )
+        if stage_index >= observation_count:
+            raise ValueError("planner stage lies outside the actor observation")
+        records = [
+            record for record in records
+            if float(record["observation"][stage_index]) > 0.5
+        ]
+        if not records:
+            raise ValueError("planner artifact has no demonstrations for the requested stage")
     planner_observations = _finite_matrix(
         [record["observation"] for record in records], observation_count,
         "demonstration observations",
@@ -965,6 +978,7 @@ def distill_student(arguments: argparse.Namespace) -> dict[str, Any]:
             "seed": arguments.seed,
             "planner_blend": arguments.planner_blend,
             "planner_repeats": arguments.planner_repeats,
+            "planner_stage": arguments.planner_stage,
             "base_replay_repeats": arguments.base_replay_repeats,
             "planner_observation_noise_standard_deviation":
                 arguments.planner_observation_noise_std,
@@ -1038,6 +1052,7 @@ def _parser() -> argparse.ArgumentParser:
     distill.add_argument("--learning-rate", type=float, default=3.0e-4)
     distill.add_argument("--planner-blend", type=float, default=0.1)
     distill.add_argument("--planner-repeats", type=int, default=8)
+    distill.add_argument("--planner-stage", type=int)
     distill.add_argument("--base-replay-repeats", type=int, default=1)
     distill.add_argument(
         "--planner-observation-noise-std", type=float, default=0.0
@@ -1090,6 +1105,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             raise ValueError("planner blend must be in [0, 1]")
         if arguments.planner_repeats < 0:
             raise ValueError("planner repeats must be non-negative")
+        if arguments.planner_stage is not None and not (
+            0 <= arguments.planner_stage <= 4
+        ):
+            raise ValueError("planner stage must be in 0...4")
         if arguments.base_replay_repeats <= 0:
             raise ValueError("base replay repeats must be positive")
         if arguments.planner_observation_noise_std < 0.0:

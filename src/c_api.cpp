@@ -550,7 +550,7 @@ void applyCrowNavigationCourseSplit(
         "crow_course_slalom_b",
         "crow_course_perch",
     }};
-    constexpr std::array<std::array<mr_float4, 5u>, 2u> positions{{
+    constexpr std::array<std::array<mr_float4, 5u>, 3u> positions{{
         {{{1.55f, 0.58f, 0.80f, 1.0f},
           {1.55f, -0.76f, 0.80f, 1.0f},
           {2.75f, -0.28f, 0.65f, 1.0f},
@@ -561,6 +561,14 @@ void applyCrowNavigationCourseSplit(
           {2.45f, 0.46f, 0.65f, 1.0f},
           {3.55f, -0.46f, 0.65f, 1.0f},
           {4.85f, 0.22f, 0.70f, 1.0f}}},
+        // Accepted scene-body poses from environment 4, episode-local band 5,
+        // seed 2650817001. The inherited V33-r11 actor reached waypoint one
+        // on this exact course before the turn-preview experiment.
+        {{{1.4494589567f, 0.6012506485f, 0.7421792746f, 1.0f},
+          {1.2955527306f, -0.7601146698f, 0.7944179177f, 1.0f},
+          {2.4459667206f, 0.4744514823f, 0.6441041827f, 1.0f},
+          {3.6380522251f, -0.2306721509f, 0.5702749491f, 1.0f},
+          {4.9732704163f, -0.0928055048f, 0.8553680778f, 1.0f}}},
     }};
     const auto sceneBodies = handle.world.sceneBodyIndices();
     for (std::size_t index = 0u; index < names.size(); ++index) {
@@ -637,9 +645,9 @@ void validateTaskRolloutConfiguration(
             "task-rollout journey student authority must be in [0, 1]"
         );
     }
-    if (config.birdflow_navigation_curriculum > 1u) {
+    if (config.birdflow_navigation_curriculum > 6u) {
         throw std::invalid_argument(
-            "task-rollout BirdFlow navigation curriculum flag is invalid"
+            "task-rollout BirdFlow navigation curriculum mode is invalid"
         );
     }
     if (!std::isfinite(config.difficulty_sampling_exponent_override) ||
@@ -655,7 +663,7 @@ void validateTaskRolloutConfiguration(
         );
     }
     if (config.birdflow_navigation_course >
-        MR_BIRDFLOW_NAVIGATION_COURSE_HELD_OUT_B) {
+        MR_BIRDFLOW_NAVIGATION_COURSE_DEVELOPMENT_REFERENCE) {
         throw std::invalid_argument(
             "task-rollout BirdFlow navigation course split is invalid"
         );
@@ -3238,6 +3246,13 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
         const bool neuralJourney = journey &&
             config->birdflow_journey_variant ==
                 MR_BIRDFLOW_JOURNEY_V8_NEURAL;
+        if (visualNeuralJourney && visual_sensor == nullptr) {
+            throw std::invalid_argument(
+                "BirdFlow journey V9/V10 requires an explicit visual "
+                "observation SensorPack; masked-depth policy inputs cannot "
+                "fall back to zero-filled observations"
+            );
+        }
         manifest.id = journey
             ? worldModelNavigation
                 ? "birdflow_american_crow_navigation_v10_world_model_run"
@@ -3304,9 +3319,14 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             journey
             ? config->birdflow_journey_student_authority
             : 0.0f;
-        handle->stepConfig.birdFlowNavigationCurriculum =
+        handle->stepConfig.birdFlowNavigationCurriculumMode =
+            worldModelNavigation
+            ? config->birdflow_navigation_curriculum
+            : 0u;
+        handle->stepConfig.birdFlowNavigationDevelopmentReference =
             worldModelNavigation &&
-            config->birdflow_navigation_curriculum != 0u;
+            config->birdflow_navigation_course ==
+                MR_BIRDFLOW_NAVIGATION_COURSE_DEVELOPMENT_REFERENCE;
         if (handle->stepConfig.birdFlowJourneyTeacher) {
             // createTaskRolloutHandle establishes the resident allocation
             // before source-specific invocation flags are known. Recreate the

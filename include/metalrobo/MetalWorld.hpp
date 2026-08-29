@@ -713,7 +713,13 @@ struct MetalWorldStepConfig {
     // Invocation-scoped reset curriculum for the V10 navigation route. This
     // changes only the initial sequential waypoint stage; it grants neither
     // teacher nor actuator authority and is disabled during evaluation.
-    bool birdFlowNavigationCurriculum = false;
+    // 0 disables, 1 selects the mixed reset distribution, and 2...6 focus
+    // navigation stages 0...4 respectively.
+    std::uint32_t birdFlowNavigationCurriculumMode = 0u;
+    // Invocation-only paired regression fixture. It pins the authored Crow
+    // course bodies while preserving root, sensor, controller, and physical
+    // randomization. It is not a qualification mode.
+    bool birdFlowNavigationDevelopmentReference = false;
     std::uint64_t taskSeed = 0u;
     // Invocation-scoped reset sampling. These select an overlapping region of
     // one compiled TaskPack; they never alter reward, success, or promotion.

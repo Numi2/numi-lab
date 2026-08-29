@@ -318,6 +318,10 @@ enum MRTaskTerminationReason : mr_u32 {
     MR_TASK_TERMINATION_TIMEOUT = 4u,
     MR_TASK_TERMINATION_PHYSICS_ERROR = 5u,
     MR_TASK_TERMINATION_PROJECTILE_CONTACT = 6u,
+    // Invocation-scoped navigation curricula terminate a sampled segment as
+    // soon as its fifth waypoint is accepted so PPO does not train on a long
+    // tail of zero-command, already-complete states.
+    MR_TASK_TERMINATION_NAVIGATION_COMPLETION = 7u,
 };
 
 enum MRTaskRandomizationOpcode : mr_u32 {

@@ -62,6 +62,9 @@ typedef enum MRBirdFlowNavigationCourseC {
     MR_BIRDFLOW_NAVIGATION_COURSE_TRAINING = 0,
     MR_BIRDFLOW_NAVIGATION_COURSE_HELD_OUT_A = 1,
     MR_BIRDFLOW_NAVIGATION_COURSE_HELD_OUT_B = 2,
+    // Captured accepted-state geometry used only for paired development
+    // regression. Qualification must continue to use the held-out splits.
+    MR_BIRDFLOW_NAVIGATION_COURSE_DEVELOPMENT_REFERENCE = 3,
 } MRBirdFlowNavigationCourseC;
 
 typedef struct MRTaskRolloutDynamicSphereC {
@@ -106,15 +109,18 @@ typedef struct MRTaskRolloutConfigC {
     // Fraction of normalized student action executed when the journey
     // teacher is enabled. Blended transitions remain distillation-only.
     float birdflow_journey_student_authority;
-    // V10-only sequential waypoint-stage reset curriculum. This is separate
-    // from the journey teacher and never supplies actions or labels.
+    // V10-only sequential waypoint-stage reset curriculum. Zero disables it,
+    // one selects the mixed curriculum, and values two through six focus
+    // stages zero through four. This is separate from the journey teacher and
+    // never supplies actions or labels.
     uint32_t birdflow_navigation_curriculum;
     // Selects the exact fingerprinted journey TaskPack. V7 retains its
     // approach supervisor; V8 is neural-only during execution while still
     // permitting invocation-scoped teacher labels during training.
     uint32_t birdflow_journey_variant;
-    // V10 obstacle geometry split. All values retain identical mechanics and
-    // differ only in deterministic scene-body reset poses.
+    // V10 obstacle geometry split. The development reference pins captured
+    // scene-body poses and disables only their episode-local position offsets.
+    // It is a regression fixture, never a held-out qualification split.
     uint32_t birdflow_navigation_course;
     // Optional execution-profile override for the authored difficulty-band
     // sampling exponent. Zero retains the TaskPack exponent.

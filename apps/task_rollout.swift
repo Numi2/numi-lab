@@ -251,6 +251,8 @@ private struct Options {
     var birdFlowAmericanCrowJourney = false
     var birdFlowJourneyTeacher = false
     var birdFlowJourneyStudentAuthority: Float = 0.0
+    var birdFlowNavigationCurriculum = false
+    var birdFlowNavigationCurriculumStage: Int?
     var birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant =
         .v7Hierarchical
     var birdFlowNavigationCourse: MetalRoboBirdFlowNavigationCourse =
@@ -544,6 +546,14 @@ private struct Options {
                 birdFlowAmericanCrowJourney = true
             case "--birdflow-journey-teacher":
                 birdFlowJourneyTeacher = true
+            case "--birdflow-navigation-curriculum":
+                birdFlowNavigationCurriculum = true
+            case "--birdflow-navigation-curriculum-stage":
+                birdFlowNavigationCurriculumStage = try Self.integer(
+                    value(), option
+                )
+                birdFlowNavigationCurriculum = true
+                index += 1
             case "--birdflow-journey-variant":
                 switch try value() {
                 case "v7", "v7-hierarchical":
@@ -565,9 +575,11 @@ private struct Options {
                 case "training": birdFlowNavigationCourse = .training
                 case "held-out-a": birdFlowNavigationCourse = .heldOutA
                 case "held-out-b": birdFlowNavigationCourse = .heldOutB
+                case "development-reference":
+                    birdFlowNavigationCourse = .developmentReference
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--birdflow-navigation-course requires training, held-out-a, or held-out-b."
+                        "--birdflow-navigation-course requires training, held-out-a, held-out-b, or development-reference."
                     )
                 }
                 index += 1
@@ -760,6 +772,21 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--birdflow-journey-student-authority requires --birdflow-journey-teacher."
+            )
+        }
+        if birdFlowNavigationCurriculum &&
+            (!birdFlowAmericanCrowJourney ||
+             birdFlowJourneyVariant != .v10WorldModelNavigation)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-navigation-curriculum requires the V10 BirdFlow American-crow journey."
+            )
+        }
+        if let stage = birdFlowNavigationCurriculumStage,
+           stage < 0 || stage > 4
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-navigation-curriculum-stage requires an integer in 0...4."
             )
         }
         let hasBirdFlowWingPulse =
@@ -1019,6 +1046,15 @@ private struct Options {
                 "Ball-task visualization requires --ball-visual-pack-dir."
             )
         }
+        if birdFlowAmericanCrowJourney &&
+            (birdFlowJourneyVariant == .v9VisualNeural ||
+             birdFlowJourneyVariant == .v10WorldModelNavigation) &&
+            visualObservationConfig == nil
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "BirdFlow journey V9/V10 rollout requires --visual-observation-config; masked-depth inputs cannot be silently zero-filled."
+            )
+        }
         if captureDirectory != nil &&
             (environments != 1 || chunk != 1 ||
              (g1VisualPackDirectory == nil &&
@@ -1232,6 +1268,10 @@ private func makeContext(
         birdFlowJourneyTeacher: options.birdFlowJourneyTeacher,
         birdFlowJourneyStudentAuthority:
             options.birdFlowJourneyStudentAuthority,
+        birdFlowNavigationCurriculum:
+            options.birdFlowNavigationCurriculum,
+        birdFlowNavigationCurriculumStage:
+            options.birdFlowNavigationCurriculumStage.map(UInt32.init),
         birdFlowJourneyVariant: options.birdFlowJourneyVariant,
         birdFlowNavigationCourse: options.birdFlowNavigationCourse,
         unitreeG1Task: options.unitreeG1Task
@@ -2980,13 +3020,26 @@ private enum TaskRolloutMain {
                     ],
                     "body_names": context.bodyNames,
                     "navigation_course":
-                        options.birdFlowNavigationCourse == .heldOutA
+                        options.birdFlowNavigationCourse == .developmentReference
+                        ? "development-reference"
+                        : options.birdFlowNavigationCourse == .heldOutA
                         ? "held-out-a"
                         : options.birdFlowNavigationCourse == .heldOutB
                         ? "held-out-b" : "training",
                     "geometry_randomization": [
-                        "mode": "deterministic_episode_local_position_offsets",
+                        "mode": options.birdFlowNavigationCourse ==
+                            .developmentReference
+                            ? "captured_development_reference"
+                            : "deterministic_episode_local_position_offsets",
                         "seed": String(options.seed),
+                        "position_offsets_applied":
+                            options.birdFlowNavigationCourse !=
+                                .developmentReference,
+                        "selection_role":
+                            options.birdFlowNavigationCourse ==
+                                .developmentReference
+                            ? "paired-development-only"
+                            : "training-or-held-out-qualification",
                         "ranges_m": [
                             "crow_course_gate_left": [0.12, 0.12, 0.08],
                             "crow_course_gate_right": [0.12, 0.12, 0.08],
@@ -2994,6 +3047,8 @@ private enum TaskRolloutMain {
                             "crow_course_slalom_b": [0.20, 0.18, 0.08],
                             "crow_course_perch": [0.25, 0.20, 0.08],
                         ],
+                        "development_reference_source":
+                            "accepted-state replay; seed 2650817001; environment 4; band 5; inherited V33-r11 reached waypoint one",
                         "realized_positions":
                             "body_states carries every accepted course pose per frame",
                     ],
@@ -3391,6 +3446,10 @@ private enum TaskRolloutMain {
                     options.birdFlowJourneyTeacher,
                 "birdflow_journey_student_authority":
                     options.birdFlowJourneyStudentAuthority,
+                "birdflow_navigation_curriculum":
+                    options.birdFlowNavigationCurriculum,
+                "birdflow_navigation_curriculum_stage":
+                    options.birdFlowNavigationCurriculumStage ?? -1,
                 "difficulty_sampling_exponent_override":
                     options.difficultySamplingExponentOverride,
                 "birdflow_journey_variant":
@@ -3401,10 +3460,16 @@ private enum TaskRolloutMain {
                     : options.birdFlowJourneyVariant == .v8Neural
                     ? "v8-neural" : "v7-hierarchical",
                 "birdflow_navigation_course":
-                    options.birdFlowNavigationCourse == .heldOutA
+                    options.birdFlowNavigationCourse == .developmentReference
+                    ? "development-reference"
+                    : options.birdFlowNavigationCourse == .heldOutA
                     ? "held-out-a"
                     : options.birdFlowNavigationCourse == .heldOutB
                     ? "held-out-b" : "training",
+                "birdflow_navigation_course_role":
+                    options.birdFlowNavigationCourse == .developmentReference
+                    ? "paired-development-only"
+                    : "training-or-held-out-qualification",
                 "action_stream": options.actionStream ?? "",
                 "birdflow_stroke_amplitude": options.birdFlowStrokeAmplitude ?? 0,
                 "birdflow_tail_pitch": options.birdFlowTailPitch ?? 0,

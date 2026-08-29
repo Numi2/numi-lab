@@ -942,7 +942,7 @@ def _serve(arguments: argparse.Namespace) -> int:
         learner.optimizer.learning_rate = arguments.learning_rate
         learner.refresh_compiled_training_state()
         mx.eval(learner.optimizer.state)
-    if restored and arguments.override_resumed_exploration:
+    if arguments.override_resumed_exploration:
         learner.model.log_standard_deviation = mx.full(
             (learner.action_count,),
             arguments.initial_log_standard_deviation,
@@ -972,6 +972,43 @@ def _serve(arguments: argparse.Namespace) -> int:
         raise ValueError(
             "extension-only actor column count requires extension-only training"
         )
+    if (
+        arguments.train_actor_observation_extension_output_layer
+        and not arguments.train_actor_observation_extension_only
+    ):
+        raise ValueError(
+            "extension output-layer training requires extension-only training"
+        )
+    output_action_indices = None
+    if arguments.train_actor_observation_extension_output_actions is not None:
+        if not arguments.train_actor_observation_extension_only:
+            raise ValueError(
+                "extension output-action training requires extension-only training"
+            )
+        if arguments.train_actor_observation_extension_output_layer:
+            raise ValueError(
+                "select either the complete output layer or explicit output actions"
+            )
+        try:
+            output_action_indices = tuple(
+                int(value)
+                for value in arguments
+                    .train_actor_observation_extension_output_actions
+                    .split(",")
+            )
+        except ValueError as error:
+            raise ValueError(
+                "extension output actions must be comma-separated integers"
+            ) from error
+        if (
+            not output_action_indices
+            or min(output_action_indices) < 0
+            or max(output_action_indices) >= learner.action_count
+            or len(set(output_action_indices)) != len(output_action_indices)
+        ):
+            raise ValueError(
+                "extension output actions must be unique valid actor rows"
+            )
     if arguments.train_actor_observation_extension_only:
         if restored:
             raise ValueError(
@@ -984,6 +1021,10 @@ def _serve(arguments: argparse.Namespace) -> int:
         learner.train_actor_observation_extension_only(
             arguments.actor_observation_extension_offset,
             arguments.train_actor_observation_extension_count,
+            train_output_layer=(
+                arguments.train_actor_observation_extension_output_layer
+            ),
+            output_action_indices=output_action_indices,
         )
     current_policy = learner.write_policy_pack(
         arguments.output_policy_pack,
@@ -1021,7 +1062,7 @@ def _serve(arguments: argparse.Namespace) -> int:
                 restored and arguments.override_resumed_learning_rate
             ),
             "resumed_exploration_overridden": bool(
-                restored and arguments.override_resumed_exploration
+                arguments.override_resumed_exploration
             ),
             "motion_prior_enabled": motion_prior is not None,
             "retention_policy_enabled": retention_reference is not None,
@@ -1230,6 +1271,21 @@ def _initialize(arguments: argparse.Namespace) -> int:
             )
     if arguments.zero_actor_output:
         learner.zero_actor_output()
+    zero_observation_arguments = (
+        arguments.zero_actor_observation_offset,
+        arguments.zero_actor_observation_count,
+    )
+    if (zero_observation_arguments[0] is None) != (
+        zero_observation_arguments[1] is None
+    ):
+        raise ValueError(
+            "actor observation zeroing requires both offset and count"
+        )
+    if zero_observation_arguments[0] is not None:
+        learner.zero_actor_observation_range(
+            zero_observation_arguments[0],
+            zero_observation_arguments[1],
+        )
     _bind_contract(learner, arguments)
     artifact = learner.write_policy_pack(
         arguments.output,
@@ -1412,6 +1468,22 @@ def main() -> int:
         help="zero the final actor layer so the initial action is exactly the mechanism default",
     )
     initialize.add_argument(
+        "--zero-actor-observation-offset",
+        type=int,
+        help=(
+            "first actor input column to disconnect while preserving the "
+            "rest of an imported actor"
+        ),
+    )
+    initialize.add_argument(
+        "--zero-actor-observation-count",
+        type=int,
+        help=(
+            "number of actor input columns to disconnect; requires "
+            "--zero-actor-observation-offset"
+        ),
+    )
+    initialize.add_argument(
         "--deterministic",
         action="store_true",
         help="write an actor-only deployment PolicyPack",
@@ -1550,6 +1622,21 @@ def main() -> int:
         ),
     )
     serve.add_argument(
+        "--train-actor-observation-extension-output-layer",
+        action="store_true",
+        help=(
+            "also train the actor's final control projection while extension-"
+            "only mode freezes every inherited hidden layer and exploration"
+        ),
+    )
+    serve.add_argument(
+        "--train-actor-observation-extension-output-actions",
+        help=(
+            "comma-separated final actor rows to train with the observation "
+            "extension while all other inherited control rows stay frozen"
+        ),
+    )
+    serve.add_argument(
         "--override-resumed-learning-rate",
         action="store_true",
         help=(
@@ -1561,8 +1648,8 @@ def main() -> int:
         "--override-resumed-exploration",
         action="store_true",
         help=(
-            "restore model, critic, and motion state while "
-            "explicitly replacing policy exploration and its Adam moments"
+            "explicitly replace policy exploration and its Adam moments "
+            "after actor initialization or learner-state restoration"
         ),
     )
     serve.add_argument(

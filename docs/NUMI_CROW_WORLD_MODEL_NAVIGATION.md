@@ -24,10 +24,15 @@ flight.
   transferred because this command semantic is fingerprinted.
 - Sensor contract: four 16x9 instance-masked depth frames at history offsets
   0, 3, 8, and 18, plus 24 derived features
+- V9/V10 training and rollout require an explicit
+  `--visual-observation-config`. The runtime now fails closed when that config
+  or its masked-depth sensor is absent; it cannot silently substitute 600
+  zero-valued visual/history inputs.
 - Course: two gate bodies, two slalom bodies, and a final perch, all ordinary
   static collision bodies in the Temporal Cone world
 - Splits: `training`, `held-out-a`, and `held-out-b`; the same PolicyPack runs
-  on every split
+  on every split. `development-reference` is a fourth invocation-only paired
+  regression fixture and is never qualification evidence.
 - Replay: canonical `numi.crow-replay.v1`, now including the full actor
   observation, course identity, scheduled-reset provenance, and RGB-D metadata
 
@@ -48,11 +53,22 @@ steps. The earlier broad preview was separately rejected after it regressed
 gate acquisition.
 
 These artifacts are retained under the remote `numi-runs` workspace, but none
-are candidates and no three-seed qualification was launched. A changed task
-fingerprint also changes the replayable reset stream, so the next development
-step is a fixed, version-independent course and initial-state selector for
-paired inherited-policy screening before another control-reference or PPO
-change is trusted.
+are candidates and no three-seed qualification was launched. Inspection of the
+owning Metal RNG corrected the earlier fingerprint hypothesis: reset samples
+are keyed by seed, environment, episode, control step, and channel, not by the
+TaskPack fingerprint. The unstable comparison came from episode-local course
+randomization and from confusing a one-repeat smoke with the earlier 20-repeat
+development horizon.
+
+`development-reference` now pins the five accepted course-body poses captured
+from selection seed `2650817001`, environment 4, band 5, where the inherited
+V33-r11 actor reached waypoint one. The invocation skips only the 15 course
+position-offset operators. Root state, sensors, controllers, dynamics,
+terminations, action authority, rewards, and all other authored randomization
+remain live. The runtime labels this mode `paired-development-only`; the
+qualification script still admits only the training and two held-out splits.
+Use band 5 and identical seed/environment/horizon settings when comparing two
+policies on this fixture. A pass here is a regression signal, not promotion.
 
 ## Model and deployment path
 
@@ -62,6 +78,8 @@ change is trusted.
 # Accepted native flight data. Collection disables scheduled resets by default.
 numi crow navigation collect --milestone full-journey \
   --policy-pack /path/to/incumbent.policypack \
+  --visual-observation-config \
+    assets/crow_navigation_course/crow-navigation.sensor-fast.visual-observation.json \
   --envs 32 --steps 1600 --chunk 1 \
   --crow-replay-pack /path/to/training.crowreplay.json
 
@@ -96,32 +114,63 @@ it cannot promote a controller.
 
 ## 29 August 2026 five-waypoint development
 
-The current continuation fixes three training-contract defects without easing
-the autonomous task:
+The current development reference uses the authored 0.42 m waypoint reach
+sphere, band 10, one-step submission chunks, 1,600 steps, and no scheduled
+resets. Its strongest retained parent, revision 14, completes waypoints one and
+two in all 32 lanes and waypoint three in 5/32 lanes on selection seed
+`2650817001`; it completes neither waypoint four nor waypoint five. This is a
+paired development result, not held-out qualification.
+
+The continuation fixed four training-contract defects without easing the
+autonomous task:
 
 - V10 route extensions initialize at a zero physical/task mean instead of the
   masked-depth empty-pixel mean of one.
-- The reset curriculum targets the measured waypoint-two-to-three bottleneck
-  and yaw-rotates accepted attitude, linear velocity, and angular velocity as
-  one consistent rebound state.
 - The 697-input actor publishes an explicit stage one-hot. Transfer inserts its
-  five zero-connected columns at `[92, 97)`, preserving the inherited route and
-  visual columns exactly. `--train-actor-observation-extension-only` with
+  five zero-connected columns at `[92, 97)`, preserving inherited route and
+  visual behavior. `--train-actor-observation-extension-only` with
   `--train-actor-observation-extension-count 5` can freeze the inherited actor
   and train only this adapter from fresh optimizer state while leaving the
   critic trainable.
+- Curriculum stage three samples three nonterminal waypoint-three arrivals
+  collected from the retained parent. Each reset restores accepted `q`, `v`,
+  previous action and drive history, previous generalized joint velocity,
+  navigation command, wing cyclic phase, and normalized journey phase. The
+  first 84 actor inputs at reset match their replay source with maximum absolute
+  errors of `0`, `0`, and `4.47e-8` across the three templates.
+- V9/V10 visual execution now requires the authored sensor config. This closes
+  a real evidence defect: recent route-parent training had omitted the config,
+  so actor indices `[97, 697)` were identically zero despite the run being
+  described as visual.
+
+To reconnect vision without disturbing the retained controller, the MLX
+worker can zero-connect an arbitrary actor-observation range while folding the
+normalized raw-zero contribution into the first-layer bias. The transformed
+revision-14 pack exactly preserved the paired 8-lane waypoint counts
+`[8, 7, 1, 0, 0]` both with the old route-only input and with live masked-depth
+input. A 131,072-sample live-vision continuation subsequently reached waypoint
+three in 2/8 lanes at its best sparse screen, but its paired 16-lane result was
+identical to the parent at `[16, 16, 1, 0, 0]`. It is rejected, not promoted.
+
+Exact stage-three reset training was also bounded and stopped. A single-template
+run and two three-template variants—route/stage columns and stage-one-hot
+only—produced no waypoint-four completion. Their best sparse screen reached
+waypoint three in 2/8 lanes, while the paired 32-lane route/stage candidate
+regressed from 5/32 to 1/32 waypoint-three completions. These runs demonstrate
+that replay-exact resets alone do not solve transfer back to the autonomous
+route distribution.
 
 The fixed promotion gate is three untouched randomized-course seeds with 32
 environments and 1,600 steps per seed: at least 28/32 full five-waypoint
 completions on every seed, at least 90% aggregate completion, and zero failed
 environment steps. Selection seed `2650817001` is excluded from qualification.
 
-No 29 August candidate is promoted. The strongest 692-input balanced learner
-on the selection seed reached waypoint counts `[32, 31, 7, 5, 5]`. The first
-correctly inserted 697-input adapter window reached `[32, 32, 9, 8, 4]` with
-zero failed environment steps. Both are real progress beyond waypoint one, but
-both fail the reliability gate by a wide margin. Later adapter revisions were
-retained as negative evidence rather than presented as deployable policies.
+No 29 August candidate is promoted and no three-seed qualification was
+launched. The honest current milestone is reliable waypoint two, occasional
+waypoint three, and zero waypoint-four/five completions. The next useful
+controller experiment must improve autonomous transfer across a broader set of
+waypoint-three arrivals; simply extending the rejected PPO runs is not a
+pre-registered development plan.
 
 ## Retained 28 August 2026 artifact
 

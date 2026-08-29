@@ -11,13 +11,18 @@ this document is measured animal flight or hardware-flight evidence.
 | v7 hierarchical | 15-action, 84-observation universal journey actor plus state-triggered approach-pitch supervisor | Existing qualified incumbent; supervisor retains actuator authority |
 | v8 neural-only | Same 15/84 policy ABI; supervisor removed; warning/full pitch envelopes are diagnostic outcomes only | Promoted through all 11 protected milestones; independent 33-run qualification and accepted replay complete |
 | v9 visual neural | v8 dynamics and authority plus four 16x9 masked-depth frames and 24 derived sensor features; 684 actor inputs, 84 critic inputs | Actor-transferred only from promoted v8, then promoted through all 11 protected milestones; independent 33-run qualification and accepted replay complete |
-| v10 world-model navigation | Current development ABI has 697 actor inputs: v9, eight route values, and a five-way stage one-hot; plus a collidable gate/slalom/perch course, deterministic layout splits, accepted RGB-D replay, MLX latent dynamics, trust-region CEM planning, a frozen-base stage adapter, and a fingerprinted turn-preview yaw reference | The historical 684-input candidate passed its original 18-run comparison. The current five-waypoint learner progresses beyond waypoint one but is not promoted because it fails the predeclared completion gate; see [Numi Crow v10 world-model navigation](NUMI_CROW_WORLD_MODEL_NAVIGATION.md) |
+| v10 world-model navigation | Current development ABI has 697 actor inputs: v9, eight route values, and a five-way stage one-hot; plus a collidable gate/slalom/perch course, deterministic layout splits, accepted RGB-D replay, MLX latent dynamics, trust-region CEM planning, a frozen-base stage adapter, replay-exact waypoint-three reset templates, a fingerprinted turn-preview yaw reference, and an invocation-only captured course regression fixture | The historical 684-input candidate passed its original 18-run comparison. The current retained 697-input development parent completes waypoints one and two in 32/32 lanes and waypoint three in 5/32 on its selection fixture, with no waypoint-four/five completion. Recent route training had accidentally omitted the explicit visual config; V9/V10 now fail closed instead of silently supplying zero visual inputs. No current five-waypoint or live-vision candidate is promoted; see [Numi Crow v10 world-model navigation](NUMI_CROW_WORLD_MODEL_NAVIGATION.md) |
 
 Every variant has a different task, observation, run, and PolicyPack
 fingerprint. A state-only pack cannot load as a visual policy. V8 and v9
 promotion additionally require approach warning occupancy at or below 0.05 and
 zero full-envelope occupancy on approach, touchdown, landed hold, and full
 journey bands.
+
+V9/V10 commands must provide the authored visual-observation config explicitly.
+Training and rollout fail closed if the masked-depth sensor is absent. For the
+current V10 course use
+`assets/crow_navigation_course/crow-navigation.sensor-fast.visual-observation.json`.
 
 `CrowReplayPack` (`numi.crow-replay.v1`) exports accepted `q`, `v`, composed
 body poses, accepted actions, transition metrics, outcomes, and fingerprints
@@ -232,9 +237,12 @@ milestone gates. It emits `qualification.json`, SHA manifests, and one
   [Hansen et al., 2022](https://proceedings.mlr.press/v162/hansen22a.html),
   [Lin et al., 2026](https://proceedings.mlr.press/v331/lin26a.html).
 
-The next genuine breakthrough is therefore not a larger network. V8 and the
-sensor-fast v9 baseline have cleared their authored milestone contracts; the
-next gate is a pre-registered visual obstacle/perch task with held-out scene,
-lighting, and geometry splits. Only evidence of a temporal-planning or capacity
-failure there should motivate a high-level planner, world model, online
-adaptation, or growable PolicyPack ABI.
+The next genuine breakthrough is therefore not a larger network or more epochs
+on the rejected reset distributions. V8 and the sensor-fast v9 baseline have
+cleared their authored milestone contracts. V10 first needs a controller that
+transfers from several replay-exact waypoint-three arrivals back to autonomous
+course entry while retaining reliable waypoint-two completion. Only after it
+demonstrates waypoint-four/five progress on the development fixture should it
+consume the untouched scene, lighting, geometry, and seed qualification splits.
+World-model return and curriculum-reset performance remain diagnostics until
+native autonomous outcomes improve.

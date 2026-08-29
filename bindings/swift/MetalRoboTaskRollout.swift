@@ -613,6 +613,7 @@ public enum MetalRoboBirdFlowNavigationCourse: UInt32, Sendable {
     case training = 0
     case heldOutA = 1
     case heldOutB = 2
+    case developmentReference = 3
 }
 
 public struct MetalRoboTaskRolloutConfiguration: Sendable {
@@ -636,6 +637,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var birdFlowJourneyTeacher: Bool
     public var birdFlowJourneyStudentAuthority: Float
     public var birdFlowNavigationCurriculum: Bool
+    public var birdFlowNavigationCurriculumStage: UInt32?
     public var birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant
     public var birdFlowNavigationCourse: MetalRoboBirdFlowNavigationCourse
     public var unitreeG1Task: MetalRoboUnitreeG1Task
@@ -662,6 +664,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         birdFlowJourneyTeacher: Bool = false,
         birdFlowJourneyStudentAuthority: Float = 0.0,
         birdFlowNavigationCurriculum: Bool = false,
+        birdFlowNavigationCurriculumStage: UInt32? = nil,
         birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant =
             .v7Hierarchical,
         birdFlowNavigationCourse: MetalRoboBirdFlowNavigationCourse =
@@ -693,6 +696,8 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
             birdFlowJourneyStudentAuthority
         self.birdFlowNavigationCurriculum =
             birdFlowNavigationCurriculum
+        self.birdFlowNavigationCurriculumStage =
+            birdFlowNavigationCurriculumStage
         self.birdFlowJourneyVariant = birdFlowJourneyVariant
         self.birdFlowNavigationCourse = birdFlowNavigationCourse
         self.unitreeG1Task = unitreeG1Task
@@ -885,6 +890,13 @@ public struct MetalRoboTaskTransition: Sendable {
     public let terrainLevel: UInt32
     public let impactSequenceIndex: UInt32
     public let impactEventFlags: UInt32
+    // Sequential navigation state is part of the native transition ABI. Keep
+    // it in the Swift value so PolicyRolloutPack serialization cannot silently
+    // replace task-authored navigation outcomes with zeros.
+    public let navigationStepProgress: Float
+    public let navigationCumulativeProgress: Float
+    public let navigationWaypointsReached: Float
+    public let navigationCompletion: Float
 
     init(_ native: MRTaskTransitionC) {
         reward = native.reward
@@ -921,6 +933,12 @@ public struct MetalRoboTaskTransition: Sendable {
         terrainLevel = native.terrain_level
         impactSequenceIndex = native.impact_sequence_index
         impactEventFlags = native.impact_event_flags
+        navigationStepProgress = native.navigation_step_progress
+        navigationCumulativeProgress =
+            native.navigation_cumulative_progress
+        navigationWaypointsReached =
+            native.navigation_waypoints_reached
+        navigationCompletion = native.navigation_completion
     }
 }
 
@@ -1281,8 +1299,13 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
             configuration.birdFlowJourneyTeacher ? 1 : 0
         native.birdflow_journey_student_authority =
             configuration.birdFlowJourneyStudentAuthority
-        native.birdflow_navigation_curriculum =
-            configuration.birdFlowNavigationCurriculum ? 1 : 0
+        if let stage = configuration.birdFlowNavigationCurriculumStage {
+            native.birdflow_navigation_curriculum =
+                stage <= 4 ? stage + 2 : UInt32.max
+        } else {
+            native.birdflow_navigation_curriculum =
+                configuration.birdFlowNavigationCurriculum ? 1 : 0
+        }
         native.birdflow_journey_variant =
             configuration.birdFlowJourneyVariant.rawValue
         native.birdflow_navigation_course =
@@ -2453,6 +2476,14 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                 transition.impactSequenceIndex
             value.impact_event_flags =
                 transition.impactEventFlags
+            value.navigation_step_progress =
+                transition.navigationStepProgress
+            value.navigation_cumulative_progress =
+                transition.navigationCumulativeProgress
+            value.navigation_waypoints_reached =
+                transition.navigationWaypointsReached
+            value.navigation_completion =
+                transition.navigationCompletion
             return value
         }
         let status = withUnsafeFloatBuffers(
