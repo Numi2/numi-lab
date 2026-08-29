@@ -6158,34 +6158,6 @@ CameraFraming makeCameraFraming(
 ) {
     if (focusBodyIndex.has_value()) {
         require(*focusBodyIndex < bodies.size(), "MyoSim visual focus body index is out of bounds");
-        // Focused inspections intentionally retain a close, deterministic
-        // view.  The source-geometry bounds below are for the whole-body
-        // presentation, where COM-only framing cropped the actual anatomy.
-        const MRBodyStateGPU& focus = bodies[*focusBodyIndex];
-        return {
-            .center = {focus.position.x, focus.position.y, focus.position.z, 0.0f},
-            // A calcaneus focus is an insertion inspection, regardless of
-            // whether its surface comes from the compact BodyParts3D payload
-            // or the optional detailed Z-Anatomy supplement.  Use the same
-            // close framing for both instead of turning the source tendon
-            // junction into a small feature at the edge of a calf plate.
-            .distance = *focusBodyIndex == 138u
-                // The calcaneal inspection is specifically for the visible
-                // tendon-to-bone junction. The former 34 cm stand-off left
-                // the contralateral ankle in frame and made a millimetre-scale
-                // enthesis read as a vague strip. This still clears the
-                // complete calcaneus, while filling the review frame with the
-                // right insertion from each fixed view.
-                ? 0.25f
-                // The v2 envelope is a millimetre-scale enthesis inspection,
-                // so frame the joint rather than the complete limb. The
-                // selected source muscle and both endpoint bones remain in
-                // the asset pack and are merely clipped by the camera.
-                : (tendonAttachmentEnvelopeInspection ? 0.45f
-                : (pack.id == "myosim_zanatomy_calf_articulated_visual_supplement"
-                    ? 0.58f
-                    : 0.70f)),
-        };
     }
 
     mr_float4 minimum{
@@ -6222,6 +6194,14 @@ CameraFraming makeCameraFraming(
             instance.binding.z == MR_VISUAL_BINDING_ARTICULATED_LINK;
         require(articulated || instance.binding.z == MR_VISUAL_BINDING_WORLD,
                 "MyoSim visual framing only supports world or articulated-link bindings");
+        // Target focused inspections from the selected rendered anatomy, not
+        // from a mechanics COM frame that can sit outside a small wrist or
+        // digit mesh. World-bound route diagnostics remain rendered but must
+        // not drag the anatomical camera target away from the selected bone.
+        if (focusBodyIndex.has_value() &&
+            (!articulated || instance.binding.y != *focusBodyIndex)) {
+            continue;
+        }
         const MRBodyStateGPU* body = nullptr;
         if (articulated) {
             require(instance.binding.y < bodies.size(),
@@ -6266,15 +6246,49 @@ CameraFraming makeCameraFraming(
             ++includedPrimitiveCount;
         }
     }
+    if (focusBodyIndex.has_value() &&
+        (includedPrimitiveCount == 0u || boundedVertexCount == 0u)) {
+        // Mechanics-only bodies can intentionally lack presentation geometry.
+        // Preserve their deterministic legacy framing and expose the fallback
+        // through the zero source extent in the receipt.
+        const MRBodyStateGPU& focus = bodies[*focusBodyIndex];
+        return {
+            .center = {focus.position.x, focus.position.y, focus.position.z, 0.0f},
+            .distance = tendonAttachmentEnvelopeInspection ? 0.45f : 0.70f,
+        };
+    }
     require(includedPrimitiveCount > 0u,
-            "MyoSim visual source geometry has no primitives for whole-body framing");
+            "MyoSim visual source geometry has no primitives for framing");
     require(boundedVertexCount > 0u,
-            "MyoSim visual source geometry has no vertices for whole-body framing");
+            "MyoSim visual source geometry has no vertices for framing");
     const float extent = std::max({
         maximum.x - minimum.x, maximum.y - minimum.y, maximum.z - minimum.z,
     });
     require(std::isfinite(extent) && extent > 1.0e-4f,
-            "MyoSim visual source geometry has a degenerate whole-body bound");
+            "MyoSim visual source geometry has a degenerate framing bound");
+    if (focusBodyIndex.has_value()) {
+        return {
+            .center = {
+                0.5f * (minimum.x + maximum.x),
+                0.5f * (minimum.y + maximum.y),
+                0.5f * (minimum.z + maximum.z),
+                0.0f,
+            },
+            // Preserve the close enthesis/envelope inspections. Ordinary
+            // source bones scale from their own posed surface, with a 45 cm
+            // floor that retains adjacent joint context and keeps lateral
+            // cameras outside overlapping torso/pelvis anatomy.
+            .distance = *focusBodyIndex == 138u
+                ? 0.25f
+                : (tendonAttachmentEnvelopeInspection
+                    ? 0.45f
+                    : (pack.id == "myosim_zanatomy_calf_articulated_visual_supplement"
+                        ? std::max(1.65f * extent, 0.58f)
+                        : std::max(1.65f * extent, 0.45f))),
+            .sourceExtentMeters = extent,
+            .usesSourceGeometryBounds = true,
+        };
+    }
     return {
         // The vertex centroid is biased toward triangle-dense torso anatomy
         // and cropped the feet. The posed source AABB midpoint guarantees
@@ -7533,8 +7547,11 @@ int main(int argc, char** argv) {
                               ? resolvedRouteCentrelines->surfaceProjectedAttachmentCount : 0u)
                       << " focus_body_index=" << (focusBodyIndex.has_value()
                               ? std::to_string(*focusBodyIndex) : "none")
-                      << " camera_framing=" << (cameraFraming.usesSourceGeometryBounds
-                              ? "exact_rendered_source_geometry_bounds" : "focused_body_inspection")
+                      << " camera_framing=" << (!focusBodyIndex.has_value()
+                              ? "exact_rendered_source_geometry_bounds"
+                              : (cameraFraming.usesSourceGeometryBounds
+                                  ? "focused_body_source_geometry_bounds"
+                                  : "focused_body_inspection_fallback"))
                       << " camera_source_extent_m=" << cameraFraming.sourceExtentMeters
                       << " camera_distance_m=" << cameraFraming.distance
                       << " pose_stage_elapsed_ms=" << poseDiagnostics.elapsedMilliseconds
