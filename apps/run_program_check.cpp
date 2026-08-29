@@ -648,7 +648,7 @@ int main() {
                 compiledNavigation.model().bodies.size() == 20u &&
                 compiledNavigation.task().layout().actorObservationSize ==
                     compiledVisualJourney.task().layout().actorObservationSize +
-                        13u &&
+                        26u &&
                 compiledNavigation.task().layout().criticObservationSize ==
                     compiledVisualJourney.task().layout().criticObservationSize +
                         13u &&
@@ -663,6 +663,9 @@ int main() {
                     MR_INVALID_INDEX &&
                 (compiledNavigation.task().header().schedule.w &
                  MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_SLALOMS) !=
+                    0u &&
+                (compiledNavigation.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_POST_SECOND_GATE_ADAPTER) !=
                     0u &&
                 compiledNavigation.task().randomizationOperators().size() ==
                     compiledVisualJourney.task().randomizationOperators().size() + 15u &&

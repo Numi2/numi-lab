@@ -1026,6 +1026,46 @@ def _serve(arguments: argparse.Namespace) -> int:
             ),
             output_action_indices=output_action_indices,
         )
+    residual_output_action_indices = None
+    if arguments.train_actor_route_residual_output_actions is not None:
+        if arguments.train_actor_route_residual_width is None:
+            raise ValueError(
+                "residual output actions require residual-only training"
+            )
+        try:
+            residual_output_action_indices = tuple(
+                int(value)
+                for value in arguments
+                    .train_actor_route_residual_output_actions
+                    .split(",")
+            )
+        except ValueError as error:
+            raise ValueError(
+                "residual output actions must be comma-separated integers"
+            ) from error
+        if (
+            not residual_output_action_indices
+            or min(residual_output_action_indices) < 0
+            or max(residual_output_action_indices) >= learner.action_count
+            or len(set(residual_output_action_indices)) !=
+                len(residual_output_action_indices)
+        ):
+            raise ValueError(
+                "residual output actions must be unique valid actor rows"
+            )
+    if arguments.train_actor_route_residual_width is not None:
+        if restored:
+            raise ValueError(
+                "residual-only actor training requires fresh optimizer state"
+            )
+        if arguments.train_actor_observation_extension_only:
+            raise ValueError(
+                "residual-only and extension-only actor training are mutually exclusive"
+            )
+        learner.train_actor_residual_output_only(
+            arguments.train_actor_route_residual_width,
+            output_action_indices=residual_output_action_indices,
+        )
     current_policy = learner.write_policy_pack(
         arguments.output_policy_pack,
         library_path=arguments.native_library,
@@ -1235,6 +1275,16 @@ def _serve(arguments: argparse.Namespace) -> int:
 
 
 def _initialize(arguments: argparse.Namespace) -> int:
+    if (
+        arguments.actor_policy_pack is None and
+        (
+            arguments.actor_route_residual_observation_offset is not None or
+            arguments.actor_route_residual_observation_count is not None
+        )
+    ):
+        raise ValueError(
+            "actor route residual initialization requires an actor PolicyPack"
+        )
     if arguments.actor_policy_pack is None:
         learner = MLXPolicyLearner(
             arguments.actor_observations,
@@ -1258,6 +1308,12 @@ def _initialize(arguments: argparse.Namespace) -> int:
             ),
             actor_observation_extension_offset=(
                 arguments.actor_observation_extension_offset
+            ),
+            actor_route_residual_observation_offset=(
+                arguments.actor_route_residual_observation_offset
+            ),
+            actor_route_residual_observation_count=(
+                arguments.actor_route_residual_observation_count
             ),
             library_path=arguments.native_library,
         )
@@ -1515,6 +1571,22 @@ def main() -> int:
         ),
     )
     initialize.add_argument(
+        "--actor-route-residual-observation-offset",
+        type=int,
+        help=(
+            "first existing actor observation copied into a fixed paired-sign "
+            "residual feature path"
+        ),
+    )
+    initialize.add_argument(
+        "--actor-route-residual-observation-count",
+        type=int,
+        help=(
+            "number of existing observations in the route residual; requires "
+            "--actor-route-residual-observation-offset"
+        ),
+    )
+    initialize.add_argument(
         "--native-library",
         type=Path,
         required=True,
@@ -1634,6 +1706,20 @@ def main() -> int:
         help=(
             "comma-separated final actor rows to train with the observation "
             "extension while all other inherited control rows stay frozen"
+        ),
+    )
+    serve.add_argument(
+        "--train-actor-route-residual-width",
+        type=int,
+        help=(
+            "freeze the carrier and train only this many tail columns of the "
+            "actor output projection"
+        ),
+    )
+    serve.add_argument(
+        "--train-actor-route-residual-output-actions",
+        help=(
+            "comma-separated actor rows allowed to read the residual tail"
         ),
     )
     serve.add_argument(

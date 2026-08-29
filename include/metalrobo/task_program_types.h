@@ -73,6 +73,17 @@ enum MRTaskProgramFlags : mr_u32 {
     // command-reference semantic only: waypoint positions, reach gates,
     // rewards, and neural action authority are unchanged.
     MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_SLALOMS = 1u << 23u,
+    // Residual route features remain zero through both proven gates and
+    // become live only for the first slalom turn.  This preserves the
+    // inherited WP2 arrival distribution while isolating later steering.
+    MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_POST_SECOND_GATE_ADAPTER =
+        1u << 24u,
+    // The transferred parent has structurally zero weights for the thirteen
+    // V10 route-suffix inputs. A late-route adapter may train those columns
+    // while this fingerprinted semantic gates them to zero before waypoint
+    // one, preserving the parent's takeoff and first-gate action exactly.
+    MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_POST_FIRST_GATE_ADAPTER =
+        1u << 27u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {

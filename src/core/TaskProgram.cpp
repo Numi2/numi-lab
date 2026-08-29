@@ -2306,7 +2306,10 @@ TaskCompileDiagnostics compileTaskProgram(
                         );
                     }
                 }
-                componentLimit = 13u;
+                // Components 0...12 are the retained V10 route contract.
+                // Components 13...25 duplicate that contract for the
+                // separately gated late-route adapter.
+                componentLimit = 26u;
                 break;
             }
             case TaskObservationSource::supportSense:
@@ -4297,7 +4300,8 @@ TaskCompileDiagnostics compileTaskProgram(
         // revision explicit in the compiled fingerprint.
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION |
-            MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_SLALOMS;
+            MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_SLALOMS |
+            MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_POST_SECOND_GATE_ADAPTER;
     }
     if (threatGroup != MR_INVALID_INDEX) {
         staged->header.schedule.w |=

@@ -10,19 +10,16 @@ flight.
 ## Runtime boundary
 
 - Task: `birdflow_american_crow_navigation_v10_world_model`
-- Current development actor contract: 697 observations and 15 actions. It
-  preserves v9's 684 inputs, inserts the original eight route values at actor
-  index 84, and inserts a five-way stage one-hot at index 92 before the 600
-  visual inputs.
-- The current V10 task-fingerprint revision keeps every authored waypoint,
-  reach radius, reward, and policy action unchanged, but previews the following
-  route segment in the native yaw command inside 0.70 m of both slalom exits.
-  The second preview addresses measured positive-Y momentum at waypoint three,
-  where the retained parent otherwise begins its perch turn only after crossing
-  the reach sphere. The earlier first-slalom-only and broad-preview revisions
-  have distinct task fingerprints and remain rejected diagnostic evidence. All
-  prior V10 PolicyPacks must be explicitly transferred because this command
-  semantic is fingerprinted.
+- Current development actor contract: 710 observations and 15 actions. It
+  keeps temporal flight state at `[0, 84)`, the original thirteen route
+  values at `[84, 97)`, an isolated late-route copy at `[97, 110)`, and the
+  600 visual/history values at `[110, 710)`.
+- Task fingerprint `7244687552313397000` keeps every authored waypoint, reach
+  radius, reward, and policy action unchanged. It previews the following route
+  segment in the native yaw command at both slalom exits and gates the isolated
+  late-route copy to zero through waypoint two. Older V10 PolicyPacks require
+  an explicit actor-preserving transfer because both semantics are
+  fingerprinted.
 - Sensor contract: four 16x9 instance-masked depth frames at history offsets
   0, 3, 8, and 18, plus 24 derived features
 - V9/V10 training and rollout require an explicit
@@ -115,6 +112,54 @@ it cannot promote a controller.
 
 ## 29 August 2026 five-waypoint development
 
+### Retained route-residual candidate
+
+The retained development candidate is revision 41 from
+`crow-v10-route-residual-stage2-refine-v89-20260829`. It is not promoted. Its
+actor widens the inherited hidden topology from `[512, 256, 128]` to
+`[538, 282, 154]` with 26 fixed paired-sign features derived from the thirteen
+late-route observations. The new output columns initialize at exact zero. PPO
+freezes every inherited hidden weight, carrier output column, output bias, and
+the exploration parameter; only residual columns for actions `0,1,4,5,13`
+are trainable.
+
+The late-route observations remain zero until waypoint two. This makes the
+proven takeoff and two-gate controller the exact executed carrier before the
+first slalom, then grants the residual head authority over the later turn. A
+post-waypoint-one diagnostic reached all five waypoints in 3/64 full-route
+lanes but reduced waypoint-two arrivals from 37/64 to 13/64. Moving the gate to
+waypoint two preserved the counts at `[62, 37]` exactly and retained one full
+completion on that seed.
+
+The transfer-positive stage-two refinement was selected across three
+deterministic full-route seeds, 64 environments per seed and 1,600 steps per
+environment. The untouched carrier scored cumulative waypoint counts
+`[189, 117, 2, 1, 0]`; the retained residual scored
+`[189, 117, 26, 11, 11]`. Both had zero failed environment steps. Thus the
+residual preserves every measured waypoint-one/two arrival, creates 24
+additional waypoint-three entries, and produces 11 genuine full-route
+completions. Its aggregate completion is only 5.7% (9.4% conditional on
+reaching waypoint two), so this is a development breakthrough, not reliable
+five-waypoint qualification.
+
+A lower-rate continuation was stopped after its isolated screen regressed.
+Its only plausible revisions scored `[189, 117, 22, 8, 8]` and
+`[189, 117, 20, 8, 7]` on the same full-route seeds, both below the retained
+parent. No later checkpoint was promoted.
+
+### Real arrival distributions and rejected branches
+
+Sixteen accepted waypoint-one arrivals and fifteen accepted waypoint-two
+arrivals now seed the native curriculum with captured `q`, `v`, root offset,
+course-frame yaw, accepted action history, command/phase state, and journey
+phase. The older three-row waypoint-two pool produced an apparent 28/64
+terminal completion gain but failed full-route transfer; it is retained only
+as evidence of a lucky continuation distribution. Pure teacher, yaw-only
+teacher, wing-bank residual teacher, high-noise PPO, and low-noise first-layer
+PPO all failed their transfer gates and were stopped.
+
+### Pre-residual experiments
+
 The current development reference uses the authored 0.42 m waypoint reach
 sphere, band 10, one-step submission chunks, 1,600 steps, and no scheduled
 resets. Its strongest retained parent, revision 14, completes waypoints one and
@@ -202,11 +247,12 @@ completions on every seed, at least 90% aggregate completion, and zero failed
 environment steps. Selection seed `2650817001` is excluded from qualification.
 
 No 29 August candidate is promoted and no three-seed qualification was
-launched. The honest full-route milestone is reliable waypoint two, occasional
-waypoint three, and zero waypoint-four/five completions. The next useful
-controller experiment must use broader autonomous waypoint-three arrival
-coverage or an explicitly staged controller objective; simply extending the
-rejected PPO runs is not a pre-registered development plan.
+launched. The retained residual is the first neural candidate in this track to
+produce repeated full-route completions while preserving its measured early
+route carrier, but 11/192 remains far below the reliability gate. The next
+training work must improve conditional waypoint-two-to-five completion on real
+arrival distributions; simply extending a regressing continuation is not a
+pre-registered development plan.
 
 ## Retained 28 August 2026 artifact
 

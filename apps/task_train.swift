@@ -35,6 +35,10 @@ private struct Options {
     var trainActorObservationExtensionOutputActions: String?
     var actorObservationExtensionMean: Double?
     var actorObservationExtensionInverseStandardDeviation = 1.0
+    var actorRouteResidualObservationOffset: Int?
+    var actorRouteResidualObservationCount: Int?
+    var trainActorRouteResidualWidth: Int?
+    var trainActorRouteResidualOutputActions: String?
     var updatedPolicyPack: String?
     var deploymentPolicyPack: String?
     var incumbentPolicyPack: String?
@@ -248,6 +252,27 @@ private struct Options {
                     )
                 }
                 actorObservationExtensionInverseStandardDeviation = parsed
+                index += 1
+            case "--actor-route-residual-observation-offset":
+                actorRouteResidualObservationOffset = try Self.integer(
+                    value(),
+                    option
+                )
+                index += 1
+            case "--actor-route-residual-observation-count":
+                actorRouteResidualObservationCount = try Self.integer(
+                    value(),
+                    option
+                )
+                index += 1
+            case "--train-actor-route-residual-width":
+                trainActorRouteResidualWidth = try Self.integer(
+                    value(),
+                    option
+                )
+                index += 1
+            case "--train-actor-route-residual-output-actions":
+                trainActorRouteResidualOutputActions = try value()
                 index += 1
             case "--updated-policy-pack":
                 updatedPolicyPack = try value()
@@ -662,6 +687,31 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--train-actor-observation-extension-output-actions requires extension-only training and cannot be combined with the complete output layer."
+            )
+        }
+        if (actorRouteResidualObservationOffset == nil) !=
+            (actorRouteResidualObservationCount == nil) ||
+            (actorRouteResidualObservationOffset ?? 0) < 0 ||
+            (actorRouteResidualObservationCount ?? 1) <= 0 ||
+            (actorRouteResidualObservationOffset != nil &&
+             initializeActorPolicyPack == nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "actor route residual initialization requires a source actor, nonnegative offset, and positive count."
+            )
+        }
+        if let width = trainActorRouteResidualWidth,
+           width <= 0 || trainActorObservationExtensionOnly
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "route residual training requires a positive width and cannot be combined with extension-only training."
+            )
+        }
+        if let actions = trainActorRouteResidualOutputActions,
+           trainActorRouteResidualWidth == nil || actions.isEmpty
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "route residual output actions require residual-only training."
             )
         }
         if retentionPolicyPack?.isEmpty == true {
@@ -1087,6 +1137,16 @@ private func initializePolicyIfRequested(
             String(offset),
         ])
     }
+    if let offset = options.actorRouteResidualObservationOffset,
+       let count = options.actorRouteResidualObservationCount
+    {
+        arguments.append(contentsOf: [
+            "--actor-route-residual-observation-offset",
+            String(offset),
+            "--actor-route-residual-observation-count",
+            String(count),
+        ])
+    }
     process.arguments = arguments
     process.environment = mlxEnvironment(options: options)
     process.standardOutput = output
@@ -1274,6 +1334,18 @@ private final class MLXLearnerWorker {
         {
             arguments.append(contentsOf: [
                 "--train-actor-observation-extension-output-actions",
+                actions,
+            ])
+        }
+        if let width = options.trainActorRouteResidualWidth {
+            arguments.append(contentsOf: [
+                "--train-actor-route-residual-width",
+                String(width),
+            ])
+        }
+        if let actions = options.trainActorRouteResidualOutputActions {
+            arguments.append(contentsOf: [
+                "--train-actor-route-residual-output-actions",
                 actions,
             ])
         }

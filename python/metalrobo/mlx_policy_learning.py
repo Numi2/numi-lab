@@ -335,6 +335,67 @@ class NativePolicyRollout:
                             1.0,
                         )
                     )
+            navigation_waypoints = self.outcome(
+                "navigation_waypoints_reached"
+            ).reshape(steps, environments)
+            navigation_completion = self.outcome(
+                "navigation_completion"
+            ).reshape(steps, environments)
+            interaction_teacher = (
+                flags.astype(np.uint32) & np.uint32(1 << 22)
+            ) != 0
+            navigation_teacher = np.logical_and(
+                interaction_teacher,
+                np.logical_or(
+                    navigation_waypoints > 0.0,
+                    navigation_completion > 0.0,
+                ),
+            )
+            # A navigation teacher is useful only when its accepted physical
+            # episode actually reaches the terminal waypoint. Do not distill
+            # stable-looking partial routes or failure prefixes. Back-label
+            # the realized successful episode, including its completion step,
+            # while keeping teacher-executed actions out of the PPO ratio.
+            for environment in range(environments):
+                if not np.any(navigation_teacher[:, environment]):
+                    continue
+                teacher_weights[
+                    navigation_teacher[:, environment], environment
+                ] = 0.0
+                episode_start = 0
+                for step in range(steps):
+                    episode_end = bool(done[step, environment]) or (
+                        step + 1 == steps
+                    )
+                    if not episode_end:
+                        continue
+                    upper = step + 1
+                    segment = slice(episode_start, upper)
+                    eligible = navigation_teacher[segment, environment]
+                    realized = bool(
+                        np.any(
+                            navigation_completion[segment, environment]
+                            > 0.0
+                        )
+                    )
+                    if realized and np.any(eligible):
+                        stability = np.clip(
+                            1.0
+                            - tilt[segment, environment]
+                            / np.float32(np.pi),
+                            0.0,
+                            1.0,
+                        )
+                        qualified = np.where(
+                            eligible,
+                            0.5 + 0.5 * stability,
+                            0.0,
+                        ).astype(np.float32)
+                        teacher_weights[segment, environment] = np.maximum(
+                            teacher_weights[segment, environment],
+                            qualified,
+                        )
+                    episode_start = upper
         return MLXPolicyBatch.from_numpy(
             actor_observations=self.actor_observations.reshape(
                 self.sample_count,
@@ -1984,6 +2045,78 @@ def _actor_observation_extension_only_gradients(
     return tree_unflatten(masked_gradients)
 
 
+def _actor_residual_output_only_gradients(
+    gradients: Any,
+    residual_width: int,
+    output_action_indices: tuple[int, ...] | None = None,
+) -> Any:
+    """Train only a zero-output residual tail on the actor projection.
+
+    The residual feature path is fixed at initialization, every inherited
+    actor parameter and the exploration head remain frozen, and the critic
+    remains fully trainable.  This makes the initial deployment exactly equal
+    to its source actor while giving route features their own control readout.
+    """
+
+    flattened = list(tree_flatten(gradients))
+    actor_weight_layers = [
+        (int(name.split(".")[2]), name.rsplit(".", 1)[0])
+        for name, gradient in flattened
+        if name.startswith("actor.layers.")
+        and name.endswith(".weight")
+        and gradient.ndim == 2
+    ]
+    if not actor_weight_layers:
+        raise ValueError("actor gradient tree has no dense output layer")
+    output_layer = max(actor_weight_layers)[1]
+    masked_gradients: list[tuple[str, mx.array]] = []
+    found_output_weight = False
+    for name, gradient in flattened:
+        if name == output_layer + ".weight":
+            if residual_width <= 0 or residual_width >= gradient.shape[1]:
+                raise ValueError("actor residual width is invalid")
+            column_mask = mx.concatenate(
+                (
+                    mx.zeros(
+                        (gradient.shape[0], gradient.shape[1] - residual_width),
+                        dtype=gradient.dtype,
+                    ),
+                    mx.ones(
+                        (gradient.shape[0], residual_width),
+                        dtype=gradient.dtype,
+                    ),
+                ),
+                axis=1,
+            )
+            gradient = gradient * column_mask
+            if output_action_indices is not None:
+                if (
+                    not output_action_indices
+                    or min(output_action_indices) < 0
+                    or max(output_action_indices) >= gradient.shape[0]
+                    or len(set(output_action_indices)) !=
+                        len(output_action_indices)
+                ):
+                    raise ValueError(
+                        "actor residual output actions are invalid"
+                    )
+                row_mask = mx.array(
+                    [
+                        1.0 if index in output_action_indices else 0.0
+                        for index in range(gradient.shape[0])
+                    ],
+                    dtype=gradient.dtype,
+                ).reshape((gradient.shape[0], 1))
+                gradient = gradient * row_mask
+            found_output_weight = True
+        elif name.startswith("actor.") or name == "log_standard_deviation":
+            gradient = mx.zeros_like(gradient)
+        masked_gradients.append((name, gradient))
+    if not found_output_weight:
+        raise ValueError("actor gradient tree has no residual output weight")
+    return tree_unflatten(masked_gradients)
+
+
 class MLXPolicyLearner:
     """Owns only policy parameters, optimizer state, and PPO updates."""
 
@@ -2024,6 +2157,9 @@ class MLXPolicyLearner:
                 bool,
                 tuple[int, ...] | None,
             ] | None
+        ) = None
+        self._actor_residual_output_only: (
+            tuple[int, tuple[int, ...] | None] | None
         ) = None
         self.refresh_compiled_training_state()
         self.policy_id: str | None = None
@@ -2114,6 +2250,32 @@ class MLXPolicyLearner:
             offset,
             count,
             train_output_layer,
+            output_action_indices,
+        )
+        self.refresh_compiled_training_state()
+
+    def train_actor_residual_output_only(
+        self,
+        residual_width: int,
+        *,
+        output_action_indices: tuple[int, ...] | None = None,
+    ) -> None:
+        """Freeze the carrier and train only residual output columns."""
+
+        linear_layers = [
+            layer
+            for layer in self.model.actor.layers
+            if isinstance(layer, nn.Linear)
+        ]
+        if not linear_layers:
+            raise RuntimeError("actor contains no linear output layer")
+        if (
+            residual_width <= 0
+            or residual_width >= linear_layers[-1].weight.shape[1]
+        ):
+            raise ValueError("actor residual width is invalid")
+        self._actor_residual_output_only = (
+            residual_width,
             output_action_indices,
         )
         self.refresh_compiled_training_state()
@@ -2472,6 +2634,8 @@ class MLXPolicyLearner:
         actor_observation_extension_mean: float = 0.0,
         actor_observation_extension_inverse_standard_deviation: float = 1.0,
         actor_observation_extension_offset: int | None = None,
+        actor_route_residual_observation_offset: int | None = None,
+        actor_route_residual_observation_count: int | None = None,
         library_path: str | Path | None = None,
     ) -> "MLXPolicyLearner":
         """Start PPO from an existing actor contract.
@@ -2483,7 +2647,10 @@ class MLXPolicyLearner:
         privileged critic contract, so the critic is freshly initialized at
         the requested width while the actor remains unchanged. A wider actor
         observation contract is initialized with zero-connected new inputs,
-        preserving the actor's exact output until learning uses them.
+        preserving the actor's exact output until learning uses them.  An
+        optional paired-sign route residual widens each hidden layer with a
+        fixed feature path and a zero output projection, also preserving the
+        actor exactly while isolating later route learning from the carrier.
         Optimizer restoration remains an explicit learner-checkpoint
         operation.
         """
@@ -2492,7 +2659,9 @@ class MLXPolicyLearner:
         if (
             preserve_critic and
             pack.critic_layers and
-            pack.action_log_standard_deviation.size == pack.action_count
+            pack.action_log_standard_deviation.size == pack.action_count and
+            actor_route_residual_observation_offset is None and
+            actor_route_residual_observation_count is None
         ):
             return cls.from_policy_pack(
                 path,
@@ -2515,10 +2684,23 @@ class MLXPolicyLearner:
                 "actor initialization supports ELU hidden layers and an "
                 "identity output layer"
             )
+        residual_arguments = (
+            actor_route_residual_observation_offset,
+            actor_route_residual_observation_count,
+        )
+        if (residual_arguments[0] is None) != (residual_arguments[1] is None):
+            raise ValueError(
+                "actor route residual requires both observation offset and count"
+            )
+        residual_observation_count = residual_arguments[1] or 0
+        residual_width = 2 * residual_observation_count
+        source_hidden_sizes = tuple(
+            layer.output_count for layer in pack.layers[:-1]
+        )
         restored_configuration = replace(
             configuration,
             hidden_sizes=tuple(
-                layer.output_count for layer in pack.layers[:-1]
+                size + residual_width for size in source_hidden_sizes
             ),
             observation_clip=pack.observation_clip,
         )
@@ -2530,6 +2712,15 @@ class MLXPolicyLearner:
         if target_actor_observations < pack.actor_observation_count:
             raise ValueError(
                 "actor initialization cannot discard PolicyPack observations"
+            )
+        if residual_width > 0 and (
+            actor_route_residual_observation_offset is None
+            or actor_route_residual_observation_offset < 0
+            or actor_route_residual_observation_offset +
+                residual_observation_count > target_actor_observations
+        ):
+            raise ValueError(
+                "actor route residual observation range is invalid"
             )
         if not math.isfinite(actor_observation_extension_mean):
             raise ValueError(
@@ -2578,21 +2769,71 @@ class MLXPolicyLearner:
         for layer_index, (target, artifact) in enumerate(
             zip(destination, pack.layers, strict=True)
         ):
-            weights = np.asarray(artifact.weights, dtype=np.float32)
+            source_weights = np.asarray(
+                artifact.weights,
+                dtype=np.float32,
+            )
             if layer_index == 0 and extension_count > 0:
-                weights = np.concatenate(
+                source_weights = np.concatenate(
                     (
-                        weights[:, :extension_offset],
+                        source_weights[:, :extension_offset],
                         np.zeros(
-                            (weights.shape[0], extension_count),
+                            (source_weights.shape[0], extension_count),
                             dtype=np.float32,
                         ),
-                        weights[:, extension_offset:],
+                        source_weights[:, extension_offset:],
                     ),
                     axis=1,
                 )
+            if residual_width == 0:
+                target.weight = mx.array(
+                    source_weights,
+                    dtype=mx.float32,
+                )
+                target.bias = mx.array(
+                    artifact.bias,
+                    dtype=mx.float32,
+                )
+                continue
+            weights = np.zeros(target.weight.shape, dtype=np.float32)
+            bias = np.zeros(target.bias.shape, dtype=np.float32)
+            source_output_count = artifact.output_count
+            source_input_count = source_weights.shape[1]
+            weights[
+                :source_output_count,
+                :source_input_count,
+            ] = source_weights
+            bias[:source_output_count] = np.asarray(
+                artifact.bias,
+                dtype=np.float32,
+            )
+            if layer_index == 0:
+                residual_offset = int(
+                    actor_route_residual_observation_offset
+                )
+                for component in range(residual_observation_count):
+                    weights[
+                        source_output_count + component,
+                        residual_offset + component,
+                    ] = 1.0
+                    weights[
+                        source_output_count +
+                            residual_observation_count + component,
+                        residual_offset + component,
+                    ] = -1.0
+            elif layer_index < len(pack.layers) - 1:
+                previous_source_output_count = (
+                    pack.layers[layer_index - 1].output_count
+                )
+                for component in range(residual_width):
+                    weights[
+                        source_output_count + component,
+                        previous_source_output_count + component,
+                    ] = 1.0
+            # The final residual columns intentionally remain zero.  Loading
+            # this pack is therefore bit-exact with the inherited actor.
             target.weight = mx.array(weights, dtype=mx.float32)
-            target.bias = mx.array(artifact.bias, dtype=mx.float32)
+            target.bias = mx.array(bias, dtype=mx.float32)
         actor_mean = np.concatenate(
             (
                 pack.effective_observation_mean[:extension_offset],
@@ -3126,6 +3367,15 @@ class MLXPolicyLearner:
                 offset,
                 count,
                 train_output_layer,
+                output_action_indices,
+            )
+        elif self._actor_residual_output_only is not None:
+            residual_width, output_action_indices = (
+                self._actor_residual_output_only
+            )
+            gradients = _actor_residual_output_only_gradients(
+                gradients,
+                residual_width,
                 output_action_indices,
             )
         _, actor_gradient_norm = optim.clip_grad_norm(

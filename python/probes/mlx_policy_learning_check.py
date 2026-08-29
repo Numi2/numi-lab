@@ -349,6 +349,62 @@ def check_realized_imagination_weighting() -> None:
             "terminated InteractionPack control became teacher truth"
         )
 
+    navigation_transitions = np.zeros(4, dtype=transitions.dtype)
+    navigation_transitions["impact_event_flags"] = 1 << 22
+    navigation_transitions["done"][2] = 1
+    navigation = replace(
+        rollout,
+        id="qualified_navigation_teacher",
+        actor_observations=np.zeros(4, dtype=np.float32),
+        critic_observations=np.zeros(4, dtype=np.float32),
+        latents=np.zeros(4, dtype=np.float32),
+        old_log_probabilities=np.zeros(4, dtype=np.float32),
+        old_values=np.zeros(4, dtype=np.float32),
+        transitions=navigation_transitions,
+        outcomes={
+            "root_height": foundation_root_height,
+            "tilt": foundation_tilt,
+            "navigation_waypoints_reached": np.asarray(
+                (3.0, 4.0, 5.0, 3.0), dtype=np.float32
+            ),
+            "navigation_completion": np.asarray(
+                (0.0, 0.0, 1.0, 0.0), dtype=np.float32
+            ),
+        },
+        teacher_actions=np.ones(4, dtype=np.float32),
+    ).policy_batch()
+    if (
+        np.any(navigation.teacher_weights[:3] <= 0.0)
+        or navigation.teacher_weights[3] != 0.0
+        or np.any(navigation.policy_weights)
+    ):
+        raise RuntimeError(
+            "successful navigation teacher was not prefix-qualified"
+        )
+    rejected_navigation = replace(
+        rollout,
+        id="rejected_navigation_teacher",
+        actor_observations=np.zeros(4, dtype=np.float32),
+        critic_observations=np.zeros(4, dtype=np.float32),
+        latents=np.zeros(4, dtype=np.float32),
+        old_log_probabilities=np.zeros(4, dtype=np.float32),
+        old_values=np.zeros(4, dtype=np.float32),
+        transitions=navigation_transitions,
+        outcomes={
+            "root_height": foundation_root_height,
+            "tilt": foundation_tilt,
+            "navigation_waypoints_reached": np.asarray(
+                (3.0, 4.0, 4.0, 3.0), dtype=np.float32
+            ),
+            "navigation_completion": np.zeros(4, dtype=np.float32),
+        },
+        teacher_actions=np.ones(4, dtype=np.float32),
+    ).policy_batch()
+    if np.any(rejected_navigation.teacher_weights):
+        raise RuntimeError(
+            "partial navigation route became distillation truth"
+        )
+
 
 def check_resumable_schedule_contracts() -> None:
     ppo = {
@@ -985,6 +1041,144 @@ def main() -> int:
                 raise RuntimeError(
                     "observation insertion mean was not published"
                 )
+            residual_observation_count = 5
+            residual_width = 2 * residual_observation_count
+            residual = MLXPolicyLearner.from_actor_policy_pack(
+                deployment,
+                critic_count,
+                learner.configuration,
+                actor_route_residual_observation_offset=(
+                    actor_count - residual_observation_count
+                ),
+                actor_route_residual_observation_count=(
+                    residual_observation_count
+                ),
+                library_path=arguments.library,
+            )
+            residual_actor = residual.model.actor_mean(actor)
+            mx.eval(residual_actor)
+            residual_initialization_error = float(
+                np.max(
+                    np.abs(
+                        np.asarray(expected_actor) -
+                        np.asarray(residual_actor)
+                    )
+                )
+            )
+            if residual_initialization_error > 1.0e-6:
+                raise RuntimeError(
+                    "zero-output route residual changed the source actor: "
+                    f"{residual_initialization_error}"
+                )
+            residual_layers = [
+                layer
+                for layer in residual.model.actor.layers
+                if hasattr(layer, "weight")
+            ]
+            inherited_hidden = [
+                layer.output_count for layer in deployed.layers[:-1]
+            ]
+            if [
+                int(layer.weight.shape[0])
+                for layer in residual_layers[:-1]
+            ] != [size + residual_width for size in inherited_hidden]:
+                raise RuntimeError(
+                    "route residual did not widen every hidden layer"
+                )
+            before_residual = [
+                np.asarray(layer.weight).copy()
+                for layer in residual_layers
+            ]
+            before_bias = [
+                np.asarray(layer.bias).copy()
+                for layer in residual_layers
+            ]
+            before_log_standard_deviation = np.asarray(
+                residual.model.log_standard_deviation
+            ).copy()
+            residual.train_actor_residual_output_only(
+                residual_width,
+                output_action_indices=(0, 2),
+            )
+            residual_old_log_probabilities, _, residual_old_values = (
+                residual.model.evaluate(actor, critic, latents)
+            )
+            mx.eval(
+                residual_old_log_probabilities,
+                residual_old_values,
+            )
+            residual_advantages = generator.normal(
+                0.0,
+                1.0,
+                sample_count,
+            ).astype(np.float32)
+            residual.update(
+                MLXPolicyBatch(
+                    actor_observations=np.asarray(actor),
+                    critic_observations=np.asarray(critic),
+                    latents=np.asarray(latents),
+                    old_log_probabilities=np.asarray(
+                        residual_old_log_probabilities
+                    ),
+                    old_values=np.asarray(residual_old_values),
+                    advantages=residual_advantages,
+                    returns=np.asarray(residual_old_values) +
+                        0.1 * residual_advantages,
+                )
+            )
+            after_residual = [
+                np.asarray(layer.weight)
+                for layer in residual_layers
+            ]
+            if not all(
+                np.array_equal(before, after)
+                for before, after in zip(
+                    before_residual[:-1],
+                    after_residual[:-1],
+                    strict=True,
+                )
+            ):
+                raise RuntimeError(
+                    "route residual training changed a hidden carrier layer"
+                )
+            output_before = before_residual[-1]
+            output_after = after_residual[-1]
+            if (
+                not np.array_equal(
+                    output_before[:, :-residual_width],
+                    output_after[:, :-residual_width],
+                )
+                or not np.array_equal(
+                    output_before[[index for index in range(action_count)
+                                   if index not in (0, 2)], -residual_width:],
+                    output_after[[index for index in range(action_count)
+                                  if index not in (0, 2)], -residual_width:],
+                )
+                or np.array_equal(
+                    output_before[(0, 2), -residual_width:],
+                    output_after[(0, 2), -residual_width:],
+                )
+            ):
+                raise RuntimeError(
+                    "route residual training escaped its selected output tail"
+                )
+            if (
+                not all(
+                    np.array_equal(before, np.asarray(layer.bias))
+                    for before, layer in zip(
+                        before_bias,
+                        residual_layers,
+                        strict=True,
+                    )
+                )
+                or not np.array_equal(
+                    before_log_standard_deviation,
+                    np.asarray(residual.model.log_standard_deviation),
+                )
+            ):
+                raise RuntimeError(
+                    "route residual training changed actor bias or exploration"
+                )
             selected_indices = tuple(range(0, actor_count, 2))
             projection = selected_indices + (None, None, None)
             action_multiplier = np.linspace(
@@ -1058,6 +1252,8 @@ def main() -> int:
                     "actor_initialization_max_error":
                         actor_initialization_error,
                     "actor_expansion_max_error": actor_expansion_error,
+                    "actor_route_residual_initialization_max_error":
+                        residual_initialization_error,
                 },
                 sort_keys=True,
                 allow_nan=False,

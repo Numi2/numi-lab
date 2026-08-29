@@ -2481,9 +2481,7 @@ TaskPack makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
     // RGB-D remains the deployable obstacle sensor, but the sequential task
     // goal is not inferable from geometry alone after the first gate. Publish
     // the active and following route targets explicitly, as a planner or
-    // user command would on hardware. This changes the v10 observation
-    // fingerprint and therefore requires an actor transfer, never a silent
-    // rebind of the 684-input policy.
+    // user command would on hardware.
     for (std::uint32_t component = 0u; component < 13u; ++component) {
         TaskObservationOperatorSpec route{
             .source = TaskObservationSource::navigationTarget,
@@ -2496,14 +2494,25 @@ TaskPack makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
         observations.actorCurrent.push_back(route);
         observations.critic.push_back(route);
     }
-    // V10 keeps v9's deployable sensor and action dimensions to make the
-    // promoted visual actor a meaningful transfer baseline. Its route suffix
-    // publishes current/next targets, progress, completion, and an explicit
-    // five-way stage one-hot. The one-hot separates sequential control modes
-    // that otherwise share one scalar waypoint fraction and empirically
-    // interfere during PPO continuation. This is a 697-input policy ABI;
-    // distinct task and scene fingerprints prevent narrower actors from being
-    // represented as trained v10.
+    // Preserve those 13 live route values for the retained V10 navigator.
+    // A second actor-only copy is zero through waypoint one and becomes live
+    // only after waypoint two. Inserting zero-connected columns at actor
+    // index 97 therefore preserves every inherited V10 takeoff and two-gate
+    // action exactly while giving the slalom route isolated capacity.
+    for (std::uint32_t component = 0u; component < 13u; ++component) {
+        TaskObservationOperatorSpec lateRoute{
+            .source = TaskObservationSource::navigationTarget,
+            .target = "crow_course_gate_left",
+            .component = component + 13u,
+        };
+        if (component < 6u) {
+            lateRoute.scale = 0.25f;
+        }
+        observations.actorCurrent.push_back(lateRoute);
+    }
+    // V10 keeps v9's deployable sensor and action dimensions while extending
+    // the actor to a 710-input policy ABI. Distinct task and observation
+    // fingerprints prevent narrower actors from being silently rebound.
     return task;
 }
 
