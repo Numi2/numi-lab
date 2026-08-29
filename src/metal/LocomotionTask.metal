@@ -625,6 +625,10 @@ constant float kCrowNavigationStageTwoJourneyPhase[15] = {
     0.271874994f,
 };
 
+#if 0
+// Historical waypoint-three arrivals from the older 697-input parent. Keep
+// the rejected acquisition record in source without compiling it into the
+// active reset pool.
 // Thirteen non-terminal waypoint-three arrivals from the transferred parent
 // under the current two-slalom task and 697-input visual contract. They span
 // six development-only seeds on the fixed reference course. One additional
@@ -737,6 +741,9 @@ constant float kCrowNavigationStageThreeJourneyPhase[13] = {
     0.3100000024f, 0.3087500036f, 0.3081249893f,
     0.306250006f,
 };
+
+#endif
+#include "CrowNavigationStageThreeArrivals.metalh"
 
 // Root offsets from each captured waypoint target. Stages two and three are
 // refreshed from current deterministic parents; the remaining historical
@@ -3820,10 +3827,8 @@ kernel void mr_locomotion_task_observe(
                     ? min(curriculumMode - 2u, 4u)
                     : curriculumStage[(environment + episode) % 8u];
                 const uint stageThreeArrival =
-                    kCrowNavigationStageThreeArrivalIndex[
-                        (environment + episode) %
-                        kCrowNavigationStageThreeArrivalCount
-                    ];
+                    (environment + episode) %
+                    kCrowNavigationStageThreeArrivalCount;
                 const uint stageTwoArrival =
                     (environment + episode) %
                     kCrowNavigationStageTwoArrivalCount;
@@ -3933,8 +3938,6 @@ kernel void mr_locomotion_task_observe(
                     // course lane. Preserve each measured heading and
                     // sideslip relative to its own incoming segment, then
                     // apply only the course-frame delta at reset.
-                    constexpr float stageThreeCapturedIncomingYaw =
-                        0.5880912777f;
                     const float referenceYaw = stage == 1u
                         ? kCrowNavigationStageOneCapturedIncomingYaw[
                               stageOneArrival
@@ -3944,7 +3947,9 @@ kernel void mr_locomotion_task_observe(
                               stageTwoArrival
                           ]
                         : stage == 3u
-                        ? stageThreeCapturedIncomingYaw
+                        ? kCrowNavigationStageThreeCapturedIncomingYaw[
+                              stageThreeArrival
+                          ]
                         : stage == 4u
                         ? kCrowNavigationStageFourCapturedIncomingYaw
                         : acceptedYaw;

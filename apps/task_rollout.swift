@@ -233,6 +233,7 @@ private struct Options {
     var stateTrace: String?
     var stateTraceEnvironment = 0
     var crowReplayPack: String?
+    var crowNavigationArrivalPack: String?
     var policyActionTrace: String?
     var g1VisualPackDirectory: String?
     var ballVisualPackDirectory: String?
@@ -499,6 +500,9 @@ private struct Options {
                 index += 1
             case "--crow-replay-pack":
                 crowReplayPack = try value()
+                index += 1
+            case "--crow-navigation-arrival-pack":
+                crowNavigationArrivalPack = try value()
                 index += 1
             case "--policy-action-trace":
                 policyActionTrace = try value()
@@ -994,6 +998,21 @@ private struct Options {
         if crowReplayPack != nil && !birdFlowAmericanCrowJourney {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--crow-replay-pack requires --birdflow-american-crow-journey."
+            )
+        }
+        if crowNavigationArrivalPack != nil &&
+            (repeats != 1 || chunk != 1)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--crow-navigation-arrival-pack requires --repeats 1 --chunk 1."
+            )
+        }
+        if crowNavigationArrivalPack != nil &&
+            (!birdFlowAmericanCrowJourney ||
+             birdFlowJourneyVariant != .v10WorldModelNavigation)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--crow-navigation-arrival-pack requires the v10 Crow journey."
             )
         }
         if stateTrace == nil && stateTraceEnvironment != 0 {
@@ -1773,6 +1792,7 @@ private enum TaskRolloutMain {
             let visualObservationEnabled =
                 context.visualSceneFingerprint != 0
             if options.stateTrace != nil || options.crowReplayPack != nil ||
+                options.crowNavigationArrivalPack != nil ||
                 options.captureDirectory != nil {
                 try context.setStateReadback(true)
             }
@@ -2226,6 +2246,7 @@ private enum TaskRolloutMain {
                 [MetalRoboPolicyRolloutBatch] = []
             var stateTraceLines: [String] = []
             var crowReplayFrames: [[String: Any]] = []
+            var crowNavigationArrivalFrames: [[String: Any]] = []
             if options.stateTrace != nil {
                 let traceLayout = context.layout
                 stateTraceLines.append(
@@ -2445,6 +2466,7 @@ private enum TaskRolloutMain {
                             "Task-authored outcome shape is inconsistent."
                         )
                     }
+                    var navigationArrivalEnvironments: [Int] = []
                     for transitionIndex in observedTransitions.indices {
                         let base = transitionIndex * outcomeSchema.count
                         let environment = transitionIndex % options.environments
@@ -2460,9 +2482,24 @@ private enum TaskRolloutMain {
                             )
                         }
                         if let navigationWaypointOutcome {
+                            let waypoints = Double(
+                                typedOutcomes[
+                                    base + navigationWaypointOutcome
+                                ]
+                            )
+                            if options.crowNavigationArrivalPack != nil &&
+                                waypoints >= 3.0 &&
+                                maximumNavigationWaypointsByEnvironment[
+                                    environment
+                                ] < 3.0
+                            {
+                                navigationArrivalEnvironments.append(
+                                    environment
+                                )
+                            }
                             maximumNavigationWaypointsByEnvironment[environment] = max(
                                 maximumNavigationWaypointsByEnvironment[environment],
-                                Double(typedOutcomes[base + navigationWaypointOutcome])
+                                waypoints
                             )
                         }
                         if let navigationCompletionOutcome {
@@ -2470,6 +2507,71 @@ private enum TaskRolloutMain {
                                 maximumNavigationCompletionByEnvironment[environment],
                                 Double(typedOutcomes[base + navigationCompletionOutcome])
                             )
+                        }
+                    }
+                    if !navigationArrivalEnvironments.isEmpty {
+                        let arrivalLayout = context.layout
+                        let allConfigurations =
+                            try context.finalConfiguration()
+                        let allVelocities = try context.finalVelocity()
+                        let allSceneStates = try context.finalSceneStates()
+                        let allActions = try context.policyActions(
+                            controlStepCount: stepCount
+                        )
+                        let allActorObservations =
+                            try context.actorObservations(
+                                controlStepCount: stepCount
+                            )
+                        let sceneStride =
+                            arrivalLayout.sceneBodyCount * 13
+                        for environment in navigationArrivalEnvironments {
+                            let qStart = environment *
+                                arrivalLayout.configurationCount
+                            let vStart = environment *
+                                arrivalLayout.velocityCount
+                            let sceneStart = environment * sceneStride
+                            let actionStart = environment *
+                                arrivalLayout.actionCount
+                            let actorStart = environment *
+                                arrivalLayout.actorObservationCount
+                            let outcomeBase = environment *
+                                outcomeSchema.count
+                            let outcomes = Dictionary(uniqueKeysWithValues:
+                                outcomeSchema.enumerated().map {
+                                    index, descriptor in
+                                    (
+                                        descriptor.id,
+                                        typedOutcomes[outcomeBase + index]
+                                    )
+                                }
+                            )
+                            crowNavigationArrivalFrames.append([
+                                "environment": environment,
+                                "step": globalStep + stepCount,
+                                "q": Array(allConfigurations[
+                                    qStart..<(qStart +
+                                        arrivalLayout.configurationCount)
+                                ]),
+                                "v": Array(allVelocities[
+                                    vStart..<(vStart +
+                                        arrivalLayout.velocityCount)
+                                ]),
+                                "scene_states": Array(allSceneStates[
+                                    sceneStart..<(sceneStart + sceneStride)
+                                ]),
+                                "accepted_actions": Array(allActions[
+                                    actionStart..<(actionStart +
+                                        arrivalLayout.actionCount)
+                                ]),
+                                "actor_observation": Array(
+                                    allActorObservations[
+                                        actorStart..<(actorStart +
+                                            arrivalLayout
+                                                .actorObservationCount)
+                                    ]
+                                ),
+                                "outcomes": outcomes,
+                            ])
                         }
                     }
                     outcomeSampleCount += observedTransitions.count
@@ -2988,6 +3090,7 @@ private enum TaskRolloutMain {
                     )
             }
             var crowReplayPayloadSHA256 = ""
+            var crowNavigationArrivalPayloadSHA256 = ""
             if let crowReplayPack = options.crowReplayPack {
                 let replayLayout = context.layout
                 let payload: [String: Any] = [
@@ -3093,6 +3196,89 @@ private enum TaskRolloutMain {
                 )
                 try replayData.write(
                     to: URL(fileURLWithPath: crowReplayPack),
+                    options: .atomic
+                )
+            }
+            if let arrivalPack = options.crowNavigationArrivalPack {
+                let arrivalLayout = context.layout
+                let frames = try crowNavigationArrivalFrames.map { frame in
+                    var finalized = frame
+                    guard let environment = frame["environment"] as? Int,
+                          environment >= 0,
+                          environment <
+                            maximumNavigationWaypointsByEnvironment.count
+                    else {
+                        throw MetalRoboTaskRolloutError.native(
+                            "Crow navigation arrival environment is invalid."
+                        )
+                    }
+                    finalized["maximum_waypoints_reached"] =
+                        maximumNavigationWaypointsByEnvironment[environment]
+                    finalized["completed_route"] =
+                        maximumNavigationWaypointsByEnvironment[environment] >=
+                            5.0
+                    return finalized
+                }
+                let payload: [String: Any] = [
+                    "classification":
+                        "simulated autonomous waypoint-three arrival states",
+                    "task": context.taskID,
+                    "seed": String(options.seed),
+                    "environment_count": options.environments,
+                    "frame_count": frames.count,
+                    "nq": arrivalLayout.configurationCount,
+                    "nv": arrivalLayout.velocityCount,
+                    "action_count": arrivalLayout.actionCount,
+                    "actor_observation_count":
+                        arrivalLayout.actorObservationCount,
+                    "scene_body_count": arrivalLayout.sceneBodyCount,
+                    "scene_state_stride": 13,
+                    "scheduled_resets": options.scheduledResets,
+                    "world_fingerprint":
+                        String(arrivalLayout.worldFingerprint),
+                    "task_fingerprint":
+                        String(arrivalLayout.taskFingerprint),
+                    "observation_fingerprint":
+                        String(arrivalLayout.observationFingerprint),
+                    "action_fingerprint":
+                        String(arrivalLayout.actionFingerprint),
+                    "policy_rollout_fingerprint": usesCompiledPolicy
+                        ? String(policyRolloutFingerprint) : "",
+                    "policy_revision": installedPolicyRevision,
+                    "policy_pack": options.policyPack ?? "",
+                    "navigation_course":
+                        options.birdFlowNavigationCourse ==
+                            .developmentReference
+                        ? "development-reference"
+                        : options.birdFlowNavigationCourse == .heldOutA
+                        ? "held-out-a"
+                        : options.birdFlowNavigationCourse == .heldOutB
+                        ? "held-out-b" : "training",
+                    "minimum_difficulty_band":
+                        options.minimumDifficultyBand ?? 0,
+                    "maximum_difficulty_band":
+                        options.maximumDifficultyBand ?? 10,
+                    "frames": frames,
+                ]
+                let payloadData = try JSONSerialization.data(
+                    withJSONObject: payload,
+                    options: [.sortedKeys]
+                )
+                crowNavigationArrivalPayloadSHA256 = try sha256Hex(
+                    payloadData
+                )
+                let envelope: [String: Any] = [
+                    "schema": "numi.crow-navigation-arrivals.v1",
+                    "payload_sha256":
+                        crowNavigationArrivalPayloadSHA256,
+                    "payload": payload,
+                ]
+                let arrivalData = try JSONSerialization.data(
+                    withJSONObject: envelope,
+                    options: [.prettyPrinted, .sortedKeys]
+                )
+                try arrivalData.write(
+                    to: URL(fileURLWithPath: arrivalPack),
                     options: .atomic
                 )
             }
@@ -3535,6 +3721,10 @@ private enum TaskRolloutMain {
                 "state_trace": options.stateTrace ?? "",
                 "crow_replay_pack": options.crowReplayPack ?? "",
                 "crow_replay_payload_sha256": crowReplayPayloadSHA256,
+                "crow_navigation_arrival_pack":
+                    options.crowNavigationArrivalPack ?? "",
+                "crow_navigation_arrival_payload_sha256":
+                    crowNavigationArrivalPayloadSHA256,
                 "policy_action_trace": options.policyActionTrace ?? "",
                 "environments": options.environments,
                 "steps_per_repeat": options.steps,

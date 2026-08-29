@@ -222,9 +222,47 @@ retained.
 The development result therefore remains `[189, 118, 30, 13, 13]`, or 6.77%
 completion. The retained behavior is still the v102 alpha-0.50 parent,
 expressed under the current 785-input ABI by the exact-zero v108 residual
-transfer. The next useful data milestone is to refresh the stage-three reset
-pool from current autonomous waypoint-three arrivals, including failure-near
-misses and successful continuations, before another learner is authorized.
+transfer.
+
+### Current-parent stage-three arrival pool
+
+The native rollout CLI now accepts `--crow-navigation-arrival-pack`. With
+one-step submissions it captures only the first waypoint-three crossing in
+each environment: accepted `q` and `v`, course scene state, policy action,
+actor observation, task outcomes, and eventual route high-water mark. The
+payload is contract-bound and SHA-256 recorded under schema
+`numi.crow-navigation-arrivals.v1`; it avoids both a host-authored state
+approximation and a full-trajectory dump.
+
+Three established-seed captures from the exact v108 transfer contain 30
+current autonomous arrivals: 13 later reach waypoint four and 17 do not. Their
+payload hashes are:
+
+- `2650815802`: `4ead528919123dc3f26b13fbf1e1256864dfa1df358c8172c6802db37acae665`
+- `2650815902`: `93d58b940afd8ac9d28609bf51ab9a530724f001e5f28cf41672553dce430db0`
+- `2650816002`: `f9892ef2c70e6428127368dfefce4b599aac08ef7a6de1d259dede8a305c6f94`
+
+`create_crow_navigation_arrival_pool.py` validates the shared native
+contract, rejects scheduled-reset or malformed inputs, retains source
+provenance in a manifest, and generates the compiled Metal constants. The
+active pool uses every row and rebinds each reset with that row's actual
+randomized incoming course yaw rather than the former single historical yaw.
+
+This materially changes the curriculum test. On seed `2650820401`, the exact
+parent changes from a saturated 64/64 terminal result to waypoint counts
+`[64, 64, 64, 36, 32]`: 32 completions, four waypoint-four-only outcomes, and
+28 waypoint-three failures, with zero failed environment steps. Direct
+teacher authority raises waypoint-four reach to 47/64 and completion to
+35/64, establishing limited recovery signal rather than assuming it.
+
+The 786,432-sample v113 residual learner, still filtered for physical
+waypoint-four success, remains full-route count-neutral on the fresh screen.
+V114 admits teacher labels from all active waypoint-three states, but it also
+fails locally: on fresh stage-three seed `2650820801`, the parent completes
+35/64 while candidate revisions complete only 33...34/64. Both learners are
+rejected. The next development target is a stronger failure-recovery teacher
+or a return-optimized controller on this current-parent pool; repeating the
+same behavior-cloning objective is not justified.
 
 ### Retained route-residual candidate
 
