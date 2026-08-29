@@ -1587,6 +1587,13 @@ struct MuscleDrivenVisualState {
     double muscleMetalElapsedMilliseconds = 0.0;
     std::string muscleMetalDeviceName;
     bool persistentMetalHorizon = false;
+    bool selectedTendonControl = false;
+    bool selectedControlBaselineEvaluated = false;
+    double selectedControlBaselineMaximumQDelta = 0.0;
+    double selectedControlBaselineMaximumVDelta = 0.0;
+    std::uint32_t selectedControlBaselineMaximumQDeltaIndex = MR_INVALID_INDEX;
+    std::uint32_t selectedControlBaselineMaximumVDeltaIndex = MR_INVALID_INDEX;
+    double selectedControlBaselineElapsedMilliseconds = 0.0;
     bool rootAssistanceEnabled = false;
     bool assistanceRemovalEvaluated = false;
     std::uint32_t persistentCompletedSteps = 0u;
@@ -2112,7 +2119,7 @@ CompiledStandActivation compileStaticStandActivation(
     return result;
 }
 
-MuscleDrivenVisualState integratePersistentMetalStandVisualState(
+MuscleDrivenVisualState integratePersistentMetalHumanState(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& muscles,
     const LoadedSupportContacts& supportContacts,
@@ -2121,6 +2128,7 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
     const std::uint32_t stepCount,
     const double activation,
     const std::span<const std::uint32_t> selectedSourceMuscleIndices,
+    const bool applySelectedActivationIncrement,
     const bool enableRootAssistance,
     const bool removeRootAssistance,
     const bool verifyDeterminism
@@ -2136,13 +2144,51 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
                 model.articulations.front().nv,
             "persistent Human stand currently requires one complete articulation");
     require(muscles.tendonPayload.payloadAbi == 2u,
-            "persistent Human stand requires an NHTENDON2 per-step terminal-load payload");
+            "persistent Human control requires an NHTENDON2 per-step terminal-load payload");
+    require(!applySelectedActivationIncrement ||
+                (muscles.header.payloadAbi == kMusclePayloadAbi &&
+                 !selectedSourceMuscleIndices.empty() &&
+                 std::is_sorted(
+                     selectedSourceMuscleIndices.begin(),
+                     selectedSourceMuscleIndices.end()
+                 ) &&
+                 std::adjacent_find(
+                     selectedSourceMuscleIndices.begin(),
+                     selectedSourceMuscleIndices.end()
+                 ) == selectedSourceMuscleIndices.end() &&
+                 std::all_of(
+                     selectedSourceMuscleIndices.begin(),
+                     selectedSourceMuscleIndices.end(),
+                     [&muscles](const std::uint32_t index) {
+                         return index < muscles.gpuMuscles.size();
+                     }
+                 )),
+            "selected Human tendon control requires NHMYO2 and an explicit source-muscle subset");
     require(!removeRootAssistance || enableRootAssistance,
             "assistance removal requires an assisted stand phase");
     const GroundAlignedSupport aligned =
         makeGroundAlignedSupport(model, supportContacts);
-    const CompiledStandActivation compiledActivation =
-        compileStaticStandActivation(
+    CompiledStandActivation compiledActivation;
+    std::vector<float> selectedControlBaselineActivation;
+    if (applySelectedActivationIncrement) {
+        compiledActivation = compileStaticStandActivation(
+            model,
+            muscles,
+            jointEqualities,
+            aligned.q,
+            1.0,
+            {}
+        );
+        selectedControlBaselineActivation = compiledActivation.activation;
+        for (const std::uint32_t muscleIndex : selectedSourceMuscleIndices) {
+            compiledActivation.activation[muscleIndex] = std::min(
+                1.0f,
+                compiledActivation.activation[muscleIndex] +
+                    static_cast<float>(activation)
+            );
+        }
+    } else {
+        compiledActivation = compileStaticStandActivation(
             model,
             muscles,
             jointEqualities,
@@ -2150,6 +2196,7 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
             activation,
             selectedSourceMuscleIndices
         );
+    }
     const std::vector<float> q = packMetalConfiguration(compiledActivation.q);
     std::vector<float> v;
     v.reserve(model.defaultV.size());
@@ -2231,6 +2278,47 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
                 : mr_float4{0.0f, 0.0f, 0.0f, 0.0f},
         },
     };
+    metalrobo::MetalArticulatedOperatorResult selectedControlBaselineResult;
+    double selectedControlBaselineElapsedMilliseconds = 0.0;
+    if (applySelectedActivationIncrement) {
+        std::vector<MRMujocoMuscleStateGPU> baselineStates(
+            muscles.gpuMuscles.size()
+        );
+        for (std::size_t muscleIndex = 0u;
+             muscleIndex < baselineStates.size();
+             ++muscleIndex) {
+            const float baselineActivation =
+                selectedControlBaselineActivation[muscleIndex];
+            baselineStates[muscleIndex].excitationAndActivation = {
+                baselineActivation,
+                baselineActivation,
+                0.0f,
+                0.0f,
+            };
+        }
+        metalrobo::MetalArticulatedOperatorInput baselineInput = input;
+        baselineInput.mujoco.states = baselineStates;
+        const auto baselineDiagnostics = context.run(
+            model,
+            baselineInput,
+            selectedControlBaselineResult
+        );
+        require(
+            baselineDiagnostics.succeeded() && baselineDiagnostics.published &&
+                baselineDiagnostics.completedStandSteps == stepCount &&
+                selectedControlBaselineResult.standQ.size() == q.size() &&
+                selectedControlBaselineResult.standV.size() == v.size() &&
+                selectedControlBaselineResult.standStatuses.size() == 1u &&
+                selectedControlBaselineResult.standStatuses.front().code ==
+                    MR_NUMI_HUMAN_STAND_SUCCESS &&
+                selectedControlBaselineResult.standStatuses.front().tendonTransferCount ==
+                    tendonProgram.bindings.size() * stepCount,
+            "selected Human zero-increment baseline transaction failed: " +
+                baselineDiagnostics.message
+        );
+        selectedControlBaselineElapsedMilliseconds =
+            baselineDiagnostics.elapsedMilliseconds;
+    }
     std::vector<double> parityQ = compiledActivation.q;
     std::vector<double> parityV(model.defaultV.begin(), model.defaultV.end());
     std::vector<double> parityGeneralizedForce =
@@ -2242,6 +2330,8 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
                 muscle.compliantArchitecture0.y > 0.0f;
         }
     );
+    require(!applySelectedActivationIncrement || hasCompliantArchitecture,
+            "selected Human tendon control requires compliant NHMYO2 architecture");
     if (hasCompliantArchitecture) {
         std::vector<MRMujocoMuscleStateGPU> parityForceStates = states;
         metalrobo::MetalArticulatedOperatorContext parityForceContext(config);
@@ -2401,6 +2491,40 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
                     jointEqualities.payload.records.size() &&
                 status.jointEqualityCounts.z == 0u,
             "persistent Human stand returned an incomplete device status");
+    double selectedControlBaselineMaximumQDelta = 0.0;
+    double selectedControlBaselineMaximumVDelta = 0.0;
+    std::uint32_t selectedControlBaselineMaximumQDeltaIndex = MR_INVALID_INDEX;
+    std::uint32_t selectedControlBaselineMaximumVDeltaIndex = MR_INVALID_INDEX;
+    if (applySelectedActivationIncrement) {
+        for (std::size_t index = 0u; index < metalResult.standQ.size(); ++index) {
+            const double delta = std::abs(
+                static_cast<double>(metalResult.standQ[index]) -
+                static_cast<double>(selectedControlBaselineResult.standQ[index])
+            );
+            if (delta > selectedControlBaselineMaximumQDelta) {
+                selectedControlBaselineMaximumQDelta = delta;
+                selectedControlBaselineMaximumQDeltaIndex =
+                    static_cast<std::uint32_t>(index);
+            }
+        }
+        for (std::size_t index = 0u; index < metalResult.standV.size(); ++index) {
+            const double delta = std::abs(
+                static_cast<double>(metalResult.standV[index]) -
+                static_cast<double>(selectedControlBaselineResult.standV[index])
+            );
+            if (delta > selectedControlBaselineMaximumVDelta) {
+                selectedControlBaselineMaximumVDelta = delta;
+                selectedControlBaselineMaximumVDeltaIndex =
+                    static_cast<std::uint32_t>(index);
+            }
+        }
+        require(
+            activation == 0.0 ||
+                selectedControlBaselineMaximumQDelta > 1.0e-12 ||
+                selectedControlBaselineMaximumVDelta > 1.0e-9,
+            "selected Human activation increment did not change q or v from its zero-increment baseline"
+        );
+    }
     const std::size_t tendonEnvelopeBindingCount =
         static_cast<std::size_t>(std::count_if(
             tendonProgram.bindings.begin(), tendonProgram.bindings.end(),
@@ -2608,6 +2732,19 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
     }
     result.stepCount = stepCount;
     result.persistentMetalHorizon = true;
+    result.selectedTendonControl = applySelectedActivationIncrement;
+    result.selectedControlBaselineEvaluated =
+        applySelectedActivationIncrement;
+    result.selectedControlBaselineMaximumQDelta =
+        selectedControlBaselineMaximumQDelta;
+    result.selectedControlBaselineMaximumVDelta =
+        selectedControlBaselineMaximumVDelta;
+    result.selectedControlBaselineMaximumQDeltaIndex =
+        selectedControlBaselineMaximumQDeltaIndex;
+    result.selectedControlBaselineMaximumVDeltaIndex =
+        selectedControlBaselineMaximumVDeltaIndex;
+    result.selectedControlBaselineElapsedMilliseconds =
+        selectedControlBaselineElapsedMilliseconds;
     result.rootAssistanceEnabled = enableRootAssistance;
     result.assistanceRemovalEvaluated = removeRootAssistance;
     result.persistentCompletedSteps = stepCount * phaseCount;
@@ -5638,6 +5775,7 @@ int main(int argc, char** argv) {
             std::optional<double> muscleActivation;
             std::optional<std::uint32_t> muscleStepCount;
             bool persistentMetalStand = false;
+            bool selectedTendonControl = false;
             bool standRootAssistance = false;
             bool standRemoveAssistance = false;
             bool standDeterministicReplay = false;
@@ -5680,6 +5818,10 @@ int main(int argc, char** argv) {
                     require(!persistentMetalStand,
                             "--persistent-metal-stand may be given only once");
                     persistentMetalStand = true;
+                } else if (argument == "--selected-tendon-control") {
+                    require(!selectedTendonControl,
+                            "--selected-tendon-control may be given only once");
+                    selectedTendonControl = true;
                 } else if (argument == "--stand-root-assistance") {
                     require(!standRootAssistance,
                             "--stand-root-assistance may be given only once");
@@ -5794,7 +5936,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-seconds <1e-6..1e-3>]"
                           << " [--muscle-step-count <1..64>]"
                           << " [--muscle-activation <0..1>]"
-                          << " [--persistent-metal-stand] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay]"
+                          << " [--persistent-metal-stand] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay]"
                           << " [--activated-source-muscle-index <0..415>]..."
                           << " [--source-route-centrelines] [--source-route-index <0..415>]..."
                           << " [--surface-project-source-sites]"
@@ -5999,6 +6141,14 @@ int main(int argc, char** argv) {
                          supportContactPayload.has_value() &&
                          jointEqualityPayload.has_value()),
                     "--persistent-metal-stand requires muscle timestep, support contacts, and NHEQ1 joint equalities");
+            require(!selectedTendonControl ||
+                        (muscleStepSeconds.has_value() &&
+                         supportContactPayload.has_value() &&
+                         jointEqualityPayload.has_value() &&
+                         !selectedSourceMuscleActivations.empty()),
+                    "--selected-tendon-control requires muscle timestep, support contacts, NHEQ1 joint equalities, and selected source muscles");
+            require(!persistentMetalStand || !selectedTendonControl,
+                    "--persistent-metal-stand and --selected-tendon-control are mutually exclusive");
             require(!standRootAssistance || persistentMetalStand,
                     "--stand-root-assistance requires --persistent-metal-stand");
             require(!standRemoveAssistance || standRootAssistance,
@@ -6030,9 +6180,9 @@ int main(int argc, char** argv) {
             std::optional<MuscleDrivenVisualState> muscleDrivenState;
             std::span<const float> poseQ = rigid.model.defaultQ;
             if (muscleStepSeconds.has_value()) {
-                if (persistentMetalStand) {
+                if (persistentMetalStand || selectedTendonControl) {
                     muscleDrivenState.emplace(
-                        integratePersistentMetalStandVisualState(
+                        integratePersistentMetalHumanState(
                             rigid.model,
                             musclePayload,
                             *supportContactPayload,
@@ -6041,9 +6191,10 @@ int main(int argc, char** argv) {
                             muscleStepCount.value_or(1u),
                             muscleActivation.value_or(0.5),
                             selectedSourceMuscleActivations,
+                            selectedTendonControl,
                             standRootAssistance,
                             standRemoveAssistance,
-                            standDeterministicReplay
+                            standDeterministicReplay || selectedTendonControl
                         )
                     );
                 } else {
@@ -6357,6 +6508,8 @@ int main(int argc, char** argv) {
                 muscleDrivenState->supportContactApplied;
             const std::string poseSource = !muscleDrivenState.has_value()
                 ? "source_default_q_to_metal_kinematic_pose"
+                : muscleDrivenState->selectedTendonControl
+                    ? "persistent_metal_compiled_posture_baseline_plus_selected_source_activation_increment_all_416_mujoco_routes_nhtendon2_transaction_gravity_joint_equalities_and_source_foot_support"
                 : muscleDrivenState->persistentMetalHorizon
                     ? "persistent_metal_current_pose_all_416_mujoco_routes_activation_gravity_large_state_dynamics_and_source_foot_support"
                 : sourceSupportContact
@@ -6364,6 +6517,9 @@ int main(int argc, char** argv) {
                     : "metal_all_416_mujoco_force_projection_and_activation_state_then_cpu_fp64_free_dynamics_then_metal_kinematic_pose";
             std::string evidenceBoundary =
                 muscleDrivenState.has_value() &&
+                    muscleDrivenState->selectedTendonControl
+                ? "bounded_selected_source_muscle_increment_over_compiled_posture_baseline_on_persistent_apple_metal_with_all_416_routes_nhtendon2_force_transfer_joint_equalities_gravity_and_source_foot_support_not_closed_loop_control_deformable_tendon_or_clinical_validation"
+                : muscleDrivenState.has_value() &&
                     muscleDrivenState->persistentMetalHorizon
                 ? (compliantMusclePayload
                     ? "bounded_persistent_apple_metal_all_416_source_routes_with_inferred_positive_fiber_tendon_architecture_damped_backward_euler_equilibrium_explicit_nhtendon2_force_transfer_large_state_mass_gravity_low_velocity_bias_and_source_foot_support_not_anatomically_calibrated_pennation_exact_jdot_rnea_joint_limit_general_collision_or_closed_loop_standing_qualification"
@@ -6494,12 +6650,36 @@ int main(int argc, char** argv) {
                       << " muscle_activation=" << (muscleStepSeconds.has_value()
                               ? muscleActivation.value_or(0.5) : 0.0)
                       << " muscle_activation_scope=" << (muscleDrivenState.has_value()
-                              ? (muscleDrivenState->selectedSourceMuscleActivationCount == 0u
+                              ? (muscleDrivenState->selectedTendonControl
+                                  ? "selected_increment_over_compiled_posture"
+                                  : muscleDrivenState->selectedSourceMuscleActivationCount == 0u
                                   ? "all_source_muscles"
                                   : "selected_source_muscles")
                               : "none")
+                      << " muscle_control_mode=" << (muscleDrivenState.has_value()
+                              ? (muscleDrivenState->selectedTendonControl
+                                  ? "compiled_posture_plus_selected_increment_nhtendon2_transaction"
+                                  : muscleDrivenState->persistentMetalHorizon
+                                  ? "compiled_persistent_stand"
+                                  : "bounded_visual_difference")
+                              : "none")
                       << " muscle_selected_source_activation_count=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->selectedSourceMuscleActivationCount : 0u)
+                      << " selected_control_baseline=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->selectedControlBaselineEvaluated
+                                  ? "evaluated" : "not_requested")
+                      << " selected_control_baseline_max_q_delta=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->selectedControlBaselineMaximumQDelta : 0.0)
+                      << " selected_control_baseline_max_q_delta_index=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->selectedControlBaselineMaximumQDeltaIndex
+                              : MR_INVALID_INDEX)
+                      << " selected_control_baseline_max_v_delta=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->selectedControlBaselineMaximumVDelta : 0.0)
+                      << " selected_control_baseline_max_v_delta_index=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->selectedControlBaselineMaximumVDeltaIndex
+                              : MR_INVALID_INDEX)
+                      << " selected_control_baseline_elapsed_ms=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->selectedControlBaselineElapsedMilliseconds : 0.0)
                       << " muscle_passive_baseline=" << (muscleDrivenState.has_value()
                               ? (compliantMusclePayload
                                   ? "nhmyo2_damped_fiber_tendon_equilibrium"
