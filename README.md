@@ -6,6 +6,14 @@ continuum. The `coupled` branch has one GPU-resident nonlinear authority rather
 than sequenced deformable, pressure, transport, contact, and rigid-response
 solvers.
 
+Numi Human can now lend its live NHTENDON2/3 endpoint-transfer and step-status
+buffers to Matter without a host readback or second command buffer. The
+`NumiHumanTendonFEMLoadAdapter` assembles declared FEM-node shares on Metal and
+encodes Matter pre-dynamics plus commit or rollback inside the owning Human
+transaction. The path is intentionally non-owning for production rigid force:
+it must not duplicate MyoSim `J^T` until the matching endpoint share is
+replaced and accepted anchor reactions return to the articulated system.
+
 The environment-wide Newton unknown is
 
 \[

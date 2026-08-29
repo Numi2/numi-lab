@@ -1,0 +1,66 @@
+#include "metalrobo/numi_human_stand_gpu.h"
+#include "metalrobo/numi_human_tendon_gpu.h"
+#include "numi/matter/numi_human_shared.h"
+
+namespace numi_matter_metal {
+
+kernel void nm_numi_human_adapt_stand_status(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],
+    device MRMetalWorldStatusGPU* worldStatuses [[buffer(2)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    const MRNumiHumanStandStatusGPU stand = standStatuses[environment];
+    const bool accepted =
+        dispatch.abiVersion == NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION &&
+        dispatch.reserved0 == 0u && dispatch.reserved1 == 0u &&
+        stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+        stand.environment == environment &&
+        stand.completedSteps == dispatch.stepIndex + 1u;
+    MRMetalWorldStatusGPU world{};
+    world.code = accepted ? MR_STEP_SUCCESS : MR_STEP_DID_NOT_CONVERGE;
+    world.environment = environment;
+    world.controlStep = dispatch.stepIndex;
+    world.successfulSubsteps = accepted ? 1u : 0u;
+    world.abaCode = accepted ? MR_ABA_SUCCESS : MR_ABA_INVALID_DISPATCH;
+    world.failingSubstep = accepted ? MR_INVALID_INDEX : 0u;
+    world.failingIndex = accepted ? MR_INVALID_INDEX : stand.failingIndex;
+    worldStatuses[environment] = world;
+}
+
+kernel void nm_numi_human_assemble_tendon_fem_loads(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanTendonFEMNodeLoadGPU* nodeLoads [[buffer(1)]],
+    device const MRNumiHumanTendonTransferResultGPU* transfers [[buffer(2)]],
+    device const MRMetalWorldStatusGPU* worldStatuses [[buffer(3)]],
+    device float4* externalForces [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    externalForces[global] = float4(0.0f);
+    if (worldStatuses[environment].code != MR_STEP_SUCCESS) return;
+    const NMNumiHumanTendonFEMNodeLoadGPU load = nodeLoads[node];
+    if ((load.flags & NM_NUMI_HUMAN_TENDON_FEM_NODE_LOAD_ACTIVE) == 0u) return;
+    if (load.flags != NM_NUMI_HUMAN_TENDON_FEM_NODE_LOAD_ACTIVE ||
+        load.endpointIndex >= dispatch.endpointCount ||
+        load.reserved0 != 0u || load.reserved1 != 0u ||
+        !all(isfinite(load.scale)) || load.scale.x < 0.0f ||
+        any(load.scale.yzw != float3(0.0f))) return;
+    const MRNumiHumanTendonTransferResultGPU transfer = transfers[
+        environment * dispatch.transferStride + load.endpointIndex
+    ];
+    if (transfer.status != MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS ||
+        transfer.environment != environment ||
+        transfer.bindingIndex != load.endpointIndex ||
+        !all(isfinite(transfer.terminalWorldForce))) return;
+    externalForces[global] = float4(
+        load.scale.x * transfer.terminalWorldForce.xyz,
+        0.0f
+    );
+}
+
+} // namespace numi_matter_metal

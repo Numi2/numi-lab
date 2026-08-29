@@ -1374,6 +1374,36 @@ set_target_properties(
 )
 
 add_executable(
+    metalrobo_numilab_human_tendon_fem_load_probe
+    apps/numi_human_tendon_fem_load_probe.mm
+)
+target_link_libraries(
+    metalrobo_numilab_human_tendon_fem_load_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+add_dependencies(
+    metalrobo_numilab_human_tendon_fem_load_probe
+    numi_matter_shaders
+)
+target_compile_definitions(
+    metalrobo_numilab_human_tendon_fem_load_probe
+    PRIVATE
+        NUMI_HUMAN_TENDON_FEM_PROBE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+)
+target_compile_options(
+    metalrobo_numilab_human_tendon_fem_load_probe
+    PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror
+)
+set_target_properties(
+    metalrobo_numilab_human_tendon_fem_load_probe
+    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+)
+
+add_executable(
     metalrobo_millard_muscle_reference_probe
     apps/millard_muscle_reference_probe.cpp
 )
@@ -2069,6 +2099,14 @@ set_target_properties(
 )
 
 if(BUILD_TESTING)
+    add_test(
+        NAME matter.numi_human.tendon_fem_transaction
+        COMMAND $<TARGET_FILE:metalrobo_numilab_human_tendon_fem_load_probe>
+    )
+    set_tests_properties(
+        matter.numi_human.tendon_fem_transaction
+        PROPERTIES LABELS "matter;numi-human;physics;metal" TIMEOUT 30
+    )
     add_test(
         NAME matter.runtime.snapshot_archive
         COMMAND

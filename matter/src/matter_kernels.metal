@@ -7,3 +7,4 @@
 #include "metal/contact.metalinc"
 #include "metal/adaptive.metalinc"
 #include "metal/identification_scheduler.metalinc"
+#include "metal/numi_human.metalinc"

@@ -115,6 +115,7 @@ if(APPLE)
             src/metal/contact.metalinc
             src/metal/adaptive.metalinc
             src/metal/identification_scheduler.metalinc
+            src/metal/numi_human.metalinc
             include/numi/matter/shared.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
@@ -127,6 +128,7 @@ if(APPLE)
         OBJECT
         src/runtime.mm
         src/metal_world.cpp
+        src/numi_human.mm
     )
     add_dependencies(numi_matter_runtime_objects numi_matter_shaders)
     target_include_directories(
