@@ -2261,6 +2261,7 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
         model.world.gravityAndTimestep.z,
     };
     parityConfig.timestep = timestepSeconds;
+    parityConfig.implicitPassiveDofDamping = true;
     const auto parityCpu = metalrobo::integrateArticulatedState(
         model,
         0u,
@@ -2312,7 +2313,9 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
                 std::isfinite(parityMaximumVError) &&
                 parityMaximumQError <= 2.0e-6 &&
                 parityMaximumVError <= 2.0e-3,
-            "persistent Human stand one-step Metal/FP64 parity exceeded tolerance");
+            "persistent Human stand one-step Metal/FP64 parity exceeded tolerance: q=" +
+                std::to_string(parityMaximumQError) + " v=" +
+                std::to_string(parityMaximumVError));
     bool tendonRollbackVerified = false;
     bool tendonRigidStateIdentityVerified = false;
     TendonLoadAuditConsumer acceptedTendonConsumer;

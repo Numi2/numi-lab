@@ -42,6 +42,11 @@ struct ArticulatedDynamicsConfig {
     std::array<double, 3> gravity{0.0, 0.0, -9.81};
     double timestep = 1.0 / 1000.0;
     bool applyBodyDamping = true;
+    // Treat passive, non-drive DoF damping with the same one-step
+    // backward-Euler diagonal used by the persistent Human Metal solver.
+    // This is opt-in so the general continuous forward-dynamics reference
+    // keeps its existing explicit-force semantics.
+    bool implicitPassiveDofDamping = false;
     bool enforceBodySpeedLimits = false;
     ArticulatedIntegrator integrator =
         ArticulatedIntegrator::symplecticEuler;

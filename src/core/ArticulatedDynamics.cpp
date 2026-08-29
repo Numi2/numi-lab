@@ -2239,6 +2239,23 @@ ArticulatedDynamicsDiagnostics computeArticulatedForwardDynamics(
     }
     mergeFactorizationDiagnostics(diagnostics, massDiagnostics);
 
+    if (config.implicitPassiveDofDamping) {
+        const MRArticulationGPU& articulation = *topology.articulation;
+        for (std::size_t localDof = 0u;
+             localDof < dofCount; ++localDof) {
+            const MRDofPropertiesGPU& dof =
+                model.dofs[articulation.vOffset + localDof];
+            if ((dof.flags & MR_DOF_FLAG_DRIVE) == 0u) {
+                // Linear passive damping is already present in the bias as
+                // D*v. Adding hD here solves (M+hD)*a=tau-b-Dv, matching the
+                // persistent Metal stand step without turning damping into a
+                // hidden position or velocity drive.
+                massMatrix[localDof * dofCount + localDof] +=
+                    config.timestep * static_cast<double>(dof.drive.y);
+            }
+        }
+    }
+
     std::vector<double> zeroAcceleration(dofCount, 0.0);
     std::vector<double> bias;
     const ArticulatedDynamicsDiagnostics biasDiagnostics =
