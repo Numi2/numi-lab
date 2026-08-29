@@ -2306,7 +2306,7 @@ TaskCompileDiagnostics compileTaskProgram(
                         );
                     }
                 }
-                componentLimit = 8u;
+                componentLimit = 13u;
                 break;
             }
             case TaskObservationSource::supportSense:

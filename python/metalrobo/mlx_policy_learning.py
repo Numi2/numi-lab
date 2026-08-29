@@ -1884,6 +1884,58 @@ class MLXMotionPrior:
         )
 
 
+def _actor_observation_extension_only_gradients(
+    gradients: Any,
+    offset: int,
+    count: int | None = None,
+) -> Any:
+    """Keep critic gradients and only the actor's new input columns."""
+
+    masked_gradients: list[tuple[str, mx.array]] = []
+    found_first_layer = False
+    for name, gradient in tree_flatten(gradients):
+        if name == "actor.layers.0.weight":
+            extension_count = (
+                gradient.shape[1] - offset if count is None else count
+            )
+            if (
+                offset < 0
+                or extension_count <= 0
+                or offset + extension_count > gradient.shape[1]
+            ):
+                raise ValueError(
+                    "actor observation extension range is invalid"
+                )
+            extension_mask = mx.concatenate(
+                (
+                    mx.zeros(
+                        (gradient.shape[0], offset),
+                        dtype=gradient.dtype,
+                    ),
+                    mx.ones(
+                        (gradient.shape[0], extension_count),
+                        dtype=gradient.dtype,
+                    ),
+                    mx.zeros(
+                        (
+                            gradient.shape[0],
+                            gradient.shape[1] - offset - extension_count,
+                        ),
+                        dtype=gradient.dtype,
+                    ),
+                ),
+                axis=1,
+            )
+            gradient = gradient * extension_mask
+            found_first_layer = True
+        elif name.startswith("actor.") or name == "log_standard_deviation":
+            gradient = mx.zeros_like(gradient)
+        masked_gradients.append((name, gradient))
+    if not found_first_layer:
+        raise ValueError("actor gradient tree has no first dense layer")
+    return tree_unflatten(masked_gradients)
+
+
 class MLXPolicyLearner:
     """Owns only policy parameters, optimizer state, and PPO updates."""
 
@@ -1917,6 +1969,9 @@ class MLXPolicyLearner:
         )
         self._training_state: list[Any] = []
         self._compiled_training_step: Any = None
+        self._actor_observation_extension_only_range: (
+            tuple[int, int | None] | None
+        ) = None
         self.refresh_compiled_training_state()
         self.policy_id: str | None = None
         self.contract_version = 0
@@ -1972,6 +2027,35 @@ class MLXPolicyLearner:
             inputs=self._training_state,
             outputs=self._training_state,
         )
+
+    def train_actor_observation_extension_only(
+        self,
+        offset: int,
+        count: int | None = None,
+    ) -> None:
+        """Freeze the inherited actor and train only new input columns.
+
+        The critic remains fully trainable. This is intended for a
+        zero-connected observation extension whose inherited actor already
+        owns a qualified control behavior.
+        """
+
+        if (
+            offset < 0
+            or offset >= self.actor_observation_count
+            or (
+                count is not None
+                and (
+                    count <= 0
+                    or offset + count > self.actor_observation_count
+                )
+            )
+        ):
+            raise ValueError(
+                "actor observation extension range is invalid"
+            )
+        self._actor_observation_extension_only_range = (offset, count)
+        self.refresh_compiled_training_state()
 
     def zero_actor_output(self) -> None:
         """Start a stabilizer from the mechanism-default action exactly."""
@@ -2917,6 +3001,13 @@ class MLXPolicyLearner:
             teacher_weights,
             policy_weights,
         )
+        if self._actor_observation_extension_only_range is not None:
+            offset, count = self._actor_observation_extension_only_range
+            gradients = _actor_observation_extension_only_gradients(
+                gradients,
+                offset,
+                count,
+            )
         _, actor_gradient_norm = optim.clip_grad_norm(
             {
                 "actor": gradients["actor"],

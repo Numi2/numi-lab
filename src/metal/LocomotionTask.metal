@@ -1278,8 +1278,12 @@ inline float cleanObservation(
         } else if (operation.source.z == 6u) {
             value = float(waypoint) /
                 float(kCrowNavigationWaypointCount);
-        } else {
+        } else if (operation.source.z == 7u) {
             value = state.navigation.w;
+        } else if (operation.source.z < 13u) {
+            value = operation.source.z - 8u == waypoint ? 1.0f : 0.0f;
+        } else {
+            value = 0.0f;
         }
         break;
     }
@@ -3251,11 +3255,20 @@ kernel void mr_locomotion_task_observe(
                 }
             }
             if (navigationCourseStart != MR_INVALID_INDEX) {
-                const uint slot = (environment + episode) % 8u;
-                const uint stage = min(
-                    slot,
-                    kCrowNavigationWaypointCount - 1u
-                );
+                // Concentrate half of the reset curriculum on stage two,
+                // while retaining one eighth of every batch for each other
+                // route stage. Autonomous screening of the balanced learner
+                // reached waypoint two in 31/32 environments but waypoint
+                // three in only 7/32; after waypoint three, 5/7 completed the
+                // route. This sampling targets that measured transition
+                // without changing autonomous resets, geometry, rewards, or
+                // success criteria.
+                constexpr uint curriculumStage[8] = {
+                    0u, 1u, 2u, 2u, 2u, 2u, 3u, 4u,
+                };
+                const uint stage = curriculumStage[
+                    (environment + episode) % 8u
+                ];
                 // Full-route replay reaches stages one through four near
                 // steps 316, 361, 407, and 423. Match that observable journey
                 // phase for independent-stage resets; otherwise a stage-four
@@ -3294,9 +3307,48 @@ kernel void mr_locomotion_task_observe(
                         target - start,
                         float3(1.0f, 0.0f, 0.0f)
                     );
+                    // Rebind the accepted flight state as one rigid yaw
+                    // transform. Rotating only world linear velocity left the
+                    // captured attitude and angular velocity on the old
+                    // segment heading, creating a severe sideslip at the
+                    // stage-two reset and poisoning the transition data.
+                    const float4 acceptedOrientation = float4(
+                        resetQ[qBase + program.root.z + 3u],
+                        resetQ[qBase + program.root.z + 4u],
+                        resetQ[qBase + program.root.z + 5u],
+                        resetQ[qBase + program.root.z + 6u]
+                    );
+                    const float acceptedYaw = atan2(
+                        2.0f * (
+                            acceptedOrientation.w * acceptedOrientation.z +
+                            acceptedOrientation.x * acceptedOrientation.y
+                        ),
+                        1.0f - 2.0f * (
+                            acceptedOrientation.y * acceptedOrientation.y +
+                            acceptedOrientation.z * acceptedOrientation.z
+                        )
+                    );
+                    const float desiredYaw = atan2(
+                        direction.y,
+                        direction.x
+                    );
+                    const float yawDelta = desiredYaw - acceptedYaw;
+                    const float4 reboundOrientation = quaternionProduct(
+                        float4(
+                            0.0f,
+                            0.0f,
+                            sin(0.5f * yawDelta),
+                            cos(0.5f * yawDelta)
+                        ),
+                        acceptedOrientation
+                    );
                     resetQ[qBase + program.root.z + 0u] = start.x;
                     resetQ[qBase + program.root.z + 1u] = start.y;
                     resetQ[qBase + program.root.z + 2u] = start.z;
+                    for (uint component = 0u; component < 4u; ++component) {
+                        resetQ[qBase + program.root.z + 3u + component] =
+                            reboundOrientation[component];
+                    }
                     // Preserve the accepted speed while aligning its planar
                     // direction to the rebound course segment.
                     const float acceptedSpeed = max(length(float2(
@@ -3307,6 +3359,16 @@ kernel void mr_locomotion_task_observe(
                         acceptedSpeed * direction.x;
                     resetV[vBase + program.root.w + 1u] =
                         acceptedSpeed * direction.y;
+                    const float angularX =
+                        resetV[vBase + program.root.w + 3u];
+                    const float angularY =
+                        resetV[vBase + program.root.w + 4u];
+                    const float yawCos = cos(yawDelta);
+                    const float yawSin = sin(yawDelta);
+                    resetV[vBase + program.root.w + 3u] =
+                        yawCos * angularX - yawSin * angularY;
+                    resetV[vBase + program.root.w + 4u] =
+                        yawSin * angularX + yawCos * angularY;
                 }
             }
         }

@@ -2484,7 +2484,7 @@ TaskPack makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
     // user command would on hardware. This changes the v10 observation
     // fingerprint and therefore requires an actor transfer, never a silent
     // rebind of the 684-input policy.
-    for (std::uint32_t component = 0u; component < 8u; ++component) {
+    for (std::uint32_t component = 0u; component < 13u; ++component) {
         TaskObservationOperatorSpec route{
             .source = TaskObservationSource::navigationTarget,
             .target = "crow_course_gate_left",
@@ -2497,10 +2497,13 @@ TaskPack makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
         observations.critic.push_back(route);
     }
     // V10 keeps v9's deployable sensor and action dimensions to make the
-    // promoted visual actor a meaningful transfer baseline. Its explicit
-    // eight-value route suffix makes v10 a new 692-input policy ABI; distinct
-    // task and scene fingerprints prevent v9 from being represented as
-    // trained v10.
+    // promoted visual actor a meaningful transfer baseline. Its route suffix
+    // publishes current/next targets, progress, completion, and an explicit
+    // five-way stage one-hot. The one-hot separates sequential control modes
+    // that otherwise share one scalar waypoint fraction and empirically
+    // interfere during PPO continuation. This is a 697-input policy ABI;
+    // distinct task and scene fingerprints prevent narrower actors from being
+    // represented as trained v10.
     return task;
 }
 

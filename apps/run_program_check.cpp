@@ -648,10 +648,10 @@ int main() {
                 compiledNavigation.model().bodies.size() == 20u &&
                 compiledNavigation.task().layout().actorObservationSize ==
                     compiledVisualJourney.task().layout().actorObservationSize +
-                        8u &&
+                        13u &&
                 compiledNavigation.task().layout().criticObservationSize ==
                     compiledVisualJourney.task().layout().criticObservationSize +
-                        8u &&
+                        13u &&
                 compiledNavigation.task().rewardOperators().size() ==
                     compiledVisualJourney.task().rewardOperators().size() + 2u &&
                 compiledNavigation.task().rewardOperators()[

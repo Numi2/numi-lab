@@ -3,6 +3,12 @@
 import unittest
 
 import numpy as np
+import mlx.core as mx
+from mlx.utils import tree_flatten
+
+from metalrobo.mlx_policy_learning import (
+    _actor_observation_extension_only_gradients,
+)
 
 from metalrobo.mlx_policy_worker import (
     _blend_retention_and_rollout_teacher_targets,
@@ -11,6 +17,46 @@ from metalrobo.mlx_policy_worker import (
 
 
 class DifficultyBalancedRetentionWeightsTest(unittest.TestCase):
+    def test_extension_only_gradients_freeze_inherited_actor(self) -> None:
+        gradients = {
+            "actor": {
+                "layers": [
+                    {
+                        "weight": mx.ones((2, 5)),
+                        "bias": mx.ones((2,)),
+                    },
+                    {"weight": mx.ones((1, 2))},
+                ]
+            },
+            "critic": {"weight": mx.ones((1, 3))},
+            "log_standard_deviation": mx.ones((1,)),
+        }
+
+        masked = dict(tree_flatten(
+            _actor_observation_extension_only_gradients(gradients, 3, 1)
+        ))
+
+        np.testing.assert_array_equal(
+            np.asarray(masked["actor.layers.0.weight"]),
+            [[0, 0, 0, 1, 0], [0, 0, 0, 1, 0]],
+        )
+        np.testing.assert_array_equal(
+            np.asarray(masked["actor.layers.0.bias"]),
+            [0, 0],
+        )
+        np.testing.assert_array_equal(
+            np.asarray(masked["actor.layers.1.weight"]),
+            [[0, 0]],
+        )
+        np.testing.assert_array_equal(
+            np.asarray(masked["log_standard_deviation"]),
+            [0],
+        )
+        np.testing.assert_array_equal(
+            np.asarray(masked["critic.weight"]),
+            [[1, 1, 1]],
+        )
+
     def test_route_teacher_blends_without_erasing_reference_targets(self) -> None:
         reference = np.asarray([[0.0, 0.5], [0.2, -0.2]], dtype=np.float32)
         teacher = np.asarray([[1.0, -0.5], [1.0, 1.0]], dtype=np.float32)

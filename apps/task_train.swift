@@ -29,6 +29,8 @@ private struct Options {
     var retentionPriorityFactor = 1.0
     var retentionRolloutTeacherBlend = 0.0
     var actorObservationExtensionOffset: Int?
+    var trainActorObservationExtensionOnly = false
+    var trainActorObservationExtensionCount: Int?
     var actorObservationExtensionMean: Double?
     var actorObservationExtensionInverseStandardDeviation = 1.0
     var updatedPolicyPack: String?
@@ -206,6 +208,14 @@ private struct Options {
                 index += 1
             case "--actor-observation-extension-offset":
                 actorObservationExtensionOffset = try Self.integer(
+                    value(),
+                    option
+                )
+                index += 1
+            case "--train-actor-observation-extension-only":
+                trainActorObservationExtensionOnly = true
+            case "--train-actor-observation-extension-count":
+                trainActorObservationExtensionCount = try Self.integer(
                     value(),
                     option
                 )
@@ -607,6 +617,20 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--actor-observation-extension-offset must be non-negative."
+            )
+        }
+        if trainActorObservationExtensionOnly &&
+            actorObservationExtensionOffset == nil
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--train-actor-observation-extension-only requires --actor-observation-extension-offset."
+            )
+        }
+        if let count = trainActorObservationExtensionCount,
+           (!trainActorObservationExtensionOnly || count <= 0)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--train-actor-observation-extension-count requires extension-only training and a positive count."
             )
         }
         if retentionPolicyPack?.isEmpty == true {
@@ -1191,6 +1215,15 @@ private final class MLXLearnerWorker {
                 String(offset),
             ])
         }
+        if options.trainActorObservationExtensionOnly {
+            arguments.append("--train-actor-observation-extension-only")
+        }
+        if let count = options.trainActorObservationExtensionCount {
+            arguments.append(contentsOf: [
+                "--train-actor-observation-extension-count",
+                String(count),
+            ])
+        }
         if let motionPack = options.motionPack {
             arguments.append(contentsOf: [
                 "--motion-pack", motionPack,
@@ -1661,11 +1694,17 @@ private enum TaskTrainMain {
             try initializePolicyIfRequested(
                 options: options,
                 layout: context.layout,
-                // Masked-depth device observations encode far/empty as 1.
-                // Centering an appended visual suffix there preserves the
-                // source actor on ball-free standing anchors.
+                // Masked-depth device observations encode far/empty as 1,
+                // but V10 extends the actor with physical/task route values.
+                // Route vectors, waypoint fraction, and completion are
+                // zero-centered features, not empty pixels. Preserve the
+                // source actor with zero extension weights while giving PPO
+                // the correct normalization origin for route learning.
                 actorObservationExtensionMean:
-                    context.visualSceneFingerprint == 0 ? 0.0 : 1.0
+                    options.birdFlowJourneyVariant ==
+                        .v10WorldModelNavigation
+                    ? 0.0
+                    : context.visualSceneFingerprint == 0 ? 0.0 : 1.0
             )
             guard let updatedPolicyPack =
                       options.updatedPolicyPack,

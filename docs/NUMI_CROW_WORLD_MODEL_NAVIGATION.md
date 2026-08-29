@@ -10,7 +10,10 @@ flight.
 ## Runtime boundary
 
 - Task: `birdflow_american_crow_navigation_v10_world_model`
-- Actor contract: 684 observations and 15 actions, inherited from v9
+- Current development actor contract: 697 observations and 15 actions. It
+  preserves v9's 684 inputs, inserts the original eight route values at actor
+  index 84, and inserts a five-way stage one-hot at index 92 before the 600
+  visual inputs.
 - Sensor contract: four 16x9 instance-masked depth frames at history offsets
   0, 3, 8, and 18, plus 24 derived features
 - Course: two gate bodies, two slalom bodies, and a final perch, all ordinary
@@ -64,7 +67,40 @@ the exact incumbent topology, retains all replayed incumbent actions, and
 blends only a bounded planner correction. Model-predicted return is diagnostic;
 it cannot promote a controller.
 
+## 29 August 2026 five-waypoint development
+
+The current continuation fixes three training-contract defects without easing
+the autonomous task:
+
+- V10 route extensions initialize at a zero physical/task mean instead of the
+  masked-depth empty-pixel mean of one.
+- The reset curriculum targets the measured waypoint-two-to-three bottleneck
+  and yaw-rotates accepted attitude, linear velocity, and angular velocity as
+  one consistent rebound state.
+- The 697-input actor publishes an explicit stage one-hot. Transfer inserts its
+  five zero-connected columns at `[92, 97)`, preserving the inherited route and
+  visual columns exactly. `--train-actor-observation-extension-only` with
+  `--train-actor-observation-extension-count 5` can freeze the inherited actor
+  and train only this adapter from fresh optimizer state while leaving the
+  critic trainable.
+
+The fixed promotion gate is three untouched randomized-course seeds with 32
+environments and 1,600 steps per seed: at least 28/32 full five-waypoint
+completions on every seed, at least 90% aggregate completion, and zero failed
+environment steps. Selection seed `2650817001` is excluded from qualification.
+
+No 29 August candidate is promoted. The strongest 692-input balanced learner
+on the selection seed reached waypoint counts `[32, 31, 7, 5, 5]`. The first
+correctly inserted 697-input adapter window reached `[32, 32, 9, 8, 4]` with
+zero failed environment steps. Both are real progress beyond waypoint one, but
+both fail the reliability gate by a wide margin. Later adapter revisions were
+retained as negative evidence rather than presented as deployable policies.
+
 ## Retained 28 August 2026 artifact
+
+This section describes the historical 684-input artifact. Its hashes remain
+valid for that contract, but it is not compatible with the current 697-input
+development ABI and is not evidence of five-waypoint reliability.
 
 Three training replays supplied 4,796 contiguous transitions. Across those
 replays, 66.40% of frames were above 0.35 m and the maximum replayed root

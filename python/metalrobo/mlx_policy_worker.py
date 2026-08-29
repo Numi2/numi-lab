@@ -965,6 +965,26 @@ def _serve(arguments: argparse.Namespace) -> int:
             learner.model.log_standard_deviation,
             learner.optimizer.state,
         )
+    if (
+        arguments.train_actor_observation_extension_count is not None
+        and not arguments.train_actor_observation_extension_only
+    ):
+        raise ValueError(
+            "extension-only actor column count requires extension-only training"
+        )
+    if arguments.train_actor_observation_extension_only:
+        if restored:
+            raise ValueError(
+                "extension-only actor training requires fresh optimizer state"
+            )
+        if arguments.actor_observation_extension_offset is None:
+            raise ValueError(
+                "extension-only actor training requires an observation extension offset"
+            )
+        learner.train_actor_observation_extension_only(
+            arguments.actor_observation_extension_offset,
+            arguments.train_actor_observation_extension_count,
+        )
     current_policy = learner.write_policy_pack(
         arguments.output_policy_pack,
         library_path=arguments.native_library,
@@ -1510,6 +1530,23 @@ def main() -> int:
         help=(
             "explicitly migrate a narrower learner checkpoint by inserting "
             "zero actor weights and Adam moments at this source index"
+        ),
+    )
+    serve.add_argument(
+        "--train-actor-observation-extension-only",
+        action="store_true",
+        help=(
+            "freeze the inherited actor and exploration parameter while "
+            "training only first-layer columns at and after the observation "
+            "extension offset; the critic remains trainable"
+        ),
+    )
+    serve.add_argument(
+        "--train-actor-observation-extension-count",
+        type=int,
+        help=(
+            "limit extension-only actor training to this many columns; "
+            "defaults to the suffix after the extension offset"
         ),
     )
     serve.add_argument(
