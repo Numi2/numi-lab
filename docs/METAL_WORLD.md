@@ -860,12 +860,15 @@ The generic operator remains force projection only. Numi Human now has a
 separate large-state horizon in the same persistent context: it re-encodes
 current-pose kinematics and all MyoSim routes, advances activation, reconstructs
 157-body spatial Jacobians, assembles/factors the 128-DoF mass operator, applies
-gravity and low-velocity bias, projects source-foot Coulomb support, and updates
-q/v without per-step host publication. It is deliberately Human-specific and
-does not increase the generic dense bucket. Its current bias omits exact
-high-velocity `Jdot*v`/RNEA terms and its imported passive muscle bias is
-excluded until registered equilibrium calibration, so it is bounded standing
-evidence rather than a general high-speed articulated dynamics claim.
+gravity and low-velocity bias, preserves imported passive DoF damping through
+the backward-Euler solve, projects source-foot Coulomb support, and updates q/v
+without per-step host publication. The live NHMYO2 fiber/tendon equilibrium
+also retains the imported passive muscle curve, and the compiler subtracts the
+measured passive generalized row before its acceleration-weighted bounded
+recruitment. This is deliberately Human-specific and does not increase the
+generic dense bucket. Its current bias still omits exact high-velocity
+`Jdot*v`/RNEA terms, so it is bounded standing evidence rather than a general
+high-speed articulated dynamics claim.
 
 An optional `NHTENDON2` program now executes after current-pose MyoSim force
 reduction and before each Human state update. It preserves every authored
@@ -883,6 +886,16 @@ that stage must gate physical writes on the per-environment success status and
 completed step. Consumer encoding rejection invokes its abort hook before commit.
 This is a device-resident load-composition boundary, not evidence that a
 deformable tendon or bone material model has already consumed the loads.
+
+Runtime `45fede450ba889b8feb1df0a8330db3c31706497` was qualified on Apple M4
+Pro against the final Human v4 bone/v4 tendon/v6 tissue assets. A 64-step
+assisted phase followed by 64 steps with root assistance removed applied
+106,496 terminal transfers: 37,888 admitted four-node envelopes and 68,608
+exact source-point fallbacks. Maximum force and moment conservation residuals
+were `1.72633488546e-4 N` and `2.44306352215e-6 N m`; one-step FP64 q/v
+errors were `3.90537220115e-8` and `3.90584484736e-4`; final replay was
+bitwise. The compiler reported `balanced=false`, so this remains a 12.8 ms
+transaction qualification rather than static balance or seconds-long standing.
 
 The CPU operator
 also appends one 6D maximal-coordinate block per dynamic scene body, applies
