@@ -35,6 +35,25 @@ The course geometry is part of native physics. It is not a render-only prop.
 Held-out splits transactionally change its default poses while retaining one
 deployment ABI, allowing a single controller to be compared on unseen layouts.
 
+### Turn-preview development status (29 August 2026)
+
+Commit `ccfe463` adds a fingerprinted yaw-only preview at the first slalom
+exit: position, reach radius, reward, action authority, and all five authored
+waypoints are unchanged. A 3,964,928-sample, 32-lane PPO continuation reached
+revision 122 with zero failed environment steps, but its deterministic
+selection screen completed 0/8 lanes and did not reach waypoint one. A second
+31-update protected pilot trained only actor columns 92 through 96 (the
+five-way stage mode); it also completed 0/8 lanes with zero failed environment
+steps. The earlier broad preview was separately rejected after it regressed
+gate acquisition.
+
+These artifacts are retained under the remote `numi-runs` workspace, but none
+are candidates and no three-seed qualification was launched. A changed task
+fingerprint also changes the replayable reset stream, so the next development
+step is a fixed, version-independent course and initial-state selector for
+paired inherited-policy screening before another control-reference or PPO
+change is trusted.
+
 ## Model and deployment path
 
 `numi crow navigation` exposes the complete path:
