@@ -10,17 +10,19 @@ flight.
 ## Runtime boundary
 
 - Task: `birdflow_american_crow_navigation_v10_world_model`
-- Current development actor contract: 741 observations and 15 actions. It
+- Current development actor contract: 763 observations and 15 actions. It
   keeps temporal flight state at `[0, 84)`, the original thirteen route
   values at `[84, 97)`, the post-WP2 route/state adapter at `[97, 119)`, the
-  WP1-to-WP2 route/state adapter at `[119, 141)`, and the 600 visual/history
-  values at `[141, 741)`.
-- Task fingerprint `852078205201303999` and observation fingerprint
-  `3225417839297991038` keep every authored waypoint, reach radius, reward,
-  and policy action unchanged while making the two adapter gates explicit.
+  WP1-to-WP2 route/state adapter at `[119, 141)`, the waypoint-two-only
+  route/state adapter at `[141, 163)`, and the 600 visual/history values at
+  `[163, 763)`.
+- Task fingerprint `6195779659272326306` and observation fingerprint
+  `1163663963628678811` keep every authored waypoint, reach radius, reward,
+  and policy action unchanged while making the three adapter gates explicit.
   The post-WP2 adapter is zero through waypoint one; the inter-gate adapter is
-  nonzero only while waypoint one is active. Older V10 PolicyPacks require an
-  explicit zero-connected transfer because both semantics are fingerprinted.
+  nonzero only while waypoint one is active; the final adapter is nonzero only
+  while waypoint two is active. Older V10 PolicyPacks require an explicit
+  zero-connected transfer because these semantics are fingerprinted.
 - Sensor contract: four 16x9 instance-masked depth frames at history offsets
   0, 3, 8, and 18, plus 24 derived features
 - V9/V10 training and rollout require an explicit
@@ -145,12 +147,34 @@ arrival. A subsequent 1,638,400-sample WP3-success continuation changed only
 five late-residual output rows, but its fresh deterministic screen did not
 improve completion and it was rejected.
 
-The selected parent completes 6.25% of development lanes, far below the 90%
+That selected parent completes 6.25% of development lanes, far below the 90%
 promotion gate. It is transfer-positive source and training evidence, not a
 reliable controller, held-out qualification, or promoted Crow policy. The
-next controller milestone is a waypoint-two-specific adapter trained against
-real waypoint-three arrivals; shared late-head continuation has not solved the
-WP2-to-WP3 bottleneck.
+waypoint-two-specific follow-up below tests the next isolated segment; shared
+late-head continuation did not solve the WP2-to-WP3 bottleneck.
+
+### Waypoint-two-specific update
+
+The 763-input transfer inserts another 22 zero-connected route/state values at
+actor index 141. They are nonzero only while waypoint two is active. Before
+learning, all three development seeds exactly preserve every per-environment
+maximum waypoint and route-progress value from the 741-input alpha-0.50
+parent.
+
+`crow-v10-waypoint-two-self-imitation-v101-20260829` trains only first-layer
+columns `[141, 163)` from 786,432 stage-two native samples. Episodes become
+imitation evidence only after physically reaching waypoint three. Revision 45
+raises established full completion from 12 to 13 but reduces waypoint-three
+entries. A bounded adapter-amplitude search selects alpha 0.50 and restores
+the upstream distribution: the retained 763-input parent scores
+`[189, 118, 30, 13, 13]` with zero failed environment steps. Relative to the
+741-input parent, WP1, WP2, and WP3 counts are identical while WP4 and WP5 each
+increase by one.
+
+This is a Pareto-positive development result, but 13/192 is only 6.77%
+completion and remains far below reliability or promotion. The next bounded
+milestone is a waypoint-three-specific adapter trained from real WP4 success;
+no held-out qualification or new BirdFlow showcase render is justified yet.
 
 ### Retained route-residual candidate
 

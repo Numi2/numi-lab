@@ -2546,8 +2546,27 @@ TaskPack makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
             : !route && component < 19u ? 0.25f : 1.0f;
         observations.actorCurrent.push_back(feedback);
     }
+    // Waypoint two is the next measured bottleneck after the inter-gate
+    // adapter. Give only that segment its own zero-connectable route/state
+    // copy. Components 57...78 are zero at every other waypoint, so a
+    // first-layer extension can learn WP2-to-WP3 without changing the
+    // retained early adapter or the shared post-WP2 residual elsewhere.
+    for (std::uint32_t component = 0u; component < 22u; ++component) {
+        const bool route = component < 13u;
+        TaskObservationOperatorSpec feedback{
+            .source = TaskObservationSource::navigationTarget,
+            .target = "crow_course_gate_left",
+            .component = component + 57u,
+        };
+        feedback.scale = route && component < 6u
+            ? 0.25f
+            : !route && component < 16u
+            ? 0.5f
+            : !route && component < 19u ? 0.25f : 1.0f;
+        observations.actorCurrent.push_back(feedback);
+    }
     // V10 keeps v9's deployable sensor and action dimensions while extending
-    // the actor to a 741-input policy ABI. Distinct task and observation
+    // the actor to a 763-input policy ABI. Distinct task and observation
     // fingerprints prevent narrower actors from being silently rebound.
     return task;
 }

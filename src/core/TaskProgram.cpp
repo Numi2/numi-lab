@@ -2313,7 +2313,9 @@ TaskCompileDiagnostics compileTaskProgram(
                 // gravity feedback for the isolated residual head. Components
                 // 35...56 duplicate route and state feedback for an
                 // inter-gate residual that is live only at waypoint one.
-                componentLimit = 57u;
+                // Components 57...78 provide the same contract only while
+                // waypoint two is active.
+                componentLimit = 79u;
                 break;
             }
             case TaskObservationSource::supportSense:

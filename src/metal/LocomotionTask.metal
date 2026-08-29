@@ -1744,7 +1744,9 @@ inline float cleanObservation(
         );
         const bool lateRouteAdapter = operation.source.z >= 13u &&
             operation.source.z < 35u;
-        const bool interGateAdapter = operation.source.z >= 35u;
+        const bool interGateAdapter = operation.source.z >= 35u &&
+            operation.source.z < 57u;
+        const bool waypointTwoAdapter = operation.source.z >= 57u;
         const uint routeComponent = operation.source.z < 13u
             ? operation.source.z
             : operation.source.z < 26u
@@ -1755,6 +1757,10 @@ inline float cleanObservation(
             ? operation.source.z - 35u
             : operation.source.z < 57u
             ? operation.source.z - 22u
+            : operation.source.z < 70u
+            ? operation.source.z - 57u
+            : operation.source.z < 79u
+            ? operation.source.z - 44u
             : operation.source.z;
         const bool gatedLateRouteAdapter =
             (program.schedule.w &
@@ -1762,7 +1768,8 @@ inline float cleanObservation(
                 0u &&
             (
                 (lateRouteAdapter && waypoint < 2u) ||
-                (interGateAdapter && waypoint != 1u)
+                (interGateAdapter && waypoint != 1u) ||
+                (waypointTwoAdapter && waypoint != 2u)
             );
         if (gatedLateRouteAdapter) {
             value = 0.0f;
