@@ -146,6 +146,12 @@ autonomous task:
   development-reference lanes. The first 97 non-visual actor inputs at reset
   match their replay successors with maximum absolute errors of `2.24e-8`,
   `2.98e-8`, and `5.96e-8` across the three templates.
+- Curriculum stage four now restores the captured waypoint-four root offset,
+  course-frame heading, prior action history, command, cyclic phase, and
+  journey phase instead of combining a historical pose with zero temporal
+  state. On the source seed's matching environment and episode, the first 84
+  actor inputs match the accepted replay successor with maximum absolute error
+  `5.96e-8`.
 - V9/V10 visual execution now requires the authored sensor config. This closes
   a real evidence defect: recent route-parent training had omitted the config,
   so actor indices `[97, 697)` were identically zero despite the run being
@@ -179,6 +185,16 @@ trained only actor columns `[84, 97)` preserved `[64, 64, 64, 0, 0]` at every
 saved checkpoint and increased maximum route progress from `1.3285 m` at
 revision 3 to `1.4287 m` at revision 25, but still produced no waypoint-four
 completion. It is retained as a bounded diagnostic, not promoted or extended.
+
+Reverse-curriculum screening exposed that the former stage-four reset was an
+artificial terminal-skill blocker: the unchanged parent scored
+`[64, 64, 64, 64, 0]` and every sampled episode exited through the 2.5 m
+ceiling. After restoring the accepted temporal state and course-relative root
+offset, the same parent scores `[64, 64, 64, 64, 64]` over 64
+development-reference lanes and 512 steps, with 5,440 native navigation
+completions and zero failed environment steps. This establishes the isolated
+waypoint-four-to-five segment; it does not establish autonomous arrival at
+waypoint four or full-route completion.
 
 The fixed promotion gate is three untouched randomized-course seeds with 32
 environments and 1,600 steps per seed: at least 28/32 full five-waypoint

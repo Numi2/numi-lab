@@ -279,10 +279,11 @@ constant float kCrowNavigationStageV[4][19] = {
 };
 
 // Last accepted policy action at the same replay state as each refreshed
-// pose template. The stage-two and stage-three rows come from the replay
-// payloads cited above; unrefreshed historical stages remain zero and keep
-// the prior reset behavior. Restoring these values prevents an impossible
-// one-step jump from an in-flight pose to a zero previous-action history.
+// pose template. Stages two and three use the current-parent captures below;
+// stage four is refreshed from the historical accepted route state cited
+// above. Stage one remains zero until it receives the same exact treatment.
+// Restoring these values prevents an impossible one-step jump from an
+// in-flight pose to a zero previous-action history.
 constant float kCrowNavigationStageAction[4][15] = {
     {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
      0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f},
@@ -296,8 +297,11 @@ constant float kCrowNavigationStageAction[4][15] = {
      -0.0417104103f, 0.0599405393f, -0.10034842f,
      -0.0877058506f, 0.0921596512f, -0.125721052f,
      -0.197784081f, 0.0106463395f},
-    {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-     0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f},
+    {-0.0283845011f, -0.0303944517f, 0.0445872657f,
+     -0.00336635858f, -0.0225012358f, 0.0392310098f,
+     0.19899264f, -0.0624645576f, -0.15244481f,
+     -0.10137862f, -0.0330022685f, -0.139661178f,
+     -0.0533713326f, -0.00131072965f, -0.0315197296f},
 };
 
 // Command, wing-cycle phase, and normalized journey phase observed by the
@@ -315,11 +319,14 @@ constant float4 kCrowNavigationStageCommandAndPhase[4] = {
         0.00912886858f, 0.197559699f, 0.449999988f,
         1.08069674f
     ),
-    float4(0.0f),
+    float4(
+        0.111874416f, -0.169116884f, -0.449999988f,
+        0.050255771f
+    ),
 };
 
 constant float kCrowNavigationStageJourneyPhase[4] = {
-    0.0f, 0.254999995f, 0.30687499f, 0.0f,
+    0.0f, 0.254999995f, 0.30687499f, 0.264999986f,
 };
 
 // Three non-terminal waypoint-two arrivals from the transferred parent under
@@ -469,7 +476,7 @@ constant float3 kCrowNavigationStageRootOffset[4] = {
     float3(0.0f),
     float3(-0.35593629f, 0.21973427f, 0.01496023f),
     float3(-0.097863915f, -0.378361404f, -0.136592746f),
-    float3(0.0f),
+    float3(-0.268202782f, 0.280686274f, -0.138459015f),
 };
 
 inline float3 crowNavigationWaypointTarget(
@@ -3497,7 +3504,7 @@ kernel void mr_locomotion_task_observe(
                 // sample at phase zero teaches a different feed-forward state
                 // than the final approach seen in autonomous completion.
                 constexpr uint stageStep[5] = {
-                    0u, 300u, 408u, 962u, 425u,
+                    0u, 300u, 408u, 962u, 424u,
                 };
                 state.episode.x = stage == 2u
                     ? kCrowNavigationStageTwoStep[stageTwoArrival]
@@ -3588,10 +3595,14 @@ kernel void mr_locomotion_task_observe(
                         -0.1807026444f;
                     constexpr float stageThreeCapturedIncomingYaw =
                         0.5880912777f;
+                    constexpr float stageFourCapturedIncomingYaw =
+                        -0.2927187926f;
                     const float referenceYaw = stage == 2u
                         ? stageTwoCapturedIncomingYaw
                         : stage == 3u
                         ? stageThreeCapturedIncomingYaw
+                        : stage == 4u
+                        ? stageFourCapturedIncomingYaw
                         : acceptedYaw;
                     const float yawDelta = desiredYaw - referenceYaw;
                     const float4 yawRebind = float4(
@@ -3672,7 +3683,7 @@ kernel void mr_locomotion_task_observe(
                             ? 0.0f
                             : resetQ[qBase + positionIndex];
                     }
-                    if (stage == 2u || stage == 3u) {
+                    if (stage == 2u || stage == 3u || stage == 4u) {
                         state.commandAndPhase =
                             stage == 2u
                             ? kCrowNavigationStageTwoCommandAndPhase[
