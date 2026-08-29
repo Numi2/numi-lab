@@ -10,16 +10,17 @@ flight.
 ## Runtime boundary
 
 - Task: `birdflow_american_crow_navigation_v10_world_model`
-- Current development actor contract: 710 observations and 15 actions. It
+- Current development actor contract: 741 observations and 15 actions. It
   keeps temporal flight state at `[0, 84)`, the original thirteen route
-  values at `[84, 97)`, an isolated late-route copy at `[97, 110)`, and the
-  600 visual/history values at `[110, 710)`.
-- Task fingerprint `7244687552313397000` keeps every authored waypoint, reach
-  radius, reward, and policy action unchanged. It previews the following route
-  segment in the native yaw command at both slalom exits and gates the isolated
-  late-route copy to zero through waypoint two. Older V10 PolicyPacks require
-  an explicit actor-preserving transfer because both semantics are
-  fingerprinted.
+  values at `[84, 97)`, the post-WP2 route/state adapter at `[97, 119)`, the
+  WP1-to-WP2 route/state adapter at `[119, 141)`, and the 600 visual/history
+  values at `[141, 741)`.
+- Task fingerprint `852078205201303999` and observation fingerprint
+  `3225417839297991038` keep every authored waypoint, reach radius, reward,
+  and policy action unchanged while making the two adapter gates explicit.
+  The post-WP2 adapter is zero through waypoint one; the inter-gate adapter is
+  nonzero only while waypoint one is active. Older V10 PolicyPacks require an
+  explicit zero-connected transfer because both semantics are fingerprinted.
 - Sensor contract: four 16x9 instance-masked depth frames at history offsets
   0, 3, 8, and 18, plus 24 derived features
 - V9/V10 training and rollout require an explicit
@@ -111,6 +112,45 @@ blends only a bounded planner correction. Model-predicted return is diagnostic;
 it cannot promote a controller.
 
 ## 29 August 2026 five-waypoint development
+
+### State feedback and isolated inter-gate update
+
+The 719-input state-feedback parent from
+`crow-v10-state-feedback-self-imitation-v94-20260829` scores cumulative
+waypoint counts `[189, 117, 29, 12, 12]` across the fixed three development
+seeds, 64 environments per seed, and 1,600 steps per environment. It has zero
+failed environment steps. This improves the retained route-only residual but
+still completes only 12/192 lanes.
+
+The 741-input transfer inserts 22 zero-connected observations at actor index
+119 without widening the inherited `[582, 326, 198]` hidden topology. On all
+three development seeds, every per-environment maximum waypoint and route
+progress value is exactly preserved before learning. Full-route comparisons
+use chunk one, fixed difficulty band 10, and scheduled resets disabled; omitting
+any of those controls is a different experiment.
+
+`crow-v10-intergate-self-imitation-v97-20260829` uses 2,048,000 native samples
+and success-filtered self-imitation from trajectories that actually reach
+waypoint two. Only first-layer columns `[119, 141)` change: every other actor
+weight, every actor bias, and the exploration parameter remain exact. Revision
+57 preserves all 189 waypoint-one arrivals and raises waypoint-two arrivals
+from 117 to 126, but it reduces full completion from 12 to 11. It is retained
+as a bottleneck-positive diagnostic, not as the deployment parent.
+
+A bounded scalar line search between the exact parent and revision 57
+selects alpha 0.50. The resulting development parent scores
+`[189, 118, 30, 12, 12]` with zero failed environment steps: it preserves all
+12 full completions while adding one waypoint-two and one waypoint-three
+arrival. A subsequent 1,638,400-sample WP3-success continuation changed only
+five late-residual output rows, but its fresh deterministic screen did not
+improve completion and it was rejected.
+
+The selected parent completes 6.25% of development lanes, far below the 90%
+promotion gate. It is transfer-positive source and training evidence, not a
+reliable controller, held-out qualification, or promoted Crow policy. The
+next controller milestone is a waypoint-two-specific adapter trained against
+real waypoint-three arrivals; shared late-head continuation has not solved the
+WP2-to-WP3 bottleneck.
 
 ### Retained route-residual candidate
 

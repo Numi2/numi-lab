@@ -1062,9 +1062,38 @@ def _serve(arguments: argparse.Namespace) -> int:
             raise ValueError(
                 "residual-only and extension-only actor training are mutually exclusive"
             )
+        residual_hidden_arguments = (
+            arguments
+                .train_actor_route_residual_network_observation_offset,
+            arguments
+                .train_actor_route_residual_network_observation_count,
+        )
+        if (residual_hidden_arguments[0] is None) != (
+            residual_hidden_arguments[1] is None
+        ):
+            raise ValueError(
+                "residual-network training requires both observation offset and count"
+            )
         learner.train_actor_residual_output_only(
             arguments.train_actor_route_residual_width,
             output_action_indices=residual_output_action_indices,
+            hidden_observation_range=(
+                None
+                if residual_hidden_arguments[0] is None
+                else (
+                    residual_hidden_arguments[0],
+                    residual_hidden_arguments[1],
+                )
+            ),
+        )
+    elif (
+        arguments.train_actor_route_residual_network_observation_offset
+            is not None
+        or arguments.train_actor_route_residual_network_observation_count
+            is not None
+    ):
+        raise ValueError(
+            "residual-network training requires residual-only training"
         )
     current_policy = learner.write_policy_pack(
         arguments.output_policy_pack,
@@ -1175,6 +1204,9 @@ def _serve(arguments: argparse.Namespace) -> int:
                 discount=learner.configuration.discount,
                 gae_lambda=learner.configuration.gae_lambda,
                 rewards=learning_rewards,
+                navigation_teacher_minimum_waypoint=(
+                    arguments.navigation_self_imitation_minimum_waypoint
+                ),
             )
             if retention_reference is not None:
                 retention_weights = None
@@ -1720,6 +1752,31 @@ def main() -> int:
         "--train-actor-route-residual-output-actions",
         help=(
             "comma-separated actor rows allowed to read the residual tail"
+        ),
+    )
+    serve.add_argument(
+        "--train-actor-route-residual-network-observation-offset",
+        type=int,
+        help=(
+            "also train the isolated residual hidden blocks from this actor "
+            "observation offset"
+        ),
+    )
+    serve.add_argument(
+        "--train-actor-route-residual-network-observation-count",
+        type=int,
+        help=(
+            "number of actor inputs owned by the isolated residual network"
+        ),
+    )
+    serve.add_argument(
+        "--navigation-self-imitation-minimum-waypoint",
+        type=int,
+        choices=range(1, 6),
+        default=5,
+        help=(
+            "back-label a physical navigation episode only after it reaches "
+            "this waypoint; defaults to terminal completion"
         ),
     )
     serve.add_argument(

@@ -648,7 +648,7 @@ int main() {
                 compiledNavigation.model().bodies.size() == 20u &&
                 compiledNavigation.task().layout().actorObservationSize ==
                     compiledVisualJourney.task().layout().actorObservationSize +
-                        26u &&
+                        57u &&
                 compiledNavigation.task().layout().criticObservationSize ==
                     compiledVisualJourney.task().layout().criticObservationSize +
                         13u &&

@@ -105,6 +105,7 @@ class NativePolicyRollout:
         discount: float = 0.99,
         gae_lambda: float = 0.95,
         rewards: np.ndarray | None = None,
+        navigation_teacher_minimum_waypoint: int = 5,
     ) -> "MLXPolicyBatch":
         """Compute terminal-safe GAE and publish only learner tensors to MLX."""
 
@@ -112,6 +113,10 @@ class NativePolicyRollout:
             raise ValueError("discount must be in [0, 1]")
         if not 0.0 <= gae_lambda <= 1.0:
             raise ValueError("gae_lambda must be in [0, 1]")
+        if not 1 <= navigation_teacher_minimum_waypoint <= 5:
+            raise ValueError(
+                "navigation teacher minimum waypoint must be in [1, 5]"
+            )
         steps = self.control_step_count
         environments = self.environment_count
         if rewards is None:
@@ -374,8 +379,14 @@ class NativePolicyRollout:
                     eligible = navigation_teacher[segment, environment]
                     realized = bool(
                         np.any(
-                            navigation_completion[segment, environment]
-                            > 0.0
+                            navigation_waypoints[segment, environment] >=
+                                float(navigation_teacher_minimum_waypoint)
+                        ) or (
+                            navigation_teacher_minimum_waypoint == 5 and
+                            np.any(
+                                navigation_completion[segment, environment]
+                                > 0.0
+                            )
                         )
                     )
                     if realized and np.any(eligible):
@@ -2049,8 +2060,9 @@ def _actor_residual_output_only_gradients(
     gradients: Any,
     residual_width: int,
     output_action_indices: tuple[int, ...] | None = None,
+    hidden_observation_range: tuple[int, int] | None = None,
 ) -> Any:
-    """Train only a zero-output residual tail on the actor projection.
+    """Train an isolated residual tail and optional hidden feature path.
 
     The residual feature path is fixed at initialization, every inherited
     actor parameter and the exploration head remain frozen, and the critic
@@ -2068,7 +2080,7 @@ def _actor_residual_output_only_gradients(
     ]
     if not actor_weight_layers:
         raise ValueError("actor gradient tree has no dense output layer")
-    output_layer = max(actor_weight_layers)[1]
+    output_layer_index, output_layer = max(actor_weight_layers)
     masked_gradients: list[tuple[str, mx.array]] = []
     found_output_weight = False
     for name, gradient in flattened:
@@ -2109,6 +2121,83 @@ def _actor_residual_output_only_gradients(
                 ).reshape((gradient.shape[0], 1))
                 gradient = gradient * row_mask
             found_output_weight = True
+        elif (
+            hidden_observation_range is not None
+            and name.startswith("actor.layers.")
+            and name.endswith(".weight")
+            and gradient.ndim == 2
+        ):
+            layer_index = int(name.split(".")[2])
+            if layer_index >= output_layer_index:
+                raise ValueError("actor residual hidden-layer order is invalid")
+            if residual_width <= 0 or residual_width >= gradient.shape[0]:
+                raise ValueError("actor residual hidden width is invalid")
+            row_mask = mx.concatenate(
+                (
+                    mx.zeros(
+                        (gradient.shape[0] - residual_width, 1),
+                        dtype=gradient.dtype,
+                    ),
+                    mx.ones(
+                        (residual_width, 1),
+                        dtype=gradient.dtype,
+                    ),
+                ),
+                axis=0,
+            )
+            if layer_index == min(actor_weight_layers)[0]:
+                observation_offset, observation_count = (
+                    hidden_observation_range
+                )
+                if (
+                    observation_offset < 0
+                    or observation_count <= 0
+                    or observation_offset + observation_count >
+                        gradient.shape[1]
+                ):
+                    raise ValueError(
+                        "actor residual hidden observation range is invalid"
+                    )
+                column_mask = mx.concatenate(
+                    (
+                        mx.zeros(
+                            (1, observation_offset),
+                            dtype=gradient.dtype,
+                        ),
+                        mx.ones(
+                            (1, observation_count),
+                            dtype=gradient.dtype,
+                        ),
+                        mx.zeros(
+                            (
+                                1,
+                                gradient.shape[1] - observation_offset -
+                                    observation_count,
+                            ),
+                            dtype=gradient.dtype,
+                        ),
+                    ),
+                    axis=1,
+                )
+            else:
+                if residual_width >= gradient.shape[1]:
+                    raise ValueError(
+                        "actor residual hidden input width is invalid"
+                    )
+                column_mask = mx.concatenate(
+                    (
+                        mx.zeros(
+                            (1, gradient.shape[1] - residual_width),
+                            dtype=gradient.dtype,
+                        ),
+                        mx.ones(
+                            (1, residual_width),
+                            dtype=gradient.dtype,
+                        ),
+                    ),
+                    axis=1,
+                )
+            gradient = gradient * row_mask * column_mask
         elif name.startswith("actor.") or name == "log_standard_deviation":
             gradient = mx.zeros_like(gradient)
         masked_gradients.append((name, gradient))
@@ -2159,7 +2248,11 @@ class MLXPolicyLearner:
             ] | None
         ) = None
         self._actor_residual_output_only: (
-            tuple[int, tuple[int, ...] | None] | None
+            tuple[
+                int,
+                tuple[int, ...] | None,
+                tuple[int, int] | None,
+            ] | None
         ) = None
         self.refresh_compiled_training_state()
         self.policy_id: str | None = None
@@ -2259,8 +2352,9 @@ class MLXPolicyLearner:
         residual_width: int,
         *,
         output_action_indices: tuple[int, ...] | None = None,
+        hidden_observation_range: tuple[int, int] | None = None,
     ) -> None:
-        """Freeze the carrier and train only residual output columns."""
+        """Freeze the carrier and train an isolated residual subnetwork."""
 
         linear_layers = [
             layer
@@ -2274,9 +2368,20 @@ class MLXPolicyLearner:
             or residual_width >= linear_layers[-1].weight.shape[1]
         ):
             raise ValueError("actor residual width is invalid")
+        if hidden_observation_range is not None:
+            offset, count = hidden_observation_range
+            if (
+                offset < 0
+                or count <= 0
+                or offset + count > self.actor_observation_count
+            ):
+                raise ValueError(
+                    "actor residual hidden observation range is invalid"
+                )
         self._actor_residual_output_only = (
             residual_width,
             output_action_indices,
+            hidden_observation_range,
         )
         self.refresh_compiled_training_state()
 
@@ -3370,13 +3475,18 @@ class MLXPolicyLearner:
                 output_action_indices,
             )
         elif self._actor_residual_output_only is not None:
-            residual_width, output_action_indices = (
+            (
+                residual_width,
+                output_action_indices,
+                hidden_observation_range,
+            ) = (
                 self._actor_residual_output_only
             )
             gradients = _actor_residual_output_only_gradients(
                 gradients,
                 residual_width,
                 output_action_indices,
+                hidden_observation_range,
             )
         _, actor_gradient_norm = optim.clip_grad_norm(
             {

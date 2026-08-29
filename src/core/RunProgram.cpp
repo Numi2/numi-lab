@@ -2510,8 +2510,44 @@ TaskPack makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
         }
         observations.actorCurrent.push_back(lateRoute);
     }
+    // The route-only residual can choose a geometric turn but cannot react to
+    // sideslip, angular rate, or bank. Publish a gated copy of local linear
+    // velocity, local angular velocity, and projected gravity immediately
+    // after the late-route values. Components 26...34 share the post-WP2 gate
+    // in the native navigation observation source, so these feedback lanes
+    // cannot disturb the inherited takeoff or two-gate carrier.
+    for (std::uint32_t component = 0u; component < 9u; ++component) {
+        TaskObservationOperatorSpec feedback{
+            .source = TaskObservationSource::navigationTarget,
+            .target = "crow_course_gate_left",
+            .component = component + 26u,
+        };
+        feedback.scale = component < 3u
+            ? 0.5f
+            : component < 6u ? 0.25f : 1.0f;
+        observations.actorCurrent.push_back(feedback);
+    }
+    // A separate inter-gate residual owns only waypoint one. It receives the
+    // same route and flight-state contract, but the Metal observation source
+    // zeros components 35...56 outside that single segment. This allows
+    // success-filtered learning to improve WP2 arrival without changing
+    // takeoff, WP1 acquisition, or the retained post-WP2 controller.
+    for (std::uint32_t component = 0u; component < 22u; ++component) {
+        const bool route = component < 13u;
+        TaskObservationOperatorSpec feedback{
+            .source = TaskObservationSource::navigationTarget,
+            .target = "crow_course_gate_left",
+            .component = component + 35u,
+        };
+        feedback.scale = route && component < 6u
+            ? 0.25f
+            : !route && component < 16u
+            ? 0.5f
+            : !route && component < 19u ? 0.25f : 1.0f;
+        observations.actorCurrent.push_back(feedback);
+    }
     // V10 keeps v9's deployable sensor and action dimensions while extending
-    // the actor to a 710-input policy ABI. Distinct task and observation
+    // the actor to a 741-input policy ABI. Distinct task and observation
     // fingerprints prevent narrower actors from being silently rebound.
     return task;
 }

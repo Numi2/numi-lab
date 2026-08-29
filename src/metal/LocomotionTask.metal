@@ -1742,13 +1742,28 @@ inline float cleanObservation(
             uint(max(state.navigation.z, 0.0f)),
             kCrowNavigationWaypointCount
         );
-        const bool lateRouteAdapter = operation.source.z >= 13u;
-        const uint routeComponent = operation.source.z % 13u;
-        const bool gatedLateRouteAdapter = lateRouteAdapter &&
+        const bool lateRouteAdapter = operation.source.z >= 13u &&
+            operation.source.z < 35u;
+        const bool interGateAdapter = operation.source.z >= 35u;
+        const uint routeComponent = operation.source.z < 13u
+            ? operation.source.z
+            : operation.source.z < 26u
+            ? operation.source.z - 13u
+            : operation.source.z < 35u
+            ? operation.source.z
+            : operation.source.z < 48u
+            ? operation.source.z - 35u
+            : operation.source.z < 57u
+            ? operation.source.z - 22u
+            : operation.source.z;
+        const bool gatedLateRouteAdapter =
             (program.schedule.w &
              MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_POST_SECOND_GATE_ADAPTER) !=
                 0u &&
-            waypoint < 2u;
+            (
+                (lateRouteAdapter && waypoint < 2u) ||
+                (interGateAdapter && waypoint != 1u)
+            );
         if (gatedLateRouteAdapter) {
             value = 0.0f;
         } else if (routeComponent < 6u &&
@@ -1773,6 +1788,24 @@ inline float cleanObservation(
             value = state.navigation.w;
         } else if (routeComponent < 13u) {
             value = routeComponent - 8u == waypoint ? 1.0f : 0.0f;
+        } else if (routeComponent < 29u) {
+            value = rotateInverse(
+                orientation,
+                rootWorldLinearVelocity(program, q, v)
+            )[routeComponent - 26u];
+        } else if (routeComponent < 32u) {
+            value = rotateInverse(
+                orientation,
+                rootWorldAngularVelocity(program, v)
+            )[routeComponent - 29u];
+        } else if (routeComponent < 35u) {
+            value = normalizedOr(
+                rotateInverse(
+                    orientation,
+                    float3(0.0f, 0.0f, -1.0f)
+                ),
+                float3(0.0f, 0.0f, -1.0f)
+            )[routeComponent - 32u];
         } else {
             value = 0.0f;
         }
@@ -8971,9 +9004,13 @@ kernel void mr_locomotion_task_complete(
                   MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u &&
                      program.interactionTiming.z == 0.0f) ||
                 (dispatch.sampling.w != 0u &&
-                 dispatch.assistance.x < 1.0f &&
                  (program.schedule.w &
                   MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
+                 (
+                     dispatch.assistance.x < 1.0f ||
+                     (program.schedule.w &
+                      MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION) != 0u
+                 ) &&
                  true)
                 ? MR_TASK_OUTCOME_INTERACTION_TEACHER : 0u
             )

@@ -2308,8 +2308,12 @@ TaskCompileDiagnostics compileTaskProgram(
                 }
                 // Components 0...12 are the retained V10 route contract.
                 // Components 13...25 duplicate that contract for the
-                // separately gated late-route adapter.
-                componentLimit = 26u;
+                // separately gated late-route adapter. Components 26...34
+                // add gated local linear/angular velocity and projected
+                // gravity feedback for the isolated residual head. Components
+                // 35...56 duplicate route and state feedback for an
+                // inter-gate residual that is live only at waypoint one.
+                componentLimit = 57u;
                 break;
             }
             case TaskObservationSource::supportSense:

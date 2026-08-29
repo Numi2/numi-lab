@@ -39,6 +39,9 @@ private struct Options {
     var actorRouteResidualObservationCount: Int?
     var trainActorRouteResidualWidth: Int?
     var trainActorRouteResidualOutputActions: String?
+    var trainActorRouteResidualNetworkObservationOffset: Int?
+    var trainActorRouteResidualNetworkObservationCount: Int?
+    var navigationSelfImitationMinimumWaypoint = 5
     var updatedPolicyPack: String?
     var deploymentPolicyPack: String?
     var incumbentPolicyPack: String?
@@ -273,6 +276,20 @@ private struct Options {
                 index += 1
             case "--train-actor-route-residual-output-actions":
                 trainActorRouteResidualOutputActions = try value()
+                index += 1
+            case "--train-actor-route-residual-network-observation-offset":
+                trainActorRouteResidualNetworkObservationOffset =
+                    try Self.integer(value(), option)
+                index += 1
+            case "--train-actor-route-residual-network-observation-count":
+                trainActorRouteResidualNetworkObservationCount =
+                    try Self.integer(value(), option)
+                index += 1
+            case "--navigation-self-imitation-minimum-waypoint":
+                navigationSelfImitationMinimumWaypoint = try Self.integer(
+                    value(),
+                    option
+                )
                 index += 1
             case "--updated-policy-pack":
                 updatedPolicyPack = try value()
@@ -634,6 +651,7 @@ private struct Options {
               motionRewardCoefficient.isFinite,
               motionRewardCoefficient >= 0,
               checkpointInterval >= 0,
+              (1...5).contains(navigationSelfImitationMinimumWaypoint),
               learnerSeed >= 0,
               let mlxPython,
               !mlxPython.isEmpty,
@@ -712,6 +730,17 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "route residual output actions require residual-only training."
+            )
+        }
+        if (trainActorRouteResidualNetworkObservationOffset == nil) !=
+            (trainActorRouteResidualNetworkObservationCount == nil) ||
+            (trainActorRouteResidualNetworkObservationOffset ?? 0) < 0 ||
+            (trainActorRouteResidualNetworkObservationCount ?? 1) <= 0 ||
+            (trainActorRouteResidualNetworkObservationOffset != nil &&
+             trainActorRouteResidualWidth == nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "route residual network training requires a residual width, nonnegative observation offset, and positive count."
             )
         }
         if retentionPolicyPack?.isEmpty == true {
@@ -1347,6 +1376,22 @@ private final class MLXLearnerWorker {
             arguments.append(contentsOf: [
                 "--train-actor-route-residual-output-actions",
                 actions,
+            ])
+        }
+        arguments.append(contentsOf: [
+            "--navigation-self-imitation-minimum-waypoint",
+            String(options.navigationSelfImitationMinimumWaypoint),
+        ])
+        if let offset =
+                options.trainActorRouteResidualNetworkObservationOffset,
+           let count =
+                options.trainActorRouteResidualNetworkObservationCount
+        {
+            arguments.append(contentsOf: [
+                "--train-actor-route-residual-network-observation-offset",
+                String(offset),
+                "--train-actor-route-residual-network-observation-count",
+                String(count),
             ])
         }
         if let motionPack = options.motionPack {

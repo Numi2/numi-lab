@@ -381,7 +381,7 @@ def check_realized_imagination_weighting() -> None:
         raise RuntimeError(
             "successful navigation teacher was not prefix-qualified"
         )
-    rejected_navigation = replace(
+    rejected_navigation_rollout = replace(
         rollout,
         id="rejected_navigation_teacher",
         actor_observations=np.zeros(4, dtype=np.float32),
@@ -399,10 +399,22 @@ def check_realized_imagination_weighting() -> None:
             "navigation_completion": np.zeros(4, dtype=np.float32),
         },
         teacher_actions=np.ones(4, dtype=np.float32),
-    ).policy_batch()
+    )
+    rejected_navigation = rejected_navigation_rollout.policy_batch()
     if np.any(rejected_navigation.teacher_weights):
         raise RuntimeError(
             "partial navigation route became distillation truth"
+        )
+    staged_navigation = rejected_navigation_rollout.policy_batch(
+        navigation_teacher_minimum_waypoint=4
+    )
+    if (
+        np.any(staged_navigation.teacher_weights[:3] <= 0.0)
+        or staged_navigation.teacher_weights[3] != 0.0
+        or np.any(staged_navigation.policy_weights)
+    ):
+        raise RuntimeError(
+            "staged navigation success was not back-labelled at its explicit waypoint"
         )
 
 
@@ -1178,6 +1190,140 @@ def main() -> int:
             ):
                 raise RuntimeError(
                     "route residual training changed actor bias or exploration"
+                )
+            residual_network = MLXPolicyLearner.from_actor_policy_pack(
+                deployment,
+                critic_count,
+                learner.configuration,
+                actor_route_residual_observation_offset=(
+                    actor_count - residual_observation_count
+                ),
+                actor_route_residual_observation_count=(
+                    residual_observation_count
+                ),
+                library_path=arguments.library,
+            )
+            residual_network_layers = [
+                layer
+                for layer in residual_network.model.actor.layers
+                if hasattr(layer, "weight")
+            ]
+            network_weights_before = [
+                np.asarray(layer.weight).copy()
+                for layer in residual_network_layers
+            ]
+            network_biases_before = [
+                np.asarray(layer.bias).copy()
+                for layer in residual_network_layers
+            ]
+            network_log_standard_deviation_before = np.asarray(
+                residual_network.model.log_standard_deviation
+            ).copy()
+            residual_network.train_actor_residual_output_only(
+                residual_width,
+                output_action_indices=(0, 2),
+                hidden_observation_range=(
+                    actor_count - residual_observation_count,
+                    residual_observation_count,
+                ),
+            )
+            for _ in range(2):
+                network_old_log_probabilities, _, network_old_values = (
+                    residual_network.model.evaluate(actor, critic, latents)
+                )
+                mx.eval(
+                    network_old_log_probabilities,
+                    network_old_values,
+                )
+                network_advantages = generator.normal(
+                    0.0,
+                    1.0,
+                    sample_count,
+                ).astype(np.float32)
+                residual_network.update(
+                    MLXPolicyBatch(
+                        actor_observations=np.asarray(actor),
+                        critic_observations=np.asarray(critic),
+                        latents=np.asarray(latents),
+                        old_log_probabilities=np.asarray(
+                            network_old_log_probabilities
+                        ),
+                        old_values=np.asarray(network_old_values),
+                        advantages=network_advantages,
+                        returns=np.asarray(network_old_values) +
+                            0.1 * network_advantages,
+                    )
+                )
+            network_weights_after = [
+                np.asarray(layer.weight)
+                for layer in residual_network_layers
+            ]
+            changed_hidden_block = False
+            for layer_index, (before, after) in enumerate(
+                zip(
+                    network_weights_before[:-1],
+                    network_weights_after[:-1],
+                    strict=True,
+                )
+            ):
+                allowed = np.zeros(before.shape, dtype=bool)
+                if layer_index == 0:
+                    allowed[
+                        -residual_width:,
+                        actor_count - residual_observation_count:actor_count,
+                    ] = True
+                else:
+                    allowed[-residual_width:, -residual_width:] = True
+                changed = before != after
+                if np.any(np.logical_and(changed, ~allowed)):
+                    raise RuntimeError(
+                        "route residual network training escaped its hidden block"
+                    )
+                changed_hidden_block = changed_hidden_block or bool(
+                    np.any(np.logical_and(changed, allowed))
+                )
+            if not changed_hidden_block:
+                raise RuntimeError(
+                    "route residual network did not update a hidden block"
+                )
+            network_output_allowed = np.zeros(
+                network_weights_before[-1].shape,
+                dtype=bool,
+            )
+            network_output_allowed[(0, 2), -residual_width:] = True
+            network_output_changed = (
+                network_weights_before[-1] != network_weights_after[-1]
+            )
+            if (
+                np.any(
+                    np.logical_and(
+                        network_output_changed,
+                        ~network_output_allowed,
+                    )
+                )
+                or not np.any(
+                    np.logical_and(
+                        network_output_changed,
+                        network_output_allowed,
+                    )
+                )
+                or not all(
+                    np.array_equal(before, np.asarray(layer.bias))
+                    for before, layer in zip(
+                        network_biases_before,
+                        residual_network_layers,
+                        strict=True,
+                    )
+                )
+                or not np.array_equal(
+                    network_log_standard_deviation_before,
+                    np.asarray(
+                        residual_network.model.log_standard_deviation
+                    ),
+                )
+            ):
+                raise RuntimeError(
+                    "route residual network changed carrier state, bias, or exploration"
                 )
             selected_indices = tuple(range(0, actor_count, 2))
             projection = selected_indices + (None, None, None)
