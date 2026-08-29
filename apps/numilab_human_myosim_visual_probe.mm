@@ -5008,15 +5008,22 @@ struct PectoralisFasciaVisual {
     std::vector<mr_float4> restNodes;
     std::vector<mr_float4> nodes;
     std::vector<std::array<std::uint32_t, 3u>> surfaceTriangles;
+    std::vector<mr_float4> anatomicalSurfaceNodes;
+    std::vector<mr_float4> anatomicalSurfaceRestNormals;
+    std::vector<std::array<std::uint32_t, 3u>> anatomicalSurfaceTriangles;
     std::vector<std::uint32_t> sourceStableIds;
     std::uint32_t tetrahedronCount = 0u;
     std::uint32_t fixedNodeCount = 0u;
     std::uint32_t loadNodeCount = 0u;
+    std::uint32_t anatomicallyDeformedVertexCount = 0u;
     std::uint32_t completedSteps = 0u;
     std::uint32_t fgmresIterations = 0u;
     float loadFraction = 0.0f;
     float appliedForceNewtons = 0.0f;
     float maximumDisplacementMeters = 0.0f;
+    float maximumAnatomicalMappingDistanceMeters = 0.0f;
+    float maximumAppliedAnatomicalMappingDistanceMeters = 0.0f;
+    float rmsAnatomicalMappingDistanceMeters = 0.0f;
     float minimumDeterminant = std::numeric_limits<float>::infinity();
     bool deterministicReplayVerified = false;
     bool rollbackVerified = false;
@@ -5309,9 +5316,146 @@ PectoralisFasciaVisual runPectoralisFascia(
             );
         }
     }
+    // Keep the efficient FEM envelope internal.  Visible anatomy uses every
+    // exact vertex and triangle from the six provenance-pinned BodyParts3D
+    // pectoralis surfaces.  A deterministic four-nearest inverse-distance map
+    // transfers the solved superficial-node displacement within each named
+    // region.  This is a pragmatic inferred epimysial presentation because
+    // BodyParts3D has no separately authored pectoral-fascia segmentation; it
+    // never replaces the exact source surface with the coarse tetrahedral hull.
+    double squaredMappingDistanceSum = 0.0;
+    std::uint64_t mappedVertexCount = 0u;
+    for (const PectoralisFasciaRegion& region : fascia.regions) {
+        const auto tissueIterator = std::find_if(
+            tissues.records.begin(), tissues.records.end(),
+            [&region](const SoftTissueRecord& value) {
+                return value.stableId == region.softTissueStableId;
+            }
+        );
+        require(tissueIterator != tissues.records.end(),
+                "pectoralis fascia anatomical presentation surface is unavailable");
+        const SoftTissueRecord& tissue = *tissueIterator;
+        const std::uint32_t layerWidth = region.nodeCount / 2u;
+        require(layerWidth >= 4u && 2u * layerWidth == region.nodeCount,
+                "pectoralis fascia anatomical presentation has an invalid mechanics layer");
+        const std::uint32_t vertexBase = static_cast<std::uint32_t>(
+            result.anatomicalSurfaceNodes.size()
+        );
+        for (std::uint32_t offset = 0u; offset < tissue.vertexCount; ++offset) {
+            const SoftTissueVertex& source =
+                tissues.vertices[tissue.firstVertex + offset];
+            const mr_float4 restPoint =
+                softTissueVertexBlendedWorld(tissue, source, restBodies);
+            std::array<std::pair<float, std::uint32_t>, 4u> nearest{};
+            for (auto& entry : nearest) {
+                entry = {std::numeric_limits<float>::infinity(), MR_INVALID_INDEX};
+            }
+            for (std::uint32_t local = 0u; local < layerWidth; ++local) {
+                const std::uint32_t global = region.firstNode + local;
+                const mr_float4 delta = femSubtract(
+                    restPoint, result.restNodes[global]
+                );
+                const float squaredDistance = femDot(delta, delta);
+                if (squaredDistance >= nearest.back().first) continue;
+                nearest.back() = {squaredDistance, global};
+                std::sort(nearest.begin(), nearest.end(),
+                          [](const auto& left, const auto& right) {
+                              return left.first < right.first;
+                          });
+            }
+            require(nearest.front().second != MR_INVALID_INDEX &&
+                        std::isfinite(nearest.front().first),
+                    "pectoralis fascia anatomical presentation mapping failed");
+            mr_float4 displacement{0.0f, 0.0f, 0.0f, 0.0f};
+            if (nearest.front().first <= 1.0e-12f) {
+                displacement = femSubtract(
+                    result.nodes[nearest.front().second],
+                    result.restNodes[nearest.front().second]
+                );
+            } else {
+                float weightSum = 0.0f;
+                for (const auto& [squaredDistance, global] : nearest) {
+                    require(global != MR_INVALID_INDEX && std::isfinite(squaredDistance),
+                            "pectoralis fascia anatomical presentation has incomplete support");
+                    const float weight = 1.0f / std::max(squaredDistance, 1.0e-10f);
+                    const mr_float4 nodeDisplacement = femSubtract(
+                        result.nodes[global], result.restNodes[global]
+                    );
+                    displacement.x += weight * nodeDisplacement.x;
+                    displacement.y += weight * nodeDisplacement.y;
+                    displacement.z += weight * nodeDisplacement.z;
+                    weightSum += weight;
+                }
+                require(weightSum > 0.0f && std::isfinite(weightSum),
+                        "pectoralis fascia anatomical presentation weights are invalid");
+                displacement.x /= weightSum;
+                displacement.y /= weightSum;
+                displacement.z /= weightSum;
+            }
+            const float mappingDistance = std::sqrt(nearest.front().first);
+            constexpr float kFullDisplacementSupportMeters = 0.030f;
+            constexpr float kMaximumDisplacementSupportMeters = 0.060f;
+            float displacementSupport = 1.0f;
+            if (mappingDistance >= kMaximumDisplacementSupportMeters) {
+                displacementSupport = 0.0f;
+            } else if (mappingDistance > kFullDisplacementSupportMeters) {
+                const float t = (mappingDistance - kFullDisplacementSupportMeters) /
+                    (kMaximumDisplacementSupportMeters - kFullDisplacementSupportMeters);
+                displacementSupport = 1.0f - t * t * (3.0f - 2.0f * t);
+            }
+            displacement.x *= displacementSupport;
+            displacement.y *= displacementSupport;
+            displacement.z *= displacementSupport;
+            if (displacementSupport > 0.0f) {
+                ++result.anatomicallyDeformedVertexCount;
+                result.maximumAppliedAnatomicalMappingDistanceMeters = std::max(
+                    result.maximumAppliedAnatomicalMappingDistanceMeters,
+                    mappingDistance
+                );
+            }
+            mr_float4 deformed = femAdd(restPoint, displacement);
+            deformed.w = 1.0f;
+            result.anatomicalSurfaceNodes.push_back(deformed);
+            mr_float4 sourceNormal =
+                softTissueVertexBlendedNormalWorld(tissue, source, restBodies);
+            sourceNormal.w = 0.0f;
+            result.anatomicalSurfaceRestNormals.push_back(sourceNormal);
+            result.maximumAnatomicalMappingDistanceMeters = std::max(
+                result.maximumAnatomicalMappingDistanceMeters, mappingDistance
+            );
+            squaredMappingDistanceSum += nearest.front().first;
+            ++mappedVertexCount;
+        }
+        require(tissue.indexCount % 3u == 0u,
+                "pectoralis fascia anatomical source topology is malformed");
+        for (std::uint32_t offset = 0u; offset < tissue.indexCount; offset += 3u) {
+            std::array<std::uint32_t, 3u> triangle{};
+            for (std::uint32_t corner = 0u; corner < 3u; ++corner) {
+                const std::uint32_t sourceIndex =
+                    tissues.indices[tissue.firstIndex + offset + corner];
+                require(sourceIndex >= tissue.firstVertex &&
+                            sourceIndex < tissue.firstVertex + tissue.vertexCount,
+                        "pectoralis fascia anatomical source index is out of range");
+                triangle[corner] = vertexBase + sourceIndex - tissue.firstVertex;
+            }
+            result.anatomicalSurfaceTriangles.push_back(triangle);
+        }
+    }
+    require(mappedVertexCount == result.anatomicalSurfaceNodes.size() &&
+                result.anatomicalSurfaceRestNormals.size() ==
+                    result.anatomicalSurfaceNodes.size() &&
+                !result.anatomicalSurfaceTriangles.empty(),
+            "pectoralis fascia anatomical presentation is empty");
+    result.rmsAnatomicalMappingDistanceMeters = static_cast<float>(std::sqrt(
+        squaredMappingDistanceSum / static_cast<double>(mappedVertexCount)
+    ));
     require(result.minimumDeterminant > 0.35f &&
                 result.maximumDisplacementMeters > 0.0f &&
-                std::isfinite(result.appliedForceNewtons),
+                std::isfinite(result.appliedForceNewtons) &&
+                std::isfinite(result.rmsAnatomicalMappingDistanceMeters) &&
+                result.maximumAnatomicalMappingDistanceMeters < 0.25f &&
+                result.anatomicallyDeformedVertexCount > 0u &&
+                result.maximumAppliedAnatomicalMappingDistanceMeters <= 0.060001f,
             "pectoralis fascia deformation certificate is invalid");
     return result;
 }
@@ -5320,27 +5464,52 @@ GeometryRange appendPectoralisFasciaGeometry(
     metalrobo::VisualAssetPackV2& pack,
     const PectoralisFasciaVisual& fascia
 ) {
+    require(!fascia.anatomicalSurfaceNodes.empty() &&
+                !fascia.anatomicalSurfaceTriangles.empty(),
+            "pectoralis fascia has no exact anatomical presentation surface");
+    const auto& nodes = fascia.anatomicalSurfaceNodes;
+    const auto& triangles = fascia.anatomicalSurfaceTriangles;
     GeometryRange result;
     result.firstIndex = static_cast<std::uint32_t>(pack.indices.size());
     result.minimum = {std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(),
         std::numeric_limits<float>::infinity(), 1.0f};
     result.maximum = {-std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(),
         -std::numeric_limits<float>::infinity(), 1.0f};
-    std::vector<mr_float4> normals(fascia.nodes.size(), {0.0f, 0.0f, 0.0f, 0.0f});
-    for (const auto& triangle : fascia.surfaceTriangles) {
-        const mr_float4 first = femSubtract(fascia.nodes[triangle[1]], fascia.nodes[triangle[0]]);
-        const mr_float4 second = femSubtract(fascia.nodes[triangle[2]], fascia.nodes[triangle[0]]);
+    std::vector<mr_float4> normals(nodes.size(), {0.0f, 0.0f, 0.0f, 0.0f});
+    std::vector<mr_float4> firstFaceNormals(nodes.size(), {0.0f, 0.0f, 0.0f, 0.0f});
+    for (const auto& triangle : triangles) {
+        const mr_float4 first = femSubtract(nodes[triangle[1]], nodes[triangle[0]]);
+        const mr_float4 second = femSubtract(nodes[triangle[2]], nodes[triangle[0]]);
         const mr_float4 normal = femCross(first, second);
         for (const std::uint32_t node : triangle) {
             normals[node].x += normal.x;
             normals[node].y += normal.y;
             normals[node].z += normal.z;
+            if (femDot(firstFaceNormals[node], firstFaceNormals[node]) <= 1.0e-12f &&
+                femDot(normal, normal) > 1.0e-12f) {
+                firstFaceNormals[node] = normal;
+            }
         }
     }
     const std::uint32_t vertexBase = static_cast<std::uint32_t>(pack.vertices.size());
-    for (std::uint32_t index = 0u; index < fascia.nodes.size(); ++index) {
-        const mr_float4 position = fascia.nodes[index];
-        mr_float4 normal = femNormalized(normals[index], "pectoralis fascia surface normal");
+    for (std::uint32_t index = 0u; index < nodes.size(); ++index) {
+        const mr_float4 position = nodes[index];
+        mr_float4 normal = normals[index];
+        float normalSquared = femDot(normal, normal);
+        if (!std::isfinite(normalSquared) || normalSquared <= 1.0e-12f) {
+            normal = firstFaceNormals[index];
+            normalSquared = femDot(normal, normal);
+        }
+        if (!std::isfinite(normalSquared) || normalSquared <= 1.0e-12f) {
+            normal = fascia.anatomicalSurfaceRestNormals[index];
+            normalSquared = femDot(normal, normal);
+        }
+        if (!std::isfinite(normalSquared) || normalSquared <= 1.0e-12f) {
+            // Unreferenced source vertices are retained for provenance but do
+            // not contribute an index. Their normal is never rasterized.
+            normal = {0.0f, 0.0f, 1.0f, 0.0f};
+        }
+        normal = femNormalized(normal, "pectoralis fascia surface normal");
         normal.w = 1.0f;
         pack.vertices.push_back({position, normal, normalTangent(normal),
             {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}});
@@ -5351,7 +5520,7 @@ GeometryRange appendPectoralisFasciaGeometry(
         result.maximum.y = std::max(result.maximum.y, position.y);
         result.maximum.z = std::max(result.maximum.z, position.z);
     }
-    for (const auto& triangle : fascia.surfaceTriangles) {
+    for (const auto& triangle : triangles) {
         pack.indices.insert(pack.indices.end(), {
             vertexBase + triangle[0], vertexBase + triangle[1], vertexBase + triangle[2],
         });
@@ -5503,7 +5672,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     }
     if (pectoralisFascia != nullptr) {
         pack.preprocessingProvenance +=
-            "/NHFASC1_source_derived_thin_solid_human_GOH_mean_fit_and_NHTENDON2_load_driven_Matter_FEM";
+            "/NHFASC1_source_derived_thin_solid_human_GOH_mean_fit_and_NHTENDON2_load_driven_Matter_FEM_with_four_nearest_displacement_transfer_to_exact_BodyParts3D_pectoralis_source_surfaces";
     }
     if (zAnatomyCalfVisualSupplement) {
         pack.id = "myosim_zanatomy_calf_articulated_visual_supplement";
@@ -5701,11 +5870,10 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                 std::find(pectoralisFascia->sourceStableIds.begin(),
                           pectoralisFascia->sourceStableIds.end(),
                           tissue.stableId) != pectoralisFascia->sourceStableIds.end()) {
-                // NHFASC1 uses these exact surfaces for rest registration, but
-                // the opaque reference renderer cannot layer a 0.6 mm shell
-                // without depth occlusion. A fascia mechanics capture shows
-                // the owning collagen solid against bone and does not add a
-                // misleading outward display offset.
+                // The fascia instance below already contains these exact
+                // vertices and triangles with the solved FEM displacement
+                // transferred onto them. Rendering the undeformed red muscle
+                // copy as well would be duplicate coincident geometry.
                 continue;
             }
             const bool usesPassiveFEM = passiveFEMTissue != nullptr &&
@@ -7403,6 +7571,18 @@ int main(int argc, char** argv) {
                               ? pectoralisFascia->nodes.size() : 0u)
                       << " pectoralis_fascia_tetrahedra=" << (pectoralisFascia.has_value()
                               ? pectoralisFascia->tetrahedronCount : 0u)
+                      << " pectoralis_fascia_anatomical_vertices=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->anatomicalSurfaceNodes.size() : 0u)
+                      << " pectoralis_fascia_anatomical_triangles=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->anatomicalSurfaceTriangles.size() : 0u)
+                      << " pectoralis_fascia_mapping_max_distance_m=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->maximumAnatomicalMappingDistanceMeters : 0.0f)
+                      << " pectoralis_fascia_mapping_rms_distance_m=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->rmsAnatomicalMappingDistanceMeters : 0.0f)
+                      << " pectoralis_fascia_deformed_anatomical_vertices=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->anatomicallyDeformedVertexCount : 0u)
+                      << " pectoralis_fascia_mapping_max_applied_distance_m=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->maximumAppliedAnatomicalMappingDistanceMeters : 0.0f)
                       << " pectoralis_fascia_fixed_nodes=" << (pectoralisFascia.has_value()
                               ? pectoralisFascia->fixedNodeCount : 0u)
                       << " pectoralis_fascia_load_nodes=" << (pectoralisFascia.has_value()
