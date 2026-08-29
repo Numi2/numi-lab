@@ -662,7 +662,7 @@ int main() {
                 compiledNavigation.task().rewardOperators().back().source.z !=
                     MR_INVALID_INDEX &&
                 (compiledNavigation.task().header().schedule.w &
-                 MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_FIRST_SLALOM) !=
+                 MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_SLALOMS) !=
                     0u &&
                 compiledNavigation.task().randomizationOperators().size() ==
                     compiledVisualJourney.task().randomizationOperators().size() + 15u &&

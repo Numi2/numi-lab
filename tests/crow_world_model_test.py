@@ -133,6 +133,46 @@ class CrowWorldModelContractTest(unittest.TestCase):
                 "accepted_completion",
             )
 
+    def test_extracts_explicit_partial_route_as_non_promotable(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            replay = Path(directory) / "replay.json"
+            output = Path(directory) / "demonstrations.json"
+            self._replay(replay)
+            value = json.loads(replay.read_text())
+            for index, frame in enumerate(value["payload"]["frames"]):
+                frame["outcomes"] = {
+                    "navigation_waypoints_reached": [0, 2, 3][index],
+                    "navigation_completion": 0.0,
+                    "physics_error": 0.0,
+                }
+            replay.write_text(json.dumps(value))
+            payload = extract_accepted_demonstrations(SimpleNamespace(
+                replay=[str(replay)],
+                relabel_replay=None,
+                relabel_start_step=1,
+                minimum_waypoints=3,
+                development_partial=True,
+                stride=1,
+                horizon=1,
+                output=str(output),
+            ))
+            self.assertEqual(
+                payload["classification"],
+                "accepted native partial-route development demonstrations; "
+                "non-promotable",
+            )
+            self.assertEqual(len(payload["demonstrations"]), 3)
+            self.assertEqual(
+                payload["sources"][0]["completed_episode_count"], 0
+            )
+            self.assertEqual(
+                payload["sources"][0]["development_prefix_episode_count"], 1
+            )
+            self.assertEqual(
+                payload["demonstrations"][-1]["demonstration_kind"],
+                "accepted_development_prefix",
+            )
+
     def test_route_heading_residual_changes_only_steering_actions(self) -> None:
         observations = np.zeros((3, 100), dtype=np.float32)
         observations[0, 84:86] = [1.0, 1.0]
@@ -161,6 +201,19 @@ class CrowWorldModelContractTest(unittest.TestCase):
         self.assertGreater(targets[1, 13], 0.0)
         np.testing.assert_allclose(targets[2], actions[2])
         np.testing.assert_allclose(targets[:, :2], actions[:, :2])
+
+        reversed_targets, _ = route_heading_residual_targets(
+            observations,
+            actions,
+            observation_offset=84,
+            yaw_gain=0.2,
+            sweep_gain=0.1,
+            yaw_direction=-1,
+            sweep_direction=-1,
+            minimum_waypoint_fraction=0.39,
+            maximum_waypoint_fraction=0.41,
+        )
+        np.testing.assert_allclose(reversed_targets, -targets)
 
 
 if __name__ == "__main__":

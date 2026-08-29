@@ -322,6 +322,76 @@ constant float kCrowNavigationStageJourneyPhase[4] = {
     0.0f, 0.254999995f, 0.30687499f, 0.0f,
 };
 
+// Three non-terminal waypoint-two arrivals from the transferred parent under
+// the two-slalom preview task. Each source continues autonomously to waypoint
+// three on the development fixture. Payload SHA-256 values are, in row order:
+// 509692bf8c7c2d280578d8229a4c45fd05d6bfc7b0eb7da23c4c5236fabf5178,
+// c54f367df4c7033c37a32e45c6f4a87ab4626f24d5271ac5cca1b89dea289afa,
+// and e15583bcb4cc19f0c720b21e658b966dae78dc333acdd7e78e79e5cb35f38e80.
+constant uint kCrowNavigationStageTwoArrivalCount = 3u;
+constant uint kCrowNavigationStageTwoStep[3] = {431u, 466u, 458u};
+constant float kCrowNavigationStageTwoQ[3][20] = {
+    {2.13589787f, -0.0606460311f, 0.76040709f, 0.023641225f,
+     0.120915644f, 0.00516379997f, 0.992367804f, -0.0102051618f,
+     0.0338598639f, 0.227975532f, 0.230021283f, -0.0718962997f,
+     -0.0739652142f, 0.042625729f, -0.0811514854f, 0.274013758f,
+     -0.189021945f, -0.209642157f, 0.436182529f, -0.22018753f},
+    {2.26540184f, 0.0601888113f, 0.720522761f, 0.0139866425f,
+     0.179435238f, 0.0267356057f, 0.983306944f, -0.00575508131f,
+     0.0240807552f, -0.240805537f, -0.212647438f, -0.0340705365f,
+     -0.0341854729f, 0.0682462901f, -0.0757721066f, 0.226152867f,
+     -0.193765819f, -0.155752674f, 0.320953548f, -0.194535419f},
+    {2.2397058f, 0.043111708f, 0.731827736f, 0.0158401951f,
+     0.170515537f, 0.0204968788f, 0.985014439f, 0.00608130265f,
+     0.0316092558f, 0.419135928f, 0.41700238f, -0.0286769513f,
+     -0.028405549f, 0.0753641054f, -0.0818556324f, 0.215299189f,
+     -0.199235618f, -0.151489764f, 0.301145196f, -0.195205882f},
+};
+constant float kCrowNavigationStageTwoV[3][19] = {
+    {1.50162017f, -0.0863834471f, 0.614991724f, 0.0589567199f,
+     0.143911555f, -0.0746961534f, 0.224859759f, -0.354686528f,
+     -9.83466911f, -9.33519363f, 0.773527265f, 0.693880379f,
+     0.0655890927f, -0.321026683f, 0.114985533f, -0.622757852f,
+     0.620057166f, -1.61909199f, -0.215321884f},
+    {2.08387923f, 0.147922069f, 0.581576884f, 0.021635009f,
+     0.0996586606f, -0.0280879028f, 0.0174259394f, -0.0432286896f,
+     -2.29464746f, -2.04814291f, 0.324494541f, 0.50143522f,
+     0.337073177f, 0.049996186f, -0.564962327f, 0.00599250104f,
+     0.391232401f, -0.984157383f, 0.258066297f},
+    {1.98232937f, 0.119606823f, 0.821961582f, 0.19816944f,
+     0.0134700658f, -0.0598081797f, 0.556046367f, 0.374667495f,
+     10.2543917f, 9.60196209f, -0.196155772f, -0.0824618638f,
+     0.00140023034f, -0.0162287503f, -0.000297540508f,
+     -0.0289120097f, -0.0751506314f, 0.0966891274f, -0.131716251f},
+};
+constant float3 kCrowNavigationStageTwoRootOffset[3] = {
+    float3(-0.310068846f, 0.214902487f, -0.133697093f),
+    float3(-0.18056488f, 0.335737329f, -0.173581421f),
+    float3(-0.20626092f, 0.318660226f, -0.162276447f),
+};
+constant float kCrowNavigationStageTwoAction[3][15] = {
+    {0.0009484521f, -0.0253348965f, -0.0116323726f, 0.112097196f,
+     -0.186883822f, -0.188051417f, 0.107624233f, 0.0322972797f,
+     -0.0022304093f, -0.0660860837f, -0.0929075256f,
+     0.153825268f, -0.102304503f, -0.228072822f, -0.0168831609f},
+    {0.0482066236f, -0.00675500231f, -0.0305139311f, 0.11446733f,
+     -0.0770365819f, -0.0743829906f, 0.174834698f, 0.0687775537f,
+     -0.0956863388f, -0.050864663f, -0.0268785376f,
+     0.0154311098f, -0.0433609746f, -0.185750961f, -0.0792517662f},
+    {0.0448262282f, -0.00549940206f, -0.0385215767f, 0.107643709f,
+     -0.115237661f, -0.108170472f, 0.170662865f, 0.0525369011f,
+     -0.0845380574f, -0.061651364f, -0.0514066815f,
+     0.0347264521f, -0.0600540452f, -0.186564624f, -0.0623542666f},
+};
+constant float4 kCrowNavigationStageTwoCommandAndPhase[3] = {
+    float4(0.12769641f, -0.100817353f, -0.347834498f, -2.18655806f),
+    float4(0.0439169668f, -0.167902425f, -0.449999988f, -0.804258142f),
+    float4(0.0611217655f, -0.155982122f, -0.449999988f, 0.854502756f),
+};
+constant float kCrowNavigationStageTwoJourneyPhase[3] = {
+    0.269374996f, 0.29124999f, 0.286249995f,
+};
+
 // Three non-terminal waypoint-three arrivals from the retained revision-14
 // parent on the development fixture. Payload SHA-256 values are, in row
 // order: e32a7953886ab4b7b294cf511370c0bcd30318af2762851d8893b59e929319a8,
@@ -3418,6 +3488,9 @@ kernel void mr_locomotion_task_observe(
                 const uint stageThreeArrival =
                     (environment + episode) %
                     kCrowNavigationStageThreeArrivalCount;
+                const uint stageTwoArrival =
+                    (environment + episode) %
+                    kCrowNavigationStageTwoArrivalCount;
                 // Full-route replay reaches stages one through four near
                 // steps 316, 361, 407, and 423. Match that observable journey
                 // phase for independent-stage resets; otherwise a stage-four
@@ -3426,7 +3499,9 @@ kernel void mr_locomotion_task_observe(
                 constexpr uint stageStep[5] = {
                     0u, 300u, 408u, 962u, 425u,
                 };
-                state.episode.x = stage == 3u
+                state.episode.x = stage == 2u
+                    ? kCrowNavigationStageTwoStep[stageTwoArrival]
+                    : stage == 3u
                     ? kCrowNavigationStageThreeStep[stageThreeArrival]
                     : stageStep[stage];
                 state.navigation.z = float(stage);
@@ -3436,7 +3511,11 @@ kernel void mr_locomotion_task_observe(
                         index < min(dispatch.counts.z, 20u);
                          ++index) {
                         resetQ[qBase + program.root.z + index] =
-                            stage == 3u
+                            stage == 2u
+                            ? kCrowNavigationStageTwoQ[
+                                  stageTwoArrival
+                              ][index]
+                            : stage == 3u
                             ? kCrowNavigationStageThreeQ[
                                   stageThreeArrival
                               ][index]
@@ -3448,7 +3527,11 @@ kernel void mr_locomotion_task_observe(
                          index < min(dispatch.counts.w, 19u);
                          ++index) {
                         resetV[vBase + program.root.w + index] =
-                            stage == 3u
+                            stage == 2u
+                            ? kCrowNavigationStageTwoV[
+                                  stageTwoArrival
+                              ][index]
+                            : stage == 3u
                             ? kCrowNavigationStageThreeV[
                                   stageThreeArrival
                               ][index]
@@ -3523,7 +3606,11 @@ kernel void mr_locomotion_task_observe(
                     );
                     const float3 reboundPosition = start + rotate(
                         yawRebind,
-                        stage == 3u
+                        stage == 2u
+                        ? kCrowNavigationStageTwoRootOffset[
+                              stageTwoArrival
+                          ]
+                        : stage == 3u
                         ? kCrowNavigationStageThreeRootOffset[
                               stageThreeArrival
                           ]
@@ -3587,7 +3674,11 @@ kernel void mr_locomotion_task_observe(
                     }
                     if (stage == 2u || stage == 3u) {
                         state.commandAndPhase =
-                            stage == 3u
+                            stage == 2u
+                            ? kCrowNavigationStageTwoCommandAndPhase[
+                                  stageTwoArrival
+                              ]
+                            : stage == 3u
                             ? kCrowNavigationStageThreeCommandAndPhase[
                                   stageThreeArrival
                               ]
@@ -3595,7 +3686,11 @@ kernel void mr_locomotion_task_observe(
                                   templateIndex
                               ];
                         state.commandExtension.w =
-                            stage == 3u
+                            stage == 2u
+                            ? kCrowNavigationStageTwoJourneyPhase[
+                                  stageTwoArrival
+                              ]
+                            : stage == 3u
                             ? kCrowNavigationStageThreeJourneyPhase[
                                   stageThreeArrival
                               ]
@@ -3606,7 +3701,11 @@ kernel void mr_locomotion_task_observe(
                              action < min(program.counts0.x, 15u);
                              ++action) {
                             const float acceptedAction =
-                                stage == 3u
+                                stage == 2u
+                                ? kCrowNavigationStageTwoAction[
+                                      stageTwoArrival
+                                  ][action]
+                                : stage == 3u
                                 ? kCrowNavigationStageThreeAction[
                                       stageThreeArrival
                                   ][action]
@@ -5756,15 +5855,16 @@ kernel void mr_locomotion_task_complete(
             );
             float commandedHeadingError = headingError;
             if ((program.schedule.w &
-                 MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_FIRST_SLALOM) !=
+                 MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_SLALOMS) !=
                     0u &&
-                waypoint == kCrowNavigationTurnPreviewWaypoint) {
+                (waypoint == kCrowNavigationTurnPreviewWaypoint ||
+                 waypoint == kCrowNavigationTurnPreviewWaypoint + 1u)) {
                 // Hold the active waypoint as the positional target so the
                 // authored 0.42 m reach sphere and its native progress reward
-                // remain unchanged. Near the first slalom, blend only the yaw
+                // remain unchanged. Near either slalom, blend only the yaw
                 // reference toward the alternating segment. This gives the
                 // learned flier time to bank rather than demanding a
-                // point-to-point heading reversal at crossing.
+                // point-to-point heading reversal at either slalom crossing.
                 const float3 nextTarget = crowNavigationWaypointTarget(
                     sceneState + sceneBase,
                     navigationCourseStart,

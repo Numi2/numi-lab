@@ -69,6 +69,10 @@ enum MRTaskProgramFlags : mr_u32 {
     // screens cannot share a task fingerprint with the candidate.
     MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_FIRST_SLALOM =
         1u << 22u,
+    // Generalized preview for both alternating-slalom exits. This remains a
+    // command-reference semantic only: waypoint positions, reach gates,
+    // rewards, and neural action authority are unchanged.
+    MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_SLALOMS = 1u << 23u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {

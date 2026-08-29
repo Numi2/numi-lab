@@ -16,12 +16,13 @@ flight.
   visual inputs.
 - The current V10 task-fingerprint revision keeps every authored waypoint,
   reach radius, reward, and policy action unchanged, but previews the following
-  route segment in the native yaw command inside 0.70 m of the first slalom.
-  It is designed to make the measured alternating-slalom bottleneck bankable
-  rather than changing what counts as five-waypoint completion. The earlier
-  broad-preview screen uses a different task fingerprint and is retained as
-  rejected diagnostic evidence. All prior V10 PolicyPacks must be explicitly
-  transferred because this command semantic is fingerprinted.
+  route segment in the native yaw command inside 0.70 m of both slalom exits.
+  The second preview addresses measured positive-Y momentum at waypoint three,
+  where the retained parent otherwise begins its perch turn only after crossing
+  the reach sphere. The earlier first-slalom-only and broad-preview revisions
+  have distinct task fingerprints and remain rejected diagnostic evidence. All
+  prior V10 PolicyPacks must be explicitly transferred because this command
+  semantic is fingerprinted.
 - Sensor contract: four 16x9 instance-masked depth frames at history offsets
   0, 3, 8, and 18, plus 24 derived features
 - V9/V10 training and rollout require an explicit
@@ -138,6 +139,13 @@ autonomous task:
   navigation command, wing cyclic phase, and normalized journey phase. The
   first 84 actor inputs at reset match their replay source with maximum absolute
   errors of `0`, `0`, and `4.47e-8` across the three templates.
+- Under the two-slalom preview fingerprint, curriculum stage two likewise
+  samples three current-parent waypoint-two arrivals that continue
+  autonomously to waypoint three. This replaces a stale single reset from an
+  older low-exploration revision that terminated on contact in 64/64
+  development-reference lanes. The first 97 non-visual actor inputs at reset
+  match their replay successors with maximum absolute errors of `2.24e-8`,
+  `2.98e-8`, and `5.96e-8` across the three templates.
 - V9/V10 visual execution now requires the authored sensor config. This closes
   a real evidence defect: recent route-parent training had omitted the config,
   so actor indices `[97, 697)` were identically zero despite the run being
@@ -160,17 +168,29 @@ regressed from 5/32 to 1/32 waypoint-three completions. These runs demonstrate
 that replay-exact resets alone do not solve transfer back to the autonomous
 route distribution.
 
+The fingerprinted second-slalom preview was then screened on the same
+development-reference seed. Explicitly transferring the retained parent gave
+waypoint counts `[32, 32, 4, 0, 0]` over 32 full-route lanes. From the corrected
+stage-two reset distribution the unchanged parent gave
+`[64, 64, 64, 0, 0]` over 64 lanes and 512 steps, with zero failed environment
+steps. A 786,432-sample route-plus-aerodynamic continuation immediately lost
+waypoint three and was rejected. A separate 786,432-sample continuation that
+trained only actor columns `[84, 97)` preserved `[64, 64, 64, 0, 0]` at every
+saved checkpoint and increased maximum route progress from `1.3285 m` at
+revision 3 to `1.4287 m` at revision 25, but still produced no waypoint-four
+completion. It is retained as a bounded diagnostic, not promoted or extended.
+
 The fixed promotion gate is three untouched randomized-course seeds with 32
 environments and 1,600 steps per seed: at least 28/32 full five-waypoint
 completions on every seed, at least 90% aggregate completion, and zero failed
 environment steps. Selection seed `2650817001` is excluded from qualification.
 
 No 29 August candidate is promoted and no three-seed qualification was
-launched. The honest current milestone is reliable waypoint two, occasional
+launched. The honest full-route milestone is reliable waypoint two, occasional
 waypoint three, and zero waypoint-four/five completions. The next useful
-controller experiment must improve autonomous transfer across a broader set of
-waypoint-three arrivals; simply extending the rejected PPO runs is not a
-pre-registered development plan.
+controller experiment must use broader autonomous waypoint-three arrival
+coverage or an explicitly staged controller objective; simply extending the
+rejected PPO runs is not a pre-registered development plan.
 
 ## Retained 28 August 2026 artifact
 

@@ -83,6 +83,8 @@ def route_heading_residual_targets(
     observation_offset: int,
     yaw_gain: float,
     sweep_gain: float,
+    yaw_direction: int = 1,
+    sweep_direction: int = 1,
     minimum_waypoint_fraction: float = 0.0,
     maximum_waypoint_fraction: float = 1.0,
 ) -> tuple[np.ndarray, np.ndarray]:
@@ -106,6 +108,8 @@ def route_heading_residual_targets(
         maximum_waypoint_fraction,
     ]).all() or yaw_gain < 0 or sweep_gain < 0:
         raise ValueError("route residual gains must be finite and non-negative")
+    if yaw_direction not in (-1, 1) or sweep_direction not in (-1, 1):
+        raise ValueError("route residual directions must be -1 or 1")
     if not 0.0 <= minimum_waypoint_fraction <= maximum_waypoint_fraction <= 1.0:
         raise ValueError("route residual waypoint-fraction interval is invalid")
     current_x = source[:, observation_offset]
@@ -123,9 +127,9 @@ def route_heading_residual_targets(
         -np.float32(1.2),
         np.float32(1.2),
     )
-    targets[:, 2] -= np.float32(sweep_gain) * heading
-    targets[:, 3] += np.float32(sweep_gain) * heading
-    targets[:, 13] -= np.float32(yaw_gain) * heading
+    targets[:, 2] -= np.float32(sweep_direction * sweep_gain) * heading
+    targets[:, 3] += np.float32(sweep_direction * sweep_gain) * heading
+    targets[:, 13] -= np.float32(yaw_direction * yaw_gain) * heading
     return np.clip(targets, -1.0, 1.0), active
 
 
@@ -573,7 +577,14 @@ def plan_demonstrations(arguments: argparse.Namespace) -> dict[str, Any]:
 
 
 def extract_accepted_demonstrations(arguments: argparse.Namespace) -> dict[str, Any]:
-    """Extract only native episodes that physically completed all waypoints."""
+    """Extract accepted completion episodes or explicit development prefixes."""
+    development_partial = bool(
+        getattr(arguments, "development_partial", False)
+    )
+    if development_partial and arguments.relabel_replay:
+        raise ValueError(
+            "partial-route development extraction cannot relabel failed states"
+        )
     demonstrations: list[dict[str, Any]] = []
     fingerprints: dict[str, str] | None = None
     observation_count = 0
@@ -630,11 +641,11 @@ def extract_accepted_demonstrations(arguments: argparse.Namespace) -> dict[str, 
             outcomes = frame.get("outcomes", {})
             completion = float(outcomes.get("navigation_completion", 0.0))
             waypoints = float(outcomes.get("navigation_waypoints_reached", 0.0))
-            if (
-                episode_completed
-                or completion < 1.0
-                or waypoints < arguments.minimum_waypoints
-            ):
+            physically_selected = (
+                waypoints >= arguments.minimum_waypoints
+                and (development_partial or completion >= 1.0)
+            )
+            if episode_completed or not physically_selected:
                 continue
             episode = frames[episode_start:index + 1]
             if any(
@@ -667,14 +678,24 @@ def extract_accepted_demonstrations(arguments: argparse.Namespace) -> dict[str, 
                     "planner_predicted_return": 0.0,
                     "baseline_predicted_return": 0.0,
                     "predicted_improvement": 0.0,
-                    "demonstration_kind": "accepted_completion",
+                    "demonstration_kind": (
+                        "accepted_development_prefix"
+                        if development_partial
+                        else "accepted_completion"
+                    ),
                 })
             completed_episodes += 1
             episode_completed = True
         sources.append({
             "path": str(path),
             "payload_sha256": record["payload_sha256"],
-            "completed_episode_count": completed_episodes,
+            "selected_episode_count": completed_episodes,
+            "completed_episode_count": (
+                0 if development_partial else completed_episodes
+            ),
+            "development_prefix_episode_count": (
+                completed_episodes if development_partial else 0
+            ),
         })
     relabeled_count = 0
     if arguments.relabel_replay:
@@ -741,9 +762,18 @@ def extract_accepted_demonstrations(arguments: argparse.Namespace) -> dict[str, 
                     })
                     relabeled_count += 1
     if fingerprints is None or not demonstrations:
-        raise ValueError("no native five-waypoint episode was found")
+        raise ValueError(
+            "no accepted native partial-route prefix was found"
+            if development_partial
+            else "no native five-waypoint episode was found"
+        )
     payload = {
-        "classification": "accepted native five-waypoint demonstrations",
+        "classification": (
+            "accepted native partial-route development demonstrations; "
+            "non-promotable"
+            if development_partial
+            else "accepted native five-waypoint demonstrations"
+        ),
         "task": V10_TASK,
         "fingerprints": fingerprints,
         "observation_count": observation_count,
@@ -853,6 +883,8 @@ def distill_student(arguments: argparse.Namespace) -> dict[str, Any]:
         observation_offset=arguments.route_observation_offset,
         yaw_gain=arguments.route_yaw_residual_gain,
         sweep_gain=arguments.route_sweep_residual_gain,
+        yaw_direction=arguments.route_yaw_residual_direction,
+        sweep_direction=arguments.route_sweep_residual_direction,
         minimum_waypoint_fraction=arguments.route_minimum_waypoint_fraction,
         maximum_waypoint_fraction=arguments.route_maximum_waypoint_fraction,
     )
@@ -985,6 +1017,10 @@ def distill_student(arguments: argparse.Namespace) -> dict[str, Any]:
             "route_observation_offset": arguments.route_observation_offset,
             "route_yaw_residual_gain": arguments.route_yaw_residual_gain,
             "route_sweep_residual_gain": arguments.route_sweep_residual_gain,
+            "route_yaw_residual_direction":
+                arguments.route_yaw_residual_direction,
+            "route_sweep_residual_direction":
+                arguments.route_sweep_residual_direction,
             "route_residual_repeats": arguments.route_residual_repeats,
             "route_minimum_waypoint_fraction":
                 arguments.route_minimum_waypoint_fraction,
@@ -1039,6 +1075,15 @@ def _parser() -> argparse.ArgumentParser:
     extract.add_argument("--relabel-start-step", type=int, default=280)
     extract.add_argument("--output", required=True)
     extract.add_argument("--minimum-waypoints", type=int, default=5)
+    extract.add_argument(
+        "--development-partial",
+        action="store_true",
+        help=(
+            "extract an accepted native prefix after reaching one through "
+            "four waypoints; labels the artifact non-promotable and forbids "
+            "failed-state relabeling"
+        ),
+    )
     extract.add_argument("--stride", type=int, default=1)
     extract.add_argument("--horizon", type=int, default=1)
     distill = commands.add_parser("distill")
@@ -1060,6 +1105,12 @@ def _parser() -> argparse.ArgumentParser:
     distill.add_argument("--route-observation-offset", type=int, default=84)
     distill.add_argument("--route-yaw-residual-gain", type=float, default=0.0)
     distill.add_argument("--route-sweep-residual-gain", type=float, default=0.0)
+    distill.add_argument(
+        "--route-yaw-residual-direction", type=int, choices=(-1, 1), default=1
+    )
+    distill.add_argument(
+        "--route-sweep-residual-direction", type=int, choices=(-1, 1), default=1
+    )
     distill.add_argument("--route-residual-repeats", type=int, default=0)
     distill.add_argument(
         "--route-minimum-waypoint-fraction", type=float, default=0.0
@@ -1092,13 +1143,22 @@ def main(argv: Sequence[str] | None = None) -> int:
             raise ValueError("maximum action delta must be in (0, 2]")
         payload = plan_demonstrations(arguments)
     elif arguments.command == "extract":
+        valid_minimum = (
+            1 <= arguments.minimum_waypoints <= 4
+            if arguments.development_partial
+            else arguments.minimum_waypoints == 5
+        )
         if (
-            arguments.minimum_waypoints != 5
+            not valid_minimum
             or arguments.stride <= 0
             or arguments.horizon <= 0
             or arguments.relabel_start_step < 0
         ):
-            raise ValueError("accepted extraction requires five waypoints and positive stride/horizon")
+            raise ValueError(
+                "accepted extraction requires exactly five waypoints, or "
+                "one through four with --development-partial, plus positive "
+                "stride/horizon"
+            )
         payload = extract_accepted_demonstrations(arguments)
     else:
         if not 0.0 <= arguments.planner_blend <= 1.0:
