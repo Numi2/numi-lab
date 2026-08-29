@@ -318,6 +318,27 @@ terminal reset pool yet. The stage-three generator fails closed on a
 non-stage-three payload so waypoint-four data cannot be silently compiled
 under the wrong Metal constants.
 
+### Exact terminal-approach capacity
+
+The V10 actor now exposes another 22 route/state values at indices
+`[185, 207)`. They are identically zero before waypoint three and active only
+across waypoints three and four, leaving enough actuator-response horizon to
+shape the final arrival. Vision history moves intact behind the insertion.
+Exact transfer from rejected v120 revision 123 expands the actor from 785 to
+807 inputs and the hidden topology from `[626, 370, 242]` to
+`[670, 414, 286]`; sampled inherited outputs have maximum error `0.0` when
+the new adapter is zero, and the source critic and exploration head remain
+unchanged.
+
+Two 614,400-sample authentic-history learners were screened. V121 activated
+the adapter only after waypoint four and changed the lone waypoint-four
+failure's progress by just `0.00017 m`, confirming that the filtered action
+arrived too late. V122 activates the isolated capacity at waypoint three as
+well, but its coarse-seed checkpoints remain at four completions and later
+revisions reduce waypoint-four reach from five to four. Both learners are
+rejected. The exact capacity is retained; its current DAgger objective is not
+treated as terminal-policy evidence.
+
 ### Retained route-residual candidate
 
 The retained development candidate is revision 41 from

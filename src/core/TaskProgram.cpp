@@ -2316,8 +2316,9 @@ TaskCompileDiagnostics compileTaskProgram(
                 // Components 57...78 provide the same contract only while
                 // waypoint two is active. Components 79...100 provide an
                 // independently gated copy only while waypoint three is
-                // active.
-                componentLimit = 101u;
+                // active. Components 101...122 isolate the joint waypoint-
+                // three/four terminal approach and landing transaction.
+                componentLimit = 123u;
                 break;
             }
             case TaskObservationSource::supportSense:

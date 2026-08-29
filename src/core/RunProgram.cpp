@@ -2583,8 +2583,25 @@ TaskPack makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
             : !route && component < 19u ? 0.25f : 1.0f;
         observations.actorCurrent.push_back(feedback);
     }
+    // Isolate the terminal approach across waypoints three and four. This
+    // copy is zero over the retained early route, but becomes available soon
+    // enough for filtered wing actions to shape the final arrival geometry.
+    for (std::uint32_t component = 0u; component < 22u; ++component) {
+        const bool route = component < 13u;
+        TaskObservationOperatorSpec feedback{
+            .source = TaskObservationSource::navigationTarget,
+            .target = "crow_course_gate_left",
+            .component = component + 101u,
+        };
+        feedback.scale = route && component < 6u
+            ? 0.25f
+            : !route && component < 16u
+            ? 0.5f
+            : !route && component < 19u ? 0.25f : 1.0f;
+        observations.actorCurrent.push_back(feedback);
+    }
     // V10 keeps v9's deployable sensor and action dimensions while extending
-    // the actor to a 785-input policy ABI. Distinct task and observation
+    // the actor to an 807-input policy ABI. Distinct task and observation
     // fingerprints prevent narrower actors from being silently rebound.
     return task;
 }
