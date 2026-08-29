@@ -710,6 +710,10 @@ struct MetalWorldStepConfig {
     // field participates in autonomous PolicyPack execution.
     bool birdFlowJourneyTeacher = false;
     float birdFlowJourneyStudentAuthority = 0.0f;
+    // Invocation-scoped reset curriculum for the V10 navigation route. This
+    // changes only the initial sequential waypoint stage; it grants neither
+    // teacher nor actuator authority and is disabled during evaluation.
+    bool birdFlowNavigationCurriculum = false;
     std::uint64_t taskSeed = 0u;
     // Invocation-scoped reset sampling. These select an overlapping region of
     // one compiled TaskPack; they never alter reward, success, or promotion.

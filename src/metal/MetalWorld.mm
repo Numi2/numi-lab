@@ -9340,7 +9340,7 @@ void uploadBatch(
         task.assistance = {
             config.birdFlowJourneyStudentAuthority,
             config.difficultySamplingExponentOverride,
-            0.0f,
+            config.birdFlowNavigationCurriculum ? 1.0f : 0.0f,
             0.0f,
         };
         task.seed = config.taskSeed;

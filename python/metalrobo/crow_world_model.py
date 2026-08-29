@@ -76,6 +76,59 @@ def _finite_matrix(value: Any, width: int, label: str) -> np.ndarray:
     return result
 
 
+def route_heading_residual_targets(
+    observations: np.ndarray,
+    baseline_actions: np.ndarray,
+    *,
+    observation_offset: int,
+    yaw_gain: float,
+    sweep_gain: float,
+    minimum_waypoint_fraction: float = 0.0,
+    maximum_waypoint_fraction: float = 1.0,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Build neural steering targets from the explicit root-local route vector.
+
+    V10 publishes current-target xyz, next-target xyz, waypoint fraction, and
+    completion as eight contiguous actor features.  This helper leaves the
+    qualified flight carrier intact and adds only bounded yaw/sweep residuals
+    proportional to the observable current-target heading error.
+    """
+    source = np.asarray(observations, dtype=np.float32)
+    targets = np.asarray(baseline_actions, dtype=np.float32).copy()
+    if source.ndim != 2 or targets.ndim != 2 or source.shape[0] != targets.shape[0]:
+        raise ValueError("route residual observations and actions disagree")
+    if observation_offset < 0 or observation_offset + 8 > source.shape[1]:
+        raise ValueError("route residual observation offset is outside the actor input")
+    if targets.shape[1] < 14:
+        raise ValueError("route residual requires the 15-action crow contract")
+    if not np.isfinite([
+        yaw_gain, sweep_gain, minimum_waypoint_fraction,
+        maximum_waypoint_fraction,
+    ]).all() or yaw_gain < 0 or sweep_gain < 0:
+        raise ValueError("route residual gains must be finite and non-negative")
+    if not 0.0 <= minimum_waypoint_fraction <= maximum_waypoint_fraction <= 1.0:
+        raise ValueError("route residual waypoint-fraction interval is invalid")
+    current_x = source[:, observation_offset]
+    current_y = source[:, observation_offset + 1]
+    waypoint_fraction = source[:, observation_offset + 6]
+    completion = source[:, observation_offset + 7]
+    active = (
+        np.square(current_x) + np.square(current_y) > np.float32(1.0e-6)
+    ) & (completion < np.float32(0.5)) & (
+        waypoint_fraction >= np.float32(minimum_waypoint_fraction)
+    ) & (waypoint_fraction <= np.float32(maximum_waypoint_fraction))
+    heading = np.zeros(source.shape[0], dtype=np.float32)
+    heading[active] = np.clip(
+        np.arctan2(current_y[active], current_x[active]),
+        -np.float32(1.2),
+        np.float32(1.2),
+    )
+    targets[:, 2] -= np.float32(sweep_gain) * heading
+    targets[:, 3] += np.float32(sweep_gain) * heading
+    targets[:, 13] -= np.float32(yaw_gain) * heading
+    return np.clip(targets, -1.0, 1.0), active
+
+
 @dataclass(frozen=True, slots=True)
 class CrowTransitionDataset:
     observations: np.ndarray
@@ -519,17 +572,217 @@ def plan_demonstrations(arguments: argparse.Namespace) -> dict[str, Any]:
     return payload
 
 
+def extract_accepted_demonstrations(arguments: argparse.Namespace) -> dict[str, Any]:
+    """Extract only native episodes that physically completed all waypoints."""
+    demonstrations: list[dict[str, Any]] = []
+    fingerprints: dict[str, str] | None = None
+    observation_count = 0
+    action_count = 0
+    sources: list[dict[str, Any]] = []
+    accepted_template_actions: list[list[float]] | None = None
+    for path_value in arguments.replay:
+        path = Path(path_value).resolve()
+        record = json.loads(path.read_text(encoding="utf-8"))
+        payload = record.get("payload") if isinstance(record, dict) else None
+        if (
+            not isinstance(payload, dict)
+            or record.get("schema") != REPLAY_SCHEMA
+            or not isinstance(record.get("payload_sha256"), str)
+        ):
+            raise ValueError(f"{path} is not a canonical CrowReplayPack")
+        if payload.get("task") != V10_TASK:
+            raise ValueError(f"{path} is not a v10 navigation replay")
+        current_fingerprints = {
+            key: str(payload.get(key, ""))
+            for key in (
+                "world_fingerprint", "task_fingerprint",
+                "observation_fingerprint", "action_fingerprint",
+            )
+        }
+        if not all(current_fingerprints.values()):
+            raise ValueError(f"{path} omits deployment fingerprints")
+        if fingerprints is None:
+            fingerprints = current_fingerprints
+        elif fingerprints != current_fingerprints:
+            raise ValueError("accepted replays disagree on deployment fingerprints")
+        current_observation_count = int(payload.get("actor_observation_count", 0))
+        current_action_count = int(payload.get("action_count", 0))
+        if observation_count == 0:
+            observation_count = current_observation_count
+            action_count = current_action_count
+        elif (observation_count, action_count) != (
+            current_observation_count, current_action_count
+        ):
+            raise ValueError("accepted replays disagree on dimensions")
+        frames = payload.get("frames")
+        if not isinstance(frames, list) or len(frames) < 2:
+            raise ValueError(f"{path} has fewer than two frames")
+        episode_start = 0
+        episode_completed = False
+        completed_episodes = 0
+        for index, frame in enumerate(frames):
+            if index > 0 and (
+                bool(frames[index - 1].get("done", False))
+                or bool(frames[index - 1].get("timeout", False))
+            ):
+                episode_start = index
+                episode_completed = False
+            outcomes = frame.get("outcomes", {})
+            completion = float(outcomes.get("navigation_completion", 0.0))
+            waypoints = float(outcomes.get("navigation_waypoints_reached", 0.0))
+            if (
+                episode_completed
+                or completion < 1.0
+                or waypoints < arguments.minimum_waypoints
+            ):
+                continue
+            episode = frames[episode_start:index + 1]
+            if any(
+                float(item.get("outcomes", {}).get("physics_error", 0.0)) != 0.0
+                for item in episode
+            ):
+                raise ValueError(f"{path} completed episode contains a physics error")
+            if accepted_template_actions is None:
+                accepted_template_actions = [
+                    item["accepted_actions"] for item in episode
+                ]
+            for item in episode[::arguments.stride]:
+                observation = item.get("actor_observation")
+                action = item.get("accepted_actions")
+                if (
+                    not isinstance(observation, list)
+                    or len(observation) != observation_count
+                    or not isinstance(action, list)
+                    or len(action) != action_count
+                    or not np.isfinite(np.asarray(observation)).all()
+                    or not np.isfinite(np.asarray(action)).all()
+                ):
+                    raise ValueError(f"{path} completed episode is malformed")
+                repeated = [action] * arguments.horizon
+                demonstrations.append({
+                    "source_transition": int(item.get("step", 0)),
+                    "observation": observation,
+                    "planner_actions": repeated,
+                    "baseline_actions": repeated,
+                    "planner_predicted_return": 0.0,
+                    "baseline_predicted_return": 0.0,
+                    "predicted_improvement": 0.0,
+                    "demonstration_kind": "accepted_completion",
+                })
+            completed_episodes += 1
+            episode_completed = True
+        sources.append({
+            "path": str(path),
+            "payload_sha256": record["payload_sha256"],
+            "completed_episode_count": completed_episodes,
+        })
+    relabeled_count = 0
+    if arguments.relabel_replay:
+        if accepted_template_actions is None:
+            raise ValueError("failed-state relabeling requires an accepted template")
+        for path_value in arguments.relabel_replay:
+            path = Path(path_value).resolve()
+            record = json.loads(path.read_text(encoding="utf-8"))
+            payload = record.get("payload") if isinstance(record, dict) else None
+            if (
+                not isinstance(payload, dict)
+                or record.get("schema") != REPLAY_SCHEMA
+                or payload.get("task") != V10_TASK
+            ):
+                raise ValueError(f"{path} is not a v10 CrowReplayPack")
+            current_fingerprints = {
+                key: str(payload.get(key, ""))
+                for key in (
+                    "world_fingerprint", "task_fingerprint",
+                    "observation_fingerprint", "action_fingerprint",
+                )
+            }
+            if current_fingerprints != fingerprints:
+                raise ValueError("relabel replay disagrees on deployment fingerprints")
+            frames = payload.get("frames", [])
+            starts = [0]
+            starts.extend(
+                index
+                for index in range(1, len(frames))
+                if bool(frames[index - 1].get("done", False))
+                or bool(frames[index - 1].get("timeout", False))
+            )
+            ends = starts[1:] + [len(frames)]
+            for start, end in zip(starts, ends, strict=True):
+                episode = frames[start:end]
+                if any(
+                    float(item.get("outcomes", {}).get(
+                        "navigation_completion", 0.0
+                    )) >= 1.0
+                    for item in episode
+                ):
+                    continue
+                stop = min(len(episode), len(accepted_template_actions))
+                for offset in range(arguments.relabel_start_step, stop, arguments.stride):
+                    item = episode[offset]
+                    observation = item.get("actor_observation")
+                    target = accepted_template_actions[offset]
+                    if (
+                        not isinstance(observation, list)
+                        or len(observation) != observation_count
+                        or not np.isfinite(np.asarray(observation)).all()
+                    ):
+                        raise ValueError(f"{path} relabel frame is malformed")
+                    repeated = [target] * arguments.horizon
+                    demonstrations.append({
+                        "source_transition": int(item.get("step", 0)),
+                        "observation": observation,
+                        "planner_actions": repeated,
+                        "baseline_actions": repeated,
+                        "planner_predicted_return": 0.0,
+                        "baseline_predicted_return": 0.0,
+                        "predicted_improvement": 0.0,
+                        "demonstration_kind": "phase_aligned_failed_state_correction",
+                    })
+                    relabeled_count += 1
+    if fingerprints is None or not demonstrations:
+        raise ValueError("no native five-waypoint episode was found")
+    payload = {
+        "classification": "accepted native five-waypoint demonstrations",
+        "task": V10_TASK,
+        "fingerprints": fingerprints,
+        "observation_count": observation_count,
+        "action_count": action_count,
+        "sources": sources,
+        "planner": {
+            "algorithm": "accepted_native_replay",
+            "horizon": arguments.horizon,
+            "stride": arguments.stride,
+            "minimum_waypoints": arguments.minimum_waypoints,
+            "phase_aligned_failed_state_correction_count": relabeled_count,
+            "relabel_start_step": arguments.relabel_start_step,
+        },
+        "demonstrations": demonstrations,
+    }
+    _write_envelope(Path(arguments.output), DEMONSTRATION_SCHEMA, payload)
+    return payload
+
+
 def distill_student(arguments: argparse.Namespace) -> dict[str, Any]:
     _require_mlx()
     demonstrations = _read_envelope(Path(arguments.demonstrations), DEMONSTRATION_SCHEMA)
-    model_manifest = _read_envelope(
-        Path(arguments.model) / "manifest.json", MODEL_SCHEMA
+    model_manifest = (
+        _read_envelope(Path(arguments.model) / "manifest.json", MODEL_SCHEMA)
+        if arguments.model else None
     )
     records = demonstrations.get("demonstrations", [])
     if not records:
         raise ValueError("planner artifact contains no demonstrations")
-    observation_count = int(model_manifest["observation_count"])
-    action_count = int(model_manifest["action_count"])
+    observation_count = int(
+        model_manifest["observation_count"] if model_manifest
+        else demonstrations.get("observation_count", 0)
+    )
+    action_count = int(
+        model_manifest["action_count"] if model_manifest
+        else demonstrations.get("action_count", 0)
+    )
+    if observation_count <= 0 or action_count <= 0:
+        raise ValueError("demonstrations omit actor/action dimensions")
     planner_observations = _finite_matrix(
         [record["observation"] for record in records], observation_count,
         "demonstration observations",
@@ -581,19 +834,49 @@ def distill_student(arguments: argparse.Namespace) -> dict[str, Any]:
         base.observation_clip,
     )
     base_replay_targets = base.actor_mean(dataset.observations)
+    route_targets, route_active = route_heading_residual_targets(
+        dataset.observations,
+        base_replay_targets,
+        observation_offset=arguments.route_observation_offset,
+        yaw_gain=arguments.route_yaw_residual_gain,
+        sweep_gain=arguments.route_sweep_residual_gain,
+        minimum_waypoint_fraction=arguments.route_minimum_waypoint_fraction,
+        maximum_waypoint_fraction=arguments.route_maximum_waypoint_fraction,
+    )
     correction_targets = np.clip(
         baseline_actions
         + arguments.planner_blend * (planner_actions - baseline_actions),
         -1.0,
         1.0,
     )
+    generator = np.random.default_rng(arguments.seed)
+    planner_observation_batches = []
+    for repeat in range(arguments.planner_repeats):
+        if repeat == 0 or arguments.planner_observation_noise_std == 0.0:
+            batch = normalized_planner
+        else:
+            batch = np.clip(
+                normalized_planner + generator.normal(
+                    0.0,
+                    arguments.planner_observation_noise_std,
+                    normalized_planner.shape,
+                ).astype(np.float32),
+                -base.observation_clip,
+                base.observation_clip,
+            )
+        planner_observation_batches.append(batch)
+    route_observation_batches = [
+        normalized_replay[route_active]
+    ] * arguments.route_residual_repeats
     observations = np.concatenate(
-        [normalized_replay]
-        + [normalized_planner] * arguments.planner_repeats
+        [normalized_replay] * arguments.base_replay_repeats
+        + planner_observation_batches
+        + route_observation_batches
     )
     targets = np.concatenate(
-        [base_replay_targets]
+        [base_replay_targets] * arguments.base_replay_repeats
         + [correction_targets] * arguments.planner_repeats
+        + [route_targets[route_active]] * arguments.route_residual_repeats
     )
     optimizer = optim.Adam(learning_rate=arguments.learning_rate)
     optimizer.init(student.trainable_parameters())
@@ -604,7 +887,6 @@ def distill_student(arguments: argparse.Namespace) -> dict[str, Any]:
         return loss, {"action_mse": loss}
 
     loss_and_gradient = nn.value_and_grad(student, loss_function)
-    generator = np.random.default_rng(arguments.seed)
     final_loss = math.inf
     for _ in range(arguments.epochs):
         order = generator.permutation(len(observations))
@@ -632,6 +914,10 @@ def distill_student(arguments: argparse.Namespace) -> dict[str, Any]:
     maximum_action_delta = float(
         np.max(np.abs(planner_prediction - baseline_actions))
     )
+    route_prediction = np.asarray(student(mx.array(normalized_replay)))
+    route_target_mse = float(
+        np.mean(np.square(route_prediction[route_active] - route_targets[route_active]))
+    ) if np.any(route_active) else 0.0
     if arguments.policy_pack:
         from .native import PolicyDenseLayerArtifact, write_policy_pack
 
@@ -679,6 +965,19 @@ def distill_student(arguments: argparse.Namespace) -> dict[str, Any]:
             "seed": arguments.seed,
             "planner_blend": arguments.planner_blend,
             "planner_repeats": arguments.planner_repeats,
+            "base_replay_repeats": arguments.base_replay_repeats,
+            "planner_observation_noise_standard_deviation":
+                arguments.planner_observation_noise_std,
+            "route_observation_offset": arguments.route_observation_offset,
+            "route_yaw_residual_gain": arguments.route_yaw_residual_gain,
+            "route_sweep_residual_gain": arguments.route_sweep_residual_gain,
+            "route_residual_repeats": arguments.route_residual_repeats,
+            "route_minimum_waypoint_fraction":
+                arguments.route_minimum_waypoint_fraction,
+            "route_maximum_waypoint_fraction":
+                arguments.route_maximum_waypoint_fraction,
+            "route_active_sample_count": int(np.count_nonzero(route_active)),
+            "route_target_mse": route_target_mse,
             "final_action_mse": final_loss,
             "baseline_imitation_mse": baseline_imitation_mse,
             "planner_target_mse": planner_target_mse,
@@ -720,8 +1019,16 @@ def _parser() -> argparse.ArgumentParser:
     plan.add_argument("--maximum-action-delta", type=float, default=0.15)
     plan.add_argument("--minimum-predicted-improvement", type=float, default=0.0)
     plan.add_argument("--seed", type=int, default=20260829)
+    extract = commands.add_parser("extract")
+    extract.add_argument("--replay", action="append", required=True)
+    extract.add_argument("--relabel-replay", action="append")
+    extract.add_argument("--relabel-start-step", type=int, default=280)
+    extract.add_argument("--output", required=True)
+    extract.add_argument("--minimum-waypoints", type=int, default=5)
+    extract.add_argument("--stride", type=int, default=1)
+    extract.add_argument("--horizon", type=int, default=1)
     distill = commands.add_parser("distill")
-    distill.add_argument("--model", required=True)
+    distill.add_argument("--model")
     distill.add_argument("--demonstrations", required=True)
     distill.add_argument("--replay", action="append", required=True)
     distill.add_argument("--base-policy-pack", required=True)
@@ -731,6 +1038,20 @@ def _parser() -> argparse.ArgumentParser:
     distill.add_argument("--learning-rate", type=float, default=3.0e-4)
     distill.add_argument("--planner-blend", type=float, default=0.1)
     distill.add_argument("--planner-repeats", type=int, default=8)
+    distill.add_argument("--base-replay-repeats", type=int, default=1)
+    distill.add_argument(
+        "--planner-observation-noise-std", type=float, default=0.0
+    )
+    distill.add_argument("--route-observation-offset", type=int, default=84)
+    distill.add_argument("--route-yaw-residual-gain", type=float, default=0.0)
+    distill.add_argument("--route-sweep-residual-gain", type=float, default=0.0)
+    distill.add_argument("--route-residual-repeats", type=int, default=0)
+    distill.add_argument(
+        "--route-minimum-waypoint-fraction", type=float, default=0.0
+    )
+    distill.add_argument(
+        "--route-maximum-waypoint-fraction", type=float, default=1.0
+    )
     distill.add_argument("--seed", type=int, default=20260830)
     distill.add_argument("--policy-pack")
     distill.add_argument("--policy-id", default="crow_navigation_v10_world_model_student")
@@ -755,11 +1076,38 @@ def main(argv: Sequence[str] | None = None) -> int:
         if not 0.0 < arguments.maximum_action_delta <= 2.0:
             raise ValueError("maximum action delta must be in (0, 2]")
         payload = plan_demonstrations(arguments)
+    elif arguments.command == "extract":
+        if (
+            arguments.minimum_waypoints != 5
+            or arguments.stride <= 0
+            or arguments.horizon <= 0
+            or arguments.relabel_start_step < 0
+        ):
+            raise ValueError("accepted extraction requires five waypoints and positive stride/horizon")
+        payload = extract_accepted_demonstrations(arguments)
     else:
         if not 0.0 <= arguments.planner_blend <= 1.0:
             raise ValueError("planner blend must be in [0, 1]")
-        if arguments.planner_repeats <= 0:
-            raise ValueError("planner repeats must be positive")
+        if arguments.planner_repeats < 0:
+            raise ValueError("planner repeats must be non-negative")
+        if arguments.base_replay_repeats <= 0:
+            raise ValueError("base replay repeats must be positive")
+        if arguments.planner_observation_noise_std < 0.0:
+            raise ValueError("planner observation noise must be non-negative")
+        if arguments.route_observation_offset < 0:
+            raise ValueError("route observation offset must be non-negative")
+        if arguments.route_residual_repeats < 0:
+            raise ValueError("route residual repeats must be non-negative")
+        if (
+            arguments.route_yaw_residual_gain < 0.0
+            or arguments.route_sweep_residual_gain < 0.0
+        ):
+            raise ValueError("route residual gains must be non-negative")
+        if not (
+            0.0 <= arguments.route_minimum_waypoint_fraction
+            <= arguments.route_maximum_waypoint_fraction <= 1.0
+        ):
+            raise ValueError("route residual waypoint-fraction interval is invalid")
         payload = distill_student(arguments)
     print(json.dumps({
         "status": "ok", "command": arguments.command,

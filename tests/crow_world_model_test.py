@@ -3,14 +3,17 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
 
 import numpy as np
 
 from metalrobo.crow_world_model import (
     V10_TASK,
+    extract_accepted_demonstrations,
     load_replays,
     require_navigation_flight_data,
+    route_heading_residual_targets,
 )
 
 
@@ -94,6 +97,70 @@ class CrowWorldModelContractTest(unittest.TestCase):
             self._replay(second, world="99")
             with self.assertRaisesRegex(ValueError, "fingerprints"):
                 load_replays([first, second])
+
+    def test_extracts_only_native_five_waypoint_episode(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            replay = Path(directory) / "replay.json"
+            output = Path(directory) / "demonstrations.json"
+            self._replay(replay)
+            value = json.loads(replay.read_text())
+            for index, frame in enumerate(value["payload"]["frames"]):
+                frame["outcomes"] = {
+                    "navigation_waypoints_reached": [0, 1, 5][index],
+                    "navigation_completion": float(index == 2),
+                    "physics_error": 0.0,
+                }
+            replay.write_text(json.dumps(value))
+            payload = extract_accepted_demonstrations(SimpleNamespace(
+                replay=[str(replay)],
+                relabel_replay=None,
+                relabel_start_step=1,
+                minimum_waypoints=5,
+                stride=1,
+                horizon=1,
+                output=str(output),
+            ))
+            self.assertEqual(
+                payload["classification"],
+                "accepted native five-waypoint demonstrations",
+            )
+            self.assertEqual(len(payload["demonstrations"]), 3)
+            self.assertEqual(
+                payload["sources"][0]["completed_episode_count"], 1
+            )
+            self.assertEqual(
+                payload["demonstrations"][-1]["demonstration_kind"],
+                "accepted_completion",
+            )
+
+    def test_route_heading_residual_changes_only_steering_actions(self) -> None:
+        observations = np.zeros((3, 100), dtype=np.float32)
+        observations[0, 84:86] = [1.0, 1.0]
+        observations[0, 90] = 0.4
+        observations[1, 84:86] = [1.0, -1.0]
+        observations[1, 90] = 0.4
+        observations[2, 84:86] = [1.0, 1.0]
+        observations[2, 90] = 0.4
+        observations[2, 91] = 1.0
+        actions = np.zeros((3, 15), dtype=np.float32)
+        targets, active = route_heading_residual_targets(
+            observations,
+            actions,
+            observation_offset=84,
+            yaw_gain=0.2,
+            sweep_gain=0.1,
+            minimum_waypoint_fraction=0.39,
+            maximum_waypoint_fraction=0.41,
+        )
+        self.assertEqual(active.tolist(), [True, True, False])
+        self.assertLess(targets[0, 2], 0.0)
+        self.assertGreater(targets[0, 3], 0.0)
+        self.assertLess(targets[0, 13], 0.0)
+        self.assertGreater(targets[1, 2], 0.0)
+        self.assertLess(targets[1, 3], 0.0)
+        self.assertGreater(targets[1, 13], 0.0)
+        np.testing.assert_allclose(targets[2], actions[2])
+        np.testing.assert_allclose(targets[:, :2], actions[:, :2])
 
 
 if __name__ == "__main__":

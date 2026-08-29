@@ -27,6 +27,7 @@ private struct Options {
     var retentionBalanceDifficultyBands = false
     var retentionPriorityDifficultyBand: Int?
     var retentionPriorityFactor = 1.0
+    var retentionRolloutTeacherBlend = 0.0
     var actorObservationExtensionOffset: Int?
     var actorObservationExtensionMean: Double?
     var actorObservationExtensionInverseStandardDeviation = 1.0
@@ -67,6 +68,7 @@ private struct Options {
     var birdFlowAmericanCrowJourney = false
     var birdFlowJourneyTeacher = false
     var birdFlowJourneyStudentAuthority: Float = 0.0
+    var birdFlowNavigationCurriculum = false
     var birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant =
         .v7Hierarchical
     var birdFlowNavigationCourse: MetalRoboBirdFlowNavigationCourse =
@@ -191,6 +193,16 @@ private struct Options {
                     )
                 }
                 retentionPriorityFactor = parsed
+                index += 1
+            case "--retention-rollout-teacher-blend":
+                guard let parsed = Double(try value()), parsed.isFinite,
+                      parsed >= 0, parsed <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--retention-rollout-teacher-blend requires a finite value in [0, 1]."
+                    )
+                }
+                retentionRolloutTeacherBlend = parsed
                 index += 1
             case "--actor-observation-extension-offset":
                 actorObservationExtensionOffset = try Self.integer(
@@ -371,6 +383,8 @@ private struct Options {
                 birdFlowAmericanCrowJourney = true
             case "--birdflow-journey-teacher":
                 birdFlowJourneyTeacher = true
+            case "--birdflow-navigation-curriculum":
+                birdFlowNavigationCurriculum = true
             case "--birdflow-journey-variant":
                 switch try value() {
                 case "v7", "v7-hierarchical":
@@ -600,9 +614,18 @@ private struct Options {
                 "--retention-policy-pack cannot be empty."
             )
         }
-        if retentionPolicyPack != nil && birdFlowJourneyTeacher {
+        if retentionPolicyPack != nil && birdFlowJourneyTeacher &&
+            retentionRolloutTeacherBlend == 0
+        {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "--retention-policy-pack cannot be combined with --birdflow-journey-teacher."
+                "retention plus the journey teacher requires --retention-rollout-teacher-blend."
+            )
+        }
+        if retentionRolloutTeacherBlend != 0 &&
+            (retentionPolicyPack == nil || !birdFlowJourneyTeacher)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--retention-rollout-teacher-blend requires retention and the journey teacher."
             )
         }
         if let band = retentionMaximumDifficultyBand,
@@ -1156,6 +1179,12 @@ private final class MLXLearnerWorker {
                 String(options.retentionPriorityFactor),
             ])
         }
+        if options.retentionRolloutTeacherBlend != 0 {
+            arguments.append(contentsOf: [
+                "--retention-rollout-teacher-blend",
+                String(options.retentionRolloutTeacherBlend),
+            ])
+        }
         if let offset = options.actorObservationExtensionOffset {
             arguments.append(contentsOf: [
                 "--actor-observation-extension-offset",
@@ -1376,6 +1405,14 @@ private func makeContext(
             "--birdflow-journey-student-authority requires --birdflow-journey-teacher."
         )
     }
+    if options.birdFlowNavigationCurriculum &&
+        (!options.birdFlowAmericanCrowJourney ||
+         options.birdFlowJourneyVariant != .v10WorldModelNavigation)
+    {
+        throw MetalRoboTaskRolloutError.invalidShape(
+            "--birdflow-navigation-curriculum requires the V10 BirdFlow American-crow journey."
+        )
+    }
     let visualSensor = try makeVisualObservation(options: options)
     let inspectionVisual = try makeInspectionVisual(options: options)
     let dynamicSpheres: [MetalRoboDynamicSphere] =
@@ -1411,6 +1448,8 @@ private func makeContext(
         birdFlowJourneyTeacher: options.birdFlowJourneyTeacher,
         birdFlowJourneyStudentAuthority:
             options.birdFlowJourneyStudentAuthority,
+        birdFlowNavigationCurriculum:
+            options.birdFlowNavigationCurriculum,
         birdFlowJourneyVariant: options.birdFlowJourneyVariant,
         birdFlowNavigationCourse: options.birdFlowNavigationCourse,
         unitreeG1Task: options.unitreeG1Task
@@ -2022,12 +2061,16 @@ private enum TaskTrainMain {
                     options.birdFlowJourneyTeacher,
                 "birdflow_journey_student_authority":
                     options.birdFlowJourneyStudentAuthority,
+                "birdflow_navigation_curriculum":
+                    options.birdFlowNavigationCurriculum,
                 "retention_policy_pack":
                     options.retentionPolicyPack ?? "",
                 "retention_maximum_difficulty_band":
                     options.retentionMaximumDifficultyBand ?? -1,
                 "retention_protected_actor_only":
                     options.retentionProtectedActorOnly,
+                "retention_rollout_teacher_blend":
+                    options.retentionRolloutTeacherBlend,
                 "difficulty_sampling_exponent_override":
                     options.difficultySamplingExponentOverride,
                 "birdflow_journey_variant":

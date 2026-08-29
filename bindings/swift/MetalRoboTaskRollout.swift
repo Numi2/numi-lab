@@ -635,6 +635,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var interactionResetMaximumPhase: Float?
     public var birdFlowJourneyTeacher: Bool
     public var birdFlowJourneyStudentAuthority: Float
+    public var birdFlowNavigationCurriculum: Bool
     public var birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant
     public var birdFlowNavigationCourse: MetalRoboBirdFlowNavigationCourse
     public var unitreeG1Task: MetalRoboUnitreeG1Task
@@ -660,6 +661,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         interactionResetMaximumPhase: Float? = nil,
         birdFlowJourneyTeacher: Bool = false,
         birdFlowJourneyStudentAuthority: Float = 0.0,
+        birdFlowNavigationCurriculum: Bool = false,
         birdFlowJourneyVariant: MetalRoboBirdFlowJourneyVariant =
             .v7Hierarchical,
         birdFlowNavigationCourse: MetalRoboBirdFlowNavigationCourse =
@@ -689,6 +691,8 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         self.birdFlowJourneyTeacher = birdFlowJourneyTeacher
         self.birdFlowJourneyStudentAuthority =
             birdFlowJourneyStudentAuthority
+        self.birdFlowNavigationCurriculum =
+            birdFlowNavigationCurriculum
         self.birdFlowJourneyVariant = birdFlowJourneyVariant
         self.birdFlowNavigationCourse = birdFlowNavigationCourse
         self.unitreeG1Task = unitreeG1Task
@@ -1277,6 +1281,8 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
             configuration.birdFlowJourneyTeacher ? 1 : 0
         native.birdflow_journey_student_authority =
             configuration.birdFlowJourneyStudentAuthority
+        native.birdflow_navigation_curriculum =
+            configuration.birdFlowNavigationCurriculum ? 1 : 0
         native.birdflow_journey_variant =
             configuration.birdFlowJourneyVariant.rawValue
         native.birdflow_navigation_course =

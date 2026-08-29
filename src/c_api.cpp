@@ -637,6 +637,11 @@ void validateTaskRolloutConfiguration(
             "task-rollout journey student authority must be in [0, 1]"
         );
     }
+    if (config.birdflow_navigation_curriculum > 1u) {
+        throw std::invalid_argument(
+            "task-rollout BirdFlow navigation curriculum flag is invalid"
+        );
+    }
     if (!std::isfinite(config.difficulty_sampling_exponent_override) ||
         config.difficulty_sampling_exponent_override < 0.0f) {
         throw std::invalid_argument(
@@ -3299,6 +3304,9 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             journey
             ? config->birdflow_journey_student_authority
             : 0.0f;
+        handle->stepConfig.birdFlowNavigationCurriculum =
+            worldModelNavigation &&
+            config->birdflow_navigation_curriculum != 0u;
         if (handle->stepConfig.birdFlowJourneyTeacher) {
             // createTaskRolloutHandle establishes the resident allocation
             // before source-specific invocation flags are known. Recreate the

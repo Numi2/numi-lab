@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 43u
+#define MR_TASK_PROGRAM_ABI_VERSION 44u
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
 #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
@@ -172,6 +172,10 @@ enum MRTaskObservationOpcode : mr_u32 {
     MR_TASK_OBSERVE_CROW_GROUND_CARRIER_PHASE = 33u,
     MR_TASK_OBSERVE_AVIAN_JOURNEY_PHASE = 34u,
     MR_TASK_OBSERVE_AVIAN_JOURNEY_STAGE = 35u,
+    // Root-local current waypoint xyz, root-local following waypoint xyz,
+    // active waypoint fraction, and completion. source.y resolves the first
+    // body of the contiguous five-body Crow navigation course.
+    MR_TASK_OBSERVE_NAVIGATION_TARGET = 36u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
@@ -379,8 +383,9 @@ typedef struct MR_ALIGN16 MRTaskDispatchGPU {
     // sampled difficulty-band lower/upper bound, compiled body count, reserved.
     // MR_INVALID_INDEX in y selects the compiled TaskPack upper bound.
     mr_uint4 sampling;
-    // Crow student authority, difficulty-sampling exponent override, reserved,
-    // reserved. Invocation-scoped values do not change TaskPack identity.
+    // Crow student authority, difficulty-sampling exponent override,
+    // navigation reset curriculum, reserved. Invocation-scoped values do not
+    // change TaskPack identity.
     mr_float4 assistance;
     mr_u64 seed;
     mr_u64 policyRevision;

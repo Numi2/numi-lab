@@ -2251,6 +2251,64 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::avianJourneyPhase:
             case TaskObservationSource::avianJourneyStage:
                 break;
+            case TaskObservationSource::navigationTarget: {
+                constexpr std::array<std::string_view, 5u> courseBodies{
+                    "crow_course_gate_left",
+                    "crow_course_gate_right",
+                    "crow_course_slalom_a",
+                    "crow_course_slalom_b",
+                    "crow_course_perch",
+                };
+                if (spec.target != courseBodies.front()) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        spec.target,
+                        "navigation observation requires the first authored crow course body"
+                    );
+                }
+                for (std::size_t index = 0u;
+                     index < courseBodies.size();
+                     ++index) {
+                    bool ambiguous = false;
+                    const std::uint32_t body = uniqueIndex(
+                        model.bodyNames,
+                        courseBodies[index],
+                        ambiguous
+                    );
+                    const auto sceneBody = body == MR_INVALID_INDEX
+                        ? world.sceneBodyIndices().end()
+                        : std::find(
+                              world.sceneBodyIndices().begin(),
+                              world.sceneBodyIndices().end(),
+                              body
+                          );
+                    if (ambiguous ||
+                        sceneBody == world.sceneBodyIndices().end()) {
+                        return reject(
+                            ambiguous
+                                ? TaskCompileStatus::ambiguousSemantic
+                                : TaskCompileStatus::unresolvedSemantic,
+                            std::string(courseBodies[index]),
+                            "navigation observation course body is unresolved"
+                        );
+                    }
+                    const std::uint32_t sceneIndex =
+                        static_cast<std::uint32_t>(
+                            sceneBody - world.sceneBodyIndices().begin()
+                        );
+                    if (index == 0u) {
+                        sourceIndex = sceneIndex;
+                    } else if (sceneIndex != sourceIndex + index) {
+                        return reject(
+                            TaskCompileStatus::invalidWorld,
+                            std::string(courseBodies[index]),
+                            "navigation observation course bodies must be contiguous and ordered"
+                        );
+                    }
+                }
+                componentLimit = 8u;
+                break;
+            }
             case TaskObservationSource::supportSense:
                 componentLimit = 3u;
                 if (std::none_of(

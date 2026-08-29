@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import gc
 import json
+import math
 import os
 import sys
 from dataclasses import asdict
@@ -166,14 +167,16 @@ def _retention_policy_batch(
     balance_difficulty_bands: bool = False,
     priority_difficulty_band: int | None = None,
     priority_factor: float = 1.0,
+    rollout_teacher_blend: float = 0.0,
 ) -> MLXPolicyBatch:
     """Attach frozen actor targets and optionally reserve protected samples."""
 
     if chunk_size <= 0:
         raise ValueError("retention target chunk size must be positive")
-    if np.any(batch.teacher_weights != 0.0):
+    rollout_teacher_samples = batch.teacher_weights > 0.0
+    if np.any(rollout_teacher_samples) and rollout_teacher_blend <= 0.0:
         raise ValueError(
-            "retention policy cannot be combined with rollout teacher targets"
+            "retention plus rollout teacher requires a positive teacher blend"
         )
     if (
         reference.actor_observation_count
@@ -230,6 +233,14 @@ def _retention_policy_batch(
         means = reference.model.actor_mean(observations)
         mx.eval(means)
         targets.append(np.asarray(means, dtype=np.float32))
+    reference_targets = np.concatenate(targets, axis=0)
+    if np.any(rollout_teacher_samples):
+        reference_targets = _blend_retention_and_rollout_teacher_targets(
+            reference_targets,
+            batch.teacher_actions,
+            batch.teacher_weights,
+            rollout_teacher_blend,
+        )
     return MLXPolicyBatch.from_numpy(
         actor_observations=batch.actor_observations,
         critic_observations=batch.critic_observations,
@@ -238,10 +249,27 @@ def _retention_policy_batch(
         old_values=batch.old_values,
         advantages=batch.advantages,
         returns=batch.returns,
-        teacher_actions=np.concatenate(targets, axis=0),
+        teacher_actions=reference_targets,
         teacher_weights=retention_weights,
         policy_weights=policy_weights,
     )
+
+
+def _blend_retention_and_rollout_teacher_targets(
+    reference_targets: np.ndarray,
+    rollout_teacher_targets: np.ndarray,
+    rollout_teacher_weights: np.ndarray,
+    blend: float,
+) -> np.ndarray:
+    """Blend route corrections into a frozen actor without losing provenance."""
+    reference = np.asarray(reference_targets, dtype=np.float32)
+    teacher = np.asarray(rollout_teacher_targets, dtype=np.float32)
+    weights = np.asarray(rollout_teacher_weights, dtype=np.float32).reshape(-1, 1)
+    if reference.shape != teacher.shape or weights.shape[0] != reference.shape[0]:
+        raise ValueError("retention and rollout-teacher target shapes disagree")
+    if not np.isfinite(blend) or not 0.0 <= blend <= 1.0:
+        raise ValueError("retention rollout-teacher blend must be in [0, 1]")
+    return reference + weights * np.float32(blend) * (teacher - reference)
 
 
 def _motion_configuration_record(
@@ -856,6 +884,11 @@ def _serve(arguments: argparse.Namespace) -> int:
     )
     _bind_contract(learner, arguments)
     retention_reference = None
+    if (
+        not math.isfinite(arguments.retention_rollout_teacher_blend)
+        or not 0.0 <= arguments.retention_rollout_teacher_blend <= 1.0
+    ):
+        raise ValueError("retention rollout-teacher blend must be in [0, 1]")
     if arguments.retention_policy_pack is not None:
         if arguments.imagination_distillation_coefficient <= 0.0:
             raise ValueError(
@@ -1067,6 +1100,9 @@ def _serve(arguments: argparse.Namespace) -> int:
                         arguments.retention_priority_difficulty_band
                     ),
                     priority_factor=arguments.retention_priority_factor,
+                    rollout_teacher_blend=(
+                        arguments.retention_rollout_teacher_blend
+                    ),
                 )
             metrics = learner.update(policy_batch)
             metrics.update(motion_metrics)
@@ -1458,6 +1494,15 @@ def main() -> int:
         type=float,
         default=1.0,
         help="relative authority for the priority band; must be at least one",
+    )
+    serve.add_argument(
+        "--retention-rollout-teacher-blend",
+        type=float,
+        default=0.0,
+        help=(
+            "blend rollout teacher labels into frozen-actor targets; zero "
+            "retains strict source targets"
+        ),
     )
     serve.add_argument(
         "--actor-observation-extension-offset",

@@ -2431,14 +2431,14 @@ TaskPack makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
         {},
         "crow_course_gate_left",
         2.0f,
-        {0.42f, 0.08f, 0.0f, 0.0f},
+        {0.42f, 0.08f, 0.55f, 0.0f},
     });
     task.rewards.push_back({
         TaskRewardOperator::navigationWaypointReach,
         {},
         "crow_course_gate_left",
         0.50f,
-        {0.42f, 0.08f, 0.0f, 0.0f},
+        {0.42f, 0.08f, 0.55f, 0.0f},
     });
     task.outcomes.push_back({
         "navigation_progress", "m",
@@ -2478,9 +2478,29 @@ TaskPack makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
             });
         }
     }
+    // RGB-D remains the deployable obstacle sensor, but the sequential task
+    // goal is not inferable from geometry alone after the first gate. Publish
+    // the active and following route targets explicitly, as a planner or
+    // user command would on hardware. This changes the v10 observation
+    // fingerprint and therefore requires an actor transfer, never a silent
+    // rebind of the 684-input policy.
+    for (std::uint32_t component = 0u; component < 8u; ++component) {
+        TaskObservationOperatorSpec route{
+            .source = TaskObservationSource::navigationTarget,
+            .target = "crow_course_gate_left",
+            .component = component,
+        };
+        if (component < 6u) {
+            route.scale = 0.25f;
+        }
+        observations.actorCurrent.push_back(route);
+        observations.critic.push_back(route);
+    }
     // V10 keeps v9's deployable sensor and action dimensions to make the
-    // promoted visual actor a meaningful baseline. Distinct task and scene
-    // fingerprints prevent a v9 pack from being represented as trained v10.
+    // promoted visual actor a meaningful transfer baseline. Its explicit
+    // eight-value route suffix makes v10 a new 692-input policy ABI; distinct
+    // task and scene fingerprints prevent v9 from being represented as
+    // trained v10.
     return task;
 }
 

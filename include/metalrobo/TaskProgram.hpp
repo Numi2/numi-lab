@@ -67,6 +67,7 @@ enum class TaskObservationSource : std::uint32_t {
         MR_TASK_OBSERVE_CROW_GROUND_CARRIER_PHASE,
     avianJourneyPhase = MR_TASK_OBSERVE_AVIAN_JOURNEY_PHASE,
     avianJourneyStage = MR_TASK_OBSERVE_AVIAN_JOURNEY_STAGE,
+    navigationTarget = MR_TASK_OBSERVE_NAVIGATION_TARGET,
 };
 
 enum class TaskRewardOperator : std::uint32_t {

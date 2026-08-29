@@ -106,6 +106,9 @@ typedef struct MRTaskRolloutConfigC {
     // Fraction of normalized student action executed when the journey
     // teacher is enabled. Blended transitions remain distillation-only.
     float birdflow_journey_student_authority;
+    // V10-only sequential waypoint-stage reset curriculum. This is separate
+    // from the journey teacher and never supplies actions or labels.
+    uint32_t birdflow_navigation_curriculum;
     // Selects the exact fingerprinted journey TaskPack. V7 retains its
     // approach supervisor; V8 is neural-only during execution while still
     // permitting invocation-scoped teacher labels during training.

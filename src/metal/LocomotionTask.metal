@@ -213,6 +213,98 @@ inline float3 rotateInverse(
         cross(quaternion.xyz, tangent);
 }
 
+constant uint kCrowNavigationWaypointCount = 5u;
+
+// Accepted autonomous V10 route states immediately after waypoints one
+// through four. These are reset-only curriculum initializers, sourced from
+// CrowReplayPack payload SHA-256
+// 4b62d9d53e8bcb57e6530a7764dd7d65542f5f741076acb9fac1c3a19d37a817
+// (policy-rollout fingerprint 10801763159576431185). Root translation is
+// rebound to the active course below; articulation, attitude, and generalized
+// velocity retain a physically accepted in-flight state.
+constant float kCrowNavigationStageQ[4][20] = {
+    {1.13109732f, 0.198652461f, 0.560217023f, -0.0400673859f,
+     0.122633241f, 0.00768928742f, 0.99161309f, 0.00947896484f,
+     0.0130759897f, 0.512515604f, 0.51802206f, -0.0287190545f,
+     -0.0089144418f, 0.0458946526f, -0.12404716f, 0.11143811f,
+     -0.210221276f, -0.111703545f, 0.132944226f, -0.205960587f},
+    {2.07538986f, -0.289323628f, 0.98589772f, -0.0608165562f,
+     0.122880273f, 0.0230823681f, 0.990287304f, 0.00421636784f,
+     0.0143015143f, 0.882378876f, 0.904633701f, -0.0316998027f,
+     -0.0119011989f, 0.0367992967f, -0.116615199f, 0.123281136f,
+     -0.207498387f, -0.135588437f, 0.194509506f, -0.210119113f},
+    {3.53358364f, 0.123002209f, 1.01140499f, -0.0692296252f,
+     0.137303889f, 0.0254606474f, 0.987778604f, 0.00786541961f,
+     0.0162006561f, 0.584277332f, 0.582217872f, -0.0376923792f,
+     -0.0246154647f, 0.00337038911f, -0.235581681f, 0.317494512f,
+     -0.233746067f, -0.208040729f, 0.322199345f, -0.194724351f},
+    {4.13695097f, 0.439768612f, 0.915266156f, -0.0679064244f,
+     0.145325199f, 0.0255004298f, 0.986721337f, 0.0103961304f,
+     0.00122527662f, 0.00248511042f, 0.004241494f, -0.00907188933f,
+     0.00870299526f, 0.0876418278f, -0.162871778f, 0.163604558f,
+     -0.225277692f, -0.142725363f, 0.173754305f, -0.193642572f},
+};
+
+constant float kCrowNavigationStageV[4][19] = {
+    {1.48302794f, 0.487196326f, 0.787553549f, -0.129934981f,
+     -0.0500320196f, -0.0056963223f, 0.154043794f, 0.380192518f,
+     9.52633858f, 9.98314095f, -0.0280686654f, 0.107957162f,
+     0.140687004f, -0.0227479655f, 0.202757075f, 0.0659321472f,
+     -0.0927779824f, 0.4192985f, -0.00824963674f},
+    {1.38498616f, -0.0172036402f, 0.680403054f, 0.00726645952f,
+     -0.0993666872f, 0.0260363314f, -0.110127933f, -0.0660114512f,
+     5.18012094f, 5.37327528f, -0.123749457f, -0.0702607855f,
+     0.0449913517f, 0.0155586815f, 0.10798756f, 0.0474021956f,
+     -0.0450535789f, 0.176856846f, 0.0215222314f},
+    {1.76297975f, 0.848585129f, -0.454164982f, -0.00928883348f,
+     0.0192305148f, 0.050667692f, 0.00690900488f, -0.0199604463f,
+     -5.65933657f, -5.68640947f, -0.0512191877f, -0.0647472143f,
+     0.0468573384f, -0.0589931272f, 0.0577941462f, -0.0283653978f,
+     0.0314976647f, -0.063341707f, 0.0103004994f},
+    {1.95027649f, 1.09029245f, -0.335707068f, 0.000370803609f,
+     0.0730518326f, -0.00673860079f, 0.0169121493f, 0.00446468825f,
+     5.35440922f, 5.26737833f, 0.0688800886f, 0.0805166662f,
+     0.0783760399f, 0.0105284788f, -0.0350894667f, -0.0194789935f,
+     0.0115323877f, -0.0463652983f, -0.0318701155f},
+};
+
+inline float3 crowNavigationWaypointTarget(
+    device const MRBodyStateGPU* sceneBodies,
+    const uint courseStart,
+    const uint waypoint
+) {
+    const float3 gateLeft = sceneBodies[courseStart].position.xyz;
+    const float3 gateRight = sceneBodies[courseStart + 1u].position.xyz;
+    const float3 slalomA = sceneBodies[courseStart + 2u].position.xyz;
+    const float3 slalomB = sceneBodies[courseStart + 3u].position.xyz;
+    const float3 perch = sceneBodies[courseStart + 4u].position.xyz;
+    if (waypoint == 1u) {
+        return slalomA + float3(
+            0.0f,
+            slalomA.y >= 0.0f ? -0.75f : 0.75f,
+            0.25f
+        );
+    }
+    if (waypoint == 2u) {
+        return slalomB + float3(
+            0.0f,
+            slalomB.y >= 0.0f ? -0.75f : 0.75f,
+            0.25f
+        );
+    }
+    if (waypoint == 3u) {
+        return perch + float3(-0.50f, 0.0f, 0.30f);
+    }
+    if (waypoint == 4u) {
+        // The authored perch spans 1.44 m across Y. The route exits the
+        // second slalom on its positive-Y side, so the landing target stays
+        // on that reachable half of the physical surface instead of asking
+        // the bird to cross back through the perch centerline at touchdown.
+        return perch + float3(0.0f, 0.55f, 0.12f);
+    }
+    return 0.5f * (gateLeft + gateRight);
+}
+
 inline float4 quaternionProduct(
     const float4 a,
     const float4 b
@@ -1163,6 +1255,34 @@ inline float cleanObservation(
                 : 1.0f)
             : 0.0f;
         break;
+    case MR_TASK_OBSERVE_NAVIGATION_TARGET: {
+        const uint waypoint = min(
+            uint(max(state.navigation.z, 0.0f)),
+            kCrowNavigationWaypointCount
+        );
+        if (operation.source.z < 6u &&
+            waypoint < kCrowNavigationWaypointCount) {
+            const uint requested = operation.source.z < 3u
+                ? waypoint
+                : min(waypoint + 1u,
+                      kCrowNavigationWaypointCount - 1u);
+            const float3 relative = rotateInverse(
+                orientation,
+                crowNavigationWaypointTarget(
+                    sceneBodies,
+                    operation.source.y,
+                    requested
+                ) - rootWorldPosition(program, q)
+            );
+            value = relative[operation.source.z % 3u];
+        } else if (operation.source.z == 6u) {
+            value = float(waypoint) /
+                float(kCrowNavigationWaypointCount);
+        } else {
+            value = state.navigation.w;
+        }
+        break;
+    }
     case MR_TASK_OBSERVE_RECOVERY_EVENT:
         switch (operation.source.z) {
         case 0u:
@@ -3112,6 +3232,84 @@ kernel void mr_locomotion_task_observe(
             MR_INVALID_INDEX
         );
         state.navigation = float4(0.0f);
+        // The invocation-scoped navigation curriculum exposes PPO to every
+        // sequential route stage while leaving autonomous evaluation's
+        // waypoint-zero reset unchanged. It supplies no actions or labels;
+        // the policy retains full physical action authority.
+        if ((program.schedule.w &
+             MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION) != 0u &&
+            dispatch.assistance.z != 0.0f) {
+            uint navigationCourseStart = MR_INVALID_INDEX;
+            for (uint observation = 0u;
+                 observation < program.counts0.y + program.counts3.w;
+                 ++observation) {
+                if (actorOperators[observation].source.x ==
+                    MR_TASK_OBSERVE_NAVIGATION_TARGET) {
+                    navigationCourseStart =
+                        actorOperators[observation].source.y;
+                    break;
+                }
+            }
+            if (navigationCourseStart != MR_INVALID_INDEX) {
+                const uint slot = (environment + episode) % 8u;
+                const uint stage = min(
+                    slot,
+                    kCrowNavigationWaypointCount - 1u
+                );
+                // Full-route replay reaches stages one through four near
+                // steps 316, 361, 407, and 423. Match that observable journey
+                // phase for independent-stage resets; otherwise a stage-four
+                // sample at phase zero teaches a different feed-forward state
+                // than the final approach seen in autonomous completion.
+                constexpr uint stageStep[5] = {
+                    0u, 300u, 350u, 400u, 425u,
+                };
+                state.episode.x = stageStep[stage];
+                state.navigation.z = float(stage);
+                if (stage > 0u) {
+                    const uint templateIndex = stage - 1u;
+                    for (uint index = 3u;
+                         index < min(dispatch.counts.z, 20u);
+                         ++index) {
+                        resetQ[qBase + program.root.z + index] =
+                            kCrowNavigationStageQ[templateIndex][index];
+                    }
+                    for (uint index = 0u;
+                         index < min(dispatch.counts.w, 19u);
+                         ++index) {
+                        resetV[vBase + program.root.w + index] =
+                            kCrowNavigationStageV[templateIndex][index];
+                    }
+                    const float3 start = crowNavigationWaypointTarget(
+                        resetScene + sceneBase,
+                        navigationCourseStart,
+                        stage - 1u
+                    );
+                    const float3 target = crowNavigationWaypointTarget(
+                        resetScene + sceneBase,
+                        navigationCourseStart,
+                        stage
+                    );
+                    const float3 direction = normalizedOr(
+                        target - start,
+                        float3(1.0f, 0.0f, 0.0f)
+                    );
+                    resetQ[qBase + program.root.z + 0u] = start.x;
+                    resetQ[qBase + program.root.z + 1u] = start.y;
+                    resetQ[qBase + program.root.z + 2u] = start.z;
+                    // Preserve the accepted speed while aligning its planar
+                    // direction to the rebound course segment.
+                    const float acceptedSpeed = max(length(float2(
+                        resetV[vBase + program.root.w + 0u],
+                        resetV[vBase + program.root.w + 1u]
+                    )), 0.25f);
+                    resetV[vBase + program.root.w + 0u] =
+                        acceptedSpeed * direction.x;
+                    resetV[vBase + program.root.w + 1u] =
+                        acceptedSpeed * direction.y;
+                }
+            }
+        }
         const bool projectileEpisode = randomUnit(
             dispatch,
             environment,
@@ -3536,7 +3734,8 @@ kernel void mr_locomotion_task_observe(
 inline float birdFlowJourneyTeacherAction(
     const uint action,
     const MRTaskStateGPU state,
-    const float controlStepSeconds
+    const float controlStepSeconds,
+    const bool navigation
 ) {
     const float seconds =
         float(state.episode.x) * controlStepSeconds;
@@ -3545,15 +3744,16 @@ inline float birdFlowJourneyTeacherAction(
     const bool isolatedCruise = state.episode.z == 3u;
     const bool takeoffCruise = state.episode.z == 4u;
     const bool straightCruise =
-        takeoffOnly || isolatedCruise || takeoffCruise;
+        takeoffOnly || isolatedCruise || takeoffCruise || navigation;
     const float launchStart = groundOnly ? 32.0f
+        : navigation ? 2.0f
         : takeoffOnly || isolatedCruise ? 0.0f
         : takeoffCruise ? 1.0f : 5.0f;
     const float approachStart = straightCruise ? 32.0f : 21.0f;
     const float landingStart = straightCruise ? 32.0f : 27.0f;
     const bool airborne = seconds >= launchStart && seconds < landingStart;
     float targetHeight = 0.1873f;
-    if (isolatedCruise) {
+    if (isolatedCruise || navigation) {
         targetHeight = 0.85f;
     } else if (seconds >= launchStart && seconds < launchStart + 4.0f) {
         targetHeight = mix(
@@ -3822,7 +4022,9 @@ kernel void mr_locomotion_task_apply_actions(
             ? birdFlowJourneyTeacherAction(
                   action,
                   state,
-                  dispatch.timing.x
+                  dispatch.timing.x,
+                  (program.schedule.w &
+                   MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION) != 0u
               )
             : 0.0f;
         // Full-journey distillation adds flight and approach to an actor that
@@ -5190,6 +5392,67 @@ kernel void mr_locomotion_task_complete(
             yawBasis.x *
                 rootLinearVelocity.y
     );
+    if ((program.schedule.w &
+         MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION) != 0u) {
+        uint navigationCourseStart = MR_INVALID_INDEX;
+        for (uint rewardIndex = 0u;
+             rewardIndex < program.counts1.w;
+             ++rewardIndex) {
+            const MRTaskRewardOperatorGPU operation = rewards[rewardIndex];
+            if (operation.source.x ==
+                    MR_TASK_REWARD_NAVIGATION_WAYPOINT_PROGRESS ||
+                operation.source.x ==
+                    MR_TASK_REWARD_NAVIGATION_WAYPOINT_REACH) {
+                navigationCourseStart = operation.source.z;
+                break;
+            }
+        }
+        const uint waypoint = min(
+            uint(max(state.navigation.z, 0.0f)),
+            kCrowNavigationWaypointCount
+        );
+        if (navigationCourseStart != MR_INVALID_INDEX &&
+            waypoint < kCrowNavigationWaypointCount) {
+            const float3 target = crowNavigationWaypointTarget(
+                sceneState + sceneBase,
+                navigationCourseStart,
+                waypoint
+            );
+            const float3 rootLocalDelta = rotateInverse(
+                orientation,
+                target - rootWorldPosition(program, q)
+            );
+            const float planarDistance = length(rootLocalDelta.xy);
+            const float2 direction = planarDistance > 1.0e-5f
+                ? rootLocalDelta.xy / planarDistance
+                : float2(1.0f, 0.0f);
+            const float speed = 0.35f * smoothstep(
+                0.10f,
+                0.60f,
+                planarDistance
+            );
+            const float headingError = atan2(
+                rootLocalDelta.y,
+                rootLocalDelta.x
+            );
+            state.commandAndPhase.xyz = float3(
+                speed * direction.x,
+                speed * direction.y,
+                clamp(1.40f * headingError, -0.45f, 0.45f)
+            );
+            // The teacher reads this accepted-state feedback on the next
+            // transaction. It remains a label and action blend only when the
+            // rollout explicitly enables teacher sampling.
+            state.commandExtension.xyz = float3(
+                headingError,
+                baseAngular.z,
+                yawFrameLinear.x
+            );
+        } else {
+            state.commandAndPhase.xyz = float3(0.0f);
+            state.commandExtension.xyz = float3(0.0f);
+        }
+    }
     if (avianJourneyTakeoffCruise) {
         // Feed the next teacher action from accepted state without a host
         // loop. xyz are heading error, yaw rate, and forward airspeed; w
@@ -5532,45 +5795,16 @@ kernel void mr_locomotion_task_complete(
     bool navigationWaypointReached = false;
     if (navigationConfigured &&
         navigationCourseStart != MR_INVALID_INDEX) {
-        constexpr uint navigationWaypointCount = 5u;
         const uint waypoint = min(
             uint(max(state.navigation.z, 0.0f)),
-            navigationWaypointCount
+            kCrowNavigationWaypointCount
         );
-        if (waypoint < navigationWaypointCount) {
-            const float3 gateLeft = sceneState[
-                sceneBase + navigationCourseStart
-            ].position.xyz;
-            const float3 gateRight = sceneState[
-                sceneBase + navigationCourseStart + 1u
-            ].position.xyz;
-            const float3 slalomA = sceneState[
-                sceneBase + navigationCourseStart + 2u
-            ].position.xyz;
-            const float3 slalomB = sceneState[
-                sceneBase + navigationCourseStart + 3u
-            ].position.xyz;
-            const float3 perch = sceneState[
-                sceneBase + navigationCourseStart + 4u
-            ].position.xyz;
-            float3 target = 0.5f * (gateLeft + gateRight);
-            if (waypoint == 1u) {
-                target = slalomA + float3(
-                    0.0f,
-                    slalomA.y >= 0.0f ? -0.75f : 0.75f,
-                    0.25f
-                );
-            } else if (waypoint == 2u) {
-                target = slalomB + float3(
-                    0.0f,
-                    slalomB.y >= 0.0f ? -0.75f : 0.75f,
-                    0.25f
-                );
-            } else if (waypoint == 3u) {
-                target = perch + float3(-0.50f, 0.0f, 0.30f);
-            } else if (waypoint == 4u) {
-                target = perch + float3(0.0f, 0.0f, 0.12f);
-            }
+        if (waypoint < kCrowNavigationWaypointCount) {
+            const float3 target = crowNavigationWaypointTarget(
+                sceneState + sceneBase,
+                navigationCourseStart,
+                waypoint
+            );
             const float distance = length(
                 target - rootWorldPosition(program, q)
             );
@@ -5589,7 +5823,7 @@ kernel void mr_locomotion_task_complete(
                 navigationWaypointReached ? 0.0f : distance,
                 state.navigation.y + navigationStepProgress,
                 float(nextWaypoint),
-                nextWaypoint == navigationWaypointCount ? 1.0f : 0.0f
+                nextWaypoint == kCrowNavigationWaypointCount ? 1.0f : 0.0f
             );
         }
     }
