@@ -1850,6 +1850,17 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 "coupled Matter execution requires MetalWorld environment status";
             return diagnostics;
         }
+        const std::uint64_t requiredFEMExternalForceCount =
+            static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+            state.dispatch.femNodeCount;
+        if ((request.femExternalForces == nullptr) !=
+                (request.femExternalForceCount == 0u) ||
+            (request.femExternalForces != nullptr &&
+             request.femExternalForceCount != requiredFEMExternalForceCount)) {
+            diagnostics.message =
+                "borrowed FEM external-force field must exactly cover every environment and cooked node";
+            return diagnostics;
+        }
         if (request.rigid.currentBodyCount >
                 request.rigid.currentBodyStride ||
             request.rigid.bodyWrenchCount >
@@ -1953,6 +1964,18 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
 
         id<MTLCommandBuffer> commandBuffer =
             (__bridge id<MTLCommandBuffer>)request.commandBuffer;
+        id<MTLBuffer> femExternalForces = request.femExternalForces == nullptr
+            ? state.dummy
+            : (__bridge id<MTLBuffer>)request.femExternalForces;
+        const std::uint32_t hasFEMExternalForces =
+            request.femExternalForces == nullptr ? 0u : 1u;
+        if (request.femExternalForces != nullptr &&
+            femExternalForces.length <
+                static_cast<NSUInteger>(request.femExternalForceCount) *
+                    4u * sizeof(float)) {
+            diagnostics.message = "borrowed FEM external-force Metal buffer is undersized";
+            return diagnostics;
+        }
         if (commandBuffer.commandQueue == nil ||
             commandBuffer.commandQueue.device.registryID !=
                 state.device.registryID) {
@@ -3191,6 +3214,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         [encoder setBuffer:state.statuses offset:0u atIndex:6u];
                         [encoder setBuffer:state.femTopologyNodesCandidate
                                      offset:0u atIndex:7u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:8u];
                     }
                 );
                 dispatchThreads(
@@ -3559,6 +3583,9 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:19u];
                 [encoder setBytes:&preserveSolution
                            length:sizeof(preserveSolution) atIndex:20u];
+                [encoder setBuffer:femExternalForces offset:0u atIndex:21u];
+                [encoder setBytes:&hasFEMExternalForces
+                           length:sizeof(hasFEMExternalForces) atIndex:22u];
             });
             dispatchThreads("nm_fgmres_clear_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {
@@ -4709,6 +4736,9 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:19u];
                 [encoder setBytes:&preserveSolution
                            length:sizeof(preserveSolution) atIndex:20u];
+                [encoder setBuffer:femExternalForces offset:0u atIndex:21u];
+                [encoder setBytes:&hasFEMExternalForces
+                           length:sizeof(hasFEMExternalForces) atIndex:22u];
             });
             if (!encodeCoupledPrimalContact(
                     true,

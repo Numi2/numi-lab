@@ -558,10 +558,14 @@ inline bool surfacePairEligible(
     const NMMatterDispatchGPU dispatch,
     const NMContinuumSurfacePrimitiveGPU left,
     const NMContinuumSurfacePrimitiveGPU right,
+    device const NMContinuumObjectGPU* objects,
     device const NMFEMTopologyNodeGPU* topologyNodes,
     const uint environment
 ) {
     if (left.nodesAndObject.w != right.nodesAndObject.w) return true;
+    if (left.nodesAndObject.w < dispatch.objectCount &&
+        (objects[left.nodesAndObject.w].flags &
+            NM_OBJECT_DISABLE_SELF_CONTACT) != 0u) return false;
     if (left.identity.y == NM_CONTINUUM_SURFACE_POINT &&
         right.identity.y == NM_CONTINUUM_SURFACE_POINT) return false;
     return !surfacePrimitivesShareNode(
@@ -577,6 +581,7 @@ kernel void nm_contact_build_deformable_candidates(
     device uint* candidateCounts [[buffer(5)]],
     device NMMatterStatusGPU* statuses [[buffer(6)]],
     device const NMFEMTopologyNodeGPU* topologyNodes [[buffer(7)]],
+    device const NMContinuumObjectGPU* objects [[buffer(8)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
@@ -620,7 +625,7 @@ kernel void nm_contact_build_deformable_candidates(
                     (right.identity.w & NM_TOPOLOGY_ACTIVE) != 0u &&
                     surfaceAABBOverlap(left, right) &&
                     surfacePairEligible(
-                        dispatch, left, right, topologyNodes, environment);
+                        dispatch, left, right, objects, topologyNodes, environment);
             }
             const uint prefix = simd_prefix_exclusive_sum(
                 selected ? 1u : 0u);

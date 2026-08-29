@@ -389,6 +389,9 @@ struct ObjectSource {
     bool twoWayCoupling = true;
     bool adaptive = false;
     bool identifiable = false;
+    // Thin solids may opt out of same-object deformable contact while still
+    // participating in contact with other continuum and rigid objects.
+    bool deformableSelfContact = true;
     std::uint32_t rigidBinding = NM_INVALID_INDEX;
     double characteristicLength = 0.01;
     // MPM uses a fixed-capacity Eulerian background grid. These bounds are
@@ -651,6 +654,11 @@ struct EncodeRequest {
     // reconciliation uses it to roll continuum state back whenever the
     // enclosing rigid transaction rejected that environment.
     void* environmentStatuses = nullptr;
+    // Optional environment-major nodal force field, one float4 per cooked FEM
+    // node. It enters the same implicit mechanical residual as gravity and
+    // constitutive force. Callers retain ownership; w is ignored. A non-null
+    // field must cover exactly environmentCount * femNodeCount records.
+    void* femExternalForces = nullptr; // id<MTLBuffer>, float4
     // Optional borrowed final MetalWorld contact solve, laid out
     // [environment][rigidContactConstraintStride].  Matter consumes it only
     // during a final post-commit adaptive transfer to re-promote the exact
@@ -669,6 +677,7 @@ struct EncodeRequest {
     std::uint32_t mutationCommandStride = 0u;
     std::uint32_t learnedWeightCount = 0u;
     std::uint32_t learnedWeightRevision = 0u;
+    std::uint32_t femExternalForceCount = 0u;
     std::uint64_t expectedMutationFingerprint = 0u;
     std::uint64_t expectedLearnedFingerprint = 0u;
     std::uint32_t resetMaskStepStride = 0u;

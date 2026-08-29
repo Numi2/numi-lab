@@ -1354,6 +1354,7 @@ target_compile_definitions(
     metalrobo_numilab_human_myosim_visual_probe
     PRIVATE
         NUMI_HUMAN_PASSIVE_TISSUE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/passive_skeletal_muscle_unqualified.nmatter"
+        NUMI_HUMAN_PECTORALIS_FASCIA_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_pectoralis_fascia_goh_uniaxial.nmatter"
         NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
 )
 target_compile_options(

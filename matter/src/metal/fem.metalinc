@@ -771,6 +771,8 @@ kernel void nm_fem_build_mechanical_residual(
     device const NMMixedMaterialGPU* mixedMaterials [[buffer(18)]],
     device const NMFEMFieldStateGPU* fields [[buffer(19)]],
     constant uint& preserveSolution [[buffer(20)]],
+    device const float4* externalForces [[buffer(21)]],
+    constant uint& hasExternalForces [[buffer(22)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
@@ -820,8 +822,12 @@ kernel void nm_fem_build_mechanical_residual(
          node.velocityAndInverseMass.xyz);
     const bool fixedVelocity = node.restAndFixed.w > 0.5f ||
         node.positionAndMass.w <= 0.0f;
+    const float3 externalForce = hasExternalForces != 0u
+        ? externalForces[global].xyz
+        : float3(0.0f);
     const float3 unconstrainedRhs = dt * (
-        internalForce + node.positionAndMass.w * dispatch.gravityAndTimestep.xyz
+        internalForce + externalForce +
+        node.positionAndMass.w * dispatch.gravityAndTimestep.xyz
     ) - momentumCorrection;
     const float3 rhs = fixedVelocity ? float3(0.0f) : unconstrainedRhs;
     const float inverseMass = node.velocityAndInverseMass.w;
