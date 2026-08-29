@@ -373,6 +373,31 @@ therefore rejected and no policy is promoted. The exact capacity and measured
 reset distribution are retained for a future terminal objective, not treated
 as reliable five-waypoint evidence.
 
+An action-wise audit of V124's 2,155 qualified samples shows exactly where the
+accepted-state expert differs from the student. Mean absolute corrections are
+`0.167` on actions 0/1, `0.083` on actions 4/5, and `0.548` on action 13; all
+other action rows differ by exactly zero. V125 therefore adds only action 13
+to the four trained wing rows. Its fresh local screen improves from 202 to 247
+completion events (`+22.3%`), but all three established full-route seeds are
+again exactly count-neutral at `[189, 118, 30, 15, 7]`. Doses 2x and 4x are
+neutral on the coarse seed and 8x removes all four completions.
+
+Two outcome-driven alternatives also fail transfer. V126 applies PPO directly
+to native stage-four return with fixed 0.08 exploration; its local completion
+density stays at 210...211 events through revision 6 and the only checkpoint
+with better reset-pool coverage is full-route neutral. V127 performs binary
+return-weighted regression on sampled actions from physically completed exact
+arrival episodes. Its best local revision moves from 226 to 232 events
+(`+2.7%`) but is full-route neutral. Finally, V128 admits expert labels from
+both successful and failed waypoint-four episodes. It moves a fresh local
+screen from 216 to 226 events (`+4.6%`) and is also full-route neutral.
+
+These results close the one-step terminal objective family for this cycle.
+More epochs or residual dose are not justified by the measured transfer. The
+next development objective is sequence-level terminal shooting or planning
+from the captured failure arrivals; distillation should begin only after a
+planned action sequence flips a failed native physical rollout.
+
 ### Retained route-residual candidate
 
 The retained development candidate is revision 41 from
