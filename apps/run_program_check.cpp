@@ -661,6 +661,9 @@ int main() {
                     MR_TASK_REWARD_NAVIGATION_WAYPOINT_REACH &&
                 compiledNavigation.task().rewardOperators().back().source.z !=
                     MR_INVALID_INDEX &&
+                (compiledNavigation.task().header().schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_FIRST_SLALOM) !=
+                    0u &&
                 compiledNavigation.task().randomizationOperators().size() ==
                     compiledVisualJourney.task().randomizationOperators().size() + 15u &&
                 std::ranges::count_if(

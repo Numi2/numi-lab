@@ -4291,7 +4291,13 @@ TaskCompileDiagnostics compileTaskProgram(
         staged->header.schedule.w |= MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY;
     }
     if (pack.id == "birdflow_american_crow_navigation_v10_world_model") {
-        staged->header.schedule.w |= MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION;
+        // Previewing the upcoming slalom turn changes the task command
+        // reference while retaining the authored waypoint geometry, reward,
+        // reach radius, and policy action authority. Make that semantic
+        // revision explicit in the compiled fingerprint.
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION |
+            MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_FIRST_SLALOM;
     }
     if (threatGroup != MR_INVALID_INDEX) {
         staged->header.schedule.w |=

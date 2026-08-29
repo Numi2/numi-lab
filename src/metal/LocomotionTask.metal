@@ -214,6 +214,10 @@ inline float3 rotateInverse(
 }
 
 constant uint kCrowNavigationWaypointCount = 5u;
+// The accepted V10 learner reliably reaches the gate and first slalom but
+// commonly misses the alternating second slalom. Preview only that measured
+// transition; applying it at gate acquisition was screened and regressed.
+constant uint kCrowNavigationTurnPreviewWaypoint = 1u;
 
 // Accepted autonomous V10 route states immediately after waypoints one
 // through four. These are reset-only curriculum initializers, sourced from
@@ -5497,16 +5501,55 @@ kernel void mr_locomotion_task_complete(
                 rootLocalDelta.y,
                 rootLocalDelta.x
             );
+            float commandedHeadingError = headingError;
+            if ((program.schedule.w &
+                 MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_FIRST_SLALOM) !=
+                    0u &&
+                waypoint == kCrowNavigationTurnPreviewWaypoint) {
+                // Hold the active waypoint as the positional target so the
+                // 8 cm success sphere and its native progress reward remain
+                // unchanged. Near the first slalom, blend only the yaw
+                // reference toward the alternating segment. This gives the
+                // learned flier time to bank rather than demanding a
+                // point-to-point heading reversal at crossing.
+                const float3 nextTarget = crowNavigationWaypointTarget(
+                    sceneState + sceneBase,
+                    navigationCourseStart,
+                    waypoint + 1u
+                );
+                const float3 localOutgoing = rotateInverse(
+                    orientation,
+                    nextTarget - target
+                );
+                const float outgoingLength = length(localOutgoing.xy);
+                if (outgoingLength > 1.0e-5f) {
+                    const float nearWaypoint = 1.0f - smoothstep(
+                        0.16f,
+                        0.70f,
+                        planarDistance
+                    );
+                    const float outgoingHeading = atan2(
+                        localOutgoing.y,
+                        localOutgoing.x
+                    );
+                    const float headingDelta = atan2(
+                        sin(outgoingHeading - headingError),
+                        cos(outgoingHeading - headingError)
+                    );
+                    commandedHeadingError = headingError +
+                        0.45f * nearWaypoint * headingDelta;
+                }
+            }
             state.commandAndPhase.xyz = float3(
                 speed * direction.x,
                 speed * direction.y,
-                clamp(1.40f * headingError, -0.45f, 0.45f)
+                clamp(1.40f * commandedHeadingError, -0.45f, 0.45f)
             );
             // The teacher reads this accepted-state feedback on the next
             // transaction. It remains a label and action blend only when the
             // rollout explicitly enables teacher sampling.
             state.commandExtension.xyz = float3(
-                headingError,
+                commandedHeadingError,
                 baseAngular.z,
                 yawFrameLinear.x
             );

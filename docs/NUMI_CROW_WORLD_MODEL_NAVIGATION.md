@@ -14,6 +14,14 @@ flight.
   preserves v9's 684 inputs, inserts the original eight route values at actor
   index 84, and inserts a five-way stage one-hot at index 92 before the 600
   visual inputs.
+- The current V10 task-fingerprint revision keeps every authored waypoint,
+  reach radius, reward, and policy action unchanged, but previews the following
+  route segment in the native yaw command inside 0.70 m of the first slalom.
+  It is designed to make the measured alternating-slalom bottleneck bankable
+  rather than changing what counts as five-waypoint completion. The earlier
+  broad-preview screen uses a different task fingerprint and is retained as
+  rejected diagnostic evidence. All prior V10 PolicyPacks must be explicitly
+  transferred because this command semantic is fingerprinted.
 - Sensor contract: four 16x9 instance-masked depth frames at history offsets
   0, 3, 8, and 18, plus 24 derived features
 - Course: two gate bodies, two slalom bodies, and a final perch, all ordinary

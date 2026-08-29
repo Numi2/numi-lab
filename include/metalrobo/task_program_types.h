@@ -59,6 +59,16 @@ enum MRTaskProgramFlags : mr_u32 {
     // waypoint objective. The route state is task evidence only and never
     // writes actions or bypasses the deployed visual observation contract.
     MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION = 1u << 20u,
+    // The navigation yaw target begins to rotate toward the following
+    // landmark while positional tracking remains bound to the active one.
+    // This is a task-semantic control reference, so it has a dedicated ABI
+    // bit rather than silently changing a V10 PolicyPack's runtime.
+    MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW = 1u << 21u,
+    // A narrow preview revision limited to the first slalom exit. Keep it
+    // distinct from the broad experimental reference so rejected route
+    // screens cannot share a task fingerprint with the candidate.
+    MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_FIRST_SLALOM =
+        1u << 22u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {
