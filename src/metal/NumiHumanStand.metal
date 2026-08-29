@@ -567,6 +567,15 @@ kernel void mr_numi_human_stand_step(
                 body.dampingAndSpeedLimits.x * linear;
             value += dot(jw, requiredTorque) + dot(jv, requiredForce);
         }
+        device const MRDofPropertiesGPU& dof =
+            dofs[articulation.vOffset + row];
+        // MyoSim joint damping is passive generalized resistance. The Human
+        // payload deliberately carries it without MR_DOF_FLAG_DRIVE so these
+        // coordinates remain muscle-driven rather than becoming hidden PD
+        // motors.
+        if ((dof.flags & MR_DOF_FLAG_DRIVE) == 0u) {
+            value += dof.drive.y * vState[vBase + row];
+        }
         bias[row] = value;
     }
 
@@ -608,7 +617,13 @@ kernel void mr_numi_human_stand_step(
             ) + body.massAndInverseMass.x * dot(leftLinear, rightLinear);
         }
         if (row == column) {
-            value += dofs[articulation.vOffset + row].drive.z;
+            device const MRDofPropertiesGPU& dof =
+                dofs[articulation.vOffset + row];
+            value += dof.drive.z;
+            if ((dof.flags & MR_DOF_FLAG_DRIVE) == 0u) {
+                // Backward-Euler passive damping: (M + hD)a = tau-b-Dv.
+                value += dispatch.groundPointAndTimestep.w * dof.drive.y;
+            }
         }
         factor[index] = value;
     }

@@ -392,7 +392,10 @@ typedef struct MR_ALIGN16 MRDofPropertiesGPU {
     // These limits are authoritative metadata; this record does not imply
     // post-step clamping or an actuator/limit constraint implementation.
     mr_float4 limits;
-    // stiffness, damping, armature inertia, dry-friction loss.
+    // stiffness, damping, armature inertia, dry-friction loss. When
+    // MR_DOF_FLAG_DRIVE is absent, stiffness must be zero and damping is a
+    // passive generalized viscous coefficient. This lets source models retain
+    // joint damping without falsely making a muscle-driven coordinate a motor.
     // Armature is physical generalized inertia and is independent of whether
     // a drive is enabled. The generic dynamics operators consume armature;
     // the explicit CPU articulated-actuation evaluator consumes named-model

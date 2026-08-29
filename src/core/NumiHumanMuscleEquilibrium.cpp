@@ -20,9 +20,11 @@ struct PoseState {
     std::vector<double> residual;
     std::vector<double> limitForce;
     std::vector<double> equalityForce;
+    std::vector<double> accelerationResidual;
     std::vector<double> weights;
     double residualRms = 0.0;
     double maximumResidual = 0.0;
+    double maximumAccelerationResidual = 0.0;
     double objective = 0.0;
     std::uint32_t activationSweeps = 0u;
 };
@@ -30,6 +32,13 @@ struct PoseState {
 struct ResolvedMuscle {
     double pathLength = 0.0;
     std::vector<double> jacobian;
+};
+
+struct AccelerationProjection {
+    std::vector<std::uint32_t> independentDofs;
+    std::vector<std::vector<std::pair<std::uint32_t, double>>> columns;
+    // Lower-triangular Cholesky factor, row-major compact independent space.
+    std::vector<double> factor;
 };
 
 NumiHumanMuscleEquilibriumDiagnostics failure(
@@ -188,6 +197,167 @@ NumiHumanMuscleEquilibriumDiagnostics gravityTarget(
     return {};
 }
 
+NumiHumanMuscleEquilibriumDiagnostics buildAccelerationProjection(
+    const EngineModel& model,
+    const std::uint32_t articulationIndex,
+    const std::span<const double> q,
+    const std::span<const MRNumiHumanJointEqualityGPU> equalities,
+    const ArticulatedDynamicsConfig& dynamicsConfig,
+    AccelerationProjection& projection
+) {
+    const MRArticulationGPU& articulation =
+        model.articulations[articulationIndex];
+    const std::size_t nv = articulation.nv;
+    const std::size_t firstInternal =
+        articulation.rootType == MR_ROOT_FLOATING ? 6u : 0u;
+    std::vector<std::uint8_t> dependent(nv, 0u);
+    std::vector<double> derivative(equalities.size(), 0.0);
+    for (std::size_t index = 0u; index < equalities.size(); ++index) {
+        NumiHumanJointEqualityEvaluation evaluation;
+        const auto diagnostics = evaluateNumiHumanJointEquality(
+            equalities[index], q, evaluation
+        );
+        if (!diagnostics.succeeded() || equalities[index].indices.y >= nv ||
+            (equalities[index].indices.w != MR_INVALID_INDEX &&
+             equalities[index].indices.w >= nv)) {
+            auto failed = failure(
+                NumiHumanMuscleEquilibriumStatus::equalityFailure,
+                static_cast<std::uint32_t>(index)
+            );
+            failed.equalityStatus = diagnostics.status;
+            return failed;
+        }
+        dependent[equalities[index].indices.y] = 1u;
+        derivative[index] = evaluation.derivative;
+    }
+
+    AccelerationProjection candidate;
+    std::vector<std::uint32_t> compactIndex(nv, MR_INVALID_INDEX);
+    for (std::size_t dof = firstInternal; dof < nv; ++dof) {
+        if (dependent[dof] != 0u) continue;
+        compactIndex[dof] = static_cast<std::uint32_t>(
+            candidate.independentDofs.size()
+        );
+        candidate.independentDofs.push_back(
+            static_cast<std::uint32_t>(dof)
+        );
+        candidate.columns.push_back({{
+            static_cast<std::uint32_t>(dof), 1.0,
+        }});
+    }
+    if (candidate.independentDofs.empty()) {
+        return failure(NumiHumanMuscleEquilibriumStatus::invalidDimensions);
+    }
+    for (std::size_t index = 0u; index < equalities.size(); ++index) {
+        const auto& equality = equalities[index];
+        if (equality.indices.w == MR_INVALID_INDEX ||
+            compactIndex[equality.indices.w] == MR_INVALID_INDEX) {
+            continue;
+        }
+        candidate.columns[compactIndex[equality.indices.w]].push_back({
+            equality.indices.y, derivative[index],
+        });
+    }
+
+    std::vector<double> mass(nv * nv, 0.0);
+    const auto massDiagnostics = computeArticulatedMassMatrix(
+        model, articulationIndex, q, mass, dynamicsConfig
+    );
+    if (!massDiagnostics.succeeded()) {
+        auto failed = failure(
+            NumiHumanMuscleEquilibriumStatus::dynamicsFailure
+        );
+        failed.dynamicsStatus = massDiagnostics.status;
+        return failed;
+    }
+    const std::size_t count = candidate.independentDofs.size();
+    candidate.factor.assign(count * count, 0.0);
+    for (std::size_t row = 0u; row < count; ++row) {
+        for (std::size_t column = 0u; column < count; ++column) {
+            double value = 0.0;
+            for (const auto [fullRow, rowScale] : candidate.columns[row]) {
+                for (const auto [fullColumn, columnScale] :
+                     candidate.columns[column]) {
+                    value += rowScale * mass[fullRow * nv + fullColumn] *
+                        columnScale;
+                }
+            }
+            candidate.factor[row * count + column] = value;
+        }
+    }
+    for (std::size_t row = 0u; row < count; ++row) {
+        double scale = 0.0;
+        for (std::size_t column = 0u; column < count; ++column) {
+            scale = std::max(
+                scale, std::abs(candidate.factor[row * count + column])
+            );
+        }
+        for (std::size_t column = 0u; column <= row; ++column) {
+            double value = candidate.factor[row * count + column];
+            for (std::size_t inner = 0u; inner < column; ++inner) {
+                value -= candidate.factor[row * count + inner] *
+                    candidate.factor[column * count + inner];
+            }
+            if (row == column) {
+                const double floor = std::max(
+                    kMinimum, scale * 32.0 *
+                        std::numeric_limits<double>::epsilon()
+                );
+                if (!(value > floor) || !std::isfinite(value)) {
+                    auto failed = failure(
+                        NumiHumanMuscleEquilibriumStatus::dynamicsFailure,
+                        static_cast<std::uint32_t>(row)
+                    );
+                    failed.dynamicsStatus =
+                        ArticulatedDynamicsStatus::massMatrixNotPositiveDefinite;
+                    return failed;
+                }
+                candidate.factor[row * count + row] = std::sqrt(value);
+            } else {
+                candidate.factor[row * count + column] =
+                    value / candidate.factor[column * count + column];
+            }
+        }
+    }
+    projection = std::move(candidate);
+    return {};
+}
+
+bool projectForceToAcceleration(
+    const AccelerationProjection& projection,
+    const std::span<const double> force,
+    std::vector<double>& acceleration
+) {
+    const std::size_t count = projection.independentDofs.size();
+    if (projection.factor.size() != count * count) return false;
+    std::vector<double> compact(count, 0.0);
+    std::vector<double> workspace(count, 0.0);
+    for (std::size_t row = 0u; row < count; ++row) {
+        const std::uint32_t dof = projection.independentDofs[row];
+        if (dof >= force.size() || !std::isfinite(force[dof])) return false;
+        double value = force[dof];
+        for (std::size_t column = 0u; column < row; ++column) {
+            value -= projection.factor[row * count + column] *
+                workspace[column];
+        }
+        workspace[row] = value / projection.factor[row * count + row];
+    }
+    for (std::size_t reverse = 0u; reverse < count; ++reverse) {
+        const std::size_t row = count - 1u - reverse;
+        double value = workspace[row];
+        for (std::size_t column = row + 1u; column < count; ++column) {
+            value -= projection.factor[column * count + row] * compact[column];
+        }
+        compact[row] = value / projection.factor[row * count + row];
+        if (!std::isfinite(compact[row])) return false;
+    }
+    acceleration.assign(force.size(), 0.0);
+    for (std::size_t row = 0u; row < count; ++row) {
+        acceleration[projection.independentDofs[row]] = compact[row];
+    }
+    return true;
+}
+
 double posePenalty(
     const EngineModel& model,
     const std::uint32_t articulationIndex,
@@ -224,12 +394,14 @@ void finishResidual(
     const EngineModel& model,
     const std::uint32_t articulationIndex,
     const std::span<const MRNumiHumanJointEqualityGPU> equalities,
+    const AccelerationProjection& projection,
     PoseState& state
 ) {
     const std::size_t firstInternal =
         articulation.rootType == MR_ROOT_FLOATING ? 6u : 0u;
     double sum = 0.0;
     state.maximumResidual = 0.0;
+    state.maximumAccelerationResidual = 0.0;
     state.limitForce.assign(articulation.nv, 0.0);
     state.equalityForce.assign(articulation.nv, 0.0);
     for (std::size_t dof = firstInternal; dof < articulation.nv; ++dof) {
@@ -259,7 +431,6 @@ void finishResidual(
                 evaluation.derivative * dependentResidual;
         }
     }
-    std::size_t rowCount = 0u;
     for (std::size_t dof = firstInternal; dof < articulation.nv; ++dof) {
         const double rawResidual = state.residual[dof];
         const MRDofPropertiesGPU& properties =
@@ -283,11 +454,26 @@ void finishResidual(
             }
         }
         state.residual[dof] = rawResidual + state.limitForce[dof];
-        const double normalized = state.weights[dof] * state.residual[dof];
-        sum += normalized * normalized;
-        if (state.weights[dof] > 0.0) ++rowCount;
         state.maximumResidual = std::max(
             state.maximumResidual, std::abs(state.residual[dof])
+        );
+    }
+    if (!projectForceToAcceleration(
+            projection, state.residual, state.accelerationResidual
+        )) {
+        state.residualRms = std::numeric_limits<double>::infinity();
+        state.objective = std::numeric_limits<double>::infinity();
+        return;
+    }
+    std::size_t rowCount = 0u;
+    for (const std::uint32_t dof : projection.independentDofs) {
+        const double normalized =
+            state.weights[dof] * state.accelerationResidual[dof];
+        sum += normalized * normalized;
+        ++rowCount;
+        state.maximumAccelerationResidual = std::max(
+            state.maximumAccelerationResidual,
+            std::abs(state.accelerationResidual[dof])
         );
     }
     state.residualRms = rowCount == 0u
@@ -324,8 +510,6 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     const MRArticulationGPU& articulation =
         model.articulations[articulationIndex];
     const std::size_t nv = articulation.nv;
-    const std::size_t firstInternal =
-        articulation.rootType == MR_ROOT_FLOATING ? 6u : 0u;
     std::vector<ResolvedMuscle> resolved;
     auto diagnostics = resolveMuscles(
         model, articulationIndex, state.q, sites, wraps, muscles, resolved,
@@ -343,7 +527,6 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
         objectiveJacobians.push_back(muscle.jacobian);
     }
     std::vector<double> objectiveTarget = state.target;
-    std::vector<std::uint8_t> equalityDependent(nv, 0u);
     for (std::size_t index = 0u; index < equalities.size(); ++index) {
         NumiHumanJointEqualityEvaluation evaluation;
         const auto equalityDiagnostics = evaluateNumiHumanJointEquality(
@@ -358,7 +541,6 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
             return failed;
         }
         const std::size_t dependent = equalities[index].indices.y;
-        equalityDependent[dependent] = 1u;
         if (equalities[index].indices.w != MR_INVALID_INDEX) {
             const std::size_t master = equalities[index].indices.w;
             objectiveTarget[master] +=
@@ -374,12 +556,33 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
         }
     }
 
+    AccelerationProjection projection;
+    diagnostics = buildAccelerationProjection(
+        model, articulationIndex, state.q, equalities, dynamicsConfig,
+        projection
+    );
+    if (!diagnostics.succeeded()) return diagnostics;
+    std::vector<double> objectiveTargetAcceleration;
+    if (!projectForceToAcceleration(
+            projection, objectiveTarget, objectiveTargetAcceleration
+        )) {
+        return failure(NumiHumanMuscleEquilibriumStatus::nonfiniteResult);
+    }
+    for (auto& jacobian : objectiveJacobians) {
+        std::vector<double> acceleration;
+        if (!projectForceToAcceleration(
+                projection, jacobian, acceleration
+            )) {
+            return failure(NumiHumanMuscleEquilibriumStatus::nonfiniteResult);
+        }
+        jacobian = std::move(acceleration);
+    }
+
     state.weights.assign(nv, 0.0);
-    for (std::size_t dof = firstInternal; dof < nv; ++dof) {
-        if (equalityDependent[dof] != 0u) continue;
+    for (const std::uint32_t dof : projection.independentDofs) {
         state.weights[dof] = 1.0 / std::max(
-            config.minimumGeneralizedForceScale,
-            std::abs(objectiveTarget[dof])
+            config.minimumGeneralizedAccelerationScale,
+            std::abs(objectiveTargetAcceleration[dof])
         );
     }
     const std::uint32_t sampleCount = config.activationSamples;
@@ -387,6 +590,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     state.activation.assign(muscles.size(), 0.0);
     state.fiberLength.assign(muscles.size(), 0.0);
     state.muscleForce.assign(nv, 0.0);
+    std::vector<double> objectiveMuscleAcceleration(nv, 0.0);
     for (std::size_t muscle = 0u; muscle < muscles.size(); ++muscle) {
         const std::uint32_t lastSample = recruited[muscle] != 0u
             ? sampleCount : 1u;
@@ -414,13 +618,16 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
         const double passive = forceSamples[muscle * sampleCount];
         for (std::size_t dof = 0u; dof < nv; ++dof) {
             state.muscleForce[dof] +=
+                passive * resolved[muscle].jacobian[dof];
+            objectiveMuscleAcceleration[dof] +=
                 passive * objectiveJacobians[muscle][dof];
         }
     }
     state.residual.assign(nv, 0.0);
-    for (std::size_t dof = firstInternal; dof < nv; ++dof) {
+    for (const std::uint32_t dof : projection.independentDofs) {
         state.residual[dof] = state.weights[dof] *
-            (state.muscleForce[dof] - objectiveTarget[dof]);
+            (objectiveMuscleAcceleration[dof] -
+             objectiveTargetAcceleration[dof]);
     }
 
     std::uint32_t completedSweeps = 0u;
@@ -451,7 +658,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
                 double gradient =
                     config.activationRegularization * lowerActivation;
                 double curvature = config.activationRegularization;
-                for (std::size_t dof = firstInternal; dof < nv; ++dof) {
+                for (const std::uint32_t dof : projection.independentDofs) {
                     const double direction = state.weights[dof] *
                         objectiveJacobians[muscle][dof];
                     const double base = state.residual[dof] + direction *
@@ -466,7 +673,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
                 const double candidateActivation = lowerActivation + delta;
                 double objective = 0.5 * config.activationRegularization *
                     candidateActivation * candidateActivation;
-                for (std::size_t dof = firstInternal; dof < nv; ++dof) {
+                for (const std::uint32_t dof : projection.independentDofs) {
                     const double direction = state.weights[dof] *
                         objectiveJacobians[muscle][dof];
                     const double base = state.residual[dof] + direction *
@@ -484,7 +691,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
                 forceSamples, muscle, sampleCount, bestActivation,
                 config.activationLimit
             );
-            for (std::size_t dof = firstInternal; dof < nv; ++dof) {
+            for (const std::uint32_t dof : projection.independentDofs) {
                 state.residual[dof] += state.weights[dof] *
                     objectiveJacobians[muscle][dof] *
                     (nextForce - currentForce);
@@ -519,7 +726,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     state.residual.assign(nv, 0.0);
     finishResidual(
         articulation, config, initialQ, model, articulationIndex, equalities,
-        state
+        projection, state
     );
     if (!std::isfinite(state.residualRms) ||
         !std::isfinite(state.maximumResidual) ||
@@ -554,13 +761,44 @@ NumiHumanMuscleEquilibriumDiagnostics evaluatePoseWithActivation(
         model, articulationIndex, state.q, state.target, dynamicsConfig
     );
     if (!diagnostics.succeeded()) return diagnostics;
+    std::vector<double> reducedTarget = state.target;
+    for (std::size_t index = 0u; index < equalities.size(); ++index) {
+        NumiHumanJointEqualityEvaluation evaluation;
+        const auto equalityDiagnostics = evaluateNumiHumanJointEquality(
+            equalities[index], state.q, evaluation
+        );
+        if (!equalityDiagnostics.succeeded()) {
+            auto failed = failure(
+                NumiHumanMuscleEquilibriumStatus::equalityFailure,
+                static_cast<std::uint32_t>(index)
+            );
+            failed.equalityStatus = equalityDiagnostics.status;
+            return failed;
+        }
+        const std::size_t dependent = equalities[index].indices.y;
+        if (equalities[index].indices.w != MR_INVALID_INDEX) {
+            reducedTarget[equalities[index].indices.w] +=
+                evaluation.derivative * reducedTarget[dependent];
+        }
+        reducedTarget[dependent] = 0.0;
+    }
+    AccelerationProjection projection;
+    diagnostics = buildAccelerationProjection(
+        model, articulationIndex, state.q, equalities, dynamicsConfig,
+        projection
+    );
+    if (!diagnostics.succeeded()) return diagnostics;
+    std::vector<double> targetAcceleration;
+    if (!projectForceToAcceleration(
+            projection, reducedTarget, targetAcceleration
+        )) {
+        return failure(NumiHumanMuscleEquilibriumStatus::nonfiniteResult);
+    }
     state.weights.assign(articulation.nv, 0.0);
-    const std::size_t firstInternal =
-        articulation.rootType == MR_ROOT_FLOATING ? 6u : 0u;
-    for (std::size_t dof = firstInternal; dof < articulation.nv; ++dof) {
+    for (const std::uint32_t dof : projection.independentDofs) {
         state.weights[dof] = 1.0 / std::max(
-            config.minimumGeneralizedForceScale,
-            std::abs(state.target[dof])
+            config.minimumGeneralizedAccelerationScale,
+            std::abs(targetAcceleration[dof])
         );
     }
     state.muscleForce.assign(articulation.nv, 0.0);
@@ -581,7 +819,7 @@ NumiHumanMuscleEquilibriumDiagnostics evaluatePoseWithActivation(
     state.residual.assign(articulation.nv, 0.0);
     finishResidual(
         articulation, config, initialQ, model, articulationIndex, equalities,
-        state
+        projection, state
     );
     return {};
 }
@@ -609,7 +847,10 @@ std::vector<std::uint32_t> poseCandidates(
             continue;
         }
         ranked.emplace_back(
-            std::abs(state.weights[localV] * state.residual[localV]), localV
+            std::abs(
+                state.weights[localV] * state.accelerationResidual[localV]
+            ),
+            localV
         );
     }
     std::sort(ranked.begin(), ranked.end(), [](const auto& left, const auto& right) {
@@ -675,8 +916,8 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
         config.activationRegularization >= 0.0 &&
         std::isfinite(config.activationConvergence) &&
         config.activationConvergence > 0.0 &&
-        std::isfinite(config.minimumGeneralizedForceScale) &&
-        config.minimumGeneralizedForceScale > 0.0 &&
+        std::isfinite(config.minimumGeneralizedAccelerationScale) &&
+        config.minimumGeneralizedAccelerationScale > 0.0 &&
         std::isfinite(config.balanceTolerance) &&
         config.balanceTolerance > 0.0 && config.poseCandidateCount <= 128u &&
         std::isfinite(config.poseStepFraction) &&
@@ -904,13 +1145,23 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
     candidate.diagnostics.normalizedResidualRms = current.residualRms;
     candidate.diagnostics.maximumGeneralizedForceResidual =
         current.maximumResidual;
-    for (std::size_t dof = 0u; dof < current.residual.size(); ++dof) {
+    candidate.diagnostics.maximumGeneralizedAccelerationResidual =
+        current.maximumAccelerationResidual;
+    for (std::size_t dof = 0u;
+         dof < current.accelerationResidual.size(); ++dof) {
+        const double acceleration = std::abs(
+            current.accelerationResidual[dof]
+        );
+        if (acceleration == current.maximumAccelerationResidual) {
+            candidate.diagnostics.maximumAccelerationResidualDof =
+                static_cast<std::uint32_t>(dof);
+        }
         const double normalized = std::abs(
-            current.weights[dof] * current.residual[dof]
+            current.weights[dof] * current.accelerationResidual[dof]
         );
         if (normalized >
-            candidate.diagnostics.maximumNormalizedGeneralizedForceResidual) {
-            candidate.diagnostics.maximumNormalizedGeneralizedForceResidual =
+            candidate.diagnostics.maximumNormalizedAccelerationResidual) {
+            candidate.diagnostics.maximumNormalizedAccelerationResidual =
                 normalized;
             candidate.diagnostics.maximumNormalizedResidualDof =
                 static_cast<std::uint32_t>(dof);

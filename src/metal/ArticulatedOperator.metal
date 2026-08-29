@@ -505,8 +505,7 @@ inline bool validDofParameters(
     return
         (actuated || (!effortLimited && !driven)) &&
         (!driven || actuated) &&
-        (driven ||
-         (dof.drive.x == 0.0f && dof.drive.y == 0.0f)) &&
+        (driven || dof.drive.x == 0.0f) &&
         (!positionLimited ||
          (dof.qIndex != MR_INVALID_INDEX &&
           jointType != MR_JOINT_CONTINUOUS &&

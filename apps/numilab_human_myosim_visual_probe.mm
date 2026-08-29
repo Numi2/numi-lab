@@ -83,6 +83,12 @@ constexpr std::array<char, 8u> kMultiBodySoftTissueMagic{
     'N', 'H', 'T', 'I', 'S', 'S', '3', '\0',
 };
 constexpr std::uint32_t kMultiBodySoftTissuePayloadAbi = 4u;
+constexpr std::array<char, 8u> kRouteSoftTissueMagic{
+    'N', 'H', 'T', 'I', 'S', 'S', '4', '\0',
+};
+constexpr std::uint32_t kRouteSoftTissuePayloadAbi = 5u;
+constexpr std::uint32_t kRouteSoftTissueMaximumBindings = 24u;
+constexpr std::uint32_t kRouteSoftTissueMaximumInfluences = 4u;
 constexpr std::uint32_t kSoftTissueLayerMuscle = 1u;
 constexpr std::uint32_t kSoftTissueLayerTendon = 2u;
 // Reserved for the narrowly scoped Z-Anatomy calcaneus overlay.  It stays in
@@ -266,6 +272,17 @@ struct SoftTissueHeader {
     std::array<std::uint8_t, 32u> sourceSha256{};
 };
 
+struct RouteSoftTissueHeader {
+    std::array<char, 8u> magic{};
+    std::uint32_t payloadAbi = 0u;
+    std::uint32_t tissueCount = 0u;
+    std::uint32_t bindingCount = 0u;
+    std::uint32_t vertexCount = 0u;
+    std::uint32_t indexCount = 0u;
+    std::uint32_t registrationFingerprint = 0u;
+    std::array<std::uint8_t, 32u> sourceSha256{};
+};
+
 struct LegacySoftTissueRecord {
     std::uint32_t primaryBodyIndex = MR_INVALID_INDEX;
     std::uint32_t secondaryBodyIndex = MR_INVALID_INDEX;
@@ -313,7 +330,7 @@ struct SoftTissueBodyBinding {
     float uniformScale = 1.0f;
 };
 
-struct SoftTissueRecord {
+struct MultiBodySoftTissueRecord {
     std::uint32_t bodyIndex[3]{
         MR_INVALID_INDEX, MR_INVALID_INDEX, MR_INVALID_INDEX,
     };
@@ -327,7 +344,7 @@ struct SoftTissueRecord {
     SoftTissueBodyBinding binding[3]{};
 };
 
-struct SoftTissueVertex {
+struct MultiBodySoftTissueVertex {
     float positionX = 0.0f;
     float positionY = 0.0f;
     float positionZ = 0.0f;
@@ -335,6 +352,63 @@ struct SoftTissueVertex {
     float normalY = 0.0f;
     float normalZ = 1.0f;
     float weight[3]{1.0f, 0.0f, 0.0f};
+};
+
+struct RouteSoftTissueRecord {
+    std::uint32_t firstBinding = 0u;
+    std::uint32_t bindingCount = 0u;
+    std::uint32_t firstVertex = 0u;
+    std::uint32_t vertexCount = 0u;
+    std::uint32_t firstIndex = 0u;
+    std::uint32_t indexCount = 0u;
+    std::uint32_t stableId = 0u;
+    std::uint32_t layer = 0u;
+};
+
+struct RouteSoftTissueBinding {
+    std::uint32_t bodyIndex = MR_INVALID_INDEX;
+    SoftTissueBodyBinding transform{};
+};
+
+struct RouteSoftTissueVertex {
+    float positionX = 0.0f;
+    float positionY = 0.0f;
+    float positionZ = 0.0f;
+    float normalX = 0.0f;
+    float normalY = 0.0f;
+    float normalZ = 1.0f;
+    std::uint32_t bindingIndex[kRouteSoftTissueMaximumInfluences]{
+        0u, MR_INVALID_INDEX, MR_INVALID_INDEX, MR_INVALID_INDEX,
+    };
+    float weight[kRouteSoftTissueMaximumInfluences]{1.0f, 0.0f, 0.0f, 0.0f};
+};
+
+// Normalized in-memory representation shared by NHTISS2/3/4. A record may
+// retain every authored route body, while each vertex remains a compact
+// four-influence skinning tuple.
+struct SoftTissueRecord {
+    std::uint32_t bodyIndex[kRouteSoftTissueMaximumBindings]{};
+    std::uint32_t bindingCount = 0u;
+    std::uint32_t firstVertex = 0u;
+    std::uint32_t vertexCount = 0u;
+    std::uint32_t firstIndex = 0u;
+    std::uint32_t indexCount = 0u;
+    std::uint32_t stableId = 0u;
+    std::uint32_t layer = 0u;
+    SoftTissueBodyBinding binding[kRouteSoftTissueMaximumBindings]{};
+};
+
+struct SoftTissueVertex {
+    float positionX = 0.0f;
+    float positionY = 0.0f;
+    float positionZ = 0.0f;
+    float normalX = 0.0f;
+    float normalY = 0.0f;
+    float normalZ = 1.0f;
+    std::uint32_t bindingIndex[kRouteSoftTissueMaximumInfluences]{
+        0u, MR_INVALID_INDEX, MR_INVALID_INDEX, MR_INVALID_INDEX,
+    };
+    float weight[kRouteSoftTissueMaximumInfluences]{1.0f, 0.0f, 0.0f, 0.0f};
 };
 
 struct SkinHeader {
@@ -444,6 +518,7 @@ struct LoadedSoftTissues {
     std::vector<SoftTissueRecord> records;
     std::vector<SoftTissueVertex> vertices;
     std::vector<std::uint32_t> indices;
+    bool usesRouteBodySparseWeights = false;
 };
 
 struct LoadedSkin {
@@ -487,11 +562,15 @@ static_assert(sizeof(BoneHeader) == 60u);
 static_assert(sizeof(BoneRecord) == 56u);
 static_assert(sizeof(BoneVertex) == 24u);
 static_assert(sizeof(SoftTissueHeader) == 60u);
+static_assert(sizeof(RouteSoftTissueHeader) == 64u);
 static_assert(sizeof(LegacySoftTissueRecord) == 96u);
 static_assert(sizeof(LegacySoftTissueVertex) == 28u);
 static_assert(sizeof(SoftTissueBodyBinding) == 32u);
-static_assert(sizeof(SoftTissueRecord) == 136u);
-static_assert(sizeof(SoftTissueVertex) == 36u);
+static_assert(sizeof(MultiBodySoftTissueRecord) == 136u);
+static_assert(sizeof(MultiBodySoftTissueVertex) == 36u);
+static_assert(sizeof(RouteSoftTissueRecord) == 32u);
+static_assert(sizeof(RouteSoftTissueBinding) == 36u);
+static_assert(sizeof(RouteSoftTissueVertex) == 56u);
 static_assert(sizeof(SkinHeader) == 60u);
 static_assert(sizeof(SkinBindingRecord) == 36u);
 static_assert(sizeof(SkinVertex) == 56u);
@@ -1109,20 +1188,65 @@ LoadedSoftTissues loadSoftTissues(
     std::ifstream input(path, std::ios::binary);
     require(input.is_open(), "cannot open BodyParts3D soft-tissue payload " + path.string());
     LoadedSoftTissues result;
-    readObject(input, result.header, "BodyParts3D soft-tissue header");
-    const bool legacyTwoBody = result.header.magic == kSoftTissueMagic &&
-        result.header.payloadAbi == kSoftTissuePayloadAbi;
-    const bool multiBody = result.header.magic == kMultiBodySoftTissueMagic &&
-        result.header.payloadAbi == kMultiBodySoftTissuePayloadAbi;
-    require((legacyTwoBody || multiBody) &&
-                result.header.reserved0 != 0u &&
-                result.header.sourceSha256 == rigid.sourceSha256 &&
-                result.header.tissueCount > 0u && result.header.tissueCount <= 192u &&
-                result.header.vertexCount > 0u && result.header.indexCount > 0u &&
-                result.header.indexCount % 3u == 0u &&
-                result.header.vertexCount <= 1'000'000u &&
-                result.header.indexCount <= 6'000'000u,
-            "BodyParts3D soft-tissue payload/header disagreement");
+    std::array<char, 8u> magic{};
+    std::uint32_t payloadAbi = 0u;
+    readObject(input, magic, "BodyParts3D soft-tissue magic");
+    readObject(input, payloadAbi, "BodyParts3D soft-tissue ABI");
+    input.seekg(0, std::ios::beg);
+    require(input.good(), "could not rewind BodyParts3D soft-tissue payload");
+    const bool legacyTwoBody = magic == kSoftTissueMagic &&
+        payloadAbi == kSoftTissuePayloadAbi;
+    const bool multiBody = magic == kMultiBodySoftTissueMagic &&
+        payloadAbi == kMultiBodySoftTissuePayloadAbi;
+    const bool routeBodySparse = magic == kRouteSoftTissueMagic &&
+        payloadAbi == kRouteSoftTissuePayloadAbi;
+    require(legacyTwoBody || multiBody || routeBodySparse,
+            "BodyParts3D soft-tissue payload magic/ABI is unsupported");
+
+    std::vector<RouteSoftTissueRecord> routeRecords;
+    std::vector<RouteSoftTissueBinding> routeBindings;
+    std::vector<RouteSoftTissueVertex> routeVertices;
+    if (routeBodySparse) {
+        RouteSoftTissueHeader header{};
+        readObject(input, header, "BodyParts3D route-body soft-tissue header");
+        require(header.registrationFingerprint != 0u &&
+                    header.sourceSha256 == rigid.sourceSha256 &&
+                    header.tissueCount > 0u && header.tissueCount <= 192u &&
+                    header.bindingCount > 0u &&
+                    header.bindingCount <= header.tissueCount * kRouteSoftTissueMaximumBindings &&
+                    header.vertexCount > 0u && header.indexCount > 0u &&
+                    header.indexCount % 3u == 0u &&
+                    header.vertexCount <= 1'000'000u &&
+                    header.indexCount <= 6'000'000u,
+                "BodyParts3D route-body soft-tissue payload/header disagreement");
+        result.header.magic = header.magic;
+        result.header.payloadAbi = header.payloadAbi;
+        result.header.tissueCount = header.tissueCount;
+        result.header.vertexCount = header.vertexCount;
+        result.header.indexCount = header.indexCount;
+        result.header.reserved0 = header.registrationFingerprint;
+        result.header.sourceSha256 = header.sourceSha256;
+        routeRecords = readVector<RouteSoftTissueRecord>(
+            input, header.tissueCount, "BodyParts3D route-body soft-tissue records"
+        );
+        routeBindings = readVector<RouteSoftTissueBinding>(
+            input, header.bindingCount, "BodyParts3D route-body soft-tissue bindings"
+        );
+        routeVertices = readVector<RouteSoftTissueVertex>(
+            input, header.vertexCount, "BodyParts3D route-body soft-tissue vertices"
+        );
+        result.usesRouteBodySparseWeights = true;
+    } else {
+        readObject(input, result.header, "BodyParts3D soft-tissue header");
+        require(result.header.reserved0 != 0u &&
+                    result.header.sourceSha256 == rigid.sourceSha256 &&
+                    result.header.tissueCount > 0u && result.header.tissueCount <= 192u &&
+                    result.header.vertexCount > 0u && result.header.indexCount > 0u &&
+                    result.header.indexCount % 3u == 0u &&
+                    result.header.vertexCount <= 1'000'000u &&
+                    result.header.indexCount <= 6'000'000u,
+                "BodyParts3D soft-tissue payload/header disagreement");
+    }
     if (legacyTwoBody) {
         const auto records = readVector<LegacySoftTissueRecord>(
             input, result.header.tissueCount, "legacy BodyParts3D soft-tissue records"
@@ -1135,6 +1259,7 @@ LoadedSoftTissues loadSoftTissues(
             SoftTissueRecord record{};
             record.bodyIndex[0] = legacy.primaryBodyIndex;
             record.bodyIndex[1] = legacy.secondaryBodyIndex;
+            record.bindingCount = 2u;
             record.firstVertex = legacy.firstVertex;
             record.vertexCount = legacy.vertexCount;
             record.firstIndex = legacy.firstIndex;
@@ -1161,19 +1286,99 @@ LoadedSoftTissues loadSoftTissues(
         }
         result.vertices.reserve(vertices.size());
         for (const LegacySoftTissueVertex& legacy : vertices) {
-            result.vertices.push_back({
-                legacy.positionX, legacy.positionY, legacy.positionZ,
-                legacy.normalX, legacy.normalY, legacy.normalZ,
-                {legacy.primaryWeight, 1.0f - legacy.primaryWeight, 0.0f},
-            });
+            SoftTissueVertex vertex{};
+            vertex.positionX = legacy.positionX;
+            vertex.positionY = legacy.positionY;
+            vertex.positionZ = legacy.positionZ;
+            vertex.normalX = legacy.normalX;
+            vertex.normalY = legacy.normalY;
+            vertex.normalZ = legacy.normalZ;
+            vertex.bindingIndex[0] = 0u;
+            vertex.bindingIndex[1] = 1u;
+            vertex.weight[0] = legacy.primaryWeight;
+            vertex.weight[1] = 1.0f - legacy.primaryWeight;
+            result.vertices.push_back(vertex);
         }
-    } else {
-        result.records = readVector<SoftTissueRecord>(
+    } else if (multiBody) {
+        const auto records = readVector<MultiBodySoftTissueRecord>(
             input, result.header.tissueCount, "BodyParts3D multi-body soft-tissue records"
         );
-        result.vertices = readVector<SoftTissueVertex>(
+        const auto vertices = readVector<MultiBodySoftTissueVertex>(
             input, result.header.vertexCount, "BodyParts3D multi-body soft-tissue vertices"
         );
+        result.records.reserve(records.size());
+        for (const MultiBodySoftTissueRecord& source : records) {
+            SoftTissueRecord record{};
+            while (record.bindingCount < 3u &&
+                   source.bodyIndex[record.bindingCount] != MR_INVALID_INDEX) {
+                const std::uint32_t binding = record.bindingCount++;
+                record.bodyIndex[binding] = source.bodyIndex[binding];
+                record.binding[binding] = source.binding[binding];
+            }
+            record.firstVertex = source.firstVertex;
+            record.vertexCount = source.vertexCount;
+            record.firstIndex = source.firstIndex;
+            record.indexCount = source.indexCount;
+            record.stableId = source.stableId;
+            record.layer = source.layer;
+            require(source.reserved0 == 0u,
+                    "BodyParts3D multi-body soft-tissue record reserved field is nonzero");
+            result.records.push_back(record);
+        }
+        result.vertices.reserve(vertices.size());
+        for (const MultiBodySoftTissueVertex& source : vertices) {
+            SoftTissueVertex vertex{};
+            vertex.positionX = source.positionX;
+            vertex.positionY = source.positionY;
+            vertex.positionZ = source.positionZ;
+            vertex.normalX = source.normalX;
+            vertex.normalY = source.normalY;
+            vertex.normalZ = source.normalZ;
+            for (std::uint32_t influence = 0u; influence < 3u; ++influence) {
+                vertex.bindingIndex[influence] = influence;
+                vertex.weight[influence] = source.weight[influence];
+            }
+            result.vertices.push_back(vertex);
+        }
+    } else {
+        result.records.reserve(routeRecords.size());
+        for (const RouteSoftTissueRecord& source : routeRecords) {
+            require(source.bindingCount > 0u &&
+                        source.bindingCount <= kRouteSoftTissueMaximumBindings &&
+                        source.firstBinding <= routeBindings.size() &&
+                        source.bindingCount <= routeBindings.size() - source.firstBinding,
+                    "BodyParts3D route-body soft-tissue binding range is malformed");
+            SoftTissueRecord record{};
+            record.bindingCount = source.bindingCount;
+            for (std::uint32_t binding = 0u; binding < source.bindingCount; ++binding) {
+                const RouteSoftTissueBinding& resolved =
+                    routeBindings[source.firstBinding + binding];
+                record.bodyIndex[binding] = resolved.bodyIndex;
+                record.binding[binding] = resolved.transform;
+            }
+            record.firstVertex = source.firstVertex;
+            record.vertexCount = source.vertexCount;
+            record.firstIndex = source.firstIndex;
+            record.indexCount = source.indexCount;
+            record.stableId = source.stableId;
+            record.layer = source.layer;
+            result.records.push_back(record);
+        }
+        result.vertices.reserve(routeVertices.size());
+        for (const RouteSoftTissueVertex& source : routeVertices) {
+            SoftTissueVertex vertex{};
+            vertex.positionX = source.positionX;
+            vertex.positionY = source.positionY;
+            vertex.positionZ = source.positionZ;
+            vertex.normalX = source.normalX;
+            vertex.normalY = source.normalY;
+            vertex.normalZ = source.normalZ;
+            std::copy(std::begin(source.bindingIndex), std::end(source.bindingIndex),
+                      std::begin(vertex.bindingIndex));
+            std::copy(std::begin(source.weight), std::end(source.weight),
+                      std::begin(vertex.weight));
+            result.vertices.push_back(vertex);
+        }
     }
     result.indices = readVector<std::uint32_t>(
         input, result.header.indexCount, "BodyParts3D soft-tissue indices"
@@ -1192,7 +1397,8 @@ LoadedSoftTissues loadSoftTissues(
                     std::all_of(std::begin(vertex.weight), std::end(vertex.weight), [](const float weight) {
                         return std::isfinite(weight) && weight >= 0.0f && weight <= 1.0f;
                     }) &&
-                    std::abs(vertex.weight[0] + vertex.weight[1] + vertex.weight[2] - 1.0f) <= 2.0e-3f,
+                    std::abs(vertex.weight[0] + vertex.weight[1] +
+                             vertex.weight[2] + vertex.weight[3] - 1.0f) <= 2.0e-3f,
                 "BodyParts3D soft-tissue vertex is malformed");
     }
     // Focused Human payloads deliberately retain their global source stable
@@ -1201,23 +1407,18 @@ LoadedSoftTissues loadSoftTissues(
     std::vector<std::uint32_t> stableIds;
     stableIds.reserve(result.records.size());
     for (const SoftTissueRecord& record : result.records) {
-        std::uint32_t bindingCount = 0u;
-        for (std::uint32_t binding = 0u; binding < 3u; ++binding) {
+        require(record.bindingCount > 0u &&
+                    record.bindingCount <= kRouteSoftTissueMaximumBindings,
+                "BodyParts3D soft-tissue record binding count is malformed");
+        for (std::uint32_t binding = 0u; binding < record.bindingCount; ++binding) {
             const std::uint32_t bodyIndex = record.bodyIndex[binding];
-            if (bodyIndex == MR_INVALID_INDEX) {
-                require(
-                    (record.layer == kSoftTissueLayerSupplementalBone && binding >= 1u) ||
-                    binding >= 2u,
-                    "BodyParts3D soft-tissue binding has a hole"
-                );
-                continue;
-            }
+            require(bodyIndex != MR_INVALID_INDEX,
+                    "BodyParts3D soft-tissue binding has a hole");
             require(bodyIndex < rigid.engineBodyCount, "BodyParts3D soft-tissue body binding exceeds model");
             for (std::uint32_t earlier = 0u; earlier < binding; ++earlier) {
                 require(bodyIndex != record.bodyIndex[earlier],
                         "BodyParts3D soft-tissue binding repeats a body");
             }
-            ++bindingCount;
             const float orientationLength = std::sqrt(
                 record.binding[binding].quaternion[0] * record.binding[binding].quaternion[0] +
                 record.binding[binding].quaternion[1] * record.binding[binding].quaternion[1] +
@@ -1234,8 +1435,8 @@ LoadedSoftTissues loadSoftTissues(
                     "BodyParts3D soft-tissue binding transform is malformed");
         }
         const bool supplementalBone = record.layer == kSoftTissueLayerSupplementalBone;
-        require(bindingCount >= (supplementalBone ? 1u : 2u) &&
-                    record.reserved0 == 0u && record.vertexCount > 0u &&
+        require(record.bindingCount >= (supplementalBone ? 1u : 2u) &&
+                    record.vertexCount > 0u &&
                     record.indexCount > 0u && record.indexCount % 3u == 0u &&
                     (record.layer == kSoftTissueLayerMuscle ||
                      record.layer == kSoftTissueLayerTendon ||
@@ -1248,6 +1449,17 @@ LoadedSoftTissues loadSoftTissues(
                     std::find(stableIds.begin(), stableIds.end(), record.stableId) == stableIds.end(),
                 "BodyParts3D soft-tissue record is malformed");
         stableIds.push_back(record.stableId);
+        for (std::uint32_t vertexOffset = 0u;
+             vertexOffset < record.vertexCount; ++vertexOffset) {
+            const SoftTissueVertex& vertex =
+                result.vertices[record.firstVertex + vertexOffset];
+            for (std::uint32_t influence = 0u;
+                 influence < kRouteSoftTissueMaximumInfluences; ++influence) {
+                if (vertex.weight[influence] <= 2.0e-6f) continue;
+                require(vertex.bindingIndex[influence] < record.bindingCount,
+                        "BodyParts3D soft-tissue vertex influence escapes its route-body table");
+            }
+        }
         for (std::uint32_t offset = 0u; offset < record.indexCount; ++offset) {
             const std::uint32_t index = result.indices[record.firstIndex + offset];
             require(index >= record.firstVertex && index < record.firstVertex + record.vertexCount,
@@ -1385,6 +1597,10 @@ struct MuscleDrivenVisualState {
     double persistentRootAssistanceTorque = 0.0;
     std::uint32_t compiledActiveMuscleCount = 0u;
     double compiledActivationResidualRms = 0.0;
+    double compiledInitialActivationResidualRms = 0.0;
+    double compiledMaximumAccelerationResidual = 0.0;
+    double compiledMaximumVelocityIncrement = 0.0;
+    bool compiledBalanced = false;
     double compiledMaximumActivation = 0.0;
     std::uint32_t compiledRecruitedMuscleCount = 0u;
     std::uint32_t compiledActivePositionLimitCount = 0u;
@@ -1412,6 +1628,11 @@ struct MuscleDrivenVisualState {
     double tendonMaximumForceResidual = 0.0;
     double tendonMaximumMomentResidual = 0.0;
     double tendonMaximumGeneralizedCorrection = 0.0;
+    // Source-coordinate order: ankle_r, subtalar_r, mtp_r, ankle_l,
+    // subtalar_l, mtp_l. These targeted values make a visually suspect foot
+    // distinguishable from a mesh-registration defect.
+    std::array<double, 6u> compiledFootCoordinates{};
+    std::array<double, 6u> finalFootCoordinates{};
 };
 
 struct TendonLoadAuditConsumer {
@@ -1820,6 +2041,10 @@ struct CompiledStandActivation {
     std::uint32_t activePositionLimitCount = 0u;
     std::uint32_t acceptedPoseSteps = 0u;
     double normalizedResidualRms = 0.0;
+    double initialNormalizedResidualRms = 0.0;
+    double maximumAccelerationResidual = 0.0;
+    double maximumVelocityIncrement = 0.0;
+    bool balanced = false;
     double maximumActivation = 0.0;
     double maximumEqualityReaction = 0.0;
     double maximumLimitReaction = 0.0;
@@ -1850,7 +2075,11 @@ CompiledStandActivation compileStaticStandActivation(
         compiled, config
     );
     require(
-        diagnostics.succeeded() && diagnostics.balanced,
+        diagnostics.succeeded() &&
+            diagnostics.normalizedResidualRms <
+                diagnostics.initialNormalizedResidualRms &&
+            diagnostics.maximumGeneralizedAccelerationResidual *
+                config.timestep <= 2.5e-2,
         std::string("source-constrained stand equilibrium failed: ") +
             metalrobo::numiHumanMuscleEquilibriumStatusName(
                 diagnostics.status
@@ -1870,6 +2099,13 @@ CompiledStandActivation compileStaticStandActivation(
     result.activePositionLimitCount = diagnostics.activePositionLimitCount;
     result.acceptedPoseSteps = diagnostics.acceptedPoseSteps;
     result.normalizedResidualRms = diagnostics.normalizedResidualRms;
+    result.initialNormalizedResidualRms =
+        diagnostics.initialNormalizedResidualRms;
+    result.maximumAccelerationResidual =
+        diagnostics.maximumGeneralizedAccelerationResidual;
+    result.maximumVelocityIncrement =
+        diagnostics.maximumGeneralizedAccelerationResidual * config.timestep;
+    result.balanced = diagnostics.balanced;
     result.maximumActivation = diagnostics.maximumActivation;
     result.maximumEqualityReaction = diagnostics.maximumJointEqualityReaction;
     result.maximumLimitReaction = diagnostics.maximumPositionLimitReaction;
@@ -2355,6 +2591,18 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
 
     MuscleDrivenVisualState result;
     result.q = std::move(metalResult.standQ);
+    constexpr std::array<std::uint32_t, 6u> kFootQIndices{
+        109u, 110u, 111u, 123u, 124u, 125u,
+    };
+    require(compiledActivation.q.size() > kFootQIndices.back() &&
+                result.q.size() > kFootQIndices.back(),
+            "persistent Human source foot coordinates are unavailable");
+    for (std::size_t index = 0u; index < kFootQIndices.size(); ++index) {
+        result.compiledFootCoordinates[index] =
+            compiledActivation.q[kFootQIndices[index]];
+        result.finalFootCoordinates[index] =
+            result.q[kFootQIndices[index]];
+    }
     result.stepCount = stepCount;
     result.persistentMetalHorizon = true;
     result.rootAssistanceEnabled = enableRootAssistance;
@@ -2429,6 +2677,13 @@ MuscleDrivenVisualState integratePersistentMetalStandVisualState(
     result.compiledActiveMuscleCount = compiledActivation.activeMuscleCount;
     result.compiledActivationResidualRms =
         compiledActivation.normalizedResidualRms;
+    result.compiledInitialActivationResidualRms =
+        compiledActivation.initialNormalizedResidualRms;
+    result.compiledMaximumAccelerationResidual =
+        compiledActivation.maximumAccelerationResidual;
+    result.compiledMaximumVelocityIncrement =
+        compiledActivation.maximumVelocityIncrement;
+    result.compiledBalanced = compiledActivation.balanced;
     result.compiledMaximumActivation =
         compiledActivation.maximumActivation;
     result.compiledRecruitedMuscleCount =
@@ -3404,7 +3659,8 @@ mr_float4 softTissueVertexWorld(
     const MRBodyStateGPU& body,
     const std::uint32_t binding
 ) {
-    require(binding < 3u && tissue.bodyIndex[binding] != MR_INVALID_INDEX,
+    require(binding < tissue.bindingCount &&
+                tissue.bodyIndex[binding] != MR_INVALID_INDEX,
             "BodyParts3D soft-tissue vertex requests an absent binding");
     const mr_float4 localRotation{
         tissue.binding[binding].quaternion[0], tissue.binding[binding].quaternion[1],
@@ -3431,7 +3687,8 @@ mr_float4 softTissueVertexNormalWorld(
     const MRBodyStateGPU& body,
     const std::uint32_t binding
 ) {
-    require(binding < 3u && tissue.bodyIndex[binding] != MR_INVALID_INDEX,
+    require(binding < tissue.bindingCount &&
+                tissue.bodyIndex[binding] != MR_INVALID_INDEX,
             "BodyParts3D soft-tissue normal requests an absent binding");
     const mr_float4 localRotation{
         tissue.binding[binding].quaternion[0], tissue.binding[binding].quaternion[1],
@@ -3457,21 +3714,22 @@ mr_float4 softTissueVertexBlendedWorld(
 ) {
     mr_float4 result{0.0f, 0.0f, 0.0f, 1.0f};
     float totalWeight = 0.0f;
-    for (std::uint32_t binding = 0u; binding < 3u; ++binding) {
-        if (tissue.bodyIndex[binding] == MR_INVALID_INDEX) {
-            require(std::abs(vertex.weight[binding]) <= 2.0e-3f,
-                    "BodyParts3D soft-tissue vertex weights an absent binding");
-            continue;
-        }
+    for (std::uint32_t influence = 0u;
+         influence < kRouteSoftTissueMaximumInfluences; ++influence) {
+        const float weight = vertex.weight[influence];
+        if (weight <= 2.0e-6f) continue;
+        const std::uint32_t binding = vertex.bindingIndex[influence];
+        require(binding < tissue.bindingCount,
+                "BodyParts3D soft-tissue vertex weights an absent binding");
         require(tissue.bodyIndex[binding] < bodies.size(),
                 "BodyParts3D soft-tissue body binding exceeds the rendered pose");
         const mr_float4 position = softTissueVertexWorld(
             tissue, vertex, bodies[tissue.bodyIndex[binding]], binding
         );
-        result.x += vertex.weight[binding] * position.x;
-        result.y += vertex.weight[binding] * position.y;
-        result.z += vertex.weight[binding] * position.z;
-        totalWeight += vertex.weight[binding];
+        result.x += weight * position.x;
+        result.y += weight * position.y;
+        result.z += weight * position.z;
+        totalWeight += weight;
     }
     require(std::abs(totalWeight - 1.0f) <= 2.0e-3f,
             "BodyParts3D soft-tissue vertex has non-unit active weights");
@@ -3485,17 +3743,22 @@ mr_float4 softTissueVertexBlendedNormalWorld(
 ) {
     mr_float4 normal{0.0f, 0.0f, 0.0f, 0.0f};
     float totalWeight = 0.0f;
-    for (std::uint32_t binding = 0u; binding < 3u; ++binding) {
-        if (tissue.bodyIndex[binding] == MR_INVALID_INDEX) continue;
+    for (std::uint32_t influence = 0u;
+         influence < kRouteSoftTissueMaximumInfluences; ++influence) {
+        const float weight = vertex.weight[influence];
+        if (weight <= 2.0e-6f) continue;
+        const std::uint32_t binding = vertex.bindingIndex[influence];
+        require(binding < tissue.bindingCount,
+                "BodyParts3D soft-tissue normal weights an absent binding");
         require(tissue.bodyIndex[binding] < bodies.size(),
                 "BodyParts3D soft-tissue body binding exceeds the rendered pose");
         const mr_float4 bindingNormal = softTissueVertexNormalWorld(
             tissue, vertex, bodies[tissue.bodyIndex[binding]], binding
         );
-        normal.x += vertex.weight[binding] * bindingNormal.x;
-        normal.y += vertex.weight[binding] * bindingNormal.y;
-        normal.z += vertex.weight[binding] * bindingNormal.z;
-        totalWeight += vertex.weight[binding];
+        normal.x += weight * bindingNormal.x;
+        normal.y += weight * bindingNormal.y;
+        normal.z += weight * bindingNormal.z;
+        totalWeight += weight;
     }
     require(std::abs(totalWeight - 1.0f) <= 2.0e-3f,
             "BodyParts3D soft-tissue normal has non-unit active weights");
@@ -3555,10 +3818,23 @@ GeometryRange appendSoftTissueGeometry(
 }
 
 std::uint32_t softTissueLastBinding(const SoftTissueRecord& tissue) {
-    for (std::uint32_t binding = 3u; binding > 0u; --binding) {
-        if (tissue.bodyIndex[binding - 1u] != MR_INVALID_INDEX) return binding - 1u;
+    require(tissue.bindingCount > 0u,
+            "BodyParts3D soft-tissue has no articulated body binding");
+    return tissue.bindingCount - 1u;
+}
+
+float softTissueVertexWeightForBinding(
+    const SoftTissueVertex& vertex,
+    const std::uint32_t binding
+) {
+    float result = 0.0f;
+    for (std::uint32_t influence = 0u;
+         influence < kRouteSoftTissueMaximumInfluences; ++influence) {
+        if (vertex.bindingIndex[influence] == binding) {
+            result += vertex.weight[influence];
+        }
     }
-    throw std::runtime_error("BodyParts3D soft-tissue has no articulated body binding");
+    return result;
 }
 
 // BodyParts3D's source tendon, muscle, and bone meshes are separate surfaces.
@@ -3692,8 +3968,10 @@ GeometryRange appendTendonAttachmentCollarGeometry(
             scalePoint(addPoint(firstSource, secondSource), 0.5f), {0.0f, 0.0f, 0.0f, 0.0f}
         );
         const bool secondaryBoneEnd =
-            first.weight[tendonDistalBinding] >= 1.0f - kSecondaryWeightTolerance &&
-            second.weight[tendonDistalBinding] >= 1.0f - kSecondaryWeightTolerance;
+            softTissueVertexWeightForBinding(first, tendonDistalBinding) >=
+                1.0f - kSecondaryWeightTolerance &&
+            softTissueVertexWeightForBinding(second, tendonDistalBinding) >=
+                1.0f - kSecondaryWeightTolerance;
         if (!secondaryBoneEnd) {
             begin = end;
             continue;
@@ -4175,9 +4453,7 @@ PassiveFEMTissueVisual runPassiveFEMTissue(
             "requested FEM tissue stable ID is not present");
     const SoftTissueRecord& tissue = *selected;
     require(tissue.layer == kSoftTissueLayerMuscle &&
-                tissue.bodyIndex[0] != MR_INVALID_INDEX &&
-                tissue.bodyIndex[1] != MR_INVALID_INDEX &&
-                tissue.bodyIndex[2] == MR_INVALID_INDEX &&
+                tissue.bindingCount == 2u &&
                 tissue.bodyIndex[0] < restBodies.size() &&
                 tissue.bodyIndex[1] < restBodies.size(),
             "native FEM tissue currently requires one two-body source muscle surface");
@@ -4190,8 +4466,12 @@ PassiveFEMTissueVisual runPassiveFEMTissue(
         const SoftTissueVertex& vertex = source.vertices[tissue.firstVertex + offset];
         const mr_float4 point = softTissueVertexBlendedWorld(tissue, vertex, restBodies);
         surfacePoints.push_back(point);
-        if (vertex.weight[0] >= 0.85f) firstEndpointPoints.push_back(point);
-        if (vertex.weight[1] >= 0.85f) secondEndpointPoints.push_back(point);
+        if (softTissueVertexWeightForBinding(vertex, 0u) >= 0.85f) {
+            firstEndpointPoints.push_back(point);
+        }
+        if (softTissueVertexWeightForBinding(vertex, 1u) >= 0.85f) {
+            secondEndpointPoints.push_back(point);
+        }
     }
     require(firstEndpointPoints.size() >= 3u && secondEndpointPoints.size() >= 3u,
             "source muscle has insufficient endpoint-weighted surface samples for FEM");
@@ -4536,7 +4816,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         ? (skinPayload != nullptr
             ? "numi://bodyparts3d/NHBONES1+NHSKIN1+NHRIGID2+NHMYO1/articulated-shell-view"
             : (softTissuePayload != nullptr
-                ? "numi://bodyparts3d/NHBONES1+NHTISS2-or-NHTISS3+NHRIGID2+NHMYO1/articulated-anatomy-view"
+                ? "numi://bodyparts3d/NHBONES1+NHTISS2-or-NHTISS3-or-NHTISS4+NHRIGID2+NHMYO1/articulated-anatomy-view"
                 : (torsoAnatomyPayload != nullptr
                     ? "numi://bodyparts3d/NHBONES1+NHANAT1+NHRIGID2+NHMYO1/articulated-torso-anatomy-view"
                     : "numi://bodyparts3d/NHBONES1+NHRIGID2+NHMYO1/articulated-bone-view")))
@@ -4690,9 +4970,8 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     if (zAnatomyCalfVisualSupplement && softTissuePayload != nullptr) {
         for (const SoftTissueRecord& tissue : softTissuePayload->records) {
             if (tissue.layer != kSoftTissueLayerSupplementalBone) continue;
-            require(tissue.bodyIndex[0] != MR_INVALID_INDEX &&
-                        tissue.bodyIndex[1] == MR_INVALID_INDEX &&
-                        tissue.bodyIndex[2] == MR_INVALID_INDEX,
+            require(tissue.bindingCount == 1u &&
+                        tissue.bodyIndex[0] != MR_INVALID_INDEX,
                     "Z-Anatomy supplemental bone must have one articulated body binding");
             supplementalBoneBodyIndices.push_back(tissue.bodyIndex[0]);
         }
@@ -5516,7 +5795,7 @@ int main(int argc, char** argv) {
                           << " [--activated-source-muscle-index <0..415>]..."
                           << " [--source-route-centrelines] [--source-route-index <0..415>]..."
                           << " [--surface-project-source-sites]"
-                          << " [--soft-tissue-payload <NHTISS2-or-NHTISS3>]"
+                          << " [--soft-tissue-payload <NHTISS2-or-NHTISS3-or-NHTISS4>]"
                           << " [--skin-payload <NHSKIN1>]"
                           << " [--torso-anatomy-payload <NHANAT1>]"
                           << " [--passive-fem-tissue-stable-id <1..N>]"
@@ -6120,6 +6399,12 @@ int main(int argc, char** argv) {
                 evidenceBoundary +=
                     "_with_sequential_assisted_then_zero_root_wrench_device_horizons";
             }
+            if (muscleDrivenState.has_value() &&
+                muscleDrivenState->persistentMetalHorizon &&
+                !muscleDrivenState->compiledBalanced) {
+                evidenceBoundary +=
+                    "_with_reduced_bounded_acceleration_recruitment_not_a_static_equilibrium_certificate";
+            }
             if (skinPayload.has_value()) {
                 evidenceBoundary +=
                     skinPayload->usesSourceSurfaceLocalWeights
@@ -6157,7 +6442,9 @@ int main(int argc, char** argv) {
                       << " bodyparts_soft_tissues=" << renderedSoftTissues
                       << " requested_soft_tissue_surfaces=" << requestedSoftTissueStableIds.size()
                       << " soft_tissue_binding=" << (softTissuePayload.has_value()
-                              ? "named_body_weighted_world_surface_snapshot"
+                              ? (softTissuePayload->usesRouteBodySparseWeights
+                                  ? "exact_route_body_sparse_four_influence_world_surface_snapshot"
+                                  : "named_body_weighted_world_surface_snapshot")
                               : "none")
                       << " bodyparts_tendon_attachment_collars="
                       << renderedTendonAttachmentCollars
@@ -6270,6 +6557,14 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->compiledAcceptedPoseSteps : 0u)
                       << " compiled_stand_normalized_residual_rms=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->compiledActivationResidualRms : 0.0)
+                      << " compiled_stand_initial_normalized_residual_rms=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledInitialActivationResidualRms : 0.0)
+                      << " compiled_stand_max_acceleration_residual=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledMaximumAccelerationResidual : 0.0)
+                      << " compiled_stand_max_velocity_increment=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledMaximumVelocityIncrement : 0.0)
+                      << " compiled_stand_balanced=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->compiledBalanced ? "true" : "false")
                       << " compiled_stand_max_activation=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->compiledMaximumActivation : 0.0)
                       << " compiled_stand_max_equality_reaction=" << (muscleDrivenState.has_value()
@@ -6335,6 +6630,30 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->maximumConfigurationDelta : 0.0)
                       << " muscle_step_max_configuration_delta_q=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->maximumConfigurationDeltaQ : MR_INVALID_INDEX)
+                      << " compiled_ankle_r=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledFootCoordinates[0] : 0.0)
+                      << " compiled_subtalar_r=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledFootCoordinates[1] : 0.0)
+                      << " compiled_mtp_r=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledFootCoordinates[2] : 0.0)
+                      << " compiled_ankle_l=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledFootCoordinates[3] : 0.0)
+                      << " compiled_subtalar_l=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledFootCoordinates[4] : 0.0)
+                      << " compiled_mtp_l=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledFootCoordinates[5] : 0.0)
+                      << " final_ankle_r=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->finalFootCoordinates[0] : 0.0)
+                      << " final_subtalar_r=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->finalFootCoordinates[1] : 0.0)
+                      << " final_mtp_r=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->finalFootCoordinates[2] : 0.0)
+                      << " final_ankle_l=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->finalFootCoordinates[3] : 0.0)
+                      << " final_subtalar_l=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->finalFootCoordinates[4] : 0.0)
+                      << " final_mtp_l=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->finalFootCoordinates[5] : 0.0)
                       << " source_support_contact=" << (sourceSupportContact ? "true" : "false")
                       << " source_support_witnesses=" << (sourceSupportContact
                               ? muscleDrivenState->supportWitnessCount : 0u)

@@ -38,9 +38,11 @@ struct NumiHumanMuscleEquilibriumConfig {
     std::uint32_t activationSweeps = 160u;
     double activationRegularization = 2.5e-4;
     double activationConvergence = 1.0e-7;
-    // Weight each internal generalized-force row by
-    // 1 / max(minimumGeneralizedForceScale, abs(gravityTarget)).
-    double minimumGeneralizedForceScale = 25.0;
+    // Recruitment is evaluated in constrained acceleration space, not raw
+    // generalized-force units. This prevents small distal-joint torque
+    // errors from disappearing beside pelvis/hip loads merely because their
+    // effective inertias differ by orders of magnitude.
+    double minimumGeneralizedAccelerationScale = 1.0;
     double balanceTolerance = 5.0e-2;
 
     // Deterministic bounded coordinate search. Only scalar, authoritative
@@ -79,10 +81,12 @@ struct NumiHumanMuscleEquilibriumDiagnostics {
     std::uint32_t activePositionLimitCount = 0u;
     std::uint32_t jointEqualityCount = 0u;
     std::uint32_t maximumNormalizedResidualDof = MR_INVALID_INDEX;
+    std::uint32_t maximumAccelerationResidualDof = MR_INVALID_INDEX;
     double initialNormalizedResidualRms = 0.0;
     double normalizedResidualRms = 0.0;
     double maximumGeneralizedForceResidual = 0.0;
-    double maximumNormalizedGeneralizedForceResidual = 0.0;
+    double maximumNormalizedAccelerationResidual = 0.0;
+    double maximumGeneralizedAccelerationResidual = 0.0;
     double maximumActivation = 0.0;
     double minimumNormalizedPositionLimitMargin = 1.0;
     double maximumPositionLimitReaction = 0.0;

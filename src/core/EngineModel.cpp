@@ -262,8 +262,7 @@ bool validDofParameters(
         (dof.flags & MR_DOF_FLAG_DRIVE) != 0u;
     if ((!actuated && (effortLimited || driven)) ||
         (driven && !actuated) ||
-        (!driven && (dof.drive.x != 0.0f ||
-                     dof.drive.y != 0.0f)) ||
+        (!driven && dof.drive.x != 0.0f) ||
         (positionLimited &&
          (dof.qIndex == MR_INVALID_INDEX ||
           jointType == MR_JOINT_CONTINUOUS ||

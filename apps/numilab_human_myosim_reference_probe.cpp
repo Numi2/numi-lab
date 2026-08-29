@@ -1411,10 +1411,14 @@ int run(
                << equilibrium.diagnostics.normalizedResidualRms
                << " equilibrium_max_generalized_residual="
                << equilibrium.diagnostics.maximumGeneralizedForceResidual
-               << " equilibrium_max_normalized_residual="
-               << equilibrium.diagnostics.maximumNormalizedGeneralizedForceResidual
-               << " equilibrium_max_normalized_residual_dof="
+               << " equilibrium_max_normalized_acceleration_residual="
+               << equilibrium.diagnostics.maximumNormalizedAccelerationResidual
+               << " equilibrium_max_normalized_acceleration_residual_dof="
                << equilibrium.diagnostics.maximumNormalizedResidualDof
+               << " equilibrium_max_acceleration_residual="
+               << equilibrium.diagnostics.maximumGeneralizedAccelerationResidual
+               << " equilibrium_max_acceleration_residual_dof="
+               << equilibrium.diagnostics.maximumAccelerationResidualDof
                << " equilibrium_active_muscles="
                << equilibrium.diagnostics.activeMuscleCount
                << " equilibrium_recruited_muscles="

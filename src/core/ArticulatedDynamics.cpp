@@ -557,8 +557,7 @@ bool validDofDynamicsParameters(
     return
         (actuated || (!effortLimited && !driven)) &&
         (!driven || actuated) &&
-        (driven ||
-         (dof.drive.x == 0.0f && dof.drive.y == 0.0f)) &&
+        (driven || dof.drive.x == 0.0f) &&
         (!positionLimited ||
          (dof.qIndex != MR_INVALID_INDEX &&
           jointType != MR_JOINT_CONTINUOUS &&
@@ -1730,13 +1729,18 @@ ArticulatedDynamicsDiagnostics inverseDynamicsInternal(
     for (std::size_t localDof = 0u;
          localDof < generalizedForce.size();
          ++localDof) {
+        const MRDofPropertiesGPU& dof =
+            model.dofs[articulation.vOffset + localDof];
         generalizedForce[localDof] +=
-            static_cast<double>(
-                model.dofs[
-                    articulation.vOffset + localDof
-                ].drive.z
-            ) *
+            static_cast<double>(dof.drive.z) *
             generalizedAcceleration[localDof];
+        // A non-driven damping coefficient is passive source physics. Driven
+        // damping remains an actuator gain and is evaluated by the explicit
+        // actuation layer, so it must not be counted twice here.
+        if ((dof.flags & MR_DOF_FLAG_DRIVE) == 0u) {
+            generalizedForce[localDof] +=
+                static_cast<double>(dof.drive.y) * v[localDof];
+        }
     }
     if (!finiteSpan(generalizedForce)) {
         diagnostics.status =
