@@ -5652,6 +5652,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     const PectoralisFasciaVisual* pectoralisFascia,
     const bool muscleDriven,
     const std::span<const std::uint32_t> requestedBoneBodyIndices,
+    const std::span<const std::uint32_t> requestedBoneStableIds,
     const std::span<const std::uint32_t> requestedSoftTissueStableIds,
     const bool zAnatomyCalfVisualSupplement,
     const bool tendonAttachmentCollarDiagnostic,
@@ -5867,6 +5868,12 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
             if (!requestedBoneBodyIndices.empty() &&
                 !std::binary_search(
                     requestedBoneBodyIndices.begin(), requestedBoneBodyIndices.end(), bone.bodyIndex
+                )) {
+                continue;
+            }
+            if (!requestedBoneStableIds.empty() &&
+                !std::binary_search(
+                    requestedBoneStableIds.begin(), requestedBoneStableIds.end(), bone.stableId
                 )) {
                 continue;
             }
@@ -6562,6 +6569,7 @@ int main(int argc, char** argv) {
             std::vector<std::uint32_t> requestedSourceRouteMuscles;
             std::vector<std::uint32_t> selectedSourceMuscleActivations;
             std::vector<std::uint32_t> requestedBoneBodyIndices;
+            std::vector<std::uint32_t> requestedBoneStableIds;
             std::vector<std::uint32_t> requestedSoftTissueStableIds;
             bool zAnatomyCalfVisualSupplement = false;
             bool tendonAttachmentCollarDiagnostic = false;
@@ -6654,6 +6662,12 @@ int main(int argc, char** argv) {
                     requestedBoneBodyIndices.push_back(
                         parseSourceRouteIndex(argv[++index])
                     );
+                } else if (argument == "--visible-bone-stable-id") {
+                    require(index + 1 < argc,
+                            "--visible-bone-stable-id requires one NHBONES1 stable ID");
+                    requestedBoneStableIds.push_back(
+                        parseSourceRouteIndex(argv[++index])
+                    );
                 } else if (argument == "--focus-body-index") {
                     require(index + 1 < argc && !focusBodyIndex.has_value(),
                             "--focus-body-index requires one body index and may be given only once");
@@ -6744,6 +6758,7 @@ int main(int argc, char** argv) {
                           << " [--pectoralis-fascia-payload <NHFASC1>]"
                           << " [--pectoralis-fascia-step-count <1..64>]"
                           << " [--visible-bone-body-index <0..156>]..."
+                          << " [--visible-bone-stable-id <1..NHBONES1 bone count>]..."
                           << " [--soft-tissue-stable-id <1..N>]..."
                           << " [--zanatomy-calf-visual-supplement]"
                           << " [--tendon-attachment-collar-diagnostic]"
@@ -6822,6 +6837,12 @@ int main(int argc, char** argv) {
                         }
                     ),
                     "--visible-bone-body-index exceeds the source body count");
+            std::sort(requestedBoneStableIds.begin(), requestedBoneStableIds.end());
+            const auto duplicateBoneStableId = std::adjacent_find(
+                requestedBoneStableIds.begin(), requestedBoneStableIds.end()
+            );
+            require(duplicateBoneStableId == requestedBoneStableIds.end(),
+                    "--visible-bone-stable-id values must be unique");
             std::sort(
                 requestedSoftTissueStableIds.begin(),
                 requestedSoftTissueStableIds.end()
@@ -6835,8 +6856,11 @@ int main(int argc, char** argv) {
             if (bodypartsBoneVisual) {
                 bonePayload.emplace(loadBones(positional[2], rigid.header));
             }
-            require(requestedBoneBodyIndices.empty() || bonePayload.has_value(),
-                    "--visible-bone-body-index requires a BodyParts3D bone payload");
+            require(
+                (requestedBoneBodyIndices.empty() && requestedBoneStableIds.empty()) ||
+                    bonePayload.has_value(),
+                "bone visibility selection requires a BodyParts3D bone payload"
+            );
             if (!requestedBoneBodyIndices.empty()) {
                 for (const std::uint32_t bodyIndex : requestedBoneBodyIndices) {
                     const bool present = std::any_of(
@@ -6845,6 +6869,18 @@ int main(int argc, char** argv) {
                     );
                     require(present,
                             "--visible-bone-body-index has no source mesh in the supplied payload");
+                }
+            }
+            if (!requestedBoneStableIds.empty()) {
+                for (const std::uint32_t stableId : requestedBoneStableIds) {
+                    const bool present = std::any_of(
+                        bonePayload->records.begin(), bonePayload->records.end(),
+                        [stableId](const BoneRecord& bone) {
+                            return bone.stableId == stableId;
+                        }
+                    );
+                    require(present,
+                            "--visible-bone-stable-id has no source mesh in the supplied payload");
                 }
             }
             std::optional<LoadedSoftTissues> softTissuePayload;
@@ -7174,6 +7210,7 @@ int main(int argc, char** argv) {
                 pectoralisFascia.has_value() ? &*pectoralisFascia : nullptr,
                 muscleDrivenState.has_value(),
                 requestedBoneBodyIndices,
+                requestedBoneStableIds,
                 requestedSoftTissueStableIds,
                 zAnatomyCalfVisualSupplement,
                 tendonAttachmentCollarDiagnostic,
@@ -7189,7 +7226,9 @@ int main(int argc, char** argv) {
                             ? pectoralisFascia->sourceStableIds.size() : 0u) ==
                             requestedSoftTissueStableIds.size(),
                     "native Human visual soft-tissue selection did not render every requested source surface");
-            require(requestedBoneBodyIndices.empty() || renderedBodies > 0u,
+            require(
+                (requestedBoneBodyIndices.empty() && requestedBoneStableIds.empty()) ||
+                    renderedBodies > 0u,
                     "native Human visual bone selection rendered no source mesh");
             require(!passiveFEMTissue.has_value() || renderedPassiveFEMTissues == 1u,
                     "native Human visual passive FEM tissue selection did not render its source surface");
@@ -7508,6 +7547,7 @@ int main(int argc, char** argv) {
                       << " rendered_link_visuals=" << renderedBodies
                       << " bodyparts_bones=" << (bonePayload.has_value() ? bonePayload->records.size() : 0u)
                       << " requested_bone_bodies=" << requestedBoneBodyIndices.size()
+                      << " requested_bone_stable_ids=" << requestedBoneStableIds.size()
                       << " bodyparts_soft_tissues=" << renderedSoftTissues
                       << " requested_soft_tissue_surfaces=" << requestedSoftTissueStableIds.size()
                       << " soft_tissue_binding=" << (softTissuePayload.has_value()

@@ -54,6 +54,10 @@ struct NumiHumanTendonBinding {
 
 struct NumiHumanTendonEnvelope {
     std::uint32_t bodyIndex = MR_INVALID_INDEX;
+    // BodyParts3D bones use 1..boneCount. Exact pinned non-BodyParts
+    // attachment surfaces use the reserved high-bit namespace; the stable ID
+    // remains provenance/identity metadata and never selects an articulated
+    // body or scatters a joint torque.
     std::uint32_t boneStableId = 0u;
     std::uint32_t sourceTriangleIndex = MR_INVALID_INDEX;
     std::array<std::array<double, 3>, 4> localNodes{};

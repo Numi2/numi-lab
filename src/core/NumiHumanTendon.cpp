@@ -20,6 +20,20 @@ constexpr std::size_t kBindingBytes = 64u;
 constexpr std::size_t kTriangleBytes = 64u;
 constexpr std::size_t kEnvelopeBytes = 288u;
 constexpr double kPointTolerance = 1.0e-6;
+constexpr std::uint32_t kSourceAttachmentSurfaceNamespace = 0x80000000u;
+constexpr std::uint32_t kSourceAttachmentSurfaceMaximumLocalId = 256u;
+
+bool validAttachmentSurfaceStableId(
+    const std::uint32_t stableId,
+    const std::uint32_t bodyPartsBoneCount
+) {
+    if (stableId > 0u && stableId <= bodyPartsBoneCount) return true;
+    const std::uint32_t sourceLocalId =
+        stableId & ~kSourceAttachmentSurfaceNamespace;
+    return (stableId & kSourceAttachmentSurfaceNamespace) != 0u &&
+        sourceLocalId > 0u &&
+        sourceLocalId <= kSourceAttachmentSurfaceMaximumLocalId;
+}
 
 NumiHumanTendonDiagnostics failure(
     const NumiHumanTendonStatus status,
@@ -180,7 +194,7 @@ NumiHumanTendonDiagnostics decodeNumiHumanTendonPayload(
                 return failure(NumiHumanTendonStatus::truncatedPayload, index);
             }
             if (integers[3] != 4u || integers[0] >= payload.bodyCount ||
-                integers[1] == 0u || integers[1] > payload.boneCount) {
+                !validAttachmentSurfaceStableId(integers[1], payload.boneCount)) {
                 return failure(NumiHumanTendonStatus::invalidBinding, index);
             }
             NumiHumanTendonEnvelope envelope;
