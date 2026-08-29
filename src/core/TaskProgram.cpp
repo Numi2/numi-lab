@@ -2314,8 +2314,10 @@ TaskCompileDiagnostics compileTaskProgram(
                 // 35...56 duplicate route and state feedback for an
                 // inter-gate residual that is live only at waypoint one.
                 // Components 57...78 provide the same contract only while
-                // waypoint two is active.
-                componentLimit = 79u;
+                // waypoint two is active. Components 79...100 provide an
+                // independently gated copy only while waypoint three is
+                // active.
+                componentLimit = 101u;
                 break;
             }
             case TaskObservationSource::supportSense:

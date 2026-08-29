@@ -2565,8 +2565,26 @@ TaskPack makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
             : !route && component < 19u ? 0.25f : 1.0f;
         observations.actorCurrent.push_back(feedback);
     }
+    // Give waypoint three an independently learnable route/state contract.
+    // Keep its copy zero at every other waypoint so transfer can insert 22
+    // exact-zero first-layer columns without perturbing the retained route
+    // controller.
+    for (std::uint32_t component = 0u; component < 22u; ++component) {
+        const bool route = component < 13u;
+        TaskObservationOperatorSpec feedback{
+            .source = TaskObservationSource::navigationTarget,
+            .target = "crow_course_gate_left",
+            .component = component + 79u,
+        };
+        feedback.scale = route && component < 6u
+            ? 0.25f
+            : !route && component < 16u
+            ? 0.5f
+            : !route && component < 19u ? 0.25f : 1.0f;
+        observations.actorCurrent.push_back(feedback);
+    }
     // V10 keeps v9's deployable sensor and action dimensions while extending
-    // the actor to a 763-input policy ABI. Distinct task and observation
+    // the actor to a 785-input policy ABI. Distinct task and observation
     // fingerprints prevent narrower actors from being silently rebound.
     return task;
 }

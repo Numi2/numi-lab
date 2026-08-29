@@ -1055,6 +1055,56 @@ def main() -> int:
                 )
             residual_observation_count = 5
             residual_width = 2 * residual_observation_count
+            stochastic_residual = MLXPolicyLearner.from_actor_policy_pack(
+                artifact,
+                critic_count,
+                learner.configuration,
+                actor_route_residual_observation_offset=(
+                    actor_count - residual_observation_count
+                ),
+                actor_route_residual_observation_count=(
+                    residual_observation_count
+                ),
+                library_path=arguments.library,
+            )
+            if not np.array_equal(
+                np.asarray(stochastic_residual.model.log_standard_deviation),
+                np.asarray(learner.model.log_standard_deviation),
+            ):
+                raise RuntimeError(
+                    "route residual initialization changed exploration"
+                )
+            source_pack = read_policy_pack(
+                artifact,
+                library_path=arguments.library,
+            )
+            stochastic_critic_layers = [
+                layer
+                for layer in stochastic_residual.model.critic.layers
+                if hasattr(layer, "weight")
+            ]
+            if len(stochastic_critic_layers) != len(source_pack.critic_layers):
+                raise RuntimeError(
+                    "route residual initialization changed critic topology"
+                )
+            if not all(
+                np.array_equal(
+                    np.asarray(layer.weight),
+                    np.asarray(source.weights),
+                )
+                and np.array_equal(
+                    np.asarray(layer.bias),
+                    np.asarray(source.bias),
+                )
+                for layer, source in zip(
+                    stochastic_critic_layers,
+                    source_pack.critic_layers,
+                    strict=True,
+                )
+            ):
+                raise RuntimeError(
+                    "route residual initialization changed the source critic"
+                )
             residual = MLXPolicyLearner.from_actor_policy_pack(
                 deployment,
                 critic_count,

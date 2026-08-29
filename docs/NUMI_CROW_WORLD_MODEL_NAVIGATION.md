@@ -176,6 +176,56 @@ completion and remains far below reliability or promotion. The next bounded
 milestone is a waypoint-three-specific adapter trained from real WP4 success;
 no held-out qualification or new BirdFlow showcase render is justified yet.
 
+### Waypoint-three capacity and rejected learners
+
+The current task ABI adds a 22-value waypoint-three-only route/state copy at
+actor indices `[163, 185)`. Components 79...100 are zero outside waypoint
+three. Inserting those columns before the 600 visual values creates a
+785-input actor while preserving every inherited observation and first-layer
+column. The zero-connected transfer in
+`crow-v10-waypoint-three-adapter-v103-20260829` reproduces every waypoint,
+progress, and completion value on all 192 established lanes exactly.
+
+A stage-three probe initially appeared ideal: all 64 lanes reached waypoint
+five. That result instead exposed curriculum saturation. Its eleven accepted
+reset rows came from an older 697-input parent, and the retained 763-input
+parent already solves every sampled continuation. Two stage-three learners,
+including a stronger distillation pass, changed only `[163, 185)` but changed
+no full-route waypoint count on a fresh seed or the established selection.
+They are rejected.
+
+The follow-up trained on the real band-10 route rather than the saturated
+reset pool. Eight updates supplied 819,200 native samples, but only 98...244
+samples per update carried accepted waypoint-four teacher evidence. The
+shallow adapter remained outcome-neutral. A bounded 2x/4x/8x dose screen
+showed no gain and regressed at higher authority. The interpolation tool now
+preserves every source-equal float exactly during extrapolation; without that
+guard, roundoff in nominally unchanged carrier weights caused false upstream
+route drift.
+
+The dedicated residual experiment widens the inherited hidden topology from
+`[582, 326, 198]` to `[626, 370, 242]`. Its 44-wide paired-sign path sees only
+the waypoint-three inputs and has an exact-zero output projection. The MLX
+initializer now preserves the stochastic source exploration head and critic
+when widening this actor; an initial run was stopped immediately after that
+preservation defect exposed an unintended 0.20 exploration scale. The fixed
+pack retains 0.04 and again reproduces all 192 parent lanes exactly.
+
+`crow-v10-waypoint-three-residual-full-route-v110-20260829` trains only the
+isolated residual hidden blocks and output tail. Its final action correction
+is material (0.0217 mean absolute and 0.0711 maximum on active samples), but
+revisions 2, 3, 5, 7, and 9 all remain count-neutral on the fresh screen and
+the densest established seed. A final residual dose screen is neutral at 2x
+and 4x and loses one completion at 8x. No learned waypoint-three candidate is
+retained.
+
+The development result therefore remains `[189, 118, 30, 13, 13]`, or 6.77%
+completion. The retained behavior is still the v102 alpha-0.50 parent,
+expressed under the current 785-input ABI by the exact-zero v108 residual
+transfer. The next useful data milestone is to refresh the stage-three reset
+pool from current autonomous waypoint-three arrivals, including failure-near
+misses and successful continuations, before another learner is authorized.
+
 ### Retained route-residual candidate
 
 The retained development candidate is revision 41 from

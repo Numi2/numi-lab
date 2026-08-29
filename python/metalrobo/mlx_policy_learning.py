@@ -2802,10 +2802,32 @@ class MLXPolicyLearner:
         source_hidden_sizes = tuple(
             layer.output_count for layer in pack.layers[:-1]
         )
+        if (
+            preserve_critic
+            and pack.critic_layers
+            and pack.critic_observation_count != critic_observation_count
+        ):
+            raise ValueError(
+                "actor initialization source critic disagrees with the "
+                "requested observation contract; request a fresh critic"
+            )
+        preserve_source_critic = bool(
+            preserve_critic
+            and pack.critic_layers
+            and pack.critic_observation_count == critic_observation_count
+        )
         restored_configuration = replace(
             configuration,
             hidden_sizes=tuple(
                 size + residual_width for size in source_hidden_sizes
+            ),
+            critic_hidden_sizes=(
+                tuple(
+                    layer.output_count
+                    for layer in pack.critic_layers[:-1]
+                )
+                if preserve_source_critic
+                else configuration.critic_hidden_sizes
             ),
             observation_clip=pack.observation_clip,
         )
@@ -2939,6 +2961,34 @@ class MLXPolicyLearner:
             # this pack is therefore bit-exact with the inherited actor.
             target.weight = mx.array(weights, dtype=mx.float32)
             target.bias = mx.array(bias, dtype=mx.float32)
+        if preserve_source_critic:
+            critic_destination = [
+                layer
+                for layer in learner.model.critic.layers
+                if isinstance(layer, nn.Linear)
+            ]
+            if len(critic_destination) != len(pack.critic_layers):
+                raise RuntimeError(
+                    "MLX critic construction disagrees with PolicyPack"
+                )
+            for target, artifact in zip(
+                critic_destination,
+                pack.critic_layers,
+                strict=True,
+            ):
+                target.weight = mx.array(
+                    artifact.weights,
+                    dtype=mx.float32,
+                )
+                target.bias = mx.array(
+                    artifact.bias,
+                    dtype=mx.float32,
+                )
+        if pack.action_log_standard_deviation.size == pack.action_count:
+            learner.model.log_standard_deviation = mx.array(
+                pack.action_log_standard_deviation,
+                dtype=mx.float32,
+            )
         actor_mean = np.concatenate(
             (
                 pack.effective_observation_mean[:extension_offset],

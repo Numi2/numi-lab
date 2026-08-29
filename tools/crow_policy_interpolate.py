@@ -64,11 +64,34 @@ def _require_matching_contract(source: object, target: object) -> None:
         raise ValueError("policy interpolation actor architectures disagree")
 
 
+def _interpolate_changed(
+    source: np.ndarray,
+    target: np.ndarray,
+    alpha: np.float32,
+) -> np.ndarray:
+    """Blend changed elements without rounding source-equal parameters."""
+    result = source.copy()
+    changed = source != target
+    result[changed] = (
+        (np.float32(1.0) - alpha) * source[changed]
+        + alpha * target[changed]
+    )
+    return result
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", required=True, type=Path)
     parser.add_argument("--target", required=True, type=Path)
     parser.add_argument("--alpha", required=True, type=float)
+    parser.add_argument(
+        "--allow-extrapolation",
+        action="store_true",
+        help=(
+            "permit a bounded alpha above one for isolated residual dose "
+            "screens; the hard maximum is eight"
+        ),
+    )
     parser.add_argument("--revision", required=True, type=int)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--deployment-output", required=True, type=Path)
@@ -81,8 +104,14 @@ def main() -> int:
     )
     arguments = parser.parse_args()
 
-    if not np.isfinite(arguments.alpha) or not 0.0 <= arguments.alpha <= 1.0:
-        raise ValueError("policy interpolation alpha must be in [0, 1]")
+    maximum_alpha = 8.0 if arguments.allow_extrapolation else 1.0
+    if (
+        not np.isfinite(arguments.alpha)
+        or not 0.0 <= arguments.alpha <= maximum_alpha
+    ):
+        raise ValueError(
+            f"policy interpolation alpha must be in [0, {maximum_alpha:g}]"
+        )
     if arguments.revision <= 0:
         raise ValueError("policy interpolation revision must be positive")
 
@@ -130,23 +159,26 @@ def main() -> int:
             weight = source_weight.copy()
             bias = source_bias.copy()
             rows = np.asarray(output_actions, dtype=np.int64)
-            weight[rows] = (
-                (np.float32(1.0) - alpha) * source_weight[rows]
-                + alpha
-                * np.asarray(target_layer.weights, dtype=np.float32)[rows]
+            weight[rows] = _interpolate_changed(
+                source_weight[rows],
+                np.asarray(target_layer.weights, dtype=np.float32)[rows],
+                alpha,
             )
-            bias[rows] = (
-                (np.float32(1.0) - alpha) * source_bias[rows]
-                + alpha * np.asarray(target_layer.bias, dtype=np.float32)[rows]
+            bias[rows] = _interpolate_changed(
+                source_bias[rows],
+                np.asarray(target_layer.bias, dtype=np.float32)[rows],
+                alpha,
             )
         else:
-            weight = (
-                (np.float32(1.0) - alpha) * source_weight
-                + alpha * np.asarray(target_layer.weights, dtype=np.float32)
+            weight = _interpolate_changed(
+                source_weight,
+                np.asarray(target_layer.weights, dtype=np.float32),
+                alpha,
             )
-            bias = (
-                (np.float32(1.0) - alpha) * source_bias
-                + alpha * np.asarray(target_layer.bias, dtype=np.float32)
+            bias = _interpolate_changed(
+                source_bias,
+                np.asarray(target_layer.bias, dtype=np.float32),
+                alpha,
             )
         destination.weight = mx.array(weight, dtype=mx.float32)
         destination.bias = mx.array(bias, dtype=mx.float32)
@@ -185,6 +217,7 @@ def main() -> int:
                 "target_sha256": _sha256(target_path),
                 "target_revision": target_pack.revision,
                 "alpha": arguments.alpha,
+                "extrapolated": arguments.alpha > 1.0,
                 "mode": (
                     "selected-output-actions"
                     if output_actions is not None
