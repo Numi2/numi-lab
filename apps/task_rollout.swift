@@ -234,6 +234,7 @@ private struct Options {
     var stateTraceEnvironment = 0
     var crowReplayPack: String?
     var crowNavigationArrivalPack: String?
+    var crowNavigationArrivalWaypoint = 3
     var policyActionTrace: String?
     var g1VisualPackDirectory: String?
     var ballVisualPackDirectory: String?
@@ -503,6 +504,11 @@ private struct Options {
                 index += 1
             case "--crow-navigation-arrival-pack":
                 crowNavigationArrivalPack = try value()
+                index += 1
+            case "--crow-navigation-arrival-waypoint":
+                crowNavigationArrivalWaypoint = try Self.integer(
+                    value(), option
+                )
                 index += 1
             case "--policy-action-trace":
                 policyActionTrace = try value()
@@ -1013,6 +1019,18 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--crow-navigation-arrival-pack requires the v10 Crow journey."
+            )
+        }
+        if !(1...4).contains(crowNavigationArrivalWaypoint) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--crow-navigation-arrival-waypoint requires an integer in 1...4."
+            )
+        }
+        if crowNavigationArrivalPack == nil &&
+            crowNavigationArrivalWaypoint != 3
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--crow-navigation-arrival-waypoint requires --crow-navigation-arrival-pack."
             )
         }
         if stateTrace == nil && stateTraceEnvironment != 0 {
@@ -2487,11 +2505,14 @@ private enum TaskRolloutMain {
                                     base + navigationWaypointOutcome
                                 ]
                             )
+                            let arrivalWaypoint = Double(
+                                options.crowNavigationArrivalWaypoint
+                            )
                             if options.crowNavigationArrivalPack != nil &&
-                                waypoints >= 3.0 &&
+                                waypoints >= arrivalWaypoint &&
                                 maximumNavigationWaypointsByEnvironment[
                                     environment
-                                ] < 3.0
+                                ] < arrivalWaypoint
                             {
                                 navigationArrivalEnvironments.append(
                                     environment
@@ -3221,7 +3242,9 @@ private enum TaskRolloutMain {
                 }
                 let payload: [String: Any] = [
                     "classification":
-                        "simulated autonomous waypoint-three arrival states",
+                        "simulated autonomous waypoint-\(options.crowNavigationArrivalWaypoint) arrival states",
+                    "arrival_waypoint":
+                        options.crowNavigationArrivalWaypoint,
                     "task": context.taskID,
                     "seed": String(options.seed),
                     "environment_count": options.environments,
@@ -3723,6 +3746,8 @@ private enum TaskRolloutMain {
                 "crow_replay_payload_sha256": crowReplayPayloadSHA256,
                 "crow_navigation_arrival_pack":
                     options.crowNavigationArrivalPack ?? "",
+                "crow_navigation_arrival_waypoint":
+                    options.crowNavigationArrivalWaypoint,
                 "crow_navigation_arrival_payload_sha256":
                     crowNavigationArrivalPayloadSHA256,
                 "policy_action_trace": options.policyActionTrace ?? "",

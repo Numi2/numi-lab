@@ -303,6 +303,21 @@ waypoint-four arrivals and add isolated waypoint-four authority. More
 waypoint-three dose cannot optimize the post-gate landing state after its
 adapter becomes identically zero.
 
+The native arrival capture therefore supports an explicit waypoint in
+`1...4`; omitting it preserves waypoint three. A waypoint-four capture of
+rejected v120 revision 123 under the exact established protocol contains the
+15 physical approach crossings above: seven terminal completions and eight
+failed continuations. Payload hashes are:
+
+- `2650815802`: `51589caa0ec0a9ff6bd8e97da3982ef33508cacc7e938810d1ebe6c16e4cc986`
+- `2650815902`: `0e90b31f7f42c91298779b082c4a9915f3adcb8525797d5b661d0f67cfe2551a`
+- `2650816002`: `44bb102b6ec8f82a218a36a81c5df964983e0fbaeffe727f68df9d1784d695ed`
+
+These rows are retained as training evidence, not as a promoted policy or a
+terminal reset pool yet. The stage-three generator fails closed on a
+non-stage-three payload so waypoint-four data cannot be silently compiled
+under the wrong Metal constants.
+
 ### Retained route-residual candidate
 
 The retained development candidate is revision 41 from

@@ -118,6 +118,10 @@ def main() -> int:
         if envelope.get("schema") != "numi.crow-navigation-arrivals.v1":
             raise ValueError(f"{input_path} has the wrong schema")
         payload = envelope["payload"]
+        if int(payload.get("arrival_waypoint", 3)) != 3:
+            raise ValueError(
+                f"{input_path} is not a waypoint-three arrival pack"
+            )
         if payload.get("scheduled_resets"):
             raise ValueError(f"{input_path} used scheduled resets")
         fingerprint = tuple(
