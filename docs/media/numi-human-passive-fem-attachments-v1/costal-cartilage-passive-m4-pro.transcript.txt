@@ -1,0 +1,6 @@
+costal_cartilage_status_preflight code=0 object=4294967295 failing_index=4294967295 completed_microsteps=1 residual=0 correction=0
+costal_cartilage_deformation_preflight maximum_m=1.03381e-06 minimum_region_maximum_m=9.98378e-07
+numi_human_costal_cartilage=passed device="Apple M4 Pro" source_regions=14 fem_nodes=13516 tetrahedra=46278 sternal_fixed_nodes=1582 rib_fixed_nodes=1289 prescribed_rib_translation_m=1e-06 max_displacement_m=1.03381e-06 min_J=0.999851 max_J=1.00013 sternal_reaction_l1_n=0.291129 rib_reaction_l1_n=8.93317 sternal_body_generalized_force_l1_n=0.224998 rib_body_generalized_force_l1_n=6.02424 replay=bitwise rollback=verified production_owner_fraction=0
+real 43.02
+user 0.11
+sys 0.04

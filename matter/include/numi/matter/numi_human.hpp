@@ -12,10 +12,18 @@
 
 namespace numi::matter {
 
-// Complete load and bone-anchor maps for one Numi Human tendon/FEM consumer.
-// Node records are immutable and indexed by cooked global FEM-node index.
-// Each endpoint replacement removes exactly the declared source J^T share and
-// returns the solved fixed-node reactions through the owning body Jacobian.
+// Complete load and bone-anchor maps for one Numi Human FEM consumer. Node
+// records are immutable and indexed by cooked global FEM-node index.
+//
+// Active tendon replacement mode requires at least one endpoint replacement and
+// a positive productionForceOwnerFraction. Each replacement removes exactly the
+// declared source J^T share and returns solved fixed-node reactions through the
+// owning body Jacobian.
+//
+// Passive attachment-only mode uses no endpoint replacements, no active node
+// loads, and a zero productionForceOwnerFraction. Active anchors may reference
+// different articulated bodies; their fixed-node reactions are returned through
+// each owning body Jacobian in the same accepted command-buffer transaction.
 struct NumiHumanTendonFEMLoadSource {
     std::span<const NMNumiHumanTendonFEMNodeLoadGPU> nodeLoads{};
     std::span<const NMNumiHumanTendonFEMNodeAnchorGPU> nodeAnchors{};

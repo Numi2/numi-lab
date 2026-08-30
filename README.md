@@ -9,12 +9,16 @@ solvers.
 Numi Human lends its live NHTENDON2/3 endpoint transfers, body kinematics,
 Jacobians, and step status to Matter without a host readback or second command
 buffer. `NumiHumanTendonFEMLoadAdapter` drives prescribed bone-following FEM
-anchors, applies the equal-and-opposite load-side traction, replaces the exact
-declared anchor-endpoint share of MyoSim `J^T`, and projects accepted
-fixed-node reactions back through the owning body Jacobian before Human
-dynamics. A post-validation phase commits or rolls back the matching Matter
-transaction. Transfer-only execution still leaves `J^T` untouched; production
-coupling replaces a share and never adds a duplicate force owner.
+anchors and projects accepted fixed-node reactions back through each owning
+body Jacobian before Human dynamics. Passive attachment-only execution injects
+no tendon load and replaces no MyoSim force share; active tendon coupling also
+applies the equal-and-opposite load-side traction and replaces the exact
+declared anchor-endpoint share of MyoSim `J^T`. A post-validation phase commits
+or rolls back the matching Matter transaction. Transfer-only execution still
+leaves `J^T` untouched; production coupling replaces a share and never adds a
+duplicate force owner. The passive multi-body qualification and its limits are
+recorded in
+[`docs/NUMI_HUMAN_PASSIVE_FEM_ATTACHMENTS.md`](docs/NUMI_HUMAN_PASSIVE_FEM_ATTACHMENTS.md).
 
 The environment-wide Newton unknown is
 

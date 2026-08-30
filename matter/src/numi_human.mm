@@ -77,12 +77,14 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
     const NumiHumanTendonFEMLoadSource& source,
     const NumiHumanTendonFEMLoadConfiguration& configuration
 ) {
+    const bool passiveAttachmentOnly = source.endpointReplacements.empty();
     if (!runtime.valid() || source.nodeLoads.empty() ||
         source.nodeAnchors.size() != source.nodeLoads.size() ||
-        source.endpointReplacements.empty() ||
         source.endpointCount == 0u || source.environmentCount == 0u ||
         !std::isfinite(source.productionForceOwnerFraction) ||
-        !(source.productionForceOwnerFraction > 0.0f) ||
+        (passiveAttachmentOnly
+            ? source.productionForceOwnerFraction != 0.0f
+            : !(source.productionForceOwnerFraction > 0.0f)) ||
         source.productionForceOwnerFraction > 0.25f ||
         configuration.metallib.empty() ||
         !std::filesystem::is_regular_file(configuration.metallib)) {
@@ -164,10 +166,13 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
             [](const double scale) {
                 return !std::isfinite(scale) || scale > 0.250001;
             }
-        ) || std::none_of(
-            endpointScales.begin(), endpointScales.end(),
-            [](const double scale) { return scale > 0.0; }
-        )) {
+        ) || (passiveAttachmentOnly
+            ? std::any_of(
+                endpointScales.begin(), endpointScales.end(),
+                [](const double scale) { return scale != 0.0; })
+            : std::none_of(
+                endpointScales.begin(), endpointScales.end(),
+                [](const double scale) { return scale > 0.0; }))) {
         return false;
     }
     for (std::size_t endpointIndex = 0u;
@@ -335,10 +340,15 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 newBufferWithBytes:state_->nodeAnchors.data()
                 length:nodeAnchorBytes
                 options:MTLResourceStorageModeShared];
-            state_->replacementBuffer = [device
-                newBufferWithBytes:state_->replacements.data()
-                length:replacementBytes
-                options:MTLResourceStorageModeShared];
+            state_->replacementBuffer = replacementBytes == 0u
+                ? [device
+                    newBufferWithLength:sizeof(
+                        NMNumiHumanTendonFEMEndpointReplacementGPU)
+                    options:MTLResourceStorageModeShared]
+                : [device
+                    newBufferWithBytes:state_->replacements.data()
+                    length:replacementBytes
+                    options:MTLResourceStorageModeShared];
             state_->externalForceBuffer = [device
                 newBufferWithLength:externalForceBytes
                 options:MTLResourceStorageModePrivate];

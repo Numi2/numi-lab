@@ -48,13 +48,6 @@ double norm(const Vec3& value) {
                      value[2u] * value[2u]);
 }
 
-Vec3 normalized(const Vec3& value) {
-    const double length = norm(value);
-    require(std::isfinite(length) && length > 1.0e-9,
-            "costal-cartilage attachment centroids coincide");
-    return {value[0u] / length, value[1u] / length, value[2u] / length};
-}
-
 double signedVolume(const Vec3& a, const Vec3& b,
                     const Vec3& c, const Vec3& d) {
     const Vec3 ab = subtract(b, a);
@@ -113,7 +106,7 @@ int main(const int argc, const char* argv[]) {
             source.materials.push_back(std::move(material.material));
 
             numi::matter::ObjectSource object;
-            object.name = "numi_human_exact_costal_cartilage_v1";
+            object.name = "numi_human_exact_costal_cartilage_v2";
             object.materialIndex = 0u;
             object.representation = numi::matter::Representation::fem;
             object.mixedFEM = false;
@@ -140,6 +133,15 @@ int main(const int argc, const char* argv[]) {
                     nodeAnchors[index].localPoint = {
                         node.restPosition[0u], node.restPosition[1u],
                         node.restPosition[2u], 0.0f};
+                } else if ((node.flags &
+                     metalrobo::NUMI_HUMAN_COSTAL_CARTILAGE_RIB_ATTACHMENT) != 0u) {
+                    object.femFixedNodes.push_back(static_cast<std::uint32_t>(index));
+                    nodeAnchors[index].bodyIndex = 1u;
+                    nodeAnchors[index].flags =
+                        NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
+                    nodeAnchors[index].localPoint = {
+                        node.restPosition[0u], node.restPosition[1u],
+                        node.restPosition[2u], 0.0f};
                 }
             }
             object.femContactNodes.reserve(payload.regions.size());
@@ -148,16 +150,24 @@ int main(const int argc, const char* argv[]) {
             object.tetrahedra.reserve(payload.tetrahedra.size());
             for (const auto& tetrahedron : payload.tetrahedra)
                 object.tetrahedra.push_back({tetrahedron.node});
-            const std::size_t sternalFixedNodeCount = object.femFixedNodes.size();
+            const std::size_t fixedNodeCount = object.femFixedNodes.size();
+            const std::size_t sternalFixedNodeCount = std::count_if(
+                payload.nodes.begin(), payload.nodes.end(), [](const auto& node) {
+                    return (node.flags & metalrobo::
+                        NUMI_HUMAN_COSTAL_CARTILAGE_STERNAL_ATTACHMENT) != 0u;
+                });
+            const std::size_t ribFixedNodeCount = std::count_if(
+                payload.nodes.begin(), payload.nodes.end(), [](const auto& node) {
+                    return (node.flags & metalrobo::
+                        NUMI_HUMAN_COSTAL_CARTILAGE_RIB_ATTACHMENT) != 0u;
+                });
+            require(fixedNodeCount == sternalFixedNodeCount + ribFixedNodeCount &&
+                        sternalFixedNodeCount > 0u && ribFixedNodeCount > 0u,
+                    "costal-cartilage two-sided attachment coverage is invalid");
             source.objects.push_back(std::move(object));
 
-            constexpr float ownerFraction = 0.10f;
-            constexpr float continuumLoadN = 1.0f;
-            constexpr float sourceTerminalLoadN =
-                continuumLoadN / ownerFraction;
-            const std::size_t endpointCount = 2u * payload.regions.size();
-            std::vector<NMNumiHumanTendonFEMEndpointReplacementGPU> replacements(
-                payload.regions.size());
+            constexpr std::size_t endpointCount = 1u;
+            std::vector<NMNumiHumanTendonFEMEndpointReplacementGPU> replacements;
             std::vector<MRNumiHumanTendonTransferResultGPU> transfers(endpointCount);
             std::vector<MRNumiHumanTendonBindingGPU> bindings(endpointCount);
             for (std::size_t regionIndex = 0u;
@@ -190,57 +200,8 @@ int main(const int argc, const char* argv[]) {
                     sternalCentroid[axis] /= sternalCount;
                     ribCentroid[axis] /= ribCount;
                 }
-                const Vec3 direction = normalized(subtract(ribCentroid, sternalCentroid));
-                const std::uint32_t loadEndpoint =
-                    static_cast<std::uint32_t>(2u * regionIndex);
-                const std::uint32_t anchorEndpoint = loadEndpoint + 1u;
-                replacements[regionIndex].loadEndpointIndex = loadEndpoint;
-                replacements[regionIndex].anchorEndpointIndex = anchorEndpoint;
-                replacements[regionIndex].flags =
-                    NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_ACTIVE;
-                replacements[regionIndex].forceOwnerFraction.x = ownerFraction;
-                for (const std::uint32_t endpoint : {loadEndpoint, anchorEndpoint}) {
-                    transfers[endpoint].status =
-                        MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS;
-                    transfers[endpoint].environment = 0u;
-                    transfers[endpoint].bindingIndex = endpoint;
-                    transfers[endpoint].envelopeIndex = MR_INVALID_INDEX;
-                    bindings[endpoint].muscleIndex =
-                        static_cast<std::uint32_t>(regionIndex);
-                    bindings[endpoint].endpointOrdinal = endpoint == loadEndpoint ? 0u : 1u;
-                    bindings[endpoint].bodyIndex = 0u;
-                    bindings[endpoint].mode =
-                        MR_NUMI_HUMAN_TENDON_TRANSFER_SOURCE_POINT;
-                    bindings[endpoint].envelopeIndex = MR_INVALID_INDEX;
-                }
-                transfers[loadEndpoint].terminalWorldForce = {
-                    static_cast<float>(-sourceTerminalLoadN * direction[0u]),
-                    static_cast<float>(-sourceTerminalLoadN * direction[1u]),
-                    static_cast<float>(-sourceTerminalLoadN * direction[2u]), 0.0f};
-                transfers[anchorEndpoint].terminalWorldForce = {
-                    static_cast<float>(sourceTerminalLoadN * direction[0u]),
-                    static_cast<float>(sourceTerminalLoadN * direction[1u]),
-                    static_cast<float>(sourceTerminalLoadN * direction[2u]), 0.0f};
-                bindings[loadEndpoint].sourceLocalPoint = {
-                    static_cast<float>(ribCentroid[0u]),
-                    static_cast<float>(ribCentroid[1u]),
-                    static_cast<float>(ribCentroid[2u]), 0.0f};
-                bindings[anchorEndpoint].sourceLocalPoint = {
-                    static_cast<float>(sternalCentroid[0u]),
-                    static_cast<float>(sternalCentroid[1u]),
-                    static_cast<float>(sternalCentroid[2u]), 0.0f};
-                const float nodeScale = ownerFraction /
-                    static_cast<float>(ribCount);
-                for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
-                    const std::uint32_t index = region.firstNode + local;
-                    if ((payload.nodes[index].flags & metalrobo::
-                         NUMI_HUMAN_COSTAL_CARTILAGE_RIB_ATTACHMENT) == 0u)
-                        continue;
-                    nodeLoads[index].endpointIndex = loadEndpoint;
-                    nodeLoads[index].flags =
-                        NM_NUMI_HUMAN_TENDON_FEM_NODE_LOAD_ACTIVE;
-                    nodeLoads[index].scale.x = nodeScale;
-                }
+                require(norm(subtract(ribCentroid, sternalCentroid)) > 1.0e-6,
+                        "costal-cartilage attachment centroids coincide");
             }
 
             numi::matter::CompileOptions compileOptions;
@@ -274,9 +235,9 @@ int main(const int argc, const char* argv[]) {
                         .endpointReplacements = replacements,
                         .endpointCount = static_cast<std::uint32_t>(endpointCount),
                         .environmentCount = 1u,
-                        .productionForceOwnerFraction = ownerFraction,
+                        .productionForceOwnerFraction = 0.0f,
                     }, {.metallib = NUMI_MATTER_METALLIB}),
-                    "costal-cartilage two-way adapter did not initialize");
+                    "costal-cartilage passive two-way adapter did not initialize");
             const auto program = adapter.program();
             require(program.valid(), "costal-cartilage two-way program is invalid");
 
@@ -300,19 +261,29 @@ int main(const int argc, const char* argv[]) {
             id<MTLBuffer> standBuffer = [device
                 newBufferWithBytes:&stand length:sizeof(stand)
                 options:MTLResourceStorageModeShared];
-            MRArticulatedBodyPoseGPU pose{};
-            pose.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+            // A one-micron inter-body motion is deliberately small: this gate
+            // qualifies attachment/reaction ownership in one 0.1 ms step, not
+            // a physiological breathing-amplitude or static-load calibration.
+            constexpr float prescribedRibTranslationM = 1.0e-6f;
+            std::array<MRArticulatedBodyPoseGPU, 2u> poses{};
+            poses[0u].orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+            poses[1u].position = {prescribedRibTranslationM, 0.0f, 0.0f, 0.0f};
+            poses[1u].orientation = {0.0f, 0.0f, 0.0f, 1.0f};
             id<MTLBuffer> poseBuffer = [device
-                newBufferWithBytes:&pose length:sizeof(pose)
+                newBufferWithBytes:poses.data()
+                length:poses.size() * sizeof(poses.front())
                 options:MTLResourceStorageModeShared];
-            constexpr std::uint32_t dofCount = 3u;
-            constexpr std::uint32_t pointJacobianStride = 4u * 3u * dofCount;
+            constexpr std::uint32_t dofCount = 6u;
+            constexpr std::uint32_t pointJacobianStride = 4u * 2u * 3u * dofCount;
             std::array<float, pointJacobianStride> pointJacobians{};
-            for (std::uint32_t point = 0u; point < 4u; ++point) {
-                const std::uint32_t base = point * 3u * dofCount;
-                pointJacobians[base] = 1.0f;
-                pointJacobians[base + dofCount + 1u] = 1.0f;
-                pointJacobians[base + 2u * dofCount + 2u] = 1.0f;
+            for (std::uint32_t body = 0u; body < 2u; ++body) {
+                for (std::uint32_t point = 0u; point < 4u; ++point) {
+                    const std::uint32_t base =
+                        (4u * body + point) * 3u * dofCount;
+                    pointJacobians[base + 3u * body] = 1.0f;
+                    pointJacobians[base + dofCount + 3u * body + 1u] = 1.0f;
+                    pointJacobians[base + 2u * dofCount + 3u * body + 2u] = 1.0f;
+                }
             }
             id<MTLBuffer> jacobianBuffer = [device
                 newBufferWithBytes:pointJacobians.data()
@@ -357,12 +328,12 @@ int main(const int argc, const char* argv[]) {
                 pass.environmentCount = 1u;
                 pass.endpointCount = static_cast<std::uint32_t>(endpointCount);
                 pass.dofCount = dofCount;
-                pass.muscleCount = static_cast<std::uint32_t>(payload.regions.size());
+                pass.muscleCount = 1u;
                 pass.generalizedForceStride = 2u * dofCount;
                 pass.generalizedForceOffset = dofCount;
                 pass.pointJacobianStride = pointJacobianStride;
                 pass.bodyJacobianPointOffset = 0u;
-                pass.bodyPoseStride = 1u;
+                pass.bodyPoseStride = 2u;
                 pass.articulationFirstBody = 0u;
                 if (!program.encodePreDynamics(program.context, pass) ||
                     !program.encodePostValidation(program.context, pass)) {
@@ -384,9 +355,39 @@ int main(const int argc, const char* argv[]) {
             };
 
             execute(0u, true);
+            std::array<float, 2u * dofCount> acceptedGeneralizedForces{};
+            std::memcpy(acceptedGeneralizedForces.data(),
+                        generalizedForceBuffer.contents,
+                        generalizedForceBuffer.length);
+            double sternalBodyGeneralizedForceL1 = 0.0;
+            double ribBodyGeneralizedForceL1 = 0.0;
+            for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+                sternalBodyGeneralizedForceL1 += std::abs(
+                    acceptedGeneralizedForces[dofCount + axis]);
+                ribBodyGeneralizedForceL1 += std::abs(
+                    acceptedGeneralizedForces[dofCount + 3u + axis]);
+            }
+            require(std::isfinite(sternalBodyGeneralizedForceL1) &&
+                        std::isfinite(ribBodyGeneralizedForceL1) &&
+                        sternalBodyGeneralizedForceL1 > 0.0 &&
+                        ribBodyGeneralizedForceL1 > 0.0,
+                    "costal-cartilage body reaction scatter is incomplete");
             const auto accepted = runtime.snapshot();
             require(accepted.available && accepted.femNodes.size() == payload.nodes.size(),
                     "costal-cartilage accepted snapshot is unavailable");
+            require(accepted.statuses.size() == 1u,
+                    "costal-cartilage Matter status is unavailable");
+            std::cerr << "costal_cartilage_status_preflight"
+                      << " code=" << accepted.statuses[0u].code
+                      << " object=" << accepted.statuses[0u].objectIndex
+                      << " failing_index=" << accepted.statuses[0u].failingIndex
+                      << " completed_microsteps="
+                      << accepted.statuses[0u].completedMicrosteps
+                      << " residual=" << accepted.statuses[0u].diagnostics.z
+                      << " correction=" << accepted.statuses[0u].diagnostics.w
+                      << "\n";
+            require(accepted.statuses[0u].code == NM_STATUS_SUCCESS,
+                    "costal-cartilage Matter step was rejected");
             double maximumDisplacement = 0.0;
             std::vector<double> regionMaximumDisplacement(payload.regions.size(), 0.0);
             for (std::size_t index = 0u; index < accepted.femNodes.size(); ++index) {
@@ -400,10 +401,14 @@ int main(const int argc, const char* argv[]) {
                     regionMaximumDisplacement[payload.nodes[index].regionIndex],
                     displacement);
             }
+            const double minimumRegionDisplacement = *std::min_element(
+                regionMaximumDisplacement.begin(), regionMaximumDisplacement.end());
+            std::cerr << "costal_cartilage_deformation_preflight"
+                      << " maximum_m=" << maximumDisplacement
+                      << " minimum_region_maximum_m=" << minimumRegionDisplacement
+                      << "\n";
             require(maximumDisplacement > 0.0 && maximumDisplacement < 0.01 &&
-                        std::all_of(regionMaximumDisplacement.begin(),
-                                    regionMaximumDisplacement.end(),
-                                    [](const double value) { return value > 0.0; }),
+                        minimumRegionDisplacement > 0.0,
                     "costal-cartilage deformation coverage is invalid");
             double minimumJ = std::numeric_limits<double>::infinity();
             double maximumJ = 0.0;
@@ -425,25 +430,35 @@ int main(const int argc, const char* argv[]) {
             std::vector<nm_float4> acceptedReactions(payload.nodes.size());
             std::memcpy(acceptedReactions.data(), reactionReadback.contents,
                         acceptedReactions.size() * sizeof(acceptedReactions.front()));
-            double reactionL1 = 0.0;
-            std::vector<double> regionReaction(payload.regions.size(), 0.0);
+            double sternalReactionL1 = 0.0;
+            double ribReactionL1 = 0.0;
+            std::vector<double> regionSternalReaction(payload.regions.size(), 0.0);
+            std::vector<double> regionRibReaction(payload.regions.size(), 0.0);
             for (std::size_t index = 0u; index < payload.nodes.size(); ++index) {
-                if ((payload.nodes[index].flags & metalrobo::
-                     NUMI_HUMAN_COSTAL_CARTILAGE_STERNAL_ATTACHMENT) == 0u)
-                    continue;
                 const Vec3 reaction{acceptedReactions[index].x,
                                     acceptedReactions[index].y,
                                     acceptedReactions[index].z};
                 const double magnitude = norm(reaction);
                 require(std::isfinite(magnitude),
                         "costal-cartilage reaction is nonfinite");
-                reactionL1 += magnitude;
-                regionReaction[payload.nodes[index].regionIndex] += magnitude;
+                if ((payload.nodes[index].flags & metalrobo::
+                     NUMI_HUMAN_COSTAL_CARTILAGE_STERNAL_ATTACHMENT) != 0u) {
+                    sternalReactionL1 += magnitude;
+                    regionSternalReaction[payload.nodes[index].regionIndex] += magnitude;
+                } else if ((payload.nodes[index].flags & metalrobo::
+                     NUMI_HUMAN_COSTAL_CARTILAGE_RIB_ATTACHMENT) != 0u) {
+                    ribReactionL1 += magnitude;
+                    regionRibReaction[payload.nodes[index].regionIndex] += magnitude;
+                }
             }
-            require(reactionL1 > 0.0 &&
-                        std::all_of(regionReaction.begin(), regionReaction.end(),
+            require(sternalReactionL1 > 0.0 && ribReactionL1 > 0.0 &&
+                        std::all_of(regionSternalReaction.begin(),
+                                    regionSternalReaction.end(),
+                                    [](const double value) { return value > 0.0; }) &&
+                        std::all_of(regionRibReaction.begin(),
+                                    regionRibReaction.end(),
                                     [](const double value) { return value > 0.0; }),
-                    "costal-cartilage sternal reactions are incomplete");
+                    "costal-cartilage two-sided reactions are incomplete");
 
             execute(1u, false);
             const auto rolledBack = runtime.snapshot();
@@ -459,7 +474,10 @@ int main(const int argc, const char* argv[]) {
                         std::memcmp(replay.femNodes.data(), accepted.femNodes.data(),
                                     accepted.femNodes.size() * sizeof(NMFEMNodeStateGPU)) == 0 &&
                         std::memcmp(reactionReadback.contents, acceptedReactions.data(),
-                                    acceptedReactions.size() * sizeof(acceptedReactions.front())) == 0,
+                                    acceptedReactions.size() * sizeof(acceptedReactions.front())) == 0 &&
+                        std::memcmp(generalizedForceBuffer.contents,
+                                    acceptedGeneralizedForces.data(),
+                                    generalizedForceBuffer.length) == 0,
                     "costal-cartilage accepted replay is not bitwise");
             const auto diagnostics = adapter.diagnostics();
             require(diagnostics.initialized && diagnostics.encodedPassCount == 3u &&
@@ -472,13 +490,18 @@ int main(const int argc, const char* argv[]) {
                 << " fem_nodes=" << payload.nodes.size()
                 << " tetrahedra=" << payload.tetrahedra.size()
                 << " sternal_fixed_nodes=" << sternalFixedNodeCount
-                << " applied_load_per_region_n=" << continuumLoadN
+                << " rib_fixed_nodes=" << ribFixedNodeCount
+                << " prescribed_rib_translation_m=" << prescribedRibTranslationM
                 << " max_displacement_m=" << maximumDisplacement
                 << " min_J=" << minimumJ
                 << " max_J=" << maximumJ
-                << " anchor_reaction_l1_n=" << reactionL1
+                << " sternal_reaction_l1_n=" << sternalReactionL1
+                << " rib_reaction_l1_n=" << ribReactionL1
+                << " sternal_body_generalized_force_l1_n="
+                << sternalBodyGeneralizedForceL1
+                << " rib_body_generalized_force_l1_n="
+                << ribBodyGeneralizedForceL1
                 << " replay=bitwise rollback=verified"
-                << " qualification_owner_fraction=" << ownerFraction
                 << " production_owner_fraction=0"
                 << "\n";
             return 0;

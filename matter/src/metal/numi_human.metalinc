@@ -80,7 +80,7 @@ kernel void nm_numi_human_prepare_provisional_status(
     bool accepted =
         dispatch.abiVersion == NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION &&
         dispatch.environmentCount > 0u && dispatch.femNodeCount > 0u &&
-        dispatch.endpointCount > 0u && dispatch.replacementCount > 0u &&
+        dispatch.endpointCount > 0u &&
         dispatch.dofCount > 0u && dispatch.transferStride >= dispatch.endpointCount &&
         dispatch.generalizedForceStride >= dispatch.dofCount &&
         dispatch.bodyPoseStride > 0u && dispatch.pointJacobianStride > 0u &&
