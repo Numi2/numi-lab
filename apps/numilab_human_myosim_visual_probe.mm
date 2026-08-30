@@ -9,6 +9,7 @@
 #include "metalrobo/MultiArticulatedContact.hpp"
 #include "metalrobo/MujocoMuscleReference.hpp"
 #include "metalrobo/NumiHumanJointEquality.hpp"
+#include "metalrobo/NumiHumanKnee.hpp"
 #include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
 #include "metalrobo/NumiHumanTendon.hpp"
 #include "metalrobo/NumiHumanTendonMetal.hpp"
@@ -69,6 +70,10 @@ constexpr std::uint32_t kVesselSurfaceSemantic = 51011u;
 constexpr std::uint32_t kNerveSurfaceSemantic = 51012u;
 constexpr std::uint32_t kTendonAttachmentEnvelopeSemantic = 51013u;
 constexpr std::uint32_t kPectoralisFasciaSemantic = 51014u;
+constexpr std::uint32_t kKneeCartilageSemantic = 51015u;
+constexpr std::uint32_t kKneeMeniscusSemantic = 51016u;
+constexpr std::uint32_t kKneeLigamentSemantic = 51017u;
+constexpr std::uint32_t kKneeTendonSemantic = 51018u;
 // The native exact-reference path is currently qualified through 640 px on
 // the local Apple M4. Larger reference frames can return an all-background
 // image despite successful Metal submission, so a valid native default is
@@ -1211,6 +1216,31 @@ LoadedBones loadBones(
                     "BodyParts3D bone index escapes its source mesh");
         }
     }
+    return result;
+}
+
+metalrobo::NumiHumanKneePayload loadOpenKnee(
+    const std::filesystem::path& path,
+    const RigidHeader& rigid
+) {
+    require(rigid.engineBodyCount > metalrobo::NUMI_HUMAN_KNEE_PATELLA_BODY,
+            "NHKNEE1 requires the pinned MyoSim full-body articulation");
+    std::ifstream input(path, std::ios::binary | std::ios::ate);
+    require(input.is_open(), "cannot open Open Knee(s) payload " + path.string());
+    const std::streamsize size = input.tellg();
+    require(size > 0, "cannot determine Open Knee(s) payload size");
+    input.seekg(0, std::ios::beg);
+    std::vector<std::byte> bytes(static_cast<std::size_t>(size));
+    input.read(reinterpret_cast<char*>(bytes.data()), size);
+    require(input.good(), "truncated Open Knee(s) payload");
+    metalrobo::NumiHumanKneePayload result;
+    const auto diagnostics = metalrobo::decodeNumiHumanKneePayload(bytes, result);
+    require(
+        diagnostics.succeeded(),
+        std::string("invalid NHKNEE1 payload: ") +
+            metalrobo::numiHumanKneeStatusName(diagnostics.status) +
+            " at " + std::to_string(diagnostics.failingIndex)
+    );
     return result;
 }
 
@@ -4184,6 +4214,88 @@ GeometryRange appendBoneGeometry(
     return result;
 }
 
+GeometryRange appendOpenKneeGeometry(
+    metalrobo::VisualAssetPackV2& pack,
+    const metalrobo::NumiHumanKneePayload& knee,
+    const metalrobo::NumiHumanKneeRegion& region
+) {
+    const auto surface = std::find_if(
+        knee.surfaces.begin() + region.firstSurface,
+        knee.surfaces.begin() + region.firstSurface + region.surfaceCount,
+        [](const metalrobo::NumiHumanKneeSurface& candidate) {
+            return candidate.isAllFaces;
+        }
+    );
+    require(surface != knee.surfaces.begin() + region.firstSurface + region.surfaceCount,
+            "NHKNEE1 region has no exact all-faces surface");
+    GeometryRange result;
+    result.firstIndex = static_cast<std::uint32_t>(pack.indices.size());
+    result.minimum = {
+        std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(), 1.0f,
+    };
+    result.maximum = {
+        -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity(), 1.0f,
+    };
+    std::vector<mr_float4> normals(region.nodeCount, {0.0f, 0.0f, 0.0f, 0.0f});
+    for (std::uint32_t offset = 0u; offset < surface->faceCount; ++offset) {
+        const auto& face = knee.faces[surface->firstFace + offset];
+        const auto local0 = face[0] - region.firstNode;
+        const auto local1 = face[1] - region.firstNode;
+        const auto local2 = face[2] - region.firstNode;
+        require(local0 < region.nodeCount && local1 < region.nodeCount && local2 < region.nodeCount,
+                "NHKNEE1 presentation surface crosses region ownership");
+        const auto& p0 = knee.nodes[face[0]].visualLocal;
+        const auto& p1 = knee.nodes[face[1]].visualLocal;
+        const auto& p2 = knee.nodes[face[2]].visualLocal;
+        const mr_float4 edge1{p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2], 0.0f};
+        const mr_float4 edge2{p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2], 0.0f};
+        const mr_float4 normal{
+            edge1.y * edge2.z - edge1.z * edge2.y,
+            edge1.z * edge2.x - edge1.x * edge2.z,
+            edge1.x * edge2.y - edge1.y * edge2.x,
+            0.0f,
+        };
+        for (const auto local : {local0, local1, local2}) {
+            normals[local].x += normal.x;
+            normals[local].y += normal.y;
+            normals[local].z += normal.z;
+        }
+    }
+    const std::uint32_t vertexBase = static_cast<std::uint32_t>(pack.vertices.size());
+    for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
+        const auto& source = knee.nodes[region.firstNode + local].visualLocal;
+        const float length = std::sqrt(
+            normals[local].x * normals[local].x + normals[local].y * normals[local].y +
+            normals[local].z * normals[local].z
+        );
+        const mr_float4 normal = length > 1.0e-12f
+            ? mr_float4{normals[local].x / length, normals[local].y / length,
+                        normals[local].z / length, 1.0f}
+            : mr_float4{0.0f, 0.0f, 1.0f, 1.0f};
+        const mr_float4 position{source[0], source[1], source[2], 1.0f};
+        pack.vertices.push_back({
+            position, normal, normalTangent(normal),
+            {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f},
+        });
+        result.minimum.x = std::min(result.minimum.x, position.x);
+        result.minimum.y = std::min(result.minimum.y, position.y);
+        result.minimum.z = std::min(result.minimum.z, position.z);
+        result.maximum.x = std::max(result.maximum.x, position.x);
+        result.maximum.y = std::max(result.maximum.y, position.y);
+        result.maximum.z = std::max(result.maximum.z, position.z);
+    }
+    for (std::uint32_t offset = 0u; offset < surface->faceCount; ++offset) {
+        const auto& face = knee.faces[surface->firstFace + offset];
+        pack.indices.push_back(vertexBase + face[0] - region.firstNode);
+        pack.indices.push_back(vertexBase + face[1] - region.firstNode);
+        pack.indices.push_back(vertexBase + face[2] - region.firstNode);
+    }
+    result.indexCount = 3u * surface->faceCount;
+    return result;
+}
+
 mr_float4 torsoAnatomyTangent(const TorsoAnatomyVertex& vertex) {
     return normalTangent({vertex.normalX, vertex.normalY, vertex.normalZ, 1.0f});
 }
@@ -6097,6 +6209,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& musclePayload,
     const LoadedBones* bonePayload,
+    const metalrobo::NumiHumanKneePayload* openKneePayload,
     const LoadedSoftTissues* softTissuePayload,
     const LoadedSkin* skinPayload,
     const LoadedTorsoAnatomy* torsoAnatomyPayload,
@@ -6119,7 +6232,8 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     std::uint32_t& renderedTendonAttachmentEnvelopes,
     std::uint32_t& renderedRouteSegments,
     std::uint32_t& renderedPassiveFEMTissues,
-    std::uint32_t& renderedPectoralisFascia
+    std::uint32_t& renderedPectoralisFascia,
+    std::uint32_t& renderedOpenKneeRegions
 ) {
     metalrobo::VisualAssetPackV2 pack;
     pack.id = bonePayload != nullptr
@@ -6167,6 +6281,16 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     if (pectoralisFascia != nullptr) {
         pack.preprocessingProvenance +=
             "/NHFASC2_source_derived_thin_solid_human_GOH_mean_fit_and_same_command_buffer_NHTENDON2_load_driven_Matter_FEM_with_compiler_authored_exact_anterior_BodyParts3D_presentation";
+    }
+    if (openKneePayload != nullptr) {
+        pack.id = "myosim_open_knee_oks003_left_articulated_anatomy";
+        pack.sourceUri =
+            "numi://open-knees/oks003/NHKNEE1+NHRIGID2/articulated-left-knee-view";
+        pack.sourceContentHash =
+            "open-knees-oks003-exact-regions-surfaces-and-live-myosim-left-knee-registration";
+        pack.license = "CC-BY-4.0 AND Apache-2.0";
+        pack.preprocessingProvenance +=
+            "/NHKNEE1_exact_oks003_region_surfaces_with_proper_uniform_anatomical_registration_and_articulated_femur_tibia_patella_frames";
     }
     if (zAnatomyCalfVisualSupplement) {
         pack.id = "myosim_zanatomy_calf_articulated_visual_supplement";
@@ -6256,6 +6380,18 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
         // reference renderer has no order-independent transparency path.
         {0.78f, 0.70f, 0.56f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.72f, 0.015f
     ));
+    pack.materials.push_back(makeMaterial(
+        {0.34f, 0.64f, 0.72f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.38f, 0.02f
+    ));
+    pack.materials.push_back(makeMaterial(
+        {0.20f, 0.42f, 0.44f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.56f, 0.015f
+    ));
+    pack.materials.push_back(makeMaterial(
+        {0.86f, 0.78f, 0.61f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.72f, 0.01f
+    ));
+    pack.materials.push_back(makeMaterial(
+        {0.94f, 0.72f, 0.48f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.66f, 0.01f
+    ));
 
     const auto appendInstance = [&pack](
         const GeometryRange& geometry,
@@ -6314,6 +6450,14 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     // Exposed bones remain available through the separate anatomy command.
     if (bonePayload != nullptr && skinPayload == nullptr) {
         for (const BoneRecord& bone : bonePayload->records) {
+            if (openKneePayload != nullptr &&
+                (bone.bodyIndex == metalrobo::NUMI_HUMAN_KNEE_FEMUR_BODY ||
+                 bone.bodyIndex == metalrobo::NUMI_HUMAN_KNEE_TIBIA_BODY ||
+                 bone.bodyIndex == metalrobo::NUMI_HUMAN_KNEE_PATELLA_BODY)) {
+                // The exact Open Knee(s) bone regions below own this focused
+                // anatomy; do not draw a second specimen over them.
+                continue;
+            }
             if (std::binary_search(
                     supplementalBoneBodyIndices.begin(), supplementalBoneBodyIndices.end(), bone.bodyIndex
                 )) {
@@ -6354,6 +6498,36 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                 {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
                 static_cast<std::uint32_t>(bodyIndex + 1u)
             );
+            ++renderedBodies;
+        }
+    }
+    renderedOpenKneeRegions = 0u;
+    if (openKneePayload != nullptr) {
+        for (std::uint32_t regionIndex = 0u;
+             regionIndex < openKneePayload->regions.size(); ++regionIndex) {
+            const auto& region = openKneePayload->regions[regionIndex];
+            const auto geometry = appendOpenKneeGeometry(pack, *openKneePayload, region);
+            std::uint32_t material = 3u;
+            std::uint32_t semantic = kBoneSemantic;
+            switch (region.kind) {
+                case metalrobo::NumiHumanKneeRegionKind::bone:
+                    break;
+                case metalrobo::NumiHumanKneeRegionKind::cartilage:
+                    material = 11u; semantic = kKneeCartilageSemantic; break;
+                case metalrobo::NumiHumanKneeRegionKind::meniscus:
+                    material = 12u; semantic = kKneeMeniscusSemantic; break;
+                case metalrobo::NumiHumanKneeRegionKind::ligament:
+                    material = 13u; semantic = kKneeLigamentSemantic; break;
+                case metalrobo::NumiHumanKneeRegionKind::tendon:
+                    material = 14u; semantic = kKneeTendonSemantic; break;
+            }
+            appendInstance(
+                geometry, material, semantic, MR_VISUAL_BINDING_ARTICULATED_LINK,
+                region.visualBodyIndex,
+                {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
+                1000u + regionIndex
+            );
+            ++renderedOpenKneeRegions;
             ++renderedBodies;
         }
     }
@@ -6615,7 +6789,8 @@ CameraFraming makeCameraFraming(
     const metalrobo::VisualAssetPackV2& pack,
     const std::span<const MRBodyStateGPU> bodies,
     const std::optional<std::uint32_t> focusBodyIndex,
-    const bool tendonAttachmentEnvelopeInspection
+    const bool tendonAttachmentEnvelopeInspection,
+    const bool openKneeInspection
 ) {
     if (focusBodyIndex.has_value()) {
         require(*focusBodyIndex < bodies.size(), "MyoSim visual focus body index is out of bounds");
@@ -6659,8 +6834,16 @@ CameraFraming makeCameraFraming(
         // from a mechanics COM frame that can sit outside a small wrist or
         // digit mesh. World-bound route diagnostics remain rendered but must
         // not drag the anatomical camera target away from the selected bone.
+        const bool focusedKneeGroup = openKneeInspection && focusBodyIndex.has_value() &&
+            (*focusBodyIndex == metalrobo::NUMI_HUMAN_KNEE_FEMUR_BODY ||
+             *focusBodyIndex == metalrobo::NUMI_HUMAN_KNEE_TIBIA_BODY ||
+             *focusBodyIndex == metalrobo::NUMI_HUMAN_KNEE_PATELLA_BODY);
+        const bool includedKneeBody = focusedKneeGroup && articulated &&
+            (instance.binding.y == metalrobo::NUMI_HUMAN_KNEE_FEMUR_BODY ||
+             instance.binding.y == metalrobo::NUMI_HUMAN_KNEE_TIBIA_BODY ||
+             instance.binding.y == metalrobo::NUMI_HUMAN_KNEE_PATELLA_BODY);
         if (focusBodyIndex.has_value() &&
-            (!articulated || instance.binding.y != *focusBodyIndex)) {
+            !includedKneeBody && (!articulated || instance.binding.y != *focusBodyIndex)) {
             continue;
         }
         const MRBodyStateGPU* body = nullptr;
@@ -6739,7 +6922,9 @@ CameraFraming makeCameraFraming(
             // source bones scale from their own posed surface, with a 45 cm
             // floor that retains adjacent joint context and keeps lateral
             // cameras outside overlapping torso/pelvis anatomy.
-            .distance = *focusBodyIndex == 138u
+            .distance = openKneeInspection
+                ? std::max(1.30f * extent, 0.20f)
+                : *focusBodyIndex == 138u
                 ? 0.25f
                 : (tendonAttachmentEnvelopeInspection
                     ? 0.45f
@@ -7029,6 +7214,7 @@ int main(int argc, char** argv) {
             bool tendonAttachmentCollarDiagnostic = false;
             std::optional<std::uint32_t> focusBodyIndex;
             std::optional<std::filesystem::path> softTissuePayloadPath;
+            std::optional<std::filesystem::path> openKneePayloadPath;
             std::optional<std::filesystem::path> skinPayloadPath;
             std::optional<std::filesystem::path> torsoAnatomyPayloadPath;
             std::optional<std::filesystem::path> supportContactPayloadPath;
@@ -7130,6 +7316,10 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !softTissuePayloadPath.has_value(),
                             "--soft-tissue-payload requires one path and may be given only once");
                     softTissuePayloadPath.emplace(argv[++index]);
+                } else if (argument == "--open-knee-payload") {
+                    require(index + 1 < argc && !openKneePayloadPath.has_value(),
+                            "--open-knee-payload requires one path and may be given only once");
+                    openKneePayloadPath.emplace(argv[++index]);
                 } else if (argument == "--skin-payload") {
                     require(index + 1 < argc && !skinPayloadPath.has_value(),
                             "--skin-payload requires one path and may be given only once");
@@ -7204,6 +7394,7 @@ int main(int argc, char** argv) {
                           << " [--source-route-centrelines] [--source-route-index <0..415>]..."
                           << " [--surface-project-source-sites]"
                           << " [--soft-tissue-payload <NHTISS2-or-NHTISS3-or-NHTISS4>]"
+                          << " [--open-knee-payload <NHKNEE1>]"
                           << " [--skin-payload <NHSKIN1>]"
                           << " [--torso-anatomy-payload <NHANAT1>]"
                           << " [--passive-fem-tissue-stable-id <1..N>]"
@@ -7309,6 +7500,12 @@ int main(int argc, char** argv) {
             std::optional<LoadedBones> bonePayload;
             if (bodypartsBoneVisual) {
                 bonePayload.emplace(loadBones(positional[2], rigid.header));
+            }
+            std::optional<metalrobo::NumiHumanKneePayload> openKneePayload;
+            if (openKneePayloadPath.has_value()) {
+                require(bodypartsBoneVisual,
+                        "--open-knee-payload requires the BodyParts3D bone positional payload");
+                openKneePayload.emplace(loadOpenKnee(*openKneePayloadPath, rigid.header));
             }
             require(
                 (requestedBoneBodyIndices.empty() && requestedBoneStableIds.empty()) ||
@@ -7689,10 +7886,12 @@ int main(int argc, char** argv) {
             std::uint32_t renderedRouteSegments = 0u;
             std::uint32_t renderedPassiveFEMTissues = 0u;
             std::uint32_t renderedPectoralisFascia = 0u;
+            std::uint32_t renderedOpenKneeRegions = 0u;
             bool anyRequestedRouteVisible = false;
             const metalrobo::VisualAssetPackV2 pack = makeMarkerPack(
                 rigid.model, musclePayload,
                 bonePayload.has_value() ? &*bonePayload : nullptr,
+                openKneePayload.has_value() ? &*openKneePayload : nullptr,
                 softTissuePayload.has_value() ? &*softTissuePayload : nullptr,
                 skinPayload.has_value() ? &*skinPayload : nullptr,
                 torsoAnatomyPayload.has_value() ? &*torsoAnatomyPayload : nullptr,
@@ -7710,7 +7909,8 @@ int main(int argc, char** argv) {
                 renderedTendonAttachmentCollars, renderedTendonAttachmentEnvelopes,
                 renderedRouteSegments,
                 renderedPassiveFEMTissues,
-                renderedPectoralisFascia
+                renderedPectoralisFascia,
+                renderedOpenKneeRegions
             );
             require(requestedSoftTissueStableIds.empty() ||
                         renderedSoftTissues + (pectoralisFascia.has_value()
@@ -7725,11 +7925,14 @@ int main(int argc, char** argv) {
                     "native Human visual passive FEM tissue selection did not render its source surface");
             require(!pectoralisFascia.has_value() || renderedPectoralisFascia == 1u,
                     "native Human visual pectoralis fascia did not render");
+            require(!openKneePayload.has_value() || renderedOpenKneeRegions == 16u,
+                    "native Human visual Open Knee(s) payload did not render all 16 regions");
             require(!torsoAnatomyPayload.has_value() ||
                         renderedTorsoAnatomySurfaces == torsoAnatomyPayload->records.size(),
                     "native Human visual torso anatomy did not render every source surface");
             const CameraFraming cameraFraming = makeCameraFraming(
-                pack, bodies, focusBodyIndex, renderedTendonAttachmentEnvelopes > 0u
+                pack, bodies, focusBodyIndex, renderedTendonAttachmentEnvelopes > 0u,
+                openKneePayload.has_value()
             );
             const std::array<mr_float4, 4u> positions = cameraPositions(cameraFraming);
             std::array<std::string, 4u> cameraNames;
@@ -7752,6 +7955,7 @@ int main(int argc, char** argv) {
                 (zAnatomyCalfVisualSupplement ? "-zanatomy-calf-supplement" : "") +
                 (skinPayload.has_value() ? "-source-skinned-shell" : "") +
                 (torsoAnatomyPayload.has_value() ? "-source-torso-anatomy" : "") +
+                (openKneePayload.has_value() ? "-open-knee-oks003-left" : "") +
                 (passiveFEMTissue.has_value() ? "-passive-fem-tissue" : "") +
                 (muscleDrivenState.has_value() ? "-muscle-driven" : "") +
                 (!selectedSourceMuscleActivations.empty() ? "-selected-actuators" : "") +
@@ -7804,8 +8008,10 @@ int main(int argc, char** argv) {
             // geometry, material parameters, pose, or physics state.
             metalrobo::VisualRendererProfileV1 rendererProfile =
                 metalrobo::VisualRendererProfileV1::sensorReference();
-            if (zAnatomyCalfVisualSupplement) {
-                rendererProfile.id = "human_anatomy_showcase_reference";
+            if (zAnatomyCalfVisualSupplement || openKneePayload.has_value()) {
+                rendererProfile.id = openKneePayload.has_value()
+                    ? "open_knee_anatomy_showcase_reference"
+                    : "human_anatomy_showcase_reference";
                 rendererProfile.temporalSamples = 32u;
                 rendererProfile.shadowMapResolution = 1024u;
                 rendererProfile.areaLightSamples = 32u;
@@ -7897,6 +8103,10 @@ int main(int argc, char** argv) {
                 const std::size_t organSurfacePixels = coverage(observation, kOrganSurfaceSemantic);
                 const std::size_t vesselSurfacePixels = coverage(observation, kVesselSurfaceSemantic);
                 const std::size_t nerveSurfacePixels = coverage(observation, kNerveSurfaceSemantic);
+                const std::size_t kneeCartilagePixels = coverage(observation, kKneeCartilageSemantic);
+                const std::size_t kneeMeniscusPixels = coverage(observation, kKneeMeniscusSemantic);
+                const std::size_t kneeLigamentPixels = coverage(observation, kKneeLigamentSemantic);
+                const std::size_t kneeTendonPixels = coverage(observation, kKneeTendonSemantic);
                 completeVisualCoverage = completeVisualCoverage &&
                     (skinPayload.has_value()
                         ? skinShellPixels > 0u
@@ -7926,6 +8136,10 @@ int main(int argc, char** argv) {
                           << " organ_surface_pixels=" << organSurfacePixels
                           << " vessel_surface_pixels=" << vesselSurfacePixels
                           << " nerve_surface_pixels=" << nerveSurfacePixels
+                          << " knee_cartilage_pixels=" << kneeCartilagePixels
+                          << " knee_meniscus_pixels=" << kneeMeniscusPixels
+                          << " knee_ligament_pixels=" << kneeLigamentPixels
+                          << " knee_tendon_pixels=" << kneeTendonPixels
                           << " frame=" << frame.string() << '\n';
                 }
             }
@@ -8024,6 +8238,10 @@ int main(int argc, char** argv) {
                 evidenceBoundary +=
                     "_with_cc_by_sa_zanatomy_right_calf_visual_supplement_and_transferred_named_bodyparts3d_myosim_articulated_body_weights_not_a_new_force_path_tendon_law_or_continuum";
             }
+            if (openKneePayload.has_value()) {
+                evidenceBoundary +=
+                    "_with_exact_open_knees_oks003_neutral_left_knee_regions_surfaces_ties_and_contact_pairs_registered_by_one_proper_rotation_one_uniform_scale_and_translation_to_live_myoSim_frames_not_subject_matched_loaded_contact_or_deformable_ligament_qualification";
+            }
             std::cout << std::setprecision(12)
                       << (bodypartsBoneVisual
                               ? "myosim_articulated_bodyparts_bone_visual=ok"
@@ -8056,6 +8274,7 @@ int main(int argc, char** argv) {
                               ? "registered_single_link_kinematic_source_surfaces" : "none")
                       << " passive_fem_tissues=" << renderedPassiveFEMTissues
                       << " pectoralis_fascia_bodies=" << renderedPectoralisFascia
+                      << " open_knee_regions=" << renderedOpenKneeRegions
                       << " visual_supplement="
                       << (zAnatomyCalfVisualSupplement ? "zanatomy_right_calf_cc_by_sa" : "none")
                       << " skin_shell_binding=" << (skinPayload.has_value()

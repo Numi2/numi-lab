@@ -769,6 +769,7 @@ add_library(
     src/core/NumiHumanMuscleEquilibrium.cpp
     src/core/NumiHumanTendon.cpp
     src/core/NumiHumanCartilage.cpp
+    src/core/NumiHumanKnee.cpp
     src/core/ArticulatedJointLimits.cpp
     src/core/ArticulatedContact.cpp
     src/core/CoupledArticulatedRigidContact.cpp
