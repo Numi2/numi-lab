@@ -94,9 +94,13 @@ constexpr std::array<std::string_view, 16u> kRegionNames{{
 constexpr std::array<std::uint32_t, 16u> kRegionKinds{{
     5u, 2u, 4u, 2u, 1u, 4u, 1u, 4u, 5u, 3u, 3u, 4u, 2u, 1u, 1u, 2u,
 }};
-constexpr std::array<std::uint32_t, 16u> kVisualBodies{{
+constexpr std::array<std::uint32_t, 16u> kLeftVisualBodies{{
     156u, 150u, 145u, 156u, 156u, 145u, 150u, 145u,
     156u, 150u, 150u, 145u, 150u, 150u, 145u, 145u,
+}};
+constexpr std::array<std::uint32_t, 16u> kRightVisualBodies{{
+    142u, 136u, 131u, 142u, 142u, 131u, 136u, 131u,
+    142u, 136u, 136u, 131u, 136u, 136u, 131u, 131u,
 }};
 constexpr std::array<std::uint32_t, 16u> kNodeCounts{{
     14963u, 40669u, 3714u, 26121u, 8642u, 15792u, 3794u, 15693u,
@@ -146,10 +150,14 @@ bool finite3(const std::array<float, 3u>& value) {
     });
 }
 
-bool isKneeBody(const std::uint32_t body) {
-    return body == NUMI_HUMAN_KNEE_FEMUR_BODY ||
-        body == NUMI_HUMAN_KNEE_TIBIA_BODY ||
-        body == NUMI_HUMAN_KNEE_PATELLA_BODY;
+bool isKneeBody(const std::uint32_t body, const NumiHumanKneeSide side) {
+    return side == NumiHumanKneeSide::left
+        ? body == NUMI_HUMAN_KNEE_FEMUR_BODY ||
+            body == NUMI_HUMAN_KNEE_TIBIA_BODY ||
+            body == NUMI_HUMAN_KNEE_PATELLA_BODY
+        : body == NUMI_HUMAN_KNEE_RIGHT_FEMUR_BODY ||
+            body == NUMI_HUMAN_KNEE_RIGHT_TIBIA_BODY ||
+            body == NUMI_HUMAN_KNEE_RIGHT_PATELLA_BODY;
 }
 
 NumiHumanKneeDiagnostics fail(
@@ -190,7 +198,7 @@ NumiHumanKneeDiagnostics decodeNumiHumanKneePayload(
         header.nodeCount != 248236u || header.tetrahedronCount != 844287u ||
         header.surfaceCount != 88u || header.faceCount != 729068u ||
         header.nodeSetCount != 42u || header.membershipCount != 43260u ||
-        header.surfacePairCount != 19u || header.reserved0 != 0u ||
+        header.surfacePairCount != 19u || header.reserved0 > 1u ||
         header.reserved1 != 0u)
         return fail(NumiHumanKneeStatus::invalidPayload);
     if (!std::equal(kGeometrySha256.begin(), kGeometrySha256.end(), header.sourceSha256.begin()) ||
@@ -199,6 +207,9 @@ NumiHumanKneeDiagnostics decodeNumiHumanKneePayload(
         return fail(NumiHumanKneeStatus::sourceMismatch);
 
     payload.payloadAbi = header.payloadAbi;
+    payload.side = static_cast<NumiHumanKneeSide>(header.reserved0);
+    const auto& visualBodies = payload.side == NumiHumanKneeSide::left
+        ? kLeftVisualBodies : kRightVisualBodies;
     std::copy_n(header.sourceSha256.begin(), 32u, payload.geometrySha256.begin());
     std::copy_n(header.sourceSha256.begin() + 32, 32u, payload.modelPropertiesSha256.begin());
     std::copy_n(header.sourceSha256.begin() + 64, 32u, payload.licenseSha256.begin());
@@ -209,7 +220,7 @@ NumiHumanKneeDiagnostics decodeNumiHumanKneePayload(
         if (!take(bytes, offset, disk)) return fail(NumiHumanKneeStatus::truncatedPayload, index);
         std::string name;
         if (!decodeName(disk.name, name) || name != kRegionNames[index] ||
-            disk.kind != kRegionKinds[index] || disk.visualBodyIndex != kVisualBodies[index] ||
+            disk.kind != kRegionKinds[index] || disk.visualBodyIndex != visualBodies[index] ||
             disk.firstNode != nextNode || disk.nodeCount != kNodeCounts[index] ||
             disk.firstTetrahedron != nextTet || disk.tetrahedronCount != kTetrahedronCounts[index] ||
             disk.firstSurface != nextSurface || disk.surfaceCount == 0u ||
@@ -271,7 +282,8 @@ NumiHumanKneeDiagnostics decodeNumiHumanKneePayload(
         if (!decodeName(disk.name, name) || disk.regionIndex >= payload.regions.size() ||
             disk.firstMembership != nextMembership || disk.membershipCount == 0u ||
             disk.membershipCount > header.membershipCount - disk.firstMembership ||
-            (disk.anchorBodyIndex != NUMI_HUMAN_KNEE_INVALID_INDEX && !isKneeBody(disk.anchorBodyIndex)) ||
+            (disk.anchorBodyIndex != NUMI_HUMAN_KNEE_INVALID_INDEX &&
+             !isKneeBody(disk.anchorBodyIndex, payload.side)) ||
             disk.reserved0 != 0u || !name.starts_with(payload.regions[disk.regionIndex].name + "_"))
             return fail(NumiHumanKneeStatus::invalidTopology, index);
         payload.nodeSets.push_back({
@@ -307,7 +319,7 @@ NumiHumanKneeDiagnostics decodeNumiHumanKneePayload(
         if (!finite3(disk.restWorld) || !finite3(disk.visualLocal) || !finite3(disk.anchorLocal) ||
             disk.reserved0 != 0u || (disk.flags & ~1u) != 0u ||
             (attached != (disk.anchorBodyIndex != NUMI_HUMAN_KNEE_INVALID_INDEX)) ||
-            (attached && !isKneeBody(disk.anchorBodyIndex)))
+            (attached && !isKneeBody(disk.anchorBodyIndex, payload.side)))
             return fail(NumiHumanKneeStatus::invalidPayload, index);
         payload.nodes.push_back({
             .restWorld = disk.restWorld, .anchorBodyIndex = disk.anchorBodyIndex,
@@ -377,15 +389,22 @@ NumiHumanKneeDiagnostics decodeNumiHumanKneePayload(
         }
     }
     std::array<std::uint32_t, 3u> attachmentCounts{};
+    const auto expectedBodies = payload.side == NumiHumanKneeSide::left
+        ? std::array<std::uint32_t, 3u>{
+            NUMI_HUMAN_KNEE_FEMUR_BODY, NUMI_HUMAN_KNEE_TIBIA_BODY,
+            NUMI_HUMAN_KNEE_PATELLA_BODY}
+        : std::array<std::uint32_t, 3u>{
+            NUMI_HUMAN_KNEE_RIGHT_FEMUR_BODY, NUMI_HUMAN_KNEE_RIGHT_TIBIA_BODY,
+            NUMI_HUMAN_KNEE_RIGHT_PATELLA_BODY};
     for (std::uint32_t node = 0u; node < payload.nodes.size(); ++node) {
         const auto expected = attachmentOwner[node];
         if (payload.nodes[node].anchorBodyIndex != expected ||
             payload.nodes[node].rigidlyAttached !=
                 (expected != NUMI_HUMAN_KNEE_INVALID_INDEX))
             return fail(NumiHumanKneeStatus::invalidTopology, node);
-        if (expected == NUMI_HUMAN_KNEE_FEMUR_BODY) ++attachmentCounts[0u];
-        if (expected == NUMI_HUMAN_KNEE_TIBIA_BODY) ++attachmentCounts[1u];
-        if (expected == NUMI_HUMAN_KNEE_PATELLA_BODY) ++attachmentCounts[2u];
+        for (std::uint32_t body = 0u; body < expectedBodies.size(); ++body) {
+            if (expected == expectedBodies[body]) ++attachmentCounts[body];
+        }
     }
     if (attachmentCounts != std::array<std::uint32_t, 3u>{11350u, 12161u, 5394u})
         return fail(NumiHumanKneeStatus::incompleteCoverage);

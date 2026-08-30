@@ -1244,6 +1244,20 @@ metalrobo::NumiHumanKneePayload loadOpenKnee(
     return result;
 }
 
+std::array<std::uint32_t, 3u> openKneeBodyIndices(
+    const metalrobo::NumiHumanKneePayload& knee
+) {
+    return knee.side == metalrobo::NumiHumanKneeSide::left
+        ? std::array<std::uint32_t, 3u>{
+            metalrobo::NUMI_HUMAN_KNEE_FEMUR_BODY,
+            metalrobo::NUMI_HUMAN_KNEE_TIBIA_BODY,
+            metalrobo::NUMI_HUMAN_KNEE_PATELLA_BODY}
+        : std::array<std::uint32_t, 3u>{
+            metalrobo::NUMI_HUMAN_KNEE_RIGHT_FEMUR_BODY,
+            metalrobo::NUMI_HUMAN_KNEE_RIGHT_TIBIA_BODY,
+            metalrobo::NUMI_HUMAN_KNEE_RIGHT_PATELLA_BODY};
+}
+
 LoadedTorsoAnatomy loadTorsoAnatomy(
     const std::filesystem::path& path,
     const RigidHeader& rigid,
@@ -6283,9 +6297,14 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
             "/NHFASC2_source_derived_thin_solid_human_GOH_mean_fit_and_same_command_buffer_NHTENDON2_load_driven_Matter_FEM_with_compiler_authored_exact_anterior_BodyParts3D_presentation";
     }
     if (openKneePayload != nullptr) {
-        pack.id = "myosim_open_knee_oks003_left_articulated_anatomy";
+        const bool left = openKneePayload->side == metalrobo::NumiHumanKneeSide::left;
+        pack.id = left
+            ? "myosim_open_knee_oks003_left_articulated_anatomy"
+            : "myosim_open_knee_oks003_right_mirrored_articulated_anatomy";
         pack.sourceUri =
-            "numi://open-knees/oks003/NHKNEE1+NHRIGID2/articulated-left-knee-view";
+            left
+                ? "numi://open-knees/oks003/NHKNEE1+NHRIGID2/articulated-left-knee-view"
+                : "numi://open-knees/oks003/NHKNEE1+NHRIGID2/articulated-right-mirrored-knee-view";
         pack.sourceContentHash =
             "open-knees-oks003-exact-regions-surfaces-and-live-myosim-left-knee-registration";
         pack.license = "CC-BY-4.0 AND Apache-2.0";
@@ -6449,11 +6468,13 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     // blue/ivory peeks that read as broken anatomy rather than an exterior.
     // Exposed bones remain available through the separate anatomy command.
     if (bonePayload != nullptr && skinPayload == nullptr) {
+        const auto kneeBodies = openKneePayload != nullptr
+            ? openKneeBodyIndices(*openKneePayload)
+            : std::array<std::uint32_t, 3u>{
+                MR_INVALID_INDEX, MR_INVALID_INDEX, MR_INVALID_INDEX};
         for (const BoneRecord& bone : bonePayload->records) {
-            if (openKneePayload != nullptr &&
-                (bone.bodyIndex == metalrobo::NUMI_HUMAN_KNEE_FEMUR_BODY ||
-                 bone.bodyIndex == metalrobo::NUMI_HUMAN_KNEE_TIBIA_BODY ||
-                 bone.bodyIndex == metalrobo::NUMI_HUMAN_KNEE_PATELLA_BODY)) {
+            if (std::find(kneeBodies.begin(), kneeBodies.end(), bone.bodyIndex) !=
+                kneeBodies.end()) {
                 // The exact Open Knee(s) bone regions below own this focused
                 // anatomy; do not draw a second specimen over them.
                 continue;
@@ -6790,7 +6811,7 @@ CameraFraming makeCameraFraming(
     const std::span<const MRBodyStateGPU> bodies,
     const std::optional<std::uint32_t> focusBodyIndex,
     const bool tendonAttachmentEnvelopeInspection,
-    const bool openKneeInspection
+    const metalrobo::NumiHumanKneePayload* openKneeInspection
 ) {
     if (focusBodyIndex.has_value()) {
         require(*focusBodyIndex < bodies.size(), "MyoSim visual focus body index is out of bounds");
@@ -6834,14 +6855,14 @@ CameraFraming makeCameraFraming(
         // from a mechanics COM frame that can sit outside a small wrist or
         // digit mesh. World-bound route diagnostics remain rendered but must
         // not drag the anatomical camera target away from the selected bone.
-        const bool focusedKneeGroup = openKneeInspection && focusBodyIndex.has_value() &&
-            (*focusBodyIndex == metalrobo::NUMI_HUMAN_KNEE_FEMUR_BODY ||
-             *focusBodyIndex == metalrobo::NUMI_HUMAN_KNEE_TIBIA_BODY ||
-             *focusBodyIndex == metalrobo::NUMI_HUMAN_KNEE_PATELLA_BODY);
+        const auto kneeBodies = openKneeInspection != nullptr
+            ? openKneeBodyIndices(*openKneeInspection)
+            : std::array<std::uint32_t, 3u>{MR_INVALID_INDEX, MR_INVALID_INDEX, MR_INVALID_INDEX};
+        const bool focusedKneeGroup = openKneeInspection != nullptr &&
+            focusBodyIndex.has_value() &&
+            std::find(kneeBodies.begin(), kneeBodies.end(), *focusBodyIndex) != kneeBodies.end();
         const bool includedKneeBody = focusedKneeGroup && articulated &&
-            (instance.binding.y == metalrobo::NUMI_HUMAN_KNEE_FEMUR_BODY ||
-             instance.binding.y == metalrobo::NUMI_HUMAN_KNEE_TIBIA_BODY ||
-             instance.binding.y == metalrobo::NUMI_HUMAN_KNEE_PATELLA_BODY);
+            std::find(kneeBodies.begin(), kneeBodies.end(), instance.binding.y) != kneeBodies.end();
         if (focusBodyIndex.has_value() &&
             !includedKneeBody && (!articulated || instance.binding.y != *focusBodyIndex)) {
             continue;
@@ -6922,7 +6943,7 @@ CameraFraming makeCameraFraming(
             // source bones scale from their own posed surface, with a 45 cm
             // floor that retains adjacent joint context and keeps lateral
             // cameras outside overlapping torso/pelvis anatomy.
-            .distance = openKneeInspection
+            .distance = openKneeInspection != nullptr
                 ? std::max(1.30f * extent, 0.20f)
                 : *focusBodyIndex == 138u
                 ? 0.25f
@@ -7932,7 +7953,7 @@ int main(int argc, char** argv) {
                     "native Human visual torso anatomy did not render every source surface");
             const CameraFraming cameraFraming = makeCameraFraming(
                 pack, bodies, focusBodyIndex, renderedTendonAttachmentEnvelopes > 0u,
-                openKneePayload.has_value()
+                openKneePayload.has_value() ? &*openKneePayload : nullptr
             );
             const std::array<mr_float4, 4u> positions = cameraPositions(cameraFraming);
             std::array<std::string, 4u> cameraNames;
@@ -7955,7 +7976,11 @@ int main(int argc, char** argv) {
                 (zAnatomyCalfVisualSupplement ? "-zanatomy-calf-supplement" : "") +
                 (skinPayload.has_value() ? "-source-skinned-shell" : "") +
                 (torsoAnatomyPayload.has_value() ? "-source-torso-anatomy" : "") +
-                (openKneePayload.has_value() ? "-open-knee-oks003-left" : "") +
+                (openKneePayload.has_value()
+                    ? (openKneePayload->side == metalrobo::NumiHumanKneeSide::left
+                        ? "-open-knee-oks003-left"
+                        : "-open-knee-oks003-right-mirrored")
+                    : "") +
                 (passiveFEMTissue.has_value() ? "-passive-fem-tissue" : "") +
                 (muscleDrivenState.has_value() ? "-muscle-driven" : "") +
                 (!selectedSourceMuscleActivations.empty() ? "-selected-actuators" : "") +
@@ -8240,7 +8265,9 @@ int main(int argc, char** argv) {
             }
             if (openKneePayload.has_value()) {
                 evidenceBoundary +=
-                    "_with_exact_open_knees_oks003_neutral_left_knee_regions_surfaces_ties_and_contact_pairs_registered_by_one_proper_rotation_one_uniform_scale_and_translation_to_live_myoSim_frames_not_subject_matched_loaded_contact_or_deformable_ligament_qualification";
+                    openKneePayload->side == metalrobo::NumiHumanKneeSide::left
+                        ? "_with_exact_open_knees_oks003_neutral_left_knee_regions_surfaces_ties_and_contact_pairs_registered_by_one_proper_rotation_one_uniform_scale_and_translation_to_live_myoSim_frames_not_subject_matched_loaded_contact_or_deformable_ligament_qualification"
+                        : "_with_exact_open_knees_oks003_left_specimen_topology_neutral_sagittal_mirror_into_measured_live_right_knee_frames_not_an_independently_segmented_right_subject_loaded_contact_or_deformable_ligament_qualification";
             }
             std::cout << std::setprecision(12)
                       << (bodypartsBoneVisual

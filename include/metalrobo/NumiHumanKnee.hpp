@@ -26,6 +26,11 @@ enum class NumiHumanKneeRegionKind : std::uint32_t {
     tendon = 5u,
 };
 
+enum class NumiHumanKneeSide : std::uint32_t {
+    left = 0u,
+    rightMirrored = 1u,
+};
+
 struct NumiHumanKneeRegion {
     std::string name;
     NumiHumanKneeRegionKind kind = NumiHumanKneeRegionKind::bone;
@@ -70,6 +75,7 @@ struct NumiHumanKneeNode {
 
 struct NumiHumanKneePayload {
     std::uint32_t payloadAbi = 0u;
+    NumiHumanKneeSide side = NumiHumanKneeSide::left;
     std::array<std::uint8_t, 32u> geometrySha256{};
     std::array<std::uint8_t, 32u> modelPropertiesSha256{};
     std::array<std::uint8_t, 32u> licenseSha256{};
@@ -96,6 +102,9 @@ inline constexpr std::uint32_t NUMI_HUMAN_KNEE_INVALID_INDEX = 0xffffffffu;
 inline constexpr std::uint32_t NUMI_HUMAN_KNEE_FEMUR_BODY = 145u;
 inline constexpr std::uint32_t NUMI_HUMAN_KNEE_TIBIA_BODY = 150u;
 inline constexpr std::uint32_t NUMI_HUMAN_KNEE_PATELLA_BODY = 156u;
+inline constexpr std::uint32_t NUMI_HUMAN_KNEE_RIGHT_FEMUR_BODY = 131u;
+inline constexpr std::uint32_t NUMI_HUMAN_KNEE_RIGHT_TIBIA_BODY = 136u;
+inline constexpr std::uint32_t NUMI_HUMAN_KNEE_RIGHT_PATELLA_BODY = 142u;
 
 [[nodiscard]] NumiHumanKneeDiagnostics decodeNumiHumanKneePayload(
     std::span<const std::byte> bytes,

@@ -1,0 +1,23 @@
+{
+  "schema_version": 3,
+  "id": "myosim_fullbody_articulated_marker_visualization.visual.v3",
+  "coordinate_convention": "x-forward,y-left,z-up",
+  "world_fingerprint": 9827563243197020282,
+  "fingerprint": 6432728415340912573,
+  "visual_pack_hashes": ["sha256:5a3da4eed740d9e117a9b1ba6cc727b50b0e2e026453c76a74592dcbbc19e0ff"],
+  "environment_map_hash": "builtin:neutral-studio-v2",
+  "light_rig_hash": "builtin:human-anatomy-camera-relative-three-point-v3",
+  "preprocessing_provenance": "compileVisualSceneManifestV3/native-pack-references-v3",
+  "render_scene": {
+    "id": "myosim_fullbody_articulated_marker_visualization.visual.v3.runtime",
+    "asset_count": 1,
+    "body_count": 157,
+    "gaussian_count": 0,
+    "visual_pack_count": 1,
+    "sensor_binding_count": 4,
+    "light_count": 3,
+    "environment_id": "neutral_studio",
+    "light_rig_id": "human_anatomy_camera_relative_three_point",
+    "fingerprint": 16892446808310781597
+  }
+}

@@ -1,15 +1,22 @@
 # Numi Human Open Knee(s) oks003 native validation
 
-The native Apple renderer now consumes the exact `NHKNEE1` left-knee payload
+The native Apple renderer now consumes exact `NHKNEE1` left-knee and
+explicitly mirrored-right payloads
 instead of trying to infer local bone placement from unrelated whole-body
-visual meshes. The decoder rejects source, region, node, surface, attachment,
-contact-pair, body-frame or index ownership drift before a frame can render.
+visual meshes. The decoder rejects side code, source, region, node, surface,
+attachment, contact-pair, body-frame or index ownership drift before a frame
+can render.
 
 The focused view suppresses the overlapping BodyParts3D femur/tibia/patella
 meshes and draws all 16 Open Knee(s) regions in the live MyoSim articulated
 frames: femur body 145, tibia body 150 and patella body 156. This avoids the
 double-specimen overlay that previously made apparently displaced bones hard
 to distinguish from a bad registration.
+
+For the right side the same exact specimen topology is sagittally mirrored
+into the measured live femur/tibia/patella frames 131, 136 and 142.  It is
+labelled `right-mirrored` throughout; it is not an independently segmented
+right subject.
 
 ## M4 Pro multi-angle result
 
@@ -31,6 +38,11 @@ was visible across the set. Exact per-angle pixel receipts and the full runtime
 boundary are in
 [`open-knee-oks003-m4-pro.transcript.txt`](media/numi-human-open-knee-oks003-v1/open-knee-oks003-m4-pro.transcript.txt).
 
+The mirrored right side was separately reviewed from the same four cameras;
+the fibula is lateral, the patellar mechanism is anterior, and the tibia moves
+posteriorly under the femur at q106 = 0.75 rad.  Its neutral receipt is
+[`open-knee-oks003-right-mirrored-m4-pro.transcript.txt`](media/numi-human-open-knee-oks003-bilateral-v1/open-knee-oks003-right-mirrored-m4-pro.transcript.txt).
+
 ## Reproduction
 
 ```sh
@@ -47,10 +59,16 @@ metalrobo_numilab_human_myosim_visual_probe \
   --dimension 640
 ```
 
+For the mirrored right payload use body indices `131`, `136`, `142`, focus
+body `136`, and `open-knee-oks003-right-mirrored.nhknee`.
+
 ## Evidence boundary
 
 This validates exact-source neutral geometry, topology and articulated
-placement on the M4 Pro. It does not yet validate loaded contact, subject
+placement on the M4 Pro. The flexion review also exposes the next real gap:
+each spanning ligament/tendon surface still follows one rigid owner and can
+detach under articulation.  Flexed tissue pictures are diagnostic failures,
+not showcase evidence.  The runtime does not yet validate loaded contact, subject
 matching, cartilage constitutive response, ligament strain, patellar tracking
 under flexion, or a deformable tendon continuum. Those mechanics must consume
 the preserved attachment sets and surface pairs rather than using these visual
