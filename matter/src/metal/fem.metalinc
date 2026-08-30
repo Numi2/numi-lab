@@ -628,6 +628,52 @@ kernel void nm_fem_prepare_candidate(
     candidate[global] = next;
 }
 
+kernel void nm_fem_apply_kinematic_targets(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(2)]],
+    device NMFEMNodeStateGPU* candidate [[buffer(3)]],
+    device const float4* targets [[buffer(4)]],
+    device NMMatterStatusGPU* statuses [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const float4 target = targets[global];
+    if (target.w <= 0.0f) return;
+    const uint nodeIndex = global - environment * dispatch.femNodeCount;
+    const NMFEMNodeStateGPU previous = accepted[global];
+    if (!all(isfinite(target)) || target.w != 1.0f ||
+        previous.restAndFixed.w <= 0.5f ||
+        microstep.microtick >= microstep.microtickCount ||
+        !(microstep.time.x > 0.0f) || !isfinite(microstep.time.x)) {
+        recordFailure(
+            statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX, nodeIndex, target
+        );
+        return;
+    }
+    const float remaining = float(microstep.microtickCount - microstep.microtick);
+    const float3 displacement =
+        (target.xyz - previous.positionAndMass.xyz) / remaining;
+    const float3 velocity = displacement / microstep.time.x;
+    if (!all(isfinite(displacement)) || !all(isfinite(velocity))) {
+        recordFailure(
+            statuses[environment], NM_STATUS_INVALID_DEFORMATION,
+            NM_INVALID_INDEX, nodeIndex,
+            float4(displacement, length(velocity))
+        );
+        return;
+    }
+    NMFEMNodeStateGPU next = candidate[global];
+    next.positionAndMass.xyz = previous.positionAndMass.xyz + displacement;
+    next.velocityAndInverseMass.xyz = velocity;
+    next.deltaVelocity.xyz = velocity - previous.velocityAndInverseMass.xyz;
+    candidate[global] = next;
+}
+
 kernel void nm_fem_internal_forces(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -773,6 +819,7 @@ kernel void nm_fem_build_mechanical_residual(
     constant uint& preserveSolution [[buffer(20)]],
     device const float4* externalForces [[buffer(21)]],
     constant uint& hasExternalForces [[buffer(22)]],
+    device float4* constraintReactions [[buffer(23)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
@@ -781,6 +828,7 @@ kernel void nm_fem_build_mechanical_residual(
     }
     const uint environment = global / dispatch.femNodeCount;
     const uint nodeIndex = global - environment * dispatch.femNodeCount;
+    constraintReactions[global] = float4(0.0f);
     const NMFEMNodeStateGPU node = accepted[global];
     const NMFEMNodeStateGPU current = candidate[global];
     if (preserveSolution == 0u) {
@@ -829,6 +877,13 @@ kernel void nm_fem_build_mechanical_residual(
         internalForce + externalForce +
         node.positionAndMass.w * dispatch.gravityAndTimestep.xyz
     ) - momentumCorrection;
+    // For a prescribed node, unconstrainedRhs is the impulse that its owning
+    // boundary receives from the continuum over this microstep. Publishing
+    // force (rather than constraint impulse on the node) gives the caller the
+    // action on the bone with the correct sign for J^T projection.
+    if (fixedVelocity) {
+        constraintReactions[global] = float4(unconstrainedRhs / dt, 0.0f);
+    }
     const float3 rhs = fixedVelocity ? float3(0.0f) : unconstrainedRhs;
     const float inverseMass = node.velocityAndInverseMass.w;
     const float3 z = fixedVelocity ? float3(0.0f) : inverseMass * rhs;

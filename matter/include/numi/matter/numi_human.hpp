@@ -12,13 +12,15 @@
 
 namespace numi::matter {
 
-// A complete FEM-node load map for one Numi Human tendon consumer. Every
-// record is immutable and indexed by cooked global FEM-node index. This first
-// adapter is deliberately non-owning: it may qualify a load-driven continuum
-// in the same command buffer, but it cannot replace rigid J^T or return anchor
-// reactions until that ownership path is explicitly implemented.
+// Complete load and bone-anchor maps for one Numi Human tendon/FEM consumer.
+// Node records are immutable and indexed by cooked global FEM-node index.
+// Each endpoint replacement removes exactly the declared source J^T share and
+// returns the solved fixed-node reactions through the owning body Jacobian.
 struct NumiHumanTendonFEMLoadSource {
     std::span<const NMNumiHumanTendonFEMNodeLoadGPU> nodeLoads{};
+    std::span<const NMNumiHumanTendonFEMNodeAnchorGPU> nodeAnchors{};
+    std::span<const NMNumiHumanTendonFEMEndpointReplacementGPU>
+        endpointReplacements{};
     std::uint32_t endpointCount = 0u;
     std::uint32_t environmentCount = 1u;
     float productionForceOwnerFraction = 0.0f;
@@ -61,7 +63,10 @@ public:
     [[nodiscard]] NumiHumanTendonFEMLoadDiagnostics diagnostics() const noexcept;
 
 private:
-    [[nodiscard]] bool encode(
+    [[nodiscard]] bool encodePreDynamics(
+        const metalrobo::MetalNumiHumanTendonLoadPass& pass
+    );
+    [[nodiscard]] bool encodePostValidation(
         const metalrobo::MetalNumiHumanTendonLoadPass& pass
     );
     void abort(void* commandBuffer) noexcept;

@@ -1863,6 +1863,9 @@ struct MuscleDrivenVisualState {
     bool tendonBorrowedConsumerVerified = false;
     bool tendonRollbackVerified = false;
     bool tendonRigidStateIdentityVerified = false;
+    bool tendonContinuumReactionVerified = false;
+    double tendonContinuumMaximumQDelta = 0.0;
+    double tendonContinuumMaximumVDelta = 0.0;
     std::uint32_t tendonTransferCount = 0u;
     std::uint32_t tendonEnvelopeTransferCount = 0u;
     std::uint32_t tendonPointTransferCount = 0u;
@@ -1890,14 +1893,24 @@ struct TendonLoadProgramChain {
     metalrobo::MetalNumiHumanTendonLoadProgram second{};
 };
 
-bool encodeTendonLoadProgramChain(
+bool encodeTendonLoadProgramChainPreDynamics(
     void* opaque,
     const metalrobo::MetalNumiHumanTendonLoadPass& pass
 ) {
     auto* chain = static_cast<TendonLoadProgramChain*>(opaque);
     return chain != nullptr && chain->first.valid() && chain->second.valid() &&
-        chain->first.encode(chain->first.context, pass) &&
-        chain->second.encode(chain->second.context, pass);
+        chain->first.encodePreDynamics(chain->first.context, pass) &&
+        chain->second.encodePreDynamics(chain->second.context, pass);
+}
+
+bool encodeTendonLoadProgramChainPostValidation(
+    void* opaque,
+    const metalrobo::MetalNumiHumanTendonLoadPass& pass
+) {
+    auto* chain = static_cast<TendonLoadProgramChain*>(opaque);
+    return chain != nullptr && chain->first.valid() && chain->second.valid() &&
+        chain->first.encodePostValidation(chain->first.context, pass) &&
+        chain->second.encodePostValidation(chain->second.context, pass);
 }
 
 void abortTendonLoadProgramChain(void* opaque, void* commandBuffer) {
@@ -1918,7 +1931,8 @@ metalrobo::MetalNumiHumanTendonLoadProgram tendonLoadProgramChain(
             "Human tendon-load program chain is incomplete");
     return {
         .context = &chain,
-        .encode = &encodeTendonLoadProgramChain,
+        .encodePreDynamics = &encodeTendonLoadProgramChainPreDynamics,
+        .encodePostValidation = &encodeTendonLoadProgramChainPostValidation,
         .abort = &abortTendonLoadProgramChain,
         .fingerprint = chain.first.fingerprint ^
             (chain.second.fingerprint + 0x9e3779b97f4a7c15ull +
@@ -1949,7 +1963,18 @@ struct HumanTendonContinuumTransaction {
     bool replayVerified = false;
 };
 
-bool encodeTendonLoadAudit(
+bool encodeTendonLoadAuditPreDynamics(
+    void* opaque,
+    const metalrobo::MetalNumiHumanTendonLoadPass& pass
+) {
+    auto* audit = static_cast<TendonLoadAuditConsumer*>(opaque);
+    if (audit == nullptr || pass.commandBuffer == nullptr) return false;
+    if (!audit->reject) return true;
+    ++audit->encodedPassCount;
+    return false;
+}
+
+bool encodeTendonLoadAuditPostValidation(
     void* opaque,
     const metalrobo::MetalNumiHumanTendonLoadPass& pass
 ) {
@@ -1963,7 +1988,6 @@ bool encodeTendonLoadAudit(
         return false;
     }
     ++audit->encodedPassCount;
-    if (audit->reject) return false;
     id<MTLCommandBuffer> command =
         (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
     id<MTLBuffer> transfers = (__bridge id<MTLBuffer>)pass.transfers;
@@ -2715,6 +2739,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     bool tendonRigidStateIdentityVerified = false;
     TendonLoadAuditConsumer acceptedTendonConsumer;
     TendonLoadProgramChain acceptedProgramChain;
+    metalrobo::MetalArticulatedOperatorResult sourceJTOnlyResult;
+    bool sourceJTOnlyAvailable = false;
     if (!tendonProgram.bindings.empty()) {
         metalrobo::MetalArticulatedOperatorInput noTendonInput = parityInput;
         noTendonInput.stand.tendonBindings = {};
@@ -2744,7 +2770,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         rejectingConsumer.reject = true;
         const metalrobo::MetalNumiHumanTendonLoadProgram rejectingAuditProgram{
             .context = &rejectingConsumer,
-            .encode = &encodeTendonLoadAudit,
+            .encodePreDynamics = &encodeTendonLoadAuditPreDynamics,
+            .encodePostValidation = &encodeTendonLoadAuditPostValidation,
             .abort = &abortTendonLoadAudit,
             .fingerprint = 0x4e4854454e444f4eull,
         };
@@ -2787,9 +2814,24 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         require(tendonRollbackVerified,
                 "persistent Human tendon consumer rejection did not roll back");
 
+        if (continuumTransaction != nullptr) {
+            const auto sourceJTOnlyDiagnostics = context.run(
+                model, input, sourceJTOnlyResult
+            );
+            sourceJTOnlyAvailable =
+                sourceJTOnlyDiagnostics.succeeded() &&
+                sourceJTOnlyDiagnostics.published &&
+                sourceJTOnlyDiagnostics.completedStandSteps == stepCount &&
+                sourceJTOnlyResult.standQ.size() == q.size() &&
+                sourceJTOnlyResult.standV.size() == v.size();
+            require(sourceJTOnlyAvailable,
+                    "source J^T-only Human comparison transaction failed");
+        }
+
         const metalrobo::MetalNumiHumanTendonLoadProgram acceptedAuditProgram{
             .context = &acceptedTendonConsumer,
-            .encode = &encodeTendonLoadAudit,
+            .encodePreDynamics = &encodeTendonLoadAuditPreDynamics,
+            .encodePostValidation = &encodeTendonLoadAuditPostValidation,
             .abort = &abortTendonLoadAudit,
             .fingerprint = 0x4e4854454e444f4eull,
         };
@@ -2828,6 +2870,34 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     jointEqualities.payload.records.size() &&
                 status.jointEqualityCounts.z == 0u,
             "persistent Human stand returned an incomplete device status");
+    double tendonContinuumMaximumQDelta = 0.0;
+    double tendonContinuumMaximumVDelta = 0.0;
+    bool tendonContinuumReactionVerified = false;
+    if (continuumTransaction != nullptr) {
+        require(sourceJTOnlyAvailable,
+                "continuum reaction has no source J^T-only comparison");
+        for (std::size_t index = 0u; index < metalResult.standQ.size(); ++index) {
+            tendonContinuumMaximumQDelta = std::max(
+                tendonContinuumMaximumQDelta,
+                std::abs(static_cast<double>(metalResult.standQ[index]) -
+                    static_cast<double>(sourceJTOnlyResult.standQ[index]))
+            );
+        }
+        for (std::size_t index = 0u; index < metalResult.standV.size(); ++index) {
+            tendonContinuumMaximumVDelta = std::max(
+                tendonContinuumMaximumVDelta,
+                std::abs(static_cast<double>(metalResult.standV[index]) -
+                    static_cast<double>(sourceJTOnlyResult.standV[index]))
+            );
+        }
+        tendonContinuumReactionVerified =
+            std::isfinite(tendonContinuumMaximumQDelta) &&
+            std::isfinite(tendonContinuumMaximumVDelta) &&
+            (tendonContinuumMaximumQDelta > 1.0e-12 ||
+             tendonContinuumMaximumVDelta > 1.0e-9);
+        require(tendonContinuumReactionVerified,
+                "continuum anchor reactions did not change Human q/v from source J^T-only dynamics");
+    }
     double selectedControlBaselineMaximumQDelta = 0.0;
     double selectedControlBaselineMaximumVDelta = 0.0;
     std::uint32_t selectedControlBaselineMaximumQDeltaIndex = MR_INVALID_INDEX;
@@ -3224,6 +3294,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     result.tendonRollbackVerified = tendonRollbackVerified;
     result.tendonRigidStateIdentityVerified =
         tendonRigidStateIdentityVerified;
+    result.tendonContinuumReactionVerified =
+        tendonContinuumReactionVerified;
+    result.tendonContinuumMaximumQDelta =
+        tendonContinuumMaximumQDelta;
+    result.tendonContinuumMaximumVDelta =
+        tendonContinuumMaximumVDelta;
     result.tendonTransferCount = static_cast<std::uint32_t>(
         tendonProgram.bindings.size() * stepCount * phaseCount
     );
@@ -5230,6 +5306,9 @@ struct PectoralisFasciaVisual {
     float loadFraction = 0.0f;
     float appliedForceNewtons = 0.0f;
     float maximumDisplacementMeters = 0.0f;
+    float anchorReactionResultantNewtons = 0.0f;
+    float anchorReactionL1Newtons = 0.0f;
+    float maximumAnchorNodeReactionNewtons = 0.0f;
     float maximumAnatomicalMappingDistanceMeters = 0.0f;
     float maximumAppliedAnatomicalMappingDistanceMeters = 0.0f;
     float rmsAnatomicalMappingDistanceMeters = 0.0f;
@@ -5261,6 +5340,53 @@ PectoralisFasciaVisual runPectoralisFascia(
     require(stepCount >= 1u &&
                 stepCount <= MR_NUMI_HUMAN_STAND_MAX_STEPS,
             "coupled pectoralis fascia requires a valid Human horizon");
+    // Build the continuum in the exact q used by the owning persistent Human
+    // transaction. Source-neutral geometry is not a valid fixed-boundary
+    // reference once the controller begins from its compiled support pose.
+    const GroundAlignedSupport aligned =
+        makeGroundAlignedSupport(model, supportContacts);
+    CompiledStandActivation fasciaActivation;
+    if (applySelectedActivationIncrement) {
+        fasciaActivation = compileStaticStandActivation(
+            model, muscles, jointEqualities, aligned.q, 1.0, {}
+        );
+        for (const std::uint32_t muscleIndex : selectedSourceMuscleIndices) {
+            fasciaActivation.activation[muscleIndex] = std::min(
+                1.0f,
+                fasciaActivation.activation[muscleIndex] +
+                    static_cast<float>(activation)
+            );
+        }
+    } else {
+        fasciaActivation = compileStaticStandActivation(
+            model, muscles, jointEqualities, aligned.q, activation,
+            selectedSourceMuscleIndices
+        );
+    }
+    const std::vector<float> fasciaQ =
+        packMetalConfiguration(fasciaActivation.q);
+    metalrobo::MetalArticulatedOperatorResult fasciaPoseResult;
+    metalrobo::MetalArticulatedOperatorConfig fasciaPoseConfig;
+    fasciaPoseConfig.pointJacobiansOnly = true;
+    const auto fasciaPoseDiagnostics = metalrobo::runMetalArticulatedOperator(
+        model, {
+            .articulationIndex = 0u,
+            .environmentCount = 1u,
+            .pointCount = 0u,
+            .q = fasciaQ,
+            .points = {},
+        }, fasciaPoseResult, fasciaPoseConfig
+    );
+    require(fasciaPoseDiagnostics.succeeded() &&
+                fasciaPoseDiagnostics.dispatched &&
+                fasciaPoseDiagnostics.published &&
+                fasciaPoseDiagnostics.successfulEnvironmentCount == 1u,
+            "pectoralis fascia initial Human pose failed: " +
+                fasciaPoseDiagnostics.message);
+    const std::vector<MRBodyStateGPU> fasciaReferenceBodies =
+        visualBodyStates(model, fasciaPoseResult.bodyPoses);
+    require(fasciaReferenceBodies.size() == restBodies.size(),
+            "pectoralis fascia initial Human body count drifted");
     PectoralisFasciaVisual result;
     result.loadFraction = fascia.header.muscleLoadFraction;
     result.tetrahedronCount = fascia.header.tetrahedronCount;
@@ -5270,6 +5396,13 @@ PectoralisFasciaVisual runPectoralisFascia(
         fascia.nodes.size()
     );
     for (auto& load : nodeLoads) load.endpointIndex = NM_INVALID_INDEX;
+    std::vector<NMNumiHumanTendonFEMNodeAnchorGPU> nodeAnchors(
+        fascia.nodes.size()
+    );
+    for (auto& anchor : nodeAnchors) anchor.bodyIndex = NM_INVALID_INDEX;
+    std::vector<NMNumiHumanTendonFEMEndpointReplacementGPU>
+        endpointReplacements;
+    endpointReplacements.reserve(fascia.regions.size());
     std::vector<std::uint32_t> regionBindingIndices(
         fascia.regions.size(), MR_INVALID_INDEX
     );
@@ -5313,10 +5446,11 @@ PectoralisFasciaVisual runPectoralisFascia(
             const PectoralisFasciaNode& node = fascia.nodes[global];
             const SoftTissueVertex& source =
                 tissues.vertices[tissue.firstVertex + node.sourceVertexIndex];
-            mr_float4 point = softTissueVertexBlendedWorld(tissue, source, restBodies);
+            mr_float4 point = softTissueVertexBlendedWorld(
+                tissue, source, fasciaReferenceBodies);
             if (local >= layerWidth) {
                 const mr_float4 normal = softTissueVertexBlendedNormalWorld(
-                    tissue, source, restBodies
+                    tissue, source, fasciaReferenceBodies
                 );
                 point.x -= fascia.header.thicknessMeters * normal.x;
                 point.y -= fascia.header.thicknessMeters * normal.y;
@@ -5332,23 +5466,101 @@ PectoralisFasciaVisual runPectoralisFascia(
             }
             if ((node.flags & 2u) != 0u) ++result.loadNodeCount;
         }
-        const auto binding = std::find_if(
-            muscles.tendonPayload.bindings.begin(), muscles.tendonPayload.bindings.end(),
-            [&region, &tissue](const metalrobo::NumiHumanTendonBinding& value) {
-                return value.muscleIndex == region.muscleIndex &&
-                    value.bodyIndex == tissue.bodyIndex[1];
+        std::array<std::uint32_t, 2u> candidateBindings{
+            MR_INVALID_INDEX, MR_INVALID_INDEX};
+        std::uint32_t candidateCount = 0u;
+        for (std::uint32_t index = 0u;
+             index < muscles.tendonPayload.bindings.size(); ++index) {
+            if (muscles.tendonPayload.bindings[index].muscleIndex ==
+                region.muscleIndex) {
+                require(candidateCount < candidateBindings.size(),
+                        "pectoralis fascia muscle has more than two terminals");
+                candidateBindings[candidateCount++] = index;
             }
+        }
+        require(candidateCount == 2u,
+                "pectoralis fascia requires two source tendon terminals");
+        mr_float4 fixedCentroid{0.0f, 0.0f, 0.0f, 0.0f};
+        mr_float4 loadCentroid{0.0f, 0.0f, 0.0f, 0.0f};
+        std::uint32_t fixedSamples = 0u;
+        std::uint32_t loadSamples = 0u;
+        for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
+            const std::uint32_t global = region.firstNode + local;
+            if ((fascia.nodes[global].flags & 1u) != 0u) {
+                fixedCentroid = femAdd(fixedCentroid, result.restNodes[global]);
+                ++fixedSamples;
+            }
+            if ((fascia.nodes[global].flags & 2u) != 0u) {
+                loadCentroid = femAdd(loadCentroid, result.restNodes[global]);
+                ++loadSamples;
+            }
+        }
+        require(fixedSamples > 0u && loadSamples > 0u,
+                "pectoralis fascia anchor/load centroid is unavailable");
+        fixedCentroid = femScale(fixedCentroid, 1.0f / float(fixedSamples));
+        loadCentroid = femScale(loadCentroid, 1.0f / float(loadSamples));
+        const auto endpointWorld = [&](const std::uint32_t bindingIndex) {
+            const auto& value = muscles.tendonPayload.bindings[bindingIndex];
+            require(value.bodyIndex < fasciaReferenceBodies.size(),
+                    "pectoralis terminal body is outside the Human articulation");
+            const MRBodyStateGPU& body = fasciaReferenceBodies[value.bodyIndex];
+            const mr_float4 local{
+                static_cast<float>(value.resolvedLocalPoint[0]),
+                static_cast<float>(value.resolvedLocalPoint[1]),
+                static_cast<float>(value.resolvedLocalPoint[2]), 0.0f,
+            };
+            return femAdd(body.position, rotatePoint(body.orientation, local));
+        };
+        const mr_float4 endpoint0 = endpointWorld(candidateBindings[0]);
+        const mr_float4 endpoint1 = endpointWorld(candidateBindings[1]);
+        const float assignment0 =
+            femLength(femSubtract(endpoint0, loadCentroid)) +
+            femLength(femSubtract(endpoint1, fixedCentroid));
+        const float assignment1 =
+            femLength(femSubtract(endpoint1, loadCentroid)) +
+            femLength(femSubtract(endpoint0, fixedCentroid));
+        require(std::isfinite(assignment0) && std::isfinite(assignment1) &&
+                    std::abs(assignment0 - assignment1) > 1.0e-5f,
+                "pectoralis source terminal/boundary assignment is ambiguous");
+        const std::uint32_t loadBindingIndex = assignment0 <= assignment1
+            ? candidateBindings[0] : candidateBindings[1];
+        const std::uint32_t anchorBindingIndex = loadBindingIndex == candidateBindings[0]
+            ? candidateBindings[1] : candidateBindings[0];
+        const mr_float4 loadEndpoint = endpointWorld(loadBindingIndex);
+        const mr_float4 anchorEndpoint = endpointWorld(anchorBindingIndex);
+        require(
+            femLength(femSubtract(loadEndpoint, anchorEndpoint)) > 0.01f,
+            "pectoralis source tendon terminals are anatomically coincident"
         );
-        require(binding != muscles.tendonPayload.bindings.end(),
-                "pectoralis fascia has no named torso-side NHTENDON2/3 terminal");
-        const std::size_t bindingIndex = static_cast<std::size_t>(
-            std::distance(muscles.tendonPayload.bindings.begin(), binding)
-        );
-        require(bindingIndex < muscles.tendonPayload.bindings.size(),
-                "pectoralis fascia tendon binding index is unavailable");
-        regionBindingIndices[regionIndex] = static_cast<std::uint32_t>(
-            bindingIndex
-        );
+        regionBindingIndices[regionIndex] = loadBindingIndex;
+        const auto& anchorBinding =
+            muscles.tendonPayload.bindings[anchorBindingIndex];
+        const MRBodyStateGPU& anchorBody =
+            fasciaReferenceBodies[anchorBinding.bodyIndex];
+        const mr_float4 inverseAnchorOrientation{
+            -anchorBody.orientation.x, -anchorBody.orientation.y,
+            -anchorBody.orientation.z, anchorBody.orientation.w,
+        };
+        for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
+            const std::uint32_t global = region.firstNode + local;
+            if ((fascia.nodes[global].flags & 1u) == 0u) continue;
+            const mr_float4 localPoint = rotatePoint(
+                inverseAnchorOrientation,
+                femSubtract(result.restNodes[global], anchorBody.position)
+            );
+            nodeAnchors[global].bodyIndex = anchorBinding.bodyIndex;
+            nodeAnchors[global].flags =
+                NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
+            nodeAnchors[global].localPoint = {
+                localPoint.x, localPoint.y, localPoint.z, 0.0f};
+        }
+        NMNumiHumanTendonFEMEndpointReplacementGPU replacement{};
+        replacement.loadEndpointIndex = loadBindingIndex;
+        replacement.anchorEndpointIndex = anchorBindingIndex;
+        replacement.flags =
+            NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_ACTIVE;
+        replacement.forceOwnerFraction.x = fascia.header.muscleLoadFraction;
+        endpointReplacements.push_back(replacement);
         const std::uint32_t regionLoadCount = static_cast<std::uint32_t>(std::count_if(
             fascia.nodes.begin() + region.firstNode,
             fascia.nodes.begin() + region.firstNode + region.nodeCount,
@@ -5361,7 +5573,7 @@ PectoralisFasciaVisual runPectoralisFascia(
             const std::uint32_t global = region.firstNode + local;
             if ((fascia.nodes[global].flags & 2u) != 0u) {
                 nodeLoads[global].endpointIndex = static_cast<std::uint32_t>(
-                    bindingIndex
+                    loadBindingIndex
                 );
                 nodeLoads[global].flags =
                     NM_NUMI_HUMAN_TENDON_FEM_NODE_LOAD_ACTIVE;
@@ -5439,11 +5651,14 @@ PectoralisFasciaVisual runPectoralisFascia(
     numi::matter::NumiHumanTendonFEMLoadAdapter adapter;
     require(adapter.initialize(runtime, {
                 .nodeLoads = nodeLoads,
+                .nodeAnchors = nodeAnchors,
+                .endpointReplacements = endpointReplacements,
                 .endpointCount = static_cast<std::uint32_t>(
                     muscles.tendonPayload.bindings.size()
                 ),
                 .environmentCount = 1u,
-                .productionForceOwnerFraction = 0.0f,
+                .productionForceOwnerFraction =
+                    fascia.header.muscleLoadFraction,
             }, {
                 .metallib = matterMetallib,
             }),
@@ -5462,10 +5677,58 @@ PectoralisFasciaVisual runPectoralisFascia(
     const auto accepted = transaction.accepted;
     require(accepted.available && accepted.femNodes.size() == result.nodes.size(),
             "pectoralis fascia accepted snapshot is unavailable");
+    id<MTLBuffer> reactionBuffer = (__bridge id<MTLBuffer>)
+        runtime.femConstraintReactionBuffer();
+    require(reactionBuffer != nil,
+            "pectoralis fascia fixed-node reaction buffer is unavailable");
+    const NSUInteger reactionBytes = static_cast<NSUInteger>(
+        result.nodes.size() * sizeof(nm_float4));
+    id<MTLBuffer> reactionReadback = [reactionBuffer.device
+        newBufferWithLength:reactionBytes options:MTLResourceStorageModeShared];
+    id<MTLCommandQueue> reactionQueue = [reactionBuffer.device newCommandQueue];
+    id<MTLCommandBuffer> reactionCommand = [reactionQueue commandBuffer];
+    id<MTLBlitCommandEncoder> reactionBlit =
+        [reactionCommand blitCommandEncoder];
+    require(reactionReadback != nil && reactionQueue != nil &&
+                reactionCommand != nil && reactionBlit != nil,
+            "pectoralis fascia reaction readback could not be allocated");
+    [reactionBlit copyFromBuffer:reactionBuffer sourceOffset:0u
+                        toBuffer:reactionReadback destinationOffset:0u
+                            size:reactionBytes];
+    [reactionBlit endEncoding];
+    [reactionCommand commit];
+    [reactionCommand waitUntilCompleted];
+    require(reactionCommand.status == MTLCommandBufferStatusCompleted,
+            "pectoralis fascia reaction readback failed");
+    const auto* reactionValues =
+        static_cast<const nm_float4*>(reactionReadback.contents);
+    mr_float4 reactionResultant{0.0f, 0.0f, 0.0f, 0.0f};
+    for (std::uint32_t node = 0u; node < result.nodes.size(); ++node) {
+        if ((nodeAnchors[node].flags &
+                NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) == 0u) continue;
+        const mr_float4 reaction{
+            reactionValues[node].x, reactionValues[node].y,
+            reactionValues[node].z, 0.0f};
+        const float magnitude = femLength(reaction);
+        require(std::isfinite(magnitude),
+                "pectoralis fascia anchor reaction is non-finite");
+        reactionResultant = femAdd(reactionResultant, reaction);
+        result.anchorReactionL1Newtons += magnitude;
+        result.maximumAnchorNodeReactionNewtons = std::max(
+            result.maximumAnchorNodeReactionNewtons, magnitude);
+    }
+    result.anchorReactionResultantNewtons = femLength(reactionResultant);
+    require(std::isfinite(result.anchorReactionResultantNewtons) &&
+                result.anchorReactionResultantNewtons > 0.0f &&
+                result.anchorReactionL1Newtons > 0.0f &&
+                result.maximumAnchorNodeReactionNewtons > 0.0f,
+            "pectoralis fascia produced no fixed-node force transfer to bone");
     require(transaction.rollbackVerified && transaction.replayVerified,
             "pectoralis fascia did not close Human/Matter rollback and replay");
     const auto adapterDiagnostics = adapter.diagnostics();
-    const std::uint32_t expectedAdapterPasses = 1u +
+    // The deliberate downstream-rejection probe aborts after this adapter's
+    // pre-dynamics phase, so it owns rollback but is not a completed pass.
+    const std::uint32_t expectedAdapterPasses =
         2u * driven.stepCount * driven.muscleMetalStepCount;
     require(adapterDiagnostics.initialized &&
                 adapterDiagnostics.encodedPassCount == expectedAdapterPasses &&
@@ -5547,9 +5810,11 @@ PectoralisFasciaVisual runPectoralisFascia(
             const SoftTissueVertex& source =
                 tissues.vertices[tissue.firstVertex + offset];
             sourceRestPoints[offset] =
-                softTissueVertexBlendedWorld(tissue, source, restBodies);
+                softTissueVertexBlendedWorld(
+                    tissue, source, fasciaReferenceBodies);
             sourceRestNormals[offset] =
-                softTissueVertexBlendedNormalWorld(tissue, source, restBodies);
+                softTissueVertexBlendedNormalWorld(
+                    tissue, source, fasciaReferenceBodies);
         }
         std::vector<std::array<std::uint32_t, 3u>> anteriorTriangles;
         anteriorTriangles.reserve(
@@ -7882,9 +8147,18 @@ int main(int argc, char** argv) {
                               muscleDrivenState->tendonRollbackVerified
                                   ? "consumer_rejection_preserved_result" : "not_verified")
                       << " tendon_rigid_state_effect=" << (muscleDrivenState.has_value() &&
-                              muscleDrivenState->tendonRigidStateIdentityVerified
-                                  ? "bitwise_identical_output_only_no_direct_joint_torque"
-                                  : "not_verified")
+                              muscleDrivenState->tendonContinuumReactionVerified
+                                  ? "source_JT_share_replaced_by_same_command_continuum_anchor_reaction"
+                                  : (muscleDrivenState.has_value() &&
+                                     muscleDrivenState->tendonRigidStateIdentityVerified
+                                      ? "transfer_only_bitwise_identical_no_direct_joint_torque"
+                                      : "not_verified"))
+                      << " tendon_continuum_max_q_delta_from_source_JT="
+                      << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->tendonContinuumMaximumQDelta : 0.0)
+                      << " tendon_continuum_max_v_delta_from_source_JT="
+                      << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->tendonContinuumMaximumVDelta : 0.0)
                       << " tendon_step_transfers=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->tendonTransferCount : 0u)
                       << " tendon_step_envelope_transfers=" << (muscleDrivenState.has_value()
@@ -8010,6 +8284,12 @@ int main(int argc, char** argv) {
                               ? pectoralisFascia->loadFraction : 0.0f)
                       << " pectoralis_fascia_applied_force_n=" << (pectoralisFascia.has_value()
                               ? pectoralisFascia->appliedForceNewtons : 0.0f)
+                      << " pectoralis_fascia_anchor_reaction_resultant_n=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->anchorReactionResultantNewtons : 0.0f)
+                      << " pectoralis_fascia_anchor_reaction_l1_n=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->anchorReactionL1Newtons : 0.0f)
+                      << " pectoralis_fascia_anchor_reaction_max_node_n=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->maximumAnchorNodeReactionNewtons : 0.0f)
                       << " pectoralis_fascia_steps=" << (pectoralisFascia.has_value()
                               ? pectoralisFascia->completedSteps : 0u)
                       << " pectoralis_fascia_fgmres_iterations=" << (pectoralisFascia.has_value()

@@ -659,6 +659,11 @@ struct EncodeRequest {
     // constitutive force. Callers retain ownership; w is ignored. A non-null
     // field must cover exactly environmentCount * femNodeCount records.
     void* femExternalForces = nullptr; // id<MTLBuffer>, float4
+    // Optional absolute world-space targets for cooked fixed FEM nodes. One
+    // float4 covers every environment/node; w > 0 selects a target. Targets
+    // are interpolated over internal microticks and participate in the same
+    // accepted/candidate/checkpoint transaction as the FEM state.
+    void* femKinematicTargets = nullptr; // id<MTLBuffer>, float4
     // Optional borrowed final MetalWorld contact solve, laid out
     // [environment][rigidContactConstraintStride].  Matter consumes it only
     // during a final post-commit adaptive transfer to re-promote the exact
@@ -678,6 +683,7 @@ struct EncodeRequest {
     std::uint32_t learnedWeightCount = 0u;
     std::uint32_t learnedWeightRevision = 0u;
     std::uint32_t femExternalForceCount = 0u;
+    std::uint32_t femKinematicTargetCount = 0u;
     std::uint64_t expectedMutationFingerprint = 0u;
     std::uint64_t expectedLearnedFingerprint = 0u;
     std::uint32_t resetMaskStepStride = 0u;
@@ -912,6 +918,10 @@ public:
     [[nodiscard]] RuntimeStateSnapshot snapshot() const;
     [[nodiscard]] void* eventBuffer() const noexcept;
     [[nodiscard]] void* statusBuffer() const noexcept;
+    // Candidate fixed-node force on the owning kinematic boundary, in
+    // world-space newtons (float4 per environment/node, w = 0). Valid only
+    // after an accepted pre-dynamics solve in the same command buffer.
+    [[nodiscard]] void* femConstraintReactionBuffer() const noexcept;
     [[nodiscard]] void* parameterBuffer() const noexcept;
     [[nodiscard]] void* identificationLossBuffer() const noexcept;
 

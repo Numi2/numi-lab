@@ -511,6 +511,7 @@ struct Runtime::State {
     id<MTLBuffer> femPreconditioned = nil;
     id<MTLBuffer> femDirection = nil;
     id<MTLBuffer> femOperatorValue = nil;
+    id<MTLBuffer> femConstraintReactions = nil;
     id<MTLBuffer> femLineSearch = nil;
     id<MTLBuffer> fgmresBasis = nil;
     id<MTLBuffer> fgmresPreconditionedBasis = nil;
@@ -644,6 +645,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mpm_sort_block_particles",
             "nm_fem_checkpoint",
             "nm_fem_prepare_candidate",
+            "nm_fem_apply_kinematic_targets",
             "nm_topology_checkpoint",
             "nm_topology_detect_puncture",
             "nm_topology_execute_transaction",
@@ -1527,6 +1529,9 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femOperatorValue = privateScratch<nm_float4>(
             candidate->device, mixedUnknownTotal,
             valid, candidate->residentBytes);
+        candidate->femConstraintReactions = privateScratch<nm_float4>(
+            candidate->device, multiplied(world.dispatch.femNodeCount),
+            valid, candidate->residentBytes);
         candidate->femLineSearch = privateScratch<nm_float4>(
             candidate->device, multiplied(world.dispatch.objectCount),
             valid, candidate->residentBytes);
@@ -1861,6 +1866,14 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 "borrowed FEM external-force field must exactly cover every environment and cooked node";
             return diagnostics;
         }
+        if ((request.femKinematicTargets == nullptr) !=
+                (request.femKinematicTargetCount == 0u) ||
+            (request.femKinematicTargets != nullptr &&
+             request.femKinematicTargetCount != requiredFEMExternalForceCount)) {
+            diagnostics.message =
+                "borrowed FEM kinematic-target field must exactly cover every environment and cooked node";
+            return diagnostics;
+        }
         if (request.rigid.currentBodyCount >
                 request.rigid.currentBodyStride ||
             request.rigid.bodyWrenchCount >
@@ -1974,6 +1987,20 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 static_cast<NSUInteger>(request.femExternalForceCount) *
                     4u * sizeof(float)) {
             diagnostics.message = "borrowed FEM external-force Metal buffer is undersized";
+            return diagnostics;
+        }
+        id<MTLBuffer> femKinematicTargets =
+            request.femKinematicTargets == nullptr
+                ? state.dummy
+                : (__bridge id<MTLBuffer>)request.femKinematicTargets;
+        const std::uint32_t hasFEMKinematicTargets =
+            request.femKinematicTargets == nullptr ? 0u : 1u;
+        if (request.femKinematicTargets != nullptr &&
+            femKinematicTargets.length <
+                static_cast<NSUInteger>(request.femKinematicTargetCount) *
+                    4u * sizeof(float)) {
+            diagnostics.message =
+                "borrowed FEM kinematic-target Metal buffer is undersized";
             return diagnostics;
         }
         if (commandBuffer.commandQueue == nil ||
@@ -3073,6 +3100,16 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.femAccepted offset:0u atIndex:6u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
             });
+            if (hasFEMKinematicTargets != 0u) {
+                dispatchThreads("nm_fem_apply_kinematic_targets", femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:femKinematicTargets offset:0u atIndex:4u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                });
+            }
             const NSUInteger rigidCandidateTotal = environments *
                 state.dispatch.rigidGeneralizedCapacity;
             dispatchThreads(
@@ -3586,6 +3623,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:femExternalForces offset:0u atIndex:21u];
                 [encoder setBytes:&hasFEMExternalForces
                            length:sizeof(hasFEMExternalForces) atIndex:22u];
+                [encoder setBuffer:state.femConstraintReactions
+                            offset:0u atIndex:23u];
             });
             dispatchThreads("nm_fgmres_clear_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {
@@ -4739,6 +4778,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:femExternalForces offset:0u atIndex:21u];
                 [encoder setBytes:&hasFEMExternalForces
                            length:sizeof(hasFEMExternalForces) atIndex:22u];
+                [encoder setBuffer:state.femConstraintReactions
+                            offset:0u atIndex:23u];
             });
             if (!encodeCoupledPrimalContact(
                     true,
@@ -7200,6 +7241,10 @@ void* Runtime::eventBuffer() const noexcept {
 
 void* Runtime::statusBuffer() const noexcept {
     return state_ ? (__bridge void*)state_->statuses : nullptr;
+}
+
+void* Runtime::femConstraintReactionBuffer() const noexcept {
+    return state_ ? (__bridge void*)state_->femConstraintReactions : nullptr;
 }
 
 void* Runtime::parameterBuffer() const noexcept {

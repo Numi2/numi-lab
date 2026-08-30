@@ -3406,6 +3406,57 @@ MetalArticulatedOperatorContext::submit(
                 : 1u;
             for (std::uint32_t horizonStep = 0u;
                  horizonStep < horizonStepCount; ++horizonStep) {
+            const MRArticulationGPU& articulation =
+                model.articulations[input.articulationIndex];
+            const auto tendonLoadPass = [&]() {
+                MetalNumiHumanTendonLoadPass pass{};
+                pass.commandBuffer = (__bridge void*)commandBuffer;
+                pass.bindings = (__bridge void*)state_->standBuffers[
+                    kStandTendonBindingsBuffer
+                ];
+                pass.envelopes = (__bridge void*)state_->standBuffers[
+                    kStandTendonEnvelopesBuffer
+                ];
+                pass.transfers = (__bridge void*)state_->standBuffers[
+                    kStandTendonTransfersBuffer
+                ];
+                pass.generalizedCorrections =
+                    (__bridge void*)state_->standBuffers[
+                        kStandTendonCorrectionsBuffer
+                    ];
+                pass.generalizedForces =
+                    (__bridge void*)state_->buffers[kMillardForcesBuffer];
+                pass.bodyPoses = (__bridge void*)state_->buffers[8u];
+                pass.pointJacobians = (__bridge void*)state_->buffers[11u];
+                pass.standStatuses = (__bridge void*)state_->standBuffers[
+                    kStandStatusBuffer
+                ];
+                pass.stepIndex = horizonStep;
+                pass.environmentCount = static_cast<std::uint32_t>(
+                    input.environmentCount
+                );
+                pass.endpointCount = static_cast<std::uint32_t>(
+                    input.stand.tendonBindings.size()
+                );
+                pass.envelopeCount = static_cast<std::uint32_t>(
+                    input.stand.tendonEnvelopes.size()
+                );
+                pass.dofCount = articulation.nv;
+                pass.muscleCount = static_cast<std::uint32_t>(
+                    input.mujoco.muscles.size()
+                );
+                pass.generalizedForceStride = articulation.nv;
+                pass.generalizedForceOffset = static_cast<std::uint32_t>(
+                    diagnostics.layout.mujocoMuscleGeneralizedForceElements
+                );
+                pass.pointJacobianStride =
+                    diagnostics.layout.dispatch.pointJacobianStride;
+                pass.bodyJacobianPointOffset =
+                    input.mujoco.bodyJacobianPointOffset;
+                pass.bodyPoseStride = articulation.bodyCount;
+                pass.articulationFirstBody = articulation.firstBody;
+                return pass;
+            };
             id<MTLComputeCommandEncoder> encoder =
                 [commandBuffer computeCommandEncoder];
             if (encoder == nil) {
@@ -3425,8 +3476,6 @@ MetalArticulatedOperatorContext::submit(
                        offset:0u
                       atIndex:index];
             }
-            const MRArticulationGPU& articulation =
-                model.articulations[input.articulationIndex];
             [encoder
                 setThreadgroupMemoryLength:
                     detail::articulatedOperatorThreadgroupBytes(
@@ -3682,6 +3731,22 @@ MetalArticulatedOperatorContext::submit(
                             kThreadsPerThreadgroup, 1u, 1u
                         )];
                     [tendonEncoder endEncoding];
+
+                    if (input.stand.tendonLoadProgram.valid()) {
+                        tendonLoadAbort.armed = true;
+                        const MetalNumiHumanTendonLoadPass pass =
+                            tendonLoadPass();
+                        if (!input.stand.tendonLoadProgram.encodePreDynamics(
+                                input.stand.tendonLoadProgram.context,
+                                pass
+                            )) {
+                            return reject(
+                                std::move(diagnostics),
+                                MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                                "Numi Human pre-dynamics tendon-load consumer rejected encoding"
+                            );
+                        }
+                    }
                 }
                 if (state_->config.mujocoActivationTimestepSeconds > 0.0f) {
                     MRMujocoMuscleActivationDispatchGPU activationDispatch{};
@@ -3855,47 +3920,17 @@ MetalArticulatedOperatorContext::submit(
                 [standEncoder endEncoding];
 
                 if (input.stand.tendonLoadProgram.valid()) {
-                    MetalNumiHumanTendonLoadPass pass{};
-                    pass.commandBuffer = (__bridge void*)commandBuffer;
-                    pass.bindings = (__bridge void*)state_->standBuffers[
-                        kStandTendonBindingsBuffer
-                    ];
-                    pass.envelopes = (__bridge void*)state_->standBuffers[
-                        kStandTendonEnvelopesBuffer
-                    ];
-                    pass.transfers = (__bridge void*)state_->standBuffers[
-                        kStandTendonTransfersBuffer
-                    ];
-                    pass.generalizedCorrections =
-                        (__bridge void*)state_->standBuffers[
-                            kStandTendonCorrectionsBuffer
-                        ];
-                    pass.bodyPoses = (__bridge void*)state_->buffers[8u];
-                    pass.standStatuses = (__bridge void*)state_->standBuffers[
-                        kStandStatusBuffer
-                    ];
-                    pass.stepIndex = horizonStep;
-                    pass.environmentCount = static_cast<std::uint32_t>(
-                        input.environmentCount
-                    );
-                    pass.endpointCount = static_cast<std::uint32_t>(
-                        input.stand.tendonBindings.size()
-                    );
-                    pass.envelopeCount = static_cast<std::uint32_t>(
-                        input.stand.tendonEnvelopes.size()
-                    );
-                    pass.dofCount = articulation.nv;
-                    pass.bodyPoseStride = articulation.bodyCount;
-                    pass.articulationFirstBody = articulation.firstBody;
+                    const MetalNumiHumanTendonLoadPass pass =
+                        tendonLoadPass();
                     tendonLoadAbort.armed = true;
-                    if (!input.stand.tendonLoadProgram.encode(
+                    if (!input.stand.tendonLoadProgram.encodePostValidation(
                             input.stand.tendonLoadProgram.context,
                             pass
                         )) {
                         return reject(
                             std::move(diagnostics),
                             MetalArticulatedOperatorHostStatus::metalCommandFailure,
-                            "Numi Human tendon-load consumer rejected encoding"
+                            "Numi Human post-validation tendon-load consumer rejected encoding"
                         );
                     }
                 }

@@ -6,13 +6,15 @@ continuum. The `coupled` branch has one GPU-resident nonlinear authority rather
 than sequenced deformable, pressure, transport, contact, and rigid-response
 solvers.
 
-Numi Human can now lend its live NHTENDON2/3 endpoint-transfer and step-status
-buffers to Matter without a host readback or second command buffer. The
-`NumiHumanTendonFEMLoadAdapter` assembles declared FEM-node shares on Metal and
-encodes Matter pre-dynamics plus commit or rollback inside the owning Human
-transaction. The path is intentionally non-owning for production rigid force:
-it must not duplicate MyoSim `J^T` until the matching endpoint share is
-replaced and accepted anchor reactions return to the articulated system.
+Numi Human lends its live NHTENDON2/3 endpoint transfers, body kinematics,
+Jacobians, and step status to Matter without a host readback or second command
+buffer. `NumiHumanTendonFEMLoadAdapter` drives prescribed bone-following FEM
+anchors, applies the equal-and-opposite load-side traction, replaces the exact
+declared anchor-endpoint share of MyoSim `J^T`, and projects accepted
+fixed-node reactions back through the owning body Jacobian before Human
+dynamics. A post-validation phase commits or rolls back the matching Matter
+transaction. Transfer-only execution still leaves `J^T` untouched; production
+coupling replaces a share and never adds a duplicate force owner.
 
 The environment-wide Newton unknown is
 

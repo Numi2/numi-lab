@@ -92,28 +92,34 @@ struct MetalMujocoMuscleReferenceInput {
     }
 };
 
-// Borrowed device view encoded after tendon transfer and stand validation in
-// every persistent-Human step. Because the host encodes the complete horizon
-// before execution, downstream physical writes must first gate on that
-// environment's stand status being success with completedSteps == stepIndex+1.
-// The callback may encode bone/FEM/MPM work into commandBuffer, but it must not
-// commit, wait, retain, or replace any borrowed object. Transfer records are
-// environment-major [environment][endpoint]. Distributed records address the
-// four immutable local nodes in their envelope; point fallbacks place the
-// source-point force in nodalWorldForces[0].
+// Borrowed device view shared by the pre-dynamics continuum pass and its
+// post-validation reconciliation in every persistent-Human step. The first
+// callback runs after tendon transfer but before articulated dynamics, so an
+// accepted continuum reaction may replace (never duplicate) a declared share
+// of the source J^T force. The second callback runs after stand validation and
+// must commit or roll back the matching continuum transaction from device
+// status. Neither callback may commit, wait, retain, or replace borrowed
+// objects. Transfer records are environment-major [environment][endpoint].
 struct MetalNumiHumanTendonLoadPass {
     void* commandBuffer = nullptr;
     void* bindings = nullptr;
     void* envelopes = nullptr;
     void* transfers = nullptr;
     void* generalizedCorrections = nullptr;
+    void* generalizedForces = nullptr;
     void* bodyPoses = nullptr;
+    void* pointJacobians = nullptr;
     void* standStatuses = nullptr;
     std::uint32_t stepIndex = 0u;
     std::uint32_t environmentCount = 0u;
     std::uint32_t endpointCount = 0u;
     std::uint32_t envelopeCount = 0u;
     std::uint32_t dofCount = 0u;
+    std::uint32_t muscleCount = 0u;
+    std::uint32_t generalizedForceStride = 0u;
+    std::uint32_t generalizedForceOffset = 0u;
+    std::uint32_t pointJacobianStride = 0u;
+    std::uint32_t bodyJacobianPointOffset = MR_INVALID_INDEX;
     std::uint32_t bodyPoseStride = 0u;
     std::uint32_t articulationFirstBody = 0u;
 };
@@ -133,17 +139,20 @@ using MetalNumiHumanTendonLoadAbort = void (*)(
 
 struct MetalNumiHumanTendonLoadProgram {
     void* context = nullptr;
-    MetalNumiHumanTendonLoadEncode encode = nullptr;
+    MetalNumiHumanTendonLoadEncode encodePreDynamics = nullptr;
+    MetalNumiHumanTendonLoadEncode encodePostValidation = nullptr;
     MetalNumiHumanTendonLoadAbort abort = nullptr;
     std::uint64_t fingerprint = 0u;
 
     [[nodiscard]] bool valid() const noexcept {
-        return context != nullptr && encode != nullptr && abort != nullptr &&
+        return context != nullptr && encodePreDynamics != nullptr &&
+            encodePostValidation != nullptr && abort != nullptr &&
             fingerprint != 0u;
     }
 
     [[nodiscard]] bool configured() const noexcept {
-        return context != nullptr || encode != nullptr || abort != nullptr ||
+        return context != nullptr || encodePreDynamics != nullptr ||
+            encodePostValidation != nullptr || abort != nullptr ||
             fingerprint != 0u;
     }
 };
@@ -162,8 +171,10 @@ struct MetalNumiHumanStandInput {
     std::span<const MRNumiHumanJointEqualityGPU> jointEqualities{};
     // Optional NHTENDON2/3 program. When present, one terminal-load transaction
     // executes from the current MyoSim force field before every dynamics step.
-    // The rigid-body solver retains MyoSim's original J^T wrench; generalized
-    // corrections are diagnostics and are never added as direct joint torque.
+    // Transfer alone retains MyoSim's original J^T wrench. A configured
+    // two-phase consumer may replace only its explicitly declared share with
+    // a solved continuum reaction before dynamics. Transfer generalized
+    // corrections remain diagnostics and are never added as direct torque.
     std::span<const MRNumiHumanTendonBindingGPU> tendonBindings{};
     std::span<const MRNumiHumanTendonEnvelopeGPU> tendonEnvelopes{};
     MetalNumiHumanTendonLoadProgram tendonLoadProgram{};

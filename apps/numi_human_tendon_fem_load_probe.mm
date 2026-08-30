@@ -3,6 +3,7 @@
 
 #import <Metal/Metal.h>
 
+#include <array>
 #include <cmath>
 #include <cstring>
 #include <iostream>
@@ -73,12 +74,35 @@ int main() {
             nodeLoads[3u].endpointIndex = 0u;
             nodeLoads[3u].flags = NM_NUMI_HUMAN_TENDON_FEM_NODE_LOAD_ACTIVE;
             nodeLoads[3u].scale.x = 0.1f;
+            std::vector<NMNumiHumanTendonFEMNodeAnchorGPU> nodeAnchors(4u);
+            for (auto& anchor : nodeAnchors) anchor.bodyIndex = NM_INVALID_INDEX;
+            constexpr float anchorPoints[3u][3u]{
+                {0.0f, 0.0f, 0.0f},
+                {0.01f, 0.0f, 0.0f},
+                {0.0f, 0.01f, 0.0f},
+            };
+            for (std::uint32_t node = 0u; node < 3u; ++node) {
+                nodeAnchors[node].bodyIndex = 0u;
+                nodeAnchors[node].flags =
+                    NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
+                nodeAnchors[node].localPoint = {
+                    anchorPoints[node][0], anchorPoints[node][1],
+                    anchorPoints[node][2], 0.0f};
+            }
+            NMNumiHumanTendonFEMEndpointReplacementGPU replacement{};
+            replacement.loadEndpointIndex = 0u;
+            replacement.anchorEndpointIndex = 1u;
+            replacement.flags =
+                NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_ACTIVE;
+            replacement.forceOwnerFraction.x = 0.1f;
             numi::matter::NumiHumanTendonFEMLoadAdapter adapter;
             require(adapter.initialize(runtime, {
                         .nodeLoads = nodeLoads,
+                        .nodeAnchors = nodeAnchors,
+                        .endpointReplacements = std::span(&replacement, 1u),
                         .endpointCount = 2u,
                         .environmentCount = 1u,
-                        .productionForceOwnerFraction = 0.0f,
+                        .productionForceOwnerFraction = 0.1f,
                     }, {
                         .metallib = NUMI_MATTER_METALLIB,
                     }),
@@ -97,6 +121,22 @@ int main() {
                 transfers[index].envelopeIndex = MR_INVALID_INDEX;
             }
             transfers[0u].terminalWorldForce = {10.0f, 0.0f, 0.0f, 0.0f};
+            transfers[1u].terminalWorldForce = {-10.0f, 0.0f, 0.0f, 0.0f};
+            std::array<MRNumiHumanTendonBindingGPU, 2u> bindings{};
+            bindings[0u].muscleIndex = bindings[1u].muscleIndex = 0u;
+            bindings[0u].endpointOrdinal = 0u;
+            bindings[1u].endpointOrdinal = 1u;
+            bindings[0u].bodyIndex = bindings[1u].bodyIndex = 0u;
+            bindings[0u].mode = bindings[1u].mode =
+                MR_NUMI_HUMAN_TENDON_TRANSFER_SOURCE_POINT;
+            bindings[0u].envelopeIndex = bindings[1u].envelopeIndex =
+                MR_INVALID_INDEX;
+            bindings[0u].sourceLocalPoint = {0.0f, 0.0f, 0.01f, 0.0f};
+            bindings[1u].sourceLocalPoint = {0.0f, 0.0f, 0.0f, 0.0f};
+            id<MTLBuffer> bindingBuffer = [device
+                newBufferWithBytes:bindings.data()
+                length:bindings.size() * sizeof(bindings.front())
+                options:MTLResourceStorageModeShared];
             id<MTLBuffer> transferBuffer = [device
                 newBufferWithBytes:transfers.data()
                 length:transfers.size() * sizeof(transfers.front())
@@ -110,7 +150,32 @@ int main() {
                 newBufferWithBytes:&stand
                 length:sizeof(stand)
                 options:MTLResourceStorageModeShared];
-            require(transferBuffer != nil && standBuffer != nil,
+            MRArticulatedBodyPoseGPU pose{};
+            pose.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+            id<MTLBuffer> poseBuffer = [device
+                newBufferWithBytes:&pose length:sizeof(pose)
+                options:MTLResourceStorageModeShared];
+            std::array<float, 12u> pointJacobians{};
+            pointJacobians[0u] = pointJacobians[3u] =
+                pointJacobians[6u] = pointJacobians[9u] = 1.0f;
+            id<MTLBuffer> jacobianBuffer = [device
+                newBufferWithBytes:pointJacobians.data()
+                length:pointJacobians.size() * sizeof(float)
+                options:MTLResourceStorageModeShared];
+            std::array<float, 2u> generalizedForces{};
+            id<MTLBuffer> generalizedForceBuffer = [device
+                newBufferWithBytes:generalizedForces.data()
+                length:generalizedForces.size() * sizeof(float)
+                options:MTLResourceStorageModeShared];
+            id<MTLBuffer> runtimeReactionBuffer = (__bridge id<MTLBuffer>)
+                runtime.femConstraintReactionBuffer();
+            id<MTLBuffer> reactionReadback = [device
+                newBufferWithLength:4u * sizeof(nm_float4)
+                options:MTLResourceStorageModeShared];
+            require(bindingBuffer != nil && transferBuffer != nil &&
+                        standBuffer != nil && poseBuffer != nil &&
+                        jacobianBuffer != nil && generalizedForceBuffer != nil &&
+                        runtimeReactionBuffer != nil && reactionReadback != nil,
                     "probe borrowed buffers are unavailable");
 
             const auto execute = [&](const std::uint32_t step,
@@ -120,22 +185,43 @@ int main() {
                     : MR_NUMI_HUMAN_STAND_NONFINITE_RESULT;
                 stand.completedSteps = accepted ? step + 1u : step;
                 std::memcpy(standBuffer.contents, &stand, sizeof(stand));
+                std::memset(
+                    generalizedForceBuffer.contents, 0,
+                    generalizedForceBuffer.length);
                 id<MTLCommandBuffer> command = [queue commandBuffer];
                 require(command != nil, "probe command buffer is unavailable");
                 metalrobo::MetalNumiHumanTendonLoadPass pass{};
                 pass.commandBuffer = (__bridge void*)command;
+                pass.bindings = (__bridge void*)bindingBuffer;
                 pass.transfers = (__bridge void*)transferBuffer;
+                pass.generalizedForces = (__bridge void*)generalizedForceBuffer;
+                pass.bodyPoses = (__bridge void*)poseBuffer;
+                pass.pointJacobians = (__bridge void*)jacobianBuffer;
                 pass.standStatuses = (__bridge void*)standBuffer;
                 pass.stepIndex = step;
                 pass.environmentCount = 1u;
                 pass.endpointCount = 2u;
                 pass.dofCount = 1u;
-                if (!program.encode(program.context, pass)) {
+                pass.muscleCount = 1u;
+                pass.generalizedForceStride = 1u;
+                pass.generalizedForceOffset = 1u;
+                pass.pointJacobianStride = 12u;
+                pass.bodyJacobianPointOffset = 0u;
+                pass.bodyPoseStride = 1u;
+                pass.articulationFirstBody = 0u;
+                if (!program.encodePreDynamics(program.context, pass) ||
+                    !program.encodePostValidation(program.context, pass)) {
                     throw std::runtime_error(
                         "probe adapter rejected encoding: " +
                         adapter.diagnostics().message
                     );
                 }
+                id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
+                require(blit != nil, "probe reaction blit is unavailable");
+                [blit copyFromBuffer:runtimeReactionBuffer sourceOffset:0u
+                            toBuffer:reactionReadback destinationOffset:0u
+                                size:4u * sizeof(nm_float4)];
+                [blit endEncoding];
                 [command commit];
                 [command waitUntilCompleted];
                 require(command.status == MTLCommandBufferStatusCompleted,
@@ -153,6 +239,20 @@ int main() {
             require(std::isfinite(acceptedDisplacement) &&
                         acceptedDisplacement > 0.0f,
                     "probe tendon load did not deform the FEM node");
+            std::array<nm_float4, 4u> acceptedReactions{};
+            std::memcpy(
+                acceptedReactions.data(), reactionReadback.contents,
+                acceptedReactions.size() * sizeof(acceptedReactions.front()));
+            float acceptedReactionL1 = 0.0f;
+            for (std::uint32_t node = 0u; node < 3u; ++node) {
+                acceptedReactionL1 += std::sqrt(
+                    acceptedReactions[node].x * acceptedReactions[node].x +
+                    acceptedReactions[node].y * acceptedReactions[node].y +
+                    acceptedReactions[node].z * acceptedReactions[node].z);
+            }
+            require(std::isfinite(acceptedReactionL1) &&
+                        acceptedReactionL1 > 0.0f,
+                    "probe FEM anchors published no bone reaction");
             execute(1u, false);
             const auto rolledBack = runtime.snapshot();
             require(rolledBack.available &&
@@ -170,7 +270,11 @@ int main() {
                         std::memcmp(
                             replay.femNodes.data(), accepted.femNodes.data(),
                             accepted.femNodes.size() * sizeof(NMFEMNodeStateGPU)
-                        ) == 0,
+                        ) == 0 &&
+                        std::memcmp(
+                            reactionReadback.contents, acceptedReactions.data(),
+                            acceptedReactions.size() *
+                                sizeof(acceptedReactions.front())) == 0,
                     "probe accepted tendon/FEM replay is not bitwise");
             const auto diagnostics = adapter.diagnostics();
             require(diagnostics.initialized && diagnostics.encodedPassCount == 3u &&
@@ -181,8 +285,9 @@ int main() {
                 << " device=\"" << initialized.device << "\""
                 << " encoded_passes=" << diagnostics.encodedPassCount
                 << " max_displacement_m=" << acceptedDisplacement
+                << " anchor_reaction_l1_n=" << acceptedReactionL1
                 << " replay=bitwise rollback=verified"
-                << " production_owner_fraction=0"
+                << " production_owner_fraction=0.1"
                 << "\n";
             return 0;
         } catch (const std::exception& error) {

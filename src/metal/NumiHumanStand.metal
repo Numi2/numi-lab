@@ -350,7 +350,9 @@ kernel void mr_numi_human_stand_step(
     // Validate the exact per-step terminal-load transaction before any Human
     // state is advanced. These loads are wrench-equivalent to MyoSim's
     // existing source-route J^T force; they are exposed to bone/deformable
-    // consumers and deliberately are not added as a second joint torque.
+    // consumers and deliberately are not added here as a second joint torque.
+    // A registered pre-dynamics consumer may already have replaced a declared
+    // J^T share in generalizedForceWorkspace with a solved anchor reaction.
     if (lane == 0u && dispatch.tendonEndpointCount != 0u) {
         const uint transferBase = environment * dispatch.tendonTransferStride;
         for (uint endpoint = 0u; endpoint < dispatch.tendonEndpointCount;
