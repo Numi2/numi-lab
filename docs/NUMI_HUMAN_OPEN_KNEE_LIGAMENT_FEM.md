@@ -42,10 +42,20 @@ tibia and patella as distinct reaction owners. Bilateral accepted/rejected/
 replay receipts and eight inspected frames are retained in
 [`numi-human-open-knee-tissue-fem-v2`](media/numi-human-open-knee-tissue-fem-v2/).
 
-The left PTL generated tibia/patella reaction L1 values of
-`0.984815/0.00434413 N`; the mirrored right generated
-`1.01549/0.00372091 N`. Both runs transferred nonzero patellar generalized
+After correcting the femoral axial sign, the left PTL generated tibia/patella
+reaction L1 values of `1.02410/0.00368505 N`; the mirrored right generated
+`1.05174/0.00345063 N`. Total femur/tibia/patella reaction L1 was
+`0.0166385/2.14116/0.00368505 N` left and
+`0.0087464/2.19477/0.00345063 N` right. Both runs transferred nonzero patellar generalized
 force and retained bitwise replay plus rejected-step rollback.
+
+The old accepted-looking images had passed topology and FEM checks but used an
+ambiguous flexion-axis sign that placed patella posterior and fibula medial.
+They are retained only under
+[`rejected-axial-sign`](media/numi-human-open-knee-tissue-fem-v2/rejected-axial-sign/).
+The replacement source compiler requires anterior-axis alignment plus explicit
+patella-anterior and fibula-lateral offsets before a payload can reach this
+mechanics preflight.
 
 The quadriceps tendon (`QAT`) is intentionally not reassigned to a bone. Its
 distal nodes tie to the patella, while the source model uses a separate rigid

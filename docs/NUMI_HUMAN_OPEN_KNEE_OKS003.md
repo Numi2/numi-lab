@@ -7,6 +7,16 @@ visual meshes. The decoder rejects side code, source, region, node, surface,
 attachment, contact-pair, body-frame or index ownership drift before a frame
 can render.
 
+The earlier payload resolved the flexion-axis *line* with the wrong sign. That
+choice was still a proper rotation and could fit the nearly symmetric distal
+femur, but it rotated the specimen 180 degrees about the long axis: the patella
+was posterior and the fibula medial. Those frames are rejected under
+[`rejected-axial-sign`](media/numi-human-open-knee-tissue-fem-v2/rejected-axial-sign/).
+The compiler now selects the unique proper basis aligned with Human anterior
+(`-world Y`) and fails unless the patella is at least 25 mm anterior and the
+fibula at least 20 mm lateral. Both emitted sides measure 46.934 mm and
+28.565 mm respectively, with anterior-axis alignment `0.999999366`.
+
 The focused view suppresses the overlapping BodyParts3D femur/tibia/patella
 meshes and draws all 16 Open Knee(s) regions in the live MyoSim articulated
 frames: femur body 145, tibia body 150 and patella body 156. This avoids the
@@ -27,10 +37,10 @@ right subject.
 | Side | ![side](media/numi-human-open-knee-tissue-fem-v2/left/myosim-fullbody-articulated-bodyparts-bones-open-knee-oks003-left-accepted-tissue-fem-focus-body-150-side.png) |
 | Rear | ![rear](media/numi-human-open-knee-tissue-fem-v2/left/myosim-fullbody-articulated-bodyparts-bones-open-knee-oks003-left-accepted-tissue-fem-focus-body-150-rear.png) |
 
-These labels are fixed global cameras, not claims about clinical anatomical
-view convention. The views are useful together because the posterior joint
-surfaces, patella/extensor mechanism, collateral anatomy and tibial plateau
-cannot all hide behind the same projection.
+These are fixed global Human cameras: front now exposes the patella and
+extensor mechanism, while rear exposes the cruciate/posterior joint anatomy.
+The views are useful together because the collateral anatomy and tibial
+plateau cannot all remain visible in one projection.
 
 The run used the Apple M4 Pro native renderer at 640 px with 32 temporal and 32
 area-light samples. Every view had bone coverage, and every anatomical class
@@ -67,8 +77,8 @@ body `136`, and `open-knee-oks003-right-mirrored.nhknee`.
 
 ## Evidence boundary
 
-This validates exact-source neutral geometry, corrected mirrored connectivity,
-and four ligament plus patellar-tendon surfaces owned by an accepted
+This validates exact-source neutral geometry, corrected anatomical basis and
+mirrored connectivity, and four ligament plus patellar-tendon surfaces owned by an accepted
 three-body Matter FEM snapshot on the M4 Pro. The snapshot uses all 47,439
 nodes and 195,032 tetrahedra and is deliberately rejected for an arbitrary
 articulated pose.
