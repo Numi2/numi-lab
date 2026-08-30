@@ -768,6 +768,7 @@ add_library(
     src/core/NumiHumanJointEquality.cpp
     src/core/NumiHumanMuscleEquilibrium.cpp
     src/core/NumiHumanTendon.cpp
+    src/core/NumiHumanCartilage.cpp
     src/core/ArticulatedJointLimits.cpp
     src/core/ArticulatedContact.cpp
     src/core/CoupledArticulatedRigidContact.cpp
@@ -1400,6 +1401,36 @@ target_compile_options(
 )
 set_target_properties(
     metalrobo_numilab_human_tendon_fem_load_probe
+    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+)
+
+add_executable(
+    metalrobo_numilab_human_costal_cartilage_probe
+    apps/numi_human_costal_cartilage_probe.mm
+)
+target_link_libraries(
+    metalrobo_numilab_human_costal_cartilage_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+add_dependencies(
+    metalrobo_numilab_human_costal_cartilage_probe
+    numi_matter_shaders
+)
+target_compile_definitions(
+    metalrobo_numilab_human_costal_cartilage_probe
+    PRIVATE
+        NUMI_HUMAN_COSTAL_CARTILAGE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_costal_cartilage_pseudoelastic.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+)
+target_compile_options(
+    metalrobo_numilab_human_costal_cartilage_probe
+    PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror
+)
+set_target_properties(
+    metalrobo_numilab_human_costal_cartilage_probe
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
 )
 
