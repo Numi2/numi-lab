@@ -6962,17 +6962,56 @@ struct CameraFraming {
     float distance = 0.0f;
     float sourceExtentMeters = 0.0f;
     bool usesSourceGeometryBounds = false;
+    bool usesJointAnchor = false;
+    float jointAnchorResidualMeters = 0.0f;
 };
 
 CameraFraming makeCameraFraming(
     const metalrobo::VisualAssetPackV2& pack,
     const std::span<const MRBodyStateGPU> bodies,
+    const std::span<const MRJointDescriptorGPU> joints,
     const std::optional<std::uint32_t> focusBodyIndex,
+    const std::optional<std::uint32_t> focusJointChildBodyIndex,
+    const std::optional<float> focusDistanceMeters,
     const bool tendonAttachmentEnvelopeInspection,
     const metalrobo::NumiHumanKneePayload* openKneeInspection
 ) {
+    require(!(focusBodyIndex.has_value() && focusJointChildBodyIndex.has_value()),
+            "MyoSim visual body and joint focus are mutually exclusive");
     if (focusBodyIndex.has_value()) {
         require(*focusBodyIndex < bodies.size(), "MyoSim visual focus body index is out of bounds");
+    }
+    if (focusJointChildBodyIndex.has_value()) {
+        require(*focusJointChildBodyIndex < bodies.size(),
+                "MyoSim visual focus joint child body index is out of bounds");
+        const MRJointDescriptorGPU* selected = nullptr;
+        for (const MRJointDescriptorGPU& joint : joints) {
+            if (joint.childBody != *focusJointChildBodyIndex) continue;
+            require(selected == nullptr,
+                    "MyoSim visual focus child body has multiple owning joints");
+            selected = &joint;
+        }
+        require(selected != nullptr, "MyoSim visual focus child body has no owning joint");
+        require(selected->parentBody < bodies.size() && selected->childBody < bodies.size(),
+                "MyoSim visual focus joint body ownership is out of bounds");
+        const mr_float4 parentAnchorWorld = addPoint(
+            bodies[selected->parentBody].position,
+            rotatePoint(bodies[selected->parentBody].orientation, selected->parentAnchor)
+        );
+        const mr_float4 childAnchorWorld = addPoint(
+            bodies[selected->childBody].position,
+            rotatePoint(bodies[selected->childBody].orientation, selected->childAnchor)
+        );
+        const mr_float4 residual = subtractPoint(parentAnchorWorld, childAnchorWorld);
+        const float residualMeters = std::sqrt(dotPoint(residual, residual));
+        require(std::isfinite(residualMeters) && residualMeters <= 2.0e-4f,
+                "MyoSim visual focus joint anchors do not coincide in the posed state");
+        return {
+            .center = scalePoint(addPoint(parentAnchorWorld, childAnchorWorld), 0.5f),
+            .distance = focusDistanceMeters.value_or(0.22f),
+            .usesJointAnchor = true,
+            .jointAnchorResidualMeters = residualMeters,
+        };
     }
 
     mr_float4 minimum{
@@ -7317,6 +7356,22 @@ double parsePoseCoordinate(const std::string& value) {
     return result;
 }
 
+float parseFocusDistanceMeters(const std::string& value) {
+    std::size_t parsed = 0u;
+    float result = 0.0f;
+    try {
+        result = std::stof(value, &parsed);
+    } catch (const std::exception&) {
+        throw std::runtime_error(
+            "--focus-distance-m must be a finite decimal from 0.08 through 0.80"
+        );
+    }
+    require(parsed == value.size() && std::isfinite(result) &&
+                result >= 0.08f && result <= 0.80f,
+            "--focus-distance-m must be a finite decimal from 0.08 through 0.80");
+    return result;
+}
+
 std::uint32_t parseMuscleStepCount(const std::string& value) {
     std::size_t parsed = 0u;
     unsigned long result = 0ul;
@@ -7392,6 +7447,8 @@ int main(int argc, char** argv) {
             bool zAnatomyCalfVisualSupplement = false;
             bool tendonAttachmentCollarDiagnostic = false;
             std::optional<std::uint32_t> focusBodyIndex;
+            std::optional<std::uint32_t> focusJointChildBodyIndex;
+            std::optional<float> focusDistanceMeters;
             std::optional<std::filesystem::path> softTissuePayloadPath;
             std::optional<std::filesystem::path> openKneePayloadPath;
             std::optional<std::filesystem::path> openKneeLigamentFEMPath;
@@ -7492,6 +7549,14 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !focusBodyIndex.has_value(),
                             "--focus-body-index requires one body index and may be given only once");
                     focusBodyIndex.emplace(parseSourceRouteIndex(argv[++index]));
+                } else if (argument == "--focus-joint-child-body-index") {
+                    require(index + 1 < argc && !focusJointChildBodyIndex.has_value(),
+                            "--focus-joint-child-body-index requires one body index and may be given only once");
+                    focusJointChildBodyIndex.emplace(parseSourceRouteIndex(argv[++index]));
+                } else if (argument == "--focus-distance-m") {
+                    require(index + 1 < argc && !focusDistanceMeters.has_value(),
+                            "--focus-distance-m requires one value and may be given only once");
+                    focusDistanceMeters.emplace(parseFocusDistanceMeters(argv[++index]));
                 } else if (argument == "--soft-tissue-payload") {
                     require(index + 1 < argc && !softTissuePayloadPath.has_value(),
                             "--soft-tissue-payload requires one path and may be given only once");
@@ -7597,6 +7662,7 @@ int main(int argc, char** argv) {
                           << " [--tendon-payload <NHTENDON1-or-NHTENDON2-or-NHTENDON3>]"
                           << " [--joint-equality-payload <NHEQ1>]"
                           << " [--focus-body-index <0..156>]"
+                          << " [--focus-joint-child-body-index <1..156>] [--focus-distance-m <0.08..0.80>]"
                           << " [--camera-index <0..3>]"
                           << " [--pose-q <q-index> <coordinate-value>]..."
                           << " [--dimension <512..2048; multiple-of-64>]\n";
@@ -7626,6 +7692,14 @@ int main(int argc, char** argv) {
             }
             require(!focusBodyIndex.has_value() || *focusBodyIndex < rigid.header.engineBodyCount,
                     "--focus-body-index exceeds the source body count");
+            require(!(focusBodyIndex.has_value() && focusJointChildBodyIndex.has_value()),
+                    "--focus-body-index and --focus-joint-child-body-index are mutually exclusive");
+            require(!focusJointChildBodyIndex.has_value() ||
+                        (*focusJointChildBodyIndex > 0u &&
+                         *focusJointChildBodyIndex < rigid.header.engineBodyCount),
+                    "--focus-joint-child-body-index exceeds the source body count");
+            require(!focusDistanceMeters.has_value() || focusJointChildBodyIndex.has_value(),
+                    "--focus-distance-m requires --focus-joint-child-body-index");
             std::sort(requestedSourceRouteMuscles.begin(), requestedSourceRouteMuscles.end());
             const auto duplicate = std::adjacent_find(
                 requestedSourceRouteMuscles.begin(), requestedSourceRouteMuscles.end()
@@ -8138,7 +8212,9 @@ int main(int argc, char** argv) {
                         renderedTorsoAnatomySurfaces == torsoAnatomyPayload->records.size(),
                     "native Human visual torso anatomy did not render every source surface");
             const CameraFraming cameraFraming = makeCameraFraming(
-                pack, bodies, focusBodyIndex, renderedTendonAttachmentEnvelopes > 0u,
+                pack, bodies, rigid.model.joints, focusBodyIndex,
+                focusJointChildBodyIndex, focusDistanceMeters,
+                renderedTendonAttachmentEnvelopes > 0u,
                 openKneePayload.has_value() ? &*openKneePayload : nullptr
             );
             const std::array<mr_float4, 4u> positions = cameraPositions(cameraFraming);
@@ -8179,7 +8255,10 @@ int main(int argc, char** argv) {
                 (!requestedPoseCoordinates.empty() ? "-posed" : "") +
                 (surfaceProjectSourceSites ? "-surface-projected-sites" : "") +
                 (focusBodyIndex.has_value()
-                    ? "-focus-body-" + std::to_string(*focusBodyIndex) : "");
+                    ? "-focus-body-" + std::to_string(*focusBodyIndex) : "") +
+                (focusJointChildBodyIndex.has_value()
+                    ? "-focus-joint-child-body-" +
+                        std::to_string(*focusJointChildBodyIndex) : "");
             const std::filesystem::path packPath = outputDirectory / (stem + ".mrvpack");
             std::string reason;
             require(metalrobo::writeVisualAssetPack(pack, packPath, &reason),
@@ -8527,11 +8606,18 @@ int main(int argc, char** argv) {
                               ? resolvedRouteCentrelines->surfaceProjectedAttachmentCount : 0u)
                       << " focus_body_index=" << (focusBodyIndex.has_value()
                               ? std::to_string(*focusBodyIndex) : "none")
-                      << " camera_framing=" << (!focusBodyIndex.has_value()
-                              ? "exact_rendered_source_geometry_bounds"
-                              : (cameraFraming.usesSourceGeometryBounds
+                      << " focus_joint_child_body_index="
+                      << (focusJointChildBodyIndex.has_value()
+                              ? std::to_string(*focusJointChildBodyIndex) : "none")
+                      << " camera_framing=" << (cameraFraming.usesJointAnchor
+                              ? "posed_mechanics_joint_anchor"
+                              : (!focusBodyIndex.has_value()
+                                  ? "exact_rendered_source_geometry_bounds"
+                                  : (cameraFraming.usesSourceGeometryBounds
                                   ? "focused_body_source_geometry_bounds"
-                                  : "focused_body_inspection_fallback"))
+                                  : "focused_body_inspection_fallback")))
+                      << " camera_joint_anchor_residual_m="
+                      << cameraFraming.jointAnchorResidualMeters
                       << " camera_source_extent_m=" << cameraFraming.sourceExtentMeters
                       << " camera_distance_m=" << cameraFraming.distance
                       << " pose_stage_elapsed_ms=" << poseDiagnostics.elapsedMilliseconds
