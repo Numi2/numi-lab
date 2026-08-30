@@ -40,6 +40,10 @@ constexpr std::array<LigamentSpec, 4u> ligamentSpecs{{
     {"LCL", 1.44, 793.65, 1.027, 1.063},
 }};
 
+constexpr LigamentSpec patellarTendonSpec{
+    "PTL", 2.75, 206.61, 1.000, 1.042,
+};
+
 struct LigamentRuntime {
     const LigamentSpec* specification = nullptr;
     std::uint32_t payloadRegion = 0u;
@@ -48,6 +52,7 @@ struct LigamentRuntime {
     std::uint32_t tetrahedronCount = 0u;
     std::uint32_t femurAnchorCount = 0u;
     std::uint32_t tibiaAnchorCount = 0u;
+    std::uint32_t patellaAnchorCount = 0u;
 };
 
 struct LigamentSnapshotHeader {
@@ -122,6 +127,7 @@ Vec3 position(const NMFEMNodeStateGPU& node) {
 }
 
 const LigamentSpec& specification(const std::string_view name) {
+    if (name == patellarTendonSpec.name) return patellarTendonSpec;
     const auto found = std::find_if(
         ligamentSpecs.begin(), ligamentSpecs.end(),
         [name](const LigamentSpec& value) { return value.name == name; });
@@ -158,6 +164,12 @@ std::uint32_t tibiaBody(const metalrobo::NumiHumanKneeSide side) {
         : metalrobo::NUMI_HUMAN_KNEE_RIGHT_TIBIA_BODY;
 }
 
+std::uint32_t patellaBody(const metalrobo::NumiHumanKneeSide side) {
+    return side == metalrobo::NumiHumanKneeSide::left
+        ? metalrobo::NUMI_HUMAN_KNEE_PATELLA_BODY
+        : metalrobo::NUMI_HUMAN_KNEE_RIGHT_PATELLA_BODY;
+}
+
 std::uint64_t peakResidentBytes() {
     rusage usage{};
     return getrusage(RUSAGE_SELF, &usage) == 0
@@ -173,13 +185,13 @@ void writeAcceptedSnapshot(
     const std::uint32_t totalTetrahedra
 ) {
     LigamentSnapshotHeader header;
-    header.magic = {'N', 'H', 'K', 'F', 'E', 'M', '1', '\0'};
-    header.abi = 1u;
+    header.magic = {'N', 'H', 'K', 'F', 'E', 'M', '2', '\0'};
+    header.abi = 2u;
     header.side = payload.side == metalrobo::NumiHumanKneeSide::left ? 0u : 1u;
     header.regionCount = static_cast<std::uint32_t>(ligaments.size());
     header.nodeCount = static_cast<std::uint32_t>(accepted.femNodes.size());
     header.tetrahedronCount = totalTetrahedra;
-    // This v1 state is the accepted sub-micron attachment/reaction preflight,
+    // This state is the accepted sub-micron attachment/reaction preflight,
     // not an arbitrary articulated pose or loaded flexion state.
     header.poseKind = 1u;
     std::ofstream output(path, std::ios::binary | std::ios::trunc);
@@ -242,7 +254,11 @@ int main(const int argc, const char* argv[]) {
             for (std::uint32_t regionIndex = 0u;
                  regionIndex < payload.regions.size(); ++regionIndex) {
                 const auto& region = payload.regions[regionIndex];
-                if (region.kind != metalrobo::NumiHumanKneeRegionKind::ligament)
+                const bool exactTissue =
+                    region.kind == metalrobo::NumiHumanKneeRegionKind::ligament ||
+                    (region.kind == metalrobo::NumiHumanKneeRegionKind::tendon &&
+                     region.name == patellarTendonSpec.name);
+                if (!exactTissue)
                     continue;
                 const auto& spec = specification(region.name);
                 ligaments.push_back({
@@ -255,9 +271,9 @@ int main(const int argc, const char* argv[]) {
                 totalNodes += region.nodeCount;
                 totalTetrahedra += region.tetrahedronCount;
             }
-            require(ligaments.size() == ligamentSpecs.size() &&
-                        totalNodes == 38159u && totalTetrahedra == 159416u,
-                    "Open Knee exact ligament topology drifted");
+            require(ligaments.size() == ligamentSpecs.size() + 1u &&
+                        totalNodes == 47439u && totalTetrahedra == 195032u,
+                    "Open Knee exact ligament/patellar-tendon topology drifted");
 
             std::vector<NMNumiHumanTendonFEMNodeLoadGPU> nodeLoads(totalNodes);
             std::vector<NMNumiHumanTendonFEMNodeAnchorGPU> nodeAnchors(totalNodes);
@@ -266,6 +282,7 @@ int main(const int argc, const char* argv[]) {
 
             const std::uint32_t sourceFemur = femurBody(payload.side);
             const std::uint32_t sourceTibia = tibiaBody(payload.side);
+            const std::uint32_t sourcePatella = patellaBody(payload.side);
             for (LigamentRuntime& ligament : ligaments) {
                 const auto& region = payload.regions[ligament.payloadRegion];
                 numi::matter::MaterialProgram material = parsed.material;
@@ -305,9 +322,12 @@ int main(const int argc, const char* argv[]) {
                     } else if (node.anchorBodyIndex == sourceTibia) {
                         anchor.bodyIndex = 1u;
                         ++ligament.tibiaAnchorCount;
+                    } else if (node.anchorBodyIndex == sourcePatella) {
+                        anchor.bodyIndex = 2u;
+                        ++ligament.patellaAnchorCount;
                     } else {
                         throw std::runtime_error(
-                            "Open Knee ligament anchor is not femur or tibia owned");
+                            "Open Knee tissue anchor is not femur, tibia, or patella owned");
                     }
                     anchor.flags = NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
                     anchor.localPoint = {
@@ -328,11 +348,19 @@ int main(const int argc, const char* argv[]) {
                     }
                     object.tetrahedra.push_back({nodes});
                 }
-                require(ligament.femurAnchorCount > 0u &&
-                            ligament.tibiaAnchorCount > 0u &&
+                const bool twoSidedAttachment = region.name == patellarTendonSpec.name
+                    ? ligament.patellaAnchorCount > 0u &&
+                        ligament.tibiaAnchorCount > 0u &&
+                        ligament.femurAnchorCount == 0u
+                    : ligament.femurAnchorCount > 0u &&
+                        ligament.tibiaAnchorCount > 0u &&
+                        ligament.patellaAnchorCount == 0u;
+                require(twoSidedAttachment &&
                             object.femFixedNodes.size() ==
-                                ligament.femurAnchorCount + ligament.tibiaAnchorCount,
-                        "Open Knee ligament lacks two-sided bone attachments");
+                                ligament.femurAnchorCount +
+                                ligament.tibiaAnchorCount +
+                                ligament.patellaAnchorCount,
+                        "Open Knee tissue lacks its exact two-sided bone attachments");
                 source.objects.push_back(std::move(object));
             }
 
@@ -400,20 +428,21 @@ int main(const int argc, const char* argv[]) {
 
             constexpr float prescribedTibiaTranslationX = 1.0e-7f;
             constexpr float prescribedTibiaTranslationZ = 2.0e-7f;
-            std::array<MRArticulatedBodyPoseGPU, 2u> poses{};
+            std::array<MRArticulatedBodyPoseGPU, 3u> poses{};
             poses[0u].orientation = {0.0f, 0.0f, 0.0f, 1.0f};
             poses[1u].position = {prescribedTibiaTranslationX, 0.0f,
                                   prescribedTibiaTranslationZ, 0.0f};
             poses[1u].orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+            poses[2u].orientation = {0.0f, 0.0f, 0.0f, 1.0f};
             id<MTLBuffer> poseBuffer = [device
                 newBufferWithBytes:poses.data() length:sizeof(poses)
                 options:MTLResourceStorageModeShared];
 
-            constexpr std::uint32_t dofCount = 6u;
+            constexpr std::uint32_t dofCount = 9u;
             constexpr std::uint32_t pointJacobianStride =
-                4u * 2u * 3u * dofCount;
+                4u * 3u * 3u * dofCount;
             std::array<float, pointJacobianStride> pointJacobians{};
-            for (std::uint32_t body = 0u; body < 2u; ++body) {
+            for (std::uint32_t body = 0u; body < 3u; ++body) {
                 for (std::uint32_t point = 0u; point < 4u; ++point) {
                     const std::uint32_t base =
                         (4u * body + point) * 3u * dofCount;
@@ -470,7 +499,7 @@ int main(const int argc, const char* argv[]) {
                 pass.generalizedForceOffset = dofCount;
                 pass.pointJacobianStride = pointJacobianStride;
                 pass.bodyJacobianPointOffset = 0u;
-                pass.bodyPoseStride = 2u;
+                pass.bodyPoseStride = 3u;
                 pass.articulationFirstBody = 0u;
                 if (!program.encodePreDynamics(program.context, pass) ||
                     !program.encodePostValidation(program.context, pass)) {
@@ -510,9 +539,9 @@ int main(const int argc, const char* argv[]) {
             double maximumDisplacement = 0.0;
             double minimumJ = std::numeric_limits<double>::infinity();
             double maximumJ = 0.0;
-            std::array<double, 2u> bodyReactionL1{};
-            std::array<double, 2u> bodyGeneralizedForceL1{};
-            for (std::uint32_t body = 0u; body < 2u; ++body) {
+            std::array<double, 3u> bodyReactionL1{};
+            std::array<double, 3u> bodyGeneralizedForceL1{};
+            for (std::uint32_t body = 0u; body < 3u; ++body) {
                 for (std::uint32_t axis = 0u; axis < 3u; ++axis)
                     bodyGeneralizedForceL1[body] += std::abs(
                         acceptedGeneralizedForces[dofCount + 3u * body + axis]);
@@ -521,6 +550,7 @@ int main(const int argc, const char* argv[]) {
                 const auto& region = payload.regions[ligament.payloadRegion];
                 double femurReaction = 0.0;
                 double tibiaReaction = 0.0;
+                double patellaReaction = 0.0;
                 for (std::uint32_t local = 0u; local < ligament.nodeCount; ++local) {
                     const std::uint32_t index = ligament.firstFEMNode + local;
                     maximumDisplacement = std::max(maximumDisplacement, norm(subtract(
@@ -538,10 +568,14 @@ int main(const int argc, const char* argv[]) {
                             "Open Knee ligament reaction is nonfinite");
                     bodyReactionL1[anchor.bodyIndex] += magnitude;
                     if (anchor.bodyIndex == 0u) femurReaction += magnitude;
-                    else tibiaReaction += magnitude;
+                    else if (anchor.bodyIndex == 1u) tibiaReaction += magnitude;
+                    else patellaReaction += magnitude;
                 }
-                require(femurReaction > 0.0 && tibiaReaction > 0.0,
-                        "Open Knee ligament two-sided reaction is incomplete");
+                const bool completeReaction = region.name == patellarTendonSpec.name
+                    ? patellaReaction > 0.0 && tibiaReaction > 0.0
+                    : femurReaction > 0.0 && tibiaReaction > 0.0;
+                require(completeReaction,
+                        "Open Knee tissue two-sided reaction is incomplete");
                 for (std::uint32_t local = 0u;
                      local < region.tetrahedronCount; ++local) {
                     const auto& sourceTet =
@@ -568,11 +602,14 @@ int main(const int argc, const char* argv[]) {
                     minimumJ = std::min(minimumJ, j);
                     maximumJ = std::max(maximumJ, j);
                 }
-                std::cout << " ligament=" << region.name
+                std::cout << " tissue=" << region.name
+                          << " kind=" << (region.name == patellarTendonSpec.name
+                              ? "patellar_tendon" : "ligament")
                           << " nodes=" << ligament.nodeCount
                           << " tetrahedra=" << ligament.tetrahedronCount
                           << " femur_anchors=" << ligament.femurAnchorCount
                           << " tibia_anchors=" << ligament.tibiaAnchorCount
+                          << " patella_anchors=" << ligament.patellaAnchorCount
                           << " source_c1_mpa=" << ligament.specification->c1MPa
                           << " source_k_mpa=" << ligament.specification->bulkMPa
                           << " source_initial_stretch="
@@ -582,13 +619,17 @@ int main(const int argc, const char* argv[]) {
                           << " matrix_shear_mpa="
                           << 2.0 * ligament.specification->c1MPa
                           << " femur_reaction_l1_n=" << femurReaction
-                          << " tibia_reaction_l1_n=" << tibiaReaction << "\n";
+                          << " tibia_reaction_l1_n=" << tibiaReaction
+                          << " patella_reaction_l1_n=" << patellaReaction
+                          << "\n";
             }
             require(maximumDisplacement > 0.0 && maximumDisplacement < 0.001 &&
                         minimumJ >= 0.50 && maximumJ <= 1.75 &&
                         bodyReactionL1[0u] > 0.0 && bodyReactionL1[1u] > 0.0 &&
+                        bodyReactionL1[2u] > 0.0 &&
                         bodyGeneralizedForceL1[0u] > 0.0 &&
-                        bodyGeneralizedForceL1[1u] > 0.0,
+                        bodyGeneralizedForceL1[1u] > 0.0 &&
+                        bodyGeneralizedForceL1[2u] > 0.0,
                     "Open Knee ligament accepted mechanics are invalid");
 
             execute(1u, false);
@@ -630,7 +671,7 @@ int main(const int argc, const char* argv[]) {
             const double stepMilliseconds =
                 std::chrono::duration<double, std::milli>(stepEnd - stepStart).count();
             std::cout
-                << "numi_human_open_knee_ligaments=passed"
+                << "numi_human_open_knee_tissues=passed"
                 << " side=" << (payload.side == metalrobo::NumiHumanKneeSide::left
                     ? "left" : "right_mirrored")
                 << " device=\"" << initialized.device << "\""
@@ -646,10 +687,13 @@ int main(const int argc, const char* argv[]) {
                 << " max_J=" << maximumJ
                 << " femur_reaction_l1_n=" << bodyReactionL1[0u]
                 << " tibia_reaction_l1_n=" << bodyReactionL1[1u]
+                << " patella_reaction_l1_n=" << bodyReactionL1[2u]
                 << " femur_generalized_force_l1_n="
                 << bodyGeneralizedForceL1[0u]
                 << " tibia_generalized_force_l1_n="
                 << bodyGeneralizedForceL1[1u]
+                << " patella_generalized_force_l1_n="
+                << bodyGeneralizedForceL1[2u]
                 << " compile_ms=" << compileMilliseconds
                 << " accepted_step_wall_ms=" << stepMilliseconds
                 << " peak_rss_bytes=" << peakResidentBytes()
@@ -657,11 +701,11 @@ int main(const int argc, const char* argv[]) {
                 << " production_owner_fraction=0"
                 << " accepted_snapshot=" << (argc == 3 ? argv[2] : "none")
                 << " material_boundary=isotropic_source_matrix_preflight_not_source_transverse_isotropy"
-                << " mechanics_boundary=exact_topology_two_body_attachment_and_reaction_transaction_not_loaded_joint_or_clinical_validation"
+                << " mechanics_boundary=exact_topology_three_body_attachment_and_reaction_transaction_not_loaded_joint_or_clinical_validation"
                 << "\n";
             return 0;
         } catch (const std::exception& error) {
-            std::cerr << "numi_human_open_knee_ligaments=failed error=\""
+            std::cerr << "numi_human_open_knee_tissues=failed error=\""
                       << error.what() << "\"\n";
             return 1;
         }

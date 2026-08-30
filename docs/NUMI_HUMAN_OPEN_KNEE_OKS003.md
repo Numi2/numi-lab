@@ -22,10 +22,10 @@ right subject.
 
 | Global camera | Native frame |
 | --- | --- |
-| Front | ![front](media/numi-human-open-knee-ligament-fem-v1/left/myosim-fullbody-articulated-bodyparts-bones-open-knee-oks003-left-accepted-ligament-fem-focus-body-150-front.png) |
-| Oblique | ![oblique](media/numi-human-open-knee-ligament-fem-v1/left/myosim-fullbody-articulated-bodyparts-bones-open-knee-oks003-left-accepted-ligament-fem-focus-body-150-oblique.png) |
-| Side | ![side](media/numi-human-open-knee-ligament-fem-v1/left/myosim-fullbody-articulated-bodyparts-bones-open-knee-oks003-left-accepted-ligament-fem-focus-body-150-side.png) |
-| Rear | ![rear](media/numi-human-open-knee-ligament-fem-v1/left/myosim-fullbody-articulated-bodyparts-bones-open-knee-oks003-left-accepted-ligament-fem-focus-body-150-rear.png) |
+| Front | ![front](media/numi-human-open-knee-tissue-fem-v2/left/myosim-fullbody-articulated-bodyparts-bones-open-knee-oks003-left-accepted-tissue-fem-focus-body-150-front.png) |
+| Oblique | ![oblique](media/numi-human-open-knee-tissue-fem-v2/left/myosim-fullbody-articulated-bodyparts-bones-open-knee-oks003-left-accepted-tissue-fem-focus-body-150-oblique.png) |
+| Side | ![side](media/numi-human-open-knee-tissue-fem-v2/left/myosim-fullbody-articulated-bodyparts-bones-open-knee-oks003-left-accepted-tissue-fem-focus-body-150-side.png) |
+| Rear | ![rear](media/numi-human-open-knee-tissue-fem-v2/left/myosim-fullbody-articulated-bodyparts-bones-open-knee-oks003-left-accepted-tissue-fem-focus-body-150-rear.png) |
 
 These labels are fixed global cameras, not claims about clinical anatomical
 view convention. The views are useful together because the posterior joint
@@ -36,12 +36,12 @@ The run used the Apple M4 Pro native renderer at 640 px with 32 temporal and 32
 area-light samples. Every view had bone coverage, and every anatomical class
 was visible across the set. Exact per-angle pixel receipts and the full runtime
 boundary are in
-[`open-knee-left-accepted-fem-m4-pro.txt`](media/numi-human-open-knee-ligament-fem-v1/open-knee-left-accepted-fem-m4-pro.txt).
+[`open-knee-left-accepted-tissue-fem-m4-pro.txt`](media/numi-human-open-knee-tissue-fem-v2/open-knee-left-accepted-tissue-fem-m4-pro.txt).
 
 The corrected mirrored right side was separately reviewed from the same four
 cameras; the fibula is lateral and the patellar mechanism is anterior. Its
 accepted neutral receipt is
-[`open-knee-right-accepted-fem-m4-pro.txt`](media/numi-human-open-knee-ligament-fem-v1/open-knee-right-accepted-fem-m4-pro.txt).
+[`open-knee-right-accepted-tissue-fem-m4-pro.txt`](media/numi-human-open-knee-tissue-fem-v2/open-knee-right-accepted-tissue-fem-m4-pro.txt).
 The old q106 flexion frames used single-body tissue ownership and are retained
 only under `rejected-single-body-flexion` as diagnostic failures.
 
@@ -54,7 +54,7 @@ metalrobo_numilab_human_myosim_visual_probe \
   bodyparts3d-myosim-major-bones.nhbones \
   Build/open-knee-visual \
   --open-knee-payload open-knee-oks003-left.nhknee \
-  --open-knee-ligament-fem-snapshot open-knee-ligament-left-accepted.nhkfem \
+  --open-knee-tissue-fem-snapshot open-knee-tissue-left-accepted.nhkfem \
   --visible-bone-body-index 145 \
   --visible-bone-body-index 150 \
   --visible-bone-body-index 156 \
@@ -68,11 +68,12 @@ body `136`, and `open-knee-oks003-right-mirrored.nhknee`.
 ## Evidence boundary
 
 This validates exact-source neutral geometry, corrected mirrored connectivity,
-and four ligament surfaces owned by an accepted two-body Matter FEM snapshot
-on the M4 Pro. The snapshot uses all 38,159 ligament nodes and 159,416
-tetrahedra and is deliberately rejected for an arbitrary articulated pose.
+and four ligament plus patellar-tendon surfaces owned by an accepted
+three-body Matter FEM snapshot on the M4 Pro. The snapshot uses all 47,439
+nodes and 195,032 tetrahedra and is deliberately rejected for an arbitrary
+articulated pose.
 It does not validate loaded flexion, source transverse-isotropic fibres,
 initial prestretch, loaded contact, subject matching, cartilage constitutive
 response, clinical ligament strain, patellar tracking, or a deformable
-quadriceps/patellar tendon continuum. The old flexed tissue pictures remain
+muscle-loaded quadriceps tendon continuum. The old flexed tissue pictures remain
 diagnostic failures, not showcase evidence.

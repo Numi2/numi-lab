@@ -1,4 +1,4 @@
-# Open Knee(s) exact ligament FEM preflight
+# Open Knee(s) exact ligament and patellar-tendon FEM preflight
 
 The native Apple mechanics preflight now consumes the exact `ACL`, `PCL`,
 `MCL`, and `LCL` tetrahedral regions from the bilateral `NHKNEE1` payloads.
@@ -32,6 +32,25 @@ That directory also contains four visually inspected native frames for each
 side. In those frames the ligament surfaces are world-bound to the accepted
 `NHKFEM1` nodes; the renderer fails closed if the snapshot is incomplete or is
 combined with a different articulated pose.
+
+## NHKFEM2 patellar-tendon extension
+
+`NHKFEM2` adds the exact `PTL` region: 9,280 nodes, 35,616 tetrahedra,
+553 tibial attachment nodes and 424 patellar attachment nodes. The full
+transaction therefore covers 47,439 nodes and 195,032 tetrahedra with femur,
+tibia and patella as distinct reaction owners. Bilateral accepted/rejected/
+replay receipts and eight inspected frames are retained in
+[`numi-human-open-knee-tissue-fem-v2`](media/numi-human-open-knee-tissue-fem-v2/).
+
+The left PTL generated tibia/patella reaction L1 values of
+`0.984815/0.00434413 N`; the mirrored right generated
+`1.01549/0.00372091 N`. Both runs transferred nonzero patellar generalized
+force and retained bitwise replay plus rejected-step rollback.
+
+The quadriceps tendon (`QAT`) is intentionally not reassigned to a bone. Its
+distal nodes tie to the patella, while the source model uses a separate rigid
+quadriceps-origin (`QSO`) construct proximally. Completing it requires a
+distributed quadriceps muscle-load boundary, not a cosmetic femur anchor.
 
 ## Evidence boundary
 
