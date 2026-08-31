@@ -7,8 +7,10 @@
 #include "metalrobo/MetalNumanXHumanMatter.hpp"
 #include "numi/matter/matter.hpp"
 
+#include <algorithm>
 #include <array>
 #include <atomic>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -36,9 +38,12 @@ constexpr std::array<char, 8u> kLegacyMuscleMagic{
     'N', 'H', 'M', 'Y', 'O', '1', '\0', '\0'};
 constexpr std::array<char, 8u> kMuscleMagic{
     'N', 'H', 'M', 'Y', 'O', '2', '\0', '\0'};
+constexpr std::array<char, 8u> kSupportContactMagic{
+    'N', 'H', 'C', 'N', 'T', '1', '\0', '\0'};
 constexpr std::uint32_t kRigidABI = 1u;
 constexpr std::uint32_t kLegacyMuscleABI = 1u;
 constexpr std::uint32_t kMuscleABI = 2u;
+constexpr std::uint32_t kSupportContactABI = 1u;
 constexpr std::uint64_t kFnvOffset = 14695981039346656037ull;
 constexpr std::uint64_t kFnvPrime = 1099511628211ull;
 
@@ -125,9 +130,34 @@ struct MuscleArchitectureRecord {
     float normalizedFiberDamping = 0.0f;
     float fitNormalizedRmse = 0.0f;
 };
+
+struct SupportContactHeader {
+    std::array<char, 8u> magic{};
+    std::uint32_t payloadABI = 0u;
+    std::uint32_t engineBodyCount = 0u;
+    std::uint32_t contactCount = 0u;
+    std::uint32_t reserved0 = 0u;
+    std::array<std::uint8_t, 32u> sourceSHA256{};
+    float groundPoint[3]{};
+    float groundNormal[3]{};
+    float groundFriction = 0.0f;
+};
+
+struct SupportContactRecord {
+    std::uint32_t bodyIndex = MR_INVALID_INDEX;
+    std::uint32_t sourceGeometryIndex = MR_INVALID_INDEX;
+    float localPoint[3]{};
+    float planeWitness[3]{};
+    float friction = 0.0f;
+    float defaultSignedDistance = 0.0f;
+    float reserved0 = 0.0f;
+    float reserved1 = 0.0f;
+};
 #pragma pack(pop)
 
 static_assert(sizeof(RigidHeader) == 80u);
+static_assert(sizeof(SupportContactHeader) == 84u);
+static_assert(sizeof(SupportContactRecord) == 48u);
 static_assert(sizeof(SourcePoseRecord) == 28u);
 static_assert(sizeof(MuscleHeader) == 76u);
 static_assert(sizeof(SiteRecord) == 16u);
@@ -196,6 +226,9 @@ struct FullBodyAssets {
     std::vector<MRMujocoMuscleGPU> muscles;
     std::vector<MRMujocoMuscleStateGPU> states;
     std::vector<MRArticulatedPointImpulseGPU> points;
+    std::vector<MRNumiHumanStandContactGPU> supportContacts;
+    mr_float4 groundPoint{};
+    mr_float4 groundNormal{0.0f, 1.0f, 0.0f, 0.0f};
     std::uint32_t bodyJacobianPointOffset = 0u;
     std::uint64_t sourceFingerprint = 0u;
 };
@@ -233,7 +266,8 @@ struct FullBodyAssets {
 
 FullBodyAssets loadFullBodyAssets(
     const std::string& rigidPath,
-    const std::string& musclePath
+    const std::string& musclePath,
+    const std::string& supportContactPath
 ) {
     FullBodyAssets result;
     std::ifstream rigidInput(rigidPath, std::ios::binary);
@@ -427,13 +461,95 @@ FullBodyAssets loadFullBodyAssets(
         result.states.push_back(state);
     }
 
+    std::ifstream supportInput(supportContactPath, std::ios::binary);
+    requireBuild(
+        supportInput.is_open(), MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "cannot open NHCNT1 support-contact payload");
+    SupportContactHeader supportHeader{};
+    readObject(supportInput, supportHeader, "NHCNT1 header");
+    requireBuild(
+        supportHeader.magic == kSupportContactMagic &&
+            supportHeader.payloadABI == kSupportContactABI &&
+            supportHeader.engineBodyCount == result.rigid.engineBodyCount &&
+            supportHeader.contactCount > 0u &&
+            supportHeader.contactCount <= MR_NUMI_HUMAN_STAND_MAX_CONTACTS &&
+            supportHeader.reserved0 == 0u &&
+            supportHeader.sourceSHA256 == result.rigid.sourceSHA256 &&
+            std::isfinite(supportHeader.groundPoint[0]) &&
+            std::isfinite(supportHeader.groundPoint[1]) &&
+            std::isfinite(supportHeader.groundPoint[2]) &&
+            std::isfinite(supportHeader.groundNormal[0]) &&
+            std::isfinite(supportHeader.groundNormal[1]) &&
+            std::isfinite(supportHeader.groundNormal[2]) &&
+            std::isfinite(supportHeader.groundFriction) &&
+            supportHeader.groundFriction >= 0.0f,
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "NHCNT1 is not the matching full-body support-contact payload");
+    const float normalSquared =
+        supportHeader.groundNormal[0] * supportHeader.groundNormal[0] +
+        supportHeader.groundNormal[1] * supportHeader.groundNormal[1] +
+        supportHeader.groundNormal[2] * supportHeader.groundNormal[2];
+    requireBuild(
+        std::isfinite(normalSquared) && normalSquared >= 0.999f &&
+            normalSquared <= 1.001f,
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "NHCNT1 ground normal is not unit length");
+    const auto supportRecords = readVector<SupportContactRecord>(
+        supportInput, supportHeader.contactCount, "NHCNT1 contacts");
+    requireBuild(
+        supportInput.peek() == std::char_traits<char>::eof(),
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "NHCNT1 payload has trailing bytes");
+    result.groundPoint = {
+        supportHeader.groundPoint[0], supportHeader.groundPoint[1],
+        supportHeader.groundPoint[2], 0.0f};
+    result.groundNormal = {
+        supportHeader.groundNormal[0], supportHeader.groundNormal[1],
+        supportHeader.groundNormal[2], 0.0f};
+
     result.points.reserve(
-        static_cast<std::size_t>(result.rigid.engineBodyCount) * 5u);
+        static_cast<std::size_t>(result.rigid.engineBodyCount) * 5u +
+            supportRecords.size());
     for (std::uint32_t body = 0u;
          body < result.rigid.engineBodyCount; ++body) {
         MRArticulatedPointImpulseGPU point{};
         point.bodyIndex = body;
         result.points.push_back(point);
+    }
+    result.supportContacts.reserve(supportRecords.size());
+    for (const auto& source : supportRecords) {
+        requireBuild(
+            source.bodyIndex < result.rigid.engineBodyCount &&
+                source.sourceGeometryIndex != MR_INVALID_INDEX &&
+                std::isfinite(source.localPoint[0]) &&
+                std::isfinite(source.localPoint[1]) &&
+                std::isfinite(source.localPoint[2]) &&
+                std::isfinite(source.planeWitness[0]) &&
+                std::isfinite(source.planeWitness[1]) &&
+                std::isfinite(source.planeWitness[2]) &&
+                std::isfinite(source.friction) && source.friction >= 0.0f &&
+                std::isfinite(source.defaultSignedDistance) &&
+                source.reserved0 == 0.0f && source.reserved1 == 0.0f,
+            MRNX_RUNTIME_ASSET_FAILURE_V1,
+            "NHCNT1 contact record is malformed");
+        MRArticulatedPointImpulseGPU point{};
+        point.bodyIndex = source.bodyIndex;
+        point.localPoint = {
+            source.localPoint[0], source.localPoint[1],
+            source.localPoint[2], 0.0f};
+        const auto pointIndex = static_cast<std::uint32_t>(
+            result.points.size());
+        result.points.push_back(point);
+        MRNumiHumanStandContactGPU contact{};
+        contact.bodyIndex = source.bodyIndex;
+        contact.pointQueryIndex = pointIndex;
+        contact.sourceGeometryIndex = source.sourceGeometryIndex;
+        contact.frictionSlopAndStabilization = {
+            source.friction,
+            std::max(source.defaultSignedDistance, 0.0f) + 0.001f,
+            0.2f,
+            0.0f};
+        result.supportContacts.push_back(contact);
     }
     result.bodyJacobianPointOffset =
         static_cast<std::uint32_t>(result.points.size());
@@ -808,11 +924,13 @@ void physicalCompletion(
             config.metal_device != nullptr &&
             config.rigid_payload_path != nullptr &&
             config.muscle_payload_path != nullptr &&
+            config.support_contact_payload_path != nullptr &&
             config.metalrobo_metallib_path != nullptr &&
             config.matter_metallib_path != nullptr &&
             config.matter_material_path != nullptr &&
             config.rigid_payload_path[0] != '\0' &&
             config.muscle_payload_path[0] != '\0' &&
+            config.support_contact_payload_path[0] != '\0' &&
             config.metalrobo_metallib_path[0] != '\0' &&
             config.matter_metallib_path[0] != '\0' &&
             config.matter_material_path[0] != '\0' &&
@@ -845,7 +963,8 @@ void physicalCompletion(
         runtime->domain != nullptr, MRNX_RUNTIME_METAL_FAILURE_V1,
         "failed to create NumanX bridge domain");
     runtime->assets = loadFullBodyAssets(
-        config.rigid_payload_path, config.muscle_payload_path);
+        config.rigid_payload_path, config.muscle_payload_path,
+        config.support_contact_payload_path);
     runtime->timestepMicroseconds = config.timestep_microseconds;
     runtime->transactionSlotCount = config.transaction_slot_count;
 
@@ -1134,6 +1253,10 @@ void fillRuntimeInfoFailure(
         },
         .stand = {
             .v = runtime->assets.model.defaultV,
+            // The exact source witnesses are present in the point stream for
+            // causal sensing. Human/Matter ABI v1 still rejects constrained
+            // dynamics until it owns a nullspace/KKT tangent, so they are not
+            // yet offered as solver constraints here.
             .contacts = {},
             .jointEqualities = {},
             .tendonBindings = {},
@@ -1145,6 +1268,8 @@ void fillRuntimeInfoFailure(
             .contactIterationCount = 12u,
             .enableContact = false,
             .enableRootAssistance = false,
+            .groundPoint = runtime->assets.groundPoint,
+            .groundNormal = runtime->assets.groundNormal,
         },
         .residentContinuation = {
             .previousTransactionFingerprint =

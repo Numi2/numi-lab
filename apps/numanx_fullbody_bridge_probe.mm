@@ -23,6 +23,9 @@
 #ifndef MRNX_FULLBODY_MUSCLE
 #error MRNX_FULLBODY_MUSCLE is required
 #endif
+#ifndef MRNX_FULLBODY_SUPPORT_CONTACT
+#error MRNX_FULLBODY_SUPPORT_CONTACT is required
+#endif
 #ifndef MRNX_METALROBO_METALLIB
 #error MRNX_METALROBO_METALLIB is required
 #endif
@@ -178,12 +181,25 @@ int run() {
         config.metal_device = (__bridge void*)device;
         config.rigid_payload_path = MRNX_FULLBODY_RIGID;
         config.muscle_payload_path = MRNX_FULLBODY_MUSCLE;
+        config.support_contact_payload_path = MRNX_FULLBODY_SUPPORT_CONTACT;
         config.metalrobo_metallib_path = MRNX_METALROBO_METALLIB;
         config.matter_metallib_path = MRNX_MATTER_METALLIB;
         config.matter_material_path = MRNX_MATTER_MATERIAL;
         config.timestep_microseconds = kDurationMicros;
         config.maximum_retained_bytes = 1024ull * 1024ull * 1024ull;
         config.transaction_slot_count = 2u;
+        auto mismatchedSupport = config;
+        mismatchedSupport.support_contact_payload_path = MRNX_FULLBODY_MUSCLE;
+        mrnx_runtime_info_v1 mismatchedInfo{};
+        mismatchedInfo.abi_version = MRNX_BRIDGE_ABI_V1;
+        mismatchedInfo.struct_size = sizeof(mismatchedInfo);
+        mrnx_runtime_v1* mismatchedRuntime =
+            mrnx_bridge_v1_runtime_create(
+                &mismatchedSupport, &mismatchedInfo);
+        require(
+            mismatchedRuntime == nullptr &&
+                mismatchedInfo.status == MRNX_RUNTIME_ASSET_FAILURE_V1,
+            "mismatched source support-contact authority was admitted");
         mrnx_runtime_info_v1 info{};
         mrnx_runtime_v1* runtime = mrnx_bridge_v1_runtime_create(
             &config, &info);
