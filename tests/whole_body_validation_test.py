@@ -42,10 +42,25 @@ class WholeBodyValidationTest(unittest.TestCase):
         )
 
         left_knee = scope(report, "left_knee")["requirements"]
-        self.assertEqual(left_knee["active_tendon_to_bone"]["status"], "verified")
-        self.assertEqual(left_knee["passive_joint_tissue"]["status"], "verified")
+        self.assertEqual(left_knee["active_tendon_to_bone"]["status"], "contradicted")
+        self.assertEqual(left_knee["passive_joint_tissue"]["status"], "contradicted")
         self.assertEqual(left_knee["articular_contact"]["status"], "insufficient")
         self.assertEqual(left_knee["sustained_loaded_motion"]["status"], "missing")
+
+        self.assertEqual(
+            report["evidence"]["bilateral_achilles_force_transfer"]["status"],
+            "verified",
+        )
+        for identifier in (
+            "left_ankle_hindfoot_midfoot",
+            "right_ankle_hindfoot_midfoot",
+        ):
+            ankle = scope(report, identifier)["requirements"]
+            self.assertEqual(ankle["source_muscle_actuation"]["status"], "verified")
+            self.assertEqual(ankle["active_tendon_to_bone"]["status"], "verified")
+            self.assertEqual(ankle["deterministic_transaction"]["status"], "verified")
+            self.assertEqual(ankle["passive_joint_tissue"]["status"], "missing")
+            self.assertEqual(ankle["articular_contact"]["status"], "missing")
 
         shoulder = scope(report, "left_shoulder")["requirements"]
         self.assertEqual(shoulder["geometry_registration"]["status"], "verified")

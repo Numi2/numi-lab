@@ -39,8 +39,8 @@ one-step receipt cannot satisfy a stronger one.
 ## Current evidence baseline
 
 The manifest covers 15 musculoskeletal regions and six continuum layers. The
-current report contains 84 verified requirements, 18 contradicted
-requirements, two insufficient requirements, and 74 missing requirements.
+current report contains 78 verified requirements, 22 contradicted
+requirements, four insufficient requirements, and 74 missing requirements.
 No complete scope is yet promoted.
 
 The fresh integrated Release build also passed the native NumanX label 12/12
@@ -83,6 +83,15 @@ The adapter's reduced exact-surface fixture and both anatomical payload cooks
 now pass. The fixture separately proves body-Jacobian scatter, FEM isolation,
 typed same-body retention, malformed-flag rejection, force/moment audit,
 replay, and rollback.
+
+The bilateral Achilles chain now has a dedicated one-step receipt rather than
+depending on the contradicted whole-body `100%` enthesis claim. Six nonlinear
+gastrocnemius/soleus rows terminate in six distributed named-calcaneus
+envelopes, produce nonzero bilateral ankle torque increments, close force and
+moment, borrow the owning command buffer, roll back on rejection, and replay
+bitwise. This promotes active tendon-to-bone transfer for both ankle/hindfoot
+scopes only. Passive ankle tissues, articular/contact mechanics, sustained
+loading, and OpenSim Rajagopal equivalence remain missing.
 
 ## Development order
 

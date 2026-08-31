@@ -175,7 +175,7 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "9ba831c1fad39a3e268f605ec67f6c27f5df44d5760ed03eefbd36aff2f9bcc0"},
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8"},
         {"path": "apps/numilab_human_open_knee_ligament_probe.mm", "sha256": "ddcfeda37f47321b80e5d01fb249fe248d94b06ae5126a08d22377ef1ab1439d"},
         {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635"},
         {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2"},
@@ -206,7 +206,7 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "9ba831c1fad39a3e268f605ec67f6c27f5df44d5760ed03eefbd36aff2f9bcc0"},
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8"},
         {"path": "apps/numilab_human_open_knee_ligament_probe.mm", "sha256": "ddcfeda37f47321b80e5d01fb249fe248d94b06ae5126a08d22377ef1ab1439d"},
         {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635"},
         {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2"},
@@ -306,7 +306,7 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "9ba831c1fad39a3e268f605ec67f6c27f5df44d5760ed03eefbd36aff2f9bcc0"},
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8"},
         {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635"},
         {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2"},
         {"path": "matter/src/metal/numi_human.metalinc", "sha256": "907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85"},
@@ -343,12 +343,45 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "9ba831c1fad39a3e268f605ec67f6c27f5df44d5760ed03eefbd36aff2f9bcc0"},
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8"},
         {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635"},
         {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2"},
         {"path": "matter/src/metal/numi_human.metalinc", "sha256": "907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85"},
         {"path": "matter/src/numi_human.mm", "sha256": "896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18"},
         {"path": "docs/media/numi-human-knee-articular-live-v1/right-mirrored-m4-pro.txt", "sha256": "f7006a154a8c245959463e5faa941e460efeae308ec1aca018a892b667042b9c"}
+      ]
+    },
+    "bilateral_achilles_force_transfer": {
+      "path": "docs/media/numi-human-achilles-force-transfer-v1/bilateral-m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.achilles-force-transfer.qualification.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/selected_source_muscle_indices", "op": "equals", "value": [348, 349, 369, 388, 389, 409]},
+        {"pointer": "/accepted_step_count", "op": "equals", "value": 2},
+        {"pointer": "/same_borrowed_command_buffer", "op": "equals", "value": true},
+        {"pointer": "/force_authority", "op": "equals", "value": "single_source_route_JT_with_distributed_enthesis_correction"},
+        {"pointer": "/sides/*/muscle_count", "op": "equals", "value": 3},
+        {"pointer": "/sides/*/distributed_endpoint_count", "op": "equals", "value": 3},
+        {"pointer": "/sides/*/represented_force_l1_newtons", "op": "minimum", "value": 1.0},
+        {"pointer": "/sides/*/represented_force_increment_l1_newtons", "op": "minimum", "value": 1.0},
+        {"pointer": "/sides/*/source_ankle_torque_magnitude_newton_meters", "op": "minimum", "value": 0.001},
+        {"pointer": "/sides/*/source_ankle_torque_increment_magnitude_newton_meters", "op": "minimum", "value": 0.001},
+        {"pointer": "/sides/*/aggregate_force_residual_newtons", "op": "maximum", "value": 0.003},
+        {"pointer": "/sides/*/maximum_endpoint_force_residual_newtons", "op": "maximum", "value": 0.0001},
+        {"pointer": "/sides/*/maximum_endpoint_moment_residual_newton_meters", "op": "maximum", "value": 0.00001},
+        {"pointer": "/sides/*/minimum_normalized_tendon_tension", "op": "minimum", "value": 0.000001},
+        {"pointer": "/sides/*/maximum_damped_equilibrium_residual", "op": "maximum", "value": 0.001},
+        {"pointer": "/sides/*/minimum_patch_radius_meters", "op": "minimum", "value": 0.001},
+        {"pointer": "/sides/*/ankle_configuration_increment_magnitude_radians", "op": "minimum", "value": 0.000000001},
+        {"pointer": "/sides/*/ankle_velocity_increment_magnitude_radians_per_second", "op": "minimum", "value": 0.000001},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8"}
       ]
     },
     "costal_cartilage_preflight": {
@@ -450,8 +483,24 @@
         "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["right_knee_extensor_chain", "source_route_transaction"], "evidence_mode": "all"}
       }
     },
-    {"id": "left_ankle_hindfoot_midfoot", "profile": "lower_joint", "requirements": {}},
-    {"id": "right_ankle_hindfoot_midfoot", "profile": "lower_joint", "requirements": {}},
+    {
+      "id": "left_ankle_hindfoot_midfoot",
+      "profile": "lower_joint",
+      "requirements": {
+        "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"},
+        "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"},
+        "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"}
+      }
+    },
+    {
+      "id": "right_ankle_hindfoot_midfoot",
+      "profile": "lower_joint",
+      "requirements": {
+        "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"},
+        "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"},
+        "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"}
+      }
+    },
     {
       "id": "left_toes_compound",
       "profile": "lower_joint",

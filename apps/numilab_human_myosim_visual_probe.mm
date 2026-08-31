@@ -2108,6 +2108,36 @@ struct MuscleDrivenVisualState {
     // distinguishable from a mesh-registration defect.
     std::array<double, 6u> compiledFootCoordinates{};
     std::array<double, 6u> finalFootCoordinates{};
+    struct AchillesForceTransferSideAudit {
+        bool available = false;
+        std::uint32_t calcaneusBodyIndex = MR_INVALID_INDEX;
+        std::uint32_t calcaneusBoneStableId = 0u;
+        std::uint32_t ankleQIndex = MR_INVALID_INDEX;
+        std::uint32_t ankleDofIndex = MR_INVALID_INDEX;
+        std::uint32_t muscleCount = 0u;
+        std::uint32_t distributedEndpointCount = 0u;
+        double representedForceL1Newtons = 0.0;
+        double representedForceIncrementL1Newtons = 0.0;
+        double terminalForceResultantNewtons = 0.0;
+        double terminalForceIncrementResultantNewtons = 0.0;
+        double nodalForceResultantNewtons = 0.0;
+        double aggregateForceResidualNewtons = 0.0;
+        double maximumEndpointForceResidualNewtons = 0.0;
+        double maximumEndpointMomentResidualNewtonMeters = 0.0;
+        double sourceAnkleTorqueNewtonMeters = 0.0;
+        double sourceAnkleTorqueIncrementNewtonMeters = 0.0;
+        double distributedAnkleTorqueCorrectionNewtonMeters = 0.0;
+        double minimumNormalizedTendonTension =
+            std::numeric_limits<double>::infinity();
+        double maximumNormalizedTendonTension = 0.0;
+        double maximumDampedEquilibriumResidual = 0.0;
+        double minimumPatchRadiusMeters =
+            std::numeric_limits<double>::infinity();
+        double maximumPatchRadiusMeters = 0.0;
+        double configurationIncrementRadians = 0.0;
+        double velocityIncrementRadiansPerSecond = 0.0;
+    };
+    std::array<AchillesForceTransferSideAudit, 2u> achilles{};
 };
 
 struct TendonLoadAuditConsumer {
@@ -3648,6 +3678,254 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         assistedStatus.tendonDiagnostics.z,
         finalStatus.tendonDiagnostics.z
     );
+    // The Achilles certificate is deliberately derived from the live source
+    // rows and the accepted NHTENDON3 endpoint transaction.  It does not
+    // introduce a second plantar-flexion actuator or infer mechanics from the
+    // rendered calf collar.  Each side combines gastrocnemius lateralis,
+    // gastrocnemius medialis, and soleus at their exact calcaneal insertion.
+    constexpr std::array<std::array<std::uint32_t, 3u>, 2u>
+        kAchillesMuscleIndices{{
+            {{348u, 349u, 369u}},
+            {{388u, 389u, 409u}},
+        }};
+    constexpr std::array<std::uint32_t, 2u> kCalcaneusBodyIndices{
+        138u, 152u,
+    };
+    constexpr std::array<std::uint32_t, 2u> kAnkleQIndices{109u, 123u};
+    const auto magnitude = [](const std::array<double, 3u>& value) {
+        return std::sqrt(
+            value[0u] * value[0u] + value[1u] * value[1u] +
+            value[2u] * value[2u]
+        );
+    };
+    const auto component = [](const mr_float4 value, const std::size_t axis) {
+        return axis == 0u ? value.x : (axis == 1u ? value.y : value.z);
+    };
+    const std::size_t dofCount = model.articulations.front().nv;
+    for (std::size_t side = 0u; side < result.achilles.size(); ++side) {
+        auto& audit = result.achilles[side];
+        const bool selected = applySelectedActivationIncrement &&
+            std::all_of(
+                kAchillesMuscleIndices[side].begin(),
+                kAchillesMuscleIndices[side].end(),
+                [&selectedSourceMuscleIndices](const std::uint32_t muscle) {
+                    return std::binary_search(
+                        selectedSourceMuscleIndices.begin(),
+                        selectedSourceMuscleIndices.end(), muscle
+                    );
+                }
+            );
+        if (!selected) continue;
+        const auto dof = std::find_if(
+            model.dofs.begin(), model.dofs.end(),
+            [side, &kAnkleQIndices](const MRDofPropertiesGPU& candidate) {
+                return candidate.qIndex == kAnkleQIndices[side];
+            }
+        );
+        require(dof != model.dofs.end(),
+                "Achilles certificate cannot resolve the source ankle DOF");
+        const std::size_t ankleDof = static_cast<std::size_t>(
+            std::distance(model.dofs.begin(), dof)
+        );
+        require(
+            ankleDof < dofCount &&
+                metalResult.mujocoResults.size() == muscles.gpuMuscles.size() &&
+                metalResult.mujocoMuscleGeneralizedForces.size() ==
+                    muscles.gpuMuscles.size() * dofCount &&
+                selectedControlBaselineResult.mujocoMuscleGeneralizedForces.size() ==
+                    metalResult.mujocoMuscleGeneralizedForces.size() &&
+                metalResult.standTendonGeneralizedCorrections.size() ==
+                    tendonProgram.bindings.size() * dofCount,
+            "Achilles certificate is missing accepted source-force state"
+        );
+        audit.calcaneusBodyIndex = kCalcaneusBodyIndices[side];
+        audit.ankleQIndex = kAnkleQIndices[side];
+        audit.ankleDofIndex = static_cast<std::uint32_t>(ankleDof);
+        std::array<double, 3u> terminalResultant{};
+        std::array<double, 3u> terminalIncrementResultant{};
+        std::array<double, 3u> nodalResultant{};
+        for (const std::uint32_t muscle : kAchillesMuscleIndices[side]) {
+            require(muscle < muscles.referenceArchitectures.size(),
+                    "Achilles certificate muscle architecture is unavailable");
+            const auto gpuBinding = std::find_if(
+                tendonProgram.bindings.begin(), tendonProgram.bindings.end(),
+                [muscle](const MRNumiHumanTendonBindingGPU& binding) {
+                    return binding.muscleIndex == muscle &&
+                        binding.endpointOrdinal == 1u;
+                }
+            );
+            const auto sourceBinding = std::find_if(
+                muscles.tendonPayload.bindings.begin(),
+                muscles.tendonPayload.bindings.end(),
+                [muscle](const metalrobo::NumiHumanTendonBinding& binding) {
+                    return binding.muscleIndex == muscle &&
+                        binding.endpointOrdinal == 1u;
+                }
+            );
+            require(
+                gpuBinding != tendonProgram.bindings.end() &&
+                    sourceBinding != muscles.tendonPayload.bindings.end() &&
+                    gpuBinding->bodyIndex == kCalcaneusBodyIndices[side] &&
+                    gpuBinding->mode ==
+                        MR_NUMI_HUMAN_TENDON_TRANSFER_DISTRIBUTED_ENVELOPE &&
+                    gpuBinding->envelopeIndex < tendonProgram.envelopes.size() &&
+                    sourceBinding->mode == metalrobo::NumiHumanTendonAttachmentMode::
+                        registeredBoneMigratedDistributedEnvelope,
+                "Achilles insertion is not an exact migrated calcaneal envelope"
+            );
+            const std::size_t bindingIndex = static_cast<std::size_t>(
+                std::distance(tendonProgram.bindings.begin(), gpuBinding)
+            );
+            require(
+                bindingIndex < metalResult.standTendonTransfers.size() &&
+                    bindingIndex <
+                        selectedControlBaselineResult.standTendonTransfers.size(),
+                "Achilles endpoint transfer readback is incomplete"
+            );
+            const auto& transfer =
+                metalResult.standTendonTransfers[bindingIndex];
+            const auto& baselineTransfer =
+                selectedControlBaselineResult.standTendonTransfers[bindingIndex];
+            const auto& muscleResult = metalResult.mujocoResults[muscle];
+            const auto& envelope =
+                tendonProgram.envelopes[gpuBinding->envelopeIndex];
+            require(
+                transfer.status == MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS &&
+                    baselineTransfer.status ==
+                        MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS &&
+                    transfer.bindingIndex == bindingIndex &&
+                    transfer.envelopeIndex == gpuBinding->envelopeIndex &&
+                    muscleResult.status == MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS &&
+                    envelope.bodyIndex == kCalcaneusBodyIndices[side] &&
+                    envelope.boneStableId == gpuBinding->boneStableId &&
+                    envelope.nodeCount == 4u,
+                "Achilles accepted endpoint result disagrees with its envelope"
+            );
+            if (audit.calcaneusBoneStableId == 0u) {
+                audit.calcaneusBoneStableId = gpuBinding->boneStableId;
+            }
+            require(audit.calcaneusBoneStableId == gpuBinding->boneStableId,
+                    "Achilles muscles do not share one named calcaneal surface");
+            ++audit.muscleCount;
+            ++audit.distributedEndpointCount;
+            audit.representedForceL1Newtons +=
+                std::abs(static_cast<double>(transfer.residualsAndForce.w));
+            audit.representedForceIncrementL1Newtons += std::abs(
+                static_cast<double>(transfer.residualsAndForce.w) -
+                static_cast<double>(baselineTransfer.residualsAndForce.w)
+            );
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                const double terminal = component(
+                    transfer.terminalWorldForce, axis
+                );
+                const double baseline = component(
+                    baselineTransfer.terminalWorldForce, axis
+                );
+                terminalResultant[axis] += terminal;
+                terminalIncrementResultant[axis] += terminal - baseline;
+                for (std::size_t node = 0u; node < 4u; ++node) {
+                    nodalResultant[axis] += component(
+                        transfer.nodalWorldForces[node], axis
+                    );
+                }
+            }
+            audit.maximumEndpointForceResidualNewtons = std::max(
+                audit.maximumEndpointForceResidualNewtons,
+                static_cast<double>(transfer.residualsAndForce.x)
+            );
+            audit.maximumEndpointMomentResidualNewtonMeters = std::max(
+                audit.maximumEndpointMomentResidualNewtonMeters,
+                static_cast<double>(transfer.residualsAndForce.y)
+            );
+            const std::size_t muscleDof = muscle * dofCount + ankleDof;
+            audit.sourceAnkleTorqueNewtonMeters +=
+                metalResult.mujocoMuscleGeneralizedForces[muscleDof];
+            audit.sourceAnkleTorqueIncrementNewtonMeters +=
+                static_cast<double>(
+                    metalResult.mujocoMuscleGeneralizedForces[muscleDof]
+                ) - static_cast<double>(
+                    selectedControlBaselineResult
+                        .mujocoMuscleGeneralizedForces[muscleDof]
+                );
+            audit.distributedAnkleTorqueCorrectionNewtonMeters +=
+                metalResult.standTendonGeneralizedCorrections[
+                    bindingIndex * dofCount + ankleDof
+                ];
+            const double normalizedTension =
+                muscleResult.fiberStateTendonForceResidual.z;
+            audit.minimumNormalizedTendonTension = std::min(
+                audit.minimumNormalizedTendonTension, normalizedTension
+            );
+            audit.maximumNormalizedTendonTension = std::max(
+                audit.maximumNormalizedTendonTension, normalizedTension
+            );
+            audit.maximumDampedEquilibriumResidual = std::max(
+                audit.maximumDampedEquilibriumResidual,
+                std::abs(static_cast<double>(
+                    muscleResult.fiberStateTendonForceResidual.w
+                ))
+            );
+            audit.minimumPatchRadiusMeters = std::min(
+                audit.minimumPatchRadiusMeters,
+                static_cast<double>(envelope.metrics.y)
+            );
+            audit.maximumPatchRadiusMeters = std::max(
+                audit.maximumPatchRadiusMeters,
+                static_cast<double>(envelope.metrics.y)
+            );
+        }
+        audit.terminalForceResultantNewtons = magnitude(terminalResultant);
+        audit.terminalForceIncrementResultantNewtons =
+            magnitude(terminalIncrementResultant);
+        audit.nodalForceResultantNewtons = magnitude(nodalResultant);
+        std::array<double, 3u> aggregateResidual{};
+        for (std::size_t axis = 0u; axis < 3u; ++axis) {
+            aggregateResidual[axis] =
+                nodalResultant[axis] - terminalResultant[axis];
+        }
+        audit.aggregateForceResidualNewtons = magnitude(aggregateResidual);
+        audit.configurationIncrementRadians =
+            static_cast<double>(result.q[kAnkleQIndices[side]]) -
+            static_cast<double>(
+                selectedControlBaselineResult.standQ[kAnkleQIndices[side]]
+            );
+        audit.velocityIncrementRadiansPerSecond =
+            static_cast<double>(metalResult.standV[ankleDof]) -
+            static_cast<double>(selectedControlBaselineResult.standV[ankleDof]);
+        audit.available =
+            audit.muscleCount == 3u &&
+            audit.distributedEndpointCount == 3u &&
+            audit.calcaneusBoneStableId != 0u &&
+            audit.representedForceL1Newtons > 0.0 &&
+            audit.representedForceIncrementL1Newtons > 0.0 &&
+            audit.minimumNormalizedTendonTension > 0.0 &&
+            std::abs(audit.sourceAnkleTorqueNewtonMeters) > 1.0e-8 &&
+            std::abs(audit.sourceAnkleTorqueIncrementNewtonMeters) > 1.0e-8 &&
+            audit.aggregateForceResidualNewtons <= std::max(
+                1.0e-3, 1.0e-6 * audit.representedForceL1Newtons
+            ) &&
+            audit.maximumEndpointMomentResidualNewtonMeters <= 5.0e-5;
+        require(
+            audit.available,
+            "Achilles force-transfer certificate did not close: side=" +
+                std::to_string(side) + " force_l1=" +
+                std::to_string(audit.representedForceL1Newtons) +
+                " force_increment_l1=" +
+                std::to_string(audit.representedForceIncrementL1Newtons) +
+                " min_tension=" +
+                std::to_string(audit.minimumNormalizedTendonTension) +
+                " ankle_torque=" +
+                std::to_string(audit.sourceAnkleTorqueNewtonMeters) +
+                " ankle_torque_increment=" +
+                std::to_string(audit.sourceAnkleTorqueIncrementNewtonMeters) +
+                " aggregate_force_residual=" +
+                std::to_string(audit.aggregateForceResidualNewtons) +
+                " max_moment_residual=" +
+                std::to_string(
+                    audit.maximumEndpointMomentResidualNewtonMeters
+                )
+        );
+    }
     return result;
 }
 
@@ -9094,6 +9372,7 @@ int main(int argc, char** argv) {
             bool standRootAssistance = false;
             bool standRemoveAssistance = false;
             bool standDeterministicReplay = false;
+            bool bilateralAchillesCertificate = false;
             bool sourceRouteCentrelines = false;
             bool surfaceProjectSourceSites = false;
             std::vector<std::uint32_t> requestedSourceRouteMuscles;
@@ -9158,6 +9437,10 @@ int main(int argc, char** argv) {
                     require(!standDeterministicReplay,
                             "--stand-deterministic-replay may be given only once");
                     standDeterministicReplay = true;
+                } else if (argument == "--bilateral-achilles-certificate") {
+                    require(!bilateralAchillesCertificate,
+                            "--bilateral-achilles-certificate may be given only once");
+                    bilateralAchillesCertificate = true;
                 } else if (argument == "--activated-source-muscle-index") {
                     require(index + 1 < argc,
                             "--activated-source-muscle-index requires one muscle index");
@@ -9302,6 +9585,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-count <1..64>]"
                           << " [--muscle-activation <0..1>]"
                           << " [--persistent-metal-stand] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay]"
+                          << " [--bilateral-achilles-certificate]"
                           << " [--activated-source-muscle-index <0..415>]..."
                           << " [--source-route-centrelines] [--source-route-index <0..415>]..."
                           << " [--surface-project-source-sites]"
@@ -9392,6 +9676,41 @@ int main(int argc, char** argv) {
                         }
                     ),
                     "--activated-source-muscle-index exceeds the source muscle count");
+            if (bilateralAchillesCertificate) {
+                constexpr std::array<std::uint32_t, 6u>
+                    kBilateralAchillesMuscles{
+                        348u, 349u, 369u, 388u, 389u, 409u,
+                    };
+                require(
+                    !persistentMetalStand && selectedTendonControl &&
+                        muscleStepSeconds.has_value() &&
+                        tendonPayloadPath.has_value() &&
+                        jointEqualityPayloadPath.has_value() &&
+                        supportContactPayloadPath.has_value() &&
+                        selectedSourceMuscleActivations.size() ==
+                            kBilateralAchillesMuscles.size() &&
+                        std::equal(
+                            selectedSourceMuscleActivations.begin(),
+                            selectedSourceMuscleActivations.end(),
+                            kBilateralAchillesMuscles.begin()
+                        ),
+                    "--bilateral-achilles-certificate requires the persistent "
+                    "selected NHTENDON3 transaction and exactly source muscles "
+                    "348,349,369,388,389,409"
+                );
+                require(
+                    !sourceRouteCentrelines &&
+                        requestedBoneBodyIndices.empty() &&
+                        requestedBoneStableIds.empty() &&
+                        requestedSoftTissueStableIds.empty() &&
+                        !passiveFEMTissueStableId.has_value() &&
+                        !pectoralisFasciaPayloadPath.has_value() &&
+                        !openKneePayloadPath.has_value() &&
+                        !openKneeLigamentFEMPath.has_value(),
+                    "--bilateral-achilles-certificate is a nonvisual mechanics "
+                    "qualification and cannot be combined with presentation scopes"
+                );
+            }
             std::sort(requestedBoneBodyIndices.begin(), requestedBoneBodyIndices.end());
             const auto duplicateBoneBody = std::adjacent_find(
                 requestedBoneBodyIndices.begin(), requestedBoneBodyIndices.end()
@@ -9908,6 +10227,92 @@ int main(int argc, char** argv) {
                     ));
                 }
                 poseQ = muscleDrivenState->q;
+            }
+            if (bilateralAchillesCertificate) {
+                require(
+                    muscleDrivenState.has_value() &&
+                        muscleDrivenState->achilles[0u].available &&
+                        muscleDrivenState->achilles[1u].available &&
+                        muscleDrivenState->tendonBorrowedConsumerVerified &&
+                        muscleDrivenState->tendonRollbackVerified &&
+                        muscleDrivenState->tendonRigidStateIdentityVerified &&
+                        muscleDrivenState->deterministicReplayVerified,
+                    "bilateral Achilles qualification lacks transactional proof"
+                );
+                std::cout << std::setprecision(12)
+                          << "numi_human_bilateral_achilles_force_transfer=ok"
+                          << " device=\""
+                          << muscleDrivenState->muscleMetalDeviceName << "\""
+                          << " source_model=pinned_MyoSim_full_body"
+                          << " geometry=BodyParts3D_4_0_named_calcaneus_envelopes"
+                          << " tendon_law=NHMYO2_nonlinear_compliant_fiber_tendon_equilibrium"
+                          << " transfer=NHTENDON3_four_node_wrench_equivalent_enthesis"
+                          << " selected_muscles=348,349,369,388,389,409"
+                          << " selected_muscle_names=gaslat_r,gasmed_r,soleus_r,gaslat_l,gasmed_l,soleus_l"
+                          << " accepted_steps="
+                          << muscleDrivenState->persistentCompletedSteps
+                          << " replay=bitwise"
+                          << " rollback=consumer_rejection_preserved_result"
+                          << " borrowed_consumer=same_command_buffer_exact_snapshot"
+                          << " force_authority=single_source_route_JT_with_distributed_enthesis_correction";
+                constexpr std::array<const char*, 2u> kSideNames{
+                    "right", "left",
+                };
+                for (std::size_t side = 0u;
+                     side < muscleDrivenState->achilles.size(); ++side) {
+                    const auto& audit = muscleDrivenState->achilles[side];
+                    const std::string prefix = std::string(" ") +
+                        kSideNames[side] + "_";
+                    std::cout
+                        << prefix << "calcaneus_body="
+                        << audit.calcaneusBodyIndex
+                        << prefix << "calcaneus_bone_stable_id="
+                        << audit.calcaneusBoneStableId
+                        << prefix << "ankle_q_index=" << audit.ankleQIndex
+                        << prefix << "ankle_dof_index=" << audit.ankleDofIndex
+                        << prefix << "muscles=" << audit.muscleCount
+                        << prefix << "distributed_endpoints="
+                        << audit.distributedEndpointCount
+                        << prefix << "represented_force_l1_n="
+                        << audit.representedForceL1Newtons
+                        << prefix << "represented_force_increment_l1_n="
+                        << audit.representedForceIncrementL1Newtons
+                        << prefix << "terminal_force_resultant_n="
+                        << audit.terminalForceResultantNewtons
+                        << prefix << "terminal_force_increment_resultant_n="
+                        << audit.terminalForceIncrementResultantNewtons
+                        << prefix << "nodal_force_resultant_n="
+                        << audit.nodalForceResultantNewtons
+                        << prefix << "aggregate_force_residual_n="
+                        << audit.aggregateForceResidualNewtons
+                        << prefix << "max_endpoint_force_residual_n="
+                        << audit.maximumEndpointForceResidualNewtons
+                        << prefix << "max_endpoint_moment_residual_nm="
+                        << audit.maximumEndpointMomentResidualNewtonMeters
+                        << prefix << "source_ankle_torque_nm="
+                        << audit.sourceAnkleTorqueNewtonMeters
+                        << prefix << "source_ankle_torque_increment_nm="
+                        << audit.sourceAnkleTorqueIncrementNewtonMeters
+                        << prefix << "distributed_ankle_torque_correction_nm="
+                        << audit.distributedAnkleTorqueCorrectionNewtonMeters
+                        << prefix << "min_normalized_tendon_tension="
+                        << audit.minimumNormalizedTendonTension
+                        << prefix << "max_normalized_tendon_tension="
+                        << audit.maximumNormalizedTendonTension
+                        << prefix << "max_equilibrium_residual="
+                        << audit.maximumDampedEquilibriumResidual
+                        << prefix << "min_patch_radius_m="
+                        << audit.minimumPatchRadiusMeters
+                        << prefix << "max_patch_radius_m="
+                        << audit.maximumPatchRadiusMeters
+                        << prefix << "ankle_q_increment_rad="
+                        << audit.configurationIncrementRadians
+                        << prefix << "ankle_v_increment_rad_s="
+                        << audit.velocityIncrementRadiansPerSecond;
+                }
+                std::cout
+                    << " boundary=bounded_bilateral_Achilles_active_force_transfer_certificate_not_deformable_volumetric_tendon_contact_sustained_gait_or_clinical_validation\n";
+                return 0;
             }
             const metalrobo::MetalArticulatedOperatorInput input{
                 .articulationIndex = 0u,
