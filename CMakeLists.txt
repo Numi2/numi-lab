@@ -1335,9 +1335,10 @@ set_target_properties(
 # Native visual inspection for the full-body MyoSim model. It obtains the
 # articulated pose from the Metal operator, renders BodyParts3D major-bone
 # geometry when supplied, and can opt in to selected CPU-resolved source route
-# centrelines (tangent contacts plus sampled wrap arcs). The route diagnostic
-# is neither tendon-surface geometry nor a BodyParts3D attachment certificate;
-# this deliberately does not imply a live device-resident rollout.
+# centrelines (tangent contacts plus sampled wrap arcs). Its explicit
+# --open-knee-live-tissue-fem path also owns the bounded same-command-buffer
+# Human/FEM transaction; ordinary pose and route modes remain presentation
+# probes rather than live rollout evidence.
 add_executable(
     metalrobo_numilab_human_myosim_visual_probe
     apps/numilab_human_myosim_visual_probe.mm
@@ -1357,6 +1358,7 @@ target_compile_definitions(
     PRIVATE
         NUMI_HUMAN_PASSIVE_TISSUE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/passive_skeletal_muscle_unqualified.nmatter"
         NUMI_HUMAN_PECTORALIS_FASCIA_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_pectoralis_fascia_goh_uniaxial.nmatter"
+        NUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/open_knee_ligament_isotropic_preflight.nmatter"
         NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
 )
 target_compile_options(

@@ -17,11 +17,14 @@ The compiler now selects the unique proper basis aligned with Human anterior
 fibula at least 20 mm lateral. Both emitted sides measure 46.934 mm and
 28.565 mm respectively, with anterior-axis alignment `0.999999366`.
 
-The focused view suppresses the overlapping BodyParts3D femur/tibia/patella
-meshes and draws all 16 Open Knee(s) regions in the live MyoSim articulated
-frames: femur body 145, tibia body 150 and patella body 156. This avoids the
-double-specimen overlay that previously made apparently displaced bones hard
-to distinguish from a bad registration.
+The focused view now uses a deliberately composite bone presentation. Full
+BodyParts3D femur, tibia, fibula and patella meshes supply the continuous
+Human bone shafts, while the exact Open Knee(s) articular bone ends remain at
+the joint as the attachment/contact topology owner for its cartilage,
+menisci, ligaments and extensor tissues. This removes the finite scan-volume
+cut ends that looked like hanging bone fragments without translating the
+patella or detaching tissue from its source bone topology. The left live
+frames are femur body 145, tibia body 150 and patella body 156.
 
 For the right side the same exact specimen topology is sagittally mirrored
 into the measured live femur/tibia/patella frames 131, 136 and 142.  It is
@@ -29,6 +32,26 @@ labelled `right-mirrored` throughout; it is not an independently segmented
 right subject.
 
 ## M4 Pro multi-angle result
+
+The current accepted live-Human composite is retained in
+[`numi-human-live-open-knee-composite-v1`](media/numi-human-live-open-knee-composite-v1/).
+It replaces the older joint-only bone presentation below. The older frames
+remain useful as exact Open Knee source inspection, but their truncated bone
+segments are not a full-Human presentation reference.
+
+| Side | Front | Oblique | Side | Rear |
+| --- | --- | --- | --- | --- |
+| Left | ![left front](media/numi-human-live-open-knee-composite-v1/left/front.png) | ![left oblique](media/numi-human-live-open-knee-composite-v1/left/oblique.png) | ![left side](media/numi-human-live-open-knee-composite-v1/left/side.png) | ![left rear](media/numi-human-live-open-knee-composite-v1/left/rear.png) |
+| Mirrored right | ![right front](media/numi-human-live-open-knee-composite-v1/right/front.png) | ![right oblique](media/numi-human-live-open-knee-composite-v1/right/oblique.png) | ![right side](media/numi-human-live-open-knee-composite-v1/right/side.png) | ![right rear](media/numi-human-live-open-knee-composite-v1/right/rear.png) |
+
+These frames were rendered only after the live 157-body transaction accepted
+all five exact tissues. The projected-rest correction removed a stale-frame
+displacement of `53.5171 mm` left and `53.5173 mm` right; reconstruction
+residual was `30.7 nm` and `59.6 nm`, respectively. The full device receipts
+are [`left-m4-pro.txt`](media/numi-human-live-open-knee-composite-v1/left-m4-pro.txt)
+and [`right-m4-pro.txt`](media/numi-human-live-open-knee-composite-v1/right-m4-pro.txt).
+
+### Earlier joint-only source inspection
 
 | Global camera | Native frame |
 | --- | --- |

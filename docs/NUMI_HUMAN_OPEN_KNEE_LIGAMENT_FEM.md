@@ -62,10 +62,39 @@ distal nodes tie to the patella, while the source model uses a separate rigid
 quadriceps-origin (`QSO`) construct proximally. Completing it requires a
 distributed quadriceps muscle-load boundary, not a cosmetic femur anchor.
 
+## Live full-Human passive continuum transaction
+
+The visual probe now creates the exact `ACL`, `PCL`, `MCL`, `LCL`, and `PTL`
+Matter FEM worlds directly inside the persistent 157-body Human step. It
+captures anchor reactions before rigid integration in the same command buffer,
+adds those passive reactions to the retained NHTENDON3 source-route force, and
+then verifies a rejected-step rollback plus bitwise replay. It does not claim
+that passive tissue reaction replaces an active source tendon force.
+
+The bilateral Apple M4 Pro qualification used one `0.1 ms` step and a
+`3e-6 rad` knee-flexion perturbation:
+
+- Left: maximum node displacement `2.54740e-7 m`, determinant range
+  `0.9997598-1.0002606`, and femur/tibia/patella reaction L1
+  `0.529482/2.309817/0.916469 N`.
+- Mirrored right: maximum node displacement `2.04857e-7 m`, determinant
+  range `0.9998230-1.0002322`, and femur/tibia/patella reaction L1
+  `0.630589/2.391164/1.054424 N`.
+
+The accepted presentation combines full BodyParts3D femur, tibia, fibula and
+patella meshes with the exact Open Knee articular bone ends. That composite
+removes the joint scan's truncated bone ends while retaining the Open Knee
+attachment/contact surfaces under the same material. Bilateral four-angle
+frames and raw receipts are in
+[`numi-human-live-open-knee-composite-v1`](media/numi-human-live-open-knee-composite-v1/).
+
 ## Evidence boundary
 
-This is an exact-topology, two-body attachment, reaction-transfer,
-rollback/replay preflight under a prescribed sub-micron tibia displacement.
+The original `NHKFEM1/2` result is an exact-topology attachment,
+reaction-transfer, rollback/replay preflight under a prescribed sub-micron
+tibia displacement. The live result additionally proves a same-command-buffer
+passive continuum reaction changes the full Human rigid state for one bounded
+step; it is not a sustained or production-cadence rollout.
 The per-region isotropic matrix uses the Open Knee `c1` and bulk parameters,
 but Matter does not yet apply the source transverse-isotropic fibre field or
 initial prestretch. The result is not a loaded flexion validation, clinical
