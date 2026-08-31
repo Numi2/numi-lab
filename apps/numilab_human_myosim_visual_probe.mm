@@ -11860,7 +11860,11 @@ int main(int argc, char** argv) {
                                     support.muscleTendonForce[second] *
                                     musclePaths[second].path.lengthJacobian[dof]);
                         });
-                    constexpr std::size_t kContributorCount = 3u;
+                    // Eight covers every source muscle spanning the most
+                    // densely actuated hand coordinate. Keeping the complete
+                    // local antagonist set visible prevents a saturated top
+                    // three from hiding a missing or unusable route.
+                    constexpr std::size_t kContributorCount = 8u;
                     for (std::size_t contributor = 0u;
                          contributor < std::min(
                              kContributorCount, muscleOrder.size());

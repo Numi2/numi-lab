@@ -381,7 +381,7 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "c77485b5d3bac72ad904973b516458aad30561721130d743a051a7e07a761fbe"}
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "5b53ecfcd73b44b95d053715fbc4315bddde112b524aebac16b01c598488b464"}
       ]
     },
     "bilateral_plantar_fascia_force_transfer": {
@@ -412,7 +412,7 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "c77485b5d3bac72ad904973b516458aad30561721130d743a051a7e07a761fbe"}
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "5b53ecfcd73b44b95d053715fbc4315bddde112b524aebac16b01c598488b464"}
       ]
     },
     "whole_body_support_wrench": {
@@ -434,7 +434,7 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "c77485b5d3bac72ad904973b516458aad30561721130d743a051a7e07a761fbe"},
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "5b53ecfcd73b44b95d053715fbc4315bddde112b524aebac16b01c598488b464"},
         {"path": "include/metalrobo/NumiHumanMuscleEquilibrium.hpp", "sha256": "d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571"},
         {"path": "src/core/NumiHumanMuscleEquilibrium.cpp", "sha256": "dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129"}
       ]
@@ -460,7 +460,7 @@
         {"pointer": "/remaining_blocker", "op": "equals", "value": "source_extensor_hood_interosseous_route_and_force_sharing"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "c77485b5d3bac72ad904973b516458aad30561721130d743a051a7e07a761fbe"},
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "5b53ecfcd73b44b95d053715fbc4315bddde112b524aebac16b01c598488b464"},
         {"path": "include/metalrobo/NumiHumanMuscleEquilibrium.hpp", "sha256": "d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571"},
         {"path": "src/core/NumiHumanMuscleEquilibrium.cpp", "sha256": "dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129"}
       ]

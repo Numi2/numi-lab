@@ -85,9 +85,22 @@ the passive lumbrical contributes `+0.11358 N m`, and extensor digiti minimi is
 already saturated at activation 1.0 while adding `-0.04749 N m`. The left side
 has the mirrored pattern.
 
-This points to the source extensor-hood/interosseous route and force-sharing
-representation. The next correction must begin with a bilateral moment-arm and
-attachment audit against open anatomical evidence. Adding another arbitrary
+The expanded bilateral audit covers every source actuator crossing these DoFs.
+EDC5 and the radial interosseous have the required opposing moment-arm sign but
+remain essentially unloaded; EDM is saturated while its independent distal
+route adds torque of the wrong sign. A temporary source experiment also
+enabled MyoSim's commented fifth-MCP FDP wrap. It increased neutral FDP5 path
+length from 0.37993 m to 0.41512 m while leaving the 0.002558 m ab/adduction
+moment arm unchanged, so that edit was rejected rather than promoted.
+
+This localizes the missing owner to extensor-hood/interosseous force sharing.
+The open 2025 fiber-bundle study describes the medial band, radial and ulnar
+lateral bands, hood, intercrossing fibers, transverse retinacular ligament, and
+triangular ligament as a posture-dependent elastic network. It reports band
+Young's moduli of 65--157 MPa and band areas of 0.3--1.8 mm2, with 0.01 mm2
+intercrossing fibers:
+<https://pmc.ncbi.nlm.nih.gov/articles/PMC12271525/>. That is the appropriate
+mechanical family for the next implementation. Adding another arbitrary joint
 spring would hide the error without repairing tendon-to-bone mechanics.
 
 ## Evidence boundary

@@ -9,7 +9,8 @@
   "passive_coordinate_coupling_count": 40,
   "source_urls": {
     "wrist_stiffness": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3424077/",
-    "finger_stiffness": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10869888/"
+    "finger_stiffness": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10869888/",
+    "extensor_hood_fiber_network": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12271525/"
   },
   "wrist_stiffness_newton_meters_per_radian": {
     "coordinate_order": ["flexion", "deviation"],
@@ -81,6 +82,47 @@
       "dominant_source_muscles": [309, 334, 317]
     }
   ],
+  "fifth_ray_antagonist_audit": {
+    "right_source_dof": 59,
+    "left_source_dof": 97,
+    "source_coordinate": "mcp5_abduction",
+    "source_moment_arms_meter": {
+      "FDS5": 0.00401699174569,
+      "FDP5": 0.00255771972839,
+      "EDC5": -0.00322399638613,
+      "EDM": 0.00080423243993,
+      "RI5": -0.00374033984782,
+      "LU_RB5": -0.00649437188636,
+      "UI_UB5": 0.0063699202705
+    },
+    "right_activation": {
+      "FDS5": 0.0200331136584,
+      "FDP5": 0.595369935036,
+      "EDC5": 0.0,
+      "EDM": 1.0,
+      "RI5": 0.0,
+      "LU_RB5": 0.0,
+      "UI_UB5": 0.0
+    },
+    "left_activation": {
+      "FDS5": 0.0186799224466,
+      "FDP5": 0.591264665127,
+      "EDC5": 0.0,
+      "EDM": 1.0,
+      "RI5": 0.0,
+      "LU_RB5": 0.0,
+      "UI_UB5": 0.0
+    },
+    "bilateral_source_moment_arm_parity": "bitwise_with_mirrored_geometry",
+    "rejected_source_experiment": {
+      "change": "enable_commented_FDP5_fifth_mcp_wrap_bilaterally",
+      "neutral_path_length_before_meter": 0.379932564185,
+      "neutral_path_length_after_meter": 0.415123651767,
+      "ab_adduction_moment_arm_before_meter": 0.00255771972839,
+      "ab_adduction_moment_arm_after_meter": 0.00255771972839,
+      "status": "rejected_no_mechanical_fix_and_force_length_corruption_risk"
+    }
+  },
   "remaining_blocker": "source_extensor_hood_interosseous_route_and_force_sharing",
   "boundary": "linearized_static_preflight_not_internal_balance_dynamic_tissue_contact_or_sustained_motion",
   "gates": {
