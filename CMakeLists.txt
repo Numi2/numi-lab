@@ -1509,6 +1509,7 @@ target_compile_definitions(
     PRIVATE
         NUMI_HUMAN_PASSIVE_TISSUE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/passive_skeletal_muscle_unqualified.nmatter"
         NUMI_HUMAN_PECTORALIS_FASCIA_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_pectoralis_fascia_goh_uniaxial.nmatter"
+        NUMI_HUMAN_THORACOLUMBAR_FASCIA_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_thoracolumbar_fascia_effective_isotropic.nmatter"
         NUMI_HUMAN_PLANTAR_FASCIA_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_plantar_fascia_reduced.nmatter"
         NUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/open_knee_ligament_isotropic_preflight.nmatter"
         NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"

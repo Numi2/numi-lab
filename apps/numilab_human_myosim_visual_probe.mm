@@ -184,9 +184,10 @@ constexpr std::array<char, 8u> kMultiBodySoftTissueMagic{
 };
 constexpr std::uint32_t kMultiBodySoftTissuePayloadAbi = 4u;
 constexpr std::array<char, 8u> kPectoralisFasciaMagic{
-    'N', 'H', 'F', 'A', 'S', 'C', '2', '\0',
+    'N', 'H', 'F', 'A', 'S', 'C', '3', '\0',
 };
-constexpr std::uint32_t kPectoralisFasciaPayloadAbi = 2u;
+constexpr std::uint32_t kPectoralisFasciaPayloadAbi = 3u;
+constexpr std::uint32_t kFasciaRouteBodyBit = 1u << 31u;
 constexpr std::array<char, 8u> kRouteSoftTissueMagic{
     'N', 'H', 'T', 'I', 'S', 'S', '4', '\0',
 };
@@ -1893,7 +1894,7 @@ LoadedPectoralisFascia loadPectoralisFascia(
     readObject(input, result.header, "pectoralis fascia header");
     require(result.header.magic == kPectoralisFasciaMagic &&
                 result.header.payloadAbi == kPectoralisFasciaPayloadAbi &&
-                result.header.regionCount == 6u &&
+                result.header.regionCount == 12u &&
                 result.header.nodeCount > 0u && result.header.nodeCount <= 100'000u &&
                 result.header.tetrahedronCount > 0u &&
                 result.header.tetrahedronCount <= 300'000u &&
@@ -1928,6 +1929,10 @@ LoadedPectoralisFascia loadPectoralisFascia(
     for (std::uint32_t regionIndex = 0u;
          regionIndex < result.regions.size(); ++regionIndex) {
         const PectoralisFasciaRegion& region = result.regions[regionIndex];
+        const bool routeRegion =
+            (region.softTissueStableId & kFasciaRouteBodyBit) != 0u;
+        const std::uint32_t routeBody =
+            region.softTissueStableId & ~kFasciaRouteBodyBit;
         const auto tissue = std::find_if(
             tissues.records.begin(), tissues.records.end(),
             [&region](const SoftTissueRecord& value) {
@@ -1942,10 +1947,11 @@ LoadedPectoralisFascia loadPectoralisFascia(
                     region.tetrahedronCount >= 1u &&
                     region.tetrahedronCount <=
                         result.tetrahedra.size() - region.firstTetrahedron &&
-                    region.softTissueStableId > 0u &&
-                    tissue != tissues.records.end() &&
-                    tissue->layer == kSoftTissueLayerMuscle &&
-                    tissue->vertexCount >= region.nodeCount / 2u,
+                    ((routeRegion && routeBody < muscles.header.engineBodyCount) ||
+                     (!routeRegion && region.softTissueStableId > 0u &&
+                      tissue != tissues.records.end() &&
+                      tissue->layer == kSoftTissueLayerMuscle &&
+                      tissue->vertexCount >= region.nodeCount / 2u)),
                 "pectoralis fascia region is inconsistent with native source surfaces");
         expectedFirstNode += region.nodeCount;
         expectedFirstTetrahedron += region.tetrahedronCount;
@@ -1956,6 +1962,8 @@ LoadedPectoralisFascia loadPectoralisFascia(
     for (std::uint32_t index = 0u; index < result.nodes.size(); ++index) {
         const PectoralisFasciaNode& node = result.nodes[index];
         const PectoralisFasciaRegion& region = result.regions.at(node.regionIndex);
+        const bool routeRegion =
+            (region.softTissueStableId & kFasciaRouteBodyBit) != 0u;
         const auto tissue = std::find_if(
             tissues.records.begin(), tissues.records.end(),
             [&region](const SoftTissueRecord& value) {
@@ -1968,8 +1976,10 @@ LoadedPectoralisFascia loadPectoralisFascia(
                     std::all_of(std::begin(node.sourcePosition),
                                 std::end(node.sourcePosition),
                                 [](float value) { return std::isfinite(value); }) &&
-                    tissue != tissues.records.end() &&
-                    node.sourceVertexIndex < tissue->vertexCount,
+                    ((routeRegion &&
+                      node.sourceVertexIndex < muscles.header.siteCount) ||
+                     (!routeRegion && tissue != tissues.records.end() &&
+                      node.sourceVertexIndex < tissue->vertexCount)),
                 "pectoralis fascia node is malformed");
     }
     for (const PectoralisFasciaTetrahedron& tetrahedron : result.tetrahedra) {
@@ -1986,31 +1996,41 @@ LoadedPectoralisFascia loadPectoralisFascia(
         require(triangle.regionIndex < result.regions.size(),
                 "pectoralis fascia presentation region is malformed");
         const auto& region = result.regions[triangle.regionIndex];
+        const bool routeRegion =
+            (region.softTissueStableId & kFasciaRouteBodyBit) != 0u;
         const auto tissue = std::find_if(
             tissues.records.begin(), tissues.records.end(),
             [&region](const SoftTissueRecord& value) {
                 return value.stableId == region.softTissueStableId;
             }
         );
-        require(tissue != tissues.records.end() &&
-                    std::all_of(
+        require(((routeRegion && std::all_of(
+                        std::begin(triangle.sourceVertex),
+                        std::end(triangle.sourceVertex),
+                        [&region](const std::uint32_t index) {
+                            return index < region.nodeCount / 2u;
+                        })) ||
+                    (!routeRegion && tissue != tissues.records.end() &&
+                     std::all_of(
                         std::begin(triangle.sourceVertex),
                         std::end(triangle.sourceVertex),
                         [&tissue](const std::uint32_t index) {
                             return index < tissue->vertexCount;
-                        }
-                    ) &&
+                        }))) &&
                     triangle.sourceVertex[0] != triangle.sourceVertex[1] &&
                     triangle.sourceVertex[0] != triangle.sourceVertex[2] &&
                     triangle.sourceVertex[1] != triangle.sourceVertex[2],
                 "pectoralis fascia exact anterior presentation triangle is malformed");
         ++presentationCount[triangle.regionIndex];
     }
-    require(std::all_of(
-                presentationCount.begin(), presentationCount.end(),
-                [](const std::uint32_t count) { return count >= 32u; }
-            ),
-            "pectoralis fascia presentation does not cover all six regions");
+    for (std::uint32_t regionIndex = 0u;
+         regionIndex < result.regions.size(); ++regionIndex) {
+        const bool routeRegion =
+            (result.regions[regionIndex].softTissueStableId &
+             kFasciaRouteBodyBit) != 0u;
+        require(presentationCount[regionIndex] >= (routeRegion ? 4u : 32u),
+                "pectoralis fascia presentation does not cover all twelve regions");
+    }
     return result;
 }
 
@@ -7778,56 +7798,92 @@ PectoralisFasciaVisual runPectoralisFascia(
     worldSource.environmentCount = 1u;
     worldSource.frameTimestep = timestepSeconds;
     worldSource.gravity = {0.0, 0.0, 0.0};
-    worldSource.mixedSolver.newtonIterations = 8u;
-    worldSource.mixedSolver.fgmresIterations = 20u;
+    worldSource.mixedSolver.newtonIterations = 12u;
+    worldSource.mixedSolver.fgmresRestart = 16u;
+    worldSource.mixedSolver.fgmresIterations = 64u;
+    worldSource.mixedSolver.lineSearchSteps = 12u;
     auto material = numi::matter::parseMatterFile(
         NUMI_HUMAN_PECTORALIS_FASCIA_MATERIAL
     );
     require(material.succeeded(), "human pectoralis fascia Matter material did not parse");
     worldSource.materials.push_back(std::move(material.material));
-    numi::matter::ObjectSource object;
-    object.name = "bodyparts3d_generated_pectoralis_fascia_fallback";
-    object.materialIndex = 0u;
-    object.representation = numi::matter::Representation::fem;
-    object.mixedFEM = false;
-    object.deformableSelfContact = false;
-    object.characteristicLength = 0.005;
+    auto thoracolumbarMaterial = numi::matter::parseMatterFile(
+        NUMI_HUMAN_THORACOLUMBAR_FASCIA_MATERIAL
+    );
+    require(thoracolumbarMaterial.succeeded(),
+            "human thoracolumbar fascia Matter material did not parse");
+    worldSource.materials.push_back(std::move(thoracolumbarMaterial.material));
+    std::array<numi::matter::ObjectSource, 2u> objects;
+    objects[0u].name = "bodyparts3d_generated_pectoralis_fascia_fallback";
+    objects[0u].materialIndex = 0u;
+    objects[1u].name = "myosim_route_derived_latissimus_aponeurosis_fallback";
+    objects[1u].materialIndex = 1u;
+    for (auto& object : objects) {
+        object.representation = numi::matter::Representation::fem;
+        object.mixedFEM = false;
+        object.deformableSelfContact = false;
+        object.characteristicLength = 0.005;
+    }
+    // The route-derived posterior object is a 0.6 mm sheet.  Use that actual
+    // through-thickness scale for nondimensionalization; the 5 mm pectoral
+    // scale leaves this higher-modulus object unnecessarily ill-conditioned.
+    objects[1u].characteristicLength = 0.00175;
+    std::array<std::uint32_t, 2u> objectGlobalNodeBase{
+        0u, fascia.regions.at(6u).firstNode};
 
     for (std::uint32_t regionIndex = 0u;
          regionIndex < fascia.regions.size(); ++regionIndex) {
         const PectoralisFasciaRegion& region = fascia.regions[regionIndex];
-        result.sourceStableIds.push_back(region.softTissueStableId);
+        const bool routeRegion =
+            (region.softTissueStableId & kFasciaRouteBodyBit) != 0u;
+        const std::uint32_t objectIndex = routeRegion ? 1u : 0u;
+        auto& object = objects[objectIndex];
+        const std::uint32_t sourceBodyIndex =
+            region.softTissueStableId & ~kFasciaRouteBodyBit;
+        if (!routeRegion) result.sourceStableIds.push_back(region.softTissueStableId);
         const auto tissueIterator = std::find_if(
             tissues.records.begin(), tissues.records.end(),
             [&region](const SoftTissueRecord& value) {
                 return value.stableId == region.softTissueStableId;
             }
         );
-        require(tissueIterator != tissues.records.end(),
+        require(routeRegion || tissueIterator != tissues.records.end(),
                 "pectoralis fascia source surface is unavailable");
-        const SoftTissueRecord& tissue = *tissueIterator;
         const std::uint32_t layerWidth = region.nodeCount / 2u;
         for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
             const std::uint32_t global = region.firstNode + local;
             const PectoralisFasciaNode& node = fascia.nodes[global];
-            const SoftTissueVertex& source =
-                tissues.vertices[tissue.firstVertex + node.sourceVertexIndex];
-            mr_float4 point = softTissueVertexBlendedWorld(
-                tissue, source, fasciaReferenceBodies);
-            if (local >= layerWidth) {
-                const mr_float4 normal = softTissueVertexBlendedNormalWorld(
-                    tissue, source, fasciaReferenceBodies
-                );
-                point.x -= fascia.header.thicknessMeters * normal.x;
-                point.y -= fascia.header.thicknessMeters * normal.y;
-                point.z -= fascia.header.thicknessMeters * normal.z;
+            mr_float4 point{};
+            if (routeRegion) {
+                require(sourceBodyIndex < fasciaReferenceBodies.size(),
+                        "thoracolumbar fascia source body is unavailable");
+                const MRBodyStateGPU& body = fasciaReferenceBodies[sourceBodyIndex];
+                point = femAdd(body.position, rotatePoint(body.orientation, {
+                    node.sourcePosition[0], node.sourcePosition[1],
+                    node.sourcePosition[2], 0.0f,
+                }));
+            } else {
+                const SoftTissueRecord& tissue = *tissueIterator;
+                const SoftTissueVertex& source =
+                    tissues.vertices[tissue.firstVertex + node.sourceVertexIndex];
+                point = softTissueVertexBlendedWorld(
+                    tissue, source, fasciaReferenceBodies);
+                if (local >= layerWidth) {
+                    const mr_float4 normal = softTissueVertexBlendedNormalWorld(
+                        tissue, source, fasciaReferenceBodies
+                    );
+                    point.x -= fascia.header.thicknessMeters * normal.x;
+                    point.y -= fascia.header.thicknessMeters * normal.y;
+                    point.z -= fascia.header.thicknessMeters * normal.z;
+                }
             }
             point.w = 1.0f;
             result.restNodes[global] = point;
             result.nodes[global] = point;
             object.femNodes.push_back({point.x, point.y, point.z});
             if ((node.flags & 1u) != 0u) {
-                object.femFixedNodes.push_back(global);
+                object.femFixedNodes.push_back(
+                    global - objectGlobalNodeBase[objectIndex]);
                 ++result.fixedNodeCount;
             }
             if ((node.flags & 2u) != 0u) ++result.loadNodeCount;
@@ -7879,19 +7935,39 @@ PectoralisFasciaVisual runPectoralisFascia(
         };
         const mr_float4 endpoint0 = endpointWorld(candidateBindings[0]);
         const mr_float4 endpoint1 = endpointWorld(candidateBindings[1]);
-        const float assignment0 =
-            femLength(femSubtract(endpoint0, loadCentroid)) +
-            femLength(femSubtract(endpoint1, fixedCentroid));
-        const float assignment1 =
-            femLength(femSubtract(endpoint1, loadCentroid)) +
-            femLength(femSubtract(endpoint0, fixedCentroid));
-        require(std::isfinite(assignment0) && std::isfinite(assignment1) &&
-                    std::abs(assignment0 - assignment1) > 1.0e-5f,
-                "pectoralis source terminal/boundary assignment is ambiguous");
-        const std::uint32_t loadBindingIndex = assignment0 <= assignment1
-            ? candidateBindings[0] : candidateBindings[1];
-        const std::uint32_t anchorBindingIndex = loadBindingIndex == candidateBindings[0]
-            ? candidateBindings[1] : candidateBindings[0];
+        std::uint32_t loadBindingIndex = MR_INVALID_INDEX;
+        std::uint32_t anchorBindingIndex = MR_INVALID_INDEX;
+        if (routeRegion) {
+            for (const std::uint32_t bindingIndex : candidateBindings) {
+                const auto& binding = muscles.tendonPayload.bindings[bindingIndex];
+                if (binding.bodyIndex == sourceBodyIndex) {
+                    require(anchorBindingIndex == MR_INVALID_INDEX,
+                            "thoracolumbar fascia has multiple source-body terminals");
+                    anchorBindingIndex = bindingIndex;
+                } else {
+                    require(loadBindingIndex == MR_INVALID_INDEX,
+                            "thoracolumbar fascia has multiple load-body terminals");
+                    loadBindingIndex = bindingIndex;
+                }
+            }
+            require(anchorBindingIndex != MR_INVALID_INDEX &&
+                        loadBindingIndex != MR_INVALID_INDEX,
+                    "thoracolumbar fascia terminal ownership is incomplete");
+        } else {
+            const float assignment0 =
+                femLength(femSubtract(endpoint0, loadCentroid)) +
+                femLength(femSubtract(endpoint1, fixedCentroid));
+            const float assignment1 =
+                femLength(femSubtract(endpoint1, loadCentroid)) +
+                femLength(femSubtract(endpoint0, fixedCentroid));
+            require(std::isfinite(assignment0) && std::isfinite(assignment1) &&
+                        std::abs(assignment0 - assignment1) > 1.0e-5f,
+                    "pectoralis source terminal/boundary assignment is ambiguous");
+            loadBindingIndex = assignment0 <= assignment1
+                ? candidateBindings[0] : candidateBindings[1];
+            anchorBindingIndex = loadBindingIndex == candidateBindings[0]
+                ? candidateBindings[1] : candidateBindings[0];
+        }
         const mr_float4 loadEndpoint = endpointWorld(loadBindingIndex);
         const mr_float4 anchorEndpoint = endpointWorld(anchorBindingIndex);
         require(
@@ -7955,8 +8031,11 @@ PectoralisFasciaVisual runPectoralisFascia(
     // not fascia self-contact. Limiting contact eligibility to one fixed
     // witness prevents the two 0.6 mm shell faces from being misclassified as
     // penetrating while retaining a non-empty, structurally valid FEM list.
-    require(!object.femFixedNodes.empty(), "pectoralis fascia has no fixed contact witness");
-    object.femContactNodes = {object.femFixedNodes.front()};
+    for (auto& object : objects) {
+        require(!object.femFixedNodes.empty(),
+                "thoracic fascia object has no fixed contact witness");
+        object.femContactNodes = {object.femFixedNodes.front()};
+    }
     for (const PectoralisFasciaTetrahedron& source : fascia.tetrahedra) {
         std::array<std::uint32_t, 4u> tetrahedron{
             source.node[0], source.node[1], source.node[2], source.node[3],
@@ -7966,7 +8045,15 @@ PectoralisFasciaVisual runPectoralisFascia(
                 "posed pectoralis fascia tetrahedron is degenerate");
         if (volume < 0.0) std::swap(tetrahedron[0], tetrahedron[1]);
         orientedTetrahedra.push_back(tetrahedron);
-        object.tetrahedra.push_back({tetrahedron});
+        const std::uint32_t objectIndex = source.regionIndex >= 6u ? 1u : 0u;
+        const std::uint32_t nodeBase = objectGlobalNodeBase[objectIndex];
+        std::array<std::uint32_t, 4u> localTetrahedron = tetrahedron;
+        for (std::uint32_t& node : localTetrahedron) {
+            require(node >= nodeBase,
+                    "thoracic fascia tetrahedron crosses material objects");
+            node -= nodeBase;
+        }
+        objects[objectIndex].tetrahedra.push_back({localTetrahedron});
     }
     std::map<std::array<std::uint32_t, 3u>,
              std::pair<std::uint32_t, std::array<std::uint32_t, 3u>>> faces;
@@ -7987,7 +8074,8 @@ PectoralisFasciaVisual runPectoralisFascia(
     for (const auto& [_, entry] : faces) {
         if (entry.first == 1u) result.surfaceTriangles.push_back(entry.second);
     }
-    worldSource.objects.push_back(std::move(object));
+    for (auto& object : objects)
+        worldSource.objects.push_back(std::move(object));
     numi::matter::CompileOptions compileOptions;
     compileOptions.maximumRateExponent = 0u;
     auto compiled = numi::matter::compileWorld(worldSource, compileOptions);
@@ -8036,7 +8124,13 @@ PectoralisFasciaVisual runPectoralisFascia(
         model, muscles, supportContacts, jointEqualities, timestepSeconds,
         stepCount, activation, selectedSourceMuscleIndices,
         applySelectedActivationIncrement, enableRootAssistance,
-        removeRootAssistance, true, &transaction
+        // A conservative fascia/aponeurosis solve may return the same
+        // instantaneous generalized anchor load as the source J^T term it
+        // replaces.  In that valid limit q/v is bitwise-identical even though
+        // the continuum carried load.  The nonzero fixed-node reactions,
+        // deformation, transaction accounting, replay, and rollback gates
+        // below are the direct force-transfer certificate.
+        removeRootAssistance, true, &transaction, std::nullopt, false
     );
     const auto accepted = transaction.accepted;
     require(accepted.available && accepted.femNodes.size() == result.nodes.size(),
@@ -8099,17 +8193,29 @@ PectoralisFasciaVisual runPectoralisFascia(
                 adapterDiagnostics.abortCount == 1u,
             "pectoralis fascia adapter transaction accounting is incomplete: " +
                 adapterDiagnostics.message);
-    id<MTLBuffer> matterStatusBuffer =
-        (__bridge id<MTLBuffer>)runtime.statusBuffer();
-    auto* statuses = static_cast<NMMatterStatusGPU*>(matterStatusBuffer.contents);
-    require(statuses != nullptr && statuses[0].code == NM_STATUS_SUCCESS,
+    require(accepted.statuses.size() == 1u,
+            "pectoralis fascia accepted Matter status is unavailable");
+    const NMMatterStatusGPU& acceptedStatus = accepted.statuses.front();
+    require(acceptedStatus.code == NM_STATUS_SUCCESS,
             "pectoralis fascia Matter transaction failed status=" +
-                std::to_string(statuses == nullptr ? NM_STATUS_INVALID_DISPATCH : statuses[0].code) +
-                " object=" + std::to_string(statuses == nullptr ? MR_INVALID_INDEX : statuses[0].objectIndex) +
-                " index=" + std::to_string(statuses == nullptr ? MR_INVALID_INDEX : statuses[0].failingIndex));
+                std::to_string(acceptedStatus.code) +
+                " object=" + std::to_string(acceptedStatus.objectIndex) +
+                " index=" + std::to_string(acceptedStatus.failingIndex) +
+                " completed_microsteps=" +
+                std::to_string(acceptedStatus.completedMicrosteps) +
+                " fgmres_iterations=" +
+                std::to_string(acceptedStatus.fgmresIterations) +
+                " minimum_J=" +
+                std::to_string(acceptedStatus.diagnostics.x) +
+                " residual=" +
+                std::to_string(acceptedStatus.diagnostics.z) +
+                " assembled_force_l1_n=" +
+                std::to_string(adapterDiagnostics.assembledExternalForceL1Newtons) +
+                " assembled_resultant_n=" +
+                std::to_string(adapterDiagnostics.assembledExternalForceResultantNewtons));
     result.completedSteps = driven.persistentCompletedSteps;
-    result.fgmresIterations = statuses[0].fgmresIterations;
-    result.minimumDeterminant = statuses[0].diagnostics.x;
+    result.fgmresIterations = acceptedStatus.fgmresIterations;
+    result.minimumDeterminant = acceptedStatus.diagnostics.x;
     result.deterministicReplayVerified = transaction.replayVerified;
     result.rollbackVerified = transaction.rollbackVerified;
     // The fascia solve is encoded inside the owning Human command-buffer
@@ -8156,6 +8262,52 @@ PectoralisFasciaVisual runPectoralisFascia(
     for (std::uint32_t regionIndex = 0u;
          regionIndex < fascia.regions.size(); ++regionIndex) {
         const PectoralisFasciaRegion& region = fascia.regions[regionIndex];
+        const bool routeRegion =
+            (region.softTissueStableId & kFasciaRouteBodyBit) != 0u;
+        if (routeRegion) {
+            const std::uint32_t layerWidth = region.nodeCount / 2u;
+            require(layerWidth >= 6u && 2u * layerWidth == region.nodeCount,
+                    "thoracolumbar fascia presentation layer is malformed");
+            std::vector<std::uint32_t> localToPresentation(
+                layerWidth, MR_INVALID_INDEX);
+            for (std::uint32_t local = 0u; local < layerWidth; ++local) {
+                const std::uint32_t global = region.firstNode + local;
+                localToPresentation[local] = static_cast<std::uint32_t>(
+                    result.anatomicalSurfaceNodes.size());
+                result.anatomicalSurfaceNodes.push_back(result.nodes[global]);
+                result.anatomicalSurfaceRestNormals.push_back(
+                    {0.0f, 0.0f, 1.0f, 0.0f});
+                ++result.anatomicallyDeformedVertexCount;
+                ++mappedVertexCount;
+            }
+            std::uint32_t triangleCount = 0u;
+            for (const auto& sourceTriangle : fascia.presentationTriangles) {
+                if (sourceTriangle.regionIndex != regionIndex) continue;
+                require(sourceTriangle.sourceVertex[0] < layerWidth &&
+                            sourceTriangle.sourceVertex[1] < layerWidth &&
+                            sourceTriangle.sourceVertex[2] < layerWidth,
+                        "thoracolumbar fascia presentation index escaped its FEM layer");
+                std::array<std::uint32_t, 3u> triangle{
+                    localToPresentation[sourceTriangle.sourceVertex[0]],
+                    localToPresentation[sourceTriangle.sourceVertex[1]],
+                    localToPresentation[sourceTriangle.sourceVertex[2]],
+                };
+                result.anatomicalSurfaceTriangles.push_back(triangle);
+                const mr_float4 normal = femCross(
+                    femSubtract(result.anatomicalSurfaceNodes[triangle[1]],
+                                result.anatomicalSurfaceNodes[triangle[0]]),
+                    femSubtract(result.anatomicalSurfaceNodes[triangle[2]],
+                                result.anatomicalSurfaceNodes[triangle[0]])
+                );
+                for (const std::uint32_t vertex : triangle) {
+                    result.anatomicalSurfaceRestNormals[vertex] = normal;
+                }
+                ++triangleCount;
+            }
+            require(triangleCount > 0u,
+                    "thoracolumbar fascia presentation topology drifted");
+            continue;
+        }
         const auto tissueIterator = std::find_if(
             tissues.records.begin(), tissues.records.end(),
             [&region](const SoftTissueRecord& value) {
@@ -11226,7 +11378,7 @@ int main(int argc, char** argv) {
                           << " [--passive-fem-tissue-stable-id <1..N>]"
                           << " [--passive-fem-step-count <1..64>]"
                           << " [--passive-fem-metallib <NumiMatter.metallib>]"
-                          << " [--pectoralis-fascia-payload <NHFASC2>]"
+                          << " [--pectoralis-fascia-payload <NHFASC3>]"
                           << " [--pectoralis-fascia-step-count <1..64>]"
                           << " [--visible-bone-body-index <0..156>]..."
                           << " [--visible-bone-stable-id <1..NHBONES1 bone count>]..."
