@@ -42,6 +42,11 @@ struct NumiHumanTendonFEMLoadSource {
     std::span<const NMNumiHumanFEMContactContributionGPU>
         contactContributions{};
     std::span<const NMIncidenceRangeGPU> contactRanges{};
+    // Optional exact-surface elastic-foundation contact scattered directly as
+    // balanced articulated-body wrenches. This avoids duplicating the contact
+    // compliance with a full-resolution cartilage volume solve.
+    std::span<const NMNumiHumanArticularContactSampleGPU>
+        articularContactSamples{};
     std::uint32_t endpointCount = 0u;
     std::uint32_t environmentCount = 1u;
     float productionForceOwnerFraction = 0.0f;
@@ -62,6 +67,7 @@ struct NumiHumanTendonFEMLoadDiagnostics {
     double assembledExternalForceL1Newtons = 0.0;
     double assembledExternalForceResultantNewtons = 0.0;
     std::uint32_t contactSampleCount = 0u;
+    std::uint32_t articularContactSampleCount = 0u;
     std::string message;
 };
 

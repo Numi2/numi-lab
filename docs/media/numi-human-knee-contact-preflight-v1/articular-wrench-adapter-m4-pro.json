@@ -1,0 +1,16 @@
+{
+  "schema": "numilab.human.articular-contact-wrench-transaction-fixture.v1",
+  "device": "Apple M4 Pro",
+  "base_revision": "4b4d98b",
+  "contact_sample_count": 1,
+  "contact_law": "exact_surface_fixed_correspondence_elastic_foundation",
+  "measured_generalized_force_correction": 0.9999,
+  "fem_state_ab": "bitwise",
+  "malformed_same_body_contact_rejected": true,
+  "replay": "bitwise",
+  "rollback": "verified",
+  "encoded_pass_count": 3,
+  "evidence_level": "one_step",
+  "anatomical_contact": false,
+  "evidence_boundary": "Synthetic two-body fixture proving balanced per-body articular force and torque reduction plus body-Jacobian generalized-force scatter inside the existing Human tendon/FEM transaction. The A/B run changes generalized force by 0.9999 while leaving the Matter FEM state bitwise identical. It is not Open Knee anatomy, current-surface search, unilateral nonpenetration, sustained motion, or clinical validation."
+}

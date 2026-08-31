@@ -88,10 +88,10 @@ same-transaction force transfer, not current-surface search, an implicit
 contact solve, or unilateral nonpenetration.
 
 A fresh Apple M4 Pro one-tetrahedron fixture passed with one contact sample:
-the slave moved `19.8297 um` in the repulsive direction, combined anchor
-reaction was `0.329908 N`, the NHTENDON full-row result remained `0.548276`, a
-malformed contribution table failed initialization, peak replay was bitwise,
-and rejected-step rollback was verified. The machine-readable receipt is
+the slave moved `19.8344 um` in the repulsive direction, combined anchor
+reaction was `14.0519 N`, the combined NHTENDON/articular full-row result was
+`-12.4389`, a malformed contribution table failed initialization, peak replay
+was bitwise, and rejected-step rollback was verified. The machine-readable receipt is
 [`internal-contact-adapter-m4-pro.json`](media/numi-human-knee-contact-preflight-v1/internal-contact-adapter-m4-pro.json).
 
 This fixture proves transaction composition only. It does not promote either
@@ -99,3 +99,31 @@ knee because it has one synthetic tetrahedron rather than the 69,701 exact
 Open Knee contact samples. Anatomical promotion still requires adding the four
 cartilage and two meniscus volumes to the live knee Matter world and cooking
 their exact contact incidences into this adapter.
+
+## Reduced exact-surface articular wrench path
+
+A full-resolution 12-region experiment admitted the exact six articular
+volumes (194,729 total live nodes and 844,287 tetrahedra) and all 69,701
+contact samples, but did not finish one replay-qualified step inside a
+30-minute M4 Pro smoke bound. That path was rejected rather than promoted.
+
+ABI 6 therefore adds a reduced path consistent with the existing
+elastic-foundation law. Each cooked sample stores exact slave and closest
+master points in their owning bone frames, the master-frame normal, tributary
+area, reference separation, and foundation stiffness. Metal evaluates closure,
+reduces equal/opposite sample forces and moments to per-body wrenches, and
+scatters those wrenches through the existing articulated-body Jacobians. It
+uses the same borrowed command buffer, status, generalized-force arena,
+replay, and rollback boundary; it does not create a second solver or CPU loop.
+
+The M4 Pro two-body A/B fixture measured a `0.9999` generalized-force
+correction while the Matter FEM state remained bitwise identical to the
+no-articular-contact run. Same-body ownership failed initialization, and replay
+and rollback passed. The receipt is
+[`articular-wrench-adapter-m4-pro.json`](media/numi-human-knee-contact-preflight-v1/articular-wrench-adapter-m4-pro.json).
+
+This is transaction infrastructure, not anatomical promotion. The next gate
+is to cook both Open Knee payloads into these bone-local samples, verify
+force/moment balance and pressure/area bounds, and run sustained loaded
+flexion. Meniscus relative motion and fluid/poroelastic effects remain future
+continuum refinements rather than claims of this reduced v1 law.

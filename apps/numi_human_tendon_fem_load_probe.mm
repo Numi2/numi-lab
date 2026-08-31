@@ -105,6 +105,17 @@ int main() {
             contactSample.normalAndArea = {
                 0.0f, 0.0f, 1.0f, 1.0e-5f};
             contactSample.stiffness = {1.0e8f, 0.0f, 0.0f, 0.0f};
+            NMNumiHumanArticularContactSampleGPU articularContactSample{};
+            articularContactSample.slaveBodyIndex = 0u;
+            articularContactSample.masterBodyIndex = 1u;
+            articularContactSample.flags =
+                NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE;
+            articularContactSample.slaveLocalPointAndArea = {
+                0.0f, 0.0f, 0.0f, 1.0e-4f};
+            articularContactSample.masterLocalPointAndReferenceSeparation = {
+                0.0f, 0.0f, 0.0f, 0.002f};
+            articularContactSample.masterLocalNormalAndStiffness = {
+                1.0f, 0.0f, 0.0f, 1.0e7f};
             const std::array<NMNumiHumanFEMContactContributionGPU, 4u>
                 contactContributions{{
                     {.sampleIndex = 0u, .role = 1u},
@@ -128,6 +139,8 @@ int main() {
                         .contactSamples = std::span(&contactSample, 1u),
                         .contactContributions = invalidContactContributions,
                         .contactRanges = contactRanges,
+                        .articularContactSamples =
+                            std::span(&articularContactSample, 1u),
                         .endpointCount = 2u,
                         .environmentCount = 1u,
                         .productionForceOwnerFraction = 0.1f,
@@ -135,8 +148,48 @@ int main() {
                         .metallib = NUMI_MATTER_METALLIB,
                     }),
                     "probe malformed contact incidence did not fail closed");
+            auto invalidArticularContact = articularContactSample;
+            invalidArticularContact.masterBodyIndex =
+                invalidArticularContact.slaveBodyIndex;
+            numi::matter::NumiHumanTendonFEMLoadAdapter
+                rejectedArticularAdapter;
+            require(!rejectedArticularAdapter.initialize(runtime, {
+                        .nodeLoads = nodeLoads,
+                        .nodeAnchors = nodeAnchors,
+                        .endpointReplacements = std::span(&replacement, 1u),
+                        .contactSamples = std::span(&contactSample, 1u),
+                        .contactContributions = contactContributions,
+                        .contactRanges = contactRanges,
+                        .articularContactSamples =
+                            std::span(&invalidArticularContact, 1u),
+                        .endpointCount = 2u,
+                        .environmentCount = 1u,
+                        .productionForceOwnerFraction = 0.1f,
+                    }, {
+                        .metallib = NUMI_MATTER_METALLIB,
+                    }),
+                    "probe malformed articular contact did not fail closed");
             numi::matter::NumiHumanTendonFEMLoadAdapter adapter;
             require(adapter.initialize(runtime, {
+                        .nodeLoads = nodeLoads,
+                        .nodeAnchors = nodeAnchors,
+                        .endpointReplacements = std::span(&replacement, 1u),
+                        .contactSamples = std::span(&contactSample, 1u),
+                        .contactContributions = contactContributions,
+                        .contactRanges = contactRanges,
+                        .articularContactSamples =
+                            std::span(&articularContactSample, 1u),
+                        .endpointCount = 2u,
+                        .environmentCount = 1u,
+                        .productionForceOwnerFraction = 0.1f,
+                    }, {
+                        .metallib = NUMI_MATTER_METALLIB,
+                    }),
+                    "probe tendon/FEM adapter did not initialize");
+            const auto program = adapter.program();
+            require(program.valid(), "probe tendon/FEM program is invalid");
+            numi::matter::NumiHumanTendonFEMLoadAdapter baselineAdapter;
+            require(baselineAdapter.initialize(runtime, {
                         .nodeLoads = nodeLoads,
                         .nodeAnchors = nodeAnchors,
                         .endpointReplacements = std::span(&replacement, 1u),
@@ -149,9 +202,10 @@ int main() {
                     }, {
                         .metallib = NUMI_MATTER_METALLIB,
                     }),
-                    "probe tendon/FEM adapter did not initialize");
-            const auto program = adapter.program();
-            require(program.valid(), "probe tendon/FEM program is invalid");
+                    "probe baseline adapter did not initialize");
+            const auto baselineProgram = baselineAdapter.program();
+            require(baselineProgram.valid(),
+                    "probe baseline program is invalid");
 
             id<MTLDevice> device = MTLCreateSystemDefaultDevice();
             id<MTLCommandQueue> queue = [device newCommandQueue];
@@ -193,12 +247,14 @@ int main() {
                 newBufferWithBytes:&stand
                 length:sizeof(stand)
                 options:MTLResourceStorageModeShared];
-            MRArticulatedBodyPoseGPU pose{};
-            pose.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+            std::array<MRArticulatedBodyPoseGPU, 2u> poses{};
+            poses[0u].position.x = 0.001f;
+            poses[0u].orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+            poses[1u].orientation = {0.0f, 0.0f, 0.0f, 1.0f};
             id<MTLBuffer> poseBuffer = [device
-                newBufferWithBytes:&pose length:sizeof(pose)
+                newBufferWithBytes:poses.data() length:sizeof(poses)
                 options:MTLResourceStorageModeShared];
-            std::array<float, 12u> pointJacobians{};
+            std::array<float, 24u> pointJacobians{};
             pointJacobians[0u] = pointJacobians[3u] =
                 pointJacobians[6u] = pointJacobians[9u] = 1.0f;
             id<MTLBuffer> jacobianBuffer = [device
@@ -222,7 +278,9 @@ int main() {
                         runtimeReactionBuffer != nil && reactionReadback != nil,
                     "probe borrowed buffers are unavailable");
 
-            const auto execute = [&](const std::uint32_t step,
+            const auto execute = [&](const auto& activeProgram,
+                                     auto& activeAdapter,
+                                     const std::uint32_t step,
                                      const bool accepted) {
                 stand.code = accepted
                     ? MR_NUMI_HUMAN_STAND_SUCCESS
@@ -251,15 +309,17 @@ int main() {
                 pass.muscleCount = 1u;
                 pass.generalizedForceStride = 1u;
                 pass.generalizedForceOffset = 1u;
-                pass.pointJacobianStride = 12u;
+                pass.pointJacobianStride = 24u;
                 pass.bodyJacobianPointOffset = 0u;
-                pass.bodyPoseStride = 1u;
+                pass.bodyPoseStride = 2u;
                 pass.articulationFirstBody = 0u;
-                if (!program.encodePreDynamics(program.context, pass) ||
-                    !program.encodePostValidation(program.context, pass)) {
+                if (!activeProgram.encodePreDynamics(
+                        activeProgram.context, pass) ||
+                    !activeProgram.encodePostValidation(
+                        activeProgram.context, pass)) {
                     throw std::runtime_error(
                         "probe adapter rejected encoding: " +
-                        adapter.diagnostics().message
+                        activeAdapter.diagnostics().message
                     );
                 }
                 id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
@@ -274,7 +334,7 @@ int main() {
                         "probe command did not complete");
             };
 
-            execute(0u, true);
+            execute(program, adapter, 0u, true);
             const auto accepted = runtime.snapshot();
             require(accepted.available && accepted.femNodes.size() == 4u,
                     "probe accepted snapshot is unavailable");
@@ -311,7 +371,7 @@ int main() {
             const float expectedGeneralizedForce =
                 0.1f * (transfers[0u].terminalWorldForce.x -
                         sourceMuscleRow) +
-                acceptedReactionX;
+                acceptedReactionX + 0.9999f;
             const float acceptedGeneralizedForce =
                 static_cast<const float*>(
                     generalizedForceBuffer.contents)[1u];
@@ -319,7 +379,7 @@ int main() {
                         std::abs(acceptedGeneralizedForce -
                             expectedGeneralizedForce) <= 1.0e-5f,
                     "probe full-muscle-row replacement did not preserve only the load-side reaction");
-            execute(1u, false);
+            execute(program, adapter, 1u, false);
             const auto rolledBack = runtime.snapshot();
             require(rolledBack.available &&
                         std::memcmp(
@@ -330,7 +390,7 @@ int main() {
 
             require(runtime.restore(initial).encoded,
                     "probe initial-state restore failed");
-            execute(0u, true);
+            execute(program, adapter, 0u, true);
             const auto replay = runtime.snapshot();
             const float replayGeneralizedForce =
                 static_cast<const float*>(
@@ -346,10 +406,29 @@ int main() {
                                 sizeof(acceptedReactions.front())) == 0 &&
                         replayGeneralizedForce == acceptedGeneralizedForce,
                     "probe accepted tendon/FEM replay is not bitwise");
+            require(runtime.restore(initial).encoded,
+                    "probe baseline restore failed");
+            execute(baselineProgram, baselineAdapter, 0u, true);
+            const auto baseline = runtime.snapshot();
+            const float baselineGeneralizedForce =
+                static_cast<const float*>(
+                    generalizedForceBuffer.contents)[1u];
+            const float measuredArticularGeneralizedForce =
+                acceptedGeneralizedForce - baselineGeneralizedForce;
+            require(baseline.available &&
+                        std::memcmp(
+                            baseline.femNodes.data(), accepted.femNodes.data(),
+                            accepted.femNodes.size() *
+                                sizeof(NMFEMNodeStateGPU)) == 0 &&
+                        std::isfinite(measuredArticularGeneralizedForce) &&
+                        std::abs(measuredArticularGeneralizedForce - 0.9999f) <=
+                            1.0e-4f,
+                    "probe articular wrench A/B correction is invalid");
             const auto diagnostics = adapter.diagnostics();
             require(diagnostics.initialized && diagnostics.encodedPassCount == 3u &&
                         diagnostics.abortCount == 0u &&
                         diagnostics.contactSampleCount == 1u &&
+                        diagnostics.articularContactSampleCount == 1u &&
                         diagnostics.fingerprint != 0u,
                     "probe adapter diagnostics are incomplete");
             std::cout
@@ -360,7 +439,13 @@ int main() {
                 << " contact_displacement_m="
                 << acceptedContactDisplacement
                 << " contact_samples=" << diagnostics.contactSampleCount
+                << " articular_contact_samples="
+                << diagnostics.articularContactSampleCount
+                << " articular_contact_generalized_force="
+                << measuredArticularGeneralizedForce
+                << " articular_contact_fem_state_ab=bitwise"
                 << " malformed_contact_rejected=true"
+                << " malformed_articular_contact_rejected=true"
                 << " anchor_reaction_l1_n=" << acceptedReactionL1
                 << " full_row_generalized_force=" << acceptedGeneralizedForce
                 << " replay=bitwise rollback=verified"

@@ -2,7 +2,7 @@
 
 #include "numi/matter/shared.h"
 
-#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 5u
+#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 6u
 
 enum NMNumiHumanTendonFEMNodeLoadFlags : nm_u32 {
     NM_NUMI_HUMAN_TENDON_FEM_NODE_LOAD_ACTIVE = 1u << 0u,
@@ -46,7 +46,11 @@ typedef struct NM_ALIGN16 NMNumiHumanTendonFEMLoadDispatchGPU {
     nm_u32 generalizedForceStride;
     nm_u32 generalizedForceOffset;
     nm_u32 muscleCount;
-    nm_u32 contactSampleCount;
+    nm_u32 femContactSampleCount;
+    nm_u32 articularContactSampleCount;
+    nm_u32 reserved1;
+    nm_u32 reserved2;
+    nm_u32 reserved3;
 } NMNumiHumanTendonFEMLoadDispatchGPU;
 
 typedef struct NM_ALIGN16 NMNumiHumanTendonFEMNodeLoadGPU {
@@ -113,11 +117,39 @@ typedef struct NM_ALIGN16 NMNumiHumanFEMContactContributionGPU {
     nm_u32 reserved1;
 } NMNumiHumanFEMContactContributionGPU;
 
+// Exact fixed-correspondence elastic-foundation contact between two articulated
+// bodies. Points and normal are stored in their owning body frames; the live
+// Metal pose supplies current separation. Equal/opposite wrenches are reduced
+// per body before generalized-force scatter.
+typedef struct NM_ALIGN16 NMNumiHumanArticularContactSampleGPU {
+    nm_u32 slaveBodyIndex;
+    nm_u32 masterBodyIndex;
+    nm_u32 flags;
+    nm_u32 reserved0;
+    // xyz slave-body local point; w tributary area [m^2].
+    nm_float4 slaveLocalPointAndArea;
+    // xyz master-body local closest point; w reference signed separation [m].
+    nm_float4 masterLocalPointAndReferenceSeparation;
+    // xyz master-body local unit normal; w pressure/closure stiffness [Pa/m].
+    nm_float4 masterLocalNormalAndStiffness;
+} NMNumiHumanArticularContactSampleGPU;
+
+enum NMNumiHumanArticularContactSampleFlags : nm_u32 {
+    NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE = 1u << 0u,
+};
+
+typedef struct NM_ALIGN16 NMNumiHumanBodyWrenchGPU {
+    nm_float4 force;
+    nm_float4 torque;
+} NMNumiHumanBodyWrenchGPU;
+
 #ifndef __METAL_VERSION__
-static_assert(sizeof(NMNumiHumanTendonFEMLoadDispatchGPU) == 64u);
+static_assert(sizeof(NMNumiHumanTendonFEMLoadDispatchGPU) == 80u);
 static_assert(sizeof(NMNumiHumanTendonFEMNodeLoadGPU) == 32u);
 static_assert(sizeof(NMNumiHumanTendonFEMNodeAnchorGPU) == 32u);
 static_assert(sizeof(NMNumiHumanTendonFEMEndpointReplacementGPU) == 32u);
 static_assert(sizeof(NMNumiHumanFEMContactSampleGPU) == 64u);
 static_assert(sizeof(NMNumiHumanFEMContactContributionGPU) == 16u);
+static_assert(sizeof(NMNumiHumanArticularContactSampleGPU) == 64u);
+static_assert(sizeof(NMNumiHumanBodyWrenchGPU) == 32u);
 #endif

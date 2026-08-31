@@ -76,6 +76,11 @@ reaction scatter, rejection decision, and rollback/replay boundary. This is
 infrastructure evidence, not regional anatomy evidence, so it does not raise
 either knee above `preflight` contact status.
 
+The adapter also has a reduced exact-surface articular-wrench fixture. It
+proves balanced two-body wrench reduction and body-Jacobian scatter without
+changing the Matter FEM state, but it has not yet cooked the bilateral Open
+Knee sample set and therefore does not promote either regional contact gate.
+
 ## Development order
 
 The gate makes the next useful work explicit:
