@@ -1246,6 +1246,10 @@ public:
     // world-space newtons (float4 per environment/node, w = 0). Valid only
     // after an accepted pre-dynamics solve in the same command buffer.
     [[nodiscard]] void* femConstraintReactionBuffer() const noexcept;
+    // Borrowed accepted FEM state for same-command-buffer consumers. The
+    // runtime retains ownership; callers must neither mutate nor retain it
+    // beyond the initialized runtime lifetime.
+    [[nodiscard]] void* femAcceptedNodeBuffer() const noexcept;
     [[nodiscard]] void* parameterBuffer() const noexcept;
     [[nodiscard]] void* identificationLossBuffer() const noexcept;
 

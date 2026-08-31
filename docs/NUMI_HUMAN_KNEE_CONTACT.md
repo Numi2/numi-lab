@@ -69,3 +69,33 @@ Promotion requires live current-surface contact search, unilateral
 nonpenetration, reaction coupling without duplicate force ownership, rejection
 rollback, replay, and a sustained flexion/compression trajectory with bounded
 contact pressure, area, cartilage strain, meniscus strain, and energy.
+
+## Shared Human/Matter transaction infrastructure
+
+The existing Numi Human tendon/FEM adapter now accepts optional internal FEM
+contact samples. Contact does not own a second adapter, command queue, commit,
+or external-force buffer. One Metal kernel evaluates closure from the current
+accepted FEM nodes and accumulates slave/master forces through a validated
+per-node incidence table after tendon traction assembly. Matter then solves
+the combined load, and the existing fixed-node reaction kernel returns the
+accepted cartilage/meniscus attachment reactions through the owning Human
+body Jacobians.
+
+The v1 kernel is an explicit, fixed-reference penalty law: it evaluates the
+previously accepted FEM state, preserves the cooked reference normal and
+correspondence, and subtracts a `0.1 um` FP32 preload slop. It therefore proves
+same-transaction force transfer, not current-surface search, an implicit
+contact solve, or unilateral nonpenetration.
+
+A fresh Apple M4 Pro one-tetrahedron fixture passed with one contact sample:
+the slave moved `19.8297 um` in the repulsive direction, combined anchor
+reaction was `0.329908 N`, the NHTENDON full-row result remained `0.548276`, a
+malformed contribution table failed initialization, peak replay was bitwise,
+and rejected-step rollback was verified. The machine-readable receipt is
+[`internal-contact-adapter-m4-pro.json`](media/numi-human-knee-contact-preflight-v1/internal-contact-adapter-m4-pro.json).
+
+This fixture proves transaction composition only. It does not promote either
+knee because it has one synthetic tetrahedron rather than the 69,701 exact
+Open Knee contact samples. Anatomical promotion still requires adding the four
+cartilage and two meniscus volumes to the live knee Matter world and cooking
+their exact contact incidences into this adapter.

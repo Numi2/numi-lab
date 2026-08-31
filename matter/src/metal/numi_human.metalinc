@@ -85,8 +85,7 @@ kernel void nm_numi_human_prepare_provisional_status(
         dispatch.generalizedForceStride >= dispatch.dofCount &&
         dispatch.muscleCount > 0u &&
         dispatch.bodyPoseStride > 0u && dispatch.pointJacobianStride > 0u &&
-        dispatch.bodyJacobianPointOffset != MR_INVALID_INDEX &&
-        dispatch.reserved1 == 0u;
+        dispatch.bodyJacobianPointOffset != MR_INVALID_INDEX;
     for (uint node = 0u; accepted && node < dispatch.femNodeCount; ++node) {
         const NMNumiHumanTendonFEMNodeLoadGPU load = nodeLoads[node];
         const NMNumiHumanTendonFEMNodeAnchorGPU anchor = nodeAnchors[node];
@@ -199,7 +198,7 @@ kernel void nm_numi_human_adapt_stand_status(
     const MRNumiHumanStandStatusGPU stand = standStatuses[environment];
     const bool accepted =
         dispatch.abiVersion == NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION &&
-        dispatch.muscleCount > 0u && dispatch.reserved1 == 0u &&
+        dispatch.muscleCount > 0u &&
         stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
         stand.environment == environment &&
         stand.completedSteps == dispatch.stepIndex + 1u;
@@ -250,6 +249,60 @@ kernel void nm_numi_human_assemble_tendon_fem_loads(
         force -= scale * transfer.terminalWorldForce.xyz;
     }
     externalForces[global] = float4(force, 0.0f);
+}
+
+kernel void nm_numi_human_assemble_internal_fem_contact_loads(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMContactSampleGPU* samples [[buffer(1)]],
+    device const NMNumiHumanFEMContactContributionGPU* contributions
+        [[buffer(2)]],
+    device const NMIncidenceRangeGPU* ranges [[buffer(3)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(4)]],
+    device float4* externalForces [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.contactSampleCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const NMIncidenceRangeGPU range = ranges[node];
+    float3 nodeForce = float3(0.0f);
+    for (uint local = 0u; local < range.count; ++local) {
+        const NMNumiHumanFEMContactContributionGPU contribution =
+            contributions[range.first + local];
+        if (contribution.sampleIndex >= dispatch.contactSampleCount ||
+            contribution.role > 3u || contribution.reserved0 != 0u ||
+            contribution.reserved1 != 0u) return;
+        const NMNumiHumanFEMContactSampleGPU sample =
+            samples[contribution.sampleIndex];
+        const float3 weights =
+            sample.barycentricAndReferenceSeparation.xyz;
+        const float3 normal = sample.normalAndArea.xyz;
+        const float3 slave = acceptedNodes[
+            nodeBase + sample.slaveNode].positionAndMass.xyz;
+        const float3 master =
+            weights.x * acceptedNodes[
+                nodeBase + sample.masterNode0].positionAndMass.xyz +
+            weights.y * acceptedNodes[
+                nodeBase + sample.masterNode1].positionAndMass.xyz +
+            weights.z * acceptedNodes[
+                nodeBase + sample.masterNode2].positionAndMass.xyz;
+        const float separation = dot(slave - master, normal);
+        // One tenth of a micron prevents an artificial preload caused only by
+        // FP32 reconstruction of a preload-free reference correspondence.
+        const float closure = max(
+            0.0f,
+            sample.barycentricAndReferenceSeparation.w - separation - 1.0e-7f
+        );
+        const float pressure = sample.stiffness.x * closure;
+        const float3 sampleForce =
+            normal * (pressure * sample.normalAndArea.w);
+        const float contributionWeight = contribution.role == 0u
+            ? 1.0f : -weights[contribution.role - 1u];
+        nodeForce += contributionWeight * sampleForce;
+    }
+    externalForces[global].xyz += nodeForce;
 }
 
 kernel void nm_numi_human_audit_tendon_fem_loads(

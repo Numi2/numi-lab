@@ -2,7 +2,7 @@
 
 #include "numi/matter/shared.h"
 
-#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 4u
+#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 5u
 
 enum NMNumiHumanTendonFEMNodeLoadFlags : nm_u32 {
     NM_NUMI_HUMAN_TENDON_FEM_NODE_LOAD_ACTIVE = 1u << 0u,
@@ -46,7 +46,7 @@ typedef struct NM_ALIGN16 NMNumiHumanTendonFEMLoadDispatchGPU {
     nm_u32 generalizedForceStride;
     nm_u32 generalizedForceOffset;
     nm_u32 muscleCount;
-    nm_u32 reserved1;
+    nm_u32 contactSampleCount;
 } NMNumiHumanTendonFEMLoadDispatchGPU;
 
 typedef struct NM_ALIGN16 NMNumiHumanTendonFEMNodeLoadGPU {
@@ -87,9 +87,37 @@ typedef struct NM_ALIGN16 NMNumiHumanTendonFEMEndpointReplacementGPU {
     nm_float4 forceOwnerFraction;
 } NMNumiHumanTendonFEMEndpointReplacementGPU;
 
+// One fixed-correspondence, frictionless elastic-foundation contact sample.
+// The sample is internal to one FEM world: slave and master forces are
+// assembled into the same external-force arena and therefore have zero net
+// force by construction. Current accepted FEM positions determine closure.
+typedef struct NM_ALIGN16 NMNumiHumanFEMContactSampleGPU {
+    nm_u32 slaveNode;
+    nm_u32 masterNode0;
+    nm_u32 masterNode1;
+    nm_u32 masterNode2;
+
+    // xyz master triangle barycentric weights; w reference signed separation.
+    nm_float4 barycentricAndReferenceSeparation;
+    // xyz reference master-to-slave normal; w slave tributary area [m^2].
+    nm_float4 normalAndArea;
+    // x effective pressure-overclosure stiffness [Pa/m]; yzw reserved zero.
+    nm_float4 stiffness;
+} NMNumiHumanFEMContactSampleGPU;
+
+typedef struct NM_ALIGN16 NMNumiHumanFEMContactContributionGPU {
+    nm_u32 sampleIndex;
+    // 0 slave, 1 master node 0, 2 master node 1, 3 master node 2.
+    nm_u32 role;
+    nm_u32 reserved0;
+    nm_u32 reserved1;
+} NMNumiHumanFEMContactContributionGPU;
+
 #ifndef __METAL_VERSION__
 static_assert(sizeof(NMNumiHumanTendonFEMLoadDispatchGPU) == 64u);
 static_assert(sizeof(NMNumiHumanTendonFEMNodeLoadGPU) == 32u);
 static_assert(sizeof(NMNumiHumanTendonFEMNodeAnchorGPU) == 32u);
 static_assert(sizeof(NMNumiHumanTendonFEMEndpointReplacementGPU) == 32u);
+static_assert(sizeof(NMNumiHumanFEMContactSampleGPU) == 64u);
+static_assert(sizeof(NMNumiHumanFEMContactContributionGPU) == 16u);
 #endif

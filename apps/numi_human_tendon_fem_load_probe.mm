@@ -95,11 +95,54 @@ int main() {
                 NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_ACTIVE |
                 NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_FULL_MUSCLE_ROW;
             replacement.forceOwnerFraction.x = 0.1f;
+            NMNumiHumanFEMContactSampleGPU contactSample{};
+            contactSample.slaveNode = 3u;
+            contactSample.masterNode0 = 0u;
+            contactSample.masterNode1 = 1u;
+            contactSample.masterNode2 = 2u;
+            contactSample.barycentricAndReferenceSeparation = {
+                1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f, 0.0102f};
+            contactSample.normalAndArea = {
+                0.0f, 0.0f, 1.0f, 1.0e-5f};
+            contactSample.stiffness = {1.0e8f, 0.0f, 0.0f, 0.0f};
+            const std::array<NMNumiHumanFEMContactContributionGPU, 4u>
+                contactContributions{{
+                    {.sampleIndex = 0u, .role = 1u},
+                    {.sampleIndex = 0u, .role = 2u},
+                    {.sampleIndex = 0u, .role = 3u},
+                    {.sampleIndex = 0u, .role = 0u},
+                }};
+            const std::array<NMIncidenceRangeGPU, 4u> contactRanges{{
+                {.first = 0u, .count = 1u},
+                {.first = 1u, .count = 1u},
+                {.first = 2u, .count = 1u},
+                {.first = 3u, .count = 1u},
+            }};
+            auto invalidContactContributions = contactContributions;
+            invalidContactContributions[3u].role = 1u;
+            numi::matter::NumiHumanTendonFEMLoadAdapter rejectedAdapter;
+            require(!rejectedAdapter.initialize(runtime, {
+                        .nodeLoads = nodeLoads,
+                        .nodeAnchors = nodeAnchors,
+                        .endpointReplacements = std::span(&replacement, 1u),
+                        .contactSamples = std::span(&contactSample, 1u),
+                        .contactContributions = invalidContactContributions,
+                        .contactRanges = contactRanges,
+                        .endpointCount = 2u,
+                        .environmentCount = 1u,
+                        .productionForceOwnerFraction = 0.1f,
+                    }, {
+                        .metallib = NUMI_MATTER_METALLIB,
+                    }),
+                    "probe malformed contact incidence did not fail closed");
             numi::matter::NumiHumanTendonFEMLoadAdapter adapter;
             require(adapter.initialize(runtime, {
                         .nodeLoads = nodeLoads,
                         .nodeAnchors = nodeAnchors,
                         .endpointReplacements = std::span(&replacement, 1u),
+                        .contactSamples = std::span(&contactSample, 1u),
+                        .contactContributions = contactContributions,
+                        .contactRanges = contactRanges,
                         .endpointCount = 2u,
                         .environmentCount = 1u,
                         .productionForceOwnerFraction = 0.1f,
@@ -242,6 +285,12 @@ int main() {
             require(std::isfinite(acceptedDisplacement) &&
                         acceptedDisplacement > 0.0f,
                     "probe tendon load did not deform the FEM node");
+            const float acceptedContactDisplacement =
+                accepted.femNodes[3u].positionAndMass.z -
+                initial.femNodes[3u].positionAndMass.z;
+            require(std::isfinite(acceptedContactDisplacement) &&
+                        acceptedContactDisplacement > 0.0f,
+                    "probe internal contact load did not repel the slave node");
             std::array<nm_float4, 4u> acceptedReactions{};
             std::memcpy(
                 acceptedReactions.data(), reactionReadback.contents,
@@ -299,13 +348,19 @@ int main() {
                     "probe accepted tendon/FEM replay is not bitwise");
             const auto diagnostics = adapter.diagnostics();
             require(diagnostics.initialized && diagnostics.encodedPassCount == 3u &&
-                        diagnostics.abortCount == 0u && diagnostics.fingerprint != 0u,
+                        diagnostics.abortCount == 0u &&
+                        diagnostics.contactSampleCount == 1u &&
+                        diagnostics.fingerprint != 0u,
                     "probe adapter diagnostics are incomplete");
             std::cout
                 << "numi_human_tendon_fem_load=passed"
                 << " device=\"" << initialized.device << "\""
                 << " encoded_passes=" << diagnostics.encodedPassCount
                 << " max_displacement_m=" << acceptedDisplacement
+                << " contact_displacement_m="
+                << acceptedContactDisplacement
+                << " contact_samples=" << diagnostics.contactSampleCount
+                << " malformed_contact_rejected=true"
                 << " anchor_reaction_l1_n=" << acceptedReactionL1
                 << " full_row_generalized_force=" << acceptedGeneralizedForce
                 << " replay=bitwise rollback=verified"

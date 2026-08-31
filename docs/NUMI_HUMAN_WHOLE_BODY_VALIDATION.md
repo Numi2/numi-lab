@@ -70,6 +70,12 @@ live Human force owner, does not solve unilateral nonpenetration, and is not a
 sustained loaded flexion. The right knee is a mirrored left specimen, not an
 independently segmented right subject.
 
+The shared Human/Matter adapter additionally has a one-step Metal transaction
+fixture where internal FEM contact and tendon traction share one force arena,
+reaction scatter, rejection decision, and rollback/replay boundary. This is
+infrastructure evidence, not regional anatomy evidence, so it does not raise
+either knee above `preflight` contact status.
+
 ## Development order
 
 The gate makes the next useful work explicit:

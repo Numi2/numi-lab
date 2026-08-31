@@ -1,0 +1,23 @@
+{
+  "schema": "numilab.human.internal-fem-contact-transaction-fixture.v1",
+  "device": "Apple M4 Pro",
+  "base_revision": "94d2836",
+  "fem_node_count": 4,
+  "tetrahedron_count": 1,
+  "contact_sample_count": 1,
+  "contact_law": "explicit_fixed_reference_elastic_foundation_penalty",
+  "accepted_state_lag_steps": 1,
+  "closure_slop_m": 1e-7,
+  "encoded_pass_count": 3,
+  "maximum_tendon_displacement_m": 0.000206897,
+  "contact_repulsion_displacement_m": 0.0000198297,
+  "anchor_reaction_l1_n": 0.329908,
+  "full_row_generalized_force": 0.548276,
+  "malformed_contact_incidence_rejected": true,
+  "replay": "bitwise",
+  "rollback": "verified",
+  "production_tendon_force_owner_fraction": 0.1,
+  "evidence_level": "one_step",
+  "anatomical_contact": false,
+  "evidence_boundary": "Synthetic one-tetrahedron transaction fixture proving that internal FEM contact and NHTENDON full-row replacement share one private external-force arena, one Matter pre-dynamics encode, one anchor-reaction scatter, and one rollback/replay decision. It is not knee anatomy, nonpenetration, material calibration, or sustained motion evidence."
+}

@@ -35,6 +35,13 @@ struct NumiHumanTendonFEMLoadSource {
     std::span<const NMNumiHumanTendonFEMNodeAnchorGPU> nodeAnchors{};
     std::span<const NMNumiHumanTendonFEMEndpointReplacementGPU>
         endpointReplacements{};
+    // Optional internal cartilage/meniscus contact. Ranges exactly cover the
+    // cooked FEM-node array and index contactContributions; every sample must
+    // have one slave and three master contributions.
+    std::span<const NMNumiHumanFEMContactSampleGPU> contactSamples{};
+    std::span<const NMNumiHumanFEMContactContributionGPU>
+        contactContributions{};
+    std::span<const NMIncidenceRangeGPU> contactRanges{};
     std::uint32_t endpointCount = 0u;
     std::uint32_t environmentCount = 1u;
     float productionForceOwnerFraction = 0.0f;
@@ -54,6 +61,7 @@ struct NumiHumanTendonFEMLoadDiagnostics {
     // vector sum for the most recently encoded pass across all environments.
     double assembledExternalForceL1Newtons = 0.0;
     double assembledExternalForceResultantNewtons = 0.0;
+    std::uint32_t contactSampleCount = 0u;
     std::string message;
 };
 

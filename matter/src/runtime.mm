@@ -10227,6 +10227,10 @@ void* Runtime::femConstraintReactionBuffer() const noexcept {
     return state_ ? (__bridge void*)state_->femConstraintReactions : nullptr;
 }
 
+void* Runtime::femAcceptedNodeBuffer() const noexcept {
+    return state_ ? (__bridge void*)state_->femAccepted : nullptr;
+}
+
 void* Runtime::parameterBuffer() const noexcept {
     return state_ ? (__bridge void*)state_->environmentParameters : nullptr;
 }

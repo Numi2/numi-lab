@@ -101,6 +101,32 @@
         {"path": "src/core/MujocoMuscleReference.cpp", "sha256": "11793c869a52a9d41b7395a9f4b46af31438874d1aa5c06a60bed348fd46c777"}
       ]
     },
+    "internal_fem_contact_transaction": {
+      "path": "docs/media/numi-human-knee-contact-preflight-v1/internal-contact-adapter-m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.internal-fem-contact-transaction-fixture.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/contact_sample_count", "op": "equals", "value": 1},
+        {"pointer": "/encoded_pass_count", "op": "equals", "value": 3},
+        {"pointer": "/contact_repulsion_displacement_m", "op": "minimum", "value": 1e-9},
+        {"pointer": "/malformed_contact_incidence_rejected", "op": "equals", "value": true},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/evidence_level", "op": "equals", "value": "one_step"},
+        {"pointer": "/anatomical_contact", "op": "equals", "value": false}
+      ],
+      "artifacts": [
+        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "55751cd9c801a108f808bb49caa9ca311f403ca61c691b6ac59fc1e83e763e9f"},
+        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "87fa2e15f3718999888e93ec04639665d843c2ebac48f463c7a1f2201698752b"},
+        {"path": "matter/include/numi/matter/matter.hpp", "sha256": "6cfc1af24286a026d99a8ded360faa351462ce4e8058bc7c38229215c41f47b2"},
+        {"path": "matter/src/runtime.mm", "sha256": "7b74ec6ace16db2d04eb50ce534a466eb6dc86d24262a40f4840833d2ff999d4"},
+        {"path": "matter/src/numi_human.mm", "sha256": "790486484f23389383d084cf549e3c5406395f44aac4c556e314078284edf24c"},
+        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "5543685410a38e7ed6744e49f752ca25a5d87a6ae938af64d961f9fbb5569e7b"},
+        {"path": "apps/numi_human_tendon_fem_load_probe.mm", "sha256": "9515ea7e2214c7b0b509254f5d03630e1ba34252705bce662e63ae453acc5cab"}
+      ]
+    },
     "left_knee_extensor_chain": {
       "path": "docs/media/numi-human-open-knee-extensor-chain-v1/left-m4-pro.json",
       "format": "json",
@@ -122,10 +148,10 @@
       "artifacts": [
         {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "f53e0028c9e6f225d281ab4cbbfc70ba903e8ef7d2fd6996f09d50325c2363cd"},
         {"path": "apps/numilab_human_open_knee_ligament_probe.mm", "sha256": "ddcfeda37f47321b80e5d01fb249fe248d94b06ae5126a08d22377ef1ab1439d"},
-        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "e97f58cfbd37e363700eb2ba98485d23a1e7550da10c1ca8cc019a497be1c2de"},
-        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "b7aa99688b662f712b99e71ce475bd862636dcca485b9f16e6f17f3a1a35db21"},
-        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "d52dd8b382d870b68c6f0829f8e220566a46ef3b4b0038f47956e8e2088534bc"},
-        {"path": "matter/src/numi_human.mm", "sha256": "629df8a4928f3efd04002aa4fd2b96ac202e5d60304cb89115caea677b2d9311"},
+        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "55751cd9c801a108f808bb49caa9ca311f403ca61c691b6ac59fc1e83e763e9f"},
+        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "87fa2e15f3718999888e93ec04639665d843c2ebac48f463c7a1f2201698752b"},
+        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "5543685410a38e7ed6744e49f752ca25a5d87a6ae938af64d961f9fbb5569e7b"},
+        {"path": "matter/src/numi_human.mm", "sha256": "790486484f23389383d084cf549e3c5406395f44aac4c556e314078284edf24c"},
         {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/left/front.png", "sha256": "0fb97c9cf3f7e1f2c8e670ffe25ea11af189fd742987f87231c43ea20d535ff2"},
         {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/left/oblique.png", "sha256": "818c18626e53942115c051ed206b6d5c622a749eea8a0730ceab94c24acbb2be"},
         {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/left/rear.png", "sha256": "58e3b94c6a06a986f8f0f268b3aeb6d7977ee4922cb326419485582aeaebcc98"},
@@ -153,10 +179,10 @@
       "artifacts": [
         {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "f53e0028c9e6f225d281ab4cbbfc70ba903e8ef7d2fd6996f09d50325c2363cd"},
         {"path": "apps/numilab_human_open_knee_ligament_probe.mm", "sha256": "ddcfeda37f47321b80e5d01fb249fe248d94b06ae5126a08d22377ef1ab1439d"},
-        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "e97f58cfbd37e363700eb2ba98485d23a1e7550da10c1ca8cc019a497be1c2de"},
-        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "b7aa99688b662f712b99e71ce475bd862636dcca485b9f16e6f17f3a1a35db21"},
-        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "d52dd8b382d870b68c6f0829f8e220566a46ef3b4b0038f47956e8e2088534bc"},
-        {"path": "matter/src/numi_human.mm", "sha256": "629df8a4928f3efd04002aa4fd2b96ac202e5d60304cb89115caea677b2d9311"},
+        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "55751cd9c801a108f808bb49caa9ca311f403ca61c691b6ac59fc1e83e763e9f"},
+        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "87fa2e15f3718999888e93ec04639665d843c2ebac48f463c7a1f2201698752b"},
+        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "5543685410a38e7ed6744e49f752ca25a5d87a6ae938af64d961f9fbb5569e7b"},
+        {"path": "matter/src/numi_human.mm", "sha256": "790486484f23389383d084cf549e3c5406395f44aac4c556e314078284edf24c"},
         {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/right/front.png", "sha256": "1048ceaddda34f44d1352e7bbd961b00983318d77bcdd0946c21e32f2cae8280"},
         {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/right/oblique.png", "sha256": "844c44c1303bed877956ebb9f221eee2a7d219291d3a4c3e120bc988018a7676"},
         {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/right/rear.png", "sha256": "26ec4ac37da1c873b5739eab196f838723df36a7afc2c01bf1263806c1d2ac72"},
