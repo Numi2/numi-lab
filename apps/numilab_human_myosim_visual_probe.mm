@@ -2769,7 +2769,8 @@ CompiledStandActivation compileStaticStandActivation(
     const std::span<const std::uint32_t> selectedSourceMuscleIndices,
     const LoadedSupportContacts* supportContacts = nullptr,
     const std::span<const metalrobo::NumiHumanPassiveCoordinateCoupling>
-        passiveCouplings = {}
+        passiveCouplings = {},
+    const std::uint32_t activationSweeps = 240u
 ) {
     require(muscles.header.payloadAbi == kMusclePayloadAbi &&
                 muscles.referenceArchitectures.size() ==
@@ -2780,7 +2781,7 @@ CompiledStandActivation compileStaticStandActivation(
     config.timestep = 1.0e-4;
     config.activationLimit = activationCap;
     config.activationSamples = 65u;
-    config.activationSweeps = 240u;
+    config.activationSweeps = activationSweeps;
     if (!passiveCouplings.empty()) {
         config.poseSweeps = 12u;
         config.poseCandidateCount = 12u;
@@ -10886,6 +10887,22 @@ std::uint32_t parseMuscleStepCount(const std::string& value) {
     return static_cast<std::uint32_t>(result);
 }
 
+std::uint32_t parseWholeBodyActivationSweeps(const std::string& value) {
+    std::size_t parsed = 0u;
+    unsigned long result = 0ul;
+    try {
+        result = std::stoul(value, &parsed, 10);
+    } catch (const std::exception&) {
+        throw std::runtime_error(
+            "--whole-body-activation-sweeps must be an integer from 1 "
+            "through 8192");
+    }
+    require(parsed == value.size() && result >= 1ul && result <= 8192ul,
+            "--whole-body-activation-sweeps must be an integer from 1 "
+            "through 8192");
+    return static_cast<std::uint32_t>(result);
+}
+
 std::uint32_t parseSourceRouteIndex(const std::string& value) {
     std::size_t parsed = 0u;
     unsigned long result = 0ul;
@@ -10971,6 +10988,7 @@ int main(int argc, char** argv) {
             std::optional<std::filesystem::path> pectoralisFasciaPayloadPath;
             std::optional<std::uint32_t> pectoralisFasciaStepCount;
             std::optional<std::uint32_t> requestedCameraIndex;
+            std::optional<std::uint32_t> wholeBodyActivationSweeps;
             std::vector<std::pair<std::uint32_t, double>> requestedPoseCoordinates;
             std::uint32_t frameDimension = kDefaultFrameDimension;
             std::vector<std::string> positional;
@@ -11020,6 +11038,13 @@ int main(int argc, char** argv) {
                     require(!wholeBodySupportCertificate,
                             "--whole-body-support-certificate may be given only once");
                     wholeBodySupportCertificate = true;
+                } else if (argument == "--whole-body-activation-sweeps") {
+                    require(index + 1 < argc &&
+                                !wholeBodyActivationSweeps.has_value(),
+                            "--whole-body-activation-sweeps requires one "
+                            "value and may be given only once");
+                    wholeBodyActivationSweeps.emplace(
+                        parseWholeBodyActivationSweeps(argv[++index]));
                 } else if (argument == "--source-passive-joint-tissue") {
                     require(!sourcePassiveJointTissue,
                             "--source-passive-joint-tissue may be given only once");
@@ -11179,6 +11204,7 @@ int main(int argc, char** argv) {
                           << " [--bilateral-achilles-certificate]"
                           << " [--bilateral-plantar-fascia-certificate]"
                           << " [--whole-body-support-certificate]"
+                          << " [--whole-body-activation-sweeps <1..8192>]"
                           << " [--whole-body-all-residuals]"
                           << " [--fifth-mcp-lower-stop-counterfactual]"
                           << " [--source-passive-joint-tissue]"
@@ -11374,6 +11400,10 @@ int main(int argc, char** argv) {
             }
             require(!sourcePassiveJointTissue || wholeBodySupportCertificate,
                     "--source-passive-joint-tissue requires "
+                    "--whole-body-support-certificate");
+            require(!wholeBodyActivationSweeps.has_value() ||
+                        wholeBodySupportCertificate,
+                    "--whole-body-activation-sweeps requires "
                     "--whole-body-support-certificate");
             require(!wholeBodyAllResiduals || wholeBodySupportCertificate,
                     "--whole-body-all-residuals requires "
@@ -11653,12 +11683,14 @@ int main(int argc, char** argv) {
                     compileStaticStandActivation(
                         rigid.model, musclePayload, *jointEqualityPayload,
                         aligned.q, 1.0, {}, &*supportContactPayload,
-                        passiveCouplings);
+                        passiveCouplings,
+                        wholeBodyActivationSweeps.value_or(240u));
                 const CompiledStandActivation replaySupport =
                     compileStaticStandActivation(
                         rigid.model, musclePayload, *jointEqualityPayload,
                         aligned.q, 1.0, {}, &*supportContactPayload,
-                        passiveCouplings);
+                        passiveCouplings,
+                        wholeBodyActivationSweeps.value_or(240u));
                 const auto bitwiseEqual = [](const auto& first,
                                              const auto& second) {
                     using Value = typename std::decay_t<decltype(first)>::value_type;
@@ -11721,14 +11753,16 @@ int main(int argc, char** argv) {
                         compileStaticStandActivation(
                             rigid.model, musclePayload,
                             *jointEqualityPayload, counterfactualQ, 1.0, {},
-                            &*supportContactPayload, passiveCouplings
+                            &*supportContactPayload, passiveCouplings,
+                            wholeBodyActivationSweeps.value_or(240u)
                         )
                     );
                     const CompiledStandActivation counterfactualReplay =
                         compileStaticStandActivation(
                             rigid.model, musclePayload,
                             *jointEqualityPayload, counterfactualQ, 1.0, {},
-                            &*supportContactPayload, passiveCouplings
+                            &*supportContactPayload, passiveCouplings,
+                            wholeBodyActivationSweeps.value_or(240u)
                         );
                     require(
                         bitwiseEqual(

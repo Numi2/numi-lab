@@ -1,5 +1,9 @@
 # Numi Human passive-aware architecture fit v4
 
+This source-fit checkpoint remains current, but its 240-sweep equilibrium
+result is superseded by `NUMI_HUMAN_RECRUITMENT_CONVERGENCE_V5.md` for current
+whole-body residual magnitudes.
+
 The 2026-08-31 passive-aware source checkpoint fixes a systemic fitting gap in
 all 416 compliant muscle-tendon architectures. The previous objective sampled
 only nonzero activations. Large active-force targets could therefore hide a

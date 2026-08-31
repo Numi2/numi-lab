@@ -562,7 +562,7 @@
       ]
     },
     "whole_body_all_dof_support_report": {
-      "path": "docs/media/numi-human-passive-fit-v4/m4-pro.json",
+      "path": "docs/media/numi-human-recruitment-convergence-v5/m4-pro.json",
       "format": "json",
       "level": "preflight",
       "checks": [
@@ -576,7 +576,7 @@
         {"pointer": "/derived/coordinates_over_100_rad_s2", "op": "equals", "value": 0}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65"},
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "2d8b0d2989c405f5f4247e872a76c3fc89d0693f79a85a67e9e962f162b8825f"},
         {"path": "tools/parse_numilab_human_support_report.py", "sha256": "f3dc6737fe704bb68f9e7157f0b56e30a1216d9348a3112a616695a776c2c2fa"}
       ]
     },

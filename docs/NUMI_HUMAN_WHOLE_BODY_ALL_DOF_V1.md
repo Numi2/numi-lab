@@ -15,17 +15,18 @@ pay for or silently include that negative control.
 ## Current measured state
 
 The current passive-aware NHMYO2 fit is documented in
-`NUMI_HUMAN_PASSIVE_FIT_V4.md`. The Apple M4 Pro rerun closes body weight to
-`2.26e-9` relative error and replays bitwise, but internal balance remains
-false:
+`NUMI_HUMAN_PASSIVE_FIT_V4.md`, and its recruitment convergence qualification
+is documented in `NUMI_HUMAN_RECRUITMENT_CONVERGENCE_V5.md`. The Apple M4 Pro
+960-sweep rerun closes body weight to `2.33e-9` relative error and replays
+bitwise, but internal balance remains false:
 
-- normalized residual RMS: `2.58813292903`;
-- 52 coordinates exceed `1 rad/s2`, five exceed `10 rad/s2`, and none exceed
+- normalized residual RMS: `0.980016256505`;
+- 34 coordinates exceed `1 rad/s2`, two exceed `10 rad/s2`, and none exceed
   `100 rad/s2`;
-- the largest errors are bilateral wrist flexion at `30.59` and
-  `26.72 rad/s2`;
-- the next largest errors are bilateral third-MCP flexion (`-15.87`, `-13.63`),
-  left knee (`11.40`), and bilateral shoulder rotation (`9.45`, `8.70`); and
+- the largest errors are bilateral wrist flexion at `20.09/16.53 rad/s2`;
+- the next largest errors are left third-MCP flexion (`-9.24`), thumb CMC
+  flexion (`-7.04`), right third-MCP flexion (`-6.73`), left CMC abduction
+  (`6.37`), and right fourth-MCP flexion (`6.22`); and
 - all lower-body residuals remain in the complete 128-coordinate report rather
   than being omitted by a hand-only certificate.
 
@@ -47,8 +48,8 @@ measured shoulder and lower-body residual families. Arbitrary torques, sign
 flips, and rest-at-stop fixes are excluded.
 
 The current machine-readable evidence and exact pinned source-name map are in
-`docs/media/numi-human-passive-fit-v4/`; the original all-DoF audit remains in
-`docs/media/numi-human-whole-body-all-dof-v1/`.
+`docs/media/numi-human-recruitment-convergence-v5/`; earlier all-DoF states
+remain archived in their versioned media directories.
 
 ## Boundary
 
