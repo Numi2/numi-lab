@@ -448,6 +448,15 @@ void validateWorld(
             "world gravity must be finite and environment count nonzero",
         });
     }
+    if (source.articulatedDofCapacity == 0u ||
+        source.articulatedDofCapacity > NM_MATTER_MAX_ARTICULATED_DOFS ||
+        source.articulatedQCapacity == 0u ||
+        source.articulatedQCapacity > NM_MATTER_MAX_ARTICULATED_Q) {
+        diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "articulated candidate capacity must be nonzero and within the Matter Human ceiling"
+        });
+    }
     if (!(source.contactSlop >= 0.0) || !finite(source.contactSlop) ||
         !(source.maximumDepenetrationSpeed > 0.0) ||
         !finite(source.maximumDepenetrationSpeed)) {
@@ -556,6 +565,21 @@ CompileResult compileWorld(
     const CompileOptions& options
 ) {
     CompileResult result;
+    std::size_t authoredHumanAttachmentCount = 0u;
+    for (const ObjectSource& object : source.objects) {
+        const std::size_t objectAttachmentCount =
+            object.femHumanAttachments.size();
+        if (objectAttachmentCount >
+                NM_MATTER_MAX_HUMAN_ATTACHMENT_POINTS -
+                    authoredHumanAttachmentCount) {
+            result.diagnostics.push_back({
+                Diagnostic::Severity::error, 0u, 0u,
+                "Human attachment count exceeds the coupled-candidate point capacity",
+            });
+            return result;
+        }
+        authoredHumanAttachmentCount += objectAttachmentCount;
+    }
     validateWorld(source, options, result.diagnostics);
     CompiledWorld& world = result.world;
     world.mixedSolver = cookMixedSolver(source.mixedSolver);
@@ -950,6 +974,7 @@ CompileResult compileWorld(
     std::set<std::uint32_t> adaptiveBindings;
     std::set<std::uint32_t> adaptiveBodyBindings;
     std::set<std::uint32_t> adaptiveSceneBindings;
+    std::set<std::uint32_t> humanAttachmentIdentifiers;
     std::map<std::uint32_t, std::uint32_t> adaptiveBodyOwners;
 
     world.objects.reserve(source.objects.size());
@@ -994,6 +1019,14 @@ CompileResult compileWorld(
         const Representation representation = selectRepresentation(
             object, material, result.diagnostics
         );
+        if (representation != Representation::fem &&
+            !object.femHumanAttachments.empty()) {
+            result.diagnostics.push_back({
+                Diagnostic::Severity::error, 0u, 0u,
+                "Human attachments require an FEM object",
+            });
+            return result;
+        }
         const std::uint32_t exponent = rateExponent(
             object, material, source, options
         );
@@ -1397,6 +1430,44 @@ CompileResult compileWorld(
                 }
                 fixedNodes[localNode] = true;
             }
+            std::vector<const FEMHumanAttachmentSource*> attachmentByNode(
+                object.femNodes.size(), nullptr
+            );
+            for (const FEMHumanAttachmentSource& attachment :
+                 object.femHumanAttachments) {
+                if (attachment.node >= object.femNodes.size() ||
+                    attachmentByNode[attachment.node] != nullptr) {
+                    result.diagnostics.push_back({
+                        Diagnostic::Severity::error, 0u, 0u,
+                        "FEM object '" + object.name +
+                            "' contains an invalid or duplicate Human attachment node",
+                    });
+                    return result;
+                }
+                if (fixedNodes[attachment.node]) {
+                    result.diagnostics.push_back({
+                        Diagnostic::Severity::error, 0u, 0u,
+                        "FEM object '" + object.name +
+                            "' cannot statically fix and attach the same FEM node",
+                    });
+                    return result;
+                }
+                if (attachment.bodyIndex == NM_INVALID_INDEX ||
+                    attachment.stableIdentifier == 0u ||
+                    attachment.stableIdentifier == NM_INVALID_INDEX ||
+                    !finite(attachment.localPoint) ||
+                    !humanAttachmentIdentifiers.insert(
+                        attachment.stableIdentifier
+                    ).second) {
+                    result.diagnostics.push_back({
+                        Diagnostic::Severity::error, 0u, 0u,
+                        "FEM object '" + object.name +
+                            "' contains an invalid Human attachment binding",
+                    });
+                    return result;
+                }
+                attachmentByNode[attachment.node] = &attachment;
+            }
             const std::size_t nodeCapacity = object.femCapacity.nodes == 0u
                 ? object.femNodes.size()
                 : object.femCapacity.nodes;
@@ -1437,6 +1508,8 @@ CompileResult compileWorld(
             std::uint32_t sourceNodeIndex = 0u;
             for (const Vec3& sourceNode : object.femNodes) {
                 const bool fixed = fixedNodes[sourceNodeIndex];
+                const FEMHumanAttachmentSource* const attachment =
+                    attachmentByNode[sourceNodeIndex];
                 NMFEMNodeStateGPU node{};
                 node.positionAndMass = f4(sourceNode[0], sourceNode[1], sourceNode[2], 0.0);
                 node.velocityAndInverseMass = f4(
@@ -1447,8 +1520,23 @@ CompileResult compileWorld(
                 );
                 node.restAndFixed = f4(
                     sourceNode[0], sourceNode[1], sourceNode[2],
-                    fixed ? 1.0 : 0.0
+                    attachment != nullptr ? 2.0 : (fixed ? 1.0 : 0.0)
                 );
+                if (attachment != nullptr) {
+                    NMFEMHumanAttachmentGPU cooked{};
+                    cooked.identity = {
+                        static_cast<nm_u32>(world.fem.nodes.size()),
+                        attachment->bodyIndex,
+                        objectIndex,
+                        attachment->stableIdentifier,
+                    };
+                    cooked.localPoint = f4(
+                        attachment->localPoint[0],
+                        attachment->localPoint[1],
+                        attachment->localPoint[2]
+                    );
+                    world.fem.humanAttachments.push_back(cooked);
+                }
                 world.fem.nodes.push_back(node);
                 femNodeObjects.push_back(objectIndex);
                 femNodeContactEligible.push_back(
@@ -2205,11 +2293,17 @@ CompileResult compileWorld(
         hasArticulatedProxy = hasArticulatedProxy ||
             (proxy.flags & NM_RIGID_ARTICULATED) != 0u;
     }
+    const bool hasArticulatedCandidateAuthority =
+        hasArticulatedProxy || !world.fem.humanAttachments.empty();
     const std::uint64_t rigidGeneralizedCapacity =
-        (hasArticulatedProxy ? NM_MATTER_MAX_ARTICULATED_DOFS : 0u) +
+        (hasArticulatedCandidateAuthority
+             ? source.articulatedDofCapacity
+             : 0u) +
         static_cast<std::uint64_t>(freeBodyIndices.size()) * 6u;
     const std::uint64_t rigidQCapacity =
-        hasArticulatedProxy ? NM_MATTER_MAX_ARTICULATED_Q : 0u;
+        hasArticulatedCandidateAuthority
+        ? source.articulatedQCapacity
+        : 0u;
     if (rigidGeneralizedCapacity > std::numeric_limits<nm_u32>::max() ||
         rigidQCapacity > std::numeric_limits<nm_u32>::max()) {
         result.diagnostics.push_back({
@@ -2230,7 +2324,30 @@ CompileResult compileWorld(
         dispatch.contactPairCount
     ));
     dispatch.maximumRateExponent = options.maximumRateExponent;
-    dispatch.reservedSolver0 = 0u;
+    if (world.fem.humanAttachments.size() >
+        NM_MATTER_MAX_HUMAN_ATTACHMENT_POINTS) {
+        result.diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "Human attachment count exceeds the coupled-candidate point capacity",
+        });
+        return result;
+    }
+    const nm_u32 femHumanAttachmentCount = static_cast<nm_u32>(
+        world.fem.humanAttachments.size());
+    if (!detail::femHumanAttachmentPointJacobianStrideFits(
+            femHumanAttachmentCount,
+            dispatch.rigidGeneralizedCapacity)) {
+        result.diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "Human attachment point-Jacobian stride exceeds the 32-bit cooked ABI",
+        });
+        return result;
+    }
+    dispatch.femHumanAttachmentCount = femHumanAttachmentCount;
+    dispatch.femHumanAttachmentPointJacobianStride =
+        detail::femHumanAttachmentPointJacobianStride(
+            femHumanAttachmentCount,
+            dispatch.rigidGeneralizedCapacity);
     dispatch.identificationCandidateCount = source.identificationCandidates;
     const std::uint64_t eventStride =
         static_cast<std::uint64_t>(NM_EVENT_CLASS_COUNT) *

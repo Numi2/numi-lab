@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 23u
+#define NM_MATTER_ABI_VERSION 25u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -62,11 +62,16 @@ typedef struct NM_ALIGN16 nm_int4 {
 #define NM_LEARNED_MAX_LAYERS 8u
 #define NM_LEARNED_MAX_WIDTH 16u
 #define NM_LEARNED_MAX_INVARIANTS 8u
-// Coupled-candidate storage is part of Matter's compiled ABI. Keep these
-// capacities synchronized with the borrowed MetalWorld articulated operator;
-// the bridge asserts equality at compile time.
-#define NM_MATTER_MAX_ARTICULATED_DOFS 40u
-#define NM_MATTER_MAX_ARTICULATED_Q 41u
+// Coupled-candidate storage is part of Matter's compiled ABI. These are hard
+// admission ceilings, not blanket allocation sizes: each cooked world records
+// an exact authored capacity. The larger class admits the Numi Human runtime;
+// the legacy MetalWorld bridge remains valid at its smaller ABA capacity.
+#define NM_MATTER_MAX_ARTICULATED_DOFS 160u
+#define NM_MATTER_MAX_ARTICULATED_Q 161u
+// The borrowed articulated-operator query has this fixed point capacity. Reject
+// larger authored attachment batches while compiling, before a package can
+// encode a shape that the owning candidate service must reject at runtime.
+#define NM_MATTER_MAX_HUMAN_ATTACHMENT_POINTS 4096u
 
 enum NMRepresentationKind : nm_u32 {
     NM_REPRESENTATION_RIGID = 0u,
@@ -286,8 +291,12 @@ typedef struct NM_ALIGN16 NMMatterDispatchGPU {
     nm_u32 contactPairCount;
 
     nm_u32 maximumRateExponent;
-    // Reserved. ABI v20 removed the standalone FEM linear-iteration owner.
-    nm_u32 reservedSolver0;
+    // Exact per-environment moving Human/FEM attachment record count. ABI v24
+    // assigned the slot that ABI v20 had left reserved. ABI v25 additionally
+    // cooks the complete component-major point-Jacobian scalar stride so no
+    // runtime or shader site can silently wrap count * 3 * generalized DOFs.
+    nm_u32 femHumanAttachmentCount;
+    nm_u32 femHumanAttachmentPointJacobianStride;
     nm_u32 identificationCandidateCount;
     nm_u32 eventStride;
 
@@ -795,6 +804,14 @@ typedef struct NM_ALIGN16 NMIncidenceRangeGPU {
     nm_u32 reserved;
 } NMIncidenceRangeGPU;
 
+typedef struct NM_ALIGN16 NMFEMHumanAttachmentGPU {
+    // Global FEM node, global Numi Human body, owning continuum object, and
+    // stable authored attachment identifier.
+    nm_uint4 identity;
+    // Body-local attachment point xyz; w is reserved and must be zero.
+    nm_float4 localPoint;
+} NMFEMHumanAttachmentGPU;
+
 typedef struct NM_ALIGN16 NMFEMNodeStateGPU {
     nm_float4 positionAndMass;
     nm_float4 velocityAndInverseMass;
@@ -998,6 +1015,8 @@ static_assert(sizeof(NMContinuumObjectGPU) % 16 == 0);
 static_assert(sizeof(NMMPMGridGPU) == 80);
 static_assert(sizeof(NMMPMBlockGPU) == 32);
 static_assert(sizeof(NMParticleStateGPU) % 16 == 0);
+static_assert(sizeof(NMFEMHumanAttachmentGPU) == 32);
+static_assert(alignof(NMFEMHumanAttachmentGPU) == 16);
 static_assert(sizeof(NMFEMNodeStateGPU) % 16 == 0);
 static_assert(sizeof(NMAdaptiveStateGPU) == 160);
 static_assert(sizeof(NMSchedulerStateGPU) == 80);

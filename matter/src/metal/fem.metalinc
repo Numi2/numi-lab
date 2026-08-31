@@ -1,5 +1,18 @@
 namespace numi_matter_metal {
 
+// restAndFixed.w is a small, versioned constraint tag rather than a boolean:
+// 0 = free, 1 = authored static Dirichlet, 2 = moving Human attachment.
+// A Human attachment is eliminated from Matter's nodal unknowns, but its
+// unconstrained residual/operator row remains physically meaningful because
+// the reduced articulated row owns J^T r and J^T A J.
+inline bool femStaticConstraint(const float marker) {
+    return marker > 0.5f && marker < 1.5f;
+}
+
+inline bool femHumanAttachmentConstraint(const float marker) {
+    return marker > 1.5f && marker < 2.5f;
+}
+
 struct NMPrimalContactArguments {
     device const NMContactPairGPU* pairs [[id(0)]];
     device const NMContactSampleGPU* samples [[id(1)]];
@@ -674,6 +687,123 @@ kernel void nm_fem_apply_kinematic_targets(
     candidate[global] = next;
 }
 
+// Materialize an exact moving Dirichlet node from the Human candidate that
+// owns the queried body point. Position comes from the exact candidate body
+// pose and velocity comes from that body's exact candidate linear/angular
+// state. The query input is Matter's delta-v, not the complete candidate
+// velocity, so multiplying it by J here would silently discard the accepted
+// Human velocity. There is no first-order position update and no host-visible
+// staging boundary.
+kernel void nm_fem_human_attachment_drive_candidate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& candidateBodyCount [[buffer(1)]],
+    constant uint& candidateBodyStride [[buffer(2)]],
+    constant uint& articulatedNv [[buffer(3)]],
+    device const NMFEMHumanAttachmentGPU* attachments [[buffer(4)]],
+    device const MRBodyStateGPU* candidateBodies [[buffer(5)]],
+    device const float* pointJacobians [[buffer(6)]],
+    device const float* generalizedCandidate [[buffer(7)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(8)]],
+    device NMFEMNodeStateGPU* candidate [[buffer(9)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(10)]],
+    device NMMatterStatusGPU* statuses [[buffer(11)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint count = dispatch.femHumanAttachmentCount;
+    const uint total = dispatch.environmentCount * count;
+    if (global >= total || count == 0u) return;
+    const uint environment = global / count;
+    const uint attachmentIndex = global - environment * count;
+    if (!environmentHealthy(statuses, environment)) return;
+
+    const NMFEMHumanAttachmentGPU attachment =
+        attachments[attachmentIndex];
+    const uint node = attachment.identity.x;
+    const uint body = attachment.identity.y;
+    const uint object = attachment.identity.z;
+    const uint nodeGlobal = environment * dispatch.femNodeCount + node;
+    const uint pointJacobianStride =
+        dispatch.femHumanAttachmentPointJacobianStride;
+    const bool layoutValid =
+        node < dispatch.femNodeCount && object < dispatch.objectCount &&
+        body < candidateBodyCount && candidateBodyCount <= candidateBodyStride &&
+        articulatedNv > 0u &&
+        articulatedNv <= dispatch.rigidGeneralizedCapacity &&
+        attachment.identity.w != 0u &&
+        attachment.identity.w != NM_INVALID_INDEX &&
+        attachment.localPoint.w == 0.0f && finite3(attachment.localPoint.xyz) &&
+        nodeRanges[nodeGlobal].objectIndex == object &&
+        femHumanAttachmentConstraint(accepted[nodeGlobal].restAndFixed.w);
+    if (!layoutValid) {
+        recordFailure(
+            statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            object, attachmentIndex,
+            float4(float(node), float(body), float(candidateBodyCount),
+                   float(candidateBodyStride))
+        );
+        return;
+    }
+
+    const MRBodyStateGPU bodyState =
+        candidateBodies[environment * candidateBodyStride + body];
+    const float orientationNorm = dot(
+        bodyState.orientation, bodyState.orientation);
+    if (!finite3(bodyState.position.xyz) ||
+        !all(isfinite(bodyState.orientation)) ||
+        !(orientationNorm > 0.0f) ||
+        abs(orientationNorm - 1.0f) > 256.0f * kEpsilon) {
+        recordFailure(
+            statuses[environment], NM_STATUS_NONFINITE_INPUT,
+            object, attachmentIndex,
+            float4(bodyState.position.xyz, orientationNorm)
+        );
+        return;
+    }
+
+    const uint jacobianBase = environment * pointJacobianStride +
+        attachmentIndex * 3u * dispatch.rigidGeneralizedCapacity;
+    // The attachment operator consumes this exact Jacobian later. Validate
+    // the complete active row here before either the kinematics or reduced
+    // J^T residual can observe it.
+    for (uint dof = 0u; dof < articulatedNv; ++dof) {
+        const float3 jacobian = float3(
+            pointJacobians[jacobianBase + dof],
+            pointJacobians[
+                jacobianBase + dispatch.rigidGeneralizedCapacity + dof],
+            pointJacobians[
+                jacobianBase + 2u * dispatch.rigidGeneralizedCapacity + dof]
+        );
+        if (!finite3(jacobian)) {
+            recordFailure(
+                statuses[environment], NM_STATUS_NONFINITE_INPUT,
+                object, attachmentIndex,
+                float4(float(dof), jacobian)
+            );
+            return;
+        }
+    }
+    const float3 offset = quaternionRotate(
+        bodyState.orientation, attachment.localPoint.xyz);
+    const float3 position = bodyState.position.xyz + offset;
+    const float3 velocity = bodyState.linearVelocityAndInverseMass.xyz +
+        cross(bodyState.angularVelocity.xyz, offset);
+    if (!finite3(position) || !finite3(velocity)) {
+        recordFailure(
+            statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            object, attachmentIndex, float4(position, length(velocity))
+        );
+        return;
+    }
+
+    NMFEMNodeStateGPU next = candidate[nodeGlobal];
+    next.positionAndMass.xyz = position;
+    next.velocityAndInverseMass.xyz = velocity;
+    next.deltaVelocity.xyz =
+        velocity - accepted[nodeGlobal].velocityAndInverseMass.xyz;
+    candidate[nodeGlobal] = next;
+    (void)generalizedCandidate;
+}
+
 kernel void nm_fem_internal_forces(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -868,7 +998,7 @@ kernel void nm_fem_build_mechanical_residual(
     const float3 momentumCorrection = node.positionAndMass.w *
         (current.velocityAndInverseMass.xyz -
          node.velocityAndInverseMass.xyz);
-    const bool fixedVelocity = node.restAndFixed.w > 0.5f ||
+    const bool fixedVelocity = femStaticConstraint(node.restAndFixed.w) ||
         node.positionAndMass.w <= 0.0f;
     const float3 externalForce = hasExternalForces != 0u
         ? externalForces[global].xyz

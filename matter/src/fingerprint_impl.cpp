@@ -37,6 +37,7 @@ enum class FingerprintSection : std::uint32_t {
     femCohesiveFaces,
     femMutationCommands,
     femPunctureChannels,
+    femHumanAttachments,
     rigidProxies,
     contactPairs,
     contactNodeIncidence,
@@ -148,6 +149,9 @@ std::uint64_t compiledWorldFingerprint(
         std::span<const NMMutationCommandGPU>(world.fem.mutationCommands));
     hashSection(fingerprint, FingerprintSection::femPunctureChannels,
         std::span<const NMPunctureChannelGPU>(world.fem.punctureChannels));
+    hashSection(fingerprint, FingerprintSection::femHumanAttachments,
+        std::span<const NMFEMHumanAttachmentGPU>(
+            world.fem.humanAttachments));
     hashSection(fingerprint, FingerprintSection::rigidProxies,
         std::span<const NMRigidProxyGPU>(world.contact.rigidProxies));
     hashSection(fingerprint, FingerprintSection::contactPairs,

@@ -116,6 +116,8 @@ if(APPLE)
             src/metal/adaptive.metalinc
             src/metal/identification_scheduler.metalinc
             src/metal/numi_human.metalinc
+            src/metal/accepted_state_proof.metalinc
+            include/numi/matter/accepted_state_proof_gpu.h
             include/numi/matter/shared.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"

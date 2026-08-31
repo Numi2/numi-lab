@@ -103,6 +103,7 @@ public:
             validateMixedAuthorities() &&
             validateProgramsAndMaterials() &&
             validateObjectsAndTopology() &&
+            validateHumanAttachments() &&
             validateContact() &&
             validateAdaptiveAndSchedulers() &&
             validateIdentification() &&
@@ -162,6 +163,8 @@ private:
             dispatch.topologyNodeCapacity != world_.fem.topologyNodes.size() ||
             dispatch.punctureChannelCount != world_.fem.punctureChannels.size() ||
             dispatch.femCapacityCount != world_.fem.capacities.size() ||
+            dispatch.femHumanAttachmentCount !=
+                world_.fem.humanAttachments.size() ||
             dispatch.rigidProxyCount != world_.contact.rigidProxies.size() ||
             dispatch.contactPairCount != world_.contact.pairs.size()) {
             return fail("Matter dispatch counts disagree with cooked arenas");
@@ -169,14 +172,28 @@ private:
         const std::uint64_t expectedEventStride =
             static_cast<std::uint64_t>(NM_EVENT_CLASS_COUNT) *
             dispatch.objectCount;
+        const bool attachmentJacobianStrideFits =
+            detail::femHumanAttachmentPointJacobianStrideFits(
+                dispatch.femHumanAttachmentCount,
+                dispatch.rigidGeneralizedCapacity);
+        const std::uint32_t expectedAttachmentJacobianStride =
+            attachmentJacobianStrideFits
+            ? detail::femHumanAttachmentPointJacobianStride(
+                  dispatch.femHumanAttachmentCount,
+                  dispatch.rigidGeneralizedCapacity)
+            : 0u;
         if (dispatch.maximumRateExponent > NM_MAX_RATE_EXPONENT ||
-            dispatch.reservedSolver0 != 0u ||
             dispatch.maximumParticlesPerBlock !=
                 NM_MPM_MAX_PARTICLES_PER_BLOCK ||
             dispatch.materialStateStride > NM_MAX_MATERIAL_STATE ||
             expectedEventStride >
                 std::numeric_limits<std::uint32_t>::max() ||
-            dispatch.eventStride != expectedEventStride) {
+            dispatch.eventStride != expectedEventStride ||
+            dispatch.femHumanAttachmentCount >
+                NM_MATTER_MAX_HUMAN_ATTACHMENT_POINTS ||
+            !attachmentJacobianStrideFits ||
+            dispatch.femHumanAttachmentPointJacobianStride !=
+                expectedAttachmentJacobianStride) {
             return fail("Matter dispatch exceeds a fixed GPU capacity");
         }
         std::uint64_t expectedActiveMPMNodeCapacity = 0u;
@@ -220,6 +237,62 @@ private:
             ((dispatch.flags & NM_MATTER_IDENTIFICATION) != 0u) !=
                 !world_.identification.empty()) {
             return fail("Matter dispatch feature flags disagree with cooked programs");
+        }
+        return true;
+    }
+
+    [[nodiscard]] bool validateHumanAttachments() {
+        std::vector<bool> claimedNodes(world_.fem.nodes.size(), false);
+        std::set<std::uint32_t> stableIdentifiers;
+        std::uint32_t previousNode = 0u;
+        bool hasPreviousNode = false;
+        for (std::size_t index = 0u;
+             index < world_.fem.humanAttachments.size();
+             ++index) {
+            const NMFEMHumanAttachmentGPU& attachment =
+                world_.fem.humanAttachments[index];
+            const std::uint32_t node = attachment.identity.x;
+            const std::uint32_t body = attachment.identity.y;
+            const std::uint32_t object = attachment.identity.z;
+            const std::uint32_t stableIdentifier = attachment.identity.w;
+            if (node >= world_.fem.nodes.size() ||
+                object >= world_.objects.size() ||
+                femNodeOwners_[node] != object ||
+                world_.objects[object].representation !=
+                    NM_REPRESENTATION_FEM ||
+                body == NM_INVALID_INDEX ||
+                stableIdentifier == 0u ||
+                stableIdentifier == NM_INVALID_INDEX ||
+                claimedNodes[node] ||
+                !stableIdentifiers.insert(stableIdentifier).second ||
+                (hasPreviousNode && node <= previousNode) ||
+                !finite4(attachment.localPoint) ||
+                attachment.localPoint.w != 0.0f ||
+                world_.fem.nodes[node].restAndFixed.w != 2.0f ||
+                world_.fem.nodes[node].positionAndMass.w <= 0.0f ||
+                world_.fem.nodes[node].velocityAndInverseMass.w <= 0.0f ||
+                (world_.fem.topologyNodes[node].identity.w &
+                    NM_TOPOLOGY_ACTIVE) == 0u) {
+                return failIndexed(
+                    "FEM Human attachment",
+                    index,
+                    "identity, local point, ordering, or node constraint is invalid"
+                );
+            }
+            claimedNodes[node] = true;
+            previousNode = node;
+            hasPreviousNode = true;
+        }
+        for (std::size_t node = 0u; node < world_.fem.nodes.size(); ++node) {
+            const float marker = world_.fem.nodes[node].restAndFixed.w;
+            if ((marker != 0.0f && marker != 1.0f && marker != 2.0f) ||
+                ((marker == 2.0f) != claimedNodes[node])) {
+                return failIndexed(
+                    "FEM node",
+                    node,
+                    "constraint marker disagrees with Human attachments"
+                );
+            }
         }
         return true;
     }
@@ -1493,15 +1566,26 @@ private:
             if (!claimedFreeBodyIndices.contains(index))
                 return fail("free-body generalized indices are not compact");
         }
-        const bool hasArticulatedProxy = articulatedProxyCount != 0u;
-        const std::uint64_t expectedRigidCapacity =
-            (hasArticulatedProxy ? NM_MATTER_MAX_ARTICULATED_DOFS : 0u) +
+        const bool hasArticulatedCandidateAuthority =
+            articulatedProxyCount != 0u ||
+            !world_.fem.humanAttachments.empty();
+        const std::uint64_t freeCapacity =
             static_cast<std::uint64_t>(freeBodyIndices.size()) * 6u;
-        const std::uint64_t expectedQCapacity =
-            hasArticulatedProxy ? NM_MATTER_MAX_ARTICULATED_Q : 0u;
-        if (expectedRigidCapacity != world_.dispatch.rigidGeneralizedCapacity ||
-            expectedQCapacity != world_.dispatch.rigidQCapacity) {
-            return fail("rigid generalized capacities disagree with proxy ownership");
+        if (world_.dispatch.rigidGeneralizedCapacity < freeCapacity) {
+            return fail("rigid generalized capacities disagree with coupled candidate ownership");
+        }
+        const std::uint64_t articulatedCapacity =
+            world_.dispatch.rigidGeneralizedCapacity - freeCapacity;
+        if ((!hasArticulatedCandidateAuthority &&
+             (articulatedCapacity != 0u ||
+              world_.dispatch.rigidQCapacity != 0u)) ||
+            (hasArticulatedCandidateAuthority &&
+             (articulatedCapacity == 0u ||
+              articulatedCapacity > NM_MATTER_MAX_ARTICULATED_DOFS ||
+              world_.dispatch.rigidQCapacity == 0u ||
+              world_.dispatch.rigidQCapacity >
+                  NM_MATTER_MAX_ARTICULATED_Q))) {
+            return fail("rigid generalized capacities disagree with coupled candidate ownership");
         }
 
         std::vector<std::uint32_t> pairNodeCounts(

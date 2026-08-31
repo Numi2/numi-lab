@@ -1,6 +1,7 @@
 #pragma once
 
 #include "numi/matter/shared.h"
+#include "numi/matter/accepted_state_proof_gpu.h"
 
 #include <array>
 #include <cstddef>
@@ -381,6 +382,20 @@ struct RigidProxySource {
     std::uint32_t strandNodeB = NM_INVALID_INDEX;
 };
 
+struct FEMHumanAttachmentSource {
+    // Object-local authored FEM node. Cooking resolves this to the global FEM
+    // node arena while retaining the owning object in the GPU record.
+    std::uint32_t node = 0u;
+    // Global Numi Human body index. NM_INVALID_INDEX is never a valid
+    // attachment target.
+    std::uint32_t bodyIndex = NM_INVALID_INDEX;
+    // Stable nonzero identity used to preserve attachment provenance across
+    // recooks. Identifiers are unique across the compiled world.
+    std::uint32_t stableIdentifier = 0u;
+    // Attachment point expressed in the target Human body's local frame.
+    std::array<double, 3> localPoint{};
+};
+
 struct ObjectSource {
     std::string name;
     std::uint32_t materialIndex = 0u;
@@ -413,6 +428,9 @@ struct ObjectSource {
     // rest position. Fixed nodes retain their assembled mass for accounting,
     // but have zero velocity and inverse mass in the executable state.
     std::vector<std::uint32_t> femFixedNodes;
+    // Moving body-frame constraints are distinct from static fixed nodes.
+    // Each authored FEM node may own at most one Human attachment.
+    std::vector<FEMHumanAttachmentSource> femHumanAttachments;
     // Optional authored collision surface. Empty preserves source-world
     // compatibility by cooking every FEM node; otherwise only these local
     // nodes receive continuum/rigid contact rows. Topology mutation may use
@@ -434,6 +452,12 @@ struct WorldSource {
     double maximumDepenetrationSpeed = 5.0;
     std::uint32_t environmentCount = 1u;
     std::uint32_t identificationCandidates = 0u;
+    // Exact cooked capacity reserved for an articulated primal candidate.
+    // The compatibility defaults match MetalWorld's ABA class. Numi Human
+    // worlds explicitly select up to the 160-DoF/161-q Matter ceiling. These
+    // values do not allocate anything when no articulated proxy is authored.
+    std::uint32_t articulatedDofCapacity = 40u;
+    std::uint32_t articulatedQCapacity = 41u;
     bool deterministic = true;
     MixedSolverSource mixedSolver;
     std::vector<MaterialProgram> materials;
@@ -467,6 +491,7 @@ struct CookedFEM {
     std::vector<NMCohesiveFaceGPU> cohesiveFaces;
     std::vector<NMMutationCommandGPU> mutationCommands;
     std::vector<NMPunctureChannelGPU> punctureChannels;
+    std::vector<NMFEMHumanAttachmentGPU> humanAttachments;
 };
 
 struct CookedContact {
@@ -580,6 +605,10 @@ struct RuntimeConfiguration {
     // material parameters of designated environments.
     bool automaticIdentification = false;
     bool adaptiveTransfer = true;
+    // Exact initialized upper bound for the borrowed Human MyoSim bytes
+    // hashed per environment. Zero keeps the production proof authority
+    // unavailable; callers must budget this explicitly with the Human arena.
+    std::uint64_t acceptedStateProofMujocoBytesPerEnvironmentCapacity = 0u;
 };
 
 struct BorrowedRigidWorldBuffers {
@@ -701,7 +730,259 @@ struct EncodeRequest {
     float timestepSeconds = 0.0f;
     bool runIdentification = false;
     bool runAdaptiveTransfer = false;
+    // Opt in at preDynamics when this transaction will use the later-CB
+    // proposal/ACK/apply/publication protocol. This enables the additional
+    // rollback checkpoints without changing the synchronous hot path. V1 is
+    // fail-closed for identification, reset, multi-substep, and adaptive
+    // transactions because their external control/body authority is not yet
+    // covered by the joint device rollback contract.
+    bool enablePreparedState = false;
 };
+
+// Borrowed, device-only accepted-state proof surface. This is intentionally
+// independent of the NumanX adapter header so Matter remains usable on its own;
+// acceptedStateProofs must nevertheless point to the adapter's exact 128-byte
+// MRNumanXAcceptedStateProofGPU records. The runtime encodes only after the
+// matching prepareAcceptedState(postCommit) has materialized every
+// success-surviving mutation in the same borrowed command buffer. It never
+// creates a queue, commits, waits, reads back, or retains a borrowed resource.
+struct AcceptedStateProofPass {
+    std::uint32_t abiVersion = NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION;
+    std::uint32_t structSize = sizeof(AcceptedStateProofPass);
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t environmentIdentifierBase = 0u;
+
+    void* commandBuffer = nullptr;
+    void* q = nullptr;
+    void* v = nullptr;
+    void* mujocoStates = nullptr;
+    // Borrowed transient transport output. It is validated for exact device
+    // provenance and alias safety but is not part of accepted Matter state;
+    // the owned, checkpointed coupledGeneralizedCandidate is hashed instead.
+    void* matterGeneralizedReaction = nullptr;
+    // Borrowed provisional Human transaction status produced before Matter
+    // proof finalization on the same command buffer. It is an admission
+    // witness, not accepted-state content: only exact Human SUCCESS for this
+    // control step/substep can produce a VALID prepared binding.
+    void* environmentStatuses = nullptr; // MRMetalWorldStatusGPU
+    void* matterStatuses = nullptr;
+    void* acceptedStateProofs = nullptr;
+
+    std::uint64_t qGPUAddress = 0u;
+    std::uint64_t vGPUAddress = 0u;
+    std::uint64_t mujocoStatesGPUAddress = 0u;
+    std::uint64_t matterGeneralizedReactionGPUAddress = 0u;
+    std::uint64_t environmentStatusesGPUAddress = 0u;
+    std::uint64_t matterStatusesGPUAddress = 0u;
+    std::uint64_t acceptedStateProofsGPUAddress = 0u;
+
+    std::uint64_t qElementCount = 0u;
+    std::uint64_t vElementCount = 0u;
+    std::uint64_t mujocoStateCount = 0u;
+    std::uint64_t matterGeneralizedReactionElementCount = 0u;
+    std::uint64_t environmentStatusElementCount = 0u;
+    std::uint64_t matterStatusElementCount = 0u;
+    std::uint64_t acceptedStateProofElementCount = 0u;
+
+    std::uint32_t qStride = 0u;
+    std::uint32_t vStride = 0u;
+    std::uint32_t mujocoStateStride = 0u;
+    std::uint32_t reactionStride = 0u;
+    std::uint32_t environmentStatusStride = 0u;
+    std::uint32_t matterStatusStride = 0u;
+    std::uint32_t acceptedStateProofStride = 0u;
+    std::uint32_t qCoordinateCount = 0u;
+    std::uint32_t dofCount = 0u;
+    // Exact owner slot retained in Matter's private prepared binding and
+    // checked again against the later device-side final decision.
+    std::uint32_t transactionSlot = 0u;
+
+    std::uint64_t programFingerprint = 0u;
+    std::uint64_t stateProofProgramFingerprint = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t substepFingerprint = 0u;
+    std::uint64_t acceptedTimestampMicroseconds = 0u;
+    std::uint64_t physicsGeneration = 0u;
+    std::uint64_t linearizationEpoch = 0u;
+    std::uint64_t slotGeneration = 0u;
+    std::uint64_t matterSourcePhysicsFingerprint = 0u;
+    std::uint64_t matterDeviceProgramFingerprint = 0u;
+};
+
+enum class PreparedStateApplyMode : std::uint32_t {
+    validateBrainAck = 0u,
+    forceReject = 1u,
+};
+
+// ABI4 proposal -> Brain ACK -> apply surface.  Proposal, ACK, and action are
+// independent immutable owner/Brain records; Matter validates every record and
+// their transitive fingerprints before it accepts or restores the retained
+// prepared state.  The caller owns all resources and the borrowed command
+// buffer.  Matter writes only matterApplyOutcomes and performs no submission,
+// wait, readback, or retention of a borrowed object.
+struct AcceptedStateApplyPass {
+    std::uint32_t abiVersion = 1u;
+    std::uint32_t structSize = sizeof(AcceptedStateApplyPass);
+    PreparedStateApplyMode mode = PreparedStateApplyMode::validateBrainAck;
+    std::uint32_t reserved0 = 0u;
+
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t environmentIdentifierBase = 0u;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t physicsSubstepCount = 1u;
+    std::uint32_t transactionSlot = 0u;
+    std::uint32_t reserved1 = 0u;
+    std::uint32_t reserved2 = 0u;
+
+    void* commandBuffer = nullptr;
+    void* proposals = nullptr;
+    void* brainAcks = nullptr;
+    void* applyActions = nullptr;
+    void* matterApplyOutcomes = nullptr;
+    void* proposedPhysicsStateTokens = nullptr;
+
+    std::uint64_t proposalsGPUAddress = 0u;
+    std::uint64_t brainAcksGPUAddress = 0u;
+    std::uint64_t applyActionsGPUAddress = 0u;
+    std::uint64_t matterApplyOutcomesGPUAddress = 0u;
+    std::uint64_t proposedPhysicsStateTokensGPUAddress = 0u;
+
+    std::uint64_t proposalElementCount = 0u;
+    std::uint64_t brainAckElementCount = 0u;
+    std::uint64_t applyActionElementCount = 0u;
+    std::uint64_t matterApplyOutcomeElementCount = 0u;
+    std::uint64_t proposedPhysicsStateTokenBytes = 0u;
+
+    std::uint32_t proposalStride = 0u;
+    std::uint32_t brainAckStride = 0u;
+    std::uint32_t applyActionStride = 0u;
+    std::uint32_t matterApplyOutcomeStride = 0u;
+    std::uint32_t proposedPhysicsStateTokenStrideBytes = 0u;
+    std::uint32_t reserved3 = 0u;
+
+    std::uint64_t ownerProgramFingerprint = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t linearizationEpoch = 0u;
+    std::uint64_t slotGeneration = 0u;
+};
+
+enum class PreparedStateDisposition : std::uint32_t {
+    unknown = 0u,
+    prepared = 1u,
+    applying = 2u,
+    resolved = 3u,
+    restoreRequired = 4u,
+    terminalNoTouch = 5u,
+    // ABI4 ACCEPT has applied to both physical owners but is still invisible
+    // to the root. Checkpoints and proof authority remain quarantined until an
+    // exact COMMITTED publication fence is released.
+    acceptedPendingPublication = 6u,
+};
+
+// Pointer-free identity for the last admitted prepared-state proof/apply
+// lifecycle. The query is host metadata only: Runtime's completion handler
+// consumes the existing owned four-byte GPU outcome once, records this exact
+// identity under its ownership mutex, and never rereads a borrowed payload.
+struct PreparedStateDispositionIdentity {
+    std::uint32_t abiVersion = 1u;
+    std::uint32_t structSize = sizeof(PreparedStateDispositionIdentity);
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t physicsSubstepCount = 0u;
+    std::uint32_t transactionSlot = 0u;
+    std::uint32_t reserved0 = 0u;
+    std::uint32_t reserved1 = 0u;
+    std::uint64_t ownerProgramFingerprint = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t linearizationEpoch = 0u;
+    std::uint64_t slotGeneration = 0u;
+};
+static_assert(sizeof(PreparedStateDispositionIdentity) == 64u);
+static_assert(alignof(PreparedStateDispositionIdentity) == alignof(std::uint64_t));
+
+// Pointer-free owner/Brain ABI4 publication fence.  The adapter copies this
+// exact 128-byte record from its prevalidated shared lease only after the
+// nonthrow joint Brain publication.  Runtime recomputes the FNV relation and
+// exact prepared identity; event completion or host sequencing alone is never
+// publication authority.
+struct alignas(16) PreparedStatePublicationFence {
+    std::uint32_t abiVersion = 0u;
+    std::uint32_t structBytes = 0u;
+    std::uint32_t status = 0u;
+    std::uint32_t environment = 0u;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t substepIndex = 0u;
+    std::uint32_t physicsSubstepCount = 0u;
+    std::uint32_t reserved0 = 0u;
+    std::uint64_t ownerProgramFingerprint = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t linearizationEpoch = 0u;
+    std::uint64_t slotGeneration = 0u;
+    std::uint64_t physicsTokenFingerprint = 0u;
+    std::uint64_t brainProgramFingerprint = 0u;
+    std::uint64_t brainShadowStateFingerprint = 0u;
+    std::uint64_t brainWitnessFingerprint = 0u;
+    std::uint64_t appliedDecisionFingerprint = 0u;
+    std::uint64_t jointCommitFingerprint = 0u;
+    std::uint64_t brainGeneration = 0u;
+    std::uint64_t fenceFingerprint = 0u;
+};
+static_assert(sizeof(PreparedStatePublicationFence) == 128u);
+static_assert(alignof(PreparedStatePublicationFence) == 16u);
+static_assert(offsetof(PreparedStatePublicationFence, fenceFingerprint) == 120u);
+
+// Fallible pre-publication reservation. The adapter derives this exact scalar
+// binding from the immutable owner proposal and completed applied outcome,
+// then adds the Brain commit plan. Runtime retains no borrowed object. A later
+// release must match every field in the COMMITTED fence byte-for-byte.
+struct PreparedStatePublicationBinding {
+    std::uint32_t abiVersion = 1u;
+    std::uint32_t structSize = sizeof(PreparedStatePublicationBinding);
+    std::uint32_t reserved0 = 0u;
+    std::uint32_t reserved1 = 0u;
+    std::uint64_t physicsTokenFingerprint = 0u;
+    std::uint64_t brainProgramFingerprint = 0u;
+    std::uint64_t brainShadowStateFingerprint = 0u;
+    std::uint64_t brainWitnessFingerprint = 0u;
+    std::uint64_t matterApplyFingerprint = 0u;
+    std::uint64_t appliedDecisionFingerprint = 0u;
+    std::uint64_t jointCommitFingerprint = 0u;
+    std::uint64_t brainGeneration = 0u;
+};
+static_assert(sizeof(PreparedStatePublicationBinding) == 80u);
+static_assert(alignof(PreparedStatePublicationBinding) ==
+              alignof(std::uint64_t));
+static_assert(offsetof(PreparedStatePublicationBinding,
+                       physicsTokenFingerprint) == 16u);
+static_assert(offsetof(PreparedStatePublicationBinding,
+                       matterApplyFingerprint) == 48u);
+static_assert(offsetof(PreparedStatePublicationBinding,
+                       brainGeneration) == 72u);
+
+// Opaque one-shot authority returned only by a successful publication
+// reservation. A stale caller cannot consume a newer accepted root by
+// replaying its public scalar identity. The terminal FNV is deterministic
+// integrity/replay evidence, not cryptographic authentication.
+struct PreparedStatePublicationReservation {
+    std::uint32_t abiVersion = 1u;
+    std::uint32_t structSize = sizeof(PreparedStatePublicationReservation);
+    std::uint32_t transactionSlot = 0u;
+    std::uint32_t reserved0 = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t slotGeneration = 0u;
+    std::uint64_t reservationNonce = 0u;
+    std::uint64_t reserved1 = 0u;
+    std::uint64_t reserved2 = 0u;
+    std::uint64_t reservationFingerprint = 0u;
+};
+static_assert(sizeof(PreparedStatePublicationReservation) == 64u);
+static_assert(alignof(PreparedStatePublicationReservation) ==
+              alignof(std::uint64_t));
+static_assert(offsetof(PreparedStatePublicationReservation,
+                       reservationNonce) == 32u);
+static_assert(offsetof(PreparedStatePublicationReservation,
+                       reservationFingerprint) == 56u);
 
 struct RuntimeDiagnostics {
     bool encoded = false;
@@ -827,6 +1108,49 @@ public:
         const RuntimeConfiguration& configuration = {}
     );
     [[nodiscard]] RuntimeDiagnostics encode(const EncodeRequest& request);
+    // Performs the complete success-surviving post-dynamics reconciliation
+    // but retains every rollback checkpoint and quarantines the Runtime until
+    // a later immutable Brain ACK is applied and jointly published.
+    [[nodiscard]] RuntimeDiagnostics prepareAcceptedState(
+        const EncodeRequest& postCommitRequest
+    );
+    // Encodes a fixed-order byte proof of the success-surviving Matter arenas
+    // plus borrowed Human q/v/MyoSim state. It is valid only after the matching
+    // prepareAcceptedState graph on that exact first command buffer; prepared
+    // bytes remain quarantined until later ACK-gated apply and publication.
+    [[nodiscard]] bool encodeAcceptedStateProof(
+        const AcceptedStateProofPass& pass
+    ) noexcept;
+    // Stable identity of the proof shader, arena manifest, and exact initialized
+    // Matter device program. Supply this as the adapter proof-program identity.
+    [[nodiscard]] std::uint64_t
+    acceptedStateProofProgramFingerprint() const noexcept;
+    [[nodiscard]] std::size_t
+    acceptedStateProofResidentBytes() const noexcept;
+    // ABI4 apply after an immutable Brain ACK. ACCEPT remains
+    // acceptedPendingPublication; REJECT restores and resolves immediately.
+    [[nodiscard]] bool applyPreparedState(
+        const AcceptedStateApplyPass& pass
+    ) noexcept;
+    // Exact-identity lifecycle query. UNKNOWN is returned for an invalid or
+    // stale identity and must fail closed. REJECT reaches RESOLVED; ACCEPT
+    // remains acceptedPendingPublication until releasePublishedRoot validates
+    // a COMMITTED joint fence.
+    [[nodiscard]] PreparedStateDisposition preparedStateDisposition(
+        const PreparedStateDispositionIdentity& identity
+    ) const noexcept;
+    [[nodiscard]] bool reservePublishedRoot(
+        const PreparedStateDispositionIdentity& identity,
+        const PreparedStatePublicationBinding& binding,
+        PreparedStatePublicationReservation& reservation
+    ) noexcept;
+    // Allocation-free/nonthrow release after the joint Brain root has been
+    // published. This is the only ABI4 ACCEPT path that clears checkpoints and
+    // admits a subsequent Runtime transaction.
+    [[nodiscard]] bool releasePublishedRoot(
+        const PreparedStatePublicationReservation& reservation,
+        const PreparedStatePublicationFence& publicationFence
+    ) noexcept;
     [[nodiscard]] TopologyGrowthRequest pendingTopologyGrowth() const noexcept;
     // Encode accepted-state migration from an older runtime into this already
     // initialized, geometrically larger runtime. The caller owns submission;
@@ -927,6 +1251,13 @@ public:
 
 private:
     struct State;
+    [[nodiscard]] RuntimeDiagnostics encodeImpl(
+        const EncodeRequest& request,
+        bool retainPreparedState
+    );
+    [[nodiscard]] bool applyPreparedStateImpl(
+        const AcceptedStateApplyPass& pass
+    ) noexcept;
     std::unique_ptr<State> state_;
 };
 

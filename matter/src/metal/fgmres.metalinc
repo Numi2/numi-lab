@@ -51,6 +51,272 @@ inline uint fgmresRigidIndex(
         environment * dispatch.rigidGeneralizedCapacity + dof;
 }
 
+// Lift a reduced articulated vector through the exact Human point Jacobian
+// into the eliminated moving FEM node. The same kernel is used for FGMRES
+// right-preconditioned directions and for the final line-search correction.
+kernel void nm_fem_human_attachment_map_direction(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& articulatedNv [[buffer(1)]],
+    device const NMFEMHumanAttachmentGPU* attachments [[buffer(2)]],
+    device const float* pointJacobians [[buffer(3)]],
+    device float4* vector [[buffer(4)]],
+    device const NMMatterStatusGPU* statuses [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint count = dispatch.femHumanAttachmentCount;
+    const uint total = dispatch.environmentCount * count;
+    if (global >= total || count == 0u) return;
+    const uint environment = global / count;
+    const uint attachmentIndex = global - environment * count;
+    const NMFEMHumanAttachmentGPU attachment =
+        attachments[attachmentIndex];
+    if (!environmentHealthy(statuses, environment) ||
+        attachment.identity.x >= dispatch.femNodeCount ||
+        articulatedNv == 0u ||
+        articulatedNv > dispatch.rigidGeneralizedCapacity) return;
+
+    const uint rigidBase = fgmresRigidIndex(dispatch, environment, 0u);
+    const uint jacobianStride =
+        dispatch.femHumanAttachmentPointJacobianStride;
+    const uint jacobianBase = environment * jacobianStride +
+        attachmentIndex * 3u * dispatch.rigidGeneralizedCapacity;
+    float3 value = float3(0.0f);
+    float3 correction = float3(0.0f);
+    for (uint dof = 0u; dof < articulatedNv; ++dof) {
+        const float coefficient = vector[rigidBase + dof].x;
+        const float3 product = coefficient * float3(
+            pointJacobians[jacobianBase + dof],
+            pointJacobians[
+                jacobianBase + dispatch.rigidGeneralizedCapacity + dof],
+            pointJacobians[
+                jacobianBase + 2u * dispatch.rigidGeneralizedCapacity + dof]
+        );
+        const float3 adjusted = product - correction;
+        const float3 next = value + adjusted;
+        correction = (next - value) - adjusted;
+        value = next;
+    }
+    vector[environment * dispatch.femNodeCount + attachment.identity.x].xyz =
+        value;
+}
+
+kernel void nm_fem_human_attachment_eliminate_direction(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMHumanAttachmentGPU* attachments [[buffer(1)]],
+    device float4* vector [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint count = dispatch.femHumanAttachmentCount;
+    const uint total = dispatch.environmentCount * count;
+    if (global >= total || count == 0u) return;
+    const uint environment = global / count;
+    const uint attachmentIndex = global - environment * count;
+    const uint node = attachments[attachmentIndex].identity.x;
+    if (node < dispatch.femNodeCount)
+        vector[environment * dispatch.femNodeCount + node].xyz =
+            float3(0.0f);
+}
+
+// Capture the full unconstrained impulse row after internal, external,
+// inertial, rigid-contact, and deformable-contact assembly; then remove that
+// row from the full FEM block. rawReactions is force on Human (FEM on Human),
+// while residualImpulses retains the dt-scaled quantity used by the reduced
+// Newton residual. Both arenas are distinct from tendon and rigid-proxy force
+// storage and are overwritten on every candidate assembly.
+kernel void nm_fem_human_attachment_capture_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMHumanAttachmentGPU* attachments [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(3)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(4)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(5)]],
+    device float4* residual [[buffer(6)]],
+    device float4* preconditioned [[buffer(7)]],
+    device float4* direction [[buffer(8)]],
+    device float4* residualImpulses [[buffer(9)]],
+    device float4* rawReactions [[buffer(10)]],
+    device NMMatterStatusGPU* statuses [[buffer(11)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint count = dispatch.femHumanAttachmentCount;
+    const uint total = dispatch.environmentCount * count;
+    if (global >= total || count == 0u) return;
+    const uint environment = global / count;
+    const uint attachmentIndex = global - environment * count;
+    const NMFEMHumanAttachmentGPU attachment =
+        attachments[attachmentIndex];
+    const uint node = attachment.identity.x;
+    const uint object = attachment.identity.z;
+    const uint nodeGlobal = environment * dispatch.femNodeCount + node;
+    residualImpulses[global] = float4(0.0f);
+    rawReactions[global] = float4(0.0f);
+    if (!environmentHealthy(statuses, environment)) return;
+    if (node >= dispatch.femNodeCount || object >= dispatch.objectCount ||
+        nodeRanges[nodeGlobal].objectIndex != object ||
+        !femHumanAttachmentConstraint(
+            candidate[nodeGlobal].restAndFixed.w)) {
+        const float marker = node < dispatch.femNodeCount
+            ? candidate[nodeGlobal].restAndFixed.w : -1.0f;
+        recordFailure(
+            statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            object, attachmentIndex,
+            float4(float(node), float(object),
+                   marker, 0.0f)
+        );
+        return;
+    }
+    const float dt = objectTimestep(
+        dispatch,
+        schedulers[environment * dispatch.objectCount + object]
+    );
+    const float3 impulse = residual[nodeGlobal].xyz;
+    if (!(dt > 0.0f) || !isfinite(dt) || !finite3(impulse)) {
+        recordFailure(
+            statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            object, attachmentIndex, float4(impulse, dt)
+        );
+        return;
+    }
+    residualImpulses[global] = float4(impulse, 0.0f);
+    rawReactions[global] = float4(impulse / dt, 0.0f);
+    residual[nodeGlobal].xyz = float3(0.0f);
+    preconditioned[nodeGlobal].xyz = float3(0.0f);
+    direction[nodeGlobal].xyz = float3(0.0f);
+}
+
+kernel void nm_fem_human_attachment_scatter_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& articulatedNv [[buffer(1)]],
+    device const float* pointJacobians [[buffer(2)]],
+    device const float4* residualImpulses [[buffer(3)]],
+    device float4* residual [[buffer(4)]],
+    device NMMatterStatusGPU* statuses [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.rigidGeneralizedCapacity;
+    if (global >= total || dispatch.femHumanAttachmentCount == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (!environmentHealthy(statuses, environment) || dof >= articulatedNv)
+        return;
+    const uint count = dispatch.femHumanAttachmentCount;
+    const uint jacobianStride =
+        dispatch.femHumanAttachmentPointJacobianStride;
+    float value = 0.0f;
+    float correction = 0.0f;
+    for (uint attachment = 0u; attachment < count; ++attachment) {
+        const uint jacobianBase = environment * jacobianStride +
+            attachment * 3u * dispatch.rigidGeneralizedCapacity;
+        const float3 impulse = residualImpulses[
+            environment * count + attachment].xyz;
+        const float product = dot(impulse, float3(
+            pointJacobians[jacobianBase + dof],
+            pointJacobians[
+                jacobianBase + dispatch.rigidGeneralizedCapacity + dof],
+            pointJacobians[
+                jacobianBase + 2u * dispatch.rigidGeneralizedCapacity + dof]
+        ));
+        const float adjusted = product - correction;
+        const float next = value + adjusted;
+        correction = (next - value) - adjusted;
+        value = next;
+    }
+    if (!isfinite(value)) {
+        recordFailure(
+            statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, dof, float4(value, 0.0f, 0.0f, 0.0f)
+        );
+        return;
+    }
+    residual[fgmresRigidIndex(dispatch, environment, dof)].x += value;
+}
+
+kernel void nm_fem_human_attachment_capture_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMHumanAttachmentGPU* attachments [[buffer(1)]],
+    device float4* work [[buffer(2)]],
+    device float4* attachmentOperator [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint count = dispatch.femHumanAttachmentCount;
+    const uint total = dispatch.environmentCount * count;
+    if (global >= total || count == 0u) return;
+    const uint environment = global / count;
+    const uint attachmentIndex = global - environment * count;
+    const uint node = attachments[attachmentIndex].identity.x;
+    attachmentOperator[global] = float4(0.0f);
+    if (node >= dispatch.femNodeCount) return;
+    const uint nodeGlobal = environment * dispatch.femNodeCount + node;
+    attachmentOperator[global] = float4(work[nodeGlobal].xyz, 0.0f);
+    work[nodeGlobal].xyz = float3(0.0f);
+}
+
+kernel void nm_fem_human_attachment_scatter_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& articulatedNv [[buffer(1)]],
+    device const float* pointJacobians [[buffer(2)]],
+    device const float4* attachmentOperator [[buffer(3)]],
+    device float4* work [[buffer(4)]],
+    device NMMatterStatusGPU* statuses [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.rigidGeneralizedCapacity;
+    if (global >= total || dispatch.femHumanAttachmentCount == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (!environmentHealthy(statuses, environment) || dof >= articulatedNv)
+        return;
+    const uint count = dispatch.femHumanAttachmentCount;
+    const uint jacobianStride =
+        dispatch.femHumanAttachmentPointJacobianStride;
+    float value = 0.0f;
+    float correction = 0.0f;
+    for (uint attachment = 0u; attachment < count; ++attachment) {
+        const uint jacobianBase = environment * jacobianStride +
+            attachment * 3u * dispatch.rigidGeneralizedCapacity;
+        const float3 nodeOperator = attachmentOperator[
+            environment * count + attachment].xyz;
+        const float product = dot(nodeOperator, float3(
+            pointJacobians[jacobianBase + dof],
+            pointJacobians[
+                jacobianBase + dispatch.rigidGeneralizedCapacity + dof],
+            pointJacobians[
+                jacobianBase + 2u * dispatch.rigidGeneralizedCapacity + dof]
+        ));
+        const float adjusted = product - correction;
+        const float next = value + adjusted;
+        correction = (next - value) - adjusted;
+        value = next;
+    }
+    if (!isfinite(value)) {
+        recordFailure(
+            statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, dof, float4(value, 0.0f, 0.0f, 0.0f)
+        );
+        return;
+    }
+    work[fgmresRigidIndex(dispatch, environment, dof)].x += value;
+}
+
+kernel void nm_fem_human_attachment_mask_reactions(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device float4* residualImpulses [[buffer(2)]],
+    device float4* rawReactions [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint count = dispatch.femHumanAttachmentCount;
+    const uint total = dispatch.environmentCount * count;
+    if (global >= total || count == 0u) return;
+    const uint environment = global / count;
+    if (!environmentHealthy(statuses, environment)) {
+        residualImpulses[global] = float4(0.0f);
+        rawReactions[global] = float4(0.0f);
+    }
+}
+
 inline uint coupledFreeProxyIndex(
     const NMMatterDispatchGPU dispatch,
     constant NMPrimalContactArguments& contact,
@@ -1359,7 +1625,8 @@ kernel void nm_fgmres_gather_nodes(
         ++activeElements;
     }
     const float dt = objectTimestep(dispatch, schedulers[objectGlobal]);
-    const bool fixedVelocity = candidate[global].restAndFixed.w > 0.5f;
+    const bool fixedVelocity =
+        femStaticConstraint(candidate[global].restAndFixed.w);
     work[global] = float4(
         fixedVelocity ? float3(0.0f) :
             candidate[global].positionAndMass.w * direction[global].xyz -

@@ -3,12 +3,12 @@
 #include <cmath>
 
 static_assert(
-    NM_MATTER_MAX_ARTICULATED_DOFS == MR_ARTICULATED_ABA_MAX_DOFS,
-    "Matter and MetalWorld coupled velocity capacities must match"
+    NM_MATTER_MAX_ARTICULATED_DOFS >= MR_ARTICULATED_ABA_MAX_DOFS,
+    "Matter must admit MetalWorld's coupled velocity capacity"
 );
 static_assert(
-    NM_MATTER_MAX_ARTICULATED_Q == MR_ARTICULATED_ABA_MAX_Q,
-    "Matter and MetalWorld coupled position capacities must match"
+    NM_MATTER_MAX_ARTICULATED_Q >= MR_ARTICULATED_ABA_MAX_Q,
+    "Matter must admit MetalWorld's coupled position capacity"
 );
 
 namespace numi::matter {

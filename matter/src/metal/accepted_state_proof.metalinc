@@ -1,0 +1,909 @@
+#include <metal_stdlib>
+
+#include "metalrobo/engine_types.h"
+#include "numi/matter/accepted_state_proof_gpu.h"
+#include "numi/matter/accepted_state_apply_gpu.h"
+
+using namespace metal;
+
+namespace numi_matter_metal {
+namespace accepted_state_proof_detail {
+
+constant ulong kFNVOffset = 14695981039346656037ul;
+constant ulong kFNVPrime = 1099511628211ul;
+constant uint kPhysicsDomain = 0x4e585053u;
+constant uint kHumanDomain = 0x4e584855u;
+constant uint kMatterDomain = 0x4e584d41u;
+constant uint kChunkDomain = 0x4e584348u;
+constant uint kTreeDomain = 0x4e585452u;
+constant uint kSharedSource = 1u;
+
+struct BeginGPU {
+    uint environmentCount;
+    uint schemaVersion;
+    uint reserved0;
+    uint reserved1;
+    ulong transactionPolicyFingerprint;
+    ulong reserved2;
+};
+
+struct ChunkGPU {
+    uint environmentCount;
+    uint source;
+    uint flags;
+    uint chunkBytes;
+    uint chunkCount;
+    uint scratchStride;
+    uint reserved0;
+    uint reserved1;
+    ulong bytesPerEnvironment;
+    ulong sharedBytes;
+};
+
+struct ReduceGPU {
+    uint environmentCount;
+    uint source;
+    uint inputCount;
+    uint outputCount;
+    uint scratchStride;
+    uint level;
+    uint reserved0;
+    uint reserved1;
+};
+
+struct FoldGPU {
+    uint environmentCount;
+    uint source;
+    uint target;
+    uint flags;
+    uint scratchStride;
+    uint reserved0;
+    uint reserved1;
+    uint reserved2;
+    ulong bytesPerEnvironment;
+    ulong sharedBytes;
+};
+
+struct FinalizeGPU {
+    uint abiVersion;
+    uint structSize;
+    uint environmentCount;
+    uint environmentIdentifierBase;
+    uint matterStatusStride;
+    uint acceptedStateProofStride;
+    uint controlStep;
+    uint physicsSubstep;
+    uint transactionSlot;
+    uint environmentStatusStride;
+    ulong transactionFingerprint;
+    ulong substepFingerprint;
+    ulong acceptedTimestampMicroseconds;
+    ulong physicsGeneration;
+    ulong matterSourcePhysicsFingerprint;
+    ulong matterDeviceProgramFingerprint;
+    ulong stateProofProgramFingerprint;
+    ulong adapterProgramFingerprint;
+    ulong transactionPolicyFingerprint;
+    ulong linearizationEpoch;
+    ulong slotGeneration;
+};
+
+inline void mixUInt(thread ulong& hash, const uint value) {
+    for (uint byte = 0u; byte < 4u; ++byte) {
+        hash ^= ulong((value >> (8u * byte)) & 0xffu);
+        hash *= kFNVPrime;
+    }
+}
+
+inline void mixULong(thread ulong& hash, const ulong value) {
+    for (uint byte = 0u; byte < 8u; ++byte) {
+        hash ^= (value >> (8u * byte)) & 0xfful;
+        hash *= kFNVPrime;
+    }
+}
+
+inline ulong physicsFingerprint(
+    const ulong human,
+    const ulong matter,
+    constant FinalizeGPU& pass,
+    const uint environment
+) {
+    ulong hash = kFNVOffset;
+    mixUInt(hash, kPhysicsDomain);
+    mixUInt(hash, NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION);
+    mixULong(hash, human);
+    mixULong(hash, matter);
+    mixULong(hash, pass.matterSourcePhysicsFingerprint);
+    mixULong(hash, pass.matterDeviceProgramFingerprint);
+    mixULong(hash, pass.stateProofProgramFingerprint);
+    mixULong(hash, pass.adapterProgramFingerprint);
+    mixULong(hash, pass.transactionPolicyFingerprint);
+    mixULong(hash, pass.transactionFingerprint);
+    mixULong(hash, pass.substepFingerprint);
+    mixULong(hash, pass.physicsGeneration);
+    mixUInt(hash, environment);
+    return hash;
+}
+
+inline ulong recordFingerprint(thread const NMAcceptedStateProofGPU& proof) {
+    ulong hash = kFNVOffset;
+    mixUInt(hash, proof.abiVersion);
+    mixUInt(hash, proof.structSize);
+    mixUInt(hash, proof.status);
+    mixUInt(hash, proof.environment);
+    mixULong(hash, proof.transactionFingerprint);
+    mixULong(hash, proof.substepFingerprint);
+    mixULong(hash, proof.acceptedTimestampMicroseconds);
+    mixULong(hash, proof.physicsGeneration);
+    mixULong(hash, proof.humanStateFingerprint);
+    mixULong(hash, proof.matterStateFingerprint);
+    mixULong(hash, proof.physicsStateFingerprint);
+    mixULong(hash, proof.matterSourcePhysicsFingerprint);
+    mixULong(hash, proof.matterDeviceProgramFingerprint);
+    mixULong(hash, proof.linearizationEpoch);
+    mixULong(hash, proof.slotGeneration);
+    mixULong(hash, proof.adapterProgramFingerprint);
+    mixULong(hash, proof.transactionPolicyFingerprint);
+    return hash;
+}
+
+inline ulong preparedTokenFingerprint(
+    thread const NMAcceptedStateProofGPU& proof,
+    constant FinalizeGPU& pass,
+    const uint environment
+) {
+    ulong hash = kFNVOffset;
+    mixUInt(hash, 1u);
+    mixULong(hash, proof.transactionFingerprint);
+    mixULong(hash, proof.substepFingerprint);
+    mixULong(hash, proof.physicsStateFingerprint);
+    mixULong(hash, proof.acceptedTimestampMicroseconds);
+    mixULong(hash, proof.physicsGeneration);
+    mixUInt(hash, pass.environmentIdentifierBase + environment);
+    mixUInt(hash, 0u);
+    // NBAcceptedPhysicsStateToken::reserved is canonical zero. The policy is
+    // already bound by proof.physicsStateFingerprint.
+    mixULong(hash, 0ul);
+    return hash;
+}
+
+} // namespace accepted_state_proof_detail
+
+kernel void nm_accepted_state_proof_begin(
+    constant accepted_state_proof_detail::BeginGPU& pass [[buffer(0)]],
+    device ulong* hashes [[buffer(1)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    using namespace accepted_state_proof_detail;
+    if (pass.environmentCount > 0x7fffffffu ||
+        environment >= pass.environmentCount || pass.reserved0 != 0u ||
+        pass.reserved1 != 0u || pass.reserved2 != 0ul ||
+        pass.transactionPolicyFingerprint == 0ul) return;
+    ulong human = kFNVOffset;
+    mixUInt(human, kHumanDomain);
+    mixUInt(human, pass.schemaVersion);
+    ulong matter = kFNVOffset;
+    mixUInt(matter, kMatterDomain);
+    mixUInt(matter, pass.schemaVersion);
+    mixULong(matter, pass.transactionPolicyFingerprint);
+    hashes[environment] = human;
+    hashes[pass.environmentCount + environment] = matter;
+}
+
+kernel void nm_accepted_state_proof_chunks(
+    device const uchar* sourceBytes [[buffer(0)]],
+    device ulong* scratch [[buffer(1)]],
+    constant accepted_state_proof_detail::ChunkGPU& pass [[buffer(2)]],
+    uint index [[thread_position_in_grid]]
+) {
+    using namespace accepted_state_proof_detail;
+    if (pass.chunkCount == 0u ||
+        pass.environmentCount > 0xffffffffu / pass.chunkCount) return;
+    const uint total = pass.environmentCount * pass.chunkCount;
+    if (index >= total || pass.chunkBytes == 0u || pass.chunkCount == 0u ||
+        pass.scratchStride < pass.chunkCount || pass.reserved0 != 0u ||
+        pass.reserved1 != 0u || (pass.flags & ~kSharedSource) != 0u) return;
+    const uint environment = index / pass.chunkCount;
+    const uint chunk = index - environment * pass.chunkCount;
+    const bool shared = (pass.flags & kSharedSource) != 0u;
+    const ulong sourceBytesCount = shared
+        ? pass.sharedBytes : pass.bytesPerEnvironment;
+    const ulong sourceBase = shared
+        ? 0ul : ulong(environment) * sourceBytesCount;
+    const ulong chunkBase = ulong(chunk) * ulong(pass.chunkBytes);
+    const ulong remaining = chunkBase < sourceBytesCount
+        ? sourceBytesCount - chunkBase : 0ul;
+    const ulong chunkByteCount = min(remaining, ulong(pass.chunkBytes));
+    ulong hash = kFNVOffset;
+    mixUInt(hash, kChunkDomain);
+    mixUInt(hash, pass.source);
+    mixUInt(hash, chunk);
+    mixULong(hash, chunkByteCount);
+    for (ulong byte = 0ul; byte < chunkByteCount; ++byte) {
+        hash ^= ulong(sourceBytes[sourceBase + chunkBase + byte]);
+        hash *= kFNVPrime;
+    }
+    scratch[environment * pass.scratchStride + chunk] = hash;
+}
+
+kernel void nm_accepted_state_proof_reduce(
+    device const ulong* input [[buffer(0)]],
+    device ulong* output [[buffer(1)]],
+    constant accepted_state_proof_detail::ReduceGPU& pass [[buffer(2)]],
+    uint index [[thread_position_in_grid]]
+) {
+    using namespace accepted_state_proof_detail;
+    if (pass.outputCount == 0u || pass.scratchStride == 0u ||
+        pass.environmentCount > 0xffffffffu / pass.outputCount ||
+        pass.environmentCount > 0xffffffffu / pass.scratchStride) return;
+    const uint total = pass.environmentCount * pass.outputCount;
+    if (index >= total || pass.inputCount == 0u || pass.outputCount == 0u ||
+        pass.outputCount !=
+            pass.inputCount / 2u + pass.inputCount % 2u ||
+        pass.scratchStride < pass.inputCount || pass.reserved0 != 0u ||
+        pass.reserved1 != 0u) return;
+    const uint environment = index / pass.outputCount;
+    const uint node = index - environment * pass.outputCount;
+    const uint leftIndex = node * 2u;
+    const uint rightIndex = leftIndex + 1u;
+    const uint base = environment * pass.scratchStride;
+    const ulong left = input[base + leftIndex];
+    const bool hasRight = rightIndex < pass.inputCount;
+    const ulong right = hasRight ? input[base + rightIndex] : 0ul;
+    ulong hash = kFNVOffset;
+    mixUInt(hash, kTreeDomain);
+    mixUInt(hash, pass.source);
+    mixUInt(hash, pass.level);
+    mixUInt(hash, hasRight ? 2u : 1u);
+    mixULong(hash, left);
+    mixULong(hash, right);
+    output[base + node] = hash;
+}
+
+kernel void nm_accepted_state_proof_fold(
+    device const ulong* root [[buffer(0)]],
+    device ulong* hashes [[buffer(1)]],
+    constant accepted_state_proof_detail::FoldGPU& pass [[buffer(2)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    using namespace accepted_state_proof_detail;
+    if (pass.scratchStride == 0u ||
+        pass.environmentCount > 0x7fffffffu ||
+        pass.environmentCount > 0xffffffffu / pass.scratchStride ||
+        environment >= pass.environmentCount || pass.target > 1u ||
+        pass.scratchStride == 0u || pass.reserved0 != 0u ||
+        pass.reserved1 != 0u || pass.reserved2 != 0u ||
+        (pass.flags & ~kSharedSource) != 0u) return;
+    const ulong byteCount = (pass.flags & kSharedSource) != 0u
+        ? pass.sharedBytes : pass.bytesPerEnvironment;
+    const uint hashIndex = pass.target * pass.environmentCount + environment;
+    ulong hash = hashes[hashIndex];
+    mixUInt(hash, pass.source);
+    mixULong(hash, byteCount);
+    mixULong(hash, root[environment * pass.scratchStride]);
+    hashes[hashIndex] = hash;
+}
+
+kernel void nm_accepted_state_proof_finalize(
+    constant accepted_state_proof_detail::FinalizeGPU& pass [[buffer(0)]],
+    device const ulong* hashes [[buffer(1)]],
+    device const NMMatterStatusGPU* matterStatuses [[buffer(2)]],
+    device NMAcceptedStateProofGPU* output [[buffer(3)]],
+    device NMPreparedStateBindingGPU* bindings [[buffer(4)]],
+    device const MRMetalWorldStatusGPU* environmentStatuses [[buffer(5)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    using namespace accepted_state_proof_detail;
+    if (pass.environmentCount > 0x7fffffffu ||
+        environment >= pass.environmentCount) return;
+    NMAcceptedStateProofGPU proof = {};
+    NMPreparedStateBindingGPU binding = {};
+    binding.abiVersion = NM_MATTER_PREPARED_STATE_ABI_VERSION;
+    binding.status = NM_PREPARED_STATE_BINDING_REJECTED;
+    binding.environment = environment;
+    binding.stepIndex = 0u;
+    binding.substepIndex = pass.physicsSubstep;
+    binding.transactionSlot = pass.transactionSlot;
+    binding.controlStep = pass.controlStep;
+    binding.transactionFingerprint = pass.transactionFingerprint;
+    binding.substepFingerprint = pass.substepFingerprint;
+    binding.linearizationEpoch = pass.linearizationEpoch;
+    binding.slotGeneration = pass.slotGeneration;
+    binding.adapterProgramFingerprint = pass.adapterProgramFingerprint;
+    binding.transactionPolicyFingerprint =
+        pass.transactionPolicyFingerprint;
+    proof.abiVersion = pass.abiVersion;
+    proof.structSize = pass.structSize;
+    proof.status = NM_ACCEPTED_STATE_PROOF_REJECTED;
+    proof.environment = environment;
+    proof.transactionFingerprint = pass.transactionFingerprint;
+    proof.substepFingerprint = pass.substepFingerprint;
+    proof.acceptedTimestampMicroseconds = pass.acceptedTimestampMicroseconds;
+    proof.physicsGeneration = pass.physicsGeneration;
+    proof.matterSourcePhysicsFingerprint = pass.matterSourcePhysicsFingerprint;
+    proof.matterDeviceProgramFingerprint = pass.matterDeviceProgramFingerprint;
+    proof.linearizationEpoch = pass.linearizationEpoch;
+    proof.slotGeneration = pass.slotGeneration;
+    proof.adapterProgramFingerprint = pass.adapterProgramFingerprint;
+    proof.transactionPolicyFingerprint = pass.transactionPolicyFingerprint;
+    const NMMatterStatusGPU matterStatus =
+        matterStatuses[environment * pass.matterStatusStride];
+    const MRMetalWorldStatusGPU humanStatus =
+        environmentStatuses[environment * pass.environmentStatusStride];
+    const ulong human = hashes[environment];
+    const ulong matterHash = hashes[pass.environmentCount + environment];
+    const bool valid = pass.abiVersion ==
+            NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION &&
+        pass.structSize == NM_MATTER_ACCEPTED_STATE_PROOF_BYTES &&
+        pass.environmentCount != 0u &&
+        pass.matterStatusStride != 0u &&
+        pass.environmentStatusStride != 0u &&
+        pass.acceptedStateProofStride != 0u &&
+        pass.transactionFingerprint != 0ul &&
+        pass.substepFingerprint != 0ul &&
+        pass.acceptedTimestampMicroseconds != 0ul &&
+        pass.physicsGeneration != 0ul &&
+        pass.matterSourcePhysicsFingerprint != 0ul &&
+        pass.matterDeviceProgramFingerprint != 0ul &&
+        pass.stateProofProgramFingerprint != 0ul &&
+        pass.adapterProgramFingerprint != 0ul &&
+        pass.transactionPolicyFingerprint != 0ul &&
+        pass.linearizationEpoch != 0ul && pass.slotGeneration != 0ul &&
+        humanStatus.code == MR_STEP_SUCCESS &&
+        humanStatus.environment == environment &&
+        humanStatus.controlStep == pass.controlStep &&
+        humanStatus.successfulSubsteps == pass.physicsSubstep + 1u &&
+        humanStatus.failingSubstep == MR_INVALID_INDEX &&
+        humanStatus.failingIndex == MR_INVALID_INDEX &&
+        matterStatus.code == NM_STATUS_SUCCESS &&
+        matterStatus.environment == environment &&
+        matterStatus.completedMicrosteps != 0u &&
+        human != 0ul && matterHash != 0ul;
+    if (valid) {
+        proof.status = NM_ACCEPTED_STATE_PROOF_VALID;
+        proof.humanStateFingerprint = human;
+        proof.matterStateFingerprint = matterHash;
+        proof.physicsStateFingerprint = physicsFingerprint(
+            human, matterHash, pass, environment);
+        proof.proofFingerprint = recordFingerprint(proof);
+        if (proof.physicsStateFingerprint == 0ul ||
+            proof.proofFingerprint == 0ul) {
+            proof = {};
+            proof.abiVersion = pass.abiVersion;
+            proof.structSize = pass.structSize;
+            proof.status = NM_ACCEPTED_STATE_PROOF_REJECTED;
+            proof.environment = environment;
+        }
+    }
+    if (proof.status == NM_ACCEPTED_STATE_PROOF_VALID) {
+        binding.status = NM_PREPARED_STATE_BINDING_VALID;
+        binding.physicsTokenFingerprint =
+            preparedTokenFingerprint(proof, pass, environment);
+        binding.proofFingerprint = proof.proofFingerprint;
+        if (binding.physicsTokenFingerprint == 0ul) {
+            binding.status = NM_PREPARED_STATE_BINDING_REJECTED;
+            binding.physicsTokenFingerprint = 0ul;
+            binding.proofFingerprint = 0ul;
+        }
+    }
+    output[environment * pass.acceptedStateProofStride] = proof;
+    bindings[environment] = binding;
+}
+
+namespace prepared_state_detail {
+
+inline ulong nonzeroFingerprint(const ulong hash) {
+    return hash == 0ul ? accepted_state_proof_detail::kFNVOffset : hash;
+}
+
+inline ulong proposalFingerprint(thread const NMOwnerProposalGPU& value) {
+    using namespace accepted_state_proof_detail;
+    ulong hash = kFNVOffset;
+    mixUInt(hash, value.abiVersion);
+    mixUInt(hash, value.status);
+    mixUInt(hash, value.decision);
+    mixUInt(hash, value.code);
+    mixULong(hash, value.programFingerprint);
+    mixULong(hash, value.transactionFingerprint);
+    mixULong(hash, value.linearizationEpoch);
+    mixULong(hash, value.slotGeneration);
+    mixULong(hash, value.physicsTokenFingerprint);
+    mixULong(hash, value.brainProgramFingerprint);
+    mixULong(hash, value.brainShadowStateFingerprint);
+    mixULong(hash, value.brainWitnessFingerprint);
+    mixULong(hash, value.candidatePublicationFingerprint);
+    mixULong(hash, value.humanIOIdentityFingerprint);
+    mixUInt(hash, value.environment);
+    mixUInt(hash, value.stepIndex);
+    mixUInt(hash, value.substepIndex);
+    mixUInt(hash, value.transactionSlot);
+    mixUInt(hash, value.physicsSubstepCount);
+    mixUInt(hash, value.controlStep);
+    return nonzeroFingerprint(hash);
+}
+
+inline ulong brainAckFingerprint(thread const NMOwnerBrainAckGPU& value) {
+    using namespace accepted_state_proof_detail;
+    ulong hash = kFNVOffset;
+    mixUInt(hash, value.abiVersion);
+    mixUInt(hash, value.status);
+    mixUInt(hash, value.decision);
+    mixUInt(hash, value.code);
+    mixULong(hash, value.programFingerprint);
+    mixULong(hash, value.transactionFingerprint);
+    mixULong(hash, value.linearizationEpoch);
+    mixULong(hash, value.slotGeneration);
+    mixULong(hash, value.physicsTokenFingerprint);
+    mixULong(hash, value.proposalFingerprint);
+    mixULong(hash, value.preflightFingerprint);
+    mixULong(hash, value.fastGateFingerprint);
+    mixULong(hash, value.brainWitnessFingerprint);
+    mixULong(hash, value.brainProgramFingerprint);
+    mixUInt(hash, value.environment);
+    mixUInt(hash, value.stepIndex);
+    mixUInt(hash, value.substepIndex);
+    mixUInt(hash, value.transactionSlot);
+    mixUInt(hash, value.physicsSubstepCount);
+    mixUInt(hash, value.controlStep);
+    return nonzeroFingerprint(hash);
+}
+
+inline ulong applyActionFingerprint(thread const NMOwnerApplyActionGPU& value) {
+    using namespace accepted_state_proof_detail;
+    ulong hash = kFNVOffset;
+    mixUInt(hash, value.abiVersion);
+    mixUInt(hash, value.status);
+    mixUInt(hash, value.decision);
+    mixUInt(hash, value.code);
+    mixULong(hash, value.programFingerprint);
+    mixULong(hash, value.transactionFingerprint);
+    mixULong(hash, value.linearizationEpoch);
+    mixULong(hash, value.slotGeneration);
+    mixULong(hash, value.physicsTokenFingerprint);
+    mixULong(hash, value.proposalFingerprint);
+    mixULong(hash, value.ackFingerprint);
+    mixULong(hash, value.preflightFingerprint);
+    mixULong(hash, value.fastGateFingerprint);
+    mixULong(hash, value.brainWitnessFingerprint);
+    mixUInt(hash, value.environment);
+    mixUInt(hash, value.stepIndex);
+    mixUInt(hash, value.substepIndex);
+    mixUInt(hash, value.transactionSlot);
+    mixUInt(hash, value.physicsSubstepCount);
+    mixUInt(hash, value.controlStep);
+    return nonzeroFingerprint(hash);
+}
+
+inline ulong matterOutcomeFingerprint(
+    thread const NMMatterApplyOutcomeGPU& value
+) {
+    using namespace accepted_state_proof_detail;
+    ulong hash = kFNVOffset;
+    mixUInt(hash, value.abiVersion);
+    mixUInt(hash, value.status);
+    mixUInt(hash, value.decision);
+    mixUInt(hash, value.code);
+    mixULong(hash, value.programFingerprint);
+    mixULong(hash, value.transactionFingerprint);
+    mixULong(hash, value.linearizationEpoch);
+    mixULong(hash, value.slotGeneration);
+    mixULong(hash, value.physicsTokenFingerprint);
+    mixULong(hash, value.proposalFingerprint);
+    mixULong(hash, value.ackFingerprint);
+    mixULong(hash, value.actionFingerprint);
+    mixULong(hash, value.matterProgramFingerprint);
+    mixULong(hash, value.reserved0);
+    mixUInt(hash, value.environment);
+    mixUInt(hash, value.stepIndex);
+    mixUInt(hash, value.substepIndex);
+    mixUInt(hash, value.transactionSlot);
+    mixUInt(hash, value.physicsSubstepCount);
+    mixUInt(hash, value.controlStep);
+    return nonzeroFingerprint(hash);
+}
+
+inline ulong publicationFactsFingerprint(
+    thread const NMPreparedStatePublicationFactsGPU& value
+) {
+    using namespace accepted_state_proof_detail;
+    ulong hash = kFNVOffset;
+    mixUInt(hash, value.abiVersion);
+    mixUInt(hash, value.status);
+    mixUInt(hash, value.reserved0);
+    mixUInt(hash, value.reserved1);
+    mixULong(hash, value.physicsTokenFingerprint);
+    mixULong(hash, value.brainProgramFingerprint);
+    mixULong(hash, value.brainShadowStateFingerprint);
+    mixULong(hash, value.brainWitnessFingerprint);
+    mixULong(hash, value.matterApplyFingerprint);
+    return nonzeroFingerprint(hash);
+}
+
+inline bool readyProposalRejectCode(const uint code) {
+    return code == NM_OWNER_PROPOSAL_PHYSICAL_REJECT ||
+        code == NM_OWNER_PROPOSAL_INVALID_BRAIN_WITNESS ||
+        code == NM_OWNER_PROPOSAL_TOKEN_MISMATCH ||
+        code == NM_OWNER_PROPOSAL_FORCED_REJECT ||
+        code == NM_OWNER_PROPOSAL_BRAIN_REJECT;
+}
+
+inline uint appliedCodeForProposalReject(const uint code) {
+    switch (code) {
+    case NM_OWNER_PROPOSAL_PHYSICAL_REJECT:
+        return NM_OWNER_APPLIED_PHYSICAL_REJECT;
+    case NM_OWNER_PROPOSAL_INVALID_BRAIN_WITNESS:
+    case NM_OWNER_PROPOSAL_BRAIN_REJECT:
+        return NM_OWNER_APPLIED_BRAIN_REJECT;
+    case NM_OWNER_PROPOSAL_TOKEN_MISMATCH:
+        return NM_OWNER_APPLIED_TOKEN_MISMATCH;
+    case NM_OWNER_PROPOSAL_FORCED_REJECT:
+        return NM_OWNER_APPLIED_FORCED_REJECT;
+    default:
+        return NM_OWNER_APPLIED_INVALID_OWNER;
+    }
+}
+
+} // namespace prepared_state_detail
+
+kernel void nm_prepared_state_validate_application(
+    constant NMPreparedStateApplyGPU& pass [[buffer(0)]],
+    device const NMOwnerProposalGPU* proposals [[buffer(1)]],
+    device const NMOwnerBrainAckGPU* acknowledgements [[buffer(2)]],
+    device const NMOwnerApplyActionGPU* applyActions [[buffer(3)]],
+    device const NMPreparedStateBindingGPU* bindings [[buffer(4)]],
+    device uint* actions [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    device NMMatterApplyOutcomeGPU* outcomes [[buffer(7)]],
+    device const uchar* proposedTokens [[buffer(8)]],
+    device NMPreparedStatePublicationFactsGPU* publicationFacts [[buffer(9)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    using namespace prepared_state_detail;
+    if (environment >= pass.environmentCount) return;
+    const NMOwnerProposalGPU proposal =
+        proposals[environment * pass.proposalStride];
+    NMOwnerBrainAckGPU ack = {};
+    if (pass.forceRestore == 0u) {
+        ack = acknowledgements[environment * pass.brainAckStride];
+    }
+    const NMOwnerApplyActionGPU action =
+        applyActions[environment * pass.applyActionStride];
+    const NMPreparedStateBindingGPU binding = bindings[environment];
+    const bool dispatchValid =
+        pass.abiVersion == NM_MATTER_OWNER_APPLY_ABI_VERSION &&
+        pass.environmentCount == 1u && pass.proposalStride != 0u &&
+        pass.brainAckStride != 0u && pass.applyActionStride != 0u &&
+        pass.matterApplyOutcomeStride != 0u &&
+        pass.proposedTokenStrideBytes == 64u && pass.stepIndex == 0u &&
+        pass.substepIndex == 0u && pass.physicsSubstepCount == 1u &&
+        pass.ownerProgramFingerprint != 0ul &&
+        pass.transactionFingerprint != 0ul &&
+        pass.linearizationEpoch != 0ul && pass.slotGeneration != 0ul &&
+        pass.matterProgramFingerprint != 0ul &&
+        pass.forceRestore <= 1u && pass.reserved0 == 0u &&
+        pass.reserved1 == 0u && pass.reserved2 == 0u &&
+        pass.reserved3 == 0ul;
+    const bool proposalAcceptConsistent =
+        proposal.decision == NM_OWNER_ROOT_ACCEPT &&
+        proposal.code == NM_OWNER_PROPOSAL_SUCCESS &&
+        proposal.physicsTokenFingerprint != 0ul &&
+        proposal.brainProgramFingerprint != 0ul &&
+        proposal.brainShadowStateFingerprint != 0ul &&
+        proposal.brainWitnessFingerprint != 0ul;
+    const bool proposalRejectConsistent =
+        proposal.decision == NM_OWNER_ROOT_REJECT &&
+        readyProposalRejectCode(proposal.code) &&
+        proposal.physicsTokenFingerprint == 0ul &&
+        proposal.brainProgramFingerprint == 0ul &&
+        proposal.brainShadowStateFingerprint == 0ul &&
+        proposal.brainWitnessFingerprint == 0ul;
+    const bool proposalValid = dispatchValid &&
+        proposal.abiVersion == NM_MATTER_OWNER_APPLY_ABI_VERSION &&
+        proposal.status == NM_OWNER_PROPOSAL_READY &&
+        (proposalAcceptConsistent || proposalRejectConsistent) &&
+        proposal.environment == environment && proposal.stepIndex == 0u &&
+        proposal.substepIndex == pass.substepIndex &&
+        proposal.transactionSlot == pass.transactionSlot &&
+        proposal.physicsSubstepCount == pass.physicsSubstepCount &&
+        proposal.controlStep == pass.controlStep &&
+        proposal.programFingerprint == pass.ownerProgramFingerprint &&
+        proposal.transactionFingerprint == pass.transactionFingerprint &&
+        proposal.linearizationEpoch == pass.linearizationEpoch &&
+        proposal.slotGeneration == pass.slotGeneration &&
+        proposal.candidatePublicationFingerprint != 0ul &&
+        proposal.humanIOIdentityFingerprint != 0ul &&
+        proposal.proposalFingerprint != 0ul &&
+        proposal.proposalFingerprint == proposalFingerprint(proposal);
+    const bool ackAcceptConsistent =
+        ack.status == NM_OWNER_BRAIN_ACK_ACCEPT &&
+        ack.decision == NM_OWNER_ROOT_ACCEPT &&
+        ack.code == NM_OWNER_BRAIN_ACK_SUCCESS &&
+        proposal.decision == NM_OWNER_ROOT_ACCEPT &&
+        ack.physicsTokenFingerprint == proposal.physicsTokenFingerprint &&
+        ack.physicsTokenFingerprint != 0ul &&
+        ack.preflightFingerprint != 0ul && ack.fastGateFingerprint != 0ul &&
+        ack.brainWitnessFingerprint == proposal.brainWitnessFingerprint &&
+        ack.brainWitnessFingerprint != 0ul &&
+        ack.brainProgramFingerprint == proposal.brainProgramFingerprint &&
+        ack.brainProgramFingerprint != 0ul;
+    const bool ackRejectConsistent =
+        ack.status == NM_OWNER_BRAIN_ACK_REJECT &&
+        ack.decision == NM_OWNER_ROOT_REJECT &&
+        ack.code == NM_OWNER_BRAIN_ACK_PROPOSAL_REJECT &&
+        proposal.decision == NM_OWNER_ROOT_REJECT &&
+        ack.physicsTokenFingerprint == 0ul &&
+        ack.preflightFingerprint == 0ul &&
+        ack.fastGateFingerprint == 0ul &&
+        ack.brainWitnessFingerprint == 0ul &&
+        ack.brainProgramFingerprint != 0ul;
+    const bool ackValid = dispatchValid &&
+        ack.abiVersion == NM_MATTER_OWNER_BRAIN_ACK_ABI_VERSION &&
+        (ackAcceptConsistent || ackRejectConsistent) &&
+        ack.environment == environment && ack.stepIndex == 0u &&
+        ack.substepIndex == pass.substepIndex &&
+        ack.transactionSlot == pass.transactionSlot &&
+        ack.physicsSubstepCount == pass.physicsSubstepCount &&
+        ack.controlStep == pass.controlStep &&
+        ack.programFingerprint == pass.ownerProgramFingerprint &&
+        ack.transactionFingerprint == pass.transactionFingerprint &&
+        ack.linearizationEpoch == pass.linearizationEpoch &&
+        ack.slotGeneration == pass.slotGeneration &&
+        ack.proposalFingerprint == proposal.proposalFingerprint &&
+        ack.ackFingerprint != 0ul &&
+        ack.ackFingerprint == brainAckFingerprint(ack);
+    const bool actionAcceptConsistent =
+        action.status == NM_OWNER_APPLY_ACCEPT &&
+         action.decision == NM_OWNER_ROOT_ACCEPT &&
+         action.code == NM_OWNER_APPLIED_SUCCESS &&
+         proposal.decision == NM_OWNER_ROOT_ACCEPT &&
+         action.physicsTokenFingerprint ==
+             proposal.physicsTokenFingerprint &&
+         action.ackFingerprint != 0ul &&
+         action.preflightFingerprint != 0ul &&
+         action.fastGateFingerprint != 0ul &&
+         action.brainWitnessFingerprint ==
+             proposal.brainWitnessFingerprint;
+    const bool actionForcedRejectConsistent =
+        action.status == NM_OWNER_APPLY_REJECT &&
+         action.decision == NM_OWNER_ROOT_REJECT &&
+         action.code == NM_OWNER_APPLIED_FORCED_REJECT &&
+         action.physicsTokenFingerprint == 0ul &&
+         action.ackFingerprint == 0ul &&
+         action.preflightFingerprint == 0ul &&
+         action.fastGateFingerprint == 0ul &&
+         action.brainWitnessFingerprint == 0ul;
+    const bool actionProposalRejectConsistent =
+        action.status == NM_OWNER_APPLY_REJECT &&
+        action.decision == NM_OWNER_ROOT_REJECT &&
+        proposal.decision == NM_OWNER_ROOT_REJECT &&
+        action.code == appliedCodeForProposalReject(proposal.code) &&
+        action.physicsTokenFingerprint == 0ul &&
+        action.ackFingerprint != 0ul &&
+        action.preflightFingerprint == 0ul &&
+        action.fastGateFingerprint == 0ul &&
+        action.brainWitnessFingerprint == 0ul;
+    const bool actionStatusConsistent = actionAcceptConsistent ||
+        actionForcedRejectConsistent || actionProposalRejectConsistent;
+    const bool actionValid = dispatchValid &&
+        action.abiVersion == NM_MATTER_OWNER_APPLY_ABI_VERSION &&
+        actionStatusConsistent &&
+        action.environment == environment && action.stepIndex == 0u &&
+        action.substepIndex == pass.substepIndex &&
+        action.transactionSlot == pass.transactionSlot &&
+        action.physicsSubstepCount == pass.physicsSubstepCount &&
+        action.controlStep == pass.controlStep &&
+        action.programFingerprint == pass.ownerProgramFingerprint &&
+        action.transactionFingerprint == pass.transactionFingerprint &&
+        action.linearizationEpoch == pass.linearizationEpoch &&
+        action.slotGeneration == pass.slotGeneration &&
+        action.physicsTokenFingerprint == ack.physicsTokenFingerprint &&
+        action.proposalFingerprint == proposal.proposalFingerprint &&
+        action.ackFingerprint == ack.ackFingerprint &&
+        action.preflightFingerprint == ack.preflightFingerprint &&
+        action.fastGateFingerprint == ack.fastGateFingerprint &&
+        action.brainWitnessFingerprint == ack.brainWitnessFingerprint &&
+        action.actionFingerprint != 0ul &&
+        action.actionFingerprint == applyActionFingerprint(action);
+    const bool bindingIdentityValid =
+        binding.abiVersion == NM_MATTER_PREPARED_STATE_ABI_VERSION &&
+        binding.environment == environment && binding.stepIndex == 0u &&
+        binding.substepIndex == pass.substepIndex &&
+        binding.transactionSlot == pass.transactionSlot &&
+        binding.controlStep == pass.controlStep &&
+        binding.transactionFingerprint == pass.transactionFingerprint &&
+        binding.linearizationEpoch == pass.linearizationEpoch &&
+        binding.slotGeneration == pass.slotGeneration &&
+        binding.adapterProgramFingerprint == pass.ownerProgramFingerprint &&
+        binding.substepFingerprint != 0ul &&
+        binding.transactionPolicyFingerprint != 0ul &&
+        binding.reserved2 == 0u;
+    const bool bindingValid = bindingIdentityValid &&
+        binding.status == NM_PREPARED_STATE_BINDING_VALID &&
+        binding.physicsTokenFingerprint != 0ul &&
+        binding.proofFingerprint != 0ul;
+    const bool bindingRejected = bindingIdentityValid &&
+        binding.status == NM_PREPARED_STATE_BINDING_REJECTED &&
+        binding.physicsTokenFingerprint == 0ul &&
+        binding.proofFingerprint == 0ul;
+    const bool bindingConsistent =
+        proposal.code == NM_OWNER_PROPOSAL_PHYSICAL_REJECT
+            ? bindingRejected : bindingValid;
+    device const uchar* proposedToken = proposedTokens +
+        ulong(environment) * pass.proposedTokenStrideBytes;
+    const device ulong* proposedTokenFingerprint =
+        reinterpret_cast<const device ulong*>(proposedToken + 56ul);
+    bool proposedTokenZero = true;
+    for (uint byte = 0u; byte < pass.proposedTokenStrideBytes; ++byte)
+        proposedTokenZero = proposedTokenZero && proposedToken[byte] == 0u;
+    const bool proposedTokenValid = proposalValid && bindingConsistent &&
+        (proposal.decision == NM_OWNER_ROOT_ACCEPT
+             ? (proposal.physicsTokenFingerprint ==
+                    *proposedTokenFingerprint &&
+                binding.physicsTokenFingerprint ==
+                    *proposedTokenFingerprint)
+             : proposedTokenZero);
+    const bool terminalNoTouch = pass.forceRestore == 0u &&
+        (proposal.status == NM_OWNER_PROPOSAL_PENDING ||
+         ack.status == NM_OWNER_BRAIN_ACK_PENDING ||
+         action.status == NM_OWNER_APPLY_PENDING ||
+         action.status == NM_OWNER_APPLY_TERMINAL_NO_TOUCH ||
+         action.decision == NM_OWNER_ROOT_PENDING);
+    const bool forceRestore = pass.forceRestore == 1u;
+    const bool accept = !forceRestore && !terminalNoTouch &&
+        proposalValid && ackValid && actionValid && bindingValid &&
+        proposedTokenValid &&
+        proposal.decision == NM_OWNER_ROOT_ACCEPT && proposal.code == 0u &&
+        ack.status == NM_OWNER_BRAIN_ACK_ACCEPT &&
+        ack.decision == NM_OWNER_ROOT_ACCEPT && ack.code == 0u &&
+        action.status == NM_OWNER_APPLY_ACCEPT &&
+        action.decision == NM_OWNER_ROOT_ACCEPT && action.code == 0u &&
+        action.ackFingerprint == ack.ackFingerprint &&
+        statuses[environment].code == NM_STATUS_SUCCESS;
+    const bool validatedReject = !forceRestore && !terminalNoTouch &&
+        proposalValid && ackValid && actionValid && bindingConsistent &&
+        proposedTokenValid && ack.status == NM_OWNER_BRAIN_ACK_REJECT &&
+        ack.decision == NM_OWNER_ROOT_REJECT &&
+        ack.code == NM_OWNER_BRAIN_ACK_PROPOSAL_REJECT &&
+        proposal.decision == NM_OWNER_ROOT_REJECT &&
+        action.code == appliedCodeForProposalReject(proposal.code) &&
+        action.status == NM_OWNER_APPLY_REJECT &&
+        action.decision == NM_OWNER_ROOT_REJECT;
+    const uint internalAction = terminalNoTouch
+        ? NM_PREPARED_STATE_ACTION_TERMINAL_NO_TOUCH
+        : accept ? NM_PREPARED_STATE_ACTION_ACCEPT
+                 : NM_PREPARED_STATE_ACTION_RESTORE;
+    actions[environment] = internalAction;
+
+    NMMatterApplyOutcomeGPU outcome = {};
+    outcome.abiVersion = NM_MATTER_OWNER_APPLY_ABI_VERSION;
+    outcome.status = terminalNoTouch
+        ? NM_OWNER_APPLY_TERMINAL_NO_TOUCH
+        : accept ? NM_OWNER_APPLY_ACCEPT : NM_OWNER_APPLY_REJECT;
+    outcome.decision = terminalNoTouch
+        ? NM_OWNER_ROOT_PENDING
+        : accept ? NM_OWNER_ROOT_ACCEPT : NM_OWNER_ROOT_REJECT;
+    outcome.code = accept ? NM_MATTER_APPLY_SUCCESS
+        : forceRestore ? NM_MATTER_APPLY_FORCED_REJECT
+        : validatedReject ? action.code
+                          : NM_MATTER_APPLY_INVALID_OUTCOME;
+    outcome.programFingerprint = pass.ownerProgramFingerprint;
+    outcome.transactionFingerprint = pass.transactionFingerprint;
+    outcome.linearizationEpoch = pass.linearizationEpoch;
+    outcome.slotGeneration = pass.slotGeneration;
+    outcome.physicsTokenFingerprint = action.physicsTokenFingerprint;
+    outcome.proposalFingerprint = proposal.proposalFingerprint;
+    outcome.ackFingerprint = action.ackFingerprint;
+    outcome.actionFingerprint = action.actionFingerprint;
+    outcome.matterProgramFingerprint = pass.matterProgramFingerprint;
+    outcome.environment = environment;
+    outcome.stepIndex = 0u;
+    outcome.substepIndex = pass.substepIndex;
+    outcome.transactionSlot = pass.transactionSlot;
+    outcome.physicsSubstepCount = pass.physicsSubstepCount;
+    outcome.controlStep = pass.controlStep;
+    outcome.outcomeFingerprint = matterOutcomeFingerprint(outcome);
+    outcomes[environment * pass.matterApplyOutcomeStride] = outcome;
+    NMPreparedStatePublicationFactsGPU facts = {};
+    facts.abiVersion = NM_MATTER_OWNER_APPLY_ABI_VERSION;
+    facts.status = terminalNoTouch
+        ? NM_PREPARED_STATE_PUBLICATION_FACTS_PENDING
+        : accept ? NM_PREPARED_STATE_PUBLICATION_FACTS_VALID
+                 : NM_PREPARED_STATE_PUBLICATION_FACTS_REJECTED;
+    if (accept) {
+        facts.physicsTokenFingerprint = proposal.physicsTokenFingerprint;
+        facts.brainProgramFingerprint = proposal.brainProgramFingerprint;
+        facts.brainShadowStateFingerprint =
+            proposal.brainShadowStateFingerprint;
+        facts.brainWitnessFingerprint = proposal.brainWitnessFingerprint;
+        facts.matterApplyFingerprint = outcome.outcomeFingerprint;
+    }
+    facts.factsFingerprint = publicationFactsFingerprint(facts);
+    publicationFacts[environment] = facts;
+    if (internalAction == NM_PREPARED_STATE_ACTION_RESTORE &&
+        statuses[environment].code == NM_STATUS_SUCCESS) {
+        NMMatterStatusGPU status = statuses[environment];
+        status.code = NM_STATUS_RIGID_WORLD_FAILURE;
+        status.failingIndex = outcome.code;
+        statuses[environment] = status;
+    }
+}
+
+kernel void nm_prepared_state_normalize_application(
+    constant NMPreparedStateApplyGPU& pass [[buffer(0)]],
+    device uint* actions [[buffer(1)]],
+    device uint* outcome [[buffer(2)]],
+    uint index [[thread_position_in_grid]]
+) {
+    if (index != 0u || pass.environmentCount != 1u ||
+        pass.proposedTokenStrideBytes != 64u) return;
+    const uint action = actions[0];
+    if (action == NM_PREPARED_STATE_ACTION_TERMINAL_NO_TOUCH) {
+        outcome[0] = NM_PREPARED_STATE_APPLY_TERMINAL_NO_TOUCH;
+        return;
+    }
+    if (action == NM_PREPARED_STATE_ACTION_ACCEPT) {
+        outcome[0] =
+            NM_PREPARED_STATE_APPLY_ACCEPTED_PENDING_PUBLICATION;
+        return;
+    }
+    actions[0] = NM_PREPARED_STATE_ACTION_RESTORE;
+    outcome[0] = NM_PREPARED_STATE_APPLY_RESOLVED;
+}
+
+kernel void nm_prepared_state_materialize_restore_statuses(
+    constant uint& environmentCount [[buffer(0)]],
+    device const uint* actions [[buffer(1)]],
+    device const NMMatterStatusGPU* source [[buffer(2)]],
+    device NMMatterStatusGPU* effective [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= environmentCount) return;
+    NMMatterStatusGPU status = source[environment];
+    // Existing rollback kernels are status-gated. Present success for ACCEPT
+    // and TERMINAL_NO_TOUCH so they perform no accepted-state writes even if
+    // a failed first CB left its authoritative diagnostic status unhealthy.
+    if (actions[environment] != NM_PREPARED_STATE_ACTION_RESTORE) {
+        status.code = NM_STATUS_SUCCESS;
+    }
+    effective[environment] = status;
+}
+
+kernel void nm_prepared_state_restore_bytes(
+    constant NMPreparedStateRestoreGPU& pass [[buffer(0)]],
+    device const uchar* checkpoint [[buffer(1)]],
+    device uchar* destination [[buffer(2)]],
+    device const uint* actions [[buffer(3)]],
+    uint index [[thread_position_in_grid]]
+) {
+    const ulong byteBase = ulong(index) * 16ul;
+    if (byteBase >= pass.byteCount || pass.environmentCount == 0u ||
+        pass.actionStride == 0u || pass.reserved0 != 0u ||
+        (pass.flags & ~NM_PREPARED_STATE_RESTORE_SHARED) != 0u) return;
+    const bool shared =
+        (pass.flags & NM_PREPARED_STATE_RESTORE_SHARED) != 0u;
+    bool restore = false;
+    if (shared) {
+        for (uint environment = 0u;
+             environment < pass.environmentCount; ++environment) {
+            restore = restore ||
+                actions[environment * pass.actionStride] ==
+                    NM_PREPARED_STATE_ACTION_RESTORE;
+        }
+    }
+    const ulong count = min(16ul, pass.byteCount - byteBase);
+    for (ulong byte = 0ul; byte < count; ++byte) {
+        bool restoreByte = restore;
+        if (!shared && pass.bytesPerEnvironment != 0ul) {
+            const ulong environment =
+                (byteBase + byte) / pass.bytesPerEnvironment;
+            restoreByte = environment < pass.environmentCount &&
+                actions[environment * pass.actionStride] ==
+                    NM_PREPARED_STATE_ACTION_RESTORE;
+        }
+        if (restoreByte) {
+            destination[byteBase + byte] = checkpoint[byteBase + byte];
+        }
+    }
+}
+
+} // namespace numi_matter_metal

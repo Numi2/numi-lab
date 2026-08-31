@@ -22,7 +22,7 @@ inline constexpr std::array<char, 16> kMagic{
     'N', 'U', 'M', 'I', 'M', 'A', 'T', 'T',
     'E', 'R', 'P', 'K', 'G', '\0', '\0', '\0',
 };
-inline constexpr std::uint32_t kPackageVersion = 9u;
+inline constexpr std::uint32_t kPackageVersion = 10u;
 inline constexpr std::uint32_t kEndianMarker = 0x01020304u;
 
 enum class Section : std::uint32_t {
@@ -55,6 +55,7 @@ enum class Section : std::uint32_t {
     femCohesiveFaces,
     femMutationCommands,
     femPunctureChannels,
+    femHumanAttachments,
     rigidProxies,
     contactPairs,
     contactNodeIncidence,
@@ -333,6 +334,9 @@ bool writePackage(
             std::span<const NMMutationCommandGPU>(world.fem.mutationCommands)) &&
         writeSection(stream, Section::femPunctureChannels,
             std::span<const NMPunctureChannelGPU>(world.fem.punctureChannels)) &&
+        writeSection(stream, Section::femHumanAttachments,
+            std::span<const NMFEMHumanAttachmentGPU>(
+                world.fem.humanAttachments)) &&
         writeSection(stream, Section::rigidProxies,
             std::span<const NMRigidProxyGPU>(world.contact.rigidProxies)) &&
         writeSection(stream, Section::contactPairs,
@@ -485,6 +489,14 @@ bool readPackage(
             decoded = decodeVector(stream, section, candidate.fem.mutationCommands, error); break;
         case Section::femPunctureChannels:
             decoded = decodeVector(stream, section, candidate.fem.punctureChannels, error); break;
+        case Section::femHumanAttachments:
+            decoded = decodeVector(
+                stream,
+                section,
+                candidate.fem.humanAttachments,
+                error
+            );
+            break;
         case Section::rigidProxies:
             decoded = decodeVector(stream, section, candidate.contact.rigidProxies, error); break;
         case Section::contactPairs:

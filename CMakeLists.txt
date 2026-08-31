@@ -110,6 +110,18 @@ set(METALROBO_MILLARD_MUSCLE_REFERENCE_SOURCE
 set(METALROBO_MUJOCO_MUSCLE_REFERENCE_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MujocoMuscleReference.metal"
 )
+set(METALROBO_NUMANX_HUMAN_IO_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumanXHumanIO.metal"
+)
+set(METALROBO_NUMANX_COUPLED_HUMAN_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumanXCoupledHuman.metal"
+)
+set(METALROBO_NUMANX_HUMAN_MATTER_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumanXHumanMatter.metal"
+)
+set(METALROBO_NUMANX_HUMAN_MATTER_OWNER_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumanXHumanMatterOwner.metal"
+)
 set(METALROBO_ARTICULATED_ABA_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedABA.metal"
 )
@@ -190,6 +202,18 @@ set(METALROBO_MILLARD_MUSCLE_REFERENCE_AIR
 )
 set(METALROBO_MUJOCO_MUSCLE_REFERENCE_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboMujocoMuscleReference.air"
+)
+set(METALROBO_NUMANX_HUMAN_IO_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboNumanXHumanIO.air"
+)
+set(METALROBO_NUMANX_COUPLED_HUMAN_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboNumanXCoupledHuman.air"
+)
+set(METALROBO_NUMANX_HUMAN_MATTER_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboNumanXHumanMatter.air"
+)
+set(METALROBO_NUMANX_HUMAN_MATTER_OWNER_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboNumanXHumanMatterOwner.air"
 )
 set(METALROBO_PARAMETERIZED_ARTICULATED_OPERATOR_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboParameterizedArticulatedOperator.air"
@@ -299,6 +323,14 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/millard_muscle_gpu.h"
         "${METALROBO_MUJOCO_MUSCLE_REFERENCE_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/mujoco_muscle_gpu.h"
+        "${METALROBO_NUMANX_HUMAN_IO_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_human_io_gpu.h"
+        "${METALROBO_NUMANX_COUPLED_HUMAN_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_coupled_human_gpu.h"
+        "${METALROBO_NUMANX_HUMAN_MATTER_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_human_matter_adapter_gpu.h"
+        "${METALROBO_NUMANX_HUMAN_MATTER_OWNER_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_human_matter_gpu.h"
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${METALROBO_SHADER_DIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
@@ -386,6 +418,35 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_MUJOCO_MUSCLE_REFERENCE_SOURCE}"
             -o "${METALROBO_MUJOCO_MUSCLE_REFERENCE_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_NUMANX_HUMAN_IO_SOURCE}"
+            -o "${METALROBO_NUMANX_HUMAN_IO_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_NUMANX_COUPLED_HUMAN_SOURCE}"
+            -o "${METALROBO_NUMANX_COUPLED_HUMAN_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/matter/include"
+            -c "${METALROBO_NUMANX_HUMAN_MATTER_SOURCE}"
+            -o "${METALROBO_NUMANX_HUMAN_MATTER_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_NUMANX_HUMAN_MATTER_OWNER_SOURCE}"
+            -o "${METALROBO_NUMANX_HUMAN_MATTER_OWNER_AIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
@@ -597,6 +658,10 @@ add_custom_command(
             "${METALROBO_ARTICULATED_OPERATOR_AIR}"
             "${METALROBO_MILLARD_MUSCLE_REFERENCE_AIR}"
             "${METALROBO_MUJOCO_MUSCLE_REFERENCE_AIR}"
+            "${METALROBO_NUMANX_HUMAN_IO_AIR}"
+            "${METALROBO_NUMANX_COUPLED_HUMAN_AIR}"
+            "${METALROBO_NUMANX_HUMAN_MATTER_AIR}"
+            "${METALROBO_NUMANX_HUMAN_MATTER_OWNER_AIR}"
             "${METALROBO_PARAMETERIZED_ARTICULATED_OPERATOR_AIR}"
             "${METALROBO_ARTICULATED_ABA_AIR}"
             "${METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_AIR}"
@@ -642,6 +707,12 @@ add_custom_command(
         "${METALROBO_NUMI_HUMAN_STAND_SOURCE}"
         "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_tendon_gpu.h"
+        "${METALROBO_NUMANX_HUMAN_IO_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_human_io_gpu.h"
+        "${METALROBO_NUMANX_COUPLED_HUMAN_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_coupled_human_gpu.h"
+        "${METALROBO_NUMANX_HUMAN_MATTER_OWNER_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_human_matter_gpu.h"
         "${METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE}"
         "${METALROBO_DISCRETE_ELASTIC_ROD_SOURCE}"
         "${METALROBO_GENERALIZED_CONSTRAINT_SOURCE}"
@@ -790,6 +861,11 @@ add_library(
     src/apple/EnvironmentCooker.mm
     src/apple/VisualAssetCooker.mm
     src/metal/MetalArticulatedOperator.mm
+    src/metal/MetalNumanXHumanIO.mm
+    src/metal/NumanXBridgeV1.mm
+    src/metal/NumanXRuntimeV1.mm
+    src/metal/MetalNumanXCoupledHuman.mm
+    src/metal/MetalNumanXHumanMatter.mm
     src/metal/NumiHumanTendonMetal.mm
     src/metal/MetalArticulatedABA.mm
     src/metal/MetalMultiArticulatedABA.mm
@@ -2558,6 +2634,483 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
+
+add_executable(
+    metalrobo_numanx_transaction_probe
+    apps/numanx_transaction_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_transaction_probe
+    metalrobo_shaders
+)
+target_compile_definitions(
+    metalrobo_numanx_transaction_probe
+    PRIVATE
+        METALROBO_DEFAULT_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_numanx_transaction_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_transaction_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_transaction_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_human_io_probe
+    apps/numanx_human_io_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_human_io_probe
+    metalrobo_shaders
+)
+target_compile_options(
+    metalrobo_numanx_human_io_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_human_io_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_human_io_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_coupled_human_probe
+    apps/numanx_coupled_human_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_coupled_human_probe
+    metalrobo_shaders
+)
+target_compile_options(
+    metalrobo_numanx_coupled_human_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_coupled_human_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_coupled_human_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_human_matter_owner_probe
+    apps/numanx_human_matter_owner_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_human_matter_owner_probe
+    metalrobo_shaders
+)
+target_compile_options(
+    metalrobo_numanx_human_matter_owner_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_human_matter_owner_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_human_matter_owner_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_human_matter_v4_probe
+    apps/numanx_human_matter_v4_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_human_matter_v4_probe
+    metalrobo_shaders
+)
+target_compile_options(
+    metalrobo_numanx_human_matter_v4_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_human_matter_v4_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_human_matter_v4_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_human_matter_candidate_probe
+    apps/numanx_human_matter_candidate_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_human_matter_candidate_probe
+    metalrobo_shaders
+)
+target_compile_options(
+    metalrobo_numanx_human_matter_candidate_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_human_matter_candidate_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_human_matter_candidate_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_human_matter_adapter_probe
+    apps/numanx_human_matter_adapter_probe.mm
+)
+
+set(NUMANX_FULLBODY_RIGID_ASSET "" CACHE FILEPATH
+    "Canonical NHRIGID2 full-body asset for the NumanX bridge probe")
+set(NUMANX_FULLBODY_MUSCLE_ASSET "" CACHE FILEPATH
+    "Canonical NHMYO2 full-body asset for the NumanX bridge probe")
+if(APPLE AND EXISTS "${NUMANX_FULLBODY_RIGID_ASSET}" AND
+             EXISTS "${NUMANX_FULLBODY_MUSCLE_ASSET}")
+    add_executable(
+        metalrobo_numanx_fullbody_bridge_probe
+        apps/numanx_fullbody_bridge_probe.mm
+    )
+    add_dependencies(
+        metalrobo_numanx_fullbody_bridge_probe
+        metalrobo_shaders
+        numi_matter_shaders
+    )
+    target_compile_definitions(
+        metalrobo_numanx_fullbody_bridge_probe
+        PRIVATE
+            MRNX_FULLBODY_RIGID="${NUMANX_FULLBODY_RIGID_ASSET}"
+            MRNX_FULLBODY_MUSCLE="${NUMANX_FULLBODY_MUSCLE_ASSET}"
+            MRNX_METALROBO_METALLIB="${METALROBO_METALLIB}"
+            MRNX_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+            MRNX_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+    )
+    target_compile_options(
+        metalrobo_numanx_fullbody_bridge_probe
+        PRIVATE
+            -fobjc-arc
+            -Wall
+            -Wextra
+            -Wpedantic
+            -Werror
+    )
+    target_link_libraries(
+        metalrobo_numanx_fullbody_bridge_probe
+        PRIVATE
+            metalrobo
+            "${FOUNDATION_FRAMEWORK}"
+            "${METAL_FRAMEWORK}"
+    )
+    set_target_properties(
+        metalrobo_numanx_fullbody_bridge_probe
+        PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+    )
+endif()
+add_dependencies(
+    metalrobo_numanx_human_matter_adapter_probe
+    metalrobo_shaders
+    numi_matter_shaders
+)
+target_compile_definitions(
+    metalrobo_numanx_human_matter_adapter_probe
+    PRIVATE
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+        NUMANX_ADAPTER_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_numanx_human_matter_adapter_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_human_matter_adapter_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_human_matter_adapter_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_matter_accepted_state_proof_probe
+    apps/numanx_matter_accepted_state_proof_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_matter_accepted_state_proof_probe
+    metalrobo_shaders
+    numi_matter_shaders
+)
+target_compile_definitions(
+    metalrobo_numanx_matter_accepted_state_proof_probe
+    PRIVATE
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+        NUMANX_ADAPTER_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_numanx_matter_accepted_state_proof_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_matter_accepted_state_proof_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_matter_accepted_state_proof_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_matter_attachment_runtime_probe
+    apps/numanx_matter_attachment_runtime_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_matter_attachment_runtime_probe
+    numi_matter_shaders
+)
+target_compile_definitions(
+    metalrobo_numanx_matter_attachment_runtime_probe
+    PRIVATE
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+)
+target_compile_options(
+    metalrobo_numanx_matter_attachment_runtime_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_matter_attachment_runtime_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_matter_attachment_runtime_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_matter_capacity_probe
+    apps/numanx_matter_capacity_probe.cpp
+)
+target_compile_definitions(
+    metalrobo_numanx_matter_capacity_probe
+    PRIVATE
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+)
+target_compile_options(
+    metalrobo_numanx_matter_capacity_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_matter_capacity_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_numanx_matter_capacity_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+if(BUILD_TESTING)
+    add_test(
+        NAME numanx.integration.human_transaction
+        COMMAND $<TARGET_FILE:metalrobo_numanx_transaction_probe> --accept
+    )
+    add_test(
+        NAME numanx.runtime.human_transaction_rollback
+        COMMAND $<TARGET_FILE:metalrobo_numanx_transaction_probe> --rollback
+    )
+    add_test(
+        NAME numanx.contract.human_transaction_abi
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_transaction_probe>
+            --abi-contract
+    )
+    add_test(
+        NAME numanx.integration.human_motor_sensor_transaction
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_human_io_probe>
+            "${METALROBO_METALLIB}"
+    )
+    add_test(
+        NAME numanx.contract.matter_human_capacity
+        COMMAND $<TARGET_FILE:metalrobo_numanx_matter_capacity_probe>
+    )
+    add_test(
+        NAME numanx.integration.human_coupled_candidate
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_coupled_human_probe>
+            "${METALROBO_METALLIB}"
+    )
+    add_test(
+        NAME numanx.integration.human_matter_owner_transaction
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_human_matter_owner_probe>
+            "${METALROBO_METALLIB}"
+    )
+    add_test(
+        NAME numanx.integration.human_matter_owner_v4
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_human_matter_v4_probe>
+            "${METALROBO_METALLIB}"
+    )
+    add_test(
+        NAME numanx.integration.human_matter_exact_candidate
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_human_matter_candidate_probe>
+            "${METALROBO_METALLIB}"
+    )
+    add_test(
+        NAME numanx.integration.human_matter_adapter
+        COMMAND $<TARGET_FILE:metalrobo_numanx_human_matter_adapter_probe>
+    )
+    add_test(
+        NAME numanx.integration.matter_accepted_state_2pc
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_matter_accepted_state_proof_probe>
+    )
+    add_test(
+        NAME numanx.integration.human_matter_attachment_runtime
+        COMMAND $<TARGET_FILE:metalrobo_numanx_matter_attachment_runtime_probe>
+    )
+    if(TARGET metalrobo_numanx_fullbody_bridge_probe)
+        add_test(
+            NAME numanx.integration.fullbody_bridge_prepared_root
+            COMMAND $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe>
+        )
+        set_tests_properties(
+            numanx.integration.fullbody_bridge_prepared_root
+            PROPERTIES
+                LABELS "numanx;human;matter;physics;metal;fullbody"
+                TIMEOUT 180
+                RUN_SERIAL TRUE
+        )
+    endif()
+    set_tests_properties(
+        numanx.integration.human_transaction
+        numanx.runtime.human_transaction_rollback
+        numanx.contract.human_transaction_abi
+        numanx.integration.human_motor_sensor_transaction
+        numanx.contract.matter_human_capacity
+        numanx.integration.human_coupled_candidate
+        numanx.integration.human_matter_owner_transaction
+        numanx.integration.human_matter_owner_v4
+        numanx.integration.human_matter_exact_candidate
+        numanx.integration.human_matter_adapter
+        numanx.integration.matter_accepted_state_2pc
+        numanx.integration.human_matter_attachment_runtime
+        PROPERTIES
+            LABELS "numanx;human;physics;metal"
+            TIMEOUT 180
+            RUN_SERIAL TRUE
+    )
+endif()
 
 add_executable(
     metalrobo_articulated_aba_gpu_probe
