@@ -841,6 +841,7 @@ add_library(
     src/core/NumiHumanTendon.cpp
     src/core/NumiHumanCartilage.cpp
     src/core/NumiHumanKnee.cpp
+    src/core/NumiHumanKneeContact.cpp
     src/core/ArticulatedJointLimits.cpp
     src/core/ArticulatedContact.cpp
     src/core/CoupledArticulatedRigidContact.cpp
@@ -1542,6 +1543,56 @@ set_target_properties(
     metalrobo_numilab_human_open_knee_ligament_probe
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
 )
+
+# Exact Open Knee(s) cartilage/meniscus surface-pair elastic-foundation
+# preflight. This is a nonvisual constitutive/anatomical gate; the output
+# explicitly remains below integrated Human contact and motion evidence.
+add_executable(
+    metalrobo_numilab_human_knee_contact_probe
+    apps/numilab_human_knee_contact_probe.cpp
+)
+target_link_libraries(
+    metalrobo_numilab_human_knee_contact_probe
+    PRIVATE metalrobo
+)
+target_compile_options(
+    metalrobo_numilab_human_knee_contact_probe
+    PRIVATE -Wall -Wextra -Wpedantic -Werror
+)
+set_target_properties(
+    metalrobo_numilab_human_knee_contact_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+if(BUILD_TESTING)
+    add_executable(
+        metalrobo_numi_human_knee_contact_test
+        tests/numi_human_knee_contact_test.cpp
+    )
+    target_link_libraries(
+        metalrobo_numi_human_knee_contact_test
+        PRIVATE metalrobo
+    )
+    target_compile_options(
+        metalrobo_numi_human_knee_contact_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror
+    )
+    set_target_properties(
+        metalrobo_numi_human_knee_contact_test
+        PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+    )
+    add_test(
+        NAME numi_human_knee_contact
+        COMMAND metalrobo_numi_human_knee_contact_test
+    )
+    set_tests_properties(
+        numi_human_knee_contact
+        PROPERTIES LABELS "numi-human;anatomy;contact"
+    )
+endif()
 
 add_executable(
     metalrobo_millard_muscle_reference_probe

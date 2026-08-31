@@ -44,7 +44,7 @@ class WholeBodyValidationTest(unittest.TestCase):
         left_knee = scope(report, "left_knee")["requirements"]
         self.assertEqual(left_knee["active_tendon_to_bone"]["status"], "verified")
         self.assertEqual(left_knee["passive_joint_tissue"]["status"], "verified")
-        self.assertEqual(left_knee["articular_contact"]["status"], "missing")
+        self.assertEqual(left_knee["articular_contact"]["status"], "insufficient")
         self.assertEqual(left_knee["sustained_loaded_motion"]["status"], "missing")
 
         shoulder = scope(report, "left_shoulder")["requirements"]

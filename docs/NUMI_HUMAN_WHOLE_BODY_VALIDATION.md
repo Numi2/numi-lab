@@ -38,10 +38,10 @@ one-step receipt cannot satisfy a stronger one.
 
 ## Current evidence baseline
 
-At revision `385e77e`, the manifest covers 15 musculoskeletal regions and six
-continuum layers. The baseline report contains 82 verified requirements, 18
-contradicted requirements, two insufficient requirements, and 76 missing
-requirements. No complete scope is yet promoted.
+The manifest covers 15 musculoskeletal regions and six continuum layers. The
+current report contains 82 verified requirements, 18 contradicted
+requirements, four insufficient requirements, and 74 missing requirements.
+No complete scope is yet promoted.
 
 The fresh integrated Release build also passed the native NumanX label 12/12
 on Apple M4 Pro. Those tests qualify transaction ownership, capacity,
@@ -62,9 +62,13 @@ The contradictions are intentional development signals:
 The bilateral knees have one-step source-muscle actuation, exact QAT/PTL
 attachment transfer, passive ACL/PCL/MCL/LCL/QAT/PTL FEM reactions, force
 closure, positive deformation Jacobians, bitwise replay, and rollback. They
-remain incomplete because compliant articular contact and sustained loaded
-motion are not yet qualified. The right knee is a mirrored left specimen, not
-an independently segmented right subject.
+also have a bilateral exact-surface cartilage/meniscus elastic-foundation
+preflight: seven source pairs, 69,701 samples, a 65-step small-strain ramp,
+force/moment closure, elastic-energy identity, bitwise replay, and unloaded
+restore. They remain incomplete because the contact preflight is not yet the
+live Human force owner, does not solve unilateral nonpenetration, and is not a
+sustained loaded flexion. The right knee is a mirrored left specimen, not an
+independently segmented right subject.
 
 ## Development order
 
