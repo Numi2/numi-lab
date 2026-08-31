@@ -489,7 +489,35 @@
         {"path": "include/metalrobo/NumiHumanTensionNetwork.hpp", "sha256": "f9846b267e35ca542284baadbd0820b1b7cbb963eb6710bcd75d0483a507cbde"},
         {"path": "src/core/NumiHumanTensionNetwork.cpp", "sha256": "3198a1230a8dbd9c3f41d9459ca865e1fd82e8f267b4644a0fdf2e65c43140d2"},
         {"path": "apps/numilab_human_extensor_hood_reference_probe.cpp", "sha256": "f594bd73ec00a06d9026a31062e71fa108dbdc2de86137bad1bb7887d46ab97b"},
-        {"path": "CMakeLists.txt", "sha256": "d207691d8f7a7af831970cb3af3628d565a8969aebf477859789e4eab69dfc94"}
+        {"path": "CMakeLists.txt", "sha256": "92e612e0ea7d581f26c582c45ed479a462422ff9733c4a3df7c1d65857fc8c3a"}
+      ]
+    },
+    "extensor_hood_source_posed_reference": {
+      "path": "docs/media/numi-human-extensor-hood-source-v1/m4-pro.json",
+      "format": "json",
+      "level": "preflight",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.extensor-hood-source-posed.preflight.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/source_artifact/format", "op": "equals", "value": "NHHOOD1"},
+        {"pointer": "/source_artifact/bytes", "op": "equals", "value": 2036},
+        {"pointer": "/topology/hand_count", "op": "equals", "value": 2},
+        {"pointer": "/topology/node_count", "op": "equals", "value": 24},
+        {"pointer": "/topology/element_count", "op": "equals", "value": 28},
+        {"pointer": "/topology/muscle_input_count", "op": "equals", "value": 10},
+        {"pointer": "/topology/active_element_count", "op": "minimum", "value": 12},
+        {"pointer": "/mechanics/maximum_free_node_residual_newtons", "op": "maximum", "value": 0.0000002},
+        {"pointer": "/mechanics/maximum_force_closure_residual_newtons", "op": "maximum", "value": 0.000002},
+        {"pointer": "/mechanics/maximum_moment_closure_residual_newton_meters", "op": "maximum", "value": 0.0000002},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_extensor_hood_source_probe.cpp", "sha256": "b05456941e8c1923d43c5ff514f73e924139343a9003bc1ac391d44c40202bb2"},
+        {"path": "include/metalrobo/NumiHumanTensionNetwork.hpp", "sha256": "f9846b267e35ca542284baadbd0820b1b7cbb963eb6710bcd75d0483a507cbde"},
+        {"path": "src/core/NumiHumanTensionNetwork.cpp", "sha256": "3198a1230a8dbd9c3f41d9459ca865e1fd82e8f267b4644a0fdf2e65c43140d2"},
+        {"path": "CMakeLists.txt", "sha256": "92e612e0ea7d581f26c582c45ed479a462422ff9733c4a3df7c1d65857fc8c3a"}
       ]
     },
     "costal_cartilage_preflight": {
@@ -521,7 +549,7 @@
       "joint_kinematics": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
       "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
       "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["fully_distributed_exact_entheses"], "gap": "replace point fallbacks and inferred whole-body endpoints with region-specific exact loaded enthesis transfer"},
-      "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["upper_passive_joint_tissue_preflight", "extensor_hood_tension_network_reference"], "gap": "compile the tensile network from posed source-hand attachments, then promote it with loaded ligament, tendon, capsule, and cartilage mechanics"},
+      "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["upper_passive_joint_tissue_preflight", "extensor_hood_tension_network_reference", "extensor_hood_source_posed_reference"], "gap": "feed live muscle-tendon force into the source-posed hood, project attachment reactions through exact point Jacobians once, and promote it with loaded ligament, capsule, cartilage, and Metal transaction evidence"},
       "articular_contact": {"minimum_level": "one_step", "evidence": [], "gap": "add compliant articular contact and nonpenetration evidence"},
       "bilateral_parity": {"minimum_level": "structural", "evidence": ["upper_multi_pose_geometry"]},
       "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},

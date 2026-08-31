@@ -1443,6 +1443,26 @@ if(BUILD_TESTING)
     )
 endif()
 
+add_executable(
+    metalrobo_numilab_human_extensor_hood_source_probe
+    apps/numilab_human_extensor_hood_source_probe.cpp
+)
+target_link_libraries(
+    metalrobo_numilab_human_extensor_hood_source_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_numilab_human_extensor_hood_source_probe
+    PRIVATE -Wall -Wextra -Wpedantic -Werror
+)
+set_target_properties(
+    metalrobo_numilab_human_extensor_hood_source_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
 # Native visual inspection for the full-body MyoSim model. It obtains the
 # articulated pose from the Metal operator, renders BodyParts3D major-bone
 # geometry when supplied, and can opt in to selected CPU-resolved source route

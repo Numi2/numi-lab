@@ -1,8 +1,9 @@
 # Numi Human extensor-hood tensile-network reference
 
-Status: **FP64 mechanics preflight**. This is the conservative nonlinear
-network owner needed before a finger extensor hood can enter the live Human
-transaction. It is not yet a posed MyoSim/BodyParts3D hand or a Metal solve.
+Status: **FP64 mechanics and source-posed preflight**. The conservative
+nonlinear network now consumes a bilateral `NHHOOD1` artifact compiled from
+the pinned MyoSim hand. It has not yet entered the live whole-body Metal
+force transaction.
 
 ## Mechanical contract
 
@@ -75,3 +76,27 @@ it is not decorative geometry or an added coordinate spring.
 
 Machine-readable evidence:
 [`m4-pro.json`](media/numi-human-extensor-hood-reference-v1/m4-pro.json).
+
+## Source-posed promotion result
+
+`numilab-human` revision `71f638f` compiles 24 named MyoSim route sites, 28
+literature-inferred tensile bundles, and ten exact EDC5/EDM/RI5/lumbrical/UI5
+route bindings into a 2,036-byte `NHHOOD1` payload. Its header embeds the
+pinned MyoSim archive hash; the runtime rejects source, ABI, record-size,
+range, laterality, or topology drift before solving.
+
+On Apple M4 Pro, both source-posed fifth-ray networks converged under the
+published 2.9 N input condition with 24 active elements, `0.096332941933 J`
+total strain energy, `2.71920e-8 N` maximum free-node residual,
+`5.66165e-10 N` maximum force-closure residual, and `4.72477e-10 N m`
+maximum moment-closure residual. Replay was bitwise and malformed topology
+left the previously published result unchanged.
+
+The artifact also preserves MyoSim's source-default force at every binding
+(maximum `56.4591 N`) but does not apply that force in this preflight. The
+next promotion is to solve the hood from the live muscle-tendon state and
+project its attachment reactions through exact point Jacobians once, inside
+the owning whole-body force transaction.
+
+Source-posed evidence:
+[`m4-pro.json`](media/numi-human-extensor-hood-source-v1/m4-pro.json).

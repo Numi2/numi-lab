@@ -1,0 +1,44 @@
+{
+  "schema": "numilab.human.extensor-hood-source-posed.preflight.v1",
+  "device": "Apple M4 Pro",
+  "evidence_level": "preflight",
+  "runtime_revision": "cc2543e419ca7f0309e62fc1c6a55241d9fe0225",
+  "source_compiler_repository": "https://github.com/Numi2/numilab-human.git",
+  "source_compiler_revision": "71f638f",
+  "myosim_revision": "33c89c2bde282553dde3f526768eb3bdcfaa7649",
+  "source_artifact": {
+    "format": "NHHOOD1",
+    "abi": 1,
+    "bytes": 2036,
+    "sha256": "4074173d572903201232355b4049aca0f3a5456e5d07e2d0781ff22351d70c82"
+  },
+  "topology": {
+    "hand_count": 2,
+    "node_count": 24,
+    "element_count": 28,
+    "muscle_input_count": 10,
+    "active_element_count": 24,
+    "source_muscles_per_hand": ["EDC5", "EDM", "RI5", "LU_RB5", "UI_UB5"]
+  },
+  "mechanics": {
+    "law": "T=(EA/L0)*max(L-L0,0)",
+    "applied_input_force_each_newtons": 2.9,
+    "maximum_source_oracle_force_newtons": 56.459072113,
+    "strain_energy_joules": 0.096332941933,
+    "maximum_free_node_residual_newtons": 2.71919656496e-8,
+    "maximum_force_closure_residual_newtons": 5.66164741178e-10,
+    "maximum_moment_closure_residual_newton_meters": 4.72477049695e-10
+  },
+  "replay": "bitwise",
+  "rollback": "verified",
+  "gates": {
+    "payload_shape_and_source_hash": "passed",
+    "exact_source_site_body_binding": "passed",
+    "bilateral_topology": "passed",
+    "free_node_equilibrium": "passed",
+    "force_and_moment_closure": "passed",
+    "deterministic_replay": "passed",
+    "malformed_topology_rollback": "passed"
+  },
+  "boundary": "Source-posed CPU FP64 network under the literature 2.9 N loading condition. Exact MyoSim sites, bodies, muscle IDs, route directions, and source-force fields are preserved, but hood connectivity and material parameters remain literature-constrained inference. This is not yet the live whole-body generalized-force transaction or a subject-specific tissue calibration."
+}
