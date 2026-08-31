@@ -118,13 +118,13 @@
         {"pointer": "/anatomical_contact", "op": "equals", "value": false}
       ],
       "artifacts": [
-        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "407d52d819c0761952020dfcf349100d3ee4f69d159e46cf1b1a7a6af4a7e95d"},
-        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "e8c0e2991c60591702f18a4792095dbf431742ccead8d220c8d72d0b888a679e"},
+        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635"},
+        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2"},
         {"path": "matter/include/numi/matter/matter.hpp", "sha256": "6cfc1af24286a026d99a8ded360faa351462ce4e8058bc7c38229215c41f47b2"},
         {"path": "matter/src/runtime.mm", "sha256": "7b74ec6ace16db2d04eb50ce534a466eb6dc86d24262a40f4840833d2ff999d4"},
-        {"path": "matter/src/numi_human.mm", "sha256": "a3c9dff84555afa78a1b2a4ba65ab7a623e52fcfcf4eb18213e97f3a9066f4dd"},
-        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "3ca31bc0f42ea7d138f99776c4dbf3f337170bc905f49a94284f3f38967ebc13"},
-        {"path": "apps/numi_human_tendon_fem_load_probe.mm", "sha256": "28c0ec832ec9c907a93083b6c19cce32fbef4f4b4be67c03d20ec0c9dda7e093"}
+        {"path": "matter/src/numi_human.mm", "sha256": "896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18"},
+        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85"},
+        {"path": "apps/numi_human_tendon_fem_load_probe.mm", "sha256": "e8705b0af201263661a99c8b148bf80e30a872d9f263db0e392c3335977f7252"}
       ]
     },
     "articular_contact_wrench_transaction": {
@@ -134,20 +134,26 @@
       "checks": [
         {"pointer": "/schema", "op": "equals", "value": "numilab.human.articular-contact-wrench-transaction-fixture.v1"},
         {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
-        {"pointer": "/contact_sample_count", "op": "equals", "value": 1},
+        {"pointer": "/adapter_abi", "op": "equals", "value": 7},
+        {"pointer": "/contact_sample_count", "op": "equals", "value": 2},
+        {"pointer": "/mechanical_sample_count", "op": "equals", "value": 1},
+        {"pointer": "/internal_same_body_sample_count", "op": "equals", "value": 1},
         {"pointer": "/measured_generalized_force_correction", "op": "equals", "value": 0.9999},
+        {"pointer": "/force_residual_newtons", "op": "maximum", "value": 1e-6},
+        {"pointer": "/moment_residual_newton_meters", "op": "maximum", "value": 1e-6},
         {"pointer": "/fem_state_ab", "op": "equals", "value": "bitwise"},
-        {"pointer": "/malformed_same_body_contact_rejected", "op": "equals", "value": true},
+        {"pointer": "/malformed_active_same_body_contact_rejected", "op": "equals", "value": true},
+        {"pointer": "/typed_internal_same_body_contact_retained", "op": "equals", "value": true},
         {"pointer": "/replay", "op": "equals", "value": "bitwise"},
         {"pointer": "/rollback", "op": "equals", "value": "verified"},
         {"pointer": "/anatomical_contact", "op": "equals", "value": false}
       ],
       "artifacts": [
-        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "407d52d819c0761952020dfcf349100d3ee4f69d159e46cf1b1a7a6af4a7e95d"},
-        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "e8c0e2991c60591702f18a4792095dbf431742ccead8d220c8d72d0b888a679e"},
-        {"path": "matter/src/numi_human.mm", "sha256": "a3c9dff84555afa78a1b2a4ba65ab7a623e52fcfcf4eb18213e97f3a9066f4dd"},
-        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "3ca31bc0f42ea7d138f99776c4dbf3f337170bc905f49a94284f3f38967ebc13"},
-        {"path": "apps/numi_human_tendon_fem_load_probe.mm", "sha256": "28c0ec832ec9c907a93083b6c19cce32fbef4f4b4be67c03d20ec0c9dda7e093"}
+        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635"},
+        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2"},
+        {"path": "matter/src/numi_human.mm", "sha256": "896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18"},
+        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85"},
+        {"path": "apps/numi_human_tendon_fem_load_probe.mm", "sha256": "e8705b0af201263661a99c8b148bf80e30a872d9f263db0e392c3335977f7252"}
       ]
     },
     "left_knee_extensor_chain": {
@@ -169,12 +175,12 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "f53e0028c9e6f225d281ab4cbbfc70ba903e8ef7d2fd6996f09d50325c2363cd"},
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "9ba831c1fad39a3e268f605ec67f6c27f5df44d5760ed03eefbd36aff2f9bcc0"},
         {"path": "apps/numilab_human_open_knee_ligament_probe.mm", "sha256": "ddcfeda37f47321b80e5d01fb249fe248d94b06ae5126a08d22377ef1ab1439d"},
-        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "407d52d819c0761952020dfcf349100d3ee4f69d159e46cf1b1a7a6af4a7e95d"},
-        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "e8c0e2991c60591702f18a4792095dbf431742ccead8d220c8d72d0b888a679e"},
-        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "3ca31bc0f42ea7d138f99776c4dbf3f337170bc905f49a94284f3f38967ebc13"},
-        {"path": "matter/src/numi_human.mm", "sha256": "a3c9dff84555afa78a1b2a4ba65ab7a623e52fcfcf4eb18213e97f3a9066f4dd"},
+        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635"},
+        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2"},
+        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85"},
+        {"path": "matter/src/numi_human.mm", "sha256": "896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18"},
         {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/left/front.png", "sha256": "0fb97c9cf3f7e1f2c8e670ffe25ea11af189fd742987f87231c43ea20d535ff2"},
         {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/left/oblique.png", "sha256": "818c18626e53942115c051ed206b6d5c622a749eea8a0730ceab94c24acbb2be"},
         {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/left/rear.png", "sha256": "58e3b94c6a06a986f8f0f268b3aeb6d7977ee4922cb326419485582aeaebcc98"},
@@ -200,12 +206,12 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "f53e0028c9e6f225d281ab4cbbfc70ba903e8ef7d2fd6996f09d50325c2363cd"},
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "9ba831c1fad39a3e268f605ec67f6c27f5df44d5760ed03eefbd36aff2f9bcc0"},
         {"path": "apps/numilab_human_open_knee_ligament_probe.mm", "sha256": "ddcfeda37f47321b80e5d01fb249fe248d94b06ae5126a08d22377ef1ab1439d"},
-        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "407d52d819c0761952020dfcf349100d3ee4f69d159e46cf1b1a7a6af4a7e95d"},
-        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "e8c0e2991c60591702f18a4792095dbf431742ccead8d220c8d72d0b888a679e"},
-        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "3ca31bc0f42ea7d138f99776c4dbf3f337170bc905f49a94284f3f38967ebc13"},
-        {"path": "matter/src/numi_human.mm", "sha256": "a3c9dff84555afa78a1b2a4ba65ab7a623e52fcfcf4eb18213e97f3a9066f4dd"},
+        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635"},
+        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2"},
+        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85"},
+        {"path": "matter/src/numi_human.mm", "sha256": "896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18"},
         {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/right/front.png", "sha256": "1048ceaddda34f44d1352e7bbd961b00983318d77bcdd0946c21e32f2cae8280"},
         {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/right/oblique.png", "sha256": "844c44c1303bed877956ebb9f221eee2a7d219291d3a4c3e120bc988018a7676"},
         {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/right/rear.png", "sha256": "26ec4ac37da1c873b5739eab196f838723df36a7afc2c01bf1263806c1d2ac72"},
@@ -270,6 +276,79 @@
         {"path": "src/core/NumiHumanKneeContact.cpp", "sha256": "9fccb7c2bdef3cb494217030eeb364bda1232ec10d52299fc7947502c412e247"},
         {"path": "apps/numilab_human_knee_contact_probe.cpp", "sha256": "925efa6cc8c8ef6f52cfc816a63ef100a8dd8a75c18f1619b4869982000f508c"},
         {"path": "tests/numi_human_knee_contact_test.cpp", "sha256": "904a5b0c25387fd923cd7805bc0656ab57adad9d0146c26c97c86a8d9d3bb903"}
+      ]
+    },
+    "left_knee_contact_live": {
+      "path": "docs/media/numi-human-knee-articular-live-v1/left-m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.knee-articular-contact-live.v1"},
+        {"pointer": "/side", "op": "equals", "value": "left"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/adapter_abi", "op": "equals", "value": 7},
+        {"pointer": "/articular_pair_count", "op": "equals", "value": 7},
+        {"pointer": "/contact_sample_count", "op": "equals", "value": 69701},
+        {"pointer": "/mechanical_sample_count", "op": "equals", "value": 57930},
+        {"pointer": "/internal_same_body_sample_count", "op": "equals", "value": 11771},
+        {"pointer": "/closed_sample_count", "op": "minimum", "value": 1},
+        {"pointer": "/normal_force_newtons", "op": "minimum", "value": 1e-6},
+        {"pointer": "/force_residual_newtons", "op": "maximum", "value": 1e-5},
+        {"pointer": "/moment_residual_newton_meters", "op": "maximum", "value": 1e-5},
+        {"pointer": "/minimum_deformation_jacobian", "op": "minimum", "value": 0.25},
+        {"pointer": "/maximum_deformation_jacobian", "op": "maximum", "value": 2.5},
+        {"pointer": "/live_human_coupling", "op": "equals", "value": true},
+        {"pointer": "/same_borrowed_command_buffer", "op": "equals", "value": true},
+        {"pointer": "/unilateral_nonpenetration_solve", "op": "equals", "value": false},
+        {"pointer": "/current_surface_search", "op": "equals", "value": false},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "9ba831c1fad39a3e268f605ec67f6c27f5df44d5760ed03eefbd36aff2f9bcc0"},
+        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635"},
+        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2"},
+        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85"},
+        {"path": "matter/src/numi_human.mm", "sha256": "896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18"},
+        {"path": "docs/media/numi-human-knee-articular-live-v1/left-m4-pro.txt", "sha256": "fd5440553d87074c750b397fb0b49912ee7a18250004d4c7f6cb5d96826c0644"}
+      ]
+    },
+    "right_knee_contact_live": {
+      "path": "docs/media/numi-human-knee-articular-live-v1/right-mirrored-m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.knee-articular-contact-live.v1"},
+        {"pointer": "/side", "op": "equals", "value": "right_mirrored"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/adapter_abi", "op": "equals", "value": 7},
+        {"pointer": "/articular_pair_count", "op": "equals", "value": 7},
+        {"pointer": "/contact_sample_count", "op": "equals", "value": 69701},
+        {"pointer": "/mechanical_sample_count", "op": "equals", "value": 57930},
+        {"pointer": "/internal_same_body_sample_count", "op": "equals", "value": 11771},
+        {"pointer": "/closed_sample_count", "op": "minimum", "value": 1},
+        {"pointer": "/normal_force_newtons", "op": "minimum", "value": 1e-6},
+        {"pointer": "/force_residual_newtons", "op": "maximum", "value": 1e-5},
+        {"pointer": "/moment_residual_newton_meters", "op": "maximum", "value": 1e-5},
+        {"pointer": "/minimum_deformation_jacobian", "op": "minimum", "value": 0.25},
+        {"pointer": "/maximum_deformation_jacobian", "op": "maximum", "value": 2.5},
+        {"pointer": "/live_human_coupling", "op": "equals", "value": true},
+        {"pointer": "/same_borrowed_command_buffer", "op": "equals", "value": true},
+        {"pointer": "/unilateral_nonpenetration_solve", "op": "equals", "value": false},
+        {"pointer": "/current_surface_search", "op": "equals", "value": false},
+        {"pointer": "/independently_segmented_right_specimen", "op": "equals", "value": false},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "9ba831c1fad39a3e268f605ec67f6c27f5df44d5760ed03eefbd36aff2f9bcc0"},
+        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635"},
+        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2"},
+        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85"},
+        {"path": "matter/src/numi_human.mm", "sha256": "896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18"},
+        {"path": "docs/media/numi-human-knee-articular-live-v1/right-mirrored-m4-pro.txt", "sha256": "f7006a154a8c245959463e5faa941e460efeae308ec1aca018a892b667042b9c"}
       ]
     },
     "costal_cartilage_preflight": {
@@ -356,7 +435,7 @@
         "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
         "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["left_knee_extensor_chain", "source_route_transaction"], "evidence_mode": "all"},
         "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["left_knee_extensor_chain", "source_route_transaction"], "evidence_mode": "all"},
-        "articular_contact": {"minimum_level": "one_step", "evidence": ["left_knee_contact_preflight"], "gap": "couple exact contact reactions into the live Human transaction and solve unilateral nonpenetration"},
+        "articular_contact": {"minimum_level": "one_step", "evidence": ["left_knee_contact_live", "left_knee_contact_preflight"], "gap": "promote fixed-reference one-step contact to sustained current-surface or implicit unilateral nonpenetration"},
         "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["left_knee_extensor_chain", "source_route_transaction"], "evidence_mode": "all"}
       }
     },
@@ -367,7 +446,7 @@
         "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
         "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["right_knee_extensor_chain", "source_route_transaction"], "evidence_mode": "all"},
         "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["right_knee_extensor_chain", "source_route_transaction"], "evidence_mode": "all"},
-        "articular_contact": {"minimum_level": "one_step", "evidence": ["right_knee_contact_preflight"], "gap": "couple exact contact reactions into the live Human transaction and solve unilateral nonpenetration"},
+        "articular_contact": {"minimum_level": "one_step", "evidence": ["right_knee_contact_live", "right_knee_contact_preflight"], "gap": "promote fixed-reference one-step contact to sustained current-surface or implicit unilateral nonpenetration"},
         "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["right_knee_extensor_chain", "source_route_transaction"], "evidence_mode": "all"}
       }
     },

@@ -2,20 +2,20 @@
   "schema": "numilab.human.open-knee-extensor-chain.qualification.v1",
   "side": "left",
   "device": "Apple M4 Pro",
-  "source_revision": "9450f0b5db68251b7bf1a15779b943a62cfe82cf+working-tree-extensor-chain",
+  "source_revision_parent": "9996ca7b93e2f97e6afda7b723c94a674c66a8ad",
   "regions": 6,
   "nodes": 62402,
   "tetrahedra": 264442,
   "quadriceps_endpoint_count": 4,
   "quadriceps_force_owner_fraction": 1.0,
-  "quadriceps_force_l1_n": 1974.67497253,
-  "quadriceps_force_resultant_n": 1955.26977539,
-  "qat_patella_reaction_resultant_n": 1955.42065430,
-  "ptl_force_resultant_n": 1973.99255371,
-  "ptl_patella_reaction_resultant_n": 1973.86584473,
-  "ptl_tibia_reaction_resultant_n": 1974.36633301,
-  "assembled_external_force_l1_n": 5903.24951172,
-  "assembled_external_force_resultant_n": 1955.26850147,
+  "quadriceps_force_l1_n": 1972.87266541,
+  "quadriceps_force_resultant_n": 1953.47900391,
+  "qat_patella_reaction_resultant_n": 1953.62915039,
+  "ptl_force_resultant_n": 1972.19091797,
+  "ptl_patella_reaction_resultant_n": 1972.06457520,
+  "ptl_tibia_reaction_resultant_n": 1972.56616211,
+  "assembled_external_force_l1_n": 5897.86181641,
+  "assembled_external_force_resultant_n": 1953.47769506,
   "qat_attachment_nodes": 378,
   "ptl_patella_attachment_nodes": 424,
   "ptl_tibia_attachment_nodes": 553,
@@ -31,7 +31,7 @@
     "qat_reaction_with_passive_superposition": "passed",
     "ptl_bipolar_reactions_with_passive_superposition": "passed",
     "deformation_jacobian": "passed",
-    "four_angle_inspection": "passed"
+    "four_angle_render_coverage": "passed"
   },
   "image_sha256": {
     "front.png": "0fb97c9cf3f7e1f2c8e670ffe25ea11af189fd742987f87231c43ea20d535ff2",
@@ -39,5 +39,5 @@
     "rear.png": "58e3b94c6a06a986f8f0f268b3aeb6d7977ee4922cb326419485582aeaebcc98",
     "side.png": "043e1b73483b9a5fb0a324887e6799f4e05089b14cb51b5d03a56ecbaed0159d"
   },
-  "evidence_boundary": "Same-command-buffer reduced nonlinear source tendon force transfer through exact QAT and PTL entheses plus passive isotropic tissue FEM; not active volumetric transverse-isotropic tendon mechanics, sustained tracking, loaded contact, gait, or clinical validation."
+  "evidence_boundary": "Same-command-buffer reduced nonlinear source tendon force transfer through exact QAT and PTL entheses plus passive isotropic tissue FEM, measured without regression while ABI 7 exact-surface articular contact was active. This is not active volumetric transverse-isotropic tendon mechanics, sustained tracking, gait, or clinical validation."
 }

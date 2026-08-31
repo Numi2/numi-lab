@@ -63,6 +63,8 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     std::uint32_t encodedPassCount = 0u;
     std::uint32_t abortCount = 0u;
     std::uint32_t articularBodyPoseStride = 0u;
+    std::uint32_t articularMechanicalSampleCount = 0u;
+    std::uint32_t articularInternalSameBodySampleCount = 0u;
     std::uint64_t fingerprint = 0u;
     std::string message;
 
@@ -74,6 +76,7 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLComputePipelineState> forceAuditPipeline = nil;
     __strong id<MTLComputePipelineState> contactForcePipeline = nil;
     __strong id<MTLComputePipelineState> articularContactPipeline = nil;
+    __strong id<MTLComputePipelineState> articularContactAuditPipeline = nil;
     __strong id<MTLComputePipelineState> targetPipeline = nil;
     __strong id<MTLComputePipelineState> reactionPipeline = nil;
     __strong id<MTLBuffer> nodeLoadBuffer = nil;
@@ -84,6 +87,7 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLBuffer> contactRangeBuffer = nil;
     __strong id<MTLBuffer> articularContactSampleBuffer = nil;
     __strong id<MTLBuffer> articularBodyWrenchBuffer = nil;
+    __strong id<MTLBuffer> articularContactAuditBuffer = nil;
     __strong id<MTLBuffer> externalForceBuffer = nil;
     __strong id<MTLBuffer> externalForceAuditBuffer = nil;
     __strong id<MTLBuffer> kinematicTargetBuffer = nil;
@@ -207,10 +211,14 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         const double normalLength = std::sqrt(
             normal.x * normal.x + normal.y * normal.y +
             normal.z * normal.z);
+        const bool sameBody =
+            sample.slaveBodyIndex == sample.masterBodyIndex;
+        const std::uint32_t expectedFlags = sameBody
+            ? NM_NUMI_HUMAN_ARTICULAR_CONTACT_INTERNAL_SAME_BODY
+            : NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE;
         if (sample.slaveBodyIndex == NM_INVALID_INDEX ||
             sample.masterBodyIndex == NM_INVALID_INDEX ||
-            sample.slaveBodyIndex == sample.masterBodyIndex ||
-            sample.flags != NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE ||
+            sample.flags != expectedFlags ||
             sample.reserved0 != 0u || !finiteScale(slave) ||
             !finiteScale(master) || !finiteScale(normal) ||
             slave.w <= 0.0f ||
@@ -358,6 +366,13 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
     candidate->articularContactSamples.assign(
         source.articularContactSamples.begin(),
         source.articularContactSamples.end());
+    for (const auto& sample : candidate->articularContactSamples) {
+        if (sample.flags == NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE) {
+            ++candidate->articularMechanicalSampleCount;
+        } else {
+            ++candidate->articularInternalSameBodySampleCount;
+        }
+    }
     candidate->metallib = configuration.metallib;
     candidate->endpointCount = source.endpointCount;
     candidate->environmentCount = source.environmentCount;
@@ -522,6 +537,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->articularBodyPoseStride = pass.bodyPoseStride;
                 state_->articularContactPipeline = pipeline(
                     "nm_numi_human_assemble_articular_contact_wrenches");
+                state_->articularContactAuditPipeline = pipeline(
+                    "nm_numi_human_audit_articular_contact_wrenches");
             }
             state_->targetPipeline = pipeline(
                 "nm_numi_human_assemble_fem_kinematic_targets");
@@ -588,6 +605,15 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                         pass.bodyPoseStride *
                         sizeof(NMNumiHumanBodyWrenchGPU)
                     options:MTLResourceStorageModePrivate];
+                state_->articularContactAuditBuffer = [device
+                    newBufferWithLength:state_->environmentCount *
+                        sizeof(NMNumiHumanArticularContactAuditGPU)
+                    options:MTLResourceStorageModeShared];
+                if (state_->articularContactAuditBuffer != nil) {
+                    std::memset(
+                        state_->articularContactAuditBuffer.contents, 0,
+                        state_->articularContactAuditBuffer.length);
+                }
             }
             state_->externalForceBuffer = [device
                 newBufferWithLength:externalForceBytes
@@ -607,7 +633,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 (!state_->contactSamples.empty() &&
                  state_->contactForcePipeline == nil) ||
                 (!state_->articularContactSamples.empty() &&
-                 state_->articularContactPipeline == nil) ||
+                 (state_->articularContactPipeline == nil ||
+                  state_->articularContactAuditPipeline == nil)) ||
                 state_->targetPipeline == nil || state_->reactionPipeline == nil) {
                 if (state_->message == "initialized") {
                     state_->message = "Human tendon/FEM pipeline is unavailable";
@@ -629,7 +656,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             }
             if (!state_->articularContactSamples.empty() &&
                 (state_->articularContactSampleBuffer == nil ||
-                 state_->articularBodyWrenchBuffer == nil)) {
+                 state_->articularBodyWrenchBuffer == nil ||
+                 state_->articularContactAuditBuffer == nil)) {
                 state_->message =
                     "Human articular contact buffer is unavailable";
                 return false;
@@ -757,6 +785,23 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 })) {
             state_->message =
                 "Human articular contact wrench encoding failed";
+            return false;
+        }
+        if (!state_->articularContactSamples.empty() &&
+            !encodeKernel(
+                state_->articularContactAuditPipeline,
+                state_->environmentCount,
+                [&](id<MTLComputeCommandEncoder> encoder) {
+                    [encoder setBuffer:state_->articularContactSampleBuffer
+                                offset:0u atIndex:1u];
+                    [encoder setBuffer:bodyPoses offset:0u atIndex:2u];
+                    [encoder setBuffer:state_->articularBodyWrenchBuffer
+                                offset:0u atIndex:3u];
+                    [encoder setBuffer:state_->articularContactAuditBuffer
+                                offset:0u atIndex:4u];
+                })) {
+            state_->message =
+                "Human articular contact audit encoding failed";
             return false;
         }
         if (!encodeKernel(
@@ -973,6 +1018,10 @@ NumiHumanTendonFEMLoadAdapter::diagnostics() const noexcept {
         state_->contactSamples.size());
     result.articularContactSampleCount = static_cast<std::uint32_t>(
         state_->articularContactSamples.size());
+    result.articularMechanicalSampleCount =
+        state_->articularMechanicalSampleCount;
+    result.articularInternalSameBodySampleCount =
+        state_->articularInternalSameBodySampleCount;
     if (state_->externalForceAuditBuffer != nil) {
         const auto* audits = static_cast<const nm_float4*>(
             state_->externalForceAuditBuffer.contents);
@@ -996,6 +1045,82 @@ NumiHumanTendonFEMLoadAdapter::diagnostics() const noexcept {
             result.assembledExternalForceResultantNewtons = std::sqrt(
                 resultantX * resultantX + resultantY * resultantY +
                 resultantZ * resultantZ);
+        }
+    }
+    if (state_->articularContactAuditBuffer != nil) {
+        const auto* audits =
+            static_cast<const NMNumiHumanArticularContactAuditGPU*>(
+                state_->articularContactAuditBuffer.contents);
+        double residualForceX = 0.0;
+        double residualForceY = 0.0;
+        double residualForceZ = 0.0;
+        double residualMomentX = 0.0;
+        double residualMomentY = 0.0;
+        double residualMomentZ = 0.0;
+        bool sameBodyAuditMismatch = false;
+        for (std::uint32_t environment = 0u;
+             environment < state_->environmentCount; ++environment) {
+            const auto& audit = audits[environment];
+            const nm_float4 force = audit.forceResidualAndL1;
+            const nm_float4 moment = audit.momentResidualAndMaximumPressure;
+            const nm_float4 contact = audit.normalForceAreaAndCounts;
+            if (!finiteScale(force) || !finiteScale(moment) ||
+                !finiteScale(contact) || force.w < 0.0f || moment.w < 0.0f ||
+                contact.x < 0.0f || contact.y < 0.0f || contact.z < 0.0f ||
+                contact.w < 0.0f) {
+                result.articularContactAreaSquareMeters =
+                    std::numeric_limits<double>::quiet_NaN();
+                result.articularNormalForceNewtons =
+                    std::numeric_limits<double>::quiet_NaN();
+                result.articularMaximumPressurePascals =
+                    std::numeric_limits<double>::quiet_NaN();
+                result.articularBodyForceL1Newtons =
+                    std::numeric_limits<double>::quiet_NaN();
+                result.articularForceResidualNewtons =
+                    std::numeric_limits<double>::quiet_NaN();
+                result.articularMomentResidualNewtonMeters =
+                    std::numeric_limits<double>::quiet_NaN();
+                break;
+            }
+            residualForceX += force.x;
+            residualForceY += force.y;
+            residualForceZ += force.z;
+            residualMomentX += moment.x;
+            residualMomentY += moment.y;
+            residualMomentZ += moment.z;
+            result.articularBodyForceL1Newtons += force.w;
+            result.articularMaximumPressurePascals = std::max(
+                result.articularMaximumPressurePascals,
+                static_cast<double>(moment.w));
+            result.articularNormalForceNewtons += contact.x;
+            result.articularContactAreaSquareMeters += contact.y;
+            result.articularClosedSampleCount +=
+                static_cast<std::uint32_t>(contact.z);
+            sameBodyAuditMismatch = sameBodyAuditMismatch ||
+                static_cast<std::uint32_t>(contact.w) !=
+                    state_->articularInternalSameBodySampleCount;
+        }
+        result.articularForceResidualNewtons = std::sqrt(
+            residualForceX * residualForceX +
+            residualForceY * residualForceY +
+            residualForceZ * residualForceZ);
+        result.articularMomentResidualNewtonMeters = std::sqrt(
+            residualMomentX * residualMomentX +
+            residualMomentY * residualMomentY +
+            residualMomentZ * residualMomentZ);
+        if (sameBodyAuditMismatch) {
+            result.articularContactAreaSquareMeters =
+                std::numeric_limits<double>::quiet_NaN();
+            result.articularNormalForceNewtons =
+                std::numeric_limits<double>::quiet_NaN();
+            result.articularMaximumPressurePascals =
+                std::numeric_limits<double>::quiet_NaN();
+            result.articularBodyForceL1Newtons =
+                std::numeric_limits<double>::quiet_NaN();
+            result.articularForceResidualNewtons =
+                std::numeric_limits<double>::quiet_NaN();
+            result.articularMomentResidualNewtonMeters =
+                std::numeric_limits<double>::quiet_NaN();
         }
     }
     result.message = state_->message;

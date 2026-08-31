@@ -1,7 +1,7 @@
 {
   "schema": "numilab.human.internal-fem-contact-transaction-fixture.v1",
   "device": "Apple M4 Pro",
-  "base_revision": "94d2836",
+  "source_revision_parent": "9996ca7b93e2f97e6afda7b723c94a674c66a8ad",
   "fem_node_count": 4,
   "tetrahedron_count": 1,
   "contact_sample_count": 1,

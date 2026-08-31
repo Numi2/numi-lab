@@ -39,8 +39,8 @@ one-step receipt cannot satisfy a stronger one.
 ## Current evidence baseline
 
 The manifest covers 15 musculoskeletal regions and six continuum layers. The
-current report contains 82 verified requirements, 18 contradicted
-requirements, four insufficient requirements, and 74 missing requirements.
+current report contains 84 verified requirements, 18 contradicted
+requirements, two insufficient requirements, and 74 missing requirements.
 No complete scope is yet promoted.
 
 The fresh integrated Release build also passed the native NumanX label 12/12
@@ -62,13 +62,16 @@ The contradictions are intentional development signals:
 The bilateral knees have one-step source-muscle actuation, exact QAT/PTL
 attachment transfer, passive ACL/PCL/MCL/LCL/QAT/PTL FEM reactions, force
 closure, positive deformation Jacobians, bitwise replay, and rollback. They
-also have a bilateral exact-surface cartilage/meniscus elastic-foundation
-preflight: seven source pairs, 69,701 samples, a 65-step small-strain ramp,
-force/moment closure, elastic-energy identity, bitwise replay, and unloaded
-restore. They remain incomplete because the contact preflight is not yet the
-live Human force owner, does not solve unilateral nonpenetration, and is not a
-sustained loaded flexion. The right knee is a mirrored left specimen, not an
-independently segmented right subject.
+also have bilateral one-step exact-surface cartilage/meniscus contact in the
+live Human force transaction: seven source pairs, all 69,701 samples, explicit
+ownership of 57,930 cross-body mechanics samples and 11,771 retained
+same-body samples, nonzero pressure/area/force, force and world-origin moment
+closure, bitwise replay, and rollback. The 65-step prescribed-closure CPU ramp
+still supplies constitutive preflight and elastic-energy identity. The knees
+remain incomplete because the live law uses fixed reference correspondence
+and an explicit penalty rather than current-surface unilateral nonpenetration,
+and has not run sustained loaded flexion. The right knee is a mirrored left
+specimen, not an independently segmented right subject.
 
 The shared Human/Matter adapter additionally has a one-step Metal transaction
 fixture where internal FEM contact and tendon traction share one force arena,
@@ -76,17 +79,18 @@ reaction scatter, rejection decision, and rollback/replay boundary. This is
 infrastructure evidence, not regional anatomy evidence, so it does not raise
 either knee above `preflight` contact status.
 
-The adapter also has a reduced exact-surface articular-wrench fixture. It
-proves balanced two-body wrench reduction and body-Jacobian scatter without
-changing the Matter FEM state, but it has not yet cooked the bilateral Open
-Knee sample set and therefore does not promote either regional contact gate.
+The adapter's reduced exact-surface fixture and both anatomical payload cooks
+now pass. The fixture separately proves body-Jacobian scatter, FEM isolation,
+typed same-body retention, malformed-flag rejection, force/moment audit,
+replay, and rollback.
 
 ## Development order
 
 The gate makes the next useful work explicit:
 
-1. Add knee cartilage/meniscus contact and a sustained flexion/loading
-   qualification without regressing the extensor-chain ownership.
+1. Promote the one-step knee contact to a bounded current-surface or implicit
+   nonpenetration method and sustained flexion/loading qualification without
+   regressing extensor-chain ownership.
 2. Apply the same exact force-owner pattern to the Achilles/ankle/foot chain,
    then qualify foot contact and the existing compound-toe DoF policy.
 3. Qualify hip muscle entheses, passive capsule/ligaments, and articular

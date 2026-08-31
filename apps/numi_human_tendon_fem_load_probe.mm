@@ -111,9 +111,9 @@ int main() {
             articularContactSample.flags =
                 NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE;
             articularContactSample.slaveLocalPointAndArea = {
-                0.0f, 0.0f, 0.0f, 1.0e-4f};
+                0.0f, 0.01f, 0.0f, 1.0e-4f};
             articularContactSample.masterLocalPointAndReferenceSeparation = {
-                0.0f, 0.0f, 0.0f, 0.002f};
+                0.0f, 0.01f, 0.0f, 0.002f};
             articularContactSample.masterLocalNormalAndStiffness = {
                 1.0f, 0.0f, 0.0f, 1.0e7f};
             const std::array<NMNumiHumanFEMContactContributionGPU, 4u>
@@ -169,6 +169,14 @@ int main() {
                         .metallib = NUMI_MATTER_METALLIB,
                     }),
                     "probe malformed articular contact did not fail closed");
+            auto internalArticularContact = articularContactSample;
+            internalArticularContact.masterBodyIndex =
+                internalArticularContact.slaveBodyIndex;
+            internalArticularContact.flags =
+                NM_NUMI_HUMAN_ARTICULAR_CONTACT_INTERNAL_SAME_BODY;
+            const std::array<NMNumiHumanArticularContactSampleGPU, 2u>
+                articularContactSamples{{
+                    articularContactSample, internalArticularContact}};
             numi::matter::NumiHumanTendonFEMLoadAdapter adapter;
             require(adapter.initialize(runtime, {
                         .nodeLoads = nodeLoads,
@@ -177,8 +185,7 @@ int main() {
                         .contactSamples = std::span(&contactSample, 1u),
                         .contactContributions = contactContributions,
                         .contactRanges = contactRanges,
-                        .articularContactSamples =
-                            std::span(&articularContactSample, 1u),
+                        .articularContactSamples = articularContactSamples,
                         .endpointCount = 2u,
                         .environmentCount = 1u,
                         .productionForceOwnerFraction = 0.1f,
@@ -196,6 +203,8 @@ int main() {
                         .contactSamples = std::span(&contactSample, 1u),
                         .contactContributions = contactContributions,
                         .contactRanges = contactRanges,
+                        .articularContactSamples =
+                            std::span(&internalArticularContact, 1u),
                         .endpointCount = 2u,
                         .environmentCount = 1u,
                         .productionForceOwnerFraction = 0.1f,
@@ -428,7 +437,21 @@ int main() {
             require(diagnostics.initialized && diagnostics.encodedPassCount == 3u &&
                         diagnostics.abortCount == 0u &&
                         diagnostics.contactSampleCount == 1u &&
-                        diagnostics.articularContactSampleCount == 1u &&
+                        diagnostics.articularContactSampleCount == 2u &&
+                        diagnostics.articularMechanicalSampleCount == 1u &&
+                        diagnostics.articularInternalSameBodySampleCount == 1u &&
+                        diagnostics.articularClosedSampleCount == 1u &&
+                        std::abs(diagnostics.articularContactAreaSquareMeters -
+                            1.0e-4) <= 1.0e-10 &&
+                        std::abs(diagnostics.articularNormalForceNewtons -
+                            0.9999) <= 1.0e-4 &&
+                        std::abs(diagnostics.articularMaximumPressurePascals -
+                            9999.0) <= 1.0 &&
+                        std::abs(diagnostics.articularBodyForceL1Newtons -
+                            1.9998) <= 2.0e-4 &&
+                        diagnostics.articularForceResidualNewtons <= 1.0e-6 &&
+                        diagnostics.articularMomentResidualNewtonMeters <=
+                            1.0e-6 &&
                         diagnostics.fingerprint != 0u,
                     "probe adapter diagnostics are incomplete");
             std::cout
@@ -441,6 +464,24 @@ int main() {
                 << " contact_samples=" << diagnostics.contactSampleCount
                 << " articular_contact_samples="
                 << diagnostics.articularContactSampleCount
+                << " articular_mechanical_samples="
+                << diagnostics.articularMechanicalSampleCount
+                << " articular_internal_same_body_samples="
+                << diagnostics.articularInternalSameBodySampleCount
+                << " articular_closed_samples="
+                << diagnostics.articularClosedSampleCount
+                << " articular_contact_area_m2="
+                << diagnostics.articularContactAreaSquareMeters
+                << " articular_normal_force_n="
+                << diagnostics.articularNormalForceNewtons
+                << " articular_max_pressure_pa="
+                << diagnostics.articularMaximumPressurePascals
+                << " articular_body_force_l1_n="
+                << diagnostics.articularBodyForceL1Newtons
+                << " articular_force_residual_n="
+                << diagnostics.articularForceResidualNewtons
+                << " articular_moment_residual_nm="
+                << diagnostics.articularMomentResidualNewtonMeters
                 << " articular_contact_generalized_force="
                 << measuredArticularGeneralizedForce
                 << " articular_contact_fem_state_ab=bitwise"

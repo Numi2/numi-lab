@@ -208,10 +208,14 @@ kernel void nm_numi_human_prepare_provisional_status(
          accepted && index < dispatch.articularContactSampleCount; ++index) {
         const NMNumiHumanArticularContactSampleGPU sample =
             articularSamples[index];
+        const bool sameBody =
+            sample.slaveBodyIndex == sample.masterBodyIndex;
+        const uint expectedFlags = sameBody
+            ? NM_NUMI_HUMAN_ARTICULAR_CONTACT_INTERNAL_SAME_BODY
+            : NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE;
         accepted =
-            sample.flags == NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE &&
+            sample.flags == expectedFlags &&
             sample.reserved0 == 0u &&
-            sample.slaveBodyIndex != sample.masterBodyIndex &&
             validBody(sample.slaveBodyIndex, dispatch) &&
             validBody(sample.masterBodyIndex, dispatch) &&
             finite4(sample.slaveLocalPointAndArea) &&
@@ -414,6 +418,80 @@ kernel void nm_numi_human_assemble_articular_contact_wrenches(
     }
     bodyWrenches[global].force = float4(force, 0.0f);
     bodyWrenches[global].torque = float4(torque, 0.0f);
+}
+
+kernel void nm_numi_human_audit_articular_contact_wrenches(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanArticularContactSampleGPU* samples [[buffer(1)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(2)]],
+    device const NMNumiHumanBodyWrenchGPU* bodyWrenches [[buffer(3)]],
+    device NMNumiHumanArticularContactAuditGPU* audits [[buffer(4)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    const uint poseBase = environment * dispatch.bodyPoseStride;
+    float3 forceResidual = float3(0.0f);
+    float3 momentResidual = float3(0.0f);
+    float bodyForceL1 = 0.0f;
+    for (uint localBody = 0u; localBody < dispatch.bodyPoseStride;
+         ++localBody) {
+        const NMNumiHumanBodyWrenchGPU wrench =
+            bodyWrenches[poseBase + localBody];
+        const MRArticulatedBodyPoseGPU pose = bodyPoses[poseBase + localBody];
+        forceResidual += wrench.force.xyz;
+        momentResidual += wrench.torque.xyz +
+            cross(pose.position.xyz, wrench.force.xyz);
+        bodyForceL1 += length(wrench.force.xyz);
+    }
+    float normalForce = 0.0f;
+    float contactArea = 0.0f;
+    float closedSamples = 0.0f;
+    float sameBodySamples = 0.0f;
+    float maximumPressure = 0.0f;
+    for (uint index = 0u; index < dispatch.articularContactSampleCount;
+         ++index) {
+        const NMNumiHumanArticularContactSampleGPU sample = samples[index];
+        if (sample.flags ==
+            NM_NUMI_HUMAN_ARTICULAR_CONTACT_INTERNAL_SAME_BODY) {
+            sameBodySamples += 1.0f;
+            continue;
+        }
+        if (sample.flags != NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE ||
+            !validBody(sample.slaveBodyIndex, dispatch) ||
+            !validBody(sample.masterBodyIndex, dispatch)) continue;
+        const MRArticulatedBodyPoseGPU slavePose = bodyPoses[
+            poseBase + sample.slaveBodyIndex - dispatch.articulationFirstBody];
+        const MRArticulatedBodyPoseGPU masterPose = bodyPoses[
+            poseBase + sample.masterBodyIndex - dispatch.articulationFirstBody];
+        const float3 slavePoint = slavePose.position.xyz +
+            humanQuaternionRotate(
+                slavePose.orientation, sample.slaveLocalPointAndArea.xyz);
+        const float3 masterPoint = masterPose.position.xyz +
+            humanQuaternionRotate(
+                masterPose.orientation,
+                sample.masterLocalPointAndReferenceSeparation.xyz);
+        const float3 normal = humanQuaternionRotate(
+            masterPose.orientation,
+            sample.masterLocalNormalAndStiffness.xyz);
+        const float separation = dot(slavePoint - masterPoint, normal);
+        const float closure = max(
+            0.0f,
+            sample.masterLocalPointAndReferenceSeparation.w - separation -
+                1.0e-7f);
+        if (closure <= 0.0f) continue;
+        const float pressure =
+            sample.masterLocalNormalAndStiffness.w * closure;
+        normalForce += pressure * sample.slaveLocalPointAndArea.w;
+        contactArea += sample.slaveLocalPointAndArea.w;
+        closedSamples += 1.0f;
+        maximumPressure = max(maximumPressure, pressure);
+    }
+    audits[environment].forceResidualAndL1 =
+        float4(forceResidual, bodyForceL1);
+    audits[environment].momentResidualAndMaximumPressure =
+        float4(momentResidual, maximumPressure);
+    audits[environment].normalForceAreaAndCounts = float4(
+        normalForce, contactArea, closedSamples, sameBodySamples);
 }
 
 kernel void nm_numi_human_audit_tendon_fem_loads(

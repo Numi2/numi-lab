@@ -2,7 +2,7 @@
 
 #include "numi/matter/shared.h"
 
-#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 6u
+#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 7u
 
 enum NMNumiHumanTendonFEMNodeLoadFlags : nm_u32 {
     NM_NUMI_HUMAN_TENDON_FEM_NODE_LOAD_ACTIVE = 1u << 0u,
@@ -136,12 +136,31 @@ typedef struct NM_ALIGN16 NMNumiHumanArticularContactSampleGPU {
 
 enum NMNumiHumanArticularContactSampleFlags : nm_u32 {
     NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE = 1u << 0u,
+    // Preserve an authored articular interface whose two regions are owned by
+    // the same articulated rigid body. It remains in the immutable anatomy
+    // fingerprint and diagnostics, but must not inject a rigid-body wrench:
+    // the relative transform is identically zero until an internal deformable
+    // owner is introduced.
+    NM_NUMI_HUMAN_ARTICULAR_CONTACT_INTERNAL_SAME_BODY = 1u << 1u,
 };
 
 typedef struct NM_ALIGN16 NMNumiHumanBodyWrenchGPU {
     nm_float4 force;
     nm_float4 torque;
 } NMNumiHumanBodyWrenchGPU;
+
+// One deterministic audit record per environment. Moment residual is measured
+// about the world origin, so balanced contact must cancel independently of the
+// articulated body origins used by the reduced wrench representation.
+typedef struct NM_ALIGN16 NMNumiHumanArticularContactAuditGPU {
+    // xyz net body force; w sum of body-force magnitudes [N].
+    nm_float4 forceResidualAndL1;
+    // xyz net moment about world origin [N m]; w maximum pressure [Pa].
+    nm_float4 momentResidualAndMaximumPressure;
+    // x total normal force [N]; y closed tributary area [m^2];
+    // z closed distinct-body sample count; w typed same-body sample count.
+    nm_float4 normalForceAreaAndCounts;
+} NMNumiHumanArticularContactAuditGPU;
 
 #ifndef __METAL_VERSION__
 static_assert(sizeof(NMNumiHumanTendonFEMLoadDispatchGPU) == 80u);
@@ -152,4 +171,5 @@ static_assert(sizeof(NMNumiHumanFEMContactSampleGPU) == 64u);
 static_assert(sizeof(NMNumiHumanFEMContactContributionGPU) == 16u);
 static_assert(sizeof(NMNumiHumanArticularContactSampleGPU) == 64u);
 static_assert(sizeof(NMNumiHumanBodyWrenchGPU) == 32u);
+static_assert(sizeof(NMNumiHumanArticularContactAuditGPU) == 48u);
 #endif

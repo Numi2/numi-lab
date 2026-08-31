@@ -10,6 +10,7 @@
 #include "metalrobo/MujocoMuscleReference.hpp"
 #include "metalrobo/NumiHumanJointEquality.hpp"
 #include "metalrobo/NumiHumanKnee.hpp"
+#include "metalrobo/NumiHumanKneeContact.hpp"
 #include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
 #include "metalrobo/NumiHumanTendon.hpp"
 #include "metalrobo/NumiHumanTendonMetal.hpp"
@@ -134,6 +135,17 @@ struct LoadedOpenKneeLigamentFEM {
     double patellarTendonTibiaReactionResultantNewtons = 0.0;
     double assembledExternalForceL1Newtons = 0.0;
     double assembledExternalForceResultantNewtons = 0.0;
+    std::uint32_t articularPairCount = 0u;
+    std::uint32_t articularContactSampleCount = 0u;
+    std::uint32_t articularMechanicalSampleCount = 0u;
+    std::uint32_t articularInternalSameBodySampleCount = 0u;
+    std::uint32_t articularClosedSampleCount = 0u;
+    double articularContactAreaSquareMeters = 0.0;
+    double articularNormalForceNewtons = 0.0;
+    double articularMaximumPressurePascals = 0.0;
+    double articularBodyForceL1Newtons = 0.0;
+    double articularForceResidualNewtons = 0.0;
+    double articularMomentResidualNewtonMeters = 0.0;
     bool activeQuadricepsTendonCoupling = false;
     bool liveHumanCoupling = false;
     bool rollbackVerified = false;
@@ -5752,6 +5764,229 @@ void setLiveOpenKneeMaterialParameter(
     found->defaultValue = value;
 }
 
+struct LiveOpenKneeArticularContactCook {
+    std::vector<NMNumiHumanArticularContactSampleGPU> samples;
+    std::uint32_t pairCount = 0u;
+    std::uint32_t mechanicalSampleCount = 0u;
+    std::uint32_t internalSameBodySampleCount = 0u;
+};
+
+LiveOpenKneeArticularContactCook cookLiveOpenKneeArticularContact(
+    const metalrobo::NumiHumanKneePayload& knee,
+    const std::span<const MRBodyStateGPU> restBodies,
+    const std::array<std::uint32_t, 3u>& bodyIndices
+) {
+    using Point = std::array<double, 3u>;
+    std::vector<Point> referenceNodes;
+    referenceNodes.reserve(knee.nodes.size());
+    for (const auto& node : knee.nodes) {
+        referenceNodes.push_back({
+            node.restWorld[0u], node.restWorld[1u], node.restWorld[2u]});
+    }
+    const auto subtract = [](const Point& a, const Point& b) {
+        return Point{a[0u] - b[0u], a[1u] - b[1u], a[2u] - b[2u]};
+    };
+    const auto cross = [](const Point& a, const Point& b) {
+        return Point{
+            a[1u] * b[2u] - a[2u] * b[1u],
+            a[2u] * b[0u] - a[0u] * b[2u],
+            a[0u] * b[1u] - a[1u] * b[0u]};
+    };
+    const auto dot = [](const Point& a, const Point& b) {
+        return a[0u] * b[0u] + a[1u] * b[1u] + a[2u] * b[2u];
+    };
+    const auto tetrahedronVolume = [&](
+        const std::array<std::uint32_t, 4u>& tetrahedron
+    ) {
+        const Point ad = subtract(
+            referenceNodes[tetrahedron[0u]],
+            referenceNodes[tetrahedron[3u]]);
+        const Point bd = subtract(
+            referenceNodes[tetrahedron[1u]],
+            referenceNodes[tetrahedron[3u]]);
+        const Point cd = subtract(
+            referenceNodes[tetrahedron[2u]],
+            referenceNodes[tetrahedron[3u]]);
+        return std::abs(dot(ad, cross(bd, cd))) / 6.0;
+    };
+    const auto triangleArea = [&](
+        const std::array<std::uint32_t, 3u>& face
+    ) {
+        const Point ab = subtract(
+            referenceNodes[face[1u]], referenceNodes[face[0u]]);
+        const Point ac = subtract(
+            referenceNodes[face[2u]], referenceNodes[face[0u]]);
+        const Point normal = cross(ab, ac);
+        return 0.5 * std::sqrt(dot(normal, normal));
+    };
+    const auto articular = [](const metalrobo::NumiHumanKneeRegionKind kind) {
+        return kind == metalrobo::NumiHumanKneeRegionKind::cartilage ||
+            kind == metalrobo::NumiHumanKneeRegionKind::meniscus;
+    };
+    std::vector<double> regionVolumes(knee.regions.size(), 0.0);
+    std::vector<double> meniscusContactAreas(knee.regions.size(), 0.0);
+    for (std::uint32_t regionIndex = 0u;
+         regionIndex < knee.regions.size(); ++regionIndex) {
+        const auto& region = knee.regions[regionIndex];
+        for (std::uint32_t local = 0u;
+             local < region.tetrahedronCount; ++local) {
+            regionVolumes[regionIndex] += tetrahedronVolume(
+                knee.tetrahedra[region.firstTetrahedron + local]);
+        }
+    }
+    for (const auto& pair : knee.surfacePairs) {
+        const auto& master = knee.surfaces[pair.masterSurface];
+        const auto& slave = knee.surfaces[pair.slaveSurface];
+        if (!articular(knee.regions[master.regionIndex].kind) ||
+            !articular(knee.regions[slave.regionIndex].kind)) continue;
+        for (const std::uint32_t surfaceIndex :
+             {pair.masterSurface, pair.slaveSurface}) {
+            const auto& surface = knee.surfaces[surfaceIndex];
+            if (knee.regions[surface.regionIndex].kind !=
+                metalrobo::NumiHumanKneeRegionKind::meniscus) continue;
+            for (std::uint32_t local = 0u;
+                 local < surface.faceCount; ++local) {
+                meniscusContactAreas[surface.regionIndex] += triangleArea(
+                    knee.faces[surface.firstFace + local]);
+            }
+        }
+    }
+    std::vector<metalrobo::NumiHumanKneeContactRegionMaterial> materials;
+    for (std::uint32_t regionIndex = 0u;
+         regionIndex < knee.regions.size(); ++regionIndex) {
+        const auto kind = knee.regions[regionIndex].kind;
+        if (!articular(kind)) continue;
+        metalrobo::NumiHumanKneeContactMaterial material;
+        if (kind == metalrobo::NumiHumanKneeRegionKind::cartilage) {
+            material = {
+                .elasticModulusPascals = 12.0e6,
+                .poissonRatio = 0.45,
+                .thicknessMeters = 0.003};
+        } else {
+            require(regionVolumes[regionIndex] > 0.0 &&
+                        meniscusContactAreas[regionIndex] > 0.0,
+                    "live Open Knee meniscus thickness measure is unavailable");
+            const double thickness = 2.0 * regionVolumes[regionIndex] /
+                meniscusContactAreas[regionIndex];
+            require(std::isfinite(thickness) && thickness >= 0.001 &&
+                        thickness <= 0.015,
+                    "live Open Knee geometry-derived meniscus thickness is implausible");
+            material = {
+                .elasticModulusPascals = 20.0e6,
+                .poissonRatio = 0.30,
+                .thicknessMeters = thickness};
+        }
+        materials.push_back({
+            .regionIndex = regionIndex,
+            .material = material});
+    }
+    metalrobo::NumiHumanKneeContactModel contactModel;
+    const auto built = metalrobo::buildNumiHumanKneeArticularContactModel(
+        knee, referenceNodes, materials, contactModel);
+    require(built.succeeded() && contactModel.pairs.size() == 7u &&
+                contactModel.samples.size() == 69701u,
+            "live Open Knee exact articular contact cook failed: " +
+                built.message);
+    const auto ownerBody = [&](const std::uint32_t regionIndex) {
+        require(regionIndex < knee.regions.size(),
+                "live Open Knee contact region is unavailable");
+        const std::string& name = knee.regions[regionIndex].name;
+        if (name == "FMC") return bodyIndices[0u];
+        if (name == "TBC-L" || name == "TBC-M" || name == "MNS-L" ||
+            name == "MNS-M") return bodyIndices[1u];
+        if (name == "PTC") return bodyIndices[2u];
+        throw std::runtime_error(
+            "live Open Knee articular region has no rigid owner: " + name);
+    };
+    const auto worldPointToLocal = [&](const Point& point,
+                                       const std::uint32_t bodyIndex) {
+        require(bodyIndex < restBodies.size(),
+                "live Open Knee articular owner body is unavailable");
+        const MRBodyStateGPU& body = restBodies[bodyIndex];
+        const mr_float4 inverse{
+            -body.orientation.x, -body.orientation.y,
+            -body.orientation.z, body.orientation.w};
+        return rotatePoint(inverse, femSubtract(
+            {static_cast<float>(point[0u]), static_cast<float>(point[1u]),
+             static_cast<float>(point[2u]), 1.0f},
+            body.position));
+    };
+    const auto worldVectorToLocal = [&](const Point& vector,
+                                        const std::uint32_t bodyIndex) {
+        const MRBodyStateGPU& body = restBodies[bodyIndex];
+        const mr_float4 inverse{
+            -body.orientation.x, -body.orientation.y,
+            -body.orientation.z, body.orientation.w};
+        return rotatePoint(inverse, {
+            static_cast<float>(vector[0u]), static_cast<float>(vector[1u]),
+            static_cast<float>(vector[2u]), 0.0f});
+    };
+    LiveOpenKneeArticularContactCook result;
+    result.pairCount = static_cast<std::uint32_t>(contactModel.pairs.size());
+    result.samples.reserve(contactModel.samples.size());
+    std::uint32_t nextSample = 0u;
+    for (const auto& pair : contactModel.pairs) {
+        require(pair.firstSample == nextSample &&
+                    pair.sampleCount <=
+                        contactModel.samples.size() - pair.firstSample,
+                "live Open Knee contact pair sample coverage drifted");
+        const std::uint32_t slaveBody = ownerBody(pair.slaveRegionIndex);
+        const std::uint32_t masterBody = ownerBody(pair.masterRegionIndex);
+        for (std::uint32_t local = 0u; local < pair.sampleCount; ++local) {
+            const auto& source =
+                contactModel.samples[pair.firstSample + local];
+            require(source.slaveNode < referenceNodes.size(),
+                    "live Open Knee contact slave node is unavailable");
+            Point masterPoint{};
+            for (std::uint32_t corner = 0u; corner < 3u; ++corner) {
+                require(source.masterNodes[corner] < referenceNodes.size(),
+                        "live Open Knee contact master node is unavailable");
+                for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+                    masterPoint[axis] += source.masterBarycentric[corner] *
+                        referenceNodes[source.masterNodes[corner]][axis];
+                }
+            }
+            const mr_float4 slaveLocal = worldPointToLocal(
+                referenceNodes[source.slaveNode], slaveBody);
+            const mr_float4 masterLocal = worldPointToLocal(
+                masterPoint, masterBody);
+            const mr_float4 normalLocal = worldVectorToLocal(
+                source.referenceNormal, masterBody);
+            NMNumiHumanArticularContactSampleGPU cooked{};
+            cooked.slaveBodyIndex = slaveBody;
+            cooked.masterBodyIndex = masterBody;
+            cooked.flags = slaveBody == masterBody
+                ? NM_NUMI_HUMAN_ARTICULAR_CONTACT_INTERNAL_SAME_BODY
+                : NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE;
+            cooked.slaveLocalPointAndArea = {
+                slaveLocal.x, slaveLocal.y, slaveLocal.z,
+                static_cast<float>(source.tributaryAreaSquareMeters)};
+            cooked.masterLocalPointAndReferenceSeparation = {
+                masterLocal.x, masterLocal.y, masterLocal.z,
+                static_cast<float>(source.referenceSeparationMeters)};
+            cooked.masterLocalNormalAndStiffness = {
+                normalLocal.x, normalLocal.y, normalLocal.z,
+                static_cast<float>(
+                    pair.effectiveFoundationStiffnessPascalsPerMeter)};
+            result.samples.push_back(cooked);
+            if (slaveBody == masterBody) {
+                ++result.internalSameBodySampleCount;
+            } else {
+                ++result.mechanicalSampleCount;
+            }
+        }
+        nextSample += pair.sampleCount;
+    }
+    require(nextSample == contactModel.samples.size() &&
+                result.samples.size() == 69701u &&
+                result.mechanicalSampleCount > 0u &&
+                result.internalSameBodySampleCount > 0u &&
+                result.mechanicalSampleCount +
+                    result.internalSameBodySampleCount == result.samples.size(),
+            "live Open Knee articular contact ownership is incomplete");
+    return result;
+}
+
 LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     const metalrobo::NumiHumanKneePayload& knee,
     const LoadedMuscles& muscles,
@@ -5840,6 +6075,17 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     const auto bodyIndices = openKneeBodyIndices(knee);
     require(bodyIndices[2u] < referenceBodies.size(),
             "live Open Knee bodies escape the Human articulation");
+    const LiveOpenKneeArticularContactCook articularContact =
+        cookLiveOpenKneeArticularContact(knee, restBodies, bodyIndices);
+    std::cout
+        << "open_knee_articular_cook=accepted"
+        << " pairs=" << articularContact.pairCount
+        << " samples=" << articularContact.samples.size()
+        << " mechanical_samples="
+        << articularContact.mechanicalSampleCount
+        << " internal_same_body_samples="
+        << articularContact.internalSameBodySampleCount
+        << "\n" << std::flush;
     const MRBodyStateGPU& restFemur = restBodies[bodyIndices[0u]];
     const MRBodyStateGPU& referenceFemur = referenceBodies[bodyIndices[0u]];
     const mr_float4 inverseRestFemurOrientation{
@@ -6356,6 +6602,7 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 .nodeLoads = nodeLoads,
                 .nodeAnchors = nodeAnchors,
                 .endpointReplacements = endpointReplacements,
+                .articularContactSamples = articularContact.samples,
                 .endpointCount = static_cast<std::uint32_t>(
                     muscles.tendonPayload.bindings.size()),
                 .environmentCount = 1u,
@@ -6725,6 +6972,57 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         adapterDiagnostics.assembledExternalForceL1Newtons;
     result.assembledExternalForceResultantNewtons =
         adapterDiagnostics.assembledExternalForceResultantNewtons;
+    result.articularPairCount = articularContact.pairCount;
+    result.articularContactSampleCount =
+        adapterDiagnostics.articularContactSampleCount;
+    result.articularMechanicalSampleCount =
+        adapterDiagnostics.articularMechanicalSampleCount;
+    result.articularInternalSameBodySampleCount =
+        adapterDiagnostics.articularInternalSameBodySampleCount;
+    result.articularClosedSampleCount =
+        adapterDiagnostics.articularClosedSampleCount;
+    result.articularContactAreaSquareMeters =
+        adapterDiagnostics.articularContactAreaSquareMeters;
+    result.articularNormalForceNewtons =
+        adapterDiagnostics.articularNormalForceNewtons;
+    result.articularMaximumPressurePascals =
+        adapterDiagnostics.articularMaximumPressurePascals;
+    result.articularBodyForceL1Newtons =
+        adapterDiagnostics.articularBodyForceL1Newtons;
+    result.articularForceResidualNewtons =
+        adapterDiagnostics.articularForceResidualNewtons;
+    result.articularMomentResidualNewtonMeters =
+        adapterDiagnostics.articularMomentResidualNewtonMeters;
+    const double articularForceScale = std::max(
+        1.0, adapterDiagnostics.articularBodyForceL1Newtons);
+    const bool articularContactVerified =
+        adapterDiagnostics.articularContactSampleCount == 69701u &&
+        adapterDiagnostics.articularMechanicalSampleCount ==
+            articularContact.mechanicalSampleCount &&
+        adapterDiagnostics.articularInternalSameBodySampleCount ==
+            articularContact.internalSameBodySampleCount &&
+        adapterDiagnostics.articularMechanicalSampleCount +
+            adapterDiagnostics.articularInternalSameBodySampleCount ==
+                adapterDiagnostics.articularContactSampleCount &&
+        adapterDiagnostics.articularClosedSampleCount > 0u &&
+        std::isfinite(adapterDiagnostics.articularContactAreaSquareMeters) &&
+        adapterDiagnostics.articularContactAreaSquareMeters > 0.0 &&
+        std::isfinite(adapterDiagnostics.articularNormalForceNewtons) &&
+        adapterDiagnostics.articularNormalForceNewtons > 0.0 &&
+        std::isfinite(adapterDiagnostics.articularMaximumPressurePascals) &&
+        adapterDiagnostics.articularMaximumPressurePascals > 0.0 &&
+        std::isfinite(adapterDiagnostics.articularBodyForceL1Newtons) &&
+        adapterDiagnostics.articularBodyForceL1Newtons > 0.0 &&
+        adapterDiagnostics.articularBodyForceL1Newtons <=
+            2.0 * adapterDiagnostics.articularNormalForceNewtons +
+                2.0e-5 * articularForceScale &&
+        std::isfinite(adapterDiagnostics.articularForceResidualNewtons) &&
+        adapterDiagnostics.articularForceResidualNewtons <=
+            1.0e-5 * articularForceScale &&
+        std::isfinite(
+            adapterDiagnostics.articularMomentResidualNewtonMeters) &&
+        adapterDiagnostics.articularMomentResidualNewtonMeters <=
+            1.0e-5 * articularForceScale;
     const bool completeBodyReactions = std::all_of(
         result.bodyReactionL1Newtons.begin(),
         result.bodyReactionL1Newtons.end(),
@@ -6737,6 +7035,7 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 result.maximumDeterminant <= 2.5f &&
                 assembledForceVerified && enthesisForceTransferVerified &&
                 patellarTendonForceTransferVerified &&
+                articularContactVerified &&
                 completeBodyReactions &&
                 transaction.rollbackVerified && transaction.replayVerified,
             "live Open Knee accepted mechanics failed physical gates: displacement_m=" +
@@ -6773,6 +7072,22 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 std::to_string(ptlPatellaReactionRelativeError) +
                 " ptl_tibia_reaction_relative_error=" +
                 std::to_string(ptlTibiaReactionRelativeError) +
+                " articular_samples=" + std::to_string(
+                    adapterDiagnostics.articularContactSampleCount) +
+                " articular_mechanical_samples=" + std::to_string(
+                    adapterDiagnostics.articularMechanicalSampleCount) +
+                " articular_internal_same_body_samples=" + std::to_string(
+                    adapterDiagnostics.articularInternalSameBodySampleCount) +
+                " articular_closed_samples=" + std::to_string(
+                    adapterDiagnostics.articularClosedSampleCount) +
+                " articular_normal_force_n=" + std::to_string(
+                    adapterDiagnostics.articularNormalForceNewtons) +
+                " articular_body_force_l1_n=" + std::to_string(
+                    adapterDiagnostics.articularBodyForceL1Newtons) +
+                " articular_force_residual_n=" + std::to_string(
+                    adapterDiagnostics.articularForceResidualNewtons) +
+                " articular_moment_residual_nm=" + std::to_string(
+                    adapterDiagnostics.articularMomentResidualNewtonMeters) +
                 " rollback=" +
                 (transaction.rollbackVerified ? "verified" : "failed") +
                 " replay=" +
@@ -9384,6 +9699,28 @@ int main(int argc, char** argv) {
                         << openKneeLigamentFEM->assembledExternalForceL1Newtons
                         << " assembled_external_force_resultant_n="
                         << openKneeLigamentFEM->assembledExternalForceResultantNewtons
+                        << " articular_pairs="
+                        << openKneeLigamentFEM->articularPairCount
+                        << " articular_samples="
+                        << openKneeLigamentFEM->articularContactSampleCount
+                        << " articular_mechanical_samples="
+                        << openKneeLigamentFEM->articularMechanicalSampleCount
+                        << " articular_internal_same_body_samples="
+                        << openKneeLigamentFEM->articularInternalSameBodySampleCount
+                        << " articular_closed_samples="
+                        << openKneeLigamentFEM->articularClosedSampleCount
+                        << " articular_contact_area_m2="
+                        << openKneeLigamentFEM->articularContactAreaSquareMeters
+                        << " articular_normal_force_n="
+                        << openKneeLigamentFEM->articularNormalForceNewtons
+                        << " articular_max_pressure_pa="
+                        << openKneeLigamentFEM->articularMaximumPressurePascals
+                        << " articular_body_force_l1_n="
+                        << openKneeLigamentFEM->articularBodyForceL1Newtons
+                        << " articular_force_residual_n="
+                        << openKneeLigamentFEM->articularForceResidualNewtons
+                        << " articular_moment_residual_nm="
+                        << openKneeLigamentFEM->articularMomentResidualNewtonMeters
                         << " qat_load_nodes="
                         << openKneeLigamentFEM->quadricepsLoadNodeCount
                         << " qat_load_patch_area_m2="
@@ -10008,6 +10345,39 @@ int main(int argc, char** argv) {
                       << (openKneeLigamentFEM.has_value()
                               ? openKneeLigamentFEM->assembledExternalForceResultantNewtons
                               : 0.0)
+                      << " open_knee_articular_pairs="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularPairCount : 0u)
+                      << " open_knee_articular_samples="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularContactSampleCount : 0u)
+                      << " open_knee_articular_mechanical_samples="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularMechanicalSampleCount : 0u)
+                      << " open_knee_articular_internal_same_body_samples="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularInternalSameBodySampleCount : 0u)
+                      << " open_knee_articular_closed_samples="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularClosedSampleCount : 0u)
+                      << " open_knee_articular_contact_area_m2="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularContactAreaSquareMeters : 0.0)
+                      << " open_knee_articular_normal_force_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularNormalForceNewtons : 0.0)
+                      << " open_knee_articular_max_pressure_pa="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularMaximumPressurePascals : 0.0)
+                      << " open_knee_articular_body_force_l1_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularBodyForceL1Newtons : 0.0)
+                      << " open_knee_articular_force_residual_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularForceResidualNewtons : 0.0)
+                      << " open_knee_articular_moment_residual_nm="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularMomentResidualNewtonMeters : 0.0)
                       << " open_knee_tissue_fem_qualification_flexion_rad="
                       << (openKneeLigamentFEM.has_value()
                               ? openKneeLigamentFEM->qualificationFlexionRadians : 0.0)

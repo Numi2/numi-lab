@@ -68,6 +68,15 @@ struct NumiHumanTendonFEMLoadDiagnostics {
     double assembledExternalForceResultantNewtons = 0.0;
     std::uint32_t contactSampleCount = 0u;
     std::uint32_t articularContactSampleCount = 0u;
+    std::uint32_t articularMechanicalSampleCount = 0u;
+    std::uint32_t articularInternalSameBodySampleCount = 0u;
+    std::uint32_t articularClosedSampleCount = 0u;
+    double articularContactAreaSquareMeters = 0.0;
+    double articularNormalForceNewtons = 0.0;
+    double articularMaximumPressurePascals = 0.0;
+    double articularBodyForceL1Newtons = 0.0;
+    double articularForceResidualNewtons = 0.0;
+    double articularMomentResidualNewtonMeters = 0.0;
     std::string message;
 };
 
