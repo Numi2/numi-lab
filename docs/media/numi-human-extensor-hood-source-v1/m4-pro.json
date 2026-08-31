@@ -2,15 +2,15 @@
   "schema": "numilab.human.extensor-hood-source-posed.preflight.v1",
   "device": "Apple M4 Pro",
   "evidence_level": "preflight",
-  "runtime_revision": "cc2543e419ca7f0309e62fc1c6a55241d9fe0225",
+  "runtime_revision": "289e8b1fc2a4b520777c69db2ed5d90c991cc3c8",
   "source_compiler_repository": "https://github.com/Numi2/numilab-human.git",
-  "source_compiler_revision": "71f638f",
+  "source_compiler_revision": "f09a782",
   "myosim_revision": "33c89c2bde282553dde3f526768eb3bdcfaa7649",
   "source_artifact": {
     "format": "NHHOOD1",
     "abi": 1,
     "bytes": 2036,
-    "sha256": "4074173d572903201232355b4049aca0f3a5456e5d07e2d0781ff22351d70c82"
+    "sha256": "03f457ad6ca1e131acfe23acaf095f4c5af2aa3443ea6c2b7fd8c83ebc4750d4"
   },
   "topology": {
     "hand_count": 2,
@@ -29,6 +29,19 @@
     "maximum_force_closure_residual_newtons": 5.66164741178e-10,
     "maximum_moment_closure_residual_newton_meters": 4.72477049695e-10
   },
+  "source_oracle_force_transfer": {
+    "active_element_count": 24,
+    "strain_energy_joules": 2.44032055118,
+    "maximum_free_node_residual_newtons": 3.34537877955e-8,
+    "maximum_force_closure_residual_newtons": 2.04029563554e-11,
+    "maximum_moment_closure_residual_newton_meters": 6.0297071484e-10,
+    "root_generalized_force_residual_newtons": 2.86925622644e-11,
+    "root_generalized_moment_residual_newton_meters": 1.59981072241e-6,
+    "maximum_internal_generalized_force": 0.0375946032041,
+    "right_fifth_mcp_abduction_generalized_force_newton_meters": 1.15977755594e-6,
+    "left_fifth_mcp_abduction_generalized_force_newton_meters": 1.15977744561e-6,
+    "replay": "bitwise"
+  },
   "replay": "bitwise",
   "rollback": "verified",
   "gates": {
@@ -37,8 +50,11 @@
     "bilateral_topology": "passed",
     "free_node_equilibrium": "passed",
     "force_and_moment_closure": "passed",
+    "exact_point_jacobian_projection": "passed",
+    "source_oracle_force_transfer": "passed",
     "deterministic_replay": "passed",
     "malformed_topology_rollback": "passed"
   },
-  "boundary": "Source-posed CPU FP64 network under the literature 2.9 N loading condition. Exact MyoSim sites, bodies, muscle IDs, route directions, and source-force fields are preserved, but hood connectivity and material parameters remain literature-constrained inference. This is not yet the live whole-body generalized-force transaction or a subject-specific tissue calibration."
+  "negative_result": "The projected fifth-MCP abduction generalized force is about 1.16e-6 N m per side under the source-default force field, far below the approximately 0.074 N m residual in the whole-body equilibrium audit. Distal hood force transfer alone is therefore not an admissible explanation or fix for that residual.",
+  "boundary": "Source-posed CPU FP64 network under both the literature 2.9 N condition and MyoSim source-default force fields. Exact sites, bodies, muscle IDs, route-cut ordinals, route directions, and source-force fields are preserved; hood connectivity and material parameters remain literature-constrained inference. The point-Jacobian projection is conservative but has not replaced the original live muscle route, and the measured MCP result rejects distal hood transfer as a sufficient whole-body balance fix."
 }

@@ -509,12 +509,15 @@
         {"pointer": "/mechanics/maximum_free_node_residual_newtons", "op": "maximum", "value": 0.0000002},
         {"pointer": "/mechanics/maximum_force_closure_residual_newtons", "op": "maximum", "value": 0.000002},
         {"pointer": "/mechanics/maximum_moment_closure_residual_newton_meters", "op": "maximum", "value": 0.0000002},
+        {"pointer": "/source_oracle_force_transfer/root_generalized_force_residual_newtons", "op": "maximum", "value": 0.000002},
+        {"pointer": "/source_oracle_force_transfer/root_generalized_moment_residual_newton_meters", "op": "maximum", "value": 0.000002},
+        {"pointer": "/source_oracle_force_transfer/replay", "op": "equals", "value": "bitwise"},
         {"pointer": "/replay", "op": "equals", "value": "bitwise"},
         {"pointer": "/rollback", "op": "equals", "value": "verified"},
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_extensor_hood_source_probe.cpp", "sha256": "b05456941e8c1923d43c5ff514f73e924139343a9003bc1ac391d44c40202bb2"},
+        {"path": "apps/numilab_human_extensor_hood_source_probe.cpp", "sha256": "adbab40830daa8d89f7ddf13c6d4ec1b1ca3d94e9d854c80485e9de9ef5f94ee"},
         {"path": "include/metalrobo/NumiHumanTensionNetwork.hpp", "sha256": "f9846b267e35ca542284baadbd0820b1b7cbb963eb6710bcd75d0483a507cbde"},
         {"path": "src/core/NumiHumanTensionNetwork.cpp", "sha256": "3198a1230a8dbd9c3f41d9459ca865e1fd82e8f267b4644a0fdf2e65c43140d2"},
         {"path": "CMakeLists.txt", "sha256": "92e612e0ea7d581f26c582c45ed479a462422ff9733c4a3df7c1d65857fc8c3a"}
@@ -549,7 +552,7 @@
       "joint_kinematics": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
       "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
       "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["fully_distributed_exact_entheses"], "gap": "replace point fallbacks and inferred whole-body endpoints with region-specific exact loaded enthesis transfer"},
-      "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["upper_passive_joint_tissue_preflight", "extensor_hood_tension_network_reference", "extensor_hood_source_posed_reference"], "gap": "feed live muscle-tendon force into the source-posed hood, project attachment reactions through exact point Jacobians once, and promote it with loaded ligament, capsule, cartilage, and Metal transaction evidence"},
+      "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["upper_passive_joint_tissue_preflight", "extensor_hood_tension_network_reference", "extensor_hood_source_posed_reference"], "gap": "the source-posed hood and exact point-Jacobian transfer are preflight-qualified but insufficient to close fifth-MCP balance; resolve upstream route/recruitment ownership before live replacement, then add loaded ligament, capsule, cartilage, and Metal transaction evidence"},
       "articular_contact": {"minimum_level": "one_step", "evidence": [], "gap": "add compliant articular contact and nonpenetration evidence"},
       "bilateral_parity": {"minimum_level": "structural", "evidence": ["upper_multi_pose_geometry"]},
       "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},

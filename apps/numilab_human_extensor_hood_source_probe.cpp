@@ -1,4 +1,5 @@
 #include "metalrobo/NumiHumanTensionNetwork.hpp"
+#include "metalrobo/ArticulatedDynamics.hpp"
 
 #include <algorithm>
 #include <array>
@@ -145,6 +146,9 @@ std::vector<T> readVector(
 
 struct RigidPoseTable {
     RigidHeader header{};
+    metalrobo::EngineModel model;
+    std::vector<double> q;
+    std::vector<double> v;
     std::vector<SourcePoseRecord> poseByCoreBody;
 };
 
@@ -160,14 +164,25 @@ RigidPoseTable loadRigidPoseTable(const std::filesystem::path& path) {
                 result.header.engineBodyCount >= result.header.sourceBodyCount &&
                 result.header.nq == result.header.nv + 1u,
             "invalid NHRIGID2 dimensions");
-    constexpr std::uint64_t prefixBytes = 96u + 48u;
-    const std::uint64_t tableOffset = sizeof(RigidHeader) + prefixBytes +
-        160ull * result.header.engineBodyCount +
-        144ull * result.header.jointCount +
-        64ull * result.header.nv + 4ull * result.header.nq +
-        4ull * result.header.nv;
-    input.seekg(static_cast<std::streamoff>(tableOffset), std::ios::beg);
-    require(input.good(), "NHRIGID2 table offset is out of bounds");
+    result.model.name = "numilab_human_extensor_hood_source";
+    readObject(input, result.model.world, "NHRIGID2 world");
+    MRArticulationGPU articulation{};
+    readObject(input, articulation, "NHRIGID2 articulation");
+    result.model.articulations.push_back(articulation);
+    result.model.bodies = readVector<MRBodyPropertiesGPU>(
+        input, result.header.engineBodyCount, "NHRIGID2 bodies");
+    result.model.joints = readVector<MRJointDescriptorGPU>(
+        input, result.header.jointCount, "NHRIGID2 joints");
+    result.model.dofs = readVector<MRDofPropertiesGPU>(
+        input, result.header.nv, "NHRIGID2 dofs");
+    const auto defaultQ = readVector<float>(
+        input, result.header.nq, "NHRIGID2 default q");
+    const auto defaultV = readVector<float>(
+        input, result.header.nv, "NHRIGID2 default v");
+    result.model.defaultQ = defaultQ;
+    result.model.defaultV = defaultV;
+    result.q.assign(defaultQ.begin(), defaultQ.end());
+    result.v.assign(defaultV.begin(), defaultV.end());
     const auto sourceToCore = readVector<std::uint32_t>(
         input, result.header.sourceBodyCount, "NHRIGID2 source body map");
     const auto sourcePoses = readVector<SourcePoseRecord>(
@@ -175,13 +190,14 @@ RigidPoseTable loadRigidPoseTable(const std::filesystem::path& path) {
     require(input.peek() == std::char_traits<char>::eof(),
             "NHRIGID2 payload has trailing bytes");
     result.poseByCoreBody.resize(result.header.engineBodyCount);
-    std::vector<bool> assigned(result.header.engineBodyCount, false);
     for (std::size_t index = 0u; index < sourceToCore.size(); ++index) {
         require(sourceToCore[index] < result.poseByCoreBody.size(),
                 "NHRIGID2 source body map is out of bounds");
         result.poseByCoreBody[sourceToCore[index]] = sourcePoses[index];
-        assigned[sourceToCore[index]] = true;
     }
+    std::string reason;
+    require(result.model.valid(&reason),
+            "NHRIGID2 EngineModel is invalid: " + reason);
     return result;
 }
 
@@ -272,6 +288,22 @@ std::array<double, 3u> worldPoint(
             rotated[2] + poses[body].positionZ};
 }
 
+std::array<double, 3u> localPoint(
+    const std::vector<SourcePoseRecord>& poses, const std::uint32_t body,
+    const std::array<double, 3u>& world
+) {
+    require(body < poses.size(), "NHHOOD1 Core body is out of bounds");
+    SourcePoseRecord inverse = poses[body];
+    inverse.quaternionX = -inverse.quaternionX;
+    inverse.quaternionY = -inverse.quaternionY;
+    inverse.quaternionZ = -inverse.quaternionZ;
+    return rotate(inverse, {
+        world[0] - poses[body].positionX,
+        world[1] - poses[body].positionY,
+        world[2] - poses[body].positionZ,
+    });
+}
+
 double norm(const std::array<double, 3u>& value) {
     return std::hypot(value[0], value[1], value[2]);
 }
@@ -291,7 +323,8 @@ struct Fixture {
 
 Fixture makeFixture(
     const LoadedHood& hood, const HoodHandRecord& hand,
-    const std::vector<SourcePoseRecord>& poses
+    const std::vector<SourcePoseRecord>& poses,
+    const bool useSourceOracleForce
 ) {
     Fixture result;
     result.nodes.reserve(hand.nodeCount);
@@ -330,7 +363,9 @@ Fixture makeFixture(
         const auto& source = hood.inputs[hand.inputOffset + index];
         require(source.node >= hand.nodeOffset &&
                     source.node < hand.nodeOffset + hand.nodeCount &&
-                    source.flags == 1u && std::isfinite(source.sourceOracleForce) &&
+                    (source.flags & 0xFFu) == 1u &&
+                    (source.flags >> 8u) > 0u &&
+                    std::isfinite(source.sourceOracleForce) &&
                     source.sourceOracleForce >= 0.0f,
                 "NHHOOD1 muscle input is invalid");
         const std::uint32_t node = source.node - hand.nodeOffset;
@@ -346,9 +381,10 @@ Fixture makeFixture(
         const double forceNorm = norm(force);
         require(forceNorm > 1.0e-8,
                 "NHHOOD1 muscle direction is degenerate");
-        for (double& component : force) {
-            component *= literatureInputForce / forceNorm;
-        }
+        const double appliedForce = useSourceOracleForce
+            ? static_cast<double>(source.sourceOracleForce)
+            : literatureInputForce;
+        for (double& component : force) component *= appliedForce / forceNorm;
         result.loads.push_back({node, force});
         result.maximumSourceOracleForce = std::max(
             result.maximumSourceOracleForce,
@@ -386,6 +422,59 @@ NumiHumanTensionNetworkResult solve(const Fixture& fixture) {
     return result;
 }
 
+std::vector<double> projectTransferGeneralizedForce(
+    const RigidPoseTable& rigid, const LoadedHood& hood,
+    const HoodHandRecord& hand, const Fixture& fixture,
+    const NumiHumanTensionNetworkResult& network
+) {
+    std::vector<metalrobo::ArticulatedPointQuery> queries;
+    std::vector<std::array<double, 3u>> pointForces;
+    for (std::uint32_t index = 0u; index < hand.nodeCount; ++index) {
+        const auto& source = hood.nodes[hand.nodeOffset + index];
+        if ((source.flags & 1u) == 0u) continue;
+        queries.push_back({
+            source.coreBody, {source.localX, source.localY, source.localZ}});
+        const auto& reaction = network.fixedReactionForce[index];
+        pointForces.push_back({-reaction[0], -reaction[1], -reaction[2]});
+    }
+    for (std::uint32_t index = 0u; index < hand.inputCount; ++index) {
+        const auto& source = hood.inputs[hand.inputOffset + index];
+        const auto& inputNode = hood.nodes[source.node];
+        const std::uint32_t localNode = source.node - hand.nodeOffset;
+        queries.push_back({
+            inputNode.coreBody,
+            localPoint(rigid.poseByCoreBody, inputNode.coreBody,
+                       network.position[localNode]),
+        });
+        const auto& load = fixture.loads[index].force;
+        pointForces.push_back({-load[0], -load[1], -load[2]});
+    }
+    require(queries.size() == pointForces.size() && !queries.empty(),
+            "source-posed hood produced no point-force transfer");
+    std::vector<metalrobo::ArticulatedPointKinematics> kinematics(
+        queries.size());
+    std::vector<double> jacobians(
+        queries.size() * 3u * rigid.header.nv, 0.0);
+    const auto diagnostics = metalrobo::computeArticulatedPointJacobians(
+        rigid.model, 0u, rigid.q, rigid.v, queries, kinematics, jacobians);
+    require(diagnostics.succeeded(),
+            "source-posed hood point-Jacobian projection failed");
+    std::vector<double> generalized(rigid.header.nv, 0.0);
+    for (std::size_t point = 0u; point < queries.size(); ++point) {
+        for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+            const std::size_t row = (point * 3u + axis) * rigid.header.nv;
+            for (std::uint32_t dof = 0u; dof < rigid.header.nv; ++dof) {
+                generalized[dof] +=
+                    jacobians[row + dof] * pointForces[point][axis];
+            }
+        }
+    }
+    require(std::all_of(generalized.begin(), generalized.end(),
+                        [](const double value) { return std::isfinite(value); }),
+            "source-posed hood generalized force is nonfinite");
+    return generalized;
+}
+
 int run(
     const std::filesystem::path& rigidPath,
     const std::filesystem::path& hoodPath
@@ -400,9 +489,16 @@ int run(
     std::uint32_t totalActiveElements = 0u;
     bool replayBitwise = true;
     bool rollbackVerified = true;
+    std::vector<double> combinedGeneralizedForce(rigid.header.nv, 0.0);
+    double sourceMaximumFreeResidual = 0.0;
+    double sourceMaximumForceClosure = 0.0;
+    double sourceMaximumMomentClosure = 0.0;
+    double sourceTotalStrainEnergy = 0.0;
+    std::uint32_t sourceTotalActiveElements = 0u;
+    bool sourceReplayBitwise = true;
     for (const auto& hand : hood.hands) {
         const auto fixture = makeFixture(
-            hood, hand, rigid.poseByCoreBody);
+            hood, hand, rigid.poseByCoreBody, false);
         const auto result = solve(fixture);
         const auto replay = solve(fixture);
         replayBitwise = replayBitwise && bitwiseEqual(result, replay);
@@ -424,13 +520,66 @@ int run(
             maximumSourceOracleForce, fixture.maximumSourceOracleForce);
         totalStrainEnergy += result.strainEnergy;
         totalActiveElements += result.activeElementCount;
+        const auto sourceFixture = makeFixture(
+            hood, hand, rigid.poseByCoreBody, true);
+        const auto sourceResult = solve(sourceFixture);
+        const auto sourceReplay = solve(sourceFixture);
+        sourceReplayBitwise = sourceReplayBitwise &&
+            bitwiseEqual(sourceResult, sourceReplay);
+        sourceMaximumFreeResidual = std::max(
+            sourceMaximumFreeResidual,
+            sourceResult.maximumFreeNodeResidual);
+        sourceMaximumForceClosure = std::max(
+            sourceMaximumForceClosure,
+            norm(sourceResult.forceClosureResidual));
+        sourceMaximumMomentClosure = std::max(
+            sourceMaximumMomentClosure,
+            norm(sourceResult.momentClosureResidual));
+        sourceTotalStrainEnergy += sourceResult.strainEnergy;
+        sourceTotalActiveElements += sourceResult.activeElementCount;
+        const auto generalized = projectTransferGeneralizedForce(
+            rigid, hood, hand, sourceFixture, sourceResult);
+        for (std::size_t dof = 0u; dof < generalized.size(); ++dof) {
+            combinedGeneralizedForce[dof] += generalized[dof];
+        }
     }
-    require(replayBitwise && rollbackVerified &&
+    require(combinedGeneralizedForce.size() > 97u,
+            "source-posed hood requires canonical MyoSim full-body DoFs");
+    const double rootForceResidual = std::hypot(
+        combinedGeneralizedForce[0], combinedGeneralizedForce[1],
+        combinedGeneralizedForce[2]);
+    const double rootMomentResidual = std::hypot(
+        combinedGeneralizedForce[3], combinedGeneralizedForce[4],
+        combinedGeneralizedForce[5]);
+    double maximumInternalGeneralizedForce = 0.0;
+    for (std::size_t dof = 6u; dof < combinedGeneralizedForce.size(); ++dof) {
+        maximumInternalGeneralizedForce = std::max(
+            maximumInternalGeneralizedForce,
+            std::abs(combinedGeneralizedForce[dof]));
+    }
+    require(replayBitwise && sourceReplayBitwise && rollbackVerified &&
                 maximumFreeResidual <= 2.0e-7 &&
                 maximumForceClosure <= 2.0e-6 &&
                 maximumMomentClosure <= 2.0e-7 &&
-                totalActiveElements >= 12u && totalStrainEnergy > 0.0,
-            "source-posed extensor hood qualification gate failed");
+                totalActiveElements >= 12u && totalStrainEnergy > 0.0 &&
+                sourceMaximumFreeResidual <= 2.0e-7 &&
+                sourceMaximumForceClosure <= 2.0e-6 &&
+                sourceMaximumMomentClosure <= 2.0e-7 &&
+                sourceTotalActiveElements >= 12u &&
+                sourceTotalStrainEnergy > 0.0 &&
+                rootForceResidual <= 2.0e-6 &&
+                rootMomentResidual <= 2.0e-6 &&
+                maximumInternalGeneralizedForce > 1.0e-8,
+            "source-posed extensor hood qualification gate failed: free=" +
+                std::to_string(maximumFreeResidual) +
+                " closure_force=" + std::to_string(maximumForceClosure) +
+                " closure_moment=" + std::to_string(maximumMomentClosure) +
+                " root_force=" + std::to_string(rootForceResidual) +
+                " root_moment=" + std::to_string(rootMomentResidual) +
+                " internal=" +
+                std::to_string(maximumInternalGeneralizedForce) +
+                " source_free=" +
+                std::to_string(sourceMaximumFreeResidual));
     std::cout << std::setprecision(12)
               << "numi_human_extensor_hood_source=passed"
               << " hands=" << hood.hands.size()
@@ -443,9 +592,27 @@ int run(
               << " max_force_closure_residual_n=" << maximumForceClosure
               << " max_moment_closure_residual_nm=" << maximumMomentClosure
               << " max_source_oracle_force_n=" << maximumSourceOracleForce
+              << " source_oracle_active_elements="
+              << sourceTotalActiveElements
+              << " source_oracle_strain_energy_j="
+              << sourceTotalStrainEnergy
+              << " source_oracle_max_free_residual_n="
+              << sourceMaximumFreeResidual
+              << " source_oracle_max_force_closure_residual_n="
+              << sourceMaximumForceClosure
+              << " source_oracle_max_moment_closure_residual_nm="
+              << sourceMaximumMomentClosure
+              << " root_generalized_force_residual_n=" << rootForceResidual
+              << " root_generalized_moment_residual_nm=" << rootMomentResidual
+              << " maximum_internal_generalized_force="
+              << maximumInternalGeneralizedForce
+              << " right_fifth_mcp_abduction_generalized_force_nm="
+              << combinedGeneralizedForce[59]
+              << " left_fifth_mcp_abduction_generalized_force_nm="
+              << combinedGeneralizedForce[97]
               << " applied_input_force_each_n=2.9"
-              << " replay=bitwise rollback=verified"
-              << " boundary=source_posed_cpu_fp64_literature_load_not_live_whole_body_force_transaction\n";
+              << " replay=bitwise source_oracle_replay=bitwise rollback=verified"
+              << " boundary=source_posed_cpu_fp64_point_jacobian_transfer_not_yet_live_muscle_force_replacement\n";
     return 0;
 }
 

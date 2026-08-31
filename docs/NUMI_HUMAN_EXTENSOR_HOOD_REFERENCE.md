@@ -79,9 +79,9 @@ Machine-readable evidence:
 
 ## Source-posed promotion result
 
-`numilab-human` revision `71f638f` compiles 24 named MyoSim route sites, 28
+`numilab-human` revision `f09a782` compiles 24 named MyoSim route sites, 28
 literature-inferred tensile bundles, and ten exact EDC5/EDM/RI5/lumbrical/UI5
-route bindings into a 2,036-byte `NHHOOD1` payload. Its header embeds the
+route bindings and their cut ordinals into a 2,036-byte `NHHOOD1` payload. Its header embeds the
 pinned MyoSim archive hash; the runtime rejects source, ABI, record-size,
 range, laterality, or topology drift before solving.
 
@@ -93,10 +93,18 @@ maximum moment-closure residual. Replay was bitwise and malformed topology
 left the previously published result unchanged.
 
 The artifact also preserves MyoSim's source-default force at every binding
-(maximum `56.4591 N`) but does not apply that force in this preflight. The
-next promotion is to solve the hood from the live muscle-tendon state and
-project its attachment reactions through exact point Jacobians once, inside
-the owning whole-body force transaction.
+(maximum `56.4591 N`). A second solve applied those forces and projected the
+paired interface/attachment reactions through exact analytic point Jacobians.
+It retained force closure (`2.87e-11 N` root residual), moment closure
+(`1.60e-6 N m` root residual), and bitwise replay.
+
+That projection is also a useful negative result. It generated only
+`1.15978e-6 N m` at each fifth-MCP ab/adduction coordinate, versus the
+approximately `0.074 N m` residual in whole-body recruitment. Distal hood
+force transfer alone therefore cannot close that gap and must not be inserted
+as a cosmetic correction. The next investigation returns to upstream route
+replacement, activation/recruitment constraints, and intrinsic/extrinsic
+moment-arm ownership before any live transaction is changed.
 
 Source-posed evidence:
 [`m4-pro.json`](media/numi-human-extensor-hood-source-v1/m4-pro.json).
