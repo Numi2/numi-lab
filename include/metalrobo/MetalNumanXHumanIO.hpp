@@ -166,6 +166,9 @@ struct MetalNumanXHumanIOSensorView {
     // convenience projections only and must never be rounded back into an
     // integer transaction identity.
     std::uint64_t receptorTimestampMicroseconds = 0u;
+    std::uint64_t deliveryTimestampMicroseconds = 0u;
+    std::uint32_t latencyMicroseconds = 0u;
+    std::uint32_t stepTimeStrideMicroseconds = 0u;
     double receptorTimeSeconds = 0.0;
     double deliveryTimeSeconds = 0.0;
     double latencySeconds = 0.0;

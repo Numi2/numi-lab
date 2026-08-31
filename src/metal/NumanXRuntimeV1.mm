@@ -211,6 +211,20 @@ struct FullBodyAssets {
     return hash == 0u ? kFnvOffset : hash;
 }
 
+[[nodiscard]] std::uint64_t timingFingerprint(
+    const mrnx_candidate_timing_v1& timing
+) noexcept {
+    std::uint64_t hash = kFnvOffset;
+    const auto* bytes = reinterpret_cast<const std::uint8_t*>(&timing);
+    for (std::size_t index = 0u;
+         index < offsetof(mrnx_candidate_timing_v1, timing_fingerprint);
+         ++index) {
+        hash ^= bytes[index];
+        hash *= kFnvPrime;
+    }
+    return hash == 0u ? kFnvOffset : hash;
+}
+
 [[nodiscard]] bool validRouteType(const std::uint32_t value) noexcept {
     return value == MR_MUJOCO_MUSCLE_ROUTE_SITE ||
         value == MR_MUJOCO_MUSCLE_ROUTE_SPHERE ||
@@ -728,6 +742,7 @@ struct RuntimeState final : std::enable_shared_from_this<RuntimeState> {
     std::shared_ptr<ActiveRoot> active;
     mrnx_runtime_info_v1 info{};
     mrnx_aggregate_snapshot_v1 aggregate{};
+    mrnx_candidate_timing_v1 aggregateTiming{};
     __strong id<MTLBuffer> publishedProprioception = nil;
     __strong id<MTLBuffer> publishedProprioceptionValidity = nil;
     __strong id<MTLBuffer> publishedInteroception = nil;
@@ -1349,6 +1364,86 @@ bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot(
     return true;
 }
 
+bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v2(
+    const mrnx_runtime_v1* runtime,
+    mrnx_aggregate_snapshot_v2* snapshot
+) {
+    if (runtime == nullptr || runtime->state == nullptr ||
+        snapshot == nullptr ||
+        snapshot->abi_version != MRNX_AGGREGATE_SNAPSHOT_ABI_V2 ||
+        snapshot->struct_size != sizeof(*snapshot)) {
+        return false;
+    }
+    const std::shared_lock reader(runtime->state->aggregateGate);
+    if (runtime->state->aggregate.publication_epoch == 0u ||
+        runtime->state->publishedProprioception == nil ||
+        runtime->state->publishedProprioceptionValidity == nil ||
+        runtime->state->publishedInteroception == nil ||
+        runtime->state->publishedInteroceptionValidity == nil) {
+        *snapshot = {};
+        return false;
+    }
+    *snapshot = {};
+    snapshot->abi_version = MRNX_AGGREGATE_SNAPSHOT_ABI_V2;
+    snapshot->struct_size = sizeof(*snapshot);
+    snapshot->publication_epoch =
+        runtime->state->aggregate.publication_epoch;
+    snapshot->brain_generation =
+        runtime->state->aggregate.brain_generation;
+    snapshot->physics_generation =
+        runtime->state->aggregate.physics_generation;
+    snapshot->sensor_generation =
+        runtime->state->aggregate.sensor_generation;
+    snapshot->root = runtime->state->aggregate.root;
+    snapshot->sensor = runtime->state->aggregate.sensor;
+    snapshot->channel_count = runtime->state->aggregate.sensor.channel_count;
+    snapshot->channel_capacity = MRNX_MAX_SENSOR_CHANNELS_V2;
+    snapshot->channels[0] = runtime->state->aggregate.proprioception;
+    snapshot->channels[1] = runtime->state->aggregate.interoception;
+    return true;
+}
+
+bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v3(
+    const mrnx_runtime_v1* runtime,
+    mrnx_aggregate_snapshot_v3* snapshot
+) {
+    if (runtime == nullptr || runtime->state == nullptr ||
+        snapshot == nullptr ||
+        snapshot->abi_version != MRNX_AGGREGATE_SNAPSHOT_ABI_V3 ||
+        snapshot->struct_size != sizeof(*snapshot)) {
+        return false;
+    }
+    const std::shared_lock reader(runtime->state->aggregateGate);
+    if (runtime->state->aggregate.publication_epoch == 0u ||
+        runtime->state->aggregateTiming.timing_fingerprint == 0u ||
+        runtime->state->publishedProprioception == nil ||
+        runtime->state->publishedProprioceptionValidity == nil ||
+        runtime->state->publishedInteroception == nil ||
+        runtime->state->publishedInteroceptionValidity == nil) {
+        *snapshot = {};
+        return false;
+    }
+    *snapshot = {};
+    snapshot->abi_version = MRNX_AGGREGATE_SNAPSHOT_ABI_V3;
+    snapshot->struct_size = sizeof(*snapshot);
+    snapshot->publication_epoch =
+        runtime->state->aggregate.publication_epoch;
+    snapshot->brain_generation =
+        runtime->state->aggregate.brain_generation;
+    snapshot->physics_generation =
+        runtime->state->aggregate.physics_generation;
+    snapshot->sensor_generation =
+        runtime->state->aggregate.sensor_generation;
+    snapshot->root = runtime->state->aggregate.root;
+    snapshot->sensor = runtime->state->aggregate.sensor;
+    snapshot->timing = runtime->state->aggregateTiming;
+    snapshot->channel_count = runtime->state->aggregate.sensor.channel_count;
+    snapshot->channel_capacity = MRNX_MAX_SENSOR_CHANNELS_V2;
+    snapshot->channels[0] = runtime->state->aggregate.proprioception;
+    snapshot->channels[1] = runtime->state->aggregate.interoception;
+    return true;
+}
+
 } // extern "C"
 
 namespace {
@@ -1461,6 +1556,28 @@ void runtimeTerminalCompletion(
         return;
     }
     mrnx_aggregate_snapshot_v1 snapshot{};
+    mrnx_candidate_timing_v1 timing{};
+    if (runtime->timestepMicroseconds == 0u ||
+        runtime->timestepMicroseconds >
+            std::numeric_limits<std::uint32_t>::max() ||
+        runtime->timestepMicroseconds >
+            std::numeric_limits<std::uint64_t>::max() -
+                active->acceptedTimestampMicroseconds) {
+        runtime->active.reset();
+        runtime->terminalQuarantine = true;
+        return;
+    }
+    timing.abi_version = MRNX_BRIDGE_ABI_V1;
+    timing.struct_size = sizeof(timing);
+    timing.capture_timestamp_microseconds =
+        active->acceptedTimestampMicroseconds;
+    timing.delivery_timestamp_microseconds =
+        active->acceptedTimestampMicroseconds + runtime->timestepMicroseconds;
+    timing.latency_microseconds = static_cast<std::uint32_t>(
+        runtime->timestepMicroseconds);
+    timing.sample_interval_microseconds = static_cast<std::uint32_t>(
+        runtime->timestepMicroseconds);
+    timing.timing_fingerprint = timingFingerprint(timing);
     snapshot.abi_version = MRNX_BRIDGE_ABI_V1;
     snapshot.struct_size = sizeof(snapshot);
     snapshot.publication_epoch = priorEpoch + 1u;
@@ -1476,6 +1593,7 @@ void runtimeTerminalCompletion(
     runtime->publishedInteroception = interoceptionValues;
     runtime->publishedInteroceptionValidity = interoceptionValidity;
     runtime->aggregate = snapshot;
+    runtime->aggregateTiming = timing;
     runtime->publishedOnce = true;
     runtime->publishedTransactionFingerprint =
         active->transactionFingerprint;

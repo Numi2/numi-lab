@@ -332,6 +332,28 @@ void rememberFailureLocked(
     view.commandBufferIdentity = slot.commandBufferIdentity;
     view.receptorTimestampMicroseconds =
         slot.receptorTimestampMicroseconds;
+    const double timestepMicrosecondsDouble =
+        slot.timestepSeconds * 1'000'000.0;
+    if (std::isfinite(timestepMicrosecondsDouble) &&
+        timestepMicrosecondsDouble >= 1.0 &&
+        timestepMicrosecondsDouble <=
+            static_cast<double>(std::numeric_limits<std::uint32_t>::max())) {
+        const auto timestepMicroseconds = static_cast<std::uint64_t>(
+            std::llround(timestepMicrosecondsDouble));
+        const float canonicalTimestepSeconds = static_cast<float>(
+            timestepMicroseconds) / 1'000'000.0f;
+        if (slot.timestepSeconds == canonicalTimestepSeconds &&
+            timestepMicroseconds <=
+                std::numeric_limits<std::uint64_t>::max() -
+                    slot.receptorTimestampMicroseconds) {
+            view.deliveryTimestampMicroseconds =
+                slot.receptorTimestampMicroseconds + timestepMicroseconds;
+            view.latencyMicroseconds = static_cast<std::uint32_t>(
+                timestepMicroseconds);
+            view.stepTimeStrideMicroseconds = static_cast<std::uint32_t>(
+                timestepMicroseconds);
+        }
+    }
     view.receptorTimeSeconds = static_cast<double>(
         slot.receptorTimestampMicroseconds
     ) / 1'000'000.0;

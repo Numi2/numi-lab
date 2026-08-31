@@ -138,10 +138,19 @@ typedef struct mrnx_candidate_view_v1 {
 } mrnx_candidate_view_v1;
 
 #define MRNX_CANDIDATE_CHANNEL_HAS_VALIDITY_V1 (1u << 0u)
+// Direct parity with NumiBrain SensoryModality raw values.
+#define MRNX_CANDIDATE_MODALITY_VISION_V1 1u
+#define MRNX_CANDIDATE_MODALITY_AUDITION_V1 2u
+#define MRNX_CANDIDATE_MODALITY_TOUCH_V1 3u
 // Direct parity with NumiBrain SensoryModality.proprioception.
 #define MRNX_CANDIDATE_MODALITY_PROPRIOCEPTION_V1 4u
+#define MRNX_CANDIDATE_MODALITY_VESTIBULAR_V1 5u
 // Direct parity with NumiBrain SensoryModality.interoception.
 #define MRNX_CANDIDATE_MODALITY_INTEROCEPTION_V1 8u
+#define MRNX_CANDIDATE_MODALITY_KINESTHESIA_V1 9u
+#define MRNX_AGGREGATE_SNAPSHOT_ABI_V2 2u
+#define MRNX_AGGREGATE_SNAPSHOT_ABI_V3 3u
+#define MRNX_MAX_SENSOR_CHANNELS_V2 8u
 
 typedef struct mrnx_candidate_channel_v1 {
     uint32_t abi_version;
@@ -154,6 +163,16 @@ typedef struct mrnx_candidate_channel_v1 {
     mrnx_metal_range_v1 values;
     mrnx_metal_range_v1 validity;
 } mrnx_candidate_channel_v1;
+
+typedef struct mrnx_candidate_timing_v1 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint64_t capture_timestamp_microseconds;
+    uint64_t delivery_timestamp_microseconds;
+    uint32_t latency_microseconds;
+    uint32_t sample_interval_microseconds;
+    uint64_t timing_fingerprint;
+} mrnx_candidate_timing_v1;
 
 typedef struct mrnx_wire_lease_v1 {
     uint32_t abi_version;
@@ -226,6 +245,9 @@ typedef struct mrnx_runtime_config_v1 {
     void* metal_device;
     const char* rigid_payload_path;
     const char* muscle_payload_path;
+    const char* support_contact_payload_path;
+    const char* visual_pack_path;
+    const char* vision_profile_path;
     const char* metalrobo_metallib_path;
     const char* matter_metallib_path;
     const char* matter_material_path;
@@ -267,6 +289,38 @@ typedef struct mrnx_aggregate_snapshot_v1 {
     mrnx_candidate_channel_v1 proprioception;
     mrnx_candidate_channel_v1 interoception;
 } mrnx_aggregate_snapshot_v1;
+
+// V2/V3 are extensible aggregate reader records. A runtime must report only
+// channels backed by its authoritative HumanIO publication; unused entries
+// remain zero. channel_capacity is always MRNX_MAX_SENSOR_CHANNELS_V2.
+typedef struct mrnx_aggregate_snapshot_v2 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint64_t publication_epoch;
+    uint64_t brain_generation;
+    uint64_t physics_generation;
+    uint64_t sensor_generation;
+    mrnx_root_v1 root;
+    mrnx_candidate_view_v1 sensor;
+    uint32_t channel_count;
+    uint32_t channel_capacity;
+    mrnx_candidate_channel_v1 channels[MRNX_MAX_SENSOR_CHANNELS_V2];
+} mrnx_aggregate_snapshot_v2;
+
+typedef struct mrnx_aggregate_snapshot_v3 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint64_t publication_epoch;
+    uint64_t brain_generation;
+    uint64_t physics_generation;
+    uint64_t sensor_generation;
+    mrnx_root_v1 root;
+    mrnx_candidate_view_v1 sensor;
+    mrnx_candidate_timing_v1 timing;
+    uint32_t channel_count;
+    uint32_t channel_capacity;
+    mrnx_candidate_channel_v1 channels[MRNX_MAX_SENSOR_CHANNELS_V2];
+} mrnx_aggregate_snapshot_v3;
 
 typedef struct mrnx_brain_joint_transaction_v1 {
     uint32_t format_version;
@@ -440,6 +494,12 @@ MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_begin_physical_root(
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot(
     const mrnx_runtime_v1* runtime,
     mrnx_aggregate_snapshot_v1* snapshot);
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v2(
+    const mrnx_runtime_v1* runtime,
+    mrnx_aggregate_snapshot_v2* snapshot);
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v3(
+    const mrnx_runtime_v1* runtime,
+    mrnx_aggregate_snapshot_v3* snapshot);
 
 MRNX_BRIDGE_EXPORT void mrnx_bridge_v1_prepared_retain(
     mrnx_prepared_v1* prepared);
@@ -466,6 +526,9 @@ MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_candidate_copy_channel(
     const mrnx_candidate_v1* candidate,
     uint32_t channel_index,
     mrnx_candidate_channel_v1* output);
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_candidate_copy_timing(
+    const mrnx_candidate_v1* candidate,
+    mrnx_candidate_timing_v1* output);
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_bind_candidate(
     mrnx_prepared_v1* prepared,
     mrnx_candidate_v1* candidate);
@@ -588,6 +651,9 @@ static_assert(offsetof(mrnx_candidate_view_v1,
 static_assert(sizeof(mrnx_candidate_channel_v1) == 128u);
 static_assert(offsetof(mrnx_candidate_channel_v1, values) == 32u);
 static_assert(offsetof(mrnx_candidate_channel_v1, validity) == 80u);
+static_assert(sizeof(mrnx_candidate_timing_v1) == 40u);
+static_assert(offsetof(mrnx_candidate_timing_v1,
+                       timing_fingerprint) == 32u);
 static_assert(sizeof(mrnx_wire_lease_v1) == 184u);
 static_assert(offsetof(mrnx_wire_lease_v1, record) == 104u);
 static_assert(offsetof(mrnx_wire_lease_v1, ready) == 152u);
@@ -602,11 +668,11 @@ static_assert(offsetof(mrnx_completion_v1, slot_generation) == 16u);
 static_assert(sizeof(mrnx_publication_v1) == 24u);
 static_assert(offsetof(mrnx_publication_v1,
                        joint_commit_fingerprint) == 8u);
-static_assert(sizeof(mrnx_runtime_config_v1) == 80u);
+static_assert(sizeof(mrnx_runtime_config_v1) == 104u);
 static_assert(offsetof(mrnx_runtime_config_v1,
-                       timestep_microseconds) == 56u);
+                       timestep_microseconds) == 80u);
 static_assert(offsetof(mrnx_runtime_config_v1,
-                       maximum_retained_bytes) == 64u);
+                       maximum_retained_bytes) == 88u);
 static_assert(sizeof(mrnx_runtime_info_v1) == 64u);
 static_assert(offsetof(mrnx_runtime_info_v1,
                        device_registry_id) == 40u);
@@ -617,6 +683,17 @@ static_assert(offsetof(mrnx_aggregate_snapshot_v1,
                        proprioception) == 248u);
 static_assert(offsetof(mrnx_aggregate_snapshot_v1,
                        interoception) == 376u);
+static_assert(sizeof(mrnx_aggregate_snapshot_v2) == 1280u);
+static_assert(offsetof(mrnx_aggregate_snapshot_v2, root) == 40u);
+static_assert(offsetof(mrnx_aggregate_snapshot_v2, sensor) == 136u);
+static_assert(offsetof(mrnx_aggregate_snapshot_v2,
+                       channel_count) == 248u);
+static_assert(offsetof(mrnx_aggregate_snapshot_v2, channels) == 256u);
+static_assert(sizeof(mrnx_aggregate_snapshot_v3) == 1320u);
+static_assert(offsetof(mrnx_aggregate_snapshot_v3, timing) == 248u);
+static_assert(offsetof(mrnx_aggregate_snapshot_v3,
+                       channel_count) == 288u);
+static_assert(offsetof(mrnx_aggregate_snapshot_v3, channels) == 296u);
 static_assert(sizeof(mrnx_brain_joint_transaction_v1) == 96u);
 static_assert(alignof(mrnx_brain_joint_transaction_v1) == 8u);
 static_assert(offsetof(mrnx_brain_joint_transaction_v1,
@@ -674,6 +751,11 @@ _Static_assert(sizeof(mrnx_candidate_channel_v1) == 128u,
                "mrnx_candidate_channel_v1 ABI");
 _Static_assert(offsetof(mrnx_candidate_channel_v1, values) == 32u,
                "mrnx_candidate_channel_v1 values offset");
+_Static_assert(sizeof(mrnx_candidate_timing_v1) == 40u,
+               "mrnx_candidate_timing_v1 ABI");
+_Static_assert(offsetof(mrnx_candidate_timing_v1,
+                        timing_fingerprint) == 32u,
+               "mrnx_candidate_timing_v1 fingerprint offset");
 _Static_assert(sizeof(mrnx_wire_lease_v1) == 184u,
                "mrnx_wire_lease_v1 ABI");
 _Static_assert(offsetof(mrnx_wire_lease_v1, ready) == 152u,
@@ -692,13 +774,13 @@ _Static_assert(offsetof(mrnx_completion_v1, slot_generation) == 16u,
                "mrnx_completion_v1 generation offset");
 _Static_assert(sizeof(mrnx_publication_v1) == 24u,
                "mrnx_publication_v1 ABI");
-_Static_assert(sizeof(mrnx_runtime_config_v1) == 80u,
+_Static_assert(sizeof(mrnx_runtime_config_v1) == 104u,
                "mrnx_runtime_config_v1 ABI");
 _Static_assert(offsetof(mrnx_runtime_config_v1,
-                        timestep_microseconds) == 56u,
+                        timestep_microseconds) == 80u,
                "mrnx_runtime_config_v1 timestep offset");
 _Static_assert(offsetof(mrnx_runtime_config_v1,
-                        maximum_retained_bytes) == 64u,
+                        maximum_retained_bytes) == 88u,
                "mrnx_runtime_config_v1 retained offset");
 _Static_assert(sizeof(mrnx_runtime_info_v1) == 64u,
                "mrnx_runtime_info_v1 ABI");
@@ -712,6 +794,16 @@ _Static_assert(offsetof(mrnx_aggregate_snapshot_v1,
 _Static_assert(offsetof(mrnx_aggregate_snapshot_v1,
                         interoception) == 376u,
                "mrnx_aggregate_snapshot_v1 interoception offset");
+_Static_assert(sizeof(mrnx_aggregate_snapshot_v2) == 1280u,
+               "mrnx_aggregate_snapshot_v2 ABI");
+_Static_assert(offsetof(mrnx_aggregate_snapshot_v2, channels) == 256u,
+               "mrnx_aggregate_snapshot_v2 channels offset");
+_Static_assert(sizeof(mrnx_aggregate_snapshot_v3) == 1320u,
+               "mrnx_aggregate_snapshot_v3 ABI");
+_Static_assert(offsetof(mrnx_aggregate_snapshot_v3, timing) == 248u,
+               "mrnx_aggregate_snapshot_v3 timing offset");
+_Static_assert(offsetof(mrnx_aggregate_snapshot_v3, channels) == 296u,
+               "mrnx_aggregate_snapshot_v3 channels offset");
 _Static_assert(sizeof(mrnx_brain_joint_transaction_v1) == 96u,
                "mrnx_brain_joint_transaction_v1 ABI");
 _Static_assert(_Alignof(mrnx_brain_joint_transaction_v1) == 8u,

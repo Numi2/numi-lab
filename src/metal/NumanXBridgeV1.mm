@@ -36,6 +36,19 @@ constexpr std::uint32_t kCandidateChannelCount = 2u;
     return hash;
 }
 
+[[nodiscard]] std::uint64_t fnvBytes(
+    std::uint64_t hash,
+    const void* bytes,
+    const std::size_t count
+) noexcept {
+    const auto* cursor = static_cast<const unsigned char*>(bytes);
+    for (std::size_t index = 0u; index < count; ++index) {
+        hash ^= cursor[index];
+        hash *= kFnvPrime;
+    }
+    return hash;
+}
+
 [[nodiscard]] std::uint64_t fnvCString(
     std::uint64_t hash,
     const char* value
@@ -261,6 +274,7 @@ struct mrnx_candidate_v1 {
     metalrobo::MetalNumanXHumanIOCandidatePublicationLease lease;
     metalrobo::MetalNumanXHumanIOCandidatePublicationProgram program{};
     mrnx_candidate_view_v1 view{};
+    mrnx_candidate_timing_v1 timing{};
     mrnx_candidate_channel_v1 channels[kCandidateChannelCount]{};
     __strong id<MTLBuffer> values[kCandidateChannelCount]{nil, nil};
     __strong id<MTLBuffer> validity[kCandidateChannelCount]{nil, nil};
@@ -789,6 +803,11 @@ mrnx_candidate_v1* adoptCandidate(
             program.identityFingerprint !=
                 metalNumanXHumanIOCandidatePublicationIdentityFingerprint(
                     program) ||
+            sensor.deliveryTimestampMicroseconds < receptorMicros ||
+            sensor.latencyMicroseconds == 0u ||
+            sensor.stepTimeStrideMicroseconds == 0u ||
+            sensor.deliveryTimestampMicroseconds - receptorMicros !=
+                sensor.latencyMicroseconds ||
             native.abiVersion != kMetalNumanXHumanIOPublicationABIVersion ||
             native.structSize != sizeof(native) ||
             native.deviceRegistryID != domain->deviceRegistryID ||
@@ -957,6 +976,17 @@ mrnx_candidate_v1* adoptCandidate(
             program.identityFingerprint;
         handle->view.device_registry_id = domain->deviceRegistryID;
         handle->view.channel_count = kCandidateChannelCount;
+        handle->timing.abi_version = MRNX_BRIDGE_ABI_V1;
+        handle->timing.struct_size = sizeof(handle->timing);
+        handle->timing.capture_timestamp_microseconds = receptorMicros;
+        handle->timing.delivery_timestamp_microseconds =
+            sensor.deliveryTimestampMicroseconds;
+        handle->timing.latency_microseconds = sensor.latencyMicroseconds;
+        handle->timing.sample_interval_microseconds =
+            sensor.stepTimeStrideMicroseconds;
+        handle->timing.timing_fingerprint = nonzero(fnvBytes(
+            kFnvOffset, &handle->timing,
+            offsetof(mrnx_candidate_timing_v1, timing_fingerprint)));
         handle->channels[0].abi_version = MRNX_BRIDGE_ABI_V1;
         handle->channels[0].struct_size = sizeof(handle->channels[0]);
         handle->channels[0].modality =
@@ -1331,6 +1361,17 @@ bool mrnx_bridge_v1_candidate_copy_channel(
     const std::lock_guard lock(candidate->mutex);
     if (candidate->terminal) return false;
     *output = candidate->channels[channelIndex];
+    return true;
+}
+
+bool mrnx_bridge_v1_candidate_copy_timing(
+    const mrnx_candidate_v1* candidate,
+    mrnx_candidate_timing_v1* output
+) {
+    if (candidate == nullptr || !writableOutput(output)) return false;
+    const std::lock_guard lock(candidate->mutex);
+    if (candidate->terminal) return false;
+    *output = candidate->timing;
     return true;
 }
 

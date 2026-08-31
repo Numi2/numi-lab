@@ -100,6 +100,20 @@ std::uint64_t readyGateFingerprint(
     return hash == 0u ? kFnvOffset : hash;
 }
 
+std::uint64_t timingFingerprint(
+    const mrnx_candidate_timing_v1& timing
+) noexcept {
+    const auto* bytes = reinterpret_cast<const std::uint8_t*>(&timing);
+    std::uint64_t hash = kFnvOffset;
+    for (std::size_t index = 0u;
+         index < offsetof(mrnx_candidate_timing_v1, timing_fingerprint);
+         ++index) {
+        hash ^= bytes[index];
+        hash *= kFnvPrime;
+    }
+    return hash == 0u ? kFnvOffset : hash;
+}
+
 mrnx_metal_range_v1 range(
     id<MTLBuffer> buffer,
     const std::uint32_t elementType,
@@ -441,12 +455,17 @@ int run() {
         mrnx_candidate_channel_v1 interoception{};
         interoception.abi_version = MRNX_BRIDGE_ABI_V1;
         interoception.struct_size = sizeof(interoception);
+        mrnx_candidate_timing_v1 timing{};
+        timing.abi_version = MRNX_BRIDGE_ABI_V1;
+        timing.struct_size = sizeof(timing);
         require(mrnx_bridge_v1_candidate_copy_view(
                     completion.candidate, &sensor) &&
                     mrnx_bridge_v1_candidate_copy_channel(
                         completion.candidate, 0u, &proprioception) &&
                     mrnx_bridge_v1_candidate_copy_channel(
                         completion.candidate, 1u, &interoception) &&
+                    mrnx_bridge_v1_candidate_copy_timing(
+                        completion.candidate, &timing) &&
                     sensor.channel_count == 2u &&
                     sensor.accepted_brain_generation == 1u &&
                     sensor.key.sensor_generation == 1u &&
@@ -461,7 +480,13 @@ int run() {
                     interoception.receptor_count == 416u &&
                     interoception.feature_dimension == 1u &&
                     interoception.receptor_timestamp_microseconds ==
-                        kStartMicros,
+                        kStartMicros &&
+                    timing.capture_timestamp_microseconds == kStartMicros &&
+                    timing.delivery_timestamp_microseconds ==
+                        kStartMicros + kDurationMicros &&
+                    timing.latency_microseconds == kDurationMicros &&
+                    timing.sample_interval_microseconds == kDurationMicros &&
+                    timing.timing_fingerprint == timingFingerprint(timing),
                 "causal HumanIO candidate is not the exact full-body view");
         mrnx_aggregate_snapshot_v1 aggregate{};
         aggregate.abi_version = MRNX_BRIDGE_ABI_V1;
@@ -469,6 +494,17 @@ int run() {
         require(!mrnx_bridge_v1_runtime_copy_aggregate_snapshot(
                     runtime, &aggregate),
                 "unpublished full-body root escaped the aggregate reader");
+        mrnx_aggregate_snapshot_v2 aggregateV2{};
+        aggregateV2.abi_version = MRNX_AGGREGATE_SNAPSHOT_ABI_V2;
+        aggregateV2.struct_size = sizeof(aggregateV2);
+        mrnx_aggregate_snapshot_v3 aggregateV3{};
+        aggregateV3.abi_version = MRNX_AGGREGATE_SNAPSHOT_ABI_V3;
+        aggregateV3.struct_size = sizeof(aggregateV3);
+        require(!mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v2(
+                    runtime, &aggregateV2) &&
+                    !mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v3(
+                        runtime, &aggregateV3),
+                "unpublished root escaped an extensible aggregate reader");
         require(mrnx_bridge_v1_quarantine_timeout(completion.prepared),
                 "prepared-only qualification did not quarantine on timeout");
         mrnx_bridge_v1_candidate_drop(completion.candidate);
