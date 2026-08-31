@@ -838,6 +838,7 @@ add_library(
     src/core/MujocoMuscleReference.cpp
     src/core/NumiHumanJointEquality.cpp
     src/core/NumiHumanMuscleEquilibrium.cpp
+    src/core/NumiHumanTensionNetwork.cpp
     src/core/NumiHumanTendon.cpp
     src/core/NumiHumanCartilage.cpp
     src/core/NumiHumanKnee.cpp
@@ -1408,6 +1409,39 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
+
+# FP64 reference for the posture-dependent tendon-sheet topology missing from
+# the source hand. This qualifies unilateral bundle mechanics and conservative
+# attachment reactions before the network is admitted to live Human dynamics.
+add_executable(
+    metalrobo_numilab_human_extensor_hood_reference_probe
+    apps/numilab_human_extensor_hood_reference_probe.cpp
+)
+target_link_libraries(
+    metalrobo_numilab_human_extensor_hood_reference_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_numilab_human_extensor_hood_reference_probe
+    PRIVATE -Wall -Wextra -Wpedantic -Werror
+)
+set_target_properties(
+    metalrobo_numilab_human_extensor_hood_reference_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+if(BUILD_TESTING)
+    add_test(
+        NAME numi_human.extensor_hood_reference
+        COMMAND $<TARGET_FILE:metalrobo_numilab_human_extensor_hood_reference_probe>
+    )
+    set_tests_properties(
+        numi_human.extensor_hood_reference
+        PROPERTIES LABELS "numi-human;anatomy;tendon" TIMEOUT 30
+    )
+endif()
 
 # Native visual inspection for the full-body MyoSim model. It obtains the
 # articulated pose from the Metal operator, renders BodyParts3D major-bone
