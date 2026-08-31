@@ -562,7 +562,7 @@
       ]
     },
     "whole_body_all_dof_support_report": {
-      "path": "docs/media/numi-human-compliant-fit-v3/m4-pro.json",
+      "path": "docs/media/numi-human-passive-fit-v4/m4-pro.json",
       "format": "json",
       "level": "preflight",
       "checks": [

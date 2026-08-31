@@ -1,5 +1,8 @@
 # Numi Human compliant architecture fit v3
 
+This historical checkpoint is superseded for current whole-body mechanics by
+`NUMI_HUMAN_PASSIVE_FIT_V4.md`, which adds the missing activation-zero fit gate.
+
 The 2026-08-31 source compiler checkpoint corrects a whole-body mechanics
 error before adding more tissue constraints. The old bounded coarse search
 forced some inferred optimal-fiber and tendon-slack lengths onto its limits.
