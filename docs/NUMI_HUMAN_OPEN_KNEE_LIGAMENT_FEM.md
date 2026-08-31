@@ -57,10 +57,11 @@ The replacement source compiler requires anterior-axis alignment plus explicit
 patella-anterior and fibula-lateral offsets before a payload can reach this
 mechanics preflight.
 
-The quadriceps tendon (`QAT`) is intentionally not reassigned to a bone. Its
-distal nodes tie to the patella, while the source model uses a separate rigid
-quadriceps-origin (`QSO`) construct proximally. Completing it requires a
-distributed quadriceps muscle-load boundary, not a cosmetic femur anchor.
+The quadriceps tendon (`QAT`) is not cosmetically reassigned to the femur. Its
+distal nodes retain the exact patellar attachment, while the source model's
+quadriceps-origin (`QSO`) construct remains the proximal force source. The live
+extensor-chain implementation below replaces the complete source quadriceps
+generalized-force row with an explicit distributed attachment transfer.
 
 ## Live full-Human passive continuum transaction
 
@@ -88,6 +89,34 @@ attachment/contact surfaces under the same material. Bilateral four-angle
 frames and raw receipts are in
 [`numi-human-live-open-knee-composite-v1`](media/numi-human-live-open-knee-composite-v1/).
 
+## Active QAT-patella-PTL-tibia extensor chain
+
+The four source quadriceps keep their nonlinear compliant Hill-type tendon
+force law, but no longer apply their complete source row directly to the rigid
+patella. The same Human command buffer now:
+
+1. restores each source proximal endpoint;
+2. distributes its patellar terminal force over 378 exact QAT attachment
+   nodes using attachment-area weights;
+3. applies a zero-resultant PTL force couple over 424 patellar and 553 tibial
+   attachment nodes; and
+4. returns the accepted QAT/PTL fixed-node reactions to the articulated bodies
+   before rigid integration.
+
+The left M4 Pro qualification transferred a `1955.27 N` quadriceps resultant
+through a `1973.99 N` PTL resultant. The right mirrored qualification
+transferred `2048.40 N` through `2068.43 N`. Assembled external-force relative
+errors were below `1e-6`; QAT/PTL reaction residuals were below the measured
+passive femur-reaction allowance (`0.532618 N` left, `0.630435 N` right).
+Both sides retained positive near-unity deformation Jacobians, bitwise replay,
+and rejected-step rollback.
+
+Machine-readable receipts and all eight inspected M4 Pro frames are retained
+in
+[`numi-human-open-knee-extensor-chain-v1`](media/numi-human-open-knee-extensor-chain-v1/).
+The right knee is a sagittal mirror registered into the live right-body frames,
+not an independently segmented right subject.
+
 ## Evidence boundary
 
 The original `NHKFEM1/2` result is an exact-topology attachment,
@@ -99,5 +128,7 @@ The per-region isotropic matrix uses the Open Knee `c1` and bulk parameters,
 but Matter does not yet apply the source transverse-isotropic fibre field or
 initial prestretch. The result is not a loaded flexion validation, clinical
 validation, production-cadence solve, cartilage contact solve, or visual proof
-of a flexed ligament. The earlier single-rigid-body flexion images remain
+of a flexed ligament. The active extensor-chain result proves reduced nonlinear
+tendon force transfer through exact QAT/PTL entheses; it is not an active
+volumetric tendon solve. The earlier single-rigid-body flexion images remain
 rejected evidence until accepted deformable nodes own their rendered surfaces.

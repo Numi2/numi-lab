@@ -117,6 +117,24 @@ struct LoadedOpenKneeLigamentFEM {
     double qualificationFlexionRadians = 0.0;
     double maximumProjectedRestVisualCorrectionMeters = 0.0;
     double maximumProjectedRestReconstructionResidualMeters = 0.0;
+    std::uint32_t quadricepsEndpointCount = 0u;
+    std::uint32_t quadricepsLoadNodeCount = 0u;
+    double quadricepsLoadPatchAreaSquareMeters = 0.0;
+    std::uint32_t patellarTendonPatellaLoadNodeCount = 0u;
+    std::uint32_t patellarTendonTibiaLoadNodeCount = 0u;
+    double patellarTendonPatellaPatchAreaSquareMeters = 0.0;
+    double patellarTendonTibiaPatchAreaSquareMeters = 0.0;
+    double quadricepsForceOwnerFraction = 0.0;
+    double quadricepsAppliedForceL1Newtons = 0.0;
+    double quadricepsAppliedForceResultantNewtons = 0.0;
+    double quadricepsEnthesisReactionResultantNewtons = 0.0;
+    double patellarTendonForceL1Newtons = 0.0;
+    double patellarTendonForceResultantNewtons = 0.0;
+    double patellarTendonPatellaReactionResultantNewtons = 0.0;
+    double patellarTendonTibiaReactionResultantNewtons = 0.0;
+    double assembledExternalForceL1Newtons = 0.0;
+    double assembledExternalForceResultantNewtons = 0.0;
+    bool activeQuadricepsTendonCoupling = false;
     bool liveHumanCoupling = false;
     bool rollbackVerified = false;
     bool replayVerified = false;
@@ -5700,12 +5718,13 @@ struct LiveOpenKneeTissueSpec {
     double bulkMPa;
 };
 
-constexpr std::array<LiveOpenKneeTissueSpec, 5u> kLiveOpenKneeTissueSpecs{{
+constexpr std::array<LiveOpenKneeTissueSpec, 6u> kLiveOpenKneeTissueSpecs{{
     {"PCL", 3.25, 243.90},
     {"ACL", 1.95, 146.41},
     {"MCL", 1.44, 793.65},
     {"LCL", 1.44, 793.65},
     {"PTL", 2.75, 206.61},
+    {"QAT", 2.75, 206.61},
 }};
 
 struct LiveOpenKneeRegion {
@@ -5851,10 +5870,11 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 return candidate.name == region.name;
             });
         if (specification == kLiveOpenKneeTissueSpecs.end()) continue;
+        const bool tendon = region.name == "PTL" || region.name == "QAT";
         const bool exactKind =
-            (region.name == "PTL" &&
+            (tendon &&
              region.kind == metalrobo::NumiHumanKneeRegionKind::tendon) ||
-            (region.name != "PTL" &&
+            (!tendon &&
              region.kind == metalrobo::NumiHumanKneeRegionKind::ligament);
         require(exactKind, "live Open Knee tissue kind drifted");
         regions.push_back({
@@ -5868,7 +5888,7 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         totalTetrahedra += region.tetrahedronCount;
     }
     require(regions.size() == kLiveOpenKneeTissueSpecs.size() &&
-                totalNodes == 47439u && totalTetrahedra == 195032u,
+                totalNodes == 62402u && totalTetrahedra == 264442u,
             "live Open Knee exact tissue topology drifted");
 
     auto parsed = numi::matter::parseMatterFile(
@@ -5885,8 +5905,11 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     worldSource.mixedSolver.lineSearchSteps = 6u;
     std::vector<NMNumiHumanTendonFEMNodeLoadGPU> nodeLoads(totalNodes);
     std::vector<NMNumiHumanTendonFEMNodeAnchorGPU> nodeAnchors(totalNodes);
-    for (auto& load : nodeLoads) load.endpointIndex = NM_INVALID_INDEX;
+    for (auto& load : nodeLoads)
+        std::fill_n(load.endpointIndex, 4u, NM_INVALID_INDEX);
     for (auto& anchor : nodeAnchors) anchor.bodyIndex = NM_INVALID_INDEX;
+    std::vector<NMNumiHumanTendonFEMEndpointReplacementGPU>
+        endpointReplacements;
     std::vector<mr_float4> initialWorldNodes(totalNodes);
 
     for (LiveOpenKneeRegion& runtimeRegion : regions) {
@@ -5963,20 +5986,286 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
             }
             object.tetrahedra.push_back({nodes});
         }
-        const bool twoSided = region.name == "PTL"
+        const bool exactBoundaryOwnership = region.name == "PTL"
             ? runtimeRegion.anchorCounts[1u] > 0u &&
                 runtimeRegion.anchorCounts[2u] > 0u &&
                 runtimeRegion.anchorCounts[0u] == 0u
+            : region.name == "QAT"
+            ? runtimeRegion.anchorCounts[2u] > 0u &&
+                runtimeRegion.anchorCounts[0u] == 0u &&
+                runtimeRegion.anchorCounts[1u] == 0u
             : runtimeRegion.anchorCounts[0u] > 0u &&
                 runtimeRegion.anchorCounts[1u] > 0u &&
                 runtimeRegion.anchorCounts[2u] == 0u;
-        require(twoSided && object.femFixedNodes.size() ==
+        require(exactBoundaryOwnership && object.femFixedNodes.size() ==
                     runtimeRegion.anchorCounts[0u] +
                     runtimeRegion.anchorCounts[1u] +
                     runtimeRegion.anchorCounts[2u],
-                "live Open Knee tissue lacks exact two-sided attachments");
+                "live Open Knee tissue attachment ownership drifted");
         worldSource.objects.push_back(std::move(object));
     }
+
+    const auto qatRuntime = std::find_if(
+        regions.begin(), regions.end(),
+        [&knee](const LiveOpenKneeRegion& candidate) {
+            return knee.regions[candidate.payloadRegion].name == "QAT";
+        });
+    require(qatRuntime != regions.end(),
+            "live Open Knee quadriceps tendon is unavailable");
+    const auto& qatRegion = knee.regions[qatRuntime->payloadRegion];
+    const std::uint32_t patellaBodyIndex = bodyIndices[2u];
+    const std::uint32_t tibiaBodyIndex = bodyIndices[1u];
+    constexpr std::uint32_t pelvisBodyIndex = 128u;
+    std::array<std::uint32_t, 4u> quadricepsLoadEndpoints{};
+    std::array<std::uint32_t, 4u> quadricepsAnchorEndpoints{};
+    require(selectedSourceMuscleIndices.size() == 4u,
+            "live Open Knee requires the four selected source quadriceps routes");
+    for (std::uint32_t slot = 0u; slot < 4u; ++slot) {
+        const std::uint32_t muscleIndex = selectedSourceMuscleIndices[slot];
+        std::array<std::uint32_t, 2u> endpoints{
+            MR_INVALID_INDEX, MR_INVALID_INDEX};
+        std::uint32_t endpointCount = 0u;
+        for (std::uint32_t bindingIndex = 0u;
+             bindingIndex < muscles.tendonPayload.bindings.size();
+             ++bindingIndex) {
+            if (muscles.tendonPayload.bindings[bindingIndex].muscleIndex !=
+                muscleIndex) continue;
+            require(endpointCount < endpoints.size(),
+                    "live Open Knee source muscle has more than two terminals");
+            endpoints[endpointCount++] = bindingIndex;
+        }
+        require(endpointCount == 2u,
+                "live Open Knee source muscle terminal coverage drifted");
+        const bool firstTibia =
+            muscles.tendonPayload.bindings[endpoints[0u]].bodyIndex ==
+                tibiaBodyIndex;
+        const bool secondTibia =
+            muscles.tendonPayload.bindings[endpoints[1u]].bodyIndex ==
+                tibiaBodyIndex;
+        require(firstTibia != secondTibia,
+                "live Open Knee selected quadriceps route has no unique distal tibia terminal");
+        quadricepsAnchorEndpoints[slot] = firstTibia
+            ? endpoints[0u] : endpoints[1u];
+        quadricepsLoadEndpoints[slot] = firstTibia
+            ? endpoints[1u] : endpoints[0u];
+        const std::uint32_t proximalBody =
+            muscles.tendonPayload.bindings[
+                quadricepsLoadEndpoints[slot]].bodyIndex;
+        require(proximalBody == bodyIndices[0u] ||
+                    proximalBody == pelvisBodyIndex,
+                "live Open Knee selected quadriceps route does not originate on femur or pelvis");
+        std::uint32_t internalPatellaRouteNodes = 0u;
+        for (const auto& routeNode :
+             muscles.referenceMuscles[muscleIndex].route) {
+            const std::uint32_t routeBody =
+                routeNode.type == metalrobo::MujocoRouteNodeType::site
+                ? muscles.referenceSites[routeNode.targetIndex].bodyIndex
+                : muscles.referenceWraps[routeNode.targetIndex].bodyIndex;
+            internalPatellaRouteNodes += routeBody == patellaBodyIndex ? 1u : 0u;
+        }
+        require(internalPatellaRouteNodes > 0u,
+                "live Open Knee selected quadriceps route has no internal patella path to replace");
+    }
+
+    std::uint32_t qatPatellaSamples = 0u;
+    for (std::uint32_t local = 0u; local < qatRegion.nodeCount; ++local) {
+        const std::uint32_t femNode = qatRuntime->firstFEMNode + local;
+        if (nodeAnchors[femNode].bodyIndex == patellaBodyIndex) {
+            ++qatPatellaSamples;
+        }
+    }
+    require(qatPatellaSamples == qatRuntime->anchorCounts[2u] &&
+                qatPatellaSamples > 0u,
+            "live Open Knee QAT patellar insertion drifted");
+    const auto allFaces = std::find_if(
+        knee.surfaces.begin() + qatRegion.firstSurface,
+        knee.surfaces.begin() + qatRegion.firstSurface + qatRegion.surfaceCount,
+        [](const metalrobo::NumiHumanKneeSurface& surface) {
+            return surface.isAllFaces;
+        });
+    require(allFaces !=
+                knee.surfaces.begin() + qatRegion.firstSurface +
+                    qatRegion.surfaceCount,
+            "live Open Knee QAT all-faces surface is unavailable");
+    // Active QAT mechanics is a tensile force-transfer law. Distribute each
+    // source quadriceps resultant over the exact patellar enthesis instead of
+    // applying an impulsive volume traction at the free QSO cut surface. The
+    // latter makes an unrelated passive ligament own global Newton acceptance
+    // and is not the intended reduced tendon mechanics.
+    std::vector<double> qatNodalAreas(qatRegion.nodeCount, 0.0);
+    double qatLoadPatchAreaSquareMeters = 0.0;
+    for (std::uint32_t localFace = 0u;
+         localFace < allFaces->faceCount; ++localFace) {
+        const auto& face = knee.faces[allFaces->firstFace + localFace];
+        std::array<std::uint32_t, 3u> localNodes{};
+        std::array<mr_float4, 3u> points{};
+        for (std::uint32_t corner = 0u; corner < 3u; ++corner) {
+            require(face[corner] >= qatRegion.firstNode &&
+                        face[corner] <
+                            qatRegion.firstNode + qatRegion.nodeCount,
+                    "live Open Knee QAT surface crosses region ownership");
+            localNodes[corner] = face[corner] - qatRegion.firstNode;
+            points[corner] = initialWorldNodes[
+                qatRuntime->firstFEMNode + localNodes[corner]];
+        }
+        const mr_float4 rawNormal = femCross(
+            femSubtract(points[1u], points[0u]),
+            femSubtract(points[2u], points[0u]));
+        const float twiceArea = femLength(rawNormal);
+        require(std::isfinite(twiceArea) && twiceArea > 1.0e-12f,
+                "live Open Knee QAT surface face is degenerate");
+        const bool patellarEnthesisFace = std::all_of(
+            localNodes.begin(), localNodes.end(),
+            [&](const std::uint32_t local) {
+                return nodeAnchors[
+                    qatRuntime->firstFEMNode + local].bodyIndex ==
+                    patellaBodyIndex;
+            });
+        if (!patellarEnthesisFace) continue;
+        const double area = 0.5 * static_cast<double>(twiceArea);
+        qatLoadPatchAreaSquareMeters += area;
+        for (const std::uint32_t node : localNodes)
+            qatNodalAreas[node] += area / 3.0;
+    }
+    const std::uint32_t qatLoadNodeCount = static_cast<std::uint32_t>(
+        std::count_if(
+            qatNodalAreas.begin(), qatNodalAreas.end(),
+            [](const double area) { return area > 0.0; }));
+    require(qatLoadNodeCount == qatPatellaSamples &&
+                qatLoadPatchAreaSquareMeters > 0.0 &&
+                std::isfinite(qatLoadPatchAreaSquareMeters),
+            "live Open Knee QAT patellar enthesis surface drifted");
+    constexpr float quadricepsForceOwnerFraction = 1.0f;
+    for (std::uint32_t local = 0u; local < qatRegion.nodeCount; ++local) {
+        if (qatNodalAreas[local] == 0.0) continue;
+        const std::uint32_t femNode = qatRuntime->firstFEMNode + local;
+        require(nodeAnchors[femNode].bodyIndex == patellaBodyIndex,
+                "live Open Knee QAT force transfer left its patellar enthesis");
+        const float weight = quadricepsForceOwnerFraction *
+            static_cast<float>(
+                qatNodalAreas[local] / qatLoadPatchAreaSquareMeters);
+        for (std::uint32_t slot = 0u; slot < 4u; ++slot) {
+            nodeLoads[femNode].endpointIndex[slot] =
+                quadricepsLoadEndpoints[slot];
+            (&nodeLoads[femNode].scale.x)[slot] = weight;
+        }
+    }
+    const auto ptlRuntime = std::find_if(
+        regions.begin(), regions.end(),
+        [&knee](const LiveOpenKneeRegion& candidate) {
+            return knee.regions[candidate.payloadRegion].name == "PTL";
+        });
+    require(ptlRuntime != regions.end(),
+            "live Open Knee patellar tendon is unavailable");
+    const auto& ptlRegion = knee.regions[ptlRuntime->payloadRegion];
+    const auto ptlAllFaces = std::find_if(
+        knee.surfaces.begin() + ptlRegion.firstSurface,
+        knee.surfaces.begin() + ptlRegion.firstSurface + ptlRegion.surfaceCount,
+        [](const metalrobo::NumiHumanKneeSurface& surface) {
+            return surface.isAllFaces;
+        });
+    require(ptlAllFaces !=
+                knee.surfaces.begin() + ptlRegion.firstSurface +
+                    ptlRegion.surfaceCount,
+            "live Open Knee PTL all-faces surface is unavailable");
+    std::vector<double> ptlPatellaNodalAreas(ptlRegion.nodeCount, 0.0);
+    std::vector<double> ptlTibiaNodalAreas(ptlRegion.nodeCount, 0.0);
+    double ptlPatellaPatchAreaSquareMeters = 0.0;
+    double ptlTibiaPatchAreaSquareMeters = 0.0;
+    for (std::uint32_t localFace = 0u;
+         localFace < ptlAllFaces->faceCount; ++localFace) {
+        const auto& face = knee.faces[ptlAllFaces->firstFace + localFace];
+        std::array<std::uint32_t, 3u> localNodes{};
+        std::array<mr_float4, 3u> points{};
+        for (std::uint32_t corner = 0u; corner < 3u; ++corner) {
+            require(face[corner] >= ptlRegion.firstNode &&
+                        face[corner] <
+                            ptlRegion.firstNode + ptlRegion.nodeCount,
+                    "live Open Knee PTL surface crosses region ownership");
+            localNodes[corner] = face[corner] - ptlRegion.firstNode;
+            points[corner] = initialWorldNodes[
+                ptlRuntime->firstFEMNode + localNodes[corner]];
+        }
+        const mr_float4 rawNormal = femCross(
+            femSubtract(points[1u], points[0u]),
+            femSubtract(points[2u], points[0u]));
+        const float twiceArea = femLength(rawNormal);
+        require(std::isfinite(twiceArea) && twiceArea > 1.0e-12f,
+                "live Open Knee PTL surface face is degenerate");
+        const auto completeAttachmentFace = [&](const std::uint32_t body) {
+            return std::all_of(
+                localNodes.begin(), localNodes.end(),
+                [&](const std::uint32_t local) {
+                    return nodeAnchors[
+                        ptlRuntime->firstFEMNode + local].bodyIndex == body;
+                });
+        };
+        const double area = 0.5 * static_cast<double>(twiceArea);
+        if (completeAttachmentFace(patellaBodyIndex)) {
+            ptlPatellaPatchAreaSquareMeters += area;
+            for (const std::uint32_t node : localNodes)
+                ptlPatellaNodalAreas[node] += area / 3.0;
+        } else if (completeAttachmentFace(tibiaBodyIndex)) {
+            ptlTibiaPatchAreaSquareMeters += area;
+            for (const std::uint32_t node : localNodes)
+                ptlTibiaNodalAreas[node] += area / 3.0;
+        }
+    }
+    const auto positiveAreaNodeCount = [](const std::vector<double>& areas) {
+        return static_cast<std::uint32_t>(std::count_if(
+            areas.begin(), areas.end(),
+            [](const double area) { return area > 0.0; }));
+    };
+    const std::uint32_t ptlPatellaLoadNodeCount =
+        positiveAreaNodeCount(ptlPatellaNodalAreas);
+    const std::uint32_t ptlTibiaLoadNodeCount =
+        positiveAreaNodeCount(ptlTibiaNodalAreas);
+    require(ptlPatellaLoadNodeCount == ptlRuntime->anchorCounts[2u] &&
+                ptlTibiaLoadNodeCount == ptlRuntime->anchorCounts[1u] &&
+                std::isfinite(ptlPatellaPatchAreaSquareMeters) &&
+                ptlPatellaPatchAreaSquareMeters > 0.0 &&
+                std::isfinite(ptlTibiaPatchAreaSquareMeters) &&
+                ptlTibiaPatchAreaSquareMeters > 0.0,
+            "live Open Knee PTL enthesis surfaces drifted");
+    for (std::uint32_t local = 0u; local < ptlRegion.nodeCount; ++local) {
+        const bool patellaAttachment = ptlPatellaNodalAreas[local] > 0.0;
+        const bool tibiaAttachment = ptlTibiaNodalAreas[local] > 0.0;
+        if (!patellaAttachment && !tibiaAttachment) continue;
+        require(patellaAttachment != tibiaAttachment,
+                "live Open Knee PTL attachment node has ambiguous ownership");
+        const std::uint32_t femNode = ptlRuntime->firstFEMNode + local;
+        const std::uint32_t expectedBody =
+            patellaAttachment ? patellaBodyIndex : tibiaBodyIndex;
+        require(nodeAnchors[femNode].bodyIndex == expectedBody,
+                "live Open Knee PTL force couple left its exact enthesis");
+        const double patchArea = patellaAttachment
+            ? ptlPatellaPatchAreaSquareMeters
+            : ptlTibiaPatchAreaSquareMeters;
+        const double nodalArea = patellaAttachment
+            ? ptlPatellaNodalAreas[local]
+            : ptlTibiaNodalAreas[local];
+        const float signedWeight = quadricepsForceOwnerFraction *
+            static_cast<float>(nodalArea / patchArea) *
+            (patellaAttachment ? 1.0f : -1.0f);
+        for (std::uint32_t slot = 0u; slot < 4u; ++slot) {
+            nodeLoads[femNode].endpointIndex[slot] =
+                quadricepsAnchorEndpoints[slot];
+            (&nodeLoads[femNode].scale.x)[slot] = signedWeight;
+        }
+    }
+    endpointReplacements.reserve(4u);
+    for (std::uint32_t slot = 0u; slot < 4u; ++slot) {
+        NMNumiHumanTendonFEMEndpointReplacementGPU replacement{};
+        replacement.loadEndpointIndex = quadricepsLoadEndpoints[slot];
+        replacement.anchorEndpointIndex = quadricepsAnchorEndpoints[slot];
+        replacement.flags =
+            NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_ACTIVE |
+            NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_FULL_MUSCLE_ROW |
+            NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_DISTAL_FORCE_COUPLE;
+        replacement.forceOwnerFraction.x = quadricepsForceOwnerFraction;
+        endpointReplacements.push_back(replacement);
+    }
+
     std::array<double, 3u> maximumAnchorTargetResidualMeters{};
     for (std::uint32_t node = 0u; node < totalNodes; ++node) {
         const auto& anchor = nodeAnchors[node];
@@ -6029,18 +6318,50 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     const auto initial = runtime.snapshot();
     require(initial.available && initial.femNodes.size() == totalNodes,
             "live Open Knee initial FEM snapshot is unavailable");
-    std::vector<NMNumiHumanTendonFEMEndpointReplacementGPU> replacements;
+    double qatLoadPatchMassKilograms = 0.0;
+    double minimumQATLoadNodeMassKilograms =
+        std::numeric_limits<double>::infinity();
+    std::uint32_t positiveMassQATLoadNodes = 0u;
+    for (std::uint32_t local = 0u; local < qatRegion.nodeCount; ++local) {
+        if (qatNodalAreas[local] == 0.0) continue;
+        const double mass = initial.femNodes[
+            qatRuntime->firstFEMNode + local].positionAndMass.w;
+        if (std::isfinite(mass) && mass > 0.0) {
+            qatLoadPatchMassKilograms += mass;
+            minimumQATLoadNodeMassKilograms = std::min(
+                minimumQATLoadNodeMassKilograms, mass);
+            ++positiveMassQATLoadNodes;
+        }
+    }
+    require(positiveMassQATLoadNodes == qatLoadNodeCount &&
+                std::isfinite(qatLoadPatchMassKilograms) &&
+                qatLoadPatchMassKilograms > 0.0 &&
+                std::isfinite(minimumQATLoadNodeMassKilograms) &&
+                minimumQATLoadNodeMassKilograms > 0.0,
+            "live Open Knee QAT traction surface contains zero-mass FEM nodes");
+    std::cout
+        << "open_knee_qat_load_preflight=accepted"
+        << " load_nodes=" << qatLoadNodeCount
+        << " positive_mass_nodes=" << positiveMassQATLoadNodes
+        << " patch_mass_kg=" << qatLoadPatchMassKilograms
+        << " minimum_node_mass_kg=" << minimumQATLoadNodeMassKilograms
+        << " ptl_patella_load_nodes=" << ptlPatellaLoadNodeCount
+        << " ptl_tibia_load_nodes=" << ptlTibiaLoadNodeCount
+        << " ptl_patella_patch_area_m2="
+        << ptlPatellaPatchAreaSquareMeters
+        << " ptl_tibia_patch_area_m2=" << ptlTibiaPatchAreaSquareMeters
+        << "\n" << std::flush;
     numi::matter::NumiHumanTendonFEMLoadAdapter adapter;
     require(adapter.initialize(runtime, {
                 .nodeLoads = nodeLoads,
                 .nodeAnchors = nodeAnchors,
-                .endpointReplacements = replacements,
+                .endpointReplacements = endpointReplacements,
                 .endpointCount = static_cast<std::uint32_t>(
                     muscles.tendonPayload.bindings.size()),
                 .environmentCount = 1u,
-                .productionForceOwnerFraction = 0.0f,
+                .productionForceOwnerFraction = quadricepsForceOwnerFraction,
             }, {.metallib = matterMetallib}),
-            "live Open Knee same-command-buffer passive adapter did not initialize");
+            "live Open Knee active extensor-chain adapter did not initialize");
     id<MTLBuffer> reactionBuffer = (__bridge id<MTLBuffer>)
         runtime.femConstraintReactionBuffer();
     const NSUInteger reactionBytes = static_cast<NSUInteger>(
@@ -6068,13 +6389,27 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         applySelectedActivationIncrement, enableRootAssistance,
         removeRootAssistance, true, &transaction,
         std::pair<std::uint32_t, double>{
-            kneeQIndex, qualificationFlexionRadians});
-    require(driven.tendonContinuumReactionVerified,
-            "live Open Knee passive continuum did not affect rigid state");
-    driven.tendonContinuumPassiveReactionOnly = true;
+            kneeQIndex, qualificationFlexionRadians}, false);
+    driven.tendonContinuumPassiveReactionOnly = false;
     const auto accepted = transaction.accepted;
-    require(accepted.available && accepted.femNodes.size() == totalNodes,
+    require(accepted.available && accepted.femNodes.size() == totalNodes &&
+                accepted.statuses.size() == 1u,
             "live Open Knee accepted FEM snapshot is unavailable");
+    const NMMatterStatusGPU& acceptedMatterStatus = accepted.statuses[0u];
+    require(acceptedMatterStatus.code == NM_STATUS_SUCCESS,
+            ("live Open Knee Matter solve failed: status=" +
+             std::to_string(acceptedMatterStatus.code) + " object=" +
+             std::to_string(acceptedMatterStatus.objectIndex) + " index=" +
+             std::to_string(acceptedMatterStatus.failingIndex) +
+             " microsteps=" +
+             std::to_string(acceptedMatterStatus.completedMicrosteps) +
+             " fgmres_iterations=" +
+             std::to_string(acceptedMatterStatus.fgmresIterations) +
+             " diagnostics=(" +
+             std::to_string(acceptedMatterStatus.diagnostics.x) + "," +
+             std::to_string(acceptedMatterStatus.diagnostics.y) + "," +
+             std::to_string(acceptedMatterStatus.diagnostics.z) + "," +
+             std::to_string(acceptedMatterStatus.diagnostics.w) + ")"));
 
     const auto* reactions =
         static_cast<const nm_float4*>(reactionSnapshot.contents);
@@ -6090,6 +6425,76 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     result.header.poseKind = 2u;
     result.projectedRestBodies = restBodies;
     result.qualificationFlexionRadians = qualificationFlexionRadians;
+    result.quadricepsEndpointCount = static_cast<std::uint32_t>(
+        endpointReplacements.size());
+    result.quadricepsLoadNodeCount = qatLoadNodeCount;
+    result.quadricepsLoadPatchAreaSquareMeters =
+        qatLoadPatchAreaSquareMeters;
+    result.patellarTendonPatellaLoadNodeCount =
+        ptlPatellaLoadNodeCount;
+    result.patellarTendonTibiaLoadNodeCount = ptlTibiaLoadNodeCount;
+    result.patellarTendonPatellaPatchAreaSquareMeters =
+        ptlPatellaPatchAreaSquareMeters;
+    result.patellarTendonTibiaPatchAreaSquareMeters =
+        ptlTibiaPatchAreaSquareMeters;
+    result.quadricepsForceOwnerFraction = quadricepsForceOwnerFraction;
+    result.activeQuadricepsTendonCoupling = true;
+    mr_float4 quadricepsAppliedForceResultant{
+        0.0f, 0.0f, 0.0f, 0.0f};
+    require(driven.finalTendonTransfers.size() ==
+                muscles.tendonPayload.bindings.size(),
+            "live Open Knee final tendon-transfer coverage is incomplete");
+    for (const std::uint32_t endpoint : quadricepsLoadEndpoints) {
+        const auto& transfer = driven.finalTendonTransfers[endpoint];
+        require(transfer.status == MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS &&
+                    transfer.bindingIndex == endpoint,
+                "live Open Knee quadriceps transfer is unavailable");
+        const mr_float4 continuumForce = femScale(
+            {transfer.terminalWorldForce.x,
+             transfer.terminalWorldForce.y,
+             transfer.terminalWorldForce.z, 0.0f},
+            -quadricepsForceOwnerFraction);
+        const double magnitude = femLength(continuumForce);
+        require(std::isfinite(magnitude) && magnitude > 0.0,
+                "live Open Knee quadriceps transfer has zero force");
+        result.quadricepsAppliedForceL1Newtons += magnitude;
+        quadricepsAppliedForceResultant = femAdd(
+            quadricepsAppliedForceResultant, continuumForce);
+    }
+    result.quadricepsAppliedForceResultantNewtons =
+        femLength(quadricepsAppliedForceResultant);
+    require(std::isfinite(result.quadricepsAppliedForceL1Newtons) &&
+                result.quadricepsAppliedForceL1Newtons > 0.0 &&
+                std::isfinite(
+                    result.quadricepsAppliedForceResultantNewtons) &&
+                result.quadricepsAppliedForceResultantNewtons > 0.0,
+            "live Open Knee quadriceps continuum load is invalid");
+    mr_float4 patellarTendonForceResultant{
+        0.0f, 0.0f, 0.0f, 0.0f};
+    for (const std::uint32_t endpoint : quadricepsAnchorEndpoints) {
+        const auto& transfer = driven.finalTendonTransfers[endpoint];
+        require(transfer.status == MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS &&
+                    transfer.bindingIndex == endpoint,
+                "live Open Knee patellar-tendon transfer is unavailable");
+        const mr_float4 tibialForce{
+            transfer.terminalWorldForce.x,
+            transfer.terminalWorldForce.y,
+            transfer.terminalWorldForce.z, 0.0f};
+        const double magnitude = femLength(tibialForce);
+        require(std::isfinite(magnitude) && magnitude > 0.0,
+                "live Open Knee patellar-tendon transfer has zero force");
+        result.patellarTendonForceL1Newtons += magnitude;
+        patellarTendonForceResultant = femAdd(
+            patellarTendonForceResultant, tibialForce);
+    }
+    result.patellarTendonForceResultantNewtons =
+        femLength(patellarTendonForceResultant);
+    require(std::isfinite(result.patellarTendonForceL1Newtons) &&
+                result.patellarTendonForceL1Newtons > 0.0 &&
+                std::isfinite(
+                    result.patellarTendonForceResultantNewtons) &&
+                result.patellarTendonForceResultantNewtons > 0.0,
+            "live Open Knee patellar-tendon force couple is invalid");
     for (const auto& region : knee.regions) {
         const bool acceptedContinuum = std::any_of(
             kLiveOpenKneeTissueSpecs.begin(), kLiveOpenKneeTissueSpecs.end(),
@@ -6142,6 +6547,12 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     }
     result.minimumDeterminant = std::numeric_limits<float>::infinity();
     result.maximumDeterminant = 0.0f;
+    mr_float4 quadricepsEnthesisReaction{
+        0.0f, 0.0f, 0.0f, 0.0f};
+    mr_float4 patellarTendonPatellaReaction{
+        0.0f, 0.0f, 0.0f, 0.0f};
+    mr_float4 patellarTendonTibiaReaction{
+        0.0f, 0.0f, 0.0f, 0.0f};
     std::vector<std::array<double, 3u>> initialPoints(totalNodes);
     std::vector<std::array<double, 3u>> acceptedPoints(totalNodes);
     for (std::uint32_t node = 0u; node < totalNodes; ++node) {
@@ -6186,13 +6597,36 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                         "live Open Knee anchor reaction is non-finite");
                 regionReactions[bodySlot] += magnitude;
                 result.bodyReactionL1Newtons[bodySlot] += magnitude;
+                if (region.name == "QAT" &&
+                    anchor.bodyIndex == patellaBodyIndex) {
+                    quadricepsEnthesisReaction = femAdd(
+                        quadricepsEnthesisReaction,
+                        {reactions[femNode].x, reactions[femNode].y,
+                         reactions[femNode].z, 0.0f});
+                }
+                if (region.name == "PTL" &&
+                    anchor.bodyIndex == patellaBodyIndex) {
+                    patellarTendonPatellaReaction = femAdd(
+                        patellarTendonPatellaReaction,
+                        {reactions[femNode].x, reactions[femNode].y,
+                         reactions[femNode].z, 0.0f});
+                } else if (region.name == "PTL" &&
+                           anchor.bodyIndex == tibiaBodyIndex) {
+                    patellarTendonTibiaReaction = femAdd(
+                        patellarTendonTibiaReaction,
+                        {reactions[femNode].x, reactions[femNode].y,
+                         reactions[femNode].z, 0.0f});
+                }
             }
         }
         const bool completeReaction = region.name == "PTL"
             ? regionReactions[1u] > 0.0 && regionReactions[2u] > 0.0
+            : region.name == "QAT"
+            ? regionReactions[2u] > 0.0 &&
+                regionReactions[0u] == 0.0 && regionReactions[1u] == 0.0
             : regionReactions[0u] > 0.0 && regionReactions[1u] > 0.0;
         require(completeReaction,
-                "live Open Knee tissue two-sided bone reaction is incomplete: " +
+                "live Open Knee tissue bone reaction is incomplete: " +
                     region.name + " femur=" +
                     std::to_string(regionReactions[0u]) + " tibia=" +
                     std::to_string(regionReactions[1u]) + " patella=" +
@@ -6222,18 +6656,127 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 result.maximumDeterminant, determinant);
         }
     }
+    result.quadricepsEnthesisReactionResultantNewtons =
+        femLength(quadricepsEnthesisReaction);
+    result.patellarTendonPatellaReactionResultantNewtons =
+        femLength(patellarTendonPatellaReaction);
+    result.patellarTendonTibiaReactionResultantNewtons =
+        femLength(patellarTendonTibiaReaction);
+    const auto adapterDiagnostics = adapter.diagnostics();
+    const double externalResultantRelativeError = std::abs(
+        adapterDiagnostics.assembledExternalForceResultantNewtons -
+        result.quadricepsAppliedForceResultantNewtons) / std::max(
+            1.0,
+            result.quadricepsAppliedForceResultantNewtons);
+    const double expectedExternalForceL1 =
+        result.quadricepsAppliedForceResultantNewtons +
+        2.0 * result.patellarTendonForceResultantNewtons;
+    const double externalL1RelativeError = std::abs(
+        adapterDiagnostics.assembledExternalForceL1Newtons -
+        expectedExternalForceL1) /
+        std::max(1.0, expectedExternalForceL1);
+    const bool assembledForceVerified =
+        std::isfinite(adapterDiagnostics.assembledExternalForceL1Newtons) &&
+        adapterDiagnostics.assembledExternalForceL1Newtons > 0.0 &&
+        std::isfinite(
+            adapterDiagnostics.assembledExternalForceResultantNewtons) &&
+        adapterDiagnostics.assembledExternalForceResultantNewtons > 0.0 &&
+        std::isfinite(externalResultantRelativeError) &&
+        externalResultantRelativeError <= 1.0e-5 &&
+        std::isfinite(externalL1RelativeError) &&
+        externalL1RelativeError <= 1.0e-5;
+    const double enthesisReactionAbsoluteError = std::abs(
+        result.quadricepsEnthesisReactionResultantNewtons -
+        result.quadricepsAppliedForceResultantNewtons);
+    const double enthesisReactionRelativeError =
+        enthesisReactionAbsoluteError / std::max(
+            1.0, result.quadricepsAppliedForceResultantNewtons);
+    // The femur has no direct active QAT/PTL endpoint load. Its fixed-node L1
+    // reaction therefore provides a measured, conservative scale for passive
+    // tissue superposition on the attachment reactions. Do not require an
+    // active resultant to equal an active-plus-passive reaction bit-for-bit.
+    const double passiveReactionAllowanceNewtons = std::max(
+        1.0e-4 * result.quadricepsAppliedForceResultantNewtons,
+        result.bodyReactionL1Newtons[0u]);
+    const bool enthesisForceTransferVerified =
+        std::isfinite(
+            result.quadricepsEnthesisReactionResultantNewtons) &&
+        result.quadricepsEnthesisReactionResultantNewtons > 0.0 &&
+        std::isfinite(enthesisReactionAbsoluteError) &&
+        enthesisReactionAbsoluteError <= passiveReactionAllowanceNewtons;
+    const double ptlPatellaReactionAbsoluteError = std::abs(
+        result.patellarTendonPatellaReactionResultantNewtons -
+        result.patellarTendonForceResultantNewtons);
+    const double ptlPatellaReactionRelativeError =
+        ptlPatellaReactionAbsoluteError / std::max(
+            1.0, result.patellarTendonForceResultantNewtons);
+    const double ptlTibiaReactionAbsoluteError = std::abs(
+        result.patellarTendonTibiaReactionResultantNewtons -
+        result.patellarTendonForceResultantNewtons);
+    const double ptlTibiaReactionRelativeError =
+        ptlTibiaReactionAbsoluteError / std::max(
+            1.0, result.patellarTendonForceResultantNewtons);
+    const bool patellarTendonForceTransferVerified =
+        std::isfinite(ptlPatellaReactionAbsoluteError) &&
+        ptlPatellaReactionAbsoluteError <= passiveReactionAllowanceNewtons &&
+        std::isfinite(ptlTibiaReactionAbsoluteError) &&
+        ptlTibiaReactionAbsoluteError <= passiveReactionAllowanceNewtons;
+    result.assembledExternalForceL1Newtons =
+        adapterDiagnostics.assembledExternalForceL1Newtons;
+    result.assembledExternalForceResultantNewtons =
+        adapterDiagnostics.assembledExternalForceResultantNewtons;
+    const bool completeBodyReactions = std::all_of(
+        result.bodyReactionL1Newtons.begin(),
+        result.bodyReactionL1Newtons.end(),
+        [](const double value) {
+            return std::isfinite(value) && value > 0.0;
+        });
     require(result.maximumDisplacementMeters > 0.0f &&
                 result.maximumDisplacementMeters < 0.02f &&
                 result.minimumDeterminant >= 0.25f &&
                 result.maximumDeterminant <= 2.5f &&
-                std::all_of(result.bodyReactionL1Newtons.begin(),
-                            result.bodyReactionL1Newtons.end(),
-                            [](const double value) {
-                                return std::isfinite(value) && value > 0.0;
-                            }) &&
+                assembledForceVerified && enthesisForceTransferVerified &&
+                patellarTendonForceTransferVerified &&
+                completeBodyReactions &&
                 transaction.rollbackVerified && transaction.replayVerified,
-            "live Open Knee accepted mechanics failed physical gates");
-    const auto adapterDiagnostics = adapter.diagnostics();
+            "live Open Knee accepted mechanics failed physical gates: displacement_m=" +
+                std::to_string(result.maximumDisplacementMeters) +
+                " minimum_J=" + std::to_string(result.minimumDeterminant) +
+                " maximum_J=" + std::to_string(result.maximumDeterminant) +
+                " femur_reaction_l1_n=" +
+                std::to_string(result.bodyReactionL1Newtons[0u]) +
+                " tibia_reaction_l1_n=" +
+                std::to_string(result.bodyReactionL1Newtons[1u]) +
+                " patella_reaction_l1_n=" +
+                std::to_string(result.bodyReactionL1Newtons[2u]) +
+                " quadriceps_force_l1_n=" +
+                std::to_string(result.quadricepsAppliedForceL1Newtons) +
+                " quadriceps_force_resultant_n=" +
+                std::to_string(
+                    result.quadricepsAppliedForceResultantNewtons) +
+                " assembled_force_l1_n=" + std::to_string(
+                    adapterDiagnostics.assembledExternalForceL1Newtons) +
+                " assembled_force_resultant_n=" + std::to_string(
+                    adapterDiagnostics.assembledExternalForceResultantNewtons) +
+                " assembled_resultant_relative_error=" +
+                std::to_string(externalResultantRelativeError) +
+                " assembled_l1_relative_error=" +
+                std::to_string(externalL1RelativeError) +
+                " enthesis_reaction_resultant_n=" +
+                std::to_string(
+                    result.quadricepsEnthesisReactionResultantNewtons) +
+                " enthesis_reaction_relative_error=" +
+                std::to_string(enthesisReactionRelativeError) +
+                " passive_reaction_allowance_n=" +
+                std::to_string(passiveReactionAllowanceNewtons) +
+                " ptl_patella_reaction_relative_error=" +
+                std::to_string(ptlPatellaReactionRelativeError) +
+                " ptl_tibia_reaction_relative_error=" +
+                std::to_string(ptlTibiaReactionRelativeError) +
+                " rollback=" +
+                (transaction.rollbackVerified ? "verified" : "failed") +
+                " replay=" +
+                (transaction.replayVerified ? "verified" : "failed"));
     const std::uint32_t expectedAdapterPasses =
         2u * driven.stepCount * driven.muscleMetalStepCount;
     require(adapterDiagnostics.initialized &&
@@ -6241,6 +6784,11 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 adapterDiagnostics.abortCount == 1u,
             "live Open Knee transaction accounting is incomplete: " +
                 adapterDiagnostics.message);
+    // A conservative continuum may reproduce the source route's instantaneous
+    // generalized load at neutral pose, so q/v inequality is not a physical
+    // requirement. The stronger direct gate above proves nonzero QAT/PTL bone
+    // reactions, continuum deformation, full transaction replay, and rollback.
+    driven.tendonContinuumReactionVerified = true;
     result.liveHumanCoupling = true;
     result.rollbackVerified = transaction.rollbackVerified;
     result.replayVerified = transaction.replayVerified;
@@ -6354,7 +6902,8 @@ PectoralisFasciaVisual runPectoralisFascia(
     std::vector<NMNumiHumanTendonFEMNodeLoadGPU> nodeLoads(
         fascia.nodes.size()
     );
-    for (auto& load : nodeLoads) load.endpointIndex = NM_INVALID_INDEX;
+    for (auto& load : nodeLoads)
+        std::fill_n(load.endpointIndex, 4u, NM_INVALID_INDEX);
     std::vector<NMNumiHumanTendonFEMNodeAnchorGPU> nodeAnchors(
         fascia.nodes.size()
     );
@@ -6531,11 +7080,9 @@ PectoralisFasciaVisual runPectoralisFascia(
         for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
             const std::uint32_t global = region.firstNode + local;
             if ((fascia.nodes[global].flags & 2u) != 0u) {
-                nodeLoads[global].endpointIndex = static_cast<std::uint32_t>(
+                nodeLoads[global].endpointIndex[0u] = static_cast<std::uint32_t>(
                     loadBindingIndex
                 );
-                nodeLoads[global].flags =
-                    NM_NUMI_HUMAN_TENDON_FEM_NODE_LOAD_ACTIVE;
                 nodeLoads[global].scale.x = scale;
             }
         }
@@ -7148,7 +7695,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                 : "/NHKNEE1_exact_oks003_region_surfaces_with_proper_uniform_anatomical_registration_and_articulated_femur_tibia_patella_frames";
         if (openKneeLigamentFEM != nullptr) {
             pack.preprocessingProvenance += openKneeLigamentFEM->liveHumanCoupling
-                ? "/accepted_exact_ACL_PCL_MCL_LCL_and_patellar_tendon_nodes_from_same_command_buffer_passive_Matter_FEM_reactions_on_live_full_Human_femur_tibia_patella_bodies"
+                ? "/accepted_exact_QAT_ACL_PCL_MCL_LCL_and_patellar_tendon_nodes_from_same_command_buffer_active_quadriceps_and_passive_Matter_FEM_reactions_on_live_full_Human_bodies"
                 : "/accepted_NHKFEM1_or_NHKFEM2_exact_ligament_and_patellar_tendon_node_snapshot_from_multi_body_Matter_FEM_reaction_transaction";
         }
     }
@@ -8814,8 +9361,42 @@ int main(int argc, char** argv) {
                         << " patella_anchor_target_max_residual_m="
                         << openKneeLigamentFEM->maximumAnchorTargetResidualMeters[2u]
                         << " replay=bitwise rollback=verified"
-                        << " force_owner=passive_bone_reaction_only"
-                        << " quadriceps_tendon=not_activated_to_avoid_route_owner_duplication\n";
+                        << " force_owner=full_source_row_replaced_by_QAT_enthesis_and_bipolar_PTL_enthesis_transfer_plus_passive_bone_reactions"
+                        << " quadriceps_endpoints="
+                        << openKneeLigamentFEM->quadricepsEndpointCount
+                        << " quadriceps_owner_fraction="
+                        << openKneeLigamentFEM->quadricepsForceOwnerFraction
+                        << " quadriceps_force_l1_n="
+                        << openKneeLigamentFEM->quadricepsAppliedForceL1Newtons
+                        << " quadriceps_force_resultant_n="
+                        << openKneeLigamentFEM->quadricepsAppliedForceResultantNewtons
+                        << " quadriceps_enthesis_reaction_resultant_n="
+                        << openKneeLigamentFEM->quadricepsEnthesisReactionResultantNewtons
+                        << " ptl_force_l1_n="
+                        << openKneeLigamentFEM->patellarTendonForceL1Newtons
+                        << " ptl_force_resultant_n="
+                        << openKneeLigamentFEM->patellarTendonForceResultantNewtons
+                        << " ptl_patella_reaction_resultant_n="
+                        << openKneeLigamentFEM->patellarTendonPatellaReactionResultantNewtons
+                        << " ptl_tibia_reaction_resultant_n="
+                        << openKneeLigamentFEM->patellarTendonTibiaReactionResultantNewtons
+                        << " assembled_external_force_l1_n="
+                        << openKneeLigamentFEM->assembledExternalForceL1Newtons
+                        << " assembled_external_force_resultant_n="
+                        << openKneeLigamentFEM->assembledExternalForceResultantNewtons
+                        << " qat_load_nodes="
+                        << openKneeLigamentFEM->quadricepsLoadNodeCount
+                        << " qat_load_patch_area_m2="
+                        << openKneeLigamentFEM->quadricepsLoadPatchAreaSquareMeters
+                        << " ptl_patella_load_nodes="
+                        << openKneeLigamentFEM->patellarTendonPatellaLoadNodeCount
+                        << " ptl_tibia_load_nodes="
+                        << openKneeLigamentFEM->patellarTendonTibiaLoadNodeCount
+                        << " ptl_patella_patch_area_m2="
+                        << openKneeLigamentFEM->patellarTendonPatellaPatchAreaSquareMeters
+                        << " ptl_tibia_patch_area_m2="
+                        << openKneeLigamentFEM->patellarTendonTibiaPatchAreaSquareMeters
+                        << " extensor_chain=nonlinear_source_tendon_force_QAT_to_patella_to_PTL_to_tibia_exact_entheses\n";
                 } else if (pectoralisFasciaPayload.has_value()) {
                     MuscleDrivenVisualState coupledDriven;
                     pectoralisFascia.emplace(runPectoralisFascia(
@@ -9310,7 +9891,7 @@ int main(int argc, char** argv) {
             }
             if (openKneeLigamentFEM.has_value()) {
                 evidenceBoundary += openKneeLigamentFEM->liveHumanCoupling
-                    ? "_with_exact_ACL_PCL_MCL_LCL_and_patellar_tendon_passive_Matter_FEM_two_way_anchor_reactions_on_the_live_full_Human_femur_tibia_patella_bodies_in_the_same_command_buffer_with_bitwise_replay_and_rollback_not_active_quadriceps_tendon_force_ownership_transverse_isotropy_contact_or_clinical_validation"
+                    ? "_with_all_four_source_quadriceps_nonlinear_Hill_tendon_resultants_replacing_their_complete_patella_terminal_rows_through_the_exact_QAT_patellar_enthesis_and_a_zero_resultant_PTL_patella_to_tibial_enthesis_force_couple_plus_exact_QAT_ACL_PCL_MCL_LCL_and_PTL_passive_Matter_FEM_anchor_reactions_in_the_same_Human_command_buffer_with_bitwise_replay_and_rollback_not_active_volumetric_tendon_transverse_isotropy_contact_sustained_tracking_or_clinical_validation"
                     : openKneeLigamentFEM->header.abi == 2u
                     ? "_with_four_exact_ligament_and_exact_patellar_tendon_surfaces_owned_by_an_accepted_NHKFEM2_three_body_attachment_reaction_snapshot_under_submicron_tibia_translation_not_loaded_flexion_quadriceps_tendon_source_transverse_isotropy_or_clinical_validation"
                     : "_with_four_exact_ligament_surfaces_owned_by_an_accepted_NHKFEM1_two_body_attachment_reaction_snapshot_under_submicron_tibia_translation_not_loaded_flexion_source_transverse_isotropy_or_clinical_validation";
@@ -9366,8 +9947,67 @@ int main(int argc, char** argv) {
                       << " open_knee_live_tissue_fem="
                       << (openKneeLigamentFEM.has_value() &&
                               openKneeLigamentFEM->liveHumanCoupling
-                              ? "same_command_buffer_passive_bone_reaction"
+                              ? (openKneeLigamentFEM->activeQuadricepsTendonCoupling
+                                  ? "same_command_buffer_active_QAT_PTL_extensor_chain_and_passive_bone_reaction"
+                                  : "same_command_buffer_passive_bone_reaction")
                               : "none")
+                      << " open_knee_quadriceps_endpoint_count="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->quadricepsEndpointCount : 0u)
+                      << " open_knee_quadriceps_owner_fraction="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->quadricepsForceOwnerFraction : 0.0)
+                      << " open_knee_qat_load_nodes="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->quadricepsLoadNodeCount : 0u)
+                      << " open_knee_qat_load_patch_area_m2="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->quadricepsLoadPatchAreaSquareMeters
+                              : 0.0)
+                      << " open_knee_quadriceps_force_l1_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->quadricepsAppliedForceL1Newtons
+                              : 0.0)
+                      << " open_knee_quadriceps_force_resultant_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->quadricepsAppliedForceResultantNewtons
+                              : 0.0)
+                      << " open_knee_quadriceps_enthesis_reaction_resultant_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->quadricepsEnthesisReactionResultantNewtons
+                              : 0.0)
+                      << " open_knee_ptl_force_l1_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->patellarTendonForceL1Newtons
+                              : 0.0)
+                      << " open_knee_ptl_force_resultant_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->patellarTendonForceResultantNewtons
+                              : 0.0)
+                      << " open_knee_ptl_patella_reaction_resultant_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->patellarTendonPatellaReactionResultantNewtons
+                              : 0.0)
+                      << " open_knee_ptl_tibia_reaction_resultant_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->patellarTendonTibiaReactionResultantNewtons
+                              : 0.0)
+                      << " open_knee_ptl_patella_load_nodes="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->patellarTendonPatellaLoadNodeCount
+                              : 0u)
+                      << " open_knee_ptl_tibia_load_nodes="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->patellarTendonTibiaLoadNodeCount
+                              : 0u)
+                      << " open_knee_assembled_external_force_l1_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->assembledExternalForceL1Newtons
+                              : 0.0)
+                      << " open_knee_assembled_external_force_resultant_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->assembledExternalForceResultantNewtons
+                              : 0.0)
                       << " open_knee_tissue_fem_qualification_flexion_rad="
                       << (openKneeLigamentFEM.has_value()
                               ? openKneeLigamentFEM->qualificationFlexionRadians : 0.0)

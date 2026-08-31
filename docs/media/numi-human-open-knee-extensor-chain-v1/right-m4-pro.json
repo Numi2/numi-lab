@@ -1,0 +1,43 @@
+{
+  "schema": "numilab.human.open-knee-extensor-chain.qualification.v1",
+  "side": "right_mirrored",
+  "device": "Apple M4 Pro",
+  "source_revision": "9450f0b5db68251b7bf1a15779b943a62cfe82cf+working-tree-extensor-chain",
+  "regions": 6,
+  "nodes": 62402,
+  "tetrahedra": 264442,
+  "quadriceps_endpoint_count": 4,
+  "quadriceps_force_owner_fraction": 1.0,
+  "quadriceps_force_l1_n": 2069.12366486,
+  "quadriceps_force_resultant_n": 2048.40283203,
+  "qat_patella_reaction_resultant_n": 2048.77368164,
+  "ptl_force_resultant_n": 2068.42626953,
+  "ptl_patella_reaction_resultant_n": 2068.24047852,
+  "ptl_tibia_reaction_resultant_n": 2068.66821289,
+  "assembled_external_force_l1_n": 6185.25830078,
+  "assembled_external_force_resultant_n": 2048.40426292,
+  "qat_attachment_nodes": 378,
+  "ptl_patella_attachment_nodes": 424,
+  "ptl_tibia_attachment_nodes": 553,
+  "passive_reaction_allowance_n": 0.630434892943,
+  "maximum_displacement_m": 2.04857101949e-7,
+  "minimum_J": 0.999788999557,
+  "maximum_J": 1.00025320053,
+  "replay": "bitwise",
+  "rollback": "verified",
+  "gates": {
+    "attachment_ownership": "passed",
+    "assembled_force_conservation": "passed",
+    "qat_reaction_with_passive_superposition": "passed",
+    "ptl_bipolar_reactions_with_passive_superposition": "passed",
+    "deformation_jacobian": "passed",
+    "four_angle_inspection": "passed"
+  },
+  "image_sha256": {
+    "front.png": "1048ceaddda34f44d1352e7bbd961b00983318d77bcdd0946c21e32f2cae8280",
+    "oblique.png": "844c44c1303bed877956ebb9f221eee2a7d219291d3a4c3e120bc988018a7676",
+    "rear.png": "26ec4ac37da1c873b5739eab196f838723df36a7afc2c01bf1263806c1d2ac72",
+    "side.png": "2e76ecc951af5f039614accdbafe3cc970136f4fa344b1cbb63d076cf3b79a6c"
+  },
+  "evidence_boundary": "Right-side sagittal mirror registered into live right-body frames; same-command-buffer reduced nonlinear source tendon force transfer through exact QAT and PTL entheses plus passive isotropic tissue FEM; not independent right-subject segmentation, active volumetric transverse-isotropic tendon mechanics, sustained tracking, loaded contact, gait, or clinical validation."
+}

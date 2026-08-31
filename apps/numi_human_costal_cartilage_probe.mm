@@ -122,7 +122,8 @@ int main(const int argc, const char* argv[]) {
                 object.femNodes.push_back({node.restPosition[0u],
                                            node.restPosition[1u],
                                            node.restPosition[2u]});
-                nodeLoads[index].endpointIndex = NM_INVALID_INDEX;
+                std::fill_n(
+                    nodeLoads[index].endpointIndex, 4u, NM_INVALID_INDEX);
                 nodeAnchors[index].bodyIndex = NM_INVALID_INDEX;
                 if ((node.flags &
                      metalrobo::NUMI_HUMAN_COSTAL_CARTILAGE_STERNAL_ATTACHMENT) != 0u) {

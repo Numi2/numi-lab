@@ -16,9 +16,15 @@ namespace numi::matter {
 // records are immutable and indexed by cooked global FEM-node index.
 //
 // Active tendon replacement mode requires at least one endpoint replacement and
-// a positive productionForceOwnerFraction. Each replacement removes exactly the
-// declared source J^T share and returns solved fixed-node reactions through the
-// owning body Jacobian.
+// a positive productionForceOwnerFraction. Endpoint mode removes the declared
+// anchor-endpoint J^T share. Full-muscle-row mode removes the selected source
+// muscle's complete generalized-force row and restores only its load-endpoint
+// reaction, so internal source wrap forces cannot duplicate a continuum path.
+// A declared distal force couple additionally maps the other terminal across
+// two opposing exact attachment patches; its signed nodal weights sum to zero
+// and its absolute weights sum to twice the owned terminal force.
+// Both modes return solved fixed-node reactions through the owning body
+// Jacobians.
 //
 // Passive attachment-only mode uses no endpoint replacements, no active node
 // loads, and a zero productionForceOwnerFraction. Active anchors may reference
@@ -43,6 +49,11 @@ struct NumiHumanTendonFEMLoadDiagnostics {
     std::uint32_t encodedPassCount = 0u;
     std::uint32_t abortCount = 0u;
     std::uint64_t fingerprint = 0u;
+    // Valid after the enclosing borrowed command buffer has completed. L1 is
+    // the sum of nodal force magnitudes; resultant is the magnitude of their
+    // vector sum for the most recently encoded pass across all environments.
+    double assembledExternalForceL1Newtons = 0.0;
+    double assembledExternalForceResultantNewtons = 0.0;
     std::string message;
 };
 

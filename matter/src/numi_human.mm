@@ -33,6 +33,18 @@ bool finiteScale(const nm_float4& scale) noexcept {
         std::isfinite(scale.z) && std::isfinite(scale.w);
 }
 
+float scaleComponent(
+    const nm_float4& scale, const std::uint32_t index
+) noexcept {
+    switch (index) {
+        case 0u: return scale.x;
+        case 1u: return scale.y;
+        case 2u: return scale.z;
+        case 3u: return scale.w;
+    }
+    return std::numeric_limits<float>::quiet_NaN();
+}
+
 } // namespace
 
 struct NumiHumanTendonFEMLoadAdapter::State {
@@ -53,12 +65,14 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLComputePipelineState> provisionalStatusPipeline = nil;
     __strong id<MTLComputePipelineState> statusPipeline = nil;
     __strong id<MTLComputePipelineState> forcePipeline = nil;
+    __strong id<MTLComputePipelineState> forceAuditPipeline = nil;
     __strong id<MTLComputePipelineState> targetPipeline = nil;
     __strong id<MTLComputePipelineState> reactionPipeline = nil;
     __strong id<MTLBuffer> nodeLoadBuffer = nil;
     __strong id<MTLBuffer> nodeAnchorBuffer = nil;
     __strong id<MTLBuffer> replacementBuffer = nil;
     __strong id<MTLBuffer> externalForceBuffer = nil;
+    __strong id<MTLBuffer> externalForceAuditBuffer = nil;
     __strong id<MTLBuffer> kinematicTargetBuffer = nil;
     __strong id<MTLBuffer> worldStatusBuffer = nil;
 };
@@ -85,31 +99,34 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         (passiveAttachmentOnly
             ? source.productionForceOwnerFraction != 0.0f
             : !(source.productionForceOwnerFraction > 0.0f)) ||
-        source.productionForceOwnerFraction > 0.25f ||
+        source.productionForceOwnerFraction > 1.0f ||
         configuration.metallib.empty() ||
         !std::filesystem::is_regular_file(configuration.metallib)) {
         return false;
     }
-    std::vector<double> endpointScales(source.endpointCount, 0.0);
+    std::vector<double> endpointSignedScales(source.endpointCount, 0.0);
+    std::vector<double> endpointAbsoluteScales(source.endpointCount, 0.0);
     std::uint32_t anchorCount = 0u;
     for (const NMNumiHumanTendonFEMNodeLoadGPU& load : source.nodeLoads) {
-        if (!finiteScale(load.scale) || load.reserved0 != 0u ||
-            load.reserved1 != 0u ||
-            (load.flags & ~NM_NUMI_HUMAN_TENDON_FEM_NODE_LOAD_ACTIVE) != 0u) {
-            return false;
-        }
-        if ((load.flags & NM_NUMI_HUMAN_TENDON_FEM_NODE_LOAD_ACTIVE) == 0u) {
-            if (load.endpointIndex != NM_INVALID_INDEX || load.scale.x != 0.0f ||
-                load.scale.y != 0.0f || load.scale.z != 0.0f ||
-                load.scale.w != 0.0f) {
+        if (!finiteScale(load.scale)) return false;
+        for (std::uint32_t slot = 0u; slot < 4u; ++slot) {
+            const std::uint32_t endpoint = load.endpointIndex[slot];
+            const float scale = scaleComponent(load.scale, slot);
+            if ((endpoint == NM_INVALID_INDEX) != (scale == 0.0f) ||
+                (endpoint != NM_INVALID_INDEX && endpoint >= source.endpointCount)) {
                 return false;
             }
-            continue;
+            for (std::uint32_t previous = 0u; previous < slot; ++previous) {
+                if (endpoint != NM_INVALID_INDEX &&
+                    load.endpointIndex[previous] == endpoint) {
+                    return false;
+                }
+            }
+            if (endpoint != NM_INVALID_INDEX) {
+                endpointSignedScales[endpoint] += scale;
+                endpointAbsoluteScales[endpoint] += std::abs(scale);
+            }
         }
-        if (load.endpointIndex >= source.endpointCount || load.scale.x < 0.0f) {
-            return false;
-        }
-        endpointScales[load.endpointIndex] += load.scale.x;
     }
     for (const NMNumiHumanTendonFEMNodeAnchorGPU& anchor :
          source.nodeAnchors) {
@@ -134,17 +151,28 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
     }
     std::vector<bool> loadEndpoints(source.endpointCount, false);
     std::vector<bool> anchorEndpoints(source.endpointCount, false);
+    std::vector<bool> expectedLoadedEndpoints(source.endpointCount, false);
     for (const NMNumiHumanTendonFEMEndpointReplacementGPU& replacement :
          source.endpointReplacements) {
-        if (replacement.flags !=
-                NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_ACTIVE ||
+        constexpr std::uint32_t replacementFlagMask =
+            NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_ACTIVE |
+            NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_FULL_MUSCLE_ROW |
+            NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_DISTAL_FORCE_COUPLE;
+        const bool fullMuscleRow = (replacement.flags &
+            NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_FULL_MUSCLE_ROW) != 0u;
+        const bool distalForceCouple = (replacement.flags &
+            NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_DISTAL_FORCE_COUPLE) != 0u;
+        if ((replacement.flags &
+                NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_ACTIVE) == 0u ||
+            (replacement.flags & ~replacementFlagMask) != 0u ||
+            (distalForceCouple && !fullMuscleRow) ||
             replacement.reserved0 != 0u ||
             replacement.loadEndpointIndex >= source.endpointCount ||
             replacement.anchorEndpointIndex >= source.endpointCount ||
             replacement.loadEndpointIndex == replacement.anchorEndpointIndex ||
             !finiteScale(replacement.forceOwnerFraction) ||
             replacement.forceOwnerFraction.x <= 0.0f ||
-            replacement.forceOwnerFraction.x > 0.25f ||
+            replacement.forceOwnerFraction.x > 1.0f ||
             replacement.forceOwnerFraction.y != 0.0f ||
             replacement.forceOwnerFraction.z != 0.0f ||
             replacement.forceOwnerFraction.w != 0.0f ||
@@ -156,30 +184,44 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         }
         loadEndpoints[replacement.loadEndpointIndex] = true;
         anchorEndpoints[replacement.anchorEndpointIndex] = true;
-        if (std::abs(endpointScales[replacement.loadEndpointIndex] -
-                replacement.forceOwnerFraction.x) > 1.0e-6) {
+        expectedLoadedEndpoints[replacement.loadEndpointIndex] = true;
+        if (distalForceCouple) {
+            expectedLoadedEndpoints[replacement.anchorEndpointIndex] = true;
+        }
+        const double owner = replacement.forceOwnerFraction.x;
+        if (std::abs(
+                endpointSignedScales[replacement.loadEndpointIndex] - owner) >
+                1.0e-6 ||
+            std::abs(
+                endpointAbsoluteScales[replacement.loadEndpointIndex] - owner) >
+                1.0e-6 ||
+            std::abs(endpointSignedScales[
+                replacement.anchorEndpointIndex]) > 1.0e-6 ||
+            std::abs(endpointAbsoluteScales[
+                replacement.anchorEndpointIndex] -
+                (distalForceCouple ? 2.0 * owner : 0.0)) > 1.0e-6) {
             return false;
         }
     }
     if (anchorCount == 0u || std::any_of(
-            endpointScales.begin(), endpointScales.end(),
+            endpointAbsoluteScales.begin(), endpointAbsoluteScales.end(),
             [](const double scale) {
-                return !std::isfinite(scale) || scale > 0.250001;
+                return !std::isfinite(scale) || scale > 2.000001;
             }
         ) || (passiveAttachmentOnly
             ? std::any_of(
-                endpointScales.begin(), endpointScales.end(),
+                endpointAbsoluteScales.begin(), endpointAbsoluteScales.end(),
                 [](const double scale) { return scale != 0.0; })
             : std::none_of(
-                endpointScales.begin(), endpointScales.end(),
+                endpointAbsoluteScales.begin(), endpointAbsoluteScales.end(),
                 [](const double scale) { return scale > 0.0; }))) {
         return false;
     }
     for (std::size_t endpointIndex = 0u;
-         endpointIndex < endpointScales.size();
+         endpointIndex < endpointAbsoluteScales.size();
          ++endpointIndex) {
-        if ((endpointScales[endpointIndex] > 0.0) !=
-            loadEndpoints[endpointIndex]) {
+        if ((endpointAbsoluteScales[endpointIndex] > 0.0) !=
+            expectedLoadedEndpoints[endpointIndex]) {
             return false;
         }
     }
@@ -261,6 +303,23 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             state_->message = "borrowed Human Metal objects are unavailable";
             return false;
         }
+        const std::uint64_t muscleRowElements =
+            static_cast<std::uint64_t>(pass.environmentCount) *
+            pass.muscleCount * pass.dofCount;
+        const std::uint64_t reducedForceEnd =
+            static_cast<std::uint64_t>(pass.generalizedForceOffset) +
+            static_cast<std::uint64_t>(pass.environmentCount - 1u) *
+                pass.generalizedForceStride +
+            pass.dofCount;
+        const std::uint64_t requiredForceElements = std::max(
+            muscleRowElements, reducedForceEnd
+        );
+        if (pass.generalizedForceOffset < muscleRowElements ||
+            requiredForceElements > generalizedForces.length / sizeof(float)) {
+            state_->message =
+                "borrowed Human generalized-force workspace is undersized";
+            return false;
+        }
         id<MTLDevice> device = transfers.device;
         if (device == nil || bindings.device.registryID != device.registryID ||
             generalizedForces.device.registryID != device.registryID ||
@@ -312,6 +371,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             state_->statusPipeline = pipeline("nm_numi_human_adapt_stand_status");
             state_->forcePipeline = pipeline(
                 "nm_numi_human_assemble_tendon_fem_loads");
+            state_->forceAuditPipeline = pipeline(
+                "nm_numi_human_audit_tendon_fem_loads");
             state_->targetPipeline = pipeline(
                 "nm_numi_human_assemble_fem_kinematic_targets");
             state_->reactionPipeline = pipeline(
@@ -352,6 +413,9 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             state_->externalForceBuffer = [device
                 newBufferWithLength:externalForceBytes
                 options:MTLResourceStorageModePrivate];
+            state_->externalForceAuditBuffer = [device
+                newBufferWithLength:state_->environmentCount * sizeof(nm_float4)
+                options:MTLResourceStorageModeShared];
             state_->kinematicTargetBuffer = [device
                 newBufferWithLength:externalForceBytes
                 options:MTLResourceStorageModePrivate];
@@ -360,6 +424,7 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 options:MTLResourceStorageModeShared];
             if (state_->provisionalStatusPipeline == nil ||
                 state_->statusPipeline == nil || state_->forcePipeline == nil ||
+                state_->forceAuditPipeline == nil ||
                 state_->targetPipeline == nil || state_->reactionPipeline == nil) {
                 if (state_->message == "initialized") {
                     state_->message = "Human tendon/FEM pipeline is unavailable";
@@ -372,6 +437,7 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 return false;
             }
             if (state_->externalForceBuffer == nil ||
+                state_->externalForceAuditBuffer == nil ||
                 state_->kinematicTargetBuffer == nil) {
                 state_->message = "Human tendon/FEM force/target buffer is unavailable";
                 return false;
@@ -401,7 +467,7 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             .bodyJacobianPointOffset = pass.bodyJacobianPointOffset,
             .generalizedForceStride = pass.generalizedForceStride,
             .generalizedForceOffset = pass.generalizedForceOffset,
-            .reserved0 = 0u,
+            .muscleCount = pass.muscleCount,
             .reserved1 = 0u,
         };
         const auto encodeKernel = [&](id<MTLComputePipelineState> pipeline,
@@ -442,6 +508,14 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     [encoder setBuffer:transfers offset:0u atIndex:2u];
                     [encoder setBuffer:state_->externalForceBuffer
                                 offset:0u atIndex:3u];
+                }
+            ) || !encodeKernel(
+                state_->forceAuditPipeline, state_->environmentCount,
+                [&](id<MTLComputeCommandEncoder> encoder) {
+                    [encoder setBuffer:state_->externalForceBuffer
+                                offset:0u atIndex:1u];
+                    [encoder setBuffer:state_->externalForceAuditBuffer
+                                offset:0u atIndex:2u];
                 }
             ) || !encodeKernel(
                 state_->targetPipeline,
@@ -516,6 +590,7 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
             pass.commandBuffer == nullptr || pass.standStatuses == nullptr ||
             pass.environmentCount != state_->environmentCount ||
             pass.endpointCount != state_->endpointCount ||
+            pass.dofCount == 0u || pass.muscleCount == 0u ||
             pass.stepIndex == std::numeric_limits<std::uint32_t>::max()) {
             if (state_ != nullptr)
                 state_->message = "invalid borrowed Human post-validation pass";
@@ -546,7 +621,7 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
             .bodyJacobianPointOffset = pass.bodyJacobianPointOffset,
             .generalizedForceStride = pass.generalizedForceStride,
             .generalizedForceOffset = pass.generalizedForceOffset,
-            .reserved0 = 0u,
+            .muscleCount = pass.muscleCount,
             .reserved1 = 0u,
         };
         id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
@@ -639,6 +714,31 @@ NumiHumanTendonFEMLoadAdapter::diagnostics() const noexcept {
     result.encodedPassCount = state_->encodedPassCount;
     result.abortCount = state_->abortCount;
     result.fingerprint = state_->fingerprint;
+    if (state_->externalForceAuditBuffer != nil) {
+        const auto* audits = static_cast<const nm_float4*>(
+            state_->externalForceAuditBuffer.contents);
+        double resultantX = 0.0;
+        double resultantY = 0.0;
+        double resultantZ = 0.0;
+        for (std::uint32_t environment = 0u;
+             environment < state_->environmentCount; ++environment) {
+            const nm_float4 audit = audits[environment];
+            if (!finiteScale(audit) || audit.w < 0.0f) {
+                result.assembledExternalForceL1Newtons =
+                    std::numeric_limits<double>::quiet_NaN();
+                result.assembledExternalForceResultantNewtons =
+                    std::numeric_limits<double>::quiet_NaN();
+                break;
+            }
+            resultantX += audit.x;
+            resultantY += audit.y;
+            resultantZ += audit.z;
+            result.assembledExternalForceL1Newtons += audit.w;
+            result.assembledExternalForceResultantNewtons = std::sqrt(
+                resultantX * resultantX + resultantY * resultantY +
+                resultantZ * resultantZ);
+        }
+    }
     result.message = state_->message;
     return result;
 }

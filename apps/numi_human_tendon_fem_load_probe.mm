@@ -69,10 +69,9 @@ int main() {
 
             std::vector<NMNumiHumanTendonFEMNodeLoadGPU> nodeLoads(4u);
             for (auto& load : nodeLoads) {
-                load.endpointIndex = NM_INVALID_INDEX;
+                std::fill_n(load.endpointIndex, 4u, NM_INVALID_INDEX);
             }
-            nodeLoads[3u].endpointIndex = 0u;
-            nodeLoads[3u].flags = NM_NUMI_HUMAN_TENDON_FEM_NODE_LOAD_ACTIVE;
+            nodeLoads[3u].endpointIndex[0u] = 0u;
             nodeLoads[3u].scale.x = 0.1f;
             std::vector<NMNumiHumanTendonFEMNodeAnchorGPU> nodeAnchors(4u);
             for (auto& anchor : nodeAnchors) anchor.bodyIndex = NM_INVALID_INDEX;
@@ -93,7 +92,8 @@ int main() {
             replacement.loadEndpointIndex = 0u;
             replacement.anchorEndpointIndex = 1u;
             replacement.flags =
-                NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_ACTIVE;
+                NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_ACTIVE |
+                NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_FULL_MUSCLE_ROW;
             replacement.forceOwnerFraction.x = 0.1f;
             numi::matter::NumiHumanTendonFEMLoadAdapter adapter;
             require(adapter.initialize(runtime, {
@@ -163,6 +163,7 @@ int main() {
                 length:pointJacobians.size() * sizeof(float)
                 options:MTLResourceStorageModeShared];
             std::array<float, 2u> generalizedForces{};
+            constexpr float sourceMuscleRow = 4.0f;
             id<MTLBuffer> generalizedForceBuffer = [device
                 newBufferWithBytes:generalizedForces.data()
                 length:generalizedForces.size() * sizeof(float)
@@ -188,6 +189,8 @@ int main() {
                 std::memset(
                     generalizedForceBuffer.contents, 0,
                     generalizedForceBuffer.length);
+                static_cast<float*>(generalizedForceBuffer.contents)[0u] =
+                    sourceMuscleRow;
                 id<MTLCommandBuffer> command = [queue commandBuffer];
                 require(command != nil, "probe command buffer is unavailable");
                 metalrobo::MetalNumiHumanTendonLoadPass pass{};
@@ -253,6 +256,20 @@ int main() {
             require(std::isfinite(acceptedReactionL1) &&
                         acceptedReactionL1 > 0.0f,
                     "probe FEM anchors published no bone reaction");
+            float acceptedReactionX = 0.0f;
+            for (std::uint32_t node = 0u; node < 3u; ++node)
+                acceptedReactionX += acceptedReactions[node].x;
+            const float expectedGeneralizedForce =
+                0.1f * (transfers[0u].terminalWorldForce.x -
+                        sourceMuscleRow) +
+                acceptedReactionX;
+            const float acceptedGeneralizedForce =
+                static_cast<const float*>(
+                    generalizedForceBuffer.contents)[1u];
+            require(std::isfinite(acceptedGeneralizedForce) &&
+                        std::abs(acceptedGeneralizedForce -
+                            expectedGeneralizedForce) <= 1.0e-5f,
+                    "probe full-muscle-row replacement did not preserve only the load-side reaction");
             execute(1u, false);
             const auto rolledBack = runtime.snapshot();
             require(rolledBack.available &&
@@ -266,6 +283,9 @@ int main() {
                     "probe initial-state restore failed");
             execute(0u, true);
             const auto replay = runtime.snapshot();
+            const float replayGeneralizedForce =
+                static_cast<const float*>(
+                    generalizedForceBuffer.contents)[1u];
             require(replay.available &&
                         std::memcmp(
                             replay.femNodes.data(), accepted.femNodes.data(),
@@ -274,7 +294,8 @@ int main() {
                         std::memcmp(
                             reactionReadback.contents, acceptedReactions.data(),
                             acceptedReactions.size() *
-                                sizeof(acceptedReactions.front())) == 0,
+                                sizeof(acceptedReactions.front())) == 0 &&
+                        replayGeneralizedForce == acceptedGeneralizedForce,
                     "probe accepted tendon/FEM replay is not bitwise");
             const auto diagnostics = adapter.diagnostics();
             require(diagnostics.initialized && diagnostics.encodedPassCount == 3u &&
@@ -286,6 +307,7 @@ int main() {
                 << " encoded_passes=" << diagnostics.encodedPassCount
                 << " max_displacement_m=" << acceptedDisplacement
                 << " anchor_reaction_l1_n=" << acceptedReactionL1
+                << " full_row_generalized_force=" << acceptedGeneralizedForce
                 << " replay=bitwise rollback=verified"
                 << " production_owner_fraction=0.1"
                 << "\n";
