@@ -39,7 +39,7 @@ one-step receipt cannot satisfy a stronger one.
 ## Current evidence baseline
 
 The manifest covers 15 musculoskeletal regions and six continuum layers. The
-current report contains 80 verified requirements, 22 contradicted
+current report contains 82 verified requirements, 22 contradicted
 requirements, eight insufficient requirements, and 70 missing requirements.
 No complete scope is yet promoted.
 
@@ -101,6 +101,13 @@ change the one-step articulated response, and replay bitwise. This is a tendon
 force-transfer law, not deformable FEM or a live NumanX continuum transaction;
 therefore ankle/foot passive tissue remains insufficient rather than promoted.
 
+The ten authored foot support witnesses now also close a deterministic static
+floating-base wrench. On Apple M4 Pro they carry 952.864475 N against
+952.864477 N of body weight with a `2.20e-6` maximum root force/moment
+residual, all reactions nonnegative, and bitwise replay. This is recorded only
+as a preflight: the internal muscle residual remains `22.9850`, root
+acceleration residual remains `5.7539`, and `internal_balanced=false`.
+
 ## Development order
 
 The gate makes the next useful work explicit:
@@ -108,9 +115,10 @@ The gate makes the next useful work explicit:
 1. Promote the one-step knee contact to a bounded current-surface or implicit
    nonpenetration method and sustained flexion/loading qualification without
    regressing extensor-chain ownership.
-2. Promote the reduced plantar windlass law through the owning Human/NumanX
-   transaction, then qualify loaded foot contact while retaining the existing
-   compound-toe DoF policy.
+2. Close the internal muscle/passive-force equilibrium exposed by the new
+   support-wrench gate, then promote the reduced plantar windlass law through
+   the owning Human/NumanX transaction and qualify loaded foot contact while
+   retaining the existing compound-toe DoF policy.
 3. Qualify hip muscle entheses, passive capsule/ligaments, and articular
    contact bilaterally.
 4. Complete shoulder, elbow/forearm, wrist, hand, and finger force-transfer

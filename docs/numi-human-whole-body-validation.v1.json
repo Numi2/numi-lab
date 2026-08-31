@@ -381,7 +381,7 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "0d9122b830f632fca8231652546485804c2fbf5cf9c44def74809266465d6773"}
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "07436ea01e9472117bb6e32114ca87e6f14ad965019c20fc0fcc635a7ebecdc2"}
       ]
     },
     "bilateral_plantar_fascia_force_transfer": {
@@ -412,7 +412,31 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "0d9122b830f632fca8231652546485804c2fbf5cf9c44def74809266465d6773"}
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "07436ea01e9472117bb6e32114ca87e6f14ad965019c20fc0fcc635a7ebecdc2"}
+      ]
+    },
+    "whole_body_support_wrench": {
+      "path": "docs/media/numi-human-support-wrench-v1/bilateral-m4-pro.json",
+      "format": "json",
+      "level": "preflight",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.whole-body-support-wrench.preflight.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/evidence_level", "op": "equals", "value": "preflight"},
+        {"pointer": "/support_contact_count", "op": "equals", "value": 10},
+        {"pointer": "/active_support_contact_count", "op": "equals", "value": 10},
+        {"pointer": "/relative_weight_error", "op": "maximum", "value": 0.00001},
+        {"pointer": "/maximum_floating_root_force_residual", "op": "maximum", "value": 0.001},
+        {"pointer": "/contacts", "op": "length_equals", "value": 10},
+        {"pointer": "/contacts/*/normal_force_newtons", "op": "minimum", "value": 0.0},
+        {"pointer": "/internal_balanced", "op": "equals", "value": false},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "07436ea01e9472117bb6e32114ca87e6f14ad965019c20fc0fcc635a7ebecdc2"},
+        {"path": "include/metalrobo/NumiHumanMuscleEquilibrium.hpp", "sha256": "68a5d5b95c4989f350a97dcfddfa5dd6ec9e310c0e01400a0b9407142cd9e627"},
+        {"path": "src/core/NumiHumanMuscleEquilibrium.cpp", "sha256": "f9c05ded802aced3ba5f7b44bbfcc91fe630d16e31c34b1341ee8411c027cf15"}
       ]
     },
     "costal_cartilage_preflight": {
@@ -521,6 +545,7 @@
         "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"},
         "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"},
         "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["bilateral_plantar_fascia_force_transfer"], "gap": "promote the reduced windlass preflight into the owning live transaction and add ankle ligaments, capsule, and cartilage"},
+        "support_wrench": {"minimum_level": "preflight", "evidence": ["whole_body_support_wrench"]},
         "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"}
       }
     },
@@ -531,6 +556,7 @@
         "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"},
         "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"},
         "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["bilateral_plantar_fascia_force_transfer"], "gap": "promote the reduced windlass preflight into the owning live transaction and add ankle ligaments, capsule, and cartilage"},
+        "support_wrench": {"minimum_level": "preflight", "evidence": ["whole_body_support_wrench"]},
         "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"}
       }
     },

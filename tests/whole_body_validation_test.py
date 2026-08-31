@@ -55,6 +55,10 @@ class WholeBodyValidationTest(unittest.TestCase):
             report["evidence"]["bilateral_plantar_fascia_force_transfer"]["status"],
             "verified",
         )
+        self.assertEqual(
+            report["evidence"]["whole_body_support_wrench"]["status"],
+            "verified",
+        )
         for identifier in (
             "left_ankle_hindfoot_midfoot",
             "right_ankle_hindfoot_midfoot",
@@ -64,6 +68,7 @@ class WholeBodyValidationTest(unittest.TestCase):
             self.assertEqual(ankle["active_tendon_to_bone"]["status"], "verified")
             self.assertEqual(ankle["deterministic_transaction"]["status"], "verified")
             self.assertEqual(ankle["passive_joint_tissue"]["status"], "insufficient")
+            self.assertEqual(ankle["support_wrench"]["status"], "verified")
             self.assertEqual(ankle["articular_contact"]["status"], "missing")
 
         shoulder = scope(report, "left_shoulder")["requirements"]

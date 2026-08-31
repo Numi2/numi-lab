@@ -3,6 +3,7 @@
 #include "metalrobo/MujocoMuscleReference.hpp"
 #include "metalrobo/NumiHumanJointEquality.hpp"
 
+#include <array>
 #include <cstdint>
 #include <span>
 #include <vector>
@@ -61,6 +62,21 @@ struct NumiHumanMuscleEquilibriumConfig {
     // to the velocity-level complementarity solve, not this equilibrium
     // certificate.
     double positionLimitTolerance = 1.0e-7;
+    // Optional static support reactions are optimized as nonnegative normal
+    // forces. The cap is an admission bound, not a prescribed load.
+    double maximumSupportForceNewtons = 5000.0;
+    double supportForceRegularization = 1.0e-14;
+    std::uint32_t supportForceSweeps = 4096u;
+    double supportForceConvergence = 1.0e-10;
+};
+
+struct NumiHumanStaticSupportContact {
+    std::uint32_t bodyIndex = MR_INVALID_INDEX;
+    std::array<double, 3> localPoint{};
+    // World-space force direction applied to the Human, normally the outward
+    // ground-plane normal. Static v1 intentionally admits no adhesion and no
+    // tangential force variable.
+    std::array<double, 3> normal{0.0, 0.0, 1.0};
 };
 
 struct NumiHumanMuscleEquilibriumDiagnostics {
@@ -80,6 +96,8 @@ struct NumiHumanMuscleEquilibriumDiagnostics {
     std::uint32_t acceptedPoseSteps = 0u;
     std::uint32_t activePositionLimitCount = 0u;
     std::uint32_t jointEqualityCount = 0u;
+    std::uint32_t supportContactCount = 0u;
+    std::uint32_t activeSupportContactCount = 0u;
     std::uint32_t maximumNormalizedResidualDof = MR_INVALID_INDEX;
     std::uint32_t maximumAccelerationResidualDof = MR_INVALID_INDEX;
     double initialNormalizedResidualRms = 0.0;
@@ -93,7 +111,12 @@ struct NumiHumanMuscleEquilibriumDiagnostics {
     double maximumJointEqualityReaction = 0.0;
     double maximumInitialEqualityProjection = 0.0;
     double maximumJointEqualityError = 0.0;
+    double totalSupportForceNewtons = 0.0;
+    double maximumSupportForceNewtons = 0.0;
+    double maximumFloatingRootForceResidual = 0.0;
+    double maximumFloatingRootAccelerationResidual = 0.0;
     bool balanced = false;
+    bool floatingRootIncluded = false;
 
     [[nodiscard]] bool succeeded() const noexcept {
         return status == NumiHumanMuscleEquilibriumStatus::success;
@@ -114,6 +137,8 @@ struct NumiHumanMuscleEquilibriumResult {
     // positive generalized force and upper stops negative generalized force.
     std::vector<double> generalizedPositionLimitForce;
     std::vector<double> generalizedJointEqualityForce;
+    std::vector<double> supportNormalForce;
+    std::vector<double> generalizedSupportForce;
     std::vector<double> gravityTarget;
     std::vector<double> generalizedForceResidual;
 };
@@ -132,6 +157,25 @@ compileNumiHumanMuscleEquilibrium(
     std::span<const MujocoCompliantMuscleArchitecture> architectures,
     std::span<const MRNumiHumanJointEqualityGPU> jointEqualities,
     std::span<const std::uint32_t> selectedMuscleIndices,
+    NumiHumanMuscleEquilibriumResult& result,
+    const NumiHumanMuscleEquilibriumConfig& config = {}
+);
+
+// Supported overload. Ground reactions and muscle activation are optimized
+// in one constrained acceleration-space problem, including the floating root.
+// An empty support span is exactly equivalent to the legacy overload above.
+[[nodiscard]] NumiHumanMuscleEquilibriumDiagnostics
+compileNumiHumanMuscleEquilibrium(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<const double> initialQ,
+    std::span<const MujocoMuscleSite> sites,
+    std::span<const MujocoWrapGeometry> wraps,
+    std::span<const MujocoMuscleDefinition> muscles,
+    std::span<const MujocoCompliantMuscleArchitecture> architectures,
+    std::span<const MRNumiHumanJointEqualityGPU> jointEqualities,
+    std::span<const std::uint32_t> selectedMuscleIndices,
+    std::span<const NumiHumanStaticSupportContact> supportContacts,
     NumiHumanMuscleEquilibriumResult& result,
     const NumiHumanMuscleEquilibriumConfig& config = {}
 );
