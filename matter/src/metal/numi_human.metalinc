@@ -112,7 +112,9 @@ kernel void nm_numi_human_prepare_provisional_status(
         dispatch.generalizedForceStride >= dispatch.dofCount &&
         dispatch.muscleCount > 0u &&
         dispatch.bodyPoseStride > 0u && dispatch.pointJacobianStride > 0u &&
-        dispatch.bodyJacobianPointOffset != MR_INVALID_INDEX;
+        dispatch.bodyJacobianPointOffset != MR_INVALID_INDEX &&
+        dispatch.stepIndex <
+            NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS;
     for (uint node = 0u; accepted && node < dispatch.femNodeCount; ++node) {
         const NMNumiHumanTendonFEMNodeLoadGPU load = nodeLoads[node];
         const NMNumiHumanTendonFEMNodeAnchorGPU anchor = nodeAnchors[node];
@@ -222,7 +224,10 @@ kernel void nm_numi_human_prepare_provisional_status(
             sample.slaveLocalPointAndArea.w > 0.0f &&
             finite4(sample.masterLocalPointAndReferenceSeparation) &&
             finite4(sample.masterLocalNormalAndStiffness) &&
-            sample.masterLocalNormalAndStiffness.w > 0.0f;
+            sample.masterLocalNormalAndStiffness.w > 0.0f &&
+            finite4(sample.normalStrainPerPressure) &&
+            sample.normalStrainPerPressure.x > 0.0f &&
+            all(sample.normalStrainPerPressure.yzw == float3(0.0f));
         if (accepted) {
             const MRArticulatedBodyPoseGPU slavePose = bodyPoses[
                 environment * dispatch.bodyPoseStride +
@@ -448,6 +453,9 @@ kernel void nm_numi_human_audit_articular_contact_wrenches(
     float closedSamples = 0.0f;
     float sameBodySamples = 0.0f;
     float maximumPressure = 0.0f;
+    float storedEnergy = 0.0f;
+    float maximumNormalStrain = 0.0f;
+    float maximumClosure = 0.0f;
     for (uint index = 0u; index < dispatch.articularContactSampleCount;
          ++index) {
         const NMNumiHumanArticularContactSampleGPU sample = samples[index];
@@ -485,6 +493,12 @@ kernel void nm_numi_human_audit_articular_contact_wrenches(
         contactArea += sample.slaveLocalPointAndArea.w;
         closedSamples += 1.0f;
         maximumPressure = max(maximumPressure, pressure);
+        storedEnergy += 0.5f * pressure * closure *
+            sample.slaveLocalPointAndArea.w;
+        maximumNormalStrain = max(
+            maximumNormalStrain,
+            pressure * sample.normalStrainPerPressure.x);
+        maximumClosure = max(maximumClosure, closure);
     }
     audits[environment].forceResidualAndL1 =
         float4(forceResidual, bodyForceL1);
@@ -492,6 +506,32 @@ kernel void nm_numi_human_audit_articular_contact_wrenches(
         float4(momentResidual, maximumPressure);
     audits[environment].normalForceAreaAndCounts = float4(
         normalForce, contactArea, closedSamples, sameBodySamples);
+    audits[environment].energyStrainClosureAndAccepted = float4(
+        storedEnergy, maximumNormalStrain, maximumClosure, 0.0f);
+}
+
+kernel void nm_numi_human_commit_articular_contact_audit(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],
+    device const NMNumiHumanArticularContactAuditGPU* provisionalAudits
+        [[buffer(2)]],
+    device NMNumiHumanArticularContactAuditGPU* acceptedHistory [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.stepIndex >=
+            NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS) return;
+    const MRNumiHumanStandStatusGPU stand = standStatuses[environment];
+    if (dispatch.abiVersion != NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION ||
+        stand.code != MR_NUMI_HUMAN_STAND_SUCCESS ||
+        stand.environment != environment ||
+        stand.completedSteps != dispatch.stepIndex + 1u) return;
+    NMNumiHumanArticularContactAuditGPU accepted =
+        provisionalAudits[environment];
+    accepted.energyStrainClosureAndAccepted.w = 1.0f;
+    acceptedHistory[
+        environment * NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS +
+        dispatch.stepIndex] = accepted;
 }
 
 kernel void nm_numi_human_audit_tendon_fem_loads(

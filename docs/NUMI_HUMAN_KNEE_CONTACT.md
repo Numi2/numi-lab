@@ -58,7 +58,7 @@ Receipts:
 
 ## M4 Pro live Human one-step qualification
 
-ABI 7 cooks every one of the same 69,701 exact correspondences into the live
+ABI 8 cooks every one of the same 69,701 exact correspondences into the live
 Human transaction. Of those, 57,930 cross femur/tibia/patella rigid-body
 ownership and generate balanced articulated wrenches. The remaining 11,771
 are meniscus/cartilage interfaces owned by the same tibia body: they stay in
@@ -82,11 +82,39 @@ Receipts and full transcripts:
 - [`left-m4-pro.json`](media/numi-human-knee-articular-live-v1/left-m4-pro.json)
 - [`right-mirrored-m4-pro.json`](media/numi-human-knee-articular-live-v1/right-mirrored-m4-pro.json)
 
+## M4 Pro accepted trajectory audit
+
+ABI 8 adds an anatomy-derived maximum layer-normal compliance to every sample
+and a fixed 4,096-step device audit ledger. The provisional contact record is
+committed into that ledger only after the enclosing Human stand status accepts
+the same step. Rejected and aborted transactions therefore cannot be counted as
+trajectory evidence; replay deterministically overwrites the same accepted
+step slot.
+
+The synthetic M4 Pro fixture measured `0.9999 N`, `9999 Pa`, `0.009999`
+maximum layer-normal strain, `0.0009999 m` closure, and `0.0004999 J` stored
+energy. Its deliberately rejected second step rolled Matter back and left the
+accepted history count at one; replay was bitwise.
+
+The exact left knee then passed a bounded two-step run. Both steps retained
+nonzero compression: the closed-sample range was `550..1077` and the normal
+force range was `0.0101987..0.0310359 N`. Trajectory maxima were `371.812 Pa`,
+`8.43778e-6` layer-normal strain, `4.90116e-8 m` closure, and `2.34765e-10 J`
+stored energy. Maximum force and world-origin moment residuals were
+`7.68e-9 N` and `7.48e-9 N m`; FEM deformation Jacobians stayed in
+`0.999302..1.000699`, replay was bitwise, and rejected-step rollback passed.
+
+Receipts:
+
+- [`m4-pro-fixture.json`](media/numi-human-knee-articular-history-v1/m4-pro-fixture.json)
+- [`left-two-step-m4-pro.json`](media/numi-human-knee-articular-history-v1/left-two-step-m4-pro.json)
+
 ## Evidence boundary and next integration gate
 
-The prescribed 65-step CPU ramp remains `preflight`. The bilateral GPU runs
-are `one_step`: accepted contact wrenches now enter femur/tibia/patella
-generalized force in the owning Human transaction. The law is still an
+The prescribed 65-step CPU ramp remains `preflight`. Bilateral coverage remains
+qualified for one live step; the left side additionally has a bounded two-step
+trajectory. Accepted contact wrenches enter femur/tibia/patella generalized
+force in the owning Human transaction. The law is still an
 explicit fixed-reference penalty evaluated from current bone poses, not
 current-surface search or an implicit unilateral nonpenetration solve. The
 right side is a mirror of oks003, not an independently segmented right
@@ -132,10 +160,11 @@ volumes (194,729 total live nodes and 844,287 tetrahedra) and all 69,701
 contact samples, but did not finish one replay-qualified step inside a
 30-minute M4 Pro smoke bound. That path was rejected rather than promoted.
 
-ABI 7 therefore provides a reduced path consistent with the existing
+ABI 8 therefore provides a reduced path consistent with the existing
 elastic-foundation law. Each cooked sample stores exact slave and closest
 master points in their owning bone frames, the master-frame normal, tributary
-area, reference separation, and foundation stiffness. Metal evaluates closure,
+area, reference separation, foundation stiffness, and the more compliant
+layer's normal-strain-per-pressure coefficient. Metal evaluates closure,
 reduces equal/opposite sample forces and moments to per-body wrenches, and
 scatters those wrenches through the existing articulated-body Jacobians. It
 uses the same borrowed command buffer, status, generalized-force arena,
@@ -146,11 +175,13 @@ correction while the Matter FEM state remained bitwise identical to the
 no-mechanical-articular-contact run. An active sample mislabeled across the
 same body failed initialization; a correctly typed same-body sample was
 retained without generalized force. The audit measured `1.9998 N` body-force
-L1, `9999 Pa` pressure, and zero force/moment residual. Replay and rollback
-passed. The receipt is
-[`articular-wrench-adapter-m4-pro.json`](media/numi-human-knee-contact-preflight-v1/articular-wrench-adapter-m4-pro.json).
+L1, `9999 Pa` pressure, and zero force/moment residual. ABI 8 additionally
+audits strain, closure, energy, and accepted trajectory history. Replay and
+rollback passed. The current receipt is
+[`m4-pro-fixture.json`](media/numi-human-knee-articular-history-v1/m4-pro-fixture.json).
 
-The bilateral cook, force/moment balance, and one-step pressure/area gates now
-pass. Sustained loaded flexion remains open. Meniscus relative motion and
+The bilateral cook, force/moment balance, and one-step pressure/area gates pass,
+and the left two-step history gate passes. Sustained loaded flexion remains
+open. Meniscus relative motion and
 fluid/poroelastic effects remain future continuum refinements rather than
 claims of this reduced v1 law.

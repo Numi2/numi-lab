@@ -2,7 +2,8 @@
 
 #include "numi/matter/shared.h"
 
-#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 7u
+#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 8u
+#define NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS 4096u
 
 enum NMNumiHumanTendonFEMNodeLoadFlags : nm_u32 {
     NM_NUMI_HUMAN_TENDON_FEM_NODE_LOAD_ACTIVE = 1u << 0u,
@@ -132,6 +133,10 @@ typedef struct NM_ALIGN16 NMNumiHumanArticularContactSampleGPU {
     nm_float4 masterLocalPointAndReferenceSeparation;
     // xyz master-body local unit normal; w pressure/closure stiffness [Pa/m].
     nm_float4 masterLocalNormalAndStiffness;
+    // x maximum layer-normal strain per unit pressure [1/Pa]. This is the
+    // more compliant of the two contacting elastic-foundation layers. yzw
+    // are reserved and must be zero.
+    nm_float4 normalStrainPerPressure;
 } NMNumiHumanArticularContactSampleGPU;
 
 enum NMNumiHumanArticularContactSampleFlags : nm_u32 {
@@ -160,6 +165,10 @@ typedef struct NM_ALIGN16 NMNumiHumanArticularContactAuditGPU {
     // x total normal force [N]; y closed tributary area [m^2];
     // z closed distinct-body sample count; w typed same-body sample count.
     nm_float4 normalForceAreaAndCounts;
+    // x stored elastic-foundation energy [J]; y maximum layer-normal strain;
+    // z maximum closure [m]. w is zero for a provisional record and one only
+    // after the enclosing articulated-body transaction has been accepted.
+    nm_float4 energyStrainClosureAndAccepted;
 } NMNumiHumanArticularContactAuditGPU;
 
 #ifndef __METAL_VERSION__
@@ -169,7 +178,7 @@ static_assert(sizeof(NMNumiHumanTendonFEMNodeAnchorGPU) == 32u);
 static_assert(sizeof(NMNumiHumanTendonFEMEndpointReplacementGPU) == 32u);
 static_assert(sizeof(NMNumiHumanFEMContactSampleGPU) == 64u);
 static_assert(sizeof(NMNumiHumanFEMContactContributionGPU) == 16u);
-static_assert(sizeof(NMNumiHumanArticularContactSampleGPU) == 64u);
+static_assert(sizeof(NMNumiHumanArticularContactSampleGPU) == 80u);
 static_assert(sizeof(NMNumiHumanBodyWrenchGPU) == 32u);
-static_assert(sizeof(NMNumiHumanArticularContactAuditGPU) == 48u);
+static_assert(sizeof(NMNumiHumanArticularContactAuditGPU) == 64u);
 #endif

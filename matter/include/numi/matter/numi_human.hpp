@@ -77,6 +77,20 @@ struct NumiHumanTendonFEMLoadDiagnostics {
     double articularBodyForceL1Newtons = 0.0;
     double articularForceResidualNewtons = 0.0;
     double articularMomentResidualNewtonMeters = 0.0;
+    double articularStoredEnergyJoules = 0.0;
+    double articularMaximumNormalStrain = 0.0;
+    double articularMaximumClosureMeters = 0.0;
+    std::uint32_t articularAuditedStepCount = 0u;
+    std::uint32_t articularTrajectoryMinimumClosedSampleCount = 0u;
+    std::uint32_t articularTrajectoryMaximumClosedSampleCount = 0u;
+    double articularTrajectoryMinimumNormalForceNewtons = 0.0;
+    double articularTrajectoryMaximumNormalForceNewtons = 0.0;
+    double articularTrajectoryMaximumPressurePascals = 0.0;
+    double articularTrajectoryMaximumStoredEnergyJoules = 0.0;
+    double articularTrajectoryMaximumNormalStrain = 0.0;
+    double articularTrajectoryMaximumClosureMeters = 0.0;
+    double articularTrajectoryMaximumForceResidualNewtons = 0.0;
+    double articularTrajectoryMaximumMomentResidualNewtonMeters = 0.0;
     std::string message;
 };
 

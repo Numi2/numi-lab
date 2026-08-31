@@ -146,6 +146,20 @@ struct LoadedOpenKneeLigamentFEM {
     double articularBodyForceL1Newtons = 0.0;
     double articularForceResidualNewtons = 0.0;
     double articularMomentResidualNewtonMeters = 0.0;
+    double articularStoredEnergyJoules = 0.0;
+    double articularMaximumNormalStrain = 0.0;
+    double articularMaximumClosureMeters = 0.0;
+    std::uint32_t articularAuditedStepCount = 0u;
+    std::uint32_t articularTrajectoryMinimumClosedSampleCount = 0u;
+    std::uint32_t articularTrajectoryMaximumClosedSampleCount = 0u;
+    double articularTrajectoryMinimumNormalForceNewtons = 0.0;
+    double articularTrajectoryMaximumNormalForceNewtons = 0.0;
+    double articularTrajectoryMaximumPressurePascals = 0.0;
+    double articularTrajectoryMaximumStoredEnergyJoules = 0.0;
+    double articularTrajectoryMaximumNormalStrain = 0.0;
+    double articularTrajectoryMaximumClosureMeters = 0.0;
+    double articularTrajectoryMaximumForceResidualNewtons = 0.0;
+    double articularTrajectoryMaximumMomentResidualNewtonMeters = 0.0;
     bool activeQuadricepsTendonCoupling = false;
     bool liveHumanCoupling = false;
     bool rollbackVerified = false;
@@ -5887,6 +5901,29 @@ LiveOpenKneeArticularContactCook cookLiveOpenKneeArticularContact(
                 contactModel.samples.size() == 69701u,
             "live Open Knee exact articular contact cook failed: " +
                 built.message);
+    const auto materialForRegion = [&](const std::uint32_t regionIndex)
+        -> const metalrobo::NumiHumanKneeContactMaterial& {
+        const auto found = std::find_if(
+            materials.begin(), materials.end(),
+            [regionIndex](const auto& entry) {
+                return entry.regionIndex == regionIndex;
+            });
+        require(found != materials.end(),
+                "live Open Knee articular material is unavailable");
+        return found->material;
+    };
+    const auto normalStrainPerPressure = [](
+        const metalrobo::NumiHumanKneeContactMaterial& material
+    ) {
+        const double numerator = (1.0 + material.poissonRatio) *
+            (1.0 - 2.0 * material.poissonRatio);
+        const double denominator = material.elasticModulusPascals *
+            (1.0 - material.poissonRatio);
+        const double compliance = numerator / denominator;
+        require(std::isfinite(compliance) && compliance > 0.0,
+                "live Open Knee normal-strain compliance is invalid");
+        return compliance;
+    };
     const auto ownerBody = [&](const std::uint32_t regionIndex) {
         require(regionIndex < knee.regions.size(),
                 "live Open Knee contact region is unavailable");
@@ -5932,6 +5969,9 @@ LiveOpenKneeArticularContactCook cookLiveOpenKneeArticularContact(
                 "live Open Knee contact pair sample coverage drifted");
         const std::uint32_t slaveBody = ownerBody(pair.slaveRegionIndex);
         const std::uint32_t masterBody = ownerBody(pair.masterRegionIndex);
+        const double maximumLayerNormalStrainPerPressure = std::max(
+            normalStrainPerPressure(materialForRegion(pair.slaveRegionIndex)),
+            normalStrainPerPressure(materialForRegion(pair.masterRegionIndex)));
         for (std::uint32_t local = 0u; local < pair.sampleCount; ++local) {
             const auto& source =
                 contactModel.samples[pair.firstSample + local];
@@ -5968,6 +6008,9 @@ LiveOpenKneeArticularContactCook cookLiveOpenKneeArticularContact(
                 normalLocal.x, normalLocal.y, normalLocal.z,
                 static_cast<float>(
                     pair.effectiveFoundationStiffnessPascalsPerMeter)};
+            cooked.normalStrainPerPressure = {
+                static_cast<float>(maximumLayerNormalStrainPerPressure),
+                0.0f, 0.0f, 0.0f};
             result.samples.push_back(cooked);
             if (slaveBody == masterBody) {
                 ++result.internalSameBodySampleCount;
@@ -6993,6 +7036,34 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         adapterDiagnostics.articularForceResidualNewtons;
     result.articularMomentResidualNewtonMeters =
         adapterDiagnostics.articularMomentResidualNewtonMeters;
+    result.articularStoredEnergyJoules =
+        adapterDiagnostics.articularStoredEnergyJoules;
+    result.articularMaximumNormalStrain =
+        adapterDiagnostics.articularMaximumNormalStrain;
+    result.articularMaximumClosureMeters =
+        adapterDiagnostics.articularMaximumClosureMeters;
+    result.articularAuditedStepCount =
+        adapterDiagnostics.articularAuditedStepCount;
+    result.articularTrajectoryMinimumClosedSampleCount =
+        adapterDiagnostics.articularTrajectoryMinimumClosedSampleCount;
+    result.articularTrajectoryMaximumClosedSampleCount =
+        adapterDiagnostics.articularTrajectoryMaximumClosedSampleCount;
+    result.articularTrajectoryMinimumNormalForceNewtons =
+        adapterDiagnostics.articularTrajectoryMinimumNormalForceNewtons;
+    result.articularTrajectoryMaximumNormalForceNewtons =
+        adapterDiagnostics.articularTrajectoryMaximumNormalForceNewtons;
+    result.articularTrajectoryMaximumPressurePascals =
+        adapterDiagnostics.articularTrajectoryMaximumPressurePascals;
+    result.articularTrajectoryMaximumStoredEnergyJoules =
+        adapterDiagnostics.articularTrajectoryMaximumStoredEnergyJoules;
+    result.articularTrajectoryMaximumNormalStrain =
+        adapterDiagnostics.articularTrajectoryMaximumNormalStrain;
+    result.articularTrajectoryMaximumClosureMeters =
+        adapterDiagnostics.articularTrajectoryMaximumClosureMeters;
+    result.articularTrajectoryMaximumForceResidualNewtons =
+        adapterDiagnostics.articularTrajectoryMaximumForceResidualNewtons;
+    result.articularTrajectoryMaximumMomentResidualNewtonMeters =
+        adapterDiagnostics.articularTrajectoryMaximumMomentResidualNewtonMeters;
     const double articularForceScale = std::max(
         1.0, adapterDiagnostics.articularBodyForceL1Newtons);
     const bool articularContactVerified =
@@ -7004,6 +7075,10 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         adapterDiagnostics.articularMechanicalSampleCount +
             adapterDiagnostics.articularInternalSameBodySampleCount ==
                 adapterDiagnostics.articularContactSampleCount &&
+        adapterDiagnostics.articularAuditedStepCount == driven.stepCount &&
+        adapterDiagnostics.articularTrajectoryMinimumClosedSampleCount > 0u &&
+        adapterDiagnostics.articularTrajectoryMaximumClosedSampleCount >=
+            adapterDiagnostics.articularTrajectoryMinimumClosedSampleCount &&
         adapterDiagnostics.articularClosedSampleCount > 0u &&
         std::isfinite(adapterDiagnostics.articularContactAreaSquareMeters) &&
         adapterDiagnostics.articularContactAreaSquareMeters > 0.0 &&
@@ -7011,6 +7086,31 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         adapterDiagnostics.articularNormalForceNewtons > 0.0 &&
         std::isfinite(adapterDiagnostics.articularMaximumPressurePascals) &&
         adapterDiagnostics.articularMaximumPressurePascals > 0.0 &&
+        std::isfinite(adapterDiagnostics.articularStoredEnergyJoules) &&
+        adapterDiagnostics.articularStoredEnergyJoules > 0.0 &&
+        std::isfinite(adapterDiagnostics.articularMaximumNormalStrain) &&
+        adapterDiagnostics.articularMaximumNormalStrain > 0.0 &&
+        std::isfinite(adapterDiagnostics.articularMaximumClosureMeters) &&
+        adapterDiagnostics.articularMaximumClosureMeters > 0.0 &&
+        std::isfinite(
+            adapterDiagnostics.articularTrajectoryMinimumNormalForceNewtons) &&
+        adapterDiagnostics.articularTrajectoryMinimumNormalForceNewtons > 0.0 &&
+        std::isfinite(
+            adapterDiagnostics.articularTrajectoryMaximumNormalForceNewtons) &&
+        adapterDiagnostics.articularTrajectoryMaximumNormalForceNewtons >=
+            adapterDiagnostics.articularTrajectoryMinimumNormalForceNewtons &&
+        std::isfinite(
+            adapterDiagnostics.articularTrajectoryMaximumPressurePascals) &&
+        adapterDiagnostics.articularTrajectoryMaximumPressurePascals > 0.0 &&
+        std::isfinite(
+            adapterDiagnostics.articularTrajectoryMaximumStoredEnergyJoules) &&
+        adapterDiagnostics.articularTrajectoryMaximumStoredEnergyJoules > 0.0 &&
+        std::isfinite(
+            adapterDiagnostics.articularTrajectoryMaximumNormalStrain) &&
+        adapterDiagnostics.articularTrajectoryMaximumNormalStrain > 0.0 &&
+        std::isfinite(
+            adapterDiagnostics.articularTrajectoryMaximumClosureMeters) &&
+        adapterDiagnostics.articularTrajectoryMaximumClosureMeters > 0.0 &&
         std::isfinite(adapterDiagnostics.articularBodyForceL1Newtons) &&
         adapterDiagnostics.articularBodyForceL1Newtons > 0.0 &&
         adapterDiagnostics.articularBodyForceL1Newtons <=
@@ -7022,6 +7122,10 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         std::isfinite(
             adapterDiagnostics.articularMomentResidualNewtonMeters) &&
         adapterDiagnostics.articularMomentResidualNewtonMeters <=
+            1.0e-5 * articularForceScale &&
+        adapterDiagnostics.articularTrajectoryMaximumForceResidualNewtons <=
+            1.0e-5 * articularForceScale &&
+        adapterDiagnostics.articularTrajectoryMaximumMomentResidualNewtonMeters <=
             1.0e-5 * articularForceScale;
     const bool completeBodyReactions = std::all_of(
         result.bodyReactionL1Newtons.begin(),
@@ -9721,6 +9825,34 @@ int main(int argc, char** argv) {
                         << openKneeLigamentFEM->articularForceResidualNewtons
                         << " articular_moment_residual_nm="
                         << openKneeLigamentFEM->articularMomentResidualNewtonMeters
+                        << " articular_stored_energy_j="
+                        << openKneeLigamentFEM->articularStoredEnergyJoules
+                        << " articular_max_normal_strain="
+                        << openKneeLigamentFEM->articularMaximumNormalStrain
+                        << " articular_max_closure_m="
+                        << openKneeLigamentFEM->articularMaximumClosureMeters
+                        << " articular_audited_steps="
+                        << openKneeLigamentFEM->articularAuditedStepCount
+                        << " articular_trajectory_min_closed_samples="
+                        << openKneeLigamentFEM->articularTrajectoryMinimumClosedSampleCount
+                        << " articular_trajectory_max_closed_samples="
+                        << openKneeLigamentFEM->articularTrajectoryMaximumClosedSampleCount
+                        << " articular_trajectory_min_normal_force_n="
+                        << openKneeLigamentFEM->articularTrajectoryMinimumNormalForceNewtons
+                        << " articular_trajectory_max_normal_force_n="
+                        << openKneeLigamentFEM->articularTrajectoryMaximumNormalForceNewtons
+                        << " articular_trajectory_max_pressure_pa="
+                        << openKneeLigamentFEM->articularTrajectoryMaximumPressurePascals
+                        << " articular_trajectory_max_stored_energy_j="
+                        << openKneeLigamentFEM->articularTrajectoryMaximumStoredEnergyJoules
+                        << " articular_trajectory_max_normal_strain="
+                        << openKneeLigamentFEM->articularTrajectoryMaximumNormalStrain
+                        << " articular_trajectory_max_closure_m="
+                        << openKneeLigamentFEM->articularTrajectoryMaximumClosureMeters
+                        << " articular_trajectory_max_force_residual_n="
+                        << openKneeLigamentFEM->articularTrajectoryMaximumForceResidualNewtons
+                        << " articular_trajectory_max_moment_residual_nm="
+                        << openKneeLigamentFEM->articularTrajectoryMaximumMomentResidualNewtonMeters
                         << " qat_load_nodes="
                         << openKneeLigamentFEM->quadricepsLoadNodeCount
                         << " qat_load_patch_area_m2="
@@ -10378,6 +10510,48 @@ int main(int argc, char** argv) {
                       << " open_knee_articular_moment_residual_nm="
                       << (openKneeLigamentFEM.has_value()
                               ? openKneeLigamentFEM->articularMomentResidualNewtonMeters : 0.0)
+                      << " open_knee_articular_stored_energy_j="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularStoredEnergyJoules : 0.0)
+                      << " open_knee_articular_max_normal_strain="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularMaximumNormalStrain : 0.0)
+                      << " open_knee_articular_max_closure_m="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularMaximumClosureMeters : 0.0)
+                      << " open_knee_articular_audited_steps="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularAuditedStepCount : 0u)
+                      << " open_knee_articular_trajectory_min_closed_samples="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularTrajectoryMinimumClosedSampleCount : 0u)
+                      << " open_knee_articular_trajectory_max_closed_samples="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularTrajectoryMaximumClosedSampleCount : 0u)
+                      << " open_knee_articular_trajectory_min_normal_force_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularTrajectoryMinimumNormalForceNewtons : 0.0)
+                      << " open_knee_articular_trajectory_max_normal_force_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularTrajectoryMaximumNormalForceNewtons : 0.0)
+                      << " open_knee_articular_trajectory_max_pressure_pa="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularTrajectoryMaximumPressurePascals : 0.0)
+                      << " open_knee_articular_trajectory_max_stored_energy_j="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularTrajectoryMaximumStoredEnergyJoules : 0.0)
+                      << " open_knee_articular_trajectory_max_normal_strain="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularTrajectoryMaximumNormalStrain : 0.0)
+                      << " open_knee_articular_trajectory_max_closure_m="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularTrajectoryMaximumClosureMeters : 0.0)
+                      << " open_knee_articular_trajectory_max_force_residual_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularTrajectoryMaximumForceResidualNewtons : 0.0)
+                      << " open_knee_articular_trajectory_max_moment_residual_nm="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->articularTrajectoryMaximumMomentResidualNewtonMeters : 0.0)
                       << " open_knee_tissue_fem_qualification_flexion_rad="
                       << (openKneeLigamentFEM.has_value()
                               ? openKneeLigamentFEM->qualificationFlexionRadians : 0.0)

@@ -116,6 +116,8 @@ int main() {
                 0.0f, 0.01f, 0.0f, 0.002f};
             articularContactSample.masterLocalNormalAndStiffness = {
                 1.0f, 0.0f, 0.0f, 1.0e7f};
+            articularContactSample.normalStrainPerPressure = {
+                1.0e-6f, 0.0f, 0.0f, 0.0f};
             const std::array<NMNumiHumanFEMContactContributionGPU, 4u>
                 contactContributions{{
                     {.sampleIndex = 0u, .role = 1u},
@@ -396,6 +398,10 @@ int main() {
                             accepted.femNodes.size() * sizeof(NMFEMNodeStateGPU)
                         ) == 0,
                     "probe rejected Human step did not roll Matter back");
+            const auto rejectedDiagnostics = adapter.diagnostics();
+            require(rejectedDiagnostics.articularAuditedStepCount == 1u &&
+                        rejectedDiagnostics.articularClosedSampleCount == 1u,
+                    "probe rejected Human step polluted accepted articular history");
 
             require(runtime.restore(initial).encoded,
                     "probe initial-state restore failed");
@@ -452,6 +458,39 @@ int main() {
                         diagnostics.articularForceResidualNewtons <= 1.0e-6 &&
                         diagnostics.articularMomentResidualNewtonMeters <=
                             1.0e-6 &&
+                        diagnostics.articularAuditedStepCount == 1u &&
+                        diagnostics.articularTrajectoryMinimumClosedSampleCount ==
+                            1u &&
+                        diagnostics.articularTrajectoryMaximumClosedSampleCount ==
+                            1u &&
+                        std::abs(diagnostics.articularStoredEnergyJoules -
+                            0.000499900005) <= 1.0e-9 &&
+                        std::abs(diagnostics.articularMaximumNormalStrain -
+                            0.009999) <= 1.0e-6 &&
+                        std::abs(diagnostics.articularMaximumClosureMeters -
+                            0.0009999) <= 1.0e-7 &&
+                        std::abs(
+                            diagnostics.articularTrajectoryMinimumNormalForceNewtons -
+                            0.9999) <= 1.0e-4 &&
+                        std::abs(
+                            diagnostics.articularTrajectoryMaximumNormalForceNewtons -
+                            0.9999) <= 1.0e-4 &&
+                        std::abs(
+                            diagnostics.articularTrajectoryMaximumPressurePascals -
+                            9999.0) <= 1.0 &&
+                        std::abs(
+                            diagnostics.articularTrajectoryMaximumStoredEnergyJoules -
+                            0.000499900005) <= 1.0e-9 &&
+                        std::abs(
+                            diagnostics.articularTrajectoryMaximumNormalStrain -
+                            0.009999) <= 1.0e-6 &&
+                        std::abs(
+                            diagnostics.articularTrajectoryMaximumClosureMeters -
+                            0.0009999) <= 1.0e-7 &&
+                        diagnostics.articularTrajectoryMaximumForceResidualNewtons <=
+                            1.0e-6 &&
+                        diagnostics.articularTrajectoryMaximumMomentResidualNewtonMeters <=
+                            1.0e-6 &&
                         diagnostics.fingerprint != 0u,
                     "probe adapter diagnostics are incomplete");
             std::cout
@@ -482,6 +521,19 @@ int main() {
                 << diagnostics.articularForceResidualNewtons
                 << " articular_moment_residual_nm="
                 << diagnostics.articularMomentResidualNewtonMeters
+                << " articular_stored_energy_j="
+                << diagnostics.articularStoredEnergyJoules
+                << " articular_max_normal_strain="
+                << diagnostics.articularMaximumNormalStrain
+                << " articular_max_closure_m="
+                << diagnostics.articularMaximumClosureMeters
+                << " articular_audited_steps="
+                << diagnostics.articularAuditedStepCount
+                << " articular_trajectory_min_closed_samples="
+                << diagnostics.articularTrajectoryMinimumClosedSampleCount
+                << " articular_trajectory_max_closed_samples="
+                << diagnostics.articularTrajectoryMaximumClosedSampleCount
+                << " rejected_step_excluded_from_history=true"
                 << " articular_contact_generalized_force="
                 << measuredArticularGeneralizedForce
                 << " articular_contact_fem_state_ab=bitwise"

@@ -1,0 +1,32 @@
+{
+  "schema": "numilab.human.knee-articular-history.v1",
+  "case": "synthetic_transaction_fixture",
+  "device": "Apple M4 Pro",
+  "source_revision_parent": "0070ca23d915ebb5a92c87fc8f92978fcd338f0f",
+  "adapter_abi": 8,
+  "mechanical_sample_count": 1,
+  "internal_same_body_sample_count": 1,
+  "accepted_audited_step_count": 1,
+  "closed_sample_count": 1,
+  "normal_force_newtons": 0.9999,
+  "maximum_pressure_pascals": 9999.0,
+  "maximum_normal_strain": 0.009999,
+  "maximum_closure_meters": 0.0009999,
+  "stored_energy_joules": 0.000499900005,
+  "body_force_l1_newtons": 1.9998,
+  "force_residual_newtons": 0.0,
+  "moment_residual_newton_meters": 0.0,
+  "replay": "bitwise",
+  "rollback": "verified",
+  "rejected_step_excluded_from_history": true,
+  "gates": {
+    "malformed_contact_rejected": "passed",
+    "same_body_typed_without_rigid_force": "passed",
+    "accepted_history_commit": "passed",
+    "rejected_history_exclusion": "passed",
+    "strain_energy_identity": "passed",
+    "force_and_moment_balance": "passed",
+    "bitwise_replay": "passed",
+    "rollback": "passed"
+  }
+}
