@@ -103,6 +103,14 @@ intercrossing fibers:
 mechanical family for the next implementation. Adding another arbitrary joint
 spring would hide the error without repairing tendon-to-bone mechanics.
 
+The subsequent all-DoF audit and source-derived ADM feasibility test narrow
+this further. The straight bilateral ADM routes have the wrong generalized-
+force sign and are rejected. The fifth ray is instead trapped in high FDP5/EDM
+co-contraction to balance flexion and wrist demands while their transverse MCP
+moments fail to cancel. The next admitted owner must therefore resolve
+intrinsic/extensor/flexor force sharing and pulley/hood routing together; an
+ADM sign flip or bilateral joint-stop preload is not permitted.
+
 ## Evidence boundary
 
 - This is a linearized conservative static preflight, not live ligament,

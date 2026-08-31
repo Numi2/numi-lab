@@ -40,8 +40,14 @@ one-step receipt cannot satisfy a stronger one.
 
 The manifest covers 15 musculoskeletal regions and six continuum layers. The
 current report contains 82 verified requirements, 22 contradicted
-requirements, eight insufficient requirements, and 70 missing requirements.
+requirements, 14 insufficient requirements, and 64 missing requirements.
 No complete scope is yet promoted.
+
+The all-DoF support audit is documented in
+[`NUMI_HUMAN_WHOLE_BODY_ALL_DOF_V1.md`](NUMI_HUMAN_WHOLE_BODY_ALL_DOF_V1.md).
+It preserves all 128 coordinate residuals and source-muscle contributions;
+the current ledger remains 0/21 complete because this diagnostic does not
+promote unresolved mechanics.
 
 The fresh integrated Release build also passed the native NumanX label 12/12
 on Apple M4 Pro. Those tests qualify transaction ownership, capacity,

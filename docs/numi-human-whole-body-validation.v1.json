@@ -381,7 +381,7 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "5b53ecfcd73b44b95d053715fbc4315bddde112b524aebac16b01c598488b464"}
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65"}
       ]
     },
     "bilateral_plantar_fascia_force_transfer": {
@@ -412,7 +412,7 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "5b53ecfcd73b44b95d053715fbc4315bddde112b524aebac16b01c598488b464"}
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65"}
       ]
     },
     "whole_body_support_wrench": {
@@ -434,7 +434,7 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "5b53ecfcd73b44b95d053715fbc4315bddde112b524aebac16b01c598488b464"},
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65"},
         {"path": "include/metalrobo/NumiHumanMuscleEquilibrium.hpp", "sha256": "d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571"},
         {"path": "src/core/NumiHumanMuscleEquilibrium.cpp", "sha256": "dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129"}
       ]
@@ -460,7 +460,7 @@
         {"pointer": "/remaining_blocker", "op": "equals", "value": "source_extensor_hood_interosseous_route_and_force_sharing"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "5b53ecfcd73b44b95d053715fbc4315bddde112b524aebac16b01c598488b464"},
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65"},
         {"path": "include/metalrobo/NumiHumanMuscleEquilibrium.hpp", "sha256": "d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571"},
         {"path": "src/core/NumiHumanMuscleEquilibrium.cpp", "sha256": "dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129"}
       ]
@@ -489,7 +489,7 @@
         {"path": "include/metalrobo/NumiHumanTensionNetwork.hpp", "sha256": "f9846b267e35ca542284baadbd0820b1b7cbb963eb6710bcd75d0483a507cbde"},
         {"path": "src/core/NumiHumanTensionNetwork.cpp", "sha256": "3198a1230a8dbd9c3f41d9459ca865e1fd82e8f267b4644a0fdf2e65c43140d2"},
         {"path": "apps/numilab_human_extensor_hood_reference_probe.cpp", "sha256": "f594bd73ec00a06d9026a31062e71fa108dbdc2de86137bad1bb7887d46ab97b"},
-        {"path": "CMakeLists.txt", "sha256": "92e612e0ea7d581f26c582c45ed479a462422ff9733c4a3df7c1d65857fc8c3a"}
+        {"path": "CMakeLists.txt", "sha256": "0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a"}
       ]
     },
     "extensor_hood_source_posed_reference": {
@@ -520,7 +520,64 @@
         {"path": "apps/numilab_human_extensor_hood_source_probe.cpp", "sha256": "adbab40830daa8d89f7ddf13c6d4ec1b1ca3d94e9d854c80485e9de9ef5f94ee"},
         {"path": "include/metalrobo/NumiHumanTensionNetwork.hpp", "sha256": "f9846b267e35ca542284baadbd0820b1b7cbb963eb6710bcd75d0483a507cbde"},
         {"path": "src/core/NumiHumanTensionNetwork.cpp", "sha256": "3198a1230a8dbd9c3f41d9459ca865e1fd82e8f267b4644a0fdf2e65c43140d2"},
-        {"path": "CMakeLists.txt", "sha256": "92e612e0ea7d581f26c582c45ed479a462422ff9733c4a3df7c1d65857fc8c3a"}
+        {"path": "CMakeLists.txt", "sha256": "0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a"}
+      ]
+    },
+    "adm_source_inferred_feasibility_rejection": {
+      "path": "docs/media/numi-human-adm-feasibility-v1/m4-pro.json",
+      "format": "json",
+      "level": "preflight",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numi.human.adm-feasibility-evidence.v1"},
+        {"pointer": "/result", "op": "equals", "value": "rejected_wrong_sign_or_capacity"},
+        {"pointer": "/qualified", "op": "equals", "value": false},
+        {"pointer": "/measurements/right_required_force_n", "op": "maximum", "value": 0.0},
+        {"pointer": "/measurements/left_required_force_n", "op": "maximum", "value": 0.0},
+        {"pointer": "/measurements/maximum_jacobian_oracle_error_m", "op": "maximum", "value": 0.00000002},
+        {"pointer": "/measurements/bilateral_moment_arm_relative_difference", "op": "maximum", "value": 0.25},
+        {"pointer": "/measurements/root_force_residual_n", "op": "maximum", "value": 0.000000001},
+        {"pointer": "/measurements/root_moment_residual_nm", "op": "maximum", "value": 0.000000001},
+        {"pointer": "/measurements/replay", "op": "equals", "value": "bitwise"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_adm_feasibility_probe.cpp", "sha256": "95897cf78761543c3aa35db10ae4d883dde1ca5353e68c64e3e30d2061743721"},
+        {"path": "CMakeLists.txt", "sha256": "0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a"}
+      ]
+    },
+    "fifth_mcp_lower_stop_negative_control": {
+      "path": "docs/media/numi-human-fifth-mcp-lower-stop-negative-v1/m4-pro.json",
+      "format": "json",
+      "level": "preflight",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numi.human.fifth-mcp-lower-stop-negative-control.v1"},
+        {"pointer": "/result", "op": "equals", "value": "rejected_nonanatomical_hard_stop"},
+        {"pointer": "/counterfactual/right_residual_nm", "op": "equals", "value": 0.0},
+        {"pointer": "/counterfactual/left_residual_nm", "op": "equals", "value": 0.0},
+        {"pointer": "/counterfactual/right_acceleration_rad_s2", "op": "minimum", "value": 50.0},
+        {"pointer": "/counterfactual/left_acceleration_rad_s2", "op": "minimum", "value": 50.0},
+        {"pointer": "/counterfactual/replay", "op": "equals", "value": "bitwise"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65"}
+      ]
+    },
+    "whole_body_all_dof_support_report": {
+      "path": "docs/media/numi-human-whole-body-all-dof-v1/m4-pro.json",
+      "format": "json",
+      "level": "preflight",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numi.human.whole-body-support-all-dof-report.v1"},
+        {"pointer": "/derived/dof_count", "op": "equals", "value": 128},
+        {"pointer": "/residuals", "op": "length_equals", "value": 128},
+        {"pointer": "/contacts", "op": "length_equals", "value": 10},
+        {"pointer": "/summary/relative_weight_error", "op": "maximum", "value": 0.00001},
+        {"pointer": "/summary/internal_balanced", "op": "equals", "value": false},
+        {"pointer": "/summary/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/derived/coordinates_over_100_rad_s2", "op": "equals", "value": 2}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65"},
+        {"path": "tools/parse_numilab_human_support_report.py", "sha256": "f3dc6737fe704bb68f9e7157f0b56e30a1216d9348a3112a616695a776c2c2fa"}
       ]
     },
     "costal_cartilage_preflight": {

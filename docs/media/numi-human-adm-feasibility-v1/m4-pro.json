@@ -1,0 +1,39 @@
+{
+  "schema": "numi.human.adm-feasibility-evidence.v1",
+  "result": "rejected_wrong_sign_or_capacity",
+  "qualified": false,
+  "device": {
+    "host": "macmini",
+    "architecture": "arm64",
+    "product": "Mac mini M4 Pro",
+    "macos": "26.6"
+  },
+  "source_revision_parent": "acaa308",
+  "source_compiler_revision": "fb40236",
+  "inputs": {
+    "nhrigid2_sha256": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44",
+    "nhadm1_sha256": "12e8c2daf5ae2e9a0ea037ce8022b739a854eaf034d04684b8282533656d4c31",
+    "right_measured_residual_nm": -0.0740494832131,
+    "left_measured_residual_nm": -0.0728524869508
+  },
+  "binary_sha256": "51274762718916b84204830d36711a094db661599112e0ca40fc3b4bfa3420b3",
+  "measurements": {
+    "right_route_length_m": 0.0681377990212,
+    "left_route_length_m": 0.0740744509857,
+    "right_moment_arm_m": -0.0074456667855,
+    "left_moment_arm_m": -0.00803117448803,
+    "right_required_force_n": -9.94531253497,
+    "left_required_force_n": -9.07121206984,
+    "force_capacity_low_n": 22.2000007629,
+    "force_capacity_nominal_n": 29.7479991913,
+    "force_capacity_high_n": 61.0499992371,
+    "maximum_jacobian_oracle_error_m": 1.95186054819e-11,
+    "bilateral_moment_arm_relative_difference": 0.0729043682716,
+    "maximum_collateral_generalized_force": 0.015081069271,
+    "root_force_residual_n": 0.0,
+    "root_moment_residual_nm": 5.06699074812e-16,
+    "replay": "bitwise"
+  },
+  "command": "metalrobo_numilab_human_adm_feasibility_probe myosim-fullbody-core-reference.nhrigid bodyparts-adm-inference.nhadm -0.0740494832131 -0.0728524869508",
+  "boundary": "source_inferred_cpu_fp64_feasibility_not_yet_live_hill_type_actuation_or_static_equilibrium"
+}

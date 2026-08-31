@@ -10942,6 +10942,8 @@ int main(int argc, char** argv) {
             bool bilateralPlantarFasciaCertificate = false;
             bool wholeBodySupportCertificate = false;
             bool sourcePassiveJointTissue = false;
+            bool wholeBodyAllResiduals = false;
+            bool fifthMcpLowerStopCounterfactualRequested = false;
             bool sourceRouteCentrelines = false;
             bool surfaceProjectSourceSites = false;
             std::vector<std::uint32_t> requestedSourceRouteMuscles;
@@ -11022,6 +11024,14 @@ int main(int argc, char** argv) {
                     require(!sourcePassiveJointTissue,
                             "--source-passive-joint-tissue may be given only once");
                     sourcePassiveJointTissue = true;
+                } else if (argument == "--whole-body-all-residuals") {
+                    require(!wholeBodyAllResiduals,
+                            "--whole-body-all-residuals may be given only once");
+                    wholeBodyAllResiduals = true;
+                } else if (argument == "--fifth-mcp-lower-stop-counterfactual") {
+                    require(!fifthMcpLowerStopCounterfactualRequested,
+                            "--fifth-mcp-lower-stop-counterfactual may be given only once");
+                    fifthMcpLowerStopCounterfactualRequested = true;
                 } else if (argument == "--activated-source-muscle-index") {
                     require(index + 1 < argc,
                             "--activated-source-muscle-index requires one muscle index");
@@ -11169,6 +11179,8 @@ int main(int argc, char** argv) {
                           << " [--bilateral-achilles-certificate]"
                           << " [--bilateral-plantar-fascia-certificate]"
                           << " [--whole-body-support-certificate]"
+                          << " [--whole-body-all-residuals]"
+                          << " [--fifth-mcp-lower-stop-counterfactual]"
                           << " [--source-passive-joint-tissue]"
                           << " [--activated-source-muscle-index <0..415>]..."
                           << " [--source-route-centrelines] [--source-route-index <0..415>]..."
@@ -11363,6 +11375,14 @@ int main(int argc, char** argv) {
             require(!sourcePassiveJointTissue || wholeBodySupportCertificate,
                     "--source-passive-joint-tissue requires "
                     "--whole-body-support-certificate");
+            require(!wholeBodyAllResiduals || wholeBodySupportCertificate,
+                    "--whole-body-all-residuals requires "
+                    "--whole-body-support-certificate");
+            require(!fifthMcpLowerStopCounterfactualRequested ||
+                        (wholeBodySupportCertificate && sourcePassiveJointTissue),
+                    "--fifth-mcp-lower-stop-counterfactual requires "
+                    "--whole-body-support-certificate and "
+                    "--source-passive-joint-tissue");
             std::sort(requestedBoneBodyIndices.begin(), requestedBoneBodyIndices.end());
             const auto duplicateBoneBody = std::adjacent_find(
                 requestedBoneBodyIndices.begin(), requestedBoneBodyIndices.end()
@@ -11664,6 +11684,72 @@ int main(int argc, char** argv) {
                                      replaySupport.supportNormalForce),
                     "whole-body support compile did not replay bitwise"
                 );
+                std::optional<CompiledStandActivation>
+                    fifthMcpLowerStopCounterfactual;
+                if (fifthMcpLowerStopCounterfactualRequested) {
+                    std::vector<double> counterfactualQ = aligned.q;
+                    for (const std::uint32_t dofIndex : {59u, 97u}) {
+                        const MRDofPropertiesGPU& dof =
+                            rigid.model.dofs.at(dofIndex);
+                        require(
+                            dof.qIndex != MR_INVALID_INDEX &&
+                                (dof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u &&
+                                dof.limits.x < 0.0f,
+                            "fifth-MCP counterfactual requires bounded source coordinates"
+                        );
+                        counterfactualQ.at(dof.qIndex) = dof.limits.x;
+                    }
+                    double equalityProjection = 0.0;
+                    const auto projectionDiagnostics =
+                        metalrobo::projectNumiHumanJointEqualities(
+                            jointEqualityPayload->payload.records,
+                            counterfactualQ, &equalityProjection
+                        );
+                    require(
+                        projectionDiagnostics.succeeded() &&
+                            std::abs(
+                                counterfactualQ.at(
+                                    rigid.model.dofs.at(59u).qIndex) -
+                                rigid.model.dofs.at(59u).limits.x) <= 1.0e-12 &&
+                            std::abs(
+                                counterfactualQ.at(
+                                    rigid.model.dofs.at(97u).qIndex) -
+                                rigid.model.dofs.at(97u).limits.x) <= 1.0e-12,
+                        "fifth-MCP lower-stop counterfactual changed a target coordinate"
+                    );
+                    fifthMcpLowerStopCounterfactual.emplace(
+                        compileStaticStandActivation(
+                            rigid.model, musclePayload,
+                            *jointEqualityPayload, counterfactualQ, 1.0, {},
+                            &*supportContactPayload, passiveCouplings
+                        )
+                    );
+                    const CompiledStandActivation counterfactualReplay =
+                        compileStaticStandActivation(
+                            rigid.model, musclePayload,
+                            *jointEqualityPayload, counterfactualQ, 1.0, {},
+                            &*supportContactPayload, passiveCouplings
+                        );
+                    require(
+                        bitwiseEqual(
+                            fifthMcpLowerStopCounterfactual->q,
+                            counterfactualReplay.q) &&
+                            bitwiseEqual(
+                                fifthMcpLowerStopCounterfactual->activation,
+                                counterfactualReplay.activation) &&
+                            bitwiseEqual(
+                                fifthMcpLowerStopCounterfactual->
+                                    generalizedForceResidual,
+                                counterfactualReplay.
+                                    generalizedForceResidual) &&
+                            bitwiseEqual(
+                                fifthMcpLowerStopCounterfactual->
+                                    generalizedPositionLimitForce,
+                                counterfactualReplay.
+                                    generalizedPositionLimitForce),
+                        "fifth-MCP lower-stop counterfactual did not replay bitwise"
+                    );
+                }
                 double bodyMassKilograms = 0.0;
                 for (const MRBodyPropertiesGPU& body : rigid.model.bodies) {
                     bodyMassKilograms += body.massAndInverseMass.x;
@@ -11680,6 +11766,27 @@ int main(int argc, char** argv) {
                 const double relativeWeightError = std::abs(
                     support.totalSupportForceNewtons - expectedWeightNewtons) /
                     expectedWeightNewtons;
+                if (fifthMcpLowerStopCounterfactual.has_value()) {
+                    const auto& counterfactual =
+                        *fifthMcpLowerStopCounterfactual;
+                    std::cout
+                        << " fifth_mcp_lower_stop_counterfactual=true"
+                        << " fifth_mcp_lower_stop_right_residual_nm="
+                        << counterfactual.generalizedForceResidual[59]
+                        << " fifth_mcp_lower_stop_left_residual_nm="
+                        << counterfactual.generalizedForceResidual[97]
+                        << " fifth_mcp_lower_stop_right_acceleration_rad_s2="
+                        << counterfactual.generalizedAccelerationResidual[59]
+                        << " fifth_mcp_lower_stop_left_acceleration_rad_s2="
+                        << counterfactual.generalizedAccelerationResidual[97]
+                        << " fifth_mcp_lower_stop_normalized_residual_rms="
+                        << counterfactual.normalizedResidualRms
+                        << " fifth_mcp_lower_stop_right_limit_reaction_nm="
+                        << counterfactual.generalizedPositionLimitForce[59]
+                        << " fifth_mcp_lower_stop_left_limit_reaction_nm="
+                        << counterfactual.generalizedPositionLimitForce[97]
+                        << " fifth_mcp_lower_stop_replay=bitwise ";
+                }
                 require(
                     support.supportNormalForce.size() ==
                         supportContactPayload->records.size() &&
@@ -11792,12 +11899,15 @@ int main(int argc, char** argv) {
                               << " contact_" << index << "_normal_force_n="
                               << support.supportNormalForce[index];
                 }
-                constexpr std::size_t kReportedResidualCount = 12u;
+                constexpr std::size_t kDefaultReportedResidualCount = 12u;
+                const std::size_t reportedResidualCount =
+                    wholeBodyAllResiduals
+                    ? residualOrder.size() : kDefaultReportedResidualCount;
                 const MRArticulationGPU& articulation =
                     rigid.model.articulations.front();
                 for (std::size_t rank = 0u;
                      rank < std::min(
-                         kReportedResidualCount, residualOrder.size());
+                         reportedResidualCount, residualOrder.size());
                      ++rank) {
                     const std::uint32_t dof = residualOrder[rank];
                     const std::size_t globalDof = articulation.vOffset + dof;
