@@ -103,6 +103,9 @@
     "bitwise_replay": "passed",
     "sole_rigid_force_authority": "passed"
   },
+  "artifacts": {
+    "apps/numilab_human_myosim_visual_probe.mm": "0d9122b830f632fca8231652546485804c2fbf5cf9c44def74809266465d6773"
+  },
   "evidence_level": "one_step",
   "evidence_boundary": "This is a bounded two-step bilateral active Achilles force-transfer certificate. It proves nonlinear source tendon equilibrium, exact named calcaneal envelope ownership, force and moment closure, a nonzero ankle generalized-force increment, same-command publication, rejection rollback, and bitwise replay. It does not prove a volumetric or transversely isotropic Achilles continuum, ankle cartilage/contact, passive ligaments, sustained gait, subject-specific anatomy, OpenSim Rajagopal equivalence, or clinical validity."
 }

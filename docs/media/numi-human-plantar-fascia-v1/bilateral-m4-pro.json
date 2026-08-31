@@ -1,0 +1,89 @@
+{
+  "schema": "numilab.human.plantar-fascia-force-transfer.preflight.v1",
+  "device": "Apple M4 Pro",
+  "evidence_level": "preflight",
+  "geometry_source": "BodyParts3D 4.0 exact named surface patches",
+  "mechanics_model": "five-ray metatarsal-head-pulley reduced tension-only windlass law",
+  "execution": "Apple Metal kinematics plus FP64 exact point Jacobian transpose and one-step articulated response",
+  "force_authority": "single_passive_three_point_force_system_mapped_once_by_exact_point_JT",
+  "plantar_actuation": "none",
+  "toe_articulation": "one_source_MTP_coordinate_per_foot_shared_by_all_five_rays",
+  "qualification_mtp_radians": -0.1,
+  "timestep_seconds": 0.0001,
+  "response_steps": 1,
+  "published_rest_lengths_meters": [0.151, 0.149, 0.148, 0.140, 0.131],
+  "ray_stiffness_newtons_per_millimeter": [60, 50, 50, 20, 20],
+  "aggregate_stiffness_newtons_per_millimeter": 200,
+  "replay": "bitwise",
+  "live_numanx_continuum_owner": false,
+  "deformable_fem": false,
+  "sides": {
+    "right": {
+      "calcaneus_body_index": 138,
+      "toes_body_index": 139,
+      "mtp_q_index": 111,
+      "calcaneus_stable_id": 6,
+      "metatarsal_stable_ids": [126, 127, 128, 129, 130],
+      "proximal_phalanx_stable_ids": [131, 133, 136, 139, 142],
+      "source_length_scale": 1.12860889936,
+      "maximum_rest_pattern_relative_residual": 0.0483216636997,
+      "total_tension_newtons": 285.05354654,
+      "maximum_force_closure_residual_newtons": 0.00000393209984395,
+      "maximum_moment_closure_residual_newton_meters": 0.000000491512480494,
+      "maximum_configuration_delta_from_no_force": 0.00000156365446982,
+      "maximum_velocity_delta_from_no_force": 0.0156365446982,
+      "rays": [
+        {"ray": 1, "bodyparts_rest_length_meters": 0.162184968591, "pulley_radius_meters": 0.0117165204138, "extension_meters": 0.00212994571775, "tension_newtons": 127.796743065},
+        {"ray": 2, "bodyparts_rest_length_meters": 0.16797567904, "pulley_radius_meters": 0.0113970795646, "extension_meters": 0.00131844738498, "tension_newtons": 65.9223692492},
+        {"ray": 3, "bodyparts_rest_length_meters": 0.167631402612, "pulley_radius_meters": 0.0103413295001, "extension_meters": 0.00104429554194, "tension_newtons": 52.2147770971},
+        {"ray": 4, "bodyparts_rest_length_meters": 0.1602678895, "pulley_radius_meters": 0.00943707488477, "extension_meters": 0.000986205600202, "tension_newtons": 19.724112004},
+        {"ray": 5, "bodyparts_rest_length_meters": 0.154459849, "pulley_radius_meters": 0.00957707315683, "extension_meters": 0.00096977725625, "tension_newtons": 19.395545125}
+      ]
+    },
+    "left": {
+      "calcaneus_body_index": 152,
+      "toes_body_index": 153,
+      "mtp_q_index": 125,
+      "calcaneus_stable_id": 7,
+      "metatarsal_stable_ids": [145, 146, 147, 148, 149],
+      "proximal_phalanx_stable_ids": [150, 152, 155, 158, 161],
+      "source_length_scale": 1.12171451024,
+      "maximum_rest_pattern_relative_residual": 0.0504026356438,
+      "total_tension_newtons": 288.049050607,
+      "maximum_force_closure_residual_newtons": 0.00000852992252476,
+      "maximum_moment_closure_residual_newton_meters": 0.000000725121822143,
+      "maximum_configuration_delta_from_no_force": 0.00000174292257508,
+      "maximum_velocity_delta_from_no_force": 0.0174292257509,
+      "rays": [
+        {"ray": 1, "bodyparts_rest_length_meters": 0.161177441478, "pulley_radius_meters": 0.0116459168494, "extension_meters": 0.002241275087, "tension_newtons": 134.47650522},
+        {"ray": 2, "bodyparts_rest_length_meters": 0.168966531754, "pulley_radius_meters": 0.0115624750033, "extension_meters": 0.00123894894496, "tension_newtons": 61.9474472478},
+        {"ray": 3, "bodyparts_rest_length_meters": 0.164269968867, "pulley_radius_meters": 0.0106631070375, "extension_meters": 0.00114811807871, "tension_newtons": 57.4059039354},
+        {"ray": 4, "bodyparts_rest_length_meters": 0.158850252628, "pulley_radius_meters": 0.00846205465496, "extension_meters": 0.00078660082072, "tension_newtons": 15.7320164144},
+        {"ray": 5, "bodyparts_rest_length_meters": 0.154350996017, "pulley_radius_meters": 0.00907848402858, "extension_meters": 0.000924358889461, "tension_newtons": 18.4871777892}
+      ]
+    }
+  },
+  "input_sha256": {
+    "myosim-fullbody-core-reference.nhrigid": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44",
+    "myosim-fullbody-muscle-reference.nhmyo": "9a988f19a6fd8e533cd0f2bf3192cb8535fb008ccd394ffbf1a4432d3db76a05",
+    "bodyparts3d-myosim-major-bones.nhbones": "de6a792cb4a4a0a50124105d268eda42b2ebbed08e77c34cd1b7ea0696841777",
+    "myosim-fullbody-support-contact.nhcnt": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907",
+    "myosim-fullbody-joint-equalities.nheq": "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a"
+  },
+  "artifacts": {
+    "apps/numilab_human_myosim_visual_probe.mm": "0d9122b830f632fca8231652546485804c2fbf5cf9c44def74809266465d6773"
+  },
+  "gates": {
+    "bilateral_named_bone_ownership": "passed",
+    "ten_exact_connected_surface_patches_per_site_class": "passed",
+    "one_authored_mtp_coordinate_per_foot": "passed",
+    "all_ten_rays_engaged": "passed",
+    "positive_tension_only": "passed",
+    "force_closure": "passed",
+    "world_origin_moment_closure": "passed",
+    "single_exact_JT_mapping": "passed",
+    "nonzero_articulated_response": "passed",
+    "bitwise_replay": "passed"
+  },
+  "evidence_boundary": "This is a bilateral reduced plantar-fascia windlass force-transfer preflight, not deformable FEM or a live NumanX continuum transaction. It does not qualify nonlinear toe-region response, rate or failure behavior, subject-specific calibration, loaded foot-ground contact, sustained gait, or clinical validity."
+}

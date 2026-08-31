@@ -51,6 +51,10 @@ class WholeBodyValidationTest(unittest.TestCase):
             report["evidence"]["bilateral_achilles_force_transfer"]["status"],
             "verified",
         )
+        self.assertEqual(
+            report["evidence"]["bilateral_plantar_fascia_force_transfer"]["status"],
+            "verified",
+        )
         for identifier in (
             "left_ankle_hindfoot_midfoot",
             "right_ankle_hindfoot_midfoot",
@@ -59,7 +63,7 @@ class WholeBodyValidationTest(unittest.TestCase):
             self.assertEqual(ankle["source_muscle_actuation"]["status"], "verified")
             self.assertEqual(ankle["active_tendon_to_bone"]["status"], "verified")
             self.assertEqual(ankle["deterministic_transaction"]["status"], "verified")
-            self.assertEqual(ankle["passive_joint_tissue"]["status"], "missing")
+            self.assertEqual(ankle["passive_joint_tissue"]["status"], "insufficient")
             self.assertEqual(ankle["articular_contact"]["status"], "missing")
 
         shoulder = scope(report, "left_shoulder")["requirements"]
@@ -72,6 +76,8 @@ class WholeBodyValidationTest(unittest.TestCase):
 
         toes = scope(report, "left_toes_compound")["requirements"]
         self.assertEqual(toes["compound_dof_policy"]["status"], "verified")
+        self.assertEqual(toes["windlass_force_transfer"]["status"], "verified")
+        self.assertEqual(toes["passive_joint_tissue"]["status"], "insufficient")
 
     def test_default_exit_fails_closed_while_incomplete(self):
         report = self.run_validator("--quiet", expected_code=1)

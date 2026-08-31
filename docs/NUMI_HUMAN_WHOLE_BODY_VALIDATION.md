@@ -39,8 +39,8 @@ one-step receipt cannot satisfy a stronger one.
 ## Current evidence baseline
 
 The manifest covers 15 musculoskeletal regions and six continuum layers. The
-current report contains 78 verified requirements, 22 contradicted
-requirements, four insufficient requirements, and 74 missing requirements.
+current report contains 80 verified requirements, 22 contradicted
+requirements, eight insufficient requirements, and 70 missing requirements.
 No complete scope is yet promoted.
 
 The fresh integrated Release build also passed the native NumanX label 12/12
@@ -93,6 +93,14 @@ bitwise. This promotes active tendon-to-bone transfer for both ankle/hindfoot
 scopes only. Passive ankle tissues, articular/contact mechanics, sustained
 loading, and OpenSim Rajagopal equivalence remain missing.
 
+The bilateral feet now also have a dedicated reduced plantar-fascia windlass
+preflight. Ten exact BodyParts3D surface routes connect named calcaneal,
+metatarsal-head, and proximal-phalanx patches while retaining one authored MTP
+coordinate per foot. All ten tension-only rays engage, close force and moment,
+change the one-step articulated response, and replay bitwise. This is a tendon
+force-transfer law, not deformable FEM or a live NumanX continuum transaction;
+therefore ankle/foot passive tissue remains insufficient rather than promoted.
+
 ## Development order
 
 The gate makes the next useful work explicit:
@@ -100,8 +108,9 @@ The gate makes the next useful work explicit:
 1. Promote the one-step knee contact to a bounded current-surface or implicit
    nonpenetration method and sustained flexion/loading qualification without
    regressing extensor-chain ownership.
-2. Apply the same exact force-owner pattern to the Achilles/ankle/foot chain,
-   then qualify foot contact and the existing compound-toe DoF policy.
+2. Promote the reduced plantar windlass law through the owning Human/NumanX
+   transaction, then qualify loaded foot contact while retaining the existing
+   compound-toe DoF policy.
 3. Qualify hip muscle entheses, passive capsule/ligaments, and articular
    contact bilaterally.
 4. Complete shoulder, elbow/forearm, wrist, hand, and finger force-transfer

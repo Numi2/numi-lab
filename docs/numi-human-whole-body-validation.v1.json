@@ -381,7 +381,38 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8"}
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "0d9122b830f632fca8231652546485804c2fbf5cf9c44def74809266465d6773"}
+      ]
+    },
+    "bilateral_plantar_fascia_force_transfer": {
+      "path": "docs/media/numi-human-plantar-fascia-v1/bilateral-m4-pro.json",
+      "format": "json",
+      "level": "preflight",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.plantar-fascia-force-transfer.preflight.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/evidence_level", "op": "equals", "value": "preflight"},
+        {"pointer": "/force_authority", "op": "equals", "value": "single_passive_three_point_force_system_mapped_once_by_exact_point_JT"},
+        {"pointer": "/plantar_actuation", "op": "equals", "value": "none"},
+        {"pointer": "/toe_articulation", "op": "equals", "value": "one_source_MTP_coordinate_per_foot_shared_by_all_five_rays"},
+        {"pointer": "/live_numanx_continuum_owner", "op": "equals", "value": false},
+        {"pointer": "/deformable_fem", "op": "equals", "value": false},
+        {"pointer": "/sides/right/rays", "op": "length_equals", "value": 5},
+        {"pointer": "/sides/left/rays", "op": "length_equals", "value": 5},
+        {"pointer": "/sides/*/rays/*/extension_meters", "op": "minimum", "value": 0.000001},
+        {"pointer": "/sides/*/rays/*/tension_newtons", "op": "minimum", "value": 0.001},
+        {"pointer": "/sides/*/rays/*/pulley_radius_meters", "op": "minimum", "value": 0.001},
+        {"pointer": "/sides/*/maximum_rest_pattern_relative_residual", "op": "maximum", "value": 0.06},
+        {"pointer": "/sides/*/total_tension_newtons", "op": "minimum", "value": 1.0},
+        {"pointer": "/sides/*/maximum_force_closure_residual_newtons", "op": "maximum", "value": 0.00001},
+        {"pointer": "/sides/*/maximum_moment_closure_residual_newton_meters", "op": "maximum", "value": 0.000001},
+        {"pointer": "/sides/*/maximum_configuration_delta_from_no_force", "op": "minimum", "value": 0.000000001},
+        {"pointer": "/sides/*/maximum_velocity_delta_from_no_force", "op": "minimum", "value": 0.000001},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "0d9122b830f632fca8231652546485804c2fbf5cf9c44def74809266465d6773"}
       ]
     },
     "costal_cartilage_preflight": {
@@ -489,6 +520,7 @@
       "requirements": {
         "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"},
         "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"},
+        "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["bilateral_plantar_fascia_force_transfer"], "gap": "promote the reduced windlass preflight into the owning live transaction and add ankle ligaments, capsule, and cartilage"},
         "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"}
       }
     },
@@ -498,6 +530,7 @@
       "requirements": {
         "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"},
         "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"},
+        "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["bilateral_plantar_fascia_force_transfer"], "gap": "promote the reduced windlass preflight into the owning live transaction and add ankle ligaments, capsule, and cartilage"},
         "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"}
       }
     },
@@ -505,14 +538,18 @@
       "id": "left_toes_compound",
       "profile": "lower_joint",
       "requirements": {
-        "compound_dof_policy": {"minimum_level": "structural", "evidence": ["bodyparts3d_bone_structure"], "gap": "retain one authored MTP body without invented independent toe articulation"}
+        "compound_dof_policy": {"minimum_level": "structural", "evidence": ["bodyparts3d_bone_structure"], "gap": "retain one authored MTP body without invented independent toe articulation"},
+        "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["bilateral_plantar_fascia_force_transfer"], "gap": "promote the five-ray reduced windlass law into the owning live transaction"},
+        "windlass_force_transfer": {"minimum_level": "preflight", "evidence": ["bilateral_plantar_fascia_force_transfer"]}
       }
     },
     {
       "id": "right_toes_compound",
       "profile": "lower_joint",
       "requirements": {
-        "compound_dof_policy": {"minimum_level": "structural", "evidence": ["bodyparts3d_bone_structure"], "gap": "retain one authored MTP body without invented independent toe articulation"}
+        "compound_dof_policy": {"minimum_level": "structural", "evidence": ["bodyparts3d_bone_structure"], "gap": "retain one authored MTP body without invented independent toe articulation"},
+        "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["bilateral_plantar_fascia_force_transfer"], "gap": "promote the five-ray reduced windlass law into the owning live transaction"},
+        "windlass_force_transfer": {"minimum_level": "preflight", "evidence": ["bilateral_plantar_fascia_force_transfer"]}
       }
     }
   ],
