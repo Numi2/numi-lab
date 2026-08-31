@@ -381,7 +381,7 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "07436ea01e9472117bb6e32114ca87e6f14ad965019c20fc0fcc635a7ebecdc2"}
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "c77485b5d3bac72ad904973b516458aad30561721130d743a051a7e07a761fbe"}
       ]
     },
     "bilateral_plantar_fascia_force_transfer": {
@@ -412,7 +412,7 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "07436ea01e9472117bb6e32114ca87e6f14ad965019c20fc0fcc635a7ebecdc2"}
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "c77485b5d3bac72ad904973b516458aad30561721130d743a051a7e07a761fbe"}
       ]
     },
     "whole_body_support_wrench": {
@@ -434,9 +434,35 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "07436ea01e9472117bb6e32114ca87e6f14ad965019c20fc0fcc635a7ebecdc2"},
-        {"path": "include/metalrobo/NumiHumanMuscleEquilibrium.hpp", "sha256": "68a5d5b95c4989f350a97dcfddfa5dd6ec9e310c0e01400a0b9407142cd9e627"},
-        {"path": "src/core/NumiHumanMuscleEquilibrium.cpp", "sha256": "f9c05ded802aced3ba5f7b44bbfcc91fe630d16e31c34b1341ee8411c027cf15"}
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "c77485b5d3bac72ad904973b516458aad30561721130d743a051a7e07a761fbe"},
+        {"path": "include/metalrobo/NumiHumanMuscleEquilibrium.hpp", "sha256": "d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571"},
+        {"path": "src/core/NumiHumanMuscleEquilibrium.cpp", "sha256": "dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129"}
+      ]
+    },
+    "upper_passive_joint_tissue_preflight": {
+      "path": "docs/media/numi-human-upper-passive-joint-v1/m4-pro.json",
+      "format": "json",
+      "level": "preflight",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.upper-passive-joint-tissue.preflight.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/evidence_level", "op": "equals", "value": "preflight"},
+        {"pointer": "/passive_coordinate_coupling_count", "op": "equals", "value": 40},
+        {"pointer": "/result/support_contact_count", "op": "equals", "value": 10},
+        {"pointer": "/result/active_support_contact_count", "op": "equals", "value": 10},
+        {"pointer": "/result/relative_weight_error", "op": "maximum", "value": 0.00001},
+        {"pointer": "/result/maximum_floating_root_force_residual", "op": "maximum", "value": 0.001},
+        {"pointer": "/result/residual_reduction_percent", "op": "minimum", "value": 80.0},
+        {"pointer": "/result/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/result/internal_balanced", "op": "equals", "value": false},
+        {"pointer": "/dominant_remaining_residuals", "op": "length_equals", "value": 2},
+        {"pointer": "/dominant_remaining_residuals/*/within_position_limits", "op": "equals", "value": true},
+        {"pointer": "/remaining_blocker", "op": "equals", "value": "source_extensor_hood_interosseous_route_and_force_sharing"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "c77485b5d3bac72ad904973b516458aad30561721130d743a051a7e07a761fbe"},
+        {"path": "include/metalrobo/NumiHumanMuscleEquilibrium.hpp", "sha256": "d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571"},
+        {"path": "src/core/NumiHumanMuscleEquilibrium.cpp", "sha256": "dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129"}
       ]
     },
     "costal_cartilage_preflight": {
@@ -468,7 +494,7 @@
       "joint_kinematics": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
       "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
       "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["fully_distributed_exact_entheses"], "gap": "replace point fallbacks and inferred whole-body endpoints with region-specific exact loaded enthesis transfer"},
-      "passive_joint_tissue": {"minimum_level": "one_step", "evidence": [], "gap": "add anatomically sourced ligament, tendon, capsule, and cartilage mechanics"},
+      "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["upper_passive_joint_tissue_preflight"], "gap": "promote the sourced linearized preflight to loaded ligament, tendon, capsule, and cartilage mechanics"},
       "articular_contact": {"minimum_level": "one_step", "evidence": [], "gap": "add compliant articular contact and nonpenetration evidence"},
       "bilateral_parity": {"minimum_level": "structural", "evidence": ["upper_multi_pose_geometry"]},
       "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},

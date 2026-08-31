@@ -1,0 +1,94 @@
+{
+  "schema": "numilab.human.upper-passive-joint-tissue.preflight.v1",
+  "evidence_level": "preflight",
+  "device": "Apple M4 Pro",
+  "source_model": "pinned_MyoSim_full_body",
+  "support_payload": "NHCNT1",
+  "joint_manifold": "NHEQ1",
+  "passive_model": "linearized_experimental_upper_v1",
+  "passive_coordinate_coupling_count": 40,
+  "source_urls": {
+    "wrist_stiffness": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3424077/",
+    "finger_stiffness": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10869888/"
+  },
+  "wrist_stiffness_newton_meters_per_radian": {
+    "coordinate_order": ["flexion", "deviation"],
+    "matrix": [[1.28, -0.18], [-0.18, 1.74]],
+    "right_source_dofs_deviation_flexion": [40, 41],
+    "left_source_dofs_deviation_flexion": [78, 79]
+  },
+  "non_thumb_ray_fallback_stiffness_newton_meters_per_radian": {
+    "mcp_flexion": 0.054261,
+    "mcp_ab_adduction": 0.1779,
+    "pip_flexion": 0.0231,
+    "dip_flexion": 0.0037206,
+    "right_source_dof_bases": [46, 50, 54, 58],
+    "left_source_dof_offset": 38,
+    "inference_boundary": "middle_finger_values_reused_for_all_four_non_thumb_rays"
+  },
+  "solver": {
+    "activation_samples": 65,
+    "activation_sweeps": 240,
+    "pose_sweeps": 12,
+    "pose_candidate_count": 12,
+    "pose_recruitment_candidate_count": 3,
+    "exact_checkpoint_interval": 8
+  },
+  "baseline_without_passive_tissue": {
+    "internal_normalized_residual_rms": 21.3456930846,
+    "maximum_root_acceleration_residual": 4.97491334401,
+    "accepted_pose_steps": 4,
+    "active_position_limits": 11,
+    "replay": "bitwise",
+    "internal_balanced": false
+  },
+  "result": {
+    "body_mass_kilograms": 97.1319506911,
+    "expected_weight_newtons": 952.864477038,
+    "total_support_force_newtons": 952.864475124,
+    "relative_weight_error": 2.00836114941e-9,
+    "support_contact_count": 10,
+    "active_support_contact_count": 10,
+    "maximum_floating_root_force_residual": 1.91369531422e-6,
+    "maximum_root_acceleration_residual": 4.93896846021,
+    "internal_normalized_residual_rms": 3.79966295338,
+    "residual_reduction_percent": 82.1993929252,
+    "accepted_pose_steps": 12,
+    "active_position_limits": 3,
+    "runtime_seconds": 97.06,
+    "replay": "bitwise",
+    "internal_balanced": false
+  },
+  "dominant_remaining_residuals": [
+    {
+      "side": "right",
+      "source_dof": 59,
+      "anatomical_coordinate": "fifth_ray_mcp_ab_adduction",
+      "generalized_force_residual_newton_meters": -0.0740494832131,
+      "acceleration_residual_radians_per_second_squared": -147.456291452,
+      "position_radians": 0.0,
+      "within_position_limits": true,
+      "dominant_source_muscles": [246, 271, 254]
+    },
+    {
+      "side": "left",
+      "source_dof": 97,
+      "anatomical_coordinate": "fifth_ray_mcp_ab_adduction",
+      "generalized_force_residual_newton_meters": -0.0728524869508,
+      "acceleration_residual_radians_per_second_squared": -146.127676888,
+      "position_radians": 0.0,
+      "within_position_limits": true,
+      "dominant_source_muscles": [309, 334, 317]
+    }
+  ],
+  "remaining_blocker": "source_extensor_hood_interosseous_route_and_force_sharing",
+  "boundary": "linearized_static_preflight_not_internal_balance_dynamic_tissue_contact_or_sustained_motion",
+  "gates": {
+    "finite": "passed",
+    "nonnegative_unilateral_support": "passed",
+    "floating_root_wrench": "passed",
+    "bilateral_diagnostic_parity": "passed",
+    "bitwise_replay": "passed",
+    "internal_balance": "not_passed"
+  }
+}

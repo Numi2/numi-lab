@@ -37,6 +37,9 @@ struct NumiHumanMuscleEquilibriumConfig {
     double activationLimit = 1.0;
     std::uint32_t activationSamples = 9u;
     std::uint32_t activationSweeps = 160u;
+    // Nonlinear force-law checkpoints retain the best exact state instead of
+    // trusting a long piecewise-linear coordinate trajectory blindly.
+    std::uint32_t activationExactCheckpointInterval = 8u;
     double activationRegularization = 2.5e-4;
     double activationConvergence = 1.0e-7;
     // Recruitment is evaluated in constrained acceleration space, not raw
@@ -52,6 +55,10 @@ struct NumiHumanMuscleEquilibriumConfig {
     // update is followed by a complete recruitment recompile.
     std::uint32_t poseSweeps = 4u;
     std::uint32_t poseCandidateCount = 8u;
+    // Re-recruit at the strongest fixed-activation pose candidates before
+    // deciding whether a posture step helps. A coupled pose/activation move
+    // must not be rejected solely by its stale-activation objective.
+    std::uint32_t poseRecruitmentCandidateCount = 2u;
     double poseStepFraction = 0.025;
     double maximumPoseStep = 0.08;
     double positionLimitMarginFraction = 0.01;
@@ -77,6 +84,17 @@ struct NumiHumanStaticSupportContact {
     // ground-plane normal. Static v1 intentionally admits no adhesion and no
     // tangential force variable.
     std::array<double, 3> normal{0.0, 0.0, 1.0};
+};
+
+// One row of an anatomically sourced linearized passive joint-tissue law.
+// The target generalized force is -K(row,column) * (q_column - q_rest).
+// Separate rows permit a symmetric coupled stiffness matrix (for example the
+// measured wrist flexion/deviation matrix) without inventing an actuator.
+struct NumiHumanPassiveCoordinateCoupling {
+    std::uint32_t targetDofIndex = MR_INVALID_INDEX;
+    std::uint32_t sourceDofIndex = MR_INVALID_INDEX;
+    double sourceRestPosition = 0.0;
+    double stiffness = 0.0;
 };
 
 struct NumiHumanMuscleEquilibriumDiagnostics {
@@ -132,6 +150,8 @@ struct NumiHumanMuscleEquilibriumResult {
     // FP64 oracle; the Metal transaction may independently initialize its
     // typed state from the zero sentinel and parity-check the result.
     std::vector<double> fiberLength;
+    std::vector<double> muscleTendonForce;
+    std::vector<double> passiveMuscleTendonForce;
     std::vector<double> generalizedMuscleForce;
     // Signed articulation-local unilateral reaction. Lower stops contribute
     // positive generalized force and upper stops negative generalized force.
@@ -139,8 +159,13 @@ struct NumiHumanMuscleEquilibriumResult {
     std::vector<double> generalizedJointEqualityForce;
     std::vector<double> supportNormalForce;
     std::vector<double> generalizedSupportForce;
+    std::vector<double> generalizedPassiveCoordinateForce;
     std::vector<double> gravityTarget;
     std::vector<double> generalizedForceResidual;
+    // M(q)^-1 times the equality-reduced generalized residual in the same
+    // local velocity-coordinate order. This is diagnostic state, not a force
+    // stream to apply again.
+    std::vector<double> generalizedAccelerationResidual;
 };
 
 // selectedMuscleIndices controls which muscles may recruit. Empty means all.
@@ -157,6 +182,26 @@ compileNumiHumanMuscleEquilibrium(
     std::span<const MujocoCompliantMuscleArchitecture> architectures,
     std::span<const MRNumiHumanJointEqualityGPU> jointEqualities,
     std::span<const std::uint32_t> selectedMuscleIndices,
+    NumiHumanMuscleEquilibriumResult& result,
+    const NumiHumanMuscleEquilibriumConfig& config = {}
+);
+
+// Supported passive-tissue overload. Couplings are conservative linearized
+// coordinate forces evaluated at every pose candidate and included once in
+// recruitment; they are not muscle actuation or support reaction.
+[[nodiscard]] NumiHumanMuscleEquilibriumDiagnostics
+compileNumiHumanMuscleEquilibrium(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<const double> initialQ,
+    std::span<const MujocoMuscleSite> sites,
+    std::span<const MujocoWrapGeometry> wraps,
+    std::span<const MujocoMuscleDefinition> muscles,
+    std::span<const MujocoCompliantMuscleArchitecture> architectures,
+    std::span<const MRNumiHumanJointEqualityGPU> jointEqualities,
+    std::span<const std::uint32_t> selectedMuscleIndices,
+    std::span<const NumiHumanStaticSupportContact> supportContacts,
+    std::span<const NumiHumanPassiveCoordinateCoupling> passiveCouplings,
     NumiHumanMuscleEquilibriumResult& result,
     const NumiHumanMuscleEquilibriumConfig& config = {}
 );

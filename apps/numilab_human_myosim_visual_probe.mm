@@ -2697,8 +2697,17 @@ struct CompiledStandActivation {
     std::vector<double> q;
     std::vector<float> activation;
     std::vector<double> generalizedMuscleForce;
+    std::vector<double> generalizedPositionLimitForce;
+    std::vector<double> generalizedSupportForce;
+    std::vector<double> generalizedPassiveCoordinateForce;
+    std::vector<double> gravityTarget;
+    std::vector<double> generalizedForceResidual;
+    std::vector<double> generalizedAccelerationResidual;
+    std::vector<double> muscleTendonForce;
+    std::vector<double> passiveMuscleTendonForce;
     std::vector<double> supportNormalForce;
     std::uint32_t activeMuscleCount = 0u;
+    std::uint32_t activationSweeps = 0u;
     std::uint32_t recruitedMuscleCount = 0u;
     std::uint32_t activePositionLimitCount = 0u;
     std::uint32_t acceptedPoseSteps = 0u;
@@ -2717,6 +2726,40 @@ struct CompiledStandActivation {
     double maximumRootAccelerationResidual = 0.0;
 };
 
+std::vector<metalrobo::NumiHumanPassiveCoordinateCoupling>
+wholeBodyUpperPassiveCoordinateCouplings() {
+    using Coupling = metalrobo::NumiHumanPassiveCoordinateCoupling;
+    std::vector<Coupling> result;
+    const auto add = [&result](const std::uint32_t target,
+                               const std::uint32_t source,
+                               const double stiffness) {
+        result.push_back({target, source, 0.0, stiffness});
+    };
+    // Experimental mean wrist stiffness matrix [flexion, deviation] in
+    // Nm/rad: [[1.28, -0.18], [-0.18, 1.74]]. MyoSim orders each wrist as
+    // deviation then flexion; preserve the symmetric coupling bilaterally.
+    for (const auto [deviation, flexion] :
+         {std::pair{40u, 41u}, std::pair{78u, 79u}}) {
+        add(flexion, flexion, 1.28);
+        add(flexion, deviation, -0.18);
+        add(deviation, flexion, -0.18);
+        add(deviation, deviation, 1.74);
+    }
+    // Experimentally identified middle-finger linearized stiffnesses are the
+    // explicit v1 fallback for all four non-thumb rays where digit-specific
+    // passive data are absent: MCP flexion 0.054261, PIP 0.0231, DIP
+    // 0.0037206, and MCP ab/adduction 0.1779 Nm/rad.
+    for (const std::uint32_t sideOffset : {0u, 38u}) {
+        for (const std::uint32_t base : {46u, 50u, 54u, 58u}) {
+            add(base + sideOffset, base + sideOffset, 0.054261);
+            add(base + 1u + sideOffset, base + 1u + sideOffset, 0.1779);
+            add(base + 2u + sideOffset, base + 2u + sideOffset, 0.0231);
+            add(base + 3u + sideOffset, base + 3u + sideOffset, 0.0037206);
+        }
+    }
+    return result;
+}
+
 CompiledStandActivation compileStaticStandActivation(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& muscles,
@@ -2724,7 +2767,9 @@ CompiledStandActivation compileStaticStandActivation(
     const std::span<const double> q,
     const double activationCap,
     const std::span<const std::uint32_t> selectedSourceMuscleIndices,
-    const LoadedSupportContacts* supportContacts = nullptr
+    const LoadedSupportContacts* supportContacts = nullptr,
+    const std::span<const metalrobo::NumiHumanPassiveCoordinateCoupling>
+        passiveCouplings = {}
 ) {
     require(muscles.header.payloadAbi == kMusclePayloadAbi &&
                 muscles.referenceArchitectures.size() ==
@@ -2734,7 +2779,13 @@ CompiledStandActivation compileStaticStandActivation(
     metalrobo::NumiHumanMuscleEquilibriumConfig config;
     config.timestep = 1.0e-4;
     config.activationLimit = activationCap;
+    config.activationSamples = 65u;
     config.activationSweeps = 240u;
+    if (!passiveCouplings.empty()) {
+        config.poseSweeps = 12u;
+        config.poseCandidateCount = 12u;
+        config.poseRecruitmentCandidateCount = 3u;
+    }
     std::vector<metalrobo::NumiHumanStaticSupportContact> staticSupports;
     if (supportContacts != nullptr) {
         const std::array<double, 3u> normal = normalizedVector({
@@ -2765,7 +2816,7 @@ CompiledStandActivation compileStaticStandActivation(
             model, 0u, q, muscles.referenceSites, muscles.referenceWraps,
             muscles.referenceMuscles, muscles.referenceArchitectures,
             jointEqualities.payload.records, selectedSourceMuscleIndices,
-            staticSupports, compiled, config);
+            staticSupports, passiveCouplings, compiled, config);
     require(
         diagnostics.succeeded() &&
             (staticSupports.empty()
@@ -2801,8 +2852,23 @@ CompiledStandActivation compileStaticStandActivation(
     }
     result.generalizedMuscleForce =
         std::move(compiled.generalizedMuscleForce);
+    result.generalizedPositionLimitForce =
+        std::move(compiled.generalizedPositionLimitForce);
+    result.generalizedSupportForce =
+        std::move(compiled.generalizedSupportForce);
+    result.generalizedPassiveCoordinateForce =
+        std::move(compiled.generalizedPassiveCoordinateForce);
+    result.gravityTarget = std::move(compiled.gravityTarget);
+    result.generalizedForceResidual =
+        std::move(compiled.generalizedForceResidual);
+    result.generalizedAccelerationResidual =
+        std::move(compiled.generalizedAccelerationResidual);
+    result.muscleTendonForce = std::move(compiled.muscleTendonForce);
+    result.passiveMuscleTendonForce =
+        std::move(compiled.passiveMuscleTendonForce);
     result.supportNormalForce = std::move(compiled.supportNormalForce);
     result.activeMuscleCount = diagnostics.activeMuscleCount;
+    result.activationSweeps = diagnostics.activationSweeps;
     result.recruitedMuscleCount = diagnostics.recruitedMuscleCount;
     result.activePositionLimitCount = diagnostics.activePositionLimitCount;
     result.acceptedPoseSteps = diagnostics.acceptedPoseSteps;
@@ -10875,6 +10941,7 @@ int main(int argc, char** argv) {
             bool bilateralAchillesCertificate = false;
             bool bilateralPlantarFasciaCertificate = false;
             bool wholeBodySupportCertificate = false;
+            bool sourcePassiveJointTissue = false;
             bool sourceRouteCentrelines = false;
             bool surfaceProjectSourceSites = false;
             std::vector<std::uint32_t> requestedSourceRouteMuscles;
@@ -10951,6 +11018,10 @@ int main(int argc, char** argv) {
                     require(!wholeBodySupportCertificate,
                             "--whole-body-support-certificate may be given only once");
                     wholeBodySupportCertificate = true;
+                } else if (argument == "--source-passive-joint-tissue") {
+                    require(!sourcePassiveJointTissue,
+                            "--source-passive-joint-tissue may be given only once");
+                    sourcePassiveJointTissue = true;
                 } else if (argument == "--activated-source-muscle-index") {
                     require(index + 1 < argc,
                             "--activated-source-muscle-index requires one muscle index");
@@ -11098,6 +11169,7 @@ int main(int argc, char** argv) {
                           << " [--bilateral-achilles-certificate]"
                           << " [--bilateral-plantar-fascia-certificate]"
                           << " [--whole-body-support-certificate]"
+                          << " [--source-passive-joint-tissue]"
                           << " [--activated-source-muscle-index <0..415>]..."
                           << " [--source-route-centrelines] [--source-route-index <0..415>]..."
                           << " [--surface-project-source-sites]"
@@ -11288,6 +11360,9 @@ int main(int argc, char** argv) {
                     "activation, or continuum scope"
                 );
             }
+            require(!sourcePassiveJointTissue || wholeBodySupportCertificate,
+                    "--source-passive-joint-tissue requires "
+                    "--whole-body-support-certificate");
             std::sort(requestedBoneBodyIndices.begin(), requestedBoneBodyIndices.end());
             const auto duplicateBoneBody = std::adjacent_find(
                 requestedBoneBodyIndices.begin(), requestedBoneBodyIndices.end()
@@ -11550,14 +11625,20 @@ int main(int argc, char** argv) {
                         "whole-body support payloads were not loaded");
                 const GroundAlignedSupport aligned = makeGroundAlignedSupport(
                     rigid.model, *supportContactPayload);
+                const auto passiveCouplings = sourcePassiveJointTissue
+                    ? wholeBodyUpperPassiveCoordinateCouplings()
+                    : std::vector<
+                        metalrobo::NumiHumanPassiveCoordinateCoupling>{};
                 const CompiledStandActivation support =
                     compileStaticStandActivation(
                         rigid.model, musclePayload, *jointEqualityPayload,
-                        aligned.q, 1.0, {}, &*supportContactPayload);
+                        aligned.q, 1.0, {}, &*supportContactPayload,
+                        passiveCouplings);
                 const CompiledStandActivation replaySupport =
                     compileStaticStandActivation(
                         rigid.model, musclePayload, *jointEqualityPayload,
-                        aligned.q, 1.0, {}, &*supportContactPayload);
+                        aligned.q, 1.0, {}, &*supportContactPayload,
+                        passiveCouplings);
                 const auto bitwiseEqual = [](const auto& first,
                                              const auto& second) {
                     using Value = typename std::decay_t<decltype(first)>::value_type;
@@ -11572,6 +11653,13 @@ int main(int argc, char** argv) {
                                      replaySupport.activation) &&
                         bitwiseEqual(support.generalizedMuscleForce,
                                      replaySupport.generalizedMuscleForce) &&
+                        bitwiseEqual(support.muscleTendonForce,
+                                     replaySupport.muscleTendonForce) &&
+                        bitwiseEqual(support.passiveMuscleTendonForce,
+                                     replaySupport.passiveMuscleTendonForce) &&
+                        bitwiseEqual(
+                            support.generalizedPassiveCoordinateForce,
+                            replaySupport.generalizedPassiveCoordinateForce) &&
                         bitwiseEqual(support.supportNormalForce,
                                      replaySupport.supportNormalForce),
                     "whole-body support compile did not replay bitwise"
@@ -11595,6 +11683,23 @@ int main(int argc, char** argv) {
                 require(
                     support.supportNormalForce.size() ==
                         supportContactPayload->records.size() &&
+                        support.generalizedMuscleForce.size() ==
+                            rigid.model.world.nv &&
+                        support.generalizedPositionLimitForce.size() ==
+                            rigid.model.world.nv &&
+                        support.generalizedSupportForce.size() ==
+                            rigid.model.world.nv &&
+                        support.generalizedPassiveCoordinateForce.size() ==
+                            rigid.model.world.nv &&
+                        support.gravityTarget.size() == rigid.model.world.nv &&
+                        support.generalizedForceResidual.size() ==
+                            rigid.model.world.nv &&
+                        support.generalizedAccelerationResidual.size() ==
+                            rigid.model.world.nv &&
+                        support.muscleTendonForce.size() ==
+                            musclePayload.referenceMuscles.size() &&
+                        support.passiveMuscleTendonForce.size() ==
+                            musclePayload.referenceMuscles.size() &&
                         support.supportContactCount ==
                             supportContactPayload->records.size() &&
                         support.activeSupportContactCount > 0u &&
@@ -11610,11 +11715,53 @@ int main(int argc, char** argv) {
                         support.maximumRootForceResidual <= 1.0e-3,
                     "whole-body unilateral support wrench did not close"
                 );
+                std::vector<std::uint32_t> residualOrder(
+                    rigid.model.world.nv);
+                std::iota(residualOrder.begin(), residualOrder.end(), 0u);
+                std::stable_sort(
+                    residualOrder.begin(), residualOrder.end(),
+                    [&support](const std::uint32_t first,
+                               const std::uint32_t second) {
+                        return std::abs(
+                            support.generalizedAccelerationResidual[first]) >
+                            std::abs(
+                                support.generalizedAccelerationResidual[second]);
+                    });
+                metalrobo::ArticulatedDynamicsConfig diagnosticDynamics;
+                diagnosticDynamics.gravity = {
+                    rigid.model.world.gravityAndTimestep.x,
+                    rigid.model.world.gravityAndTimestep.y,
+                    rigid.model.world.gravityAndTimestep.z,
+                };
+                diagnosticDynamics.timestep = *muscleStepSeconds;
+                const std::vector<double> zeroVelocity(
+                    rigid.model.world.nv, 0.0);
+                std::vector<metalrobo::MujocoMuscleResult> musclePaths(
+                    musclePayload.referenceMuscles.size());
+                for (std::size_t muscle = 0u;
+                     muscle < musclePaths.size(); ++muscle) {
+                    const auto pathDiagnostics =
+                        metalrobo::evaluateMujocoMuscle(
+                            rigid.model, 0u, support.q, zeroVelocity,
+                            musclePayload.referenceSites,
+                            musclePayload.referenceWraps,
+                            musclePayload.referenceMuscles[muscle], {},
+                            musclePaths[muscle], diagnosticDynamics);
+                    require(pathDiagnostics.succeeded() &&
+                                musclePaths[muscle].path.lengthJacobian.size() ==
+                                    rigid.model.world.nv,
+                            "whole-body residual muscle decomposition failed");
+                }
                 std::cout << std::setprecision(12)
                           << "numi_human_whole_body_support_wrench=ok"
                           << " source_model=pinned_MyoSim_full_body"
                           << " support_payload=NHCNT1"
                           << " joint_manifold=NHEQ1"
+                          << " passive_joint_tissue="
+                          << (sourcePassiveJointTissue
+                              ? "linearized_experimental_upper_v1" : "none")
+                          << " passive_coordinate_couplings="
+                          << passiveCouplings.size()
                           << " body_mass_kg=" << bodyMassKilograms
                           << " expected_weight_n=" << expectedWeightNewtons
                           << " total_support_force_n="
@@ -11629,6 +11776,12 @@ int main(int argc, char** argv) {
                           << support.maximumRootAccelerationResidual
                           << " internal_normalized_residual_rms="
                           << support.normalizedResidualRms
+                          << " activation_sweeps="
+                          << support.activationSweeps
+                          << " accepted_pose_steps="
+                          << support.acceptedPoseSteps
+                          << " active_position_limits="
+                          << support.activePositionLimitCount
                           << " internal_balanced="
                           << (support.balanced ? "true" : "false")
                           << " replay=bitwise";
@@ -11638,6 +11791,102 @@ int main(int argc, char** argv) {
                               << supportContactPayload->records[index].bodyIndex
                               << " contact_" << index << "_normal_force_n="
                               << support.supportNormalForce[index];
+                }
+                constexpr std::size_t kReportedResidualCount = 12u;
+                const MRArticulationGPU& articulation =
+                    rigid.model.articulations.front();
+                for (std::size_t rank = 0u;
+                     rank < std::min(
+                         kReportedResidualCount, residualOrder.size());
+                     ++rank) {
+                    const std::uint32_t dof = residualOrder[rank];
+                    const std::size_t globalDof = articulation.vOffset + dof;
+                    const std::string name =
+                        globalDof < rigid.model.dofNames.size()
+                        ? rigid.model.dofNames[globalDof]
+                        : "unnamed";
+                    const MRDofPropertiesGPU& properties =
+                        rigid.model.dofs[globalDof];
+                    const std::uint32_t childBody =
+                        properties.jointIndex < rigid.model.joints.size()
+                        ? rigid.model.joints[properties.jointIndex].childBody
+                        : MR_INVALID_INDEX;
+                    const bool hasPosition =
+                        properties.qIndex != MR_INVALID_INDEX &&
+                        properties.qIndex >= articulation.qOffset &&
+                        properties.qIndex <
+                            articulation.qOffset + articulation.nq;
+                    const std::size_t localQ = hasPosition
+                        ? properties.qIndex - articulation.qOffset : 0u;
+                    std::cout
+                        << " residual_rank_" << rank << "_dof=" << dof
+                        << " residual_rank_" << rank << "_joint="
+                        << properties.jointIndex
+                        << " residual_rank_" << rank << "_child_body="
+                        << childBody
+                        << " residual_rank_" << rank << "_name=\"" << name
+                        << "\" residual_rank_" << rank << "_force="
+                        << support.generalizedForceResidual[dof]
+                        << " residual_rank_" << rank << "_acceleration="
+                        << support.generalizedAccelerationResidual[dof]
+                        << " residual_rank_" << rank << "_muscle_force="
+                        << support.generalizedMuscleForce[dof]
+                        << " residual_rank_" << rank << "_support_force="
+                        << support.generalizedSupportForce[dof]
+                        << " residual_rank_" << rank << "_passive_force="
+                        << support.generalizedPassiveCoordinateForce[dof]
+                        << " residual_rank_" << rank << "_gravity_target="
+                        << support.gravityTarget[dof]
+                        << " residual_rank_" << rank << "_position="
+                        << (hasPosition ? support.q[localQ] : 0.0)
+                        << " residual_rank_" << rank << "_lower_limit="
+                        << properties.limits.x
+                        << " residual_rank_" << rank << "_upper_limit="
+                        << properties.limits.y
+                        << " residual_rank_" << rank << "_limit_force="
+                        << support.generalizedPositionLimitForce[dof];
+                    std::vector<std::uint32_t> muscleOrder(
+                        musclePaths.size());
+                    std::iota(muscleOrder.begin(), muscleOrder.end(), 0u);
+                    std::stable_sort(
+                        muscleOrder.begin(), muscleOrder.end(),
+                        [&support, &musclePaths, dof](
+                            const std::uint32_t first,
+                            const std::uint32_t second) {
+                            return std::abs(
+                                support.muscleTendonForce[first] *
+                                musclePaths[first].path.lengthJacobian[dof]) >
+                                std::abs(
+                                    support.muscleTendonForce[second] *
+                                    musclePaths[second].path.lengthJacobian[dof]);
+                        });
+                    constexpr std::size_t kContributorCount = 3u;
+                    for (std::size_t contributor = 0u;
+                         contributor < std::min(
+                             kContributorCount, muscleOrder.size());
+                         ++contributor) {
+                        const std::uint32_t muscle =
+                            muscleOrder[contributor];
+                        const double momentArm =
+                            musclePaths[muscle].path.lengthJacobian[dof];
+                        std::cout
+                            << " residual_rank_" << rank << "_muscle_"
+                            << contributor << "_index=" << muscle
+                            << " residual_rank_" << rank << "_muscle_"
+                            << contributor << "_activation="
+                            << support.activation[muscle]
+                            << " residual_rank_" << rank << "_muscle_"
+                            << contributor << "_force_n="
+                            << support.muscleTendonForce[muscle]
+                            << " residual_rank_" << rank << "_muscle_"
+                            << contributor << "_passive_force_n="
+                            << support.passiveMuscleTendonForce[muscle]
+                            << " residual_rank_" << rank << "_muscle_"
+                            << contributor << "_moment_arm_m=" << momentArm
+                            << " residual_rank_" << rank << "_muscle_"
+                            << contributor << "_generalized_force="
+                            << support.muscleTendonForce[muscle] * momentArm;
+                    }
                 }
                 std::cout
                     << " boundary=static_unilateral_floating_base_wrench_only_not_internal_muscle_balance_dynamic_contact_or_sustained_standing\n";
