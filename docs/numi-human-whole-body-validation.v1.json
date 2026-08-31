@@ -562,7 +562,7 @@
       ]
     },
     "whole_body_all_dof_support_report": {
-      "path": "docs/media/numi-human-whole-body-all-dof-v1/m4-pro.json",
+      "path": "docs/media/numi-human-compliant-fit-v3/m4-pro.json",
       "format": "json",
       "level": "preflight",
       "checks": [
@@ -573,7 +573,7 @@
         {"pointer": "/summary/relative_weight_error", "op": "maximum", "value": 0.00001},
         {"pointer": "/summary/internal_balanced", "op": "equals", "value": false},
         {"pointer": "/summary/replay", "op": "equals", "value": "bitwise"},
-        {"pointer": "/derived/coordinates_over_100_rad_s2", "op": "equals", "value": 2}
+        {"pointer": "/derived/coordinates_over_100_rad_s2", "op": "equals", "value": 0}
       ],
       "artifacts": [
         {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65"},
