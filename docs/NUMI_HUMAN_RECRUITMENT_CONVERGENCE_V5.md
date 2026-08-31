@@ -1,5 +1,8 @@
 # Numi Human recruitment convergence v5
 
+This solver frontier is superseded by `NUMI_HUMAN_GLOBAL_RECRUITMENT_V6.md`.
+The v5 artifact remains the coordinate-sweep baseline.
+
 The 2026-09-01 whole-body checkpoint separates an under-converged static
 recruitment solve from missing anatomy. No geometry, muscle route, force law,
 passive tissue parameter, contact, joint equality, or tendon attachment changed.

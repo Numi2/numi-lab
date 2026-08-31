@@ -32,6 +32,8 @@ struct PoseState {
     double maximumAccelerationResidual = 0.0;
     double objective = 0.0;
     std::uint32_t activationSweeps = 0u;
+    std::uint32_t globalActivationPolishIterations = 0u;
+    std::uint32_t acceptedGlobalActivationPolishSteps = 0u;
 };
 
 struct ResolvedMuscle {
@@ -697,6 +699,8 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     const std::span<const NumiHumanStaticSupportContact> supports,
     const std::span<const NumiHumanPassiveCoordinateCoupling> passiveCouplings,
     const std::span<const std::uint8_t> recruited,
+    const bool enableGlobalPolish,
+    const bool initializeFromAcceptedState,
     const NumiHumanMuscleEquilibriumConfig& config,
     const ArticulatedDynamicsConfig& dynamicsConfig,
     PoseState& state
@@ -704,6 +708,11 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     const MRArticulationGPU& articulation =
         model.articulations[articulationIndex];
     const std::size_t nv = articulation.nv;
+    const std::uint32_t acceptedActivationSweeps = state.activationSweeps;
+    if (initializeFromAcceptedState &&
+        state.activation.size() != muscles.size()) {
+        return failure(NumiHumanMuscleEquilibriumStatus::invalidDimensions);
+    }
     std::vector<ResolvedMuscle> resolved;
     auto diagnostics = resolveMuscles(
         model, articulationIndex, state.q, sites, wraps, muscles, resolved,
@@ -797,7 +806,17 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     }
     const std::uint32_t sampleCount = config.activationSamples;
     std::vector<double> forceSamples(muscles.size() * sampleCount, 0.0);
-    state.activation.assign(muscles.size(), 0.0);
+    if (!initializeFromAcceptedState) {
+        state.activation.assign(muscles.size(), 0.0);
+    } else {
+        for (std::size_t muscle = 0u; muscle < muscles.size(); ++muscle) {
+            state.activation[muscle] = recruited[muscle] == 0u
+                ? 0.0
+                : std::clamp(
+                    state.activation[muscle], 0.0, config.activationLimit
+                );
+        }
+    }
     state.fiberLength.assign(muscles.size(), 0.0);
     state.muscleTendonForce.assign(muscles.size(), 0.0);
     state.passiveMuscleTendonForce.assign(muscles.size(), 0.0);
@@ -837,13 +856,24 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
             );
         }
         const double passive = forceSamples[muscle * sampleCount];
-        optimizerForce[muscle] = passive;
         state.passiveMuscleTendonForce[muscle] = passive;
+        double initialForce = passive;
+        if (initializeFromAcceptedState) {
+            diagnostics = evaluateStaticForce(
+                resolved[muscle].pathLength, state.activation[muscle],
+                config.timestep, muscles[muscle], architectures[muscle],
+                initialForce, state.fiberLength[muscle],
+                static_cast<std::uint32_t>(muscle)
+            );
+            if (!diagnostics.succeeded()) return diagnostics;
+        }
+        optimizerForce[muscle] = initialForce;
+        state.muscleTendonForce[muscle] = initialForce;
         for (std::size_t dof = 0u; dof < nv; ++dof) {
             state.muscleForce[dof] +=
-                passive * resolved[muscle].jacobian[dof];
+                initialForce * resolved[muscle].jacobian[dof];
             objectiveMuscleAcceleration[dof] +=
-                passive * objectiveJacobians[muscle][dof];
+                initialForce * objectiveJacobians[muscle][dof];
         }
     }
     state.residual.assign(nv, 0.0);
@@ -937,7 +967,9 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     };
     diagnostics = checkpointExactState();
     if (!diagnostics.succeeded()) return diagnostics;
-    for (std::uint32_t sweep = 0u; sweep < config.activationSweeps; ++sweep) {
+    for (std::uint32_t sweep = 0u;
+         !initializeFromAcceptedState && sweep < config.activationSweeps;
+         ++sweep) {
         double maximumChange = 0.0;
         for (std::size_t muscle = 0u; muscle < muscles.size(); ++muscle) {
             if (recruited[muscle] == 0u) continue;
@@ -1055,7 +1087,8 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
         }
         if (maximumChange < config.activationConvergence) break;
     }
-    state.activationSweeps = completedSweeps;
+    state.activationSweeps = initializeFromAcceptedState
+        ? acceptedActivationSweeps : completedSweeps;
     if (bestExactActivation.empty()) {
         return failure(NumiHumanMuscleEquilibriumStatus::nonfiniteResult);
     }
@@ -1102,6 +1135,125 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
         !std::isfinite(state.maximumResidual) ||
         !std::isfinite(state.objective)) {
         return failure(NumiHumanMuscleEquilibriumStatus::nonfiniteResult);
+    }
+
+    // The source-ordered coordinate pass is a robust initializer, but a
+    // finite sweep budget can leave order-dependent force sharing. Polish all
+    // recruited activations simultaneously in the exact reported objective.
+    // The diagonal Gauss-Newton proposal uses the fixed-pose acceleration
+    // columns; exact compliant-force evaluation and backtracking decide every
+    // accepted step, so this cannot promote an interpolated-force regression.
+    const std::size_t objectiveRowCount = projection.independentDofs.size();
+    const double activationPenaltyScale = config.activationRegularization /
+        static_cast<double>(muscles.size());
+    const double activationInterval = config.activationLimit /
+        static_cast<double>(sampleCount - 1u);
+    const std::uint32_t globalPolishIterations = enableGlobalPolish
+        ? config.globalActivationPolishIterations : 0u;
+    for (std::uint32_t iteration = 0u;
+         iteration < globalPolishIterations; ++iteration) {
+        state.globalActivationPolishIterations = iteration + 1u;
+        std::vector<double> proposal = state.activation;
+        double maximumProposalChange = 0.0;
+        for (std::size_t muscle = 0u; muscle < muscles.size(); ++muscle) {
+            if (recruited[muscle] == 0u) continue;
+            const double activation = std::clamp(
+                state.activation[muscle], 0.0, config.activationLimit);
+            const double sampleCoordinate = activation /
+                config.activationLimit * static_cast<double>(sampleCount - 1u);
+            const std::uint32_t lowerSample = std::min<std::uint32_t>(
+                static_cast<std::uint32_t>(sampleCoordinate),
+                sampleCount - 2u);
+            const std::size_t sampleBase =
+                muscle * sampleCount + lowerSample;
+            const double forceSlope =
+                (forceSamples[sampleBase + 1u] -
+                 forceSamples[sampleBase]) / activationInterval;
+            double gradient = activationPenaltyScale * activation;
+            double curvature = activationPenaltyScale;
+            if (objectiveRowCount != 0u) {
+                for (const std::uint32_t dof : projection.independentDofs) {
+                    const double direction = state.weights[dof] *
+                        objectiveJacobians[muscle][dof] * forceSlope;
+                    const double normalizedResidual = state.weights[dof] *
+                        state.accelerationResidual[dof];
+                    gradient += direction * normalizedResidual /
+                        static_cast<double>(objectiveRowCount);
+                    curvature += direction * direction /
+                        static_cast<double>(objectiveRowCount);
+                }
+            }
+            const double next = std::clamp(
+                activation - gradient / std::max(kMinimum, curvature),
+                0.0, config.activationLimit);
+            proposal[muscle] = next;
+            maximumProposalChange = std::max(
+                maximumProposalChange, std::abs(next - activation));
+        }
+        if (maximumProposalChange < config.globalActivationConvergence) break;
+
+        bool accepted = false;
+        double lineScale = 1.0;
+        for (std::uint32_t line = 0u;
+             line < config.globalActivationLineSearchSteps; ++line) {
+            PoseState candidate;
+            candidate.q = state.q;
+            candidate.activation.resize(muscles.size(), 0.0);
+            for (std::size_t muscle = 0u; muscle < muscles.size(); ++muscle) {
+                candidate.activation[muscle] = std::clamp(
+                    state.activation[muscle] + lineScale *
+                        (proposal[muscle] - state.activation[muscle]),
+                    0.0, config.activationLimit);
+            }
+            candidate.target = state.target;
+            candidate.passiveCoordinateForce = state.passiveCoordinateForce;
+            candidate.passiveMuscleTendonForce =
+                state.passiveMuscleTendonForce;
+            candidate.weights = state.weights;
+            candidate.supportNormalForce = state.supportNormalForce;
+            solveFloatingRootSupportForces(
+                articulation, objectiveTarget, supportJacobians, config,
+                candidate.supportNormalForce, candidate.supportForce);
+            candidate.fiberLength.assign(muscles.size(), 0.0);
+            candidate.muscleTendonForce.assign(muscles.size(), 0.0);
+            candidate.muscleForce.assign(nv, 0.0);
+            for (std::size_t muscle = 0u; muscle < muscles.size(); ++muscle) {
+                double force = 0.0;
+                diagnostics = evaluateStaticForce(
+                    resolved[muscle].pathLength,
+                    candidate.activation[muscle], config.timestep,
+                    muscles[muscle], architectures[muscle], force,
+                    candidate.fiberLength[muscle],
+                    static_cast<std::uint32_t>(muscle));
+                if (!diagnostics.succeeded()) return diagnostics;
+                candidate.muscleTendonForce[muscle] = force;
+                for (std::size_t dof = 0u; dof < nv; ++dof) {
+                    candidate.muscleForce[dof] +=
+                        force * resolved[muscle].jacobian[dof];
+                }
+            }
+            candidate.residual.assign(nv, 0.0);
+            finishResidual(
+                articulation, config, initialQ, model, articulationIndex,
+                equalities, projection, !supports.empty(), candidate);
+            if (!std::isfinite(candidate.objective)) {
+                return failure(
+                    NumiHumanMuscleEquilibriumStatus::nonfiniteResult);
+            }
+            const double improvementFloor = 1.0e-14 *
+                std::max(1.0, std::abs(state.objective));
+            if (candidate.objective + improvementFloor < state.objective) {
+                candidate.activationSweeps = state.activationSweeps;
+                candidate.globalActivationPolishIterations = iteration + 1u;
+                candidate.acceptedGlobalActivationPolishSteps =
+                    state.acceptedGlobalActivationPolishSteps + 1u;
+                state = std::move(candidate);
+                accepted = true;
+                break;
+            }
+            lineScale *= 0.5;
+        }
+        if (!accepted) break;
     }
     return {};
 }
@@ -1318,6 +1470,10 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
         config.activationRegularization >= 0.0 &&
         std::isfinite(config.activationConvergence) &&
         config.activationConvergence > 0.0 &&
+        config.globalActivationLineSearchSteps > 0u &&
+        config.globalActivationLineSearchSteps <= 64u &&
+        std::isfinite(config.globalActivationConvergence) &&
+        config.globalActivationConvergence > 0.0 &&
         std::isfinite(config.minimumGeneralizedAccelerationScale) &&
         config.minimumGeneralizedAccelerationScale > 0.0 &&
         std::isfinite(config.balanceTolerance) &&
@@ -1465,7 +1621,8 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
     auto diagnostics = solveActivation(
         model, articulationIndex, projectedInitialQ, sites, wraps, muscles,
         architectures, jointEqualities, supportContacts, passiveCouplings,
-        recruited, config, dynamicsConfig, current
+        recruited, config.poseSweeps == 0u, false, config, dynamicsConfig,
+        current
     );
     if (!diagnostics.succeeded()) return diagnostics;
     const double initialResidual = current.residualRms;
@@ -1539,8 +1696,8 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
             diagnostics = solveActivation(
                 model, articulationIndex, projectedInitialQ, sites, wraps,
                 muscles, architectures, jointEqualities, supportContacts,
-                passiveCouplings, recruited, config, dynamicsConfig,
-                recruitedPose
+                passiveCouplings, recruited, false, false, config,
+                dynamicsConfig, recruitedPose
             );
             if (!diagnostics.succeeded()) return diagnostics;
             if (recruitedPose.objective + config.poseImprovementTolerance <
@@ -1552,6 +1709,25 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
         if (!found) break;
         current = std::move(best);
         ++acceptedPoseSteps;
+    }
+
+    // Pose trials use the robust coordinate initializer only. Apply the
+    // simultaneous exact-objective polish once to the accepted posture so its
+    // cost does not multiply across discarded candidates.
+    if (config.poseSweeps > 0u &&
+        config.globalActivationPolishIterations > 0u) {
+        PoseState polished = current;
+        diagnostics = solveActivation(
+            model, articulationIndex, projectedInitialQ, sites, wraps,
+            muscles, architectures, jointEqualities, supportContacts,
+            passiveCouplings, recruited, true, true, config, dynamicsConfig,
+            polished);
+        if (!diagnostics.succeeded()) return diagnostics;
+        const double comparisonTolerance = 1.0e-12 *
+            std::max(1.0, std::abs(current.objective));
+        if (polished.objective <= current.objective + comparisonTolerance) {
+            current = std::move(polished);
+        }
     }
 
     NumiHumanMuscleEquilibriumResult candidate;
@@ -1574,6 +1750,10 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
         static_cast<std::uint32_t>(muscles.size());
     candidate.diagnostics.recruitedMuscleCount = recruitedCount;
     candidate.diagnostics.activationSweeps = current.activationSweeps;
+    candidate.diagnostics.globalActivationPolishIterations =
+        current.globalActivationPolishIterations;
+    candidate.diagnostics.acceptedGlobalActivationPolishSteps =
+        current.acceptedGlobalActivationPolishSteps;
     candidate.diagnostics.acceptedPoseSteps = acceptedPoseSteps;
     candidate.diagnostics.jointEqualityCount =
         static_cast<std::uint32_t>(jointEqualities.size());

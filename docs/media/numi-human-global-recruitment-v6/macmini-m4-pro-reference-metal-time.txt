@@ -1,0 +1,4 @@
+2026-09-01 00:38:16.304 metalrobo_numilab_human_myosim_reference_probe[23002:4411386] Metal API Validation Enabled
+real 7.28
+user 6.16
+sys 0.02

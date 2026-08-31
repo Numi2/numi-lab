@@ -562,7 +562,7 @@
       ]
     },
     "whole_body_all_dof_support_report": {
-      "path": "docs/media/numi-human-recruitment-convergence-v5/m4-pro.json",
+      "path": "docs/media/numi-human-global-recruitment-v6/m4-pro.json",
       "format": "json",
       "level": "preflight",
       "checks": [
@@ -576,7 +576,9 @@
         {"pointer": "/derived/coordinates_over_100_rad_s2", "op": "equals", "value": 0}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "2d8b0d2989c405f5f4247e872a76c3fc89d0693f79a85a67e9e962f162b8825f"},
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "481686800d4327c0d9b4543633686486bfa1ccc8a36087923277a2108471a842"},
+        {"path": "include/metalrobo/NumiHumanMuscleEquilibrium.hpp", "sha256": "f7944cbfe339497822af8a766fa9e655c24fcab6d35499189f7b98bc2d4fee39"},
+        {"path": "src/core/NumiHumanMuscleEquilibrium.cpp", "sha256": "9ac6b073c15313c57cd3fdc2dab1ba5c510d2940fc96aa0e902904374a4a726d"},
         {"path": "tools/parse_numilab_human_support_report.py", "sha256": "f3dc6737fe704bb68f9e7157f0b56e30a1216d9348a3112a616695a776c2c2fa"}
       ]
     },

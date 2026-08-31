@@ -2708,6 +2708,8 @@ struct CompiledStandActivation {
     std::vector<double> supportNormalForce;
     std::uint32_t activeMuscleCount = 0u;
     std::uint32_t activationSweeps = 0u;
+    std::uint32_t globalActivationPolishIterations = 0u;
+    std::uint32_t acceptedGlobalActivationPolishSteps = 0u;
     std::uint32_t recruitedMuscleCount = 0u;
     std::uint32_t activePositionLimitCount = 0u;
     std::uint32_t acceptedPoseSteps = 0u;
@@ -2870,6 +2872,10 @@ CompiledStandActivation compileStaticStandActivation(
     result.supportNormalForce = std::move(compiled.supportNormalForce);
     result.activeMuscleCount = diagnostics.activeMuscleCount;
     result.activationSweeps = diagnostics.activationSweeps;
+    result.globalActivationPolishIterations =
+        diagnostics.globalActivationPolishIterations;
+    result.acceptedGlobalActivationPolishSteps =
+        diagnostics.acceptedGlobalActivationPolishSteps;
     result.recruitedMuscleCount = diagnostics.recruitedMuscleCount;
     result.activePositionLimitCount = diagnostics.activePositionLimitCount;
     result.acceptedPoseSteps = diagnostics.acceptedPoseSteps;
@@ -11919,6 +11925,10 @@ int main(int argc, char** argv) {
                           << support.normalizedResidualRms
                           << " activation_sweeps="
                           << support.activationSweeps
+                          << " global_activation_polish_iterations="
+                          << support.globalActivationPolishIterations
+                          << " accepted_global_activation_polish_steps="
+                          << support.acceptedGlobalActivationPolishSteps
                           << " accepted_pose_steps="
                           << support.acceptedPoseSteps
                           << " active_position_limits="

@@ -1498,6 +1498,10 @@ int run(
                << equilibrium.diagnostics.activeMuscleCount
                << " equilibrium_recruited_muscles="
                << equilibrium.diagnostics.recruitedMuscleCount
+               << " equilibrium_global_activation_polish_iterations="
+               << equilibrium.diagnostics.globalActivationPolishIterations
+               << " equilibrium_accepted_global_activation_polish_steps="
+               << equilibrium.diagnostics.acceptedGlobalActivationPolishSteps
                << " equilibrium_max_activation="
                << equilibrium.diagnostics.maximumActivation
                << " equilibrium_pose_steps="

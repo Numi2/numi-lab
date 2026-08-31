@@ -1,7 +1,7 @@
 # Numi Human passive-aware architecture fit v4
 
 This source-fit checkpoint remains current, but its 240-sweep equilibrium
-result is superseded by `NUMI_HUMAN_RECRUITMENT_CONVERGENCE_V5.md` for current
+result is superseded by `NUMI_HUMAN_GLOBAL_RECRUITMENT_V6.md` for current
 whole-body residual magnitudes.
 
 The 2026-08-31 passive-aware source checkpoint fixes a systemic fitting gap in

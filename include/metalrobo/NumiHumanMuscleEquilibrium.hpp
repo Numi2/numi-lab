@@ -42,6 +42,13 @@ struct NumiHumanMuscleEquilibriumConfig {
     std::uint32_t activationExactCheckpointInterval = 8u;
     double activationRegularization = 2.5e-4;
     double activationConvergence = 1.0e-7;
+    // A simultaneous, bound-projected diagonal Gauss-Newton polish follows
+    // the source-ordered coordinate sweeps. Exact nonlinear-force evaluation
+    // and backtracking admit only objective-decreasing updates, removing most
+    // sweep-order bias without changing muscle routes or force authority.
+    std::uint32_t globalActivationPolishIterations = 24u;
+    std::uint32_t globalActivationLineSearchSteps = 12u;
+    double globalActivationConvergence = 1.0e-8;
     // Recruitment is evaluated in constrained acceleration space, not raw
     // generalized-force units. This prevents small distal-joint torque
     // errors from disappearing beside pelvis/hip loads merely because their
@@ -111,6 +118,8 @@ struct NumiHumanMuscleEquilibriumDiagnostics {
     std::uint32_t recruitedMuscleCount = 0u;
     std::uint32_t activeMuscleCount = 0u;
     std::uint32_t activationSweeps = 0u;
+    std::uint32_t globalActivationPolishIterations = 0u;
+    std::uint32_t acceptedGlobalActivationPolishSteps = 0u;
     std::uint32_t acceptedPoseSteps = 0u;
     std::uint32_t activePositionLimitCount = 0u;
     std::uint32_t jointEqualityCount = 0u;
