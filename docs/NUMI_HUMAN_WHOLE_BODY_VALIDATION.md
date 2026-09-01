@@ -39,8 +39,8 @@ one-step receipt cannot satisfy a stronger one.
 ## Current evidence baseline
 
 The manifest covers 15 musculoskeletal regions and six continuum layers. The
-current report contains 82 verified requirements, 22 contradicted
-requirements, 14 insufficient requirements, and 64 missing requirements.
+current report contains 72 verified requirements, 44 contradicted
+requirements, two insufficient requirements, and 64 missing requirements.
 No complete scope is yet promoted.
 
 The all-DoF support audit is documented in
@@ -73,11 +73,19 @@ live Human force transaction: seven source pairs, all 69,701 samples, explicit
 ownership of 57,930 cross-body mechanics samples and 11,771 retained
 same-body samples, nonzero pressure/area/force, force and world-origin moment
 closure, bitwise replay, and rollback. The 65-step prescribed-closure CPU ramp
-still supplies constitutive preflight and elastic-energy identity. The knees
-remain incomplete because the live law uses fixed reference correspondence
-and an explicit penalty rather than current-surface unilateral nonpenetration,
-and has not run sustained loaded flexion. The right knee is a mirrored left
-specimen, not an independently segmented right subject.
+still supplies constitutive preflight and elastic-energy identity. ABI 9 now
+recomputes the closest point, barycentric scatter, and oriented normal on each
+current paired triangle; CPU regressions cover tangential migration and a
+rotating master surface. The left live Human additionally passed a bounded
+two-step `10 microrad` trajectory with 25,293 to 30,987 closed samples,
+positive deformation Jacobians, balanced nonzero contact, bitwise replay, and
+rollback. A 1 mrad request failed closed at the projected-anchor compatibility
+gate before solve and is diagnostic only. The knees remain incomplete because
+correspondence cannot yet repair across adjacent facets or perform a global
+current-surface query, the law is an explicit penalty rather than unilateral
+nonpenetration, and sustained physiological loaded flexion is not qualified.
+The right knee is a mirrored left specimen, not an independently segmented
+right subject.
 
 The shared Human/Matter adapter additionally has a one-step Metal transaction
 fixture where internal FEM contact and tendon traction share one force arena,
@@ -118,9 +126,10 @@ acceleration residual remains `5.7539`, and `internal_balanced=false`.
 
 The gate makes the next useful work explicit:
 
-1. Promote the one-step knee contact to a bounded current-surface or implicit
-   nonpenetration method and sustained flexion/loading qualification without
-   regressing extensor-chain ownership.
+1. Add adjacent-facet/global current-surface repair or an implicit
+   nonpenetration owner to the paired-triangle knee contact, then qualify
+   sustained physiological flexion/loading without regressing extensor-chain
+   ownership.
 2. Close the internal muscle/passive-force equilibrium exposed by the new
    support-wrench gate, then promote the reduced plantar windlass law through
    the owning Human/NumanX transaction and qualify loaded foot contact while

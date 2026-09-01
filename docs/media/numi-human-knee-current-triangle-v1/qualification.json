@@ -1,0 +1,113 @@
+{
+  "schema": "numi-human-knee-current-triangle-qualification.v1",
+  "qualified_code_revision": "4e1dcef",
+  "device": "Apple M4 Pro",
+  "implementation": {
+    "adapter_abi": 9,
+    "contact_owner": "same Human Matter command buffer",
+    "correspondence": "source paired triangle",
+    "runtime_query": "current closest point with current barycentric scatter",
+    "normal": "current closest-point direction oriented by the anatomical reference normal",
+    "force_law": "compressive-only explicit elastic-foundation penalty",
+    "global_adjacent_facet_repair": false,
+    "implicit_nonpenetration": false
+  },
+  "cpu_regression": {
+    "status": "passed",
+    "cases": [
+      "preload-free reference state",
+      "prescribed closure elastic work identity",
+      "current tangential migration force and moment balance",
+      "rotated master triangle rotates the contact direction",
+      "tensile traction rejection",
+      "incomplete anatomy rejection"
+    ]
+  },
+  "exact_payload_preflight": {
+    "samples_per_side": 69701,
+    "pairs_per_side": 7,
+    "steps_per_side": 65,
+    "peak_closure_m": 0.00005,
+    "left": {
+      "peak_normal_force_n": 11386.939590567326,
+      "peak_pressure_pa": 458057.3733710318,
+      "peak_energy_j": 0.28467348976418277,
+      "maximum_force_residual_n": 2.19661229301149e-11,
+      "maximum_moment_residual_nm": 8.722905647315977e-12
+    },
+    "right_mirrored": {
+      "peak_normal_force_n": 11386.939866275827,
+      "peak_pressure_pa": 458057.3693668307,
+      "peak_energy_j": 0.2846734966568951,
+      "maximum_force_residual_n": 2.1122674704270394e-11,
+      "maximum_moment_residual_nm": 8.794533163660021e-12
+    },
+    "replay": "bitwise",
+    "restore": "verified",
+    "evidence_level": "preflight"
+  },
+  "metal_fixture": {
+    "status": "passed",
+    "normal_force_n": 0.9999,
+    "pressure_pa": 9999.0,
+    "force_residual_n": 0.0,
+    "moment_residual_nm": 0.0,
+    "replay": "bitwise",
+    "rollback": "verified",
+    "malformed_reference_normal_rejected": true
+  },
+  "left_live_two_step": {
+    "status": "accepted",
+    "steps": 2,
+    "timestep_s": 0.0001,
+    "qualification_flexion_rad": 0.00001,
+    "regions": 6,
+    "nodes": 62402,
+    "tetrahedra": 264442,
+    "mechanical_contact_samples": 57930,
+    "retained_same_body_samples": 11771,
+    "closed_sample_range": [25293, 30987],
+    "normal_force_range_n": [4.6320681572, 16.4307289124],
+    "trajectory_maximum_pressure_pa": 2773.98217773,
+    "trajectory_maximum_stored_energy_j": 1.59181513482e-6,
+    "trajectory_maximum_normal_strain": 0.000102716199763,
+    "trajectory_maximum_closure_m": 3.65661293245e-7,
+    "trajectory_maximum_force_residual_n": 2.16047105217e-5,
+    "trajectory_maximum_moment_residual_nm": 2.46338324424e-6,
+    "minimum_deformation_jacobian": 0.999426305294,
+    "maximum_deformation_jacobian": 1.00062012672,
+    "quadriceps_resultant_n": 2764.5715332,
+    "ptl_resultant_n": 2787.42602539,
+    "passive_ligament_count": 5,
+    "replay": "bitwise",
+    "rollback": "verified",
+    "evidence_level": "bounded_short_trajectory"
+  },
+  "rejected_diagnostic": {
+    "qualification_flexion_rad": 0.001,
+    "steps": 2,
+    "result": "rejected before solve by projected-flexion anchor compatibility gate",
+    "promoted_as_evidence": false
+  },
+  "visual_inspection": {
+    "views": ["front", "oblique", "side", "rear"],
+    "patella_anterior_and_seated": true,
+    "fibula_lateral": true,
+    "qat_patella_ptl_chain_continuous": true,
+    "detached_or_inverted_tissue_seen": false
+  },
+  "artifacts_sha256": {
+    "cpu-regression.log": "d30702f9c6d1ca625f0b1a7c14e4c20d9a1a2cb45fb38d60ea3d317faea43fb6",
+    "left-preflight.log": "d6fa9e3af1bcd510da1ec23b5229105b82079d5651e6d69727d3d069d378211b",
+    "left-two-step-m4-pro.log": "d6f423bf10bf7d4149fae14b038cebfa43b6f112879e8438afe83e911bd8015c",
+    "left-two-step-front.png": "735dad9ea4162e5052bc6934f660a8c889ec219518b71c24f02183c67fc5442b",
+    "left-two-step-oblique.png": "2463dc126991fb7ec3d5fd5daffab9f86d3e0fc35dbc43590b62626a0a5915f4",
+    "left-two-step-side.png": "bfabfbaff5fb69d87f63ffbce4df33862775313ee72e5eb431f8a6423dc57300",
+    "left-two-step-rear.png": "fb2b83ad2b73f0466a87d9e28dfcbe12473559c8154f31e86a020124904f679a",
+    "metal-fixture.log": "46dfddec185be8067d6b2fbae05e897c56e47606dc2bee66bd7d97d034b76fbb",
+    "rejected-1mrad-anchor-compatibility.log": "cb342b95fd5476eab152ab9b40b4646cf7d3af13ddd257a5f01383b3d244cacb",
+    "right-preflight.log": "edd3a2aabf4cbcc09f214e3b05ca5a07889f8c7aa1a08c0974f818160a0796b4",
+    "whole-body-gate.json": "4b4b0516681760b903f6005ead84408ceb177051754a535fc1813517def309d0"
+  },
+  "evidence_boundary": "This proves current closest-point tracking on each originally paired rigid triangle in a two-step small-deformation Human transaction. It is not adjacent-facet repair, a global current-surface search, deformable meniscus relative ownership, implicit nonpenetration, physiological flexion, subject-specific calibration, or clinical validation. The right payload is a sagittal mirror of the left specimen."
+}
