@@ -1,0 +1,152 @@
+{
+  "schema": "numilab.human.triceps-medialis-enthesis-live-metal.v1",
+  "device": "Apple M4 Pro",
+  "evidence_level": "one_step",
+  "bounded_extension_step_count": 8,
+  "source_base_revision": "492f77929588b561bf90abe14620e0f96e00e0fc",
+  "anatomy": {
+    "source_model": "pinned_MyoSim_full_body",
+    "right_muscle": "TRImed",
+    "right_muscle_index": 227,
+    "right_endpoint_body_pair": [41, 42],
+    "right_endpoint_bone_stable_id_pair": [12, 14],
+    "right_elbow_q_index": 39,
+    "right_elbow_dof_index": 38,
+    "left_muscle": "TRImed_l",
+    "left_muscle_index": 290,
+    "left_endpoint_body_pair": [91, 92],
+    "left_endpoint_bone_stable_id_pair": [13, 15],
+    "left_elbow_q_index": 77,
+    "left_elbow_dof_index": 76
+  },
+  "mechanics": {
+    "tendon_law": "NHMYO2_nonlinear_compliant_fiber_tendon_equilibrium",
+    "attachment_transfer": "NHTENDON3_four_node_wrench_equivalent_entheses",
+    "force_authority": "single_source_route_JT_with_distributed_enthesis_witness",
+    "distributed_endpoint_count": 4,
+    "endpoint_migration_maximum_m": 0.0,
+    "surface_distance_range_m": [0.0020507084905977625, 0.006727559920385511],
+    "patch_radius_range_m": [0.008804682184386117, 0.01199760061757941]
+  },
+  "transaction": {
+    "command_buffer": "borrowed_same_command_buffer_exact_snapshot",
+    "replay": "bitwise",
+    "rollback": "consumer_rejection_preserved_result",
+    "rigid_state_authority": "source_route_JT_only"
+  },
+  "one_step": {
+    "accepted_steps": 1,
+    "bilateral_force_relative_difference": 0.00280624628943,
+    "right": {
+      "represented_endpoint_force_l1_n": 416.119689941,
+      "represented_endpoint_force_increment_l1_n": 404.726865768,
+      "maximum_endpoint_force_residual_n": 0.0000157283993758,
+      "maximum_endpoint_moment_residual_nm": 0.000000245756240247,
+      "normalized_tendon_tension": 0.314815282822,
+      "equilibrium_residual": 0.00000190734863281,
+      "source_elbow_torque_nm": 4.18101978302,
+      "source_elbow_torque_increment_nm": 4.06654880941,
+      "configuration_increment_rad": -0.00000144720934259,
+      "velocity_increment_rad_s": -0.0144720934331
+    },
+    "left": {
+      "represented_endpoint_force_l1_n": 417.290710449,
+      "represented_endpoint_force_increment_l1_n": 404.536992073,
+      "maximum_endpoint_force_residual_n": 0.0000157283993758,
+      "maximum_endpoint_moment_residual_nm": 0.000000181280455536,
+      "normalized_tendon_tension": 0.315701216459,
+      "equilibrium_residual": 0.00000262260437012,
+      "source_elbow_torque_nm": 4.19278907776,
+      "source_elbow_torque_increment_nm": 4.06464423239,
+      "configuration_increment_rad": -0.000001450238301,
+      "velocity_increment_rad_s": -0.0145023819059
+    }
+  },
+  "eight_step": {
+    "accepted_steps": 8,
+    "bilateral_force_relative_difference": 0.00273796094177,
+    "right": {
+      "represented_endpoint_force_l1_n": 415.655975342,
+      "represented_endpoint_force_increment_l1_n": 404.304291725,
+      "maximum_endpoint_force_residual_n": 0.0000152587890625,
+      "maximum_endpoint_moment_residual_nm": 0.000000240274005137,
+      "normalized_tendon_tension": 0.314464449883,
+      "equilibrium_residual": 0.000027554211556,
+      "source_elbow_torque_nm": 4.17595148087,
+      "source_elbow_torque_increment_nm": 4.06189846247,
+      "configuration_increment_rad": -0.0000500464084325,
+      "velocity_increment_rad_s": -0.108939915895
+    },
+    "left": {
+      "represented_endpoint_force_l1_n": 416.797149658,
+      "represented_endpoint_force_increment_l1_n": 404.074249268,
+      "maximum_endpoint_force_residual_n": 0.0000152587890625,
+      "maximum_endpoint_moment_residual_nm": 0.00000025636927603,
+      "normalized_tendon_tension": 0.31532779336,
+      "equilibrium_residual": 0.00000991123670246,
+      "source_elbow_torque_nm": 4.18741798401,
+      "source_elbow_torque_increment_nm": 4.05958777666,
+      "configuration_increment_rad": -0.0000501387221448,
+      "velocity_increment_rad_s": -0.109188571572
+    }
+  },
+  "negative_controls": {
+    "missing_left_muscle_exit_code": 1,
+    "missing_left_muscle_result": "rejected_before_execution",
+    "old_641_envelope_payload_exit_code": 1,
+    "old_payload_result": "rejected_left_origin_not_distributed"
+  },
+  "visual_validation": {
+    "frame_dimension": 1024,
+    "actual_frames_inspected": 8,
+    "right_views": ["front", "oblique", "side", "rear"],
+    "left_views": ["front", "side", "rear", "rear_flexed_0.6_rad"],
+    "left_oblique_control": "route_completely_occluded_by_bone_and_excluded_from_retained_evidence",
+    "right": {
+      "bone_pixels": [75112, 70562, 64084, 73422],
+      "route_pixels": [913, 2560, 3561, 4077],
+      "attachment_envelope_pixels": [263, 561, 1057, 1513]
+    },
+    "left": {
+      "bone_pixels": [75036, 75932, 72999, 58815],
+      "route_pixels": [769, 3510, 4076, 4450],
+      "attachment_envelope_pixels": [235, 132, 1255, 1391]
+    },
+    "inspection": "passed_routes_named_bones_and_both_surface_envelopes_visible_in_exposed_side_and_rear_views_without_visual_only_attachment_spheres"
+  },
+  "source_artifacts": {
+    "nhrigid_sha256": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44",
+    "nhmyo_sha256": "9a988f19a6fd8e533cd0f2bf3192cb8535fb008ccd394ffbf1a4432d3db76a05",
+    "nhbones_sha256": "f9132393dfb259a80e2b2084ac5ff15f2bf988f7e073f7a961a7ddcfb9febc3c",
+    "nhtendon3_sha256": "72ca0ec4ef53f647784a89f761e78495d4997c7d72cfe6a1d9eedb24dd97feaa",
+    "nhcnt1_sha256": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907",
+    "nheq1_sha256": "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a"
+  },
+  "implementation_artifacts": {
+    "live_probe_source_sha256": "1e0add8c801300bec1f437621c452786b458a637fd34bc471e407650086a2d73",
+    "qualified_binary_sha256": "0b76e7f474c341c70ec98d837d7dbe599936e8fb2b3561825042afaec50cc2c7"
+  },
+  "gates": {
+    "exact_bilateral_source_muscle_identity": "passed",
+    "all_four_non_migrated_distributed_entheses": "passed",
+    "positive_tendon_tension_both_muscles": "passed",
+    "bilateral_elbow_torque_and_state_response": "passed",
+    "one_step_force_and_moment_transfer": "passed",
+    "eight_step_history_commit": "passed",
+    "bilateral_force_parity_below_five_percent": "passed",
+    "same_command_buffer_single_force_authority": "passed",
+    "deterministic_replay": "passed",
+    "rejected_transaction_rollback": "passed",
+    "missing_side_negative_control": "passed",
+    "old_point_fallback_payload_negative_control": "passed",
+    "multi_angle_pixel_and_frame_inspection": "passed"
+  },
+  "remaining_blockers": [
+    "deformable_volumetric_tendon_is_not_live",
+    "passive_elbow_capsule_and_ligaments_are_not_live",
+    "elbow_articular_contact_is_not_live",
+    "eight_steps_are_not_a_sustained_loaded_elbow_task",
+    "parameters_are_not_subject_specific_or_clinically_validated"
+  ],
+  "boundary": "Bounded bilateral active triceps medialis enthesis force-transfer certificate; not deformable tendon, passive elbow tissue, articular contact, sustained task, subject calibration, or clinical validation."
+}

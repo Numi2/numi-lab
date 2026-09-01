@@ -2766,6 +2766,31 @@ struct MuscleDrivenVisualState {
         double velocityIncrementL1RadiansPerSecond = 0.0;
     };
     std::array<ThumbTendonSideAudit, 2u> thumbTendons{};
+    struct TricepsMedialisSideAudit {
+        bool available = false;
+        std::uint32_t muscleIndex = MR_INVALID_INDEX;
+        std::uint32_t distributedEndpointCount = 0u;
+        std::uint32_t elbowQIndex = MR_INVALID_INDEX;
+        std::uint32_t elbowDofIndex = MR_INVALID_INDEX;
+        double representedEndpointForceL1Newtons = 0.0;
+        double representedEndpointForceIncrementL1Newtons = 0.0;
+        double maximumEndpointForceResidualNewtons = 0.0;
+        double maximumEndpointMomentResidualNewtonMeters = 0.0;
+        double normalizedTendonTension = 0.0;
+        double dampedEquilibriumResidual = 0.0;
+        double minimumSurfaceDistanceMeters =
+            std::numeric_limits<double>::infinity();
+        double maximumSurfaceDistanceMeters = 0.0;
+        double minimumPatchRadiusMeters =
+            std::numeric_limits<double>::infinity();
+        double maximumPatchRadiusMeters = 0.0;
+        double sourceElbowTorqueNewtonMeters = 0.0;
+        double sourceElbowTorqueIncrementNewtonMeters = 0.0;
+        double distributedCorrectionNewtonMeters = 0.0;
+        double configurationIncrementRadians = 0.0;
+        double velocityIncrementRadiansPerSecond = 0.0;
+    };
+    std::array<TricepsMedialisSideAudit, 2u> tricepsMedialis{};
 };
 
 struct TendonLoadAuditConsumer {
@@ -4975,6 +5000,190 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 std::to_string(audit.configurationIncrementL1Radians) +
                 " v_increment_l1=" +
                 std::to_string(audit.velocityIncrementL1RadiansPerSecond));
+    }
+    // Complete the only remaining upper-limb NHTENDON3 point fallback with a
+    // bilateral triceps-medialis audit. The importer preserves the exact
+    // source origin and projects the admitted mirrored right patch onto the
+    // separately scanned left BodyParts3D humerus. Runtime admission remains
+    // bilateral, distributed, force/moment conserving, and single-authority.
+    constexpr std::array<std::uint32_t, 2u> kTricepsMedialisMuscles{
+        227u, 290u};
+    constexpr std::array<std::uint32_t, 2u> kElbowQIndices{39u, 77u};
+    constexpr std::array<std::array<std::uint32_t, 2u>, 2u>
+        kTricepsMedialisEndpointBodies{{
+            {{41u, 42u}}, {{91u, 92u}},
+        }};
+    constexpr std::array<std::array<std::uint32_t, 2u>, 2u>
+        kTricepsMedialisEndpointBoneStableIds{{
+            {{12u, 14u}}, {{13u, 15u}},
+        }};
+    for (std::size_t side = 0u; side < result.tricepsMedialis.size(); ++side) {
+        auto& audit = result.tricepsMedialis[side];
+        const std::uint32_t muscle = kTricepsMedialisMuscles[side];
+        if (!applySelectedActivationIncrement ||
+            !std::binary_search(
+                selectedSourceMuscleIndices.begin(),
+                selectedSourceMuscleIndices.end(), muscle)) {
+            continue;
+        }
+        require(
+            muscle < muscles.referenceArchitectures.size() &&
+                muscle < metalResult.mujocoResults.size() &&
+                metalResult.mujocoMuscleGeneralizedForces.size() ==
+                    muscles.gpuMuscles.size() * dofCount &&
+                selectedControlBaselineResult.mujocoMuscleGeneralizedForces.size() ==
+                    metalResult.mujocoMuscleGeneralizedForces.size() &&
+                metalResult.standTendonGeneralizedCorrections.size() ==
+                    tendonProgram.bindings.size() * dofCount,
+            "triceps medialis certificate is missing accepted source-force state");
+        const std::uint32_t qIndex = kElbowQIndices[side];
+        const auto dof = std::find_if(
+            model.dofs.begin(), model.dofs.end(),
+            [qIndex](const MRDofPropertiesGPU& candidate) {
+                return candidate.qIndex == qIndex;
+            });
+        require(dof != model.dofs.end() && qIndex < result.q.size(),
+                "triceps medialis certificate cannot resolve elbow flexion");
+        const std::size_t dofIndex = static_cast<std::size_t>(
+            std::distance(model.dofs.begin(), dof));
+        require(dofIndex < dofCount &&
+                    dofIndex < metalResult.standV.size() &&
+                    dofIndex < selectedControlBaselineResult.standV.size(),
+                "triceps medialis elbow DOF is out of range");
+        audit.muscleIndex = muscle;
+        audit.elbowQIndex = qIndex;
+        audit.elbowDofIndex = static_cast<std::uint32_t>(dofIndex);
+        audit.configurationIncrementRadians =
+            static_cast<double>(result.q[qIndex]) -
+            static_cast<double>(selectedControlBaselineResult.standQ[qIndex]);
+        audit.velocityIncrementRadiansPerSecond =
+            static_cast<double>(metalResult.standV[dofIndex]) -
+            static_cast<double>(selectedControlBaselineResult.standV[dofIndex]);
+        const std::size_t muscleDof = muscle * dofCount + dofIndex;
+        audit.sourceElbowTorqueNewtonMeters = std::abs(static_cast<double>(
+            metalResult.mujocoMuscleGeneralizedForces[muscleDof]));
+        audit.sourceElbowTorqueIncrementNewtonMeters = std::abs(
+            static_cast<double>(
+                metalResult.mujocoMuscleGeneralizedForces[muscleDof]) -
+            static_cast<double>(selectedControlBaselineResult
+                .mujocoMuscleGeneralizedForces[muscleDof]));
+        const auto& muscleResult = metalResult.mujocoResults[muscle];
+        require(muscleResult.status == MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS,
+                "triceps medialis source muscle did not solve");
+        audit.normalizedTendonTension = static_cast<double>(
+            muscleResult.fiberStateTendonForceResidual.z);
+        audit.dampedEquilibriumResidual = std::abs(static_cast<double>(
+            muscleResult.fiberStateTendonForceResidual.w));
+        for (std::uint32_t endpoint = 0u; endpoint < 2u; ++endpoint) {
+            const auto gpuBinding = std::find_if(
+                tendonProgram.bindings.begin(), tendonProgram.bindings.end(),
+                [muscle, endpoint](const MRNumiHumanTendonBindingGPU& value) {
+                    return value.muscleIndex == muscle &&
+                        value.endpointOrdinal == endpoint;
+                });
+            const auto sourceBinding = std::find_if(
+                muscles.tendonPayload.bindings.begin(),
+                muscles.tendonPayload.bindings.end(),
+                [muscle, endpoint](
+                    const metalrobo::NumiHumanTendonBinding& value) {
+                    return value.muscleIndex == muscle &&
+                        value.endpointOrdinal == endpoint;
+                });
+            require(
+                gpuBinding != tendonProgram.bindings.end() &&
+                    sourceBinding != muscles.tendonPayload.bindings.end() &&
+                    gpuBinding->bodyIndex ==
+                        kTricepsMedialisEndpointBodies[side][endpoint] &&
+                    gpuBinding->boneStableId ==
+                        kTricepsMedialisEndpointBoneStableIds[side][endpoint] &&
+                    gpuBinding->mode ==
+                        MR_NUMI_HUMAN_TENDON_TRANSFER_DISTRIBUTED_ENVELOPE &&
+                    gpuBinding->envelopeIndex < tendonProgram.envelopes.size() &&
+                    sourceBinding->mode == metalrobo::
+                        NumiHumanTendonAttachmentMode::
+                            registeredBoneDistributedEnvelope &&
+                    sourceBinding->endpointMigration <= 1.0e-12 &&
+                    sourceBinding->surfaceDistance >= 0.0 &&
+                    sourceBinding->surfaceDistance <= 8.0e-3 &&
+                    sourceBinding->patchRadius >= 4.0e-3 &&
+                    sourceBinding->patchRadius <= 1.2001e-2 &&
+                    sourceBinding->forceAmplification <= 4.0 &&
+                    sourceBinding->compiledMomentResidual <= 2.0e-8,
+                "triceps medialis endpoint is not its exact distributed bone envelope");
+            const std::size_t bindingIndex = static_cast<std::size_t>(
+                std::distance(tendonProgram.bindings.begin(), gpuBinding));
+            require(
+                bindingIndex < metalResult.standTendonTransfers.size() &&
+                    bindingIndex <
+                        selectedControlBaselineResult.standTendonTransfers.size(),
+                "triceps medialis endpoint transfer readback is incomplete");
+            const auto& transfer =
+                metalResult.standTendonTransfers[bindingIndex];
+            const auto& baselineTransfer =
+                selectedControlBaselineResult.standTendonTransfers[bindingIndex];
+            const auto& envelope =
+                tendonProgram.envelopes[gpuBinding->envelopeIndex];
+            require(
+                transfer.status == MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS &&
+                    baselineTransfer.status ==
+                        MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS &&
+                    transfer.bindingIndex == bindingIndex &&
+                    transfer.envelopeIndex == gpuBinding->envelopeIndex &&
+                    envelope.bodyIndex == gpuBinding->bodyIndex &&
+                    envelope.boneStableId == gpuBinding->boneStableId &&
+                    envelope.nodeCount == 4u,
+                "accepted triceps medialis endpoint disagrees with its envelope");
+            ++audit.distributedEndpointCount;
+            audit.representedEndpointForceL1Newtons +=
+                std::abs(static_cast<double>(transfer.residualsAndForce.w));
+            audit.representedEndpointForceIncrementL1Newtons += std::abs(
+                static_cast<double>(transfer.residualsAndForce.w) -
+                static_cast<double>(baselineTransfer.residualsAndForce.w));
+            audit.maximumEndpointForceResidualNewtons = std::max(
+                audit.maximumEndpointForceResidualNewtons,
+                static_cast<double>(transfer.residualsAndForce.x));
+            audit.maximumEndpointMomentResidualNewtonMeters = std::max(
+                audit.maximumEndpointMomentResidualNewtonMeters,
+                static_cast<double>(transfer.residualsAndForce.y));
+            audit.minimumSurfaceDistanceMeters = std::min(
+                audit.minimumSurfaceDistanceMeters,
+                static_cast<double>(envelope.metrics.x));
+            audit.maximumSurfaceDistanceMeters = std::max(
+                audit.maximumSurfaceDistanceMeters,
+                static_cast<double>(envelope.metrics.x));
+            audit.minimumPatchRadiusMeters = std::min(
+                audit.minimumPatchRadiusMeters,
+                static_cast<double>(envelope.metrics.y));
+            audit.maximumPatchRadiusMeters = std::max(
+                audit.maximumPatchRadiusMeters,
+                static_cast<double>(envelope.metrics.y));
+            audit.distributedCorrectionNewtonMeters += std::abs(
+                static_cast<double>(
+                    metalResult.standTendonGeneralizedCorrections[
+                        bindingIndex * dofCount + dofIndex]));
+        }
+        audit.available =
+            audit.distributedEndpointCount == 2u &&
+            audit.representedEndpointForceL1Newtons > 0.0 &&
+            audit.representedEndpointForceIncrementL1Newtons > 0.0 &&
+            audit.maximumEndpointForceResidualNewtons <= 1.0e-3 &&
+            audit.maximumEndpointMomentResidualNewtonMeters <= 5.0e-5 &&
+            audit.normalizedTendonTension > 0.0 &&
+            audit.sourceElbowTorqueNewtonMeters > 1.0e-8 &&
+            audit.sourceElbowTorqueIncrementNewtonMeters > 1.0e-8 &&
+            std::abs(audit.configurationIncrementRadians) > 1.0e-12 &&
+            std::abs(audit.velocityIncrementRadiansPerSecond) > 1.0e-9;
+        require(
+            audit.available,
+            "triceps medialis force-transfer certificate did not close: side=" +
+                std::to_string(side) + " endpoints=" +
+                std::to_string(audit.distributedEndpointCount) +
+                " force_l1=" +
+                std::to_string(audit.representedEndpointForceL1Newtons) +
+                " torque=" +
+                std::to_string(audit.sourceElbowTorqueNewtonMeters) +
+                " q_increment=" +
+                std::to_string(audit.configurationIncrementRadians));
     }
     return result;
 }
@@ -12760,6 +12969,7 @@ int main(int argc, char** argv) {
             bool standDeterministicReplay = false;
             bool bilateralAchillesCertificate = false;
             bool bilateralThumbTendonCertificate = false;
+            bool bilateralTricepsMedialisEnthesisCertificate = false;
             bool bilateralPlantarFasciaCertificate = false;
             bool wholeBodySupportCertificate = false;
             bool sourcePassiveJointTissue = false;
@@ -12842,6 +13052,12 @@ int main(int argc, char** argv) {
                     require(!bilateralThumbTendonCertificate,
                             "--bilateral-thumb-tendon-certificate may be given only once");
                     bilateralThumbTendonCertificate = true;
+                } else if (argument ==
+                               "--bilateral-triceps-medialis-enthesis-certificate") {
+                    require(
+                        !bilateralTricepsMedialisEnthesisCertificate,
+                        "--bilateral-triceps-medialis-enthesis-certificate may be given only once");
+                    bilateralTricepsMedialisEnthesisCertificate = true;
                 } else if (argument == "--bilateral-plantar-fascia-certificate") {
                     require(!bilateralPlantarFasciaCertificate,
                             "--bilateral-plantar-fascia-certificate may be given only once");
@@ -13035,6 +13251,7 @@ int main(int argc, char** argv) {
                           << " [--persistent-metal-stand] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay]"
                           << " [--bilateral-achilles-certificate]"
                           << " [--bilateral-thumb-tendon-certificate]"
+                          << " [--bilateral-triceps-medialis-enthesis-certificate]"
                           << " [--bilateral-plantar-fascia-certificate]"
                           << " [--whole-body-support-certificate]"
                           << " [--whole-body-activation-sweeps <1..8192>]"
@@ -13171,6 +13388,7 @@ int main(int argc, char** argv) {
                 require(
                     !bilateralPlantarFasciaCertificate &&
                         !bilateralThumbTendonCertificate &&
+                        !bilateralTricepsMedialisEnthesisCertificate &&
                         !wholeBodySupportCertificate &&
                         !sourceRouteCentrelines &&
                         requestedBoneBodyIndices.empty() &&
@@ -13207,6 +13425,7 @@ int main(int argc, char** argv) {
                     "source muscles 256,257,258,259,319,320,321,322");
                 require(
                     !bilateralAchillesCertificate &&
+                        !bilateralTricepsMedialisEnthesisCertificate &&
                         !bilateralPlantarFasciaCertificate &&
                         !wholeBodySupportCertificate &&
                         !sourceRouteCentrelines &&
@@ -13222,10 +13441,47 @@ int main(int argc, char** argv) {
                     "direct-tendon qualification and cannot be combined "
                     "with presentation or inferred hood scopes");
             }
+            if (bilateralTricepsMedialisEnthesisCertificate) {
+                constexpr std::array<std::uint32_t, 2u>
+                    kBilateralTricepsMedialisMuscles{227u, 290u};
+                require(
+                    !persistentMetalStand && selectedTendonControl &&
+                        muscleStepSeconds.has_value() &&
+                        tendonPayloadPath.has_value() &&
+                        jointEqualityPayloadPath.has_value() &&
+                        supportContactPayloadPath.has_value() &&
+                        selectedSourceMuscleActivations.size() ==
+                            kBilateralTricepsMedialisMuscles.size() &&
+                        std::equal(
+                            selectedSourceMuscleActivations.begin(),
+                            selectedSourceMuscleActivations.end(),
+                            kBilateralTricepsMedialisMuscles.begin()),
+                    "--bilateral-triceps-medialis-enthesis-certificate "
+                    "requires the persistent selected NHTENDON3 transaction "
+                    "and exactly source muscles 227,290");
+                require(
+                    !bilateralAchillesCertificate &&
+                        !bilateralThumbTendonCertificate &&
+                        !bilateralPlantarFasciaCertificate &&
+                        !wholeBodySupportCertificate &&
+                        !sourceRouteCentrelines &&
+                        requestedBoneBodyIndices.empty() &&
+                        requestedBoneStableIds.empty() &&
+                        requestedSoftTissueStableIds.empty() &&
+                        !extensorHoodPayloadPath.has_value() &&
+                        !passiveFEMTissueStableId.has_value() &&
+                        !pectoralisFasciaPayloadPath.has_value() &&
+                        !openKneePayloadPath.has_value() &&
+                        !openKneeLigamentFEMPath.has_value(),
+                    "--bilateral-triceps-medialis-enthesis-certificate is a "
+                    "nonvisual active-enthesis qualification and cannot be "
+                    "combined with presentation or another tissue scope");
+            }
             if (bilateralPlantarFasciaCertificate) {
                 require(
                         !bilateralAchillesCertificate &&
                         !bilateralThumbTendonCertificate &&
+                        !bilateralTricepsMedialisEnthesisCertificate &&
                         !wholeBodySupportCertificate && bodypartsBoneVisual &&
                         !persistentMetalStand && !selectedTendonControl &&
                         muscleStepSeconds.has_value() &&
@@ -13262,6 +13518,7 @@ int main(int argc, char** argv) {
                 require(
                     !bilateralAchillesCertificate &&
                         !bilateralThumbTendonCertificate &&
+                        !bilateralTricepsMedialisEnthesisCertificate &&
                         !bilateralPlantarFasciaCertificate &&
                         !persistentMetalStand && !selectedTendonControl &&
                         muscleStepSeconds.has_value() &&
@@ -14710,6 +14967,99 @@ int main(int argc, char** argv) {
                 }
                 std::cout
                     << " boundary=bounded_bilateral_direct_thumb_tendon_force_transfer_certificate_not_retinacular_pulley_contact_deformable_tendon_sustained_task_or_clinical_validation\n";
+                return 0;
+            }
+            if (bilateralTricepsMedialisEnthesisCertificate) {
+                require(
+                    muscleDrivenState.has_value() &&
+                        muscleDrivenState->tricepsMedialis[0u].available &&
+                        muscleDrivenState->tricepsMedialis[1u].available &&
+                        muscleDrivenState->tendonBorrowedConsumerVerified &&
+                        muscleDrivenState->tendonRollbackVerified &&
+                        muscleDrivenState->tendonRigidStateIdentityVerified &&
+                        muscleDrivenState->deterministicReplayVerified,
+                    "bilateral triceps medialis qualification lacks "
+                    "transactional proof");
+                const auto& right =
+                    muscleDrivenState->tricepsMedialis[0u];
+                const auto& left =
+                    muscleDrivenState->tricepsMedialis[1u];
+                const double forceScale = std::max({
+                    1.0,
+                    right.representedEndpointForceL1Newtons,
+                    left.representedEndpointForceL1Newtons});
+                const double bilateralForceRelativeDifference = std::abs(
+                    right.representedEndpointForceL1Newtons -
+                    left.representedEndpointForceL1Newtons) / forceScale;
+                require(
+                    bilateralForceRelativeDifference <= 5.0e-2,
+                    "bilateral triceps medialis represented-force parity drifted");
+                std::cout << std::setprecision(12)
+                          << "numi_human_bilateral_triceps_medialis_enthesis=ok"
+                          << " device=\""
+                          << muscleDrivenState->muscleMetalDeviceName << "\""
+                          << " source_model=pinned_MyoSim_full_body"
+                          << " anatomy=source_TRImed_and_TRImed_l_humerus_to_ulna_routes"
+                          << " geometry=exact_BodyParts3D_4_0_named_humerus_and_ulna_envelopes"
+                          << " tendon_law=NHMYO2_nonlinear_compliant_fiber_tendon_equilibrium"
+                          << " transfer=NHTENDON3_four_node_wrench_equivalent_entheses"
+                          << " selected_muscles=227,290"
+                          << " selected_muscle_names=TRImed,TRImed_l"
+                          << " accepted_steps="
+                          << muscleDrivenState->persistentCompletedSteps
+                          << " replay=bitwise"
+                          << " rollback=consumer_rejection_preserved_result"
+                          << " borrowed_consumer=same_command_buffer_exact_snapshot"
+                          << " force_authority=single_source_route_JT_with_distributed_enthesis_witness"
+                          << " bilateral_force_relative_difference="
+                          << bilateralForceRelativeDifference;
+                constexpr std::array<const char*, 2u> kSideNames{
+                    "right", "left"};
+                for (std::size_t side = 0u;
+                     side < muscleDrivenState->tricepsMedialis.size(); ++side) {
+                    const auto& audit =
+                        muscleDrivenState->tricepsMedialis[side];
+                    const std::string prefix = std::string(" ") +
+                        kSideNames[side] + "_";
+                    std::cout
+                        << prefix << "muscle_index=" << audit.muscleIndex
+                        << prefix << "distributed_endpoints="
+                        << audit.distributedEndpointCount
+                        << prefix << "elbow_q_index=" << audit.elbowQIndex
+                        << prefix << "elbow_dof_index=" << audit.elbowDofIndex
+                        << prefix << "represented_endpoint_force_l1_n="
+                        << audit.representedEndpointForceL1Newtons
+                        << prefix << "represented_endpoint_force_increment_l1_n="
+                        << audit.representedEndpointForceIncrementL1Newtons
+                        << prefix << "max_endpoint_force_residual_n="
+                        << audit.maximumEndpointForceResidualNewtons
+                        << prefix << "max_endpoint_moment_residual_nm="
+                        << audit.maximumEndpointMomentResidualNewtonMeters
+                        << prefix << "normalized_tendon_tension="
+                        << audit.normalizedTendonTension
+                        << prefix << "equilibrium_residual="
+                        << audit.dampedEquilibriumResidual
+                        << prefix << "min_surface_distance_m="
+                        << audit.minimumSurfaceDistanceMeters
+                        << prefix << "max_surface_distance_m="
+                        << audit.maximumSurfaceDistanceMeters
+                        << prefix << "min_patch_radius_m="
+                        << audit.minimumPatchRadiusMeters
+                        << prefix << "max_patch_radius_m="
+                        << audit.maximumPatchRadiusMeters
+                        << prefix << "source_elbow_torque_nm="
+                        << audit.sourceElbowTorqueNewtonMeters
+                        << prefix << "source_elbow_torque_increment_nm="
+                        << audit.sourceElbowTorqueIncrementNewtonMeters
+                        << prefix << "distributed_correction_nm="
+                        << audit.distributedCorrectionNewtonMeters
+                        << prefix << "elbow_q_increment_rad="
+                        << audit.configurationIncrementRadians
+                        << prefix << "elbow_v_increment_rad_s="
+                        << audit.velocityIncrementRadiansPerSecond;
+                }
+                std::cout
+                    << " boundary=bounded_bilateral_active_triceps_medialis_enthesis_force_transfer_certificate_not_deformable_tendon_passive_capsule_ligament_articular_contact_sustained_task_subject_calibration_or_clinical_validation\n";
                 return 0;
             }
             const metalrobo::MetalArticulatedOperatorInput input{

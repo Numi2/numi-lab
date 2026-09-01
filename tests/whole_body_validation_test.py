@@ -97,6 +97,21 @@ class WholeBodyValidationTest(unittest.TestCase):
             hand = scope(report, identifier)["requirements"]
             self.assertEqual(hand["thumb_direct_tendon_transfer"]["status"], "verified")
 
+    def test_triceps_medialis_receipt_and_elbow_requirements(self):
+        report = self.run_validator("--allow-incomplete", "--quiet")
+        self.assertEqual(
+            report["evidence"][
+                "bilateral_triceps_medialis_enthesis_force_transfer"
+            ]["status"],
+            "verified",
+        )
+        for identifier in ("left_elbow_forearm", "right_elbow_forearm"):
+            elbow = scope(report, identifier)["requirements"]
+            self.assertEqual(
+                elbow["triceps_medialis_enthesis_transfer"]["status"],
+                "verified",
+            )
+
     def test_default_exit_fails_closed_while_incomplete(self):
         report = self.run_validator("--quiet", expected_code=1)
         self.assertEqual(report["status"], "incomplete")
