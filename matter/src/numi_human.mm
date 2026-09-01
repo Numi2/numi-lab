@@ -84,6 +84,8 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLComputePipelineState> articularContactAuditPipeline = nil;
     __strong id<MTLComputePipelineState> articularContactAuditCommitPipeline = nil;
     __strong id<MTLComputePipelineState> targetPipeline = nil;
+    __strong id<MTLComputePipelineState> reactionAuditPipeline = nil;
+    __strong id<MTLComputePipelineState> reactionAuditCommitPipeline = nil;
     __strong id<MTLComputePipelineState> reactionPipeline = nil;
     __strong id<MTLBuffer> nodeLoadBuffer = nil;
     __strong id<MTLBuffer> nodeAnchorBuffer = nil;
@@ -97,6 +99,8 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLBuffer> articularContactAuditHistoryBuffer = nil;
     __strong id<MTLBuffer> externalForceBuffer = nil;
     __strong id<MTLBuffer> externalForceAuditBuffer = nil;
+    __strong id<MTLBuffer> anchorReactionAuditBuffer = nil;
+    __strong id<MTLBuffer> anchorReactionAuditHistoryBuffer = nil;
     __strong id<MTLBuffer> kinematicTargetBuffer = nil;
     __strong id<MTLBuffer> worldStatusBuffer = nil;
 };
@@ -556,6 +560,10 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             }
             state_->targetPipeline = pipeline(
                 "nm_numi_human_assemble_fem_kinematic_targets");
+            state_->reactionAuditPipeline = pipeline(
+                "nm_numi_human_audit_fem_anchor_reactions");
+            state_->reactionAuditCommitPipeline = pipeline(
+                "nm_numi_human_commit_fem_anchor_reaction_audit");
             state_->reactionPipeline = pipeline(
                 "nm_numi_human_apply_fem_anchor_reactions");
             const NSUInteger nodeLoadBytes = static_cast<NSUInteger>(
@@ -645,6 +653,19 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             state_->externalForceAuditBuffer = [device
                 newBufferWithLength:state_->environmentCount * sizeof(nm_float4)
                 options:MTLResourceStorageModeShared];
+            state_->anchorReactionAuditBuffer = [device
+                newBufferWithLength:state_->environmentCount * sizeof(nm_float4)
+                options:MTLResourceStorageModeShared];
+            state_->anchorReactionAuditHistoryBuffer = [device
+                newBufferWithLength:state_->environmentCount *
+                    NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS *
+                    sizeof(nm_float4)
+                options:MTLResourceStorageModeShared];
+            if (state_->anchorReactionAuditHistoryBuffer != nil) {
+                std::memset(
+                    state_->anchorReactionAuditHistoryBuffer.contents, 0,
+                    state_->anchorReactionAuditHistoryBuffer.length);
+            }
             state_->kinematicTargetBuffer = [device
                 newBufferWithLength:externalForceBytes
                 options:MTLResourceStorageModePrivate];
@@ -660,7 +681,10 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                  (state_->articularContactPipeline == nil ||
                   state_->articularContactAuditPipeline == nil ||
                   state_->articularContactAuditCommitPipeline == nil)) ||
-                state_->targetPipeline == nil || state_->reactionPipeline == nil) {
+                state_->targetPipeline == nil ||
+                state_->reactionAuditPipeline == nil ||
+                state_->reactionAuditCommitPipeline == nil ||
+                state_->reactionPipeline == nil) {
                 if (state_->message == "initialized") {
                     state_->message = "Human tendon/FEM pipeline is unavailable";
                 }
@@ -690,6 +714,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             }
             if (state_->externalForceBuffer == nil ||
                 state_->externalForceAuditBuffer == nil ||
+                state_->anchorReactionAuditBuffer == nil ||
+                state_->anchorReactionAuditHistoryBuffer == nil ||
                 state_->kinematicTargetBuffer == nil) {
                 state_->message = "Human tendon/FEM force/target buffer is unavailable";
                 return false;
@@ -880,6 +906,15 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             (__bridge id<MTLBuffer>)state_->runtime->statusBuffer();
         if (reactions == nil || matterStatuses == nil ||
             !encodeKernel(
+                state_->reactionAuditPipeline, state_->environmentCount,
+                [&](id<MTLComputeCommandEncoder> encoder) {
+                    [encoder setBuffer:state_->nodeAnchorBuffer offset:0u atIndex:1u];
+                    [encoder setBuffer:reactions offset:0u atIndex:2u];
+                    [encoder setBuffer:matterStatuses offset:0u atIndex:3u];
+                    [encoder setBuffer:state_->anchorReactionAuditBuffer
+                                offset:0u atIndex:4u];
+                }
+            ) || !encodeKernel(
                 state_->reactionPipeline,
                 state_->environmentCount * pass.dofCount,
                 [&](id<MTLComputeCommandEncoder> encoder) {
@@ -991,14 +1026,30 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
                 "Human tendon/FEM Matter post-commit failed: " + post.message;
             return false;
         }
+        id<MTLComputeCommandEncoder> commitEncoder =
+            [command computeCommandEncoder];
+        if (commitEncoder == nil) {
+            state_->message =
+                "Human FEM audit commit encoder is unavailable";
+            return false;
+        }
+        [commitEncoder setComputePipelineState:
+            state_->reactionAuditCommitPipeline];
+        [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
+        [commitEncoder setBuffer:state_->anchorReactionAuditBuffer
+                          offset:0u atIndex:2u];
+        [commitEncoder setBuffer:state_->anchorReactionAuditHistoryBuffer
+                          offset:0u atIndex:3u];
+        const NSUInteger reactionCommitWidth = std::min<NSUInteger>(
+            count, std::min<NSUInteger>(
+                state_->reactionAuditCommitPipeline
+                    .maxTotalThreadsPerThreadgroup,
+                256u));
+        [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(
+                std::max<NSUInteger>(reactionCommitWidth, 1u), 1u, 1u)];
         if (!state_->articularContactSamples.empty()) {
-            id<MTLComputeCommandEncoder> commitEncoder =
-                [command computeCommandEncoder];
-            if (commitEncoder == nil) {
-                state_->message =
-                    "Human articular contact audit commit encoder is unavailable";
-                return false;
-            }
             [commitEncoder setComputePipelineState:
                 state_->articularContactAuditCommitPipeline];
             [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
@@ -1015,8 +1066,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
             [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
                 threadsPerThreadgroup:MTLSizeMake(
                     std::max<NSUInteger>(commitWidth, 1u), 1u, 1u)];
-            [commitEncoder endEncoding];
         }
+        [commitEncoder endEncoding];
         ++state_->encodedPassCount;
         state_->message = "two-way transaction encoded";
         return true;
@@ -1100,6 +1151,76 @@ NumiHumanTendonFEMLoadAdapter::diagnostics() const noexcept {
             result.assembledExternalForceResultantNewtons = std::sqrt(
                 resultantX * resultantX + resultantY * resultantY +
                 resultantZ * resultantZ);
+        }
+    }
+    if (state_->anchorReactionAuditBuffer != nil) {
+        const auto* audits = static_cast<const nm_float4*>(
+            state_->anchorReactionAuditBuffer.contents);
+        double resultantX = 0.0;
+        double resultantY = 0.0;
+        double resultantZ = 0.0;
+        for (std::uint32_t environment = 0u;
+             environment < state_->environmentCount; ++environment) {
+            const nm_float4 audit = audits[environment];
+            if (!finiteScale(audit) || audit.w < 0.0f) {
+                result.anchorReactionL1Newtons =
+                    std::numeric_limits<double>::quiet_NaN();
+                result.anchorReactionResultantNewtons =
+                    std::numeric_limits<double>::quiet_NaN();
+                break;
+            }
+            resultantX += audit.x;
+            resultantY += audit.y;
+            resultantZ += audit.z;
+            result.anchorReactionL1Newtons += audit.w;
+            result.anchorReactionResultantNewtons = std::sqrt(
+                resultantX * resultantX + resultantY * resultantY +
+                resultantZ * resultantZ);
+        }
+    }
+    if (state_->anchorReactionAuditHistoryBuffer != nil) {
+        const auto* history = static_cast<const nm_float4*>(
+            state_->anchorReactionAuditHistoryBuffer.contents);
+        const std::uint32_t attemptedSteps = std::min(
+            state_->articularAttemptedStepCount,
+            static_cast<std::uint32_t>(
+                NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS));
+        result.anchorReactionAuditedStepCount = attemptedSteps;
+        double minimumL1 = std::numeric_limits<double>::infinity();
+        for (std::uint32_t step = 0u; step < attemptedSteps; ++step) {
+            double l1 = 0.0;
+            double resultantX = 0.0;
+            double resultantY = 0.0;
+            double resultantZ = 0.0;
+            for (std::uint32_t environment = 0u;
+                 environment < state_->environmentCount; ++environment) {
+                const nm_float4 audit = history[
+                    environment *
+                        NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS + step];
+                if (!finiteScale(audit) || audit.w < 0.0f) {
+                    const double nan =
+                        std::numeric_limits<double>::quiet_NaN();
+                    result.anchorReactionTrajectoryMinimumL1Newtons = nan;
+                    result.anchorReactionTrajectoryMaximumL1Newtons = nan;
+                    result.anchorReactionTrajectoryMaximumResultantNewtons = nan;
+                    return result;
+                }
+                resultantX += audit.x;
+                resultantY += audit.y;
+                resultantZ += audit.z;
+                l1 += audit.w;
+            }
+            minimumL1 = std::min(minimumL1, l1);
+            result.anchorReactionTrajectoryMaximumL1Newtons = std::max(
+                result.anchorReactionTrajectoryMaximumL1Newtons, l1);
+            result.anchorReactionTrajectoryMaximumResultantNewtons = std::max(
+                result.anchorReactionTrajectoryMaximumResultantNewtons,
+                std::sqrt(resultantX * resultantX +
+                          resultantY * resultantY +
+                          resultantZ * resultantZ));
+        }
+        if (attemptedSteps > 0u) {
+            result.anchorReactionTrajectoryMinimumL1Newtons = minimumL1;
         }
     }
     if (state_->articularContactAuditHistoryBuffer != nil) {

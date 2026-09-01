@@ -440,9 +440,23 @@ int main() {
                             1.0e-4f,
                     "probe articular wrench A/B correction is invalid");
             const auto diagnostics = adapter.diagnostics();
+            const std::string diagnosticFailure =
+                "probe adapter diagnostics are incomplete: anchor_steps=" +
+                std::to_string(diagnostics.anchorReactionAuditedStepCount) +
+                " anchor_min_l1=" + std::to_string(
+                    diagnostics.anchorReactionTrajectoryMinimumL1Newtons) +
+                " anchor_max_l1=" + std::to_string(
+                    diagnostics.anchorReactionTrajectoryMaximumL1Newtons) +
+                " anchor_max_resultant=" + std::to_string(
+                    diagnostics.anchorReactionTrajectoryMaximumResultantNewtons);
             require(diagnostics.initialized && diagnostics.encodedPassCount == 3u &&
                         diagnostics.abortCount == 0u &&
                         diagnostics.contactSampleCount == 1u &&
+                        diagnostics.anchorReactionAuditedStepCount == 2u &&
+                        diagnostics.anchorReactionTrajectoryMaximumL1Newtons >
+                            0.0 &&
+                        diagnostics.anchorReactionTrajectoryMaximumResultantNewtons >
+                            0.0 &&
                         diagnostics.articularContactSampleCount == 2u &&
                         diagnostics.articularMechanicalSampleCount == 1u &&
                         diagnostics.articularInternalSameBodySampleCount == 1u &&
@@ -492,7 +506,7 @@ int main() {
                         diagnostics.articularTrajectoryMaximumMomentResidualNewtonMeters <=
                             1.0e-6 &&
                         diagnostics.fingerprint != 0u,
-                    "probe adapter diagnostics are incomplete");
+                    diagnosticFailure.c_str());
             std::cout
                 << "numi_human_tendon_fem_load=passed"
                 << " device=\"" << initialized.device << "\""
@@ -540,6 +554,10 @@ int main() {
                 << " malformed_contact_rejected=true"
                 << " malformed_articular_contact_rejected=true"
                 << " anchor_reaction_l1_n=" << acceptedReactionL1
+                << " audited_anchor_reaction_min_l1_n="
+                << diagnostics.anchorReactionTrajectoryMinimumL1Newtons
+                << " audited_anchor_reaction_max_l1_n="
+                << diagnostics.anchorReactionTrajectoryMaximumL1Newtons
                 << " full_row_generalized_force=" << acceptedGeneralizedForce
                 << " replay=bitwise rollback=verified"
                 << " production_owner_fraction=0.1"

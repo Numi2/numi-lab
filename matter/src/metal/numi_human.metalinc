@@ -582,6 +582,64 @@ kernel void nm_numi_human_assemble_fem_kinematic_targets(
     );
 }
 
+// Capture the exact reaction field consumed by the J^T projection while the
+// borrowed Human command buffer still owns the accepted Matter candidate.
+// Reading Runtime's private scratch after replay/rollback is not evidence of
+// the accepted pass because restore is allowed to reuse that scratch.
+kernel void nm_numi_human_audit_fem_anchor_reactions(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanTendonFEMNodeAnchorGPU* nodeAnchors [[buffer(1)]],
+    device const float4* constraintReactions [[buffer(2)]],
+    device const NMMatterStatusGPU* matterStatuses [[buffer(3)]],
+    device float4* audits [[buffer(4)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    float3 resultant = float3(0.0f);
+    float l1 = 0.0f;
+    if (matterStatuses[environment].code == NM_STATUS_SUCCESS) {
+        const uint base = environment * dispatch.femNodeCount;
+        for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+            const NMNumiHumanTendonFEMNodeAnchorGPU anchor = nodeAnchors[node];
+            if ((anchor.flags & NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) == 0u)
+                continue;
+            const float3 reaction = constraintReactions[base + node].xyz;
+            if (!finite3(reaction)) {
+                audits[environment] = float4(NAN);
+                return;
+            }
+            resultant += reaction;
+            l1 += length(reaction);
+        }
+    }
+    const float4 audit = float4(resultant, l1);
+    audits[environment] = audit;
+}
+
+kernel void nm_numi_human_commit_fem_anchor_reaction_audit(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],
+    device const float4* provisionalAudits [[buffer(2)]],
+    device float4* acceptedHistory [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.stepIndex >=
+            NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS) return;
+    const MRNumiHumanStandStatusGPU stand = standStatuses[environment];
+    if (dispatch.abiVersion != NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION ||
+        stand.code != MR_NUMI_HUMAN_STAND_SUCCESS ||
+        stand.environment != environment ||
+        stand.completedSteps != dispatch.stepIndex + 1u) return;
+    const uint historyIndex =
+        environment * NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS +
+        dispatch.stepIndex;
+    const float4 accepted = provisionalAudits[environment];
+    if (accepted.w >= acceptedHistory[historyIndex].w) {
+        acceptedHistory[historyIndex] = accepted;
+    }
+}
+
 kernel void nm_numi_human_apply_fem_anchor_reactions(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
     device const NMNumiHumanTendonFEMNodeAnchorGPU* nodeAnchors [[buffer(1)]],

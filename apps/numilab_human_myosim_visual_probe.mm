@@ -184,9 +184,13 @@ constexpr std::array<char, 8u> kMultiBodySoftTissueMagic{
 };
 constexpr std::uint32_t kMultiBodySoftTissuePayloadAbi = 4u;
 constexpr std::array<char, 8u> kPectoralisFasciaMagic{
-    'N', 'H', 'F', 'A', 'S', 'C', '3', '\0',
+    'N', 'H', 'F', 'A', 'S', 'C', '4', '\0',
 };
-constexpr std::uint32_t kPectoralisFasciaPayloadAbi = 3u;
+constexpr std::uint32_t kPectoralisFasciaPayloadAbi = 4u;
+constexpr std::uint32_t kPectoralisFasciaRegionCount = 6u;
+constexpr std::uint32_t kLatissimusFasciaRegionEnd = 12u;
+constexpr std::uint32_t kExternalObliqueRegionEnd = 20u;
+constexpr std::uint32_t kThoracoabdominalFasciaRegionCount = 26u;
 constexpr std::uint32_t kFasciaRouteBodyBit = 1u << 31u;
 constexpr std::array<char, 8u> kAnteriorThoraxMagic{
     'N', 'H', 'T', 'H', 'R', 'C', '1', '\0',
@@ -2008,7 +2012,7 @@ LoadedPectoralisFascia loadPectoralisFascia(
     readObject(input, result.header, "pectoralis fascia header");
     require(result.header.magic == kPectoralisFasciaMagic &&
                 result.header.payloadAbi == kPectoralisFasciaPayloadAbi &&
-                result.header.regionCount == 12u &&
+                result.header.regionCount == kThoracoabdominalFasciaRegionCount &&
                 result.header.nodeCount > 0u && result.header.nodeCount <= 100'000u &&
                 result.header.tetrahedronCount > 0u &&
                 result.header.tetrahedronCount <= 300'000u &&
@@ -7943,6 +7947,8 @@ struct PectoralisFasciaVisual {
     float maximumDisplacementMeters = 0.0f;
     float anchorReactionResultantNewtons = 0.0f;
     float anchorReactionL1Newtons = 0.0f;
+    float minimumAnchorReactionL1Newtons = 0.0f;
+    std::uint32_t anchorReactionAuditedStepCount = 0u;
     float maximumAnchorNodeReactionNewtons = 0.0f;
     float maximumAnatomicalMappingDistanceMeters = 0.0f;
     float maximumAppliedAnatomicalMappingDistanceMeters = 0.0f;
@@ -8063,11 +8069,21 @@ PectoralisFasciaVisual runPectoralisFascia(
     require(thoracolumbarMaterial.succeeded(),
             "human thoracolumbar fascia Matter material did not parse");
     worldSource.materials.push_back(std::move(thoracolumbarMaterial.material));
-    std::array<numi::matter::ObjectSource, 2u> objects;
+    auto externalObliqueMaterial = numi::matter::parseMatterFile(
+        NUMI_HUMAN_ANTERIOR_THORAX_MATERIAL
+    );
+    require(externalObliqueMaterial.succeeded(),
+            "human external-oblique Matter material did not parse");
+    worldSource.materials.push_back(std::move(externalObliqueMaterial.material));
+    std::array<numi::matter::ObjectSource, 4u> objects;
     objects[0u].name = "bodyparts3d_generated_pectoralis_fascia_fallback";
     objects[0u].materialIndex = 0u;
     objects[1u].name = "myosim_route_derived_latissimus_aponeurosis_fallback";
     objects[1u].materialIndex = 1u;
+    objects[2u].name = "myosim_route_derived_external_oblique_attachment_sheet";
+    objects[2u].materialIndex = 2u;
+    objects[3u].name = "myosim_route_derived_internal_oblique_attachment_sheet";
+    objects[3u].materialIndex = 2u;
     for (auto& object : objects) {
         object.representation = numi::matter::Representation::fem;
         object.mixedFEM = false;
@@ -8078,15 +8094,26 @@ PectoralisFasciaVisual runPectoralisFascia(
     // through-thickness scale for nondimensionalization; the 5 mm pectoral
     // scale leaves this higher-modulus object unnecessarily ill-conditioned.
     objects[1u].characteristicLength = 0.00175;
-    std::array<std::uint32_t, 2u> objectGlobalNodeBase{
-        0u, fascia.regions.at(6u).firstNode};
+    objects[2u].characteristicLength = 0.0045;
+    objects[3u].characteristicLength = 0.0060;
+    std::array<std::uint32_t, 4u> objectGlobalNodeBase{
+        0u,
+        fascia.regions.at(kPectoralisFasciaRegionCount).firstNode,
+        fascia.regions.at(kLatissimusFasciaRegionEnd).firstNode,
+        fascia.regions.at(kExternalObliqueRegionEnd).firstNode,
+    };
 
     for (std::uint32_t regionIndex = 0u;
          regionIndex < fascia.regions.size(); ++regionIndex) {
         const PectoralisFasciaRegion& region = fascia.regions[regionIndex];
         const bool routeRegion =
             (region.softTissueStableId & kFasciaRouteBodyBit) != 0u;
-        const std::uint32_t objectIndex = routeRegion ? 1u : 0u;
+        const std::uint32_t objectIndex =
+            regionIndex < kPectoralisFasciaRegionCount ? 0u :
+            regionIndex < kLatissimusFasciaRegionEnd ? 1u :
+            regionIndex < kExternalObliqueRegionEnd ? 2u : 3u;
+        require(routeRegion == (objectIndex != 0u),
+                "thoracoabdominal fascia region class drifted");
         auto& object = objects[objectIndex];
         const std::uint32_t sourceBodyIndex =
             region.softTissueStableId & ~kFasciaRouteBodyBit;
@@ -8295,7 +8322,10 @@ PectoralisFasciaVisual runPectoralisFascia(
                 "posed pectoralis fascia tetrahedron is degenerate");
         if (volume < 0.0) std::swap(tetrahedron[0], tetrahedron[1]);
         orientedTetrahedra.push_back(tetrahedron);
-        const std::uint32_t objectIndex = source.regionIndex >= 6u ? 1u : 0u;
+        const std::uint32_t objectIndex =
+            source.regionIndex < kPectoralisFasciaRegionCount ? 0u :
+            source.regionIndex < kLatissimusFasciaRegionEnd ? 1u :
+            source.regionIndex < kExternalObliqueRegionEnd ? 2u : 3u;
         const std::uint32_t nodeBase = objectGlobalNodeBase[objectIndex];
         std::array<std::uint32_t, 4u> localTetrahedron = tetrahedron;
         for (std::uint32_t& node : localTetrahedron) {
@@ -8425,12 +8455,36 @@ PectoralisFasciaVisual runPectoralisFascia(
         result.maximumAnchorNodeReactionNewtons = std::max(
             result.maximumAnchorNodeReactionNewtons, magnitude);
     }
-    result.anchorReactionResultantNewtons = femLength(reactionResultant);
+    const float postTransactionScratchReactionResultantNewtons =
+        femLength(reactionResultant);
+    const auto reactionAdapterDiagnostics = adapter.diagnostics();
+    result.anchorReactionResultantNewtons = static_cast<float>(
+        reactionAdapterDiagnostics.anchorReactionTrajectoryMaximumResultantNewtons);
+    result.anchorReactionL1Newtons = static_cast<float>(
+        reactionAdapterDiagnostics.anchorReactionTrajectoryMaximumL1Newtons);
+    result.minimumAnchorReactionL1Newtons = static_cast<float>(
+        reactionAdapterDiagnostics.anchorReactionTrajectoryMinimumL1Newtons);
+    result.anchorReactionAuditedStepCount =
+        reactionAdapterDiagnostics.anchorReactionAuditedStepCount;
     require(std::isfinite(result.anchorReactionResultantNewtons) &&
                 result.anchorReactionResultantNewtons > 0.0f &&
                 result.anchorReactionL1Newtons > 0.0f &&
-                result.maximumAnchorNodeReactionNewtons > 0.0f,
-            "pectoralis fascia produced no fixed-node force transfer to bone");
+                result.minimumAnchorReactionL1Newtons > 0.0f &&
+                reactionAdapterDiagnostics.anchorReactionAuditedStepCount ==
+                    stepCount,
+            "pectoralis fascia produced no fixed-node force transfer to bone; "
+            "assembled_force_l1_n=" +
+                std::to_string(
+                    reactionAdapterDiagnostics.assembledExternalForceL1Newtons) +
+            " assembled_resultant_n=" +
+                std::to_string(
+                    reactionAdapterDiagnostics.assembledExternalForceResultantNewtons) +
+            " post_transaction_scratch_resultant_n=" +
+                std::to_string(postTransactionScratchReactionResultantNewtons) +
+            " audited_steps=" + std::to_string(
+                reactionAdapterDiagnostics.anchorReactionAuditedStepCount) +
+            " trajectory_min_l1_n=" + std::to_string(
+                reactionAdapterDiagnostics.anchorReactionTrajectoryMinimumL1Newtons));
     require(transaction.rollbackVerified && transaction.replayVerified,
             "pectoralis fascia did not close Human/Matter rollback and replay");
     const auto adapterDiagnostics = adapter.diagnostics();
@@ -8515,6 +8569,15 @@ PectoralisFasciaVisual runPectoralisFascia(
         const bool routeRegion =
             (region.softTissueStableId & kFasciaRouteBodyBit) != 0u;
         if (routeRegion) {
+            // The abdominal EO/IO cells are intentionally efficient terminal-
+            // lattice mechanics, not segmented anatomical surfaces.  Showing
+            // their rectangular FEM front faces creates false lumbar plates.
+            // Keep them live in Matter and expose their quantitative state,
+            // while visible EO anatomy remains the exact bilateral
+            // BodyParts3D surface supplied through NHTISS4.  IO stays
+            // mechanics-only until a provenance-pinned segmented surface is
+            // available.
+            if (regionIndex >= kLatissimusFasciaRegionEnd) continue;
             const std::uint32_t layerWidth = region.nodeCount / 2u;
             require(layerWidth >= 6u && 2u * layerWidth == region.nodeCount,
                     "thoracolumbar fascia presentation layer is malformed");
@@ -11990,7 +12053,7 @@ int main(int argc, char** argv) {
                           << " [--passive-fem-tissue-stable-id <1..N>]"
                           << " [--passive-fem-step-count <1..64>]"
                           << " [--passive-fem-metallib <NumiMatter.metallib>]"
-                          << " [--pectoralis-fascia-payload <NHFASC3>]"
+                          << " [--pectoralis-fascia-payload <NHFASC4>]"
                           << " [--pectoralis-fascia-step-count <1..64>]"
                           << " [--anterior-thorax-continuum-payload <NHTHRC1>]"
                           << " [--visible-bone-body-index <0..156>]..."
@@ -14261,6 +14324,10 @@ int main(int argc, char** argv) {
                               ? pectoralisFascia->anchorReactionResultantNewtons : 0.0f)
                       << " pectoralis_fascia_anchor_reaction_l1_n=" << (pectoralisFascia.has_value()
                               ? pectoralisFascia->anchorReactionL1Newtons : 0.0f)
+                      << " pectoralis_fascia_anchor_reaction_min_l1_n=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->minimumAnchorReactionL1Newtons : 0.0f)
+                      << " pectoralis_fascia_anchor_reaction_audited_steps=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->anchorReactionAuditedStepCount : 0u)
                       << " pectoralis_fascia_anchor_reaction_max_node_n=" << (pectoralisFascia.has_value()
                               ? pectoralisFascia->maximumAnchorNodeReactionNewtons : 0.0f)
                       << " pectoralis_fascia_steps=" << (pectoralisFascia.has_value()

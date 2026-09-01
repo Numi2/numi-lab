@@ -66,6 +66,15 @@ struct NumiHumanTendonFEMLoadDiagnostics {
     // vector sum for the most recently encoded pass across all environments.
     double assembledExternalForceL1Newtons = 0.0;
     double assembledExternalForceResultantNewtons = 0.0;
+    // Exact prescribed-node reactions captured before the same-command-buffer
+    // J^T projection. Unlike Runtime scratch, this audit survives replay and
+    // rollback bookkeeping and therefore describes the last encoded pass.
+    double anchorReactionL1Newtons = 0.0;
+    double anchorReactionResultantNewtons = 0.0;
+    std::uint32_t anchorReactionAuditedStepCount = 0u;
+    double anchorReactionTrajectoryMinimumL1Newtons = 0.0;
+    double anchorReactionTrajectoryMaximumL1Newtons = 0.0;
+    double anchorReactionTrajectoryMaximumResultantNewtons = 0.0;
     std::uint32_t contactSampleCount = 0u;
     std::uint32_t articularContactSampleCount = 0u;
     std::uint32_t articularMechanicalSampleCount = 0u;
