@@ -98,8 +98,10 @@ The accepted ledger retained 25,293 to 30,987 closed samples and 4.632 to
 `2.16047e-5 N` and `2.46338e-6 N m`; deformation Jacobians stayed in
 `0.999426..1.000620`, replay was bitwise, and rollback passed. This is a
 bounded short trajectory, not sustained or physiological flexion. A requested
-two-step 1 mrad run failed closed at the projected-anchor compatibility gate
-before solving and is retained only as a diagnostic.
+two-step 1 mrad run under ABI 9 failed closed at the projected-anchor
+compatibility gate before solving. That historical rejection is retained as a
+diagnostic; the moving-enthesis section below records the replacement and its
+accepted one-step 1 mrad result.
 
 ABI 9 receipts:
 
@@ -156,6 +158,51 @@ ABI 10 receipts:
   [side](media/numi-human-knee-one-ring-v1/left-two-step-side.png), and
   [rear](media/numi-human-knee-one-ring-v1/left-two-step-rear.png)
 
+## Moving-enthesis initial continuum map
+
+The prior live path initialized every exact knee tissue through the femur's
+rigid transform even when fixed nodes belonged to the tibia or patella. At
+`1 mrad` that produced incompatible attachment targets and correctly failed
+before solving. The replacement builds a geodesic distance field from every
+named bone-owned enthesis on each tetrahedral edge graph. Fixed nodes follow
+their owning body exactly; free nodes use normalized inverse-square distance
+weights to blend the owner transforms. A single-owner tissue therefore moves
+rigidly, while a two-bone ligament or tendon receives a smooth topology-aware
+initial field between its entheses.
+
+The core operator fails closed on unknown or duplicate owners, disconnected
+components, degenerate tetrahedra, non-finite data, and mapped Jacobians outside
+the configured positive range. The exact left six-region map has zero
+construction anchor residual and `J=0.9979996..1.0012733`. It feeds the existing
+Matter world and NHTENDON3 consumer; it adds no alternate dynamics owner,
+command buffer, or host per-step loop.
+
+The formerly rejected `1 mrad` case now passes one accepted `0.1 ms` M4 Pro
+step. The accepted 62,402-node, 264,442-tetrahedron state retained
+`J=0.999803..1.000216`; femur/tibia/patella attachment residuals were below
+`35 nm`; replay was bitwise and rollback verified. The active extensor chain
+transferred `2767.01 N` quadriceps and `2789.89 N` patellar-tendon resultants.
+The one-ring articular owner accepted 34,973 closed samples, `2966.64 N`,
+`384.21 kPa`, `1.373%` maximum layer-normal strain, and `50.65 um` maximum
+closure; its force and world-origin moment residuals were `0.00327 N` and
+`0.00368 N m`.
+
+Front, oblique, side, and rear review retains a lateral fibula, an anterior
+patella in the trochlear region, and a continuous quadriceps-patella-patellar-
+tendon path. This is a one-step initialization/force-transfer qualification,
+not physiological patellar tracking.
+
+Receipts:
+
+- [`qualification.json`](media/numi-human-knee-moving-enthesis-v1/qualification.json)
+- [`M4 Pro transcript`](media/numi-human-knee-moving-enthesis-v1/left-1mrad-one-step-m4-pro.log)
+- [`CPU regression`](media/numi-human-knee-moving-enthesis-v1/cpu-regression.log)
+- [`whole-body gate report`](media/numi-human-knee-moving-enthesis-v1/whole-body-gate.json)
+- [front](media/numi-human-knee-moving-enthesis-v1/left-1mrad-front.png),
+  [oblique](media/numi-human-knee-moving-enthesis-v1/left-1mrad-oblique.png),
+  [side](media/numi-human-knee-moving-enthesis-v1/left-1mrad-side.png), and
+  [rear](media/numi-human-knee-moving-enthesis-v1/left-1mrad-rear.png)
+
 Receipts and full transcripts:
 
 - [`left-m4-pro.json`](media/numi-human-knee-articular-live-v1/left-m4-pro.json)
@@ -200,11 +247,15 @@ unilateral nonpenetration solve. Meniscus/cartilage pairs on the same rigid
 tibia still need a relative deformable owner. The right side is a mirror of
 oks003, not an independently segmented right specimen.
 
-The next promotion gate is a moving-enthesis/initial-continuum map that permits
-meaningful flexion without projected-anchor incompatibility, followed by a
-broader current-surface or bounded nonpenetration owner and sustained
-physiological flexion/compression with pressure, area, cartilage/meniscus
-strain, energy, replay, rollback, and explicit failure criteria over time.
+The moving-enthesis map now permits a one-step `1 mrad` case without projected-
+anchor incompatibility. Promotion still requires a pose-continuation or
+stress-equilibrated prestrain treatment rather than silently making every
+requested pose a new stress-free continuum, a broader current-surface or
+bounded nonpenetration owner, relative deformable ownership for same-body
+meniscus interfaces, and sustained physiological flexion/compression with
+pressure, area, strain, energy, replay, rollback, and explicit failure criteria
+over time. The surrounding compiled whole-body state is also not balanced in
+this run and remains outside the knee qualification.
 
 ## Shared Human/Matter transaction infrastructure
 

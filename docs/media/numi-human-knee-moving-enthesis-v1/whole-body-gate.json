@@ -1,0 +1,2208 @@
+{
+  "evidence": {
+    "adm_source_inferred_feasibility_rejection": {
+      "details": [
+        "artifact hash mismatch: CMakeLists.txt expected=0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a observed=2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02"
+      ],
+      "level": "preflight",
+      "path": "docs/media/numi-human-adm-feasibility-v1/m4-pro.json",
+      "status": "contradicted"
+    },
+    "articular_contact_wrench_transaction": {
+      "details": [
+        "artifact hash mismatch: matter/include/numi/matter/numi_human.hpp expected=966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635 observed=418a1485957f866638415bcb0a3d9573dfd359e956dd746c700433de4c703284",
+        "artifact hash mismatch: matter/include/numi/matter/numi_human_shared.h expected=8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2 observed=79568cec48032f08464dd25f65631bcc63588faca9058589e21812a2b9384a6b",
+        "artifact hash mismatch: matter/src/numi_human.mm expected=896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18 observed=f62fe4eefc953ebc2a426c5a142b2634478149d9b569a5cda745e3c00e9a4bc8",
+        "artifact hash mismatch: matter/src/metal/numi_human.metalinc expected=907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85 observed=bfd43e83f42f2cf9d9d46ae7ba143f47f0981203a13b6549ba88b3d681b316ef",
+        "artifact hash mismatch: apps/numi_human_tendon_fem_load_probe.mm expected=e8705b0af201263661a99c8b148bf80e30a872d9f263db0e392c3335977f7252 observed=0d6ed13698393e992498d048e524c2f71c84bb58f5def51f877dfd02742fb24d"
+      ],
+      "level": "one_step",
+      "path": "docs/media/numi-human-knee-contact-preflight-v1/articular-wrench-adapter-m4-pro.json",
+      "status": "contradicted"
+    },
+    "bilateral_achilles_force_transfer": {
+      "details": [
+        "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77"
+      ],
+      "level": "one_step",
+      "path": "docs/media/numi-human-achilles-force-transfer-v1/bilateral-m4-pro.json",
+      "status": "contradicted"
+    },
+    "bilateral_plantar_fascia_force_transfer": {
+      "details": [
+        "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77"
+      ],
+      "level": "preflight",
+      "path": "docs/media/numi-human-plantar-fascia-v1/bilateral-m4-pro.json",
+      "status": "contradicted"
+    },
+    "bodyparts3d_bone_structure": {
+      "details": [],
+      "level": "structural",
+      "path": "docs/media/numi-human-lower-joint-focus-v1/receipts/nhbones1.manifest.json",
+      "status": "verified"
+    },
+    "complete_soft_tissue_geometry": {
+      "details": [
+        "/coverage/not_yet_represented length_equals 0 observed=[['skin, muscles, tendons, organs, vessels, nerves, and other soft-tissue layers']]"
+      ],
+      "level": "structural",
+      "path": "docs/media/numi-human-lower-joint-focus-v1/receipts/registration.v3.json",
+      "status": "contradicted"
+    },
+    "costal_cartilage_preflight": {
+      "details": [],
+      "level": "preflight",
+      "path": "docs/media/numi-human-passive-fem-attachments-v1/costal-cartilage-passive-m4-pro.transcript.txt",
+      "status": "verified"
+    },
+    "extensor_hood_source_posed_reference": {
+      "details": [
+        "artifact hash mismatch: CMakeLists.txt expected=0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a observed=2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02"
+      ],
+      "level": "preflight",
+      "path": "docs/media/numi-human-extensor-hood-source-v1/m4-pro.json",
+      "status": "contradicted"
+    },
+    "extensor_hood_tension_network_reference": {
+      "details": [
+        "artifact hash mismatch: CMakeLists.txt expected=0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a observed=2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02"
+      ],
+      "level": "preflight",
+      "path": "docs/media/numi-human-extensor-hood-reference-v1/m4-pro.json",
+      "status": "contradicted"
+    },
+    "fifth_mcp_lower_stop_negative_control": {
+      "details": [
+        "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77"
+      ],
+      "level": "preflight",
+      "path": "docs/media/numi-human-fifth-mcp-lower-stop-negative-v1/m4-pro.json",
+      "status": "contradicted"
+    },
+    "fully_distributed_exact_entheses": {
+      "details": [
+        "/coverage/source_site_point_fallback_count equals 0 observed=[194]",
+        "/coverage/surface_coverage_fraction equals 1.0 observed=[0.7668269230769231]",
+        "/admission/rejection_counts/body_has_no_registered_bone_surface equals 0 observed=[24]",
+        "/admission/rejection_counts/surface_distance_exceeds_gate equals 0 observed=[155]",
+        "/admission/rejection_counts/surface_patch_conditioning_failed_after_topology_aware_exact_surface_points equals 0 observed=[9]"
+      ],
+      "level": "one_step",
+      "path": "docs/media/numi-human-lower-joint-focus-v1/receipts/nhtendon3.manifest.json",
+      "status": "contradicted"
+    },
+    "internal_fem_contact_transaction": {
+      "details": [
+        "artifact hash mismatch: matter/include/numi/matter/numi_human.hpp expected=966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635 observed=418a1485957f866638415bcb0a3d9573dfd359e956dd746c700433de4c703284",
+        "artifact hash mismatch: matter/include/numi/matter/numi_human_shared.h expected=8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2 observed=79568cec48032f08464dd25f65631bcc63588faca9058589e21812a2b9384a6b",
+        "artifact hash mismatch: matter/include/numi/matter/matter.hpp expected=6cfc1af24286a026d99a8ded360faa351462ce4e8058bc7c38229215c41f47b2 observed=3b556976a80c8be6a67cace3f0293e7a947cd64b17a4db7c343e0b3e9d5bec9e",
+        "artifact hash mismatch: matter/src/numi_human.mm expected=896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18 observed=f62fe4eefc953ebc2a426c5a142b2634478149d9b569a5cda745e3c00e9a4bc8",
+        "artifact hash mismatch: matter/src/metal/numi_human.metalinc expected=907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85 observed=bfd43e83f42f2cf9d9d46ae7ba143f47f0981203a13b6549ba88b3d681b316ef",
+        "artifact hash mismatch: apps/numi_human_tendon_fem_load_probe.mm expected=e8705b0af201263661a99c8b148bf80e30a872d9f263db0e392c3335977f7252 observed=0d6ed13698393e992498d048e524c2f71c84bb58f5def51f877dfd02742fb24d"
+      ],
+      "level": "one_step",
+      "path": "docs/media/numi-human-knee-contact-preflight-v1/internal-contact-adapter-m4-pro.json",
+      "status": "contradicted"
+    },
+    "left_knee_contact_live": {
+      "details": [
+        "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+        "artifact hash mismatch: matter/include/numi/matter/numi_human.hpp expected=966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635 observed=418a1485957f866638415bcb0a3d9573dfd359e956dd746c700433de4c703284",
+        "artifact hash mismatch: matter/include/numi/matter/numi_human_shared.h expected=8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2 observed=79568cec48032f08464dd25f65631bcc63588faca9058589e21812a2b9384a6b",
+        "artifact hash mismatch: matter/src/metal/numi_human.metalinc expected=907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85 observed=bfd43e83f42f2cf9d9d46ae7ba143f47f0981203a13b6549ba88b3d681b316ef",
+        "artifact hash mismatch: matter/src/numi_human.mm expected=896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18 observed=f62fe4eefc953ebc2a426c5a142b2634478149d9b569a5cda745e3c00e9a4bc8"
+      ],
+      "level": "one_step",
+      "path": "docs/media/numi-human-knee-articular-live-v1/left-m4-pro.json",
+      "status": "contradicted"
+    },
+    "left_knee_contact_preflight": {
+      "details": [
+        "artifact hash mismatch: include/metalrobo/NumiHumanKnee.hpp expected=f0622032ce8fdd41ae7c5d96aee7253f6b86d1a26425d671bbdcbf17f7d7c5b5 observed=671e0c6b4fb99059f1dede5bfa342f49aff788befaeb79dddd369b7baad33f81",
+        "artifact hash mismatch: src/core/NumiHumanKnee.cpp expected=e93a7c9869ec0a1e3016597df291dd3e7cc619e0185111896e9a36dd63274ae7 observed=59ed884af79916d1ec8a70d00d798e25f87e23e1541b4d0d4578fef95ece4e29",
+        "artifact hash mismatch: include/metalrobo/NumiHumanKneeContact.hpp expected=516be1f1396c8ad10db0ade0328a99923e617674d1173e62802390fc614a8719 observed=d1ffa2b3bcdbd3add0dfd40068dbb5081668f3bfcafcc8ebfbc0701dc69a47d7",
+        "artifact hash mismatch: src/core/NumiHumanKneeContact.cpp expected=9fccb7c2bdef3cb494217030eeb364bda1232ec10d52299fc7947502c412e247 observed=b004bca05b9028d8399113c0b7f48d35a7e0e916a9c6708c48f0a55ff753e717",
+        "artifact hash mismatch: apps/numilab_human_knee_contact_probe.cpp expected=925efa6cc8c8ef6f52cfc816a63ef100a8dd8a75c18f1619b4869982000f508c observed=d3c2bcdfd7bb014c934a6cc649bd9334d8c0c288985bd8d700c5281369bf839e",
+        "artifact hash mismatch: tests/numi_human_knee_contact_test.cpp expected=904a5b0c25387fd923cd7805bc0656ab57adad9d0146c26c97c86a8d9d3bb903 observed=40f17d07c4e946209d1bb67e7f846db16270dd1328657ade1bdd7d074c80315e"
+      ],
+      "level": "preflight",
+      "path": "docs/media/numi-human-knee-contact-preflight-v1/left-m4-pro.json",
+      "status": "contradicted"
+    },
+    "left_knee_extensor_chain": {
+      "details": [
+        "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+        "artifact hash mismatch: apps/numilab_human_open_knee_ligament_probe.mm expected=ddcfeda37f47321b80e5d01fb249fe248d94b06ae5126a08d22377ef1ab1439d observed=c71d70906b68afac31af8408666f8c0841be45bebf945ae2f20eb7cd5435f1be",
+        "artifact hash mismatch: matter/include/numi/matter/numi_human.hpp expected=966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635 observed=418a1485957f866638415bcb0a3d9573dfd359e956dd746c700433de4c703284",
+        "artifact hash mismatch: matter/include/numi/matter/numi_human_shared.h expected=8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2 observed=79568cec48032f08464dd25f65631bcc63588faca9058589e21812a2b9384a6b",
+        "artifact hash mismatch: matter/src/metal/numi_human.metalinc expected=907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85 observed=bfd43e83f42f2cf9d9d46ae7ba143f47f0981203a13b6549ba88b3d681b316ef",
+        "artifact hash mismatch: matter/src/numi_human.mm expected=896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18 observed=f62fe4eefc953ebc2a426c5a142b2634478149d9b569a5cda745e3c00e9a4bc8"
+      ],
+      "level": "one_step",
+      "path": "docs/media/numi-human-open-knee-extensor-chain-v1/left-m4-pro.json",
+      "status": "contradicted"
+    },
+    "lower_multi_pose_geometry": {
+      "details": [],
+      "level": "structural",
+      "path": "docs/media/numi-human-lower-joint-focus-v1/receipts/lower-multi-pose-audit.v1.json",
+      "status": "verified"
+    },
+    "right_knee_contact_live": {
+      "details": [
+        "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+        "artifact hash mismatch: matter/include/numi/matter/numi_human.hpp expected=966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635 observed=418a1485957f866638415bcb0a3d9573dfd359e956dd746c700433de4c703284",
+        "artifact hash mismatch: matter/include/numi/matter/numi_human_shared.h expected=8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2 observed=79568cec48032f08464dd25f65631bcc63588faca9058589e21812a2b9384a6b",
+        "artifact hash mismatch: matter/src/metal/numi_human.metalinc expected=907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85 observed=bfd43e83f42f2cf9d9d46ae7ba143f47f0981203a13b6549ba88b3d681b316ef",
+        "artifact hash mismatch: matter/src/numi_human.mm expected=896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18 observed=f62fe4eefc953ebc2a426c5a142b2634478149d9b569a5cda745e3c00e9a4bc8"
+      ],
+      "level": "one_step",
+      "path": "docs/media/numi-human-knee-articular-live-v1/right-mirrored-m4-pro.json",
+      "status": "contradicted"
+    },
+    "right_knee_contact_preflight": {
+      "details": [
+        "artifact hash mismatch: include/metalrobo/NumiHumanKnee.hpp expected=f0622032ce8fdd41ae7c5d96aee7253f6b86d1a26425d671bbdcbf17f7d7c5b5 observed=671e0c6b4fb99059f1dede5bfa342f49aff788befaeb79dddd369b7baad33f81",
+        "artifact hash mismatch: src/core/NumiHumanKnee.cpp expected=e93a7c9869ec0a1e3016597df291dd3e7cc619e0185111896e9a36dd63274ae7 observed=59ed884af79916d1ec8a70d00d798e25f87e23e1541b4d0d4578fef95ece4e29",
+        "artifact hash mismatch: include/metalrobo/NumiHumanKneeContact.hpp expected=516be1f1396c8ad10db0ade0328a99923e617674d1173e62802390fc614a8719 observed=d1ffa2b3bcdbd3add0dfd40068dbb5081668f3bfcafcc8ebfbc0701dc69a47d7",
+        "artifact hash mismatch: src/core/NumiHumanKneeContact.cpp expected=9fccb7c2bdef3cb494217030eeb364bda1232ec10d52299fc7947502c412e247 observed=b004bca05b9028d8399113c0b7f48d35a7e0e916a9c6708c48f0a55ff753e717",
+        "artifact hash mismatch: apps/numilab_human_knee_contact_probe.cpp expected=925efa6cc8c8ef6f52cfc816a63ef100a8dd8a75c18f1619b4869982000f508c observed=d3c2bcdfd7bb014c934a6cc649bd9334d8c0c288985bd8d700c5281369bf839e",
+        "artifact hash mismatch: tests/numi_human_knee_contact_test.cpp expected=904a5b0c25387fd923cd7805bc0656ab57adad9d0146c26c97c86a8d9d3bb903 observed=40f17d07c4e946209d1bb67e7f846db16270dd1328657ade1bdd7d074c80315e"
+      ],
+      "level": "preflight",
+      "path": "docs/media/numi-human-knee-contact-preflight-v1/right-mirrored-m4-pro.json",
+      "status": "contradicted"
+    },
+    "right_knee_extensor_chain": {
+      "details": [
+        "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+        "artifact hash mismatch: apps/numilab_human_open_knee_ligament_probe.mm expected=ddcfeda37f47321b80e5d01fb249fe248d94b06ae5126a08d22377ef1ab1439d observed=c71d70906b68afac31af8408666f8c0841be45bebf945ae2f20eb7cd5435f1be",
+        "artifact hash mismatch: matter/include/numi/matter/numi_human.hpp expected=966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635 observed=418a1485957f866638415bcb0a3d9573dfd359e956dd746c700433de4c703284",
+        "artifact hash mismatch: matter/include/numi/matter/numi_human_shared.h expected=8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2 observed=79568cec48032f08464dd25f65631bcc63588faca9058589e21812a2b9384a6b",
+        "artifact hash mismatch: matter/src/metal/numi_human.metalinc expected=907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85 observed=bfd43e83f42f2cf9d9d46ae7ba143f47f0981203a13b6549ba88b3d681b316ef",
+        "artifact hash mismatch: matter/src/numi_human.mm expected=896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18 observed=f62fe4eefc953ebc2a426c5a142b2634478149d9b569a5cda745e3c00e9a4bc8"
+      ],
+      "level": "one_step",
+      "path": "docs/media/numi-human-open-knee-extensor-chain-v1/right-m4-pro.json",
+      "status": "contradicted"
+    },
+    "source_route_transaction": {
+      "details": [],
+      "level": "one_step",
+      "path": "docs/media/numi-human-open-knee-extensor-chain-v1/integrated-runtime-m4-pro.json",
+      "status": "verified"
+    },
+    "source_tendon_endpoint_coverage": {
+      "details": [],
+      "level": "structural",
+      "path": "docs/media/numi-human-lower-joint-focus-v1/receipts/nhtendon3.manifest.json",
+      "status": "verified"
+    },
+    "upper_multi_pose_geometry": {
+      "details": [],
+      "level": "structural",
+      "path": "docs/media/numi-human-lower-joint-focus-v1/receipts/upper-multi-pose-regression-audit.v1.json",
+      "status": "verified"
+    },
+    "upper_passive_joint_tissue_preflight": {
+      "details": [
+        "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+        "artifact hash mismatch: include/metalrobo/NumiHumanMuscleEquilibrium.hpp expected=d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571 observed=f7944cbfe339497822af8a766fa9e655c24fcab6d35499189f7b98bc2d4fee39",
+        "artifact hash mismatch: src/core/NumiHumanMuscleEquilibrium.cpp expected=dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129 observed=9ac6b073c15313c57cd3fdc2dab1ba5c510d2940fc96aa0e902904374a4a726d"
+      ],
+      "level": "preflight",
+      "path": "docs/media/numi-human-upper-passive-joint-v1/m4-pro.json",
+      "status": "contradicted"
+    },
+    "whole_body_all_dof_support_report": {
+      "details": [
+        "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=481686800d4327c0d9b4543633686486bfa1ccc8a36087923277a2108471a842 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77"
+      ],
+      "level": "preflight",
+      "path": "docs/media/numi-human-global-recruitment-v6/m4-pro.json",
+      "status": "contradicted"
+    },
+    "whole_body_support_wrench": {
+      "details": [
+        "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+        "artifact hash mismatch: include/metalrobo/NumiHumanMuscleEquilibrium.hpp expected=d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571 observed=f7944cbfe339497822af8a766fa9e655c24fcab6d35499189f7b98bc2d4fee39",
+        "artifact hash mismatch: src/core/NumiHumanMuscleEquilibrium.cpp expected=dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129 observed=9ac6b073c15313c57cd3fdc2dab1ba5c510d2940fc96aa0e902904374a4a726d"
+      ],
+      "level": "preflight",
+      "path": "docs/media/numi-human-support-wrench-v1/bilateral-m4-pro.json",
+      "status": "contradicted"
+    }
+  },
+  "evidence_boundary": "This manifest inventories current repository evidence and fails closed on missing, contradicted, stale-strength, or weaker-than-required claims. Geometry continuity, source-model coverage, a prescribed displacement, and a one-step transaction do not by themselves prove realistic sustained human mechanics or medical validity.",
+  "manifest": "docs/numi-human-whole-body-validation.v1.json",
+  "revision": "efe7ab0781b62f8f3d568e01b36cd969d12a5218",
+  "schema": "numilab.human.whole-body-validation-report.v1",
+  "scopes": [
+    {
+      "id": "axial_head_neck_spine_thorax",
+      "kind": "region",
+      "requirements": {
+        "active_tendon_to_bone": {
+          "details": [
+            "/coverage/source_site_point_fallback_count equals 0 observed=[194]",
+            "/coverage/surface_coverage_fraction equals 1.0 observed=[0.7668269230769231]",
+            "/admission/rejection_counts/body_has_no_registered_bone_surface equals 0 observed=[24]",
+            "/admission/rejection_counts/surface_distance_exceeds_gate equals 0 observed=[155]",
+            "/admission/rejection_counts/surface_patch_conditioning_failed_after_topology_aware_exact_surface_points equals 0 observed=[9]",
+            "resolve remaining axial point fallbacks and non-bone source endpoints with explicit anatomy"
+          ],
+          "evidence": [
+            "fully_distributed_exact_entheses"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "articular_contact": {
+          "details": [
+            "add axial joint/disc/contact mechanics where anatomically applicable"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "bilateral_parity": {
+          "details": [],
+          "evidence": [],
+          "status": "not_applicable"
+        },
+        "deterministic_transaction": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "geometry_registration": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "bodyparts3d_bone_structure"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "joint_kinematics": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "passive_joint_tissue": {
+          "achieved_level": "preflight",
+          "details": [
+            "integrate spine, thorax, and rib passive tissues into the live Human transaction"
+          ],
+          "evidence": [
+            "costal_cartilage_preflight"
+          ],
+          "minimum_level": "one_step",
+          "status": "insufficient"
+        },
+        "source_muscle_actuation": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify breathing, bending, and trunk-load trajectories"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "left_shoulder",
+      "kind": "region",
+      "requirements": {
+        "active_tendon_to_bone": {
+          "details": [
+            "/coverage/source_site_point_fallback_count equals 0 observed=[194]",
+            "/coverage/surface_coverage_fraction equals 1.0 observed=[0.7668269230769231]",
+            "/admission/rejection_counts/body_has_no_registered_bone_surface equals 0 observed=[24]",
+            "/admission/rejection_counts/surface_distance_exceeds_gate equals 0 observed=[155]",
+            "/admission/rejection_counts/surface_patch_conditioning_failed_after_topology_aware_exact_surface_points equals 0 observed=[9]",
+            "replace point fallbacks and inferred whole-body endpoints with region-specific exact loaded enthesis transfer"
+          ],
+          "evidence": [
+            "fully_distributed_exact_entheses"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "articular_contact": {
+          "details": [
+            "add compliant articular contact and nonpenetration evidence"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "bilateral_parity": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "upper_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "deterministic_transaction": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "geometry_registration": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "upper_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "joint_kinematics": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "passive_joint_tissue": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "artifact hash mismatch: include/metalrobo/NumiHumanMuscleEquilibrium.hpp expected=d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571 observed=f7944cbfe339497822af8a766fa9e655c24fcab6d35499189f7b98bc2d4fee39",
+            "artifact hash mismatch: src/core/NumiHumanMuscleEquilibrium.cpp expected=dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129 observed=9ac6b073c15313c57cd3fdc2dab1ba5c510d2940fc96aa0e902904374a4a726d",
+            "artifact hash mismatch: CMakeLists.txt expected=0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a observed=2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02",
+            "artifact hash mismatch: CMakeLists.txt expected=0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a observed=2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02",
+            "the source-posed hood and exact point-Jacobian transfer are preflight-qualified but insufficient to close fifth-MCP balance; resolve upstream route/recruitment ownership before live replacement, then add loaded ligament, capsule, cartilage, and Metal transaction evidence"
+          ],
+          "evidence": [
+            "upper_passive_joint_tissue_preflight",
+            "extensor_hood_tension_network_reference",
+            "extensor_hood_source_posed_reference"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "source_muscle_actuation": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify a sustained loaded trajectory with force, strain, energy, and contact bounds"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "right_shoulder",
+      "kind": "region",
+      "requirements": {
+        "active_tendon_to_bone": {
+          "details": [
+            "/coverage/source_site_point_fallback_count equals 0 observed=[194]",
+            "/coverage/surface_coverage_fraction equals 1.0 observed=[0.7668269230769231]",
+            "/admission/rejection_counts/body_has_no_registered_bone_surface equals 0 observed=[24]",
+            "/admission/rejection_counts/surface_distance_exceeds_gate equals 0 observed=[155]",
+            "/admission/rejection_counts/surface_patch_conditioning_failed_after_topology_aware_exact_surface_points equals 0 observed=[9]",
+            "replace point fallbacks and inferred whole-body endpoints with region-specific exact loaded enthesis transfer"
+          ],
+          "evidence": [
+            "fully_distributed_exact_entheses"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "articular_contact": {
+          "details": [
+            "add compliant articular contact and nonpenetration evidence"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "bilateral_parity": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "upper_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "deterministic_transaction": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "geometry_registration": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "upper_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "joint_kinematics": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "passive_joint_tissue": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "artifact hash mismatch: include/metalrobo/NumiHumanMuscleEquilibrium.hpp expected=d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571 observed=f7944cbfe339497822af8a766fa9e655c24fcab6d35499189f7b98bc2d4fee39",
+            "artifact hash mismatch: src/core/NumiHumanMuscleEquilibrium.cpp expected=dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129 observed=9ac6b073c15313c57cd3fdc2dab1ba5c510d2940fc96aa0e902904374a4a726d",
+            "artifact hash mismatch: CMakeLists.txt expected=0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a observed=2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02",
+            "artifact hash mismatch: CMakeLists.txt expected=0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a observed=2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02",
+            "the source-posed hood and exact point-Jacobian transfer are preflight-qualified but insufficient to close fifth-MCP balance; resolve upstream route/recruitment ownership before live replacement, then add loaded ligament, capsule, cartilage, and Metal transaction evidence"
+          ],
+          "evidence": [
+            "upper_passive_joint_tissue_preflight",
+            "extensor_hood_tension_network_reference",
+            "extensor_hood_source_posed_reference"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "source_muscle_actuation": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify a sustained loaded trajectory with force, strain, energy, and contact bounds"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "left_elbow_forearm",
+      "kind": "region",
+      "requirements": {
+        "active_tendon_to_bone": {
+          "details": [
+            "/coverage/source_site_point_fallback_count equals 0 observed=[194]",
+            "/coverage/surface_coverage_fraction equals 1.0 observed=[0.7668269230769231]",
+            "/admission/rejection_counts/body_has_no_registered_bone_surface equals 0 observed=[24]",
+            "/admission/rejection_counts/surface_distance_exceeds_gate equals 0 observed=[155]",
+            "/admission/rejection_counts/surface_patch_conditioning_failed_after_topology_aware_exact_surface_points equals 0 observed=[9]",
+            "replace point fallbacks and inferred whole-body endpoints with region-specific exact loaded enthesis transfer"
+          ],
+          "evidence": [
+            "fully_distributed_exact_entheses"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "articular_contact": {
+          "details": [
+            "add compliant articular contact and nonpenetration evidence"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "bilateral_parity": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "upper_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "deterministic_transaction": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "geometry_registration": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "upper_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "joint_kinematics": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "passive_joint_tissue": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "artifact hash mismatch: include/metalrobo/NumiHumanMuscleEquilibrium.hpp expected=d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571 observed=f7944cbfe339497822af8a766fa9e655c24fcab6d35499189f7b98bc2d4fee39",
+            "artifact hash mismatch: src/core/NumiHumanMuscleEquilibrium.cpp expected=dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129 observed=9ac6b073c15313c57cd3fdc2dab1ba5c510d2940fc96aa0e902904374a4a726d",
+            "artifact hash mismatch: CMakeLists.txt expected=0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a observed=2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02",
+            "artifact hash mismatch: CMakeLists.txt expected=0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a observed=2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02",
+            "the source-posed hood and exact point-Jacobian transfer are preflight-qualified but insufficient to close fifth-MCP balance; resolve upstream route/recruitment ownership before live replacement, then add loaded ligament, capsule, cartilage, and Metal transaction evidence"
+          ],
+          "evidence": [
+            "upper_passive_joint_tissue_preflight",
+            "extensor_hood_tension_network_reference",
+            "extensor_hood_source_posed_reference"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "source_muscle_actuation": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify a sustained loaded trajectory with force, strain, energy, and contact bounds"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "right_elbow_forearm",
+      "kind": "region",
+      "requirements": {
+        "active_tendon_to_bone": {
+          "details": [
+            "/coverage/source_site_point_fallback_count equals 0 observed=[194]",
+            "/coverage/surface_coverage_fraction equals 1.0 observed=[0.7668269230769231]",
+            "/admission/rejection_counts/body_has_no_registered_bone_surface equals 0 observed=[24]",
+            "/admission/rejection_counts/surface_distance_exceeds_gate equals 0 observed=[155]",
+            "/admission/rejection_counts/surface_patch_conditioning_failed_after_topology_aware_exact_surface_points equals 0 observed=[9]",
+            "replace point fallbacks and inferred whole-body endpoints with region-specific exact loaded enthesis transfer"
+          ],
+          "evidence": [
+            "fully_distributed_exact_entheses"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "articular_contact": {
+          "details": [
+            "add compliant articular contact and nonpenetration evidence"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "bilateral_parity": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "upper_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "deterministic_transaction": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "geometry_registration": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "upper_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "joint_kinematics": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "passive_joint_tissue": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "artifact hash mismatch: include/metalrobo/NumiHumanMuscleEquilibrium.hpp expected=d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571 observed=f7944cbfe339497822af8a766fa9e655c24fcab6d35499189f7b98bc2d4fee39",
+            "artifact hash mismatch: src/core/NumiHumanMuscleEquilibrium.cpp expected=dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129 observed=9ac6b073c15313c57cd3fdc2dab1ba5c510d2940fc96aa0e902904374a4a726d",
+            "artifact hash mismatch: CMakeLists.txt expected=0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a observed=2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02",
+            "artifact hash mismatch: CMakeLists.txt expected=0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a observed=2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02",
+            "the source-posed hood and exact point-Jacobian transfer are preflight-qualified but insufficient to close fifth-MCP balance; resolve upstream route/recruitment ownership before live replacement, then add loaded ligament, capsule, cartilage, and Metal transaction evidence"
+          ],
+          "evidence": [
+            "upper_passive_joint_tissue_preflight",
+            "extensor_hood_tension_network_reference",
+            "extensor_hood_source_posed_reference"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "source_muscle_actuation": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify a sustained loaded trajectory with force, strain, energy, and contact bounds"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "left_wrist_hand_fingers",
+      "kind": "region",
+      "requirements": {
+        "active_tendon_to_bone": {
+          "details": [
+            "/coverage/source_site_point_fallback_count equals 0 observed=[194]",
+            "/coverage/surface_coverage_fraction equals 1.0 observed=[0.7668269230769231]",
+            "/admission/rejection_counts/body_has_no_registered_bone_surface equals 0 observed=[24]",
+            "/admission/rejection_counts/surface_distance_exceeds_gate equals 0 observed=[155]",
+            "/admission/rejection_counts/surface_patch_conditioning_failed_after_topology_aware_exact_surface_points equals 0 observed=[9]",
+            "replace point fallbacks and inferred whole-body endpoints with region-specific exact loaded enthesis transfer"
+          ],
+          "evidence": [
+            "fully_distributed_exact_entheses"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "articular_contact": {
+          "details": [
+            "add compliant articular contact and nonpenetration evidence"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "bilateral_parity": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "upper_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "deterministic_transaction": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "geometry_registration": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "upper_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "joint_kinematics": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "passive_joint_tissue": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "artifact hash mismatch: include/metalrobo/NumiHumanMuscleEquilibrium.hpp expected=d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571 observed=f7944cbfe339497822af8a766fa9e655c24fcab6d35499189f7b98bc2d4fee39",
+            "artifact hash mismatch: src/core/NumiHumanMuscleEquilibrium.cpp expected=dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129 observed=9ac6b073c15313c57cd3fdc2dab1ba5c510d2940fc96aa0e902904374a4a726d",
+            "artifact hash mismatch: CMakeLists.txt expected=0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a observed=2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02",
+            "artifact hash mismatch: CMakeLists.txt expected=0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a observed=2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02",
+            "the source-posed hood and exact point-Jacobian transfer are preflight-qualified but insufficient to close fifth-MCP balance; resolve upstream route/recruitment ownership before live replacement, then add loaded ligament, capsule, cartilage, and Metal transaction evidence"
+          ],
+          "evidence": [
+            "upper_passive_joint_tissue_preflight",
+            "extensor_hood_tension_network_reference",
+            "extensor_hood_source_posed_reference"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "source_muscle_actuation": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify a sustained loaded trajectory with force, strain, energy, and contact bounds"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "right_wrist_hand_fingers",
+      "kind": "region",
+      "requirements": {
+        "active_tendon_to_bone": {
+          "details": [
+            "/coverage/source_site_point_fallback_count equals 0 observed=[194]",
+            "/coverage/surface_coverage_fraction equals 1.0 observed=[0.7668269230769231]",
+            "/admission/rejection_counts/body_has_no_registered_bone_surface equals 0 observed=[24]",
+            "/admission/rejection_counts/surface_distance_exceeds_gate equals 0 observed=[155]",
+            "/admission/rejection_counts/surface_patch_conditioning_failed_after_topology_aware_exact_surface_points equals 0 observed=[9]",
+            "replace point fallbacks and inferred whole-body endpoints with region-specific exact loaded enthesis transfer"
+          ],
+          "evidence": [
+            "fully_distributed_exact_entheses"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "articular_contact": {
+          "details": [
+            "add compliant articular contact and nonpenetration evidence"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "bilateral_parity": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "upper_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "deterministic_transaction": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "geometry_registration": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "upper_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "joint_kinematics": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "passive_joint_tissue": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "artifact hash mismatch: include/metalrobo/NumiHumanMuscleEquilibrium.hpp expected=d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571 observed=f7944cbfe339497822af8a766fa9e655c24fcab6d35499189f7b98bc2d4fee39",
+            "artifact hash mismatch: src/core/NumiHumanMuscleEquilibrium.cpp expected=dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129 observed=9ac6b073c15313c57cd3fdc2dab1ba5c510d2940fc96aa0e902904374a4a726d",
+            "artifact hash mismatch: CMakeLists.txt expected=0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a observed=2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02",
+            "artifact hash mismatch: CMakeLists.txt expected=0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a observed=2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02",
+            "the source-posed hood and exact point-Jacobian transfer are preflight-qualified but insufficient to close fifth-MCP balance; resolve upstream route/recruitment ownership before live replacement, then add loaded ligament, capsule, cartilage, and Metal transaction evidence"
+          ],
+          "evidence": [
+            "upper_passive_joint_tissue_preflight",
+            "extensor_hood_tension_network_reference",
+            "extensor_hood_source_posed_reference"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "source_muscle_actuation": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify a sustained loaded trajectory with force, strain, energy, and contact bounds"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "left_hip",
+      "kind": "region",
+      "requirements": {
+        "active_tendon_to_bone": {
+          "details": [
+            "/coverage/source_site_point_fallback_count equals 0 observed=[194]",
+            "/coverage/surface_coverage_fraction equals 1.0 observed=[0.7668269230769231]",
+            "/admission/rejection_counts/body_has_no_registered_bone_surface equals 0 observed=[24]",
+            "/admission/rejection_counts/surface_distance_exceeds_gate equals 0 observed=[155]",
+            "/admission/rejection_counts/surface_patch_conditioning_failed_after_topology_aware_exact_surface_points equals 0 observed=[9]",
+            "replace point fallbacks and inferred whole-body endpoints with region-specific exact loaded enthesis transfer"
+          ],
+          "evidence": [
+            "fully_distributed_exact_entheses"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "articular_contact": {
+          "details": [
+            "add compliant articular contact and nonpenetration evidence"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "bilateral_parity": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "lower_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "deterministic_transaction": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "geometry_registration": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "lower_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "joint_kinematics": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "passive_joint_tissue": {
+          "details": [
+            "add anatomically sourced ligament, tendon, capsule, and cartilage mechanics"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "source_muscle_actuation": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify a sustained loaded trajectory with force, strain, energy, and contact bounds"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "right_hip",
+      "kind": "region",
+      "requirements": {
+        "active_tendon_to_bone": {
+          "details": [
+            "/coverage/source_site_point_fallback_count equals 0 observed=[194]",
+            "/coverage/surface_coverage_fraction equals 1.0 observed=[0.7668269230769231]",
+            "/admission/rejection_counts/body_has_no_registered_bone_surface equals 0 observed=[24]",
+            "/admission/rejection_counts/surface_distance_exceeds_gate equals 0 observed=[155]",
+            "/admission/rejection_counts/surface_patch_conditioning_failed_after_topology_aware_exact_surface_points equals 0 observed=[9]",
+            "replace point fallbacks and inferred whole-body endpoints with region-specific exact loaded enthesis transfer"
+          ],
+          "evidence": [
+            "fully_distributed_exact_entheses"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "articular_contact": {
+          "details": [
+            "add compliant articular contact and nonpenetration evidence"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "bilateral_parity": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "lower_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "deterministic_transaction": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "geometry_registration": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "lower_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "joint_kinematics": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "passive_joint_tissue": {
+          "details": [
+            "add anatomically sourced ligament, tendon, capsule, and cartilage mechanics"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "source_muscle_actuation": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify a sustained loaded trajectory with force, strain, energy, and contact bounds"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "left_knee",
+      "kind": "region",
+      "requirements": {
+        "active_tendon_to_bone": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "artifact hash mismatch: apps/numilab_human_open_knee_ligament_probe.mm expected=ddcfeda37f47321b80e5d01fb249fe248d94b06ae5126a08d22377ef1ab1439d observed=c71d70906b68afac31af8408666f8c0841be45bebf945ae2f20eb7cd5435f1be",
+            "artifact hash mismatch: matter/include/numi/matter/numi_human.hpp expected=966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635 observed=418a1485957f866638415bcb0a3d9573dfd359e956dd746c700433de4c703284",
+            "artifact hash mismatch: matter/include/numi/matter/numi_human_shared.h expected=8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2 observed=79568cec48032f08464dd25f65631bcc63588faca9058589e21812a2b9384a6b",
+            "artifact hash mismatch: matter/src/metal/numi_human.metalinc expected=907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85 observed=bfd43e83f42f2cf9d9d46ae7ba143f47f0981203a13b6549ba88b3d681b316ef",
+            "artifact hash mismatch: matter/src/numi_human.mm expected=896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18 observed=f62fe4eefc953ebc2a426c5a142b2634478149d9b569a5cda745e3c00e9a4bc8",
+            "registered evidence failed its checks"
+          ],
+          "evidence": [
+            "left_knee_extensor_chain"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "articular_contact": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "artifact hash mismatch: matter/include/numi/matter/numi_human.hpp expected=966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635 observed=418a1485957f866638415bcb0a3d9573dfd359e956dd746c700433de4c703284",
+            "artifact hash mismatch: matter/include/numi/matter/numi_human_shared.h expected=8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2 observed=79568cec48032f08464dd25f65631bcc63588faca9058589e21812a2b9384a6b",
+            "artifact hash mismatch: matter/src/metal/numi_human.metalinc expected=907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85 observed=bfd43e83f42f2cf9d9d46ae7ba143f47f0981203a13b6549ba88b3d681b316ef",
+            "artifact hash mismatch: matter/src/numi_human.mm expected=896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18 observed=f62fe4eefc953ebc2a426c5a142b2634478149d9b569a5cda745e3c00e9a4bc8",
+            "artifact hash mismatch: include/metalrobo/NumiHumanKnee.hpp expected=f0622032ce8fdd41ae7c5d96aee7253f6b86d1a26425d671bbdcbf17f7d7c5b5 observed=671e0c6b4fb99059f1dede5bfa342f49aff788befaeb79dddd369b7baad33f81",
+            "artifact hash mismatch: src/core/NumiHumanKnee.cpp expected=e93a7c9869ec0a1e3016597df291dd3e7cc619e0185111896e9a36dd63274ae7 observed=59ed884af79916d1ec8a70d00d798e25f87e23e1541b4d0d4578fef95ece4e29",
+            "artifact hash mismatch: include/metalrobo/NumiHumanKneeContact.hpp expected=516be1f1396c8ad10db0ade0328a99923e617674d1173e62802390fc614a8719 observed=d1ffa2b3bcdbd3add0dfd40068dbb5081668f3bfcafcc8ebfbc0701dc69a47d7",
+            "artifact hash mismatch: src/core/NumiHumanKneeContact.cpp expected=9fccb7c2bdef3cb494217030eeb364bda1232ec10d52299fc7947502c412e247 observed=b004bca05b9028d8399113c0b7f48d35a7e0e916a9c6708c48f0a55ff753e717",
+            "artifact hash mismatch: apps/numilab_human_knee_contact_probe.cpp expected=925efa6cc8c8ef6f52cfc816a63ef100a8dd8a75c18f1619b4869982000f508c observed=d3c2bcdfd7bb014c934a6cc649bd9334d8c0c288985bd8d700c5281369bf839e",
+            "artifact hash mismatch: tests/numi_human_knee_contact_test.cpp expected=904a5b0c25387fd923cd7805bc0656ab57adad9d0146c26c97c86a8d9d3bb903 observed=40f17d07c4e946209d1bb67e7f846db16270dd1328657ade1bdd7d074c80315e",
+            "promote fixed-reference one-step contact to sustained current-surface or implicit unilateral nonpenetration"
+          ],
+          "evidence": [
+            "left_knee_contact_live",
+            "left_knee_contact_preflight"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "bilateral_parity": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "lower_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "deterministic_transaction": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "artifact hash mismatch: apps/numilab_human_open_knee_ligament_probe.mm expected=ddcfeda37f47321b80e5d01fb249fe248d94b06ae5126a08d22377ef1ab1439d observed=c71d70906b68afac31af8408666f8c0841be45bebf945ae2f20eb7cd5435f1be",
+            "artifact hash mismatch: matter/include/numi/matter/numi_human.hpp expected=966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635 observed=418a1485957f866638415bcb0a3d9573dfd359e956dd746c700433de4c703284",
+            "artifact hash mismatch: matter/include/numi/matter/numi_human_shared.h expected=8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2 observed=79568cec48032f08464dd25f65631bcc63588faca9058589e21812a2b9384a6b",
+            "artifact hash mismatch: matter/src/metal/numi_human.metalinc expected=907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85 observed=bfd43e83f42f2cf9d9d46ae7ba143f47f0981203a13b6549ba88b3d681b316ef",
+            "artifact hash mismatch: matter/src/numi_human.mm expected=896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18 observed=f62fe4eefc953ebc2a426c5a142b2634478149d9b569a5cda745e3c00e9a4bc8",
+            "registered evidence failed its checks"
+          ],
+          "evidence": [
+            "left_knee_extensor_chain"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "geometry_registration": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "lower_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "joint_kinematics": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "passive_joint_tissue": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "artifact hash mismatch: apps/numilab_human_open_knee_ligament_probe.mm expected=ddcfeda37f47321b80e5d01fb249fe248d94b06ae5126a08d22377ef1ab1439d observed=c71d70906b68afac31af8408666f8c0841be45bebf945ae2f20eb7cd5435f1be",
+            "artifact hash mismatch: matter/include/numi/matter/numi_human.hpp expected=966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635 observed=418a1485957f866638415bcb0a3d9573dfd359e956dd746c700433de4c703284",
+            "artifact hash mismatch: matter/include/numi/matter/numi_human_shared.h expected=8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2 observed=79568cec48032f08464dd25f65631bcc63588faca9058589e21812a2b9384a6b",
+            "artifact hash mismatch: matter/src/metal/numi_human.metalinc expected=907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85 observed=bfd43e83f42f2cf9d9d46ae7ba143f47f0981203a13b6549ba88b3d681b316ef",
+            "artifact hash mismatch: matter/src/numi_human.mm expected=896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18 observed=f62fe4eefc953ebc2a426c5a142b2634478149d9b569a5cda745e3c00e9a4bc8",
+            "registered evidence failed its checks"
+          ],
+          "evidence": [
+            "left_knee_extensor_chain"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "source_muscle_actuation": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify a sustained loaded trajectory with force, strain, energy, and contact bounds"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "right_knee_mirrored",
+      "kind": "region",
+      "requirements": {
+        "active_tendon_to_bone": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "artifact hash mismatch: apps/numilab_human_open_knee_ligament_probe.mm expected=ddcfeda37f47321b80e5d01fb249fe248d94b06ae5126a08d22377ef1ab1439d observed=c71d70906b68afac31af8408666f8c0841be45bebf945ae2f20eb7cd5435f1be",
+            "artifact hash mismatch: matter/include/numi/matter/numi_human.hpp expected=966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635 observed=418a1485957f866638415bcb0a3d9573dfd359e956dd746c700433de4c703284",
+            "artifact hash mismatch: matter/include/numi/matter/numi_human_shared.h expected=8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2 observed=79568cec48032f08464dd25f65631bcc63588faca9058589e21812a2b9384a6b",
+            "artifact hash mismatch: matter/src/metal/numi_human.metalinc expected=907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85 observed=bfd43e83f42f2cf9d9d46ae7ba143f47f0981203a13b6549ba88b3d681b316ef",
+            "artifact hash mismatch: matter/src/numi_human.mm expected=896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18 observed=f62fe4eefc953ebc2a426c5a142b2634478149d9b569a5cda745e3c00e9a4bc8",
+            "registered evidence failed its checks"
+          ],
+          "evidence": [
+            "right_knee_extensor_chain"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "articular_contact": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "artifact hash mismatch: matter/include/numi/matter/numi_human.hpp expected=966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635 observed=418a1485957f866638415bcb0a3d9573dfd359e956dd746c700433de4c703284",
+            "artifact hash mismatch: matter/include/numi/matter/numi_human_shared.h expected=8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2 observed=79568cec48032f08464dd25f65631bcc63588faca9058589e21812a2b9384a6b",
+            "artifact hash mismatch: matter/src/metal/numi_human.metalinc expected=907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85 observed=bfd43e83f42f2cf9d9d46ae7ba143f47f0981203a13b6549ba88b3d681b316ef",
+            "artifact hash mismatch: matter/src/numi_human.mm expected=896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18 observed=f62fe4eefc953ebc2a426c5a142b2634478149d9b569a5cda745e3c00e9a4bc8",
+            "artifact hash mismatch: include/metalrobo/NumiHumanKnee.hpp expected=f0622032ce8fdd41ae7c5d96aee7253f6b86d1a26425d671bbdcbf17f7d7c5b5 observed=671e0c6b4fb99059f1dede5bfa342f49aff788befaeb79dddd369b7baad33f81",
+            "artifact hash mismatch: src/core/NumiHumanKnee.cpp expected=e93a7c9869ec0a1e3016597df291dd3e7cc619e0185111896e9a36dd63274ae7 observed=59ed884af79916d1ec8a70d00d798e25f87e23e1541b4d0d4578fef95ece4e29",
+            "artifact hash mismatch: include/metalrobo/NumiHumanKneeContact.hpp expected=516be1f1396c8ad10db0ade0328a99923e617674d1173e62802390fc614a8719 observed=d1ffa2b3bcdbd3add0dfd40068dbb5081668f3bfcafcc8ebfbc0701dc69a47d7",
+            "artifact hash mismatch: src/core/NumiHumanKneeContact.cpp expected=9fccb7c2bdef3cb494217030eeb364bda1232ec10d52299fc7947502c412e247 observed=b004bca05b9028d8399113c0b7f48d35a7e0e916a9c6708c48f0a55ff753e717",
+            "artifact hash mismatch: apps/numilab_human_knee_contact_probe.cpp expected=925efa6cc8c8ef6f52cfc816a63ef100a8dd8a75c18f1619b4869982000f508c observed=d3c2bcdfd7bb014c934a6cc649bd9334d8c0c288985bd8d700c5281369bf839e",
+            "artifact hash mismatch: tests/numi_human_knee_contact_test.cpp expected=904a5b0c25387fd923cd7805bc0656ab57adad9d0146c26c97c86a8d9d3bb903 observed=40f17d07c4e946209d1bb67e7f846db16270dd1328657ade1bdd7d074c80315e",
+            "promote fixed-reference one-step contact to sustained current-surface or implicit unilateral nonpenetration"
+          ],
+          "evidence": [
+            "right_knee_contact_live",
+            "right_knee_contact_preflight"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "bilateral_parity": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "lower_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "deterministic_transaction": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "artifact hash mismatch: apps/numilab_human_open_knee_ligament_probe.mm expected=ddcfeda37f47321b80e5d01fb249fe248d94b06ae5126a08d22377ef1ab1439d observed=c71d70906b68afac31af8408666f8c0841be45bebf945ae2f20eb7cd5435f1be",
+            "artifact hash mismatch: matter/include/numi/matter/numi_human.hpp expected=966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635 observed=418a1485957f866638415bcb0a3d9573dfd359e956dd746c700433de4c703284",
+            "artifact hash mismatch: matter/include/numi/matter/numi_human_shared.h expected=8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2 observed=79568cec48032f08464dd25f65631bcc63588faca9058589e21812a2b9384a6b",
+            "artifact hash mismatch: matter/src/metal/numi_human.metalinc expected=907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85 observed=bfd43e83f42f2cf9d9d46ae7ba143f47f0981203a13b6549ba88b3d681b316ef",
+            "artifact hash mismatch: matter/src/numi_human.mm expected=896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18 observed=f62fe4eefc953ebc2a426c5a142b2634478149d9b569a5cda745e3c00e9a4bc8",
+            "registered evidence failed its checks"
+          ],
+          "evidence": [
+            "right_knee_extensor_chain"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "geometry_registration": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "lower_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "joint_kinematics": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "passive_joint_tissue": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "artifact hash mismatch: apps/numilab_human_open_knee_ligament_probe.mm expected=ddcfeda37f47321b80e5d01fb249fe248d94b06ae5126a08d22377ef1ab1439d observed=c71d70906b68afac31af8408666f8c0841be45bebf945ae2f20eb7cd5435f1be",
+            "artifact hash mismatch: matter/include/numi/matter/numi_human.hpp expected=966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635 observed=418a1485957f866638415bcb0a3d9573dfd359e956dd746c700433de4c703284",
+            "artifact hash mismatch: matter/include/numi/matter/numi_human_shared.h expected=8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2 observed=79568cec48032f08464dd25f65631bcc63588faca9058589e21812a2b9384a6b",
+            "artifact hash mismatch: matter/src/metal/numi_human.metalinc expected=907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85 observed=bfd43e83f42f2cf9d9d46ae7ba143f47f0981203a13b6549ba88b3d681b316ef",
+            "artifact hash mismatch: matter/src/numi_human.mm expected=896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18 observed=f62fe4eefc953ebc2a426c5a142b2634478149d9b569a5cda745e3c00e9a4bc8",
+            "registered evidence failed its checks"
+          ],
+          "evidence": [
+            "right_knee_extensor_chain"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "source_muscle_actuation": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify a sustained loaded trajectory with force, strain, energy, and contact bounds"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "left_ankle_hindfoot_midfoot",
+      "kind": "region",
+      "requirements": {
+        "active_tendon_to_bone": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "registered evidence failed its checks"
+          ],
+          "evidence": [
+            "bilateral_achilles_force_transfer"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "articular_contact": {
+          "details": [
+            "add compliant articular contact and nonpenetration evidence"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "bilateral_parity": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "lower_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "deterministic_transaction": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "registered evidence failed its checks"
+          ],
+          "evidence": [
+            "bilateral_achilles_force_transfer"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "geometry_registration": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "lower_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "joint_kinematics": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "passive_joint_tissue": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "promote the reduced windlass preflight into the owning live transaction and add ankle ligaments, capsule, and cartilage"
+          ],
+          "evidence": [
+            "bilateral_plantar_fascia_force_transfer"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "source_muscle_actuation": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "registered evidence failed its checks"
+          ],
+          "evidence": [
+            "bilateral_achilles_force_transfer"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "support_wrench": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "artifact hash mismatch: include/metalrobo/NumiHumanMuscleEquilibrium.hpp expected=d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571 observed=f7944cbfe339497822af8a766fa9e655c24fcab6d35499189f7b98bc2d4fee39",
+            "artifact hash mismatch: src/core/NumiHumanMuscleEquilibrium.cpp expected=dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129 observed=9ac6b073c15313c57cd3fdc2dab1ba5c510d2940fc96aa0e902904374a4a726d",
+            "registered evidence failed its checks"
+          ],
+          "evidence": [
+            "whole_body_support_wrench"
+          ],
+          "minimum_level": "preflight",
+          "status": "contradicted"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify a sustained loaded trajectory with force, strain, energy, and contact bounds"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "right_ankle_hindfoot_midfoot",
+      "kind": "region",
+      "requirements": {
+        "active_tendon_to_bone": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "registered evidence failed its checks"
+          ],
+          "evidence": [
+            "bilateral_achilles_force_transfer"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "articular_contact": {
+          "details": [
+            "add compliant articular contact and nonpenetration evidence"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "bilateral_parity": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "lower_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "deterministic_transaction": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "registered evidence failed its checks"
+          ],
+          "evidence": [
+            "bilateral_achilles_force_transfer"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "geometry_registration": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "lower_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "joint_kinematics": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "passive_joint_tissue": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "promote the reduced windlass preflight into the owning live transaction and add ankle ligaments, capsule, and cartilage"
+          ],
+          "evidence": [
+            "bilateral_plantar_fascia_force_transfer"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "source_muscle_actuation": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "registered evidence failed its checks"
+          ],
+          "evidence": [
+            "bilateral_achilles_force_transfer"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "support_wrench": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "artifact hash mismatch: include/metalrobo/NumiHumanMuscleEquilibrium.hpp expected=d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571 observed=f7944cbfe339497822af8a766fa9e655c24fcab6d35499189f7b98bc2d4fee39",
+            "artifact hash mismatch: src/core/NumiHumanMuscleEquilibrium.cpp expected=dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129 observed=9ac6b073c15313c57cd3fdc2dab1ba5c510d2940fc96aa0e902904374a4a726d",
+            "registered evidence failed its checks"
+          ],
+          "evidence": [
+            "whole_body_support_wrench"
+          ],
+          "minimum_level": "preflight",
+          "status": "contradicted"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify a sustained loaded trajectory with force, strain, energy, and contact bounds"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "left_toes_compound",
+      "kind": "region",
+      "requirements": {
+        "active_tendon_to_bone": {
+          "details": [
+            "/coverage/source_site_point_fallback_count equals 0 observed=[194]",
+            "/coverage/surface_coverage_fraction equals 1.0 observed=[0.7668269230769231]",
+            "/admission/rejection_counts/body_has_no_registered_bone_surface equals 0 observed=[24]",
+            "/admission/rejection_counts/surface_distance_exceeds_gate equals 0 observed=[155]",
+            "/admission/rejection_counts/surface_patch_conditioning_failed_after_topology_aware_exact_surface_points equals 0 observed=[9]",
+            "replace point fallbacks and inferred whole-body endpoints with region-specific exact loaded enthesis transfer"
+          ],
+          "evidence": [
+            "fully_distributed_exact_entheses"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "articular_contact": {
+          "details": [
+            "add compliant articular contact and nonpenetration evidence"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "bilateral_parity": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "lower_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "compound_dof_policy": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "bodyparts3d_bone_structure"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "deterministic_transaction": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "geometry_registration": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "lower_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "joint_kinematics": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "passive_joint_tissue": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "promote the five-ray reduced windlass law into the owning live transaction"
+          ],
+          "evidence": [
+            "bilateral_plantar_fascia_force_transfer"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "source_muscle_actuation": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify a sustained loaded trajectory with force, strain, energy, and contact bounds"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        },
+        "windlass_force_transfer": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "registered evidence failed its checks"
+          ],
+          "evidence": [
+            "bilateral_plantar_fascia_force_transfer"
+          ],
+          "minimum_level": "preflight",
+          "status": "contradicted"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "right_toes_compound",
+      "kind": "region",
+      "requirements": {
+        "active_tendon_to_bone": {
+          "details": [
+            "/coverage/source_site_point_fallback_count equals 0 observed=[194]",
+            "/coverage/surface_coverage_fraction equals 1.0 observed=[0.7668269230769231]",
+            "/admission/rejection_counts/body_has_no_registered_bone_surface equals 0 observed=[24]",
+            "/admission/rejection_counts/surface_distance_exceeds_gate equals 0 observed=[155]",
+            "/admission/rejection_counts/surface_patch_conditioning_failed_after_topology_aware_exact_surface_points equals 0 observed=[9]",
+            "replace point fallbacks and inferred whole-body endpoints with region-specific exact loaded enthesis transfer"
+          ],
+          "evidence": [
+            "fully_distributed_exact_entheses"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "articular_contact": {
+          "details": [
+            "add compliant articular contact and nonpenetration evidence"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "bilateral_parity": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "lower_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "compound_dof_policy": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "bodyparts3d_bone_structure"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "deterministic_transaction": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "geometry_registration": {
+          "achieved_level": "structural",
+          "details": [],
+          "evidence": [
+            "lower_multi_pose_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "verified"
+        },
+        "joint_kinematics": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "passive_joint_tissue": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "promote the five-ray reduced windlass law into the owning live transaction"
+          ],
+          "evidence": [
+            "bilateral_plantar_fascia_force_transfer"
+          ],
+          "minimum_level": "one_step",
+          "status": "contradicted"
+        },
+        "source_muscle_actuation": {
+          "achieved_level": "one_step",
+          "details": [],
+          "evidence": [
+            "source_route_transaction"
+          ],
+          "minimum_level": "one_step",
+          "status": "verified"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify a sustained loaded trajectory with force, strain, energy, and contact bounds"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        },
+        "windlass_force_transfer": {
+          "details": [
+            "artifact hash mismatch: apps/numilab_human_myosim_visual_probe.mm expected=ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65 observed=4a52ec6467b5536fcf447e92ee1e2e40b2b22fe31a2ccc76f9304e0e3dd28f77",
+            "registered evidence failed its checks"
+          ],
+          "evidence": [
+            "bilateral_plantar_fascia_force_transfer"
+          ],
+          "minimum_level": "preflight",
+          "status": "contradicted"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "skin",
+      "kind": "continuum_layer",
+      "requirements": {
+        "anatomical_geometry": {
+          "details": [
+            "/coverage/not_yet_represented length_equals 0 observed=[['skin, muscles, tendons, organs, vessels, nerves, and other soft-tissue layers']]",
+            "the registered payload explicitly omits this soft-tissue layer"
+          ],
+          "evidence": [
+            "complete_soft_tissue_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "contradicted"
+        },
+        "attachment_coupling": {
+          "details": [
+            "couple accepted reactions to the articulated Human"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "contact_or_interaction": {
+          "details": [
+            "implement anatomically relevant contact or interaction"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "deformable_mechanics": {
+          "details": [
+            "implement a live deformable mechanics owner"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "deterministic_transaction": {
+          "details": [
+            "add rejection rollback and bitwise replay"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "material_calibration": {
+          "details": [
+            "calibrate against independent material data and held-out response"
+          ],
+          "evidence": [],
+          "minimum_level": "validated",
+          "status": "missing"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify sustained coupled deformation"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "fascia",
+      "kind": "continuum_layer",
+      "requirements": {
+        "anatomical_geometry": {
+          "details": [
+            "/coverage/not_yet_represented length_equals 0 observed=[['skin, muscles, tendons, organs, vessels, nerves, and other soft-tissue layers']]",
+            "the registered payload explicitly omits this soft-tissue layer"
+          ],
+          "evidence": [
+            "complete_soft_tissue_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "contradicted"
+        },
+        "attachment_coupling": {
+          "details": [
+            "couple accepted reactions to the articulated Human"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "contact_or_interaction": {
+          "details": [
+            "implement anatomically relevant contact or interaction"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "deformable_mechanics": {
+          "details": [
+            "implement a live deformable mechanics owner"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "deterministic_transaction": {
+          "details": [
+            "add rejection rollback and bitwise replay"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "material_calibration": {
+          "details": [
+            "calibrate against independent material data and held-out response"
+          ],
+          "evidence": [],
+          "minimum_level": "validated",
+          "status": "missing"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify sustained coupled deformation"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "organs",
+      "kind": "continuum_layer",
+      "requirements": {
+        "anatomical_geometry": {
+          "details": [
+            "/coverage/not_yet_represented length_equals 0 observed=[['skin, muscles, tendons, organs, vessels, nerves, and other soft-tissue layers']]",
+            "the registered payload explicitly omits this soft-tissue layer"
+          ],
+          "evidence": [
+            "complete_soft_tissue_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "contradicted"
+        },
+        "attachment_coupling": {
+          "details": [
+            "couple accepted reactions to the articulated Human"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "contact_or_interaction": {
+          "details": [
+            "implement anatomically relevant contact or interaction"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "deformable_mechanics": {
+          "details": [
+            "implement a live deformable mechanics owner"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "deterministic_transaction": {
+          "details": [
+            "add rejection rollback and bitwise replay"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "material_calibration": {
+          "details": [
+            "calibrate against independent material data and held-out response"
+          ],
+          "evidence": [],
+          "minimum_level": "validated",
+          "status": "missing"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify sustained coupled deformation"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "vessels",
+      "kind": "continuum_layer",
+      "requirements": {
+        "anatomical_geometry": {
+          "details": [
+            "/coverage/not_yet_represented length_equals 0 observed=[['skin, muscles, tendons, organs, vessels, nerves, and other soft-tissue layers']]",
+            "the registered payload explicitly omits this soft-tissue layer"
+          ],
+          "evidence": [
+            "complete_soft_tissue_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "contradicted"
+        },
+        "attachment_coupling": {
+          "details": [
+            "couple accepted reactions to the articulated Human"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "contact_or_interaction": {
+          "details": [
+            "implement anatomically relevant contact or interaction"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "deformable_mechanics": {
+          "details": [
+            "implement a live deformable mechanics owner"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "deterministic_transaction": {
+          "details": [
+            "add rejection rollback and bitwise replay"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "material_calibration": {
+          "details": [
+            "calibrate against independent material data and held-out response"
+          ],
+          "evidence": [],
+          "minimum_level": "validated",
+          "status": "missing"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify sustained coupled deformation"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "nerves",
+      "kind": "continuum_layer",
+      "requirements": {
+        "anatomical_geometry": {
+          "details": [
+            "/coverage/not_yet_represented length_equals 0 observed=[['skin, muscles, tendons, organs, vessels, nerves, and other soft-tissue layers']]",
+            "the registered payload explicitly omits this soft-tissue layer"
+          ],
+          "evidence": [
+            "complete_soft_tissue_geometry"
+          ],
+          "minimum_level": "structural",
+          "status": "contradicted"
+        },
+        "attachment_coupling": {
+          "details": [
+            "couple accepted reactions to the articulated Human"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "contact_or_interaction": {
+          "details": [
+            "implement anatomically relevant contact or interaction"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "deformable_mechanics": {
+          "details": [
+            "implement a live deformable mechanics owner"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "deterministic_transaction": {
+          "details": [
+            "add rejection rollback and bitwise replay"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "material_calibration": {
+          "details": [
+            "calibrate against independent material data and held-out response"
+          ],
+          "evidence": [],
+          "minimum_level": "validated",
+          "status": "missing"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify sustained coupled deformation"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    },
+    {
+      "id": "costal_cartilage",
+      "kind": "continuum_layer",
+      "requirements": {
+        "anatomical_geometry": {
+          "achieved_level": "preflight",
+          "details": [],
+          "evidence": [
+            "costal_cartilage_preflight"
+          ],
+          "minimum_level": "preflight",
+          "status": "verified"
+        },
+        "attachment_coupling": {
+          "details": [
+            "couple accepted reactions to the articulated Human"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "contact_or_interaction": {
+          "details": [
+            "implement anatomically relevant contact or interaction"
+          ],
+          "evidence": [],
+          "minimum_level": "one_step",
+          "status": "missing"
+        },
+        "deformable_mechanics": {
+          "achieved_level": "preflight",
+          "details": [
+            "the current prescribed-displacement preflight has production_owner_fraction=0"
+          ],
+          "evidence": [
+            "costal_cartilage_preflight"
+          ],
+          "minimum_level": "one_step",
+          "status": "insufficient"
+        },
+        "deterministic_transaction": {
+          "achieved_level": "preflight",
+          "details": [],
+          "evidence": [
+            "costal_cartilage_preflight"
+          ],
+          "minimum_level": "preflight",
+          "status": "verified"
+        },
+        "material_calibration": {
+          "details": [
+            "calibrate against independent material data and held-out response"
+          ],
+          "evidence": [],
+          "minimum_level": "validated",
+          "status": "missing"
+        },
+        "sustained_loaded_motion": {
+          "details": [
+            "qualify sustained coupled deformation"
+          ],
+          "evidence": [],
+          "minimum_level": "sustained",
+          "status": "missing"
+        }
+      },
+      "status": "incomplete"
+    }
+  ],
+  "status": "incomplete",
+  "summary": {
+    "qualified_scope_count": 0,
+    "requirements": {
+      "contradicted": 44,
+      "insufficient": 2,
+      "missing": 64,
+      "verified": 72
+    },
+    "scope_count": 21
+  }
+}

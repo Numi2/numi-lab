@@ -1,0 +1,66 @@
+{
+  "schema": "numi-human-knee-moving-enthesis-qualification.v1",
+  "implementation_commit": "efe7ab0781b62f8f3d568e01b36cd969d12a5218",
+  "device": "Apple M4 Pro",
+  "case": {
+    "side": "left",
+    "flexion_rad": 0.001,
+    "accepted_steps": 1,
+    "timestep_s": 0.0001,
+    "selected_quadriceps_source_indices": [405, 413, 414, 415],
+    "activation_increment": 0.2,
+    "continuum_regions": 6,
+    "continuum_nodes": 62402,
+    "continuum_tetrahedra": 264442
+  },
+  "moving_enthesis_map": {
+    "method": "exact fixed-owner transforms plus inverse-square geodesic blending on each tetrahedral edge graph",
+    "maximum_displacement_m": 0.0532243630574,
+    "maximum_construction_anchor_residual_m": 0.0,
+    "jacobian_range": [0.99799961287, 1.00127333547],
+    "unknown_owner_rejected": true,
+    "disconnected_topology_rejected": true,
+    "degenerate_or_inverted_tetrahedra_rejected": true
+  },
+  "accepted_matter_state": {
+    "maximum_incremental_displacement_m": 3.65002428282e-8,
+    "jacobian_range": [0.999803006649, 1.00021600723],
+    "femur_anchor_target_max_residual_m": 1.56118e-8,
+    "tibia_anchor_target_max_residual_m": 3.41428503248e-8,
+    "patella_anchor_target_max_residual_m": 3.09445837843e-8,
+    "replay": "bitwise",
+    "rollback": "verified"
+  },
+  "extensor_chain": {
+    "quadriceps_resultant_n": 2767.00927734,
+    "quadriceps_enthesis_reaction_resultant_n": 2767.02856445,
+    "patellar_tendon_resultant_n": 2789.89160156,
+    "patellar_tendon_patella_reaction_resultant_n": 2789.88208008,
+    "patellar_tendon_tibia_reaction_resultant_n": 2789.89794922
+  },
+  "articular_contact": {
+    "pairs": 7,
+    "samples": 69701,
+    "closed_samples": 34973,
+    "area_m2": 0.0149755561724,
+    "normal_force_n": 2966.64331055,
+    "maximum_pressure_pa": 384213.8125,
+    "maximum_normal_strain": 0.0137293534353,
+    "maximum_closure_m": 5.06463693455e-5,
+    "force_residual_n": 0.0032666016908,
+    "moment_residual_nm": 0.00368195955453
+  },
+  "visual_review": {
+    "views": ["front", "oblique", "side", "rear"],
+    "fibula_lateral": true,
+    "patella_anterior_trochlear": true,
+    "extensor_chain_continuous": true
+  },
+  "whole_body_diagnostics": {
+    "compiled_stand_balanced": false,
+    "compiled_stand_max_acceleration_residual": 32.9981261564,
+    "persistent_max_acceleration": 39244.9414062,
+    "source_support_max_penetration_m": 0.000106668099761
+  },
+  "boundary": "This qualifies topology-aware initial continuum placement and one accepted 1 mrad left-knee transaction. It is not a stress-equilibrated prestress field, multi-step or sustained flexion, physiological range tracking, a global or implicit contact solve, a deformable relative meniscus owner, a balanced whole-body state, subject-specific calibration, or clinical validation. The map's 53.2 mm maximum displacement includes common ground-alignment translation and is not tissue strain."
+}

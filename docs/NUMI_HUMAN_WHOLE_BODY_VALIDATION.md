@@ -81,13 +81,17 @@ exact payloads give all 69,701 samples a one-ring candidate; a cross-edge M4
 Pro fixture passes. The left live Human additionally passed a bounded two-step
 `10 microrad` trajectory with 25,310 to 30,989 closed samples, positive
 deformation Jacobians, balanced nonzero contact, bitwise replay, and rollback.
-A 1 mrad request failed closed at the projected-anchor compatibility gate
-before solve and is diagnostic only. The knees remain incomplete because the
-query is not multi-ring/global, same-rigid-body meniscus interfaces lack
-relative deformable ownership, the law is an explicit penalty rather than
-unilateral nonpenetration, and sustained physiological loaded flexion is not
-qualified. The right knee is a mirrored left specimen, not an independently
-segmented right subject.
+A topology-aware moving-enthesis initialization now also admits the formerly
+rejected one-step `1 mrad` request: construction Jacobians are
+`0.9979996..1.0012733`, bone-anchor residuals remain below `35 nm`, and the
+accepted Matter state, extensor transfer, articular force/moment balance,
+replay, and rollback pass. The knees remain incomplete because this is not a
+stress-equilibrated flexion continuation, the contact query is not multi-ring
+or global, same-rigid-body meniscus interfaces lack relative deformable
+ownership, the law is an explicit penalty rather than unilateral
+nonpenetration, and sustained physiological loaded flexion is not qualified.
+The right knee is a mirrored left specimen, not an independently segmented
+right subject.
 
 The shared Human/Matter adapter additionally has a one-step Metal transaction
 fixture where internal FEM contact and tendon traction share one force arena,
@@ -128,9 +132,10 @@ acceleration residual remains `5.7539`, and `internal_balanced=false`.
 
 The gate makes the next useful work explicit:
 
-1. Replace projected rest anchors with a moving-enthesis/initial-continuum map,
-   then add a broader current-surface or implicit nonpenetration owner and
-   qualify sustained physiological knee flexion/loading without regressing
+1. Extend the accepted moving-enthesis initialization into a pose-continuation
+   or stress-equilibrated prestrain treatment, add a broader current-surface or
+   implicit nonpenetration owner plus relative meniscus mechanics, and qualify
+   sustained physiological knee flexion/loading without regressing the exact
    extensor-chain ownership.
 2. Close the internal muscle/passive-force equilibrium exposed by the new
    support-wrench gate, then promote the reduced plantar windlass law through
