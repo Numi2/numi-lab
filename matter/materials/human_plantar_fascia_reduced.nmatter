@@ -1,21 +1,15 @@
-// Experimental reduced plantar-aponeurosis continuum scaffold for a future
-// bilateral five-ray Human promotion. It is not called by the current tensile
-// preflight. The 350 MPa longitudinal modulus is a common finite-
-// element starting value reported for plantar fascia; beam cross-sectional
-// areas are calibrated in the owning probe to a reduced five-ray allocation
-// of 60/50/50/20/20 N/mm. Its 200 N/mm aggregate approximates the published
-// 203.7 +/- 50.5 N/mm intact-fascia stiffness; the ray allocation itself is
-// a modeling choice, not five independently measured cadaveric values. This
-// is a preconditioned, isotropic reduced-bundle law. It is not a subject-
-// specific, transversely isotropic, rate-dependent, failure, or clinical
-// material certificate.
+// Neutral 3D shape regularizer for the live bilateral plantar-aponeurosis
+// transaction. It deliberately does not own axial collagen stiffness: five
+// tension-only routed bands carry that force once with the Natali-type law,
+// exact BodyParts3D entheses, metatarsal-head pulleys, and articulated J^T.
+// Keeping this matrix several orders softer prevents a compression-bearing
+// isotropic FEM surrogate from duplicating the directional windlass force.
+// It is a numerical transverse matrix, not a subject-specific material claim.
 material human_plantar_fascia_reduced {
     parameter density : kg/m^3 = 1000 in [900, 1150];
-    // E = 350 MPa and nu = 0.45.
-    parameter shear : MPa = 120.689655 in [20, 500] log identifiable;
-    parameter bulk : MPa = 1166.666667 in [100, 5000] log identifiable;
-    // Small numerical regularizer for the abrupt bounded MTP preflight.
-    parameter numerical_viscosity : Pa*s = 25 in [0.1, 500] log;
+    parameter shear : kPa = 50 in [10, 250] log identifiable;
+    parameter bulk : MPa = 1 in [0.2, 5] log identifiable;
+    parameter numerical_viscosity : Pa*s = 5 in [0.1, 100] log;
 
     model generic;
     energy = 0.5 * shear * (I1() - 3 - 2 * log(J()))
@@ -40,7 +34,7 @@ material human_plantar_fascia_reduced {
     limits {
         minimum_J = 0.35;
         maximum_J = 2.5;
-        maximum_stress = 1e9;
-        maximum_energy_density = 5e8;
+        maximum_stress = 5e6;
+        maximum_energy_density = 1e6;
     }
 }

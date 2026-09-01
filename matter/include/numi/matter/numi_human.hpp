@@ -106,6 +106,10 @@ struct NumiHumanTendonFEMLoadSource {
     // centroids. They may coexist with neutral matrix-only FEM volumes without
     // duplicating axial fibre stiffness.
     std::span<const NMNumiHumanPassiveLigamentGPU> passiveLigaments{};
+    // Optional three-point tension-only routes with a body-following pulley.
+    // These own passive windlass force transfer without inventing an actuator
+    // or requiring a compression-bearing volumetric fascia surrogate.
+    std::span<const NMNumiHumanPassiveRoutedBandGPU> passiveRoutedBands{};
     std::uint32_t endpointCount = 0u;
     std::uint32_t environmentCount = 1u;
     float productionForceOwnerFraction = 0.0f;
@@ -184,6 +188,16 @@ struct NumiHumanTendonFEMLoadDiagnostics {
     double passiveLigamentMaximumEffectiveStretch = 0.0;
     double passiveLigamentForceResidualNewtons = 0.0;
     double passiveLigamentMomentResidualNewtonMeters = 0.0;
+    std::uint32_t passiveRoutedBandCount = 0u;
+    bool passiveRoutedBandLatestTransactionAccepted = false;
+    double passiveRoutedBandEndpointForceL1Newtons = 0.0;
+    double passiveRoutedBandMaximumTensionNewtons = 0.0;
+    double passiveRoutedBandMinimumStrain = 0.0;
+    double passiveRoutedBandMaximumStrain = 0.0;
+    double passiveRoutedBandForceResidualNewtons = 0.0;
+    double passiveRoutedBandMomentResidualNewtonMeters = 0.0;
+    double passiveRoutedBandStoredEnergyJoules = 0.0;
+    double passiveRoutedBandMaximumExtensionMeters = 0.0;
     std::string message;
 };
 
@@ -193,12 +207,30 @@ struct NumiHumanPassiveLigamentFiberEvaluation {
     double tensionNewtons = 0.0;
 };
 
+struct NumiHumanPassiveRoutedBandEvaluation {
+    double routeLengthMeters = 0.0;
+    double stretch = 0.0;
+    double strain = 0.0;
+    double tensionNewtons = 0.0;
+    double storedEnergyJoules = 0.0;
+};
+
 // CPU reference for the exact FEBio trans-iso fibre stress branch used by the
 // reduced Metal ligament owner. Matrix stress is deliberately excluded.
 [[nodiscard]] bool evaluateNumiHumanPassiveLigamentFiber(
     const NMNumiHumanPassiveLigamentGPU& ligament,
     double currentCentroidLengthMeters,
     NumiHumanPassiveLigamentFiberEvaluation& result
+) noexcept;
+
+// CPU FP64 oracle for the exact tension law evaluated by the Metal routed-band
+// owner. geometricLength excludes the pulley arc; signedWindingRadians is the
+// live twist from the sample's neutral relative orientation.
+[[nodiscard]] bool evaluateNumiHumanPassiveRoutedBand(
+    const NMNumiHumanPassiveRoutedBandGPU& band,
+    double geometricLengthMeters,
+    double signedWindingRadians,
+    NumiHumanPassiveRoutedBandEvaluation& result
 ) noexcept;
 
 class NumiHumanTendonFEMLoadAdapter {

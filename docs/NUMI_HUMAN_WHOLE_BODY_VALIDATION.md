@@ -113,13 +113,17 @@ bitwise. This promotes active tendon-to-bone transfer for both ankle/hindfoot
 scopes only. Passive ankle tissues, articular/contact mechanics, sustained
 loading, and OpenSim Rajagopal equivalence remain missing.
 
-The bilateral feet now also have a dedicated reduced plantar-fascia windlass
-preflight. Ten exact BodyParts3D surface routes connect named calcaneal,
+The bilateral feet now have a live nonlinear plantar-fascia windlass owner.
+Ten exact BodyParts3D surface routes connect named calcaneal,
 metatarsal-head, and proximal-phalanx patches while retaining one authored MTP
-coordinate per foot. All ten tension-only rays engage, close force and moment,
-change the one-step articulated response, and replay bitwise. This is a tendon
-force-transfer law, not deformable FEM or a live NumanX continuum transaction;
-therefore ankle/foot passive tissue remains insufficient rather than promoted.
+coordinate per foot. The Natali-type tension-only rays and wrap-arc couples
+enter the same borrowed Human/Matter command buffer through exact body `J^T`.
+A soft `220`-node/`250`-tet matrix per foot regularizes 3D shape without
+duplicating axial collagen stiffness. All ten rays engage, close force and
+moment, change articulated q/v, roll back on rejection, and replay bitwise on
+M4 Pro. This promotes bounded plantar windlass transfer; subject-specific
+calibration, rate/failure behavior, loaded contact, and sustained gait remain
+unqualified.
 
 The ten authored foot support witnesses now also close a deterministic static
 floating-base wrench. On Apple M4 Pro they carry 952.864475 N against

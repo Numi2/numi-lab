@@ -2,7 +2,7 @@
 
 #include "numi/matter/shared.h"
 
-#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 11u
+#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 12u
 #define NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS 4096u
 
 enum NMNumiHumanTendonFEMNodeLoadFlags : nm_u32 {
@@ -51,7 +51,7 @@ typedef struct NM_ALIGN16 NMNumiHumanTendonFEMLoadDispatchGPU {
     nm_u32 articularContactSampleCount;
     nm_u32 passiveLigamentCount;
     nm_u32 femBodyContactSampleCount;
-    nm_u32 reserved3;
+    nm_u32 passiveRoutedBandCount;
 } NMNumiHumanTendonFEMLoadDispatchGPU;
 
 typedef struct NM_ALIGN16 NMNumiHumanTendonFEMNodeLoadGPU {
@@ -210,6 +210,46 @@ typedef struct NM_ALIGN16 NMNumiHumanPassiveLigamentAuditGPU {
     nm_float4 stretchCountAndAccepted;
 } NMNumiHumanPassiveLigamentAuditGPU;
 
+enum NMNumiHumanPassiveRoutedBandFlags : nm_u32 {
+    NM_NUMI_HUMAN_PASSIVE_ROUTED_BAND_ACTIVE = 1u << 0u,
+};
+
+// Tension-only three-point collagen route with a body-following pulley. This
+// is the efficient owner for structures such as one plantar-aponeurosis ray:
+// the origin and pulley may share a proximal foot body while the insertion is
+// owned by the compound toe body. The force law is the open Natali-type
+// hyperelastic relation used by the cited dynamic-foot model. Route forces and
+// the derivative of the wrap arc are applied once through exact body J^T.
+typedef struct NM_ALIGN16 NMNumiHumanPassiveRoutedBandGPU {
+    nm_u32 originBodyIndex;
+    nm_u32 pulleyBodyIndex;
+    nm_u32 insertionBodyIndex;
+    nm_u32 flags;
+
+    nm_float4 originLocalPoint;
+    nm_float4 pulleyLocalPoint;
+    nm_float4 insertionLocalPoint;
+    // xyz unit pulley axis in pulley-body coordinates; w pulley radius [m].
+    nm_float4 pulleyLocalAxisAndRadius;
+    // Neutral conjugate(pulley orientation) * insertion orientation.
+    nm_float4 neutralRelativeOrientation;
+    // mu [Pa], k [Pa], alpha [-], Poisson ratio [-].
+    nm_float4 material;
+    // slack route length [m], reference area [m^2], maximum strain, 0.
+    nm_float4 reference;
+} NMNumiHumanPassiveRoutedBandGPU;
+
+typedef struct NM_ALIGN16 NMNumiHumanPassiveRoutedBandAuditGPU {
+    // xyz net force [N], w sum of three endpoint-force magnitudes [N].
+    nm_float4 forceResidualAndL1;
+    // xyz net world-origin moment [N m], w maximum tension [N].
+    nm_float4 momentResidualAndMaximumTension;
+    // x minimum strain, y maximum strain, z active count, w accepted marker.
+    nm_float4 strainCountAndAccepted;
+    // x stored strain energy [J], y maximum route extension [m], zw zero.
+    nm_float4 energyAndMaximumExtension;
+} NMNumiHumanPassiveRoutedBandAuditGPU;
+
 enum NMNumiHumanArticularContactSampleFlags : nm_u32 {
     NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE = 1u << 0u,
     // Preserve an authored articular interface whose two regions are owned by
@@ -253,6 +293,8 @@ static_assert(sizeof(NMNumiHumanFEMBodyContactSampleGPU) == 64u);
 static_assert(sizeof(NMNumiHumanArticularContactSampleGPU) == 144u);
 static_assert(sizeof(NMNumiHumanPassiveLigamentGPU) == 80u);
 static_assert(sizeof(NMNumiHumanPassiveLigamentAuditGPU) == 48u);
+static_assert(sizeof(NMNumiHumanPassiveRoutedBandGPU) == 128u);
+static_assert(sizeof(NMNumiHumanPassiveRoutedBandAuditGPU) == 64u);
 static_assert(sizeof(NMNumiHumanBodyWrenchGPU) == 32u);
 static_assert(sizeof(NMNumiHumanArticularContactAuditGPU) == 64u);
 #endif

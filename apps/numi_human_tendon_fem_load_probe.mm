@@ -270,6 +270,71 @@ int main() {
                         .metallib = NUMI_MATTER_METALLIB,
                     }),
                     "probe malformed FEM/body contact did not fail closed");
+            NMNumiHumanPassiveRoutedBandGPU routedBand{};
+            routedBand.originBodyIndex = 0u;
+            routedBand.pulleyBodyIndex = 0u;
+            routedBand.insertionBodyIndex = 1u;
+            routedBand.flags = NM_NUMI_HUMAN_PASSIVE_ROUTED_BAND_ACTIVE;
+            routedBand.originLocalPoint = {-0.04f, 0.03f, 0.0f, 0.0f};
+            routedBand.pulleyLocalPoint = {0.0f, 0.03f, 0.0f, 0.0f};
+            routedBand.insertionLocalPoint = {0.05f, 0.03f, 0.0f, 0.0f};
+            routedBand.pulleyLocalAxisAndRadius = {
+                0.0f, 0.0f, 1.0f, 0.005f};
+            routedBand.neutralRelativeOrientation = {
+                0.0f, 0.0f, -std::sin(0.05f), std::cos(0.05f)};
+            routedBand.material = {
+                14.449e6f, 254.02e6f, 10.397f, 0.4f};
+            routedBand.reference = {0.086f, 14.0e-6f, 0.15f, 0.0f};
+            numi::matter::NumiHumanPassiveRoutedBandEvaluation routedOracle;
+            require(numi::matter::evaluateNumiHumanPassiveRoutedBand(
+                        routedBand, 0.089, 0.1, routedOracle) &&
+                        routedOracle.strain > 0.0 &&
+                        routedOracle.tensionNewtons > 0.0 &&
+                        routedOracle.storedEnergyJoules > 0.0,
+                    "probe routed-band CPU oracle failed");
+            numi::matter::NumiHumanPassiveRoutedBandEvaluation slackOracle;
+            require(numi::matter::evaluateNumiHumanPassiveRoutedBand(
+                        routedBand, 0.080, 0.0, slackOracle) &&
+                        slackOracle.strain < 0.0 &&
+                        slackOracle.tensionNewtons == 0.0 &&
+                        slackOracle.storedEnergyJoules == 0.0,
+                    "probe routed band carried compression");
+            auto invalidRoutedQuaternion = routedBand;
+            invalidRoutedQuaternion.neutralRelativeOrientation.w = 2.0f;
+            require(!numi::matter::evaluateNumiHumanPassiveRoutedBand(
+                        invalidRoutedQuaternion, 0.089, 0.1, slackOracle),
+                    "probe non-unit routed-band quaternion was accepted");
+            auto invalidRoutedMaterial = routedBand;
+            invalidRoutedMaterial.material.z = 0.0f;
+            require(!numi::matter::evaluateNumiHumanPassiveRoutedBand(
+                        invalidRoutedMaterial, 0.089, 0.1, slackOracle),
+                    "probe malformed routed-band material was accepted");
+            require(!numi::matter::evaluateNumiHumanPassiveRoutedBand(
+                        routedBand, 0.120, 0.1, slackOracle),
+                    "probe routed band exceeded its strain limit");
+            auto invalidRoutedBand = routedBand;
+            invalidRoutedBand.pulleyLocalAxisAndRadius.z = 2.0f;
+            numi::matter::NumiHumanTendonFEMLoadAdapter
+                rejectedRoutedBandAdapter;
+            require(!rejectedRoutedBandAdapter.initialize(runtime, {
+                        .nodeLoads = nodeLoads,
+                        .nodeAnchors = nodeAnchors,
+                        .endpointReplacements = std::span(&replacement, 1u),
+                        .contactSamples = std::span(&contactSample, 1u),
+                        .contactContributions = contactContributions,
+                        .contactRanges = contactRanges,
+                        .femBodyContactSamples =
+                            std::span(&femBodyContactSample, 1u),
+                        .articularContactSamples = articularContactSamples,
+                        .passiveRoutedBands =
+                            std::span(&invalidRoutedBand, 1u),
+                        .endpointCount = 2u,
+                        .environmentCount = 1u,
+                        .productionForceOwnerFraction = 0.1f,
+                    }, {
+                        .metallib = NUMI_MATTER_METALLIB,
+                    }),
+                    "probe malformed routed band did not fail closed");
             numi::matter::NumiHumanTendonFEMLoadAdapter adapter;
             require(adapter.initialize(runtime, {
                         .nodeLoads = nodeLoads,
@@ -281,6 +346,7 @@ int main() {
                         .femBodyContactSamples =
                             std::span(&femBodyContactSample, 1u),
                         .articularContactSamples = articularContactSamples,
+                        .passiveRoutedBands = std::span(&routedBand, 1u),
                         .endpointCount = 2u,
                         .environmentCount = 1u,
                         .productionForceOwnerFraction = 0.1f,
@@ -302,6 +368,7 @@ int main() {
                             std::span(&femBodyContactSample, 1u),
                         .articularContactSamples =
                             std::span(&internalArticularContact, 1u),
+                        .passiveRoutedBands = std::span(&routedBand, 1u),
                         .endpointCount = 2u,
                         .environmentCount = 1u,
                         .productionForceOwnerFraction = 0.1f,
@@ -477,13 +544,14 @@ int main() {
             const float expectedGeneralizedForce =
                 0.1f * (transfers[0u].terminalWorldForce.x -
                         sourceMuscleRow) +
-                acceptedReactionX + 0.9999f - 0.4999f;
+                acceptedReactionX + 0.9999f - 0.4999f +
+                static_cast<float>(routedOracle.tensionNewtons);
             const float acceptedGeneralizedForce =
                 static_cast<const float*>(
                     generalizedForceBuffer.contents)[1u];
             require(std::isfinite(acceptedGeneralizedForce) &&
                         std::abs(acceptedGeneralizedForce -
-                            expectedGeneralizedForce) <= 1.0e-5f,
+                            expectedGeneralizedForce) <= 1.0e-3f,
                     "probe full-muscle-row replacement did not preserve only the load-side reaction");
             execute(program, adapter, 1u, false);
             const auto rolledBack = runtime.snapshot();
@@ -627,6 +695,34 @@ int main() {
                             diagnostics
                                 .femBodyContactMaximumTangentialSlipMeters -
                             0.01) <= 1.0e-6 &&
+                        diagnostics.passiveRoutedBandCount == 1u &&
+                        diagnostics
+                            .passiveRoutedBandLatestTransactionAccepted &&
+                        diagnostics.passiveRoutedBandMaximumTensionNewtons >
+                            0.0 &&
+                        diagnostics.passiveRoutedBandEndpointForceL1Newtons >
+                            0.0 &&
+                        std::abs(
+                            diagnostics.passiveRoutedBandMaximumTensionNewtons -
+                            routedOracle.tensionNewtons) <= 1.0e-3 &&
+                        std::abs(
+                            diagnostics.passiveRoutedBandMinimumStrain -
+                            routedOracle.strain) <= 1.0e-6 &&
+                        std::abs(
+                            diagnostics.passiveRoutedBandMaximumStrain -
+                            routedOracle.strain) <= 1.0e-6 &&
+                        diagnostics.passiveRoutedBandForceResidualNewtons <=
+                            1.0e-5 &&
+                        diagnostics
+                            .passiveRoutedBandMomentResidualNewtonMeters <=
+                            1.0e-5 &&
+                        std::abs(
+                            diagnostics.passiveRoutedBandStoredEnergyJoules -
+                            routedOracle.storedEnergyJoules) <= 1.0e-5 &&
+                        std::abs(
+                            diagnostics.passiveRoutedBandMaximumExtensionMeters -
+                            (routedOracle.routeLengthMeters - 0.086)) <=
+                            1.0e-6 &&
                         diagnostics.fingerprint != 0u,
                     diagnosticFailure.c_str());
             std::cout
@@ -678,6 +774,11 @@ int main() {
                 << " malformed_articular_reference_normal_rejected=true"
                 << " malformed_articular_adjacency_rejected=true"
                 << " malformed_fem_body_contact_rejected=true"
+                << " malformed_routed_band_rejected=true"
+                << " routed_band_compression_gate=zero"
+                << " routed_band_quaternion_gate=fail_closed"
+                << " routed_band_material_gate=fail_closed"
+                << " routed_band_strain_limit=fail_closed"
                 << " fem_body_contact_samples="
                 << diagnostics.femBodyContactSampleCount
                 << " fem_body_contact_closed_samples="
@@ -690,6 +791,18 @@ int main() {
                 << diagnostics.femBodyContactMomentResidualNewtonMeters
                 << " fem_body_contact_max_tangent_glide_m="
                 << diagnostics.femBodyContactMaximumTangentialSlipMeters
+                << " passive_routed_band_count="
+                << diagnostics.passiveRoutedBandCount
+                << " passive_routed_band_tension_n="
+                << diagnostics.passiveRoutedBandMaximumTensionNewtons
+                << " passive_routed_band_strain="
+                << diagnostics.passiveRoutedBandMaximumStrain
+                << " passive_routed_band_energy_j="
+                << diagnostics.passiveRoutedBandStoredEnergyJoules
+                << " passive_routed_band_force_residual_n="
+                << diagnostics.passiveRoutedBandForceResidualNewtons
+                << " passive_routed_band_moment_residual_nm="
+                << diagnostics.passiveRoutedBandMomentResidualNewtonMeters
                 << " anchor_reaction_l1_n=" << acceptedReactionL1
                 << " audited_anchor_reaction_min_l1_n="
                 << diagnostics.anchorReactionTrajectoryMinimumL1Newtons

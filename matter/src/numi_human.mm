@@ -92,6 +92,94 @@ bool evaluateNumiHumanPassiveLigamentFiber(
     return true;
 }
 
+bool evaluateNumiHumanPassiveRoutedBand(
+    const NMNumiHumanPassiveRoutedBandGPU& band,
+    const double geometricLengthMeters,
+    const double signedWindingRadians,
+    NumiHumanPassiveRoutedBandEvaluation& result
+) noexcept {
+    result = {};
+    const nm_float4 axisRadius = band.pulleyLocalAxisAndRadius;
+    const nm_float4 neutral = band.neutralRelativeOrientation;
+    const nm_float4 material = band.material;
+    const nm_float4 reference = band.reference;
+    const double axisLength = std::sqrt(
+        static_cast<double>(axisRadius.x) * axisRadius.x +
+        static_cast<double>(axisRadius.y) * axisRadius.y +
+        static_cast<double>(axisRadius.z) * axisRadius.z);
+    const double neutralLength = std::sqrt(
+        static_cast<double>(neutral.x) * neutral.x +
+        static_cast<double>(neutral.y) * neutral.y +
+        static_cast<double>(neutral.z) * neutral.z +
+        static_cast<double>(neutral.w) * neutral.w);
+    if (band.flags != NM_NUMI_HUMAN_PASSIVE_ROUTED_BAND_ACTIVE ||
+        band.originBodyIndex == NM_INVALID_INDEX ||
+        band.pulleyBodyIndex == NM_INVALID_INDEX ||
+        band.insertionBodyIndex == NM_INVALID_INDEX ||
+        !finiteScale(band.originLocalPoint) ||
+        !finiteScale(band.pulleyLocalPoint) ||
+        !finiteScale(band.insertionLocalPoint) ||
+        band.originLocalPoint.w != 0.0f ||
+        band.pulleyLocalPoint.w != 0.0f ||
+        band.insertionLocalPoint.w != 0.0f ||
+        !finiteScale(axisRadius) || !finiteScale(neutral) ||
+        !finiteScale(material) || !finiteScale(reference) ||
+        std::abs(axisLength - 1.0) > 1.0e-5 || axisRadius.w <= 0.0f ||
+        std::abs(neutralLength - 1.0) > 1.0e-5 ||
+        material.x <= 0.0f || material.y <= 0.0f ||
+        material.z <= 0.0f || material.w < 0.0f || material.w >= 0.5f ||
+        reference.x <= 0.0f || reference.y <= 0.0f ||
+        reference.z <= 0.0f || reference.w != 0.0f ||
+        !std::isfinite(geometricLengthMeters) ||
+        geometricLengthMeters <= 0.0 ||
+        !std::isfinite(signedWindingRadians)) {
+        return false;
+    }
+    const double routeLength = geometricLengthMeters +
+        axisRadius.w * std::abs(signedWindingRadians);
+    const double stretch = routeLength / reference.x;
+    const double strain = stretch - 1.0;
+    if (!std::isfinite(routeLength) || !std::isfinite(stretch) ||
+        stretch <= 0.0 || !std::isfinite(strain) ||
+        strain > reference.z) return false;
+
+    const auto tensionAtStretch = [&](const double lambda) noexcept {
+        if (lambda <= 1.0) return 0.0;
+        const double lambda2 = lambda * lambda;
+        const double stress =
+            static_cast<double>(material.x) *
+                (lambda2 - 1.0 / lambda) +
+            static_cast<double>(material.y) /
+                (2.0 * static_cast<double>(material.z)) *
+                std::expm1(static_cast<double>(material.z) *
+                    (lambda2 - 1.0)) * lambda2;
+        const double area = static_cast<double>(reference.y) *
+            std::pow(lambda, -2.0 * static_cast<double>(material.w));
+        return stress * area;
+    };
+    const double tension = tensionAtStretch(stretch);
+    if (!std::isfinite(tension) || tension < 0.0) return false;
+
+    double energy = 0.0;
+    if (stretch > 1.0) {
+        constexpr std::uint32_t intervals = 32u;
+        const double h = (stretch - 1.0) / intervals;
+        double integral = tensionAtStretch(1.0) + tension;
+        for (std::uint32_t index = 1u; index < intervals; ++index) {
+            integral += (index & 1u ? 4.0 : 2.0) *
+                tensionAtStretch(1.0 + h * index);
+        }
+        energy = reference.x * h * integral / 3.0;
+    }
+    if (!std::isfinite(energy) || energy < 0.0) return false;
+    result.routeLengthMeters = routeLength;
+    result.stretch = stretch;
+    result.strain = strain;
+    result.tensionNewtons = tension;
+    result.storedEnergyJoules = energy;
+    return true;
+}
+
 NumiHumanFEMPrestressDiagnostics prepareNumiHumanFEMPrestressStage(
     const CompiledWorld& world,
     const std::span<const NumiHumanFEMPrestressTarget> targets,
@@ -223,6 +311,7 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     std::vector<NMNumiHumanFEMBodyContactSampleGPU> femBodyContactSamples;
     std::vector<NMNumiHumanArticularContactSampleGPU> articularContactSamples;
     std::vector<NMNumiHumanPassiveLigamentGPU> passiveLigaments;
+    std::vector<NMNumiHumanPassiveRoutedBandGPU> passiveRoutedBands;
     std::filesystem::path metallib;
     std::uint32_t endpointCount = 0u;
     std::uint32_t environmentCount = 0u;
@@ -250,6 +339,8 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLComputePipelineState> articularContactAuditCommitPipeline = nil;
     __strong id<MTLComputePipelineState> passiveLigamentAuditPipeline = nil;
     __strong id<MTLComputePipelineState> passiveLigamentAuditCommitPipeline = nil;
+    __strong id<MTLComputePipelineState> passiveRoutedBandAuditPipeline = nil;
+    __strong id<MTLComputePipelineState> passiveRoutedBandAuditCommitPipeline = nil;
     __strong id<MTLComputePipelineState> targetPipeline = nil;
     __strong id<MTLComputePipelineState> reactionAuditPipeline = nil;
     __strong id<MTLComputePipelineState> reactionAuditCommitPipeline = nil;
@@ -270,6 +361,8 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLBuffer> articularContactAuditHistoryBuffer = nil;
     __strong id<MTLBuffer> passiveLigamentBuffer = nil;
     __strong id<MTLBuffer> passiveLigamentAuditBuffer = nil;
+    __strong id<MTLBuffer> passiveRoutedBandBuffer = nil;
+    __strong id<MTLBuffer> passiveRoutedBandAuditBuffer = nil;
     __strong id<MTLBuffer> externalForceBuffer = nil;
     __strong id<MTLBuffer> externalForceAuditBuffer = nil;
     __strong id<MTLBuffer> anchorReactionAuditBuffer = nil;
@@ -309,6 +402,8 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         source.femBodyContactSamples.size() >
             std::numeric_limits<std::uint32_t>::max() ||
         source.passiveLigaments.size() >
+            std::numeric_limits<std::uint32_t>::max() ||
+        source.passiveRoutedBands.size() >
             std::numeric_limits<std::uint32_t>::max() ||
         (hasContact != !source.contactContributions.empty()) ||
         (hasContact != !source.contactRanges.empty()) ||
@@ -517,6 +612,14 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
             return false;
         }
     }
+    for (const auto& band : source.passiveRoutedBands) {
+        NumiHumanPassiveRoutedBandEvaluation referenceEvaluation;
+        if (band.pulleyBodyIndex == band.insertionBodyIndex ||
+            !evaluateNumiHumanPassiveRoutedBand(
+                band, band.reference.x, 0.0, referenceEvaluation)) {
+            return false;
+        }
+    }
     std::vector<double> endpointSignedScales(source.endpointCount, 0.0);
     std::vector<double> endpointAbsoluteScales(source.endpointCount, 0.0);
     std::uint32_t anchorCount = 0u;
@@ -662,6 +765,8 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         source.articularContactSamples.end());
     candidate->passiveLigaments.assign(
         source.passiveLigaments.begin(), source.passiveLigaments.end());
+    candidate->passiveRoutedBands.assign(
+        source.passiveRoutedBands.begin(), source.passiveRoutedBands.end());
     for (const auto& sample : candidate->articularContactSamples) {
         if (sample.flags == NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE) {
             ++candidate->articularMechanicalSampleCount;
@@ -719,6 +824,10 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         fingerprint, candidate->passiveLigaments.data(),
         candidate->passiveLigaments.size() *
             sizeof(NMNumiHumanPassiveLigamentGPU));
+    fingerprint = appendFingerprint(
+        fingerprint, candidate->passiveRoutedBands.data(),
+        candidate->passiveRoutedBands.size() *
+            sizeof(NMNumiHumanPassiveRoutedBandGPU));
     candidate->fingerprint = fingerprint == 0u ? 1u : fingerprint;
     candidate->message = "initialized";
     state_ = std::move(candidate);
@@ -865,6 +974,12 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->passiveLigamentAuditCommitPipeline = pipeline(
                     "nm_numi_human_commit_passive_ligament_audit");
             }
+            if (!state_->passiveRoutedBands.empty()) {
+                state_->passiveRoutedBandAuditPipeline = pipeline(
+                    "nm_numi_human_audit_passive_routed_bands");
+                state_->passiveRoutedBandAuditCommitPipeline = pipeline(
+                    "nm_numi_human_commit_passive_routed_band_audit");
+            }
             state_->targetPipeline = pipeline(
                 "nm_numi_human_assemble_fem_kinematic_targets");
             state_->reactionAuditPipeline = pipeline(
@@ -1001,6 +1116,22 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                         state_->passiveLigamentAuditBuffer.length);
                 }
             }
+            if (!state_->passiveRoutedBands.empty()) {
+                state_->passiveRoutedBandBuffer = [device
+                    newBufferWithBytes:state_->passiveRoutedBands.data()
+                    length:state_->passiveRoutedBands.size() *
+                        sizeof(NMNumiHumanPassiveRoutedBandGPU)
+                    options:MTLResourceStorageModeShared];
+                state_->passiveRoutedBandAuditBuffer = [device
+                    newBufferWithLength:state_->environmentCount *
+                        sizeof(NMNumiHumanPassiveRoutedBandAuditGPU)
+                    options:MTLResourceStorageModeShared];
+                if (state_->passiveRoutedBandAuditBuffer != nil) {
+                    std::memset(
+                        state_->passiveRoutedBandAuditBuffer.contents, 0,
+                        state_->passiveRoutedBandAuditBuffer.length);
+                }
+            }
             state_->externalForceBuffer = [device
                 newBufferWithLength:externalForceBytes
                 options:MTLResourceStorageModePrivate];
@@ -1043,6 +1174,9 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 (!state_->passiveLigaments.empty() &&
                  (state_->passiveLigamentAuditPipeline == nil ||
                   state_->passiveLigamentAuditCommitPipeline == nil)) ||
+                (!state_->passiveRoutedBands.empty() &&
+                 (state_->passiveRoutedBandAuditPipeline == nil ||
+                  state_->passiveRoutedBandAuditCommitPipeline == nil)) ||
                 state_->targetPipeline == nil ||
                 state_->reactionAuditPipeline == nil ||
                 state_->reactionAuditCommitPipeline == nil ||
@@ -1090,6 +1224,13 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     "Human passive ligament buffer is unavailable";
                 return false;
             }
+            if (!state_->passiveRoutedBands.empty() &&
+                (state_->passiveRoutedBandBuffer == nil ||
+                 state_->passiveRoutedBandAuditBuffer == nil)) {
+                state_->message =
+                    "Human passive routed-band buffer is unavailable";
+                return false;
+            }
             if (state_->externalForceBuffer == nil ||
                 state_->externalForceAuditBuffer == nil ||
                 state_->anchorReactionAuditBuffer == nil ||
@@ -1132,6 +1273,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->passiveLigaments.size()),
             .femBodyContactSampleCount = static_cast<std::uint32_t>(
                 state_->femBodyContactSamples.size()),
+            .passiveRoutedBandCount = static_cast<std::uint32_t>(
+                state_->passiveRoutedBands.size()),
         };
         const auto encodeKernel = [&](id<MTLComputePipelineState> pipeline,
                                       const NSUInteger count,
@@ -1168,6 +1311,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                                 offset:0u atIndex:9u];
                     [encoder setBuffer:state_->femBodyContactSampleBuffer
                                 offset:0u atIndex:10u];
+                    [encoder setBuffer:state_->passiveRoutedBandBuffer
+                                offset:0u atIndex:11u];
                 }
             ) || !encodeKernel(
                 state_->forcePipeline,
@@ -1281,6 +1426,20 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             state_->message = "Human passive ligament audit encoding failed";
             return false;
         }
+        if (!state_->passiveRoutedBands.empty() &&
+            !encodeKernel(
+                state_->passiveRoutedBandAuditPipeline,
+                state_->environmentCount,
+                [&](id<MTLComputeCommandEncoder> encoder) {
+                    [encoder setBuffer:state_->passiveRoutedBandBuffer
+                                offset:0u atIndex:1u];
+                    [encoder setBuffer:bodyPoses offset:0u atIndex:2u];
+                    [encoder setBuffer:state_->passiveRoutedBandAuditBuffer
+                                offset:0u atIndex:3u];
+                })) {
+            state_->message = "Human passive routed-band audit encoding failed";
+            return false;
+        }
         if (!state_->articularContactSamples.empty() &&
             !encodeKernel(
                 state_->articularContactAuditPipeline,
@@ -1375,6 +1534,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                                 offset:0u atIndex:11u];
                     [encoder setBuffer:state_->femBodyContactWrenchBuffer
                                 offset:0u atIndex:12u];
+                    [encoder setBuffer:state_->passiveRoutedBandBuffer
+                                offset:0u atIndex:13u];
                 }
             )) {
             state_->message = "Human tendon/FEM anchor-reaction encoding failed";
@@ -1437,6 +1598,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
                 state_->passiveLigaments.size()),
             .femBodyContactSampleCount = static_cast<std::uint32_t>(
                 state_->femBodyContactSamples.size()),
+            .passiveRoutedBandCount = static_cast<std::uint32_t>(
+                state_->passiveRoutedBands.size()),
         };
         id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
         if (encoder == nil) {
@@ -1550,6 +1713,22 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
             [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
                 threadsPerThreadgroup:MTLSizeMake(
                     std::max<NSUInteger>(passiveWidth, 1u), 1u, 1u)];
+        }
+        if (!state_->passiveRoutedBands.empty()) {
+            [commitEncoder setComputePipelineState:
+                state_->passiveRoutedBandAuditCommitPipeline];
+            [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+            [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
+            [commitEncoder setBuffer:state_->passiveRoutedBandAuditBuffer
+                          offset:0u atIndex:2u];
+            const NSUInteger routedWidth = std::min<NSUInteger>(
+                count, std::min<NSUInteger>(
+                    state_->passiveRoutedBandAuditCommitPipeline
+                        .maxTotalThreadsPerThreadgroup,
+                    256u));
+            [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(
+                    std::max<NSUInteger>(routedWidth, 1u), 1u, 1u)];
         }
         [commitEncoder endEncoding];
         ++state_->encodedPassCount;
@@ -1672,6 +1851,75 @@ NumiHumanTendonFEMLoadAdapter::diagnostics() const noexcept {
         result.passiveLigamentMomentResidualNewtonMeters = std::sqrt(
             momentX * momentX + momentY * momentY + momentZ * momentZ);
         result.passiveLigamentLatestTransactionAccepted = accepted;
+    }
+    result.passiveRoutedBandCount = static_cast<std::uint32_t>(
+        state_->passiveRoutedBands.size());
+    if (state_->passiveRoutedBandAuditBuffer != nil) {
+        const auto* audits =
+            static_cast<const NMNumiHumanPassiveRoutedBandAuditGPU*>(
+                state_->passiveRoutedBandAuditBuffer.contents);
+        double forceX = 0.0;
+        double forceY = 0.0;
+        double forceZ = 0.0;
+        double momentX = 0.0;
+        double momentY = 0.0;
+        double momentZ = 0.0;
+        double minimumStrain = std::numeric_limits<double>::infinity();
+        bool accepted = true;
+        for (std::uint32_t environment = 0u;
+             environment < state_->environmentCount; ++environment) {
+            const auto& audit = audits[environment];
+            const nm_float4 force = audit.forceResidualAndL1;
+            const nm_float4 moment = audit.momentResidualAndMaximumTension;
+            const nm_float4 strain = audit.strainCountAndAccepted;
+            const nm_float4 energy = audit.energyAndMaximumExtension;
+            if (!finiteScale(force) || !finiteScale(moment) ||
+                !finiteScale(strain) || !finiteScale(energy) ||
+                force.w < 0.0f || moment.w < 0.0f ||
+                strain.y < strain.x ||
+                static_cast<std::uint32_t>(strain.z) !=
+                    state_->passiveRoutedBands.size() ||
+                (strain.w != 0.0f && strain.w != 1.0f) ||
+                energy.x < 0.0f || energy.y < 0.0f ||
+                energy.z != 0.0f || energy.w != 0.0f) {
+                const double nan = std::numeric_limits<double>::quiet_NaN();
+                result.passiveRoutedBandEndpointForceL1Newtons = nan;
+                result.passiveRoutedBandMaximumTensionNewtons = nan;
+                result.passiveRoutedBandMinimumStrain = nan;
+                result.passiveRoutedBandMaximumStrain = nan;
+                result.passiveRoutedBandForceResidualNewtons = nan;
+                result.passiveRoutedBandMomentResidualNewtonMeters = nan;
+                result.passiveRoutedBandStoredEnergyJoules = nan;
+                result.passiveRoutedBandMaximumExtensionMeters = nan;
+                return result;
+            }
+            accepted = accepted && strain.w == 1.0f;
+            forceX += force.x;
+            forceY += force.y;
+            forceZ += force.z;
+            momentX += moment.x;
+            momentY += moment.y;
+            momentZ += moment.z;
+            result.passiveRoutedBandEndpointForceL1Newtons += force.w;
+            result.passiveRoutedBandMaximumTensionNewtons = std::max(
+                result.passiveRoutedBandMaximumTensionNewtons,
+                static_cast<double>(moment.w));
+            minimumStrain = std::min(
+                minimumStrain, static_cast<double>(strain.x));
+            result.passiveRoutedBandMaximumStrain = std::max(
+                result.passiveRoutedBandMaximumStrain,
+                static_cast<double>(strain.y));
+            result.passiveRoutedBandStoredEnergyJoules += energy.x;
+            result.passiveRoutedBandMaximumExtensionMeters = std::max(
+                result.passiveRoutedBandMaximumExtensionMeters,
+                static_cast<double>(energy.y));
+        }
+        result.passiveRoutedBandMinimumStrain = minimumStrain;
+        result.passiveRoutedBandForceResidualNewtons = std::sqrt(
+            forceX * forceX + forceY * forceY + forceZ * forceZ);
+        result.passiveRoutedBandMomentResidualNewtonMeters = std::sqrt(
+            momentX * momentX + momentY * momentY + momentZ * momentZ);
+        result.passiveRoutedBandLatestTransactionAccepted = accepted;
     }
     if (state_->externalForceAuditBuffer != nil) {
         const auto* audits = static_cast<const nm_float4*>(

@@ -5583,6 +5583,48 @@ mr_float4 rotatePoint(const mr_float4 quaternion, const mr_float4 point) {
     return {point.x + correction.x, point.y + correction.y, point.z + correction.z, 0.0f};
 }
 
+mr_float4 quaternionConjugate(const mr_float4 quaternion) {
+    return {-quaternion.x, -quaternion.y, -quaternion.z, quaternion.w};
+}
+
+mr_float4 quaternionMultiply(
+    const mr_float4 first, const mr_float4 second
+) {
+    return {
+        first.w * second.x + second.w * first.x +
+            first.y * second.z - first.z * second.y,
+        first.w * second.y + second.w * first.y +
+            first.z * second.x - first.x * second.z,
+        first.w * second.z + second.w * first.z +
+            first.x * second.y - first.y * second.x,
+        first.w * second.w - first.x * second.x -
+            first.y * second.y - first.z * second.z,
+    };
+}
+
+double quaternionSignedTwist(
+    const mr_float4 neutralRelative,
+    const mr_float4 currentRelative,
+    const mr_float4 localAxis
+) {
+    mr_float4 delta = quaternionMultiply(
+        quaternionConjugate(neutralRelative), currentRelative);
+    double projection = static_cast<double>(delta.x) * localAxis.x +
+        static_cast<double>(delta.y) * localAxis.y +
+        static_cast<double>(delta.z) * localAxis.z;
+    double scalar = delta.w;
+    const double norm = std::hypot(projection, scalar);
+    require(std::isfinite(norm) && norm > 1.0e-10,
+            "plantar fascia relative twist is singular");
+    projection /= norm;
+    scalar /= norm;
+    if (scalar < 0.0) {
+        projection = -projection;
+        scalar = -scalar;
+    }
+    return 2.0 * std::atan2(projection, scalar);
+}
+
 mr_float4 closestPointOnTriangle(
     const mr_float4 point,
     const mr_float4 first,
@@ -10709,7 +10751,9 @@ struct PlantarFasciaBandAudit {
     double metatarsalPulleyRadiusMeters = 0.0;
     double phalanxPatchRadiusMeters = 0.0;
     double acceptedExtensionMeters = 0.0;
+    double strain = 0.0;
     double tensionNewtons = 0.0;
+    double storedEnergyJoules = 0.0;
     double forceClosureResidualNewtons = 0.0;
     double momentClosureResidualNewtonMeters = 0.0;
     double calcanealReactionResultantNewtons = 0.0;
@@ -10738,6 +10782,7 @@ struct PlantarFasciaSideAudit {
     double maximumConfigurationDeltaFromSourceJT = 0.0;
     double maximumVelocityDeltaFromSourceJT = 0.0;
     double totalTensionNewtons = 0.0;
+    double storedEnergyJoules = 0.0;
     double maximumForceClosureResidualNewtons = 0.0;
     double maximumMomentClosureResidualNewtonMeters = 0.0;
     bool rollbackVerified = false;
@@ -11098,7 +11143,6 @@ mr_float4 plantarAnchorLocalPoint(
     constexpr std::array<double, 5u> kStiffnessNewtonsPerMillimeter{
         60.0, 50.0, 50.0, 20.0, 20.0,
     };
-    constexpr double kYoungModulusPascals = 350.0e6;
     constexpr float kThicknessMeters = 0.002f;
     constexpr std::uint32_t kSegmentCount = 10u;
     // The Rajagopal/OpenSim MTP coordinate is negative in dorsiflexion.
@@ -11142,6 +11186,28 @@ mr_float4 plantarAnchorLocalPoint(
     require(result.calcaneusBodyIndex < neutralBodies.size() &&
                 result.toesBodyIndex < neutralBodies.size(),
             "plantar fascia Human body poses are incomplete");
+    std::vector<double> qualifiedConfiguration = aligned.q;
+    qualifiedConfiguration[result.mtpQIndex] = kQualificationMTPRadians;
+    double qualifiedProjection = 0.0;
+    require(metalrobo::projectNumiHumanJointEqualities(
+                jointEqualities.payload.records, qualifiedConfiguration,
+                &qualifiedProjection).succeeded(),
+            "plantar fascia qualified equality projection failed");
+    metalrobo::MetalArticulatedOperatorResult qualifiedPose;
+    const auto qualifiedPoseDiagnostics =
+        metalrobo::runMetalArticulatedOperator(
+            model, {
+                .articulationIndex = 0u,
+                .environmentCount = 1u,
+                .pointCount = 0u,
+                .q = packMetalConfiguration(qualifiedConfiguration),
+                .points = {},
+            }, qualifiedPose, poseConfig);
+    require(qualifiedPoseDiagnostics.succeeded() &&
+                qualifiedPoseDiagnostics.published,
+            "plantar fascia qualified Human pose failed");
+    const std::vector<MRBodyStateGPU> qualifiedBodies =
+        visualBodyStates(model, qualifiedPose.bodyPoses);
     const BoneRecord& calcaneus = plantarBone(
         bones, kCalcaneusStableIds[sideIndex], result.calcaneusBodyIndex
     );
@@ -11191,6 +11257,29 @@ mr_float4 plantarAnchorLocalPoint(
         selectCalcanealPlantarPatch(
             bones, calcaneus, neutralBodies, forward, vertical, medial
         );
+    const auto mtpJoint = std::find_if(
+        model.joints.begin(), model.joints.end(),
+        [&result](const MRJointDescriptorGPU& joint) {
+            return joint.childBody == result.toesBodyIndex;
+        });
+    require(mtpJoint != model.joints.end() &&
+                mtpJoint->parentBody == result.calcaneusBodyIndex,
+            "plantar fascia source MTP joint ownership is unavailable");
+    const MRBodyStateGPU& mtpParentBody =
+        neutralBodies[mtpJoint->parentBody];
+    const mr_float4 mtpJointAxis = femNormalized(
+        rotatePoint(
+            mtpParentBody.orientation,
+            rotatePoint(mtpJoint->parentRotation, mtpJoint->axis0)),
+        "plantar fascia source MTP joint axis");
+    const mr_float4 inverseParentOrientation = quaternionConjugate(
+        neutralBodies[result.calcaneusBodyIndex].orientation);
+    const mr_float4 localMTPAxis = femNormalized(
+        rotatePoint(inverseParentOrientation, mtpJointAxis),
+        "plantar fascia parent-local MTP joint axis");
+    const mr_float4 neutralRelativeOrientation = quaternionMultiply(
+        inverseParentOrientation,
+        neutralBodies[result.toesBodyIndex].orientation);
 
     numi::matter::WorldSource worldSource;
     worldSource.environmentCount = 1u;
@@ -11213,6 +11302,8 @@ mr_float4 plantarAnchorLocalPoint(
     object.characteristicLength = 0.006;
     std::vector<NMNumiHumanTendonFEMNodeLoadGPU> nodeLoads;
     std::vector<NMNumiHumanTendonFEMNodeAnchorGPU> nodeAnchors;
+    std::vector<NMNumiHumanPassiveRoutedBandGPU> routedBands;
+    routedBands.reserve(5u);
     std::vector<std::array<std::uint32_t, 4u>> tetrahedra;
     std::vector<std::array<double, 3u>> restPoints;
     double scaleNumerator = 0.0;
@@ -11240,6 +11331,60 @@ mr_float4 plantarAnchorLocalPoint(
             );
         audit.metatarsalPatchRadiusMeters = wrapPatch.radiusMeters;
         audit.phalanxPatchRadiusMeters = distalPatch.radiusMeters;
+        float minimumMetatarsalForward =
+            std::numeric_limits<float>::infinity();
+        float maximumMetatarsalForward =
+            -std::numeric_limits<float>::infinity();
+        for (std::uint32_t offset = 0u;
+             offset < metatarsals[ray]->vertexCount; ++offset) {
+            const mr_float4 point = boneVertexWorld(
+                *metatarsals[ray],
+                bones.vertices[metatarsals[ray]->firstVertex + offset],
+                neutralBodies[result.calcaneusBodyIndex]);
+            const float projection = femDot(point, forward);
+            minimumMetatarsalForward = std::min(
+                minimumMetatarsalForward, projection);
+            maximumMetatarsalForward = std::max(
+                maximumMetatarsalForward, projection);
+        }
+        const float distalHeadThreshold = minimumMetatarsalForward + 0.80f *
+            (maximumMetatarsalForward - minimumMetatarsalForward);
+        mr_float4 distalHeadCentroid{};
+        std::uint32_t distalHeadVertexCount = 0u;
+        for (std::uint32_t offset = 0u;
+             offset < metatarsals[ray]->vertexCount; ++offset) {
+            const mr_float4 point = boneVertexWorld(
+                *metatarsals[ray],
+                bones.vertices[metatarsals[ray]->firstVertex + offset],
+                neutralBodies[result.calcaneusBodyIndex]);
+            if (femDot(point, forward) < distalHeadThreshold) continue;
+            distalHeadCentroid = femAdd(distalHeadCentroid, point);
+            ++distalHeadVertexCount;
+        }
+        require(distalHeadVertexCount >= 8u,
+                "plantar fascia metatarsal head envelope is undersampled");
+        distalHeadCentroid = femScale(
+            distalHeadCentroid,
+            1.0f / static_cast<float>(distalHeadVertexCount));
+        for (std::uint32_t offset = 0u;
+             offset < metatarsals[ray]->vertexCount; ++offset) {
+            const mr_float4 point = boneVertexWorld(
+                *metatarsals[ray],
+                bones.vertices[metatarsals[ray]->firstVertex + offset],
+                neutralBodies[result.calcaneusBodyIndex]);
+            if (femDot(point, forward) < distalHeadThreshold) continue;
+            const mr_float4 pulleyOffset = femSubtract(
+                point, distalHeadCentroid);
+            const double radius = femLength(femSubtract(
+                pulleyOffset,
+                femScale(
+                    mtpJointAxis, femDot(pulleyOffset, mtpJointAxis))));
+            audit.metatarsalPulleyRadiusMeters = std::max(
+                audit.metatarsalPulleyRadiusMeters, radius);
+        }
+        require(audit.metatarsalPulleyRadiusMeters > 0.004 &&
+                    audit.metatarsalPulleyRadiusMeters < 0.035,
+                "plantar fascia metatarsal pulley radius is implausible");
         const double calcaneusToWrapMeters = femLength(
             femSubtract(wrapPatch.centroid, calcanealPatch.centroid));
         const double wrapToPhalanxMeters = femLength(
@@ -11256,10 +11401,8 @@ mr_float4 plantarAnchorLocalPoint(
             audit.publishedRestLengthMeters;
         scaleDenominator += audit.publishedRestLengthMeters *
             audit.publishedRestLengthMeters;
-        const double stiffnessNewtonsPerMeter =
-            1000.0 * audit.targetStiffnessNewtonsPerMillimeter;
-        const double areaSquareMeters = stiffnessNewtonsPerMeter *
-            audit.bodypartsRestLengthMeters / kYoungModulusPascals;
+        const double areaSquareMeters = 70.0e-6 *
+            audit.targetStiffnessNewtonsPerMillimeter / 200.0;
         audit.calibratedCrossSectionSquareMillimeters =
             areaSquareMeters * 1.0e6;
         const float widthMeters = static_cast<float>(
@@ -11267,6 +11410,62 @@ mr_float4 plantarAnchorLocalPoint(
         );
         require(widthMeters >= 0.003f && widthMeters <= 0.016f,
                 "plantar fascia calibrated band width is implausible");
+        const mr_float4 originLocal = plantarAnchorLocalPoint(
+            calcanealPatch.centroid,
+            neutralBodies[result.calcaneusBodyIndex]);
+        const mr_float4 wrapLocal = plantarAnchorLocalPoint(
+            wrapPatch.centroid,
+            neutralBodies[result.calcaneusBodyIndex]);
+        const mr_float4 distalLocal = plantarAnchorLocalPoint(
+            distalPatch.centroid,
+            neutralBodies[result.toesBodyIndex]);
+        NMNumiHumanPassiveRoutedBandGPU routedBand{};
+        routedBand.originBodyIndex = result.calcaneusBodyIndex;
+        routedBand.pulleyBodyIndex = result.calcaneusBodyIndex;
+        routedBand.insertionBodyIndex = result.toesBodyIndex;
+        routedBand.flags = NM_NUMI_HUMAN_PASSIVE_ROUTED_BAND_ACTIVE;
+        routedBand.originLocalPoint = {
+            originLocal.x, originLocal.y, originLocal.z, 0.0f};
+        routedBand.pulleyLocalPoint = {
+            wrapLocal.x, wrapLocal.y, wrapLocal.z, 0.0f};
+        routedBand.insertionLocalPoint = {
+            distalLocal.x, distalLocal.y, distalLocal.z, 0.0f};
+        routedBand.pulleyLocalAxisAndRadius = {
+            localMTPAxis.x, localMTPAxis.y, localMTPAxis.z,
+            static_cast<float>(audit.metatarsalPulleyRadiusMeters)};
+        routedBand.neutralRelativeOrientation = {
+            neutralRelativeOrientation.x, neutralRelativeOrientation.y,
+            neutralRelativeOrientation.z, neutralRelativeOrientation.w};
+        routedBand.material = {
+            14.449e6f, 254.02e6f, 10.397f, 0.4f};
+        routedBand.reference = {
+            static_cast<float>(audit.bodypartsRestLengthMeters),
+            static_cast<float>(areaSquareMeters), 0.20f, 0.0f};
+        routedBands.push_back(routedBand);
+        const auto qualifiedPatch = [&](const PlantarSurfacePatch& patch,
+                                        const std::uint32_t bodyIndex) {
+            PlantarSurfacePatch qualified = patch;
+            qualified.centroid = {};
+            for (std::size_t corner = 0u; corner < qualified.points.size();
+                 ++corner) {
+                const mr_float4 local = plantarAnchorLocalPoint(
+                    patch.points[corner], neutralBodies[bodyIndex]);
+                qualified.points[corner] = femAdd(
+                    qualifiedBodies[bodyIndex].position,
+                    rotatePoint(
+                        qualifiedBodies[bodyIndex].orientation, local));
+                qualified.centroid = femAdd(
+                    qualified.centroid, qualified.points[corner]);
+            }
+            qualified.centroid = femScale(qualified.centroid, 0.25f);
+            return qualified;
+        };
+        const PlantarSurfacePatch qualifiedCalcanealPatch = qualifiedPatch(
+            calcanealPatch, result.calcaneusBodyIndex);
+        const PlantarSurfacePatch qualifiedWrapPatch = qualifiedPatch(
+            wrapPatch, result.calcaneusBodyIndex);
+        const PlantarSurfacePatch qualifiedDistalPatch = qualifiedPatch(
+            distalPatch, result.toesBodyIndex);
         const std::uint32_t wrapStation = std::clamp(
             static_cast<std::uint32_t>(std::lround(
                 static_cast<double>(kSegmentCount) *
@@ -11278,11 +11477,11 @@ mr_float4 plantarAnchorLocalPoint(
         for (std::uint32_t station = 0u; station <= kSegmentCount; ++station) {
             std::array<mr_float4, 4u> stationPoints{};
             if (station == 0u) {
-                stationPoints = calcanealPatch.points;
+                stationPoints = qualifiedCalcanealPatch.points;
             } else if (station == wrapStation) {
-                stationPoints = wrapPatch.points;
+                stationPoints = qualifiedWrapPatch.points;
             } else if (station == kSegmentCount) {
-                stationPoints = distalPatch.points;
+                stationPoints = qualifiedDistalPatch.points;
             } else {
                 const bool proximal = station < wrapStation;
                 const float fraction = proximal
@@ -11291,9 +11490,11 @@ mr_float4 plantarAnchorLocalPoint(
                     : static_cast<float>(station - wrapStation) /
                         static_cast<float>(kSegmentCount - wrapStation);
                 const mr_float4 firstCenter = proximal
-                    ? calcanealPatch.centroid : wrapPatch.centroid;
+                    ? qualifiedCalcanealPatch.centroid :
+                        qualifiedWrapPatch.centroid;
                 const mr_float4 secondCenter = proximal
-                    ? wrapPatch.centroid : distalPatch.centroid;
+                    ? qualifiedWrapPatch.centroid :
+                        qualifiedDistalPatch.centroid;
                 const mr_float4 center = femLerp(
                     firstCenter, secondCenter, fraction);
                 const mr_float4 localAxis = femNormalized(
@@ -11450,11 +11651,22 @@ mr_float4 plantarAnchorLocalPoint(
     const auto initial = runtime.snapshot();
     require(initial.available && initial.femNodes.size() == result.nodeCount,
             "plantar fascia initial snapshot is unavailable");
+    for (std::size_t ray = 0u; ray < routedBands.size(); ++ray) {
+        numi::matter::NumiHumanPassiveRoutedBandEvaluation referenceEvaluation;
+        require(numi::matter::evaluateNumiHumanPassiveRoutedBand(
+                    routedBands[ray], routedBands[ray].reference.x, 0.0,
+                    referenceEvaluation),
+                "plantar fascia routed-band reference validation failed: " +
+                    result.side + " ray=" + std::to_string(ray + 1u));
+    }
+    require(!muscles.tendonPayload.bindings.empty(),
+            "plantar fascia Human tendon endpoint arena is unavailable");
     numi::matter::NumiHumanTendonFEMLoadAdapter adapter;
     require(adapter.initialize(runtime, {
                 .nodeLoads = nodeLoads,
                 .nodeAnchors = nodeAnchors,
                 .endpointReplacements = {},
+                .passiveRoutedBands = routedBands,
                 .endpointCount = static_cast<std::uint32_t>(
                     muscles.tendonPayload.bindings.size()
                 ),
@@ -11481,34 +11693,19 @@ mr_float4 plantarAnchorLocalPoint(
     const auto adapterDiagnostics = adapter.diagnostics();
     require(adapterDiagnostics.initialized &&
                 adapterDiagnostics.abortCount == 1u &&
-                adapterDiagnostics.encodedPassCount == 2u * stepCount,
+                adapterDiagnostics.encodedPassCount == 2u * stepCount &&
+                adapterDiagnostics.passiveRoutedBandCount == 5u &&
+                adapterDiagnostics
+                    .passiveRoutedBandLatestTransactionAccepted &&
+                adapterDiagnostics.passiveRoutedBandMaximumTensionNewtons >
+                    0.0 &&
+                adapterDiagnostics.passiveRoutedBandStoredEnergyJoules > 0.0 &&
+                adapterDiagnostics.passiveRoutedBandForceResidualNewtons <=
+                    1.0e-4 &&
+                adapterDiagnostics
+                    .passiveRoutedBandMomentResidualNewtonMeters <= 1.0e-4,
             "plantar fascia adapter transaction accounting is incomplete: " +
                 adapterDiagnostics.message);
-    id<MTLBuffer> reactionBuffer = (__bridge id<MTLBuffer>)
-        runtime.femConstraintReactionBuffer();
-    require(reactionBuffer != nil,
-            "plantar fascia fixed-node reaction buffer is unavailable");
-    const NSUInteger reactionBytes = static_cast<NSUInteger>(
-        result.nodeCount * sizeof(nm_float4));
-    id<MTLBuffer> reactionReadback = [reactionBuffer.device
-        newBufferWithLength:reactionBytes options:MTLResourceStorageModeShared];
-    id<MTLCommandQueue> reactionQueue = [reactionBuffer.device newCommandQueue];
-    id<MTLCommandBuffer> reactionCommand = [reactionQueue commandBuffer];
-    id<MTLBlitCommandEncoder> reactionBlit =
-        [reactionCommand blitCommandEncoder];
-    require(reactionReadback != nil && reactionQueue != nil &&
-                reactionCommand != nil && reactionBlit != nil,
-            "plantar fascia reaction readback could not be allocated");
-    [reactionBlit copyFromBuffer:reactionBuffer sourceOffset:0u
-                        toBuffer:reactionReadback destinationOffset:0u
-                            size:reactionBytes];
-    [reactionBlit endEncoding];
-    [reactionCommand commit];
-    [reactionCommand waitUntilCompleted];
-    require(reactionCommand.status == MTLCommandBufferStatusCompleted,
-            "plantar fascia reaction readback failed");
-    const auto* reactions =
-        static_cast<const nm_float4*>(reactionReadback.contents);
     std::vector<std::array<double, 3u>> acceptedPoints;
     acceptedPoints.reserve(result.nodeCount);
     for (std::uint32_t node = 0u; node < result.nodeCount; ++node) {
@@ -11559,10 +11756,16 @@ mr_float4 plantarAnchorLocalPoint(
             "plantar fascia accepted Human pose failed");
     const std::vector<MRBodyStateGPU> acceptedBodies =
         visualBodyStates(model, acceptedPose.bodyPoses);
-    for (PlantarFasciaBandAudit& audit : result.bands) {
-        mr_float4 originReaction{};
-        mr_float4 wrapReaction{};
-        mr_float4 distalReaction{};
+    const MRBodyStateGPU& acceptedParent =
+        acceptedBodies[result.calcaneusBodyIndex];
+    const mr_float4 acceptedRelativeOrientation = quaternionMultiply(
+        quaternionConjugate(acceptedParent.orientation),
+        acceptedBodies[result.toesBodyIndex].orientation);
+    const double signedWindingRadians = quaternionSignedTwist(
+        neutralRelativeOrientation, acceptedRelativeOrientation,
+        localMTPAxis);
+    for (std::size_t ray = 0u; ray < result.bands.size(); ++ray) {
+        PlantarFasciaBandAudit& audit = result.bands[ray];
         mr_float4 acceptedOriginCentroid{};
         mr_float4 acceptedWrapCentroid{};
         mr_float4 acceptedDistalCentroid{};
@@ -11572,15 +11775,6 @@ mr_float4 plantarAnchorLocalPoint(
             const std::uint32_t originNode = audit.firstNode + corner;
             const std::uint32_t wrapNode = audit.wrapFirstNode + corner;
             const std::uint32_t distalNode = distalFirst + corner;
-            originReaction = femAdd(originReaction, {
-                reactions[originNode].x, reactions[originNode].y,
-                reactions[originNode].z, 0.0f});
-            wrapReaction = femAdd(wrapReaction, {
-                reactions[wrapNode].x, reactions[wrapNode].y,
-                reactions[wrapNode].z, 0.0f});
-            distalReaction = femAdd(distalReaction, {
-                reactions[distalNode].x, reactions[distalNode].y,
-                reactions[distalNode].z, 0.0f});
             const auto target = [&](const std::uint32_t node) {
                 const auto& anchor = nodeAnchors[node];
                 const MRBodyStateGPU& body = acceptedBodies[anchor.bodyIndex];
@@ -11622,17 +11816,69 @@ mr_float4 plantarAnchorLocalPoint(
         acceptedOriginCentroid = femScale(acceptedOriginCentroid, 0.25f);
         acceptedWrapCentroid = femScale(acceptedWrapCentroid, 0.25f);
         acceptedDistalCentroid = femScale(acceptedDistalCentroid, 0.25f);
-        audit.acceptedExtensionMeters =
+        const double geometricLengthMeters =
             femLength(femSubtract(
                 acceptedWrapCentroid, acceptedOriginCentroid)) +
             femLength(femSubtract(
-                acceptedDistalCentroid, acceptedWrapCentroid)) -
-            audit.bodypartsRestLengthMeters;
-        audit.calcanealReactionResultantNewtons = femLength(originReaction);
-        audit.metatarsalReactionResultantNewtons = femLength(wrapReaction);
+                acceptedDistalCentroid, acceptedWrapCentroid));
+        numi::matter::NumiHumanPassiveRoutedBandEvaluation evaluation;
+        require(numi::matter::evaluateNumiHumanPassiveRoutedBand(
+                    routedBands[ray], geometricLengthMeters,
+                    signedWindingRadians, evaluation),
+                "plantar fascia accepted routed-band oracle failed");
+        audit.acceptedExtensionMeters = std::max(
+            evaluation.routeLengthMeters -
+                static_cast<double>(routedBands[ray].reference.x),
+            0.0);
+        audit.strain = evaluation.strain;
+        audit.tensionNewtons = evaluation.tensionNewtons;
+        audit.storedEnergyJoules = evaluation.storedEnergyJoules;
+        result.totalTensionNewtons += audit.tensionNewtons;
+        result.storedEnergyJoules += audit.storedEnergyJoules;
+
+        const mr_float4 proximalDirection = femNormalized(
+            femSubtract(acceptedWrapCentroid, acceptedOriginCentroid),
+            "plantar fascia accepted proximal route");
+        const mr_float4 distalDirection = femNormalized(
+            femSubtract(acceptedDistalCentroid, acceptedWrapCentroid),
+            "plantar fascia accepted distal route");
+        const mr_float4 exactOriginForce = femScale(
+            proximalDirection, static_cast<float>(audit.tensionNewtons));
+        const mr_float4 exactDistalForce = femScale(
+            distalDirection, static_cast<float>(-audit.tensionNewtons));
+        const mr_float4 exactWrapForce = femScale(
+            femAdd(exactOriginForce, exactDistalForce), -1.0f);
+        const float windingSign = signedWindingRadians > 0.0 ? 1.0f :
+            (signedWindingRadians < 0.0 ? -1.0f : 0.0f);
+        const mr_float4 acceptedWorldAxis = rotatePoint(
+            acceptedParent.orientation, localMTPAxis);
+        const mr_float4 insertionTorque = femScale(
+            acceptedWorldAxis,
+            static_cast<float>(-audit.tensionNewtons *
+                audit.metatarsalPulleyRadiusMeters * windingSign));
+        const mr_float4 pulleyTorque = femScale(insertionTorque, -1.0f);
+        const mr_float4 forceResidual = femAdd(
+            femAdd(exactOriginForce, exactWrapForce), exactDistalForce);
+        const mr_float4 momentResidual = femAdd(
+            femAdd(
+                femAdd(
+                    femCross(acceptedOriginCentroid, exactOriginForce),
+                    femCross(acceptedWrapCentroid, exactWrapForce)),
+                femCross(acceptedDistalCentroid, exactDistalForce)),
+            femAdd(pulleyTorque, insertionTorque));
+        audit.forceClosureResidualNewtons = femLength(forceResidual);
+        audit.momentClosureResidualNewtonMeters = femLength(momentResidual);
+        result.maximumForceClosureResidualNewtons = std::max(
+            result.maximumForceClosureResidualNewtons,
+            audit.forceClosureResidualNewtons);
+        result.maximumMomentClosureResidualNewtonMeters = std::max(
+            result.maximumMomentClosureResidualNewtonMeters,
+            audit.momentClosureResidualNewtonMeters);
+        audit.calcanealReactionResultantNewtons = femLength(exactOriginForce);
+        audit.metatarsalReactionResultantNewtons = femLength(exactWrapForce);
         audit.proximalFootBodyReactionResultantNewtons = femLength(
-            femAdd(originReaction, wrapReaction));
-        audit.phalanxReactionResultantNewtons = femLength(distalReaction);
+            femAdd(exactOriginForce, exactWrapForce));
+        audit.phalanxReactionResultantNewtons = femLength(exactDistalForce);
     }
     result.completedSteps = driven.persistentCompletedSteps;
     result.maximumConfigurationDeltaFromSourceJT =
@@ -11657,6 +11903,10 @@ mr_float4 plantarAnchorLocalPoint(
         result.maximumFreeNodeDisplacementMeters > 0.0 &&
         result.maximumAnchorTargetResidualMeters <= 2.0e-5 &&
         result.maximumVelocityDeltaFromSourceJT > 1.0e-9 &&
+        result.totalTensionNewtons > 0.0 &&
+        result.storedEnergyJoules > 0.0 &&
+        result.maximumForceClosureResidualNewtons <= 1.0e-4 &&
+        result.maximumMomentClosureResidualNewtonMeters <= 1.0e-4 &&
         result.rollbackVerified && result.replayVerified;
     require(
         result.available,
@@ -11681,13 +11931,23 @@ mr_float4 plantarAnchorLocalPoint(
                 result.bands[0u].metatarsalReactionResultantNewtons) +
             " ray1_phalanx_reaction_n=" +
             std::to_string(
-                result.bands[0u].phalanxReactionResultantNewtons)
+                result.bands[0u].phalanxReactionResultantNewtons) +
+            " cpu_energy_j=" + std::to_string(result.storedEnergyJoules) +
+            " last_applied_gpu_energy_j=" + std::to_string(
+                adapterDiagnostics.passiveRoutedBandStoredEnergyJoules) +
+            " gpu_force_residual_n=" + std::to_string(
+                adapterDiagnostics.passiveRoutedBandForceResidualNewtons) +
+            " gpu_moment_residual_nm=" + std::to_string(
+                adapterDiagnostics
+                    .passiveRoutedBandMomentResidualNewtonMeters) +
+            " rollback=" + std::to_string(result.rollbackVerified) +
+            " replay=" + std::to_string(result.replayVerified)
     );
     driven.tendonContinuumPassiveReactionOnly = true;
     return result;
 }
 
-PlantarFasciaSideAudit runPlantarFasciaTensileSide(
+[[maybe_unused]] PlantarFasciaSideAudit runPlantarFasciaTensileSide(
     const LoadedBones& bones,
     const metalrobo::EngineModel& model,
     const LoadedSupportContacts& supportContacts,
@@ -13870,14 +14130,13 @@ int main(int argc, char** argv) {
                         !wholeBodySupportCertificate && bodypartsBoneVisual &&
                         !persistentMetalStand && !selectedTendonControl &&
                         muscleStepSeconds.has_value() &&
-                        !muscleStepCount.has_value() &&
                         !muscleActivation.has_value() &&
                         selectedSourceMuscleActivations.empty() &&
                         jointEqualityPayloadPath.has_value() &&
                         supportContactPayloadPath.has_value(),
                     "--bilateral-plantar-fascia-certificate requires the "
                     "BodyParts3D bone payload, NHEQ1, NHCNT1, a response "
-                    "timestep, and no muscle activation or horizon override"
+                    "timestep, and no muscle activation"
                 );
                 require(
                     !sourceRouteCentrelines &&
@@ -14694,22 +14953,27 @@ int main(int argc, char** argv) {
                 if (bilateralPlantarFasciaCertificate) {
                     std::array<PlantarFasciaSideAudit, 2u> audits;
                     for (std::size_t side = 0u; side < audits.size(); ++side) {
-                        audits[side] = runPlantarFasciaTensileSide(
-                            *bonePayload, rigid.model,
+                        MuscleDrivenVisualState plantarDriven;
+                        audits[side] = runPlantarFasciaSide(
+                            *bonePayload, musclePayload, plantarDriven,
+                            rigid.model,
                             *supportContactPayload, *jointEqualityPayload,
-                            *muscleStepSeconds, side);
+                            *muscleStepSeconds,
+                            muscleStepCount.value_or(1u), side,
+                            NUMI_MATTER_METALLIB);
                         require(audits[side].available,
-                                "bilateral plantar fascia tensile proof is incomplete");
+                                "bilateral plantar fascia live proof is incomplete");
                     }
                     std::cout << std::setprecision(12)
                               << "numi_human_bilateral_plantar_fascia=ok"
                               << " geometry=BodyParts3D_4_0_exact_named_surface_patches"
-                              << " model=five_ray_metatarsal_head_pulley_reduced_tensile_law"
-                              << " execution=Metal_kinematics_plus_FP64_exact_point_JT_and_articulated_response"
-                              << " aggregate_target_stiffness_n_per_mm=200"
-                              << " published_ray_stiffness_n_per_mm=60,50,50,20,20"
+                              << " model=five_ray_Natali_hyperelastic_windlass_plus_neutral_FEM_matrix"
+                              << " execution=single_borrowed_Human_Matter_Metal_command_buffer_transaction"
+                              << " natali_mu_pa=14449000 natali_k_pa=254020000 natali_alpha=10.397 poisson_ratio=0.4"
+                              << " aggregate_reference_area_mm2=70"
+                              << " ray_area_allocation_mm2=21,17.5,17.5,7,7"
                               << " published_ray_rest_lengths_m=0.151,0.149,0.148,0.140,0.131"
-                              << " force_authority=single_passive_three_point_force_system_mapped_once_by_exact_point_JT"
+                              << " force_authority=tension_only_three_point_route_plus_wrap_arc_couple_mapped_once_by_exact_body_JT"
                               << " plantar_actuation=none"
                               << " toe_articulation=one_source_MTP_coordinate_per_foot_shared_by_all_five_rays";
                     for (const PlantarFasciaSideAudit& audit : audits) {
@@ -14722,11 +14986,22 @@ int main(int argc, char** argv) {
                             << prefix << "qualification_mtp_rad="
                             << audit.qualificationMTPRadians
                             << prefix << "response_steps=" << audit.completedSteps
+                            << prefix << "fem_nodes=" << audit.nodeCount
+                            << prefix << "fem_tetrahedra="
+                            << audit.tetrahedronCount
+                            << prefix << "minimum_J=" << audit.minimumDeterminant
+                            << prefix << "maximum_J=" << audit.maximumDeterminant
+                            << prefix << "maximum_free_node_displacement_m="
+                            << audit.maximumFreeNodeDisplacementMeters
+                            << prefix << "maximum_anchor_target_residual_m="
+                            << audit.maximumAnchorTargetResidualMeters
                             << prefix << "source_length_scale=" << audit.sourceLengthScale
                             << prefix << "max_rest_pattern_relative_residual="
                             << audit.maximumRestLengthPatternRelativeResidual
                             << prefix << "total_tension_n="
                             << audit.totalTensionNewtons
+                            << prefix << "stored_energy_j="
+                            << audit.storedEnergyJoules
                             << prefix << "max_force_closure_residual_n="
                             << audit.maximumForceClosureResidualNewtons
                             << prefix << "max_moment_closure_residual_nm="
@@ -14735,6 +15010,7 @@ int main(int argc, char** argv) {
                             << audit.maximumConfigurationDeltaFromSourceJT
                             << prefix << "max_v_delta_from_no_plantar_force="
                             << audit.maximumVelocityDeltaFromSourceJT
+                            << prefix << "rollback=verified"
                             << prefix << "replay=bitwise";
                         for (const PlantarFasciaBandAudit& band : audit.bands) {
                             const std::string bandPrefix = prefix + "ray" +
@@ -14752,8 +15028,11 @@ int main(int argc, char** argv) {
                                 << band.calibratedCrossSectionSquareMillimeters
                                 << bandPrefix << "extension_m="
                                 << band.acceptedExtensionMeters
+                                << bandPrefix << "strain=" << band.strain
                                 << bandPrefix << "tension_n="
                                 << band.tensionNewtons
+                                << bandPrefix << "stored_energy_j="
+                                << band.storedEnergyJoules
                                 << bandPrefix << "force_closure_residual_n="
                                 << band.forceClosureResidualNewtons
                                 << bandPrefix << "moment_closure_residual_nm="
@@ -14777,7 +15056,7 @@ int main(int argc, char** argv) {
                         }
                     }
                     std::cout
-                        << " boundary=bounded_bilateral_windlass_force_transfer_law_not_deformable_FEM_subject_specific_nonlinear_toe_region_rate_failure_loaded_gait_or_clinical_validation\n";
+                        << " boundary=bounded_bilateral_live_windlass_and_neutral_shape_FEM_not_subject_specific_rate_dependent_failure_loaded_gait_or_clinical_validation\n";
                     return 0;
                 } else if (openKneeLiveTissueFEM) {
                     MuscleDrivenVisualState coupledDriven;
