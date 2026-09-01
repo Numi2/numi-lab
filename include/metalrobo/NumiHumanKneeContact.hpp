@@ -24,6 +24,13 @@ struct NumiHumanKneeContactRegionMaterial {
 struct NumiHumanKneeContactSample {
     std::uint32_t slaveNode = NUMI_HUMAN_KNEE_INVALID_INDEX;
     std::array<std::uint32_t, 3u> masterNodes{};
+    // Opposite vertex across edges (0,1), (1,2), and (2,0). Invalid marks a
+    // boundary edge. These three candidates form the bounded source-surface
+    // one-ring used to repair correspondence after an edge crossing.
+    std::array<std::uint32_t, 3u> masterAdjacentOppositeNodes{
+        NUMI_HUMAN_KNEE_INVALID_INDEX,
+        NUMI_HUMAN_KNEE_INVALID_INDEX,
+        NUMI_HUMAN_KNEE_INVALID_INDEX};
     std::array<double, 3u> masterBarycentric{};
     std::array<double, 3u> referenceNormal{};
     double tributaryAreaSquareMeters = 0.0;
@@ -88,10 +95,10 @@ struct NumiHumanKneeContactDiagnostics {
 
 // Builds exact source-triangle correspondences for the seven authored Open
 // Knee(s) cartilage/meniscus contact pairs. Runtime evaluation projects each
-// slave point onto its current paired triangle and recomputes the current
-// surface normal. This bounded, frictionless elastic-foundation operator does
-// not silently admit the payload's ligament collision pairs or claim a global
-// closest-surface search.
+// slave point onto its current paired triangle plus its three edge-adjacent
+// source triangles and recomputes the current surface normal. This bounded,
+// frictionless elastic-foundation operator does not silently admit the
+// payload's ligament collision pairs or claim a global closest-surface search.
 [[nodiscard]] NumiHumanKneeContactDiagnostics
 buildNumiHumanKneeArticularContactModel(
     const NumiHumanKneePayload& payload,

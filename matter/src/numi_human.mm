@@ -391,6 +391,11 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
             sample.masterLocalTriangle2AndNormalStrainPerPressure;
         const nm_float4 referenceNormal =
             sample.masterLocalReferenceNormalAndReserved;
+        const std::array<nm_float4, 3u> adjacentOpposite{{
+            sample.masterLocalAdjacentOpposite0AndActive,
+            sample.masterLocalAdjacentOpposite1AndActive,
+            sample.masterLocalAdjacentOpposite2AndActive,
+        }};
         const double edge10x = triangle1.x - triangle0.x;
         const double edge10y = triangle1.y - triangle0.y;
         const double edge10z = triangle1.z - triangle0.z;
@@ -411,6 +416,39 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         const std::uint32_t expectedFlags = sameBody
             ? NM_NUMI_HUMAN_ARTICULAR_CONTACT_INTERNAL_SAME_BODY
             : NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE;
+        bool adjacencyValid = true;
+        const std::array<nm_float4, 3u> triangle{{
+            triangle0, triangle1, triangle2}};
+        for (std::uint32_t edge = 0u; edge < 3u; ++edge) {
+            const nm_float4 opposite = adjacentOpposite[edge];
+            if (!finiteScale(opposite) ||
+                (opposite.w != 0.0f && opposite.w != 1.0f)) {
+                adjacencyValid = false;
+                break;
+            }
+            if (opposite.w == 0.0f) {
+                adjacencyValid = opposite.x == 0.0f &&
+                    opposite.y == 0.0f && opposite.z == 0.0f;
+                if (!adjacencyValid) break;
+                continue;
+            }
+            const nm_float4 first = triangle[edge];
+            const nm_float4 second = triangle[(edge + 1u) % 3u];
+            const double firstX = second.x - first.x;
+            const double firstY = second.y - first.y;
+            const double firstZ = second.z - first.z;
+            const double secondX = opposite.x - first.x;
+            const double secondY = opposite.y - first.y;
+            const double secondZ = opposite.z - first.z;
+            const double crossX = firstY * secondZ - firstZ * secondY;
+            const double crossY = firstZ * secondX - firstX * secondZ;
+            const double crossZ = firstX * secondY - firstY * secondX;
+            const double squaredLength = crossX * crossX + crossY * crossY +
+                crossZ * crossZ;
+            adjacencyValid = std::isfinite(squaredLength) &&
+                squaredLength > 1.0e-20;
+            if (!adjacencyValid) break;
+        }
         if (sample.slaveBodyIndex == NM_INVALID_INDEX ||
             sample.masterBodyIndex == NM_INVALID_INDEX ||
             sample.flags != expectedFlags ||
@@ -422,7 +460,7 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
               squaredNormalLength > 1.0e-20) ||
             triangle1.w <= 0.0f || triangle2.w <= 0.0f ||
             std::abs(referenceNormalLength - 1.0) > 1.0e-5 ||
-            referenceNormal.w != 0.0f) {
+            referenceNormal.w != 0.0f || !adjacencyValid) {
             return false;
         }
     }

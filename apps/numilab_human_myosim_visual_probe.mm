@@ -6504,6 +6504,7 @@ struct LiveOpenKneeArticularContactCook {
     std::uint32_t pairCount = 0u;
     std::uint32_t mechanicalSampleCount = 0u;
     std::uint32_t internalSameBodySampleCount = 0u;
+    std::uint64_t adjacentCandidateCount = 0u;
 };
 
 LiveOpenKneeArticularContactCook cookLiveOpenKneeArticularContact(
@@ -6713,8 +6714,6 @@ LiveOpenKneeArticularContactCook cookLiveOpenKneeArticularContact(
                 subtract(masterTriangle[2u], masterTriangle[0u]));
             require(dot(sourceNormal, sourceNormal) > 1.0e-20,
                     "live Open Knee contact master triangle is degenerate");
-            if (dot(sourceNormal, source.referenceNormal) < 0.0)
-                std::swap(masterTriangle[1u], masterTriangle[2u]);
             const mr_float4 slaveLocal = worldPointToLocal(
                 referenceNodes[source.slaveNode], slaveBody);
             const std::array<mr_float4, 3u> masterLocal{
@@ -6722,6 +6721,19 @@ LiveOpenKneeArticularContactCook cookLiveOpenKneeArticularContact(
                 worldPointToLocal(masterTriangle[1u], masterBody),
                 worldPointToLocal(masterTriangle[2u], masterBody),
             };
+            std::array<mr_float4, 3u> adjacentLocal{};
+            for (std::uint32_t edge = 0u; edge < 3u; ++edge) {
+                const std::uint32_t opposite =
+                    source.masterAdjacentOppositeNodes[edge];
+                if (opposite == metalrobo::NUMI_HUMAN_KNEE_INVALID_INDEX)
+                    continue;
+                require(opposite < referenceNodes.size(),
+                        "live Open Knee adjacent contact node is unavailable");
+                adjacentLocal[edge] = worldPointToLocal(
+                    referenceNodes[opposite], masterBody);
+                adjacentLocal[edge].w = 1.0f;
+                ++result.adjacentCandidateCount;
+            }
             const mr_float4 normalLocal = worldVectorToLocal(
                 source.referenceNormal, masterBody);
             NMNumiHumanArticularContactSampleGPU cooked{};
@@ -6745,6 +6757,15 @@ LiveOpenKneeArticularContactCook cookLiveOpenKneeArticularContact(
                 static_cast<float>(maximumLayerNormalStrainPerPressure)};
             cooked.masterLocalReferenceNormalAndReserved = {
                 normalLocal.x, normalLocal.y, normalLocal.z, 0.0f};
+            cooked.masterLocalAdjacentOpposite0AndActive = {
+                adjacentLocal[0u].x, adjacentLocal[0u].y,
+                adjacentLocal[0u].z, adjacentLocal[0u].w};
+            cooked.masterLocalAdjacentOpposite1AndActive = {
+                adjacentLocal[1u].x, adjacentLocal[1u].y,
+                adjacentLocal[1u].z, adjacentLocal[1u].w};
+            cooked.masterLocalAdjacentOpposite2AndActive = {
+                adjacentLocal[2u].x, adjacentLocal[2u].y,
+                adjacentLocal[2u].z, adjacentLocal[2u].w};
             result.samples.push_back(cooked);
             if (slaveBody == masterBody) {
                 ++result.internalSameBodySampleCount;
@@ -6866,6 +6887,8 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         << articularContact.mechanicalSampleCount
         << " internal_same_body_samples="
         << articularContact.internalSameBodySampleCount
+        << " adjacent_candidates="
+        << articularContact.adjacentCandidateCount
         << "\n" << std::flush;
     const MRBodyStateGPU& restFemur = restBodies[bodyIndices[0u]];
     const MRBodyStateGPU& referenceFemur = referenceBodies[bodyIndices[0u]];

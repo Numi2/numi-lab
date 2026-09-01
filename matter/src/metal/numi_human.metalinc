@@ -67,6 +67,46 @@ inline float3 humanClosestPointOnTriangle(
     return a + v * ab + w * ac;
 }
 
+inline bool humanValidAdjacentOpposite(
+    const float3 first,
+    const float3 second,
+    const float4 opposite
+) {
+    if (!finite4(opposite) ||
+        (opposite.w != 0.0f && opposite.w != 1.0f)) return false;
+    if (opposite.w == 0.0f) return all(opposite.xyz == float3(0.0f));
+    const float3 rawNormal = cross(second - first, opposite.xyz - first);
+    return finite4(float4(rawNormal, 0.0f)) &&
+        dot(rawNormal, rawNormal) > 1.0e-20f;
+}
+
+inline bool humanConsiderArticularTriangle(
+    const float3 slavePoint,
+    const float3 first,
+    const float3 second,
+    const float3 third,
+    thread float3& closestPoint,
+    thread float3& faceNormal,
+    thread float& squaredDistance
+) {
+    const float3 candidateNormal = cross(second - first, third - first);
+    const float squaredNormalLength = dot(candidateNormal, candidateNormal);
+    if (!finite4(float4(candidateNormal, squaredNormalLength)) ||
+        squaredNormalLength <= 1.0e-20f) return false;
+    const float3 candidatePoint = humanClosestPointOnTriangle(
+        slavePoint, first, second, third);
+    const float candidateSquaredDistance = dot(
+        slavePoint - candidatePoint, slavePoint - candidatePoint);
+    if (!finite4(float4(candidatePoint, candidateSquaredDistance)))
+        return false;
+    if (candidateSquaredDistance < squaredDistance) {
+        closestPoint = candidatePoint;
+        faceNormal = candidateNormal;
+        squaredDistance = candidateSquaredDistance;
+    }
+    return true;
+}
+
 inline bool humanArticularContactState(
     const NMNumiHumanArticularContactSampleGPU sample,
     const MRArticulatedBodyPoseGPU slavePose,
@@ -87,13 +127,51 @@ inline bool humanArticularContactState(
     const float3 triangle2 = masterPose.position.xyz + humanQuaternionRotate(
         masterPose.orientation,
         sample.masterLocalTriangle2AndNormalStrainPerPressure.xyz);
-    const float3 rawFaceNormal = cross(
+    float3 rawFaceNormal = cross(
         triangle1 - triangle0, triangle2 - triangle0);
     const float squaredFaceNormalLength = dot(rawFaceNormal, rawFaceNormal);
     if (!finite4(float4(slavePoint, squaredFaceNormalLength)) ||
         squaredFaceNormalLength <= 1.0e-20f) return false;
     masterPoint = humanClosestPointOnTriangle(
         slavePoint, triangle0, triangle1, triangle2);
+    float bestSquaredDistance = dot(
+        slavePoint - masterPoint, slavePoint - masterPoint);
+    const float4 adjacent0 = sample.masterLocalAdjacentOpposite0AndActive;
+    const float4 adjacent1 = sample.masterLocalAdjacentOpposite1AndActive;
+    const float4 adjacent2 = sample.masterLocalAdjacentOpposite2AndActive;
+    if (!humanValidAdjacentOpposite(
+            sample.masterLocalTriangle0AndReferenceSeparation.xyz,
+            sample.masterLocalTriangle1AndStiffness.xyz, adjacent0) ||
+        !humanValidAdjacentOpposite(
+            sample.masterLocalTriangle1AndStiffness.xyz,
+            sample.masterLocalTriangle2AndNormalStrainPerPressure.xyz,
+            adjacent1) ||
+        !humanValidAdjacentOpposite(
+            sample.masterLocalTriangle2AndNormalStrainPerPressure.xyz,
+            sample.masterLocalTriangle0AndReferenceSeparation.xyz,
+            adjacent2))
+        return false;
+    if (adjacent0.w == 1.0f) {
+        const float3 opposite = masterPose.position.xyz +
+            humanQuaternionRotate(masterPose.orientation, adjacent0.xyz);
+        if (!humanConsiderArticularTriangle(
+                slavePoint, triangle0, triangle1, opposite, masterPoint,
+                rawFaceNormal, bestSquaredDistance)) return false;
+    }
+    if (adjacent1.w == 1.0f) {
+        const float3 opposite = masterPose.position.xyz +
+            humanQuaternionRotate(masterPose.orientation, adjacent1.xyz);
+        if (!humanConsiderArticularTriangle(
+                slavePoint, triangle1, triangle2, opposite, masterPoint,
+                rawFaceNormal, bestSquaredDistance)) return false;
+    }
+    if (adjacent2.w == 1.0f) {
+        const float3 opposite = masterPose.position.xyz +
+            humanQuaternionRotate(masterPose.orientation, adjacent2.xyz);
+        if (!humanConsiderArticularTriangle(
+                slavePoint, triangle2, triangle0, opposite, masterPoint,
+                rawFaceNormal, bestSquaredDistance)) return false;
+    }
     const float3 separationVector = slavePoint - masterPoint;
     const float squaredSeparationLength = dot(
         separationVector, separationVector);
@@ -104,7 +182,7 @@ inline bool humanArticularContactState(
         !finite4(float4(referenceNormal, 0.0f))) return false;
     normal = squaredSeparationLength > 1.0e-20f
         ? separationVector * rsqrt(squaredSeparationLength)
-        : rawFaceNormal * rsqrt(squaredFaceNormalLength);
+        : rawFaceNormal * rsqrt(dot(rawFaceNormal, rawFaceNormal));
     if (dot(normal, referenceNormal) < 0.0f) normal = -normal;
     const float separation = dot(separationVector, normal);
     closure = max(
@@ -396,6 +474,18 @@ kernel void nm_numi_human_prepare_provisional_status(
             abs(length(sample.masterLocalReferenceNormalAndReserved.xyz) -
                 1.0f) <= 1.0e-5f &&
             sample.masterLocalReferenceNormalAndReserved.w == 0.0f &&
+            humanValidAdjacentOpposite(
+                sample.masterLocalTriangle0AndReferenceSeparation.xyz,
+                sample.masterLocalTriangle1AndStiffness.xyz,
+                sample.masterLocalAdjacentOpposite0AndActive) &&
+            humanValidAdjacentOpposite(
+                sample.masterLocalTriangle1AndStiffness.xyz,
+                sample.masterLocalTriangle2AndNormalStrainPerPressure.xyz,
+                sample.masterLocalAdjacentOpposite1AndActive) &&
+            humanValidAdjacentOpposite(
+                sample.masterLocalTriangle2AndNormalStrainPerPressure.xyz,
+                sample.masterLocalTriangle0AndReferenceSeparation.xyz,
+                sample.masterLocalAdjacentOpposite2AndActive) &&
             dot(cross(
                     sample.masterLocalTriangle1AndStiffness.xyz -
                         sample.masterLocalTriangle0AndReferenceSeparation.xyz,

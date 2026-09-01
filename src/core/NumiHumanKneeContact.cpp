@@ -157,9 +157,27 @@ double squaredDistance(const Bounds& bounds, const Point& point) {
 
 struct TriangleReference {
     std::array<std::uint32_t, 3u> nodes{};
+    std::array<std::uint32_t, 3u> adjacentOppositeNodes{
+        NUMI_HUMAN_KNEE_INVALID_INDEX,
+        NUMI_HUMAN_KNEE_INVALID_INDEX,
+        NUMI_HUMAN_KNEE_INVALID_INDEX};
     Bounds bounds;
     Point centroid{};
 };
+
+struct TriangleEdgeReference {
+    std::uint32_t triangle = NUMI_HUMAN_KNEE_INVALID_INDEX;
+    std::uint32_t edge = NUMI_HUMAN_KNEE_INVALID_INDEX;
+};
+
+std::uint64_t edgeKey(
+    const std::uint32_t first,
+    const std::uint32_t second
+) {
+    const std::uint32_t low = std::min(first, second);
+    const std::uint32_t high = std::max(first, second);
+    return (static_cast<std::uint64_t>(low) << 32u) | high;
+}
 
 struct BVHNode {
     Bounds bounds;
@@ -187,6 +205,32 @@ public:
                 points_[nodes[2u]]), 1.0 / 3.0);
             triangles_.push_back(triangle);
         }
+        std::unordered_map<std::uint64_t, TriangleEdgeReference> edges;
+        edges.reserve(3u * triangles_.size());
+        for (std::uint32_t triangleIndex = 0u;
+             triangleIndex < triangles_.size(); ++triangleIndex) {
+            auto& triangle = triangles_[triangleIndex];
+            for (std::uint32_t edge = 0u; edge < 3u; ++edge) {
+                const std::uint32_t first = triangle.nodes[edge];
+                const std::uint32_t second = triangle.nodes[(edge + 1u) % 3u];
+                const std::uint64_t key = edgeKey(first, second);
+                const auto [found, inserted] = edges.emplace(
+                    key, TriangleEdgeReference{triangleIndex, edge});
+                if (inserted) continue;
+                auto& previous = found->second;
+                if (previous.triangle == NUMI_HUMAN_KNEE_INVALID_INDEX ||
+                    previous.triangle == triangleIndex) {
+                    manifold_ = false;
+                    continue;
+                }
+                auto& neighbor = triangles_[previous.triangle];
+                neighbor.adjacentOppositeNodes[previous.edge] =
+                    triangle.nodes[(edge + 2u) % 3u];
+                triangle.adjacentOppositeNodes[edge] =
+                    neighbor.nodes[(previous.edge + 2u) % 3u];
+                previous = {};
+            }
+        }
         order_.resize(triangles_.size());
         std::iota(order_.begin(), order_.end(), 0u);
         nodes_.reserve(2u * triangles_.size());
@@ -195,8 +239,14 @@ public:
 
     struct QueryResult {
         std::array<std::uint32_t, 3u> nodes{};
+        std::array<std::uint32_t, 3u> adjacentOppositeNodes{
+            NUMI_HUMAN_KNEE_INVALID_INDEX,
+            NUMI_HUMAN_KNEE_INVALID_INDEX,
+            NUMI_HUMAN_KNEE_INVALID_INDEX};
         ClosestPoint closest;
     };
+
+    [[nodiscard]] bool manifold() const noexcept { return manifold_; }
 
     QueryResult closest(const Point& point) const {
         QueryResult result;
@@ -256,6 +306,8 @@ private:
                 if (candidate.squaredDistance <
                     result.closest.squaredDistance) {
                     result.nodes = triangle.nodes;
+                    result.adjacentOppositeNodes =
+                        triangle.adjacentOppositeNodes;
                     result.closest = candidate;
                 }
             }
@@ -276,6 +328,7 @@ private:
     std::vector<TriangleReference> triangles_;
     std::vector<std::uint32_t> order_;
     std::vector<BVHNode> nodes_;
+    bool manifold_ = true;
 };
 
 NumiHumanKneeContactDiagnostics fail(
@@ -365,6 +418,9 @@ NumiHumanKneeContactDiagnostics buildNumiHumanKneeArticularContactModel(
                         "articular series compliance is invalid", pairIndex);
 
         TriangleBVH master(payload, masterSurface, referenceWorldNodes);
+        if (!master.manifold())
+            return fail(NumiHumanKneeContactStatus::invalidTopology,
+                        "articular master surface is non-manifold", pairIndex);
         std::unordered_map<std::uint32_t, double> slaveAreas;
         for (std::uint32_t local = 0u;
              local < slaveSurface.faceCount; ++local) {
@@ -424,6 +480,8 @@ NumiHumanKneeContactDiagnostics buildNumiHumanKneeArticularContactModel(
             model.samples.push_back({
                 .slaveNode = slaveNode,
                 .masterNodes = closest.nodes,
+                .masterAdjacentOppositeNodes =
+                    closest.adjacentOppositeNodes,
                 .masterBarycentric = closest.closest.barycentric,
                 .referenceNormal = normal,
                 .tributaryAreaSquareMeters = area,
@@ -475,13 +533,53 @@ NumiHumanKneeContactDiagnostics evaluateNumiHumanKneeContact(
             std::numeric_limits<double>::infinity();
         for (std::uint32_t local = 0u; local < pair.sampleCount; ++local) {
             const auto& sample = model.samples[pair.firstSample + local];
-            const std::array<Point, 3u> masterTriangle{
-                currentWorldNodes[sample.masterNodes[0u]],
-                currentWorldNodes[sample.masterNodes[1u]],
-                currentWorldNodes[sample.masterNodes[2u]],
+            if (sample.slaveNode >= currentWorldNodes.size() ||
+                std::any_of(
+                    sample.masterNodes.begin(), sample.masterNodes.end(),
+                    [&](const std::uint32_t node) {
+                        return node >= currentWorldNodes.size();
+                    }) ||
+                std::any_of(
+                    sample.masterAdjacentOppositeNodes.begin(),
+                    sample.masterAdjacentOppositeNodes.end(),
+                    [&](const std::uint32_t node) {
+                        return node != NUMI_HUMAN_KNEE_INVALID_INDEX &&
+                            node >= currentWorldNodes.size();
+                    }))
+                return fail(NumiHumanKneeContactStatus::invalidInput,
+                            "knee contact sample node is unavailable",
+                            pairIndex);
+            std::array<std::uint32_t, 3u> currentMasterNodes =
+                sample.masterNodes;
+            std::array<Point, 3u> masterTriangle{
+                currentWorldNodes[currentMasterNodes[0u]],
+                currentWorldNodes[currentMasterNodes[1u]],
+                currentWorldNodes[currentMasterNodes[2u]],
             };
-            const ClosestPoint closest = closestPointOnTriangle(
+            ClosestPoint closest = closestPointOnTriangle(
                 currentWorldNodes[sample.slaveNode], masterTriangle);
+            for (std::uint32_t edge = 0u; edge < 3u; ++edge) {
+                const std::uint32_t opposite =
+                    sample.masterAdjacentOppositeNodes[edge];
+                if (opposite == NUMI_HUMAN_KNEE_INVALID_INDEX) continue;
+                const std::array<std::uint32_t, 3u> candidateNodes{
+                    sample.masterNodes[edge],
+                    sample.masterNodes[(edge + 1u) % 3u],
+                    opposite,
+                };
+                const std::array<Point, 3u> candidateTriangle{
+                    currentWorldNodes[candidateNodes[0u]],
+                    currentWorldNodes[candidateNodes[1u]],
+                    currentWorldNodes[candidateNodes[2u]],
+                };
+                const ClosestPoint candidate = closestPointOnTriangle(
+                    currentWorldNodes[sample.slaveNode], candidateTriangle);
+                if (candidate.squaredDistance < closest.squaredDistance) {
+                    currentMasterNodes = candidateNodes;
+                    masterTriangle = candidateTriangle;
+                    closest = candidate;
+                }
+            }
             const Point masterPoint = closest.point;
             const Point separation = subtract(
                 currentWorldNodes[sample.slaveNode], masterPoint);
@@ -530,8 +628,8 @@ NumiHumanKneeContactDiagnostics evaluateNumiHumanKneeContact(
             for (std::uint32_t corner = 0u; corner < 3u; ++corner) {
                 const Point masterForce = scale(
                     slaveForce, -closest.barycentric[corner]);
-                result.nodalForcesNewtons[sample.masterNodes[corner]] = add(
-                    result.nodalForcesNewtons[sample.masterNodes[corner]],
+                result.nodalForcesNewtons[currentMasterNodes[corner]] = add(
+                    result.nodalForcesNewtons[currentMasterNodes[corner]],
                     masterForce);
             }
             ++pairResult.activeSampleCount;

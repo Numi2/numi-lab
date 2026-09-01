@@ -221,6 +221,18 @@ int main(int argc, char** argv) {
                     " " + built.message);
         require(model.pairs.size() == 7u && !model.samples.empty(),
                 "Open Knee articular coverage is incomplete");
+        std::uint64_t oneRingCandidateCount = 0u;
+        std::uint64_t samplesWithOneRingCandidate = 0u;
+        for (const auto& sample : model.samples) {
+            std::uint32_t sampleCandidates = 0u;
+            for (const std::uint32_t opposite :
+                 sample.masterAdjacentOppositeNodes) {
+                if (opposite != metalrobo::NUMI_HUMAN_KNEE_INVALID_INDEX)
+                    ++sampleCandidates;
+            }
+            oneRingCandidateCount += sampleCandidates;
+            if (sampleCandidates != 0u) ++samplesWithOneRingCandidate;
+        }
 
         constexpr std::uint32_t stepCount = 65u;
         constexpr double peakClosureMeters = 0.00005;
@@ -305,6 +317,9 @@ int main(int argc, char** argv) {
                           ? "left" : "right_mirrored")
                   << " articular_pairs=" << model.pairs.size()
                   << " contact_samples=" << model.samples.size()
+                  << " one_ring_candidates=" << oneRingCandidateCount
+                  << " samples_with_one_ring_candidate="
+                  << samplesWithOneRingCandidate
                   << " sustained_steps=" << stepCount
                   << " peak_closure_m=" << peakClosureMeters
                   << " peak_normal_force_n=" << peakForce

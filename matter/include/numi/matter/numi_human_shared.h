@@ -2,7 +2,7 @@
 
 #include "numi/matter/shared.h"
 
-#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 9u
+#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 10u
 #define NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS 4096u
 
 enum NMNumiHumanTendonFEMNodeLoadFlags : nm_u32 {
@@ -119,10 +119,11 @@ typedef struct NM_ALIGN16 NMNumiHumanFEMContactContributionGPU {
 } NMNumiHumanFEMContactContributionGPU;
 
 // Exact paired-triangle elastic-foundation contact between two articulated
-// bodies. The slave point and all three vertices of its source master triangle
-// are stored in their owning body frames. Live Metal poses supply the current
-// triangle, closest point, normal, and separation. Equal/opposite wrenches are
-// reduced per body before generalized-force scatter.
+// bodies. The slave point, source master triangle, and opposite vertex across
+// each of its three manifold edges are stored in their owning body frames.
+// Live Metal poses supply a bounded four-triangle closest-point query, normal,
+// and separation. Equal/opposite wrenches are reduced per body before
+// generalized-force scatter.
 typedef struct NM_ALIGN16 NMNumiHumanArticularContactSampleGPU {
     nm_u32 slaveBodyIndex;
     nm_u32 masterBodyIndex;
@@ -134,15 +135,20 @@ typedef struct NM_ALIGN16 NMNumiHumanArticularContactSampleGPU {
     nm_float4 masterLocalTriangle0AndReferenceSeparation;
     // xyz second master-triangle vertex; w pressure/closure stiffness [Pa/m].
     nm_float4 masterLocalTriangle1AndStiffness;
-    // xyz third master-triangle vertex. The cooked winding points toward the
-    // slave in the reference configuration. w is the maximum layer-normal
-    // strain per unit pressure [1/Pa] of the two contacting foundation layers.
+    // xyz third master-triangle vertex. w is the maximum layer-normal strain
+    // per unit pressure [1/Pa] of the two contacting foundation layers.
     nm_float4 masterLocalTriangle2AndNormalStrainPerPressure;
     // xyz reference contact normal in the master-body frame. It orients the
     // live closest-point normal through face, edge, and vertex regions so a
     // slave crossing the surface cannot silently flip its repulsive side.
     // w is reserved and must be zero.
     nm_float4 masterLocalReferenceNormalAndReserved;
+    // xyz is the opposite vertex of the triangle adjacent across base edges
+    // (0,1), (1,2), and (2,0), respectively. w is exactly one when that
+    // manifold neighbor exists. An absent boundary neighbor is all zero.
+    nm_float4 masterLocalAdjacentOpposite0AndActive;
+    nm_float4 masterLocalAdjacentOpposite1AndActive;
+    nm_float4 masterLocalAdjacentOpposite2AndActive;
 } NMNumiHumanArticularContactSampleGPU;
 
 enum NMNumiHumanPassiveLigamentFlags : nm_u32 {
@@ -219,7 +225,7 @@ static_assert(sizeof(NMNumiHumanTendonFEMNodeAnchorGPU) == 32u);
 static_assert(sizeof(NMNumiHumanTendonFEMEndpointReplacementGPU) == 32u);
 static_assert(sizeof(NMNumiHumanFEMContactSampleGPU) == 64u);
 static_assert(sizeof(NMNumiHumanFEMContactContributionGPU) == 16u);
-static_assert(sizeof(NMNumiHumanArticularContactSampleGPU) == 96u);
+static_assert(sizeof(NMNumiHumanArticularContactSampleGPU) == 144u);
 static_assert(sizeof(NMNumiHumanPassiveLigamentGPU) == 80u);
 static_assert(sizeof(NMNumiHumanPassiveLigamentAuditGPU) == 48u);
 static_assert(sizeof(NMNumiHumanBodyWrenchGPU) == 32u);

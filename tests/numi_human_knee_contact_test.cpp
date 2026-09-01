@@ -143,6 +143,44 @@ int main() {
                         std::tan(angle)) < 1.0e-10,
                 "current master-triangle normal was not recomputed");
 
+        metalrobo::NumiHumanKneeContactModel oneRingModel;
+        oneRingModel.nodeCount = 5u;
+        oneRingModel.pairs.push_back({
+            .name = "one_ring",
+            .firstSample = 0u,
+            .sampleCount = 1u,
+            .effectiveFoundationStiffnessPascalsPerMeter = 1.0e8,
+            .tributaryAreaSquareMeters = 1.0e-4,
+        });
+        oneRingModel.samples.push_back({
+            .slaveNode = 4u,
+            .masterNodes = {0u, 1u, 2u},
+            .masterAdjacentOppositeNodes = {
+                metalrobo::NUMI_HUMAN_KNEE_INVALID_INDEX,
+                3u,
+                metalrobo::NUMI_HUMAN_KNEE_INVALID_INDEX,
+            },
+            .masterBarycentric = {0.5, 0.25, 0.25},
+            .referenceNormal = {0.0, 0.0, 1.0},
+            .tributaryAreaSquareMeters = 1.0e-4,
+            .referenceSeparationMeters = 0.001,
+        });
+        std::vector<std::array<double, 3u>> crossedEdgeNodes{
+            {0.0, 0.0, 0.0}, {1.0, 0.0, 0.0},
+            {0.0, 1.0, 0.0}, {1.0, 1.0, 0.0},
+            {0.75, 0.75, 0.00095},
+        };
+        metalrobo::NumiHumanKneeContactResult crossedEdge;
+        diagnostics = metalrobo::evaluateNumiHumanKneeContact(
+            oneRingModel, crossedEdgeNodes, 0.0, crossedEdge);
+        require(diagnostics.succeeded() &&
+                    crossedEdge.pairs.size() == 1u &&
+                    crossedEdge.pairs[0u].activeSampleCount == 1u &&
+                    crossedEdge.nodalForcesNewtons[3u][2u] < 0.0 &&
+                    length(crossedEdge.forceResidualNewtons) < 1.0e-8 &&
+                    length(crossedEdge.momentResidualNewtonMeters) < 1.0e-8,
+                "one-ring contact did not repair a source-triangle edge crossing");
+
         auto separated = reference;
         for (std::uint32_t node = 3u; node < 6u; ++node)
             separated[node][2u] += closure;
