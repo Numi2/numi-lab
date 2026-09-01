@@ -12,6 +12,55 @@
 
 namespace numi::matter {
 
+enum class NumiHumanFEMPrestressStatus : std::uint8_t {
+    success = 0u,
+    invalidSnapshot,
+    invalidFraction,
+    invalidParameterArena,
+    invalidMaterial,
+    invalidParameter,
+    duplicateParameter,
+    invalidBounds,
+};
+
+// One environment-local material parameter that participates in a bounded
+// prestress continuation. Indices are stable cooked material/local-parameter
+// indices; callers must derive them from the admitted MaterialProgram rather
+// than relying on a hard-coded global parameter offset.
+struct NumiHumanFEMPrestressTarget {
+    std::uint32_t materialIndex = NM_INVALID_INDEX;
+    std::uint32_t localParameterIndex = NM_INVALID_INDEX;
+    float neutralValue = 0.0f;
+    float sourceValue = 0.0f;
+};
+
+struct NumiHumanFEMPrestressDiagnostics {
+    NumiHumanFEMPrestressStatus status =
+        NumiHumanFEMPrestressStatus::invalidSnapshot;
+    std::uint32_t failingTarget = NM_INVALID_INDEX;
+    std::uint32_t appliedParameterCount = 0u;
+    float fraction = 0.0f;
+    float maximumAbsoluteParameterDelta = 0.0f;
+    std::string message;
+
+    [[nodiscard]] bool succeeded() const noexcept {
+        return status == NumiHumanFEMPrestressStatus::success;
+    }
+};
+
+// Atomically prepares a completion-boundary snapshot for one continuation
+// stage. This function only stages bounded material parameters; it does not
+// claim equilibrium. The caller must restore the returned snapshot, execute
+// an accepted FEM transaction, and establish its own convergence certificate.
+// Validation is completed before the snapshot is mutated.
+[[nodiscard]] NumiHumanFEMPrestressDiagnostics
+prepareNumiHumanFEMPrestressStage(
+    const CompiledWorld& world,
+    std::span<const NumiHumanFEMPrestressTarget> targets,
+    float fraction,
+    RuntimeStateSnapshot& snapshot
+);
+
 // Complete load and bone-anchor maps for one Numi Human FEM consumer. Node
 // records are immutable and indexed by cooked global FEM-node index.
 //
@@ -47,6 +96,11 @@ struct NumiHumanTendonFEMLoadSource {
     // compliance with a full-resolution cartilage volume solve.
     std::span<const NMNumiHumanArticularContactSampleGPU>
         articularContactSamples{};
+    // Optional source-law passive ligament fibre families. These are reduced
+    // force-transfer elements between exact enthesis attachment-node
+    // centroids. They may coexist with neutral matrix-only FEM volumes without
+    // duplicating axial fibre stiffness.
+    std::span<const NMNumiHumanPassiveLigamentGPU> passiveLigaments{};
     std::uint32_t endpointCount = 0u;
     std::uint32_t environmentCount = 1u;
     float productionForceOwnerFraction = 0.0f;
@@ -100,8 +154,30 @@ struct NumiHumanTendonFEMLoadDiagnostics {
     double articularTrajectoryMaximumClosureMeters = 0.0;
     double articularTrajectoryMaximumForceResidualNewtons = 0.0;
     double articularTrajectoryMaximumMomentResidualNewtonMeters = 0.0;
+    std::uint32_t passiveLigamentCount = 0u;
+    bool passiveLigamentLatestTransactionAccepted = false;
+    double passiveLigamentEndpointForceL1Newtons = 0.0;
+    double passiveLigamentMaximumTensionNewtons = 0.0;
+    double passiveLigamentMinimumEffectiveStretch = 0.0;
+    double passiveLigamentMaximumEffectiveStretch = 0.0;
+    double passiveLigamentForceResidualNewtons = 0.0;
+    double passiveLigamentMomentResidualNewtonMeters = 0.0;
     std::string message;
 };
+
+struct NumiHumanPassiveLigamentFiberEvaluation {
+    double effectiveStretch = 0.0;
+    double fiberStressPascals = 0.0;
+    double tensionNewtons = 0.0;
+};
+
+// CPU reference for the exact FEBio trans-iso fibre stress branch used by the
+// reduced Metal ligament owner. Matrix stress is deliberately excluded.
+[[nodiscard]] bool evaluateNumiHumanPassiveLigamentFiber(
+    const NMNumiHumanPassiveLigamentGPU& ligament,
+    double currentCentroidLengthMeters,
+    NumiHumanPassiveLigamentFiberEvaluation& result
+) noexcept;
 
 class NumiHumanTendonFEMLoadAdapter {
 public:

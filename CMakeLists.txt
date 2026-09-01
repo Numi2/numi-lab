@@ -2367,6 +2367,27 @@ set_target_properties(
 )
 
 if(BUILD_TESTING)
+    add_executable(
+        metalrobo_numi_human_fem_prestress_stage_test
+        tests/numi_human_fem_prestress_stage_test.cpp
+    )
+    target_compile_options(
+        metalrobo_numi_human_fem_prestress_stage_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror
+    )
+    target_link_libraries(
+        metalrobo_numi_human_fem_prestress_stage_test
+        PRIVATE metalrobo
+    )
+    add_test(
+        NAME matter.numi_human.fem_prestress_stage
+        COMMAND $<TARGET_FILE:metalrobo_numi_human_fem_prestress_stage_test>
+    )
+    set_tests_properties(
+        matter.numi_human.fem_prestress_stage
+        PROPERTIES LABELS "matter;numi-human;physics" TIMEOUT 30
+    )
+
     add_test(
         NAME matter.numi_human.tendon_fem_transaction
         COMMAND $<TARGET_FILE:metalrobo_numilab_human_tendon_fem_load_probe>

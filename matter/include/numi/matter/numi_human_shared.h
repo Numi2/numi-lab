@@ -2,7 +2,7 @@
 
 #include "numi/matter/shared.h"
 
-#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 8u
+#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 9u
 #define NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS 4096u
 
 enum NMNumiHumanTendonFEMNodeLoadFlags : nm_u32 {
@@ -49,7 +49,7 @@ typedef struct NM_ALIGN16 NMNumiHumanTendonFEMLoadDispatchGPU {
     nm_u32 muscleCount;
     nm_u32 femContactSampleCount;
     nm_u32 articularContactSampleCount;
-    nm_u32 reserved1;
+    nm_u32 passiveLigamentCount;
     nm_u32 reserved2;
     nm_u32 reserved3;
 } NMNumiHumanTendonFEMLoadDispatchGPU;
@@ -139,6 +139,41 @@ typedef struct NM_ALIGN16 NMNumiHumanArticularContactSampleGPU {
     nm_float4 normalStrainPerPressure;
 } NMNumiHumanArticularContactSampleGPU;
 
+enum NMNumiHumanPassiveLigamentFlags : nm_u32 {
+    NM_NUMI_HUMAN_PASSIVE_LIGAMENT_ACTIVE = 1u << 0u,
+};
+
+// Reduced axial owner for an authored passive ligament fibre family. The two
+// local points are centroids of the exact source enthesis attachment-node
+// sets, not visual mesh landmarks. The reference area is inferred from source
+// tetrahedral volume divided by reference centroid separation. It owns only
+// axial fibre stress; the parallel neutral FEM owns matrix and 3D shape.
+typedef struct NM_ALIGN16 NMNumiHumanPassiveLigamentGPU {
+    nm_u32 firstBodyIndex;
+    nm_u32 secondBodyIndex;
+    nm_u32 flags;
+    nm_u32 reserved0;
+
+    nm_float4 firstLocalPoint;
+    nm_float4 secondLocalPoint;
+    // c3 [Pa], c4 [1], c5 [Pa], lambda_max [1].
+    nm_float4 material;
+    // rest centroid length [m], effective area [m^2], in-situ stretch [1], 0.
+    nm_float4 reference;
+} NMNumiHumanPassiveLigamentGPU;
+
+// One provisional/accepted audit per environment. Equal/opposite endpoint
+// loads must close in force and moment about the world origin.
+typedef struct NM_ALIGN16 NMNumiHumanPassiveLigamentAuditGPU {
+    // xyz force residual [N], w sum of endpoint-force magnitudes [N].
+    nm_float4 forceResidualAndL1;
+    // xyz moment residual [N m], w maximum element tension [N].
+    nm_float4 momentResidualAndMaximumTension;
+    // x minimum effective stretch, y maximum effective stretch,
+    // z active element count, w accepted marker.
+    nm_float4 stretchCountAndAccepted;
+} NMNumiHumanPassiveLigamentAuditGPU;
+
 enum NMNumiHumanArticularContactSampleFlags : nm_u32 {
     NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE = 1u << 0u,
     // Preserve an authored articular interface whose two regions are owned by
@@ -179,6 +214,8 @@ static_assert(sizeof(NMNumiHumanTendonFEMEndpointReplacementGPU) == 32u);
 static_assert(sizeof(NMNumiHumanFEMContactSampleGPU) == 64u);
 static_assert(sizeof(NMNumiHumanFEMContactContributionGPU) == 16u);
 static_assert(sizeof(NMNumiHumanArticularContactSampleGPU) == 80u);
+static_assert(sizeof(NMNumiHumanPassiveLigamentGPU) == 80u);
+static_assert(sizeof(NMNumiHumanPassiveLigamentAuditGPU) == 48u);
 static_assert(sizeof(NMNumiHumanBodyWrenchGPU) == 32u);
 static_assert(sizeof(NMNumiHumanArticularContactAuditGPU) == 64u);
 #endif

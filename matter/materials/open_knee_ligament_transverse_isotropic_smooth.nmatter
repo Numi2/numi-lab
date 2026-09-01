@@ -2,15 +2,22 @@
 // The payload supplies the exact registered homogeneous fibre axis and the
 // source c1/c2/c3/c4/c5/lam_max/k/in-situ-stretch values per region. Matter
 // currently lacks FEBio's piecewise exp-linear fibre primitive and Ei(), so
-// this law preserves the exact deviatoric Mooney-Rivlin matrix (c2 is zero in
-// all six admitted regions) and uses a differentiable tension-only exponential
-// fibre energy. It is intentionally labelled an approximation, not the exact
-// FEBio trans iso Mooney-Rivlin material.
+// this law preserves the c2=0 deviatoric Mooney-Rivlin matrix and composes the
+// source isochoric prestrain gradient with the complete elastic deformation
+// gradient. For Fp = lambda*a*a^T + lambda^(-1/2)*(I-a*a^T),
+// I1(F*Fp) = I1(F)/lambda + (lambda^2 - 1/lambda)*|F*a|^2 and det(Fp)=1.
+// The fibre energy remains a differentiable tension-only exponential
+// approximation. It is intentionally labelled an approximation, not the
+// exact FEBio trans iso Mooney-Rivlin material.
 material open_knee_ligament_transverse_isotropic_smooth {
     parameter density : kg/m^3 = 1000 in [900, 1200];
     parameter c1 : MPa = 1.95 in [0.001, 20] log identifiable;
     parameter c3 : MPa = 0.0139 in [0.0001, 5] log identifiable;
     parameter c4 : one = 116.22 in [1, 300] log identifiable;
+    // Set to zero only when the exact source axial branch is owned by the
+    // same-command-buffer reduced enthesis element. This prevents double
+    // counting while leaving the neutral FEM matrix and 3D shape active.
+    parameter fiber_scale : one = 1 in [0, 1] identifiable;
     parameter bulk : MPa = 146.41 in [20, 1200] log identifiable;
     parameter initial_stretch : one = 1.016 in [1, 1.20];
     parameter fiber_x : one = 1 in [-1, 1];
@@ -21,8 +28,15 @@ material open_knee_ligament_transverse_isotropic_smooth {
 
     model generic;
     energy = c1 * (
-        exp((-2.0 / 3.0) * log(J())) * I1() - 3
-    ) + 0.5 * bulk * pow(log(J()), 2) + (c3 / c4) * expm1_minus_x(
+        exp((-2.0 / 3.0) * log(J())) * (
+            (1 / initial_stretch) * I1() +
+            (pow(initial_stretch, 2) - 1 / initial_stretch) * (
+                pow(F(0, 0) * fiber_x + F(0, 1) * fiber_y + F(0, 2) * fiber_z, 2) +
+                pow(F(1, 0) * fiber_x + F(1, 1) * fiber_y + F(1, 2) * fiber_z, 2) +
+                pow(F(2, 0) * fiber_x + F(2, 1) * fiber_y + F(2, 2) * fiber_z, 2)
+            )
+        ) - 3
+    ) + 0.5 * bulk * pow(log(J()), 2) + fiber_scale * (c3 / c4) * expm1_minus_x(
         c4 * 0.5 * (
             initial_stretch * exp((-1.0 / 3.0) * log(J())) * sqrt(
                 pow(F(0, 0) * fiber_x + F(0, 1) * fiber_y + F(0, 2) * fiber_z, 2) +

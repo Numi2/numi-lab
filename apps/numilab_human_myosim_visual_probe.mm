@@ -160,6 +160,14 @@ struct LoadedOpenKneeLigamentFEM {
     double articularTrajectoryMaximumClosureMeters = 0.0;
     double articularTrajectoryMaximumForceResidualNewtons = 0.0;
     double articularTrajectoryMaximumMomentResidualNewtonMeters = 0.0;
+    std::uint32_t passiveLigamentCount = 0u;
+    bool passiveLigamentLatestTransactionAccepted = false;
+    double passiveLigamentEndpointForceL1Newtons = 0.0;
+    double passiveLigamentMaximumTensionNewtons = 0.0;
+    double passiveLigamentMinimumEffectiveStretch = 0.0;
+    double passiveLigamentMaximumEffectiveStretch = 0.0;
+    double passiveLigamentForceResidualNewtons = 0.0;
+    double passiveLigamentMomentResidualNewtonMeters = 0.0;
     bool activeQuadricepsTendonCoupling = false;
     bool liveHumanCoupling = false;
     bool rollbackVerified = false;
@@ -6930,6 +6938,7 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     for (auto& anchor : nodeAnchors) anchor.bodyIndex = NM_INVALID_INDEX;
     std::vector<NMNumiHumanTendonFEMEndpointReplacementGPU>
         endpointReplacements;
+    std::vector<NMNumiHumanPassiveLigamentGPU> passiveLigaments;
     std::vector<mr_float4> initialWorldNodes(totalNodes);
 
     for (LiveOpenKneeRegion& runtimeRegion : regions) {
@@ -6946,11 +6955,15 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         setLiveOpenKneeMaterialParameter(
             material, "c3", 1.0e6 * region.material.c3MPa);
         setLiveOpenKneeMaterialParameter(material, "c4", region.material.c4);
+        const bool reducedPassiveFiberOwner = region.name != "QAT";
+        setLiveOpenKneeMaterialParameter(
+            material, "fiber_scale", reducedPassiveFiberOwner ? 0.0 : 1.0);
         setLiveOpenKneeMaterialParameter(
             material, "bulk", 1.0e6 * region.material.bulkModulusMPa);
-        // ABI 2 retains the exact source value. Full prestress requires a
-        // staged equilibrium initialization and is not jumped in one Human
-        // step after the bounded nonlinear/performance gate rejected it.
+        // ABI 2 retains the exact source value. A volumetric prestress claim
+        // requires an iteratively equilibrated, generally per-element
+        // compatible prestrain gradient; the bounded homogeneous jump/ramp
+        // experiments rejected and are not used in this Human path.
         setLiveOpenKneeMaterialParameter(material, "initial_stretch", 1.0);
         setLiveOpenKneeMaterialParameter(material, "fiber_x", fiber[0u]);
         setLiveOpenKneeMaterialParameter(material, "fiber_y", fiber[1u]);
@@ -7035,8 +7048,131 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                     runtimeRegion.anchorCounts[1u] +
                     runtimeRegion.anchorCounts[2u],
                 "live Open Knee tissue attachment ownership drifted");
+        if (reducedPassiveFiberOwner) {
+            const std::uint32_t firstBody = region.name == "PTL"
+                ? bodyIndices[2u] : bodyIndices[0u];
+            const std::uint32_t secondBody = bodyIndices[1u];
+            mr_float4 firstLocal{};
+            mr_float4 secondLocal{};
+            mr_float4 firstSourceWorld{};
+            mr_float4 secondSourceWorld{};
+            std::uint32_t firstCount = 0u;
+            std::uint32_t secondCount = 0u;
+            for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
+                const std::uint32_t femNode = runtimeRegion.firstFEMNode + local;
+                const auto& anchor = nodeAnchors[femNode];
+                if ((anchor.flags &
+                     NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) == 0u)
+                    continue;
+                const auto& sourceNode = knee.nodes[region.firstNode + local];
+                mr_float4* localSum = nullptr;
+                mr_float4* worldSum = nullptr;
+                std::uint32_t* count = nullptr;
+                if (anchor.bodyIndex == firstBody) {
+                    localSum = &firstLocal;
+                    worldSum = &firstSourceWorld;
+                    count = &firstCount;
+                } else if (anchor.bodyIndex == secondBody) {
+                    localSum = &secondLocal;
+                    worldSum = &secondSourceWorld;
+                    count = &secondCount;
+                } else {
+                    continue;
+                }
+                localSum->x += anchor.localPoint.x;
+                localSum->y += anchor.localPoint.y;
+                localSum->z += anchor.localPoint.z;
+                worldSum->x += sourceNode.restWorld[0u];
+                worldSum->y += sourceNode.restWorld[1u];
+                worldSum->z += sourceNode.restWorld[2u];
+                ++*count;
+            }
+            require(firstCount > 0u && secondCount > 0u,
+                    "live Open Knee reduced ligament lacks both entheses");
+            const auto average = [](mr_float4 value, const std::uint32_t count) {
+                const float inverse = 1.0f / static_cast<float>(count);
+                value.x *= inverse;
+                value.y *= inverse;
+                value.z *= inverse;
+                value.w = 0.0f;
+                return value;
+            };
+            firstLocal = average(firstLocal, firstCount);
+            secondLocal = average(secondLocal, secondCount);
+            firstSourceWorld = average(firstSourceWorld, firstCount);
+            secondSourceWorld = average(secondSourceWorld, secondCount);
+            const mr_float4 sourceAxis = femSubtract(
+                secondSourceWorld, firstSourceWorld);
+            const double referenceLength = femLength(sourceAxis);
+            double volume = 0.0;
+            for (std::uint32_t local = 0u;
+                 local < region.tetrahedronCount; ++local) {
+                const auto& tet =
+                    knee.tetrahedra[region.firstTetrahedron + local];
+                const auto point = [&](const std::uint32_t corner) {
+                    const auto& p = knee.nodes[tet[corner]].restWorld;
+                    return mr_float4{p[0u], p[1u], p[2u], 0.0f};
+                };
+                const mr_float4 a = point(0u);
+                const mr_float4 ab = femSubtract(point(1u), a);
+                const mr_float4 ac = femSubtract(point(2u), a);
+                const mr_float4 ad = femSubtract(point(3u), a);
+                volume += std::abs(static_cast<double>(
+                    femDot(ab, femCross(ac, ad)))) / 6.0;
+            }
+            const double effectiveArea = volume / referenceLength;
+            const mr_float4 unitAxis = femScale(
+                sourceAxis, static_cast<float>(1.0 / referenceLength));
+            const double fiberAlignment = std::abs(
+                unitAxis.x * region.material.homogeneousFiberWorld[0u] +
+                unitAxis.y * region.material.homogeneousFiberWorld[1u] +
+                unitAxis.z * region.material.homogeneousFiberWorld[2u]);
+            require(std::isfinite(referenceLength) &&
+                        referenceLength > 1.0e-4 &&
+                        std::isfinite(volume) && volume > 1.0e-10 &&
+                        std::isfinite(effectiveArea) &&
+                        effectiveArea > 1.0e-8 && effectiveArea < 0.01 &&
+                        std::isfinite(fiberAlignment) &&
+                        fiberAlignment >= 0.95,
+                    "live Open Knee reduced ligament geometry is invalid");
+            NMNumiHumanPassiveLigamentGPU passive{};
+            passive.firstBodyIndex = firstBody;
+            passive.secondBodyIndex = secondBody;
+            passive.flags = NM_NUMI_HUMAN_PASSIVE_LIGAMENT_ACTIVE;
+            passive.firstLocalPoint = {
+                firstLocal.x, firstLocal.y, firstLocal.z, 0.0f};
+            passive.secondLocalPoint = {
+                secondLocal.x, secondLocal.y, secondLocal.z, 0.0f};
+            passive.material = {
+                1.0e6f * region.material.c3MPa,
+                region.material.c4,
+                1.0e6f * region.material.c5MPa,
+                region.material.lambdaMaximum};
+            passive.reference = {
+                static_cast<float>(referenceLength),
+                static_cast<float>(effectiveArea),
+                region.material.initialStretch, 0.0f};
+            numi::matter::NumiHumanPassiveLigamentFiberEvaluation evaluation;
+            require(numi::matter::evaluateNumiHumanPassiveLigamentFiber(
+                        passive, referenceLength, evaluation),
+                    "live Open Knee reduced ligament source law is invalid");
+            passiveLigaments.push_back(passive);
+            std::cout
+                << "open_knee_passive_ligament_cook=accepted"
+                << " tissue=" << region.name
+                << " rest_length_m=" << referenceLength
+                << " volume_m3=" << volume
+                << " effective_area_m2=" << effectiveArea
+                << " source_fiber_alignment=" << fiberAlignment
+                << " source_initial_stretch="
+                << region.material.initialStretch
+                << " reference_tension_n=" << evaluation.tensionNewtons
+                << "\n" << std::flush;
+        }
         worldSource.objects.push_back(std::move(object));
     }
+    require(passiveLigaments.size() == 5u,
+            "live Open Knee passive ligament coverage drifted");
 
     const auto qatRuntime = std::find_if(
         regions.begin(), regions.end(),
@@ -7390,6 +7526,7 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 .nodeAnchors = nodeAnchors,
                 .endpointReplacements = endpointReplacements,
                 .articularContactSamples = articularContact.samples,
+                .passiveLigaments = passiveLigaments,
                 .endpointCount = static_cast<std::uint32_t>(
                     muscles.tendonPayload.bindings.size()),
                 .environmentCount = 1u,
@@ -7808,6 +7945,48 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         adapterDiagnostics.articularTrajectoryMaximumForceResidualNewtons;
     result.articularTrajectoryMaximumMomentResidualNewtonMeters =
         adapterDiagnostics.articularTrajectoryMaximumMomentResidualNewtonMeters;
+    result.passiveLigamentCount = adapterDiagnostics.passiveLigamentCount;
+    result.passiveLigamentLatestTransactionAccepted =
+        adapterDiagnostics.passiveLigamentLatestTransactionAccepted;
+    result.passiveLigamentEndpointForceL1Newtons =
+        adapterDiagnostics.passiveLigamentEndpointForceL1Newtons;
+    result.passiveLigamentMaximumTensionNewtons =
+        adapterDiagnostics.passiveLigamentMaximumTensionNewtons;
+    result.passiveLigamentMinimumEffectiveStretch =
+        adapterDiagnostics.passiveLigamentMinimumEffectiveStretch;
+    result.passiveLigamentMaximumEffectiveStretch =
+        adapterDiagnostics.passiveLigamentMaximumEffectiveStretch;
+    result.passiveLigamentForceResidualNewtons =
+        adapterDiagnostics.passiveLigamentForceResidualNewtons;
+    result.passiveLigamentMomentResidualNewtonMeters =
+        adapterDiagnostics.passiveLigamentMomentResidualNewtonMeters;
+    const double passiveLigamentForceScale = std::max(
+        1.0, adapterDiagnostics.passiveLigamentEndpointForceL1Newtons);
+    const bool passiveLigamentVerified =
+        adapterDiagnostics.passiveLigamentCount == passiveLigaments.size() &&
+        adapterDiagnostics.passiveLigamentCount == 5u &&
+        adapterDiagnostics.passiveLigamentLatestTransactionAccepted &&
+        std::isfinite(
+            adapterDiagnostics.passiveLigamentEndpointForceL1Newtons) &&
+        adapterDiagnostics.passiveLigamentEndpointForceL1Newtons > 0.0 &&
+        std::isfinite(
+            adapterDiagnostics.passiveLigamentMaximumTensionNewtons) &&
+        adapterDiagnostics.passiveLigamentMaximumTensionNewtons > 0.0 &&
+        std::isfinite(
+            adapterDiagnostics.passiveLigamentMinimumEffectiveStretch) &&
+        adapterDiagnostics.passiveLigamentMinimumEffectiveStretch > 0.5 &&
+        std::isfinite(
+            adapterDiagnostics.passiveLigamentMaximumEffectiveStretch) &&
+        adapterDiagnostics.passiveLigamentMaximumEffectiveStretch >=
+            adapterDiagnostics.passiveLigamentMinimumEffectiveStretch &&
+        std::isfinite(
+            adapterDiagnostics.passiveLigamentForceResidualNewtons) &&
+        adapterDiagnostics.passiveLigamentForceResidualNewtons <=
+            1.0e-5 * passiveLigamentForceScale &&
+        std::isfinite(
+            adapterDiagnostics.passiveLigamentMomentResidualNewtonMeters) &&
+        adapterDiagnostics.passiveLigamentMomentResidualNewtonMeters <=
+            1.0e-5 * passiveLigamentForceScale;
     const double articularForceScale = std::max(
         1.0, adapterDiagnostics.articularBodyForceL1Newtons);
     const bool articularContactVerified =
@@ -7883,7 +8062,7 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 result.maximumDeterminant <= 2.5f &&
                 assembledForceVerified && enthesisForceTransferVerified &&
                 patellarTendonForceTransferVerified &&
-                articularContactVerified &&
+                articularContactVerified && passiveLigamentVerified &&
                 completeBodyReactions &&
                 transaction.rollbackVerified && transaction.replayVerified,
             "live Open Knee accepted mechanics failed physical gates: displacement_m=" +
@@ -7936,6 +8115,20 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                     adapterDiagnostics.articularForceResidualNewtons) +
                 " articular_moment_residual_nm=" + std::to_string(
                     adapterDiagnostics.articularMomentResidualNewtonMeters) +
+                " passive_ligament_count=" + std::to_string(
+                    adapterDiagnostics.passiveLigamentCount) +
+                " passive_ligament_force_l1_n=" + std::to_string(
+                    adapterDiagnostics.passiveLigamentEndpointForceL1Newtons) +
+                " passive_ligament_max_tension_n=" + std::to_string(
+                    adapterDiagnostics.passiveLigamentMaximumTensionNewtons) +
+                " passive_ligament_stretch_min=" + std::to_string(
+                    adapterDiagnostics.passiveLigamentMinimumEffectiveStretch) +
+                " passive_ligament_stretch_max=" + std::to_string(
+                    adapterDiagnostics.passiveLigamentMaximumEffectiveStretch) +
+                " passive_ligament_force_residual_n=" + std::to_string(
+                    adapterDiagnostics.passiveLigamentForceResidualNewtons) +
+                " passive_ligament_moment_residual_nm=" + std::to_string(
+                    adapterDiagnostics.passiveLigamentMomentResidualNewtonMeters) +
                 " rollback=" +
                 (transaction.rollbackVerified ? "verified" : "failed") +
                 " replay=" +
@@ -13220,6 +13413,23 @@ int main(int argc, char** argv) {
                         << openKneeLigamentFEM->articularTrajectoryMaximumForceResidualNewtons
                         << " articular_trajectory_max_moment_residual_nm="
                         << openKneeLigamentFEM->articularTrajectoryMaximumMomentResidualNewtonMeters
+                        << " passive_ligament_count="
+                        << openKneeLigamentFEM->passiveLigamentCount
+                        << " passive_ligament_latest_transaction_accepted="
+                        << (openKneeLigamentFEM->passiveLigamentLatestTransactionAccepted
+                                ? "true" : "false")
+                        << " passive_ligament_endpoint_force_l1_n="
+                        << openKneeLigamentFEM->passiveLigamentEndpointForceL1Newtons
+                        << " passive_ligament_max_tension_n="
+                        << openKneeLigamentFEM->passiveLigamentMaximumTensionNewtons
+                        << " passive_ligament_min_effective_stretch="
+                        << openKneeLigamentFEM->passiveLigamentMinimumEffectiveStretch
+                        << " passive_ligament_max_effective_stretch="
+                        << openKneeLigamentFEM->passiveLigamentMaximumEffectiveStretch
+                        << " passive_ligament_force_residual_n="
+                        << openKneeLigamentFEM->passiveLigamentForceResidualNewtons
+                        << " passive_ligament_moment_residual_nm="
+                        << openKneeLigamentFEM->passiveLigamentMomentResidualNewtonMeters
                         << " qat_load_nodes="
                         << openKneeLigamentFEM->quadricepsLoadNodeCount
                         << " qat_load_patch_area_m2="
@@ -13842,7 +14052,7 @@ int main(int argc, char** argv) {
             }
             if (openKneeLigamentFEM.has_value()) {
                 evidenceBoundary += openKneeLigamentFEM->liveHumanCoupling
-                    ? "_with_all_four_source_quadriceps_nonlinear_Hill_tendon_resultants_replacing_their_complete_patella_terminal_rows_through_the_exact_QAT_patellar_enthesis_and_a_zero_resultant_PTL_patella_to_tibial_enthesis_force_couple_plus_exact_QAT_ACL_PCL_MCL_LCL_and_PTL_passive_Matter_FEM_anchor_reactions_in_the_same_Human_command_buffer_with_source_homogeneous_fibre_axes_and_a_smooth_exponential_GPU_approximation_at_neutral_in_situ_stretch_plus_bitwise_replay_and_rollback_not_exact_FEBio_Ei_straightened_fibre_or_staged_prestress_contact_sustained_tracking_or_clinical_validation"
+                    ? "_with_all_four_source_quadriceps_nonlinear_Hill_tendon_resultants_replacing_their_complete_patella_terminal_rows_through_the_exact_QAT_patellar_enthesis_and_a_zero_resultant_PTL_patella_to_tibial_enthesis_force_couple_plus_exact_QAT_ACL_PCL_MCL_LCL_and_PTL_passive_Matter_FEM_anchor_reactions_and_source_FEBio_piecewise_exp_linear_axial_fibre_stress_for_PCL_ACL_MCL_LCL_PTL_through_exact_enthesis_centroids_in_the_same_Human_command_buffer_with_volume_over_length_effective_area_and_bitwise_replay_and_rollback_not_a_spatially_incompatible_prestressed_continuum_field_current_surface_contact_sustained_tracking_subject_specific_calibration_or_clinical_validation"
                     : openKneeLigamentFEM->header.abi == 2u
                     ? "_with_four_exact_ligament_and_exact_patellar_tendon_surfaces_owned_by_an_accepted_NHKFEM2_three_body_attachment_reaction_snapshot_under_submicron_tibia_translation_not_loaded_flexion_quadriceps_tendon_source_transverse_isotropy_or_clinical_validation"
                     : "_with_four_exact_ligament_surfaces_owned_by_an_accepted_NHKFEM1_two_body_attachment_reaction_snapshot_under_submicron_tibia_translation_not_loaded_flexion_source_transverse_isotropy_or_clinical_validation";
@@ -14034,6 +14244,31 @@ int main(int argc, char** argv) {
                       << " open_knee_articular_trajectory_max_moment_residual_nm="
                       << (openKneeLigamentFEM.has_value()
                               ? openKneeLigamentFEM->articularTrajectoryMaximumMomentResidualNewtonMeters : 0.0)
+                      << " open_knee_passive_ligament_count="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->passiveLigamentCount : 0u)
+                      << " open_knee_passive_ligament_latest_transaction_accepted="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->passiveLigamentLatestTransactionAccepted
+                              : false)
+                      << " open_knee_passive_ligament_endpoint_force_l1_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->passiveLigamentEndpointForceL1Newtons : 0.0)
+                      << " open_knee_passive_ligament_max_tension_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->passiveLigamentMaximumTensionNewtons : 0.0)
+                      << " open_knee_passive_ligament_min_effective_stretch="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->passiveLigamentMinimumEffectiveStretch : 0.0)
+                      << " open_knee_passive_ligament_max_effective_stretch="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->passiveLigamentMaximumEffectiveStretch : 0.0)
+                      << " open_knee_passive_ligament_force_residual_n="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->passiveLigamentForceResidualNewtons : 0.0)
+                      << " open_knee_passive_ligament_moment_residual_nm="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->passiveLigamentMomentResidualNewtonMeters : 0.0)
                       << " open_knee_tissue_fem_qualification_flexion_rad="
                       << (openKneeLigamentFEM.has_value()
                               ? openKneeLigamentFEM->qualificationFlexionRadians : 0.0)

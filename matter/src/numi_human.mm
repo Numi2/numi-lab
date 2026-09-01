@@ -52,6 +52,166 @@ float scaleComponent(
 
 } // namespace
 
+bool evaluateNumiHumanPassiveLigamentFiber(
+    const NMNumiHumanPassiveLigamentGPU& ligament,
+    const double currentCentroidLengthMeters,
+    NumiHumanPassiveLigamentFiberEvaluation& result
+) noexcept {
+    result = {};
+    const nm_float4 material = ligament.material;
+    const nm_float4 reference = ligament.reference;
+    if (ligament.flags != NM_NUMI_HUMAN_PASSIVE_LIGAMENT_ACTIVE ||
+        ligament.reserved0 != 0u || !finiteScale(material) ||
+        !finiteScale(reference) || material.x <= 0.0f ||
+        material.y <= 0.0f || material.z <= 0.0f ||
+        material.w <= 1.0f || reference.x <= 0.0f ||
+        reference.y <= 0.0f || reference.z < 1.0f ||
+        reference.w != 0.0f ||
+        !std::isfinite(currentCentroidLengthMeters) ||
+        currentCentroidLengthMeters <= 0.0) {
+        return false;
+    }
+    const double stretch = reference.z *
+        currentCentroidLengthMeters / reference.x;
+    if (!std::isfinite(stretch) || stretch <= 0.0) return false;
+    double stress = 0.0;
+    if (stretch > 1.0 && stretch < material.w) {
+        stress = material.x * std::expm1(material.y * (stretch - 1.0));
+    } else if (stretch >= material.w) {
+        const double c6 = material.x *
+                std::expm1(material.y * (material.w - 1.0)) -
+            material.z * material.w;
+        stress = material.z * stretch + c6;
+    }
+    const double tension = stress * reference.y;
+    if (!std::isfinite(stress) || stress < 0.0 ||
+        !std::isfinite(tension) || tension < 0.0) return false;
+    result.effectiveStretch = stretch;
+    result.fiberStressPascals = stress;
+    result.tensionNewtons = tension;
+    return true;
+}
+
+NumiHumanFEMPrestressDiagnostics prepareNumiHumanFEMPrestressStage(
+    const CompiledWorld& world,
+    const std::span<const NumiHumanFEMPrestressTarget> targets,
+    const float fraction,
+    RuntimeStateSnapshot& snapshot
+) {
+    NumiHumanFEMPrestressDiagnostics diagnostics;
+    diagnostics.fraction = fraction;
+    const auto reject = [&](const NumiHumanFEMPrestressStatus status,
+                            const std::uint32_t target,
+                            std::string message) {
+        diagnostics.status = status;
+        diagnostics.failingTarget = target;
+        diagnostics.message = std::move(message);
+        return diagnostics;
+    };
+    if (!snapshot.available || snapshot.deviceProgramFingerprint == 0u) {
+        return reject(
+            NumiHumanFEMPrestressStatus::invalidSnapshot,
+            NM_INVALID_INDEX,
+            "prestress staging requires an available device snapshot"
+        );
+    }
+    if (!std::isfinite(fraction) || fraction < 0.0f || fraction > 1.0f) {
+        return reject(
+            NumiHumanFEMPrestressStatus::invalidFraction,
+            NM_INVALID_INDEX,
+            "prestress fraction must be finite and within [0, 1]"
+        );
+    }
+    const std::size_t parameterCount = world.dispatch.parameterCount;
+    const std::size_t environmentCount = world.dispatch.environmentCount;
+    if (parameterCount == 0u || environmentCount == 0u ||
+        world.parameters.size() != parameterCount ||
+        snapshot.environmentParameters.size() !=
+            parameterCount * environmentCount) {
+        return reject(
+            NumiHumanFEMPrestressStatus::invalidParameterArena,
+            NM_INVALID_INDEX,
+            "prestress parameter arena does not match the cooked world"
+        );
+    }
+    if (targets.empty()) {
+        return reject(
+            NumiHumanFEMPrestressStatus::invalidParameter,
+            NM_INVALID_INDEX,
+            "prestress staging requires at least one parameter target"
+        );
+    }
+
+    std::vector<bool> parameterSeen(parameterCount, false);
+    std::vector<std::pair<std::uint32_t, float>> stagedValues;
+    stagedValues.reserve(targets.size());
+    for (std::uint32_t targetIndex = 0u;
+         targetIndex < targets.size(); ++targetIndex) {
+        const auto& target = targets[targetIndex];
+        if (target.materialIndex >= world.materials.size()) {
+            return reject(
+                NumiHumanFEMPrestressStatus::invalidMaterial,
+                targetIndex,
+                "prestress target material index escapes the cooked world"
+            );
+        }
+        const NMMaterialGPU& material = world.materials[target.materialIndex];
+        if (target.localParameterIndex >= material.parameterCount ||
+            material.parameterOffset >= parameterCount ||
+            target.localParameterIndex >=
+                parameterCount - material.parameterOffset) {
+            return reject(
+                NumiHumanFEMPrestressStatus::invalidParameter,
+                targetIndex,
+                "prestress target parameter index escapes its material"
+            );
+        }
+        const std::uint32_t parameter =
+            material.parameterOffset + target.localParameterIndex;
+        if (parameterSeen[parameter]) {
+            return reject(
+                NumiHumanFEMPrestressStatus::duplicateParameter,
+                targetIndex,
+                "prestress target parameter is duplicated"
+            );
+        }
+        parameterSeen[parameter] = true;
+        const auto& bounds = world.parameters[parameter].valueAndBounds;
+        const float value = target.neutralValue +
+            fraction * (target.sourceValue - target.neutralValue);
+        if (!std::isfinite(target.neutralValue) ||
+            !std::isfinite(target.sourceValue) || !std::isfinite(value) ||
+            target.neutralValue < bounds.y || target.neutralValue > bounds.z ||
+            target.sourceValue < bounds.y || target.sourceValue > bounds.z ||
+            value < bounds.y || value > bounds.z) {
+            return reject(
+                NumiHumanFEMPrestressStatus::invalidBounds,
+                targetIndex,
+                "prestress target or staged value violates authored bounds"
+            );
+        }
+        diagnostics.maximumAbsoluteParameterDelta = std::max(
+            diagnostics.maximumAbsoluteParameterDelta,
+            std::abs(value - target.neutralValue)
+        );
+        stagedValues.emplace_back(parameter, value);
+    }
+
+    std::vector<float> staged = snapshot.environmentParameters;
+    for (std::uint32_t environment = 0u;
+         environment < environmentCount; ++environment) {
+        const std::size_t base = environment * parameterCount;
+        for (const auto& [parameter, value] : stagedValues)
+            staged[base + parameter] = value;
+    }
+    snapshot.environmentParameters = std::move(staged);
+    diagnostics.status = NumiHumanFEMPrestressStatus::success;
+    diagnostics.appliedParameterCount = static_cast<std::uint32_t>(
+        stagedValues.size() * environmentCount);
+    diagnostics.message = "prestress parameter stage prepared";
+    return diagnostics;
+}
+
 struct NumiHumanTendonFEMLoadAdapter::State {
     Runtime* runtime = nullptr;
     std::vector<NMNumiHumanTendonFEMNodeLoadGPU> nodeLoads;
@@ -61,6 +221,7 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     std::vector<NMNumiHumanFEMContactContributionGPU> contactContributions;
     std::vector<NMIncidenceRangeGPU> contactRanges;
     std::vector<NMNumiHumanArticularContactSampleGPU> articularContactSamples;
+    std::vector<NMNumiHumanPassiveLigamentGPU> passiveLigaments;
     std::filesystem::path metallib;
     std::uint32_t endpointCount = 0u;
     std::uint32_t environmentCount = 0u;
@@ -83,6 +244,8 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLComputePipelineState> articularContactPipeline = nil;
     __strong id<MTLComputePipelineState> articularContactAuditPipeline = nil;
     __strong id<MTLComputePipelineState> articularContactAuditCommitPipeline = nil;
+    __strong id<MTLComputePipelineState> passiveLigamentAuditPipeline = nil;
+    __strong id<MTLComputePipelineState> passiveLigamentAuditCommitPipeline = nil;
     __strong id<MTLComputePipelineState> targetPipeline = nil;
     __strong id<MTLComputePipelineState> reactionAuditPipeline = nil;
     __strong id<MTLComputePipelineState> reactionAuditCommitPipeline = nil;
@@ -97,6 +260,8 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLBuffer> articularBodyWrenchBuffer = nil;
     __strong id<MTLBuffer> articularContactAuditBuffer = nil;
     __strong id<MTLBuffer> articularContactAuditHistoryBuffer = nil;
+    __strong id<MTLBuffer> passiveLigamentBuffer = nil;
+    __strong id<MTLBuffer> passiveLigamentAuditBuffer = nil;
     __strong id<MTLBuffer> externalForceBuffer = nil;
     __strong id<MTLBuffer> externalForceAuditBuffer = nil;
     __strong id<MTLBuffer> anchorReactionAuditBuffer = nil;
@@ -132,6 +297,8 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         configuration.metallib.empty() ||
         !std::filesystem::is_regular_file(configuration.metallib) ||
         source.articularContactSamples.size() >
+            std::numeric_limits<std::uint32_t>::max() ||
+        source.passiveLigaments.size() >
             std::numeric_limits<std::uint32_t>::max() ||
         (hasContact != !source.contactContributions.empty()) ||
         (hasContact != !source.contactRanges.empty()) ||
@@ -238,6 +405,22 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
             std::abs(normalLength - 1.0) > 1.0e-5 || normal.w <= 0.0f ||
             strain.x <= 0.0f || strain.y != 0.0f || strain.z != 0.0f ||
             strain.w != 0.0f) {
+            return false;
+        }
+    }
+    for (const auto& ligament : source.passiveLigaments) {
+        NumiHumanPassiveLigamentFiberEvaluation referenceEvaluation;
+        if (ligament.firstBodyIndex == NM_INVALID_INDEX ||
+            ligament.secondBodyIndex == NM_INVALID_INDEX ||
+            ligament.firstBodyIndex == ligament.secondBodyIndex ||
+            ligament.flags != NM_NUMI_HUMAN_PASSIVE_LIGAMENT_ACTIVE ||
+            ligament.reserved0 != 0u ||
+            !finiteScale(ligament.firstLocalPoint) ||
+            !finiteScale(ligament.secondLocalPoint) ||
+            ligament.firstLocalPoint.w != 0.0f ||
+            ligament.secondLocalPoint.w != 0.0f ||
+            !evaluateNumiHumanPassiveLigamentFiber(
+                ligament, ligament.reference.x, referenceEvaluation)) {
             return false;
         }
     }
@@ -381,6 +564,8 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
     candidate->articularContactSamples.assign(
         source.articularContactSamples.begin(),
         source.articularContactSamples.end());
+    candidate->passiveLigaments.assign(
+        source.passiveLigaments.begin(), source.passiveLigaments.end());
     for (const auto& sample : candidate->articularContactSamples) {
         if (sample.flags == NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE) {
             ++candidate->articularMechanicalSampleCount;
@@ -430,6 +615,10 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         fingerprint, candidate->articularContactSamples.data(),
         candidate->articularContactSamples.size() *
             sizeof(NMNumiHumanArticularContactSampleGPU));
+    fingerprint = appendFingerprint(
+        fingerprint, candidate->passiveLigaments.data(),
+        candidate->passiveLigaments.size() *
+            sizeof(NMNumiHumanPassiveLigamentGPU));
     candidate->fingerprint = fingerprint == 0u ? 1u : fingerprint;
     candidate->message = "initialized";
     state_ = std::move(candidate);
@@ -558,6 +747,12 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->articularContactAuditCommitPipeline = pipeline(
                     "nm_numi_human_commit_articular_contact_audit");
             }
+            if (!state_->passiveLigaments.empty()) {
+                state_->passiveLigamentAuditPipeline = pipeline(
+                    "nm_numi_human_audit_passive_ligaments");
+                state_->passiveLigamentAuditCommitPipeline = pipeline(
+                    "nm_numi_human_commit_passive_ligament_audit");
+            }
             state_->targetPipeline = pipeline(
                 "nm_numi_human_assemble_fem_kinematic_targets");
             state_->reactionAuditPipeline = pipeline(
@@ -647,6 +842,22 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                         state_->articularContactAuditHistoryBuffer.length);
                 }
             }
+            if (!state_->passiveLigaments.empty()) {
+                state_->passiveLigamentBuffer = [device
+                    newBufferWithBytes:state_->passiveLigaments.data()
+                    length:state_->passiveLigaments.size() *
+                        sizeof(NMNumiHumanPassiveLigamentGPU)
+                    options:MTLResourceStorageModeShared];
+                state_->passiveLigamentAuditBuffer = [device
+                    newBufferWithLength:state_->environmentCount *
+                        sizeof(NMNumiHumanPassiveLigamentAuditGPU)
+                    options:MTLResourceStorageModeShared];
+                if (state_->passiveLigamentAuditBuffer != nil) {
+                    std::memset(
+                        state_->passiveLigamentAuditBuffer.contents, 0,
+                        state_->passiveLigamentAuditBuffer.length);
+                }
+            }
             state_->externalForceBuffer = [device
                 newBufferWithLength:externalForceBytes
                 options:MTLResourceStorageModePrivate];
@@ -681,6 +892,9 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                  (state_->articularContactPipeline == nil ||
                   state_->articularContactAuditPipeline == nil ||
                   state_->articularContactAuditCommitPipeline == nil)) ||
+                (!state_->passiveLigaments.empty() &&
+                 (state_->passiveLigamentAuditPipeline == nil ||
+                  state_->passiveLigamentAuditCommitPipeline == nil)) ||
                 state_->targetPipeline == nil ||
                 state_->reactionAuditPipeline == nil ||
                 state_->reactionAuditCommitPipeline == nil ||
@@ -710,6 +924,13 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                  state_->articularContactAuditHistoryBuffer == nil)) {
                 state_->message =
                     "Human articular contact buffer is unavailable";
+                return false;
+            }
+            if (!state_->passiveLigaments.empty() &&
+                (state_->passiveLigamentBuffer == nil ||
+                 state_->passiveLigamentAuditBuffer == nil)) {
+                state_->message =
+                    "Human passive ligament buffer is unavailable";
                 return false;
             }
             if (state_->externalForceBuffer == nil ||
@@ -750,6 +971,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->contactSamples.size()),
             .articularContactSampleCount = static_cast<std::uint32_t>(
                 state_->articularContactSamples.size()),
+            .passiveLigamentCount = static_cast<std::uint32_t>(
+                state_->passiveLigaments.size()),
         };
         const auto encodeKernel = [&](id<MTLComputePipelineState> pipeline,
                                       const NSUInteger count,
@@ -782,6 +1005,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                                 offset:0u atIndex:7u];
                     [encoder setBuffer:state_->articularContactSampleBuffer
                                 offset:0u atIndex:8u];
+                    [encoder setBuffer:state_->passiveLigamentBuffer
+                                offset:0u atIndex:9u];
                 }
             ) || !encodeKernel(
                 state_->forcePipeline,
@@ -837,6 +1062,20 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 })) {
             state_->message =
                 "Human articular contact wrench encoding failed";
+            return false;
+        }
+        if (!state_->passiveLigaments.empty() &&
+            !encodeKernel(
+                state_->passiveLigamentAuditPipeline,
+                state_->environmentCount,
+                [&](id<MTLComputeCommandEncoder> encoder) {
+                    [encoder setBuffer:state_->passiveLigamentBuffer
+                                offset:0u atIndex:1u];
+                    [encoder setBuffer:bodyPoses offset:0u atIndex:2u];
+                    [encoder setBuffer:state_->passiveLigamentAuditBuffer
+                                offset:0u atIndex:3u];
+                })) {
+            state_->message = "Human passive ligament audit encoding failed";
             return false;
         }
         if (!state_->articularContactSamples.empty() &&
@@ -929,6 +1168,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     [encoder setBuffer:generalizedForces offset:0u atIndex:9u];
                     [encoder setBuffer:state_->articularBodyWrenchBuffer
                                 offset:0u atIndex:10u];
+                    [encoder setBuffer:state_->passiveLigamentBuffer
+                                offset:0u atIndex:11u];
                 }
             )) {
             state_->message = "Human tendon/FEM anchor-reaction encoding failed";
@@ -987,6 +1228,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
                 state_->contactSamples.size()),
             .articularContactSampleCount = static_cast<std::uint32_t>(
                 state_->articularContactSamples.size()),
+            .passiveLigamentCount = static_cast<std::uint32_t>(
+                state_->passiveLigaments.size()),
         };
         id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
         if (encoder == nil) {
@@ -1067,6 +1310,22 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
                 threadsPerThreadgroup:MTLSizeMake(
                     std::max<NSUInteger>(commitWidth, 1u), 1u, 1u)];
         }
+        if (!state_->passiveLigaments.empty()) {
+            [commitEncoder setComputePipelineState:
+                state_->passiveLigamentAuditCommitPipeline];
+            [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+            [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
+            [commitEncoder setBuffer:state_->passiveLigamentAuditBuffer
+                          offset:0u atIndex:2u];
+            const NSUInteger passiveWidth = std::min<NSUInteger>(
+                count, std::min<NSUInteger>(
+                    state_->passiveLigamentAuditCommitPipeline
+                        .maxTotalThreadsPerThreadgroup,
+                    256u));
+            [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(
+                    std::max<NSUInteger>(passiveWidth, 1u), 1u, 1u)];
+        }
         [commitEncoder endEncoding];
         ++state_->encodedPassCount;
         state_->message = "two-way transaction encoded";
@@ -1128,6 +1387,65 @@ NumiHumanTendonFEMLoadAdapter::diagnostics() const noexcept {
         state_->articularMechanicalSampleCount;
     result.articularInternalSameBodySampleCount =
         state_->articularInternalSameBodySampleCount;
+    result.passiveLigamentCount = static_cast<std::uint32_t>(
+        state_->passiveLigaments.size());
+    if (state_->passiveLigamentAuditBuffer != nil) {
+        const auto* audits =
+            static_cast<const NMNumiHumanPassiveLigamentAuditGPU*>(
+                state_->passiveLigamentAuditBuffer.contents);
+        double forceX = 0.0;
+        double forceY = 0.0;
+        double forceZ = 0.0;
+        double momentX = 0.0;
+        double momentY = 0.0;
+        double momentZ = 0.0;
+        double minimumStretch = std::numeric_limits<double>::infinity();
+        bool accepted = true;
+        for (std::uint32_t environment = 0u;
+             environment < state_->environmentCount; ++environment) {
+            const auto& audit = audits[environment];
+            const nm_float4 force = audit.forceResidualAndL1;
+            const nm_float4 moment = audit.momentResidualAndMaximumTension;
+            const nm_float4 stretch = audit.stretchCountAndAccepted;
+            if (!finiteScale(force) || !finiteScale(moment) ||
+                !finiteScale(stretch) || force.w < 0.0f || moment.w < 0.0f ||
+                stretch.x <= 0.0f || stretch.y < stretch.x ||
+                static_cast<std::uint32_t>(stretch.z) !=
+                    state_->passiveLigaments.size() ||
+                (stretch.w != 0.0f && stretch.w != 1.0f)) {
+                const double nan = std::numeric_limits<double>::quiet_NaN();
+                result.passiveLigamentEndpointForceL1Newtons = nan;
+                result.passiveLigamentMaximumTensionNewtons = nan;
+                result.passiveLigamentMinimumEffectiveStretch = nan;
+                result.passiveLigamentMaximumEffectiveStretch = nan;
+                result.passiveLigamentForceResidualNewtons = nan;
+                result.passiveLigamentMomentResidualNewtonMeters = nan;
+                return result;
+            }
+            accepted = accepted && stretch.w == 1.0f;
+            forceX += force.x;
+            forceY += force.y;
+            forceZ += force.z;
+            momentX += moment.x;
+            momentY += moment.y;
+            momentZ += moment.z;
+            result.passiveLigamentEndpointForceL1Newtons += force.w;
+            result.passiveLigamentMaximumTensionNewtons = std::max(
+                result.passiveLigamentMaximumTensionNewtons,
+                static_cast<double>(moment.w));
+            minimumStretch = std::min(
+                minimumStretch, static_cast<double>(stretch.x));
+            result.passiveLigamentMaximumEffectiveStretch = std::max(
+                result.passiveLigamentMaximumEffectiveStretch,
+                static_cast<double>(stretch.y));
+        }
+        result.passiveLigamentMinimumEffectiveStretch = minimumStretch;
+        result.passiveLigamentForceResidualNewtons = std::sqrt(
+            forceX * forceX + forceY * forceY + forceZ * forceZ);
+        result.passiveLigamentMomentResidualNewtonMeters = std::sqrt(
+            momentX * momentX + momentY * momentY + momentZ * momentZ);
+        result.passiveLigamentLatestTransactionAccepted = accepted;
+    }
     if (state_->externalForceAuditBuffer != nil) {
         const auto* audits = static_cast<const nm_float4*>(
             state_->externalForceAuditBuffer.contents);

@@ -14,6 +14,7 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <optional>
 #include <span>
 #include <stdexcept>
 #include <string>
@@ -51,6 +52,9 @@ constexpr LigamentSpec quadricepsTendonSpec{
 struct LigamentRuntime {
     const LigamentSpec* specification = nullptr;
     std::uint32_t payloadRegion = 0u;
+    std::uint32_t materialIndex = 0u;
+    std::uint32_t initialStretchParameterIndex = 0u;
+    std::uint32_t numericalViscosityParameterIndex = 0u;
     std::uint32_t firstFEMNode = 0u;
     std::uint32_t nodeCount = 0u;
     std::uint32_t tetrahedronCount = 0u;
@@ -165,6 +169,21 @@ void setParameter(
     found->defaultValue = value;
 }
 
+std::uint32_t parameterIndex(
+    const numi::matter::MaterialProgram& material,
+    const std::string_view name
+) {
+    const auto found = std::find_if(
+        material.parameters.begin(), material.parameters.end(),
+        [name](const numi::matter::Parameter& parameter) {
+            return parameter.name == name;
+        });
+    if (found == material.parameters.end())
+        throw std::runtime_error("Open Knee material parameter is absent");
+    return static_cast<std::uint32_t>(
+        std::distance(material.parameters.begin(), found));
+}
+
 std::uint32_t femurBody(const metalrobo::NumiHumanKneeSide side) {
     return side == metalrobo::NumiHumanKneeSide::left
         ? metalrobo::NUMI_HUMAN_KNEE_FEMUR_BODY
@@ -237,23 +256,76 @@ void writeAcceptedSnapshot(
 int main(const int argc, const char* argv[]) {
     @autoreleasepool {
         try {
-            require(argc == 2 || argc == 3,
-                    "usage: probe OPEN_KNEE_NHKNEE1 [ACCEPTED_NHKFEM1|--active-qat-newtons=FORCE]");
+            require(argc >= 2,
+                    "usage: probe OPEN_KNEE_NHKNEE1 [ACCEPTED_NHKFEM2] [--active-qat-newtons=FORCE] [--tissue=PCL|ACL|MCL|PTL|LCL] [--experimental-volumetric-prestress] [--prestress-stages=1..32] [--prestress-settle-steps=0..16] [--prestress-rate-exponent=0..8] [--no-prestress-replay]");
             double activeQATTractionNewtons = 0.0;
-            if (argc == 3) {
-                constexpr std::string_view prefix =
+            std::uint32_t prestressStages = 4u;
+            std::uint32_t prestressSettleSteps = 2u;
+            std::uint32_t prestressRateExponent = 5u;
+            bool replayPrestress = true;
+            bool experimentalVolumetricPrestress = false;
+            std::optional<std::string> selectedTissue;
+            const char* acceptedSnapshotPath = nullptr;
+            for (int argumentIndex = 2; argumentIndex < argc;
+                 ++argumentIndex) {
+                const std::string_view argument(argv[argumentIndex]);
+                constexpr std::string_view activePrefix =
                     "--active-qat-newtons=";
-                const std::string_view argument(argv[2]);
-                if (argument.starts_with(prefix)) {
+                constexpr std::string_view stagePrefix =
+                    "--prestress-stages=";
+                constexpr std::string_view settlePrefix =
+                    "--prestress-settle-steps=";
+                constexpr std::string_view tissuePrefix = "--tissue=";
+                constexpr std::string_view ratePrefix =
+                    "--prestress-rate-exponent=";
+                if (argument.starts_with(activePrefix)) {
                     activeQATTractionNewtons = std::stod(
-                        std::string(argument.substr(prefix.size())));
+                        std::string(argument.substr(activePrefix.size())));
                     require(std::isfinite(activeQATTractionNewtons) &&
                                 activeQATTractionNewtons > 0.0,
                             "Open Knee active QAT force must be positive");
+                } else if (argument.starts_with(stagePrefix)) {
+                    prestressStages = static_cast<std::uint32_t>(std::stoul(
+                        std::string(argument.substr(stagePrefix.size()))));
+                    require(prestressStages >= 1u && prestressStages <= 32u,
+                            "Open Knee prestress stages must be within [1, 32]");
+                } else if (argument.starts_with(settlePrefix)) {
+                    prestressSettleSteps = static_cast<std::uint32_t>(std::stoul(
+                        std::string(argument.substr(settlePrefix.size()))));
+                    require(prestressSettleSteps <= 16u,
+                            "Open Knee prestress settle steps must be within [0, 16]");
+                } else if (argument == "--no-prestress-replay") {
+                    replayPrestress = false;
+                } else if (argument == "--experimental-volumetric-prestress") {
+                    experimentalVolumetricPrestress = true;
+                } else if (argument.starts_with(tissuePrefix)) {
+                    require(!selectedTissue.has_value(),
+                            "Open Knee tissue selection may be given only once");
+                    selectedTissue = std::string(
+                        argument.substr(tissuePrefix.size()));
+                    require(*selectedTissue == "PCL" ||
+                                *selectedTissue == "ACL" ||
+                                *selectedTissue == "MCL" ||
+                                *selectedTissue == "PTL" ||
+                                *selectedTissue == "LCL",
+                            "Open Knee diagnostic tissue selection is invalid");
+                } else if (argument.starts_with(ratePrefix)) {
+                    prestressRateExponent = static_cast<std::uint32_t>(
+                        std::stoul(std::string(
+                            argument.substr(ratePrefix.size()))));
+                    require(prestressRateExponent <= NM_MAX_RATE_EXPONENT,
+                            "Open Knee prestress rate exponent exceeds Matter capacity");
+                } else {
+                    require(!argument.starts_with("--") &&
+                                acceptedSnapshotPath == nullptr,
+                            "Open Knee probe argument is invalid or duplicated");
+                    acceptedSnapshotPath = argv[argumentIndex];
                 }
             }
             const bool activeQuadricepsTendon =
                 activeQATTractionNewtons > 0.0;
+            require(!(activeQuadricepsTendon && selectedTissue.has_value()),
+                    "Open Knee active QAT and single-tissue diagnostics are mutually exclusive");
             const std::vector<std::byte> bytes = readBytes(argv[1]);
             metalrobo::NumiHumanKneePayload payload;
             const auto decoded = metalrobo::decodeNumiHumanKneePayload(bytes, payload);
@@ -271,9 +343,9 @@ int main(const int argc, const char* argv[]) {
             source.environmentCount = 1u;
             source.frameTimestep = 1.0e-4;
             source.gravity = {0.0, 0.0, 0.0};
-            source.mixedSolver.newtonIterations = 4u;
+            source.mixedSolver.newtonIterations = 8u;
             source.mixedSolver.fgmresRestart = 16u;
-            source.mixedSolver.fgmresIterations = 32u;
+            source.mixedSolver.fgmresIterations = 64u;
             source.mixedSolver.lineSearchSteps = 6u;
 
             std::vector<LigamentRuntime> ligaments;
@@ -290,6 +362,8 @@ int main(const int argc, const char* argv[]) {
                        region.name == quadricepsTendonSpec.name)));
                 if (!exactTissue)
                     continue;
+                if (selectedTissue.has_value() &&
+                    region.name != *selectedTissue) continue;
                 const auto& spec = specification(region.name);
                 require(region.material.hasHomogeneousFiber &&
                             region.material.hasIsochoricInSituStretch,
@@ -310,10 +384,16 @@ int main(const int argc, const char* argv[]) {
                 activeQuadricepsTendon ? 62402u : 47439u;
             const std::uint32_t expectedTetrahedronCount =
                 activeQuadricepsTendon ? 264442u : 195032u;
-            require(ligaments.size() == expectedRegionCount &&
-                        totalNodes == expectedNodeCount &&
-                        totalTetrahedra == expectedTetrahedronCount,
-                    "Open Knee exact ligament/patellar-tendon topology drifted");
+            if (selectedTissue.has_value()) {
+                require(ligaments.size() == 1u && totalNodes > 0u &&
+                            totalTetrahedra > 0u,
+                        "Open Knee selected tissue topology is unavailable");
+            } else {
+                require(ligaments.size() == expectedRegionCount &&
+                            totalNodes == expectedNodeCount &&
+                            totalTetrahedra == expectedTetrahedronCount,
+                        "Open Knee exact ligament/patellar-tendon topology drifted");
+            }
 
             std::vector<NMNumiHumanTendonFEMNodeLoadGPU> nodeLoads(totalNodes);
             std::vector<NMNumiHumanTendonFEMNodeAnchorGPU> nodeAnchors(totalNodes);
@@ -340,10 +420,9 @@ int main(const int argc, const char* argv[]) {
                 setParameter(material, "c4", region.material.c4);
                 setParameter(material, "bulk",
                              1.0e6 * region.material.bulkModulusMPa);
-                // The source final value is admitted in NHKNEE1 ABI 2, but a
-                // one-step jump to that residual stress failed the bounded
-                // nonlinear/performance gate. Apply neutral stretch until a
-                // staged in-situ equilibrium ramp owns initialization.
+                // Compile at the neutral source load-curve origin. The typed
+                // environment-parameter arena advances this to the admitted
+                // final value over accepted continuation stages below.
                 setParameter(material, "initial_stretch", 1.0);
                 setParameter(material, "fiber_x",
                              region.material.homogeneousFiberWorld[0u]);
@@ -352,9 +431,15 @@ int main(const int argc, const char* argv[]) {
                 setParameter(material, "fiber_z",
                              region.material.homogeneousFiberWorld[2u]);
                 setParameter(material, "tension_smoothing", 1.0e-4);
-                setParameter(material, "numerical_viscosity", 25.0);
+                setParameter(material, "numerical_viscosity",
+                             experimentalVolumetricPrestress ? 250.0 : 25.0);
                 const std::uint32_t materialIndex =
                     static_cast<std::uint32_t>(source.materials.size());
+                ligament.materialIndex = materialIndex;
+                ligament.initialStretchParameterIndex = parameterIndex(
+                    material, "initial_stretch");
+                ligament.numericalViscosityParameterIndex = parameterIndex(
+                    material, "numerical_viscosity");
                 source.materials.push_back(std::move(material));
 
                 numi::matter::ObjectSource object;
@@ -526,7 +611,12 @@ int main(const int argc, const char* argv[]) {
             }
 
             numi::matter::CompileOptions compileOptions;
-            compileOptions.maximumRateExponent = 0u;
+            // The source's stiff, nearly incompressible regions require an
+            // adaptive-rate envelope during prestress and
+            // the following qualification step. One control step remains one
+            // accepted/rolled-back transaction.
+            compileOptions.maximumRateExponent =
+                experimentalVolumetricPrestress ? prestressRateExponent : 0u;
             const auto compileStart = std::chrono::steady_clock::now();
             auto compiled = numi::matter::compileWorld(source, compileOptions);
             const auto compileEnd = std::chrono::steady_clock::now();
@@ -551,6 +641,27 @@ int main(const int argc, const char* argv[]) {
             const auto initial = runtime.snapshot();
             require(initial.available && initial.femNodes.size() == totalNodes,
                     "Open Knee ligament initial snapshot is unavailable");
+            std::vector<numi::matter::NumiHumanFEMPrestressTarget>
+                prestressTargets;
+            std::vector<numi::matter::NumiHumanFEMPrestressTarget>
+                operatingViscosityTargets;
+            for (const LigamentRuntime& ligament : ligaments) {
+                prestressTargets.push_back({
+                    .materialIndex = ligament.materialIndex,
+                    .localParameterIndex =
+                        ligament.initialStretchParameterIndex,
+                    .neutralValue = 1.0f,
+                    .sourceValue = static_cast<float>(
+                        ligament.specification->initialStretch),
+                });
+                operatingViscosityTargets.push_back({
+                    .materialIndex = ligament.materialIndex,
+                    .localParameterIndex =
+                        ligament.numericalViscosityParameterIndex,
+                    .neutralValue = 250.0f,
+                    .sourceValue = 25.0f,
+                });
+            }
 
             std::vector<NMNumiHumanTendonFEMEndpointReplacementGPU> replacements;
             if (activeQuadricepsTendon) {
@@ -600,7 +711,10 @@ int main(const int argc, const char* argv[]) {
                 transfers[endpoint].bindingIndex = endpoint;
                 transfers[endpoint].envelopeIndex = MR_INVALID_INDEX;
             }
-            if (activeQuadricepsTendon) {
+            const auto setActiveTransfers = [&](const bool enabled) {
+                transfers[0u].terminalWorldForce = {};
+                transfers[1u].terminalWorldForce = {};
+                if (!enabled || !activeQuadricepsTendon) return;
                 const Vec3 loadBoneForce = scale(
                     activeQATAxis, -activeQATTractionNewtons);
                 transfers[0u].terminalWorldForce = {
@@ -611,7 +725,8 @@ int main(const int argc, const char* argv[]) {
                     static_cast<float>(-loadBoneForce[0u]),
                     static_cast<float>(-loadBoneForce[1u]),
                     static_cast<float>(-loadBoneForce[2u]), 0.0f};
-            }
+            };
+            setActiveTransfers(false);
             id<MTLBuffer> bindingBuffer = [device
                 newBufferWithBytes:bindings.data()
                 length:endpointCount * sizeof(bindings.front())
@@ -633,8 +748,6 @@ int main(const int argc, const char* argv[]) {
             constexpr float prescribedTibiaTranslationZ = 2.0e-7f;
             std::array<MRArticulatedBodyPoseGPU, 3u> poses{};
             poses[0u].orientation = {0.0f, 0.0f, 0.0f, 1.0f};
-            poses[1u].position = {prescribedTibiaTranslationX, 0.0f,
-                                  prescribedTibiaTranslationZ, 0.0f};
             poses[1u].orientation = {0.0f, 0.0f, 0.0f, 1.0f};
             poses[2u].orientation = {0.0f, 0.0f, 0.0f, 1.0f};
             id<MTLBuffer> poseBuffer = [device
@@ -723,8 +836,163 @@ int main(const int argc, const char* argv[]) {
                         "Open Knee ligament command did not complete");
             };
 
+            struct PrestressRampResult {
+                numi::matter::RuntimeStateSnapshot accepted;
+                double maximumFinalVelocity = 0.0;
+                double finalIncrement = 0.0;
+                std::uint32_t acceptedSteps = 0u;
+            };
+            const auto maximumVelocity = [](const auto& snapshot) {
+                double maximum = 0.0;
+                for (const auto& node : snapshot.femNodes) {
+                    const double velocity = std::sqrt(
+                        static_cast<double>(node.velocityAndInverseMass.x) *
+                            node.velocityAndInverseMass.x +
+                        static_cast<double>(node.velocityAndInverseMass.y) *
+                            node.velocityAndInverseMass.y +
+                        static_cast<double>(node.velocityAndInverseMass.z) *
+                            node.velocityAndInverseMass.z);
+                    maximum = std::max(maximum, velocity);
+                }
+                return maximum;
+            };
+            const auto maximumNodeIncrement = [](const auto& first,
+                                                 const auto& second) {
+                require(first.femNodes.size() == second.femNodes.size(),
+                        "Open Knee prestress node arena changed");
+                double maximum = 0.0;
+                for (std::size_t node = 0u; node < first.femNodes.size();
+                     ++node) {
+                    maximum = std::max(maximum, norm(subtract(
+                        position(first.femNodes[node]),
+                        position(second.femNodes[node]))));
+                }
+                return maximum;
+            };
+            const auto requireAcceptedMatter = [](const auto& snapshot,
+                                                  const std::string& phase) {
+                require(snapshot.available && snapshot.statuses.size() == 1u,
+                        phase + " snapshot is unavailable");
+                const auto& status = snapshot.statuses[0u];
+                require(status.code == NM_STATUS_SUCCESS,
+                        phase + " rejected: status=" +
+                            std::to_string(status.code) + " object=" +
+                            std::to_string(status.objectIndex) + " index=" +
+                            std::to_string(status.failingIndex) +
+                            " microsteps=" +
+                            std::to_string(status.completedMicrosteps) +
+                            " fgmres_iterations=" +
+                            std::to_string(status.fgmresIterations));
+            };
+            const auto runPrestressRamp = [&](const std::string_view label) {
+                auto current = initial;
+                const auto reset = runtime.restore(current);
+                require(reset.encoded,
+                        "Open Knee prestress initial restore failed: " +
+                            reset.message);
+                PrestressRampResult result;
+                const std::uint32_t totalPrestressSteps =
+                    prestressStages + prestressSettleSteps;
+                for (std::uint32_t pass = 0u; pass < totalPrestressSteps;
+                     ++pass) {
+                    const std::uint32_t stage = std::min(
+                        pass + 1u, prestressStages);
+                    const float fraction = static_cast<float>(stage) /
+                        static_cast<float>(prestressStages);
+                    auto staged = current;
+                    const auto prepared =
+                        numi::matter::prepareNumiHumanFEMPrestressStage(
+                            compiled.world, prestressTargets, fraction, staged);
+                    require(prepared.succeeded(),
+                            "Open Knee prestress parameter stage failed: " +
+                                prepared.message);
+                    const auto restored = runtime.restore(staged);
+                    require(restored.encoded,
+                            "Open Knee prestress stage restore failed: " +
+                                restored.message);
+                    execute(pass, true);
+                    auto acceptedStage = runtime.snapshot();
+                    requireAcceptedMatter(
+                        acceptedStage,
+                        "Open Knee " + std::string(label) + " prestress stage " +
+                            std::to_string(pass + 1u));
+                    result.maximumFinalVelocity = maximumVelocity(acceptedStage);
+                    result.finalIncrement = maximumNodeIncrement(
+                        current, acceptedStage);
+                    result.acceptedSteps = pass + 1u;
+                    std::cout
+                        << "open_knee_prestress_stage=accepted"
+                        << " run=" << label
+                        << " step=" << pass + 1u
+                        << " source_stage=" << stage
+                        << " source_stages=" << prestressStages
+                        << " fraction=" << fraction
+                        << " maximum_velocity_m_per_s="
+                        << result.maximumFinalVelocity
+                        << " maximum_increment_m=" << result.finalIncrement
+                        << "\n" << std::flush;
+                    current = std::move(acceptedStage);
+                }
+                auto operating = current;
+                const auto lowered =
+                    numi::matter::prepareNumiHumanFEMPrestressStage(
+                        compiled.world, operatingViscosityTargets, 1.0f,
+                        operating);
+                require(lowered.succeeded(),
+                        "Open Knee operating viscosity stage failed: " +
+                            lowered.message);
+                const auto operatingRestore = runtime.restore(operating);
+                require(operatingRestore.encoded,
+                        "Open Knee operating viscosity restore failed: " +
+                            operatingRestore.message);
+                result.accepted = runtime.snapshot();
+                require(result.accepted.available,
+                        "Open Knee prestressed operating snapshot is unavailable");
+                return result;
+            };
+
+            const auto prestressStart = std::chrono::steady_clock::now();
+            PrestressRampResult prestress;
+            prestress.accepted = initial;
+            bool prestressReplayVerified = false;
+            if (experimentalVolumetricPrestress) {
+                prestress = runPrestressRamp("primary");
+            }
+            if (experimentalVolumetricPrestress && replayPrestress) {
+                const PrestressRampResult replayed =
+                    runPrestressRamp("replay");
+                require(replayed.accepted.femNodes.size() ==
+                            prestress.accepted.femNodes.size() &&
+                            std::memcmp(
+                                replayed.accepted.femNodes.data(),
+                                prestress.accepted.femNodes.data(),
+                                prestress.accepted.femNodes.size() *
+                                    sizeof(NMFEMNodeStateGPU)) == 0 &&
+                            replayed.accepted.environmentParameters ==
+                                prestress.accepted.environmentParameters,
+                        "Open Knee prestress replay is not bitwise");
+                prestressReplayVerified = true;
+                prestress = replayed;
+            }
+            require(std::isfinite(prestress.maximumFinalVelocity) &&
+                        std::isfinite(prestress.finalIncrement) &&
+                        prestress.maximumFinalVelocity < 0.10 &&
+                        prestress.finalIncrement < 1.0e-5,
+                    "Open Knee prestress continuation did not settle within its bounded certificate");
+            const auto prestressEnd = std::chrono::steady_clock::now();
+
+            setActiveTransfers(true);
+            std::memcpy(transferBuffer.contents, transfers.data(),
+                        endpointCount * sizeof(transfers.front()));
+            poses[1u].position = {prescribedTibiaTranslationX, 0.0f,
+                                  prescribedTibiaTranslationZ, 0.0f};
+            std::memcpy(poseBuffer.contents, poses.data(), sizeof(poses));
+
             const auto stepStart = std::chrono::steady_clock::now();
-            execute(0u, true);
+            const std::uint32_t qualificationStep =
+                experimentalVolumetricPrestress
+                    ? prestressStages + prestressSettleSteps : 0u;
+            execute(qualificationStep, true);
             const auto stepEnd = std::chrono::steady_clock::now();
             std::array<float, 2u * dofCount> acceptedGeneralizedForces{};
             std::memcpy(acceptedGeneralizedForces.data(),
@@ -853,7 +1121,9 @@ int main(const int argc, const char* argv[]) {
                           << " source_k_mpa=" << ligament.specification->bulkMPa
                           << " source_initial_stretch="
                           << ligament.specification->initialStretch
-                          << " applied_initial_stretch=1"
+                          << " applied_initial_stretch="
+                          << (experimentalVolumetricPrestress
+                                ? ligament.specification->initialStretch : 1.0)
                           << " source_lambda_max="
                           << region.material.lambdaMaximum
                           << " source_c3_mpa=" << region.material.c3MPa
@@ -900,13 +1170,25 @@ int main(const int argc, const char* argv[]) {
                 ? std::max(1.0e-4 * activeQATTractionNewtons,
                            bodyReactionL1[0u])
                 : 0.0;
+            std::array<bool, 3u> expectedBodyReaction{};
+            for (const LigamentRuntime& ligament : ligaments) {
+                expectedBodyReaction[0u] = expectedBodyReaction[0u] ||
+                    ligament.femurAnchorCount > 0u;
+                expectedBodyReaction[1u] = expectedBodyReaction[1u] ||
+                    ligament.tibiaAnchorCount > 0u;
+                expectedBodyReaction[2u] = expectedBodyReaction[2u] ||
+                    ligament.patellaAnchorCount > 0u;
+            }
+            bool completeBodyReactions = true;
+            for (std::uint32_t body = 0u; body < 3u; ++body) {
+                completeBodyReactions = completeBodyReactions &&
+                    (!expectedBodyReaction[body] ||
+                     (bodyReactionL1[body] > 0.0 &&
+                      bodyGeneralizedForceL1[body] > 0.0));
+            }
             require(maximumDisplacement > 0.0 && maximumDisplacement < 0.001 &&
                         minimumJ >= 0.50 && maximumJ <= 1.75 &&
-                        bodyReactionL1[0u] > 0.0 && bodyReactionL1[1u] > 0.0 &&
-                        bodyReactionL1[2u] > 0.0 &&
-                        bodyGeneralizedForceL1[0u] > 0.0 &&
-                        bodyGeneralizedForceL1[1u] > 0.0 &&
-                        bodyGeneralizedForceL1[2u] > 0.0 &&
+                        completeBodyReactions &&
                         (!activeQuadricepsTendon ||
                          (std::isfinite(activeQATEnthesisRelativeError) &&
                           std::abs(activeQATEnthesisReactionResultant -
@@ -922,7 +1204,7 @@ int main(const int argc, const char* argv[]) {
                               passiveReactionAllowanceNewtons)),
                     "Open Knee ligament accepted mechanics are invalid");
 
-            execute(1u, false);
+            execute(qualificationStep + 1u, false);
             const auto rolledBack = runtime.snapshot();
             require(rolledBack.available &&
                         std::memcmp(rolledBack.femNodes.data(),
@@ -930,9 +1212,9 @@ int main(const int argc, const char* argv[]) {
                                     accepted.femNodes.size() *
                                         sizeof(NMFEMNodeStateGPU)) == 0,
                     "Open Knee ligament rejected step did not roll back");
-            require(runtime.restore(initial).encoded,
-                    "Open Knee ligament initial restore failed");
-            execute(0u, true);
+            require(runtime.restore(prestress.accepted).encoded,
+                    "Open Knee ligament prestressed restore failed");
+            execute(qualificationStep, true);
             const auto replay = runtime.snapshot();
             require(replay.available &&
                         std::memcmp(replay.femNodes.data(), accepted.femNodes.data(),
@@ -947,7 +1229,15 @@ int main(const int argc, const char* argv[]) {
                                     generalizedForceBuffer.length) == 0,
                     "Open Knee ligament accepted replay is not bitwise");
             const auto diagnostics = adapter.diagnostics();
-            require(diagnostics.initialized && diagnostics.encodedPassCount == 3u &&
+            const std::uint32_t prestressEncodedPassCount =
+                experimentalVolumetricPrestress
+                    ? (prestressStages + prestressSettleSteps) *
+                        (replayPrestress ? 2u : 1u)
+                    : 0u;
+            const std::uint32_t expectedEncodedPassCount =
+                prestressEncodedPassCount + 3u;
+            require(diagnostics.initialized &&
+                        diagnostics.encodedPassCount == expectedEncodedPassCount &&
                         diagnostics.abortCount == 0u &&
                         diagnostics.fingerprint != 0u &&
                         (!activeQuadricepsTendon ||
@@ -962,15 +1252,19 @@ int main(const int argc, const char* argv[]) {
                               1.0e-4 * std::max(
                                   1.0, activeQATTractionNewtons))),
                     "Open Knee ligament adapter diagnostics are incomplete");
-            if (argc == 3 && !activeQuadricepsTendon) {
+            if (acceptedSnapshotPath != nullptr && !activeQuadricepsTendon) {
                 writeAcceptedSnapshot(
-                    argv[2], payload, ligaments, accepted, totalTetrahedra);
+                    acceptedSnapshotPath, payload, ligaments, accepted,
+                    totalTetrahedra);
             }
 
             const double compileMilliseconds =
                 std::chrono::duration<double, std::milli>(compileEnd - compileStart).count();
             const double stepMilliseconds =
                 std::chrono::duration<double, std::milli>(stepEnd - stepStart).count();
+            const double prestressMilliseconds =
+                std::chrono::duration<double, std::milli>(
+                    prestressEnd - prestressStart).count();
             std::cout
                 << "numi_human_open_knee_tissues=passed"
                 << " side=" << (payload.side == metalrobo::NumiHumanKneeSide::left
@@ -999,6 +1293,21 @@ int main(const int argc, const char* argv[]) {
                 << " accepted_step_wall_ms=" << stepMilliseconds
                 << " peak_rss_bytes=" << peakResidentBytes()
                 << " replay=bitwise rollback=verified"
+                << " volumetric_prestress_mode="
+                << (experimentalVolumetricPrestress
+                        ? "experimental" : "neutral_default")
+                << " prestress_stages=" << prestressStages
+                << " prestress_settle_steps=" << prestressSettleSteps
+                << " prestress_rate_exponent=" << prestressRateExponent
+                << " prestress_accepted_steps=" << prestress.acceptedSteps
+                << " prestress_final_maximum_velocity_m_per_s="
+                << prestress.maximumFinalVelocity
+                << " prestress_final_maximum_increment_m="
+                << prestress.finalIncrement
+                << " prestress_replay="
+                << (prestressReplayVerified ? "bitwise" : "not_requested")
+                << " prestress_wall_ms=" << prestressMilliseconds
+                << " operating_numerical_viscosity_pa_s=25"
                 << " active_qat="
                 << (activeQuadricepsTendon ? "true" : "false")
                 << " active_qat_load_nodes=" << activeQATLoadNodeCount
@@ -1028,8 +1337,11 @@ int main(const int argc, const char* argv[]) {
                 << " production_owner_fraction="
                 << (activeQuadricepsTendon ? 1 : 0)
                 << " accepted_snapshot="
-                << (argc == 3 && !activeQuadricepsTendon ? argv[2] : "none")
-                << " material_boundary=source_homogeneous_fibre_axis_with_smooth_exponential_apple_gpu_approximation_source_in_situ_stretch_admitted_but_held_neutral_pending_staged_equilibrium_ramp_not_exact_FEBio_exp_linear_Ei_law"
+                << (acceptedSnapshotPath != nullptr && !activeQuadricepsTendon
+                    ? acceptedSnapshotPath : "none")
+                << (experimentalVolumetricPrestress
+                    ? " material_boundary=experimental_source_homogeneous_fibre_axis_with_smooth_exponential_apple_gpu_approximation_and_source_linear_in_situ_stretch_continuation_not_exact_FEBio_exp_linear_Ei_or_iterative_prestrain_gradient_update_law"
+                    : " material_boundary=neutral_source_homogeneous_fibre_axis_with_smooth_exponential_apple_gpu_approximation_no_volumetric_prestress_claim")
                 << " mechanics_boundary="
                 << (activeQuadricepsTendon
                     ? "source_tendon_resultant_distributed_over_exact_QAT_patellar_enthesis_and_zero_resultant_PTL_patella_to_tibia_enthesis_force_couple_plus_passive_tissue_FEM_not_active_volumetric_tendon_or_clinical_validation"
