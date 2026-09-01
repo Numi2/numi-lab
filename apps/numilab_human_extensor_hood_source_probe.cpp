@@ -27,7 +27,7 @@ using metalrobo::NumiHumanTensionNetworkResult;
 constexpr std::array<char, 8u> kRigidMagic{
     'N', 'H', 'R', 'I', 'G', 'I', 'D', '2'};
 constexpr std::array<char, 8u> kHoodMagic{
-    'N', 'H', 'H', 'O', 'O', 'D', '1', '\0'};
+    'N', 'H', 'H', 'O', 'O', 'D', '2', '\0'};
 
 #pragma pack(push, 1)
 struct RigidHeader {
@@ -58,24 +58,26 @@ struct SourcePoseRecord {
 struct HoodHeader {
     std::array<char, 8u> magic{};
     std::uint32_t payloadAbi = 0u;
-    std::uint32_t handCount = 0u;
+    std::uint32_t rayCount = 0u;
     std::uint32_t nodeCount = 0u;
     std::uint32_t elementCount = 0u;
     std::uint32_t inputCount = 0u;
-    std::uint32_t handRecordBytes = 0u;
+    std::uint32_t rayRecordBytes = 0u;
     std::uint32_t nodeRecordBytes = 0u;
     std::uint32_t elementRecordBytes = 0u;
     std::uint32_t inputRecordBytes = 0u;
     std::array<std::uint8_t, 32u> sourceSha256{};
 };
 
-struct HoodHandRecord {
+struct HoodRayRecord {
     std::uint32_t nodeOffset = 0u;
     std::uint32_t nodeCount = 0u;
     std::uint32_t elementOffset = 0u;
     std::uint32_t elementCount = 0u;
     std::uint32_t inputOffset = 0u;
     std::uint32_t inputCount = 0u;
+    std::uint32_t side = 0u;
+    std::uint32_t digit = 0u;
 };
 
 struct HoodNodeRecord {
@@ -115,7 +117,7 @@ struct HoodInputRecord {
 static_assert(sizeof(RigidHeader) == 80u);
 static_assert(sizeof(SourcePoseRecord) == 28u);
 static_assert(sizeof(HoodHeader) == 76u);
-static_assert(sizeof(HoodHandRecord) == 24u);
+static_assert(sizeof(HoodRayRecord) == 32u);
 static_assert(sizeof(HoodNodeRecord) == 32u);
 static_assert(sizeof(HoodElementRecord) == 28u);
 static_assert(sizeof(HoodInputRecord) == 36u);
@@ -203,7 +205,7 @@ RigidPoseTable loadRigidPoseTable(const std::filesystem::path& path) {
 
 struct LoadedHood {
     HoodHeader header{};
-    std::vector<HoodHandRecord> hands;
+    std::vector<HoodRayRecord> rays;
     std::vector<HoodNodeRecord> nodes;
     std::vector<HoodElementRecord> elements;
     std::vector<HoodInputRecord> inputs;
@@ -213,41 +215,47 @@ LoadedHood loadHood(
     const std::filesystem::path& path, const RigidHeader& rigid
 ) {
     std::ifstream input(path, std::ios::binary);
-    require(input.is_open(), "cannot open NHHOOD1 payload");
+    require(input.is_open(), "cannot open NHHOOD2 payload");
     LoadedHood result;
-    readObject(input, result.header, "NHHOOD1 header");
+    readObject(input, result.header, "NHHOOD2 header");
     require(result.header.magic == kHoodMagic &&
-                result.header.payloadAbi == 1u,
-            "unsupported NHHOOD1 payload");
-    require(result.header.handCount == 2u &&
-                result.header.handRecordBytes == sizeof(HoodHandRecord) &&
+                result.header.payloadAbi == 2u,
+            "unsupported NHHOOD2 payload");
+    require(result.header.rayCount == 8u &&
+                result.header.rayRecordBytes == sizeof(HoodRayRecord) &&
                 result.header.nodeRecordBytes == sizeof(HoodNodeRecord) &&
                 result.header.elementRecordBytes == sizeof(HoodElementRecord) &&
                 result.header.inputRecordBytes == sizeof(HoodInputRecord) &&
                 result.header.sourceSha256 == rigid.sourceSha256,
-            "NHHOOD1 shape/source does not match NHRIGID2");
-    result.hands = readVector<HoodHandRecord>(
-        input, result.header.handCount, "NHHOOD1 hands");
+            "NHHOOD2 shape/source does not match NHRIGID2");
+    result.rays = readVector<HoodRayRecord>(
+        input, result.header.rayCount, "NHHOOD2 rays");
     result.nodes = readVector<HoodNodeRecord>(
-        input, result.header.nodeCount, "NHHOOD1 nodes");
+        input, result.header.nodeCount, "NHHOOD2 nodes");
     result.elements = readVector<HoodElementRecord>(
-        input, result.header.elementCount, "NHHOOD1 elements");
+        input, result.header.elementCount, "NHHOOD2 elements");
     result.inputs = readVector<HoodInputRecord>(
-        input, result.header.inputCount, "NHHOOD1 inputs");
+        input, result.header.inputCount, "NHHOOD2 inputs");
     require(input.peek() == std::char_traits<char>::eof(),
-            "NHHOOD1 payload has trailing bytes");
-    for (std::size_t index = 0u; index < result.hands.size(); ++index) {
-        const auto& hand = result.hands[index];
-        require(hand.nodeOffset + hand.nodeCount <= result.nodes.size() &&
-                    hand.elementOffset + hand.elementCount <= result.elements.size() &&
-                    hand.inputOffset + hand.inputCount <= result.inputs.size(),
-                "NHHOOD1 hand range is out of bounds");
+            "NHHOOD2 payload has trailing bytes");
+    for (std::size_t index = 0u; index < result.rays.size(); ++index) {
+        const auto& ray = result.rays[index];
+        const std::uint32_t expectedSide = index / 4u;
+        const std::uint32_t expectedDigit = 2u + index % 4u;
+        require(ray.side == expectedSide && ray.digit == expectedDigit &&
+                    ray.nodeCount == (ray.digit == 5u ? 12u : 10u) &&
+                    ray.elementCount == (ray.digit == 5u ? 14u : 12u) &&
+                    ray.inputCount == (ray.digit == 5u ? 5u : 4u) &&
+                    ray.nodeOffset + ray.nodeCount <= result.nodes.size() &&
+                    ray.elementOffset + ray.elementCount <= result.elements.size() &&
+                    ray.inputOffset + ray.inputCount <= result.inputs.size(),
+                "NHHOOD2 ray identity/range is invalid");
         if (index != 0u) {
-            const auto& previous = result.hands[index - 1u];
-            require(hand.nodeOffset == previous.nodeOffset + previous.nodeCount &&
-                        hand.elementOffset == previous.elementOffset + previous.elementCount &&
-                        hand.inputOffset == previous.inputOffset + previous.inputCount,
-                    "NHHOOD1 hand ranges are not contiguous");
+            const auto& previous = result.rays[index - 1u];
+            require(ray.nodeOffset == previous.nodeOffset + previous.nodeCount &&
+                        ray.elementOffset == previous.elementOffset + previous.elementCount &&
+                        ray.inputOffset == previous.inputOffset + previous.inputCount,
+                    "NHHOOD2 ray ranges are not contiguous");
         }
     }
     return result;
@@ -281,7 +289,7 @@ std::array<double, 3u> worldPoint(
     const std::vector<SourcePoseRecord>& poses, const std::uint32_t body,
     const std::array<double, 3u>& local
 ) {
-    require(body < poses.size(), "NHHOOD1 Core body is out of bounds");
+    require(body < poses.size(), "NHHOOD2 Core body is out of bounds");
     const auto rotated = rotate(poses[body], local);
     return {rotated[0] + poses[body].positionX,
             rotated[1] + poses[body].positionY,
@@ -292,7 +300,7 @@ std::array<double, 3u> localPoint(
     const std::vector<SourcePoseRecord>& poses, const std::uint32_t body,
     const std::array<double, 3u>& world
 ) {
-    require(body < poses.size(), "NHHOOD1 Core body is out of bounds");
+    require(body < poses.size(), "NHHOOD2 Core body is out of bounds");
     SourcePoseRecord inverse = poses[body];
     inverse.quaternionX = -inverse.quaternionX;
     inverse.quaternionY = -inverse.quaternionY;
@@ -319,56 +327,74 @@ struct Fixture {
     std::vector<NumiHumanTensionNetworkElement> elements;
     std::vector<NumiHumanTensionNetworkLoad> loads;
     double maximumSourceOracleForce = 0.0;
+    double minimumSourceElementLength = std::numeric_limits<double>::infinity();
+    double maximumSourceElementLength = 0.0;
 };
 
 Fixture makeFixture(
-    const LoadedHood& hood, const HoodHandRecord& hand,
+    const LoadedHood& hood, const HoodRayRecord& ray,
     const std::vector<SourcePoseRecord>& poses,
     const bool useSourceOracleForce
 ) {
     Fixture result;
-    result.nodes.reserve(hand.nodeCount);
-    for (std::uint32_t index = 0u; index < hand.nodeCount; ++index) {
-        const auto& source = hood.nodes[hand.nodeOffset + index];
+    result.nodes.reserve(ray.nodeCount);
+    for (std::uint32_t index = 0u; index < ray.nodeCount; ++index) {
+        const auto& source = hood.nodes[ray.nodeOffset + index];
         require((source.flags & 2u) != 0u && source.role == index,
-                "NHHOOD1 node lacks exact initializer or canonical role order");
+                "NHHOOD2 node lacks exact initializer or canonical role order");
         result.nodes.push_back({
             worldPoint(poses, source.coreBody,
                        {source.localX, source.localY, source.localZ}),
             (source.flags & 1u) != 0u,
         });
     }
-    result.elements.reserve(hand.elementCount);
-    for (std::uint32_t index = 0u; index < hand.elementCount; ++index) {
-        const auto& source = hood.elements[hand.elementOffset + index];
-        require(source.nodeA >= hand.nodeOffset &&
-                    source.nodeA < hand.nodeOffset + hand.nodeCount &&
-                    source.nodeB >= hand.nodeOffset &&
-                    source.nodeB < hand.nodeOffset + hand.nodeCount &&
+    require(result.nodes.size() >= 3u && result.nodes[0].fixed &&
+                result.nodes[1].fixed && result.nodes[2].fixed &&
+                hood.nodes[ray.nodeOffset].coreBody !=
+                    hood.nodes[ray.nodeOffset + 1u].coreBody &&
+                hood.nodes[ray.nodeOffset + 1u].coreBody !=
+                    hood.nodes[ray.nodeOffset + 2u].coreBody &&
+                hood.nodes[ray.nodeOffset].coreBody !=
+                    hood.nodes[ray.nodeOffset + 2u].coreBody,
+            "NHHOOD2 ray lacks distinct middle/distal/metacarpal bone anchors");
+    result.elements.reserve(ray.elementCount);
+    for (std::uint32_t index = 0u; index < ray.elementCount; ++index) {
+        const auto& source = hood.elements[ray.elementOffset + index];
+        require(source.nodeA >= ray.nodeOffset &&
+                    source.nodeA < ray.nodeOffset + ray.nodeCount &&
+                    source.nodeB >= ray.nodeOffset &&
+                    source.nodeB < ray.nodeOffset + ray.nodeCount &&
                     source.nodeA != source.nodeB && source.provenance == 1u &&
                     source.restScale > 0.0f && source.restScale <= 1.0f &&
                     source.youngModulus > 0.0f && source.area > 0.0f,
-                "NHHOOD1 element is invalid");
-        const std::uint32_t a = source.nodeA - hand.nodeOffset;
-        const std::uint32_t b = source.nodeB - hand.nodeOffset;
+                "NHHOOD2 element is invalid");
+        const std::uint32_t a = source.nodeA - ray.nodeOffset;
+        const std::uint32_t b = source.nodeB - ray.nodeOffset;
+        const double sourceLength = distance(
+            result.nodes[a].position, result.nodes[b].position);
+        require(sourceLength >= 1.0e-4 && sourceLength <= 0.1,
+                "NHHOOD2 source element length is anatomically implausible");
+        result.minimumSourceElementLength = std::min(
+            result.minimumSourceElementLength, sourceLength);
+        result.maximumSourceElementLength = std::max(
+            result.maximumSourceElementLength, sourceLength);
         result.elements.push_back({
-            a, b, source.restScale * distance(
-                result.nodes[a].position, result.nodes[b].position),
+            a, b, source.restScale * sourceLength,
             source.youngModulus, source.area,
         });
     }
     constexpr double literatureInputForce = 2.9;
-    result.loads.reserve(hand.inputCount);
-    for (std::uint32_t index = 0u; index < hand.inputCount; ++index) {
-        const auto& source = hood.inputs[hand.inputOffset + index];
-        require(source.node >= hand.nodeOffset &&
-                    source.node < hand.nodeOffset + hand.nodeCount &&
+    result.loads.reserve(ray.inputCount);
+    for (std::uint32_t index = 0u; index < ray.inputCount; ++index) {
+        const auto& source = hood.inputs[ray.inputOffset + index];
+        require(source.node >= ray.nodeOffset &&
+                    source.node < ray.nodeOffset + ray.nodeCount &&
                     (source.flags & 0xFFu) == 1u &&
                     (source.flags >> 8u) > 0u &&
                     std::isfinite(source.sourceOracleForce) &&
                     source.sourceOracleForce >= 0.0f,
-                "NHHOOD1 muscle input is invalid");
-        const std::uint32_t node = source.node - hand.nodeOffset;
+                "NHHOOD2 muscle input is invalid");
+        const std::uint32_t node = source.node - ray.nodeOffset;
         const auto proximal = worldPoint(
             poses, source.proximalCoreBody,
             {source.proximalLocalX, source.proximalLocalY,
@@ -380,7 +406,7 @@ Fixture makeFixture(
         };
         const double forceNorm = norm(force);
         require(forceNorm > 1.0e-8,
-                "NHHOOD1 muscle direction is degenerate");
+                "NHHOOD2 muscle direction is degenerate");
         const double appliedForce = useSourceOracleForce
             ? static_cast<double>(source.sourceOracleForce)
             : literatureInputForce;
@@ -424,23 +450,23 @@ NumiHumanTensionNetworkResult solve(const Fixture& fixture) {
 
 std::vector<double> projectTransferGeneralizedForce(
     const RigidPoseTable& rigid, const LoadedHood& hood,
-    const HoodHandRecord& hand, const Fixture& fixture,
+    const HoodRayRecord& ray, const Fixture& fixture,
     const NumiHumanTensionNetworkResult& network
 ) {
     std::vector<metalrobo::ArticulatedPointQuery> queries;
     std::vector<std::array<double, 3u>> pointForces;
-    for (std::uint32_t index = 0u; index < hand.nodeCount; ++index) {
-        const auto& source = hood.nodes[hand.nodeOffset + index];
+    for (std::uint32_t index = 0u; index < ray.nodeCount; ++index) {
+        const auto& source = hood.nodes[ray.nodeOffset + index];
         if ((source.flags & 1u) == 0u) continue;
         queries.push_back({
             source.coreBody, {source.localX, source.localY, source.localZ}});
         const auto& reaction = network.fixedReactionForce[index];
         pointForces.push_back({-reaction[0], -reaction[1], -reaction[2]});
     }
-    for (std::uint32_t index = 0u; index < hand.inputCount; ++index) {
-        const auto& source = hood.inputs[hand.inputOffset + index];
+    for (std::uint32_t index = 0u; index < ray.inputCount; ++index) {
+        const auto& source = hood.inputs[ray.inputOffset + index];
         const auto& inputNode = hood.nodes[source.node];
-        const std::uint32_t localNode = source.node - hand.nodeOffset;
+        const std::uint32_t localNode = source.node - ray.nodeOffset;
         queries.push_back({
             inputNode.coreBody,
             localPoint(rigid.poseByCoreBody, inputNode.coreBody,
@@ -485,6 +511,8 @@ int run(
     double maximumForceClosure = 0.0;
     double maximumMomentClosure = 0.0;
     double maximumSourceOracleForce = 0.0;
+    double minimumSourceElementLength = std::numeric_limits<double>::infinity();
+    double maximumSourceElementLength = 0.0;
     double totalStrainEnergy = 0.0;
     std::uint32_t totalActiveElements = 0u;
     bool replayBitwise = true;
@@ -496,9 +524,15 @@ int run(
     double sourceTotalStrainEnergy = 0.0;
     std::uint32_t sourceTotalActiveElements = 0u;
     bool sourceReplayBitwise = true;
-    for (const auto& hand : hood.hands) {
+    std::vector<double> rayMaximumInternalGeneralizedForce;
+    rayMaximumInternalGeneralizedForce.reserve(hood.rays.size());
+    for (const auto& ray : hood.rays) {
         const auto fixture = makeFixture(
-            hood, hand, rigid.poseByCoreBody, false);
+            hood, ray, rigid.poseByCoreBody, false);
+        minimumSourceElementLength = std::min(
+            minimumSourceElementLength, fixture.minimumSourceElementLength);
+        maximumSourceElementLength = std::max(
+            maximumSourceElementLength, fixture.maximumSourceElementLength);
         const auto result = solve(fixture);
         const auto replay = solve(fixture);
         replayBitwise = replayBitwise && bitwiseEqual(result, replay);
@@ -521,7 +555,7 @@ int run(
         totalStrainEnergy += result.strainEnergy;
         totalActiveElements += result.activeElementCount;
         const auto sourceFixture = makeFixture(
-            hood, hand, rigid.poseByCoreBody, true);
+            hood, ray, rigid.poseByCoreBody, true);
         const auto sourceResult = solve(sourceFixture);
         const auto sourceReplay = solve(sourceFixture);
         sourceReplayBitwise = sourceReplayBitwise &&
@@ -538,7 +572,12 @@ int run(
         sourceTotalStrainEnergy += sourceResult.strainEnergy;
         sourceTotalActiveElements += sourceResult.activeElementCount;
         const auto generalized = projectTransferGeneralizedForce(
-            rigid, hood, hand, sourceFixture, sourceResult);
+            rigid, hood, ray, sourceFixture, sourceResult);
+        double rayMaximum = 0.0;
+        for (std::size_t dof = 6u; dof < generalized.size(); ++dof) {
+            rayMaximum = std::max(rayMaximum, std::abs(generalized[dof]));
+        }
+        rayMaximumInternalGeneralizedForce.push_back(rayMaximum);
         for (std::size_t dof = 0u; dof < generalized.size(); ++dof) {
             combinedGeneralizedForce[dof] += generalized[dof];
         }
@@ -557,19 +596,28 @@ int run(
             maximumInternalGeneralizedForce,
             std::abs(combinedGeneralizedForce[dof]));
     }
+    const double accumulatedRootClosureTolerance =
+        2.0e-6 * static_cast<double>(hood.rays.size());
+    const bool everyRayTransfersForce = std::all_of(
+        rayMaximumInternalGeneralizedForce.begin(),
+        rayMaximumInternalGeneralizedForce.end(),
+        [](const double value) { return value > 1.0e-8; });
     require(replayBitwise && sourceReplayBitwise && rollbackVerified &&
                 maximumFreeResidual <= 2.0e-7 &&
                 maximumForceClosure <= 2.0e-6 &&
                 maximumMomentClosure <= 2.0e-7 &&
-                totalActiveElements >= 12u && totalStrainEnergy > 0.0 &&
+                totalActiveElements >= 48u && totalStrainEnergy > 0.0 &&
                 sourceMaximumFreeResidual <= 2.0e-7 &&
                 sourceMaximumForceClosure <= 2.0e-6 &&
                 sourceMaximumMomentClosure <= 2.0e-7 &&
-                sourceTotalActiveElements >= 12u &&
+                sourceTotalActiveElements >= 48u &&
                 sourceTotalStrainEnergy > 0.0 &&
-                rootForceResidual <= 2.0e-6 &&
-                rootMomentResidual <= 2.0e-6 &&
-                maximumInternalGeneralizedForce > 1.0e-8,
+                minimumSourceElementLength >= 1.0e-4 &&
+                maximumSourceElementLength <= 0.1 &&
+                rootForceResidual <= accumulatedRootClosureTolerance &&
+                rootMomentResidual <= accumulatedRootClosureTolerance &&
+                maximumInternalGeneralizedForce > 1.0e-8 &&
+                everyRayTransfersForce,
             "source-posed extensor hood qualification gate failed: free=" +
                 std::to_string(maximumFreeResidual) +
                 " closure_force=" + std::to_string(maximumForceClosure) +
@@ -582,7 +630,8 @@ int run(
                 std::to_string(sourceMaximumFreeResidual));
     std::cout << std::setprecision(12)
               << "numi_human_extensor_hood_source=passed"
-              << " hands=" << hood.hands.size()
+              << " rays=" << hood.rays.size()
+              << " hands=2 digits_per_hand=4"
               << " nodes=" << hood.nodes.size()
               << " elements=" << hood.elements.size()
               << " muscle_inputs=" << hood.inputs.size()
@@ -592,6 +641,10 @@ int run(
               << " max_force_closure_residual_n=" << maximumForceClosure
               << " max_moment_closure_residual_nm=" << maximumMomentClosure
               << " max_source_oracle_force_n=" << maximumSourceOracleForce
+              << " minimum_source_element_length_m="
+              << minimumSourceElementLength
+              << " maximum_source_element_length_m="
+              << maximumSourceElementLength
               << " source_oracle_active_elements="
               << sourceTotalActiveElements
               << " source_oracle_strain_energy_j="
@@ -610,6 +663,14 @@ int run(
               << combinedGeneralizedForce[59]
               << " left_fifth_mcp_abduction_generalized_force_nm="
               << combinedGeneralizedForce[97]
+              << " ray_maximum_internal_generalized_force=";
+    for (std::size_t index = 0u;
+         index < rayMaximumInternalGeneralizedForce.size(); ++index) {
+        if (index != 0u) std::cout << ',';
+        std::cout << (index < 4u ? 'R' : 'L') << (2u + index % 4u)
+                  << ':' << rayMaximumInternalGeneralizedForce[index];
+    }
+    std::cout
               << " applied_input_force_each_n=2.9"
               << " replay=bitwise source_oracle_replay=bitwise rollback=verified"
               << " boundary=source_posed_cpu_fp64_point_jacobian_transfer_not_yet_live_muscle_force_replacement\n";
