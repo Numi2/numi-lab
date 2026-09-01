@@ -609,6 +609,44 @@
         {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "1e0add8c801300bec1f437621c452786b458a637fd34bc471e407650086a2d73"}
       ]
     },
+    "thoracoabdominal_myofascia_force_transfer": {
+      "path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.thoracoabdominal-myofascia-live-metal.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/runtime_revision", "op": "equals", "value": "79d7cc24a69a843de828d68f26b3e9da100521c0"},
+        {"pointer": "/anatomy/region_count", "op": "equals", "value": 26},
+        {"pointer": "/anatomy/abdominal_terminal_count", "op": "equals", "value": 14},
+        {"pointer": "/mechanics/node_count", "op": "equals", "value": 1202},
+        {"pointer": "/mechanics/tetrahedron_count", "op": "equals", "value": 2127},
+        {"pointer": "/mechanics/fixed_node_count", "op": "equals", "value": 212},
+        {"pointer": "/mechanics/traction_node_count", "op": "equals", "value": 212},
+        {"pointer": "/one_step/accepted_steps", "op": "equals", "value": 1},
+        {"pointer": "/one_step/anchor_reaction_l1_n", "op": "minimum", "value": 0.001},
+        {"pointer": "/one_step/minimum_deformation_jacobian", "op": "minimum", "value": 0.35},
+        {"pointer": "/four_step/accepted_steps", "op": "equals", "value": 4},
+        {"pointer": "/four_step/audited_anchor_reaction_steps", "op": "equals", "value": 4},
+        {"pointer": "/four_step/minimum_anchor_reaction_l1_n", "op": "minimum", "value": 0.001},
+        {"pointer": "/four_step/minimum_deformation_jacobian", "op": "minimum", "value": 0.35},
+        {"pointer": "/four_step/maximum_tendon_force_residual_n", "op": "maximum", "value": 0.001},
+        {"pointer": "/four_step/maximum_tendon_moment_residual_nm", "op": "maximum", "value": 0.00005},
+        {"pointer": "/transaction/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/transaction/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/negative_controls/nhfascia3_exit_code", "op": "equals", "value": 1},
+        {"pointer": "/negative_controls/mismatched_owner_horizon_exit_code", "op": "equals", "value": 1},
+        {"pointer": "/visual_validation/actual_frames_inspected", "op": "equals", "value": 4},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "1e0add8c801300bec1f437621c452786b458a637fd34bc471e407650086a2d73"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/front.png", "sha256": "bf2e5ddb49b9c82770624d9c1539a9130b2d07c9b1fd523e41c88427c4062d0e"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/oblique.png", "sha256": "b6c6b6a9ae748b1bcd6c16e75ed50b6e4988eb5313153f16fc4e92fd963c598e"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/side.png", "sha256": "122e1a08dc5e82773cbcfc7c1ecf5cdcdb99b58c42e9d1d267208b7883d18c15"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/rear.png", "sha256": "eb27c0d50741fc22c0112915b61871b0adf2477140299ec6e00717e21921c1e2"}
+      ]
+    },
     "adm_source_inferred_feasibility_rejection": {
       "path": "docs/media/numi-human-adm-feasibility-v1/m4-pro.json",
       "format": "json",
@@ -810,7 +848,23 @@
   ],
   "continuum_layers": [
     {"id": "skin", "profile": "continuum", "requirements": {}},
-    {"id": "fascia", "profile": "continuum", "requirements": {}},
+    {
+      "id": "fascia",
+      "profile": "continuum",
+      "requirements": {
+        "anatomical_geometry": {
+          "minimum_level": "one_step",
+          "evidence": ["thoracoabdominal_myofascia_force_transfer"],
+          "gap": "external oblique has an exact BodyParts3D presentation surface, but slip-resolved fascia and internal-oblique regional segmentation remain generated"
+        },
+        "deformable_mechanics": {"minimum_level": "one_step", "evidence": ["thoracoabdominal_myofascia_force_transfer"]},
+        "attachment_coupling": {"minimum_level": "one_step", "evidence": ["thoracoabdominal_myofascia_force_transfer"]},
+        "material_calibration": {"minimum_level": "validated", "evidence": [], "gap": "replace isotropic effective sheets with directional regional materials calibrated against independent held-out data"},
+        "contact_or_interaction": {"minimum_level": "one_step", "evidence": [], "gap": "add anatomically relevant fascia sliding and contact without duplicating force authority"},
+        "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["thoracoabdominal_myofascia_force_transfer"]},
+        "sustained_loaded_motion": {"minimum_level": "sustained", "evidence": [], "gap": "qualify sustained trunk loading with bounded strain force energy and failure behavior"}
+      }
+    },
     {"id": "organs", "profile": "continuum", "requirements": {}},
     {"id": "vessels", "profile": "continuum", "requirements": {}},
     {"id": "nerves", "profile": "continuum", "requirements": {}},

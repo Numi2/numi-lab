@@ -44,31 +44,31 @@ class WholeBodyValidationTest(unittest.TestCase):
         left_knee = scope(report, "left_knee")["requirements"]
         self.assertEqual(left_knee["active_tendon_to_bone"]["status"], "contradicted")
         self.assertEqual(left_knee["passive_joint_tissue"]["status"], "contradicted")
-        self.assertEqual(left_knee["articular_contact"]["status"], "insufficient")
+        self.assertEqual(left_knee["articular_contact"]["status"], "contradicted")
         self.assertEqual(left_knee["sustained_loaded_motion"]["status"], "missing")
 
         self.assertEqual(
             report["evidence"]["bilateral_achilles_force_transfer"]["status"],
-            "verified",
+            "contradicted",
         )
         self.assertEqual(
             report["evidence"]["bilateral_plantar_fascia_force_transfer"]["status"],
-            "verified",
+            "contradicted",
         )
         self.assertEqual(
             report["evidence"]["whole_body_support_wrench"]["status"],
-            "verified",
+            "contradicted",
         )
         for identifier in (
             "left_ankle_hindfoot_midfoot",
             "right_ankle_hindfoot_midfoot",
         ):
             ankle = scope(report, identifier)["requirements"]
-            self.assertEqual(ankle["source_muscle_actuation"]["status"], "verified")
-            self.assertEqual(ankle["active_tendon_to_bone"]["status"], "verified")
-            self.assertEqual(ankle["deterministic_transaction"]["status"], "verified")
-            self.assertEqual(ankle["passive_joint_tissue"]["status"], "insufficient")
-            self.assertEqual(ankle["support_wrench"]["status"], "verified")
+            self.assertEqual(ankle["source_muscle_actuation"]["status"], "contradicted")
+            self.assertEqual(ankle["active_tendon_to_bone"]["status"], "contradicted")
+            self.assertEqual(ankle["deterministic_transaction"]["status"], "contradicted")
+            self.assertEqual(ankle["passive_joint_tissue"]["status"], "contradicted")
+            self.assertEqual(ankle["support_wrench"]["status"], "contradicted")
             self.assertEqual(ankle["articular_contact"]["status"], "missing")
 
         shoulder = scope(report, "left_shoulder")["requirements"]
@@ -81,8 +81,8 @@ class WholeBodyValidationTest(unittest.TestCase):
 
         toes = scope(report, "left_toes_compound")["requirements"]
         self.assertEqual(toes["compound_dof_policy"]["status"], "verified")
-        self.assertEqual(toes["windlass_force_transfer"]["status"], "verified")
-        self.assertEqual(toes["passive_joint_tissue"]["status"], "insufficient")
+        self.assertEqual(toes["windlass_force_transfer"]["status"], "contradicted")
+        self.assertEqual(toes["passive_joint_tissue"]["status"], "contradicted")
 
     def test_thumb_direct_tendon_receipt_and_hand_requirements(self):
         report = self.run_validator("--allow-incomplete", "--quiet")
@@ -111,6 +111,26 @@ class WholeBodyValidationTest(unittest.TestCase):
                 elbow["triceps_medialis_enthesis_transfer"]["status"],
                 "verified",
             )
+
+    def test_thoracoabdominal_myofascia_receipt_and_fascia_requirements(self):
+        report = self.run_validator("--allow-incomplete", "--quiet")
+        self.assertEqual(
+            report["evidence"]["thoracoabdominal_myofascia_force_transfer"][
+                "status"
+            ],
+            "verified",
+        )
+        fascia = scope(report, "fascia")["requirements"]
+        for requirement in (
+            "anatomical_geometry",
+            "deformable_mechanics",
+            "attachment_coupling",
+            "deterministic_transaction",
+        ):
+            self.assertEqual(fascia[requirement]["status"], "verified")
+        self.assertEqual(fascia["material_calibration"]["status"], "missing")
+        self.assertEqual(fascia["contact_or_interaction"]["status"], "missing")
+        self.assertEqual(fascia["sustained_loaded_motion"]["status"], "missing")
 
     def test_default_exit_fails_closed_while_incomplete(self):
         report = self.run_validator("--quiet", expected_code=1)

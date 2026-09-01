@@ -1,0 +1,135 @@
+{
+  "schema": "numilab.human.thoracoabdominal-myofascia-live-metal.v1",
+  "device": "Apple M4 Pro",
+  "evidence_level": "one_step",
+  "bounded_extension_step_count": 4,
+  "runtime_revision": "79d7cc24a69a843de828d68f26b3e9da100521c0",
+  "importer_revision": "e88a563a2056fa6f76e78f983a72acf85fcdbe9c",
+  "anatomy": {
+    "source_foundation": "BodyParts3D_4.0_geometry_plus_pinned_MyoSim_full_body_routes",
+    "region_count": 26,
+    "pectoral_region_count": 6,
+    "latissimus_aponeurosis_region_count": 6,
+    "external_oblique_region_count": 8,
+    "internal_oblique_region_count": 6,
+    "abdominal_terminal_count": 14,
+    "abdominal_source_body_index": 7,
+    "external_oblique_source_muscle_indices": [186, 187, 188, 189, 198, 199, 200, 201],
+    "internal_oblique_source_muscle_indices": [192, 193, 194, 204, 205, 206],
+    "external_oblique_visual_owner": "exact_bilateral_BodyParts3D_FJ1452_and_FJ1452M_surfaces",
+    "internal_oblique_visual_owner": "none_mechanics_only_no_separately_named_pinned_BodyParts3D_surface"
+  },
+  "mechanics": {
+    "payload": "NHFASC4",
+    "payload_abi": 4,
+    "node_count": 1202,
+    "tetrahedron_count": 2127,
+    "fixed_node_count": 212,
+    "traction_node_count": 212,
+    "force_owner_fraction": 0.1,
+    "constitutive_scope": "bounded_isotropic_research_materials",
+    "source_terminal_geometry": "exact_route_terminals_with_generated_nonoverlapping_regional_lattice_sheets",
+    "force_authority": "source_JT_share_replaced_by_same_command_continuum_anchor_reaction"
+  },
+  "transaction": {
+    "command_buffer": "borrowed_same_command_buffer_exact_snapshot",
+    "tendon_payload": "NHTENDON3",
+    "endpoint_transfer_count_per_step": 832,
+    "distributed_envelope_transfer_count_per_step": 642,
+    "point_fallback_count_per_step": 190,
+    "replay": "bitwise",
+    "rollback": "verified"
+  },
+  "one_step": {
+    "accepted_steps": 1,
+    "applied_force_n": 70.5934906006,
+    "anchor_reaction_resultant_n": 0.618273258209,
+    "anchor_reaction_l1_n": 3.85915541649,
+    "minimum_anchor_reaction_l1_n": 3.85915541649,
+    "audited_anchor_reaction_steps": 1,
+    "maximum_anchor_node_reaction_n": 0.321174740791,
+    "maximum_displacement_m": 0.00000755183236834,
+    "minimum_deformation_jacobian": 0.999075174332,
+    "fgmres_iterations": 3,
+    "maximum_tendon_force_residual_n": 0.000131482607685,
+    "maximum_tendon_moment_residual_nm": 0.00000350010986949,
+    "replay": "bitwise",
+    "rollback": "verified"
+  },
+  "four_step": {
+    "accepted_steps": 4,
+    "applied_force_n": 70.6055374146,
+    "anchor_reaction_resultant_n": 10.2388916016,
+    "anchor_reaction_l1_n": 11.0357494354,
+    "minimum_anchor_reaction_l1_n": 3.70045948029,
+    "audited_anchor_reaction_steps": 4,
+    "maximum_anchor_node_reaction_n": 0.358028829098,
+    "maximum_displacement_m": 0.0000751643965486,
+    "minimum_deformation_jacobian": 0.997697591782,
+    "fgmres_iterations": 3,
+    "maximum_tendon_force_residual_n": 0.000131482607685,
+    "maximum_tendon_moment_residual_nm": 0.00000355860970558,
+    "replay": "bitwise",
+    "rollback": "verified"
+  },
+  "negative_controls": {
+    "nhfascia3_exit_code": 1,
+    "nhfascia3_result": "rejected_malformed_header_before_execution",
+    "mismatched_owner_horizon_exit_code": 1,
+    "mismatched_owner_horizon_result": "rejected_before_execution"
+  },
+  "visual_validation": {
+    "frame_dimension": 1024,
+    "views": ["front", "oblique", "side", "rear"],
+    "actual_frames_inspected": 4,
+    "bone_pixels": [20143, 22060, 20811, 24989],
+    "muscle_surface_pixels": [71765, 59281, 39787, 68416],
+    "fascia_pixels": [7237, 5117, 2322, 7110],
+    "inspection": "passed_whole_body_scale_without_duplicate_toe_reversed_knee_dropped_patella_detached_distal_limb_or_floating_lower_pectoral_regression",
+    "presentation_boundary": "generated_external_and_internal_oblique_FEM_sheets_hidden_exact_external_oblique_anatomy_retained_internal_oblique_mechanics_only"
+  },
+  "source_artifacts": {
+    "nhrigid_sha256": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44",
+    "nhmyo_sha256": "9a988f19a6fd8e533cd0f2bf3192cb8535fb008ccd394ffbf1a4432d3db76a05",
+    "nhbones_sha256": "f9132393dfb259a80e2b2084ac5ff15f2bf988f7e073f7a961a7ddcfb9febc3c",
+    "nhtissue_sha256": "ed0c932fd09434bcee45248453e9b2ba0108f1582793fe8cb9eb43c97e377494",
+    "nhfascia4_sha256": "a39916cc3207f8557f47f70dff660ab7f39d98f1279db3354993dd22f8fd3760",
+    "nhtendon3_sha256": "72ca0ec4ef53f647784a89f761e78495d4997c7d72cfe6a1d9eedb24dd97feaa",
+    "nhcnt1_sha256": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907",
+    "nheq1_sha256": "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a"
+  },
+  "implementation_artifacts": {
+    "live_probe_source_sha256": "1e0add8c801300bec1f437621c452786b458a637fd34bc471e407650086a2d73",
+    "qualified_binary_sha256": "b1cd0abb7d43f8e05e4e691038c4167983fde6edb20c25d405123cdd1e2e776b",
+    "matter_metallib_sha256": "6fbcbec4d12552632e90a112d93fed369f97c4bbd47e50337e3ec11145cace1a"
+  },
+  "frames": {
+    "front": {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/front.png", "sha256": "bf2e5ddb49b9c82770624d9c1539a9130b2d07c9b1fd523e41c88427c4062d0e"},
+    "oblique": {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/oblique.png", "sha256": "b6c6b6a9ae748b1bcd6c16e75ed50b6e4988eb5313153f16fc4e92fd963c598e"},
+    "side": {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/side.png", "sha256": "122e1a08dc5e82773cbcfc7c1ecf5cdcdb99b58c42e9d1d267208b7883d18c15"},
+    "rear": {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/rear.png", "sha256": "eb27c0d50741fc22c0112915b61871b0adf2477140299ec6e00717e21921c1e2"}
+  },
+  "gates": {
+    "all_twenty_six_regions_loaded": "passed",
+    "all_fourteen_abdominal_terminals_owned": "passed",
+    "same_command_buffer_nonduplicated_force_authority": "passed",
+    "positive_applied_force_and_bone_reaction": "passed",
+    "positive_deformation_jacobian": "passed",
+    "one_step_force_transfer": "passed",
+    "four_step_history_commit": "passed",
+    "all_step_anchor_reaction_audit": "passed",
+    "deterministic_replay": "passed",
+    "rejected_transaction_rollback": "passed",
+    "old_payload_negative_control": "passed",
+    "owner_horizon_negative_control": "passed",
+    "four_angle_frame_inspection": "passed"
+  },
+  "remaining_blockers": [
+    "generated_sheet_geometry_is_not_a_registered_regional_segmentation",
+    "isotropic_effective_materials_lack_directional_fibre_frames",
+    "force_owner_fraction_is_bounded_at_ten_percent_not_calibrated",
+    "four_steps_are_not_sustained_trunk_loading",
+    "materials_and_geometry_are_not_subject_specific_or_clinically_validated"
+  ],
+  "boundary": "Bounded 26-region thoracoabdominal myofascia force-transfer certificate; not registered slip-resolved fascia, directional or subject-calibrated material, sustained trunk loading, or clinical validation."
+}

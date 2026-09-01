@@ -39,8 +39,8 @@ one-step receipt cannot satisfy a stronger one.
 ## Current evidence baseline
 
 The manifest covers 15 musculoskeletal regions and six continuum layers. The
-current report contains 72 verified requirements, 44 contradicted
-requirements, two insufficient requirements, and 64 missing requirements.
+current report contains 41 verified requirements, 82 contradicted
+requirements, two insufficient requirements, and 61 missing requirements.
 No complete scope is yet promoted.
 
 The all-DoF support audit is documented in
@@ -56,8 +56,8 @@ as regional anatomical or material evidence.
 
 The contradictions are intentional development signals:
 
-- NHTENDON covers all 832 endpoints for 416 muscles, but 194 endpoints remain
-  point fallbacks and distributed surface coverage is `0.7668269`, not `1.0`.
+- NHTENDON covers all 832 endpoints for 416 muscles, but 190 endpoints remain
+  point fallbacks and distributed surface coverage is `0.7716346`, not `1.0`.
 - The BodyParts3D registration receipt explicitly says that skin, muscles,
   tendons, organs, vessels, nerves, and other soft-tissue layers are not yet
   represented by that payload.
@@ -128,6 +128,19 @@ residual, all reactions nonnegative, and bitwise replay. This is recorded only
 as a preflight: the internal muscle residual remains `22.9850`, root
 acceleration residual remains `5.7539`, and `internal_balanced=false`.
 
+The fascia scope now has a current-revision live Apple M4 Pro receipt rather
+than an empty placeholder. `NHFASC4` binds 26 regions: six pectoral, six
+latissimus aponeurosis, eight external-oblique, and six internal-oblique. All
+14 abdominal terminals participate in the same borrowed-command-buffer Human
+transaction; the declared source `J^T` share is replaced by fixed-node
+continuum reactions, every accepted step audits a positive bone reaction, and
+one- and four-step runs pass positive-J, bitwise replay, rollback, and negative
+ABI/horizon controls. This promotes bounded deformable mechanics, attachment
+coupling, and deterministic transaction ownership. It does not promote the
+generated regional sheets to anatomical segmentation, and it leaves
+directional material calibration, fascia sliding/contact, and sustained trunk
+loading open.
+
 ## Development order
 
 The gate makes the next useful work explicit:
@@ -146,7 +159,10 @@ The gate makes the next useful work explicit:
 4. Complete shoulder, elbow/forearm, wrist, hand, and finger force-transfer
    chains from the upper-extremity source model, with region-specific passive
    structures and contact where applicable.
-5. Promote axial/costal/fascia mechanics into the live Human transaction.
+5. Promote costal mechanics into the live Human transaction, then replace the
+   current generated fascia sheets with registered regional geometry,
+   directional calibrated materials, sliding/contact, and sustained trunk
+   loading without duplicating the accepted fascia force owner.
 6. Add skin, organ, vessel, and nerve geometry and coupled deformable owners
    with calibrated materials and interaction gates.
 7. Run whole-body sustained loaded trajectories and independent anatomical,
