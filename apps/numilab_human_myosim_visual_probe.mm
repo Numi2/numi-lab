@@ -188,6 +188,10 @@ constexpr std::array<char, 8u> kPectoralisFasciaMagic{
 };
 constexpr std::uint32_t kPectoralisFasciaPayloadAbi = 3u;
 constexpr std::uint32_t kFasciaRouteBodyBit = 1u << 31u;
+constexpr std::array<char, 8u> kAnteriorThoraxMagic{
+    'N', 'H', 'T', 'H', 'R', 'C', '1', '\0',
+};
+constexpr std::uint32_t kAnteriorThoraxPayloadAbi = 1u;
 constexpr std::array<char, 8u> kRouteSoftTissueMagic{
     'N', 'H', 'T', 'I', 'S', 'S', '4', '\0',
 };
@@ -559,6 +563,95 @@ struct PectoralisFasciaPresentationTriangle {
     std::uint32_t sourceVertex[3]{};
 };
 
+struct AnteriorThoraxHeader {
+    std::array<char, 8u> magic{};
+    std::uint32_t payloadAbi = 0u;
+    std::uint32_t componentCount = 0u;
+    std::uint32_t surfaceVertexCount = 0u;
+    std::uint32_t surfaceTriangleCount = 0u;
+    std::uint32_t nodeCount = 0u;
+    std::uint32_t tetrahedronCount = 0u;
+    std::uint32_t surfaceMapCount = 0u;
+    std::uint32_t attachmentCount = 0u;
+    std::uint32_t attachmentMapCount = 0u;
+    std::uint32_t anchorCount = 0u;
+    std::uint32_t nodeFlagMask = 0u;
+    std::uint32_t reserved0 = 0u;
+    float densityKgM3 = 0.0f;
+    float productionForceOwnerFraction = 0.0f;
+    float qualificationProbeLoadFraction = 0.0f;
+    std::uint32_t reserved1 = 0u;
+    std::array<std::uint8_t, 32u> registrationSha256{};
+    std::array<std::uint8_t, 32u> tendonManifestSha256{};
+    std::array<std::uint8_t, 32u> tendonPayloadSha256{};
+};
+
+struct AnteriorThoraxComponent {
+    std::uint32_t sourceComponentIndex = 0u;
+    std::uint32_t firstSurfaceVertex = 0u;
+    std::uint32_t surfaceVertexCount = 0u;
+    std::uint32_t firstSurfaceTriangle = 0u;
+    std::uint32_t surfaceTriangleCount = 0u;
+    std::uint32_t firstNode = 0u;
+    std::uint32_t nodeCount = 0u;
+    std::uint32_t firstTetrahedron = 0u;
+    std::uint32_t tetrahedronCount = 0u;
+    std::uint32_t firstSurfaceMap = 0u;
+    std::uint32_t surfaceMapCount = 0u;
+    std::uint32_t firstAnchor = 0u;
+    std::uint32_t anchorCount = 0u;
+    std::uint32_t firstAttachment = 0u;
+    float spacingMeters = 0.0f;
+    float exactVolumeM3 = 0.0f;
+    float voxelVolumeM3 = 0.0f;
+    float relativeVolumeError = 0.0f;
+    float boundsMinimum[3]{};
+    float boundsMaximum[3]{};
+    std::array<std::uint8_t, 32u> sourceSurfaceSha256{};
+};
+
+struct AnteriorThoraxSurfaceVertex {
+    float position[3]{};
+    float reserved0 = 0.0f;
+};
+
+struct AnteriorThoraxSurfaceTriangle {
+    std::uint32_t node[3]{};
+    std::uint32_t componentIndex = 0u;
+};
+
+struct AnteriorThoraxNode {
+    float sourcePosition[3]{};
+    float compiledMassKg = 0.0f;
+    std::uint32_t flags = 0u;
+    std::uint32_t componentIndex = 0u;
+    std::uint32_t reserved0 = 0u;
+    std::uint32_t reserved1 = 0u;
+};
+
+struct AnteriorThoraxTetrahedron {
+    std::uint32_t node[4]{};
+    std::uint32_t componentIndex = 0u;
+};
+
+struct AnteriorThoraxMap {
+    std::uint32_t node[4]{};
+    float weight[4]{};
+};
+
+struct AnteriorThoraxAttachment {
+    std::uint32_t muscleIndex = MR_INVALID_INDEX;
+    std::uint32_t endpointOrdinal = 0u;
+    std::uint32_t sourceActuatorIndex = MR_INVALID_INDEX;
+    std::uint32_t componentIndex = 0u;
+    std::uint32_t firstSampleMap = 0u;
+    std::uint32_t sampleMapCount = 0u;
+    std::uint32_t flags = 0u;
+    std::uint32_t reserved0 = 0u;
+    float sourceLocalPoint[3]{};
+    float reserved1 = 0.0f;
+};
+
 struct SkinHeader {
     std::array<char, 8u> magic{};
     std::uint32_t payloadAbi = 0u;
@@ -680,6 +773,19 @@ struct LoadedPectoralisFascia {
     std::vector<PectoralisFasciaPresentationTriangle> presentationTriangles;
 };
 
+struct LoadedAnteriorThorax {
+    AnteriorThoraxHeader header{};
+    std::vector<AnteriorThoraxComponent> components;
+    std::vector<AnteriorThoraxSurfaceVertex> surfaceVertices;
+    std::vector<AnteriorThoraxSurfaceTriangle> surfaceTriangles;
+    std::vector<AnteriorThoraxNode> nodes;
+    std::vector<AnteriorThoraxTetrahedron> tetrahedra;
+    std::vector<AnteriorThoraxMap> surfaceMaps;
+    std::vector<AnteriorThoraxMap> attachmentMaps;
+    std::vector<AnteriorThoraxAttachment> attachments;
+    std::vector<std::uint32_t> anchors;
+};
+
 struct LoadedSkin {
     SkinHeader header{};
     std::vector<SkinBindingRecord> bindings;
@@ -734,6 +840,14 @@ static_assert(sizeof(PectoralisFasciaHeader) == 104u);
 static_assert(sizeof(PectoralisFasciaRegion) == 32u);
 static_assert(sizeof(PectoralisFasciaNode) == 32u);
 static_assert(sizeof(PectoralisFasciaTetrahedron) == 20u);
+static_assert(sizeof(AnteriorThoraxHeader) == 168u);
+static_assert(sizeof(AnteriorThoraxComponent) == 128u);
+static_assert(sizeof(AnteriorThoraxSurfaceVertex) == 16u);
+static_assert(sizeof(AnteriorThoraxSurfaceTriangle) == 16u);
+static_assert(sizeof(AnteriorThoraxNode) == 32u);
+static_assert(sizeof(AnteriorThoraxTetrahedron) == 20u);
+static_assert(sizeof(AnteriorThoraxMap) == 32u);
+static_assert(sizeof(AnteriorThoraxAttachment) == 48u);
 static_assert(sizeof(SkinHeader) == 60u);
 static_assert(sizeof(SkinBindingRecord) == 36u);
 static_assert(sizeof(SkinVertex) == 56u);
@@ -2031,6 +2145,142 @@ LoadedPectoralisFascia loadPectoralisFascia(
         require(presentationCount[regionIndex] >= (routeRegion ? 4u : 32u),
                 "pectoralis fascia presentation does not cover all twelve regions");
     }
+    return result;
+}
+
+LoadedAnteriorThorax loadAnteriorThorax(
+    const std::filesystem::path& path,
+    const LoadedMuscles& muscles
+) {
+    std::ifstream input(path, std::ios::binary);
+    require(input.is_open(), "cannot open anterior-thorax continuum payload " + path.string());
+    LoadedAnteriorThorax result;
+    readObject(input, result.header, "anterior-thorax header");
+    const auto& header = result.header;
+    require(header.magic == kAnteriorThoraxMagic &&
+                header.payloadAbi == kAnteriorThoraxPayloadAbi &&
+                header.componentCount == 1u &&
+                header.surfaceVertexCount == 723u &&
+                header.surfaceTriangleCount == 1450u &&
+                header.nodeCount >= 2'000u && header.nodeCount <= 100'000u &&
+                header.tetrahedronCount >= 5'000u &&
+                header.tetrahedronCount <= 300'000u &&
+                header.surfaceMapCount == header.surfaceVertexCount &&
+                header.attachmentCount == 7u &&
+                header.attachmentMapCount == 28u &&
+                header.anchorCount >= 4u && header.anchorCount < header.nodeCount &&
+                header.nodeFlagMask == 15u && header.reserved0 == 0u &&
+                header.reserved1 == 0u &&
+                std::isfinite(header.densityKgM3) &&
+                header.densityKgM3 >= 900.0f && header.densityKgM3 <= 1150.0f &&
+                std::isfinite(header.productionForceOwnerFraction) &&
+                header.productionForceOwnerFraction > 0.0f &&
+                header.productionForceOwnerFraction <= 0.25f &&
+                header.productionForceOwnerFraction ==
+                    header.qualificationProbeLoadFraction,
+            "anterior-thorax header is malformed or remains nonowning");
+    result.components = readVector<AnteriorThoraxComponent>(
+        input, header.componentCount, "anterior-thorax components");
+    result.surfaceVertices = readVector<AnteriorThoraxSurfaceVertex>(
+        input, header.surfaceVertexCount, "anterior-thorax surface vertices");
+    result.surfaceTriangles = readVector<AnteriorThoraxSurfaceTriangle>(
+        input, header.surfaceTriangleCount, "anterior-thorax surface triangles");
+    result.nodes = readVector<AnteriorThoraxNode>(
+        input, header.nodeCount, "anterior-thorax nodes");
+    result.tetrahedra = readVector<AnteriorThoraxTetrahedron>(
+        input, header.tetrahedronCount, "anterior-thorax tetrahedra");
+    result.surfaceMaps = readVector<AnteriorThoraxMap>(
+        input, header.surfaceMapCount, "anterior-thorax surface maps");
+    result.attachmentMaps = readVector<AnteriorThoraxMap>(
+        input, header.attachmentMapCount, "anterior-thorax attachment maps");
+    result.attachments = readVector<AnteriorThoraxAttachment>(
+        input, header.attachmentCount, "anterior-thorax attachments");
+    result.anchors = readVector<std::uint32_t>(
+        input, header.anchorCount, "anterior-thorax anchors");
+    require(input.peek() == std::char_traits<char>::eof(),
+            "anterior-thorax payload has trailing bytes");
+    const auto& component = result.components.front();
+    require(component.sourceComponentIndex == 1u &&
+                component.firstSurfaceVertex == 0u &&
+                component.surfaceVertexCount == header.surfaceVertexCount &&
+                component.firstSurfaceTriangle == 0u &&
+                component.surfaceTriangleCount == header.surfaceTriangleCount &&
+                component.firstNode == 0u && component.nodeCount == header.nodeCount &&
+                component.firstTetrahedron == 0u &&
+                component.tetrahedronCount == header.tetrahedronCount &&
+                component.firstSurfaceMap == 0u &&
+                component.surfaceMapCount == header.surfaceMapCount &&
+                component.firstAnchor == 0u &&
+                component.anchorCount == header.anchorCount &&
+                component.firstAttachment == 0u &&
+                std::isfinite(component.spacingMeters) &&
+                component.spacingMeters > 0.0f &&
+                std::isfinite(component.relativeVolumeError) &&
+                component.relativeVolumeError <= 0.03f,
+            "anterior-thorax component coverage drifted");
+    std::vector<bool> anchorMask(result.nodes.size(), false);
+    for (const std::uint32_t node : result.anchors) {
+        require(node < result.nodes.size() && !anchorMask[node] &&
+                    (result.nodes[node].flags & 2u) != 0u,
+                "anterior-thorax anchor list is malformed");
+        anchorMask[node] = true;
+    }
+    for (std::uint32_t index = 0u; index < result.nodes.size(); ++index) {
+        const auto& node = result.nodes[index];
+        require(node.componentIndex == 0u && node.reserved0 == 0u &&
+                    node.reserved1 == 0u && (node.flags & ~15u) == 0u &&
+                    ((node.flags & 2u) != 0u) == anchorMask[index] &&
+                    std::isfinite(node.compiledMassKg) &&
+                    node.compiledMassKg > 0.0f &&
+                    std::all_of(std::begin(node.sourcePosition),
+                                std::end(node.sourcePosition),
+                                [](float value) { return std::isfinite(value); }),
+                "anterior-thorax node is malformed");
+    }
+    for (const auto& tetrahedron : result.tetrahedra) {
+        require(tetrahedron.componentIndex == 0u &&
+                    std::all_of(std::begin(tetrahedron.node),
+                                std::end(tetrahedron.node),
+                                [&result](std::uint32_t node) {
+                                    return node < result.nodes.size();
+                                }),
+                "anterior-thorax tetrahedron is malformed");
+    }
+    const auto validateMap = [&result](const AnteriorThoraxMap& map) {
+        float sum = 0.0f;
+        for (std::uint32_t slot = 0u; slot < 4u; ++slot) {
+            require(map.node[slot] < result.nodes.size() &&
+                        std::isfinite(map.weight[slot]) &&
+                        map.weight[slot] >= 0.0f && map.weight[slot] <= 1.0f,
+                    "anterior-thorax support map is malformed");
+            sum += map.weight[slot];
+        }
+        require(std::abs(sum - 1.0f) <= 2.0e-5f,
+                "anterior-thorax support-map weights do not sum to one");
+    };
+    for (const auto& map : result.surfaceMaps) validateMap(map);
+    for (const auto& map : result.attachmentMaps) validateMap(map);
+    std::vector<bool> attachmentMuscles(muscles.gpuMuscles.size(), false);
+    std::uint32_t expectedFirstMap = 0u;
+    for (const auto& attachment : result.attachments) {
+        require(attachment.muscleIndex < muscles.gpuMuscles.size() &&
+                    attachment.sourceActuatorIndex == attachment.muscleIndex &&
+                    attachment.endpointOrdinal <= 1u &&
+                    attachment.componentIndex == 0u &&
+                    attachment.firstSampleMap == expectedFirstMap &&
+                    attachment.sampleMapCount == 4u &&
+                    attachment.firstSampleMap <= result.attachmentMaps.size() &&
+                    attachment.sampleMapCount <=
+                        result.attachmentMaps.size() - attachment.firstSampleMap &&
+                    attachment.flags == 1u && attachment.reserved0 == 0u &&
+                    attachment.reserved1 == 0.0f &&
+                    !attachmentMuscles[attachment.muscleIndex],
+                "anterior-thorax attachment is malformed");
+        attachmentMuscles[attachment.muscleIndex] = true;
+        expectedFirstMap += attachment.sampleMapCount;
+    }
+    require(expectedFirstMap == result.attachmentMaps.size(),
+            "anterior-thorax attachment maps are not fully owned");
     return result;
 }
 
@@ -8469,6 +8719,362 @@ PectoralisFasciaVisual runPectoralisFascia(
     return result;
 }
 
+struct AnteriorThoraxMechanics {
+    std::uint32_t nodeCount = 0u;
+    std::uint32_t tetrahedronCount = 0u;
+    std::uint32_t attachmentCount = 0u;
+    std::uint32_t fixedNodeCount = 0u;
+    std::uint32_t loadedNodeCount = 0u;
+    std::uint32_t completedSteps = 0u;
+    std::uint32_t fgmresIterations = 0u;
+    float forceOwnerFraction = 0.0f;
+    float appliedForceL1Newtons = 0.0f;
+    float anchorReactionL1Newtons = 0.0f;
+    float anchorReactionResultantNewtons = 0.0f;
+    float maximumAnchorNodeReactionNewtons = 0.0f;
+    float maximumDisplacementMeters = 0.0f;
+    float minimumDeterminant = std::numeric_limits<float>::infinity();
+    bool replayVerified = false;
+    bool rollbackVerified = false;
+    double coupledTransactionMilliseconds = 0.0;
+    std::string deviceName;
+};
+
+AnteriorThoraxMechanics runAnteriorThoraxContinuum(
+    const LoadedAnteriorThorax& thorax,
+    const LoadedMuscles& muscles,
+    MuscleDrivenVisualState& driven,
+    const metalrobo::EngineModel& model,
+    const LoadedSupportContacts& supportContacts,
+    const LoadedJointEqualities& jointEqualities,
+    const double timestepSeconds,
+    const std::uint32_t stepCount,
+    const double activation,
+    const std::span<const std::uint32_t> selectedSourceMuscleIndices,
+    const bool applySelectedActivationIncrement,
+    const bool enableRootAssistance,
+    const bool removeRootAssistance,
+    const std::filesystem::path& matterMetallib
+) {
+    require(stepCount >= 1u && stepCount <= MR_NUMI_HUMAN_STAND_MAX_STEPS,
+            "anterior-thorax continuum requires a valid Human horizon");
+    const GroundAlignedSupport aligned =
+        makeGroundAlignedSupport(model, supportContacts);
+    CompiledStandActivation continuumActivation;
+    if (applySelectedActivationIncrement) {
+        continuumActivation = compileStaticStandActivation(
+            model, muscles, jointEqualities, aligned.q, 1.0, {});
+        for (const std::uint32_t muscleIndex : selectedSourceMuscleIndices) {
+            continuumActivation.activation[muscleIndex] = std::min(
+                1.0f, continuumActivation.activation[muscleIndex] +
+                    static_cast<float>(activation));
+        }
+    } else {
+        continuumActivation = compileStaticStandActivation(
+            model, muscles, jointEqualities, aligned.q, activation,
+            selectedSourceMuscleIndices);
+    }
+    metalrobo::MetalArticulatedOperatorResult poseResult;
+    metalrobo::MetalArticulatedOperatorConfig poseConfig;
+    poseConfig.pointJacobiansOnly = true;
+    const auto poseDiagnostics = metalrobo::runMetalArticulatedOperator(
+        model, {
+            .articulationIndex = 0u,
+            .environmentCount = 1u,
+            .pointCount = 0u,
+            .q = packMetalConfiguration(continuumActivation.q),
+            .points = {},
+        }, poseResult, poseConfig);
+    require(poseDiagnostics.succeeded() && poseDiagnostics.dispatched &&
+                poseDiagnostics.published &&
+                poseDiagnostics.successfulEnvironmentCount == 1u,
+            "anterior-thorax reference pose failed: " + poseDiagnostics.message);
+    const std::vector<MRBodyStateGPU> referenceBodies =
+        visualBodyStates(model, poseResult.bodyPoses);
+
+    AnteriorThoraxMechanics result;
+    result.nodeCount = thorax.header.nodeCount;
+    result.tetrahedronCount = thorax.header.tetrahedronCount;
+    result.attachmentCount = thorax.header.attachmentCount;
+    result.fixedNodeCount = thorax.header.anchorCount;
+    result.forceOwnerFraction = thorax.header.productionForceOwnerFraction;
+    std::vector<NMNumiHumanTendonFEMNodeLoadGPU> nodeLoads(thorax.nodes.size());
+    for (auto& load : nodeLoads)
+        std::fill_n(load.endpointIndex, 4u, NM_INVALID_INDEX);
+    std::vector<NMNumiHumanTendonFEMNodeAnchorGPU> nodeAnchors(thorax.nodes.size());
+    for (auto& anchor : nodeAnchors) anchor.bodyIndex = NM_INVALID_INDEX;
+    std::vector<NMNumiHumanTendonFEMEndpointReplacementGPU> replacements;
+    replacements.reserve(thorax.attachments.size());
+    std::vector<std::uint32_t> loadBindingIndices;
+    loadBindingIndices.reserve(thorax.attachments.size());
+
+    std::uint32_t thoraxBodyIndex = MR_INVALID_INDEX;
+    for (const auto& attachment : thorax.attachments) {
+        std::array<std::uint32_t, 2u> bindings{MR_INVALID_INDEX, MR_INVALID_INDEX};
+        std::uint32_t bindingCount = 0u;
+        for (std::uint32_t binding = 0u;
+             binding < muscles.tendonPayload.bindings.size(); ++binding) {
+            if (muscles.tendonPayload.bindings[binding].muscleIndex ==
+                attachment.muscleIndex) {
+                require(bindingCount < bindings.size(),
+                        "anterior-thorax muscle has more than two terminals");
+                bindings[bindingCount++] = binding;
+            }
+        }
+        require(bindingCount == 2u,
+                "anterior-thorax muscle does not have two tendon terminals");
+        const auto matchesAttachment = [&](const std::uint32_t binding) {
+            const auto& candidate = muscles.tendonPayload.bindings[binding];
+            return candidate.endpointOrdinal == attachment.endpointOrdinal;
+        };
+        const std::uint32_t anchorBindingIndex = matchesAttachment(bindings[0u])
+            ? bindings[0u] : bindings[1u];
+        const std::uint32_t loadBindingIndex = anchorBindingIndex == bindings[0u]
+            ? bindings[1u] : bindings[0u];
+        require(matchesAttachment(anchorBindingIndex) &&
+                    !matchesAttachment(loadBindingIndex),
+                "anterior-thorax endpoint ownership is ambiguous");
+        const auto& anchorBinding =
+            muscles.tendonPayload.bindings[anchorBindingIndex];
+        require(anchorBinding.bodyIndex < referenceBodies.size(),
+                "anterior-thorax attachment body is unavailable");
+        if (thoraxBodyIndex == MR_INVALID_INDEX)
+            thoraxBodyIndex = anchorBinding.bodyIndex;
+        require(anchorBinding.bodyIndex == thoraxBodyIndex,
+                "anterior-thorax attachments do not share the source torso body");
+        loadBindingIndices.push_back(loadBindingIndex);
+        NMNumiHumanTendonFEMEndpointReplacementGPU replacement{};
+        replacement.loadEndpointIndex = loadBindingIndex;
+        replacement.anchorEndpointIndex = anchorBindingIndex;
+        replacement.flags =
+            NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_ACTIVE;
+        replacement.forceOwnerFraction.x = result.forceOwnerFraction;
+        replacements.push_back(replacement);
+
+        const float sampleScale = result.forceOwnerFraction /
+            static_cast<float>(attachment.sampleMapCount);
+        for (std::uint32_t sample = 0u;
+             sample < attachment.sampleMapCount; ++sample) {
+            const auto& map = thorax.attachmentMaps[
+                attachment.firstSampleMap + sample];
+            for (std::uint32_t support = 0u; support < 4u; ++support) {
+                auto& load = nodeLoads[map.node[support]];
+                std::uint32_t slot = 0u;
+                while (slot < 4u && load.endpointIndex[slot] != MR_INVALID_INDEX &&
+                       load.endpointIndex[slot] != loadBindingIndex) ++slot;
+                require(slot < 4u,
+                        "anterior-thorax node exceeds four endpoint influences");
+                if (load.endpointIndex[slot] == MR_INVALID_INDEX)
+                    load.endpointIndex[slot] = loadBindingIndex;
+                (&load.scale.x)[slot] += sampleScale * map.weight[support];
+            }
+        }
+    }
+    require(thoraxBodyIndex != MR_INVALID_INDEX,
+            "anterior-thorax source body was not resolved");
+    result.loadedNodeCount = static_cast<std::uint32_t>(std::count_if(
+        nodeLoads.begin(), nodeLoads.end(), [](const auto& load) {
+            return load.endpointIndex[0u] != MR_INVALID_INDEX;
+        }));
+    require(result.loadedNodeCount > 0u,
+            "anterior-thorax continuum has no loaded nodes");
+
+    const MRBodyStateGPU& thoraxBody = referenceBodies[thoraxBodyIndex];
+    const mr_float4 inverseThoraxOrientation{
+        -thoraxBody.orientation.x, -thoraxBody.orientation.y,
+        -thoraxBody.orientation.z, thoraxBody.orientation.w};
+    numi::matter::WorldSource worldSource;
+    worldSource.environmentCount = 1u;
+    worldSource.frameTimestep = timestepSeconds;
+    worldSource.gravity = {0.0, 0.0, 0.0};
+    worldSource.mixedSolver.newtonIterations = 12u;
+    worldSource.mixedSolver.fgmresRestart = 16u;
+    worldSource.mixedSolver.fgmresIterations = 64u;
+    worldSource.mixedSolver.lineSearchSteps = 12u;
+    auto material = numi::matter::parseMatterFile(
+        NUMI_HUMAN_ANTERIOR_THORAX_MATERIAL);
+    require(material.succeeded(),
+            "anterior abdominal-wall Matter material did not parse");
+    worldSource.materials.push_back(std::move(material.material));
+    numi::matter::ObjectSource object;
+    object.name = "source_component_1_anterior_abdominal_wall_composite";
+    object.materialIndex = 0u;
+    object.representation = numi::matter::Representation::fem;
+    object.mixedFEM = false;
+    object.deformableSelfContact = false;
+    object.characteristicLength = thorax.components.front().spacingMeters;
+    std::vector<mr_float4> restNodes;
+    restNodes.reserve(thorax.nodes.size());
+    for (const auto& node : thorax.nodes) {
+        mr_float4 point = femAdd(thoraxBody.position,
+            rotatePoint(thoraxBody.orientation, {
+                node.sourcePosition[0], node.sourcePosition[1],
+                node.sourcePosition[2], 0.0f}));
+        point.w = 1.0f;
+        restNodes.push_back(point);
+        object.femNodes.push_back({point.x, point.y, point.z});
+    }
+    for (const std::uint32_t node : thorax.anchors) {
+        object.femFixedNodes.push_back(node);
+        const mr_float4 local = rotatePoint(
+            inverseThoraxOrientation,
+            femSubtract(restNodes[node], thoraxBody.position));
+        nodeAnchors[node].bodyIndex = thoraxBodyIndex;
+        nodeAnchors[node].flags =
+            NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
+        nodeAnchors[node].localPoint = {local.x, local.y, local.z, 0.0f};
+    }
+    object.femContactNodes = {thorax.anchors.front()};
+    std::vector<std::array<double, 3u>> restPoints;
+    restPoints.reserve(restNodes.size());
+    for (const auto& point : restNodes)
+        restPoints.push_back({point.x, point.y, point.z});
+    for (const auto& source : thorax.tetrahedra) {
+        std::array<std::uint32_t, 4u> tetrahedron{
+            source.node[0], source.node[1], source.node[2], source.node[3]};
+        const double volume = femSignedTetrahedronVolume(restPoints, tetrahedron);
+        require(std::isfinite(volume) && std::abs(volume) > 1.0e-15,
+                "posed anterior-thorax tetrahedron is degenerate");
+        if (volume < 0.0) std::swap(tetrahedron[0u], tetrahedron[1u]);
+        object.tetrahedra.push_back({tetrahedron});
+    }
+    worldSource.objects.push_back(std::move(object));
+    numi::matter::CompileOptions compileOptions;
+    compileOptions.maximumRateExponent = 0u;
+    auto compiled = numi::matter::compileWorld(worldSource, compileOptions);
+    std::string compileMessage;
+    for (const auto& diagnostic : compiled.diagnostics)
+        compileMessage += diagnostic.message + "; ";
+    require(compiled.succeeded(),
+            "anterior-thorax FEM world did not compile: " + compileMessage);
+    numi::matter::Runtime runtime;
+    const auto initialized = runtime.initialize(compiled.world, {
+        .metallib = matterMetallib,
+        .environmentCount = 1u,
+        .captureEvents = true,
+        .captureDiagnostics = true,
+        .automaticIdentification = false,
+        .adaptiveTransfer = false,
+    });
+    require(initialized.encoded && runtime.valid(),
+            "could not initialize anterior-thorax Matter runtime: " +
+                initialized.message);
+    result.deviceName = initialized.device;
+    const auto initial = runtime.snapshot();
+    require(initial.available && initial.femNodes.size() == thorax.nodes.size(),
+            "anterior-thorax initial snapshot is unavailable");
+    numi::matter::NumiHumanTendonFEMLoadAdapter adapter;
+    require(adapter.initialize(runtime, {
+                .nodeLoads = nodeLoads,
+                .nodeAnchors = nodeAnchors,
+                .endpointReplacements = replacements,
+                .endpointCount = static_cast<std::uint32_t>(
+                    muscles.tendonPayload.bindings.size()),
+                .environmentCount = 1u,
+                .productionForceOwnerFraction = result.forceOwnerFraction,
+            }, {.metallib = matterMetallib}),
+            "could not initialize anterior-thorax tendon/FEM adapter");
+    HumanTendonContinuumTransaction transaction{
+        .program = adapter.program(), .runtime = &runtime, .initial = initial};
+    driven = integratePersistentMetalHumanState(
+        model, muscles, supportContacts, jointEqualities, timestepSeconds,
+        stepCount, activation, selectedSourceMuscleIndices,
+        applySelectedActivationIncrement, enableRootAssistance,
+        removeRootAssistance, true, &transaction, std::nullopt, false);
+    const auto accepted = transaction.accepted;
+    require(accepted.available && accepted.femNodes.size() == thorax.nodes.size(),
+            "anterior-thorax accepted snapshot is unavailable");
+    require(transaction.rollbackVerified && transaction.replayVerified,
+            "anterior-thorax transaction did not close rollback and replay");
+    const auto adapterDiagnostics = adapter.diagnostics();
+    const std::uint32_t expectedPasses =
+        2u * driven.stepCount * driven.muscleMetalStepCount;
+    require(adapterDiagnostics.initialized &&
+                adapterDiagnostics.encodedPassCount == expectedPasses &&
+                adapterDiagnostics.abortCount == 1u,
+            "anterior-thorax adapter accounting is incomplete: " +
+                adapterDiagnostics.message);
+    require(accepted.statuses.size() == 1u &&
+                accepted.statuses.front().code == NM_STATUS_SUCCESS,
+            "anterior-thorax accepted Matter status failed");
+    result.completedSteps = driven.persistentCompletedSteps;
+    result.fgmresIterations = accepted.statuses.front().fgmresIterations;
+    result.minimumDeterminant = accepted.statuses.front().diagnostics.x;
+    result.replayVerified = transaction.replayVerified;
+    result.rollbackVerified = transaction.rollbackVerified;
+    result.coupledTransactionMilliseconds =
+        driven.muscleMetalElapsedMilliseconds;
+    for (std::uint32_t node = 0u; node < accepted.femNodes.size(); ++node) {
+        const mr_float4 acceptedPoint{
+            accepted.femNodes[node].positionAndMass.x,
+            accepted.femNodes[node].positionAndMass.y,
+            accepted.femNodes[node].positionAndMass.z, 1.0f};
+        if ((nodeAnchors[node].flags &
+                NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) == 0u) {
+            result.maximumDisplacementMeters = std::max(
+                result.maximumDisplacementMeters,
+                femLength(femSubtract(acceptedPoint, restNodes[node])));
+        }
+    }
+    id<MTLBuffer> reactionBuffer = (__bridge id<MTLBuffer>)
+        runtime.femConstraintReactionBuffer();
+    require(reactionBuffer != nil,
+            "anterior-thorax fixed-node reaction buffer is unavailable");
+    const NSUInteger reactionBytes = static_cast<NSUInteger>(
+        thorax.nodes.size() * sizeof(nm_float4));
+    id<MTLBuffer> reactionReadback = [reactionBuffer.device
+        newBufferWithLength:reactionBytes options:MTLResourceStorageModeShared];
+    id<MTLCommandQueue> reactionQueue = [reactionBuffer.device newCommandQueue];
+    id<MTLCommandBuffer> reactionCommand = [reactionQueue commandBuffer];
+    id<MTLBlitCommandEncoder> reactionBlit =
+        [reactionCommand blitCommandEncoder];
+    require(reactionReadback != nil && reactionQueue != nil &&
+                reactionCommand != nil && reactionBlit != nil,
+            "anterior-thorax reaction readback allocation failed");
+    [reactionBlit copyFromBuffer:reactionBuffer sourceOffset:0u
+                        toBuffer:reactionReadback destinationOffset:0u
+                            size:reactionBytes];
+    [reactionBlit endEncoding];
+    [reactionCommand commit];
+    [reactionCommand waitUntilCompleted];
+    require(reactionCommand.status == MTLCommandBufferStatusCompleted,
+            "anterior-thorax reaction readback failed");
+    const auto* reactions =
+        static_cast<const nm_float4*>(reactionReadback.contents);
+    mr_float4 reactionResultant{0.0f, 0.0f, 0.0f, 0.0f};
+    for (const std::uint32_t node : thorax.anchors) {
+        const mr_float4 reaction{
+            reactions[node].x, reactions[node].y, reactions[node].z, 0.0f};
+        const float magnitude = femLength(reaction);
+        require(std::isfinite(magnitude),
+                "anterior-thorax anchor reaction is non-finite");
+        reactionResultant = femAdd(reactionResultant, reaction);
+        result.anchorReactionL1Newtons += magnitude;
+        result.maximumAnchorNodeReactionNewtons = std::max(
+            result.maximumAnchorNodeReactionNewtons, magnitude);
+    }
+    result.anchorReactionResultantNewtons = femLength(reactionResultant);
+    for (const std::uint32_t binding : loadBindingIndices) {
+        require(binding < driven.finalTendonTransfers.size() &&
+                    driven.finalTendonTransfers[binding].status ==
+                        MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS,
+                "anterior-thorax tendon transfer was not published");
+        const auto& force =
+            driven.finalTendonTransfers[binding].terminalWorldForce;
+        result.appliedForceL1Newtons += result.forceOwnerFraction *
+            femLength({force.x, force.y, force.z, 0.0f});
+    }
+    require(result.appliedForceL1Newtons > 0.0f &&
+                result.anchorReactionL1Newtons > 0.0f &&
+                result.maximumAnchorNodeReactionNewtons > 0.0f &&
+                result.maximumDisplacementMeters > 0.0f &&
+                result.maximumDisplacementMeters < 0.03f &&
+                result.minimumDeterminant > 0.35f,
+            "anterior-thorax force-transfer mechanics failed physical gates");
+    driven.tendonContinuumReactionVerified = true;
+    return result;
+}
+
 struct PlantarSurfacePatch {
     std::array<mr_float4, 4u> points{};
     std::array<std::uint32_t, 4u> sourceVertexIndices{};
@@ -11145,6 +11751,7 @@ int main(int argc, char** argv) {
             std::optional<std::filesystem::path> passiveFEMMetallibPath;
             std::optional<std::filesystem::path> pectoralisFasciaPayloadPath;
             std::optional<std::uint32_t> pectoralisFasciaStepCount;
+            std::optional<std::filesystem::path> anteriorThoraxPayloadPath;
             std::optional<std::uint32_t> requestedCameraIndex;
             std::optional<std::uint32_t> wholeBodyActivationSweeps;
             std::vector<std::pair<std::uint32_t, double>> requestedPoseCoordinates;
@@ -11330,6 +11937,11 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !pectoralisFasciaStepCount.has_value(),
                             "--pectoralis-fascia-step-count requires one count and may be given only once");
                     pectoralisFasciaStepCount.emplace(parseMuscleStepCount(argv[++index]));
+                } else if (argument == "--anterior-thorax-continuum-payload") {
+                    require(index + 1 < argc &&
+                                !anteriorThoraxPayloadPath.has_value(),
+                            "--anterior-thorax-continuum-payload requires one NHTHRC1 path and may be given only once");
+                    anteriorThoraxPayloadPath.emplace(argv[++index]);
                 } else if (argument == "--dimension") {
                     require(index + 1 < argc && frameDimension == kDefaultFrameDimension,
                             "--dimension requires one value and may be given only once");
@@ -11380,6 +11992,7 @@ int main(int argc, char** argv) {
                           << " [--passive-fem-metallib <NumiMatter.metallib>]"
                           << " [--pectoralis-fascia-payload <NHFASC3>]"
                           << " [--pectoralis-fascia-step-count <1..64>]"
+                          << " [--anterior-thorax-continuum-payload <NHTHRC1>]"
                           << " [--visible-bone-body-index <0..156>]..."
                           << " [--visible-bone-stable-id <1..NHBONES1 bone count>]..."
                           << " [--soft-tissue-stable-id <1..N>]..."
@@ -11670,6 +12283,11 @@ int main(int argc, char** argv) {
                     *pectoralisFasciaPayloadPath, *softTissuePayload, musclePayload
                 ));
             }
+            std::optional<LoadedAnteriorThorax> anteriorThoraxPayload;
+            if (anteriorThoraxPayloadPath.has_value()) {
+                anteriorThoraxPayload.emplace(loadAnteriorThorax(
+                    *anteriorThoraxPayloadPath, musclePayload));
+            }
             std::optional<LoadedSkin> skinPayload;
             if (skinPayloadPath.has_value()) {
                 require(bodypartsBoneVisual,
@@ -11771,8 +12389,9 @@ int main(int argc, char** argv) {
                     "--open-knee-live-tissue-fem requires NHKNEE1 and a persistent NHTENDON2/3 Human transaction");
             require(!openKneeLiveTissueFEM ||
                         (!openKneeLigamentFEM.has_value() &&
-                         !pectoralisFasciaPayload.has_value()),
-                    "--open-knee-live-tissue-fem cannot share the single continuum slot with NHKFEM1/2 or pectoralis fascia");
+                         !pectoralisFasciaPayload.has_value() &&
+                         !anteriorThoraxPayload.has_value()),
+                    "--open-knee-live-tissue-fem cannot share the single continuum slot with NHKFEM1/2, pectoralis fascia, or anterior thorax");
             require(!persistentMetalStand ||
                         (muscleStepSeconds.has_value() &&
                          supportContactPayload.has_value() &&
@@ -11801,6 +12420,17 @@ int main(int argc, char** argv) {
                          (musclePayload.tendonPayload.payloadAbi == 2u ||
                           musclePayload.tendonPayload.payloadAbi == 3u)),
                     "--pectoralis-fascia-payload requires a persistent NHTENDON2/3 muscle transaction");
+            require(!anteriorThoraxPayload.has_value() ||
+                        ((persistentMetalStand || selectedTendonControl) &&
+                         muscleStepSeconds.has_value() &&
+                         supportContactPayload.has_value() &&
+                         jointEqualityPayload.has_value() &&
+                         (musclePayload.tendonPayload.payloadAbi == 2u ||
+                          musclePayload.tendonPayload.payloadAbi == 3u)),
+                    "--anterior-thorax-continuum-payload requires a persistent NHTENDON2/3 Human transaction");
+            require(!(anteriorThoraxPayload.has_value() &&
+                      pectoralisFasciaPayload.has_value()),
+                    "anterior thorax and pectoralis fascia cannot share the single continuum slot");
             require(!pectoralisFasciaStepCount.has_value() ||
                         pectoralisFasciaPayload.has_value(),
                     "--pectoralis-fascia-step-count requires --pectoralis-fascia-payload");
@@ -12256,6 +12886,7 @@ int main(int argc, char** argv) {
                           << "\n";
             }
             std::optional<PectoralisFasciaVisual> pectoralisFascia;
+            std::optional<AnteriorThoraxMechanics> anteriorThoraxMechanics;
             std::vector<MRBodyStateGPU> precomputedRestBodies;
             if (pectoralisFasciaPayload.has_value()) {
                 const metalrobo::MetalArticulatedOperatorInput restInput{
@@ -12508,6 +13139,19 @@ int main(int argc, char** argv) {
                         << " ptl_tibia_patch_area_m2="
                         << openKneeLigamentFEM->patellarTendonTibiaPatchAreaSquareMeters
                         << " extensor_chain=nonlinear_source_tendon_force_QAT_to_patella_to_PTL_to_tibia_exact_entheses\n";
+                } else if (anteriorThoraxPayload.has_value()) {
+                    MuscleDrivenVisualState coupledDriven;
+                    anteriorThoraxMechanics.emplace(runAnteriorThoraxContinuum(
+                        *anteriorThoraxPayload, musclePayload, coupledDriven,
+                        rigid.model, *supportContactPayload,
+                        *jointEqualityPayload, *muscleStepSeconds,
+                        muscleStepCount.value_or(1u),
+                        muscleActivation.value_or(0.5),
+                        selectedSourceMuscleActivations,
+                        selectedTendonControl, standRootAssistance,
+                        standRemoveAssistance,
+                        passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB)));
+                    muscleDrivenState.emplace(std::move(coupledDriven));
                 } else if (pectoralisFasciaPayload.has_value()) {
                     MuscleDrivenVisualState coupledDriven;
                     pectoralisFascia.emplace(runPectoralisFascia(
@@ -13553,6 +14197,42 @@ int main(int argc, char** argv) {
                               ? passiveFEMTissue->gpuMilliseconds : 0.0)
                       << " passive_fem_device=\"" << (passiveFEMTissue.has_value()
                               ? passiveFEMTissue->deviceName : "none") << "\""
+                      << " anterior_thorax_nodes=" << (anteriorThoraxMechanics.has_value()
+                              ? anteriorThoraxMechanics->nodeCount : 0u)
+                      << " anterior_thorax_tetrahedra=" << (anteriorThoraxMechanics.has_value()
+                              ? anteriorThoraxMechanics->tetrahedronCount : 0u)
+                      << " anterior_thorax_attachments=" << (anteriorThoraxMechanics.has_value()
+                              ? anteriorThoraxMechanics->attachmentCount : 0u)
+                      << " anterior_thorax_fixed_nodes=" << (anteriorThoraxMechanics.has_value()
+                              ? anteriorThoraxMechanics->fixedNodeCount : 0u)
+                      << " anterior_thorax_loaded_nodes=" << (anteriorThoraxMechanics.has_value()
+                              ? anteriorThoraxMechanics->loadedNodeCount : 0u)
+                      << " anterior_thorax_owner_fraction=" << (anteriorThoraxMechanics.has_value()
+                              ? anteriorThoraxMechanics->forceOwnerFraction : 0.0f)
+                      << " anterior_thorax_applied_force_l1_n=" << (anteriorThoraxMechanics.has_value()
+                              ? anteriorThoraxMechanics->appliedForceL1Newtons : 0.0f)
+                      << " anterior_thorax_anchor_reaction_l1_n=" << (anteriorThoraxMechanics.has_value()
+                              ? anteriorThoraxMechanics->anchorReactionL1Newtons : 0.0f)
+                      << " anterior_thorax_anchor_reaction_resultant_n=" << (anteriorThoraxMechanics.has_value()
+                              ? anteriorThoraxMechanics->anchorReactionResultantNewtons : 0.0f)
+                      << " anterior_thorax_anchor_reaction_max_node_n=" << (anteriorThoraxMechanics.has_value()
+                              ? anteriorThoraxMechanics->maximumAnchorNodeReactionNewtons : 0.0f)
+                      << " anterior_thorax_steps=" << (anteriorThoraxMechanics.has_value()
+                              ? anteriorThoraxMechanics->completedSteps : 0u)
+                      << " anterior_thorax_fgmres_iterations=" << (anteriorThoraxMechanics.has_value()
+                              ? anteriorThoraxMechanics->fgmresIterations : 0u)
+                      << " anterior_thorax_max_displacement_m=" << (anteriorThoraxMechanics.has_value()
+                              ? anteriorThoraxMechanics->maximumDisplacementMeters : 0.0f)
+                      << " anterior_thorax_minimum_J=" << (anteriorThoraxMechanics.has_value()
+                              ? anteriorThoraxMechanics->minimumDeterminant : 0.0f)
+                      << " anterior_thorax_replay=" << (anteriorThoraxMechanics.has_value() &&
+                              anteriorThoraxMechanics->replayVerified ? "bitwise" : "none")
+                      << " anterior_thorax_rollback=" << (anteriorThoraxMechanics.has_value() &&
+                              anteriorThoraxMechanics->rollbackVerified ? "verified" : "none")
+                      << " anterior_thorax_coupled_transaction_elapsed_ms=" << (anteriorThoraxMechanics.has_value()
+                              ? anteriorThoraxMechanics->coupledTransactionMilliseconds : 0.0)
+                      << " anterior_thorax_device=\"" << (anteriorThoraxMechanics.has_value()
+                              ? anteriorThoraxMechanics->deviceName : "none") << "\""
                       << " pectoralis_fascia_nodes=" << (pectoralisFascia.has_value()
                               ? pectoralisFascia->nodes.size() : 0u)
                       << " pectoralis_fascia_tetrahedra=" << (pectoralisFascia.has_value()
