@@ -2735,6 +2735,37 @@ struct MuscleDrivenVisualState {
         double velocityIncrementRadiansPerSecond = 0.0;
     };
     std::array<AchillesForceTransferSideAudit, 2u> achilles{};
+    struct ThumbTendonSideAudit {
+        bool available = false;
+        std::uint32_t muscleCount = 0u;
+        std::uint32_t distributedEndpointCount = 0u;
+        std::array<std::uint32_t, 4u> qIndices{};
+        std::array<std::uint32_t, 4u> dofIndices{};
+        std::array<double, 4u> sourceTorqueL1NewtonMeters{};
+        std::array<double, 4u> sourceTorqueIncrementL1NewtonMeters{};
+        std::array<double, 4u> distributedCorrectionL1NewtonMeters{};
+        std::array<double, 4u> configurationIncrementRadians{};
+        std::array<double, 4u> velocityIncrementRadiansPerSecond{};
+        std::array<double, 4u> muscleTorqueL1NewtonMeters{};
+        std::array<double, 4u> muscleTorqueIncrementL1NewtonMeters{};
+        double representedEndpointForceL1Newtons = 0.0;
+        double representedEndpointForceIncrementL1Newtons = 0.0;
+        double maximumEndpointForceResidualNewtons = 0.0;
+        double maximumEndpointMomentResidualNewtonMeters = 0.0;
+        double minimumNormalizedTendonTension =
+            std::numeric_limits<double>::infinity();
+        double maximumNormalizedTendonTension = 0.0;
+        double maximumDampedEquilibriumResidual = 0.0;
+        double minimumSurfaceDistanceMeters =
+            std::numeric_limits<double>::infinity();
+        double maximumSurfaceDistanceMeters = 0.0;
+        double minimumPatchRadiusMeters =
+            std::numeric_limits<double>::infinity();
+        double maximumPatchRadiusMeters = 0.0;
+        double configurationIncrementL1Radians = 0.0;
+        double velocityIncrementL1RadiansPerSecond = 0.0;
+    };
+    std::array<ThumbTendonSideAudit, 2u> thumbTendons{};
 };
 
 struct TendonLoadAuditConsumer {
@@ -4690,6 +4721,260 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     audit.maximumEndpointMomentResidualNewtonMeters
                 )
         );
+    }
+    // The thumb has no digit-2-through-5 extensor hood. Its correct source
+    // apparatus is the direct EPL/EPB/FPL/APL tendon set. Audit both endpoints
+    // of every source row against the exact non-migrated BodyParts3D envelope,
+    // then prove that the accepted source forces span CMC flexion/abduction,
+    // MP flexion, and IP flexion without introducing a second actuator.
+    constexpr std::array<std::array<std::uint32_t, 4u>, 2u>
+        kThumbMuscleIndices{{
+            {{256u, 257u, 258u, 259u}},
+            {{319u, 320u, 321u, 322u}},
+        }};
+    constexpr std::array<std::array<std::uint32_t, 4u>, 2u>
+        kThumbQIndices{{
+            {{43u, 44u, 45u, 46u}},
+            {{81u, 82u, 83u, 84u}},
+        }};
+    constexpr std::array<std::array<std::array<std::uint32_t, 2u>, 4u>, 2u>
+        kThumbEndpointBodies{{
+            {{{{42u, 54u}}, {{43u, 53u}}, {{43u, 54u}}, {{43u, 52u}}}},
+            {{{{92u, 104u}}, {{93u, 103u}}, {{93u, 104u}}, {{93u, 102u}}}},
+        }};
+    constexpr std::array<std::array<std::array<std::uint32_t, 2u>, 4u>, 2u>
+        kThumbEndpointBoneStableIds{{
+            {{{{14u, 94u}}, {{16u, 93u}}, {{16u, 94u}}, {{16u, 88u}}}},
+            {{{{15u, 113u}}, {{17u, 112u}}, {{17u, 113u}}, {{17u, 107u}}}},
+        }};
+    for (std::size_t side = 0u; side < result.thumbTendons.size(); ++side) {
+        auto& audit = result.thumbTendons[side];
+        const bool selected = applySelectedActivationIncrement &&
+            std::all_of(
+                kThumbMuscleIndices[side].begin(),
+                kThumbMuscleIndices[side].end(),
+                [&selectedSourceMuscleIndices](const std::uint32_t muscle) {
+                    return std::binary_search(
+                        selectedSourceMuscleIndices.begin(),
+                        selectedSourceMuscleIndices.end(), muscle);
+                });
+        if (!selected) continue;
+        require(
+            metalResult.mujocoResults.size() == muscles.gpuMuscles.size() &&
+                metalResult.mujocoMuscleGeneralizedForces.size() ==
+                    muscles.gpuMuscles.size() * dofCount &&
+                selectedControlBaselineResult.mujocoMuscleGeneralizedForces.size() ==
+                    metalResult.mujocoMuscleGeneralizedForces.size() &&
+                metalResult.standTendonGeneralizedCorrections.size() ==
+                    tendonProgram.bindings.size() * dofCount &&
+                result.q.size() == selectedControlBaselineResult.standQ.size() &&
+                metalResult.standV.size() ==
+                    selectedControlBaselineResult.standV.size(),
+            "thumb tendon certificate is missing accepted source-force state");
+        for (std::size_t coordinate = 0u; coordinate < 4u; ++coordinate) {
+            const std::uint32_t qIndex = kThumbQIndices[side][coordinate];
+            const auto dof = std::find_if(
+                model.dofs.begin(), model.dofs.end(),
+                [qIndex](const MRDofPropertiesGPU& candidate) {
+                    return candidate.qIndex == qIndex;
+                });
+            require(dof != model.dofs.end(),
+                    "thumb tendon certificate cannot resolve a source DOF");
+            const std::size_t dofIndex = static_cast<std::size_t>(
+                std::distance(model.dofs.begin(), dof));
+            require(qIndex < result.q.size() && dofIndex < dofCount,
+                    "thumb tendon certificate source coordinate is out of range");
+            audit.qIndices[coordinate] = qIndex;
+            audit.dofIndices[coordinate] = static_cast<std::uint32_t>(dofIndex);
+            audit.configurationIncrementRadians[coordinate] =
+                static_cast<double>(result.q[qIndex]) -
+                static_cast<double>(selectedControlBaselineResult.standQ[qIndex]);
+            audit.velocityIncrementRadiansPerSecond[coordinate] =
+                static_cast<double>(metalResult.standV[dofIndex]) -
+                static_cast<double>(selectedControlBaselineResult.standV[dofIndex]);
+            audit.configurationIncrementL1Radians += std::abs(
+                audit.configurationIncrementRadians[coordinate]);
+            audit.velocityIncrementL1RadiansPerSecond += std::abs(
+                audit.velocityIncrementRadiansPerSecond[coordinate]);
+        }
+        for (std::size_t muscleOrdinal = 0u; muscleOrdinal < 4u;
+             ++muscleOrdinal) {
+            const std::uint32_t muscle =
+                kThumbMuscleIndices[side][muscleOrdinal];
+            require(muscle < muscles.referenceArchitectures.size(),
+                    "thumb tendon muscle architecture is unavailable");
+            const auto& muscleResult = metalResult.mujocoResults[muscle];
+            require(muscleResult.status == MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS,
+                    "thumb tendon source muscle did not solve");
+            audit.minimumNormalizedTendonTension = std::min(
+                audit.minimumNormalizedTendonTension,
+                static_cast<double>(
+                    muscleResult.fiberStateTendonForceResidual.z));
+            audit.maximumNormalizedTendonTension = std::max(
+                audit.maximumNormalizedTendonTension,
+                static_cast<double>(
+                    muscleResult.fiberStateTendonForceResidual.z));
+            audit.maximumDampedEquilibriumResidual = std::max(
+                audit.maximumDampedEquilibriumResidual,
+                std::abs(static_cast<double>(
+                    muscleResult.fiberStateTendonForceResidual.w)));
+            for (std::size_t coordinate = 0u; coordinate < 4u; ++coordinate) {
+                const std::size_t dofIndex = audit.dofIndices[coordinate];
+                const std::size_t muscleDof = muscle * dofCount + dofIndex;
+                const double torque =
+                    metalResult.mujocoMuscleGeneralizedForces[muscleDof];
+                const double baselineTorque = selectedControlBaselineResult
+                    .mujocoMuscleGeneralizedForces[muscleDof];
+                audit.sourceTorqueL1NewtonMeters[coordinate] +=
+                    std::abs(torque);
+                audit.sourceTorqueIncrementL1NewtonMeters[coordinate] +=
+                    std::abs(torque - baselineTorque);
+                audit.muscleTorqueL1NewtonMeters[muscleOrdinal] +=
+                    std::abs(torque);
+                audit.muscleTorqueIncrementL1NewtonMeters[muscleOrdinal] +=
+                    std::abs(torque - baselineTorque);
+            }
+            for (std::uint32_t endpoint = 0u; endpoint < 2u; ++endpoint) {
+                const auto gpuBinding = std::find_if(
+                    tendonProgram.bindings.begin(), tendonProgram.bindings.end(),
+                    [muscle, endpoint](const MRNumiHumanTendonBindingGPU& value) {
+                        return value.muscleIndex == muscle &&
+                            value.endpointOrdinal == endpoint;
+                    });
+                const auto sourceBinding = std::find_if(
+                    muscles.tendonPayload.bindings.begin(),
+                    muscles.tendonPayload.bindings.end(),
+                    [muscle, endpoint](
+                        const metalrobo::NumiHumanTendonBinding& value) {
+                        return value.muscleIndex == muscle &&
+                            value.endpointOrdinal == endpoint;
+                    });
+                require(
+                    gpuBinding != tendonProgram.bindings.end() &&
+                        sourceBinding != muscles.tendonPayload.bindings.end() &&
+                        gpuBinding->bodyIndex ==
+                            kThumbEndpointBodies[side][muscleOrdinal][endpoint] &&
+                        gpuBinding->boneStableId ==
+                            kThumbEndpointBoneStableIds[side][muscleOrdinal][endpoint] &&
+                        gpuBinding->mode ==
+                            MR_NUMI_HUMAN_TENDON_TRANSFER_DISTRIBUTED_ENVELOPE &&
+                        gpuBinding->envelopeIndex < tendonProgram.envelopes.size() &&
+                        sourceBinding->mode == metalrobo::
+                            NumiHumanTendonAttachmentMode::
+                                registeredBoneDistributedEnvelope &&
+                        sourceBinding->endpointMigration <= 1.0e-12 &&
+                        sourceBinding->surfaceDistance >= 0.0 &&
+                        sourceBinding->surfaceDistance <= 4.0e-3 &&
+                        sourceBinding->patchRadius >= 4.0e-3 &&
+                        sourceBinding->patchRadius <= 1.5e-2 &&
+                        sourceBinding->forceAmplification <= 2.2 &&
+                        sourceBinding->compiledMomentResidual <= 1.0e-9,
+                    "thumb tendon endpoint is not its exact non-migrated "
+                    "BodyParts3D envelope");
+                const std::size_t bindingIndex = static_cast<std::size_t>(
+                    std::distance(tendonProgram.bindings.begin(), gpuBinding));
+                require(
+                    bindingIndex < metalResult.standTendonTransfers.size() &&
+                        bindingIndex <
+                            selectedControlBaselineResult.standTendonTransfers.size(),
+                    "thumb tendon endpoint transfer readback is incomplete");
+                const auto& transfer =
+                    metalResult.standTendonTransfers[bindingIndex];
+                const auto& baselineTransfer =
+                    selectedControlBaselineResult.standTendonTransfers[bindingIndex];
+                const auto& envelope =
+                    tendonProgram.envelopes[gpuBinding->envelopeIndex];
+                require(
+                    transfer.status == MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS &&
+                        baselineTransfer.status ==
+                            MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS &&
+                        transfer.bindingIndex == bindingIndex &&
+                        transfer.envelopeIndex == gpuBinding->envelopeIndex &&
+                        envelope.bodyIndex == gpuBinding->bodyIndex &&
+                        envelope.boneStableId == gpuBinding->boneStableId &&
+                        envelope.nodeCount == 4u,
+                    "accepted thumb endpoint disagrees with its envelope");
+                ++audit.distributedEndpointCount;
+                audit.representedEndpointForceL1Newtons +=
+                    std::abs(static_cast<double>(transfer.residualsAndForce.w));
+                audit.representedEndpointForceIncrementL1Newtons += std::abs(
+                    static_cast<double>(transfer.residualsAndForce.w) -
+                    static_cast<double>(baselineTransfer.residualsAndForce.w));
+                audit.maximumEndpointForceResidualNewtons = std::max(
+                    audit.maximumEndpointForceResidualNewtons,
+                    static_cast<double>(transfer.residualsAndForce.x));
+                audit.maximumEndpointMomentResidualNewtonMeters = std::max(
+                    audit.maximumEndpointMomentResidualNewtonMeters,
+                    static_cast<double>(transfer.residualsAndForce.y));
+                audit.minimumSurfaceDistanceMeters = std::min(
+                    audit.minimumSurfaceDistanceMeters,
+                    static_cast<double>(envelope.metrics.x));
+                audit.maximumSurfaceDistanceMeters = std::max(
+                    audit.maximumSurfaceDistanceMeters,
+                    static_cast<double>(envelope.metrics.x));
+                audit.minimumPatchRadiusMeters = std::min(
+                    audit.minimumPatchRadiusMeters,
+                    static_cast<double>(envelope.metrics.y));
+                audit.maximumPatchRadiusMeters = std::max(
+                    audit.maximumPatchRadiusMeters,
+                    static_cast<double>(envelope.metrics.y));
+                for (std::size_t coordinate = 0u; coordinate < 4u;
+                     ++coordinate) {
+                    audit.distributedCorrectionL1NewtonMeters[coordinate] +=
+                        std::abs(static_cast<double>(
+                            metalResult.standTendonGeneralizedCorrections[
+                                bindingIndex * dofCount +
+                                audit.dofIndices[coordinate]]));
+                }
+            }
+            ++audit.muscleCount;
+        }
+        audit.available =
+            audit.muscleCount == 4u &&
+            audit.distributedEndpointCount == 8u &&
+            audit.representedEndpointForceL1Newtons > 0.0 &&
+            audit.representedEndpointForceIncrementL1Newtons > 0.0 &&
+            audit.minimumNormalizedTendonTension > 0.0 &&
+            audit.maximumEndpointForceResidualNewtons <= 1.0e-3 &&
+            audit.maximumEndpointMomentResidualNewtonMeters <= 5.0e-5 &&
+            audit.configurationIncrementL1Radians > 1.0e-12 &&
+            audit.velocityIncrementL1RadiansPerSecond > 1.0e-9 &&
+            std::all_of(
+                audit.sourceTorqueL1NewtonMeters.begin(),
+                audit.sourceTorqueL1NewtonMeters.end(),
+                [](const double value) { return value > 1.0e-8; }) &&
+            std::all_of(
+                audit.sourceTorqueIncrementL1NewtonMeters.begin(),
+                audit.sourceTorqueIncrementL1NewtonMeters.end(),
+                [](const double value) { return value > 1.0e-8; }) &&
+            std::all_of(
+                audit.muscleTorqueL1NewtonMeters.begin(),
+                audit.muscleTorqueL1NewtonMeters.end(),
+                [](const double value) { return value > 1.0e-8; }) &&
+            std::all_of(
+                audit.muscleTorqueIncrementL1NewtonMeters.begin(),
+                audit.muscleTorqueIncrementL1NewtonMeters.end(),
+                [](const double value) { return value > 1.0e-8; });
+        require(
+            audit.available,
+            "thumb tendon force-transfer certificate did not close: side=" +
+                std::to_string(side) + " muscles=" +
+                std::to_string(audit.muscleCount) + " endpoints=" +
+                std::to_string(audit.distributedEndpointCount) +
+                " force_l1=" +
+                std::to_string(audit.representedEndpointForceL1Newtons) +
+                " force_increment_l1=" +
+                std::to_string(
+                    audit.representedEndpointForceIncrementL1Newtons) +
+                " max_force_residual=" +
+                std::to_string(audit.maximumEndpointForceResidualNewtons) +
+                " max_moment_residual=" +
+                std::to_string(
+                    audit.maximumEndpointMomentResidualNewtonMeters) +
+                " q_increment_l1=" +
+                std::to_string(audit.configurationIncrementL1Radians) +
+                " v_increment_l1=" +
+                std::to_string(audit.velocityIncrementL1RadiansPerSecond));
     }
     return result;
 }
@@ -12474,6 +12759,7 @@ int main(int argc, char** argv) {
             bool standRemoveAssistance = false;
             bool standDeterministicReplay = false;
             bool bilateralAchillesCertificate = false;
+            bool bilateralThumbTendonCertificate = false;
             bool bilateralPlantarFasciaCertificate = false;
             bool wholeBodySupportCertificate = false;
             bool sourcePassiveJointTissue = false;
@@ -12552,6 +12838,10 @@ int main(int argc, char** argv) {
                     require(!bilateralAchillesCertificate,
                             "--bilateral-achilles-certificate may be given only once");
                     bilateralAchillesCertificate = true;
+                } else if (argument == "--bilateral-thumb-tendon-certificate") {
+                    require(!bilateralThumbTendonCertificate,
+                            "--bilateral-thumb-tendon-certificate may be given only once");
+                    bilateralThumbTendonCertificate = true;
                 } else if (argument == "--bilateral-plantar-fascia-certificate") {
                     require(!bilateralPlantarFasciaCertificate,
                             "--bilateral-plantar-fascia-certificate may be given only once");
@@ -12744,6 +13034,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-activation <0..1>]"
                           << " [--persistent-metal-stand] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay]"
                           << " [--bilateral-achilles-certificate]"
+                          << " [--bilateral-thumb-tendon-certificate]"
                           << " [--bilateral-plantar-fascia-certificate]"
                           << " [--whole-body-support-certificate]"
                           << " [--whole-body-activation-sweeps <1..8192>]"
@@ -12879,6 +13170,7 @@ int main(int argc, char** argv) {
                 );
                 require(
                     !bilateralPlantarFasciaCertificate &&
+                        !bilateralThumbTendonCertificate &&
                         !wholeBodySupportCertificate &&
                         !sourceRouteCentrelines &&
                         requestedBoneBodyIndices.empty() &&
@@ -12892,9 +13184,48 @@ int main(int argc, char** argv) {
                     "qualification and cannot be combined with presentation scopes"
                 );
             }
+            if (bilateralThumbTendonCertificate) {
+                constexpr std::array<std::uint32_t, 8u>
+                    kBilateralThumbTendonMuscles{
+                        256u, 257u, 258u, 259u,
+                        319u, 320u, 321u, 322u,
+                    };
+                require(
+                    !persistentMetalStand && selectedTendonControl &&
+                        muscleStepSeconds.has_value() &&
+                        tendonPayloadPath.has_value() &&
+                        jointEqualityPayloadPath.has_value() &&
+                        supportContactPayloadPath.has_value() &&
+                        selectedSourceMuscleActivations.size() ==
+                            kBilateralThumbTendonMuscles.size() &&
+                        std::equal(
+                            selectedSourceMuscleActivations.begin(),
+                            selectedSourceMuscleActivations.end(),
+                            kBilateralThumbTendonMuscles.begin()),
+                    "--bilateral-thumb-tendon-certificate requires the "
+                    "persistent selected NHTENDON3 transaction and exactly "
+                    "source muscles 256,257,258,259,319,320,321,322");
+                require(
+                    !bilateralAchillesCertificate &&
+                        !bilateralPlantarFasciaCertificate &&
+                        !wholeBodySupportCertificate &&
+                        !sourceRouteCentrelines &&
+                        requestedBoneBodyIndices.empty() &&
+                        requestedBoneStableIds.empty() &&
+                        requestedSoftTissueStableIds.empty() &&
+                        !extensorHoodPayloadPath.has_value() &&
+                        !passiveFEMTissueStableId.has_value() &&
+                        !pectoralisFasciaPayloadPath.has_value() &&
+                        !openKneePayloadPath.has_value() &&
+                        !openKneeLigamentFEMPath.has_value(),
+                    "--bilateral-thumb-tendon-certificate is a nonvisual "
+                    "direct-tendon qualification and cannot be combined "
+                    "with presentation or inferred hood scopes");
+            }
             if (bilateralPlantarFasciaCertificate) {
                 require(
                         !bilateralAchillesCertificate &&
+                        !bilateralThumbTendonCertificate &&
                         !wholeBodySupportCertificate && bodypartsBoneVisual &&
                         !persistentMetalStand && !selectedTendonControl &&
                         muscleStepSeconds.has_value() &&
@@ -12930,6 +13261,7 @@ int main(int argc, char** argv) {
             if (wholeBodySupportCertificate) {
                 require(
                     !bilateralAchillesCertificate &&
+                        !bilateralThumbTendonCertificate &&
                         !bilateralPlantarFasciaCertificate &&
                         !persistentMetalStand && !selectedTendonControl &&
                         muscleStepSeconds.has_value() &&
@@ -14261,6 +14593,123 @@ int main(int argc, char** argv) {
                 }
                 std::cout
                     << " boundary=bounded_bilateral_Achilles_active_force_transfer_certificate_not_deformable_volumetric_tendon_contact_sustained_gait_or_clinical_validation\n";
+                return 0;
+            }
+            if (bilateralThumbTendonCertificate) {
+                require(
+                    muscleDrivenState.has_value() &&
+                        muscleDrivenState->thumbTendons[0u].available &&
+                        muscleDrivenState->thumbTendons[1u].available &&
+                        muscleDrivenState->tendonBorrowedConsumerVerified &&
+                        muscleDrivenState->tendonRollbackVerified &&
+                        muscleDrivenState->tendonRigidStateIdentityVerified &&
+                        muscleDrivenState->deterministicReplayVerified,
+                    "bilateral thumb qualification lacks transactional proof");
+                const auto& right = muscleDrivenState->thumbTendons[0u];
+                const auto& left = muscleDrivenState->thumbTendons[1u];
+                const double forceScale = std::max({
+                    1.0,
+                    right.representedEndpointForceL1Newtons,
+                    left.representedEndpointForceL1Newtons});
+                const double bilateralForceRelativeDifference = std::abs(
+                    right.representedEndpointForceL1Newtons -
+                    left.representedEndpointForceL1Newtons) / forceScale;
+                require(bilateralForceRelativeDifference <= 5.0e-2,
+                        "bilateral thumb represented-force parity drifted");
+                std::cout << std::setprecision(12)
+                          << "numi_human_bilateral_thumb_tendon_force_transfer=ok"
+                          << " device=\""
+                          << muscleDrivenState->muscleMetalDeviceName << "\""
+                          << " source_model=pinned_MyoSim_full_body"
+                          << " anatomy=direct_EPL_EPB_FPL_APL_without_non_thumb_extensor_hood"
+                          << " geometry=BodyParts3D_4_0_named_radius_ulna_first_metacarpal_proximal_and_distal_thumb_envelopes"
+                          << " tendon_law=NHMYO2_nonlinear_compliant_fiber_tendon_equilibrium"
+                          << " transfer=NHTENDON3_four_node_wrench_equivalent_entheses"
+                          << " selected_muscles=256,257,258,259,319,320,321,322"
+                          << " selected_muscle_names=EPL,EPB,FPL,APL,EPL_l,EPB_l,FPL_l,APL_l"
+                          << " accepted_steps="
+                          << muscleDrivenState->persistentCompletedSteps
+                          << " replay=bitwise"
+                          << " rollback=consumer_rejection_preserved_result"
+                          << " borrowed_consumer=same_command_buffer_exact_snapshot"
+                          << " force_authority=single_direct_source_route_JT_with_distributed_enthesis_witness"
+                          << " bilateral_force_relative_difference="
+                          << bilateralForceRelativeDifference;
+                constexpr std::array<const char*, 2u> kSideNames{
+                    "right", "left"};
+                constexpr std::array<const char*, 4u> kCoordinateNames{
+                    "cmc_flexion", "cmc_abduction", "mp_flexion",
+                    "ip_flexion"};
+                constexpr std::array<const char*, 4u> kMuscleNames{
+                    "EPL", "EPB", "FPL", "APL"};
+                for (std::size_t side = 0u;
+                     side < muscleDrivenState->thumbTendons.size(); ++side) {
+                    const auto& audit =
+                        muscleDrivenState->thumbTendons[side];
+                    const std::string prefix = std::string(" ") +
+                        kSideNames[side] + "_";
+                    std::cout
+                        << prefix << "muscles=" << audit.muscleCount
+                        << prefix << "distributed_endpoints="
+                        << audit.distributedEndpointCount
+                        << prefix << "represented_endpoint_force_l1_n="
+                        << audit.representedEndpointForceL1Newtons
+                        << prefix << "represented_endpoint_force_increment_l1_n="
+                        << audit.representedEndpointForceIncrementL1Newtons
+                        << prefix << "max_endpoint_force_residual_n="
+                        << audit.maximumEndpointForceResidualNewtons
+                        << prefix << "max_endpoint_moment_residual_nm="
+                        << audit.maximumEndpointMomentResidualNewtonMeters
+                        << prefix << "min_normalized_tendon_tension="
+                        << audit.minimumNormalizedTendonTension
+                        << prefix << "max_normalized_tendon_tension="
+                        << audit.maximumNormalizedTendonTension
+                        << prefix << "max_equilibrium_residual="
+                        << audit.maximumDampedEquilibriumResidual
+                        << prefix << "min_surface_distance_m="
+                        << audit.minimumSurfaceDistanceMeters
+                        << prefix << "max_surface_distance_m="
+                        << audit.maximumSurfaceDistanceMeters
+                        << prefix << "min_patch_radius_m="
+                        << audit.minimumPatchRadiusMeters
+                        << prefix << "max_patch_radius_m="
+                        << audit.maximumPatchRadiusMeters
+                        << prefix << "q_increment_l1_rad="
+                        << audit.configurationIncrementL1Radians
+                        << prefix << "v_increment_l1_rad_s="
+                        << audit.velocityIncrementL1RadiansPerSecond;
+                    for (std::size_t coordinate = 0u; coordinate < 4u;
+                         ++coordinate) {
+                        const std::string coordinatePrefix = prefix +
+                            kCoordinateNames[coordinate] + "_";
+                        std::cout
+                            << coordinatePrefix << "q_index="
+                            << audit.qIndices[coordinate]
+                            << coordinatePrefix << "dof_index="
+                            << audit.dofIndices[coordinate]
+                            << coordinatePrefix << "source_torque_l1_nm="
+                            << audit.sourceTorqueL1NewtonMeters[coordinate]
+                            << coordinatePrefix << "source_torque_increment_l1_nm="
+                            << audit.sourceTorqueIncrementL1NewtonMeters[coordinate]
+                            << coordinatePrefix << "distributed_correction_l1_nm="
+                            << audit.distributedCorrectionL1NewtonMeters[coordinate]
+                            << coordinatePrefix << "q_increment_rad="
+                            << audit.configurationIncrementRadians[coordinate]
+                            << coordinatePrefix << "v_increment_rad_s="
+                            << audit.velocityIncrementRadiansPerSecond[coordinate];
+                    }
+                    for (std::size_t muscle = 0u; muscle < 4u; ++muscle) {
+                        const std::string musclePrefix = prefix +
+                            kMuscleNames[muscle] + "_";
+                        std::cout
+                            << musclePrefix << "thumb_torque_l1_nm="
+                            << audit.muscleTorqueL1NewtonMeters[muscle]
+                            << musclePrefix << "thumb_torque_increment_l1_nm="
+                            << audit.muscleTorqueIncrementL1NewtonMeters[muscle];
+                    }
+                }
+                std::cout
+                    << " boundary=bounded_bilateral_direct_thumb_tendon_force_transfer_certificate_not_retinacular_pulley_contact_deformable_tendon_sustained_task_or_clinical_validation\n";
                 return 0;
             }
             const metalrobo::MetalArticulatedOperatorInput input{

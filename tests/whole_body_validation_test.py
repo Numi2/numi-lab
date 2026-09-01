@@ -84,6 +84,19 @@ class WholeBodyValidationTest(unittest.TestCase):
         self.assertEqual(toes["windlass_force_transfer"]["status"], "verified")
         self.assertEqual(toes["passive_joint_tissue"]["status"], "insufficient")
 
+    def test_thumb_direct_tendon_receipt_and_hand_requirements(self):
+        report = self.run_validator("--allow-incomplete", "--quiet")
+        self.assertEqual(
+            report["evidence"]["bilateral_thumb_direct_tendon_force_transfer"]["status"],
+            "verified",
+        )
+        for identifier in (
+            "left_wrist_hand_fingers",
+            "right_wrist_hand_fingers",
+        ):
+            hand = scope(report, identifier)["requirements"]
+            self.assertEqual(hand["thumb_direct_tendon_transfer"]["status"], "verified")
+
     def test_default_exit_fails_closed_while_incomplete(self):
         report = self.run_validator("--quiet", expected_code=1)
         self.assertEqual(report["status"], "incomplete")

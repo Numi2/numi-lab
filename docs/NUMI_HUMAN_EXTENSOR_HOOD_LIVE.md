@@ -37,6 +37,7 @@ rigid-body Jacobians are preserved. Hood connectivity, areas, moduli, and the
 body-relative fascial foundation are literature-constrained inference rather
 than subject-specific calibration. The foundation prevents unsupported axial
 mechanisms but is not a deformable fascia sheet or FEM solve. NHHOOD2 covers
-digits 2 through 5; thumb apparatus, passive capsules and ligaments, retinacular
-tissue, articular contact, sustained loaded motion, and whole-body static
+digits 2 through 5. Direct EPL/EPB/FPL/APL thumb force transfer is qualified in
+the separate thumb certificate; passive capsules and ligaments, retinacular and
+pulley tissue, articular contact, sustained loaded motion, and whole-body static
 equilibrium remain separate work.

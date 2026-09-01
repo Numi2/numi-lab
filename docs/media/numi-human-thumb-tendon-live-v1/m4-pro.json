@@ -1,0 +1,138 @@
+{
+  "schema": "numilab.human.thumb-tendon-live-metal.v1",
+  "device": "Apple M4 Pro",
+  "evidence_level": "one_step",
+  "bounded_extension_step_count": 8,
+  "source_base_revision": "88da60f9547507de3641162827850cf9a1c9db4c",
+  "anatomy": {
+    "mechanism": "direct_EPL_EPB_FPL_APL_without_non_thumb_extensor_hood",
+    "source_model": "pinned_MyoSim_full_body",
+    "right_source_muscle_indices": [256, 257, 258, 259],
+    "left_source_muscle_indices": [319, 320, 321, 322],
+    "right_endpoint_body_pairs": [[42, 54], [43, 53], [43, 54], [43, 52]],
+    "left_endpoint_body_pairs": [[92, 104], [93, 103], [93, 104], [93, 102]],
+    "right_endpoint_bone_stable_id_pairs": [[14, 94], [16, 93], [16, 94], [16, 88]],
+    "left_endpoint_bone_stable_id_pairs": [[15, 113], [17, 112], [17, 113], [17, 107]],
+    "right_q_indices": [43, 44, 45, 46],
+    "left_q_indices": [81, 82, 83, 84],
+    "coordinate_order": ["cmc_flexion", "cmc_abduction", "mp_flexion", "ip_flexion"]
+  },
+  "mechanics": {
+    "tendon_law": "NHMYO2_nonlinear_compliant_fiber_tendon_equilibrium",
+    "attachment_transfer": "NHTENDON3_four_node_wrench_equivalent_entheses",
+    "force_authority": "single_direct_source_route_JT_with_distributed_enthesis_witness",
+    "distributed_endpoint_count": 16,
+    "endpoint_migration_maximum_m": 0.0,
+    "surface_distance_range_m": [0.000121957789815, 0.00322960619815],
+    "patch_radius_range_m": [0.00533078750595, 0.0119902258739]
+  },
+  "transaction": {
+    "command_buffer": "borrowed_same_command_buffer_exact_snapshot",
+    "replay": "bitwise",
+    "rollback": "consumer_rejection_preserved_result",
+    "rigid_state_authority": "source_route_JT_only"
+  },
+  "one_step": {
+    "accepted_steps": 1,
+    "bilateral_force_relative_difference": 0.0115874102625,
+    "right": {
+      "represented_endpoint_force_l1_n": 378.982532501,
+      "represented_endpoint_force_increment_l1_n": 374.177028445,
+      "maximum_endpoint_force_residual_n": 0.00000106624031559,
+      "maximum_endpoint_moment_residual_nm": 0.0000000261897969978,
+      "normalized_tendon_tension_range": [0.247911706567, 0.492418795824],
+      "configuration_increment_l1_rad": 0.0000791623575848,
+      "velocity_increment_l1_rad_s": 0.791623572504,
+      "coordinate_torque_increment_l1_nm": [0.922036982369, 0.592953811608, 1.26068162784, 0.822638384121],
+      "muscle_torque_increment_l1_nm": [1.17543954234, 0.493795544899, 1.85341255997, 0.0756631587283]
+    },
+    "left": {
+      "represented_endpoint_force_l1_n": 374.591106415,
+      "represented_endpoint_force_increment_l1_n": 368.949450977,
+      "maximum_endpoint_force_residual_n": 0.000000953674316406,
+      "maximum_endpoint_moment_residual_nm": 0.000000037010554621,
+      "normalized_tendon_tension_range": [0.230028152466, 0.488812893629],
+      "configuration_increment_l1_rad": 0.0000803720000171,
+      "velocity_increment_l1_rad_s": 0.803719991571,
+      "coordinate_torque_increment_l1_nm": [0.923844518791, 0.588233828273, 1.26143142991, 0.821396999545],
+      "muscle_torque_increment_l1_nm": [1.19436052571, 0.494203758964, 1.83990683801, 0.0664356538327]
+    }
+  },
+  "eight_step": {
+    "accepted_steps": 8,
+    "bilateral_force_relative_difference": 0.0107137763682,
+    "right": {
+      "represented_endpoint_force_l1_n": 368.2110672,
+      "represented_endpoint_force_increment_l1_n": 363.442512,
+      "maximum_endpoint_force_residual_n": 0.00000762939453125,
+      "maximum_endpoint_moment_residual_nm": 0.000000034095759105,
+      "maximum_equilibrium_residual": 0.0006043612957,
+      "configuration_increment_l1_rad": 0.00254655228676,
+      "velocity_increment_l1_rad_s": 5.32660776277
+    },
+    "left": {
+      "represented_endpoint_force_l1_n": 364.266136169,
+      "represented_endpoint_force_increment_l1_n": 358.654119852,
+      "maximum_endpoint_force_residual_n": 0.00000764428114053,
+      "maximum_endpoint_moment_residual_nm": 0.0000000254585170723,
+      "maximum_equilibrium_residual": 0.000504361349158,
+      "configuration_increment_l1_rad": 0.00258354891042,
+      "velocity_increment_l1_rad_s": 5.39822616114
+    }
+  },
+  "visual_validation": {
+    "frame_dimension": 1024,
+    "views_per_side": ["front", "oblique", "side", "rear"],
+    "actual_frames_inspected": 8,
+    "visual_only_attachment_spheres": "excluded_from_final_frames",
+    "right": {
+      "directory": "docs/media/numi-human-thumb-tendon-live-v1/right",
+      "bone_pixels": [25068, 32429, 43589, 36580],
+      "route_pixels": [15129, 15413, 16549, 10391],
+      "attachment_envelope_pixels": [1765, 2329, 2145, 387]
+    },
+    "left": {
+      "directory": "docs/media/numi-human-thumb-tendon-live-v1/left",
+      "bone_pixels": [26091, 29150, 53071, 37053],
+      "route_pixels": [15018, 18415, 20318, 11115],
+      "attachment_envelope_pixels": [1282, 724, 693, 365]
+    },
+    "inspection": "passed_bilateral_routes_entheses_thumb_bones_and_carpal_context_visible_without_floating_attachment_cues"
+  },
+  "source_artifacts": {
+    "nhrigid_sha256": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44",
+    "nhmyo_sha256": "a4381465ca97a7af20108180e2fc0d0f0d9c11778d913de4c0728bd20ed459a7",
+    "nhbones_sha256": "f9132393dfb259a80e2b2084ac5ff15f2bf988f7e073f7a961a7ddcfb9febc3c",
+    "nhtendon3_sha256": "a594194f510eb4aa990a8767f868f999a10b4fedb745c8665368a231ed39b555",
+    "nhcnt1_sha256": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907",
+    "nheq1_sha256": "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a"
+  },
+  "implementation_artifacts": {
+    "live_probe_source_sha256": "327b0af02f7412732ab2218663fde83d2aca6c87e8cee7c6763026df83450c3b",
+    "qualified_binary_sha256": "a8c9dcd5faf9b5cb8959517c0fc50e091af3b77b97170813a68b158f03d0fb10"
+  },
+  "gates": {
+    "exact_bilateral_source_muscle_identity": "passed",
+    "correct_direct_thumb_anatomy_without_fifth_hood_ray": "passed",
+    "all_sixteen_non_migrated_distributed_entheses": "passed",
+    "positive_tendon_tension_all_eight_muscles": "passed",
+    "all_eight_thumb_coordinates_receive_nonzero_torque": "passed",
+    "all_eight_thumb_coordinates_change_state": "passed",
+    "one_step_force_and_moment_transfer": "passed",
+    "eight_step_history_commit": "passed",
+    "bilateral_force_parity_below_five_percent": "passed",
+    "same_command_buffer_single_force_authority": "passed",
+    "deterministic_replay": "passed",
+    "rejected_transaction_rollback": "passed",
+    "missing_source_muscle_negative_control": "passed",
+    "bilateral_four_angle_pixel_inspection": "passed"
+  },
+  "remaining_blockers": [
+    "passive_extensor_retinaculum_and_flexor_pulley_contact_are_not_live",
+    "tendon_sheath_and_deformable_volumetric_tendon_material_are_not_live",
+    "thumb_capsule_ligament_and_compliant_articular_contact_are_not_live",
+    "eight_steps_are_not_a_sustained_loaded_thumb_task",
+    "parameters_are_not_subject_specific_or_clinically_validated"
+  ],
+  "boundary": "Bounded bilateral direct thumb tendon force-transfer certificate; not retinacular or pulley contact, deformable tendon, sustained task, subject-specific calibration, or clinical validation."
+}
