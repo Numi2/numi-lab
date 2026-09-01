@@ -9,6 +9,7 @@
 #define MR_MUJOCO_MUSCLE_REFERENCE_GPU_ABI_VERSION 4u
 #define MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION 2u
 #define MR_MUJOCO_MUSCLE_ACTIVE_FORCE_GPU_ABI_VERSION 1u
+#define MR_MUJOCO_MUSCLE_ROUTE_CUT_GPU_ABI_VERSION 1u
 
 enum MRMujocoMuscleReferenceGPUStatus : mr_u32 {
     MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS = 0u,
@@ -133,6 +134,23 @@ typedef struct MR_ALIGN16 MRMujocoMuscleActiveForceDispatchGPU {
     mr_u32 dofCount;
 } MRMujocoMuscleActiveForceDispatchGPU;
 
+// Exact sub-route derivative request. The source route evaluator owns this
+// operation so anatomical sidecars can replace one declared distal share
+// without approximating sphere/cylinder wrap mechanics.
+typedef struct MR_ALIGN16 MRMujocoMuscleRouteCutDispatchGPU {
+    mr_u32 abiVersion;
+    mr_u32 cutCount;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+} MRMujocoMuscleRouteCutDispatchGPU;
+
+typedef struct MR_ALIGN16 MRMujocoMuscleRouteCutGPU {
+    mr_u32 muscleIndex;
+    mr_u32 routeNodeOrdinal;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+} MRMujocoMuscleRouteCutGPU;
+
 typedef struct MR_ALIGN16 MRMujocoMuscleResultGPU {
     mr_u32 status;
     mr_u32 environment;
@@ -161,5 +179,7 @@ static_assert(sizeof(MRMujocoMuscleRouteNodeGPU) == 16u);
 static_assert(sizeof(MRMujocoMuscleStateGPU) == 16u);
 static_assert(sizeof(MRMujocoMuscleActivationDispatchGPU) == 32u);
 static_assert(sizeof(MRMujocoMuscleActiveForceDispatchGPU) == 16u);
+static_assert(sizeof(MRMujocoMuscleRouteCutDispatchGPU) == 16u);
+static_assert(sizeof(MRMujocoMuscleRouteCutGPU) == 16u);
 static_assert(sizeof(MRMujocoMuscleResultGPU) == 96u);
 #endif

@@ -979,3 +979,221 @@ kernel void mr_mujoco_muscle_activation_step(
     }
     states[globalIndex] = next;
 }
+
+// Publish the exact source-owned d(length_suffix)/dq row for each declared
+// route cut. Anatomical sidecars consume this row to remove only the share
+// they replace; all sphere/cylinder decisions and tangent Jacobians remain
+// identical to the owning full-route evaluator above.
+kernel void mr_mujoco_muscle_route_suffix_jacobian(
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(0)]],
+    device const float* pointJacobians [[buffer(1)]],
+    constant MRMujocoMuscleReferenceDispatchGPU& dispatch [[buffer(2)]],
+    device const MRMujocoMuscleGPU* muscles [[buffer(3)]],
+    device const MRMujocoMuscleSiteGPU* sites [[buffer(4)]],
+    device const MRMujocoMuscleWrapGPU* wraps [[buffer(5)]],
+    device const MRMujocoMuscleRouteNodeGPU* routes [[buffer(6)]],
+    constant MRMujocoMuscleRouteCutDispatchGPU& cutDispatch [[buffer(7)]],
+    device const MRMujocoMuscleRouteCutGPU* cuts [[buffer(8)]],
+    device float* suffixJacobians [[buffer(9)]],
+    uint globalIndex [[thread_position_in_grid]]
+) {
+    if (cutDispatch.cutCount == 0u ||
+        globalIndex >= dispatch.environmentCount * cutDispatch.cutCount) return;
+    const uint environment = globalIndex / cutDispatch.cutCount;
+    const uint cutIndex = globalIndex - environment * cutDispatch.cutCount;
+    const uint outputBase = globalIndex * dispatch.dofCount;
+    for (uint dof = 0u; dof < dispatch.dofCount; ++dof)
+        suffixJacobians[outputBase + dof] = 0.0f;
+    bool valid = dispatch.abiVersion ==
+            MR_MUJOCO_MUSCLE_REFERENCE_GPU_ABI_VERSION &&
+        cutDispatch.abiVersion == MR_MUJOCO_MUSCLE_ROUTE_CUT_GPU_ABI_VERSION &&
+        cutDispatch.reserved0 == 0u && cutDispatch.reserved1 == 0u &&
+        dispatch.dofCount > 0u;
+    const MRMujocoMuscleRouteCutGPU cut = cuts[cutIndex];
+    valid = valid && cut.reserved0 == 0u && cut.reserved1 == 0u &&
+        cut.muscleIndex < dispatch.muscleCount;
+    if (!valid) {
+        for (uint dof = 0u; dof < dispatch.dofCount; ++dof)
+            suffixJacobians[outputBase + dof] = NAN;
+        return;
+    }
+    const MRMujocoMuscleGPU muscle = muscles[cut.muscleIndex];
+    valid = muscle.route.y >= 2u &&
+        muscle.route.x <= dispatch.routeNodeCount &&
+        muscle.route.y <= dispatch.routeNodeCount - muscle.route.x &&
+        cut.routeNodeOrdinal < muscle.route.y - 1u;
+    uint cursor = cut.routeNodeOrdinal;
+    while (valid && cursor + 1u < muscle.route.y) {
+        const MRMujocoMuscleRouteNodeGPU firstNode =
+            routes[muscle.route.x + cursor];
+        const MRMujocoMuscleRouteNodeGPU nextNode =
+            routes[muscle.route.x + cursor + 1u];
+        float3 firstWorld;
+        if (firstNode.type != MR_MUJOCO_MUSCLE_ROUTE_SITE ||
+            firstNode.reserved0 != 0u ||
+            !siteWorld(environment, dispatch, bodyPoses, sites,
+                       firstNode.targetIndex, firstWorld)) {
+            valid = false;
+            break;
+        }
+        if (nextNode.type == MR_MUJOCO_MUSCLE_ROUTE_SITE) {
+            float3 secondWorld;
+            if (nextNode.reserved0 != 0u ||
+                !siteWorld(environment, dispatch, bodyPoses, sites,
+                           nextNode.targetIndex, secondWorld) ||
+                !addSegmentLengthJacobian(
+                    environment, dispatch, bodyPoses, pointJacobians,
+                    sites[firstNode.targetIndex].bodyIndex, firstWorld,
+                    sites[nextNode.targetIndex].bodyIndex, secondWorld,
+                    suffixJacobians + outputBase)) {
+                valid = false;
+                break;
+            }
+            ++cursor;
+            continue;
+        }
+        if ((nextNode.type != MR_MUJOCO_MUSCLE_ROUTE_SPHERE &&
+             nextNode.type != MR_MUJOCO_MUSCLE_ROUTE_CYLINDER) ||
+            nextNode.reserved0 != 0u ||
+            nextNode.targetIndex >= dispatch.wrapCount ||
+            cursor + 2u >= muscle.route.y) {
+            valid = false;
+            break;
+        }
+        const MRMujocoMuscleRouteNodeGPU lastNode =
+            routes[muscle.route.x + cursor + 2u];
+        float3 lastWorld;
+        if (lastNode.type != MR_MUJOCO_MUSCLE_ROUTE_SITE ||
+            lastNode.reserved0 != 0u ||
+            !siteWorld(environment, dispatch, bodyPoses, sites,
+                       lastNode.targetIndex, lastWorld)) {
+            valid = false;
+            break;
+        }
+        const MRMujocoMuscleWrapGPU wrap = wraps[nextNode.targetIndex];
+        if (wrap.type != nextNode.type ||
+            wrap.bodyIndex < dispatch.articulationFirstBody ||
+            wrap.bodyIndex - dispatch.articulationFirstBody >=
+                dispatch.bodyPoseStride ||
+            wrap.reserved0 != 0u || wrap.reserved1 != 0u ||
+            !finite4(wrap.localCenter) || !finite4(wrap.rotationRow0) ||
+            !finite4(wrap.rotationRow1) || !finite4(wrap.rotationRow2) ||
+            !finite4(wrap.radius) || wrap.localCenter.w != 0.0f ||
+            wrap.rotationRow0.w != 0.0f || wrap.rotationRow1.w != 0.0f ||
+            wrap.rotationRow2.w != 0.0f ||
+            any(wrap.radius.yzw != float3(0.0f)) ||
+            !(wrap.radius.x > kMinimum)) {
+            valid = false;
+            break;
+        }
+        const MRArticulatedBodyPoseGPU pose = bodyPoses[
+            environment * dispatch.bodyPoseStride +
+            wrap.bodyIndex - dispatch.articulationFirstBody];
+        const float3 center = pose.position.xyz +
+            quaternionRotate(pose.orientation, wrap.localCenter.xyz);
+        const float3 localFirst = matrixTransposeApply(
+            wrap, quaternionConjugateRotate(
+                pose.orientation, firstWorld - center));
+        const float3 localLast = matrixTransposeApply(
+            wrap, quaternionConjugateRotate(
+                pose.orientation, lastWorld - center));
+        const float3 basis0 = nextNode.type == MR_MUJOCO_MUSCLE_ROUTE_SPHERE
+            ? normalize(localFirst) : float3(1.0f, 0.0f, 0.0f);
+        float3 normal = cross(localFirst, localLast);
+        if (nextNode.type == MR_MUJOCO_MUSCLE_ROUTE_SPHERE) {
+            if (length(normal) < kMinimum) {
+                const uint selected = abs(basis0.y) > abs(basis0.x) &&
+                        abs(basis0.y) > abs(basis0.z)
+                    ? 1u : (abs(basis0.z) > abs(basis0.x) &&
+                            abs(basis0.z) > abs(basis0.y) ? 2u : 0u);
+                const float3 alternate = selected == 0u
+                    ? float3(0.0f, 1.0f, 1.0f)
+                    : (selected == 1u ? float3(1.0f, 0.0f, 1.0f)
+                                      : float3(1.0f, 1.0f, 0.0f));
+                normal = cross(basis0, alternate);
+            }
+            normal = normalize(normal);
+        }
+        const float3 basis1 = nextNode.type == MR_MUJOCO_MUSCLE_ROUTE_SPHERE
+            ? normalize(cross(normal, basis0)) : float3(0.0f, 1.0f, 0.0f);
+        const float2 projectedFirst(
+            dot(localFirst, basis0), dot(localFirst, basis1));
+        const float2 projectedLast(
+            dot(localLast, basis0), dot(localLast, basis1));
+        const bool hasSideSite = nextNode.sideSiteIndex != MR_INVALID_INDEX;
+        bool hasProjectedSide = hasSideSite;
+        bool sideInsideWrap = false;
+        float2 side{};
+        float3 localSide{};
+        if (hasSideSite) {
+            float3 sideWorld;
+            if (!siteWorld(environment, dispatch, bodyPoses, sites,
+                           nextNode.sideSiteIndex, sideWorld)) {
+                valid = false;
+                break;
+            }
+            localSide = matrixTransposeApply(
+                wrap, quaternionConjugateRotate(
+                    pose.orientation, sideWorld - center));
+            side = float2(dot(localSide, basis0), dot(localSide, basis1));
+            sideInsideWrap = length(localSide) < wrap.radius.x;
+            if (length(side) < kMinimum) hasProjectedSide = false;
+            else side = wrap.radius.x * normalize(side);
+        }
+        float4 contact{};
+        float wrappingLength = 0.0f;
+        bool wrapped = hasSideSite && sideInsideWrap
+            ? wrapInside(projectedFirst, projectedLast, wrap.radius.x, contact)
+            : wrapCircle(projectedFirst, projectedLast, hasProjectedSide,
+                         side, wrap.radius.x, contact, wrappingLength);
+        if (!wrapped) {
+            valid = addSegmentLengthJacobian(
+                environment, dispatch, bodyPoses, pointJacobians,
+                sites[firstNode.targetIndex].bodyIndex, firstWorld,
+                sites[lastNode.targetIndex].bodyIndex, lastWorld,
+                suffixJacobians + outputBase);
+        } else {
+            float3 tangentFirst = basis0 * contact.x + basis1 * contact.y;
+            float3 tangentLast = basis0 * contact.z + basis1 * contact.w;
+            if (nextNode.type == MR_MUJOCO_MUSCLE_ROUTE_CYLINDER) {
+                const float firstLeg = length(projectedFirst - contact.xy);
+                const float secondLeg = length(projectedLast - contact.zw);
+                const float denominator = firstLeg + wrappingLength + secondLeg;
+                if (!(denominator > kMinimum)) {
+                    valid = false;
+                    break;
+                }
+                tangentFirst.z = localFirst.z +
+                    (localLast.z - localFirst.z) * firstLeg / denominator;
+                tangentLast.z = localFirst.z +
+                    (localLast.z - localFirst.z) *
+                        (firstLeg + wrappingLength) / denominator;
+            }
+            const float3 worldTangentFirst = center + quaternionRotate(
+                pose.orientation, matrixApply(wrap, tangentFirst));
+            const float3 worldTangentLast = center + quaternionRotate(
+                pose.orientation, matrixApply(wrap, tangentLast));
+            valid = addSegmentLengthJacobian(
+                    environment, dispatch, bodyPoses, pointJacobians,
+                    sites[firstNode.targetIndex].bodyIndex, firstWorld,
+                    wrap.bodyIndex, worldTangentFirst,
+                    suffixJacobians + outputBase) &&
+                addSegmentLengthJacobian(
+                    environment, dispatch, bodyPoses, pointJacobians,
+                    wrap.bodyIndex, worldTangentFirst,
+                    wrap.bodyIndex, worldTangentLast,
+                    suffixJacobians + outputBase) &&
+                addSegmentLengthJacobian(
+                    environment, dispatch, bodyPoses, pointJacobians,
+                    wrap.bodyIndex, worldTangentLast,
+                    sites[lastNode.targetIndex].bodyIndex, lastWorld,
+                    suffixJacobians + outputBase);
+        }
+        cursor += 2u;
+    }
+    valid = valid && cursor + 1u == muscle.route.y;
+    if (!valid) {
+        for (uint dof = 0u; dof < dispatch.dofCount; ++dof)
+            suffixJacobians[outputBase + dof] = NAN;
+    }
+}

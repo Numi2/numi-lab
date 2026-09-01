@@ -8340,6 +8340,21 @@ MetalArticulatedOperatorContext::submit(
             const auto tendonLoadPass = [&]() {
                 MetalNumiHumanTendonLoadPass pass{};
                 pass.commandBuffer = (__bridge void*)commandBuffer;
+                pass.mujocoMuscles = (__bridge void*)state_->buffers[
+                    kMujocoMusclesBuffer
+                ];
+                pass.mujocoSites = (__bridge void*)state_->buffers[
+                    kMujocoSitesBuffer
+                ];
+                pass.mujocoWraps = (__bridge void*)state_->buffers[
+                    kMujocoWrapsBuffer
+                ];
+                pass.mujocoRouteNodes = (__bridge void*)state_->buffers[
+                    kMujocoRoutesBuffer
+                ];
+                pass.mujocoResults = (__bridge void*)state_->buffers[
+                    kMujocoResultsBuffer
+                ];
                 pass.bindings = (__bridge void*)state_->standBuffers[
                     kStandTendonBindingsBuffer
                 ];
@@ -8373,6 +8388,15 @@ MetalArticulatedOperatorContext::submit(
                 pass.dofCount = articulation.nv;
                 pass.muscleCount = static_cast<std::uint32_t>(
                     input.mujoco.muscles.size()
+                );
+                pass.siteCount = static_cast<std::uint32_t>(
+                    input.mujoco.sites.size()
+                );
+                pass.wrapCount = static_cast<std::uint32_t>(
+                    input.mujoco.wraps.size()
+                );
+                pass.routeNodeCount = static_cast<std::uint32_t>(
+                    input.mujoco.routeNodes.size()
                 );
                 pass.generalizedForceStride = articulation.nv;
                 pass.generalizedForceOffset = static_cast<std::uint32_t>(

@@ -134,6 +134,9 @@ set(METALROBO_NUMI_HUMAN_STAND_SOURCE
 set(METALROBO_NUMI_HUMAN_TENDON_TRANSFER_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanTendonTransfer.metal"
 )
+set(METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanExtensorHood.metal"
+)
 set(METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedParallelABA.metal"
 )
@@ -230,6 +233,9 @@ set(METALROBO_NUMI_HUMAN_STAND_AIR
 set(METALROBO_NUMI_HUMAN_TENDON_TRANSFER_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboNumiHumanTendonTransfer.air"
 )
+set(METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboNumiHumanExtensorHood.air"
+)
 set(METALROBO_PARAMETERIZED_ARTICULATED_ABA_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboParameterizedArticulatedABA.air"
 )
@@ -323,6 +329,8 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/millard_muscle_gpu.h"
         "${METALROBO_MUJOCO_MUSCLE_REFERENCE_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/mujoco_muscle_gpu.h"
+        "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_extensor_hood_gpu.h"
         "${METALROBO_NUMANX_HUMAN_IO_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_human_io_gpu.h"
         "${METALROBO_NUMANX_COUPLED_HUMAN_SOURCE}"
@@ -353,6 +361,13 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_SOURCE}"
             -o "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_SOURCE}"
+            -o "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_AIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
@@ -667,6 +682,7 @@ add_custom_command(
             "${METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_AIR}"
             "${METALROBO_NUMI_HUMAN_STAND_AIR}"
             "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_AIR}"
+            "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_AIR}"
             "${METALROBO_PARAMETERIZED_ARTICULATED_ABA_AIR}"
             "${METALROBO_ARTICULATED_ABA_SMALL_AIR}"
             "${METALROBO_MULTI_ARTICULATED_ABA_AIR}"
@@ -707,6 +723,8 @@ add_custom_command(
         "${METALROBO_NUMI_HUMAN_STAND_SOURCE}"
         "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_tendon_gpu.h"
+        "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_extensor_hood_gpu.h"
         "${METALROBO_NUMANX_HUMAN_IO_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_human_io_gpu.h"
         "${METALROBO_NUMANX_COUPLED_HUMAN_SOURCE}"
@@ -870,6 +888,7 @@ add_library(
     src/metal/MetalNumanXCoupledHuman.mm
     src/metal/MetalNumanXHumanMatter.mm
     src/metal/NumiHumanTendonMetal.mm
+    src/metal/NumiHumanExtensorHoodMetal.mm
     src/metal/MetalArticulatedABA.mm
     src/metal/MetalMultiArticulatedABA.mm
     src/metal/MetalDiscreteElasticRod.mm

@@ -9,6 +9,7 @@
 #include "metalrobo/MultiArticulatedContact.hpp"
 #include "metalrobo/MujocoMuscleReference.hpp"
 #include "metalrobo/NumiHumanContinuumMap.hpp"
+#include "metalrobo/NumiHumanExtensorHoodMetal.hpp"
 #include "metalrobo/NumiHumanJointEquality.hpp"
 #include "metalrobo/NumiHumanKnee.hpp"
 #include "metalrobo/NumiHumanKneeContact.hpp"
@@ -36,6 +37,7 @@
 #include <numeric>
 #include <optional>
 #include <span>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -53,6 +55,9 @@ constexpr std::array<char, 8u> kLegacyMuscleMagic{
 constexpr std::array<char, 8u> kMuscleMagic{
     'N', 'H', 'M', 'Y', 'O', '2', '\0', '\0',
 };
+constexpr std::array<char, 8u> kExtensorHoodMagic{
+    'N', 'H', 'H', 'O', 'O', 'D', '2', '\0',
+};
 constexpr std::array<char, 8u> kSupportContactMagic{
     'N', 'H', 'C', 'N', 'T', '1', '\0', '\0',
 };
@@ -61,6 +66,7 @@ constexpr std::uint32_t kMusclePayloadAbi = 2u;
 constexpr std::uint32_t kBodySemantic = 51001u;
 constexpr std::uint32_t kSiteSemantic = 51002u;
 constexpr std::uint32_t kRouteSemantic = 51003u;
+constexpr std::uint32_t kExtensorHoodSemantic = 51019u;
 constexpr std::uint32_t kBoneSemantic = 51004u;
 constexpr std::uint32_t kMuscleSurfaceSemantic = 51005u;
 constexpr std::uint32_t kTendonSurfaceSemantic = 51006u;
@@ -319,6 +325,64 @@ struct MuscleArchitectureRecord {
     float tendonCurviness = 0.0f;
     float normalizedFiberDamping = 0.0f;
     float fitNormalizedRmse = 0.0f;
+};
+
+struct ExtensorHoodHeader {
+    std::array<char, 8u> magic{};
+    std::uint32_t payloadAbi = 0u;
+    std::uint32_t rayCount = 0u;
+    std::uint32_t nodeCount = 0u;
+    std::uint32_t elementCount = 0u;
+    std::uint32_t inputCount = 0u;
+    std::uint32_t rayRecordBytes = 0u;
+    std::uint32_t nodeRecordBytes = 0u;
+    std::uint32_t elementRecordBytes = 0u;
+    std::uint32_t inputRecordBytes = 0u;
+    std::array<std::uint8_t, 32u> sourceSha256{};
+};
+
+struct ExtensorHoodRayRecord {
+    std::uint32_t nodeOffset = 0u;
+    std::uint32_t nodeCount = 0u;
+    std::uint32_t elementOffset = 0u;
+    std::uint32_t elementCount = 0u;
+    std::uint32_t inputOffset = 0u;
+    std::uint32_t inputCount = 0u;
+    std::uint32_t side = 0u;
+    std::uint32_t digit = 0u;
+};
+
+struct ExtensorHoodNodeRecord {
+    std::uint32_t sourceSite = 0u;
+    std::uint32_t sourceBody = 0u;
+    std::uint32_t coreBody = 0u;
+    std::uint32_t flags = 0u;
+    std::uint32_t role = 0u;
+    float localX = 0.0f;
+    float localY = 0.0f;
+    float localZ = 0.0f;
+};
+
+struct ExtensorHoodElementRecord {
+    std::uint32_t nodeA = 0u;
+    std::uint32_t nodeB = 0u;
+    std::uint32_t bundle = 0u;
+    std::uint32_t provenance = 0u;
+    float restScale = 0.0f;
+    float youngModulus = 0.0f;
+    float area = 0.0f;
+};
+
+struct ExtensorHoodInputRecord {
+    std::uint32_t node = 0u;
+    std::uint32_t sourceMuscle = 0u;
+    std::uint32_t proximalSourceSite = 0u;
+    std::uint32_t proximalCoreBody = 0u;
+    std::uint32_t flags = 0u;
+    float proximalLocalX = 0.0f;
+    float proximalLocalY = 0.0f;
+    float proximalLocalZ = 0.0f;
+    float sourceOracleForce = 0.0f;
 };
 
 struct SupportContactHeader {
@@ -767,6 +831,14 @@ struct LoadedMuscles {
     metalrobo::NumiHumanTendonPayload tendonPayload;
 };
 
+struct LoadedExtensorHood {
+    ExtensorHoodHeader header{};
+    std::vector<MRNumiHumanExtensorHoodRayGPU> rays;
+    std::vector<MRNumiHumanExtensorHoodNodeGPU> nodes;
+    std::vector<MRNumiHumanExtensorHoodElementGPU> elements;
+    std::vector<MRNumiHumanExtensorHoodInputGPU> inputs;
+};
+
 struct LoadedBones {
     BoneHeader header{};
     std::vector<BoneRecord> records;
@@ -838,6 +910,11 @@ static_assert(sizeof(WrapRecord) == 64u);
 static_assert(sizeof(RouteRecord) == 16u);
 static_assert(sizeof(MuscleRecord) == 164u);
 static_assert(sizeof(MuscleArchitectureRecord) == 32u);
+static_assert(sizeof(ExtensorHoodHeader) == 76u);
+static_assert(sizeof(ExtensorHoodRayRecord) == 32u);
+static_assert(sizeof(ExtensorHoodNodeRecord) == 32u);
+static_assert(sizeof(ExtensorHoodElementRecord) == 28u);
+static_assert(sizeof(ExtensorHoodInputRecord) == 36u);
 static_assert(sizeof(SupportContactHeader) == 84u);
 static_assert(sizeof(SupportContactRecord) == 48u);
 static_assert(sizeof(BoneHeader) == 60u);
@@ -1166,6 +1243,233 @@ LoadedMuscles loadMuscles(
             result.referenceArchitectures.size() == result.muscles.size(),
         "MyoSim Metal source program packing is incomplete"
     );
+    return result;
+}
+
+LoadedExtensorHood loadExtensorHood(
+    const std::filesystem::path& path,
+    const LoadedRigid& rigid,
+    const LoadedMuscles& muscles
+) {
+    std::ifstream input(path, std::ios::binary);
+    require(input.is_open(), "cannot open NHHOOD2 payload " + path.string());
+    ExtensorHoodHeader header{};
+    readObject(input, header, "NHHOOD2 header");
+    require(header.magic == kExtensorHoodMagic && header.payloadAbi == 2u &&
+                header.rayCount == 8u && header.nodeCount == 84u &&
+                header.elementCount == 100u && header.inputCount == 34u &&
+                header.rayRecordBytes == sizeof(ExtensorHoodRayRecord) &&
+                header.nodeRecordBytes == sizeof(ExtensorHoodNodeRecord) &&
+                header.elementRecordBytes == sizeof(ExtensorHoodElementRecord) &&
+                header.inputRecordBytes == sizeof(ExtensorHoodInputRecord) &&
+                header.sourceSha256 == rigid.header.sourceSha256,
+            "NHHOOD2 header/source does not match the live Human");
+    const auto sourceRays = readVector<ExtensorHoodRayRecord>(
+        input, header.rayCount, "NHHOOD2 rays");
+    const auto sourceNodes = readVector<ExtensorHoodNodeRecord>(
+        input, header.nodeCount, "NHHOOD2 nodes");
+    const auto sourceElements = readVector<ExtensorHoodElementRecord>(
+        input, header.elementCount, "NHHOOD2 elements");
+    const auto sourceInputs = readVector<ExtensorHoodInputRecord>(
+        input, header.inputCount, "NHHOOD2 inputs");
+    require(input.peek() == std::char_traits<char>::eof(),
+            "NHHOOD2 payload has trailing bytes");
+
+    LoadedExtensorHood result;
+    result.header = header;
+    result.rays.reserve(sourceRays.size());
+    std::uint32_t expectedNodeOffset = 0u;
+    std::uint32_t expectedElementOffset = 0u;
+    std::uint32_t expectedInputOffset = 0u;
+    for (std::size_t index = 0u; index < sourceRays.size(); ++index) {
+        const auto& ray = sourceRays[index];
+        const std::uint32_t side = static_cast<std::uint32_t>(index / 4u);
+        const std::uint32_t digit = static_cast<std::uint32_t>(2u + index % 4u);
+        require(ray.nodeOffset == expectedNodeOffset &&
+                    ray.nodeCount == (digit == 5u ? 12u : 10u) &&
+                    ray.elementOffset == expectedElementOffset &&
+                    ray.elementCount == (digit == 5u ? 14u : 12u) &&
+                    ray.inputOffset == expectedInputOffset &&
+                    ray.inputCount == (digit == 5u ? 5u : 4u) &&
+                    ray.side == side && ray.digit == digit,
+                "NHHOOD2 ray coverage/order drifted");
+        result.rays.push_back({
+            {ray.nodeOffset, ray.nodeCount, ray.side, ray.digit},
+            {ray.elementOffset, ray.elementCount,
+             ray.inputOffset, ray.inputCount},
+        });
+        expectedNodeOffset += ray.nodeCount;
+        expectedElementOffset += ray.elementCount;
+        expectedInputOffset += ray.inputCount;
+    }
+    require(expectedNodeOffset == sourceNodes.size() &&
+                expectedElementOffset == sourceElements.size() &&
+                expectedInputOffset == sourceInputs.size(),
+            "NHHOOD2 ray ranges do not cover the payload");
+
+    std::vector<metalrobo::ArticulatedPointQuery> queries;
+    queries.reserve(sourceNodes.size());
+    result.nodes.reserve(sourceNodes.size());
+    for (const auto& node : sourceNodes) {
+        require(node.coreBody < rigid.header.engineBodyCount &&
+                    node.role < 12u && (node.flags & ~3u) == 0u &&
+                    (node.flags & 2u) != 0u &&
+                    std::isfinite(node.localX) &&
+                    std::isfinite(node.localY) &&
+                    std::isfinite(node.localZ),
+                "NHHOOD2 node is malformed");
+        MRNumiHumanExtensorHoodNodeGPU gpu{};
+        gpu.bodyIndex = node.coreBody;
+        gpu.flags = (node.flags & 1u) != 0u
+            ? MR_NUMI_HUMAN_EXTENSOR_HOOD_NODE_FIXED : 0u;
+        gpu.role = node.role;
+        // NHHOOD2 preserves the raw MyoSim site identity, whereas NHMYO2
+        // stores a compact used-site table. Resolve that identity below from
+        // the exact source muscle and route ordinal; body-local coordinates
+        // alone are intentionally not used because distinct named sites may
+        // be geometrically coincident.
+        gpu.sourceSiteIndex = MR_INVALID_INDEX;
+        gpu.localPoint = {node.localX, node.localY, node.localZ, 0.0f};
+        result.nodes.push_back(gpu);
+        queries.push_back({
+            node.coreBody,
+            {node.localX, node.localY, node.localZ},
+        });
+    }
+    std::vector<double> q(
+        rigid.model.defaultQ.begin(), rigid.model.defaultQ.end());
+    std::vector<double> v(
+        rigid.model.defaultV.begin(), rigid.model.defaultV.end());
+    std::vector<metalrobo::ArticulatedPointKinematics> kinematics(
+        queries.size());
+    std::vector<double> jacobians(
+        queries.size() * 3u * rigid.model.world.nv, 0.0);
+    const auto pointDiagnostics = metalrobo::computeArticulatedPointJacobians(
+        rigid.model, 0u, q, v, queries, kinematics, jacobians);
+    require(pointDiagnostics.succeeded(),
+            "NHHOOD2 source-node kinematics failed");
+
+    result.elements.reserve(sourceElements.size());
+    for (const auto& element : sourceElements) {
+        require(element.nodeA < sourceNodes.size() &&
+                    element.nodeB < sourceNodes.size() &&
+                    element.nodeA != element.nodeB &&
+                    element.provenance == 1u && element.restScale > 0.0f &&
+                    element.restScale <= 1.0f &&
+                    element.youngModulus > 0.0f && element.area > 0.0f,
+                "NHHOOD2 element is malformed");
+        const auto& first = kinematics[element.nodeA].position;
+        const auto& second = kinematics[element.nodeB].position;
+        const double sourceLength = std::hypot(
+            second[0] - first[0], second[1] - first[1],
+            second[2] - first[2]);
+        require(std::isfinite(sourceLength) && sourceLength >= 1.0e-4 &&
+                    sourceLength <= 0.1,
+                "NHHOOD2 element source length is implausible");
+        MRNumiHumanExtensorHoodElementGPU gpu{};
+        gpu.nodeA = element.nodeA;
+        gpu.nodeB = element.nodeB;
+        gpu.bundle = element.bundle;
+        gpu.material = {
+            static_cast<float>(element.restScale * sourceLength),
+            element.youngModulus,
+            element.area,
+            0.0f,
+        };
+        result.elements.push_back(gpu);
+    }
+
+    result.inputs.reserve(sourceInputs.size());
+    for (const auto& source : sourceInputs) {
+        const std::uint32_t targetRouteOrdinal = source.flags >> 8u;
+        require(source.node < result.nodes.size() &&
+                    source.sourceMuscle < muscles.gpuMuscles.size() &&
+                    source.proximalCoreBody < rigid.header.engineBodyCount &&
+                    (source.flags & 0xffu) == 1u && targetRouteOrdinal > 0u &&
+                    std::isfinite(source.proximalLocalX) &&
+                    std::isfinite(source.proximalLocalY) &&
+                    std::isfinite(source.proximalLocalZ),
+                "NHHOOD2 input is malformed");
+        const auto& muscle = muscles.gpuMuscles[source.sourceMuscle];
+        require(targetRouteOrdinal < muscle.route.y &&
+                    muscle.route.x + targetRouteOrdinal < muscles.gpuRoutes.size() &&
+                    muscles.gpuRoutes[muscle.route.x + targetRouteOrdinal].type ==
+                        MR_MUJOCO_MUSCLE_ROUTE_SITE,
+                "NHHOOD2 input route cut no longer names its exact source site");
+        const std::uint32_t compactSiteIndex =
+            muscles.gpuRoutes[muscle.route.x + targetRouteOrdinal].targetIndex;
+        require(compactSiteIndex < muscles.gpuSites.size(),
+                "NHHOOD2 input route cut site is out of bounds");
+        const auto& compactSite = muscles.gpuSites[compactSiteIndex];
+        const auto& hoodNode = sourceNodes[source.node];
+        require(compactSite.bodyIndex == hoodNode.coreBody &&
+                    std::abs(compactSite.localPoint.x - hoodNode.localX) <= 1.0e-7f &&
+                    std::abs(compactSite.localPoint.y - hoodNode.localY) <= 1.0e-7f &&
+                    std::abs(compactSite.localPoint.z - hoodNode.localZ) <= 1.0e-7f,
+                "NHHOOD2 input route cut geometry drifted from its named node");
+        auto& loweredNode = result.nodes[source.node];
+        require(loweredNode.sourceSiteIndex == MR_INVALID_INDEX ||
+                    loweredNode.sourceSiteIndex == compactSiteIndex,
+                "NHHOOD2 inputs disagree on the compact identity of one node");
+        loweredNode.sourceSiteIndex = compactSiteIndex;
+        std::uint32_t routeOrdinal = MR_INVALID_INDEX;
+        for (std::uint32_t ordinal = 0u;
+             ordinal < targetRouteOrdinal; ++ordinal) {
+            const auto& route = muscles.gpuRoutes[muscle.route.x + ordinal];
+            if (route.type != MR_MUJOCO_MUSCLE_ROUTE_SITE ||
+                route.targetIndex >= muscles.gpuSites.size()) continue;
+            const auto& site = muscles.gpuSites[route.targetIndex];
+            if (site.bodyIndex == source.proximalCoreBody &&
+                std::abs(site.localPoint.x - source.proximalLocalX) <= 1.0e-7f &&
+                std::abs(site.localPoint.y - source.proximalLocalY) <= 1.0e-7f &&
+                std::abs(site.localPoint.z - source.proximalLocalZ) <= 1.0e-7f) {
+                require(routeOrdinal == MR_INVALID_INDEX,
+                        "NHHOOD2 proximal route identity is ambiguous");
+                routeOrdinal = ordinal;
+            }
+        }
+        require(routeOrdinal != MR_INVALID_INDEX,
+                "NHHOOD2 proximal named site is absent from its source route");
+        std::uint32_t cursor = routeOrdinal;
+        while (cursor + 1u < muscle.route.y) {
+            const auto& first = muscles.gpuRoutes[muscle.route.x + cursor];
+            const auto& next = muscles.gpuRoutes[muscle.route.x + cursor + 1u];
+            require(first.type == MR_MUJOCO_MUSCLE_ROUTE_SITE &&
+                        first.targetIndex < muscles.gpuSites.size(),
+                    "NHHOOD2 distal source suffix does not start at a site");
+            if (next.type == MR_MUJOCO_MUSCLE_ROUTE_SITE) {
+                require(next.targetIndex < muscles.gpuSites.size(),
+                        "NHHOOD2 distal source site is out of bounds");
+                ++cursor;
+                continue;
+            }
+            require((next.type == MR_MUJOCO_MUSCLE_ROUTE_SPHERE ||
+                        next.type == MR_MUJOCO_MUSCLE_ROUTE_CYLINDER) &&
+                        next.targetIndex < muscles.gpuWraps.size() &&
+                        cursor + 2u < muscle.route.y,
+                    "NHHOOD2 distal source wrap grammar is invalid");
+            const auto& last =
+                muscles.gpuRoutes[muscle.route.x + cursor + 2u];
+            require(last.type == MR_MUJOCO_MUSCLE_ROUTE_SITE &&
+                        last.targetIndex < muscles.gpuSites.size() &&
+                        (next.sideSiteIndex == MR_INVALID_INDEX ||
+                         next.sideSiteIndex < muscles.gpuSites.size()),
+                    "NHHOOD2 distal source wrap endpoints are invalid");
+            cursor += 2u;
+        }
+        require(cursor + 1u == muscle.route.y,
+                "NHHOOD2 distal source suffix is incomplete");
+        result.inputs.push_back({
+            source.node,
+            source.sourceMuscle,
+            source.proximalCoreBody,
+            routeOrdinal,
+            targetRouteOrdinal,
+            0u, 0u, 0u,
+            {source.proximalLocalX, source.proximalLocalY,
+             source.proximalLocalZ, 0.0f},
+        });
+    }
     return result;
 }
 
@@ -2303,6 +2607,7 @@ LoadedAnteriorThorax loadAnteriorThorax(
 
 struct MuscleDrivenVisualState {
     std::vector<float> q;
+    std::vector<std::array<mr_float4, 2u>> extensorHoodSolvedSegments;
     std::vector<MRNumiHumanTendonTransferResultGPU> finalTendonTransfers;
     std::uint32_t stepCount = 0u;
     double maximumVelocityDelta = 0.0;
@@ -3203,7 +3508,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     HumanTendonContinuumTransaction* continuumTransaction = nullptr,
     const std::optional<std::pair<std::uint32_t, double>>
         initialCoordinate = std::nullopt,
-    const bool requireContinuumRigidStateEffect = true
+    const bool requireContinuumRigidStateEffect = true,
+    const metalrobo::MetalNumiHumanTendonLoadProgram*
+        additionalTendonLoadProgram = nullptr
 ) {
     require(std::isfinite(timestepSeconds) && timestepSeconds >= 1.0e-6 &&
                 timestepSeconds <= 1.0e-3 && stepCount >= 1u &&
@@ -3244,6 +3551,16 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                  continuumTransaction->runtime->valid() &&
                  continuumTransaction->initial.available),
             "persistent Human continuum transaction is incomplete");
+    require(additionalTendonLoadProgram == nullptr ||
+                additionalTendonLoadProgram->valid(),
+            "persistent Human anatomical load transaction is incomplete");
+    require(continuumTransaction == nullptr ||
+                additionalTendonLoadProgram == nullptr,
+            "persistent Human currently admits one active anatomical load owner");
+    const metalrobo::MetalNumiHumanTendonLoadProgram* anatomicalLoadProgram =
+        continuumTransaction != nullptr
+            ? &continuumTransaction->program
+            : additionalTendonLoadProgram;
     GroundAlignedSupport aligned =
         makeGroundAlignedSupport(model, supportContacts);
     if (initialCoordinate.has_value()) {
@@ -3555,13 +3872,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         };
         TendonLoadProgramChain rejectingProgramChain;
         metalrobo::MetalArticulatedOperatorInput rejectedInput = parityInput;
-        if (continuumTransaction == nullptr) {
+        if (anatomicalLoadProgram == nullptr) {
             rejectedInput.stand.tendonLoadProgram = rejectingAuditProgram;
         } else {
             // Encode the continuum first, then force the downstream audit to
             // reject. The enclosing Human submission must call abort, and
             // Matter must retain its exact pre-transaction accepted state.
-            rejectingProgramChain.first = continuumTransaction->program;
+            rejectingProgramChain.first = *anatomicalLoadProgram;
             rejectingProgramChain.second = rejectingAuditProgram;
             rejectedInput.stand.tendonLoadProgram = tendonLoadProgramChain(
                 rejectingProgramChain
@@ -3609,7 +3926,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     continuumTransaction->rollbackVerified)
         );
 
-        if (continuumTransaction != nullptr) {
+        if (anatomicalLoadProgram != nullptr) {
             const auto sourceJTOnlyDiagnostics = context.run(
                 model, input, sourceJTOnlyResult
             );
@@ -3630,11 +3947,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             .abort = &abortTendonLoadAudit,
             .fingerprint = 0x4e4854454e444f4eull,
         };
-        if (continuumTransaction == nullptr) {
+        if (anatomicalLoadProgram == nullptr) {
             input.stand.tendonLoadProgram = acceptedAuditProgram;
         } else {
             acceptedProgramChain.first = acceptedAuditProgram;
-            acceptedProgramChain.second = continuumTransaction->program;
+            acceptedProgramChain.second = *anatomicalLoadProgram;
             input.stand.tendonLoadProgram = tendonLoadProgramChain(
                 acceptedProgramChain
             );
@@ -3668,7 +3985,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     double tendonContinuumMaximumQDelta = 0.0;
     double tendonContinuumMaximumVDelta = 0.0;
     bool tendonContinuumReactionVerified = false;
-    if (continuumTransaction != nullptr) {
+    if (anatomicalLoadProgram != nullptr) {
         require(sourceJTOnlyAvailable,
                 "continuum reaction has no source J^T-only comparison");
         for (std::size_t index = 0u; index < metalResult.standQ.size(); ++index) {
@@ -4655,6 +4972,7 @@ std::vector<MRBodyStateGPU> visualBodyStates(
 
 struct SourceRouteCentreline {
     std::uint32_t muscleIndex = 0u;
+    bool extensorHood = false;
     struct Point {
         mr_float4 world{};
         std::uint32_t attachmentBodyIndex = MR_INVALID_INDEX;
@@ -4719,7 +5037,7 @@ SourceRouteCentrelines resolveSourceRouteCentrelines(
             });
         }
         result.appliedWrapCount += muscleResult.path.appliedWrapCount;
-        result.muscles.push_back({index, std::move(centreline)});
+        result.muscles.push_back({index, false, std::move(centreline)});
     };
     if (requestedMuscles.empty()) {
         for (std::uint32_t index = 0u; index < musclePayload.referenceMuscles.size(); ++index) {
@@ -11058,6 +11376,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     const std::span<const std::uint32_t> requestedSoftTissueStableIds,
     const bool zAnatomyCalfVisualSupplement,
     const bool tendonAttachmentCollarDiagnostic,
+    const bool renderTendonAttachmentEnvelopes,
     const SourceRouteCentrelines* sourceRouteCentrelines,
     std::uint32_t& renderedBodies,
     std::uint32_t& renderedSoftTissues,
@@ -11238,6 +11557,12 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     ));
     pack.materials.push_back(makeMaterial(
         {0.94f, 0.72f, 0.48f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.66f, 0.01f
+    ));
+    pack.materials.push_back(makeMaterial(
+        // Accepted live extensor-expansion elements are visually distinct
+        // from cyan source muscle paths and ivory bone.
+        {0.96f, 0.54f, 0.08f, 1.0f}, {0.18f, 0.045f, 0.0f, 0.35f},
+        0.58f, 0.015f
     ));
 
     const auto appendInstance = [&pack](
@@ -11521,8 +11846,9 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                         appendWorldTube(
                             pack, previous, current,
                             bonePayload != nullptr ? 0.0016f : 0.0024f
-                        ), 2u,
-                        kRouteSemantic, MR_VISUAL_BINDING_WORLD, MR_INVALID_INDEX,
+                        ), route.extensorHood ? 15u : 2u,
+                        route.extensorHood ? kExtensorHoodSemantic : kRouteSemantic,
+                        MR_VISUAL_BINDING_WORLD, MR_INVALID_INDEX,
                         {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
                         stableRouteId++
                     );
@@ -11553,8 +11879,9 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                     {0.0f, 0.0f, 0.0f, 1.0f}, stableRouteId++
                 );
             }
-            if (musclePayload.tendonPayload.payloadAbi == 2u ||
-                musclePayload.tendonPayload.payloadAbi == 3u) {
+            if (renderTendonAttachmentEnvelopes &&
+                (musclePayload.tendonPayload.payloadAbi == 2u ||
+                 musclePayload.tendonPayload.payloadAbi == 3u)) {
                 require(
                     bonePayload != nullptr &&
                         musclePayload.tendonPayload.boneCount == bonePayload->records.size() &&
@@ -12161,6 +12488,7 @@ int main(int argc, char** argv) {
             std::vector<std::uint32_t> requestedSoftTissueStableIds;
             bool zAnatomyCalfVisualSupplement = false;
             bool tendonAttachmentCollarDiagnostic = false;
+            bool renderTendonAttachmentEnvelopes = true;
             std::optional<std::uint32_t> focusBodyIndex;
             std::optional<std::uint32_t> focusJointChildBodyIndex;
             std::optional<float> focusDistanceMeters;
@@ -12173,6 +12501,7 @@ int main(int argc, char** argv) {
             std::optional<std::filesystem::path> torsoAnatomyPayloadPath;
             std::optional<std::filesystem::path> supportContactPayloadPath;
             std::optional<std::filesystem::path> tendonPayloadPath;
+            std::optional<std::filesystem::path> extensorHoodPayloadPath;
             std::optional<std::filesystem::path> jointEqualityPayloadPath;
             std::optional<std::uint32_t> passiveFEMTissueStableId;
             std::optional<std::uint32_t> passiveFEMStepCount;
@@ -12283,6 +12612,10 @@ int main(int argc, char** argv) {
                     require(!tendonAttachmentCollarDiagnostic,
                             "--tendon-attachment-collar-diagnostic may be given only once");
                     tendonAttachmentCollarDiagnostic = true;
+                } else if (argument == "--hide-tendon-attachment-envelopes") {
+                    require(renderTendonAttachmentEnvelopes,
+                            "--hide-tendon-attachment-envelopes may be given only once");
+                    renderTendonAttachmentEnvelopes = false;
                 } else if (argument == "--visible-bone-body-index") {
                     require(index + 1 < argc,
                             "--visible-bone-body-index requires one articulated body index");
@@ -12346,6 +12679,11 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !tendonPayloadPath.has_value(),
                             "--tendon-payload requires one path and may be given only once");
                     tendonPayloadPath.emplace(argv[++index]);
+                } else if (argument == "--extensor-hood-payload") {
+                    require(index + 1 < argc &&
+                                !extensorHoodPayloadPath.has_value(),
+                            "--extensor-hood-payload requires one NHHOOD2 path and may be given only once");
+                    extensorHoodPayloadPath.emplace(argv[++index]);
                 } else if (argument == "--joint-equality-payload") {
                     require(index + 1 < argc &&
                                 !jointEqualityPayloadPath.has_value(),
@@ -12433,8 +12771,10 @@ int main(int argc, char** argv) {
                           << " [--soft-tissue-stable-id <1..N>]..."
                           << " [--zanatomy-calf-visual-supplement]"
                           << " [--tendon-attachment-collar-diagnostic]"
+                          << " [--hide-tendon-attachment-envelopes]"
                           << " [--support-contact-payload <NHCNT1>]"
                           << " [--tendon-payload <NHTENDON1-or-NHTENDON2-or-NHTENDON3>]"
+                          << " [--extensor-hood-payload <NHHOOD2>]"
                           << " [--joint-equality-payload <NHEQ1>]"
                           << " [--focus-body-index <0..156>]"
                           << " [--focus-joint-child-body-index <1..156>] [--focus-distance-m <0.08..0.80>]"
@@ -12464,6 +12804,17 @@ int main(int argc, char** argv) {
                           << " tendon_max_architecture_scale_change="
                           << musclePayload.maximumTendonArchitectureScaleChange
                           << "\n";
+            }
+            std::optional<LoadedExtensorHood> extensorHoodPayload;
+            if (extensorHoodPayloadPath.has_value()) {
+                extensorHoodPayload.emplace(loadExtensorHood(
+                    *extensorHoodPayloadPath, rigid, musclePayload));
+                std::cout << "extensor_hood_payload=NHHOOD2 rays="
+                          << extensorHoodPayload->rays.size()
+                          << " nodes=" << extensorHoodPayload->nodes.size()
+                          << " elements=" << extensorHoodPayload->elements.size()
+                          << " inputs=" << extensorHoodPayload->inputs.size()
+                          << " distal_owner=exact_wrapped_source_suffix_from_proximal_site\n";
             }
             require(!focusBodyIndex.has_value() || *focusBodyIndex < rigid.header.engineBodyCount,
                     "--focus-body-index exceeds the source body count");
@@ -12834,6 +13185,21 @@ int main(int argc, char** argv) {
                          supportContactPayload.has_value() &&
                          jointEqualityPayload.has_value()),
                     "--persistent-metal-stand requires muscle timestep, support contacts, and NHEQ1 joint equalities");
+            require(!extensorHoodPayload.has_value() ||
+                        (persistentMetalStand &&
+                         muscleStepSeconds.has_value() &&
+                         supportContactPayload.has_value() &&
+                         jointEqualityPayload.has_value() &&
+                         tendonPayloadPath.has_value() &&
+                         (musclePayload.tendonPayload.payloadAbi == 2u ||
+                          musclePayload.tendonPayload.payloadAbi == 3u)),
+                    "--extensor-hood-payload requires the persistent NHTENDON2/3 Human transaction");
+            require(!extensorHoodPayload.has_value() ||
+                        (!openKneeLiveTissueFEM &&
+                         !pectoralisFasciaPayload.has_value() &&
+                         !anteriorThoraxPayload.has_value() &&
+                         !passiveFEMTissueStableId.has_value()),
+                    "--extensor-hood-payload currently owns the single active anatomical load slot");
             require(!selectedTendonControl ||
                         (muscleStepSeconds.has_value() &&
                          supportContactPayload.has_value() &&
@@ -13631,22 +13997,159 @@ int main(int argc, char** argv) {
                     ));
                     muscleDrivenState.emplace(std::move(coupledDriven));
                 } else if (persistentMetalStand || selectedTendonControl) {
-                    muscleDrivenState.emplace(
-                        integratePersistentMetalHumanState(
-                            rigid.model,
-                            musclePayload,
-                            *supportContactPayload,
-                            *jointEqualityPayload,
-                            *muscleStepSeconds,
-                            muscleStepCount.value_or(1u),
-                            muscleActivation.value_or(0.5),
-                            selectedSourceMuscleActivations,
-                            selectedTendonControl,
-                            standRootAssistance,
-                            standRemoveAssistance,
-                            standDeterministicReplay || selectedTendonControl
-                        )
-                    );
+                    if (extensorHoodPayload.has_value()) {
+                        metalrobo::NumiHumanExtensorHoodMetalAdapter hoodAdapter;
+                        const metalrobo::NumiHumanExtensorHoodMetalSource hoodSource{
+                            .rays = extensorHoodPayload->rays,
+                            .nodes = extensorHoodPayload->nodes,
+                            .elements = extensorHoodPayload->elements,
+                            .inputs = extensorHoodPayload->inputs,
+                            .environmentCount = 1u,
+                        };
+                        metalrobo::NumiHumanExtensorHoodMetalConfiguration
+                            hoodConfiguration;
+                        require(hoodAdapter.initialize(
+                                    hoodSource, hoodConfiguration),
+                                "live NHHOOD2 Metal adapter initialization failed");
+                        const auto hoodProgram = hoodAdapter.program();
+                        require(hoodProgram.valid(),
+                                "live NHHOOD2 Metal program is unavailable");
+                        muscleDrivenState.emplace(
+                            integratePersistentMetalHumanState(
+                                rigid.model,
+                                musclePayload,
+                                *supportContactPayload,
+                                *jointEqualityPayload,
+                                *muscleStepSeconds,
+                                muscleStepCount.value_or(1u),
+                                muscleActivation.value_or(0.5),
+                                selectedSourceMuscleActivations,
+                                false,
+                                standRootAssistance,
+                                standRemoveAssistance,
+                                true,
+                                nullptr,
+                                std::nullopt,
+                                true,
+                                &hoodProgram
+                            )
+                        );
+                        const auto hoodDiagnostics = hoodAdapter.diagnostics();
+                        std::ostringstream hoodFailure;
+                        hoodFailure << "live NHHOOD2 Metal transaction failed: "
+                            << hoodDiagnostics.message
+                            << " successful_rays="
+                            << hoodDiagnostics.successfulRayCount
+                            << " accepted_rays="
+                            << hoodDiagnostics.acceptedRayCount
+                            << " first_failing_ray="
+                            << hoodDiagnostics.firstFailingRay
+                            << " first_failure_status="
+                            << hoodDiagnostics.firstFailureStatus
+                            << " first_failure_iterations="
+                            << hoodDiagnostics.firstFailureCompletedIterations
+                            << " aborts=" << hoodDiagnostics.abortCount
+                            << " max_free_residual_n="
+                            << hoodDiagnostics.maximumFreeNodeResidualNewtons
+                            << " max_force_closure_n="
+                            << hoodDiagnostics.maximumForceClosureResidualNewtons
+                            << " max_moment_closure_nm="
+                            << hoodDiagnostics.maximumMomentClosureResidualNewtonMeters
+                            << " max_tension_n="
+                            << hoodDiagnostics.maximumTensionNewtons
+                            << " max_free_displacement_m="
+                            << hoodDiagnostics.maximumFreeNodeDisplacementMeters
+                            << " max_engineering_strain="
+                            << hoodDiagnostics.maximumEngineeringStrain
+                            << " max_generalized_correction="
+                            << hoodDiagnostics.maximumGeneralizedCorrection;
+                        require(hoodDiagnostics.initialized &&
+                                    hoodDiagnostics.successfulRayCount == 8u &&
+                                    hoodDiagnostics.acceptedRayCount == 8u &&
+                                    hoodDiagnostics.abortCount == 1u &&
+                                    hoodDiagnostics.maximumFreeNodeResidualNewtons <=
+                                        hoodConfiguration.forceToleranceNewtons &&
+                                    hoodDiagnostics.maximumForceClosureResidualNewtons <=
+                                        1.0e-2f &&
+                                    hoodDiagnostics.maximumMomentClosureResidualNewtonMeters <=
+                                        1.0e-2f &&
+                                    hoodDiagnostics.maximumFreeNodeDisplacementMeters <=
+                                        1.0e-2f &&
+                                    hoodDiagnostics.maximumEngineeringStrain <= 0.15f &&
+                                    hoodDiagnostics.maximumGeneralizedCorrection > 0.0f,
+                                hoodFailure.str());
+                        require(hoodDiagnostics.solvedNodePositions.size() ==
+                                    extensorHoodPayload->nodes.size(),
+                                "live NHHOOD2 solved-node snapshot is incomplete");
+                        muscleDrivenState->extensorHoodSolvedSegments.reserve(
+                            extensorHoodPayload->elements.size());
+                        const auto hoodNodeIsVisible = [&](const std::uint32_t nodeIndex) {
+                            if (requestedBoneBodyIndices.empty()) return true;
+                            const std::uint32_t bodyIndex =
+                                extensorHoodPayload->nodes[nodeIndex].bodyIndex;
+                            return std::find(
+                                requestedBoneBodyIndices.begin(),
+                                requestedBoneBodyIndices.end(), bodyIndex) !=
+                                requestedBoneBodyIndices.end();
+                        };
+                        for (const auto& element : extensorHoodPayload->elements) {
+                            // A focused unilateral render must not show the
+                            // contralateral network after its owning bones were
+                            // explicitly hidden.
+                            if (!hoodNodeIsVisible(element.nodeA) ||
+                                !hoodNodeIsVisible(element.nodeB)) continue;
+                            muscleDrivenState->extensorHoodSolvedSegments.push_back({
+                                hoodDiagnostics.solvedNodePositions[element.nodeA],
+                                hoodDiagnostics.solvedNodePositions[element.nodeB],
+                            });
+                        }
+                        std::cout << std::setprecision(12)
+                                  << "numi_human_extensor_hood_live=accepted"
+                                  << " device=\""
+                                  << muscleDrivenState->muscleMetalDeviceName
+                                  << "\" rays="
+                                  << hoodDiagnostics.successfulRayCount
+                                  << " accepted_rays="
+                                  << hoodDiagnostics.acceptedRayCount
+                                  << " max_free_residual_n="
+                                  << hoodDiagnostics.maximumFreeNodeResidualNewtons
+                                  << " max_force_closure_n="
+                                  << hoodDiagnostics.maximumForceClosureResidualNewtons
+                                  << " max_moment_closure_nm="
+                                  << hoodDiagnostics.maximumMomentClosureResidualNewtonMeters
+                                  << " max_tension_n="
+                                  << hoodDiagnostics.maximumTensionNewtons
+                                  << " max_free_displacement_m="
+                                  << hoodDiagnostics.maximumFreeNodeDisplacementMeters
+                                  << " max_engineering_strain="
+                                  << hoodDiagnostics.maximumEngineeringStrain
+                                  << " max_generalized_correction="
+                                  << hoodDiagnostics.maximumGeneralizedCorrection
+                                  << " source_jt_q_delta="
+                                  << muscleDrivenState->tendonContinuumMaximumQDelta
+                                  << " source_jt_v_delta="
+                                  << muscleDrivenState->tendonContinuumMaximumVDelta
+                                  << " replay=bitwise rollback=abandoned_command_buffer"
+                                  << " force_authority=source_prefix_plus_exact_distal_suffix_replacement"
+                                  << " boundary=quasi_static_float32_axial_network_with_inferred_body_relative_fascial_foundation_not_subject_specific_validation\n";
+                    } else {
+                        muscleDrivenState.emplace(
+                            integratePersistentMetalHumanState(
+                                rigid.model,
+                                musclePayload,
+                                *supportContactPayload,
+                                *jointEqualityPayload,
+                                *muscleStepSeconds,
+                                muscleStepCount.value_or(1u),
+                                muscleActivation.value_or(0.5),
+                                selectedSourceMuscleActivations,
+                                selectedTendonControl,
+                                standRootAssistance,
+                                standRemoveAssistance,
+                                standDeterministicReplay || selectedTendonControl
+                            )
+                        );
+                    }
                 } else {
                     muscleDrivenState.emplace(integrateMuscleDrivenVisualState(
                         rigid.model, musclePayload, *muscleStepSeconds,
@@ -13812,6 +14315,19 @@ int main(int argc, char** argv) {
                         *resolvedRouteCentrelines, *bonePayload, bodies
                     );
                 }
+                if (muscleDrivenState.has_value()) {
+                    for (const auto& segment :
+                         muscleDrivenState->extensorHoodSolvedSegments) {
+                        resolvedRouteCentrelines->muscles.push_back({
+                            0u,
+                            true,
+                            {
+                                {segment[0], MR_INVALID_INDEX, false, {}},
+                                {segment[1], MR_INVALID_INDEX, false, {}},
+                            },
+                        });
+                    }
+                }
             }
             std::optional<PassiveFEMTissueVisual> passiveFEMTissue;
             if (passiveFEMTissueStableId.has_value()) {
@@ -13849,6 +14365,7 @@ int main(int argc, char** argv) {
                 requestedSoftTissueStableIds,
                 zAnatomyCalfVisualSupplement,
                 tendonAttachmentCollarDiagnostic,
+                renderTendonAttachmentEnvelopes,
                 resolvedRouteCentrelines.has_value() ? &*resolvedRouteCentrelines : nullptr,
                 renderedBodies, renderedSoftTissues, renderedSkinShells, renderedTorsoAnatomySurfaces,
                 renderedTendonAttachmentCollars, renderedTendonAttachmentEnvelopes,
@@ -14046,6 +14563,8 @@ int main(int argc, char** argv) {
                 const std::size_t bonePixels = coverage(observation, kBoneSemantic);
                 const std::size_t sitePixels = coverage(observation, kSiteSemantic);
                 const std::size_t routePixels = coverage(observation, kRouteSemantic);
+                const std::size_t extensorHoodPixels = coverage(
+                    observation, kExtensorHoodSemantic);
                 const std::size_t muscleSurfacePixels = coverage(observation, kMuscleSurfaceSemantic);
                 const std::size_t tendonSurfacePixels = coverage(observation, kTendonSurfaceSemantic);
                 const std::size_t tendonAttachmentCollarPixels = coverage(
@@ -14087,6 +14606,7 @@ int main(int argc, char** argv) {
                           << " bone_pixels=" << bonePixels
                           << " muscle_site_pixels=" << sitePixels
                           << " muscle_route_pixels=" << routePixels
+                          << " extensor_hood_pixels=" << extensorHoodPixels
                           << " muscle_surface_pixels=" << muscleSurfacePixels
                           << " tendon_surface_pixels=" << tendonSurfacePixels
                           << " tendon_attachment_collar_pixels=" << tendonAttachmentCollarPixels
@@ -14493,7 +15013,15 @@ int main(int argc, char** argv) {
                       << " route_centerline_segments=" << renderedRouteSegments
                       << " source_route_centrelines=" << (sourceRouteCentrelines ? "true" : "false")
                       << " source_route_muscles=" << (resolvedRouteCentrelines.has_value()
-                              ? resolvedRouteCentrelines->muscles.size() : 0u)
+                              ? resolvedRouteCentrelines->muscles.size() -
+                                    (muscleDrivenState.has_value()
+                                        ? muscleDrivenState->extensorHoodSolvedSegments.size()
+                                        : 0u)
+                              : 0u)
+                      << " extensor_hood_solved_segments="
+                      << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->extensorHoodSolvedSegments.size()
+                              : 0u)
                       << " source_route_applied_wraps=" << (resolvedRouteCentrelines.has_value()
                               ? resolvedRouteCentrelines->appliedWrapCount : 0u)
                       << " source_route_surface_projected_sites=" << (resolvedRouteCentrelines.has_value()

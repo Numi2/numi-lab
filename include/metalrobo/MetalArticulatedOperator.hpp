@@ -104,6 +104,16 @@ struct MetalMujocoMuscleReferenceInput {
 // objects. Transfer records are environment-major [environment][endpoint].
 struct MetalNumiHumanTendonLoadPass {
     void* commandBuffer = nullptr;
+    // Borrowed source-route program/result buffers. They let a downstream
+    // anatomical owner replace a strict sub-route share without deleting the
+    // selected muscle's proximal route or reconstructing force on the CPU.
+    // All four buffers belong to the enclosing operator and have the same
+    // lifetime and command-buffer restrictions as the tendon buffers below.
+    void* mujocoMuscles = nullptr;
+    void* mujocoSites = nullptr;
+    void* mujocoWraps = nullptr;
+    void* mujocoRouteNodes = nullptr;
+    void* mujocoResults = nullptr;
     void* bindings = nullptr;
     void* envelopes = nullptr;
     void* transfers = nullptr;
@@ -118,6 +128,9 @@ struct MetalNumiHumanTendonLoadPass {
     std::uint32_t envelopeCount = 0u;
     std::uint32_t dofCount = 0u;
     std::uint32_t muscleCount = 0u;
+    std::uint32_t siteCount = 0u;
+    std::uint32_t wrapCount = 0u;
+    std::uint32_t routeNodeCount = 0u;
     std::uint32_t generalizedForceStride = 0u;
     std::uint32_t generalizedForceOffset = 0u;
     std::uint32_t pointJacobianStride = 0u;
