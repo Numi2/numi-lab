@@ -493,34 +493,38 @@
       ]
     },
     "extensor_hood_source_posed_reference": {
-      "path": "docs/media/numi-human-extensor-hood-source-v1/m4-pro.json",
+      "path": "docs/media/numi-human-extensor-hood-all-rays-v2/m4-pro.json",
       "format": "json",
       "level": "preflight",
       "checks": [
-        {"pointer": "/schema", "op": "equals", "value": "numilab.human.extensor-hood-source-posed.preflight.v1"},
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.extensor-hood-all-rays.preflight.v2"},
         {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
-        {"pointer": "/source_artifact/format", "op": "equals", "value": "NHHOOD1"},
-        {"pointer": "/source_artifact/bytes", "op": "equals", "value": 2036},
+        {"pointer": "/source_artifact/format", "op": "equals", "value": "NHHOOD2"},
+        {"pointer": "/source_artifact/bytes", "op": "equals", "value": 7044},
         {"pointer": "/topology/hand_count", "op": "equals", "value": 2},
-        {"pointer": "/topology/node_count", "op": "equals", "value": 24},
-        {"pointer": "/topology/element_count", "op": "equals", "value": 28},
-        {"pointer": "/topology/muscle_input_count", "op": "equals", "value": 10},
-        {"pointer": "/topology/active_element_count", "op": "minimum", "value": 12},
+        {"pointer": "/topology/ray_count", "op": "equals", "value": 8},
+        {"pointer": "/topology/node_count", "op": "equals", "value": 84},
+        {"pointer": "/topology/element_count", "op": "equals", "value": 100},
+        {"pointer": "/topology/muscle_input_count", "op": "equals", "value": 34},
+        {"pointer": "/topology/active_element_count", "op": "minimum", "value": 48},
+        {"pointer": "/topology/source_oracle_active_element_count", "op": "minimum", "value": 48},
+        {"pointer": "/geometry/minimum_source_element_length_m", "op": "minimum", "value": 0.0001},
+        {"pointer": "/geometry/maximum_source_element_length_m", "op": "maximum", "value": 0.1},
         {"pointer": "/mechanics/maximum_free_node_residual_newtons", "op": "maximum", "value": 0.0000002},
         {"pointer": "/mechanics/maximum_force_closure_residual_newtons", "op": "maximum", "value": 0.000002},
         {"pointer": "/mechanics/maximum_moment_closure_residual_newton_meters", "op": "maximum", "value": 0.0000002},
-        {"pointer": "/source_oracle_force_transfer/root_generalized_force_residual_newtons", "op": "maximum", "value": 0.000002},
-        {"pointer": "/source_oracle_force_transfer/root_generalized_moment_residual_newton_meters", "op": "maximum", "value": 0.000002},
+        {"pointer": "/source_oracle_force_transfer/root_generalized_force_residual_newtons", "op": "maximum", "value": 0.000016},
+        {"pointer": "/source_oracle_force_transfer/root_generalized_moment_residual_newton_meters", "op": "maximum", "value": 0.000016},
         {"pointer": "/source_oracle_force_transfer/replay", "op": "equals", "value": "bitwise"},
         {"pointer": "/replay", "op": "equals", "value": "bitwise"},
         {"pointer": "/rollback", "op": "equals", "value": "verified"},
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_extensor_hood_source_probe.cpp", "sha256": "adbab40830daa8d89f7ddf13c6d4ec1b1ca3d94e9d854c80485e9de9ef5f94ee"},
+        {"path": "apps/numilab_human_extensor_hood_source_probe.cpp", "sha256": "63d8f610e4fad403a998e7a1e90a59399293e8d55f91092e9076b4588cf34f1f"},
         {"path": "include/metalrobo/NumiHumanTensionNetwork.hpp", "sha256": "f9846b267e35ca542284baadbd0820b1b7cbb963eb6710bcd75d0483a507cbde"},
         {"path": "src/core/NumiHumanTensionNetwork.cpp", "sha256": "3198a1230a8dbd9c3f41d9459ca865e1fd82e8f267b4644a0fdf2e65c43140d2"},
-        {"path": "CMakeLists.txt", "sha256": "0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a"}
+        {"path": "CMakeLists.txt", "sha256": "2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02"}
       ]
     },
     "adm_source_inferred_feasibility_rejection": {

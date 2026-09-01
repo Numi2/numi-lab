@@ -1,9 +1,9 @@
 # Numi Human extensor-hood tensile-network reference
 
-Status: **FP64 mechanics and source-posed preflight**. The conservative
-nonlinear network now consumes a bilateral `NHHOOD1` artifact compiled from
-the pinned MyoSim hand. It has not yet entered the live whole-body Metal
-force transaction.
+Status: **bilateral digits 2-5 FP64 mechanics and source-posed preflight**. The
+conservative nonlinear network now consumes eight explicit `NHHOOD2` ray
+records compiled from the pinned MyoSim hands. It has not yet entered the live
+whole-body Metal force transaction.
 
 ## Mechanical contract
 
@@ -62,17 +62,14 @@ it is not decorative geometry or an added coordinate spring.
 
 ## Promotion path
 
-1. Compile right-hand MyoSim EDC5/EDM, RI5, UI5, and lumbrical route sites plus
-   BodyParts3D phalanx attachments into this graph.
-2. Mirror from source geometry and verify bilateral material/topology parity.
-3. Replace only the declared distal MyoSim route share with solved attachment
+1. Replace only each declared distal MyoSim route share with solved attachment
    reactions; retain one rigid generalized-force authority.
-4. Add an FP32 Metal implementation in the owning Human command buffer and
+2. Add an FP32 Metal implementation in the owning Human command buffer and
    qualify against this FP64 oracle.
-5. Re-run whole-body recruitment and require the fifth-MCP residual to fall
+3. Re-run whole-body recruitment and require finger/wrist residuals to fall
    without degrading wrist, PIP/DIP, root support, replay, or rollback.
-6. Extend the topology to all non-thumb rays, then build a separately sourced
-   thumb extensor apparatus.
+4. Build a separately sourced thumb extensor apparatus; do not clone the
+   non-thumb expansion onto the thumb.
 
 Machine-readable evidence:
 [`m4-pro.json`](media/numi-human-extensor-hood-reference-v1/m4-pro.json).
@@ -108,3 +105,36 @@ moment-arm ownership before any live transaction is changed.
 
 Source-posed evidence:
 [`m4-pro.json`](media/numi-human-extensor-hood-source-v1/m4-pro.json).
+
+## All non-thumb rays
+
+`numilab-human` revision `48bb878` replaces the hand-ambiguous `NHHOOD1`
+record with eight explicit side/digit `NHHOOD2` rays. Digits 2-4 bind EDC,
+radial and ulnar interosseous, and lumbrical routes. Digit 5 alone adds EDM;
+the compiler does not fabricate that branch for the other fingers. The 7,044
+byte artifact contains 84 exact source-posed nodes, 100 inferred tensile
+bundles, and 34 exact muscle-route inputs.
+
+On Apple M4 Pro, all eight networks converged under both the 2.9 N reference
+load and source-default MyoSim forces. Source lengths span `4.74472-50.5758 mm`.
+Every ray has distinct metacarpal, middle-phalanx, and distal-phalanx fixed
+anchors and a nonzero generalized-force projection. The source-force solve
+reported `1.44026e-7 N` maximum free-node residual, `1.41851e-7 N` force
+closure, `9.50881e-8 N m` moment closure, bitwise replay, and verified
+malformed-topology rollback.
+
+The maximum per-ray internal generalized responses were `0.478663`,
+`0.150819`, `0.657259`, and `0.0375946` for digits 2-5 respectively, mirrored
+to numerical precision. The fifth-MCP ab/adduction projection remains only
+`1.15978e-6 N m`; therefore the earlier conclusion still holds: distal hood
+transfer alone does not explain the whole-body fifth-MCP residual.
+
+Both hands were rendered on M4 Pro from front, oblique, side, and rear with 17
+source muscles and 89 route segments per hand. A separate display-only pass
+projected 99 source sites per hand to the nearest BodyParts3D triangles to
+inspect endpoint contact. Those spheres are visual diagnostics; the exact
+unprojected MyoSim sites remain mechanics authority, and the cyan centrelines
+are not tendon surfaces.
+
+All-ray evidence and the multi-angle frame paths are recorded in
+[`m4-pro.json`](media/numi-human-extensor-hood-all-rays-v2/m4-pro.json).
