@@ -405,6 +405,10 @@ struct ObjectSource {
     bool twoWayCoupling = true;
     bool adaptive = false;
     bool identifiable = false;
+    // Disable participation in the generic continuum-continuum broadphase.
+    // This is distinct from rigid-proxy contact and is useful when an owning
+    // application supplies a registered interface law instead.
+    bool deformableContact = true;
     // Thin solids may opt out of same-object deformable contact while still
     // participating in contact with other continuum and rigid objects.
     bool deformableSelfContact = true;

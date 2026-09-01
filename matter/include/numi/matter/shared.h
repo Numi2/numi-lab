@@ -173,6 +173,7 @@ enum NMObjectFlags : nm_u32 {
     NM_OBJECT_MULTIPHYSICS = 1u << 5u,
     NM_OBJECT_MUTABLE_TOPOLOGY = 1u << 6u,
     NM_OBJECT_DISABLE_SELF_CONTACT = 1u << 7u,
+    NM_OBJECT_DISABLE_DEFORMABLE_CONTACT = 1u << 8u,
 };
 
 enum NMFieldBoundaryFlags : nm_u32 {

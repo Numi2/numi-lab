@@ -220,6 +220,7 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     std::vector<NMNumiHumanFEMContactSampleGPU> contactSamples;
     std::vector<NMNumiHumanFEMContactContributionGPU> contactContributions;
     std::vector<NMIncidenceRangeGPU> contactRanges;
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU> femBodyContactSamples;
     std::vector<NMNumiHumanArticularContactSampleGPU> articularContactSamples;
     std::vector<NMNumiHumanPassiveLigamentGPU> passiveLigaments;
     std::filesystem::path metallib;
@@ -241,6 +242,9 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLComputePipelineState> forcePipeline = nil;
     __strong id<MTLComputePipelineState> forceAuditPipeline = nil;
     __strong id<MTLComputePipelineState> contactForcePipeline = nil;
+    __strong id<MTLComputePipelineState> femBodyContactForcePipeline = nil;
+    __strong id<MTLComputePipelineState> femBodyContactWrenchPipeline = nil;
+    __strong id<MTLComputePipelineState> femBodyContactAuditPipeline = nil;
     __strong id<MTLComputePipelineState> articularContactPipeline = nil;
     __strong id<MTLComputePipelineState> articularContactAuditPipeline = nil;
     __strong id<MTLComputePipelineState> articularContactAuditCommitPipeline = nil;
@@ -256,6 +260,10 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLBuffer> contactSampleBuffer = nil;
     __strong id<MTLBuffer> contactContributionBuffer = nil;
     __strong id<MTLBuffer> contactRangeBuffer = nil;
+    __strong id<MTLBuffer> femBodyContactSampleBuffer = nil;
+    __strong id<MTLBuffer> femBodyContactWrenchBuffer = nil;
+    __strong id<MTLBuffer> femBodyContactAuditBuffer = nil;
+    __strong id<MTLBuffer> femBodyContactAuditHistoryBuffer = nil;
     __strong id<MTLBuffer> articularContactSampleBuffer = nil;
     __strong id<MTLBuffer> articularBodyWrenchBuffer = nil;
     __strong id<MTLBuffer> articularContactAuditBuffer = nil;
@@ -297,6 +305,8 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         configuration.metallib.empty() ||
         !std::filesystem::is_regular_file(configuration.metallib) ||
         source.articularContactSamples.size() >
+            std::numeric_limits<std::uint32_t>::max() ||
+        source.femBodyContactSamples.size() >
             std::numeric_limits<std::uint32_t>::max() ||
         source.passiveLigaments.size() >
             std::numeric_limits<std::uint32_t>::max() ||
@@ -379,6 +389,33 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
                             [](const std::uint32_t count) {
                                 return count != 1u;
                             })) return false;
+        }
+    }
+    {
+        std::vector<bool> contactedNode(source.nodeLoads.size(), false);
+        for (const auto& sample : source.femBodyContactSamples) {
+            const nm_float4 point = sample.bodyLocalPointAndArea;
+            const nm_float4 normal =
+                sample.bodyLocalNormalAndReferenceSeparation;
+            const nm_float4 stiffness =
+                sample.stiffnessAndNormalStrainPerPressure;
+            const double normalLength = std::sqrt(
+                normal.x * normal.x + normal.y * normal.y +
+                normal.z * normal.z);
+            if (sample.slaveNode >= source.nodeLoads.size() ||
+                sample.bodyIndex == NM_INVALID_INDEX ||
+                sample.flags != NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE ||
+                sample.reserved0 != 0u || !finiteScale(point) ||
+                point.w <= 0.0f || !finiteScale(normal) ||
+                std::abs(normalLength - 1.0) > 1.0e-5 || normal.w < 0.0f ||
+                !finiteScale(stiffness) || stiffness.x <= 0.0f ||
+                stiffness.y <= 0.0f || stiffness.z != 0.0f ||
+                stiffness.w != 0.0f || contactedNode[sample.slaveNode] ||
+                (source.nodeAnchors[sample.slaveNode].flags &
+                    NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) != 0u) {
+                return false;
+            }
+            contactedNode[sample.slaveNode] = true;
         }
     }
     for (const auto& sample : source.articularContactSamples) {
@@ -617,6 +654,9 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         source.contactContributions.end());
     candidate->contactRanges.assign(
         source.contactRanges.begin(), source.contactRanges.end());
+    candidate->femBodyContactSamples.assign(
+        source.femBodyContactSamples.begin(),
+        source.femBodyContactSamples.end());
     candidate->articularContactSamples.assign(
         source.articularContactSamples.begin(),
         source.articularContactSamples.end());
@@ -667,6 +707,10 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
     fingerprint = appendFingerprint(
         fingerprint, candidate->contactRanges.data(),
         candidate->contactRanges.size() * sizeof(NMIncidenceRangeGPU));
+    fingerprint = appendFingerprint(
+        fingerprint, candidate->femBodyContactSamples.data(),
+        candidate->femBodyContactSamples.size() *
+            sizeof(NMNumiHumanFEMBodyContactSampleGPU));
     fingerprint = appendFingerprint(
         fingerprint, candidate->articularContactSamples.data(),
         candidate->articularContactSamples.size() *
@@ -794,12 +838,24 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->contactForcePipeline = pipeline(
                     "nm_numi_human_assemble_internal_fem_contact_loads");
             }
+            if (!state_->femBodyContactSamples.empty()) {
+                state_->articularBodyPoseStride = pass.bodyPoseStride;
+                state_->femBodyContactForcePipeline = pipeline(
+                    "nm_numi_human_assemble_fem_body_contact_loads");
+                state_->femBodyContactWrenchPipeline = pipeline(
+                    "nm_numi_human_assemble_fem_body_contact_wrenches");
+                state_->femBodyContactAuditPipeline = pipeline(
+                    "nm_numi_human_audit_fem_body_contact");
+            }
             if (!state_->articularContactSamples.empty()) {
                 state_->articularBodyPoseStride = pass.bodyPoseStride;
                 state_->articularContactPipeline = pipeline(
                     "nm_numi_human_assemble_articular_contact_wrenches");
                 state_->articularContactAuditPipeline = pipeline(
                     "nm_numi_human_audit_articular_contact_wrenches");
+            }
+            if (!state_->articularContactSamples.empty() ||
+                !state_->femBodyContactSamples.empty()) {
                 state_->articularContactAuditCommitPipeline = pipeline(
                     "nm_numi_human_commit_articular_contact_audit");
             }
@@ -866,6 +922,37 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     length:state_->contactRanges.size() *
                         sizeof(NMIncidenceRangeGPU)
                     options:MTLResourceStorageModeShared];
+            }
+            if (!state_->femBodyContactSamples.empty()) {
+                state_->femBodyContactSampleBuffer = [device
+                    newBufferWithBytes:state_->femBodyContactSamples.data()
+                    length:state_->femBodyContactSamples.size() *
+                        sizeof(NMNumiHumanFEMBodyContactSampleGPU)
+                    options:MTLResourceStorageModeShared];
+                state_->femBodyContactWrenchBuffer = [device
+                    newBufferWithLength:state_->environmentCount *
+                        pass.bodyPoseStride *
+                        sizeof(NMNumiHumanBodyWrenchGPU)
+                    options:MTLResourceStorageModePrivate];
+                state_->femBodyContactAuditBuffer = [device
+                    newBufferWithLength:state_->environmentCount *
+                        sizeof(NMNumiHumanArticularContactAuditGPU)
+                    options:MTLResourceStorageModeShared];
+                state_->femBodyContactAuditHistoryBuffer = [device
+                    newBufferWithLength:state_->environmentCount *
+                        NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS *
+                        sizeof(NMNumiHumanArticularContactAuditGPU)
+                    options:MTLResourceStorageModeShared];
+                if (state_->femBodyContactAuditBuffer != nil) {
+                    std::memset(
+                        state_->femBodyContactAuditBuffer.contents, 0,
+                        state_->femBodyContactAuditBuffer.length);
+                }
+                if (state_->femBodyContactAuditHistoryBuffer != nil) {
+                    std::memset(
+                        state_->femBodyContactAuditHistoryBuffer.contents, 0,
+                        state_->femBodyContactAuditHistoryBuffer.length);
+                }
             }
             if (!state_->articularContactSamples.empty()) {
                 state_->articularContactSampleBuffer = [device
@@ -944,6 +1031,11 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->forceAuditPipeline == nil ||
                 (!state_->contactSamples.empty() &&
                  state_->contactForcePipeline == nil) ||
+                (!state_->femBodyContactSamples.empty() &&
+                 (state_->femBodyContactForcePipeline == nil ||
+                  state_->femBodyContactWrenchPipeline == nil ||
+                  state_->femBodyContactAuditPipeline == nil ||
+                  state_->articularContactAuditCommitPipeline == nil)) ||
                 (!state_->articularContactSamples.empty() &&
                  (state_->articularContactPipeline == nil ||
                   state_->articularContactAuditPipeline == nil ||
@@ -971,6 +1063,15 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                  state_->contactRangeBuffer == nil)) {
                 state_->message =
                     "Human FEM contact immutable mapping buffer is unavailable";
+                return false;
+            }
+            if (!state_->femBodyContactSamples.empty() &&
+                (state_->femBodyContactSampleBuffer == nil ||
+                 state_->femBodyContactWrenchBuffer == nil ||
+                 state_->femBodyContactAuditBuffer == nil ||
+                 state_->femBodyContactAuditHistoryBuffer == nil)) {
+                state_->message =
+                    "Human FEM/body contact buffer is unavailable";
                 return false;
             }
             if (!state_->articularContactSamples.empty() &&
@@ -1029,6 +1130,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->articularContactSamples.size()),
             .passiveLigamentCount = static_cast<std::uint32_t>(
                 state_->passiveLigaments.size()),
+            .femBodyContactSampleCount = static_cast<std::uint32_t>(
+                state_->femBodyContactSamples.size()),
         };
         const auto encodeKernel = [&](id<MTLComputePipelineState> pipeline,
                                       const NSUInteger count,
@@ -1063,6 +1166,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                                 offset:0u atIndex:8u];
                     [encoder setBuffer:state_->passiveLigamentBuffer
                                 offset:0u atIndex:9u];
+                    [encoder setBuffer:state_->femBodyContactSampleBuffer
+                                offset:0u atIndex:10u];
                 }
             ) || !encodeKernel(
                 state_->forcePipeline,
@@ -1077,16 +1182,24 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             state_->message = "Human tendon/FEM assembly kernel encoding failed";
             return false;
         }
-        if (!state_->contactSamples.empty()) {
-            id<MTLBuffer> acceptedNodes = (__bridge id<MTLBuffer>)
+        id<MTLBuffer> acceptedNodes = nil;
+        if (!state_->contactSamples.empty() ||
+            !state_->femBodyContactSamples.empty()) {
+            acceptedNodes = (__bridge id<MTLBuffer>)
                 state_->runtime->femAcceptedNodeBuffer();
             const std::uint64_t expectedAcceptedNodeBytes =
                 static_cast<std::uint64_t>(state_->environmentCount) *
                 state_->nodeLoads.size() * sizeof(NMFEMNodeStateGPU);
             if (acceptedNodes == nil ||
                 acceptedNodes.device.registryID != state_->device.registryID ||
-                acceptedNodes.length < expectedAcceptedNodeBytes ||
-                !encodeKernel(
+                acceptedNodes.length < expectedAcceptedNodeBytes) {
+                state_->message =
+                    "Human FEM contact accepted-node arena is unavailable";
+                return false;
+            }
+        }
+        if (!state_->contactSamples.empty() &&
+            !encodeKernel(
                     state_->contactForcePipeline,
                     state_->environmentCount * state_->nodeLoads.size(),
                     [&](id<MTLComputeCommandEncoder> encoder) {
@@ -1103,7 +1216,41 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->message =
                     "Human internal FEM contact kernel encoding failed";
                 return false;
-            }
+        }
+        if (!state_->femBodyContactSamples.empty() &&
+            (!encodeKernel(
+                state_->femBodyContactForcePipeline,
+                state_->environmentCount * state_->nodeLoads.size(),
+                [&](id<MTLComputeCommandEncoder> encoder) {
+                    [encoder setBuffer:state_->femBodyContactSampleBuffer
+                                offset:0u atIndex:1u];
+                    [encoder setBuffer:acceptedNodes offset:0u atIndex:2u];
+                    [encoder setBuffer:bodyPoses offset:0u atIndex:3u];
+                    [encoder setBuffer:state_->externalForceBuffer
+                                offset:0u atIndex:4u];
+                }) || !encodeKernel(
+                state_->femBodyContactWrenchPipeline,
+                state_->environmentCount * pass.bodyPoseStride,
+                [&](id<MTLComputeCommandEncoder> encoder) {
+                    [encoder setBuffer:state_->femBodyContactSampleBuffer
+                                offset:0u atIndex:1u];
+                    [encoder setBuffer:acceptedNodes offset:0u atIndex:2u];
+                    [encoder setBuffer:bodyPoses offset:0u atIndex:3u];
+                    [encoder setBuffer:state_->femBodyContactWrenchBuffer
+                                offset:0u atIndex:4u];
+                }) || !encodeKernel(
+                state_->femBodyContactAuditPipeline,
+                state_->environmentCount,
+                [&](id<MTLComputeCommandEncoder> encoder) {
+                    [encoder setBuffer:state_->femBodyContactSampleBuffer
+                                offset:0u atIndex:1u];
+                    [encoder setBuffer:acceptedNodes offset:0u atIndex:2u];
+                    [encoder setBuffer:bodyPoses offset:0u atIndex:3u];
+                    [encoder setBuffer:state_->femBodyContactAuditBuffer
+                                offset:0u atIndex:4u];
+                }))) {
+            state_->message = "Human FEM/body contact encoding failed";
+            return false;
         }
         if (!state_->articularContactSamples.empty() &&
             !encodeKernel(
@@ -1226,6 +1373,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                                 offset:0u atIndex:10u];
                     [encoder setBuffer:state_->passiveLigamentBuffer
                                 offset:0u atIndex:11u];
+                    [encoder setBuffer:state_->femBodyContactWrenchBuffer
+                                offset:0u atIndex:12u];
                 }
             )) {
             state_->message = "Human tendon/FEM anchor-reaction encoding failed";
@@ -1286,6 +1435,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
                 state_->articularContactSamples.size()),
             .passiveLigamentCount = static_cast<std::uint32_t>(
                 state_->passiveLigaments.size()),
+            .femBodyContactSampleCount = static_cast<std::uint32_t>(
+                state_->femBodyContactSamples.size()),
         };
         id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
         if (encoder == nil) {
@@ -1366,6 +1517,24 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
                 threadsPerThreadgroup:MTLSizeMake(
                     std::max<NSUInteger>(commitWidth, 1u), 1u, 1u)];
         }
+        if (!state_->femBodyContactSamples.empty()) {
+            [commitEncoder setComputePipelineState:
+                state_->articularContactAuditCommitPipeline];
+            [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+            [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
+            [commitEncoder setBuffer:state_->femBodyContactAuditBuffer
+                              offset:0u atIndex:2u];
+            [commitEncoder setBuffer:state_->femBodyContactAuditHistoryBuffer
+                              offset:0u atIndex:3u];
+            const NSUInteger contactCommitWidth = std::min<NSUInteger>(
+                count, std::min<NSUInteger>(
+                    state_->articularContactAuditCommitPipeline
+                        .maxTotalThreadsPerThreadgroup,
+                    256u));
+            [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(
+                    std::max<NSUInteger>(contactCommitWidth, 1u), 1u, 1u)];
+        }
         if (!state_->passiveLigaments.empty()) {
             [commitEncoder setComputePipelineState:
                 state_->passiveLigamentAuditCommitPipeline];
@@ -1437,6 +1606,8 @@ NumiHumanTendonFEMLoadAdapter::diagnostics() const noexcept {
     result.fingerprint = state_->fingerprint;
     result.contactSampleCount = static_cast<std::uint32_t>(
         state_->contactSamples.size());
+    result.femBodyContactSampleCount = static_cast<std::uint32_t>(
+        state_->femBodyContactSamples.size());
     result.articularContactSampleCount = static_cast<std::uint32_t>(
         state_->articularContactSamples.size());
     result.articularMechanicalSampleCount =
@@ -1595,6 +1766,136 @@ NumiHumanTendonFEMLoadAdapter::diagnostics() const noexcept {
         }
         if (attemptedSteps > 0u) {
             result.anchorReactionTrajectoryMinimumL1Newtons = minimumL1;
+        }
+    }
+    if (state_->femBodyContactAuditHistoryBuffer != nil) {
+        const auto* history =
+            static_cast<const NMNumiHumanArticularContactAuditGPU*>(
+                state_->femBodyContactAuditHistoryBuffer.contents);
+        const std::uint32_t attemptedSteps = std::min(
+            state_->articularAttemptedStepCount,
+            NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS);
+        for (std::uint32_t step = 0u; step < attemptedSteps; ++step) {
+            double forceX = 0.0;
+            double forceY = 0.0;
+            double forceZ = 0.0;
+            double momentX = 0.0;
+            double momentY = 0.0;
+            double momentZ = 0.0;
+            double maximumTangentialSlip = 0.0;
+            double maximumPressure = 0.0;
+            double normalForce = 0.0;
+            double contactArea = 0.0;
+            double storedEnergy = 0.0;
+            double maximumNormalStrain = 0.0;
+            double maximumClosure = 0.0;
+            std::uint32_t closedSamples = 0u;
+            bool accepted = true;
+            bool malformed = false;
+            for (std::uint32_t environment = 0u;
+                 environment < state_->environmentCount; ++environment) {
+                const auto& audit = history[
+                    environment *
+                        NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS +
+                    step];
+                const nm_float4 force = audit.forceResidualAndL1;
+                const nm_float4 moment =
+                    audit.momentResidualAndMaximumPressure;
+                const nm_float4 contact = audit.normalForceAreaAndCounts;
+                const nm_float4 energy =
+                    audit.energyStrainClosureAndAccepted;
+                if (energy.w == 0.0f) {
+                    accepted = false;
+                    break;
+                }
+                malformed = !finiteScale(force) || !finiteScale(moment) ||
+                    !finiteScale(contact) || !finiteScale(energy) ||
+                    energy.w != 1.0f || force.w < 0.0f || moment.w < 0.0f ||
+                    contact.x < 0.0f || contact.y < 0.0f || contact.z < 0.0f ||
+                    static_cast<std::uint32_t>(contact.w) !=
+                        state_->femBodyContactSamples.size() ||
+                    energy.x < 0.0f || energy.y < 0.0f || energy.z < 0.0f;
+                if (malformed) break;
+                forceX += force.x;
+                forceY += force.y;
+                forceZ += force.z;
+                momentX += moment.x;
+                momentY += moment.y;
+                momentZ += moment.z;
+                maximumTangentialSlip = std::max(
+                    maximumTangentialSlip, static_cast<double>(force.w));
+                maximumPressure = std::max(
+                    maximumPressure, static_cast<double>(moment.w));
+                normalForce += contact.x;
+                contactArea += contact.y;
+                closedSamples += static_cast<std::uint32_t>(contact.z);
+                storedEnergy += energy.x;
+                maximumNormalStrain = std::max(
+                    maximumNormalStrain, static_cast<double>(energy.y));
+                maximumClosure = std::max(
+                    maximumClosure, static_cast<double>(energy.z));
+            }
+            if (malformed) {
+                const double nan =
+                    std::numeric_limits<double>::quiet_NaN();
+                result.femBodyContactAreaSquareMeters = nan;
+                result.femBodyContactNormalForceNewtons = nan;
+                result.femBodyContactMaximumPressurePascals = nan;
+                result.femBodyContactForceResidualNewtons = nan;
+                result.femBodyContactMomentResidualNewtonMeters = nan;
+                result.femBodyContactStoredEnergyJoules = nan;
+                result.femBodyContactMaximumNormalStrain = nan;
+                result.femBodyContactMaximumClosureMeters = nan;
+                result.femBodyContactMaximumTangentialSlipMeters = nan;
+                result.femBodyContactTrajectoryMinimumNormalForceNewtons = nan;
+                result.femBodyContactTrajectoryMaximumNormalForceNewtons = nan;
+                result.femBodyContactTrajectoryMaximumForceResidualNewtons = nan;
+                result.femBodyContactTrajectoryMaximumMomentResidualNewtonMeters = nan;
+                result.femBodyContactTrajectoryMaximumTangentialSlipMeters = nan;
+                break;
+            }
+            if (!accepted) break;
+            const double forceResidual = std::sqrt(
+                forceX * forceX + forceY * forceY + forceZ * forceZ);
+            const double momentResidual = std::sqrt(
+                momentX * momentX + momentY * momentY + momentZ * momentZ);
+            result.femBodyContactClosedSampleCount = closedSamples;
+            result.femBodyContactAreaSquareMeters = contactArea;
+            result.femBodyContactNormalForceNewtons = normalForce;
+            result.femBodyContactMaximumPressurePascals = maximumPressure;
+            result.femBodyContactForceResidualNewtons = forceResidual;
+            result.femBodyContactMomentResidualNewtonMeters = momentResidual;
+            result.femBodyContactStoredEnergyJoules = storedEnergy;
+            result.femBodyContactMaximumNormalStrain = maximumNormalStrain;
+            result.femBodyContactMaximumClosureMeters = maximumClosure;
+            result.femBodyContactMaximumTangentialSlipMeters =
+                maximumTangentialSlip;
+            if (result.femBodyContactAuditedStepCount == 0u) {
+                result.femBodyContactTrajectoryMinimumNormalForceNewtons =
+                    normalForce;
+            } else {
+                result.femBodyContactTrajectoryMinimumNormalForceNewtons =
+                    std::min(
+                        result.femBodyContactTrajectoryMinimumNormalForceNewtons,
+                        normalForce);
+            }
+            ++result.femBodyContactAuditedStepCount;
+            result.femBodyContactTrajectoryMaximumNormalForceNewtons =
+                std::max(
+                    result.femBodyContactTrajectoryMaximumNormalForceNewtons,
+                    normalForce);
+            result.femBodyContactTrajectoryMaximumForceResidualNewtons =
+                std::max(
+                    result.femBodyContactTrajectoryMaximumForceResidualNewtons,
+                    forceResidual);
+            result.femBodyContactTrajectoryMaximumMomentResidualNewtonMeters =
+                std::max(
+                    result.femBodyContactTrajectoryMaximumMomentResidualNewtonMeters,
+                    momentResidual);
+            result.femBodyContactTrajectoryMaximumTangentialSlipMeters =
+                std::max(
+                    result.femBodyContactTrajectoryMaximumTangentialSlipMeters,
+                    maximumTangentialSlip);
         }
     }
     if (state_->articularContactAuditHistoryBuffer != nil) {

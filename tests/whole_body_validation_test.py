@@ -129,7 +129,7 @@ class WholeBodyValidationTest(unittest.TestCase):
         ):
             self.assertEqual(fascia[requirement]["status"], "verified")
         self.assertEqual(fascia["material_calibration"]["status"], "missing")
-        self.assertEqual(fascia["contact_or_interaction"]["status"], "missing")
+        self.assertEqual(fascia["contact_or_interaction"]["status"], "verified")
         self.assertEqual(fascia["sustained_loaded_motion"]["status"], "missing")
 
     def test_default_exit_fails_closed_while_incomplete(self):

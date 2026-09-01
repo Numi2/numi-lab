@@ -3,7 +3,7 @@
   "device": "Apple M4 Pro",
   "evidence_level": "one_step",
   "bounded_extension_step_count": 8,
-  "source_base_revision": "492f77929588b561bf90abe14620e0f96e00e0fc",
+  "source_base_revision": "3561113777afddbbf2e37965afaddad983772282",
   "anatomy": {
     "source_model": "pinned_MyoSim_full_body",
     "right_muscle": "TRImed",
@@ -24,7 +24,8 @@
     "attachment_transfer": "NHTENDON3_four_node_wrench_equivalent_entheses",
     "force_authority": "single_source_route_JT_with_distributed_enthesis_witness",
     "distributed_endpoint_count": 4,
-    "endpoint_migration_maximum_m": 0.0,
+    "selected_endpoint_migration_maximum_m": 0.0,
+    "payload_semantic_rigid_foot_migration_count": 18,
     "surface_distance_range_m": [0.0020507084905977625, 0.006727559920385511],
     "patch_radius_range_m": [0.008804682184386117, 0.01199760061757941]
   },
@@ -34,7 +35,7 @@
     "rollback": "consumer_rejection_preserved_result",
     "rigid_state_authority": "source_route_JT_only"
   },
-  "one_step": {
+  "prior_one_step": {
     "accepted_steps": 1,
     "bilateral_force_relative_difference": 0.00280624628943,
     "right": {
@@ -62,7 +63,7 @@
       "velocity_increment_rad_s": -0.0145023819059
     }
   },
-  "eight_step": {
+  "prior_eight_step": {
     "accepted_steps": 8,
     "bilateral_force_relative_difference": 0.00273796094177,
     "right": {
@@ -116,15 +117,53 @@
   },
   "source_artifacts": {
     "nhrigid_sha256": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44",
-    "nhmyo_sha256": "9a988f19a6fd8e533cd0f2bf3192cb8535fb008ccd394ffbf1a4432d3db76a05",
+    "nhmyo_sha256": "a4381465ca97a7af20108180e2fc0d0f0d9c11778d913de4c0728bd20ed459a7",
     "nhbones_sha256": "f9132393dfb259a80e2b2084ac5ff15f2bf988f7e073f7a961a7ddcfb9febc3c",
-    "nhtendon3_sha256": "72ca0ec4ef53f647784a89f761e78495d4997c7d72cfe6a1d9eedb24dd97feaa",
+    "nhtendon3_sha256": "aa81f08b640ca225bdbc508abde44ed34d1d84c7550225efd40cd7fc71a6559b",
     "nhcnt1_sha256": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907",
     "nheq1_sha256": "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a"
   },
   "implementation_artifacts": {
-    "live_probe_source_sha256": "1e0add8c801300bec1f437621c452786b458a637fd34bc471e407650086a2d73",
-    "qualified_binary_sha256": "0b76e7f474c341c70ec98d837d7dbe599936e8fb2b3561825042afaec50cc2c7"
+    "live_probe_source_sha256": "11a44b0eaf8df5afcdcc3ee274c568572968fab6625acb02eba9d1dcb206000c",
+    "qualified_binary_sha256": "dc749aed77352a89cf5d25e5400fa66355f71f3bba988af1ec1fc1a265df68e2"
+  },
+  "current_requalification": {
+    "date": "2026-09-01",
+    "device": "Apple M4 Pro",
+    "payload": {
+      "format": "NHTENDON3",
+      "envelope_bindings": 642,
+      "point_bindings": 190,
+      "semantic_rigid_foot_migrations": 18,
+      "path": "docs/media/numi-human-triceps-medialis-enthesis-live-v1/qualified-current.nhtendon",
+      "sha256": "aa81f08b640ca225bdbc508abde44ed34d1d84c7550225efd40cd7fc71a6559b"
+    },
+    "one_step": {
+      "accepted_steps": 1,
+      "bilateral_force_relative_difference": 0.00691694448909,
+      "right_maximum_endpoint_force_residual_n": 0.00000190734863281,
+      "right_maximum_endpoint_moment_residual_nm": 0.0000000792007597283,
+      "left_maximum_endpoint_force_residual_n": 0.00000190734863281,
+      "left_maximum_endpoint_moment_residual_nm": 0.0000000954139878218
+    },
+    "eight_step": {
+      "accepted_steps": 8,
+      "bilateral_force_relative_difference": 0.00683370186922,
+      "right_represented_endpoint_force_l1_n": 180.136810303,
+      "left_represented_endpoint_force_l1_n": 181.376281738,
+      "right_maximum_endpoint_force_residual_n": 0.00000381469726562,
+      "right_maximum_endpoint_moment_residual_nm": 0.000000145429524423,
+      "left_maximum_endpoint_force_residual_n": 0.00000190734863281,
+      "left_maximum_endpoint_moment_residual_nm": 0.0000000614390600617,
+      "right_elbow_configuration_increment_rad": -0.0000207648627111,
+      "left_elbow_configuration_increment_rad": -0.000020814994059
+    },
+    "transaction": {"replay": "bitwise", "rollback": "consumer_rejection_preserved_result"},
+    "transcripts": {
+      "one_step": {"path": "docs/media/numi-human-triceps-medialis-enthesis-live-v1/m4-pro-current-one-step.txt", "sha256": "d199241088e3dc1c79ebd31cc12428792b2d7ada14ee0044db3b3955fdac5281"},
+      "eight_step": {"path": "docs/media/numi-human-triceps-medialis-enthesis-live-v1/m4-pro-current-eight-step.txt", "sha256": "2798be4431e4e5104f7bb8a6cffda4ed4ddc9cbcc8b55cd75058524a2aeaa6e0"}
+    },
+    "visual_provenance": "prior_inspected_close_up_frames_retained_because_the_renderer_and_triceps_presentation_path_are_unchanged;_current_mechanics_are_proven_by_the_new_transcripts"
   },
   "gates": {
     "exact_bilateral_source_muscle_identity": "passed",

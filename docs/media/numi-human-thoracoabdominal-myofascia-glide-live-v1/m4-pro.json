@@ -1,0 +1,131 @@
+{
+  "schema": "numilab.human.thoracoabdominal-myofascia-glide-metal.v1",
+  "device": "Apple M4 Pro",
+  "evidence_level": "one_step",
+  "bounded_extension_step_count": 16,
+  "qualified_source_base_revision": "3561113777afddbbf2e37965afaddad983772282",
+  "anatomy": {
+    "region_count": 26,
+    "abdominal_terminal_count": 14,
+    "geometry_source": "BodyParts3D_4_0_external_oblique_presentation_surface_plus_generated_regional_FEM_sheets",
+    "body_ownership": "exact_source_terminal_or_anchor_body_per_region",
+    "contact_surface": "free_outer_sheet_nodes_against_body_local_reference_planes",
+    "contact_sample_count": 495
+  },
+  "research_basis": {
+    "thoracolumbar_layer_glide": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3189915/",
+    "thoracolumbar_shear_strain": "https://pubmed.ncbi.nlm.nih.gov/21929806/",
+    "abdominal_fascia_orthotropy": "https://pubmed.ncbi.nlm.nih.gov/21095153/",
+    "thoracolumbar_sliding_distance": "https://pubmed.ncbi.nlm.nih.gov/40789861/",
+    "fascia_lata_multilayer_glide": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9952725/"
+  },
+  "mechanics": {
+    "node_count": 1202,
+    "tetrahedron_count": 2127,
+    "fixed_node_count": 212,
+    "traction_node_count": 212,
+    "directional_region_count": 26,
+    "material_object_count": 12,
+    "minimum_exact_terminal_axis_alignment": 0.999999880791,
+    "minimum_sheet_axis_alignment": 0.533125400543,
+    "minimum_group_route_alignment": 0.965587615967,
+    "interaction_law": "unilateral_normal_only_frictionless_elastic_foundation",
+    "generated_foundation_modulus_pa": 20000.0,
+    "normal_stiffness_derivation": "foundation_modulus_divided_by_local_region_thickness",
+    "generic_continuum_contact_policy": "disabled_only_for_the_twelve_partition_objects_whose_adjacent_seams_form_one_anatomical_layer",
+    "force_authority": "equal_and_opposite_FEM_node_and_exact_body_JT_wrench_in_one_borrowed_command_buffer"
+  },
+  "reference_one_step": {
+    "accepted_steps": 1,
+    "audited_steps": 1,
+    "contact_samples": 495,
+    "closed_samples": 0,
+    "normal_force_n": 0.0,
+    "force_residual_n": 0.0,
+    "moment_residual_nm": 0.0,
+    "maximum_displacement_m": 0.00000752952701077,
+    "minimum_deformation_jacobian": 0.999103486538,
+    "interpretation": "stress_free_reference_configuration_with_structurally_live_contact_audit"
+  },
+  "sixteen_step": {
+    "accepted_steps": 16,
+    "audited_steps": 16,
+    "contact_samples": 495,
+    "closed_samples": 119,
+    "contact_area_m2": 0.0170630998909,
+    "maximum_normal_force_n": 1.93945670128,
+    "maximum_pressure_pa": 1409.72412109,
+    "stored_energy_j": 0.0000339924117725,
+    "maximum_normal_strain": 0.070486202836,
+    "maximum_closure_m": 0.0000422917255491,
+    "maximum_tangent_glide_m": 0.000109071777842,
+    "force_residual_n": 0.0,
+    "moment_residual_nm": 0.0000000885945752316,
+    "maximum_displacement_m": 0.000987198669463,
+    "minimum_deformation_jacobian": 0.973543167114,
+    "fgmres_iterations": 4,
+    "anchor_reaction_l1_n": 15.0842227936,
+    "minimum_anchor_reaction_l1_n": 3.62801885605,
+    "coupled_transaction_elapsed_ms": 21679.973042,
+    "replay": "bitwise",
+    "rollback": "verified"
+  },
+  "transaction": {
+    "command_buffer": "borrowed_same_command_buffer_exact_snapshot",
+    "history_commit": "accepted_steps_only",
+    "replay": "bitwise",
+    "rollback": "verified",
+    "rigid_reaction": "exact_equal_and_opposite_body_wrench_returned_through_human_body_JT"
+  },
+  "visual_validation": {
+    "frame_dimension": 1024,
+    "views": ["front", "oblique", "side", "rear"],
+    "actual_frames_inspected": 4,
+    "bone_pixels": [20145, 22060, 20809, 24988],
+    "muscle_surface_pixels": [71763, 59278, 39788, 68417],
+    "fascia_pixels": [7238, 5120, 2323, 7111],
+    "inspection": "passed_four_original_resolution_views_without_new_floating_fascia_plate_duplicate_limb_or_toe_reversed_knee_dropped_patella_or_detached_fascia_regression",
+    "quality_boundary": "whole_body_sensor_reference_frames_are_regression_evidence_not_photorealistic_or_medical_image_validation"
+  },
+  "implementation_artifacts": {
+    "live_probe_source_sha256": "11a44b0eaf8df5afcdcc3ee274c568572968fab6625acb02eba9d1dcb206000c",
+    "adapter_probe_source_sha256": "cda1e3e20b6e8d9591ea019de8d319d73d50a273dbc72bd9fb64c82377813844",
+    "qualified_visual_binary_sha256": "dc749aed77352a89cf5d25e5400fa66355f71f3bba988af1ec1fc1a265df68e2",
+    "qualified_adapter_probe_binary_sha256": "160287fe1a0900534333f3cad72bd294feaaf887f6cabf5abef7d0a57b2e4477",
+    "matter_metallib_sha256": "9ff5e83f03bd9d04d14b967c158369ae20324c1d211ca9b96ab8966b7fca7a4d",
+    "regional_material_source_sha256": "38b23df6bd18174dc6058d4748e56e995027cef2ab4494cdf5ded2c887b03ac0"
+  },
+  "frames": {
+    "front": {"path": "docs/media/numi-human-thoracoabdominal-myofascia-glide-live-v1/front.png", "sha256": "e05006881d1543893321bade6feda12236f63ef8a8213782eba281de45634c32"},
+    "oblique": {"path": "docs/media/numi-human-thoracoabdominal-myofascia-glide-live-v1/oblique.png", "sha256": "7da122412cb18590ab1ac95755ab937fb6695c9dee75ab2961cdc06ac804d3e6"},
+    "side": {"path": "docs/media/numi-human-thoracoabdominal-myofascia-glide-live-v1/side.png", "sha256": "e7635ef95665f057573636d72485ace1a3bede005f11d57a3609b7d913f8280b"},
+    "rear": {"path": "docs/media/numi-human-thoracoabdominal-myofascia-glide-live-v1/rear.png", "sha256": "b375e1ad778dee370f2a0e4a11eb777b8682e95af58061c01a08101819aba01f"}
+  },
+  "transcripts": {
+    "reference_one_step": {"path": "docs/media/numi-human-thoracoabdominal-myofascia-glide-live-v1/m4-pro-reference-one-step.txt", "sha256": "b46d7e4b749b9470eac30398570bc22f115c24e9152eaf8ec21581b7f4d78807"},
+    "sixteen_step": {"path": "docs/media/numi-human-thoracoabdominal-myofascia-glide-live-v1/m4-pro-sixteen-step.txt", "sha256": "ec41ca278c97e6068dae612487562735fc228eb14aef70a20dc9f5dc8597b606"}
+  },
+  "gates": {
+    "anatomical_body_ownership": "passed",
+    "four_hundred_ninety_five_contact_samples": "passed",
+    "stress_free_reference_audit": "passed",
+    "active_sixteen_step_gliding_contact": "passed",
+    "equal_and_opposite_force_and_moment_closure": "passed",
+    "positive_contact_area_load_pressure_energy_and_strain": "passed",
+    "bounded_closure_and_tangent_glide": "passed",
+    "positive_deformation_jacobian": "passed",
+    "generic_partition_seam_collision_exclusion": "passed",
+    "same_command_buffer_single_force_authority": "passed",
+    "deterministic_replay": "passed",
+    "rejected_transaction_rollback": "passed",
+    "four_angle_frame_inspection": "passed"
+  },
+  "remaining_blockers": [
+    "normal_law_is_not_calibrated_friction_adhesion_or_hyaluronan_lubrication",
+    "generated_interface_planes_are_not_registered_multilayer_fascia_geometry",
+    "twenty_kilopascal_foundation_modulus_is_a_conservative_generated_assumption",
+    "sixteen_steps_at_ten_microseconds_are_not_sustained_physiological_loading",
+    "materials_and_geometry_are_not_subject_specific_or_clinically_validated"
+  ],
+  "boundary": "Bounded normal-only frictionless fascia-to-body interaction certificate with exact equal-and-opposite force transfer; not calibrated friction, adhesion, multilayer lubrication, sustained physiological loading, subject calibration, medical diagnosis, or clinical validation."
+}

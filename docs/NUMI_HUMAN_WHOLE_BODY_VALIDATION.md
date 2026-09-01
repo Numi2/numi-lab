@@ -128,18 +128,29 @@ residual, all reactions nonnegative, and bitwise replay. This is recorded only
 as a preflight: the internal muscle residual remains `22.9850`, root
 acceleration residual remains `5.7539`, and `internal_balanced=false`.
 
-The fascia scope now has a current-revision live Apple M4 Pro receipt rather
-than an empty placeholder. `NHFASC4` binds 26 regions: six pectoral, six
-latissimus aponeurosis, eight external-oblique, and six internal-oblique. All
-14 abdominal terminals participate in the same borrowed-command-buffer Human
-transaction; the declared source `J^T` share is replaced by fixed-node
-continuum reactions, every accepted step audits a positive bone reaction, and
-one- and four-step runs pass positive-J, bitwise replay, rollback, and negative
-ABI/horizon controls. This promotes bounded deformable mechanics, attachment
-coupling, and deterministic transaction ownership. It does not promote the
-generated regional sheets to anatomical segmentation, and it leaves
-directional material calibration, fascia sliding/contact, and sustained trunk
-loading open.
+The fascia scope now has a current-revision live Apple M4 Pro interaction
+receipt. `NHFASC4` binds 26 regions: six pectoral, six latissimus aponeurosis,
+eight external-oblique, and six internal-oblique. All 14 abdominal terminals
+participate in the same borrowed-command-buffer Human transaction. Adapter ABI
+11 adds a new set
+of 495 outer-sheet samples applies equal-and-opposite FEM-node and articulated
+body `J^T` wrenches. The stress-free one-step reference audits structurally
+with zero false preload; by step 16, 119 samples close over `0.0170631 m^2`,
+peak normal load is `1.93946 N`, peak pressure is `1409.72 Pa`, peak closure is
+`4.22917e-5 m`, tangential glide is `1.09072e-4 m`, force closure is exact,
+and the moment residual is `8.86e-8 N m`. Positive-J, bitwise replay, rollback,
+and four original-resolution views pass. This promotes bounded normal
+interaction as well as deformable mechanics, attachment coupling, and
+deterministic transaction ownership.
+
+The law is deliberately narrow: a unilateral, normal-only, frictionless
+elastic foundation based on a generated `20 kPa` assumption. Layered human
+fascia and its loose connective tissue support relative glide
+([thoracolumbar anatomy](https://pmc.ncbi.nlm.nih.gov/articles/PMC3189915/),
+[fascia lata review](https://pmc.ncbi.nlm.nih.gov/articles/PMC9952725/)), but
+this receipt does not claim calibrated friction, adhesion, hyaluronan
+lubrication, registered multilayer segmentation, sustained physiological
+loading, subject calibration, or clinical validation.
 
 ## Development order
 
@@ -160,9 +171,10 @@ The gate makes the next useful work explicit:
    chains from the upper-extremity source model, with region-specific passive
    structures and contact where applicable.
 5. Promote costal mechanics into the live Human transaction, then replace the
-   current generated fascia sheets with registered regional geometry,
-   directional calibrated materials, sliding/contact, and sustained trunk
-   loading without duplicating the accepted fascia force owner.
+   current generated fascia sheets and normal-only foundation with registered
+   multilayer geometry, directionally calibrated materials, and measured
+   friction/adhesion or lubrication before sustained trunk loading, without
+   duplicating the accepted fascia force owner.
 6. Add skin, organ, vessel, and nerve geometry and coupled deformable owners
    with calibrated materials and interaction gates.
 7. Run whole-body sustained loaded trajectories and independent anatomical,

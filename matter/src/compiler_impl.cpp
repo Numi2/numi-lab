@@ -1038,6 +1038,8 @@ CompileResult compileWorld(
             (object.twoWayCoupling ? NM_OBJECT_TWO_WAY_COUPLED : 0u) |
             (object.adaptive ? NM_OBJECT_ADAPTIVE : 0u) |
             (object.identifiable ? NM_OBJECT_IDENTIFIABLE : 0u) |
+            (!object.deformableContact
+                ? NM_OBJECT_DISABLE_DEFORMABLE_CONTACT : 0u) |
             (!object.deformableSelfContact
                 ? NM_OBJECT_DISABLE_SELF_CONTACT : 0u) |
             (representation == Representation::fem && object.mixedFEM

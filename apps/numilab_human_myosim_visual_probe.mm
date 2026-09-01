@@ -9120,6 +9120,19 @@ struct PectoralisFasciaVisual {
     float minimumFibreTerminalAlignment = 1.0f;
     float minimumFibreSheetAlignment = 1.0f;
     float minimumFibreGroupAlignment = 1.0f;
+    std::uint32_t glidingContactSampleCount = 0u;
+    std::uint32_t glidingContactClosedSampleCount = 0u;
+    std::uint32_t glidingContactAuditedStepCount = 0u;
+    float glidingContactAreaSquareMeters = 0.0f;
+    float glidingContactNormalForceNewtons = 0.0f;
+    float glidingContactMinimumNormalForceNewtons = 0.0f;
+    float glidingContactMaximumPressurePascals = 0.0f;
+    float glidingContactStoredEnergyJoules = 0.0f;
+    float glidingContactMaximumNormalStrain = 0.0f;
+    float glidingContactMaximumClosureMeters = 0.0f;
+    float glidingContactMaximumTangentialSlipMeters = 0.0f;
+    float glidingContactForceResidualNewtons = 0.0f;
+    float glidingContactMomentResidualNewtonMeters = 0.0f;
     float maximumAnatomicalMappingDistanceMeters = 0.0f;
     float maximumAppliedAnatomicalMappingDistanceMeters = 0.0f;
     float rmsAnatomicalMappingDistanceMeters = 0.0f;
@@ -9218,6 +9231,9 @@ PectoralisFasciaVisual runPectoralisFascia(
     std::vector<std::uint32_t> regionBindingIndices(
         fascia.regions.size(), MR_INVALID_INDEX
     );
+    std::vector<std::uint32_t> regionAnchorBodyIndices(
+        fascia.regions.size(), MR_INVALID_INDEX
+    );
     std::vector<std::array<std::uint32_t, 4u>> orientedTetrahedra;
     orientedTetrahedra.reserve(fascia.tetrahedra.size());
     numi::matter::WorldSource worldSource;
@@ -9267,6 +9283,10 @@ PectoralisFasciaVisual runPectoralisFascia(
         object.materialIndex = objectIndex;
         object.representation = numi::matter::Representation::fem;
         object.mixedFEM = false;
+        // These objects partition one continuous anatomical layer. Generic
+        // contact between coincident regional seams is false self-collision;
+        // the registered body-plane law below owns the sliding interaction.
+        object.deformableContact = false;
         object.deformableSelfContact = false;
         object.characteristicLength =
             firstRegion < kPectoralisFasciaRegionCount ? 0.005 :
@@ -9466,6 +9486,7 @@ PectoralisFasciaVisual runPectoralisFascia(
         regionBindingIndices[regionIndex] = loadBindingIndex;
         const auto& anchorBinding =
             muscles.tendonPayload.bindings[anchorBindingIndex];
+        regionAnchorBodyIndices[regionIndex] = anchorBinding.bodyIndex;
         const MRBodyStateGPU& anchorBody =
             fasciaReferenceBodies[anchorBinding.bodyIndex];
         const mr_float4 inverseAnchorOrientation{
@@ -9675,6 +9696,97 @@ PectoralisFasciaVisual runPectoralisFascia(
     for (const auto& [_, entry] : faces) {
         if (entry.first == 1u) result.surfaceTriangles.push_back(entry.second);
     }
+    std::vector<double> glidingTributaryArea(fascia.nodes.size(), 0.0);
+    for (const auto& triangle : result.surfaceTriangles) {
+        const std::uint32_t regionIndex =
+            fascia.nodes[triangle[0]].regionIndex;
+        require(regionIndex < fascia.regions.size() &&
+                    fascia.nodes[triangle[1]].regionIndex == regionIndex &&
+                    fascia.nodes[triangle[2]].regionIndex == regionIndex,
+                "myofascia contact face crosses anatomical regions");
+        const auto& region = fascia.regions[regionIndex];
+        const std::uint32_t layerWidth = region.nodeCount / 2u;
+        const auto outer = [&](const std::uint32_t node) {
+            return node >= region.firstNode &&
+                node < region.firstNode + layerWidth;
+        };
+        if (!outer(triangle[0]) || !outer(triangle[1]) ||
+            !outer(triangle[2])) continue;
+        const mr_float4 edge0 = femSubtract(
+            result.restNodes[triangle[1]], result.restNodes[triangle[0]]);
+        const mr_float4 edge1 = femSubtract(
+            result.restNodes[triangle[2]], result.restNodes[triangle[0]]);
+        const double area = 0.5 * femLength(femCross(edge0, edge1));
+        require(std::isfinite(area) && area > 1.0e-12,
+                "myofascia gliding surface has a degenerate face");
+        for (const std::uint32_t node : triangle)
+            glidingTributaryArea[node] += area / 3.0;
+    }
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU> glidingContactSamples;
+    constexpr double kGlidingFoundationModulusPascals = 20'000.0;
+    for (std::uint32_t regionIndex = 0u;
+         regionIndex < fascia.regions.size(); ++regionIndex) {
+        const auto& region = fascia.regions[regionIndex];
+        const std::uint32_t layerWidth = region.nodeCount / 2u;
+        const std::uint32_t bodyIndex =
+            regionAnchorBodyIndices[regionIndex];
+        require(bodyIndex < fasciaReferenceBodies.size(),
+                "myofascia gliding interface has no articulated body owner");
+        const MRBodyStateGPU& body = fasciaReferenceBodies[bodyIndex];
+        const mr_float4 inverseOrientation{
+            -body.orientation.x, -body.orientation.y,
+            -body.orientation.z, body.orientation.w,
+        };
+        const double layerThickness =
+            regionIndex < kPectoralisFasciaRegionCount
+                ? fascia.header.thicknessMeters
+                : (regionIndex < kLatissimusFasciaRegionEnd
+                    ? 0.00175
+                    : (regionIndex < kExternalObliqueRegionEnd
+                        ? 0.0045 : 0.0060));
+        for (std::uint32_t local = 0u; local < layerWidth; ++local) {
+            const std::uint32_t global = region.firstNode + local;
+            if ((fascia.nodes[global].flags & 1u) != 0u ||
+                glidingTributaryArea[global] <= 0.0) continue;
+            const mr_float4 thicknessVector = femSubtract(
+                result.restNodes[global],
+                result.restNodes[global + layerWidth]);
+            const float measuredThickness = femLength(thicknessVector);
+            require(std::isfinite(measuredThickness) &&
+                        measuredThickness > 0.0001f &&
+                        measuredThickness < 0.01f,
+                    "myofascia gliding interface has no layer normal");
+            const mr_float4 worldNormal = femScale(
+                thicknessVector, 1.0f / measuredThickness);
+            const mr_float4 localNormal = rotatePoint(
+                inverseOrientation, worldNormal);
+            const mr_float4 localPoint = rotatePoint(
+                inverseOrientation,
+                femSubtract(result.restNodes[global], body.position));
+            NMNumiHumanFEMBodyContactSampleGPU sample{};
+            sample.slaveNode = global;
+            sample.bodyIndex = bodyIndex;
+            sample.flags = NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE;
+            sample.bodyLocalPointAndArea = {
+                localPoint.x, localPoint.y, localPoint.z,
+                static_cast<float>(glidingTributaryArea[global]),
+            };
+            sample.bodyLocalNormalAndReferenceSeparation = {
+                localNormal.x, localNormal.y, localNormal.z, 0.0f,
+            };
+            sample.stiffnessAndNormalStrainPerPressure = {
+                static_cast<float>(
+                    kGlidingFoundationModulusPascals / layerThickness),
+                static_cast<float>(
+                    1.0 / kGlidingFoundationModulusPascals),
+                0.0f, 0.0f,
+            };
+            glidingContactSamples.push_back(sample);
+        }
+    }
+    require(glidingContactSamples.size() >= 300u &&
+                glidingContactSamples.size() <= fascia.nodes.size() / 2u,
+            "myofascia gliding interface does not cover its free outer sheet");
     for (auto& object : objects)
         worldSource.objects.push_back(std::move(object));
     numi::matter::CompileOptions compileOptions;
@@ -9706,6 +9818,7 @@ PectoralisFasciaVisual runPectoralisFascia(
                 .nodeLoads = nodeLoads,
                 .nodeAnchors = nodeAnchors,
                 .endpointReplacements = endpointReplacements,
+                .femBodyContactSamples = glidingContactSamples,
                 .endpointCount = static_cast<std::uint32_t>(
                     muscles.tendonPayload.bindings.size()
                 ),
@@ -9839,6 +9952,97 @@ PectoralisFasciaVisual runPectoralisFascia(
                 adapterDiagnostics.abortCount == 1u,
             "pectoralis fascia adapter transaction accounting is incomplete: " +
                 adapterDiagnostics.message);
+    result.glidingContactSampleCount =
+        adapterDiagnostics.femBodyContactSampleCount;
+    result.glidingContactClosedSampleCount =
+        adapterDiagnostics.femBodyContactClosedSampleCount;
+    result.glidingContactAuditedStepCount =
+        adapterDiagnostics.femBodyContactAuditedStepCount;
+    result.glidingContactAreaSquareMeters = static_cast<float>(
+        adapterDiagnostics.femBodyContactAreaSquareMeters);
+    result.glidingContactNormalForceNewtons = static_cast<float>(
+        adapterDiagnostics.femBodyContactTrajectoryMaximumNormalForceNewtons);
+    result.glidingContactMinimumNormalForceNewtons = static_cast<float>(
+        adapterDiagnostics.femBodyContactTrajectoryMinimumNormalForceNewtons);
+    result.glidingContactMaximumPressurePascals = static_cast<float>(
+        adapterDiagnostics.femBodyContactMaximumPressurePascals);
+    result.glidingContactStoredEnergyJoules = static_cast<float>(
+        adapterDiagnostics.femBodyContactStoredEnergyJoules);
+    result.glidingContactMaximumNormalStrain = static_cast<float>(
+        adapterDiagnostics.femBodyContactMaximumNormalStrain);
+    result.glidingContactMaximumClosureMeters = static_cast<float>(
+        adapterDiagnostics.femBodyContactMaximumClosureMeters);
+    result.glidingContactMaximumTangentialSlipMeters = static_cast<float>(
+        adapterDiagnostics.femBodyContactTrajectoryMaximumTangentialSlipMeters);
+    result.glidingContactForceResidualNewtons = static_cast<float>(
+        adapterDiagnostics.femBodyContactTrajectoryMaximumForceResidualNewtons);
+    result.glidingContactMomentResidualNewtonMeters = static_cast<float>(
+        adapterDiagnostics
+            .femBodyContactTrajectoryMaximumMomentResidualNewtonMeters);
+    const bool finiteGlidingContact =
+        std::isfinite(result.glidingContactAreaSquareMeters) &&
+        std::isfinite(result.glidingContactNormalForceNewtons) &&
+        std::isfinite(result.glidingContactMinimumNormalForceNewtons) &&
+        std::isfinite(result.glidingContactMaximumPressurePascals) &&
+        std::isfinite(result.glidingContactStoredEnergyJoules) &&
+        std::isfinite(result.glidingContactMaximumNormalStrain) &&
+        std::isfinite(result.glidingContactMaximumClosureMeters) &&
+        std::isfinite(result.glidingContactMaximumTangentialSlipMeters) &&
+        std::isfinite(result.glidingContactForceResidualNewtons) &&
+        std::isfinite(result.glidingContactMomentResidualNewtonMeters);
+    // The reference configuration is intentionally stress free, so the first
+    // accepted sample may have zero normal force.  The trajectory must still
+    // prove subsequent compressive closure under the selected muscle load.
+    // A nonzero tangent displacement proves that the body-following normal
+    // plane permits glide; it does not claim calibrated friction or adhesion.
+    const double glidingForceScale = std::max(
+        adapterDiagnostics.femBodyContactTrajectoryMaximumNormalForceNewtons,
+        1.0);
+    const bool activeGlidingContact =
+        result.glidingContactClosedSampleCount > 0u &&
+        result.glidingContactAreaSquareMeters > 0.0f &&
+        result.glidingContactNormalForceNewtons > 0.0f &&
+        result.glidingContactMaximumPressurePascals > 0.0f &&
+        result.glidingContactStoredEnergyJoules > 0.0f &&
+        result.glidingContactMaximumNormalStrain > 0.0f &&
+        result.glidingContactMaximumClosureMeters > 0.0f &&
+        result.glidingContactMaximumClosureMeters < 0.01f &&
+        result.glidingContactMaximumTangentialSlipMeters > 1.0e-9f &&
+        result.glidingContactMaximumTangentialSlipMeters < 0.05f;
+    require(finiteGlidingContact &&
+                result.glidingContactSampleCount ==
+                    glidingContactSamples.size() &&
+                result.glidingContactAuditedStepCount == stepCount &&
+                // The one-step probe audits the exact stress-free reference
+                // before its first solve. Longer horizons must activate the
+                // interface and therefore carry the mechanical proof.
+                (stepCount == 1u || activeGlidingContact) &&
+                result.glidingContactForceResidualNewtons <=
+                    1.0e-5 * glidingForceScale &&
+                result.glidingContactMomentResidualNewtonMeters <=
+                    1.0e-6 * glidingForceScale,
+            "pectoralis fascia/body gliding-contact audit failed: samples=" +
+                std::to_string(result.glidingContactSampleCount) +
+            " expected_samples=" +
+                std::to_string(glidingContactSamples.size()) +
+            " closed=" +
+                std::to_string(result.glidingContactClosedSampleCount) +
+            " audited_steps=" +
+                std::to_string(result.glidingContactAuditedStepCount) +
+            " normal_force_n=" +
+                std::to_string(result.glidingContactNormalForceNewtons) +
+            " max_pressure_pa=" +
+                std::to_string(result.glidingContactMaximumPressurePascals) +
+            " max_closure_m=" +
+                std::to_string(result.glidingContactMaximumClosureMeters) +
+            " max_tangent_glide_m=" +
+                std::to_string(
+                    result.glidingContactMaximumTangentialSlipMeters) +
+            " force_residual_n=" +
+                std::to_string(result.glidingContactForceResidualNewtons) +
+            " moment_residual_nm=" +
+                std::to_string(
+                    result.glidingContactMomentResidualNewtonMeters));
     require(accepted.statuses.size() == 1u,
             "pectoralis fascia accepted Matter status is unavailable");
     const NMMatterStatusGPU& acceptedStatus = accepted.statuses.front();
@@ -16297,6 +16501,32 @@ int main(int argc, char** argv) {
                               ? pectoralisFascia->minimumFibreSheetAlignment : 0.0f)
                       << " pectoralis_fascia_min_fibre_group_alignment=" << (pectoralisFascia.has_value()
                               ? pectoralisFascia->minimumFibreGroupAlignment : 0.0f)
+                      << " pectoralis_fascia_gliding_contact_samples=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->glidingContactSampleCount : 0u)
+                      << " pectoralis_fascia_gliding_contact_closed_samples=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->glidingContactClosedSampleCount : 0u)
+                      << " pectoralis_fascia_gliding_contact_audited_steps=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->glidingContactAuditedStepCount : 0u)
+                      << " pectoralis_fascia_gliding_contact_area_m2=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->glidingContactAreaSquareMeters : 0.0f)
+                      << " pectoralis_fascia_gliding_contact_max_normal_force_n=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->glidingContactNormalForceNewtons : 0.0f)
+                      << " pectoralis_fascia_gliding_contact_min_normal_force_n=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->glidingContactMinimumNormalForceNewtons : 0.0f)
+                      << " pectoralis_fascia_gliding_contact_max_pressure_pa=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->glidingContactMaximumPressurePascals : 0.0f)
+                      << " pectoralis_fascia_gliding_contact_stored_energy_j=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->glidingContactStoredEnergyJoules : 0.0f)
+                      << " pectoralis_fascia_gliding_contact_max_normal_strain=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->glidingContactMaximumNormalStrain : 0.0f)
+                      << " pectoralis_fascia_gliding_contact_max_closure_m=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->glidingContactMaximumClosureMeters : 0.0f)
+                      << " pectoralis_fascia_gliding_contact_max_tangent_glide_m=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->glidingContactMaximumTangentialSlipMeters : 0.0f)
+                      << " pectoralis_fascia_gliding_contact_force_residual_n=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->glidingContactForceResidualNewtons : 0.0f)
+                      << " pectoralis_fascia_gliding_contact_moment_residual_nm=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->glidingContactMomentResidualNewtonMeters : 0.0f)
                       << " pectoralis_fascia_steps=" << (pectoralisFascia.has_value()
                               ? pectoralisFascia->completedSteps : 0u)
                       << " pectoralis_fascia_fgmres_iterations=" << (pectoralisFascia.has_value()

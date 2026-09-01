@@ -3,7 +3,7 @@
   "device": "Apple M4 Pro",
   "evidence_level": "one_step",
   "bounded_extension_step_count": 8,
-  "source_base_revision": "88da60f9547507de3641162827850cf9a1c9db4c",
+  "source_base_revision": "3561113777afddbbf2e37965afaddad983772282",
   "anatomy": {
     "mechanism": "direct_EPL_EPB_FPL_APL_without_non_thumb_extensor_hood",
     "source_model": "pinned_MyoSim_full_body",
@@ -32,7 +32,7 @@
     "rollback": "consumer_rejection_preserved_result",
     "rigid_state_authority": "source_route_JT_only"
   },
-  "one_step": {
+  "prior_one_step": {
     "accepted_steps": 1,
     "bilateral_force_relative_difference": 0.0115874102625,
     "right": {
@@ -58,7 +58,7 @@
       "muscle_torque_increment_l1_nm": [1.19436052571, 0.494203758964, 1.83990683801, 0.0664356538327]
     }
   },
-  "eight_step": {
+  "prior_eight_step": {
     "accepted_steps": 8,
     "bilateral_force_relative_difference": 0.0107137763682,
     "right": {
@@ -108,8 +108,38 @@
     "nheq1_sha256": "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a"
   },
   "implementation_artifacts": {
-    "live_probe_source_sha256": "327b0af02f7412732ab2218663fde83d2aca6c87e8cee7c6763026df83450c3b",
-    "qualified_binary_sha256": "a8c9dcd5faf9b5cb8959517c0fc50e091af3b77b97170813a68b158f03d0fb10"
+    "live_probe_source_sha256": "11a44b0eaf8df5afcdcc3ee274c568572968fab6625acb02eba9d1dcb206000c",
+    "qualified_binary_sha256": "dc749aed77352a89cf5d25e5400fa66355f71f3bba988af1ec1fc1a265df68e2"
+  },
+  "current_requalification": {
+    "date": "2026-09-01",
+    "device": "Apple M4 Pro",
+    "one_step": {
+      "accepted_steps": 1,
+      "bilateral_force_relative_difference": 0.00919538337833,
+      "right_maximum_endpoint_force_residual_n": 0.000000238418579102,
+      "right_maximum_endpoint_moment_residual_nm": 0.0000000107203277366,
+      "left_maximum_endpoint_force_residual_n": 0.00000106624031559,
+      "left_maximum_endpoint_moment_residual_nm": 0.0000000115620988339
+    },
+    "eight_step": {
+      "accepted_steps": 8,
+      "bilateral_force_relative_difference": 0.00850035180906,
+      "right_represented_endpoint_force_l1_n": 153.299606323,
+      "left_represented_endpoint_force_l1_n": 151.996505737,
+      "right_maximum_endpoint_force_residual_n": 0.000000476837158203,
+      "right_maximum_endpoint_moment_residual_nm": 0.0000000100306509765,
+      "left_maximum_endpoint_force_residual_n": 0.00000106624031559,
+      "left_maximum_endpoint_moment_residual_nm": 0.0000000124950032543,
+      "right_configuration_increment_l1_rad": 0.00102012064056,
+      "left_configuration_increment_l1_rad": 0.00103745256996
+    },
+    "transaction": {"replay": "bitwise", "rollback": "consumer_rejection_preserved_result"},
+    "transcripts": {
+      "one_step": {"path": "docs/media/numi-human-thumb-tendon-live-v1/m4-pro-current-one-step.txt", "sha256": "e5a088dc0180c51af0ed027a466cb11c54d71f247b45b588d8a534d852c17465"},
+      "eight_step": {"path": "docs/media/numi-human-thumb-tendon-live-v1/m4-pro-current-eight-step.txt", "sha256": "d42a72391d70d95172c299ef2290b80b8243695484f2f1043e40b604d3f8d3ae"}
+    },
+    "visual_provenance": "prior_inspected_close_up_frames_retained_because_the_renderer_and_thumb_presentation_path_are_unchanged;_current_mechanics_are_proven_by_the_new_transcripts"
   },
   "gates": {
     "exact_bilateral_source_muscle_identity": "passed",

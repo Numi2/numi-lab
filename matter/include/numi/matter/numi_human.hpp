@@ -91,6 +91,11 @@ struct NumiHumanTendonFEMLoadSource {
     std::span<const NMNumiHumanFEMContactContributionGPU>
         contactContributions{};
     std::span<const NMIncidenceRangeGPU> contactRanges{};
+    // Optional frictionless gliding contact from FEM surface nodes to
+    // articulated body-following tangent planes. Every sample contributes an
+    // equal-and-opposite body wrench in the same accepted transaction.
+    std::span<const NMNumiHumanFEMBodyContactSampleGPU>
+        femBodyContactSamples{};
     // Optional exact-surface elastic-foundation contact scattered directly as
     // balanced articulated-body wrenches. This avoids duplicating the contact
     // compliance with a full-resolution cartilage volume solve.
@@ -130,6 +135,23 @@ struct NumiHumanTendonFEMLoadDiagnostics {
     double anchorReactionTrajectoryMaximumL1Newtons = 0.0;
     double anchorReactionTrajectoryMaximumResultantNewtons = 0.0;
     std::uint32_t contactSampleCount = 0u;
+    std::uint32_t femBodyContactSampleCount = 0u;
+    std::uint32_t femBodyContactClosedSampleCount = 0u;
+    std::uint32_t femBodyContactAuditedStepCount = 0u;
+    double femBodyContactAreaSquareMeters = 0.0;
+    double femBodyContactNormalForceNewtons = 0.0;
+    double femBodyContactMaximumPressurePascals = 0.0;
+    double femBodyContactForceResidualNewtons = 0.0;
+    double femBodyContactMomentResidualNewtonMeters = 0.0;
+    double femBodyContactStoredEnergyJoules = 0.0;
+    double femBodyContactMaximumNormalStrain = 0.0;
+    double femBodyContactMaximumClosureMeters = 0.0;
+    double femBodyContactMaximumTangentialSlipMeters = 0.0;
+    double femBodyContactTrajectoryMinimumNormalForceNewtons = 0.0;
+    double femBodyContactTrajectoryMaximumNormalForceNewtons = 0.0;
+    double femBodyContactTrajectoryMaximumForceResidualNewtons = 0.0;
+    double femBodyContactTrajectoryMaximumMomentResidualNewtonMeters = 0.0;
+    double femBodyContactTrajectoryMaximumTangentialSlipMeters = 0.0;
     std::uint32_t articularContactSampleCount = 0u;
     std::uint32_t articularMechanicalSampleCount = 0u;
     std::uint32_t articularInternalSameBodySampleCount = 0u;

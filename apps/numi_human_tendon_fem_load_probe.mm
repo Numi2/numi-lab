@@ -37,6 +37,7 @@ int main() {
             object.materialIndex = 0u;
             object.representation = numi::matter::Representation::fem;
             object.mixedFEM = false;
+            object.deformableContact = false;
             object.deformableSelfContact = false;
             object.characteristicLength = 0.01;
             object.femNodes = {
@@ -51,6 +52,10 @@ int main() {
             compileOptions.maximumRateExponent = 0u;
             auto compiled = numi::matter::compileWorld(source, compileOptions);
             require(compiled.succeeded(), "probe world did not compile");
+            require(compiled.world.objects.size() == 1u &&
+                        (compiled.world.objects.front().flags &
+                            NM_OBJECT_DISABLE_DEFORMABLE_CONTACT) != 0u,
+                    "deformable-contact opt-out was not compiled");
 
             numi::matter::Runtime runtime;
             const auto initialized = runtime.initialize(compiled.world, {
@@ -227,6 +232,44 @@ int main() {
             const std::array<NMNumiHumanArticularContactSampleGPU, 2u>
                 articularContactSamples{{
                     articularContactSample, internalArticularContact}};
+            NMNumiHumanFEMBodyContactSampleGPU femBodyContactSample{};
+            femBodyContactSample.slaveNode = 3u;
+            femBodyContactSample.bodyIndex = 0u;
+            femBodyContactSample.flags =
+                NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE;
+            // body 0 is translated +1 mm in x below. This local plane is at
+            // world x=0.5 mm, so the initial x=0 FEM node closes it by
+            // 0.4999 mm after the common 0.1 um roundoff guard.
+            femBodyContactSample.bodyLocalPointAndArea = {
+                -0.0005f, 0.0f, 0.0f, 1.0e-4f};
+            femBodyContactSample
+                .bodyLocalNormalAndReferenceSeparation = {
+                    1.0f, 0.0f, 0.0f, 0.0f};
+            femBodyContactSample
+                .stiffnessAndNormalStrainPerPressure = {
+                    1.0e7f, 1.0e-6f, 0.0f, 0.0f};
+            auto invalidFEMBodyContact = femBodyContactSample;
+            invalidFEMBodyContact
+                .bodyLocalNormalAndReferenceSeparation.x = 2.0f;
+            numi::matter::NumiHumanTendonFEMLoadAdapter
+                rejectedFEMBodyContactAdapter;
+            require(!rejectedFEMBodyContactAdapter.initialize(runtime, {
+                        .nodeLoads = nodeLoads,
+                        .nodeAnchors = nodeAnchors,
+                        .endpointReplacements = std::span(&replacement, 1u),
+                        .contactSamples = std::span(&contactSample, 1u),
+                        .contactContributions = contactContributions,
+                        .contactRanges = contactRanges,
+                        .femBodyContactSamples =
+                            std::span(&invalidFEMBodyContact, 1u),
+                        .articularContactSamples = articularContactSamples,
+                        .endpointCount = 2u,
+                        .environmentCount = 1u,
+                        .productionForceOwnerFraction = 0.1f,
+                    }, {
+                        .metallib = NUMI_MATTER_METALLIB,
+                    }),
+                    "probe malformed FEM/body contact did not fail closed");
             numi::matter::NumiHumanTendonFEMLoadAdapter adapter;
             require(adapter.initialize(runtime, {
                         .nodeLoads = nodeLoads,
@@ -235,6 +278,8 @@ int main() {
                         .contactSamples = std::span(&contactSample, 1u),
                         .contactContributions = contactContributions,
                         .contactRanges = contactRanges,
+                        .femBodyContactSamples =
+                            std::span(&femBodyContactSample, 1u),
                         .articularContactSamples = articularContactSamples,
                         .endpointCount = 2u,
                         .environmentCount = 1u,
@@ -253,6 +298,8 @@ int main() {
                         .contactSamples = std::span(&contactSample, 1u),
                         .contactContributions = contactContributions,
                         .contactRanges = contactRanges,
+                        .femBodyContactSamples =
+                            std::span(&femBodyContactSample, 1u),
                         .articularContactSamples =
                             std::span(&internalArticularContact, 1u),
                         .endpointCount = 2u,
@@ -430,7 +477,7 @@ int main() {
             const float expectedGeneralizedForce =
                 0.1f * (transfers[0u].terminalWorldForce.x -
                         sourceMuscleRow) +
-                acceptedReactionX + 0.9999f;
+                acceptedReactionX + 0.9999f - 0.4999f;
             const float acceptedGeneralizedForce =
                 static_cast<const float*>(
                     generalizedForceBuffer.contents)[1u];
@@ -553,6 +600,33 @@ int main() {
                             1.0e-6 &&
                         diagnostics.articularTrajectoryMaximumMomentResidualNewtonMeters <=
                             1.0e-6 &&
+                        diagnostics.femBodyContactSampleCount == 1u &&
+                        diagnostics.femBodyContactClosedSampleCount == 1u &&
+                        diagnostics.femBodyContactAuditedStepCount == 1u &&
+                        std::abs(
+                            diagnostics.femBodyContactNormalForceNewtons -
+                            0.4999) <= 1.0e-4 &&
+                        std::abs(
+                            diagnostics.femBodyContactMaximumPressurePascals -
+                            4999.0) <= 1.0 &&
+                        diagnostics.femBodyContactForceResidualNewtons <=
+                            1.0e-6 &&
+                        diagnostics
+                            .femBodyContactMomentResidualNewtonMeters <=
+                            1.0e-6 &&
+                        std::abs(
+                            diagnostics.femBodyContactStoredEnergyJoules -
+                            0.000124950005) <= 1.0e-9 &&
+                        std::abs(
+                            diagnostics.femBodyContactMaximumNormalStrain -
+                            0.004999) <= 1.0e-6 &&
+                        std::abs(
+                            diagnostics.femBodyContactMaximumClosureMeters -
+                            0.0004999) <= 1.0e-7 &&
+                        std::abs(
+                            diagnostics
+                                .femBodyContactMaximumTangentialSlipMeters -
+                            0.01) <= 1.0e-6 &&
                         diagnostics.fingerprint != 0u,
                     diagnosticFailure.c_str());
             std::cout
@@ -603,6 +677,19 @@ int main() {
                 << " malformed_articular_contact_rejected=true"
                 << " malformed_articular_reference_normal_rejected=true"
                 << " malformed_articular_adjacency_rejected=true"
+                << " malformed_fem_body_contact_rejected=true"
+                << " fem_body_contact_samples="
+                << diagnostics.femBodyContactSampleCount
+                << " fem_body_contact_closed_samples="
+                << diagnostics.femBodyContactClosedSampleCount
+                << " fem_body_contact_normal_force_n="
+                << diagnostics.femBodyContactNormalForceNewtons
+                << " fem_body_contact_force_residual_n="
+                << diagnostics.femBodyContactForceResidualNewtons
+                << " fem_body_contact_moment_residual_nm="
+                << diagnostics.femBodyContactMomentResidualNewtonMeters
+                << " fem_body_contact_max_tangent_glide_m="
+                << diagnostics.femBodyContactMaximumTangentialSlipMeters
                 << " anchor_reaction_l1_n=" << acceptedReactionL1
                 << " audited_anchor_reaction_min_l1_n="
                 << diagnostics.anchorReactionTrajectoryMinimumL1Newtons
