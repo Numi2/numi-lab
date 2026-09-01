@@ -6671,12 +6671,15 @@ LiveOpenKneeArticularContactCook cookLiveOpenKneeArticularContact(
     };
     const auto worldVectorToLocal = [&](const Point& vector,
                                         const std::uint32_t bodyIndex) {
+        require(bodyIndex < restBodies.size(),
+                "live Open Knee articular owner body is unavailable");
         const MRBodyStateGPU& body = restBodies[bodyIndex];
         const mr_float4 inverse{
             -body.orientation.x, -body.orientation.y,
             -body.orientation.z, body.orientation.w};
         return rotatePoint(inverse, {
-            static_cast<float>(vector[0u]), static_cast<float>(vector[1u]),
+            static_cast<float>(vector[0u]),
+            static_cast<float>(vector[1u]),
             static_cast<float>(vector[2u]), 0.0f});
     };
     LiveOpenKneeArticularContactCook result;
@@ -6698,19 +6701,27 @@ LiveOpenKneeArticularContactCook cookLiveOpenKneeArticularContact(
                 contactModel.samples[pair.firstSample + local];
             require(source.slaveNode < referenceNodes.size(),
                     "live Open Knee contact slave node is unavailable");
-            Point masterPoint{};
+            std::array<Point, 3u> masterTriangle{};
             for (std::uint32_t corner = 0u; corner < 3u; ++corner) {
                 require(source.masterNodes[corner] < referenceNodes.size(),
                         "live Open Knee contact master node is unavailable");
-                for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
-                    masterPoint[axis] += source.masterBarycentric[corner] *
-                        referenceNodes[source.masterNodes[corner]][axis];
-                }
+                masterTriangle[corner] =
+                    referenceNodes[source.masterNodes[corner]];
             }
+            const Point sourceNormal = cross(
+                subtract(masterTriangle[1u], masterTriangle[0u]),
+                subtract(masterTriangle[2u], masterTriangle[0u]));
+            require(dot(sourceNormal, sourceNormal) > 1.0e-20,
+                    "live Open Knee contact master triangle is degenerate");
+            if (dot(sourceNormal, source.referenceNormal) < 0.0)
+                std::swap(masterTriangle[1u], masterTriangle[2u]);
             const mr_float4 slaveLocal = worldPointToLocal(
                 referenceNodes[source.slaveNode], slaveBody);
-            const mr_float4 masterLocal = worldPointToLocal(
-                masterPoint, masterBody);
+            const std::array<mr_float4, 3u> masterLocal{
+                worldPointToLocal(masterTriangle[0u], masterBody),
+                worldPointToLocal(masterTriangle[1u], masterBody),
+                worldPointToLocal(masterTriangle[2u], masterBody),
+            };
             const mr_float4 normalLocal = worldVectorToLocal(
                 source.referenceNormal, masterBody);
             NMNumiHumanArticularContactSampleGPU cooked{};
@@ -6722,16 +6733,18 @@ LiveOpenKneeArticularContactCook cookLiveOpenKneeArticularContact(
             cooked.slaveLocalPointAndArea = {
                 slaveLocal.x, slaveLocal.y, slaveLocal.z,
                 static_cast<float>(source.tributaryAreaSquareMeters)};
-            cooked.masterLocalPointAndReferenceSeparation = {
-                masterLocal.x, masterLocal.y, masterLocal.z,
+            cooked.masterLocalTriangle0AndReferenceSeparation = {
+                masterLocal[0u].x, masterLocal[0u].y, masterLocal[0u].z,
                 static_cast<float>(source.referenceSeparationMeters)};
-            cooked.masterLocalNormalAndStiffness = {
-                normalLocal.x, normalLocal.y, normalLocal.z,
+            cooked.masterLocalTriangle1AndStiffness = {
+                masterLocal[1u].x, masterLocal[1u].y, masterLocal[1u].z,
                 static_cast<float>(
                     pair.effectiveFoundationStiffnessPascalsPerMeter)};
-            cooked.normalStrainPerPressure = {
-                static_cast<float>(maximumLayerNormalStrainPerPressure),
-                0.0f, 0.0f, 0.0f};
+            cooked.masterLocalTriangle2AndNormalStrainPerPressure = {
+                masterLocal[2u].x, masterLocal[2u].y, masterLocal[2u].z,
+                static_cast<float>(maximumLayerNormalStrainPerPressure)};
+            cooked.masterLocalReferenceNormalAndReserved = {
+                normalLocal.x, normalLocal.y, normalLocal.z, 0.0f};
             result.samples.push_back(cooked);
             if (slaveBody == masterBody) {
                 ++result.internalSameBodySampleCount;
@@ -6761,6 +6774,7 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     const double timestepSeconds,
     const std::uint32_t stepCount,
     const double activation,
+    const double qualificationFlexionRadians,
     const std::span<const std::uint32_t> selectedSourceMuscleIndices,
     const bool applySelectedActivationIncrement,
     const bool enableRootAssistance,
@@ -6773,7 +6787,10 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         makeGroundAlignedSupport(model, supportContacts);
     const std::uint32_t kneeQIndex =
         knee.side == metalrobo::NumiHumanKneeSide::left ? 120u : 106u;
-    constexpr double qualificationFlexionRadians = 3.0e-6;
+    require(std::isfinite(qualificationFlexionRadians) &&
+                qualificationFlexionRadians >= 0.0 &&
+                qualificationFlexionRadians <= 1.6,
+            "live Open Knee flexion must be within [0, 1.6] radians");
     require(kneeQIndex < aligned.q.size(),
             "live Open Knee flexion coordinate is unavailable");
     aligned.q[kneeQIndex] = qualificationFlexionRadians;
@@ -11896,6 +11913,21 @@ double parseMuscleActivation(const std::string& value) {
     return result;
 }
 
+double parseOpenKneeFlexionRadians(const std::string& value) {
+    std::size_t parsed = 0u;
+    double result = 0.0;
+    try {
+        result = std::stod(value, &parsed);
+    } catch (const std::exception&) {
+        throw std::runtime_error(
+            "--open-knee-flexion-rad must be a finite decimal from 0 through 1.6");
+    }
+    require(parsed == value.size() && std::isfinite(result) &&
+                result >= 0.0 && result <= 1.6,
+            "--open-knee-flexion-rad must be a finite decimal from 0 through 1.6");
+    return result;
+}
+
 double parsePoseCoordinate(const std::string& value) {
     std::size_t parsed = 0u;
     double result = 0.0;
@@ -12027,6 +12059,7 @@ int main(int argc, char** argv) {
             std::optional<std::filesystem::path> softTissuePayloadPath;
             std::optional<std::filesystem::path> openKneePayloadPath;
             std::optional<std::filesystem::path> openKneeLigamentFEMPath;
+            std::optional<double> openKneeFlexionRadians;
             bool openKneeLiveTissueFEM = false;
             std::optional<std::filesystem::path> skinPayloadPath;
             std::optional<std::filesystem::path> torsoAnatomyPayloadPath;
@@ -12178,6 +12211,12 @@ int main(int argc, char** argv) {
                     require(!openKneeLiveTissueFEM,
                             "--open-knee-live-tissue-fem may be given only once");
                     openKneeLiveTissueFEM = true;
+                } else if (argument == "--open-knee-flexion-rad") {
+                    require(index + 1 < argc &&
+                                !openKneeFlexionRadians.has_value(),
+                            "--open-knee-flexion-rad requires one value and may be given only once");
+                    openKneeFlexionRadians.emplace(
+                        parseOpenKneeFlexionRadians(argv[++index]));
                 } else if (argument == "--open-knee-tissue-fem-snapshot" ||
                            argument == "--open-knee-ligament-fem-snapshot") {
                     require(index + 1 < argc && !openKneeLigamentFEMPath.has_value(),
@@ -12271,6 +12310,7 @@ int main(int argc, char** argv) {
                           << " [--soft-tissue-payload <NHTISS2-or-NHTISS3-or-NHTISS4>]"
                           << " [--open-knee-payload <NHKNEE1>]"
                           << " [--open-knee-live-tissue-fem]"
+                          << " [--open-knee-flexion-rad <0..1.6>]"
                           << " [--open-knee-tissue-fem-snapshot <NHKFEM1-or-NHKFEM2>]"
                           << " [--skin-payload <NHSKIN1>]"
                           << " [--torso-anatomy-payload <NHANAT1>]"
@@ -12679,6 +12719,8 @@ int main(int argc, char** argv) {
                          !pectoralisFasciaPayload.has_value() &&
                          !anteriorThoraxPayload.has_value()),
                     "--open-knee-live-tissue-fem cannot share the single continuum slot with NHKFEM1/2, pectoralis fascia, or anterior thorax");
+            require(!openKneeFlexionRadians.has_value() || openKneeLiveTissueFEM,
+                    "--open-knee-flexion-rad requires --open-knee-live-tissue-fem");
             require(!persistentMetalStand ||
                         (muscleStepSeconds.has_value() &&
                          supportContactPayload.has_value() &&
@@ -13297,6 +13339,7 @@ int main(int argc, char** argv) {
                         *jointEqualityPayload, *muscleStepSeconds,
                         muscleStepCount.value_or(1u),
                         muscleActivation.value_or(0.5),
+                        openKneeFlexionRadians.value_or(3.0e-6),
                         selectedSourceMuscleActivations,
                         selectedTendonControl, standRootAssistance,
                         standRemoveAssistance,

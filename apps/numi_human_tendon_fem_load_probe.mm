@@ -112,12 +112,15 @@ int main() {
                 NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE;
             articularContactSample.slaveLocalPointAndArea = {
                 0.0f, 0.01f, 0.0f, 1.0e-4f};
-            articularContactSample.masterLocalPointAndReferenceSeparation = {
-                0.0f, 0.01f, 0.0f, 0.002f};
-            articularContactSample.masterLocalNormalAndStiffness = {
-                1.0f, 0.0f, 0.0f, 1.0e7f};
-            articularContactSample.normalStrainPerPressure = {
-                1.0e-6f, 0.0f, 0.0f, 0.0f};
+            articularContactSample.masterLocalTriangle0AndReferenceSeparation = {
+                0.0f, 0.0f, 0.0f, 0.002f};
+            articularContactSample.masterLocalTriangle1AndStiffness = {
+                0.0f, 0.02f, 0.0f, 1.0e7f};
+            articularContactSample
+                .masterLocalTriangle2AndNormalStrainPerPressure = {
+                    0.0f, 0.0f, 0.02f, 1.0e-6f};
+            articularContactSample.masterLocalReferenceNormalAndReserved = {
+                1.0f, 0.0f, 0.0f, 0.0f};
             const std::array<NMNumiHumanFEMContactContributionGPU, 4u>
                 contactContributions{{
                     {.sampleIndex = 0u, .role = 1u},
@@ -171,6 +174,27 @@ int main() {
                         .metallib = NUMI_MATTER_METALLIB,
                     }),
                     "probe malformed articular contact did not fail closed");
+            auto invalidReferenceNormal = articularContactSample;
+            invalidReferenceNormal.masterLocalReferenceNormalAndReserved.x =
+                2.0f;
+            numi::matter::NumiHumanTendonFEMLoadAdapter
+                rejectedReferenceNormalAdapter;
+            require(!rejectedReferenceNormalAdapter.initialize(runtime, {
+                        .nodeLoads = nodeLoads,
+                        .nodeAnchors = nodeAnchors,
+                        .endpointReplacements = std::span(&replacement, 1u),
+                        .contactSamples = std::span(&contactSample, 1u),
+                        .contactContributions = contactContributions,
+                        .contactRanges = contactRanges,
+                        .articularContactSamples =
+                            std::span(&invalidReferenceNormal, 1u),
+                        .endpointCount = 2u,
+                        .environmentCount = 1u,
+                        .productionForceOwnerFraction = 0.1f,
+                    }, {
+                        .metallib = NUMI_MATTER_METALLIB,
+                    }),
+                    "probe non-unit articular reference normal did not fail closed");
             auto internalArticularContact = articularContactSample;
             internalArticularContact.masterBodyIndex =
                 internalArticularContact.slaveBodyIndex;
@@ -553,6 +577,7 @@ int main() {
                 << " articular_contact_fem_state_ab=bitwise"
                 << " malformed_contact_rejected=true"
                 << " malformed_articular_contact_rejected=true"
+                << " malformed_articular_reference_normal_rejected=true"
                 << " anchor_reaction_l1_n=" << acceptedReactionL1
                 << " audited_anchor_reaction_min_l1_n="
                 << diagnostics.anchorReactionTrajectoryMinimumL1Newtons

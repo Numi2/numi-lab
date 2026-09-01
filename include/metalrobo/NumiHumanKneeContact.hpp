@@ -86,10 +86,12 @@ struct NumiHumanKneeContactDiagnostics {
     }
 };
 
-// Builds fixed closest-point correspondences for the seven authored Open
-// Knee(s) cartilage/meniscus contact pairs. This is a small-deformation,
-// frictionless elastic-foundation operator; it does not silently admit the
-// payload's ligament collision pairs.
+// Builds exact source-triangle correspondences for the seven authored Open
+// Knee(s) cartilage/meniscus contact pairs. Runtime evaluation projects each
+// slave point onto its current paired triangle and recomputes the current
+// surface normal. This bounded, frictionless elastic-foundation operator does
+// not silently admit the payload's ligament collision pairs or claim a global
+// closest-surface search.
 [[nodiscard]] NumiHumanKneeContactDiagnostics
 buildNumiHumanKneeArticularContactModel(
     const NumiHumanKneePayload& payload,

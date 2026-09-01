@@ -400,7 +400,8 @@ NumiHumanKneeContactDiagnostics buildNumiHumanKneeArticularContactModel(
             if (!std::isfinite(closest.closest.squaredDistance))
                 return fail(NumiHumanKneeContactStatus::invalidTopology,
                             "articular closest-point query failed", pairIndex);
-            Point separation = subtract(slavePoint, closest.closest.point);
+            const Point separation = subtract(
+                slavePoint, closest.closest.point);
             const double separationLength = length(separation);
             Point normal{};
             if (separationLength > 1.0e-10) {
@@ -479,14 +480,36 @@ NumiHumanKneeContactDiagnostics evaluateNumiHumanKneeContact(
                 currentWorldNodes[sample.masterNodes[1u]],
                 currentWorldNodes[sample.masterNodes[2u]],
             };
-            const Point masterPoint = barycentricPoint(
-                masterTriangle, sample.masterBarycentric);
+            const ClosestPoint closest = closestPointOnTriangle(
+                currentWorldNodes[sample.slaveNode], masterTriangle);
+            const Point masterPoint = closest.point;
             const Point separation = subtract(
                 currentWorldNodes[sample.slaveNode], masterPoint);
-            const double signedSeparation = dot(
-                separation, sample.referenceNormal);
-            const double gapChange = signedSeparation -
+            const double separationLength = length(separation);
+            Point normal{};
+            if (separationLength > 1.0e-12) {
+                normal = scale(separation, 1.0 / separationLength);
+            } else {
+                normal = cross(
+                    subtract(masterTriangle[1u], masterTriangle[0u]),
+                    subtract(masterTriangle[2u], masterTriangle[0u]));
+                const double normalLength = length(normal);
+                if (!(std::isfinite(normalLength) && normalLength > 1.0e-12))
+                    return fail(NumiHumanKneeContactStatus::numericalFailure,
+                                "current articular triangle is degenerate",
+                                pairIndex);
+                normal = scale(normal, 1.0 / normalLength);
+            }
+            if (dot(normal, sample.referenceNormal) < 0.0)
+                normal = scale(normal, -1.0);
+            const double signedSeparation = dot(separation, normal);
+            const double rawGapChange = signedSeparation -
                 sample.referenceSeparationMeters;
+            // Recomputing the closest point can differ from the reference
+            // BVH projection by a few ulps. Preserve the exact preload-free
+            // state without weakening any resolved geometric closure.
+            const double gapChange = std::abs(rawGapChange) <= 1.0e-12
+                ? 0.0 : rawGapChange;
             const double overclosure = std::max(
                 0.0, prescribedClosureMeters - gapChange);
             pairResult.minimumGapChangeMeters = std::min(
@@ -501,13 +524,12 @@ NumiHumanKneeContactDiagnostics evaluateNumiHumanKneeContact(
                   std::isfinite(forceMagnitude) && forceMagnitude >= 0.0))
                 return fail(NumiHumanKneeContactStatus::numericalFailure,
                             "articular contact force is non-finite", pairIndex);
-            const Point slaveForce = scale(
-                sample.referenceNormal, forceMagnitude);
+            const Point slaveForce = scale(normal, forceMagnitude);
             result.nodalForcesNewtons[sample.slaveNode] = add(
                 result.nodalForcesNewtons[sample.slaveNode], slaveForce);
             for (std::uint32_t corner = 0u; corner < 3u; ++corner) {
                 const Point masterForce = scale(
-                    slaveForce, -sample.masterBarycentric[corner]);
+                    slaveForce, -closest.barycentric[corner]);
                 result.nodalForcesNewtons[sample.masterNodes[corner]] = add(
                     result.nodalForcesNewtons[sample.masterNodes[corner]],
                     masterForce);

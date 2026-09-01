@@ -118,10 +118,11 @@ typedef struct NM_ALIGN16 NMNumiHumanFEMContactContributionGPU {
     nm_u32 reserved1;
 } NMNumiHumanFEMContactContributionGPU;
 
-// Exact fixed-correspondence elastic-foundation contact between two articulated
-// bodies. Points and normal are stored in their owning body frames; the live
-// Metal pose supplies current separation. Equal/opposite wrenches are reduced
-// per body before generalized-force scatter.
+// Exact paired-triangle elastic-foundation contact between two articulated
+// bodies. The slave point and all three vertices of its source master triangle
+// are stored in their owning body frames. Live Metal poses supply the current
+// triangle, closest point, normal, and separation. Equal/opposite wrenches are
+// reduced per body before generalized-force scatter.
 typedef struct NM_ALIGN16 NMNumiHumanArticularContactSampleGPU {
     nm_u32 slaveBodyIndex;
     nm_u32 masterBodyIndex;
@@ -129,14 +130,19 @@ typedef struct NM_ALIGN16 NMNumiHumanArticularContactSampleGPU {
     nm_u32 reserved0;
     // xyz slave-body local point; w tributary area [m^2].
     nm_float4 slaveLocalPointAndArea;
-    // xyz master-body local closest point; w reference signed separation [m].
-    nm_float4 masterLocalPointAndReferenceSeparation;
-    // xyz master-body local unit normal; w pressure/closure stiffness [Pa/m].
-    nm_float4 masterLocalNormalAndStiffness;
-    // x maximum layer-normal strain per unit pressure [1/Pa]. This is the
-    // more compliant of the two contacting elastic-foundation layers. yzw
-    // are reserved and must be zero.
-    nm_float4 normalStrainPerPressure;
+    // xyz first master-triangle vertex; w reference signed separation [m].
+    nm_float4 masterLocalTriangle0AndReferenceSeparation;
+    // xyz second master-triangle vertex; w pressure/closure stiffness [Pa/m].
+    nm_float4 masterLocalTriangle1AndStiffness;
+    // xyz third master-triangle vertex. The cooked winding points toward the
+    // slave in the reference configuration. w is the maximum layer-normal
+    // strain per unit pressure [1/Pa] of the two contacting foundation layers.
+    nm_float4 masterLocalTriangle2AndNormalStrainPerPressure;
+    // xyz reference contact normal in the master-body frame. It orients the
+    // live closest-point normal through face, edge, and vertex regions so a
+    // slave crossing the surface cannot silently flip its repulsive side.
+    // w is reserved and must be zero.
+    nm_float4 masterLocalReferenceNormalAndReserved;
 } NMNumiHumanArticularContactSampleGPU;
 
 enum NMNumiHumanPassiveLigamentFlags : nm_u32 {
@@ -213,7 +219,7 @@ static_assert(sizeof(NMNumiHumanTendonFEMNodeAnchorGPU) == 32u);
 static_assert(sizeof(NMNumiHumanTendonFEMEndpointReplacementGPU) == 32u);
 static_assert(sizeof(NMNumiHumanFEMContactSampleGPU) == 64u);
 static_assert(sizeof(NMNumiHumanFEMContactContributionGPU) == 16u);
-static_assert(sizeof(NMNumiHumanArticularContactSampleGPU) == 80u);
+static_assert(sizeof(NMNumiHumanArticularContactSampleGPU) == 96u);
 static_assert(sizeof(NMNumiHumanPassiveLigamentGPU) == 80u);
 static_assert(sizeof(NMNumiHumanPassiveLigamentAuditGPU) == 48u);
 static_assert(sizeof(NMNumiHumanBodyWrenchGPU) == 32u);

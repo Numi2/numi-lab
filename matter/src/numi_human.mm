@@ -383,13 +383,29 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
     }
     for (const auto& sample : source.articularContactSamples) {
         const nm_float4 slave = sample.slaveLocalPointAndArea;
-        const nm_float4 master =
-            sample.masterLocalPointAndReferenceSeparation;
-        const nm_float4 normal = sample.masterLocalNormalAndStiffness;
-        const nm_float4 strain = sample.normalStrainPerPressure;
-        const double normalLength = std::sqrt(
-            normal.x * normal.x + normal.y * normal.y +
-            normal.z * normal.z);
+        const nm_float4 triangle0 =
+            sample.masterLocalTriangle0AndReferenceSeparation;
+        const nm_float4 triangle1 =
+            sample.masterLocalTriangle1AndStiffness;
+        const nm_float4 triangle2 =
+            sample.masterLocalTriangle2AndNormalStrainPerPressure;
+        const nm_float4 referenceNormal =
+            sample.masterLocalReferenceNormalAndReserved;
+        const double edge10x = triangle1.x - triangle0.x;
+        const double edge10y = triangle1.y - triangle0.y;
+        const double edge10z = triangle1.z - triangle0.z;
+        const double edge20x = triangle2.x - triangle0.x;
+        const double edge20y = triangle2.y - triangle0.y;
+        const double edge20z = triangle2.z - triangle0.z;
+        const double normalX = edge10y * edge20z - edge10z * edge20y;
+        const double normalY = edge10z * edge20x - edge10x * edge20z;
+        const double normalZ = edge10x * edge20y - edge10y * edge20x;
+        const double squaredNormalLength = normalX * normalX +
+            normalY * normalY + normalZ * normalZ;
+        const double referenceNormalLength = std::sqrt(
+            referenceNormal.x * referenceNormal.x +
+            referenceNormal.y * referenceNormal.y +
+            referenceNormal.z * referenceNormal.z);
         const bool sameBody =
             sample.slaveBodyIndex == sample.masterBodyIndex;
         const std::uint32_t expectedFlags = sameBody
@@ -399,12 +415,14 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
             sample.masterBodyIndex == NM_INVALID_INDEX ||
             sample.flags != expectedFlags ||
             sample.reserved0 != 0u || !finiteScale(slave) ||
-            !finiteScale(master) || !finiteScale(normal) ||
-            !finiteScale(strain) ||
+            !finiteScale(triangle0) || !finiteScale(triangle1) ||
+            !finiteScale(triangle2) || !finiteScale(referenceNormal) ||
             slave.w <= 0.0f ||
-            std::abs(normalLength - 1.0) > 1.0e-5 || normal.w <= 0.0f ||
-            strain.x <= 0.0f || strain.y != 0.0f || strain.z != 0.0f ||
-            strain.w != 0.0f) {
+            !(std::isfinite(squaredNormalLength) &&
+              squaredNormalLength > 1.0e-20) ||
+            triangle1.w <= 0.0f || triangle2.w <= 0.0f ||
+            std::abs(referenceNormalLength - 1.0) > 1.0e-5 ||
+            referenceNormal.w != 0.0f) {
             return false;
         }
     }

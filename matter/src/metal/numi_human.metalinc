@@ -14,6 +14,106 @@ inline float3 humanQuaternionRotate(const float4 quaternion, const float3 value)
         cross(quaternion.xyz, doubledCross);
 }
 
+// Christer Ericson's Voronoi-region tests. Keeping this query identical in
+// spirit to the CPU reference gives edge and vertex contacts the normal-cone
+// direction from the current closest point, rather than an artificial face
+// normal or a frozen reference projection.
+inline float3 humanClosestPointOnTriangle(
+    const float3 point,
+    const float3 a,
+    const float3 b,
+    const float3 c
+) {
+    const float3 ab = b - a;
+    const float3 ac = c - a;
+    const float3 ap = point - a;
+    const float d1 = dot(ab, ap);
+    const float d2 = dot(ac, ap);
+    if (d1 <= 0.0f && d2 <= 0.0f) return a;
+
+    const float3 bp = point - b;
+    const float d3 = dot(ab, bp);
+    const float d4 = dot(ac, bp);
+    if (d3 >= 0.0f && d4 <= d3) return b;
+
+    const float vc = d1 * d4 - d3 * d2;
+    if (vc <= 0.0f && d1 >= 0.0f && d3 <= 0.0f) {
+        const float v = d1 / (d1 - d3);
+        return a + v * ab;
+    }
+
+    const float3 cp = point - c;
+    const float d5 = dot(ab, cp);
+    const float d6 = dot(ac, cp);
+    if (d6 >= 0.0f && d5 <= d6) return c;
+
+    const float vb = d5 * d2 - d1 * d6;
+    if (vb <= 0.0f && d2 >= 0.0f && d6 <= 0.0f) {
+        const float w = d2 / (d2 - d6);
+        return a + w * ac;
+    }
+
+    const float va = d3 * d6 - d5 * d4;
+    if (va <= 0.0f && (d4 - d3) >= 0.0f &&
+        (d5 - d6) >= 0.0f) {
+        const float w = (d4 - d3) /
+            ((d4 - d3) + (d5 - d6));
+        return b + w * (c - b);
+    }
+
+    const float inverse = 1.0f / (va + vb + vc);
+    const float v = vb * inverse;
+    const float w = vc * inverse;
+    return a + v * ab + w * ac;
+}
+
+inline bool humanArticularContactState(
+    const NMNumiHumanArticularContactSampleGPU sample,
+    const MRArticulatedBodyPoseGPU slavePose,
+    const MRArticulatedBodyPoseGPU masterPose,
+    thread float3& slavePoint,
+    thread float3& masterPoint,
+    thread float3& normal,
+    thread float& closure
+) {
+    slavePoint = slavePose.position.xyz + humanQuaternionRotate(
+        slavePose.orientation, sample.slaveLocalPointAndArea.xyz);
+    const float3 triangle0 = masterPose.position.xyz + humanQuaternionRotate(
+        masterPose.orientation,
+        sample.masterLocalTriangle0AndReferenceSeparation.xyz);
+    const float3 triangle1 = masterPose.position.xyz + humanQuaternionRotate(
+        masterPose.orientation,
+        sample.masterLocalTriangle1AndStiffness.xyz);
+    const float3 triangle2 = masterPose.position.xyz + humanQuaternionRotate(
+        masterPose.orientation,
+        sample.masterLocalTriangle2AndNormalStrainPerPressure.xyz);
+    const float3 rawFaceNormal = cross(
+        triangle1 - triangle0, triangle2 - triangle0);
+    const float squaredFaceNormalLength = dot(rawFaceNormal, rawFaceNormal);
+    if (!finite4(float4(slavePoint, squaredFaceNormalLength)) ||
+        squaredFaceNormalLength <= 1.0e-20f) return false;
+    masterPoint = humanClosestPointOnTriangle(
+        slavePoint, triangle0, triangle1, triangle2);
+    const float3 separationVector = slavePoint - masterPoint;
+    const float squaredSeparationLength = dot(
+        separationVector, separationVector);
+    const float3 referenceNormal = humanQuaternionRotate(
+        masterPose.orientation,
+        sample.masterLocalReferenceNormalAndReserved.xyz);
+    if (!finite4(float4(masterPoint, squaredSeparationLength)) ||
+        !finite4(float4(referenceNormal, 0.0f))) return false;
+    normal = squaredSeparationLength > 1.0e-20f
+        ? separationVector * rsqrt(squaredSeparationLength)
+        : rawFaceNormal * rsqrt(squaredFaceNormalLength);
+    if (dot(normal, referenceNormal) < 0.0f) normal = -normal;
+    const float separation = dot(separationVector, normal);
+    closure = max(
+        0.0f,
+        sample.masterLocalTriangle0AndReferenceSeparation.w - separation -
+            1.0e-7f);
+    return finite4(float4(masterPoint, closure)) && finite4(float4(normal, 0.0f));
+}
+
 inline float3 humanAngularJacobian(
     const uint environment,
     const uint dof,
@@ -287,12 +387,26 @@ kernel void nm_numi_human_prepare_provisional_status(
             validBody(sample.masterBodyIndex, dispatch) &&
             finite4(sample.slaveLocalPointAndArea) &&
             sample.slaveLocalPointAndArea.w > 0.0f &&
-            finite4(sample.masterLocalPointAndReferenceSeparation) &&
-            finite4(sample.masterLocalNormalAndStiffness) &&
-            sample.masterLocalNormalAndStiffness.w > 0.0f &&
-            finite4(sample.normalStrainPerPressure) &&
-            sample.normalStrainPerPressure.x > 0.0f &&
-            all(sample.normalStrainPerPressure.yzw == float3(0.0f));
+            finite4(sample.masterLocalTriangle0AndReferenceSeparation) &&
+            finite4(sample.masterLocalTriangle1AndStiffness) &&
+            sample.masterLocalTriangle1AndStiffness.w > 0.0f &&
+            finite4(sample.masterLocalTriangle2AndNormalStrainPerPressure) &&
+            sample.masterLocalTriangle2AndNormalStrainPerPressure.w > 0.0f &&
+            finite4(sample.masterLocalReferenceNormalAndReserved) &&
+            abs(length(sample.masterLocalReferenceNormalAndReserved.xyz) -
+                1.0f) <= 1.0e-5f &&
+            sample.masterLocalReferenceNormalAndReserved.w == 0.0f &&
+            dot(cross(
+                    sample.masterLocalTriangle1AndStiffness.xyz -
+                        sample.masterLocalTriangle0AndReferenceSeparation.xyz,
+                    sample.masterLocalTriangle2AndNormalStrainPerPressure.xyz -
+                        sample.masterLocalTriangle0AndReferenceSeparation.xyz),
+                cross(
+                    sample.masterLocalTriangle1AndStiffness.xyz -
+                        sample.masterLocalTriangle0AndReferenceSeparation.xyz,
+                    sample.masterLocalTriangle2AndNormalStrainPerPressure.xyz -
+                        sample.masterLocalTriangle0AndReferenceSeparation.xyz)) >
+                1.0e-20f;
         if (accepted) {
             const MRArticulatedBodyPoseGPU slavePose = bodyPoses[
                 environment * dispatch.bodyPoseStride +
@@ -473,23 +587,15 @@ kernel void nm_numi_human_assemble_articular_contact_wrenches(
             poseBase + sample.slaveBodyIndex - dispatch.articulationFirstBody];
         const MRArticulatedBodyPoseGPU masterPose = bodyPoses[
             poseBase + sample.masterBodyIndex - dispatch.articulationFirstBody];
-        const float3 slavePoint = slavePose.position.xyz +
-            humanQuaternionRotate(
-                slavePose.orientation, sample.slaveLocalPointAndArea.xyz);
-        const float3 masterPoint = masterPose.position.xyz +
-            humanQuaternionRotate(
-                masterPose.orientation,
-                sample.masterLocalPointAndReferenceSeparation.xyz);
-        const float3 normal = humanQuaternionRotate(
-            masterPose.orientation,
-            sample.masterLocalNormalAndStiffness.xyz);
-        const float separation = dot(slavePoint - masterPoint, normal);
-        const float closure = max(
-            0.0f,
-            sample.masterLocalPointAndReferenceSeparation.w - separation -
-                1.0e-7f);
+        float3 slavePoint;
+        float3 masterPoint;
+        float3 normal;
+        float closure;
+        if (!humanArticularContactState(
+                sample, slavePose, masterPose, slavePoint, masterPoint,
+                normal, closure)) continue;
         const float3 sampleForce = normal * (
-            sample.masterLocalNormalAndStiffness.w * closure *
+            sample.masterLocalTriangle1AndStiffness.w * closure *
             sample.slaveLocalPointAndArea.w);
         const bool slaveOwner = sample.slaveBodyIndex == bodyIndex;
         const float3 ownedForce = slaveOwner ? sampleForce : -sampleForce;
@@ -547,24 +653,16 @@ kernel void nm_numi_human_audit_articular_contact_wrenches(
             poseBase + sample.slaveBodyIndex - dispatch.articulationFirstBody];
         const MRArticulatedBodyPoseGPU masterPose = bodyPoses[
             poseBase + sample.masterBodyIndex - dispatch.articulationFirstBody];
-        const float3 slavePoint = slavePose.position.xyz +
-            humanQuaternionRotate(
-                slavePose.orientation, sample.slaveLocalPointAndArea.xyz);
-        const float3 masterPoint = masterPose.position.xyz +
-            humanQuaternionRotate(
-                masterPose.orientation,
-                sample.masterLocalPointAndReferenceSeparation.xyz);
-        const float3 normal = humanQuaternionRotate(
-            masterPose.orientation,
-            sample.masterLocalNormalAndStiffness.xyz);
-        const float separation = dot(slavePoint - masterPoint, normal);
-        const float closure = max(
-            0.0f,
-            sample.masterLocalPointAndReferenceSeparation.w - separation -
-                1.0e-7f);
+        float3 slavePoint;
+        float3 masterPoint;
+        float3 normal;
+        float closure;
+        if (!humanArticularContactState(
+                sample, slavePose, masterPose, slavePoint, masterPoint,
+                normal, closure)) continue;
         if (closure <= 0.0f) continue;
         const float pressure =
-            sample.masterLocalNormalAndStiffness.w * closure;
+            sample.masterLocalTriangle1AndStiffness.w * closure;
         normalForce += pressure * sample.slaveLocalPointAndArea.w;
         contactArea += sample.slaveLocalPointAndArea.w;
         closedSamples += 1.0f;
@@ -573,7 +671,8 @@ kernel void nm_numi_human_audit_articular_contact_wrenches(
             sample.slaveLocalPointAndArea.w;
         maximumNormalStrain = max(
             maximumNormalStrain,
-            pressure * sample.normalStrainPerPressure.x);
+            pressure *
+                sample.masterLocalTriangle2AndNormalStrainPerPressure.w);
         maximumClosure = max(maximumClosure, closure);
     }
     audits[environment].forceResidualAndL1 =

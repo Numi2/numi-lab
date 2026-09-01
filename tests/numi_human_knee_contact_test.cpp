@@ -105,6 +105,44 @@ int main() {
                              prescribed.forceL1Newtons - 0.5) < 1.0e-10,
                 "geometric closure did not drive the foundation law");
 
+        auto sliding = compressed;
+        for (std::uint32_t node = 3u; node < 6u; ++node)
+            sliding[node][0u] += 0.1;
+        metalrobo::NumiHumanKneeContactResult projected;
+        diagnostics = metalrobo::evaluateNumiHumanKneeContact(
+            model, sliding, 0.0, projected);
+        require(diagnostics.succeeded() && projected.forceL1Newtons > 0.0 &&
+                    length(projected.forceResidualNewtons) < 1.0e-8 &&
+                    length(projected.momentResidualNewtonMeters) < 1.0e-8,
+                "current-triangle projection does not conserve force and moment");
+
+        constexpr double angle = 0.4;
+        const std::array<double, 3u> rotatedNormal{
+            0.0, -std::sin(angle), std::cos(angle)};
+        auto rotated = reference;
+        for (auto& point : rotated) {
+            const double y = point[1u];
+            const double z = point[2u];
+            point[1u] = std::cos(angle) * y - std::sin(angle) * z;
+            point[2u] = std::sin(angle) * y + std::cos(angle) * z;
+        }
+        for (std::uint32_t node = 3u; node < 6u; ++node) {
+            for (std::uint32_t axis = 0u; axis < 3u; ++axis)
+                rotated[node][axis] -= 0.5 * closure * rotatedNormal[axis];
+        }
+        metalrobo::NumiHumanKneeContactResult rotatedSurface;
+        diagnostics = metalrobo::evaluateNumiHumanKneeContact(
+            model, rotated, 0.0, rotatedSurface);
+        require(diagnostics.succeeded() &&
+                    std::abs(rotatedSurface.forceL1Newtons /
+                             prescribed.forceL1Newtons - 0.5) < 1.0e-10 &&
+                    rotatedSurface.nodalForcesNewtons[3u][1u] < 0.0 &&
+                    std::abs(
+                        rotatedSurface.nodalForcesNewtons[3u][1u] /
+                        rotatedSurface.nodalForcesNewtons[3u][2u] +
+                        std::tan(angle)) < 1.0e-10,
+                "current master-triangle normal was not recomputed");
+
         auto separated = reference;
         for (std::uint32_t node = 3u; node < 6u; ++node)
             separated[node][2u] += closure;
