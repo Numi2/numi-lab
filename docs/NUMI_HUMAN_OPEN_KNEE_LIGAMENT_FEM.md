@@ -158,6 +158,28 @@ in
 The right knee is a sagittal mirror registered into the live right-body frames,
 not an independently segmented right subject.
 
+## Source-directed transverse-isotropic v3 qualification
+
+Revision `5882143` admits the six Open Knee ligament/tendon regions only when
+their FEBio-authored homogeneous fibre axes and material parameters survive the
+`NHTENDON3` ABI. The Matter law is an explicitly labelled smooth,
+source-shaped approximation; source in-situ stretches remain serialized but
+the qualified step uses neutral stretch pending staged prestress equilibrium.
+
+The left live Human qualification transferred `2765.11 N` from the four
+quadriceps routes through QAT and `2787.97 N` through PTL. Patellar/tibial PTL
+reactions were `2787.83/2788.34 N`; the `264442`-tet transaction retained a
+Jacobian range of `0.99976-1.00028`, bitwise replay, and rejected-step
+rollback. The seven articular pairs evaluated `69701` samples with force and
+moment residuals below `7.7e-9`. Four inspected `512x512` live frames and a
+machine-readable receipt are retained in
+[`numi-human-open-knee-transiso-v3-left`](media/numi-human-open-knee-transiso-v3-left/).
+
+The bilateral nonvisual probe separately passed for left and mirrored-right
+source axes. The right-side fibre x components reverse sign while y/z remain
+preserved. This is a reflection/registration check, not independently
+segmented right-knee evidence.
+
 ## Evidence boundary
 
 The original `NHKFEM1/2` result is an exact-topology attachment,

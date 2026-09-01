@@ -1,0 +1,45 @@
+{
+  "schema": "numi-human-open-knee-transiso-qualification.v1",
+  "qualified_code_revision": "5882143",
+  "device": "Apple M4 Pro",
+  "side": "left",
+  "input": {
+    "payload_sha256": "c5116b2cff086dae43e71a282ca5a15088b682875af4f0c0c1beb563fa255b4e",
+    "febio_custom_sha256": "00b6efb53ad7e7330296cbb9569d358d48ed60819e22732e6149db6fb98a158a",
+    "abi": "NHTENDON3/2",
+    "source_fibre_regions": 6,
+    "applied_initial_stretch": 1.0,
+    "source_initial_stretch_serialized": true
+  },
+  "live_human": {
+    "regions": 6,
+    "nodes": 62402,
+    "tetrahedra": 264442,
+    "quadriceps_routes": 4,
+    "maximum_displacement_m": 2.5474e-7,
+    "minimum_jacobian": 0.99976,
+    "maximum_jacobian": 1.00028,
+    "quadriceps_resultant_n": 2765.11,
+    "quadriceps_enthesis_reaction_n": 2765.26,
+    "ptl_resultant_n": 2787.97,
+    "ptl_patella_reaction_n": 2787.83,
+    "ptl_tibia_reaction_n": 2788.34,
+    "articular_samples": 69701,
+    "closed_articular_samples": 1077,
+    "articular_force_residual_n": 7.68e-9,
+    "articular_moment_residual_nm": 7.48e-9,
+    "bitwise_replay": true,
+    "rejected_step_rollback": true
+  },
+  "render": {
+    "resolution": [512, 512],
+    "temporal_area_light_samples": 32,
+    "frames": {
+      "front.png": "484796f3b7f50d3975e0fe142aa1cec896e1b01194d89d57eaaff1b384a74c40",
+      "oblique.png": "d4e7e400693c91b6fbe866cea8b964a75a04752f80c5cb223a301b519a243811",
+      "side.png": "9c9c470aea95a657383437dd409a6dfcc0b081abc681bef8a64d3c5c06688b0c",
+      "rear.png": "b6b5844460739f1d160a097040c9cb03b39d751544d86b3a0a472c6ca93f2b42"
+    }
+  },
+  "evidence_boundary": "Source homogeneous fibres and parameters drive a smooth GPU approximation at neutral stretch. This is not the exact FEBio Ei law, staged prestress equilibrium, spatially varying fibres, sustained gait, or clinical validation."
+}
