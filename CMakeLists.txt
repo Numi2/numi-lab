@@ -843,6 +843,7 @@ add_library(
     src/core/NumiHumanCartilage.cpp
     src/core/NumiHumanKnee.cpp
     src/core/NumiHumanKneeContact.cpp
+    src/core/NumiHumanContinuumMap.cpp
     src/core/ArticulatedJointLimits.cpp
     src/core/ArticulatedContact.cpp
     src/core/CoupledArticulatedRigidContact.cpp
@@ -1269,6 +1270,35 @@ if(METALROBO_HAS_SWIFT)
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
             BUILD_RPATH "@loader_path/../lib"
             INSTALL_RPATH "@loader_path/../lib"
+    )
+endif()
+
+if(BUILD_TESTING)
+    add_executable(
+        metalrobo_numi_human_continuum_map_test
+        tests/numi_human_continuum_map_test.cpp
+    )
+    target_link_libraries(
+        metalrobo_numi_human_continuum_map_test
+        PRIVATE metalrobo
+    )
+    target_compile_options(
+        metalrobo_numi_human_continuum_map_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror
+    )
+    set_target_properties(
+        metalrobo_numi_human_continuum_map_test
+        PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+    )
+    add_test(
+        NAME numi_human_continuum_map
+        COMMAND metalrobo_numi_human_continuum_map_test
+    )
+    set_tests_properties(
+        numi_human_continuum_map
+        PROPERTIES LABELS "numi-human;anatomy;continuum"
     )
 endif()
 

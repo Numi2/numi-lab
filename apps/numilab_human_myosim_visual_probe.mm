@@ -8,6 +8,7 @@
 #include "metalrobo/MetalMultiArticulatedContact.hpp"
 #include "metalrobo/MultiArticulatedContact.hpp"
 #include "metalrobo/MujocoMuscleReference.hpp"
+#include "metalrobo/NumiHumanContinuumMap.hpp"
 #include "metalrobo/NumiHumanJointEquality.hpp"
 #include "metalrobo/NumiHumanKnee.hpp"
 #include "metalrobo/NumiHumanKneeContact.hpp"
@@ -116,6 +117,10 @@ struct LoadedOpenKneeLigamentFEM {
     std::array<double, 3u> maximumAnchorTargetResidualMeters{};
     std::vector<MRBodyStateGPU> projectedRestBodies;
     double qualificationFlexionRadians = 0.0;
+    double initialContinuumMapMaximumDisplacementMeters = 0.0;
+    double initialContinuumMapMaximumAnchorResidualMeters = 0.0;
+    double initialContinuumMapMinimumJacobian = 1.0;
+    double initialContinuumMapMaximumJacobian = 1.0;
     double maximumProjectedRestVisualCorrectionMeters = 0.0;
     double maximumProjectedRestReconstructionResidualMeters = 0.0;
     std::uint32_t quadricepsEndpointCount = 0u;
@@ -6890,27 +6895,19 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         << " adjacent_candidates="
         << articularContact.adjacentCandidateCount
         << "\n" << std::flush;
-    const MRBodyStateGPU& restFemur = restBodies[bodyIndices[0u]];
-    const MRBodyStateGPU& referenceFemur = referenceBodies[bodyIndices[0u]];
-    const mr_float4 inverseRestFemurOrientation{
-        -restFemur.orientation.x, -restFemur.orientation.y,
-        -restFemur.orientation.z, restFemur.orientation.w};
-    const auto moveWithFemur = [&](const std::array<float, 3u>& point) {
-        const mr_float4 sourceWorld{point[0u], point[1u], point[2u], 1.0f};
-        const mr_float4 local = rotatePoint(
-            inverseRestFemurOrientation,
-            femSubtract(sourceWorld, restFemur.position));
-        mr_float4 moved = femAdd(
-            referenceFemur.position,
-            rotatePoint(referenceFemur.orientation, local));
-        moved.w = 1.0f;
-        return moved;
-    };
-    const auto moveVectorWithFemur = [&](const std::array<float, 3u>& vector) {
+    const auto moveVectorWithBody = [
+        &restBodies, &referenceBodies](
+        const std::array<float, 3u>& vector,
+        const std::uint32_t bodyIndex) {
+        const MRBodyStateGPU& restBody = restBodies[bodyIndex];
+        const MRBodyStateGPU& referenceBody = referenceBodies[bodyIndex];
+        const mr_float4 inverseRestOrientation{
+            -restBody.orientation.x, -restBody.orientation.y,
+            -restBody.orientation.z, restBody.orientation.w};
         const mr_float4 sourceWorld{vector[0u], vector[1u], vector[2u], 0.0f};
         const mr_float4 local = rotatePoint(
-            inverseRestFemurOrientation, sourceWorld);
-        mr_float4 moved = rotatePoint(referenceFemur.orientation, local);
+            inverseRestOrientation, sourceWorld);
+        mr_float4 moved = rotatePoint(referenceBody.orientation, local);
         moved.w = 0.0f;
         const double norm = std::sqrt(
             static_cast<double>(moved.x) * moved.x +
@@ -6980,6 +6977,11 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         endpointReplacements;
     std::vector<NMNumiHumanPassiveLigamentGPU> passiveLigaments;
     std::vector<mr_float4> initialWorldNodes(totalNodes);
+    double initialMapMaximumDisplacementMeters = 0.0;
+    double initialMapMaximumAnchorResidualMeters = 0.0;
+    double initialMapMinimumJacobian =
+        std::numeric_limits<double>::infinity();
+    double initialMapMaximumJacobian = 0.0;
 
     for (LiveOpenKneeRegion& runtimeRegion : regions) {
         const auto& region = knee.regions[runtimeRegion.payloadRegion];
@@ -6987,8 +6989,11 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         material.name = "open_knee_" + region.name +
             "_live_human_transverse_isotropic_smooth";
         material.fingerprint = 0u;
-        const auto fiber = moveVectorWithFemur(
-            region.material.homogeneousFiberWorld);
+        const std::uint32_t fiberOwnerBody = region.name == "QAT"
+            ? bodyIndices[2u]
+            : region.name == "PTL" ? bodyIndices[2u] : bodyIndices[0u];
+        const auto fiber = moveVectorWithBody(
+            region.material.homogeneousFiberWorld, fiberOwnerBody);
         setLiveOpenKneeMaterialParameter(material, "density", 1000.0);
         setLiveOpenKneeMaterialParameter(
             material, "c1", 1.0e6 * region.material.c1MPa);
@@ -7023,12 +7028,24 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         object.characteristicLength = 0.001;
         object.femNodes.reserve(region.nodeCount);
         object.tetrahedra.reserve(region.tetrahedronCount);
+        std::vector<std::array<double, 3u>> regionReferenceNodes;
+        regionReferenceNodes.reserve(region.nodeCount);
+        std::vector<std::uint32_t> regionAnchorBodies(
+            region.nodeCount,
+            metalrobo::NUMI_HUMAN_CONTINUUM_INVALID_INDEX);
+        std::vector<std::array<std::uint32_t, 4u>> regionTetrahedra;
+        regionTetrahedra.reserve(region.tetrahedronCount);
         for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
             const auto& sourceNode = knee.nodes[region.firstNode + local];
-            const mr_float4 posed = moveWithFemur(sourceNode.restWorld);
+            const std::array<double, 3u> sourceWorldPoint{
+                sourceNode.restWorld[0u], sourceNode.restWorld[1u],
+                sourceNode.restWorld[2u]};
+            regionReferenceNodes.push_back(sourceWorldPoint);
             const std::uint32_t femNode = runtimeRegion.firstFEMNode + local;
-            initialWorldNodes[femNode] = posed;
-            object.femNodes.push_back({posed.x, posed.y, posed.z});
+            initialWorldNodes[femNode] = {
+                sourceNode.restWorld[0u], sourceNode.restWorld[1u],
+                sourceNode.restWorld[2u], 1.0f};
+            object.femNodes.push_back(sourceWorldPoint);
             if (!sourceNode.rigidlyAttached) continue;
             const auto body = std::find(
                 bodyIndices.begin(), bodyIndices.end(),
@@ -7047,15 +7064,16 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 -restAnchorBody.orientation.y,
                 -restAnchorBody.orientation.z,
                 restAnchorBody.orientation.w};
-            const mr_float4 sourceWorld{
+            const mr_float4 sourceAnchorWorld{
                 sourceNode.restWorld[0u], sourceNode.restWorld[1u],
                 sourceNode.restWorld[2u], 1.0f};
             const mr_float4 resolvedLocal = rotatePoint(
                 inverseRestAnchorOrientation,
-                femSubtract(sourceWorld, restAnchorBody.position));
+                femSubtract(sourceAnchorWorld, restAnchorBody.position));
             anchor.localPoint = {
                 resolvedLocal.x, resolvedLocal.y,
                 resolvedLocal.z, 0.0f};
+            regionAnchorBodies[local] = sourceNode.anchorBodyIndex;
             object.femFixedNodes.push_back(local);
             ++runtimeRegion.anchorCounts[bodySlot];
         }
@@ -7071,6 +7089,62 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 nodes[corner] = source[corner] - region.firstNode;
             }
             object.tetrahedra.push_back({nodes});
+            regionTetrahedra.push_back(nodes);
+        }
+        std::vector<metalrobo::NumiHumanContinuumBodyMap> continuumBodies;
+        for (std::uint32_t bodySlot = 0u; bodySlot < bodyIndices.size();
+             ++bodySlot) {
+            if (runtimeRegion.anchorCounts[bodySlot] == 0u) continue;
+            const std::uint32_t bodyIndex = bodyIndices[bodySlot];
+            const MRBodyStateGPU& restPose = restBodies[bodyIndex];
+            const MRBodyStateGPU& targetPose = referenceBodies[bodyIndex];
+            continuumBodies.push_back({
+                .bodyIndex = bodyIndex,
+                .referencePose = {
+                    .position = {restPose.position.x, restPose.position.y,
+                                 restPose.position.z},
+                    .orientation = {restPose.orientation.x,
+                                    restPose.orientation.y,
+                                    restPose.orientation.z,
+                                    restPose.orientation.w}},
+                .targetPose = {
+                    .position = {targetPose.position.x, targetPose.position.y,
+                                 targetPose.position.z},
+                    .orientation = {targetPose.orientation.x,
+                                    targetPose.orientation.y,
+                                    targetPose.orientation.z,
+                                    targetPose.orientation.w}},
+            });
+        }
+        metalrobo::NumiHumanContinuumMapResult continuumMap;
+        const auto continuumDiagnostics =
+            metalrobo::mapNumiHumanContinuumToMovingEntheses(
+                regionReferenceNodes, regionTetrahedra,
+                regionAnchorBodies, continuumBodies, continuumMap);
+        require(continuumDiagnostics.succeeded(),
+                "live Open Knee moving-enthesis map failed for " +
+                    region.name + ": " + continuumDiagnostics.message);
+        require(continuumMap.targetWorldPoints.size() == region.nodeCount,
+                "live Open Knee moving-enthesis map lost nodes");
+        initialMapMaximumDisplacementMeters = std::max(
+            initialMapMaximumDisplacementMeters,
+            continuumDiagnostics.maximumDisplacementMeters);
+        initialMapMaximumAnchorResidualMeters = std::max(
+            initialMapMaximumAnchorResidualMeters,
+            continuumDiagnostics.maximumAnchorResidualMeters);
+        initialMapMinimumJacobian = std::min(
+            initialMapMinimumJacobian,
+            continuumDiagnostics.minimumJacobian);
+        initialMapMaximumJacobian = std::max(
+            initialMapMaximumJacobian,
+            continuumDiagnostics.maximumJacobian);
+        for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
+            const auto& mapped = continuumMap.targetWorldPoints[local];
+            object.femNodes[local] = mapped;
+            initialWorldNodes[runtimeRegion.firstFEMNode + local] = {
+                static_cast<float>(mapped[0u]),
+                static_cast<float>(mapped[1u]),
+                static_cast<float>(mapped[2u]), 1.0f};
         }
         const bool exactBoundaryOwnership = region.name == "PTL"
             ? runtimeRegion.anchorCounts[1u] > 0u &&
@@ -7498,12 +7572,17 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
             static_cast<double>(femLength(
                 femSubtract(target, initialWorldNodes[node]))));
     }
-    require(maximumAnchorTargetResidualMeters[0u] <= 1.0e-7 &&
-                maximumAnchorTargetResidualMeters[1u] > 5.0e-8 &&
-                maximumAnchorTargetResidualMeters[1u] <= 1.0e-6 &&
-                maximumAnchorTargetResidualMeters[2u] > 5.0e-8 &&
-                maximumAnchorTargetResidualMeters[2u] <= 1.0e-6,
-            "live Open Knee projected-flexion anchor targets are invalid");
+    require(maximumAnchorTargetResidualMeters[0u] <= 2.0e-7 &&
+                maximumAnchorTargetResidualMeters[1u] <= 2.0e-7 &&
+                maximumAnchorTargetResidualMeters[2u] <= 2.0e-7 &&
+                std::isfinite(initialMapMaximumDisplacementMeters) &&
+                initialMapMaximumDisplacementMeters > 0.0 &&
+                initialMapMaximumAnchorResidualMeters <= 1.0e-12 &&
+                std::isfinite(initialMapMinimumJacobian) &&
+                std::isfinite(initialMapMaximumJacobian) &&
+                initialMapMinimumJacobian >= 0.05 &&
+                initialMapMaximumJacobian <= 20.0,
+            "live Open Knee moving-enthesis initial continuum is invalid");
     numi::matter::CompileOptions compileOptions;
     compileOptions.maximumRateExponent = 0u;
     auto compiled = numi::matter::compileWorld(worldSource, compileOptions);
@@ -7636,6 +7715,12 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     result.header.poseKind = 2u;
     result.projectedRestBodies = restBodies;
     result.qualificationFlexionRadians = qualificationFlexionRadians;
+    result.initialContinuumMapMaximumDisplacementMeters =
+        initialMapMaximumDisplacementMeters;
+    result.initialContinuumMapMaximumAnchorResidualMeters =
+        initialMapMaximumAnchorResidualMeters;
+    result.initialContinuumMapMinimumJacobian = initialMapMinimumJacobian;
+    result.initialContinuumMapMaximumJacobian = initialMapMaximumJacobian;
     result.quadricepsEndpointCount = static_cast<std::uint32_t>(
         endpointReplacements.size());
     result.quadricepsLoadNodeCount = qatLoadNodeCount;
@@ -13385,6 +13470,14 @@ int main(int argc, char** argv) {
                         << openKneeLigamentFEM->maximumDisplacementMeters
                         << " qualification_flexion_rad="
                         << openKneeLigamentFEM->qualificationFlexionRadians
+                        << " initial_continuum_map_max_displacement_m="
+                        << openKneeLigamentFEM->initialContinuumMapMaximumDisplacementMeters
+                        << " initial_continuum_map_anchor_residual_m="
+                        << openKneeLigamentFEM->initialContinuumMapMaximumAnchorResidualMeters
+                        << " initial_continuum_map_min_J="
+                        << openKneeLigamentFEM->initialContinuumMapMinimumJacobian
+                        << " initial_continuum_map_max_J="
+                        << openKneeLigamentFEM->initialContinuumMapMaximumJacobian
                         << " projected_rest_visual_correction_max_m="
                         << openKneeLigamentFEM->maximumProjectedRestVisualCorrectionMeters
                         << " projected_rest_reconstruction_max_residual_m="
@@ -14338,6 +14431,22 @@ int main(int argc, char** argv) {
                       << " open_knee_tissue_fem_qualification_flexion_rad="
                       << (openKneeLigamentFEM.has_value()
                               ? openKneeLigamentFEM->qualificationFlexionRadians : 0.0)
+                      << " open_knee_initial_continuum_map_max_displacement_m="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->initialContinuumMapMaximumDisplacementMeters
+                              : 0.0)
+                      << " open_knee_initial_continuum_map_anchor_residual_m="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->initialContinuumMapMaximumAnchorResidualMeters
+                              : 0.0)
+                      << " open_knee_initial_continuum_map_min_J="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->initialContinuumMapMinimumJacobian
+                              : 1.0)
+                      << " open_knee_initial_continuum_map_max_J="
+                      << (openKneeLigamentFEM.has_value()
+                              ? openKneeLigamentFEM->initialContinuumMapMaximumJacobian
+                              : 1.0)
                       << " open_knee_projected_rest_visual_correction_max_m="
                       << (openKneeLigamentFEM.has_value()
                               ? openKneeLigamentFEM->maximumProjectedRestVisualCorrectionMeters
