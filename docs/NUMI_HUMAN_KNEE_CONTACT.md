@@ -6,14 +6,15 @@ the seven cartilage/meniscus surface pairs authored in the bilateral
 payload's twelve ligament/tendon collision pairs.
 
 The operator builds exact source-triangle correspondences from the named
-surfaces and gives every slave node a tributary surface area. At runtime it
-recomputes the closest point on that triangle in its current rigid pose. Face,
-edge, and vertex regions therefore use the current closest-point direction,
-oriented by the stored anatomical reference normal. The compressive traction
-is scattered to the three current master vertices with the closest point's
-barycentric weights. The result is frictionless and tensile-free; every sample
-adds a collinear equal-and-opposite force pair and preserves world-origin
-moment balance.
+surfaces and gives every slave node a tributary surface area. ABI 10 also
+records the opposite vertex across each manifold edge. At runtime it searches
+the source triangle and its at-most three immediate neighbours in their current
+rigid pose. Face, edge, and vertex regions therefore use the current
+closest-point direction, oriented by the stored anatomical reference normal.
+The compressive traction is scattered to the selected current triangle with
+the closest point's barycentric weights. The result is frictionless and
+tensile-free; every sample adds a collinear equal-and-opposite force pair and
+preserves world-origin moment balance.
 
 The pressure-overclosure law is
 
@@ -112,6 +113,49 @@ ABI 9 receipts:
   [side](media/numi-human-knee-current-triangle-v1/left-two-step-side.png), and
   [rear](media/numi-human-knee-current-triangle-v1/left-two-step-rear.png)
 
+## ABI 10 one-ring edge-crossing repair
+
+ABI 10 replaces the single-facet runtime query with a bounded four-candidate
+query: the original source triangle plus the triangle across each of its three
+manifold edges. The CPU cooker rejects non-manifold source surfaces and stores
+each neighbour's opposite vertex. Metal chooses the nearest current candidate,
+uses that candidate's barycentric weights for force scatter, and retains the
+anatomical reference normal solely to orient the live geometric normal. This
+runs in the existing borrowed Human command buffer and adds neither a host
+per-step search nor a second solver.
+
+Both exact payloads passed the 65-step preflight with every one of 69,701
+samples owning at least one adjacent candidate. The left surface contributed
+201,898 neighbour candidates and the mirrored right 201,658. A dedicated M4
+Pro fixture placed the slave beyond the base triangle and inside its neighbour;
+the selected neighbour produced `0.9999 N`, `9999 Pa`, zero force/moment
+residual, bitwise replay, and verified rollback. Invalid adjacency flags fail
+closed.
+
+The live left Human then passed the same two-step `10 microrad` comparison.
+ABI 10 retained 25,310 to 30,989 closed samples and 4.641 to 16.441 N normal
+force, versus ABI 9's 25,293 to 30,987 and 4.632 to 16.431 N. Maximum pressure
+was `2773.98 Pa`; force and moment residuals stayed below `2.31e-5 N` and
+`5.79e-6 N m`; deformation Jacobians stayed in `0.999426..1.000620`; replay
+and rollback passed. The four reviewed views place the fibula laterally, the
+patella anteriorly in the trochlear region, and show a continuous
+quadriceps-patella-patellar-tendon path. They are presentation checks, not
+mechanical promotion evidence.
+
+ABI 10 receipts:
+
+- [`qualification.json`](media/numi-human-knee-one-ring-v1/qualification.json)
+- [`left two-step M4 Pro transcript`](media/numi-human-knee-one-ring-v1/left-two-step-run.log)
+- [`left preflight`](media/numi-human-knee-one-ring-v1/left-preflight.log) and
+  [`mirrored-right preflight`](media/numi-human-knee-one-ring-v1/right-preflight.log)
+- [`CPU regression`](media/numi-human-knee-one-ring-v1/cpu-regression.log)
+- [`Metal cross-edge fixture`](media/numi-human-knee-one-ring-v1/metal-fixture.log)
+- [`whole-body gate report`](media/numi-human-knee-one-ring-v1/whole-body-gate.json)
+- [front](media/numi-human-knee-one-ring-v1/left-two-step-front.png),
+  [oblique](media/numi-human-knee-one-ring-v1/left-two-step-oblique.png),
+  [side](media/numi-human-knee-one-ring-v1/left-two-step-side.png), and
+  [rear](media/numi-human-knee-one-ring-v1/left-two-step-rear.png)
+
 Receipts and full transcripts:
 
 - [`left-m4-pro.json`](media/numi-human-knee-articular-live-v1/left-m4-pro.json)
@@ -147,20 +191,20 @@ Receipts:
 ## Evidence boundary and next integration gate
 
 The prescribed 65-step CPU ramp remains `preflight`. Bilateral historical
-coverage and the ABI 9 left current-triangle owner are qualified for one live
-step; both the fixed-correspondence baseline and ABI 9 current-triangle owner
-have bounded left two-step trajectories. Accepted contact wrenches enter
-femur/tibia/patella generalized force in the owning Human transaction. ABI 9
-recomputes the closest point and normal on the current paired triangle, but it
-does not yet switch to adjacent facets or perform a global current-surface
-search. Its explicit penalty is also not an implicit unilateral
-nonpenetration solve. The right side is a mirror of oks003, not an
-independently segmented right specimen.
+coverage and the ABI 10 one-ring topology pass, while the left one-ring owner
+has a bounded two-step live trajectory. Accepted contact wrenches enter
+femur/tibia/patella generalized force in the owning Human transaction. ABI 10
+repairs an immediate edge crossing, but does not search a second ring or the
+global current surface. Its explicit penalty is also not an implicit
+unilateral nonpenetration solve. Meniscus/cartilage pairs on the same rigid
+tibia still need a relative deformable owner. The right side is a mirror of
+oks003, not an independently segmented right specimen.
 
-The next promotion gate is adjacent-facet/global current-surface repair or
-another bounded nonpenetration method, followed by sustained physiological
-flexion/compression with pressure, area, cartilage/meniscus strain, energy,
-replay, rollback, and failure criteria over time.
+The next promotion gate is a moving-enthesis/initial-continuum map that permits
+meaningful flexion without projected-anchor incompatibility, followed by a
+broader current-surface or bounded nonpenetration owner and sustained
+physiological flexion/compression with pressure, area, cartilage/meniscus
+strain, energy, replay, rollback, and explicit failure criteria over time.
 
 ## Shared Human/Matter transaction infrastructure
 
@@ -176,9 +220,10 @@ body Jacobians.
 The internal FEM-contact kernel remains an explicit fixed-reference penalty
 on the previously accepted deformable state. The articulated articular kernel
 is now different: it performs a current closest-point query on each paired
-triangle and subtracts a `0.1 um` FP32 preload slop. Together they prove
-same-transaction force transfer, not a global current-surface search, an
-implicit contact solve, or unilateral nonpenetration.
+triangle and its first-ring neighbours, then subtracts a `0.1 um` FP32 preload
+slop. Together they prove same-transaction force transfer, not a multi-ring or
+global current-surface search, an implicit contact solve, or unilateral
+nonpenetration.
 
 A fresh Apple M4 Pro one-tetrahedron fixture passed with one mechanical sample
 and one explicitly retained same-body sample:

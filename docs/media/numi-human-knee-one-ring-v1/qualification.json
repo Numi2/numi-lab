@@ -1,0 +1,78 @@
+{
+  "schema": "numi-human-knee-one-ring-qualification.v1",
+  "implementation_commit": "ba4ba9e4b1c853885e05ef053ae7e8c7b2692523",
+  "abi": 10,
+  "device": "Apple M4 Pro",
+  "operator": {
+    "search": "source triangle plus at most three manifold edge-neighbours",
+    "same_borrowed_command_buffer": true,
+    "global_surface_query": false,
+    "implicit_nonpenetration": false,
+    "relative_deformable_meniscus_owner": false
+  },
+  "cpu_preflight": {
+    "left": {
+      "pairs": 7,
+      "samples": 69701,
+      "one_ring_candidates": 201898,
+      "samples_with_candidate": 69701,
+      "steps": 65,
+      "peak_normal_force_n": 11386.939590567326,
+      "max_force_residual_n": 2.2176204677443358e-11,
+      "max_moment_residual_nm": 8.6974013555950533e-12,
+      "replay": "bitwise",
+      "restore": "verified"
+    },
+    "right_mirrored": {
+      "pairs": 7,
+      "samples": 69701,
+      "one_ring_candidates": 201658,
+      "samples_with_candidate": 69701,
+      "steps": 65,
+      "peak_normal_force_n": 11386.939866275827,
+      "max_force_residual_n": 2.1550262556749067e-11,
+      "max_moment_residual_nm": 9.005837796882275e-12,
+      "replay": "bitwise",
+      "restore": "verified"
+    }
+  },
+  "metal_cross_edge_fixture": {
+    "passed": true,
+    "normal_force_n": 0.9999,
+    "pressure_pa": 9999.0,
+    "force_residual_n": 0.0,
+    "moment_residual_nm": 0.0,
+    "malformed_adjacency_rejected": true,
+    "replay": "bitwise",
+    "rollback": "verified"
+  },
+  "live_left_two_step_10_microrad": {
+    "accepted": true,
+    "articular_samples": 69701,
+    "adjacent_candidates": 201898,
+    "closed_sample_range": [25310, 30989],
+    "normal_force_range_n": [4.64064502716, 16.4407176971],
+    "max_pressure_pa": 2773.98217773,
+    "max_stored_energy_j": 1.59342016559e-6,
+    "max_normal_strain": 1.02716199763e-4,
+    "max_closure_m": 3.65661293245e-7,
+    "max_force_residual_n": 2.30980303652e-5,
+    "max_moment_residual_nm": 5.78817572034e-6,
+    "deformation_jacobian_range": [0.999426305294, 1.00062012672],
+    "quadriceps_resultant_n": 2764.5715332,
+    "patellar_tendon_resultant_n": 2787.42602539,
+    "replay": "bitwise",
+    "rollback": "verified",
+    "views_reviewed": ["front", "oblique", "side", "rear"]
+  },
+  "abi9_comparison": {
+    "closed_sample_range": [25293, 30987],
+    "normal_force_range_n": [4.632068, 16.430729],
+    "minimum_closed_sample_delta": 17,
+    "maximum_closed_sample_delta": 2,
+    "minimum_force_delta_n": 0.00857702716,
+    "maximum_force_delta_n": 0.0099886971,
+    "tissue_mechanics_regressed": false
+  },
+  "boundary": "Bounded adjacent-facet correspondence repair, not a multi-ring or global current-surface query, implicit unilateral nonpenetration, relative deformable meniscus solve, sustained loading, physiological flexion, subject-specific calibration, or clinical validation. The right payload is a sagittal mirror of oks003."
+}

@@ -73,19 +73,21 @@ live Human force transaction: seven source pairs, all 69,701 samples, explicit
 ownership of 57,930 cross-body mechanics samples and 11,771 retained
 same-body samples, nonzero pressure/area/force, force and world-origin moment
 closure, bitwise replay, and rollback. The 65-step prescribed-closure CPU ramp
-still supplies constitutive preflight and elastic-energy identity. ABI 9 now
-recomputes the closest point, barycentric scatter, and oriented normal on each
-current paired triangle; CPU regressions cover tangential migration and a
-rotating master surface. The left live Human additionally passed a bounded
-two-step `10 microrad` trajectory with 25,293 to 30,987 closed samples,
-positive deformation Jacobians, balanced nonzero contact, bitwise replay, and
-rollback. A 1 mrad request failed closed at the projected-anchor compatibility
-gate before solve and is diagnostic only. The knees remain incomplete because
-correspondence cannot yet repair across adjacent facets or perform a global
-current-surface query, the law is an explicit penalty rather than unilateral
-nonpenetration, and sustained physiological loaded flexion is not qualified.
-The right knee is a mirrored left specimen, not an independently segmented
-right subject.
+still supplies constitutive preflight and elastic-energy identity. ABI 10 now
+searches each current paired triangle plus its three manifold edge-neighbours,
+recomputes barycentric scatter and the oriented current normal, and fails
+closed on non-manifold source surfaces or malformed neighbour records. Both
+exact payloads give all 69,701 samples a one-ring candidate; a cross-edge M4
+Pro fixture passes. The left live Human additionally passed a bounded two-step
+`10 microrad` trajectory with 25,310 to 30,989 closed samples, positive
+deformation Jacobians, balanced nonzero contact, bitwise replay, and rollback.
+A 1 mrad request failed closed at the projected-anchor compatibility gate
+before solve and is diagnostic only. The knees remain incomplete because the
+query is not multi-ring/global, same-rigid-body meniscus interfaces lack
+relative deformable ownership, the law is an explicit penalty rather than
+unilateral nonpenetration, and sustained physiological loaded flexion is not
+qualified. The right knee is a mirrored left specimen, not an independently
+segmented right subject.
 
 The shared Human/Matter adapter additionally has a one-step Metal transaction
 fixture where internal FEM contact and tendon traction share one force arena,
@@ -126,10 +128,10 @@ acceleration residual remains `5.7539`, and `internal_balanced=false`.
 
 The gate makes the next useful work explicit:
 
-1. Add adjacent-facet/global current-surface repair or an implicit
-   nonpenetration owner to the paired-triangle knee contact, then qualify
-   sustained physiological flexion/loading without regressing extensor-chain
-   ownership.
+1. Replace projected rest anchors with a moving-enthesis/initial-continuum map,
+   then add a broader current-surface or implicit nonpenetration owner and
+   qualify sustained physiological knee flexion/loading without regressing
+   extensor-chain ownership.
 2. Close the internal muscle/passive-force equilibrium exposed by the new
    support-wrench gate, then promote the reduced plantar windlass law through
    the owning Human/NumanX transaction and qualify loaded foot contact while
