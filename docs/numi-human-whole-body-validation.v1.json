@@ -527,6 +527,38 @@
         {"path": "CMakeLists.txt", "sha256": "2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02"}
       ]
     },
+    "extensor_hood_live_route_replacement": {
+      "path": "docs/media/numi-human-extensor-hood-live-v1/m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.extensor-hood-live-metal.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/runtime_revision", "op": "equals", "value": "38cf13d"},
+        {"pointer": "/topology/rays", "op": "equals", "value": 8},
+        {"pointer": "/topology/nodes", "op": "equals", "value": 84},
+        {"pointer": "/topology/elements", "op": "equals", "value": 100},
+        {"pointer": "/topology/source_muscle_inputs", "op": "equals", "value": 34},
+        {"pointer": "/one_step/accepted_rays", "op": "equals", "value": 8},
+        {"pointer": "/eight_step/accepted_rays", "op": "equals", "value": 8},
+        {"pointer": "/eight_step/maximum_free_node_residual_newtons", "op": "maximum", "value": 0.0025},
+        {"pointer": "/eight_step/maximum_force_closure_residual_newtons", "op": "maximum", "value": 0.01},
+        {"pointer": "/eight_step/maximum_moment_closure_residual_newton_meters", "op": "maximum", "value": 0.01},
+        {"pointer": "/eight_step/maximum_free_node_displacement_meters", "op": "maximum", "value": 0.01},
+        {"pointer": "/eight_step/maximum_engineering_strain", "op": "maximum", "value": 0.15},
+        {"pointer": "/eight_step/maximum_generalized_correction", "op": "minimum", "value": 0.000001},
+        {"pointer": "/visual_validation/actual_frames_inspected", "op": "equals", "value": 8},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "include/metalrobo/NumiHumanExtensorHoodMetal.hpp", "sha256": "996dc44814a626863c233ef3edc0528b0688235e1f947485d3adb0b877828aac"},
+        {"path": "include/metalrobo/numi_human_extensor_hood_gpu.h", "sha256": "eb085f779ad594ddca759833e2ae36db1e4202b79bd8ac31dd2c492694b3fa20"},
+        {"path": "src/metal/NumiHumanExtensorHood.metal", "sha256": "867d63e1420520205d97a0c3dbc0679d790d80c841d244efc393871b1b2feb3f"},
+        {"path": "src/metal/NumiHumanExtensorHoodMetal.mm", "sha256": "bf7478de4ff823f76c52abba0bee827ac5d9b4a4e93e2c187d81719c0fa9f19e"},
+        {"path": "src/metal/MujocoMuscleReference.metal", "sha256": "636655ef4c8113577c99c47c028fd7b962a06b9114c10cc295842e22fb4493f9"},
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "b31cce7da5d83a38cdba63f904298593da323696736762112909a4c2f9759e99"}
+      ]
+    },
     "adm_source_inferred_feasibility_rejection": {
       "path": "docs/media/numi-human-adm-feasibility-v1/m4-pro.json",
       "format": "json",
@@ -614,11 +646,11 @@
       "geometry_registration": {"minimum_level": "structural", "evidence": ["upper_multi_pose_geometry"]},
       "joint_kinematics": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
       "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
-      "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["fully_distributed_exact_entheses"], "gap": "replace point fallbacks and inferred whole-body endpoints with region-specific exact loaded enthesis transfer"},
-      "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["upper_passive_joint_tissue_preflight", "extensor_hood_tension_network_reference", "extensor_hood_source_posed_reference"], "gap": "the source-posed hood and exact point-Jacobian transfer are preflight-qualified but insufficient to close fifth-MCP balance; resolve upstream route/recruitment ownership before live replacement, then add loaded ligament, capsule, cartilage, and Metal transaction evidence"},
+      "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["fully_distributed_exact_entheses", "extensor_hood_live_route_replacement"], "gap": "the live hood closes the bilateral non-thumb distal extensor share; replace remaining point fallbacks and inferred endpoints with region-specific loaded enthesis transfer"},
+      "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["upper_passive_joint_tissue_preflight", "extensor_hood_tension_network_reference", "extensor_hood_source_posed_reference", "extensor_hood_live_route_replacement"], "gap": "the active non-thumb hood is live; add thumb apparatus and loaded passive capsule, ligament, retinacular, cartilage, and contact mechanics"},
       "articular_contact": {"minimum_level": "one_step", "evidence": [], "gap": "add compliant articular contact and nonpenetration evidence"},
-      "bilateral_parity": {"minimum_level": "structural", "evidence": ["upper_multi_pose_geometry"]},
-      "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
+      "bilateral_parity": {"minimum_level": "structural", "evidence": ["upper_multi_pose_geometry", "extensor_hood_live_route_replacement"]},
+      "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["source_route_transaction", "extensor_hood_live_route_replacement"]},
       "sustained_loaded_motion": {"minimum_level": "sustained", "evidence": [], "gap": "qualify a sustained loaded trajectory with force, strain, energy, and contact bounds"}
     },
     "lower_joint": {
