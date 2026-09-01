@@ -59,6 +59,8 @@ public:
             case ExprKind::negate: return graph_.constant(-value, dimension);
             case ExprKind::logarithm: return graph_.constant(std::log(value), dimension);
             case ExprKind::exponential: return graph_.constant(std::exp(value), dimension);
+            case ExprKind::expm1MinusArgument:
+                return graph_.constant(std::expm1(value) - value, dimension);
             case ExprKind::squareRoot: return graph_.constant(std::sqrt(value), dimension);
             case ExprKind::absolute: return graph_.constant(std::abs(value), dimension);
             default: break;
@@ -301,6 +303,26 @@ public:
                 resultDimension
             );
             break;
+        case ExprKind::expm1MinusArgument: {
+            const std::uint32_t exponential = unary(
+                ExprKind::exponential,
+                source.arguments[0],
+                kDimensionless
+            );
+            const std::uint32_t factor = binary(
+                ExprKind::subtract,
+                exponential,
+                graph_.constant(1.0),
+                kDimensionless
+            );
+            result = binary(
+                ExprKind::multiply,
+                factor,
+                d(source.arguments[0]),
+                resultDimension
+            );
+            break;
+        }
         case ExprKind::squareRoot: {
             const std::uint32_t denominator = binary(
                 ExprKind::multiply,
@@ -499,6 +521,26 @@ public:
                 source.dimension
             );
             break;
+        case ExprKind::expm1MinusArgument: {
+            const std::uint32_t exponential = unary(
+                ExprKind::exponential,
+                source.arguments[0],
+                kDimensionless
+            );
+            const std::uint32_t factor = binary(
+                ExprKind::subtract,
+                exponential,
+                graph_.constant(1.0),
+                kDimensionless
+            );
+            result = binary(
+                ExprKind::multiply,
+                factor,
+                d(source.arguments[0]),
+                source.dimension
+            );
+            break;
+        }
         case ExprKind::squareRoot: {
             const std::uint32_t denominator = binary(
                 ExprKind::multiply,
@@ -688,6 +730,7 @@ private:
         case ExprKind::negate:
         case ExprKind::logarithm:
         case ExprKind::exponential:
+        case ExprKind::expm1MinusArgument:
         case ExprKind::squareRoot:
         case ExprKind::absolute:
         case ExprKind::integerPower:
@@ -695,6 +738,7 @@ private:
             instruction.opcode = expression.kind == ExprKind::negate ? NM_EXPR_NEGATE :
                 expression.kind == ExprKind::logarithm ? NM_EXPR_LOG :
                 expression.kind == ExprKind::exponential ? NM_EXPR_EXP :
+                expression.kind == ExprKind::expm1MinusArgument ? NM_EXPR_EXPM1_MINUS_X :
                 expression.kind == ExprKind::squareRoot ? NM_EXPR_SQRT :
                 expression.kind == ExprKind::absolute ? NM_EXPR_ABS : NM_EXPR_POW_INTEGER;
             output.push_back(instruction);

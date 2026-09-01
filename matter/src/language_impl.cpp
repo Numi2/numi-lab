@@ -703,7 +703,8 @@ private:
             return argument;
         }
         Dimension dimension = material.expressions.nodes[argument].dimension;
-        if (kind == ExprKind::logarithm || kind == ExprKind::exponential) {
+        if (kind == ExprKind::logarithm || kind == ExprKind::exponential ||
+            kind == ExprKind::expm1MinusArgument) {
             if (dimension != kDimensionless) {
                 error(token, "log/exp argument must be dimensionless");
             }
@@ -846,10 +847,13 @@ private:
                 binary(material, ExprKind::subtract, first, second, synthetic), third, synthetic);
         }
         const std::uint32_t first = expression(material);
-        if (token.text == "log" || token.text == "exp" || token.text == "sqrt" || token.text == "abs") {
+        if (token.text == "log" || token.text == "exp" ||
+            token.text == "expm1_minus_x" || token.text == "sqrt" ||
+            token.text == "abs") {
             expect(TokenKind::rightParen, "')'");
             const ExprKind kind = token.text == "log" ? ExprKind::logarithm :
                 token.text == "exp" ? ExprKind::exponential :
+                token.text == "expm1_minus_x" ? ExprKind::expm1MinusArgument :
                 token.text == "sqrt" ? ExprKind::squareRoot : ExprKind::absolute;
             return unary(material, kind, first, token);
         }

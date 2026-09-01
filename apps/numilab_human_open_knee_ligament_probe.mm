@@ -291,6 +291,9 @@ int main(const int argc, const char* argv[]) {
                 if (!exactTissue)
                     continue;
                 const auto& spec = specification(region.name);
+                require(region.material.hasHomogeneousFiber &&
+                            region.material.hasIsochoricInSituStretch,
+                        "Open Knee source fibre material is absent");
                 ligaments.push_back({
                     .specification = &spec,
                     .payloadRegion = regionIndex,
@@ -329,13 +332,26 @@ int main(const int argc, const char* argv[]) {
                 const auto& region = payload.regions[ligament.payloadRegion];
                 numi::matter::MaterialProgram material = parsed.material;
                 material.name = "open_knee_" + region.name +
-                    "_isotropic_matrix_preflight";
+                    "_transverse_isotropic_smooth_preflight";
                 material.fingerprint = 0u;
                 setParameter(material, "density", 1000.0);
-                setParameter(material, "shear",
-                             2.0e6 * ligament.specification->c1MPa);
+                setParameter(material, "c1", 1.0e6 * region.material.c1MPa);
+                setParameter(material, "c3", 1.0e6 * region.material.c3MPa);
+                setParameter(material, "c4", region.material.c4);
                 setParameter(material, "bulk",
-                             1.0e6 * ligament.specification->bulkMPa);
+                             1.0e6 * region.material.bulkModulusMPa);
+                // The source final value is admitted in NHKNEE1 ABI 2, but a
+                // one-step jump to that residual stress failed the bounded
+                // nonlinear/performance gate. Apply neutral stretch until a
+                // staged in-situ equilibrium ramp owns initialization.
+                setParameter(material, "initial_stretch", 1.0);
+                setParameter(material, "fiber_x",
+                             region.material.homogeneousFiberWorld[0u]);
+                setParameter(material, "fiber_y",
+                             region.material.homogeneousFiberWorld[1u]);
+                setParameter(material, "fiber_z",
+                             region.material.homogeneousFiberWorld[2u]);
+                setParameter(material, "tension_smoothing", 1.0e-4);
                 setParameter(material, "numerical_viscosity", 25.0);
                 const std::uint32_t materialIndex =
                     static_cast<std::uint32_t>(source.materials.size());
@@ -837,10 +853,16 @@ int main(const int argc, const char* argv[]) {
                           << " source_k_mpa=" << ligament.specification->bulkMPa
                           << " source_initial_stretch="
                           << ligament.specification->initialStretch
+                          << " applied_initial_stretch=1"
                           << " source_lambda_max="
-                          << ligament.specification->maximumLinearStretch
-                          << " matrix_shear_mpa="
-                          << 2.0 * ligament.specification->c1MPa
+                          << region.material.lambdaMaximum
+                          << " source_c3_mpa=" << region.material.c3MPa
+                          << " source_c4=" << region.material.c4
+                          << " source_c5_mpa=" << region.material.c5MPa
+                          << " fiber_world="
+                          << region.material.homogeneousFiberWorld[0u] << ","
+                          << region.material.homogeneousFiberWorld[1u] << ","
+                          << region.material.homogeneousFiberWorld[2u]
                           << " femur_reaction_l1_n=" << femurReaction
                           << " tibia_reaction_l1_n=" << tibiaReaction
                           << " patella_reaction_l1_n=" << patellaReaction
@@ -1007,7 +1029,7 @@ int main(const int argc, const char* argv[]) {
                 << (activeQuadricepsTendon ? 1 : 0)
                 << " accepted_snapshot="
                 << (argc == 3 && !activeQuadricepsTendon ? argv[2] : "none")
-                << " material_boundary=isotropic_source_matrix_preflight_not_source_transverse_isotropy"
+                << " material_boundary=source_homogeneous_fibre_axis_with_smooth_exponential_apple_gpu_approximation_source_in_situ_stretch_admitted_but_held_neutral_pending_staged_equilibrium_ramp_not_exact_FEBio_exp_linear_Ei_law"
                 << " mechanics_boundary="
                 << (activeQuadricepsTendon
                     ? "source_tendon_resultant_distributed_over_exact_QAT_patellar_enthesis_and_zero_resultant_PTL_patella_to_tibia_enthesis_force_couple_plus_passive_tissue_FEM_not_active_volumetric_tendon_or_clinical_validation"

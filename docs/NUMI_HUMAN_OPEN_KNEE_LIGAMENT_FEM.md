@@ -1,5 +1,46 @@
 # Open Knee(s) exact ligament and patellar-tendon FEM preflight
 
+## ABI 2 source-directed material upgrade
+
+`NHKNEE1` ABI 2 now admits the exact homogeneous fibre direction and the
+`c1`, `c2`, `c3`, `c4`, `c5`, `lam_max`, bulk-modulus, and in-situ-stretch
+values for `ACL`, `PCL`, `MCL`, `LCL`, `PTL`, and `QAT`. The source identity
+gate now includes `FeBio_custom.feb` SHA-256
+`00b6efb53ad7e7330296cbb9569d358d48ed60819e22732e6149db6fb98a158a`;
+the prior ABI omitted that file even though it owns the fibre vectors.
+
+The live Matter material consumes each registered/mirrored unit fibre axis and
+uses the source deviatoric `c1` matrix plus a smooth tension-only exponential
+fibre term. A compact `expm1_minus_x` constitutive opcode keeps its stress and
+tangent differentiable without duplicating the full fibre-stretch expression.
+This is a source-shaped Apple-GPU approximation, not the exact FEBio
+piecewise exponential-linear energy: Matter does not yet provide FEBio's
+exponential-integral primitive or its straightened-fibre branch.
+
+The first bounded attempt to jump directly to the final ACL/MCL/LCL in-situ
+stretch rejected at LCL with nonlinear-solver status 10. Raising the iteration
+budget kept the Apple GPU at 99--100% utilization for 12 minutes without an
+accepted transaction, so that path was rejected as both unstable and
+inefficient. The admitted source values remain in ABI 2, while the current live
+solve applies neutral stretch (`1.0`) until a staged prestrain/equilibrium ramp
+owns initialization.
+
+On Apple M4 Pro, the left neutral-stretch directional preflight passed all
+47,439 nodes and 195,032 tetrahedra with bitwise replay and verified rollback:
+maximum displacement `2.93542e-7 m`, determinant range
+`0.999768--1.00017`, femur/tibia/patella reaction L1
+`0.0602688/2.11899/0.0197677 N`, compile time `249.975 ms`, accepted-step wall
+time `166278 ms`, and peak RSS `706871296 bytes`. The whole accepted/rejected/
+replay qualification took `476.37 s`.
+
+The mirrored-right gate passed the same topology and transaction boundary:
+maximum displacement `2.35136e-7 m`, determinant range
+`0.999543--1.00025`, femur/tibia/patella reaction L1
+`0.0475741/2.08083/0.0181325 N`, compile time `247.656 ms`, accepted-step wall
+time `158776 ms`, and peak RSS `706838528 bytes`. Its registered fibre x
+components have the expected opposite sagittal sign while y/z and unit length
+are preserved.
+
 The native Apple mechanics preflight now consumes the exact `ACL`, `PCL`,
 `MCL`, and `LCL` tetrahedral regions from the bilateral `NHKNEE1` payloads.
 It does not replace the source topology with straps, lines, or generated
@@ -124,9 +165,10 @@ reaction-transfer, rollback/replay preflight under a prescribed sub-micron
 tibia displacement. The live result additionally proves a same-command-buffer
 passive continuum reaction changes the full Human rigid state for one bounded
 step; it is not a sustained or production-cadence rollout.
-The per-region isotropic matrix uses the Open Knee `c1` and bulk parameters,
-but Matter does not yet apply the source transverse-isotropic fibre field or
-initial prestretch. The result is not a loaded flexion validation, clinical
+The current per-region law applies the source homogeneous fibre direction and
+source-shaped nonlinear directional response. It does not yet apply the final
+source in-situ stretch, the exact FEBio `Ei`/straightened-fibre branches, or a
+spatially varying fibre field. The result is not a loaded flexion validation, clinical
 validation, production-cadence solve, cartilage contact solve, or visual proof
 of a flexed ligament. The active extensor-chain result proves reduced nonlinear
 tendon force transfer through exact QAT/PTL entheses; it is not an active

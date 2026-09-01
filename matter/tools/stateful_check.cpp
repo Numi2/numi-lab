@@ -138,6 +138,11 @@ void require(const bool condition, const std::string_view message) {
         case NM_EXPR_EXP:
             push(std::exp(pop()));
             break;
+        case NM_EXPR_EXPM1_MINUS_X: {
+            const float value = pop();
+            push(std::expm1(value) - value);
+            break;
+        }
         case NM_EXPR_SQRT: {
             const float value = pop();
             require(value >= 0.0f, "bytecode square-root domain error");

@@ -1,0 +1,62 @@
+// Apple-GPU approximation to the Open Knee(s) oks003 ligament/tendon law.
+// The payload supplies the exact registered homogeneous fibre axis and the
+// source c1/c2/c3/c4/c5/lam_max/k/in-situ-stretch values per region. Matter
+// currently lacks FEBio's piecewise exp-linear fibre primitive and Ei(), so
+// this law preserves the exact deviatoric Mooney-Rivlin matrix (c2 is zero in
+// all six admitted regions) and uses a differentiable tension-only exponential
+// fibre energy. It is intentionally labelled an approximation, not the exact
+// FEBio trans iso Mooney-Rivlin material.
+material open_knee_ligament_transverse_isotropic_smooth {
+    parameter density : kg/m^3 = 1000 in [900, 1200];
+    parameter c1 : MPa = 1.95 in [0.001, 20] log identifiable;
+    parameter c3 : MPa = 0.0139 in [0.0001, 5] log identifiable;
+    parameter c4 : one = 116.22 in [1, 300] log identifiable;
+    parameter bulk : MPa = 146.41 in [20, 1200] log identifiable;
+    parameter initial_stretch : one = 1.016 in [1, 1.20];
+    parameter fiber_x : one = 1 in [-1, 1];
+    parameter fiber_y : one = 0 in [-1, 1];
+    parameter fiber_z : one = 0 in [-1, 1];
+    parameter tension_smoothing : one = 0.0001 in [0.00001, 0.005] log;
+    parameter numerical_viscosity : Pa*s = 25 in [0.1, 500] log;
+
+    model generic;
+    energy = c1 * (
+        exp((-2.0 / 3.0) * log(J())) * I1() - 3
+    ) + 0.5 * bulk * pow(log(J()), 2) + (c3 / c4) * expm1_minus_x(
+        c4 * 0.5 * (
+            initial_stretch * exp((-1.0 / 3.0) * log(J())) * sqrt(
+                pow(F(0, 0) * fiber_x + F(0, 1) * fiber_y + F(0, 2) * fiber_z, 2) +
+                pow(F(1, 0) * fiber_x + F(1, 1) * fiber_y + F(1, 2) * fiber_z, 2) +
+                pow(F(2, 0) * fiber_x + F(2, 1) * fiber_y + F(2, 2) * fiber_z, 2)
+            ) - 1 + sqrt(
+                pow(initial_stretch * exp((-1.0 / 3.0) * log(J())) * sqrt(
+                    pow(F(0, 0) * fiber_x + F(0, 1) * fiber_y + F(0, 2) * fiber_z, 2) +
+                    pow(F(1, 0) * fiber_x + F(1, 1) * fiber_y + F(1, 2) * fiber_z, 2) +
+                    pow(F(2, 0) * fiber_x + F(2, 1) * fiber_y + F(2, 2) * fiber_z, 2)
+                ) - 1, 2) + pow(tension_smoothing, 2)
+            )
+        )
+    );
+    dissipation = 0.5 * numerical_viscosity * (
+        pow(Fdot(0, 0), 2) + pow(Fdot(1, 1), 2) + pow(Fdot(2, 2), 2) +
+        0.5 * pow(Fdot(0, 1) + Fdot(1, 0), 2) +
+        0.5 * pow(Fdot(0, 2) + Fdot(2, 0), 2) +
+        0.5 * pow(Fdot(1, 2) + Fdot(2, 1), 2)
+    );
+    valid = J() - 0.50;
+    supports fem;
+
+    interface {
+        static_friction = 0.05;
+        dynamic_friction = 0.03;
+        restitution = 0.0;
+        adhesion = 0.0;
+    }
+
+    limits {
+        minimum_J = 0.50;
+        maximum_J = 1.75;
+        maximum_stress = 5e8;
+        maximum_energy_density = 2e8;
+    }
+}

@@ -1512,7 +1512,7 @@ target_compile_definitions(
         NUMI_HUMAN_THORACOLUMBAR_FASCIA_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_thoracolumbar_fascia_effective_isotropic.nmatter"
         NUMI_HUMAN_ANTERIOR_THORAX_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_anterior_abdominal_wall_composite_effective.nmatter"
         NUMI_HUMAN_PLANTAR_FASCIA_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_plantar_fascia_reduced.nmatter"
-        NUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/open_knee_ligament_isotropic_preflight.nmatter"
+        NUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/open_knee_ligament_transverse_isotropic_smooth.nmatter"
         NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
 )
 target_compile_options(
@@ -1609,7 +1609,7 @@ add_dependencies(
 target_compile_definitions(
     metalrobo_numilab_human_open_knee_ligament_probe
     PRIVATE
-        NUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/open_knee_ligament_isotropic_preflight.nmatter"
+        NUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/open_knee_ligament_transverse_isotropic_smooth.nmatter"
         NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
 )
 target_compile_options(

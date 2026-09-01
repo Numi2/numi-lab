@@ -112,6 +112,7 @@ enum NMExpressionOpcode : nm_u32 {
     NM_EXPR_TEMPERATURE = 19u,
     NM_EXPR_RATE = 20u,
     NM_EXPR_NEXT_STATE = 21u,
+    NM_EXPR_EXPM1_MINUS_X = 22u,
 };
 
 enum NMStatusCode : nm_u32 {

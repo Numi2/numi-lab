@@ -24,7 +24,7 @@ struct HeaderDisk {
     std::uint32_t surfacePairCount;
     std::uint32_t reserved0;
     std::uint32_t reserved1;
-    std::array<std::uint8_t, 96u> sourceSha256;
+    std::array<std::uint8_t, 128u> sourceSha256;
 };
 
 struct RegionDisk {
@@ -37,6 +37,16 @@ struct RegionDisk {
     std::uint32_t tetrahedronCount;
     std::uint32_t firstSurface;
     std::uint32_t surfaceCount;
+    float c1MPa;
+    float c2MPa;
+    float c3MPa;
+    float c4;
+    float c5MPa;
+    float lambdaMaximum;
+    float bulkModulusMPa;
+    float initialStretch;
+    std::array<float, 3u> homogeneousFiberWorld;
+    std::uint32_t materialFlags;
 };
 
 struct SurfaceDisk {
@@ -77,8 +87,8 @@ struct FaceDisk { std::array<std::uint32_t, 3u> node; };
 struct MembershipDisk { std::uint32_t node; };
 #pragma pack(pop)
 
-static_assert(sizeof(HeaderDisk) == 152u);
-static_assert(sizeof(RegionDisk) == 48u);
+static_assert(sizeof(HeaderDisk) == 184u);
+static_assert(sizeof(RegionDisk) == 96u);
 static_assert(sizeof(SurfaceDisk) == 68u);
 static_assert(sizeof(NodeSetDisk) == 68u);
 static_assert(sizeof(SurfacePairDisk) == 56u);
@@ -118,6 +128,10 @@ constexpr std::array<std::uint8_t, 32u> kGeometrySha256{{
 constexpr std::array<std::uint8_t, 32u> kModelPropertiesSha256{{
     0x0a,0xc4,0x46,0xce,0x09,0x8b,0x9a,0x09,0x50,0x59,0x92,0xeb,0x4f,0x44,0x19,0xc7,
     0xb9,0x44,0xcd,0x57,0xa4,0xaf,0xbf,0x63,0x92,0xb1,0x37,0xf4,0x80,0x66,0x03,0xc1,
+}};
+constexpr std::array<std::uint8_t, 32u> kFeBioCustomSha256{{
+    0x00,0xb6,0xef,0xb5,0x3a,0xd7,0xe7,0x33,0x02,0x96,0xcb,0xb9,0x56,0x9d,0x35,0x8d,
+    0x48,0xed,0x60,0x81,0x9e,0x22,0x73,0x2e,0x61,0x49,0xdb,0x6f,0xb9,0x8a,0x15,0x8a,
 }};
 constexpr std::array<std::uint8_t, 32u> kLicenseSha256{{
     0xd7,0x29,0x18,0x83,0x8b,0x4a,0xdf,0x30,0x97,0x9d,0x2a,0x26,0xc2,0x38,0x37,0xf0,
@@ -193,7 +207,7 @@ NumiHumanKneeDiagnostics decodeNumiHumanKneePayload(
     HeaderDisk header{};
     if (!take(bytes, offset, header)) return fail(NumiHumanKneeStatus::truncatedPayload);
     constexpr std::array<char, 8u> magic{{'N','H','K','N','E','E','1','\0'}};
-    if (header.magic != magic || header.payloadAbi != 1u ||
+    if (header.magic != magic || header.payloadAbi != 2u ||
         header.headerBytes != sizeof(HeaderDisk) || header.regionCount != 16u ||
         header.nodeCount != 248236u || header.tetrahedronCount != 844287u ||
         header.surfaceCount != 88u || header.faceCount != 729068u ||
@@ -203,7 +217,8 @@ NumiHumanKneeDiagnostics decodeNumiHumanKneePayload(
         return fail(NumiHumanKneeStatus::invalidPayload);
     if (!std::equal(kGeometrySha256.begin(), kGeometrySha256.end(), header.sourceSha256.begin()) ||
         !std::equal(kModelPropertiesSha256.begin(), kModelPropertiesSha256.end(), header.sourceSha256.begin() + 32) ||
-        !std::equal(kLicenseSha256.begin(), kLicenseSha256.end(), header.sourceSha256.begin() + 64))
+        !std::equal(kFeBioCustomSha256.begin(), kFeBioCustomSha256.end(), header.sourceSha256.begin() + 64) ||
+        !std::equal(kLicenseSha256.begin(), kLicenseSha256.end(), header.sourceSha256.begin() + 96))
         return fail(NumiHumanKneeStatus::sourceMismatch);
 
     payload.payloadAbi = header.payloadAbi;
@@ -212,7 +227,8 @@ NumiHumanKneeDiagnostics decodeNumiHumanKneePayload(
         ? kLeftVisualBodies : kRightVisualBodies;
     std::copy_n(header.sourceSha256.begin(), 32u, payload.geometrySha256.begin());
     std::copy_n(header.sourceSha256.begin() + 32, 32u, payload.modelPropertiesSha256.begin());
-    std::copy_n(header.sourceSha256.begin() + 64, 32u, payload.licenseSha256.begin());
+    std::copy_n(header.sourceSha256.begin() + 64, 32u, payload.feBioCustomSha256.begin());
+    std::copy_n(header.sourceSha256.begin() + 96, 32u, payload.licenseSha256.begin());
     payload.regions.reserve(header.regionCount);
     std::uint32_t nextNode = 0u, nextTet = 0u, nextSurface = 0u;
     for (std::uint32_t index = 0u; index < header.regionCount; ++index) {
@@ -226,6 +242,32 @@ NumiHumanKneeDiagnostics decodeNumiHumanKneePayload(
             disk.firstSurface != nextSurface || disk.surfaceCount == 0u ||
             disk.surfaceCount > header.surfaceCount - disk.firstSurface)
             return fail(NumiHumanKneeStatus::incompleteCoverage, index);
+        const bool expectsFiber =
+            disk.kind == static_cast<std::uint32_t>(
+                NumiHumanKneeRegionKind::ligament) ||
+            disk.kind == static_cast<std::uint32_t>(
+                NumiHumanKneeRegionKind::tendon);
+        const bool materialFinite =
+            std::isfinite(disk.c1MPa) && std::isfinite(disk.c2MPa) &&
+            std::isfinite(disk.c3MPa) && std::isfinite(disk.c4) &&
+            std::isfinite(disk.c5MPa) && std::isfinite(disk.lambdaMaximum) &&
+            std::isfinite(disk.bulkModulusMPa) &&
+            std::isfinite(disk.initialStretch) &&
+            finite3(disk.homogeneousFiberWorld);
+        const float fiberNormSquared =
+            disk.homogeneousFiberWorld[0u] * disk.homogeneousFiberWorld[0u] +
+            disk.homogeneousFiberWorld[1u] * disk.homogeneousFiberWorld[1u] +
+            disk.homogeneousFiberWorld[2u] * disk.homogeneousFiberWorld[2u];
+        if (!materialFinite || (disk.materialFlags & ~3u) != 0u ||
+            (expectsFiber &&
+             (disk.materialFlags != 3u || disk.c1MPa <= 0.0f ||
+              disk.c2MPa < 0.0f || disk.c3MPa <= 0.0f ||
+              disk.c4 <= 0.0f || disk.c5MPa <= 0.0f ||
+              disk.lambdaMaximum <= 1.0f || disk.bulkModulusMPa <= 0.0f ||
+              disk.initialStretch < 1.0f ||
+              std::abs(fiberNormSquared - 1.0f) > 2.0e-5f)) ||
+            (!expectsFiber && disk.materialFlags != 0u))
+            return fail(NumiHumanKneeStatus::sourceMismatch, index);
         payload.regions.push_back({
             .name = std::move(name),
             .kind = static_cast<NumiHumanKneeRegionKind>(disk.kind),
@@ -234,6 +276,17 @@ NumiHumanKneeDiagnostics decodeNumiHumanKneePayload(
             .firstTetrahedron = disk.firstTetrahedron,
             .tetrahedronCount = disk.tetrahedronCount,
             .firstSurface = disk.firstSurface, .surfaceCount = disk.surfaceCount,
+            .material = {
+                .c1MPa = disk.c1MPa, .c2MPa = disk.c2MPa,
+                .c3MPa = disk.c3MPa, .c4 = disk.c4,
+                .c5MPa = disk.c5MPa,
+                .lambdaMaximum = disk.lambdaMaximum,
+                .bulkModulusMPa = disk.bulkModulusMPa,
+                .initialStretch = disk.initialStretch,
+                .homogeneousFiberWorld = disk.homogeneousFiberWorld,
+                .hasHomogeneousFiber = (disk.materialFlags & 1u) != 0u,
+                .hasIsochoricInSituStretch = (disk.materialFlags & 2u) != 0u,
+            },
         });
         nextNode += disk.nodeCount;
         nextTet += disk.tetrahedronCount;

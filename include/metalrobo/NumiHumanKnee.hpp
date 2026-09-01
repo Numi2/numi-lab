@@ -31,6 +31,20 @@ enum class NumiHumanKneeSide : std::uint32_t {
     rightMirrored = 1u,
 };
 
+struct NumiHumanKneeTransverseIsotropicMaterial {
+    float c1MPa = 0.0f;
+    float c2MPa = 0.0f;
+    float c3MPa = 0.0f;
+    float c4 = 0.0f;
+    float c5MPa = 0.0f;
+    float lambdaMaximum = 0.0f;
+    float bulkModulusMPa = 0.0f;
+    float initialStretch = 0.0f;
+    std::array<float, 3u> homogeneousFiberWorld{};
+    bool hasHomogeneousFiber = false;
+    bool hasIsochoricInSituStretch = false;
+};
+
 struct NumiHumanKneeRegion {
     std::string name;
     NumiHumanKneeRegionKind kind = NumiHumanKneeRegionKind::bone;
@@ -41,6 +55,7 @@ struct NumiHumanKneeRegion {
     std::uint32_t tetrahedronCount = 0u;
     std::uint32_t firstSurface = 0u;
     std::uint32_t surfaceCount = 0u;
+    NumiHumanKneeTransverseIsotropicMaterial material;
 };
 
 struct NumiHumanKneeSurface {
@@ -78,6 +93,7 @@ struct NumiHumanKneePayload {
     NumiHumanKneeSide side = NumiHumanKneeSide::left;
     std::array<std::uint8_t, 32u> geometrySha256{};
     std::array<std::uint8_t, 32u> modelPropertiesSha256{};
+    std::array<std::uint8_t, 32u> feBioCustomSha256{};
     std::array<std::uint8_t, 32u> licenseSha256{};
     std::vector<NumiHumanKneeRegion> regions;
     std::vector<NumiHumanKneeSurface> surfaces;

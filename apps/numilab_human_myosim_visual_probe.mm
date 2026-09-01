@@ -6302,7 +6302,7 @@ PassiveFEMTissueVisual runPassiveFEMTissue(
     worldSource.environmentCount = 1u;
     worldSource.frameTimestep = timestepSeconds;
     worldSource.gravity = {0.0, 0.0, 0.0};
-    worldSource.mixedSolver.newtonIterations = 8u;
+    worldSource.mixedSolver.newtonIterations = 4u;
     worldSource.mixedSolver.fgmresIterations = 12u;
     worldSource.materials.push_back(std::move(material.material));
     numi::matter::ObjectSource object;
@@ -6858,6 +6858,21 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         moved.w = 1.0f;
         return moved;
     };
+    const auto moveVectorWithFemur = [&](const std::array<float, 3u>& vector) {
+        const mr_float4 sourceWorld{vector[0u], vector[1u], vector[2u], 0.0f};
+        const mr_float4 local = rotatePoint(
+            inverseRestFemurOrientation, sourceWorld);
+        mr_float4 moved = rotatePoint(referenceFemur.orientation, local);
+        moved.w = 0.0f;
+        const double norm = std::sqrt(
+            static_cast<double>(moved.x) * moved.x +
+            static_cast<double>(moved.y) * moved.y +
+            static_cast<double>(moved.z) * moved.z);
+        require(std::isfinite(norm) && norm > 0.999 && norm < 1.001,
+                "live Open Knee fibre rotation lost unit length");
+        return std::array<double, 3u>{
+            moved.x / norm, moved.y / norm, moved.z / norm};
+    };
 
     std::vector<LiveOpenKneeRegion> regions;
     std::uint32_t totalNodes = 0u;
@@ -6879,6 +6894,9 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
             (!tendon &&
              region.kind == metalrobo::NumiHumanKneeRegionKind::ligament);
         require(exactKind, "live Open Knee tissue kind drifted");
+        require(region.material.hasHomogeneousFiber &&
+                    region.material.hasIsochoricInSituStretch,
+                "live Open Knee source fibre material is absent");
         regions.push_back({
             .specification = &*specification,
             .payloadRegion = regionIndex,
@@ -6901,7 +6919,7 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     worldSource.environmentCount = 1u;
     worldSource.frameTimestep = timestepSeconds;
     worldSource.gravity = {0.0, 0.0, 0.0};
-    worldSource.mixedSolver.newtonIterations = 4u;
+    worldSource.mixedSolver.newtonIterations = 8u;
     worldSource.mixedSolver.fgmresRestart = 16u;
     worldSource.mixedSolver.fgmresIterations = 32u;
     worldSource.mixedSolver.lineSearchSteps = 6u;
@@ -6918,13 +6936,26 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         const auto& region = knee.regions[runtimeRegion.payloadRegion];
         numi::matter::MaterialProgram material = parsed.material;
         material.name = "open_knee_" + region.name +
-            "_live_human_isotropic_matrix";
+            "_live_human_transverse_isotropic_smooth";
         material.fingerprint = 0u;
+        const auto fiber = moveVectorWithFemur(
+            region.material.homogeneousFiberWorld);
         setLiveOpenKneeMaterialParameter(material, "density", 1000.0);
         setLiveOpenKneeMaterialParameter(
-            material, "shear", 2.0e6 * runtimeRegion.specification->c1MPa);
+            material, "c1", 1.0e6 * region.material.c1MPa);
         setLiveOpenKneeMaterialParameter(
-            material, "bulk", 1.0e6 * runtimeRegion.specification->bulkMPa);
+            material, "c3", 1.0e6 * region.material.c3MPa);
+        setLiveOpenKneeMaterialParameter(material, "c4", region.material.c4);
+        setLiveOpenKneeMaterialParameter(
+            material, "bulk", 1.0e6 * region.material.bulkModulusMPa);
+        // ABI 2 retains the exact source value. Full prestress requires a
+        // staged equilibrium initialization and is not jumped in one Human
+        // step after the bounded nonlinear/performance gate rejected it.
+        setLiveOpenKneeMaterialParameter(material, "initial_stretch", 1.0);
+        setLiveOpenKneeMaterialParameter(material, "fiber_x", fiber[0u]);
+        setLiveOpenKneeMaterialParameter(material, "fiber_y", fiber[1u]);
+        setLiveOpenKneeMaterialParameter(material, "fiber_z", fiber[2u]);
+        setLiveOpenKneeMaterialParameter(material, "tension_smoothing", 1.0e-4);
         setLiveOpenKneeMaterialParameter(
             material, "numerical_viscosity", 25.0);
         const std::uint32_t materialIndex =
@@ -13811,7 +13842,7 @@ int main(int argc, char** argv) {
             }
             if (openKneeLigamentFEM.has_value()) {
                 evidenceBoundary += openKneeLigamentFEM->liveHumanCoupling
-                    ? "_with_all_four_source_quadriceps_nonlinear_Hill_tendon_resultants_replacing_their_complete_patella_terminal_rows_through_the_exact_QAT_patellar_enthesis_and_a_zero_resultant_PTL_patella_to_tibial_enthesis_force_couple_plus_exact_QAT_ACL_PCL_MCL_LCL_and_PTL_passive_Matter_FEM_anchor_reactions_in_the_same_Human_command_buffer_with_bitwise_replay_and_rollback_not_active_volumetric_tendon_transverse_isotropy_contact_sustained_tracking_or_clinical_validation"
+                    ? "_with_all_four_source_quadriceps_nonlinear_Hill_tendon_resultants_replacing_their_complete_patella_terminal_rows_through_the_exact_QAT_patellar_enthesis_and_a_zero_resultant_PTL_patella_to_tibial_enthesis_force_couple_plus_exact_QAT_ACL_PCL_MCL_LCL_and_PTL_passive_Matter_FEM_anchor_reactions_in_the_same_Human_command_buffer_with_source_homogeneous_fibre_axes_and_a_smooth_exponential_GPU_approximation_at_neutral_in_situ_stretch_plus_bitwise_replay_and_rollback_not_exact_FEBio_Ei_straightened_fibre_or_staged_prestress_contact_sustained_tracking_or_clinical_validation"
                     : openKneeLigamentFEM->header.abi == 2u
                     ? "_with_four_exact_ligament_and_exact_patellar_tendon_surfaces_owned_by_an_accepted_NHKFEM2_three_body_attachment_reaction_snapshot_under_submicron_tibia_translation_not_loaded_flexion_quadriceps_tendon_source_transverse_isotropy_or_clinical_validation"
                     : "_with_four_exact_ligament_surfaces_owned_by_an_accepted_NHKFEM1_two_body_attachment_reaction_snapshot_under_submicron_tibia_translation_not_loaded_flexion_source_transverse_isotropy_or_clinical_validation";

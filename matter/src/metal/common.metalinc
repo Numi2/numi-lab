@@ -393,6 +393,11 @@ inline float evaluateScalarProgramWithCandidate(
         case NM_EXPR_EXP:
             push(exp(pop()));
             break;
+        case NM_EXPR_EXPM1_MINUS_X: {
+            const float value = pop();
+            push(exp(value) - 1.0f - value);
+            break;
+        }
         case NM_EXPR_SQRT: {
             const float value = pop();
             if (value < 0.0f) {

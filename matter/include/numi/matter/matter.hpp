@@ -105,6 +105,7 @@ enum class ExprKind : std::uint8_t {
     maximum,
     integerPower,
     clamp,
+    expm1MinusArgument,
 };
 
 struct Expr {

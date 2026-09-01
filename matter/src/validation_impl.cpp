@@ -534,6 +534,7 @@ private:
             case NM_EXPR_NEGATE:
             case NM_EXPR_LOG:
             case NM_EXPR_EXP:
+            case NM_EXPR_EXPM1_MINUS_X:
             case NM_EXPR_SQRT:
             case NM_EXPR_ABS:
             case NM_EXPR_POW_INTEGER:
