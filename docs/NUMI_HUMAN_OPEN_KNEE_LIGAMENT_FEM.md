@@ -180,6 +180,58 @@ source axes. The right-side fibre x components reverse sign while y/z remain
 preserved. This is a reflection/registration check, not independently
 segmented right-knee evidence.
 
+## Exact passive axial fibre-transfer v4
+
+Revision `3dc8777` replaces the neutral smooth axial approximation for `PCL`,
+`ACL`, `MCL`, `LCL`, and `PTL` with the exact source FEBio piecewise
+exponential-linear fibre-stress branches. Each reduced element connects the
+centroids of the two exact source enthesis attachment-node sets. Its effective
+area is the source tetrahedral volume divided by the reference centroid
+separation. The exact source tetrahedral volume remains live as neutral
+matrix-only FEM, and its `fiber_scale` is zero so the axial response is not
+counted twice. `QAT` retains its deformable directional material and active
+extensor-chain ownership.
+
+The reduced force is applied as an equal/opposite pair to the two bones through
+their point Jacobians in the same borrowed Human command buffer. A GPU audit
+requires five active regions, an accepted transaction marker, finite positive
+force, bounded stretch, and force/moment closure. The CPU reference test covers
+the slack, exponential, and straightened-fibre linear branches plus stress
+continuity at `lam_max`.
+
+The bilateral source cook measured fibre-axis/centroid-axis alignment from
+`0.99644` through `0.999931`. At the source pose the nonzero tensions were
+`3.34181 N` ACL, `55.4378 N` MCL, and `8.40188 N` LCL, giving an expected
+two-endpoint L1 force of `134.36298 N`. The final mirrored-right Apple M4 Pro
+transaction measured `134.384201 N`, `55.453167 N` peak tension, effective
+stretch `0.999998629-1.034004688`, zero force residual, and
+`6.143906e-8 N m` moment residual. Its `264442`-tet solve retained Jacobians
+`0.999714375-1.000294328`, bitwise replay, and rejected-step rollback.
+
+An initially rigid host gate rejected the physically valid `0.999998629`
+minimum stretch even though the tension-only law correctly permits slack. The
+gate now accepts positive bounded slack while retaining the force, closure,
+determinism, and rollback requirements. Bilateral focused MCL probes also
+passed with `15693` exact nodes and `62712` tetrahedra per side.
+
+All eight `512x512` runtime frames were inspected. Patella remained anterior
+and seated, fibula remained lateral, the QAT-patella-PTL chain was continuous,
+and no detached or inverted tissue was visible. Frames, raw transcripts, the
+rejected validator receipt, hashes, and the machine-readable qualification are
+retained in
+[`numi-human-open-knee-exact-axial-v4`](media/numi-human-open-knee-exact-axial-v4/).
+
+This production path is deliberately narrower than a volumetric prestress
+claim. FEBio defines the exact stress branches used here, but its complete
+transversely isotropic continuum also defines a fibre strain energy and a
+three-field formulation. A homogeneous in-situ stretch jump and rate-staged
+ramp both failed the bounded nonlinear/performance gate. For an image-derived
+fixed reference geometry, the superior continuum path is an iterative,
+generally per-element compatible prestrain-gradient solve rather than a larger
+homogeneous jump. See the
+[FEBio material definition](https://febiosoftware.github.io/febio-feature-manual/features/solid_material_trans_iso_mooney-rivlin/)
+and the [general prestrain framework](https://pmc.ncbi.nlm.nih.gov/articles/PMC7651410/).
+
 ## Evidence boundary
 
 The original `NHKFEM1/2` result is an exact-topology attachment,
@@ -187,12 +239,14 @@ reaction-transfer, rollback/replay preflight under a prescribed sub-micron
 tibia displacement. The live result additionally proves a same-command-buffer
 passive continuum reaction changes the full Human rigid state for one bounded
 step; it is not a sustained or production-cadence rollout.
-The current per-region law applies the source homogeneous fibre direction and
-source-shaped nonlinear directional response. It does not yet apply the final
-source in-situ stretch, the exact FEBio `Ei`/straightened-fibre branches, or a
-spatially varying fibre field. The result is not a loaded flexion validation, clinical
-validation, production-cadence solve, cartilage contact solve, or visual proof
-of a flexed ligament. The active extensor-chain result proves reduced nonlinear
-tendon force transfer through exact QAT/PTL entheses; it is not an active
-volumetric tendon solve. The earlier single-rigid-body flexion images remain
-rejected evidence until accepted deformable nodes own their rendered surfaces.
+The current passive axial owner applies the exact source FEBio stress branches
+and source in-situ stretch between source enthesis attachment-node centroids.
+It is a reduced force-transfer law in parallel with neutral matrix FEM, not the
+exact FEBio fibre energy or a compatible prestressed continuum field. It also
+does not provide a spatially varying fibre field. The result is not a loaded
+flexion validation, clinical validation, production-cadence solve,
+full-resolution cartilage volume solve, or visual proof of a flexed ligament.
+The active extensor-chain result proves reduced nonlinear tendon force transfer
+through exact QAT/PTL entheses; it is not an active volumetric tendon solve.
+The earlier single-rigid-body flexion images remain rejected evidence until
+accepted deformable nodes own their rendered surfaces.
