@@ -581,7 +581,7 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "1e0add8c801300bec1f437621c452786b458a637fd34bc471e407650086a2d73"}
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "3db8b5e8f4fb91c000edecd68a33afd9586fdaf102b9d600cca17a4792d8fa21"}
       ]
     },
     "bilateral_triceps_medialis_enthesis_force_transfer": {
@@ -606,7 +606,7 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "1e0add8c801300bec1f437621c452786b458a637fd34bc471e407650086a2d73"}
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "3db8b5e8f4fb91c000edecd68a33afd9586fdaf102b9d600cca17a4792d8fa21"}
       ]
     },
     "thoracoabdominal_myofascia_force_transfer": {
@@ -614,15 +614,20 @@
       "format": "json",
       "level": "one_step",
       "checks": [
-        {"pointer": "/schema", "op": "equals", "value": "numilab.human.thoracoabdominal-myofascia-live-metal.v1"},
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.thoracoabdominal-myofascia-live-metal.v2"},
         {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
-        {"pointer": "/runtime_revision", "op": "equals", "value": "79d7cc24a69a843de828d68f26b3e9da100521c0"},
+        {"pointer": "/runtime_revision", "op": "equals", "value": "a06d1829bebcc16979b1b1e512a726197cc84ee3"},
         {"pointer": "/anatomy/region_count", "op": "equals", "value": 26},
         {"pointer": "/anatomy/abdominal_terminal_count", "op": "equals", "value": 14},
         {"pointer": "/mechanics/node_count", "op": "equals", "value": 1202},
         {"pointer": "/mechanics/tetrahedron_count", "op": "equals", "value": 2127},
         {"pointer": "/mechanics/fixed_node_count", "op": "equals", "value": 212},
         {"pointer": "/mechanics/traction_node_count", "op": "equals", "value": 212},
+        {"pointer": "/mechanics/directional_region_count", "op": "equals", "value": 26},
+        {"pointer": "/mechanics/material_object_count", "op": "equals", "value": 12},
+        {"pointer": "/mechanics/minimum_exact_terminal_axis_alignment", "op": "minimum", "value": 0.9999},
+        {"pointer": "/mechanics/minimum_sheet_axis_alignment", "op": "minimum", "value": 0.2},
+        {"pointer": "/mechanics/minimum_group_route_alignment", "op": "minimum", "value": 0.95},
         {"pointer": "/one_step/accepted_steps", "op": "equals", "value": 1},
         {"pointer": "/one_step/anchor_reaction_l1_n", "op": "minimum", "value": 0.001},
         {"pointer": "/one_step/minimum_deformation_jacobian", "op": "minimum", "value": 0.35},
@@ -640,11 +645,16 @@
         {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
       ],
       "artifacts": [
-        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "1e0add8c801300bec1f437621c452786b458a637fd34bc471e407650086a2d73"},
-        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/front.png", "sha256": "bf2e5ddb49b9c82770624d9c1539a9130b2d07c9b1fd523e41c88427c4062d0e"},
-        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/oblique.png", "sha256": "b6c6b6a9ae748b1bcd6c16e75ed50b6e4988eb5313153f16fc4e92fd963c598e"},
-        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/side.png", "sha256": "122e1a08dc5e82773cbcfc7c1ecf5cdcdb99b58c42e9d1d267208b7883d18c15"},
-        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/rear.png", "sha256": "eb27c0d50741fc22c0112915b61871b0adf2477140299ec6e00717e21921c1e2"}
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "3db8b5e8f4fb91c000edecd68a33afd9586fdaf102b9d600cca17a4792d8fa21"},
+        {"path": "matter/materials/human_myofascia_regional_transverse_isotropic.nmatter", "sha256": "38b23df6bd18174dc6058d4748e56e995027cef2ab4494cdf5ded2c887b03ac0"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/front.png", "sha256": "c913c7fe15b6fc50cecc53cc4bfa0c546c5e65fb1e213fbc069cd0f1dfdc9194"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/oblique.png", "sha256": "b4f3b4b3c3af9739e8cabe7a6ed28d7cb92df7d541b43e6c006a57be1360b5bc"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/side.png", "sha256": "d5e673b162d11af6e6ac8187add022c11166ddfca8431c37e8611b72a565b3b8"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/rear.png", "sha256": "eb27c0d50741fc22c0112915b61871b0adf2477140299ec6e00717e21921c1e2"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/m4-pro-one-step.txt", "sha256": "bfd5068efc6c45f0df36dcb99a20a3af278738429206305603abeb561ab18850"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/m4-pro-four-step.txt", "sha256": "9b64ca9b2f008a0ba75ca1d4338e903db8dd54052b5c49f3fbc26faef5117913"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/negative-nhfascia3.txt", "sha256": "a45cb0fabc89bff2b4ce7ef17403c0134f2daf6f00b02de4653b5be89f233b60"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-live-v1/negative-owner-horizon.txt", "sha256": "2fb7dbef5aca5ad22f6ea6b00245cdbfb87a112085e02b03938ead273fc6d263"}
       ]
     },
     "adm_source_inferred_feasibility_rejection": {
@@ -859,7 +869,7 @@
         },
         "deformable_mechanics": {"minimum_level": "one_step", "evidence": ["thoracoabdominal_myofascia_force_transfer"]},
         "attachment_coupling": {"minimum_level": "one_step", "evidence": ["thoracoabdominal_myofascia_force_transfer"]},
-        "material_calibration": {"minimum_level": "validated", "evidence": [], "gap": "replace isotropic effective sheets with directional regional materials calibrated against independent held-out data"},
+        "material_calibration": {"minimum_level": "validated", "evidence": [], "gap": "replace homogeneous bilateral class frames and assumed matrix-fibre splits with spatial directional fields calibrated against independent biaxial and held-out deformation data"},
         "contact_or_interaction": {"minimum_level": "one_step", "evidence": [], "gap": "add anatomically relevant fascia sliding and contact without duplicating force authority"},
         "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["thoracoabdominal_myofascia_force_transfer"]},
         "sustained_loaded_motion": {"minimum_level": "sustained", "evidence": [], "gap": "qualify sustained trunk loading with bounded strain force energy and failure behavior"}

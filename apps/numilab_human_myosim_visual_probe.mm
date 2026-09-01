@@ -7300,7 +7300,7 @@ struct LiveOpenKneeRegion {
     std::array<std::uint32_t, 3u> anchorCounts{};
 };
 
-void setLiveOpenKneeMaterialParameter(
+void setMatterMaterialParameter(
     numi::matter::MaterialProgram& material,
     const std::string_view name,
     const double value
@@ -7806,27 +7806,27 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
             : region.name == "PTL" ? bodyIndices[2u] : bodyIndices[0u];
         const auto fiber = moveVectorWithBody(
             region.material.homogeneousFiberWorld, fiberOwnerBody);
-        setLiveOpenKneeMaterialParameter(material, "density", 1000.0);
-        setLiveOpenKneeMaterialParameter(
+        setMatterMaterialParameter(material, "density", 1000.0);
+        setMatterMaterialParameter(
             material, "c1", 1.0e6 * region.material.c1MPa);
-        setLiveOpenKneeMaterialParameter(
+        setMatterMaterialParameter(
             material, "c3", 1.0e6 * region.material.c3MPa);
-        setLiveOpenKneeMaterialParameter(material, "c4", region.material.c4);
+        setMatterMaterialParameter(material, "c4", region.material.c4);
         const bool reducedPassiveFiberOwner = region.name != "QAT";
-        setLiveOpenKneeMaterialParameter(
+        setMatterMaterialParameter(
             material, "fiber_scale", reducedPassiveFiberOwner ? 0.0 : 1.0);
-        setLiveOpenKneeMaterialParameter(
+        setMatterMaterialParameter(
             material, "bulk", 1.0e6 * region.material.bulkModulusMPa);
         // ABI 2 retains the exact source value. A volumetric prestress claim
         // requires an iteratively equilibrated, generally per-element
         // compatible prestrain gradient; the bounded homogeneous jump/ramp
         // experiments rejected and are not used in this Human path.
-        setLiveOpenKneeMaterialParameter(material, "initial_stretch", 1.0);
-        setLiveOpenKneeMaterialParameter(material, "fiber_x", fiber[0u]);
-        setLiveOpenKneeMaterialParameter(material, "fiber_y", fiber[1u]);
-        setLiveOpenKneeMaterialParameter(material, "fiber_z", fiber[2u]);
-        setLiveOpenKneeMaterialParameter(material, "tension_smoothing", 1.0e-4);
-        setLiveOpenKneeMaterialParameter(
+        setMatterMaterialParameter(material, "initial_stretch", 1.0);
+        setMatterMaterialParameter(material, "fiber_x", fiber[0u]);
+        setMatterMaterialParameter(material, "fiber_y", fiber[1u]);
+        setMatterMaterialParameter(material, "fiber_z", fiber[2u]);
+        setMatterMaterialParameter(material, "tension_smoothing", 1.0e-4);
+        setMatterMaterialParameter(
             material, "numerical_viscosity", 25.0);
         const std::uint32_t materialIndex =
             static_cast<std::uint32_t>(worldSource.materials.size());
@@ -9111,6 +9111,15 @@ struct PectoralisFasciaVisual {
     float minimumAnchorReactionL1Newtons = 0.0f;
     std::uint32_t anchorReactionAuditedStepCount = 0u;
     float maximumAnchorNodeReactionNewtons = 0.0f;
+    std::uint32_t directionalRegionCount = 0u;
+    std::uint32_t regionalDirectionalMaterialCount = 0u;
+    std::uint32_t pectoralDirectionalMaterialCount = 0u;
+    std::uint32_t thoracolumbarDirectionalMaterialCount = 0u;
+    std::uint32_t externalObliqueDirectionalMaterialCount = 0u;
+    std::uint32_t internalObliqueDirectionalMaterialCount = 0u;
+    float minimumFibreTerminalAlignment = 1.0f;
+    float minimumFibreSheetAlignment = 1.0f;
+    float minimumFibreGroupAlignment = 1.0f;
     float maximumAnatomicalMappingDistanceMeters = 0.0f;
     float maximumAppliedAnatomicalMappingDistanceMeters = 0.0f;
     float rmsAnatomicalMappingDistanceMeters = 0.0f;
@@ -9219,62 +9228,63 @@ PectoralisFasciaVisual runPectoralisFascia(
     worldSource.mixedSolver.fgmresRestart = 16u;
     worldSource.mixedSolver.fgmresIterations = 64u;
     worldSource.mixedSolver.lineSearchSteps = 12u;
-    auto material = numi::matter::parseMatterFile(
-        NUMI_HUMAN_PECTORALIS_FASCIA_MATERIAL
+    auto regionalMaterial = numi::matter::parseMatterFile(
+        NUMI_HUMAN_REGIONAL_MYOFASCIA_MATERIAL
     );
-    require(material.succeeded(), "human pectoralis fascia Matter material did not parse");
-    worldSource.materials.push_back(std::move(material.material));
-    auto thoracolumbarMaterial = numi::matter::parseMatterFile(
-        NUMI_HUMAN_THORACOLUMBAR_FASCIA_MATERIAL
-    );
-    require(thoracolumbarMaterial.succeeded(),
-            "human thoracolumbar fascia Matter material did not parse");
-    worldSource.materials.push_back(std::move(thoracolumbarMaterial.material));
-    auto externalObliqueMaterial = numi::matter::parseMatterFile(
-        NUMI_HUMAN_ANTERIOR_THORAX_MATERIAL
-    );
-    require(externalObliqueMaterial.succeeded(),
-            "human external-oblique Matter material did not parse");
-    worldSource.materials.push_back(std::move(externalObliqueMaterial.material));
-    std::array<numi::matter::ObjectSource, 4u> objects;
-    objects[0u].name = "bodyparts3d_generated_pectoralis_fascia_fallback";
-    objects[0u].materialIndex = 0u;
-    objects[1u].name = "myosim_route_derived_latissimus_aponeurosis_fallback";
-    objects[1u].materialIndex = 1u;
-    objects[2u].name = "myosim_route_derived_external_oblique_attachment_sheet";
-    objects[2u].materialIndex = 2u;
-    objects[3u].name = "myosim_route_derived_internal_oblique_attachment_sheet";
-    objects[3u].materialIndex = 2u;
-    for (auto& object : objects) {
+    require(regionalMaterial.succeeded(),
+            "human regional myofascia Matter material did not parse");
+    // Matter currently owns one homogeneous fibre frame per material. Keep
+    // all 26 source routes and their endpoint loads, but solve contiguous
+    // regions with a shared bilateral/class frame. This avoids fragmenting
+    // the continuum into 26 tiny independently constrained nonlinear solves.
+    constexpr std::uint32_t kDirectionalObjectCount = 12u;
+    constexpr std::array<std::uint32_t, kDirectionalObjectCount>
+        kDirectionalObjectRegionBegin{0u, 1u, 2u, 3u, 4u, 5u,
+                                      6u, 9u, 12u, 16u, 20u, 23u};
+    constexpr std::array<std::uint32_t, kDirectionalObjectCount>
+        kDirectionalObjectRegionEnd{1u, 2u, 3u, 4u, 5u, 6u,
+                                    9u, 12u, 16u, 20u, 23u, 26u};
+    const auto objectForRegion = [](const std::uint32_t regionIndex) {
+        if (regionIndex < 6u) return regionIndex;
+        if (regionIndex < 9u) return 6u;
+        if (regionIndex < 12u) return 7u;
+        if (regionIndex < 16u) return 8u;
+        if (regionIndex < 20u) return 9u;
+        if (regionIndex < 23u) return 10u;
+        return 11u;
+    };
+    std::vector<numi::matter::ObjectSource> objects(kDirectionalObjectCount);
+    std::array<std::uint32_t, kDirectionalObjectCount> objectGlobalNodeBase{};
+    std::array<mr_float4, kThoracoabdominalFasciaRegionCount>
+        regionFibreDirections{};
+    for (std::uint32_t objectIndex = 0u;
+         objectIndex < kDirectionalObjectCount; ++objectIndex) {
+        const std::uint32_t firstRegion =
+            kDirectionalObjectRegionBegin[objectIndex];
+        auto& object = objects[objectIndex];
+        object.name = "numi_human_regional_myofascia_" +
+            std::to_string(objectIndex);
+        object.materialIndex = objectIndex;
         object.representation = numi::matter::Representation::fem;
         object.mixedFEM = false;
         object.deformableSelfContact = false;
-        object.characteristicLength = 0.005;
+        object.characteristicLength =
+            firstRegion < kPectoralisFasciaRegionCount ? 0.005 :
+            firstRegion < kLatissimusFasciaRegionEnd ? 0.00175 :
+            firstRegion < kExternalObliqueRegionEnd ? 0.0045 : 0.0060;
+        objectGlobalNodeBase[objectIndex] =
+            fascia.regions[firstRegion].firstNode;
     }
-    // The route-derived posterior object is a 0.6 mm sheet.  Use that actual
-    // through-thickness scale for nondimensionalization; the 5 mm pectoral
-    // scale leaves this higher-modulus object unnecessarily ill-conditioned.
-    objects[1u].characteristicLength = 0.00175;
-    objects[2u].characteristicLength = 0.0045;
-    objects[3u].characteristicLength = 0.0060;
-    std::array<std::uint32_t, 4u> objectGlobalNodeBase{
-        0u,
-        fascia.regions.at(kPectoralisFasciaRegionCount).firstNode,
-        fascia.regions.at(kLatissimusFasciaRegionEnd).firstNode,
-        fascia.regions.at(kExternalObliqueRegionEnd).firstNode,
-    };
 
     for (std::uint32_t regionIndex = 0u;
          regionIndex < fascia.regions.size(); ++regionIndex) {
         const PectoralisFasciaRegion& region = fascia.regions[regionIndex];
         const bool routeRegion =
             (region.softTissueStableId & kFasciaRouteBodyBit) != 0u;
-        const std::uint32_t objectIndex =
-            regionIndex < kPectoralisFasciaRegionCount ? 0u :
-            regionIndex < kLatissimusFasciaRegionEnd ? 1u :
-            regionIndex < kExternalObliqueRegionEnd ? 2u : 3u;
-        require(routeRegion == (objectIndex != 0u),
+        require(routeRegion ==
+                    (regionIndex >= kPectoralisFasciaRegionCount),
                 "thoracoabdominal fascia region class drifted");
+        const std::uint32_t objectIndex = objectForRegion(regionIndex);
         auto& object = objects[objectIndex];
         const std::uint32_t sourceBodyIndex =
             region.softTissueStableId & ~kFasciaRouteBodyBit;
@@ -9408,10 +9418,51 @@ PectoralisFasciaVisual runPectoralisFascia(
         }
         const mr_float4 loadEndpoint = endpointWorld(loadBindingIndex);
         const mr_float4 anchorEndpoint = endpointWorld(anchorBindingIndex);
+        const mr_float4 terminalVector =
+            femSubtract(loadEndpoint, anchorEndpoint);
+        const float terminalLength = femLength(terminalVector);
         require(
-            femLength(femSubtract(loadEndpoint, anchorEndpoint)) > 0.01f,
+            terminalLength > 0.01f,
             "pectoralis source tendon terminals are anatomically coincident"
         );
+        const mr_float4 fibreDirection =
+            femScale(terminalVector, 1.0f / terminalLength);
+        const mr_float4 sheetVector =
+            femSubtract(loadCentroid, fixedCentroid);
+        const float sheetLength = femLength(sheetVector);
+        require(sheetLength > 0.005f,
+                "regional myofascia sheet direction is unavailable");
+        const mr_float4 sheetDirection =
+            femScale(sheetVector, 1.0f / sheetLength);
+        const float terminalAlignment = std::abs(
+            fibreDirection.x * terminalVector.x / terminalLength +
+            fibreDirection.y * terminalVector.y / terminalLength +
+            fibreDirection.z * terminalVector.z / terminalLength);
+        const float sheetAlignment = std::abs(
+            fibreDirection.x * sheetDirection.x +
+            fibreDirection.y * sheetDirection.y +
+            fibreDirection.z * sheetDirection.z);
+        require(std::isfinite(terminalAlignment) &&
+                    terminalAlignment > 0.9999f &&
+                    std::isfinite(sheetAlignment) && sheetAlignment > 0.20f,
+                "regional myofascia fibre axis does not follow its exact "
+                "source terminal and sheet directions");
+        result.minimumFibreTerminalAlignment = std::min(
+            result.minimumFibreTerminalAlignment, terminalAlignment);
+        result.minimumFibreSheetAlignment = std::min(
+            result.minimumFibreSheetAlignment, sheetAlignment);
+        regionFibreDirections[regionIndex] = fibreDirection;
+        ++result.directionalRegionCount;
+        if (regionIndex < kPectoralisFasciaRegionCount) {
+            ++result.pectoralDirectionalMaterialCount;
+        } else if (regionIndex < kLatissimusFasciaRegionEnd) {
+            ++result.thoracolumbarDirectionalMaterialCount;
+        } else if (regionIndex < kExternalObliqueRegionEnd) {
+            ++result.externalObliqueDirectionalMaterialCount;
+        } else {
+            ++result.internalObliqueDirectionalMaterialCount;
+        }
+
         regionBindingIndices[regionIndex] = loadBindingIndex;
         const auto& anchorBinding =
             muscles.tendonPayload.bindings[anchorBindingIndex];
@@ -9460,6 +9511,101 @@ PectoralisFasciaVisual runPectoralisFascia(
         }
     }
 
+    // Average only within one anatomical class and body side. Fibre polarity
+    // is mechanically equivalent, so align signs before averaging. Exact
+    // terminal-pair directions remain separately validated for all 26 routes.
+    for (std::uint32_t objectIndex = 0u;
+         objectIndex < kDirectionalObjectCount; ++objectIndex) {
+        const std::uint32_t regionBegin =
+            kDirectionalObjectRegionBegin[objectIndex];
+        const std::uint32_t regionEnd =
+            kDirectionalObjectRegionEnd[objectIndex];
+        const mr_float4 reference = regionFibreDirections[regionBegin];
+        mr_float4 directionSum{0.0f, 0.0f, 0.0f, 0.0f};
+        for (std::uint32_t regionIndex = regionBegin;
+             regionIndex < regionEnd; ++regionIndex) {
+            mr_float4 direction = regionFibreDirections[regionIndex];
+            const float sign =
+                reference.x * direction.x +
+                reference.y * direction.y +
+                reference.z * direction.z < 0.0f ? -1.0f : 1.0f;
+            directionSum = femAdd(directionSum, femScale(direction, sign));
+        }
+        const float directionLength = femLength(directionSum);
+        require(directionLength > 0.5f,
+                "bilateral myofascia group has no coherent fibre axis");
+        const mr_float4 groupDirection =
+            femScale(directionSum, 1.0f / directionLength);
+        for (std::uint32_t regionIndex = regionBegin;
+             regionIndex < regionEnd; ++regionIndex) {
+            const mr_float4 direction = regionFibreDirections[regionIndex];
+            const float alignment = std::abs(
+                groupDirection.x * direction.x +
+                groupDirection.y * direction.y +
+                groupDirection.z * direction.z);
+            require(std::isfinite(alignment) && alignment > 0.65f,
+                    "bilateral myofascia group axis loses a source route");
+            result.minimumFibreGroupAlignment = std::min(
+                result.minimumFibreGroupAlignment, alignment);
+        }
+
+        // Axial targets retain the bounded 10% force-owner scale. EO/IO use
+        // separate human uniaxial median moduli rather than a composite wall
+        // value. The matrix/fibre split remains an explicit v1 assumption.
+        double matrixShearPascals = 0.0;
+        double bulkPascals = 0.0;
+        double fibreK1Pascals = 0.0;
+        double fibreK2 = 2.0;
+        double minimumValidJ = 0.35;
+        double numericalViscosity = 0.0;
+        if (regionBegin < kPectoralisFasciaRegionCount) {
+            matrixShearPascals = 1'840.0;
+            bulkPascals = 500'000.0;
+            fibreK1Pascals = 10'000.0;
+            fibreK2 = 2.36;
+        } else if (regionBegin < kLatissimusFasciaRegionEnd) {
+            constexpr double effectiveAxialPascals = 15.09e6;
+            matrixShearPascals = 0.25 * effectiveAxialPascals / 2.9;
+            bulkPascals = 50.3e6;
+            fibreK1Pascals = 0.75 * effectiveAxialPascals;
+            minimumValidJ = 0.50;
+            numericalViscosity = 25.0;
+        } else if (regionBegin < kExternalObliqueRegionEnd) {
+            constexpr double effectiveAxialPascals = 0.10 * 0.41e6;
+            matrixShearPascals = 0.25 * effectiveAxialPascals / 2.9;
+            bulkPascals = effectiveAxialPascals / 0.30;
+            fibreK1Pascals = 0.75 * effectiveAxialPascals;
+            numericalViscosity = 5.0;
+        } else {
+            constexpr double effectiveAxialPascals = 0.10 * 0.53e6;
+            matrixShearPascals = 0.25 * effectiveAxialPascals / 2.9;
+            bulkPascals = effectiveAxialPascals / 0.30;
+            fibreK1Pascals = 0.75 * effectiveAxialPascals;
+            numericalViscosity = 5.0;
+        }
+        numi::matter::MaterialProgram material = regionalMaterial.material;
+        material.name = "numi_human_regional_myofascia_" +
+            std::to_string(objectIndex) + "_transverse_isotropic";
+        material.fingerprint = 0u;
+        setMatterMaterialParameter(material, "density", 1000.0);
+        setMatterMaterialParameter(
+            material, "matrix_shear", matrixShearPascals);
+        setMatterMaterialParameter(material, "bulk", bulkPascals);
+        setMatterMaterialParameter(material, "fiber_k1", fibreK1Pascals);
+        setMatterMaterialParameter(material, "fiber_k2", fibreK2);
+        setMatterMaterialParameter(material, "fiber_x", groupDirection.x);
+        setMatterMaterialParameter(material, "fiber_y", groupDirection.y);
+        setMatterMaterialParameter(material, "fiber_z", groupDirection.z);
+        setMatterMaterialParameter(material, "tension_smoothing", 1.0e-4);
+        setMatterMaterialParameter(material, "minimum_valid_J", minimumValidJ);
+        setMatterMaterialParameter(
+            material, "numerical_viscosity", numericalViscosity);
+        require(worldSource.materials.size() == objectIndex,
+                "regional myofascia material ordering drifted");
+        worldSource.materials.push_back(std::move(material));
+        ++result.regionalDirectionalMaterialCount;
+    }
+
     std::vector<std::array<double, 3u>> restPoints;
     restPoints.reserve(result.restNodes.size());
     for (const mr_float4& point : result.restNodes) {
@@ -9474,6 +9620,17 @@ PectoralisFasciaVisual runPectoralisFascia(
                 "thoracic fascia object has no fixed contact witness");
         object.femContactNodes = {object.femFixedNodes.front()};
     }
+    require(result.directionalRegionCount ==
+                kThoracoabdominalFasciaRegionCount &&
+                result.regionalDirectionalMaterialCount ==
+                    kDirectionalObjectCount &&
+                result.pectoralDirectionalMaterialCount == 6u &&
+                result.thoracolumbarDirectionalMaterialCount == 6u &&
+                result.externalObliqueDirectionalMaterialCount == 8u &&
+                result.internalObliqueDirectionalMaterialCount == 6u &&
+                worldSource.materials.size() == kDirectionalObjectCount &&
+                objects.size() == kDirectionalObjectCount,
+            "regional myofascia material ownership is incomplete");
     for (const PectoralisFasciaTetrahedron& source : fascia.tetrahedra) {
         std::array<std::uint32_t, 4u> tetrahedron{
             source.node[0], source.node[1], source.node[2], source.node[3],
@@ -9483,14 +9640,17 @@ PectoralisFasciaVisual runPectoralisFascia(
                 "posed pectoralis fascia tetrahedron is degenerate");
         if (volume < 0.0) std::swap(tetrahedron[0], tetrahedron[1]);
         orientedTetrahedra.push_back(tetrahedron);
-        const std::uint32_t objectIndex =
-            source.regionIndex < kPectoralisFasciaRegionCount ? 0u :
-            source.regionIndex < kLatissimusFasciaRegionEnd ? 1u :
-            source.regionIndex < kExternalObliqueRegionEnd ? 2u : 3u;
+        const std::uint32_t objectIndex = objectForRegion(source.regionIndex);
+        require(objectIndex < kDirectionalObjectCount,
+                "regional myofascia tetrahedron escapes its material owner");
         const std::uint32_t nodeBase = objectGlobalNodeBase[objectIndex];
+        const std::uint32_t lastRegion =
+            kDirectionalObjectRegionEnd[objectIndex] - 1u;
+        const std::uint32_t nodeEnd = fascia.regions[lastRegion].firstNode +
+            fascia.regions[lastRegion].nodeCount;
         std::array<std::uint32_t, 4u> localTetrahedron = tetrahedron;
         for (std::uint32_t& node : localTetrahedron) {
-            require(node >= nodeBase,
+            require(node >= nodeBase && node < nodeEnd,
                     "thoracic fascia tetrahedron crosses material objects");
             node -= nodeBase;
         }
@@ -9645,7 +9805,28 @@ PectoralisFasciaVisual runPectoralisFascia(
             " audited_steps=" + std::to_string(
                 reactionAdapterDiagnostics.anchorReactionAuditedStepCount) +
             " trajectory_min_l1_n=" + std::to_string(
-                reactionAdapterDiagnostics.anchorReactionTrajectoryMinimumL1Newtons));
+                reactionAdapterDiagnostics.anchorReactionTrajectoryMinimumL1Newtons) +
+            " accepted_status=" + std::to_string(
+                accepted.statuses.empty() ? NM_INVALID_INDEX :
+                    accepted.statuses.front().code) +
+            " accepted_object=" + std::to_string(
+                accepted.statuses.empty() ? NM_INVALID_INDEX :
+                    accepted.statuses.front().objectIndex) +
+            " accepted_index=" + std::to_string(
+                accepted.statuses.empty() ? NM_INVALID_INDEX :
+                    accepted.statuses.front().failingIndex) +
+            " accepted_microsteps=" + std::to_string(
+                accepted.statuses.empty() ? 0u :
+                    accepted.statuses.front().completedMicrosteps) +
+            " accepted_fgmres=" + std::to_string(
+                accepted.statuses.empty() ? 0u :
+                    accepted.statuses.front().fgmresIterations) +
+            " accepted_minimum_J=" + std::to_string(
+                accepted.statuses.empty() ? 0.0f :
+                    accepted.statuses.front().diagnostics.x) +
+            " accepted_residual=" + std::to_string(
+                accepted.statuses.empty() ? 0.0f :
+                    accepted.statuses.front().diagnostics.y));
     require(transaction.rollbackVerified && transaction.replayVerified,
             "pectoralis fascia did not close Human/Matter rollback and replay");
     const auto adapterDiagnostics = adapter.diagnostics();
@@ -16098,6 +16279,24 @@ int main(int argc, char** argv) {
                               ? pectoralisFascia->anchorReactionAuditedStepCount : 0u)
                       << " pectoralis_fascia_anchor_reaction_max_node_n=" << (pectoralisFascia.has_value()
                               ? pectoralisFascia->maximumAnchorNodeReactionNewtons : 0.0f)
+                      << " pectoralis_fascia_directional_regions=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->directionalRegionCount : 0u)
+                      << " pectoralis_fascia_directional_material_objects=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->regionalDirectionalMaterialCount : 0u)
+                      << " pectoralis_fascia_directional_pectoral_regions=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->pectoralDirectionalMaterialCount : 0u)
+                      << " pectoralis_fascia_directional_thoracolumbar_regions=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->thoracolumbarDirectionalMaterialCount : 0u)
+                      << " pectoralis_fascia_directional_external_oblique_regions=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->externalObliqueDirectionalMaterialCount : 0u)
+                      << " pectoralis_fascia_directional_internal_oblique_regions=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->internalObliqueDirectionalMaterialCount : 0u)
+                      << " pectoralis_fascia_min_fibre_terminal_alignment=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->minimumFibreTerminalAlignment : 0.0f)
+                      << " pectoralis_fascia_min_fibre_sheet_alignment=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->minimumFibreSheetAlignment : 0.0f)
+                      << " pectoralis_fascia_min_fibre_group_alignment=" << (pectoralisFascia.has_value()
+                              ? pectoralisFascia->minimumFibreGroupAlignment : 0.0f)
                       << " pectoralis_fascia_steps=" << (pectoralisFascia.has_value()
                               ? pectoralisFascia->completedSteps : 0u)
                       << " pectoralis_fascia_fgmres_iterations=" << (pectoralisFascia.has_value()
