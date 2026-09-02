@@ -18,6 +18,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <cstdio>
+#include <cstdlib>
 #include <limits>
 #include <mutex>
 #include <span>
@@ -177,6 +179,7 @@ struct MetalNumanXHumanMatterSlot {
     __strong id<MTLBuffer> worldStatuses = nil;
     __strong id<MTLBuffer> acceptedTokens = nil;
     __strong id<MTLBuffer> acceptedStateProofs = nil;
+    __unsafe_unretained id<MTLBuffer> settledStandStatuses = nil;
     MetalNumanXHumanMatterTransaction transaction{};
     MetalNumanXHumanMatterLeaseIdentity lease{};
     HumanMatterSlotStage stage = HumanMatterSlotStage::empty;
@@ -2323,6 +2326,8 @@ void cancelSlot(State& state, Slot& slot) noexcept {
             MetalNumanXHumanMatterPhase::beginStep, false)) return false;
     slot.commandBufferIdentity =
         reinterpret_cast<std::uintptr_t>(pass.commandBuffer);
+    slot.settledStandStatuses =
+        (__bridge id<MTLBuffer>)pass.standStatuses;
     slot.passSignature = passSignature(pass);
     slot.cancelIssued = false;
     slot.matterOpened = false;
@@ -2432,6 +2437,12 @@ void cancelSlot(State& state, Slot& slot) noexcept {
         frame.operationCounts[static_cast<std::uint32_t>(
             numi::matter::CoupledCandidateOperation::publishCandidate)] == 1u;
     if (!encoded.encoded || !completeCallbacks) {
+        if (std::getenv("MRNX_PHYSICAL_DIAGNOSTICS") != nullptr) {
+            std::fprintf(stderr,
+                "mrnx_matter_pre_failure encoded=%u callbacks=%u message=%s\n",
+                encoded.encoded ? 1u : 0u, completeCallbacks ? 1u : 0u,
+                encoded.message.c_str());
+        }
         cancelSlot(state, slot);
         return false;
     }
@@ -4007,6 +4018,71 @@ MetalNumanXHumanMatterProgram MetalNumanXHumanMatterContext::program(
         return {};
     }
     return result;
+}
+
+bool MetalNumanXHumanMatterContext::physicalOutcome(
+    const std::uint32_t transactionSlot,
+    const std::uint64_t transactionFingerprint,
+    const std::uint64_t slotGeneration,
+    MetalNumanXHumanMatterPhysicalOutcome& outcome
+) const noexcept {
+    outcome = {};
+    if (state_ == nullptr || !state_->initialized ||
+        transactionFingerprint == 0u || slotGeneration == 0u) return false;
+    std::lock_guard lock(state_->mutex);
+    if (transactionSlot >= state_->slots.size()) return false;
+    const Slot& slot = state_->slots[transactionSlot];
+    if (!slot.physicalCommandCompleted || slot.physicalCommandFailed ||
+        slot.transaction.transactionSlot != transactionSlot ||
+        slot.transaction.transactionFingerprint != transactionFingerprint ||
+        slot.transaction.slotGeneration != slotGeneration ||
+        slot.coupledArena.jointStatuses == nullptr ||
+        slot.worldStatuses == nil) return false;
+    const auto* joint = static_cast<const MRNumanXCoupledHumanStatusGPU*>(
+        [(__bridge id<MTLBuffer>)slot.coupledArena.jointStatuses contents]);
+    const auto* world = static_cast<const MRMetalWorldStatusGPU*>(
+        slot.worldStatuses.contents);
+    if (joint == nullptr || world == nullptr) return false;
+    outcome.jointDecision = joint[0].decision;
+    outcome.humanCode = joint[0].humanCode;
+    outcome.matterCode = joint[0].matterCode;
+    outcome.humanCompletedSteps = joint[0].humanCompletedSteps;
+    outcome.matterCompletedMicrosteps = joint[0].matterCompletedMicrosteps;
+    outcome.worldCode = world[0].code;
+    outcome.worldSuccessfulSubsteps = world[0].successfulSubsteps;
+    outcome.worldABACode = world[0].abaCode;
+    const auto* human = slot.settledStandStatuses == nil
+        ? nullptr
+        : static_cast<const MRNumiHumanStandStatusGPU*>(
+            slot.settledStandStatuses.contents);
+    if (human != nullptr) {
+        outcome.humanFailingIndex = human[0].failingIndex;
+        outcome.humanActiveContactCount = human[0].activeContactCount;
+        outcome.humanContactIterations = human[0].contactIterations;
+        std::memcpy(
+            outcome.humanContactAndAcceleration.data(),
+            &human[0].contactAndAcceleration,
+            sizeof(human[0].contactAndAcceleration));
+        std::memcpy(
+            outcome.humanFactorAndAssistance.data(),
+            &human[0].factorAndAssistance,
+            sizeof(human[0].factorAndAssistance));
+    }
+    const auto* matter = static_cast<const NMMatterStatusGPU*>(
+        state_->config.matterRuntime->statusBuffer() == nullptr
+            ? nullptr
+            : [(__bridge id<MTLBuffer>)
+                state_->config.matterRuntime->statusBuffer() contents]);
+    if (matter != nullptr) {
+        outcome.matterObjectIndex = matter[0].objectIndex;
+        outcome.matterFailingIndex = matter[0].failingIndex;
+        outcome.matterFGMRESIterations = matter[0].fgmresIterations;
+        outcome.matterContactCount = matter[0].contactCount;
+        std::memcpy(
+            outcome.matterDiagnostics.data(), &matter[0].diagnostics,
+            sizeof(matter[0].diagnostics));
+    }
+    return true;
 }
 
 const char* metalNumanXHumanMatterHostStatusName(

@@ -37,6 +37,28 @@ struct MetalNumanXHumanIOConfig {
         1024ull * 1024ull * 1024ull;
 };
 
+// Optional exact extension of the HumanIO command-buffer transaction. Its
+// identity is mixed into the HumanIO program fingerprint before any phase is
+// offered. The callback may only append same-command-buffer GPU work from the
+// borrowed pass; it cannot commit, wait, read payloads, or retain resources.
+using MetalNumanXHumanIOSupplementalEncode = bool (*)(
+    void* context,
+    const MetalNumanXTransactionPass& pass
+) noexcept;
+
+struct MetalNumanXHumanIOSupplementalProgram {
+    void* context = nullptr;
+    MetalNumanXHumanIOSupplementalEncode encode = nullptr;
+    std::uint64_t fingerprint = 0u;
+
+    [[nodiscard]] bool valid() const noexcept {
+        return context != nullptr && encode != nullptr && fingerprint != 0u;
+    }
+    [[nodiscard]] bool configured() const noexcept {
+        return context != nullptr || encode != nullptr || fingerprint != 0u;
+    }
+};
+
 // One exact NumiBrain/NumanX motor candidate. NumiBrain's root, substep, and
 // motor-candidate records are single-environment values, so this first
 // authoritative adapter revision rejects environmentCount != 1. A future
@@ -103,6 +125,7 @@ struct MetalNumanXHumanIOInput {
     // The candidate owns all brain/transaction provenance. A sensor generation
     // is MetalRobo-owned and must advance relative to the published view.
     std::uint64_t candidateSensorGeneration = 0u;
+    MetalNumanXHumanIOSupplementalProgram supplementalProgram{};
 };
 
 enum class MetalNumanXHumanIOViewState : std::uint32_t {

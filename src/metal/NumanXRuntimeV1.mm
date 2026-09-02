@@ -5,6 +5,7 @@
 
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/MetalNumanXHumanMatter.hpp"
+#include "metalrobo/VisualPresentation.hpp"
 #include "numi/matter/matter.hpp"
 
 #include <algorithm>
@@ -14,12 +15,16 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <cstdio>
+#include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <limits>
 #include <memory>
 #include <mutex>
 #include <new>
 #include <shared_mutex>
+#include <sstream>
 #include <span>
 #include <stdexcept>
 #include <string>
@@ -28,6 +33,15 @@
 #include <vector>
 
 namespace {
+
+static_assert(sizeof(MRNumanXHumanSupportConsequenceGPU) ==
+              sizeof(NMHumanSupportConsequenceGPU));
+static_assert(alignof(MRNumanXHumanSupportConsequenceGPU) ==
+              alignof(NMHumanSupportConsequenceGPU));
+static_assert(sizeof(NMHumanSupportPointQueryGPU) ==
+              sizeof(MRArticulatedPointImpulseGPU));
+static_assert(alignof(NMHumanSupportPointQueryGPU) ==
+              alignof(MRArticulatedPointImpulseGPU));
 
 using metalrobo::numanx_bridge_v1::DomainPtr;
 using metalrobo::numanx_bridge_v1::PreparedTerminalDisposition;
@@ -227,21 +241,362 @@ struct FullBodyAssets {
     std::vector<MRMujocoMuscleStateGPU> states;
     std::vector<MRArticulatedPointImpulseGPU> points;
     std::vector<MRNumiHumanStandContactGPU> supportContacts;
+    std::vector<NMHumanSupportContactGPU> matterSupportContacts;
+    std::vector<NMHumanSupportPointQueryGPU> matterSupportPointQueries;
     mr_float4 groundPoint{};
     mr_float4 groundNormal{0.0f, 1.0f, 0.0f, 0.0f};
     std::uint32_t bodyJacobianPointOffset = 0u;
     std::uint64_t sourceFingerprint = 0u;
 };
 
-[[nodiscard]] std::uint64_t sourceFingerprint(
-    const std::array<std::uint8_t, 32u>& bytes
+struct VisionProfile {
+    std::uint32_t parentBodyIndex = MR_INVALID_INDEX;
+    mr_float4 localPosition{};
+    mr_float4 localOrientation{};
+    mr_float4 intrinsics{};
+    mr_float4 depthAndTimestep{};
+    std::uint32_t width = 0u;
+    std::uint32_t height = 0u;
+    std::uint64_t sourceFingerprint = 0u;
+    std::vector<MRNumanXVisualBodyBoundsGPU> bodyBounds;
+};
+
+[[nodiscard]] mr_float4 quaternionMultiply(
+    const mr_float4 left,
+    const mr_float4 right
 ) noexcept {
+    return {
+        left.w * right.x + left.x * right.w + left.y * right.z -
+            left.z * right.y,
+        left.w * right.y - left.x * right.z + left.y * right.w +
+            left.z * right.x,
+        left.w * right.z + left.x * right.y - left.y * right.x +
+            left.z * right.w,
+        left.w * right.w - left.x * right.x - left.y * right.y -
+            left.z * right.z};
+}
+
+[[nodiscard]] mr_float4 quaternionConjugate(const mr_float4 value) noexcept {
+    return {-value.x, -value.y, -value.z, value.w};
+}
+
+[[nodiscard]] mr_float4 quaternionRotate(
+    const mr_float4 rotation,
+    const mr_float4 vector
+) noexcept {
+    const mr_float4 pure{vector.x, vector.y, vector.z, 0.0f};
+    const mr_float4 rotated = quaternionMultiply(
+        quaternionMultiply(rotation, pure), quaternionConjugate(rotation));
+    return {rotated.x, rotated.y, rotated.z, 0.0f};
+}
+
+[[nodiscard]] std::uint64_t hashBytes(
+    const void* raw,
+    const std::size_t byteCount
+) noexcept {
+    if (raw == nullptr || byteCount == 0u) return 0u;
+    const auto* bytes = static_cast<const std::uint8_t*>(raw);
     std::uint64_t hash = kFnvOffset;
-    for (const std::uint8_t value : bytes) {
-        hash ^= value;
+    for (std::size_t index = 0u; index < byteCount; ++index) {
+        hash ^= bytes[index];
         hash *= kFnvPrime;
     }
     return hash == 0u ? kFnvOffset : hash;
+}
+
+struct ImmutablePayload {
+    std::string bytes;
+};
+
+[[nodiscard]] ImmutablePayload loadImmutablePayload(
+    const std::string& path,
+    const char* description
+) {
+    std::ifstream input(path, std::ios::binary | std::ios::ate);
+    requireBuild(
+        input.is_open(), MRNX_RUNTIME_ASSET_FAILURE_V1,
+        std::string("cannot open ") + description);
+    const std::streampos end = input.tellg();
+    requireBuild(
+        end > 0 && static_cast<std::uintmax_t>(end) <=
+            static_cast<std::uintmax_t>(
+                std::numeric_limits<std::streamsize>::max()),
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        std::string(description) + " has an invalid byte length");
+    ImmutablePayload result;
+    result.bytes.resize(static_cast<std::size_t>(end));
+    input.seekg(0, std::ios::beg);
+    input.read(
+        result.bytes.data(),
+        static_cast<std::streamsize>(result.bytes.size()));
+    requireBuild(
+        input.good(), MRNX_RUNTIME_ASSET_FAILURE_V1,
+        std::string("truncated ") + description);
+    return result;
+}
+
+void appendFingerprintBytes(
+    std::uint64_t& hash,
+    const void* raw,
+    const std::size_t byteCount
+) noexcept {
+    const auto* bytes = static_cast<const std::uint8_t*>(raw);
+    for (std::size_t index = 0u; index < byteCount; ++index) {
+        hash ^= bytes[index];
+        hash *= kFnvPrime;
+    }
+}
+
+void appendFingerprintU64(
+    std::uint64_t& hash,
+    const std::uint64_t value
+) noexcept {
+    for (std::uint32_t index = 0u; index < 8u; ++index) {
+        const std::uint8_t byte = static_cast<std::uint8_t>(
+            (value >> (index * 8u)) & 0xffu);
+        appendFingerprintBytes(hash, &byte, sizeof(byte));
+    }
+}
+
+[[nodiscard]] std::uint64_t fullBodySourceFingerprint(
+    const ImmutablePayload& rigid,
+    const ImmutablePayload& muscle,
+    const ImmutablePayload& support
+) noexcept {
+    constexpr char domain[] = "mrnx.fullbody.source.v1";
+    std::uint64_t hash = kFnvOffset;
+    appendFingerprintBytes(hash, domain, sizeof(domain) - 1u);
+    for (const ImmutablePayload* payload : {&rigid, &muscle, &support}) {
+        appendFingerprintU64(
+            hash, static_cast<std::uint64_t>(payload->bytes.size()));
+        appendFingerprintBytes(
+            hash, payload->bytes.data(), payload->bytes.size());
+    }
+    return hash == 0u ? kFnvOffset : hash;
+}
+
+[[nodiscard]] mr_float4 quaternionRotateHost(
+    const mr_float4 quaternion,
+    const mr_float4 point
+) noexcept {
+    const float ux = quaternion.x;
+    const float uy = quaternion.y;
+    const float uz = quaternion.z;
+    const float scalar = quaternion.w;
+    const float dotUV = ux * point.x + uy * point.y + uz * point.z;
+    const float dotUU = ux * ux + uy * uy + uz * uz;
+    const float crossX = uy * point.z - uz * point.y;
+    const float crossY = uz * point.x - ux * point.z;
+    const float crossZ = ux * point.y - uy * point.x;
+    return {
+        2.0f * dotUV * ux + (scalar * scalar - dotUU) * point.x +
+            2.0f * scalar * crossX,
+        2.0f * dotUV * uy + (scalar * scalar - dotUU) * point.y +
+            2.0f * scalar * crossY,
+        2.0f * dotUV * uz + (scalar * scalar - dotUU) * point.z +
+            2.0f * scalar * crossZ,
+        0.0f};
+}
+
+[[nodiscard]] bool finiteNumber(id value, double& output) noexcept {
+    if (value == nil || ![value isKindOfClass:[NSNumber class]]) return false;
+    output = [static_cast<NSNumber*>(value) doubleValue];
+    return std::isfinite(output);
+}
+
+[[nodiscard]] bool float4Array(
+    id value,
+    mr_float4& output,
+    const float w
+) noexcept {
+    if (value == nil || ![value isKindOfClass:[NSArray class]]) return false;
+    NSArray* array = static_cast<NSArray*>(value);
+    if (array.count != 3u && array.count != 4u) return false;
+    double components[4]{0.0, 0.0, 0.0, static_cast<double>(w)};
+    for (NSUInteger index = 0u; index < array.count; ++index) {
+        if (!finiteNumber(array[index], components[index]) ||
+            components[index] < -std::numeric_limits<float>::max() ||
+            components[index] > std::numeric_limits<float>::max()) {
+            return false;
+        }
+    }
+    output = {
+        static_cast<float>(components[0]),
+        static_cast<float>(components[1]),
+        static_cast<float>(components[2]),
+        static_cast<float>(components[3])};
+    return true;
+}
+
+VisionProfile loadVisionProfile(
+    const std::string& packPath,
+    const std::string& profilePath,
+    const std::uint32_t bodyCount,
+    const std::uint64_t timestepMicroseconds
+) {
+    metalrobo::VisualAssetPackV2 pack;
+    std::string packReason;
+    requireBuild(
+        metalrobo::readVisualAssetPackIndex(
+            std::filesystem::path(packPath), pack, &packReason) &&
+            pack.schemaVersion == metalrobo::kVisualAssetPackVersion &&
+            !pack.contentHash.empty() && !pack.instances.empty() &&
+            !pack.primitives.empty(),
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "visual pack index failed: " + packReason);
+
+    NSString* profileNSString = [NSString stringWithUTF8String:profilePath.c_str()];
+    requireBuild(
+        profileNSString != nil, MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "vision profile path is not valid UTF-8");
+    NSError* readError = nil;
+    NSData* profileData = [NSData dataWithContentsOfFile:profileNSString
+        options:NSDataReadingMappedIfSafe error:&readError];
+    requireBuild(
+        profileData != nil && profileData.length != 0u,
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "vision profile is unreadable");
+    NSError* jsonError = nil;
+    id object = [NSJSONSerialization JSONObjectWithData:profileData
+        options:0 error:&jsonError];
+    requireBuild(
+        object != nil && [object isKindOfClass:[NSDictionary class]],
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "vision profile is not a JSON object");
+    NSDictionary* root = static_cast<NSDictionary*>(object);
+    id schema = root[@"schema"];
+    id contentHash = root[@"visual_pack_content_hash"];
+    id cameraValue = root[@"camera"];
+    requireBuild(
+        [schema isKindOfClass:[NSString class]] &&
+            [static_cast<NSString*>(schema) isEqualToString:
+                @"numi.human.numanx-head-vision-profile.v1"] &&
+            [contentHash isKindOfClass:[NSString class]] &&
+            pack.contentHash == std::string(
+                [static_cast<NSString*>(contentHash) UTF8String]) &&
+            [cameraValue isKindOfClass:[NSDictionary class]],
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "vision profile identity does not match the source visual pack");
+    NSDictionary* camera = static_cast<NSDictionary*>(cameraValue);
+    double bodyIndex = 0.0;
+    double width = 0.0;
+    double height = 0.0;
+    double minimumDepth = 0.0;
+    double maximumDepth = 0.0;
+    double depthQuantum = 0.0;
+    VisionProfile result;
+    requireBuild(
+        finiteNumber(camera[@"parent_body_index"], bodyIndex) &&
+            finiteNumber(camera[@"width"], width) &&
+            finiteNumber(camera[@"height"], height) &&
+            finiteNumber(camera[@"minimum_depth_metres"], minimumDepth) &&
+            finiteNumber(camera[@"maximum_depth_metres"], maximumDepth) &&
+            finiteNumber(camera[@"depth_quantum_metres"], depthQuantum) &&
+            bodyIndex >= 0.0 && bodyIndex < bodyCount &&
+            std::floor(bodyIndex) == bodyIndex &&
+            width == MR_NUMANX_HUMAN_VISION_WIDTH &&
+            height == MR_NUMANX_HUMAN_VISION_HEIGHT &&
+            minimumDepth > 0.0 && maximumDepth > minimumDepth &&
+            depthQuantum > 0.0 &&
+            float4Array(camera[@"local_position_metres"],
+                result.localPosition, 0.0f) &&
+            float4Array(camera[@"local_orientation_xyzw"],
+                result.localOrientation, 1.0f) &&
+            float4Array(camera[@"intrinsics_fx_fy_cx_cy"],
+                result.intrinsics, 0.0f),
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "vision profile camera calibration is invalid");
+    const float quaternionNorm = std::sqrt(
+        result.localOrientation.x * result.localOrientation.x +
+        result.localOrientation.y * result.localOrientation.y +
+        result.localOrientation.z * result.localOrientation.z +
+        result.localOrientation.w * result.localOrientation.w);
+    requireBuild(
+        std::isfinite(quaternionNorm) &&
+            std::abs(quaternionNorm - 1.0f) <= 1.0e-4f &&
+            result.intrinsics.x > 0.0f && result.intrinsics.y > 0.0f,
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "vision profile quaternion or intrinsics are invalid");
+    result.parentBodyIndex = static_cast<std::uint32_t>(bodyIndex);
+    result.width = static_cast<std::uint32_t>(width);
+    result.height = static_cast<std::uint32_t>(height);
+    result.depthAndTimestep = {
+        static_cast<float>(minimumDepth),
+        static_cast<float>(maximumDepth),
+        static_cast<float>(depthQuantum),
+        static_cast<float>(static_cast<double>(timestepMicroseconds) /
+            1'000'000.0)};
+    result.bodyBounds.resize(bodyCount);
+    const float infinity = std::numeric_limits<float>::infinity();
+    for (auto& bounds : result.bodyBounds) {
+        bounds.minimum = {infinity, infinity, infinity, 0.0f};
+        bounds.maximum = {-infinity, -infinity, -infinity, 0.0f};
+    }
+    std::uint32_t boundBodyCount = 0u;
+    for (std::size_t instanceIndex = 0u;
+         instanceIndex < pack.instances.size(); ++instanceIndex) {
+        const MRVisualInstanceGPUV2& instance = pack.instances[instanceIndex];
+        const std::uint32_t body = instance.binding.y;
+        if (body == MR_INVALID_INDEX) continue;
+        requireBuild(
+            body < bodyCount &&
+                instance.geometry.x <= pack.primitives.size() &&
+                instance.geometry.y <=
+                    pack.primitives.size() - instance.geometry.x &&
+                std::isfinite(instance.translationAndScale.w) &&
+                instance.translationAndScale.w > 0.0f,
+            MRNX_RUNTIME_ASSET_FAILURE_V1,
+            "visual pack instance binding is outside the full body");
+        bool bodyWasEmpty = !std::isfinite(result.bodyBounds[body].minimum.x);
+        for (std::uint32_t primitiveOffset = 0u;
+             primitiveOffset < instance.geometry.y; ++primitiveOffset) {
+            const MRVisualPrimitiveGPUV2& primitive =
+                pack.primitives[instance.geometry.x + primitiveOffset];
+            for (std::uint32_t corner = 0u; corner < 8u; ++corner) {
+                mr_float4 point{
+                    (corner & 1u) != 0u ? primitive.boundsMaximum.x
+                                        : primitive.boundsMinimum.x,
+                    (corner & 2u) != 0u ? primitive.boundsMaximum.y
+                                        : primitive.boundsMinimum.y,
+                    (corner & 4u) != 0u ? primitive.boundsMaximum.z
+                                        : primitive.boundsMinimum.z,
+                    0.0f};
+                point.x *= instance.translationAndScale.w;
+                point.y *= instance.translationAndScale.w;
+                point.z *= instance.translationAndScale.w;
+                point = quaternionRotateHost(instance.orientation, point);
+                point.x += instance.translationAndScale.x;
+                point.y += instance.translationAndScale.y;
+                point.z += instance.translationAndScale.z;
+                auto& bounds = result.bodyBounds[body];
+                bounds.minimum.x = std::min(bounds.minimum.x, point.x);
+                bounds.minimum.y = std::min(bounds.minimum.y, point.y);
+                bounds.minimum.z = std::min(bounds.minimum.z, point.z);
+                bounds.maximum.x = std::max(bounds.maximum.x, point.x);
+                bounds.maximum.y = std::max(bounds.maximum.y, point.y);
+                bounds.maximum.z = std::max(bounds.maximum.z, point.z);
+            }
+        }
+        if (bodyWasEmpty &&
+            std::isfinite(result.bodyBounds[body].minimum.x)) {
+            ++boundBodyCount;
+        }
+    }
+    requireBuild(
+        boundBodyCount != 0u &&
+            std::isfinite(result.bodyBounds[result.parentBodyIndex].minimum.x),
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "visual pack has no source-authored bounds for the calibrated head");
+    std::uint64_t fingerprint = hashBytes(
+        pack.contentHash.data(), pack.contentHash.size());
+    const std::uint64_t profileFingerprint = hashBytes(
+        profileData.bytes, profileData.length);
+    fingerprint ^= profileFingerprint;
+    fingerprint *= kFnvPrime;
+    fingerprint ^= boundBodyCount;
+    fingerprint *= kFnvPrime;
+    result.sourceFingerprint = fingerprint == 0u ? kFnvOffset : fingerprint;
+    return result;
 }
 
 [[nodiscard]] std::uint64_t timingFingerprint(
@@ -270,10 +625,14 @@ FullBodyAssets loadFullBodyAssets(
     const std::string& supportContactPath
 ) {
     FullBodyAssets result;
-    std::ifstream rigidInput(rigidPath, std::ios::binary);
-    requireBuild(
-        rigidInput.is_open(), MRNX_RUNTIME_ASSET_FAILURE_V1,
-        "cannot open NHRIGID2 payload");
+    const ImmutablePayload rigidImage = loadImmutablePayload(
+        rigidPath, "NHRIGID2 payload");
+    const ImmutablePayload muscleImage = loadImmutablePayload(
+        musclePath, "NHMYO payload");
+    const ImmutablePayload supportImage = loadImmutablePayload(
+        supportContactPath, "NHCNT1 support-contact payload");
+    std::istringstream rigidInput(
+        rigidImage.bytes, std::ios::in | std::ios::binary);
     readObject(rigidInput, result.rigid, "NHRIGID2 header");
     requireBuild(
         result.rigid.magic == kRigidMagic &&
@@ -330,10 +689,8 @@ FullBodyAssets loadFullBodyAssets(
         result.model.valid(&modelReason), MRNX_RUNTIME_ASSET_FAILURE_V1,
         "NHRIGID2 EngineModel invalid: " + modelReason);
 
-    std::ifstream muscleInput(musclePath, std::ios::binary);
-    requireBuild(
-        muscleInput.is_open(), MRNX_RUNTIME_ASSET_FAILURE_V1,
-        "cannot open NHMYO payload");
+    std::istringstream muscleInput(
+        muscleImage.bytes, std::ios::in | std::ios::binary);
     readObject(muscleInput, result.muscle, "NHMYO header");
     const bool legacy = result.muscle.magic == kLegacyMuscleMagic &&
         result.muscle.payloadABI == kLegacyMuscleABI &&
@@ -431,6 +788,16 @@ FullBodyAssets loadFullBodyAssets(
                 source.routeCount >= 2u,
             MRNX_RUNTIME_ASSET_FAILURE_V1,
             "NHMYO muscle route range is invalid");
+        const auto& firstRoute = result.routes[source.routeOffset];
+        const auto& terminalRoute = result.routes[
+            source.routeOffset + source.routeCount - 1u];
+        requireBuild(
+            firstRoute.type == MR_MUJOCO_MUSCLE_ROUTE_SITE &&
+                terminalRoute.type == MR_MUJOCO_MUSCLE_ROUTE_SITE &&
+                firstRoute.targetIndex < result.sites.size() &&
+                terminalRoute.targetIndex < result.sites.size(),
+            MRNX_RUNTIME_ASSET_FAILURE_V1,
+            "NHMYO muscle endpoints must be source sites");
         MRMujocoMuscleGPU value{};
         value.route = {source.routeOffset, source.routeCount, 0u, 0u};
         value.lengthRangeAndAcceleration = {
@@ -461,10 +828,8 @@ FullBodyAssets loadFullBodyAssets(
         result.states.push_back(state);
     }
 
-    std::ifstream supportInput(supportContactPath, std::ios::binary);
-    requireBuild(
-        supportInput.is_open(), MRNX_RUNTIME_ASSET_FAILURE_V1,
-        "cannot open NHCNT1 support-contact payload");
+    std::istringstream supportInput(
+        supportImage.bytes, std::ios::in | std::ios::binary);
     SupportContactHeader supportHeader{};
     readObject(supportInput, supportHeader, "NHCNT1 header");
     requireBuild(
@@ -540,6 +905,16 @@ FullBodyAssets loadFullBodyAssets(
         const auto pointIndex = static_cast<std::uint32_t>(
             result.points.size());
         result.points.push_back(point);
+        NMHumanSupportPointQueryGPU matterPoint{};
+        matterPoint.bodyIndex = point.bodyIndex;
+        matterPoint.flags = point.flags;
+        matterPoint.localPoint = {
+            point.localPoint.x, point.localPoint.y,
+            point.localPoint.z, point.localPoint.w};
+        matterPoint.worldImpulse = {
+            point.worldImpulse.x, point.worldImpulse.y,
+            point.worldImpulse.z, point.worldImpulse.w};
+        result.matterSupportPointQueries.push_back(matterPoint);
         MRNumiHumanStandContactGPU contact{};
         contact.bodyIndex = source.bodyIndex;
         contact.pointQueryIndex = pointIndex;
@@ -550,6 +925,22 @@ FullBodyAssets loadFullBodyAssets(
             0.2f,
             0.0f};
         result.supportContacts.push_back(contact);
+        NMHumanSupportContactGPU matterContact{};
+        matterContact.identity = {
+            source.bodyIndex,
+            source.sourceGeometryIndex,
+            static_cast<std::uint32_t>(
+                result.matterSupportContacts.size()),
+            0u};
+        matterContact.localPoint = {
+            point.localPoint.x, point.localPoint.y,
+            point.localPoint.z, point.localPoint.w};
+        matterContact.frictionSlopAndStabilization = {
+            contact.frictionSlopAndStabilization.x,
+            contact.frictionSlopAndStabilization.y,
+            contact.frictionSlopAndStabilization.z,
+            contact.frictionSlopAndStabilization.w};
+        result.matterSupportContacts.push_back(matterContact);
     }
     result.bodyJacobianPointOffset =
         static_cast<std::uint32_t>(result.points.size());
@@ -565,7 +956,8 @@ FullBodyAssets loadFullBodyAssets(
             result.points.push_back(point);
         }
     }
-    result.sourceFingerprint = sourceFingerprint(result.rigid.sourceSHA256);
+    result.sourceFingerprint = fullBodySourceFingerprint(
+        rigidImage, muscleImage, supportImage);
     return result;
 }
 
@@ -577,6 +969,7 @@ namespace {
     const std::string& materialPath,
     const std::uint32_t attachmentBody,
     const std::array<double, 3u>& attachmentWorldPosition,
+    const std::array<double, 4u>& attachmentBodyOrientation,
     const std::uint64_t timestepMicroseconds
 ) {
     const auto parsed = numi::matter::parseMatterFile(materialPath);
@@ -591,26 +984,67 @@ namespace {
     source.articulatedDofCapacity =
         MR_NUMANX_COUPLED_HUMAN_MAX_DOFS;
     source.articulatedQCapacity = MR_NUMANX_COUPLED_HUMAN_MAX_Q;
+    // The attached tetrahedron follows a moving articulated boundary. Give
+    // the deterministic outer Newton solve enough reassembly steps and use a
+    // bounded 0.5% post-step residual for this coupled acceptance fixture.
+    source.mixedSolver.newtonIterations = 16u;
+    source.mixedSolver.relativeResidual = 5.0e-3;
     source.materials.push_back(parsed.material);
     numi::matter::ObjectSource object;
     object.name = "numanx_fullbody_attached_fem_v1";
     object.materialIndex = 0u;
     object.representation = numi::matter::Representation::fem;
-    object.characteristicLength = 0.01;
+    // Keep the proof-carrying attached patch small relative to the full body:
+    // it is a coupled Matter witness, not an invented anatomical organ. Its
+    // one-centimetre edge also avoids adding a large artificial inertial mass
+    // to the otherwise source-authored articulated model.
+    constexpr double elementEdgeMetres = 0.01;
+    object.characteristicLength = elementEdgeMetres;
     object.mixedFEM = false;
     const double x = attachmentWorldPosition[0];
     const double y = attachmentWorldPosition[1];
     const double z = attachmentWorldPosition[2];
     object.femNodes = {
-        {x, y, z}, {x + 0.01, y, z},
-        {x, y + 0.01, z}, {x, y, z + 0.01}};
+        {x, y, z}, {x + elementEdgeMetres, y, z},
+        {x, y + elementEdgeMetres, z},
+        {x, y, z + elementEdgeMetres}};
     object.tetrahedra.push_back({{0u, 1u, 2u, 3u}});
-    numi::matter::FEMHumanAttachmentSource attachment;
-    attachment.node = 0u;
-    attachment.bodyIndex = attachmentBody;
-    attachment.stableIdentifier = 0x4e585246u; // NXRF
-    attachment.localPoint = {0.0, 0.0, 0.0};
-    object.femHumanAttachments.push_back(attachment);
+    // Constrain this proof-witness tetrahedron to the pelvis as one coherent
+    // material sample. The original single-corner pin folded a one-centimetre
+    // element under ordinary root motion and therefore measured a fixture
+    // singularity rather than Human/Matter transaction correctness. Local
+    // points are derived from the actual default body frame rather than
+    // assuming that pelvis axes equal world axes.
+    const auto inverseBodyRotate = [&](const std::array<double, 3u>& value) {
+        const double ux = -attachmentBodyOrientation[0];
+        const double uy = -attachmentBodyOrientation[1];
+        const double uz = -attachmentBodyOrientation[2];
+        const double scalar = attachmentBodyOrientation[3];
+        const std::array<double, 3u> twiceCross{
+            2.0 * (uy * value[2] - uz * value[1]),
+            2.0 * (uz * value[0] - ux * value[2]),
+            2.0 * (ux * value[1] - uy * value[0])};
+        return std::array<double, 3u>{
+            value[0] + scalar * twiceCross[0] +
+                (uy * twiceCross[2] - uz * twiceCross[1]),
+            value[1] + scalar * twiceCross[1] +
+                (uz * twiceCross[0] - ux * twiceCross[2]),
+            value[2] + scalar * twiceCross[2] +
+                (ux * twiceCross[1] - uy * twiceCross[0])};
+    };
+    const std::array<std::array<double, 3u>, 4u> attachmentOffsets{{
+        {0.0, 0.0, 0.0},
+        {elementEdgeMetres, 0.0, 0.0},
+        {0.0, elementEdgeMetres, 0.0},
+        {0.0, 0.0, elementEdgeMetres}}};
+    for (std::uint32_t node = 0u; node < attachmentOffsets.size(); ++node) {
+        numi::matter::FEMHumanAttachmentSource attachment;
+        attachment.node = node;
+        attachment.bodyIndex = attachmentBody;
+        attachment.stableIdentifier = 0x4e585246u + node; // NXRF..NXRH
+        attachment.localPoint = inverseBodyRotate(attachmentOffsets[node]);
+        object.femHumanAttachments.push_back(attachment);
+    }
     source.objects.push_back(std::move(object));
     numi::matter::CompileOptions options;
     options.maximumRateExponent = 0u;
@@ -717,6 +1151,17 @@ bool encodeRuntimeProof(
     return output != nil;
 }
 
+[[nodiscard]] bool commandBufferObject(
+    void* raw,
+    __unsafe_unretained id<MTLCommandBuffer>& output
+) noexcept {
+    if (raw == nullptr) return false;
+    __unsafe_unretained id object = (__bridge id)raw;
+    if (![object conformsToProtocol:@protocol(MTLCommandBuffer)]) return false;
+    output = (__bridge id<MTLCommandBuffer>)raw;
+    return output != nil;
+}
+
 [[nodiscard]] bool importableSharedEvent(
     id<MTLDevice> device,
     id<MTLSharedEvent> event
@@ -818,9 +1263,11 @@ struct ActiveRoot final : std::enable_shared_from_this<ActiveRoot> {
     std::uint64_t slotGeneration = 0u;
     std::uint64_t physicsGeneration = 0u;
     std::uint64_t transactionFingerprint = 0u;
+    std::uint32_t transactionSlot = 0u;
     std::uint64_t brainGeneration = 0u;
     std::uint64_t controlStep = 0u;
     std::uint64_t acceptedTimestampMicroseconds = 0u;
+    std::uint64_t receptorTimestampMicroseconds = 0u;
     std::uint64_t previousTransactionFingerprint = 0u;
     std::uint64_t previousPhysicsGeneration = 0u;
     ImportedRange motorHeader{};
@@ -829,6 +1276,17 @@ struct ActiveRoot final : std::enable_shared_from_this<ActiveRoot> {
     ImportedRange activeSensing{};
     ImportedRange motorReadyGate{};
     __strong id<MTLSharedEvent> motorReadyEvent = nil;
+    __strong id<MTLBuffer> kinesthesia = nil;
+    __strong id<MTLBuffer> kinesthesiaValidity = nil;
+    __strong id<MTLBuffer> vestibular = nil;
+    __strong id<MTLBuffer> vestibularValidity = nil;
+    __strong id<MTLBuffer> audition = nil;
+    __strong id<MTLBuffer> auditionValidity = nil;
+    __strong id<MTLBuffer> vision = nil;
+    __strong id<MTLBuffer> visionValidity = nil;
+    __strong id<MTLBuffer> touch = nil;
+    __strong id<MTLBuffer> touchValidity = nil;
+    MRNumanXHumanSupplementalDispatchGPU supplementalDispatch{};
     bool humanSettled = false;
     bool humanReady = false;
     bool physicalSettled = false;
@@ -842,6 +1300,11 @@ struct RuntimeState final : std::enable_shared_from_this<RuntimeState> {
     DomainPtr domain;
     __strong id<MTLDevice> device = nil;
     FullBodyAssets assets;
+    VisionProfile visionProfile;
+    __strong id<MTLLibrary> supplementalLibrary = nil;
+    __strong id<MTLComputePipelineState> supplementalPipeline = nil;
+    __strong id<MTLBuffer> visualBodyBounds = nil;
+    std::uint64_t supplementalProgramFingerprint = 0u;
     std::uint64_t timestepMicroseconds = 0u;
     std::uint32_t transactionSlotCount = 0u;
     std::uint64_t nextSlotGeneration = 1u;
@@ -855,10 +1318,17 @@ struct RuntimeState final : std::enable_shared_from_this<RuntimeState> {
     std::uint64_t publishedPhysicsGeneration = 0u;
     std::uint64_t publishedTimestampMicroseconds = 0u;
     std::uint64_t publishedControlStep = 0u;
+    // Attempts advance even when the root is authoritatively rejected; public
+    // generation/timestamp authority advances only on accepted publication.
+    std::uint64_t lastAttemptedControlStep = 0u;
     std::shared_ptr<ActiveRoot> active;
     mrnx_runtime_info_v1 info{};
     mrnx_aggregate_snapshot_v1 aggregate{};
     mrnx_candidate_timing_v1 aggregateTiming{};
+    mrnx_candidate_channel_v1 aggregateChannels[MRNX_MAX_SENSOR_CHANNELS_V2]{};
+    std::uint32_t aggregateChannelCount = 0u;
+    __strong id<MTLBuffer> publishedChannelValues[MRNX_MAX_SENSOR_CHANNELS_V2]{};
+    __strong id<MTLBuffer> publishedChannelValidity[MRNX_MAX_SENSOR_CHANNELS_V2]{};
     __strong id<MTLBuffer> publishedProprioception = nil;
     __strong id<MTLBuffer> publishedProprioceptionValidity = nil;
     __strong id<MTLBuffer> publishedInteroception = nil;
@@ -905,6 +1375,10 @@ void physicalCompletion(
     bool ready,
     std::uint64_t slotGeneration
 ) noexcept;
+[[nodiscard]] bool encodeSupplementalSensors(
+    void* raw,
+    const metalrobo::MetalNumanXTransactionPass& pass
+) noexcept;
 [[nodiscard]] bool validateRootRequest(
     const std::shared_ptr<RuntimeState>& runtime,
     const mrnx_physical_root_request_v1& request,
@@ -914,6 +1388,147 @@ void physicalCompletion(
     MRNumanXBrainMotorCandidate& candidate,
     std::uint32_t& failureStage
 ) noexcept;
+
+[[nodiscard]] bool loadSupplementalProgram(
+    RuntimeState& runtime,
+    const char* metallibPath
+) {
+    NSString* path = metallibPath != nullptr
+        ? [NSString stringWithUTF8String:metallibPath] : nil;
+    requireBuild(
+        path != nil, MRNX_RUNTIME_METAL_FAILURE_V1,
+        "supplemental sensor metallib path is not valid UTF-8");
+    NSError* readError = nil;
+    NSData* image = [NSData dataWithContentsOfFile:path
+        options:NSDataReadingMappedIfSafe error:&readError];
+    requireBuild(
+        image != nil && image.length != 0u,
+        MRNX_RUNTIME_METAL_FAILURE_V1,
+        "supplemental sensor metallib image is unreadable");
+    const std::uint64_t imageFingerprint = hashBytes(image.bytes, image.length);
+    requireBuild(
+        imageFingerprint != 0u, MRNX_RUNTIME_METAL_FAILURE_V1,
+        "supplemental sensor metallib identity is zero");
+    dispatch_data_t libraryImage = dispatch_data_create(
+        image.bytes,
+        image.length,
+        dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0),
+        DISPATCH_DATA_DESTRUCTOR_DEFAULT);
+    requireBuild(
+        libraryImage != nullptr, MRNX_RUNTIME_METAL_FAILURE_V1,
+        "failed to retain supplemental sensor metallib image");
+    NSError* libraryError = nil;
+    runtime.supplementalLibrary = [runtime.device
+        newLibraryWithData:libraryImage error:&libraryError];
+    requireBuild(
+        runtime.supplementalLibrary != nil,
+        MRNX_RUNTIME_METAL_FAILURE_V1,
+        "failed to load supplemental sensor metallib");
+    id<MTLFunction> function = [runtime.supplementalLibrary
+        newFunctionWithName:@"numanx_human_write_supplemental_sensors"];
+    requireBuild(
+        function != nil, MRNX_RUNTIME_METAL_FAILURE_V1,
+        "MetalRobo metallib is missing the supplemental sensor kernel");
+    NSError* pipelineError = nil;
+    runtime.supplementalPipeline = [runtime.device
+        newComputePipelineStateWithFunction:function error:&pipelineError];
+    requireBuild(
+        runtime.supplementalPipeline != nil,
+        MRNX_RUNTIME_METAL_FAILURE_V1,
+        "failed to create supplemental sensor pipeline");
+    std::uint64_t fingerprint = imageFingerprint;
+    constexpr char functionName[] =
+        "numanx_human_write_supplemental_sensors";
+    for (const unsigned char byte : functionName) {
+        fingerprint ^= byte;
+        fingerprint *= kFnvPrime;
+    }
+    fingerprint ^= MR_NUMANX_HUMAN_IO_ABI_VERSION;
+    fingerprint *= kFnvPrime;
+    fingerprint ^= runtime.visionProfile.sourceFingerprint;
+    fingerprint *= kFnvPrime;
+    // The HumanIO program is proposal/publication authority. Bind the exact
+    // rigid, muscle, and support-contact payload identity into it so a source
+    // change cannot retain the prior accepted sensor/root identity.
+    fingerprint ^= runtime.assets.sourceFingerprint;
+    fingerprint *= kFnvPrime;
+    runtime.supplementalProgramFingerprint =
+        fingerprint == 0u ? kFnvOffset : fingerprint;
+    return true;
+}
+
+[[nodiscard]] id<MTLBuffer> makePrivateBuffer(
+    id<MTLDevice> device,
+    const std::size_t byteCount,
+    NSString* label
+) noexcept {
+    if (device == nil || byteCount == 0u) return nil;
+    id<MTLBuffer> buffer = [device newBufferWithLength:byteCount
+        options:MTLResourceStorageModePrivate];
+    if (buffer == nil || buffer.gpuAddress == 0u ||
+        buffer.length != byteCount) {
+        return nil;
+    }
+    buffer.label = label;
+    return buffer;
+}
+
+[[nodiscard]] bool allocateSupplementalBuffers(
+    const std::shared_ptr<RuntimeState>& runtime,
+    const std::shared_ptr<ActiveRoot>& active
+) noexcept {
+    if (runtime == nullptr || active == nullptr) return false;
+    constexpr std::size_t kinesthesiaValueBytes =
+        MR_NUMANX_HUMAN_KINESTHESIA_RECEPTOR_COUNT *
+        MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT * sizeof(float);
+    constexpr std::size_t kinesthesiaValidityBytes =
+        MR_NUMANX_HUMAN_KINESTHESIA_RECEPTOR_COUNT * sizeof(std::uint32_t);
+    constexpr std::size_t vestibularValueBytes =
+        MR_NUMANX_HUMAN_VESTIBULAR_RECEPTOR_COUNT *
+        MR_NUMANX_HUMAN_VESTIBULAR_FEATURE_COUNT * sizeof(float);
+    constexpr std::size_t vestibularValidityBytes =
+        MR_NUMANX_HUMAN_VESTIBULAR_RECEPTOR_COUNT * sizeof(std::uint32_t);
+    constexpr std::size_t auditionValueBytes =
+        MR_NUMANX_HUMAN_AUDITION_RECEPTOR_COUNT *
+        MR_NUMANX_HUMAN_AUDITION_FEATURE_COUNT * sizeof(float);
+    constexpr std::size_t auditionValidityBytes =
+        MR_NUMANX_HUMAN_AUDITION_RECEPTOR_COUNT * sizeof(std::uint32_t);
+    constexpr std::size_t visionValueBytes =
+        MR_NUMANX_HUMAN_VISION_RECEPTOR_COUNT *
+        MR_NUMANX_HUMAN_VISION_FEATURE_COUNT * sizeof(float);
+    constexpr std::size_t visionValidityBytes =
+        MR_NUMANX_HUMAN_VISION_RECEPTOR_COUNT * sizeof(std::uint32_t);
+    constexpr std::size_t touchValueBytes =
+        MR_NUMANX_HUMAN_TOUCH_RECEPTOR_COUNT *
+        MR_NUMANX_HUMAN_TOUCH_FEATURE_COUNT * sizeof(float);
+    constexpr std::size_t touchValidityBytes =
+        MR_NUMANX_HUMAN_TOUCH_RECEPTOR_COUNT * sizeof(std::uint32_t);
+    active->kinesthesia = makePrivateBuffer(runtime->device,
+        kinesthesiaValueBytes, @"NumanX candidate kinesthesia");
+    active->kinesthesiaValidity = makePrivateBuffer(runtime->device,
+        kinesthesiaValidityBytes, @"NumanX candidate kinesthesia validity");
+    active->vestibular = makePrivateBuffer(runtime->device,
+        vestibularValueBytes, @"NumanX candidate vestibular");
+    active->vestibularValidity = makePrivateBuffer(runtime->device,
+        vestibularValidityBytes, @"NumanX candidate vestibular validity");
+    active->audition = makePrivateBuffer(runtime->device,
+        auditionValueBytes, @"NumanX candidate audition");
+    active->auditionValidity = makePrivateBuffer(runtime->device,
+        auditionValidityBytes, @"NumanX candidate audition validity");
+    active->vision = makePrivateBuffer(runtime->device,
+        visionValueBytes, @"NumanX candidate vision");
+    active->visionValidity = makePrivateBuffer(runtime->device,
+        visionValidityBytes, @"NumanX candidate vision validity");
+    active->touch = makePrivateBuffer(runtime->device,
+        touchValueBytes, @"NumanX candidate touch");
+    active->touchValidity = makePrivateBuffer(runtime->device,
+        touchValidityBytes, @"NumanX candidate touch validity");
+    return active->kinesthesia != nil && active->kinesthesiaValidity != nil &&
+        active->vestibular != nil && active->vestibularValidity != nil &&
+        active->audition != nil && active->auditionValidity != nil &&
+        active->vision != nil && active->visionValidity != nil &&
+        active->touch != nil && active->touchValidity != nil;
+}
 
 [[nodiscard]] std::shared_ptr<RuntimeState> createRuntimeState(
     const mrnx_runtime_config_v1& config
@@ -925,12 +1540,16 @@ void physicalCompletion(
             config.rigid_payload_path != nullptr &&
             config.muscle_payload_path != nullptr &&
             config.support_contact_payload_path != nullptr &&
+            config.visual_pack_path != nullptr &&
+            config.vision_profile_path != nullptr &&
             config.metalrobo_metallib_path != nullptr &&
             config.matter_metallib_path != nullptr &&
             config.matter_material_path != nullptr &&
             config.rigid_payload_path[0] != '\0' &&
             config.muscle_payload_path[0] != '\0' &&
             config.support_contact_payload_path[0] != '\0' &&
+            config.visual_pack_path[0] != '\0' &&
+            config.vision_profile_path[0] != '\0' &&
             config.metalrobo_metallib_path[0] != '\0' &&
             config.matter_metallib_path[0] != '\0' &&
             config.matter_material_path[0] != '\0' &&
@@ -967,9 +1586,33 @@ void physicalCompletion(
         config.support_contact_payload_path);
     runtime->timestepMicroseconds = config.timestep_microseconds;
     runtime->transactionSlotCount = config.transaction_slot_count;
+    runtime->visionProfile = loadVisionProfile(
+        config.visual_pack_path,
+        config.vision_profile_path,
+        runtime->assets.rigid.engineBodyCount,
+        config.timestep_microseconds);
+    requireBuild(
+        runtime->visionProfile.bodyBounds.size() ==
+            runtime->assets.rigid.engineBodyCount,
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "visual body-bound table does not cover the full-body capacity");
+    runtime->visualBodyBounds = [runtime->device
+        newBufferWithBytes:runtime->visionProfile.bodyBounds.data()
+        length:runtime->visionProfile.bodyBounds.size() *
+            sizeof(MRNumanXVisualBodyBoundsGPU)
+        options:MTLResourceStorageModeShared];
+    requireBuild(
+        runtime->visualBodyBounds != nil &&
+            runtime->visualBodyBounds.gpuAddress != 0u,
+        MRNX_RUNTIME_METAL_FAILURE_V1,
+        "failed to allocate source visual body bounds");
+    runtime->visualBodyBounds.label = @"NumanX source visual body bounds";
+    (void)loadSupplementalProgram(*runtime, config.metalrobo_metallib_path);
 
-    const std::uint32_t attachmentBody =
-        runtime->assets.rigid.engineBodyCount - 1u;
+    // Bind the reference Matter patch to the articulated root/pelvis COM.
+    // The prior use of the final imported body was topology-order dependent
+    // and coupled the FEM to an arbitrary high-motion distal link.
+    constexpr std::uint32_t attachmentBody = 0u;
     const std::vector<double> defaultQ(
         runtime->assets.model.defaultQ.begin(),
         runtime->assets.model.defaultQ.end());
@@ -990,6 +1633,7 @@ void physicalCompletion(
         config.matter_material_path,
         attachmentBody,
         defaultBodies[attachmentBody].centerOfMassPosition,
+        defaultBodies[attachmentBody].orientation,
         config.timestep_microseconds);
     runtime->matter = std::make_unique<numi::matter::Runtime>();
     numi::matter::RuntimeConfiguration matterConfig;
@@ -1001,20 +1645,31 @@ void physicalCompletion(
     matterConfig.acceptedStateProofMujocoBytesPerEnvironmentCapacity =
         static_cast<std::uint64_t>(MRNX_FULL_BODY_MUSCLE_COUNT) *
         sizeof(MRMujocoMuscleStateGPU);
+    matterConfig.humanSupportContacts =
+        runtime->assets.matterSupportContacts;
+    matterConfig.humanSupportPointQueries =
+        runtime->assets.matterSupportPointQueries;
+    matterConfig.humanSupportGroundPoint = {
+        runtime->assets.groundPoint.x, runtime->assets.groundPoint.y,
+        runtime->assets.groundPoint.z, runtime->assets.groundPoint.w};
+    matterConfig.humanSupportGroundNormal = {
+        runtime->assets.groundNormal.x, runtime->assets.groundNormal.y,
+        runtime->assets.groundNormal.z, runtime->assets.groundNormal.w};
     const auto matterDiagnostics = runtime->matter->initialize(
         world, matterConfig);
     requireBuild(
         matterDiagnostics.encoded, MRNX_RUNTIME_MATTER_FAILURE_V1,
         "Matter Runtime initialization failed: " +
             matterDiagnostics.message);
-
     metalrobo::MetalNumanXHumanMatterConfig adapterConfig;
     adapterConfig.matterRuntime = runtime->matter.get();
     adapterConfig.coupledHumanMetallibPath =
         config.metalrobo_metallib_path;
     adapterConfig.adapterMetallibPath = config.metalrobo_metallib_path;
     adapterConfig.environmentCapacity = 1u;
-    adapterConfig.pointCapacity = 1u;
+    adapterConfig.pointCapacity = std::max<std::uint32_t>(
+        4u, static_cast<std::uint32_t>(
+            runtime->assets.matterSupportContacts.size()));
     adapterConfig.transactionSlotCount = config.transaction_slot_count;
     adapterConfig.maximumRetainedBytes = config.maximum_retained_bytes;
     adapterConfig.stateProofProgram.context = runtime->matter.get();
@@ -1115,6 +1770,10 @@ void fillRuntimeInfoFailure(
         }
         return failBegin(MRNX_RUNTIME_INVALID_REQUEST_V1);
     }
+    {
+        const std::lock_guard lock(runtime->mutex);
+        runtime->lastAttemptedControlStep = root.controlStepIdentifier;
+    }
 
     std::uint64_t slotGeneration = 0u;
     std::uint64_t sensorGeneration = 0u;
@@ -1139,8 +1798,56 @@ void fillRuntimeInfoFailure(
     active->physicsGeneration = root.basePhysicsGeneration + 1u;
     active->acceptedTimestampMicroseconds =
         substep.candidateTimestampMicroseconds;
+    active->receptorTimestampMicroseconds =
+        substep.startTimestampMicroseconds;
     active->completion = completion;
     active->completionContext = completionContext;
+    if (!allocateSupplementalBuffers(runtime, active)) {
+        {
+            const std::lock_guard lock(runtime->mutex);
+            runtime->info.request_failure_stage = 650u;
+        }
+        return failBegin(MRNX_RUNTIME_METAL_FAILURE_V1);
+    }
+    MRNumanXHumanSupplementalDispatchGPU& supplemental =
+        active->supplementalDispatch;
+    supplemental.abiVersion = MR_NUMANX_HUMAN_IO_ABI_VERSION;
+    supplemental.qCoordinateCount = MRNX_FULL_BODY_NQ;
+    supplemental.dofCount = MRNX_FULL_BODY_NV;
+    supplemental.bodyCount = runtime->assets.rigid.engineBodyCount;
+    supplemental.pointCount = static_cast<std::uint32_t>(
+        runtime->assets.points.size());
+    supplemental.supportPointOffset = runtime->assets.rigid.engineBodyCount;
+    supplemental.supportPointCount = static_cast<std::uint32_t>(
+        runtime->assets.supportContacts.size());
+    supplemental.headBodyIndex = runtime->visionProfile.parentBodyIndex;
+    supplemental.visionWidth = runtime->visionProfile.width;
+    supplemental.visionHeight = runtime->visionProfile.height;
+    supplemental.bodyBoundsCount = static_cast<std::uint32_t>(
+        runtime->visionProfile.bodyBounds.size());
+    supplemental.sensorGeneration = sensorGeneration;
+    supplemental.transactionFingerprint = root.transactionFingerprint;
+    supplemental.substepFingerprint = substep.substepFingerprint;
+    supplemental.expectedActiveSensingGPUAddress =
+        active->activeSensing.address;
+    supplemental.visualSourceFingerprint =
+        runtime->visionProfile.sourceFingerprint;
+    supplemental.programFingerprint =
+        runtime->supplementalProgramFingerprint;
+    const auto supportView =
+        runtime->matter->humanSupportCandidateConsequences();
+    supplemental.expectedSupportConsequencesGPUAddress =
+        supportView.gpuAddress;
+    supplemental.matterProgramFingerprint =
+        runtime->matter->deviceProgramFingerprint();
+    supplemental.groundPoint = runtime->assets.groundPoint;
+    supplemental.groundNormal = runtime->assets.groundNormal;
+    supplemental.cameraLocalPosition = runtime->visionProfile.localPosition;
+    supplemental.cameraLocalOrientation =
+        runtime->visionProfile.localOrientation;
+    supplemental.visionIntrinsics = runtime->visionProfile.intrinsics;
+    supplemental.visionDepthAndTimestep =
+        runtime->visionProfile.depthAndTimestep;
 
     metalrobo::MetalNumanXHumanIOInput humanInput{};
     humanInput.root = root;
@@ -1187,6 +1894,10 @@ void fillRuntimeInfoFailure(
     humanInput.receptorTimestampMicroseconds =
         substep.startTimestampMicroseconds;
     humanInput.candidateSensorGeneration = sensorGeneration;
+    humanInput.supplementalProgram.context = active.get();
+    humanInput.supplementalProgram.encode = &encodeSupplementalSensors;
+    humanInput.supplementalProgram.fingerprint =
+        runtime->supplementalProgramFingerprint;
     metalrobo::MetalNumanXTransactionProgram humanProgram{};
     metalrobo::MetalNumanXHumanIOSensorView candidateView{};
     const auto humanPrepared = runtime->humanIO->prepare(
@@ -1204,6 +1915,7 @@ void fillRuntimeInfoFailure(
     transaction.environmentCount = 1u;
     transaction.transactionSlot = static_cast<std::uint32_t>(
         (slotGeneration - 1u) % runtime->transactionSlotCount);
+    active->transactionSlot = transaction.transactionSlot;
     transaction.controlStep = static_cast<std::uint32_t>(
         root.controlStepIdentifier);
     transaction.physicsSubstep = 0u;
@@ -1267,9 +1979,23 @@ void fillRuntimeInfoFailure(
             .stepCount = 1u,
             .contactIterationCount = 12u,
             .enableContact = false,
+            // The attached world has zero gravity and contact constraints are
+            // outside the v1 tangent authority. Artificial root springs add a
+            // stiff rigid residual without representing source contact, so
+            // leave assistance disabled for this free coupled transaction.
             .enableRootAssistance = false,
             .groundPoint = runtime->assets.groundPoint,
             .groundNormal = runtime->assets.groundNormal,
+            .targetRootPosition = {
+                runtime->assets.model.defaultQ[0u],
+                runtime->assets.model.defaultQ[1u],
+                runtime->assets.model.defaultQ[2u], 0.0f},
+            .targetRootOrientation = {
+                runtime->assets.model.defaultQ[3u],
+                runtime->assets.model.defaultQ[4u],
+                runtime->assets.model.defaultQ[5u],
+                runtime->assets.model.defaultQ[6u]},
+            .assistanceGains = {0.0f, 0.0f, 0.0f, 0.0f},
         },
         .residentContinuation = {
             .previousTransactionFingerprint =
@@ -1284,6 +2010,12 @@ void fillRuntimeInfoFailure(
         runtime->assets.model, ownerInput, *submission);
     if (!submitted.succeeded() || !submitted.dispatched ||
         !submission->valid()) {
+        if (std::getenv("MRNX_PHYSICAL_DIAGNOSTICS") != nullptr) {
+            std::fprintf(
+                stderr, "mrnx_owner_submit_failure status=%u message=%s\n",
+                static_cast<unsigned>(submitted.status),
+                submitted.message.c_str());
+        }
         (void)runtime->humanIO->cancelPrepared(
             root.transactionFingerprint, humanProgram.fingerprint);
         {
@@ -1388,6 +2120,11 @@ mrnx_runtime_v1* mrnx_bridge_v1_runtime_create(
             if (info != nullptr) *info = runtime->state->info;
             return runtime;
         } catch (const RuntimeBuildFailure& failure) {
+            if (std::getenv("MRNX_RUNTIME_DIAGNOSTICS") != nullptr) {
+                std::fprintf(
+                    stderr, "mrnx runtime create failed: %s\n",
+                    failure.what());
+            }
             fillRuntimeInfoFailure(info, failure.status);
             return nullptr;
         } catch (...) {
@@ -1440,6 +2177,188 @@ bool mrnx_bridge_v1_runtime_copy_info(
         info->resident_continuation_count =
             std::numeric_limits<std::uint32_t>::max();
     }
+    return true;
+}
+
+bool mrnx_bridge_v1_runtime_copy_joint_anatomy(
+    const mrnx_runtime_v1* runtime,
+    const std::uint32_t jointIndex,
+    mrnx_joint_anatomy_v1* anatomy
+) {
+    if (runtime == nullptr || runtime->state == nullptr || anatomy == nullptr ||
+        anatomy->abi_version != MRNX_BRIDGE_ABI_V1 ||
+        anatomy->struct_size != sizeof(*anatomy)) {
+        return false;
+    }
+    const std::lock_guard lock(runtime->state->mutex);
+    const auto& model = runtime->state->assets.model;
+    if (jointIndex >= model.joints.size()) {
+        return false;
+    }
+    const MRJointDescriptorGPU& joint = model.joints[jointIndex];
+    if (joint.parentBody >= model.bodies.size() ||
+        joint.childBody >= model.bodies.size()) {
+        return false;
+    }
+    mrnx_joint_anatomy_v1 result{};
+    result.abi_version = MRNX_BRIDGE_ABI_V1;
+    result.struct_size = sizeof(result);
+    result.joint_identifier = jointIndex;
+    result.parent_body_identifier = joint.parentBody;
+    result.child_body_identifier = joint.childBody;
+    result.coordinate_offset = joint.vOffset;
+    result.coordinate_count = joint.nv;
+    result.parent_local_anchor[0] = joint.parentAnchor.x;
+    result.parent_local_anchor[1] = joint.parentAnchor.y;
+    result.parent_local_anchor[2] = joint.parentAnchor.z;
+    result.child_local_anchor[0] = joint.childAnchor.x;
+    result.child_local_anchor[1] = joint.childAnchor.y;
+    result.child_local_anchor[2] = joint.childAnchor.z;
+    const mr_float4 relative = quaternionMultiply(
+        joint.parentRotation, quaternionConjugate(joint.childRotation));
+    result.rest_relative_orientation[0] = relative.x;
+    result.rest_relative_orientation[1] = relative.y;
+    result.rest_relative_orientation[2] = relative.z;
+    result.rest_relative_orientation[3] = relative.w;
+    *anatomy = result;
+    return true;
+}
+
+bool mrnx_bridge_v1_runtime_copy_anatomy_info(
+    const mrnx_runtime_v1* runtime,
+    mrnx_runtime_anatomy_info_v1* info
+) {
+    if (runtime == nullptr || runtime->state == nullptr || info == nullptr ||
+        info->abi_version != MRNX_BRIDGE_ABI_V1 ||
+        info->struct_size != sizeof(*info)) {
+        return false;
+    }
+    const std::lock_guard lock(runtime->state->mutex);
+    const RuntimeState& state = *runtime->state;
+    mrnx_runtime_anatomy_info_v1 result{};
+    result.abi_version = MRNX_BRIDGE_ABI_V1;
+    result.struct_size = sizeof(result);
+    result.body_count = state.assets.rigid.engineBodyCount;
+    result.joint_count = static_cast<std::uint32_t>(
+        state.assets.model.joints.size());
+    result.coordinate_count = static_cast<std::uint32_t>(
+        state.assets.model.dofs.size());
+    result.muscle_count = static_cast<std::uint32_t>(
+        state.assets.muscles.size());
+    result.head_body_identifier = state.visionProfile.parentBodyIndex;
+    result.model_source_fingerprint = state.assets.sourceFingerprint;
+    *info = result;
+    return true;
+}
+
+bool mrnx_bridge_v1_runtime_copy_joint_coordinate_anatomy(
+    const mrnx_runtime_v1* runtime,
+    const std::uint32_t coordinateIndex,
+    mrnx_joint_coordinate_anatomy_v1* anatomy
+) {
+    if (runtime == nullptr || runtime->state == nullptr || anatomy == nullptr ||
+        anatomy->abi_version != MRNX_BRIDGE_ABI_V1 ||
+        anatomy->struct_size != sizeof(*anatomy)) {
+        return false;
+    }
+    const std::lock_guard lock(runtime->state->mutex);
+    const auto& model = runtime->state->assets.model;
+    if (coordinateIndex >= model.dofs.size()) {
+        return false;
+    }
+    const MRDofPropertiesGPU& dof = model.dofs[coordinateIndex];
+    if ((dof.flags & MR_DOF_FLAG_ROOT) != 0u ||
+        dof.jointIndex >= model.joints.size() ||
+        dof.vIndex != coordinateIndex || dof.reserved0 != 0u ||
+        dof.reserved1 != 0u) {
+        return false;
+    }
+    const MRJointDescriptorGPU& joint = model.joints[dof.jointIndex];
+    if (dof.localDof >= joint.nv || dof.localDof >= 3u ||
+        joint.jointType == MR_JOINT_FUNCTION_BASED ||
+        joint.jointType == MR_JOINT_FREE) {
+        return false;
+    }
+    const mr_float4 axis = dof.localDof == 0u
+        ? joint.axis0
+        : (dof.localDof == 1u ? joint.axis1 : joint.axis2);
+    const mr_float4 parentAxis = quaternionRotate(joint.parentRotation, axis);
+    const bool linear = joint.jointType == MR_JOINT_PRISMATIC ||
+        (joint.jointType == MR_JOINT_PLANAR && dof.localDof < 2u);
+    const bool hasPositionLimit =
+        (dof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u;
+    const float extent = std::numeric_limits<float>::max();
+    float rest = 0.0f;
+    if (dof.qIndex != MR_INVALID_INDEX && dof.qIndex < model.defaultQ.size()) {
+        rest = model.defaultQ[dof.qIndex];
+    }
+    mrnx_joint_coordinate_anatomy_v1 result{};
+    result.abi_version = MRNX_BRIDGE_ABI_V1;
+    result.struct_size = sizeof(result);
+    result.joint_identifier = dof.jointIndex;
+    result.coordinate_identifier = dof.localDof;
+    result.kind = linear ? MRNX_JOINT_COORDINATE_LINEAR_V1
+                         : MRNX_JOINT_COORDINATE_ANGULAR_V1;
+    result.q_index = dof.qIndex;
+    result.v_index = dof.vIndex;
+    result.flags = hasPositionLimit
+        ? MRNX_JOINT_COORDINATE_POSITION_LIMIT_V1 : 0u;
+    result.parent_local_axis[0] = parentAxis.x;
+    result.parent_local_axis[1] = parentAxis.y;
+    result.parent_local_axis[2] = parentAxis.z;
+    result.minimum_position = hasPositionLimit ? dof.limits.x : -extent;
+    result.maximum_position = hasPositionLimit ? dof.limits.y : extent;
+    result.rest_position = rest;
+    *anatomy = result;
+    return true;
+}
+
+bool mrnx_bridge_v1_runtime_copy_muscle_attachment_anatomy(
+    const mrnx_runtime_v1* runtime,
+    const std::uint32_t muscleIndex,
+    mrnx_muscle_attachment_anatomy_v1* anatomy
+) {
+    if (runtime == nullptr || runtime->state == nullptr || anatomy == nullptr ||
+        anatomy->abi_version != MRNX_BRIDGE_ABI_V1 ||
+        anatomy->struct_size != sizeof(*anatomy)) {
+        return false;
+    }
+    const std::lock_guard lock(runtime->state->mutex);
+    const FullBodyAssets& assets = runtime->state->assets;
+    if (muscleIndex >= assets.muscles.size()) {
+        return false;
+    }
+    const MRMujocoMuscleGPU& muscle = assets.muscles[muscleIndex];
+    const std::uint32_t routeOffset = muscle.route.x;
+    const std::uint32_t routeCount = muscle.route.y;
+    if (routeCount < 2u || routeOffset > assets.routes.size() ||
+        routeCount > assets.routes.size() - routeOffset) {
+        return false;
+    }
+    const auto& firstRoute = assets.routes[routeOffset];
+    const auto& terminalRoute = assets.routes[routeOffset + routeCount - 1u];
+    if (firstRoute.type != MR_MUJOCO_MUSCLE_ROUTE_SITE ||
+        terminalRoute.type != MR_MUJOCO_MUSCLE_ROUTE_SITE ||
+        firstRoute.targetIndex >= assets.sites.size() ||
+        terminalRoute.targetIndex >= assets.sites.size()) {
+        return false;
+    }
+    const auto& first = assets.sites[firstRoute.targetIndex];
+    const auto& terminal = assets.sites[terminalRoute.targetIndex];
+    mrnx_muscle_attachment_anatomy_v1 result{};
+    result.abi_version = MRNX_BRIDGE_ABI_V1;
+    result.struct_size = sizeof(result);
+    result.muscle_identifier = muscleIndex;
+    result.route_node_count = routeCount;
+    result.first_body_identifier = first.bodyIndex;
+    result.terminal_body_identifier = terminal.bodyIndex;
+    result.first_local_point[0] = first.localPoint.x;
+    result.first_local_point[1] = first.localPoint.y;
+    result.first_local_point[2] = first.localPoint.z;
+    result.terminal_local_point[0] = terminal.localPoint.x;
+    result.terminal_local_point[1] = terminal.localPoint.y;
+    result.terminal_local_point[2] = terminal.localPoint.z;
+    *anatomy = result;
     return true;
 }
 
@@ -1500,11 +2419,15 @@ bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v2(
         return false;
     }
     const std::shared_lock reader(runtime->state->aggregateGate);
+    bool channelsReady = runtime->state->aggregateChannelCount == 7u;
+    for (std::uint32_t index = 0u;
+         index < runtime->state->aggregateChannelCount; ++index) {
+        channelsReady = channelsReady &&
+            runtime->state->publishedChannelValues[index] != nil &&
+            runtime->state->publishedChannelValidity[index] != nil;
+    }
     if (runtime->state->aggregate.publication_epoch == 0u ||
-        runtime->state->publishedProprioception == nil ||
-        runtime->state->publishedProprioceptionValidity == nil ||
-        runtime->state->publishedInteroception == nil ||
-        runtime->state->publishedInteroceptionValidity == nil) {
+        !channelsReady) {
         *snapshot = {};
         return false;
     }
@@ -1521,10 +2444,12 @@ bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v2(
         runtime->state->aggregate.sensor_generation;
     snapshot->root = runtime->state->aggregate.root;
     snapshot->sensor = runtime->state->aggregate.sensor;
-    snapshot->channel_count = runtime->state->aggregate.sensor.channel_count;
+    snapshot->channel_count = runtime->state->aggregateChannelCount;
     snapshot->channel_capacity = MRNX_MAX_SENSOR_CHANNELS_V2;
-    snapshot->channels[0] = runtime->state->aggregate.proprioception;
-    snapshot->channels[1] = runtime->state->aggregate.interoception;
+    for (std::uint32_t index = 0u;
+         index < runtime->state->aggregateChannelCount; ++index) {
+        snapshot->channels[index] = runtime->state->aggregateChannels[index];
+    }
     return true;
 }
 
@@ -1539,12 +2464,16 @@ bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v3(
         return false;
     }
     const std::shared_lock reader(runtime->state->aggregateGate);
+    bool channelsReady = runtime->state->aggregateChannelCount == 7u;
+    for (std::uint32_t index = 0u;
+         index < runtime->state->aggregateChannelCount; ++index) {
+        channelsReady = channelsReady &&
+            runtime->state->publishedChannelValues[index] != nil &&
+            runtime->state->publishedChannelValidity[index] != nil;
+    }
     if (runtime->state->aggregate.publication_epoch == 0u ||
         runtime->state->aggregateTiming.timing_fingerprint == 0u ||
-        runtime->state->publishedProprioception == nil ||
-        runtime->state->publishedProprioceptionValidity == nil ||
-        runtime->state->publishedInteroception == nil ||
-        runtime->state->publishedInteroceptionValidity == nil) {
+        !channelsReady) {
         *snapshot = {};
         return false;
     }
@@ -1562,10 +2491,12 @@ bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v3(
     snapshot->root = runtime->state->aggregate.root;
     snapshot->sensor = runtime->state->aggregate.sensor;
     snapshot->timing = runtime->state->aggregateTiming;
-    snapshot->channel_count = runtime->state->aggregate.sensor.channel_count;
+    snapshot->channel_count = runtime->state->aggregateChannelCount;
     snapshot->channel_capacity = MRNX_MAX_SENSOR_CHANNELS_V2;
-    snapshot->channels[0] = runtime->state->aggregate.proprioception;
-    snapshot->channels[1] = runtime->state->aggregate.interoception;
+    for (std::uint32_t index = 0u;
+         index < runtime->state->aggregateChannelCount; ++index) {
+        snapshot->channels[index] = runtime->state->aggregateChannels[index];
+    }
     return true;
 }
 
@@ -1585,6 +2516,171 @@ namespace {
     result.metal_status = metalStatus;
     result.slot_generation = generation;
     return result;
+}
+
+bool encodeSupplementalSensors(
+    void* raw,
+    const metalrobo::MetalNumanXTransactionPass& pass
+) noexcept {
+    @autoreleasepool {
+        auto* active = static_cast<ActiveRoot*>(raw);
+        if (active == nullptr || active->runtime == nullptr) return false;
+        if (pass.phase != metalrobo::MetalNumanXTransactionPhase::postDynamics) {
+            return pass.phase == metalrobo::MetalNumanXTransactionPhase::beginStep ||
+                pass.phase == metalrobo::MetalNumanXTransactionPhase::preDynamics;
+        }
+        RuntimeState& runtime = *active->runtime;
+        __unsafe_unretained id<MTLCommandBuffer> commandBuffer = nil;
+        __unsafe_unretained id<MTLBuffer> q = nil;
+        __unsafe_unretained id<MTLBuffer> v = nil;
+        __unsafe_unretained id<MTLBuffer> bodyPoses = nil;
+        __unsafe_unretained id<MTLBuffer> pointWorld = nil;
+        __unsafe_unretained id<MTLBuffer> standStatuses = nil;
+        const auto supportView =
+            runtime.matter->humanSupportCandidateConsequences();
+        __unsafe_unretained id<MTLBuffer> supportConsequences =
+            (__bridge id<MTLBuffer>)supportView.buffer;
+        const bool passValid =
+            pass.abiVersion == metalrobo::kMetalNumanXTransactionABIVersion &&
+            pass.structSize == sizeof(pass) && pass.reserved0 == 0u &&
+            pass.stepIndex == 0u && pass.stepCount == 1u &&
+            pass.environmentCount == 1u &&
+            pass.qCoordinateCount == MRNX_FULL_BODY_NQ &&
+            pass.qStride == MRNX_FULL_BODY_NQ &&
+            pass.qElementCount >= MRNX_FULL_BODY_NQ &&
+            pass.dofCount == MRNX_FULL_BODY_NV &&
+            pass.vStride == MRNX_FULL_BODY_NV &&
+            pass.vElementCount >= MRNX_FULL_BODY_NV &&
+            pass.bodyCount == runtime.assets.rigid.engineBodyCount &&
+            pass.bodyPoseStride == runtime.assets.rigid.engineBodyCount &&
+            pass.bodyPoseElementCount >= runtime.assets.rigid.engineBodyCount &&
+            pass.pointCount == runtime.assets.points.size() &&
+            pass.pointWorldStride == runtime.assets.points.size() &&
+            pass.pointWorldElementCount >= runtime.assets.points.size() &&
+            pass.standStatusStride == 1u &&
+            pass.standStatusElementCount >= 1u &&
+            pass.timestepSeconds ==
+                runtime.visionProfile.depthAndTimestep.w &&
+            pass.programFingerprint != 0u &&
+            commandBufferObject(pass.commandBuffer, commandBuffer) &&
+            bufferObject(pass.q, q) && bufferObject(pass.v, v) &&
+            bufferObject(pass.bodyPoses, bodyPoses) &&
+            bufferObject(pass.pointWorld, pointWorld) &&
+            bufferObject(pass.standStatuses, standStatuses) &&
+            q.device == runtime.device && v.device == runtime.device &&
+            bodyPoses.device == runtime.device &&
+            pointWorld.device == runtime.device &&
+            standStatuses.device == runtime.device &&
+            supportConsequences != nil &&
+            supportConsequences.device == runtime.device &&
+            supportView.gpuAddress ==
+                active->supplementalDispatch
+                    .expectedSupportConsequencesGPUAddress &&
+            supportView.elementCount ==
+                active->supplementalDispatch.supportPointCount &&
+            supportView.stride ==
+                active->supplementalDispatch.supportPointCount &&
+            active->activeSensing.buffer.device == runtime.device &&
+            runtime.visualBodyBounds.device == runtime.device &&
+            runtime.supplementalPipeline != nil;
+        if (!passValid) return false;
+
+        struct Region {
+            __unsafe_unretained id<MTLBuffer> buffer;
+            std::uint64_t address;
+            std::uint64_t bytes;
+        };
+        const Region regions[] = {
+            {q, q.gpuAddress, MRNX_FULL_BODY_NQ * sizeof(float)},
+            {v, v.gpuAddress, MRNX_FULL_BODY_NV * sizeof(float)},
+            {bodyPoses, bodyPoses.gpuAddress,
+             runtime.assets.rigid.engineBodyCount *
+                sizeof(MRArticulatedBodyPoseGPU)},
+            {pointWorld, pointWorld.gpuAddress,
+             runtime.assets.points.size() * sizeof(MRArticulatedPointWorldGPU)},
+            {standStatuses, standStatuses.gpuAddress,
+             sizeof(MRNumiHumanStandStatusGPU)},
+            {supportConsequences, supportView.gpuAddress,
+             supportView.elementCount *
+                sizeof(MRNumanXHumanSupportConsequenceGPU)},
+            {active->activeSensing.buffer, active->activeSensing.address,
+             active->activeSensing.byteCount},
+            {runtime.visualBodyBounds, runtime.visualBodyBounds.gpuAddress,
+             runtime.visualBodyBounds.length},
+            {active->kinesthesia, active->kinesthesia.gpuAddress,
+             active->kinesthesia.length},
+            {active->kinesthesiaValidity,
+             active->kinesthesiaValidity.gpuAddress,
+             active->kinesthesiaValidity.length},
+            {active->vestibular, active->vestibular.gpuAddress,
+             active->vestibular.length},
+            {active->vestibularValidity,
+             active->vestibularValidity.gpuAddress,
+             active->vestibularValidity.length},
+            {active->audition, active->audition.gpuAddress,
+             active->audition.length},
+            {active->auditionValidity, active->auditionValidity.gpuAddress,
+             active->auditionValidity.length},
+            {active->vision, active->vision.gpuAddress, active->vision.length},
+            {active->visionValidity, active->visionValidity.gpuAddress,
+             active->visionValidity.length},
+            {active->touch, active->touch.gpuAddress, active->touch.length},
+            {active->touchValidity, active->touchValidity.gpuAddress,
+             active->touchValidity.length},
+        };
+        for (const Region& region : regions) {
+            if (region.buffer == nil || region.address == 0u ||
+                region.bytes == 0u || region.buffer.device != runtime.device ||
+                region.bytes > region.buffer.length) {
+                return false;
+            }
+        }
+        for (std::size_t first = 0u; first < std::size(regions); ++first) {
+            for (std::size_t second = first + 1u;
+                 second < std::size(regions); ++second) {
+                if (regions[first].buffer == regions[second].buffer ||
+                    !disjoint(
+                        regions[first].address, regions[first].bytes,
+                        regions[second].address, regions[second].bytes)) {
+                    return false;
+                }
+            }
+        }
+        id<MTLComputeCommandEncoder> encoder =
+            [commandBuffer computeCommandEncoder];
+        if (encoder == nil) return false;
+        encoder.label = @"NumanX physical supplemental sensors";
+        [encoder setComputePipelineState:runtime.supplementalPipeline];
+        [encoder setBuffer:q offset:0u atIndex:0u];
+        [encoder setBuffer:v offset:0u atIndex:1u];
+        [encoder setBuffer:bodyPoses offset:0u atIndex:2u];
+        [encoder setBuffer:pointWorld offset:0u atIndex:3u];
+        [encoder setBuffer:standStatuses offset:0u atIndex:4u];
+        [encoder setBuffer:active->activeSensing.buffer offset:0u atIndex:5u];
+        [encoder setBuffer:runtime.visualBodyBounds offset:0u atIndex:6u];
+        [encoder setBuffer:active->kinesthesia offset:0u atIndex:7u];
+        [encoder setBuffer:active->kinesthesiaValidity offset:0u atIndex:8u];
+        [encoder setBuffer:active->vestibular offset:0u atIndex:9u];
+        [encoder setBuffer:active->vestibularValidity offset:0u atIndex:10u];
+        [encoder setBuffer:active->audition offset:0u atIndex:11u];
+        [encoder setBuffer:active->auditionValidity offset:0u atIndex:12u];
+        [encoder setBuffer:active->vision offset:0u atIndex:13u];
+        [encoder setBuffer:active->visionValidity offset:0u atIndex:14u];
+        [encoder setBuffer:active->touch offset:0u atIndex:15u];
+        [encoder setBuffer:active->touchValidity offset:0u atIndex:16u];
+        [encoder setBytes:&active->supplementalDispatch
+            length:sizeof(active->supplementalDispatch) atIndex:17u];
+        [encoder setBuffer:supportConsequences offset:0u atIndex:18u];
+        const NSUInteger width = std::max<NSUInteger>(
+            1u,
+            std::min<NSUInteger>(
+                256u, runtime.supplementalPipeline.maxTotalThreadsPerThreadgroup));
+        [encoder dispatchThreads:
+            MTLSizeMake(MR_NUMANX_HUMAN_VISION_RECEPTOR_COUNT, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+        [encoder endEncoding];
+        return true;
+    }
 }
 
 void runtimeTerminalCompletion(
@@ -1619,7 +2715,8 @@ void runtimeTerminalCompletion(
         return;
     }
     const bool commonIdentityValid = active != nullptr &&
-        candidate != nullptr && channels != nullptr && channelCount == 2u &&
+        candidate != nullptr && channels != nullptr && channelCount == 7u &&
+        candidate->channel_count == channelCount &&
         root.transaction_fingerprint == active->transactionFingerprint &&
         root.control_step == active->controlStep &&
         candidate->accepted_brain_generation == active->brainGeneration &&
@@ -1634,7 +2731,73 @@ void runtimeTerminalCompletion(
     }
     const mrnx_candidate_channel_v1* proprioception = nullptr;
     const mrnx_candidate_channel_v1* interoception = nullptr;
+    __unsafe_unretained id<MTLBuffer> channelValues[
+        MRNX_MAX_SENSOR_CHANNELS_V2]{};
+    __unsafe_unretained id<MTLBuffer> channelValidity[
+        MRNX_MAX_SENSOR_CHANNELS_V2]{};
+    bool channelSetValid = true;
     for (std::uint32_t index = 0u; index < channelCount; ++index) {
+        const auto& channel = channels[index];
+        std::uint32_t expectedReceptors = 0u;
+        std::uint32_t expectedFeatures = 0u;
+        switch (channel.modality) {
+            case MRNX_CANDIDATE_MODALITY_PROPRIOCEPTION_V1:
+                expectedReceptors = MRNX_FULL_BODY_MUSCLE_COUNT;
+                expectedFeatures =
+                    MR_NUMANX_HUMAN_PROPRIOCEPTION_FEATURE_COUNT;
+                break;
+            case MRNX_CANDIDATE_MODALITY_INTEROCEPTION_V1:
+                expectedReceptors = MRNX_FULL_BODY_MUSCLE_COUNT;
+                expectedFeatures =
+                    MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT;
+                break;
+            case MRNX_CANDIDATE_MODALITY_KINESTHESIA_V1:
+                expectedReceptors =
+                    MR_NUMANX_HUMAN_KINESTHESIA_RECEPTOR_COUNT;
+                expectedFeatures =
+                    MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT;
+                break;
+            case MRNX_CANDIDATE_MODALITY_VESTIBULAR_V1:
+                expectedReceptors =
+                    MR_NUMANX_HUMAN_VESTIBULAR_RECEPTOR_COUNT;
+                expectedFeatures =
+                    MR_NUMANX_HUMAN_VESTIBULAR_FEATURE_COUNT;
+                break;
+            case MRNX_CANDIDATE_MODALITY_AUDITION_V1:
+                expectedReceptors =
+                    MR_NUMANX_HUMAN_AUDITION_RECEPTOR_COUNT;
+                expectedFeatures =
+                    MR_NUMANX_HUMAN_AUDITION_FEATURE_COUNT;
+                break;
+            case MRNX_CANDIDATE_MODALITY_VISION_V1:
+                expectedReceptors = MR_NUMANX_HUMAN_VISION_RECEPTOR_COUNT;
+                expectedFeatures = MR_NUMANX_HUMAN_VISION_FEATURE_COUNT;
+                break;
+            case MRNX_CANDIDATE_MODALITY_TOUCH_V1:
+                expectedReceptors = MR_NUMANX_HUMAN_TOUCH_RECEPTOR_COUNT;
+                expectedFeatures = MR_NUMANX_HUMAN_TOUCH_FEATURE_COUNT;
+                break;
+            default:
+                break;
+        }
+        channelSetValid = channelSetValid && expectedReceptors != 0u &&
+            channel.receptor_count == expectedReceptors &&
+            channel.feature_dimension == expectedFeatures &&
+            channel.receptor_timestamp_microseconds ==
+                active->receptorTimestampMicroseconds &&
+            channel.flags == MRNX_CANDIDATE_CHANNEL_HAS_VALIDITY_V1 &&
+            bufferObject(channel.values.metal_buffer, channelValues[index]) &&
+            bufferObject(
+                channel.validity.metal_buffer, channelValidity[index]) &&
+            channelValues[index].device == runtime->device &&
+            channelValidity[index].device == runtime->device &&
+            channel.values.gpu_address == channelValues[index].gpuAddress &&
+            channel.validity.gpu_address ==
+                channelValidity[index].gpuAddress &&
+            channel.values.byte_offset == 0u &&
+            channel.validity.byte_offset == 0u &&
+            channel.values.byte_count == channelValues[index].length &&
+            channel.validity.byte_count == channelValidity[index].length;
         if (channels[index].modality ==
             MRNX_CANDIDATE_MODALITY_PROPRIOCEPTION_V1) {
             proprioception = &channels[index];
@@ -1647,7 +2810,8 @@ void runtimeTerminalCompletion(
     __unsafe_unretained id<MTLBuffer> proprioceptionValidity = nil;
     __unsafe_unretained id<MTLBuffer> interoceptionValues = nil;
     __unsafe_unretained id<MTLBuffer> interoceptionValidity = nil;
-    if (proprioception == nullptr || interoception == nullptr ||
+    if (!channelSetValid || proprioception == nullptr ||
+        interoception == nullptr ||
         !bufferObject(
             proprioception->values.metal_buffer, proprioceptionValues) ||
         !bufferObject(
@@ -1687,7 +2851,10 @@ void runtimeTerminalCompletion(
             std::numeric_limits<std::uint32_t>::max() ||
         runtime->timestepMicroseconds >
             std::numeric_limits<std::uint64_t>::max() -
-                active->acceptedTimestampMicroseconds) {
+                active->receptorTimestampMicroseconds ||
+        active->acceptedTimestampMicroseconds !=
+            active->receptorTimestampMicroseconds +
+                runtime->timestepMicroseconds) {
         runtime->active.reset();
         runtime->terminalQuarantine = true;
         return;
@@ -1695,9 +2862,9 @@ void runtimeTerminalCompletion(
     timing.abi_version = MRNX_BRIDGE_ABI_V1;
     timing.struct_size = sizeof(timing);
     timing.capture_timestamp_microseconds =
-        active->acceptedTimestampMicroseconds;
+        active->receptorTimestampMicroseconds;
     timing.delivery_timestamp_microseconds =
-        active->acceptedTimestampMicroseconds + runtime->timestepMicroseconds;
+        active->acceptedTimestampMicroseconds;
     timing.latency_microseconds = static_cast<std::uint32_t>(
         runtime->timestepMicroseconds);
     timing.sample_interval_microseconds = static_cast<std::uint32_t>(
@@ -1717,6 +2884,12 @@ void runtimeTerminalCompletion(
     runtime->publishedProprioceptionValidity = proprioceptionValidity;
     runtime->publishedInteroception = interoceptionValues;
     runtime->publishedInteroceptionValidity = interoceptionValidity;
+    runtime->aggregateChannelCount = channelCount;
+    for (std::uint32_t index = 0u; index < channelCount; ++index) {
+        runtime->aggregateChannels[index] = channels[index];
+        runtime->publishedChannelValues[index] = channelValues[index];
+        runtime->publishedChannelValidity[index] = channelValidity[index];
+    }
     runtime->aggregate = snapshot;
     runtime->aggregateTiming = timing;
     runtime->publishedOnce = true;
@@ -1795,6 +2968,45 @@ void settleActiveRoot(const std::shared_ptr<ActiveRoot>& active) noexcept {
     if (prepared != nullptr) mrnx_bridge_v1_prepared_drop(prepared);
 }
 
+[[nodiscard]] mrnx_metal_range_v1 outputRange(
+    id<MTLBuffer> buffer,
+    const mrnx_element_type_v1 type,
+    const std::uint32_t elementBytes
+) noexcept {
+    mrnx_metal_range_v1 result{};
+    result.abi_version = MRNX_BRIDGE_ABI_V1;
+    result.struct_size = sizeof(result);
+    result.metal_buffer = (__bridge void*)buffer;
+    result.gpu_address = buffer != nil ? buffer.gpuAddress : 0u;
+    result.byte_count = buffer != nil ? buffer.length : 0u;
+    result.element_type = type;
+    result.element_byte_count = elementBytes;
+    return result;
+}
+
+[[nodiscard]] mrnx_candidate_channel_v1 supplementalChannel(
+    const std::uint32_t modality,
+    const std::uint64_t receptorTimestampMicroseconds,
+    const std::uint32_t receptorCount,
+    const std::uint32_t featureCount,
+    id<MTLBuffer> values,
+    id<MTLBuffer> validity
+) noexcept {
+    mrnx_candidate_channel_v1 result{};
+    result.abi_version = MRNX_BRIDGE_ABI_V1;
+    result.struct_size = sizeof(result);
+    result.modality = modality;
+    result.flags = MRNX_CANDIDATE_CHANNEL_HAS_VALIDITY_V1;
+    result.receptor_timestamp_microseconds = receptorTimestampMicroseconds;
+    result.receptor_count = receptorCount;
+    result.feature_dimension = featureCount;
+    result.values = outputRange(
+        values, MRNX_ELEMENT_FLOAT32_V1, sizeof(float));
+    result.validity = outputRange(
+        validity, MRNX_ELEMENT_UINT32_V1, sizeof(std::uint32_t));
+    return result;
+}
+
 void humanCandidateCompletion(
     void* raw,
     const metalrobo::MetalNumanXHumanIOCandidateCompletionStatus status,
@@ -1822,6 +3034,48 @@ void humanCandidateCompletion(
             candidate = metalrobo::numanx_bridge_v1::adoptCandidate(
                 active->runtime->domain, std::move(lease));
             ready = candidate != nullptr;
+        }
+        if (ready) {
+            const mrnx_candidate_channel_v1 supplemental[] = {
+                supplementalChannel(
+                    MRNX_CANDIDATE_MODALITY_KINESTHESIA_V1,
+                    active->receptorTimestampMicroseconds,
+                    MR_NUMANX_HUMAN_KINESTHESIA_RECEPTOR_COUNT,
+                    MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT,
+                    active->kinesthesia, active->kinesthesiaValidity),
+                supplementalChannel(
+                    MRNX_CANDIDATE_MODALITY_VESTIBULAR_V1,
+                    active->receptorTimestampMicroseconds,
+                    MR_NUMANX_HUMAN_VESTIBULAR_RECEPTOR_COUNT,
+                    MR_NUMANX_HUMAN_VESTIBULAR_FEATURE_COUNT,
+                    active->vestibular, active->vestibularValidity),
+                supplementalChannel(
+                    MRNX_CANDIDATE_MODALITY_AUDITION_V1,
+                    active->receptorTimestampMicroseconds,
+                    MR_NUMANX_HUMAN_AUDITION_RECEPTOR_COUNT,
+                    MR_NUMANX_HUMAN_AUDITION_FEATURE_COUNT,
+                    active->audition, active->auditionValidity),
+                supplementalChannel(
+                    MRNX_CANDIDATE_MODALITY_VISION_V1,
+                    active->receptorTimestampMicroseconds,
+                    MR_NUMANX_HUMAN_VISION_RECEPTOR_COUNT,
+                    MR_NUMANX_HUMAN_VISION_FEATURE_COUNT,
+                    active->vision, active->visionValidity),
+                supplementalChannel(
+                    MRNX_CANDIDATE_MODALITY_TOUCH_V1,
+                    active->receptorTimestampMicroseconds,
+                    MR_NUMANX_HUMAN_TOUCH_RECEPTOR_COUNT,
+                    MR_NUMANX_HUMAN_TOUCH_FEATURE_COUNT,
+                    active->touch, active->touchValidity),
+            };
+            ready = metalrobo::numanx_bridge_v1::attachCandidateChannels(
+                candidate, supplemental,
+                static_cast<std::uint32_t>(std::size(supplemental)));
+            if (!ready) {
+                (void)mrnx_bridge_v1_reject_unbound_candidate(candidate);
+                mrnx_bridge_v1_candidate_drop(candidate);
+                candidate = nullptr;
+            }
         }
     }
     {
@@ -1854,9 +3108,60 @@ void physicalCompletion(
         active->physicalSettled = true;
         active->physicalReady = ready &&
             slotGeneration == active->slotGeneration;
-        if (!active->physicalReady) {
-            const std::lock_guard runtimeLock(active->runtime->mutex);
+        metalrobo::MetalNumanXHumanMatterPhysicalOutcome outcome{};
+        const bool hasOutcome = active->physicalReady &&
+            active->runtime->adapter->physicalOutcome(
+                active->transactionSlot,
+                active->transactionFingerprint,
+                active->slotGeneration,
+                outcome);
+        const std::lock_guard runtimeLock(active->runtime->mutex);
+        if (!active->physicalReady || !hasOutcome) {
             active->runtime->info.request_failure_stage = 1100u;
+        } else if (outcome.humanCode != MR_NUMI_HUMAN_STAND_SUCCESS) {
+            active->runtime->info.request_failure_stage =
+                2000u + outcome.humanCode;
+        } else if (outcome.matterCode != 0u) {
+            active->runtime->info.request_failure_stage =
+                3000u + outcome.matterCode;
+        } else if (outcome.worldCode != MR_STEP_SUCCESS) {
+            active->runtime->info.request_failure_stage =
+                4000u + outcome.worldCode;
+        } else if (outcome.jointDecision !=
+                   MR_NUMANX_COUPLED_HUMAN_ACCEPT) {
+            active->runtime->info.request_failure_stage =
+                5000u + outcome.jointDecision;
+        }
+        if (hasOutcome &&
+            std::getenv("MRNX_PHYSICAL_DIAGNOSTICS") != nullptr) {
+            std::fprintf(
+                stderr,
+                "mrnx_matter_status code=%u object=%u index=%u "
+                "fgmres=%u contacts=%u diagnostics=[%.9g,%.9g,%.9g,%.9g]\n",
+                outcome.matterCode, outcome.matterObjectIndex,
+                outcome.matterFailingIndex,
+                outcome.matterFGMRESIterations,
+                outcome.matterContactCount,
+                static_cast<double>(outcome.matterDiagnostics[0]),
+                static_cast<double>(outcome.matterDiagnostics[1]),
+                static_cast<double>(outcome.matterDiagnostics[2]),
+                static_cast<double>(outcome.matterDiagnostics[3]));
+            std::fprintf(
+                stderr,
+                "mrnx_human_status code=%u index=%u contacts=%u "
+                "iterations=%u contact_accel=[%.9g,%.9g,%.9g,%.9g] "
+                "factor_assist=[%.9g,%.9g,%.9g,%.9g]\n",
+                outcome.humanCode, outcome.humanFailingIndex,
+                outcome.humanActiveContactCount,
+                outcome.humanContactIterations,
+                static_cast<double>(outcome.humanContactAndAcceleration[0]),
+                static_cast<double>(outcome.humanContactAndAcceleration[1]),
+                static_cast<double>(outcome.humanContactAndAcceleration[2]),
+                static_cast<double>(outcome.humanContactAndAcceleration[3]),
+                static_cast<double>(outcome.humanFactorAndAssistance[0]),
+                static_cast<double>(outcome.humanFactorAndAssistance[1]),
+                static_cast<double>(outcome.humanFactorAndAssistance[2]),
+                static_cast<double>(outcome.humanFactorAndAssistance[3]));
         }
     }
     settleActiveRoot(active);
@@ -2037,16 +3342,13 @@ void physicalCompletion(
                 runtime->publishedBrainGeneration == 0u ||
                 runtime->publishedPhysicsGeneration == 0u ||
                 runtime->publishedTimestampMicroseconds == 0u ||
-                runtime->publishedControlStep ==
-                    std::numeric_limits<std::uint64_t>::max() ||
                 root.baseBrainGeneration !=
                     runtime->publishedBrainGeneration ||
                 root.basePhysicsGeneration !=
                     runtime->publishedPhysicsGeneration ||
                 root.committedTimestampMicroseconds !=
                     runtime->publishedTimestampMicroseconds ||
-                root.controlStepIdentifier !=
-                    runtime->publishedControlStep + 1u) {
+                root.controlStepIdentifier <= runtime->publishedControlStep) {
                 return false;
             }
             result->previousTransactionFingerprint =
@@ -2056,6 +3358,12 @@ void physicalCompletion(
         } else if (root.baseBrainGeneration != 0u ||
                    root.basePhysicsGeneration != 0u ||
                    runtime->aggregate.publication_epoch != 0u) {
+            return false;
+        }
+        if (runtime->lastAttemptedControlStep ==
+                std::numeric_limits<std::uint64_t>::max() ||
+            root.controlStepIdentifier !=
+                runtime->lastAttemptedControlStep + 1u) {
             return false;
         }
     }

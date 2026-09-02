@@ -186,6 +186,30 @@ struct MetalNumanXHumanMatterDiagnostics {
     }
 };
 
+// Settled scalar diagnostics for qualification and learning provenance. This
+// copies no q/v/MyoSim or proof authority and is available only while the exact
+// slot generation still names the queried transaction.
+struct MetalNumanXHumanMatterPhysicalOutcome {
+    std::uint32_t jointDecision = 0u;
+    std::uint32_t humanCode = 0u;
+    std::uint32_t matterCode = 0u;
+    std::uint32_t humanCompletedSteps = 0u;
+    std::uint32_t humanFailingIndex = 0u;
+    std::uint32_t humanActiveContactCount = 0u;
+    std::uint32_t humanContactIterations = 0u;
+    std::array<float, 4u> humanContactAndAcceleration{};
+    std::array<float, 4u> humanFactorAndAssistance{};
+    std::uint32_t matterCompletedMicrosteps = 0u;
+    std::uint32_t worldCode = 0u;
+    std::uint32_t worldSuccessfulSubsteps = 0u;
+    std::uint32_t worldABACode = 0u;
+    std::uint32_t matterObjectIndex = 0u;
+    std::uint32_t matterFailingIndex = 0u;
+    std::uint32_t matterFGMRESIterations = 0u;
+    std::uint32_t matterContactCount = 0u;
+    std::array<float, 4u> matterDiagnostics{};
+};
+
 // Owns the adapter pipelines and fixed-capacity slot arenas. It never owns a
 // command queue and never retains resources borrowed through an owner pass or
 // prepare lease. A slot remains quarantined across the physical-prepare and
@@ -221,6 +245,13 @@ public:
     [[nodiscard]] MetalNumanXHumanMatterProgram program(
         const MetalNumanXHumanMatterTransaction& transaction
     ) noexcept;
+
+    [[nodiscard]] bool physicalOutcome(
+        std::uint32_t transactionSlot,
+        std::uint64_t transactionFingerprint,
+        std::uint64_t slotGeneration,
+        MetalNumanXHumanMatterPhysicalOutcome& outcome
+    ) const noexcept;
 
 private:
     // A submitted command buffer retains this owned state through its

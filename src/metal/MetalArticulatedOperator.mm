@@ -9023,6 +9023,22 @@ MetalArticulatedOperatorContext::submit(
                     )];
                 [standEncoder endEncoding];
 
+                // Transaction post-dynamics consumers own the final
+                // stand-status validation boundary (including NumanX HumanIO
+                // motor-ready authentication). They must run before the
+                // Human/Matter adapter maps that status and before the owner
+                // chooses prepared versus restored physical state.
+                if (!encodeNumanXTransactionPhase(
+                        MetalNumanXTransactionPhase::postDynamics,
+                        horizonStep
+                    )) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::externalProgramFailure,
+                        "NumanX post-dynamics transaction rejected encoding"
+                    );
+                }
+
                 if (input.stand.numanXHumanMatterProgram.valid()) {
                     if (!encodeHumanMatterPhase(
                             MetalNumanXHumanMatterPhase::postDynamics)) {
@@ -9086,17 +9102,6 @@ MetalArticulatedOperatorContext::submit(
                            threadsPerThreadgroup:MTLSizeMake(
                                kStandThreadsPerThreadgroup, 1u, 1u)];
                     [preparePhysical endEncoding];
-                }
-
-                if (!encodeNumanXTransactionPhase(
-                        MetalNumanXTransactionPhase::postDynamics,
-                        horizonStep
-                    )) {
-                    return reject(
-                        std::move(diagnostics),
-                        MetalArticulatedOperatorHostStatus::externalProgramFailure,
-                        "NumanX post-dynamics transaction rejected encoding"
-                    );
                 }
 
                 if (input.stand.tendonLoadProgram.valid()) {

@@ -24,6 +24,8 @@ constexpr std::uint32_t kFeatureCount =
 constexpr std::uint32_t kInteroceptionFeatureCount =
     MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT;
 constexpr std::uint32_t kCandidateChannelCount = 2u;
+constexpr std::uint32_t kCandidateChannelCapacity =
+    MRNX_MAX_SENSOR_CHANNELS_V2;
 
 [[nodiscard]] std::uint64_t fnvU64(
     std::uint64_t hash,
@@ -275,9 +277,10 @@ struct mrnx_candidate_v1 {
     metalrobo::MetalNumanXHumanIOCandidatePublicationProgram program{};
     mrnx_candidate_view_v1 view{};
     mrnx_candidate_timing_v1 timing{};
-    mrnx_candidate_channel_v1 channels[kCandidateChannelCount]{};
-    __strong id<MTLBuffer> values[kCandidateChannelCount]{nil, nil};
-    __strong id<MTLBuffer> validity[kCandidateChannelCount]{nil, nil};
+    mrnx_candidate_channel_v1 channels[kCandidateChannelCapacity]{};
+    __strong id<MTLBuffer> values[kCandidateChannelCapacity]{};
+    __strong id<MTLBuffer> validity[kCandidateChannelCapacity]{};
+    std::uint32_t channelCount = kCandidateChannelCount;
     bool bound = false;
     bool terminal = false;
     bool lifecycleHeld = true;
@@ -388,7 +391,7 @@ void notifyPreparedTerminal(
     void* context = nullptr;
     mrnx_root_v1 root{};
     mrnx_candidate_view_v1 candidate{};
-    mrnx_candidate_channel_v1 channels[kCandidateChannelCount]{};
+    mrnx_candidate_channel_v1 channels[kCandidateChannelCapacity]{};
     bool hasCandidate = false;
     {
         const std::lock_guard lock(prepared->mutex);
@@ -404,7 +407,7 @@ void notifyPreparedTerminal(
             const std::lock_guard candidateLock(prepared->candidate->mutex);
             candidate = prepared->candidate->view;
             for (std::uint32_t index = 0u;
-                 index < kCandidateChannelCount; ++index) {
+                 index < prepared->candidate->channelCount; ++index) {
                 channels[index] = prepared->candidate->channels[index];
             }
             hasCandidate = true;
@@ -416,7 +419,7 @@ void notifyPreparedTerminal(
         root,
         hasCandidate ? &candidate : nullptr,
         hasCandidate ? channels : nullptr,
-        hasCandidate ? kCandidateChannelCount : 0u);
+        hasCandidate ? candidate.channel_count : 0u);
 }
 
 [[nodiscard]] bool commandBufferObject(
@@ -976,6 +979,7 @@ mrnx_candidate_v1* adoptCandidate(
             program.identityFingerprint;
         handle->view.device_registry_id = domain->deviceRegistryID;
         handle->view.channel_count = kCandidateChannelCount;
+        handle->channelCount = kCandidateChannelCount;
         handle->timing.abi_version = MRNX_BRIDGE_ABI_V1;
         handle->timing.struct_size = sizeof(handle->timing);
         handle->timing.capture_timestamp_microseconds = receptorMicros;
@@ -1030,6 +1034,136 @@ mrnx_candidate_v1* adoptCandidate(
             MRNX_ELEMENT_UINT32_V1,
             sizeof(std::uint32_t));
         return handle;
+    }
+}
+
+bool attachCandidateChannels(
+    mrnx_candidate_v1* candidate,
+    const mrnx_candidate_channel_v1* channels,
+    const std::uint32_t channelCount
+) noexcept {
+    @autoreleasepool {
+        if (candidate == nullptr || channels == nullptr || channelCount == 0u ||
+            channelCount > kCandidateChannelCapacity -
+                kCandidateChannelCount) {
+            return false;
+        }
+        const std::lock_guard lock(candidate->mutex);
+        if (candidate->terminal || candidate->bound ||
+            candidate->channelCount != kCandidateChannelCount ||
+            candidate->domain == nullptr || candidate->domain->device == nil) {
+            return false;
+        }
+
+        struct Range {
+            __unsafe_unretained id<MTLBuffer> buffer = nil;
+            std::uint64_t address = 0u;
+            std::uint64_t count = 0u;
+        };
+        Range ranges[2u * kCandidateChannelCapacity]{};
+        std::size_t rangeCount = 0u;
+        std::uint32_t modalities[kCandidateChannelCapacity]{};
+        for (std::uint32_t index = 0u;
+             index < candidate->channelCount; ++index) {
+            modalities[index] = candidate->channels[index].modality;
+            ranges[rangeCount++] = {
+                candidate->values[index],
+                candidate->channels[index].values.gpu_address,
+                candidate->channels[index].values.byte_count};
+            ranges[rangeCount++] = {
+                candidate->validity[index],
+                candidate->channels[index].validity.gpu_address,
+                candidate->channels[index].validity.byte_count};
+        }
+
+        __strong id<MTLBuffer> stagedValues[kCandidateChannelCapacity]{};
+        __strong id<MTLBuffer> stagedValidity[kCandidateChannelCapacity]{};
+        for (std::uint32_t index = 0u; index < channelCount; ++index) {
+            const auto& channel = channels[index];
+            __unsafe_unretained id<MTLBuffer> values = nil;
+            __unsafe_unretained id<MTLBuffer> validity = nil;
+            std::uint64_t valueElements = 0u;
+            if (channel.receptor_count != 0u &&
+                channel.feature_dimension != 0u &&
+                channel.receptor_count <=
+                    std::numeric_limits<std::uint64_t>::max() /
+                        channel.feature_dimension) {
+                valueElements = static_cast<std::uint64_t>(
+                    channel.receptor_count) * channel.feature_dimension;
+            }
+            bool unique = channel.modality != 0u;
+            for (std::uint32_t prior = 0u;
+                 prior < candidate->channelCount + index; ++prior) {
+                unique = unique && modalities[prior] != channel.modality;
+            }
+            modalities[candidate->channelCount + index] = channel.modality;
+            const bool rangesValid =
+                channel.abi_version == MRNX_BRIDGE_ABI_V1 &&
+                channel.struct_size == sizeof(channel) &&
+                channel.flags == MRNX_CANDIDATE_CHANNEL_HAS_VALIDITY_V1 &&
+                channel.receptor_timestamp_microseconds ==
+                    candidate->timing.capture_timestamp_microseconds &&
+                unique && valueElements != 0u &&
+                valueElements <=
+                    std::numeric_limits<std::uint64_t>::max() /
+                        sizeof(float) &&
+                bufferObject(channel.values.metal_buffer, values) &&
+                bufferObject(channel.validity.metal_buffer, validity) &&
+                values.device == candidate->domain->device &&
+                validity.device == candidate->domain->device &&
+                channel.values.abi_version == MRNX_BRIDGE_ABI_V1 &&
+                channel.values.struct_size == sizeof(channel.values) &&
+                channel.values.element_type == MRNX_ELEMENT_FLOAT32_V1 &&
+                channel.values.element_byte_count == sizeof(float) &&
+                channel.values.byte_count == valueElements * sizeof(float) &&
+                channel.values.byte_offset <= values.length &&
+                channel.values.byte_count <=
+                    values.length - channel.values.byte_offset &&
+                channel.values.gpu_address ==
+                    values.gpuAddress + channel.values.byte_offset &&
+                channel.validity.abi_version == MRNX_BRIDGE_ABI_V1 &&
+                channel.validity.struct_size == sizeof(channel.validity) &&
+                channel.validity.element_type == MRNX_ELEMENT_UINT32_V1 &&
+                channel.validity.element_byte_count ==
+                    sizeof(std::uint32_t) &&
+                channel.validity.byte_count ==
+                    static_cast<std::uint64_t>(channel.receptor_count) *
+                        sizeof(std::uint32_t) &&
+                channel.validity.byte_offset <= validity.length &&
+                channel.validity.byte_count <=
+                    validity.length - channel.validity.byte_offset &&
+                channel.validity.gpu_address ==
+                    validity.gpuAddress + channel.validity.byte_offset;
+            if (!rangesValid || values == validity) return false;
+            ranges[rangeCount++] = {
+                values, channel.values.gpu_address,
+                channel.values.byte_count};
+            ranges[rangeCount++] = {
+                validity, channel.validity.gpu_address,
+                channel.validity.byte_count};
+            stagedValues[index] = values;
+            stagedValidity[index] = validity;
+        }
+        for (std::size_t first = 0u; first < rangeCount; ++first) {
+            for (std::size_t second = first + 1u;
+                 second < rangeCount; ++second) {
+                if (ranges[first].buffer == ranges[second].buffer ||
+                    !disjoint(
+                        ranges[first].address, ranges[first].count,
+                        ranges[second].address, ranges[second].count)) {
+                    return false;
+                }
+            }
+        }
+        for (std::uint32_t index = 0u; index < channelCount; ++index) {
+            const std::uint32_t destination = candidate->channelCount + index;
+            candidate->channels[destination] = channels[index];
+            candidate->values[destination] = stagedValues[index];
+            candidate->validity[destination] = stagedValidity[index];
+        }
+        candidate->channelCount += channelCount;
+        candidate->view.channel_count = candidate->channelCount;
+        return true;
     }
 }
 
@@ -1354,12 +1488,13 @@ bool mrnx_bridge_v1_candidate_copy_channel(
     const uint32_t channelIndex,
     mrnx_candidate_channel_v1* output
 ) {
-    if (candidate == nullptr || channelIndex >= kCandidateChannelCount ||
-        !writableOutput(output)) {
+    if (candidate == nullptr || !writableOutput(output)) {
         return false;
     }
     const std::lock_guard lock(candidate->mutex);
-    if (candidate->terminal) return false;
+    if (candidate->terminal || channelIndex >= candidate->channelCount) {
+        return false;
+    }
     *output = candidate->channels[channelIndex];
     return true;
 }

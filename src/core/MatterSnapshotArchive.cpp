@@ -212,6 +212,8 @@ std::vector<std::byte> serialize(
     writer.podVector(snapshot.rigidStates);
     writer.podVector(snapshot.contactSamples);
     writer.podVector(snapshot.contactHistories);
+    writer.podVector(snapshot.humanSupportHistories);
+    writer.podVector(snapshot.humanSupportConsequences);
     writer.podVector(snapshot.deformableContactHistories);
     writer.podVector(snapshot.particleMaterialState);
     writer.podVector(snapshot.femMaterialState);
@@ -277,7 +279,15 @@ bool deserialize(
         !reader.podVector(snapshot.reactions) ||
         !reader.podVector(snapshot.rigidStates) ||
         !reader.podVector(snapshot.contactSamples) ||
-        !reader.podVector(snapshot.contactHistories) ||
+        !reader.podVector(snapshot.contactHistories)) {
+        return false;
+    }
+    if (formatVersion >= 4u &&
+        (!reader.podVector(snapshot.humanSupportHistories) ||
+         !reader.podVector(snapshot.humanSupportConsequences))) {
+        return false;
+    }
+    if (
         !reader.podVector(snapshot.deformableContactHistories) ||
         !reader.podVector(snapshot.particleMaterialState) ||
         !reader.podVector(snapshot.femMaterialState) ||
@@ -422,6 +432,7 @@ MatterSnapshotArchiveResult readMatterSnapshotArchive(
         }
         if ((header.formatVersion != 1u &&
              header.formatVersion != 2u &&
+             header.formatVersion != 3u &&
              header.formatVersion != kMatterSnapshotArchiveVersion) ||
             header.endianMarker != kEndianMarker ||
             header.matterAbiVersion != NM_MATTER_ABI_VERSION) {
@@ -540,6 +551,12 @@ bool sameMatterSnapshotAuthority(
         equalBytes(left.rigidStates, right.rigidStates) &&
         equalBytes(left.contactSamples, right.contactSamples) &&
         equalBytes(left.contactHistories, right.contactHistories) &&
+        equalBytes(
+            left.humanSupportHistories,
+            right.humanSupportHistories) &&
+        equalBytes(
+            left.humanSupportConsequences,
+            right.humanSupportConsequences) &&
         equalBytes(
             left.deformableContactHistories,
             right.deformableContactHistories

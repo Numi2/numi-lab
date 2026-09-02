@@ -614,6 +614,22 @@ struct RuntimeConfiguration {
     // hashed per environment. Zero keeps the production proof authority
     // unavailable; callers must budget this explicitly with the Human arena.
     std::uint64_t acceptedStateProofMujocoBytesPerEnvironmentCapacity = 0u;
+    // Optional immutable fixed-plane Human support program. The point-query
+    // table is row-major and must have the same count as the contact rows.
+    // Runtime uploads both streams during initialize(); callers may release
+    // the spans after initialize returns.
+    std::span<const NMHumanSupportContactGPU> humanSupportContacts{};
+    std::span<const NMHumanSupportPointQueryGPU> humanSupportPointQueries{};
+    nm_float4 humanSupportGroundPoint{};
+    nm_float4 humanSupportGroundNormal{};
+};
+
+struct HumanSupportConsequencesView {
+    void* buffer = nullptr; // borrowed id<MTLBuffer>, read-only
+    std::uint64_t gpuAddress = 0u;
+    std::uint64_t elementCount = 0u;
+    std::uint32_t stride = 0u;
+    std::uint32_t reserved0 = 0u;
 };
 
 struct BorrowedRigidWorldBuffers {
@@ -1089,6 +1105,10 @@ struct RuntimeStateSnapshot {
     // RuntimeConfiguration::captureDiagnostics is enabled.
     std::vector<NMContactSampleGPU> contactSamples;
     std::vector<nm_float4> contactHistories;
+    // Accepted NHCNT Coulomb history and the matching sensor-facing support
+    // consequence. Both are continuation authority, not diagnostics.
+    std::vector<nm_float4> humanSupportHistories;
+    std::vector<NMHumanSupportConsequenceGPU> humanSupportConsequences;
     std::vector<NMDeformableContactHistoryGPU> deformableContactHistories;
     std::uint32_t materialStateStride = 0u;
     std::vector<float> particleMaterialState;
@@ -1183,6 +1203,18 @@ public:
     // Fingerprint of world semantics, runtime execution policy, ABI and the
     // exact loaded Matter metallib, used by MetalWorld run identity.
     [[nodiscard]] std::uint64_t deviceProgramFingerprint() const noexcept;
+    // Internal zero-copy view of accepted support consequences. The buffer is
+    // retained by Runtime and remains private authority; consumers may bind it
+    // read-only on the same device but must not expose its address publicly.
+    [[nodiscard]] HumanSupportConsequencesView
+    humanSupportConsequences() const noexcept;
+
+    // The prepared physical candidate is safe to consume only while encoding
+    // the same command buffer.  It is not accepted/public state; the NumanX
+    // publication transaction owns whether the derived sensor candidate can
+    // later become visible.
+    [[nodiscard]] HumanSupportConsequencesView
+    humanSupportCandidateConsequences() const noexcept;
     [[nodiscard]] bool automaticIdentificationEnabled() const noexcept;
     [[nodiscard]] bool adaptiveTransferEnabled() const noexcept;
     [[nodiscard]] bool requiresBodyWrenches() const noexcept;

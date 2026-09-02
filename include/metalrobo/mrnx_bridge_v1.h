@@ -270,8 +270,84 @@ typedef struct mrnx_runtime_info_v1 {
     uint32_t resident_continuation_count;
     uint64_t device_registry_id;
     uint64_t accepted_state_proof_program_fingerprint;
+    // Domain-separated identity of the exact immutable NHRIGID2, NHMYO, and
+    // NHCNT byte streams parsed by this runtime. It is also transitively bound
+    // into HumanIO program/publication authority.
     uint64_t model_source_fingerprint;
 } mrnx_runtime_info_v1;
+
+// Read-only source anatomy exported from the exact NHRIGID2/NHMYO payloads
+// retained by one runtime. These records are scalar copies, not mutation or
+// publication authority. Joint indices and muscle identifiers are canonical
+// zero-based source order. A fixed joint has coordinate_count == 0.
+typedef struct mrnx_runtime_anatomy_info_v1 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint32_t body_count;
+    uint32_t joint_count;
+    uint32_t coordinate_count;
+    uint32_t muscle_count;
+    uint32_t head_body_identifier;
+    uint32_t reserved0;
+    uint64_t model_source_fingerprint;
+} mrnx_runtime_anatomy_info_v1;
+
+typedef struct mrnx_joint_anatomy_v1 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint32_t joint_identifier;
+    uint32_t parent_body_identifier;
+    uint32_t child_body_identifier;
+    uint32_t coordinate_offset;
+    uint32_t coordinate_count;
+    uint32_t reserved0;
+    float parent_local_anchor[3];
+    float reserved1;
+    float child_local_anchor[3];
+    float reserved2;
+    float rest_relative_orientation[4];
+} mrnx_joint_anatomy_v1;
+
+typedef struct mrnx_joint_coordinate_anatomy_v1 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint32_t joint_identifier;
+    uint32_t coordinate_identifier;
+    uint32_t kind;
+    uint32_t q_index;
+    uint32_t v_index;
+    uint32_t flags;
+    float parent_local_axis[3];
+    float minimum_position;
+    float maximum_position;
+    float rest_position;
+    float reserved0;
+    float reserved1;
+} mrnx_joint_coordinate_anatomy_v1;
+
+typedef struct mrnx_muscle_attachment_anatomy_v1 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint32_t muscle_identifier;
+    uint32_t route_node_count;
+    uint32_t first_body_identifier;
+    uint32_t terminal_body_identifier;
+    uint32_t reserved0;
+    uint32_t reserved1;
+    float first_local_point[3];
+    float reserved2;
+    float terminal_local_point[3];
+    float reserved3;
+} mrnx_muscle_attachment_anatomy_v1;
+
+enum mrnx_joint_coordinate_kind_v1 {
+    MRNX_JOINT_COORDINATE_ANGULAR_V1 = 1u,
+    MRNX_JOINT_COORDINATE_LINEAR_V1 = 2u,
+};
+
+enum mrnx_joint_coordinate_flags_v1 {
+    MRNX_JOINT_COORDINATE_POSITION_LIMIT_V1 = 1u << 0u,
+};
 
 // One aggregate public tuple copied while the bridge's shared reader gate is
 // held. A poisoned or never-published runtime returns false and zeroes the
@@ -486,6 +562,21 @@ MRNX_BRIDGE_EXPORT void mrnx_bridge_v1_runtime_drop(
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_info(
     const mrnx_runtime_v1* runtime,
     mrnx_runtime_info_v1* info);
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_anatomy_info(
+    const mrnx_runtime_v1* runtime,
+    mrnx_runtime_anatomy_info_v1* info);
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_joint_anatomy(
+    const mrnx_runtime_v1* runtime,
+    uint32_t joint_index,
+    mrnx_joint_anatomy_v1* anatomy);
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_joint_coordinate_anatomy(
+    const mrnx_runtime_v1* runtime,
+    uint32_t coordinate_index,
+    mrnx_joint_coordinate_anatomy_v1* anatomy);
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_muscle_attachment_anatomy(
+    const mrnx_runtime_v1* runtime,
+    uint32_t muscle_index,
+    mrnx_muscle_attachment_anatomy_v1* anatomy);
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_begin_physical_root(
     mrnx_runtime_v1* runtime,
     const mrnx_physical_root_request_v1* request,
@@ -676,6 +767,18 @@ static_assert(offsetof(mrnx_runtime_config_v1,
 static_assert(sizeof(mrnx_runtime_info_v1) == 64u);
 static_assert(offsetof(mrnx_runtime_info_v1,
                        device_registry_id) == 40u);
+static_assert(sizeof(mrnx_joint_anatomy_v1) == 80u);
+static_assert(offsetof(mrnx_joint_anatomy_v1,
+                       rest_relative_orientation) == 64u);
+static_assert(sizeof(mrnx_joint_coordinate_anatomy_v1) == 64u);
+static_assert(offsetof(mrnx_joint_coordinate_anatomy_v1,
+                       parent_local_axis) == 32u);
+static_assert(sizeof(mrnx_muscle_attachment_anatomy_v1) == 64u);
+static_assert(offsetof(mrnx_muscle_attachment_anatomy_v1,
+                       first_local_point) == 32u);
+static_assert(sizeof(mrnx_runtime_anatomy_info_v1) == 40u);
+static_assert(offsetof(mrnx_runtime_anatomy_info_v1,
+                       model_source_fingerprint) == 32u);
 static_assert(sizeof(mrnx_aggregate_snapshot_v1) == 504u);
 static_assert(offsetof(mrnx_aggregate_snapshot_v1, root) == 40u);
 static_assert(offsetof(mrnx_aggregate_snapshot_v1, sensor) == 136u);
@@ -784,6 +887,14 @@ _Static_assert(offsetof(mrnx_runtime_config_v1,
                "mrnx_runtime_config_v1 retained offset");
 _Static_assert(sizeof(mrnx_runtime_info_v1) == 64u,
                "mrnx_runtime_info_v1 ABI");
+_Static_assert(sizeof(mrnx_joint_anatomy_v1) == 80u,
+               "mrnx_joint_anatomy_v1 ABI");
+_Static_assert(sizeof(mrnx_joint_coordinate_anatomy_v1) == 64u,
+               "mrnx_joint_coordinate_anatomy_v1 ABI");
+_Static_assert(sizeof(mrnx_muscle_attachment_anatomy_v1) == 64u,
+               "mrnx_muscle_attachment_anatomy_v1 ABI");
+_Static_assert(sizeof(mrnx_runtime_anatomy_info_v1) == 40u,
+               "mrnx_runtime_anatomy_info_v1 ABI");
 _Static_assert(sizeof(mrnx_aggregate_snapshot_v1) == 504u,
                "mrnx_aggregate_snapshot_v1 ABI");
 _Static_assert(offsetof(mrnx_aggregate_snapshot_v1, root) == 40u,

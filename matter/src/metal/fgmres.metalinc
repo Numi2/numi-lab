@@ -1,5 +1,89 @@
 namespace numi_matter_metal {
 
+inline uint fgmresRigidBase(const NMMatterDispatchGPU dispatch);
+inline uint fgmresRigidIndex(
+    const NMMatterDispatchGPU dispatch,
+    const uint environment,
+    const uint dof);
+
+kernel void nm_human_support_accumulate_rigid_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMHumanSupportDispatchGPU& support [[buffer(1)]],
+    device const NMContactSampleGPU* samples [[buffer(2)]],
+    device const float* pointJacobians [[buffer(3)]],
+    device float4* residual [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.rigidGeneralizedCapacity;
+    if (global >= total || support.contactCount == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (dof >= support.articulatedNv) return;
+    float value = 0.0f;
+    for (uint row = 0u; row < support.contactCount; ++row) {
+        const NMContactSampleGPU sample = samples[
+            environment * support.contactCount + row];
+        if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
+        const uint base = environment * support.contactCount * 3u *
+            dispatch.rigidGeneralizedCapacity +
+            row * 3u * dispatch.rigidGeneralizedCapacity;
+        value += sample.impulseAndNormal.x * pointJacobians[base + dof] +
+            sample.impulseAndNormal.y * pointJacobians[
+                base + dispatch.rigidGeneralizedCapacity + dof] +
+            sample.impulseAndNormal.z * pointJacobians[
+                base + 2u * dispatch.rigidGeneralizedCapacity + dof];
+    }
+    residual[fgmresRigidBase(dispatch) + global].x += value;
+}
+
+kernel void nm_fgmres_apply_human_support(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMHumanSupportDispatchGPU& support [[buffer(1)]],
+    device const float4* direction [[buffer(2)]],
+    device float4* work [[buffer(3)]],
+    device const NMContactSampleGPU* samples [[buffer(4)]],
+    device const float* pointJacobians [[buffer(5)]],
+    device const NMFGMRESStateGPU* states [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.rigidGeneralizedCapacity;
+    if (global >= total || support.contactCount == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (dof >= support.articulatedNv ||
+        states[environment].diagnostics.z > 0.5f) return;
+    const uint rigidBase = fgmresRigidIndex(dispatch, environment, 0u);
+    float value = work[rigidBase + dof].x;
+    for (uint row = 0u; row < support.contactCount; ++row) {
+        const NMContactSampleGPU sample = samples[
+            environment * support.contactCount + row];
+        if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
+        const uint base = environment * support.contactCount * 3u *
+            dispatch.rigidGeneralizedCapacity +
+            row * 3u * dispatch.rigidGeneralizedCapacity;
+        float3 pointDirection = float3(0.0f);
+        for (uint column = 0u; column < support.articulatedNv; ++column) {
+            const float coefficient = direction[rigidBase + column].x;
+            pointDirection.x += pointJacobians[base + column] * coefficient;
+            pointDirection.y += pointJacobians[
+                base + dispatch.rigidGeneralizedCapacity + column] * coefficient;
+            pointDirection.z += pointJacobians[
+                base + 2u * dispatch.rigidGeneralizedCapacity + column] * coefficient;
+        }
+        const float3 force = multiplyRows(
+            sample.barrierHessianRow0, sample.barrierHessianRow1,
+            sample.barrierHessianRow2, pointDirection);
+        value -= force.x * pointJacobians[base + dof] +
+            force.y * pointJacobians[
+                base + dispatch.rigidGeneralizedCapacity + dof] +
+            force.z * pointJacobians[
+                base + 2u * dispatch.rigidGeneralizedCapacity + dof];
+    }
+    work[rigidBase + dof].x = value;
+}
+
 inline void fgmresCompensatedAdd(
     thread float& sum,
     thread float& correction,

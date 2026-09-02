@@ -58,6 +58,8 @@ numi::matter::RuntimeStateSnapshot fixture() {
     result.rigidStates.resize(2u);
     result.contactSamples.resize(2u);
     result.contactHistories.resize(3u);
+    result.humanSupportHistories.resize(2u);
+    result.humanSupportConsequences.resize(2u);
     result.deformableContactHistories.resize(2u);
     result.particleMaterialState = {0.1f, 0.2f, 0.3f, 0.4f};
     result.femMaterialState = {0.5f, 0.6f, 0.7f, 0.8f};
@@ -69,6 +71,14 @@ numi::matter::RuntimeStateSnapshot fixture() {
         -1.0f, 0.25f, 0.5f, 2.0f,
     };
     result.punctureChannels[0u].identity = {1u, 2u, 3u, 4u};
+    result.humanSupportHistories[0u] = {0.1f, -0.2f, 0.3f, 4.0f};
+    result.humanSupportConsequences[0u].identity = {
+        0u, 7u, NM_CONTACT_VALID,
+        NM_HUMAN_SUPPORT_CONSEQUENCE_VERSION};
+    result.humanSupportConsequences[0u].pointAndSeparation = {
+        1.0f, 2.0f, 3.0f, -0.01f};
+    result.humanSupportConsequences[0u].impulseAndNormal = {
+        0.0f, 4.0f, 0.0f, 4.0f};
     return result;
 }
 

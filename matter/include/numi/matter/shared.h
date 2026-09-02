@@ -915,6 +915,64 @@ typedef struct NM_ALIGN16 NMContactSampleGPU {
     nm_float4 barrierHessianRow2;
 } NMContactSampleGPU;
 
+// Immutable, source-authored Human support row. These rows are deliberately
+// separate from the continuum/rigid contact-pair table: both endpoints are
+// the articulated Human and a fixed world plane. Matter condenses the local
+// Coulomb multiplier into its monolithic Newton/FGMRES operator through the
+// exact point Jacobian supplied by the coupled Human service.
+typedef struct NM_ALIGN16 NMHumanSupportContactGPU {
+    // Global articulated body, source geometry, source point-query, reserved.
+    nm_uint4 identity;
+    // COM-relative body point in metres; w must be zero.
+    nm_float4 localPoint;
+    // Coulomb friction, activation slop metres, normal stabilization, reserved.
+    nm_float4 frictionSlopAndStabilization;
+} NMHumanSupportContactGPU;
+
+// Byte-exact query consumed by the external articulated candidate service.
+// It mirrors that service's point-query ABI without making Matter's public
+// C++ header depend on MetalRobo engine types.
+typedef struct NM_ALIGN16 NMHumanSupportPointQueryGPU {
+    nm_u32 bodyIndex;
+    nm_u32 flags;
+    nm_u32 reserved0;
+    nm_u32 reserved1;
+    nm_float4 localPoint;
+    nm_float4 worldImpulse;
+} NMHumanSupportPointQueryGPU;
+
+// Transactional physical consequence of one Human support row. Matter owns an
+// accepted and a candidate stream beside the friction history; HumanIO reads
+// only the candidate stream while its enclosing root remains unpublished.
+typedef struct NM_ALIGN16 NMHumanSupportConsequenceGPU {
+    // Source row, source geometry, contact flags, reserved.
+    nm_uint4 identity;
+    // World point xyz and signed plane separation.
+    nm_float4 pointAndSeparation;
+    // World impulse on Human xyz and nonnegative normal impulse.
+    nm_float4 impulseAndNormal;
+    // Tangential velocity xyz and tangential impulse magnitude.
+    nm_float4 tangentVelocityAndImpulse;
+} NMHumanSupportConsequenceGPU;
+
+typedef struct NM_ALIGN16 NMHumanSupportDispatchGPU {
+    nm_u32 contactCount;
+    nm_u32 articulatedNv;
+    nm_u32 articulationRootBody;
+    nm_u32 bodyCount;
+    nm_u32 bodyStride;
+    nm_u32 reserved0;
+    nm_u32 reserved1;
+    nm_u32 reserved2;
+    // xyz fixed-plane point, w timestep seconds.
+    nm_float4 groundPointAndTimestep;
+    // xyz unit fixed-plane normal, w reserved.
+    nm_float4 groundNormal;
+} NMHumanSupportDispatchGPU;
+
+#define NM_HUMAN_SUPPORT_CONTACT_CAPACITY 16u
+#define NM_HUMAN_SUPPORT_CONSEQUENCE_VERSION 1u
+
 typedef struct NM_ALIGN16 NMRigidReactionGPU {
     nm_float4 impulseAndCount;
     nm_float4 angularImpulse;
@@ -1023,4 +1081,8 @@ static_assert(sizeof(NMFEMNodeStateGPU) % 16 == 0);
 static_assert(sizeof(NMAdaptiveStateGPU) == 160);
 static_assert(sizeof(NMSchedulerStateGPU) == 80);
 static_assert(sizeof(NMEventTokenGPU) == 48);
+static_assert(sizeof(NMHumanSupportContactGPU) == 48);
+static_assert(sizeof(NMHumanSupportPointQueryGPU) == 48);
+static_assert(sizeof(NMHumanSupportConsequenceGPU) == 64);
+static_assert(sizeof(NMHumanSupportDispatchGPU) == 64);
 #endif

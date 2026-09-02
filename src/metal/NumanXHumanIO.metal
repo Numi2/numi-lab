@@ -58,6 +58,56 @@ inline bool validReceptorSource(
         finite4(result.fiberStateTendonForceResidual);
 }
 
+inline float4 quaternionMultiply(const float4 first, const float4 second) {
+    return float4(
+        first.w * second.xyz + second.w * first.xyz +
+            cross(first.xyz, second.xyz),
+        first.w * second.w - dot(first.xyz, second.xyz)
+    );
+}
+
+inline float3 quaternionRotate(const float4 quaternion, const float3 value) {
+    return value + 2.0f * cross(
+        quaternion.xyz,
+        cross(quaternion.xyz, value) + quaternion.w * value
+    );
+}
+
+inline float3 quaternionInverseRotate(
+    const float4 quaternion,
+    const float3 value
+) {
+    return quaternionRotate(
+        float4(-quaternion.xyz, quaternion.w), value);
+}
+
+inline float rayBoxDistance(
+    const float3 origin,
+    const float3 direction,
+    const float3 minimum,
+    const float3 maximum
+) {
+    float nearDistance = -INFINITY;
+    float farDistance = INFINITY;
+    for (uint axis = 0u; axis < 3u; ++axis) {
+        const float component = direction[axis];
+        if (abs(component) < 1.0e-7f) {
+            if (origin[axis] < minimum[axis] ||
+                origin[axis] > maximum[axis]) {
+                return INFINITY;
+            }
+            continue;
+        }
+        const float inverse = 1.0f / component;
+        const float first = (minimum[axis] - origin[axis]) * inverse;
+        const float second = (maximum[axis] - origin[axis]) * inverse;
+        nearDistance = max(nearDistance, min(first, second));
+        farDistance = min(farDistance, max(first, second));
+    }
+    if (farDistance < max(nearDistance, 0.0f)) return INFINITY;
+    return nearDistance > 0.0f ? nearDistance : farDistance;
+}
+
 } // namespace
 
 // One thread authenticates one complete environment motor output. This is a
@@ -97,7 +147,6 @@ kernel void numanx_human_validate_motor_output(
          ready.brainGeneration != dispatch.acceptedBrainGeneration ||
          ready.acceptedBrainTimestampMicroseconds !=
              dispatch.acceptedBrainTimestampMicroseconds ||
-         ready.randomCounterGeneration == 0ul ||
          ready.speciesTemplateFingerprint == 0ul ||
          ready.compiledSpeciesTemplateFingerprint == 0ul ||
          ready.brainProgramFingerprint == 0ul ||
@@ -217,8 +266,7 @@ kernel void numanx_human_validate_motor_output(
         mixFloat(hash, command);
     }
     if (header.outputFingerprint == 0ul ||
-        header.outputFingerprint != hash ||
-        (decisionShadow && ready.motorOutputFingerprint != hash)) {
+        header.outputFingerprint != hash) {
         headerValidation[environment] =
             MR_NUMANX_HUMAN_MOTOR_HEADER_FINGERPRINT;
         return;
@@ -394,7 +442,13 @@ kernel void numanx_human_write_proprioception(
             proprioception[outputBase + feature] = 0.0f;
         }
         validity[validityIndex] = 0u;
-        interoception[validityIndex] = 0.0f;
+        const ulong interoceptionBase =
+            validityIndex * MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT;
+        for (uint feature = 0u;
+             feature < MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT;
+             ++feature) {
+            interoception[interoceptionBase + feature] = 0.0f;
+        }
         interoceptionValidity[validityIndex] = 0u;
         return;
     }
@@ -438,8 +492,336 @@ kernel void numanx_human_write_proprioception(
     ] = result.fiberStateTendonForceResidual.w;
     validity[validityIndex] =
         MR_NUMANX_HUMAN_PROPRIOCEPTION_VALIDITY_ALL;
-    interoception[validityIndex] = clamp(
+    const ulong interoceptionBase =
+        validityIndex * MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT;
+    const float activationLoad = clamp(
         0.5f * (state.x + state.y), 0.0f, 1.0f);
+    const float normalizedVelocity = clamp(
+        abs(state.w) * max(dispatch.timestepSecondsAndReserved.x, 0.0f),
+        0.0f,
+        1.0f);
+    const float normalizedTension = clamp(
+        abs(result.fiberStateTendonForceResidual.z) /
+            (1.0f + abs(result.fiberStateTendonForceResidual.z)),
+        0.0f,
+        1.0f);
+    const float normalizedResidual = clamp(
+        abs(result.fiberStateTendonForceResidual.w), 0.0f, 1.0f);
+    interoception[
+        interoceptionBase +
+        MR_NUMANX_HUMAN_INTEROCEPTION_ENERGY_AVAILABILITY
+    ] = 1.0f - activationLoad;
+    interoception[
+        interoceptionBase +
+        MR_NUMANX_HUMAN_INTEROCEPTION_OXYGEN_AVAILABILITY
+    ] = clamp(1.0f - state.y, 0.0f, 1.0f);
+    interoception[
+        interoceptionBase +
+        MR_NUMANX_HUMAN_INTEROCEPTION_CARBON_DIOXIDE_LOAD
+    ] = clamp(state.y, 0.0f, 1.0f);
+    interoception[
+        interoceptionBase +
+        MR_NUMANX_HUMAN_INTEROCEPTION_THERMAL_LOAD
+    ] = clamp(0.5f * normalizedVelocity + 0.5f * activationLoad, 0.0f, 1.0f);
+    interoception[
+        interoceptionBase +
+        MR_NUMANX_HUMAN_INTEROCEPTION_FATIGUE_LOAD
+    ] = clamp(0.5f * activationLoad + 0.5f * normalizedTension, 0.0f, 1.0f);
+    interoception[
+        interoceptionBase +
+        MR_NUMANX_HUMAN_INTEROCEPTION_TISSUE_STRESS
+    ] = clamp(0.5f * normalizedTension + 0.5f * normalizedResidual, 0.0f, 1.0f);
     interoceptionValidity[validityIndex] =
         MR_NUMANX_HUMAN_INTEROCEPTION_VALIDITY_ALL;
+}
+
+// Five zero-readback sensor channels derived from the exact articulated
+// transaction. The command buffer already orders this kernel after stand and
+// HumanIO's owning environment gate. Body/point geometry is the transaction's
+// current device state; visual bounds are compact source-pack evidence loaded
+// once by the native runtime.
+kernel void numanx_human_write_supplemental_sensors(
+    const device float* q [[buffer(0)]],
+    const device float* v [[buffer(1)]],
+    const device MRArticulatedBodyPoseGPU* bodyPoses [[buffer(2)]],
+    const device MRArticulatedPointWorldGPU* pointWorld [[buffer(3)]],
+    const device MRNumiHumanStandStatusGPU* standStatuses [[buffer(4)]],
+    const device MRNumanXActiveSensingCommandGPU* activeSensing [[buffer(5)]],
+    const device MRNumanXVisualBodyBoundsGPU* bodyBounds [[buffer(6)]],
+    device float* kinesthesia [[buffer(7)]],
+    device uint* kinesthesiaValidity [[buffer(8)]],
+    device float* vestibular [[buffer(9)]],
+    device uint* vestibularValidity [[buffer(10)]],
+    device float* audition [[buffer(11)]],
+    device uint* auditionValidity [[buffer(12)]],
+    device float* vision [[buffer(13)]],
+    device uint* visionValidity [[buffer(14)]],
+    device float* touch [[buffer(15)]],
+    device uint* touchValidity [[buffer(16)]],
+    constant MRNumanXHumanSupplementalDispatchGPU& dispatch [[buffer(17)]],
+    const device MRNumanXHumanSupportConsequenceGPU* supportConsequences
+        [[buffer(18)]],
+    uint index [[thread_position_in_grid]]
+) {
+    (void)pointWorld;
+    const bool validDispatch =
+        dispatch.abiVersion == MR_NUMANX_HUMAN_IO_ABI_VERSION &&
+        dispatch.qCoordinateCount == 129u &&
+        dispatch.dofCount == MR_NUMANX_HUMAN_KINESTHESIA_RECEPTOR_COUNT &&
+        dispatch.bodyCount > dispatch.headBodyIndex &&
+        dispatch.pointCount >=
+            dispatch.supportPointOffset + dispatch.supportPointCount &&
+        dispatch.supportPointCount == MR_NUMANX_HUMAN_TOUCH_RECEPTOR_COUNT &&
+        dispatch.visionWidth == MR_NUMANX_HUMAN_VISION_WIDTH &&
+        dispatch.visionHeight == MR_NUMANX_HUMAN_VISION_HEIGHT &&
+        dispatch.bodyBoundsCount == dispatch.bodyCount &&
+        dispatch.sensorGeneration != 0ul &&
+        dispatch.transactionFingerprint != 0ul &&
+        dispatch.substepFingerprint != 0ul &&
+        dispatch.expectedActiveSensingGPUAddress != 0ul &&
+        dispatch.visualSourceFingerprint != 0ul &&
+        dispatch.programFingerprint != 0ul &&
+        dispatch.expectedSupportConsequencesGPUAddress != 0ul &&
+        dispatch.matterProgramFingerprint != 0ul &&
+        dispatch.reserved0 == 0u &&
+        all(isfinite(dispatch.groundPoint)) &&
+        all(isfinite(dispatch.groundNormal)) &&
+        all(isfinite(dispatch.cameraLocalPosition)) &&
+        all(isfinite(dispatch.cameraLocalOrientation)) &&
+        all(isfinite(dispatch.visionIntrinsics)) &&
+        all(isfinite(dispatch.visionDepthAndTimestep));
+    const bool environmentValid = validDispatch &&
+        standStatuses[0].environment == 0u &&
+        standStatuses[0].code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+        standStatuses[0].completedSteps == 1u;
+
+    if (index < MR_NUMANX_HUMAN_KINESTHESIA_RECEPTOR_COUNT) {
+        const ulong base =
+            static_cast<ulong>(index) *
+            MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT;
+        for (uint feature = 0u;
+             feature < MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT;
+             ++feature) {
+            kinesthesia[base + feature] = 0.0f;
+        }
+        kinesthesiaValidity[index] = 0u;
+        if (environmentValid) {
+            const uint qIndex = index < 6u ? index : index + 1u;
+            const float position = q[qIndex];
+            const float velocity = v[index];
+            const float activity = clamp(abs(velocity) *
+                dispatch.visionDepthAndTimestep.w, 0.0f, 1.0f);
+            kinesthesia[base + 0u] = position;
+            kinesthesia[base + 1u] = velocity;
+            kinesthesia[base + 2u] = abs(position);
+            kinesthesia[base + 3u] = abs(velocity);
+            kinesthesia[base + 4u] = position * velocity;
+            kinesthesia[base + 5u] = activity;
+            kinesthesia[base + 6u] = clamp(abs(position), 0.0f, 1.0f);
+            kinesthesiaValidity[index] =
+                MR_NUMANX_HUMAN_KINESTHESIA_VALIDITY_ALL;
+        }
+    }
+
+    if (index == 0u) {
+        for (uint feature = 0u;
+             feature < MR_NUMANX_HUMAN_VESTIBULAR_FEATURE_COUNT;
+             ++feature) {
+            vestibular[feature] = 0.0f;
+        }
+        vestibularValidity[0] = 0u;
+        if (environmentValid) {
+            const device MRArticulatedBodyPoseGPU& head =
+                bodyPoses[dispatch.headBodyIndex];
+            for (uint feature = 0u; feature < 7u; ++feature) {
+                vestibular[feature] = q[feature];
+            }
+            for (uint feature = 0u; feature < 6u; ++feature) {
+                vestibular[7u + feature] = v[feature];
+            }
+            vestibular[13u] = head.position.x;
+            vestibular[14u] = head.position.y;
+            vestibular[15u] = head.position.z;
+            vestibular[16u] = head.orientation.x;
+            vestibular[17u] = head.orientation.y;
+            vestibular[18u] = head.orientation.z;
+            vestibular[19u] = head.orientation.w;
+            const float3 groundNormal = normalize(dispatch.groundNormal.xyz);
+            vestibular[20u] = dot(
+                head.position.xyz - dispatch.groundPoint.xyz,
+                groundNormal);
+            vestibular[21u] = dot(float3(v[0], v[1], v[2]), groundNormal);
+            vestibularValidity[0] =
+                MR_NUMANX_HUMAN_VESTIBULAR_VALIDITY_ALL;
+        }
+    }
+
+    if (index < MR_NUMANX_HUMAN_AUDITION_RECEPTOR_COUNT) {
+        const ulong base =
+            static_cast<ulong>(index) * MR_NUMANX_HUMAN_AUDITION_FEATURE_COUNT;
+        for (uint feature = 0u;
+             feature < MR_NUMANX_HUMAN_AUDITION_FEATURE_COUNT;
+             ++feature) {
+            audition[base + feature] = 0.0f;
+        }
+        auditionValidity[index] = 0u;
+        if (environmentValid) {
+            const uint body = min(index, dispatch.bodyCount - 1u);
+            const float3 relative =
+                bodyPoses[body].position.xyz - bodyPoses[0].position.xyz;
+            const float band =
+                (static_cast<float>(index) + 0.5f) /
+                MR_NUMANX_HUMAN_AUDITION_RECEPTOR_COUNT;
+            audition[base + 0u] = relative.x;
+            audition[base + 1u] = relative.y;
+            audition[base + 2u] = dispatch.sensorGeneration > 1ul
+                ? dot(float3(v[0], v[1], v[2]), normalize(relative + 1.0e-6f))
+                : 0.0f;
+            audition[base + 3u] = relative.z;
+            audition[base + 4u] = length(relative);
+            audition[base + 5u] = band;
+            audition[base + 6u] = sinpi(band) * length(float3(v[0], v[1], v[2]));
+            audition[base + 7u] = cospi(band) * length(float3(v[3], v[4], v[5]));
+            auditionValidity[index] = dispatch.sensorGeneration > 1ul
+                ? MR_NUMANX_HUMAN_AUDITION_VALIDITY_ALL
+                : MR_NUMANX_HUMAN_AUDITION_FIRST_VALIDITY;
+        }
+    }
+
+    if (index < MR_NUMANX_HUMAN_TOUCH_RECEPTOR_COUNT) {
+        const ulong base =
+            static_cast<ulong>(index) * MR_NUMANX_HUMAN_TOUCH_FEATURE_COUNT;
+        for (uint feature = 0u;
+             feature < MR_NUMANX_HUMAN_TOUCH_FEATURE_COUNT;
+             ++feature) {
+            touch[base + feature] = 0.0f;
+        }
+        touchValidity[index] = 0u;
+        if (environmentValid) {
+            const MRNumanXHumanSupportConsequenceGPU consequence =
+                supportConsequences[index];
+            const bool consequenceValid =
+                consequence.identity.x == index &&
+                consequence.identity.w ==
+                    MR_NUMANX_HUMAN_SUPPORT_CONSEQUENCE_VERSION &&
+                all(isfinite(consequence.pointAndSeparation)) &&
+                all(isfinite(consequence.impulseAndNormal)) &&
+                all(isfinite(consequence.tangentVelocityAndImpulse)) &&
+                consequence.impulseAndNormal.w >= 0.0f &&
+                consequence.tangentVelocityAndImpulse.w >= 0.0f;
+            const float3 point = consequence.pointAndSeparation.xyz;
+            const float inverseTimestep = 1.0f /
+                max(dispatch.visionDepthAndTimestep.w, 1.0e-12f);
+            touch[base + 0u] = point.x;
+            touch[base + 1u] = point.y;
+            touch[base + 2u] = point.z;
+            touch[base + 3u] = consequence.pointAndSeparation.w;
+            touch[base + 4u] =
+                consequence.impulseAndNormal.w * inverseTimestep;
+            touch[base + 5u] =
+                consequence.tangentVelocityAndImpulse.w * inverseTimestep;
+            touch[base + 6u] = length(
+                consequence.tangentVelocityAndImpulse.xyz);
+            touchValidity[index] = consequenceValid
+                ? MR_NUMANX_HUMAN_TOUCH_VALIDITY_ALL : 0u;
+        }
+    }
+
+    if (index < MR_NUMANX_HUMAN_VISION_RECEPTOR_COUNT) {
+        const ulong base =
+            static_cast<ulong>(index) * MR_NUMANX_HUMAN_VISION_FEATURE_COUNT;
+        for (uint feature = 0u;
+             feature < MR_NUMANX_HUMAN_VISION_FEATURE_COUNT;
+             ++feature) {
+            vision[base + feature] = 0.0f;
+        }
+        visionValidity[index] = 0u;
+        if (environmentValid) {
+            const uint x = index % dispatch.visionWidth;
+            const uint y = index / dispatch.visionWidth;
+            const device MRArticulatedBodyPoseGPU& head =
+                bodyPoses[dispatch.headBodyIndex];
+            const device MRNumanXActiveSensingCommandGPU& sensing =
+                activeSensing[0];
+            const float command = isfinite(sensing.command)
+                ? clamp(sensing.command, -1.0f, 1.0f) : 0.0f;
+            const float confidence = isfinite(sensing.confidence)
+                ? clamp(sensing.confidence, 0.0f, 1.0f) : 0.0f;
+            const float yaw = command * confidence * 0.65f;
+            const float downwardSearch = abs(command) * confidence * 0.35f;
+            const float halfYaw = 0.5f * yaw;
+            const float halfPitch = 0.5f * downwardSearch;
+            const float4 activeRotation = quaternionMultiply(
+                float4(0.0f, 0.0f, sin(halfYaw), cos(halfYaw)),
+                float4(0.0f, sin(halfPitch), 0.0f, cos(halfPitch)));
+            const float4 cameraOrientation = normalize(quaternionMultiply(
+                quaternionMultiply(
+                    head.orientation,
+                    dispatch.cameraLocalOrientation),
+                activeRotation));
+            const float3 cameraOrigin = head.position.xyz +
+                quaternionRotate(
+                    head.orientation,
+                    dispatch.cameraLocalPosition.xyz);
+            const float3 sensorRay = normalize(float3(
+                1.0f,
+                -(static_cast<float>(x) - dispatch.visionIntrinsics.z) /
+                    dispatch.visionIntrinsics.x,
+                -(static_cast<float>(y) - dispatch.visionIntrinsics.w) /
+                    dispatch.visionIntrinsics.y));
+            const float3 worldRay = quaternionRotate(
+                cameraOrientation, sensorRay);
+            const float minimumDepth = dispatch.visionDepthAndTimestep.x;
+            const float maximumDepth = dispatch.visionDepthAndTimestep.y;
+            float depth = INFINITY;
+            uint semantic = 0u;
+            const float groundDenominator = dot(
+                worldRay, dispatch.groundNormal.xyz);
+            if (abs(groundDenominator) > 1.0e-7f) {
+                const float groundDepth = dot(
+                    dispatch.groundPoint.xyz - cameraOrigin,
+                    dispatch.groundNormal.xyz) / groundDenominator;
+                if (groundDepth >= minimumDepth &&
+                    groundDepth <= maximumDepth) {
+                    depth = groundDepth;
+                    semantic = 1u;
+                }
+            }
+            for (uint body = 0u; body < dispatch.bodyBoundsCount; ++body) {
+                const float3 minimum = bodyBounds[body].minimum.xyz;
+                const float3 maximum = bodyBounds[body].maximum.xyz;
+                if (any(minimum > maximum)) continue;
+                const float3 localOrigin = quaternionInverseRotate(
+                    bodyPoses[body].orientation,
+                    cameraOrigin - bodyPoses[body].position.xyz);
+                const float3 localDirection = quaternionInverseRotate(
+                    bodyPoses[body].orientation, worldRay);
+                const float candidateDepth = rayBoxDistance(
+                    localOrigin, localDirection, minimum, maximum);
+                if (candidateDepth >= minimumDepth && candidateDepth < depth &&
+                    candidateDepth <= maximumDepth) {
+                    depth = candidateDepth;
+                    semantic = body + 2u;
+                }
+            }
+            vision[base + 0u] = worldRay.x;
+            vision[base + 1u] = worldRay.y;
+            vision[base + 2u] = worldRay.z;
+            visionValidity[index] = MR_NUMANX_HUMAN_VISION_VALIDITY_RAY;
+            if (isfinite(depth)) {
+                const float quantum = max(
+                    dispatch.visionDepthAndTimestep.z, 1.0e-7f);
+                const float quantizedDepth = rint(depth / quantum) * quantum;
+                const float3 hit = cameraOrigin + worldRay * quantizedDepth;
+                vision[base + 3u] = quantizedDepth;
+                vision[base + 4u] = hit.x;
+                vision[base + 5u] = hit.y;
+                vision[base + 6u] = hit.z;
+                vision[base + 7u] = static_cast<float>(semantic);
+                visionValidity[index] |=
+                    MR_NUMANX_HUMAN_VISION_VALIDITY_DEPTH |
+                    MR_NUMANX_HUMAN_VISION_VALIDITY_GEOMETRY;
+            }
+        }
+    }
 }

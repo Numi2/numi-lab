@@ -3,6 +3,7 @@
 
 #include "metalrobo/MetalNumanXHumanIO.hpp"
 
+#include <algorithm>
 #include <bit>
 #include <atomic>
 #include <chrono>
@@ -1312,9 +1313,21 @@ void initializeHumanInputs(const BorrowedHumanBuffers& buffers) {
         }
         if (firstValidity[0] !=
                 MR_NUMANX_HUMAN_PROPRIOCEPTION_VALIDITY_ALL ||
-            acceptedInteroception.size() < sizeof(float) ||
+            acceptedInteroception.size() <
+                MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT *
+                    sizeof(float) ||
             acceptedInteroceptionValidity.size() < sizeof(std::uint32_t) ||
-            !closeEnough(firstInteroception[0], 0.375f) ||
+            !closeEnough(firstInteroception[0], 0.625f) ||
+            !closeEnough(firstInteroception[1], 0.5f) ||
+            !closeEnough(firstInteroception[2], 0.5f) ||
+            !std::all_of(
+                firstInteroception,
+                firstInteroception +
+                    MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT,
+                [](const float value) {
+                    return std::isfinite(value) &&
+                        value >= 0.0f && value <= 1.0f;
+                }) ||
             firstInteroceptionValidity[0] !=
                 MR_NUMANX_HUMAN_INTEROCEPTION_VALIDITY_ALL) {
             std::fprintf(stderr, "valid candidate mask is not complete\n");

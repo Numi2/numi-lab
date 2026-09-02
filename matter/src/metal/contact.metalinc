@@ -1,5 +1,213 @@
 namespace numi_matter_metal {
 
+kernel void nm_human_support_evaluate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMHumanSupportDispatchGPU& support [[buffer(1)]],
+    device const NMHumanSupportContactGPU* contacts [[buffer(2)]],
+    device const MRBodyStateGPU* candidateBodies [[buffer(3)]],
+    device const float* candidateGeneralized [[buffer(4)]],
+    device const float* pointJacobians [[buffer(5)]],
+    device const float4* acceptedHistories [[buffer(6)]],
+    device float4* candidateHistories [[buffer(7)]],
+    device NMContactSampleGPU* samples [[buffer(8)]],
+    device NMHumanSupportConsequenceGPU* consequences [[buffer(9)]],
+    device NMMatterStatusGPU* statuses [[buffer(10)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint count = support.contactCount;
+    const uint total = dispatch.environmentCount * count;
+    if (global >= total || count == 0u) return;
+    const uint environment = global / count;
+    const uint rowIndex = global - environment * count;
+    NMContactSampleGPU sample = {};
+    NMHumanSupportConsequenceGPU consequence = {};
+    consequence.identity = uint4(
+        rowIndex, NM_INVALID_INDEX, 0u,
+        NM_HUMAN_SUPPORT_CONSEQUENCE_VERSION);
+    candidateHistories[global] = float4(0.0f);
+    if (!environmentHealthy(statuses, environment)) {
+        samples[global] = sample;
+        consequences[global] = consequence;
+        return;
+    }
+    const NMHumanSupportContactGPU row = contacts[rowIndex];
+    const uint body = row.identity.x;
+    consequence.identity.y = row.identity.y;
+    const bool valid =
+        support.articulatedNv > 0u &&
+        support.articulatedNv <= dispatch.rigidGeneralizedCapacity &&
+        body >= support.articulationRootBody &&
+        body - support.articulationRootBody < support.bodyCount &&
+        support.bodyStride >= support.bodyCount &&
+        support.reserved0 == 0u && support.reserved1 == 0u &&
+        support.reserved2 == 0u &&
+        row.identity.z == rowIndex && row.identity.w == 0u &&
+        all(isfinite(row.localPoint)) && row.localPoint.w == 0.0f &&
+        all(isfinite(row.frictionSlopAndStabilization)) &&
+        row.frictionSlopAndStabilization.x >= 0.0f &&
+        row.frictionSlopAndStabilization.y >= 0.0f &&
+        row.frictionSlopAndStabilization.z >= 0.0f &&
+        row.frictionSlopAndStabilization.z <= 1.0f &&
+        row.frictionSlopAndStabilization.w == 0.0f &&
+        all(isfinite(support.groundPointAndTimestep)) &&
+        support.groundPointAndTimestep.w > 0.0f &&
+        all(isfinite(support.groundNormal)) &&
+        support.groundNormal.w == 0.0f;
+    if (!valid) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            NM_INVALID_INDEX, rowIndex, float4(float(body), 0.0f, 0.0f, 0.0f));
+        samples[global] = sample;
+        consequences[global] = consequence;
+        return;
+    }
+    const uint bodyLocal = body - support.articulationRootBody;
+    const MRBodyStateGPU bodyState = candidateBodies[
+        environment * support.bodyStride + bodyLocal];
+    const float4 orientation = quaternionNormalize(bodyState.orientation);
+    const float3 point = bodyState.position.xyz +
+        quaternionRotate(orientation, row.localPoint.xyz);
+    const float3 normal = normalize(support.groundNormal.xyz);
+    const float normalLength = length(support.groundNormal.xyz);
+    if (!finite3(point) || !isfinite(normalLength) ||
+        abs(normalLength - 1.0f) > 1.0e-4f) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            NM_INVALID_INDEX, rowIndex, float4(point, normalLength));
+        samples[global] = sample;
+        consequences[global] = consequence;
+        return;
+    }
+    const uint vectorBase = environment * dispatch.rigidGeneralizedCapacity;
+    const uint jacobianBase = environment * count * 3u *
+        dispatch.rigidGeneralizedCapacity +
+        rowIndex * 3u * dispatch.rigidGeneralizedCapacity;
+    float3 velocity = float3(0.0f);
+    for (uint dof = 0u; dof < support.articulatedNv; ++dof) {
+        const float value = candidateGeneralized[vectorBase + dof];
+        velocity.x += pointJacobians[jacobianBase + dof] * value;
+        velocity.y += pointJacobians[
+            jacobianBase + dispatch.rigidGeneralizedCapacity + dof] * value;
+        velocity.z += pointJacobians[
+            jacobianBase + 2u * dispatch.rigidGeneralizedCapacity + dof] * value;
+    }
+    const float separation = dot(
+        point - support.groundPointAndTimestep.xyz, normal);
+    const float normalVelocity = dot(velocity, normal);
+    const float3 tangentVelocity = velocity - normalVelocity * normal;
+    consequence.pointAndSeparation = float4(point, separation);
+    consequence.tangentVelocityAndImpulse = float4(tangentVelocity, 0.0f);
+    const float slop = row.frictionSlopAndStabilization.y;
+    if (!finite3(velocity) || !isfinite(separation) || separation > slop) {
+        if (!finite3(velocity) || !isfinite(separation))
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                NM_INVALID_INDEX, rowIndex, float4(velocity, separation));
+        samples[global] = sample;
+        consequences[global] = consequence;
+        return;
+    }
+
+    const float dt = support.groundPointAndTimestep.w;
+    const float stabilization = row.frictionSlopAndStabilization.z;
+    const float rho = 1.0f / max(dt, 1.0e-6f);
+    const float targetNormalVelocity = max(
+        0.0f, stabilization * max(-separation, 0.0f) / dt);
+    const float4 oldHistory = acceptedHistories[global];
+    const bool oldValid = finite3(oldHistory.xyz) &&
+        isfinite(oldHistory.w) && oldHistory.w >= 0.0f;
+    const float oldNormal = oldValid ? oldHistory.w : 0.0f;
+    const float3 oldTangent = oldValid ? oldHistory.xyz : float3(0.0f);
+    const float normalImpulse = max(
+        0.0f, oldNormal + rho * dt *
+            (targetNormalVelocity - normalVelocity));
+    float3 tangentImpulse = oldTangent - rho * dt * tangentVelocity;
+    tangentImpulse -= dot(tangentImpulse, normal) * normal;
+    const float frictionLimit =
+        row.frictionSlopAndStabilization.x * normalImpulse;
+    const float tangentLength = length(tangentImpulse);
+    if (tangentLength > frictionLimit && tangentLength > 1.0e-12f)
+        tangentImpulse *= frictionLimit / tangentLength;
+    const float3 impulse = normalImpulse * normal + tangentImpulse;
+    uint flags = NM_CONTACT_VALID;
+    if (length(tangentVelocity) <= 1.0e-4f &&
+        tangentLength < frictionLimit) flags |= NM_CONTACT_STICKING;
+    candidateHistories[global] = float4(tangentImpulse, normalImpulse);
+    sample.identity = uint4(rowIndex, NM_INVALID_INDEX, NM_INVALID_INDEX, flags);
+    sample.pointAndSeparation = float4(point, separation);
+    sample.normalAndVelocity = float4(normal, normalVelocity);
+    sample.admissionVelocityAndNormal = float4(velocity, normalVelocity);
+    sample.impulseAndNormal = float4(impulse, normalImpulse);
+    sample.angularImpulseAndTangent = float4(0.0f, 0.0f, 0.0f,
+        tangentLength);
+    sample.barrier = float4(normalImpulse, rho * dt, slop, rho);
+    const float tangentScale = tangentLength < frictionLimit ? rho * dt : 0.0f;
+    const float normalScale = normalImpulse > 0.0f ? rho * dt : 0.0f;
+    const float3x3 tangentProjector = float3x3(1.0f) - outerProduct(normal, normal);
+    const float3x3 hessian = normalScale * outerProduct(normal, normal) +
+        tangentScale * tangentProjector;
+    matrixToRows(hessian, sample.barrierHessianRow0,
+        sample.barrierHessianRow1, sample.barrierHessianRow2);
+    consequence.identity.z = flags;
+    consequence.impulseAndNormal = float4(impulse, normalImpulse);
+    consequence.tangentVelocityAndImpulse.w = tangentLength;
+    samples[global] = sample;
+    consequences[global] = consequence;
+}
+
+kernel void nm_human_support_checkpoint(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& count [[buffer(1)]],
+    device const float4* acceptedHistories [[buffer(2)]],
+    device float4* candidateHistories [[buffer(3)]],
+    device float4* checkpointHistories [[buffer(4)]],
+    device const NMHumanSupportConsequenceGPU* acceptedConsequences [[buffer(5)]],
+    device NMHumanSupportConsequenceGPU* candidateConsequences [[buffer(6)]],
+    device NMHumanSupportConsequenceGPU* checkpointConsequences [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * count) return;
+    candidateHistories[global] = acceptedHistories[global];
+    checkpointHistories[global] = acceptedHistories[global];
+    candidateConsequences[global] = acceptedConsequences[global];
+    checkpointConsequences[global] = acceptedConsequences[global];
+}
+
+kernel void nm_human_support_commit(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& count [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    device float4* acceptedHistories [[buffer(3)]],
+    device const float4* candidateHistories [[buffer(4)]],
+    device NMHumanSupportConsequenceGPU* acceptedConsequences [[buffer(5)]],
+    device const NMHumanSupportConsequenceGPU* candidateConsequences [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * count) return;
+    const uint environment = global / count;
+    if (!environmentHealthy(statuses, environment)) return;
+    acceptedHistories[global] = candidateHistories[global];
+    acceptedConsequences[global] = candidateConsequences[global];
+}
+
+kernel void nm_human_support_rollback(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& count [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    device float4* acceptedHistories [[buffer(3)]],
+    device float4* candidateHistories [[buffer(4)]],
+    device const float4* checkpointHistories [[buffer(5)]],
+    device NMHumanSupportConsequenceGPU* acceptedConsequences [[buffer(6)]],
+    device NMHumanSupportConsequenceGPU* candidateConsequences [[buffer(7)]],
+    device const NMHumanSupportConsequenceGPU* checkpointConsequences [[buffer(8)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * count) return;
+    const uint environment = global / count;
+    if (environmentHealthy(statuses, environment)) return;
+    acceptedHistories[global] = checkpointHistories[global];
+    candidateHistories[global] = checkpointHistories[global];
+    acceptedConsequences[global] = checkpointConsequences[global];
+    candidateConsequences[global] = checkpointConsequences[global];
+}
+
 // IPC barrier b(s) = -k(s-shat)^2 log(s/shat), with s the squared feature
 // distance. Its exact radial derivative and curvature are evaluated in the
 // physical distance coordinate; radial curvature is then projected onto the

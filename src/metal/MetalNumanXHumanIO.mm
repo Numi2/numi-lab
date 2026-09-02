@@ -310,8 +310,11 @@ void rememberFailureLocked(
     view.validityStepStrideElements = slot.validityStepStride;
     view.validityReceptorStrideElements = 1u;
     view.interoceptionEnvironmentStrideElements =
-        slot.validityEnvironmentStride;
-    view.interoceptionStepStrideElements = slot.validityStepStride;
+        slot.validityEnvironmentStride *
+        MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT;
+    view.interoceptionStepStrideElements =
+        slot.validityStepStride *
+        MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT;
     view.interoceptionReceptorStrideElements =
         MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT;
     view.interoceptionValidityEnvironmentStrideElements =
@@ -559,8 +562,16 @@ void clearCandidateOwnershipLocked(State& state) noexcept;
         hash,
         MR_NUMANX_HUMAN_PROPRIOCEPTION_FEATURE_COUNT
     );
-    hash = hashU64(hash, slot.validityEnvironmentStride);
-    hash = hashU64(hash, slot.validityStepStride);
+    hash = hashU64(
+        hash,
+        slot.validityEnvironmentStride *
+            MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT
+    );
+    hash = hashU64(
+        hash,
+        slot.validityStepStride *
+            MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT
+    );
     hash = hashU64(hash, 1u);
     hash = hashU32(
         hash,
@@ -1472,6 +1483,14 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
             "the authoritative motor-candidate ABI is single-environment; muscleCount and stepCount must be nonzero and stepCount must fit Human"
         );
     }
+    if (input.supplementalProgram.configured() &&
+        !input.supplementalProgram.valid()) {
+        return diagnosticsLocked(
+            state,
+            MetalNumanXHumanIOStatus::invalidInput,
+            "supplemental HumanIO program is only partially configured"
+        );
+    }
     const double receptorTimeSeconds = static_cast<double>(
         input.receptorTimestampMicroseconds
     ) / 1'000'000.0;
@@ -1654,9 +1673,13 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
             sizeof(std::uint32_t),
             validityByteCount
         ) || !checkedMultiply(
-            validityElementCount,
-            sizeof(float),
-            interoceptionByteCount
+        validityElementCount,
+        MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT,
+        interoceptionByteCount
+    ) || !checkedMultiply(
+        interoceptionByteCount,
+        sizeof(float),
+        interoceptionByteCount
         ) || !checkedMultiply(
             validityElementCount,
             sizeof(std::uint32_t),
@@ -1877,6 +1900,7 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
     hash = hashValue(hash, input.stepCount);
     hash = hashValue(hash, std::bit_cast<std::uint32_t>(input.timestepSeconds));
     hash = hashValue(hash, input.receptorTimestampMicroseconds);
+    hash = hashValue(hash, input.supplementalProgram.fingerprint);
     hash = hashValue(hash, slot.proprioception.gpuAddress);
     hash = hashValue(hash, slot.validity.gpuAddress);
     hash = hashValue(hash, slot.interoception.gpuAddress);
@@ -2553,6 +2577,16 @@ void installCompletionHandlerLocked(
                 state,
                 MetalNumanXHumanIOStatus::commandBufferFailure,
                 std::move(reason)
+            );
+            return false;
+        }
+        if (state.candidateInput.supplementalProgram.valid() &&
+            !state.candidateInput.supplementalProgram.encode(
+                state.candidateInput.supplementalProgram.context, pass)) {
+            rememberFailureLocked(
+                state,
+                MetalNumanXHumanIOStatus::commandBufferFailure,
+                "supplemental HumanIO encoder rejected the exact transaction pass"
             );
             return false;
         }

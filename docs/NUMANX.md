@@ -136,6 +136,26 @@ tangent. Support contact and anatomical equality constraints therefore cannot
 silently fall back to an unconstrained mass operator. Unsupported constrained
 mode fails closed.
 
+The production NHCNT support seam lives in Matter's monolithic KKT, not in a
+second Stand contact solve after Matter. Matter imports all ten exact
+point-plane rows and their candidate Human point Jacobians. Its nonlinear
+residual contains `J^T lambda`; its matrix-free FGMRES action contains the
+locally condensed `J^T D J` block for unilateral proximal Coulomb contact. The
+resulting Human generalized reaction returns through the staged
+`A0 * deltaV / h` path. Owner contact remains disabled for that transaction so
+the accepted candidate is not double-solved.
+
+Support multiplier history and the 64-byte consequence for every row are
+checkpointed, committed, restored, included in the accepted-state proof, and
+persisted by snapshot archive v4. The unpublished candidate consequences feed
+the ten-by-seven touch tensor: point position, signed separation, normal
+force, friction force, and slip speed. They become visible only with the joint
+Human/Matter/sensor/Brain root. An unloaded root may correctly carry zero
+normal force; the focused downward-contact GPU probe separately establishes a
+nonzero multiplier, `J^T lambda`, `J^T D J`, commit, and exact rollback. A
+frozen square projector is insufficient here because the unilateral Coulomb
+active set is solution-dependent.
+
 Moving FEM attachments obey
 
 ```text

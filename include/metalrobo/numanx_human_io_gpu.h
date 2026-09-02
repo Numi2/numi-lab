@@ -7,11 +7,33 @@
 #include "metalrobo/mujoco_muscle_gpu.h"
 #include "metalrobo/numi_human_stand_gpu.h"
 
-#define MR_NUMANX_HUMAN_IO_ABI_VERSION 6u
+#define MR_NUMANX_HUMAN_IO_ABI_VERSION 7u
 #define MR_NUMANX_HUMAN_PROPRIOCEPTION_FEATURE_COUNT 10u
 #define MR_NUMANX_HUMAN_PROPRIOCEPTION_VALIDITY_ALL 0x000003ffu
-#define MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT 1u
-#define MR_NUMANX_HUMAN_INTEROCEPTION_VALIDITY_ALL 0x00000001u
+#define MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT 6u
+#define MR_NUMANX_HUMAN_INTEROCEPTION_VALIDITY_ALL 0x0000003fu
+#define MR_NUMANX_HUMAN_KINESTHESIA_RECEPTOR_COUNT 128u
+#define MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT 7u
+#define MR_NUMANX_HUMAN_KINESTHESIA_VALIDITY_ALL 0x0000007fu
+#define MR_NUMANX_HUMAN_VESTIBULAR_RECEPTOR_COUNT 1u
+#define MR_NUMANX_HUMAN_VESTIBULAR_FEATURE_COUNT 22u
+#define MR_NUMANX_HUMAN_VESTIBULAR_VALIDITY_ALL 0x003fffffu
+#define MR_NUMANX_HUMAN_AUDITION_RECEPTOR_COUNT 24u
+#define MR_NUMANX_HUMAN_AUDITION_FEATURE_COUNT 8u
+#define MR_NUMANX_HUMAN_AUDITION_FIRST_VALIDITY 0x000000fbu
+#define MR_NUMANX_HUMAN_AUDITION_VALIDITY_ALL 0x000000ffu
+#define MR_NUMANX_HUMAN_VISION_WIDTH 64u
+#define MR_NUMANX_HUMAN_VISION_HEIGHT 48u
+#define MR_NUMANX_HUMAN_VISION_RECEPTOR_COUNT \
+    (MR_NUMANX_HUMAN_VISION_WIDTH * MR_NUMANX_HUMAN_VISION_HEIGHT)
+#define MR_NUMANX_HUMAN_VISION_FEATURE_COUNT 8u
+#define MR_NUMANX_HUMAN_VISION_VALIDITY_RAY 0x00000007u
+#define MR_NUMANX_HUMAN_VISION_VALIDITY_DEPTH 0x00000008u
+#define MR_NUMANX_HUMAN_VISION_VALIDITY_GEOMETRY 0x00000070u
+#define MR_NUMANX_HUMAN_TOUCH_RECEPTOR_COUNT 10u
+#define MR_NUMANX_HUMAN_TOUCH_FEATURE_COUNT 7u
+#define MR_NUMANX_HUMAN_SUPPORT_CONSEQUENCE_VERSION 1u
+#define MR_NUMANX_HUMAN_TOUCH_VALIDITY_ALL 0x0000007fu
 
 // Exact version-3 NumiBrain motor-output contract consumed by NumanX. The
 // layout is duplicated here deliberately so MetalRobo does not acquire a
@@ -192,13 +214,18 @@ enum MRNumanXHumanProprioceptionFeature : mr_u32 {
     MR_NUMANX_HUMAN_FEATURE_NORMALIZED_EQUILIBRIUM_RESIDUAL = 9u,
 };
 
-// One bounded causal internal-load sample is emitted for every muscle. It is
-// the arithmetic mean of the validated excitation and activation components,
-// both of which are already constrained to [0, 1] by the motor/MyoSim path.
-// Keeping this row muscle-local avoids a hidden reduction or host synthesis
-// while giving NumiBrain physiology exact interoceptive GPU authority.
+// Six bounded causal physiology proxies are emitted for every muscle from the
+// accepted MyoSim state/result. They are not a blood-gas or thermal solver;
+// they preserve explicit provenance from excitation, activation, fibre
+// velocity, tendon load, and equilibrium residual while giving NumiBrain the
+// exact six-feature interoceptive topology it consumes.
 enum MRNumanXHumanInteroceptionFeature : mr_u32 {
-    MR_NUMANX_HUMAN_INTEROCEPTION_ACTIVATION_LOAD = 0u,
+    MR_NUMANX_HUMAN_INTEROCEPTION_ENERGY_AVAILABILITY = 0u,
+    MR_NUMANX_HUMAN_INTEROCEPTION_OXYGEN_AVAILABILITY = 1u,
+    MR_NUMANX_HUMAN_INTEROCEPTION_CARBON_DIOXIDE_LOAD = 2u,
+    MR_NUMANX_HUMAN_INTEROCEPTION_THERMAL_LOAD = 3u,
+    MR_NUMANX_HUMAN_INTEROCEPTION_FATIGUE_LOAD = 4u,
+    MR_NUMANX_HUMAN_INTEROCEPTION_TISSUE_STRESS = 5u,
 };
 
 enum MRNumanXHumanMotorValidationFlags : mr_u32 {
@@ -273,9 +300,77 @@ typedef struct MR_ALIGN16 MRNumanXHumanProprioceptionDispatchGPU {
     mr_u64 programFingerprint;
 } MRNumanXHumanProprioceptionDispatchGPU;
 
+// Exact 16-byte mirror of NumiBrain's active-sensing command. command is a
+// signed, normalized gaze actuator; confidence is [0,1]. The upper/lower flag
+// words remain provenance-only in this first visual producer.
+typedef struct MR_ALIGN16 MRNumanXActiveSensingCommandGPU {
+    float command;
+    float confidence;
+    mr_u32 attentionAllocationMask;
+    mr_u32 kindAndFlags;
+} MRNumanXActiveSensingCommandGPU;
+
+// Body-local authored visual bounds derived from the validated .mrvpack.
+// The source pack remains the authority; this compact representation avoids
+// duplicating its full indexed mesh in the sensor hot path while preserving a
+// source-authored physical visibility envelope for every articulated body.
+typedef struct MR_ALIGN16 MRNumanXVisualBodyBoundsGPU {
+    mr_float4 minimum;
+    mr_float4 maximum;
+} MRNumanXVisualBodyBoundsGPU;
+
+// Read-only mirror of Matter's accepted Human support consequence. Matter is
+// the sole writer; this type exists only so the HumanIO shader can consume the
+// exact bytes without linking its private solver headers.
+typedef struct MR_ALIGN16 MRNumanXHumanSupportConsequenceGPU {
+    mr_uint4 identity;
+    mr_float4 pointAndSeparation;
+    mr_float4 impulseAndNormal;
+    mr_float4 tangentVelocityAndImpulse;
+} MRNumanXHumanSupportConsequenceGPU;
+
+// Constants for the five same-command-buffer supplemental sensor channels.
+// All output tensors are one-environment, one-step, receptor-major FP32 with
+// one UInt32 validity mask per receptor.
+typedef struct MR_ALIGN16 MRNumanXHumanSupplementalDispatchGPU {
+    mr_u32 abiVersion;
+    mr_u32 qCoordinateCount;
+    mr_u32 dofCount;
+    mr_u32 bodyCount;
+
+    mr_u32 pointCount;
+    mr_u32 supportPointOffset;
+    mr_u32 supportPointCount;
+    mr_u32 headBodyIndex;
+
+    mr_u32 visionWidth;
+    mr_u32 visionHeight;
+    mr_u32 bodyBoundsCount;
+    mr_u32 reserved0;
+
+    mr_u64 sensorGeneration;
+    mr_u64 transactionFingerprint;
+    mr_u64 substepFingerprint;
+    mr_u64 expectedActiveSensingGPUAddress;
+    mr_u64 visualSourceFingerprint;
+    mr_u64 programFingerprint;
+    mr_u64 expectedSupportConsequencesGPUAddress;
+    mr_u64 matterProgramFingerprint;
+
+    mr_float4 groundPoint;
+    mr_float4 groundNormal;
+    mr_float4 cameraLocalPosition;
+    mr_float4 cameraLocalOrientation;
+    // fx, fy, cx, cy.
+    mr_float4 visionIntrinsics;
+    // minimum depth, maximum depth, depth quantum, timestep seconds.
+    mr_float4 visionDepthAndTimestep;
+} MRNumanXHumanSupplementalDispatchGPU;
+
 #if !defined(__METAL_VERSION__)
 #include <cstddef>
 static_assert(MR_NUMANX_HUMAN_PROPRIOCEPTION_FEATURE_COUNT < 32u);
+static_assert(MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT < 32u);
 static_assert(sizeof(MRNumanXBrainJointTransactionToken) ==
     MR_NUMANX_BRAIN_JOINT_TRANSACTION_BYTE_COUNT);
 static_assert(alignof(MRNumanXBrainJointTransactionToken) == 8u);
@@ -339,4 +434,17 @@ static_assert(
         transactionFingerprint
     ) == 80u
 );
+static_assert(sizeof(MRNumanXActiveSensingCommandGPU) == 16u);
+static_assert(alignof(MRNumanXActiveSensingCommandGPU) == 16u);
+static_assert(sizeof(MRNumanXVisualBodyBoundsGPU) == 32u);
+static_assert(alignof(MRNumanXVisualBodyBoundsGPU) == 16u);
+static_assert(sizeof(MRNumanXHumanSupplementalDispatchGPU) == 208u);
+static_assert(sizeof(MRNumanXHumanSupportConsequenceGPU) == 64u);
+static_assert(alignof(MRNumanXHumanSupplementalDispatchGPU) == 16u);
+static_assert(offsetof(
+    MRNumanXHumanSupplementalDispatchGPU, sensorGeneration) == 48u);
+static_assert(offsetof(
+    MRNumanXHumanSupplementalDispatchGPU, groundPoint) == 112u);
+static_assert(offsetof(
+    MRNumanXHumanSupplementalDispatchGPU, visionDepthAndTimestep) == 192u);
 #endif

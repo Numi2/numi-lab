@@ -44,6 +44,16 @@ using PreparedTerminalCompletion = void (*)(
     MetalNumanXHumanIOCandidatePublicationLease&& lease
 ) noexcept;
 
+// Extends a just-adopted HumanIO candidate with same-command-buffer sensor
+// channels whose ranges are retained by the opaque candidate and later bound
+// by Brain's pending-sensor publication fingerprint. The operation is
+// one-shot, pre-bind, and validates exact same-device non-overlap.
+[[nodiscard]] bool attachCandidateChannels(
+    mrnx_candidate_v1* candidate,
+    const mrnx_candidate_channel_v1* channels,
+    std::uint32_t channelCount
+) noexcept;
+
 [[nodiscard]] mrnx_prepared_v1* adoptPrepared(
     const DomainPtr& domain,
     MetalNumanXHumanMatterPrepared&& prepared,

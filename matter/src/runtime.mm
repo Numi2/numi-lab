@@ -252,6 +252,16 @@ const char kImageAnchor = 0;
     hash = mixFingerprint(hash, configuration.captureDiagnostics ? 1u : 0u);
     hash = mixFingerprint(hash, configuration.automaticIdentification ? 1u : 0u);
     hash = mixFingerprint(hash, configuration.adaptiveTransfer ? 1u : 0u);
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.humanSupportContacts.data(),
+        configuration.humanSupportContacts.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.humanSupportPointQueries.data(),
+        configuration.humanSupportPointQueries.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        &configuration.humanSupportGroundPoint, sizeof(nm_float4)));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        &configuration.humanSupportGroundNormal, sizeof(nm_float4)));
     return hash == 0u ? 1u : hash;
 }
 
@@ -359,14 +369,21 @@ public:
         if (values.empty() || repeat == 0u) {
             return output;
         }
+        // checkedBytes() may round a short logical payload up to Metal's
+        // 16-byte typed-binding sentinel.  newBufferWithBytes:length: reads
+        // exactly `length` host bytes, so passing the rounded size would read
+        // beyond a source span such as float[3].  Allocate the padded staging
+        // range explicitly, initialize its sentinel tail, and copy only the
+        // logical source bytes.
         id<MTLBuffer> staging = [device_
-            newBufferWithBytes:values.data()
-                       length:oneBytes
-                      options:MTLResourceStorageModeShared];
+            newBufferWithLength:oneBytes
+                        options:MTLResourceStorageModeShared];
         if (staging == nil) {
             valid = false;
             return nil;
         }
+        std::memset(staging.contents, 0, oneBytes);
+        std::memcpy(staging.contents, values.data(), values.size_bytes());
         [staging_ addObject:staging];
         const NSUInteger logicalBytes = values.size_bytes();
         for (std::size_t index = 0u; index < repeat; ++index) {
@@ -836,6 +853,17 @@ struct Runtime::State {
     id<MTLBuffer> contactHistoriesAccepted = nil;
     id<MTLBuffer> contactHistoriesCandidate = nil;
     id<MTLBuffer> contactHistoriesCheckpoint = nil;
+    id<MTLBuffer> humanSupportContacts = nil;
+    id<MTLBuffer> humanSupportPointQueries = nil;
+    id<MTLBuffer> humanSupportPointJacobians = nil;
+    id<MTLBuffer> humanSupportSamples = nil;
+    id<MTLBuffer> humanSupportHistoriesAccepted = nil;
+    id<MTLBuffer> humanSupportHistoriesCandidate = nil;
+    id<MTLBuffer> humanSupportHistoriesCheckpoint = nil;
+    id<MTLBuffer> humanSupportConsequencesAccepted = nil;
+    id<MTLBuffer> humanSupportConsequencesCandidate = nil;
+    id<MTLBuffer> humanSupportConsequencesCheckpoint = nil;
+    NMHumanSupportDispatchGPU humanSupportDispatch{};
     id<MTLBuffer> articulatedPointQueries = nil;
     id<MTLBuffer> coupledGeneralizedInput = nil;
     id<MTLBuffer> coupledGeneralizedOutput = nil;
@@ -984,6 +1012,52 @@ RuntimeDiagnostics Runtime::initialize(
         if (candidate->queue == nil) {
             diagnostics.message = "failed to create Numi Matter command queue";
             return diagnostics;
+        }
+        const auto& supportContacts = configuration.humanSupportContacts;
+        const auto& supportQueries = configuration.humanSupportPointQueries;
+        const float supportNormalLength = std::sqrt(
+            configuration.humanSupportGroundNormal.x *
+                configuration.humanSupportGroundNormal.x +
+            configuration.humanSupportGroundNormal.y *
+                configuration.humanSupportGroundNormal.y +
+            configuration.humanSupportGroundNormal.z *
+                configuration.humanSupportGroundNormal.z);
+        if (supportContacts.size() != supportQueries.size() ||
+            supportContacts.size() > NM_HUMAN_SUPPORT_CONTACT_CAPACITY ||
+            (!supportContacts.empty() &&
+             (!std::isfinite(supportNormalLength) ||
+              std::abs(supportNormalLength - 1.0f) > 1.0e-5f ||
+              !std::isfinite(configuration.humanSupportGroundPoint.x) ||
+              !std::isfinite(configuration.humanSupportGroundPoint.y) ||
+              !std::isfinite(configuration.humanSupportGroundPoint.z) ||
+              configuration.humanSupportGroundPoint.w != 0.0f ||
+              configuration.humanSupportGroundNormal.w != 0.0f))) {
+            diagnostics.message =
+                "Human support rows have an invalid count or ground plane";
+            return diagnostics;
+        }
+        candidate->humanSupportDispatch.contactCount =
+            static_cast<std::uint32_t>(supportContacts.size());
+        candidate->humanSupportDispatch.groundPointAndTimestep =
+            configuration.humanSupportGroundPoint;
+        candidate->humanSupportDispatch.groundNormal =
+            configuration.humanSupportGroundNormal;
+        if (!supportContacts.empty()) {
+            std::uint64_t supportFingerprint = detail::hashBytes(
+                supportContacts.data(), supportContacts.size_bytes());
+            supportFingerprint = mixFingerprint(
+                supportFingerprint, detail::hashBytes(
+                    supportQueries.data(), supportQueries.size_bytes()));
+            supportFingerprint = mixFingerprint(
+                supportFingerprint, detail::hashBytes(
+                    &candidate->humanSupportDispatch.groundPointAndTimestep,
+                    sizeof(nm_float4)));
+            supportFingerprint = mixFingerprint(
+                supportFingerprint, detail::hashBytes(
+                    &candidate->humanSupportDispatch.groundNormal,
+                    sizeof(nm_float4)));
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint, supportFingerprint);
         }
         std::filesystem::path metallib = configuration.metallib;
         if (metallib.empty()) {
@@ -1206,6 +1280,12 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_apply_primal_rigid_contacts",
             "nm_contact_accumulate_rigid_residual",
             "nm_contact_subtract_rigid_inertia_residual",
+            "nm_human_support_evaluate",
+            "nm_human_support_accumulate_rigid_residual",
+            "nm_fgmres_apply_human_support",
+            "nm_human_support_checkpoint",
+            "nm_human_support_commit",
+            "nm_human_support_rollback",
             "nm_mpm_build_implicit_residual",
             "nm_mpm_build_constitutive_residual",
             "nm_fgmres_precondition_mpm",
@@ -1804,6 +1884,21 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->contactHistoriesAccepted = uploads.repeated(
             std::span<const nm_float4>(initialContactHistories),
             environments, valid, candidate->residentBytes);
+        candidate->humanSupportContacts = uploads.one(
+            supportContacts, valid, candidate->residentBytes);
+        candidate->humanSupportPointQueries = uploads.one(
+            supportQueries, valid, candidate->residentBytes);
+        const std::vector<nm_float4> initialHumanSupportHistories(
+            supportContacts.size());
+        candidate->humanSupportHistoriesAccepted = uploads.repeated(
+            std::span<const nm_float4>(initialHumanSupportHistories),
+            environments, valid, candidate->residentBytes);
+        const std::vector<NMHumanSupportConsequenceGPU>
+            initialHumanSupportConsequences(supportContacts.size());
+        candidate->humanSupportConsequencesAccepted = uploads.repeated(
+            std::span<const NMHumanSupportConsequenceGPU>(
+                initialHumanSupportConsequences),
+            environments, valid, candidate->residentBytes);
         const std::vector<NMDeformableContactHistoryGPU>
             initialDeformableContactHistories(
                 world.dispatch.deformableContactCapacity);
@@ -1991,6 +2086,30 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->contactHistoriesCheckpoint = privateScratch<nm_float4>(
             candidate->device, multiplied(world.dispatch.contactPairCount),
             valid, candidate->residentBytes);
+        candidate->humanSupportPointJacobians = privateScratch<float>(
+            candidate->device,
+            std::max<std::size_t>(
+                multiplied(supportContacts.size()) * 3u *
+                    world.dispatch.rigidGeneralizedCapacity,
+                1u),
+            valid, candidate->residentBytes);
+        candidate->humanSupportSamples = privateScratch<NMContactSampleGPU>(
+            candidate->device, multiplied(supportContacts.size()),
+            valid, candidate->residentBytes);
+        candidate->humanSupportHistoriesCandidate = privateScratch<nm_float4>(
+            candidate->device, multiplied(supportContacts.size()),
+            valid, candidate->residentBytes);
+        candidate->humanSupportHistoriesCheckpoint = privateScratch<nm_float4>(
+            candidate->device, multiplied(supportContacts.size()),
+            valid, candidate->residentBytes);
+        candidate->humanSupportConsequencesCandidate =
+            privateScratch<NMHumanSupportConsequenceGPU>(
+                candidate->device, multiplied(supportContacts.size()),
+                valid, candidate->residentBytes);
+        candidate->humanSupportConsequencesCheckpoint =
+            privateScratch<NMHumanSupportConsequenceGPU>(
+                candidate->device, multiplied(supportContacts.size()),
+                valid, candidate->residentBytes);
         candidate->articulatedPointQueries =
             privateScratch<MRArticulatedPointImpulseGPU>(
                 candidate->device,
@@ -2217,6 +2336,10 @@ RuntimeDiagnostics Runtime::initialize(
                        sizeof(NMFEMTopologyStateGPU)),
             proofBytes(candidate->dispatch.learnedWeightCount, sizeof(float)),
             proofBytes(candidate->dispatch.contactPairCount, sizeof(nm_float4)),
+            proofBytes(candidate->humanSupportDispatch.contactCount,
+                       sizeof(nm_float4)),
+            proofBytes(candidate->humanSupportDispatch.contactCount,
+                       sizeof(NMHumanSupportConsequenceGPU)),
             proofBytes(candidate->dispatch.deformableContactCapacity,
                        sizeof(NMDeformableContactHistoryGPU)),
             proofBytes(candidate->dispatch.rigidGeneralizedCapacity,
@@ -2419,6 +2542,23 @@ RuntimeDiagnostics Runtime::initialize(
                     candidate->requiredCandidateBodyCount,
                     attachment.identity.y + 1u
                 );
+            }
+        }
+        if (candidate->humanSupportDispatch.contactCount != 0u) {
+            candidate->requiresCoupledCandidate = true;
+            for (const NMHumanSupportContactGPU& support :
+                 configuration.humanSupportContacts) {
+                if (support.identity.x == NM_INVALID_INDEX ||
+                    support.identity.z >=
+                        candidate->humanSupportDispatch.contactCount ||
+                    support.identity.w != 0u) {
+                    diagnostics.message =
+                        "Human support row has an invalid body or point identity";
+                    return diagnostics;
+                }
+                candidate->requiredCandidateBodyCount = std::max(
+                    candidate->requiredCandidateBodyCount,
+                    support.identity.x + 1u);
             }
         }
 
@@ -3045,6 +3185,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
         };
         const std::uint32_t coupledArticulatedNv =
             state.requiresCoupledCandidate ? request.rigid.vStride : 0u;
+        state.humanSupportDispatch.articulatedNv = coupledArticulatedNv;
+        state.humanSupportDispatch.articulationRootBody =
+            request.articulationRootBody;
+        state.humanSupportDispatch.bodyCount =
+            request.rigid.currentBodyCount;
+        state.humanSupportDispatch.bodyStride =
+            request.rigid.currentBodyStride;
+        state.humanSupportDispatch.groundPointAndTimestep.w = frameTimestep;
 
         const auto dispatchThreads = [&](
             const char* name,
@@ -3134,6 +3282,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             environments * state.dispatch.femHumanAttachmentCount;
         const NSUInteger deformableContactHistoryTotal =
             environments * state.dispatch.deformableContactCapacity;
+        const NSUInteger humanSupportTotal = environments *
+            state.humanSupportDispatch.contactCount;
         const NSUInteger proxyTotal =
             environments * state.dispatch.rigidProxyCount;
         const NSUInteger bodyWrenchTotal =
@@ -3402,6 +3552,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
                 [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.contactHistoriesCheckpoint offset:0u atIndex:3u];
+            });
+            dispatchThreads("nm_human_support_rollback", humanSupportTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&state.humanSupportDispatch.contactCount
+                           length:sizeof(std::uint32_t) atIndex:1u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                [encoder setBuffer:state.humanSupportHistoriesAccepted
+                             offset:0u atIndex:3u];
+                [encoder setBuffer:state.humanSupportHistoriesCandidate
+                             offset:0u atIndex:4u];
+                [encoder setBuffer:state.humanSupportHistoriesCheckpoint
+                             offset:0u atIndex:5u];
+                [encoder setBuffer:state.humanSupportConsequencesAccepted
+                             offset:0u atIndex:6u];
+                [encoder setBuffer:state.humanSupportConsequencesCandidate
+                             offset:0u atIndex:7u];
+                [encoder setBuffer:state.humanSupportConsequencesCheckpoint
+                             offset:0u atIndex:8u];
             });
             dispatchThreads(
                 "nm_contact_rollback_deformable_contact_histories",
@@ -3844,6 +4012,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.deformableContactHistoriesCheckpoint
                                  offset:0u atIndex:3u];
                 });
+            dispatchThreads("nm_human_support_checkpoint",
+                humanSupportTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&state.humanSupportDispatch.contactCount
+                           length:sizeof(std::uint32_t) atIndex:1u];
+                [encoder setBuffer:state.humanSupportHistoriesAccepted
+                             offset:0u atIndex:2u];
+                [encoder setBuffer:state.humanSupportHistoriesCandidate
+                             offset:0u atIndex:3u];
+                [encoder setBuffer:state.humanSupportHistoriesCheckpoint
+                             offset:0u atIndex:4u];
+                [encoder setBuffer:state.humanSupportConsequencesAccepted
+                             offset:0u atIndex:5u];
+                [encoder setBuffer:state.humanSupportConsequencesCandidate
+                             offset:0u atIndex:6u];
+                [encoder setBuffer:state.humanSupportConsequencesCheckpoint
+                             offset:0u atIndex:7u];
+            });
             if (request.learnedWeightUpdate != nullptr) {
                 id<MTLBuffer> learnedUpdate =
                     (__bridge id<MTLBuffer>)request.learnedWeightUpdate;
@@ -4226,7 +4412,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const auto encodeCoupledPrimalContact = [&] (
                 const bool certify,
                 id<MTLBuffer> histories,
-                id<MTLBuffer> deformableContactHistories
+                id<MTLBuffer> deformableContactHistories,
+                id<MTLBuffer> humanSupportHistories
             ) -> bool {
                 if (state.requiresCoupledCandidate) {
                     [encoder endEncoding];
@@ -4523,6 +4710,40 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             "MetalWorld failed to encode candidate point Jacobians";
                         return false;
                     }
+                    if (state.humanSupportDispatch.contactCount != 0u) {
+                        const CoupledCandidateQuery supportQuery{
+                            .input = (__bridge void*)
+                                state.coupledGeneralizedCandidate,
+                            .candidateQ = (__bridge void*)
+                                state.coupledCandidateQ,
+                            .candidateBodies = (__bridge void*)
+                                state.coupledCandidateBodies,
+                            .pointQueries = (__bridge void*)
+                                state.humanSupportPointQueries,
+                            .pointJacobians = (__bridge void*)
+                                state.humanSupportPointJacobians,
+                            .operation =
+                                CoupledCandidateOperation::candidateKinematics,
+                            .generalizedVectorStride =
+                                state.dispatch.rigidGeneralizedCapacity,
+                            .candidateQStride = state.coupledQStride,
+                            .candidateBodyStride = state.coupledBodyStride,
+                            .pointCount =
+                                state.humanSupportDispatch.contactCount,
+                            .pointStride =
+                                state.humanSupportDispatch.contactCount,
+                            .pointJacobianStride =
+                                state.humanSupportDispatch.contactCount * 3u *
+                                    state.dispatch.rigidGeneralizedCapacity,
+                        };
+                        if (!request.encodeCoupledCandidate(
+                                request.coupledCandidateContext,
+                                supportQuery)) {
+                            diagnostics.message =
+                                "Human candidate service rejected NHCNT support Jacobians";
+                            return false;
+                        }
+                    }
                     id<MTLBlitCommandEncoder> clearCoupledMass =
                         [commandBuffer blitCommandEncoder];
                     if (clearCoupledMass == nil) {
@@ -4565,6 +4786,30 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                     [encoder setLabel:@"Numi Matter monolithic KKT continuation"];
                 }
+                dispatchThreads("nm_human_support_evaluate",
+                    humanSupportTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.humanSupportDispatch
+                               length:sizeof(state.humanSupportDispatch)
+                              atIndex:1u];
+                    [encoder setBuffer:state.humanSupportContacts
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.coupledCandidateBodies
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.coupledGeneralizedCandidate
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.humanSupportPointJacobians
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:humanSupportHistories
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state.humanSupportHistoriesCandidate
+                                 offset:0u atIndex:7u];
+                    [encoder setBuffer:state.humanSupportSamples
+                                 offset:0u atIndex:8u];
+                    [encoder setBuffer:state.humanSupportConsequencesCandidate
+                                 offset:0u atIndex:9u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:10u];
+                });
                 dispatchThreads("nm_contact_accumulate_fem_residual", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.contactNodeIncidence offset:0u atIndex:1u];
@@ -4729,7 +4974,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
             if (!encodeCoupledPrimalContact(
                     false,
                     nonlinearHistories,
-                    nonlinearDeformableContactHistories)) {
+                    nonlinearDeformableContactHistories,
+                    nonlinearIteration == 0u
+                        ? state.humanSupportHistoriesAccepted
+                        : state.humanSupportHistoriesCandidate)) {
                 [encoder endEncoding];
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
@@ -4758,6 +5006,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
                 [encoder setBuffer:state.coupledPointJacobians
                              offset:0u atIndex:4u];
+            });
+            dispatchThreads("nm_human_support_accumulate_rigid_residual",
+                rigidGeneralizedTotalForResidual, [&] {
+                setDispatch();
+                [encoder setBytes:&state.humanSupportDispatch
+                           length:sizeof(state.humanSupportDispatch)
+                          atIndex:1u];
+                [encoder setBuffer:state.humanSupportSamples
+                             offset:0u atIndex:2u];
+                [encoder setBuffer:state.humanSupportPointJacobians
+                             offset:0u atIndex:3u];
+                [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
             });
             scatterFEMHumanAttachmentResidual();
 
@@ -5441,6 +5701,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:6u];
                 });
+                dispatchThreads("nm_fgmres_apply_human_support",
+                    rigidGeneralizedTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.humanSupportDispatch
+                               length:sizeof(state.humanSupportDispatch)
+                              atIndex:1u];
+                    [encoder setBuffer:state.fgmresPreconditionedBasis
+                                 offset:columnOffset atIndex:2u];
+                    [encoder setBuffer:state.femOperatorValue
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.humanSupportSamples
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.humanSupportPointJacobians
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:state.fgmresStates
+                                 offset:0u atIndex:6u];
+                });
                 dispatchThreads(
                     "nm_fem_human_attachment_scatter_operator",
                     rigidGeneralizedTotal,
@@ -5962,7 +6239,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             if (!encodeCoupledPrimalContact(
                     true,
                     state.contactHistoriesCandidate,
-                    state.deformableContactHistoriesCandidate
+                    state.deformableContactHistoriesCandidate,
+                    state.humanSupportHistoriesCandidate
                 )) {
                 [encoder endEncoding];
                 ownership->preDynamicsOpen = false;
@@ -6002,6 +6280,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:4u];
                 });
+            dispatchThreads("nm_human_support_accumulate_rigid_residual",
+                rigidGeneralizedTotalForResidual, [&] {
+                setDispatch();
+                [encoder setBytes:&state.humanSupportDispatch
+                           length:sizeof(state.humanSupportDispatch)
+                          atIndex:1u];
+                [encoder setBuffer:state.humanSupportSamples
+                             offset:0u atIndex:2u];
+                [encoder setBuffer:state.humanSupportPointJacobians
+                             offset:0u atIndex:3u];
+                [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
+            });
             scatterFEMHumanAttachmentResidual();
             // The accepted Newton correction changes MPM grid velocities and
             // the final primal-contact rebuild changes their barrier forces.
@@ -6265,6 +6555,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.contactHistoriesCandidate offset:0u atIndex:3u];
             });
+            dispatchThreads("nm_human_support_commit", humanSupportTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&state.humanSupportDispatch.contactCount
+                           length:sizeof(std::uint32_t) atIndex:1u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                [encoder setBuffer:state.humanSupportHistoriesAccepted
+                             offset:0u atIndex:3u];
+                [encoder setBuffer:state.humanSupportHistoriesCandidate
+                             offset:0u atIndex:4u];
+                [encoder setBuffer:state.humanSupportConsequencesAccepted
+                             offset:0u atIndex:5u];
+                [encoder setBuffer:state.humanSupportConsequencesCandidate
+                             offset:0u atIndex:6u];
+            });
             dispatchThreads(
                 "nm_contact_commit_deformable_contact_histories",
                 deformableContactHistoryTotal,
@@ -6364,6 +6668,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBuffer:state.statuses offset:0u atIndex:1u];
             [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:2u];
             [encoder setBuffer:state.contactHistoriesCheckpoint offset:0u atIndex:3u];
+        });
+        dispatchThreads("nm_human_support_rollback", humanSupportTotal, [&] {
+            setDispatch();
+            [encoder setBytes:&state.humanSupportDispatch.contactCount
+                       length:sizeof(std::uint32_t) atIndex:1u];
+            [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+            [encoder setBuffer:state.humanSupportHistoriesAccepted
+                         offset:0u atIndex:3u];
+            [encoder setBuffer:state.humanSupportHistoriesCandidate
+                         offset:0u atIndex:4u];
+            [encoder setBuffer:state.humanSupportHistoriesCheckpoint
+                         offset:0u atIndex:5u];
+            [encoder setBuffer:state.humanSupportConsequencesAccepted
+                         offset:0u atIndex:6u];
+            [encoder setBuffer:state.humanSupportConsequencesCandidate
+                         offset:0u atIndex:7u];
+            [encoder setBuffer:state.humanSupportConsequencesCheckpoint
+                         offset:0u atIndex:8u];
         });
         dispatchThreads(
             "nm_contact_rollback_deformable_contact_histories",
@@ -6797,6 +7119,16 @@ bool Runtime::encodeAcceptedStateProof(
             state.learnedRevisionCheckpoint,
             state.contactHistoriesAccepted,
             state.contactHistoriesCheckpoint,
+            state.humanSupportHistoriesAccepted,
+            state.humanSupportHistoriesCandidate,
+            state.humanSupportHistoriesCheckpoint,
+            state.humanSupportConsequencesAccepted,
+            state.humanSupportConsequencesCandidate,
+            state.humanSupportConsequencesCheckpoint,
+            state.humanSupportContacts,
+            state.humanSupportPointQueries,
+            state.humanSupportPointJacobians,
+            state.humanSupportSamples,
             state.deformableContactHistoriesAccepted,
             state.deformableContactHistoriesCandidate,
             state.deformableContactHistoriesCheckpoint,
@@ -6925,7 +7257,7 @@ bool Runtime::encodeAcceptedStateProof(
         const std::uint64_t femMaterialScalars =
             static_cast<std::uint64_t>(state.dispatch.tetrahedronCount) *
             state.dispatch.materialStateStride;
-        const std::array<ProofArena, 26u> arenas{{
+        const std::array<ProofArena, 28u> arenas{{
             {pass.q, detail::AcceptedStateProofSource::humanQ,
              detail::kAcceptedStateProofTargetHuman, 0u,
              perEnvironmentBytes(pass.qStride, sizeof(float)), 0u},
@@ -7004,6 +7336,18 @@ bool Runtime::encodeAcceptedStateProof(
              detail::kAcceptedStateProofTargetMatter, 0u,
              perEnvironmentBytes(
                  state.dispatch.contactPairCount, sizeof(nm_float4)), 0u},
+            {owned(state.humanSupportHistoriesAccepted),
+             detail::AcceptedStateProofSource::matterHumanSupportHistories,
+             detail::kAcceptedStateProofTargetMatter, 0u,
+             perEnvironmentBytes(
+                 state.humanSupportDispatch.contactCount,
+                 sizeof(nm_float4)), 0u},
+            {owned(state.humanSupportConsequencesAccepted),
+             detail::AcceptedStateProofSource::matterHumanSupportConsequences,
+             detail::kAcceptedStateProofTargetMatter, 0u,
+             perEnvironmentBytes(
+                 state.humanSupportDispatch.contactCount,
+                 sizeof(NMHumanSupportConsequenceGPU)), 0u},
             {owned(state.deformableContactHistoriesAccepted),
              detail::AcceptedStateProofSource::matterDeformableContactHistories,
              detail::kAcceptedStateProofTargetMatter, 0u,
@@ -7505,6 +7849,16 @@ bool Runtime::applyPreparedStateImpl(
             state.learnedRevisionCheckpoint,
             state.contactHistoriesAccepted,
             state.contactHistoriesCheckpoint,
+            state.humanSupportHistoriesAccepted,
+            state.humanSupportHistoriesCandidate,
+            state.humanSupportHistoriesCheckpoint,
+            state.humanSupportConsequencesAccepted,
+            state.humanSupportConsequencesCandidate,
+            state.humanSupportConsequencesCheckpoint,
+            state.humanSupportContacts,
+            state.humanSupportPointQueries,
+            state.humanSupportPointJacobians,
+            state.humanSupportSamples,
             state.deformableContactHistoriesAccepted,
             state.deformableContactHistoriesCandidate,
             state.deformableContactHistoriesCheckpoint,
@@ -7744,6 +8098,8 @@ bool Runtime::applyPreparedStateImpl(
             environments * state.dispatch.contactPairCount;
         const NSUInteger deformableTotal =
             environments * state.dispatch.deformableContactCapacity;
+        const NSUInteger humanSupportTotal = environments *
+            state.humanSupportDispatch.contactCount;
 
         encoded = encoded && runtimeDispatch(
             "nm_mpm_rollback_frame", particleTotal, [&] {
@@ -7808,6 +8164,25 @@ bool Runtime::applyPreparedStateImpl(
                              offset:0u atIndex:1u];
                 [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.contactHistoriesCheckpoint offset:0u atIndex:3u];
+            });
+        encoded = encoded && runtimeDispatch(
+            "nm_human_support_rollback", humanSupportTotal, [&] {
+                [encoder setBytes:&state.humanSupportDispatch.contactCount
+                           length:sizeof(std::uint32_t) atIndex:1u];
+                [encoder setBuffer:state.preparedStateRestoreStatuses
+                             offset:0u atIndex:2u];
+                [encoder setBuffer:state.humanSupportHistoriesAccepted
+                             offset:0u atIndex:3u];
+                [encoder setBuffer:state.humanSupportHistoriesCandidate
+                             offset:0u atIndex:4u];
+                [encoder setBuffer:state.humanSupportHistoriesCheckpoint
+                             offset:0u atIndex:5u];
+                [encoder setBuffer:state.humanSupportConsequencesAccepted
+                             offset:0u atIndex:6u];
+                [encoder setBuffer:state.humanSupportConsequencesCandidate
+                             offset:0u atIndex:7u];
+                [encoder setBuffer:state.humanSupportConsequencesCheckpoint
+                             offset:0u atIndex:8u];
             });
         encoded = encoded && runtimeDispatch(
             "nm_contact_rollback_deformable_contact_histories",
@@ -8877,6 +9252,39 @@ std::uint64_t Runtime::deviceProgramFingerprint() const noexcept {
     return state_ ? state_->executionFingerprint : 0u;
 }
 
+HumanSupportConsequencesView Runtime::humanSupportConsequences() const noexcept {
+    HumanSupportConsequencesView view;
+    if (state_ == nullptr ||
+        state_->humanSupportDispatch.contactCount == 0u ||
+        state_->humanSupportConsequencesAccepted == nil) {
+        return view;
+    }
+    view.buffer = (__bridge void*)state_->humanSupportConsequencesAccepted;
+    view.gpuAddress = state_->humanSupportConsequencesAccepted.gpuAddress;
+    view.elementCount = static_cast<std::uint64_t>(
+        state_->dispatch.environmentCount) *
+        state_->humanSupportDispatch.contactCount;
+    view.stride = state_->humanSupportDispatch.contactCount;
+    return view;
+}
+
+HumanSupportConsequencesView
+Runtime::humanSupportCandidateConsequences() const noexcept {
+    HumanSupportConsequencesView view;
+    if (state_ == nullptr ||
+        state_->humanSupportDispatch.contactCount == 0u ||
+        state_->humanSupportConsequencesCandidate == nil) {
+        return view;
+    }
+    view.buffer = (__bridge void*)state_->humanSupportConsequencesCandidate;
+    view.gpuAddress = state_->humanSupportConsequencesCandidate.gpuAddress;
+    view.elementCount = static_cast<std::uint64_t>(
+        state_->dispatch.environmentCount) *
+        state_->humanSupportDispatch.contactCount;
+    view.stride = state_->humanSupportDispatch.contactCount;
+    return view;
+}
+
 bool Runtime::automaticIdentificationEnabled() const noexcept {
     return state_ != nullptr && state_->automaticIdentification;
 }
@@ -9420,6 +9828,11 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
         state.coupledGeneralizedCandidate, "rigid-generalized-candidate");
     boundedArena(snapshot.contactHistories,
         state.contactHistoriesAccepted, "contact-history");
+    boundedArena(snapshot.humanSupportHistories,
+        state.humanSupportHistoriesAccepted, "Human-support-history");
+    boundedArena(snapshot.humanSupportConsequences,
+        state.humanSupportConsequencesAccepted,
+        "Human-support-consequence");
     boundedArena(snapshot.deformableContactHistories,
         state.deformableContactHistoriesAccepted,
         "deformable-contact-history");
@@ -9780,6 +10193,14 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             snapshot.contactHistories,
             "contact-history"
         );
+        id<MTLBuffer> humanSupportHistories = stage(
+            snapshot.humanSupportHistories,
+            "Human-support-history"
+        );
+        id<MTLBuffer> humanSupportConsequences = stage(
+            snapshot.humanSupportConsequences,
+            "Human-support-consequence"
+        );
         id<MTLBuffer> deformableContactHistories = stage(
             snapshot.deformableContactHistories,
             "deformable-contact-history"
@@ -9888,6 +10309,14 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
         mirror(contactHistories, state.contactHistoriesAccepted,
             state.contactHistoriesCandidate,
             state.contactHistoriesCheckpoint);
+        mirror(humanSupportHistories,
+            state.humanSupportHistoriesAccepted,
+            state.humanSupportHistoriesCandidate,
+            state.humanSupportHistoriesCheckpoint);
+        mirror(humanSupportConsequences,
+            state.humanSupportConsequencesAccepted,
+            state.humanSupportConsequencesCandidate,
+            state.humanSupportConsequencesCheckpoint);
         mirror(deformableContactHistories,
             state.deformableContactHistoriesAccepted,
             state.deformableContactHistoriesCandidate,
@@ -10031,6 +10460,10 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         id<MTLBuffer> topologyStates = copy(state_->topologyStatesAccepted);
         id<MTLBuffer> contactHistories =
             copy(state_->contactHistoriesAccepted);
+        id<MTLBuffer> humanSupportHistories =
+            copy(state_->humanSupportHistoriesAccepted);
+        id<MTLBuffer> humanSupportConsequences =
+            copy(state_->humanSupportConsequencesAccepted);
         id<MTLBuffer> deformableContactHistories =
             copy(state_->deformableContactHistoriesAccepted);
         id<MTLBuffer> adaptive = copy(state_->adaptive);
@@ -10055,6 +10488,8 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             topologyNodes == nil || topologyTetrahedra == nil ||
             cohesiveFaces == nil || punctureChannels == nil ||
             topologyStates == nil || contactHistories == nil ||
+            humanSupportHistories == nil ||
+            humanSupportConsequences == nil ||
             deformableContactHistories == nil ||
             adaptive == nil || schedulers == nil || reactions == nil ||
             rigidStates == nil ||
@@ -10100,6 +10535,12 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         encodeCopy(state_->punctureChannelsAccepted, punctureChannels);
         encodeCopy(state_->topologyStatesAccepted, topologyStates);
         encodeCopy(state_->contactHistoriesAccepted, contactHistories);
+        encodeCopy(
+            state_->humanSupportHistoriesAccepted,
+            humanSupportHistories);
+        encodeCopy(
+            state_->humanSupportConsequencesAccepted,
+            humanSupportConsequences);
         encodeCopy(
             state_->deformableContactHistoriesAccepted,
             deformableContactHistories);
@@ -10188,6 +10629,17 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             state_->dispatch.contactPairCount;
         readCount(contactHistories, snapshot.contactHistories,
                   logicalContactCount);
+        const std::size_t logicalHumanSupportCount =
+            static_cast<std::size_t>(state_->dispatch.environmentCount) *
+            state_->humanSupportDispatch.contactCount;
+        readCount(
+            humanSupportHistories,
+            snapshot.humanSupportHistories,
+            logicalHumanSupportCount);
+        readCount(
+            humanSupportConsequences,
+            snapshot.humanSupportConsequences,
+            logicalHumanSupportCount);
         const std::size_t logicalDeformableContactCount =
             static_cast<std::size_t>(state_->dispatch.environmentCount) *
             state_->dispatch.deformableContactCapacity;
