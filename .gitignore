@@ -9,6 +9,10 @@ __pycache__/
 .venv/
 .pytest_cache/
 .numi/runs/
+.numi/artifacts/
+.numi/evidence/**/*.nculture
+.numi/evidence/**/*.ncstate
+.numi/evidence/**/*.log
 .numi/window-build/
 *.metallib
 *.air

@@ -1,0 +1,28 @@
+{
+  "schema": "numi.neuron-culture.development-observation.v1",
+  "recorded_at": "2026-09-02T19:58:00+02:00",
+  "device": "Apple M4 Pro",
+  "protocol_algorithm_version": 6,
+  "culture_abi_version": 3,
+  "network_seed": 2056,
+  "sensory_mapping": 0,
+  "starting_state_fingerprint": 5745835860219795609,
+  "starting_state_simulated_ticks": 600000,
+  "canonical_equilibrium_ticks": 25200000,
+  "adaptive": {
+    "post_switch_success": 0.291666657,
+    "post_switch_context_success": [0.307692308, 0.0, 0.0, 0.24137931],
+    "accepted_state_fingerprint": 11321825376442647688,
+    "wall_seconds": 301.24
+  },
+  "pts_off": {
+    "post_switch_success": 0.308333337,
+    "post_switch_context_success": [0.0, 0.0, 0.189189189, 1.0],
+    "accepted_state_fingerprint": 7799646611657582922,
+    "wall_seconds": 302.93
+  },
+  "adaptive_minus_pts_off_percentage_points": -1.666668,
+  "promotable": false,
+  "simulation_only": true,
+  "limitation": "Development diagnostic from a 10-minute partial equilibrium. It is retained negative evidence and cannot qualify or refute the fixed three-seed by five-mapping promotion gate."
+}

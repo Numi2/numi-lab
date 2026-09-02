@@ -859,6 +859,8 @@ add_library(
     src/core/VisualPlatform.cpp
     src/core/VisualPresentation.cpp
     src/core/NeuronCulture.cpp
+    src/core/NeuronCultureArtifacts.cpp
+    src/core/NeuronCultureProtocol.cpp
     src/core/NeuronCultureEmbodiment.cpp
     src/core/Tactile.cpp
     src/core/TactileDebug.cpp
@@ -1111,6 +1113,22 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
         INSTALL_RPATH "@loader_path/../lib"
+)
+
+add_executable(NumiNeuronLab apps/NumiNeuronLab.mm)
+add_dependencies(NumiNeuronLab metalrobo_neuron_culture_shaders)
+target_link_libraries(
+    NumiNeuronLab PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}"
+        "${APPKIT_FRAMEWORK}" "${METALKIT_FRAMEWORK}"
+)
+target_compile_definitions(
+    NumiNeuronLab PRIVATE
+    METALROBO_NEURON_METALLIB="${METALROBO_NEURON_CULTURE_METALLIB}"
+)
+target_compile_options(NumiNeuronLab PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+set_target_properties(
+    NumiNeuronLab PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib" INSTALL_RPATH "@loader_path/../lib"
 )
 if(BUILD_TESTING)
     add_test(
@@ -4574,6 +4592,7 @@ install(
         metalrobo_environment_cook
         metalrobo_robot_catalog
         metalrobo_neuron_culture_probe
+        NumiNeuronLab
 )
 if(METALROBO_HAS_SWIFT)
     install(

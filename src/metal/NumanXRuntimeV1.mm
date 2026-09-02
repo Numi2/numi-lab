@@ -4,7 +4,9 @@
 #include "NumanXBridgeV1Internal.hpp"
 
 #include "metalrobo/ArticulatedDynamics.hpp"
+#include "metalrobo/MetalNeuronCulture.hpp"
 #include "metalrobo/MetalNumanXHumanMatter.hpp"
+#include "metalrobo/NeuronCultureArtifacts.hpp"
 #include "metalrobo/VisualPresentation.hpp"
 #include "numi/matter/matter.hpp"
 
@@ -23,6 +25,7 @@
 #include <memory>
 #include <mutex>
 #include <new>
+#include <optional>
 #include <shared_mutex>
 #include <sstream>
 #include <span>
@@ -31,6 +34,18 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+
+namespace metalrobo {
+
+struct MetalNeuronCultureRuntimeBridgeAccess {
+    [[nodiscard]] static MetalNeuronCultureAcceptedView preparedView(
+        const MetalNeuronCultureRuntime& runtime
+    ) noexcept {
+        return runtime.preparedAcceptedView();
+    }
+};
+
+} // namespace metalrobo
 
 namespace {
 
@@ -302,6 +317,13 @@ struct VisionProfile {
         hash *= kFnvPrime;
     }
     return hash == 0u ? kFnvOffset : hash;
+}
+
+[[nodiscard]] std::uint64_t cultureReceiptFingerprint(
+    mrnx_culture_prepared_view_v1 view
+) noexcept {
+    view.receipt_fingerprint = 0u;
+    return hashBytes(&view, sizeof(view));
 }
 
 struct ImmutablePayload {
@@ -1286,11 +1308,19 @@ struct ActiveRoot final : std::enable_shared_from_this<ActiveRoot> {
     __strong id<MTLBuffer> visionValidity = nil;
     __strong id<MTLBuffer> touch = nil;
     __strong id<MTLBuffer> touchValidity = nil;
+    __strong id<MTLBuffer> supportConsequences = nil;
+    std::uint64_t supportConsequencesGPUAddress = 0u;
+    std::optional<metalrobo::MetalNeuronCultureTicket> cultureTicket;
+    mrnx_culture_prepared_view_v1 culturePrepared{};
+    metalrobo::MetalNeuronCultureAcceptedView cultureAcceptedView;
+    mrnx_culture_accepted_view_v1 cultureAccepted{};
     MRNumanXHumanSupplementalDispatchGPU supplementalDispatch{};
     bool humanSettled = false;
     bool humanReady = false;
     bool physicalSettled = false;
     bool physicalReady = false;
+    bool cultureSettled = false;
+    bool cultureReady = false;
     bool settlementStarted = false;
 };
 
@@ -1327,6 +1357,13 @@ struct RuntimeState final : std::enable_shared_from_this<RuntimeState> {
     mrnx_candidate_timing_v1 aggregateTiming{};
     mrnx_candidate_channel_v1 aggregateChannels[MRNX_MAX_SENSOR_CHANNELS_V2]{};
     std::uint32_t aggregateChannelCount = 0u;
+    mrnx_culture_accepted_view_v1 aggregateCulture{};
+    metalrobo::CompiledNeuronCulture culturePack;
+    std::unique_ptr<metalrobo::MetalNeuronCultureRuntime> culture;
+    metalrobo::MetalNeuronCultureAcceptedView publishedCultureView;
+    std::uint32_t cultureWindowTicks = 0u;
+    float cultureCurrentPerNewton = 0.0f;
+    std::string cultureProtocolPath;
     __strong id<MTLBuffer> publishedChannelValues[MRNX_MAX_SENSOR_CHANNELS_V2]{};
     __strong id<MTLBuffer> publishedChannelValidity[MRNX_MAX_SENSOR_CHANNELS_V2]{};
     __strong id<MTLBuffer> publishedProprioception = nil;
@@ -1374,6 +1411,10 @@ void physicalCompletion(
     void* raw,
     bool ready,
     std::uint64_t slotGeneration
+) noexcept;
+void cultureCompletion(
+    void* raw,
+    metalrobo::MetalNeuronCultureStatus status
 ) noexcept;
 [[nodiscard]] bool encodeSupplementalSensors(
     void* raw,
@@ -1717,6 +1758,97 @@ void physicalCompletion(
         runtime->matter->acceptedStateProofProgramFingerprint();
     runtime->info.model_source_fingerprint =
         runtime->assets.sourceFingerprint;
+    return runtime;
+}
+
+[[nodiscard]] std::shared_ptr<RuntimeState> createRuntimeStateV2(
+    const mrnx_runtime_config_v2& config
+) {
+    requireBuild(
+        config.abi_version == MRNX_RUNTIME_CONFIG_ABI_V2 &&
+            config.struct_size == sizeof(config),
+        MRNX_RUNTIME_INVALID_CONFIGURATION_V1,
+        "invalid NumanX runtime configuration v2 header");
+    mrnx_runtime_config_v1 base{};
+    base.abi_version = MRNX_BRIDGE_ABI_V1;
+    base.struct_size = sizeof(base);
+    base.metal_device = config.metal_device;
+    base.rigid_payload_path = config.rigid_payload_path;
+    base.muscle_payload_path = config.muscle_payload_path;
+    base.support_contact_payload_path = config.support_contact_payload_path;
+    base.visual_pack_path = config.visual_pack_path;
+    base.vision_profile_path = config.vision_profile_path;
+    base.metalrobo_metallib_path = config.metalrobo_metallib_path;
+    base.matter_metallib_path = config.matter_metallib_path;
+    base.matter_material_path = config.matter_material_path;
+    base.timestep_microseconds = config.timestep_microseconds;
+    base.maximum_retained_bytes = config.maximum_retained_bytes;
+    base.transaction_slot_count = config.transaction_slot_count;
+    base.reserved0 = config.reserved0;
+    auto runtime = createRuntimeState(base);
+    const bool cultureEnabled = config.culture_pack_path != nullptr &&
+        config.culture_pack_path[0] != '\0';
+    const bool checkpointSupplied = config.culture_checkpoint_path != nullptr &&
+        config.culture_checkpoint_path[0] != '\0';
+    const bool protocolSupplied = config.culture_protocol_path != nullptr &&
+        config.culture_protocol_path[0] != '\0';
+    if (!cultureEnabled) {
+        requireBuild(
+            !checkpointSupplied && !protocolSupplied &&
+                config.culture_window_ticks == 0u &&
+                config.culture_current_per_newton == 0.0f,
+            MRNX_RUNTIME_INVALID_CONFIGURATION_V1,
+            "culture options require a culture pack");
+        return runtime;
+    }
+    requireBuild(
+        config.culture_window_ticks != 0u &&
+            config.culture_window_ticks <=
+                metalrobo::kNeuronCultureMaximumWindowTicks &&
+            std::isfinite(config.culture_current_per_newton) &&
+            config.culture_current_per_newton >= 0.0f,
+        MRNX_RUNTIME_INVALID_CONFIGURATION_V1,
+        "invalid culture runtime parameters");
+    const auto packResult = metalrobo::readCompiledNeuronCulture(
+        config.culture_pack_path, runtime->culturePack);
+    requireBuild(
+        packResult.succeeded() && runtime->culturePack.valid(),
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "culture pack validation failed: " + packResult.message);
+    runtime->culture =
+        std::make_unique<metalrobo::MetalNeuronCultureRuntime>(
+            metalrobo::MetalNeuronCultureRuntime::create(
+                runtime->culturePack, config.metal_device));
+    requireBuild(
+        runtime->culture != nullptr && runtime->culture->valid() &&
+            runtime->culture->residentBytes() < 128ull * 1024ull * 1024ull,
+        MRNX_RUNTIME_METAL_FAILURE_V1,
+        "culture Metal runtime is unavailable or over budget");
+    if (checkpointSupplied) {
+        metalrobo::NeuronCultureState checkpoint;
+        const auto checkpointResult = metalrobo::readNeuronCultureCheckpoint(
+            runtime->culturePack, config.culture_checkpoint_path, checkpoint);
+        requireBuild(
+            checkpointResult.succeeded() &&
+                runtime->culture->restoreAccepted(checkpoint) ==
+                    metalrobo::MetalNeuronCultureStatus::success,
+            MRNX_RUNTIME_ASSET_FAILURE_V1,
+            "culture checkpoint validation failed: " + checkpointResult.message);
+    }
+    if (protocolSupplied) {
+        const std::filesystem::path protocol(config.culture_protocol_path);
+        const auto protocolResult =
+            metalrobo::validateNeuronCultureRunManifest(
+                protocol, runtime->culturePack.fingerprint(),
+                "potter-switch-v1");
+        requireBuild(
+            protocolResult.succeeded(),
+            MRNX_RUNTIME_ASSET_FAILURE_V1,
+            "culture protocol validation failed: " + protocolResult.message);
+        runtime->cultureProtocolPath = protocol.string();
+    }
+    runtime->cultureWindowTicks = config.culture_window_ticks;
+    runtime->cultureCurrentPerNewton = config.culture_current_per_newton;
     return runtime;
 }
 
@@ -2135,6 +2267,40 @@ mrnx_runtime_v1* mrnx_bridge_v1_runtime_create(
     }
 }
 
+mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v2(
+    const mrnx_runtime_config_v2* config,
+    mrnx_runtime_info_v1* info
+) {
+    @autoreleasepool {
+        if (config == nullptr) {
+            fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+            return nullptr;
+        }
+        try {
+            auto state = createRuntimeStateV2(*config);
+            auto* runtime = new (std::nothrow) mrnx_runtime_v1;
+            if (runtime == nullptr) {
+                fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+                return nullptr;
+            }
+            runtime->state = std::move(state);
+            if (info != nullptr) *info = runtime->state->info;
+            return runtime;
+        } catch (const RuntimeBuildFailure& failure) {
+            if (std::getenv("MRNX_RUNTIME_DIAGNOSTICS") != nullptr) {
+                std::fprintf(
+                    stderr, "mrnx runtime v2 create failed: %s\n",
+                    failure.what());
+            }
+            fillRuntimeInfoFailure(info, failure.status);
+            return nullptr;
+        } catch (...) {
+            fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+            return nullptr;
+        }
+    }
+}
+
 void mrnx_bridge_v1_runtime_retain(mrnx_runtime_v1* runtime) {
     if (runtime != nullptr) {
         runtime->references.fetch_add(1u, std::memory_order_relaxed);
@@ -2500,6 +2666,54 @@ bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v3(
     return true;
 }
 
+bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v4(
+    const mrnx_runtime_v1* runtime,
+    mrnx_aggregate_snapshot_v4* snapshot
+) {
+    if (runtime == nullptr || runtime->state == nullptr ||
+        snapshot == nullptr ||
+        snapshot->abi_version != MRNX_AGGREGATE_SNAPSHOT_ABI_V4 ||
+        snapshot->struct_size != sizeof(*snapshot)) return false;
+    const std::shared_lock reader(runtime->state->aggregateGate);
+    bool channelsReady = runtime->state->aggregateChannelCount == 7u;
+    for (std::uint32_t index = 0u;
+         index < runtime->state->aggregateChannelCount; ++index) {
+        channelsReady = channelsReady &&
+            runtime->state->publishedChannelValues[index] != nil &&
+            runtime->state->publishedChannelValidity[index] != nil;
+    }
+    if (runtime->state->culture == nullptr ||
+        runtime->state->aggregate.publication_epoch == 0u ||
+        runtime->state->aggregateTiming.timing_fingerprint == 0u ||
+        runtime->state->aggregateCulture.culture_fingerprint == 0u ||
+        runtime->state->aggregateCulture.generation == 0u ||
+        runtime->state->aggregateCulture.source_root_fingerprint !=
+            runtime->state->aggregate.root.transaction_fingerprint ||
+        runtime->state->aggregateCulture.receipt_fingerprint == 0u ||
+        !runtime->state->publishedCultureView.valid() || !channelsReady) {
+        *snapshot = {};
+        return false;
+    }
+    *snapshot = {};
+    snapshot->abi_version = MRNX_AGGREGATE_SNAPSHOT_ABI_V4;
+    snapshot->struct_size = sizeof(*snapshot);
+    snapshot->publication_epoch = runtime->state->aggregate.publication_epoch;
+    snapshot->brain_generation = runtime->state->aggregate.brain_generation;
+    snapshot->physics_generation = runtime->state->aggregate.physics_generation;
+    snapshot->sensor_generation = runtime->state->aggregate.sensor_generation;
+    snapshot->root = runtime->state->aggregate.root;
+    snapshot->sensor = runtime->state->aggregate.sensor;
+    snapshot->timing = runtime->state->aggregateTiming;
+    snapshot->channel_count = runtime->state->aggregateChannelCount;
+    snapshot->channel_capacity = MRNX_MAX_SENSOR_CHANNELS_V2;
+    for (std::uint32_t index = 0u;
+         index < runtime->state->aggregateChannelCount; ++index) {
+        snapshot->channels[index] = runtime->state->aggregateChannels[index];
+    }
+    snapshot->culture = runtime->state->aggregateCulture;
+    return true;
+}
+
 } // extern "C"
 
 namespace {
@@ -2646,6 +2860,15 @@ bool encodeSupplementalSensors(
                 }
             }
         }
+        {
+            const std::lock_guard lock(active->mutex);
+            if (active->supportConsequences != nil &&
+                (active->supportConsequences != supportConsequences ||
+                 active->supportConsequencesGPUAddress !=
+                    supportView.gpuAddress)) return false;
+            active->supportConsequences = supportConsequences;
+            active->supportConsequencesGPUAddress = supportView.gpuAddress;
+        }
         id<MTLComputeCommandEncoder> encoder =
             [commandBuffer computeCommandEncoder];
         if (encoder == nil) return false;
@@ -2712,6 +2935,10 @@ void runtimeTerminalCompletion(
         }
     }
     if (disposition != PreparedTerminalDisposition::published) {
+        if (disposition == PreparedTerminalDisposition::rejected &&
+            runtime->culture != nullptr) {
+            runtime->culture->rejectPrepared();
+        }
         return;
     }
     const bool commonIdentityValid = active != nullptr &&
@@ -2870,6 +3097,20 @@ void runtimeTerminalCompletion(
     timing.sample_interval_microseconds = static_cast<std::uint32_t>(
         runtime->timestepMicroseconds);
     timing.timing_fingerprint = timingFingerprint(timing);
+    if (runtime->culture != nullptr) {
+        if (!active->cultureAcceptedView.valid() ||
+            active->cultureAccepted.culture_fingerprint !=
+                runtime->culturePack.fingerprint() ||
+            active->cultureAccepted.generation == 0u ||
+            runtime->culture->publishPrepared() !=
+                metalrobo::MetalNeuronCultureStatus::success) {
+            runtime->active.reset();
+            runtime->terminalQuarantine = true;
+            return;
+        }
+        runtime->publishedCultureView = active->cultureAcceptedView;
+        runtime->aggregateCulture = active->cultureAccepted;
+    }
     snapshot.abi_version = MRNX_BRIDGE_ABI_V1;
     snapshot.struct_size = sizeof(snapshot);
     snapshot.publication_epoch = priorEpoch + 1u;
@@ -2914,7 +3155,7 @@ void settleActiveRoot(const std::shared_ptr<ActiveRoot>& active) noexcept {
     {
         const std::lock_guard lock(active->mutex);
         if (active->settlementStarted || !active->humanSettled ||
-            !active->physicalSettled) {
+            !active->physicalSettled || !active->cultureSettled) {
             return;
         }
         active->settlementStarted = true;
@@ -2924,6 +3165,7 @@ void settleActiveRoot(const std::shared_ptr<ActiveRoot>& active) noexcept {
         callbackContext = active->completionContext;
         generation = active->slotGeneration;
         ready = active->humanReady && active->physicalReady &&
+            active->cultureReady &&
             prepared != nullptr && candidate != nullptr;
     }
 
@@ -2935,6 +3177,10 @@ void settleActiveRoot(const std::shared_ptr<ActiveRoot>& active) noexcept {
     }
     if (ready) {
         ready = mrnx_bridge_v1_bind_candidate(prepared, candidate);
+    }
+    if (ready && active->runtime->culture != nullptr) {
+        ready = metalrobo::numanx_bridge_v1::installPreparedCultureView(
+            prepared, active->culturePrepared);
     }
     if (!ready) {
         if (candidate != nullptr) {
@@ -3005,6 +3251,56 @@ void settleActiveRoot(const std::shared_ptr<ActiveRoot>& active) noexcept {
     result.validity = outputRange(
         validity, MRNX_ELEMENT_UINT32_V1, sizeof(std::uint32_t));
     return result;
+}
+
+[[nodiscard]] bool bridgeCultureAcceptedView(
+    const metalrobo::MetalNeuronCultureAcceptedView& source,
+    const std::uint64_t deviceRegistryID,
+    mrnx_culture_accepted_view_v1& output
+) noexcept {
+    if (!source.valid() || source.cultureFingerprint() == 0u ||
+        source.generation() == 0u || source.completionEvent() == nullptr ||
+        source.completionValue() != source.generation() ||
+        source.buffers().size() != MRNX_CULTURE_ACCEPTED_BUFFER_COUNT_V1) return false;
+    mrnx_culture_accepted_view_v1 result{};
+    result.abi_version = MRNX_CULTURE_ACCEPTED_VIEW_ABI_V1;
+    result.struct_size = sizeof(result);
+    result.culture_fingerprint = source.cultureFingerprint();
+    result.generation = source.generation();
+    result.tick = source.tick();
+    result.growth_generation = source.growthIteration();
+    result.ready.abi_version = MRNX_BRIDGE_ABI_V1;
+    result.ready.struct_size = sizeof(result.ready);
+    result.ready.shared_event = source.completionEvent();
+    result.ready.value = source.completionValue();
+    result.ready.device_registry_id = deviceRegistryID;
+    result.buffer_count = MRNX_CULTURE_ACCEPTED_BUFFER_COUNT_V1;
+    std::array<bool, MRNX_CULTURE_ACCEPTED_BUFFER_COUNT_V1> seen{};
+    for (const auto& buffer : source.buffers()) {
+        const auto index = static_cast<std::uint32_t>(buffer.kind);
+        if (index >= seen.size() || seen[index] || buffer.metalBuffer == nullptr ||
+            buffer.gpuAddress == 0u || buffer.byteLength == 0u) return false;
+        seen[index] = true;
+        const bool unsignedBuffer =
+            buffer.kind == metalrobo::MetalNeuronCultureAcceptedBuffer::spikes ||
+            buffer.kind == metalrobo::MetalNeuronCultureAcceptedBuffer::spikeHistory ||
+            buffer.kind ==
+                metalrobo::MetalNeuronCultureAcceptedBuffer::electrodeSpikeCounts;
+        __unsafe_unretained id<MTLBuffer> object =
+            (__bridge id<MTLBuffer>)buffer.metalBuffer;
+        if (object == nil || object.gpuAddress != buffer.gpuAddress ||
+            object.length != buffer.byteLength ||
+            object.device.registryID != deviceRegistryID) return false;
+        result.buffers[index] = outputRange(
+            object,
+            unsignedBuffer ? MRNX_ELEMENT_UINT32_V1 : MRNX_ELEMENT_FLOAT32_V1,
+            sizeof(std::uint32_t));
+    }
+    if (!std::all_of(seen.begin(), seen.end(), [](bool value) { return value; })) {
+        return false;
+    }
+    output = result;
+    return true;
 }
 
 void humanCandidateCompletion(
@@ -3164,6 +3460,121 @@ void physicalCompletion(
                 static_cast<double>(outcome.humanFactorAndAssistance[3]));
         }
     }
+    if (active->runtime->culture != nullptr) {
+        bool physicalReady = false;
+        __strong id<MTLBuffer> supportConsequences = nil;
+        std::uint64_t supportAddress = 0u;
+        {
+            const std::lock_guard lock(active->mutex);
+            physicalReady = active->physicalReady;
+            supportConsequences = active->supportConsequences;
+            supportAddress = active->supportConsequencesGPUAddress;
+        }
+        if (physicalReady && supportConsequences != nil && supportAddress != 0u) {
+            const metalrobo::MetalNeuronCultureSupportRequest request{
+                .cultureFingerprint = active->runtime->culturePack.fingerprint(),
+                .rootFingerprint = active->transactionFingerprint,
+                .supportConsequencesBuffer = (__bridge void*)supportConsequences,
+                .supportConsequencesGPUAddress = supportAddress,
+                .supportCount = 10u,
+                .supportStride = 10u,
+                .tickCount = active->runtime->cultureWindowTicks,
+                .physicsTimestepSeconds = static_cast<float>(
+                    static_cast<double>(active->runtime->timestepMicroseconds) /
+                    1'000'000.0),
+                .currentPerNewton = active->runtime->cultureCurrentPerNewton,
+            };
+            auto ticket = active->runtime->culture->prepareSupportWindow(request);
+            mrnx_root_v1 root{};
+            root.abi_version = MRNX_BRIDGE_ABI_V1;
+            root.struct_size = sizeof(root);
+            const auto accepted = active->runtime->culture->acceptedView();
+            __unsafe_unretained id<MTLSharedEvent> event =
+                (__bridge id<MTLSharedEvent>)ticket.completionEvent();
+            mrnx_culture_prepared_view_v1 view{};
+            const bool viewReady = ticket.valid() && accepted.valid() &&
+                accepted.generation() != std::numeric_limits<std::uint64_t>::max() &&
+                event != nil && ticket.completionValue() != 0u &&
+                active->prepared != nullptr &&
+                mrnx_bridge_v1_prepared_copy_root(active->prepared, &root);
+            if (viewReady) {
+                view.abi_version = MRNX_CULTURE_PREPARED_VIEW_ABI_V1;
+                view.struct_size = sizeof(view);
+                view.root = root;
+                view.culture_fingerprint = accepted.cultureFingerprint();
+                view.accepted_generation = accepted.generation();
+                view.prepared_generation = accepted.generation() + 1u;
+                view.source_root_fingerprint = active->transactionFingerprint;
+                view.ready.abi_version = MRNX_BRIDGE_ABI_V1;
+                view.ready.struct_size = sizeof(view.ready);
+                view.ready.shared_event = (__bridge void*)event;
+                view.ready.value = ticket.completionValue();
+                view.ready.device_registry_id = active->runtime->device.registryID;
+                view.status = 1u;
+                view.receipt_fingerprint = cultureReceiptFingerprint(view);
+            }
+            if (viewReady && view.receipt_fingerprint != 0u) {
+                {
+                    const std::lock_guard lock(active->mutex);
+                    active->culturePrepared = view;
+                    active->cultureTicket.emplace(std::move(ticket));
+                }
+                if (!active->cultureTicket->onCompleted(
+                        active.get(), &cultureCompletion)) {
+                    active->runtime->culture->rejectPrepared();
+                    const std::lock_guard lock(active->mutex);
+                    active->cultureSettled = true;
+                    active->cultureReady = false;
+                }
+            } else {
+                active->runtime->culture->rejectPrepared();
+                const std::lock_guard lock(active->mutex);
+                active->cultureSettled = true;
+                active->cultureReady = false;
+            }
+        } else {
+            const std::lock_guard lock(active->mutex);
+            active->cultureSettled = true;
+            active->cultureReady = false;
+        }
+    }
+    settleActiveRoot(active);
+}
+
+void cultureCompletion(
+    void* raw,
+    const metalrobo::MetalNeuronCultureStatus status
+) noexcept {
+    auto* pointer = static_cast<ActiveRoot*>(raw);
+    if (pointer == nullptr) return;
+    const auto active = pointer->shared_from_this();
+    auto preparedView = status == metalrobo::MetalNeuronCultureStatus::success
+        ? metalrobo::MetalNeuronCultureRuntimeBridgeAccess::preparedView(
+            *active->runtime->culture)
+        : metalrobo::MetalNeuronCultureAcceptedView{};
+    mrnx_culture_accepted_view_v1 bridgeView{};
+    const bool ready = status == metalrobo::MetalNeuronCultureStatus::success &&
+        active->culturePrepared.source_root_fingerprint ==
+            active->transactionFingerprint &&
+        active->culturePrepared.receipt_fingerprint != 0u &&
+        bridgeCultureAcceptedView(
+            preparedView, active->runtime->device.registryID, bridgeView);
+    if (ready) {
+        bridgeView.source_root_fingerprint =
+            active->culturePrepared.source_root_fingerprint;
+        bridgeView.receipt_fingerprint =
+            active->culturePrepared.receipt_fingerprint;
+    }
+    {
+        const std::lock_guard lock(active->mutex);
+        if (active->cultureSettled) return;
+        active->cultureSettled = true;
+        active->cultureReady = ready;
+        if (ready) {
+            active->cultureAcceptedView = std::move(preparedView);
+            active->cultureAccepted = bridgeView;
+        }
+    }
     settleActiveRoot(active);
 }
 
@@ -3264,6 +3675,8 @@ void physicalCompletion(
     failureStage = 4u;
     auto result = std::make_shared<ActiveRoot>();
     result->runtime = runtime.get();
+    result->cultureSettled = runtime->culture == nullptr;
+    result->cultureReady = runtime->culture == nullptr;
     failureStage = 41u;
     if (!importExactRange(
             runtime->device, request.motor_header,
@@ -3318,23 +3731,34 @@ void physicalCompletion(
     __unsafe_unretained id<MTLSharedEvent> event = nil;
     if (request.motor_ready.abi_version != MRNX_BRIDGE_ABI_V1 ||
         request.motor_ready.struct_size != sizeof(request.motor_ready) ||
-        request.motor_ready.value == 0u ||
-        request.motor_ready.device_registry_id !=
-            runtime->device.registryID ||
+        request.motor_ready.value == 0u) return false;
+    failureStage = 61u;
+    if (request.motor_ready.device_registry_id != runtime->device.registryID ||
         !eventObject(request.motor_ready.shared_event, event) ||
-        !importableSharedEvent(runtime->device, event) ||
-        candidate.motorOutputHeaderGPUAddress !=
-            result->motorHeader.address ||
-        candidate.muscleExcitationGPUAddress != result->excitation.address ||
-        candidate.autonomicCommandGPUAddress != result->autonomic.address ||
-        candidate.activeSensingCommandGPUAddress !=
-            result->activeSensing.address) {
+        !importableSharedEvent(runtime->device, event)) return false;
+    failureStage = 62u;
+    if (candidate.motorOutputHeaderGPUAddress != result->motorHeader.address)
+        return false;
+    failureStage = 63u;
+    if (candidate.muscleExcitationGPUAddress != result->excitation.address)
+        return false;
+    failureStage = 64u;
+    if (candidate.autonomicCommandGPUAddress != result->autonomic.address)
+        return false;
+    failureStage = 65u;
+    if (candidate.activeSensingCommandGPUAddress != result->activeSensing.address) {
+        if (std::getenv("MRNX_PHYSICAL_DIAGNOSTICS") != nullptr) {
+            std::fprintf(stderr, "mrnx_active_sensing candidate=%llu range=%llu\n",
+                static_cast<unsigned long long>(candidate.activeSensingCommandGPUAddress),
+                static_cast<unsigned long long>(result->activeSensing.address));
+        }
         return false;
     }
     result->motorReadyEvent = event;
     result->transactionFingerprint = root.transactionFingerprint;
     result->brainGeneration = root.shadowGeneration;
     result->controlStep = root.controlStepIdentifier;
+    failureStage = 7u;
     {
         const std::lock_guard lock(runtime->mutex);
         if (runtime->publishedOnce) {
@@ -3348,7 +3772,9 @@ void physicalCompletion(
                     runtime->publishedPhysicsGeneration ||
                 root.committedTimestampMicroseconds !=
                     runtime->publishedTimestampMicroseconds ||
-                root.controlStepIdentifier <= runtime->publishedControlStep) {
+                runtime->publishedControlStep ==
+                    std::numeric_limits<std::uint64_t>::max() ||
+                root.controlStepIdentifier != runtime->publishedControlStep + 1u) {
                 return false;
             }
             result->previousTransactionFingerprint =
@@ -3357,13 +3783,8 @@ void physicalCompletion(
                 runtime->publishedPhysicsGeneration;
         } else if (root.baseBrainGeneration != 0u ||
                    root.basePhysicsGeneration != 0u ||
-                   runtime->aggregate.publication_epoch != 0u) {
-            return false;
-        }
-        if (runtime->lastAttemptedControlStep ==
-                std::numeric_limits<std::uint64_t>::max() ||
-            root.controlStepIdentifier !=
-                runtime->lastAttemptedControlStep + 1u) {
+                   runtime->aggregate.publication_epoch != 0u ||
+                   root.controlStepIdentifier != 1u) {
             return false;
         }
     }

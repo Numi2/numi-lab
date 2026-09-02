@@ -10,11 +10,12 @@
 #define MRNC_ALIGN(N) alignas(N)
 #endif
 
-#define MR_NEURON_CULTURE_ABI_VERSION 1u
+#define MR_NEURON_CULTURE_ABI_VERSION 3u
 #define MR_NEURON_CULTURE_MAX_ELECTRODES 64u
 #define MR_NEURON_CULTURE_STATUS_PENDING 0u
 #define MR_NEURON_CULTURE_STATUS_SUCCESS 1u
 #define MR_NEURON_CULTURE_STATUS_INVALID 2u
+#define MR_NEURON_CULTURE_WINDOW_DISABLE_PLASTICITY 1u
 
 typedef struct MRNC_ALIGN(16) MRNeuronCultureHeaderGPU {
     uint32_t abiVersion;
@@ -39,8 +40,9 @@ typedef struct MRNC_ALIGN(16) MRNeuronCultureHeaderGPU {
     float stdpDepression;
     float minimumWeight;
     float maximumWeight;
-    uint32_t reserved0;
-    uint32_t reserved1;
+    float synapticCurrentScale;
+    float preSpikeSuppressionTimeConstantSeconds;
+    float postSpikeSuppressionTimeConstantSeconds;
 } MRNeuronCultureHeaderGPU;
 
 typedef struct MRNC_ALIGN(16) MRNeuronCultureNeuronGPU {
@@ -84,8 +86,30 @@ typedef struct MRNC_ALIGN(16) MRNeuronCultureTickGPU {
     float stimulationCurrent;
     float traceDecay;
     float depressionRecovery;
-    float reserved0;
+    float recordingEnabled;
 } MRNeuronCultureTickGPU;
+
+typedef struct MRNC_ALIGN(16) MRNeuronCultureWindowGPU {
+    uint32_t startTick;
+    uint32_t tickCount;
+    uint32_t recordingStartTick;
+    uint32_t recordingDurationTicks;
+    float traceDecay;
+    float depressionRecovery;
+    uint32_t status;
+    uint32_t flags;
+} MRNeuronCultureWindowGPU;
+
+typedef struct MRNC_ALIGN(16) MRNeuronCultureSupportDispatchGPU {
+    uint32_t supportCount;
+    uint32_t supportStride;
+    uint32_t electrodeCount;
+    uint32_t tickCount;
+    float physicsTimestepSeconds;
+    float currentPerNewton;
+    uint32_t status;
+    uint32_t reserved0;
+} MRNeuronCultureSupportDispatchGPU;
 
 typedef struct MRNC_ALIGN(16) MRNeuronCultureGrowthGPU {
     uint32_t width;
@@ -112,6 +136,8 @@ static_assert(sizeof(MRNeuronCultureNeuronGPU) == 32u);
 static_assert(sizeof(MRNeuronCultureSynapseGPU) == 32u);
 static_assert(sizeof(MRNeuronCultureElectrodeGPU) == 32u);
 static_assert(sizeof(MRNeuronCultureTickGPU) == 32u);
+static_assert(sizeof(MRNeuronCultureWindowGPU) == 32u);
+static_assert(sizeof(MRNeuronCultureSupportDispatchGPU) == 32u);
 static_assert(sizeof(MRNeuronCultureGrowthGPU) == 64u);
 #endif
 

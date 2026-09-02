@@ -306,6 +306,7 @@ struct mrnx_prepared_v1 {
     metalrobo::MetalNumanXHumanMatterPrepared prepared;
     mrnx_root_v1 root{};
     mrnx_wire_lease_v1 physicalGate{};
+    mrnx_culture_prepared_view_v1 culturePrepared{};
     mrnx_proposal_view_v1 proposal{};
     mrnx_applied_view_v1 applied{};
     __strong id<MTLBuffer> preparedToken = nil;
@@ -1421,6 +1422,31 @@ void markPreparedPhysicalTerminal(mrnx_prepared_v1* prepared) noexcept {
         PreparedTerminalDisposition::terminalNoTouch);
 }
 
+bool installPreparedCultureView(
+    mrnx_prepared_v1* prepared,
+    const mrnx_culture_prepared_view_v1& view
+) noexcept {
+    if (prepared == nullptr ||
+        view.abi_version != MRNX_CULTURE_PREPARED_VIEW_ABI_V1 ||
+        view.struct_size != sizeof(view) || view.reserved0 != 0u ||
+        view.status != 1u || view.culture_fingerprint == 0u ||
+        view.prepared_generation == 0u || view.receipt_fingerprint == 0u ||
+        !sameRoot(view.root, prepared->root) ||
+        view.source_root_fingerprint != prepared->root.transaction_fingerprint ||
+        view.ready.abi_version != MRNX_BRIDGE_ABI_V1 ||
+        view.ready.struct_size != sizeof(view.ready) || view.ready.value == 0u ||
+        view.ready.device_registry_id != prepared->domain->deviceRegistryID) return false;
+    __unsafe_unretained id<MTLSharedEvent> event = nil;
+    if (!eventObject(view.ready.shared_event, event) ||
+        !importableSharedEvent(prepared->domain->device, event)) return false;
+    const std::lock_guard lock(prepared->mutex);
+    if (prepared->terminal ||
+        prepared->phase != BridgePreparedPhase::candidateBound ||
+        prepared->culturePrepared.receipt_fingerprint != 0u) return false;
+    prepared->culturePrepared = view;
+    return true;
+}
+
 } // namespace metalrobo::numanx_bridge_v1
 
 extern "C" {
@@ -1469,6 +1495,21 @@ bool mrnx_bridge_v1_prepared_copy_physical_gate(
         return false;
     }
     *output = prepared->physicalGate;
+    return true;
+}
+
+bool mrnx_bridge_v1_prepared_copy_culture_view(
+    const mrnx_prepared_v1* prepared,
+    mrnx_culture_prepared_view_v1* output
+) {
+    if (prepared == nullptr || !writableOutput(output)) return false;
+    const std::lock_guard lock(prepared->mutex);
+    if (prepared->terminal || prepared->culturePrepared.receipt_fingerprint == 0u ||
+        prepared->phase == BridgePreparedPhase::acceptedPendingPublication ||
+        prepared->phase == BridgePreparedPhase::rejectedReleased ||
+        prepared->phase == BridgePreparedPhase::published ||
+        prepared->phase == BridgePreparedPhase::terminalNoTouch) return false;
+    *output = prepared->culturePrepared;
     return true;
 }
 

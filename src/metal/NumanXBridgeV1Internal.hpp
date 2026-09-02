@@ -73,4 +73,9 @@ using PreparedTerminalCompletion = void (*)(
 // therefore cannot make the slot reusable.
 void markPreparedPhysicalTerminal(mrnx_prepared_v1* prepared) noexcept;
 
+[[nodiscard]] bool installPreparedCultureView(
+    mrnx_prepared_v1* prepared,
+    const mrnx_culture_prepared_view_v1& view
+) noexcept;
+
 } // namespace metalrobo::numanx_bridge_v1

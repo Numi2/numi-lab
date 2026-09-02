@@ -3,6 +3,7 @@
 #include "metalrobo/neuron_culture_gpu.h"
 
 #include <cstdint>
+#include <filesystem>
 #include <span>
 #include <string>
 #include <vector>
@@ -10,6 +11,38 @@
 namespace metalrobo {
 
 inline constexpr std::uint32_t kNeuronCulturePackFormatVersion = 1u;
+inline constexpr std::uint32_t kNeuronCultureMaximumStimulusPulses = 4096u;
+inline constexpr std::uint32_t kNeuronCultureMaximumWindowTicks = 100000u;
+inline constexpr float kPotterReferenceSynapticCurrentScale = 175000.0f;
+
+enum class NeuronCultureStimulusSource : std::uint32_t {
+    authored = 1u,
+    contextProbe = 2u,
+    patternedTraining = 3u,
+    randomBackground = 4u,
+    numanXSupport = 5u,
+};
+
+struct NeuronCultureStimulusPulse {
+    std::uint32_t electrode = 0u;
+    std::uint32_t startTick = 0u;
+    std::uint32_t durationTicks = 1u;
+    NeuronCultureStimulusSource source = NeuronCultureStimulusSource::authored;
+    float current = 0.0f;
+    std::uint64_t sourceFingerprint = 0u;
+};
+
+struct NeuronCultureWindowRequest {
+    std::uint64_t cultureFingerprint = 0u;
+    std::uint64_t rootFingerprint = 0u;
+    std::uint32_t tickCount = 0u;
+    std::uint32_t recordingStartTick = 0u;
+    std::uint32_t recordingDurationTicks = 0u;
+    // Experiment-only ablations freeze weights without changing culture
+    // identity, topology, initial state, depression, or spike dynamics.
+    bool plasticityEnabled = true;
+    std::vector<NeuronCultureStimulusPulse> pulses;
+};
 
 struct NeuronCultureGrowthPack {
     std::uint32_t width = 128u;
@@ -35,10 +68,18 @@ struct NeuronCultureNetworkPack {
     float refractorySeconds = 0.002f;
     float traceTimeConstantSeconds = 0.020f;
     float depressionRecoverySeconds = 0.800f;
-    float stdpPotentiation = 0.004f;
-    float stdpDepression = 0.005f;
+    // Chao et al. Text S1 DynamicStdpSynapse parameters. These are the A+/A-
+    // coefficients in the bounded normalized update, not additive dW values.
+    float stdpPotentiation = 0.5f;
+    float stdpDepression = 0.525f;
     float minimumWeight = 0.0f;
     float maximumWeight = 1.0f;
+    // Current delivered by one unit-weight, fully recovered presynaptic spike.
+    // At the canonical 1 ms timestep and maximum weight 0.1, the reference
+    // value produces a 17.5 mV recovered EPSP-equivalent contribution.
+    float synapticCurrentScale = kPotterReferenceSynapticCurrentScale;
+    float preSpikeSuppressionTimeConstantSeconds = 0.034f;
+    float postSpikeSuppressionTimeConstantSeconds = 0.075f;
 };
 
 struct NeuronCulturePack {
@@ -83,6 +124,10 @@ public:
     [[nodiscard]] std::span<const MRNeuronCultureNeuronGPU> neurons() const noexcept;
     [[nodiscard]] std::span<const MRNeuronCultureSynapseGPU> synapses() const noexcept;
     [[nodiscard]] std::span<const MRNeuronCultureElectrodeGPU> electrodes() const noexcept;
+    [[nodiscard]] const std::string& id() const noexcept;
+    [[nodiscard]] const std::string& source() const noexcept;
+    [[nodiscard]] const std::string& sourceRevision() const noexcept;
+    [[nodiscard]] const std::string& sourceLicense() const noexcept;
 
 private:
     MRNeuronCultureHeaderGPU header_{};
@@ -90,9 +135,14 @@ private:
     std::vector<MRNeuronCultureNeuronGPU> neurons_;
     std::vector<MRNeuronCultureSynapseGPU> synapses_;
     std::vector<MRNeuronCultureElectrodeGPU> electrodes_;
+    std::string id_;
+    std::string source_;
+    std::string sourceRevision_;
+    std::string sourceLicense_;
 
     friend NeuronCultureCompileDiagnostics compileNeuronCulture(
         const NeuronCulturePack&, CompiledNeuronCulture&);
+    friend class NeuronCultureArtifactAccess;
 };
 
 [[nodiscard]] NeuronCultureCompileDiagnostics compileNeuronCulture(
@@ -106,6 +156,18 @@ private:
     std::uint64_t seed = 2056u
 );
 
+[[nodiscard]] bool validateNeuronCultureWindow(
+    const CompiledNeuronCulture& culture,
+    const NeuronCultureWindowRequest& request
+) noexcept;
+
+[[nodiscard]] bool neuronCultureStimulusCurrents(
+    const CompiledNeuronCulture& culture,
+    const NeuronCultureWindowRequest& request,
+    std::uint32_t tickOffset,
+    std::span<float> electrodeCurrents
+) noexcept;
+
 struct NeuronCultureState {
     std::vector<float> membrane;
     std::vector<float> refractory;
@@ -118,6 +180,9 @@ struct NeuronCultureState {
     std::vector<std::uint32_t> electrodeSpikeCounts;
     std::vector<float> phase;
     std::vector<float> tubulin;
+    // Monotonic accepted publication generation. It is checkpoint authority,
+    // not inferred from ticks because one accepted window may advance many.
+    std::uint64_t generation = 0u;
     std::uint64_t tick = 0u;
     std::uint64_t growthIteration = 0u;
 };
@@ -133,9 +198,11 @@ public:
         std::uint32_t stimulationElectrode,
         float stimulationCurrent
     );
+    [[nodiscard]] bool prepareWindow(const NeuronCultureWindowRequest& request);
     [[nodiscard]] bool prepareGrowth(std::uint32_t iterationCount);
     [[nodiscard]] bool publishPrepared() noexcept;
     void rejectPrepared() noexcept;
+    [[nodiscard]] bool restoreAccepted(const NeuronCultureState& state);
 
 private:
     const CompiledNeuronCulture* culture_ = nullptr;

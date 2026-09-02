@@ -7,6 +7,7 @@
 #include <limits>
 #include <numeric>
 #include <tuple>
+#include <unordered_set>
 
 namespace metalrobo {
 namespace {
@@ -45,6 +46,22 @@ std::uint64_t splitmix64(std::uint64_t& state) noexcept {
 
 float uniform01(std::uint64_t& state) noexcept {
     return static_cast<float>((splitmix64(state) >> 40u) * (1.0 / 16777216.0));
+}
+
+float deterministicMembraneNoise(
+    const std::uint64_t seed, const std::uint64_t tick,
+    const std::uint32_t neuron, const float amplitude
+) noexcept {
+    std::uint64_t value = seed ^
+        ((tick + 1u) * 0x9e3779b97f4a7c15ull) ^
+        ((static_cast<std::uint64_t>(neuron) + 1u) * 0xbf58476d1ce4e5b9ull);
+    value = (value ^ (value >> 30u)) * 0xbf58476d1ce4e5b9ull;
+    value = (value ^ (value >> 27u)) * 0x94d049bb133111ebull;
+    value ^= value >> 31u;
+    const std::int32_t difference =
+        static_cast<std::int32_t>(value & 0xffffu) -
+        static_cast<std::int32_t>((value >> 16u) & 0xffffu);
+    return amplitude * static_cast<float>(difference) * (1.0f / 65535.0f);
 }
 
 bool checkedCells(std::uint32_t width, std::uint32_t height, std::size_t& out) {
@@ -109,6 +126,8 @@ bool CompiledNeuronCulture::valid() const noexcept {
     return header_.abiVersion == MR_NEURON_CULTURE_ABI_VERSION &&
         header_.structBytes == sizeof(MRNeuronCultureHeaderGPU) &&
         header_.cultureFingerprint != 0u && !neurons_.empty() &&
+        !id_.empty() && !source_.empty() && !sourceRevision_.empty() &&
+        !sourceLicense_.empty() &&
         header_.neuronCount == neurons_.size() &&
         header_.synapseCount == synapses_.size() &&
         header_.electrodeCount == electrodes_.size();
@@ -123,6 +142,10 @@ const MRNeuronCultureGrowthGPU& CompiledNeuronCulture::growth() const noexcept {
 std::span<const MRNeuronCultureNeuronGPU> CompiledNeuronCulture::neurons() const noexcept { return neurons_; }
 std::span<const MRNeuronCultureSynapseGPU> CompiledNeuronCulture::synapses() const noexcept { return synapses_; }
 std::span<const MRNeuronCultureElectrodeGPU> CompiledNeuronCulture::electrodes() const noexcept { return electrodes_; }
+const std::string& CompiledNeuronCulture::id() const noexcept { return id_; }
+const std::string& CompiledNeuronCulture::source() const noexcept { return source_; }
+const std::string& CompiledNeuronCulture::sourceRevision() const noexcept { return sourceRevision_; }
+const std::string& CompiledNeuronCulture::sourceLicense() const noexcept { return sourceLicense_; }
 
 NeuronCultureCompileDiagnostics compileNeuronCulture(
     const NeuronCulturePack& pack,
@@ -162,7 +185,13 @@ NeuronCultureCompileDiagnostics compileNeuronCulture(
         finite(n.depressionRecoverySeconds) && n.depressionRecoverySeconds > 0.0f &&
         finite(n.stdpPotentiation) && n.stdpPotentiation >= 0.0f &&
         finite(n.stdpDepression) && n.stdpDepression >= 0.0f &&
-        finite(n.minimumWeight) && finite(n.maximumWeight) && n.minimumWeight <= n.maximumWeight;
+        finite(n.minimumWeight) && finite(n.maximumWeight) && n.minimumWeight <= n.maximumWeight &&
+        finite(n.synapticCurrentScale) && n.synapticCurrentScale > 0.0f &&
+        n.synapticCurrentScale <= 1000000.0f &&
+        finite(n.preSpikeSuppressionTimeConstantSeconds) &&
+        n.preSpikeSuppressionTimeConstantSeconds > 0.0f &&
+        finite(n.postSpikeSuppressionTimeConstantSeconds) &&
+        n.postSpikeSuppressionTimeConstantSeconds > 0.0f;
     if (!networkValid) {
         d.status = NeuronCultureCompileStatus::invalidNetwork;
         d.element = "network";
@@ -256,6 +285,11 @@ NeuronCultureCompileDiagnostics compileNeuronCulture(
     header.stdpDepression = n.stdpDepression;
     header.minimumWeight = n.minimumWeight;
     header.maximumWeight = n.maximumWeight;
+    header.synapticCurrentScale = n.synapticCurrentScale;
+    header.preSpikeSuppressionTimeConstantSeconds =
+        n.preSpikeSuppressionTimeConstantSeconds;
+    header.postSpikeSuppressionTimeConstantSeconds =
+        n.postSpikeSuppressionTimeConstantSeconds;
 
     MRNeuronCultureGrowthGPU growth{};
     growth.width = g.width;
@@ -294,6 +328,10 @@ NeuronCultureCompileDiagnostics compileNeuronCulture(
     candidate.neurons_ = std::move(neurons);
     candidate.synapses_ = std::move(synapses);
     candidate.electrodes_ = pack.electrodes;
+    candidate.id_ = pack.id;
+    candidate.source_ = pack.source;
+    candidate.sourceRevision_ = pack.sourceRevision;
+    candidate.sourceLicense_ = pack.sourceLicense;
     output = std::move(candidate);
     return d;
 }
@@ -307,8 +345,15 @@ NeuronCulturePack makePotterReferenceCulture(
     pack.id = "potter-embodied-mea-synthetic-v1";
     pack.seed = seed;
     pack.source = "Chao-Bakkum-Potter-PLoS-Comput-Biol-2008-and-Qian-et-al-Sci-Rep-2022";
-    pack.sourceRevision = "doi:10.1371/journal.pcbi.1000042+doi:10.1038/s41598-022-12073-z";
+    pack.sourceRevision =
+        "doi:10.1371/journal.pcbi.1000042+s001+doi:10.1038/s41598-022-12073-z";
     pack.sourceLicense = "CC-BY-4.0-equation-level-reimplementation";
+    // Text S1 initializes excitatory/inhibitory strengths at +/-0.05 and
+    // constrains excitatory plasticity to [0, 0.1]. The runtime stores a
+    // positive magnitude plus the presynaptic excitatory flag, so one 0.05
+    // magnitude represents both authored signs without duplicating authority.
+    pack.network.minimumWeight = 0.0f;
+    pack.network.maximumWeight = 0.1f;
     pack.growth.width = neuronCount >= 1000u ? 384u : 96u;
     pack.growth.height = pack.growth.width;
     pack.neurons.resize(neuronCount);
@@ -317,23 +362,66 @@ NeuronCulturePack makePotterReferenceCulture(
         auto& neuron = pack.neurons[i];
         neuron.x = 3.0f * uniform01(rng);
         neuron.y = 3.0f * uniform01(rng);
-        neuron.biasCurrent = 820.0f + 260.0f * uniform01(rng);
+        // Approximately 30 percent of the reference neurons are spontaneous.
+        // The remaining neurons are subthreshold and can be recruited by the
+        // authored recurrent graph or virtual-MEA input; driving every neuron
+        // suprathreshold would erase the CPS/PTS learning signal.
+        // Text S1 assigns zero-mean membrane-current noise with a 30:10
+        // standard-deviation ratio to self-firing and non-self-firing
+        // neurons. `biasCurrent` stores the deterministic triangular-noise
+        // amplitude in this ABI. The absolute scale is a simulation parameter,
+        // not an nA calibration; counter-based samples keep CPU/Metal replay
+        // independent of dispatch order.
+        neuron.biasCurrent = i % 10u < 3u ? 7350.0f : 2450.0f;
         neuron.capacitance = 1.0f;
         neuron.excitatory = i < (7u * neuronCount) / 10u ? 1u : 0u;
     }
-    pack.synapses.reserve(synapseCount);
-    while (pack.synapses.size() < synapseCount && neuronCount > 1u) {
+    // The reference cultures are spatial networks: many short axons and a
+    // smaller long-range tail. Select the nearest of eight deterministic
+    // candidates for 90 percent of edges and a global candidate otherwise.
+    // Per-presynaptic sets preserve the one-directed-axon-per-pair invariant.
+    const std::uint64_t possibleDirectedEdges = neuronCount > 1u ?
+        static_cast<std::uint64_t>(neuronCount) * (neuronCount - 1u) : 0u;
+    const std::uint32_t targetSynapseCount = static_cast<std::uint32_t>(
+        std::min<std::uint64_t>(synapseCount, possibleDirectedEdges));
+    pack.synapses.reserve(targetSynapseCount);
+    std::vector<std::unordered_set<std::uint32_t>> outgoing(neuronCount);
+    while (pack.synapses.size() < targetSynapseCount) {
         const std::uint32_t pre = static_cast<std::uint32_t>(splitmix64(rng) % neuronCount);
-        std::uint32_t post = static_cast<std::uint32_t>(splitmix64(rng) % neuronCount);
-        if (pre == post) post = (post + 1u) % neuronCount;
+        std::uint32_t post = 0u;
+        if (splitmix64(rng) % 10u == 0u) {
+            post = static_cast<std::uint32_t>(splitmix64(rng) % neuronCount);
+        } else {
+            float bestDistance = std::numeric_limits<float>::infinity();
+            for (std::uint32_t candidateIndex = 0u; candidateIndex < 8u;
+                 ++candidateIndex) {
+                const std::uint32_t candidate = static_cast<std::uint32_t>(
+                    splitmix64(rng) % neuronCount);
+                if (candidate == pre) continue;
+                const float dx = pack.neurons[pre].x - pack.neurons[candidate].x;
+                const float dy = pack.neurons[pre].y - pack.neurons[candidate].y;
+                const float distance = dx * dx + dy * dy;
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    post = candidate;
+                }
+            }
+        }
+        if (post == pre) post = (post + 1u) % neuronCount;
+        if (!outgoing[pre].insert(post).second) continue;
         MRNeuronCultureSynapseGPU synapse{};
         synapse.presynaptic = pre;
         synapse.postsynaptic = post;
-        synapse.delayTicks = 1u + static_cast<std::uint32_t>(splitmix64(rng) % 5u);
+        const float axonX = pack.neurons[pre].x - pack.neurons[post].x;
+        const float axonY = pack.neurons[pre].y - pack.neurons[post].y;
+        const float axonMillimetres = std::hypot(axonX, axonY);
+        // Text S1 uses 0.3 m/s conduction. In millimetres/milliseconds that
+        // is 0.3, so the authored 1 ms tick needs distance / 0.3 delay ticks.
+        synapse.delayTicks = std::max(1u, static_cast<std::uint32_t>(
+            std::lround(axonMillimetres / 0.3f)));
         synapse.plastic = pack.neurons[pre].excitatory;
-        synapse.initialWeight = pack.neurons[pre].excitatory ?
-            0.08f + 0.12f * uniform01(rng) : 0.15f + 0.10f * uniform01(rng);
-        synapse.depressionUse = 0.04f + 0.08f * uniform01(rng);
+        synapse.initialWeight = 0.05f;
+        synapse.depressionUse = 0.5f;
         pack.synapses.push_back(synapse);
     }
     for (std::uint32_t row = 0u; row < 8u; ++row) {
@@ -343,15 +431,81 @@ NeuronCulturePack makePotterReferenceCulture(
                 continue;
             }
             MRNeuronCultureElectrodeGPU e{};
-            e.x = 3.0f * (static_cast<float>(column) + 0.5f) / 8.0f;
-            e.y = 3.0f * (static_cast<float>(row) + 0.5f) / 8.0f;
-            e.recordingRadius = 0.28f;
-            e.stimulationRadius = 0.34f;
+            // The source grid is 333 um on a 3 mm square, with one grid
+            // spacing between peripheral electrodes and the culture edge.
+            e.x = 3.0f * (static_cast<float>(column) + 1.0f) / 9.0f;
+            e.y = 3.0f * (static_cast<float>(row) + 1.0f) / 9.0f;
+            // These radii yield approximately 5 recorded and 76 stimulated
+            // neurons at the authored uniform density, matching Text S1.
+            e.recordingRadius = 0.12f;
+            e.stimulationRadius = 0.47f;
             e.active = 1u;
             pack.electrodes.push_back(e);
         }
     }
     return pack;
+}
+
+bool validateNeuronCultureWindow(
+    const CompiledNeuronCulture& culture,
+    const NeuronCultureWindowRequest& request
+) noexcept {
+    std::uint32_t recordingEnd = 0u;
+    if (!culture.valid() || request.cultureFingerprint != culture.fingerprint() ||
+        request.rootFingerprint == 0u || request.tickCount == 0u ||
+        request.tickCount > kNeuronCultureMaximumWindowTicks ||
+        request.pulses.size() > kNeuronCultureMaximumStimulusPulses ||
+        request.recordingStartTick >= request.tickCount ||
+        (request.recordingDurationTicks != 0u &&
+         (__builtin_add_overflow(request.recordingStartTick,
+                                 request.recordingDurationTicks, &recordingEnd) ||
+          recordingEnd > request.tickCount))) {
+        return false;
+    }
+    std::uint32_t previousStart = 0u;
+    bool first = true;
+    for (const auto& pulse : request.pulses) {
+        std::uint32_t end = 0u;
+        if (pulse.electrode >= culture.electrodes().size() || pulse.durationTicks == 0u ||
+            !finite(pulse.current) || pulse.current < -100000.0f || pulse.current > 100000.0f ||
+            pulse.sourceFingerprint == 0u ||
+            static_cast<std::uint32_t>(pulse.source) <
+                static_cast<std::uint32_t>(NeuronCultureStimulusSource::authored) ||
+            static_cast<std::uint32_t>(pulse.source) >
+                static_cast<std::uint32_t>(NeuronCultureStimulusSource::numanXSupport) ||
+            __builtin_add_overflow(pulse.startTick, pulse.durationTicks, &end) ||
+            end > request.tickCount || (!first && pulse.startTick < previousStart)) {
+            return false;
+        }
+        previousStart = pulse.startTick;
+        first = false;
+    }
+    return true;
+}
+
+bool neuronCultureStimulusCurrents(
+    const CompiledNeuronCulture& culture,
+    const NeuronCultureWindowRequest& request,
+    const std::uint32_t tickOffset,
+    const std::span<float> electrodeCurrents
+) noexcept {
+    if (!validateNeuronCultureWindow(culture, request) || tickOffset >= request.tickCount ||
+        electrodeCurrents.size() != culture.electrodes().size()) {
+        return false;
+    }
+    std::fill(electrodeCurrents.begin(), electrodeCurrents.end(), 0.0f);
+    for (const auto& pulse : request.pulses) {
+        if (tickOffset >= pulse.startTick &&
+            tickOffset - pulse.startTick < pulse.durationTicks) {
+            const double combined = static_cast<double>(electrodeCurrents[pulse.electrode]) +
+                static_cast<double>(pulse.current);
+            if (!std::isfinite(combined) || combined < -100000.0 || combined > 100000.0) {
+                return false;
+            }
+            electrodeCurrents[pulse.electrode] = static_cast<float>(combined);
+        }
+    }
+    return true;
 }
 
 NeuronCultureReference::NeuronCultureReference(const CompiledNeuronCulture& culture)
@@ -374,6 +528,26 @@ bool NeuronCultureReference::prepareTicks(
     if (!culture_ || tickCount == 0u || !finite(stimulationCurrent) ||
         (stimulationElectrode != std::numeric_limits<std::uint32_t>::max() &&
          stimulationElectrode >= culture_->electrodes().size())) return false;
+    NeuronCultureWindowRequest request{
+        .cultureFingerprint = culture_->fingerprint(),
+        .rootFingerprint = culture_->fingerprint(),
+        .tickCount = tickCount,
+    };
+    if (stimulationElectrode < culture_->electrodes().size()) {
+        request.pulses.push_back({
+            .electrode = stimulationElectrode,
+            .startTick = 0u,
+            .durationTicks = tickCount,
+            .source = NeuronCultureStimulusSource::authored,
+            .current = stimulationCurrent,
+            .sourceFingerprint = culture_->fingerprint(),
+        });
+    }
+    return prepareWindow(request);
+}
+
+bool NeuronCultureReference::prepareWindow(const NeuronCultureWindowRequest& request) {
+    if (!culture_ || !validateNeuronCultureWindow(*culture_, request)) return false;
     prepared_ = accepted_;
     std::vector<std::uint32_t> nextSpikes(prepared_.spikes.size(), 0u);
     std::vector<float> nextMembrane(prepared_.membrane.size());
@@ -381,11 +555,27 @@ bool NeuronCultureReference::prepareTicks(
     const float dt = h.neuralTimestepSeconds;
     const float traceDecay = std::exp(-dt / h.traceTimeConstantSeconds);
     const float depressionRecovery = std::min(1.0f, dt / h.depressionRecoverySeconds);
-    for (std::uint32_t tick = 0u; tick < tickCount; ++tick) {
+    std::vector<float> electrodeCurrents(h.electrodeCount, 0.0f);
+    for (std::uint32_t tick = 0u; tick < request.tickCount; ++tick) {
+        // Commit the preceding tick's APs into the two trace authorities.
+        // preTrace then encodes time since the latest AP; postTrace retains
+        // the interval trace captured immediately before that AP.
+        for (std::size_t i = 0u; i < prepared_.spikes.size(); ++i) {
+            if (prepared_.spikes[i]) {
+                prepared_.postTrace[i] = prepared_.preTrace[i];
+                prepared_.preTrace[i] = 1.0f;
+            }
+            prepared_.preTrace[i] *= traceDecay;
+        }
+        if (!neuronCultureStimulusCurrents(*culture_, request, tick, electrodeCurrents)) {
+            return false;
+        }
         std::fill(nextSpikes.begin(), nextSpikes.end(), 0u);
         for (std::size_t i = 0u; i < culture_->neurons().size(); ++i) {
             const auto& neuron = culture_->neurons()[i];
-            float current = neuron.biasCurrent;
+            float current = deterministicMembraneNoise(
+                h.seed, prepared_.tick, static_cast<std::uint32_t>(i),
+                neuron.biasCurrent);
             for (std::uint32_t j = 0u; j < neuron.incomingCount; ++j) {
                 const std::size_t edge = neuron.incomingBegin + j;
                 const auto& synapse = culture_->synapses()[edge];
@@ -394,15 +584,18 @@ bool NeuronCultureReference::prepareTicks(
                     h.neuronCount + synapse.presynaptic;
                 if (prepared_.spikeHistory[historyIndex] != 0u) {
                     const float sign = culture_->neurons()[synapse.presynaptic].excitatory ? 1.0f : -1.0f;
-                    current += sign * prepared_.weights[edge] * prepared_.depression[edge] * 45.0f;
+                    current += sign * prepared_.weights[edge] * prepared_.depression[edge] *
+                        h.synapticCurrentScale;
                 }
             }
-            if (stimulationElectrode < culture_->electrodes().size()) {
-                const auto& e = culture_->electrodes()[stimulationElectrode];
-                const float dx = neuron.x - e.x;
-                const float dy = neuron.y - e.y;
-                if (dx * dx + dy * dy <= e.stimulationRadius * e.stimulationRadius) {
-                    current += stimulationCurrent;
+            for (std::size_t electrode = 0u; electrode < electrodeCurrents.size(); ++electrode) {
+                if (electrodeCurrents[electrode] != 0.0f) {
+                    const auto& e = culture_->electrodes()[electrode];
+                    const float dx = neuron.x - e.x;
+                    const float dy = neuron.y - e.y;
+                    if (dx * dx + dy * dy <= e.stimulationRadius * e.stimulationRadius) {
+                        current += electrodeCurrents[electrode];
+                    }
                 }
             }
             float v = prepared_.membrane[i];
@@ -421,10 +614,6 @@ bool NeuronCultureReference::prepareTicks(
             nextMembrane[i] = v;
             prepared_.refractory[i] = refractory;
         }
-        for (std::size_t i = 0u; i < prepared_.spikes.size(); ++i) {
-            prepared_.preTrace[i] = prepared_.preTrace[i] * traceDecay + nextSpikes[i];
-            prepared_.postTrace[i] = prepared_.postTrace[i] * traceDecay + nextSpikes[i];
-        }
         for (std::size_t edge = 0u; edge < culture_->synapses().size(); ++edge) {
             const auto& synapse = culture_->synapses()[edge];
             float depression = prepared_.depression[edge] +
@@ -433,16 +622,40 @@ bool NeuronCultureReference::prepareTicks(
                 depression *= (1.0f - synapse.depressionUse);
             }
             prepared_.depression[edge] = clamp01(depression);
-            if (synapse.plastic) {
-                float delta = 0.0f;
+            if (synapse.plastic && request.plasticityEnabled) {
+                const float weight = prepared_.weights[edge];
+                float normalizedChange = 0.0f;
+                const float preIntervalEfficacy = 1.0f - std::pow(
+                    std::clamp(prepared_.postTrace[synapse.presynaptic], 0.0f, 1.0f),
+                    h.traceTimeConstantSeconds /
+                        h.preSpikeSuppressionTimeConstantSeconds);
+                const float postIntervalEfficacy = 1.0f - std::pow(
+                    std::clamp(prepared_.postTrace[synapse.postsynaptic], 0.0f, 1.0f),
+                    h.traceTimeConstantSeconds /
+                        h.postSpikeSuppressionTimeConstantSeconds);
                 if (nextSpikes[synapse.postsynaptic]) {
-                    delta += h.stdpPotentiation * prepared_.preTrace[synapse.presynaptic];
+                    const float currentPostEfficacy = 1.0f - std::pow(
+                        std::clamp(prepared_.preTrace[synapse.postsynaptic], 0.0f, 1.0f),
+                        h.traceTimeConstantSeconds /
+                            h.postSpikeSuppressionTimeConstantSeconds);
+                    normalizedChange += h.stdpPotentiation *
+                        (h.maximumWeight - weight) *
+                        prepared_.preTrace[synapse.presynaptic] *
+                        preIntervalEfficacy * currentPostEfficacy;
                 }
                 if (nextSpikes[synapse.presynaptic]) {
-                    delta -= h.stdpDepression * prepared_.postTrace[synapse.postsynaptic];
+                    const float currentPreEfficacy = 1.0f - std::pow(
+                        std::clamp(prepared_.preTrace[synapse.presynaptic], 0.0f, 1.0f),
+                        h.traceTimeConstantSeconds /
+                            h.preSpikeSuppressionTimeConstantSeconds);
+                    normalizedChange -= h.stdpDepression *
+                        (weight - h.minimumWeight) *
+                        prepared_.preTrace[synapse.postsynaptic] *
+                        currentPreEfficacy * postIntervalEfficacy;
                 }
                 prepared_.weights[edge] = std::clamp(
-                    prepared_.weights[edge] + delta, h.minimumWeight, h.maximumWeight);
+                    weight * (1.0f + normalizedChange),
+                    h.minimumWeight, h.maximumWeight);
             }
         }
         prepared_.membrane.swap(nextMembrane);
@@ -451,7 +664,12 @@ bool NeuronCultureReference::prepareTicks(
             h.neuronCount;
         std::copy(prepared_.spikes.begin(), prepared_.spikes.end(),
                   prepared_.spikeHistory.begin() + historyBase);
-        for (std::size_t electrode = 0u; electrode < culture_->electrodes().size(); ++electrode) {
+        const std::uint32_t recordingDuration = request.recordingDurationTicks == 0u ?
+            request.tickCount - request.recordingStartTick : request.recordingDurationTicks;
+        const bool recording = tick >= request.recordingStartTick &&
+            tick - request.recordingStartTick < recordingDuration;
+        for (std::size_t electrode = 0u;
+             recording && electrode < culture_->electrodes().size(); ++electrode) {
             const auto& e = culture_->electrodes()[electrode];
             std::uint32_t count = 0u;
             for (std::size_t neuron = 0u; neuron < culture_->neurons().size(); ++neuron) {
@@ -525,7 +743,9 @@ bool NeuronCultureReference::prepareGrowth(std::uint32_t iterationCount) {
 }
 
 bool NeuronCultureReference::publishPrepared() noexcept {
-    if (!hasPrepared_) return false;
+    if (!hasPrepared_ || accepted_.generation ==
+            std::numeric_limits<std::uint64_t>::max()) return false;
+    prepared_.generation = accepted_.generation + 1u;
     accepted_ = prepared_;
     hasPrepared_ = false;
     return true;
@@ -534,6 +754,57 @@ bool NeuronCultureReference::publishPrepared() noexcept {
 void NeuronCultureReference::rejectPrepared() noexcept {
     prepared_ = accepted_;
     hasPrepared_ = false;
+}
+
+bool NeuronCultureReference::restoreAccepted(const NeuronCultureState& state) {
+    if (!culture_ || state.membrane.size() != culture_->header().neuronCount ||
+        state.refractory.size() != state.membrane.size() ||
+        state.preTrace.size() != state.membrane.size() ||
+        state.postTrace.size() != state.membrane.size() ||
+        state.spikes.size() != state.membrane.size() ||
+        state.spikeHistory.size() != state.membrane.size() * 256u ||
+        state.weights.size() != culture_->header().synapseCount ||
+        state.depression.size() != state.weights.size() ||
+        state.electrodeSpikeCounts.size() != culture_->header().electrodeCount ||
+        state.phase.size() != static_cast<std::size_t>(culture_->header().growthWidth) *
+            culture_->header().growthHeight || state.tubulin.size() != state.phase.size()) {
+        return false;
+    }
+    if (state.generation == std::numeric_limits<std::uint64_t>::max() ||
+        state.tick > std::numeric_limits<std::uint64_t>::max() -
+            state.growthIteration) {
+        return false;
+    }
+    const std::uint64_t progress = state.tick + state.growthIteration;
+    if (((state.tick != 0u || state.growthIteration != 0u) &&
+            state.generation == 0u) || state.generation > progress) {
+        return false;
+    }
+    const auto finiteVector = [](const std::vector<float>& values) {
+        return std::all_of(values.begin(), values.end(), [](float value) {
+            return std::isfinite(value);
+        });
+    };
+    if (!finiteVector(state.membrane) || !finiteVector(state.refractory) ||
+        !finiteVector(state.preTrace) || !finiteVector(state.postTrace) ||
+        !finiteVector(state.weights) || !finiteVector(state.depression) ||
+        !finiteVector(state.phase) || !finiteVector(state.tubulin) ||
+        std::any_of(state.weights.begin(), state.weights.end(), [&](float value) {
+            return value < culture_->header().minimumWeight ||
+                value > culture_->header().maximumWeight;
+        }) || std::any_of(state.depression.begin(), state.depression.end(), [](float value) {
+            return value < 0.0f || value > 1.0f;
+        }) || std::any_of(state.phase.begin(), state.phase.end(), [](float value) {
+            return value < 0.0f || value > 1.0f;
+        }) || std::any_of(state.tubulin.begin(), state.tubulin.end(), [](float value) {
+            return value < 0.0f;
+        })) {
+        return false;
+    }
+    accepted_ = state;
+    prepared_ = state;
+    hasPrepared_ = false;
+    return true;
 }
 
 const char* neuronCultureCompileStatusName(NeuronCultureCompileStatus status) noexcept {

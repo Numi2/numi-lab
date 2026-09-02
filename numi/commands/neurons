@@ -3,48 +3,159 @@
 set -eu
 
 if [ "${1:-}" = "--numi-describe" ]; then
-    printf 'Compile, grow, stimulate, replay, and embody a synthetic neuron-culture twin on Apple Metal.\n'
+    printf '%s\n' "Compile, simulate, grow, run protocols, inspect, replay, benchmark, and view simulation-only neural cultures."
     exit 0
 fi
 
-if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ] || [ $# -eq 0 ]; then
-    cat <<'HELP'
-Usage: numi neurons COMMAND [--quick] [--output FILE.ppm]
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ] || [ "$#" -eq 0 ]; then
+    cat <<'EOF'
+Usage: numi neurons <command> [options]
 
 Commands:
-  compile    Compile and fingerprint the Potter/CMU synthetic culture preset.
-  grow       Advance stages 1-4 phase-field and tubulin state transactionally.
-  simulate   Run LIF, delayed synapses, depression, STDP, and the virtual MEA.
-  embody     Decode virtual-MEA population activity into the 2D animat task.
-  inspect    Print the compiled culture contract and scientific boundaries.
-  replay     Verify deterministic CPU reference replay.
-  render     Write a 512x512 phase/tubulin/MEA activity visualization.
+  compile    Compile the canonical culture; --pack-out FILE.nculture
+  simulate   Run accepted neural windows; --checkpoint-in/--checkpoint-out
+             --mode potter-equilibrate-v1 [--window-limit N] prepares a
+             resumable five-hour spontaneous + two-hour RBS accepted state
+  grow       Run bounded growth stages 1-4; --checkpoint-in/--checkpoint-out
+  protocol   Run --preset potter-switch-v1; --output FILE.ncrun.json
+  qualify    Run the fixed 3-seed x 5-mapping promotion matrix and ablations;
+             --checkpoint-in DIR must contain the three 7-hour seed states
+  embody     Run --target animat|numanx (NumanX requires authoritative assets)
+  benchmark  Run --mode deterministic|throughput
+  view       Open the native lab with --live|--checkpoint FILE|--run FILE
+  inspect, replay, render
 
---quick uses a 64-neuron/512-synapse qualification culture. The default preset
-has 1,000 neurons, 50,000 synapses, and 60 active electrodes. This capability
-is simulation-only: it does not operate a culture or physical MEA and does not
-claim an experimentally calibrated biological digital twin.
-HELP
+Protocol options:
+  --network-seed N       Culture seed (three qualified seeds are predeclared)
+  --sensory-mapping 0..4 Deterministic CPS sensory-set index
+  --ablation none|stdp-off|adaptive-off|pts-off
+  --quick                Small functional smoke workload
+
+This capability simulates authored LIF/STDP networks and bounded phase/tubulin
+growth. It does not control cultures, electrodes, wet-lab equipment, or a
+hardware MEA, and it makes no biological or clinical claim.
+EOF
     exit 0
 fi
 
-case "$1" in
-    compile|grow|simulate|embody|inspect|replay|render) ;;
-    *)
-        printf 'numi neurons: unknown command "%s"; run numi neurons --help\n' "$1" >&2
-        exit 2
-        ;;
-esac
+neurons_workspace=${NUMI_WORKSPACE_ROOT:?Run this capability through numi.}
+neurons_runtime_root=${NUMI_NEURON_RUNTIME_ROOT:-${NUMI_LAB_ROOT:?}}
+neurons_build=${NUMI_NEURONS_BUILD_DIR:-${NUMI_BUILD_DIR:-"$neurons_runtime_root/build"}}
+neurons_command=$1
+shift
 
-numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
-numi_build=${NUMI_BUILD_DIR:-$numi_root/build}
-if [ -x "$numi_build/bin/metalrobo_neuron_culture_probe" ]; then
-    neuron_lab=$numi_build/bin/metalrobo_neuron_culture_probe
-elif [ -x "$numi_root/bin/metalrobo_neuron_culture_probe" ]; then
-    neuron_lab=$numi_root/bin/metalrobo_neuron_culture_probe
-else
-    printf 'numi neurons: runtime unavailable; build metalrobo_neuron_culture_probe\n' >&2
-    exit 1
+neurons_build_target() {
+    [ -f "$neurons_runtime_root/CMakeLists.txt" ] || {
+        printf '%s\n' "numi neurons: installed runtime is missing target $1." >&2
+        return 1
+    }
+    cmake -S "$neurons_runtime_root" -B "$neurons_build" -G Ninja \
+        -DCMAKE_BUILD_TYPE="${NUMI_NEURONS_BUILD_TYPE:-Release}" >/dev/null
+    cmake --build "$neurons_build" --target "$1" -j 4
+}
+
+neurons_find_binary() {
+    neurons_binary_name=$1
+    for neurons_binary in \
+        "$neurons_build/bin/$neurons_binary_name" \
+        "$neurons_runtime_root/bin/$neurons_binary_name"; do
+        if [ -x "$neurons_binary" ]; then
+            printf '%s\n' "$neurons_binary"
+            return 0
+        fi
+    done
+    return 1
+}
+
+if [ "$neurons_command" = "view" ]; then
+    neurons_viewer=$(neurons_find_binary NumiNeuronLab || true)
+    if [ -z "$neurons_viewer" ]; then
+        neurons_build_target NumiNeuronLab
+        neurons_viewer=$(neurons_find_binary NumiNeuronLab || true)
+    fi
+    [ -n "$neurons_viewer" ] || {
+        printf '%s\n' "numi neurons: native viewer is unavailable." >&2
+        exit 1
+    }
+    exec "$neurons_viewer" "$@"
 fi
 
-exec "$neuron_lab" "$@"
+if [ "$neurons_command" = "embody" ]; then
+    neurons_embody_target=animat
+    neurons_previous=
+    for neurons_argument in "$@"; do
+        if [ "$neurons_previous" = "--target" ]; then
+            neurons_embody_target=$neurons_argument
+            break
+        fi
+        neurons_previous=$neurons_argument
+    done
+    if [ "$neurons_embody_target" = "numanx" ]; then
+        neurons_fullbody_probe=$(neurons_find_binary \
+            metalrobo_numanx_fullbody_bridge_probe || true)
+        if [ -z "$neurons_fullbody_probe" ]; then
+            neurons_build_target metalrobo_numanx_fullbody_bridge_probe
+            neurons_fullbody_probe=$(neurons_find_binary \
+                metalrobo_numanx_fullbody_bridge_probe || true)
+        fi
+        [ -n "$neurons_fullbody_probe" ] || {
+            printf '%s\n' \
+                "numi neurons: configure the authoritative full-body NumanX assets first." >&2
+            exit 1
+        }
+        exec "$neurons_fullbody_probe"
+    fi
+fi
+
+neurons_probe=$(neurons_find_binary metalrobo_neuron_culture_probe || true)
+if [ -z "$neurons_probe" ]; then
+    neurons_build_target metalrobo_neuron_culture_probe
+    neurons_probe=$(neurons_find_binary metalrobo_neuron_culture_probe || true)
+fi
+[ -n "$neurons_probe" ] || {
+    printf '%s\n' "numi neurons: native runtime build is incomplete." >&2
+    exit 1
+}
+
+if [ "$neurons_command" = "protocol" ] || [ "$neurons_command" = "qualify" ]; then
+    neurons_git_revision() {
+        git -C "$1" rev-parse HEAD 2>/dev/null
+    }
+    neurons_find_repo() {
+        for candidate in "$@"; do
+            if [ -d "$candidate/.git" ]; then
+                printf '%s\n' "$candidate"
+                return 0
+            fi
+        done
+        return 1
+    }
+    : "${NUMI_NEURON_METALROBO_REVISION:=$(neurons_git_revision "$neurons_runtime_root")}"
+    neurons_brain_root=${NUMI_BRAIN_ROOT:-$(neurons_find_repo "$HOME/numi-brain" "$HOME/numi-brain-neuron-v1" || true)}
+    neurons_numanx_root=${NUMANX_ROOT:-$(neurons_find_repo "$HOME/Numan-X" "$HOME/Numan-X-neuron-v1" || true)}
+    if [ -n "$neurons_brain_root" ]; then
+        : "${NUMI_NEURON_NUMIBRAIN_REVISION:=$(neurons_git_revision "$neurons_brain_root")}"
+    fi
+    if [ -n "$neurons_numanx_root" ]; then
+        : "${NUMI_NEURON_NUMANX_REVISION:=$(neurons_git_revision "$neurons_numanx_root")}"
+    fi
+    neurons_metallib="$neurons_build/shaders/NumiNeuron.metallib"
+    if [ -f "$neurons_metallib" ]; then
+        : "${NUMI_NEURON_METALLIB_SHA256:=$(shasum -a 256 "$neurons_metallib" | awk '{print $1}')}"
+    fi
+    : "${NUMI_NEURON_OS:=$(sw_vers -productName) $(sw_vers -productVersion) $(sw_vers -buildVersion)}"
+    : "${NUMI_NEURON_SDK:=$(xcrun --sdk macosx --show-sdk-version)}"
+    export NUMI_NEURON_METALROBO_REVISION NUMI_NEURON_NUMIBRAIN_REVISION \
+        NUMI_NEURON_NUMANX_REVISION NUMI_NEURON_METALLIB_SHA256 \
+        NUMI_NEURON_OS NUMI_NEURON_SDK
+fi
+
+case "$neurons_command" in
+  compile|simulate|grow|protocol|qualify|embody|benchmark|inspect|replay|render)
+    exec "$neurons_probe" "$neurons_command" "$@"
+    ;;
+  *)
+    printf '%s\n' "numi neurons: unknown command: $neurons_command" >&2
+    exit 2
+    ;;
+esac

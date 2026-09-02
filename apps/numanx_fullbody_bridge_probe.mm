@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 
 #include "metalrobo/MetalNumanXHumanIO.hpp"
+#include "metalrobo/NeuronCultureArtifacts.hpp"
 #include "metalrobo/engine_types.h"
 #include "metalrobo/mrnx_bridge_v1.h"
 #include "metalrobo/numanx_human_matter_adapter_gpu.h"
@@ -17,12 +18,14 @@
 #include <cstdio>
 #include <cstring>
 #include <fstream>
+#include <filesystem>
 #include <iterator>
 #include <limits>
 #include <stdexcept>
 #include <string>
 #include <thread>
 #include <vector>
+#include <unistd.h>
 
 #ifndef MRNX_FULLBODY_RIGID
 #error MRNX_FULLBODY_RIGID is required
@@ -427,8 +430,21 @@ int run() {
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
         require(device != nil, "Metal device unavailable");
         qualifyHumanSupportKKT(device);
-        mrnx_runtime_config_v1 config{};
-        config.abi_version = MRNX_BRIDGE_ABI_V1;
+        const auto culturePack = metalrobo::makePotterReferenceCulture(
+            1000u, 50000u, 2056u);
+        metalrobo::CompiledNeuronCulture compiledCulture;
+        require(metalrobo::compileNeuronCulture(
+                    culturePack, compiledCulture).succeeded(),
+                "full-body culture pack did not compile");
+        const auto culturePath = std::filesystem::temp_directory_path() /
+            ("numanx-fullbody-culture-" + std::to_string(getpid()) +
+             ".nculture");
+        require(metalrobo::writeCompiledNeuronCulture(
+                    compiledCulture, culturePath).succeeded(),
+                "full-body culture artifact publication failed");
+        const auto culturePathString = culturePath.string();
+        mrnx_runtime_config_v2 config{};
+        config.abi_version = MRNX_RUNTIME_CONFIG_ABI_V2;
         config.struct_size = sizeof(config);
         config.metal_device = (__bridge void*)device;
         config.rigid_payload_path = MRNX_FULLBODY_RIGID;
@@ -442,20 +458,23 @@ int run() {
         config.timestep_microseconds = kDurationMicros;
         config.maximum_retained_bytes = 1024ull * 1024ull * 1024ull;
         config.transaction_slot_count = 2u;
+        config.culture_pack_path = culturePathString.c_str();
+        config.culture_window_ticks = 100u;
+        config.culture_current_per_newton = 4.0f;
         auto mismatchedSupport = config;
         mismatchedSupport.support_contact_payload_path = MRNX_FULLBODY_MUSCLE;
         mrnx_runtime_info_v1 mismatchedInfo{};
         mismatchedInfo.abi_version = MRNX_BRIDGE_ABI_V1;
         mismatchedInfo.struct_size = sizeof(mismatchedInfo);
         mrnx_runtime_v1* mismatchedRuntime =
-            mrnx_bridge_v1_runtime_create(
+            mrnx_bridge_v1_runtime_create_v2(
                 &mismatchedSupport, &mismatchedInfo);
         require(
             mismatchedRuntime == nullptr &&
                 mismatchedInfo.status == MRNX_RUNTIME_ASSET_FAILURE_V1,
             "mismatched source support-contact authority was admitted");
         mrnx_runtime_info_v1 info{};
-        mrnx_runtime_v1* runtime = mrnx_bridge_v1_runtime_create(
+        mrnx_runtime_v1* runtime = mrnx_bridge_v1_runtime_create_v2(
             &config, &info);
         if (runtime == nullptr || info.status != MRNX_RUNTIME_READY_V1) {
             std::fprintf(
@@ -737,6 +756,20 @@ int run() {
                     physicalGate.record.byte_count == 64u &&
                     physicalGate.ready.value != 0u,
                 "prepared physical gate is unavailable");
+        mrnx_culture_prepared_view_v1 culturePrepared{};
+        culturePrepared.abi_version = MRNX_CULTURE_PREPARED_VIEW_ABI_V1;
+        culturePrepared.struct_size = sizeof(culturePrepared);
+        require(mrnx_bridge_v1_prepared_copy_culture_view(
+                    completion.prepared, &culturePrepared) &&
+                    culturePrepared.culture_fingerprint ==
+                        compiledCulture.fingerprint() &&
+                    culturePrepared.accepted_generation == 0u &&
+                    culturePrepared.prepared_generation == 1u &&
+                    culturePrepared.source_root_fingerprint ==
+                        completion.root.transaction_fingerprint &&
+                    culturePrepared.receipt_fingerprint != 0u &&
+                    culturePrepared.ready.value != 0u,
+                "prepared culture receipt is unavailable or stale");
         mrnx_candidate_view_v1 sensor{};
         sensor.abi_version = MRNX_BRIDGE_ABI_V1;
         sensor.struct_size = sizeof(sensor);
@@ -914,16 +947,22 @@ int run() {
         mrnx_aggregate_snapshot_v3 aggregateV3{};
         aggregateV3.abi_version = MRNX_AGGREGATE_SNAPSHOT_ABI_V3;
         aggregateV3.struct_size = sizeof(aggregateV3);
+        mrnx_aggregate_snapshot_v4 aggregateV4{};
+        aggregateV4.abi_version = MRNX_AGGREGATE_SNAPSHOT_ABI_V4;
+        aggregateV4.struct_size = sizeof(aggregateV4);
         require(!mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v2(
                     runtime, &aggregateV2) &&
                     !mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v3(
-                        runtime, &aggregateV3),
+                        runtime, &aggregateV3) &&
+                    !mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v4(
+                        runtime, &aggregateV4),
                 "unpublished root escaped an extensible aggregate reader");
         require(mrnx_bridge_v1_quarantine_timeout(completion.prepared),
                 "prepared-only qualification did not quarantine on timeout");
         mrnx_bridge_v1_candidate_drop(completion.candidate);
         mrnx_bridge_v1_prepared_drop(completion.prepared);
         mrnx_bridge_v1_runtime_drop(runtime);
+        std::filesystem::remove(culturePath);
         std::printf(
             "numanx_fullbody_bridge_probe=pass bodies=%u nq=%u nv=%u "
             "muscles=%u motor_wait=ordered physical=prepared "

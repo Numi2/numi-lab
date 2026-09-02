@@ -1,0 +1,1 @@
+{"schema":"numi.neuron-culture.potter-qualification.v1","trial_count":15,"bootstrap_samples":10000,"mean_improvement":0,"lower_95":0,"required_improvement":0.100000001,"adaptive_off_mean":1,"stdp_off_mean":1,"promoted":false,"wall_seconds":7.60045608,"quick":true,"simulation_only":true}

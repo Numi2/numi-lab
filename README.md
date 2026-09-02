@@ -6,24 +6,41 @@ continuum. The `coupled` branch has one GPU-resident nonlinear authority rather
 than sequenced deformable, pressure, transport, contact, and rigid-response
 solvers.
 
-## Gate B: a culture that learns inside physics
+## Transactional neuron-culture learning inside physics
 
-Numi Lab now includes a synthetic neuron-culture twin: deterministic delayed
+Numi Lab now includes a synthetic neuron-culture research platform: deterministic delayed
 LIF networks, short-term depression, excitatory STDP, a virtual 60-electrode
 MEA, and phase/tubulin neurite growth execute as one fingerprinted Apple-Metal
 program. Neural and growth state remain unpublished until the embodied step is
 accepted; rejected futures cannot become plasticity or memory.
 
 ```sh
-numi neurons simulate --quick
-numi neurons embody --quick
+numi neurons protocol --preset potter-switch-v1 --output run.ncrun.json
+numi neurons view --live
 ```
+
+Fresh authored weights and source preparation are deliberately separate:
+`numi neurons simulate --mode potter-equilibrate-v1 --checkpoint-out
+potter-equilibrium-seed-2056.ncstate` publishes a resumable accepted state for
+later protocol runs. Promotion restores each seed's exact seven-hour state into
+every mapping and ablation; STDP-off freezes weights without changing culture
+identity or initial state.
 
 The bundled reference preserves the Potter experiment's 1,000 neurons, 50,000
 synapses, and 60 active electrodes. It is a simulation platform—not a living
 culture, hardware MEA, experimentally calibrated biological twin, or clinical
 model. Architecture, equations, commands, sources, and executable evidence are
 in [`docs/NEURON_CULTURE.md`](docs/NEURON_CULTURE.md).
+
+The same accepted-root protocol now carries synthetic culture state beside the
+mesoscale Brain: ten NHCNT support rows prepare bounded virtual-MEA input;
+proposal/ACK/apply keep it private; aggregate publication releases Brain,
+Human/Matter, HumanIO, and culture as one visible root. The portable 2D animat
+remains the learning benchmark. A fixed 3-network-seed × 5-CPS-set promotion matrix and
+three ablations prevent showcase claims from outrunning measured advantage.
+The platform and transactional embodiment are implemented; adaptive-learning
+promotion remains open until that complete matrix passes its fixed statistical
+gate.
 
 Numi Human lends its live NHTENDON2/3 endpoint transfers, body kinematics,
 Jacobians, and step status to Matter without a host readback or second command
