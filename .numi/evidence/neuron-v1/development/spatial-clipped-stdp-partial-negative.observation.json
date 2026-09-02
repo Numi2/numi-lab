@@ -1,0 +1,33 @@
+{
+  "schema": "numi.neuron-culture.development-observation.v1",
+  "status": "retained_partial_negative_not_promotable",
+  "reason": "source-grounded topology, electrode geometry, spontaneous fraction, and initial weights were active, but the v1 additive STDP coefficient hard-clipped the 0.0-0.1 weight range instead of using the Text S1 bounded normalized update",
+  "device": "Apple M4 Pro",
+  "os": "macOS 26.6 (25G72)",
+  "metal": "Metal 4",
+  "base_revision": "3aff1bb2467ae5631416733f0852606d6a1682f9",
+  "binary_sha256": "c184bf9aaf45cd5d4e1f65153a76a0a3f2eb7c72da219bed7fd6071777a35e02",
+  "metallib_sha256": "fe3a652ced90408592052085a76109c768bae537439b4beb11383c2456eb2a02",
+  "core_source_sha256": "e9b6922bc87f58ca66df52894ac995c800fca0b7b2c015b5e383076ce1e5857f",
+  "metal_source_sha256": "475c2632dd3c8eca6d82cb3477543e738cb49f4eb1298b41b4c2dc61b162e00f",
+  "network_seed": 2056,
+  "sensory_mapping": 0,
+  "stimulation_current": 20000,
+  "completed_windows_observed": 1440,
+  "trailing_success_checkpoints": {
+    "240": 0.52,
+    "360": 0.55,
+    "480": 0.475,
+    "600": 0.525,
+    "720": 0.5,
+    "840": 0.466667,
+    "960": 0.533333,
+    "1080": 0.491667,
+    "1200": 0.516667,
+    "1320": 0.491667,
+    "1440": 0.516667
+  },
+  "reached_goal": false,
+  "promotion_threshold_relaxed": false,
+  "simulation_only": true
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "numi.neuron-culture.development-observation.v1",
+  "status": "retained_partial_negative_not_promotable",
+  "reason": "the spatial topology and electrode geometry passed Gate B, but every authored neuron still had suprathreshold spontaneous drive; the canonical run was deliberately stopped before promotion assessment when this Text S1 mismatch was identified",
+  "device": "Apple M4 Pro",
+  "os": "macOS 26.6 (25G72)",
+  "metal": "Metal 4",
+  "base_revision": "3aff1bb2467ae5631416733f0852606d6a1682f9",
+  "binary_sha256": "aaa579eb2889908174454d78c7c1b72c6cf007262f38d37a2ec9256eb5b3fe38",
+  "metallib_sha256": "fe3a652ced90408592052085a76109c768bae537439b4beb11383c2456eb2a02",
+  "core_source_sha256": "b8fc9ffa848fadabd979bf2f24a11367b85ce39109a3ae6d7ad49e02430d5571",
+  "probe_source_sha256": "1274881c1632b134d7d7c7b5e95a76b14cedd337105bb13087ef306883735c15",
+  "protocol_header_sha256": "697561979f109063df602fb60601ec6c5f53f18d919ae5f461f485af0a7d5674",
+  "network_seed": 2056,
+  "sensory_mapping": 0,
+  "stimulation_current": 20000,
+  "completed_windows_observed": 840,
+  "trailing_success_checkpoints": {
+    "240": 0.51,
+    "360": 0.508333,
+    "480": 0.558333,
+    "600": 0.483333,
+    "720": 0.5,
+    "840": 0.541667
+  },
+  "reached_goal": false,
+  "promotion_threshold_relaxed": false,
+  "simulation_only": true
+}
