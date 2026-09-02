@@ -6,6 +6,25 @@ continuum. The `coupled` branch has one GPU-resident nonlinear authority rather
 than sequenced deformable, pressure, transport, contact, and rigid-response
 solvers.
 
+## Gate B: a culture that learns inside physics
+
+Numi Lab now includes a synthetic neuron-culture twin: deterministic delayed
+LIF networks, short-term depression, excitatory STDP, a virtual 60-electrode
+MEA, and phase/tubulin neurite growth execute as one fingerprinted Apple-Metal
+program. Neural and growth state remain unpublished until the embodied step is
+accepted; rejected futures cannot become plasticity or memory.
+
+```sh
+numi neurons simulate --quick
+numi neurons embody --quick
+```
+
+The bundled reference preserves the Potter experiment's 1,000 neurons, 50,000
+synapses, and 60 active electrodes. It is a simulation platform—not a living
+culture, hardware MEA, experimentally calibrated biological twin, or clinical
+model. Architecture, equations, commands, sources, and executable evidence are
+in [`docs/NEURON_CULTURE.md`](docs/NEURON_CULTURE.md).
+
 Numi Human lends its live NHTENDON2/3 endpoint transfers, body kinematics,
 Jacobians, and step status to Matter without a host readback or second command
 buffer. `NumiHumanTendonFEMLoadAdapter` drives prescribed bone-following FEM

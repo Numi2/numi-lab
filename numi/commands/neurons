@@ -1,0 +1,50 @@
+#!/bin/sh
+
+set -eu
+
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf 'Compile, grow, stimulate, replay, and embody a synthetic neuron-culture twin on Apple Metal.\n'
+    exit 0
+fi
+
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ] || [ $# -eq 0 ]; then
+    cat <<'HELP'
+Usage: numi neurons COMMAND [--quick] [--output FILE.ppm]
+
+Commands:
+  compile    Compile and fingerprint the Potter/CMU synthetic culture preset.
+  grow       Advance stages 1-4 phase-field and tubulin state transactionally.
+  simulate   Run LIF, delayed synapses, depression, STDP, and the virtual MEA.
+  embody     Decode virtual-MEA population activity into the 2D animat task.
+  inspect    Print the compiled culture contract and scientific boundaries.
+  replay     Verify deterministic CPU reference replay.
+  render     Write a 512x512 phase/tubulin/MEA activity visualization.
+
+--quick uses a 64-neuron/512-synapse qualification culture. The default preset
+has 1,000 neurons, 50,000 synapses, and 60 active electrodes. This capability
+is simulation-only: it does not operate a culture or physical MEA and does not
+claim an experimentally calibrated biological digital twin.
+HELP
+    exit 0
+fi
+
+case "$1" in
+    compile|grow|simulate|embody|inspect|replay|render) ;;
+    *)
+        printf 'numi neurons: unknown command "%s"; run numi neurons --help\n' "$1" >&2
+        exit 2
+        ;;
+esac
+
+numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+numi_build=${NUMI_BUILD_DIR:-$numi_root/build}
+if [ -x "$numi_build/bin/metalrobo_neuron_culture_probe" ]; then
+    neuron_lab=$numi_build/bin/metalrobo_neuron_culture_probe
+elif [ -x "$numi_root/bin/metalrobo_neuron_culture_probe" ]; then
+    neuron_lab=$numi_root/bin/metalrobo_neuron_culture_probe
+else
+    printf 'numi neurons: runtime unavailable; build metalrobo_neuron_culture_probe\n' >&2
+    exit 1
+fi
+
+exec "$neuron_lab" "$@"

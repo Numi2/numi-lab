@@ -176,6 +176,15 @@ set(METALROBO_TACTILE_SOURCE
 set(METALROBO_SCENE_QUERY_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/SceneQuery.metal"
 )
+set(METALROBO_NEURON_CULTURE_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NeuronCulture.metal"
+)
+set(METALROBO_NEURON_CULTURE_AIR
+    "${METALROBO_SHADER_DIR}/NumiNeuron.air"
+)
+set(METALROBO_NEURON_CULTURE_METALLIB
+    "${METALROBO_SHADER_DIR}/NumiNeuron.metallib"
+)
 set(METALROBO_CONSTRAINT_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboConstraintSolver.air"
 )
@@ -773,6 +782,32 @@ add_custom_command(
 
 add_custom_target(metalrobo_shaders ALL DEPENDS "${METALROBO_METALLIB}")
 
+add_custom_command(
+    OUTPUT "${METALROBO_NEURON_CULTURE_METALLIB}"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${METALROBO_SHADER_DIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -Wall
+            -Wextra
+            -Werror
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_NEURON_CULTURE_SOURCE}"
+            -o "${METALROBO_NEURON_CULTURE_AIR}"
+    COMMAND xcrun -sdk macosx metallib
+            "${METALROBO_NEURON_CULTURE_AIR}"
+            -o "${METALROBO_NEURON_CULTURE_METALLIB}"
+    DEPENDS
+        "${METALROBO_NEURON_CULTURE_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/neuron_culture_gpu.h"
+    VERBATIM
+)
+add_custom_target(
+    metalrobo_neuron_culture_shaders ALL
+    DEPENDS "${METALROBO_NEURON_CULTURE_METALLIB}"
+)
+
 set(
     METALROBO_VISUAL_KERNEL_HASH_HEADER
     "${CMAKE_CURRENT_BINARY_DIR}/generated/VisualKernelHashes.h"
@@ -823,6 +858,8 @@ add_library(
     src/core/R2S2R.cpp
     src/core/VisualPlatform.cpp
     src/core/VisualPresentation.cpp
+    src/core/NeuronCulture.cpp
+    src/core/NeuronCultureEmbodiment.cpp
     src/core/Tactile.cpp
     src/core/TactileDebug.cpp
     src/core/RobotDescriptionCooker.cpp
@@ -903,6 +940,7 @@ add_library(
     src/metal/MetalHybridRenderer.mm
     src/metal/MetalRunInspector.mm
     src/metal/MetalTactile.mm
+    src/metal/MetalNeuronCulture.mm
     src/c_api.cpp
 )
 target_sources(
@@ -914,6 +952,7 @@ target_sources(
 add_dependencies(
     metalrobo
     metalrobo_shaders
+    metalrobo_neuron_culture_shaders
     metalrobo_visual_kernel_hashes
     numi_matter_shaders
 )
@@ -933,6 +972,7 @@ target_compile_definitions(
     PRIVATE
         METALROBO_BUILDING_LIBRARY=1
         METALROBO_DEFAULT_METALLIB="${METALROBO_METALLIB}"
+        METALROBO_NEURON_METALLIB="${METALROBO_NEURON_CULTURE_METALLIB}"
 )
 target_compile_options(
     metalrobo
@@ -1040,6 +1080,48 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
+
+add_executable(
+    metalrobo_neuron_culture_probe
+    apps/neuron_culture_probe.mm
+)
+add_dependencies(
+    metalrobo_neuron_culture_probe
+    metalrobo_neuron_culture_shaders
+)
+target_link_libraries(
+    metalrobo_neuron_culture_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+target_compile_options(
+    metalrobo_neuron_culture_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_neuron_culture_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+if(BUILD_TESTING)
+    add_test(
+        NAME numi.integration.neuron_culture_gate_b
+        COMMAND metalrobo_neuron_culture_probe
+    )
+    set_tests_properties(
+        numi.integration.neuron_culture_gate_b
+        PROPERTIES TIMEOUT 90
+    )
+endif()
 
 add_executable(
     metalrobo_opensim_function_probe
@@ -4491,6 +4573,7 @@ install(
         metalrobo_visual_cook
         metalrobo_environment_cook
         metalrobo_robot_catalog
+        metalrobo_neuron_culture_probe
 )
 if(METALROBO_HAS_SWIFT)
     install(
@@ -4508,6 +4591,7 @@ install(
         numi/commands/foundation
         numi/commands/matter
         numi/commands/motion
+        numi/commands/neurons
         numi/commands/robots
         numi/commands/solvers
     DESTINATION libexec/numi
@@ -4539,7 +4623,12 @@ install(
         PATTERN "py.typed"
 )
 install(DIRECTORY include/ DESTINATION include)
-install(FILES "${METALROBO_METALLIB}" DESTINATION lib/metalrobo)
+install(
+    FILES
+        "${METALROBO_METALLIB}"
+        "${METALROBO_NEURON_CULTURE_METALLIB}"
+    DESTINATION lib/metalrobo
+)
 install(
     FILES
         schemas/capture_manifest.schema.json

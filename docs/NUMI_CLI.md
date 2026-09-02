@@ -89,6 +89,22 @@ numi motion infer --model-directory /path/to/ardy --output-directory /path/to/ru
 See [Motion providers](MOTION_PROVIDERS.md) for the artifact boundary and the
 qualified native ARDY G1 and generic ARDY Core ONNX paths.
 
+Neuron-culture simulation is a discovered native capability:
+
+```sh
+numi neurons inspect
+numi neurons grow --quick
+numi neurons simulate --quick
+numi neurons embody --quick
+numi neurons replay --quick
+numi neurons render --quick --output .numi/runs/neuron-culture.ppm
+```
+
+It compiles a fingerprinted synthetic culture, runs transactional phase/tubulin
+growth and delayed LIF/STDP dynamics on Metal, and exposes a virtual-MEA
+reference task. It is simulation-only and does not control biological cultures
+or physical MEA hardware. See [Synthetic neuron-culture twin](NEURON_CULTURE.md).
+
 ## User-owned overlays
 
 Codex may create commands, instructions, profiles, robots, tasks, evaluators,
