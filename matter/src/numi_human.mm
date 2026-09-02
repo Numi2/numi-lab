@@ -1568,9 +1568,12 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
             (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
         id<MTLBuffer> standStatuses =
             (__bridge id<MTLBuffer>)pass.standStatuses;
-        if (command == nil || standStatuses == nil ||
+        id<MTLBuffer> matterStatuses =
+            (__bridge id<MTLBuffer>)state_->runtime->statusBuffer();
+        if (command == nil || standStatuses == nil || matterStatuses == nil ||
             standStatuses.device.registryID != state_->device.registryID) {
-            state_->message = "borrowed Human stand status is unavailable";
+            state_->message =
+                "borrowed Human or Matter status is unavailable";
             return false;
         }
         const NMNumiHumanTendonFEMLoadDispatchGPU dispatch{
@@ -1610,6 +1613,7 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
         [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
         [encoder setBuffer:standStatuses offset:0u atIndex:1u];
         [encoder setBuffer:state_->worldStatusBuffer offset:0u atIndex:2u];
+        [encoder setBuffer:matterStatuses offset:0u atIndex:3u];
         const NSUInteger count = state_->environmentCount;
         const NSUInteger width = std::min<NSUInteger>(
             count, std::min<NSUInteger>(

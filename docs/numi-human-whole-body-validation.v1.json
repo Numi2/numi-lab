@@ -218,6 +218,33 @@
         {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/right/side.png", "sha256": "2e76ecc951af5f039614accdbafe3cc970136f4fa344b1cbb63d076cf3b79a6c"}
       ]
     },
+    "left_knee_sustained_loaded_motion": {
+      "path": "docs/media/numi-human-knee-sustained-v1/qualification.json",
+      "format": "json",
+      "level": "sustained",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.open-knee-sustained-loaded-motion.v1"},
+        {"pointer": "/side", "op": "equals", "value": "left"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/trajectory/accepted_step_count", "op": "minimum", "value": 8},
+        {"pointer": "/continuum/node_count", "op": "equals", "value": 62402},
+        {"pointer": "/continuum/tetrahedron_count", "op": "equals", "value": 264442},
+        {"pointer": "/continuum/minimum_deformation_jacobian", "op": "minimum", "value": 0.25},
+        {"pointer": "/continuum/maximum_deformation_jacobian", "op": "maximum", "value": 2.5},
+        {"pointer": "/continuum/patella_anchor_residual_meters", "op": "maximum", "value": 0.00005},
+        {"pointer": "/force_transfer/quadriceps_patella_reaction_newtons", "op": "minimum", "value": 1.0},
+        {"pointer": "/force_transfer/patellar_tendon_patella_reaction_newtons", "op": "minimum", "value": 1.0},
+        {"pointer": "/force_transfer/patellar_tendon_tibia_reaction_newtons", "op": "minimum", "value": 1.0},
+        {"pointer": "/articular_contact/minimum_closed_sample_count", "op": "minimum", "value": 1},
+        {"pointer": "/articular_contact/minimum_normal_force_newtons", "op": "minimum", "value": 1.0},
+        {"pointer": "/articular_contact/maximum_force_residual_newtons", "op": "maximum", "value": 0.02},
+        {"pointer": "/articular_contact/maximum_moment_residual_newton_meters", "op": "maximum", "value": 0.02},
+        {"pointer": "/transaction/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/transaction/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/transaction/external_physics_failure_propagation", "op": "equals", "value": "verified"},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ]
+    },
     "left_knee_contact_preflight": {
       "path": "docs/media/numi-human-knee-contact-preflight-v1/left-m4-pro.json",
       "format": "json",
@@ -811,7 +838,8 @@
         "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["left_knee_extensor_chain", "source_route_transaction"], "evidence_mode": "all"},
         "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["left_knee_extensor_chain", "source_route_transaction"], "evidence_mode": "all"},
         "articular_contact": {"minimum_level": "one_step", "evidence": ["left_knee_contact_live", "left_knee_contact_preflight"], "gap": "promote fixed-reference one-step contact to sustained current-surface or implicit unilateral nonpenetration"},
-        "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["left_knee_extensor_chain", "source_route_transaction"], "evidence_mode": "all"}
+        "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["left_knee_extensor_chain", "source_route_transaction"], "evidence_mode": "all"},
+        "sustained_loaded_motion": {"minimum_level": "sustained", "evidence": ["left_knee_sustained_loaded_motion"], "gap": "extend bounded 0.4 ms motion to physiological-duration loading and independent pressure validation"}
       }
     },
     {

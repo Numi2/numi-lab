@@ -7454,7 +7454,7 @@ MetalArticulatedOperatorSubmission::wait(
                 const MRNumiHumanStandStatusGPU& stand =
                     staged.standStatuses[environment];
                 if (stand.environment != environment ||
-                    stand.code > MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED ||
+                    stand.code > MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED ||
                     (stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
                      stand.completedSteps != pending->standStepCount)) {
                     return reject(
@@ -7474,7 +7474,12 @@ MetalArticulatedOperatorSubmission::wait(
                     return reject(
                         std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::gpuEnvironmentFailure,
-                        "GPU rejected the Numi Human stand horizon"
+                        "GPU rejected the Numi Human stand horizon: code=" +
+                            std::to_string(stand.code) +
+                            " completed_steps=" +
+                            std::to_string(stand.completedSteps) +
+                            " failing_index=" +
+                            std::to_string(stand.failingIndex)
                     );
                 }
                 if (!finite(stand.contactAndAcceleration) ||

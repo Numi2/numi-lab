@@ -771,15 +771,30 @@ kernel void nm_numi_human_prepare_provisional_status(
 
 kernel void nm_numi_human_adapt_stand_status(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
-    device const MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],
+    device MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],
     device MRMetalWorldStatusGPU* worldStatuses [[buffer(2)]],
+    device const NMMatterStatusGPU* matterStatuses [[buffer(3)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) return;
-    const MRNumiHumanStandStatusGPU stand = standStatuses[environment];
+    MRNumiHumanStandStatusGPU stand = standStatuses[environment];
+    const NMMatterStatusGPU matter = matterStatuses[environment];
+    const bool matterAccepted =
+        matter.code == NM_STATUS_SUCCESS &&
+        matter.environment == environment &&
+        matter.completedMicrosteps == 1u;
+    if (stand.code == MR_NUMI_HUMAN_STAND_SUCCESS && !matterAccepted) {
+        stand.code = MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED;
+        stand.completedSteps = dispatch.stepIndex;
+        stand.failingIndex = matter.environment == environment
+            ? matter.objectIndex
+            : NM_INVALID_INDEX;
+        standStatuses[environment] = stand;
+    }
     const bool accepted =
         dispatch.abiVersion == NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION &&
         dispatch.muscleCount > 0u &&
+        matterAccepted &&
         stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
         stand.environment == environment &&
         stand.completedSteps == dispatch.stepIndex + 1u;

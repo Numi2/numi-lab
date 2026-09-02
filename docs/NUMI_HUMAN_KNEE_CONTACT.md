@@ -235,6 +235,37 @@ Receipts:
 - [`m4-pro-fixture.json`](media/numi-human-knee-articular-history-v1/m4-pro-fixture.json)
 - [`left-two-step-m4-pro.json`](media/numi-human-knee-articular-history-v1/left-two-step-m4-pro.json)
 
+## Eight-state loaded Human qualification
+
+The left exact Open Knee(s) integration now passes eight accepted loaded Human
+states on Apple M4 Pro at `50 us` per state and `1 mrad` prescribed flexion.
+The run retains all six QAT/PTL/ACL/PCL/MCL/LCL source regions (`62,402` nodes,
+`264,442` tetrahedra), the four source quadriceps Hill-type actuators, five
+source-law passive axial elements, and all `69,701` one-ring articular samples.
+
+Across the accepted trajectory, closed contact remained between `34,972` and
+`34,978` samples and normal force remained between `2966.64` and `3045.35 N`.
+Maximum pressure was `394.09 kPa`, maximum layer-normal strain `1.4096%`, and
+maximum closure `51.95 um`. The continuum retained `J=0.98682..1.00707`; the
+patellar enthesis target residual remained below `31 nm`. The quadriceps,
+patellar QAT reaction, PTL resultant, patellar PTL reaction, and tibial PTL
+reaction were respectively `2767.93`, `2764.92`, `2790.82`, `2789.53`, and
+`2791.95 N`. Replay was bitwise and rejection rollback was verified.
+
+The original `100 us` continuation failed closed at LCL after two accepted
+states. Doubling the linear iteration budget did not repair it and was rejected
+as an inefficient non-solution. Halving the physical step while retaining the
+original 32-iteration budget completed all eight states. The focused adapter
+fixture also proves that a Matter nonlinear failure immediately rejects the
+owning Human transaction instead of letting the remaining horizon run.
+
+The [machine-readable receipt](media/numi-human-knee-sustained-v1/qualification.json),
+[accepted M4 Pro transcript](media/numi-human-knee-sustained-v1/left-8step-50us-m4-pro.log),
+and rejected convergence transcripts are retained together. This is bounded
+multi-state computational evidence over `0.4 ms`, not physiological-duration
+motion, right-side sustained qualification, subject-specific pressure
+validation, poroelasticity, or clinical validation.
+
 ## Evidence boundary and next integration gate
 
 The prescribed 65-step CPU ramp remains `preflight`. Bilateral historical

@@ -442,19 +442,34 @@ int main() {
                 options:MTLResourceStorageModeShared];
             id<MTLBuffer> runtimeReactionBuffer = (__bridge id<MTLBuffer>)
                 runtime.femConstraintReactionBuffer();
+            id<MTLBuffer> runtimeStatusBuffer = (__bridge id<MTLBuffer>)
+                runtime.statusBuffer();
+            NMMatterStatusGPU injectedMatterFailure{};
+            injectedMatterFailure.code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+            injectedMatterFailure.environment = 0u;
+            injectedMatterFailure.objectIndex = 0u;
+            injectedMatterFailure.failingIndex = NM_INVALID_INDEX;
+            id<MTLBuffer> injectedMatterFailureBuffer = [device
+                newBufferWithBytes:&injectedMatterFailure
+                length:sizeof(injectedMatterFailure)
+                options:MTLResourceStorageModeShared];
             id<MTLBuffer> reactionReadback = [device
                 newBufferWithLength:4u * sizeof(nm_float4)
                 options:MTLResourceStorageModeShared];
             require(bindingBuffer != nil && transferBuffer != nil &&
                         standBuffer != nil && poseBuffer != nil &&
                         jacobianBuffer != nil && generalizedForceBuffer != nil &&
-                        runtimeReactionBuffer != nil && reactionReadback != nil,
+                        runtimeReactionBuffer != nil &&
+                        runtimeStatusBuffer != nil &&
+                        injectedMatterFailureBuffer != nil &&
+                        reactionReadback != nil,
                     "probe borrowed buffers are unavailable");
 
             const auto execute = [&](const auto& activeProgram,
                                      auto& activeAdapter,
                                      const std::uint32_t step,
-                                     const bool accepted) {
+                                     const bool accepted,
+                                     const bool injectMatterFailure = false) {
                 stand.code = accepted
                     ? MR_NUMI_HUMAN_STAND_SUCCESS
                     : MR_NUMI_HUMAN_STAND_NONFINITE_RESULT;
@@ -487,8 +502,25 @@ int main() {
                 pass.bodyPoseStride = 2u;
                 pass.articulationFirstBody = 0u;
                 if (!activeProgram.encodePreDynamics(
-                        activeProgram.context, pass) ||
-                    !activeProgram.encodePostValidation(
+                        activeProgram.context, pass)) {
+                    throw std::runtime_error(
+                        "probe adapter rejected encoding: " +
+                        activeAdapter.diagnostics().message
+                    );
+                }
+                if (injectMatterFailure) {
+                    id<MTLBlitCommandEncoder> inject =
+                        [command blitCommandEncoder];
+                    require(inject != nil,
+                            "probe Matter-failure injector is unavailable");
+                    [inject copyFromBuffer:injectedMatterFailureBuffer
+                              sourceOffset:0u
+                                  toBuffer:runtimeStatusBuffer
+                         destinationOffset:0u
+                                     size:sizeof(injectedMatterFailure)];
+                    [inject endEncoding];
+                }
+                if (!activeProgram.encodePostValidation(
                         activeProgram.context, pass)) {
                     throw std::runtime_error(
                         "probe adapter rejected encoding: " +
@@ -553,6 +585,25 @@ int main() {
                         std::abs(acceptedGeneralizedForce -
                             expectedGeneralizedForce) <= 1.0e-3f,
                     "probe full-muscle-row replacement did not preserve only the load-side reaction");
+            execute(program, adapter, 1u, true, true);
+            MRNumiHumanStandStatusGPU propagatedMatterFailure{};
+            std::memcpy(
+                &propagatedMatterFailure, standBuffer.contents,
+                sizeof(propagatedMatterFailure));
+            const auto matterFailureRollback = runtime.snapshot();
+            require(
+                propagatedMatterFailure.code ==
+                    MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED &&
+                propagatedMatterFailure.completedSteps == 1u &&
+                propagatedMatterFailure.failingIndex == 0u,
+                "probe Matter failure did not propagate into Human status");
+            require(matterFailureRollback.available &&
+                        std::memcmp(
+                            matterFailureRollback.femNodes.data(),
+                            accepted.femNodes.data(),
+                            accepted.femNodes.size() * sizeof(NMFEMNodeStateGPU)
+                        ) == 0,
+                    "probe propagated Matter failure did not roll back");
             execute(program, adapter, 1u, false);
             const auto rolledBack = runtime.snapshot();
             require(rolledBack.available &&
@@ -612,7 +663,7 @@ int main() {
                     diagnostics.anchorReactionTrajectoryMaximumL1Newtons) +
                 " anchor_max_resultant=" + std::to_string(
                     diagnostics.anchorReactionTrajectoryMaximumResultantNewtons);
-            require(diagnostics.initialized && diagnostics.encodedPassCount == 3u &&
+            require(diagnostics.initialized && diagnostics.encodedPassCount == 4u &&
                         diagnostics.abortCount == 0u &&
                         diagnostics.contactSampleCount == 1u &&
                         diagnostics.anchorReactionAuditedStepCount == 2u &&
@@ -810,6 +861,7 @@ int main() {
                 << diagnostics.anchorReactionTrajectoryMaximumL1Newtons
                 << " full_row_generalized_force=" << acceptedGeneralizedForce
                 << " replay=bitwise rollback=verified"
+                << " matter_failure_propagation=verified"
                 << " production_owner_fraction=0.1"
                 << "\n";
             return 0;

@@ -19,6 +19,9 @@ enum MRNumiHumanStandStatusCode {
     MR_NUMI_HUMAN_STAND_NONFINITE_RESULT = 6u,
     MR_NUMI_HUMAN_STAND_TENDON_TRANSFER_FAILED = 7u,
     MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED = 8u,
+    // A borrowed external-physics program rejected the candidate Human step.
+    // failingIndex identifies the external object when one is available.
+    MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED = 9u,
 };
 
 enum MRNumiHumanStandFlags {

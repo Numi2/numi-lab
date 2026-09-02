@@ -1,0 +1,83 @@
+{
+  "schema": "numilab.human.open-knee-sustained-loaded-motion.v1",
+  "side": "left",
+  "device": "Apple M4 Pro",
+  "evidence_level": "sustained",
+  "evidence_boundary": "Eight accepted 50 microsecond loaded states at 1 milliradian prescribed knee flexion. This is bounded computational trajectory evidence, not physiological-duration flexion, subject-specific pressure validation, poroelasticity, or clinical validation.",
+  "source_inputs": {
+    "rigid_sha256": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44",
+    "muscle_sha256": "9a988f19a6fd8e533cd0f2bf3192cb8535fb008ccd394ffbf1a4432d3db76a05",
+    "bodyparts3d_bones_sha256": "f9132393dfb259a80e2b2084ac5ff15f2bf988f7e073f7a961a7ddcfb9febc3c",
+    "tendon_sha256": "0f233866455cac4f221008de5fdbe7304bc4c8f53313c0cdd62f52fde7b8d0e4",
+    "joint_equality_sha256": "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a",
+    "support_contact_sha256": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907",
+    "open_knee_sha256": "c5116b2cff086dae43e71a282ca5a15088b682875af4f0c0c1beb563fa255b4e"
+  },
+  "solver": {
+    "formulation": "displacement",
+    "newton_iterations": 8,
+    "fgmres_restart": 16,
+    "fgmres_iteration_budget": 32,
+    "line_search_steps": 6
+  },
+  "trajectory": {
+    "accepted_step_count": 8,
+    "timestep_seconds": 0.00005,
+    "simulated_duration_seconds": 0.0004,
+    "activation": 0.2,
+    "flexion_radians": 0.001,
+    "quadriceps_source_indices": [405, 413, 414, 415]
+  },
+  "continuum": {
+    "region_count": 6,
+    "node_count": 62402,
+    "tetrahedron_count": 264442,
+    "minimum_deformation_jacobian": 0.986820578575,
+    "maximum_deformation_jacobian": 1.00707483292,
+    "maximum_displacement_meters": 0.0000220633828576,
+    "patella_anchor_residual_meters": 0.0000000309445837843
+  },
+  "force_transfer": {
+    "quadriceps_resultant_newtons": 2767.92626953,
+    "quadriceps_patella_reaction_newtons": 2764.91943359,
+    "patellar_tendon_resultant_newtons": 2790.82250977,
+    "patellar_tendon_patella_reaction_newtons": 2789.52807617,
+    "patellar_tendon_tibia_reaction_newtons": 2791.94970703,
+    "passive_ligament_count": 5,
+    "passive_ligament_maximum_tension_newtons": 54.8078117371
+  },
+  "articular_contact": {
+    "pair_count": 7,
+    "sample_count": 69701,
+    "minimum_closed_sample_count": 34972,
+    "maximum_closed_sample_count": 34978,
+    "minimum_normal_force_newtons": 2966.64331055,
+    "maximum_normal_force_newtons": 3045.35302734,
+    "maximum_pressure_pascals": 394087.4375,
+    "maximum_stored_energy_joules": 0.046277910471,
+    "maximum_normal_strain": 0.0140960896388,
+    "maximum_closure_meters": 0.0000519478926435,
+    "maximum_force_residual_newtons": 0.00970255332547,
+    "maximum_moment_residual_newton_meters": 0.00625943467378
+  },
+  "transaction": {
+    "same_borrowed_command_buffer": true,
+    "replay": "bitwise",
+    "rollback": "verified",
+    "external_physics_failure_propagation": "verified"
+  },
+  "gates": {
+    "exact_source_topology": "passed",
+    "positive_deformation_jacobian": "passed",
+    "patella_attachment_residual": "passed",
+    "quadriceps_qat_ptl_tibia_force_transfer": "passed",
+    "nonzero_contact_entire_trajectory": "passed",
+    "passive_ligament_transaction": "passed",
+    "replay": "passed",
+    "rollback": "passed"
+  },
+  "artifacts": {
+    "accepted_log_sha256": "3519230644e3534cc437bbb26417264fa33310385daea33897b536bdab88eb39",
+    "focused_adapter_log_sha256": "43cec11714367a09cf5f3b0eb62e2c8d972226d81af29c902b008deb9aa933a3"
+  }
+}

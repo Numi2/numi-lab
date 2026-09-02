@@ -7822,6 +7822,17 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     worldSource.mixedSolver.fgmresRestart = 16u;
     worldSource.mixedSolver.fgmresIterations = 32u;
     worldSource.mixedSolver.lineSearchSteps = 6u;
+    std::cout << "open_knee_solver_preflight=accepted"
+              << " formulation=displacement"
+              << " newton_iterations="
+              << worldSource.mixedSolver.newtonIterations
+              << " fgmres_restart="
+              << worldSource.mixedSolver.fgmresRestart
+              << " fgmres_budget="
+              << worldSource.mixedSolver.fgmresIterations
+              << " line_search_steps="
+              << worldSource.mixedSolver.lineSearchSteps
+              << "\n" << std::flush;
     std::vector<NMNumiHumanTendonFEMNodeLoadGPU> nodeLoads(totalNodes);
     std::vector<NMNumiHumanTendonFEMNodeAnchorGPU> nodeAnchors(totalNodes);
     for (auto& load : nodeLoads)
@@ -13638,6 +13649,7 @@ int main(int argc, char** argv) {
             std::optional<std::filesystem::path> openKneeLigamentFEMPath;
             std::optional<double> openKneeFlexionRadians;
             bool openKneeLiveTissueFEM = false;
+            bool openKneeSustainedCertificate = false;
             std::optional<std::filesystem::path> skinPayloadPath;
             std::optional<std::filesystem::path> torsoAnatomyPayloadPath;
             std::optional<std::filesystem::path> supportContactPayloadPath;
@@ -13803,6 +13815,10 @@ int main(int argc, char** argv) {
                     require(!openKneeLiveTissueFEM,
                             "--open-knee-live-tissue-fem may be given only once");
                     openKneeLiveTissueFEM = true;
+                } else if (argument == "--open-knee-sustained-certificate") {
+                    require(!openKneeSustainedCertificate,
+                            "--open-knee-sustained-certificate may be given only once");
+                    openKneeSustainedCertificate = true;
                 } else if (argument == "--open-knee-flexion-rad") {
                     require(index + 1 < argc &&
                                 !openKneeFlexionRadians.has_value(),
@@ -13909,6 +13925,7 @@ int main(int argc, char** argv) {
                           << " [--soft-tissue-payload <NHTISS2-or-NHTISS3-or-NHTISS4>]"
                           << " [--open-knee-payload <NHKNEE1>]"
                           << " [--open-knee-live-tissue-fem]"
+                          << " [--open-knee-sustained-certificate]"
                           << " [--open-knee-flexion-rad <0..1.6>]"
                           << " [--open-knee-tissue-fem-snapshot <NHKFEM1-or-NHKFEM2>]"
                           << " [--skin-payload <NHSKIN1>]"
@@ -14034,6 +14051,7 @@ int main(int argc, char** argv) {
                     !bilateralPlantarFasciaCertificate &&
                         !bilateralThumbTendonCertificate &&
                         !bilateralTricepsMedialisEnthesisCertificate &&
+                        !openKneeSustainedCertificate &&
                         !wholeBodySupportCertificate &&
                         !sourceRouteCentrelines &&
                         requestedBoneBodyIndices.empty() &&
@@ -14072,6 +14090,7 @@ int main(int argc, char** argv) {
                     !bilateralAchillesCertificate &&
                         !bilateralTricepsMedialisEnthesisCertificate &&
                         !bilateralPlantarFasciaCertificate &&
+                        !openKneeSustainedCertificate &&
                         !wholeBodySupportCertificate &&
                         !sourceRouteCentrelines &&
                         requestedBoneBodyIndices.empty() &&
@@ -14108,6 +14127,7 @@ int main(int argc, char** argv) {
                     !bilateralAchillesCertificate &&
                         !bilateralThumbTendonCertificate &&
                         !bilateralPlantarFasciaCertificate &&
+                        !openKneeSustainedCertificate &&
                         !wholeBodySupportCertificate &&
                         !sourceRouteCentrelines &&
                         requestedBoneBodyIndices.empty() &&
@@ -14127,6 +14147,7 @@ int main(int argc, char** argv) {
                         !bilateralAchillesCertificate &&
                         !bilateralThumbTendonCertificate &&
                         !bilateralTricepsMedialisEnthesisCertificate &&
+                        !openKneeSustainedCertificate &&
                         !wholeBodySupportCertificate && bodypartsBoneVisual &&
                         !persistentMetalStand && !selectedTendonControl &&
                         muscleStepSeconds.has_value() &&
@@ -14164,6 +14185,7 @@ int main(int argc, char** argv) {
                         !bilateralThumbTendonCertificate &&
                         !bilateralTricepsMedialisEnthesisCertificate &&
                         !bilateralPlantarFasciaCertificate &&
+                        !openKneeSustainedCertificate &&
                         !persistentMetalStand && !selectedTendonControl &&
                         muscleStepSeconds.has_value() &&
                         !muscleStepCount.has_value() &&
@@ -14187,6 +14209,39 @@ int main(int argc, char** argv) {
                     "NHEQ1, a response timestep, and no presentation, "
                     "activation, or continuum scope"
                 );
+            }
+            if (openKneeSustainedCertificate) {
+                require(
+                    !bilateralAchillesCertificate &&
+                        !bilateralThumbTendonCertificate &&
+                        !bilateralTricepsMedialisEnthesisCertificate &&
+                        !bilateralPlantarFasciaCertificate &&
+                        !wholeBodySupportCertificate &&
+                        bodypartsBoneVisual && selectedTendonControl &&
+                        !persistentMetalStand &&
+                        muscleStepSeconds.has_value() &&
+                        muscleStepCount.has_value() &&
+                        *muscleStepCount >= 8u &&
+                        muscleActivation.has_value() &&
+                        selectedSourceMuscleActivations.size() == 4u &&
+                        tendonPayloadPath.has_value() &&
+                        jointEqualityPayloadPath.has_value() &&
+                        supportContactPayloadPath.has_value() &&
+                        openKneePayloadPath.has_value() &&
+                        openKneeLiveTissueFEM &&
+                        !sourceRouteCentrelines &&
+                        requestedBoneBodyIndices.empty() &&
+                        requestedBoneStableIds.empty() &&
+                        requestedSoftTissueStableIds.empty() &&
+                        !softTissuePayloadPath.has_value() &&
+                        !skinPayloadPath.has_value() &&
+                        !torsoAnatomyPayloadPath.has_value() &&
+                        !passiveFEMTissueStableId.has_value() &&
+                        !pectoralisFasciaPayloadPath.has_value() &&
+                        !anteriorThoraxPayloadPath.has_value() &&
+                        !openKneeLigamentFEMPath.has_value() &&
+                        requestedPoseCoordinates.empty(),
+                    "--open-knee-sustained-certificate requires an isolated nonvisual selected-quadriceps NHTENDON3/NHEQ1/NHCNT1 live Open Knee run");
             }
             require(!sourcePassiveJointTissue || wholeBodySupportCertificate,
                     "--source-passive-joint-tissue requires "
@@ -14413,6 +14468,10 @@ int main(int argc, char** argv) {
                     "--open-knee-live-tissue-fem cannot share the single continuum slot with NHKFEM1/2, pectoralis fascia, or anterior thorax");
             require(!openKneeFlexionRadians.has_value() || openKneeLiveTissueFEM,
                     "--open-knee-flexion-rad requires --open-knee-live-tissue-fem");
+            require(!openKneeSustainedCertificate ||
+                        (openKneeLiveTissueFEM && muscleStepCount.has_value() &&
+                         *muscleStepCount >= 8u),
+                    "--open-knee-sustained-certificate requires live Open Knee mechanics and at least eight Human steps");
             require(!persistentMetalStand ||
                         (muscleStepSeconds.has_value() &&
                          supportContactPayload.has_value() &&
@@ -15221,6 +15280,104 @@ int main(int argc, char** argv) {
                         << " ptl_tibia_patch_area_m2="
                         << openKneeLigamentFEM->patellarTendonTibiaPatchAreaSquareMeters
                         << " extensor_chain=nonlinear_source_tendon_force_QAT_to_patella_to_PTL_to_tibia_exact_entheses\n";
+                    if (openKneeSustainedCertificate) {
+                        const auto& certificate = *openKneeLigamentFEM;
+                        require(
+                            certificate.liveHumanCoupling &&
+                                certificate.rollbackVerified &&
+                                certificate.replayVerified &&
+                                certificate.articularAuditedStepCount ==
+                                    *muscleStepCount &&
+                                certificate.articularAuditedStepCount >= 8u &&
+                                certificate.articularTrajectoryMinimumClosedSampleCount > 0u &&
+                                certificate.articularTrajectoryMinimumNormalForceNewtons > 0.0 &&
+                                certificate.passiveLigamentLatestTransactionAccepted &&
+                                certificate.quadricepsEnthesisReactionResultantNewtons > 0.0 &&
+                                certificate.patellarTendonPatellaReactionResultantNewtons > 0.0 &&
+                                certificate.patellarTendonTibiaReactionResultantNewtons > 0.0 &&
+                                certificate.maximumAnchorTargetResidualMeters[2u] <= 5.0e-5 &&
+                                certificate.initialContinuumMapMaximumAnchorResidualMeters <= 5.0e-5,
+                            "sustained Open Knee certificate lacks accepted patellofemoral force-transfer history");
+                        const bool left = openKneePayload->side ==
+                            metalrobo::NumiHumanKneeSide::left;
+                        std::cout << std::setprecision(12)
+                                  << "numi_human_open_knee_sustained_loaded_motion=ok"
+                                  << " side=" << (left ? "left" : "right_mirrored")
+                                  << " device=\"" << certificate.deviceName << "\""
+                                  << " evidence_level=sustained"
+                                  << " accepted_steps="
+                                  << certificate.articularAuditedStepCount
+                                  << " timestep_s=" << *muscleStepSeconds
+                                  << " qualification_flexion_rad="
+                                  << certificate.qualificationFlexionRadians
+                                  << " patella_body="
+                                  << (left
+                                      ? metalrobo::NUMI_HUMAN_KNEE_PATELLA_BODY
+                                      : metalrobo::NUMI_HUMAN_KNEE_RIGHT_PATELLA_BODY)
+                                  << " continuum_regions="
+                                  << certificate.header.regionCount
+                                  << " continuum_nodes="
+                                  << certificate.header.nodeCount
+                                  << " continuum_tetrahedra="
+                                  << certificate.header.tetrahedronCount
+                                  << " initial_map_min_J="
+                                  << certificate.initialContinuumMapMinimumJacobian
+                                  << " initial_map_max_J="
+                                  << certificate.initialContinuumMapMaximumJacobian
+                                  << " initial_map_anchor_residual_m="
+                                  << certificate.initialContinuumMapMaximumAnchorResidualMeters
+                                  << " accepted_min_J="
+                                  << certificate.minimumDeterminant
+                                  << " accepted_max_J="
+                                  << certificate.maximumDeterminant
+                                  << " maximum_displacement_m="
+                                  << certificate.maximumDisplacementMeters
+                                  << " patella_anchor_residual_m="
+                                  << certificate.maximumAnchorTargetResidualMeters[2u]
+                                  << " quadriceps_resultant_n="
+                                  << certificate.quadricepsAppliedForceResultantNewtons
+                                  << " quadriceps_patella_reaction_n="
+                                  << certificate.quadricepsEnthesisReactionResultantNewtons
+                                  << " patellar_tendon_resultant_n="
+                                  << certificate.patellarTendonForceResultantNewtons
+                                  << " patellar_tendon_patella_reaction_n="
+                                  << certificate.patellarTendonPatellaReactionResultantNewtons
+                                  << " patellar_tendon_tibia_reaction_n="
+                                  << certificate.patellarTendonTibiaReactionResultantNewtons
+                                  << " articular_pairs="
+                                  << certificate.articularPairCount
+                                  << " articular_samples="
+                                  << certificate.articularContactSampleCount
+                                  << " trajectory_min_closed_samples="
+                                  << certificate.articularTrajectoryMinimumClosedSampleCount
+                                  << " trajectory_max_closed_samples="
+                                  << certificate.articularTrajectoryMaximumClosedSampleCount
+                                  << " trajectory_min_normal_force_n="
+                                  << certificate.articularTrajectoryMinimumNormalForceNewtons
+                                  << " trajectory_max_normal_force_n="
+                                  << certificate.articularTrajectoryMaximumNormalForceNewtons
+                                  << " trajectory_max_pressure_pa="
+                                  << certificate.articularTrajectoryMaximumPressurePascals
+                                  << " trajectory_max_energy_j="
+                                  << certificate.articularTrajectoryMaximumStoredEnergyJoules
+                                  << " trajectory_max_normal_strain="
+                                  << certificate.articularTrajectoryMaximumNormalStrain
+                                  << " trajectory_max_closure_m="
+                                  << certificate.articularTrajectoryMaximumClosureMeters
+                                  << " trajectory_max_force_residual_n="
+                                  << certificate.articularTrajectoryMaximumForceResidualNewtons
+                                  << " trajectory_max_moment_residual_nm="
+                                  << certificate.articularTrajectoryMaximumMomentResidualNewtonMeters
+                                  << " passive_ligaments="
+                                  << certificate.passiveLigamentCount
+                                  << " passive_ligament_max_tension_n="
+                                  << certificate.passiveLigamentMaximumTensionNewtons
+                                  << " contact_search=current_source_triangle_plus_one_ring"
+                                  << " same_borrowed_command_buffer=true"
+                                  << " replay=bitwise rollback=verified"
+                                  << " boundary=bounded_sustained_loaded_Open_Knee_extensor_ligament_FEM_and_current_one_ring_contact_not_physiological_range_subject_specific_pressure_validation_poroelasticity_or_clinical_validation\n";
+                        return 0;
+                    }
                 } else if (anteriorThoraxPayload.has_value()) {
                     MuscleDrivenVisualState coupledDriven;
                     anteriorThoraxMechanics.emplace(runAnteriorThoraxContinuum(
