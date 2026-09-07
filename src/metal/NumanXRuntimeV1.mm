@@ -1082,6 +1082,132 @@ namespace {
     return std::move(compiled.world);
 }
 
+// This is asset admission at construction, never a second stepping path.
+[[nodiscard]] numi::matter::CompiledWorld loadAuthoredWorld(
+    const mrnx_runtime_config_v3& config,
+    const FullBodyAssets& assets,
+    const std::vector<metalrobo::ArticulatedBodyKinematics>& bodies
+) {
+    requireBuild(
+        config.expected_model_source_fingerprint == assets.sourceFingerprint,
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "authored Matter world targets a different Human source");
+    numi::matter::CompiledWorld world;
+    std::string error;
+    const bool loaded = numi::matter::readPackage(
+        config.matter_world_package_path, world, nullptr, &error);
+    requireBuild(
+        loaded, MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "authored Matter package validation failed: " + error);
+    const auto& dispatch = world.dispatch;
+    const auto& humanGravity = assets.model.world.gravityAndTimestep;
+    if (std::getenv("MRNX_RUNTIME_DIAGNOSTICS") != nullptr) {
+        std::fprintf(stderr,
+            "mrnx authored world=%llu expected=%llu physics=%llu env=%u rate=%u "
+            "flags=%u nv=%u nq=%u attachments=%zu proxies=%zu "
+            "dt=%.9g expected_dt=%.9g gravity=%.9g,%.9g,%.9g human=%.9g,%.9g,%.9g\n",
+            static_cast<unsigned long long>(world.fingerprint),
+            static_cast<unsigned long long>(config.expected_matter_world_fingerprint),
+            static_cast<unsigned long long>(world.physicsFingerprint),
+            dispatch.environmentCount, dispatch.maximumRateExponent, dispatch.flags,
+            dispatch.rigidGeneralizedCapacity, dispatch.rigidQCapacity,
+            world.fem.humanAttachments.size(), world.contact.rigidProxies.size(),
+            dispatch.gravityAndTimestep.w,
+            static_cast<float>(static_cast<double>(config.runtime.timestep_microseconds) / 1'000'000.0),
+            dispatch.gravityAndTimestep.x, dispatch.gravityAndTimestep.y, dispatch.gravityAndTimestep.z,
+            humanGravity.x, humanGravity.y, humanGravity.z);
+    }
+    requireBuild(
+        world.fingerprint == config.expected_matter_world_fingerprint &&
+            world.physicsFingerprint != 0u &&
+            dispatch.environmentCount == 1u &&
+            dispatch.maximumRateExponent == 0u &&
+            (dispatch.flags & NM_MATTER_DETERMINISTIC) != 0u &&
+            (dispatch.flags & (NM_MATTER_ADAPTIVE | NM_MATTER_MUTATION)) == 0u &&
+            dispatch.rigidGeneralizedCapacity ==
+                MR_NUMANX_COUPLED_HUMAN_MAX_DOFS &&
+            dispatch.rigidQCapacity == MR_NUMANX_COUPLED_HUMAN_MAX_Q &&
+            !world.fem.humanAttachments.empty() &&
+            world.contact.rigidProxies.empty() &&
+            dispatch.gravityAndTimestep.w == static_cast<float>(
+                static_cast<double>(config.runtime.timestep_microseconds) /
+                1'000'000.0) &&
+            dispatch.gravityAndTimestep.x == humanGravity.x &&
+            dispatch.gravityAndTimestep.y == humanGravity.y &&
+            dispatch.gravityAndTimestep.z == humanGravity.z,
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "authored Matter package identity or joint-runtime contract mismatch");
+    // The line-muscle owner still contributes every source J^T share.
+    // Admitting additional active-fibre stress here would duplicate authority.
+    // A future replacement map must remove that share before enabling it.
+    for (const auto& material : world.mixedMaterials) {
+        requireBuild(material.fibre.w == 0.0f,
+                     MRNX_RUNTIME_ASSET_FAILURE_V1,
+                     "active Matter fibre requires a muscle-force replacement map");
+    }
+    for (const auto& object : world.objects) {
+        requireBuild((object.flags & NM_OBJECT_TWO_WAY_COUPLED) != 0u,
+                     MRNX_RUNTIME_ASSET_FAILURE_V1,
+                     "authored Matter object is not two-way coupled");
+    }
+    for (const auto& attachment : world.fem.humanAttachments) {
+        requireBuild(attachment.identity.y < bodies.size(),
+                     MRNX_RUNTIME_ASSET_FAILURE_V1,
+                     "authored Matter attachment escapes Human body table");
+        const auto& body = bodies[attachment.identity.y];
+        const auto& q = body.orientation;
+        const std::array<double, 3u> p{
+            attachment.localPoint.x, attachment.localPoint.y,
+            attachment.localPoint.z};
+        const std::array<double, 3u> t{
+            2.0 * (q[1] * p[2] - q[2] * p[1]),
+            2.0 * (q[2] * p[0] - q[0] * p[2]),
+            2.0 * (q[0] * p[1] - q[1] * p[0])};
+        const std::array<double, 3u> expected{
+            body.centerOfMassPosition[0] + p[0] + q[3] * t[0] +
+                q[1] * t[2] - q[2] * t[1],
+            body.centerOfMassPosition[1] + p[1] + q[3] * t[1] +
+                q[2] * t[0] - q[0] * t[2],
+            body.centerOfMassPosition[2] + p[2] + q[3] * t[2] +
+                q[0] * t[1] - q[1] * t[0]};
+        const std::array<double, 3u> offset{
+            expected[0] - body.centerOfMassPosition[0],
+            expected[1] - body.centerOfMassPosition[1],
+            expected[2] - body.centerOfMassPosition[2]};
+        const auto& omega = body.angularVelocity;
+        const std::array<double, 3u> expectedVelocity{
+            body.linearVelocity[0] + omega[1] * offset[2] - omega[2] * offset[1],
+            body.linearVelocity[1] + omega[2] * offset[0] - omega[0] * offset[2],
+            body.linearVelocity[2] + omega[0] * offset[1] - omega[1] * offset[0]};
+        const auto& node = world.fem.nodes[attachment.identity.x];
+        const std::array<double, 3u> actualVelocity{
+            node.velocityAndInverseMass.x, node.velocityAndInverseMass.y,
+            node.velocityAndInverseMass.z};
+        const std::array<double, 3u> actual{
+            node.positionAndMass.x, node.positionAndMass.y,
+            node.positionAndMass.z};
+        for (std::size_t axis = 0u; axis < 3u; ++axis) {
+            // Only FP32 packing/kinematics roundoff is admitted. This is not
+            // registration, prestrain relaxation or endpoint relocation.
+            const double scale = std::max({1.0, std::abs(expected[axis]),
+                                           std::abs(actual[axis])});
+            requireBuild(std::isfinite(expected[axis]) &&
+                std::abs(expected[axis] - actual[axis]) <=
+                    16.0 * std::numeric_limits<float>::epsilon() * scale,
+                MRNX_RUNTIME_ASSET_FAILURE_V1,
+                "authored Matter attachment does not match initial Human frame");
+            const double velocityScale = std::max({1.0,
+                std::abs(expectedVelocity[axis]), std::abs(actualVelocity[axis])});
+            requireBuild(std::isfinite(expectedVelocity[axis]) &&
+                std::abs(expectedVelocity[axis] - actualVelocity[axis]) <=
+                    16.0 * std::numeric_limits<float>::epsilon() * velocityScale,
+                MRNX_RUNTIME_ASSET_FAILURE_V1,
+                "authored Matter attachment velocity disagrees with Human");
+        }
+    }
+    return world;
+}
+
 bool encodeRuntimeProof(
     void* context,
     const metalrobo::MetalNumanXHumanMatterStateProofPass& source
@@ -1353,6 +1479,7 @@ struct RuntimeState final : std::enable_shared_from_this<RuntimeState> {
     std::uint64_t lastAttemptedControlStep = 0u;
     std::shared_ptr<ActiveRoot> active;
     mrnx_runtime_info_v1 info{};
+    mrnx_runtime_world_info_v1 worldInfo{};
     mrnx_aggregate_snapshot_v1 aggregate{};
     mrnx_candidate_timing_v1 aggregateTiming{};
     mrnx_candidate_channel_v1 aggregateChannels[MRNX_MAX_SENSOR_CHANNELS_V2]{};
@@ -1572,7 +1699,8 @@ void cultureCompletion(
 }
 
 [[nodiscard]] std::shared_ptr<RuntimeState> createRuntimeState(
-    const mrnx_runtime_config_v1& config
+    const mrnx_runtime_config_v1& config,
+    const mrnx_runtime_config_v3* authored = nullptr
 ) {
     requireBuild(
         config.abi_version == MRNX_BRIDGE_ABI_V1 &&
@@ -1585,7 +1713,7 @@ void cultureCompletion(
             config.vision_profile_path != nullptr &&
             config.metalrobo_metallib_path != nullptr &&
             config.matter_metallib_path != nullptr &&
-            config.matter_material_path != nullptr &&
+            (authored != nullptr || config.matter_material_path != nullptr) &&
             config.rigid_payload_path[0] != '\0' &&
             config.muscle_payload_path[0] != '\0' &&
             config.support_contact_payload_path[0] != '\0' &&
@@ -1593,7 +1721,7 @@ void cultureCompletion(
             config.vision_profile_path[0] != '\0' &&
             config.metalrobo_metallib_path[0] != '\0' &&
             config.matter_metallib_path[0] != '\0' &&
-            config.matter_material_path[0] != '\0' &&
+            (authored != nullptr || config.matter_material_path[0] != '\0') &&
             config.timestep_microseconds != 0u &&
             config.timestep_microseconds <= 1'000'000u &&
             config.maximum_retained_bytes != 0u &&
@@ -1617,14 +1745,48 @@ void cultureCompletion(
 
     auto runtime = std::make_shared<RuntimeState>();
     runtime->device = device;
+    runtime->assets = loadFullBodyAssets(
+        config.rigid_payload_path, config.muscle_payload_path,
+        config.support_contact_payload_path);
+    // Bind the reference Matter patch to the articulated root/pelvis COM.
+    // The prior use of the final imported body was topology-order dependent
+    // and coupled the FEM to an arbitrary high-motion distal link.
+    constexpr std::uint32_t attachmentBody = 0u;
+    const std::vector<double> defaultQ(
+        runtime->assets.model.defaultQ.begin(),
+        runtime->assets.model.defaultQ.end());
+    const std::vector<double> defaultV(
+        runtime->assets.model.defaultV.begin(),
+        runtime->assets.model.defaultV.end());
+    std::vector<metalrobo::ArticulatedBodyKinematics> defaultBodies(
+        runtime->assets.model.bodies.size());
+    const auto defaultBodyDiagnostics =
+        metalrobo::computeArticulatedBodyKinematics(
+            runtime->assets.model, 0u, defaultQ, defaultV, defaultBodies);
+    requireBuild(
+        defaultBodyDiagnostics.succeeded() &&
+            attachmentBody < defaultBodies.size(),
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "full-body default attachment kinematics failed");
+    const auto world = authored != nullptr
+        ? loadAuthoredWorld(*authored, runtime->assets, defaultBodies)
+        : compileAttachedWorld(
+        config.matter_material_path,
+        attachmentBody,
+        defaultBodies[attachmentBody].centerOfMassPosition,
+        defaultBodies[attachmentBody].orientation,
+        config.timestep_microseconds);
+    runtime->worldInfo = {
+        MRNX_BRIDGE_ABI_V1, sizeof(mrnx_runtime_world_info_v1),
+        authored != nullptr ? 1u : 0u,
+        world.dispatch.objectCount, world.dispatch.femNodeCount,
+        world.dispatch.femHumanAttachmentCount,
+        world.fingerprint, world.physicsFingerprint};
     runtime->domain = metalrobo::numanx_bridge_v1::makeDomain(
         config.metal_device);
     requireBuild(
         runtime->domain != nullptr, MRNX_RUNTIME_METAL_FAILURE_V1,
         "failed to create NumanX bridge domain");
-    runtime->assets = loadFullBodyAssets(
-        config.rigid_payload_path, config.muscle_payload_path,
-        config.support_contact_payload_path);
     runtime->timestepMicroseconds = config.timestep_microseconds;
     runtime->transactionSlotCount = config.transaction_slot_count;
     runtime->visionProfile = loadVisionProfile(
@@ -1650,32 +1812,6 @@ void cultureCompletion(
     runtime->visualBodyBounds.label = @"NumanX source visual body bounds";
     (void)loadSupplementalProgram(*runtime, config.metalrobo_metallib_path);
 
-    // Bind the reference Matter patch to the articulated root/pelvis COM.
-    // The prior use of the final imported body was topology-order dependent
-    // and coupled the FEM to an arbitrary high-motion distal link.
-    constexpr std::uint32_t attachmentBody = 0u;
-    const std::vector<double> defaultQ(
-        runtime->assets.model.defaultQ.begin(),
-        runtime->assets.model.defaultQ.end());
-    const std::vector<double> defaultV(
-        runtime->assets.model.defaultV.begin(),
-        runtime->assets.model.defaultV.end());
-    std::vector<metalrobo::ArticulatedBodyKinematics> defaultBodies(
-        runtime->assets.model.bodies.size());
-    const auto defaultBodyDiagnostics =
-        metalrobo::computeArticulatedBodyKinematics(
-            runtime->assets.model, 0u, defaultQ, defaultV, defaultBodies);
-    requireBuild(
-        defaultBodyDiagnostics.succeeded() &&
-            attachmentBody < defaultBodies.size(),
-        MRNX_RUNTIME_ASSET_FAILURE_V1,
-        "full-body default attachment kinematics failed");
-    const auto world = compileAttachedWorld(
-        config.matter_material_path,
-        attachmentBody,
-        defaultBodies[attachmentBody].centerOfMassPosition,
-        defaultBodies[attachmentBody].orientation,
-        config.timestep_microseconds);
     runtime->matter = std::make_unique<numi::matter::Runtime>();
     numi::matter::RuntimeConfiguration matterConfig;
     matterConfig.metallib = config.matter_metallib_path;
@@ -1709,7 +1845,8 @@ void cultureCompletion(
     adapterConfig.adapterMetallibPath = config.metalrobo_metallib_path;
     adapterConfig.environmentCapacity = 1u;
     adapterConfig.pointCapacity = std::max<std::uint32_t>(
-        4u, static_cast<std::uint32_t>(
+        world.dispatch.femHumanAttachmentCount,
+        static_cast<std::uint32_t>(
             runtime->assets.matterSupportContacts.size()));
     adapterConfig.transactionSlotCount = config.transaction_slot_count;
     adapterConfig.maximumRetainedBytes = config.maximum_retained_bytes;
@@ -1762,7 +1899,8 @@ void cultureCompletion(
 }
 
 [[nodiscard]] std::shared_ptr<RuntimeState> createRuntimeStateV2(
-    const mrnx_runtime_config_v2& config
+    const mrnx_runtime_config_v2& config,
+    const mrnx_runtime_config_v3* authored = nullptr
 ) {
     requireBuild(
         config.abi_version == MRNX_RUNTIME_CONFIG_ABI_V2 &&
@@ -1785,7 +1923,7 @@ void cultureCompletion(
     base.maximum_retained_bytes = config.maximum_retained_bytes;
     base.transaction_slot_count = config.transaction_slot_count;
     base.reserved0 = config.reserved0;
-    auto runtime = createRuntimeState(base);
+    auto runtime = createRuntimeState(base, authored);
     const bool cultureEnabled = config.culture_pack_path != nullptr &&
         config.culture_pack_path[0] != '\0';
     const bool checkpointSupplied = config.culture_checkpoint_path != nullptr &&
@@ -2111,10 +2249,8 @@ void fillRuntimeInfoFailure(
             .stepCount = 1u,
             .contactIterationCount = 12u,
             .enableContact = false,
-            // The attached world has zero gravity and contact constraints are
-            // outside the v1 tangent authority. Artificial root springs add a
-            // stiff rigid residual without representing source contact, so
-            // leave assistance disabled for this free coupled transaction.
+            // Support is owned by Matter's coupled system. Root assistance
+            // cannot substitute for source contact or authored tissue.
             .enableRootAssistance = false,
             .groundPoint = runtime->assets.groundPoint,
             .groundNormal = runtime->assets.groundNormal,
@@ -2299,6 +2435,61 @@ mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v2(
             return nullptr;
         }
     }
+}
+
+mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v3(
+    const mrnx_runtime_config_v3* config,
+    mrnx_runtime_info_v1* info
+) {
+    @autoreleasepool {
+        if (config == nullptr) {
+            fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+            return nullptr;
+        }
+        try {
+            requireBuild(
+                config->abi_version == MRNX_RUNTIME_CONFIG_ABI_V3 &&
+                    config->struct_size == sizeof(*config) &&
+                    config->matter_world_package_path != nullptr &&
+                    config->matter_world_package_path[0] != '\0' &&
+                    config->expected_model_source_fingerprint != 0u &&
+                    config->expected_matter_world_fingerprint != 0u &&
+                    config->runtime.matter_material_path == nullptr,
+                MRNX_RUNTIME_INVALID_CONFIGURATION_V1,
+                "invalid authored-world configuration v3");
+            auto state = createRuntimeStateV2(config->runtime, config);
+            auto* runtime = new (std::nothrow) mrnx_runtime_v1;
+            if (runtime == nullptr) {
+                fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+                return nullptr;
+            }
+            runtime->state = std::move(state);
+            if (info != nullptr) *info = runtime->state->info;
+            return runtime;
+        } catch (const RuntimeBuildFailure& failure) {
+            if (std::getenv("MRNX_RUNTIME_DIAGNOSTICS") != nullptr) {
+                std::fprintf(
+                    stderr, "mrnx runtime v3 create failed: %s\n",
+                    failure.what());
+            }
+            fillRuntimeInfoFailure(info, failure.status);
+            return nullptr;
+        } catch (...) {
+            fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+            return nullptr;
+        }
+    }
+}
+
+bool mrnx_bridge_v1_runtime_copy_world_info(
+    const mrnx_runtime_v1* runtime,
+    mrnx_runtime_world_info_v1* info
+) {
+    if (runtime == nullptr || runtime->state == nullptr || info == nullptr ||
+        info->abi_version != MRNX_BRIDGE_ABI_V1 ||
+        info->struct_size != sizeof(*info)) return false;
+    *info = runtime->state->worldInfo;
+    return true;
 }
 
 void mrnx_bridge_v1_runtime_retain(mrnx_runtime_v1* runtime) {

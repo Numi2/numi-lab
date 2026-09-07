@@ -3428,8 +3428,13 @@ if(BUILD_TESTING)
             NAME numanx.integration.fullbody_bridge_prepared_root
             COMMAND $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe>
         )
+        add_test(
+            NAME numanx.integration.fullbody_authored_world
+            COMMAND $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe> --authored-world
+        )
         set_tests_properties(
             numanx.integration.fullbody_bridge_prepared_root
+            numanx.integration.fullbody_authored_world
             PROPERTIES
                 LABELS "numanx;human;matter;physics;metal;fullbody"
                 TIMEOUT 180

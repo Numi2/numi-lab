@@ -2,6 +2,8 @@
 #import <Metal/Metal.h>
 
 #include "metalrobo/MetalNumanXHumanIO.hpp"
+#include "metalrobo/ArticulatedDynamics.hpp"
+#include "numi/matter/matter.hpp"
 #include "metalrobo/NeuronCultureArtifacts.hpp"
 #include "metalrobo/engine_types.h"
 #include "metalrobo/mrnx_bridge_v1.h"
@@ -425,7 +427,209 @@ void waitForCompletion(Completion& completion) {
         "full-body root did not settle exactly once");
 }
 
-int run() {
+numi::matter::WorldSource authoredFixtureWorld() {
+    // Decode only the existing rigid ABI needed by this qualification fixture.
+    // Production asset parsing remains in the native runtime owner.
+    std::ifstream input(MRNX_FULLBODY_RIGID, std::ios::binary);
+    std::array<std::uint32_t, 20u> header{};
+    input.read(reinterpret_cast<char*>(header.data()), sizeof(header));
+    require(input.good() && header[5u] == 157u && header[7u] == 129u &&
+                header[8u] == 128u, "unexpected full-body fixture header");
+    auto read = [&]<typename T>(T& value) {
+        input.read(reinterpret_cast<char*>(&value), sizeof(T));
+        require(input.good(), "truncated rigid fixture");
+    };
+    metalrobo::EngineModel model;
+    read(model.world);
+    model.articulations.resize(1u);
+    read(model.articulations[0u]);
+    model.bodies.resize(header[5u]);
+    model.joints.resize(header[6u]);
+    model.dofs.resize(header[8u]);
+    model.defaultQ.resize(header[7u]);
+    model.defaultV.resize(header[8u]);
+    for (auto& value : model.bodies) read(value);
+    for (auto& value : model.joints) read(value);
+    for (auto& value : model.dofs) read(value);
+    for (auto& value : model.defaultQ) read(value);
+    for (auto& value : model.defaultV) read(value);
+    std::vector<metalrobo::ArticulatedBodyKinematics> bodies(model.bodies.size());
+    require(metalrobo::computeArticulatedBodyKinematics(model, 0u,
+                std::vector<double>(model.defaultQ.begin(), model.defaultQ.end()),
+                std::vector<double>(model.defaultV.begin(), model.defaultV.end()),
+                bodies).succeeded(), "authored fixture kinematics failed");
+    const auto material = numi::matter::parseMatterFile(MRNX_MATTER_MATERIAL);
+    require(material.succeeded(), "authored fixture material failed");
+    numi::matter::WorldSource world;
+    world.frameTimestep = static_cast<double>(kDurationMicros) / 1'000'000.0;
+    world.gravity = {model.world.gravityAndTimestep.x,
+                     model.world.gravityAndTimestep.y,
+                     model.world.gravityAndTimestep.z};
+    world.articulatedDofCapacity = 160u;
+    world.articulatedQCapacity = 161u;
+    world.mixedSolver.newtonIterations = 16u;
+    world.mixedSolver.relativeResidual = 5.0e-3;
+    world.materials.push_back(material.material);
+    // Three disjoint tiny samples exercise a package wider than the old
+    // four-node constant and the ten support queries. No anatomical claim.
+    for (std::uint32_t objectIndex = 0u; objectIndex < 3u; ++objectIndex) {
+        numi::matter::ObjectSource object;
+        object.name = "authored_fixture_" + std::to_string(objectIndex);
+        object.representation = numi::matter::Representation::fem;
+        object.mixedFEM = false;
+        object.characteristicLength = 0.01;
+        const std::array<std::array<double, 3u>, 4u> offsets{{
+            {0.0, 0.0, 0.0}, {0.01, 0.0, 0.0},
+            {0.0, 0.01, 0.0}, {0.0, 0.0, 0.01}}};
+        const auto& body = bodies[0u];
+        const auto& q = body.orientation;
+        for (std::uint32_t node = 0u; node < 4u; ++node) {
+            auto local = offsets[node];
+            local[0] += 0.03 * objectIndex;
+            const std::array<double, 3u> t{
+                2.0 * (q[1] * local[2] - q[2] * local[1]),
+                2.0 * (q[2] * local[0] - q[0] * local[2]),
+                2.0 * (q[0] * local[1] - q[1] * local[0])};
+            object.femNodes.push_back({
+                body.centerOfMassPosition[0] + local[0] + q[3] * t[0] + q[1] * t[2] - q[2] * t[1],
+                body.centerOfMassPosition[1] + local[1] + q[3] * t[1] + q[2] * t[0] - q[0] * t[2],
+                body.centerOfMassPosition[2] + local[2] + q[3] * t[2] + q[0] * t[1] - q[1] * t[0]});
+            numi::matter::FEMHumanAttachmentSource attachment;
+            attachment.node = node;
+            attachment.bodyIndex = 0u;
+            attachment.stableIdentifier = 1000u + 4u * objectIndex + node;
+            attachment.localPoint = local;
+            object.femHumanAttachments.push_back(attachment);
+        }
+        object.tetrahedra.push_back({{0u, 1u, 2u, 3u}});
+        world.objects.push_back(object);
+    }
+    return world;
+}
+
+mrnx_runtime_v1* makeAuthoredRuntime(
+    const mrnx_runtime_config_v2& base,
+    mrnx_runtime_info_v1& info
+) {
+    auto source = authoredFixtureWorld();
+    const auto package = std::filesystem::temp_directory_path() /
+        ("numanx-authored-" + std::to_string(getpid()) + ".nmatterpack");
+    const auto packagePath = package.string();
+    mrnx_runtime_config_v3 config{};
+    config.abi_version = MRNX_RUNTIME_CONFIG_ABI_V3;
+    config.struct_size = sizeof(config);
+    config.runtime = base;
+    config.runtime.matter_material_path = nullptr;
+    config.matter_world_package_path = packagePath.c_str();
+    config.expected_model_source_fingerprint = fullBodySourceFingerprint(
+        readPayloadBytes(MRNX_FULLBODY_RIGID),
+        readPayloadBytes(MRNX_FULLBODY_MUSCLE),
+        readPayloadBytes(MRNX_FULLBODY_SUPPORT_CONTACT));
+    const auto cook = [&](const numi::matter::WorldSource& world) {
+        numi::matter::CompileOptions options;
+        options.maximumRateExponent = 0u;
+        const auto compiled = numi::matter::compileWorld(world, options);
+        std::string error;
+        require(compiled.succeeded() &&
+                    numi::matter::writePackage(compiled, package, &error),
+                "authored fixture package failed");
+        config.expected_matter_world_fingerprint = compiled.world.fingerprint;
+    };
+    const auto reject = [&](const mrnx_runtime_config_v3& candidate,
+                            const mrnx_runtime_status_v1 status) {
+        mrnx_runtime_info_v1 failed{};
+        auto* runtime = mrnx_bridge_v1_runtime_create_v3(&candidate, &failed);
+        require(runtime == nullptr && failed.status == status,
+                "invalid authored world was admitted or misclassified");
+    };
+    cook(source);
+    auto changed = config;
+    changed.expected_model_source_fingerprint ^= 1u;
+    reject(changed, MRNX_RUNTIME_ASSET_FAILURE_V1);
+    changed = config;
+    changed.expected_matter_world_fingerprint ^= 1u;
+    reject(changed, MRNX_RUNTIME_ASSET_FAILURE_V1);
+    changed = config;
+    changed.runtime.matter_material_path = MRNX_MATTER_MATERIAL;
+    reject(changed, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+    changed = config;
+    changed.matter_world_package_path = "/nonexistent-numanx-world.nmatterpack";
+    reject(changed, MRNX_RUNTIME_ASSET_FAILURE_V1);
+    changed = config;
+    changed.runtime.timestep_microseconds += 1u;
+    reject(changed, MRNX_RUNTIME_ASSET_FAILURE_V1);
+    auto bad = source;
+    bad.gravity[2] += 1.0;
+    cook(bad);
+    reject(config, MRNX_RUNTIME_ASSET_FAILURE_V1);
+    bad = source;
+    bad.objects[0u].femHumanAttachments[0u].localPoint[0] += 0.01;
+    cook(bad);
+    reject(config, MRNX_RUNTIME_ASSET_FAILURE_V1);
+    bad = source;
+    bad.objects[0u].femHumanAttachments[0u].bodyIndex = 157u;
+    cook(bad);
+    reject(config, MRNX_RUNTIME_ASSET_FAILURE_V1);
+    bad = source;
+    bad.objects[0u].femInitialVelocity[0] = 0.1;
+    cook(bad);
+    reject(config, MRNX_RUNTIME_ASSET_FAILURE_V1);
+    bad = source;
+    bad.deterministic = false;
+    cook(bad);
+    reject(config, MRNX_RUNTIME_ASSET_FAILURE_V1);
+    bad = source;
+    bad.materials[0u].mixed.maximumActiveTension = 100.0;
+    cook(bad);
+    reject(config, MRNX_RUNTIME_ASSET_FAILURE_V1);
+    cook(source);
+    {
+        std::fstream corrupted(package, std::ios::binary | std::ios::in | std::ios::out);
+        char byte = 0;
+        corrupted.read(&byte, 1);
+        byte ^= 1;
+        corrupted.seekp(0);
+        corrupted.write(&byte, 1);
+    }
+    reject(config, MRNX_RUNTIME_ASSET_FAILURE_V1);
+    cook(source);
+    auto* runtime = mrnx_bridge_v1_runtime_create_v3(&config, &info);
+    require(runtime != nullptr, "valid authored world was rejected");
+    mrnx_runtime_world_info_v1 worldInfo{};
+    worldInfo.abi_version = MRNX_BRIDGE_ABI_V1;
+    worldInfo.struct_size = sizeof(worldInfo);
+    require(mrnx_bridge_v1_runtime_copy_world_info(runtime, &worldInfo) &&
+        worldInfo.authored_package == 1u && worldInfo.object_count == 3u &&
+        worldInfo.fem_node_count == 12u && worldInfo.fem_attachment_count == 12u &&
+        worldInfo.world_fingerprint == config.expected_matter_world_fingerprint &&
+        worldInfo.physics_fingerprint != 0u,
+        "authored world metadata does not identify the loaded package");
+    // Rewriting/removing the file after construction must not change retained
+    // runtime state or its proof authority.
+    std::filesystem::remove(package);
+    if (const char* retained = std::getenv("MRNX_AUTHORED_FIXTURE_DIR")) {
+        const std::filesystem::path directory(retained);
+        std::filesystem::create_directories(directory);
+        source.frameTimestep = 0.0001;
+        numi::matter::CompileOptions options;
+        options.maximumRateExponent = 0u;
+        const auto compiled = numi::matter::compileWorld(source, options);
+        std::string error;
+        require(compiled.succeeded() && numi::matter::writePackage(compiled,
+                    directory / "authored-100us.nmatterpack", &error),
+                "retaining authored Swift fixture failed");
+        std::ofstream receipt(directory / "authored-100us.json");
+        receipt << "{\"human_source_fp\":\"" << std::hex
+                << config.expected_model_source_fingerprint
+                << "\",\"matter_world_fp\":\"" << compiled.world.fingerprint
+                << "\",\"timestep_microseconds\":100}\n";
+        require(receipt.good(), "retaining authored fixture identity failed");
+    }
+    std::printf("numanx_authored_world_admission=pass negative_cases=12 objects=3 attachments=12\n");
+    return runtime;
+}
+
+int run(const bool authored) {
     @autoreleasepool {
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
         require(device != nil, "Metal device unavailable");
@@ -474,14 +678,21 @@ int run() {
                 mismatchedInfo.status == MRNX_RUNTIME_ASSET_FAILURE_V1,
             "mismatched source support-contact authority was admitted");
         mrnx_runtime_info_v1 info{};
-        mrnx_runtime_v1* runtime = mrnx_bridge_v1_runtime_create_v2(
-            &config, &info);
+        mrnx_runtime_v1* runtime = authored
+            ? makeAuthoredRuntime(config, info)
+            : mrnx_bridge_v1_runtime_create_v2(&config, &info);
         if (runtime == nullptr || info.status != MRNX_RUNTIME_READY_V1) {
             std::fprintf(
                 stderr, "full-body runtime status=%u\n", info.status);
         }
         require(runtime != nullptr && info.status == MRNX_RUNTIME_READY_V1,
                 "full-body runtime creation failed");
+        mrnx_runtime_world_info_v1 worldInfo{};
+        worldInfo.abi_version = MRNX_BRIDGE_ABI_V1;
+        worldInfo.struct_size = sizeof(worldInfo);
+        require(mrnx_bridge_v1_runtime_copy_world_info(runtime, &worldInfo) &&
+                    worldInfo.authored_package == (authored ? 1u : 0u),
+                "runtime world kind was not reported exactly");
         require(info.q_coordinate_count == 129u && info.dof_count == 128u &&
                     info.muscle_count == 416u && info.body_count == 157u &&
                     info.accepted_state_proof_program_fingerprint != 0u &&
@@ -975,9 +1186,12 @@ int run() {
 
 } // namespace
 
-int main() {
+int main(int argc, char** argv) {
     try {
-        return run();
+        require(argc == 1 || (argc == 2 &&
+                    std::string(argv[1]) == "--authored-world"),
+                "usage: numanx_fullbody_bridge_probe [--authored-world]");
+        return run(argc == 2);
     } catch (const std::exception& error) {
         std::fprintf(stderr, "%s\n", error.what());
         return 1;

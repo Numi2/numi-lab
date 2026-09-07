@@ -30,6 +30,7 @@ extern "C" {
 #define MRNX_BRAIN_MOTOR_READY_ABI_VERSION_V1 1u
 #define MRNX_BRAIN_MOTOR_READY_GATE_BYTES_V1 160u
 #define MRNX_RUNTIME_CONFIG_ABI_V2 2u
+#define MRNX_RUNTIME_CONFIG_ABI_V3 3u
 #define MRNX_AGGREGATE_SNAPSHOT_ABI_V4 4u
 #define MRNX_CULTURE_ACCEPTED_VIEW_ABI_V1 1u
 #define MRNX_CULTURE_PREPARED_VIEW_ABI_V1 1u
@@ -288,6 +289,37 @@ typedef struct mrnx_runtime_config_v2 {
     uint32_t culture_window_ticks;
     float culture_current_per_newton;
 } mrnx_runtime_config_v2;
+
+// Authored-world construction uses the existing cooked Matter package format.
+// The nested v2 configuration retains its own v2 header; matter_material_path
+// must be null. There is no fallback to the legacy attached-tet fixture.
+// Both expected identities are mandatory trusted-process compatibility keys,
+// not cryptographic provenance. Human identity covers NHRIGID/NHMYO/NHCNT;
+// Matter identity covers the exact validated cooked world, including capacity.
+// Initial attachment frames, timestep and gravity must agree with Human.
+// This adds no joint-equality, adaptive-topology or active-muscle replacement
+// authority; unsupported world modes fail before runtime allocation.
+typedef struct mrnx_runtime_config_v3 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    mrnx_runtime_config_v2 runtime;
+    const char* matter_world_package_path;
+    uint64_t expected_model_source_fingerprint;
+    uint64_t expected_matter_world_fingerprint;
+} mrnx_runtime_config_v3;
+
+// Immutable construction metadata. Legacy v1/v2 worlds are explicitly marked
+// as fixtures; successfully loading an authored package is not calibration.
+typedef struct mrnx_runtime_world_info_v1 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint32_t authored_package;
+    uint32_t object_count;
+    uint32_t fem_node_count;
+    uint32_t fem_attachment_count;
+    uint64_t world_fingerprint;
+    uint64_t physics_fingerprint;
+} mrnx_runtime_world_info_v1;
 
 typedef struct mrnx_runtime_info_v1 {
     uint32_t abi_version;
@@ -637,6 +669,12 @@ MRNX_BRIDGE_EXPORT mrnx_runtime_v1* mrnx_bridge_v1_runtime_create(
 MRNX_BRIDGE_EXPORT mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v2(
     const mrnx_runtime_config_v2* config,
     mrnx_runtime_info_v1* info);
+MRNX_BRIDGE_EXPORT mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v3(
+    const mrnx_runtime_config_v3* config,
+    mrnx_runtime_info_v1* info);
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_world_info(
+    const mrnx_runtime_v1* runtime,
+    mrnx_runtime_world_info_v1* info);
 MRNX_BRIDGE_EXPORT void mrnx_bridge_v1_runtime_retain(
     mrnx_runtime_v1* runtime);
 MRNX_BRIDGE_EXPORT void mrnx_bridge_v1_runtime_drop(
@@ -812,6 +850,10 @@ MRNX_BRIDGE_EXPORT uint32_t mrnx_bridge_v1_reject_unbound_candidate(
 #ifdef __cplusplus
 } // extern "C"
 
+static_assert(sizeof(mrnx_runtime_config_v3) == 168u);
+static_assert(offsetof(mrnx_runtime_config_v3, runtime) == 8u);
+static_assert(offsetof(mrnx_runtime_config_v3, matter_world_package_path) == 144u);
+static_assert(sizeof(mrnx_runtime_world_info_v1) == 40u);
 static_assert(sizeof(mrnx_root_v1) == 96u);
 static_assert(alignof(mrnx_root_v1) == 8u);
 static_assert(offsetof(mrnx_root_v1, program_fingerprint) == 56u);
@@ -977,6 +1019,10 @@ _Static_assert(offsetof(mrnx_completion_v1, slot_generation) == 16u,
                "mrnx_completion_v1 generation offset");
 _Static_assert(sizeof(mrnx_publication_v1) == 24u,
                "mrnx_publication_v1 ABI");
+_Static_assert(sizeof(mrnx_runtime_config_v3) == 168u, "mrnx_runtime_config_v3 ABI");
+_Static_assert(offsetof(mrnx_runtime_config_v3, matter_world_package_path) == 144u,
+               "mrnx_runtime_config_v3 world offset");
+_Static_assert(sizeof(mrnx_runtime_world_info_v1) == 40u, "mrnx world info ABI");
 _Static_assert(sizeof(mrnx_runtime_config_v1) == 104u,
                "mrnx_runtime_config_v1 ABI");
 _Static_assert(offsetof(mrnx_runtime_config_v1,

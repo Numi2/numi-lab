@@ -341,3 +341,41 @@ transactional runtime. The 4.96-second E2E test duration includes pipeline and
 fixture setup and is not control latency. The Brain topology is synthetic and
 the one-tet attachment is an execution fixture; physical fidelity, biological
 validity, learned generalization, and performance comparisons remain open.
+
+### Authored Matter packages (runtime configuration v3)
+
+`mrnx_bridge_v1_runtime_create_v3` admits an existing cooked Matter package
+instead of constructing the legacy attached-tet fixture. It nests the unchanged
+v2 configuration and requires the package path, expected Human source fingerprint
+and exact cooked-world fingerprint. The nested material path must be null;
+invalid packages never fall back to the fixture. `runtime_copy_world_info`
+reports the world kind, object/node/attachment counts and both world identities.
+
+The existing Matter package reader validates its layout and canonical identity.
+NumanX additionally requires one deterministic, unsubcycled environment, the
+160-v/161-q capacity class, matching Human gravity/timestep, two-way objects,
+and source-consistent initial attachment positions and velocities. Its current
+joint owner rejects adaptive/mutable topology, general rigid proxies and
+nonzero active-fibre tension. Stored parameter priors are permitted while online
+identification remains disabled. Active stress requires an explicit replacement
+map that removes the corresponding MyoSim force share first.
+
+Admission precedes physical runtime allocation. Package topology determines the
+attachment capacity; the old four-point constant no longer constrains authored
+worlds. Preparation, state proof, apply/restore and root publication use the
+existing owner. Once admitted, the loaded world remains resident even if its
+source file is removed. Compatibility fingerprints remain trusted-process
+identities, not cryptographic source or calibration certificates.
+
+The `numanx.integration.fullbody_authored_world` test loads three tiny FEM
+samples with twelve attachments and exercises the full-body prepared-root and
+rejection path. Negative cases cover foreign Human/world identities, dual
+sources, missing/corrupt packages, timestep/gravity/frame/body/velocity mismatch,
+nondeterminism and active-force duplication. The matching Swift bridge exposes
+`AuthoredMatterWorld` and the Gate C capture CLI accepts `--matter-world`,
+`--human-source-fp`, and `--matter-world-fp`.
+
+This is authored-package integration. It does not supply NHEQ constrained
+operators, anatomical tissue geometry, calibrated materials, mass partitioning,
+source-muscle replacement or a standing/walking controller. Those remain
+explicit requirements for the complete Human.
