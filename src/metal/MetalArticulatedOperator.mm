@@ -4695,7 +4695,7 @@ struct MetalBufferRegion {
     [materialize setBuffer:candidatePointWorld offset:0u atIndex:11u];
     [materialize setBuffer:candidatePointJacobians
                       offset:0u atIndex:12u];
-    [materialize setThreadgroupMemoryLength:sizeof(std::uint32_t)
+    [materialize setThreadgroupMemoryLength:16u
                                       atIndex:0u];
     [materialize dispatchThreadgroups:
         MTLSizeMake(context.environmentCount, 1u, 1u)
@@ -5561,10 +5561,16 @@ MetalNumanXHumanMatterPrepared::proposePrepared(
             [encoder setComputePipelineState:
                 state_->humanMatterProposePreparedPipeline];
             [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
-            [encoder setBuffer:validateWitness
-                    ? (__bridge id<MTLBuffer>)request.brainCommitWitnesses
-                    : state_->humanMatterBuffers[kHumanMatterOwnerStatusBuffer]
-                        offset:0u atIndex:1u];
+            if (validateWitness) {
+                [encoder setBuffer:(__bridge id<MTLBuffer>)request.brainCommitWitnesses
+                             offset:0u atIndex:1u];
+            } else {
+                // FORCE_REJECT never reads a Brain witness. Metal still requires
+                // a full typed binding; the 96-byte owner status is undersized.
+                const MRNumanXHumanMatterBrainCommitWitnessGPU unusedWitness{};
+                [encoder setBytes:&unusedWitness length:sizeof(unusedWitness)
+                          atIndex:1u];
+            }
             [encoder setBuffer:prepared.preparedTokens offset:0u atIndex:2u];
             [encoder setBuffer:state_->humanMatterBuffers[
                                    kHumanMatterOwnerStatusBuffer]
@@ -6398,7 +6404,7 @@ MetalNumanXHumanMatterPrepared::applyPrepared(
                            offset:0u atIndex:13u];
             [complete setThreadgroupMemoryLength:
                 sizeof(MRNumanXHumanMatterAppliedOutcomeGPU) atIndex:0u];
-            [complete setThreadgroupMemoryLength:sizeof(std::uint32_t)
+            [complete setThreadgroupMemoryLength:16u
                                          atIndex:1u];
             [complete dispatchThreadgroups:MTLSizeMake(
                 dispatch.environmentCount, 1u, 1u)
@@ -9021,7 +9027,7 @@ MetalArticulatedOperatorContext::submit(
                 [consume setBuffer:state_->humanMatterBuffers[
                                        kHumanMatterOwnerStatusBuffer]
                             offset:0u atIndex:4u];
-                [consume setThreadgroupMemoryLength:sizeof(std::uint32_t)
+                [consume setThreadgroupMemoryLength:16u
                                             atIndex:0u];
                 [consume dispatchThreadgroups:MTLSizeMake(
                                                   input.environmentCount,
@@ -9162,7 +9168,7 @@ MetalArticulatedOperatorContext::submit(
                                             kHumanMatterOwnerStatusBuffer]
                                  offset:0u atIndex:9u];
                     [preparePhysical setThreadgroupMemoryLength:
-                                  sizeof(std::uint32_t)
+                                  16u
                                                  atIndex:0u];
                     [preparePhysical dispatchThreadgroups:MTLSizeMake(
                                                         input.environmentCount,

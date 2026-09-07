@@ -53,6 +53,20 @@ namespace {
 
 constexpr std::uint64_t kFnvOffset = 14695981039346656037ull;
 constexpr std::uint64_t kFnvPrime = 1099511628211ull;
+std::uint64_t equalityFingerprint(const std::vector<std::uint8_t>& bytes) {
+    std::uint64_t hash=kFnvOffset;
+    for (const auto byte : bytes) { hash ^= byte; hash *= kFnvPrime; }
+    return hash;
+}
+
+std::uint64_t constrainedFingerprint(std::uint64_t base, const std::vector<std::uint8_t>& bytes) {
+    base ^= equalityFingerprint({'N','H','E','Q','2'});
+    base *= kFnvPrime;
+    base ^= equalityFingerprint(bytes);
+    base *= kFnvPrime;
+    return base == 0u ? kFnvOffset : base;
+}
+
 constexpr std::uint64_t kStartMicros = 1'000u;
 constexpr std::uint64_t kDurationMicros = 2'000u;
 
@@ -553,7 +567,8 @@ numi::matter::WorldSource authoredFixtureWorld() {
 
 mrnx_runtime_v1* makeAuthoredRuntime(
     const mrnx_runtime_config_v2& base,
-    mrnx_runtime_info_v1& info
+    mrnx_runtime_info_v1& info,
+    const bool sourceEqualities
 ) {
     auto source = authoredFixtureWorld();
     const auto package = std::filesystem::temp_directory_path() /
@@ -637,7 +652,60 @@ mrnx_runtime_v1* makeAuthoredRuntime(
     }
     reject(config, MRNX_RUNTIME_ASSET_FAILURE_V1);
     cook(source);
-    auto* runtime = mrnx_bridge_v1_runtime_create_v3(&config, &info);
+    mrnx_runtime_v1* runtime = nullptr;
+    std::filesystem::path equalityTemporary;
+    if (sourceEqualities) {
+        const char* equalityPath = std::getenv("MRNX_JOINT_EQUALITIES");
+        require(equalityPath != nullptr, "MRNX_JOINT_EQUALITIES must identify NHEQ2");
+        const auto equalityBytes = readPayloadBytes(equalityPath);
+        equalityTemporary = package.string()+".nheq";
+        const auto equalityPathString = equalityTemporary.string();
+        const auto writeEquality = [&](const std::vector<std::uint8_t>& bytes) {
+            std::ofstream output(equalityTemporary, std::ios::binary);
+            output.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+            require(output.good(), "could not retain equality fixture");
+        };
+        writeEquality(equalityBytes);
+        mrnx_runtime_config_v4 constrained{};
+        constrained.abi_version=MRNX_RUNTIME_CONFIG_ABI_V4;
+        constrained.struct_size=sizeof(constrained);
+        constrained.runtime=config;
+        constrained.joint_equality_payload_path=equalityPathString.c_str();
+        constrained.expected_joint_equality_fingerprint=equalityFingerprint(equalityBytes);
+        const auto rejectEquality = [&](const mrnx_runtime_config_v4& candidate,
+                                        const mrnx_runtime_status_v1 expected) {
+            mrnx_runtime_info_v1 rejected{};
+            auto* unexpected=mrnx_bridge_v1_runtime_create_v4(&candidate,&rejected);
+            require(unexpected==nullptr && rejected.status==expected,
+                    "invalid NHEQ2 source was admitted or misclassified");
+        };
+        auto invalid=constrained;
+        invalid.abi_version=3u;
+        rejectEquality(invalid,MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+        invalid=constrained;invalid.runtime.struct_size-=8u;
+        rejectEquality(invalid,MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+        invalid=constrained;invalid.expected_joint_equality_fingerprint^=1u;
+        rejectEquality(invalid,MRNX_RUNTIME_ASSET_FAILURE_V1);
+        for (const std::size_t offset : {std::size_t(4u),std::size_t(16u),std::size_t(32u),std::size_t(48u)}) {
+            auto bytes=equalityBytes;bytes[offset]^=1u;writeEquality(bytes);
+            invalid=constrained;invalid.expected_joint_equality_fingerprint=equalityFingerprint(bytes);
+            rejectEquality(invalid,MRNX_RUNTIME_ASSET_FAILURE_V1);
+        }
+        auto truncated=equalityBytes;truncated.pop_back();writeEquality(truncated);
+        invalid=constrained;invalid.expected_joint_equality_fingerprint=equalityFingerprint(truncated);
+        rejectEquality(invalid,MRNX_RUNTIME_ASSET_FAILURE_V1);
+        writeEquality(equalityBytes);
+        runtime=mrnx_bridge_v1_runtime_create_v4(&constrained,&info);
+        require(runtime != nullptr, "valid source-compliant authored world was rejected");
+        require(info.model_source_fingerprint == constrainedFingerprint(
+                    config.expected_model_source_fingerprint,equalityBytes),
+                "NHEQ2 source is absent from Human program identity");
+        std::filesystem::remove(equalityTemporary);
+        std::printf("numanx_source_equalities_admission=pass rows=51 negative_cases=8 source_fp=%016llx\n",
+                    static_cast<unsigned long long>(info.model_source_fingerprint));
+    } else {
+        runtime=mrnx_bridge_v1_runtime_create_v3(&config,&info);
+    }
     require(runtime != nullptr, "valid authored world was rejected");
     mrnx_runtime_world_info_v1 worldInfo{};
     worldInfo.abi_version = MRNX_BRIDGE_ABI_V1;
@@ -673,7 +741,7 @@ mrnx_runtime_v1* makeAuthoredRuntime(
     return runtime;
 }
 
-int run(const bool authored) {
+int run(const bool authored, const bool sourceEqualities) {
     @autoreleasepool {
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
         require(device != nil, "Metal device unavailable");
@@ -723,7 +791,7 @@ int run(const bool authored) {
             "mismatched source support-contact authority was admitted");
         mrnx_runtime_info_v1 info{};
         mrnx_runtime_v1* runtime = authored
-            ? makeAuthoredRuntime(config, info)
+            ? makeAuthoredRuntime(config, info, sourceEqualities)
             : mrnx_bridge_v1_runtime_create_v2(&config, &info);
         if (runtime == nullptr || info.status != MRNX_RUNTIME_READY_V1) {
             std::fprintf(
@@ -747,8 +815,10 @@ int run(const bool authored) {
         const auto supportPayload =
             readPayloadBytes(MRNX_FULLBODY_SUPPORT_CONTACT);
         require(
-            info.model_source_fingerprint == fullBodySourceFingerprint(
-                rigidPayload, musclePayload, supportPayload),
+            info.model_source_fingerprint == (sourceEqualities ?
+                constrainedFingerprint(fullBodySourceFingerprint(rigidPayload, musclePayload, supportPayload),
+                    readPayloadBytes(std::getenv("MRNX_JOINT_EQUALITIES"))) :
+                fullBodySourceFingerprint(rigidPayload, musclePayload, supportPayload)),
             "runtime model fingerprint does not bind exact source payloads");
         auto mutatedSupportPayload = supportPayload;
         require(
@@ -1233,9 +1303,10 @@ int run(const bool authored) {
 int main(int argc, char** argv) {
     try {
         require(argc == 1 || (argc == 2 &&
-                    std::string(argv[1]) == "--authored-world"),
-                "usage: numanx_fullbody_bridge_probe [--authored-world]");
-        return run(argc == 2);
+                    (std::string(argv[1]) == "--authored-world" ||
+                     std::string(argv[1]) == "--source-equalities")),
+                "usage: numanx_fullbody_bridge_probe [--authored-world|--source-equalities]");
+        return run(argc == 2, argc == 2 && std::string(argv[1]) == "--source-equalities");
     } catch (const std::exception& error) {
         std::fprintf(stderr, "%s\n", error.what());
         return 1;

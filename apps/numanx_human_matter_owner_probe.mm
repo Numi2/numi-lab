@@ -470,7 +470,9 @@ RunResult run(Fixture& fixture, const Outcome outcome) {
         [consume setBuffer:joint offset:0u atIndex:2u];
         [consume setBuffer:forces offset:0u atIndex:3u];
         [consume setBuffer:owner offset:0u atIndex:4u];
-        [consume setThreadgroupMemoryLength:sizeof(std::uint32_t) atIndex:0u];
+        // Metal dynamic threadgroup allocations are 16-byte granular, even
+        // though this kernel uses only one uint flag.
+        [consume setThreadgroupMemoryLength:16u atIndex:0u];
         encodeEnvironmentGroups(consume);
         [consume endEncoding];
     };
@@ -526,8 +528,8 @@ RunResult run(Fixture& fixture, const Outcome outcome) {
     [preparePhysical setBuffer:vCheckpoint offset:0u atIndex:7u];
     [preparePhysical setBuffer:stateCheckpoint offset:0u atIndex:8u];
     [preparePhysical setBuffer:owner offset:0u atIndex:9u];
-    [preparePhysical setThreadgroupMemoryLength:sizeof(std::uint32_t)
-                                        atIndex:0u];
+    // Match the same dynamic-threadgroup allocation granularity as consume.
+    [preparePhysical setThreadgroupMemoryLength:16u atIndex:0u];
     encodeEnvironmentGroups(preparePhysical);
     [preparePhysical endEncoding];
 

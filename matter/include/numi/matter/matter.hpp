@@ -1,6 +1,7 @@
 #pragma once
 
 #include "numi/matter/shared.h"
+#include "numi/matter/human_equality_gpu.h"
 #include "numi/matter/accepted_state_proof_gpu.h"
 
 #include <array>
@@ -622,6 +623,10 @@ struct RuntimeConfiguration {
     std::span<const NMHumanSupportPointQueryGPU> humanSupportPointQueries{};
     nm_float4 humanSupportGroundPoint{};
     nm_float4 humanSupportGroundNormal{};
+    // Immutable NHEQ2 source compliance program. Empty retains legacy behavior.
+    std::span<const NMHumanJointEqualityGPU> humanJointEqualities{};
+    NMHumanEqualityDispatchGPU humanEqualityDispatch{};
+    std::uint64_t humanEqualitySourceFingerprint = 0u;
 };
 
 struct HumanSupportConsequencesView {
@@ -708,6 +713,12 @@ struct EncodeRequest {
     // node. It enters the same implicit mechanical residual as gravity and
     // constitutive force. Callers retain ownership; w is ignored. A non-null
     // field must cover exactly environmentCount * femNodeCount records.
+    // Accepted source velocity, distinct from rigid.v's free predictor. Used
+    // read-only during the same borrowed Human root when NHEQ2 is configured.
+    void* humanEqualitySourceVelocity = nullptr;
+    // Read-only same-root lower Cholesky of A0, [environment][nv][nv].
+    // Matter factors A0+J^T R^-1 J into separate root-local private storage.
+    void* humanEqualitySourceEffectiveTangentFactor = nullptr;
     void* femExternalForces = nullptr; // id<MTLBuffer>, float4
     // Optional absolute world-space targets for cooked fixed FEM nodes. One
     // float4 covers every environment/node; w > 0 selects a target. Targets
@@ -1015,6 +1026,9 @@ struct RuntimeDiagnostics {
     std::uint64_t indirectDispatchCount = 0u;
     std::uint64_t requestedThreadCount = 0u;
     std::uint64_t requestedThreadgroupCount = 0u;
+    // Exact source-compliant rigid preconditioner dispatches encoded by Matter.
+    // This is command-graph ownership evidence, not a GPU convergence result.
+    std::uint64_t humanEqualityPreconditionerDispatchCount = 0u;
     std::string device;
     std::string message;
 };

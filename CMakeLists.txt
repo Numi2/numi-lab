@@ -4693,3 +4693,26 @@ install(
         licenses/CISST_LICENSE.txt
     DESTINATION share/metalrobo
 )
+
+# Source-compliant NHEQ2 primitives: isolated kernel parity and Schur action.
+if(APPLE)
+    add_executable(metalrobo_numanx_human_equality_probe
+        apps/numanx_human_equality_probe.mm)
+    add_dependencies(metalrobo_numanx_human_equality_probe numi_matter_shaders)
+    target_include_directories(metalrobo_numanx_human_equality_probe PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+    target_compile_definitions(metalrobo_numanx_human_equality_probe PRIVATE
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib")
+    target_compile_options(metalrobo_numanx_human_equality_probe PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_link_libraries(metalrobo_numanx_human_equality_probe PRIVATE
+        "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    set_target_properties(metalrobo_numanx_human_equality_probe PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+    if(BUILD_TESTING)
+        add_test(NAME numanx.physics.human_source_equality
+            COMMAND $<TARGET_FILE:metalrobo_numanx_human_equality_probe>)
+        set_tests_properties(numanx.physics.human_source_equality PROPERTIES
+            LABELS "numanx;human;matter;physics;metal" TIMEOUT 45 RUN_SERIAL TRUE)
+    endif()
+endif()

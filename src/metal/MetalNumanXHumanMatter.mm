@@ -169,6 +169,15 @@ struct MetalNumanXHumanMatterApplicationReservation {
     bool applyActive = false;
 };
 
+// Compact host publication, copied on the owning physical command buffer.
+// Private solver arenas remain device-only and never expose .contents.
+struct PhysicalDiagnosticsReadback {
+    MRNumanXCoupledHumanStatusGPU joint{};
+    MRMetalWorldStatusGPU world{};
+    MRNumiHumanStandStatusGPU human{};
+    NMMatterStatusGPU matter{};
+};
+
 struct MetalNumanXHumanMatterSlot {
     MetalNumanXCoupledHumanArenaView coupledArena{};
     // CoupledHuman's transient 16-byte post-commit status. It is not the
@@ -177,9 +186,10 @@ struct MetalNumanXHumanMatterSlot {
     // Exact 128-byte ABI4 result written by Matter on the later apply CB.
     __strong id<MTLBuffer> matterApplyOutcomes = nil;
     __strong id<MTLBuffer> worldStatuses = nil;
+    __strong id<MTLBuffer> physicalDiagnostics = nil;
+    bool physicalDiagnosticsEncoded = false;
     __strong id<MTLBuffer> acceptedTokens = nil;
     __strong id<MTLBuffer> acceptedStateProofs = nil;
-    __unsafe_unretained id<MTLBuffer> settledStandStatuses = nil;
     MetalNumanXHumanMatterTransaction transaction{};
     MetalNumanXHumanMatterLeaseIdentity lease{};
     HumanMatterSlotStage stage = HumanMatterSlotStage::empty;
@@ -266,6 +276,7 @@ namespace {
 
 using State = detail::MetalNumanXHumanMatterState;
 using Slot = detail::MetalNumanXHumanMatterSlot;
+using PhysicalDiagnostics = detail::PhysicalDiagnosticsReadback;
 using SlotStage = detail::HumanMatterSlotStage;
 using Frame = detail::MetalNumanXHumanMatterCallbackFrame;
 
@@ -385,7 +396,7 @@ struct BufferRegion {
     return true;
 }
 
-constexpr std::size_t kAdapterPrivateRegionCount = 8u;
+constexpr std::size_t kAdapterPrivateRegionCount = 9u;
 constexpr std::size_t kAcceptedTokenPrivateRegion = 6u;
 constexpr std::size_t kMatterApplyPrivateRegion = 4u;
 
@@ -420,6 +431,9 @@ constexpr std::size_t kMatterApplyPrivateRegion = 4u;
         {(__bridge void*)slot.acceptedStateProofs,
          static_cast<std::uint64_t>(slot.acceptedStateProofs.gpuAddress),
          static_cast<std::uint64_t>(slot.acceptedStateProofs.length)},
+        {(__bridge void*)slot.physicalDiagnostics,
+         static_cast<std::uint64_t>(slot.physicalDiagnostics.gpuAddress),
+         static_cast<std::uint64_t>(slot.physicalDiagnostics.length)},
     }};
     for (std::size_t index = 0u; index < buffers.size(); ++index) {
         const auto& [raw, address, bytes] = buffers[index];
@@ -1177,7 +1191,7 @@ void dispatchEnvironments(
     // access modes: checkpoints, live destinations, owner status, staged
     // reaction, joint status, proof scratch and the prepared token form one
     // rollback/proof authority and must never share bytes.
-    std::array<BufferRegion, 22u> regions{};
+    std::array<BufferRegion, 23u> regions{};
     std::size_t regionCount = 0u;
     const auto appendBuffer = [&] (
         void* raw, const std::uint64_t address,
@@ -1257,6 +1271,7 @@ void dispatchEnvironments(
             static_cast<std::uint64_t>(slot.acceptedTokens.length)) ||
         !appendOwned(slot.matterOutcomes) ||
         !appendOwned(slot.worldStatuses) ||
+        !appendOwned(slot.physicalDiagnostics) ||
         !appendOwned(slot.acceptedStateProofs) ||
         !appendOwned((__bridge id<MTLBuffer>)
             state.config.matterRuntime->statusBuffer())) {
@@ -1548,9 +1563,10 @@ void dispatchEnvironments(
     }
     __unsafe_unretained id<MTLBuffer> matterStatuses =
         (__bridge id<MTLBuffer>)state.config.matterRuntime->statusBuffer();
-    const std::array<id<MTLBuffer>, 4u> protectedBuffers{{
+    const std::array<id<MTLBuffer>, 5u> protectedBuffers{{
         slot.matterOutcomes,
         slot.worldStatuses,
+        slot.physicalDiagnostics,
         slot.acceptedStateProofs,
         matterStatuses,
     }};
@@ -1721,12 +1737,13 @@ void dispatchEnvironments(
             if (regionsOverlap(region, leaseRegion)) return false;
         }
     }
-    std::array<BufferRegion, 4u> adapterProtected{};
+    std::array<BufferRegion, 5u> adapterProtected{};
     __unsafe_unretained id<MTLBuffer> matterStatuses =
         (__bridge id<MTLBuffer>)state.config.matterRuntime->statusBuffer();
-    const std::array<id<MTLBuffer>, 4u> protectedBuffers{{
+    const std::array<id<MTLBuffer>, 5u> protectedBuffers{{
         slot.matterOutcomes,
         slot.worldStatuses,
+        slot.physicalDiagnostics,
         slot.acceptedStateProofs,
         matterStatuses,
     }};
@@ -2276,6 +2293,8 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
     // Matter's velocity increment is relative to the exact free Human
     // predictor. Accepted v remains separate in the checkpoint/proof paths.
     request.rigid.v = pass.sourcePredictedVelocity;
+    request.humanEqualitySourceVelocity = pass.v;
+    request.humanEqualitySourceEffectiveTangentFactor = pass.sourceEffectiveTangentFactor;
     request.rigid.currentBodies = nullptr;
     const std::uint64_t bodyEnd =
         static_cast<std::uint64_t>(pass.articulationFirstBody) +
@@ -2333,8 +2352,7 @@ void cancelSlot(State& state, Slot& slot) noexcept {
             MetalNumanXHumanMatterPhase::beginStep, false)) return false;
     slot.commandBufferIdentity =
         reinterpret_cast<std::uintptr_t>(pass.commandBuffer);
-    slot.settledStandStatuses =
-        (__bridge id<MTLBuffer>)pass.standStatuses;
+    slot.physicalDiagnosticsEncoded = false;
     slot.passSignature = passSignature(pass);
     slot.cancelIssued = false;
     slot.matterOpened = false;
@@ -2434,13 +2452,19 @@ void cancelSlot(State& state, Slot& slot) noexcept {
     const auto encoded = state.config.matterRuntime->encode(request);
     slot.callbackFrame = nullptr;
     slot.matterOpened = encoded.encoded;
+    const bool humanInverseEncoded = frame.operationCounts[
+        static_cast<std::uint32_t>(numi::matter::CoupledCandidateOperation::
+            inverseMassPreconditioner)] != 0u;
+    const bool matterSourceInverseEncoded =
+        encoded.humanEqualityPreconditionerDispatchCount != 0u;
+    // A single rigid inverse authority is required. NHEQ2 uses Matter's
+    // source-compliant factor; the legacy path uses Human's A0 inverse.
     const bool completeCallbacks =
         frame.operationCounts[static_cast<std::uint32_t>(
             numi::matter::CoupledCandidateOperation::candidateKinematics)] != 0u &&
         frame.operationCounts[static_cast<std::uint32_t>(
             numi::matter::CoupledCandidateOperation::massAction)] != 0u &&
-        frame.operationCounts[static_cast<std::uint32_t>(
-            numi::matter::CoupledCandidateOperation::inverseMassPreconditioner)] != 0u &&
+        (humanInverseEncoded != matterSourceInverseEncoded) &&
         frame.operationCounts[static_cast<std::uint32_t>(
             numi::matter::CoupledCandidateOperation::publishCandidate)] == 1u;
     if (!encoded.encoded || !completeCallbacks) {
@@ -2568,6 +2592,25 @@ void cancelSlot(State& state, Slot& slot) noexcept {
         cancelSlot(state, slot);
         return false;
     }
+    __unsafe_unretained id<MTLCommandBuffer> commandBuffer =
+        (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    id<MTLBlitCommandEncoder> readback = [commandBuffer blitCommandEncoder];
+    if (readback == nil) { cancelSlot(state, slot); return false; }
+    readback.label = @"NumanX compact physical diagnostics publication";
+    [readback copyFromBuffer:(__bridge id<MTLBuffer>)slot.coupledArena.jointStatuses sourceOffset:0u
+                    toBuffer:slot.physicalDiagnostics destinationOffset:offsetof(PhysicalDiagnostics, joint)
+                        size:sizeof(MRNumanXCoupledHumanStatusGPU)];
+    [readback copyFromBuffer:slot.worldStatuses sourceOffset:0u
+                    toBuffer:slot.physicalDiagnostics destinationOffset:offsetof(PhysicalDiagnostics, world)
+                        size:sizeof(MRMetalWorldStatusGPU)];
+    [readback copyFromBuffer:(__bridge id<MTLBuffer>)pass.standStatuses sourceOffset:0u
+                    toBuffer:slot.physicalDiagnostics destinationOffset:offsetof(PhysicalDiagnostics, human)
+                        size:sizeof(MRNumiHumanStandStatusGPU)];
+    [readback copyFromBuffer:(__bridge id<MTLBuffer>)state.config.matterRuntime->statusBuffer() sourceOffset:0u
+                    toBuffer:slot.physicalDiagnostics destinationOffset:offsetof(PhysicalDiagnostics, matter)
+                        size:sizeof(NMMatterStatusGPU)];
+    [readback endEncoding];
+    slot.physicalDiagnosticsEncoded = true;
     slot.callbackFrame = nullptr;
     slot.stage = SlotStage::postEncoded;
     return true;
@@ -3795,6 +3838,7 @@ MetalNumanXHumanMatterContext::initialize() {
         !checkedAdd(perSlot, worldBytes, perSlot) ||
         !checkedAdd(perSlot, tokenBytes, perSlot) ||
         !checkedAdd(perSlot, proofBytes, perSlot) ||
+        !checkedAdd(perSlot, sizeof(PhysicalDiagnostics), perSlot) ||
         !checkedMultiply(perSlot, config.transactionSlotCount,
                          state.retainedBytes) ||
         !checkedAdd(state.retainedBytes, coupled.retainedBytes,
@@ -3825,6 +3869,9 @@ MetalNumanXHumanMatterContext::initialize() {
             slots[index].matterApplyOutcomes = [state.device
                 newBufferWithLength:static_cast<NSUInteger>(applyOutcomeBytes)
                            options:MTLResourceStorageModePrivate];
+            slots[index].physicalDiagnostics = [state.device
+                newBufferWithLength:sizeof(PhysicalDiagnostics)
+                           options:MTLResourceStorageModeShared];
             slots[index].worldStatuses = [state.device
                 newBufferWithLength:static_cast<NSUInteger>(worldBytes)
                            options:MTLResourceStorageModePrivate];
@@ -3837,6 +3884,8 @@ MetalNumanXHumanMatterContext::initialize() {
             if (slots[index].matterOutcomes == nil ||
                 slots[index].matterApplyOutcomes == nil ||
                 slots[index].worldStatuses == nil ||
+                slots[index].physicalDiagnostics == nil ||
+                slots[index].physicalDiagnostics.gpuAddress == 0u ||
                 slots[index].acceptedTokens == nil ||
                 slots[index].acceptedStateProofs == nil ||
                 slots[index].matterOutcomes.gpuAddress == 0u ||
@@ -4044,11 +4093,12 @@ bool MetalNumanXHumanMatterContext::physicalOutcome(
         slot.transaction.transactionFingerprint != transactionFingerprint ||
         slot.transaction.slotGeneration != slotGeneration ||
         slot.coupledArena.jointStatuses == nullptr ||
-        slot.worldStatuses == nil) return false;
-    const auto* joint = static_cast<const MRNumanXCoupledHumanStatusGPU*>(
-        [(__bridge id<MTLBuffer>)slot.coupledArena.jointStatuses contents]);
-    const auto* world = static_cast<const MRMetalWorldStatusGPU*>(
-        slot.worldStatuses.contents);
+        slot.worldStatuses == nil || !slot.physicalDiagnosticsEncoded ||
+        slot.physicalDiagnostics == nil) return false;
+    const auto* diagnostics = static_cast<const PhysicalDiagnostics*>(slot.physicalDiagnostics.contents);
+    if (diagnostics == nullptr) return false;
+    const auto* joint = &diagnostics->joint;
+    const auto* world = &diagnostics->world;
     if (joint == nullptr || world == nullptr) return false;
     outcome.jointDecision = joint[0].decision;
     outcome.humanCode = joint[0].humanCode;
@@ -4058,10 +4108,7 @@ bool MetalNumanXHumanMatterContext::physicalOutcome(
     outcome.worldCode = world[0].code;
     outcome.worldSuccessfulSubsteps = world[0].successfulSubsteps;
     outcome.worldABACode = world[0].abaCode;
-    const auto* human = slot.settledStandStatuses == nil
-        ? nullptr
-        : static_cast<const MRNumiHumanStandStatusGPU*>(
-            slot.settledStandStatuses.contents);
+    const auto* human = &diagnostics->human;
     if (human != nullptr) {
         outcome.humanFailingIndex = human[0].failingIndex;
         outcome.humanActiveContactCount = human[0].activeContactCount;
@@ -4075,11 +4122,7 @@ bool MetalNumanXHumanMatterContext::physicalOutcome(
             &human[0].factorAndAssistance,
             sizeof(human[0].factorAndAssistance));
     }
-    const auto* matter = static_cast<const NMMatterStatusGPU*>(
-        state_->config.matterRuntime->statusBuffer() == nullptr
-            ? nullptr
-            : [(__bridge id<MTLBuffer>)
-                state_->config.matterRuntime->statusBuffer() contents]);
+    const auto* matter = &diagnostics->matter;
     if (matter != nullptr) {
         outcome.matterObjectIndex = matter[0].objectIndex;
         outcome.matterFailingIndex = matter[0].failingIndex;

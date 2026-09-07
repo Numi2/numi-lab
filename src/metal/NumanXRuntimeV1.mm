@@ -92,6 +92,14 @@ struct RigidHeader {
     std::array<std::uint8_t, 32u> sourceSHA256{};
 };
 
+struct JointEqualityHeader {
+    std::array<char, 8u> magic{};
+    std::uint32_t abi = 0u, nq = 0u, nv = 0u, count = 0u;
+    std::uint32_t recordBytes = 0u, sourceCount = 0u;
+    std::uint32_t policy = 0u, flags = 0u, reserved0 = 0u, reserved1 = 0u;
+    std::array<std::uint8_t, 32u> sourceSHA256{};
+};
+
 struct SourcePoseRecord {
     float positionX = 0.0f;
     float positionY = 0.0f;
@@ -185,6 +193,7 @@ struct SupportContactRecord {
 #pragma pack(pop)
 
 static_assert(sizeof(RigidHeader) == 80u);
+static_assert(sizeof(JointEqualityHeader) == 80u);
 static_assert(sizeof(SupportContactHeader) == 84u);
 static_assert(sizeof(SupportContactRecord) == 48u);
 static_assert(sizeof(SourcePoseRecord) == 28u);
@@ -256,6 +265,9 @@ struct FullBodyAssets {
     std::vector<MRMujocoMuscleStateGPU> states;
     std::vector<MRArticulatedPointImpulseGPU> points;
     std::vector<MRNumiHumanStandContactGPU> supportContacts;
+    std::vector<NMHumanJointEqualityGPU> jointEqualities;
+    NMHumanEqualityDispatchGPU equalityDispatch{};
+    std::uint64_t equalityFingerprint = 0u;
     std::vector<NMHumanSupportContactGPU> matterSupportContacts;
     std::vector<NMHumanSupportPointQueryGPU> matterSupportPointQueries;
     mr_float4 groundPoint{};
@@ -448,6 +460,42 @@ void appendFingerprintU64(
         static_cast<float>(components[2]),
         static_cast<float>(components[3])};
     return true;
+}
+
+void loadJointEqualities(FullBodyAssets& assets,
+                         const mrnx_runtime_config_v4& config) {
+    const ImmutablePayload image = loadImmutablePayload(
+        config.joint_equality_payload_path, "NHEQ2 source joint equalities");
+    const std::uint64_t fingerprint = hashBytes(image.bytes.data(), image.bytes.size());
+    requireBuild(fingerprint == config.expected_joint_equality_fingerprint,
+        MRNX_RUNTIME_ASSET_FAILURE_V1, "NHEQ2 immutable payload fingerprint mismatch");
+    std::istringstream input(image.bytes, std::ios::in | std::ios::binary);
+    JointEqualityHeader header{};
+    readObject(input, header, "NHEQ2 header");
+    const std::array<char,8u> magic{'N','H','E','Q','2','\0','\0','\0'};
+    requireBuild(header.magic == magic && header.abi == 2u &&
+        header.nq == assets.rigid.nq && header.nv == assets.rigid.nv &&
+        header.count != 0u && header.count <= header.nv &&
+        header.count == header.sourceCount && header.recordBytes == sizeof(NMHumanJointEqualityGPU) &&
+        header.policy == NM_HUMAN_EQUALITY_POLICY_MUJOCO_312_CLASSIC &&
+        (header.flags & ~NM_HUMAN_EQUALITY_REFSAFE) == 0u &&
+        header.reserved0 == 0u && header.reserved1 == 0u &&
+        header.sourceSHA256 == assets.rigid.sourceSHA256 &&
+        image.bytes.size() == sizeof(header) + header.count * sizeof(NMHumanJointEqualityGPU),
+        MRNX_RUNTIME_ASSET_FAILURE_V1, "NHEQ2 header/source identity or policy mismatch");
+    assets.jointEqualities = readVector<NMHumanJointEqualityGPU>(input, header.count, "NHEQ2 rows");
+    assets.equalityDispatch.count = header.count;
+    assets.equalityDispatch.qCount = header.nq;
+    assets.equalityDispatch.dofCount = header.nv;
+    assets.equalityDispatch.policy = header.policy;
+    assets.equalityDispatch.flags = header.flags;
+    assets.equalityFingerprint = fingerprint;
+    // The base world admission was checked before adding this source owner.
+    assets.sourceFingerprint ^= hashBytes("NHEQ2", 5u);
+    assets.sourceFingerprint *= kFnvPrime;
+    assets.sourceFingerprint ^= fingerprint;
+    assets.sourceFingerprint *= kFnvPrime;
+    if (assets.sourceFingerprint == 0u) assets.sourceFingerprint = kFnvOffset;
 }
 
 VisionProfile loadVisionProfile(
@@ -1700,7 +1748,8 @@ void cultureCompletion(
 
 [[nodiscard]] std::shared_ptr<RuntimeState> createRuntimeState(
     const mrnx_runtime_config_v1& config,
-    const mrnx_runtime_config_v3* authored = nullptr
+    const mrnx_runtime_config_v3* authored = nullptr,
+    const mrnx_runtime_config_v4* equalityConfig = nullptr
 ) {
     requireBuild(
         config.abi_version == MRNX_BRIDGE_ABI_V1 &&
@@ -1776,6 +1825,7 @@ void cultureCompletion(
         defaultBodies[attachmentBody].centerOfMassPosition,
         defaultBodies[attachmentBody].orientation,
         config.timestep_microseconds);
+    if (equalityConfig != nullptr) loadJointEqualities(runtime->assets, *equalityConfig);
     runtime->worldInfo = {
         MRNX_BRIDGE_ABI_V1, sizeof(mrnx_runtime_world_info_v1),
         authored != nullptr ? 1u : 0u,
@@ -1822,6 +1872,9 @@ void cultureCompletion(
     matterConfig.acceptedStateProofMujocoBytesPerEnvironmentCapacity =
         static_cast<std::uint64_t>(MRNX_FULL_BODY_MUSCLE_COUNT) *
         sizeof(MRMujocoMuscleStateGPU);
+    matterConfig.humanJointEqualities = runtime->assets.jointEqualities;
+    matterConfig.humanEqualityDispatch = runtime->assets.equalityDispatch;
+    matterConfig.humanEqualitySourceFingerprint = runtime->assets.equalityFingerprint;
     matterConfig.humanSupportContacts =
         runtime->assets.matterSupportContacts;
     matterConfig.humanSupportPointQueries =
@@ -1900,7 +1953,8 @@ void cultureCompletion(
 
 [[nodiscard]] std::shared_ptr<RuntimeState> createRuntimeStateV2(
     const mrnx_runtime_config_v2& config,
-    const mrnx_runtime_config_v3* authored = nullptr
+    const mrnx_runtime_config_v3* authored = nullptr,
+    const mrnx_runtime_config_v4* equalityConfig = nullptr
 ) {
     requireBuild(
         config.abi_version == MRNX_RUNTIME_CONFIG_ABI_V2 &&
@@ -1923,7 +1977,7 @@ void cultureCompletion(
     base.maximum_retained_bytes = config.maximum_retained_bytes;
     base.transaction_slot_count = config.transaction_slot_count;
     base.reserved0 = config.reserved0;
-    auto runtime = createRuntimeState(base, authored);
+    auto runtime = createRuntimeState(base, authored, equalityConfig);
     const bool cultureEnabled = config.culture_pack_path != nullptr &&
         config.culture_pack_path[0] != '\0';
     const bool checkpointSupplied = config.culture_checkpoint_path != nullptr &&
@@ -2470,6 +2524,55 @@ mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v3(
             if (std::getenv("MRNX_RUNTIME_DIAGNOSTICS") != nullptr) {
                 std::fprintf(
                     stderr, "mrnx runtime v3 create failed: %s\n",
+                    failure.what());
+            }
+            fillRuntimeInfoFailure(info, failure.status);
+            return nullptr;
+        } catch (...) {
+            fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+            return nullptr;
+        }
+    }
+}
+
+mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v4(
+    const mrnx_runtime_config_v4* config,
+    mrnx_runtime_info_v1* info
+) {
+    @autoreleasepool {
+        if (config == nullptr) {
+            fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+            return nullptr;
+        }
+        try {
+            requireBuild(
+                config->abi_version == MRNX_RUNTIME_CONFIG_ABI_V4 &&
+                    config->struct_size == sizeof(*config) &&
+                    config->runtime.abi_version == MRNX_RUNTIME_CONFIG_ABI_V3 &&
+                    config->runtime.struct_size == sizeof(config->runtime) &&
+                    config->joint_equality_payload_path != nullptr &&
+                    config->joint_equality_payload_path[0] != '\0' &&
+                    config->expected_joint_equality_fingerprint != 0u &&
+                    config->runtime.matter_world_package_path != nullptr &&
+                    config->runtime.matter_world_package_path[0] != '\0' &&
+                    config->runtime.expected_model_source_fingerprint != 0u &&
+                    config->runtime.expected_matter_world_fingerprint != 0u &&
+                    config->runtime.runtime.matter_material_path == nullptr,
+                MRNX_RUNTIME_INVALID_CONFIGURATION_V1,
+                "invalid authored-world configuration v4");
+            auto state = createRuntimeStateV2(config->runtime.runtime, &config->runtime, config);
+            auto* runtime = new (std::nothrow) mrnx_runtime_v1;
+            if (runtime == nullptr) {
+                fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+                return nullptr;
+            }
+            runtime->state = std::move(state);
+            if (info != nullptr) *info = runtime->state->info;
+            return runtime;
+        } catch (const RuntimeBuildFailure& failure) {
+            if (std::getenv("MRNX_RUNTIME_DIAGNOSTICS") != nullptr) {
+                std::fprintf(
+                    stderr, "mrnx runtime v4 create failed: %s\n",
                     failure.what());
             }
             fillRuntimeInfoFailure(info, failure.status);

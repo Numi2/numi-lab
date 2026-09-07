@@ -253,6 +253,12 @@ const char kImageAnchor = 0;
     hash = mixFingerprint(hash, configuration.automaticIdentification ? 1u : 0u);
     hash = mixFingerprint(hash, configuration.adaptiveTransfer ? 1u : 0u);
     hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.humanJointEqualities.data(),
+        configuration.humanJointEqualities.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        &configuration.humanEqualityDispatch, sizeof(configuration.humanEqualityDispatch)));
+    hash = mixFingerprint(hash, configuration.humanEqualitySourceFingerprint);
+    hash = mixFingerprint(hash, detail::hashBytes(
         configuration.humanSupportContacts.data(),
         configuration.humanSupportContacts.size_bytes()));
     hash = mixFingerprint(hash, detail::hashBytes(
@@ -854,6 +860,10 @@ struct Runtime::State {
     id<MTLBuffer> contactHistoriesAccepted = nil;
     id<MTLBuffer> contactHistoriesCandidate = nil;
     id<MTLBuffer> contactHistoriesCheckpoint = nil;
+    id<MTLBuffer> humanEqualityRows = nil;
+    id<MTLBuffer> humanEqualityLinearization = nil;
+    id<MTLBuffer> humanEqualityFactor = nil;
+    NMHumanEqualityDispatchGPU humanEqualityDispatch{};
     id<MTLBuffer> humanSupportContacts = nil;
     id<MTLBuffer> humanSupportPointQueries = nil;
     id<MTLBuffer> humanSupportPointJacobians = nil;
@@ -1013,6 +1023,68 @@ RuntimeDiagnostics Runtime::initialize(
         if (candidate->queue == nil) {
             diagnostics.message = "failed to create Numi Matter command queue";
             return diagnostics;
+        }
+        const auto& equalities = configuration.humanJointEqualities;
+        const auto eq = configuration.humanEqualityDispatch;
+        const bool emptyEquality = equalities.empty();
+        if (eq.count != equalities.size() ||
+            (!emptyEquality &&
+             (eq.policy != NM_HUMAN_EQUALITY_POLICY_MUJOCO_312_CLASSIC ||
+              (eq.flags & ~NM_HUMAN_EQUALITY_REFSAFE) != 0u ||
+              eq.reserved0 != 0u || eq.reserved1 != 0u || eq.reserved2 != 0u ||
+              eq.dofCount < 6u || eq.dofCount > 160u ||
+              eq.qCount != eq.dofCount + 1u ||
+              eq.dofCount > world.dispatch.rigidGeneralizedCapacity ||
+              eq.count > eq.dofCount || world.dispatch.maximumRateExponent != 0u ||
+              configuration.humanEqualitySourceFingerprint == 0u ||
+              eq.time.x != 0.0f || eq.time.y != 0.0f || eq.time.z != 0.0f || eq.time.w != 0.0f)) ||
+            (emptyEquality && (eq.qCount != 0u || eq.dofCount != 0u ||
+              eq.flags != 0u || eq.policy != 0u || eq.reserved0 != 0u ||
+              eq.reserved1 != 0u || eq.reserved2 != 0u ||
+              eq.time.x != 0.0f || eq.time.y != 0.0f || eq.time.z != 0.0f || eq.time.w != 0.0f ||
+              configuration.humanEqualitySourceFingerprint != 0u))) {
+            diagnostics.message = "invalid NHEQ2 source compliance program header";
+            return diagnostics;
+        }
+        std::vector<bool> dependent(eq.dofCount, false);
+        for (const auto& row : equalities) {
+            const bool fixed = row.indices.z == NM_INVALID_INDEX;
+            const auto* scalars = reinterpret_cast<const float*>(&row.referencesAndCoefficients0);
+            bool finite = true;
+            for (std::size_t i=0u; i<24u; ++i) finite = finite && std::isfinite(scalars[i]);
+            if (!finite || row.indices.y < 6u || row.indices.y >= eq.dofCount ||
+                row.indices.x != row.indices.y + 1u ||
+                (fixed ? row.indices.w != NM_INVALID_INDEX :
+                 (row.indices.w < 6u || row.indices.w >= eq.dofCount ||
+                  row.indices.z != row.indices.w + 1u || row.indices.y == row.indices.w)) ||
+                dependent[row.indices.y] || row.coefficients1.w != 0.0f ||
+                row.solref.z != 0.0f || row.solref.w != 0.0f ||
+                !((row.solref.x > 0.0f && row.solref.y > 0.0f) ||
+                  (row.solref.x <= 0.0f && row.solref.y <= 0.0f)) ||
+                row.solimp1.y != 0.0f || row.solimp1.z != 0.0f || row.solimp1.w != 0.0f ||
+                !(row.sourceInverseWeights.x > 0.0f) ||
+                (fixed ? row.sourceInverseWeights.y != 0.0f : !(row.sourceInverseWeights.y > 0.0f)) ||
+                row.sourceInverseWeights.z != 0.0f || row.sourceInverseWeights.w != 0.0f) {
+                diagnostics.message = "invalid NHEQ2 scalar row or source inverse weight";
+                return diagnostics;
+            }
+            dependent[row.indices.y] = true;
+        }
+        for (const auto& row : equalities) {
+            if (row.indices.w != NM_INVALID_INDEX && dependent[row.indices.w]) {
+                diagnostics.message = "NHEQ2 dependent chains require a separately qualified source profile";
+                return diagnostics;
+            }
+        }
+        candidate->humanEqualityDispatch = eq;
+        if (!emptyEquality) {
+            candidate->requiresCoupledCandidate = true;
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                configuration.humanEqualitySourceFingerprint);
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(equalities.data(), equalities.size_bytes()));
         }
         const auto& supportContacts = configuration.humanSupportContacts;
         const auto& supportQueries = configuration.humanSupportPointQueries;
@@ -1281,6 +1353,11 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_apply_primal_rigid_contacts",
             "nm_contact_accumulate_rigid_residual",
             "nm_contact_subtract_rigid_inertia_residual",
+            "nm_human_equality_factor",
+            "nm_human_equality_precondition",
+            "nm_human_equality_prepare",
+            "nm_human_equality_residual",
+            "nm_human_equality_operator",
             "nm_human_support_evaluate",
             "nm_human_support_accumulate_rigid_residual",
             "nm_fgmres_apply_human_support",
@@ -1886,6 +1963,7 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->contactHistoriesAccepted = uploads.repeated(
             std::span<const nm_float4>(initialContactHistories),
             environments, valid, candidate->residentBytes);
+        candidate->humanEqualityRows = uploads.one(equalities, valid, candidate->residentBytes);
         candidate->humanSupportContacts = uploads.one(
             supportContacts, valid, candidate->residentBytes);
         candidate->humanSupportPointQueries = uploads.one(
@@ -2093,6 +2171,12 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->contactHistoriesCheckpoint = privateScratch<nm_float4>(
             candidate->device, multiplied(world.dispatch.contactPairCount),
             valid, candidate->residentBytes);
+        candidate->humanEqualityFactor = privateScratch<float>(
+            candidate->device, static_cast<std::size_t>(eq.dofCount) * eq.dofCount *
+                candidate->dispatch.environmentCount, valid, candidate->residentBytes);
+        candidate->humanEqualityLinearization = privateScratch<nm_float4>(
+            candidate->device, static_cast<std::size_t>(eq.count) *
+                candidate->dispatch.environmentCount, valid, candidate->residentBytes);
         candidate->humanSupportPointJacobians = privateScratch<float>(
             candidate->device,
             std::max<std::size_t>(
@@ -3009,6 +3093,46 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 "inverse material identification may advance only once per command buffer";
             return diagnostics;
         }
+        if (state.humanEqualityDispatch.count != 0u) {
+            id<MTLBuffer> sourceV = (__bridge id<MTLBuffer>)request.humanEqualitySourceVelocity;
+            id<MTLBuffer> sourceFactor = (__bridge id<MTLBuffer>)request.humanEqualitySourceEffectiveTangentFactor;
+            const std::uint64_t factorBytes = static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                state.humanEqualityDispatch.dofCount * state.humanEqualityDispatch.dofCount * sizeof(float);
+            const std::uint64_t bytes = static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                state.humanEqualityDispatch.dofCount * sizeof(float);
+            const std::uint64_t qBytes = static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                state.humanEqualityDispatch.qCount * sizeof(float);
+            const auto overlapsSource = [](void* lhsRaw, const std::uint64_t lhsBytes,
+                                           void* rhsRaw, const std::uint64_t rhsBytes) {
+                id<MTLBuffer> lhs = (__bridge id<MTLBuffer>)lhsRaw;
+                id<MTLBuffer> rhs = (__bridge id<MTLBuffer>)rhsRaw;
+                if (lhs == nil || rhs == nil || lhs.gpuAddress == 0u || rhs.gpuAddress == 0u ||
+                    lhsBytes > UINT64_MAX-lhs.gpuAddress || rhsBytes > UINT64_MAX-rhs.gpuAddress)
+                    return true;
+                return lhs.gpuAddress < rhs.gpuAddress+rhsBytes &&
+                       rhs.gpuAddress < lhs.gpuAddress+lhsBytes;
+            };
+            if (request.rigid.qStride != state.humanEqualityDispatch.qCount ||
+                request.rigid.vStride != state.humanEqualityDispatch.dofCount ||
+                sourceFactor == nil || sourceFactor.device.registryID != state.device.registryID ||
+                sourceFactor.gpuAddress == 0u || sourceFactor.length < factorBytes ||
+                sourceV == nil || sourceV.device.registryID != state.device.registryID ||
+                sourceV.gpuAddress == 0u || sourceV.length < bytes ||
+                overlapsSource(request.humanEqualitySourceVelocity, bytes,
+                    request.humanEqualitySourceEffectiveTangentFactor, factorBytes) ||
+                overlapsSource(request.humanEqualitySourceVelocity, bytes, request.rigid.v, bytes) ||
+                overlapsSource(request.humanEqualitySourceVelocity, bytes, request.rigid.q, qBytes) ||
+                overlapsSource(request.humanEqualitySourceEffectiveTangentFactor, factorBytes,
+                    request.rigid.v, bytes) ||
+                overlapsSource(request.humanEqualitySourceEffectiveTangentFactor, factorBytes,
+                    request.rigid.q, qBytes) ||
+                overlapsSource(request.rigid.q, qBytes, request.rigid.v, bytes) ||
+                request.physicsSubsteps != 1u || request.runAdaptiveTransfer ||
+                state.hasAdaptive) {
+                diagnostics.message = "NHEQ2 requires one exact Human source root and distinct accepted velocity";
+                return diagnostics;
+            }
+        }
         const bool firstEncodeForCommandBuffer =
             ownership->activeCommandBuffer == nullptr;
 
@@ -3192,6 +3316,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
         };
         const std::uint32_t coupledArticulatedNv =
             state.requiresCoupledCandidate ? request.rigid.vStride : 0u;
+        state.humanEqualityDispatch.time.x = frameTimestep;
         state.humanSupportDispatch.articulatedNv = coupledArticulatedNv;
         state.humanSupportDispatch.articulationRootBody =
             request.articulationRootBody;
@@ -4410,6 +4535,28 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:1u];
                 [encoder setBuffer:state.contactHistoriesCandidate offset:0u atIndex:2u];
             });
+            dispatchThreads("nm_human_equality_prepare",
+                environments * state.humanEqualityDispatch.count, [&] {
+                setDispatch();
+                [encoder setBytes:&state.humanEqualityDispatch length:sizeof(state.humanEqualityDispatch) atIndex:1u];
+                [encoder setBuffer:state.humanEqualityRows offset:0u atIndex:2u];
+                [encoder setBuffer:buffer(request.rigid.q) offset:0u atIndex:3u];
+                [encoder setBuffer:buffer(request.humanEqualitySourceVelocity) offset:0u atIndex:4u];
+                [encoder setBuffer:buffer(request.rigid.v) offset:0u atIndex:5u];
+                [encoder setBuffer:state.humanEqualityLinearization offset:0u atIndex:6u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+            });
+            if (state.humanEqualityDispatch.count != 0u) {
+                dispatchGroups32("nm_human_equality_factor", environments, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.humanEqualityDispatch length:sizeof(state.humanEqualityDispatch) atIndex:1u];
+                    [encoder setBuffer:state.humanEqualityRows offset:0u atIndex:2u];
+                    [encoder setBuffer:state.humanEqualityLinearization offset:0u atIndex:3u];
+                    [encoder setBuffer:buffer(request.humanEqualitySourceEffectiveTangentFactor) offset:0u atIndex:4u];
+                    [encoder setBuffer:state.humanEqualityFactor offset:0u atIndex:5u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                });
+            }
             // Contact is a block of the nonlinear variational residual, not a
             // post-FEM correction. Re-evaluate candidate geometry and stream
             // inverse-ABA columns on every Newton candidate, then accumulate
@@ -5041,6 +5188,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                              offset:0u atIndex:3u];
                 [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
             });
+            if (state.humanEqualityDispatch.count != 0u) {
+                dispatchThreads("nm_human_equality_residual", rigidGeneralizedTotalForResidual, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.humanEqualityDispatch length:sizeof(state.humanEqualityDispatch) atIndex:1u];
+                    [encoder setBuffer:state.humanEqualityRows offset:0u atIndex:2u];
+                    [encoder setBuffer:state.humanEqualityLinearization offset:0u atIndex:3u];
+                    [encoder setBuffer:state.coupledGeneralizedCandidate offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:5u];
+                });
+            }
             scatterFEMHumanAttachmentResidual();
 
             dispatchThreads(
@@ -5395,7 +5552,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femOperatorValue
                                      offset:0u atIndex:9u];
                     });
-                if (state.requiresCoupledCandidate) {
+                if (state.humanEqualityDispatch.count != 0u) {
+                    ++diagnostics.humanEqualityPreconditionerDispatchCount;
+                    dispatchGroups32("nm_human_equality_precondition", environments, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.humanEqualityDispatch length:sizeof(state.humanEqualityDispatch) atIndex:1u];
+                        [encoder setBuffer:state.humanEqualityFactor offset:0u atIndex:2u];
+                        [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:3u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:4u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                    });
+                } else if (state.requiresCoupledCandidate) {
                     dispatchThreads("nm_fgmres_export_rigid", rigidGeneralizedTotal, [&] {
                         setDispatch();
                         [encoder setBuffer:state.fgmresBasis
@@ -5740,6 +5908,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresStates
                                  offset:0u atIndex:6u];
                 });
+                if (state.humanEqualityDispatch.count != 0u) {
+                    dispatchThreads("nm_human_equality_operator", rigidGeneralizedTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.humanEqualityDispatch length:sizeof(state.humanEqualityDispatch) atIndex:1u];
+                        [encoder setBuffer:state.humanEqualityRows offset:0u atIndex:2u];
+                        [encoder setBuffer:state.humanEqualityLinearization offset:0u atIndex:3u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:4u];
+                        [encoder setBuffer:state.femOperatorValue offset:0u atIndex:5u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
+                    });
+                }
                 dispatchThreads(
                     "nm_fem_human_attachment_scatter_operator",
                     rigidGeneralizedTotal,
@@ -6314,6 +6493,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                              offset:0u atIndex:3u];
                 [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
             });
+            if (state.humanEqualityDispatch.count != 0u) {
+                dispatchThreads("nm_human_equality_residual", rigidGeneralizedTotalForResidual, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.humanEqualityDispatch length:sizeof(state.humanEqualityDispatch) atIndex:1u];
+                    [encoder setBuffer:state.humanEqualityRows offset:0u atIndex:2u];
+                    [encoder setBuffer:state.humanEqualityLinearization offset:0u atIndex:3u];
+                    [encoder setBuffer:state.coupledGeneralizedCandidate offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:5u];
+                });
+            }
             scatterFEMHumanAttachmentResidual();
             // The accepted Newton correction changes MPM grid velocities and
             // the final primal-contact rebuild changes their barrier forces.
@@ -7147,6 +7336,9 @@ bool Runtime::encodeAcceptedStateProof(
             state.humanSupportConsequencesAccepted,
             state.humanSupportConsequencesCandidate,
             state.humanSupportConsequencesCheckpoint,
+            state.humanEqualityRows,
+            state.humanEqualityLinearization,
+            state.humanEqualityFactor,
             state.humanSupportContacts,
             state.humanSupportPointQueries,
             state.humanSupportPointJacobians,
@@ -7877,6 +8069,9 @@ bool Runtime::applyPreparedStateImpl(
             state.humanSupportConsequencesAccepted,
             state.humanSupportConsequencesCandidate,
             state.humanSupportConsequencesCheckpoint,
+            state.humanEqualityRows,
+            state.humanEqualityLinearization,
+            state.humanEqualityFactor,
             state.humanSupportContacts,
             state.humanSupportPointQueries,
             state.humanSupportPointJacobians,

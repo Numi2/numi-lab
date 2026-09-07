@@ -1,0 +1,286 @@
+#include "numi/matter/human_equality_gpu.h"
+
+namespace numi_matter_metal {
+
+// All row coefficients are frozen once at q0/v0, as in the pinned source
+// scalar-joint acceleration law. Neither q nor v is projected after solving.
+inline float humanEqualityImpedance(const NMHumanJointEqualityGPU row,
+                                    const float phi) {
+    const float d0 = clamp(row.solimp0.x, 0.0001f, 0.9999f);
+    const float dw = clamp(row.solimp0.y, 0.0001f, 0.9999f);
+    const float width = max(row.solimp0.z, 0.0f);
+    const float midpoint = clamp(row.solimp0.w, 0.0001f, 0.9999f);
+    const float power = max(row.solimp1.x, 1.0f);
+    if (d0 == dw || width <= 1.0e-15f) return 0.5f * (d0 + dw);
+    const float x = clamp(abs(phi) / width, 0.0f, 1.0f);
+    const float y = power == 1.0f ? x :
+        (x <= midpoint ? pow(x, power) / pow(midpoint, power - 1.0f) :
+         1.0f - pow(1.0f - x, power) / pow(1.0f - midpoint, power - 1.0f));
+    return d0 + y * (dw - d0);
+}
+
+kernel void nm_human_equality_prepare(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMHumanEqualityDispatchGPU& equality [[buffer(1)]],
+    device const NMHumanJointEqualityGPU* rows [[buffer(2)]],
+    device const float* q0 [[buffer(3)]],
+    device const float* v0 [[buffer(4)]],
+    device const float* vFree [[buffer(5)]],
+    device float4* linearization [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * equality.count) return;
+    const uint environment = global / equality.count;
+    const uint index = global % equality.count;
+    linearization[global] = float4(0.0f);
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMHumanJointEqualityGPU row = rows[index];
+    const uint qb = environment * equality.qCount;
+    const uint vb = environment * equality.dofCount;
+    const bool fixed = row.indices.z == NM_INVALID_INDEX;
+    const float x = fixed ? 0.0f :
+        q0[qb + row.indices.z] - row.referencesAndCoefficients0.y;
+    const float a0 = row.referencesAndCoefficients0.z;
+    const float a1 = row.referencesAndCoefficients0.w;
+    const float a2 = row.coefficients1.x;
+    const float a3 = row.coefficients1.y;
+    const float a4 = row.coefficients1.z;
+    const float polynomial = (((a4*x + a3)*x + a2)*x + a1)*x + a0;
+    const float derivative = fixed ? 0.0f : ((4.0f*a4*x + 3.0f*a3)*x + 2.0f*a2)*x + a1;
+    const float phi = q0[qb + row.indices.x] -
+        row.referencesAndCoefficients0.x - polynomial;
+    const float sourceVelocity = v0[vb + row.indices.y] -
+        (fixed ? 0.0f : derivative * v0[vb + row.indices.w]);
+    const float freeIncrement = vFree[vb + row.indices.y] - v0[vb + row.indices.y] -
+        (fixed ? 0.0f : derivative * (vFree[vb + row.indices.w] - v0[vb + row.indices.w]));
+    const float h = equality.time.x;
+    const float dw = clamp(row.solimp0.y, 0.0001f, 0.9999f);
+    const float impedance = humanEqualityImpedance(row, phi);
+    const bool positive = row.solref.x > 0.0f;
+    const float timeConstant = (equality.flags & NM_HUMAN_EQUALITY_REFSAFE) != 0u
+        ? max(row.solref.x, 2.0f*h) : row.solref.x;
+    const float stiffness = positive ? 1.0f / max(1.0e-15f,
+        dw*dw*timeConstant*timeConstant*row.solref.y*row.solref.y) :
+        -row.solref.x / max(1.0e-15f, dw*dw);
+    const float damping = positive ? 2.0f / max(1.0e-15f, dw*timeConstant) :
+        -row.solref.y / max(1.0e-15f, dw);
+    const float referenceAcceleration = -damping*sourceVelocity - stiffness*impedance*phi;
+    const float regularizer = max(1.0e-15f, (1.0f-impedance)/impedance *
+        (row.sourceInverseWeights.x + row.sourceInverseWeights.y));
+    // bDelta = h*a_ref - J0*(v_free-v0). The negative physical row impulse
+    // is lambda = (J0*deltaV-bDelta)/R; momentum receives -J0^T*lambda.
+    const float4 value = float4(derivative, h*referenceAcceleration-freeIncrement,
+                                1.0f/regularizer, phi);
+    if (!all(isfinite(value))) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+                      NM_INVALID_INDEX, index, value);
+        return;
+    }
+    linearization[global] = value;
+}
+
+kernel void nm_human_equality_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMHumanEqualityDispatchGPU& equality [[buffer(1)]],
+    device const NMHumanJointEqualityGPU* rows [[buffer(2)]],
+    device const float4* linearization [[buffer(3)]],
+    device const float* deltaV [[buffer(4)]],
+    device float4* residual [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * dispatch.rigidGeneralizedCapacity) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global % dispatch.rigidGeneralizedCapacity;
+    if (dof >= equality.dofCount) return;
+    float value = 0.0f;
+    const uint vb = environment * dispatch.rigidGeneralizedCapacity;
+    for (uint index=0u; index<equality.count; ++index) {
+        const NMHumanJointEqualityGPU row = rows[index];
+        if (dof != row.indices.y && dof != row.indices.w) continue;
+        const float4 lin = linearization[environment*equality.count+index];
+        const float jdv = deltaV[vb+row.indices.y] -
+            (row.indices.w == NM_INVALID_INDEX ? 0.0f : lin.x*deltaV[vb+row.indices.w]);
+        const float impulse = (jdv-lin.y)*lin.z;
+        value += (dof == row.indices.y ? 1.0f : -lin.x)*impulse;
+    }
+    residual[fgmresRigidBase(dispatch)+global].x -= value;
+}
+
+kernel void nm_human_equality_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMHumanEqualityDispatchGPU& equality [[buffer(1)]],
+    device const NMHumanJointEqualityGPU* rows [[buffer(2)]],
+    device const float4* linearization [[buffer(3)]],
+    device const float4* direction [[buffer(4)]],
+    device float4* output [[buffer(5)]],
+    device const NMFGMRESStateGPU* states [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount*dispatch.rigidGeneralizedCapacity) return;
+    const uint environment = global/dispatch.rigidGeneralizedCapacity;
+    const uint dof = global%dispatch.rigidGeneralizedCapacity;
+    if (dof >= equality.dofCount || states[environment].diagnostics.z > 0.5f) return;
+    const uint base = fgmresRigidIndex(dispatch, environment, 0u);
+    float value = 0.0f;
+    for (uint index=0u; index<equality.count; ++index) {
+        const NMHumanJointEqualityGPU row = rows[index];
+        if (dof != row.indices.y && dof != row.indices.w) continue;
+        const float4 lin = linearization[environment*equality.count+index];
+        const float jv = direction[base+row.indices.y].x -
+            (row.indices.w == NM_INVALID_INDEX ? 0.0f : lin.x*direction[base+row.indices.w].x);
+        value += (dof == row.indices.y ? 1.0f : -lin.x)*lin.z*jv;
+    }
+    output[base+dof].x += value;
+}
+
+// Positive Cholesky rank updates retain small source pivots that would be
+// lost by first reconstructing A0 and then adding a stiff equality diagonal.
+// The matrix is entirely in the private device arena; only one bounded vector
+// occupies threadgroup memory. Every update is an orthogonal Givens rotation.
+kernel void nm_human_equality_factor(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMHumanEqualityDispatchGPU& equality [[buffer(1)]],
+    device const NMHumanJointEqualityGPU* rows [[buffer(2)]],
+    device const float4* linearization [[buffer(3)]],
+    device const float* sourceL0 [[buffer(4)]],
+    device float* factorB [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    uint3 groupPosition [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint3 groupSize [[threads_per_threadgroup]]
+) {
+    const uint environment=groupPosition.x;
+    if (environment >= dispatch.environmentCount) return;
+    const uint nv = equality.dofCount;
+    if (groupSize.x != 32u || groupSize.y != 1u || groupSize.z != 1u ||
+        nv == 0u || nv > 160u || nv > dispatch.rigidGeneralizedCapacity) {
+        if (lane == 0u) recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX, nv, float4(0.0f));
+        return;
+    }
+    if (!environmentHealthy(statuses, environment)) return;
+    threadgroup float update[160];
+    const uint matrixBase = environment * nv * nv;
+    uint invalidInput = NM_INVALID_INDEX, invalidPivot = NM_INVALID_INDEX;
+    for (uint item=lane; item<nv*nv; item+=32u) {
+        const uint row=item/nv, column=item%nv;
+        const float value=column<=row ? sourceL0[matrixBase+item] : 0.0f;
+        factorB[matrixBase+item]=value;
+        if (!isfinite(value)) invalidInput=min(invalidInput,item);
+        if (column==row && !(value>0.0f)) invalidPivot=min(invalidPivot,row);
+    }
+    invalidInput=simd_min(invalidInput); invalidPivot=simd_min(invalidPivot);
+    threadgroup_barrier(mem_flags::mem_device);
+    if (invalidInput!=NM_INVALID_INDEX || invalidPivot!=NM_INVALID_INDEX) {
+        if (lane==0u) recordFailure(statuses[environment],
+            invalidInput!=NM_INVALID_INDEX?NM_STATUS_NONFINITE_INPUT:NM_STATUS_LINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, invalidInput!=NM_INVALID_INDEX?invalidInput:invalidPivot, float4(0.0f));
+        return;
+    }
+    for (uint constraint=0u; constraint<equality.count; ++constraint) {
+        const NMHumanJointEqualityGPU row=rows[constraint];
+        const float4 lin=linearization[environment*equality.count+constraint];
+        if (!(lin.z>0.0f) || !all(isfinite(lin))) {
+            if (lane==0u) recordFailure(statuses[environment], NM_STATUS_LINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, constraint, lin);
+            return;
+        }
+        const float scale=sqrt(lin.z);
+        for (uint i=lane;i<nv;i+=32u)
+            update[i]=(i==row.indices.y?1.0f:(i==row.indices.w?-lin.x:0.0f))*scale;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        for (uint k=0u;k<nv;++k) {
+            const float diagonal=factorB[matrixBase+k*nv+k];
+            const float x=update[k];
+            const float maximum=max(abs(diagonal),abs(x));
+            const float minimum=min(abs(diagonal),abs(x));
+            const float ratio=minimum/maximum;
+            const float root=maximum*sqrt(1.0f+ratio*ratio);
+            if (!(diagonal>0.0f) || !(root>0.0f) || !isfinite(root)) {
+                if(lane==0u) recordFailure(statuses[environment],
+                    !isfinite(root)?NM_STATUS_NONFINITE_RESULT:NM_STATUS_LINEAR_SOLVER_FAILURE,
+                    NM_INVALID_INDEX,k,float4(diagonal,x,root,0.0f));
+                return;
+            }
+            const float cosine=diagonal/root, sine=x/root;
+            if (lane==0u) factorB[matrixBase+k*nv+k]=root;
+            uint invalid=NM_INVALID_INDEX;
+            for(uint i=k+1u+lane;i<nv;i+=32u) {
+                const float prior=factorB[matrixBase+i*nv+k], oldUpdate=update[i];
+                const float value=cosine*prior+sine*oldUpdate;
+                const float remainder=cosine*oldUpdate-sine*prior;
+                factorB[matrixBase+i*nv+k]=value;update[i]=remainder;
+                if(!isfinite(value)||!isfinite(remainder)) invalid=min(invalid,i);
+            }
+            invalid=simd_min(invalid);
+            threadgroup_barrier(mem_flags::mem_device|mem_flags::mem_threadgroup);
+            if(invalid!=NM_INVALID_INDEX) {
+                if(lane==0u) recordFailure(statuses[environment],NM_STATUS_NONFINITE_RESULT,
+                    NM_INVALID_INDEX,invalid,float4(0.0f));
+                return;
+            }
+        }
+    }
+}
+
+kernel void nm_human_equality_precondition(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMHumanEqualityDispatchGPU& equality [[buffer(1)]],
+    device const float* factorB [[buffer(2)]],
+    device const float4* basis [[buffer(3)]],
+    device float4* output [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    uint3 groupPosition [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint3 groupSize [[threads_per_threadgroup]]
+) {
+    const uint environment=groupPosition.x;
+    if (environment>=dispatch.environmentCount) return;
+    const uint nv=equality.dofCount;
+    if(groupSize.x!=32u||groupSize.y!=1u||groupSize.z!=1u||
+       nv==0u||nv>160u||nv>dispatch.rigidGeneralizedCapacity) {
+        if(lane==0u) recordFailure(statuses[environment],NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX,nv,float4(0.0f));
+        return;
+    }
+    if(!environmentHealthy(statuses,environment)||states[environment].diagnostics.z>0.5f) return;
+    threadgroup float solution[160];
+    const uint matrixBase=environment*nv*nv, base=fgmresRigidIndex(dispatch,environment,0u);
+    for(uint k=0u;k<nv;++k) {
+        float partial=0.0f;
+        for(uint j=lane;j<k;j+=32u) partial+=factorB[matrixBase+k*nv+j]*solution[j];
+        const float sum=simd_sum(partial), diagonal=factorB[matrixBase+k*nv+k];
+        if(!(diagonal>0.0f)||!isfinite(diagonal)) {
+            if(lane==0u) recordFailure(statuses[environment],
+                !isfinite(diagonal)?NM_STATUS_NONFINITE_INPUT:NM_STATUS_LINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX,k,float4(diagonal,0.0f,0.0f,0.0f));
+            return;
+        }
+        const float value=(basis[base+k].x-sum)/diagonal;
+        if(!isfinite(value)) {
+            if(lane==0u) recordFailure(statuses[environment],NM_STATUS_NONFINITE_RESULT,
+                NM_INVALID_INDEX,k,float4(diagonal,value,0.0f,0.0f));
+            return;
+        }
+        if(lane==0u) solution[k]=value;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    for(uint reverse=0u;reverse<nv;++reverse) {
+        const uint k=nv-1u-reverse;
+        float partial=0.0f;
+        for(uint j=k+1u+lane;j<nv;j+=32u) partial+=factorB[matrixBase+j*nv+k]*solution[j];
+        const float value=(solution[k]-simd_sum(partial))/factorB[matrixBase+k*nv+k];
+        if(!isfinite(value)) {
+            if(lane==0u) recordFailure(statuses[environment],NM_STATUS_NONFINITE_RESULT,
+                NM_INVALID_INDEX,k,float4(value));
+            return;
+        }
+        if(lane==0u) solution[k]=value;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    for(uint i=lane;i<nv;i+=32u) output[base+i].x=solution[i];
+}
+
+} // namespace numi_matter_metal

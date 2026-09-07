@@ -31,6 +31,7 @@ extern "C" {
 #define MRNX_BRAIN_MOTOR_READY_GATE_BYTES_V1 160u
 #define MRNX_RUNTIME_CONFIG_ABI_V2 2u
 #define MRNX_RUNTIME_CONFIG_ABI_V3 3u
+#define MRNX_RUNTIME_CONFIG_ABI_V4 4u
 #define MRNX_AGGREGATE_SNAPSHOT_ABI_V4 4u
 #define MRNX_CULTURE_ACCEPTED_VIEW_ABI_V1 1u
 #define MRNX_CULTURE_PREPARED_VIEW_ABI_V1 1u
@@ -307,6 +308,18 @@ typedef struct mrnx_runtime_config_v3 {
     uint64_t expected_model_source_fingerprint;
     uint64_t expected_matter_world_fingerprint;
 } mrnx_runtime_config_v3;
+
+// Authored-world plus source joint compliance. Both nested headers remain
+// explicit. The equality fingerprint is FNV-1a64 of the immutable NHEQ2 bytes.
+// Nested v3 Human identity remains the base NHRIGID/NHMYO/NHCNT identity for
+// world admission; returned runtime Human identity also binds NHEQ2.
+typedef struct mrnx_runtime_config_v4 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    mrnx_runtime_config_v3 runtime;
+    const char* joint_equality_payload_path;
+    uint64_t expected_joint_equality_fingerprint;
+} mrnx_runtime_config_v4;
 
 // Immutable construction metadata. Legacy v1/v2 worlds are explicitly marked
 // as fixtures; successfully loading an authored package is not calibration.
@@ -672,6 +685,9 @@ MRNX_BRIDGE_EXPORT mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v2(
 MRNX_BRIDGE_EXPORT mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v3(
     const mrnx_runtime_config_v3* config,
     mrnx_runtime_info_v1* info);
+MRNX_BRIDGE_EXPORT mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v4(
+    const mrnx_runtime_config_v4* config,
+    mrnx_runtime_info_v1* info);
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_world_info(
     const mrnx_runtime_v1* runtime,
     mrnx_runtime_world_info_v1* info);
@@ -851,6 +867,9 @@ MRNX_BRIDGE_EXPORT uint32_t mrnx_bridge_v1_reject_unbound_candidate(
 } // extern "C"
 
 static_assert(sizeof(mrnx_runtime_config_v3) == 168u);
+static_assert(sizeof(mrnx_runtime_config_v4) == 192u);
+static_assert(offsetof(mrnx_runtime_config_v4, joint_equality_payload_path) == 176u);
+static_assert(offsetof(mrnx_runtime_config_v4, expected_joint_equality_fingerprint) == 184u);
 static_assert(offsetof(mrnx_runtime_config_v3, runtime) == 8u);
 static_assert(offsetof(mrnx_runtime_config_v3, matter_world_package_path) == 144u);
 static_assert(sizeof(mrnx_runtime_world_info_v1) == 40u);
@@ -1020,6 +1039,7 @@ _Static_assert(offsetof(mrnx_completion_v1, slot_generation) == 16u,
 _Static_assert(sizeof(mrnx_publication_v1) == 24u,
                "mrnx_publication_v1 ABI");
 _Static_assert(sizeof(mrnx_runtime_config_v3) == 168u, "mrnx_runtime_config_v3 ABI");
+_Static_assert(sizeof(mrnx_runtime_config_v4) == 192u, "mrnx_runtime_config_v4 ABI");
 _Static_assert(offsetof(mrnx_runtime_config_v3, matter_world_package_path) == 144u,
                "mrnx_runtime_config_v3 world offset");
 _Static_assert(sizeof(mrnx_runtime_world_info_v1) == 40u, "mrnx world info ABI");
