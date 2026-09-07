@@ -3548,6 +3548,33 @@ CompiledStandActivation compileStaticStandActivation(
     return result;
 }
 
+void reportDeformableContactFailures(const numi::matter::RuntimeStateSnapshot& snapshot) {
+    for (const auto& failure : snapshot.deformableContactFailures) {
+        if (failure.attempt.x == 0u) continue;
+        std::cerr << std::setprecision(9)
+                  << "deformable_contact_failure step=" << failure.attempt.y
+                  << " microtick=" << failure.attempt.z
+                  << " slot=" << failure.attempt.w
+                  << " primitive_a=" << failure.primitivePair.x
+                  << " primitive_b=" << failure.primitivePair.y
+                  << " thickness=" << failure.parameters.x
+                  << " dt_a=" << failure.parameters.y << " dt_b=" << failure.parameters.z << "\n";
+        for (unsigned side = 0u; side < 2u; ++side) {
+            const auto& primitive = failure.primitives[side];
+            std::cerr << "contact_primitive side=" << side << " object=" << primitive.nodesAndObject.w
+                      << " kind=" << primitive.identity.y << " source=" << primitive.identity.x << "\n";
+            for (unsigned corner = 0u; corner < 3u; ++corner) {
+                const unsigned local = side * 3u + corner;
+                const auto a = failure.start[local], b = failure.finish[local];
+                const unsigned node = corner == 0u ? primitive.nodesAndObject.x : corner == 1u ? primitive.nodesAndObject.y : primitive.nodesAndObject.z;
+                std::cerr << "contact_vertex side=" << side << " corner=" << corner << " node=" << node
+                          << " start=" << a.x << "," << a.y << "," << a.z
+                          << " finish=" << b.x << "," << b.y << "," << b.z << "\n";
+            }
+        }
+    }
+}
+
 MuscleDrivenVisualState integratePersistentMetalHumanState(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& muscles,
@@ -4015,6 +4042,17 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     }
     metalrobo::MetalArticulatedOperatorResult metalResult;
     auto diagnostics = context.run(model, input, metalResult);
+    if (!diagnostics.succeeded() && continuumTransaction != nullptr) {
+        const auto failed = continuumTransaction->runtime->snapshot();
+        std::cerr << "human_joint_failure completed_steps=" << diagnostics.completedStandSteps;
+        if (!failed.statuses.empty()) {
+            const auto& status = failed.statuses.front();
+            std::cerr << " matter_status=" << status.code
+                      << " matter_failing_index=" << status.failingIndex;
+        }
+        std::cerr << "\n";
+        reportDeformableContactFailures(failed);
+    }
     require(
         diagnostics.succeeded() && diagnostics.dispatched &&
             diagnostics.published && diagnostics.successfulEnvironmentCount == 1u &&
@@ -9900,6 +9938,7 @@ PectoralisFasciaVisual runPectoralisFascia(
         removeRootAssistance, true, &transaction, std::nullopt, false
     );
     const auto accepted = transaction.accepted;
+
     require(accepted.available && accepted.femNodes.size() == result.nodes.size(),
             "pectoralis fascia accepted snapshot is unavailable");
     id<MTLBuffer> reactionBuffer = (__bridge id<MTLBuffer>)

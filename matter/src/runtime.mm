@@ -737,6 +737,7 @@ struct Runtime::State {
     id<MTLBuffer> femTetrahedraCandidate = nil;
     id<MTLBuffer> femTetrahedraCheckpoint = nil;
     id<MTLBuffer> continuumSurfacePrimitives = nil;
+    id<MTLBuffer> deformableContactFailures = nil;
     id<MTLBuffer> femSurfaceSortKeysA = nil;
     id<MTLBuffer> femSurfaceSortKeysB = nil;
     id<MTLBuffer> femSurfaceSortIndicesA = nil;
@@ -1311,6 +1312,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_sort_surface_primitives",
             "nm_contact_build_deformable_candidates",
             "nm_contact_narrowphase_deformable",
+            "nm_contact_capture_deformable_failure",
             "nm_contact_compact_deformable",
             "nm_contact_scan_deformable_active_counts",
             "nm_contact_scatter_deformable_active_work",
@@ -1906,6 +1908,11 @@ RuntimeDiagnostics Runtime::initialize(
             std::span<const NMDeformableContactHistoryGPU>(
                 initialDeformableContactHistories),
             environments, valid, candidate->residentBytes);
+        const std::vector<NMDeformableContactFailureGPU> initialContactFailures(1u);
+        candidate->deformableContactFailures = uploads.repeated(
+            std::span<const NMDeformableContactFailureGPU>(initialContactFailures),
+            candidate->captureDiagnostics ? environments : 1u,
+            valid, candidate->residentBytes);
         std::string uploadError;
         if (!valid || !uploads.finish(uploadError)) {
             diagnostics.message = valid
@@ -4542,6 +4549,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.statuses offset:0u atIndex:12u];
                     }
                 );
+                if (state.captureDiagnostics) {
+                    dispatchThreads("nm_contact_capture_deformable_failure", environments, [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:2u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:3u];
+                        [encoder setBuffer:state.gridNodes offset:0u atIndex:4u];
+                        [encoder setBuffer:state.continuumSurfacePrimitives offset:0u atIndex:5u];
+                        [encoder setBuffer:state.deformableContactCandidates offset:0u atIndex:6u];
+                        [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:7u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:8u];
+                        [encoder setBuffer:state.deformableContactFailures offset:0u atIndex:9u];
+                    });
+                }
                 dispatchGroups32(
                     "nm_contact_compact_deformable",
                     environments,
@@ -10435,6 +10456,7 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             return [state_->device newBufferWithLength:source.length
                                                options:MTLResourceStorageModeShared];
         };
+        id<MTLBuffer> contactFailures = copy(state_->deformableContactFailures);
         id<MTLBuffer> particles = copy(state_->particleAccepted);
         id<MTLBuffer> femNodes = copy(state_->femAccepted);
         id<MTLBuffer> particleMaterialState =
@@ -10477,7 +10499,7 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             copy(state_->identificationDistributions);
         id<MTLBuffer> environmentParameters =
             copy(state_->environmentParameters);
-        if (particles == nil || femNodes == nil ||
+        if (contactFailures == nil || particles == nil || femNodes == nil ||
             particleMaterialState == nil || femMaterialState == nil ||
             femFields == nil || solverCertificates == nil ||
             statuses == nil ||
@@ -10511,6 +10533,7 @@ RuntimeStateSnapshot Runtime::snapshot() const {
                                   size:source.length];
             }
         };
+        encodeCopy(state_->deformableContactFailures, contactFailures);
         encodeCopy(state_->particleAccepted, particles);
         encodeCopy(state_->femAccepted, femNodes);
         encodeCopy(
@@ -10657,6 +10680,7 @@ RuntimeStateSnapshot Runtime::snapshot() const {
                 state_->dispatch.rigidProxyCount
         );
         if (state_->captureDiagnostics) {
+            read(contactFailures, snapshot.deformableContactFailures);
             readCount(contactSamples, snapshot.contactSamples,
                       logicalContactCount);
         }

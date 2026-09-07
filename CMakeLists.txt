@@ -2426,6 +2426,26 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+add_executable(metalrobo_human_reconcile_probe apps/human_reconcile_probe.mm)
+add_dependencies(metalrobo_human_reconcile_probe numi_matter_shaders metalrobo)
+target_compile_definitions(metalrobo_human_reconcile_probe PRIVATE
+    NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+    METALROBO_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/shaders/MetalRobo.metallib")
+target_compile_options(metalrobo_human_reconcile_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+target_link_libraries(metalrobo_human_reconcile_probe PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+set_target_properties(metalrobo_human_reconcile_probe PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+add_test(NAME metalrobo_human_reconcile_probe COMMAND metalrobo_human_reconcile_probe)
+
+add_executable(metalrobo_matter_ccd_probe apps/matter_ccd_probe.mm)
+add_dependencies(metalrobo_matter_ccd_probe numi_matter_shaders)
+target_compile_definitions(metalrobo_matter_ccd_probe PRIVATE
+    NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib")
+target_compile_options(metalrobo_matter_ccd_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+target_link_libraries(metalrobo_matter_ccd_probe PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+set_target_properties(metalrobo_matter_ccd_probe PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+add_test(NAME metalrobo_matter_ccd_probe COMMAND metalrobo_matter_ccd_probe)
+
 add_executable(metalrobo_matter_physics_probe apps/matter_physics_probe.mm)
 add_dependencies(metalrobo_matter_physics_probe numi_matter_shaders)
 target_compile_definitions(

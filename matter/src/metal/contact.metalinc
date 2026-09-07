@@ -976,6 +976,39 @@ inline void closestPointsOnSegments(
     pointQ = mix(q0, q1, t);
 }
 
+// A fixed separating plane proves a miss over the complete linear sweep.
+// Every pairwise projected difference is affine in time, so checking both
+// endpoints bounds every convex combination of the two features. This avoids
+// conservative-advancement exhaustion for near-parallel separating motion.
+// Differences are formed before projection to avoid world-origin cancellation.
+inline bool sweptFeaturesSeparated(
+    thread const float3* firstStart, thread const float3* firstFinish,
+    const uint firstCount,
+    thread const float3* secondStart, thread const float3* secondFinish,
+    const uint secondCount, const float3 separationAxis,
+    const float effectiveThickness
+) {
+    const float axisLength = length(separationAxis);
+    if (!(axisLength > kGeometryFloor) || !isfinite(axisLength)) return false;
+    const float3 axis = separationAxis / axisLength;
+    float minimumProjection = INFINITY;
+    float relativeScale = effectiveThickness;
+    for (uint a = 0u; a < firstCount; ++a) {
+        for (uint b = 0u; b < secondCount; ++b) {
+            const float3 start = firstStart[a] - secondStart[b];
+            const float3 finish = firstFinish[a] - secondFinish[b];
+            if (!finite3(start) || !finite3(finish)) return false;
+            minimumProjection = min(minimumProjection,
+                min(dot(axis, start), dot(axis, finish)));
+            relativeScale = max(relativeScale,
+                max(maximumAbsoluteCoordinate(start), maximumAbsoluteCoordinate(finish)));
+        }
+    }
+    const float projectionRoundoff = 16.0f * kEpsilon * relativeScale;
+    return isfinite(minimumProjection) &&
+        minimumProjection > effectiveThickness + projectionRoundoff;
+}
+
 inline bool vertexTriangleCCD(
     const float3 vertex0,
     const float3 vertex1,
@@ -1037,6 +1070,25 @@ inline bool vertexTriangleCCD(
             separation = distance;
             certified = true;
             return finite3(normal);
+        }
+        const float3 firstStart[1] = {vertex0}, firstFinish[1] = {vertex1};
+        const float3 secondStart[3] = {a0, b0, c0}, secondFinish[3] = {a1, b1, c1};
+        if (sweptFeaturesSeparated(firstStart, firstFinish, 1u,
+                secondStart, secondFinish, 3u, delta, effectiveThickness)) {
+            certified = true;
+            return false;
+        }
+        if (iteration == 0u) {
+            const float3 axes[2] = {cross(b0-a0, c0-a0), cross(b1-a1, c1-a1)};
+            for (uint candidateAxis = 0u; candidateAxis < 2u; ++candidateAxis) {
+                float3 axis = axes[candidateAxis];
+                if (dot(axis, firstStart[0] - secondStart[0]) < 0.0f) axis = -axis;
+                if (sweptFeaturesSeparated(firstStart, firstFinish, 1u,
+                        secondStart, secondFinish, 3u, axis, effectiveThickness)) {
+                    certified = true;
+                    return false;
+                }
+            }
         }
         if (!(speedBound > kGeometryFloor)) {
             certified = true;
@@ -1114,6 +1166,25 @@ inline bool edgeEdgeCCD(
             certified = true;
             return finite3(normal);
         }
+        const float3 firstStart[2] = {p00, p10}, firstFinish[2] = {p01, p11};
+        const float3 secondStart[2] = {q00, q10}, secondFinish[2] = {q01, q11};
+        if (sweptFeaturesSeparated(firstStart, firstFinish, 2u,
+                secondStart, secondFinish, 2u, delta, effectiveThickness)) {
+            certified = true;
+            return false;
+        }
+        if (iteration == 0u) {
+            const float3 axes[2] = {cross(p10-p00, q10-q00), cross(p11-p01, q11-q01)};
+            for (uint candidateAxis = 0u; candidateAxis < 2u; ++candidateAxis) {
+                float3 axis = axes[candidateAxis];
+                if (dot(axis, firstStart[0] - secondStart[0]) < 0.0f) axis = -axis;
+                if (sweptFeaturesSeparated(firstStart, firstFinish, 2u,
+                        secondStart, secondFinish, 2u, axis, effectiveThickness)) {
+                    certified = true;
+                    return false;
+                }
+            }
+        }
         if (!(speedBound > kGeometryFloor)) {
             certified = true;
             return false;
@@ -1128,6 +1199,38 @@ inline bool edgeEdgeCCD(
         time = min(time, 1.0f);
     }
     return false;
+}
+
+// Direct production-CCD regression entry point. Nine float4 records per case:
+// kind/thickness, four start vertices, four finish vertices. Results are
+// hit, certified, time of impact, and separation. No alternate CCD path.
+kernel void nm_contact_ccd_regression(
+    device const float4* cases [[buffer(0)]],
+    device float4* results [[buffer(1)]],
+    constant uint& count [[buffer(2)]],
+    uint index [[thread_position_in_grid]]
+) {
+    if (index >= count) return;
+    const uint base = 9u * index;
+    float toi, separation;
+    float3 normal, point, barycentric;
+    float2 parameters;
+    bool certified;
+    const bool hit = cases[base].x == 0.0f
+        ? vertexTriangleCCD(
+            cases[base+1].xyz, cases[base+5].xyz,
+            cases[base+2].xyz, cases[base+6].xyz,
+            cases[base+3].xyz, cases[base+7].xyz,
+            cases[base+4].xyz, cases[base+8].xyz,
+            cases[base].y, toi, normal, barycentric, point, separation, certified)
+        : edgeEdgeCCD(
+            cases[base+1].xyz, cases[base+5].xyz,
+            cases[base+2].xyz, cases[base+6].xyz,
+            cases[base+3].xyz, cases[base+7].xyz,
+            cases[base+4].xyz, cases[base+8].xyz,
+            cases[base].y, toi, normal, parameters, point, separation, certified);
+    results[index] = float4(hit ? 1.0f : 0.0f,
+        certified ? 1.0f : 0.0f, toi, separation);
 }
 
 inline bool pointPointCCD(
@@ -1186,6 +1289,57 @@ inline bool pointPointCCD(
     separation = distance;
     certified = finite3(normal) && isfinite(distance);
     return certified && distance <= effectiveThickness;
+}
+
+kernel void nm_contact_capture_deformable_failure(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& micro [[buffer(1)]],
+    device const NMFEMNodeStateGPU* femNodes [[buffer(2)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(3)]],
+    device const NMGridNodeStateGPU* gridNodes [[buffer(4)]],
+    device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(5)]],
+    device const NMDeformableContactCandidateGPU* candidates [[buffer(6)]],
+    device const uint* candidateCounts [[buffer(7)]],
+    device const NMMatterStatusGPU* statuses [[buffer(8)]],
+    device NMDeformableContactFailureGPU* failures [[buffer(9)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount || failures[environment].attempt.x != 0u)
+        return;
+    const NMMatterStatusGPU status = statuses[environment];
+    if (status.code != NM_STATUS_CONTACT_FAILURE ||
+        status.failingIndex >= candidateCounts[environment] ||
+        status.failingIndex >= dispatch.deformableContactCapacity) return;
+    const auto candidate = candidates[environment * dispatch.deformableContactCapacity + status.failingIndex];
+    const uint count = continuumSurfacePrimitiveCount(dispatch);
+    if (candidate.identity.x >= count || candidate.identity.y >= count ||
+        status.diagnostics.x != float(candidate.identity.x) ||
+        status.diagnostics.y != float(candidate.identity.y)) return;
+    NMDeformableContactFailureGPU captured{};
+    captured.attempt = uint4(1u, micro.controlStep, micro.microtick, status.failingIndex);
+    captured.primitivePair = candidate.identity;
+    captured.primitives[0] = primitives[environment * count + candidate.identity.x];
+    captured.primitives[1] = primitives[environment * count + candidate.identity.y];
+    captured.diagnostics = status.diagnostics;
+    captured.parameters = float4(dispatch.numericalLimits.x, 0.0f, 0.0f, float(micro.solverIteration));
+    for (uint local = 0u; local < 6u; ++local) {
+        const uint side = local / 3u;
+        const auto primitive = captured.primitives[side];
+        const uint node = primitive.nodesAndObject[local % 3u];
+        if (node == NM_INVALID_INDEX || primitive.nodesAndObject.w >= dispatch.objectCount) continue;
+        const float dt = objectTimestep(dispatch, schedulers[environment * dispatch.objectCount + primitive.nodesAndObject.w]);
+        captured.parameters[side + 1u] = dt;
+        if (node < dispatch.gridNodeCount) {
+            const auto state = gridNodes[environment * dispatch.gridNodeCount + node];
+            captured.start[local] = float4(state.positionAndMass.xyz, state.velocityAndInverseMass.w);
+            captured.finish[local] = float4(state.positionAndMass.xyz + dt * state.candidateVelocity.xyz, state.velocityAndInverseMass.w);
+        } else if (node - dispatch.gridNodeCount < dispatch.femNodeCount) {
+            const auto state = femNodes[environment * dispatch.femNodeCount + node - dispatch.gridNodeCount];
+            captured.finish[local] = state.positionAndMass;
+            captured.start[local] = float4(state.positionAndMass.xyz - dt * state.velocityAndInverseMass.xyz, state.velocityAndInverseMass.w);
+        }
+    }
+    failures[environment] = captured;
 }
 
 kernel void nm_contact_narrowphase_deformable(

@@ -1104,6 +1104,7 @@ struct RuntimeStateSnapshot {
     // Completion-boundary primal-contact diagnostics, populated only when
     // RuntimeConfiguration::captureDiagnostics is enabled.
     std::vector<NMContactSampleGPU> contactSamples;
+    std::vector<NMDeformableContactFailureGPU> deformableContactFailures;
     std::vector<nm_float4> contactHistories;
     // Accepted NHCNT Coulomb history and the matching sensor-facing support
     // consequence. Both are continuation authority, not diagnostics.

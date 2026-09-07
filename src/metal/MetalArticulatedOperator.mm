@@ -37,7 +37,12 @@ namespace {
 // occupies slots 16..23 in the same command buffer. The MyoSim sidecar owns
 // slots 24..30 and consumes the same private pose/Jacobian output directly.
 constexpr std::size_t kRawBufferCount = 31u;
-constexpr std::size_t kStandBufferCount = 13u;
+constexpr std::size_t kStandBufferCount = 18u;
+constexpr std::size_t kStandQCheckpointBuffer = 13u;
+constexpr std::size_t kStandVCheckpointBuffer = 14u;
+constexpr std::size_t kStandMujocoCheckpointBuffer = 15u;
+constexpr std::size_t kStandStatusCheckpointBuffer = 16u;
+constexpr std::size_t kStandVectorCheckpointBuffer = 17u;
 constexpr std::size_t kHumanMatterBufferCount = 16u;
 constexpr std::size_t kHumanMatterQCheckpointBuffer = 0u;
 constexpr std::size_t kHumanMatterVCheckpointBuffer = 1u;
@@ -209,6 +214,7 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> mujocoReducePipeline = nil;
     __strong id<MTLComputePipelineState> mujocoActivationPipeline = nil;
     __strong id<MTLComputePipelineState> standPipeline = nil;
+    __strong id<MTLComputePipelineState> standReconcilePipeline = nil;
     __strong id<MTLComputePipelineState> tendonPipeline = nil;
     __strong id<MTLComputePipelineState> humanMatterBeginPipeline = nil;
     __strong id<MTLComputePipelineState> humanMatterFactorPipeline = nil;
@@ -1634,6 +1640,16 @@ bool buildRequirements(
             layout.standJointEqualityElements,
             requirements.standEntries[kStandJointEqualitiesBuffer]
         ) ||
+        !makeRequirement<float>("Human accepted q checkpoint", layout.qElements,
+            requirements.standEntries[kStandQCheckpointBuffer]) ||
+        !makeRequirement<float>("Human accepted v checkpoint", layout.standVelocityElements,
+            requirements.standEntries[kStandVCheckpointBuffer]) ||
+        !makeRequirement<MRMujocoMuscleStateGPU>("Human accepted muscle checkpoint", layout.mujocoStateElements,
+            requirements.standEntries[kStandMujocoCheckpointBuffer]) ||
+        !makeRequirement<MRNumiHumanStandStatusGPU>("Human accepted status checkpoint", layout.standStatusElements,
+            requirements.standEntries[kStandStatusCheckpointBuffer]) ||
+        !makeRequirement<float>("Human accepted contact solver checkpoint", layout.standVectorElements,
+            requirements.standEntries[kStandVectorCheckpointBuffer]) ||
         !makeRequirement<float>(
             "NumanX Human/Matter q checkpoint",
             layout.humanMatterQCheckpointElements,
@@ -2834,6 +2850,20 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 describeError(error)
         );
     }
+    id<MTLFunction> reconcileFunction = [library
+        newFunctionWithName:@"mr_numi_human_stand_reconcile"];
+    if (reconcileFunction == nil) {
+        return reject(std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+            "metallib does not contain Human accepted-state reconciliation");
+    }
+    id<MTLComputePipelineState> reconcilePipeline = [device
+        newComputePipelineStateWithFunction:reconcileFunction error:&error];
+    if (reconcilePipeline == nil) {
+        return reject(std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+            "failed to create Human accepted-state reconciliation: " + describeError(error));
+    }
     id<MTLFunction> tendonFunction = [library
         newFunctionWithName:@"mr_numi_human_tendon_transfer"];
     if (tendonFunction == nil) {
@@ -2868,6 +2898,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     context.mujocoReducePipeline = mujocoReducePipeline;
     context.mujocoActivationPipeline = mujocoActivationPipeline;
     context.standPipeline = standPipeline;
+    context.standReconcilePipeline = reconcilePipeline;
     context.tendonPipeline = tendonPipeline;
     context.initialized = true;
     ++context.stats.pipelineCreationCount;
@@ -8342,6 +8373,33 @@ MetalArticulatedOperatorContext::submit(
             };
             for (std::uint32_t horizonStep = 0u;
                  horizonStep < horizonStepCount; ++horizonStep) {
+            // The permanent NumanX root owns its own wider prepare/apply
+            // protocol. Ordinary stand/tendon horizons retain their accepted
+            // physical bytes here, before excitation or contact state changes.
+            if (input.stand.enabled() && !input.stand.numanXHumanMatterProgram.valid()) {
+                id<MTLBlitCommandEncoder> checkpoint = [commandBuffer blitCommandEncoder];
+                if (checkpoint == nil) {
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                        "failed to encode Human accepted-state checkpoint");
+                }
+                const auto copy = [&](id<MTLBuffer> source, std::size_t destination,
+                                      std::size_t bytes) {
+                    if (bytes != 0u) [checkpoint copyFromBuffer:source sourceOffset:0u
+                        toBuffer:state_->standBuffers[destination] destinationOffset:0u size:bytes];
+                };
+                copy(state_->buffers[6u], kStandQCheckpointBuffer,
+                    diagnostics.layout.qElements * sizeof(float));
+                copy(state_->standBuffers[kStandVelocityBuffer], kStandVCheckpointBuffer,
+                    diagnostics.layout.standVelocityElements * sizeof(float));
+                copy(state_->buffers[kMujocoStatesBuffer], kStandMujocoCheckpointBuffer,
+                    diagnostics.layout.mujocoStateElements * sizeof(MRMujocoMuscleStateGPU));
+                copy(state_->standBuffers[kStandStatusBuffer], kStandStatusCheckpointBuffer,
+                    diagnostics.layout.standStatusElements * sizeof(MRNumiHumanStandStatusGPU));
+                copy(state_->standBuffers[kStandVectorBuffer], kStandVectorCheckpointBuffer,
+                    diagnostics.layout.standVectorElements * sizeof(float));
+                [checkpoint endEncoding];
+            }
             const auto tendonLoadPass = [&]() {
                 MetalNumiHumanTendonLoadPass pass{};
                 pass.commandBuffer = (__bridge void*)commandBuffer;
@@ -9118,6 +9176,34 @@ MetalArticulatedOperatorContext::submit(
                             "Numi Human post-validation tendon-load consumer rejected encoding"
                         );
                     }
+                }
+                if (!input.stand.numanXHumanMatterProgram.valid()) {
+                    id<MTLComputeCommandEncoder> reconcile = [commandBuffer computeCommandEncoder];
+                    if (reconcile == nil) {
+                        return reject(std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                            "failed to encode Human accepted-state reconciliation");
+                    }
+                    const mr_uint4 shape = {
+                        static_cast<std::uint32_t>(input.environmentCount), horizonStep,
+                        static_cast<std::uint32_t>(input.mujoco.muscles.size()),
+                        static_cast<std::uint32_t>(diagnostics.layout.standVectorElements / input.environmentCount)};
+                    const mr_uint4 strides = {standDispatch.qStride, standDispatch.vStride, 0u, 0u};
+                    [reconcile setComputePipelineState:state_->standReconcilePipeline];
+                    [reconcile setBytes:&shape length:sizeof(shape) atIndex:0u];
+                    [reconcile setBytes:&strides length:sizeof(strides) atIndex:1u];
+                    [reconcile setBuffer:state_->buffers[6u] offset:0u atIndex:2u];
+                    [reconcile setBuffer:state_->standBuffers[kStandVelocityBuffer] offset:0u atIndex:3u];
+                    [reconcile setBuffer:state_->buffers[kMujocoStatesBuffer] offset:0u atIndex:4u];
+                    [reconcile setBuffer:state_->standBuffers[kStandStatusBuffer] offset:0u atIndex:5u];
+                    [reconcile setBuffer:state_->standBuffers[kStandVectorBuffer] offset:0u atIndex:6u];
+                    for (std::size_t i = 0u; i < 5u; ++i) {
+                        [reconcile setBuffer:state_->standBuffers[kStandQCheckpointBuffer + i]
+                            offset:0u atIndex:7u + i];
+                    }
+                    [reconcile dispatchThreads:MTLSizeMake(input.environmentCount, 1u, 1u)
+                        threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
+                    [reconcile endEncoding];
                 }
             }
             }

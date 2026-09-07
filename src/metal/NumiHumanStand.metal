@@ -2,6 +2,7 @@
 
 #include "metalrobo/numi_human_joint_equality_gpu.h"
 #include "metalrobo/numi_human_stand_gpu.h"
+#include "metalrobo/mujoco_muscle_gpu.h"
 #include "metalrobo/numi_human_tendon_gpu.h"
 
 using namespace metal;
@@ -1104,4 +1105,39 @@ kernel void mr_numi_human_stand_step(
         status.jointEqualityDiagnostics.z, maximumEqualityImpulse
     );
     status.jointEqualityDiagnostics.w += totalEqualityImpulse;
+}
+
+// Ordinary stand/tendon accepted-step owner. Derived poses/routes/factors are
+// recomputed on the next step; the contact vector arena includes persistent
+// warm starts and therefore belongs to the restored state.
+kernel void mr_numi_human_stand_reconcile(
+    constant uint4& shape [[buffer(0)]], // environments, attempted step, muscles, vectors
+    constant uint4& strides [[buffer(1)]], // q, v
+    device float* q [[buffer(2)]],
+    device float* v [[buffer(3)]],
+    device MRMujocoMuscleStateGPU* muscles [[buffer(4)]],
+    device MRNumiHumanStandStatusGPU* statuses [[buffer(5)]],
+    device float* vectors [[buffer(6)]],
+    device const float* acceptedQ [[buffer(7)]],
+    device const float* acceptedV [[buffer(8)]],
+    device const MRMujocoMuscleStateGPU* acceptedMuscles [[buffer(9)]],
+    device const MRNumiHumanStandStatusGPU* acceptedStatuses [[buffer(10)]],
+    device const float* acceptedVectors [[buffer(11)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= shape.x) return;
+    const MRNumiHumanStandStatusGPU attempt = statuses[environment];
+    if (attempt.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+        attempt.environment == environment && attempt.completedSteps == shape.y + 1u) return;
+    for (uint i=0u; i<strides.x; ++i) q[environment*strides.x+i] = acceptedQ[environment*strides.x+i];
+    for (uint i=0u; i<strides.y; ++i) v[environment*strides.y+i] = acceptedV[environment*strides.y+i];
+    for (uint i=0u; i<shape.z; ++i) muscles[environment*shape.z+i] = acceptedMuscles[environment*shape.z+i];
+    for (uint i=0u; i<shape.w; ++i) vectors[environment*shape.w+i] = acceptedVectors[environment*shape.w+i];
+    MRNumiHumanStandStatusGPU restored = shape.y == 0u
+        ? MRNumiHumanStandStatusGPU{} : acceptedStatuses[environment];
+    restored.environment = environment;
+    restored.code = attempt.code == MR_NUMI_HUMAN_STAND_SUCCESS
+        ? MR_NUMI_HUMAN_STAND_INVALID_DISPATCH : attempt.code;
+    restored.failingIndex = attempt.failingIndex;
+    statuses[environment] = restored;
 }

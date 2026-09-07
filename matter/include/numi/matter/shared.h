@@ -429,6 +429,19 @@ typedef struct NM_ALIGN16 NMContinuumSurfacePrimitiveGPU {
     nm_float4 boundsMaximum;
 } NMContinuumSurfacePrimitiveGPU;
 
+// First failed deformable narrowphase attempt; diagnostic-only, outside rollback.
+typedef struct NM_ALIGN16 NMDeformableContactFailureGPU {
+    // Present, control step, microtick, candidate slot.
+    nm_uint4 attempt;
+    nm_uint4 primitivePair;
+    NMContinuumSurfacePrimitiveGPU primitives[2];
+    nm_float4 start[6];
+    nm_float4 finish[6];
+    nm_float4 diagnostics;
+    // Thickness, first/second object dt, solver iteration.
+    nm_float4 parameters;
+} NMDeformableContactFailureGPU;
+
 typedef struct NM_ALIGN16 NMDeformableContactCandidateGPU {
     // First/second environment-local surface primitive, stable candidate id,
     // flags.
