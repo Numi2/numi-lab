@@ -13,6 +13,20 @@ mkdir -p \
     "$numi_temp/fake-build/shaders" \
     "$numi_temp/runs"
 
+# Native execution is stubbed below. Keep the matching MLX discovery probe
+# test-only too; this fixture must not require or claim a real MLX installation.
+mkdir -p "$numi_temp/fake-mlx"
+printf '%s\n' '#!/bin/sh' \
+    'if [ "$#" -eq 2 ] && [ "$1" = -c ] && [ "$2" = "import mlx" ]; then' \
+    '  [ "${NUMI_TEST_MLX_AVAILABLE:-1}" = 1 ]; exit "$?"' \
+    'fi' \
+    'exec "$NUMI_TEST_REAL_PYTHON" "$@"' \
+    > "$numi_temp/fake-mlx/python3"
+chmod +x "$numi_temp/fake-mlx/python3"
+NUMI_MLX_PYTHON=$numi_temp/fake-mlx/python3
+NUMI_TEST_REAL_PYTHON=$(command -v python3)
+export NUMI_MLX_PYTHON NUMI_TEST_REAL_PYTHON
+
 printf '%s\n' '#!/bin/sh' \
     'if [ "${1:-}" = "--numi-describe" ]; then printf "Workspace override.\n"; exit 0; fi' \
     'printf "workspace:%s\n" "$*"' \
@@ -154,6 +168,9 @@ printf '%s\n' "$numi_context_paths" | \
 printf '%s\n' "$numi_context_paths" | \
     grep "source: $numi_temp/extra/custom" >/dev/null
 
+python3 "$numi_repo/tests/numi_context_status_test.py"
+python3 "$numi_repo/tests/numi_context_describe_test.py"
+
 numi_solver_list=$(
     cd "$numi_temp/workspace"
     NUMI_LAB_ROOT=$numi_repo \
@@ -274,6 +291,19 @@ numi_doctor=$(
 )
 printf '%s\n' "$numi_doctor" | grep 'robot catalog:.*ok' >/dev/null
 printf '%s\n' "$numi_doctor" | grep 'Status: ready.' >/dev/null
+
+mkdir -p "$numi_temp/no-mlx-runtime" "$numi_temp/no-mlx-home"
+numi_doctor_no_mlx=$(
+    cd "$numi_temp/no-mlx-runtime"
+    PATH=$numi_temp/fake-mlx:$PATH \
+    HOME=$numi_temp/no-mlx-home \
+    NUMI_LAB_ROOT=$numi_temp/no-mlx-runtime \
+    NUMI_TEST_MLX_AVAILABLE=0 \
+    NUMI_BUILD_DIR=$numi_temp/fake-build \
+        "$numi_repo/tools/numi" doctor || true
+)
+printf '%s\n' "$numi_doctor_no_mlx" | grep 'MLX learner:  missing' >/dev/null
+printf '%s\n' "$numi_doctor_no_mlx" | grep 'Status: action required.' >/dev/null
 
 printf '%s\n' '#!/bin/sh' 'exit 2' \
     > "$numi_temp/fake-build/bin/metalrobo_robot_catalog"

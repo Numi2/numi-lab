@@ -209,6 +209,123 @@ numi_doctor() {
     return "$numi_doctor_status"
 }
 
+numi_context_probe() {
+    if ! command -v python3 >/dev/null 2>&1; then
+        case "$1" in
+            status) printf '%s\n' 'unknown (Python 3 unavailable for bounded Git status)' ;;
+            describe) printf '%s\n' 'unknown (Python 3 unavailable for bounded description)' ;;
+        esac
+        return 0
+    fi
+    # Read-only discovery can stall on a file-provider checkout or an overlay
+    # command. Bound it without changing normal capability execution.
+    python3 - "$@" <<'PY'
+import os
+import signal
+import subprocess
+import sys
+import tempfile
+import time
+
+
+def stop_group(process):
+    # Children may outlive discovery even on a normal exit. The private process
+    # group belongs only to this probe; do not leave helpers behind.
+    for sig in (signal.SIGTERM, signal.SIGKILL):
+        try:
+            os.killpg(process.pid, sig)
+        except ProcessLookupError:
+            break
+        if sig == signal.SIGTERM:
+            time.sleep(0.1)
+    try:
+        process.wait(timeout=0.25)
+    except subprocess.TimeoutExpired:
+        pass  # An uninterruptible kernel wait must not stall context either.
+
+
+def count_paths(stream):
+    data = stream.read()
+    if not data:
+        return 0
+    if not data.endswith(b"\0"):
+        raise ValueError("truncated output")
+    entries = data.split(b"\0")[:-1]
+    count = index = 0
+    while index < len(entries):
+        record = entries[index]
+        if len(record) < 4 or record[2:3] != b" ":
+            raise ValueError("invalid output")
+        if any(value not in b" MADRCU?!T" for value in record[:2]):
+            raise ValueError("invalid status")
+        index += 1
+        if b"R" in record[:2] or b"C" in record[:2]:
+            if index >= len(entries) or not entries[index]:
+                raise ValueError("truncated rename")
+            index += 1
+        count += 1
+    return count
+
+
+mode, target = sys.argv[1:]
+label = "git status" if mode == "status" else "description"
+if mode == "status":
+    command = ["git", "-C", target, "status", "--porcelain=v1", "-z", "--untracked-files=normal"]
+    environment = dict(os.environ, GIT_OPTIONAL_LOCKS="0")
+else:
+    # Launch a local interpreter first so even a blocked exec of an external
+    # capability happens inside the timed process group, not inside Popen.
+    command = [sys.executable, "-c",
+               "import os,sys; os.execv(sys.argv[1], sys.argv[1:])",
+               target, "--numi-describe"]
+    environment = None
+
+with tempfile.TemporaryFile() as output, tempfile.TemporaryFile() as errors:
+    process = None
+    try:
+        process = subprocess.Popen(
+            command,
+            stdin=subprocess.DEVNULL, stdout=output, stderr=errors,
+            env=environment,
+            start_new_session=True,
+        )
+        try:
+            code = process.wait(timeout=2.0)
+        finally:
+            stop_group(process)
+        if code:
+            print("unknown (%s exited %s)" % (label, code))
+            errors.seek(0)
+            diagnostic = errors.read(2048).decode("utf-8", errors="replace").strip()
+            if diagnostic and mode == "status":
+                print("numi: git status: " + diagnostic, file=sys.stderr)
+        else:
+            output.seek(0)
+            if mode == "status":
+                print(count_paths(output))
+            else:
+                line = output.readline(65537)
+                if len(line) > 65536:
+                    raise ValueError("first line exceeds 64 KiB")
+                description = line.decode("utf-8").rstrip("\n")
+                if not description or "\0" in description:
+                    raise ValueError("no valid description provided")
+                print(description)
+    except subprocess.TimeoutExpired:
+        print("unknown (%s timed out after 2s)" % label)
+    except (OSError, ValueError) as error:
+        print("unknown (%s unavailable: %s)" % (label, error))
+PY
+}
+
+numi_context_dirty_count() {
+    numi_context_probe status "$NUMI_LAB_ROOT"
+}
+
+numi_context_description() {
+    numi_context_probe describe "$1"
+}
+
 numi_context() {
     [ "$#" -le 1 ] || numi_die "context accepts at most one option; run 'numi context --help'"
     case "${1:-}" in
@@ -231,7 +348,8 @@ EOF
     if command -v git >/dev/null 2>&1 && git -C "$NUMI_LAB_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
         printf 'Revision:     %s\n' "$(git -C "$NUMI_LAB_ROOT" rev-parse --short HEAD)"
         printf 'Branch:       %s\n' "$(git -C "$NUMI_LAB_ROOT" branch --show-current)"
-        numi_dirty_count=$(git -C "$NUMI_LAB_ROOT" status --short | wc -l | tr -d ' ')
+        numi_dirty_count=$(numi_context_dirty_count) || \
+            numi_dirty_count='unknown (bounded Git status failed)'
         printf 'Dirty paths:  %s\n' "$numi_dirty_count"
     elif [ -f "$NUMI_LAB_ROOT/share/numi/REVISION" ]; then
         printf 'Revision:     %.12s\n' "$(sed -n '1p' "$NUMI_LAB_ROOT/share/numi/REVISION")"
@@ -260,10 +378,8 @@ EOF
     printf '%s\n' "$numi_context_capabilities" | while IFS= read -r numi_capability; do
         [ -n "$numi_capability" ] || continue
         numi_capability_path=$(numi_find_command "$numi_capability") || continue
-        numi_description=$(
-            "$numi_capability_path" --numi-describe 2>/dev/null | sed -n '1p'
-        )
-        [ "$numi_description" != "" ] || numi_description='No description provided.'
+        numi_description=$(numi_context_description "$numi_capability_path") || \
+            numi_description='unknown (bounded description failed)'
         printf '  %-*s  %s\n' \
             "$numi_context_width" "$numi_capability" "$numi_description"
         if [ "$numi_context_show_paths" -eq 1 ]; then
