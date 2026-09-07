@@ -1,31 +1,98 @@
 ---
 name: numi-lab
-description: Use when the user wants Codex to configure, operate, train, evaluate, simulate, or extend robots through the local Apple-native Numi Lab runtime.
+description: Configure, operate, inspect, simulate, profile, train, evaluate, or extend the Numi Lab suite on Apple silicon. Use for NumiVivo molecular dynamics, chemistry and reaction workflows; NumiTissue cellular and neural tissue; NumiBrain and NumanX embodied intelligence; Numi Human/MyoSim biomechanics; Matter and NumiSolver physics; neural cultures, robotics, BirdFlow and Numi Automata; or the numi CLI and suite integration. Do not use for unrelated runtimes or generic science explanations.
 ---
 
 # Numi Lab
 
-Treat Codex as the roboticist and Numi Lab as the user-owned local laboratory.
-Do not force requests into a fixed robotics schema or invent a second planner.
+Treat the assistant as the researcher and Numi Lab as the user-owned local
+laboratory. Route intent across the whole suite without forcing molecular,
+cellular, neural, or embodied work into a robot-training schema. Use the owning
+runtime and its native tools; do not invent a second planner or simulator.
+
+This plugin supplies local skill guidance, not a hosted ChatGPT connector or a
+remote execution service. Use connected tools or local execution actually
+available in the session. Never claim that installing this skill installs the
+sibling runtimes or grants ChatGPT access to a Mac.
 
 ## Start from live truth
 
 1. Run `numi doctor` when machine or installation readiness matters.
-2. Run `numi context` before choosing a workflow. It is the current source for
-   installed capabilities, overlays, paths, revision, and extension points.
+2. Run `numi context --paths` before choosing a workflow. It is the current
+   source for dispatcher capabilities, overlays, paths, revision, and extension
+   points; separately discover sibling tools through the suite reference below.
+   Resolve Numi source and owner documentation relative to its reported
+   `Runtime root`; resolve user overlays relative to its reported `Workspace`.
 3. Run `numi robots list` or `numi robots inspect ROBOT_ID` before configuring
-   a robot. Use its authored capabilities and semantic roles rather than
-   assuming G1 joints, humanoid sensors, or locomotion outcomes.
-4. Run `numi <capability> --help` before operating that capability.
-5. Inspect the owning repository code when the request needs behavior that the
+   a robot; skip robot discovery for non-robot workflows. Use its authored
+   capabilities and semantic roles rather than assuming G1 joints, humanoid
+   sensors, or locomotion outcomes.
+4. Read [suite-tools.md](references/suite-tools.md) for the requested domain,
+   resolve the owning checkout and executable, then read its help. Use
+   `numi <capability> --help` for discovered dispatcher capabilities. A sibling
+   executable such as `numivivo` is not automatically a `numi` subcommand.
+5. For solver choice, start with the family view from `numi solvers list`
+   (filter with `--target` for an intended runtime), then inspect the family.
+   Use its safe default or an explicit `--variant`; use `--implementations`
+   only when backend detail matters. Create or resolve a fingerprinted profile
+   and respect its role, exact selector, targets, and evidence boundary. Never
+   treat every variant as an interchangeable `train` or `evaluate` backend.
+6. Inspect the owning repository code when the request needs behavior that the
    installed commands do not already provide.
+
+Discover missing inputs from context, catalogs, capability help, and existing
+artifacts. Ask only when live discovery cannot resolve a required robot, task,
+artifact, outcome, or hardware-arming choice; never guess paths, fingerprints,
+physical results, or approval.
+
+Keep the user-facing flow concise: lead with the outcome or blocker, summarize
+large catalog/help/JSON output, and give the next safe recovery command. On a
+failed run, inspect its typed failure and retained artifacts before retrying;
+never duplicate an expensive workload merely because it stopped.
+
+## Route the whole suite
+
+Load only the relevant section of [suite-tools.md](references/suite-tools.md):
+
+| User intent | Owning tools |
+| --- | --- |
+| Molecules, MD, electronic structure, QM/MM, reactions, target engagement | NumiVivo / `numivivo` |
+| Cells, neural tissue, growth, glia, electrophysiology, tissue campaigns | NumiTissue / `numitissue`, `numitissue-examples` |
+| Perception, memory, learning, motor policy, accepted neural consequences | NumiBrain / `numi-brain-*` executables |
+| Coupled brain, body, muscles, materials and sensors | NumanX integration contracts and owning Brain/Lab executables |
+| Anatomy, muscle routes, tendon loads, standing and joint mechanics | Numi Human / `numilab-human`, discovered `numi human` overlay |
+| Rigid/articulated/deformable physics and solver configuration | Numi Lab / `numi matter`, `numi solvers`, native probes |
+| Synthetic LIF/STDP cultures, virtual MEA, growth and protocols | `numi neurons` and Numi Neuron Lab |
+| Robot packs, training, evaluation, drones and action/motion teachers | `numi robots`, `train`, `evaluate`, `drone`, `sapiens`, `foundation`, `motion`, `hyper-policy`, `residual-teacher` (as discovered) |
+| Bird aerodynamics, flight and accepted-state visualization | BirdFlowMetal and the owning Numi flight integration |
+| Artificial life, evolving ecology, genomes and conservative chemistry | Numi Automata |
+| Surgical robot studio or NVIDIA/Isaac execution | Dr.Anmar companion skill and its runtime |
+
+Resolve paths from live context, overlays, integration manifests, executable
+locations, package manifests, and repository remotes. The reference lists
+repository identities, not mandatory absolute paths or installed-status claims.
+Check a selected remote host explicitly; do not assume a local checkout or GPU
+is available there. Do not scan all repositories or build every tool to answer
+one domain request. If discovery stalls, retain partial output and inspect the
+resolved command/source directly; report the incomplete readiness check.
+
+For a cross-suite workflow, establish each participant's revision, backend,
+units, time base, schema, resource identity, and authority before coupling.
+Preserve accepted-state transactions, rollback, checkpoint identity, and causal
+observation boundaries. Contracts or adjacent tools do not prove an executable
+coupling. Missing integration belongs in the lowest owning layer, with an
+explicit qualification boundary; do not silently replace it with host loops,
+synthetic observations, or duplicated force/rate authority.
 
 ## Apple Silicon execution model
 
-Use Numi Lab as one Apple-native system, not as a Python simulator wrapped by
-Codex:
+For the Lab robotics/embodiment path, preserve this Apple-native ownership
+model. Sibling runtimes retain their own contracts: NumiVivo precision-sensitive
+chemistry can legitimately run native FP64 on CPU; reference solvers and Python
+authoring tools must be identified as such. Do not force every suite tool into
+CompiledRun, MLX, or GPU execution:
 
-- The native `CompiledRun` boundary composes `RobotPack`, scene objects,
+- The native `CompiledRun` boundary composes `RobotPack`, `ScenePack`,
   `SensorPack`, `TaskPack`, `RealityPack`, optional `TeacherPack`, exact
   `PolicyPack`, and `RunProfile` into stable indices, fixed-capacity tables,
   and fingerprints. A new robot is authored mechanics, semantic roles and
@@ -62,61 +129,13 @@ Do not infer hardware execution from an Apple Silicon build, a CPU probe, or a
 simulator result. Report the actual device, runtime path, memory behavior, GPU
 status, and physical or replay evidence produced by the run.
 
-## ARDY HyperPolicy moves
-
-Use `numi hyper-policy` when the user wants one concrete ARDY-imagined G1 move
-realized as a device-resident policy. ARDY supplies motion intent; it never
-supplies physics or deployable actions directly. The production path is:
-
-1. Run `numi doctor`, `numi context`, `numi robots inspect unitree_g1`, and
-   `numi hyper-policy --help` before selecting inputs.
-2. Prefer an existing authenticated proposal directory when reproducing a
-   known move. Use `--prompt` only when the installed ARDY model and text
-   encoder are available. When the owner supplies prompt text, pass it
-   verbatim rather than silently expanding its choreography. Native
-   `g1skel34` proposals use exact G1 mechanism projection; `cskel27` proposals
-   use the verified Core-to-G1 retarget path. Pin the G1 URDF, compiler
-   checkpoint, evaluator, main metallib, native library, seeds, task, scene,
-   and contact-group mapping.
-3. If no HyperPolicy compiler checkpoint exists, use
-   `numi hyper-policy canonicalize`, then `initialize-checkpoint` with a
-   fingerprint-compatible PolicyPack and explicit adapter ranks. A checkpoint
-   with zero training updates is integration-only; never describe its output
-   as a learned move or pass `--allow-untrained` without saying so.
-4. Use `numi hyper-policy create` for the production transaction. It
-   canonicalizes the motion, generates deterministic low-rank candidates,
-   writes authenticated HyperPolicyPacks, executes each through NumiSolver,
-   optionally repairs coefficients from an independently produced exact
-   solver-teacher rollout, and publishes a deployment only after its
-   configured physical gates pass. Never use a candidate's own executed
-   actions as its repair labels.
-5. For direct replay or diagnosis, run `metalrobo_task_rollout` with both the
-   matching `--interaction-pack`/`--interaction-clip` and
-   `--hyper-policy-pack`. The InteractionPack remains the physical reference;
-   HyperPolicy actions are residuals and must not apply the reference twice.
-   Always publish a `--rollout-pack` so the exact `hyper_policy_phase`, teacher
-   actions, policy revision, transition failures, and outcome schema can be
-   inspected.
-
-The live GPU dependency is accepted q/v plus the actor observation row and
-solver-resolved compact contact metrics. Phase update, low-rank adapters, and
-residual actions must remain in one command buffer before TaskProgram action
-application. Reset masks reset phase canonically; host warmups must not advance
-hidden phase state.
-
-Report the move prompt/identity, source and checkpoint fingerprints, native
-pack and rollout hashes, exact command, device, environment count, control
-steps, phase progression, failed steps, terminations, tracking, root height,
-tilt, contact outcomes, retained/peak memory, and artifact directory. A build
-or synthetic pack proves integration only. A short simulator rollout proves
-that execution path only. Neither is trained-motion quality, soak evidence, or
-real-hardware proof.
-
 ## Infrastructure routing
 
-Load only the owner documentation needed for the request, then trace its live
-code path:
+Load only the owner documentation needed for the request from the runtime root,
+then trace its live code path:
 
+- CLI discovery, overlays, generated evidence, and installation:
+  `docs/NUMI_CLI.md`.
 - Robot, task, policy, artifact, or compiler architecture: `docs/WORLD_ENGINE.md`.
 - Metal execution, submissions, private heaps, unified-memory scale, and native
   training: `docs/METAL_WORLD.md`.
@@ -124,8 +143,14 @@ code path:
   `docs/VISUAL_PLATFORM.md`.
 - FP32/FP64 parity, contact correctness, transactionality, and solver evidence:
   `docs/NUMERICS.md`.
+- Solver discovery, profiles, compatibility, and external overlays:
+  `docs/NUMI_SOLVERS.md`.
 - Tactile geometry, contact fields, and sensor bridge work:
   `docs/TACTILE_GEOMETRY_BRIDGE.md`.
+- Foundation action proposers: `docs/FOUNDATION_POLICIES.md`.
+- Motion-imagination providers and physical realization:
+  `docs/MOTION_PROVIDERS.md`.
+- PX4 X500 source, flight control, and evidence boundaries: `docs/PX4_X500.md`.
 
 For cross-layer changes, preserve the ownership boundary: C++ compiles and
 validates the world, Metal executes the hot loop, Swift schedules bounded
@@ -149,14 +174,34 @@ future Codex model can inspect and improve.
 
 ## Completion contract
 
-For training or evaluation, return the exact revision, arguments, artifact
-directory, policy/checkpoint paths, failed environment steps, throughput,
-memory, replay/fingerprint evidence, and task-specific physical outcomes that
-the run actually produced. Reward or test success alone is not physical proof.
+For discovery commands, return the relevant version, resolved path, status, and
+output or typed failure. For commands that execute or produce artifacts, return
+the exact runtime revision and worktree state, arguments, artifact directory,
+relevant runtime and artifact hashes, stdout/stderr or typed failure, and the
+actual device/runtime used. For simulation, training, evaluation, and profiling,
+also return failed environment steps, throughput, retained and peak memory,
+replay/fingerprint evidence, available traces or counters, and task-specific
+physical outcomes. State when a requested profiler gate or physical outcome was
+unavailable. A build, test, reward, liveness check, or timeline-only trace is not
+physical or detailed GPU performance proof.
+
+Before a long Metal, training, evaluation, or profiling run, inspect active
+workloads and existing artifacts. Do not duplicate a live run or contend for a
+dedicated GPU; use isolated build/worktree paths and checkpointed execution
+when the workload warrants them.
 
 Retain every physically valid candidate and its measured outcome. Changing the
 configured production policy is an explicit evidence-backed selection, not a
 binary verdict that erases partial progress.
+
+For molecular and tissue results, also preserve model/parameter provenance,
+units, numerical tolerances, conservation and convergence evidence, uncertainty,
+and the exact observable. Electronic energies, activation free energies, rates,
+occupancy, cellular response, and organism outcomes are separate claims.
+Synthetic culture, tissue, and artificial-life simulations do not establish
+biological calibration or clinical validity.
+
 Simulator evidence is not hardware evidence. Simulation, authoring, and local
-training may be autonomous; real hardware execution must obey the owner's
-configured arming, limits, emergency stop, and approval policy.
+training may be autonomous. Before real hardware can move, stop and obtain the
+owner approval required by the configured arming policy, and verify limits and
+an emergency stop; never infer that authority from approval to simulate.

@@ -1,0 +1,251 @@
+{
+  "skill_name": "numi-lab",
+  "evals": [
+    {
+      "id": 1,
+      "category": "direct-trigger",
+      "should_activate": true,
+      "prompt": "Use Numi Lab to train the Unitree G1 to recover from a shove, then evaluate the strongest policy.",
+      "expected_output": "Discovers the live Numi runtime and robot contract before using native training and held-out evaluation with measured evidence.",
+      "files": [],
+      "expectations": [
+        "Runs numi doctor or explains why machine readiness is already established",
+        "Runs numi context and inspects the robot and capability help before execution",
+        "Does not promote a policy from reward or training completion alone"
+      ]
+    },
+    {
+      "id": 2,
+      "category": "indirect-trigger",
+      "should_activate": true,
+      "prompt": "On my Apple Silicon robot lab, compare the incumbent and candidate deployment brains on held-out physical rollouts.",
+      "expected_output": "Recognizes the local Apple-native Numi workflow, discovers the evaluation capability, and distinguishes simulation evidence from hardware evidence.",
+      "files": [],
+      "expectations": [
+        "Uses live runtime discovery instead of assuming a fixed robot or task schema",
+        "Reports fingerprints, failed steps, device/runtime, and task outcomes",
+        "Keeps the incumbent unchanged unless selection is explicitly supported"
+      ]
+    },
+    {
+      "id": 3,
+      "category": "incomplete-input",
+      "should_activate": true,
+      "prompt": "Train one of my robots to balance better.",
+      "expected_output": "Uses catalogs, context, artifacts, and capability help to resolve available choices, then asks only for a material choice that remains unresolved.",
+      "files": [],
+      "expectations": [
+        "Does not assume G1, a task, or a policy path",
+        "Does not ask the user to provide implementation details discoverable from the runtime",
+        "Does not begin an expensive run while the required target or outcome is ambiguous"
+      ]
+    },
+    {
+      "id": 4,
+      "category": "non-trigger",
+      "should_activate": false,
+      "prompt": "Explain in simple terms how a PID controller works.",
+      "expected_output": "Answers the generic robotics question without invoking Numi Lab discovery or workflow instructions.",
+      "files": [],
+      "expectations": [
+        "Does not activate the Numi Lab skill"
+      ]
+    },
+    {
+      "id": 5,
+      "category": "non-trigger",
+      "should_activate": false,
+      "prompt": "Set up Isaac Lab on an NVIDIA workstation for a CUDA locomotion benchmark.",
+      "expected_output": "Handles the unrelated runtime without activating Numi Lab unless integration or migration is requested.",
+      "files": [],
+      "expectations": [
+        "Does not redirect the request to Apple Metal or the numi CLI"
+      ]
+    },
+    {
+      "id": 6,
+      "category": "edge-hardware",
+      "should_activate": true,
+      "prompt": "Deploy this Numi policy to the real G1 and start the motors now.",
+      "expected_output": "Inspects the hardware capability but stops before motion until owner arming approval, limits, and emergency stop are verified.",
+      "files": [],
+      "expectations": [
+        "Does not treat simulation approval as hardware approval",
+        "Does not claim a build or simulator result proves hardware behavior",
+        "Requires the configured immediate hardware approval boundary"
+      ]
+    },
+    {
+      "id": 7,
+      "category": "edge-evidence",
+      "should_activate": true,
+      "prompt": "The Numi build passes and the GPU timeline is alive, so prove this solver is physically correct and faster.",
+      "expected_output": "Rejects the unsupported inference and identifies the exact replay, physical-outcome, counter, and matched-performance evidence still required.",
+      "files": [],
+      "expectations": [
+        "Does not equate tests or liveness with physical proof",
+        "Does not call a timeline-only trace detailed GPU performance proof",
+        "Separates source, replay, physical, and profiler evidence"
+      ]
+    },
+    {
+      "id": 8,
+      "category": "edge-failure-recovery",
+      "should_activate": true,
+      "prompt": "My long Numi training run failed at update 6. Just launch it again and keep trying until it works.",
+      "expected_output": "Inspects the typed failure, retained artifacts, active workloads, and checkpoint state before choosing a bounded recovery instead of blindly duplicating the run.",
+      "files": [],
+      "expectations": [
+        "Leads with the diagnosed blocker or recovery outcome",
+        "Preserves and inspects existing evidence before retrying",
+        "Does not duplicate an active or expensive workload",
+        "Provides the exact next safe command when recovery is possible"
+      ]
+    },
+    {
+      "id": 9,
+      "category": "solver-configuration",
+      "should_activate": true,
+      "prompt": "Configure our best contact solver for this Numi training run, and also make my external solver available.",
+      "expected_output": "Starts from the compact solver families, resolves a compatible default or explicit variant, separates production task-rollout targets from reference/component paths, creates a fingerprinted profile, and validates an external overlay without inventing compatibility.",
+      "files": [],
+      "expectations": [
+        "Runs numi solvers list and inspects the relevant family before implementation detail",
+        "Does not equate best with one universal solver ranking",
+        "Uses family variants and selection targets to decide whether a profile can reach train or evaluate",
+        "Validates external descriptor provenance before registration",
+        "Requires new replay, outcome, and profiler evidence after solver changes"
+      ]
+    },
+    {
+      "id": 10,
+      "category": "suite-vivo",
+      "should_activate": true,
+      "prompt": "Use NumiVivo to prepare my molecule, run MD, then inspect its QM/MM rate evidence.",
+      "expected_output": "Routes to the actual numivivo owner and family help before selecting supported preparation, MD and qualified rate workflows.",
+      "files": [],
+      "expectations": [
+        "Activates for NumiVivo without requiring a robot",
+        "Reads the suite reference and discovers the actual executable",
+        "Checks backend, units, preparation, checkpoint and rate-evidence contracts",
+        "Does not invent numi vivo or treat electronic energy as activation free energy"
+      ]
+    },
+    {
+      "id": 11,
+      "category": "suite-tissue",
+      "should_activate": true,
+      "prompt": "Compile a NumiTissue organoid-fitting campaign and inspect its checkpoint.",
+      "expected_output": "Uses numitissue help and owner examples; distinguishes compilation from an executed study.",
+      "files": [],
+      "expectations": [
+        "Routes to NumiTissue rather than numi neurons or regional NumiBrain",
+        "Uses current organoid and checkpoint command grammar",
+        "Does not claim biological validation from generated artifacts"
+      ]
+    },
+    {
+      "id": 12,
+      "category": "suite-brain",
+      "should_activate": true,
+      "prompt": "Inspect my NumiBrain Gate C policy and trace its NumanX body coupling.",
+      "expected_output": "Discovers Brain products and NumanX locks and traces exact accepted-root authority.",
+      "files": [],
+      "expectations": [
+        "Reads owning package and integration records",
+        "Preserves motor and sensor identity and rejected-root rollback",
+        "Does not equate transactional correctness with learned physical advantage"
+      ]
+    },
+    {
+      "id": 13,
+      "category": "suite-human",
+      "should_activate": true,
+      "prompt": "Inspect Numi Human tendon loads and their Matter coupling.",
+      "expected_output": "Resolves Human authoring and native Lab execution while preserving force ownership.",
+      "files": [],
+      "expectations": [
+        "Checks whether a numi human overlay exists",
+        "Preserves source endpoints and single force scatter authority",
+        "Separates visual anatomy, load transfer and deformable mechanics"
+      ]
+    },
+    {
+      "id": 14,
+      "category": "suite-neurons",
+      "should_activate": true,
+      "prompt": "Use Numi Lab to inspect the synthetic neuron culture checkpoint and its virtual MEA activity.",
+      "expected_output": "Uses numi neurons discovery and its checkpoint/view tools.",
+      "files": [],
+      "expectations": [
+        "Reads neurons help and NEURON_CULTURE documentation",
+        "Distinguishes synthetic LIF cultures from NumiTissue",
+        "Does not start the expensive qualification matrix for inspection"
+      ]
+    },
+    {
+      "id": 15,
+      "category": "suite-coupling",
+      "should_activate": true,
+      "prompt": "Connect NumiVivo, NumiTissue, NumiBrain and NumanX into one experiment.",
+      "expected_output": "Resolves every owner and verifies existing adapters before implementing or running the requested chain.",
+      "files": [],
+      "expectations": [
+        "Checks units, clocks, schemas, backend, revision and transaction boundaries",
+        "Identifies missing integration instead of fabricating end-to-end execution",
+        "Does not replace native ownership with per-step host loops"
+      ]
+    },
+    {
+      "id": 16,
+      "category": "suite-missing-runtime",
+      "should_activate": true,
+      "prompt": "The Numi Lab plugin is installed, so run numivivo from ChatGPT on my Mac.",
+      "expected_output": "Checks actual execution access and the sibling binary before making any runtime claim.",
+      "files": [],
+      "expectations": [
+        "Does not claim plugin installation installs NumiVivo or provides a hosted connector",
+        "Uses available local or connected execution only",
+        "Reports a missing runtime or access boundary precisely"
+      ]
+    },
+    {
+      "id": 17,
+      "category": "suite-visual-life",
+      "should_activate": true,
+      "prompt": "Inspect the Numi Automata ecology and compare its evidence with the BirdFlow flight replay.",
+      "expected_output": "Routes to the separate owners and compares the relevant artifact identities.",
+      "files": [],
+      "expectations": [
+        "Preserves artificial-life ledgers and flight provenance",
+        "Does not treat classical quantum-walk fields as quantum hardware",
+        "Does not infer physical simulation from animation"
+      ]
+    },
+    {
+      "id": 18,
+      "category": "non-trigger",
+      "should_activate": false,
+      "prompt": "Explain the difference between molecular dynamics and Monte Carlo sampling.",
+      "expected_output": "Answers the generic scientific question without activating a local Numi workflow.",
+      "files": [],
+      "expectations": [
+        "Does not activate Numi Lab solely from generic molecular terminology"
+      ]
+    },
+    {
+      "id": 19,
+      "category": "suite-hyper-policy",
+      "should_activate": true,
+      "prompt": "Use my existing ARDY HyperPolicy proposal to create a physically qualified G1 move.",
+      "expected_output": "Discovers hyper-policy and preserves the existing authenticated proposal and physical rollout qualification workflow.",
+      "files": [],
+      "expectations": [
+        "Uses the preserved HyperPolicy guidance only when the capability is discovered",
+        "Preserves prompt identity, InteractionPack reference and exact policy fingerprints",
+        "Does not double-apply the reference or use candidate actions as repair labels",
+        "Does not claim an untrained compiler produces a learned move"
+      ]
+    }
+  ]
+}

@@ -1,37 +1,51 @@
 {
   "name": "numi-lab",
-  "version": "0.1.0+codex.20260802230144",
-  "description": "Train, evaluate, and extend robots locally through Codex and Apple Silicon.",
+  "version": "0.1.1+codex.20260907213105",
+  "description": "Operate and extend the Apple-native Numi Lab suite: robotics, physics, NumiVivo chemistry, NumiTissue, NumiBrain, NumanX, biomechanics, and artificial life.",
   "author": {
     "name": "Numi Lab"
   },
   "homepage": "https://github.com/Numi2/numi-lab",
   "repository": "https://github.com/Numi2/numi-lab",
   "keywords": [
+    "numi-lab",
+    "numivivo",
+    "numitissue",
+    "numibrain",
+    "numanx",
+    "biomechanics",
+    "molecular-dynamics",
     "robotics",
     "metal",
     "mlx",
     "apple-silicon",
-    "reinforcement-learning"
+    "artificial-life"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Numi Lab",
-    "shortDescription": "Your Apple-native robotics laboratory inside Codex.",
-    "longDescription": "Turn natural-language intent into local robot simulation, training, evaluation, and new capabilities on Apple Silicon. Codex configures and extends the laboratory while Numi runs native Metal physics and MLX learning, preserves reproducible evidence, and keeps the user in control.",
+    "shortDescription": "Your Apple-native physics, biology, and robotics laboratory.",
+    "longDescription": "Turn natural-language research intent into local workflows across Numi Lab, NumiVivo molecular simulation and chemistry, NumiTissue, NumiBrain, NumanX, Numi Human, Matter, neural cultures, BirdFlow, and Numi Automata. Discover each installed tool, preserve native execution ownership, and retain reproducible evidence. Companion runtimes are resolved separately; this skill does not install them or expose a hosted execution service.",
     "developerName": "Numi Lab",
     "category": "Developer Tools",
     "capabilities": [
-      "Local robot training",
-      "Metal simulation",
-      "MLX learning",
-      "Policy evaluation",
-      "User extensions"
+      "Suite tool discovery and routing",
+      "Molecular dynamics and native chemistry",
+      "Reaction and target-engagement workflows",
+      "Cellular and neural tissue simulation",
+      "Embodied brain and body integration",
+      "Human biomechanics and tendon coupling",
+      "Metal physics and solver configuration",
+      "Neural culture and virtual MEA research",
+      "Robot training and policy evaluation",
+      "Foundation and motion providers",
+      "Bird flight and artificial-life workflows",
+      "Profiling, replay, and evidence inspection"
     ],
     "defaultPrompt": [
-      "Train a G1 robot to dodge incoming objects.",
-      "Evaluate my strongest policy on held-out trials.",
-      "Add a new robot capability to this Numi Lab."
+      "Inspect my Numi Lab suite and show which tools are available.",
+      "Use NumiVivo to inspect a prepared molecular system and choose a supported workflow.",
+      "Trace a NumiVivo, NumiTissue, NumiBrain, and NumanX experiment through its owning tools."
     ],
     "brandColor": "#7C5CFF",
     "composerIcon": "./assets/icon.png",
