@@ -228,6 +228,10 @@ struct CandidateAudit {
     id<MTLBuffer> attachment = nil;
     id<MTLBuffer> factorBefore = nil;
     id<MTLBuffer> factorAfter = nil;
+    id<MTLBuffer> predictorSnapshot = nil;
+    id<MTLBuffer> finalQSnapshot = nil;
+    id<MTLBuffer> finalVSnapshot = nil;
+    CandidateArena freeMotion{};
     CandidateArena base{};
     CandidateArena plus{};
     CandidateArena minus{};
@@ -336,7 +340,25 @@ bool encodeProgram(void* raw, const Pass& pass) noexcept {
                       toBuffer:audit.factorBefore
              destinationOffset:0u
                           size:kNv * kNv * sizeof(float)];
+        [before copyFromBuffer:(__bridge id<MTLBuffer>)pass.sourcePredictedVelocity
+            sourceOffset:0u toBuffer:audit.predictorSnapshot destinationOffset:0u
+            size:kNv * sizeof(float)];
         [before endEncoding];
+
+        Pass aliasPredictor = pass;
+        aliasPredictor.sourcePredictedVelocity = pass.vCheckpoint;
+        aliasPredictor.sourcePredictedVelocityGPUAddress = pass.vCheckpointGPUAddress;
+        if (pass.encodeExactCandidate(pass.exactCandidateContext, aliasPredictor,
+                candidateQuery(audit, audit.freeMotion, false)))
+            return audit.fail("checkpoint alias admitted as the free predictor");
+        Pass staleABI = pass;
+        staleABI.abiVersion = metalrobo::kMetalNumanXHumanMatterABIVersion;
+        if (pass.encodeExactCandidate(pass.exactCandidateContext, staleABI,
+                candidateQuery(audit, audit.freeMotion, false)))
+            return audit.fail("legacy predictor-free pass admitted");
+        if (!pass.encodeExactCandidate(pass.exactCandidateContext, pass,
+                candidateQuery(audit, audit.freeMotion, false)))
+            return audit.fail("free-motion candidate was rejected");
 
         Query malformedAddress = candidateQuery(audit, audit.base, true);
         malformedAddress.candidateQGPUAddress += sizeof(float);
@@ -399,6 +421,10 @@ bool encodeProgram(void* raw, const Pass& pass) noexcept {
         id<MTLBlitCommandEncoder> publish =
             [commandBuffer blitCommandEncoder];
         if (publish == nil) return audit.fail("joint accept blit failed");
+        [publish copyFromBuffer:(__bridge id<MTLBuffer>)pass.q sourceOffset:0u
+            toBuffer:audit.finalQSnapshot destinationOffset:0u size:kNq * sizeof(float)];
+        [publish copyFromBuffer:(__bridge id<MTLBuffer>)pass.v sourceOffset:0u
+            toBuffer:audit.finalVSnapshot destinationOffset:0u size:kNv * sizeof(float)];
         [publish copyFromBuffer:(__bridge id<MTLBuffer>)pass.standStatuses
                    sourceOffset:0u toBuffer:audit.standStatusSnapshot
               destinationOffset:0u size:sizeof(MRNumiHumanStandStatusGPU)];
@@ -568,6 +594,11 @@ void initializeAudit(CandidateAudit& audit, id<MTLDevice> device) {
     attachment.bodyIndex = kFirstBody + kBodyCount - 1u;
     attachment.localPoint = f4(0.13f, -0.07f, 0.09f, 0.0f);
     contents<MRArticulatedPointImpulseGPU>(audit.attachment)[0] = attachment;
+
+    audit.freeMotion = makeCandidateArena(device, @"zero-delta candidate", false);
+    audit.predictorSnapshot = makeBuffer<float>(device, kNv, @"free predictor snapshot");
+    audit.finalQSnapshot = makeBuffer<float>(device, kNq, @"actual Human q");
+    audit.finalVSnapshot = makeBuffer<float>(device, kNv, @"actual Human v");
 
     const auto fillDelta = [] (id<MTLBuffer> buffer) {
         float* delta = contents<float>(buffer);
@@ -747,17 +778,45 @@ void verifyCandidate(
     require(maximumFactorDifference(audit) == 0.0f,
             "candidate kinematics modified frozen A0 bytes");
 
+    const float* predictor = contents<float>(audit.predictorSnapshot);
+    const float* actualV = contents<float>(audit.finalVSnapshot);
+    const float* actualQ = contents<float>(audit.finalQSnapshot);
+    const float* freeQ = contents<float>(audit.freeMotion.q);
+    float predictorChange = 0.0f;
+    float velocityClosure = 0.0f;
+    float positionClosure = 0.0f;
+    for (std::uint32_t dof = 0u; dof < kNv; ++dof) {
+        predictorChange = std::max(predictorChange, std::abs(predictor[dof] - model.defaultV[dof]));
+        velocityClosure = std::max(velocityClosure, std::abs(predictor[dof] - actualV[dof]));
+    }
+    for (std::uint32_t qIndex = 0u; qIndex < kNq; ++qIndex)
+        positionClosure = std::max(positionClosure, std::abs(freeQ[qIndex] - actualQ[qIndex]));
+    float legacyPositionMismatch = 0.0f;
+    for (std::uint32_t axis = 0u; axis < 3u; ++axis)
+        legacyPositionMismatch = std::max(legacyPositionMismatch,
+            std::abs(model.defaultQ[axis] + kTimestep * model.defaultV[axis] - actualQ[axis]));
+    require(legacyPositionMismatch > 2.0e-6f,
+            "legacy v0 candidate is not a discriminating negative control");
+    require(predictorChange > 1.0e-4f,
+            "fixture did not exercise source Human acceleration");
+    require(velocityClosure <= 2.0e-6f && positionClosure <= 2.0e-6f,
+            "free candidate differs from the actual Human step: q=" +
+                std::to_string(positionClosure) + " v=" + std::to_string(velocityClosure));
+    std::cout << "PREDICTOR source_acceleration_dv=" << predictorChange
+              << " q_closure=" << positionClosure << " v_closure=" << velocityClosure
+              << " legacy_q_mismatch=" << legacyPositionMismatch << '\n';
+
     const float* delta = contents<float>(audit.base.delta);
     const float* q = contents<float>(audit.base.q);
     for (std::uint32_t dof = 6u; dof < kNv; ++dof) {
         const std::uint32_t qIndex = dof + 1u;
         const float expected = model.defaultQ[qIndex] + kTimestep *
-            (model.defaultV[dof] + delta[dof]);
+            (predictor[dof] + delta[dof]);
         require(std::abs(q[qIndex] - expected) <= 2.0e-6f,
                 "candidate scalar q integration is not exact");
     }
     require(std::abs(q[0] - (model.defaultQ[0] + kTimestep *
-                (model.defaultV[0] + delta[0]))) <= 2.0e-6f,
+                (predictor[0] + delta[0]))) <= 2.0e-6f,
             "candidate root translation is not exact");
 
     const MRBodyStateGPU* bodies = contents<MRBodyStateGPU>(audit.base.bodies);

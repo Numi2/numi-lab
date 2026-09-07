@@ -266,6 +266,7 @@ struct OwnerArenas {
     id<MTLBuffer> stand = nil;
     id<MTLBuffer> qCheckpoint = nil;
     id<MTLBuffer> vCheckpoint = nil;
+    id<MTLBuffer> predictedV = nil;
     id<MTLBuffer> mujocoCheckpoint = nil;
     id<MTLBuffer> factor = nil;
     id<MTLBuffer> ownerStatus = nil;
@@ -303,6 +304,7 @@ OwnerArenas makeOwnerArenas(id<MTLDevice> device) {
     result.stand = makeBuffer(device, stand, @"owner stand status");
     result.qCheckpoint = makeBuffer(device, q, @"owner q checkpoint");
     result.vCheckpoint = makeBuffer(device, v, @"owner v checkpoint");
+    result.predictedV = makeBuffer(device, v, @"owner free velocity predictor");
     result.mujocoCheckpoint = makeZeroBuffer(
         device, sizeof(MRMujocoMuscleStateGPU), @"owner MyoSim checkpoint");
     result.factor = makeBuffer<float>(
@@ -344,6 +346,7 @@ metalrobo::MetalNumanXHumanMatterPass makePass(
     pass.standStatuses = (__bridge void*)arena.stand;
     pass.qCheckpoint = (__bridge void*)arena.qCheckpoint;
     pass.vCheckpoint = (__bridge void*)arena.vCheckpoint;
+    pass.sourcePredictedVelocity = (__bridge void*)arena.predictedV;
     pass.mujocoStateCheckpoint = (__bridge void*)arena.mujocoCheckpoint;
     pass.sourceEffectiveTangentFactor = (__bridge void*)arena.factor;
     pass.ownerStatuses = (__bridge void*)arena.ownerStatus;
@@ -366,6 +369,7 @@ metalrobo::MetalNumanXHumanMatterPass makePass(
     pass.standStatusesGPUAddress = arena.stand.gpuAddress;
     pass.qCheckpointGPUAddress = arena.qCheckpoint.gpuAddress;
     pass.vCheckpointGPUAddress = arena.vCheckpoint.gpuAddress;
+    pass.sourcePredictedVelocityGPUAddress = arena.predictedV.gpuAddress;
     pass.mujocoStateCheckpointGPUAddress = arena.mujocoCheckpoint.gpuAddress;
     pass.sourceEffectiveTangentFactorGPUAddress = arena.factor.gpuAddress;
     pass.ownerStatusesGPUAddress = arena.ownerStatus.gpuAddress;

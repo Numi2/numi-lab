@@ -1021,8 +1021,9 @@ void dispatchEnvironments(
     const MetalNumanXHumanMatterPass& pass
 ) noexcept {
     std::uint64_t hash = kFNVOffset;
-    const std::array<void*, 18u> pointers{{
+    const std::array<void*, 19u> pointers{{
         pass.commandBuffer, pass.q, pass.v, pass.mujocoStates,
+        pass.sourcePredictedVelocity,
         pass.mujocoGeneralizedForceArena, pass.bodyPoses, pass.pointQueries,
         pass.pointWorld, pass.pointJacobians, pass.standStatuses,
         pass.qCheckpoint, pass.vCheckpoint, pass.mujocoStateCheckpoint,
@@ -1034,8 +1035,9 @@ void dispatchEnvironments(
         const std::uintptr_t value = reinterpret_cast<std::uintptr_t>(pointer);
         mixValue(hash, static_cast<std::uint64_t>(value));
     }
-    const std::array<std::uint64_t, 38u> values{{
+    const std::array<std::uint64_t, 39u> values{{
         pass.qGPUAddress, pass.vGPUAddress,
+        pass.sourcePredictedVelocityGPUAddress,
         pass.mujocoStatesGPUAddress,
         pass.mujocoGeneralizedForceArenaGPUAddress,
         pass.bodyPosesGPUAddress, pass.pointQueriesGPUAddress,
@@ -1098,7 +1100,7 @@ void dispatchEnvironments(
                 pass.exactCandidateContext != nullptr
             : pass.encodeExactCandidate == nullptr &&
                 pass.exactCandidateContext == nullptr;
-    if (pass.abiVersion != kMetalNumanXHumanMatterABIVersion ||
+    if (pass.abiVersion != kMetalNumanXHumanMatterPassABIVersion ||
         pass.structSize != sizeof(MetalNumanXHumanMatterPass) ||
         pass.accessFlags != access || pass.capabilities != capabilities ||
         pass.phase != expectedPhase || pass.stepIndex != 0u ||
@@ -1175,7 +1177,7 @@ void dispatchEnvironments(
     // access modes: checkpoints, live destinations, owner status, staged
     // reaction, joint status, proof scratch and the prepared token form one
     // rollback/proof authority and must never share bytes.
-    std::array<BufferRegion, 21u> regions{};
+    std::array<BufferRegion, 22u> regions{};
     std::size_t regionCount = 0u;
     const auto appendBuffer = [&] (
         void* raw, const std::uint64_t address,
@@ -1211,6 +1213,9 @@ void dispatchEnvironments(
     };
     if (!appendBuffer(pass.q, pass.qGPUAddress, qElements, sizeof(float)) ||
         !appendBuffer(pass.v, pass.vGPUAddress, vElements, sizeof(float)) ||
+        !appendBuffer(pass.sourcePredictedVelocity,
+                pass.sourcePredictedVelocityGPUAddress,
+                vElements, sizeof(float)) ||
         !appendBuffer(pass.mujocoStates, pass.mujocoStatesGPUAddress,
                 stateElements, sizeof(MRMujocoMuscleStateGPU)) ||
         !appendBuffer(pass.mujocoGeneralizedForceArena,
@@ -2063,14 +2068,14 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
         MR_NUMANX_COUPLED_HUMAN_CAP_EXACT_CANDIDATE_KINEMATICS;
     result.commandBuffer = pass.commandBuffer;
     result.sourceQ = pass.q;
-    result.sourceV = pass.v;
+    result.sourceV = pass.sourcePredictedVelocity;
     result.sourceEffectiveTangentFactor =
         pass.sourceEffectiveTangentFactor;
     result.standStatuses = pass.standStatuses;
     result.exactKinematicsContext = frame;
     result.encodeExactKinematics = nullptr;
     result.sourceQGPUAddress = pass.qGPUAddress;
-    result.sourceVGPUAddress = pass.vGPUAddress;
+    result.sourceVGPUAddress = pass.sourcePredictedVelocityGPUAddress;
     result.sourceEffectiveTangentFactorGPUAddress =
         pass.sourceEffectiveTangentFactorGPUAddress;
     result.standStatusesGPUAddress = pass.standStatusesGPUAddress;
@@ -2268,7 +2273,9 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
     request.commandBuffer = pass.commandBuffer;
     request.phase = phase;
     request.rigid.q = pass.q;
-    request.rigid.v = pass.v;
+    // Matter's velocity increment is relative to the exact free Human
+    // predictor. Accepted v remains separate in the checkpoint/proof paths.
+    request.rigid.v = pass.sourcePredictedVelocity;
     request.rigid.currentBodies = nullptr;
     const std::uint64_t bodyEnd =
         static_cast<std::uint64_t>(pass.articulationFirstBody) +

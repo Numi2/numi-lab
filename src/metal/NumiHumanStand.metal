@@ -324,8 +324,14 @@ kernel void mr_numi_human_stand_step(
                 MR_NUMI_HUMAN_STAND_ENABLE_CONTACT |
                 MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE |
                 MR_NUMI_HUMAN_STAND_HAS_TENDON_LOADS |
-                MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES
-            )) != 0u) {
+                MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES |
+                MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY
+            )) != 0u ||
+            ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u &&
+             ((dispatch.flags & (MR_NUMI_HUMAN_STAND_ENABLE_CONTACT |
+                                 MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES)) != 0u ||
+              dispatch.supportContactCount != 0u ||
+              dispatch.jointEqualityCount != 0u))) {
             fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
         } else if (articulation.rootType != MR_ROOT_FLOATING ||
                    bodyCount == 0u || bodyCount > MR_NUMI_HUMAN_STAND_MAX_BODIES ||
@@ -708,6 +714,19 @@ kernel void mr_numi_human_stand_step(
     for (uint dof = 0u; dof < nv; ++dof) {
         maximumAcceleration = max(maximumAcceleration, abs(candidateV[dof]));
         candidateV[dof] = vState[vBase + dof] + timestep * candidateV[dof];
+    }
+
+    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u) {
+        for (uint dof = 0u; dof < nv; ++dof) {
+            if (!isfinite(candidateV[dof])) {
+                fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
+                return;
+            }
+        }
+        for (uint dof = 0u; dof < nv; ++dof)
+            vState[vBase + dof] = candidateV[dof];
+        // This is a predictor, never a completed or published physical step.
+        return;
     }
 
     uint activeContacts = 0u;

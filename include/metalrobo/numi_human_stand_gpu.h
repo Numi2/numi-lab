@@ -29,6 +29,9 @@ enum MRNumiHumanStandFlags {
     MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE = 1u << 1u,
     MR_NUMI_HUMAN_STAND_HAS_TENDON_LOADS = 1u << 2u,
     MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES = 1u << 3u,
+    // Internal owner prefix: vState names private scratch initialized from
+    // accepted v. Produce v_free without advancing q or completedSteps.
+    MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY = 1u << 4u,
 };
 
 // One source-authored support witness. The point-query index addresses the

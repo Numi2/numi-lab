@@ -43,7 +43,7 @@ constexpr std::size_t kStandVCheckpointBuffer = 14u;
 constexpr std::size_t kStandMujocoCheckpointBuffer = 15u;
 constexpr std::size_t kStandStatusCheckpointBuffer = 16u;
 constexpr std::size_t kStandVectorCheckpointBuffer = 17u;
-constexpr std::size_t kHumanMatterBufferCount = 16u;
+constexpr std::size_t kHumanMatterBufferCount = 17u;
 constexpr std::size_t kHumanMatterQCheckpointBuffer = 0u;
 constexpr std::size_t kHumanMatterVCheckpointBuffer = 1u;
 constexpr std::size_t kHumanMatterMujocoCheckpointBuffer = 2u;
@@ -60,6 +60,7 @@ constexpr std::size_t kHumanMatterProposalBuffer = 12u;
 constexpr std::size_t kHumanMatterProposedTokenBuffer = 13u;
 constexpr std::size_t kHumanMatterApplyActionBuffer = 14u;
 constexpr std::size_t kHumanMatterPublicationFenceBuffer = 15u;
+constexpr std::size_t kHumanMatterPredictedVelocityBuffer = 16u;
 constexpr std::size_t kStandVelocityBuffer = 0u;
 constexpr std::size_t kStandContactsBuffer = 1u;
 constexpr std::size_t kStandSpatialJacobianBuffer = 2u;
@@ -217,7 +218,6 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> standReconcilePipeline = nil;
     __strong id<MTLComputePipelineState> tendonPipeline = nil;
     __strong id<MTLComputePipelineState> humanMatterBeginPipeline = nil;
-    __strong id<MTLComputePipelineState> humanMatterFactorPipeline = nil;
     __strong id<MTLComputePipelineState> humanMatterConsumePipeline = nil;
     __strong id<MTLComputePipelineState>
         humanMatterPreparePhysicalPipeline = nil;
@@ -1657,6 +1657,11 @@ bool buildRequirements(
                 kHumanMatterQCheckpointBuffer]
         ) ||
         !makeRequirement<float>(
+            "NumanX Human/Matter free velocity predictor",
+            layout.humanMatterVCheckpointElements,
+            requirements.humanMatterEntries[kHumanMatterPredictedVelocityBuffer]
+        ) ||
+        !makeRequirement<float>(
             "NumanX Human/Matter v checkpoint",
             layout.humanMatterVCheckpointElements,
             requirements.humanMatterEntries[
@@ -2910,7 +2915,6 @@ MetalArticulatedOperatorDiagnostics initializeHumanMatterPipelines(
     MetalArticulatedOperatorDiagnostics diagnostics
 ) {
     if (context.humanMatterBeginPipeline != nil &&
-        context.humanMatterFactorPipeline != nil &&
         context.humanMatterConsumePipeline != nil &&
         context.humanMatterPreparePhysicalPipeline != nil &&
         context.humanMatterMarkPhysicalCompletePipeline != nil &&
@@ -2927,11 +2931,9 @@ MetalArticulatedOperatorDiagnostics initializeHumanMatterPipelines(
         __strong id<MTLComputePipelineState>* destination;
         NSUInteger minimumThreads;
     };
-    const std::array<PipelineSpec, 10u> specs{{
+    const std::array<PipelineSpec, 9u> specs{{
         {@"mr_numanx_human_matter_begin",
          &context.humanMatterBeginPipeline, kThreadsPerThreadgroup},
-        {@"mr_numanx_human_matter_source_factor",
-         &context.humanMatterFactorPipeline, kStandThreadsPerThreadgroup},
         {@"mr_numanx_human_matter_consume_reaction",
          &context.humanMatterConsumePipeline, kStandThreadsPerThreadgroup},
         {@"mr_numanx_human_matter_prepare_physical",
@@ -3695,7 +3697,7 @@ void uploadBatch(
         return false;
     }
 
-    const std::array<id<MTLBuffer>, 20u> ownerBuffers{{
+    const std::array<id<MTLBuffer>, 21u> ownerBuffers{{
         context.buffers[6u],
         context.standBuffers[kStandVelocityBuffer],
         context.buffers[kMujocoStatesBuffer],
@@ -3716,8 +3718,9 @@ void uploadBatch(
         context.humanMatterBuffers[kHumanMatterProposedTokenBuffer],
         context.humanMatterBuffers[kHumanMatterApplyActionBuffer],
         context.humanMatterBuffers[kHumanMatterPublicationFenceBuffer],
+        context.humanMatterBuffers[kHumanMatterPredictedVelocityBuffer],
     }};
-    const std::array<std::uint64_t, 20u> ownerMinimumBytes{{
+    const std::array<std::uint64_t, 21u> ownerMinimumBytes{{
         layout.qBytes,
         layout.standVelocityBytes,
         layout.mujocoStateBytes,
@@ -3738,6 +3741,7 @@ void uploadBatch(
         layout.humanMatterProposedTokenBytes,
         layout.humanMatterApplyActionBytes,
         layout.humanMatterPublicationFenceBytes,
+        layout.standVelocityBytes,
     }};
     for (std::size_t index = 0u; index < ownerBuffers.size(); ++index) {
         if (!ownedMetalBuffer(
@@ -4230,7 +4234,7 @@ struct MetalBufferRegion {
     const MetalNumanXHumanMatterPass& pass
 ) noexcept {
     if (context.state == nullptr ||
-        pass.abiVersion != kMetalNumanXHumanMatterABIVersion ||
+        pass.abiVersion != kMetalNumanXHumanMatterPassABIVersion ||
         pass.structSize != sizeof(MetalNumanXHumanMatterPass) ||
         pass.phase != MetalNumanXHumanMatterPhase::preDynamics ||
         pass.stepIndex != 0u || pass.stepCount != 1u ||
@@ -4270,6 +4274,10 @@ struct MetalBufferRegion {
             kHumanMatterQCheckpointBuffer] &&
         pass.vCheckpoint == (__bridge void*)state.humanMatterBuffers[
             kHumanMatterVCheckpointBuffer] &&
+        pass.sourcePredictedVelocity == (__bridge void*)state.humanMatterBuffers[
+            kHumanMatterPredictedVelocityBuffer] &&
+        pass.sourcePredictedVelocityGPUAddress == state.humanMatterBuffers[
+            kHumanMatterPredictedVelocityBuffer].gpuAddress &&
         pass.sourceEffectiveTangentFactor ==
             (__bridge void*)state.standBuffers[kStandFactorBuffer] &&
         pass.matterGeneralizedReaction == context.matterReaction &&
@@ -4577,7 +4585,7 @@ struct MetalBufferRegion {
                            kHumanMatterQCheckpointBuffer]
                   offset:0u atIndex:3u];
     [prepare setBuffer:context.state->humanMatterBuffers[
-                           kHumanMatterVCheckpointBuffer]
+                           kHumanMatterPredictedVelocityBuffer]
                   offset:0u atIndex:4u];
     [prepare setBuffer:deltaVelocity offset:0u atIndex:5u];
     [prepare setBuffer:candidateQ offset:0u atIndex:6u];
@@ -4667,7 +4675,7 @@ struct MetalBufferRegion {
     [materialize setBuffer:context.state->buffers[4u]
                      offset:0u atIndex:2u];
     [materialize setBuffer:context.state->humanMatterBuffers[
-                               kHumanMatterVCheckpointBuffer]
+                               kHumanMatterPredictedVelocityBuffer]
                       offset:0u atIndex:3u];
     [materialize setBuffer:deltaVelocity offset:0u atIndex:4u];
     [materialize setBuffer:candidateQ offset:0u atIndex:5u];
@@ -8229,7 +8237,7 @@ MetalArticulatedOperatorContext::submit(
                 const MetalNumanXHumanMatterProgram& program =
                     input.stand.numanXHumanMatterProgram;
                 MetalNumanXHumanMatterPass pass{};
-                pass.abiVersion = kMetalNumanXHumanMatterABIVersion;
+                pass.abiVersion = kMetalNumanXHumanMatterPassABIVersion;
                 pass.structSize = sizeof(MetalNumanXHumanMatterPass);
                 pass.accessFlags = program.accessFlags;
                 pass.capabilities = program.capabilities;
@@ -8258,6 +8266,9 @@ MetalArticulatedOperatorContext::submit(
                     kHumanMatterQCheckpointBuffer];
                 pass.vCheckpoint = (__bridge void*)state_->humanMatterBuffers[
                     kHumanMatterVCheckpointBuffer];
+                pass.sourcePredictedVelocity =
+                    (__bridge void*)state_->humanMatterBuffers[
+                        kHumanMatterPredictedVelocityBuffer];
                 pass.mujocoStateCheckpoint =
                     (__bridge void*)state_->humanMatterBuffers[
                         kHumanMatterMujocoCheckpointBuffer];
@@ -8299,6 +8310,8 @@ MetalArticulatedOperatorContext::submit(
                     kHumanMatterQCheckpointBuffer].gpuAddress;
                 pass.vCheckpointGPUAddress = state_->humanMatterBuffers[
                     kHumanMatterVCheckpointBuffer].gpuAddress;
+                pass.sourcePredictedVelocityGPUAddress = state_->humanMatterBuffers[
+                    kHumanMatterPredictedVelocityBuffer].gpuAddress;
                 pass.mujocoStateCheckpointGPUAddress =
                     state_->humanMatterBuffers[
                         kHumanMatterMujocoCheckpointBuffer].gpuAddress;
@@ -8934,45 +8947,42 @@ MetalArticulatedOperatorContext::submit(
                         state_->config.mujocoActivationTimestepSeconds,
                         horizonStep
                     );
-                id<MTLComputeCommandEncoder> factor =
-                    [commandBuffer computeCommandEncoder];
-                if (factor == nil) {
-                    return reject(
-                        std::move(diagnostics),
-                        MetalArticulatedOperatorHostStatus::metalCommandFailure,
-                        "failed to create NumanX Human/Matter source-factor encoder"
-                    );
-                }
-                factor.label =
-                    @"NumanX Human/Matter frozen source effective tangent";
-                [factor setComputePipelineState:
-                    state_->humanMatterFactorPipeline];
-                [factor setBuffer:state_->buffers[0u] offset:0u atIndex:0u];
-                [factor setBuffer:state_->buffers[1u] offset:0u atIndex:1u];
-                [factor setBuffer:state_->buffers[3u] offset:0u atIndex:2u];
-                [factor setBuffer:state_->buffers[4u] offset:0u atIndex:3u];
-                [factor setBytes:&sourceStandDispatch
-                          length:sizeof(sourceStandDispatch)
-                         atIndex:4u];
-                [factor setBytes:&humanMatterDispatch
-                          length:sizeof(humanMatterDispatch)
-                         atIndex:5u];
-                [factor setBuffer:state_->buffers[8u] offset:0u atIndex:6u];
-                [factor setBuffer:state_->buffers[11u] offset:0u atIndex:7u];
-                [factor setBuffer:state_->standBuffers[
-                                      kStandSpatialJacobianBuffer]
-                               offset:0u atIndex:8u];
-                [factor setBuffer:state_->standBuffers[kStandFactorBuffer]
-                               offset:0u atIndex:9u];
-                [factor setBuffer:state_->humanMatterBuffers[
-                                      kHumanMatterOwnerStatusBuffer]
-                               offset:0u atIndex:10u];
-                [factor dispatchThreadgroups:MTLSizeMake(
-                                                 input.environmentCount,
-                                                 1u, 1u)
-                     threadsPerThreadgroup:MTLSizeMake(
-                         kStandThreadsPerThreadgroup, 1u, 1u)];
-                [factor endEncoding];
+                MRNumiHumanStandDispatchGPU predictorDispatch = sourceStandDispatch;
+                predictorDispatch.flags |= MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY;
+                id<MTLBlitCommandEncoder> predictorCopy = [commandBuffer blitCommandEncoder];
+                if (predictorCopy == nil) return reject(std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                    "failed to initialize Human free velocity predictor");
+                [predictorCopy copyFromBuffer:state_->standBuffers[kStandVelocityBuffer]
+                    sourceOffset:0u
+                    toBuffer:state_->humanMatterBuffers[kHumanMatterPredictedVelocityBuffer]
+                    destinationOffset:0u size:diagnostics.layout.standVelocityBytes];
+                [predictorCopy endEncoding];
+                id<MTLComputeCommandEncoder> predictor = [commandBuffer computeCommandEncoder];
+                if (predictor == nil) return reject(std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                    "failed to encode Human free velocity predictor");
+                predictor.label = @"NumanX Human free velocity and source effective tangent";
+                [predictor setComputePipelineState:state_->standPipeline];
+                [predictor setBuffer:state_->buffers[0u] offset:0u atIndex:0u];
+                [predictor setBuffer:state_->buffers[1u] offset:0u atIndex:1u];
+                [predictor setBuffer:state_->buffers[3u] offset:0u atIndex:2u];
+                [predictor setBuffer:state_->buffers[4u] offset:0u atIndex:3u];
+                [predictor setBuffer:state_->buffers[6u] offset:0u atIndex:5u];
+                [predictor setBuffer:state_->humanMatterBuffers[kHumanMatterPredictedVelocityBuffer] offset:0u atIndex:6u];
+                [predictor setBuffer:state_->buffers[8u] offset:0u atIndex:7u];
+                [predictor setBuffer:state_->buffers[9u] offset:0u atIndex:8u];
+                [predictor setBuffer:state_->buffers[11u] offset:0u atIndex:9u];
+                [predictor setBuffer:state_->buffers[kMillardForcesBuffer] offset:0u atIndex:10u];
+                [predictor setBuffer:state_->standBuffers[kStandTendonBindingsBuffer] offset:0u atIndex:18u];
+                [predictor setBuffer:state_->standBuffers[kStandTendonTransfersBuffer] offset:0u atIndex:19u];
+                [predictor setBuffer:state_->standBuffers[kStandJointEqualitiesBuffer] offset:0u atIndex:20u];
+                [predictor setBytes:&predictorDispatch length:sizeof(predictorDispatch) atIndex:4u];
+                for (NSUInteger index = kStandContactsBuffer; index <= kStandStatusBuffer; ++index)
+                    [predictor setBuffer:state_->standBuffers[index] offset:0u atIndex:10u + index];
+                [predictor dispatchThreadgroups:MTLSizeMake(input.environmentCount, 1u, 1u)
+                    threadsPerThreadgroup:MTLSizeMake(kStandThreadsPerThreadgroup, 1u, 1u)];
+                [predictor endEncoding];
 
                 if (!encodeHumanMatterPhase(
                         MetalNumanXHumanMatterPhase::preDynamics)) {

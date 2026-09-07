@@ -75,7 +75,9 @@ kernel void nm_fgmres_apply_human_support(
         const float3 force = multiplyRows(
             sample.barrierHessianRow0, sample.barrierHessianRow1,
             sample.barrierHessianRow2, pointDirection);
-        value -= force.x * pointJacobians[base + dof] +
+        // Residual is J^T impulse - A0 delta-v. The restoring impulse has
+        // derivative -D, hence Newton's -dR is A0 + J^T D J.
+        value += force.x * pointJacobians[base + dof] +
             force.y * pointJacobians[
                 base + dispatch.rigidGeneralizedCapacity + dof] +
             force.z * pointJacobians[
@@ -693,7 +695,11 @@ kernel void nm_fgmres_begin(
         isfinite(previousNonlinear.z);
     const float nonlinearThreshold = max(
         solver.regularization.x,
-        solver.residualTolerances.x * max(firstNewtonNorm, 1.0f));
+        // The final certificate normalizes by the final Newton assembly.
+        // Satisfy that gate as well as the initial-residual target before
+        // latching a no-op tail. Never relax the publication tolerance.
+        solver.residualTolerances.x *
+            max(min(firstNewtonNorm, norm), 1.0f));
     const bool contactFreeStaticRest = nonlinearIteration == 0u &&
         !hasActiveContact &&
         maximumCandidateSpeedSquared == 0.0f &&

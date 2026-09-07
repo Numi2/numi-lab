@@ -76,19 +76,14 @@ kernel void nm_human_support_evaluate(
         consequences[global] = consequence;
         return;
     }
-    const uint vectorBase = environment * dispatch.rigidGeneralizedCapacity;
-    const uint jacobianBase = environment * count * 3u *
-        dispatch.rigidGeneralizedCapacity +
-        rowIndex * 3u * dispatch.rigidGeneralizedCapacity;
-    float3 velocity = float3(0.0f);
-    for (uint dof = 0u; dof < support.articulatedNv; ++dof) {
-        const float value = candidateGeneralized[vectorBase + dof];
-        velocity.x += pointJacobians[jacobianBase + dof] * value;
-        velocity.y += pointJacobians[
-            jacobianBase + dispatch.rigidGeneralizedCapacity + dof] * value;
-        velocity.z += pointJacobians[
-            jacobianBase + 2u * dispatch.rigidGeneralizedCapacity + dof] * value;
-    }
+    // The Newton generalized vector is delta-v, not the total velocity.
+    // Exact candidate bodies already contain J(q_candidate)*(v_free+delta-v).
+    // Include rotation about the COM for an offset support witness.
+    const float3 offset = quaternionRotate(orientation, row.localPoint.xyz);
+    const float3 velocity = bodyState.linearVelocityAndInverseMass.xyz +
+        cross(bodyState.angularVelocity.xyz, offset);
+    (void)candidateGeneralized;
+    (void)pointJacobians;
     const float separation = dot(
         point - support.groundPointAndTimestep.xyz, normal);
     const float normalVelocity = dot(velocity, normal);
@@ -139,7 +134,11 @@ kernel void nm_human_support_evaluate(
         tangentLength);
     sample.barrier = float4(normalImpulse, rho * dt, slop, rho);
     const float tangentScale = tangentLength < frictionLimit ? rho * dt : 0.0f;
-    const float normalScale = normalImpulse > 0.0f ? rho * dt : 0.0f;
+    // The candidate point advances with h*velocity. For penetration,
+    // d(targetNormalVelocity)/dv contributes -stabilization * n^T J.
+    const float normalScale = normalImpulse > 0.0f
+        ? rho * dt * (1.0f + (separation < 0.0f ? stabilization : 0.0f))
+        : 0.0f;
     const float3x3 tangentProjector = float3x3(1.0f) - outerProduct(normal, normal);
     const float3x3 hessian = normalScale * outerProduct(normal, normal) +
         tangentScale * tangentProjector;

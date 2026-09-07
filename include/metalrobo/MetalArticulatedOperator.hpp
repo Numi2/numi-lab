@@ -318,6 +318,9 @@ enum class MetalNumanXHumanMatterPhase : std::uint32_t {
 
 inline constexpr std::uint32_t kMetalNumanXHumanMatterABIVersion =
     MR_NUMANX_HUMAN_MATTER_ABI_VERSION;
+// Host borrowed-pass v5 adds the immutable free Human velocity predictor.
+// The pointer-free two-phase root/publication ABI remains v4.
+inline constexpr std::uint32_t kMetalNumanXHumanMatterPassABIVersion = 5u;
 inline constexpr std::uint32_t kMetalNumanXHumanMatterDofLayoutVersion = 1u;
 
 enum MetalNumanXHumanMatterAccessFlag : std::uint32_t {
@@ -444,7 +447,7 @@ using MetalNumanXHumanMatterEncodeExactCandidate = bool (*)(
 // postDynamics follows stand and produces a quarantined physical prepare;
 // later proposal/ACK/apply commands own root resolution.
 struct MetalNumanXHumanMatterPass {
-    std::uint32_t abiVersion = kMetalNumanXHumanMatterABIVersion;
+    std::uint32_t abiVersion = kMetalNumanXHumanMatterPassABIVersion;
     std::uint32_t structSize = sizeof(MetalNumanXHumanMatterPass);
     std::uint32_t accessFlags = 0u;
     std::uint32_t capabilities = 0u;
@@ -473,6 +476,11 @@ struct MetalNumanXHumanMatterPass {
 
     void* qCheckpoint = nullptr;
     void* vCheckpoint = nullptr;
+    // v_free = v0 + h A0^-1 (tau_source - bias_source), computed by the
+    // owning Stand kernel before Matter. Candidate delta-v is relative to
+    // this predictor. This private buffer must not alias live/checkpoint v.
+    // Valid only after the preDynamics predictor encode on commandBuffer.
+    void* sourcePredictedVelocity = nullptr;
     void* mujocoStateCheckpoint = nullptr;
     // Environment-major lower Cholesky of A0. The stand kernel subsequently
     // rebuilds and factors the same source-step bytes before its solve.
@@ -504,6 +512,7 @@ struct MetalNumanXHumanMatterPass {
     std::uint64_t standStatusesGPUAddress = 0u;
     std::uint64_t qCheckpointGPUAddress = 0u;
     std::uint64_t vCheckpointGPUAddress = 0u;
+    std::uint64_t sourcePredictedVelocityGPUAddress = 0u;
     std::uint64_t mujocoStateCheckpointGPUAddress = 0u;
     std::uint64_t sourceEffectiveTangentFactorGPUAddress = 0u;
     std::uint64_t ownerStatusesGPUAddress = 0u;

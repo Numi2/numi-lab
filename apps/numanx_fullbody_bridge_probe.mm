@@ -20,6 +20,7 @@
 #include <cstdio>
 #include <cstring>
 #include <fstream>
+#include <iostream>
 #include <filesystem>
 #include <iterator>
 #include <limits>
@@ -133,7 +134,10 @@ void qualifyHumanSupportKKT(id<MTLDevice> device) {
     contact.frictionSlopAndStabilization = {0.5f, 0.02f, 0.2f, 0.0f};
     MRBodyStateGPU body{};
     body.orientation.w = 1.0f;
-    const float generalized = -1.0f;
+    body.linearVelocityAndInverseMass.y = -1.0f;
+    // The delta alone is deliberately different from the total velocity.
+    // Support must include the free predictor carried by candidateBodies.
+    const float generalized = -0.25f;
     const std::array<float, 3u> jacobian{0.0f, 1.0f, 0.0f};
     const nm_float4 zero4{};
     const NMMatterStatusGPU success{};
@@ -153,7 +157,8 @@ void qualifyHumanSupportKKT(id<MTLDevice> device) {
     id<MTLBuffer> bodies = buffer(&body, sizeof(body));
     id<MTLBuffer> generalizedBuffer = buffer(&generalized, sizeof(generalized));
     id<MTLBuffer> jacobians = buffer(jacobian.data(), sizeof(jacobian));
-    id<MTLBuffer> acceptedHistory = buffer(&zero4, sizeof(zero4));
+    const nm_float4 initialHistory{0.0f, 0.0f, 0.0f, 0.5f};
+    id<MTLBuffer> acceptedHistory = buffer(&initialHistory, sizeof(initialHistory));
     id<MTLBuffer> candidateHistory = buffer(&zero4, sizeof(zero4));
     id<MTLBuffer> checkpointHistory = buffer(&zero4, sizeof(zero4));
     const NMHumanSupportConsequenceGPU zeroConsequence{};
@@ -258,6 +263,36 @@ void qualifyHumanSupportKKT(id<MTLDevice> device) {
         [encoder setBuffer:candidateConsequence offset:0u atIndex:7u];
         [encoder setBuffer:checkpointConsequence offset:0u atIndex:8u];
     });
+    // A central finite difference of the physical support law checks the
+    // Newton sign and the penetration-stabilization chain rule independently
+    // of the stored Hessian. The generalized increment differs from total v.
+    constexpr float epsilon = 1.0e-3f;
+    const auto perturbSupport = [&](const float sign) {
+        MRBodyStateGPU perturbed = body;
+        perturbed.position.y += sign * epsilon * direction.x *
+            support.groundPointAndTimestep.w;
+        perturbed.linearVelocityAndInverseMass.y += sign * epsilon * direction.x;
+        id<MTLBuffer> perturbedBodies = buffer(&perturbed, sizeof(perturbed));
+        id<MTLBuffer> historyOut = buffer(&zero4, sizeof(zero4));
+        id<MTLBuffer> sampleOut = buffer(&zeroSample, sizeof(zeroSample));
+        id<MTLBuffer> consequenceOut = buffer(&zeroConsequence, sizeof(zeroConsequence));
+        encodeOne(evaluatePipeline, [&](id<MTLComputeCommandEncoder> encoder) {
+            [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+            [encoder setBytes:&support length:sizeof(support) atIndex:1u];
+            [encoder setBuffer:contacts offset:0u atIndex:2u];
+            [encoder setBuffer:perturbedBodies offset:0u atIndex:3u];
+            [encoder setBuffer:generalizedBuffer offset:0u atIndex:4u];
+            [encoder setBuffer:jacobians offset:0u atIndex:5u];
+            [encoder setBuffer:checkpointHistory offset:0u atIndex:6u];
+            [encoder setBuffer:historyOut offset:0u atIndex:7u];
+            [encoder setBuffer:sampleOut offset:0u atIndex:8u];
+            [encoder setBuffer:consequenceOut offset:0u atIndex:9u];
+            [encoder setBuffer:successStatus offset:0u atIndex:10u];
+        });
+        return sampleOut;
+    };
+    id<MTLBuffer> plusSample = perturbSupport(1.0f);
+    id<MTLBuffer> minusSample = perturbSupport(-1.0f);
     [command commit];
     [command waitUntilCompleted];
     require(command.status == MTLCommandBufferStatusCompleted,
@@ -281,12 +316,21 @@ void qualifyHumanSupportKKT(id<MTLDevice> device) {
                 committed.identity.w ==
                     NM_HUMAN_SUPPORT_CONSEQUENCE_VERSION &&
                 (committed.identity.z & NM_CONTACT_VALID) != 0u &&
-                committed.impulseAndNormal.w > 1.0f &&
+                std::abs(committed.impulseAndNormal.w - 1.7f) < 1.0e-5f &&
                 history.w == committed.impulseAndNormal.w &&
-                residualValue.x > 1.0f && operatorValue.x < -1.0f,
+                residualValue.x > 1.0f && operatorValue.x > 1.0f,
             "Matter support J^T lambda or J^T D J evidence is wrong");
+    const float impulseDerivative =
+        (static_cast<const NMContactSampleGPU*>(plusSample.contents)->impulseAndNormal.y -
+         static_cast<const NMContactSampleGPU*>(minusSample.contents)->impulseAndNormal.y) /
+        (2.0f * epsilon);
+    require(std::abs(operatorValue.x + impulseDerivative) < 3.0e-4f,
+        "support Newton action disagrees with finite-difference restoring force");
+    std::cout << "SUPPORT total_velocity=-1 delta_velocity=-0.25 tangent="
+              << operatorValue.x << " negative_force_derivative=" << -impulseDerivative
+              << " fd_error=" << std::abs(operatorValue.x + impulseDerivative) << '\n';
     require(rolledHistory.x == 0.0f && rolledHistory.y == 0.0f &&
-                rolledHistory.z == 0.0f && rolledHistory.w == 0.0f &&
+                rolledHistory.z == 0.0f && rolledHistory.w == initialHistory.w &&
                 rolledConsequence.identity.x == 0u &&
                 rolledConsequence.identity.y == 0u &&
                 rolledConsequence.identity.z == 0u &&

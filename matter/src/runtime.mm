@@ -4996,9 +4996,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     false,
                     nonlinearHistories,
                     nonlinearDeformableContactHistories,
-                    nonlinearIteration == 0u
-                        ? state.humanSupportHistoriesAccepted
-                        : state.humanSupportHistoriesCandidate)) {
+                    // One immutable proximal-history base for the entire
+                    // Newton root. Feeding the output back here changes the
+                    // residual between assemblies and aliases its clear.
+                    state.humanSupportHistoriesAccepted)) {
                 [encoder endEncoding];
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
@@ -6261,7 +6262,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     true,
                     state.contactHistoriesCandidate,
                     state.deformableContactHistoriesCandidate,
-                    state.humanSupportHistoriesCandidate
+                    state.humanSupportHistoriesAccepted
                 )) {
                 [encoder endEncoding];
                 ownership->preDynamicsOpen = false;

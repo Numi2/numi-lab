@@ -588,7 +588,7 @@ kernel void mr_numanx_human_matter_begin(
     appliedOutcomes[environment] = {};
 }
 
-// Integrates the source checkpoint with v0+delta-v and builds the private
+// Integrates source q with v_free+delta-v and builds the private
 // combined query stream. This is the same exponential-map floating-root and
 // scalar-coordinate integration used by Stand; no finite-difference or
 // first-order pose path exists here.
@@ -707,7 +707,7 @@ kernel void mr_numanx_human_matter_prepare_candidate(
 
 // Materializes collision-compatible Human body state plus the attachment
 // suffix after the generic analytic kinematics/Jacobian kernel succeeds.
-// Body velocities are exact J(q_candidate)*(v0+delta-v), with angular rows
+// Body velocities are exact J(q_candidate)*(v_free+delta-v), with angular rows
 // reconstructed analytically from the canonical COM/+axis probes.
 kernel void mr_numanx_human_matter_materialize_candidate(
     constant MRNumanXHumanMatterCandidateDispatchGPU& dispatch [[buffer(0)]],
