@@ -21,6 +21,63 @@
 - Contact normals point from body A to body B. Geometric witnesses retain
   separate points on A and B and signed separation.
 
+## Coupled Human support
+
+Human fixed-plane support contributes independent world-space impulse unknowns
+to Matter's monolithic Newton–FGMRES solve. The runtime-only Krylov layout
+appends one float4 per support row (xyz impulse correction, zero w); physical
+FEM, MPM and generalized-coordinate strides and the serialized Matter dispatch
+remain unchanged. Allocation checks include the complete extended column arena.
+
+With `v = v_free + delta_v`, the mechanical residual includes `J(q)^T lambda`.
+For an initially admissible point, the normal constraint is the candidate gap
+divided by the root timestep. For pre-existing penetration, the target gap is
+`(1-beta)*min(initial_gap,0)`, using the authored recovery fraction `beta`.
+This recovery does not turn a penetrating initial state into anatomical
+admission evidence. The initial and candidate witnesses use the same point,
+sphere or ellipsoid geometry and the borrowed body's global identity.
+Witness velocity is `J(q_candidate)*v`, including the source free predictor;
+pose-only body projections are not a substitute for that velocity.
+
+The dual residual is `P(lambda-rho*c)-lambda`, where `c` combines normal
+gap-over-time with tangential velocity. `P` projects the normal component onto
+the nonnegative half-line and the tangent onto the disk of radius `mu` times
+the projected normal impulse. This is a non-associated Coulomb law, not an
+orthogonal projection onto the friction cone. The positive numerical scaling
+`rho = 1 kg` affects conditioning and the residual's units, not the converged
+contact law. Accepted impulse history initializes the simultaneous unknown once
+per transaction; it does not define a finite penalty spring or external force.
+
+For projection derivative `D`, the contact Jacobian blocks of `-dR` are
+`-J^T` in the mechanical row and `rho*D*J`, `I-D` in the dual row. Sliding keeps
+both the disk's radial derivative and normal-to-tangent coupling. This generally
+nonsymmetric tangent must not be replaced by a PSD Hessian. Geometry and point
+Jacobians are refreshed at each nonlinear assembly; the linear action holds
+that geometry fixed. Every Krylov norm, basis operation, restart and nonlinear
+certificate includes the dual block. Velocity and impulse use the same accepted
+line-search fraction. Failed publication restores checkpoint impulse histories
+and consequences with the other coupled state.
+
+The advertised candidate point capacity covers continuum contact, anatomical
+attachments and Human support. The borrowed query boundary also checks the
+world's private point and Jacobian arenas before encoding; a valid caller-owned
+output buffer is insufficient. Immutable support queries are replicated per
+environment. Source velocity and published effort use the physical `nv` stride,
+while solver increments retain their larger capacity stride. Each replacement
+compute encoder declares the resources reached through its contact argument
+buffer before use.
+
+`matter.physics.human_support_loaded` checks analytic weight, separation,
+sticking and sliding through the production candidate service and solver,
+including redundant contacts, varied impulse guesses, batched environments and
+bitwise replay and rejection of an undersized internal arena. The fixture supplies an analytic free predictor before the generic
+device hook, which precedes MetalWorld ABA. Its small continuum is fixed and
+remote from the rigid body; it does not certify anatomical tissue loading.
+`matter.physics.human_support_linearization` independently differences the dual
+residual, checks point/sphere/ellipsoid witnesses, the shared update fraction and
+exact history rollback. Full anatomical equilibrium and sustained behavior need
+their owning Human qualifications.
+
 ## Precision boundary
 
 Metal physics is FP32 because Metal shaders do not provide native `double`.

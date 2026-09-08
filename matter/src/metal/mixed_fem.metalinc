@@ -558,6 +558,7 @@ kernel void nm_mixed_apply_kkt_solution(
 }
 
 kernel void nm_mixed_certify(
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMixedSolverGPU& solver [[buffer(1)]],
     device const NMContinuumObjectGPU* objects [[buffer(2)]],
@@ -672,6 +673,11 @@ kernel void nm_mixed_certify(
         correction = max(correction,
             abs(nonlinearCorrection[row].x) / max(abs(rigidCandidate[
                 environment * dispatch.rigidGeneralizedCapacity + dof]), 1.0f));
+    }
+    for (uint row = lane; row < layout.supportContactCount; row += 32u) {
+        const float3 value = generalizedResidual[layout.supportBase +
+            environment * layout.supportContactCount + row].xyz;
+        residualNorm2 += dot(value, value);
     }
     correction = simd_max(correction);
     residualNorm2 = simd_sum(residualNorm2);

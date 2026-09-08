@@ -852,6 +852,25 @@ typedef struct NM_ALIGN16 NMFEMElementVectorGPU {
     nm_float4 node3;
 } NMFEMElementVectorGPU;
 
+// Runtime-only Krylov extension; never serialized into a Matter pack. Physical
+// FEM/MPM/rigid strides retain their authored meanings. Each support row adds
+// one float4 containing a world-space impulse correction (xyz; w is zero).
+typedef struct NM_ALIGN16 NMFGMRESLayoutGPU {
+    nm_u32 supportContactCount;
+    nm_u32 supportBase;
+    nm_u32 unknownCount;
+    nm_u32 reserved;
+} NMFGMRESLayoutGPU;
+
+typedef struct NM_ALIGN16 NMHumanSupportKKTGPU {
+    nm_float4 residual;
+    // Derivative of the non-associated Coulomb projection. This matrix can
+    // be nonsymmetric during sliding; do not project it onto a PSD matrix.
+    nm_float4 projectionRow0;
+    nm_float4 projectionRow1;
+    nm_float4 projectionRow2;
+} NMHumanSupportKKTGPU;
+
 typedef struct NM_ALIGN16 NMFGMRESStateGPU {
     // Current residual, initial residual, convergence flag, Arnoldi columns.
     nm_float4 diagnostics;

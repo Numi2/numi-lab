@@ -10952,6 +10952,28 @@ bool encodeBorrowedCoupledCandidate(
                   static_cast<std::size_t>(pass.environmentCount) *
                       query.pointJacobianStride * sizeof(float)))))
             return false;
+        // Borrowed queries also write the world's internal point arenas.
+        // A caller's valid output buffer cannot prove those arenas are large
+        // enough: their allocation uses the program's declared capacity.
+        std::size_t pointWorldElements = 0u;
+        std::size_t pointWorldBytes = 0u;
+        if (!checkedMultiply(pass.environmentCount, query.pointStride,
+                pointWorldElements) ||
+            !checkedMultiply(pointWorldElements,
+                sizeof(MRArticulatedPointWorldGPU), pointWorldBytes) ||
+            context->buffers[kPointWorld].length < pointWorldBytes)
+            return false;
+        for (const auto& articulation : context->boundArticulations) {
+            std::size_t jacobianElements = 0u;
+            std::size_t jacobianBytes = 0u;
+            if (!checkedMultiply(pass.environmentCount,
+                    static_cast<std::size_t>(query.pointCount) * 3u *
+                        articulation.nv, jacobianElements) ||
+                !checkedMultiply(jacobianElements, sizeof(float),
+                    jacobianBytes) ||
+                context->buffers[kPointJacobians].length < jacobianBytes)
+                return false;
+        }
         if (query.pointCount != 0u) {
             id<MTLBlitCommandEncoder> clear =
                 [commandBuffer blitCommandEncoder];
@@ -11014,6 +11036,7 @@ bool encodeBorrowedCoupledCandidate(
             [integrate setBuffer:candidateQ offset:0u atIndex:7u];
             [integrate setBuffer:context->buffers[kContactStatuses]
                          offset:0u atIndex:8u];
+            [integrate setBytes:&pass.nv length:sizeof(pass.nv) atIndex:9u];
             dispatchWorldThreads(
                 integrate,
                 context->coupledCandidateIntegratePipeline,
@@ -11323,6 +11346,7 @@ bool encodeBorrowedCoupledCandidate(
                          offset:0u atIndex:2u];
             [publish setBuffer:context->buffers[kContactStatuses]
                          offset:0u atIndex:3u];
+            [publish setBytes:&pass.nv length:sizeof(pass.nv) atIndex:4u];
             dispatchWorldThreads(
                 publish, context->coupledCandidatePublishPipeline,
                 static_cast<std::size_t>(pass.environmentCount) *

@@ -698,6 +698,7 @@ kernel void mr_world_integrate_coupled_candidate(
     device const float* increment [[buffer(6)]],
     device float* candidateQ [[buffer(7)]],
     device MRMetalWorldContactStatusGPU* statuses [[buffer(8)]],
+    constant uint& sourceVStride [[buffer(9)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount ||
@@ -714,7 +715,8 @@ kernel void mr_world_integrate_coupled_candidate(
         articulation.vOffset != dispatch.vOffset ||
         articulation.nq != dispatch.nq || articulation.nv != dispatch.nv ||
         dispatch.qStride < dispatch.qOffset + dispatch.nq ||
-        dispatch.vStride < dispatch.vOffset + dispatch.nv) {
+        dispatch.vStride < dispatch.vOffset + dispatch.nv ||
+        sourceVStride < dispatch.vOffset + dispatch.nv) {
         status.code = MR_STEP_UNSUPPORTED;
         status.firstFailingConstraint = dispatch.articulationIndex;
         statuses[environment] = status;
@@ -722,24 +724,25 @@ kernel void mr_world_integrate_coupled_candidate(
     }
     const uint qBase = environment * dispatch.qStride;
     const uint vBase = environment * dispatch.vStride;
+    const uint sourceVBase = environment * sourceVStride;
     for (uint localQ = 0u; localQ < articulation.nq; ++localQ)
         candidateQ[qBase + articulation.qOffset + localQ] =
             sourceQ[qBase + articulation.qOffset + localQ];
     const float timestep = dispatch.timestepAndInverse.x;
     if (articulation.rootType == MR_ROOT_FLOATING) {
         const float3 linear = float3(
-            sourceV[vBase + articulation.vOffset + 0u] +
+            sourceV[sourceVBase + articulation.vOffset + 0u] +
                 increment[vBase + articulation.vOffset + 0u],
-            sourceV[vBase + articulation.vOffset + 1u] +
+            sourceV[sourceVBase + articulation.vOffset + 1u] +
                 increment[vBase + articulation.vOffset + 1u],
-            sourceV[vBase + articulation.vOffset + 2u] +
+            sourceV[sourceVBase + articulation.vOffset + 2u] +
                 increment[vBase + articulation.vOffset + 2u]);
         const float3 angular = float3(
-            sourceV[vBase + articulation.vOffset + 3u] +
+            sourceV[sourceVBase + articulation.vOffset + 3u] +
                 increment[vBase + articulation.vOffset + 3u],
-            sourceV[vBase + articulation.vOffset + 4u] +
+            sourceV[sourceVBase + articulation.vOffset + 4u] +
                 increment[vBase + articulation.vOffset + 4u],
-            sourceV[vBase + articulation.vOffset + 5u] +
+            sourceV[sourceVBase + articulation.vOffset + 5u] +
                 increment[vBase + articulation.vOffset + 5u]);
         const uint rootQ = qBase + articulation.qOffset;
         const float4 sourceOrientation = float4(
@@ -768,7 +771,7 @@ kernel void mr_world_integrate_coupled_candidate(
             joints[articulation.firstJoint + localJoint];
         if (joint.nv != 1u) continue;
         const uint globalV = joint.vOffset;
-        float velocity = sourceV[vBase + globalV] + increment[vBase + globalV];
+        float velocity = sourceV[sourceVBase + globalV] + increment[vBase + globalV];
         const MRDofPropertiesGPU dof = dofs[globalV];
         if ((dof.flags & MR_DOF_FLAG_VELOCITY_LIMIT) != 0u)
             velocity = clamp(velocity, -dof.limits.z, dof.limits.z);
@@ -865,6 +868,7 @@ kernel void mr_world_publish_coupled_candidate(
     device const float* generalizedImpulse [[buffer(1)]],
     device float* efforts [[buffer(2)]],
     device MRMetalWorldContactStatusGPU* statuses [[buffer(3)]],
+    constant uint& effortStride [[buffer(4)]],
     const uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.nv;
@@ -872,7 +876,8 @@ kernel void mr_world_publish_coupled_candidate(
         dispatch.abiVersion != MR_COUPLED_CANDIDATE_ABI_VERSION ||
         dispatch.operation != MR_COUPLED_CANDIDATE_PUBLISH ||
         !(dispatch.timestepAndInverse.y > 0.0f) ||
-        dispatch.vStride < dispatch.vOffset + dispatch.nv) return;
+        dispatch.vStride < dispatch.vOffset + dispatch.nv ||
+        effortStride < dispatch.vOffset + dispatch.nv) return;
     const uint environment = global / dispatch.nv;
     const uint local = global - environment * dispatch.nv;
     if (statuses[environment].code != MR_STEP_SUCCESS) return;
@@ -885,7 +890,8 @@ kernel void mr_world_publish_coupled_candidate(
         statuses[environment] = status;
         return;
     }
-    efforts[index] += force;
+    // The coupled arena is capacity-strided; MetalWorld effort is nv-strided.
+    efforts[environment * effortStride + dispatch.vOffset + local] += force;
 }
 
 kernel void mr_world_accumulate_external_articulated_response(

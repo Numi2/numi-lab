@@ -2727,6 +2727,20 @@ if(BUILD_TESTING)
     set_tests_properties(matter.physics.shared_rigid_coupled_contact
         PROPERTIES ENVIRONMENT "MTL_DEBUG_LAYER=1")
     add_test(
+        NAME matter.physics.human_support_loaded
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --human-support-loaded
+    )
+    add_test(
+        NAME matter.physics.human_support_linearization
+        COMMAND $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe> --support-only
+    )
+    set_tests_properties(
+        matter.physics.human_support_loaded
+        matter.physics.human_support_linearization
+        PROPERTIES ENVIRONMENT "MTL_DEBUG_LAYER=1"
+        LABELS "human;matter;metal;physics" TIMEOUT 120
+    )
+    add_test(
         NAME matter.physics.articulated_contact_boundary_recovery
         COMMAND
             $<TARGET_FILE:metalrobo_matter_physics_probe>

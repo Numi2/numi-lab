@@ -129,6 +129,7 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
         pipeline(@"nm_human_support_accumulate_rigid_residual");
     id<MTLComputePipelineState> operatorPipeline =
         pipeline(@"nm_fgmres_apply_human_support");
+    auto dualPipeline = pipeline(@"nm_fgmres_apply_support_dual");
     id<MTLComputePipelineState> commitPipeline =
         pipeline(@"nm_human_support_commit");
     id<MTLComputePipelineState> rollbackPipeline =
@@ -136,7 +137,9 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
 
     NMMatterDispatchGPU dispatch{};
     dispatch.environmentCount = 1u;
+    dispatch.objectCount = 1u;
     dispatch.rigidGeneralizedCapacity = 1u;
+    const NMFGMRESLayoutGPU layout{1,1,2,0};
     NMHumanSupportDispatchGPU support{};
     support.contactCount = 1u;
     support.articulatedNv = 1u;
@@ -165,7 +168,11 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
     // The delta alone is deliberately different from the total velocity.
     // Support must include the free predictor carried by candidateBodies.
     const float generalized = -0.25f;
-    const std::array<float, 3u> jacobian{0.0f, 1.0f, 0.0f};
+    // The scalar test coordinate has the explicitly supplied point tangent.
+    // Shape geometry and source-compiled curved Jacobians are also covered by
+    // the full-body primitive oracle; this test isolates NCP linearization.
+    const std::array<float, 3u> jacobian{shape ? -0.02f : 0.0f, 1.0f, 0.0f};
+    const float freeVelocity = -0.75f;
     const nm_float4 zero4{};
     const NMMatterStatusGPU success{};
     NMMatterStatusGPU failure{};
@@ -173,6 +180,9 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
     NMFGMRESStateGPU fgmres{};
     nm_float4 direction{};
     direction.x = 2.0f;
+    const std::array<nm_float4,2> directionRows{direction,{0.4f,0.3f,0.2f,0}};
+    const std::array<nm_float4,2> zeroRows{};
+    const NMHumanSupportKKTGPU zeroKKT{};
 
     const auto buffer = [&](const void* bytes, const NSUInteger length) {
         id<MTLBuffer> result = [device newBufferWithBytes:bytes length:length
@@ -184,7 +194,7 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
     id<MTLBuffer> bodies = buffer(&body, sizeof(body));
     id<MTLBuffer> generalizedBuffer = buffer(&generalized, sizeof(generalized));
     id<MTLBuffer> jacobians = buffer(jacobian.data(), sizeof(jacobian));
-    const nm_float4 initialHistory{0.0f, 0.0f, 0.0f, 0.5f};
+    const nm_float4 initialHistory{shape==2 ? 0.5f : 0.0f, 0.0f, 0.0f, 0.5f};
     id<MTLBuffer> acceptedHistory = buffer(&initialHistory, sizeof(initialHistory));
     id<MTLBuffer> candidateHistory = buffer(&zero4, sizeof(zero4));
     id<MTLBuffer> checkpointHistory = buffer(&zero4, sizeof(zero4));
@@ -199,9 +209,11 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
     id<MTLBuffer> samples = buffer(&zeroSample, sizeof(zeroSample));
     id<MTLBuffer> successStatus = buffer(&success, sizeof(success));
     id<MTLBuffer> failureStatus = buffer(&failure, sizeof(failure));
-    id<MTLBuffer> residual = buffer(&zero4, sizeof(zero4));
-    id<MTLBuffer> directionBuffer = buffer(&direction, sizeof(direction));
-    id<MTLBuffer> work = buffer(&zero4, sizeof(zero4));
+    id<MTLBuffer> residual = buffer(zeroRows.data(), sizeof(zeroRows));
+    id<MTLBuffer> kkt = buffer(&zeroKKT,sizeof(zeroKKT));
+    id<MTLBuffer> freeBuffer = buffer(&freeVelocity,sizeof(freeVelocity));
+    id<MTLBuffer> directionBuffer = buffer(directionRows.data(), sizeof(directionRows));
+    id<MTLBuffer> work = buffer(zeroRows.data(), sizeof(zeroRows));
     id<MTLBuffer> fgmresState = buffer(&fgmres, sizeof(fgmres));
     id<MTLBuffer> committedHistory = buffer(&zero4, sizeof(zero4));
     id<MTLBuffer> committedConsequence =
@@ -218,6 +230,7 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
         require(encoder != nil, "Matter support qualification encoder failed");
         [encoder setComputePipelineState:state];
         bind(encoder);
+        [encoder setBytes:&layout length:sizeof(layout) atIndex:30u];
         [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
             threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
         [encoder endEncoding];
@@ -240,11 +253,14 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
         [encoder setBuffer:bodies offset:0u atIndex:3u];
         [encoder setBuffer:generalizedBuffer offset:0u atIndex:4u];
         [encoder setBuffer:jacobians offset:0u atIndex:5u];
-        [encoder setBuffer:acceptedHistory offset:0u atIndex:6u];
         [encoder setBuffer:candidateHistory offset:0u atIndex:7u];
         [encoder setBuffer:samples offset:0u atIndex:8u];
         [encoder setBuffer:candidateConsequence offset:0u atIndex:9u];
         [encoder setBuffer:successStatus offset:0u atIndex:10u];
+        [encoder setBuffer:bodies offset:0u atIndex:11u];
+        [encoder setBuffer:kkt offset:0u atIndex:12u];
+        [encoder setBuffer:residual offset:0u atIndex:13u];
+        [encoder setBuffer:freeBuffer offset:0u atIndex:14u];
     });
     encodeOne(residualPipeline, [&](id<MTLComputeCommandEncoder> encoder) {
         [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
@@ -261,6 +277,40 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
         [encoder setBuffer:samples offset:0u atIndex:4u];
         [encoder setBuffer:jacobians offset:0u atIndex:5u];
         [encoder setBuffer:fgmresState offset:0u atIndex:6u];
+    });
+    encodeOne(dualPipeline, [&](id<MTLComputeCommandEncoder> encoder) {
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [encoder setBytes:&support length:sizeof(support) atIndex:1u];
+        [encoder setBuffer:directionBuffer offset:0u atIndex:2u];
+        [encoder setBuffer:work offset:0u atIndex:3u];
+        [encoder setBuffer:kkt offset:0u atIndex:4u];
+        [encoder setBuffer:jacobians offset:0u atIndex:5u];
+        [encoder setBuffer:fgmresState offset:0u atIndex:6u];
+    });
+    const nm_float4 alpha{0.25f,0,0,0};
+    auto alphaBuffer = buffer(&alpha,sizeof(alpha));
+    encodeOne(pipeline(@"nm_human_support_apply_solution"), [&](id<MTLComputeCommandEncoder> encoder) {
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [encoder setBytes:&support length:sizeof(support) atIndex:1u];
+        [encoder setBuffer:directionBuffer offset:0u atIndex:2u];
+        [encoder setBuffer:alphaBuffer offset:0u atIndex:3u];
+        [encoder setBuffer:candidateHistory offset:0u atIndex:4u];
+    });
+    encodeOne(evaluatePipeline, [&](id<MTLComputeCommandEncoder> encoder) {
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [encoder setBytes:&support length:sizeof(support) atIndex:1u];
+        [encoder setBuffer:contacts offset:0u atIndex:2u];
+        [encoder setBuffer:bodies offset:0u atIndex:3u];
+        [encoder setBuffer:generalizedBuffer offset:0u atIndex:4u];
+        [encoder setBuffer:jacobians offset:0u atIndex:5u];
+        [encoder setBuffer:candidateHistory offset:0u atIndex:7u];
+        [encoder setBuffer:samples offset:0u atIndex:8u];
+        [encoder setBuffer:candidateConsequence offset:0u atIndex:9u];
+        [encoder setBuffer:successStatus offset:0u atIndex:10u];
+        [encoder setBuffer:bodies offset:0u atIndex:11u];
+        [encoder setBuffer:kkt offset:0u atIndex:12u];
+        [encoder setBuffer:residual offset:0u atIndex:13u];
+        [encoder setBuffer:freeBuffer offset:0u atIndex:14u];
     });
     encodeOne(commitPipeline, [&](id<MTLComputeCommandEncoder> encoder) {
         [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
@@ -290,9 +340,9 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
         [encoder setBuffer:candidateConsequence offset:0u atIndex:7u];
         [encoder setBuffer:checkpointConsequence offset:0u atIndex:8u];
     });
-    // A central finite difference of the physical support law checks the
-    // Newton sign and the penetration-stabilization chain rule independently
-    // of the stored Hessian. The generalized increment differs from total v.
+    // Central differences of the assembled dual residual perturb both
+    // velocity/position and independent impulse. Initial gap remains frozen.
+    // No finite-difference helper uses the stored projection derivative.
     constexpr float epsilon = 1.0e-3f;
     const auto perturbSupport = [&](const float sign) {
         MRBodyStateGPU perturbed = body;
@@ -300,7 +350,18 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
             support.groundPointAndTimestep.w;
         perturbed.linearVelocityAndInverseMass.y += sign * epsilon * direction.x;
         id<MTLBuffer> perturbedBodies = buffer(&perturbed, sizeof(perturbed));
-        id<MTLBuffer> historyOut = buffer(&zero4, sizeof(zero4));
+        perturbed.position.x += sign * epsilon * direction.x *
+            jacobian[0] * support.groundPointAndTimestep.w;
+        // Refresh after completing the candidate geometry perturbation.
+        perturbedBodies = buffer(&perturbed, sizeof(perturbed));
+        const float perturbedGeneralized = generalized + sign * epsilon * direction.x;
+        auto perturbedGeneralizedBuffer = buffer(&perturbedGeneralized,sizeof(perturbedGeneralized));
+        const nm_float4 perturbedHistory{initialHistory.x+sign*epsilon*directionRows[1].x,0,
+            sign*epsilon*directionRows[1].z,
+            initialHistory.w+sign*epsilon*directionRows[1].y};
+        id<MTLBuffer> historyOut = buffer(&perturbedHistory, sizeof(perturbedHistory));
+        auto kktOut = buffer(&zeroKKT,sizeof(zeroKKT));
+        auto residualOut = buffer(zeroRows.data(),sizeof(zeroRows));
         id<MTLBuffer> sampleOut = buffer(&zeroSample, sizeof(zeroSample));
         id<MTLBuffer> consequenceOut = buffer(&zeroConsequence, sizeof(zeroConsequence));
         encodeOne(evaluatePipeline, [&](id<MTLComputeCommandEncoder> encoder) {
@@ -308,15 +369,18 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
             [encoder setBytes:&support length:sizeof(support) atIndex:1u];
             [encoder setBuffer:contacts offset:0u atIndex:2u];
             [encoder setBuffer:perturbedBodies offset:0u atIndex:3u];
-            [encoder setBuffer:generalizedBuffer offset:0u atIndex:4u];
+            [encoder setBuffer:perturbedGeneralizedBuffer offset:0u atIndex:4u];
             [encoder setBuffer:jacobians offset:0u atIndex:5u];
-            [encoder setBuffer:checkpointHistory offset:0u atIndex:6u];
             [encoder setBuffer:historyOut offset:0u atIndex:7u];
             [encoder setBuffer:sampleOut offset:0u atIndex:8u];
             [encoder setBuffer:consequenceOut offset:0u atIndex:9u];
             [encoder setBuffer:successStatus offset:0u atIndex:10u];
+            [encoder setBuffer:bodies offset:0u atIndex:11u];
+            [encoder setBuffer:kktOut offset:0u atIndex:12u];
+            [encoder setBuffer:residualOut offset:0u atIndex:13u];
+            [encoder setBuffer:freeBuffer offset:0u atIndex:14u];
         });
-        return sampleOut;
+        return kktOut;
     };
     id<MTLBuffer> plusSample = perturbSupport(1.0f);
     id<MTLBuffer> minusSample = perturbSupport(-1.0f);
@@ -343,24 +407,27 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
                 committed.identity.w ==
                     NM_HUMAN_SUPPORT_CONSEQUENCE_VERSION &&
                 (committed.identity.z & NM_CONTACT_VALID) != 0u &&
-                std::abs(committed.impulseAndNormal.w - 1.7f) < 1.0e-5f &&
+                std::abs(committed.impulseAndNormal.w - 0.575f) < 1.0e-5f &&
                 history.w == committed.impulseAndNormal.w &&
-                residualValue.x > 1.0f && operatorValue.x > 1.0f,
-            "Matter support J^T lambda or J^T D J evidence is wrong");
+                std::abs(residualValue.x-(0.5f+jacobian[0]*initialHistory.x))<1.0e-6f &&
+                std::abs(operatorValue.x + jacobian[0]*directionRows[1].x +
+                    directionRows[1].y)<1.0e-6f,
+            "Matter support J^T lambda or independent dual action is wrong");
     if (shape) require(std::abs(committed.pointAndSeparation.y+0.01f)<1.0e-7f &&
         std::abs(committed.tangentVelocityAndImpulse.x-0.02f)<1.0e-6f &&
-        committed.impulseAndNormal.x<0.0f,
+        std::abs(committed.impulseAndNormal.x-(initialHistory.x+0.1f))<1.0e-6f,
         "Matter sphere surface/friction moment arm is wrong");
-    const float impulseDerivative =
-        (static_cast<const NMContactSampleGPU*>(plusSample.contents)->impulseAndNormal.y -
-         static_cast<const NMContactSampleGPU*>(minusSample.contents)->impulseAndNormal.y) /
-        (2.0f * epsilon);
-    require(std::abs(operatorValue.x + impulseDerivative) < 3.0e-4f,
-        "support Newton action disagrees with finite-difference restoring force");
-    std::cout << "SUPPORT shape=" << shape << " total_velocity=-1 delta_velocity=-0.25 tangent="
-              << operatorValue.x << " negative_force_derivative=" << -impulseDerivative
-              << " fd_error=" << std::abs(operatorValue.x + impulseDerivative) << '\n';
-    require(rolledHistory.x == 0.0f && rolledHistory.y == 0.0f &&
+    const auto plus = static_cast<const NMHumanSupportKKTGPU*>(plusSample.contents)->residual;
+    const auto minus = static_cast<const NMHumanSupportKKTGPU*>(minusSample.contents)->residual;
+    const auto dual = static_cast<const nm_float4*>(work.contents)[1];
+    const float error = std::max({
+        std::abs(dual.x+(plus.x-minus.x)/(2*epsilon)),
+        std::abs(dual.y+(plus.y-minus.y)/(2*epsilon)),
+        std::abs(dual.z+(plus.z-minus.z)/(2*epsilon))});
+    require(error<3.0e-4f, "support NCP action disagrees with finite difference");
+    std::cout << "SUPPORT shape=" << shape << " total_velocity=-1 delta_velocity=-0.25"
+              << " dual_fd_error=" << error << '\n';
+    require(rolledHistory.x == initialHistory.x && rolledHistory.y == 0.0f &&
                 rolledHistory.z == 0.0f && rolledHistory.w == initialHistory.w &&
                 rolledConsequence.identity.x == 0u &&
                 rolledConsequence.identity.y == 0u &&

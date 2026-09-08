@@ -507,6 +507,7 @@ struct Runtime::State {
     std::uint32_t acceptedStateProofScratchStride = 0u;
 
     NMMatterDispatchGPU dispatch{};
+    NMFGMRESLayoutGPU fgmresLayout{};
     NMMixedSolverGPU mixedSolverValue{};
     std::uint64_t sourcePhysicsFingerprint = 0u;
     std::uint64_t worldFingerprint = 0u;
@@ -879,6 +880,7 @@ struct Runtime::State {
     id<MTLBuffer> humanSupportPointQueries = nil;
     id<MTLBuffer> humanSupportPointJacobians = nil;
     id<MTLBuffer> humanSupportSamples = nil;
+    id<MTLBuffer> humanSupportLinearizations = nil;
     id<MTLBuffer> humanSupportHistoriesAccepted = nil;
     id<MTLBuffer> humanSupportHistoriesCandidate = nil;
     id<MTLBuffer> humanSupportHistoriesCheckpoint = nil;
@@ -1446,6 +1448,12 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_human_support_evaluate",
             "nm_human_support_accumulate_rigid_residual",
             "nm_fgmres_apply_human_support",
+            "nm_fgmres_apply_support_dual",
+            "nm_fgmres_precondition_support",
+            "nm_fgmres_accumulate_support",
+            "nm_fgmres_restart_residual_support",
+            "nm_human_support_apply_solution",
+            "nm_human_support_certify",
             "nm_human_support_checkpoint",
             "nm_human_support_commit",
             "nm_human_support_rollback",
@@ -2056,8 +2064,10 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->humanLimitRows = uploads.one(limits, valid, candidate->residentBytes);
         candidate->humanSupportContacts = uploads.one(
             supportContacts, valid, candidate->residentBytes);
-        candidate->humanSupportPointQueries = uploads.one(
-            supportQueries, valid, candidate->residentBytes);
+        // Candidate point queries use an environment-major stream, including
+        // immutable support queries. Contacts themselves remain shared rows.
+        candidate->humanSupportPointQueries = uploads.repeated(
+            supportQueries, environments, valid, candidate->residentBytes);
         const std::vector<nm_float4> initialHumanSupportHistories(
             supportContacts.size());
         candidate->humanSupportHistoriesAccepted = uploads.repeated(
@@ -2297,6 +2307,9 @@ RuntimeDiagnostics Runtime::initialize(
                     world.dispatch.rigidGeneralizedCapacity,
                 1u),
             valid, candidate->residentBytes);
+        candidate->humanSupportLinearizations = privateScratch<NMHumanSupportKKTGPU>(
+            candidate->device, multiplied(candidate->humanSupportDispatch.contactCount),
+            valid, candidate->residentBytes);
         candidate->humanSupportSamples = privateScratch<NMContactSampleGPU>(
             candidate->device, multiplied(supportContacts.size()),
             valid, candidate->residentBytes);
@@ -2418,8 +2431,21 @@ RuntimeDiagnostics Runtime::initialize(
         const std::size_t mixedUnknownWidth =
             2u * static_cast<std::size_t>(world.dispatch.femNodeCount) +
             world.dispatch.mpmActiveNodeCapacity +
-            world.dispatch.rigidGeneralizedCapacity;
+            world.dispatch.rigidGeneralizedCapacity +
+            candidate->humanSupportDispatch.contactCount;
         const std::size_t mixedUnknownTotal = multiplied(mixedUnknownWidth);
+        // Metal column offsets are uint. Include the runtime dual block in
+        // both the address proof and the actual resident allocation.
+        if (mixedUnknownTotal > std::numeric_limits<std::uint32_t>::max() /
+                (static_cast<std::size_t>(NM_MIXED_FGMRES_RESTART) + 1u)) {
+            diagnostics.message = "Human support Krylov arena exceeds GPU index capacity";
+            return diagnostics;
+        }
+        candidate->fgmresLayout = {
+            candidate->humanSupportDispatch.contactCount,
+            static_cast<std::uint32_t>(mixedUnknownTotal - multiplied(
+                candidate->humanSupportDispatch.contactCount)),
+            static_cast<std::uint32_t>(mixedUnknownTotal), 0u};
         candidate->femSolution = privateScratch<nm_float4>(
             candidate->device, mixedUnknownTotal,
             valid, candidate->residentBytes);
@@ -3440,6 +3466,47 @@ RuntimeDiagnostics Runtime::encodeImpl(
             request.rigid.currentBodyStride;
         state.humanSupportDispatch.groundPointAndTimestep.w = frameTimestep;
 
+        // Argument-buffer resource declarations belong to an encoder, not
+        // to the surrounding transaction. Borrowed articulated queries close
+        // and replace that encoder during every Krylov column.
+        id<MTLComputeCommandEncoder> primalResourcesEncoder = nil;
+        const auto bindPrimalContactArguments = [&](const NSUInteger index) {
+            if (primalResourcesEncoder != encoder) {
+                [encoder useResource:state.contactPairs usage:MTLResourceUsageRead];
+                [encoder useResource:state.contactSamples usage:MTLResourceUsageRead];
+                [encoder useResource:state.contactNodeIncidence usage:MTLResourceUsageRead];
+                [encoder useResource:state.contactNodeRanges usage:MTLResourceUsageRead];
+                [encoder useResource:state.contactActivePairs usage:MTLResourceUsageRead];
+                [encoder useResource:state.contactActiveSlotsByPair usage:MTLResourceUsageRead];
+                [encoder useResource:state.contactActiveCounts usage:MTLResourceUsageRead];
+                [encoder useResource:state.deformableContacts
+                             usage:MTLResourceUsageRead | MTLResourceUsageWrite];
+                [encoder useResource:state.deformableContactActiveIndices
+                             usage:MTLResourceUsageRead];
+                [encoder useResource:state.deformableContactActiveCounts
+                             usage:MTLResourceUsageRead];
+                [encoder useResource:state.deformableContactNodeIncidence
+                             usage:MTLResourceUsageRead];
+                [encoder useResource:state.deformableContactNodeRanges
+                             usage:MTLResourceUsageRead];
+                [encoder useResource:state.deformableContactGlobalActiveIndices
+                             usage:MTLResourceUsageRead];
+                [encoder useResource:state.deformableContactActiveDispatch
+                             usage:MTLResourceUsageRead];
+                [encoder useResource:state.mpmNodeToActive
+                             usage:MTLResourceUsageRead];
+                [encoder useResource:state.mpmActiveNodeCounts
+                             usage:MTLResourceUsageRead];
+                [encoder useResource:state.rigidProxies
+                             usage:MTLResourceUsageRead];
+                [encoder useResource:state.rigidStates
+                             usage:MTLResourceUsageRead];
+                primalResourcesEncoder = encoder;
+            }
+            [encoder setBuffer:state.primalContactArguments
+                         offset:0u atIndex:index];
+        };
+
         const auto dispatchThreads = [&](
             const char* name,
             const NSUInteger count,
@@ -3502,6 +3569,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBytes:&frameDispatch
                        length:sizeof(frameDispatch)
                       atIndex:0u];
+            [encoder setBytes:&state.fgmresLayout
+                       length:sizeof(state.fgmresLayout) atIndex:30u];
         };
         const NSUInteger environments = state.dispatch.environmentCount;
         const NSUInteger objects = state.dispatch.objectCount;
@@ -4700,8 +4769,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const auto encodeCoupledPrimalContact = [&] (
                 const bool certify,
                 id<MTLBuffer> histories,
-                id<MTLBuffer> deformableContactHistories,
-                id<MTLBuffer> humanSupportHistories
+                id<MTLBuffer> deformableContactHistories
             ) -> bool {
                 if (state.requiresCoupledCandidate) {
                     [encoder endEncoding];
@@ -5134,8 +5202,6 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:4u];
                     [encoder setBuffer:state.humanSupportPointJacobians
                                  offset:0u atIndex:5u];
-                    [encoder setBuffer:humanSupportHistories
-                                 offset:0u atIndex:6u];
                     [encoder setBuffer:state.humanSupportHistoriesCandidate
                                  offset:0u atIndex:7u];
                     [encoder setBuffer:state.humanSupportSamples
@@ -5143,6 +5209,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.humanSupportConsequencesCandidate
                                  offset:0u atIndex:9u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:10u];
+                    [encoder setBuffer:currentBodies offset:0u atIndex:11u];
+                    [encoder setBuffer:state.humanSupportLinearizations offset:0u atIndex:12u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:13u];
+                    [encoder setBuffer:buffer(request.rigid.v) offset:0u atIndex:14u];
                 });
                 dispatchThreads("nm_contact_accumulate_fem_residual", femNodeTotal, [&] {
                     setDispatch();
@@ -5308,11 +5378,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             if (!encodeCoupledPrimalContact(
                     false,
                     nonlinearHistories,
-                    nonlinearDeformableContactHistories,
-                    // One immutable proximal-history base for the entire
-                    // Newton root. Feeding the output back here changes the
-                    // residual between assemblies and aliases its clear.
-                    state.humanSupportHistoriesAccepted)) {
+                    nonlinearDeformableContactHistories)) {
                 [encoder endEncoding];
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
@@ -5327,8 +5393,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                              offset:0u atIndex:2u];
                 [encoder setBuffer:state.coupledGeneralizedCandidate
                              offset:0u atIndex:3u];
-                [encoder setBuffer:state.primalContactArguments
-                             offset:0u atIndex:4u];
+                bindPrimalContactArguments(4u);
                 [encoder setBuffer:state.femResidual offset:0u atIndex:5u];
             });
             dispatchThreads("nm_contact_accumulate_rigid_residual",
@@ -5336,8 +5401,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 setDispatch();
                 [encoder setBytes:&coupledArticulatedNv
                            length:sizeof(coupledArticulatedNv) atIndex:1u];
-                [encoder setBuffer:state.primalContactArguments
-                             offset:0u atIndex:2u];
+                bindPrimalContactArguments(2u);
                 [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
                 [encoder setBuffer:state.coupledPointJacobians
                              offset:0u atIndex:4u];
@@ -5390,7 +5454,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femResidual offset:0u atIndex:7u];
                 [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:8u];
                 [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:9u];
-                [encoder setBuffer:state.primalContactArguments offset:0u atIndex:10u];
+                bindPrimalContactArguments(10u);
             });
             if (!dispatchIndirect(
                     "nm_mpm_build_constitutive_residual",
@@ -5440,42 +5504,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
             // SIMD32 object kernels only perform bounded reductions and the
             // tiny Hessenberg solve.
             const NSUInteger monolithicUnknownTotal =
-                2u * femNodeTotal +
-                mpmActiveNodeTotal +
-                environments * state.dispatch.rigidGeneralizedCapacity;
+                state.fgmresLayout.unknownCount;
             const NSUInteger rigidGeneralizedTotal = environments *
                 state.dispatch.rigidGeneralizedCapacity;
             const NSUInteger vectorBytes =
                 monolithicUnknownTotal * sizeof(nm_float4);
-            [encoder useResource:state.contactPairs usage:MTLResourceUsageRead];
-            [encoder useResource:state.contactSamples usage:MTLResourceUsageRead];
-            [encoder useResource:state.contactNodeIncidence usage:MTLResourceUsageRead];
-            [encoder useResource:state.contactNodeRanges usage:MTLResourceUsageRead];
-            [encoder useResource:state.contactActivePairs usage:MTLResourceUsageRead];
-            [encoder useResource:state.contactActiveSlotsByPair usage:MTLResourceUsageRead];
-            [encoder useResource:state.contactActiveCounts usage:MTLResourceUsageRead];
-            [encoder useResource:state.deformableContacts
-                         usage:MTLResourceUsageRead | MTLResourceUsageWrite];
-            [encoder useResource:state.deformableContactActiveIndices
-                         usage:MTLResourceUsageRead];
-            [encoder useResource:state.deformableContactActiveCounts
-                         usage:MTLResourceUsageRead];
-            [encoder useResource:state.deformableContactNodeIncidence
-                         usage:MTLResourceUsageRead];
-            [encoder useResource:state.deformableContactNodeRanges
-                         usage:MTLResourceUsageRead];
-            [encoder useResource:state.deformableContactGlobalActiveIndices
-                         usage:MTLResourceUsageRead];
-            [encoder useResource:state.deformableContactActiveDispatch
-                         usage:MTLResourceUsageRead];
-            [encoder useResource:state.mpmNodeToActive
-                         usage:MTLResourceUsageRead];
-            [encoder useResource:state.mpmActiveNodeCounts
-                         usage:MTLResourceUsageRead];
-            [encoder useResource:state.rigidProxies
-                         usage:MTLResourceUsageRead];
-            [encoder useResource:state.rigidStates
-                         usage:MTLResourceUsageRead];
             const std::uint32_t restart = std::min(
                 state.mixedSolverValue.nonlinearIterations.y,
                 static_cast<std::uint32_t>(NM_MIXED_FGMRES_RESTART));
@@ -5523,7 +5556,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:10u];
                 [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
                 [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
-                [encoder setBuffer:state.primalContactArguments offset:0u atIndex:13u];
+                bindPrimalContactArguments(13u);
                 [encoder setBytes:&restartCycle
                            length:sizeof(restartCycle) atIndex:14u];
                 [encoder setBytes:&linearForcing
@@ -5546,8 +5579,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:8u];
                 [encoder setBuffer:state.femPreconditioned offset:0u atIndex:9u];
-                [encoder setBuffer:state.primalContactArguments
-                             offset:0u atIndex:10u];
+                bindPrimalContactArguments(10u);
             });
             for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
                 const NSUInteger columnOffset = vectorBytes * column;
@@ -5692,8 +5724,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
                     [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:7u];
                     [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:8u];
-                    [encoder setBuffer:state.primalContactArguments
-                                 offset:0u atIndex:9u];
+                    bindPrimalContactArguments(9u);
                     [encoder setBuffer:state.femOperatorValue
                                  offset:0u atIndex:10u];
                 });
@@ -5803,6 +5834,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:3u];
                     });
                 }
+                dispatchThreads("nm_fgmres_precondition_support", humanSupportTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:1u];
+                    [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:2u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
+                });
                 dispatchThreads("nm_fgmres_precondition_free_rigid",
                     rigidGeneralizedTotal, [&] {
                     setDispatch();
@@ -5812,8 +5849,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:columnOffset atIndex:2u];
                     [encoder setBuffer:state.fgmresPreconditionedBasis
                                  offset:columnOffset atIndex:3u];
-                    [encoder setBuffer:state.primalContactArguments
-                                 offset:0u atIndex:4u];
+                    bindPrimalContactArguments(4u);
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
                 });
                 dispatchThreads(
@@ -5872,7 +5908,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.adaptive offset:0u atIndex:9u];
                     [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:10u];
                     [encoder setBuffer:state.femOperatorValue offset:0u atIndex:11u];
-                    [encoder setBuffer:state.primalContactArguments offset:0u atIndex:12u];
+                    bindPrimalContactArguments(12u);
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:13u];
                     [encoder setBytes:&coupledArticulatedNv
                                length:sizeof(coupledArticulatedNv)
@@ -5938,8 +5974,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:9u];
                     [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:10u];
                     [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:11u];
-                    [encoder setBuffer:state.primalContactArguments
-                                 offset:0u atIndex:12u];
+                    bindPrimalContactArguments(12u);
                     [encoder setBytes:&coupledArticulatedNv
                                length:sizeof(coupledArticulatedNv)
                               atIndex:13u];
@@ -6050,8 +6085,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:columnOffset atIndex:2u];
                     [encoder setBuffer:state.femOperatorValue
                                  offset:0u atIndex:3u];
-                    [encoder setBuffer:state.primalContactArguments
-                                 offset:0u atIndex:4u];
+                    bindPrimalContactArguments(4u);
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
                 });
                 dispatchThreads("nm_fgmres_apply_primal_rigid_contacts",
@@ -6063,8 +6097,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:columnOffset atIndex:2u];
                     [encoder setBuffer:state.femOperatorValue
                                  offset:0u atIndex:3u];
-                    [encoder setBuffer:state.primalContactArguments
-                                 offset:0u atIndex:4u];
+                    bindPrimalContactArguments(4u);
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:6u];
@@ -6080,6 +6113,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femOperatorValue
                                  offset:0u atIndex:3u];
                     [encoder setBuffer:state.humanSupportSamples
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.humanSupportPointJacobians
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:state.fgmresStates
+                                 offset:0u atIndex:6u];
+                });
+                dispatchThreads("nm_fgmres_apply_support_dual",
+                    humanSupportTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.humanSupportDispatch
+                               length:sizeof(state.humanSupportDispatch)
+                              atIndex:1u];
+                    [encoder setBuffer:state.fgmresPreconditionedBasis
+                                 offset:columnOffset atIndex:2u];
+                    [encoder setBuffer:state.femOperatorValue
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.humanSupportLinearizations
                                  offset:0u atIndex:4u];
                     [encoder setBuffer:state.humanSupportPointJacobians
                                  offset:0u atIndex:5u];
@@ -6228,6 +6278,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBytes:&restartCycle
                            length:sizeof(restartCycle) atIndex:6u];
             });
+            dispatchThreads("nm_fgmres_accumulate_support", humanSupportTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                [encoder setBuffer:state.fgmresPreconditionedBasis
+                             offset:0u atIndex:2u];
+                [encoder setBuffer:state.fgmresLeastSquares
+                             offset:0u atIndex:3u];
+                [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
+                [encoder setBuffer:state.femSolution offset:0u atIndex:5u];
+                [encoder setBytes:&restartCycle
+                           length:sizeof(restartCycle) atIndex:6u];
+            });
             if (finalRestartCycle == 0u) {
                 dispatchThreads("nm_fgmres_restart_residual_nodes", femNodeTotal, [&] {
                     setDispatch();
@@ -6256,6 +6318,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
                     [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
                 });
+                dispatchThreads("nm_fgmres_restart_residual_support",
+                    humanSupportTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.fgmresBasis offset:0u atIndex:1u];
+                    [encoder setBuffer:state.fgmresRestartCoefficients
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
+                });
             }
             }
 
@@ -6266,7 +6337,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femSolution offset:0u atIndex:3u];
                 [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:5u];
-                [encoder setBuffer:state.primalContactArguments offset:0u atIndex:6u];
+                bindPrimalContactArguments(6u);
                 [encoder setBuffer:state.gridNodes offset:0u atIndex:7u];
                 [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:8u];
                 [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:9u];
@@ -6380,7 +6451,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femLineSearch offset:0u atIndex:6u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:7u];
                     [encoder setBuffer:state.gridNodes offset:0u atIndex:8u];
-                    [encoder setBuffer:state.primalContactArguments offset:0u atIndex:9u];
+                    bindPrimalContactArguments(9u);
                     [encoder setBytes:&coupledArticulatedNv
                                length:sizeof(coupledArticulatedNv)
                               atIndex:10u];
@@ -6396,6 +6467,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femLineSearch
                                  offset:0u atIndex:1u];
                 });
+            dispatchThreads("nm_human_support_apply_solution", humanSupportTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&state.humanSupportDispatch length:sizeof(state.humanSupportDispatch) atIndex:1u];
+                [encoder setBuffer:state.femSolution offset:0u atIndex:2u];
+                [encoder setBuffer:state.femLineSearch offset:0u atIndex:3u];
+                [encoder setBuffer:state.humanSupportHistoriesCandidate offset:0u atIndex:4u];
+            });
             dispatchThreads("nm_rigid_apply_candidate_solution",
                 rigidCandidateTotal, [&] {
                 setDispatch();
@@ -6627,8 +6705,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             if (!encodeCoupledPrimalContact(
                     true,
                     state.contactHistoriesCandidate,
-                    state.deformableContactHistoriesCandidate,
-                    state.humanSupportHistoriesAccepted
+                    state.deformableContactHistoriesCandidate
                 )) {
                 [encoder endEncoding];
                 ownership->preDynamicsOpen = false;
@@ -6653,8 +6730,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:2u];
                     [encoder setBuffer:state.coupledGeneralizedCandidate
                                  offset:0u atIndex:3u];
-                    [encoder setBuffer:state.primalContactArguments
-                                 offset:0u atIndex:4u];
+                    bindPrimalContactArguments(4u);
                     [encoder setBuffer:state.femResidual offset:0u atIndex:5u];
                 });
             dispatchThreads("nm_contact_accumulate_rigid_residual",
@@ -6662,8 +6738,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     setDispatch();
                     [encoder setBytes:&coupledArticulatedNv
                                length:sizeof(coupledArticulatedNv) atIndex:1u];
-                    [encoder setBuffer:state.primalContactArguments
-                                 offset:0u atIndex:2u];
+                    bindPrimalContactArguments(2u);
                     [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:4u];
@@ -6720,7 +6795,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femResidual offset:0u atIndex:7u];
                 [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:8u];
                 [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:9u];
-                [encoder setBuffer:state.primalContactArguments offset:0u atIndex:10u];
+                bindPrimalContactArguments(10u);
             });
             if (!dispatchIndirect(
                     "nm_mpm_build_constitutive_residual",
@@ -6834,6 +6909,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femMaterialStateCandidate offset:0u atIndex:12u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:13u];
             });
+            if (humanSupportTotal != 0u) {
+                dispatchGroups32("nm_human_support_certify", environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:2u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+                });
+            }
             dispatchGroups32("nm_mixed_certify", objectTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
@@ -6854,7 +6938,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:16u];
                 [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:17u];
                 [encoder setBuffer:state.femLineSearch offset:0u atIndex:18u];
-                [encoder setBuffer:state.primalContactArguments offset:0u atIndex:19u];
+                bindPrimalContactArguments(19u);
                 [encoder setBuffer:state.coupledGeneralizedCandidate
                              offset:0u atIndex:20u];
             });
@@ -9729,10 +9813,11 @@ bool Runtime::requiresCoupledCandidate() const noexcept {
 
 std::uint32_t Runtime::coupledCandidatePointCapacity() const noexcept {
     return state_ != nullptr && state_->requiresCoupledCandidate
-        ? std::max(
+        ? std::max({
               state_->contactActiveCapacity,
-              state_->dispatch.femHumanAttachmentCount
-          )
+              state_->dispatch.femHumanAttachmentCount,
+              state_->humanSupportDispatch.contactCount,
+          })
         : 0u;
 }
 

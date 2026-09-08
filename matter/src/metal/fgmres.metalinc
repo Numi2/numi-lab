@@ -39,6 +39,7 @@ kernel void nm_human_support_accumulate_rigid_residual(
 
 kernel void nm_fgmres_apply_human_support(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     constant NMHumanSupportDispatchGPU& support [[buffer(1)]],
     device const float4* direction [[buffer(2)]],
     device float4* work [[buffer(3)]],
@@ -63,24 +64,13 @@ kernel void nm_fgmres_apply_human_support(
         const uint base = environment * support.contactCount * 3u *
             dispatch.rigidGeneralizedCapacity +
             row * 3u * dispatch.rigidGeneralizedCapacity;
-        float3 pointDirection = float3(0.0f);
-        for (uint column = 0u; column < support.articulatedNv; ++column) {
-            const float coefficient = direction[rigidBase + column].x;
-            pointDirection.x += pointJacobians[base + column] * coefficient;
-            pointDirection.y += pointJacobians[
-                base + dispatch.rigidGeneralizedCapacity + column] * coefficient;
-            pointDirection.z += pointJacobians[
-                base + 2u * dispatch.rigidGeneralizedCapacity + column] * coefficient;
-        }
-        const float3 force = multiplyRows(
-            sample.barrierHessianRow0, sample.barrierHessianRow1,
-            sample.barrierHessianRow2, pointDirection);
-        // Residual is J^T impulse - A0 delta-v. The restoring impulse has
-        // derivative -D, hence Newton's -dR is A0 + J^T D J.
-        value += force.x * pointJacobians[base + dof] +
-            force.y * pointJacobians[
+        const float3 impulseDirection = direction[
+            layout.supportBase + environment * support.contactCount + row].xyz;
+        // R_v = J^T lambda - A0 delta-v, so -dR_v/dlambda = -J^T.
+        value -= impulseDirection.x * pointJacobians[base + dof] +
+            impulseDirection.y * pointJacobians[
                 base + dispatch.rigidGeneralizedCapacity + dof] +
-            force.z * pointJacobians[
+            impulseDirection.z * pointJacobians[
                 base + 2u * dispatch.rigidGeneralizedCapacity + dof];
     }
     work[rigidBase + dof].x = value;
@@ -580,14 +570,10 @@ inline float3 fgmresContactDiagonal(
     return diagonal;
 }
 
-inline uint fgmresUnknownCount(const NMMatterDispatchGPU dispatch) {
-    return 2u * dispatch.environmentCount * dispatch.femNodeCount +
-        dispatch.environmentCount * dispatch.mpmActiveNodeCapacity +
-        dispatch.environmentCount * dispatch.rigidGeneralizedCapacity;
-}
 
 kernel void nm_fgmres_begin(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     constant NMMixedSolverGPU& solver [[buffer(1)]],
     device const NMContinuumObjectGPU* objects [[buffer(2)]],
     device const float4* residual [[buffer(3)]],
@@ -622,6 +608,7 @@ kernel void nm_fgmres_begin(
         !completed;
     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
     const uint fieldBase = totalNodes;
+    const uint supportBase = layout.supportBase + environment * layout.supportContactCount;
     const uint mpmBase = fgmresMPMIndex(dispatch, environment, 0u);
     const uint rigidBase = fgmresRigidIndex(dispatch, environment, 0u);
     if (active) {
@@ -644,6 +631,11 @@ kernel void nm_fgmres_begin(
             fgmresCompensatedAdd(
                 norm2, normCorrection,
                 dot(residual[mpmBase + local], residual[mpmBase + local]));
+        for (uint local = lane; local < layout.supportContactCount;
+             local += 32u)
+            fgmresCompensatedAdd(
+                norm2, normCorrection,
+                dot(residual[supportBase + local], residual[supportBase + local]));
         for (uint local = lane; local < dispatch.rigidGeneralizedCapacity;
              local += 32u) {
             const float value = residual[rigidBase + local].x;
@@ -684,6 +676,7 @@ kernel void nm_fgmres_begin(
     const float firstNewtonNorm = nonlinearIteration == 0u &&
         restartCycle == 0u ? norm : previousNonlinear.x;
     const bool hasActiveContact =
+        layout.supportContactCount > 0u ||
         contact.activeCounts[environment] > 0u ||
         contact.deformableActiveCounts[environment] > 0u;
     // The assembled KKT residual is the nonlinear convergence authority.
@@ -753,6 +746,10 @@ kernel void nm_fgmres_begin(
          local += 32u)
         basis0[mpmBase + local] =
             residual[mpmBase + local] * inverseNorm;
+    for (uint local = lane; local < layout.supportContactCount;
+         local += 32u)
+        basis0[supportBase + local] =
+            residual[supportBase + local] * inverseNorm;
     for (uint local = lane; local < dispatch.rigidGeneralizedCapacity;
          local += 32u)
         basis0[rigidBase + local] = float4(
@@ -1796,6 +1793,7 @@ kernel void nm_fgmres_gather_nodes(
 
 kernel void nm_fgmres_orthogonalize_and_finish_column(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     constant NMMixedSolverGPU& solver [[buffer(1)]],
     constant uint& column [[buffer(2)]],
     device const float4* basis [[buffer(3)]],
@@ -1814,8 +1812,9 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
     if (states[environment].diagnostics.z > 0.5f) return;
     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
     const uint fieldBase = totalNodes;
-    const uint totalUnknowns = fgmresUnknownCount(dispatch);
+    const uint totalUnknowns = layout.unknownCount;
     const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint supportBase = layout.supportBase + environment * layout.supportContactCount;
     const uint mpmBase = fgmresMPMIndex(dispatch, environment, 0u);
     const uint rigidBase = fgmresRigidIndex(dispatch, environment, 0u);
     float originalNorm2 = 0.0f;
@@ -1834,6 +1833,11 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
         fgmresCompensatedAdd(
             originalNorm2, originalCorrection,
             dot(work[mpmBase + local], work[mpmBase + local]));
+    for (uint local = lane; local < layout.supportContactCount;
+         local += 32u)
+        fgmresCompensatedAdd(
+            originalNorm2, originalCorrection,
+            dot(work[supportBase + local], work[supportBase + local]));
     for (uint local = lane; local < dispatch.rigidGeneralizedCapacity;
          local += 32u) {
         const float value = work[rigidBase + local].x;
@@ -1860,6 +1864,11 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
             fgmresCompensatedAdd(
                 projection, projectionCorrection,
                 dot(rowBasis[mpmBase + local], work[mpmBase + local]));
+        for (uint local = lane; local < layout.supportContactCount;
+             local += 32u)
+            fgmresCompensatedAdd(
+                projection, projectionCorrection,
+                dot(rowBasis[supportBase + local], work[supportBase + local]));
         for (uint local = lane; local < dispatch.rigidGeneralizedCapacity;
              local += 32u)
             fgmresCompensatedAdd(
@@ -1880,6 +1889,9 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
         for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
              local += 32u)
             work[mpmBase + local] -= projection * rowBasis[mpmBase + local];
+        for (uint local = lane; local < layout.supportContactCount;
+             local += 32u)
+            work[supportBase + local] -= projection * rowBasis[supportBase + local];
         for (uint local = lane; local < dispatch.rigidGeneralizedCapacity;
              local += 32u)
             work[rigidBase + local].x -=
@@ -1907,6 +1919,11 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
         fgmresCompensatedAdd(
             remainingNorm2, remainingCorrection,
             dot(work[mpmBase + local], work[mpmBase + local]));
+    for (uint local = lane; local < layout.supportContactCount;
+         local += 32u)
+        fgmresCompensatedAdd(
+            remainingNorm2, remainingCorrection,
+            dot(work[supportBase + local], work[supportBase + local]));
     for (uint local = lane; local < dispatch.rigidGeneralizedCapacity;
          local += 32u) {
         const float value = work[rigidBase + local].x;
@@ -1938,6 +1955,11 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
                 fgmresCompensatedAdd(
                     projection, projectionCorrection,
                     dot(rowBasis[mpmBase + local], work[mpmBase + local]));
+            for (uint local = lane; local < layout.supportContactCount;
+                 local += 32u)
+                fgmresCompensatedAdd(
+                    projection, projectionCorrection,
+                    dot(rowBasis[supportBase + local], work[supportBase + local]));
             for (uint local = lane;
                  local < dispatch.rigidGeneralizedCapacity;
                  local += 32u)
@@ -1962,6 +1984,10 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
                  local += 32u)
                 work[mpmBase + local] -=
                     projection * rowBasis[mpmBase + local];
+            for (uint local = lane; local < layout.supportContactCount;
+                 local += 32u)
+                work[supportBase + local] -=
+                    projection * rowBasis[supportBase + local];
             for (uint local = lane;
                  local < dispatch.rigidGeneralizedCapacity;
                  local += 32u)
@@ -1995,6 +2021,12 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
             fgmresCompensatedAdd(
                 norm2, normCorrection,
                 dot(work[mpmBase + local], work[mpmBase + local]));
+        for (uint local = lane;
+             local < layout.supportContactCount;
+             local += 32u)
+            fgmresCompensatedAdd(
+                norm2, normCorrection,
+                dot(work[supportBase + local], work[supportBase + local]));
         for (uint local = lane;
              local < dispatch.rigidGeneralizedCapacity;
              local += 32u) {
@@ -2065,6 +2097,10 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
          local += 32u)
         nextBasis[mpmBase + local] =
             work[mpmBase + local] * inverseNorm;
+    for (uint local = lane; local < layout.supportContactCount;
+         local += 32u)
+        nextBasis[supportBase + local] =
+            work[supportBase + local] * inverseNorm;
     for (uint local = lane; local < dispatch.rigidGeneralizedCapacity;
          local += 32u)
         nextBasis[rigidBase + local] = float4(
@@ -2179,6 +2215,7 @@ kernel void nm_fgmres_finalize_cycle(
 
 kernel void nm_fgmres_restart_residual_nodes(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     device const NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
     device const float4* basis [[buffer(2)]],
     device const float* coefficients [[buffer(3)]],
@@ -2194,7 +2231,7 @@ kernel void nm_fgmres_restart_residual_nodes(
         return;
     const uint used = min(uint(states[environment].diagnostics.w),
                           NM_MIXED_FGMRES_RESTART);
-    const uint totalUnknowns = fgmresUnknownCount(dispatch);
+    const uint totalUnknowns = layout.unknownCount;
     const uint coefficientBase = environment *
         (NM_MIXED_FGMRES_RESTART + 1u);
     float4 mechanical = float4(0.0f);
@@ -2211,6 +2248,7 @@ kernel void nm_fgmres_restart_residual_nodes(
 
 kernel void nm_fgmres_restart_residual_rigid(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     device const float4* basis [[buffer(1)]],
     device const float* coefficients [[buffer(2)]],
     device const NMFGMRESStateGPU* states [[buffer(3)]],
@@ -2225,7 +2263,7 @@ kernel void nm_fgmres_restart_residual_rigid(
     const uint used = min(
         uint(states[environment].diagnostics.w),
         NM_MIXED_FGMRES_RESTART);
-    const uint totalUnknowns = fgmresUnknownCount(dispatch);
+    const uint totalUnknowns = layout.unknownCount;
     const uint coefficientBase = environment *
         (NM_MIXED_FGMRES_RESTART + 1u);
     float value = 0.0f;
@@ -2235,8 +2273,36 @@ kernel void nm_fgmres_restart_residual_rigid(
     residual[row] = float4(value, 0.0f, 0.0f, 0.0f);
 }
 
+kernel void nm_fgmres_restart_residual_support(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float4* basis [[buffer(1)]],
+    device const float* coefficients [[buffer(2)]],
+    device const NMFGMRESStateGPU* states [[buffer(3)]],
+    device float4* residual [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        layout.supportContactCount;
+    if (global >= total || layout.supportContactCount == 0u) return;
+    const uint environment = global / layout.supportContactCount;
+    const uint row = layout.supportBase + global;
+    const uint used = min(
+        uint(states[environment].diagnostics.w),
+        NM_MIXED_FGMRES_RESTART);
+    const uint totalUnknowns = layout.unknownCount;
+    const uint coefficientBase = environment *
+        (NM_MIXED_FGMRES_RESTART + 1u);
+    float4 value = float4(0.0f);
+    for (uint basisRow = 0u; basisRow <= used; ++basisRow)
+        value += coefficients[coefficientBase + basisRow] *
+            basis[basisRow * totalUnknowns + row];
+    residual[row] = value;
+}
+
 kernel void nm_fgmres_accumulate(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     constant NMMixedSolverGPU& solver [[buffer(1)]],
     device const NMIncidenceRangeGPU* nodeRanges [[buffer(2)]],
     device const float4* preconditionedBasis [[buffer(3)]],
@@ -2256,7 +2322,7 @@ kernel void nm_fgmres_accumulate(
         solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART
     ));
     float4 value = float4(0.0f);
-    const uint totalUnknowns = fgmresUnknownCount(dispatch);
+    const uint totalUnknowns = layout.unknownCount;
     for (uint column = 0u; column < used; ++column)
         value += preconditionedBasis[
             column * totalUnknowns + global
@@ -2267,6 +2333,7 @@ kernel void nm_fgmres_accumulate(
 
 kernel void nm_fgmres_accumulate_fields(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     constant NMMixedSolverGPU& solver [[buffer(1)]],
     device const NMIncidenceRangeGPU* nodeRanges [[buffer(2)]],
     device const float4* preconditionedBasis [[buffer(3)]],
@@ -2284,7 +2351,7 @@ kernel void nm_fgmres_accumulate_fields(
         return;
     const uint used = min(uint(states[environment].diagnostics.w), min(
         solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART));
-    const uint totalUnknowns = fgmresUnknownCount(dispatch);
+    const uint totalUnknowns = layout.unknownCount;
     const uint fieldIndex = totalNodes + global;
     float4 value = float4(0.0f);
     for (uint column = 0u; column < used; ++column)
@@ -2296,6 +2363,7 @@ kernel void nm_fgmres_accumulate_fields(
 
 kernel void nm_fgmres_accumulate_rigid(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     constant NMMixedSolverGPU& solver [[buffer(1)]],
     device const float4* preconditionedBasis [[buffer(2)]],
     device const float* leastSquares [[buffer(3)]],
@@ -2311,7 +2379,7 @@ kernel void nm_fgmres_accumulate_rigid(
     const uint row = fgmresRigidBase(dispatch) + global;
     const uint used = min(uint(states[environment].diagnostics.w), min(
         solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART));
-    const uint totalUnknowns = fgmresUnknownCount(dispatch);
+    const uint totalUnknowns = layout.unknownCount;
     float value = 0.0f;
     for (uint column = 0u; column < used; ++column)
         value += preconditionedBasis[column * totalUnknowns + row].x *
@@ -2320,6 +2388,35 @@ kernel void nm_fgmres_accumulate_rigid(
         solution[row] = float4(value, 0.0f, 0.0f, 0.0f);
     else
         solution[row].x += value;
+}
+
+kernel void nm_fgmres_accumulate_support(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const float4* preconditionedBasis [[buffer(2)]],
+    device const float* leastSquares [[buffer(3)]],
+    device const NMFGMRESStateGPU* states [[buffer(4)]],
+    device float4* solution [[buffer(5)]],
+    constant uint& restartCycle [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        layout.supportContactCount;
+    if (global >= total || layout.supportContactCount == 0u) return;
+    const uint environment = global / layout.supportContactCount;
+    const uint row = layout.supportBase + global;
+    const uint used = min(uint(states[environment].diagnostics.w), min(
+        solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART));
+    const uint totalUnknowns = layout.unknownCount;
+    float4 value = float4(0.0f);
+    for (uint column = 0u; column < used; ++column)
+        value += preconditionedBasis[column * totalUnknowns + row] *
+            leastSquares[fgmresVectorIndex(environment, column)];
+    if (restartCycle == 0u)
+        solution[row] = value;
+    else
+        solution[row] += value;
 }
 
 // Active MPM grid velocities occupy a first-class block of the monolithic
@@ -3176,6 +3273,7 @@ kernel void nm_fgmres_apply_mpm_constitutive(
 
 kernel void nm_fgmres_accumulate_mpm(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     constant NMMixedSolverGPU& solver [[buffer(1)]],
     device const float4* preconditionedBasis [[buffer(2)]],
     device const float* leastSquares [[buffer(3)]],
@@ -3191,7 +3289,7 @@ kernel void nm_fgmres_accumulate_mpm(
     const uint row = fgmresMPMBase(dispatch) + global;
     const uint used = min(uint(states[environment].diagnostics.w), min(
         solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART));
-    const uint totalUnknowns = fgmresUnknownCount(dispatch);
+    const uint totalUnknowns = layout.unknownCount;
     float4 value = float4(0.0f);
     for (uint column = 0u; column < used; ++column)
         value += preconditionedBasis[column * totalUnknowns + row] *
@@ -3202,6 +3300,7 @@ kernel void nm_fgmres_accumulate_mpm(
 
 kernel void nm_fgmres_restart_residual_mpm(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     device const float4* basis [[buffer(1)]],
     device const float* coefficients [[buffer(2)]],
     device const NMFGMRESStateGPU* states [[buffer(3)]],
@@ -3215,7 +3314,7 @@ kernel void nm_fgmres_restart_residual_mpm(
     const uint row = fgmresMPMBase(dispatch) + global;
     const uint used = min(uint(states[environment].diagnostics.w),
                           NM_MIXED_FGMRES_RESTART);
-    const uint totalUnknowns = fgmresUnknownCount(dispatch);
+    const uint totalUnknowns = layout.unknownCount;
     const uint coefficientBase = environment *
         (NM_MIXED_FGMRES_RESTART + 1u);
     float4 value = float4(0.0f);
@@ -3251,6 +3350,114 @@ kernel void nm_mpm_apply_implicit_solution(
         ? lineSearch[environment * dispatch.objectCount].x : 0.0f;
     nodes[nodeGlobal].candidateVelocity.xyz += alpha *
         solution[fgmresMPMIndex(dispatch, environment, slot)].xyz;
+}
+
+
+kernel void nm_fgmres_precondition_support(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float4* basis [[buffer(1)]],
+    device float4* preconditioned [[buffer(2)]],
+    device const NMFGMRESStateGPU* states [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * layout.supportContactCount) return;
+    const uint environment = global / layout.supportContactCount;
+    const uint row = layout.supportBase + global;
+    preconditioned[row] = states[environment].diagnostics.z > 0.5f
+        ? float4(0.0f) : float4(basis[row].xyz, 0.0f);
+}
+
+kernel void nm_fgmres_apply_support_dual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant NMHumanSupportDispatchGPU& support [[buffer(1)]],
+    device const float4* direction [[buffer(2)]],
+    device float4* work [[buffer(3)]],
+    device const NMHumanSupportKKTGPU* linearizations [[buffer(4)]],
+    device const float* pointJacobians [[buffer(5)]],
+    device const NMFGMRESStateGPU* states [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * support.contactCount) return;
+    const uint environment = global / support.contactCount;
+    const uint row = layout.supportBase + global;
+    work[row] = float4(0.0f);
+    if (states[environment].diagnostics.z > 0.5f) return;
+    const uint rigidBase = fgmresRigidIndex(dispatch, environment, 0u);
+    const uint base = global * 3u * dispatch.rigidGeneralizedCapacity;
+    float3 pointDirection(0.0f);
+    for (uint dof = 0u; dof < support.articulatedNv; ++dof) {
+        const float v = direction[rigidBase + dof].x;
+        pointDirection += v * float3(pointJacobians[base + dof],
+            pointJacobians[base + dispatch.rigidGeneralizedCapacity + dof],
+            pointJacobians[base + 2u * dispatch.rigidGeneralizedCapacity + dof]);
+    }
+    const NMHumanSupportKKTGPU kkt = linearizations[global];
+    const float3 impulseDirection = direction[row].xyz;
+    // -d(P(lambda-rho*c)-lambda) = rho*D*J*dv + (I-D)*dlambda.
+    // rho is one kg in the evaluator. D includes the sliding radial and
+    // normal-to-tangent coupling; using a symmetric PSD tangent is incorrect.
+    work[row] = float4(impulseDirection + multiplyRows(kkt.projectionRow0,
+        kkt.projectionRow1, kkt.projectionRow2,
+        pointDirection - impulseDirection), 0.0f);
+}
+
+kernel void nm_human_support_apply_solution(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant NMHumanSupportDispatchGPU& support [[buffer(1)]],
+    device const float4* solution [[buffer(2)]],
+    device const float4* lineSearch [[buffer(3)]],
+    device float4* histories [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * support.contactCount) return;
+    const uint environment = global / support.contactCount;
+    const float alpha = dispatch.objectCount == 0u ? 1.0f :
+        lineSearch[environment * dispatch.objectCount].x;
+    const float3 normal = support.groundNormal.xyz;
+    const float4 history = histories[global];
+    const float3 next = history.xyz + history.w * normal +
+        alpha * solution[layout.supportBase + global].xyz;
+    const float normalImpulse = dot(next, normal);
+    // Do not project a Newton iterate independently of the mechanical step.
+    // The same alpha updates both unknowns; the assembled NCP certifies them.
+    histories[global] = float4(next - normalImpulse * normal, normalImpulse);
+}
+
+kernel void nm_human_support_certify(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const float4* residual [[buffer(2)]],
+    device const NMFGMRESStateGPU* states [[buffer(3)]],
+    device NMMatterStatusGPU* statuses [[buffer(4)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount ||
+        layout.supportContactCount == 0u ||
+        !environmentHealthy(statuses, environment)) return;
+    float norm2 = 0.0f;
+    for (uint row = lane; row < layout.supportContactCount; row += 32u) {
+        const float3 value = residual[layout.supportBase +
+            environment * layout.supportContactCount + row].xyz;
+        norm2 += dot(value, value);
+    }
+    // Also covers a rigid-only Human with no continuum object certificate.
+    for (uint dof = lane; dof < dispatch.rigidGeneralizedCapacity; dof += 32u) {
+        const float value = residual[fgmresRigidIndex(dispatch, environment, dof)].x;
+        norm2 += value * value;
+    }
+    norm2 = simd_sum(norm2);
+    const float norm = sqrt(norm2);
+    const float threshold = max(solver.regularization.x,
+        solver.residualTolerances.x * max(min(states[environment].nonlinear.x,
+            states[environment].nonlinear.y), 1.0f));
+    if (lane == 0u && (!isfinite(norm) || norm > threshold))
+        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, NM_INVALID_INDEX, float4(norm, threshold, 0.0f, 0.0f));
 }
 
 } // namespace numi_matter_metal

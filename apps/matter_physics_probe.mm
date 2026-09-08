@@ -3365,10 +3365,228 @@ Outcome runCase(
     }
 }
 
+
+// Independent rigid load/friction oracle through the actual MetalWorld/Matter
+// candidate service, nonlinear FGMRES, line search and accepted transaction.
+// The fixed tetrahedron reserves the normal continuum path without exerting
+// forces on the body. Its articulated proxy is deliberately far from the tet.
+void runHumanSupportLoaded() {
+    @autoreleasepool {
+        constexpr unsigned environments = 3;
+        struct Case {
+            const char* name;
+            float mass, timestep, seed, gap, vx, vz, friction;
+            unsigned rows;
+        };
+        const Case cases[] = {
+            {"cold_97kg",97,0.0001f,0,0,0,0,0,1},
+            {"weight_seed_97kg",97,0.0001f,1,0,0,0,0,1},
+            {"double_seed_97kg",97,0.0001f,2,0,0,0,0,1},
+            {"redundant_six_cold",97,0.0001f,0,0,0,0,0,6},
+            {"redundant_six_double",97,0.0001f,2,0,0,0,0,6},
+            {"cold_1kg",1,0.0001f,0,0,0,0,0,1},
+            {"half_timestep",97,0.00005f,0,0,0,0,0,1},
+            {"airborne_double_seed",97,0.0001f,2,0.01f,0,0,0,1},
+            {"sticking",97,0.0001f,0,0,0.0001f,0.0002f,0.5f,1},
+            {"sliding",97,0.0001f,0,0,0.1f,0.2f,0.5f,1},
+            {"sliding_warm",97,0.0001f,2,0,0.1f,0.2f,0.5f,1},
+        };
+        for (const auto c : cases) {
+            auto material = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+            require(material.succeeded(), "support material failed to parse");
+            numi::matter::WorldSource source;
+            source.environmentCount = environments;
+            source.frameTimestep = c.timestep;
+            source.gravity = {0,0,0};
+            source.mixedSolver.newtonIterations = 12;
+            // Resolve the 97 kg impulse oracle to 2 micro-newton-seconds,
+            // while retaining the FP32 momentum roundoff floor.
+            source.mixedSolver.relativeResidual = 1.0e-8;
+            source.materials.push_back(std::move(material.material));
+            numi::matter::RigidProxySource proxy;
+            proxy.shape = NM_RIGID_SPHERE;
+            proxy.bodyIndex = 1;
+            proxy.articulated = true;
+            proxy.localCenter = {0,100,0};
+            proxy.radiusOrOffset = 0.01;
+            source.rigidProxies.push_back(proxy);
+            numi::matter::ObjectSource object;
+            object.name = "fixed_remote_tetrahedron";
+            object.materialIndex = 0;
+            object.representation = numi::matter::Representation::fem;
+            object.characteristicLength = 0.01;
+            object.femNodes = {{10,0,0},{10.01,0,0},{10,0.01,0},{10,0,0.01}};
+            object.femFixedNodes = {0,1,2,3};
+            object.tetrahedra = {{{0,1,2,3}}};
+            source.objects.push_back(object);
+            numi::matter::CompileOptions options;
+            options.maximumRateExponent = 0;
+            auto compiled = numi::matter::compileWorld(source,options);
+            std::string compileError;
+            for (const auto& diagnostic : compiled.diagnostics) compileError += diagnostic.message + "; ";
+            require(compiled.succeeded(), "support world compile: " + compileError);
+            std::vector<NMHumanSupportContactGPU> contacts(c.rows);
+            std::vector<NMHumanSupportPointQueryGPU> queries(c.rows);
+            for (unsigned i=0;i<c.rows;++i) {
+                contacts[i].identity = {1,i,i,0};
+                contacts[i].frictionSlopAndStabilization = {c.friction,1.0e-6f,0.2f,0};
+                queries[i].bodyIndex = 1;
+            }
+            numi::matter::Runtime matter;
+            const numi::matter::RuntimeConfiguration runtimeConfiguration{
+                .metallib = NUMI_MATTER_METALLIB,
+                .environmentCount = environments,
+                .captureEvents = true,
+                .captureDiagnostics = true,
+                .automaticIdentification = false,
+                .adaptiveTransfer = false,
+                .humanSupportContacts = contacts,
+                .humanSupportPointQueries = queries,
+                .humanSupportGroundNormal = {0,1,0,0},
+            };
+            auto init = matter.initialize(compiled.world, runtimeConfiguration);
+            require(init.encoded, "support initialize: "+init.message);
+            require(matter.coupledCandidatePointCapacity() >= c.rows,
+                "Human support queries exceed advertised candidate capacity");
+            auto checkpoint = matter.snapshot();
+            require(checkpoint.available && checkpoint.humanSupportHistories.size()==environments*c.rows,
+                "support initial snapshot missing");
+            const float weight = c.mass * 9.81f * c.timestep;
+            for (unsigned env=0;env<environments;++env)
+                for (unsigned row=0;row<c.rows;++row)
+                    checkpoint.humanSupportHistories[env*c.rows+row] =
+                        {0,0,0,(c.seed+env)*weight/c.rows};
+            auto restored = matter.restore(checkpoint);
+            require(restored.encoded, "support seed restore: "+restored.message);
+            auto model = metalrobo::makeFreeSphereEngineModel();
+            model.name = std::string("support_")+c.name;
+            model.bodies[1].massAndInverseMass = {c.mass,1/c.mass,0,0};
+            model.defaultQ[0]=0; model.defaultQ[1]=c.gap; model.defaultQ[2]=0;
+            // Supply the known free predictor to the coupled correction service.
+            // The generic device hook precedes ABA, so applying gravity again
+            // in MetalWorld would double this authored predictor impulse.
+            model.world.gravityAndTimestep = {0,0,0,c.timestep};
+            model.defaultV[0]=c.vx; model.defaultV[1]=-9.81f*c.timestep; model.defaultV[2]=c.vz;
+            metalrobo::CompiledWorld rigidWorld;
+            auto rigidCompile = metalrobo::compileMetalWorld(model,0,rigidWorld);
+            require(rigidCompile.succeeded(), "support rigid compile: "+rigidCompile.message);
+            std::vector<float> efforts(rigidWorld.nv(),0);
+            metalrobo::MetalWorldStepConfig config{};
+            config.timestepSeconds = c.timestep;
+            config.physicsSubsteps = 1;
+            config.solverMode = metalrobo::MetalWorldSolverMode::freeMotionABA;
+            config.matrixFreeArticulatedContact = false;
+            config.streamedArticulatedContactResponses = false;
+            config.captureContactEvidence = false;
+            config.devicePhysicsProgram = numi::matter::makeMetalWorldDevicePhysicsProgram(matter);
+            std::vector<float> initialQ,initialV;
+            for (unsigned env=0;env<environments;++env) {
+                initialQ.insert(initialQ.end(),model.defaultQ.begin(),model.defaultQ.end());
+                initialV.insert(initialV.end(),model.defaultV.begin(),model.defaultV.end());
+            }
+            efforts.resize(environments*rigidWorld.nv(),0);
+            const metalrobo::MetalWorldBatch batch{
+                .environmentCount = environments,
+                .controlStepCount = 1,
+                .initialQ = initialQ,
+                .initialV = initialV,
+                .efforts = efforts,
+            };
+            if (c.rows == 6u && c.seed == 0.0f) {
+                numi::matter::Runtime undersizedMatter;
+                require(undersizedMatter.initialize(compiled.world,
+                    runtimeConfiguration).encoded,
+                    "undersized support fixture initialization failed");
+                auto undersizedConfig = config;
+                undersizedConfig.devicePhysicsProgram =
+                    numi::matter::makeMetalWorldDevicePhysicsProgram(undersizedMatter);
+                undersizedConfig.devicePhysicsProgram.coupledCandidatePointCapacity = 1u;
+                metalrobo::MetalWorldContext undersizedContext;
+                metalrobo::MetalWorldResult rejected;
+                const auto rejection = undersizedContext.run(
+                    rigidWorld,batch,undersizedConfig,rejected);
+                require(!rejection.succeeded(),
+                    "undersized borrowed-query arena reached GPU execution");
+                std::cout << "SUPPORT_CAPACITY_REJECTION message=" << rejection.message << '\n';
+            }
+            metalrobo::MetalWorldContext context;
+            metalrobo::MetalWorldResult result;
+            auto run = context.run(rigidWorld,batch,config,result);
+            const auto status = *static_cast<const NMMatterStatusGPU*>(
+                ((__bridge id<MTLBuffer>)matter.statusBuffer()).contents);
+            std::cout << "SUPPORT_RUN name=" << c.name << " success=" << run.succeeded()
+                << " status=" << status.code << " diagnostic=" << status.diagnostics.x
+                << ',' << status.diagnostics.y << ',' << status.diagnostics.z
+                << ',' << status.diagnostics.w << " message=" << run.message << '\n';
+            require(run.succeeded(), "support loaded transaction failed");
+            const auto accepted = matter.snapshot();
+            for (unsigned env=0;env<environments;++env) {
+                const auto row=accepted.humanSupportConsequences[env*c.rows];
+                std::cout<<"SUPPORT_GEOMETRY env="<<env<<" point="<<row.pointAndSeparation.x<<','
+                    <<row.pointAndSeparation.y<<','<<row.pointAndSeparation.z<<" gap="
+                    <<row.pointAndSeparation.w<<" impulse="<<row.impulseAndNormal.w<<'\n';
+            }
+            for (unsigned env=0;env<environments;++env) {
+            double normal=0, tangentX=0, tangentZ=0;
+            for (unsigned i=0;i<c.rows;++i) {
+                const auto& row=accepted.humanSupportConsequences[env*c.rows+i];
+                normal += row.impulseAndNormal.y;
+                tangentX += row.impulseAndNormal.x;
+                tangentZ += row.impulseAndNormal.z;
+            }
+            const double expectedNormal = c.gap==0 ? weight : 0;
+            const double speed = std::hypot(c.vx,c.vz);
+            const double expectedTangent = std::min(c.mass*speed,c.friction*expectedNormal);
+            const double tx = speed>0 ? -expectedTangent*c.vx/speed : 0;
+            const double tz = speed>0 ? -expectedTangent*c.vz/speed : 0;
+            const double expectedVy = -9.81*c.timestep + expectedNormal/c.mass;
+            const double expectedVx = c.vx + tx/c.mass;
+            const double expectedVz = c.vz + tz/c.mass;
+            std::cout << "SUPPORT_LOAD name=" << c.name << " environment=" << env << " lambda=" << normal
+                << " expected=" << expectedNormal << " tangent=" << tangentX << ',' << tangentZ
+                << " velocity=" << result.finalV[env*rigidWorld.nv()+0] << ',' << result.finalV[env*rigidWorld.nv()+1] << ',' << result.finalV[env*rigidWorld.nv()+2]
+                << " gap=" << result.finalQ[env*rigidWorld.nq()+1] << '\n';
+            require(std::abs(normal-expectedNormal)<2.0e-6 &&
+                std::abs(tangentX-tx)<2.0e-6 && std::abs(tangentZ-tz)<2.0e-6,
+                "support impulse violates independent weight/friction oracle");
+            require(std::abs(result.finalV[env*rigidWorld.nv()+1]-expectedVy)<2.0e-7 &&
+                std::abs(result.finalV[env*rigidWorld.nv()+0]-expectedVx)<2.0e-7 &&
+                std::abs(result.finalV[env*rigidWorld.nv()+2]-expectedVz)<2.0e-7,
+                "support motion violates independent momentum oracle");
+            }
+            require(matter.restore(checkpoint).encoded, "support replay restore failed");
+            metalrobo::MetalWorldContext replayContext;
+            metalrobo::MetalWorldResult replay;
+            require(replayContext.run(rigidWorld,batch,config,replay).succeeded(),
+                "support replay transaction failed");
+            const auto replayState=matter.snapshot();
+            double replayQ=0,replayV=0,replayImpulse=0;
+            for (unsigned i=0;i<result.finalQ.size();++i) replayQ=std::max(replayQ,double(std::abs(result.finalQ[i]-replay.finalQ[i])));
+            for (unsigned i=0;i<result.finalV.size();++i) replayV=std::max(replayV,double(std::abs(result.finalV[i]-replay.finalV[i])));
+            for (unsigned i=0;i<accepted.humanSupportHistories.size();++i) {
+                replayImpulse=std::max(replayImpulse,double(std::abs(accepted.humanSupportHistories[i].w-replayState.humanSupportHistories[i].w)));
+            }
+            std::cout<<"SUPPORT_REPLAY name="<<c.name<<" q_error="<<replayQ<<" v_error="<<replayV<<" normal_error="<<replayImpulse<<'\n';
+            require(replay.finalQ.size()==result.finalQ.size() &&
+                replay.finalV.size()==result.finalV.size() &&
+                std::memcmp(replay.finalQ.data(),result.finalQ.data(),result.finalQ.size()*sizeof(float))==0 &&
+                std::memcmp(replay.finalV.data(),result.finalV.data(),result.finalV.size()*sizeof(float))==0 &&
+                std::memcmp(replayState.humanSupportHistories.data(),
+                    accepted.humanSupportHistories.data(),
+                    accepted.humanSupportHistories.size()*sizeof(nm_float4))==0,
+                "support replay changed physical state or impulses");
+        }
+        std::cout << "Human support loaded runtime: 11 cases x 3 environments passed; replay exact\n";
+    }
+}
+
 } // namespace
 
 int main(int argc, const char* argv[]) {
     try {
+        if (argc==2 && std::string_view(argv[1])=="--human-support-loaded") {
+            runHumanSupportLoaded(); return 0;
+        }
         const bool femOnly = argc == 2 && std::string_view(argv[1]) == "--fem";
         const bool mixedOnly = argc == 2 && std::string_view(argv[1]) == "--mixed";
         const bool statefulMPM = argc == 2 &&

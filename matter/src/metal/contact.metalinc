@@ -1,5 +1,60 @@
 namespace numi_matter_metal {
 
+inline float3 humanSupportOffset(
+    const MRBodyStateGPU body, const NMHumanSupportContactGPU row,
+    const float3 normal
+) {
+    const float4 orientation = quaternionNormalize(body.orientation);
+    float3 offset = quaternionRotate(orientation, row.localPoint.xyz) -
+        row.localPoint.w * normal;
+    if (row.identity.w == 2u) {
+        const float4 shape = quaternionMultiply(orientation, row.supportOrientation);
+        const float3 direction = quaternionRotate(float4(-shape.xyz, shape.w), normal);
+        const float3 scaled = row.supportRadii.xyz * direction;
+        offset -= quaternionRotate(shape,
+            row.supportRadii.xyz * scaled / length(scaled));
+    }
+    return offset;
+}
+
+// Alart-Curnier-style normal half-line and Coulomb tangent-disk residual.
+// The radius follows the projected normal impulse, not a friction-cone
+// orthogonal projection (which would introduce associated dilatancy).
+inline NMHumanSupportKKTGPU humanSupportProjection(
+    const float3 impulse, const float3 constraintVelocity,
+    const float3 normal, const float friction, const float rho
+) {
+    const float3 trial = impulse - rho * constraintVelocity;
+    const float trialNormal = dot(trial, normal);
+    const float projectedNormal = max(trialNormal, 0.0f);
+    const float3 trialTangent = trial - trialNormal * normal;
+    const float tangentLength = length(trialTangent);
+    const float radius = friction * projectedNormal;
+    const float3x3 N = outerProduct(normal, normal);
+    const float3x3 T = float3x3(1.0f) - N;
+    float3 projected = projectedNormal * normal;
+    float3x3 derivative(0.0f);
+    if (trialNormal > 0.0f) {
+        derivative = N;
+        if (tangentLength <= radius) {
+            projected += trialTangent;
+            // Zero-friction rows have no tangent equality, including at rest.
+            if (friction > 0.0f) derivative += T;
+        } else if (tangentLength > 0.0f) {
+            const float3 tangent = trialTangent / tangentLength;
+            projected += radius * tangent;
+            derivative += friction * outerProduct(tangent, normal) +
+                (radius / tangentLength) * (T - outerProduct(tangent, tangent));
+        }
+    }
+    NMHumanSupportKKTGPU result;
+    result.residual = float4(projected - impulse, 0.0f);
+    matrixToRows(derivative, result.projectionRow0,
+        result.projectionRow1, result.projectionRow2);
+    return result;
+}
+
+
 kernel void nm_human_support_evaluate(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMHumanSupportDispatchGPU& support [[buffer(1)]],
@@ -7,11 +62,15 @@ kernel void nm_human_support_evaluate(
     device const MRBodyStateGPU* candidateBodies [[buffer(3)]],
     device const float* candidateGeneralized [[buffer(4)]],
     device const float* pointJacobians [[buffer(5)]],
-    device const float4* acceptedHistories [[buffer(6)]],
-    device float4* candidateHistories [[buffer(7)]],
+    device const float4* candidateHistories [[buffer(7)]],
     device NMContactSampleGPU* samples [[buffer(8)]],
     device NMHumanSupportConsequenceGPU* consequences [[buffer(9)]],
     device NMMatterStatusGPU* statuses [[buffer(10)]],
+    device const MRBodyStateGPU* initialBodies [[buffer(11)]],
+    device NMHumanSupportKKTGPU* linearizations [[buffer(12)]],
+    device float4* residual [[buffer(13)]],
+    device const float* freeGeneralized [[buffer(14)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint count = support.contactCount;
@@ -24,7 +83,8 @@ kernel void nm_human_support_evaluate(
     consequence.identity = uint4(
         rowIndex, NM_INVALID_INDEX, 0u,
         NM_HUMAN_SUPPORT_CONSEQUENCE_VERSION);
-    candidateHistories[global] = float4(0.0f);
+    linearizations[global] = {};
+    residual[layout.supportBase + global] = float4(0.0f);
     if (!environmentHealthy(statuses, environment)) {
         samples[global] = sample;
         consequences[global] = consequence;
@@ -37,7 +97,7 @@ kernel void nm_human_support_evaluate(
         support.articulatedNv > 0u &&
         support.articulatedNv <= dispatch.rigidGeneralizedCapacity &&
         body >= support.articulationRootBody &&
-        body - support.articulationRootBody < support.bodyCount &&
+        body < support.bodyCount &&
         support.bodyStride >= support.bodyCount &&
         support.reserved0 == 0u && support.reserved1 == 0u &&
         support.reserved2 == 0u &&
@@ -66,21 +126,19 @@ kernel void nm_human_support_evaluate(
         consequences[global] = consequence;
         return;
     }
-    const uint bodyLocal = body - support.articulationRootBody;
     const MRBodyStateGPU bodyState = candidateBodies[
-        environment * support.bodyStride + bodyLocal];
-    const float4 orientation = quaternionNormalize(bodyState.orientation);
+        environment * support.bodyStride + body];
     const float3 normal = normalize(support.groundNormal.xyz);
-    float3 offset = quaternionRotate(orientation, row.localPoint.xyz) - row.localPoint.w * normal;
-    if (row.identity.w == 2u) {
-        const float4 shape=quaternionMultiply(orientation,row.supportOrientation);
-        const float3 direction=quaternionRotate(float4(-shape.xyz,shape.w),normal);
-        const float3 scaled=row.supportRadii.xyz*direction;
-        offset-=quaternionRotate(shape,row.supportRadii.xyz*scaled/length(scaled));
-    }
+    const float3 offset = humanSupportOffset(bodyState, row, normal);
     const float3 point = bodyState.position.xyz + offset;
+    const MRBodyStateGPU initialBody = initialBodies[
+        environment * support.bodyStride + body];
+    const float3 initialPoint = initialBody.position.xyz +
+        humanSupportOffset(initialBody, row, normal);
+    const float initialSeparation = dot(
+        initialPoint - support.groundPointAndTimestep.xyz, normal);
     const float normalLength = length(support.groundNormal.xyz);
-    if (!finite3(point) || !isfinite(normalLength) ||
+    if (!finite3(point) || !isfinite(initialSeparation) || !isfinite(normalLength) ||
         abs(normalLength - 1.0f) > 1.0e-4f) {
         recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
             NM_INVALID_INDEX, rowIndex, float4(point, normalLength));
@@ -88,13 +146,20 @@ kernel void nm_human_support_evaluate(
         consequences[global] = consequence;
         return;
     }
-    // The Newton generalized vector is delta-v, not the total velocity.
-    // Exact candidate bodies already contain J(q_candidate)*(v_free+delta-v).
-    // Include rotation about the COM for an offset support witness.
-    const float3 velocity = bodyState.linearVelocityAndInverseMass.xyz +
-        cross(bodyState.angularVelocity.xyz, offset);
-    (void)candidateGeneralized;
-    (void)pointJacobians;
+    // The point service owns J(q_candidate); the coupled unknown is delta-v.
+    // Form the physical witness velocity from v_free + delta-v. Generic
+    // candidate body projection only publishes pose, so its velocity fields
+    // are not an interchangeable source of this kinematic quantity.
+    float3 velocity(0.0f);
+    const uint jacobianBase = global * 3u * dispatch.rigidGeneralizedCapacity;
+    const uint velocityBase = environment * dispatch.rigidGeneralizedCapacity;
+    for (uint dof = 0u; dof < support.articulatedNv; ++dof) {
+        const float v = freeGeneralized[environment * support.articulatedNv + dof] +
+            candidateGeneralized[velocityBase + dof];
+        velocity += v * float3(pointJacobians[jacobianBase + dof],
+            pointJacobians[jacobianBase + dispatch.rigidGeneralizedCapacity + dof],
+            pointJacobians[jacobianBase + 2u * dispatch.rigidGeneralizedCapacity + dof]);
+    }
     const float separation = dot(
         point - support.groundPointAndTimestep.xyz, normal);
     const float normalVelocity = dot(velocity, normal);
@@ -102,10 +167,9 @@ kernel void nm_human_support_evaluate(
     consequence.pointAndSeparation = float4(point, separation);
     consequence.tangentVelocityAndImpulse = float4(tangentVelocity, 0.0f);
     const float slop = row.frictionSlopAndStabilization.y;
-    if (!finite3(velocity) || !isfinite(separation) || separation > slop) {
-        if (!finite3(velocity) || !isfinite(separation))
-            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
-                NM_INVALID_INDEX, rowIndex, float4(velocity, separation));
+    if (!finite3(velocity) || !isfinite(separation)) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            NM_INVALID_INDEX, rowIndex, float4(velocity, separation));
         samples[global] = sample;
         consequences[global] = consequence;
         return;
@@ -113,49 +177,44 @@ kernel void nm_human_support_evaluate(
 
     const float dt = support.groundPointAndTimestep.w;
     const float stabilization = row.frictionSlopAndStabilization.z;
-    const float rho = 1.0f / max(dt, 1.0e-6f);
-    const float targetNormalVelocity = max(
-        0.0f, stabilization * max(-separation, 0.0f) / dt);
-    const float4 oldHistory = acceptedHistories[global];
-    const bool oldValid = finite3(oldHistory.xyz) &&
-        isfinite(oldHistory.w) && oldHistory.w >= 0.0f;
-    const float oldNormal = oldValid ? oldHistory.w : 0.0f;
-    const float3 oldTangent = oldValid ? oldHistory.xyz : float3(0.0f);
-    const float normalImpulse = max(
-        0.0f, oldNormal + rho * dt *
-            (targetNormalVelocity - normalVelocity));
-    float3 tangentImpulse = oldTangent - rho * dt * tangentVelocity;
-    tangentImpulse -= dot(tangentImpulse, normal) * normal;
-    const float frictionLimit =
-        row.frictionSlopAndStabilization.x * normalImpulse;
+    // Existing penetration is recovered by the authored fraction per root.
+    // For an initially admissible row this is end-position complementarity:
+    // gap(q_next) >= 0, lambda_n >= 0, gap(q_next)*lambda_n = 0.
+    const float targetGap = (1.0f - stabilization) * min(initialSeparation, 0.0f);
+    const float normalConstraint = (separation - targetGap) / dt;
+    // rho changes the nonlinear residual scaling, never the converged law.
+    // Accepted history initialized this simultaneous unknown at checkpoint;
+    // it must not be reapplied as a physical spring on every assembly.
+    const float rho = 1.0f;
+    const float4 history = candidateHistories[global];
+    const float3 tangentImpulse = history.xyz - dot(history.xyz, normal) * normal;
+    const float normalImpulse = history.w;
+    const float3 impulse = tangentImpulse + normalImpulse * normal;
+    if (!finite3(impulse) || !isfinite(normalConstraint)) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            NM_INVALID_INDEX, rowIndex, float4(impulse, normalConstraint));
+        samples[global] = sample;
+        consequences[global] = consequence;
+        return;
+    }
+    const NMHumanSupportKKTGPU kkt = humanSupportProjection(
+        impulse, tangentVelocity + normalConstraint * normal,
+        normal, row.frictionSlopAndStabilization.x, rho);
+    linearizations[global] = kkt;
+    residual[layout.supportBase + global] = kkt.residual;
     const float tangentLength = length(tangentImpulse);
-    if (tangentLength > frictionLimit && tangentLength > 1.0e-12f)
-        tangentImpulse *= frictionLimit / tangentLength;
-    const float3 impulse = normalImpulse * normal + tangentImpulse;
     uint flags = NM_CONTACT_VALID;
-    if (length(tangentVelocity) <= 1.0e-4f &&
-        tangentLength < frictionLimit) flags |= NM_CONTACT_STICKING;
-    candidateHistories[global] = float4(tangentImpulse, normalImpulse);
+    if (length(tangentVelocity) <= 1.0e-4f && tangentLength <
+        row.frictionSlopAndStabilization.x * normalImpulse)
+        flags |= NM_CONTACT_STICKING;
     sample.identity = uint4(rowIndex, NM_INVALID_INDEX, NM_INVALID_INDEX, flags);
     sample.pointAndSeparation = float4(point, separation);
     sample.normalAndVelocity = float4(normal, normalVelocity);
-    sample.admissionVelocityAndNormal = float4(velocity, normalVelocity);
+    sample.admissionVelocityAndNormal = float4(velocity, normalConstraint);
     sample.impulseAndNormal = float4(impulse, normalImpulse);
-    sample.angularImpulseAndTangent = float4(0.0f, 0.0f, 0.0f,
-        tangentLength);
-    sample.barrier = float4(normalImpulse, rho * dt, slop, rho);
-    const float tangentScale = tangentLength < frictionLimit ? rho * dt : 0.0f;
-    // The candidate point advances with h*velocity. For penetration,
-    // d(targetNormalVelocity)/dv contributes -stabilization * n^T J.
-    const float normalScale = normalImpulse > 0.0f
-        ? rho * dt * (1.0f + (separation < 0.0f ? stabilization : 0.0f))
-        : 0.0f;
-    const float3x3 tangentProjector = float3x3(1.0f) - outerProduct(normal, normal);
-    const float3x3 hessian = normalScale * outerProduct(normal, normal) +
-        tangentScale * tangentProjector;
-    matrixToRows(hessian, sample.barrierHessianRow0,
-        sample.barrierHessianRow1, sample.barrierHessianRow2);
-    consequence.identity.z = flags;
+    sample.angularImpulseAndTangent = float4(0.0f, 0.0f, 0.0f, tangentLength);
+    sample.barrier = float4(normalImpulse, rho, slop, targetGap);
+    consequence.identity.z = separation <= slop || normalImpulse > 0.0f ? flags : 0u;
     consequence.impulseAndNormal = float4(impulse, normalImpulse);
     consequence.tangentVelocityAndImpulse.w = tangentLength;
     samples[global] = sample;
