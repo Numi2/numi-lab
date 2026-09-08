@@ -19,6 +19,7 @@ struct PoseState {
     std::vector<double> passiveMuscleTendonForce;
     std::vector<double> muscleForce;
     std::vector<double> supportNormalForce;
+    std::vector<double> supportPlaneGapMeters;
     std::vector<double> supportForce;
     std::vector<double> passiveCoordinateForce;
     std::vector<double> target;
@@ -175,6 +176,8 @@ NumiHumanMuscleEquilibriumDiagnostics resolveStaticSupports(
     const std::span<const double> q,
     const std::span<const NumiHumanStaticSupportContact> supports,
     std::vector<std::vector<double>>& generalizedColumns,
+    std::vector<double>& planeGaps,
+    const double gapTolerance,
     const ArticulatedDynamicsConfig& dynamicsConfig
 ) {
     const std::size_t nv = model.articulations[articulationIndex].nv;
@@ -191,6 +194,7 @@ NumiHumanMuscleEquilibriumDiagnostics resolveStaticSupports(
                 articulationIndex ||
             !finiteSpan(support.localPoint) ||
             !finiteSpan(support.normal) ||
+            !finiteSpan(support.planePoint) ||
             std::abs(normalLength - 1.0) > 1.0e-6) {
             return failure(
                 NumiHumanMuscleEquilibriumStatus::invalidDimensions,
@@ -200,6 +204,7 @@ NumiHumanMuscleEquilibriumDiagnostics resolveStaticSupports(
     }
     if (queries.empty()) {
         generalizedColumns.clear();
+        planeGaps.clear();
         return {};
     }
     std::vector<ArticulatedPointKinematics> points(queries.size());
@@ -215,7 +220,26 @@ NumiHumanMuscleEquilibriumDiagnostics resolveStaticSupports(
     }
     generalizedColumns.assign(
         supports.size(), std::vector<double>(nv, 0.0));
+    planeGaps.assign(supports.size(), 0.0);
     for (std::size_t support = 0u; support < supports.size(); ++support) {
+        double gap = 0.0;
+        for (std::size_t axis = 0u; axis < 3u; ++axis) {
+            gap += (points[support].position[axis] -
+                    supports[support].planePoint[axis]) *
+                supports[support].normal[axis];
+        }
+        if (!std::isfinite(gap)) {
+            return failure(NumiHumanMuscleEquilibriumStatus::nonfiniteResult,
+                           static_cast<std::uint32_t>(support));
+        }
+        if (gap < -gapTolerance) {
+            return failure(NumiHumanMuscleEquilibriumStatus::supportPenetration,
+                           static_cast<std::uint32_t>(support));
+        }
+        planeGaps[support] = gap;
+        // Zero columns keep source indexing stable while removing the force
+        // variable for a separated witness from every recruitment objective.
+        if (gap > gapTolerance) continue;
         const std::size_t base = support * 3u * nv;
         for (std::size_t dof = 0u; dof < nv; ++dof) {
             generalizedColumns[support][dof] =
@@ -258,7 +282,11 @@ void solveFloatingRootSupportForces(
     }
     for (std::size_t support = 0u;
          support < generalizedColumns.size(); ++support) {
-        normalForce[support] = std::clamp(
+        const bool separated = std::all_of(
+            generalizedColumns[support].begin(),
+            generalizedColumns[support].end(),
+            [](const double value) { return value == 0.0; });
+        normalForce[support] = separated ? 0.0 : std::clamp(
             normalForce[support], 0.0, config.maximumSupportForceNewtons);
         for (std::size_t dof = 0u; dof < rootDofCount; ++dof) {
             residual[dof] += normalForce[support] *
@@ -713,15 +741,15 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
         state.activation.size() != muscles.size()) {
         return failure(NumiHumanMuscleEquilibriumStatus::invalidDimensions);
     }
-    std::vector<ResolvedMuscle> resolved;
-    auto diagnostics = resolveMuscles(
-        model, articulationIndex, state.q, sites, wraps, muscles, resolved,
-        dynamicsConfig
-    );
-    if (!diagnostics.succeeded()) return diagnostics;
     std::vector<std::vector<double>> supportJacobians;
-    diagnostics = resolveStaticSupports(
+    auto diagnostics = resolveStaticSupports(
         model, articulationIndex, state.q, supports, supportJacobians,
+        state.supportPlaneGapMeters, config.supportGapToleranceMeters,
+        dynamicsConfig);
+    if (!diagnostics.succeeded()) return diagnostics;
+    std::vector<ResolvedMuscle> resolved;
+    diagnostics = resolveMuscles(
+        model, articulationIndex, state.q, sites, wraps, muscles, resolved,
         dynamicsConfig);
     if (!diagnostics.succeeded()) return diagnostics;
     diagnostics = gravityTarget(
@@ -907,6 +935,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
         candidate.passiveCoordinateForce = state.passiveCoordinateForce;
         candidate.weights = state.weights;
         candidate.supportNormalForce = state.supportNormalForce;
+        candidate.supportPlaneGapMeters = state.supportPlaneGapMeters;
         solveFloatingRootSupportForces(
             articulation, objectiveTarget, supportJacobians, config,
             candidate.supportNormalForce, candidate.supportForce);
@@ -1211,6 +1240,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
                 state.passiveMuscleTendonForce;
             candidate.weights = state.weights;
             candidate.supportNormalForce = state.supportNormalForce;
+            candidate.supportPlaneGapMeters = state.supportPlaneGapMeters;
             solveFloatingRootSupportForces(
                 articulation, objectiveTarget, supportJacobians, config,
                 candidate.supportNormalForce, candidate.supportForce);
@@ -1275,15 +1305,15 @@ NumiHumanMuscleEquilibriumDiagnostics evaluatePoseWithActivation(
 ) {
     const MRArticulationGPU& articulation =
         model.articulations[articulationIndex];
-    std::vector<ResolvedMuscle> resolved;
-    auto diagnostics = resolveMuscles(
-        model, articulationIndex, state.q, sites, wraps, muscles, resolved,
-        dynamicsConfig
-    );
-    if (!diagnostics.succeeded()) return diagnostics;
     std::vector<std::vector<double>> supportJacobians;
-    diagnostics = resolveStaticSupports(
+    auto diagnostics = resolveStaticSupports(
         model, articulationIndex, state.q, supports, supportJacobians,
+        state.supportPlaneGapMeters, config.supportGapToleranceMeters,
+        dynamicsConfig);
+    if (!diagnostics.succeeded()) return diagnostics;
+    std::vector<ResolvedMuscle> resolved;
+    diagnostics = resolveMuscles(
+        model, articulationIndex, state.q, sites, wraps, muscles, resolved,
         dynamicsConfig);
     if (!diagnostics.succeeded()) return diagnostics;
     diagnostics = gravityTarget(
@@ -1493,6 +1523,8 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
         config.poseImprovementTolerance >= 0.0 &&
         std::isfinite(config.positionLimitTolerance) &&
         config.positionLimitTolerance >= 0.0 &&
+        std::isfinite(config.supportGapToleranceMeters) &&
+        config.supportGapToleranceMeters >= 0.0 &&
         std::isfinite(config.maximumSupportForceNewtons) &&
         config.maximumSupportForceNewtons > 0.0 &&
         std::isfinite(config.supportForceRegularization) &&
@@ -1627,6 +1659,7 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
     if (!diagnostics.succeeded()) return diagnostics;
     const double initialResidual = current.residualRms;
     std::uint32_t acceptedPoseSteps = 0u;
+    std::uint32_t rejectedPenetratingPoseCandidates = 0u;
     for (std::uint32_t sweep = 0u; sweep < config.poseSweeps; ++sweep) {
         const auto candidates = poseCandidates(
             model, articulationIndex, current, config.poseCandidateCount
@@ -1675,6 +1708,11 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
                         supportContacts, passiveCouplings, config,
                         dynamicsConfig, candidate
                     );
+                    if (diagnostics.status ==
+                        NumiHumanMuscleEquilibriumStatus::supportPenetration) {
+                        ++rejectedPenetratingPoseCandidates;
+                        continue;
+                    }
                     if (!diagnostics.succeeded()) return diagnostics;
                     poseTrials.push_back(std::move(candidate));
                 }
@@ -1740,6 +1778,7 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
     candidate.generalizedPositionLimitForce = current.limitForce;
     candidate.generalizedJointEqualityForce = current.equalityForce;
     candidate.supportNormalForce = current.supportNormalForce;
+    candidate.supportPlaneGapMeters = current.supportPlaneGapMeters;
     candidate.generalizedSupportForce = current.supportForce;
     candidate.generalizedPassiveCoordinateForce =
         current.passiveCoordinateForce;
@@ -1755,6 +1794,8 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
     candidate.diagnostics.acceptedGlobalActivationPolishSteps =
         current.acceptedGlobalActivationPolishSteps;
     candidate.diagnostics.acceptedPoseSteps = acceptedPoseSteps;
+    candidate.diagnostics.rejectedPenetratingPoseCandidates =
+        rejectedPenetratingPoseCandidates;
     candidate.diagnostics.jointEqualityCount =
         static_cast<std::uint32_t>(jointEqualities.size());
     candidate.diagnostics.supportContactCount =
@@ -1925,6 +1966,8 @@ const char* numiHumanMuscleEquilibriumStatusName(
         return "dynamicsFailure";
     case NumiHumanMuscleEquilibriumStatus::nonfiniteResult:
         return "nonfiniteResult";
+    case NumiHumanMuscleEquilibriumStatus::supportPenetration:
+        return "supportPenetration";
     }
     return "unknown";
 }

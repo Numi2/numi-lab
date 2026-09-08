@@ -2155,10 +2155,6 @@ void dispatchOneDimensional(
     const bool decisionShadow =
         (state.candidateInput.candidate.flags &
          MR_NUMANX_BRAIN_MOTOR_CANDIDATE_DECISION_SHADOW) != 0u;
-    __unsafe_unretained id<MTLBuffer> motorReadyGate = decisionShadow
-        ? (__bridge id<MTLBuffer>)
-              state.candidateInput.motorReadyGateMetalBuffer
-        : motorHeaders;
     __unsafe_unretained id<MTLBuffer> states =
         (__bridge id<MTLBuffer>)pass.mujocoStates;
 
@@ -2226,12 +2222,21 @@ void dispatchOneDimensional(
            offset:0u
           atIndex:2u];
     [headerEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:3u];
-    [headerEncoder
-        setBuffer:motorReadyGate
-           offset:decisionShadow
-               ? state.candidateInput.motorReadyGateByteOffset
-               : state.candidateInput.motorOutputHeaderByteOffset
-          atIndex:4u];
+    if (decisionShadow) {
+        [headerEncoder
+            setBuffer:(__bridge id<MTLBuffer>)
+                state.candidateInput.motorReadyGateMetalBuffer
+               offset:state.candidateInput.motorReadyGateByteOffset
+              atIndex:4u];
+    } else {
+        // Metal validates the declared record extent even when the shader
+        // does not consume readiness in this mode. A motor header is only
+        // 80 bytes; it cannot serve as a 160-byte ready-gate binding.
+        const MRNumanXBrainMotorReadyGateGPU unusedReadyGate{};
+        [headerEncoder setBytes:&unusedReadyGate
+                         length:sizeof(unusedReadyGate)
+                        atIndex:4u];
+    }
     dispatchOneDimensional(
         headerEncoder,
         state.validateMotorHeaderPipeline,

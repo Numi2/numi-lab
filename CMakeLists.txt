@@ -1395,6 +1395,19 @@ if(METALROBO_HAS_SWIFT)
 endif()
 
 if(BUILD_TESTING)
+    add_executable(metalrobo_numi_human_static_support_test
+        tests/numi_human_static_support_test.cpp)
+    target_link_libraries(metalrobo_numi_human_static_support_test PRIVATE metalrobo)
+    target_compile_options(metalrobo_numi_human_static_support_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    set_target_properties(metalrobo_numi_human_static_support_test PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_static_support COMMAND metalrobo_numi_human_static_support_test)
+    set_tests_properties(numi_human_static_support PROPERTIES LABELS "numi-human;mechanics;support")
+endif()
+
+if(BUILD_TESTING)
     add_executable(
         metalrobo_numi_human_continuum_map_test
         tests/numi_human_continuum_map_test.cpp
@@ -3385,6 +3398,8 @@ if(BUILD_TESTING)
             $<TARGET_FILE:metalrobo_numanx_human_io_probe>
             "${METALROBO_METALLIB}"
     )
+    set_tests_properties(numanx.integration.human_motor_sensor_transaction
+        PROPERTIES ENVIRONMENT "MTL_DEBUG_LAYER=1")
     add_test(
         NAME numanx.contract.matter_human_capacity
         COMMAND $<TARGET_FILE:metalrobo_numanx_matter_capacity_probe>

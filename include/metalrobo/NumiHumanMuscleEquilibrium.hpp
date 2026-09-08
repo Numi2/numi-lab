@@ -27,6 +27,7 @@ enum class NumiHumanMuscleEquilibriumStatus : std::uint32_t {
     muscleFailure,
     dynamicsFailure,
     nonfiniteResult,
+    supportPenetration,
 };
 
 struct NumiHumanMuscleEquilibriumConfig {
@@ -78,6 +79,10 @@ struct NumiHumanMuscleEquilibriumConfig {
     double positionLimitTolerance = 1.0e-7;
     // Optional static support reactions are optimized as nonnegative normal
     // forces. The cap is an admission bound, not a prescribed load.
+    // Geometric roundoff bound, not a compliant-contact activation distance.
+    // A separated witness carries exactly zero force; penetration beyond this
+    // bound rejects the initial pose or discards a pose-search candidate.
+    double supportGapToleranceMeters = 1.0e-6;
     double maximumSupportForceNewtons = 5000.0;
     double supportForceRegularization = 1.0e-14;
     std::uint32_t supportForceSweeps = 4096u;
@@ -91,6 +96,9 @@ struct NumiHumanStaticSupportContact {
     // ground-plane normal. Static v1 intentionally admits no adhesion and no
     // tangential force variable.
     std::array<double, 3> normal{0.0, 0.0, 1.0};
+    // One point on the authored world plane. This is geometry, not the
+    // current witness position: pose search must never move the ground.
+    std::array<double, 3> planePoint{};
 };
 
 // One row of an anatomically sourced linearized passive joint-tissue law.
@@ -121,6 +129,7 @@ struct NumiHumanMuscleEquilibriumDiagnostics {
     std::uint32_t globalActivationPolishIterations = 0u;
     std::uint32_t acceptedGlobalActivationPolishSteps = 0u;
     std::uint32_t acceptedPoseSteps = 0u;
+    std::uint32_t rejectedPenetratingPoseCandidates = 0u;
     std::uint32_t activePositionLimitCount = 0u;
     std::uint32_t jointEqualityCount = 0u;
     std::uint32_t supportContactCount = 0u;
@@ -167,6 +176,8 @@ struct NumiHumanMuscleEquilibriumResult {
     std::vector<double> generalizedPositionLimitForce;
     std::vector<double> generalizedJointEqualityForce;
     std::vector<double> supportNormalForce;
+    // Signed world-plane gaps, in the same order as supportNormalForce.
+    std::vector<double> supportPlaneGapMeters;
     std::vector<double> generalizedSupportForce;
     std::vector<double> generalizedPassiveCoordinateForce;
     std::vector<double> gravityTarget;

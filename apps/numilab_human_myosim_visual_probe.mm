@@ -3420,7 +3420,8 @@ CompiledStandActivation compileStaticStandActivation(
     const LoadedSupportContacts* supportContacts = nullptr,
     const std::span<const metalrobo::NumiHumanPassiveCoordinateCoupling>
         passiveCouplings = {},
-    const std::uint32_t activationSweeps = 240u
+    const std::uint32_t activationSweeps = 240u,
+    const bool allowPoseSearch = true
 ) {
     require(muscles.header.payloadAbi == kMusclePayloadAbi &&
                 muscles.referenceArchitectures.size() ==
@@ -3437,6 +3438,7 @@ CompiledStandActivation compileStaticStandActivation(
         config.poseCandidateCount = 12u;
         config.poseRecruitmentCandidateCount = 3u;
     }
+    if (!allowPoseSearch) config.poseSweeps = 0u;
     std::vector<metalrobo::NumiHumanStaticSupportContact> staticSupports;
     if (supportContacts != nullptr) {
         const std::array<double, 3u> normal = normalizedVector({
@@ -3453,6 +3455,11 @@ CompiledStandActivation compileStaticStandActivation(
                     record.localPointZ,
                 },
                 .normal = normal,
+                .planePoint = {
+                    supportContacts->header.groundPointX,
+                    supportContacts->header.groundPointY,
+                    supportContacts->header.groundPointZ,
+                },
             });
         }
     }
@@ -3495,6 +3502,39 @@ CompiledStandActivation compileStaticStandActivation(
             " active_supports=" +
             std::to_string(diagnostics.activeSupportContactCount)
     );
+    require(compiled.supportPlaneGapMeters.size() == staticSupports.size() &&
+                compiled.supportNormalForce.size() == staticSupports.size(),
+            "static Human support compile lost geometric witness identity");
+    double minimumSupportGap = std::numeric_limits<double>::infinity();
+    double maximumSeparatedForce = 0.0;
+    std::uint32_t separatedWitnessCount = 0u;
+    for (std::size_t index = 0u; index < staticSupports.size(); ++index) {
+        const double gap = compiled.supportPlaneGapMeters[index];
+        require(std::isfinite(gap) && gap >= -config.supportGapToleranceMeters,
+                "static Human support compile published penetrating geometry");
+        minimumSupportGap = std::min(minimumSupportGap, gap);
+        if (gap > config.supportGapToleranceMeters) {
+            ++separatedWitnessCount;
+            maximumSeparatedForce = std::max(maximumSeparatedForce,
+                std::abs(compiled.supportNormalForce[index]));
+        }
+    }
+    require(maximumSeparatedForce == 0.0,
+            "static Human support compile assigned load across a gap");
+    if (!staticSupports.empty()) {
+        std::cout << std::setprecision(12)
+                  << "compiled_support_geometry=admissible"
+                  << " compiled_support_min_gap_m=" << minimumSupportGap
+                  << " compiled_support_gap_tolerance_m="
+                  << config.supportGapToleranceMeters
+                  << " compiled_support_separated_witnesses="
+                  << separatedWitnessCount
+                  << " compiled_support_max_separated_force_n="
+                  << maximumSeparatedForce
+                  << " compiled_support_rejected_pose_candidates="
+                  << diagnostics.rejectedPenetratingPoseCandidates
+                  << std::endl;
+    }
     CompiledStandActivation result;
     result.q = std::move(compiled.q);
     result.activation.reserve(compiled.activation.size());
@@ -3677,7 +3717,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             aligned.q,
             1.0,
             {},
-            &supportContacts
+            &supportContacts,
+            {},
+            240u,
+            !initialCoordinate.has_value()
         );
         selectedControlBaselineActivation = compiledActivation.activation;
         for (const std::uint32_t muscleIndex : selectedSourceMuscleIndices) {
@@ -3695,15 +3738,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             aligned.q,
             activation,
             selectedSourceMuscleIndices,
-            &supportContacts
+            &supportContacts,
+            {},
+            240u,
+            !initialCoordinate.has_value()
         );
     }
-    if (initialCoordinate.has_value()) {
-        // Recruitment chooses actuator values. Tissue qualification owns an
-        // explicit projected support pose, so do not let the recruiter's
-        // optional pose-relaxation stage silently move patellar dependents.
-        compiledActivation.q = aligned.q;
-    }
+    // Explicit tissue poses disable pose search before recruitment, so q,
+    // activation and every reported force refer to the same accepted posture.
     const std::vector<float> q = packMetalConfiguration(compiledActivation.q);
     std::vector<float> v;
     v.reserve(model.defaultV.size());
@@ -4353,6 +4395,26 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 "persistent Human final borrowed tendon-load transaction diverged");
     }
 
+    // Terminal native state permits equal-duration timestep comparisons.
+    // This is a diagnostic horizon receipt, not accepted-root TaskPack metrics.
+    const auto writeStateArray = [](const char* key, const auto& values) {
+        std::cout << ",\"" << key << "\":[";
+        for (std::size_t i = 0u; i < values.size(); ++i) {
+            if (i != 0u) std::cout << ',';
+            std::cout << values[i];
+        }
+        std::cout << ']';
+    };
+    std::cout << std::setprecision(17)
+              << "stand_terminal_state={\"schema\":\"numi.human.legacy-stand-terminal.v1\""
+              << ",\"step_count\":" << stepCount * phaseCount
+              << ",\"timestep_seconds\":" << timestepSeconds
+              << ",\"root_assistance\":" << (enableRootAssistance ? "true" : "false");
+    writeStateArray("initial_q", q);
+    writeStateArray("initial_v", v);
+    writeStateArray("q", metalResult.standQ);
+    writeStateArray("v", metalResult.standV);
+    std::cout << '}' << std::endl;
     MuscleDrivenVisualState result;
     result.q = std::move(metalResult.standQ);
     result.finalTendonTransfers = metalResult.standTendonTransfers;
