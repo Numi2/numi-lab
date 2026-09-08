@@ -820,6 +820,15 @@ add_executable(
     apps/task_program_check.cpp
 )
 
+add_executable(metalrobo_task_owner_replay_probe apps/task_owner_replay_probe.cpp)
+target_link_libraries(metalrobo_task_owner_replay_probe PRIVATE metalrobo)
+target_compile_options(metalrobo_task_owner_replay_probe PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+set_target_properties(metalrobo_task_owner_replay_probe PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+
+
 add_executable(
     metalrobo_run_program_check
     apps/run_program_check.cpp

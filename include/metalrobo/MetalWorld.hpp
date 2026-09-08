@@ -368,6 +368,9 @@ struct MetalWorldMulticopterProgram {
     std::uint32_t firstAction = MR_INVALID_INDEX;
     mr_float4 windVelocity{};
 
+    // Stable authored identity; excludes host object padding. Zero if invalid.
+    [[nodiscard]] std::uint64_t fingerprint() const noexcept;
+
     [[nodiscard]] bool valid() const noexcept {
         return model.rotorCount != 0u &&
             model.rotorCount <= MR_MULTICOPTER_MAX_ROTORS &&

@@ -309,24 +309,6 @@ struct RequiredBuffers {
     std::array<BufferRequirement, kRawBufferCount> entries{};
 };
 
-std::uint64_t multicopterFingerprint(
-    const MetalWorldMulticopterProgram& program
-) {
-    if (!program.valid()) {
-        return 0u;
-    }
-    std::uint64_t hash = kFNVOffset;
-    const auto append = [&](const void* bytes, const std::size_t count) {
-        const auto* values = static_cast<const std::byte*>(bytes);
-        for (std::size_t index = 0u; index < count; ++index) {
-            hash ^= std::to_integer<std::uint8_t>(values[index]);
-            hash *= kFNVPrime;
-        }
-    };
-    append(&program, sizeof(program));
-    return hash == 0u ? 1u : hash;
-}
-
 bool privateTransientBuffer(std::size_t index);
 bool privatePersistentBuffer(std::size_t index);
 bool privatePersistentInputBuffer(std::size_t index);
@@ -7180,7 +7162,7 @@ void uploadBatch(
             config.taskProgram.fingerprint();
     }
     const std::uint64_t multicopterHash =
-        multicopterFingerprint(config.multicopterProgram);
+        config.multicopterProgram.fingerprint();
     if (config.multicopterProgram.valid() &&
         context.boundMulticopterFingerprint != multicopterHash) {
         id<MTLBlitCommandEncoder> actuatorUpload = nil;
@@ -9683,7 +9665,8 @@ bool encodeTaskApplyActions(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
     const MRMetalWorldPassGPU& pass,
-    const std::size_t environmentCount
+    const std::size_t environmentCount,
+    const bool nativePolicy
 ) {
     return encodeContactThreadKernel(
         context,
@@ -9701,7 +9684,9 @@ bool encodeTaskApplyActions(
             {8u, kTaskState},
             {9u, kTaskActionHistory},
             {10u, kTaskTeacherActions},
-            {11u, kPolicyLatents},
+            // External action streams have no PolicyPack latent allocation.
+            // Their raw action history is the submitted action itself.
+            {11u, nativePolicy ? kPolicyLatents : kTaskActions},
         },
         &pass,
         4u,
@@ -17122,7 +17107,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             *selectedState,
                             commandBuffer,
                             pass,
-                            batch.environmentCount
+                            batch.environmentCount,
+                            config.policyProgram.valid()
                         )) {
                         return reject(
                             std::move(diagnostics),
@@ -17988,6 +17974,28 @@ MetalWorldDiagnostics MetalWorldContext::residentStateFingerprint(
     }
     fingerprint = hash == 0u ? 1u : hash;
     return {};
+}
+
+std::uint64_t MetalWorldMulticopterProgram::fingerprint() const noexcept {
+    if (!valid()) return 0u;
+    std::uint64_t hash = kFNVOffset;
+    const auto append = [&](const auto& value) {
+        const auto* bytes = reinterpret_cast<const std::byte*>(&value);
+        for (std::size_t i = 0u; i < sizeof(value); ++i) {
+            hash ^= std::to_integer<std::uint8_t>(bytes[i]);
+            hash *= kFNVPrime;
+        }
+    };
+    // Hash every authored member, excluding host ABI padding between the
+    // scalar bindings and aligned wind vector. GPU records have exact sizes.
+    append(model);
+    append(rotors);
+    append(mixer);
+    append(articulationIndex);
+    append(bodyIndex);
+    append(firstAction);
+    append(windVelocity);
+    return hash == 0u ? 1u : hash;
 }
 
 const char* metalWorldHostStatusName(
