@@ -4367,6 +4367,63 @@ int mr_task_rollout_advance(
     });
 }
 
+size_t mr_task_rollout_action_binding_count(
+    const MRTaskRolloutHandle* handle
+) {
+    return handle == nullptr ? 0u : handle->taskProgram.actionBindings().size();
+}
+
+int mr_task_rollout_copy_action_bindings(
+    const MRTaskRolloutHandle* handle,
+    MRTaskActionBindingC* output,
+    const size_t output_count
+) {
+    if (handle == nullptr) {
+        return -1;
+    }
+    const auto bindings = handle->taskProgram.actionBindings();
+    if ((bindings.size() != 0u && output == nullptr) ||
+        output_count < bindings.size()) {
+        return -1;
+    }
+    for (std::size_t index = 0u; index < bindings.size(); ++index) {
+        const MRTaskActionBindingGPU& source = bindings[index];
+        MRTaskActionBindingC& target = output[index];
+        target.action_index = source.indices.x;
+        target.dof_index = source.indices.y;
+        target.q_index = source.indices.z;
+        target.v_index = source.indices.w;
+        target.normalized_scale = source.parameters.x;
+        target.lower_target = source.parameters.y;
+        target.upper_target = source.parameters.z;
+        target.response_time_seconds = source.parameters.w;
+        target.drive_stiffness = source.drive.x;
+        target.drive_damping = source.drive.y;
+        target.interaction_motion = source.drive.z != 0.0f ? 1u : 0u;
+        target.reserved0 = 0u;
+        target.actuator_kind = source.actuator.x;
+        target.resolved_component = source.actuator.y;
+        target.component_lane = source.actuator.z;
+        target.flags = source.actuator.w;
+    }
+    return 0;
+}
+
+uint64_t mr_task_rollout_resident_state_fingerprint(
+    MRTaskRolloutHandle* handle
+) {
+    if (handle == nullptr || !handle->residentState.valid()) {
+        return 0u;
+    }
+    std::uint64_t fingerprint = 0u;
+    const metalrobo::MetalWorldDiagnostics status =
+        handle->context.residentStateFingerprint(
+            handle->residentState,
+            fingerprint
+        );
+    return status.succeeded() ? fingerprint : 0u;
+}
+
 MRTaskRolloutLayoutC mr_task_rollout_layout(
     const MRTaskRolloutHandle* handle
 ) {

@@ -860,6 +860,14 @@ public:
         MetalWorldResult& result
     );
 
+    // Canonical digest of the complete device-resident continuation state.
+    // The call is inspection-only, requires an initialized idle resident
+    // slot, and includes every persistent arena buffer plus resident metadata.
+    [[nodiscard]] MetalWorldDiagnostics residentStateFingerprint(
+        const MetalWorldResidentState& state,
+        std::uint64_t& fingerprint
+    );
+
     [[nodiscard]] MetalWorldContextStats stats() const noexcept;
 
 private:

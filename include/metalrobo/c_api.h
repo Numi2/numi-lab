@@ -130,6 +130,25 @@ typedef struct MRTaskVisualObservationConfigC {
     uint32_t capture_policy_camera;
 } MRTaskVisualObservationConfigC;
 
+typedef struct MRTaskActionBindingC {
+    uint32_t action_index;
+    uint32_t dof_index;
+    uint32_t q_index;
+    uint32_t v_index;
+    float normalized_scale;
+    float lower_target;
+    float upper_target;
+    float response_time_seconds;
+    float drive_stiffness;
+    float drive_damping;
+    uint32_t interaction_motion;
+    uint32_t reserved0;
+    uint32_t actuator_kind;
+    uint32_t resolved_component;
+    uint32_t component_lane;
+    uint32_t flags;
+} MRTaskActionBindingC;
+
 typedef struct MRTaskRolloutLayoutC {
     uint32_t environment_count;
     uint32_t nq;
@@ -665,6 +684,20 @@ MR_API int mr_task_rollout_advance(
     uint32_t evaluate_final_policy,
     MRTaskRolloutAdvanceC* advance
 );
+MR_API size_t mr_task_rollout_action_binding_count(
+    const MRTaskRolloutHandle* handle
+);
+MR_API int mr_task_rollout_copy_action_bindings(
+    const MRTaskRolloutHandle* handle,
+    MRTaskActionBindingC* output,
+    size_t output_count
+);
+// Returns zero unless the rollout owns an initialized, accepted, idle resident
+// state. The digest covers the complete persistent continuation arena.
+MR_API uint64_t mr_task_rollout_resident_state_fingerprint(
+    MRTaskRolloutHandle* handle
+);
+
 MR_API MRTaskRolloutLayoutC mr_task_rollout_layout(
     const MRTaskRolloutHandle* handle
 );

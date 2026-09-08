@@ -17834,6 +17834,134 @@ MetalWorldContextStats MetalWorldContext::stats()
     }
 }
 
+MetalWorldDiagnostics MetalWorldContext::residentStateFingerprint(
+    const MetalWorldResidentState& state,
+    std::uint64_t& fingerprint
+) {
+    fingerprint = 0u;
+    const auto resident = state.state_;
+    if (resident == nullptr) {
+        return reject({}, MetalWorldHostStatus::invalidModel,
+            "resident-state fingerprint requires a valid state");
+    }
+    const auto owner = resident->ownerPool.lock();
+    if (owner == nullptr || owner.get() != pool_.get()) {
+        return reject({}, MetalWorldHostStatus::invalidModel,
+            "resident-state fingerprint owner mismatch");
+    }
+
+    const std::lock_guard residentLock(resident->mutex);
+    const auto context = resident->context;
+    if (!resident->initialized || resident->pending || context == nullptr) {
+        return reject({}, MetalWorldHostStatus::contextBusy,
+            "resident-state fingerprint requires an accepted idle state");
+    }
+    const std::lock_guard contextLock(context->mutex);
+    if (context->inFlight ||
+        resident->stateArenaGeneration != context->stateArenaGeneration) {
+        return reject({}, MetalWorldHostStatus::contextBusy,
+            "resident-state fingerprint cannot inspect an in-flight or stale arena");
+    }
+
+    std::array<__strong id<MTLBuffer>, kRawBufferCount> staged{};
+    id<MTLCommandBuffer> command = [context->queue commandBuffer];
+    if (command == nil) {
+        return reject({}, MetalWorldHostStatus::metalCommandFailure,
+            "resident-state fingerprint could not allocate a command buffer");
+    }
+    id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
+    if (blit == nil) {
+        return reject({}, MetalWorldHostStatus::metalCommandFailure,
+            "resident-state fingerprint could not allocate a blit encoder");
+    }
+
+    for (std::size_t index = 0u; index < kRawBufferCount; ++index) {
+        if (!privatePersistentBuffer(index)) {
+            continue;
+        }
+        id<MTLBuffer> source = context->buffers[index];
+        if (source == nil || source.length == 0u ||
+            source.storageMode != MTLStorageModePrivate) {
+            continue;
+        }
+        id<MTLBuffer> copy = [context->device
+            newBufferWithLength:source.length
+                       options:MTLResourceStorageModeShared];
+        if (copy == nil || copy.contents == nullptr) {
+            [blit endEncoding];
+            return reject({}, MetalWorldHostStatus::metalBufferFailure,
+                "resident-state fingerprint could not allocate readback storage");
+        }
+        staged[index] = copy;
+        [blit copyFromBuffer:source
+                sourceOffset:0u
+                    toBuffer:copy
+           destinationOffset:0u
+                        size:source.length];
+    }
+    [blit endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    if (command.status != MTLCommandBufferStatusCompleted) {
+        return reject({}, MetalWorldHostStatus::metalCommandFailure,
+            "resident-state fingerprint readback command failed");
+    }
+
+    std::uint64_t hash = kFNVOffset;
+    const auto append = [&](const void* data, const std::size_t size) {
+        const auto* bytes = static_cast<const std::byte*>(data);
+        for (std::size_t i = 0u; i < size; ++i) {
+            hash ^= std::to_integer<std::uint8_t>(bytes[i]);
+            hash *= kFNVPrime;
+        }
+    };
+    const auto scalar = [&](const auto& value) { append(&value, sizeof(value)); };
+
+    scalar(resident->worldFingerprint);
+    scalar(resident->taskFingerprint);
+    scalar(resident->taskSeed);
+    scalar(resident->stateArenaGeneration);
+    scalar(resident->environmentCount);
+    scalar(resident->qBuffer);
+    scalar(resident->vBuffer);
+    scalar(resident->sceneBuffer);
+    scalar(resident->manifoldHeaderBuffer);
+    scalar(resident->manifoldPointBuffer);
+    scalar(resident->manifoldCountBuffer);
+    scalar(resident->rodNodeBuffer);
+    scalar(resident->rodEdgeBuffer);
+    scalar(resident->rodWitnessBuffer);
+    scalar(context->boundModelFingerprint);
+    scalar(context->boundTaskFingerprint);
+    scalar(context->boundPolicyFingerprint);
+    scalar(context->boundMulticopterFingerprint);
+
+    for (std::size_t index = 0u; index < kRawBufferCount; ++index) {
+        if (!privatePersistentBuffer(index)) {
+            continue;
+        }
+        id<MTLBuffer> source = context->buffers[index];
+        const std::uint64_t index64 = static_cast<std::uint64_t>(index);
+        scalar(index64);
+        const std::uint64_t length = source == nil
+            ? 0u : static_cast<std::uint64_t>(source.length);
+        scalar(length);
+        if (length == 0u) {
+            continue;
+        }
+        id<MTLBuffer> readable = source.storageMode == MTLStorageModePrivate
+            ? staged[index] : source;
+        if (readable == nil || readable.contents == nullptr ||
+            readable.length < source.length) {
+            return reject({}, MetalWorldHostStatus::metalBufferFailure,
+                "resident-state fingerprint encountered unreadable persistent storage");
+        }
+        append(readable.contents, static_cast<std::size_t>(source.length));
+    }
+    fingerprint = hash == 0u ? 1u : hash;
+    return {};
+}
+
 const char* metalWorldHostStatusName(
     const MetalWorldHostStatus status
 ) noexcept {
