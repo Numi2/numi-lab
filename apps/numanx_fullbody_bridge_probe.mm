@@ -3,6 +3,7 @@
 
 #include "metalrobo/MetalNumanXHumanIO.hpp"
 #include "metalrobo/ArticulatedDynamics.hpp"
+#include "metalrobo/NumiHumanInitialState.hpp"
 #include "numi/matter/matter.hpp"
 #include "metalrobo/NeuronCultureArtifacts.hpp"
 #include "metalrobo/engine_types.h"
@@ -12,6 +13,7 @@
 #include "numi/matter/shared.h"
 
 #include <array>
+#include <algorithm>
 #include <atomic>
 #include <bit>
 #include <chrono>
@@ -500,7 +502,7 @@ void waitForCompletion(Completion& completion, const unsigned timeoutSeconds=10u
         "full-body root did not settle exactly once");
 }
 
-numi::matter::WorldSource authoredFixtureWorld() {
+numi::matter::WorldSource authoredFixtureWorld(const std::vector<float>& preparedQ = {}) {
     // Decode only the existing rigid ABI needed by this qualification fixture.
     // Production asset parsing remains in the native runtime owner.
     std::ifstream input(MRNX_FULLBODY_RIGID, std::ios::binary);
@@ -526,9 +528,11 @@ numi::matter::WorldSource authoredFixtureWorld() {
     for (auto& value : model.dofs) read(value);
     for (auto& value : model.defaultQ) read(value);
     for (auto& value : model.defaultV) read(value);
+    require(preparedQ.empty() || preparedQ.size() == model.defaultQ.size(), "prepared fixture pose dimensions");
+    const auto& q = preparedQ.empty() ? model.defaultQ : preparedQ;
     std::vector<metalrobo::ArticulatedBodyKinematics> bodies(model.bodies.size());
     require(metalrobo::computeArticulatedBodyKinematics(model, 0u,
-                std::vector<double>(model.defaultQ.begin(), model.defaultQ.end()),
+                std::vector<double>(q.begin(), q.end()),
                 std::vector<double>(model.defaultV.begin(), model.defaultV.end()),
                 bodies).succeeded(), "authored fixture kinematics failed");
     const auto material = numi::matter::parseMatterFile(MRNX_MATTER_MATERIAL);
@@ -578,6 +582,157 @@ numi::matter::WorldSource authoredFixtureWorld() {
         world.objects.push_back(object);
     }
     return world;
+}
+
+
+
+void qualifyTouchAggregation(id<MTLDevice> device) {
+    NSError* error=nil;
+    id<MTLLibrary> library=[device newLibraryWithURL:[NSURL fileURLWithPath:@MRNX_METALROBO_METALLIB] error:&error];
+    require(library!=nil,"touch aggregation library unavailable");
+    id<MTLFunction> function=[library newFunctionWithName:@"numanx_human_aggregate_support"];
+    require(function!=nil,"touch aggregation kernel missing");
+    id<MTLComputePipelineState> pipeline=[device newComputePipelineStateWithFunction:function error:&error];
+    require(pipeline!=nil,"touch aggregation pipeline failed");
+    id<MTLCommandQueue> queue=[device newCommandQueue];
+    std::vector<MRNumanXHumanSupportConsequenceGPU> rows(18u);
+    std::vector<mr_uint4> mapping;
+    unsigned first=0u;
+    for(unsigned receptor=0;receptor<10;++receptor) {
+        const unsigned count=receptor<8?2u:1u;
+        mapping.push_back({first,count,100u+receptor,200u+receptor});
+        for(unsigned j=0;j<count;++j) {
+            const unsigned index=first+j;auto& r=rows[index];
+            r.identity={index,200u+receptor,1u,MR_NUMANX_HUMAN_SUPPORT_CONSEQUENCE_VERSION};
+            r.pointAndSeparation={float(index),0,0,-float(index)/100.0f};
+            r.impulseAndNormal={0,0,float(index+1),float(index+1)};
+            r.tangentVelocityAndImpulse={float(index),0,0,float(index+1)/4.0f};
+        }
+        first+=count;
+    }
+    id<MTLBuffer> input=[device newBufferWithBytes:rows.data() length:rows.size()*sizeof(rows[0]) options:MTLResourceStorageModeShared];
+    id<MTLBuffer> map=[device newBufferWithBytes:mapping.data() length:mapping.size()*sizeof(mapping[0]) options:MTLResourceStorageModeShared];
+    id<MTLBuffer> output=[device newBufferWithLength:10u*sizeof(rows[0]) options:MTLResourceStorageModeShared];
+    require(input!=nil&&map!=nil&&output!=nil&&queue!=nil,"touch aggregation allocation failed");
+    const auto run=[&]() {
+        id<MTLCommandBuffer> command=[queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
+        [encoder setComputePipelineState:pipeline];
+        [encoder setBuffer:input offset:0 atIndex:0];[encoder setBuffer:map offset:0 atIndex:1];
+        [encoder setBuffer:output offset:0 atIndex:2];
+        const mr_uint4 dispatch{18u,10u,0u,0u};
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:3];
+        [encoder dispatchThreads:MTLSizeMake(10,1,1) threadsPerThreadgroup:MTLSizeMake(10,1,1)];
+        [encoder endEncoding];[command commit];[command waitUntilCompleted];
+        require(command.status==MTLCommandBufferStatusCompleted,"touch aggregation GPU failure");
+        std::vector<MRNumanXHumanSupportConsequenceGPU> values(10u);
+        std::memcpy(values.data(),output.contents,output.length);return values;
+    };
+    const auto result=run();
+    double total=0,weighted=0,expectedTotal=0,expectedWeighted=0;
+    for(const auto& row:rows) {expectedTotal+=row.impulseAndNormal.w;expectedWeighted+=row.pointAndSeparation.x*row.impulseAndNormal.w;}
+    for(unsigned i=0;i<10;++i) {
+        const auto& m=mapping[i];const auto& r=result[i];
+        require(r.identity.x==i&&r.identity.y==m.w&&r.identity.w==1u,"touch geometry identity lost");
+        float impulse=0,friction=0,minimum=INFINITY;
+        for(unsigned j=m.x;j<m.x+m.y;++j) {impulse+=rows[j].impulseAndNormal.w;friction+=rows[j].tangentVelocityAndImpulse.w;minimum=std::min(minimum,rows[j].pointAndSeparation.w);}
+        require(r.impulseAndNormal.w==impulse&&r.tangentVelocityAndImpulse.w==friction&&r.pointAndSeparation.w==minimum,"touch row load/gap aggregation changed");
+        total+=r.impulseAndNormal.w;weighted+=double(r.pointAndSeparation.x)*r.impulseAndNormal.w;
+    }
+    require(total==expectedTotal&&std::abs(weighted-expectedWeighted)<1e-4,"touch total impulse or centre of pressure lost");
+    const auto replay=run();require(std::memcmp(result.data(),replay.data(),10u*sizeof(rows[0]))==0,"touch aggregation replay drift");
+    auto* raw=static_cast<MRNumanXHumanSupportConsequenceGPU*>(input.contents);
+    for(unsigned mutation=0;mutation<4;++mutation) {
+        std::memcpy(input.contents,rows.data(),input.length);
+        if(mutation==0)raw[1].identity.y^=1u;
+        if(mutation==1)raw[1].impulseAndNormal.w=-1;
+        if(mutation==2)raw[1].pointAndSeparation.x=NAN;
+        if(mutation==3)raw[1].identity.x=18u;
+        const auto invalid=run();
+        require(invalid[0].identity.w==0u&&invalid[1].identity.w==1u,"bad row did not invalidate only its receptor");
+    }
+    std::printf("numanx_touch_aggregation=pass rows=18 receptors=10 impulse=%.9g centre_of_pressure=conserved replay=bitwise malformed_rows=4\n",total);
+}
+
+// Qualification fixture only: import a saved native compiler state and cook
+// the existing three tiny pelvis samples in that pose. No tissue registration,
+// calibration or dynamics is performed by this construction helper.
+int writePreparedStanceFixture(const char* certificate, const char* output,
+    const char* contacts, const char* equalities, const char* limits) {
+    @autoreleasepool {
+        std::ifstream log(certificate);
+        require(log.good(), "could not open native stance certificate");
+        std::string line, qText, muscleText;
+        unsigned qCount=0, muscleCount=0;
+        while(std::getline(log,line)) {
+            const std::string qPrefix="compiled_equilibrium_q=";
+            const std::string musclePrefix="compiled_equilibrium_muscles=";
+            if(line.starts_with(qPrefix)) {qText=line.substr(qPrefix.size());++qCount;}
+            if(line.starts_with(musclePrefix)) {muscleText=line.substr(musclePrefix.size());++muscleCount;}
+        }
+        require(qCount==1 && muscleCount==1,"certificate state missing or duplicated");
+        const auto parse=[](const std::string& text) -> id {
+            NSData* data=[NSData dataWithBytes:text.data() length:text.size()];
+            NSError* error=nil;
+            id result=[NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+            require(result!=nil && error==nil,"invalid native state JSON");return result;
+        };
+        id qJSON=parse(qText), muscleJSON=parse(muscleText);
+        require([qJSON isKindOfClass:[NSArray class]] && [qJSON count]==MRNX_FULL_BODY_NQ &&
+            [muscleJSON isKindOfClass:[NSDictionary class]] &&
+            [muscleJSON[@"schema"] isEqual:@"numi.human.offline-muscle-state.v1"],"native state schema mismatch");
+        NSArray* activation=muscleJSON[@"activation_fp32"];
+        NSArray* fiber=muscleJSON[@"reference_fiber_length_m"];
+        require([activation isKindOfClass:[NSArray class]] && [fiber isKindOfClass:[NSArray class]] &&
+            activation.count==MRNX_FULL_BODY_MUSCLE_COUNT && fiber.count==MRNX_FULL_BODY_MUSCLE_COUNT,
+            "native muscle state dimensions mismatch");
+        const auto scalar=[](id x) {
+            require([x isKindOfClass:[NSNumber class]] && CFGetTypeID((__bridge CFTypeRef)x)!=CFBooleanGetTypeID(),
+                "state component is not numeric");
+            const float value=[x floatValue];require(std::isfinite(value),"nonfinite prepared state");return value;
+        };
+        metalrobo::NumiHumanInitialState initial;
+        for(id x in qJSON) initial.q.push_back(scalar(x));
+        initial.v.assign(MRNX_FULL_BODY_NV,0.0f);
+        for(unsigned i=0;i<MRNX_FULL_BODY_MUSCLE_COUNT;++i) {
+            const float a=scalar(activation[i]);
+            MRMujocoMuscleStateGPU state{};state.excitationAndActivation={a,a,scalar(fiber[i]),0.0f};
+            initial.muscles.push_back(state);
+        }
+        auto world=authoredFixtureWorld(initial.q);world.frameTimestep=0.0001;
+        numi::matter::CompileOptions options;options.maximumRateExponent=0u;
+        const auto compiled=numi::matter::compileWorld(world,options);
+        require(compiled.succeeded(),"prepared fixture world failed to compile");
+        const auto rigid=readPayloadBytes(MRNX_FULLBODY_RIGID);
+        require(rigid.size()>=80u,"truncated source rigid fixture");
+        std::copy_n(rigid.begin()+48u,32u,initial.sourceArchiveSHA256.begin());
+        const auto base=fullBodySourceFingerprint(rigid,readPayloadBytes(MRNX_FULLBODY_MUSCLE),readPayloadBytes(contacts));
+        auto source=constrainedFingerprint(base,readPayloadBytes(equalities));
+        source=((source^equalityFingerprint({'N','H','L','I','M','1'}))*kFnvPrime ^
+            equalityFingerprint(readPayloadBytes(limits)))*kFnvPrime;
+        initial.humanSourceFingerprint=source==0u?kFnvOffset:source;
+        initial.worldFingerprint=compiled.world.fingerprint;initial.timestepMicroseconds=100u;
+        std::string error;std::vector<std::byte> bytes;
+        const bool encoded=metalrobo::encodeNumiHumanInitialState(initial,bytes,error);
+        require(encoded,error.c_str());
+        const std::filesystem::path directory(output);std::filesystem::create_directories(directory);
+        const bool saved=numi::matter::writePackage(compiled,directory/"prepared-100us.nmatterpack",&error);
+        require(saved,error.c_str());
+        std::ofstream stateFile(directory/"prepared.nhinit",std::ios::binary);
+        stateFile.write(reinterpret_cast<const char*>(bytes.data()),bytes.size());
+        require(stateFile.good(),"could not write prepared state");
+        const std::vector<std::uint8_t> raw(reinterpret_cast<const std::uint8_t*>(bytes.data()),
+            reinterpret_cast<const std::uint8_t*>(bytes.data())+bytes.size());
+        std::ofstream receipt(directory/"prepared.json");
+        receipt << "{\"schema\":\"numi.human.prepared-stance-fixture.v1\",\"human_source_fp\":\"" << std::hex << base
+            << "\",\"composed_human_source_fp\":\"" << initial.humanSourceFingerprint
+            << "\",\"world_fp\":\"" << initial.worldFingerprint
+            << "\",\"initial_state_fp\":\"" << equalityFingerprint(raw)
+            << "\",\"scope\":\"three tiny pelvis samples; no anatomical tissue or sustained behavior qualification\"}\n";
+        require(receipt.good(),"could not write prepared fixture identity");
+        std::cout << "prepared_stance_fixture=compiled nq=129 nv=128 muscles=416 objects=3 attachments=12\n";
+        return 0;
+    }
 }
 
 mrnx_runtime_v1* makeAuthoredRuntime(
@@ -1374,6 +1529,12 @@ int run(const bool authored, const bool sourceEqualities, const bool costalTissu
 
 int main(int argc, char** argv) {
     try {
+        if (argc==2 && std::string(argv[1])=="--touch-aggregation-only") {
+            @autoreleasepool {qualifyTouchAggregation(MTLCreateSystemDefaultDevice());return 0;}
+        }
+        if (argc==7 && std::string(argv[1])=="--prepared-stance-fixture") {
+            return writePreparedStanceFixture(argv[2],argv[3],argv[4],argv[5],argv[6]);
+        }
         if (argc==2 && std::string(argv[1])=="--support-only") {
             @autoreleasepool {
                 id<MTLDevice> device=MTLCreateSystemDefaultDevice();

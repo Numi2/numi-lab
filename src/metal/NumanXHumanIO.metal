@@ -544,6 +544,54 @@ kernel void numanx_human_write_proprioception(
 // HumanIO's owning environment gate. Body/point geometry is the transaction's
 // current device state; visual bounds are compact source-pack evidence loaded
 // once by the native runtime.
+// Read-only projection of physical rows onto ten source-geometry receptors.
+// Sum impulses and preserve their centre of pressure. Use the minimum gap;
+// slip velocity is normal-impulse weighted, or from the closest unloaded row.
+// This does not modify solver state or physical acceptance.
+kernel void numanx_human_aggregate_support(
+    const device MRNumanXHumanSupportConsequenceGPU* rows [[buffer(0)]],
+    const device uint4* mapping [[buffer(1)]],
+    device MRNumanXHumanSupportConsequenceGPU* receptors [[buffer(2)]],
+    constant uint4& dispatch [[buffer(3)]],
+    uint index [[thread_position_in_grid]]
+) {
+    if (index >= 10u) return;
+    MRNumanXHumanSupportConsequenceGPU result{};
+    receptors[index] = result;
+    if (dispatch.x < 10u || dispatch.x > 20u || dispatch.y != 10u || any(dispatch.zw != 0u)) return;
+    const uint4 map = mapping[index]; // first row, count, body, source geometry
+    if (map.y == 0u || map.y > 2u || map.x >= dispatch.x || map.y > dispatch.x-map.x) return;
+    float minimumGap = INFINITY;
+    float3 weightedPoint=0.0f, weightedVelocity=0.0f;
+    uint flags=0u;
+    for (uint row=map.x; row<map.x+map.y; ++row) {
+        const MRNumanXHumanSupportConsequenceGPU item = rows[row];
+        if (item.identity.x != row || item.identity.y != map.w ||
+            item.identity.w != MR_NUMANX_HUMAN_SUPPORT_CONSEQUENCE_VERSION ||
+            !all(isfinite(item.pointAndSeparation)) || !all(isfinite(item.impulseAndNormal)) ||
+            !all(isfinite(item.tangentVelocityAndImpulse)) || item.impulseAndNormal.w < 0.0f ||
+            item.tangentVelocityAndImpulse.w < 0.0f) return;
+        if (item.pointAndSeparation.w < minimumGap) {
+            minimumGap = item.pointAndSeparation.w;
+            result.pointAndSeparation = item.pointAndSeparation;
+            result.tangentVelocityAndImpulse.xyz = item.tangentVelocityAndImpulse.xyz;
+        }
+        weightedPoint += item.pointAndSeparation.xyz*item.impulseAndNormal.w;
+        weightedVelocity += item.tangentVelocityAndImpulse.xyz*item.impulseAndNormal.w;
+        flags |= item.identity.z;
+        result.impulseAndNormal += item.impulseAndNormal;
+        result.tangentVelocityAndImpulse.w += item.tangentVelocityAndImpulse.w;
+    }
+    if (!all(isfinite(result.impulseAndNormal)) || !all(isfinite(result.tangentVelocityAndImpulse))) return;
+    if (result.impulseAndNormal.w > 0.0f) {
+        result.pointAndSeparation.xyz = weightedPoint/result.impulseAndNormal.w;
+        result.tangentVelocityAndImpulse.xyz = weightedVelocity/result.impulseAndNormal.w;
+    }
+    if (!all(isfinite(result.pointAndSeparation)) || !all(isfinite(result.tangentVelocityAndImpulse))) return;
+    result.identity = uint4(index,map.w,flags,MR_NUMANX_HUMAN_SUPPORT_CONSEQUENCE_VERSION);
+    receptors[index] = result;
+}
+
 kernel void numanx_human_write_supplemental_sensors(
     const device float* q [[buffer(0)]],
     const device float* v [[buffer(1)]],

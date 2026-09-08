@@ -1,4 +1,5 @@
 #include "metalrobo/NumiHumanSupport.hpp"
+#include "metalrobo/NumiHumanInitialState.hpp"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 
@@ -243,8 +244,11 @@ struct FullBodyAssets {
     std::vector<MRMujocoMuscleRouteNodeGPU> routes;
     std::vector<MRMujocoMuscleGPU> muscles;
     std::vector<MRMujocoMuscleStateGPU> states;
+    std::vector<float> initialQ;
+    std::vector<float> initialV;
     std::vector<MRArticulatedPointImpulseGPU> points;
     std::vector<MRNumiHumanStandContactGPU> supportContacts;
+    std::vector<mr_uint4> touchSupportMapping;
     std::vector<NMHumanJointEqualityGPU> jointEqualities;
     NMHumanEqualityDispatchGPU equalityDispatch{};
     std::uint64_t equalityFingerprint = 0u;
@@ -996,6 +1000,21 @@ FullBodyAssets loadFullBodyAssets(
             contact.frictionSlopAndStabilization.w};
         result.matterSupportContacts.push_back(matterContact);
     }
+    for (std::uint32_t row=0; row<result.supportContacts.size(); ++row) {
+        const auto& contact=result.supportContacts[row];
+        auto& groups=result.touchSupportMapping;
+        if (!groups.empty() && groups.back().z==contact.bodyIndex && groups.back().w==contact.sourceGeometryIndex) {
+            requireBuild(groups.back().y==1u, MRNX_RUNTIME_ASSET_FAILURE_V1, "too many rows per source touch geometry");
+            ++groups.back().y;
+        } else {
+            requireBuild(std::none_of(groups.begin(),groups.end(),[&](const auto& group){
+                return group.w==contact.sourceGeometryIndex;}), MRNX_RUNTIME_ASSET_FAILURE_V1,
+                "source touch rows are not contiguous");
+            groups.push_back({row,1u,contact.bodyIndex,contact.sourceGeometryIndex});
+        }
+    }
+    requireBuild(result.touchSupportMapping.size()==MR_NUMANX_HUMAN_TOUCH_RECEPTOR_COUNT,
+        MRNX_RUNTIME_ASSET_FAILURE_V1,"source support must map to all ten geometry receptors");
     result.bodyJacobianPointOffset =
         static_cast<std::uint32_t>(result.points.size());
     constexpr std::array<std::array<float, 3u>, 4u> probes{{
@@ -1587,6 +1606,8 @@ struct RuntimeState final : std::enable_shared_from_this<RuntimeState> {
     VisionProfile visionProfile;
     __strong id<MTLLibrary> supplementalLibrary = nil;
     __strong id<MTLComputePipelineState> supplementalPipeline = nil;
+    __strong id<MTLComputePipelineState> supportAggregationPipeline = nil;
+    __strong id<MTLBuffer> touchSupportMapping = nil;
     __strong id<MTLBuffer> visualBodyBounds = nil;
     std::uint64_t supplementalProgramFingerprint = 0u;
     std::uint64_t timestepMicroseconds = 0u;
@@ -1732,6 +1753,13 @@ void cultureCompletion(
         runtime.supplementalPipeline != nil,
         MRNX_RUNTIME_METAL_FAILURE_V1,
         "failed to create supplemental sensor pipeline");
+    id<MTLFunction> aggregate = [runtime.supplementalLibrary newFunctionWithName:@"numanx_human_aggregate_support"];
+    requireBuild(aggregate != nil, MRNX_RUNTIME_METAL_FAILURE_V1, "support aggregation kernel unavailable");
+    runtime.supportAggregationPipeline = [runtime.device newComputePipelineStateWithFunction:aggregate error:&pipelineError];
+    runtime.touchSupportMapping = [runtime.device newBufferWithBytes:runtime.assets.touchSupportMapping.data()
+        length:runtime.assets.touchSupportMapping.size()*sizeof(mr_uint4) options:MTLResourceStorageModeShared];
+    requireBuild(runtime.supportAggregationPipeline != nil && runtime.touchSupportMapping != nil,
+        MRNX_RUNTIME_METAL_FAILURE_V1, "support aggregation resources unavailable");
     std::uint64_t fingerprint = imageFingerprint;
     constexpr char functionName[] =
         "numanx_human_write_supplemental_sensors";
@@ -1799,6 +1827,10 @@ void cultureCompletion(
         MR_NUMANX_HUMAN_TOUCH_FEATURE_COUNT * sizeof(float);
     constexpr std::size_t touchValidityBytes =
         MR_NUMANX_HUMAN_TOUCH_RECEPTOR_COUNT * sizeof(std::uint32_t);
+    active->supportConsequences = makePrivateBuffer(runtime->device,
+        MR_NUMANX_HUMAN_TOUCH_RECEPTOR_COUNT*sizeof(MRNumanXHumanSupportConsequenceGPU), @"NumanX geometry touch consequences");
+    if (active->supportConsequences == nil) return false;
+    active->supportConsequencesGPUAddress = active->supportConsequences.gpuAddress;
     active->kinesthesia = makePrivateBuffer(runtime->device,
         kinesthesiaValueBytes, @"NumanX candidate kinesthesia");
     active->kinesthesiaValidity = makePrivateBuffer(runtime->device,
@@ -1831,7 +1863,8 @@ void cultureCompletion(
     const mrnx_runtime_config_v3* authored = nullptr,
     const mrnx_runtime_config_v4* equalityConfig = nullptr,
     const mrnx_runtime_config_v5* tissueConfig = nullptr,
-    const mrnx_runtime_config_v6* limitConfig = nullptr
+    const mrnx_runtime_config_v6* limitConfig = nullptr,
+    const mrnx_runtime_config_v7* initialConfig = nullptr
 ) {
     requireBuild(
         config.abi_version == MRNX_BRIDGE_ABI_V1 &&
@@ -1882,16 +1915,41 @@ void cultureCompletion(
     const auto tissueOffsets=tissueConfig!=nullptr
         ? prepareCostalMassOwnership(runtime->assets,*tissueConfig)
         : std::vector<std::array<double,3>>{};
+    // Decode after mass ownership establishes final body frames. The source
+    // default pose remains authoritative for rest coordinates and ownership;
+    // these vectors belong only to construction and the first resident submit.
+    metalrobo::NumiHumanInitialState initialState;
+    runtime->assets.initialQ = runtime->assets.model.defaultQ;
+    runtime->assets.initialV = runtime->assets.model.defaultV;
+    if (initialConfig != nullptr) {
+        const auto image = loadImmutablePayload(initialConfig->initial_state_payload_path, "NHINIT1 initial state");
+        requireBuild(hashBytes(image.bytes.data(), image.bytes.size()) == initialConfig->expected_initial_state_fingerprint,
+            MRNX_RUNTIME_ASSET_FAILURE_V1, "initial-state fingerprint mismatch");
+        std::string error;
+        requireBuild(metalrobo::decodeNumiHumanInitialState(
+            std::as_bytes(std::span(image.bytes.data(), image.bytes.size())),
+            runtime->assets.rigid.nq, runtime->assets.rigid.nv, runtime->assets.muscle.muscleCount,
+            runtime->assets.rigid.sourceSHA256, initialState, error),
+            MRNX_RUNTIME_ASSET_FAILURE_V1, "initial-state admission failed: " + error);
+        requireBuild(initialState.worldFingerprint == authored->expected_matter_world_fingerprint &&
+            initialState.timestepMicroseconds == config.timestep_microseconds,
+            MRNX_RUNTIME_ASSET_FAILURE_V1, "initial-state world/clock mismatch");
+        double norm = 0.0;
+        for (unsigned i = 3u; i < 7u; ++i) norm += double(initialState.q[i]) * initialState.q[i];
+        requireBuild(std::abs(norm - 1.0) <= 16.0 * std::numeric_limits<float>::epsilon(),
+            MRNX_RUNTIME_ASSET_FAILURE_V1, "initial-state root quaternion is not unit length");
+        runtime->assets.initialQ = initialState.q;
+        runtime->assets.initialV = initialState.v;
+        runtime->assets.states = initialState.muscles;
+    }
     // Bind the reference Matter patch to the articulated root/pelvis COM.
     // The prior use of the final imported body was topology-order dependent
     // and coupled the FEM to an arbitrary high-motion distal link.
     constexpr std::uint32_t attachmentBody = 0u;
     const std::vector<double> defaultQ(
-        runtime->assets.model.defaultQ.begin(),
-        runtime->assets.model.defaultQ.end());
+        runtime->assets.initialQ.begin(), runtime->assets.initialQ.end());
     const std::vector<double> defaultV(
-        runtime->assets.model.defaultV.begin(),
-        runtime->assets.model.defaultV.end());
+        runtime->assets.initialV.begin(), runtime->assets.initialV.end());
     std::vector<metalrobo::ArticulatedBodyKinematics> defaultBodies(
         runtime->assets.model.bodies.size());
     const auto defaultBodyDiagnostics =
@@ -1917,6 +1975,13 @@ void cultureCompletion(
         appendFingerprintBytes(runtime->assets.sourceFingerprint,marker,sizeof(marker)-1);
         appendFingerprintU64(runtime->assets.sourceFingerprint,tissueConfig->expected_costal_binding_fingerprint);
         appendFingerprintU64(runtime->assets.sourceFingerprint,world.fingerprint);
+    }
+    if (initialConfig != nullptr) {
+        requireBuild(initialState.humanSourceFingerprint == runtime->assets.sourceFingerprint,
+            MRNX_RUNTIME_ASSET_FAILURE_V1, "initial-state composed Human source mismatch");
+        constexpr char marker[] = "NHINIT1";
+        appendFingerprintBytes(runtime->assets.sourceFingerprint, marker, sizeof(marker)-1u);
+        appendFingerprintU64(runtime->assets.sourceFingerprint, initialConfig->expected_initial_state_fingerprint);
     }
     runtime->worldInfo = {
         MRNX_BRIDGE_ABI_V1, sizeof(mrnx_runtime_world_info_v1),
@@ -2059,7 +2124,8 @@ void cultureCompletion(
     const mrnx_runtime_config_v3* authored = nullptr,
     const mrnx_runtime_config_v4* equalityConfig = nullptr,
     const mrnx_runtime_config_v5* tissueConfig = nullptr,
-    const mrnx_runtime_config_v6* limitConfig = nullptr
+    const mrnx_runtime_config_v6* limitConfig = nullptr,
+    const mrnx_runtime_config_v7* initialConfig = nullptr
 ) {
     requireBuild(
         config.abi_version == MRNX_RUNTIME_CONFIG_ABI_V2 &&
@@ -2082,7 +2148,7 @@ void cultureCompletion(
     base.maximum_retained_bytes = config.maximum_retained_bytes;
     base.transaction_slot_count = config.transaction_slot_count;
     base.reserved0 = config.reserved0;
-    auto runtime = createRuntimeState(base, authored, equalityConfig, tissueConfig, limitConfig);
+    auto runtime = createRuntimeState(base, authored, equalityConfig, tissueConfig, limitConfig, initialConfig);
     const bool cultureEnabled = config.culture_pack_path != nullptr &&
         config.culture_pack_path[0] != '\0';
     const bool checkpointSupplied = config.culture_checkpoint_path != nullptr &&
@@ -2247,8 +2313,7 @@ void fillRuntimeInfoFailure(
     supplemental.pointCount = static_cast<std::uint32_t>(
         runtime->assets.points.size());
     supplemental.supportPointOffset = runtime->assets.rigid.engineBodyCount;
-    supplemental.supportPointCount = static_cast<std::uint32_t>(
-        runtime->assets.supportContacts.size());
+    supplemental.supportPointCount = MR_NUMANX_HUMAN_TOUCH_RECEPTOR_COUNT;
     supplemental.headBodyIndex = runtime->visionProfile.parentBodyIndex;
     supplemental.visionWidth = runtime->visionProfile.width;
     supplemental.visionHeight = runtime->visionProfile.height;
@@ -2263,10 +2328,7 @@ void fillRuntimeInfoFailure(
         runtime->visionProfile.sourceFingerprint;
     supplemental.programFingerprint =
         runtime->supplementalProgramFingerprint;
-    const auto supportView =
-        runtime->matter->humanSupportCandidateConsequences();
-    supplemental.expectedSupportConsequencesGPUAddress =
-        supportView.gpuAddress;
+    supplemental.expectedSupportConsequencesGPUAddress = active->supportConsequencesGPUAddress;
     supplemental.matterProgramFingerprint =
         runtime->matter->deviceProgramFingerprint();
     supplemental.groundPoint = runtime->assets.groundPoint;
@@ -2380,8 +2442,8 @@ void fillRuntimeInfoFailure(
         .articulationIndex = 0u,
         .environmentCount = 1u,
         .pointCount = runtime->assets.points.size(),
-        .q = runtime->assets.model.defaultQ,
-        .v = runtime->assets.model.defaultV,
+        .q = runtime->assets.initialQ,
+        .v = runtime->assets.initialV,
         .points = runtime->assets.points,
         .mujoco = {
             .muscles = runtime->assets.muscles,
@@ -2393,7 +2455,7 @@ void fillRuntimeInfoFailure(
                 runtime->assets.bodyJacobianPointOffset,
         },
         .stand = {
-            .v = runtime->assets.model.defaultV,
+            .v = runtime->assets.initialV,
             // The exact source witnesses are present in the point stream for
             // causal sensing. Human/Matter ABI v1 still rejects constrained
             // dynamics until it owns a nullspace/KKT tangent, so they are not
@@ -2745,9 +2807,10 @@ mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v5(
     }
 }
 
-mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v6(
+static mrnx_runtime_v1* createRuntimeV6OrV7(
     const mrnx_runtime_config_v6* config,
-    mrnx_runtime_info_v1* info
+    mrnx_runtime_info_v1* info,
+    const mrnx_runtime_config_v7* initialConfig
 ) {
     @autoreleasepool {
         if (config == nullptr) {
@@ -2791,7 +2854,7 @@ mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v6(
             tissue.costal_binding_payload_path = config->costal_binding_payload_path;
             tissue.expected_costal_binding_fingerprint = config->expected_costal_binding_fingerprint;
             auto state = createRuntimeStateV2(config->runtime.runtime.runtime, &config->runtime.runtime,
-                &config->runtime, config->costal_binding_payload_path != nullptr ? &tissue : nullptr, config);
+                &config->runtime, config->costal_binding_payload_path != nullptr ? &tissue : nullptr, config, initialConfig);
             auto* runtime = new (std::nothrow) mrnx_runtime_v1;
             if (runtime == nullptr) {
                 fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
@@ -2813,6 +2876,24 @@ mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v6(
             return nullptr;
         }
     }
+}
+
+mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v6(
+    const mrnx_runtime_config_v6* config, mrnx_runtime_info_v1* info
+) {
+    return createRuntimeV6OrV7(config, info, nullptr);
+}
+
+mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v7(
+    const mrnx_runtime_config_v7* config, mrnx_runtime_info_v1* info
+) {
+    if (config == nullptr || config->abi_version != MRNX_RUNTIME_CONFIG_ABI_V7 ||
+        config->struct_size != sizeof(*config) || config->initial_state_payload_path == nullptr ||
+        config->initial_state_payload_path[0] == '\0' || config->expected_initial_state_fingerprint == 0u) {
+        fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+        return nullptr;
+    }
+    return createRuntimeV6OrV7(&config->runtime, info, config);
 }
 
 bool mrnx_bridge_v1_runtime_copy_world_info(
@@ -3318,13 +3399,11 @@ bool encodeSupplementalSensors(
             standStatuses.device == runtime.device &&
             supportConsequences != nil &&
             supportConsequences.device == runtime.device &&
-            supportView.gpuAddress ==
-                active->supplementalDispatch
-                    .expectedSupportConsequencesGPUAddress &&
-            supportView.elementCount ==
-                active->supplementalDispatch.supportPointCount &&
-            supportView.stride ==
-                active->supplementalDispatch.supportPointCount &&
+            supportView.gpuAddress == supportConsequences.gpuAddress &&
+            supportView.elementCount == runtime.assets.supportContacts.size() &&
+            supportView.stride == runtime.assets.supportContacts.size() &&
+            active->supportConsequencesGPUAddress == active->supplementalDispatch.expectedSupportConsequencesGPUAddress &&
+            runtime.supportAggregationPipeline != nil && runtime.touchSupportMapping != nil &&
             active->activeSensing.buffer.device == runtime.device &&
             runtime.visualBodyBounds.device == runtime.device &&
             runtime.supplementalPipeline != nil;
@@ -3348,6 +3427,8 @@ bool encodeSupplementalSensors(
             {supportConsequences, supportView.gpuAddress,
              supportView.elementCount *
                 sizeof(MRNumanXHumanSupportConsequenceGPU)},
+            {active->supportConsequences, active->supportConsequencesGPUAddress, active->supportConsequences.length},
+            {runtime.touchSupportMapping, runtime.touchSupportMapping.gpuAddress, runtime.touchSupportMapping.length},
             {active->activeSensing.buffer, active->activeSensing.address,
              active->activeSensing.byteCount},
             {runtime.visualBodyBounds, runtime.visualBodyBounds.gpuAddress,
@@ -3391,15 +3472,16 @@ bool encodeSupplementalSensors(
                 }
             }
         }
-        {
-            const std::lock_guard lock(active->mutex);
-            if (active->supportConsequences != nil &&
-                (active->supportConsequences != supportConsequences ||
-                 active->supportConsequencesGPUAddress !=
-                    supportView.gpuAddress)) return false;
-            active->supportConsequences = supportConsequences;
-            active->supportConsequencesGPUAddress = supportView.gpuAddress;
-        }
+        id<MTLComputeCommandEncoder> reduction = [commandBuffer computeCommandEncoder];
+        if (reduction == nil) return false;
+        [reduction setComputePipelineState:runtime.supportAggregationPipeline];
+        [reduction setBuffer:supportConsequences offset:0u atIndex:0u];
+        [reduction setBuffer:runtime.touchSupportMapping offset:0u atIndex:1u];
+        [reduction setBuffer:active->supportConsequences offset:0u atIndex:2u];
+        const mr_uint4 mappingDispatch{static_cast<std::uint32_t>(supportView.elementCount),10u,0u,0u};
+        [reduction setBytes:&mappingDispatch length:sizeof(mappingDispatch) atIndex:3u];
+        [reduction dispatchThreads:MTLSizeMake(10u,1u,1u) threadsPerThreadgroup:MTLSizeMake(10u,1u,1u)];
+        [reduction endEncoding];
         id<MTLComputeCommandEncoder> encoder =
             [commandBuffer computeCommandEncoder];
         if (encoder == nil) return false;
@@ -3424,7 +3506,7 @@ bool encodeSupplementalSensors(
         [encoder setBuffer:active->touchValidity offset:0u atIndex:16u];
         [encoder setBytes:&active->supplementalDispatch
             length:sizeof(active->supplementalDispatch) atIndex:17u];
-        [encoder setBuffer:supportConsequences offset:0u atIndex:18u];
+        [encoder setBuffer:active->supportConsequences offset:0u atIndex:18u];
         const NSUInteger width = std::max<NSUInteger>(
             1u,
             std::min<NSUInteger>(

@@ -34,6 +34,7 @@ extern "C" {
 #define MRNX_RUNTIME_CONFIG_ABI_V4 4u
 #define MRNX_RUNTIME_CONFIG_ABI_V5 5u
 #define MRNX_RUNTIME_CONFIG_ABI_V6 6u
+#define MRNX_RUNTIME_CONFIG_ABI_V7 7u
 #define MRNX_AGGREGATE_SNAPSHOT_ABI_V4 4u
 #define MRNX_CULTURE_ACCEPTED_VIEW_ABI_V1 1u
 #define MRNX_CULTURE_PREPARED_VIEW_ABI_V1 1u
@@ -352,6 +353,18 @@ typedef struct mrnx_runtime_config_v6 {
     const char* costal_binding_payload_path;
     uint64_t expected_costal_binding_fingerprint;
 } mrnx_runtime_config_v6;
+
+// Explicit construction-only NHINIT1 state. Requires the complete v6 source
+// physics and authored world. Native admission binds the prepared pose/fibres
+// into Human identity; it never changes source rest coordinates or installs a
+// runtime reset/recruitment path. No equilibrium claim is implied by admission.
+typedef struct mrnx_runtime_config_v7 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    mrnx_runtime_config_v6 runtime;
+    const char* initial_state_payload_path;
+    uint64_t expected_initial_state_fingerprint;
+} mrnx_runtime_config_v7;
 
 // Immutable construction metadata. Legacy v1/v2 worlds are explicitly marked
 // as fixtures; successfully loading an authored package is not calibration.
@@ -728,6 +741,10 @@ MRNX_BRIDGE_EXPORT mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v5(
 MRNX_BRIDGE_EXPORT mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v6(
     const mrnx_runtime_config_v6* config,
     mrnx_runtime_info_v1* info);
+MRNX_BRIDGE_EXPORT mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v7(
+    const mrnx_runtime_config_v7* config,
+    mrnx_runtime_info_v1* info
+);
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_world_info(
     const mrnx_runtime_v1* runtime,
     mrnx_runtime_world_info_v1* info);

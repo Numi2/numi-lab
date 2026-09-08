@@ -319,9 +319,11 @@ typedef struct MR_ALIGN16 MRNumanXVisualBodyBoundsGPU {
     mr_float4 maximum;
 } MRNumanXVisualBodyBoundsGPU;
 
-// Read-only mirror of Matter's accepted Human support consequence. Matter is
-// the sole writer; this type exists only so the HumanIO shader can consume the
-// exact bytes without linking its private solver headers.
+// Mirror of Matter's physical support consequence: identity is row, source
+// geometry, flags, version. Matter owns the physical rows. HumanIO additionally
+// writes a derived ten-geometry receptor view in this shape, summing endpoint
+// impulses and preserving their centre of pressure. The derived view carries
+// no physical force or acceptance authority.
 typedef struct MR_ALIGN16 MRNumanXHumanSupportConsequenceGPU {
     mr_uint4 identity;
     mr_float4 pointAndSeparation;

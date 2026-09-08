@@ -896,6 +896,7 @@ add_library(
     src/core/MujocoMuscleReference.cpp
     src/core/NumiHumanJointEquality.cpp
     src/core/NumiHumanMuscleEquilibrium.cpp
+    src/core/NumiHumanInitialState.cpp
     src/core/NumiHumanTensionNetwork.cpp
     src/core/NumiHumanTendon.cpp
     src/core/NumiHumanCartilage.cpp
@@ -1393,6 +1394,19 @@ if(METALROBO_HAS_SWIFT)
             BUILD_RPATH "@loader_path/../lib"
             INSTALL_RPATH "@loader_path/../lib"
     )
+endif()
+
+if(BUILD_TESTING)
+    add_executable(metalrobo_numi_human_initial_state_test tests/numi_human_initial_state_test.cpp)
+    target_link_libraries(metalrobo_numi_human_initial_state_test PRIVATE metalrobo)
+    target_compile_options(metalrobo_numi_human_initial_state_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    set_target_properties(metalrobo_numi_human_initial_state_test PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_initial_state COMMAND metalrobo_numi_human_initial_state_test)
+    add_test(NAME numanx.integration.human_touch_aggregation COMMAND metalrobo_numanx_fullbody_bridge_probe --touch-aggregation-only)
+    set_tests_properties(numanx.integration.human_touch_aggregation PROPERTIES LABELS "numanx;human;metal;support")
+    set_tests_properties(numi_human_initial_state PROPERTIES LABELS "numi-human;initialization;numanx")
 endif()
 
 if(BUILD_TESTING)
