@@ -898,6 +898,8 @@ add_library(
     src/core/NumiHumanTensionNetwork.cpp
     src/core/NumiHumanTendon.cpp
     src/core/NumiHumanCartilage.cpp
+    src/core/NumiHumanTissueMass.cpp
+    src/core/NumiHumanTissueBinding.cpp
     src/core/NumiHumanKnee.cpp
     src/core/NumiHumanKneeContact.cpp
     src/core/NumiHumanContinuumMap.cpp
@@ -4717,3 +4719,15 @@ if(APPLE)
             LABELS "numanx;human;matter;physics;metal" TIMEOUT 45 RUN_SERIAL TRUE)
     endif()
 endif()
+
+# Anatomical tissue mass ownership is a compiler operation, before Metal allocation.
+add_executable(numi_human_tissue_mass_probe apps/numi_human_tissue_mass_probe.cpp)
+target_link_libraries(numi_human_tissue_mass_probe PRIVATE metalrobo)
+target_compile_options(numi_human_tissue_mass_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)
+set_target_properties(numi_human_tissue_mass_probe PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+add_test(NAME numi_human_tissue_mass_partition COMMAND numi_human_tissue_mass_probe)
+add_executable(numi_human_tissue_binding_check apps/numi_human_tissue_binding_check.cpp)
+target_link_libraries(numi_human_tissue_binding_check PRIVATE metalrobo)
+target_compile_options(numi_human_tissue_binding_check PRIVATE -Wall -Wextra -Wpedantic -Werror)
+target_compile_definitions(numi_human_tissue_binding_check PRIVATE NUMI_COSTAL_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_costal_cartilage_pseudoelastic.nmatter")
+set_target_properties(numi_human_tissue_binding_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")

@@ -473,12 +473,12 @@ void settled(
     capture->count.fetch_add(1u, std::memory_order_acq_rel);
 }
 
-void waitForCompletion(Completion& completion) {
+void waitForCompletion(Completion& completion, const unsigned timeoutSeconds=10u) {
     const auto deadline = std::chrono::steady_clock::now() +
-        std::chrono::seconds(10);
+        std::chrono::seconds(timeoutSeconds);
     while (completion.count.load(std::memory_order_acquire) == 0u &&
            std::chrono::steady_clock::now() < deadline) {
-        std::this_thread::yield();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     require(
         completion.count.load(std::memory_order_acquire) == 1u,
@@ -741,7 +741,60 @@ mrnx_runtime_v1* makeAuthoredRuntime(
     return runtime;
 }
 
-int run(const bool authored, const bool sourceEqualities) {
+std::uint64_t costalFingerprint(std::uint64_t source, const std::uint64_t world) {
+    for(const auto byte:std::array<unsigned char,8>{'N','H','T','M','A','S','S','1'}) {
+        source^=byte;source*=kFnvPrime;
+    }
+    mixU64(source,equalityFingerprint(readPayloadBytes(std::getenv("MRNX_COSTAL_BINDING"))));
+    mixU64(source,world);return source;
+}
+
+mrnx_runtime_v1* makeCostalRuntime(const mrnx_runtime_config_v2& base,
+                                  mrnx_runtime_info_v1& info) {
+    const char* package=std::getenv("MRNX_COSTAL_WORLD");
+    const char* binding=std::getenv("MRNX_COSTAL_BINDING");
+    const char* cartilage=std::getenv("MRNX_COSTAL_PAYLOAD");
+    const char* equality=std::getenv("MRNX_JOINT_EQUALITIES");
+    require(package&&binding&&cartilage&&equality,"costal runtime needs MRNX_COSTAL_WORLD/BINDING/PAYLOAD and MRNX_JOINT_EQUALITIES");
+    numi::matter::CompiledWorld world;std::string error;
+    require(numi::matter::readPackage(package,world,nullptr,&error),"could not read registered costal package");
+    mrnx_runtime_config_v5 config{};
+    config.abi_version=MRNX_RUNTIME_CONFIG_ABI_V5;config.struct_size=sizeof(config);
+    config.costal_cartilage_payload_path=cartilage;config.costal_binding_payload_path=binding;
+    config.expected_costal_binding_fingerprint=equalityFingerprint(readPayloadBytes(binding));
+    auto& v4=config.runtime;v4.abi_version=MRNX_RUNTIME_CONFIG_ABI_V4;v4.struct_size=sizeof(v4);
+    v4.joint_equality_payload_path=equality;v4.expected_joint_equality_fingerprint=equalityFingerprint(readPayloadBytes(equality));
+    auto& v3=v4.runtime;v3.abi_version=MRNX_RUNTIME_CONFIG_ABI_V3;v3.struct_size=sizeof(v3);
+    v3.runtime=base;v3.runtime.matter_material_path=nullptr;v3.matter_world_package_path=package;
+    v3.expected_matter_world_fingerprint=world.fingerprint;
+    v3.expected_model_source_fingerprint=fullBodySourceFingerprint(readPayloadBytes(MRNX_FULLBODY_RIGID),
+        readPayloadBytes(MRNX_FULLBODY_MUSCLE),readPayloadBytes(MRNX_FULLBODY_SUPPORT_CONTACT));
+    const auto reject=[&](const mrnx_runtime_config_v5& bad,const mrnx_runtime_status_v1 status) {
+        mrnx_runtime_info_v1 failed{};
+        auto* result=mrnx_bridge_v1_runtime_create_v5(&bad,&failed);
+        require(result==nullptr&&failed.status==status,"invalid costal mass ownership was admitted");
+    };
+    auto bad=config;bad.struct_size-=8;reject(bad,MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+    bad=config;bad.expected_costal_binding_fingerprint^=1;reject(bad,MRNX_RUNTIME_ASSET_FAILURE_V1);
+    bad=config;bad.costal_cartilage_payload_path=MRNX_FULLBODY_RIGID;reject(bad,MRNX_RUNTIME_ASSET_FAILURE_V1);
+    // A legacy v4 cannot silently add the tissue mass; it sees incompatible
+    // local frames and must reject before persistent runtime allocation.
+    mrnx_runtime_info_v1 legacy{};
+    require(mrnx_bridge_v1_runtime_create_v4(&v4,&legacy)==nullptr&&legacy.status==MRNX_RUNTIME_ASSET_FAILURE_V1,
+            "legacy runtime admitted a mass-partitioned tissue package");
+    auto* result=mrnx_bridge_v1_runtime_create_v5(&config,&info);
+    require(result!=nullptr,"registered costal mass runtime was rejected");
+    require(info.model_source_fingerprint==costalFingerprint(constrainedFingerprint(
+        v3.expected_model_source_fingerprint,readPayloadBytes(equality)),world.fingerprint),
+        "tissue mass ownership is absent from runtime identity");
+    std::printf("numanx_costal_mass_admission=pass nodes=%zu tets=%zu attachments=%zu negative_cases=4 source_fp=%016llx\n",
+        world.fem.nodes.size(),world.fem.tetrahedra.size(),world.fem.humanAttachments.size(),
+        static_cast<unsigned long long>(info.model_source_fingerprint));
+    return result;
+}
+
+int run(const bool authored, const bool sourceEqualities, const bool costalTissue) {
+    const std::uint64_t durationMicros=costalTissue?10u:kDurationMicros;
     @autoreleasepool {
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
         require(device != nil, "Metal device unavailable");
@@ -771,8 +824,8 @@ int run(const bool authored, const bool sourceEqualities) {
         config.metalrobo_metallib_path = MRNX_METALROBO_METALLIB;
         config.matter_metallib_path = MRNX_MATTER_METALLIB;
         config.matter_material_path = MRNX_MATTER_MATERIAL;
-        config.timestep_microseconds = kDurationMicros;
-        config.maximum_retained_bytes = 1024ull * 1024ull * 1024ull;
+        config.timestep_microseconds = durationMicros;
+        config.maximum_retained_bytes = (costalTissue?2ull:1ull) * 1024ull * 1024ull * 1024ull;
         config.transaction_slot_count = 2u;
         config.culture_pack_path = culturePathString.c_str();
         config.culture_window_ticks = 100u;
@@ -790,7 +843,7 @@ int run(const bool authored, const bool sourceEqualities) {
                 mismatchedInfo.status == MRNX_RUNTIME_ASSET_FAILURE_V1,
             "mismatched source support-contact authority was admitted");
         mrnx_runtime_info_v1 info{};
-        mrnx_runtime_v1* runtime = authored
+        mrnx_runtime_v1* runtime = costalTissue ? makeCostalRuntime(config,info) : authored
             ? makeAuthoredRuntime(config, info, sourceEqualities)
             : mrnx_bridge_v1_runtime_create_v2(&config, &info);
         if (runtime == nullptr || info.status != MRNX_RUNTIME_READY_V1) {
@@ -814,11 +867,13 @@ int run(const bool authored, const bool sourceEqualities) {
         const auto musclePayload = readPayloadBytes(MRNX_FULLBODY_MUSCLE);
         const auto supportPayload =
             readPayloadBytes(MRNX_FULLBODY_SUPPORT_CONTACT);
+        auto expectedSource=sourceEqualities ?
+            constrainedFingerprint(fullBodySourceFingerprint(rigidPayload,musclePayload,supportPayload),
+                readPayloadBytes(std::getenv("MRNX_JOINT_EQUALITIES"))) :
+            fullBodySourceFingerprint(rigidPayload,musclePayload,supportPayload);
+        if(costalTissue)expectedSource=costalFingerprint(expectedSource,worldInfo.world_fingerprint);
         require(
-            info.model_source_fingerprint == (sourceEqualities ?
-                constrainedFingerprint(fullBodySourceFingerprint(rigidPayload, musclePayload, supportPayload),
-                    readPayloadBytes(std::getenv("MRNX_JOINT_EQUALITIES"))) :
-                fullBodySourceFingerprint(rigidPayload, musclePayload, supportPayload)),
+            info.model_source_fingerprint == expectedSource,
             "runtime model fingerprint does not bind exact source payloads");
         auto mutatedSupportPayload = supportPayload;
         require(
@@ -872,7 +927,7 @@ int run(const bool authored, const bool sourceEqualities) {
         request.root.base_physics_generation = 0u;
         request.root.committed_timestamp_microseconds = kStartMicros;
         request.root.target_timestamp_microseconds =
-            kStartMicros + kDurationMicros;
+            kStartMicros + durationMicros;
         request.root.shadow_generation = 1u;
         request.root.random_counter_generation = 3u;
         MRNumanXBrainJointTransactionToken nativeRoot{};
@@ -885,9 +940,9 @@ int run(const bool authored, const bool sourceEqualities) {
         request.substep.substep_index = 0u;
         request.substep.attempt_index = 0u;
         request.substep.start_timestamp_microseconds = kStartMicros;
-        request.substep.duration_microseconds = kDurationMicros;
+        request.substep.duration_microseconds = durationMicros;
         request.substep.candidate_timestamp_microseconds =
-            kStartMicros + kDurationMicros;
+            kStartMicros + durationMicros;
         request.substep.shadow_generation = request.root.shadow_generation;
         request.substep.random_counter_generation =
             request.root.random_counter_generation;
@@ -1050,7 +1105,7 @@ int run(const bool authored, const bool sourceEqualities) {
         require(completion.count.load(std::memory_order_acquire) == 0u,
                 "physical root ignored the unsignaled motor-ready event");
         readyEvent.signaledValue = 1u;
-        waitForCompletion(completion);
+        waitForCompletion(completion,costalTissue?60u:10u);
         if (completion.status.load(std::memory_order_acquire) !=
                 MRNX_COMPLETION_READY_V1 ||
             completion.prepared == nullptr || completion.candidate == nullptr ||
@@ -1167,9 +1222,9 @@ int run(const bool authored, const bool sourceEqualities) {
                     supplemental[4].feature_dimension == 7u &&
                     timing.capture_timestamp_microseconds == kStartMicros &&
                     timing.delivery_timestamp_microseconds ==
-                        kStartMicros + kDurationMicros &&
-                    timing.latency_microseconds == kDurationMicros &&
-                    timing.sample_interval_microseconds == kDurationMicros &&
+                        kStartMicros + durationMicros &&
+                    timing.latency_microseconds == durationMicros &&
+                    timing.sample_interval_microseconds == durationMicros &&
                     timing.timing_fingerprint == timingFingerprint(timing),
                 "causal HumanIO candidate is not the exact full-body view");
         __unsafe_unretained id<MTLBuffer> touchValues =
@@ -1304,9 +1359,11 @@ int main(int argc, char** argv) {
     try {
         require(argc == 1 || (argc == 2 &&
                     (std::string(argv[1]) == "--authored-world" ||
-                     std::string(argv[1]) == "--source-equalities")),
-                "usage: numanx_fullbody_bridge_probe [--authored-world|--source-equalities]");
-        return run(argc == 2, argc == 2 && std::string(argv[1]) == "--source-equalities");
+                     std::string(argv[1]) == "--source-equalities" ||
+                     std::string(argv[1]) == "--costal-tissue")),
+                "usage: numanx_fullbody_bridge_probe [--authored-world|--source-equalities|--costal-tissue]");
+        const bool costal=argc==2&&std::string(argv[1])=="--costal-tissue";
+        return run(argc == 2, costal||(argc == 2 && std::string(argv[1]) == "--source-equalities"),costal);
     } catch (const std::exception& error) {
         std::fprintf(stderr, "%s\n", error.what());
         return 1;

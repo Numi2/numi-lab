@@ -7,6 +7,8 @@
 #include "metalrobo/MetalNeuronCulture.hpp"
 #include "metalrobo/MetalNumanXHumanMatter.hpp"
 #include "metalrobo/NeuronCultureArtifacts.hpp"
+#include "metalrobo/NumiHumanTissueBinding.hpp"
+#include <CommonCrypto/CommonDigest.h>
 #include "metalrobo/VisualPresentation.hpp"
 #include "numi/matter/matter.hpp"
 
@@ -1130,6 +1132,102 @@ namespace {
     return std::move(compiled.world);
 }
 
+template<class Point>
+void shiftTissuePoint(Point& point, const std::uint32_t body,
+                     const std::vector<std::array<double,3>>& offsets) {
+    requireBuild(body<offsets.size(),MRNX_RUNTIME_ASSET_FAILURE_V1,
+                 "tissue frame target escapes Human body table");
+    point.x=static_cast<float>(point.x-offsets[body][0]);
+    point.y=static_cast<float>(point.y-offsets[body][1]);
+    point.z=static_cast<float>(point.z-offsets[body][2]);
+}
+
+// Construction-only mass ownership. Geometry and mass come from the final
+// cooked package; all local points are then rebased together before allocation.
+[[nodiscard]] std::vector<std::array<double,3>> prepareCostalMassOwnership(
+    FullBodyAssets& assets, const mrnx_runtime_config_v5& config) {
+    const auto& authored=config.runtime.runtime;
+    const auto cartilageImage=loadImmutablePayload(config.costal_cartilage_payload_path,"costal cartilage");
+    const auto bindingImage=loadImmutablePayload(config.costal_binding_payload_path,"costal binding");
+    const auto rigidImage=loadImmutablePayload(authored.runtime.rigid_payload_path,"rigid tissue donor");
+    requireBuild(hashBytes(bindingImage.bytes.data(),bindingImage.bytes.size())==config.expected_costal_binding_fingerprint,
+                 MRNX_RUNTIME_ASSET_FAILURE_V1,"costal binding fingerprint mismatch");
+    const auto span=[](const ImmutablePayload& p){return std::span<const std::byte>(
+        reinterpret_cast<const std::byte*>(p.bytes.data()),p.bytes.size());};
+    const auto sha=[](const ImmutablePayload& p){
+        requireBuild(p.bytes.size()<=std::numeric_limits<CC_LONG>::max(),MRNX_RUNTIME_ASSET_FAILURE_V1,"tissue input exceeds SHA input bound");
+        std::array<std::uint8_t,32> result{};
+        CC_SHA256(p.bytes.data(),static_cast<CC_LONG>(p.bytes.size()),result.data());return result;};
+    metalrobo::NumiHumanCostalBinding binding;std::string error;
+    requireBuild(metalrobo::decodeNumiHumanCostalBinding(span(bindingImage),sha(cartilageImage),sha(rigidImage),binding,error),
+                 MRNX_RUNTIME_ASSET_FAILURE_V1,"costal binding admission failed: "+error);
+    metalrobo::NumiHumanCostalCartilagePayload cartilage;
+    requireBuild(metalrobo::decodeNumiHumanCostalCartilagePayload(span(cartilageImage),{},cartilage).succeeded(),
+                 MRNX_RUNTIME_ASSET_FAILURE_V1,"invalid costal cartilage payload");
+    numi::matter::CompiledWorld world;
+    requireBuild(numi::matter::readPackage(authored.matter_world_package_path,world,nullptr,&error),
+                 MRNX_RUNTIME_ASSET_FAILURE_V1,"costal mass package failed: "+error);
+    requireBuild(world.fingerprint==authored.expected_matter_world_fingerprint && world.objects.size()==1 &&
+                 world.fem.nodes.size()==cartilage.nodes.size() && world.fem.tetrahedra.size()==cartilage.tetrahedra.size() &&
+                 binding.bodyCount==assets.model.bodies.size() && binding.nodeCount==cartilage.nodes.size() &&
+                 binding.tetrahedronCount==cartilage.tetrahedra.size(),MRNX_RUNTIME_ASSET_FAILURE_V1,"costal mass package coverage mismatch");
+    const std::vector<double> q(assets.model.defaultQ.begin(),assets.model.defaultQ.end()),v(assets.model.defaultV.begin(),assets.model.defaultV.end());
+    std::vector<metalrobo::ArticulatedBodyKinematics> bodies(assets.model.bodies.size());
+    requireBuild(metalrobo::computeArticulatedBodyKinematics(assets.model,0,q,v,bodies).succeeded(),
+                 MRNX_RUNTIME_ASSET_FAILURE_V1,"costal donor kinematics failed");
+    std::vector<metalrobo::NumiHumanTissueMassNode> nodes;
+    const auto& a=binding.atlasToWorld;
+    for(std::uint32_t i=0;i<cartilage.nodes.size();++i) {
+        const auto& original=cartilage.nodes[i];const auto& cooked=world.fem.nodes[i];
+        const std::array<float,3> actual{cooked.positionAndMass.x,cooked.positionAndMass.y,cooked.positionAndMass.z};
+        for(unsigned axis=0;axis<3;++axis) {
+            const float expected=static_cast<float>(a[4*axis]*original.restPosition[0]+a[4*axis+1]*original.restPosition[1]+a[4*axis+2]*original.restPosition[2]+a[4*axis+3]);
+            requireBuild(actual[axis]==expected,MRNX_RUNTIME_ASSET_FAILURE_V1,"costal mass package changes registered rest geometry");
+        }
+        requireBuild(cooked.restAndFixed.w==(original.flags?2.0f:0.0f),MRNX_RUNTIME_ASSET_FAILURE_V1,"costal attachment mask drifted");
+        const auto donor=binding.regions[original.regionIndex].donorBody;
+        const auto& b=bodies[donor];const auto& rotation=b.orientation;
+        const std::array<double,3> p{actual[0]-b.centerOfMassPosition[0],actual[1]-b.centerOfMassPosition[1],actual[2]-b.centerOfMassPosition[2]};
+        const std::array<double,3> t{2*(-rotation[1]*p[2]+rotation[2]*p[1]),2*(-rotation[2]*p[0]+rotation[0]*p[2]),2*(-rotation[0]*p[1]+rotation[1]*p[0])};
+        nodes.push_back({i,donor,cooked.positionAndMass.w,
+                        {p[0]+rotation[3]*t[0]-rotation[1]*t[2]+rotation[2]*t[1],
+                         p[1]+rotation[3]*t[1]-rotation[2]*t[0]+rotation[0]*t[2],
+                         p[2]+rotation[3]*t[2]-rotation[0]*t[1]+rotation[1]*t[0]}});
+    }
+    for(unsigned i=0;i<cartilage.tetrahedra.size();++i) {
+        const auto& t=world.fem.tetrahedra[i].nodes;
+        requireBuild(cartilage.tetrahedra[i].node==std::array<std::uint32_t,4>{t.x,t.y,t.z,t.w},
+                     MRNX_RUNTIME_ASSET_FAILURE_V1,"costal mass package topology drifted");
+    }
+    std::vector<bool> attached(nodes.size());std::size_t expectedAttachments=0;
+    for(const auto& n:cartilage.nodes) expectedAttachments+=n.flags!=0;
+    requireBuild(world.fem.humanAttachments.size()==expectedAttachments,MRNX_RUNTIME_ASSET_FAILURE_V1,"costal attachment coverage drifted");
+    for(const auto& attachment:world.fem.humanAttachments) {
+        const auto n=attachment.identity.x;
+        requireBuild(n<nodes.size()&&!attached[n]&&cartilage.nodes[n].flags!=0&&
+                     attachment.identity.y==binding.regions[cartilage.nodes[n].regionIndex].donorBody,
+                     MRNX_RUNTIME_ASSET_FAILURE_V1,"costal source attachment ownership drifted");
+        attached[n]=true;
+    }
+    const auto mass=metalrobo::compileNumiHumanTissueMassPartition(assets.model.bodies,nodes);
+    requireBuild(mass.succeeded(),MRNX_RUNTIME_ASSET_FAILURE_V1,"costal mass partition failed: "+mass.error);
+    metalrobo::EngineModel rebased;
+    requireBuild(metalrobo::rebaseNumiHumanTissueMassPartition(assets.model,mass.partitions,rebased,error),
+                 MRNX_RUNTIME_ASSET_FAILURE_V1,"costal COM rebase failed: "+error);
+    std::vector<std::array<double,3>> offsets(bodies.size());
+    for(const auto& p:mass.partitions) offsets[p.donorBody]=p.remainingCOMOffsetM;
+    for(auto& site:assets.sites) shiftTissuePoint(site.localPoint,site.bodyIndex,offsets);
+    for(auto& wrap:assets.wraps) shiftTissuePoint(wrap.localCenter,wrap.bodyIndex,offsets);
+    // The final four-per-body points are basis probes at the NEW COM. Every
+    // preceding query represents a physical source point and must be rebased.
+    for(unsigned i=0;i<assets.bodyJacobianPointOffset;++i)
+        shiftTissuePoint(assets.points[i].localPoint,assets.points[i].bodyIndex,offsets);
+    for(auto& point:assets.matterSupportPointQueries) shiftTissuePoint(point.localPoint,point.bodyIndex,offsets);
+    for(auto& contact:assets.matterSupportContacts) shiftTissuePoint(contact.localPoint,contact.identity.x,offsets);
+    assets.model=std::move(rebased);
+    return offsets;
+}
+
 // This is asset admission at construction, never a second stepping path.
 [[nodiscard]] numi::matter::CompiledWorld loadAuthoredWorld(
     const mrnx_runtime_config_v3& config,
@@ -1749,7 +1847,8 @@ void cultureCompletion(
 [[nodiscard]] std::shared_ptr<RuntimeState> createRuntimeState(
     const mrnx_runtime_config_v1& config,
     const mrnx_runtime_config_v3* authored = nullptr,
-    const mrnx_runtime_config_v4* equalityConfig = nullptr
+    const mrnx_runtime_config_v4* equalityConfig = nullptr,
+    const mrnx_runtime_config_v5* tissueConfig = nullptr
 ) {
     requireBuild(
         config.abi_version == MRNX_BRIDGE_ABI_V1 &&
@@ -1797,6 +1896,9 @@ void cultureCompletion(
     runtime->assets = loadFullBodyAssets(
         config.rigid_payload_path, config.muscle_payload_path,
         config.support_contact_payload_path);
+    const auto tissueOffsets=tissueConfig!=nullptr
+        ? prepareCostalMassOwnership(runtime->assets,*tissueConfig)
+        : std::vector<std::array<double,3>>{};
     // Bind the reference Matter patch to the articulated root/pelvis COM.
     // The prior use of the final imported body was topology-order dependent
     // and coupled the FEM to an arbitrary high-motion distal link.
@@ -1826,6 +1928,12 @@ void cultureCompletion(
         defaultBodies[attachmentBody].orientation,
         config.timestep_microseconds);
     if (equalityConfig != nullptr) loadJointEqualities(runtime->assets, *equalityConfig);
+    if(tissueConfig!=nullptr) {
+        constexpr char marker[]="NHTMASS1";
+        appendFingerprintBytes(runtime->assets.sourceFingerprint,marker,sizeof(marker)-1);
+        appendFingerprintU64(runtime->assets.sourceFingerprint,tissueConfig->expected_costal_binding_fingerprint);
+        appendFingerprintU64(runtime->assets.sourceFingerprint,world.fingerprint);
+    }
     runtime->worldInfo = {
         MRNX_BRIDGE_ABI_V1, sizeof(mrnx_runtime_world_info_v1),
         authored != nullptr ? 1u : 0u,
@@ -1844,6 +1952,14 @@ void cultureCompletion(
         config.vision_profile_path,
         runtime->assets.rigid.engineBodyCount,
         config.timestep_microseconds);
+    if(tissueConfig!=nullptr) {
+        shiftTissuePoint(runtime->visionProfile.localPosition,runtime->visionProfile.parentBodyIndex,tissueOffsets);
+        for(unsigned i=0;i<runtime->visionProfile.bodyBounds.size();++i) {
+            shiftTissuePoint(runtime->visionProfile.bodyBounds[i].minimum,i,tissueOffsets);
+            shiftTissuePoint(runtime->visionProfile.bodyBounds[i].maximum,i,tissueOffsets);
+        }
+        appendFingerprintU64(runtime->visionProfile.sourceFingerprint,tissueConfig->expected_costal_binding_fingerprint);
+    }
     requireBuild(
         runtime->visionProfile.bodyBounds.size() ==
             runtime->assets.rigid.engineBodyCount,
@@ -1954,7 +2070,8 @@ void cultureCompletion(
 [[nodiscard]] std::shared_ptr<RuntimeState> createRuntimeStateV2(
     const mrnx_runtime_config_v2& config,
     const mrnx_runtime_config_v3* authored = nullptr,
-    const mrnx_runtime_config_v4* equalityConfig = nullptr
+    const mrnx_runtime_config_v4* equalityConfig = nullptr,
+    const mrnx_runtime_config_v5* tissueConfig = nullptr
 ) {
     requireBuild(
         config.abi_version == MRNX_RUNTIME_CONFIG_ABI_V2 &&
@@ -1977,7 +2094,7 @@ void cultureCompletion(
     base.maximum_retained_bytes = config.maximum_retained_bytes;
     base.transaction_slot_count = config.transaction_slot_count;
     base.reserved0 = config.reserved0;
-    auto runtime = createRuntimeState(base, authored, equalityConfig);
+    auto runtime = createRuntimeState(base, authored, equalityConfig, tissueConfig);
     const bool cultureEnabled = config.culture_pack_path != nullptr &&
         config.culture_pack_path[0] != '\0';
     const bool checkpointSupplied = config.culture_checkpoint_path != nullptr &&
@@ -2573,6 +2690,62 @@ mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v4(
             if (std::getenv("MRNX_RUNTIME_DIAGNOSTICS") != nullptr) {
                 std::fprintf(
                     stderr, "mrnx runtime v4 create failed: %s\n",
+                    failure.what());
+            }
+            fillRuntimeInfoFailure(info, failure.status);
+            return nullptr;
+        } catch (...) {
+            fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+            return nullptr;
+        }
+    }
+}
+
+mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v5(
+    const mrnx_runtime_config_v5* config,
+    mrnx_runtime_info_v1* info
+) {
+    @autoreleasepool {
+        if (config == nullptr) {
+            fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+            return nullptr;
+        }
+        try {
+            requireBuild(
+                config->abi_version == MRNX_RUNTIME_CONFIG_ABI_V5 &&
+                    config->struct_size == sizeof(*config) &&
+                    config->costal_cartilage_payload_path != nullptr &&
+                    config->costal_cartilage_payload_path[0] != '\0' &&
+                    config->costal_binding_payload_path != nullptr &&
+                    config->costal_binding_payload_path[0] != '\0' &&
+                    config->expected_costal_binding_fingerprint != 0u &&
+                    config->runtime.abi_version == MRNX_RUNTIME_CONFIG_ABI_V4 &&
+                    config->runtime.struct_size == sizeof(config->runtime) &&
+                    config->runtime.runtime.abi_version == MRNX_RUNTIME_CONFIG_ABI_V3 &&
+                    config->runtime.runtime.struct_size == sizeof(config->runtime.runtime) &&
+                    config->runtime.joint_equality_payload_path != nullptr &&
+                    config->runtime.joint_equality_payload_path[0] != '\0' &&
+                    config->runtime.expected_joint_equality_fingerprint != 0u &&
+                    config->runtime.runtime.matter_world_package_path != nullptr &&
+                    config->runtime.runtime.matter_world_package_path[0] != '\0' &&
+                    config->runtime.runtime.expected_model_source_fingerprint != 0u &&
+                    config->runtime.runtime.expected_matter_world_fingerprint != 0u &&
+                    config->runtime.runtime.runtime.matter_material_path == nullptr,
+                MRNX_RUNTIME_INVALID_CONFIGURATION_V1,
+                "invalid authored-world configuration v5");
+            auto state = createRuntimeStateV2(config->runtime.runtime.runtime, &config->runtime.runtime, &config->runtime, config);
+            auto* runtime = new (std::nothrow) mrnx_runtime_v1;
+            if (runtime == nullptr) {
+                fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+                return nullptr;
+            }
+            runtime->state = std::move(state);
+            if (info != nullptr) *info = runtime->state->info;
+            return runtime;
+        } catch (const RuntimeBuildFailure& failure) {
+            if (std::getenv("MRNX_RUNTIME_DIAGNOSTICS") != nullptr) {
+                std::fprintf(
+                    stderr, "mrnx runtime v5 create failed: %s\n",
                     failure.what());
             }
             fillRuntimeInfoFailure(info, failure.status);
