@@ -1760,6 +1760,7 @@ target_compile_definitions(
     metalrobo_numilab_human_open_knee_ligament_probe
     PRIVATE
         NUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/open_knee_ligament_transverse_isotropic_smooth.nmatter"
+        NUMI_HUMAN_OPEN_KNEE_SOURCE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/open_knee_ligament_febio_exp_linear.nmatter"
         NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
 )
 target_compile_options(

@@ -303,6 +303,25 @@ public:
                 resultDimension
             );
             break;
+        case ExprKind::fiberExpLinear: {
+            bool shapeConstant=true;
+            for(unsigned i=1;i<5;++i) {
+                double derivative=0.0;
+                if(!constantValue(graph_,d(source.arguments[i]),derivative) || derivative!=0.0)
+                    shapeConstant=false;
+            }
+            if(!shapeConstant || source.integer>=2) {
+                diagnostics.push_back({Diagnostic::Severity::error,0u,0u,
+                    "fiber_exp_linear supports two stretch derivatives with constant material shape inputs"});
+                result=zero(resultDimension);
+                break;
+            }
+            Expr next=source;
+            ++next.integer;
+            const auto factor=graph_.append(next);
+            result=binary(ExprKind::multiply,factor,d(source.arguments[0]),resultDimension);
+            break;
+        }
         case ExprKind::expm1MinusArgument: {
             const std::uint32_t exponential = unary(
                 ExprKind::exponential,
@@ -521,6 +540,25 @@ public:
                 source.dimension
             );
             break;
+        case ExprKind::fiberExpLinear: {
+            bool shapeConstant=true;
+            for(unsigned i=1;i<5;++i) {
+                double derivative=0.0;
+                if(!constantValue(graph_,d(source.arguments[i]),derivative) || derivative!=0.0)
+                    shapeConstant=false;
+            }
+            if(!shapeConstant || source.integer>=2) {
+                diagnostics.push_back({Diagnostic::Severity::error,0u,0u,
+                    "fiber_exp_linear supports two stretch derivatives with constant material shape inputs"});
+                result=zero(source.dimension);
+                break;
+            }
+            Expr next=source;
+            ++next.integer;
+            const auto factor=graph_.append(next);
+            result=binary(ExprKind::multiply,factor,d(source.arguments[0]),source.dimension);
+            break;
+        }
         case ExprKind::expm1MinusArgument: {
             const std::uint32_t exponential = unary(
                 ExprKind::exponential,
@@ -742,6 +780,13 @@ private:
                 expression.kind == ExprKind::squareRoot ? NM_EXPR_SQRT :
                 expression.kind == ExprKind::absolute ? NM_EXPR_ABS : NM_EXPR_POW_INTEGER;
             output.push_back(instruction);
+            break;
+        case ExprKind::fiberExpLinear:
+            for(unsigned i=0;i<5;++i) child(i);
+            instruction.opcode=NM_EXPR_FIBER_EXP_LINEAR;
+            instruction.integer=expression.integer;
+            output.push_back(instruction);
+            if(stack_>=5u) stack_-=4u;
             break;
         case ExprKind::clamp:
             child(0u);

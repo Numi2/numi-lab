@@ -1,5 +1,6 @@
 #include "metalrobo/NumiHumanCartilage.hpp"
 #include "numi/matter/matter.hpp"
+#include "numi/matter/detail.hpp"
 #include "numi/matter/numi_human.hpp"
 
 #import <Metal/Metal.h>
@@ -11,11 +12,13 @@
 #include <cstdint>
 #include <cstring>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace {
@@ -24,6 +27,141 @@ using Vec3 = std::array<double, 3u>;
 
 void require(const bool condition, const char* message) {
     if (!condition) throw std::runtime_error(message);
+}
+
+using Mat3 = std::array<double, 9u>;
+
+// Evaluate the actual compiled symbolic stress/tangent in FP64. The oracle
+// below compares its response with the intended isotropic small-strain law;
+// it does not copy the material's nonlinear energy expression.
+double evaluateMaterialProgramFP64(
+    const numi::matter::ScalarBytecode& program,
+    const numi::matter::MaterialProgram& material,
+    const Mat3& deformation,
+    const Mat3& direction
+) {
+    std::vector<double> stack;
+    stack.reserve(NM_EXPRESSION_STACK_CAPACITY);
+    const auto pop = [&]() {
+        require(!stack.empty(), "material FP64 bytecode stack underflow");
+        const double value = stack.back();
+        stack.pop_back();
+        return value;
+    };
+    for (const auto& instruction : program.instructions) {
+        double value = 0.0;
+        switch (instruction.opcode) {
+            case NM_EXPR_CONSTANT: value = instruction.immediate.x; break;
+            case NM_EXPR_PARAMETER:
+                require(instruction.index < material.parameters.size(),
+                        "material FP64 parameter index is invalid");
+                value = material.parameters[instruction.index].defaultValue;
+                break;
+            case NM_EXPR_F:
+                require(instruction.index < deformation.size(),
+                        "material FP64 deformation index is invalid");
+                value = deformation[instruction.index];
+                break;
+            case NM_EXPR_DF:
+                require(instruction.index < direction.size(),
+                        "material FP64 direction index is invalid");
+                value = direction[instruction.index];
+                break;
+            case NM_EXPR_ADD: { const double rhs = pop(); value = pop() + rhs; break; }
+            case NM_EXPR_SUBTRACT: { const double rhs = pop(); value = pop() - rhs; break; }
+            case NM_EXPR_MULTIPLY: { const double rhs = pop(); value = pop() * rhs; break; }
+            case NM_EXPR_DIVIDE: { const double rhs = pop(); value = pop() / rhs; break; }
+            case NM_EXPR_NEGATE: value = -pop(); break;
+            case NM_EXPR_LOG: value = std::log(pop()); break;
+            case NM_EXPR_POW_INTEGER: value = std::pow(pop(), instruction.integer); break;
+            default:
+                throw std::runtime_error("unsupported opcode in costal material FP64 check");
+        }
+        require(std::isfinite(value) && stack.size() < NM_EXPRESSION_STACK_CAPACITY,
+                "material FP64 bytecode result or stack is invalid");
+        stack.push_back(value);
+    }
+    require(stack.size() == 1u, "material FP64 bytecode stack is incomplete");
+    return stack.front();
+}
+
+void checkMaterialSmallStrain(const numi::matter::MaterialProgram& material) {
+    require(material.name == "human_costal_cartilage_pseudoelastic_v2",
+            "costal material must declare the corrected v2 law");
+    const auto compiled = numi::matter::detail::compileConstitutive(
+        material, NM_EXPRESSION_STACK_CAPACITY);
+    require(compiled.succeeded(), "costal material symbolic tangent did not compile");
+    constexpr double targetYoung = 22.0e6;
+    constexpr double targetPoisson = 0.45;
+    constexpr double targetMu = targetYoung / (2.0 * (1.0 + targetPoisson));
+    constexpr double targetLambda = targetYoung * targetPoisson /
+        ((1.0 + targetPoisson) * (1.0 - 2.0 * targetPoisson));
+    constexpr double targetBulk = targetYoung / (3.0 * (1.0 - 2.0 * targetPoisson));
+    constexpr Mat3 identity{1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
+    const auto close = [](const double actual, const double expected,
+                          const char* message) {
+        require(std::isfinite(actual) && std::abs(actual - expected) <=
+                    1.0e-9 * std::max(1.0, std::abs(expected)), message);
+    };
+    std::array<std::array<double, 9u>, 9u> tangent{};
+    double maximumRelativeFiniteDifferenceError = 0.0;
+    for (std::uint32_t column = 0u; column < 9u; ++column) {
+        Mat3 direction{};
+        direction[column] = 1.0;
+        constexpr double epsilon = 1.0e-6;
+        Mat3 plus = identity;
+        Mat3 minus = identity;
+        plus[column] += epsilon;
+        minus[column] -= epsilon;
+        for (std::uint32_t row = 0u; row < 9u; ++row) {
+            const double value = evaluateMaterialProgramFP64(
+                compiled.program.tangentVector[row], material, identity, direction);
+            tangent[row][column] = value;
+            const auto i = row / 3u;
+            const auto j = row % 3u;
+            const auto k = column / 3u;
+            const auto l = column % 3u;
+            const double expected = targetLambda * double(i == j && k == l) +
+                targetMu * double(i == k && j == l) +
+                targetMu * double(i == l && j == k);
+            close(value, expected, "costal tangent differs from E=22 MPa, nu=0.45");
+            const double difference = (
+                evaluateMaterialProgramFP64(compiled.program.stress[row], material, plus, {}) -
+                evaluateMaterialProgramFP64(compiled.program.stress[row], material, minus, {})
+            ) / (2.0 * epsilon);
+            const double relativeError = std::abs(difference - value) /
+                std::max(targetYoung, std::abs(value));
+            require(relativeError <= 1.0e-8,
+                    "costal tangent differs from FP64 stress finite differences");
+            maximumRelativeFiniteDifferenceError = std::max(
+                maximumRelativeFiniteDifferenceError, relativeError);
+        }
+    }
+    for (const auto& stress : compiled.program.stress) {
+        close(evaluateMaterialProgramFP64(stress, material, identity, {}), 0.0,
+              "costal identity state has manufactured prestress");
+    }
+    const double mu = tangent[1u][1u];
+    const double lambda = tangent[0u][4u];
+    double bulk = 0.0;
+    for (const std::size_t row : {0u, 4u, 8u})
+        for (const std::size_t column : {0u, 4u, 8u})
+            bulk += tangent[row][column] / 9.0;
+    const double young = mu * (3.0 * lambda + 2.0 * mu) / (lambda + mu);
+    const double poisson = lambda / (2.0 * (lambda + mu));
+    close(mu, targetMu, "costal shear modulus differs from receipt");
+    close(lambda, targetLambda, "costal Lame lambda differs from receipt");
+    close(bulk, targetBulk, "costal physical bulk modulus differs from receipt");
+    close(young, targetYoung, "costal Young modulus differs from receipt");
+    close(poisson, targetPoisson, "costal Poisson ratio differs from receipt");
+    std::cout << std::setprecision(12)
+              << "numi_human_costal_cartilage_material=v2"
+              << " mu_pa=" << mu << " lambda_pa=" << lambda
+              << " physical_bulk_pa=" << bulk << " young_pa=" << young
+              << " poisson_ratio=" << poisson
+              << " maximum_relative_stress_fd_error=" << maximumRelativeFiniteDifferenceError
+              << " fp64_tangent=verified identity_stress=zero"
+              << " calibration=population_mean_starting_law_only\n";
 }
 
 std::vector<std::byte> readBytes(const char* path) {
@@ -77,7 +215,12 @@ constexpr std::array<std::uint8_t, 32u> expectedArchiveSha256{
 int main(const int argc, const char* argv[]) {
     @autoreleasepool {
         try {
-            require(argc == 2, "usage: probe COSTAL_CARTILAGE_PAYLOAD");
+            require(argc == 2, "usage: probe COSTAL_CARTILAGE_PAYLOAD | --material-only");
+            auto material = numi::matter::parseMatterFile(
+                NUMI_HUMAN_COSTAL_CARTILAGE_MATERIAL);
+            require(material.succeeded(), "costal-cartilage material did not parse");
+            checkMaterialSmallStrain(material.material);
+            if (std::string_view(argv[1]) == "--material-only") return 0;
             const std::vector<std::byte> bytes = readBytes(argv[1]);
             metalrobo::NumiHumanCostalCartilagePayload payload;
             const auto decoded = metalrobo::decodeNumiHumanCostalCartilagePayload(
@@ -100,9 +243,6 @@ int main(const int argc, const char* argv[]) {
             source.mixedSolver.fgmresRestart = 8u;
             source.mixedSolver.fgmresIterations = 12u;
             source.mixedSolver.lineSearchSteps = 4u;
-            auto material = numi::matter::parseMatterFile(
-                NUMI_HUMAN_COSTAL_CARTILAGE_MATERIAL);
-            require(material.succeeded(), "costal-cartilage material did not parse");
             source.materials.push_back(std::move(material.material));
 
             numi::matter::ObjectSource object;

@@ -847,6 +847,41 @@ private:
                 binary(material, ExprKind::subtract, first, second, synthetic), third, synthetic);
         }
         const std::uint32_t first = expression(material);
+        if (token.text == "fiber_exp_linear") {
+            Expr result;
+            result.kind = ExprKind::fiberExpLinear;
+            result.dimension = kPressure;
+            result.arguments[0] = first;
+            for (unsigned i=1; i<5; ++i) {
+                expect(TokenKind::comma, "',' in fiber_exp_linear");
+                result.arguments[i] = expression(material);
+            }
+            expect(TokenKind::rightParen, "')' after fiber_exp_linear");
+            for (unsigned i=0; i<5; ++i) {
+                const auto argument=result.arguments[i];
+                const auto expected=(i==1 || i==3) ? kPressure : kDimensionless;
+                if (argument==NM_INVALID_INDEX || material.expressions.nodes[argument].dimension!=expected)
+                    error(token, "fiber_exp_linear requires (stretch, pressure, dimensionless, pressure, stretch)");
+            }
+            // Shape parameters are material inputs, not deformation/state
+            // expressions. Restricting this at admission prevents a partial
+            // chain rule when differentiating the potential.
+            const auto constantInput = [&](auto&& self, std::uint32_t n) -> bool {
+                if(n==NM_INVALID_INDEX || n>=material.expressions.nodes.size()) return false;
+                const auto& e=material.expressions.nodes[n];
+                if(e.kind==ExprKind::constant || e.kind==ExprKind::parameter) return true;
+                if(e.kind==ExprKind::deformation || e.kind==ExprKind::deformationDirection ||
+                   e.kind==ExprKind::deformationRate || e.kind==ExprKind::internalState ||
+                   e.kind==ExprKind::candidateState || e.kind==ExprKind::timeStep ||
+                   e.kind==ExprKind::temperature) return false;
+                for(auto child:e.arguments) if(child!=NM_INVALID_INDEX && !self(self,child)) return false;
+                return true;
+            };
+            for(unsigned i=1;i<5;++i)
+                if(!constantInput(constantInput,result.arguments[i]))
+                    error(token,"fiber_exp_linear shape parameters must depend only on constants and material parameters");
+            return material.expressions.append(result);
+        }
         if (token.text == "log" || token.text == "exp" ||
             token.text == "expm1_minus_x" || token.text == "sqrt" ||
             token.text == "abs") {
@@ -890,7 +925,7 @@ private:
             Expr result;
             result.kind = ExprKind::clamp;
             result.dimension = dimension;
-            result.arguments = {first, second, third};
+            result.arguments = {first, second, third, NM_INVALID_INDEX, NM_INVALID_INDEX};
             return material.expressions.append(result);
         }
         error(token, "unknown function '" + token.text + "'");

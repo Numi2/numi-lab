@@ -1305,14 +1305,38 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     [encoder setBuffer:bodyPoses offset:0u atIndex:6u];
                     [encoder setBuffer:state_->worldStatusBuffer
                                 offset:0u atIndex:7u];
-                    [encoder setBuffer:state_->articularContactSampleBuffer
-                                offset:0u atIndex:8u];
-                    [encoder setBuffer:state_->passiveLigamentBuffer
-                                offset:0u atIndex:9u];
-                    [encoder setBuffer:state_->femBodyContactSampleBuffer
-                                offset:0u atIndex:10u];
-                    [encoder setBuffer:state_->passiveRoutedBandBuffer
-                                offset:0u atIndex:11u];
+                    if (state_->articularContactSampleBuffer != nil) {
+                        [encoder setBuffer:state_->articularContactSampleBuffer offset:0u atIndex:8u];
+                    } else {
+                        // Metal requires a typed binding even when the dispatch
+                        // count is zero. This is never a physical sample.
+                        const NMNumiHumanArticularContactSampleGPU empty{};
+                        [encoder setBytes:&empty length:sizeof(empty) atIndex:8u];
+                    }
+                    if (state_->passiveLigamentBuffer != nil) {
+                        [encoder setBuffer:state_->passiveLigamentBuffer offset:0u atIndex:9u];
+                    } else {
+                        // Metal requires a typed binding even when the dispatch
+                        // count is zero. This is never a physical sample.
+                        const NMNumiHumanPassiveLigamentGPU empty{};
+                        [encoder setBytes:&empty length:sizeof(empty) atIndex:9u];
+                    }
+                    if (state_->femBodyContactSampleBuffer != nil) {
+                        [encoder setBuffer:state_->femBodyContactSampleBuffer offset:0u atIndex:10u];
+                    } else {
+                        // Metal requires a typed binding even when the dispatch
+                        // count is zero. This is never a physical sample.
+                        const NMNumiHumanFEMBodyContactSampleGPU empty{};
+                        [encoder setBytes:&empty length:sizeof(empty) atIndex:10u];
+                    }
+                    if (state_->passiveRoutedBandBuffer != nil) {
+                        [encoder setBuffer:state_->passiveRoutedBandBuffer offset:0u atIndex:11u];
+                    } else {
+                        // Metal requires a typed binding even when the dispatch
+                        // count is zero. This is never a physical sample.
+                        const NMNumiHumanPassiveRoutedBandGPU empty{};
+                        [encoder setBytes:&empty length:sizeof(empty) atIndex:11u];
+                    }
                 }
             ) || !encodeKernel(
                 state_->forcePipeline,
@@ -1528,14 +1552,30 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     [encoder setBuffer:bodyPoses offset:0u atIndex:7u];
                     [encoder setBuffer:pointJacobians offset:0u atIndex:8u];
                     [encoder setBuffer:generalizedForces offset:0u atIndex:9u];
-                    [encoder setBuffer:state_->articularBodyWrenchBuffer
-                                offset:0u atIndex:10u];
-                    [encoder setBuffer:state_->passiveLigamentBuffer
-                                offset:0u atIndex:11u];
-                    [encoder setBuffer:state_->femBodyContactWrenchBuffer
-                                offset:0u atIndex:12u];
-                    [encoder setBuffer:state_->passiveRoutedBandBuffer
-                                offset:0u atIndex:13u];
+                    if (state_->articularBodyWrenchBuffer != nil) {
+                        [encoder setBuffer:state_->articularBodyWrenchBuffer offset:0u atIndex:10u];
+                    } else {
+                        const NMNumiHumanBodyWrenchGPU empty{};
+                        [encoder setBytes:&empty length:sizeof(empty) atIndex:10u];
+                    }
+                    if (state_->passiveLigamentBuffer != nil) {
+                        [encoder setBuffer:state_->passiveLigamentBuffer offset:0u atIndex:11u];
+                    } else {
+                        const NMNumiHumanPassiveLigamentGPU empty{};
+                        [encoder setBytes:&empty length:sizeof(empty) atIndex:11u];
+                    }
+                    if (state_->femBodyContactWrenchBuffer != nil) {
+                        [encoder setBuffer:state_->femBodyContactWrenchBuffer offset:0u atIndex:12u];
+                    } else {
+                        const NMNumiHumanBodyWrenchGPU empty{};
+                        [encoder setBytes:&empty length:sizeof(empty) atIndex:12u];
+                    }
+                    if (state_->passiveRoutedBandBuffer != nil) {
+                        [encoder setBuffer:state_->passiveRoutedBandBuffer offset:0u atIndex:13u];
+                    } else {
+                        const NMNumiHumanPassiveRoutedBandGPU empty{};
+                        [encoder setBytes:&empty length:sizeof(empty) atIndex:13u];
+                    }
                 }
             )) {
             state_->message = "Human tendon/FEM anchor-reaction encoding failed";

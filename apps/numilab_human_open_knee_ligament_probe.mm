@@ -257,13 +257,15 @@ int main(const int argc, const char* argv[]) {
     @autoreleasepool {
         try {
             require(argc >= 2,
-                    "usage: probe OPEN_KNEE_NHKNEE1 [ACCEPTED_NHKFEM2] [--active-qat-newtons=FORCE] [--tissue=PCL|ACL|MCL|PTL|LCL] [--experimental-volumetric-prestress] [--prestress-stages=1..32] [--prestress-settle-steps=0..16] [--prestress-rate-exponent=0..8] [--no-prestress-replay]");
+                    "usage: probe OPEN_KNEE_NHKNEE1 [ACCEPTED_NHKFEM2] [--active-qat-newtons=FORCE] [--tissue=PCL|ACL|MCL|PTL|LCL] [--payload-only] [--source-fiber-law] [--experimental-volumetric-prestress] [--prestress-stages=1..32] [--prestress-settle-steps=0..16] [--prestress-rate-exponent=0..8] [--no-prestress-replay]");
             double activeQATTractionNewtons = 0.0;
             std::uint32_t prestressStages = 4u;
             std::uint32_t prestressSettleSteps = 2u;
             std::uint32_t prestressRateExponent = 5u;
             bool replayPrestress = true;
             bool experimentalVolumetricPrestress = false;
+            bool sourceFiberLaw = false;
+            bool payloadOnly = false;
             std::optional<std::string> selectedTissue;
             const char* acceptedSnapshotPath = nullptr;
             for (int argumentIndex = 2; argumentIndex < argc;
@@ -296,6 +298,10 @@ int main(const int argc, const char* argv[]) {
                             "Open Knee prestress settle steps must be within [0, 16]");
                 } else if (argument == "--no-prestress-replay") {
                     replayPrestress = false;
+                } else if (argument == "--payload-only") {
+                    payloadOnly = true;
+                } else if (argument == "--source-fiber-law") {
+                    sourceFiberLaw = true;
                 } else if (argument == "--experimental-volumetric-prestress") {
                     experimentalVolumetricPrestress = true;
                 } else if (argument.starts_with(tissuePrefix)) {
@@ -335,8 +341,23 @@ int main(const int argc, const char* argv[]) {
                     metalrobo::numiHumanKneeStatusName(decoded.status));
             }
 
+            if (payloadOnly) {
+                std::uint32_t cartilageMaterials = 0;
+                for (const auto& region : payload.regions)
+                    cartilageMaterials += region.material.hasIsotropicMooneyRivlin ? 1u : 0u;
+                require(payload.payloadAbi == 2u || cartilageMaterials == 4u,
+                        "source cartilage material coverage is incomplete");
+                std::cout << "open_knee_payload=passed abi=" << payload.payloadAbi
+                          << " cartilage_source_materials=" << cartilageMaterials
+                          << " nodes=" << payload.nodes.size()
+                          << " tetrahedra=" << payload.tetrahedra.size()
+                          << " physical_calibration=unqualified\n";
+                return 0;
+            }
+
             auto parsed = numi::matter::parseMatterFile(
-                NUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL);
+                sourceFiberLaw ? NUMI_HUMAN_OPEN_KNEE_SOURCE_MATERIAL
+                               : NUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL);
             require(parsed.succeeded(), "Open Knee ligament material did not parse");
 
             numi::matter::WorldSource source;
@@ -412,7 +433,8 @@ int main(const int argc, const char* argv[]) {
                 const auto& region = payload.regions[ligament.payloadRegion];
                 numi::matter::MaterialProgram material = parsed.material;
                 material.name = "open_knee_" + region.name +
-                    "_transverse_isotropic_smooth_preflight";
+                    (sourceFiberLaw ? "_febio_exp_linear_v1_preflight"
+                                    : "_transverse_isotropic_smooth_preflight");
                 material.fingerprint = 0u;
                 setParameter(material, "density", 1000.0);
                 setParameter(material, "c1", 1.0e6 * region.material.c1MPa);
@@ -430,7 +452,14 @@ int main(const int argc, const char* argv[]) {
                              region.material.homogeneousFiberWorld[1u]);
                 setParameter(material, "fiber_z",
                              region.material.homogeneousFiberWorld[2u]);
-                setParameter(material, "tension_smoothing", 1.0e-4);
+                if (sourceFiberLaw) {
+                    require(region.material.c2MPa == 0.0f,
+                            "source fibre material currently requires source c2=0");
+                    setParameter(material, "c5", 1.0e6 * region.material.c5MPa);
+                    setParameter(material, "lambda_max", region.material.lambdaMaximum);
+                } else {
+                    setParameter(material, "tension_smoothing", 1.0e-4);
+                }
                 setParameter(material, "numerical_viscosity",
                              experimentalVolumetricPrestress ? 250.0 : 25.0);
                 const std::uint32_t materialIndex =
@@ -1293,6 +1322,7 @@ int main(const int argc, const char* argv[]) {
                 << " accepted_step_wall_ms=" << stepMilliseconds
                 << " peak_rss_bytes=" << peakResidentBytes()
                 << " replay=bitwise rollback=verified"
+                << " source_fiber_law=" << (sourceFiberLaw ? "true" : "false")
                 << " volumetric_prestress_mode="
                 << (experimentalVolumetricPrestress
                         ? "experimental" : "neutral_default")
@@ -1339,7 +1369,9 @@ int main(const int argc, const char* argv[]) {
                 << " accepted_snapshot="
                 << (acceptedSnapshotPath != nullptr && !activeQuadricepsTendon
                     ? acceptedSnapshotPath : "none")
-                << (experimentalVolumetricPrestress
+                << (sourceFiberLaw
+                    ? " material_boundary=FEBio_source_piecewise_fibre_stress_and_tangent_with_bounded_quadrature_energy_not_iteratively_equilibrated_prestrain_or_calibration"
+                    : experimentalVolumetricPrestress
                     ? " material_boundary=experimental_source_homogeneous_fibre_axis_with_smooth_exponential_apple_gpu_approximation_and_source_linear_in_situ_stretch_continuation_not_exact_FEBio_exp_linear_Ei_or_iterative_prestrain_gradient_update_law"
                     : " material_boundary=neutral_source_homogeneous_fibre_axis_with_smooth_exponential_apple_gpu_approximation_no_volumetric_prestress_claim")
                 << " mechanics_boundary="

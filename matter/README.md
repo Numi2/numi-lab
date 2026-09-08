@@ -408,3 +408,23 @@ articulated rigid-reaction handoff through a full `MetalWorld` step. It also
 qualifies the inverse-identification kernel and its explicit loss-buffer
 contract—not a material-calibration result. It does not qualify longer-running
 material calibration or physical material identification.
+
+### Source exponential-linear tissue fibre
+
+`fiber_exp_linear(stretch,c3,c4,c5,lambda_max)` is a typed five-input energy
+primitive. It preserves the FEBio tension threshold and exponential/linear
+stress branches, with q=stretch*dW/dstretch. Its first and second stretch
+derivatives are analytic and use the right branch at both seams. The energy
+uses 16-point Gauss-Legendre quadrature within lambda_max in (1,1.25] and
+c4*(lambda_max-1)<=16; invalid domains fail. Shape arguments may depend on
+constants/material parameters only. No deformation/state-dependent shape
+chain rule is implied. The opcode appends to existing bytecode values without
+changing serialized instruction size.
+
+`open_knee_ligament_febio_exp_linear.nmatter` composes the frozen source
+isochoric prestrain with matrix and fibre deformation for the admitted c2=0
+Open Knee tissues. It is selected explicitly by the knee probe
+`--source-fiber-law`; it does not promote the existing live reduced owner or
+qualify prestress equilibrium. `numi-matter-fiber-check` checks FP64 source
+energy/stress/tangent and the actual Metal scalar interpreter; `--cpu-only`
+never creates a Metal device.

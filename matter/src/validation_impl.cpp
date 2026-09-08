@@ -532,6 +532,12 @@ private:
                 }
                 ++stackDepth;
                 break;
+            case NM_EXPR_FIBER_EXP_LINEAR:
+                if (!requireStack(5u) || instruction.integer<0 || instruction.integer>2)
+                    return failIndexed("expression instruction",instructionIndex,
+                        "fiber_exp_linear operand count or derivative order is invalid");
+                stackDepth-=4u;
+                break;
             case NM_EXPR_NEGATE:
             case NM_EXPR_LOG:
             case NM_EXPR_EXP:

@@ -43,6 +43,7 @@ struct NumiHumanKneeTransverseIsotropicMaterial {
     std::array<float, 3u> homogeneousFiberWorld{};
     bool hasHomogeneousFiber = false;
     bool hasIsochoricInSituStretch = false;
+    bool hasIsotropicMooneyRivlin = false;
 };
 
 struct NumiHumanKneeRegion {

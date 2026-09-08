@@ -1,6 +1,7 @@
 #include <metal_stdlib>
 
 #include "numi/matter/shared.h"
+#include "numi/matter/fiber_exp_linear.h"
 #include "metalrobo/engine_types.h"
 #include "metalrobo/rod_gpu_shared.h"
 
@@ -396,6 +397,12 @@ inline float evaluateScalarProgramWithCandidate(
         case NM_EXPR_EXPM1_MINUS_X: {
             const float value = pop();
             push(exp(value) - 1.0f - value);
+            break;
+        }
+        case NM_EXPR_FIBER_EXP_LINEAR: {
+            const float limit=pop(), c5=pop(), c4=pop(), c3=pop(), stretch=pop();
+            push(numi_matter_fiber::evaluate<float>(stretch,c3,c4,c5,limit,
+                uint(instruction.integer),valid));
             break;
         }
         case NM_EXPR_SQRT: {

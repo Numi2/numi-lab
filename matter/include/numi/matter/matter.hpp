@@ -107,6 +107,7 @@ enum class ExprKind : std::uint8_t {
     integerPower,
     clamp,
     expm1MinusArgument,
+    fiberExpLinear,
 };
 
 struct Expr {
@@ -115,7 +116,9 @@ struct Expr {
     double constant = 0.0;
     std::uint32_t index = 0u;
     int integer = 0;
-    std::array<std::uint32_t, 3> arguments{
+    std::array<std::uint32_t, 5> arguments{
+        NM_INVALID_INDEX,
+        NM_INVALID_INDEX,
         NM_INVALID_INDEX,
         NM_INVALID_INDEX,
         NM_INVALID_INDEX,

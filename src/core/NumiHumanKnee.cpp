@@ -207,7 +207,7 @@ NumiHumanKneeDiagnostics decodeNumiHumanKneePayload(
     HeaderDisk header{};
     if (!take(bytes, offset, header)) return fail(NumiHumanKneeStatus::truncatedPayload);
     constexpr std::array<char, 8u> magic{{'N','H','K','N','E','E','1','\0'}};
-    if (header.magic != magic || header.payloadAbi != 2u ||
+    if (header.magic != magic || (header.payloadAbi != 2u && header.payloadAbi != 3u) ||
         header.headerBytes != sizeof(HeaderDisk) || header.regionCount != 16u ||
         header.nodeCount != 248236u || header.tetrahedronCount != 844287u ||
         header.surfaceCount != 88u || header.faceCount != 729068u ||
@@ -247,6 +247,8 @@ NumiHumanKneeDiagnostics decodeNumiHumanKneePayload(
                 NumiHumanKneeRegionKind::ligament) ||
             disk.kind == static_cast<std::uint32_t>(
                 NumiHumanKneeRegionKind::tendon);
+        const bool expectsCartilage = header.payloadAbi >= 3u &&
+            disk.kind == static_cast<std::uint32_t>(NumiHumanKneeRegionKind::cartilage);
         const bool materialFinite =
             std::isfinite(disk.c1MPa) && std::isfinite(disk.c2MPa) &&
             std::isfinite(disk.c3MPa) && std::isfinite(disk.c4) &&
@@ -258,7 +260,7 @@ NumiHumanKneeDiagnostics decodeNumiHumanKneePayload(
             disk.homogeneousFiberWorld[0u] * disk.homogeneousFiberWorld[0u] +
             disk.homogeneousFiberWorld[1u] * disk.homogeneousFiberWorld[1u] +
             disk.homogeneousFiberWorld[2u] * disk.homogeneousFiberWorld[2u];
-        if (!materialFinite || (disk.materialFlags & ~3u) != 0u ||
+        if (!materialFinite || (disk.materialFlags & ~7u) != 0u ||
             (expectsFiber &&
              (disk.materialFlags != 3u || disk.c1MPa <= 0.0f ||
               disk.c2MPa < 0.0f || disk.c3MPa <= 0.0f ||
@@ -266,7 +268,12 @@ NumiHumanKneeDiagnostics decodeNumiHumanKneePayload(
               disk.lambdaMaximum <= 1.0f || disk.bulkModulusMPa <= 0.0f ||
               disk.initialStretch < 1.0f ||
               std::abs(fiberNormSquared - 1.0f) > 2.0e-5f)) ||
-            (!expectsFiber && disk.materialFlags != 0u))
+            (expectsCartilage &&
+             (disk.materialFlags != 4u || disk.c1MPa != 2.54f || disk.c2MPa != 0.0f ||
+              disk.bulkModulusMPa != 100.0f || disk.c3MPa != 0.0f ||
+              disk.c4 != 0.0f || disk.c5MPa != 0.0f || disk.lambdaMaximum != 0.0f ||
+              disk.initialStretch != 0.0f || fiberNormSquared != 0.0f)) ||
+            (!expectsFiber && !expectsCartilage && disk.materialFlags != 0u))
             return fail(NumiHumanKneeStatus::sourceMismatch, index);
         payload.regions.push_back({
             .name = std::move(name),
@@ -286,6 +293,7 @@ NumiHumanKneeDiagnostics decodeNumiHumanKneePayload(
                 .homogeneousFiberWorld = disk.homogeneousFiberWorld,
                 .hasHomogeneousFiber = (disk.materialFlags & 1u) != 0u,
                 .hasIsochoricInSituStretch = (disk.materialFlags & 2u) != 0u,
+                .hasIsotropicMooneyRivlin = (disk.materialFlags & 4u) != 0u,
             },
         });
         nextNode += disk.nodeCount;

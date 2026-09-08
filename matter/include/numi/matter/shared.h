@@ -113,6 +113,7 @@ enum NMExpressionOpcode : nm_u32 {
     NM_EXPR_RATE = 20u,
     NM_EXPR_NEXT_STATE = 21u,
     NM_EXPR_EXPM1_MINUS_X = 22u,
+    NM_EXPR_FIBER_EXP_LINEAR = 23u,
 };
 
 enum NMStatusCode : nm_u32 {

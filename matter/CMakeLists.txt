@@ -120,6 +120,7 @@ if(APPLE)
             src/metal/accepted_state_proof.metalinc
             include/numi/matter/accepted_state_proof_gpu.h
             include/numi/matter/shared.h
+            include/numi/matter/fiber_exp_linear.h
             include/numi/matter/human_equality_gpu.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
@@ -181,3 +182,34 @@ install(
 )
 install(DIRECTORY include/ DESTINATION include)
 install(DIRECTORY materials/ DESTINATION share/numi-matter/materials)
+
+# Source-fibre law: FP64 independent oracle and actual Metal bytecode parity.
+if(APPLE)
+    set(NUMI_FIBER_CHECK_AIR "${CMAKE_CURRENT_BINARY_DIR}/shaders/fiber_exp_linear_check.air")
+    set(NUMI_FIBER_CHECK_METALLIB "${CMAKE_CURRENT_BINARY_DIR}/shaders/fiber_exp_linear_check.metallib")
+    add_custom_command(OUTPUT "${NUMI_FIBER_CHECK_METALLIB}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/shaders"
+        COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include" -I "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/tools/fiber_exp_linear_check.metal" -o "${NUMI_FIBER_CHECK_AIR}"
+        COMMAND xcrun -sdk macosx metallib "${NUMI_FIBER_CHECK_AIR}" -o "${NUMI_FIBER_CHECK_METALLIB}"
+        DEPENDS tools/fiber_exp_linear_check.metal src/metal/common.metalinc
+            include/numi/matter/shared.h include/numi/matter/fiber_exp_linear.h
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
+        VERBATIM)
+    add_custom_target(numi_fiber_check_shaders DEPENDS "${NUMI_FIBER_CHECK_METALLIB}")
+    add_executable(numi-matter-fiber-check tools/fiber_exp_linear_check.mm)
+    add_dependencies(numi-matter-fiber-check numi_fiber_check_shaders)
+    target_link_libraries(numi-matter-fiber-check PRIVATE numi_matter_compiler "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_definitions(numi-matter-fiber-check PRIVATE
+        NUMI_FIBER_CHECK_METALLIB="${NUMI_FIBER_CHECK_METALLIB}"
+        NUMI_FIBER_SOURCE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/open_knee_ligament_febio_exp_linear.nmatter")
+    target_compile_options(numi-matter-fiber-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.compiler.source_fiber COMMAND numi-matter-fiber-check --cpu-only)
+        add_test(NAME matter.metal.source_fiber COMMAND numi-matter-fiber-check)
+        set_tests_properties(matter.compiler.source_fiber matter.metal.source_fiber
+            PROPERTIES LABELS "matter;material;human" TIMEOUT 60)
+    endif()
+endif()
