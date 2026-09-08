@@ -477,6 +477,7 @@ struct MetalWorldContextState {
     __strong id<MTLBuffer> uploadBuffers[kRawBufferCount] = {};
     __strong id<MTLBuffer> readbackBuffers[kRawBufferCount] = {};
     std::array<std::size_t, kRawBufferCount> capacities{};
+    std::array<std::size_t, kRawBufferCount> logicalBytes{};
     std::array<std::size_t, kRawBufferCount> uploadCapacities{};
     std::array<std::size_t, kRawBufferCount> readbackCapacities{};
     std::size_t readbackBytes = 0u;
@@ -6358,6 +6359,21 @@ MetalWorldDiagnostics ensureBufferArena(
             "private heaps plus immutable staging exceed "
             "device.recommendedMaxWorkingSetSize"
         );
+    }
+    for (std::size_t index = 0u;
+         index < kRawBufferCount;
+         ++index) {
+        const std::size_t logical =
+            requirements.entries[index].logicalBytes;
+        if (logical > context.capacities[index]) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::internalFailure,
+                std::string(requirements.entries[index].label) +
+                    " logical byte range exceeds the retained arena"
+            );
+        }
+        context.logicalBytes[index] = logical;
     }
     context.stats.retainedBufferBytes = retainedBytes;
     context.stats.usingPrivateHeaps =
@@ -17880,14 +17896,22 @@ MetalWorldDiagnostics MetalWorldContext::residentStateFingerprint(
             continue;
         }
         id<MTLBuffer> source = context->buffers[index];
-        if (source == nil || source.length == 0u ||
-            source.storageMode != MTLStorageModePrivate) {
+        const std::size_t bytes = context->logicalBytes[index];
+        if (bytes == 0u) {
+            continue;
+        }
+        if (source == nil || source.length < bytes) {
+            [blit endEncoding];
+            return reject({}, MetalWorldHostStatus::metalBufferFailure,
+                "resident-state fingerprint logical range exceeds retained storage");
+        }
+        if (source.storageMode != MTLStorageModePrivate) {
             continue;
         }
         id<MTLBuffer> copy = [context->device
-            newBufferWithLength:source.length
+            newBufferWithLength:static_cast<NSUInteger>(bytes)
                        options:MTLResourceStorageModeShared];
-        if (copy == nil || copy.contents == nullptr) {
+        if (copy == nil || copy.contents == nullptr || copy.length < bytes) {
             [blit endEncoding];
             return reject({}, MetalWorldHostStatus::metalBufferFailure,
                 "resident-state fingerprint could not allocate readback storage");
@@ -17897,7 +17921,7 @@ MetalWorldDiagnostics MetalWorldContext::residentStateFingerprint(
                 sourceOffset:0u
                     toBuffer:copy
            destinationOffset:0u
-                        size:source.length];
+                        size:static_cast<NSUInteger>(bytes)];
     }
     [blit endEncoding];
     [command commit];
@@ -17943,20 +17967,24 @@ MetalWorldDiagnostics MetalWorldContext::residentStateFingerprint(
         id<MTLBuffer> source = context->buffers[index];
         const std::uint64_t index64 = static_cast<std::uint64_t>(index);
         scalar(index64);
-        const std::uint64_t length = source == nil
-            ? 0u : static_cast<std::uint64_t>(source.length);
+        const std::size_t bytes = context->logicalBytes[index];
+        const std::uint64_t length = static_cast<std::uint64_t>(bytes);
         scalar(length);
-        if (length == 0u) {
+        if (bytes == 0u) {
             continue;
+        }
+        if (source == nil || source.length < bytes) {
+            return reject({}, MetalWorldHostStatus::metalBufferFailure,
+                "resident-state fingerprint logical range exceeds retained storage");
         }
         id<MTLBuffer> readable = source.storageMode == MTLStorageModePrivate
             ? staged[index] : source;
         if (readable == nil || readable.contents == nullptr ||
-            readable.length < source.length) {
+            readable.length < bytes) {
             return reject({}, MetalWorldHostStatus::metalBufferFailure,
                 "resident-state fingerprint encountered unreadable persistent storage");
         }
-        append(readable.contents, static_cast<std::size_t>(source.length));
+        append(readable.contents, bytes);
     }
     fingerprint = hash == 0u ? 1u : hash;
     return {};

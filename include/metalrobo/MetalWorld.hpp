@@ -862,7 +862,7 @@ public:
 
     // Canonical digest of the complete device-resident continuation state.
     // The call is inspection-only, requires an initialized idle resident
-    // slot, and includes every persistent arena buffer plus resident metadata.
+    // slot, and includes every persistent buffer's validated logical bytes plus resident metadata.
     [[nodiscard]] MetalWorldDiagnostics residentStateFingerprint(
         const MetalWorldResidentState& state,
         std::uint64_t& fingerprint

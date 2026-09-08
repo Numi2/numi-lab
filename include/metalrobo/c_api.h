@@ -693,7 +693,7 @@ MR_API int mr_task_rollout_copy_action_bindings(
     size_t output_count
 );
 // Returns zero unless the rollout owns an initialized, accepted, idle resident
-// state. The digest covers the complete persistent continuation arena.
+// state. The digest covers validated logical bytes of the persistent continuation state.
 MR_API uint64_t mr_task_rollout_resident_state_fingerprint(
     MRTaskRolloutHandle* handle
 );
