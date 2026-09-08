@@ -955,8 +955,12 @@ kernel void mr_mujoco_muscle_activation_step(
     const MRMujocoMuscleResultGPU reference = results[globalIndex];
     if (reference.status != MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS ||
         !finite4(current.excitationAndActivation) ||
-        current.excitationAndActivation.z != 0.0f ||
-        current.excitationAndActivation.w != 0.0f ||
+        // NHMYO2 carries fibre length and velocity after initialization.
+        // Only the zero-length sentinel requires a zero velocity; positive
+        // fibre lengths must continue advancing activation and fibre state.
+        current.excitationAndActivation.z < 0.0f ||
+        (current.excitationAndActivation.z == 0.0f &&
+         current.excitationAndActivation.w != 0.0f) ||
         !finite4(reference.pathForceAndActivationDerivative) ||
         !finite4(reference.fiberStateTendonForceResidual)) {
         return;

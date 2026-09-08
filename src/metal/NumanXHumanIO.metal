@@ -479,9 +479,13 @@ kernel void numanx_human_write_proprioception(
     proprioception[
         outputBase + MR_NUMANX_HUMAN_FEATURE_APPLIED_ACTIVE_FORCE_NEWTONS
     ] = result.activeForceAndReserved.x;
+    // The fibre solver stores tension normalized by maximum isometric
+    // force. The public receptor is in newtons: the signed source path force
+    // already contains that scale. A rigid-tendon result has no fibre state.
     proprioception[
         outputBase + MR_NUMANX_HUMAN_FEATURE_TENDON_TENSION_NEWTONS
-    ] = result.fiberStateTendonForceResidual.z;
+    ] = result.fiberStateTendonForceResidual.x > 0.0f
+        ? max(-result.pathForceAndActivationDerivative.z, 0.0f) : 0.0f;
     proprioception[
         outputBase +
         MR_NUMANX_HUMAN_FEATURE_ACTIVATION_DERIVATIVE_PER_SECOND

@@ -463,7 +463,7 @@ void initializeHumanInputs(const BorrowedHumanBuffers& buffers) {
             results[index].pathForceAndActivationDerivative = {
                 1.0f,
                 2.0f,
-                3.0f,
+                -12.0f, // normalized tendon tension 6 at force scale 2 N
                 4.0f,
             };
             results[index].activeForceAndReserved = {
@@ -1292,7 +1292,7 @@ void initializeHumanInputs(const BorrowedHumanBuffers& buffers) {
             1.0f,
             2.0f,
             5.0f,
-            6.0f,
+            12.0f, // public tendon receptor is newtons, not normalized 6
             4.0f,
             0.01f,
         };

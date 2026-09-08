@@ -1097,6 +1097,44 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
             "MyoSim Metal activation step corrupted the source state sidecar"
         );
     }
+    // NHMYO2 continuation begins with a positive, already accepted fibre
+    // length. The old activation kernel treated z/w as legacy reserved words
+    // and silently froze activation after the first step.
+    auto continuedStates = activationResult.mujocoActivationStates;
+    for (auto& state : continuedStates) {
+        state.excitationAndActivation.x = 1.0f - state.excitationAndActivation.x;
+    }
+    activationInput.mujoco.states = continuedStates;
+    metalrobo::MetalArticulatedOperatorResult continued, continuedReplay;
+    const auto continuedDiagnostics = activationContext.run(model, activationInput, continued);
+    const auto replayDiagnostics = activationContext.run(model, activationInput, continuedReplay);
+    require(continuedDiagnostics.succeeded() && replayDiagnostics.succeeded() &&
+                continued.mujocoActivationStates.size() == continuedStates.size() &&
+                continued.mujocoResults.size() == continuedStates.size() &&
+                continuedReplay.mujocoActivationStates.size() == continuedStates.size(),
+            "MyoSim initialized-fibre continuation failed");
+    std::size_t initializedFibres = 0u, changedActivations = 0u;
+    double continuationError = 0.0;
+    for (std::size_t index = 0; index < continuedStates.size(); ++index) {
+        const auto& before = continuedStates[index].excitationAndActivation;
+        const auto& after = continued.mujocoActivationStates[index].excitationAndActivation;
+        const float expected = std::clamp(before.y + kActivationTimestepSeconds *
+            continued.mujocoResults[index].pathForceAndActivationDerivative.w, 0.0f, 1.0f);
+        continuationError = std::max(continuationError, std::abs(double(after.y - expected)));
+        initializedFibres += before.z > 0.0f ? 1u : 0u;
+        changedActivations += after.y != before.y ? 1u : 0u;
+        require(after.x == before.x && std::isfinite(after.z) && after.z >= 0.0f &&
+                    std::isfinite(after.w), "MyoSim continuation corrupted the fibre state");
+    }
+    require(continuationError < 1.0e-6 && changedActivations > 0u,
+            "MyoSim initialized-fibre activation did not advance with its source derivative");
+    require(std::memcmp(continued.mujocoActivationStates.data(),
+                continuedReplay.mujocoActivationStates.data(),
+                continuedStates.size() * sizeof(MRMujocoMuscleStateGPU)) == 0,
+            "MyoSim initialized-fibre continuation replay differs");
+    std::cout << "muscle_activation_continuation initialized_fibres=" << initializedFibres
+              << " changed_activations=" << changedActivations
+              << " maximum_error=" << continuationError << " replay=byte_exact\n";
     require(
         metrics.maximumBodyPositionError < 2.0e-4 &&
             metrics.maximumBodyOrientationComponentError < 2.0e-4 &&
