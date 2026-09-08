@@ -29,6 +29,7 @@ enum class NumiHumanMuscleEquilibriumStatus : std::uint32_t {
     nonfiniteResult,
     supportPenetration,
     supportPoseInfeasible,
+    positionLimitViolation,
 };
 
 struct NumiHumanMuscleEquilibriumConfig {
@@ -155,6 +156,7 @@ struct NumiHumanMuscleEquilibriumDiagnostics {
     std::uint32_t acceptedGlobalActivationPolishSteps = 0u;
     std::uint32_t acceptedPoseSteps = 0u;
     std::uint32_t rejectedPenetratingPoseCandidates = 0u;
+    std::uint32_t rejectedPositionLimitPoseCandidates = 0u;
     std::uint32_t activePositionLimitCount = 0u;
     std::uint32_t jointEqualityCount = 0u;
     std::uint32_t supportContactCount = 0u;
@@ -169,6 +171,9 @@ struct NumiHumanMuscleEquilibriumDiagnostics {
     double maximumActivation = 0.0;
     double minimumNormalizedPositionLimitMargin = 1.0;
     double maximumPositionLimitReaction = 0.0;
+    // Independent, unit-Delassus-scaled physical complementarity check.
+    // Includes equality-dependent source stops; no runtime compliance claim.
+    double positionLimitKktResidual = 0.0;
     double maximumJointEqualityReaction = 0.0;
     double maximumInitialEqualityProjection = 0.0;
     double maximumJointEqualityError = 0.0;
@@ -207,9 +212,11 @@ struct NumiHumanMuscleEquilibriumResult {
     std::vector<double> generalizedPassiveCoordinateForce;
     std::vector<double> gravityTarget;
     std::vector<double> generalizedForceResidual;
-    // M(q)^-1 times the equality-reduced generalized residual in the same
-    // local velocity-coordinate order. This is diagnostic state, not a force
-    // stream to apply again.
+    // Full physical acceleration after the mass-coupled unilateral reaction
+    // solve, including dependent coordinates lifted through the exact source
+    // equality tangent. generalizedForceResidual is the corresponding full
+    // force sum, rather than coordinatewise cancellation at the stops.
+    // This is offline diagnostic state, not a runtime force stream.
     std::vector<double> generalizedAccelerationResidual;
 };
 

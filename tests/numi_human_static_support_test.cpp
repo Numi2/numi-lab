@@ -455,7 +455,138 @@ int main() {
                 sliderContacts, activeContacts, dependentSelection, fitted).status ==
                 NumiHumanMuscleEquilibriumStatus::invalidSelection,
             "placement admitted direct actuation of an equality dependent");
+    // The two serial, unit-mass sliders have M=[[2,1],[1,1]]. These
+    // force/acceleration pairs distinguish complementarity from force clipping.
+    Fixture reactions;
+    reactions.model = sliders;
+    reactions.q = {0.0, 0.0};
+    reactions.model.world.gravityAndTimestep = f4(0, 0, 0, 0.0001);
+    reactions.model.dofs[0].limits = f4(0, 1, 0);
+    reactions.model.dofs[1].limits = f4(-10, 10, 0);
+    std::vector<double> mass(4u);
+    require(computeArticulatedMassMatrix(reactions.model, 0u, reactions.q, mass).succeeded() &&
+            near(mass[0], 2) && near(mass[1], 1) && near(mass[2], 1) && near(mass[3], 1),
+            "analytic coupled-slider mass changed");
+    const auto compileReaction = [&](double f0, double f1,
+                                    const std::vector<MRNumiHumanJointEqualityGPU>& eqs = {}) {
+        const std::vector<NumiHumanPassiveCoordinateCoupling> loads{
+            {0u, 0u, reactions.q[0] + f0, 1.0},
+            {1u, 1u, reactions.q[1] + f1, 1.0}};
+        NumiHumanMuscleEquilibriumResult result;
+        const auto diagnostics = compileNumiHumanMuscleEquilibrium(
+            reactions.model, 0u, reactions.q, reactions.sites, {}, reactions.muscles,
+            reactions.architectures, eqs, {}, {}, loads, result, reactions.config);
+        require(diagnostics.succeeded() && diagnostics.positionLimitKktResidual < 1.0e-8,
+                "coupled reaction compile or physical KKT certificate failed");
+        require(result.q == reactions.q, "reaction solve clamped coordinates");
+        for (std::size_t row = 0u; row < 2u; ++row) {
+            const double inertial = mass[2u * row] * result.generalizedAccelerationResidual[0] +
+                mass[2u * row + 1u] * result.generalizedAccelerationResidual[1];
+            require(near(inertial, result.generalizedForceResidual[row]),
+                    "reported equality/stop reaction does not satisfy full M*a=f");
+        }
+        return result;
+    };
+    const auto intoStop = compileReaction(1, 3);
+    require(near(intoStop.generalizedPositionLimitForce[0], 2) &&
+            near(intoStop.generalizedAccelerationResidual[0], 0) &&
+            near(intoStop.generalizedAccelerationResidual[1], 3),
+            "positive coordinate force hid a mass-coupled stop violation");
+    const auto awayFromStop = compileReaction(-1, -3);
+    require(near(awayFromStop.generalizedPositionLimitForce[0], 0) &&
+            near(awayFromStop.generalizedAccelerationResidual[0], 2) &&
+            near(awayFromStop.generalizedAccelerationResidual[1], -5),
+            "outward acceleration received a spurious joint-stop force");
+    reactions.model.dofs[0].limits = f4(-1, 0, 0);
+    const auto upperStop = compileReaction(-1, -3);
+    require(near(upperStop.generalizedPositionLimitForce[0], -2) &&
+            near(upperStop.generalizedAccelerationResidual[0], 0) &&
+            near(upperStop.generalizedAccelerationResidual[1], -3),
+            "upper-stop reaction used the wrong sign");
+    reactions.model.dofs[0].limits = f4(0, 0, 0);
+    const auto collapsedRange = compileReaction(1, 3);
+    require(near(collapsedRange.generalizedPositionLimitForce[0], 2) &&
+            near(collapsedRange.generalizedAccelerationResidual[0], 0),
+            "coincident lower and upper stops failed their unilateral solve");
+    reactions.model.dofs[0].limits = f4(0, 1, 0);
+    reactions.model.dofs[1].limits = f4(0, 1, 0);
+    const auto bothStops = compileReaction(-3, -1);
+    require(near(bothStops.generalizedPositionLimitForce[0], 3) &&
+            near(bothStops.generalizedPositionLimitForce[1], 1) && bothStops.diagnostics.balanced,
+            "reaction at one stop failed to activate the coupled second stop");
+    reactions.model.dofs[0].limits = f4(-1, 1, 0);
+    auto reversedEquality = equality;
+    reversedEquality.referencesAndCoefficients0.w = -2.0f;
+    const std::vector<MRNumiHumanJointEqualityGPU> reversedEqualities{reversedEquality};
+    const auto dependentStop = compileReaction(2, 0, reversedEqualities);
+    require(near(dependentStop.generalizedPositionLimitForce[1], 1) &&
+            dependentStop.diagnostics.balanced &&
+            near(dependentStop.generalizedJointEqualityForce[0], -2) &&
+            near(dependentStop.generalizedJointEqualityForce[1], -1),
+            "equality-dependent stop omitted its signed source tangent");
+    reactions.model.dofs[1].limits = f4(-1, 1, 0);
+    const auto freeEquality = compileReaction(2, 0, reversedEqualities);
+    require(near(freeEquality.generalizedAccelerationResidual[0], 1) &&
+            near(freeEquality.generalizedAccelerationResidual[1], -2) &&
+            near(freeEquality.generalizedJointEqualityForce[0], -2) &&
+            near(freeEquality.generalizedJointEqualityForce[1], -1),
+            "equality acceleration was zeroed instead of lifted through the tangent");
+    reactions.model.dofs[0].limits = f4(0, 1, 0);
+    reactions.model.dofs[1].limits = f4(0, 1, 0);
+    const auto redundantStops = compileReaction(-2, -1, sliderEqualities);
+    require(redundantStops.diagnostics.balanced &&
+            near(redundantStops.generalizedPositionLimitForce[0] +
+                 2 * redundantStops.generalizedPositionLimitForce[1], 4),
+            "redundant equality-linked source stops failed complementarity");
+    const auto repeatedStops = compileReaction(-2, -1, sliderEqualities);
+    require(redundantStops.generalizedPositionLimitForce == repeatedStops.generalizedPositionLimitForce &&
+            redundantStops.generalizedAccelerationResidual == repeatedStops.generalizedAccelerationResidual,
+            "coupled source-stop reaction replay changed");
+    auto preservedReaction = redundantStops;
+    reactions.q[0] = -0.01;
+    const auto invalidInitial = compileNumiHumanMuscleEquilibrium(
+        reactions.model, 0u, reactions.q, reactions.sites, {}, reactions.muscles,
+        reactions.architectures, {}, {}, preservedReaction, reactions.config);
+    require(invalidInitial.status == NumiHumanMuscleEquilibriumStatus::positionLimitViolation &&
+            invalidInitial.failingIndex == 0u && preservedReaction.q == redundantStops.q &&
+            preservedReaction.generalizedPositionLimitForce == redundantStops.generalizedPositionLimitForce,
+            "penetrated initial joint received a static certificate or changed the destination");
+    reactions.q[0] = 0.0;
+    auto invalidEquality = equality;
+    invalidEquality.indices.z = MR_INVALID_INDEX;
+    invalidEquality.indices.w = MR_INVALID_INDEX;
+    invalidEquality.referencesAndCoefficients0 = f4(0, 0, 2, 0);
+    const std::vector<MRNumiHumanJointEqualityGPU> invalidEqualities{invalidEquality};
+    const auto invalidDependent = compileNumiHumanMuscleEquilibrium(
+        reactions.model, 0u, reactions.q, reactions.sites, {}, reactions.muscles,
+        reactions.architectures, invalidEqualities, {}, preservedReaction, reactions.config);
+    require(invalidDependent.status == NumiHumanMuscleEquilibriumStatus::positionLimitViolation &&
+            invalidDependent.failingIndex == 1u && preservedReaction.q == redundantStops.q,
+            "fixed equality projected a dependent outside its source limits");
+    // Rotate the second slider: M=[[2,.8],[.8,1]] and the spanning
+    // muscle changes f by [F,.8F]. The active-stop derivative [0,.8]
+    // differs from the free derivative. Balance requires F=-3.75, lambda=2.75;
+    // the activation regularizer permits a small, bounded residual.
+    reactions.model.joints[1].axis0 = f4(0.6, 0.8, 0.0);
+    reactions.muscles[0].gainParameters[2] = 10.0;
+    reactions.muscles[0].biasParameters[2] = 10.0;
+    reactions.model.dofs[1].limits = f4(-10, 10, 0);
+    const std::vector<MujocoMuscleSite> recruitingSites{
+        {0u, {0.0, 0.0, 0.0}}, {2u, {0.0, 1.0, 0.0}}};
+    const std::vector<NumiHumanPassiveCoordinateCoupling> recruitingLoads{
+        {0u, 0u, 1.0, 1.0}, {1u, 1u, 3.0, 1.0}};
+    NumiHumanMuscleEquilibriumResult recruitedReaction;
+    const auto recruitedDiagnostics = compileNumiHumanMuscleEquilibrium(
+            reactions.model, 0u, reactions.q, recruitingSites, {}, reactions.muscles,
+            reactions.architectures, {}, {}, {}, recruitingLoads,
+            recruitedReaction, reactions.config);
+    require(recruitedDiagnostics.succeeded() &&
+            recruitedReaction.diagnostics.balanced &&
+            recruitedReaction.activation[0] > 0.0 &&
+            near(recruitedReaction.generalizedPositionLimitForce[0], 2.75, 5.0e-4),
+            "recruitment did not balance a coupled joint-stop load");
     std::cout << "numi_human_static_support_test=passed"
+              << " coupled_limit_reactions=passed dependent_acceleration=passed"
               << " analytic_weight_n=" << replay.supportNormalForce[0]
               << " replay=exact penetration=rejected airborne_force_n=0\n";
 }

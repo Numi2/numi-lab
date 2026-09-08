@@ -3254,6 +3254,7 @@ struct CompiledStandActivation {
     std::vector<float> activation;
     std::vector<double> generalizedMuscleForce;
     std::vector<double> generalizedPositionLimitForce;
+    std::vector<double> generalizedJointEqualityForce;
     std::vector<double> generalizedSupportForce;
     std::vector<double> generalizedPassiveCoordinateForce;
     std::vector<double> gravityTarget;
@@ -3277,6 +3278,8 @@ struct CompiledStandActivation {
     double maximumActivation = 0.0;
     double maximumEqualityReaction = 0.0;
     double maximumLimitReaction = 0.0;
+    double positionLimitKktResidual = 0.0;
+    std::uint32_t rejectedPositionLimitPoseCandidates = 0u;
     std::uint32_t supportContactCount = 0u;
     std::uint32_t activeSupportContactCount = 0u;
     double totalSupportForceNewtons = 0.0;
@@ -3476,6 +3479,8 @@ CompiledStandActivation compileStaticStandActivation(
         std::move(compiled.generalizedMuscleForce);
     result.generalizedPositionLimitForce =
         std::move(compiled.generalizedPositionLimitForce);
+    result.generalizedJointEqualityForce =
+        std::move(compiled.generalizedJointEqualityForce);
     result.generalizedSupportForce =
         std::move(compiled.generalizedSupportForce);
     result.generalizedPassiveCoordinateForce =
@@ -3509,6 +3514,8 @@ CompiledStandActivation compileStaticStandActivation(
     result.maximumActivation = diagnostics.maximumActivation;
     result.maximumEqualityReaction = diagnostics.maximumJointEqualityReaction;
     result.maximumLimitReaction = diagnostics.maximumPositionLimitReaction;
+    result.positionLimitKktResidual = diagnostics.positionLimitKktResidual;
+    result.rejectedPositionLimitPoseCandidates = diagnostics.rejectedPositionLimitPoseCandidates;
     result.supportContactCount = diagnostics.supportContactCount;
     result.activeSupportContactCount = diagnostics.activeSupportContactCount;
     result.totalSupportForceNewtons = diagnostics.totalSupportForceNewtons;
@@ -14837,6 +14844,24 @@ int main(int argc, char** argv) {
                     std::cout << support.q[i];
                 }
                 std::cout << "]\n";
+                std::cout << "compiled_equilibrium_reactions={\"schema\":\"numi.human.offline-reactions.v1\"";
+                const auto writeReactionVector = [&](const char* name, const std::vector<double>& values) {
+                    std::cout << ",\"" << name << "\":[";
+                    for (std::size_t i=0;i<values.size();++i) {
+                        if (i) std::cout << ',';
+                        std::cout << values[i];
+                    }
+                    std::cout << ']';
+                };
+                writeReactionVector("acceleration", support.generalizedAccelerationResidual);
+                writeReactionVector("limit_force", support.generalizedPositionLimitForce);
+                writeReactionVector("equality_force", support.generalizedJointEqualityForce);
+                writeReactionVector("muscle_force", support.generalizedMuscleForce);
+                writeReactionVector("passive_force", support.generalizedPassiveCoordinateForce);
+                writeReactionVector("support_force", support.generalizedSupportForce);
+                writeReactionVector("gravity_target", support.gravityTarget);
+                writeReactionVector("force_residual", support.generalizedForceResidual);
+                std::cout << "}\n";
                 std::cout << std::setprecision(12)
                           << "numi_human_whole_body_support_wrench=ok"
                           << " source_model=pinned_MyoSim_full_body"
@@ -14871,6 +14896,8 @@ int main(int argc, char** argv) {
                           << support.acceptedPoseSteps
                           << " active_position_limits="
                           << support.activePositionLimitCount
+                          << " position_limit_physical_kkt=" << support.positionLimitKktResidual
+                          << " rejected_position_limit_pose_candidates=" << support.rejectedPositionLimitPoseCandidates
                           << " internal_balanced="
                           << (support.balanced ? "true" : "false")
                           << " replay=bitwise";
