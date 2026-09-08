@@ -239,6 +239,134 @@ int main() {
     require(fixture.compile({sidePlane}, rotated).status ==
                 NumiHumanMuscleEquilibriumStatus::invalidDimensions,
             "nonfinite authored plane was accepted");
+    // Offline placement changes only explicitly bounded coordinates, with
+    // every unselected witness still checked against its authored plane.
+    Fixture placement;
+    placement.q[2] = 0.015;
+    const std::vector<NumiHumanStaticSupportContact> placementContacts{touching, separated};
+    const std::vector<std::uint32_t> activeContacts{0u};
+    const std::vector<NumiHumanSupportPoseCoordinate> vertical{{2u, 0.02}};
+    NumiHumanSupportPoseResult fitted;
+    require(compileNumiHumanSupportPose(placement.model, 0u, placement.q, {},
+                placementContacts, activeContacts, vertical, fitted).succeeded() &&
+                near(fitted.q[2], 0.0, 1.0e-8) &&
+                near(fitted.supportPlaneGapMeters[1], 0.02, 1.0e-8),
+            "explicit offline placement did not reach the authored plane");
+    for (std::size_t i = 0; i < fitted.q.size(); ++i) {
+        require(i == 2u || fitted.q[i] == placement.q[i],
+                "placement altered an unauthorized coordinate");
+    }
+    NumiHumanSupportPoseResult repeatedFit;
+    require(compileNumiHumanSupportPose(placement.model, 0u, placement.q, {},
+                placementContacts, activeContacts, vertical, repeatedFit).succeeded() &&
+                repeatedFit.q == fitted.q &&
+                repeatedFit.supportPlaneGapMeters == fitted.supportPlaneGapMeters &&
+                repeatedFit.iterations == fitted.iterations,
+            "offline support placement did not replay exactly");
+    const std::vector<NumiHumanSupportPoseCoordinate> tooShort{{2u, 0.001}};
+    require(compileNumiHumanSupportPose(placement.model, 0u, placement.q, {},
+                placementContacts, activeContacts, tooShort, fitted).status ==
+                NumiHumanMuscleEquilibriumStatus::supportPoseInfeasible &&
+                fitted.q == repeatedFit.q &&
+                fitted.supportPlaneGapMeters == repeatedFit.supportPlaneGapMeters,
+            "infeasible placement exceeded its bound or changed accepted output");
+    auto obstacle = touching;
+    obstacle.localPoint[2] = -0.001;
+    const std::vector<NumiHumanStaticSupportContact> obstructed{touching, obstacle};
+    require(compileNumiHumanSupportPose(placement.model, 0u, placement.q, {},
+                obstructed, activeContacts, vertical, fitted).status ==
+                NumiHumanMuscleEquilibriumStatus::supportPoseInfeasible &&
+                fitted.q == repeatedFit.q,
+            "placement ignored an unselected penetrating witness");
+    const std::vector<std::uint32_t> duplicates{0u, 0u};
+    require(compileNumiHumanSupportPose(placement.model, 0u, placement.q, {},
+                placementContacts, duplicates, vertical, fitted).status ==
+                NumiHumanMuscleEquilibriumStatus::invalidSelection,
+            "duplicate active contacts were admitted");
+    const std::vector<NumiHumanSupportPoseCoordinate> rotation{{3u, 0.1}};
+    require(compileNumiHumanSupportPose(placement.model, 0u, placement.q, {},
+                placementContacts, activeContacts, rotation, fitted).status ==
+                NumiHumanMuscleEquilibriumStatus::invalidSelection,
+            "offline scalar placement admitted a root rotation");
+    NumiHumanSupportPoseConfig badFit;
+    badFit.gapToleranceMeters = std::numeric_limits<double>::quiet_NaN();
+    require(compileNumiHumanSupportPose(placement.model, 0u, placement.q, {},
+                placementContacts, activeContacts, vertical, fitted, badFit).status ==
+                NumiHumanMuscleEquilibriumStatus::invalidConfiguration,
+            "offline placement admitted a nonfinite tolerance");
+    auto rotatedPlane = touching;
+    rotatedPlane.normal = {0.0, 1.0, 0.0};
+    rotatedPlane.planePoint = {0.0, 1.0, 0.0};
+    placement.q[1] = 1.01;
+    const std::vector<NumiHumanStaticSupportContact> rotatedContacts{rotatedPlane};
+    const std::vector<NumiHumanSupportPoseCoordinate> horizontal{{1u, 0.02}};
+    require(compileNumiHumanSupportPose(placement.model, 0u, placement.q, {},
+                rotatedContacts, activeContacts, horizontal, fitted).succeeded() &&
+                near(fitted.q[1], 1.0, 1.0e-8) && fitted.q[2] == placement.q[2],
+            "placement ignored a translated or rotated authored plane");
+    // An analytic two-slider chain with q1 = 2*q0 must use the full
+    // equality tangent: world witness displacement is 3*q0, not q0.
+    EngineModel sliders;
+    MRArticulationGPU sliderArt{};
+    sliderArt.rootBody = 0u;
+    sliderArt.rootType = MR_ROOT_FIXED;
+    sliderArt.firstBody = 0u;
+    sliderArt.bodyCount = 3u;
+    sliderArt.firstJoint = 0u;
+    sliderArt.jointCount = 2u;
+    sliderArt.nq = 2u;
+    sliderArt.nv = 2u;
+    sliders.articulations.push_back(sliderArt);
+    sliders.bodies.push_back(body(MR_INVALID_INDEX, MR_INVALID_INDEX, 1.0, {1.0, 1.0, 1.0}));
+    for (std::uint32_t i = 0; i < 2; ++i) {
+        sliders.bodies.push_back(body(i, i, 1.0, {1.0, 1.0, 1.0}));
+        MRJointDescriptorGPU joint{};
+        joint.parentBody = i;
+        joint.childBody = i + 1;
+        joint.jointType = MR_JOINT_PRISMATIC;
+        joint.qOffset = i;
+        joint.vOffset = i;
+        joint.nq = 1u;
+        joint.nv = 1u;
+        joint.axis0 = f4(0.0, 1.0, 0.0);
+        joint.parentRotation = f4(0.0, 0.0, 0.0, 1.0);
+        joint.childRotation = f4(0.0, 0.0, 0.0, 1.0);
+        sliders.joints.push_back(joint);
+        MRDofPropertiesGPU dof{};
+        dof.articulationIndex = 0;
+        dof.jointIndex = i;
+        dof.qIndex = i;
+        dof.vIndex = i;
+        dof.flags = MR_DOF_FLAG_POSITION_LIMIT;
+        dof.limits = f4(-0.1, 0.1, 0.0);
+        sliders.dofs.push_back(dof);
+    }
+    MRNumiHumanJointEqualityGPU equality{};
+    equality.indices = {1u, 1u, 0u, 0u};
+    equality.referencesAndCoefficients0 = f4(0.0, 0.0, 0.0, 2.0);
+    const std::vector<MRNumiHumanJointEqualityGPU> sliderEqualities{equality};
+    const std::vector<double> sliderQ{0.01, 0.0};
+    const std::vector<NumiHumanStaticSupportContact> sliderContacts{
+        {.bodyIndex = 2u, .normal = {0.0, 1.0, 0.0}}};
+    const std::vector<NumiHumanSupportPoseCoordinate> sliderCoordinates{{0u, 0.08}};
+    NumiHumanSupportPoseConfig singleIteration;
+    singleIteration.maximumIterations = 1u;
+    require(compileNumiHumanSupportPose(sliders, 0u, sliderQ, sliderEqualities,
+                sliderContacts, activeContacts, sliderCoordinates, fitted,
+                singleIteration).succeeded() && near(fitted.q[0], 0.0, 1.0e-8) &&
+                near(fitted.q[1], 0.0, 1.0e-8),
+            "placement omitted the exact source equality tangent");
+    auto limitedContacts = sliderContacts;
+    limitedContacts[0].planePoint[1] = 0.24;
+    require(compileNumiHumanSupportPose(sliders, 0u, sliderQ, sliderEqualities,
+                limitedContacts, activeContacts, sliderCoordinates, fitted).status ==
+                NumiHumanMuscleEquilibriumStatus::supportPoseInfeasible,
+            "placement violated an equality-dependent source joint limit");
+    const std::vector<NumiHumanSupportPoseCoordinate> dependentSelection{{1u, 0.08}};
+    require(compileNumiHumanSupportPose(sliders, 0u, sliderQ, sliderEqualities,
+                sliderContacts, activeContacts, dependentSelection, fitted).status ==
+                NumiHumanMuscleEquilibriumStatus::invalidSelection,
+            "placement admitted direct actuation of an equality dependent");
     std::cout << "numi_human_static_support_test=passed"
               << " analytic_weight_n=" << replay.supportNormalForce[0]
               << " replay=exact penetration=rejected airborne_force_n=0\n";

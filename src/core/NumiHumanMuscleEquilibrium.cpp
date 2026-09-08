@@ -178,7 +178,8 @@ NumiHumanMuscleEquilibriumDiagnostics resolveStaticSupports(
     std::vector<std::vector<double>>& generalizedColumns,
     std::vector<double>& planeGaps,
     const double gapTolerance,
-    const ArticulatedDynamicsConfig& dynamicsConfig
+    const ArticulatedDynamicsConfig& dynamicsConfig,
+    const bool requireAdmissiblePose = true
 ) {
     const std::size_t nv = model.articulations[articulationIndex].nv;
     const std::vector<double> zeroVelocity(nv, 0.0);
@@ -232,14 +233,14 @@ NumiHumanMuscleEquilibriumDiagnostics resolveStaticSupports(
             return failure(NumiHumanMuscleEquilibriumStatus::nonfiniteResult,
                            static_cast<std::uint32_t>(support));
         }
-        if (gap < -gapTolerance) {
+        if (requireAdmissiblePose && gap < -gapTolerance) {
             return failure(NumiHumanMuscleEquilibriumStatus::supportPenetration,
                            static_cast<std::uint32_t>(support));
         }
         planeGaps[support] = gap;
         // Zero columns keep source indexing stable while removing the force
         // variable for a separated witness from every recruitment objective.
-        if (gap > gapTolerance) continue;
+        if (requireAdmissiblePose && gap > gapTolerance) continue;
         const std::size_t base = support * 3u * nv;
         for (std::size_t dof = 0u; dof < nv; ++dof) {
             generalizedColumns[support][dof] =
@@ -1475,6 +1476,244 @@ double minimumNormalizedLimitMargin(
 
 } // namespace
 
+NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanSupportPose(
+    const EngineModel& model,
+    const std::uint32_t articulationIndex,
+    const std::span<const double> initialQ,
+    const std::span<const MRNumiHumanJointEqualityGPU> equalities,
+    const std::span<const NumiHumanStaticSupportContact> supports,
+    const std::span<const std::uint32_t> activeSupportIndices,
+    const std::span<const NumiHumanSupportPoseCoordinate> coordinates,
+    NumiHumanSupportPoseResult& result,
+    const NumiHumanSupportPoseConfig& config
+) {
+    if (config.maximumIterations == 0u || config.maximumIterations > 1024u ||
+        config.lineSearchSteps == 0u || config.lineSearchSteps > 64u ||
+        !std::isfinite(config.gapToleranceMeters) ||
+        config.gapToleranceMeters <= 0.0 ||
+        !std::isfinite(config.normalizedStepLimit) ||
+        config.normalizedStepLimit <= 0.0 || config.normalizedStepLimit > 1.0) {
+        return failure(NumiHumanMuscleEquilibriumStatus::invalidConfiguration);
+    }
+    if (articulationIndex >= model.articulations.size()) {
+        return failure(NumiHumanMuscleEquilibriumStatus::invalidArticulation);
+    }
+    const auto& art = model.articulations[articulationIndex];
+    if (art.nv == 0u || art.nq == 0u || initialQ.size() != art.nq ||
+        art.vOffset > model.dofs.size() ||
+        art.nv > model.dofs.size() - art.vOffset || supports.empty() ||
+        activeSupportIndices.empty() || coordinates.empty()) {
+        return failure(NumiHumanMuscleEquilibriumStatus::invalidDimensions);
+    }
+    if (!finiteSpan(initialQ)) {
+        return failure(NumiHumanMuscleEquilibriumStatus::nonfiniteInput);
+    }
+    std::vector<bool> active(supports.size(), false), dependent(art.nv, false);
+    for (const auto index : activeSupportIndices) {
+        if (index >= supports.size() || active[index]) {
+            return failure(NumiHumanMuscleEquilibriumStatus::invalidSelection, index);
+        }
+        active[index] = true;
+    }
+    for (std::size_t index = 0; index < equalities.size(); ++index) {
+        const auto& e = equalities[index];
+        const bool fixed = e.indices.z == MR_INVALID_INDEX &&
+            e.indices.w == MR_INVALID_INDEX;
+        if (e.indices.x >= art.nq || e.indices.y >= art.nv ||
+            dependent[e.indices.y] ||
+            model.dofs[art.vOffset + e.indices.y].qIndex != art.qOffset + e.indices.x ||
+            (!fixed && (e.indices.z >= art.nq || e.indices.w >= art.nv ||
+              model.dofs[art.vOffset + e.indices.w].qIndex != art.qOffset + e.indices.z))) {
+            return failure(NumiHumanMuscleEquilibriumStatus::equalityFailure,
+                           static_cast<std::uint32_t>(index));
+        }
+        dependent[e.indices.y] = true;
+    }
+    for (const auto& e : equalities) {
+        if (e.indices.w != MR_INVALID_INDEX && dependent[e.indices.w]) {
+            return failure(NumiHumanMuscleEquilibriumStatus::equalityFailure);
+        }
+    }
+    std::vector<double> seed(initialQ.begin(), initialQ.end());
+    const auto projection = projectNumiHumanJointEqualities(equalities, seed);
+    if (!projection.succeeded() || !finiteSpan(seed)) {
+        return failure(NumiHumanMuscleEquilibriumStatus::equalityFailure,
+                       projection.failingIndex);
+    }
+    const auto withinJointLimits = [&](const std::vector<double>& q) {
+        for (std::size_t i = 0; i < art.nv; ++i) {
+            const auto& d = model.dofs[art.vOffset + i];
+            if ((d.flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u) continue;
+            if (d.qIndex == MR_INVALID_INDEX || d.qIndex < art.qOffset ||
+                d.qIndex >= art.qOffset + art.nq || !std::isfinite(d.limits.x) ||
+                !std::isfinite(d.limits.y) || d.limits.x > d.limits.y) return false;
+            const double value = q[d.qIndex - art.qOffset];
+            if (value < d.limits.x || value > d.limits.y) return false;
+        }
+        return true;
+    };
+    if (!withinJointLimits(seed)) {
+        return failure(NumiHumanMuscleEquilibriumStatus::supportPoseInfeasible);
+    }
+    const std::size_t n = coordinates.size();
+    std::vector<bool> selected(art.nv, false);
+    std::vector<std::size_t> qIndices;
+    std::vector<double> lower, upper;
+    for (std::size_t index = 0; index < n; ++index) {
+        const auto& c = coordinates[index];
+        if (c.dofIndex >= art.nv || selected[c.dofIndex] || dependent[c.dofIndex] ||
+            !std::isfinite(c.maximumDisplacement) || c.maximumDisplacement <= 0.0) {
+            return failure(NumiHumanMuscleEquilibriumStatus::invalidSelection,
+                           static_cast<std::uint32_t>(index));
+        }
+        const auto& d = model.dofs[art.vOffset + c.dofIndex];
+        const bool root = (d.flags & MR_DOF_FLAG_ROOT) != 0u;
+        if (d.qIndex == MR_INVALID_INDEX || d.qIndex < art.qOffset ||
+            d.qIndex >= art.qOffset + art.nq ||
+            (root && (art.rootType != MR_ROOT_FLOATING || c.dofIndex >= 3u ||
+                      d.qIndex != art.qOffset + c.dofIndex)) ||
+            (!root && ((d.flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u ||
+                       !std::isfinite(d.limits.x) || !std::isfinite(d.limits.y) ||
+                       d.limits.x >= d.limits.y))) {
+            return failure(NumiHumanMuscleEquilibriumStatus::invalidSelection,
+                           static_cast<std::uint32_t>(index));
+        }
+        selected[c.dofIndex] = true;
+        const auto qi = d.qIndex - art.qOffset;
+        qIndices.push_back(qi);
+        lower.push_back(root ? seed[qi] - c.maximumDisplacement :
+            std::max(seed[qi] - c.maximumDisplacement, double(d.limits.x)));
+        upper.push_back(root ? seed[qi] + c.maximumDisplacement :
+            std::min(seed[qi] + c.maximumDisplacement, double(d.limits.y)));
+        if (seed[qi] < lower.back() || seed[qi] > upper.back()) {
+            return failure(NumiHumanMuscleEquilibriumStatus::invalidSelection,
+                           static_cast<std::uint32_t>(index));
+        }
+    }
+    ArticulatedDynamicsConfig dynamics;
+    NumiHumanSupportPoseResult candidate;
+    candidate.q = seed;
+    std::vector<std::vector<double>> columns;
+    auto evaluate = [&](const std::vector<double>& q,
+                        std::vector<std::vector<double>>& jac,
+                        std::vector<double>& gaps) {
+        return resolveStaticSupports(model, articulationIndex, q, supports,
+            jac, gaps, config.gapToleranceMeters, dynamics, false);
+    };
+    auto diagnostics = evaluate(candidate.q, columns, candidate.supportPlaneGapMeters);
+    if (!diagnostics.succeeded()) return diagnostics;
+    const auto objective = [&](const std::vector<double>& gaps) {
+        double value = 0.0;
+        for (std::size_t c = 0; c < gaps.size(); ++c) {
+            // Active contacts are equalities; unselected contacts are exact
+            // unilateral inequalities. No force is introduced by this fit.
+            const double residual = active[c] ? gaps[c] : std::min(0.0, gaps[c]);
+            value += residual * residual;
+        }
+        return value;
+    };
+    for (std::uint32_t iteration = 0; iteration <= config.maximumIterations; ++iteration) {
+        candidate.iterations = iteration;
+        candidate.minimumGapMeters = *std::min_element(
+            candidate.supportPlaneGapMeters.begin(), candidate.supportPlaneGapMeters.end());
+        candidate.maximumActiveGapMeters = 0.0;
+        for (const auto index : activeSupportIndices) {
+            candidate.maximumActiveGapMeters = std::max(candidate.maximumActiveGapMeters,
+                std::abs(candidate.supportPlaneGapMeters[index]));
+        }
+        if (candidate.minimumGapMeters >= -config.gapToleranceMeters &&
+            candidate.maximumActiveGapMeters <= config.gapToleranceMeters) {
+            result = std::move(candidate);
+            return {};
+        }
+        if (iteration == config.maximumIterations) break;
+        std::vector<double> derivatives(equalities.size());
+        for (std::size_t e = 0; e < equalities.size(); ++e) {
+            NumiHumanJointEqualityEvaluation value;
+            if (!evaluateNumiHumanJointEquality(equalities[e], candidate.q, value).succeeded()) {
+                return failure(NumiHumanMuscleEquilibriumStatus::equalityFailure);
+            }
+            derivatives[e] = value.derivative;
+        }
+        std::vector<double> matrix(n * n, 0.0), step(n, 0.0), row(n);
+        for (std::size_t c = 0; c < supports.size(); ++c) {
+            const double gap = candidate.supportPlaneGapMeters[c];
+            if (!active[c] && gap >= 0.0) continue;
+            for (std::size_t j = 0; j < n; ++j) {
+                const auto dof = coordinates[j].dofIndex;
+                double derivative = columns[c][dof];
+                for (std::size_t e = 0; e < equalities.size(); ++e) {
+                    if (equalities[e].indices.w == dof) {
+                        derivative += columns[c][equalities[e].indices.y] * derivatives[e];
+                    }
+                }
+                row[j] = derivative * coordinates[j].maximumDisplacement;
+            }
+            for (std::size_t j = 0; j < n; ++j) {
+                step[j] -= row[j] * gap;
+                for (std::size_t k = 0; k < n; ++k) matrix[j*n+k] += row[j] * row[k];
+            }
+        }
+        // Damped minimum-displacement Gauss-Newton in dimensionless bounded
+        // coordinates. Damping regularizes redundant contact rows; exact
+        // nonlinear geometry and backtracking decide whether a step is used.
+        double scale = 0.0;
+        for (std::size_t j = 0; j < n; ++j) scale = std::max(scale, matrix[j*n+j]);
+        const double damping = std::max(1.0e-16, scale * 1.0e-10);
+        for (std::size_t j = 0; j < n; ++j) matrix[j*n+j] += damping;
+        for (std::size_t j = 0; j < n; ++j) {
+            for (std::size_t k = 0; k <= j; ++k) {
+                double value = matrix[j*n+k];
+                for (std::size_t l = 0; l < k; ++l) value -= matrix[j*n+l] * matrix[k*n+l];
+                if (j == k) {
+                    if (!(value > 0.0) || !std::isfinite(value)) {
+                        return failure(NumiHumanMuscleEquilibriumStatus::nonfiniteResult);
+                    }
+                    matrix[j*n+j] = std::sqrt(value);
+                } else matrix[j*n+k] = value / matrix[k*n+k];
+            }
+            for (std::size_t k = 0; k < j; ++k) step[j] -= matrix[j*n+k] * step[k];
+            step[j] /= matrix[j*n+j];
+        }
+        for (std::size_t reverse = 0; reverse < n; ++reverse) {
+            const auto j = n - reverse - 1;
+            for (std::size_t k = j + 1; k < n; ++k) step[j] -= matrix[k*n+j] * step[k];
+            step[j] /= matrix[j*n+j];
+        }
+        if (!finiteSpan(step)) return failure(NumiHumanMuscleEquilibriumStatus::nonfiniteResult);
+        double maximumStep = 0.0;
+        for (const double value : step) maximumStep = std::max(maximumStep, std::abs(value));
+        double fraction = maximumStep > config.normalizedStepLimit
+            ? config.normalizedStepLimit / maximumStep : 1.0;
+        bool admitted = false;
+        const double currentObjective = objective(candidate.supportPlaneGapMeters);
+        for (std::uint32_t search = 0; search < config.lineSearchSteps; ++search, fraction *= 0.5) {
+            auto q = candidate.q;
+            for (std::size_t j = 0; j < n; ++j) {
+                q[qIndices[j]] = std::clamp(q[qIndices[j]] +
+                    fraction * step[j] * coordinates[j].maximumDisplacement, lower[j], upper[j]);
+            }
+            if (!projectNumiHumanJointEqualities(equalities, q).succeeded()) {
+                return failure(NumiHumanMuscleEquilibriumStatus::equalityFailure);
+            }
+            if (!withinJointLimits(q)) continue;
+            std::vector<std::vector<double>> trialColumns;
+            std::vector<double> gaps;
+            diagnostics = evaluate(q, trialColumns, gaps);
+            if (!diagnostics.succeeded()) return diagnostics;
+            if (objective(gaps) < currentObjective) {
+                candidate.q = std::move(q);
+                candidate.supportPlaneGapMeters = std::move(gaps);
+                columns = std::move(trialColumns);
+                admitted = true;
+                break;
+            }
+        }
+        if (!admitted) break;
+    }
+    return failure(NumiHumanMuscleEquilibriumStatus::supportPoseInfeasible);
+}
+
 NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
     const EngineModel& model,
     const std::uint32_t articulationIndex,
@@ -1966,6 +2205,8 @@ const char* numiHumanMuscleEquilibriumStatusName(
         return "dynamicsFailure";
     case NumiHumanMuscleEquilibriumStatus::nonfiniteResult:
         return "nonfiniteResult";
+    case NumiHumanMuscleEquilibriumStatus::supportPoseInfeasible:
+        return "supportPoseInfeasible";
     case NumiHumanMuscleEquilibriumStatus::supportPenetration:
         return "supportPenetration";
     }

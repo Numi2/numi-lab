@@ -895,6 +895,8 @@ struct LoadedTorsoAnatomy {
 struct LoadedSupportContacts {
     SupportContactHeader header{};
     std::vector<SupportContactRecord> records;
+    std::vector<metalrobo::NumiHumanSupportPoseCoordinate> stanceCoordinates;
+    std::vector<std::uint32_t> stanceContacts;
 };
 
 struct LoadedJointEqualities {
@@ -3463,15 +3465,35 @@ CompiledStandActivation compileStaticStandActivation(
             });
         }
     }
+    std::vector<double> preparedQ(q.begin(), q.end());
+    if (supportContacts != nullptr && !supportContacts->stanceCoordinates.empty()) {
+        require(allowPoseSearch, "support stance cannot change an explicitly registered tissue pose");
+        metalrobo::NumiHumanSupportPoseResult stance;
+        const auto fit = metalrobo::compileNumiHumanSupportPose(
+            model, 0u, q, jointEqualities.payload.records, staticSupports,
+            supportContacts->stanceContacts, supportContacts->stanceCoordinates, stance);
+        require(fit.succeeded(), std::string("support stance failed: ") +
+            metalrobo::numiHumanMuscleEquilibriumStatusName(fit.status));
+        preparedQ = std::move(stance.q);
+        std::cout << std::setprecision(17)
+                  << "compiled_support_stance=admissible iterations=" << stance.iterations
+                  << " min_gap_m=" << stance.minimumGapMeters
+                  << " max_active_gap_m=" << stance.maximumActiveGapMeters << " q=[";
+        for (std::size_t i = 0; i < preparedQ.size(); ++i) {
+            if (i) std::cout << ',';
+            std::cout << preparedQ[i];
+        }
+        std::cout << "]\n";
+    }
     metalrobo::NumiHumanMuscleEquilibriumResult compiled;
     const auto diagnostics = staticSupports.empty()
         ? metalrobo::compileNumiHumanMuscleEquilibrium(
-            model, 0u, q, muscles.referenceSites, muscles.referenceWraps,
+            model, 0u, preparedQ, muscles.referenceSites, muscles.referenceWraps,
             muscles.referenceMuscles, muscles.referenceArchitectures,
             jointEqualities.payload.records, selectedSourceMuscleIndices,
             compiled, config)
         : metalrobo::compileNumiHumanMuscleEquilibrium(
-            model, 0u, q, muscles.referenceSites, muscles.referenceWraps,
+            model, 0u, preparedQ, muscles.referenceSites, muscles.referenceWraps,
             muscles.referenceMuscles, muscles.referenceArchitectures,
             jointEqualities.payload.records, selectedSourceMuscleIndices,
             staticSupports, passiveCouplings, compiled, config);
@@ -13729,6 +13751,8 @@ int main(int argc, char** argv) {
             bool bilateralTricepsMedialisEnthesisCertificate = false;
             bool bilateralPlantarFasciaCertificate = false;
             bool wholeBodySupportCertificate = false;
+            std::vector<metalrobo::NumiHumanSupportPoseCoordinate> stanceCoordinates;
+            std::vector<std::uint32_t> stanceContacts;
             bool sourcePassiveJointTissue = false;
             bool wholeBodyAllResiduals = false;
             bool fifthMcpLowerStopCounterfactualRequested = false;
@@ -13820,6 +13844,15 @@ int main(int argc, char** argv) {
                     require(!bilateralPlantarFasciaCertificate,
                             "--bilateral-plantar-fascia-certificate may be given only once");
                     bilateralPlantarFasciaCertificate = true;
+                } else if (argument == "--support-stance-dof") {
+                    require(index + 2 < argc, "--support-stance-dof requires a local DoF index and maximum displacement");
+                    const auto dof = parseSourceRouteIndex(argv[++index]);
+                    const double bound = parsePoseCoordinate(argv[++index]);
+                    require(bound > 0.0, "support stance displacement must be positive");
+                    stanceCoordinates.push_back({dof, bound});
+                } else if (argument == "--support-stance-contact") {
+                    require(index + 1 < argc, "--support-stance-contact requires a source witness index");
+                    stanceContacts.push_back(parseSourceRouteIndex(argv[++index]));
                 } else if (argument == "--whole-body-support-certificate") {
                     require(!wholeBodySupportCertificate,
                             "--whole-body-support-certificate may be given only once");
@@ -14044,6 +14077,8 @@ int main(int argc, char** argv) {
                           << " [--tendon-attachment-collar-diagnostic]"
                           << " [--hide-tendon-attachment-envelopes]"
                           << " [--support-contact-payload <NHCNT1>]"
+                          << " [--support-stance-dof <local-dof> <maximum-displacement>]"
+                          << " [--support-stance-contact <source-witness-index>]"
                           << " [--tendon-payload <NHTENDON1-or-NHTENDON2-or-NHTENDON3>]"
                           << " [--extensor-hood-payload <NHHOOD2>]"
                           << " [--joint-equality-payload <NHEQ1>]"
@@ -14520,6 +14555,14 @@ int main(int argc, char** argv) {
                             "Z-Anatomy calf supplement source layers do not match its fixed calf scope");
                 }
             }
+            require(stanceCoordinates.empty() == stanceContacts.empty(),
+                    "support stance requires both explicit coordinates and contact witnesses");
+            require(stanceCoordinates.empty() ||
+                        ((wholeBodySupportCertificate || persistentMetalStand) &&
+                         supportContactPayloadPath.has_value() &&
+                         jointEqualityPayloadPath.has_value() &&
+                         requestedPoseCoordinates.empty()),
+                    "support stance is an offline initial condition for the whole-body support or persistent stand probe");
             std::optional<LoadedSupportContacts> supportContactPayload;
             if (supportContactPayloadPath.has_value()) {
                 require(muscleStepSeconds.has_value(),
@@ -14527,6 +14570,8 @@ int main(int argc, char** argv) {
                 supportContactPayload.emplace(loadSupportContacts(
                     *supportContactPayloadPath, rigid.header
                 ));
+                supportContactPayload->stanceCoordinates = stanceCoordinates;
+                supportContactPayload->stanceContacts = stanceContacts;
             }
             std::optional<LoadedJointEqualities> jointEqualityPayload;
             if (jointEqualityPayloadPath.has_value()) {

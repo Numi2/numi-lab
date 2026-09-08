@@ -28,6 +28,7 @@ enum class NumiHumanMuscleEquilibriumStatus : std::uint32_t {
     dynamicsFailure,
     nonfiniteResult,
     supportPenetration,
+    supportPoseInfeasible,
 };
 
 struct NumiHumanMuscleEquilibriumConfig {
@@ -99,6 +100,27 @@ struct NumiHumanStaticSupportContact {
     // One point on the authored world plane. This is geometry, not the
     // current witness position: pose search must never move the ground.
     std::array<double, 3> planePoint{};
+};
+
+// Explicit offline placement variables. Root translations and bounded scalar
+// independent joints are admitted; root rotation and dependent coordinates are
+// excluded. Displacement is measured from the equality-projected input pose.
+struct NumiHumanSupportPoseCoordinate {
+    std::uint32_t dofIndex = MR_INVALID_INDEX;
+    double maximumDisplacement = 0.0;
+};
+struct NumiHumanSupportPoseConfig {
+    std::uint32_t maximumIterations = 64u;
+    std::uint32_t lineSearchSteps = 24u;
+    double gapToleranceMeters = 1.0e-8;
+    double normalizedStepLimit = 0.25;
+};
+struct NumiHumanSupportPoseResult {
+    std::vector<double> q;
+    std::vector<double> supportPlaneGapMeters;
+    std::uint32_t iterations = 0u;
+    double maximumActiveGapMeters = 0.0;
+    double minimumGapMeters = 0.0;
 };
 
 // One row of an anatomically sourced linearized passive joint-tissue law.
@@ -187,6 +209,24 @@ struct NumiHumanMuscleEquilibriumResult {
     // stream to apply again.
     std::vector<double> generalizedAccelerationResidual;
 };
+
+// Fit the requested contact manifold on the authored planes, using native
+// point Jacobians and the exact source equality tangent. All other witnesses
+// remain unilateral. This is initial-condition compilation, never runtime root
+// assistance, and does not certify muscle or floating-base wrench balance.
+// Infeasible/nonfinite candidates leave the accepted destination unchanged.
+[[nodiscard]] NumiHumanMuscleEquilibriumDiagnostics
+compileNumiHumanSupportPose(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<const double> initialQ,
+    std::span<const MRNumiHumanJointEqualityGPU> jointEqualities,
+    std::span<const NumiHumanStaticSupportContact> supportContacts,
+    std::span<const std::uint32_t> activeSupportIndices,
+    std::span<const NumiHumanSupportPoseCoordinate> coordinates,
+    NumiHumanSupportPoseResult& result,
+    const NumiHumanSupportPoseConfig& config = {}
+);
 
 // selectedMuscleIndices controls which muscles may recruit. Empty means all.
 // Passive force is always retained for every supplied muscle. The destination
