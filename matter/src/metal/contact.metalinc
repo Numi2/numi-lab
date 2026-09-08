@@ -41,8 +41,14 @@ kernel void nm_human_support_evaluate(
         support.bodyStride >= support.bodyCount &&
         support.reserved0 == 0u && support.reserved1 == 0u &&
         support.reserved2 == 0u &&
-        row.identity.z == rowIndex && row.identity.w == 0u &&
-        all(isfinite(row.localPoint)) && row.localPoint.w == 0.0f &&
+        row.identity.z == rowIndex && row.identity.w <= 2u &&
+        all(isfinite(row.localPoint)) &&
+        (row.identity.w == 1u ? row.localPoint.w > 0.0f : row.localPoint.w == 0.0f) &&
+        all(isfinite(row.supportRadii)) && all(isfinite(row.supportOrientation)) &&
+        (row.identity.w == 2u
+            ? (all(row.supportRadii.xyz > 0.0f) && row.supportRadii.w == 0.0f &&
+               abs(dot(row.supportOrientation,row.supportOrientation)-1.0f)<1.0e-5f)
+            : (all(row.supportRadii == float4(0.0f)) && all(row.supportOrientation == float4(0.0f)))) &&
         all(isfinite(row.frictionSlopAndStabilization)) &&
         row.frictionSlopAndStabilization.x >= 0.0f &&
         row.frictionSlopAndStabilization.y >= 0.0f &&
@@ -64,9 +70,15 @@ kernel void nm_human_support_evaluate(
     const MRBodyStateGPU bodyState = candidateBodies[
         environment * support.bodyStride + bodyLocal];
     const float4 orientation = quaternionNormalize(bodyState.orientation);
-    const float3 point = bodyState.position.xyz +
-        quaternionRotate(orientation, row.localPoint.xyz);
     const float3 normal = normalize(support.groundNormal.xyz);
+    float3 offset = quaternionRotate(orientation, row.localPoint.xyz) - row.localPoint.w * normal;
+    if (row.identity.w == 2u) {
+        const float4 shape=quaternionMultiply(orientation,row.supportOrientation);
+        const float3 direction=quaternionRotate(float4(-shape.xyz,shape.w),normal);
+        const float3 scaled=row.supportRadii.xyz*direction;
+        offset-=quaternionRotate(shape,row.supportRadii.xyz*scaled/length(scaled));
+    }
+    const float3 point = bodyState.position.xyz + offset;
     const float normalLength = length(support.groundNormal.xyz);
     if (!finite3(point) || !isfinite(normalLength) ||
         abs(normalLength - 1.0f) > 1.0e-4f) {
@@ -79,7 +91,6 @@ kernel void nm_human_support_evaluate(
     // The Newton generalized vector is delta-v, not the total velocity.
     // Exact candidate bodies already contain J(q_candidate)*(v_free+delta-v).
     // Include rotation about the COM for an offset support witness.
-    const float3 offset = quaternionRotate(orientation, row.localPoint.xyz);
     const float3 velocity = bodyState.linearVelocityAndInverseMass.xyz +
         cross(bodyState.angularVelocity.xyz, offset);
     (void)candidateGeneralized;

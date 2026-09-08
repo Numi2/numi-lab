@@ -1457,6 +1457,19 @@ inline bool buildBodyVelocities(
 }
 #endif
 
+inline float3 pointSurfaceOffset(
+    const float4 rotation, device const MRArticulatedPointImpulseGPU& query
+) {
+    const float3 centre = quaternionRotate(rotation, query.localPoint.xyz);
+    if ((query.flags & MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT) != 0u) {
+        const float4 shape = quaternionMultiply(rotation, query.supportOrientation);
+        const float3 direction = quaternionRotate(quaternionConjugate(shape), query.supportPlaneNormalAndRadius.xyz);
+        const float3 scaled = query.supportRadii.xyz * direction;
+        return centre - quaternionRotate(shape, query.supportRadii.xyz * scaled / length(scaled));
+    }
+    return centre - query.supportPlaneNormalAndRadius.w * query.supportPlaneNormalAndRadius.xyz;
+}
+
 inline bool validatePoints(
     const uint environment,
     device const MRArticulationGPU& articulation,
@@ -1476,7 +1489,17 @@ inline bool validatePoints(
             (dispatch.flags &
              MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS) != 0u;
         if ((!allowForeign && foreign) ||
-            (query.flags & ~MR_ARTICULATED_POINT_INACTIVE) != 0u ||
+            (query.flags & ~(MR_ARTICULATED_POINT_INACTIVE | MR_ARTICULATED_POINT_SPHERE_SUPPORT | MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT)) != 0u ||
+            !finite4(query.supportPlaneNormalAndRadius) || !finite4(query.supportRadii) || !finite4(query.supportOrientation) ||
+            (((query.flags & MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT) != 0u)
+                ? ((query.flags & MR_ARTICULATED_POINT_SPHERE_SUPPORT) != 0u ||
+                   query.supportPlaneNormalAndRadius.w != 0.0f || any(query.supportRadii.xyz <= 0.0f) ||
+                   query.supportRadii.w != 0.0f || abs(dot(query.supportOrientation,query.supportOrientation)-1.0f)>1.0e-5f)
+                : (any(query.supportRadii != float4(0.0f)) || any(query.supportOrientation != float4(0.0f)))) ||
+            (((query.flags & (MR_ARTICULATED_POINT_SPHERE_SUPPORT | MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT)) != 0u)
+                ? (abs(dot(query.supportPlaneNormalAndRadius.xyz,query.supportPlaneNormalAndRadius.xyz)-1.0f)>1.0e-5f ||
+                   ((query.flags & MR_ARTICULATED_POINT_SPHERE_SUPPORT) != 0u && !(query.supportPlaneNormalAndRadius.w>0.0f)))
+                : any(query.supportPlaneNormalAndRadius != float4(0.0f))) ||
             query.reserved0 != 0u ||
             query.reserved1 != 0u ||
             !finite4(query.localPoint) ||
@@ -1744,10 +1767,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 const uint localBody = inactive
                     ? articulation.rootBody - articulation.firstBody
                     : query.bodyIndex - articulation.firstBody;
-                const float3 pointOffset = quaternionRotate(
-                    bodyRotation[localBody],
-                    query.localPoint.xyz
-                );
+                const float3 pointOffset = pointSurfaceOffset(bodyRotation[localBody], query);
                 const MotionColumn bodyMotion = inactive
                     ? MotionColumn{float3(0.0f), float3(0.0f)}
                     : bodyMotionForDof(
@@ -2012,10 +2032,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         }
         const uint localBody =
             query.bodyIndex - articulation.firstBody;
-        const float3 pointOffset = quaternionRotate(
-            bodyRotation[localBody],
-            query.localPoint.xyz
-        );
+        const float3 pointOffset = pointSurfaceOffset(bodyRotation[localBody], query);
         for (uint dof = 0u; dof < articulation.nv; ++dof) {
             const MotionColumn bodyMotion = bodyMotionForDof(
                 localBody,
@@ -2183,10 +2200,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         }
         const uint localBody =
             query.bodyIndex - articulation.firstBody;
-        const float3 pointOffset = quaternionRotate(
-            bodyRotation[localBody],
-            query.localPoint.xyz
-        );
+        const float3 pointOffset = pointSurfaceOffset(bodyRotation[localBody], query);
         const float3 candidateWorld =
             bodyPosition[localBody] + pointOffset;
         if (!finite3(pointOffset) || !finite3(candidateWorld)) {
@@ -2299,10 +2313,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             points[pointBase + point];
         const uint localBody =
             query.bodyIndex - articulation.firstBody;
-        const float3 pointOffset = quaternionRotate(
-            bodyRotation[localBody],
-            query.localPoint.xyz
-        );
+        const float3 pointOffset = pointSurfaceOffset(bodyRotation[localBody], query);
         MRArticulatedPointWorldGPU worldPoint;
         worldPoint.position = float4(
             bodyPosition[localBody] + pointOffset,

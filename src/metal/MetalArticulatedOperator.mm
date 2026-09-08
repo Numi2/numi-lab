@@ -842,7 +842,22 @@ bool validPoints(
     for (const MRArticulatedPointImpulseGPU& point : points) {
         if (point.bodyIndex < articulation.firstBody ||
             static_cast<std::uint64_t>(point.bodyIndex) >= bodyEnd ||
-            point.flags != 0u ||
+            (point.flags & ~(MR_ARTICULATED_POINT_SPHERE_SUPPORT | MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT)) != 0u ||
+            !finite(point.supportPlaneNormalAndRadius) || !finite(point.supportRadii) || !finite(point.supportOrientation) ||
+            ((point.flags & MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT) != 0u
+                ? ((point.flags & MR_ARTICULATED_POINT_SPHERE_SUPPORT) != 0u || point.supportPlaneNormalAndRadius.w != 0.0f ||
+                   point.supportRadii.x<=0.0f || point.supportRadii.y<=0.0f || point.supportRadii.z<=0.0f || point.supportRadii.w!=0.0f ||
+                   std::abs(point.supportOrientation.x*point.supportOrientation.x+point.supportOrientation.y*point.supportOrientation.y+
+                            point.supportOrientation.z*point.supportOrientation.z+point.supportOrientation.w*point.supportOrientation.w-1.0f)>1.0e-5f)
+                : (point.supportRadii.x!=0.0f || point.supportRadii.y!=0.0f || point.supportRadii.z!=0.0f || point.supportRadii.w!=0.0f ||
+                   point.supportOrientation.x!=0.0f || point.supportOrientation.y!=0.0f || point.supportOrientation.z!=0.0f || point.supportOrientation.w!=0.0f)) ||
+            ((point.flags & (MR_ARTICULATED_POINT_SPHERE_SUPPORT | MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT)) != 0u
+                ? (std::abs(point.supportPlaneNormalAndRadius.x*point.supportPlaneNormalAndRadius.x+
+                            point.supportPlaneNormalAndRadius.y*point.supportPlaneNormalAndRadius.y+
+                            point.supportPlaneNormalAndRadius.z*point.supportPlaneNormalAndRadius.z-1.0f)>1.0e-5f ||
+                   ((point.flags & MR_ARTICULATED_POINT_SPHERE_SUPPORT) != 0u && !(point.supportPlaneNormalAndRadius.w>0.0f)))
+                : (point.supportPlaneNormalAndRadius.x!=0.0f || point.supportPlaneNormalAndRadius.y!=0.0f ||
+                   point.supportPlaneNormalAndRadius.z!=0.0f || point.supportPlaneNormalAndRadius.w!=0.0f)) ||
             point.reserved0 != 0u ||
             point.reserved1 != 0u ||
             !finite(point.localPoint) ||
@@ -1389,7 +1404,8 @@ bool validNumiHumanStand(
             const MRArticulatedPointImpulseGPU& query = input.points[
                 environment * input.pointCount + contact.pointQueryIndex
             ];
-            if (query.bodyIndex != contact.bodyIndex || query.flags != 0u) {
+            if (query.bodyIndex != contact.bodyIndex ||
+                (query.flags & ~(MR_ARTICULATED_POINT_SPHERE_SUPPORT | MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT)) != 0u) {
                 reason = "stand support contact does not match its active point query";
                 return false;
             }

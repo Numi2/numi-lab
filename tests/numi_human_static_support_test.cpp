@@ -1,3 +1,6 @@
+#include "metalrobo/ArticulatedDynamics.hpp"
+#include "metalrobo/NumiHumanSupport.hpp"
+#include <cstring>
 #include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
 
 #include <array>
@@ -148,7 +151,92 @@ struct Fixture {
 };
 } // namespace
 
+void testCurvedSupport() {
+    using namespace metalrobo;
+    auto model = makeFreeBodyModel();
+    std::vector<double> q{0,0,0, std::sqrt(0.5),0,0,std::sqrt(0.5)};
+    std::vector<double> v{0,0,0,2,0,0};
+    std::vector<ArticulatedPointQuery> queries{{0u, {0,0,0}, 0.2, {0,0,1}}};
+    std::vector<ArticulatedPointKinematics> points(1);
+    std::vector<double> jac(18);
+    require(computeArticulatedPointJacobians(model,0,q,v,queries,points,jac).succeeded(),
+        "sphere query rejected");
+    require(near(points[0].position[2],-0.2) && near(points[0].position[1],0) &&
+            near(points[0].linearVelocity[1],0.4) && near(jac[6+3],0.2),
+        "sphere surface or material friction velocity is wrong");
+    // Rotating about an offset centre changes normal gap; its derivative is n*J.
+    const double angle=0.31, eps=1.0e-6;
+    queries[0].localPoint={0.5,0,0};
+    q={0,0,0,0,std::sin(angle/2),0,std::cos(angle/2)};
+    require(computeArticulatedPointJacobians(model,0,q,v,queries,points,jac).succeeded(),"tilted sphere failed");
+    const double derivative=jac[12+4];
+    double gap[2];
+    for (unsigned i=0;i<2;++i) {
+        const double a=angle+(i ? eps : -eps);
+        q[4]=std::sin(a/2);q[6]=std::cos(a/2);
+        require(computeArticulatedPointJacobians(model,0,q,v,queries,points,jac).succeeded(),"gap derivative failed");
+        gap[i]=points[0].position[2];
+    }
+    require(near((gap[1]-gap[0])/(2*eps),derivative,1.0e-9),"sphere normal-gap Jacobian disagrees with geometry");
+    const auto kept=points[0].position;
+    for (double bad : {-0.1, std::numeric_limits<double>::quiet_NaN()}) {
+        queries[0].supportRadius=bad;
+        require(!computeArticulatedPointJacobians(model,0,q,v,queries,points,jac).succeeded() && points[0].position==kept,
+            "bad radius published point output");
+    }
+    queries[0].supportRadius=0.2;queries[0].supportPlaneNormal={0,0,2};
+    require(!computeArticulatedPointJacobians(model,0,q,v,queries,points,jac).succeeded(),"nonunit sphere plane admitted");
+    queries[0].supportPlaneNormal={0,0.6,0.8};queries[0].localPoint={0,0,0};
+    require(computeArticulatedPointJacobians(model,0,q,v,queries,points,jac).succeeded() &&
+            near(points[0].position[1],-0.12) && near(points[0].position[2],-0.16),"oblique sphere plane failed");
+    const std::vector<NumiHumanStaticSupportContact> supports{
+        {.bodyIndex=0,.normal={0,0.6,0.8},.planePoint={0,0.3,0.4},.supportRadius=0.2}};
+    const std::vector<NumiHumanSupportPoseCoordinate> coordinates{{1u,2.0},{2u,2.0}};
+    const std::vector<std::uint32_t> active{0};
+    NumiHumanSupportPoseResult fitted;
+    require(compileNumiHumanSupportPose(model,0,q,{},supports,active,coordinates,fitted).succeeded() &&
+            near(0.6*fitted.q[1]+0.8*fitted.q[2],0.7),"stance fitted centre instead of surface");
+
+    queries[0].supportRadius=0;
+    queries[0].supportRadii={0.2,0.3,0.4}; queries[0].supportOrientation={0,0,0,1};
+    queries[0].supportPlaneNormal={0,0,1};
+    q={0,0,0,0,std::sqrt(0.5),0,std::sqrt(0.5)};
+    require(computeArticulatedPointJacobians(model,0,q,v,queries,points,jac).succeeded() &&
+            near(points[0].position[2],-0.2),"ellipsoid did not refresh its rotated semi-axis");
+    queries[0].supportRadii[1]=0;
+    require(!computeArticulatedPointJacobians(model,0,q,v,queries,points,jac).succeeded(),"degenerate ellipsoid admitted");
+
+    NumiHumanSupportHeader h;
+    h.magic={'N','H','C','N','T','2',0,0};h.payloadAbi=2;h.engineBodyCount=1;h.contactCount=1;
+    std::vector<std::byte> bytes(84+96);
+    std::memcpy(bytes.data(),&h,84);
+    const std::array<std::uint32_t,4> identity{0,42,2,0};
+    const std::array<float,12> primitive{-0.5,0,0,0.2, 0.5,0,0,0.7, -0.2,-0.2,0,0};
+    std::memcpy(bytes.data()+84,identity.data(),16);std::memcpy(bytes.data()+100,primitive.data(),48);
+    NumiHumanSupportPayload payload;std::string error;
+    require(decodeNumiHumanSupportPayload(bytes,1,h.sourceSha256,payload,error) && payload.contacts.size()==2 &&
+            payload.contacts[0].localPointX==-0.5f && payload.contacts[1].localPointX==0.5f &&
+            payload.contacts[0].supportRadius==0.2f && payload.header.contactCount==2,
+        "capsule did not compile both endpoint-sphere constraints");
+    auto bad=bytes;bad.pop_back();
+    require(!decodeNumiHumanSupportPayload(bad,1,h.sourceSha256,payload,error) && payload.contacts.size()==2,
+        "truncated primitive published output");
+    for (std::size_t offset : {std::size_t(92),std::size_t(96),std::size_t(112),std::size_t(140)}) {
+        bad=bytes;const std::uint32_t invalid=0xffffffffu;std::memcpy(bad.data()+offset,&invalid,4);
+        require(!decodeNumiHumanSupportPayload(bad,1,h.sourceSha256,payload,error),"malformed primitive admitted");
+    }
+    auto foreign=h.sourceSha256;foreign[0]=1;
+    require(!decodeNumiHumanSupportPayload(bytes,1,foreign,payload,error),"foreign source primitive admitted");
+    h.magic[5]='1';h.payloadAbi=1;
+    bytes.resize(84+48);std::memcpy(bytes.data(),&h,84);
+    NumiHumanSupportContact legacy;legacy.bodyIndex=0;legacy.sourceGeometryIndex=42;
+    std::memcpy(bytes.data()+84,&legacy,48);
+    require(decodeNumiHumanSupportPayload(bytes,1,h.sourceSha256,payload,error) && payload.contacts.size()==1 &&
+        payload.contacts[0].supportRadius==0,"legacy witness changed semantics");
+}
+
 int main() {
+    testCurvedSupport();
     using namespace metalrobo;
     Fixture fixture;
     const NumiHumanStaticSupportContact touching{.bodyIndex = 0u};

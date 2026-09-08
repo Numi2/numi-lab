@@ -103,7 +103,7 @@ std::vector<std::uint8_t> readPayloadBytes(const char* path) {
     return bytes;
 }
 
-void qualifyHumanSupportKKT(id<MTLDevice> device) {
+void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
     NSError* libraryError = nil;
     id<MTLLibrary> library = [device
         newLibraryWithURL:[NSURL fileURLWithPath:
@@ -149,6 +149,17 @@ void qualifyHumanSupportKKT(id<MTLDevice> device) {
     MRBodyStateGPU body{};
     body.orientation.w = 1.0f;
     body.linearVelocityAndInverseMass.y = -1.0f;
+    if (shape) {
+        contact.identity.w = 1u;
+        contact.localPoint = {0.0f,0.0f,0.0f,0.01f};
+        body.orientation = {0.0f,0.0f,std::sqrt(0.5f),std::sqrt(0.5f)};
+        body.angularVelocity.z = 2.0f;
+        if (shape==2) {
+            contact.identity.w=2u;contact.localPoint.w=0;
+            contact.supportRadii={0.02f,0.01f,0.03f,0};
+            contact.supportOrientation={0,0,std::sqrt(0.5f),std::sqrt(0.5f)};
+        }
+    }
     // The delta alone is deliberately different from the total velocity.
     // Support must include the free predictor carried by candidateBodies.
     const float generalized = -0.25f;
@@ -334,13 +345,17 @@ void qualifyHumanSupportKKT(id<MTLDevice> device) {
                 history.w == committed.impulseAndNormal.w &&
                 residualValue.x > 1.0f && operatorValue.x > 1.0f,
             "Matter support J^T lambda or J^T D J evidence is wrong");
+    if (shape) require(std::abs(committed.pointAndSeparation.y+0.01f)<1.0e-7f &&
+        std::abs(committed.tangentVelocityAndImpulse.x-0.02f)<1.0e-6f &&
+        committed.impulseAndNormal.x<0.0f,
+        "Matter sphere surface/friction moment arm is wrong");
     const float impulseDerivative =
         (static_cast<const NMContactSampleGPU*>(plusSample.contents)->impulseAndNormal.y -
          static_cast<const NMContactSampleGPU*>(minusSample.contents)->impulseAndNormal.y) /
         (2.0f * epsilon);
     require(std::abs(operatorValue.x + impulseDerivative) < 3.0e-4f,
         "support Newton action disagrees with finite-difference restoring force");
-    std::cout << "SUPPORT total_velocity=-1 delta_velocity=-0.25 tangent="
+    std::cout << "SUPPORT shape=" << shape << " total_velocity=-1 delta_velocity=-0.25 tangent="
               << operatorValue.x << " negative_force_derivative=" << -impulseDerivative
               << " fd_error=" << std::abs(operatorValue.x + impulseDerivative) << '\n';
     require(rolledHistory.x == 0.0f && rolledHistory.y == 0.0f &&
@@ -799,6 +814,8 @@ int run(const bool authored, const bool sourceEqualities, const bool costalTissu
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
         require(device != nil, "Metal device unavailable");
         qualifyHumanSupportKKT(device);
+        qualifyHumanSupportKKT(device, 1u);
+        qualifyHumanSupportKKT(device, 2u);
         const auto culturePack = metalrobo::makePotterReferenceCulture(
             1000u, 50000u, 2056u);
         metalrobo::CompiledNeuronCulture compiledCulture;
@@ -1357,11 +1374,20 @@ int run(const bool authored, const bool sourceEqualities, const bool costalTissu
 
 int main(int argc, char** argv) {
     try {
+        if (argc==2 && std::string(argv[1])=="--support-only") {
+            @autoreleasepool {
+                id<MTLDevice> device=MTLCreateSystemDefaultDevice();
+                require(device!=nil,"Metal device unavailable");
+                for (unsigned shape=0;shape<3;++shape) qualifyHumanSupportKKT(device,shape);
+                std::puts("numanx_support_surface_probe=pass shapes=point,sphere,ellipsoid rollback=exact");
+                return 0;
+            }
+        }
         require(argc == 1 || (argc == 2 &&
                     (std::string(argv[1]) == "--authored-world" ||
                      std::string(argv[1]) == "--source-equalities" ||
                      std::string(argv[1]) == "--costal-tissue")),
-                "usage: numanx_fullbody_bridge_probe [--authored-world|--source-equalities|--costal-tissue]");
+                "usage: numanx_fullbody_bridge_probe [--authored-world|--source-equalities|--costal-tissue|--support-only]");
         const bool costal=argc==2&&std::string(argv[1])=="--costal-tissue";
         return run(argc == 2, costal||(argc == 2 && std::string(argv[1]) == "--source-equalities"),costal);
     } catch (const std::exception& error) {

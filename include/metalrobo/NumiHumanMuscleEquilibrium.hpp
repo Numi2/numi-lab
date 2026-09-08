@@ -100,6 +100,9 @@ struct NumiHumanStaticSupportContact {
     // One point on the authored world plane. This is geometry, not the
     // current witness position: pose search must never move the ground.
     std::array<double, 3> planePoint{};
+    double supportRadius = 0.0; // Sphere centre in localPoint when positive.
+    std::array<double, 3> supportRadii{};
+    std::array<double, 4> supportOrientation{};
 };
 
 // Explicit offline placement variables. Root translations and bounded scalar

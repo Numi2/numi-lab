@@ -104,6 +104,13 @@ struct ArticulatedBodyKinematics {
 struct ArticulatedPointQuery {
     std::uint32_t bodyIndex = 0u;
     std::array<double, 3> localPoint{};
+    // Positive radius selects the plane-facing sphere surface. Zero retains
+    // fixed material-point semantics. The Jacobian is the material velocity
+    // Jacobian, not the tangential derivative of the closest-point location.
+    double supportRadius = 0.0;
+    std::array<double, 3> supportPlaneNormal{0.0, 0.0, 1.0};
+    std::array<double, 3> supportRadii{};
+    std::array<double, 4> supportOrientation{};
 };
 
 struct ArticulatedPointKinematics {

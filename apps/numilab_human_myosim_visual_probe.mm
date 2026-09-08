@@ -1,3 +1,4 @@
+#include "metalrobo/NumiHumanSupport.hpp"
 #import <CoreGraphics/CoreGraphics.h>
 #import <ImageIO/ImageIO.h>
 #import <Metal/Metal.h>
@@ -57,9 +58,6 @@ constexpr std::array<char, 8u> kMuscleMagic{
 };
 constexpr std::array<char, 8u> kExtensorHoodMagic{
     'N', 'H', 'H', 'O', 'O', 'D', '2', '\0',
-};
-constexpr std::array<char, 8u> kSupportContactMagic{
-    'N', 'H', 'C', 'N', 'T', '1', '\0', '\0',
 };
 constexpr std::uint32_t kPayloadAbi = 1u;
 constexpr std::uint32_t kMusclePayloadAbi = 2u;
@@ -385,36 +383,8 @@ struct ExtensorHoodInputRecord {
     float sourceOracleForce = 0.0f;
 };
 
-struct SupportContactHeader {
-    std::array<char, 8u> magic{};
-    std::uint32_t payloadAbi = 0u;
-    std::uint32_t engineBodyCount = 0u;
-    std::uint32_t contactCount = 0u;
-    std::uint32_t reserved0 = 0u;
-    std::array<std::uint8_t, 32u> sourceSha256{};
-    float groundPointX = 0.0f;
-    float groundPointY = 0.0f;
-    float groundPointZ = 0.0f;
-    float groundNormalX = 0.0f;
-    float groundNormalY = 0.0f;
-    float groundNormalZ = 1.0f;
-    float groundFriction = 0.0f;
-};
-
-struct SupportContactRecord {
-    std::uint32_t bodyIndex = MR_INVALID_INDEX;
-    std::uint32_t sourceGeometryIndex = MR_INVALID_INDEX;
-    float localPointX = 0.0f;
-    float localPointY = 0.0f;
-    float localPointZ = 0.0f;
-    float worldWitnessX = 0.0f;
-    float worldWitnessY = 0.0f;
-    float worldWitnessZ = 0.0f;
-    float friction = 0.0f;
-    float defaultSignedPlaneDistance = 0.0f;
-    float reserved0 = 0.0f;
-    float reserved1 = 0.0f;
-};
+using SupportContactHeader = metalrobo::NumiHumanSupportHeader;
+using SupportContactRecord = metalrobo::NumiHumanSupportContact;
 
 struct BoneHeader {
     std::array<char, 8u> magic{};
@@ -918,7 +888,7 @@ static_assert(sizeof(ExtensorHoodNodeRecord) == 32u);
 static_assert(sizeof(ExtensorHoodElementRecord) == 28u);
 static_assert(sizeof(ExtensorHoodInputRecord) == 36u);
 static_assert(sizeof(SupportContactHeader) == 84u);
-static_assert(sizeof(SupportContactRecord) == 48u);
+
 static_assert(sizeof(BoneHeader) == 60u);
 static_assert(sizeof(BoneRecord) == 56u);
 static_assert(sizeof(BoneVertex) == 24u);
@@ -1583,73 +1553,13 @@ LoadedSupportContacts loadSupportContacts(
     std::ifstream input(path, std::ios::binary);
     require(input.is_open(), "cannot open MyoSim support-contact payload " + path.string());
     LoadedSupportContacts result;
-    readObject(input, result.header, "MyoSim support-contact header");
-    require(result.header.magic == kSupportContactMagic &&
-                result.header.payloadAbi == kPayloadAbi &&
-                result.header.engineBodyCount == rigid.engineBodyCount &&
-                result.header.sourceSha256 == rigid.sourceSha256 &&
-                result.header.reserved0 == 0u &&
-                result.header.contactCount >= 2u &&
-                result.header.contactCount <= 32u,
-            "MyoSim support-contact payload/header disagreement");
-    result.records = readVector<SupportContactRecord>(
-        input, result.header.contactCount, "MyoSim support-contact records"
-    );
-    require(input.peek() == std::char_traits<char>::eof(),
-            "MyoSim support-contact payload has trailing bytes");
-    const std::array<double, 3u> groundPoint{
-        result.header.groundPointX,
-        result.header.groundPointY,
-        result.header.groundPointZ,
-    };
-    const std::array<double, 3u> groundNormal{
-        result.header.groundNormalX,
-        result.header.groundNormalY,
-        result.header.groundNormalZ,
-    };
-    const double normalLength = std::sqrt(
-        groundNormal[0] * groundNormal[0] +
-        groundNormal[1] * groundNormal[1] +
-        groundNormal[2] * groundNormal[2]
-    );
-    require(std::isfinite(groundPoint[0]) && std::isfinite(groundPoint[1]) &&
-                std::isfinite(groundPoint[2]) && std::isfinite(normalLength) &&
-                std::abs(normalLength - 1.0) <= 2.0e-4 &&
-                std::isfinite(result.header.groundFriction) &&
-                result.header.groundFriction >= 0.0f,
-            "MyoSim support-contact ground plane is malformed");
-    std::vector<std::uint32_t> sourceGeometryIds;
-    sourceGeometryIds.reserve(result.records.size());
-    for (const SupportContactRecord& record : result.records) {
-        const std::array<double, 3u> localPoint{
-            record.localPointX, record.localPointY, record.localPointZ,
-        };
-        const std::array<double, 3u> witness{
-            record.worldWitnessX, record.worldWitnessY, record.worldWitnessZ,
-        };
-        const double witnessPlaneDistance =
-            (witness[0] - groundPoint[0]) * groundNormal[0] +
-            (witness[1] - groundPoint[1]) * groundNormal[1] +
-            (witness[2] - groundPoint[2]) * groundNormal[2];
-        require(record.bodyIndex < rigid.engineBodyCount &&
-                    record.sourceGeometryIndex != MR_INVALID_INDEX &&
-                    std::all_of(localPoint.begin(), localPoint.end(), [](const double value) {
-                        return std::isfinite(value);
-                    }) &&
-                    std::all_of(witness.begin(), witness.end(), [](const double value) {
-                        return std::isfinite(value);
-                    }) &&
-                    std::isfinite(record.friction) && record.friction >= 0.0f &&
-                    std::isfinite(record.defaultSignedPlaneDistance) &&
-                    std::abs(witnessPlaneDistance) <= 2.0e-4 &&
-                    record.reserved0 == 0.0f && record.reserved1 == 0.0f,
-                "MyoSim support-contact record is malformed");
-        sourceGeometryIds.push_back(record.sourceGeometryIndex);
-    }
-    std::sort(sourceGeometryIds.begin(), sourceGeometryIds.end());
-    require(std::adjacent_find(sourceGeometryIds.begin(), sourceGeometryIds.end()) ==
-                sourceGeometryIds.end(),
-            "MyoSim support-contact geometry identity is duplicated");
+    const std::vector<char> raw((std::istreambuf_iterator<char>(input)), {});
+    metalrobo::NumiHumanSupportPayload decoded;
+    std::string error;
+    require(metalrobo::decodeNumiHumanSupportPayload(
+        std::as_bytes(std::span(raw)), rigid.engineBodyCount, rigid.sourceSha256, decoded, error), error);
+    result.header = decoded.header;
+    result.records = std::move(decoded.contacts);
     return result;
 }
 
@@ -3067,14 +2977,8 @@ MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
     if (support != nullptr) {
         result.supportContacts.reserve(support->records.size());
         for (const SupportContactRecord& record : support->records) {
-            MRArticulatedPointImpulseGPU point{};
-            point.bodyIndex = record.bodyIndex;
-            point.localPoint = {
-                record.localPointX,
-                record.localPointY,
-                record.localPointZ,
-                0.0f,
-            };
+            MRArticulatedPointImpulseGPU point =
+                metalrobo::compileNumiHumanSupportQuery(support->header, record);
             const std::uint32_t pointQueryIndex =
                 static_cast<std::uint32_t>(result.points.size());
             result.points.push_back(point);
@@ -3281,6 +3185,8 @@ DynamicSourceSupportContacts makeDynamicSourceSupportContacts(
     std::vector<metalrobo::ArticulatedPointQuery> queries;
     queries.reserve(support.records.size());
     for (const SupportContactRecord& record : support.records) {
+        require(record.supportRadius == 0.0f && record.supportRadii[0] == 0.0f,
+                "curved support requires the Metal surface-query contact path");
         queries.push_back({
             record.bodyIndex, {record.localPointX, record.localPointY, record.localPointZ},
         });
@@ -3462,6 +3368,9 @@ CompiledStandActivation compileStaticStandActivation(
                     supportContacts->header.groundPointY,
                     supportContacts->header.groundPointZ,
                 },
+                .supportRadius = record.supportRadius,
+                .supportRadii = {record.supportRadii[0],record.supportRadii[1],record.supportRadii[2]},
+                .supportOrientation = {record.supportOrientation[0],record.supportOrientation[1],record.supportOrientation[2],record.supportOrientation[3]},
             });
         }
     }
@@ -14076,7 +13985,7 @@ int main(int argc, char** argv) {
                           << " [--zanatomy-calf-visual-supplement]"
                           << " [--tendon-attachment-collar-diagnostic]"
                           << " [--hide-tendon-attachment-envelopes]"
-                          << " [--support-contact-payload <NHCNT1>]"
+                          << " [--support-contact-payload <NHCNT1|NHCNT2>]"
                           << " [--support-stance-dof <local-dof> <maximum-displacement>]"
                           << " [--support-stance-contact <source-witness-index>]"
                           << " [--tendon-payload <NHTENDON1-or-NHTENDON2-or-NHTENDON3>]"
@@ -14341,7 +14250,7 @@ int main(int argc, char** argv) {
                         !openKneePayloadPath.has_value() &&
                         !openKneeLigamentFEMPath.has_value() &&
                         requestedPoseCoordinates.empty(),
-                    "--whole-body-support-certificate requires NHCNT1, "
+                    "--whole-body-support-certificate requires NHCNT1 or NHCNT2, "
                     "NHEQ1, a response timestep, and no presentation, "
                     "activation, or continuum scope"
                 );
@@ -14922,10 +14831,16 @@ int main(int argc, char** argv) {
                                     rigid.model.world.nv,
                             "whole-body residual muscle decomposition failed");
                 }
+                std::cout << std::setprecision(17) << "compiled_equilibrium_q=[";
+                for (std::size_t i=0;i<support.q.size();++i) {
+                    if (i) std::cout << ',';
+                    std::cout << support.q[i];
+                }
+                std::cout << "]\n";
                 std::cout << std::setprecision(12)
                           << "numi_human_whole_body_support_wrench=ok"
                           << " source_model=pinned_MyoSim_full_body"
-                          << " support_payload=NHCNT1"
+                          << " support_payload=NHCNT" << supportContactPayload->header.payloadAbi
                           << " joint_manifold=NHEQ1"
                           << " passive_joint_tissue="
                           << (sourcePassiveJointTissue

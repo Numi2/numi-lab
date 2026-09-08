@@ -1967,10 +1967,25 @@ ArticulatedDynamicsDiagnostics computeArticulatedPointJacobians(
     }
 
     for (const ArticulatedPointQuery& point : points) {
-        if (point.bodyIndex < topology.articulation->firstBody ||
+        const bool ellipsoid = std::ranges::any_of(point.supportRadii, [](double x) { return x != 0.0; });
+        double orientationNorm2 = 0.0;
+        for (double x : point.supportOrientation) orientationNorm2 += x*x;
+        const bool shapeValid = std::ranges::all_of(point.supportRadii, [](double x) { return std::isfinite(x); }) &&
+            std::isfinite(orientationNorm2) &&
+            (ellipsoid ? (point.supportRadius == 0.0 && std::abs(orientationNorm2-1.0) <= 1.0e-6 &&
+                          std::ranges::all_of(point.supportRadii, [](double x) { return x > 0.0; }))
+                       : orientationNorm2 == 0.0);
+        if (!shapeValid || point.bodyIndex < topology.articulation->firstBody ||
             point.bodyIndex >=
                 topology.articulation->firstBody +
                     topology.articulation->bodyCount ||
+            !std::isfinite(point.supportRadius) || point.supportRadius < 0.0 ||
+            !std::ranges::all_of(point.supportPlaneNormal,
+                [](double x) { return std::isfinite(x); }) ||
+            ((point.supportRadius > 0.0 || ellipsoid) && std::abs(
+                point.supportPlaneNormal[0]*point.supportPlaneNormal[0] +
+                point.supportPlaneNormal[1]*point.supportPlaneNormal[1] +
+                point.supportPlaneNormal[2]*point.supportPlaneNormal[2] - 1.0) > 1.0e-6) ||
             !std::ranges::all_of(
                 point.localPoint,
                 [](const double value) {
@@ -2021,7 +2036,22 @@ ArticulatedDynamicsDiagnostics computeArticulatedPointJacobians(
             query.localPoint[1],
             query.localPoint[2],
         };
-        const Vec3 centerToPoint = body.rotation * localPoint;
+        Vec3 centerToPoint = body.rotation * localPoint - Vec3{
+            query.supportRadius * query.supportPlaneNormal[0],
+            query.supportRadius * query.supportPlaneNormal[1],
+            query.supportRadius * query.supportPlaneNormal[2]};
+        if (query.supportRadii[0] > 0.0) {
+            const auto& o=query.supportOrientation;
+            const Mat3 shapeRotation=body.rotation * rotationMatrix({o[0],o[1],o[2],o[3]});
+            const Vec3 direction=transpose(shapeRotation) * Vec3{
+                query.supportPlaneNormal[0],query.supportPlaneNormal[1],query.supportPlaneNormal[2]};
+            const auto& a=query.supportRadii;
+            const double denominator=std::sqrt(direction.x*direction.x*a[0]*a[0] +
+                direction.y*direction.y*a[1]*a[1] + direction.z*direction.z*a[2]*a[2]);
+            centerToPoint=centerToPoint-shapeRotation * Vec3{
+                a[0]*a[0]*direction.x/denominator,a[1]*a[1]*direction.y/denominator,
+                a[2]*a[2]*direction.z/denominator};
+        }
         const Vec3 position =
             body.centerOfMassPosition + centerToPoint;
         const Vec3 velocity =

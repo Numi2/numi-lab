@@ -935,12 +935,14 @@ typedef struct NM_ALIGN16 NMContactSampleGPU {
 // Coulomb multiplier into its monolithic Newton/FGMRES operator through the
 // exact point Jacobian supplied by the coupled Human service.
 typedef struct NM_ALIGN16 NMHumanSupportContactGPU {
-    // Global articulated body, source geometry, source point-query, reserved.
+    // Global articulated body, source geometry, source point-query, shape (0 point, 1 sphere, 2 ellipsoid).
     nm_uint4 identity;
-    // COM-relative body point in metres; w must be zero.
+    // COM-relative point/centre xyz; w is zero for point, positive radius for sphere.
     nm_float4 localPoint;
     // Coulomb friction, activation slop metres, normal stabilization, reserved.
     nm_float4 frictionSlopAndStabilization;
+    nm_float4 supportRadii;
+    nm_float4 supportOrientation;
 } NMHumanSupportContactGPU;
 
 // Byte-exact query consumed by the external articulated candidate service.
@@ -953,6 +955,11 @@ typedef struct NM_ALIGN16 NMHumanSupportPointQueryGPU {
     nm_u32 reserved1;
     nm_float4 localPoint;
     nm_float4 worldImpulse;
+    nm_float4 supportPlaneNormalAndRadius;
+    // Ellipsoid semi-axes xyz (w=0) and shape-to-COM-frame quaternion xyzw.
+    // Both all zero unless ELLIPSOID_SUPPORT is selected (sphere radius=0).
+    nm_float4 supportRadii;
+    nm_float4 supportOrientation;
 } NMHumanSupportPointQueryGPU;
 
 // Transactional physical consequence of one Human support row. Matter owns an
@@ -984,7 +991,7 @@ typedef struct NM_ALIGN16 NMHumanSupportDispatchGPU {
     nm_float4 groundNormal;
 } NMHumanSupportDispatchGPU;
 
-#define NM_HUMAN_SUPPORT_CONTACT_CAPACITY 16u
+#define NM_HUMAN_SUPPORT_CONTACT_CAPACITY 32u
 #define NM_HUMAN_SUPPORT_CONSEQUENCE_VERSION 1u
 
 typedef struct NM_ALIGN16 NMRigidReactionGPU {
@@ -1095,8 +1102,8 @@ static_assert(sizeof(NMFEMNodeStateGPU) % 16 == 0);
 static_assert(sizeof(NMAdaptiveStateGPU) == 160);
 static_assert(sizeof(NMSchedulerStateGPU) == 80);
 static_assert(sizeof(NMEventTokenGPU) == 48);
-static_assert(sizeof(NMHumanSupportContactGPU) == 48);
-static_assert(sizeof(NMHumanSupportPointQueryGPU) == 48);
+static_assert(sizeof(NMHumanSupportContactGPU) == 80);
+static_assert(sizeof(NMHumanSupportPointQueryGPU) == 96);
 static_assert(sizeof(NMHumanSupportConsequenceGPU) == 64);
 static_assert(sizeof(NMHumanSupportDispatchGPU) == 64);
 #endif

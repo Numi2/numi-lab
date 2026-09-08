@@ -1109,6 +1109,29 @@ RuntimeDiagnostics Runtime::initialize(
                 "Human support rows have an invalid count or ground plane";
             return diagnostics;
         }
+        for (std::size_t i=0; i<supportContacts.size(); ++i) {
+            const auto& row=supportContacts[i];const auto& query=supportQueries[i];
+            const bool sphere=row.identity.w==1u;const bool ellipsoid=row.identity.w==2u;
+            if (row.identity.w>2u || row.identity.z!=i || row.identity.x!=query.bodyIndex ||
+                !std::isfinite(row.localPoint.x) || !std::isfinite(row.localPoint.y) ||
+                !std::isfinite(row.localPoint.z) || !std::isfinite(row.localPoint.w) ||
+                (sphere ? row.localPoint.w<=0.0f : row.localPoint.w!=0.0f) ||
+                query.flags!=(ellipsoid ? MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT : (sphere ? MR_ARTICULATED_POINT_SPHERE_SUPPORT : 0u)) ||
+                query.reserved0!=0u || query.reserved1!=0u ||
+                query.localPoint.x!=row.localPoint.x || query.localPoint.y!=row.localPoint.y ||
+                query.localPoint.z!=row.localPoint.z || query.localPoint.w!=0.0f ||
+                query.worldImpulse.x!=0.0f || query.worldImpulse.y!=0.0f ||
+                query.worldImpulse.z!=0.0f || query.worldImpulse.w!=0.0f ||
+                std::memcmp(&query.supportRadii,&row.supportRadii,sizeof(nm_float4))!=0 ||
+                std::memcmp(&query.supportOrientation,&row.supportOrientation,sizeof(nm_float4))!=0 ||
+                query.supportPlaneNormalAndRadius.w!=row.localPoint.w ||
+                query.supportPlaneNormalAndRadius.x!=((sphere || ellipsoid) ? configuration.humanSupportGroundNormal.x : 0.0f) ||
+                query.supportPlaneNormalAndRadius.y!=((sphere || ellipsoid) ? configuration.humanSupportGroundNormal.y : 0.0f) ||
+                query.supportPlaneNormalAndRadius.z!=((sphere || ellipsoid) ? configuration.humanSupportGroundNormal.z : 0.0f)) {
+                diagnostics.message="Human support geometry disagrees with candidate surface query";
+                return diagnostics;
+            }
+        }
         candidate->humanSupportDispatch.contactCount =
             static_cast<std::uint32_t>(supportContacts.size());
         candidate->humanSupportDispatch.groundPointAndTimestep =
@@ -2642,7 +2665,7 @@ RuntimeDiagnostics Runtime::initialize(
                 if (support.identity.x == NM_INVALID_INDEX ||
                     support.identity.z >=
                         candidate->humanSupportDispatch.contactCount ||
-                    support.identity.w != 0u) {
+                    support.identity.w > 2u) {
                     diagnostics.message =
                         "Human support row has an invalid body or point identity";
                     return diagnostics;

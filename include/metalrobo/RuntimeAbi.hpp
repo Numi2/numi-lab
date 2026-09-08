@@ -51,6 +51,7 @@ constexpr std::uint64_t appendRuntimeAbiType(
 // compile-time value before any custom primitive may submit GPU work.
 constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
     std::uint64_t hash = 14695981039346656037ull;
+    hash = detail::appendRuntimeAbiType<MRArticulatedPointImpulseGPU>(hash);
     hash = detail::appendRuntimeAbiWord(
         hash,
         MR_ENGINE_ABI_VERSION

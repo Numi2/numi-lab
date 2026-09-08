@@ -193,6 +193,7 @@ NumiHumanMuscleEquilibriumDiagnostics resolveStaticSupports(
         if (support.bodyIndex >= model.bodies.size() ||
             model.bodies[support.bodyIndex].articulationIndex !=
                 articulationIndex ||
+            !std::isfinite(support.supportRadius) || support.supportRadius < 0.0 ||
             !finiteSpan(support.localPoint) ||
             !finiteSpan(support.normal) ||
             !finiteSpan(support.planePoint) ||
@@ -201,7 +202,7 @@ NumiHumanMuscleEquilibriumDiagnostics resolveStaticSupports(
                 NumiHumanMuscleEquilibriumStatus::invalidDimensions,
                 static_cast<std::uint32_t>(index));
         }
-        queries.push_back({support.bodyIndex, support.localPoint});
+        queries.push_back({support.bodyIndex, support.localPoint, support.supportRadius, support.normal, support.supportRadii, support.supportOrientation});
     }
     if (queries.empty()) {
         generalizedColumns.clear();

@@ -547,6 +547,9 @@ enum MRArticulatedPointFlags : mr_u32 {
     // Fixed-capacity placeholder with no articulated endpoint. Its canonical
     // query slot remains addressable, but its Jacobian is identically zero.
     MR_ARTICULATED_POINT_INACTIVE = 1u << 0u,
+    // localPoint is a sphere centre; evaluate its current plane-facing surface.
+    MR_ARTICULATED_POINT_SPHERE_SUPPORT = 1u << 1u,
+    MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT = 1u << 2u,
 };
 
 // A world impulse applied at a COM-relative body point. bodyIndex is global
@@ -559,6 +562,14 @@ typedef struct MR_ALIGN16 MRArticulatedPointImpulseGPU {
 
     mr_float4 localPoint;
     mr_float4 worldImpulse;
+    // Unit world plane normal xyz, positive sphere radius w for SPHERE_SUPPORT.
+    // All zero for a fixed material point. Surface material velocity/J uses
+    // R*localPoint - radius*normal, including its frictional moment arm.
+    mr_float4 supportPlaneNormalAndRadius;
+    // Ellipsoid semi-axes xyz (w=0) and shape-to-COM-frame quaternion xyzw.
+    // Both all zero unless ELLIPSOID_SUPPORT is selected (sphere radius=0).
+    mr_float4 supportRadii;
+    mr_float4 supportOrientation;
 } MRArticulatedPointImpulseGPU;
 
 typedef struct MR_ALIGN16 MRArticulatedBodyPoseGPU {
@@ -1707,7 +1718,7 @@ static_assert(sizeof(MRBodyWrenchGPU) == 32);
 static_assert(sizeof(MRFreeBodyBatchGPU) % 16 == 0);
 static_assert(sizeof(MRFreeBodyStatusGPU) % 16 == 0);
 static_assert(sizeof(MRArticulatedOperatorDispatchGPU) == 48);
-static_assert(sizeof(MRArticulatedPointImpulseGPU) == 48);
+static_assert(sizeof(MRArticulatedPointImpulseGPU) == 96);
 static_assert(sizeof(MRArticulatedBodyPoseGPU) == 32);
 static_assert(sizeof(MRArticulatedPointWorldGPU) == 16);
 static_assert(sizeof(MRArticulatedOperatorStatusGPU) == 48);

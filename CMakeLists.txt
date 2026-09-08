@@ -890,6 +890,7 @@ add_library(
     src/core/Multicopter.cpp
     src/core/PX4X500.cpp
     src/core/ArticulatedDynamics.cpp
+    src/core/NumiHumanSupport.cpp
     src/core/ArticulatedActuation.cpp
     src/core/MillardMuscleReference.cpp
     src/core/MujocoMuscleReference.cpp

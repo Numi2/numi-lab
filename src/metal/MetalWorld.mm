@@ -1451,6 +1451,12 @@ bool validMillardProgram(
     for (const MRArticulatedPointImpulseGPU& point : program.pointQueries) {
         if (!ownsBody(point.bodyIndex) || point.flags != 0u ||
             point.reserved0 != 0u || point.reserved1 != 0u ||
+            point.supportRadii.x != 0.0f || point.supportRadii.y != 0.0f || point.supportRadii.z != 0.0f || point.supportRadii.w != 0.0f ||
+            point.supportOrientation.x != 0.0f || point.supportOrientation.y != 0.0f || point.supportOrientation.z != 0.0f || point.supportOrientation.w != 0.0f ||
+            point.supportPlaneNormalAndRadius.x != 0.0f ||
+            point.supportPlaneNormalAndRadius.y != 0.0f ||
+            point.supportPlaneNormalAndRadius.z != 0.0f ||
+            point.supportPlaneNormalAndRadius.w != 0.0f ||
             !finite(point.localPoint) || !finite(point.worldImpulse) ||
             point.localPoint.w != 0.0f || point.worldImpulse.w != 0.0f) {
             return false;
