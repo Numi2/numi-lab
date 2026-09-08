@@ -10071,6 +10071,25 @@ bool encodeClassCompactedPairNarrowphase(
     return true;
 }
 
+// Every specialization has required arguments beyond the common 0..14
+// layout. Bind selection and those arguments together, including borrowed
+// candidate queries and source FunctionBased tasks.
+void bindWorldArticulatedOperator(
+    detail::MetalWorldContextState& context,
+    id<MTLComputeCommandEncoder> encoder
+) {
+    const bool taskParameters =
+        context.useTaskBodyParameters && !context.usesFunctionBasedDynamics;
+    [encoder setComputePipelineState:taskParameters
+        ? context.parameterizedOperatorPipeline : context.operatorPipeline];
+    if (taskParameters) {
+        [encoder setBuffer:context.buffers[kTaskBodyParameters] offset:0u atIndex:15u];
+        [encoder setBuffer:context.buffers[kTaskControllerParameters] offset:0u atIndex:16u];
+    } else {
+        [encoder setBuffer:context.buffers[kFunctionBasedPrograms] offset:0u atIndex:15u];
+    }
+}
+
 bool encodeArticulatedOperator(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -10088,17 +10107,7 @@ bool encodeArticulatedOperator(
         return false;
     }
     encoder.label = label;
-    // Native task body-parameterization belongs to the generic articulated
-    // operator. FunctionBased source joints require their immutable OpenSim
-    // spatial-transform table at slot 15, so a source-Millard task keeps the
-    // FunctionBased operator even while it consumes task action history.
-    const bool useTaskParameters =
-        context.useTaskBodyParameters && !context.usesFunctionBasedDynamics;
-    id<MTLComputePipelineState> pipeline =
-        useTaskParameters
-        ? context.parameterizedOperatorPipeline
-        : context.operatorPipeline;
-    [encoder setComputePipelineState:pipeline];
+    bindWorldArticulatedOperator(context, encoder);
     const std::array<std::size_t, 15u> buffers{{
         kWorld,
         kArticulations,
@@ -10121,19 +10130,6 @@ bool encodeArticulatedOperator(
         1u,
         1u
     );
-    if (useTaskParameters) {
-        [encoder setBuffer:context.buffers[kTaskBodyParameters]
-                     offset:0u
-                    atIndex:15u];
-        [encoder setBuffer:
-                     context.buffers[kTaskControllerParameters]
-                     offset:0u
-                    atIndex:16u];
-    } else {
-        [encoder setBuffer:context.buffers[kFunctionBasedPrograms]
-                     offset:0u
-                    atIndex:15u];
-    }
 
     // Kinematics is a composed world operation: encode one dispatch for every
     // cooked articulation, writing into disjoint slices of a world-global
@@ -11043,11 +11039,7 @@ bool encodeBorrowedCoupledCandidate(
                 [commandBuffer computeCommandEncoder];
             if (pose == nil) return false;
             pose.label = @"MetalWorld coupled candidate body poses";
-            id<MTLComputePipelineState> operatorPipeline =
-                context->useTaskBodyParameters
-                    ? context->parameterizedOperatorPipeline
-                    : context->operatorPipeline;
-            [pose setComputePipelineState:operatorPipeline];
+            bindWorldArticulatedOperator(*context, pose);
             const std::array<std::size_t, 15u> operatorBuffers{{
                 kWorld, kArticulations, kJoints, kDofs, kBodies,
                 kOperatorFactorDispatch, kStateQA, kPointQueries, kBodyPoses,
@@ -11077,12 +11069,6 @@ bool encodeBorrowedCoupledCandidate(
                 if (argument == 7u && query.pointCount != 0u)
                     buffer = pointQueries;
                 [pose setBuffer:buffer offset:offset atIndex:argument];
-            }
-            if (context->useTaskBodyParameters) {
-                [pose setBuffer:context->buffers[kTaskBodyParameters]
-                         offset:0u atIndex:15u];
-                [pose setBuffer:context->buffers[kTaskControllerParameters]
-                         offset:0u atIndex:16u];
             }
             [pose setThreadgroupMemoryLength:
                 detail::articulatedOperatorThreadgroupBytes(
@@ -11243,11 +11229,7 @@ bool encodeBorrowedCoupledCandidate(
             [commandBuffer computeCommandEncoder];
         if (factorEncoder == nil) return false;
         factorEncoder.label = @"MetalWorld coupled candidate mass factor";
-        id<MTLComputePipelineState> operatorPipeline =
-            context->useTaskBodyParameters
-                ? context->parameterizedOperatorPipeline
-                : context->operatorPipeline;
-        [factorEncoder setComputePipelineState:operatorPipeline];
+        bindWorldArticulatedOperator(*context, factorEncoder);
         const std::array<std::size_t, 15u> buffers{{
             kWorld, kArticulations, kJoints, kDofs, kBodies,
             kOperatorFactorDispatch, kStateQA, kPointQueries, kBodyPoses,
@@ -11273,12 +11255,6 @@ bool encodeBorrowedCoupledCandidate(
                     sizeof(MRArticulatedOperatorStatusGPU);
             }
             [factorEncoder setBuffer:buffer offset:offset atIndex:argument];
-        }
-        if (context->useTaskBodyParameters) {
-            [factorEncoder setBuffer:context->buffers[kTaskBodyParameters]
-                              offset:0u atIndex:15u];
-            [factorEncoder setBuffer:context->buffers[kTaskControllerParameters]
-                              offset:0u atIndex:16u];
         }
         [factorEncoder setThreadgroupMemoryLength:
             detail::articulatedOperatorThreadgroupBytes(
@@ -11474,11 +11450,7 @@ bool encodeTaskThreatJacobians(
         return false;
     }
     encoder.label = @"compiled task privileged threat Jacobian";
-    id<MTLComputePipelineState> pipeline =
-        context.useTaskBodyParameters
-        ? context.parameterizedOperatorPipeline
-        : context.operatorPipeline;
-    [encoder setComputePipelineState:pipeline];
+    bindWorldArticulatedOperator(context, encoder);
     const std::array<std::size_t, 15u> buffers{{
         kWorld,
         kArticulations,
@@ -11508,14 +11480,6 @@ bool encodeTaskThreatJacobians(
                          offset:0u
                         atIndex:argument];
         }
-    }
-    if (context.useTaskBodyParameters) {
-        [encoder setBuffer:context.buffers[kTaskBodyParameters]
-                     offset:0u
-                    atIndex:15u];
-        [encoder setBuffer:context.buffers[kTaskControllerParameters]
-                     offset:0u
-                    atIndex:16u];
     }
     const MRArticulationGPU& articulation =
         context.boundArticulations.front();

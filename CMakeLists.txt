@@ -2467,6 +2467,17 @@ target_link_libraries(metalrobo_human_reconcile_probe PRIVATE metalrobo "${FOUND
 set_target_properties(metalrobo_human_reconcile_probe PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
 add_test(NAME metalrobo_human_reconcile_probe COMMAND metalrobo_human_reconcile_probe)
 
+add_executable(metalrobo_matter_surface_bvh_probe apps/matter_surface_bvh_probe.mm)
+add_dependencies(metalrobo_matter_surface_bvh_probe numi_matter_shaders)
+target_include_directories(metalrobo_matter_surface_bvh_probe PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+target_compile_definitions(metalrobo_matter_surface_bvh_probe PRIVATE
+    NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib")
+target_compile_options(metalrobo_matter_surface_bvh_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+target_link_libraries(metalrobo_matter_surface_bvh_probe PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+set_target_properties(metalrobo_matter_surface_bvh_probe PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+add_test(NAME metalrobo_matter_surface_bvh_probe COMMAND metalrobo_matter_surface_bvh_probe)
+set_tests_properties(metalrobo_matter_surface_bvh_probe PROPERTIES ENVIRONMENT "MTL_DEBUG_LAYER=1" TIMEOUT 60)
+
 add_executable(metalrobo_matter_ccd_probe apps/matter_ccd_probe.mm)
 add_dependencies(metalrobo_matter_ccd_probe numi_matter_shaders)
 target_compile_definitions(metalrobo_matter_ccd_probe PRIVATE
@@ -2713,6 +2724,8 @@ if(BUILD_TESTING)
         NAME matter.physics.shared_rigid_coupled_contact
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --articulated-foot-pad-sequence
     )
+    set_tests_properties(matter.physics.shared_rigid_coupled_contact
+        PROPERTIES ENVIRONMENT "MTL_DEBUG_LAYER=1")
     add_test(
         NAME matter.physics.articulated_contact_boundary_recovery
         COMMAND

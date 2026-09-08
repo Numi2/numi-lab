@@ -754,6 +754,8 @@ struct Runtime::State {
     id<MTLBuffer> femSurfaceSortIndicesA = nil;
     id<MTLBuffer> femSurfaceSortIndicesB = nil;
     id<MTLBuffer> femSurfaceActiveCounts = nil;
+    id<MTLBuffer> femSurfaceBVHBounds = nil;
+    std::uint32_t femSurfaceBVHLeafCount = 0u;
     id<MTLBuffer> deformableContactCandidates = nil;
     id<MTLBuffer> deformableContactCandidateCounts = nil;
     id<MTLBuffer> deformableContacts = nil;
@@ -1470,7 +1472,11 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_clear_samples",
             "nm_contact_build_surface_primitives",
             "nm_contact_sort_surface_primitives",
-            "nm_contact_build_deformable_candidates",
+            "nm_contact_build_surface_bvh_leaves",
+            "nm_contact_build_surface_bvh_level",
+            "nm_contact_count_deformable_candidates",
+            "nm_contact_scan_deformable_candidate_counts",
+            "nm_contact_scatter_deformable_candidates",
             "nm_contact_narrowphase_deformable",
             "nm_contact_capture_deformable_failure",
             "nm_contact_compact_deformable",
@@ -2096,6 +2102,23 @@ RuntimeDiagnostics Runtime::initialize(
         const std::size_t surfacePrimitiveTotal =
             multiplied(4u * world.dispatch.tetrahedronCount +
                        world.dispatch.gridNodeCount);
+        const std::uint64_t surfacePrimitiveCount =
+            4ull * world.dispatch.tetrahedronCount + world.dispatch.gridNodeCount;
+        const std::uint64_t surfaceBVHLeafCount = surfacePrimitiveCount == 0u ||
+            world.dispatch.deformableContactCapacity == 0u
+            ? 0u : std::bit_ceil(surfacePrimitiveCount);
+        // Four float4 records per padded leaf, including both bounds of every
+        // implicit heap node. Prove all device element indices before upload.
+        if (surfaceBVHLeafCount > std::numeric_limits<std::uint32_t>::max() / 4ull ||
+            (surfaceBVHLeafCount != 0u && environments >
+                std::numeric_limits<std::uint32_t>::max() / (4ull * surfaceBVHLeafCount))) {
+            diagnostics.message = "surface contact hierarchy exceeds Metal element address space";
+            return diagnostics;
+        }
+        candidate->femSurfaceBVHLeafCount = static_cast<std::uint32_t>(surfaceBVHLeafCount);
+        candidate->femSurfaceBVHBounds = privateScratch<nm_float4>(
+            candidate->device, environments * 4ull * surfaceBVHLeafCount,
+            valid, candidate->residentBytes);
         candidate->femSurfaceSortKeysA = privateScratch<std::uint32_t>(
             candidate->device, surfacePrimitiveTotal,
             valid, candidate->residentBytes);
@@ -4772,22 +4795,54 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:6u];
                     }
                 );
-                dispatchGroups32(
-                    "nm_contact_build_deformable_candidates",
-                    environments,
-                    [&] {
+                const std::uint32_t surfaceBVHLeafCount = state.femSurfaceBVHLeafCount;
+                dispatchThreads("nm_contact_build_surface_bvh_leaves",
+                    environments * surfaceBVHLeafCount, [&] {
                         setDispatch();
-                        [encoder setBuffer:state.continuumSurfacePrimitives offset:0u atIndex:1u];
-                        [encoder setBuffer:state.femSurfaceSortIndicesA offset:0u atIndex:2u];
-                        [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:3u];
-                        [encoder setBuffer:state.deformableContactCandidates offset:0u atIndex:4u];
-                        [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:5u];
-                        [encoder setBuffer:state.statuses offset:0u atIndex:6u];
-                        [encoder setBuffer:state.femTopologyNodesCandidate
-                                     offset:0u atIndex:7u];
-                        [encoder setBuffer:state.objects offset:0u atIndex:8u];
-                    }
-                );
+                        [encoder setBytes:&surfaceBVHLeafCount length:sizeof(surfaceBVHLeafCount) atIndex:1u];
+                        [encoder setBuffer:state.continuumSurfacePrimitives offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femSurfaceSortIndicesA offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femSurfaceBVHBounds offset:0u atIndex:5u];
+                    });
+                for (std::uint32_t width = surfaceBVHLeafCount / 2u; width != 0u; width /= 2u) {
+                    dispatchThreads("nm_contact_build_surface_bvh_level",
+                        environments * width, [&] {
+                            setDispatch();
+                            [encoder setBytes:&surfaceBVHLeafCount length:sizeof(surfaceBVHLeafCount) atIndex:1u];
+                            [encoder setBytes:&width length:sizeof(width) atIndex:2u];
+                            [encoder setBuffer:state.femSurfaceBVHBounds offset:0u atIndex:3u];
+                        });
+                }
+                // Radix-sort ping-pong scratch is dead until the next surface
+                // sort. Reuse it for disjoint per-left counts and offsets.
+                const auto bindSurfaceBVHQuery = [&](id<MTLBuffer> countsOrOffsets) {
+                    setDispatch();
+                    [encoder setBytes:&surfaceBVHLeafCount length:sizeof(surfaceBVHLeafCount) atIndex:1u];
+                    [encoder setBuffer:state.continuumSurfacePrimitives offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femSurfaceSortIndicesA offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femSurfaceBVHBounds offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femTopologyNodesCandidate offset:0u atIndex:6u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:7u];
+                    [encoder setBuffer:countsOrOffsets offset:0u atIndex:8u];
+                    [encoder setBuffer:state.deformableContactCandidates offset:0u atIndex:9u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:10u];
+                };
+                dispatchThreads("nm_contact_count_deformable_candidates", surfacePrimitiveTotal, [&] {
+                    bindSurfaceBVHQuery(state.femSurfaceSortKeysB);
+                });
+                dispatchGroups32("nm_contact_scan_deformable_candidate_counts", environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femSurfaceSortKeysB offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femSurfaceSortIndicesB offset:0u atIndex:3u];
+                    [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:4u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                });
+                dispatchThreads("nm_contact_scatter_deformable_candidates", surfacePrimitiveTotal, [&] {
+                    bindSurfaceBVHQuery(state.femSurfaceSortIndicesB);
+                });
                 dispatchThreads(
                     "nm_contact_narrowphase_deformable",
                     environments * state.dispatch.deformableContactCapacity,

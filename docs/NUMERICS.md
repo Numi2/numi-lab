@@ -157,6 +157,29 @@ time-of-impact handling.
 
 ## Collision and contact
 
+### Matter continuum surface search
+
+Matter builds a balanced bounds hierarchy over its stable Morton-ordered
+continuum surfaces at each candidate assembly. Parallel per-left traversal
+uses the same swept AABB and object/topology eligibility rules as exhaustive
+pair enumeration. Left-first traversal and an ordered prefix scan preserve
+candidate membership and order. Capacity is checked across all left rows
+before scatter; an exactly full prefix cannot hide additional eligible pairs.
+The hierarchy is scratch state, rebuilt after pose or topology changes and
+never part of accepted-state authority. Its padded heap uses 64 bytes per leaf
+per environment; the runtime checks all device indices and accounts for the
+allocation. Radix ping-pong scratch is reused for pair counts and offsets after
+sorting. Zero contact capacity allocates no hierarchy.
+
+`metalrobo_matter_surface_bvh_probe` compares complete ordered candidates with
+an independent exhaustive oracle, including touching bounds, object masks,
+shared nodes, cohesive lineage, overflow, multiple environments, changed
+geometry and restored replay. Large separated geometry also carries an
+independent separation witness. These are broadphase checks, not evidence of
+whole-Human equilibrium or sustained behavior.
+
+### Rigid collision
+
 The CPU collision oracle uses FP64 sweep-and-prune, analytic primitive
 witnesses, stable feature identifiers, and deterministic four-point manifold
 reduction. The Metal collision path is currently an FP32, one-thread `O(n²)`
