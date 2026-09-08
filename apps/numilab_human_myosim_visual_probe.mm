@@ -3250,8 +3250,11 @@ DynamicSourceSupportContacts makeDynamicSourceSupportContacts(
 }
 
 struct CompiledStandActivation {
+    std::vector<metalrobo::NumiHumanEquilibriumSearchRecord> searchTrace;
     std::vector<double> q;
     std::vector<float> activation;
+    std::vector<double> referenceActivation;
+    std::vector<double> referenceFiberLength;
     std::vector<double> generalizedMuscleForce;
     std::vector<double> generalizedPositionLimitForce;
     std::vector<double> generalizedJointEqualityForce;
@@ -3270,6 +3273,9 @@ struct CompiledStandActivation {
     std::uint32_t recruitedMuscleCount = 0u;
     std::uint32_t activePositionLimitCount = 0u;
     std::uint32_t acceptedPoseSteps = 0u;
+    std::uint32_t acceptedCoupledPoseSteps = 0u;
+    std::uint32_t rejectedConstraintCandidates = 0u;
+    std::uint32_t rejectedSupportManifoldPoseCandidates = 0u;
     double normalizedResidualRms = 0.0;
     double initialNormalizedResidualRms = 0.0;
     double maximumAccelerationResidual = 0.0;
@@ -3332,7 +3338,8 @@ CompiledStandActivation compileStaticStandActivation(
     const std::span<const metalrobo::NumiHumanPassiveCoordinateCoupling>
         passiveCouplings = {},
     const std::uint32_t activationSweeps = 240u,
-    const bool allowPoseSearch = true
+    const bool allowPoseSearch = true,
+    const std::optional<std::uint32_t> poseSweeps = std::nullopt
 ) {
     require(muscles.header.payloadAbi == kMusclePayloadAbi &&
                 muscles.referenceArchitectures.size() ==
@@ -3349,6 +3356,7 @@ CompiledStandActivation compileStaticStandActivation(
         config.poseCandidateCount = 12u;
         config.poseRecruitmentCandidateCount = 3u;
     }
+    if (poseSweeps.has_value()) config.poseSweeps = *poseSweeps;
     if (!allowPoseSearch) config.poseSweeps = 0u;
     std::vector<metalrobo::NumiHumanStaticSupportContact> staticSupports;
     if (supportContacts != nullptr) {
@@ -3475,6 +3483,8 @@ CompiledStandActivation compileStaticStandActivation(
     for (const double value : compiled.activation) {
         result.activation.push_back(static_cast<float>(value));
     }
+    result.referenceActivation = std::move(compiled.activation);
+    result.referenceFiberLength = std::move(compiled.fiberLength);
     result.generalizedMuscleForce =
         std::move(compiled.generalizedMuscleForce);
     result.generalizedPositionLimitForce =
@@ -3494,6 +3504,7 @@ CompiledStandActivation compileStaticStandActivation(
     result.passiveMuscleTendonForce =
         std::move(compiled.passiveMuscleTendonForce);
     result.supportNormalForce = std::move(compiled.supportNormalForce);
+    result.searchTrace = std::move(compiled.searchTrace);
     result.activeMuscleCount = diagnostics.activeMuscleCount;
     result.activationSweeps = diagnostics.activationSweeps;
     result.globalActivationPolishIterations =
@@ -3503,6 +3514,9 @@ CompiledStandActivation compileStaticStandActivation(
     result.recruitedMuscleCount = diagnostics.recruitedMuscleCount;
     result.activePositionLimitCount = diagnostics.activePositionLimitCount;
     result.acceptedPoseSteps = diagnostics.acceptedPoseSteps;
+    result.acceptedCoupledPoseSteps = diagnostics.acceptedCoupledPoseSteps;
+    result.rejectedConstraintCandidates = diagnostics.rejectedConstraintCandidates;
+    result.rejectedSupportManifoldPoseCandidates = diagnostics.rejectedSupportManifoldPoseCandidates;
     result.normalizedResidualRms = diagnostics.normalizedResidualRms;
     result.initialNormalizedResidualRms =
         diagnostics.initialNormalizedResidualRms;
@@ -13610,6 +13624,18 @@ std::uint32_t parseWholeBodyActivationSweeps(const std::string& value) {
     return static_cast<std::uint32_t>(result);
 }
 
+std::uint32_t parseWholeBodyPoseSweeps(const std::string& value) {
+    std::size_t parsed = 0u;
+    unsigned long result = 0ul;
+    try { result = std::stoul(value, &parsed, 10); }
+    catch (const std::exception&) {
+        throw std::runtime_error("--whole-body-pose-sweeps must be an integer from 0 through 256");
+    }
+    require(parsed == value.size() && result <= 256ul,
+            "--whole-body-pose-sweeps must be an integer from 0 through 256");
+    return static_cast<std::uint32_t>(result);
+}
+
 std::uint32_t parseSourceRouteIndex(const std::string& value) {
     std::size_t parsed = 0u;
     unsigned long result = 0ul;
@@ -13705,6 +13731,7 @@ int main(int argc, char** argv) {
             std::optional<std::filesystem::path> anteriorThoraxPayloadPath;
             std::optional<std::uint32_t> requestedCameraIndex;
             std::optional<std::uint32_t> wholeBodyActivationSweeps;
+            std::optional<std::uint32_t> wholeBodyPoseSweeps;
             std::vector<std::pair<std::uint32_t, double>> requestedPoseCoordinates;
             std::uint32_t frameDimension = kDefaultFrameDimension;
             std::vector<std::string> positional;
@@ -13780,6 +13807,10 @@ int main(int argc, char** argv) {
                             "value and may be given only once");
                     wholeBodyActivationSweeps.emplace(
                         parseWholeBodyActivationSweeps(argv[++index]));
+                } else if (argument == "--whole-body-pose-sweeps") {
+                    require(index + 1 < argc && !wholeBodyPoseSweeps.has_value(),
+                            "--whole-body-pose-sweeps requires one value and may be given only once");
+                    wholeBodyPoseSweeps.emplace(parseWholeBodyPoseSweeps(argv[++index]));
                 } else if (argument == "--source-passive-joint-tissue") {
                     require(!sourcePassiveJointTissue,
                             "--source-passive-joint-tissue may be given only once");
@@ -13966,6 +13997,7 @@ int main(int argc, char** argv) {
                           << " [--bilateral-plantar-fascia-certificate]"
                           << " [--whole-body-support-certificate]"
                           << " [--whole-body-activation-sweeps <1..8192>]"
+                          << " [--whole-body-pose-sweeps <0..256>]"
                           << " [--whole-body-all-residuals]"
                           << " [--fifth-mcp-lower-stop-counterfactual]"
                           << " [--source-passive-joint-tissue]"
@@ -14298,6 +14330,8 @@ int main(int argc, char** argv) {
             require(!sourcePassiveJointTissue || wholeBodySupportCertificate,
                     "--source-passive-joint-tissue requires "
                     "--whole-body-support-certificate");
+            require(!wholeBodyPoseSweeps.has_value() || wholeBodySupportCertificate,
+                    "--whole-body-pose-sweeps requires --whole-body-support-certificate");
             require(!wholeBodyActivationSweeps.has_value() ||
                         wholeBodySupportCertificate,
                     "--whole-body-activation-sweeps requires "
@@ -14629,13 +14663,13 @@ int main(int argc, char** argv) {
                         rigid.model, musclePayload, *jointEqualityPayload,
                         aligned.q, 1.0, {}, &*supportContactPayload,
                         passiveCouplings,
-                        wholeBodyActivationSweeps.value_or(240u));
+                        wholeBodyActivationSweeps.value_or(240u), true, wholeBodyPoseSweeps);
                 const CompiledStandActivation replaySupport =
                     compileStaticStandActivation(
                         rigid.model, musclePayload, *jointEqualityPayload,
                         aligned.q, 1.0, {}, &*supportContactPayload,
                         passiveCouplings,
-                        wholeBodyActivationSweeps.value_or(240u));
+                        wholeBodyActivationSweeps.value_or(240u), true, wholeBodyPoseSweeps);
                 const auto bitwiseEqual = [](const auto& first,
                                              const auto& second) {
                     using Value = typename std::decay_t<decltype(first)>::value_type;
@@ -14645,6 +14679,9 @@ int main(int argc, char** argv) {
                             first.size() * sizeof(Value)) == 0);
                 };
                 require(
+                    support.searchTrace == replaySupport.searchTrace &&
+                    bitwiseEqual(support.referenceActivation, replaySupport.referenceActivation) &&
+                    bitwiseEqual(support.referenceFiberLength, replaySupport.referenceFiberLength) &&
                     bitwiseEqual(support.q, replaySupport.q) &&
                         bitwiseEqual(support.activation,
                                      replaySupport.activation) &&
@@ -14699,7 +14736,7 @@ int main(int argc, char** argv) {
                             rigid.model, musclePayload,
                             *jointEqualityPayload, counterfactualQ, 1.0, {},
                             &*supportContactPayload, passiveCouplings,
-                            wholeBodyActivationSweeps.value_or(240u)
+                            wholeBodyActivationSweeps.value_or(240u), true, wholeBodyPoseSweeps
                         )
                     );
                     const CompiledStandActivation counterfactualReplay =
@@ -14707,7 +14744,7 @@ int main(int argc, char** argv) {
                             rigid.model, musclePayload,
                             *jointEqualityPayload, counterfactualQ, 1.0, {},
                             &*supportContactPayload, passiveCouplings,
-                            wholeBodyActivationSweeps.value_or(240u)
+                            wholeBodyActivationSweeps.value_or(240u), true, wholeBodyPoseSweeps
                         );
                     require(
                         bitwiseEqual(
@@ -14838,6 +14875,16 @@ int main(int argc, char** argv) {
                                     rigid.model.world.nv,
                             "whole-body residual muscle decomposition failed");
                 }
+                std::cout << std::setprecision(17) << "compiled_equilibrium_search_trace=[";
+                for (std::size_t i = 0u; i < support.searchTrace.size(); ++i) {
+                    if (i != 0u) std::cout << ',';
+                    const auto& row = support.searchTrace[i];
+                    std::cout << "{\"kind\":" << row.kind << ",\"accepted_pose_steps\":" << row.acceptedPoseSteps
+                              << ",\"normalized_residual_rms\":" << row.normalizedResidualRms << ",\"objective\":" << row.objective
+                              << ",\"coupled_pose_proposal\":" << (row.coupledPoseProposal ? "true" : "false")
+                              << ",\"rejected_constraint_candidates\":" << row.rejectedConstraintCandidates << '}';
+                }
+                std::cout << "]\n";
                 std::cout << std::setprecision(17) << "compiled_equilibrium_q=[";
                 for (std::size_t i=0;i<support.q.size();++i) {
                     if (i) std::cout << ',';
@@ -14861,6 +14908,13 @@ int main(int argc, char** argv) {
                 writeReactionVector("support_force", support.generalizedSupportForce);
                 writeReactionVector("gravity_target", support.gravityTarget);
                 writeReactionVector("force_residual", support.generalizedForceResidual);
+                std::cout << "}\n";
+                std::cout << "compiled_equilibrium_muscles={\"schema\":\"numi.human.offline-muscle-state.v1\"";
+                writeReactionVector("activation_fp64", support.referenceActivation);
+                writeReactionVector("activation_fp32", std::vector<double>(support.activation.begin(), support.activation.end()));
+                writeReactionVector("reference_fiber_length_m", support.referenceFiberLength);
+                writeReactionVector("actuator_force_n", support.muscleTendonForce);
+                writeReactionVector("passive_actuator_force_n", support.passiveMuscleTendonForce);
                 std::cout << "}\n";
                 std::cout << std::setprecision(12)
                           << "numi_human_whole_body_support_wrench=ok"
@@ -14894,6 +14948,9 @@ int main(int argc, char** argv) {
                           << support.acceptedGlobalActivationPolishSteps
                           << " accepted_pose_steps="
                           << support.acceptedPoseSteps
+                          << " accepted_coupled_pose_steps=" << support.acceptedCoupledPoseSteps
+                          << " rejected_constraint_candidates=" << support.rejectedConstraintCandidates
+                          << " rejected_support_manifold_pose_candidates=" << support.rejectedSupportManifoldPoseCandidates
                           << " active_position_limits="
                           << support.activePositionLimitCount
                           << " position_limit_physical_kkt=" << support.positionLimitKktResidual

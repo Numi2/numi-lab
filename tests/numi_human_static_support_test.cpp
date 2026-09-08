@@ -585,7 +585,82 @@ int main() {
             recruitedReaction.activation[0] > 0.0 &&
             near(recruitedReaction.generalizedPositionLimitForce[0], 2.75, 5.0e-4),
             "recruitment did not balance a coupled joint-stop load");
+    // Two coupled serial sliders: a proximal muscle supplies [-1,0]F and
+    // a spanning muscle [-1,-1]F. The exact tension solution for loads [5,2]
+    // is [3,2]. A single ordered sweep cannot resolve this force sharing.
+    auto coupledModel = reactions.model;
+    coupledModel.joints[1].axis0 = f4(0.0, 1.0, 0.0);
+    coupledModel.dofs[0].limits = coupledModel.dofs[1].limits = f4(-10, 10, 0);
+    const std::vector<MujocoMuscleSite> coupledSites{
+        {0u, {0,0,0}}, {1u, {0,1,0}}, {2u, {0,1,0}}};
+    std::vector<MujocoMuscleDefinition> coupledMuscles(2u, reactions.muscles[0]);
+    coupledMuscles[0].route = {{MujocoRouteNodeType::site, 0u}, {MujocoRouteNodeType::site, 1u}};
+    coupledMuscles[1].route = {{MujocoRouteNodeType::site, 0u}, {MujocoRouteNodeType::site, 2u}};
+    const std::vector<MujocoCompliantMuscleArchitecture> coupledArchitectures(2u);
+    const std::vector<NumiHumanPassiveCoordinateCoupling> coupledLoads{
+        {0u, 0u, 5.0, 1.0}, {1u, 1u, 2.0, 1.0}};
+    auto coupledConfig = reactions.config;
+    coupledConfig.activationSweeps = 1u;
+    coupledConfig.activationRegularization = 0.0;
+    coupledConfig.globalActivationPolishIterations = 12u;
+    const auto recruitCoupled = [&](const std::vector<MujocoMuscleDefinition>& definitions) {
+        NumiHumanMuscleEquilibriumResult result;
+        require(compileNumiHumanMuscleEquilibrium(coupledModel, 0u, reactions.q,
+            coupledSites, {}, definitions, coupledArchitectures, {}, {}, {},
+            coupledLoads, result, coupledConfig).succeeded(),
+            "coupled recruitment proposal failed");
+        return result;
+    };
+    const auto coupledResult = recruitCoupled(coupledMuscles);
+    require(coupledResult.diagnostics.normalizedResidualRms < 1.0e-6 &&
+            near(coupledResult.muscleTendonForce[0], -3.0, 1.0e-5) &&
+            near(coupledResult.muscleTendonForce[1], -2.0, 1.0e-5),
+            "coupled polish did not recover analytic muscle force sharing");
+    std::swap(coupledMuscles[0], coupledMuscles[1]);
+    const auto reversedResult = recruitCoupled(coupledMuscles);
+    require(reversedResult.diagnostics.normalizedResidualRms < 1.0e-6 &&
+            near(reversedResult.activation[1], coupledResult.activation[0], 1.0e-6) &&
+            near(reversedResult.activation[0], coupledResult.activation[1], 1.0e-6),
+            "coupled recruitment retained muscle ordering bias");
+    const auto coupledReplay = recruitCoupled(coupledMuscles);
+    require(coupledReplay.activation == reversedResult.activation &&
+            coupledReplay.generalizedAccelerationResidual == reversedResult.generalizedAccelerationResidual,
+            "coupled recruitment changed exact replay");
+    coupledConfig.activationLimit = 0.05;
+    const auto limitedRecruitment = recruitCoupled(coupledMuscles);
+    require(!limitedRecruitment.diagnostics.balanced &&
+            limitedRecruitment.activation[0] <= coupledConfig.activationLimit &&
+            limitedRecruitment.activation[1] <= coupledConfig.activationLimit &&
+            limitedRecruitment.q == reactions.q,
+            "infeasible recruitment waived activation bounds or changed the posture");
+    // With no generalized muscle moment arm, two independent spring loads
+    // require both coordinates to move in the same accepted posture update.
+    // One scalar trial alone cannot reach the analytic equilibrium [5,2].
+    for (auto& definition : coupledMuscles) {
+        definition.route = {{MujocoRouteNodeType::site, 0u}, {MujocoRouteNodeType::site, 1u}};
+    }
+    const std::vector<MujocoMuscleSite> postureSites{{0u,{0,0,0}}, {0u,{0,1,0}}};
+    coupledConfig.poseSweeps = 1u;
+    coupledConfig.poseStepFraction = 0.3;
+    coupledConfig.maximumPoseStep = 6.0;
+    coupledConfig.poseRegularization = 0.0;
+    NumiHumanMuscleEquilibriumResult postureResult;
+    require(compileNumiHumanMuscleEquilibrium(coupledModel, 0u, reactions.q,
+        postureSites, {}, coupledMuscles, coupledArchitectures, {}, {}, {},
+        coupledLoads, postureResult, coupledConfig).succeeded() &&
+        postureResult.diagnostics.normalizedResidualRms < 1.0e-6 &&
+        near(postureResult.q[0], 5.0, 1.0e-5) && near(postureResult.q[1], 2.0, 1.0e-5) &&
+        postureResult.diagnostics.acceptedPoseSteps == 1u,
+        "coupled posture proposal missed the analytic two-coordinate equilibrium");
+    require(postureResult.searchTrace.size() == 3u &&
+            postureResult.searchTrace[0].kind == 0u && postureResult.searchTrace[1].kind == 1u &&
+            postureResult.searchTrace[1].coupledPoseProposal && postureResult.searchTrace[2].kind == 2u &&
+            postureResult.searchTrace[1].objective < postureResult.searchTrace[0].objective &&
+            near(postureResult.searchTrace.back().normalizedResidualRms, postureResult.diagnostics.normalizedResidualRms),
+            "accepted search history lost a coupled update or disagreed with its certificate");
     std::cout << "numi_human_static_support_test=passed"
+              << " coupled_recruitment=passed recruitment_bounds=passed"
+              << " coupled_posture=passed"
               << " coupled_limit_reactions=passed dependent_acceleration=passed"
               << " analytic_weight_n=" << replay.supportNormalForce[0]
               << " replay=exact penetration=rejected airborne_force_n=0\n";

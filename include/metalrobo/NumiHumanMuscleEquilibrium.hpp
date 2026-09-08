@@ -30,6 +30,7 @@ enum class NumiHumanMuscleEquilibriumStatus : std::uint32_t {
     supportPenetration,
     supportPoseInfeasible,
     positionLimitViolation,
+    constraintSolveFailure,
 };
 
 struct NumiHumanMuscleEquilibriumConfig {
@@ -45,12 +46,12 @@ struct NumiHumanMuscleEquilibriumConfig {
     std::uint32_t activationExactCheckpointInterval = 8u;
     double activationRegularization = 2.5e-4;
     double activationConvergence = 1.0e-7;
-    // A simultaneous, bound-projected diagonal Gauss-Newton polish follows
-    // the source-ordered coordinate sweeps. Exact nonlinear-force evaluation
-    // and backtracking admit only objective-decreasing updates, removing most
-    // sweep-order bias without changing muscle routes or force authority.
+    // A simultaneous, bound-constrained coupled Gauss-Newton polish follows
+    // the source-ordered coordinate sweeps. Local exact force-law derivatives
+    // retain cross-muscle coupling. Exact nonlinear-force evaluation and a new
+    // physical reaction solve admit only objective-decreasing updates.
     std::uint32_t globalActivationPolishIterations = 24u;
-    std::uint32_t globalActivationLineSearchSteps = 12u;
+    std::uint32_t globalActivationLineSearchSteps = 24u;
     double globalActivationConvergence = 1.0e-8;
     // Recruitment is evaluated in constrained acceleration space, not raw
     // generalized-force units. This prevents small distal-joint torque
@@ -59,10 +60,11 @@ struct NumiHumanMuscleEquilibriumConfig {
     double minimumGeneralizedAccelerationScale = 1.0;
     double balanceTolerance = 5.0e-2;
 
-    // Deterministic bounded coordinate search. Only scalar, authoritative
-    // position-limited internal DoFs are candidates; root coordinates and
-    // quaternion-rate coordinates are never altered. Each accepted posture
-    // update is followed by a complete recruitment recompile.
+    // Deterministic bounded coordinate and coupled block posture search.
+    // Only scalar, authoritative position-limited internal DoFs are candidates;
+    // root and quaternion-rate coordinates are never altered. Block directions
+    // use exact equality-projected residual differences; all trials require
+    // geometric/source-range admission and complete recruitment before selection.
     std::uint32_t poseSweeps = 4u;
     std::uint32_t poseCandidateCount = 8u;
     // Re-recruit at the strongest fixed-activation pose candidates before
@@ -152,9 +154,15 @@ struct NumiHumanMuscleEquilibriumDiagnostics {
     std::uint32_t recruitedMuscleCount = 0u;
     std::uint32_t activeMuscleCount = 0u;
     std::uint32_t activationSweeps = 0u;
+    // Iterations in the final polish call; accepted steps accumulated along
+    // the retained search trajectory, respectively.
     std::uint32_t globalActivationPolishIterations = 0u;
     std::uint32_t acceptedGlobalActivationPolishSteps = 0u;
     std::uint32_t acceptedPoseSteps = 0u;
+    std::uint32_t acceptedCoupledPoseSteps = 0u;
+    // Rejected numerical search evaluations, including derivative probes.
+    std::uint32_t rejectedConstraintCandidates = 0u;
+    std::uint32_t rejectedSupportManifoldPoseCandidates = 0u;
     std::uint32_t rejectedPenetratingPoseCandidates = 0u;
     std::uint32_t rejectedPositionLimitPoseCandidates = 0u;
     std::uint32_t activePositionLimitCount = 0u;
@@ -189,8 +197,21 @@ struct NumiHumanMuscleEquilibriumDiagnostics {
     }
 };
 
+// Accepted offline search history. kind: 0 initialization, 1 posture update,
+// 2 final state. These records are not physical time steps.
+struct NumiHumanEquilibriumSearchRecord {
+    std::uint32_t kind = 0u;
+    std::uint32_t acceptedPoseSteps = 0u;
+    double normalizedResidualRms = 0.0;
+    double objective = 0.0;
+    bool coupledPoseProposal = false;
+    std::uint32_t rejectedConstraintCandidates = 0u;
+    bool operator==(const NumiHumanEquilibriumSearchRecord&) const = default;
+};
+
 struct NumiHumanMuscleEquilibriumResult {
     NumiHumanMuscleEquilibriumDiagnostics diagnostics{};
+    std::vector<NumiHumanEquilibriumSearchRecord> searchTrace;
     // Articulation-local q and activation in source muscle order.
     std::vector<double> q;
     std::vector<double> activation;
