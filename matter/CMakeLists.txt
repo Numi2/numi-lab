@@ -111,6 +111,7 @@ if(APPLE)
             src/metal/fem.metalinc
             src/metal/fgmres.metalinc
             src/metal/human_equality.metalinc
+            src/metal/human_limits.metalinc
             src/metal/mixed_fem.metalinc
             src/metal/topology_mutation.metalinc
             src/metal/contact.metalinc
@@ -122,6 +123,7 @@ if(APPLE)
             include/numi/matter/shared.h
             include/numi/matter/fiber_exp_linear.h
             include/numi/matter/human_equality_gpu.h
+            include/numi/matter/human_limits_gpu.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
         VERBATIM

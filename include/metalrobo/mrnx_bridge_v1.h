@@ -33,6 +33,7 @@ extern "C" {
 #define MRNX_RUNTIME_CONFIG_ABI_V3 3u
 #define MRNX_RUNTIME_CONFIG_ABI_V4 4u
 #define MRNX_RUNTIME_CONFIG_ABI_V5 5u
+#define MRNX_RUNTIME_CONFIG_ABI_V6 6u
 #define MRNX_AGGREGATE_SNAPSHOT_ABI_V4 4u
 #define MRNX_CULTURE_ACCEPTED_VIEW_ABI_V1 1u
 #define MRNX_CULTURE_PREPARED_VIEW_ABI_V1 1u
@@ -336,6 +337,22 @@ typedef struct mrnx_runtime_config_v5 {
     uint64_t expected_costal_binding_fingerprint;
 } mrnx_runtime_config_v5;
 
+// NHLIM1 scalar source limits on the same NHEQ2 authored-world solver.
+// Limits are mandatory. Costal mass ownership is optional as one complete
+// group; its three fields must all be absent or all be present. Construction
+// admits the base world, then folds NHEQ2, NHLIM1 and optional NHTMASS1 into
+// Human identity. No state projection or separate limit solver is installed.
+typedef struct mrnx_runtime_config_v6 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    mrnx_runtime_config_v4 runtime;
+    const char* joint_limit_payload_path;
+    uint64_t expected_joint_limit_fingerprint;
+    const char* costal_cartilage_payload_path;
+    const char* costal_binding_payload_path;
+    uint64_t expected_costal_binding_fingerprint;
+} mrnx_runtime_config_v6;
+
 // Immutable construction metadata. Legacy v1/v2 worlds are explicitly marked
 // as fixtures; successfully loading an authored package is not calibration.
 typedef struct mrnx_runtime_world_info_v1 {
@@ -439,6 +456,8 @@ enum mrnx_joint_coordinate_kind_v1 {
 
 enum mrnx_joint_coordinate_flags_v1 {
     MRNX_JOINT_COORDINATE_POSITION_LIMIT_V1 = 1u << 0u,
+    // NHLIM1 bounds are compliant; the source reset can lie outside them.
+    MRNX_JOINT_COORDINATE_SOURCE_COMPLIANT_LIMIT_V1 = 1u << 1u,
 };
 
 // One aggregate public tuple copied while the bridge's shared reader gate is
@@ -706,6 +725,9 @@ MRNX_BRIDGE_EXPORT mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v4(
 MRNX_BRIDGE_EXPORT mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v5(
     const mrnx_runtime_config_v5* config,
     mrnx_runtime_info_v1* info);
+MRNX_BRIDGE_EXPORT mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v6(
+    const mrnx_runtime_config_v6* config,
+    mrnx_runtime_info_v1* info);
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_world_info(
     const mrnx_runtime_v1* runtime,
     mrnx_runtime_world_info_v1* info);
@@ -887,6 +909,9 @@ MRNX_BRIDGE_EXPORT uint32_t mrnx_bridge_v1_reject_unbound_candidate(
 static_assert(sizeof(mrnx_runtime_config_v3) == 168u);
 static_assert(sizeof(mrnx_runtime_config_v4) == 192u);
 static_assert(sizeof(mrnx_runtime_config_v5) == 224u);
+static_assert(sizeof(mrnx_runtime_config_v6) == 240u);
+static_assert(offsetof(mrnx_runtime_config_v6, joint_limit_payload_path) == 200u);
+static_assert(offsetof(mrnx_runtime_config_v6, costal_cartilage_payload_path) == 216u);
 static_assert(offsetof(mrnx_runtime_config_v4, joint_equality_payload_path) == 176u);
 static_assert(offsetof(mrnx_runtime_config_v4, expected_joint_equality_fingerprint) == 184u);
 static_assert(offsetof(mrnx_runtime_config_v3, runtime) == 8u);
@@ -1060,6 +1085,9 @@ _Static_assert(sizeof(mrnx_publication_v1) == 24u,
 _Static_assert(sizeof(mrnx_runtime_config_v3) == 168u, "mrnx_runtime_config_v3 ABI");
 _Static_assert(sizeof(mrnx_runtime_config_v4) == 192u, "mrnx_runtime_config_v4 ABI");
 _Static_assert(sizeof(mrnx_runtime_config_v5) == 224u, "mrnx_runtime_config_v5 ABI");
+_Static_assert(sizeof(mrnx_runtime_config_v6) == 240u, "mrnx_runtime_config_v6 ABI");
+_Static_assert(offsetof(mrnx_runtime_config_v6, joint_limit_payload_path) == 200u, "mrnx limits offset");
+_Static_assert(offsetof(mrnx_runtime_config_v6, costal_cartilage_payload_path) == 216u, "mrnx costal offset");
 _Static_assert(offsetof(mrnx_runtime_config_v3, matter_world_package_path) == 144u,
                "mrnx_runtime_config_v3 world offset");
 _Static_assert(sizeof(mrnx_runtime_world_info_v1) == 40u, "mrnx world info ABI");

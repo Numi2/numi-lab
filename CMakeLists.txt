@@ -4736,6 +4736,31 @@ if(APPLE)
     endif()
 endif()
 
+# Source-pinned NHLIM1 unilateral force, tangent and envelope preconditioner.
+if(APPLE)
+    add_executable(metalrobo_numanx_human_limit_probe
+        apps/numanx_human_limit_probe.mm)
+    add_dependencies(metalrobo_numanx_human_limit_probe numi_matter_shaders)
+    target_include_directories(metalrobo_numanx_human_limit_probe PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+    target_compile_definitions(metalrobo_numanx_human_limit_probe PRIVATE
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib")
+    target_compile_options(metalrobo_numanx_human_limit_probe PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_link_libraries(metalrobo_numanx_human_limit_probe PRIVATE
+        "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    set_target_properties(metalrobo_numanx_human_limit_probe PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+    set(NUMANX_LIMIT_ORACLE "${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/numanx_human_limit_mujoco312.json"
+        CACHE FILEPATH "Pinned MuJoCo 3.12 scalar joint-limit oracle")
+    if(BUILD_TESTING)
+        add_test(NAME numanx.physics.human_source_limits
+            COMMAND $<TARGET_FILE:metalrobo_numanx_human_limit_probe> "${NUMANX_LIMIT_ORACLE}")
+        set_tests_properties(numanx.physics.human_source_limits PROPERTIES
+            LABELS "numanx;human;matter;physics;metal" TIMEOUT 45 RUN_SERIAL TRUE)
+    endif()
+endif()
+
 # Anatomical tissue mass ownership is a compiler operation, before Metal allocation.
 add_executable(numi_human_tissue_mass_probe apps/numi_human_tissue_mass_probe.cpp)
 target_link_libraries(numi_human_tissue_mass_probe PRIVATE metalrobo)

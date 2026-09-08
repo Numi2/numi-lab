@@ -2,6 +2,7 @@
 
 #include "numi/matter/shared.h"
 #include "numi/matter/human_equality_gpu.h"
+#include "numi/matter/human_limits_gpu.h"
 #include "numi/matter/accepted_state_proof_gpu.h"
 
 #include <array>
@@ -630,6 +631,11 @@ struct RuntimeConfiguration {
     std::span<const NMHumanJointEqualityGPU> humanJointEqualities{};
     NMHumanEqualityDispatchGPU humanEqualityDispatch{};
     std::uint64_t humanEqualitySourceFingerprint = 0u;
+    // Immutable NHLIM1 scalar stops, sharing the NHEQ2 source clock and
+    // effective-tangent factor. Empty retains the existing behavior.
+    std::span<const NMHumanJointLimitGPU> humanJointLimits{};
+    NMHumanLimitDispatchGPU humanLimitDispatch{};
+    std::uint64_t humanLimitSourceFingerprint = 0u;
 };
 
 struct HumanSupportConsequencesView {

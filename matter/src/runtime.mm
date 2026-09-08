@@ -258,6 +258,11 @@ const char kImageAnchor = 0;
     hash = mixFingerprint(hash, detail::hashBytes(
         &configuration.humanEqualityDispatch, sizeof(configuration.humanEqualityDispatch)));
     hash = mixFingerprint(hash, configuration.humanEqualitySourceFingerprint);
+    hash = mixFingerprint(hash, detail::hashBytes(configuration.humanJointLimits.data(),
+        configuration.humanJointLimits.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(&configuration.humanLimitDispatch,
+        sizeof(configuration.humanLimitDispatch)));
+    hash = mixFingerprint(hash, configuration.humanLimitSourceFingerprint);
     hash = mixFingerprint(hash, detail::hashBytes(
         configuration.humanSupportContacts.data(),
         configuration.humanSupportContacts.size_bytes()));
@@ -864,6 +869,10 @@ struct Runtime::State {
     id<MTLBuffer> humanEqualityLinearization = nil;
     id<MTLBuffer> humanEqualityFactor = nil;
     NMHumanEqualityDispatchGPU humanEqualityDispatch{};
+    id<MTLBuffer> humanLimitRows = nil;
+    id<MTLBuffer> humanLimitLinearization = nil;
+    id<MTLBuffer> humanLimitTangent = nil;
+    NMHumanLimitDispatchGPU humanLimitDispatch{};
     id<MTLBuffer> humanSupportContacts = nil;
     id<MTLBuffer> humanSupportPointQueries = nil;
     id<MTLBuffer> humanSupportPointJacobians = nil;
@@ -1085,6 +1094,53 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->sourcePhysicsFingerprint = mixFingerprint(
                 candidate->sourcePhysicsFingerprint,
                 detail::hashBytes(equalities.data(), equalities.size_bytes()));
+        }
+        const auto& limits = configuration.humanJointLimits;
+        const auto lim = configuration.humanLimitDispatch;
+        const bool emptyLimits = limits.empty();
+        if (lim.count != limits.size() ||
+            (!emptyLimits && (emptyEquality || lim.policy != eq.policy || lim.flags != eq.flags ||
+             lim.qCount != eq.qCount || lim.dofCount != eq.dofCount || lim.count > lim.dofCount - 6u ||
+             lim.reserved0 != 0u || lim.reserved1 != 0u || lim.reserved2 != 0u ||
+             lim.time.x != 0.0f || lim.time.y != 0.0f || lim.time.z != 0.0f || lim.time.w != 0.0f ||
+             configuration.humanLimitSourceFingerprint == 0u)) ||
+            (emptyLimits && (lim.qCount != 0u || lim.dofCount != 0u || lim.policy != 0u ||
+             lim.flags != 0u || lim.reserved0 != 0u || lim.reserved1 != 0u || lim.reserved2 != 0u ||
+             lim.time.x != 0.0f || lim.time.y != 0.0f || lim.time.z != 0.0f || lim.time.w != 0.0f ||
+             configuration.humanLimitSourceFingerprint != 0u))) {
+            diagnostics.message = "invalid NHLIM1 source limit program or NHEQ2 owner";
+            return diagnostics;
+        }
+        std::vector<bool> limited(lim.dofCount, false);
+        for (std::size_t index = 0u; index < limits.size(); ++index) {
+            const auto& row = limits[index];
+            const auto* scalars = reinterpret_cast<const float*>(&row.rangeMarginInverseWeight);
+            bool finite = true;
+            for (std::size_t i = 0u; i < 16u; ++i)
+                finite = finite && std::isfinite(scalars[i]) && std::fpclassify(scalars[i]) != FP_SUBNORMAL;
+            bool duplicateSource = false;
+            for (std::size_t i = 0u; i < index; ++i)
+                duplicateSource = duplicateSource || limits[i].indices.z == row.indices.z;
+            if (!finite || row.indices.y < 6u || row.indices.y >= lim.dofCount ||
+                row.indices.x != row.indices.y + 1u || row.indices.z == NM_INVALID_INDEX ||
+                row.indices.w != 0u || duplicateSource || limited[row.indices.y] ||
+                row.rangeMarginInverseWeight.x > row.rangeMarginInverseWeight.y ||
+                !(row.rangeMarginInverseWeight.w >= std::numeric_limits<float>::min()) ||
+                row.solref.z != 0.0f || row.solref.w != 0.0f ||
+                !((row.solref.x > 0.0f && row.solref.y > 0.0f) ||
+                  (row.solref.x <= 0.0f && row.solref.y <= 0.0f)) ||
+                row.solimp1.y != 0.0f || row.solimp1.z != 0.0f || row.solimp1.w != 0.0f) {
+                diagnostics.message = "invalid NHLIM1 scalar row or source identity";
+                return diagnostics;
+            }
+            limited[row.indices.y] = true;
+        }
+        candidate->humanLimitDispatch = lim;
+        if (!emptyLimits) {
+            candidate->sourcePhysicsFingerprint = mixFingerprint(candidate->sourcePhysicsFingerprint,
+                configuration.humanLimitSourceFingerprint);
+            candidate->sourcePhysicsFingerprint = mixFingerprint(candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(limits.data(), limits.size_bytes()));
         }
         const auto& supportContacts = configuration.humanSupportContacts;
         const auto& supportQueries = configuration.humanSupportPointQueries;
@@ -1381,6 +1437,10 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_human_equality_prepare",
             "nm_human_equality_residual",
             "nm_human_equality_operator",
+            "nm_human_limit_prepare",
+            "nm_human_limit_residual",
+            "nm_human_limit_operator",
+            "nm_human_limit_factor",
             "nm_human_support_evaluate",
             "nm_human_support_accumulate_rigid_residual",
             "nm_fgmres_apply_human_support",
@@ -1987,6 +2047,7 @@ RuntimeDiagnostics Runtime::initialize(
             std::span<const nm_float4>(initialContactHistories),
             environments, valid, candidate->residentBytes);
         candidate->humanEqualityRows = uploads.one(equalities, valid, candidate->residentBytes);
+        candidate->humanLimitRows = uploads.one(limits, valid, candidate->residentBytes);
         candidate->humanSupportContacts = uploads.one(
             supportContacts, valid, candidate->residentBytes);
         candidate->humanSupportPointQueries = uploads.one(
@@ -2194,6 +2255,12 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->contactHistoriesCheckpoint = privateScratch<nm_float4>(
             candidate->device, multiplied(world.dispatch.contactPairCount),
             valid, candidate->residentBytes);
+        candidate->humanLimitLinearization = privateScratch<nm_float4>(
+            candidate->device, static_cast<std::size_t>(2u) * lim.count *
+                candidate->dispatch.environmentCount, valid, candidate->residentBytes);
+        candidate->humanLimitTangent = privateScratch<float>(
+            candidate->device, static_cast<std::size_t>(world.dispatch.rigidGeneralizedCapacity) *
+                candidate->dispatch.environmentCount, valid, candidate->residentBytes);
         candidate->humanEqualityFactor = privateScratch<float>(
             candidate->device, static_cast<std::size_t>(eq.dofCount) * eq.dofCount *
                 candidate->dispatch.environmentCount, valid, candidate->residentBytes);
@@ -3340,6 +3407,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
         const std::uint32_t coupledArticulatedNv =
             state.requiresCoupledCandidate ? request.rigid.vStride : 0u;
         state.humanEqualityDispatch.time.x = frameTimestep;
+        state.humanLimitDispatch.time.x = frameTimestep;
         state.humanSupportDispatch.articulatedNv = coupledArticulatedNv;
         state.humanSupportDispatch.articulationRootBody =
             request.articulationRootBody;
@@ -4580,6 +4648,26 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.statuses offset:0u atIndex:6u];
                 });
             }
+            if (state.humanLimitDispatch.count != 0u) {
+                dispatchThreads("nm_human_limit_prepare", environments * 2u * state.humanLimitDispatch.count, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.humanLimitDispatch length:sizeof(state.humanLimitDispatch) atIndex:1u];
+                    [encoder setBuffer:state.humanLimitRows offset:0u atIndex:2u];
+                    [encoder setBuffer:buffer(request.rigid.q) offset:0u atIndex:3u];
+                    [encoder setBuffer:buffer(request.humanEqualitySourceVelocity) offset:0u atIndex:4u];
+                    [encoder setBuffer:buffer(request.rigid.v) offset:0u atIndex:5u];
+                    [encoder setBuffer:state.humanLimitLinearization offset:0u atIndex:6u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                });
+                dispatchGroups32("nm_human_limit_factor", environments, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.humanLimitDispatch length:sizeof(state.humanLimitDispatch) atIndex:1u];
+                    [encoder setBuffer:state.humanLimitRows offset:0u atIndex:2u];
+                    [encoder setBuffer:state.humanLimitLinearization offset:0u atIndex:3u];
+                    [encoder setBuffer:state.humanEqualityFactor offset:0u atIndex:4u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                });
+            }
             // Contact is a block of the nonlinear variational residual, not a
             // post-FEM correction. Re-evaluate candidate geometry and stream
             // inverse-ABA columns on every Newton candidate, then accumulate
@@ -5219,6 +5307,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.humanEqualityLinearization offset:0u atIndex:3u];
                     [encoder setBuffer:state.coupledGeneralizedCandidate offset:0u atIndex:4u];
                     [encoder setBuffer:state.femResidual offset:0u atIndex:5u];
+                });
+            }
+            if (state.humanLimitDispatch.count != 0u) {
+                dispatchThreads("nm_human_limit_residual", rigidGeneralizedTotalForResidual, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.humanLimitDispatch length:sizeof(state.humanLimitDispatch) atIndex:1u];
+                    [encoder setBuffer:state.humanLimitRows offset:0u atIndex:2u];
+                    [encoder setBuffer:state.humanLimitLinearization offset:0u atIndex:3u];
+                    [encoder setBuffer:state.coupledGeneralizedCandidate offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:5u];
+                    [encoder setBuffer:state.humanLimitTangent offset:0u atIndex:6u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:7u];
                 });
             }
             scatterFEMHumanAttachmentResidual();
@@ -5942,6 +6042,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
                     });
                 }
+                if (state.humanLimitDispatch.count != 0u) {
+                    dispatchThreads("nm_human_limit_operator", rigidGeneralizedTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.humanLimitTangent offset:0u atIndex:1u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:2u];
+                        [encoder setBuffer:state.femOperatorValue offset:0u atIndex:3u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
+                    });
+                }
                 dispatchThreads(
                     "nm_fem_human_attachment_scatter_operator",
                     rigidGeneralizedTotal,
@@ -6524,6 +6633,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.humanEqualityLinearization offset:0u atIndex:3u];
                     [encoder setBuffer:state.coupledGeneralizedCandidate offset:0u atIndex:4u];
                     [encoder setBuffer:state.femResidual offset:0u atIndex:5u];
+                });
+            }
+            if (state.humanLimitDispatch.count != 0u) {
+                dispatchThreads("nm_human_limit_residual", rigidGeneralizedTotalForResidual, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.humanLimitDispatch length:sizeof(state.humanLimitDispatch) atIndex:1u];
+                    [encoder setBuffer:state.humanLimitRows offset:0u atIndex:2u];
+                    [encoder setBuffer:state.humanLimitLinearization offset:0u atIndex:3u];
+                    [encoder setBuffer:state.coupledGeneralizedCandidate offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:5u];
+                    [encoder setBuffer:state.humanLimitTangent offset:0u atIndex:6u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:7u];
                 });
             }
             scatterFEMHumanAttachmentResidual();
@@ -7362,6 +7483,9 @@ bool Runtime::encodeAcceptedStateProof(
             state.humanEqualityRows,
             state.humanEqualityLinearization,
             state.humanEqualityFactor,
+            state.humanLimitRows,
+            state.humanLimitLinearization,
+            state.humanLimitTangent,
             state.humanSupportContacts,
             state.humanSupportPointQueries,
             state.humanSupportPointJacobians,
@@ -8095,6 +8219,9 @@ bool Runtime::applyPreparedStateImpl(
             state.humanEqualityRows,
             state.humanEqualityLinearization,
             state.humanEqualityFactor,
+            state.humanLimitRows,
+            state.humanLimitLinearization,
+            state.humanLimitTangent,
             state.humanSupportContacts,
             state.humanSupportPointQueries,
             state.humanSupportPointJacobians,

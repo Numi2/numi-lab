@@ -248,6 +248,9 @@ struct FullBodyAssets {
     std::vector<NMHumanJointEqualityGPU> jointEqualities;
     NMHumanEqualityDispatchGPU equalityDispatch{};
     std::uint64_t equalityFingerprint = 0u;
+    std::vector<NMHumanJointLimitGPU> jointLimits;
+    NMHumanLimitDispatchGPU limitDispatch{};
+    std::uint64_t limitFingerprint = 0u;
     std::vector<NMHumanSupportContactGPU> matterSupportContacts;
     std::vector<NMHumanSupportPointQueryGPU> matterSupportPointQueries;
     mr_float4 groundPoint{};
@@ -472,6 +475,58 @@ void loadJointEqualities(FullBodyAssets& assets,
     assets.equalityFingerprint = fingerprint;
     // The base world admission was checked before adding this source owner.
     assets.sourceFingerprint ^= hashBytes("NHEQ2", 5u);
+    assets.sourceFingerprint *= kFnvPrime;
+    assets.sourceFingerprint ^= fingerprint;
+    assets.sourceFingerprint *= kFnvPrime;
+    if (assets.sourceFingerprint == 0u) assets.sourceFingerprint = kFnvOffset;
+}
+
+void loadJointLimits(FullBodyAssets& assets, const mrnx_runtime_config_v6& config) {
+    const ImmutablePayload image = loadImmutablePayload(config.joint_limit_payload_path,
+        "NHLIM1 source joint limits");
+    const std::uint64_t fingerprint = hashBytes(image.bytes.data(), image.bytes.size());
+    requireBuild(fingerprint == config.expected_joint_limit_fingerprint,
+        MRNX_RUNTIME_ASSET_FAILURE_V1, "NHLIM1 immutable payload fingerprint mismatch");
+    std::istringstream input(image.bytes, std::ios::in | std::ios::binary);
+    // Scalar programs share the 80-byte source/policy envelope; records differ.
+    JointEqualityHeader header{};
+    readObject(input, header, "NHLIM1 header");
+    const std::array<char,8u> magic{'N','H','L','I','M','1','\0','\0'};
+    requireBuild(header.magic == magic && header.abi == NM_HUMAN_LIMIT_ABI_VERSION &&
+        header.nq == assets.rigid.nq && header.nv == assets.rigid.nv && header.nv > 6u &&
+        header.count != 0u && header.count <= header.nv - 6u && header.count == header.sourceCount &&
+        header.recordBytes == sizeof(NMHumanJointLimitGPU) &&
+        header.policy == assets.equalityDispatch.policy && header.flags == assets.equalityDispatch.flags &&
+        assets.equalityDispatch.count != 0u && header.reserved0 == 0u && header.reserved1 == 0u &&
+        header.sourceSHA256 == assets.rigid.sourceSHA256 &&
+        image.bytes.size() == sizeof(header) + header.count * sizeof(NMHumanJointLimitGPU),
+        MRNX_RUNTIME_ASSET_FAILURE_V1, "NHLIM1 header/source identity or NHEQ2 policy mismatch");
+    assets.jointLimits = readVector<NMHumanJointLimitGPU>(input, header.count, "NHLIM1 rows");
+    // Native hard-range flags omit source reset coordinates just beyond tiny
+    // limits. NHLIM1 is authoritative for those too; do not require that flag.
+    std::vector<bool> covered(header.nv, false);
+    for (const auto& row : assets.jointLimits) {
+        requireBuild(row.indices.y >= 6u && row.indices.y < header.nv &&
+            row.indices.x == row.indices.y + 1u && !covered[row.indices.y],
+            MRNX_RUNTIME_ASSET_FAILURE_V1, "NHLIM1 native coordinate binding is invalid");
+        const auto& dof = assets.model.dofs[row.indices.y];
+        requireBuild(dof.vIndex == row.indices.y && dof.qIndex == row.indices.x &&
+            ((dof.flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u ||
+             (dof.limits.x == row.rangeMarginInverseWeight.x &&
+              dof.limits.y == row.rangeMarginInverseWeight.y)),
+            MRNX_RUNTIME_ASSET_FAILURE_V1, "NHLIM1 native coordinate range disagrees");
+        covered[row.indices.y] = true;
+    }
+    for (std::size_t i = 6u; i < assets.model.dofs.size(); ++i)
+        requireBuild((assets.model.dofs[i].flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u || covered[i],
+            MRNX_RUNTIME_ASSET_FAILURE_V1, "NHLIM1 omitted a native authored range");
+    assets.limitDispatch.count = header.count;
+    assets.limitDispatch.qCount = header.nq;
+    assets.limitDispatch.dofCount = header.nv;
+    assets.limitDispatch.policy = header.policy;
+    assets.limitDispatch.flags = header.flags;
+    assets.limitFingerprint = fingerprint;
+    assets.sourceFingerprint ^= hashBytes("NHLIM1", 6u);
     assets.sourceFingerprint *= kFnvPrime;
     assets.sourceFingerprint ^= fingerprint;
     assets.sourceFingerprint *= kFnvPrime;
@@ -1775,7 +1830,8 @@ void cultureCompletion(
     const mrnx_runtime_config_v1& config,
     const mrnx_runtime_config_v3* authored = nullptr,
     const mrnx_runtime_config_v4* equalityConfig = nullptr,
-    const mrnx_runtime_config_v5* tissueConfig = nullptr
+    const mrnx_runtime_config_v5* tissueConfig = nullptr,
+    const mrnx_runtime_config_v6* limitConfig = nullptr
 ) {
     requireBuild(
         config.abi_version == MRNX_BRIDGE_ABI_V1 &&
@@ -1855,6 +1911,7 @@ void cultureCompletion(
         defaultBodies[attachmentBody].orientation,
         config.timestep_microseconds);
     if (equalityConfig != nullptr) loadJointEqualities(runtime->assets, *equalityConfig);
+    if (limitConfig != nullptr) loadJointLimits(runtime->assets, *limitConfig);
     if(tissueConfig!=nullptr) {
         constexpr char marker[]="NHTMASS1";
         appendFingerprintBytes(runtime->assets.sourceFingerprint,marker,sizeof(marker)-1);
@@ -1915,6 +1972,9 @@ void cultureCompletion(
     matterConfig.acceptedStateProofMujocoBytesPerEnvironmentCapacity =
         static_cast<std::uint64_t>(MRNX_FULL_BODY_MUSCLE_COUNT) *
         sizeof(MRMujocoMuscleStateGPU);
+    matterConfig.humanJointLimits = runtime->assets.jointLimits;
+    matterConfig.humanLimitDispatch = runtime->assets.limitDispatch;
+    matterConfig.humanLimitSourceFingerprint = runtime->assets.limitFingerprint;
     matterConfig.humanJointEqualities = runtime->assets.jointEqualities;
     matterConfig.humanEqualityDispatch = runtime->assets.equalityDispatch;
     matterConfig.humanEqualitySourceFingerprint = runtime->assets.equalityFingerprint;
@@ -1998,7 +2058,8 @@ void cultureCompletion(
     const mrnx_runtime_config_v2& config,
     const mrnx_runtime_config_v3* authored = nullptr,
     const mrnx_runtime_config_v4* equalityConfig = nullptr,
-    const mrnx_runtime_config_v5* tissueConfig = nullptr
+    const mrnx_runtime_config_v5* tissueConfig = nullptr,
+    const mrnx_runtime_config_v6* limitConfig = nullptr
 ) {
     requireBuild(
         config.abi_version == MRNX_RUNTIME_CONFIG_ABI_V2 &&
@@ -2021,7 +2082,7 @@ void cultureCompletion(
     base.maximum_retained_bytes = config.maximum_retained_bytes;
     base.transaction_slot_count = config.transaction_slot_count;
     base.reserved0 = config.reserved0;
-    auto runtime = createRuntimeState(base, authored, equalityConfig, tissueConfig);
+    auto runtime = createRuntimeState(base, authored, equalityConfig, tissueConfig, limitConfig);
     const bool cultureEnabled = config.culture_pack_path != nullptr &&
         config.culture_pack_path[0] != '\0';
     const bool checkpointSupplied = config.culture_checkpoint_path != nullptr &&
@@ -2684,6 +2745,76 @@ mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v5(
     }
 }
 
+mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v6(
+    const mrnx_runtime_config_v6* config,
+    mrnx_runtime_info_v1* info
+) {
+    @autoreleasepool {
+        if (config == nullptr) {
+            fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+            return nullptr;
+        }
+        try {
+            requireBuild(
+                config->abi_version == MRNX_RUNTIME_CONFIG_ABI_V6 &&
+                    config->struct_size == sizeof(*config) &&
+                    config->joint_limit_payload_path != nullptr &&
+                    config->joint_limit_payload_path[0] != '\0' &&
+                    config->expected_joint_limit_fingerprint != 0u &&
+                    ((config->costal_cartilage_payload_path == nullptr &&
+                      config->costal_binding_payload_path == nullptr &&
+                      config->expected_costal_binding_fingerprint == 0u) ||
+                     (config->costal_cartilage_payload_path != nullptr &&
+                      config->costal_cartilage_payload_path[0] != '\0' &&
+                      config->costal_binding_payload_path != nullptr &&
+                      config->costal_binding_payload_path[0] != '\0' &&
+                      config->expected_costal_binding_fingerprint != 0u)) &&
+                    config->runtime.abi_version == MRNX_RUNTIME_CONFIG_ABI_V4 &&
+                    config->runtime.struct_size == sizeof(config->runtime) &&
+                    config->runtime.runtime.abi_version == MRNX_RUNTIME_CONFIG_ABI_V3 &&
+                    config->runtime.runtime.struct_size == sizeof(config->runtime.runtime) &&
+                    config->runtime.joint_equality_payload_path != nullptr &&
+                    config->runtime.joint_equality_payload_path[0] != '\0' &&
+                    config->runtime.expected_joint_equality_fingerprint != 0u &&
+                    config->runtime.runtime.matter_world_package_path != nullptr &&
+                    config->runtime.runtime.matter_world_package_path[0] != '\0' &&
+                    config->runtime.runtime.expected_model_source_fingerprint != 0u &&
+                    config->runtime.runtime.expected_matter_world_fingerprint != 0u &&
+                    config->runtime.runtime.runtime.matter_material_path == nullptr,
+                MRNX_RUNTIME_INVALID_CONFIGURATION_V1,
+                "invalid authored-world configuration v6");
+            mrnx_runtime_config_v5 tissue{};
+            tissue.abi_version = MRNX_RUNTIME_CONFIG_ABI_V5;
+            tissue.struct_size = sizeof(tissue);
+            tissue.runtime = config->runtime;
+            tissue.costal_cartilage_payload_path = config->costal_cartilage_payload_path;
+            tissue.costal_binding_payload_path = config->costal_binding_payload_path;
+            tissue.expected_costal_binding_fingerprint = config->expected_costal_binding_fingerprint;
+            auto state = createRuntimeStateV2(config->runtime.runtime.runtime, &config->runtime.runtime,
+                &config->runtime, config->costal_binding_payload_path != nullptr ? &tissue : nullptr, config);
+            auto* runtime = new (std::nothrow) mrnx_runtime_v1;
+            if (runtime == nullptr) {
+                fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+                return nullptr;
+            }
+            runtime->state = std::move(state);
+            if (info != nullptr) *info = runtime->state->info;
+            return runtime;
+        } catch (const RuntimeBuildFailure& failure) {
+            if (std::getenv("MRNX_RUNTIME_DIAGNOSTICS") != nullptr) {
+                std::fprintf(
+                    stderr, "mrnx runtime v6 create failed: %s\n",
+                    failure.what());
+            }
+            fillRuntimeInfoFailure(info, failure.status);
+            return nullptr;
+        } catch (...) {
+            fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+            return nullptr;
+        }
+    }
+}
+
 bool mrnx_bridge_v1_runtime_copy_world_info(
     const mrnx_runtime_v1* runtime,
     mrnx_runtime_world_info_v1* info
@@ -2845,8 +2976,11 @@ bool mrnx_bridge_v1_runtime_copy_joint_coordinate_anatomy(
     const mr_float4 parentAxis = quaternionRotate(joint.parentRotation, axis);
     const bool linear = joint.jointType == MR_JOINT_PRISMATIC ||
         (joint.jointType == MR_JOINT_PLANAR && dof.localDof < 2u);
-    const bool hasPositionLimit =
-        (dof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u;
+    const auto& limitRows = runtime->state->assets.jointLimits;
+    const auto sourceLimit = std::find_if(limitRows.begin(), limitRows.end(),
+        [&](const auto& row) { return row.indices.y == coordinateIndex; });
+    const bool sourceCompliant = sourceLimit != limitRows.end();
+    const bool hasPositionLimit = sourceCompliant || (dof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u;
     const float extent = std::numeric_limits<float>::max();
     float rest = 0.0f;
     if (dof.qIndex != MR_INVALID_INDEX && dof.qIndex < model.defaultQ.size()) {
@@ -2863,11 +2997,14 @@ bool mrnx_bridge_v1_runtime_copy_joint_coordinate_anatomy(
     result.v_index = dof.vIndex;
     result.flags = hasPositionLimit
         ? MRNX_JOINT_COORDINATE_POSITION_LIMIT_V1 : 0u;
+    if (sourceCompliant) result.flags |= MRNX_JOINT_COORDINATE_SOURCE_COMPLIANT_LIMIT_V1;
     result.parent_local_axis[0] = parentAxis.x;
     result.parent_local_axis[1] = parentAxis.y;
     result.parent_local_axis[2] = parentAxis.z;
-    result.minimum_position = hasPositionLimit ? dof.limits.x : -extent;
-    result.maximum_position = hasPositionLimit ? dof.limits.y : extent;
+    result.minimum_position = sourceCompliant ? sourceLimit->rangeMarginInverseWeight.x :
+        (hasPositionLimit ? dof.limits.x : -extent);
+    result.maximum_position = sourceCompliant ? sourceLimit->rangeMarginInverseWeight.y :
+        (hasPositionLimit ? dof.limits.y : extent);
     result.rest_position = rest;
     *anatomy = result;
     return true;
