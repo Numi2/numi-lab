@@ -15,6 +15,10 @@
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
+#include <cstdio>
+#include <cstdlib>
+#include <iomanip>
+#include <sstream>
 #include <limits>
 #include <memory>
 #include <mutex>
@@ -8406,6 +8410,10 @@ MetalArticulatedOperatorContext::submit(
                     makeHumanMatterPass(phase);
                 return program.encode(program.context, pass);
             };
+            // Optional first-root readback isolates the first divergent physical
+            // buffer. It never supplies forces or accepted-state authority.
+            __strong id<MTLBuffer> initialPhysicalTrace = nil;
+            std::uint32_t traceForceOffset = 0u, traceDofCount = 0u, traceQCount = 0u;
             for (std::uint32_t horizonStep = 0u;
                  horizonStep < horizonStepCount; ++horizonStep) {
             // The permanent NumanX root owns its own wider prepare/apply
@@ -9005,6 +9013,29 @@ MetalArticulatedOperatorContext::submit(
                 [predictor dispatchThreadgroups:MTLSizeMake(input.environmentCount, 1u, 1u)
                     threadsPerThreadgroup:MTLSizeMake(kStandThreadsPerThreadgroup, 1u, 1u)];
                 [predictor endEncoding];
+                if (std::getenv("MRNX_PHYSICAL_BUFFER_TRACE") != nullptr &&
+                    humanMatterDispatch.controlStep == 1u && input.environmentCount == 1u) {
+                    const std::size_t rowBytes = articulation.nv * sizeof(float);
+                    const std::size_t poseBytes = articulation.nq * sizeof(float);
+                    initialPhysicalTrace = [state_->device newBufferWithLength:3u * rowBytes + poseBytes
+                        options:MTLResourceStorageModeShared];
+                    id<MTLBlitCommandEncoder> trace = [commandBuffer blitCommandEncoder];
+                    if (initialPhysicalTrace == nil || trace == nil)
+                        return reject(std::move(diagnostics), MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                            "failed to allocate initial physical diagnostic snapshot");
+                    traceForceOffset = sourceStandDispatch.generalizedForceOffset;
+                    traceDofCount = articulation.nv; traceQCount = articulation.nq;
+                    [trace copyFromBuffer:state_->buffers[kMillardForcesBuffer]
+                        sourceOffset:traceForceOffset * sizeof(float) toBuffer:initialPhysicalTrace
+                        destinationOffset:0u size:rowBytes];
+                    [trace copyFromBuffer:state_->standBuffers[kStandVectorBuffer]
+                        sourceOffset:0u toBuffer:initialPhysicalTrace destinationOffset:rowBytes size:rowBytes];
+                    [trace copyFromBuffer:state_->humanMatterBuffers[kHumanMatterPredictedVelocityBuffer]
+                        sourceOffset:0u toBuffer:initialPhysicalTrace destinationOffset:2u * rowBytes size:rowBytes];
+                    [trace copyFromBuffer:state_->buffers[6u]
+                        sourceOffset:0u toBuffer:initialPhysicalTrace destinationOffset:3u * rowBytes size:poseBytes];
+                    [trace endEncoding];
+                }
 
                 if (!encodeHumanMatterPhase(
                         MetalNumanXHumanMatterPhase::preDynamics)) {
@@ -9390,6 +9421,23 @@ MetalArticulatedOperatorContext::submit(
                         kHumanMatterFinalAcceptedTokenBuffer];
                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
                     HumanMatterPhysicalCompletionInvocation invocation{};
+                    if (initialPhysicalTrace != nil && completed.status == MTLCommandBufferStatusCompleted) {
+                        const auto emitTrace = [](const char* name, const float* values, std::size_t count) {
+                            std::ostringstream line;
+                            line << std::setprecision(9) << "mrnx_initial_buffer={\"name\":\"" << name << "\",\"values\":[";
+                            for (std::size_t i = 0; i < count; ++i) { if (i) line << ','; line << values[i]; }
+                            line << "]}\n";
+                            const auto text = line.str(); std::fwrite(text.data(), 1u, text.size(), stderr);
+                        };
+                        const auto nv = traceDofCount;
+                        const float* snapshot = static_cast<const float*>(initialPhysicalTrace.contents);
+                        emitTrace("muscle_force", snapshot, nv);
+                        emitTrace("bias", snapshot + nv, nv);
+                        emitTrace("free_velocity", snapshot + 2u * nv, nv);
+                        emitTrace("initial_q", snapshot + 3u * nv, traceQCount);
+                        emitTrace("coupled_force", static_cast<const float*>(retainedState->buffers[kMillardForcesBuffer].contents) + traceForceOffset, nv);
+                        emitTrace("coupled_velocity", static_cast<const float*>(retainedState->standBuffers[kStandVelocityBuffer].contents), nv);
+                    }
                     const bool failed = completed.status !=
                         MTLCommandBufferStatusCompleted;
                     if (failed) {
