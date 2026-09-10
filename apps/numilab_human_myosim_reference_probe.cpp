@@ -2,6 +2,7 @@
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/MujocoMuscleReference.hpp"
 #include "metalrobo/NumiHumanJointEquality.hpp"
+#include "metalrobo/NumiHumanInitialState.hpp"
 #include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
 #include "metalrobo/NumiHumanTendon.hpp"
 #include "metalrobo/NumiHumanTendonMetal.hpp"
@@ -9,6 +10,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <charconv>
 #include <cstdint>
 #include <cstring>
 #include <fstream>
@@ -1565,16 +1567,136 @@ int run(
     return 0;
 }
 
+// Same admitted FP32 pose, independent native FP64 route evaluation and
+// Metal path evaluation. This does not advance a body or grant reset authority.
+int runPreparedPathReference(const char* rigidPath, const char* musclePath, const char* initialPath, std::uint64_t timestepOverride = 0u) {
+    const LoadedRigid rigid = loadRigid(rigidPath);
+    const LoadedMuscles muscles = loadMuscles(musclePath, rigid.header);
+    const auto& model = rigid.model;
+    const auto& articulation = model.articulations.at(0u);
+    metalrobo::NumiHumanInitialState initial;
+    std::string error;
+    require(metalrobo::decodeNumiHumanInitialState(readBytes(initialPath), articulation.nq,
+        articulation.nv, static_cast<std::uint32_t>(muscles.gpuMuscles.size()), rigid.header.sourceSha256,
+        initial, error), "prepared path input: " + error);
+    const float timestep = static_cast<float>((timestepOverride != 0u
+        ? timestepOverride : initial.timestepMicroseconds) * 1e-6);
+    require(std::isfinite(timestep) && timestep > 0, "invalid fibre-reference timestep");
+    std::vector<MRArticulatedPointImpulseGPU> points;
+    for (std::uint32_t body = 0; body < articulation.bodyCount; ++body) {
+        for (unsigned probe = 0; probe < 4u; ++probe) {
+            MRArticulatedPointImpulseGPU point{};
+            point.bodyIndex = articulation.firstBody + body;
+            if (probe == 1u) point.localPoint.x = 1;
+            if (probe == 2u) point.localPoint.y = 1;
+            if (probe == 3u) point.localPoint.z = 1;
+            points.push_back(point);
+        }
+    }
+    const metalrobo::MetalArticulatedOperatorInput input{
+        .articulationIndex = 0u, .environmentCount = 1u, .pointCount = points.size(),
+        .q = initial.q, .v = initial.v, .points = points,
+        .mujoco = {.muscles = muscles.gpuMuscles, .states = initial.muscles,
+            .sites = muscles.gpuSites, .wraps = muscles.gpuWraps,
+            .routeNodes = muscles.gpuRoutes, .bodyJacobianPointOffset = 0u}};
+    metalrobo::MetalArticulatedOperatorResult gpu;
+    const auto diagnostics = metalrobo::runMetalArticulatedOperator(model, input, gpu,
+        {.pointJacobiansOnly = true,
+         .mujocoActivationTimestepSeconds = timestep});
+    require(diagnostics.succeeded() && diagnostics.dispatched && diagnostics.published,
+        "prepared Metal path evaluation failed: " + diagnostics.message);
+    require(gpu.mujocoResults.size() == muscles.muscles.size(), "prepared path result extent");
+    const std::vector<double> q(initial.q.begin(), initial.q.end()), v(initial.v.begin(), initial.v.end());
+    double maximumError = 0, maximumForceError = 0, maximumSamePathForceError = 0;
+    double maximumNormalizedForceError = 0, maximumResidual = 0, maximumPublicationErrorUlps = 0;
+    std::size_t maximumIndex = 0;
+    for (std::size_t i = 0; i < muscles.muscles.size(); ++i) {
+        metalrobo::MujocoMuscleResult cpu;
+        require(metalrobo::evaluateMujocoMuscle(model, 0u, q, v, muscles.sites, muscles.wraps,
+            muscles.muscles[i], {}, cpu).succeeded(), "prepared native FP64 path evaluation");
+        const double length = gpu.mujocoResults[i].pathForceAndActivationDerivative.x;
+        const double delta = std::abs(length - cpu.path.length);
+        require(std::isfinite(delta) && length > 0, "prepared path finite positive length");
+        if (delta > maximumError) { maximumError = delta; maximumIndex = i; }
+        const auto accepted = initial.muscles[i].excitationAndActivation;
+        const metalrobo::MujocoCompliantMuscleState state{
+            accepted.x, accepted.y, accepted.z, accepted.w};
+        metalrobo::MujocoCompliantMuscleResult sourceForce, samePathForce;
+        const double dt = timestep;
+        require(metalrobo::evaluateMujocoCompliantMuscle(cpu.path.length, cpu.path.velocity, dt,
+            muscles.muscles[i], muscles.architectures[i], state, sourceForce).succeeded(),
+            "prepared FP64 fibre reference failed");
+        require(metalrobo::evaluateMujocoCompliantMuscle(length,
+            gpu.mujocoResults[i].pathForceAndActivationDerivative.y, dt,
+            muscles.muscles[i], muscles.architectures[i], state, samePathForce).succeeded(),
+            "prepared same-path FP64 fibre reference failed");
+        const double gpuForce = gpu.mujocoResults[i].pathForceAndActivationDerivative.z;
+        const double forceError = std::abs(gpuForce - sourceForce.actuatorForce);
+        const double samePathError = std::abs(gpuForce - samePathForce.actuatorForce);
+        require(std::isfinite(forceError) && std::isfinite(samePathError), "nonfinite fibre force comparison");
+        maximumForceError = std::max(maximumForceError, forceError);
+        maximumSamePathForceError = std::max(maximumSamePathForceError, samePathError);
+        const auto& definition = muscles.muscles[i];
+        const double forceScale = definition.gainParameters[2] < 0
+            ? definition.gainParameters[3] / definition.accelerationScale : definition.gainParameters[2];
+        maximumNormalizedForceError = std::max(maximumNormalizedForceError, samePathError / forceScale);
+        const auto fiber = gpu.mujocoResults[i].fiberStateTendonForceResidual;
+        maximumResidual = std::max(maximumResidual, std::abs(static_cast<double>(fiber.w)));
+        const double publicationError = std::abs(static_cast<double>(fiber.x) - accepted.z - dt * fiber.y);
+        const double ulp = std::nextafter(fiber.x, std::numeric_limits<float>::infinity()) - fiber.x;
+        require(std::isfinite(publicationError) && ulp > 0, "invalid fibre publication");
+        maximumPublicationErrorUlps = std::max(maximumPublicationErrorUlps, publicationError / ulp);
+        std::cout << std::setprecision(17) << "prepared_path={\"index\":" << i
+                  << ",\"native_fp64_m\":" << cpu.path.length << ",\"metal_fp32_m\":" << length
+                  << ",\"absolute_error_m\":" << delta
+                  << ",\"native_fp64_force_n\":" << sourceForce.actuatorForce
+                  << ",\"same_path_fp64_force_n\":" << samePathForce.actuatorForce
+                  << ",\"metal_fp32_force_n\":" << gpuForce
+                  << ",\"metal_fiber_residual\":" << gpu.mujocoResults[i].fiberStateTendonForceResidual.w
+                  << "}\n";
+    }
+    // A numerical route agreement budget, not experimental accuracy.
+    const bool pathPassed = maximumError <= 2.0e-6;
+    const bool fiberPassed = maximumNormalizedForceError <= 1.0e-5 && maximumResidual <= 1.0e-5 &&
+        maximumPublicationErrorUlps <= 0.501;
+    const bool passed = pathPassed && fiberPassed;
+    std::cout << "prepared_path_summary={\"maximum_error_m\":" << maximumError
+              << ",\"maximum_index\":" << maximumIndex
+              << ",\"maximum_force_error_n\":" << maximumForceError
+              << ",\"maximum_same_path_force_error_n\":" << maximumSamePathForceError
+              << ",\"timestep_seconds\":" << timestep
+              << ",\"maximum_normalized_same_path_force_error\":" << maximumNormalizedForceError
+              << ",\"maximum_fiber_residual\":" << maximumResidual
+              << ",\"maximum_fiber_publication_error_ulps\":" << maximumPublicationErrorUlps
+              << ",\"path_passed\":" << (pathPassed ? "true" : "false")
+              << ",\"fiber_passed\":" << (fiberPassed ? "true" : "false")
+              << ",\"normalized_force_tolerance\":1e-5,\"publication_tolerance_ulps\":0.501"
+              << ",\"tolerance_m\":2e-6,\"passed\":"
+              << (passed ? "true" : "false") << "}\n";
+    return passed ? 0 : 1;
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
     try {
+        if ((argc == 5 || argc == 7) && std::string(argv[3]) == "--prepared-paths") {
+            std::uint64_t timestepOverride = 0u;
+            if (argc == 7) {
+                require(std::string(argv[5]) == "--timestep-us", "expected --timestep-us");
+                const char* end = argv[6] + std::strlen(argv[6]);
+                const auto parsed = std::from_chars(argv[6], end, timestepOverride);
+                require(parsed.ec == std::errc{} && parsed.ptr == end && timestepOverride > 0u,
+                    "timestep must be a positive integer microsecond count");
+            }
+            return runPreparedPathReference(argv[1], argv[2], argv[4], timestepOverride);
+        }
         if (argc < 3 || argc > 7) {
             std::cerr << "usage: " << argv[0] << " <myosim-fullbody-core-reference.nhrigid> "
                       << "<myosim-fullbody-muscle-reference.nhmyo> "
                       << "[numi-human-tendon-endpoints.nhtendon] [--metal] "
                          "[myosim-fullbody-joint-equalities.nheq] "
-                         "[--equilibrium]\n";
+                         "[--equilibrium] | --prepared-paths <prepared.nhinit> [--timestep-us N]\n";
             return 2;
         }
         const char* tendonPath = nullptr;

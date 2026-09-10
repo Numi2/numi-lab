@@ -634,3 +634,44 @@ does not reproduce an address. That is partial address-reuse coverage, never a
 claimed pointer-reuse pass. Ten native checks and the prepared four-root cohort
 pass on the repaired boundary; longer dynamics and anatomical standing remain
 separate qualification gates.
+
+
+## Prepared muscle path and implicit fibre precision (2026-09-11)
+
+The prepared-pose reference probe now compares all 416 Metal routes to native
+FP64 routes at the identical NHINIT1 q/v. It separately compares the compliant
+fibre update to FP64 at the identical GPU path length/rate and accepted FP32
+fibre state. `--prepared-paths <prepared.nhinit> [--timestep-us N]` is a static
+numerical reference operation; overriding its timestep does not admit or reset
+a live Human transaction.
+
+Inside-sphere wrapping solves the same source equation in theta=asin(z), using
+a monotone bracket and safeguarded Newton steps. The previous z derivative is
+singular near one and its FP32 overshoot could select the midpoint fallback.
+Prepared EDC5_l/EDC4_l errors were 0.275/0.174 mm. The corrected all-muscle maximum
+is 0.572 micrometres against native FP64, below the fixed two-micrometre budget.
+The source tolerance and fallback for an absent interior root remain unchanged.
+
+The implicit fibre update solves a displacement relative to the accepted
+length. Tendon extension and velocity use that displacement before the final
+absolute length is rounded for the existing FP32 publication. Strain is formed
+from extension directly rather than subtracting one from a nearly-unit ratio.
+The reported residual is recomputed at the returned implicit displacement.
+The published length differs from previous length plus timestep times published
+velocity by at most 0.501 length ULPs in the reference checks. There is no extra
+accepted-state field or host dynamics owner.
+
+The authored positive timestep is used exactly. The old ten-microsecond floor
+silently changed the fibre update at smaller steps. The old solver fails the
+prepared 1- and 100-microsecond reference gates. The corrected solver passes at
+1, 5, 10 and 100 microseconds: maximum normalized same-path force error below
+1.81e-6 and normalized residual below 2.90e-7, against unchanged 1e-5 numerical
+budgets. Default-pose path/force/activation checks and ten native regressions
+also pass. This is numerical agreement for the supplied reference state.
+
+Full source-path force parity remains distinct: sub-micrometre FP32 geometry
+errors are amplified by these stiff fitted architectures (maximum 0.780 N at
+100 microseconds and 4.844 N at one microsecond here). The prepared geometry,
+full source force/convergence, anatomical loading and experimental calibration
+still require their owning evidence; same-path scalar agreement cannot certify
+them.

@@ -186,28 +186,37 @@ inline bool wrapInside(
         return false;
     }
     if (cosine > 1.0f - kMinimum) return true;
-    float z = 1.0f - 1.0e-7f;
-    float residual = asin(a * z) + asin(b * z) - 2.0f * asin(z) + acos(cosine);
+    // Solve in angle theta = asin(z). The source z-coordinate Newton
+    // derivative is singular near z=1: FP32 overshoot can incorrectly choose
+    // the midpoint fallback even when an interior contact exists. This is the
+    // same scalar equation and source tolerance, with a monotone bracket.
+    const float angle = acos(cosine);
+    float upper = asin(1.0f - 1.0e-7f);
+    float lower = 0.0f;
+    float theta = upper;
+    float z = sin(theta);
+    float residual = asin(a * z) + asin(b * z) - 2.0f * theta + angle;
     if (residual > 0.0f) return true;
     uint iteration = 0u;
     for (; iteration < 20u && abs(residual) > 1.0e-6f; ++iteration) {
+        if (residual > 0.0f) lower = theta;
+        else upper = theta;
+        const float cosineTheta = cos(theta);
         const float derivative =
-            a / max(kMinimum, sqrt(max(0.0f, 1.0f - z * z * a * a))) +
-            b / max(kMinimum, sqrt(max(0.0f, 1.0f - z * z * b * b))) -
-            2.0f / max(kMinimum, sqrt(max(0.0f, 1.0f - z * z)));
-        if (derivative > -kMinimum) return true;
-        const float next = z - residual / derivative;
-        if (next > z) return true;
-        z = next;
-        residual = asin(a * z) + asin(b * z) - 2.0f * asin(z) + acos(cosine);
-        if (residual > 1.0e-6f) return true;
+            a * cosineTheta / max(kMinimum, sqrt(max(0.0f, 1.0f - a * a * z * z))) +
+            b * cosineTheta / max(kMinimum, sqrt(max(0.0f, 1.0f - b * b * z * z))) - 2.0f;
+        const float next = theta - residual / derivative;
+        theta = isfinite(next) && next > lower && next < upper
+            ? next : 0.5f * (lower + upper);
+        z = sin(theta);
+        residual = asin(a * z) + asin(b * z) - 2.0f * theta + angle;
     }
-    if (iteration >= 20u) return true;
+    if (abs(residual) > 1.0e-6f) return true;
     const bool firstSide = first.x * second.y - first.y * second.x > 0.0f;
     const float2 vector = normalize(firstSide ? first : second);
     const float rotation = firstSide
-        ? asin(z) - asin(a * z)
-        : asin(z) - asin(b * z);
+        ? theta - asin(a * z)
+        : theta - asin(b * z);
     const float2 point = radius * float2(
         cos(rotation) * vector.x - sin(rotation) * vector.y,
         sin(rotation) * vector.x + cos(rotation) * vector.y
@@ -429,11 +438,10 @@ inline float normalizedVelocityGain(
     return eccentricLimit;
 }
 
-inline float normalizedTendonForce(
-    const float normalizedLength,
+inline float normalizedTendonForceFromStrain(
+    const float strain,
     const MRMujocoMuscleGPU muscle
 ) {
-    const float strain = normalizedLength - 1.0f;
     if (strain <= 0.0f) return 0.0f;
     const float strainAtOne = muscle.compliantArchitecture0.z;
     const float stiffness = muscle.compliantArchitecture0.w;
@@ -453,6 +461,28 @@ inline bool compliantArchitecture(const MRMujocoMuscleGPU muscle) {
         muscle.compliantArchitecture0.y > kMinimum;
 }
 
+// Use a displacement about the accepted fibre, keeping the small implicit
+// update separate until publication. Subtracting two rounded absolute fibre
+// lengths loses the velocity and tendon extension that determine this root.
+inline float compliantFiberIncrementResidual(
+    const float increment, const float acceptedFiber, const float predictedPath,
+    const float timestep, const float activation, const MRMujocoMuscleGPU muscle,
+    thread float& normalizedTension
+) {
+    const float optimum = muscle.compliantArchitecture0.x;
+    const float velocity = increment / timestep;
+    const float normalizedFiber = (acceptedFiber + increment) / optimum;
+    const float slack = muscle.compliantArchitecture0.y;
+    const float initialExtension = (predictedPath - acceptedFiber) - slack;
+    normalizedTension = normalizedTendonForceFromStrain(
+        (initialExtension - increment) / slack, muscle);
+    const float active = activation * gainLength(normalizedFiber,
+        parameter(muscle.gainParameters, 4u), parameter(muscle.gainParameters, 5u)) *
+        normalizedVelocityGain(velocity, optimum, muscle);
+    return normalizedTension - active - normalizedPassiveForce(normalizedFiber, muscle) -
+        muscle.compliantArchitecture1.z * velocity / optimum;
+}
+
 inline bool solveCompliantFiber(
     const float pathLength,
     const float pathVelocity,
@@ -467,7 +497,7 @@ inline bool solveCompliantFiber(
 ) {
     const float optimalFiberLength = muscle.compliantArchitecture0.x;
     const float tendonSlackLength = muscle.compliantArchitecture0.y;
-    const float damping = muscle.compliantArchitecture1.z;
+    if (!(timestep > 0.0f) || !isfinite(timestep)) return false;
     const float predictedPath = max(
         kMinimum, pathLength + max(0.0f, timestep) * pathVelocity
     );
@@ -486,8 +516,8 @@ inline bool solveCompliantFiber(
             const float candidate =
                 0.5f * (initializationLower + initializationUpper);
             const float normalizedFiber = candidate / optimalFiberLength;
-            const float tendon = normalizedTendonForce(
-                (pathLength - candidate) / tendonSlackLength, muscle
+            const float tendon = normalizedTendonForceFromStrain(
+                ((pathLength - candidate) - tendonSlackLength) / tendonSlackLength, muscle
             );
             const float active = activation * gainLength(
                 normalizedFiber,
@@ -502,36 +532,25 @@ inline bool solveCompliantFiber(
         acceptedFiber =
             0.5f * (initializationLower + initializationUpper);
     }
-    const float effectiveTimestep = max(1.0e-5f, timestep);
-    float lower = min(0.05f * optimalFiberLength, 0.5f * predictedPath);
-    float upper = predictedPath;
+    // Preserve the authored timestep, including steps below ten microseconds.
+    float lower = min(0.05f * optimalFiberLength, 0.5f * predictedPath) - acceptedFiber;
+    float upper = predictedPath - acceptedFiber;
     if (!(lower < upper)) return false;
-    float residual = 0.0f;
     float normalizedTension = 0.0f;
     for (uint iteration = 0u; iteration < 48u; ++iteration) {
         const float candidate = 0.5f * (lower + upper);
-        const float velocity = (candidate - acceptedFiber) / effectiveTimestep;
-        const float normalizedFiber = candidate / optimalFiberLength;
-        normalizedTension = normalizedTendonForce(
-            (predictedPath - candidate) / tendonSlackLength, muscle
-        );
-        const float active = activation * gainLength(
-            normalizedFiber,
-            parameter(muscle.gainParameters, 4u),
-            parameter(muscle.gainParameters, 5u)
-        ) * normalizedVelocityGain(velocity, optimalFiberLength, muscle);
-        const float passive = normalizedPassiveForce(normalizedFiber, muscle);
-        residual = normalizedTension - active - passive -
-            damping * velocity / optimalFiberLength;
+        if (candidate == lower || candidate == upper) break;
+        const float residual = compliantFiberIncrementResidual(candidate, acceptedFiber,
+            predictedPath, timestep, activation, muscle, normalizedTension);
         if (residual > 0.0f) lower = candidate;
         else upper = candidate;
     }
-    fiberLength = 0.5f * (lower + upper);
-    fiberVelocity = (fiberLength - acceptedFiber) / effectiveTimestep;
-    tendonForce = max(0.0f, normalizedTendonForce(
-        (predictedPath - fiberLength) / tendonSlackLength, muscle
-    ));
-    equilibriumResidual = residual;
+    float increment = 0.5f * (lower + upper);
+    equilibriumResidual = compliantFiberIncrementResidual(increment, acceptedFiber,
+        predictedPath, timestep, activation, muscle, normalizedTension);
+    tendonForce = max(0.0f, normalizedTension);
+    fiberLength = acceptedFiber + increment;
+    fiberVelocity = increment / timestep;
     return isfinite(fiberLength) && isfinite(fiberVelocity) &&
         isfinite(tendonForce) && isfinite(equilibriumResidual);
 }
