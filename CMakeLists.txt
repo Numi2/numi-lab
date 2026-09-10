@@ -4766,7 +4766,7 @@ if(APPLE)
     target_compile_options(metalrobo_numanx_human_equality_probe PRIVATE
         -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
     target_link_libraries(metalrobo_numanx_human_equality_probe PRIVATE
-        "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+        metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
     set_target_properties(metalrobo_numanx_human_equality_probe PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
     if(BUILD_TESTING)
@@ -4789,7 +4789,7 @@ if(APPLE)
     target_compile_options(metalrobo_numanx_human_limit_probe PRIVATE
         -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
     target_link_libraries(metalrobo_numanx_human_limit_probe PRIVATE
-        "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+        metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
     set_target_properties(metalrobo_numanx_human_limit_probe PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
     set(NUMANX_LIMIT_ORACLE "${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/numanx_human_limit_mujoco312.json"

@@ -2,7 +2,9 @@
 #include "metalrobo/NumiHumanSupport.hpp"
 #include <cstring>
 #include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
+#include "metalrobo/NumiHumanCompliantEquilibrium.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdlib>
@@ -235,7 +237,71 @@ void testCurvedSupport() {
         payload.contacts[0].supportRadius==0,"legacy witness changed semantics");
 }
 
+void testSourceCompliantPreparation() {
+    using namespace metalrobo;
+    NumiHumanSourceScalarLaw law{{-100,-2,0,0},{0.5f,0.5f,0.1f,0.5f},{2,0,0,0},0.4,true};
+    double force=123;
+    require(evaluateNumiHumanSourceStaticForce(law,0,1e-4,force) && force==0,
+        "zero deformation supplied an ideal static reaction");
+    require(evaluateNumiHumanSourceStaticForce(law,-0.02,1e-4,force) && near(force,10,1e-10),
+        "source inverse weight or impedance was omitted from static force");
+    auto invalid=law;invalid.inverseWeight=0;force=123;
+    require(!evaluateNumiHumanSourceStaticForce(invalid,-0.02,1e-4,force) && force==123,
+        "invalid source law changed the accepted output");
+    auto positive=law;positive.solref={0.001f,1,0,0};
+    double safe=0,unsafe=0;
+    require(evaluateNumiHumanSourceStaticForce(positive,-0.02,0.01,safe),"REFSAFE scalar failed");
+    positive.referenceSafe=false;
+    require(evaluateNumiHumanSourceStaticForce(positive,-0.02,0.01,unsafe) &&
+        near(unsafe/safe,std::pow(0.02/double(positive.solref.x),2),1e-8),"REFSAFE timestep law changed");
+    auto model=makeFreeBodyModel();model.world.gravityAndTimestep={0,0,-9.81f,1e-4f};
+    std::vector<double> q(model.defaultQ.begin(),model.defaultQ.end());
+    NumiHumanCompliantEquality equality;
+    equality.source.indices={2,2,MR_INVALID_INDEX,MR_INVALID_INDEX};
+    equality.source.solref=law.solref;equality.source.solimp0=law.solimp0;equality.source.solimp1=law.solimp1;
+    equality.inverseWeight=law.inverseWeight;
+    const std::vector<NumiHumanCompliantEquality> equalities{equality};
+    NumiHumanCompliantEquilibriumConfig config;config.accelerationTolerance=1e-6;
+    NumiHumanCompliantEquilibriumResult result;
+    const auto run=[&](auto& output) {
+        return compileNumiHumanCompliantEquilibrium(model,0,q,{},{},{},{},{},equalities,{},{},output,config);
+    };
+    auto status=run(result);
+    const double expected=2.5*double(model.world.gravityAndTimestep.z)/500.0;
+    require(status.succeeded() && status.balanced && near(result.state.q[2],expected,1e-8),
+        "compliant preparation did not find the analytic loaded deformation");
+    require(result.objectiveHistory.size()>1 && result.objectiveHistory.back()<result.objectiveHistory.front(),
+        "preparation trace omitted its converged search");
+    NumiHumanCompliantEquilibriumResult replay;
+    require(run(replay).succeeded() && replay.state.q==result.state.q && replay.objectiveHistory==result.objectiveHistory,
+        "source-compliant preparation replay changed");
+    config.maximumCoordinateDisplacement=0.001;
+    require(run(replay).succeeded() && !replay.state.diagnostics.balanced && near(replay.state.q[2],-0.001,1e-9),
+        "infeasible compliant preparation waived its displacement bound");
+    const auto accepted=replay.state.q;q[2]=NAN;
+    require(!run(replay).succeeded() && replay.state.q==accepted,"failed preparation overwrote accepted output");
+    q[2]=0;config.maximumCoordinateDisplacement=0.15;
+    NumiHumanCompliantLimit limit{2,2,0,1,0,law};
+    const std::vector<NumiHumanCompliantLimit> limits{limit};
+    status=compileNumiHumanCompliantEquilibrium(model,0,q,{},{},{},{},{},{},limits,{},result,config);
+    require(status.succeeded() && status.balanced && near(result.state.q[2],expected,1e-8) &&
+        result.state.generalizedPositionLimitForce[2]>0,"source lower stop did not acquire its loaded deformation");
+    q[2]=5e-7;config.optimizePose=false;
+    const std::vector<NumiHumanStaticSupportContact> grounded{{.bodyIndex=0}};
+    status=compileNumiHumanCompliantEquilibrium(model,0,q,{},{},{},{},{},{},{},grounded,result,config);
+    require(status.succeeded() && status.balanced && result.state.q==q &&
+        near(result.state.supportNormalForce[0],-2.5*double(model.world.gravityAndTimestep.z),1e-7),
+        "support-only admission moved the fixed prepared state or lost weight");
+    q[2]=0;config.optimizePose=true;
+    model.world.gravityAndTimestep.z=9.81f;limit.lower=-1;limit.upper=0;
+    const std::vector<NumiHumanCompliantLimit> upper{limit};
+    status=compileNumiHumanCompliantEquilibrium(model,0,q,{},{},{},{},{},{},upper,{},result,config);
+    require(status.succeeded() && status.balanced && near(result.state.q[2],-expected,1e-8) &&
+        result.state.generalizedPositionLimitForce[2]<0,"source upper stop did not acquire its loaded deformation");
+}
+
 int main() {
+    testSourceCompliantPreparation();
     testCurvedSupport();
     using namespace metalrobo;
     Fixture fixture;
@@ -597,6 +663,26 @@ int main() {
     coupledMuscles[0].route = {{MujocoRouteNodeType::site, 0u}, {MujocoRouteNodeType::site, 1u}};
     coupledMuscles[1].route = {{MujocoRouteNodeType::site, 0u}, {MujocoRouteNodeType::site, 2u}};
     const std::vector<MujocoCompliantMuscleArchitecture> coupledArchitectures(2u);
+    // Recruitment through the compliant preparation owner: gravity supplies
+    // [2,1] on two unit-mass sliders. Both muscle tensions must be exactly 1.
+    auto compliantModel=coupledModel;compliantModel.world.gravityAndTimestep=f4(0,1,0,0.0001);
+    NumiHumanCompliantEquilibriumConfig compliantConfig;
+    compliantConfig.optimizeActivation=true;compliantConfig.accelerationTolerance=1e-6;
+    const std::vector<double> coldActivation(2,0);
+    NumiHumanCompliantEquilibriumResult compliantResult,compliantReplay;
+    const auto prepareCompliant=[&](auto& output) {
+        return compileNumiHumanCompliantEquilibrium(compliantModel,0,reactions.q,coldActivation,
+            coupledSites,{},coupledMuscles,coupledArchitectures,{},{},{},output,compliantConfig);
+    };
+    require(prepareCompliant(compliantResult).succeeded() && compliantResult.state.diagnostics.balanced &&
+        near(compliantResult.state.muscleTendonForce[0],-1,1e-6) && near(compliantResult.state.muscleTendonForce[1],-1,1e-6),
+        "source-compliant recruitment missed analytic gravity balance");
+    require(prepareCompliant(compliantReplay).succeeded() && compliantReplay.state.activation==compliantResult.state.activation &&
+        compliantReplay.state.q==compliantResult.state.q,"compliant recruitment replay changed");
+    compliantModel.world.gravityAndTimestep.y=1e6f;
+    require(prepareCompliant(compliantReplay).succeeded() && !compliantReplay.state.diagnostics.balanced &&
+        std::all_of(compliantReplay.state.activation.begin(),compliantReplay.state.activation.end(),[](double a){return a>=0 && a<=1;}),
+        "infeasible compliant recruitment waived actuator bounds");
     const std::vector<NumiHumanPassiveCoordinateCoupling> coupledLoads{
         {0u, 0u, 5.0, 1.0}, {1u, 1u, 2.0, 1.0}};
     auto coupledConfig = reactions.config;
@@ -659,6 +745,7 @@ int main() {
             near(postureResult.searchTrace.back().normalizedResidualRms, postureResult.diagnostics.normalizedResidualRms),
             "accepted search history lost a coupled update or disagreed with its certificate");
     std::cout << "numi_human_static_support_test=passed"
+              << " source_compliant_preparation=passed compliant_recruitment=passed"
               << " coupled_recruitment=passed recruitment_bounds=passed"
               << " coupled_posture=passed"
               << " coupled_limit_reactions=passed dependent_acceleration=passed"

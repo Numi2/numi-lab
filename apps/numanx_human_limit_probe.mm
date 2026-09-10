@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 #include "numi/matter/human_limits_gpu.h"
+#include "metalrobo/NumiHumanCompliantEquilibrium.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -49,6 +50,31 @@ void run(NSDictionary* fixture, id<MTLDevice> device, id<MTLLibrary> library, id
     row.solimp0 = {float(number(fixture[@"solimp"][0])), float(number(fixture[@"solimp"][1])),
         float(number(fixture[@"solimp"][2])), float(number(fixture[@"solimp"][3]))};
     row.solimp1 = {float(number(fixture[@"solimp"][4])), 0.f, 0.f, 0.f};
+    // Independent MuJoCo fixture linearization supplies a_ref and R.
+    // Remove only its known damping/free predictor terms to check the new
+    // stationary preparation law against the retained source oracle.
+    metalrobo::NumiHumanSourceScalarLaw staticLaw;
+    std::memcpy(&staticLaw.solref,&row.solref,16);std::memcpy(&staticLaw.solimp0,&row.solimp0,16);std::memcpy(&staticLaw.solimp1,&row.solimp1,16);
+    staticLaw.inverseWeight=row.rangeMarginInverseWeight.w;staticLaw.referenceSafe=(lim.flags&1u)!=0;
+    const double dw=std::clamp(double(row.solimp0.y),0.0001,0.9999);
+    const double timeConstant=staticLaw.referenceSafe?std::max(double(row.solref.x),2.0*lim.time.x):row.solref.x;
+    const double damping=row.solref.x>0?2.0/std::max(1e-15,dw*timeConstant):-row.solref.y/std::max(1e-15,dw);
+    for (unsigned side=0;side<2;++side) {
+        const double inverseR=number(fixture[@"linearization"][side][2]);
+        if (inverseR==0) continue;
+        const double sign=side==0?1.0:-1.0;
+        const double phi=number(fixture[@"linearization"][side][3]);
+        const double freeIncrement=sign*(number(fixture[@"v_free"])-number(fixture[@"v0"]));
+        const double aref=(number(fixture[@"linearization"][side][1])+freeIncrement)/lim.time.x;
+        // The independent source fixture stores invweight0 in FP64; NHLIM1
+        // deliberately transports FP32. Adjust that known serialization
+        // factor explicitly rather than loosening the source-law comparison.
+        const double expected=(aref+damping*sign*number(fixture[@"v0"]))*inverseR*
+            number(fixture[@"source_inverse_weight"])/staticLaw.inverseWeight;
+        double actual=0;
+        require(metalrobo::evaluateNumiHumanSourceStaticForce(staticLaw,phi,lim.time.x,actual),"static source limit rejected");
+        near(actual,expected,"offline static limit differs from MuJoCo source",1e-8);
+    }
     const auto rows = buffer(device, sizeof(row)); std::memcpy(rows.contents, &row, sizeof(row));
     const auto q = buffer(device, envs * 8u * 4u), v = buffer(device, envs * nv * 4u), free = buffer(device, v.length);
     const auto lin = buffer(device, envs * 2u * 16u), status = buffer(device, envs * sizeof(NMMatterStatusGPU));

@@ -15,6 +15,9 @@
 #include "metalrobo/NumiHumanKnee.hpp"
 #include "metalrobo/NumiHumanKneeContact.hpp"
 #include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
+#include "metalrobo/NumiHumanCompliantEquilibrium.hpp"
+#include "metalrobo/NumiHumanInitialState.hpp"
+#include "numi/matter/human_limits_gpu.h"
 #include "metalrobo/NumiHumanTendon.hpp"
 #include "metalrobo/NumiHumanTendonMetal.hpp"
 #include "metalrobo/QualityContactSolver.hpp"
@@ -13675,11 +13678,112 @@ std::uint32_t parseCameraIndex(const std::string& value) {
     return static_cast<std::uint32_t>(result);
 }
 
+// Offline source-compliant preparation; no runtime or renderer is constructed.
+int sourceCompliantCertificate(int argc,char** argv) {
+    const auto rigid=loadRigid(argv[2]);
+    const auto muscles=loadMuscles(argv[3],rigid.header);
+    const auto contacts=loadSupportContacts(argv[4],rigid.header);
+    const auto bytes=[](const char* path) {
+        std::ifstream file(path,std::ios::binary);require(file.is_open(),"cannot read preparation input");
+        std::vector<char> data{std::istreambuf_iterator<char>(file),std::istreambuf_iterator<char>()};
+        require(!file.bad(),"preparation input read failed");return data;
+    };
+    const auto raw=bytes(argv[5]);
+    metalrobo::NumiHumanInitialState initial;std::string error;
+    const bool decoded=metalrobo::decodeNumiHumanInitialState(std::as_bytes(std::span(raw)),rigid.header.nq,
+        rigid.header.nv,std::uint32_t(muscles.referenceMuscles.size()),rigid.header.sourceSha256,initial,error);
+    require(decoded,error);
+    require(std::all_of(initial.v.begin(),initial.v.end(),[](float v){return v==0;}),"static input must have zero velocity");
+    struct Header {
+        std::array<char,8> magic;
+        std::uint32_t abi,nq,nv,count,recordBytes,sourceCount,policy,flags,reserved0,reserved1;
+        std::array<std::uint8_t,32> source;
+    };
+    static_assert(sizeof(Header)==80);
+    const auto readHeader=[&](const std::vector<char>& data,std::array<char,8> magic,unsigned abi,unsigned size) {
+        require(data.size()>=sizeof(Header),"truncated scalar program");
+        Header h;std::memcpy(&h,data.data(),sizeof(h));
+        require(h.magic==magic && h.abi==abi && h.nq==rigid.header.nq && h.nv==rigid.header.nv &&
+            h.count>0 && h.count<=h.nv && h.count==h.sourceCount && h.recordBytes==size && h.policy==1 &&
+            (h.flags&~1u)==0 && h.reserved0==0 && h.reserved1==0 && h.source==rigid.header.sourceSha256 &&
+            data.size()==sizeof(h)+std::size_t(h.count)*size,"scalar program identity or dimensions mismatch");return h;
+    };
+    const auto equalityBytes=bytes(argv[6]),limitBytes=bytes(argv[7]);
+    const auto eh=readHeader(equalityBytes,{'N','H','E','Q','2',0,0,0},2,112);
+    const auto lh=readHeader(limitBytes,{'N','H','L','I','M','1',0,0},1,80);
+    require(eh.flags==lh.flags,"scalar program REFSAFE mismatch");
+    std::vector<metalrobo::NumiHumanCompliantEquality> equalities;
+    for (unsigned i=0;i<eh.count;++i) {
+        NMHumanJointEqualityGPU row;std::memcpy(&row,equalityBytes.data()+80+i*112,112);
+        metalrobo::NumiHumanCompliantEquality value;
+        std::memcpy(&value.source,&row,sizeof(value.source));
+        value.inverseWeight=double(row.sourceInverseWeights.x)+row.sourceInverseWeights.y;equalities.push_back(value);
+    }
+    std::vector<metalrobo::NumiHumanCompliantLimit> limits;
+    for (unsigned i=0;i<lh.count;++i) {
+        NMHumanJointLimitGPU row;std::memcpy(&row,limitBytes.data()+80+i*80,80);
+        metalrobo::NumiHumanCompliantLimit value;
+        value.qIndex=row.indices.x;value.dofIndex=row.indices.y;
+        value.lower=row.rangeMarginInverseWeight.x;value.upper=row.rangeMarginInverseWeight.y;value.margin=row.rangeMarginInverseWeight.z;
+        std::memcpy(&value.law.solref,&row.solref,16);std::memcpy(&value.law.solimp0,&row.solimp0,16);std::memcpy(&value.law.solimp1,&row.solimp1,16);
+        value.law.inverseWeight=row.rangeMarginInverseWeight.w;value.law.referenceSafe=lh.flags!=0;limits.push_back(value);
+    }
+    std::vector<metalrobo::NumiHumanStaticSupportContact> supports;
+    for (const auto& row:contacts.records) supports.push_back({
+        .bodyIndex=row.bodyIndex,.localPoint={row.localPointX,row.localPointY,row.localPointZ},
+        .normal={contacts.header.groundNormalX,contacts.header.groundNormalY,contacts.header.groundNormalZ},
+        .planePoint={contacts.header.groundPointX,contacts.header.groundPointY,contacts.header.groundPointZ},
+        .supportRadius=row.supportRadius,.supportRadii={row.supportRadii[0],row.supportRadii[1],row.supportRadii[2]},
+        .supportOrientation={row.supportOrientation[0],row.supportOrientation[1],row.supportOrientation[2],row.supportOrientation[3]}});
+    std::vector<double> q(initial.q.begin(),initial.q.end()),activation;
+    for (const auto& m:initial.muscles) activation.push_back(m.excitationAndActivation.y);
+    metalrobo::NumiHumanCompliantEquilibriumConfig config;
+    config.timestep=initial.timestepMicroseconds*1.0e-6;config.referenceSafe=eh.flags!=0;
+    config.maximumIterations=parseWholeBodyPoseSweeps(argv[8]);
+    if (argc==10) {
+        const std::string option(argv[9]);
+        require(option=="--recruit" || option=="--support-reactions-only", "unknown compliant preparation option");
+        config.optimizeActivation=option=="--recruit";
+        config.optimizePose=option!="--support-reactions-only";
+    }
+    metalrobo::NumiHumanCompliantEquilibriumResult result;
+    const auto status=metalrobo::compileNumiHumanCompliantEquilibrium(rigid.model,0,q,activation,
+        muscles.referenceSites,muscles.referenceWraps,muscles.referenceMuscles,muscles.referenceArchitectures,
+        equalities,limits,supports,result,config);
+    require(status.succeeded(),std::string("source-compliant compile failed: ")+metalrobo::numiHumanMuscleEquilibriumStatusName(status.status));
+    const auto array=[](const auto& values) {
+        std::cout<<'[';for(std::size_t i=0;i<values.size();++i){if(i)std::cout<<',';std::cout<<values[i];}std::cout<<']';
+    };
+    const auto& s=result.state;
+    std::cout<<std::setprecision(17)<<"source_compliant_equilibrium={\"schema\":\"numi.human.source-compliant-equilibrium.v1\",\"balanced\":"
+        <<(status.balanced?"true":"false")<<",\"iterations\":"<<status.acceptedPoseSteps<<",\"rejected\":"<<result.rejectedEvaluations
+        <<",\"initial_acceleration_rms\":"<<status.initialNormalizedResidualRms<<",\"acceleration_rms\":"<<status.normalizedResidualRms
+        <<",\"maximum_acceleration\":"<<status.maximumGeneralizedAccelerationResidual<<",\"maximum_acceleration_dof\":"<<status.maximumAccelerationResidualDof
+        <<",\"maximum_force_residual\":"<<status.maximumGeneralizedForceResidual<<",\"minimum_support_gap\":"<<result.minimumSupportGap
+        <<",\"maximum_loaded_support_gap\":"<<result.maximumLoadedSupportGap;
+    const auto field=[&](const char* name,const auto& values){std::cout<<",\""<<name<<"\":";array(values);};
+    field("objective_history",result.objectiveHistory);field("initial_acceleration",result.initialAcceleration);
+    field("acceleration",s.generalizedAccelerationResidual);field("force_residual",s.generalizedForceResidual);
+    field("equality_force",s.generalizedJointEqualityForce);field("limit_force",s.generalizedPositionLimitForce);
+    field("muscle_force",s.generalizedMuscleForce);field("support_force",s.generalizedSupportForce);field("gravity_target",s.gravityTarget);
+    field("support_normal_force",s.supportNormalForce);field("support_gap",s.supportPlaneGapMeters);
+    std::cout<<"}\ncompiled_equilibrium_q=";array(s.q);
+    std::cout<<"\ncompiled_equilibrium_muscles={\"schema\":\"numi.human.offline-muscle-state.v1\"";
+    field("activation_fp64",s.activation);field("activation_fp32",s.activation);field("reference_fiber_length_m",s.fiberLength);
+    field("actuator_force_n",s.muscleTendonForce);std::cout<<"}\n";
+    return status.balanced?0:2;
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
     @autoreleasepool {
         try {
+            if (argc>=2 && std::string(argv[1])=="--source-compliant-certificate") {
+                require(argc==9 || argc==10,
+                    "usage: --source-compliant-certificate rigid.nhrigid muscle.nhmyo support.nhcnt prepared.nhinit source.nheq source.nhlim iterations [--recruit|--support-reactions-only]");
+                return sourceCompliantCertificate(argc,argv);
+            }
             std::optional<double> muscleStepSeconds;
             std::optional<double> muscleActivation;
             std::optional<std::uint32_t> muscleStepCount;

@@ -547,3 +547,52 @@ execution. They do not establish universal agreement with an external
 simulator, complete unilateral joint-limit behavior, high-speed impact
 accuracy, real-hardware fidelity, safety, or sim-to-real transfer. Those
 claims require their own pinned comparisons and physical evidence.
+
+### Source-compliant Human initial conditions
+
+`compileNumiHumanCompliantEquilibrium` prepares a stationary initial condition
+using the NHEQ2/NHLIM1 source scalar law, curved support witnesses and the exact
+static muscle fibre law. It is an offline native compiler. It never steps
+physics, projects a live coordinate, or injects an offline reaction into Matter.
+Source rest coordinates, inverse weights, solref/solimp and REFSAFE are retained.
+At zero velocity and acceleration the signed row force is `a_ref / R`, with
+`a_ref = -K*d*phi` and `R = (1-d)/d * sourceInverseWeight`. A unilateral source
+row is admitted strictly inside its margin and contributes only inward force.
+Zero deformation cannot acquire an ideal constraint reaction.
+
+The bounded Gauss-Newton search admits simultaneous scalar coordinate,
+nonnegative normal support force and optional [0,1] activation updates. Dependent
+source coordinates may deform. Quaternion coordinates remain fixed. Exact
+nonlinear force and witness evaluation decides every search update; a frozen
+initial mass inverse supplies the search metric. The final certificate uses
+`M(q_final)^-1 * force_sum`, with a maximum per-coordinate acceleration bound
+(default 0.05 in that coordinate's acceleration units), and independently
+checks loaded support gaps and penetration. This is a static force-balance
+residual, not the instantaneous acceleration of the compliant dynamic system.
+Search history is not physical time. The input touching-contact set is fixed
+for this bounded preparation; arbitrary contact discovery belongs to Matter.
+
+The visual qualification CLI exposes the compiler without creating a renderer:
+
+```
+metalrobo_numilab_human_myosim_visual_probe --source-compliant-certificate \
+  rigid.nhrigid muscle.nhmyo support.nhcnt prepared.nhinit source.nheq \
+  source.nhlim iterations [--recruit|--support-reactions-only]
+```
+
+Exit 0 means the offline static and geometry gates pass; exit 2 retains a finite
+but unbalanced candidate; malformed inputs fail without replacing the accepted
+API result. `--recruit` optimizes activation along with posture.
+`--support-reactions-only` holds q and activation exactly fixed while solving
+normal load sharing, which is required when checking FP32 conversion: a
+floating-root wrench alone does not uniquely determine internal foot loading.
+NHINIT1 continues to carry only q/v/muscle state, with no prescribed ground or
+joint reaction. Registered tissue, accepted-root stability, causal control,
+standing, walking and experimental calibration require their own evidence.
+
+Analytic tests cover loaded equality and lower/upper stop deformation, REFSAFE,
+failed-output isolation, displacement and activation bounds, gravity recruitment
+and replay. The equality Metal probe directly compares stationary source forces
+with the compiler, and the limit probe compares against its independent pinned
+MuJoCo linearization after removing damping and free-predictor terms. The latter
+explicitly accounts for FP64 oracle versus FP32 payload inverse-weight storage.

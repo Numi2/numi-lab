@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 #include "numi/matter/human_equality_gpu.h"
+#include "metalrobo/NumiHumanCompliantEquilibrium.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -144,16 +145,16 @@ void run(const Fixture& fixture) {
             0.8f+0.004f*float(i+e):0.006f*std::sin(float(i+3u*j+e));
     id<MTLCommandQueue> queue=[device newCommandQueue];require(queue!=nil,"Metal queue unavailable");
     double linError=0.0,residualError=0.0,actionError=0.0,fdError=0.0,initialDefect=0.0;
-    double factorError=0.0,inverseError=0.0,inverseResidual=0.0;
-    for (unsigned trial=0u;trial<3u;++trial) {
+    double factorError=0.0,inverseError=0.0,inverseResidual=0.0,staticForceError=0.0;
+    for (unsigned trial=0u;trial<4u;++trial) {
         eq.flags=trial==2u?0u:NM_HUMAN_EQUALITY_REFSAFE;eq.time.x=trial==0u?1e-4f:0.02f;
         for (unsigned e=0u;e<envs;++e) {
             for (unsigned j=0u;j<fixture.nq;++j) data<float>(q)[e*fixture.nq+j]=fixture.q[j]+(e==0u?0.0f:0.1f*std::sin(float(j)));
             for (unsigned j=0u;j<fixture.nv;++j) {
                 const unsigned k=e*fixture.nv+j;
-                data<float>(v)[k]=e==0u?0.0f:0.2f*std::sin(float(j+2u));
-                data<float>(free)[k]=data<float>(v)[k]+0.015f*std::cos(float(j));
-                data<float>(delta)[k]=0.03f*std::cos(float(j+3u));
+                data<float>(v)[k]=(e==0u || trial==3u)?0.0f:0.2f*std::sin(float(j+2u));
+                data<float>(free)[k]=data<float>(v)[k]+(trial==3u?0.0f:0.015f*std::cos(float(j)));
+                data<float>(delta)[k]=trial==3u?0.0f:0.03f*std::cos(float(j+3u));
                 data<nm_float4>(direction)[base+k].x=0.2f*std::sin(float(j+1u));
             }
         }
@@ -186,6 +187,15 @@ void run(const Fixture& fixture) {
             const unsigned dep=e*fixture.nv+row.indices.y;const bool fixed=row.indices.w==NM_INVALID_INDEX;const unsigned master=fixed?dep:e*fixture.nv+row.indices.w;
             const double jdv=double(data<float>(delta)[dep])-(fixed?0.0:ref.derivative*data<float>(delta)[master]);
             const double jdir=double(data<nm_float4>(direction)[base+dep].x)-(fixed?0.0:ref.derivative*data<nm_float4>(direction)[base+master].x);
+            if (trial==3u) {
+                metalrobo::NumiHumanSourceScalarLaw law;
+                std::memcpy(&law.solref,&row.solref,16);std::memcpy(&law.solimp0,&row.solimp0,16);std::memcpy(&law.solimp1,&row.solimp1,16);
+                law.inverseWeight=double(row.sourceInverseWeights.x)+row.sourceInverseWeights.y;law.referenceSafe=(eq.flags&1u)!=0;
+                double force=0;
+                require(metalrobo::evaluateNumiHumanSourceStaticForce(law,ref.phi,eq.time.x,force),"static source force rejected");
+                const double gpuForce=double(actual.y)*actual.z/eq.time.x;
+                staticForceError=std::max(staticForceError,std::abs(force-gpuForce)/std::max(1.0,std::abs(force)));
+            }
             const double lambda=(jdv-ref.bDelta)*ref.inverseR, product=jdir*ref.inverseR;
             expectedR[dep]-=lambda;expectedA[dep]+=product;
             if(!fixed){expectedR[master]+=ref.derivative*lambda;expectedA[master]-=ref.derivative*product;}
@@ -234,7 +244,8 @@ void run(const Fixture& fixture) {
             data<float>(sourceL)[0]=saved;
         }
     }
-    std::cout<<"rows="<<count<<" environments=2 trials=3 prepare_scaled_error="<<linError<<" residual_relative_error="<<residualError<<" action_relative_error="<<actionError<<" finite_difference_relative_error="<<fdError<<" initial_position_defect="<<initialDefect<<" factor_relative_error="<<factorError<<" inverse_relative_error="<<inverseError<<" inverse_residual="<<inverseResidual<<" source_factor=immutable invalid_pivots=rejected replay=byte_identical\n";
+    std::cout<<"rows="<<count<<" environments=2 trials=4 prepare_scaled_error="<<linError<<" residual_relative_error="<<residualError<<" action_relative_error="<<actionError<<" finite_difference_relative_error="<<fdError<<" initial_position_defect="<<initialDefect<<" factor_relative_error="<<factorError<<" inverse_relative_error="<<inverseError<<" inverse_residual="<<inverseResidual<<" static_force_scaled_error="<<staticForceError<<" source_factor=immutable invalid_pivots=rejected replay=byte_identical\n";
+    require(staticForceError<3e-5,"offline static force differs from Metal source law");
     require(linError<3e-5,"source equality preparation differs from FP64");require(residualError<3e-5&&actionError<3e-5,"source equality Schur action differs from FP64");require(fdError<3e-3,"source equality operator fails residual finite difference");
     require(factorError<3e-5,"equality factor differs from independent FP64 SPD assembly");
     require(inverseError<5e-4&&inverseResidual<5e-4,"equality preconditioner differs from independent FP64 inverse");
