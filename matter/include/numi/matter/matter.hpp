@@ -722,6 +722,12 @@ struct EncodeRequest {
     // node. It enters the same implicit mechanical residual as gravity and
     // constitutive force. Callers retain ownership; w is ignored. A non-null
     // field must cover exactly environmentCount * femNodeCount records.
+    // Optional pose-only MRBodyStateGPU view at the start of this root.
+    // Human support recovery reads position/orientation only, with
+    // rigid.currentBodyCount/currentBodyStride indexing. Keep it immutable
+    // throughout candidate evaluation. Null uses rigid.currentBodies.
+    // This view never supplies generic rigid proxy dynamics or reconciliation.
+    void* humanSupportInitialBodies = nullptr;
     // Accepted source velocity, distinct from rigid.v's free predictor. Used
     // read-only during the same borrowed Human root when NHEQ2 is configured.
     void* humanEqualitySourceVelocity = nullptr;

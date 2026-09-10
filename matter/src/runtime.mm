@@ -2789,6 +2789,9 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->requiredCandidateBodyCount = std::max(
                     candidate->requiredCandidateBodyCount,
                     support.identity.x + 1u);
+                candidate->requiredCurrentBodyCount = std::max(
+                    candidate->requiredCurrentBodyCount,
+                    support.identity.x + 1u);
             }
         }
 
@@ -2958,6 +2961,43 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 "body-backed matter proxies require the current body arena";
             return diagnostics;
         }
+        void* supportInitialBodyArena = request.humanSupportInitialBodies != nullptr
+            ? request.humanSupportInitialBodies : request.rigid.currentBodies;
+        if (state.humanSupportDispatch.contactCount != 0u &&
+            supportInitialBodyArena == nullptr) {
+            diagnostics.message = "Human support requires an initial body pose arena";
+            return diagnostics;
+        }
+        if (state.humanSupportDispatch.contactCount != 0u) {
+            id<MTLBuffer> bodies = (__bridge id<MTLBuffer>)supportInitialBodyArena;
+            const std::uint64_t elements =
+                static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                request.rigid.currentBodyStride;
+            if (bodies.device == nil ||
+                bodies.device.registryID != state.device.registryID ||
+                bodies.gpuAddress == 0u ||
+                elements > static_cast<std::uint64_t>(bodies.length) /
+                    sizeof(MRBodyStateGPU)) {
+                diagnostics.message =
+                    "Human support initial body arena has wrong device provenance or byte capacity";
+                return diagnostics;
+            }
+        }
+        if (state.requiresCurrentBodies) {
+            id<MTLBuffer> bodies = (__bridge id<MTLBuffer>)request.rigid.currentBodies;
+            const std::uint64_t elements =
+                static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                request.rigid.currentBodyStride;
+            if (bodies.device == nil ||
+                bodies.device.registryID != state.device.registryID ||
+                bodies.gpuAddress == 0u ||
+                elements > static_cast<std::uint64_t>(bodies.length) /
+                    sizeof(MRBodyStateGPU)) {
+                diagnostics.message =
+                    "current body arena has wrong device provenance or byte capacity";
+                return diagnostics;
+            }
+        }
         if (request.phase == EncodePhase::preDynamics &&
             state.requiresBodyWrenches &&
             request.rigid.bodyWrenches == nullptr) {
@@ -2974,7 +3014,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
              request.rigid.qStride > state.dispatch.rigidQCapacity ||
              request.rigid.vStride >
                  state.dispatch.rigidGeneralizedCapacity ||
-             (state.dispatch.femHumanAttachmentCount != 0u &&
+             (state.requiredCandidateBodyCount != 0u &&
               (request.rigid.currentBodyCount <
                    state.requiredCandidateBodyCount ||
                request.rigid.currentBodyStride <
@@ -5209,7 +5249,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.humanSupportConsequencesCandidate
                                  offset:0u atIndex:9u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:10u];
-                    [encoder setBuffer:currentBodies offset:0u atIndex:11u];
+                    [encoder setBuffer:buffer(supportInitialBodyArena) offset:0u atIndex:11u];
                     [encoder setBuffer:state.humanSupportLinearizations offset:0u atIndex:12u];
                     [encoder setBuffer:state.femResidual offset:0u atIndex:13u];
                     [encoder setBuffer:buffer(request.rigid.v) offset:0u atIndex:14u];

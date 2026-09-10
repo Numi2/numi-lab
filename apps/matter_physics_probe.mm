@@ -3446,6 +3446,42 @@ void runHumanSupportLoaded() {
             };
             auto init = matter.initialize(compiled.world, runtimeConfiguration);
             require(init.encoded, "support initialize: "+init.message);
+            if (c.rows == 6u && c.seed == 0.0f) {
+                auto supportOnlySource = source;
+                supportOnlySource.rigidProxies.clear();
+                const auto supportOnlyWorld = numi::matter::compileWorld(supportOnlySource, options);
+                require(supportOnlyWorld.succeeded(), "support-only fixture compilation failed");
+                numi::matter::Runtime supportOnly;
+                require(supportOnly.initialize(supportOnlyWorld.world, runtimeConfiguration).encoded,
+                    "support-only fixture initialization failed");
+                id<MTLDevice> device = ((__bridge id<MTLBuffer>)matter.statusBuffer()).device;
+                id<MTLCommandQueue> queue = [device newCommandQueue];
+                id<MTLCommandBuffer> command = [queue commandBuffer];
+                numi::matter::EncodeRequest invalid;
+                invalid.commandBuffer = (__bridge void*)command;
+                invalid.physicsSubsteps = 1u;
+                invalid.rigid.currentBodyCount = 2u;
+                invalid.rigid.currentBodyStride = 2u;
+                auto denied = supportOnly.encode(invalid);
+                require(!denied.encoded && denied.message ==
+                    "Human support requires an initial body pose arena",
+                    "support admitted missing initial body arena: " + denied.message);
+                id<MTLBuffer> shortBodies = [device newBufferWithLength:
+                    environments * 2u * sizeof(MRBodyStateGPU) - 1u
+                    options:MTLResourceStorageModePrivate];
+                invalid.rigid.currentBodies = (__bridge void*)shortBodies;
+                denied = supportOnly.encode(invalid);
+                require(!denied.encoded && denied.message ==
+                    "Human support initial body arena has wrong device provenance or byte capacity",
+                    "support admitted short initial body arena: " + denied.message);
+                invalid.humanSupportInitialBodies = (__bridge void*)shortBodies;
+                invalid.rigid.currentBodies = nullptr;
+                denied = supportOnly.encode(invalid);
+                require(!denied.encoded && denied.message ==
+                    "Human support initial body arena has wrong device provenance or byte capacity",
+                    "support admitted short explicit initial pose arena: " + denied.message);
+                std::cout << "support_initial_bodies_missing_and_short_rejected=1\n";
+            }
             require(matter.coupledCandidatePointCapacity() >= c.rows,
                 "Human support queries exceed advertised candidate capacity");
             auto checkpoint = matter.snapshot();

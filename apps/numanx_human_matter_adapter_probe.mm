@@ -2681,9 +2681,12 @@ int main() {
                 matter, queue, arenas, accepted,
                 ApplyMode::accept, true);
             const auto acceptedToken = acceptedApply.token;
-            require(accepted.applyReusedPhysicalCommandBufferAddress,
-                "bounded apply allocation did not reproduce completed-CB "
-                "Objective-C address reuse");
+            // Wrapper address reuse is an allocator observation, not a
+            // portable precondition for the transaction/rollback checks below.
+            // Keep its absence explicit instead of aborting those checks or
+            // claiming that a pointer-reuse case ran when it did not.
+            const bool observedAddressReuse =
+                accepted.applyReusedPhysicalCommandBufferAddress;
 
             auto rejected = prepareTransaction(
                 adapter, matter, queue, arenas, exact, 3u, 38u, true);
@@ -2786,7 +2789,8 @@ int main() {
                 << "heap_alias=distinct_object_overlap_rejected\n"
                 << "cross_slot_authority=lease_and_physical_alias_rejected\n"
                 << "first_command_abort=runtime_cancel_and_slot_reuse\n"
-                << "command_buffer_address_reuse=admitted_by_live_apply\n"
+                << "command_buffer_address_reuse="
+                << (observedAddressReuse ? "admitted_by_live_apply" : "not_observed") << "\n"
                 << "prepared_accept=canonical_token_fnv_reserved_zero\n"
                 << "prepared_reject=human_matter_byte_restore\n"
                 << "physical_reject=zero_gate_exact_code_and_restore\n"

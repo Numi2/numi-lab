@@ -185,6 +185,9 @@ struct MetalNumanXHumanMatterSlot {
     __strong id<MTLBuffer> matterOutcomes = nil;
     // Exact 128-byte ABI4 result written by Matter on the later apply CB.
     __strong id<MTLBuffer> matterApplyOutcomes = nil;
+    // Derived pose-only view for support recovery; rebuilt on the owner CB.
+    // This is scratch, never accepted state or a body dynamics authority.
+    __strong id<MTLBuffer> supportInitialBodies = nil;
     __strong id<MTLBuffer> worldStatuses = nil;
     __strong id<MTLBuffer> physicalDiagnostics = nil;
     bool physicalDiagnosticsEncoded = false;
@@ -243,6 +246,7 @@ struct MetalNumanXHumanMatterState {
     __strong id<MTLDevice> device = nil;
     __strong id<MTLLibrary> library = nil;
     __strong id<MTLComputePipelineState> prepareWorldStatusPipeline = nil;
+    __strong id<MTLComputePipelineState> materializeSupportBodiesPipeline = nil;
     __strong id<MTLComputePipelineState> mapHumanStatusPipeline = nil;
     __strong id<MTLComputePipelineState> captureOutcomePipeline = nil;
     __strong id<MTLComputePipelineState> preparedTokenPipeline = nil;
@@ -953,6 +957,53 @@ void dispatchEnvironments(
     dispatchEnvironments(
         encoder, state.prepareWorldStatusPipeline,
         slot.transaction.environmentCount);
+    [encoder endEncoding];
+    return true;
+}
+
+// Adapt the owner's already-evaluated COM poses to Matter's body-record
+// layout on the same GPU timeline. Candidate kinematics uses a separate arena,
+// so Newton/line-search evaluations cannot change the recovery reference.
+[[nodiscard]] bool encodeSupportInitialBodies(
+    State& state, Slot& slot, const MetalNumanXHumanMatterPass& pass
+) noexcept {
+    std::uint64_t bodyEnd = 0u, elements = 0u, bytes = 0u, retained = 0u;
+    if (!checkedAdd(pass.articulationFirstBody, pass.bodyCount, bodyEnd) ||
+        bodyEnd > std::numeric_limits<std::uint32_t>::max() ||
+        pass.bodyCount == 0u || pass.bodyPoseStride < pass.bodyCount ||
+        pass.bodyPoseStride > std::numeric_limits<std::uint32_t>::max() ||
+        !checkedMultiply(pass.environmentCount, bodyEnd, elements) ||
+        elements > std::numeric_limits<std::uint32_t>::max() ||
+        !checkedMultiply(elements, sizeof(MRBodyStateGPU), bytes) ||
+        bytes == 0u || bytes > std::numeric_limits<NSUInteger>::max()) return false;
+    if (slot.supportInitialBodies == nil || slot.supportInitialBodies.length < bytes) {
+        const std::uint64_t previous = slot.supportInitialBodies.length;
+        if (!checkedAdd(state.retainedBytes - previous, bytes, retained) ||
+            retained > state.config.maximumRetainedBytes) return false;
+        id<MTLBuffer> bodies = [state.device newBufferWithLength:bytes
+            options:MTLResourceStorageModePrivate];
+        if (bodies == nil) return false;
+        bodies.label = @"NumanX Human support initial poses";
+        slot.supportInitialBodies = bodies;
+        state.retainedBytes = retained;
+    }
+    __unsafe_unretained id<MTLCommandBuffer> commandBuffer =
+        (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
+    if (encoder == nil) return false;
+    const std::array<std::uint32_t, 4u> layout = {
+        static_cast<std::uint32_t>(pass.environmentCount),
+        static_cast<std::uint32_t>(pass.bodyPoseStride),
+        pass.articulationFirstBody, static_cast<std::uint32_t>(bodyEnd)};
+    encoder.label = @"NumanX Human support initial body materialization";
+    [encoder setComputePipelineState:state.materializeSupportBodiesPipeline];
+    [encoder setBytes:layout.data() length:sizeof(layout) atIndex:0u];
+    [encoder setBuffer:(__bridge id<MTLBuffer>)pass.bodyPoses offset:0u atIndex:1u];
+    [encoder setBuffer:slot.supportInitialBodies offset:0u atIndex:2u];
+    const NSUInteger width = std::min<NSUInteger>(64u,
+        state.materializeSupportBodiesPipeline.maxTotalThreadsPerThreadgroup);
+    [encoder dispatchThreads:MTLSizeMake(elements, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
     [encoder endEncoding];
     return true;
 }
@@ -2296,6 +2347,7 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
     request.humanEqualitySourceVelocity = pass.v;
     request.humanEqualitySourceEffectiveTangentFactor = pass.sourceEffectiveTangentFactor;
     request.rigid.currentBodies = nullptr;
+    request.humanSupportInitialBodies = (__bridge void*)slot.supportInitialBodies;
     const std::uint64_t bodyEnd =
         static_cast<std::uint64_t>(pass.articulationFirstBody) +
         pass.bodyCount;
@@ -2438,6 +2490,10 @@ void cancelSlot(State& state, Slot& slot) noexcept {
     if (!validatePass(
             state, slot, pass,
             MetalNumanXHumanMatterPhase::preDynamics, true)) return false;
+    if (!encodeSupportInitialBodies(state, slot, pass)) {
+        cancelSlot(state, slot);
+        return false;
+    }
     Frame frame;
     frame.state = &state;
     frame.slot = &slot;
@@ -3790,7 +3846,9 @@ MetalNumanXHumanMatterContext::initialize() {
                 newComputePipelineStateWithFunction:function error:&error];
             return destination != nil;
         };
-        if (!pipeline(@"numanx_human_matter_prepare_world_status",
+        if (!pipeline(@"numanx_human_matter_materialize_support_bodies",
+                      state.materializeSupportBodiesPipeline) ||
+            !pipeline(@"numanx_human_matter_prepare_world_status",
                       state.prepareWorldStatusPipeline) ||
             !pipeline(@"numanx_human_matter_map_human_status",
                       state.mapHumanStatusPipeline) ||

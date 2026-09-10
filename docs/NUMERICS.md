@@ -596,3 +596,41 @@ and replay. The equality Metal probe directly compares stationary source forces
 with the compiler, and the limit probe compares against its independent pinned
 MuJoCo linearization after removing damping and free-predictor terms. The latter
 explicitly accounts for FP64 oracle versus FP32 payload inverse-weight storage.
+
+
+## Human support initial-pose ownership (2026-09-10)
+
+Human support recovery evaluates the authored target gap from the root's
+initial body poses, separately from each Newton candidate. The Human adapter
+materializes its existing COM pose records into a private, slot-owned GPU view
+on the same command buffer before Matter. This view is overwritten in full at
+every root, including prefix records outside the articulation. Its capacity
+uses checked arithmetic and counts against the adapter's retained-byte budget.
+It is derived scratch, not accepted state or another kinematics/dynamics owner.
+
+`EncodeRequest::humanSupportInitialBodies` supplies this pose-only view with
+`rigid.currentBodyCount/currentBodyStride` indexing. Generic MetalWorld callers
+continue to use `rigid.currentBodies` when the explicit view is absent. The
+explicit view is consumed only by support's initial-gap calculation; it cannot
+supply generic proxy dynamics or post-commit reconciliation. Matter rejects
+missing initial poses, insufficient body coverage, a wrong device and truncated
+byte capacity before encoding support. Candidate poses retain their independent
+arena and cannot overwrite the recovery reference during nonlinear iterations.
+
+Previously the Human adapter supplied null current bodies. Support rows did
+not require them, and the support kernel indexed Matter's dummy buffer as body
+records. A repeated 64-root comparison exposed scenario-dependent contact
+recovery despite identical initial q, free predictor, support points and
+Jacobians. The first differing normal constraint was 17.9370499 versus
+395.966522 before the first linear solve. The repair changes input ownership;
+the contact law, stabilization fraction, solver tolerance and Brain inhibition
+remain unchanged. The loaded-support regression now includes support-only
+missing/short implicit and short explicit initial-pose rejection.
+
+The adapter probe always exercises ACCEPT/REJECT, stale generations, rollback,
+retained authority and publication. Its bounded Objective-C allocation loop
+separately reports `command_buffer_address_reuse=not_observed` if the allocator
+does not reproduce an address. That is partial address-reuse coverage, never a
+claimed pointer-reuse pass. Ten native checks and the prepared four-root cohort
+pass on the repaired boundary; longer dynamics and anatomical standing remain
+separate qualification gates.

@@ -280,3 +280,25 @@ kernel void numanx_human_matter_write_prepared_token(
     }
     *token = accepted;
 }
+
+// Pose-only scratch for Human support's initial-gap recovery. The owner has
+// completed FK before this dispatch. Every record is written, including any
+// prefix outside the articulation; no candidate or accepted arena is aliased.
+kernel void numanx_human_matter_materialize_support_bodies(
+    constant uint4& layout [[buffer(0)]],
+    device const MRArticulatedBodyPoseGPU* poses [[buffer(1)]],
+    device MRBodyStateGPU* bodies [[buffer(2)]],
+    uint index [[thread_position_in_grid]]
+) {
+    const uint environment = index / layout.w;
+    const uint body = index % layout.w;
+    if (environment >= layout.x) return;
+    MRBodyStateGPU state = {};
+    if (body >= layout.z) {
+        const MRArticulatedBodyPoseGPU pose =
+            poses[environment * layout.y + body - layout.z];
+        state.position = pose.position;
+        state.orientation = pose.orientation;
+    }
+    bodies[index] = state;
+}
