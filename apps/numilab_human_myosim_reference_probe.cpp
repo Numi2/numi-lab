@@ -1607,6 +1607,52 @@ int runPreparedPathReference(const char* rigidPath, const char* musclePath, cons
         "prepared Metal path evaluation failed: " + diagnostics.message);
     require(gpu.mujocoResults.size() == muscles.muscles.size(), "prepared path result extent");
     const std::vector<double> q(initial.q.begin(), initial.q.end()), v(initial.v.begin(), initial.v.end());
+    std::vector<metalrobo::ArticulatedBodyKinematics> referenceBodies(articulation.bodyCount);
+    require(metalrobo::computeArticulatedBodyKinematics(model, 0u, q, v, referenceBodies).succeeded(),
+        "prepared body reference");
+    for (std::size_t body = 0; body < referenceBodies.size(); ++body) {
+        const auto& expected = referenceBodies[body];
+        const auto& actual = gpu.bodyPoses[body];
+        std::cout << std::setprecision(17) << "prepared_body={\"index\":" << body
+                  << ",\"native_position\":[" << expected.centerOfMassPosition[0] << ','
+                  << expected.centerOfMassPosition[1] << ',' << expected.centerOfMassPosition[2]
+                  << "],\"metal_position\":[" << actual.position.x << ',' << actual.position.y << ',' << actual.position.z
+                  << "],\"native_orientation\":[" << expected.orientation[0] << ',' << expected.orientation[1] << ','
+                  << expected.orientation[2] << ',' << expected.orientation[3]
+                  << "],\"metal_orientation\":[" << actual.orientation.x << ',' << actual.orientation.y << ','
+                  << actual.orientation.z << ',' << actual.orientation.w << "]}\n";
+    }
+    const auto siteFromPose = [&] (std::uint32_t siteIndex, bool useGPU) {
+        const auto& site = muscles.sites[siteIndex];
+        const auto localBody = site.bodyIndex - articulation.firstBody;
+        const auto& p = gpu.bodyPoses[localBody];
+        const auto& r = referenceBodies[localBody];
+        const std::array<double, 4> rotation = useGPU
+            ? std::array<double, 4>{p.orientation.x, p.orientation.y, p.orientation.z, p.orientation.w}
+            : r.orientation;
+        auto value = quaternionRotate(rotation, site.localPoint);
+        for (std::size_t axis = 0; axis < 3; ++axis)
+            value[axis] += useGPU ? (&p.position.x)[axis] : r.centerOfMassPosition[axis];
+        return value;
+    };
+    for (std::size_t i = 0; i < muscles.muscles.size(); ++i) {
+        const auto& route = muscles.muscles[i].route;
+        double nativeLength = 0, gpuPoseLength = 0;
+        bool unwrapped = true;
+        for (std::size_t node = 0; node + 1 < route.size(); ++node) {
+            if (route[node].type != metalrobo::MujocoRouteNodeType::site ||
+                route[node+1].type != metalrobo::MujocoRouteNodeType::site) { unwrapped = false; break; }
+            const auto a = siteFromPose(route[node].targetIndex, false);
+            const auto b = siteFromPose(route[node+1].targetIndex, false);
+            const auto c = siteFromPose(route[node].targetIndex, true);
+            const auto d = siteFromPose(route[node+1].targetIndex, true);
+            nativeLength += std::hypot(b[0]-a[0], b[1]-a[1], b[2]-a[2]);
+            gpuPoseLength += std::hypot(d[0]-c[0], d[1]-c[1], d[2]-c[2]);
+        }
+        if (unwrapped) std::cout << std::setprecision(17) << "prepared_pose_path={\"index\":" << i
+            << ",\"native_pose_fp64_m\":" << nativeLength << ",\"metal_pose_fp64_m\":" << gpuPoseLength
+            << ",\"metal_pose_fp32_m\":" << gpu.mujocoResults[i].pathForceAndActivationDerivative.x << "}\n";
+    }
     double maximumError = 0, maximumForceError = 0, maximumSamePathForceError = 0;
     double maximumNormalizedForceError = 0, maximumResidual = 0, maximumPublicationErrorUlps = 0;
     std::size_t maximumIndex = 0;

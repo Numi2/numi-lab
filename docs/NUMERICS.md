@@ -675,3 +675,62 @@ errors are amplified by these stiff fitted architectures (maximum 0.780 N at
 full source force/convergence, anatomical loading and experimental calibration
 still require their owning evidence; same-path scalar agreement cannot certify
 them.
+
+## Candidate kinematics cost and prepared refinement (2026-09-11)
+
+Candidate FK/Jacobian dispatches now use up to 256 lanes. In Jacobian-only
+mode each body builds a dispatch-local ancestral-DOF bit mask after topology
+validation. Unrelated motion columns become zero without repeated ancestor
+walks; related columns still call the authoritative motion-column routine.
+The mask occupies the unused dense-factor region and is included explicitly
+in Jacobian-only threadgroup sizing. It is rebuilt for every candidate, with
+no cache across linearization epochs or transactions. The generic context
+also keeps its 17 unbound Human/Matter buffers lazy when no coupled program
+exists, preserving the existing 32-allocation cold-context contract.
+
+`MRNX_CANDIDATE_GPU_TIMING=1` enables six stage-boundary GPU timestamps around
+candidate preparation, FK/Jacobians, and materialization. Completion handlers
+resolve these after the owning command buffer finishes. Unsupported timestamp
+sampling is reported as invalid evidence. This diagnostic adds no submission,
+wait, or physical-state authority. In the measured 16-root Human cohort, width
+and ancestry changes preserve every physical trace byte while reducing the
+median FK/Jacobian interval from 18.073 ms to approximately 1.4 ms. End-to-end
+cost, API validation, compilation, and the five performance workloads remain
+separate measurements.
+
+Body and joint positions are now accumulated relative to the floating root;
+the root translation is added only at world-pose/point publication. Joint
+anchor offsets are grouped before accumulation. Jacobians, body motion and
+mass use translation-invariant relative differences. This reduces the prepared
+416-route maximum FP64 discrepancy from 0.572 to 0.326 micrometres, and the
+maximum full source-force difference from 0.780 to 0.385 N at 100 microseconds.
+The remaining error is not qualified as full source-force convergence. At one
+microsecond the maximum full source-force error remains 3.290 N.
+
+The reference probe emits native/GPU body poses and, for unwrapped routes,
+FP64 route arithmetic at the returned GPU body poses. These diagnostics
+separate pose error from route arithmetic without adding a dynamics owner.
+`--prepared-state-fixture <prepared.nhinit> <outdir> <contacts> <equalities>
+<limits> [dt_us] [newton_iterations]` decodes and validates the exact supplied
+physical state before rebinding the authored world/timestep identity. The
+existing certificate-derived fixture mode remains available. Neither fixture
+mode is anatomical tissue qualification: it creates three tiny pelvis samples.
+
+Equal-duration 100/50-microsecond zero-command trajectories replay exactly over
+1.6 ms. The 25-microsecond trajectory fails its unchanged 0.005 nonlinear gate
+at root 9 after eight accepted roots. Doubling Newton iterations also fails
+at root 9; iteration count must not be presented as a precision repair.
+Support certification diagnostics now report total residual, threshold,
+support residual and rigid residual. The retained 16-iteration failure is
+0.00872637 total, 0.00871225 support and 0.00049626 rigid.
+
+`NM_HUMAN_SUPPORT_TRACE_ROOT=N` optionally copies q, delta-v, free velocity,
+support samples, KKT rows and Jacobians for every assembly of one single-env
+root, including the final certificate. Hex-encoded byte snapshots resolve
+only after GPU completion and survive rollback as diagnostics. At failed
+root 9, contact row 5 dominates; stored root height changes in 119-nanometre
+steps while Newton requests smaller corrections. This identifies a precision
+limitation to investigate in candidate-state/geometry representation, not a
+license to weaken the contact law or nonlinear threshold. Loaded anatomical
+settling, timestep convergence, calibrated tissue and standing/walking remain
+separate open gates.

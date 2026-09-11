@@ -541,7 +541,8 @@ inline MotionColumn bodyMotionForDof(
     threadgroup const float3* jointPosition,
     threadgroup const float3* jointAxis,
     threadgroup const uint* inboundJoint,
-    threadgroup const uint* parentLocal
+    threadgroup const uint* parentLocal,
+    const uint knownAncestor = MR_INVALID_INDEX
 ) {
     MotionColumn result;
     result.linear = float3(0.0f);
@@ -564,7 +565,7 @@ inline MotionColumn bodyMotionForDof(
         }
     }
 
-    uint cursor = localBody;
+    uint cursor = knownAncestor == MR_INVALID_INDEX ? localBody : knownAncestor;
     for (uint depth = 0u;
          depth < articulation.bodyCount && cursor != rootLocal;
          ++depth) {
@@ -1157,8 +1158,10 @@ inline bool buildKinematics(
             );
             return false;
         }
-        bodyPosition[rootLocal] =
-            float3(q[0], q[1], q[2]);
+        // The internal frame follows root translation. World translation is
+        // applied only when publishing poses and points, avoiding cumulative
+        // rounding at every joint in a tall articulated tree.
+        bodyPosition[rootLocal] = float3(0.0f);
         bodyRotation[rootLocal] = checkedRootRotation;
     } else {
         bodyPosition[rootLocal] = float3(0.0f);
@@ -1285,8 +1288,7 @@ inline bool buildKinematics(
                 parentToJointRotation,
                 axisInJoint
             );
-            jointPosition[localChild] =
-                bodyPosition[localParent] +
+            const float3 parentToJointOffset =
                 quaternionRotate(
                     bodyRotation[localParent],
                     joint.parentAnchor.xyz
@@ -1299,15 +1301,21 @@ inline bool buildKinematics(
                     : (joint.jointType == MR_JOINT_PRISMATIC
                         ? jointAxis[localChild] * jointCoordinate
                         : float3(0.0f)));
-            bodyPosition[localChild] =
-                jointPosition[localChild] -
+            jointPosition[localChild] = bodyPosition[localParent] + parentToJointOffset;
+            // Compose the COM-relative displacement before adding the world
+            // translation. Avoid rounding an intermediate large world anchor
+            // and then subtracting its child offset at every carrier joint.
+            const float3 parentToChildOffset = parentToJointOffset -
                 quaternionRotate(
                     bodyRotation[localChild],
                     joint.childAnchor.xyz
                 );
+            bodyPosition[localChild] = bodyPosition[localParent] + parentToChildOffset;
             if (!finite3(jointPosition[localChild]) ||
                 !finite3(jointAxis[localChild]) ||
-                !finite3(bodyPosition[localChild])) {
+                !finite3(bodyPosition[localChild]) ||
+                (articulation.rootType == MR_ROOT_FLOATING &&
+                 !finite3(float3(q[0], q[1], q[2]) + bodyPosition[localChild]))) {
                 setFailure(
                     status,
                     MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
@@ -1720,6 +1728,8 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         return;
     }
 
+    const float3 worldTranslation = articulation.rootType == MR_ROOT_FLOATING
+        ? float3(environmentQ[0], environmentQ[1], environmentQ[2]) : float3(0.0f);
     const bool posesOnly =
         (dispatch.flags &
          MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY) != 0u;
@@ -1734,11 +1744,35 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
              localBody += threadsPerThreadgroup) {
             MRArticulatedBodyPoseGPU pose;
             pose.position =
-                float4(bodyPosition[localBody], 1.0f);
+                float4(worldTranslation + bodyPosition[localBody], 1.0f);
             pose.orientation = bodyRotation[localBody];
             bodyPoses[poseBase + localBody] = pose;
         }
         if (pointJacobiansOnly) {
+            // The same body is queried at its COM and several local points.
+            // Resolve ancestry once per body, then reuse the authoritative
+            // motion-column calculation at the owning joint. No candidate
+            // data survives this dispatch or bypasses model validation.
+            const uint ancestryWords = (articulation.nv + 31u) / 32u;
+            threadgroup uint* ancestors = reinterpret_cast<threadgroup uint*>(factor);
+            for (uint body = lane; body < articulation.bodyCount; body += threadsPerThreadgroup) {
+                threadgroup uint* mask = ancestors + body * ancestryWords;
+                for (uint word = 0u; word < ancestryWords; ++word) mask[word] = 0u;
+                if (articulation.rootType == MR_ROOT_FLOATING) mask[0] = 63u;
+                uint cursor = body;
+                const uint rootLocal = articulation.rootBody - articulation.firstBody;
+                for (uint depth = 0u; depth < articulation.bodyCount && cursor != rootLocal; ++depth) {
+                    const uint jointIndex = inboundJoint[cursor];
+                    if (jointIndex == MR_INVALID_INDEX) break;
+                    device const MRJointDescriptorGPU& joint = joints[jointIndex];
+                    for (uint local = 0u; local < joint.nv; ++local) {
+                        const uint dof = joint.vOffset - articulation.vOffset + local;
+                        mask[dof >> 5u] |= 1u << (dof & 31u);
+                    }
+                    cursor = parentLocal[cursor];
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
             const uint pointBase =
                 environment * dispatch.pointStride;
             const uint pointWorldBase =
@@ -1768,7 +1802,12 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                     ? articulation.rootBody - articulation.firstBody
                     : query.bodyIndex - articulation.firstBody;
                 const float3 pointOffset = pointSurfaceOffset(bodyRotation[localBody], query);
-                const MotionColumn bodyMotion = inactive
+                const bool affectsBody = !inactive &&
+                    (ancestors[localBody * ancestryWords + (dof >> 5u)] & (1u << (dof & 31u))) != 0u;
+                const uint owningJoint = affectsBody ? dofs[articulation.vOffset + dof].jointIndex : MR_INVALID_INDEX;
+                const uint knownAncestor = owningJoint == MR_INVALID_INDEX
+                    ? MR_INVALID_INDEX : joints[owningJoint].childBody - articulation.firstBody;
+                const MotionColumn bodyMotion = !affectsBody
                     ? MotionColumn{float3(0.0f), float3(0.0f)}
                     : bodyMotionForDof(
                         localBody,
@@ -1782,7 +1821,8 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                         jointPosition,
                         jointAxis,
                         inboundJoint,
-                        parentLocal
+                        parentLocal,
+                        knownAncestor
                     );
                 const float3 pointLinear =
                     bodyMotion.linear +
@@ -1805,7 +1845,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 if (dof == 0u) {
                     MRArticulatedPointWorldGPU worldPoint;
                     worldPoint.position = float4(
-                        bodyPosition[localBody] + pointOffset,
+                        worldTranslation + (bodyPosition[localBody] + pointOffset),
                         1.0f
                     );
                     pointWorld[
@@ -2179,7 +2219,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     for (uint localBody = 0u;
          localBody < articulation.bodyCount;
          ++localBody) {
-        if (!finite3(bodyPosition[localBody]) ||
+        if (!finite3(worldTranslation + bodyPosition[localBody]) ||
             !finite4(bodyRotation[localBody])) {
             setFailure(
                 status,
@@ -2202,7 +2242,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             query.bodyIndex - articulation.firstBody;
         const float3 pointOffset = pointSurfaceOffset(bodyRotation[localBody], query);
         const float3 candidateWorld =
-            bodyPosition[localBody] + pointOffset;
+            worldTranslation + (bodyPosition[localBody] + pointOffset);
         if (!finite3(pointOffset) || !finite3(candidateWorld)) {
             setFailure(
                 status,
@@ -2297,7 +2337,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
          ++localBody) {
         MRArticulatedBodyPoseGPU pose;
         pose.position =
-            float4(bodyPosition[localBody], 1.0f);
+            float4(worldTranslation + bodyPosition[localBody], 1.0f);
         pose.orientation = bodyRotation[localBody];
         bodyPoses[poseBase + localBody] = pose;
     }
@@ -2316,7 +2356,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         const float3 pointOffset = pointSurfaceOffset(bodyRotation[localBody], query);
         MRArticulatedPointWorldGPU worldPoint;
         worldPoint.position = float4(
-            bodyPosition[localBody] + pointOffset,
+            worldTranslation + (bodyPosition[localBody] + pointOffset),
             1.0f
         );
         pointWorld[pointWorldBase + point] = worldPoint;

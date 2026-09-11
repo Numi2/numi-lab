@@ -725,8 +725,26 @@ void qualifyTouchAggregation(id<MTLDevice> device) {
 // the existing three tiny pelvis samples in that pose. No tissue registration,
 // calibration or dynamics is performed by this construction helper.
 int writePreparedStanceFixture(const char* certificate, const char* output,
-    const char* contacts, const char* equalities, const char* limits) {
+    const char* contacts, const char* equalities, const char* limits,
+    const std::uint64_t timestepMicroseconds = 100u, const bool importInitialState = false,
+    const std::uint32_t newtonIterations = 16u) {
     @autoreleasepool {
+        require(timestepMicroseconds > 0u && timestepMicroseconds <= 1'000'000u,
+            "prepared fixture timestep outside (0, 1000000] microseconds");
+        metalrobo::NumiHumanInitialState initial;
+        if (importInitialState) {
+            const auto rigid = readPayloadBytes(MRNX_FULLBODY_RIGID);
+            require(rigid.size() >= 80u, "truncated source rigid fixture");
+            std::array<std::uint8_t, 32u> sourceSHA{};
+            std::copy_n(rigid.begin()+48u, 32u, sourceSHA.begin());
+            const auto bytes = readPayloadBytes(certificate);
+            std::string error;
+            const bool decoded = metalrobo::decodeNumiHumanInitialState(
+                {reinterpret_cast<const std::byte*>(bytes.data()), bytes.size()},
+                MRNX_FULL_BODY_NQ, MRNX_FULL_BODY_NV, MRNX_FULL_BODY_MUSCLE_COUNT,
+                sourceSHA, initial, error);
+            require(decoded, error.c_str());
+        } else {
         std::ifstream log(certificate);
         require(log.good(), "could not open native stance certificate");
         std::string line, qText, muscleText;
@@ -758,7 +776,6 @@ int writePreparedStanceFixture(const char* certificate, const char* output,
                 "state component is not numeric");
             const float value=[x floatValue];require(std::isfinite(value),"nonfinite prepared state");return value;
         };
-        metalrobo::NumiHumanInitialState initial;
         for(id x in qJSON) initial.q.push_back(scalar(x));
         initial.v.assign(MRNX_FULL_BODY_NV,0.0f);
         for(unsigned i=0;i<MRNX_FULL_BODY_MUSCLE_COUNT;++i) {
@@ -766,7 +783,10 @@ int writePreparedStanceFixture(const char* certificate, const char* output,
             MRMujocoMuscleStateGPU state{};state.excitationAndActivation={a,a,scalar(fiber[i]),0.0f};
             initial.muscles.push_back(state);
         }
-        auto world=authoredFixtureWorld(initial.q);world.frameTimestep=0.0001;
+        }
+        require(newtonIterations > 0u && newtonIterations <= 128u, "invalid prepared Newton iteration budget");
+        auto world=authoredFixtureWorld(initial.q);world.frameTimestep=timestepMicroseconds*1.0e-6;
+        world.mixedSolver.newtonIterations = newtonIterations;
         numi::matter::CompileOptions options;options.maximumRateExponent=0u;
         const auto compiled=numi::matter::compileWorld(world,options);
         require(compiled.succeeded(),"prepared fixture world failed to compile");
@@ -777,13 +797,16 @@ int writePreparedStanceFixture(const char* certificate, const char* output,
         auto source=constrainedFingerprint(base,readPayloadBytes(equalities));
         source=((source^equalityFingerprint({'N','H','L','I','M','1'}))*kFnvPrime ^
             equalityFingerprint(readPayloadBytes(limits)))*kFnvPrime;
-        initial.humanSourceFingerprint=source==0u?kFnvOffset:source;
-        initial.worldFingerprint=compiled.world.fingerprint;initial.timestepMicroseconds=100u;
+        const auto expectedSource = source==0u?kFnvOffset:source;
+        require(!importInitialState || initial.humanSourceFingerprint == expectedSource,
+            "imported prepared state composed source mismatch");
+        initial.humanSourceFingerprint=expectedSource;
+        initial.worldFingerprint=compiled.world.fingerprint;initial.timestepMicroseconds=timestepMicroseconds;
         std::string error;std::vector<std::byte> bytes;
         const bool encoded=metalrobo::encodeNumiHumanInitialState(initial,bytes,error);
         require(encoded,error.c_str());
         const std::filesystem::path directory(output);std::filesystem::create_directories(directory);
-        const bool saved=numi::matter::writePackage(compiled,directory/"prepared-100us.nmatterpack",&error);
+        const bool saved=numi::matter::writePackage(compiled,directory/("prepared-"+std::to_string(timestepMicroseconds)+"us.nmatterpack"),&error);
         require(saved,error.c_str());
         std::ofstream stateFile(directory/"prepared.nhinit",std::ios::binary);
         stateFile.write(reinterpret_cast<const char*>(bytes.data()),bytes.size());
@@ -1599,8 +1622,25 @@ int main(int argc, char** argv) {
         if (argc==2 && std::string(argv[1])=="--touch-aggregation-only") {
             @autoreleasepool {qualifyTouchAggregation(MTLCreateSystemDefaultDevice());return 0;}
         }
-        if (argc==7 && std::string(argv[1])=="--prepared-stance-fixture") {
-            return writePreparedStanceFixture(argv[2],argv[3],argv[4],argv[5],argv[6]);
+        if ((argc==7 || argc==8 || argc==9) && (std::string(argv[1])=="--prepared-stance-fixture" || std::string(argv[1])=="--prepared-state-fixture")) {
+            std::uint64_t timestep = 100u;
+            if (argc >= 8) {
+                const std::string value(argv[7]);
+                require(!value.empty() && value.find_first_not_of("0123456789") == std::string::npos,
+                    "prepared fixture timestep must be an unsigned integer");
+                timestep = std::stoull(value);
+            }
+            std::uint32_t iterations = 16u;
+            if (argc == 9) {
+                const std::string value(argv[8]);
+                require(!value.empty() && value.find_first_not_of("0123456789") == std::string::npos,
+                    "Newton iteration budget must be an unsigned integer");
+                const auto parsed = std::stoull(value);
+                require(parsed > 0u && parsed <= 128u, "invalid Newton iteration budget");
+                iterations = static_cast<std::uint32_t>(parsed);
+            }
+            return writePreparedStanceFixture(argv[2],argv[3],argv[4],argv[5],argv[6],timestep,
+                std::string(argv[1])=="--prepared-state-fixture",iterations);
         }
         if (argc==2 && std::string(argv[1])=="--support-only") {
             @autoreleasepool {

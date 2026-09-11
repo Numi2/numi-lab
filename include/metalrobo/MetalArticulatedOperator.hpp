@@ -51,6 +51,10 @@ articulatedOperatorThreadgroupBytes(
         append(sizeof(float) * dofCount); // right-hand side
         append(sizeof(float) * dofCount); // forward solve
         append(sizeof(float) * dofCount); // solution
+    } else {
+        // Candidate point queries reuse one topology mask per body. This is
+        // transient dispatch scratch, never cached across candidate epochs.
+        append(sizeof(std::uint32_t) * bodyCount * ((dofCount + 31u) / 32u));
     }
     return aligned16(bytes);
 }

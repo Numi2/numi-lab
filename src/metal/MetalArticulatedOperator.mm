@@ -1779,6 +1779,14 @@ bool buildRequirements(
             requirements.standEntries[index].allocationBytes = 0u;
         }
     }
+    // Coupled-Human slots are never bound by a generic operator submission.
+    // Keep their arena lazy, just like the unused stand arena above. Existing
+    // capacities remain retained when a context later runs a smaller program.
+    if (layout.humanMatterOwnerStatusElements == 0u) {
+        for (auto& requirement : requirements.humanMatterEntries) {
+            requirement.allocationBytes = 0u;
+        }
+    }
 
     totalAllocatedBytes = 0u;
     for (const BufferRequirement& requirement :
@@ -4592,8 +4600,55 @@ struct MetalBufferRegion {
                   kHumanMatterCandidatePointJacobianBuffer]
             : (__bridge id<MTLBuffer>)query.pointJacobians;
 
-    id<MTLComputeCommandEncoder> prepare =
-        [commandBuffer computeCommandEncoder];
+    // Opt-in stage timestamps. Resolve only after the owning submission finishes;
+    // profiling never submits, waits, or changes the candidate transaction.
+    id<MTLCounterSampleBuffer> candidateTiming = nil;
+    const char* timingRequested = std::getenv("MRNX_CANDIDATE_GPU_TIMING");
+    if (timingRequested != nullptr && std::strcmp(timingRequested, "1") == 0 &&
+        [context.state->device supportsCounterSampling:MTLCounterSamplingPointAtStageBoundary]) {
+        for (id<MTLCounterSet> counterSet in context.state->device.counterSets) {
+            if (![counterSet.name isEqualToString:MTLCommonCounterSetTimestamp]) continue;
+            MTLCounterSampleBufferDescriptor* descriptor = [MTLCounterSampleBufferDescriptor new];
+            descriptor.counterSet = counterSet;
+            descriptor.storageMode = MTLStorageModeShared;
+            descriptor.sampleCount = 6u;
+            NSError* timingError = nil;
+            candidateTiming = [context.state->device newCounterSampleBufferWithDescriptor:descriptor error:&timingError];
+            break;
+        }
+    }
+    const auto candidateEncoder = [&] (NSUInteger stage) -> id<MTLComputeCommandEncoder> {
+        if (candidateTiming == nil) return [commandBuffer computeCommandEncoder];
+        MTLComputePassDescriptor* pass = [MTLComputePassDescriptor computePassDescriptor];
+        pass.sampleBufferAttachments[0].sampleBuffer = candidateTiming;
+        pass.sampleBufferAttachments[0].startOfEncoderSampleIndex = stage * 2u;
+        pass.sampleBufferAttachments[0].endOfEncoderSampleIndex = stage * 2u + 1u;
+        return [commandBuffer computeCommandEncoderWithDescriptor:pass];
+    };
+    if (timingRequested != nullptr && std::strcmp(timingRequested, "1") == 0 && candidateTiming == nil) {
+        std::fprintf(stderr, "candidate_gpu_timing={\"valid\":false,\"reason\":\"timestamp_sampling_unavailable\"}\n");
+    }
+    if (candidateTiming != nil) {
+        const auto epoch = query.linearizationEpoch;
+        const auto pointCount = query.pointCount;
+        [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+            NSData* samples = [candidateTiming resolveCounterRange:NSMakeRange(0u, 6u)];
+            if (completed.status != MTLCommandBufferStatusCompleted || samples.length != 6u * sizeof(MTLCounterResultTimestamp)) {
+                std::fprintf(stderr, "candidate_gpu_timing={\"valid\":false}\n");
+                return;
+            }
+            const auto* timestamps = static_cast<const MTLCounterResultTimestamp*>(samples.bytes);
+            bool valid = true;
+            for (unsigned i = 0; i < 6; ++i) valid &= timestamps[i].timestamp != 0 && timestamps[i].timestamp != MTLCounterErrorValue;
+            for (unsigned i = 0; i < 3; ++i) valid &= timestamps[i*2+1].timestamp >= timestamps[i*2].timestamp;
+            std::fprintf(stderr, "candidate_gpu_timing={\"valid\":%s,\"epoch\":%llu,\"point_count\":%u,\"prepare_ns\":%llu,\"kinematics_ns\":%llu,\"materialize_ns\":%llu}\n",
+                valid ? "true" : "false", (unsigned long long)epoch, pointCount,
+                (unsigned long long)(timestamps[1].timestamp-timestamps[0].timestamp),
+                (unsigned long long)(timestamps[3].timestamp-timestamps[2].timestamp),
+                (unsigned long long)(timestamps[5].timestamp-timestamps[4].timestamp));
+        }];
+    }
+    id<MTLComputeCommandEncoder> prepare = candidateEncoder(0u);
     if (prepare == nil) return false;
     prepare.label = @"NumanX Human/Matter exact candidate prepare";
     [prepare setComputePipelineState:
@@ -4634,8 +4689,7 @@ struct MetalBufferRegion {
     operatorDispatch.pointJacobianStride =
         candidate.privatePointJacobianStride;
     operatorDispatch.generalizedStride = context.nv;
-    id<MTLComputeCommandEncoder> kinematics =
-        [commandBuffer computeCommandEncoder];
+    id<MTLComputeCommandEncoder> kinematics = candidateEncoder(1u);
     if (kinematics == nil) return false;
     kinematics.label = @"NumanX Human/Matter exact candidate kinematics";
     [kinematics setComputePipelineState:context.state->pipeline];
@@ -4679,11 +4733,10 @@ struct MetalBufferRegion {
     [kinematics dispatchThreadgroups:
         MTLSizeMake(context.environmentCount, 1u, 1u)
         threadsPerThreadgroup:MTLSizeMake(
-            kThreadsPerThreadgroup, 1u, 1u)];
+            std::min<NSUInteger>(256u, context.state->pipeline.maxTotalThreadsPerThreadgroup), 1u, 1u)];
     [kinematics endEncoding];
 
-    id<MTLComputeCommandEncoder> materialize =
-        [commandBuffer computeCommandEncoder];
+    id<MTLComputeCommandEncoder> materialize = candidateEncoder(2u);
     if (materialize == nil) return false;
     materialize.label =
         @"NumanX Human/Matter exact candidate materialize";

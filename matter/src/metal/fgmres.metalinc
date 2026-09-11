@@ -3445,19 +3445,24 @@ kernel void nm_human_support_certify(
             environment * layout.supportContactCount + row].xyz;
         norm2 += dot(value, value);
     }
+    const float supportNorm2 = norm2;
+    float rigidNorm2 = 0.0f;
     // Also covers a rigid-only Human with no continuum object certificate.
     for (uint dof = lane; dof < dispatch.rigidGeneralizedCapacity; dof += 32u) {
         const float value = residual[fgmresRigidIndex(dispatch, environment, dof)].x;
         norm2 += value * value;
+        rigidNorm2 += value * value;
     }
     norm2 = simd_sum(norm2);
     const float norm = sqrt(norm2);
+    const float supportNorm = sqrt(simd_sum(supportNorm2));
+    const float rigidNorm = sqrt(simd_sum(rigidNorm2));
     const float threshold = max(solver.regularization.x,
         solver.residualTolerances.x * max(min(states[environment].nonlinear.x,
             states[environment].nonlinear.y), 1.0f));
     if (lane == 0u && (!isfinite(norm) || norm > threshold))
         recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
-            NM_INVALID_INDEX, NM_INVALID_INDEX, float4(norm, threshold, 0.0f, 0.0f));
+            NM_INVALID_INDEX, NM_INVALID_INDEX, float4(norm, threshold, supportNorm, rigidNorm));
 }
 
 } // namespace numi_matter_metal
