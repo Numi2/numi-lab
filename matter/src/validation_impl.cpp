@@ -43,7 +43,8 @@ constexpr std::uint32_t kKnownObjectFlags =
     NM_OBJECT_MUTABLE_TOPOLOGY |
     NM_OBJECT_DISABLE_SELF_CONTACT |
     NM_OBJECT_DISABLE_DEFORMABLE_CONTACT |
-    NM_OBJECT_FEM_MATERIAL_FRAME;
+    NM_OBJECT_FEM_MATERIAL_FRAME |
+    NM_OBJECT_FEM_REGIONAL_MATERIAL;
 constexpr std::uint32_t kKnownRigidFlags =
     NM_RIGID_ARTICULATED |
     NM_RIGID_DYNAMIC |
@@ -1066,15 +1067,19 @@ private:
     }
 
     [[nodiscard]] bool validateObjectsAndTopology() {
-        const bool hasMaterialFrames = std::ranges::any_of(world_.objects,
+        std::vector<bool> identifiedMaterials(world_.materials.size(), false);
+        for (const auto& distribution : world_.identification)
+            if (distribution.identity.x < identifiedMaterials.size())
+                identifiedMaterials[distribution.identity.x] = true;
+        const bool hasImmutableFEMFields = std::ranges::any_of(world_.objects,
             [](const NMContinuumObjectGPU& object) {
-                return (object.flags & NM_OBJECT_FEM_MATERIAL_FRAME) != 0u;
+                return (object.flags & (NM_OBJECT_FEM_MATERIAL_FRAME | NM_OBJECT_FEM_REGIONAL_MATERIAL)) != 0u;
             });
-        if (hasMaterialFrames && (!world_.fem.mutationCommands.empty() ||
+        if (hasImmutableFEMFields && (!world_.fem.mutationCommands.empty() ||
                 std::ranges::any_of(world_.objects, [](const NMContinuumObjectGPU& object) {
                     return (object.flags & (NM_OBJECT_ADAPTIVE | NM_OBJECT_MUTABLE_TOPOLOGY)) != 0u;
                 }))) {
-            return fail("material-local FEM frames require immutable topology and representation");
+            return fail("authored FEM material fields require immutable topology and representation");
         }
         std::size_t particleCursor = 0u;
         std::size_t gridCursor = 0u;
@@ -1093,6 +1098,19 @@ private:
                 [](nm_u64 word) { return word != 0u; });
             if (framed != frameIdentity || (framed && object.representation != NM_REPRESENTATION_FEM)) {
                 return failIndexed("continuum object", index, "material frame identity or representation is invalid");
+            }
+            const bool regional = (object.flags & NM_OBJECT_FEM_REGIONAL_MATERIAL) != 0u;
+            const bool regionalIdentity = std::ranges::any_of(object.materialSourceIdentity,
+                [](nm_u64 word) { return word != 0u; });
+            if (regional != regionalIdentity || (regional &&
+                    (object.representation != NM_REPRESENTATION_FEM ||
+                     (object.flags & (NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS | NM_OBJECT_IDENTIFIABLE)) != 0u ||
+                     (object.materialIndex < identifiedMaterials.size() && identifiedMaterials[object.materialIndex]) ||
+                     std::ranges::any_of(world_.fem.fieldBoundaries, [&](const NMFieldBoundaryGPU& boundary) {
+                         return boundary.identity.y == index;
+                     })))) {
+                return failIndexed("continuum object", index,
+                    "regional material identity, representation or nodal-field ownership is invalid");
             }
             if (object.materialIndex >= world_.materials.size() ||
                 (object.flags & ~kKnownObjectFlags) != 0u ||
@@ -1253,6 +1271,7 @@ private:
                     femNodeOwners_[nodeIndex] =
                         static_cast<std::uint32_t>(index);
                 }
+                std::vector<double> regionalMass(regional ? object.stateCount : 0u, 0.0);
                 for (std::uint32_t local = 0u;
                      local < object.elementCount;
                      ++local) {
@@ -1266,7 +1285,8 @@ private:
                         tetrahedron.nodes.z,
                         tetrahedron.nodes.w,
                     };
-                    if (tetrahedron.identity.x != object.materialIndex ||
+                    if (tetrahedron.identity.x >= world_.materials.size() ||
+                        (!regional && tetrahedron.identity.x != object.materialIndex) ||
                         tetrahedron.identity.y != index ||
                         tetrahedron.identity.z != object.topologyGeneration ||
                         !finite4(tetrahedron.inverseRestRow0) ||
@@ -1280,6 +1300,16 @@ private:
                     }
                     const bool active =
                         (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+                    if (regional) {
+                        const auto a = world_.materials[tetrahedron.identity.x].interfaceResponse;
+                        const auto b = world_.materials[object.materialIndex].interfaceResponse;
+                        if (a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w ||
+                            identifiedMaterials[tetrahedron.identity.x] ||
+                            (!active && tetrahedron.identity.x != object.materialIndex)) {
+                            return failIndexed("FEM tetrahedron", tetrahedronIndex,
+                                "regional material changed the uniform interface or dormant ownership");
+                        }
+                    }
                     const nm_float4 rotation = tetrahedron.materialFrameRotation;
                     const double norm2 = double(rotation.x)*rotation.x + double(rotation.y)*rotation.y +
                         double(rotation.z)*rotation.z + double(rotation.w)*rotation.w;
@@ -1328,6 +1358,23 @@ private:
                                 "node indices are outside the object or repeated"
                             );
                         }
+                        if (regional) {
+                            regionalMass[nodes[node] - object.stateOffset] +=
+                                double(world_.materials[tetrahedron.identity.x].bulk.x) *
+                                double(tetrahedron.inverseRestRow0.w) * 0.25;
+                        }
+                    }
+                }
+                for (std::size_t local = 0u; local < regionalMass.size(); ++local) {
+                    const auto& node = world_.fem.nodes[object.stateOffset + local];
+                    const double mass = regionalMass[local];
+                    const float inverseMass = mass > 0.0 && node.restAndFixed.w != 1.0f
+                        ? static_cast<float>(1.0 / mass) : 0.0f;
+                    if (!std::isfinite(mass) || node.positionAndMass.w != static_cast<float>(mass) ||
+                        (node.restAndFixed.w != 0.0f && node.restAndFixed.w != 1.0f && node.restAndFixed.w != 2.0f) ||
+                        node.velocityAndInverseMass.w != inverseMass) {
+                        return failIndexed("FEM node", object.stateOffset + local,
+                            "lumped mass does not equal the canonical regional density-volume sum");
                     }
                 }
                 femNodeCursor += object.stateCount;

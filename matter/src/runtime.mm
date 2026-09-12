@@ -759,10 +759,19 @@ struct Runtime::State {
     std::shared_ptr<GrowthOwnership> growthOwnership =
         std::make_shared<GrowthOwnership>();
     std::vector<NMContinuumObjectGPU> objectLayout;
-    // An opt-in framed world is topology-immutable. Pin complete element
-    // records so restore cannot rebind a source frame to other nodes/rest axes.
+    // Authored material fields require immutable topology. Pin complete element
+    // records so restore cannot rebind frames or regions to other nodes/rest axes.
     // Empty avoids extra host storage for legacy worlds.
-    std::vector<NMTetrahedronGPU> femMaterialFrameLayout;
+    std::vector<NMTetrahedronGPU> femImmutableElementLayout;
+    std::vector<NMFEMTopologyNodeGPU> femImmutableNodeLayout;
+    std::vector<NMCohesiveFaceGPU> femImmutableCohesiveLayout;
+    std::vector<NMPunctureChannelGPU> femImmutablePunctureLayout;
+    std::vector<NMFEMTopologyStateGPU> femImmutableTopologyStateLayout;
+    std::vector<std::pair<std::uint32_t, std::uint32_t>> femRegionalBaseExponentLayout;
+    std::vector<std::array<float, 2>> femRegionalMassLayout;
+    std::vector<nm_float4> femRegionalRestLayout;
+    std::vector<std::pair<std::uint32_t, float>> femRegionalFixedParameterLayout;
+    std::vector<nm_uint4> femRegionalIdentificationIdentityLayout;
     std::vector<NMFEMCapacityGPU> capacityLayout;
 
     id<MTLBuffer> dispatchBuffer = nil;
@@ -1034,9 +1043,41 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->objectLayout = world.objects;
         if (std::any_of(world.objects.begin(), world.objects.end(),
                 [](const NMContinuumObjectGPU& object) {
-                    return (object.flags & NM_OBJECT_FEM_MATERIAL_FRAME) != 0u;
+                    return (object.flags & (NM_OBJECT_FEM_MATERIAL_FRAME | NM_OBJECT_FEM_REGIONAL_MATERIAL)) != 0u;
                 })) {
-            candidate->femMaterialFrameLayout = world.fem.tetrahedra;
+            candidate->femImmutableElementLayout = world.fem.tetrahedra;
+            candidate->femImmutableNodeLayout = world.fem.topologyNodes;
+            candidate->femImmutableCohesiveLayout = world.fem.cohesiveFaces;
+            candidate->femImmutablePunctureLayout = world.fem.punctureChannels;
+        }
+        if (std::any_of(world.objects.begin(), world.objects.end(),
+                [](const NMContinuumObjectGPU& object) {
+                    return (object.flags & NM_OBJECT_FEM_REGIONAL_MATERIAL) != 0u;
+                })) {
+            candidate->femRegionalMassLayout.reserve(world.fem.nodes.size());
+            candidate->femRegionalRestLayout.reserve(world.fem.nodes.size());
+            for (const auto& node : world.fem.nodes) {
+                candidate->femRegionalMassLayout.push_back({node.positionAndMass.w, node.velocityAndInverseMass.w});
+                candidate->femRegionalRestLayout.push_back(node.restAndFixed);
+            }
+            std::set<std::uint32_t> regionalMaterials;
+            for (const auto& object : world.objects) {
+                if ((object.flags & NM_OBJECT_FEM_REGIONAL_MATERIAL) == 0u) continue;
+                regionalMaterials.insert(object.materialIndex);
+                candidate->femRegionalBaseExponentLayout.emplace_back(
+                    object.schedulerIndex, world.schedulers[object.schedulerIndex].baseExponent);
+                for (std::uint32_t local = 0u; local < object.elementCount; ++local)
+                    regionalMaterials.insert(world.fem.tetrahedra[object.elementOffset + local].identity.x);
+            }
+            for (const auto materialIndex : regionalMaterials) {
+                const auto& material = world.materials[materialIndex];
+                for (std::uint32_t local = 0u; local < material.parameterCount; ++local) {
+                    const auto parameter = material.parameterOffset + local;
+                    candidate->femRegionalFixedParameterLayout.emplace_back(parameter, world.parameters[parameter].valueAndBounds.x);
+                }
+            }
+            for (const auto& distribution : world.identification)
+                candidate->femRegionalIdentificationIdentityLayout.push_back(distribution.identity);
         }
         candidate->hasMutableFEMTopology = std::any_of(
             world.objects.begin(), world.objects.end(),
@@ -1887,6 +1928,8 @@ RuntimeDiagnostics Runtime::initialize(
             topology.roles = {0u, 1u, 2u, object.topologyGeneration};
             initialTopologyStates[objectIndex] = topology;
         }
+        if (!candidate->femImmutableElementLayout.empty())
+            candidate->femImmutableTopologyStateLayout = initialTopologyStates;
         candidate->topologyStatesAccepted = uploads.repeated(
             std::span<const NMFEMTopologyStateGPU>(initialTopologyStates),
             environments, valid, candidate->residentBytes);
@@ -11201,24 +11244,50 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
 
     // This admission applies to ordinary snapshots as well as generation
     // changes. Incidence reconstruction is not permission to change frames.
-    if (!state.femMaterialFrameLayout.empty()) {
+    if (!state.femImmutableElementLayout.empty()) {
         const std::size_t perEnvironment = state.dispatch.tetrahedronCount;
-        if (state.femMaterialFrameLayout.size() != perEnvironment ||
+        if (state.femImmutableElementLayout.size() != perEnvironment ||
+            state.femImmutableNodeLayout.size() != state.dispatch.femNodeCount ||
+            state.femImmutableCohesiveLayout.size() != state.dispatch.cohesiveFaceCount ||
+            state.femImmutablePunctureLayout.size() != state.dispatch.punctureChannelCount ||
+            state.femImmutableTopologyStateLayout.size() != state.dispatch.objectCount ||
             snapshot.allocationGeneration != cookedAllocationGeneration) {
-            diagnostics.message = "Matter immutable material-frame layout changed";
+            diagnostics.message = "Matter immutable FEM material-field layout changed";
             return diagnostics;
         }
         for (std::size_t environment = 0u; environment < state.dispatch.environmentCount; ++environment) {
             for (std::size_t object = 0u; object < state.objectLayout.size(); ++object) {
                 if (snapshot.adaptive[environment * state.objectLayout.size() + object].activeRepresentation !=
                         state.objectLayout[object].representation) {
-                    diagnostics.message = "Matter snapshot changed an immutable material-frame representation";
+                    diagnostics.message = "Matter snapshot changed an immutable FEM material-field representation";
                     return diagnostics;
                 }
             }
+            // Dormant event capacity is allowed, but restore is not a mutation
+            // transaction. Puncture geometry participates in contact admission;
+            // topology roles also own the reported allocation generation.
+            if ((state.dispatch.cohesiveFaceCount != 0u &&
+                    std::memcmp(snapshot.cohesiveFaces.data() + environment * state.dispatch.cohesiveFaceCount,
+                        state.femImmutableCohesiveLayout.data(), state.dispatch.cohesiveFaceCount * sizeof(NMCohesiveFaceGPU)) != 0) ||
+                (state.dispatch.punctureChannelCount != 0u &&
+                    std::memcmp(snapshot.punctureChannels.data() + environment * state.dispatch.punctureChannelCount,
+                        state.femImmutablePunctureLayout.data(), state.dispatch.punctureChannelCount * sizeof(NMPunctureChannelGPU)) != 0) ||
+                std::memcmp(snapshot.topologyStates.data() + environment * state.dispatch.objectCount,
+                    state.femImmutableTopologyStateLayout.data(), state.dispatch.objectCount * sizeof(NMFEMTopologyStateGPU)) != 0) {
+                diagnostics.message = "Matter snapshot changed immutable FEM topology events or accounting";
+                return diagnostics;
+            }
+            // Stable node lineage affects self-contact eligibility even when
+            // connectivity and mechanical nodes are unchanged. Immutable
+            // material fields therefore bind the complete topology record.
+            if (std::memcmp(snapshot.femTopologyNodes.data() + environment * state.dispatch.femNodeCount,
+                    state.femImmutableNodeLayout.data(), state.dispatch.femNodeCount * sizeof(NMFEMTopologyNodeGPU)) != 0) {
+                diagnostics.message = "Matter snapshot changed an immutable FEM material-field topology node";
+                return diagnostics;
+            }
             if (std::memcmp(snapshot.femTopologyTetrahedra.data() + environment * perEnvironment,
-                    state.femMaterialFrameLayout.data(), perEnvironment * sizeof(NMTetrahedronGPU)) != 0) {
-                diagnostics.message = "Matter snapshot changed an immutable FEM material-frame element";
+                    state.femImmutableElementLayout.data(), perEnvironment * sizeof(NMTetrahedronGPU)) != 0) {
+                diagnostics.message = "Matter snapshot changed an immutable FEM material-field element";
                 return diagnostics;
             }
         }
@@ -11229,6 +11298,60 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
                 diagnostics.message = "Matter snapshot invented an FEM material frame";
                 return diagnostics;
             }
+        }
+    }
+
+    if (!state.femRegionalMassLayout.empty()) {
+        if (state.femRegionalMassLayout.size() != state.dispatch.femNodeCount ||
+            state.femRegionalRestLayout.size() != state.dispatch.femNodeCount) {
+            diagnostics.message = "Matter immutable regional mass layout changed";
+            return diagnostics;
+        }
+        for (std::size_t environment = 0u; environment < state.dispatch.environmentCount; ++environment)
+            for (const auto& object : state.objectLayout) {
+                if ((object.flags & NM_OBJECT_FEM_REGIONAL_MATERIAL) == 0u) continue;
+                for (std::size_t local = 0u; local < object.stateCount; ++local) {
+                    const auto nodeIndex = object.stateOffset + local;
+                    const auto& node = snapshot.femNodes[environment * state.dispatch.femNodeCount + nodeIndex];
+                    const std::array<float, 2> observed{node.positionAndMass.w, node.velocityAndInverseMass.w};
+                    if (std::memcmp(observed.data(), state.femRegionalMassLayout[nodeIndex].data(), sizeof(observed)) != 0 ||
+                        std::memcmp(&node.restAndFixed, &state.femRegionalRestLayout[nodeIndex], sizeof(node.restAndFixed)) != 0) {
+                        diagnostics.message = "Matter snapshot changed immutable regional FEM mass or rest constraint";
+                        return diagnostics;
+                    }
+                }
+            }
+    }
+
+    // Regional material parameters are fixed authored data, not identified
+    // state. Preserve unrelated posterior values, but never allow their
+    // immutable parameter identities to be retargeted into a fixed region.
+    for (std::size_t environment = 0u; environment < state.dispatch.environmentCount; ++environment)
+        for (const auto& [parameter, expected] : state.femRegionalFixedParameterLayout) {
+            const auto& value = snapshot.environmentParameters[environment * state.dispatch.parameterCount + parameter];
+            if (std::memcmp(&value, &expected, sizeof(value)) != 0) {
+                diagnostics.message = "Matter snapshot changed a fixed regional material parameter";
+                return diagnostics;
+            }
+        }
+    // The authored CFL floor is fixed; active/requested exponents and their
+    // event metadata remain legitimate scheduler state and are not pinned.
+    for (std::size_t environment = 0u; environment < state.dispatch.environmentCount; ++environment)
+        for (const auto& [scheduler, expected] : state.femRegionalBaseExponentLayout) {
+            if (snapshot.schedulers[environment * state.dispatch.objectCount + scheduler].baseExponent != expected) {
+                diagnostics.message = "Matter snapshot changed a fixed regional scheduler floor";
+                return diagnostics;
+            }
+        }
+    if (snapshot.identification.size() < state.femRegionalIdentificationIdentityLayout.size()) {
+        diagnostics.message = "Matter regional identification layout changed";
+        return diagnostics;
+    }
+    for (std::size_t index = 0u; index < state.femRegionalIdentificationIdentityLayout.size(); ++index) {
+        if (std::memcmp(&snapshot.identification[index].identity,
+                &state.femRegionalIdentificationIdentityLayout[index], sizeof(nm_uint4)) != 0) {
+            diagnostics.message = "Matter snapshot retargeted an identification distribution in a regional world";
+            return diagnostics;
         }
     }
 
@@ -11386,7 +11509,7 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
                     const NMFEMTopologyNodeGPU& topologyNode =
                         snapshot.femTopologyNodes[globalNode];
                     if ((topologyNode.identity.w & NM_TOPOLOGY_ACTIVE) == 0u ||
-                        topologyNode.identity.y != tetrahedron.identity.x) {
+                        topologyNode.identity.y != tetrahedron.identity.y) {
                         topologyValid = false;
                         continue;
                     }

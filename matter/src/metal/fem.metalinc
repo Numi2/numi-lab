@@ -920,7 +920,7 @@ kernel void nm_fem_internal_forces(
             if (network.identity.y == tetrahedron.identity.x) {
                 stress += learnedFirstPiola(
                     network, learnedLayers, learnedWeights, femMaterialInput(object, tetrahedron, deformation),
-                    mixedMaterials[object.materialIndex].fibre.xyz, valid
+                    mixedMaterials[tetrahedron.identity.x].fibre.xyz, valid
                 );
                 found = true;
                 break;
@@ -1205,9 +1205,9 @@ kernel void nm_fem_apply_operator_elements(
              ++networkIndex) {
             const NMLearnedMaterialGPU network = learnedMaterials[networkIndex];
             if (network.identity.y == tetrahedron.identity.x) {
-                const float3 fibre = object.materialIndex <
+                const float3 fibre = tetrahedron.identity.x <
                     dispatch.mixedMaterialCount
-                    ? mixedMaterials[object.materialIndex].fibre.xyz
+                    ? mixedMaterials[tetrahedron.identity.x].fibre.xyz
                     : float3(1.0f, 0.0f, 0.0f);
                 analytic += learnedFirstPiola(
                     network, learnedLayers, learnedWeights, femMaterialInput(object, tetrahedron, deformation),
@@ -1834,8 +1834,8 @@ inline float4 fusedFEMOperatorAtNode(
         );
         if (material.constitutiveKind == NM_CONSTITUTIVE_POLYCONVEX_ICNN) {
             bool found = false;
-            const float3 fibre = object.materialIndex < dispatch.mixedMaterialCount
-                ? mixedMaterials[object.materialIndex].fibre.xyz
+            const float3 fibre = tetrahedron.identity.x < dispatch.mixedMaterialCount
+                ? mixedMaterials[tetrahedron.identity.x].fibre.xyz
                 : float3(1.0f, 0.0f, 0.0f);
             for (uint networkIndex = 0u;
                  networkIndex < dispatch.learnedMaterialCount; ++networkIndex) {

@@ -447,6 +447,20 @@ struct ObjectSource {
     // reserved capacity for newly exposed nodes in a later active-list pass.
     std::vector<std::uint32_t> femContactNodes;
     std::vector<TetrahedronSource> tetrahedra;
+    // Optional exact per-authored-tetrahedron material indices into
+    // WorldSource::materials. Empty preserves the object material and legacy
+    // mass arithmetic. Nonempty keeps shared nodes and assembles each cell's
+    // cooked density*volume contribution once in FP64 before rounding nodal
+    // mass; it never splits a material interface into independent objects.
+    // Currently requires explicit, immutable, non-mixed FEM without field
+    // boundaries/multiphysics or object-level identification. Selected/default
+    // material parameters must be fixed (not identifiable). All selected
+    // materials must have the same interface response as materialIndex,
+    // which remains the explicitly uniform object/contact interface owner.
+    std::vector<std::uint32_t> femMaterialIndices;
+    // SHA256 of the source regional labels and declared material/density map.
+    // Required with femMaterialIndices, canonical zero without them.
+    std::array<std::uint64_t, 4> femMaterialSourceIdentity{};
     // Optional immutable material-local basis for every authored tetrahedron,
     // in the same order. Unit Hamilton quaternions (x,y,z,w) map material axes
     // into the reference-world axes. With this explicit opt-in, all material

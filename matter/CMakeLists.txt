@@ -322,6 +322,22 @@ if(APPLE)
 endif()
 
 if(APPLE)
+    add_executable(numi-matter-fem-regional-material-check tools/fem_regional_material_check.mm)
+    target_link_libraries(numi-matter-fem-regional-material-check PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_include_directories(numi-matter-fem-regional-material-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_definitions(numi-matter-fem-regional-material-check PRIVATE NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+    target_compile_options(numi-matter-fem-regional-material-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.compiler.fem_regional_material COMMAND numi-matter-fem-regional-material-check
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/rodero2021_ventricular_guccione_passive.nmatter"
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter" --cpu-only)
+        add_test(NAME matter.metal.fem_regional_material COMMAND numi-matter-fem-regional-material-check
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/rodero2021_ventricular_guccione_passive.nmatter"
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter")
+        set_tests_properties(matter.compiler.fem_regional_material matter.metal.fem_regional_material
+            PROPERTIES LABELS "matter;material;human" TIMEOUT 180)
+    endif()
+
     add_executable(numi-matter-fem-material-frame-check tools/fem_material_frame_check.mm)
     target_link_libraries(numi-matter-fem-material-frame-check PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
     target_include_directories(numi-matter-fem-material-frame-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")

@@ -5,7 +5,7 @@
 namespace numi::matter::detail {
 
 inline constexpr std::uint32_t kAcceptedStateProofSchemaVersion = 3u;
-inline constexpr std::uint32_t kAcceptedStateProofManifestVersion = 8u;
+inline constexpr std::uint32_t kAcceptedStateProofManifestVersion = 9u;
 inline constexpr std::uint32_t kAcceptedStateProofChunkBytes = 1024u;
 inline constexpr std::uint32_t kAcceptedStateProofTargetHuman = 0u;
 inline constexpr std::uint32_t kAcceptedStateProofTargetMatter = 1u;

@@ -982,17 +982,17 @@ CompileResult compileWorld(
     world.adaptive.reserve(source.objects.size());
     world.schedulers.reserve(source.objects.size());
 
-    const bool hasMaterialFrames = std::ranges::any_of(source.objects,
+    const bool hasImmutableFEMFields = std::ranges::any_of(source.objects,
         [](const ObjectSource& object) {
-            return !object.femMaterialFrameRotations.empty();
+            return !object.femMaterialFrameRotations.empty() || !object.femMaterialIndices.empty();
         });
-    if (hasMaterialFrames && std::ranges::any_of(source.objects,
+    if (hasImmutableFEMFields && std::ranges::any_of(source.objects,
             [](const ObjectSource& object) {
                 return object.adaptive || object.mutationPolicy.enabled ||
                     !object.mutationCommands.empty();
             })) {
         result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
-            "material-local FEM frames require an immutable world until field transfer is supported"});
+            "authored FEM material fields require an immutable world until field transfer is supported"});
         return result;
     }
 
@@ -1054,6 +1054,47 @@ CompileResult compileWorld(
                 return result;
             }
         }
+        const bool regional = !object.femMaterialIndices.empty();
+        const bool regionalIdentity = std::ranges::any_of(object.femMaterialSourceIdentity,
+            [](std::uint64_t word) { return word != 0u; });
+        if (regional != regionalIdentity || (regional &&
+                (representation != Representation::fem || object.automaticRepresentation ||
+                 object.femMaterialIndices.size() != object.tetrahedra.size() ||
+                 object.mixedFEM || object.multiphysics.enabled ||
+                 !object.fieldBoundaries.empty() || object.identifiable))) {
+            result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                "regional FEM materials require exact indices/source identity and explicit non-mixed FEM without nodal fields or object identification"});
+            return result;
+        }
+        const std::set<std::uint32_t> regionalMaterials(object.femMaterialIndices.begin(), object.femMaterialIndices.end());
+        const auto hasIdentifiableParameters = [](const MaterialProgram& candidate) {
+            return std::ranges::any_of(candidate.parameters, [](const Parameter& parameter) {
+                return parameter.identifiable;
+            });
+        };
+        if (regional && hasIdentifiableParameters(material)) {
+            result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                "regional FEM material parameters require fixed ownership without identification distributions"});
+            return result;
+        }
+        const auto sameInterface = [](const MaterialProgram& a, const MaterialProgram& b) {
+            return a.staticFriction == b.staticFriction && a.dynamicFriction == b.dynamicFriction &&
+                a.restitution == b.restitution && a.adhesion == b.adhesion;
+        };
+        for (const auto materialIndex : regionalMaterials) {
+            if (materialIndex >= source.materials.size() ||
+                !supports(source.materials[materialIndex], Representation::fem) ||
+                !(density(source.materials[materialIndex]) > 0.0) ||
+                !finite(density(source.materials[materialIndex])) ||
+                !(world.materials[materialIndex].bulk.x > 0.0f) ||
+                !finite(world.materials[materialIndex].bulk.x) ||
+                !sameInterface(material, source.materials[materialIndex]) ||
+                hasIdentifiableParameters(source.materials[materialIndex])) {
+                result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                    "regional FEM material requires a fixed FEM law, positive density and the declared uniform object interface"});
+                return result;
+            }
+        }
         if (representation != Representation::fem &&
             !object.femHumanAttachments.empty()) {
             result.diagnostics.push_back({
@@ -1062,9 +1103,11 @@ CompileResult compileWorld(
             });
             return result;
         }
-        const std::uint32_t exponent = rateExponent(
+        std::uint32_t exponent = rateExponent(
             object, material, source, options
         );
+        for (const auto materialIndex : regionalMaterials)
+            exponent = std::max(exponent, rateExponent(object, source.materials[materialIndex], source, options));
 
         NMContinuumObjectGPU descriptor{};
         descriptor.representation = representationCode(representation);
@@ -1083,9 +1126,12 @@ CompileResult compileWorld(
                 ? NM_OBJECT_MULTIPHYSICS : 0u) |
             (representation == Representation::fem && object.mutationPolicy.enabled
                 ? NM_OBJECT_MUTABLE_TOPOLOGY : 0u) |
-            (framed ? NM_OBJECT_FEM_MATERIAL_FRAME : 0u);
+            (framed ? NM_OBJECT_FEM_MATERIAL_FRAME : 0u) |
+            (regional ? NM_OBJECT_FEM_REGIONAL_MATERIAL : 0u);
         std::copy(object.femMaterialFrameSourceIdentity.begin(),
             object.femMaterialFrameSourceIdentity.end(), descriptor.materialFrameSourceIdentity);
+        std::copy(object.femMaterialSourceIdentity.begin(),
+            object.femMaterialSourceIdentity.end(), descriptor.materialSourceIdentity);
         descriptor.schedulerIndex = objectIndex;
         descriptor.rigidBinding = object.rigidBinding;
         descriptor.topologyGeneration = 1u;
@@ -1723,7 +1769,10 @@ CompileResult compileWorld(
                     static_cast<double>(position.z),
                 };
             };
-            for (const TetrahedronSource& sourceTet : object.tetrahedra) {
+            for (std::size_t sourceTetIndex = 0u; sourceTetIndex < object.tetrahedra.size(); ++sourceTetIndex) {
+                const TetrahedronSource& sourceTet = object.tetrahedra[sourceTetIndex];
+                const std::uint32_t elementMaterial = regional
+                    ? object.femMaterialIndices[sourceTetIndex] : object.materialIndex;
                 if (std::ranges::any_of(sourceTet.nodes, [&](const std::uint32_t node) {
                     return node >= object.femNodes.size();
                 })) {
@@ -1776,21 +1825,27 @@ CompileResult compileWorld(
                     inverseRest[6], inverseRest[7], inverseRest[8]
                 );
                 tetrahedron.identity = {
-                    object.materialIndex,
+                    elementMaterial,
                     objectIndex,
                     1u,
                     NM_OBJECT_ACTIVE,
                 };
                 if (framed) {
                     const auto& rotation = object.femMaterialFrameRotations[
-                        world.fem.tetrahedra.size() - descriptor.elementOffset];
+                        sourceTetIndex];
                     tetrahedron.materialFrameRotation = f4(
                         rotation[0], rotation[1], rotation[2], rotation[3]);
                 }
                 const std::uint32_t tetrahedronIndex =
                     static_cast<nm_u32>(world.fem.tetrahedra.size());
                 world.fem.tetrahedra.push_back(tetrahedron);
-                const double nodalMass = rho * signedVolume * 0.25;
+                // The opt-in regional field binds inertia to the serialized
+                // density and geometry, allowing independent cooked-mass
+                // validation. Preserve the exact legacy arithmetic otherwise.
+                const double nodalMass = regional
+                    ? double(world.materials[elementMaterial].bulk.x) *
+                        double(tetrahedron.inverseRestRow0.w) * 0.25
+                    : rho * signedVolume * 0.25;
                 for (const std::uint32_t localNode : sourceTet.nodes) {
                     localMass[localNode] += nodalMass;
                     femIncidence.push_back({

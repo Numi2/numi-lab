@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 30u
+#define NM_MATTER_ABI_VERSION 31u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -176,6 +176,7 @@ enum NMObjectFlags : nm_u32 {
     NM_OBJECT_DISABLE_SELF_CONTACT = 1u << 7u,
     NM_OBJECT_DISABLE_DEFORMABLE_CONTACT = 1u << 8u,
     NM_OBJECT_FEM_MATERIAL_FRAME = 1u << 9u,
+    NM_OBJECT_FEM_REGIONAL_MATERIAL = 1u << 10u,
 };
 
 enum NMFieldBoundaryFlags : nm_u32 {
@@ -818,6 +819,9 @@ typedef struct NM_ALIGN16 NMContinuumObjectGPU {
     // SHA256 of the immutable authored material-frame field and conversion.
     // Canonical zero when NM_OBJECT_FEM_MATERIAL_FRAME is absent.
     nm_u64 materialFrameSourceIdentity[4];
+    // SHA256 of immutable source regional labels and the material/density map.
+    // Canonical zero when NM_OBJECT_FEM_REGIONAL_MATERIAL is absent.
+    nm_u64 materialSourceIdentity[4];
 } NMContinuumObjectGPU;
 
 
