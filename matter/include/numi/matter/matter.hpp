@@ -447,6 +447,18 @@ struct ObjectSource {
     // reserved capacity for newly exposed nodes in a later active-list pass.
     std::vector<std::uint32_t> femContactNodes;
     std::vector<TetrahedronSource> tetrahedra;
+    // Optional immutable material-local basis for every authored tetrahedron,
+    // in the same order. Unit Hamilton quaternions (x,y,z,w) map material axes
+    // into the reference-world axes. With this explicit opt-in, all material
+    // F/Fdot/directional inputs and internal-state semantics use F*Q; Piola
+    // outputs transform back by Q^T. Empty preserves the legacy world basis.
+    // Author any normalization from source fibre/sheet fields separately;
+    // cooking rejects nonunit inputs rather than repairing them.
+    std::vector<std::array<double, 4>> femMaterialFrameRotations;
+    // SHA256 identity of source fields plus their declared basis conversion.
+    // Required with frames; all zero without them. Identity is provenance,
+    // not proof of anatomical calibration.
+    std::array<std::uint64_t, 4> femMaterialFrameSourceIdentity{};
     bool mixedFEM = true;
     FEMCapacitySource femCapacity;
     MultiphysicsSource multiphysics;

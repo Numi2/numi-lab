@@ -759,6 +759,10 @@ struct Runtime::State {
     std::shared_ptr<GrowthOwnership> growthOwnership =
         std::make_shared<GrowthOwnership>();
     std::vector<NMContinuumObjectGPU> objectLayout;
+    // An opt-in framed world is topology-immutable. Pin complete element
+    // records so restore cannot rebind a source frame to other nodes/rest axes.
+    // Empty avoids extra host storage for legacy worlds.
+    std::vector<NMTetrahedronGPU> femMaterialFrameLayout;
     std::vector<NMFEMCapacityGPU> capacityLayout;
 
     id<MTLBuffer> dispatchBuffer = nil;
@@ -1028,6 +1032,12 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->dispatch = world.dispatch;
         candidate->vascularValue = world.vascular;
         candidate->objectLayout = world.objects;
+        if (std::any_of(world.objects.begin(), world.objects.end(),
+                [](const NMContinuumObjectGPU& object) {
+                    return (object.flags & NM_OBJECT_FEM_MATERIAL_FRAME) != 0u;
+                })) {
+            candidate->femMaterialFrameLayout = world.fem.tetrahedra;
+        }
         candidate->hasMutableFEMTopology = std::any_of(
             world.objects.begin(), world.objects.end(),
             [](const NMContinuumObjectGPU& object) {
@@ -11187,6 +11197,39 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
     }
     if (!dimensionsValid) {
         return diagnostics;
+    }
+
+    // This admission applies to ordinary snapshots as well as generation
+    // changes. Incidence reconstruction is not permission to change frames.
+    if (!state.femMaterialFrameLayout.empty()) {
+        const std::size_t perEnvironment = state.dispatch.tetrahedronCount;
+        if (state.femMaterialFrameLayout.size() != perEnvironment ||
+            snapshot.allocationGeneration != cookedAllocationGeneration) {
+            diagnostics.message = "Matter immutable material-frame layout changed";
+            return diagnostics;
+        }
+        for (std::size_t environment = 0u; environment < state.dispatch.environmentCount; ++environment) {
+            for (std::size_t object = 0u; object < state.objectLayout.size(); ++object) {
+                if (snapshot.adaptive[environment * state.objectLayout.size() + object].activeRepresentation !=
+                        state.objectLayout[object].representation) {
+                    diagnostics.message = "Matter snapshot changed an immutable material-frame representation";
+                    return diagnostics;
+                }
+            }
+            if (std::memcmp(snapshot.femTopologyTetrahedra.data() + environment * perEnvironment,
+                    state.femMaterialFrameLayout.data(), perEnvironment * sizeof(NMTetrahedronGPU)) != 0) {
+                diagnostics.message = "Matter snapshot changed an immutable FEM material-frame element";
+                return diagnostics;
+            }
+        }
+    } else {
+        for (const auto& tetrahedron : snapshot.femTopologyTetrahedra) {
+            const auto& q = tetrahedron.materialFrameRotation;
+            if (q.x != 0.0f || q.y != 0.0f || q.z != 0.0f || q.w != 0.0f) {
+                diagnostics.message = "Matter snapshot invented an FEM material frame";
+                return diagnostics;
+            }
+        }
     }
 
     // A snapshot restores one coupled physical state. Pressure is signed,

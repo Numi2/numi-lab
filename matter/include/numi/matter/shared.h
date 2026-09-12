@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 29u
+#define NM_MATTER_ABI_VERSION 30u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -175,6 +175,7 @@ enum NMObjectFlags : nm_u32 {
     NM_OBJECT_MUTABLE_TOPOLOGY = 1u << 6u,
     NM_OBJECT_DISABLE_SELF_CONTACT = 1u << 7u,
     NM_OBJECT_DISABLE_DEFORMABLE_CONTACT = 1u << 8u,
+    NM_OBJECT_FEM_MATERIAL_FRAME = 1u << 9u,
 };
 
 enum NMFieldBoundaryFlags : nm_u32 {
@@ -814,6 +815,9 @@ typedef struct NM_ALIGN16 NMContinuumObjectGPU {
     nm_uint4 solver;
     // characteristic length, rigid tolerance, promotion strain, demotion strain.
     nm_float4 fidelity;
+    // SHA256 of the immutable authored material-frame field and conversion.
+    // Canonical zero when NM_OBJECT_FEM_MATERIAL_FRAME is absent.
+    nm_u64 materialFrameSourceIdentity[4];
 } NMContinuumObjectGPU;
 
 
@@ -916,6 +920,9 @@ typedef struct NM_ALIGN16 NMTetrahedronGPU {
     nm_float4 inverseRestRow2;
     // material, object, topology generation, flags.
     nm_uint4 identity;
+    // Unit Hamilton material-local -> reference-world quaternion (x,y,z,w).
+    // Canonical zero for legacy material coordinates and dormant slots.
+    nm_float4 materialFrameRotation;
 } NMTetrahedronGPU;
 
 typedef struct NM_ALIGN16 NMFEMElementVectorGPU {

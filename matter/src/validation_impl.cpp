@@ -42,7 +42,8 @@ constexpr std::uint32_t kKnownObjectFlags =
     NM_OBJECT_MULTIPHYSICS |
     NM_OBJECT_MUTABLE_TOPOLOGY |
     NM_OBJECT_DISABLE_SELF_CONTACT |
-    NM_OBJECT_DISABLE_DEFORMABLE_CONTACT;
+    NM_OBJECT_DISABLE_DEFORMABLE_CONTACT |
+    NM_OBJECT_FEM_MATERIAL_FRAME;
 constexpr std::uint32_t kKnownRigidFlags =
     NM_RIGID_ARTICULATED |
     NM_RIGID_DYNAMIC |
@@ -1065,6 +1066,16 @@ private:
     }
 
     [[nodiscard]] bool validateObjectsAndTopology() {
+        const bool hasMaterialFrames = std::ranges::any_of(world_.objects,
+            [](const NMContinuumObjectGPU& object) {
+                return (object.flags & NM_OBJECT_FEM_MATERIAL_FRAME) != 0u;
+            });
+        if (hasMaterialFrames && (!world_.fem.mutationCommands.empty() ||
+                std::ranges::any_of(world_.objects, [](const NMContinuumObjectGPU& object) {
+                    return (object.flags & (NM_OBJECT_ADAPTIVE | NM_OBJECT_MUTABLE_TOPOLOGY)) != 0u;
+                }))) {
+            return fail("material-local FEM frames require immutable topology and representation");
+        }
         std::size_t particleCursor = 0u;
         std::size_t gridCursor = 0u;
         std::size_t nodeCursor = 0u;
@@ -1077,6 +1088,12 @@ private:
 
         for (std::size_t index = 0u; index < world_.objects.size(); ++index) {
             const NMContinuumObjectGPU& object = world_.objects[index];
+            const bool framed = (object.flags & NM_OBJECT_FEM_MATERIAL_FRAME) != 0u;
+            const bool frameIdentity = std::ranges::any_of(object.materialFrameSourceIdentity,
+                [](nm_u64 word) { return word != 0u; });
+            if (framed != frameIdentity || (framed && object.representation != NM_REPRESENTATION_FEM)) {
+                return failIndexed("continuum object", index, "material frame identity or representation is invalid");
+            }
             if (object.materialIndex >= world_.materials.size() ||
                 (object.flags & ~kKnownObjectFlags) != 0u ||
                 (object.flags & NM_OBJECT_ACTIVE) == 0u ||
@@ -1263,6 +1280,15 @@ private:
                     }
                     const bool active =
                         (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+                    const nm_float4 rotation = tetrahedron.materialFrameRotation;
+                    const double norm2 = double(rotation.x)*rotation.x + double(rotation.y)*rotation.y +
+                        double(rotation.z)*rotation.z + double(rotation.w)*rotation.w;
+                    if (!finite4(rotation) || ((active && framed)
+                            ? std::abs(norm2 - 1.0) > 16.0 * std::numeric_limits<float>::epsilon()
+                            : norm2 != 0.0)) {
+                        return failIndexed("FEM tetrahedron", tetrahedronIndex,
+                            "material frame is nonunit or noncanonical for its owning object");
+                    }
                     if (!active) {
                         // Mutable FEM objects cook canonical dormant arena
                         // slots. They acquire nodes/rest operators only inside

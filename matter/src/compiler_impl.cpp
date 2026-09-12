@@ -982,6 +982,20 @@ CompileResult compileWorld(
     world.adaptive.reserve(source.objects.size());
     world.schedulers.reserve(source.objects.size());
 
+    const bool hasMaterialFrames = std::ranges::any_of(source.objects,
+        [](const ObjectSource& object) {
+            return !object.femMaterialFrameRotations.empty();
+        });
+    if (hasMaterialFrames && std::ranges::any_of(source.objects,
+            [](const ObjectSource& object) {
+                return object.adaptive || object.mutationPolicy.enabled ||
+                    !object.mutationCommands.empty();
+            })) {
+        result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+            "material-local FEM frames require an immutable world until field transfer is supported"});
+        return result;
+    }
+
     for (std::size_t objectIndexSize = 0u;
          objectIndexSize < source.objects.size();
          ++objectIndexSize) {
@@ -1020,6 +1034,26 @@ CompileResult compileWorld(
         const Representation representation = selectRepresentation(
             object, material, result.diagnostics
         );
+        const bool framed = !object.femMaterialFrameRotations.empty();
+        const bool frameIdentity = std::ranges::any_of(
+            object.femMaterialFrameSourceIdentity,
+            [](std::uint64_t word) { return word != 0u; });
+        if (framed != frameIdentity || (framed &&
+                (representation != Representation::fem ||
+                 object.femMaterialFrameRotations.size() != object.tetrahedra.size()))) {
+            result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                "material-local FEM frames require exact tetrahedron count and nonzero source identity"});
+            return result;
+        }
+        for (const auto& rotation : object.femMaterialFrameRotations) {
+            double norm2 = 0.0;
+            for (double value : rotation) norm2 += value * value;
+            if (!std::isfinite(norm2) || std::abs(norm2 - 1.0) > 1.0e-12) {
+                result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                    "material-local FEM frame rotation must be finite and unit length"});
+                return result;
+            }
+        }
         if (representation != Representation::fem &&
             !object.femHumanAttachments.empty()) {
             result.diagnostics.push_back({
@@ -1048,7 +1082,10 @@ CompileResult compileWorld(
             (representation == Representation::fem && object.multiphysics.enabled
                 ? NM_OBJECT_MULTIPHYSICS : 0u) |
             (representation == Representation::fem && object.mutationPolicy.enabled
-                ? NM_OBJECT_MUTABLE_TOPOLOGY : 0u);
+                ? NM_OBJECT_MUTABLE_TOPOLOGY : 0u) |
+            (framed ? NM_OBJECT_FEM_MATERIAL_FRAME : 0u);
+        std::copy(object.femMaterialFrameSourceIdentity.begin(),
+            object.femMaterialFrameSourceIdentity.end(), descriptor.materialFrameSourceIdentity);
         descriptor.schedulerIndex = objectIndex;
         descriptor.rigidBinding = object.rigidBinding;
         descriptor.topologyGeneration = 1u;
@@ -1744,6 +1781,12 @@ CompileResult compileWorld(
                     1u,
                     NM_OBJECT_ACTIVE,
                 };
+                if (framed) {
+                    const auto& rotation = object.femMaterialFrameRotations[
+                        world.fem.tetrahedra.size() - descriptor.elementOffset];
+                    tetrahedron.materialFrameRotation = f4(
+                        rotation[0], rotation[1], rotation[2], rotation[3]);
+                }
                 const std::uint32_t tetrahedronIndex =
                     static_cast<nm_u32>(world.fem.tetrahedra.size());
                 world.fem.tetrahedra.push_back(tetrahedron);

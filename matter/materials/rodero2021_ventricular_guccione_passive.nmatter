@@ -1,0 +1,50 @@
+// Rodero et al. (2021), PLOS Computational Biology 17:e1008851,
+// S4 equations 3-7 and Table B. DOI 10.1371/journal.pcbi.1008851.
+// S4 SHA256 5699feb01b7f91f93fd75e26a9a5043ca6bfb5da1803f010c45c71270992ebc6.
+// Source CC BY 4.0. This expression is a transcription, not a subject fit.
+// F columns are the orthonormal fibre, sheet, normal reference directions.
+// A framed FEM element supplies F_global*Q and pulls stress back with Q^T.
+// This FULL energy requires non-mixed FEM: the existing mixed pressure
+// constraint/traction pair does not reproduce this volumetric potential.
+// Density was not supplied by S4. Zero is an unresolved-input sentinel:
+// parsing/constitutive differentiation work, but full WorldSource cooking
+// rejects it. The owning application must explicitly source density/mass.
+// No added viscosity, activation, prestress, unloading, or blood mass.
+material rodero2021_ventricular_guccione_passive {
+    parameter density : kg/m^3 = 0 in [0, 2000];
+    parameter a : kPa = 1.7;
+    parameter bf : one = 8;
+    parameter bt : one = 3;
+    parameter bfs : one = 4;
+    parameter kappa : kPa = 1000;
+    model generic;
+    // Cbar = exp(-2*log(J)/3) F^T F; Ebar=(Cbar-I)/2.
+    // Repeated subexpressions are written explicitly because the language
+    // has no immutable local aliases. The off-diagonal multiplicities are
+    // those of the source symmetric strain tensor, not engineering shear.
+    energy = 0.5*kappa*pow(log(J()), 2) + 0.5*a*(exp(
+        bf*pow(0.5*(exp(-2*log(J())/3)*(
+            pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2))-1),2)
+        + bt*(
+            pow(0.5*(exp(-2*log(J())/3)*(
+                pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2))-1),2)
+            + pow(0.5*(exp(-2*log(J())/3)*(
+                pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2))-1),2)
+            + 2*pow(0.5*exp(-2*log(J())/3)*(
+                F(0,1)*F(0,2)+F(1,1)*F(1,2)+F(2,1)*F(2,2)),2))
+        + 2*bfs*(
+            pow(0.5*exp(-2*log(J())/3)*(
+                F(0,0)*F(0,1)+F(1,0)*F(1,1)+F(2,0)*F(2,1)),2)
+            + pow(0.5*exp(-2*log(J())/3)*(
+                F(0,0)*F(0,2)+F(1,0)*F(1,2)+F(2,0)*F(2,2)),2))
+    )-1);
+    valid = J();
+    supports fem;
+    // Numerical validity envelope, not an experimentally established range.
+    limits {
+        minimum_J = 0.05;
+        maximum_J = 20;
+        maximum_stress = 1e12;
+        maximum_energy_density = 1e12;
+    }
+}

@@ -60,6 +60,26 @@ target_link_libraries(numi-matterc PRIVATE numi_matter_compiler)
 target_compile_options(numi-matterc PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 include(CTest)
+add_executable(numi-matter-cardiac-material-check tools/cardiac_material_check.cpp)
+target_link_libraries(numi-matter-cardiac-material-check PRIVATE numi_matter_compiler)
+target_compile_options(numi-matter-cardiac-material-check PRIVATE -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.cardiac_material_source
+        COMMAND $<TARGET_FILE:numi-matter-cardiac-material-check>
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/rodero2021_ventricular_guccione_passive.nmatter"
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter")
+    set_tests_properties(matter.compiler.cardiac_material_source PROPERTIES
+        LABELS "matter;compiler;human;cardiac;material" TIMEOUT 120)
+endif()
+
+add_executable(numi-matter-fem-material-frame-compiler-check tools/fem_material_frame_compiler_check.cpp)
+target_link_libraries(numi-matter-fem-material-frame-compiler-check PRIVATE numi_matter_compiler)
+target_compile_options(numi-matter-fem-material-frame-compiler-check PRIVATE -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.fem_material_frame COMMAND numi-matter-fem-material-frame-compiler-check)
+    set_tests_properties(matter.compiler.fem_material_frame PROPERTIES LABELS "matter;material;human" TIMEOUT 60)
+endif()
+
 add_executable(numi-matter-stateful-check tools/stateful_check.cpp)
 target_link_libraries(numi-matter-stateful-check PRIVATE numi_matter_compiler)
 target_compile_definitions(
@@ -302,6 +322,17 @@ if(APPLE)
 endif()
 
 if(APPLE)
+    add_executable(numi-matter-fem-material-frame-check tools/fem_material_frame_check.mm)
+    target_link_libraries(numi-matter-fem-material-frame-check PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_include_directories(numi-matter-fem-material-frame-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_definitions(numi-matter-fem-material-frame-check PRIVATE NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+    target_compile_options(numi-matter-fem-material-frame-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.fem_material_frame COMMAND numi-matter-fem-material-frame-check
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/rodero2021_ventricular_guccione_passive.nmatter")
+        set_tests_properties(matter.metal.fem_material_frame PROPERTIES LABELS "matter;material;human" TIMEOUT 180)
+    endif()
+
     add_executable(numi-matter-vascular-cavity-check tools/vascular_cavity_check.mm)
     target_link_libraries(numi-matter-vascular-cavity-check PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
     target_include_directories(numi-matter-vascular-cavity-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")

@@ -103,6 +103,39 @@ inline NMTetrahedronGPU environmentTetrahedron(
     return tetrahedra[environment * dispatch.tetrahedronCount + local];
 }
 
+// Only the constitutive coordinate system rotates. Geometry, volume constraints,
+// rest gradients, contact and nodal momentum remain in the reference-world basis.
+// The explicit object flag preserves the legacy arithmetic path exactly.
+inline float3x3 femMaterialFrame(const NMTetrahedronGPU tetrahedron) {
+    const float4 raw = tetrahedron.materialFrameRotation;
+    const float4 q = raw * rsqrt(dot(raw, raw));
+    const float x = q.x, y = q.y, z = q.z, w = q.w;
+    return matrixFromRows(
+        float4(1.0f-2.0f*(y*y+z*z), 2.0f*(x*y-z*w), 2.0f*(x*z+y*w), 0.0f),
+        float4(2.0f*(x*y+z*w), 1.0f-2.0f*(x*x+z*z), 2.0f*(y*z-x*w), 0.0f),
+        float4(2.0f*(x*z-y*w), 2.0f*(y*z+x*w), 1.0f-2.0f*(x*x+y*y), 0.0f));
+}
+
+inline float3x3 femMaterialInput(const NMContinuumObjectGPU object,
+    const NMTetrahedronGPU tetrahedron, const float3x3 value) {
+    return (object.flags & NM_OBJECT_FEM_MATERIAL_FRAME) != 0u
+        ? value * femMaterialFrame(tetrahedron) : value;
+}
+
+inline float3x3 femMaterialOutput(const NMContinuumObjectGPU object,
+    const NMTetrahedronGPU tetrahedron, const float3x3 value) {
+    return (object.flags & NM_OBJECT_FEM_MATERIAL_FRAME) != 0u
+        ? value * transpose(femMaterialFrame(tetrahedron)) : value;
+}
+
+inline NMMixedMaterialGPU femMixedMaterial(const NMContinuumObjectGPU object,
+    const NMTetrahedronGPU tetrahedron, const NMMixedMaterialGPU source) {
+    NMMixedMaterialGPU result = source;
+    if ((object.flags & NM_OBJECT_FEM_MATERIAL_FRAME) != 0u)
+        result.fibre.xyz = femMaterialFrame(tetrahedron) * source.fibre.xyz;
+    return result;
+}
+
 inline float3x3 tetrahedronDeformation(
     const NMTetrahedronGPU tetrahedron,
     device const NMFEMNodeStateGPU* nodes,
@@ -872,8 +905,8 @@ kernel void nm_fem_internal_forces(
         instructions,
         environmentParameters + environment * dispatch.parameterCount,
         internalState,
-        deformation,
-        deformationRate,
+        femMaterialInput(object, tetrahedron, deformation),
+        femMaterialInput(object, tetrahedron, deformationRate),
         objectTimestep(dispatch, scheduler),
         material.bulk.y,
         valid
@@ -886,7 +919,7 @@ kernel void nm_fem_internal_forces(
             const NMLearnedMaterialGPU network = learnedMaterials[networkIndex];
             if (network.identity.y == tetrahedron.identity.x) {
                 stress += learnedFirstPiola(
-                    network, learnedLayers, learnedWeights, deformation,
+                    network, learnedLayers, learnedWeights, femMaterialInput(object, tetrahedron, deformation),
                     mixedMaterials[object.materialIndex].fibre.xyz, valid
                 );
                 found = true;
@@ -895,6 +928,7 @@ kernel void nm_fem_internal_forces(
         }
         valid = valid && found;
     }
+    stress = femMaterialOutput(object, tetrahedron, stress);
     if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
         object.materialIndex < dispatch.mixedMaterialCount) {
         float4 fieldAverage = float4(0.0f);
@@ -908,7 +942,7 @@ kernel void nm_fem_internal_forces(
         fieldAverage *= 0.25f;
         activation *= 0.25f;
         stress = mixedFirstPiola(
-            stress, deformation, mixedMaterials[object.materialIndex],
+            stress, deformation, femMixedMaterial(object, tetrahedron, mixedMaterials[object.materialIndex]),
             fieldAverage.x, fieldAverage.z, activation
         );
     }
@@ -1154,10 +1188,10 @@ kernel void nm_fem_apply_operator_elements(
         instructions,
         environmentParameters + environment * dispatch.parameterCount,
         internalState,
-        deformation,
-        deformationDirection,
-        deformationRate,
-        rateDirection,
+        femMaterialInput(object, tetrahedron, deformation),
+        femMaterialInput(object, tetrahedron, deformationDirection),
+        femMaterialInput(object, tetrahedron, deformationRate),
+        femMaterialInput(object, tetrahedron, rateDirection),
         dt,
         material.bulk.y,
         analytic,
@@ -1176,12 +1210,12 @@ kernel void nm_fem_apply_operator_elements(
                     ? mixedMaterials[object.materialIndex].fibre.xyz
                     : float3(1.0f, 0.0f, 0.0f);
                 analytic += learnedFirstPiola(
-                    network, learnedLayers, learnedWeights, deformation,
+                    network, learnedLayers, learnedWeights, femMaterialInput(object, tetrahedron, deformation),
                     fibre, valid
                 );
                 tangent += learnedTangentVector(
-                    network, learnedLayers, learnedWeights, deformation,
-                    deformationDirection, fibre, valid
+                    network, learnedLayers, learnedWeights, femMaterialInput(object, tetrahedron, deformation),
+                    femMaterialInput(object, tetrahedron, deformationDirection), fibre, valid
                 );
                 found = true;
                 break;
@@ -1189,9 +1223,12 @@ kernel void nm_fem_apply_operator_elements(
         }
         valid = valid && found;
     }
+    analytic = femMaterialOutput(object, tetrahedron, analytic);
+    tangent = femMaterialOutput(object, tetrahedron, tangent);
     if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
         object.materialIndex < dispatch.mixedMaterialCount) {
-        const NMMixedMaterialGPU mixed = mixedMaterials[object.materialIndex];
+        const NMMixedMaterialGPU mixed = femMixedMaterial(
+            object, tetrahedron, mixedMaterials[object.materialIndex]);
         float4 fieldAverage = float4(0.0f);
         float activation = 0.0f;
         float averagePressureDirection = 0.0f;
@@ -1642,8 +1679,8 @@ kernel void nm_fem_validate(
             instructions,
             environmentParameters + environment * dispatch.parameterCount,
             internalState,
-            deformation,
-            deformationRate,
+            femMaterialInput(object, tetrahedron, deformation),
+            femMaterialInput(object, tetrahedron, deformationRate),
             dt,
             material.bulk.y,
             validityMargin
@@ -1662,7 +1699,7 @@ kernel void nm_fem_validate(
     if (!projectMaterialState(
             material, programs, instructions,
             environmentParameters + environment * dispatch.parameterCount,
-            internalState, deformation, deformationRate, dt,
+            internalState, femMaterialInput(object, tetrahedron, deformation), femMaterialInput(object, tetrahedron, deformationRate), dt,
             material.bulk.y, projectedState)) {
         recordFailure(statuses[environment],
             NM_STATUS_LOCAL_MATERIAL_FAILURE, objectIndex, tetrahedronIndex,
@@ -1790,9 +1827,9 @@ inline float4 fusedFEMOperatorAtNode(
         evaluateAlgorithmicStressTangent(
             material, programs, instructions,
             environmentParameters + environment * dispatch.parameterCount,
-            internalState, deformation, deformationDirection,
-            deformationRate,
-            deformationDirection / max(dt, 1.0e-12f),
+            internalState, femMaterialInput(object, tetrahedron, deformation), femMaterialInput(object, tetrahedron, deformationDirection),
+            femMaterialInput(object, tetrahedron, deformationRate),
+            femMaterialInput(object, tetrahedron, deformationDirection) / max(dt, 1.0e-12f),
             dt, material.bulk.y, analytic, tangent, elementValid
         );
         if (material.constitutiveKind == NM_CONSTITUTIVE_POLYCONVEX_ICNN) {
@@ -1807,21 +1844,23 @@ inline float4 fusedFEMOperatorAtNode(
                 if (network.identity.y != tetrahedron.identity.x) continue;
                 analytic += learnedFirstPiola(
                     network, learnedLayers, learnedWeights,
-                    deformation, fibre, elementValid
+                    femMaterialInput(object, tetrahedron, deformation), fibre, elementValid
                 );
                 tangent += learnedTangentVector(
                     network, learnedLayers, learnedWeights,
-                    deformation, deformationDirection, fibre, elementValid
+                    femMaterialInput(object, tetrahedron, deformation), femMaterialInput(object, tetrahedron, deformationDirection), fibre, elementValid
                 );
                 found = true;
                 break;
             }
             elementValid = elementValid && found;
         }
+        analytic = femMaterialOutput(object, tetrahedron, analytic);
+        tangent = femMaterialOutput(object, tetrahedron, tangent);
         if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
             object.materialIndex < dispatch.mixedMaterialCount) {
-            const NMMixedMaterialGPU mixed =
-                mixedMaterials[object.materialIndex];
+            const NMMixedMaterialGPU mixed = femMixedMaterial(
+                object, tetrahedron, mixedMaterials[object.materialIndex]);
             float4 fieldAverage = float4(0.0f);
             float activation = 0.0f;
             float averageQDirection = 0.0f;
