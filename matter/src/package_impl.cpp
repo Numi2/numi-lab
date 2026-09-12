@@ -22,7 +22,7 @@ inline constexpr std::array<char, 16> kMagic{
     'N', 'U', 'M', 'I', 'M', 'A', 'T', 'T',
     'E', 'R', 'P', 'K', 'G', '\0', '\0', '\0',
 };
-inline constexpr std::uint32_t kPackageVersion = 13u;
+inline constexpr std::uint32_t kPackageVersion = 14u;
 inline constexpr std::uint32_t kEndianMarker = 0x01020304u;
 
 enum class Section : std::uint32_t {
@@ -84,6 +84,11 @@ enum class Section : std::uint32_t {
     vascularTissueExchangeIncidence,
     vascularTissueExchangeRanges,
     vascularNames,
+    vascularCavities,
+    vascularCavityFaces,
+    vascularCompartmentCavity,
+    vascularCavityNodeIncidence,
+    vascularCavityNodeRanges,
     generatedMetal,
 };
 
@@ -385,6 +390,16 @@ bool writePackage(
             std::span<const std::uint32_t>(world.vascular.tissueExchangeIncidence)) &&
         writeSection(stream, Section::vascularTissueExchangeRanges,
             std::span<const NMVascularRangeGPU>(world.vascular.tissueExchangeRanges)) &&
+        writeSection(stream, Section::vascularCavities,
+            std::span<const NMVascularCavityGPU>(world.vascular.cavities)) &&
+        writeSection(stream, Section::vascularCavityFaces,
+            std::span<const NMVascularCavityFaceGPU>(world.vascular.cavityFaces)) &&
+        writeSection(stream, Section::vascularCompartmentCavity,
+            std::span<const std::uint32_t>(world.vascular.compartmentCavity)) &&
+        writeSection(stream, Section::vascularCavityNodeIncidence,
+            std::span<const std::uint32_t>(world.vascular.cavityNodeIncidence)) &&
+        writeSection(stream, Section::vascularCavityNodeRanges,
+            std::span<const NMVascularRangeGPU>(world.vascular.cavityNodeRanges)) &&
         writeSection(stream, Section::vascularNames,
             std::span<const std::uint8_t>(world.vascular.names)) &&
         writeStringSection(stream, Section::generatedMetal, compiled.generatedMetal);
@@ -585,6 +600,16 @@ bool readPackage(
             decoded = decodeVector(stream, section, candidate.vascular.tissueExchangeIncidence, error); break;
         case Section::vascularTissueExchangeRanges:
             decoded = decodeVector(stream, section, candidate.vascular.tissueExchangeRanges, error); break;
+        case Section::vascularCavities:
+            decoded = decodeVector(stream, section, candidate.vascular.cavities, error); break;
+        case Section::vascularCavityFaces:
+            decoded = decodeVector(stream, section, candidate.vascular.cavityFaces, error); break;
+        case Section::vascularCompartmentCavity:
+            decoded = decodeVector(stream, section, candidate.vascular.compartmentCavity, error); break;
+        case Section::vascularCavityNodeIncidence:
+            decoded = decodeVector(stream, section, candidate.vascular.cavityNodeIncidence, error); break;
+        case Section::vascularCavityNodeRanges:
+            decoded = decodeVector(stream, section, candidate.vascular.cavityNodeRanges, error); break;
         case Section::vascularNames:
             decoded = decodeVector(stream, section, candidate.vascular.names, error); break;
         case Section::generatedMetal: {

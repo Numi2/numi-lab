@@ -465,7 +465,7 @@ struct VascularSpeciesSource {
     double amountResidualTolerance = 0.0;
 };
 enum class VascularStorageKind : std::uint32_t { absoluteVolume = 0u, storageDisplacement = 1u };
-enum class VascularPressureLaw : std::uint32_t { linearCompliance = 0u, ventricularElastance = 1u, atrialElastance = 2u, atanCompliance = 3u, cosinePulseElastance = 4u };
+enum class VascularPressureLaw : std::uint32_t { linearCompliance = 0u, ventricularElastance = 1u, atrialElastance = 2u, atanCompliance = 3u, cosinePulseElastance = 4u, deformingCavity = 5u };
 enum class VascularFlowLaw : std::uint32_t { resistanceInertance = 0u, oneWayOrifice = 1u, oneWayResistance = 2u, starlingResistance = 3u };
 struct VascularCompartmentSource {
     std::uint32_t stableIdentifier = 0u;
@@ -530,6 +530,29 @@ struct VascularExchangeSource {
     double permeabilitySurface = 0.0; // m3/s, strictly positive
     double partitionCoefficient = 0.0; // c_blood - c_tissue / K
 };
+// Source provenance is retained verbatim; the cooked package independently
+// fingerprints the exact FEM geometry, material, incidence and these identities.
+// This contract supplies hydraulic wall work, not blood mechanical mass.
+enum class VascularCavityFaceRole : std::uint32_t {
+    unspecified = 0u, materialWall = 1u, artificialPartitionInterface = 2u
+};
+struct VascularCavityFaceSource {
+    std::uint32_t stableIdentifier = 0u;
+    std::array<std::uint32_t, 3> nodes{}; // object-local real boundary FEM nodes
+    VascularCavityFaceRole role = VascularCavityFaceRole::unspecified;
+};
+struct VascularCavitySource {
+    std::uint32_t stableIdentifier = 0u;
+    std::uint32_t compartment = 0u; // stable compartment identifier
+    std::uint32_t objectIndex = NM_INVALID_INDEX;
+    double initialPressure = 0.0; // absolute Pa; wall uses p - externalPressure
+    double pressureScale = 0.0; // Pa, pressure unknown scale
+    double geometryResidualTolerance = 0.0; // (V - V_cavity) / volumeScale
+    std::array<std::uint64_t, 4> sourceIdentity{};
+    std::array<std::uint64_t, 4> mechanicalIdentity{};
+    std::vector<VascularCavityFaceSource> faces;
+};
+
 struct VascularNetworkSource {
     // Whole source payload and upstream graph SHA256 bytes as four u64 words.
     // They are exact provenance, never host pointers or runtime state.
@@ -541,6 +564,7 @@ struct VascularNetworkSource {
     std::vector<VascularConnectionSource> connections;
     std::vector<VascularTissueSource> tissues;
     std::vector<VascularExchangeSource> exchanges;
+    std::vector<VascularCavitySource> cavities;
 };
 
 struct WorldSource {
@@ -612,6 +636,11 @@ struct CookedVascular {
     std::vector<NMVascularExchangeGPU> exchanges;
     std::vector<NMVascularTissueBindingGPU> tissueBindings;
     std::vector<NMVascularUnknownGPU> unknowns;
+    std::vector<NMVascularCavityGPU> cavities;
+    std::vector<NMVascularCavityFaceGPU> cavityFaces;
+    std::vector<std::uint32_t> compartmentCavity; // cavity index or invalid
+    std::vector<std::uint32_t> cavityNodeIncidence; // face indices, node-major
+    std::vector<NMVascularRangeGPU> cavityNodeRanges; // global FEM node order
     std::vector<std::uint32_t> connectionIncidence;
     std::vector<NMVascularRangeGPU> connectionRanges;
     std::vector<std::uint32_t> bloodExchangeIncidence;

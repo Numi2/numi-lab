@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 28u
+#define NM_MATTER_ABI_VERSION 29u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -392,7 +392,21 @@ typedef struct NM_ALIGN16 NMVascularLayoutGPU {
     nm_uint4 ranges; // exchanges, tissue bindings, unknown count, flags (zero)
     nm_uint4 offsets; // volume/storage, flow, blood amount, tissue amount base indices
     nm_uint4 clock; // x: signed binary time quantum exponent, y/z/w reserved zero
+    nm_uint4 cavities; // cavity count, face count, pressure unknown base, reserved zero
 } NMVascularLayoutGPU;
+// A material-wall cavity is an explicit pressure-volume constraint. Its
+// boundary is cavity-outward (opposite the adjacent material's outward face).
+typedef struct NM_ALIGN16 NMVascularCavityGPU {
+    nm_uint4 identity; // stable id, compartment index, FEM object, pressure row
+    nm_uint4 faces; // first face, count, reserved zero, reserved zero
+    nm_u64 sourceIdentity[4]; // authored cavity geometry SHA256 provenance
+    nm_u64 mechanicalIdentity[4]; // authored wall-mechanics SHA256 provenance
+} NMVascularCavityGPU;
+typedef struct NM_ALIGN16 NMVascularCavityFaceGPU {
+    nm_uint4 nodes; // global FEM nodes xyz, reserved zero
+    nm_uint4 identity; // cavity index, stable face id, materialWall (1), zero
+} NMVascularCavityFaceGPU;
+
 typedef struct NM_ALIGN16 NMVascularClockGPU {
     nm_u64 low; // elapsed accepted ticks, unsigned 128-bit low/high words
     nm_u64 high;
@@ -1179,6 +1193,9 @@ static_assert(sizeof(NMContinuumObjectGPU) % 16 == 0);
 static_assert(sizeof(NMMPMGridGPU) == 80);
 static_assert(sizeof(NMMPMBlockGPU) == 32);
 static_assert(sizeof(NMParticleStateGPU) % 16 == 0);
+static_assert(sizeof(NMVascularLayoutGPU) == 80);
+static_assert(sizeof(NMVascularCavityGPU) == 96);
+static_assert(sizeof(NMVascularCavityFaceGPU) == 32);
 static_assert(sizeof(NMFEMHumanAttachmentGPU) == 32);
 static_assert(alignof(NMFEMHumanAttachmentGPU) == 16);
 static_assert(sizeof(NMFEMNodeStateGPU) % 16 == 0);

@@ -512,6 +512,12 @@ struct Runtime::State {
     NMMatterDispatchGPU dispatch{};
     NMFGMRESLayoutGPU fgmresLayout{};
     CookedVascular vascularValue{};
+    id<MTLBuffer> vascularCavities = nil;
+    id<MTLBuffer> vascularCavityFaces = nil;
+    id<MTLBuffer> vascularCompartmentCavity = nil;
+    id<MTLBuffer> vascularCavityNodeIncidence = nil;
+    id<MTLBuffer> vascularCavityNodeRanges = nil;
+    id<MTLBuffer> vascularCavityMergedExternal = nil;
     id<MTLBuffer> vascularUnknowns = nil;
     id<MTLBuffer> vascularCompartments = nil;
     id<MTLBuffer> vascularConnections = nil;
@@ -733,6 +739,7 @@ struct Runtime::State {
     bool requiresSceneBodies = false;
     bool requiresRodNodes = false;
     bool hasAdaptive = false;
+    bool hasMutableFEMTopology = false;
     std::vector<NMRigidProxyGPU> rigidProxyLayout;
     std::vector<std::uint32_t> sutureProxyIndices;
     std::vector<std::uint32_t> sutureProxyEdges;
@@ -1021,6 +1028,12 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->dispatch = world.dispatch;
         candidate->vascularValue = world.vascular;
         candidate->objectLayout = world.objects;
+        candidate->hasMutableFEMTopology = std::any_of(
+            world.objects.begin(), world.objects.end(),
+            [](const NMContinuumObjectGPU& object) {
+                return object.representation == NM_REPRESENTATION_FEM &&
+                    (object.flags & NM_OBJECT_MUTABLE_TOPOLOGY) != 0u;
+            });
         candidate->capacityLayout = world.fem.capacities;
         if (world.fem.nodeIncidence.size() >
                 std::numeric_limits<std::uint32_t>::max() ||
@@ -1490,6 +1503,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_vascular_rollback",
             "nm_vascular_residual",
             "nm_vascular_operator",
+            "nm_vascular_cavity_forces",
+            "nm_vascular_cavity_operator",
             "nm_vascular_precondition",
             "nm_vascular_begin_working_set",
             "nm_vascular_resolve_working_set",
@@ -1662,6 +1677,25 @@ RuntimeDiagnostics Runtime::initialize(
         const std::size_t environments = world.dispatch.environmentCount;
         candidate->dispatchBuffer = uploads.one(
             std::span<const NMMatterDispatchGPU>(&candidate->dispatch, 1u),
+            valid, candidate->residentBytes);
+        candidate->vascularCavities = uploads.one(
+            std::span<const NMVascularCavityGPU>(world.vascular.cavities),
+            valid, candidate->residentBytes);
+        candidate->vascularCavityFaces = uploads.one(
+            std::span<const NMVascularCavityFaceGPU>(world.vascular.cavityFaces),
+            valid, candidate->residentBytes);
+        candidate->vascularCompartmentCavity = uploads.one(
+            std::span<const std::uint32_t>(world.vascular.compartmentCavity),
+            valid, candidate->residentBytes);
+        candidate->vascularCavityNodeIncidence = uploads.one(
+            std::span<const std::uint32_t>(world.vascular.cavityNodeIncidence),
+            valid, candidate->residentBytes);
+        candidate->vascularCavityNodeRanges = uploads.one(
+            std::span<const NMVascularRangeGPU>(world.vascular.cavityNodeRanges),
+            valid, candidate->residentBytes);
+        candidate->vascularCavityMergedExternal = privateScratch<nm_float4>(
+            candidate->device, world.vascular.cavities.empty() ? 0u :
+                environments * world.dispatch.femNodeCount,
             valid, candidate->residentBytes);
         candidate->vascularUnknowns = uploads.one(
             std::span<const NMVascularUnknownGPU>(world.vascular.unknowns),
@@ -3335,6 +3369,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
             diagnostics.message = "borrowed FEM external-force Metal buffer is undersized";
             return diagnostics;
         }
+        const bool hasVascularCavities = state.vascularValue.layout.cavities.x != 0u;
+        id<MTLBuffer> femMechanicalForces = hasVascularCavities
+            ? state.vascularCavityMergedExternal : femExternalForces;
+        const std::uint32_t hasFEMMechanicalForces =
+            hasVascularCavities || hasFEMExternalForces ? 1u : 0u;
         id<MTLBuffer> femKinematicTargets =
             request.femKinematicTargets == nullptr
                 ? state.dummy
@@ -4605,6 +4644,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
 
         const std::uint32_t microtickCount =
             1u << state.dispatch.maximumRateExponent;
+        // Immutable FEM worlds retain their cooked nodal masses and incidence.
+        // Explicit commands still enter the transaction owner for validation;
+        // their presence must never be hidden by the capability fast path.
+        const bool hasFEMTopologyWork = state.hasMutableFEMTopology ||
+            request.mutationCommandCount != 0u ||
+            state.dispatch.mutationCommandCount != 0u;
         id<MTLBuffer> borrowedMutations = request.mutationCommands == nullptr
             ? state.dummy
             : (__bridge id<MTLBuffer>)request.mutationCommands;
@@ -4686,6 +4731,34 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.vascularElastance offset:0u atIndex:20u];
                     [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:21u];
                     [encoder setBytes:&useWorkingSet length:sizeof(useWorkingSet) atIndex:22u];
+                    [encoder setBuffer:state.vascularCavities offset:0u atIndex:23u];
+                    [encoder setBuffer:state.vascularCavityFaces offset:0u atIndex:24u];
+                    [encoder setBuffer:state.vascularCompartmentCavity offset:0u atIndex:25u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:26u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:27u];
+                });
+            };
+            // Reassemble hydraulic wall work with borrowed loads at the same
+            // candidate used by the mechanical residual and final certificate.
+            const auto encodeCavityForces = [&]() {
+                if (!hasVascularCavities) return;
+                dispatchThreads("nm_vascular_cavity_forces", femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.vascularValue.layout length:sizeof(state.vascularValue.layout) atIndex:1u];
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:2u];
+                    [encoder setBuffer:state.vascularUnknowns offset:0u atIndex:3u];
+                    [encoder setBuffer:state.vascularCompartments offset:0u atIndex:4u];
+                    [encoder setBuffer:state.vascularCavities offset:0u atIndex:5u];
+                    [encoder setBuffer:state.vascularCavityFaces offset:0u atIndex:6u];
+                    [encoder setBuffer:state.vascularCavityNodeIncidence offset:0u atIndex:7u];
+                    [encoder setBuffer:state.vascularCavityNodeRanges offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:9u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:10u];
+                    [encoder setBuffer:state.vascularCandidate offset:0u atIndex:11u];
+                    [encoder setBuffer:femExternalForces offset:0u atIndex:12u];
+                    [encoder setBytes:&hasFEMExternalForces length:sizeof(hasFEMExternalForces) atIndex:13u];
+                    [encoder setBuffer:state.vascularCavityMergedExternal offset:0u atIndex:14u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:15u];
                 });
             };
             // Opt-in, bounded copies at a single requested root preserve the
@@ -4832,7 +4905,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
             };
 
-            if (firstPrePass && microtick == 0u) {
+            if (hasFEMTopologyWork && firstPrePass && microtick == 0u) {
                 dispatchThreads("nm_topology_detect_puncture", objectTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&request.controlStep
@@ -5679,6 +5752,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.vascularCandidate offset:0u atIndex:6u];
                 [encoder setBuffer:state.vascularElastance offset:0u atIndex:7u];
                 [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:8u];
+                [encoder setBuffer:state.vascularCavities offset:0u atIndex:9u];
+                [encoder setBuffer:state.vascularCompartmentCavity offset:0u atIndex:10u];
             });
             if (!encodeFEMHumanAttachmentKinematics()) {
                 ownership->preDynamicsOpen = false;
@@ -5760,6 +5835,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                 [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
             });
+            encodeCavityForces();
             dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
                 const std::uint32_t preserveSolution = 0u;
                 setDispatch();
@@ -5784,9 +5860,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:19u];
                 [encoder setBytes:&preserveSolution
                            length:sizeof(preserveSolution) atIndex:20u];
-                [encoder setBuffer:femExternalForces offset:0u atIndex:21u];
-                [encoder setBytes:&hasFEMExternalForces
-                           length:sizeof(hasFEMExternalForces) atIndex:22u];
+                [encoder setBuffer:femMechanicalForces offset:0u atIndex:21u];
+                [encoder setBytes:&hasFEMMechanicalForces
+                           length:sizeof(hasFEMMechanicalForces) atIndex:22u];
                 [encoder setBuffer:state.femConstraintReactions
                             offset:0u atIndex:23u];
             });
@@ -6297,6 +6373,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.vascularCompartments offset:0u atIndex:18u];
                 [encoder setBuffer:state.vascularElastance offset:0u atIndex:19u];
                     [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:20u];
+                    [encoder setBuffer:state.vascularCavities offset:0u atIndex:21u];
+                    [encoder setBuffer:state.vascularCompartmentCavity offset:0u atIndex:22u];
             });
                 dispatchThreads("nm_fgmres_precondition_free_rigid",
                     rigidGeneralizedTotal, [&] {
@@ -6374,6 +6452,28 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:15u];
                 });
+                // Include cavity traction before attachment capture, so the
+                // existing scatter applies its single work-conjugate J^T.
+                if (hasVascularCavities) {
+                    dispatchThreads("nm_vascular_cavity_operator", femNodeTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.vascularValue.layout length:sizeof(state.vascularValue.layout) atIndex:1u];
+                        [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:2u];
+                        [encoder setBuffer:state.vascularUnknowns offset:0u atIndex:3u];
+                        [encoder setBuffer:state.vascularCompartments offset:0u atIndex:4u];
+                        [encoder setBuffer:state.vascularCavities offset:0u atIndex:5u];
+                        [encoder setBuffer:state.vascularCavityFaces offset:0u atIndex:6u];
+                        [encoder setBuffer:state.vascularCavityNodeIncidence offset:0u atIndex:7u];
+                        [encoder setBuffer:state.vascularCavityNodeRanges offset:0u atIndex:8u];
+                        [encoder setBuffer:state.femAccepted offset:0u atIndex:9u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:10u];
+                        [encoder setBuffer:state.vascularCandidate offset:0u atIndex:11u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:12u];
+                        [encoder setBuffer:state.femOperatorValue offset:0u atIndex:13u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:14u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:15u];
+                    });
+                }
                 dispatchThreads(
                     "nm_fem_human_attachment_capture_operator",
                     femHumanAttachmentTotal,
@@ -6824,6 +6924,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.vascularUnknowns offset:0u atIndex:8u];
                 [encoder setBuffer:state.vascularCompartments offset:0u atIndex:9u];
                 [encoder setBuffer:state.vascularElastance offset:0u atIndex:10u];
+                [encoder setBuffer:state.vascularCavities offset:0u atIndex:11u];
+                [encoder setBuffer:state.vascularCompartmentCavity offset:0u atIndex:12u];
             });
             dispatchGroups32("nm_fgmres_measure_correction", environments, [&] {
                 setDispatch();
@@ -6990,6 +7092,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.vascularElastance offset:0u atIndex:22u];
                 [encoder setBuffer:state.vascularLineSearchTrial offset:0u atIndex:23u];
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:24u];
+                [encoder setBuffer:state.vascularCavities offset:0u atIndex:25u];
+                [encoder setBuffer:state.vascularCavityFaces offset:0u atIndex:26u];
+                [encoder setBuffer:state.vascularCompartmentCavity offset:0u atIndex:27u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:28u];
+                [encoder setBuffer:state.femAccepted offset:0u atIndex:29u];
             });
             if (!encodeVascularTrace("line_search")) {
                 ownership->preDynamicsOpen = false;
@@ -7079,7 +7186,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             // nonlinear transaction. Apply it to candidate topology/state,
             // then let the following Newton iteration rebuild contact and the
             // KKT operator. No intermediate commit is permitted.
-            if (nonlinearIteration <
+            if (hasFEMTopologyWork && nonlinearIteration <
                 state.mixedSolverValue.executionBudgets.y) {
                 dispatchThreads("nm_topology_detect_puncture", objectTotal, [&] {
                     setDispatch();
@@ -7213,6 +7320,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                 [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
             });
+            encodeCavityForces();
             dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
                 const std::uint32_t preserveSolution = 1u;
                 setDispatch();
@@ -7237,9 +7345,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:19u];
                 [encoder setBytes:&preserveSolution
                            length:sizeof(preserveSolution) atIndex:20u];
-                [encoder setBuffer:femExternalForces offset:0u atIndex:21u];
-                [encoder setBytes:&hasFEMExternalForces
-                           length:sizeof(hasFEMExternalForces) atIndex:22u];
+                [encoder setBuffer:femMechanicalForces offset:0u atIndex:21u];
+                [encoder setBytes:&hasFEMMechanicalForces
+                           length:sizeof(hasFEMMechanicalForces) atIndex:22u];
                 [encoder setBuffer:state.femConstraintReactions
                             offset:0u atIndex:23u];
             });
@@ -8178,6 +8286,12 @@ bool Runtime::encodeAcceptedStateProof(
             state.femMaterialStateCheckpoint,
             state.femFieldsAccepted,
             state.femFieldsCheckpoint,
+            state.vascularCavities,
+            state.vascularCavityFaces,
+            state.vascularCompartmentCavity,
+            state.vascularCavityNodeIncidence,
+            state.vascularCavityNodeRanges,
+            state.vascularCavityMergedExternal,
             state.vascularUnknowns,
             state.vascularCompartments,
             state.vascularConnections,
@@ -8957,6 +9071,12 @@ bool Runtime::applyPreparedStateImpl(
             state.femNodeRangesCheckpoint,
             state.femFieldsAccepted,
             state.femFieldsCheckpoint,
+            state.vascularCavities,
+            state.vascularCavityFaces,
+            state.vascularCompartmentCavity,
+            state.vascularCavityNodeIncidence,
+            state.vascularCavityNodeRanges,
+            state.vascularCavityMergedExternal,
             state.vascularUnknowns,
             state.vascularCompartments,
             state.vascularConnections,
@@ -10982,9 +11102,18 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
                 !(physical > 0.0f)) ||
             (row >= offsets.y && row < offsets.z &&
                 state.vascularValue.connections[row - offsets.y].identity.w != 0u && physical < 0.0f) ||
-            (row >= offsets.z && physical < 0.0f)) {
+            (row >= offsets.z && row < state.vascularValue.layout.cavities.z && physical < 0.0f)) {
             diagnostics.message = "Matter snapshot vascular state is inadmissible";
             return diagnostics;
+        }
+        if (row >= state.vascularValue.layout.cavities.z) {
+            const auto& cavity = state.vascularValue.cavities[
+                row - state.vascularValue.layout.cavities.z];
+            if (!std::isfinite(physical -
+                    state.vascularValue.compartments[cavity.identity.y].compliance.w)) {
+                diagnostics.message = "Matter snapshot transmural cavity pressure overflows";
+                return diagnostics;
+            }
         }
         if (row < offsets.y && state.vascularValue.compartments[row].identity.w == 3u) {
             const auto node = state.vascularValue.compartments[row];
@@ -11058,6 +11187,51 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
     }
     if (!dimensionsValid) {
         return diagnostics;
+    }
+
+    // A snapshot restores one coupled physical state. Pressure is signed,
+    // but wall geometry, hydraulic volume and scheduler cadence cannot diverge.
+    for (std::uint32_t environment = 0u; environment < state.dispatch.environmentCount; ++environment) {
+        for (const auto& cavity : state.vascularValue.cavities) {
+            const auto& scheduler = snapshot.schedulers[
+                environment * state.dispatch.objectCount + cavity.identity.z];
+            const auto& adaptive = snapshot.adaptive[
+                environment * state.dispatch.objectCount + cavity.identity.z];
+            const auto exponent = state.dispatch.maximumRateExponent;
+            if (scheduler.baseExponent != exponent || scheduler.activeExponent != exponent ||
+                scheduler.requestedExponent != exponent || !std::isfinite(scheduler.numerical.w) ||
+                !(scheduler.numerical.w > 0.0f) ||
+                adaptive.activeRepresentation != NM_REPRESENTATION_FEM) {
+                diagnostics.message = "Matter snapshot cavity wall changed hydraulic microtick ownership";
+                return diagnostics;
+            }
+            const auto nodeBase = static_cast<std::size_t>(environment) * state.dispatch.femNodeCount;
+            const auto& origin = snapshot.femNodes[nodeBase +
+                state.vascularValue.cavityFaces[cavity.faces.x].nodes.x].positionAndMass;
+            const auto point = [&](std::uint32_t node) {
+                const auto& p = snapshot.femNodes[nodeBase + node].positionAndMass;
+                return std::array<double, 3>{double(p.x) - origin.x, double(p.y) - origin.y, double(p.z) - origin.z};
+            };
+            double geometry = 0.0;
+            for (std::uint32_t index = 0u; index < cavity.faces.y; ++index) {
+                const auto& face = state.vascularValue.cavityFaces[cavity.faces.x + index];
+                const auto a = point(face.nodes.x), b = point(face.nodes.y), c = point(face.nodes.z);
+                geometry += (a[0] * (b[1] * c[2] - b[2] * c[1]) +
+                    a[1] * (b[2] * c[0] - b[0] * c[2]) +
+                    a[2] * (b[0] * c[1] - b[1] * c[0])) / 6.0;
+            }
+            const auto volumeRow = cavity.identity.y;
+            const auto stateBase = static_cast<std::size_t>(environment) * state.vascularValue.layout.ranges.z;
+            const float volume = snapshot.vascularState[stateBase + volumeRow].x *
+                state.vascularValue.unknowns[volumeRow].initialAndScaling.y;
+            const auto scaling = state.vascularValue.unknowns[cavity.identity.w].initialAndScaling;
+            const double tolerance = double(scaling.z) * scaling.w +
+                64.0 * std::numeric_limits<float>::epsilon() * std::max(std::abs(geometry), double(volume));
+            if (!(geometry > 0.0) || !std::isfinite(geometry) || std::abs(geometry - volume) > tolerance) {
+                diagnostics.message = "Matter snapshot cavity geometry and hydraulic volume disagree";
+                return diagnostics;
+            }
+        }
     }
 
     std::vector<std::uint32_t> restoredFEMIncidence;

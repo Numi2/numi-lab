@@ -69,8 +69,12 @@ bool rationalPeriod(const VascularCompartmentSource& source, int exponent,
     return numerator>0 && numerator<=maximumNumerator && multiplier>0;
 }
 bool validCompartment(const NMVascularCompartmentGPU& x, const NMVascularUnknownGPU& u) {
-    if(x.identity.z>1 || x.identity.w>4 || !finite4(x.compliance) || !finite4(x.elastance) ||
+    if(x.identity.z>1 || x.identity.w>5 || !finite4(x.compliance) || !finite4(x.elastance) ||
        !finite4(x.waveform) || !finite4(x.pressureParameters))return false;
+    if(x.identity.w==5) return x.identity.z==0 && positive(u.initialAndScaling.x) &&
+        x.compliance.x==0 && x.compliance.y==0 && x.compliance.z==0 &&
+        zero4(x.elastance) && zero4(x.waveform) && zero4(x.pressureParameters) &&
+        x.periodTicks==0 && x.periodMultiplier==0;
     if(x.identity.z==0 && (!positive(x.compliance.x) || !positive(u.initialAndScaling.x)))return false;
     if(x.pressureParameters.y!=0 || x.pressureParameters.z!=0 || x.pressureParameters.w!=0)return false;
     if(x.identity.w==0 || x.identity.w==3) {
@@ -119,30 +123,180 @@ bool validConnection(const NMVascularConnectionGPU& x, const NMVascularUnknownGP
     return finite(ratio*ratio);
 }
 bool allZero(const NMVascularIdentityGPU& x) { for (unsigned i=0;i<4;++i) if (x.content[i]||x.source[i]||x.authored[i]) return false; return true; }
+// Direct material-boundary embedding: no geometry-dependent tolerance weld,
+// artificial caps, source-volume offsets, or additional fluid mechanical mass.
+using CavityPoint = std::array<long double,3>;
+using CavityFaceKey = std::array<std::uint32_t,3>;
+CavityPoint cavitySubtract(const CavityPoint& a,const CavityPoint& b) {
+    return {a[0]-b[0],a[1]-b[1],a[2]-b[2]};
+}
+CavityPoint cavityCross(const CavityPoint& a,const CavityPoint& b) {
+    return {a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};
+}
+long double cavityDot(const CavityPoint& a,const CavityPoint& b) {
+    return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+}
+CavityFaceKey cavityKey(CavityFaceKey key) {std::sort(key.begin(),key.end());return key;}
+bool validateCavities(const CompiledWorld& world,std::string* error) {
+    const auto& c=world.vascular;
+    const auto fail=[&](const char* reason){if(error&&error->empty())*error=std::string("vascular cavity: ")+reason;return false;};
+    const auto B=c.cavities.size(),C=c.compartments.size();
+    if(B==0) {
+        if(!c.cavityFaces.empty()||!c.cavityNodeIncidence.empty()||!c.cavityNodeRanges.empty())return fail("unowned cavity arrays");
+        for(std::size_t i=0;i<C;++i)if(c.compartmentCavity[i]!=NM_INVALID_INDEX||c.compartments[i].identity.w==5)return fail("unbound deforming compartment");
+        return true;
+    }
+    if(c.cavityFaces.size()>std::numeric_limits<std::uint32_t>::max()/3u)return fail("face incidence arena overflow");
+    const auto point=[&](std::uint32_t node)->CavityPoint {
+        const auto& p=world.fem.nodes[node].positionAndMass;
+        return {p.x,p.y,p.z};
+    };
+    std::vector<std::uint32_t> owners(C,NM_INVALID_INDEX);
+    std::vector<std::vector<std::uint32_t>> nodeFaces(world.fem.nodes.size());
+    std::map<std::uint32_t,std::map<CavityFaceKey,std::vector<std::uint32_t>>> objectFaces;
+    std::set<CavityFaceKey> ownedFaces;
+    std::size_t nextFace=0;
+    for(std::size_t i=0;i<B;++i) {
+        const auto& cavity=c.cavities[i];const auto compartment=cavity.identity.y,objectIndex=cavity.identity.z;
+        if(!cavity.identity.x||(i&&cavity.identity.x<=c.cavities[i-1].identity.x)||
+           compartment>=C||objectIndex>=world.objects.size()||owners[compartment]!=NM_INVALID_INDEX||
+           c.compartments[compartment].identity.w!=5||cavity.identity.w!=c.layout.cavities.z+i||
+           cavity.faces.x!=nextFace||cavity.faces.y<4||cavity.faces.z||cavity.faces.w||
+           cavity.faces.y>c.cavityFaces.size()-nextFace)return fail("invalid identity, face range or pressure ownership");
+        bool source=false,mechanics=false;
+        for(unsigned j=0;j<4;++j){source|=cavity.sourceIdentity[j]!=0;mechanics|=cavity.mechanicalIdentity[j]!=0;}
+        if(!source||!mechanics)return fail("missing geometry or mechanical provenance");
+        const auto& object=world.objects[objectIndex];
+        if(object.representation!=NM_REPRESENTATION_FEM||
+           (object.flags&(NM_OBJECT_ADAPTIVE|NM_OBJECT_MUTABLE_TOPOLOGY))||
+           std::uint64_t(object.stateOffset)+object.stateCount>world.fem.nodes.size()||
+           std::uint64_t(object.elementOffset)+object.elementCount>world.fem.tetrahedra.size())
+            return fail("boundary requires an immutable nonadaptive real FEM object");
+        if(object.schedulerIndex>=world.schedulers.size())return fail("cavity wall scheduler is absent");
+        const auto& scheduler=world.schedulers[object.schedulerIndex];
+        const auto exponent=world.dispatch.maximumRateExponent;
+        if(object.solver.x!=exponent||object.solver.y!=exponent||
+           scheduler.baseExponent!=exponent||scheduler.activeExponent!=exponent||scheduler.requestedExponent!=exponent)
+            return fail("wall and hydraulic microtick rates disagree");
+        if(!objectFaces.contains(objectIndex)) {
+            auto& boundary=objectFaces[objectIndex];
+            for(std::uint32_t k=0;k<object.elementCount;++k) {
+                const auto& tet=world.fem.tetrahedra[object.elementOffset+k];
+                if((tet.identity.w&NM_OBJECT_ACTIVE)==0)continue;
+                const std::array<std::uint32_t,4> nodes{tet.nodes.x,tet.nodes.y,tet.nodes.z,tet.nodes.w};
+                for(auto node:nodes)if(node<object.stateOffset||std::uint64_t(node)>=std::uint64_t(object.stateOffset)+object.stateCount)
+                    return fail("wall tetrahedron escapes its object");
+                for(unsigned opposite=0;opposite<4;++opposite) {
+                    CavityFaceKey key{};unsigned slot=0;
+                    for(unsigned j=0;j<4;++j)if(j!=opposite)key[slot++]=nodes[j];
+                    boundary[cavityKey(key)].push_back(nodes[opposite]);
+                }
+            }
+        }
+        const auto& boundary=objectFaces.at(objectIndex);
+        std::map<std::array<std::uint32_t,2>,std::vector<std::pair<std::uint32_t,int>>> edges;
+        std::map<std::uint32_t,std::vector<std::array<std::uint32_t,2>>> vertexLinks;
+        std::vector<std::vector<std::uint32_t>> adjacent(cavity.faces.y);
+        long double volume=0;CavityPoint origin{};
+        for(std::uint32_t j=0;j<cavity.faces.y;++j) {
+            const auto faceIndex=std::uint32_t(nextFace+j);const auto& face=c.cavityFaces[faceIndex];
+            const std::array<std::uint32_t,3> nodes{face.nodes.x,face.nodes.y,face.nodes.z};
+            if(face.nodes.w||face.identity.x!=i||!face.identity.y||
+               (j&&face.identity.y<=c.cavityFaces[faceIndex-1].identity.y)||
+               face.identity.z!=std::uint32_t(VascularCavityFaceRole::materialWall)||face.identity.w)
+                return fail("invalid face identity or nonmaterial interface role");
+            for(auto node:nodes)if(node<object.stateOffset||std::uint64_t(node)>=std::uint64_t(object.stateOffset)+object.stateCount)
+                return fail("cavity face escapes wall FEM node ownership");
+            const auto key=cavityKey(nodes);const auto found=boundary.find(key);
+            if(nodes[0]==nodes[1]||nodes[1]==nodes[2]||nodes[2]==nodes[0]||!ownedFaces.insert(key).second||
+               found==boundary.end()||found->second.size()!=1)return fail("duplicate face or face is not an exposed material boundary");
+            const auto a=point(nodes[0]),b=point(nodes[1]),d=point(nodes[2]);
+            const auto normal=cavityCross(cavitySubtract(b,a),cavitySubtract(d,a));
+            const auto side=cavityDot(normal,cavitySubtract(point(found->second.front()),a));
+            if(!std::isfinite(side)||!(side>0))return fail("degenerate or outer-wall face; cavity normal must point into material");
+            if(j==0)origin=a;
+            volume+=cavityDot(cavitySubtract(a,origin),cavityCross(cavitySubtract(b,origin),cavitySubtract(d,origin)))/6;
+            for(unsigned k=0;k<3;++k) {
+                const auto n=nodes[k],m=nodes[(k+1)%3];
+                const std::array<std::uint32_t,2> edge{std::min(n,m),std::max(n,m)};
+                edges[edge].push_back({j,n<m?1:-1});
+                vertexLinks[n].push_back({nodes[(k+1)%3],nodes[(k+2)%3]});
+                nodeFaces[n].push_back(faceIndex);
+            }
+        }
+        for(const auto& [edge,incidence]:edges) {
+            (void)edge;
+            if(incidence.size()!=2||incidence[0].second+incidence[1].second!=0)return fail("boundary is open, nonmanifold or inconsistently oriented");
+            adjacent[incidence[0].first].push_back(incidence[1].first);
+            adjacent[incidence[1].first].push_back(incidence[0].first);
+        }
+        const auto connected=[](const auto& graph,std::uint32_t start) {
+            std::set<std::uint32_t> seen;std::vector<std::uint32_t> pending{start};
+            while(!pending.empty()) {const auto n=pending.back();pending.pop_back();if(!seen.insert(n).second)continue;
+                for(auto other:graph.at(n))pending.push_back(other);}
+            return seen.size()==graph.size();
+        };
+        if(!connected(adjacent,0u))return fail("cavity boundary has disconnected components");
+        for(const auto& [node,links]:vertexLinks) {
+            (void)node;std::map<std::uint32_t,std::vector<std::uint32_t>> graph;
+            for(const auto& link:links){graph[link[0]].push_back(link[1]);graph[link[1]].push_back(link[0]);}
+            for(const auto& [vertex,neighbours]:graph){(void)vertex;if(neighbours.size()!=2)return fail("cavity vertex link is not a manifold cycle");}
+            if(!connected(graph,graph.begin()->first))return fail("cavity vertex link has pinched components");
+        }
+        const auto pressure=c.unknowns[cavity.identity.w].initialAndScaling;
+        const auto volumeRow=c.unknowns[compartment].initialAndScaling;
+        const float restoredPressure=(pressure.x/pressure.y)*pressure.y;
+        if(!std::isfinite(restoredPressure)||!finite(double(restoredPressure)-c.compartments[compartment].compliance.w))
+            return fail("initial absolute or transmural pressure is not representable");
+        const float initialVolume=(volumeRow.x/volumeRow.y)*volumeRow.y;
+        const long double discrepancy=std::abs(volume-static_cast<long double>(initialVolume));
+        if(!std::isfinite(volume)||!(volume>0)||!std::isfinite(initialVolume)||!(initialVolume>0)||
+           pressure.z!=volumeRow.y||
+           discrepancy>static_cast<long double>(pressure.w)*pressure.z||
+           discrepancy>64*std::numeric_limits<float>::epsilon()*volume)
+            return fail("initial absolute volume does not match the cooked enclosed cavity without offsets");
+        owners[compartment]=std::uint32_t(i);nextFace+=cavity.faces.y;
+    }
+    if(nextFace!=c.cavityFaces.size()||owners!=c.compartmentCavity)return fail("unowned faces or forged compartment-to-cavity mapping");
+    for(std::size_t i=0;i<C;++i)if((owners[i]!=NM_INVALID_INDEX)!=(c.compartments[i].identity.w==5))return fail("deforming compartment has missing cavity geometry");
+    if(c.cavityNodeRanges.size()!=nodeFaces.size())return fail("cavity node incidence coverage mismatch");
+    std::size_t next=0;
+    for(std::size_t i=0;i<nodeFaces.size();++i) {
+        const auto& range=c.cavityNodeRanges[i];
+        if(range.first!=next||range.count!=nodeFaces[i].size()||range.reserved0||range.reserved1||
+           range.count>c.cavityNodeIncidence.size()-next)return fail("invalid cavity node incidence range");
+        for(auto face:nodeFaces[i])if(c.cavityNodeIncidence[next++]!=face)return fail("cavity node incidence is not canonical");
+    }
+    return next==c.cavityNodeIncidence.size()||fail("unowned cavity node incidence");
+}
+
 }
 
 bool compileVascular(const WorldSource& source, CompiledWorld& world, std::vector<Diagnostic>& diagnostics) {
     const auto& v=source.vascular; auto& c=world.vascular; c={};
     const auto fail=[&](std::string message){diagnostics.push_back({Diagnostic::Severity::error,0u,0u,"vascular: "+message});return false;};
-    const std::uint64_t C=v.compartments.size(),E=v.connections.size(),S=v.species.size(),T=v.tissues.size(),X=v.exchanges.size();
+    const std::uint64_t C=v.compartments.size(),E=v.connections.size(),S=v.species.size(),T=v.tissues.size(),X=v.exchanges.size(),B=v.cavities.size();
     if (C==0) {
-        if (E||S||T||X || std::any_of(v.contentIdentity.begin(),v.contentIdentity.end(),[](auto x){return x!=0;}) || std::any_of(v.sourceIdentity.begin(),v.sourceIdentity.end(),[](auto x){return x!=0;}) || std::any_of(v.authoredIdentity.begin(),v.authoredIdentity.end(),[](auto x){return x!=0;})) return fail("empty network has dangling authored data");
+        if (E||S||T||X||B || std::any_of(v.contentIdentity.begin(),v.contentIdentity.end(),[](auto x){return x!=0;}) || std::any_of(v.sourceIdentity.begin(),v.sourceIdentity.end(),[](auto x){return x!=0;}) || std::any_of(v.authoredIdentity.begin(),v.authoredIdentity.end(),[](auto x){return x!=0;})) return fail("empty network has dangling authored data");
         return true;
     }
     for (const auto& object : source.objects)
         if (object.mutationPolicy.enabled || !object.mutationCommands.empty())
             return fail("vascular V1 does not support topology mutation or binding remapping");
     const auto limit=std::numeric_limits<std::uint32_t>::max();
-    if (C>limit || E>limit/2u || S>limit || T>limit || X>limit || C+E>limit || C+T>limit || (S && C+T>(limit-C-E)/S)) return fail("network exceeds 32-bit arena capacity");
-    const std::uint64_t N=C+E+(C+T)*S;
+    if (C>limit || E>limit/2u || S>limit || T>limit || X>limit || B>limit || C+E>limit || C+T>limit || (S && C+T>(limit-C-E)/S)) return fail("network exceeds 32-bit arena capacity");
+    const std::uint64_t pressureBase=C+E+(C+T)*S;
+    const std::uint64_t N=pressureBase+B;
     if (N>limit || source.environmentCount==0 || N>limit/(std::uint64_t(source.environmentCount)*(NM_MIXED_FGMRES_RESTART+1u))) return fail("network exceeds GPU Krylov address capacity");
-    if (!validIds(v.compartments)||!validIds(v.connections)||!validIds(v.species)||!validIds(v.tissues)||!validIds(v.exchanges)) return fail("stable identifiers must be nonzero and unique within each record kind");
+    if (!validIds(v.compartments)||!validIds(v.connections)||!validIds(v.species)||!validIds(v.tissues)||!validIds(v.exchanges)||!validIds(v.cavities)) return fail("stable identifiers must be nonzero and unique within each record kind");
     if(!positive(source.frameTimestep))return fail("base timestep is not positive finite representable Float32");
     const int exponent=clockExponent(float(source.frameTimestep));
     c.layout.clock={std::bit_cast<std::uint32_t>(std::int32_t(exponent)),0u,0u,0u};
     c.layout.counts={std::uint32_t(C),std::uint32_t(E),std::uint32_t(S),std::uint32_t(T)};
     c.layout.offsets={0u,std::uint32_t(C),std::uint32_t(C+E),std::uint32_t(C+E+C*S)};
     c.layout.ranges={std::uint32_t(X),0u,std::uint32_t(N),0u};
+    c.layout.cavities={std::uint32_t(B),0u,std::uint32_t(pressureBase),0u};
+    c.compartmentCavity.assign(C,NM_INVALID_INDEX);
     for (unsigned i=0;i<4;++i) {c.identity.content[i]=v.contentIdentity[i];c.identity.source[i]=v.sourceIdentity[i];c.identity.authored[i]=v.authoredIdentity[i];}
     if (std::all_of(v.contentIdentity.begin(),v.contentIdentity.end(),[](auto x){return x==0;})) return fail("source payload identity is missing");
     const auto addName=[&](const std::string& name,std::uint32_t& offset) {
@@ -204,6 +358,55 @@ bool compileVascular(const WorldSource& source, CompiledWorld& world, std::vecto
         if (!ci.contains(x.compartment)||!ti.contains(x.tissue)||!si.contains(x.species)||!positive(x.permeabilitySurface)||!positive(x.partitionCoefficient)) return fail("invalid exchange endpoint, species, permeability or partition coefficient");
         const auto a=ci[x.compartment],b=ti[x.tissue],s=si[x.species];c.exchanges.push_back({{x.stableIdentifier,a,b,s},f4(x.permeabilitySurface,x.partitionCoefficient)});bloodX[a*S+s].push_back(row);tissueX[b*S+s].push_back(row);
     }
+    for(auto index:order(v.cavities)) {
+        const auto& x=v.cavities[index];
+        if(!ci.contains(x.compartment) || x.objectIndex>=world.objects.size() ||
+           x.objectIndex>=source.objects.size() || !finite(x.initialPressure) ||
+           !positive(x.pressureScale) || !finite(x.initialPressure/x.pressureScale) ||
+           !tolerance(x.geometryResidualTolerance) || !validIds(x.faces) || x.faces.empty())
+            return fail("invalid cavity pressure, scale, identity, object or face IDs");
+        const auto compartment=ci[x.compartment], cavity=std::uint32_t(c.cavities.size());
+        if(c.compartmentCavity[compartment]!=NM_INVALID_INDEX ||
+           c.compartments[compartment].identity.w!=std::uint32_t(VascularPressureLaw::deformingCavity))
+            return fail("cavity pressure must replace exactly one compartment constitutive law");
+        if(source.objects[x.objectIndex].adaptive || source.objects[x.objectIndex].automaticRepresentation)
+            return fail("cavity boundary requires immutable nonadaptive FEM representation");
+        if(x.faces.size()>limit-c.cavityFaces.size())return fail("cavity face arena overflow");
+        auto& object=world.objects[x.objectIndex];
+        // Geometry and hydraulic continuity share one microtick. This is a
+        // cooked scheduling invariant, never a runtime host stepping loop.
+        if(object.schedulerIndex>=world.schedulers.size())return fail("cavity wall scheduler is absent");
+        const auto exponent=world.dispatch.maximumRateExponent;
+        object.solver.x=exponent;
+        auto& scheduler=world.schedulers[object.schedulerIndex];
+        scheduler.baseExponent=exponent;scheduler.activeExponent=exponent;scheduler.requestedExponent=exponent;
+        NMVascularCavityGPU cavityGPU{};
+        cavityGPU.identity={x.stableIdentifier,compartment,x.objectIndex,std::uint32_t(pressureBase+cavity)};
+        cavityGPU.faces={std::uint32_t(c.cavityFaces.size()),std::uint32_t(x.faces.size()),0u,0u};
+        for(unsigned k=0;k<4;++k){cavityGPU.sourceIdentity[k]=x.sourceIdentity[k];cavityGPU.mechanicalIdentity[k]=x.mechanicalIdentity[k];}
+        for(auto faceIndex:order(x.faces)) {
+            const auto& face=x.faces[faceIndex];
+            if(face.role!=VascularCavityFaceRole::materialWall ||
+               std::any_of(face.nodes.begin(),face.nodes.end(),[&](auto n){return n>=object.stateCount;}))
+                return fail("cavity face must bind material-wall FEM nodes; artificial interfaces are unsupported");
+            c.cavityFaces.push_back({{object.stateOffset+face.nodes[0],object.stateOffset+face.nodes[1],object.stateOffset+face.nodes[2],0u},
+                {cavity,face.stableIdentifier,std::uint32_t(face.role),0u}});
+        }
+        c.compartmentCavity[compartment]=cavity;
+        c.unknowns[pressureBase+cavity]={f4(x.initialPressure,x.pressureScale,
+            c.unknowns[compartment].initialAndScaling.y,x.geometryResidualTolerance)};
+        c.cavities.push_back(cavityGPU);
+    }
+    c.layout.cavities.y=std::uint32_t(c.cavityFaces.size());
+    if(B) {
+        std::vector<std::vector<std::uint32_t>> nodeFaces(world.fem.nodes.size());
+        for(std::uint32_t i=0;i<c.cavityFaces.size();++i) {
+            const auto& n=c.cavityFaces[i].nodes;
+            if(n.x>=nodeFaces.size()||n.y>=nodeFaces.size()||n.z>=nodeFaces.size())return fail("cavity node outside FEM arena");
+            nodeFaces[n.x].push_back(i);nodeFaces[n.y].push_back(i);nodeFaces[n.z].push_back(i);
+        }
+        incidence(nodeFaces,c.cavityNodeIncidence,c.cavityNodeRanges);
+    }
     c.layout.ranges.y=std::uint32_t(c.tissueBindings.size());
     incidence(edges,c.connectionIncidence,c.connectionRanges);incidence(bloodX,c.bloodExchangeIncidence,c.bloodExchangeRanges);incidence(tissueX,c.tissueExchangeIncidence,c.tissueExchangeRanges);
     std::string error;if (!validateVascularLayout(world,&error)) return fail(error);return true;
@@ -211,12 +414,14 @@ bool compileVascular(const WorldSource& source, CompiledWorld& world, std::vecto
 
 bool validateVascularLayout(const CompiledWorld& world,std::string* error) {
     const auto& c=world.vascular;const auto fail=[&](std::string_view s){if(error&&error->empty())*error="vascular: "+std::string(s);return false;};
-    const std::uint64_t C=c.compartments.size(),E=c.connections.size(),S=c.species.size(),T=c.tissues.size(),X=c.exchanges.size();
+    const std::uint64_t C=c.compartments.size(),E=c.connections.size(),S=c.species.size(),T=c.tissues.size(),X=c.exchanges.size(),B=c.cavities.size();
     const auto limit=std::numeric_limits<std::uint32_t>::max();
-    if (C>limit||E>limit/2u||S>limit||T>limit||X>limit||C+E>limit||C+T>limit||(S && C+T>(limit-C-E)/S))return fail("cooked count overflow");
-    const auto N=C+E+(C+T)*S;
-    if (c.layout.counts.x!=C||c.layout.counts.y!=E||c.layout.counts.z!=S||c.layout.counts.w!=T||c.layout.ranges.x!=X||c.layout.ranges.y!=c.tissueBindings.size()||c.layout.ranges.z!=N||c.layout.ranges.w!=0||c.layout.offsets.x!=0||c.layout.offsets.y!=C||c.layout.offsets.z!=C+E||c.layout.offsets.w!=C+E+C*S||c.unknowns.size()!=N) return fail("layout counts or unknown offsets disagree");
-    if (C==0) return (c.layout.clock.x==0&&c.layout.clock.y==0&&c.layout.clock.z==0&&c.layout.clock.w==0&&E==0&&S==0&&T==0&&X==0&&c.names.empty()&&c.tissueBindings.empty()&&c.connectionIncidence.empty()&&c.connectionRanges.empty()&&c.bloodExchangeIncidence.empty()&&c.bloodExchangeRanges.empty()&&c.tissueExchangeIncidence.empty()&&c.tissueExchangeRanges.empty()&&allZero(c.identity))||fail("empty network has dangling state");
+    if (C>limit||E>limit/2u||S>limit||T>limit||X>limit||B>limit||C+E>limit||C+T>limit||(S && C+T>(limit-C-E)/S))return fail("cooked count overflow");
+    const auto pressureBase=C+E+(C+T)*S;
+    const auto N=pressureBase+B;
+    if(N>limit)return fail("cooked cavity pressure capacity overflow");
+    if (c.layout.counts.x!=C||c.layout.counts.y!=E||c.layout.counts.z!=S||c.layout.counts.w!=T||c.layout.ranges.x!=X||c.layout.ranges.y!=c.tissueBindings.size()||c.layout.ranges.z!=N||c.layout.ranges.w!=0||c.layout.offsets.x!=0||c.layout.offsets.y!=C||c.layout.offsets.z!=C+E||c.layout.offsets.w!=C+E+C*S||c.unknowns.size()!=N||c.layout.cavities.x!=B||c.layout.cavities.y!=c.cavityFaces.size()||c.layout.cavities.z!=pressureBase||c.layout.cavities.w||c.compartmentCavity.size()!=C) return fail("layout counts or unknown offsets disagree");
+    if (C==0) return (c.layout.clock.x==0&&c.layout.clock.y==0&&c.layout.clock.z==0&&c.layout.clock.w==0&&E==0&&S==0&&T==0&&X==0&&B==0&&c.cavityFaces.empty()&&c.compartmentCavity.empty()&&c.cavityNodeIncidence.empty()&&c.cavityNodeRanges.empty()&&c.names.empty()&&c.tissueBindings.empty()&&c.connectionIncidence.empty()&&c.connectionRanges.empty()&&c.bloodExchangeIncidence.empty()&&c.bloodExchangeRanges.empty()&&c.tissueExchangeIncidence.empty()&&c.tissueExchangeRanges.empty()&&allZero(c.identity))||fail("empty network has dangling state");
     if(!positive(world.dispatch.gravityAndTimestep.w))return fail("cooked base timestep is invalid");
     if(c.layout.clock.x!=std::bit_cast<std::uint32_t>(std::int32_t(clockExponent(world.dispatch.gravityAndTimestep.w)))||c.layout.clock.y||c.layout.clock.z||c.layout.clock.w)return fail("clock quantum is not canonical for the cooked timestep");
     if (world.dispatch.environmentCount==0 || N>limit/(std::uint64_t(world.dispatch.environmentCount)*(NM_MIXED_FGMRES_RESTART+1u)))return fail("Krylov address overflow");
@@ -231,7 +436,7 @@ bool validateVascularLayout(const CompiledWorld& world,std::string* error) {
         if(offset!=nextName||offset>=c.names.size())return false;const auto begin=c.names.begin()+offset;const auto end=std::find(begin,c.names.end(),0);if(end==c.names.end())return false;
         const std::string value(begin,end);if(!utf8(value))return false;nextName=std::size_t(end-c.names.begin())+1;if(result)*result=value;return true;
     };
-    for (std::size_t i=0;i<N;++i) {const auto v=c.unknowns[i].initialAndScaling;if(!finite4(v)||!positive(v.y)||!positive(v.z)||!tolerance(v.w)||!finite(double(v.x)/v.y))return fail("invalid normalized unknown");if((i<C && c.compartments[i].identity.z==0 && !(v.x>0))||(i>=C+E&&v.x<0))return fail("negative amount or nonpositive volume");if((i<C||i>=C+E)&&v.y!=v.z)return fail("conservation row has inconsistent physical scale");}
+    for (std::size_t i=0;i<N;++i) {const auto v=c.unknowns[i].initialAndScaling;if(!finite4(v)||!positive(v.y)||!positive(v.z)||!tolerance(v.w)||!finite(double(v.x)/v.y))return fail("invalid normalized unknown");if((i<C && c.compartments[i].identity.z==0 && !(v.x>0))||(i>=C+E&&i<pressureBase&&v.x<0))return fail("negative amount or nonpositive volume");if((i<C||(i>=C+E&&i<pressureBase))&&v.y!=v.z)return fail("conservation row has inconsistent physical scale");}
     std::set<std::string> speciesNames;
     for(std::size_t i=0;i<S;++i) {const auto& s=c.species[i];std::string text;
         if(!s.identity.x||(i&&s.identity.x<=c.species[i-1].identity.x)||s.identity.z||s.identity.w||!name(s.identity.y,&text)||!speciesNames.insert(text).second||!finite4(s.scaling)||!positive(s.scaling.x)||!tolerance(s.scaling.y)||s.scaling.z!=0||s.scaling.w!=0)return fail("invalid species identity or scale");
@@ -268,6 +473,7 @@ bool validateVascularLayout(const CompiledWorld& world,std::string* error) {
         bloodX[x.identity.y*S+x.identity.w].push_back(i);tissueX[x.identity.z*S+x.identity.w].push_back(i);}
     const auto sameIncidence=[&](const auto& expected,const auto& values,const auto& ranges){if(ranges.size()!=expected.size())return false;std::size_t next=0;for(std::size_t i=0;i<expected.size();++i){const auto& r=ranges[i];if(r.first!=next||r.count!=expected[i].size()||r.reserved0||r.reserved1||r.count>values.size()-next)return false;for(std::size_t j=0;j<r.count;++j)if(values[next+j]!=expected[i][j])return false;next+=r.count;}return next==values.size();};
     if(!sameIncidence(edges,c.connectionIncidence,c.connectionRanges)||!sameIncidence(bloodX,c.bloodExchangeIncidence,c.bloodExchangeRanges)||!sameIncidence(tissueX,c.tissueExchangeIncidence,c.tissueExchangeRanges))return fail("incidence is missing, duplicated or out of canonical order");
+    if(!validateCavities(world,error))return false;
     return true;
 }
 } // namespace numi::matter::detail

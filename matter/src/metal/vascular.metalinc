@@ -33,6 +33,24 @@ inline float2 vascularPressureTangent(const NMVascularCompartmentGPU node, float
 inline float vascularPressure(const NMVascularCompartmentGPU node, float volume, float elastance) {
     return vascularPressureTangent(node, volume, elastance).x;
 }
+// Return absolute pressure and its physical directional derivative. A
+// deforming cavity has an independent pressure row, never lumped compliance.
+inline float2 vascularNodePressure(uint nodeIndex, uint stateBase, uint coefficientBase,
+    uint directionBase, bool derivative, float trialAlpha,
+    device const NMVascularUnknownGPU* unknowns,
+    device const NMVascularCompartmentGPU* compartments,
+    device const NMVascularCavityGPU* cavities, device const uint* compartmentCavity,
+    device const float4* candidate, device const float4* direction,
+    device const float* elastance) {
+    const bool cavity = compartments[nodeIndex].identity.w == 5u;
+    const uint row = cavity ? cavities[compartmentCavity[nodeIndex]].identity.w : nodeIndex;
+    const float dv = derivative || trialAlpha != 0.0f ?
+        direction[directionBase + row].x * unknowns[row].initialAndScaling.y : 0.0f;
+    const float value = vascularPhysical(candidate, unknowns, stateBase, row) + trialAlpha * dv;
+    if (cavity) return float2(value, derivative ? dv : 0.0f);
+    const float2 pressure = vascularPressureTangent(compartments[nodeIndex], value, elastance[coefficientBase + nodeIndex]);
+    return float2(pressure.x, derivative ? pressure.y * dv : 0.0f);
+}
 inline float vascularDrivingPressure(const NMVascularConnectionGPU edge, float pa, float pb) {
     return pa - (edge.identity.w == 3u ? max(pb, edge.physical.w) : pb);
 }
@@ -46,6 +64,7 @@ inline float vascularOpenDiagonal(const NMVascularConnectionGPU edge, float q) {
 inline bool vascularPositiveVariable(const NMVascularLayoutGPU graph, uint row,
     device const NMVascularCompartmentGPU* compartments,
     device const NMVascularConnectionGPU* connections) {
+    if (row >= graph.cavities.z) return false;
     return row < graph.offsets.y ? compartments[row].identity.z == 0u :
         (row < graph.offsets.z ? connections[row - graph.offsets.y].identity.w != 0u : true);
 }
@@ -117,7 +136,7 @@ kernel void nm_vascular_prepare_elastance(
     const NMVascularCompartmentGPU node = compartments[global % graph.counts.x];
     float value = 1.0f;
     if (node.identity.w == 0u || node.identity.w == 3u) value = 1.0f / node.compliance.z;
-    else {
+    else if (node.identity.w != 5u) {
         const float phase = float(vascularClockPhaseRemainder(clock[environment], node.periodTicks, node.periodMultiplier)) /
             float(node.periodTicks) - node.waveform.y;
         const float start = node.elastance.z;
@@ -239,6 +258,145 @@ kernel void nm_vascular_rollback(
     }
 }
 
+// A closed cavity has a cubic signed volume. All evaluations use one fixed
+// accepted vertex as origin, avoiding translation-dependent cancellation.
+inline float2 vascularCavityVolume(const NMVascularCavityGPU cavity,
+    device const NMVascularCavityFaceGPU* faces,
+    device const NMFEMNodeStateGPU* accepted,
+    device const NMFEMNodeStateGPU* candidate,
+    device const float4* direction, uint nodeBase, float dt,
+    bool derivative, float trialAlpha) {
+    const float3 origin = accepted[nodeBase + faces[cavity.faces.x].nodes.x].positionAndMass.xyz;
+    float2 sum = float2(0.0f), compensation = float2(0.0f);
+    for (uint slot = 0u; slot < cavity.faces.y; ++slot) {
+        const uint3 n = faces[cavity.faces.x + slot].nodes.xyz + nodeBase;
+        float3 a = candidate[n.x].positionAndMass.xyz - origin;
+        float3 b = candidate[n.y].positionAndMass.xyz - origin;
+        float3 c = candidate[n.z].positionAndMass.xyz - origin;
+        const bool needsDirection = derivative || trialAlpha != 0.0f;
+        const float3 da = needsDirection ? dt * direction[n.x].xyz : float3(0.0f);
+        const float3 db = needsDirection ? dt * direction[n.y].xyz : float3(0.0f);
+        const float3 dc = needsDirection ? dt * direction[n.z].xyz : float3(0.0f);
+        a += trialAlpha * da; b += trialAlpha * db; c += trialAlpha * dc;
+        const float v = dot(a, cross(b, c)) / 6.0f;
+        const float dv = derivative ?
+            (dot(da, cross(b, c)) + dot(a, cross(db, c) + cross(b, dc))) / 6.0f : 0.0f;
+        const float2 y = float2(v, dv) - compensation;
+        const float2 next = sum + y;
+        compensation = (next - sum) - y;
+        sum = next;
+    }
+    return sum.x > 0.0f && all(isfinite(sum)) ? sum : float2(INFINITY);
+}
+
+inline float3 vascularCavityGradient(float3 b, float3 c) { return cross(b, c) / 6.0f; }
+inline float3 vascularCavityGradientDirection(float3 b, float3 c, float3 db, float3 dc) {
+    return (cross(db, c) + cross(b, dc)) / 6.0f;
+}
+// Cyclically rotate the face so its differentiated node is first.
+inline uint3 vascularCavityRotate(uint3 n, uint node) {
+    return n.x == node ? n : (n.y == node ? n.yzx : n.zxy);
+}
+inline float3 vascularCavityNodeForce(uint node, uint nodeBase, uint stateBase,
+    const NMVascularLayoutGPU graph, float dt, bool derivative,
+    device const NMVascularUnknownGPU* unknowns,
+    device const NMVascularCompartmentGPU* compartments,
+    device const NMVascularCavityGPU* cavities,
+    device const NMVascularCavityFaceGPU* faces,
+    device const uint* incidence, device const NMVascularRangeGPU* ranges,
+    device const NMFEMNodeStateGPU* accepted, device const NMFEMNodeStateGPU* candidate,
+    device const float4* vascularState, device const float4* direction, uint directionBase) {
+    float3 result = float3(0.0f);
+    const NMVascularRangeGPU range = ranges[node];
+    for (uint slot = 0u; slot < range.count; ++slot) {
+        const NMVascularCavityFaceGPU face = faces[incidence[range.first + slot]];
+        const NMVascularCavityGPU cavity = cavities[face.identity.x];
+        const uint3 n = vascularCavityRotate(face.nodes.xyz, node) + nodeBase;
+        const float3 origin = accepted[nodeBase + faces[cavity.faces.x].nodes.x].positionAndMass.xyz;
+        const float3 b0 = accepted[n.y].positionAndMass.xyz - origin;
+        const float3 c0 = accepted[n.z].positionAndMass.xyz - origin;
+        const float3 b1 = candidate[n.y].positionAndMass.xyz - origin;
+        const float3 c1 = candidate[n.z].positionAndMass.xyz - origin;
+        const float3 bm = 0.5f * (b0 + b1), cm = 0.5f * (c0 + c1);
+        const float3 g = (vascularCavityGradient(b0, c0) +
+            4.0f * vascularCavityGradient(bm, cm) + vascularCavityGradient(b1, c1)) / 6.0f;
+        const uint row = cavity.identity.w;
+        const float p = vascularPhysical(vascularState, unknowns, stateBase, row) -
+            compartments[cavity.identity.y].compliance.w;
+        if (derivative) {
+            const float3 db = dt * direction[n.y].xyz, dc = dt * direction[n.z].xyz;
+            const float3 dg = (2.0f * vascularCavityGradientDirection(bm, cm, db, dc) +
+                vascularCavityGradientDirection(b1, c1, db, dc)) / 6.0f;
+            const float dp = direction[directionBase + row].x * unknowns[row].initialAndScaling.y;
+            result += dp * g + p * dg;
+        } else result += p * g;
+    }
+    return result;
+}
+
+kernel void nm_vascular_cavity_forces(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    constant NMMicrostepGPU& microstep [[buffer(2)]],
+    device const NMVascularUnknownGPU* unknowns [[buffer(3)]],
+    device const NMVascularCompartmentGPU* compartments [[buffer(4)]],
+    device const NMVascularCavityGPU* cavities [[buffer(5)]],
+    device const NMVascularCavityFaceGPU* faces [[buffer(6)]],
+    device const uint* incidence [[buffer(7)]],
+    device const NMVascularRangeGPU* ranges [[buffer(8)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(9)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(10)]],
+    device const float4* vascularState [[buffer(11)]],
+    device const float4* borrowed [[buffer(12)]],
+    constant uint& hasBorrowed [[buffer(13)]],
+    device float4* merged [[buffer(14)]],
+    device NMMatterStatusGPU* statuses [[buffer(15)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= dispatch.environmentCount * dispatch.femNodeCount) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    float3 force = hasBorrowed != 0u ? borrowed[global].xyz : float3(0.0f);
+    if (environmentHealthy(statuses, environment))
+        force += vascularCavityNodeForce(global - nodeBase, nodeBase, environment * graph.ranges.z,
+            graph, microstep.time.x, false, unknowns, compartments, cavities, faces, incidence, ranges,
+            accepted, candidate, vascularState, vascularState, 0u);
+    merged[global] = float4(force, 0.0f);
+    if (!all(isfinite(force))) recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+        NM_INVALID_INDEX, global - nodeBase, float4(force, 0.0f));
+}
+kernel void nm_vascular_cavity_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    constant NMMicrostepGPU& microstep [[buffer(2)]],
+    device const NMVascularUnknownGPU* unknowns [[buffer(3)]],
+    device const NMVascularCompartmentGPU* compartments [[buffer(4)]],
+    device const NMVascularCavityGPU* cavities [[buffer(5)]],
+    device const NMVascularCavityFaceGPU* faces [[buffer(6)]],
+    device const uint* incidence [[buffer(7)]],
+    device const NMVascularRangeGPU* ranges [[buffer(8)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(9)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(10)]],
+    device const float4* vascularState [[buffer(11)]],
+    device const float4* direction [[buffer(12)]],
+    device float4* output [[buffer(13)]],
+    device const NMFGMRESStateGPU* states [[buffer(14)]],
+    device NMMatterStatusGPU* statuses [[buffer(15)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= dispatch.environmentCount * dispatch.femNodeCount) return;
+    const uint environment = global / dispatch.femNodeCount;
+    if (!environmentHealthy(statuses, environment) || states[environment].diagnostics.z > 0.5f) return;
+    const NMFEMNodeStateGPU node = candidate[global];
+    if ((node.restAndFixed.w > 0.5f && node.restAndFixed.w < 1.5f) || !(node.positionAndMass.w > 0.0f)) return;
+    const uint nodeBase = environment * dispatch.femNodeCount, stateBase = environment * graph.ranges.z;
+    const float3 tangent = -microstep.time.x * vascularCavityNodeForce(global - nodeBase,
+        nodeBase, stateBase, graph, microstep.time.x, true, unknowns, compartments, cavities,
+        faces, incidence, ranges, accepted, candidate, vascularState, direction, layout.vascularBase + stateBase);
+    output[global].xyz += tangent;
+    if (!all(isfinite(tangent))) recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+        NM_INVALID_INDEX, global - nodeBase, float4(tangent, 0.0f));
+}
+
 // Primal valve working set, private to one microtick. 0 is free, 1 is a
 // newly constrained affine row, 2 has completed a constrained free-variable
 // solve. A pending zero-flow row must get that solve before pressure release.
@@ -252,6 +410,8 @@ kernel void nm_vascular_begin_working_set(
     device const float4* candidate [[buffer(6)]],
     device const float* elastance [[buffer(7)]],
     device uint* workingSet [[buffer(8)]],
+    device const NMVascularCavityGPU* cavities [[buffer(9)]],
+    device const uint* compartmentCavity [[buffer(10)]],
     uint global [[thread_position_in_grid]]) {
     if (global >= dispatch.environmentCount * graph.ranges.z) return;
     const uint environment = global / graph.ranges.z;
@@ -264,8 +424,8 @@ kernel void nm_vascular_begin_working_set(
     const uint eb = environment * graph.counts.x;
     const float q = vascularPhysical(candidate, unknowns, base, local);
     const float dp = vascularDrivingPressure(edge,
-        vascularPressure(compartments[edge.identity.y], vascularPhysical(candidate, unknowns, base, edge.identity.y), elastance[eb + edge.identity.y]),
-        vascularPressure(compartments[edge.identity.z], vascularPhysical(candidate, unknowns, base, edge.identity.z), elastance[eb + edge.identity.z]));
+        vascularNodePressure(edge.identity.y, base, eb, 0u, false, 0.0f, unknowns, compartments, cavities, compartmentCavity, candidate, candidate, elastance).x,
+        vascularNodePressure(edge.identity.z, base, eb, 0u, false, 0.0f, unknowns, compartments, cavities, compartmentCavity, candidate, candidate, elastance).x);
     if (workingSet[global] == 2u && q == 0.0f && dp > 0.0f) workingSet[global] = 0u;
     const float closed = q * unknowns[local].initialAndScaling.z / unknowns[local].initialAndScaling.y;
     if (workingSet[global] == 0u && closed <= vascularOpenEquation(edge, q, dp)) workingSet[global] = 1u;
@@ -298,7 +458,10 @@ inline float2 vascularEquation(
     device const NMVascularRangeGPU* tissueExchangeRanges,
     device const float4* accepted, device const float4* candidate,
     device const float4* direction, device const float* elastance,
-    device const uint* workingSet, bool useWorkingSet) {
+    device const uint* workingSet, bool useWorkingSet,
+    device const NMVascularCavityGPU* cavities, device const NMVascularCavityFaceGPU* cavityFaces,
+    device const uint* compartmentCavity, device const NMFEMNodeStateGPU* femCandidate,
+    device const NMFEMNodeStateGPU* femAccepted, uint nodeBase, float femTrialAlpha) {
     const float scale = unknowns[local].initialAndScaling.y;
     const float value = vascularPhysical(candidate, unknowns, stateBase, local);
     const float delta = derivative ? direction[directionBase + local].x * scale : 0.0f;
@@ -322,16 +485,14 @@ inline float2 vascularEquation(
         const uint a = edge.identity.y;
         const uint b = edge.identity.z;
         const uint coefficientBase = (stateBase / graph.ranges.z) * graph.counts.x;
-        const float2 pa = vascularPressureTangent(compartments[a],
-            vascularPhysical(candidate, unknowns, stateBase, a), elastance[coefficientBase + a]);
-        const float2 pb = vascularPressureTangent(compartments[b],
-            vascularPhysical(candidate, unknowns, stateBase, b), elastance[coefficientBase + b]);
+        const float2 pa = vascularNodePressure(a, stateBase, coefficientBase, directionBase, derivative, 0.0f,
+            unknowns, compartments, cavities, compartmentCavity, candidate, direction, elastance);
+        const float2 pb = vascularNodePressure(b, stateBase, coefficientBase, directionBase, derivative, 0.0f,
+            unknowns, compartments, cavities, compartmentCavity, candidate, direction, elastance);
         const float dp = vascularDrivingPressure(edge, pa.x, pb.x);
         // At the Starling floor tie use the fixed downstream-pressure branch.
         const float downstreamDerivative = edge.identity.w == 3u && pb.x <= edge.physical.w ? 0.0f : pb.y;
-        const float dPressure = derivative ?
-            direction[directionBase + a].x * unknowns[a].initialAndScaling.y * pa.y -
-            direction[directionBase + b].x * unknowns[b].initialAndScaling.y * downstreamDerivative : 0.0f;
+        const float dPressure = derivative ? pa.y - downstreamDerivative : 0.0f;
         if (edge.identity.w != 0u) {
             const float flowPressure = unknowns[local].initialAndScaling.z / scale;
             const float closed = value * flowPressure;
@@ -345,7 +506,7 @@ inline float2 vascularEquation(
                 edge.physical.x * value - dp;
             tangent = (edge.physical.y / dt + edge.physical.x) * delta - dPressure;
         }
-    } else {
+    } else if (local < graph.cavities.z) {
         const bool blood = local < graph.offsets.w;
         const uint amount = local - (blood ? graph.offsets.z : graph.offsets.w);
         const uint reservoir = amount / graph.counts.z;
@@ -399,6 +560,15 @@ inline float2 vascularEquation(
             }
         }
     }
+    if (local >= graph.cavities.z) {
+        const NMVascularCavityGPU cavity = cavities[local - graph.cavities.z];
+        const uint volumeRow = cavity.identity.y;
+        const float2 geometry = vascularCavityVolume(cavity, cavityFaces, femAccepted, femCandidate,
+            direction, nodeBase, dt, derivative, femTrialAlpha);
+        equation = vascularPhysical(candidate, unknowns, stateBase, volumeRow) - geometry.x;
+        tangent = derivative ? direction[directionBase + volumeRow].x *
+            unknowns[volumeRow].initialAndScaling.y - geometry.y : 0.0f;
+    }
     return float2(equation, tangent) / unknowns[local].initialAndScaling.z;
 }
 
@@ -428,13 +598,19 @@ inline float2 vascularEquation(
     device const float* elastance [[buffer(20)]], \
     device const uint* workingSet [[buffer(21)]], \
     constant uint& useWorkingSet [[buffer(22)]], \
+    device const NMVascularCavityGPU* cavities [[buffer(23)]], \
+    device const NMVascularCavityFaceGPU* cavityFaces [[buffer(24)]], \
+    device const uint* compartmentCavity [[buffer(25)]], \
+    device const NMFEMNodeStateGPU* femCandidate [[buffer(26)]], \
+    device const NMFEMNodeStateGPU* femAccepted [[buffer(27)]], \
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]], \
     uint global [[thread_position_in_grid]]
 #define NM_VASCULAR_EVALUATE(derivative) vascularEquation(graph, microstep.time.x, local, \
     environment * graph.ranges.z, layout.vascularBase + environment * graph.ranges.z, \
     derivative, unknowns, compartments, connections, tissues, exchanges, \
     connectionIncidence, connectionRanges, bloodExchangeIncidence, bloodExchangeRanges, \
-    tissueExchangeIncidence, tissueExchangeRanges, accepted, candidate, direction, elastance, workingSet, useWorkingSet != 0u)
+    tissueExchangeIncidence, tissueExchangeRanges, accepted, candidate, direction, elastance, workingSet, useWorkingSet != 0u, \
+    cavities, cavityFaces, compartmentCavity, femCandidate, femAccepted, environment * dispatch.femNodeCount, 0.0f)
 
 kernel void nm_vascular_residual(NM_VASCULAR_EQUATION_ARGUMENTS) {
     if (global >= dispatch.environmentCount * graph.ranges.z) return;
@@ -497,6 +673,8 @@ kernel void nm_vascular_precondition(
     device const NMVascularCompartmentGPU* compartments [[buffer(18)]],
     device const float* elastance [[buffer(19)]],
     device const uint* workingSet [[buffer(20)]],
+    device const NMVascularCavityGPU* cavities [[buffer(21)]],
+    device const uint* compartmentCavity [[buffer(22)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     uint global [[thread_position_in_grid]]) {
     if (global >= dispatch.environmentCount * graph.ranges.z) return;
@@ -512,8 +690,8 @@ kernel void nm_vascular_precondition(
             const uint coefficientBase = environment * graph.counts.x;
             const uint a = edge.identity.y, b = edge.identity.z;
             const float dp = vascularDrivingPressure(edge,
-                vascularPressure(compartments[a], vascularPhysical(candidate, unknowns, stateBase, a), elastance[coefficientBase + a]),
-                vascularPressure(compartments[b], vascularPhysical(candidate, unknowns, stateBase, b), elastance[coefficientBase + b]));
+                vascularNodePressure(a, stateBase, coefficientBase, 0u, false, 0.0f, unknowns, compartments, cavities, compartmentCavity, candidate, candidate, elastance).x,
+                vascularNodePressure(b, stateBase, coefficientBase, 0u, false, 0.0f, unknowns, compartments, cavities, compartmentCavity, candidate, candidate, elastance).x);
             const float q = vascularPhysical(candidate, unknowns, stateBase, local);
             const float flowPressure = unknowns[local].initialAndScaling.z /
                 unknowns[local].initialAndScaling.y;
@@ -530,7 +708,7 @@ kernel void nm_vascular_precondition(
                 vascularOpenDiagonal(edge, q);
             diagonal *= physicalDiagonal > 0.0f ? physicalDiagonal : flowPressure;
         } else diagonal *= edge.physical.x + edge.physical.y / microstep.time.x;
-    } else if (local >= graph.offsets.z) {
+    } else if (local >= graph.offsets.z && local < graph.cavities.z) {
         const bool blood = local < graph.offsets.w;
         const uint amount = local - (blood ? graph.offsets.z : graph.offsets.w);
         const uint reservoir = amount / graph.counts.z;
@@ -561,6 +739,9 @@ kernel void nm_vascular_precondition(
         }
         diagonal *= 1.0f + microstep.time.x * rate;
     }
+    // Geometry/pressure is a saddle-point row with a zero true diagonal.
+    // Unit normalized scaling is only a preconditioner, not an invented law.
+    if (local >= graph.cavities.z) diagonal = 1.0f;
     if (!isfinite(diagonal) || !(diagonal > 0.0f)) {
         preconditioned[row] = float4(0.0f);
         recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
@@ -586,6 +767,8 @@ kernel void nm_vascular_resolve_working_set(
     device const NMVascularUnknownGPU* unknowns [[buffer(8)]],
     device const NMVascularCompartmentGPU* compartments [[buffer(9)]],
     device const float* elastance [[buffer(10)]],
+    device const NMVascularCavityGPU* cavities [[buffer(11)]],
+    device const uint* compartmentCavity [[buffer(12)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]) {
@@ -609,17 +792,14 @@ kernel void nm_vascular_resolve_working_set(
                 const uint a = connections[edge].identity.y, b = connections[edge].identity.z;
                 const uint base = environment * graph.ranges.z;
                 const uint eb = environment * graph.counts.x;
-                const float va = vascularPhysical(candidate, unknowns, base, a);
-                const float vb = vascularPhysical(candidate, unknowns, base, b);
-                const float dva = solution[layout.vascularBase + base + a].x * unknowns[a].initialAndScaling.y;
-                const float dvb = solution[layout.vascularBase + base + b].x * unknowns[b].initialAndScaling.y;
+                const uint db = layout.vascularBase + base;
                 const float dp = vascularDrivingPressure(connections[edge],
-                    vascularPressure(compartments[a], va, elastance[eb + a]),
-                    vascularPressure(compartments[b], vb, elastance[eb + b]));
+                    vascularNodePressure(a, base, eb, db, false, 0.0f, unknowns, compartments, cavities, compartmentCavity, candidate, solution, elastance).x,
+                    vascularNodePressure(b, base, eb, db, false, 0.0f, unknowns, compartments, cavities, compartmentCavity, candidate, solution, elastance).x);
                 const float nextDP = vascularDrivingPressure(connections[edge],
-                    vascularPressure(compartments[a], va + dva, elastance[eb + a]),
-                    vascularPressure(compartments[b], vb + dvb, elastance[eb + b]));
-                if (q == 0.0f && isfinite(dp) && isfinite(nextDP) && isfinite(dva) && isfinite(dvb) &&
+                    vascularNodePressure(a, base, eb, db, false, 1.0f, unknowns, compartments, cavities, compartmentCavity, candidate, solution, elastance).x,
+                    vascularNodePressure(b, base, eb, db, false, 1.0f, unknowns, compartments, cavities, compartmentCavity, candidate, solution, elastance).x);
+                if (q == 0.0f && isfinite(dp) && isfinite(nextDP) &&
                     dp > 0.0f && nextDP > 0.0f) {
                     workingSet[row] = 0u;
                     activated = true;
@@ -696,6 +876,11 @@ kernel void nm_vascular_limit_line_search(
     device const float* elastance [[buffer(22)]],
     device float4* trial [[buffer(23)]],
     constant NMMixedSolverGPU& solver [[buffer(24)]],
+    device const NMVascularCavityGPU* cavities [[buffer(25)]],
+    device const NMVascularCavityFaceGPU* cavityFaces [[buffer(26)]],
+    device const uint* compartmentCavity [[buffer(27)]],
+    device const NMFEMNodeStateGPU* femCandidate [[buffer(28)]],
+    device const NMFEMNodeStateGPU* femAccepted [[buffer(29)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]) {
@@ -742,7 +927,8 @@ kernel void nm_vascular_limit_line_search(
                 directionBase, false, unknowns, compartments, connections, tissues,
                 exchanges, connectionIncidence, connectionRanges, bloodExchangeIncidence,
                 bloodExchangeRanges, tissueExchangeIncidence, tissueExchangeRanges,
-                accepted, candidate, solution, elastance, workingSet, false).x;
+                accepted, candidate, solution, elastance, workingSet, false, cavities, cavityFaces,
+                compartmentCavity, femCandidate, femAccepted, environment * dispatch.femNodeCount, 0.0f).x;
             initialMerit += value * value;
         }
         initialMerit = simd_sum(initialMerit);
@@ -766,7 +952,8 @@ kernel void nm_vascular_limit_line_search(
                     directionBase, false, unknowns, compartments, connections, tissues,
                     exchanges, connectionIncidence, connectionRanges, bloodExchangeIncidence,
                     bloodExchangeRanges, tissueExchangeIncidence, tissueExchangeRanges,
-                    accepted, trial, solution, elastance, workingSet, false).x;
+                    accepted, trial, solution, elastance, workingSet, false, cavities, cavityFaces,
+                    compartmentCavity, femCandidate, femAccepted, environment * dispatch.femNodeCount, alpha).x;
                 admissible = admissible && isfinite(value) &&
                     vascularAdmissible(graph, local, trial[base + local].x, compartments, connections, unknowns);
                 certified = certified && abs(value) <= unknowns[local].initialAndScaling.w;

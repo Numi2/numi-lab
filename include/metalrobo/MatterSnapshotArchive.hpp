@@ -8,7 +8,7 @@
 
 namespace metalrobo {
 
-constexpr std::uint32_t kMatterSnapshotArchiveVersion = 6u;
+constexpr std::uint32_t kMatterSnapshotArchiveVersion = 7u;
 
 enum class MatterSnapshotArchiveStatus : std::uint32_t {
     success = 0u,

@@ -1,4 +1,5 @@
 #include "numi/matter/vascular.hpp"
+#include "vascular_cavity_fixture.hpp"
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -185,6 +186,83 @@ int main() {
         changed=rational;changed.vascular.compartments[0].pressureLaw=VascularPressureLaw::ventricularElastance;rejected(changed,"legacy pulse accepted unused delay");
         bad=timed.world;bad.vascular.compartments[1].periodMultiplier=14;rejectedCooked(bad,"noncanonical cooked rational time");
         bad=bounded.world;bad.vascular.compartments[1].pressureParameters.y=1;rejectedCooked(bad,"unowned atan parameter");
+        // Direct lumen-to-material coupling requires an actual hollow wall;
+        // the independent fixture helper leaves all central-cell tissue absent.
+        const auto cavitySource=vascular_cavity_fixture::world();
+        const auto cavityWorld=compileWorld(cavitySource);
+        require(cavityWorld.succeeded(),"hollow cavity fixture rejected: "+messages(cavityWorld));
+        const auto& cv=cavityWorld.world.vascular;
+        require(cv.layout.cavities.x==1&&cv.layout.cavities.y==12&&cv.layout.cavities.z==5&&
+                cv.unknowns.size()==6&&cv.cavities[0].identity.w==5&&
+                cv.compartmentCavity==std::vector<std::uint32_t>{0,NM_INVALID_INDEX}&&
+                cv.cavityNodeRanges.size()==64&&cv.cavityNodeIncidence.size()==36,
+                "cavity pressure row or deterministic boundary incidence missing");
+        // Even a soft wall whose original CFL rate is coarser must run at
+        // each hydraulic microtick; persistent scheduler drift fails admission.
+        const auto multirate=compileWorld(cavitySource,{.maximumRateExponent=4});
+        require(multirate.succeeded()&&multirate.world.objects[0].solver.x==4&&
+                multirate.world.schedulers[0].baseExponent==4&&multirate.world.schedulers[0].activeExponent==4&&
+                multirate.world.schedulers[0].requestedExponent==4,"cavity wall did not inherit hydraulic microtick");
+        bad=multirate.world;bad.schedulers[0].baseExponent=3;rejectedCooked(bad,"coarse cavity base timestep");
+        bad=multirate.world;bad.schedulers[0].activeExponent=3;rejectedCooked(bad,"coarse cavity active timestep");
+        bad=multirate.world;bad.schedulers[0].requestedExponent=3;rejectedCooked(bad,"coarse cavity requested timestep");
+        bad=multirate.world;bad.objects[0].solver.x=3;rejectedCooked(bad,"coarse cavity reset timestep");
+        changed=cavitySource;std::reverse(changed.vascular.cavities[0].faces.begin(),changed.vascular.cavities[0].faces.end());
+        require(compileWorld(changed).world.fingerprint==cavityWorld.world.fingerprint,"authored face order changed canonical cavity");
+        changed=cavitySource;changed.vascular.cavities[0].initialPressure=-25;
+        require(compileWorld(changed).succeeded(),"signed absolute cavity pressure incorrectly treated as species amount");
+        changed=cavitySource;changed.vascular.cavities.clear();rejected(changed,"unbound deforming compartment");
+        changed=cavitySource;changed.vascular.cavities.push_back(changed.vascular.cavities[0]);changed.vascular.cavities.back().stableIdentifier=32;rejected(changed,"duplicate cavity compartment owner");
+        changed=cavitySource;changed.vascular.cavities[0].compartment=999;rejected(changed,"forged cavity compartment");
+        changed=cavitySource;changed.vascular.cavities[0].objectIndex=999;rejected(changed,"forged cavity object");
+        changed=cavitySource;changed.objects[0].adaptive=true;rejected(changed,"adaptive cavity wall without binding remap");
+        changed=cavitySource;changed.objects[0].automaticRepresentation=true;rejected(changed,"automatic cavity representation");
+        changed=cavitySource;changed.vascular.cavities[0].sourceIdentity={};rejected(changed,"missing cavity geometry provenance");
+        changed=cavitySource;changed.vascular.cavities[0].mechanicalIdentity={};rejected(changed,"missing cavity mechanical provenance");
+        changed=cavitySource;changed.vascular.cavities[0].faces[0].role=VascularCavityFaceRole::artificialPartitionInterface;rejected(changed,"artificial interface posed as wall");
+        changed=cavitySource;changed.vascular.cavities[0].faces[0].role=VascularCavityFaceRole::unspecified;rejected(changed,"missing physical wall role");
+        changed=cavitySource;changed.vascular.cavities[0].faces[0].nodes[0]=999;rejected(changed,"forged wall node");
+        changed=cavitySource;changed.vascular.cavities[0].faces[1].nodes=changed.vascular.cavities[0].faces[0].nodes;rejected(changed,"duplicate wall face");
+        changed=cavitySource;changed.vascular.cavities[0].faces[1].stableIdentifier=changed.vascular.cavities[0].faces[0].stableIdentifier;rejected(changed,"duplicate stable wall face");
+        changed=cavitySource;changed.vascular.cavities[0].faces.pop_back();rejected(changed,"open cavity boundary");
+        changed=cavitySource;for(auto& face:changed.vascular.cavities[0].faces)std::swap(face.nodes[0],face.nodes[1]);rejected(changed,"material outward orientation posed as cavity");
+        changed=cavitySource;changed.vascular.cavities[0].faces[0].nodes={0,1,2};rejected(changed,"non-boundary node triangle");
+        changed=cavitySource;
+        // A filled solid's inward surface is a closed material-facing chain,
+        // but its signed cavity volume is negative: it is not a lumen.
+        changed.objects[0].femNodes={{{0,0,0}},{{.01,0,0}},{{0,.01,0}},{{0,0,.01}}};
+        changed.objects[0].femFixedNodes.clear();changed.objects[0].tetrahedra={{{0,1,2,3}}};
+        changed.vascular.cavities[0].faces={
+            {100,{0,1,2},VascularCavityFaceRole::materialWall},
+            {101,{0,3,1},VascularCavityFaceRole::materialWall},
+            {102,{0,2,3},VascularCavityFaceRole::materialWall},
+            {103,{1,3,2},VascularCavityFaceRole::materialWall}};
+        const auto outerSolid=compileWorld(changed);
+        require(!outerSolid.succeeded()&&messages(outerSolid).find("cooked enclosed cavity")!=std::string::npos,
+                "filled outer solid masquerades as a positive lumen");
+        changed=cavitySource;changed.vascular.cavities[0].initialPressure=3e38;
+        changed.vascular.cavities[0].pressureScale=1e38;changed.vascular.compartments[0].externalPressure=-3e38;
+        rejected(changed,"overflowed transmural pressure");
+        changed=cavitySource;changed.vascular.cavities[0].pressureScale=0;rejected(changed,"missing cavity pressure scale");
+        changed=cavitySource;changed.vascular.cavities[0].geometryResidualTolerance=0;rejected(changed,"missing cavity geometric tolerance");
+        changed=cavitySource;changed.vascular.cavities[0].initialPressure=std::numeric_limits<double>::infinity();rejected(changed,"infinite cavity pressure");
+        changed=cavitySource;changed.vascular.compartments[0].referenceVolume=1e-6;rejected(changed,"invented cavity reference offset");
+        changed=cavitySource;changed.vascular.compartments[0].referencePressure=1;rejected(changed,"duplicate cavity pressure authority");
+        changed=cavitySource;changed.vascular.compartments[0].compliance=1e-8;rejected(changed,"lumped compliance plus resolved wall");
+        changed=cavitySource;changed.vascular.compartments[0].initialVolume*=1.1;changed.vascular.cavities[0].geometryResidualTolerance=1;rejected(changed,"loose tolerance hides fabricated absolute volume");
+        bad=cavityWorld.world;bad.vascular.compartmentCavity[0]=NM_INVALID_INDEX;rejectedCooked(bad,"forged cooked cavity map");
+        bad=cavityWorld.world;bad.vascular.cavities[0].identity.w=4;rejectedCooked(bad,"pressure aliases species");
+        bad=cavityWorld.world;bad.vascular.cavityFaces[0].identity.z=2;rejectedCooked(bad,"cooked artificial wall role");
+        bad=cavityWorld.world;bad.vascular.cavityNodeIncidence[0]=999;rejectedCooked(bad,"forged cavity node incidence");
+        bad=cavityWorld.world;bad.vascular.unknowns[5].initialAndScaling.z*=2;rejectedCooked(bad,"geometry residual scale detached from volume");
+        bad=cavityWorld.world;bad.vascular.cavities[0].faces.w=1;rejectedCooked(bad,"unowned cavity padding");
+        bad=cavityWorld.world;bad.vascular.cavities[0].mechanicalIdentity[0]=0;bad.vascular.cavities[0].mechanicalIdentity[1]=0;bad.vascular.cavities[0].mechanicalIdentity[3]=0;rejectedCooked(bad,"missing cooked mechanical provenance");
+        const auto cavityIdentity=[&](WorldSource change,const char* role){const auto result=compileWorld(change);require(result.succeeded()&&result.world.fingerprint!=cavityWorld.world.fingerprint&&result.world.physicsFingerprint!=cavityWorld.world.physicsFingerprint,std::string("unbound cavity field: ")+role);};
+        changed=cavitySource;changed.vascular.cavities[0].sourceIdentity[2]=7;cavityIdentity(changed,"geometry identity");
+        changed=cavitySource;changed.vascular.cavities[0].mechanicalIdentity[2]=7;cavityIdentity(changed,"mechanical identity");
+        changed=cavitySource;changed.vascular.cavities[0].initialPressure=2;cavityIdentity(changed,"pressure state");
+        changed=cavitySource;changed.vascular.cavities[0].pressureScale*=2;cavityIdentity(changed,"pressure scale");
+        changed=cavitySource;changed.vascular.cavities[0].geometryResidualTolerance*=2;cavityIdentity(changed,"geometry tolerance");
         const auto stamp=std::chrono::steady_clock::now().time_since_epoch().count();
         const auto path=std::filesystem::temp_directory_path()/("numi-vascular-compiler-"+std::to_string(stamp)+".nmatterpack");std::string error;
         require(writePackage(compiled,path,&error),"package write failed: "+error);
@@ -204,7 +282,14 @@ int main() {
         require(readPackage(path,decoded,nullptr,&error),"atan package read failed: "+error);
         require(decoded.fingerprint==bounded.world.fingerprint && decoded.vascular.compartments[1].pressureParameters.x==float(.001),"atan package lost displacement bound");
         std::filesystem::remove(path);
-        std::cout<<"vascular_compiler=pass boundary=source_cooking_package_validation_only laws=compliance_atan_rational_elastance_orifice_diode_starling_transport_exchange canonical_order=true semantic_rejection=true provenance_bound=true\n";
+        require(writePackage(cavityWorld,path,&error),"cavity package write failed: "+error);
+        require(readPackage(path,decoded,nullptr,&error),"cavity package read failed: "+error);
+        require(decoded.fingerprint==cavityWorld.world.fingerprint&&decoded.physicsFingerprint==cavityWorld.world.physicsFingerprint&&
+                decoded.vascular.cavityFaces.size()==12&&decoded.vascular.cavities[0].identity.w==5&&
+                decoded.vascular.cavityNodeIncidence==cv.cavityNodeIncidence&&decoded.vascular.compartmentCavity==cv.compartmentCavity,
+                "cavity package changed physical boundary, pressure state or provenance");
+        std::filesystem::remove(path);
+        std::cout<<"vascular_compiler=pass boundary=source_cooking_package_validation_only laws=compliance_atan_rational_elastance_orifice_diode_starling_transport_exchange_deforming_cavity canonical_order=true semantic_rejection=true provenance_bound=true\n";
         return 0;
     }catch(const std::exception& e){std::cerr<<"vascular_compiler=fail reason="<<e.what()<<'\n';return 1;}
 }

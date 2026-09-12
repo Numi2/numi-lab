@@ -122,7 +122,7 @@ void sharedAlpha(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> l
 void deferredDirection(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
     NMMatterDispatchGPU dispatch{};dispatch.environmentCount=2;dispatch.femNodeCount=1;dispatch.rigidGeneralizedCapacity=1;dispatch.mpmActiveNodeCapacity=1;
     NMFGMRESLayoutGPU layout{};layout.supportContactCount=1;layout.supportBase=8;layout.vascularBase=10;layout.vascularUnknownCount=3;layout.unknownCount=16;
-    NMVascularLayoutGPU graph{};graph.counts={2,1,0,0};graph.ranges.z=3;graph.offsets={0,2,3,3};
+    NMVascularLayoutGPU graph{};graph.counts={2,1,0,0};graph.ranges.z=3;graph.offsets={0,2,3,3};graph.cavities.z=3; // ABI 29: empty pressure block follows all hydraulic rows.
     NMVascularConnectionGPU edge{};edge.identity={1,0,1,1};
     std::vector<nm_float4> before(16,nm_float4{.125f,.25f,.5f,1.f});before[12].x=-.5f;before[15].x=.1f;
     auto solution=buffer(device,before),candidate=buffer(device,std::vector<nm_float4>{{1,0,0,0},{1,0,0,0},{.2,0,0,0},{1,0,0,0},{1,0,0,0},{.2,0,0,0}});
@@ -130,10 +130,12 @@ void deferredDirection(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibr
     std::vector<NMVascularUnknownGPU> unknowns(3);for(auto& u:unknowns)u.initialAndScaling={0,1,1,1e-5f};
     auto scaling=buffer(device,unknowns),nodes=buffer(device,std::vector<NMVascularCompartmentGPU>(2));
     auto coefficients=buffer(device,std::vector<float>(4,1));
+    auto cavities=buffer(device,std::vector<NMVascularCavityGPU>(1)),cavityMap=buffer(device,std::vector<std::uint32_t>(2,NM_INVALID_INDEX));
     auto cb=[queue commandBuffer];auto e=[cb computeCommandEncoder];
     [e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_vascular_resolve_working_set")];
     [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&graph length:sizeof(graph) atIndex:1];[e setBytes:&layout length:sizeof(layout) atIndex:30];
     [e setBuffer:edges offset:0 atIndex:2];[e setBuffer:candidate offset:0 atIndex:3];[e setBuffer:solution offset:0 atIndex:4];[e setBuffer:masks offset:0 atIndex:5];[e setBuffer:changed offset:0 atIndex:6];[e setBuffer:statuses offset:0 atIndex:7];[e setBuffer:scaling offset:0 atIndex:8];[e setBuffer:nodes offset:0 atIndex:9];[e setBuffer:coefficients offset:0 atIndex:10];
+    [e setBuffer:cavities offset:0 atIndex:11];[e setBuffer:cavityMap offset:0 atIndex:12];
     [e dispatchThreadgroups:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[e endEncoding];complete(cb);
     const auto* out=static_cast<const nm_float4*>(solution.contents);const auto* flags=static_cast<const std::uint32_t*>(changed.contents);
     require(flags[0]==1&&flags[1]==0,"valve working-set deferral contaminated another environment");
@@ -147,11 +149,12 @@ void deferredDirection(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibr
 void pendingZeroRelease(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
     NMMatterDispatchGPU dispatch{};dispatch.environmentCount=3;
     NMFGMRESLayoutGPU layout{};layout.vascularUnknownCount=3;layout.unknownCount=9;
-    NMVascularLayoutGPU graph{};graph.counts={2,1,0,0};graph.ranges.z=3;graph.offsets={0,2,3,3};
+    NMVascularLayoutGPU graph{};graph.counts={2,1,0,0};graph.ranges.z=3;graph.offsets={0,2,3,3};graph.cavities.z=3; // ABI 29: empty pressure block follows all hydraulic rows.
     NMVascularConnectionGPU edge{};edge.identity={1,0,1,1};
     std::vector<NMVascularUnknownGPU> unknowns(3);for(auto& u:unknowns)u.initialAndScaling={0,1,1,1e-5f};
     auto scaling=buffer(device,unknowns),nodes=buffer(device,std::vector<NMVascularCompartmentGPU>(2));
     auto coefficients=buffer(device,std::vector<float>(6,1));
+    auto cavities=buffer(device,std::vector<NMVascularCavityGPU>(1)),cavityMap=buffer(device,std::vector<std::uint32_t>(2,NM_INVALID_INDEX));
     auto candidate=buffer(device,std::vector<nm_float4>{{2,0,0,0},{1,0,0,0},{0,0,0,0},{2,0,0,0},{1,0,0,0},{0,0,0,0},{1,0,0,0},{2,0,0,0},{0,0,0,0}});
     std::vector<nm_float4> directions(9);directions[5].x=-.5f;
     auto solution=buffer(device,directions),edges=buffer(device,std::vector<NMVascularConnectionGPU>{edge});
@@ -161,6 +164,7 @@ void pendingZeroRelease(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLib
     [e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_vascular_resolve_working_set")];
     [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&graph length:sizeof(graph) atIndex:1];[e setBytes:&layout length:sizeof(layout) atIndex:30];
     [e setBuffer:edges offset:0 atIndex:2];[e setBuffer:candidate offset:0 atIndex:3];[e setBuffer:solution offset:0 atIndex:4];[e setBuffer:masks offset:0 atIndex:5];[e setBuffer:changed offset:0 atIndex:6];[e setBuffer:statuses offset:0 atIndex:7];[e setBuffer:scaling offset:0 atIndex:8];[e setBuffer:nodes offset:0 atIndex:9];[e setBuffer:coefficients offset:0 atIndex:10];
+    [e setBuffer:cavities offset:0 atIndex:11];[e setBuffer:cavityMap offset:0 atIndex:12];
     [e dispatchThreadgroups:MTLSizeMake(3,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[e endEncoding];complete(cb);
     const auto* mask=static_cast<const std::uint32_t*>(masks.contents);const auto* flags=static_cast<const std::uint32_t*>(changed.contents);
     require(mask[2]==0&&flags[0]==1,"pending zero-flow valve trapped after empty positive-pressure free solve");
@@ -174,7 +178,7 @@ EquationResult equations(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLi
     const std::vector<NMVascularCompartmentGPU>& nodes,NMVascularConnectionGPU edge,
     const std::vector<nm_float4>& candidate,const std::vector<nm_float4>& direction) {
     NMMatterDispatchGPU dispatch{};dispatch.environmentCount=candidate.size()/3;
-    NMVascularLayoutGPU graph{};graph.counts={2,1,0,0};graph.ranges.z=3;graph.offsets={0,2,3,3};
+    NMVascularLayoutGPU graph{};graph.counts={2,1,0,0};graph.ranges.z=3;graph.offsets={0,2,3,3};graph.cavities.z=3; // ABI 29: empty pressure block follows all hydraulic rows.
     NMFGMRESLayoutGPU layout{};layout.vascularUnknownCount=3;layout.unknownCount=candidate.size();
     NMMicrostepGPU micro{};micro.time.x=.01f;const unsigned unmasked=0;
     std::vector<NMVascularUnknownGPU> unknowns(3);for(auto& u:unknowns)u.initialAndScaling={0,1,1,1e-5f};
@@ -186,13 +190,20 @@ EquationResult equations(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLi
     auto states=buffer(device,std::vector<NMFGMRESStateGPU>(dispatch.environmentCount)),statuses=buffer(device,std::vector<NMMatterStatusGPU>(dispatch.environmentCount));
     auto coefficients=buffer(device,std::vector<float>(dispatch.environmentCount*2,1));
     auto masks=buffer(device,std::vector<unsigned>(candidate.size()));
+    // Non-cavity fixtures still bind every production argument with a valid
+    // buffer; the empty cavity range prevents these dummy records being read.
+    auto cavities=buffer(device,std::vector<NMVascularCavityGPU>(1)),faces=buffer(device,std::vector<NMVascularCavityFaceGPU>(1));
+    auto cavityMap=buffer(device,std::vector<std::uint32_t>(2,NM_INVALID_INDEX));
+    auto femCandidate=buffer(device,std::vector<NMFEMNodeStateGPU>(1)),femAccepted=buffer(device,std::vector<NMFEMNodeStateGPU>(1));
     auto cb=[queue commandBuffer];auto e=[cb computeCommandEncoder];
     for(unsigned derivative=0;derivative<2;++derivative) {
         [e setComputePipelineState:pipeline(device,library,derivative?@"numi_matter_metal::nm_vascular_operator":@"numi_matter_metal::nm_vascular_residual")];
         [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&graph length:sizeof(graph) atIndex:1];[e setBytes:&micro length:sizeof(micro) atIndex:2];
         const std::array<id<MTLBuffer>,19> bindings={scaling,nodeBuffer,edges,tissues,exchanges,indices,ranges,indices,dummyRanges,indices,dummyRanges,values,values,directions,derivative?tangent:residual,states,statuses,coefficients,masks};
         for(unsigned i=0;i<bindings.size();++i)[e setBuffer:bindings[i] offset:0 atIndex:i+3];
-        [e setBytes:&unmasked length:sizeof(unmasked) atIndex:22];[e setBytes:&layout length:sizeof(layout) atIndex:30];
+        [e setBytes:&unmasked length:sizeof(unmasked) atIndex:22];
+        [e setBuffer:cavities offset:0 atIndex:23];[e setBuffer:faces offset:0 atIndex:24];[e setBuffer:cavityMap offset:0 atIndex:25];
+        [e setBuffer:femCandidate offset:0 atIndex:26];[e setBuffer:femAccepted offset:0 atIndex:27];[e setBytes:&layout length:sizeof(layout) atIndex:30];
         [e dispatchThreads:MTLSizeMake(candidate.size(),1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
         [e memoryBarrierWithScope:MTLBarrierScopeBuffers];
     }

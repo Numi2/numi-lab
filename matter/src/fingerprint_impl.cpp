@@ -66,6 +66,11 @@ enum class FingerprintSection : std::uint32_t {
     vascularTissueExchangeIncidence,
     vascularTissueExchangeRanges,
     vascularNames,
+    vascularCavities,
+    vascularCavityFaces,
+    vascularCompartmentCavity,
+    vascularCavityNodeIncidence,
+    vascularCavityNodeRanges,
 };
 
 template <typename T>
@@ -222,6 +227,16 @@ std::uint64_t compiledWorldFingerprint(
         std::span<const std::uint32_t>(world.vascular.tissueExchangeIncidence));
     hashSection(fingerprint, FingerprintSection::vascularTissueExchangeRanges,
         std::span<const NMVascularRangeGPU>(world.vascular.tissueExchangeRanges));
+    hashSection(fingerprint, FingerprintSection::vascularCavities,
+        std::span<const NMVascularCavityGPU>(world.vascular.cavities));
+    hashSection(fingerprint, FingerprintSection::vascularCavityFaces,
+        std::span<const NMVascularCavityFaceGPU>(world.vascular.cavityFaces));
+    hashSection(fingerprint, FingerprintSection::vascularCompartmentCavity,
+        std::span<const std::uint32_t>(world.vascular.compartmentCavity));
+    hashSection(fingerprint, FingerprintSection::vascularCavityNodeIncidence,
+        std::span<const std::uint32_t>(world.vascular.cavityNodeIncidence));
+    hashSection(fingerprint, FingerprintSection::vascularCavityNodeRanges,
+        std::span<const NMVascularRangeGPU>(world.vascular.cavityNodeRanges));
     hashSection(fingerprint, FingerprintSection::vascularNames,
         std::span<const std::uint8_t>(world.vascular.names));
     return fingerprint == 0u ? 1u : fingerprint;
