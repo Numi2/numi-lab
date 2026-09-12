@@ -434,8 +434,20 @@ struct ObjectSource {
     // copied to every unconstrained node at initialization.
     std::array<double, 3> femInitialVelocity{};
     std::vector<std::array<double, 3>> femNodes;
+    // Optional stress-free material reference coordinates, one per initial
+    // femNodes position. Empty preserves the exact legacy initial=reference
+    // convention. Reference coordinates own rest operators, reference volume
+    // and density-based mass; femNodes remains the initial current geometry.
+    // This admits a supplied reference, never estimates an unloaded state.
+    // Requires immutable explicit non-mixed FEM and fixed material parameters.
+    // Any material frames must be authored in this reference configuration.
+    std::vector<std::array<double, 3>> femReferenceNodes;
+    // SHA256 of the supplied reference and its source/derivation contract.
+    // Required with femReferenceNodes, canonical zero without them.
+    std::array<std::uint64_t, 4> femReferenceSourceIdentity{};
     // Local FEM node indices whose position is prescribed at the authored
-    // rest position. Fixed nodes retain their assembled mass for accounting,
+    // initial femNodes position, including when a separate reference exists.
+    // Fixed nodes retain their assembled mass for accounting,
     // but have zero velocity and inverse mass in the executable state.
     std::vector<std::uint32_t> femFixedNodes;
     // Moving body-frame constraints are distinct from static fixed nodes.

@@ -359,3 +359,22 @@ if(APPLE)
         set_tests_properties(matter.metal.vascular_cavity PROPERTIES LABELS "matter;metal;human;vascular;cavity" TIMEOUT 120)
     endif()
 endif()
+
+if(APPLE)
+    add_executable(numi-matter-fem-reference-check tools/fem_reference_check.mm)
+    target_link_libraries(numi-matter-fem-reference-check PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_include_directories(numi-matter-fem-reference-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_definitions(numi-matter-fem-reference-check PRIVATE NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+    target_compile_options(numi-matter-fem-reference-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.compiler.fem_reference COMMAND numi-matter-fem-reference-check
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/rodero2021_ventricular_guccione_passive.nmatter"
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter" --cpu-only)
+        add_test(NAME matter.metal.fem_reference COMMAND numi-matter-fem-reference-check
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/rodero2021_ventricular_guccione_passive.nmatter"
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter")
+        set_tests_properties(matter.compiler.fem_reference matter.metal.fem_reference
+            PROPERTIES LABELS "matter;material;human" TIMEOUT 180)
+    endif()
+
+endif()

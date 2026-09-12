@@ -3,6 +3,7 @@
 
 #include "numi/matter/matter.hpp"
 #include "numi/matter/detail.hpp"
+#include "fem_reference_geometry.hpp"
 #include "numi/matter/accepted_state_apply_gpu.h"
 #include "accepted_state_proof_gpu.hpp"
 #include "metalrobo/engine_types.h"
@@ -770,6 +771,8 @@ struct Runtime::State {
     std::vector<std::pair<std::uint32_t, std::uint32_t>> femRegionalBaseExponentLayout;
     std::vector<std::array<float, 2>> femRegionalMassLayout;
     std::vector<nm_float4> femRegionalRestLayout;
+    std::vector<std::pair<std::uint32_t, nm_float4>> femReferenceDeterminantLimits;
+    std::vector<std::pair<std::uint32_t, nm_float4>> femReferenceCenterLayout;
     std::vector<std::pair<std::uint32_t, float>> femRegionalFixedParameterLayout;
     std::vector<nm_uint4> femRegionalIdentificationIdentityLayout;
     std::vector<NMFEMCapacityGPU> capacityLayout;
@@ -1043,7 +1046,7 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->objectLayout = world.objects;
         if (std::any_of(world.objects.begin(), world.objects.end(),
                 [](const NMContinuumObjectGPU& object) {
-                    return (object.flags & (NM_OBJECT_FEM_MATERIAL_FRAME | NM_OBJECT_FEM_REGIONAL_MATERIAL)) != 0u;
+                    return (object.flags & (NM_OBJECT_FEM_MATERIAL_FRAME | NM_OBJECT_FEM_REGIONAL_MATERIAL | NM_OBJECT_FEM_REFERENCE_CONFIGURATION)) != 0u;
                 })) {
             candidate->femImmutableElementLayout = world.fem.tetrahedra;
             candidate->femImmutableNodeLayout = world.fem.topologyNodes;
@@ -1052,7 +1055,7 @@ RuntimeDiagnostics Runtime::initialize(
         }
         if (std::any_of(world.objects.begin(), world.objects.end(),
                 [](const NMContinuumObjectGPU& object) {
-                    return (object.flags & NM_OBJECT_FEM_REGIONAL_MATERIAL) != 0u;
+                    return (object.flags & (NM_OBJECT_FEM_REGIONAL_MATERIAL | NM_OBJECT_FEM_REFERENCE_CONFIGURATION)) != 0u;
                 })) {
             candidate->femRegionalMassLayout.reserve(world.fem.nodes.size());
             candidate->femRegionalRestLayout.reserve(world.fem.nodes.size());
@@ -1062,7 +1065,7 @@ RuntimeDiagnostics Runtime::initialize(
             }
             std::set<std::uint32_t> regionalMaterials;
             for (const auto& object : world.objects) {
-                if ((object.flags & NM_OBJECT_FEM_REGIONAL_MATERIAL) == 0u) continue;
+                if ((object.flags & (NM_OBJECT_FEM_REGIONAL_MATERIAL | NM_OBJECT_FEM_REFERENCE_CONFIGURATION)) == 0u) continue;
                 regionalMaterials.insert(object.materialIndex);
                 candidate->femRegionalBaseExponentLayout.emplace_back(
                     object.schedulerIndex, world.schedulers[object.schedulerIndex].baseExponent);
@@ -1078,6 +1081,16 @@ RuntimeDiagnostics Runtime::initialize(
             }
             for (const auto& distribution : world.identification)
                 candidate->femRegionalIdentificationIdentityLayout.push_back(distribution.identity);
+        }
+        for (const auto& object : world.objects) {
+            if ((object.flags & NM_OBJECT_FEM_REFERENCE_CONFIGURATION) == 0u) continue;
+            candidate->femReferenceCenterLayout.emplace_back(object.schedulerIndex, world.adaptive[object.schedulerIndex].referenceCenter);
+            for (std::uint32_t local = 0u; local < object.elementCount; ++local) {
+                const auto index = object.elementOffset + local;
+                const auto& tet = world.fem.tetrahedra[index];
+                if ((tet.identity.w & NM_OBJECT_ACTIVE) != 0u)
+                    candidate->femReferenceDeterminantLimits.emplace_back(index, world.materials[tet.identity.x].validity);
+            }
         }
         candidate->hasMutableFEMTopology = std::any_of(
             world.objects.begin(), world.objects.end(),
@@ -11309,19 +11322,42 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
         }
         for (std::size_t environment = 0u; environment < state.dispatch.environmentCount; ++environment)
             for (const auto& object : state.objectLayout) {
-                if ((object.flags & NM_OBJECT_FEM_REGIONAL_MATERIAL) == 0u) continue;
+                if ((object.flags & (NM_OBJECT_FEM_REGIONAL_MATERIAL | NM_OBJECT_FEM_REFERENCE_CONFIGURATION)) == 0u) continue;
                 for (std::size_t local = 0u; local < object.stateCount; ++local) {
                     const auto nodeIndex = object.stateOffset + local;
                     const auto& node = snapshot.femNodes[environment * state.dispatch.femNodeCount + nodeIndex];
                     const std::array<float, 2> observed{node.positionAndMass.w, node.velocityAndInverseMass.w};
                     if (std::memcmp(observed.data(), state.femRegionalMassLayout[nodeIndex].data(), sizeof(observed)) != 0 ||
                         std::memcmp(&node.restAndFixed, &state.femRegionalRestLayout[nodeIndex], sizeof(node.restAndFixed)) != 0) {
-                        diagnostics.message = "Matter snapshot changed immutable regional FEM mass or rest constraint";
+                        diagnostics.message = "Matter snapshot changed immutable authored FEM mass or rest constraint";
                         return diagnostics;
                     }
                 }
             }
     }
+
+    for (std::size_t environment=0u;environment<state.dispatch.environmentCount;++environment)
+        for (const auto& [index, referenceCenter] : state.femReferenceCenterLayout) {
+            if (std::memcmp(&snapshot.adaptive[environment*state.dispatch.objectCount+index].referenceCenter,
+                    &referenceCenter, sizeof(referenceCenter)) != 0) {
+                diagnostics.message = "Matter snapshot changed immutable FEM reference-center metadata";
+                return diagnostics;
+            }
+        }
+
+    // Restore validates the same FP32 geometry model as source admission,
+    // but preserves accepted Metal boundary states whose host arithmetic can
+    // differ by contraction/reduction rounding. No fixed epsilon widens J.
+    for (std::size_t environment = 0u; environment < state.dispatch.environmentCount; ++environment)
+        for (const auto& [index, limits] : state.femReferenceDeterminantLimits) {
+            const auto& t = state.femImmutableElementLayout[index];
+            const auto interval = detail::femReferenceDeterminantInterval(
+                t, snapshot.femNodes.data(), environment * state.dispatch.femNodeCount);
+            if (!interval.possiblyAdmissible(limits)) {
+                diagnostics.message = "Matter snapshot current FEM geometry has no admissible FP32 determinant in its fixed reference material domain";
+                return diagnostics;
+            }
+        }
 
     // Regional material parameters are fixed authored data, not identified
     // state. Preserve unrelated posterior values, but never allow their
@@ -11330,7 +11366,7 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
         for (const auto& [parameter, expected] : state.femRegionalFixedParameterLayout) {
             const auto& value = snapshot.environmentParameters[environment * state.dispatch.parameterCount + parameter];
             if (std::memcmp(&value, &expected, sizeof(value)) != 0) {
-                diagnostics.message = "Matter snapshot changed a fixed regional material parameter";
+                diagnostics.message = "Matter snapshot changed a fixed authored FEM material parameter";
                 return diagnostics;
             }
         }
@@ -11339,7 +11375,7 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
     for (std::size_t environment = 0u; environment < state.dispatch.environmentCount; ++environment)
         for (const auto& [scheduler, expected] : state.femRegionalBaseExponentLayout) {
             if (snapshot.schedulers[environment * state.dispatch.objectCount + scheduler].baseExponent != expected) {
-                diagnostics.message = "Matter snapshot changed a fixed regional scheduler floor";
+                diagnostics.message = "Matter snapshot changed a fixed authored FEM scheduler floor";
                 return diagnostics;
             }
         }

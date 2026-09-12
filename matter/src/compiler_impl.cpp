@@ -1,4 +1,5 @@
 #include "numi/matter/detail.hpp"
+#include "fem_reference_geometry.hpp"
 #include "numi/matter/vascular.hpp"
 
 #include <algorithm>
@@ -984,7 +985,7 @@ CompileResult compileWorld(
 
     const bool hasImmutableFEMFields = std::ranges::any_of(source.objects,
         [](const ObjectSource& object) {
-            return !object.femMaterialFrameRotations.empty() || !object.femMaterialIndices.empty();
+            return !object.femMaterialFrameRotations.empty() || !object.femMaterialIndices.empty() || !object.femReferenceNodes.empty();
         });
     if (hasImmutableFEMFields && std::ranges::any_of(source.objects,
             [](const ObjectSource& object) {
@@ -1054,6 +1055,25 @@ CompileResult compileWorld(
                 return result;
             }
         }
+        const bool referenced = !object.femReferenceNodes.empty();
+        const bool referenceIdentity = std::ranges::any_of(object.femReferenceSourceIdentity,
+            [](std::uint64_t word) { return word != 0u; });
+        if (referenced != referenceIdentity || (referenced &&
+                (representation != Representation::fem || object.automaticRepresentation ||
+                 object.femReferenceNodes.size() != object.femNodes.size() ||
+                 object.mixedFEM || object.multiphysics.enabled ||
+                 !object.fieldBoundaries.empty() || object.identifiable))) {
+            result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                "explicit FEM reference requires exact coordinates/source identity and immutable non-mixed FEM without nodal fields or identification"});
+            return result;
+        }
+        if (referenced && std::ranges::any_of(object.femReferenceNodes, [](const Vec3& node) {
+                return !finite(node) || std::ranges::any_of(node, [](double x) { return !std::isfinite(static_cast<float>(x)); });
+            })) {
+            result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                "FEM reference coordinates must be finite and representable as FP32"});
+            return result;
+        }
         const bool regional = !object.femMaterialIndices.empty();
         const bool regionalIdentity = std::ranges::any_of(object.femMaterialSourceIdentity,
             [](std::uint64_t word) { return word != 0u; });
@@ -1066,13 +1086,14 @@ CompileResult compileWorld(
                 "regional FEM materials require exact indices/source identity and explicit non-mixed FEM without nodal fields or object identification"});
             return result;
         }
-        const std::set<std::uint32_t> regionalMaterials(object.femMaterialIndices.begin(), object.femMaterialIndices.end());
+        std::set<std::uint32_t> regionalMaterials(object.femMaterialIndices.begin(), object.femMaterialIndices.end());
+        if (referenced) regionalMaterials.insert(object.materialIndex);
         const auto hasIdentifiableParameters = [](const MaterialProgram& candidate) {
             return std::ranges::any_of(candidate.parameters, [](const Parameter& parameter) {
                 return parameter.identifiable;
             });
         };
-        if (regional && hasIdentifiableParameters(material)) {
+        if ((regional || referenced) && hasIdentifiableParameters(material)) {
             result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
                 "regional FEM material parameters require fixed ownership without identification distributions"});
             return result;
@@ -1127,11 +1148,14 @@ CompileResult compileWorld(
             (representation == Representation::fem && object.mutationPolicy.enabled
                 ? NM_OBJECT_MUTABLE_TOPOLOGY : 0u) |
             (framed ? NM_OBJECT_FEM_MATERIAL_FRAME : 0u) |
-            (regional ? NM_OBJECT_FEM_REGIONAL_MATERIAL : 0u);
+            (regional ? NM_OBJECT_FEM_REGIONAL_MATERIAL : 0u) |
+            (referenced ? NM_OBJECT_FEM_REFERENCE_CONFIGURATION : 0u);
         std::copy(object.femMaterialFrameSourceIdentity.begin(),
             object.femMaterialFrameSourceIdentity.end(), descriptor.materialFrameSourceIdentity);
         std::copy(object.femMaterialSourceIdentity.begin(),
             object.femMaterialSourceIdentity.end(), descriptor.materialSourceIdentity);
+        std::copy(object.femReferenceSourceIdentity.begin(),
+            object.femReferenceSourceIdentity.end(), descriptor.referenceSourceIdentity);
         descriptor.schedulerIndex = objectIndex;
         descriptor.rigidBinding = object.rigidBinding;
         descriptor.topologyGeneration = 1u;
@@ -1604,8 +1628,9 @@ CompileResult compileWorld(
                     fixed ? 0.0 : object.femInitialVelocity[2],
                     0.0
                 );
+                const Vec3& referenceNode = referenced ? object.femReferenceNodes[sourceNodeIndex] : sourceNode;
                 node.restAndFixed = f4(
-                    sourceNode[0], sourceNode[1], sourceNode[2],
+                    referenceNode[0], referenceNode[1], referenceNode[2],
                     attachment != nullptr ? 2.0 : (fixed ? 1.0 : 0.0)
                 );
                 if (attachment != nullptr) {
@@ -1760,9 +1785,9 @@ CompileResult compileWorld(
             const double rho = density(material);
             std::vector<double> localMass(nodeCapacity, 0.0);
             const auto cookedNodePosition = [&](const std::uint32_t local) {
-                const nm_float4 position = world.fem.nodes[
-                    static_cast<std::size_t>(descriptor.stateOffset) + local
-                ].positionAndMass;
+                const auto& node = world.fem.nodes[
+                    static_cast<std::size_t>(descriptor.stateOffset) + local];
+                const nm_float4 position = referenced ? node.restAndFixed : node.positionAndMass;
                 return Vec3{
                     static_cast<double>(position.x),
                     static_cast<double>(position.y),
@@ -1808,6 +1833,20 @@ CompileResult compileWorld(
                     });
                     continue;
                 }
+                if (referenced) {
+                    const auto current = [&](std::uint32_t slot) {
+                        const auto p = world.fem.nodes[descriptor.stateOffset + sourceTet.nodes[slot]].positionAndMass;
+                        return Vec3{p.x, p.y, p.z};
+                    };
+                    const auto initial0 = current(0);
+                    const auto a = subtract(current(1), initial0), b = subtract(current(2), initial0), c = subtract(current(3), initial0);
+                    const double initialDeterminant = determinant(Mat3{a[0],b[0],c[0],a[1],b[1],c[1],a[2],b[2],c[2]});
+                    if (!(initialDeterminant > 6.0e-18) || !finite(initialDeterminant)) {
+                        result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                            "initial FEM geometry is degenerate or inverted relative to its reference"});
+                        return result;
+                    }
+                }
                 NMTetrahedronGPU tetrahedron{};
                 tetrahedron.nodes = {
                     descriptor.stateOffset + sourceTet.nodes[0],
@@ -1824,6 +1863,12 @@ CompileResult compileWorld(
                 tetrahedron.inverseRestRow2 = f4(
                     inverseRest[6], inverseRest[7], inverseRest[8]
                 );
+                if (referenced && !detail::femReferenceDeterminantInterval(tetrahedron, world.fem.nodes.data())
+                        .strictlyAdmitted(world.materials[elementMaterial].validity)) {
+                    result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                        "initial FEM geometry is not within the conservative executable FP32 determinant interior of its selected material"});
+                    return result;
+                }
                 tetrahedron.identity = {
                     elementMaterial,
                     objectIndex,
@@ -1842,7 +1887,7 @@ CompileResult compileWorld(
                 // The opt-in regional field binds inertia to the serialized
                 // density and geometry, allowing independent cooked-mass
                 // validation. Preserve the exact legacy arithmetic otherwise.
-                const double nodalMass = regional
+                const double nodalMass = (regional || referenced)
                     ? double(world.materials[elementMaterial].bulk.x) *
                         double(tetrahedron.inverseRestRow0.w) * 0.25
                     : rho * signedVolume * 0.25;
@@ -1969,9 +2014,9 @@ CompileResult compileWorld(
                     if (adjacent.size() != 2u) {
                         continue;
                     }
-                    const Vec3& x0 = object.femNodes[key[0]];
-                    const Vec3& x1 = object.femNodes[key[1]];
-                    const Vec3& x2 = object.femNodes[key[2]];
+                    const Vec3 x0 = referenced ? cookedNodePosition(key[0]) : object.femNodes[key[0]];
+                    const Vec3 x1 = referenced ? cookedNodePosition(key[1]) : object.femNodes[key[1]];
+                    const Vec3 x2 = referenced ? cookedNodePosition(key[2]) : object.femNodes[key[2]];
                     const Vec3 e0 = subtract(x1, x0);
                     const Vec3 e1 = subtract(x2, x0);
                     const Vec3 cross{
@@ -2143,6 +2188,16 @@ CompileResult compileWorld(
                 0.0
             );
             adaptive.centerAndRadius = adaptive.referenceCenter;
+            if (referenced) {
+                Vec3 currentMoment{};
+                for (std::uint32_t local = 0u; local < descriptor.stateCount; ++local) {
+                    const auto p = world.fem.nodes[descriptor.stateOffset + local].positionAndMass;
+                    currentMoment[0] += double(p.w) * p.x;
+                    currentMoment[1] += double(p.w) * p.y;
+                    currentMoment[2] += double(p.w) * p.z;
+                }
+                adaptive.centerAndRadius = f4(currentMoment[0]/restMass, currentMoment[1]/restMass, currentMoment[2]/restMass);
+            }
             adaptive.massAndError.x = static_cast<float>(restMass);
         }
         if (object.adaptive) {
