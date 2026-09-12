@@ -147,6 +147,9 @@ if(APPLE)
             include/numi/matter/human_equality_gpu.h
             include/numi/matter/human_limits_gpu.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_translation_gpu.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_geometry_gpu.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/numi/matter/human_support_precision_gpu.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
         VERBATIM
     )
@@ -221,6 +224,9 @@ if(APPLE)
         DEPENDS tools/fiber_exp_linear_check.metal src/metal/common.metalinc
             include/numi/matter/shared.h include/numi/matter/fiber_exp_linear.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_translation_gpu.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_geometry_gpu.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/numi/matter/human_support_precision_gpu.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
         VERBATIM)
     add_custom_target(numi_fiber_check_shaders DEPENDS "${NUMI_FIBER_CHECK_METALLIB}")

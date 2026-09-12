@@ -818,6 +818,10 @@ struct RuntimeConfiguration {
     std::span<const NMHumanJointLimitGPU> humanJointLimits{};
     NMHumanLimitDispatchGPU humanLimitDispatch{};
     std::uint64_t humanLimitSourceFingerprint = 0u;
+    // Generic legacy callbacks may explicitly retain projected-only geometry.
+    // A configured compensated Human owner must opt in; all candidate services,
+    // support initial poses and accepted-state proofs then carry the full pair.
+    bool coupledCandidateCompensatedTranslation = false;
 };
 
 struct HumanSupportConsequencesView {
@@ -880,6 +884,20 @@ struct CoupledCandidateQuery {
     std::uint32_t pointCount = 0u;
     std::uint32_t pointStride = 0u;
     std::uint32_t pointJacobianStride = 0u;
+    // Borrowed output arenas, environment-major. The root is 48 bytes/env;
+    // body/point lows are float4 with the existing body/point strides.
+    // Geometry outputs belong only to candidateKinematics. Other operations
+    // keep these pointers, addresses and counts canonically null/zero.
+    void* candidateRootTranslation = nullptr;
+    void* candidateBodyPositionLow = nullptr;
+    void* pointPositionLow = nullptr;
+    std::uint64_t candidateRootTranslationGPUAddress = 0u;
+    std::uint64_t candidateBodyPositionLowGPUAddress = 0u;
+    std::uint64_t pointPositionLowGPUAddress = 0u;
+    std::uint64_t candidateRootTranslationElementCount = 0u;
+    std::uint64_t candidateBodyPositionLowElementCount = 0u;
+    std::uint64_t pointPositionLowElementCount = 0u;
+    bool legacyHighOnly = true;
 };
 
 using EncodeCoupledCandidate = bool (*)(
@@ -910,6 +928,12 @@ struct EncodeRequest {
     // throughout candidate evaluation. Null uses rigid.currentBodies.
     // This view never supplies generic rigid proxy dynamics or reconciliation.
     void* humanSupportInitialBodies = nullptr;
+    // Exact low component paired with humanSupportInitialBodies (or current
+    // bodies when that high arena is omitted). Required by compensated Human
+    // support; pointer, device address and count are checked together.
+    void* humanSupportInitialBodyPositionLow = nullptr;
+    std::uint64_t humanSupportInitialBodyPositionLowGPUAddress = 0u;
+    std::uint64_t humanSupportInitialBodyPositionLowElementCount = 0u;
     // Accepted source velocity, distinct from rigid.v's free predictor. Used
     // read-only during the same borrowed Human root when NHEQ2 is configured.
     void* humanEqualitySourceVelocity = nullptr;
@@ -1036,6 +1060,11 @@ struct AcceptedStateProofPass {
     std::uint64_t slotGeneration = 0u;
     std::uint64_t matterSourcePhysicsFingerprint = 0u;
     std::uint64_t matterDeviceProgramFingerprint = 0u;
+    // Complete accepted Human translation state; a 48-byte record per env.
+    void* rootTranslation = nullptr;
+    std::uint64_t rootTranslationGPUAddress = 0u;
+    std::uint64_t rootTranslationElementCount = 0u;
+    std::uint32_t rootTranslationStride = 0u;
 };
 
 enum class PreparedStateApplyMode : std::uint32_t {

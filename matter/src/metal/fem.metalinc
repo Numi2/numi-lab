@@ -1,3 +1,5 @@
+#include "metalrobo/compensated_translation_gpu.h"
+
 namespace numi_matter_metal {
 
 // restAndFixed.w is a small, versioned constraint tag rather than a boolean:
@@ -740,6 +742,8 @@ kernel void nm_fem_human_attachment_drive_candidate(
     device NMFEMNodeStateGPU* candidate [[buffer(9)]],
     device const NMIncidenceRangeGPU* nodeRanges [[buffer(10)]],
     device NMMatterStatusGPU* statuses [[buffer(11)]],
+    device const float4* candidateBodyPositionLow [[buffer(12)]],
+    constant uint& compensatedTranslation [[buffer(13)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint count = dispatch.femHumanAttachmentCount;
@@ -757,7 +761,7 @@ kernel void nm_fem_human_attachment_drive_candidate(
     const uint nodeGlobal = environment * dispatch.femNodeCount + node;
     const uint pointJacobianStride =
         dispatch.femHumanAttachmentPointJacobianStride;
-    const bool layoutValid =
+    const bool layoutValid = compensatedTranslation <= 1u &&
         node < dispatch.femNodeCount && object < dispatch.objectCount &&
         body < candidateBodyCount && candidateBodyCount <= candidateBodyStride &&
         articulatedNv > 0u &&
@@ -817,7 +821,18 @@ kernel void nm_fem_human_attachment_drive_candidate(
     }
     const float3 offset = quaternionRotate(
         bodyState.orientation, attachment.localPoint.xyz);
-    const float3 position = bodyState.position.xyz + offset;
+    const float4 bodyLow = compensatedTranslation != 0u
+        ? candidateBodyPositionLow[environment * candidateBodyStride + body] : float4(0.0f);
+    if (!all(isfinite(bodyLow)) || as_type<uint>(bodyLow.w) != 0u) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_INPUT,
+            object, attachmentIndex, bodyLow);
+        return;
+    }
+    const float3 position = compensatedTranslation != 0u ? float3(
+        mrCompensatedPositionScalar(bodyState.position.x, bodyLow.x, 0.0f, offset.x).high,
+        mrCompensatedPositionScalar(bodyState.position.y, bodyLow.y, 0.0f, offset.y).high,
+        mrCompensatedPositionScalar(bodyState.position.z, bodyLow.z, 0.0f, offset.z).high)
+        : bodyState.position.xyz + offset;
     const float3 velocity = bodyState.linearVelocityAndInverseMass.xyz +
         cross(bodyState.angularVelocity.xyz, offset);
     if (!finite3(position) || !finite3(velocity)) {

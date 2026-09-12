@@ -5,6 +5,7 @@
 #include "metalrobo/numanx_human_matter_gpu.h"
 #include "metalrobo/numi_human_joint_equality_gpu.h"
 #include "metalrobo/numi_human_tendon_gpu.h"
+#include "metalrobo/compensated_translation_gpu.h"
 
 #include <algorithm>
 #include <array>
@@ -35,6 +36,31 @@ constexpr std::uint64_t kSlotGeneration = 1u;
 
 void require(const bool condition, const std::string& message) {
     if (!condition) throw std::runtime_error(message);
+}
+
+MRCompensatedRootTranslationGPU initialTranslation() {
+    MRCompensatedRootTranslationGPU root{
+        {1.0f, -2.0f, 0.5f, 0.0f},
+        {0x1p-26f, -0x1p-26f, 0x1p-27f, 0.0f},
+        {0x1p-52f, 0x1p-52f, -0x1p-53f, 0.0f}};
+    require(mrCompensatedTranslationValid(root), "noncanonical root fixture");
+    const auto projected = mrCompensatedTranslationProjection(root);
+    require(std::memcmp(&projected, &root.reference, sizeof(projected)) == 0,
+        "fixture low root state must be hidden by q projection");
+    return root;
+}
+
+std::uint64_t rootHash(const MRCompensatedRootTranslationGPU& root) {
+    const auto* bytes = reinterpret_cast<const unsigned char*>(&root);
+    std::uint64_t hash = 14695981039346656037ull;
+    for (std::size_t i = 0u; i < sizeof(root); ++i)
+        hash = (hash ^ bytes[i]) * 1099511628211ull;
+    return hash;
+}
+
+void initializeRootQ(std::vector<float>& q) {
+    const auto projected = mrCompensatedTranslationProjection(initialTranslation());
+    q[0] = projected.x; q[1] = projected.y; q[2] = projected.z;
 }
 
 template <typename T>
@@ -117,7 +143,9 @@ struct Fixture {
     id<MTLBuffer> dofs = nil;
     id<MTLBuffer> bodies = nil;
     id<MTLBuffer> bodyPoses = nil;
+    id<MTLBuffer> bodyPositionLow = nil;
     id<MTLBuffer> pointWorld = nil;
+    id<MTLBuffer> pointPositionLow = nil;
     id<MTLBuffer> pointJacobians = nil;
     id<MTLBuffer> contacts = nil;
     id<MTLBuffer> spatial = nil;
@@ -190,17 +218,32 @@ struct Fixture {
             device, {body}, @"bodies");
 
         MRArticulatedBodyPoseGPU pose{};
-        pose.position = {0.0f, 0.0f, 0.0f, 1.0f};
+        const auto translation = initialTranslation();
+        const auto bodyPosition = mrCompensatedTranslationPosition(translation, {0.0f, 0.0f, 0.0f, 0.0f});
+        pose.position = bodyPosition.high;
+        pose.position.w = 1.0f;
         pose.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
         bodyPoses = bufferWithValues<MRArticulatedBodyPoseGPU>(
             device, {pose}, @"body poses");
+        bodyPositionLow = bufferWithValues<mr_float4>(
+            device, {bodyPosition.low}, @"body position low");
 
         std::vector<MRArticulatedPointWorldGPU> worldsAtPoints(kPointCount);
         worldsAtPoints[1].position = {1.0f, 0.0f, 0.0f, 1.0f};
         worldsAtPoints[2].position = {0.0f, 1.0f, 0.0f, 1.0f};
         worldsAtPoints[3].position = {0.0f, 0.0f, 1.0f, 1.0f};
+        std::vector<mr_float4> pointLows(kPointCount);
+        for (std::uint32_t point = 0u; point < kPointCount; ++point) {
+            const auto paired = mrCompensatedTranslationPosition(translation,
+                worldsAtPoints[point].position);
+            worldsAtPoints[point].position = paired.high;
+            worldsAtPoints[point].position.w = 1.0f;
+            pointLows[point] = paired.low;
+        }
         pointWorld = bufferWithValues<MRArticulatedPointWorldGPU>(
             device, worldsAtPoints, @"point world");
+        pointPositionLow = bufferWithValues<mr_float4>(
+            device, pointLows, @"point position low");
 
         std::vector<float> jacobians(kPointJacobianStride, 0.0f);
         const std::array<std::array<float, 3u>, 4u> localPoints{{
@@ -305,6 +348,7 @@ struct Fixture {
 enum class Outcome { accept, reject, duplicateConsume };
 
 struct RunResult {
+    MRCompensatedRootTranslationGPU root{};
     std::vector<float> q;
     std::vector<float> v;
     std::vector<MRMujocoMuscleStateGPU> states;
@@ -318,6 +362,7 @@ struct RunResult {
 
 RunResult run(Fixture& fixture, const Outcome outcome) {
     std::vector<float> initialQ(kNq, 0.0f);
+    initializeRootQ(initialQ);
     initialQ[6u] = 1.0f;
     for (std::uint32_t coordinate = 7u; coordinate < kNq; ++coordinate) {
         initialQ[coordinate] = 0.001f * static_cast<float>(coordinate);
@@ -342,6 +387,11 @@ RunResult run(Fixture& fixture, const Outcome outcome) {
 
     id<MTLBuffer> q = bufferWithValues<float>(
         fixture.device, initialQ, @"q");
+    const auto initialRoot = initialTranslation();
+    id<MTLBuffer> root = bufferWithValues<MRCompensatedRootTranslationGPU>(
+        fixture.device, {initialRoot}, @"compensated root");
+    id<MTLBuffer> rootCheckpoint = zeroBuffer<MRCompensatedRootTranslationGPU>(
+        fixture.device, kEnvironmentCount, @"compensated root checkpoint");
     id<MTLBuffer> v = bufferWithValues<float>(
         fixture.device, initialV, @"v");
     id<MTLBuffer> states = bufferWithValues<MRMujocoMuscleStateGPU>(
@@ -407,6 +457,8 @@ RunResult run(Fixture& fixture, const Outcome outcome) {
     require(command != nil, "failed to create command buffer");
 
     id<MTLBlitCommandEncoder> checkpoint = [command blitCommandEncoder];
+    [checkpoint copyFromBuffer:root sourceOffset:0u toBuffer:rootCheckpoint
+             destinationOffset:0u size:sizeof(MRCompensatedRootTranslationGPU)];
     [checkpoint copyFromBuffer:q sourceOffset:0u toBuffer:qCheckpoint
              destinationOffset:0u size:kNq * sizeof(float)];
     [checkpoint copyFromBuffer:v sourceOffset:0u toBuffer:vCheckpoint
@@ -503,6 +555,9 @@ RunResult run(Fixture& fixture, const Outcome outcome) {
     [stand setBuffer:fixture.tendonBindings offset:0u atIndex:18u];
     [stand setBuffer:fixture.tendonTransfers offset:0u atIndex:19u];
     [stand setBuffer:fixture.equalities offset:0u atIndex:20u];
+    [stand setBuffer:root offset:0u atIndex:21u];
+    [stand setBuffer:fixture.bodyPositionLow offset:0u atIndex:22u];
+    [stand setBuffer:fixture.pointPositionLow offset:0u atIndex:23u];
     encodeEnvironmentGroups(stand);
     [stand endEncoding];
 
@@ -528,6 +583,8 @@ RunResult run(Fixture& fixture, const Outcome outcome) {
     [preparePhysical setBuffer:vCheckpoint offset:0u atIndex:7u];
     [preparePhysical setBuffer:stateCheckpoint offset:0u atIndex:8u];
     [preparePhysical setBuffer:owner offset:0u atIndex:9u];
+    [preparePhysical setBuffer:root offset:0u atIndex:10u];
+    [preparePhysical setBuffer:rootCheckpoint offset:0u atIndex:11u];
     // Match the same dynamic-threadgroup allocation granularity as consume.
     [preparePhysical setThreadgroupMemoryLength:16u atIndex:0u];
     encodeEnvironmentGroups(preparePhysical);
@@ -550,6 +607,10 @@ RunResult run(Fixture& fixture, const Outcome outcome) {
             "owner transaction command buffer failed");
 
     RunResult result{};
+    result.root = *static_cast<const MRCompensatedRootTranslationGPU*>(root.contents);
+    require(std::memcmp(rootCheckpoint.contents, &initialRoot, sizeof(initialRoot)) == 0 &&
+        rootHash(*static_cast<const MRCompensatedRootTranslationGPU*>(rootCheckpoint.contents)) == rootHash(initialRoot),
+        "48-byte root checkpoint was mutated");
     result.q = snapshot<float>(q, kNq);
     result.v = snapshot<float>(v, kNv);
     result.states = snapshot<MRMujocoMuscleStateGPU>(
@@ -630,6 +691,7 @@ int main(int argc, const char* argv[]) {
                     "accepted token was not preserved");
 
             std::vector<float> initialQ(kNq, 0.0f);
+            initializeRootQ(initialQ);
             initialQ[6u] = 1.0f;
             for (std::uint32_t coordinate = 7u;
                  coordinate < kNq; ++coordinate) {
@@ -642,6 +704,21 @@ int main(int argc, const char* argv[]) {
             require(sameBytes(rejected.q, initialQ) &&
                     sameBytes(rejected.v, initialV),
                     "rejected q/v were not restored byte-for-byte");
+            const auto initialRoot = initialTranslation();
+            const auto projectedOnly = mrCompensatedTranslationFromProjection(initialRoot.reference);
+            require(rootHash(initialRoot) != rootHash(projectedOnly),
+                "root hash failed to distinguish hidden state with identical q");
+            for (const auto* restored : {&rejected.root, &replay.root, &duplicate.root})
+                require(std::memcmp(restored, &initialRoot, sizeof(initialRoot)) == 0 &&
+                    rootHash(*restored) == rootHash(initialRoot),
+                    "rejected full 48-byte root restore/hash mismatch");
+            require(mrCompensatedTranslationValid(accepted.root) &&
+                std::memcmp(&accepted.root.reference, &initialRoot.reference, sizeof(mr_float4)) == 0 &&
+                rootHash(accepted.root) != rootHash(initialRoot),
+                "accepted compensated root did not advance with immutable origin");
+            const auto acceptedProjection = mrCompensatedTranslationProjection(accepted.root);
+            require(std::memcmp(&acceptedProjection, accepted.q.data(), 3u * sizeof(float)) == 0,
+                "accepted root projection differs from q bytes");
             require(rejected.owner.stage ==
                         MR_NUMANX_HUMAN_MATTER_STAGE_PHYSICAL_REJECT_RESTORED &&
                     rejected.owner.restored == 1u &&
@@ -677,6 +754,7 @@ int main(int argc, const char* argv[]) {
                 << " accept=physical_prepared_quarantined"
                 << " reject=restored"
                 << " replay=byte_identical"
+                << " root_state=48_byte_restore_hash_exact"
                 << " duplicate_consume=fail_closed\n";
             return 0;
         } catch (const std::exception& error) {

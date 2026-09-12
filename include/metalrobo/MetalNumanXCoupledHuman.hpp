@@ -141,6 +141,18 @@ struct MetalNumanXCoupledHumanQuery {
     // Monotonic nonzero generation owned by the enclosing transaction adapter.
     // Reusing a slot without advancing this value is rejected before encoding.
     std::uint64_t slotGeneration = 0u;
+    void* candidateRootTranslation = nullptr;
+    std::uint64_t candidateRootTranslationGPUAddress = 0u;
+    std::uint64_t candidateRootTranslationElementCount = 0u;
+
+    void* candidateBodyPositionLow = nullptr;
+    std::uint64_t candidateBodyPositionLowGPUAddress = 0u;
+    std::uint64_t candidateBodyPositionLowElementCount = 0u;
+
+    void* pointPositionLow = nullptr;
+    std::uint64_t pointPositionLowGPUAddress = 0u;
+    std::uint64_t pointPositionLowElementCount = 0u;
+
 };
 
 using MetalNumanXCoupledHumanEncodeExactKinematics = bool (*)(

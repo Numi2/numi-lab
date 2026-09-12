@@ -83,6 +83,11 @@ struct MetalNumanXHumanMatterStateProofPass {
     std::uint64_t slotGeneration = 0u;
     std::uint64_t matterSourcePhysicsFingerprint = 0u;
     std::uint64_t matterDeviceProgramFingerprint = 0u;
+    void* rootTranslation = nullptr;
+    std::uint64_t rootTranslationGPUAddress = 0u;
+    std::uint64_t rootTranslationElementCount = 0u;
+    std::uint32_t rootTranslationStride = 0u;
+
 };
 
 using MetalNumanXHumanMatterEncodeStateProof = bool (*)(
@@ -135,6 +140,9 @@ struct MetalNumanXHumanMatterTransaction {
     std::uint64_t slotGeneration = 0u;
 };
 
+using MetalNumanXHumanMatterObserveCandidate = bool (*)(
+    void*, const MetalNumanXHumanMatterPass&) noexcept;
+
 struct MetalNumanXHumanMatterConfig {
     // Non-owning Runtime identity. It must outlive this context and every
     // command buffer encoded through a returned program.
@@ -152,6 +160,9 @@ struct MetalNumanXHumanMatterConfig {
     // it emits an invalid record, the prepared token stays exactly zero and
     // the later ACK-gated apply must reject and restore the transaction.
     MetalNumanXHumanMatterStateProofProgram stateProofProgram{};
+    void* candidateObserverContext = nullptr;
+    MetalNumanXHumanMatterObserveCandidate observeCandidate = nullptr;
+
 };
 
 enum class MetalNumanXHumanMatterHostStatus : std::uint32_t {

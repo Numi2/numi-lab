@@ -1579,8 +1579,10 @@ int runPreparedPathReference(const char* rigidPath, const char* musclePath, cons
     require(metalrobo::decodeNumiHumanInitialState(readBytes(initialPath), articulation.nq,
         articulation.nv, static_cast<std::uint32_t>(muscles.gpuMuscles.size()), rigid.header.sourceSha256,
         initial, error), "prepared path input: " + error);
-    const float timestep = static_cast<float>((timestepOverride != 0u
-        ? timestepOverride : initial.timestepMicroseconds) * 1e-6);
+    require(timestepOverride <= 1'000'000u, "fibre-reference timestep exceeds one second");
+    const auto exactNanoseconds = timestepOverride != 0u ? timestepOverride * 1000u
+        : metalrobo::numiHumanInitialStateTimestepNanoseconds(initial);
+    const float timestep = static_cast<float>(exactNanoseconds * 1e-9);
     require(std::isfinite(timestep) && timestep > 0, "invalid fibre-reference timestep");
     std::vector<MRArticulatedPointImpulseGPU> points;
     for (std::uint32_t body = 0; body < articulation.bodyCount; ++body) {

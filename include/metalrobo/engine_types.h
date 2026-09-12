@@ -8,6 +8,7 @@
 // batches; a connected island above this limit returns an explicit overflow.
 
 #include "metalrobo/gpu_types.h"
+#include "metalrobo/compensated_translation_gpu.h"
 #include "metalrobo/constraint_ir_shared.h"
 
 #define MR_ENGINE_ABI_VERSION 5u
@@ -521,6 +522,7 @@ enum MRArticulatedOperatorFlags : mr_u32 {
     // articulation as inactive zero rows. This permits one fixed global point
     // list to be streamed through several block-diagonal articulations.
     MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS = 1u << 5u,
+    MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION = 1u << 6u,
 };
 
 // One dispatch describes a batch of states for one immutable articulation.

@@ -1,3 +1,5 @@
+#include "numi/matter/human_support_precision_gpu.h"
+
 namespace numi_matter_metal {
 
 inline float3 humanSupportOffset(
@@ -15,6 +17,17 @@ inline float3 humanSupportOffset(
             row.supportRadii.xyz * scaled / length(scaled));
     }
     return offset;
+}
+
+inline MRCompensatedPositionGPU humanSupportOffsetPair(
+    const MRBodyStateGPU body, const NMHumanSupportContactGPU row,
+    const float3 normal
+) {
+    const float4 normalAndRadius = row.identity.w == 0u
+        ? float4(0.0f) : float4(normal, row.localPoint.w);
+    return mrCompensatedSupportOffset(body.orientation,
+        float4(row.localPoint.xyz, 0.0f), row.supportOrientation,
+        row.supportRadii, normalAndRadius, row.identity.w);
 }
 
 // Alart-Curnier-style normal half-line and Coulomb tangent-disk residual.
@@ -70,6 +83,9 @@ kernel void nm_human_support_evaluate(
     device NMHumanSupportKKTGPU* linearizations [[buffer(12)]],
     device float4* residual [[buffer(13)]],
     device const float* freeGeneralized [[buffer(14)]],
+    device const float4* candidateBodyPositionLow [[buffer(15)]],
+    device const float4* initialBodyPositionLow [[buffer(16)]],
+    constant uint& compensatedTranslation [[buffer(17)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     uint global [[thread_position_in_grid]]
 ) {
@@ -94,6 +110,7 @@ kernel void nm_human_support_evaluate(
     const uint body = row.identity.x;
     consequence.identity.y = row.identity.y;
     const bool valid =
+        compensatedTranslation <= 1u &&
         support.articulatedNv > 0u &&
         support.articulatedNv <= dispatch.rigidGeneralizedCapacity &&
         body >= support.articulationRootBody &&
@@ -128,15 +145,41 @@ kernel void nm_human_support_evaluate(
     }
     const MRBodyStateGPU bodyState = candidateBodies[
         environment * support.bodyStride + body];
-    const float3 normal = normalize(support.groundNormal.xyz);
-    const float3 offset = humanSupportOffset(bodyState, row, normal);
-    const float3 point = bodyState.position.xyz + offset;
+    // The exact point provider consumes these already-admitted normal words.
+    // Re-normalizing them or the published body orientation creates a different
+    // support surface from the Jacobian's surface.
+    const float3 normal = compensatedTranslation != 0u
+        ? support.groundNormal.xyz : normalize(support.groundNormal.xyz);
+    const MRCompensatedPositionGPU offset = compensatedTranslation != 0u
+        ? humanSupportOffsetPair(bodyState, row, normal)
+        : mrCompensatedVector(float4(humanSupportOffset(bodyState, row, normal), 0.0f));
+    const uint bodyIndex = environment * support.bodyStride + body;
+    const float4 bodyLow = compensatedTranslation != 0u
+        ? candidateBodyPositionLow[bodyIndex] : float4(0.0f);
+    const float4 initialLow = compensatedTranslation != 0u
+        ? initialBodyPositionLow[bodyIndex] : float4(0.0f);
+    if (!all(isfinite(bodyLow)) || !all(isfinite(initialLow)) ||
+        as_type<uint>(bodyLow.w) != 0u || as_type<uint>(initialLow.w) != 0u) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_INPUT,
+            NM_INVALID_INDEX, rowIndex, bodyLow);
+        samples[global] = sample;
+        consequences[global] = consequence;
+        return;
+    }
+    const MRCompensatedPositionGPU bodyPosition{float4(bodyState.position.xyz, 0.0f), bodyLow};
+    const float3 point = compensatedTranslation != 0u
+        ? mrCompensatedVectorAdd(bodyPosition, offset).high.xyz
+        : bodyState.position.xyz + offset.high.xyz;
     const MRBodyStateGPU initialBody = initialBodies[
         environment * support.bodyStride + body];
-    const float3 initialPoint = initialBody.position.xyz +
-        humanSupportOffset(initialBody, row, normal);
-    const float initialSeparation = dot(
-        initialPoint - support.groundPointAndTimestep.xyz, normal);
+    const MRCompensatedPositionGPU initialOffset = compensatedTranslation != 0u
+        ? humanSupportOffsetPair(initialBody, row, normal)
+        : mrCompensatedVector(float4(humanSupportOffset(initialBody, row, normal), 0.0f));
+    const MRCompensatedPositionGPU initialPosition{float4(initialBody.position.xyz, 0.0f), initialLow};
+    const float initialSeparation = compensatedTranslation != 0u
+        ? nmHumanSupportPairedSeparation(initialPosition, initialOffset,
+            support.groundPointAndTimestep, float4(normal, 0.0f)).high
+        : dot(initialBody.position.xyz + initialOffset.high.xyz - support.groundPointAndTimestep.xyz, normal);
     const float normalLength = length(support.groundNormal.xyz);
     if (!finite3(point) || !isfinite(initialSeparation) || !isfinite(normalLength) ||
         abs(normalLength - 1.0f) > 1.0e-4f) {
@@ -160,8 +203,10 @@ kernel void nm_human_support_evaluate(
             pointJacobians[jacobianBase + dispatch.rigidGeneralizedCapacity + dof],
             pointJacobians[jacobianBase + 2u * dispatch.rigidGeneralizedCapacity + dof]);
     }
-    const float separation = dot(
-        point - support.groundPointAndTimestep.xyz, normal);
+    const float separation = compensatedTranslation != 0u
+        ? nmHumanSupportPairedSeparation(bodyPosition, offset,
+            support.groundPointAndTimestep, float4(normal, 0.0f)).high
+        : dot(point - support.groundPointAndTimestep.xyz, normal);
     const float normalVelocity = dot(velocity, normal);
     const float3 tangentVelocity = velocity - normalVelocity * normal;
     consequence.pointAndSeparation = float4(point, separation);

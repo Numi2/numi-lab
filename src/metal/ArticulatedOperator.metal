@@ -2,6 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 #include "metalrobo/opensim_spatial_transform_gpu.h"
+#include "metalrobo/compensated_geometry_gpu.h"
 
 using namespace metal;
 
@@ -14,6 +15,20 @@ using namespace metal;
 #endif
 
 namespace {
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+using MRKinematicPosition = MRCompensatedPositionGPU;
+inline MRKinematicPosition kinematicPosition(float3 v) { return mrCompensatedVector(float4(v,0.0f)); }
+inline MRKinematicPosition operator+(MRKinematicPosition a, MRKinematicPosition b) { return mrCompensatedVectorAdd(a,b); }
+inline MRKinematicPosition operator+(MRKinematicPosition a, float3 b) { return a+kinematicPosition(b); }
+inline float3 operator+(float3 a, MRKinematicPosition b) { return a+b.high.xyz; }
+inline float3 operator-(MRKinematicPosition a, MRKinematicPosition b) {
+    return mrCompensatedPositionDifference(a.high,a.low,b.high,b.low).xyz;
+}
+inline bool finite3(MRKinematicPosition value) { return all(isfinite(value.high)) && all(isfinite(value.low)); }
+#else
+using MRKinematicPosition = float3;
+inline MRKinematicPosition kinematicPosition(float3 v) { return v; }
+#endif
 
 constant float kQuaternionTolerance = 2.0e-5f;
 constant float kQuaternionMinimum = 1.0e-12f;
@@ -536,9 +551,9 @@ inline MotionColumn bodyMotionForDof(
     device const MRJointDescriptorGPU* joints,
     device const MROpenSimSpatialTransformGPU* functionPrograms,
     device const float* q,
-    threadgroup const float3* bodyPosition,
+    threadgroup const MRKinematicPosition* bodyPosition,
     threadgroup const float4* bodyRotation,
-    threadgroup const float3* jointPosition,
+    threadgroup const MRKinematicPosition* jointPosition,
     threadgroup const float3* jointAxis,
     threadgroup const uint* inboundJoint,
     threadgroup const uint* parentLocal,
@@ -637,9 +652,9 @@ inline float massElement(
     device const float4* bodyParameters,
     const uint bodyParameterBase,
 #endif
-    threadgroup const float3* bodyPosition,
+    threadgroup const MRKinematicPosition* bodyPosition,
     threadgroup const float4* bodyRotation,
-    threadgroup const float3* jointPosition,
+    threadgroup const MRKinematicPosition* jointPosition,
     threadgroup const float3* jointAxis,
     threadgroup const uint* inboundJoint,
     threadgroup const uint* parentLocal
@@ -728,6 +743,9 @@ inline bool validDispatch(
              MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES |
              MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY |
              MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+             | MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION
+#endif
          )) != 0u ||
         ((dispatch.flags &
           MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS) != 0u &&
@@ -1134,9 +1152,9 @@ inline bool buildKinematics(
     device const MRJointDescriptorGPU* joints,
     device const MROpenSimSpatialTransformGPU* functionPrograms,
     device const float* q,
-    threadgroup float3* bodyPosition,
+    threadgroup MRKinematicPosition* bodyPosition,
     threadgroup float4* bodyRotation,
-    threadgroup float3* jointPosition,
+    threadgroup MRKinematicPosition* jointPosition,
     threadgroup float3* jointAxis,
     threadgroup uchar* known,
     thread MRArticulatedOperatorStatusGPU& status
@@ -1161,10 +1179,10 @@ inline bool buildKinematics(
         // The internal frame follows root translation. World translation is
         // applied only when publishing poses and points, avoiding cumulative
         // rounding at every joint in a tall articulated tree.
-        bodyPosition[rootLocal] = float3(0.0f);
+        bodyPosition[rootLocal] = kinematicPosition(float3(0.0f));
         bodyRotation[rootLocal] = checkedRootRotation;
     } else {
-        bodyPosition[rootLocal] = float3(0.0f);
+        bodyPosition[rootLocal] = kinematicPosition(float3(0.0f));
         bodyRotation[rootLocal] =
             float4(0.0f, 0.0f, 0.0f, 1.0f);
     }
@@ -1288,6 +1306,21 @@ inline bool buildKinematics(
                 parentToJointRotation,
                 axisInJoint
             );
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+            MRKinematicPosition parentToJointOffset = mrCompensatedQuaternionRotate(
+                bodyRotation[localParent], joint.parentAnchor);
+            if (joint.jointType == MR_JOINT_FUNCTION_BASED)
+                parentToJointOffset = parentToJointOffset + mrCompensatedQuaternionRotate(
+                    parentToJointRotation, float4(translationInJoint,0.0f));
+            else if (joint.jointType == MR_JOINT_PRISMATIC)
+                parentToJointOffset = parentToJointOffset + mrCompensatedVectorScale(
+                    kinematicPosition(jointAxis[localChild]), {jointCoordinate,0.0f});
+            jointPosition[localChild] = bodyPosition[localParent] + parentToJointOffset;
+            const MRKinematicPosition parentToChildOffset = parentToJointOffset +
+                mrCompensatedVectorNegate(mrCompensatedQuaternionRotate(
+                    bodyRotation[localChild], joint.childAnchor));
+            bodyPosition[localChild] = bodyPosition[localParent] + parentToChildOffset;
+#else
             const float3 parentToJointOffset =
                 quaternionRotate(
                     bodyRotation[localParent],
@@ -1311,6 +1344,7 @@ inline bool buildKinematics(
                     joint.childAnchor.xyz
                 );
             bodyPosition[localChild] = bodyPosition[localParent] + parentToChildOffset;
+#endif
             if (!finite3(jointPosition[localChild]) ||
                 !finite3(jointAxis[localChild]) ||
                 !finite3(bodyPosition[localChild]) ||
@@ -1348,8 +1382,8 @@ inline bool buildBodyVelocities(
     device const MRArticulationGPU& articulation,
     device const MRJointDescriptorGPU* joints,
     device const float* v,
-    threadgroup const float3* bodyPosition,
-    threadgroup const float3* jointPosition,
+    threadgroup const MRKinematicPosition* bodyPosition,
+    threadgroup const MRKinematicPosition* jointPosition,
     threadgroup const float3* jointAxis,
     threadgroup float3* bodyLinearVelocity,
     threadgroup float3* bodyAngularVelocity,
@@ -1465,9 +1499,22 @@ inline bool buildBodyVelocities(
 }
 #endif
 
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+inline MRCompensatedPositionGPU pointSurfaceOffsetPair(
+    const float4 rotation, device const MRArticulatedPointImpulseGPU& query
+) {
+    return mrCompensatedSupportOffset(rotation,query.localPoint,query.supportOrientation,
+        query.supportRadii,query.supportPlaneNormalAndRadius,
+        (query.flags & MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT) != 0u ? 2u :
+        ((query.flags & MR_ARTICULATED_POINT_SPHERE_SUPPORT) != 0u ? 1u : 0u));
+}
+#endif
 inline float3 pointSurfaceOffset(
     const float4 rotation, device const MRArticulatedPointImpulseGPU& query
 ) {
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+    return pointSurfaceOffsetPair(rotation,query).high.xyz;
+#else
     const float3 centre = quaternionRotate(rotation, query.localPoint.xyz);
     if ((query.flags & MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT) != 0u) {
         const float4 shape = quaternionMultiply(rotation, query.supportOrientation);
@@ -1476,6 +1523,7 @@ inline float3 pointSurfaceOffset(
         return centre - quaternionRotate(shape, query.supportRadii.xyz * scaled / length(scaled));
     }
     return centre - query.supportPlaneNormalAndRadius.w * query.supportPlaneNormalAndRadius.xyz;
+#endif
 }
 
 inline bool validatePoints(
@@ -1555,6 +1603,11 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     device const MROpenSimSpatialTransformGPU* functionPrograms
         [[buffer(15)]],
 #endif
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+    device const MRCompensatedRootTranslationGPU* rootTranslations [[buffer(17)]],
+    device float4* bodyPositionLow [[buffer(18)]],
+    device float4* pointPositionLow [[buffer(19)]],
+#endif
     threadgroup uchar* scratch [[threadgroup(0)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
@@ -1597,13 +1650,13 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     device const MRArticulationGPU& articulation =
         articulations[dispatch.articulationIndex];
     uint scratchOffset = 0u;
-    threadgroup float3* bodyPosition =
-        reinterpret_cast<threadgroup float3*>(
+    threadgroup MRKinematicPosition* bodyPosition =
+        reinterpret_cast<threadgroup MRKinematicPosition*>(
             scratch + scratchOffset
         );
     scratchOffset = alignedThreadgroupOffset(
         scratchOffset +
-        articulation.bodyCount * sizeof(float3)
+        articulation.bodyCount * sizeof(MRKinematicPosition)
     );
     threadgroup float4* bodyRotation =
         reinterpret_cast<threadgroup float4*>(
@@ -1613,13 +1666,13 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         scratchOffset +
         articulation.bodyCount * sizeof(float4)
     );
-    threadgroup float3* jointPosition =
-        reinterpret_cast<threadgroup float3*>(
+    threadgroup MRKinematicPosition* jointPosition =
+        reinterpret_cast<threadgroup MRKinematicPosition*>(
             scratch + scratchOffset
         );
     scratchOffset = alignedThreadgroupOffset(
         scratchOffset +
-        articulation.bodyCount * sizeof(float3)
+        articulation.bodyCount * sizeof(MRKinematicPosition)
     );
     threadgroup float3* jointAxis =
         reinterpret_cast<threadgroup float3*>(
@@ -1728,6 +1781,26 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         return;
     }
 
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+    const bool compensatedTranslation =
+        (dispatch.flags & MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION) != 0u;
+    MRCompensatedRootTranslationGPU translation = mrCompensatedTranslationFromProjection(
+        articulation.rootType == MR_ROOT_FLOATING
+            ? float4(environmentQ[0], environmentQ[1], environmentQ[2], 0.0f)
+            : float4(0.0f));
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+    if (compensatedTranslation) {
+        translation = rootTranslations[environment];
+        if (articulation.rootType != MR_ROOT_FLOATING || !mrCompensatedTranslationValid(translation)) {
+            if (lane == 0u) {
+                setFailure(status, MR_ARTICULATED_OPERATOR_NONFINITE_INPUT, 0u);
+                statuses[environment] = status;
+            }
+            return;
+        }
+    }
+#endif
+#endif
     const float3 worldTranslation = articulation.rootType == MR_ROOT_FLOATING
         ? float3(environmentQ[0], environmentQ[1], environmentQ[2]) : float3(0.0f);
     const bool posesOnly =
@@ -1746,6 +1819,14 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             pose.position =
                 float4(worldTranslation + bodyPosition[localBody], 1.0f);
             pose.orientation = bodyRotation[localBody];
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+            if (compensatedTranslation) {
+                const auto paired = mrCompensatedTranslationPositionPair(translation,
+                    bodyPosition[localBody]);
+                pose.position = float4(paired.high.xyz, 1.0f);
+                bodyPositionLow[poseBase + localBody] = paired.low;
+            }
+#endif
             bodyPoses[poseBase + localBody] = pose;
         }
         if (pointJacobiansOnly) {
@@ -1848,6 +1929,14 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                         worldTranslation + (bodyPosition[localBody] + pointOffset),
                         1.0f
                     );
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+                    if (compensatedTranslation) {
+                        const auto paired = mrCompensatedTranslationPositionPair(translation,
+                            bodyPosition[localBody] + pointSurfaceOffsetPair(bodyRotation[localBody],query));
+                        worldPoint.position = float4(paired.high.xyz, worldPoint.position.w);
+                        pointPositionLow[pointWorldBase + point] = paired.low;
+                    }
+#endif
                     pointWorld[
                         pointWorldBase + point
                     ] = worldPoint;
@@ -2339,6 +2428,14 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         pose.position =
             float4(worldTranslation + bodyPosition[localBody], 1.0f);
         pose.orientation = bodyRotation[localBody];
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+        if (compensatedTranslation) {
+            const auto paired = mrCompensatedTranslationPositionPair(translation,
+                bodyPosition[localBody]);
+            pose.position = float4(paired.high.xyz, 1.0f);
+            bodyPositionLow[poseBase + localBody] = paired.low;
+        }
+#endif
         bodyPoses[poseBase + localBody] = pose;
     }
 
@@ -2359,6 +2456,14 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             worldTranslation + (bodyPosition[localBody] + pointOffset),
             1.0f
         );
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+        if (compensatedTranslation) {
+            const auto paired = mrCompensatedTranslationPositionPair(translation,
+                bodyPosition[localBody] + pointSurfaceOffsetPair(bodyRotation[localBody],query));
+            worldPoint.position = float4(paired.high.xyz, worldPoint.position.w);
+            pointPositionLow[pointWorldBase + point] = paired.low;
+        }
+#endif
         pointWorld[pointWorldBase + point] = worldPoint;
         if ((query.flags & MR_ARTICULATED_POINT_INACTIVE) != 0u) {
             for (uint dof = 0u; dof < articulation.nv; ++dof) {
@@ -2476,7 +2581,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     statuses[environment] = status;
 }
 
-#if !MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
+#if !MR_ARTICULATED_OPERATOR_BODY_PARAMETERS && !MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
 // Materializes world-space rigid-body velocities from the same generalized
 // state used by the solver. Tactile sampling needs point velocity at arbitrary
 // atlas hits, so publishing only articulation poses would silently erase the

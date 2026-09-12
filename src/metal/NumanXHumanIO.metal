@@ -2,6 +2,7 @@
 using namespace metal;
 
 #include "metalrobo/numanx_human_io_gpu.h"
+#include "metalrobo/compensated_translation_gpu.h"
 
 namespace {
 
@@ -613,10 +614,14 @@ kernel void numanx_human_write_supplemental_sensors(
     constant MRNumanXHumanSupplementalDispatchGPU& dispatch [[buffer(17)]],
     const device MRNumanXHumanSupportConsequenceGPU* supportConsequences
         [[buffer(18)]],
+    const device float4* bodyPositionLow [[buffer(19)]],
+    const device float4* pointPositionLow [[buffer(20)]],
+    const device MRCompensatedRootTranslationGPU* rootTranslations [[buffer(21)]],
     uint index [[thread_position_in_grid]]
 ) {
     (void)pointWorld;
-    const bool validDispatch =
+    (void)pointPositionLow;
+    const bool validDispatch = mrCompensatedTranslationValid(rootTranslations[0]) &&
         dispatch.abiVersion == MR_NUMANX_HUMAN_IO_ABI_VERSION &&
         dispatch.qCoordinateCount == 129u &&
         dispatch.dofCount == MR_NUMANX_HUMAN_KINESTHESIA_RECEPTOR_COUNT &&
@@ -700,7 +705,7 @@ kernel void numanx_human_write_supplemental_sensors(
             vestibular[19u] = head.orientation.w;
             const float3 groundNormal = normalize(dispatch.groundNormal.xyz);
             vestibular[20u] = dot(
-                head.position.xyz - dispatch.groundPoint.xyz,
+                mrCompensatedPositionDifference(head.position, bodyPositionLow[dispatch.headBodyIndex], dispatch.groundPoint, float4(0.0f)).xyz,
                 groundNormal);
             vestibular[21u] = dot(float3(v[0], v[1], v[2]), groundNormal);
             vestibularValidity[0] =
@@ -720,7 +725,8 @@ kernel void numanx_human_write_supplemental_sensors(
         if (environmentValid) {
             const uint body = min(index, dispatch.bodyCount - 1u);
             const float3 relative =
-                bodyPoses[body].position.xyz - bodyPoses[0].position.xyz;
+                mrCompensatedPositionDifference(bodyPoses[body].position, bodyPositionLow[body],
+                    bodyPoses[0].position, bodyPositionLow[0]).xyz;
             const float band =
                 (static_cast<float>(index) + 0.5f) /
                 MR_NUMANX_HUMAN_AUDITION_RECEPTOR_COUNT;
@@ -811,10 +817,12 @@ kernel void numanx_human_write_supplemental_sensors(
                     head.orientation,
                     dispatch.cameraLocalOrientation),
                 activeRotation));
-            const float3 cameraOrigin = head.position.xyz +
-                quaternionRotate(
-                    head.orientation,
-                    dispatch.cameraLocalPosition.xyz);
+            const float3 cameraOffset = quaternionRotate(head.orientation, dispatch.cameraLocalPosition.xyz);
+            const auto cameraX = mrCompensatedAdd({head.position.x, bodyPositionLow[dispatch.headBodyIndex].x}, {cameraOffset.x,0.0f});
+            const auto cameraY = mrCompensatedAdd({head.position.y, bodyPositionLow[dispatch.headBodyIndex].y}, {cameraOffset.y,0.0f});
+            const auto cameraZ = mrCompensatedAdd({head.position.z, bodyPositionLow[dispatch.headBodyIndex].z}, {cameraOffset.z,0.0f});
+            const float4 cameraHigh(cameraX.high,cameraY.high,cameraZ.high,0.0f);
+            const float4 cameraLow(cameraX.low,cameraY.low,cameraZ.low,0.0f);
             const float3 sensorRay = normalize(float3(
                 1.0f,
                 -(static_cast<float>(x) - dispatch.visionIntrinsics.z) /
@@ -831,7 +839,7 @@ kernel void numanx_human_write_supplemental_sensors(
                 worldRay, dispatch.groundNormal.xyz);
             if (abs(groundDenominator) > 1.0e-7f) {
                 const float groundDepth = dot(
-                    dispatch.groundPoint.xyz - cameraOrigin,
+                    mrCompensatedPositionDifference(dispatch.groundPoint,float4(0.0f),cameraHigh,cameraLow).xyz,
                     dispatch.groundNormal.xyz) / groundDenominator;
                 if (groundDepth >= minimumDepth &&
                     groundDepth <= maximumDepth) {
@@ -845,7 +853,7 @@ kernel void numanx_human_write_supplemental_sensors(
                 if (any(minimum > maximum)) continue;
                 const float3 localOrigin = quaternionInverseRotate(
                     bodyPoses[body].orientation,
-                    cameraOrigin - bodyPoses[body].position.xyz);
+                    mrCompensatedPositionDifference(cameraHigh,cameraLow,bodyPoses[body].position,bodyPositionLow[body]).xyz);
                 const float3 localDirection = quaternionInverseRotate(
                     bodyPoses[body].orientation, worldRay);
                 const float candidateDepth = rayBoxDistance(
@@ -864,7 +872,11 @@ kernel void numanx_human_write_supplemental_sensors(
                 const float quantum = max(
                     dispatch.visionDepthAndTimestep.z, 1.0e-7f);
                 const float quantizedDepth = rint(depth / quantum) * quantum;
-                const float3 hit = cameraOrigin + worldRay * quantizedDepth;
+                const float3 offset = worldRay * quantizedDepth;
+                const float3 hit(
+                    mrCompensatedAdd({cameraHigh.x,cameraLow.x},{offset.x,0.0f}).high,
+                    mrCompensatedAdd({cameraHigh.y,cameraLow.y},{offset.y,0.0f}).high,
+                    mrCompensatedAdd({cameraHigh.z,cameraLow.z},{offset.z,0.0f}).high);
                 vision[base + 3u] = quantizedDepth;
                 vision[base + 4u] = hit.x;
                 vision[base + 5u] = hit.y;

@@ -5,6 +5,7 @@
 #include "metalrobo/MetalNumanXHumanIO.hpp"
 #include "metalrobo/EngineModel.hpp"
 #include "metalrobo/engine_types.h"
+#include "metalrobo/compensated_translation_gpu.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
 #include "numi/matter/matter.hpp"
 #include "numi/matter/shared.h"
@@ -198,11 +199,22 @@ numi::matter::CompiledWorld compileAttachedWorld(
 }
 
 struct ExactCandidateService {
+    id<MTLBuffer> rootTranslation = nil;
+    id<MTLBuffer> bodyPositionLow = nil;
     id<MTLBuffer> q = nil;
     id<MTLBuffer> body = nil;
     id<MTLBuffer> jacobian = nil;
     std::uint64_t calls = 0u;
 };
+
+void initializeExactPrecision(ExactCandidateService& service, id<MTLDevice> device) {
+    const auto* q = static_cast<const float*>(service.q.contents);
+    service.rootTranslation = makeBuffer(device,
+        mrCompensatedTranslationFromProjection({q[0], q[1], q[2], 0.0f}),
+        @"candidate compensated root");
+    service.bodyPositionLow = makeZeroBuffer(
+        device, kBodies * sizeof(mr_float4), @"candidate body position low");
+}
 
 bool copy(
     id<MTLBlitCommandEncoder> blit,
@@ -228,7 +240,18 @@ bool exactCandidate(
     auto* service = static_cast<ExactCandidateService*>(context);
     if (service == nullptr || query.deltaVelocity == nullptr ||
         query.deltaVelocityStride != kDofs || query.candidateQStride != kQ ||
-        query.candidateBodyStride < kBodies ||
+        query.candidateBodyStride != kBodies ||
+        query.candidateRootTranslationElementCount != kEnvironmentCount ||
+        query.candidateBodyPositionLowElementCount != kEnvironmentCount * kBodies ||
+        query.candidateRootTranslation == nullptr ||
+        query.candidateBodyPositionLow == nullptr ||
+        query.candidateRootTranslationGPUAddress !=
+            [(__bridge id<MTLBuffer>)query.candidateRootTranslation gpuAddress] ||
+        query.candidateBodyPositionLowGPUAddress !=
+            [(__bridge id<MTLBuffer>)query.candidateBodyPositionLow gpuAddress] ||
+        query.pointPositionLow != nullptr ||
+        query.pointPositionLowGPUAddress != 0u ||
+        query.pointPositionLowElementCount != 0u ||
         query.substepIndex != pass.substepIndex ||
         query.transactionSlot != pass.transactionSlot ||
         query.physicsSubstepCount != pass.physicsSubstepCount ||
@@ -242,7 +265,11 @@ bool exactCandidate(
     bool valid = copy(blit, service->q, query.candidateQ,
                       kQ * sizeof(float)) &&
         copy(blit, service->body, query.candidateBodies,
-             query.candidateBodyStride * sizeof(MRBodyStateGPU));
+             query.candidateBodyStride * sizeof(MRBodyStateGPU)) &&
+        copy(blit, service->rootTranslation, query.candidateRootTranslation,
+             sizeof(MRCompensatedRootTranslationGPU)) &&
+        copy(blit, service->bodyPositionLow, query.candidateBodyPositionLow,
+             kBodies * sizeof(mr_float4));
     if (valid && query.pointCount != 0u) {
         valid = query.pointCount == kPoints && query.pointWorld == nullptr &&
             query.pointWorldGPUAddress == 0u &&
@@ -257,6 +284,10 @@ bool exactCandidate(
 }
 
 struct OwnerArenas {
+    id<MTLBuffer> rootTranslation = nil;
+    id<MTLBuffer> rootTranslationCheckpoint = nil;
+    id<MTLBuffer> bodyPositionLow = nil;
+    id<MTLBuffer> pointPositionLow = nil;
     id<MTLBuffer> q = nil;
     id<MTLBuffer> v = nil;
     id<MTLBuffer> mujoco = nil;
@@ -291,6 +322,13 @@ OwnerArenas makeOwnerArenas(id<MTLDevice> device) {
     stand.code = MR_NUMI_HUMAN_STAND_SUCCESS;
     stand.environment = 0u;
     stand.completedSteps = 1u;
+    const auto rootTranslation = mrCompensatedTranslationFromProjection({q[0], q[1], q[2], 0.0f});
+    result.rootTranslation = makeBuffer(device, rootTranslation, @"owner compensated root");
+    result.rootTranslationCheckpoint = makeBuffer(device, rootTranslation, @"owner compensated root checkpoint");
+    result.bodyPositionLow = makeZeroBuffer(
+        device, kBodies * sizeof(mr_float4), @"owner body position low");
+    result.pointPositionLow = makeZeroBuffer(
+        device, kPoints * sizeof(mr_float4), @"owner point position low");
     result.q = makeBuffer(device, q, @"owner q");
     result.v = makeBuffer(device, v, @"owner v");
     result.mujoco = makeZeroBuffer(
@@ -337,6 +375,18 @@ metalrobo::MetalNumanXHumanMatterPass makePass(
     pass.physicsSubstepCount = program.physicsSubstepCount;
     pass.controlStep = program.controlStep;
     pass.commandBuffer = (__bridge void*)commandBuffer;
+    pass.rootTranslation = (__bridge void*)arena.rootTranslation;
+    pass.rootTranslationCheckpoint = (__bridge void*)arena.rootTranslationCheckpoint;
+    pass.bodyPositionLow = (__bridge void*)arena.bodyPositionLow;
+    pass.pointPositionLow = (__bridge void*)arena.pointPositionLow;
+    pass.rootTranslationGPUAddress = arena.rootTranslation.gpuAddress;
+    pass.rootTranslationCheckpointGPUAddress = arena.rootTranslationCheckpoint.gpuAddress;
+    pass.bodyPositionLowGPUAddress = arena.bodyPositionLow.gpuAddress;
+    pass.pointPositionLowGPUAddress = arena.pointPositionLow.gpuAddress;
+    pass.rootTranslationElementCount = kEnvironmentCount;
+    pass.rootTranslationCheckpointElementCount = kEnvironmentCount;
+    pass.bodyPositionLowElementCount = kEnvironmentCount * kBodies;
+    pass.pointPositionLowElementCount = kEnvironmentCount * kPoints;
     pass.q = (__bridge void*)arena.q;
     pass.v = (__bridge void*)arena.v;
     pass.mujocoStates = (__bridge void*)arena.mujoco;
@@ -678,6 +728,10 @@ bool encodeRuntimeProof(
         return false;
     }
     numi::matter::AcceptedStateProofPass pass{};
+    pass.rootTranslation = source.rootTranslation;
+    pass.rootTranslationGPUAddress = source.rootTranslationGPUAddress;
+    pass.rootTranslationElementCount = source.rootTranslationElementCount;
+    pass.rootTranslationStride = source.rootTranslationStride;
     pass.environmentCount = source.environmentCount;
     pass.environmentIdentifierBase = source.environmentIdentifierBase;
     pass.commandBuffer = source.commandBuffer;
@@ -770,6 +824,8 @@ bool equalAcceptedAuthority(
 }
 
 void checkpointHuman(const OwnerArenas& arenas) {
+    std::memcpy(arenas.rootTranslationCheckpoint.contents,
+                arenas.rootTranslation.contents, arenas.rootTranslation.length);
     std::memcpy(arenas.qCheckpoint.contents, arenas.q.contents,
                 arenas.q.length);
     std::memcpy(arenas.vCheckpoint.contents, arenas.v.contents,
@@ -782,8 +838,10 @@ void checkpointHuman(const OwnerArenas& arenas) {
 std::vector<std::uint8_t> ownerAuthorityBytes(
     const OwnerArenas& arenas
 ) {
-    const std::array<id<MTLBuffer>, 14u> buffers{{
-        arenas.q, arenas.v, arenas.mujoco, arenas.forces, arenas.poses,
+    const std::array<id<MTLBuffer>, 19u> buffers{{
+        arenas.rootTranslation, arenas.rootTranslationCheckpoint,
+        arenas.bodyPositionLow, arenas.pointPositionLow,
+        arenas.q, arenas.v, arenas.predictedV, arenas.mujoco, arenas.forces, arenas.poses,
         arenas.points, arenas.pointWorld, arenas.jacobian, arenas.stand,
         arenas.qCheckpoint, arenas.vCheckpoint, arenas.mujocoCheckpoint,
         arenas.factor, arenas.ownerStatus,
@@ -796,6 +854,96 @@ std::vector<std::uint8_t> ownerAuthorityBytes(
         result.insert(result.end(), begin, begin + buffer.length);
     }
     return result;
+}
+
+void verifyCompensatedAuthorityRejected(
+    const metalrobo::MetalNumanXHumanMatterProgram& program,
+    const OwnerArenas& arenas, ExactCandidateService& exact,
+    id<MTLCommandQueue> queue, const float timestep
+) {
+    using Pass = metalrobo::MetalNumanXHumanMatterPass;
+    struct Field {
+        void* Pass::*buffer;
+        std::uint64_t Pass::*address;
+        std::uint64_t Pass::*count;
+        NSUInteger bytes;
+    };
+    const std::array<Field, 4u> fields{{
+        {&Pass::rootTranslation, &Pass::rootTranslationGPUAddress,
+         &Pass::rootTranslationElementCount, sizeof(MRCompensatedRootTranslationGPU)},
+        {&Pass::rootTranslationCheckpoint, &Pass::rootTranslationCheckpointGPUAddress,
+         &Pass::rootTranslationCheckpointElementCount, sizeof(MRCompensatedRootTranslationGPU)},
+        {&Pass::bodyPositionLow, &Pass::bodyPositionLowGPUAddress,
+         &Pass::bodyPositionLowElementCount, kBodies * sizeof(mr_float4)},
+        {&Pass::pointPositionLow, &Pass::pointPositionLowGPUAddress,
+         &Pass::pointPositionLowElementCount, kPoints * sizeof(mr_float4)},
+    }};
+    const auto before = ownerAuthorityBytes(arenas);
+    const auto callsBefore = exact.calls;
+    id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+    require(commandBuffer != nil, "failed to allocate compensated negative CB");
+    const auto valid = makePass(program, arenas, exact, commandBuffer,
+        metalrobo::MetalNumanXHumanMatterPhase::beginStep, timestep);
+    const auto reject = [&](const Pass& malformed, const char* reason) {
+        require(!program.encode(program.context, malformed), reason);
+    };
+    for (const auto& field : fields) {
+        auto bad = valid;
+        bad.*field.buffer = nullptr;
+        reject(bad, "missing compensated authority arena was admitted");
+        bad = valid;
+        bad.*field.address ^= 16u;
+        reject(bad, "wrong compensated authority address was admitted");
+        bad = valid;
+        bad.*field.count = 0u;
+        reject(bad, "empty compensated authority extent was admitted");
+        id<MTLBuffer> shortBuffer = makeZeroBuffer(queue.device,
+            field.bytes - 1u, @"short compensated authority negative");
+        bad = valid;
+        bad.*field.buffer = (__bridge void*)shortBuffer;
+        bad.*field.address = shortBuffer.gpuAddress;
+        reject(bad, "short compensated authority resource was admitted");
+    }
+    auto bad = valid;
+    bad.rootTranslationCheckpoint = bad.rootTranslation;
+    bad.rootTranslationCheckpointGPUAddress = bad.rootTranslationGPUAddress;
+    reject(bad, "live compensated root aliased its rollback checkpoint");
+    bad = valid;
+    bad.pointPositionLow = bad.bodyPositionLow;
+    bad.pointPositionLowGPUAddress = bad.bodyPositionLowGPUAddress;
+    reject(bad, "body and point residual authority aliased");
+    constexpr MTLResourceOptions options =
+        MTLResourceStorageModePrivate | MTLResourceHazardTrackingModeTracked;
+    constexpr NSUInteger extent = sizeof(MRCompensatedRootTranslationGPU);
+    const auto size = [queue.device heapBufferSizeAndAlignWithLength:extent options:options];
+    MTLHeapDescriptor* descriptor = [[MTLHeapDescriptor alloc] init];
+    descriptor.type = MTLHeapTypePlacement;
+    descriptor.storageMode = MTLStorageModePrivate;
+    descriptor.hazardTrackingMode = MTLHazardTrackingModeTracked;
+    descriptor.size = size.size;
+    id<MTLHeap> heap = [queue.device newHeapWithDescriptor:descriptor];
+    require(heap != nil, "failed to allocate compensated alias heap");
+    id<MTLBuffer> live = [heap newBufferWithLength:extent options:options offset:0u];
+    [live makeAliasable];
+    id<MTLBuffer> checkpoint = [heap newBufferWithLength:extent options:options offset:0u];
+    require(live != nil && checkpoint != nil && live != checkpoint &&
+            live.gpuAddress != 0u && live.gpuAddress == checkpoint.gpuAddress,
+        "compensated heap alias fixture did not overlap");
+    bad = valid;
+    bad.rootTranslation = (__bridge void*)live;
+    bad.rootTranslationGPUAddress = live.gpuAddress;
+    bad.rootTranslationCheckpoint = (__bridge void*)checkpoint;
+    bad.rootTranslationCheckpointGPUAddress = checkpoint.gpuAddress;
+    reject(bad, "distinct overlapping compensated root resources were admitted");
+    bad = valid;
+    bad.bodyPositionLow = (__bridge void*)live;
+    bad.bodyPositionLowGPUAddress = live.gpuAddress;
+    bad.pointPositionLow = (__bridge void*)checkpoint;
+    bad.pointPositionLowGPUAddress = checkpoint.gpuAddress;
+    reject(bad, "distinct overlapping body/point residual resources were admitted");
+    finish(commandBuffer);
+    require(before == ownerAuthorityBytes(arenas) && exact.calls == callsBefore,
+        "compensated admission rejection mutated authority or invoked physics");
 }
 
 void encodeHumanMutation(
@@ -814,12 +962,17 @@ void encodeHumanMutation(
     v[0] += 0.002f * static_cast<float>(generation);
     mujoco.excitationAndActivation.x +=
         0.01f * static_cast<float>(generation);
+    id<MTLBuffer> rootSource = makeBuffer(device,
+        mrCompensatedTranslationFromProjection({q[0], q[1], q[2], 0.0f}),
+        @"candidate Human compensated root");
     id<MTLBuffer> qSource = makeBuffer(device, q, @"candidate Human q");
     id<MTLBuffer> vSource = makeBuffer(device, v, @"candidate Human v");
     id<MTLBuffer> mujocoSource = makeBuffer(
         device, mujoco, @"candidate Human MyoSim");
     id<MTLBlitCommandEncoder> blit = [commandBuffer blitCommandEncoder];
     require(blit != nil &&
+            copy(blit, rootSource, (__bridge void*)arenas.rootTranslation,
+                 arenas.rootTranslation.length) &&
             copy(blit, qSource, (__bridge void*)arenas.q, arenas.q.length) &&
             copy(blit, vSource, (__bridge void*)arenas.v, arenas.v.length) &&
             copy(blit, mujocoSource, (__bridge void*)arenas.mujoco,
@@ -1116,6 +1269,55 @@ void verifyCrossSlotAuthorityRejected(
         matter.timestepSeconds());
     require(!program.encode(program.context, begin),
         "slot-1 physical pass reused terminal slot-0 authority");
+    const OwnerArenas freshArenas = makeOwnerArenas(queue.device);
+    const auto freshBefore = ownerAuthorityBytes(freshArenas);
+    const auto fresh = makePass(program, freshArenas, exact, commandBuffer,
+        metalrobo::MetalNumanXHumanMatterPhase::beginStep, matter.timestepSeconds());
+    auto rootOnly = fresh;
+    rootOnly.rootTranslation = begin.rootTranslation;
+    rootOnly.rootTranslationGPUAddress = begin.rootTranslationGPUAddress;
+    require(!program.encode(program.context, rootOnly),
+        "cross-slot compensated root substitution was admitted");
+    auto checkpointOnly = fresh;
+    checkpointOnly.rootTranslationCheckpoint = begin.rootTranslationCheckpoint;
+    checkpointOnly.rootTranslationCheckpointGPUAddress = begin.rootTranslationCheckpointGPUAddress;
+    require(!program.encode(program.context, checkpointOnly),
+        "cross-slot compensated checkpoint substitution was admitted");
+    auto bodyLowOnly = fresh;
+    bodyLowOnly.bodyPositionLow = begin.bodyPositionLow;
+    bodyLowOnly.bodyPositionLowGPUAddress = begin.bodyPositionLowGPUAddress;
+    require(!program.encode(program.context, bodyLowOnly),
+        "cross-slot body residual substitution was admitted");
+    auto pointLowOnly = fresh;
+    pointLowOnly.pointPositionLow = begin.pointPositionLow;
+    pointLowOnly.pointPositionLowGPUAddress = begin.pointPositionLowGPUAddress;
+    require(!program.encode(program.context, pointLowOnly),
+        "cross-slot point residual substitution was admitted");
+    // Adding new precision arenas must not displace the original checkpoints
+    // from the retained authority prefix.
+    auto qCheckpointOnly = fresh;
+    qCheckpointOnly.qCheckpoint = begin.qCheckpoint;
+    qCheckpointOnly.qCheckpointGPUAddress = begin.qCheckpointGPUAddress;
+    require(!program.encode(program.context, qCheckpointOnly),
+        "cross-slot original q checkpoint substitution was admitted");
+    auto vCheckpointOnly = fresh;
+    vCheckpointOnly.vCheckpoint = begin.vCheckpoint;
+    vCheckpointOnly.vCheckpointGPUAddress = begin.vCheckpointGPUAddress;
+    require(!program.encode(program.context, vCheckpointOnly),
+        "cross-slot original v checkpoint substitution was admitted");
+    auto muscleCheckpointOnly = fresh;
+    muscleCheckpointOnly.mujocoStateCheckpoint = begin.mujocoStateCheckpoint;
+    muscleCheckpointOnly.mujocoStateCheckpointGPUAddress = begin.mujocoStateCheckpointGPUAddress;
+    require(!program.encode(program.context, muscleCheckpointOnly),
+        "cross-slot original muscle checkpoint substitution was admitted");
+    auto factorOnly = fresh;
+    factorOnly.sourceEffectiveTangentFactor = begin.sourceEffectiveTangentFactor;
+    factorOnly.sourceEffectiveTangentFactorGPUAddress = begin.sourceEffectiveTangentFactorGPUAddress;
+    require(!program.encode(program.context, factorOnly),
+        "cross-slot original tangent factor substitution was admitted");
+    finish(commandBuffer);
+    require(freshBefore == ownerAuthorityBytes(freshArenas),
+        "cross-slot rejection mutated fresh authority");
     require(program.releasePrepareLease(
                 program.context, lease, nullptr, false) ==
                 metalrobo::MetalNumanXHumanMatterPrepareLeaseDisposition::
@@ -1228,6 +1430,8 @@ PreparedTransaction prepareTransaction(
     exact.calls = 0u;
     if (exerciseMalformed) {
         verifyDistinctHeapAliasRejected(
+            result.program, arenas, exact, queue, matter.timestepSeconds());
+        verifyCompensatedAuthorityRejected(
             result.program, arenas, exact, queue, matter.timestepSeconds());
     }
     auto pre = makePass(
@@ -1963,6 +2167,9 @@ ApplyResult applyTransaction(
                 prepared.finalTokens.contents, 0,
                 prepared.finalTokens.length);
             if (!invalidCross) {
+                std::memcpy(arenas.rootTranslation.contents,
+                            arenas.rootTranslationCheckpoint.contents,
+                            arenas.rootTranslation.length);
                 std::memcpy(arenas.q.contents, arenas.qCheckpoint.contents,
                             arenas.q.length);
                 std::memcpy(arenas.v.contents, arenas.vCheckpoint.contents,
@@ -2166,14 +2373,17 @@ ApplyResult applyTransaction(
             "REJECT published a root token");
         require(equalAcceptedAuthority(prepared.before, result.after),
             "REJECT did not byte-restore Matter accepted authority");
-        require(std::memcmp(arenas.q.contents, arenas.qCheckpoint.contents,
+        require(std::memcmp(arenas.rootTranslation.contents,
+                            arenas.rootTranslationCheckpoint.contents,
+                            arenas.rootTranslation.length) == 0 &&
+                std::memcmp(arenas.q.contents, arenas.qCheckpoint.contents,
                             arenas.q.length) == 0 &&
                 std::memcmp(arenas.v.contents, arenas.vCheckpoint.contents,
                             arenas.v.length) == 0 &&
                 std::memcmp(arenas.mujoco.contents,
                             arenas.mujocoCheckpoint.contents,
                             arenas.mujoco.length) == 0,
-            "REJECT did not byte-restore Human q/v/MyoSim");
+            "REJECT did not byte-restore Human root/q/v/MyoSim");
         require(prepared.humanIO != nullptr &&
                 prepared.humanIO->stage ==
                     SensorPublicationService::Stage::rejected &&
@@ -2230,6 +2440,7 @@ void verifyTerminalPending(
     runtimeConfig.captureEvents = false;
     runtimeConfig.captureDiagnostics = true;
     runtimeConfig.adaptiveTransfer = false;
+    runtimeConfig.coupledCandidateCompensatedTranslation = true;
     runtimeConfig.acceptedStateProofMujocoBytesPerEnvironmentCapacity =
         sizeof(MRMujocoMuscleStateGPU);
     auto* matter = new numi::matter::Runtime;
@@ -2268,6 +2479,7 @@ void verifyTerminalPending(
     jacobian[2u * kDofs + 2u] = 1.0f;
     ExactCandidateService exact;
     exact.q = makeBuffer(device, q, @"terminal candidate q");
+    initializeExactPrecision(exact, device);
     exact.body = makeBuffer(device, body, @"terminal candidate body");
     exact.jacobian = makeBuffer(
         device, jacobian, @"terminal candidate Jacobian");
@@ -2343,6 +2555,7 @@ void verifyOwnerAdapterMatterIntegration(id<MTLDevice> device) {
     runtimeConfig.captureEvents = false;
     runtimeConfig.captureDiagnostics = true;
     runtimeConfig.adaptiveTransfer = false;
+    runtimeConfig.coupledCandidateCompensatedTranslation = true;
     runtimeConfig.acceptedStateProofMujocoBytesPerEnvironmentCapacity =
         sizeof(MRMujocoMuscleStateGPU);
     numi::matter::Runtime matter;
@@ -2630,6 +2843,7 @@ int main() {
             runtimeConfig.captureEvents = false;
             runtimeConfig.captureDiagnostics = true;
             runtimeConfig.adaptiveTransfer = false;
+            runtimeConfig.coupledCandidateCompensatedTranslation = true;
             runtimeConfig.acceptedStateProofMujocoBytesPerEnvironmentCapacity =
                 sizeof(MRMujocoMuscleStateGPU);
             numi::matter::Runtime matter;
@@ -2671,6 +2885,7 @@ int main() {
             jacobian[2u * kDofs + 2u] = 1.0f;
             ExactCandidateService exact;
             exact.q = makeBuffer(device, candidateQ, @"candidate q source");
+            initializeExactPrecision(exact, device);
             exact.body = makeBuffer(device, body, @"candidate body source");
             exact.jacobian = makeBuffer(
                 device, jacobian, @"candidate Jacobian source");
@@ -2761,6 +2976,7 @@ int main() {
             ExactCandidateService disjointExact;
             disjointExact.q = makeBuffer(
                 device, candidateQ, @"slot-1 candidate q source");
+            initializeExactPrecision(disjointExact, device);
             disjointExact.body = makeBuffer(
                 device, body, @"slot-1 candidate body source");
             disjointExact.jacobian = makeBuffer(

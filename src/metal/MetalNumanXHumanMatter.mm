@@ -178,6 +178,9 @@ struct PhysicalDiagnosticsReadback {
     NMMatterStatusGPU matter{};
 };
 
+// Four compensated arenas plus the original fourteen live/checkpoint arenas.
+constexpr std::size_t kOwnerPhysicalAuthorityRegionCount = 18u;
+
 struct MetalNumanXHumanMatterSlot {
     MetalNumanXCoupledHumanArenaView coupledArena{};
     // CoupledHuman's transient 16-byte post-commit status. It is not the
@@ -188,6 +191,7 @@ struct MetalNumanXHumanMatterSlot {
     // Derived pose-only view for support recovery; rebuilt on the owner CB.
     // This is scratch, never accepted state or a body dynamics authority.
     __strong id<MTLBuffer> supportInitialBodies = nil;
+    __strong id<MTLBuffer> supportInitialBodyPositionLow = nil;
     __strong id<MTLBuffer> worldStatuses = nil;
     __strong id<MTLBuffer> physicalDiagnostics = nil;
     bool physicalDiagnosticsEncoded = false;
@@ -200,7 +204,7 @@ struct MetalNumanXHumanMatterSlot {
     std::uintptr_t applyCommandBufferIdentity = 0u;
     std::uint64_t passSignature = 0u;
     std::uint64_t applyAttempt = 0u;
-    std::array<MetalNumanXHumanMatterAuthorityRegion, 14u>
+    std::array<MetalNumanXHumanMatterAuthorityRegion, kOwnerPhysicalAuthorityRegionCount>
         physicalAuthorityRegions{};
     std::size_t physicalAuthorityRegionCount = 0u;
     MetalNumanXHumanMatterApplicationReservation applicationReservation{};
@@ -613,7 +617,7 @@ constexpr std::size_t kMatterApplyPrivateRegion = 4u;
                     retained.physicalAuthorityRegions.size()) {
                 return false;
             }
-            std::array<BufferRegion, 14u> physical{};
+            std::array<BufferRegion, detail::kOwnerPhysicalAuthorityRegionCount> physical{};
             for (std::size_t index = 0u; index < physical.size(); ++index) {
                 if (!scalarRegion(
                         retained.physicalAuthorityRegions[index].address,
@@ -987,8 +991,24 @@ void dispatchEnvironments(
         slot.supportInitialBodies = bodies;
         state.retainedBytes = retained;
     }
+    const std::uint64_t lowBytes = elements * sizeof(mr_float4);
+    if (slot.supportInitialBodyPositionLow == nil || slot.supportInitialBodyPositionLow.length < lowBytes) {
+        const std::uint64_t previous = slot.supportInitialBodyPositionLow.length;
+        if (!checkedAdd(state.retainedBytes - previous, lowBytes, retained) || retained > state.config.maximumRetainedBytes) return false;
+        slot.supportInitialBodyPositionLow = [state.device newBufferWithLength:lowBytes options:MTLResourceStorageModePrivate];
+        if (slot.supportInitialBodyPositionLow == nil) return false;
+        state.retainedBytes = retained;
+    }
     __unsafe_unretained id<MTLCommandBuffer> commandBuffer =
         (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    id<MTLBlitCommandEncoder> lowCopy = [commandBuffer blitCommandEncoder];
+    if (lowCopy == nil) return false;
+    [lowCopy fillBuffer:slot.supportInitialBodyPositionLow range:NSMakeRange(0u,lowBytes) value:0u];
+    for (std::uint64_t env = 0u; env < pass.environmentCount; ++env)
+        [lowCopy copyFromBuffer:(__bridge id<MTLBuffer>)pass.bodyPositionLow sourceOffset:env*pass.bodyPoseStride*sizeof(mr_float4)
+            toBuffer:slot.supportInitialBodyPositionLow destinationOffset:(env*bodyEnd+pass.articulationFirstBody)*sizeof(mr_float4)
+            size:pass.bodyCount*sizeof(mr_float4)];
+    [lowCopy endEncoding];
     id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
     if (encoder == nil) return false;
     const std::array<std::uint32_t, 4u> layout = {
@@ -1086,7 +1106,7 @@ void dispatchEnvironments(
     const MetalNumanXHumanMatterPass& pass
 ) noexcept {
     std::uint64_t hash = kFNVOffset;
-    const std::array<void*, 19u> pointers{{
+    const std::array<void*, 23u> pointers{{
         pass.commandBuffer, pass.q, pass.v, pass.mujocoStates,
         pass.sourcePredictedVelocity,
         pass.mujocoGeneralizedForceArena, pass.bodyPoses, pass.pointQueries,
@@ -1095,12 +1115,13 @@ void dispatchEnvironments(
         pass.sourceEffectiveTangentFactor, pass.ownerStatuses,
         pass.matterGeneralizedReaction, pass.jointStatuses,
         pass.acceptedPhysicsStateTokens,
+        pass.rootTranslation, pass.rootTranslationCheckpoint, pass.bodyPositionLow, pass.pointPositionLow,
     }};
     for (void* pointer : pointers) {
         const std::uintptr_t value = reinterpret_cast<std::uintptr_t>(pointer);
         mixValue(hash, static_cast<std::uint64_t>(value));
     }
-    const std::array<std::uint64_t, 39u> values{{
+    const std::array<std::uint64_t, 47u> values{{
         pass.qGPUAddress, pass.vGPUAddress,
         pass.sourcePredictedVelocityGPUAddress,
         pass.mujocoStatesGPUAddress,
@@ -1123,6 +1144,10 @@ void dispatchEnvironments(
         pass.generalizedForceArenaElementCount, pass.reactionStride,
         pass.jointStatusStride, pass.acceptedTokenStrideBytes,
         pass.bodyJacobianPointOffset,
+        pass.rootTranslationGPUAddress, pass.rootTranslationCheckpointGPUAddress,
+        pass.bodyPositionLowGPUAddress, pass.pointPositionLowGPUAddress,
+        pass.rootTranslationElementCount, pass.rootTranslationCheckpointElementCount,
+        pass.bodyPositionLowElementCount, pass.pointPositionLowElementCount,
     }};
     for (const auto value : values) mixValue(hash, value);
     mixValue(hash, pass.articulationIndex);
@@ -1242,7 +1267,7 @@ void dispatchEnvironments(
     // access modes: checkpoints, live destinations, owner status, staged
     // reaction, joint status, proof scratch and the prepared token form one
     // rollback/proof authority and must never share bytes.
-    std::array<BufferRegion, 23u> regions{};
+    std::array<BufferRegion, 27u> regions{};
     std::size_t regionCount = 0u;
     const auto appendBuffer = [&] (
         void* raw, const std::uint64_t address,
@@ -1276,7 +1301,14 @@ void dispatchEnvironments(
             static_cast<std::uint64_t>(buffer.gpuAddress),
             static_cast<std::uint64_t>(buffer.length));
     };
-    if (!appendBuffer(pass.q, pass.qGPUAddress, qElements, sizeof(float)) ||
+    if (pass.rootTranslationElementCount != pass.environmentCount ||
+        pass.rootTranslationCheckpointElementCount != pass.environmentCount ||
+        pass.bodyPositionLowElementCount < bodyElements || pass.pointPositionLowElementCount < pointWorldElements) return false;
+    if (!appendBuffer(pass.rootTranslation, pass.rootTranslationGPUAddress, pass.environmentCount, sizeof(MRCompensatedRootTranslationGPU)) ||
+        !appendBuffer(pass.rootTranslationCheckpoint, pass.rootTranslationCheckpointGPUAddress, pass.environmentCount, sizeof(MRCompensatedRootTranslationGPU)) ||
+        !appendBuffer(pass.bodyPositionLow, pass.bodyPositionLowGPUAddress, bodyElements, sizeof(mr_float4)) ||
+        !appendBuffer(pass.pointPositionLow, pass.pointPositionLowGPUAddress, pointWorldElements, sizeof(mr_float4)) ||
+        !appendBuffer(pass.q, pass.qGPUAddress, qElements, sizeof(float)) ||
         !appendBuffer(pass.v, pass.vGPUAddress, vElements, sizeof(float)) ||
         !appendBuffer(pass.sourcePredictedVelocity,
                 pass.sourcePredictedVelocityGPUAddress,
@@ -1306,8 +1338,13 @@ void dispatchEnvironments(
                 stateElements, sizeof(MRMujocoMuscleStateGPU)) ||
         !appendBuffer(pass.sourceEffectiveTangentFactor,
                 pass.sourceEffectiveTangentFactorGPUAddress,
-                factorElements, sizeof(float)) ||
-        !appendBuffer(pass.ownerStatuses, pass.ownerStatusesGPUAddress,
+                factorElements, sizeof(float))) {
+        return false;
+    }
+    // Fail closed if a later arena addition is not reflected in retained
+    // cross-slot isolation. Count the actual owner prefix before transients.
+    if (regionCount != slot.physicalAuthorityRegions.size()) return false;
+    if (!appendBuffer(pass.ownerStatuses, pass.ownerStatusesGPUAddress,
                 ownerElements, sizeof(MRNumanXHumanMatterOwnerStatusGPU)) ||
         !appendExactBytes(
             pass.matterGeneralizedReaction,
@@ -1343,9 +1380,6 @@ void dispatchEnvironments(
         // Freeze only the owner-supplied physical authority ranges. The
         // adapter-owned ranges that follow are validated independently and
         // must never be mistaken for borrowable owner storage.
-        static_assert(
-            std::tuple_size_v<decltype(slot.physicalAuthorityRegions)> ==
-            14u);
         for (std::size_t index = 0u;
              index < slot.physicalAuthorityRegions.size(); ++index) {
             slot.physicalAuthorityRegions[index] = {
@@ -2200,6 +2234,16 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
     candidate.deltaVelocity = query.input;
     candidate.candidateQ = query.candidateQ;
     candidate.candidateBodies = query.candidateBodies;
+    candidate.candidateRootTranslation = query.candidateRootTranslation;
+    candidate.candidateRootTranslationGPUAddress = query.candidateRootTranslationGPUAddress;
+    candidate.candidateRootTranslationElementCount = query.candidateRootTranslationElementCount;
+    candidate.candidateBodyPositionLow = query.candidateBodyPositionLow;
+    candidate.candidateBodyPositionLowGPUAddress = query.candidateBodyPositionLowGPUAddress;
+    candidate.candidateBodyPositionLowElementCount = query.candidateBodyPositionLowElementCount;
+    candidate.pointPositionLow = query.pointPositionLow;
+    candidate.pointPositionLowGPUAddress = query.pointPositionLowGPUAddress;
+    candidate.pointPositionLowElementCount = query.pointPositionLowElementCount;
+
     candidate.pointQueries = query.pointQueries;
     candidate.pointJacobians = query.pointJacobians;
     candidate.deltaVelocityGPUAddress = query.inputGPUAddress;
@@ -2245,6 +2289,16 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
     query.output = matter.output;
     query.candidateQ = matter.candidateQ;
     query.candidateBodies = matter.candidateBodies;
+    query.candidateRootTranslation = matter.candidateRootTranslation;
+    query.candidateRootTranslationGPUAddress = matter.candidateRootTranslationGPUAddress;
+    query.candidateRootTranslationElementCount = matter.candidateRootTranslationElementCount;
+    query.candidateBodyPositionLow = matter.candidateBodyPositionLow;
+    query.candidateBodyPositionLowGPUAddress = matter.candidateBodyPositionLowGPUAddress;
+    query.candidateBodyPositionLowElementCount = matter.candidateBodyPositionLowElementCount;
+    query.pointPositionLow = nullptr;
+    query.pointPositionLowGPUAddress = 0u;
+    query.pointPositionLowElementCount = 0u;
+
     query.statuses = matter.statuses;
     // Matter may use non-null dummy buffers for an empty attachment suffix.
     // CoupledHuman's frozen ABI represents zero points canonically: every
@@ -2348,6 +2402,9 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
     request.humanEqualitySourceEffectiveTangentFactor = pass.sourceEffectiveTangentFactor;
     request.rigid.currentBodies = nullptr;
     request.humanSupportInitialBodies = (__bridge void*)slot.supportInitialBodies;
+    request.humanSupportInitialBodyPositionLow = (__bridge void*)slot.supportInitialBodyPositionLow;
+    request.humanSupportInitialBodyPositionLowGPUAddress = slot.supportInitialBodyPositionLow.gpuAddress;
+    request.humanSupportInitialBodyPositionLowElementCount = slot.supportInitialBodyPositionLow.length / sizeof(mr_float4);
     const std::uint64_t bodyEnd =
         static_cast<std::uint64_t>(pass.articulationFirstBody) +
         pass.bodyCount;
@@ -2405,6 +2462,8 @@ void cancelSlot(State& state, Slot& slot) noexcept {
     slot.commandBufferIdentity =
         reinterpret_cast<std::uintptr_t>(pass.commandBuffer);
     slot.physicalDiagnosticsEncoded = false;
+    if (state.config.observeCandidate != nullptr &&
+        !state.config.observeCandidate(state.config.candidateObserverContext, pass)) return false;
     slot.passSignature = passSignature(pass);
     slot.cancelIssued = false;
     slot.matterOpened = false;
@@ -2552,6 +2611,10 @@ void cancelSlot(State& state, Slot& slot) noexcept {
         slot.transaction.environmentIdentifierBase;
     proof.commandBuffer = pass.commandBuffer;
     proof.q = pass.q;
+    proof.rootTranslation = pass.rootTranslation;
+    proof.rootTranslationGPUAddress = pass.rootTranslationGPUAddress;
+    proof.rootTranslationElementCount = pass.rootTranslationElementCount;
+    proof.rootTranslationStride = 1u;
     proof.v = pass.v;
     proof.mujocoStates = pass.mujocoStates;
     proof.matterGeneralizedReaction = pass.matterGeneralizedReaction;
@@ -2624,7 +2687,9 @@ void cancelSlot(State& state, Slot& slot) noexcept {
     request.encodeCoupledCandidate = nullptr;
     const auto encoded =
         state.config.matterRuntime->prepareAcceptedState(request);
-    if (!encoded.encoded || !encodeStateProof(state, slot, pass) ||
+    if (!encoded.encoded ||
+        (state.config.observeCandidate != nullptr && !state.config.observeCandidate(state.config.candidateObserverContext, pass)) ||
+        !encodeStateProof(state, slot, pass) ||
         !encodeCaptureOutcome(state, slot, pass)) {
         cancelSlot(state, slot);
         return false;
@@ -3743,6 +3808,7 @@ MetalNumanXHumanMatterContext::initialize() {
         config.transactionSlotCount >
             MR_NUMANX_COUPLED_HUMAN_MAX_TRANSACTION_SLOTS ||
         config.reserved0 != 0u || config.maximumRetainedBytes == 0u ||
+        ((config.candidateObserverContext == nullptr) != (config.observeCandidate == nullptr)) ||
         (config.stateProofProgram.configured() &&
          !config.stateProofProgram.valid())) {
         return diagnostics(

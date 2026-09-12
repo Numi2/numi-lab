@@ -7,6 +7,8 @@
 
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/MetalNeuronCulture.hpp"
+#include "metalrobo/MetalHumanBehaviorTelemetry.hpp"
+#include "metalrobo/mrnx_human_behavior_v1.h"
 #include "metalrobo/MetalNumanXHumanMatter.hpp"
 #include "metalrobo/NeuronCultureArtifacts.hpp"
 #include "metalrobo/NumiHumanTissueBinding.hpp"
@@ -238,6 +240,8 @@ std::vector<T> readVector(
 struct FullBodyAssets {
     metalrobo::EngineModel model;
     RigidHeader rigid{};
+    std::array<std::uint8_t,32u> rigidSHA256{};
+    std::vector<std::uint32_t> sourceMap;
     MuscleHeader muscle{};
     std::vector<MRMujocoMuscleSiteGPU> sites;
     std::vector<MRMujocoMuscleWrapGPU> wraps;
@@ -245,6 +249,7 @@ struct FullBodyAssets {
     std::vector<MRMujocoMuscleGPU> muscles;
     std::vector<MRMujocoMuscleStateGPU> states;
     std::vector<float> initialQ;
+    std::vector<MRCompensatedRootTranslationGPU> initialRootTranslations;
     std::vector<float> initialV;
     std::vector<MRArticulatedPointImpulseGPU> points;
     std::vector<MRNumiHumanStandContactGPU> supportContacts;
@@ -771,8 +776,11 @@ FullBodyAssets loadFullBodyAssets(
         rigidInput, result.rigid.nq, "NHRIGID2 default q");
     result.model.defaultV = readVector<float>(
         rigidInput, result.rigid.nv, "NHRIGID2 default v");
-    const auto sourceMap = readVector<std::uint32_t>(
+    result.sourceMap = readVector<std::uint32_t>(
         rigidInput, result.rigid.sourceBodyCount, "NHRIGID2 source map");
+    requireBuild(rigidImage.bytes.size() <= std::numeric_limits<CC_LONG>::max(),
+        MRNX_RUNTIME_ASSET_FAILURE_V1, "rigid image exceeds SHA256 input extent");
+    CC_SHA256(rigidImage.bytes.data(), static_cast<CC_LONG>(rigidImage.bytes.size()), result.rigidSHA256.data());
     (void)readVector<SourcePoseRecord>(
         rigidInput, result.rigid.sourceBodyCount, "NHRIGID2 source poses");
     requireBuild(
@@ -787,7 +795,7 @@ FullBodyAssets loadFullBodyAssets(
             articulation.nv == result.rigid.nv,
         MRNX_RUNTIME_ASSET_FAILURE_V1,
         "NHRIGID2 model/header disagreement");
-    for (const std::uint32_t body : sourceMap) {
+    for (const std::uint32_t body : result.sourceMap) {
         requireBuild(
             body < result.rigid.engineBodyCount,
             MRNX_RUNTIME_ASSET_FAILURE_V1,
@@ -1371,6 +1379,10 @@ bool encodeRuntimeProof(
     pass.environmentIdentifierBase = source.environmentIdentifierBase;
     pass.commandBuffer = source.commandBuffer;
     pass.q = source.q;
+    pass.rootTranslation = source.rootTranslation;
+    pass.rootTranslationGPUAddress = source.rootTranslationGPUAddress;
+    pass.rootTranslationElementCount = source.rootTranslationElementCount;
+    pass.rootTranslationStride = source.rootTranslationStride;
     pass.v = source.v;
     pass.mujocoStates = source.mujocoStates;
     pass.matterGeneralizedReaction = source.matterGeneralizedReaction;
@@ -1571,6 +1583,9 @@ struct ActiveRoot final : std::enable_shared_from_this<ActiveRoot> {
     ImportedRange activeSensing{};
     ImportedRange motorReadyGate{};
     __strong id<MTLSharedEvent> motorReadyEvent = nil;
+    // Optional qualification copy, populated on the original physical command
+    // buffer and exposed only after joint publication. Never a state owner.
+    __strong id<MTLBuffer> rootTranslationTrace = nil;
     __strong id<MTLBuffer> kinesthesia = nil;
     __strong id<MTLBuffer> kinesthesiaValidity = nil;
     __strong id<MTLBuffer> vestibular = nil;
@@ -1627,6 +1642,9 @@ struct RuntimeState final : std::enable_shared_from_this<RuntimeState> {
     // generation/timestamp authority advances only on accepted publication.
     std::uint64_t lastAttemptedControlStep = 0u;
     std::shared_ptr<ActiveRoot> active;
+    // Submit-time observer identity. The synchronous owner encoder borrows
+    // this before prepared ownership becomes runtime->active.
+    ActiveRoot* encodingActive = nullptr;
     mrnx_runtime_info_v1 info{};
     mrnx_runtime_world_info_v1 worldInfo{};
     mrnx_aggregate_snapshot_v1 aggregate{};
@@ -1646,6 +1664,12 @@ struct RuntimeState final : std::enable_shared_from_this<RuntimeState> {
     __strong id<MTLBuffer> publishedProprioceptionValidity = nil;
     __strong id<MTLBuffer> publishedInteroception = nil;
     __strong id<MTLBuffer> publishedInteroceptionValidity = nil;
+    std::unique_ptr<metalrobo::MetalHumanBehaviorTelemetry> behavior;
+    metalrobo::HumanBehaviorCompileBinding behaviorBinding;
+    std::string behaviorMetallibPath;
+    std::string behaviorError;
+    std::string behaviorMetricSHA256;
+    std::uint64_t behaviorInitialTimestampNanoseconds = 0u;
     std::unique_ptr<numi::matter::Runtime> matter;
     std::unique_ptr<metalrobo::MetalNumanXHumanMatterContext> adapter;
     std::unique_ptr<metalrobo::MetalNumanXHumanIOContext> humanIO;
@@ -1674,8 +1698,11 @@ void runtimeTerminalCompletion(
     const mrnx_root_v1& root,
     const mrnx_candidate_view_v1* candidate,
     const mrnx_candidate_channel_v1* channels,
-    std::uint32_t channelCount
+    std::uint32_t channelCount,
+    const MRNumanXHumanMatterJointPublicationFenceGPU* committedFence
 ) noexcept;
+[[nodiscard]] bool encodeRuntimeBehaviorCandidate(void* raw,
+    const metalrobo::MetalNumanXHumanMatterPass& pass) noexcept;
 void settleActiveRoot(const std::shared_ptr<ActiveRoot>& active) noexcept;
 void humanCandidateCompletion(
     void* raw,
@@ -1802,6 +1829,14 @@ void cultureCompletion(
     const std::shared_ptr<ActiveRoot>& active
 ) noexcept {
     if (runtime == nullptr || active == nullptr) return false;
+    if (std::getenv("MRNX_PHYSICAL_BUFFER_TRACE") != nullptr) {
+        active->rootTranslationTrace = [runtime->device
+            newBufferWithLength:sizeof(MRCompensatedRootTranslationGPU)
+            options:MTLResourceStorageModeShared];
+        if (active->rootTranslationTrace == nil || active->rootTranslationTrace.gpuAddress == 0u)
+            return false;
+        active->rootTranslationTrace.label = @"NumanX root translation qualification copy";
+    }
     constexpr std::size_t kinesthesiaValueBytes =
         MR_NUMANX_HUMAN_KINESTHESIA_RECEPTOR_COUNT *
         MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT * sizeof(float);
@@ -1915,6 +1950,17 @@ void cultureCompletion(
     const auto tissueOffsets=tissueConfig!=nullptr
         ? prepareCostalMassOwnership(runtime->assets,*tissueConfig)
         : std::vector<std::array<double,3>>{};
+    runtime->behaviorBinding.sourceArchiveSHA256 = runtime->assets.rigid.sourceSHA256;
+    runtime->behaviorBinding.rigidSHA256 = runtime->assets.rigidSHA256;
+    runtime->behaviorBinding.bodyCount = runtime->assets.rigid.engineBodyCount;
+    runtime->behaviorBinding.nq = runtime->assets.rigid.nq;
+    runtime->behaviorBinding.nv = runtime->assets.rigid.nv;
+    runtime->behaviorBinding.timestepNanoseconds = config.timestep_microseconds * 1000ull;
+    for (std::uint32_t i = 0u; i < runtime->assets.sourceMap.size(); ++i)
+        runtime->behaviorBinding.sourceToCore.push_back({i, runtime->assets.sourceMap[i]});
+    runtime->behaviorBinding.cookedCOMOffset = tissueConfig != nullptr ? tissueOffsets
+        : std::vector<std::array<double,3>>(runtime->assets.model.bodies.size(), {0.0, 0.0, 0.0});
+    runtime->behaviorMetallibPath = config.metalrobo_metallib_path;
     // Decode after mass ownership establishes final body frames. The source
     // default pose remains authoritative for rest coordinates and ownership;
     // these vectors belong only to construction and the first resident submit.
@@ -1922,7 +1968,7 @@ void cultureCompletion(
     runtime->assets.initialQ = runtime->assets.model.defaultQ;
     runtime->assets.initialV = runtime->assets.model.defaultV;
     if (initialConfig != nullptr) {
-        const auto image = loadImmutablePayload(initialConfig->initial_state_payload_path, "NHINIT1 initial state");
+        const auto image = loadImmutablePayload(initialConfig->initial_state_payload_path, "NHINIT initial state");
         requireBuild(hashBytes(image.bytes.data(), image.bytes.size()) == initialConfig->expected_initial_state_fingerprint,
             MRNX_RUNTIME_ASSET_FAILURE_V1, "initial-state fingerprint mismatch");
         std::string error;
@@ -1931,8 +1977,15 @@ void cultureCompletion(
             runtime->assets.rigid.nq, runtime->assets.rigid.nv, runtime->assets.muscle.muscleCount,
             runtime->assets.rigid.sourceSHA256, initialState, error),
             MRNX_RUNTIME_ASSET_FAILURE_V1, "initial-state admission failed: " + error);
+        const auto initialNanoseconds =
+            metalrobo::numiHumanInitialStateTimestepNanoseconds(initialState);
+        // Root/substep/sensor protocols still express exact integer microseconds.
+        // NHINIT2 may carry finer time, but never round it during admission.
+        requireBuild(initialNanoseconds != 0u && initialNanoseconds % 1000u == 0u,
+            MRNX_RUNTIME_ASSET_FAILURE_V1,
+            "fractional-microsecond initial state requires a nanosecond transaction protocol");
         requireBuild(initialState.worldFingerprint == authored->expected_matter_world_fingerprint &&
-            initialState.timestepMicroseconds == config.timestep_microseconds,
+            initialNanoseconds / 1000u == config.timestep_microseconds,
             MRNX_RUNTIME_ASSET_FAILURE_V1, "initial-state world/clock mismatch");
         double norm = 0.0;
         for (unsigned i = 3u; i < 7u; ++i) norm += double(initialState.q[i]) * initialState.q[i];
@@ -1942,12 +1995,34 @@ void cultureCompletion(
         runtime->assets.initialV = initialState.v;
         runtime->assets.states = initialState.muscles;
     }
+    requireBuild(runtime->assets.initialQ.size() >= 7u,
+        MRNX_RUNTIME_ASSET_FAILURE_V1, "initial-state floating root is absent");
+    const auto& q0 = runtime->assets.initialQ;
+    const auto initialTranslation = initialState.rootTranslation.value_or(
+        mrCompensatedTranslationFromProjection({q0[0], q0[1], q0[2], 0.0f}));
+    requireBuild(mrCompensatedTranslationValid(initialTranslation),
+        MRNX_RUNTIME_ASSET_FAILURE_V1, "invalid initial root translation expansion");
+    const auto projectedTranslation = mrCompensatedTranslationProjection(initialTranslation);
+    requireBuild(mrCompensatedBits(projectedTranslation.x) == mrCompensatedBits(q0[0]) &&
+        mrCompensatedBits(projectedTranslation.y) == mrCompensatedBits(q0[1]) &&
+        mrCompensatedBits(projectedTranslation.z) == mrCompensatedBits(q0[2]),
+        MRNX_RUNTIME_ASSET_FAILURE_V1, "initial root projection disagrees with q");
+    runtime->assets.initialRootTranslations = {initialTranslation};
     // Bind the reference Matter patch to the articulated root/pelvis COM.
     // The prior use of the final imported body was topology-order dependent
     // and coupled the FEM to an arbitrary high-motion distal link.
     constexpr std::uint32_t attachmentBody = 0u;
-    const std::vector<double> defaultQ(
+    std::vector<double> defaultQ(
         runtime->assets.initialQ.begin(), runtime->assets.initialQ.end());
+    // Offline admission checks the authored physical pose, including the low
+    // coordinate state. The production owner receives the original FP32 words.
+    const auto rootCoordinate = [](float reference, float displacement, float correction) {
+        return static_cast<double>(static_cast<long double>(reference) +
+            static_cast<long double>(displacement) + static_cast<long double>(correction));
+    };
+    defaultQ[0] = rootCoordinate(initialTranslation.reference.x, initialTranslation.displacement.x, initialTranslation.correction.x);
+    defaultQ[1] = rootCoordinate(initialTranslation.reference.y, initialTranslation.displacement.y, initialTranslation.correction.y);
+    defaultQ[2] = rootCoordinate(initialTranslation.reference.z, initialTranslation.displacement.z, initialTranslation.correction.z);
     const std::vector<double> defaultV(
         runtime->assets.initialV.begin(), runtime->assets.initialV.end());
     std::vector<metalrobo::ArticulatedBodyKinematics> defaultBodies(
@@ -2032,6 +2107,7 @@ void cultureCompletion(
     matterConfig.metallib = config.matter_metallib_path;
     matterConfig.environmentCount = 1u;
     matterConfig.captureEvents = false;
+    matterConfig.coupledCandidateCompensatedTranslation = true;
     matterConfig.captureDiagnostics = true;
     matterConfig.adaptiveTransfer = false;
     matterConfig.acceptedStateProofMujocoBytesPerEnvironmentCapacity =
@@ -2061,6 +2137,8 @@ void cultureCompletion(
             matterDiagnostics.message);
     metalrobo::MetalNumanXHumanMatterConfig adapterConfig;
     adapterConfig.matterRuntime = runtime->matter.get();
+    adapterConfig.candidateObserverContext = runtime.get();
+    adapterConfig.observeCandidate = &encodeRuntimeBehaviorCandidate;
     adapterConfig.coupledHumanMetallibPath =
         config.metalrobo_metallib_path;
     adapterConfig.adapterMetallibPath = config.metalrobo_metallib_path;
@@ -2443,6 +2521,7 @@ void fillRuntimeInfoFailure(
         .environmentCount = 1u,
         .pointCount = runtime->assets.points.size(),
         .q = runtime->assets.initialQ,
+        .rootTranslations = runtime->assets.initialRootTranslations,
         .v = runtime->assets.initialV,
         .points = runtime->assets.points,
         .mujoco = {
@@ -2495,8 +2574,14 @@ void fillRuntimeInfoFailure(
     };
     auto submission = std::make_unique<
         metalrobo::MetalArticulatedOperatorSubmission>();
-    const auto submitted = runtime->owner->submit(
-        runtime->assets.model, ownerInput, *submission);
+    const auto submitted = [&] {
+        struct EncodingScope {
+            RuntimeState& runtime;
+            ~EncodingScope() { runtime.encodingActive = nullptr; }
+        } scope{*runtime};
+        runtime->encodingActive = active.get();
+        return runtime->owner->submit(runtime->assets.model, ownerInput, *submission);
+    }();
     if (!submitted.succeeded() || !submitted.dispatched ||
         !submission->valid()) {
         if (std::getenv("MRNX_PHYSICAL_DIAGNOSTICS") != nullptr) {
@@ -3361,6 +3446,9 @@ bool encodeSupplementalSensors(
         __unsafe_unretained id<MTLBuffer> v = nil;
         __unsafe_unretained id<MTLBuffer> bodyPoses = nil;
         __unsafe_unretained id<MTLBuffer> pointWorld = nil;
+        __unsafe_unretained id<MTLBuffer> rootTranslation = nil;
+        __unsafe_unretained id<MTLBuffer> bodyPositionLow = nil;
+        __unsafe_unretained id<MTLBuffer> pointPositionLow = nil;
         __unsafe_unretained id<MTLBuffer> standStatuses = nil;
         const auto supportView =
             runtime.matter->humanSupportCandidateConsequences();
@@ -3383,6 +3471,9 @@ bool encodeSupplementalSensors(
             pass.pointCount == runtime.assets.points.size() &&
             pass.pointWorldStride == runtime.assets.points.size() &&
             pass.pointWorldElementCount >= runtime.assets.points.size() &&
+            pass.rootTranslationElementCount == 1u &&
+            pass.bodyPositionLowElementCount >= pass.bodyPoseElementCount &&
+            pass.pointPositionLowElementCount >= pass.pointWorldElementCount &&
             pass.standStatusStride == 1u &&
             pass.standStatusElementCount >= 1u &&
             pass.timestepSeconds ==
@@ -3392,6 +3483,12 @@ bool encodeSupplementalSensors(
             bufferObject(pass.q, q) && bufferObject(pass.v, v) &&
             bufferObject(pass.bodyPoses, bodyPoses) &&
             bufferObject(pass.pointWorld, pointWorld) &&
+            bufferObject(pass.rootTranslation, rootTranslation) &&
+            bufferObject(pass.bodyPositionLow, bodyPositionLow) &&
+            bufferObject(pass.pointPositionLow, pointPositionLow) &&
+            rootTranslation.gpuAddress == pass.rootTranslationGPUAddress &&
+            bodyPositionLow.gpuAddress == pass.bodyPositionLowGPUAddress &&
+            pointPositionLow.gpuAddress == pass.pointPositionLowGPUAddress &&
             bufferObject(pass.standStatuses, standStatuses) &&
             q.device == runtime.device && v.device == runtime.device &&
             bodyPoses.device == runtime.device &&
@@ -3422,6 +3519,11 @@ bool encodeSupplementalSensors(
                 sizeof(MRArticulatedBodyPoseGPU)},
             {pointWorld, pointWorld.gpuAddress,
              runtime.assets.points.size() * sizeof(MRArticulatedPointWorldGPU)},
+            {rootTranslation, pass.rootTranslationGPUAddress, sizeof(MRCompensatedRootTranslationGPU)},
+            {bodyPositionLow, pass.bodyPositionLowGPUAddress,
+             runtime.assets.rigid.engineBodyCount * sizeof(mr_float4)},
+            {pointPositionLow, pass.pointPositionLowGPUAddress,
+             runtime.assets.points.size() * sizeof(mr_float4)},
             {standStatuses, standStatuses.gpuAddress,
              sizeof(MRNumiHumanStandStatusGPU)},
             {supportConsequences, supportView.gpuAddress,
@@ -3472,6 +3574,21 @@ bool encodeSupplementalSensors(
                 }
             }
         }
+        if (active->rootTranslationTrace != nil) {
+            if (active->rootTranslationTrace.device != runtime.device ||
+                active->rootTranslationTrace.length != sizeof(MRCompensatedRootTranslationGPU)) return false;
+            for (const auto& region : regions) {
+                if (active->rootTranslationTrace == region.buffer ||
+                    !disjoint(active->rootTranslationTrace.gpuAddress, active->rootTranslationTrace.length,
+                        region.address, region.bytes)) return false;
+            }
+            id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+            if (copy == nil) return false;
+            [copy copyFromBuffer:rootTranslation sourceOffset:0u
+                toBuffer:active->rootTranslationTrace destinationOffset:0u
+                size:sizeof(MRCompensatedRootTranslationGPU)];
+            [copy endEncoding];
+        }
         id<MTLComputeCommandEncoder> reduction = [commandBuffer computeCommandEncoder];
         if (reduction == nil) return false;
         [reduction setComputePipelineState:runtime.supportAggregationPipeline];
@@ -3507,6 +3624,9 @@ bool encodeSupplementalSensors(
         [encoder setBytes:&active->supplementalDispatch
             length:sizeof(active->supplementalDispatch) atIndex:17u];
         [encoder setBuffer:active->supportConsequences offset:0u atIndex:18u];
+        [encoder setBuffer:bodyPositionLow offset:0u atIndex:19u];
+        [encoder setBuffer:pointPositionLow offset:0u atIndex:20u];
+        [encoder setBuffer:rootTranslation offset:0u atIndex:21u];
         const NSUInteger width = std::max<NSUInteger>(
             1u,
             std::min<NSUInteger>(
@@ -3519,13 +3639,53 @@ bool encodeSupplementalSensors(
     }
 }
 
+bool encodeRuntimeBehaviorCandidate(void* raw,
+    const metalrobo::MetalNumanXHumanMatterPass& pass) noexcept {
+    auto* runtime = static_cast<RuntimeState*>(raw);
+    if (runtime == nullptr) return false;
+    if (runtime->behavior == nullptr) return true;
+    if (pass.phase == metalrobo::MetalNumanXHumanMatterPhase::beginStep)
+        return runtime->behavior->encodeFlush(pass.commandBuffer, runtime->behaviorError);
+    if (pass.phase != metalrobo::MetalNumanXHumanMatterPhase::postDynamics) return false;
+    const auto* active = runtime->encodingActive;
+    if (active == nullptr || active->slotGeneration != pass.slotGeneration ||
+        active->transactionFingerprint != pass.transactionFingerprint ||
+        active->acceptedTimestampMicroseconds > std::numeric_limits<std::uint64_t>::max() / 1000ull)
+        return false;
+    return runtime->behavior->encodeCandidate(pass, active->physicsGeneration,
+        active->acceptedTimestampMicroseconds * 1000ull, runtime->behaviorError);
+}
+
+void recordRuntimeBehaviorTerminal(RuntimeState& runtime, const ActiveRoot& active,
+    const mrnx_root_v1& root, bool accepted,
+    const MRNumanXHumanMatterJointPublicationFenceGPU* fence) noexcept {
+    if (runtime.behavior == nullptr) return;
+    if (active.acceptedTimestampMicroseconds > std::numeric_limits<std::uint64_t>::max() / 1000ull ||
+        runtime.behavior->completedAttempts() == std::numeric_limits<std::uint64_t>::max()) {
+        runtime.behaviorError = "behavior clock or attempt count overflow";
+        return;
+    }
+    MRHumanBehaviorReleaseGPU release{};
+    release.programFingerprint = runtime.behavior->fingerprint();
+    release.transactionFingerprint = root.transaction_fingerprint;
+    release.linearizationEpoch = root.linearization_epoch;
+    release.slotGeneration = root.slot_generation;
+    release.physicsGeneration = active.physicsGeneration;
+    release.acceptedTimestampNanoseconds = active.acceptedTimestampMicroseconds * 1000ull;
+    release.publicationSerial = runtime.behavior->completedAttempts() + 1u;
+    release.jointFenceFingerprint = fence != nullptr ? fence->fenceFingerprint : 0u;
+    release.released = accepted ? 1u : 2u;
+    (void)runtime.behavior->terminal(release, fence, runtime.behaviorError);
+}
+
 void runtimeTerminalCompletion(
     void* raw,
     const PreparedTerminalDisposition disposition,
     const mrnx_root_v1& root,
     const mrnx_candidate_view_v1* candidate,
     const mrnx_candidate_channel_v1* channels,
-    const std::uint32_t channelCount
+    const std::uint32_t channelCount,
+    const MRNumanXHumanMatterJointPublicationFenceGPU* committedFence
 ) noexcept {
     auto* runtime = static_cast<RuntimeState*>(raw);
     if (runtime == nullptr) return;
@@ -3540,10 +3700,13 @@ void runtimeTerminalCompletion(
             return;
         }
         active = runtime->active;
+        if (disposition == PreparedTerminalDisposition::rejected)
+            recordRuntimeBehaviorTerminal(*runtime, *active, root, false, nullptr);
         if (disposition != PreparedTerminalDisposition::published) {
             runtime->active.reset();
         }
         if (disposition == PreparedTerminalDisposition::terminalNoTouch) {
+            if (runtime->behavior != nullptr) runtime->behaviorError = "physical attempt has no committed terminal outcome";
             runtime->terminalQuarantine = true;
         }
     }
@@ -3754,6 +3917,28 @@ void runtimeTerminalCompletion(
     runtime->publishedTimestampMicroseconds =
         active->acceptedTimestampMicroseconds;
     runtime->publishedControlStep = active->controlStep;
+    recordRuntimeBehaviorTerminal(*runtime, *active, root, true, committedFence);
+    if (active->rootTranslationTrace != nil && active->rootTranslationTrace.contents != nullptr) {
+        MRCompensatedRootTranslationGPU translation{};
+        std::memcpy(&translation, active->rootTranslationTrace.contents, sizeof(translation));
+        std::array<std::uint32_t, 12u> words{};
+        std::memcpy(words.data(), &translation, sizeof(translation));
+        // One bounded record after the actual joint release. Readers join this
+        // to the subsequent per-root Brain trace, not a candidate-only event.
+        std::fprintf(stderr,
+            "mrnx_accepted_root_translation={\"schema\":\"numi.human.accepted-root-translation.v1\","
+            "\"root\":%llu,\"physics_generation\":%llu,\"timestamp_microseconds\":%llu,"
+            "\"transaction_fingerprint\":\"%016llx\",\"valid\":%s,\"words\":["
+            "\"%08x\",\"%08x\",\"%08x\",\"%08x\",\"%08x\",\"%08x\","
+            "\"%08x\",\"%08x\",\"%08x\",\"%08x\",\"%08x\",\"%08x\"]}\n",
+            static_cast<unsigned long long>(active->controlStep),
+            static_cast<unsigned long long>(active->physicsGeneration),
+            static_cast<unsigned long long>(active->acceptedTimestampMicroseconds),
+            static_cast<unsigned long long>(active->transactionFingerprint),
+            mrCompensatedTranslationValid(translation) ? "true" : "false",
+            words[0], words[1], words[2], words[3], words[4], words[5],
+            words[6], words[7], words[8], words[9], words[10], words[11]);
+    }
     runtime->active.reset();
 }
 
@@ -4230,6 +4415,11 @@ void cultureCompletion(
                 runtime->timestepMicroseconds) {
         return false;
     }
+    if (runtime->behavior != nullptr &&
+        (root.committedTimestampMicroseconds > std::numeric_limits<std::uint64_t>::max() / 1000ull ||
+         root.targetTimestampMicroseconds > std::numeric_limits<std::uint64_t>::max() / 1000ull ||
+         (!runtime->publishedOnce && root.committedTimestampMicroseconds * 1000ull !=
+             runtime->behaviorInitialTimestampNanoseconds))) return false;
     failureStage = 2u;
     if (substep.transactionFingerprint != root.transactionFingerprint ||
         substep.substepIndex != 0u || substep.attemptIndex != 0u ||
@@ -4407,3 +4597,5 @@ void cultureCompletion(
 }
 
 } // namespace
+
+#include "RuntimeHumanBehaviorAPI.inc"

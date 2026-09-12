@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 #include "metalrobo/numi_human_stand_gpu.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
+#include "metalrobo/compensated_translation_gpu.h"
 #include "numi/matter/numi_human_shared.h"
 #include <array>
 #include <cstring>
@@ -10,6 +11,13 @@
 
 namespace {
 void require(bool ok,const char* message) { if(!ok) throw std::runtime_error(message); }
+std::uint64_t rootHash(const MRCompensatedRootTranslationGPU& root) {
+    const auto* bytes = reinterpret_cast<const unsigned char*>(&root);
+    std::uint64_t hash = 14695981039346656037ull;
+    for (std::size_t i = 0u; i < sizeof(root); ++i)
+        hash = (hash ^ bytes[i]) * 1099511628211ull;
+    return hash;
+}
 id<MTLComputePipelineState> pipeline(id<MTLDevice> device, const char* path, NSString* name) {
     NSError* error=nil;
     auto library=[device newLibraryWithURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:path]] error:&error];
@@ -34,11 +42,24 @@ int main() {
       std::array<MRMujocoMuscleStateGPU,count*muscles> m{}, m0{};
       std::array<MRNumiHumanStandStatusGPU,count> status{}, status0{};
       std::array<NMMatterStatusGPU,count> matter{};
+      std::array<MRCompensatedRootTranslationGPU,count> roots{}, roots0{};
       for(unsigned i=0;i<q.size();++i) {q[i]=100.f+i;q0[i]=-100.f-i;}
       for(unsigned i=0;i<v.size();++i) {v[i]=200.f+i;v0[i]=-200.f-i;}
       for(unsigned i=0;i<scratch.size();++i) {scratch[i]=300.f+i;scratch0[i]=-300.f-i;}
       std::memset(m.data(),0x35,sizeof(m)); std::memset(m0.data(),0x43,sizeof(m0));
       for(unsigned e=0;e<count;++e) {
+        roots[e] = mrCompensatedTranslationFromProjection({q[e*nq],q[e*nq+1],q[e*nq+2],0.0f});
+        roots0[e] = mrCompensatedTranslationFromProjection({q0[e*nq],q0[e*nq+1],q0[e*nq+2],0.0f});
+        for (auto* root : {&roots[e], &roots0[e]}) {
+          root->displacement = {0x1p-20f,-0x1p-20f,0x1p-20f,0.0f};
+          root->correction = {0x1p-46f,0x1p-46f,-0x1p-46f,0.0f};
+          require(mrCompensatedTranslationValid(*root),"noncanonical root fixture");
+          const auto projected = mrCompensatedTranslationProjection(*root);
+          require(std::memcmp(&projected,&root->reference,sizeof(projected))==0,
+            "root fixture residual must be hidden by FP32 projection");
+          const auto projectedOnly = mrCompensatedTranslationFromProjection(projected);
+          require(rootHash(*root)!=rootHash(projectedOnly),"root hash ignored hidden state");
+        }
         status[e].environment=e; status[e].completedSteps=step+1;
         status[e].tendonTransferCount=100; status0[e].environment=e;
         status0[e].completedSteps=step; status0[e].tendonTransferCount=step?20:0;
@@ -58,6 +79,8 @@ int main() {
         buffer(q0.data(),sizeof(q0)),buffer(v0.data(),sizeof(v0)),buffer(m0.data(),sizeof(m0)),
         buffer(status0.data(),sizeof(status0)),buffer(scratch0.data(),sizeof(scratch0))};
       auto matterBuffer=buffer(matter.data(),sizeof(matter));
+      auto rootBuffer=buffer(roots.data(),sizeof(roots));
+      auto rootCheckpoint=buffer(roots0.data(),sizeof(roots0));
       auto world=[device newBufferWithLength:count*sizeof(MRMetalWorldStatusGPU) options:MTLResourceStorageModeShared];
       auto command=[queue commandBuffer]; auto encoder=[command computeCommandEncoder];
       require(encoder!=nil,"encoder unavailable");
@@ -75,14 +98,22 @@ int main() {
       [encoder setBytes:&shape length:sizeof(shape) atIndex:0];
       [encoder setBytes:&strides length:sizeof(strides) atIndex:1];
       for(unsigned i=0;i<b.size();++i) [encoder setBuffer:b[i] offset:0 atIndex:i+2];
+      [encoder setBuffer:rootBuffer offset:0 atIndex:12];
+      [encoder setBuffer:rootCheckpoint offset:0 atIndex:13];
       [encoder dispatchThreads:MTLSizeMake(count,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];
       [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
       require(command.status==MTLCommandBufferStatusCompleted,"GPU command failed");
       const auto* actual=static_cast<const MRNumiHumanStandStatusGPU*>(b[3].contents);
       const auto* worlds=static_cast<const MRMetalWorldStatusGPU*>(world.contents);
+      const auto* actualRoots=static_cast<const MRCompensatedRootTranslationGPU*>(rootBuffer.contents);
+      require(std::memcmp(rootCheckpoint.contents,roots0.data(),sizeof(roots0))==0,
+        "root rollback checkpoint was mutated");
       const std::array<std::size_t,5> sizes={nq*sizeof(float),nv*sizeof(float),muscles*sizeof(MRMujocoMuscleStateGPU),sizeof(MRNumiHumanStandStatusGPU),vectors*sizeof(float)};
       const std::array<const void*,5> candidate={q.data(),v.data(),m.data(),status.data(),scratch.data()};
       for(unsigned e=0;e<count;++e) {
+        const auto& expectedRoot=e==0?roots[e]:roots0[e];
+        require(std::memcmp(&actualRoots[e],&expectedRoot,sizeof(expectedRoot))==0 &&
+            rootHash(actualRoots[e])==rootHash(expectedRoot),"full 48-byte root restore/hash mismatch");
         require((worlds[e].code==MR_STEP_SUCCESS)==(e==0),"joint admission mismatch");
         for(unsigned field=0;field<5;++field) {
           if(field==3) continue;
@@ -96,7 +127,7 @@ int main() {
         std::printf("PASS human_joint_reconcile step=%u environment=%u code=%u accepted_steps=%u\n",step,e,actual[e].code,actual[e].completedSteps);
       }
     }
-    std::puts("human_joint_reconcile_cases=12 passed=12 failed=0"); return 0;
+    std::puts("human_joint_reconcile_cases=12 passed=12 failed=0 root_state=48_byte_restore_hash_exact"); return 0;
   } catch(const std::exception& e) {std::fprintf(stderr,"human_reconcile_probe: %s\n",e.what());return 1;}
  }
 }

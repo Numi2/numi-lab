@@ -1,5 +1,7 @@
 #pragma once
 
+#include "metalrobo/compensated_translation_gpu.h"
+
 #include "metalrobo/EngineModel.hpp"
 #include "metalrobo/millard_muscle_gpu.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
@@ -26,7 +28,8 @@ struct MetalNumanXHumanMatterPreparedState;
 articulatedOperatorThreadgroupBytes(
     const std::size_t bodyCount,
     const std::size_t dofCount,
-    const bool includeDenseDynamics = true
+    const bool includeDenseDynamics = true,
+    const bool compensatedGeometry = false
 ) noexcept {
     const auto aligned16 = [](const std::size_t value) {
         return (value + 15u) & ~std::size_t{15u};
@@ -39,9 +42,9 @@ articulatedOperatorThreadgroupBytes(
         bytes += value;
     };
     // float3 occupies a 16-byte slot in Metal threadgroup memory.
-    append(16u * bodyCount); // body position
+    append((compensatedGeometry ? 32u : 16u) * bodyCount); // body position
     append(16u * bodyCount); // body rotation
-    append(16u * bodyCount); // joint position
+    append((compensatedGeometry ? 32u : 16u) * bodyCount); // joint position
     append(16u * bodyCount); // joint axis
     append(sizeof(std::uint32_t) * bodyCount); // inbound joint
     append(sizeof(std::uint32_t) * bodyCount); // parent body
@@ -182,7 +185,7 @@ enum class MetalNumanXTransactionPhase : std::uint32_t {
     postDynamics = 2u,
 };
 
-inline constexpr std::uint32_t kMetalNumanXTransactionABIVersion = 1u;
+inline constexpr std::uint32_t kMetalNumanXTransactionABIVersion = 2u;
 
 enum MetalNumanXTransactionAccessFlag : std::uint32_t {
     MetalNumanXTransactionReadBorrowedState = 1u << 0u,
@@ -275,6 +278,17 @@ struct MetalNumanXTransactionPass {
     std::uint64_t tendonCorrectionStride = 0u;
     std::uint64_t standStatusElementCount = 0u;
     std::uint64_t standStatusStride = 0u;
+    // Authoritative compensated translation and paired geometry; low xyz is in m.
+    void* rootTranslation = nullptr;
+    void* bodyPositionLow = nullptr;
+    void* pointPositionLow = nullptr;
+    std::uint64_t rootTranslationGPUAddress = 0u;
+    std::uint64_t bodyPositionLowGPUAddress = 0u;
+    std::uint64_t pointPositionLowGPUAddress = 0u;
+    std::uint64_t rootTranslationElementCount = 0u;
+    std::uint64_t bodyPositionLowElementCount = 0u;
+    std::uint64_t pointPositionLowElementCount = 0u;
+
 };
 
 using MetalNumanXTransactionEncode = bool (*)(
@@ -324,7 +338,7 @@ inline constexpr std::uint32_t kMetalNumanXHumanMatterABIVersion =
     MR_NUMANX_HUMAN_MATTER_ABI_VERSION;
 // Host borrowed-pass v5 adds the immutable free Human velocity predictor.
 // The pointer-free two-phase root/publication ABI remains v4.
-inline constexpr std::uint32_t kMetalNumanXHumanMatterPassABIVersion = 5u;
+inline constexpr std::uint32_t kMetalNumanXHumanMatterPassABIVersion = 6u;
 inline constexpr std::uint32_t kMetalNumanXHumanMatterDofLayoutVersion = 1u;
 
 enum MetalNumanXHumanMatterAccessFlag : std::uint32_t {
@@ -434,6 +448,17 @@ struct MetalNumanXHumanMatterCandidateQuery {
     std::uint64_t transactionFingerprint = 0u;
     std::uint64_t linearizationEpoch = 0u;
     std::uint64_t slotGeneration = 0u;
+    // Authoritative compensated translation and paired geometry; low xyz is in m.
+    void* candidateRootTranslation = nullptr;
+    void* candidateBodyPositionLow = nullptr;
+    void* pointPositionLow = nullptr;
+    std::uint64_t candidateRootTranslationGPUAddress = 0u;
+    std::uint64_t candidateBodyPositionLowGPUAddress = 0u;
+    std::uint64_t pointPositionLowGPUAddress = 0u;
+    std::uint64_t candidateRootTranslationElementCount = 0u;
+    std::uint64_t candidateBodyPositionLowElementCount = 0u;
+    std::uint64_t pointPositionLowElementCount = 0u;
+
 };
 
 using MetalNumanXHumanMatterEncodeExactCandidate = bool (*)(
@@ -555,6 +580,20 @@ struct MetalNumanXHumanMatterPass {
     std::uint64_t transactionFingerprint = 0u;
     std::uint64_t linearizationEpoch = 0u;
     std::uint64_t slotGeneration = 0u;
+    // Authoritative compensated translation and paired geometry; low xyz is in m.
+    void* rootTranslation = nullptr;
+    void* rootTranslationCheckpoint = nullptr;
+    void* bodyPositionLow = nullptr;
+    void* pointPositionLow = nullptr;
+    std::uint64_t rootTranslationGPUAddress = 0u;
+    std::uint64_t rootTranslationCheckpointGPUAddress = 0u;
+    std::uint64_t bodyPositionLowGPUAddress = 0u;
+    std::uint64_t pointPositionLowGPUAddress = 0u;
+    std::uint64_t rootTranslationElementCount = 0u;
+    std::uint64_t rootTranslationCheckpointElementCount = 0u;
+    std::uint64_t bodyPositionLowElementCount = 0u;
+    std::uint64_t pointPositionLowElementCount = 0u;
+
 };
 
 using MetalNumanXHumanMatterEncode = bool (*)(
@@ -1570,6 +1609,9 @@ struct MetalArticulatedOperatorInput {
     std::size_t environmentCount = 0u;
     std::size_t pointCount = 0u;
     std::span<const float> q{};
+    // Optional initial authoritative translation, one per environment. Empty
+    // creates an episode reference from q.xyz; resident continuations retain it.
+    std::span<const MRCompensatedRootTranslationGPU> rootTranslations{};
     // Optional environment-major articulation velocity. Required only when a
     // caller needs nonzero MyoSim path velocity; stand horizons source the
     // current device-resident velocity sidecar directly.
@@ -1764,6 +1806,9 @@ struct MetalArticulatedOperatorResult {
     // Final device state and cumulative horizon diagnostics. Empty for the
     // historical one-pass operator path.
     std::vector<float> standQ;
+    std::vector<MRCompensatedRootTranslationGPU> standRootTranslations;
+    std::vector<mr_float4> bodyPositionLow;
+    std::vector<mr_float4> pointPositionLow;
     std::vector<float> standV;
     std::vector<MRNumiHumanStandStatusGPU> standStatuses;
     // Final accepted step's exact endpoint-to-node transaction and its
@@ -1876,6 +1921,11 @@ private:
 // independent contexts provide safe overlap when multiple queues are useful.
 class MetalArticulatedOperatorContext {
 public:
+    // Explicit quiescent collection on the original owner queue; no physical
+    // dispatch or clock advance. Callback writes only its diagnostic buffers.
+    [[nodiscard]] bool flushReadOnlyObserver(void* context,
+        bool (*encode)(void*,void*) noexcept, std::string& error);
+
     explicit MetalArticulatedOperatorContext(
         MetalArticulatedOperatorConfig config = {}
     );

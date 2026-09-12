@@ -7,6 +7,7 @@
 #include "numi/matter/accepted_state_apply_gpu.h"
 #include "accepted_state_proof_gpu.hpp"
 #include "metalrobo/engine_types.h"
+#include "metalrobo/compensated_translation_gpu.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
 #include "metalrobo/numanx_human_matter_adapter_gpu.h"
 #include "metalrobo/numanx_human_matter_gpu.h"
@@ -256,6 +257,7 @@ const char kImageAnchor = 0;
     hash = mixFingerprint(hash, configuration.captureDiagnostics ? 1u : 0u);
     hash = mixFingerprint(hash, configuration.automaticIdentification ? 1u : 0u);
     hash = mixFingerprint(hash, configuration.adaptiveTransfer ? 1u : 0u);
+    hash = mixFingerprint(hash, configuration.coupledCandidateCompensatedTranslation ? 1u : 0u);
     hash = mixFingerprint(hash, detail::hashBytes(
         configuration.humanJointEqualities.data(),
         configuration.humanJointEqualities.size_bytes()));
@@ -946,6 +948,12 @@ struct Runtime::State {
     id<MTLBuffer> coupledInverseStatuses = nil;
     id<MTLBuffer> coupledCandidateQ = nil;
     id<MTLBuffer> coupledCandidateBodies = nil;
+    bool coupledCandidateCompensatedTranslation = false;
+    id<MTLBuffer> coupledCandidateRootTranslation = nil;
+    id<MTLBuffer> coupledCandidateBodyPositionLow = nil;
+    // Immutable, jointly copied initial support geometry for this root.
+    id<MTLBuffer> humanSupportInitialBodiesCheckpoint = nil;
+    id<MTLBuffer> humanSupportInitialBodyPositionLowCheckpoint = nil;
     id<MTLBuffer> femHumanAttachments = nil;
     id<MTLBuffer> femHumanAttachmentPointQueries = nil;
     id<MTLBuffer> femHumanAttachmentPointJacobians = nil;
@@ -1042,6 +1050,8 @@ RuntimeDiagnostics Runtime::initialize(
         }
         auto candidate = std::make_unique<State>();
         candidate->dispatch = world.dispatch;
+        candidate->coupledCandidateCompensatedTranslation =
+            configuration.coupledCandidateCompensatedTranslation;
         candidate->vascularValue = world.vascular;
         candidate->objectLayout = world.objects;
         if (std::any_of(world.objects.begin(), world.objects.end(),
@@ -2756,6 +2766,7 @@ RuntimeDiagnostics Runtime::initialize(
             return count * elementBytes;
         };
         const std::array proofArenaBytes{
+            proofBytes(1u, sizeof(MRCompensatedRootTranslationGPU)),
             proofBytes(candidate->dispatch.rigidQCapacity, sizeof(float)),
             proofBytes(
                 candidate->dispatch.rigidGeneralizedCapacity, sizeof(float)),
@@ -3189,6 +3200,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
         }
         void* supportInitialBodyArena = request.humanSupportInitialBodies != nullptr
             ? request.humanSupportInitialBodies : request.rigid.currentBodies;
+        void* supportInitialBodyLowArena = request.humanSupportInitialBodyPositionLow;
+        const std::uint32_t coupledPositionPrecision =
+            state.coupledCandidateCompensatedTranslation ? 1u : 0u;
+        if (!state.coupledCandidateCompensatedTranslation &&
+            (request.humanSupportInitialBodyPositionLow != nullptr ||
+             request.humanSupportInitialBodyPositionLowGPUAddress != 0u ||
+             request.humanSupportInitialBodyPositionLowElementCount != 0u)) {
+            diagnostics.message = "legacy high-only candidate owner cannot silently consume compensated support state";
+            return diagnostics;
+        }
         if (state.humanSupportDispatch.contactCount != 0u &&
             supportInitialBodyArena == nullptr) {
             diagnostics.message = "Human support requires an initial body pose arena";
@@ -3206,6 +3227,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     sizeof(MRBodyStateGPU)) {
                 diagnostics.message =
                     "Human support initial body arena has wrong device provenance or byte capacity";
+                return diagnostics;
+            }
+        }
+        if (state.coupledCandidateCompensatedTranslation &&
+            state.humanSupportDispatch.contactCount != 0u) {
+            id<MTLBuffer> lows = (__bridge id<MTLBuffer>)supportInitialBodyLowArena;
+            id<MTLBuffer> highs = (__bridge id<MTLBuffer>)supportInitialBodyArena;
+            const std::uint64_t elements = std::uint64_t(state.dispatch.environmentCount) *
+                request.rigid.currentBodyStride;
+            if (lows == nil || lows.device.registryID != state.device.registryID ||
+                lows.gpuAddress == 0u || lows.gpuAddress != request.humanSupportInitialBodyPositionLowGPUAddress ||
+                request.humanSupportInitialBodyPositionLowElementCount != elements ||
+                elements > std::uint64_t(lows.length) / sizeof(nm_float4) ||
+                lows == highs ||
+                (lows.gpuAddress < highs.gpuAddress + highs.length &&
+                 highs.gpuAddress < lows.gpuAddress + lows.length)) {
+                diagnostics.message = "compensated Human support requires a distinct exact initial low arena";
                 return diagnostics;
             }
         }
@@ -3570,7 +3608,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             ownership->activeCommandBuffer == nullptr;
 
         if (request.phase == EncodePhase::preDynamics &&
-            state.requiresCoupledCandidate) {
+            (state.requiresCoupledCandidate || state.coupledCandidateCompensatedTranslation)) {
             const std::uint32_t requiredQStride = request.rigid.qStride;
             const std::uint32_t requiredVStride = request.rigid.vStride;
             const std::uint32_t requiredBodyStride =
@@ -3597,6 +3635,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         requiredBodyStride,
                     sizeof(MRBodyStateGPU),
                     allocationValid);
+                const NSUInteger lowBytes = checkedBytes(
+                    state.coupledCandidateCompensatedTranslation
+                        ? static_cast<std::size_t>(state.dispatch.environmentCount) * requiredBodyStride : 1u,
+                    sizeof(nm_float4), allocationValid);
+                const NSUInteger rootBytes = checkedBytes(
+                    state.coupledCandidateCompensatedTranslation ? state.dispatch.environmentCount : 1u,
+                    sizeof(MRCompensatedRootTranslationGPU), allocationValid);
                 if (!allocationValid) {
                     diagnostics.message =
                         "coupled candidate allocation exceeds host address space";
@@ -3608,10 +3653,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 state.coupledCandidateBodies = [state.device
                     newBufferWithLength:bodyBytes
                                 options:MTLResourceStorageModePrivate];
+                state.coupledCandidateRootTranslation = [state.device newBufferWithLength:rootBytes options:MTLResourceStorageModePrivate];
+                state.coupledCandidateBodyPositionLow = [state.device newBufferWithLength:lowBytes options:MTLResourceStorageModePrivate];
+                state.humanSupportInitialBodiesCheckpoint = [state.device newBufferWithLength:bodyBytes options:MTLResourceStorageModePrivate];
+                state.humanSupportInitialBodyPositionLowCheckpoint = [state.device newBufferWithLength:lowBytes options:MTLResourceStorageModePrivate];
                 if (state.coupledCandidateQ == nil ||
-                    state.coupledCandidateBodies == nil) {
+                    state.coupledCandidateBodies == nil ||
+                    state.coupledCandidateRootTranslation == nil ||
+                    state.coupledCandidateBodyPositionLow == nil ||
+                    state.humanSupportInitialBodiesCheckpoint == nil ||
+                    state.humanSupportInitialBodyPositionLowCheckpoint == nil) {
                     state.coupledCandidateQ = nil;
                     state.coupledCandidateBodies = nil;
+                    state.coupledCandidateRootTranslation = nil;
+                    state.coupledCandidateBodyPositionLow = nil;
+                    state.humanSupportInitialBodiesCheckpoint = nil;
+                    state.humanSupportInitialBodyPositionLowCheckpoint = nil;
                     diagnostics.message =
                         "failed to allocate private coupled candidate kinematics";
                     return diagnostics;
@@ -3619,13 +3676,35 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 state.coupledQStride = requiredQStride;
                 state.coupledVStride = requiredVStride;
                 state.coupledBodyStride = requiredBodyStride;
-                state.residentBytes += qBytes + bodyBytes;
+                state.residentBytes += qBytes + 2u * bodyBytes + rootBytes + 2u * lowBytes;
             }
         }
 
         const bool firstPrePass =
             request.phase == EncodePhase::preDynamics &&
             request.physicsSubstep == 0u;
+        if (state.coupledCandidateCompensatedTranslation &&
+            state.humanSupportDispatch.contactCount != 0u) {
+            if (firstPrePass) {
+                id<MTLBlitCommandEncoder> initialGeometryBlit = [commandBuffer blitCommandEncoder];
+                if (initialGeometryBlit == nil) {
+                    diagnostics.message = "failed to checkpoint paired initial Human support geometry";
+                    return diagnostics;
+                }
+                const NSUInteger elements = NSUInteger(state.dispatch.environmentCount) * state.coupledBodyStride;
+                [initialGeometryBlit copyFromBuffer:(__bridge id<MTLBuffer>)supportInitialBodyArena
+                    sourceOffset:0u toBuffer:state.humanSupportInitialBodiesCheckpoint
+                    destinationOffset:0u size:elements * sizeof(MRBodyStateGPU)];
+                [initialGeometryBlit copyFromBuffer:(__bridge id<MTLBuffer>)supportInitialBodyLowArena
+                    sourceOffset:0u toBuffer:state.humanSupportInitialBodyPositionLowCheckpoint
+                    destinationOffset:0u size:elements * sizeof(nm_float4)];
+                [initialGeometryBlit endEncoding];
+            }
+            supportInitialBodyArena = (__bridge void*)state.humanSupportInitialBodiesCheckpoint;
+            supportInitialBodyLowArena = (__bridge void*)state.humanSupportInitialBodyPositionLowCheckpoint;
+        } else {
+            supportInitialBodyLowArena = (__bridge void*)state.humanSupportHistoriesAccepted;
+        }
         if (firstPrePass && request.enablePreparedState) {
             id<MTLBlitCommandEncoder> checkpointBlit =
                 [commandBuffer blitCommandEncoder];
@@ -3938,6 +4017,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 .pointStride = pointCount,
                 .pointJacobianStride =
                     state.dispatch.femHumanAttachmentPointJacobianStride,
+                .candidateRootTranslation = state.coupledCandidateCompensatedTranslation ? (__bridge void*)state.coupledCandidateRootTranslation : nullptr,
+                .candidateBodyPositionLow = state.coupledCandidateCompensatedTranslation ? (__bridge void*)state.coupledCandidateBodyPositionLow : nullptr,
+                .pointPositionLow = nullptr,
+                .candidateRootTranslationGPUAddress = state.coupledCandidateCompensatedTranslation ? state.coupledCandidateRootTranslation.gpuAddress : 0u,
+                .candidateBodyPositionLowGPUAddress = state.coupledCandidateCompensatedTranslation ? state.coupledCandidateBodyPositionLow.gpuAddress : 0u,
+                .pointPositionLowGPUAddress = 0u,
+                .candidateRootTranslationElementCount = state.coupledCandidateCompensatedTranslation ? state.dispatch.environmentCount : 0u,
+                .candidateBodyPositionLowElementCount = state.coupledCandidateCompensatedTranslation ? std::uint64_t(state.dispatch.environmentCount) * state.coupledBodyStride : 0u,
+                .pointPositionLowElementCount = 0u,
+                .legacyHighOnly = !state.coupledCandidateCompensatedTranslation,
             };
             if (!request.encodeCoupledCandidate(
                     request.coupledCandidateContext, query)) {
@@ -3982,6 +4071,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:10u];
                     [encoder setBuffer:state.statuses
                                  offset:0u atIndex:11u];
+                    [encoder setBuffer:state.coupledCandidateBodyPositionLow offset:0u atIndex:12u];
+                    [encoder setBytes:&coupledPositionPrecision length:sizeof(coupledPositionPrecision) atIndex:13u];
                 }
             );
             return true;
@@ -5281,6 +5372,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             state.dispatch.rigidGeneralizedCapacity,
                         .candidateQStride = state.coupledQStride,
                         .candidateBodyStride = state.coupledBodyStride,
+                        .candidateRootTranslation = state.coupledCandidateCompensatedTranslation ? (__bridge void*)state.coupledCandidateRootTranslation : nullptr,
+                        .candidateBodyPositionLow = state.coupledCandidateCompensatedTranslation ? (__bridge void*)state.coupledCandidateBodyPositionLow : nullptr,
+                        .pointPositionLow = nullptr,
+                        .candidateRootTranslationGPUAddress = state.coupledCandidateCompensatedTranslation ? state.coupledCandidateRootTranslation.gpuAddress : 0u,
+                        .candidateBodyPositionLowGPUAddress = state.coupledCandidateCompensatedTranslation ? state.coupledCandidateBodyPositionLow.gpuAddress : 0u,
+                        .pointPositionLowGPUAddress = 0u,
+                        .candidateRootTranslationElementCount = state.coupledCandidateCompensatedTranslation ? state.dispatch.environmentCount : 0u,
+                        .candidateBodyPositionLowElementCount = state.coupledCandidateCompensatedTranslation ? std::uint64_t(state.dispatch.environmentCount) * state.coupledBodyStride : 0u,
+                        .pointPositionLowElementCount = 0u,
+                        .legacyHighOnly = !state.coupledCandidateCompensatedTranslation,
                     };
                     if (!request.encodeCoupledCandidate(
                             request.coupledCandidateContext,
@@ -5599,6 +5700,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         .pointJacobianStride =
                             state.contactActiveCapacity * 3u *
                                 state.dispatch.rigidGeneralizedCapacity,
+                        .candidateRootTranslation = state.coupledCandidateCompensatedTranslation ? (__bridge void*)state.coupledCandidateRootTranslation : nullptr,
+                        .candidateBodyPositionLow = state.coupledCandidateCompensatedTranslation ? (__bridge void*)state.coupledCandidateBodyPositionLow : nullptr,
+                        .pointPositionLow = nullptr,
+                        .candidateRootTranslationGPUAddress = state.coupledCandidateCompensatedTranslation ? state.coupledCandidateRootTranslation.gpuAddress : 0u,
+                        .candidateBodyPositionLowGPUAddress = state.coupledCandidateCompensatedTranslation ? state.coupledCandidateBodyPositionLow.gpuAddress : 0u,
+                        .pointPositionLowGPUAddress = 0u,
+                        .candidateRootTranslationElementCount = state.coupledCandidateCompensatedTranslation ? state.dispatch.environmentCount : 0u,
+                        .candidateBodyPositionLowElementCount = state.coupledCandidateCompensatedTranslation ? std::uint64_t(state.dispatch.environmentCount) * state.coupledBodyStride : 0u,
+                        .pointPositionLowElementCount = 0u,
+                        .legacyHighOnly = !state.coupledCandidateCompensatedTranslation,
                     };
                     if (!request.encodeCoupledCandidate(
                             request.coupledCandidateContext,
@@ -5632,6 +5743,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             .pointJacobianStride =
                                 state.humanSupportDispatch.contactCount * 3u *
                                     state.dispatch.rigidGeneralizedCapacity,
+                            .candidateRootTranslation = state.coupledCandidateCompensatedTranslation ? (__bridge void*)state.coupledCandidateRootTranslation : nullptr,
+                            .candidateBodyPositionLow = state.coupledCandidateCompensatedTranslation ? (__bridge void*)state.coupledCandidateBodyPositionLow : nullptr,
+                            .pointPositionLow = nullptr,
+                            .candidateRootTranslationGPUAddress = state.coupledCandidateCompensatedTranslation ? state.coupledCandidateRootTranslation.gpuAddress : 0u,
+                            .candidateBodyPositionLowGPUAddress = state.coupledCandidateCompensatedTranslation ? state.coupledCandidateBodyPositionLow.gpuAddress : 0u,
+                            .pointPositionLowGPUAddress = 0u,
+                            .candidateRootTranslationElementCount = state.coupledCandidateCompensatedTranslation ? state.dispatch.environmentCount : 0u,
+                            .candidateBodyPositionLowElementCount = state.coupledCandidateCompensatedTranslation ? std::uint64_t(state.dispatch.environmentCount) * state.coupledBodyStride : 0u,
+                            .pointPositionLowElementCount = 0u,
+                            .legacyHighOnly = !state.coupledCandidateCompensatedTranslation,
                         };
                         if (!request.encodeCoupledCandidate(
                                 request.coupledCandidateContext,
@@ -5667,6 +5788,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         .generalizedVectorStride =
                             state.dispatch.rigidGeneralizedCapacity,
                         .candidateQStride = state.coupledQStride,
+                        .candidateRootTranslation = nullptr,
+                        .candidateBodyPositionLow = nullptr,
+                        .pointPositionLow = nullptr,
+                        .candidateRootTranslationGPUAddress = 0u,
+                        .candidateBodyPositionLowGPUAddress = 0u,
+                        .pointPositionLowGPUAddress = 0u,
+                        .candidateRootTranslationElementCount = 0u,
+                        .candidateBodyPositionLowElementCount = 0u,
+                        .pointPositionLowElementCount = 0u,
+                        .legacyHighOnly = !state.coupledCandidateCompensatedTranslation,
                     };
                     if (!request.encodeCoupledCandidate(
                             request.coupledCandidateContext,
@@ -5708,6 +5839,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.humanSupportLinearizations offset:0u atIndex:12u];
                     [encoder setBuffer:state.femResidual offset:0u atIndex:13u];
                     [encoder setBuffer:buffer(request.rigid.v) offset:0u atIndex:14u];
+                    [encoder setBuffer:state.coupledCandidateBodyPositionLow offset:0u atIndex:15u];
+                    [encoder setBuffer:buffer(supportInitialBodyLowArena) offset:0u atIndex:16u];
+                    [encoder setBytes:&coupledPositionPrecision length:sizeof(coupledPositionPrecision) atIndex:17u];
                 });
                 // Explicit, single-root diagnostic copies of each contact
                 // assembly. Resolve after completion, before any host read;
@@ -6383,6 +6517,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             state.dispatch.rigidGeneralizedCapacity,
                         .statusStride =
                             static_cast<std::uint32_t>(environments),
+                        .candidateRootTranslation = nullptr,
+                        .candidateBodyPositionLow = nullptr,
+                        .pointPositionLow = nullptr,
+                        .candidateRootTranslationGPUAddress = 0u,
+                        .candidateBodyPositionLowGPUAddress = 0u,
+                        .pointPositionLowGPUAddress = 0u,
+                        .candidateRootTranslationElementCount = 0u,
+                        .candidateBodyPositionLowElementCount = 0u,
+                        .pointPositionLowElementCount = 0u,
+                        .legacyHighOnly = !state.coupledCandidateCompensatedTranslation,
                     };
                     if (!request.encodeCoupledCandidate(
                             request.coupledCandidateContext,
@@ -6673,6 +6817,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         .operation = CoupledCandidateOperation::massAction,
                         .generalizedVectorStride =
                             state.dispatch.rigidGeneralizedCapacity,
+                        .candidateRootTranslation = nullptr,
+                        .candidateBodyPositionLow = nullptr,
+                        .pointPositionLow = nullptr,
+                        .candidateRootTranslationGPUAddress = 0u,
+                        .candidateBodyPositionLowGPUAddress = 0u,
+                        .pointPositionLowGPUAddress = 0u,
+                        .candidateRootTranslationElementCount = 0u,
+                        .candidateBodyPositionLowElementCount = 0u,
+                        .pointPositionLowElementCount = 0u,
+                        .legacyHighOnly = !state.coupledCandidateCompensatedTranslation,
                     };
                     if (!request.encodeCoupledCandidate(
                             request.coupledCandidateContext,
@@ -7709,6 +7863,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     .generalizedVectorStride =
                         state.dispatch.rigidGeneralizedCapacity,
                     .candidateQStride = state.coupledQStride,
+                    .candidateRootTranslation = nullptr,
+                    .candidateBodyPositionLow = nullptr,
+                    .pointPositionLow = nullptr,
+                    .candidateRootTranslationGPUAddress = 0u,
+                    .candidateBodyPositionLowGPUAddress = 0u,
+                    .pointPositionLowGPUAddress = 0u,
+                    .candidateRootTranslationElementCount = 0u,
+                    .candidateBodyPositionLowElementCount = 0u,
+                    .pointPositionLowElementCount = 0u,
+                    .legacyHighOnly = !state.coupledCandidateCompensatedTranslation,
                 };
                 if (!request.encodeCoupledCandidate(
                         request.coupledCandidateContext, publishQuery)) {
@@ -8177,6 +8341,7 @@ bool Runtime::encodeAcceptedStateProof(
             pass.structSize != sizeof(AcceptedStateProofPass) ||
             pass.commandBuffer == nullptr || pass.q == nullptr ||
             pass.v == nullptr || pass.mujocoStates == nullptr ||
+            pass.rootTranslation == nullptr ||
             pass.matterGeneralizedReaction == nullptr ||
             pass.environmentStatuses == nullptr ||
             pass.matterStatuses == nullptr ||
@@ -8184,7 +8349,8 @@ bool Runtime::encodeAcceptedStateProof(
             return false;
         }
         State& state = *state_;
-        if (pass.environmentCount == 0u ||
+        if (!state.coupledCandidateCompensatedTranslation ||
+            pass.rootTranslationStride != 1u || pass.environmentCount == 0u ||
             pass.environmentCount != state.dispatch.environmentCount ||
             pass.qStride == 0u || pass.vStride == 0u ||
             pass.mujocoStateStride == 0u || pass.reactionStride == 0u ||
@@ -8226,6 +8392,7 @@ bool Runtime::encodeAcceptedStateProof(
         if (!exactElements(pass.qStride, pass.qElementCount) ||
             !exactElements(pass.vStride, pass.vElementCount) ||
             !exactElements(pass.mujocoStateStride, pass.mujocoStateCount) ||
+            !exactElements(pass.rootTranslationStride, pass.rootTranslationElementCount) ||
             !exactElements(
                 pass.reactionStride,
                 pass.matterGeneralizedReactionElementCount) ||
@@ -8246,6 +8413,7 @@ bool Runtime::encodeAcceptedStateProof(
             result = count * elementBytes;
             return result <= std::numeric_limits<NSUInteger>::max();
         };
+        std::uint64_t rootTranslationBytes = 0u;
         std::uint64_t qBytes = 0u;
         std::uint64_t vBytes = 0u;
         std::uint64_t mujocoBytes = 0u;
@@ -8253,7 +8421,8 @@ bool Runtime::encodeAcceptedStateProof(
         std::uint64_t environmentStatusBytes = 0u;
         std::uint64_t statusBytes = 0u;
         std::uint64_t outputBytes = 0u;
-        if (!byteCount(pass.qElementCount, sizeof(float), qBytes) ||
+        if (!byteCount(pass.rootTranslationElementCount, sizeof(MRCompensatedRootTranslationGPU), rootTranslationBytes) ||
+            !byteCount(pass.qElementCount, sizeof(float), qBytes) ||
             !byteCount(pass.vElementCount, sizeof(float), vBytes) ||
             !byteCount(pass.mujocoStateCount,
                        sizeof(MRMujocoMuscleStateGPU), mujocoBytes) ||
@@ -8275,6 +8444,8 @@ bool Runtime::encodeAcceptedStateProof(
 
         __unsafe_unretained id<MTLCommandBuffer> commandBuffer =
             (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+        __unsafe_unretained id<MTLBuffer> rootTranslation =
+            (__bridge id<MTLBuffer>)pass.rootTranslation;
         __unsafe_unretained id<MTLBuffer> q =
             (__bridge id<MTLBuffer>)pass.q;
         __unsafe_unretained id<MTLBuffer> v =
@@ -8319,6 +8490,7 @@ bool Runtime::encodeAcceptedStateProof(
             commandBuffer.commandQueue.device.registryID !=
                 state.device.registryID ||
             commandBuffer.status != MTLCommandBufferStatusNotEnqueued ||
+            !validBorrowedBuffer(rootTranslation, pass.rootTranslationGPUAddress, rootTranslationBytes) ||
             !validBorrowedBuffer(q, pass.qGPUAddress, qBytes) ||
             !validBorrowedBuffer(v, pass.vGPUAddress, vBytes) ||
             !validBorrowedBuffer(
@@ -8342,6 +8514,10 @@ bool Runtime::encodeAcceptedStateProof(
         }
 
         const id<MTLBuffer> protectedProofArenas[] = {
+            state.coupledCandidateRootTranslation,
+            state.coupledCandidateBodyPositionLow,
+            state.humanSupportInitialBodiesCheckpoint,
+            state.humanSupportInitialBodyPositionLowCheckpoint,
             state.dispatchBuffer,
             state.particleAccepted,
             state.particleCheckpoint,
@@ -8452,7 +8628,8 @@ bool Runtime::encodeAcceptedStateProof(
             std::uint64_t address = 0u;
             std::uint64_t bytes = 0u;
         };
-        const std::array<BorrowedRange, 7u> borrowedRanges{{
+        const std::array<BorrowedRange, 8u> borrowedRanges{{
+            {rootTranslation, pass.rootTranslationGPUAddress, rootTranslationBytes},
             {q, pass.qGPUAddress, qBytes},
             {v, pass.vGPUAddress, vBytes},
             {mujocoStates, pass.mujocoStatesGPUAddress, mujocoBytes},
@@ -8542,7 +8719,10 @@ bool Runtime::encodeAcceptedStateProof(
         const std::uint64_t femMaterialScalars =
             static_cast<std::uint64_t>(state.dispatch.tetrahedronCount) *
             state.dispatch.materialStateStride;
-        const std::array<ProofArena, 30u> arenas{{
+        const std::array<ProofArena, 31u> arenas{{
+            {pass.rootTranslation, detail::AcceptedStateProofSource::humanRootTranslation,
+             detail::kAcceptedStateProofTargetHuman, 0u,
+             sizeof(MRCompensatedRootTranslationGPU), 0u},
             {pass.q, detail::AcceptedStateProofSource::humanQ,
              detail::kAcceptedStateProofTargetHuman, 0u,
              perEnvironmentBytes(pass.qStride, sizeof(float)), 0u},

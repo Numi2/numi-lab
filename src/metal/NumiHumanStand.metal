@@ -231,6 +231,9 @@ kernel void mr_numi_human_stand_step(
     device const MRNumiHumanTendonBindingGPU* tendonBindings [[buffer(18)]],
     device const MRNumiHumanTendonTransferResultGPU* tendonTransfers [[buffer(19)]],
     device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],
+    device MRCompensatedRootTranslationGPU* rootTranslations [[buffer(21)]],
+    device const float4* bodyPositionLow [[buffer(22)]],
+    device const float4* pointPositionLow [[buffer(23)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint threadCount [[threads_per_threadgroup]]
@@ -764,7 +767,8 @@ kernel void mr_numi_human_stand_step(
                 pointBase + support.pointQueryIndex
             ].position.xyz;
             const float gap = dot(
-                point - dispatch.groundPointAndTimestep.xyz, normal
+                mrCompensatedPositionDifference(float4(point,0.0f), pointPositionLow[pointBase + support.pointQueryIndex],
+                    dispatch.groundPointAndTimestep, float4(0.0f)).xyz, normal
             );
             minimumGap = min(minimumGap, gap);
             maximumPenetration = max(maximumPenetration, max(-gap, 0.0f));
@@ -815,7 +819,8 @@ kernel void mr_numi_human_stand_step(
                     pointBase + support.pointQueryIndex
                 ].position.xyz;
                 const float gap = dot(
-                    point - dispatch.groundPointAndTimestep.xyz, normal
+                    mrCompensatedPositionDifference(float4(point,0.0f), pointPositionLow[pointBase + support.pointQueryIndex],
+                    dispatch.groundPointAndTimestep, float4(0.0f)).xyz, normal
                 );
                 if (gap > support.frictionSlopAndStabilization.y) continue;
                 float3 velocity{0.0f};
@@ -1011,9 +1016,18 @@ kernel void mr_numi_human_stand_step(
         }
         vState[vBase + dof] = candidateV[dof];
     }
-    qState[qBase + 0u] += timestep * candidateV[0u];
-    qState[qBase + 1u] += timestep * candidateV[1u];
-    qState[qBase + 2u] += timestep * candidateV[2u];
+    const MRCompensatedRootTranslationGPU previousTranslation = rootTranslations[environment];
+    const auto nextTranslation = mrCompensatedTranslationAdvance(previousTranslation,
+        float4(candidateV[0u], candidateV[1u], candidateV[2u], 0.0f), timestep);
+    if (!mrCompensatedTranslationValid(nextTranslation)) {
+        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, 0u);
+        return;
+    }
+    rootTranslations[environment] = nextTranslation;
+    const auto projection = mrCompensatedTranslationProjection(nextTranslation);
+    qState[qBase + 0u] = projection.x;
+    qState[qBase + 1u] = projection.y;
+    qState[qBase + 2u] = projection.z;
     float4 orientation;
     if (!normalizedQuaternion(float4(
             qState[qBase + 3u], qState[qBase + 4u],
@@ -1142,12 +1156,15 @@ kernel void mr_numi_human_stand_reconcile(
     device const MRMujocoMuscleStateGPU* acceptedMuscles [[buffer(9)]],
     device const MRNumiHumanStandStatusGPU* acceptedStatuses [[buffer(10)]],
     device const float* acceptedVectors [[buffer(11)]],
+    device MRCompensatedRootTranslationGPU* rootTranslations [[buffer(12)]],
+    device const MRCompensatedRootTranslationGPU* acceptedRootTranslations [[buffer(13)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= shape.x) return;
     const MRNumiHumanStandStatusGPU attempt = statuses[environment];
     if (attempt.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
         attempt.environment == environment && attempt.completedSteps == shape.y + 1u) return;
+    rootTranslations[environment] = acceptedRootTranslations[environment];
     for (uint i=0u; i<strides.x; ++i) q[environment*strides.x+i] = acceptedQ[environment*strides.x+i];
     for (uint i=0u; i<strides.y; ++i) v[environment*strides.y+i] = acceptedV[environment*strides.y+i];
     for (uint i=0u; i<shape.z; ++i) muscles[environment*shape.z+i] = acceptedMuscles[environment*shape.z+i];

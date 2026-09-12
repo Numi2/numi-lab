@@ -5,7 +5,7 @@
 namespace numi::matter::detail {
 
 inline constexpr std::uint32_t kAcceptedStateProofSchemaVersion = 3u;
-inline constexpr std::uint32_t kAcceptedStateProofManifestVersion = 11u;
+inline constexpr std::uint32_t kAcceptedStateProofManifestVersion = 12u;
 inline constexpr std::uint32_t kAcceptedStateProofChunkBytes = 1024u;
 inline constexpr std::uint32_t kAcceptedStateProofTargetHuman = 0u;
 inline constexpr std::uint32_t kAcceptedStateProofTargetMatter = 1u;
@@ -15,6 +15,7 @@ enum class AcceptedStateProofSource : std::uint32_t {
     humanQ = 0x1001u,
     humanV = 0x1002u,
     humanMujoco = 0x1003u,
+    humanRootTranslation = 0x1004u,
     matterParticles = 0x2001u,
     matterParticleMaterialState = 0x2002u,
     matterFEMNodes = 0x2003u,

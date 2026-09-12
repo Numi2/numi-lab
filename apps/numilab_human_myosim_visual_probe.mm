@@ -13738,7 +13738,7 @@ int sourceCompliantCertificate(int argc,char** argv) {
     std::vector<double> q(initial.q.begin(),initial.q.end()),activation;
     for (const auto& m:initial.muscles) activation.push_back(m.excitationAndActivation.y);
     metalrobo::NumiHumanCompliantEquilibriumConfig config;
-    config.timestep=initial.timestepMicroseconds*1.0e-6;config.referenceSafe=eh.flags!=0;
+    config.timestep=metalrobo::numiHumanInitialStateTimestepNanoseconds(initial)*1.0e-9;config.referenceSafe=eh.flags!=0;
     config.maximumIterations=parseWholeBodyPoseSweeps(argv[8]);
     if (argc==10) {
         const std::string option(argv[9]);

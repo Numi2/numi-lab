@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -190,6 +191,9 @@ struct CandidateArena {
     id<MTLBuffer> delta = nil;
     id<MTLBuffer> q = nil;
     id<MTLBuffer> bodies = nil;
+    id<MTLBuffer> rootTranslation = nil;
+    id<MTLBuffer> bodyPositionLow = nil;
+    id<MTLBuffer> pointPositionLow = nil;
     id<MTLBuffer> pointWorld = nil;
     id<MTLBuffer> pointJacobians = nil;
 };
@@ -206,7 +210,17 @@ CandidateArena makeCandidateArena(
         [label stringByAppendingString:@" q"]);
     result.bodies = makeBuffer<MRBodyStateGPU>(device, kWorldBodyCount,
         [label stringByAppendingString:@" bodies"]);
+    result.rootTranslation = makeBuffer<MRCompensatedRootTranslationGPU>(
+        device, kEnvironmentCount, [label stringByAppendingString:@" root translation"]);
+    result.bodyPositionLow = makeBuffer<mr_float4>(device, kWorldBodyCount,
+        [label stringByAppendingString:@" body position low"]);
+    const float poison = std::numeric_limits<float>::quiet_NaN();
+    std::fill_n(contents<mr_float4>(result.bodyPositionLow), kWorldBodyCount,
+                f4(poison, poison, poison, poison));
     if (withPoint) {
+        result.pointPositionLow = makeBuffer<mr_float4>(device, 1u,
+            [label stringByAppendingString:@" point position low"]);
+        contents<mr_float4>(result.pointPositionLow)[0] = f4(poison, poison, poison, poison);
         result.pointWorld = makeBuffer<MRArticulatedPointWorldGPU>(
             device, 1u, [label stringByAppendingString:@" point world"]);
         result.pointJacobians = makeBuffer<float>(
@@ -231,6 +245,10 @@ struct CandidateAudit {
     id<MTLBuffer> predictorSnapshot = nil;
     id<MTLBuffer> finalQSnapshot = nil;
     id<MTLBuffer> finalVSnapshot = nil;
+    id<MTLBuffer> shortRootTranslation = nil;
+    id<MTLBuffer> shortBodyPositionLow = nil;
+    id<MTLBuffer> shortPointPositionLow = nil;
+    std::uint32_t companionNegativeCount = 0u;
     CandidateArena freeMotion{};
     CandidateArena base{};
     CandidateArena plus{};
@@ -277,6 +295,12 @@ Query candidateQuery(
     query.deltaVelocityStride = kNv;
     query.candidateQStride = kNq;
     query.candidateBodyStride = kWorldBodyCount;
+    query.candidateRootTranslation = (__bridge void*)arena.rootTranslation;
+    query.candidateRootTranslationGPUAddress = arena.rootTranslation.gpuAddress;
+    query.candidateRootTranslationElementCount = kEnvironmentCount;
+    query.candidateBodyPositionLow = (__bridge void*)arena.bodyPositionLow;
+    query.candidateBodyPositionLowGPUAddress = arena.bodyPositionLow.gpuAddress;
+    query.candidateBodyPositionLowElementCount = kWorldBodyCount;
     if (withPoint) {
         query.accessFlags |=
             metalrobo::MetalNumanXHumanMatterCandidateReadPointQueries |
@@ -284,6 +308,9 @@ Query candidateQuery(
             metalrobo::MetalNumanXHumanMatterCandidateWritePointJacobians;
         query.pointQueries = (__bridge void*)audit.attachment;
         query.pointWorld = (__bridge void*)arena.pointWorld;
+        query.pointPositionLow = (__bridge void*)arena.pointPositionLow;
+        query.pointPositionLowGPUAddress = arena.pointPositionLow.gpuAddress;
+        query.pointPositionLowElementCount = 1u;
         query.pointJacobians = (__bridge void*)arena.pointJacobians;
         query.pointQueriesGPUAddress = audit.attachment.gpuAddress;
         query.pointWorldGPUAddress = arena.pointWorld.gpuAddress;
@@ -378,6 +405,71 @@ bool encodeProgram(void* raw, const Pass& pass) noexcept {
             return audit.fail("malformed or alias candidate was admitted");
         }
 
+        // Each companion is independently admitted as a complete, correctly
+        // sized, non-aliasing output arena before any candidate dispatch.
+        struct CompanionFields {
+            void* Query::* buffer;
+            std::uint64_t Query::* address;
+            std::uint64_t Query::* count;
+            id<MTLBuffer> shortBuffer;
+            void* aliasBuffer;
+            std::uint64_t aliasAddress;
+            const char* missingMessage;
+            const char* countMessage;
+            const char* addressMessage;
+            const char* extentMessage;
+            const char* aliasMessage;
+        };
+        const std::array<CompanionFields, 3u> companions{{
+            {&Query::candidateRootTranslation, &Query::candidateRootTranslationGPUAddress,
+             &Query::candidateRootTranslationElementCount, audit.shortRootTranslation,
+             pass.rootTranslationCheckpoint, pass.rootTranslationCheckpointGPUAddress,
+             "missing root companion admitted", "wrong root companion count admitted",
+             "wrong root companion address admitted", "short root companion admitted",
+             "checkpoint root substituted as candidate output"},
+            {&Query::candidateBodyPositionLow, &Query::candidateBodyPositionLowGPUAddress,
+             &Query::candidateBodyPositionLowElementCount, audit.shortBodyPositionLow,
+             (__bridge void*)audit.base.bodies, audit.base.bodies.gpuAddress,
+             "missing body-low companion admitted", "wrong body-low count admitted",
+             "wrong body-low address admitted", "short body-low companion admitted",
+             "body high substituted as body-low output"},
+            {&Query::pointPositionLow, &Query::pointPositionLowGPUAddress,
+             &Query::pointPositionLowElementCount, audit.shortPointPositionLow,
+             (__bridge void*)audit.base.pointWorld, audit.base.pointWorld.gpuAddress,
+             "missing point-low companion admitted", "wrong point-low count admitted",
+             "wrong point-low address admitted", "short point-low companion admitted",
+             "point high substituted as point-low output"},
+        }};
+        const auto rejectCompanion = [&](const Query& query, const char* message) noexcept {
+            if (pass.encodeExactCandidate(pass.exactCandidateContext, pass, query))
+                return audit.fail(message);
+            ++audit.companionNegativeCount;
+            return true;
+        };
+        for (std::size_t index = 0u; index < companions.size(); ++index) {
+            const auto& fields = companions[index];
+            Query changed = candidateQuery(audit, audit.base, true);
+            changed.*(fields.buffer) = nullptr;
+            changed.*(fields.address) = 0u;
+            changed.*(fields.count) = 0u;
+            if (!rejectCompanion(changed, fields.missingMessage)) return false;
+            changed = candidateQuery(audit, audit.base, true);
+            changed.*(fields.count) = index == 0u ? kEnvironmentCount + 1u
+                                                  : changed.*(fields.count) - 1u;
+            if (!rejectCompanion(changed, fields.countMessage)) return false;
+            changed = candidateQuery(audit, audit.base, true);
+            changed.*(fields.address) += sizeof(float);
+            if (!rejectCompanion(changed, fields.addressMessage)) return false;
+            changed = candidateQuery(audit, audit.base, true);
+            changed.*(fields.buffer) = (__bridge void*)fields.shortBuffer;
+            changed.*(fields.address) = fields.shortBuffer.gpuAddress;
+            if (!rejectCompanion(changed, fields.extentMessage)) return false;
+            changed = candidateQuery(audit, audit.base, true);
+            changed.*(fields.buffer) = fields.aliasBuffer;
+            changed.*(fields.address) = fields.aliasAddress;
+            if (!rejectCompanion(changed, fields.aliasMessage)) return false;
+        }
+
         const Query base = candidateQuery(audit, audit.base, true);
         const Query plus = candidateQuery(audit, audit.plus, true);
         const Query minus = candidateQuery(audit, audit.minus, true);
@@ -389,6 +481,18 @@ bool encodeProgram(void* raw, const Pass& pass) noexcept {
         jacobianOnly.pointWorld = nullptr;
         jacobianOnly.pointWorldGPUAddress = 0u;
         jacobianOnly.pointWorldStride = 0u;
+        jacobianOnly.pointPositionLow = nullptr;
+        jacobianOnly.pointPositionLowGPUAddress = 0u;
+        jacobianOnly.pointPositionLowElementCount = 0u;
+        Query stalePointLow = jacobianOnly;
+        stalePointLow.pointPositionLow = (__bridge void*)audit.jacobianOnly.pointPositionLow;
+        if (!rejectCompanion(stalePointLow, "unused point-low pointer admitted")) return false;
+        stalePointLow = jacobianOnly;
+        stalePointLow.pointPositionLowGPUAddress = audit.jacobianOnly.pointPositionLow.gpuAddress;
+        if (!rejectCompanion(stalePointLow, "unused point-low address admitted")) return false;
+        stalePointLow = jacobianOnly;
+        stalePointLow.pointPositionLowElementCount = 1u;
+        if (!rejectCompanion(stalePointLow, "unused point-low count admitted")) return false;
         if (!pass.encodeExactCandidate(
                 pass.exactCandidateContext, pass, base) ||
             !pass.encodeExactCandidate(
@@ -545,6 +649,12 @@ rejectCandidatePublicationRelease(
 
 void initializeAudit(CandidateAudit& audit, id<MTLDevice> device) {
     audit.device = device;
+    audit.shortRootTranslation = makeBuffer<std::uint8_t>(device,
+        sizeof(MRCompensatedRootTranslationGPU) - 1u, @"short root companion");
+    audit.shortBodyPositionLow = makeBuffer<std::uint8_t>(device,
+        kWorldBodyCount * sizeof(mr_float4) - 1u, @"short body-low companion");
+    audit.shortPointPositionLow = makeBuffer<std::uint8_t>(device,
+        sizeof(mr_float4) - 1u, @"short point-low companion");
     audit.reaction = makeBuffer<float>(device, kNv, @"Matter reaction");
     audit.joint = makeBuffer<MRNumanXCoupledHumanStatusGPU>(
         device, 1u, @"joint status");
@@ -765,6 +875,8 @@ void verifyCandidate(
                 audit.malformedStrideRejected && audit.aliasRejected &&
                 audit.bodyOnlyAccepted && audit.optionalPointWorldAccepted,
             "candidate admission evidence is incomplete");
+    require(audit.companionNegativeCount == 18u,
+            "compensated candidate companion controls are incomplete");
     require(std::isfinite(
                 contents<float>(audit.jacobianOnly.pointJacobians)[
                     kFiniteDifferenceDof]),
@@ -819,6 +931,26 @@ void verifyCandidate(
                 (predictor[0] + delta[0]))) <= 2.0e-6f,
             "candidate root translation is not exact");
 
+    const auto validLow = [](const mr_float4& low) {
+        return std::isfinite(low.x) && std::isfinite(low.y) &&
+               std::isfinite(low.z) && low.w == 0.0f;
+    };
+    for (const CandidateArena* arena : {&audit.freeMotion, &audit.base, &audit.plus,
+                                      &audit.minus, &audit.bodyOnly, &audit.jacobianOnly}) {
+        const auto& root = contents<MRCompensatedRootTranslationGPU>(arena->rootTranslation)[0];
+        require(validLow(root.reference) && validLow(root.displacement) && validLow(root.correction),
+                "candidate compensated root is nonfinite or noncanonical");
+        require(root.reference.x == model.defaultQ[0] && root.reference.y == model.defaultQ[1] &&
+                    root.reference.z == model.defaultQ[2],
+                "candidate root lost immutable initial reference");
+        for (std::uint32_t body = kFirstBody; body < kWorldBodyCount; ++body)
+            require(validLow(contents<mr_float4>(arena->bodyPositionLow)[body]),
+                    "candidate body-low companion was not materialized canonically");
+    }
+    for (const CandidateArena* arena : {&audit.base, &audit.plus, &audit.minus})
+        require(validLow(contents<mr_float4>(arena->pointPositionLow)[0]),
+                "candidate point-low companion was not materialized canonically");
+
     const MRBodyStateGPU* bodies = contents<MRBodyStateGPU>(audit.base.bodies);
     const MRBodyStateGPU& distal = bodies[kWorldBodyCount - 1u];
     require(distal.flagsAndIndices[0] == MR_MOTION_DYNAMIC &&
@@ -842,13 +974,17 @@ void verifyCandidate(
                 std::isfinite(baseWorld.position.z) &&
                 baseWorld.position.w == 1.0f,
             "candidate point-world materialization is malformed");
+    const auto& plusLow = contents<mr_float4>(audit.plus.pointPositionLow)[0];
+    const auto& minusLow = contents<mr_float4>(audit.minus.pointPositionLow)[0];
+    const auto pairedDifference = [](float highPlus, float lowPlus, float highMinus, float lowMinus) {
+        return static_cast<float>(((static_cast<double>(highPlus) + lowPlus) -
+                                   (static_cast<double>(highMinus) + lowMinus)) /
+            (2.0 * kFiniteDifferenceEpsilon * kTimestep));
+    };
     const std::array<float, 3u> finiteDifference{{
-        (plusWorld.position.x - minusWorld.position.x) /
-            (2.0f * kFiniteDifferenceEpsilon * kTimestep),
-        (plusWorld.position.y - minusWorld.position.y) /
-            (2.0f * kFiniteDifferenceEpsilon * kTimestep),
-        (plusWorld.position.z - minusWorld.position.z) /
-            (2.0f * kFiniteDifferenceEpsilon * kTimestep),
+        pairedDifference(plusWorld.position.x, plusLow.x, minusWorld.position.x, minusLow.x),
+        pairedDifference(plusWorld.position.y, plusLow.y, minusWorld.position.y, minusLow.y),
+        pairedDifference(plusWorld.position.z, plusLow.z, minusWorld.position.z, minusLow.z),
     }};
     float maximumError = 0.0f;
     float maximumMagnitude = 0.0f;
@@ -917,7 +1053,9 @@ int main(int argc, const char* argv[]) {
                 << "\" dofs=160 q=161 exact_candidate=generic_analytic"
                 << " nonlinear_fd=passed malformed=fail_closed"
                 << " alias=fail_closed point_world=materialized"
-                << " body_only=accepted A0=frozen\n";
+                << " body_only=accepted A0=frozen"
+                << " compensated_companion_negative=" << audit.companionNegativeCount
+                << " optional_point_low=absent root_reference=preserved\n";
             return 0;
         } catch (const std::exception& exception) {
             std::cerr << "numanx_human_matter_candidate_probe: "

@@ -394,6 +394,8 @@ void notifyPreparedTerminal(
     mrnx_candidate_view_v1 candidate{};
     mrnx_candidate_channel_v1 channels[kCandidateChannelCapacity]{};
     bool hasCandidate = false;
+    MRNumanXHumanMatterJointPublicationFenceGPU committedFence{};
+    bool hasCommittedFence = false;
     {
         const std::lock_guard lock(prepared->mutex);
         if (prepared->terminalCompletionDelivered ||
@@ -404,6 +406,19 @@ void notifyPreparedTerminal(
         completion = prepared->terminalCompletion;
         context = prepared->terminalCompletionContext;
         root = prepared->root;
+        // This path is entered only after releasePublishedRoot succeeded.
+        // Copy metadata before the prepared slot can be reused; a provisional
+        // applied outcome never supplies telemetry publication authority.
+        if (disposition == metalrobo::numanx_bridge_v1::PreparedTerminalDisposition::published) {
+            const auto& wire = prepared->proposal.publication_fence;
+            id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)wire.metal_buffer;
+            if (buffer != nil && buffer.contents != nullptr &&
+                wire.byte_count == sizeof(committedFence) && wire.byte_offset <= buffer.length &&
+                sizeof(committedFence) <= buffer.length - wire.byte_offset) {
+                std::memcpy(&committedFence, static_cast<const std::byte*>(buffer.contents) + wire.byte_offset, sizeof(committedFence));
+                hasCommittedFence = true;
+            }
+        }
         if (prepared->candidate != nullptr) {
             const std::lock_guard candidateLock(prepared->candidate->mutex);
             candidate = prepared->candidate->view;
@@ -420,7 +435,8 @@ void notifyPreparedTerminal(
         root,
         hasCandidate ? &candidate : nullptr,
         hasCandidate ? channels : nullptr,
-        hasCandidate ? candidate.channel_count : 0u);
+        hasCandidate ? candidate.channel_count : 0u,
+        hasCommittedFence ? &committedFence : nullptr);
 }
 
 [[nodiscard]] bool commandBufferObject(

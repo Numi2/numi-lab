@@ -603,6 +603,8 @@ kernel void mr_numanx_human_matter_prepare_candidate(
     device const MRArticulatedPointImpulseGPU* sourcePoints [[buffer(7)]],
     device const MRArticulatedPointImpulseGPU* candidatePoints [[buffer(8)]],
     device MRArticulatedPointImpulseGPU* combinedPoints [[buffer(9)]],
+    device const MRCompensatedRootTranslationGPU* acceptedRootTranslations [[buffer(10)]],
+    device MRCompensatedRootTranslationGPU* candidateRootTranslations [[buffer(11)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) return;
@@ -612,7 +614,8 @@ kernel void mr_numanx_human_matter_prepare_candidate(
     const uint sourceVBase = environment * dispatch.nv;
     const uint deltaBase =
         environment * dispatch.deltaVelocityStride;
-    bool valid = validCandidateDispatch(dispatch);
+    const MRCompensatedRootTranslationGPU acceptedTranslation = acceptedRootTranslations[environment];
+    bool valid = validCandidateDispatch(dispatch) && mrCompensatedTranslationValid(acceptedTranslation);
     const MRArticulationGPU articulation =
         articulations[dispatch.articulationIndex];
     valid = valid && articulation.rootType == MR_ROOT_FLOATING &&
@@ -667,9 +670,14 @@ kernel void mr_numanx_human_matter_prepare_candidate(
         sourceV[sourceVBase + 4u] + deltaVelocity[deltaBase + 4u],
         sourceV[sourceVBase + 5u] + deltaVelocity[deltaBase + 5u],
     };
-    candidateQ[candidateQBase + 0u] += timestep * linear.x;
-    candidateQ[candidateQBase + 1u] += timestep * linear.y;
-    candidateQ[candidateQBase + 2u] += timestep * linear.z;
+    const MRCompensatedRootTranslationGPU sourceTranslation = acceptedRootTranslations[environment];
+    const auto nextTranslation = mrCompensatedTranslationAdvance(sourceTranslation,
+        float4(linear, 0.0f), timestep);
+    candidateRootTranslations[environment] = nextTranslation;
+    const auto projection = mrCompensatedTranslationProjection(nextTranslation);
+    candidateQ[candidateQBase + 0u] = projection.x;
+    candidateQ[candidateQBase + 1u] = projection.y;
+    candidateQ[candidateQBase + 2u] = projection.z;
     const float4 increment = quaternionFromRotationVector(
         timestep * angular
     );
@@ -723,6 +731,10 @@ kernel void mr_numanx_human_matter_materialize_candidate(
     device MRBodyStateGPU* candidateBodies [[buffer(10)]],
     device MRArticulatedPointWorldGPU* candidatePointWorld [[buffer(11)]],
     device float* candidatePointJacobians [[buffer(12)]],
+    device const float4* privateBodyPositionLow [[buffer(13)]],
+    device const float4* privatePointPositionLow [[buffer(14)]],
+    device float4* candidateBodyPositionLow [[buffer(15)]],
+    device float4* candidatePointPositionLow [[buffer(16)]],
     threadgroup uint& valid [[threadgroup(0)]],
     const uint environment [[threadgroup_position_in_grid]],
     const uint lane [[thread_index_in_threadgroup]],
@@ -840,6 +852,7 @@ kernel void mr_numanx_human_matter_materialize_candidate(
         state.flagsAndIndices[2] = globalBody;
         state.flagsAndIndices[3] = 0u;
         candidateBodies[bodyBase + globalBody] = state;
+        candidateBodyPositionLow[bodyBase + globalBody] = privateBodyPositionLow[bodyPoseBase + localBody];
     }
 
     const uint privatePointBase =
@@ -855,9 +868,10 @@ kernel void mr_numanx_human_matter_materialize_candidate(
     if ((dispatch.flags &
          MR_NUMANX_HUMAN_MATTER_CANDIDATE_HAS_POINT_WORLD) != 0u) {
         for (uint point = lane;
-             point < dispatch.candidatePointCount; point += threadCount)
-            candidatePointWorld[candidatePointBase + point] =
-                privatePointWorld[privatePointBase + point];
+             point < dispatch.candidatePointCount; point += threadCount) {
+            candidatePointWorld[candidatePointBase + point] = privatePointWorld[privatePointBase + point];
+            candidatePointPositionLow[candidatePointBase + point] = privatePointPositionLow[privatePointBase + point];
+        }
     }
     const uint logicalJacobianCount =
         dispatch.candidatePointCount * 3u * dispatch.nv;
@@ -1147,6 +1161,8 @@ kernel void mr_numanx_human_matter_prepare_physical(
     device const float* vCheckpoint [[buffer(7)]],
     device const MRMujocoMuscleStateGPU* mujocoCheckpoint [[buffer(8)]],
     device MRNumanXHumanMatterOwnerStatusGPU* ownerStatuses [[buffer(9)]],
+    device MRCompensatedRootTranslationGPU* rootTranslations [[buffer(10)]],
+    device const MRCompensatedRootTranslationGPU* acceptedRootTranslations [[buffer(11)]],
     threadgroup atomic_uint& restore [[threadgroup(0)]],
     const uint environment [[threadgroup_position_in_grid]],
     const uint lane [[thread_index_in_threadgroup]],
@@ -1193,6 +1209,7 @@ kernel void mr_numanx_human_matter_prepare_physical(
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (atomic_load_explicit(&restore, memory_order_relaxed) == 0u) return;
 
+    if (lane == 0u) rootTranslations[environment] = acceptedRootTranslations[environment];
     const uint qBase = environment * dispatch.qStride;
     for (uint coordinate = lane;
          coordinate < dispatch.nq; coordinate += threadCount) {
@@ -1605,6 +1622,8 @@ kernel void mr_numanx_human_matter_complete_apply(
     device MRNumanXHumanMatterOwnerStatusGPU* ownerStatuses [[buffer(11)]],
     device MRNumanXHumanMatterAppliedOutcomeGPU* appliedOutcomes [[buffer(12)]],
     device uchar* finalTokens [[buffer(13)]],
+    device MRCompensatedRootTranslationGPU* rootTranslations [[buffer(14)]],
+    device const MRCompensatedRootTranslationGPU* acceptedRootTranslations [[buffer(15)]],
     threadgroup MRNumanXHumanMatterAppliedOutcomeGPU& pending [[threadgroup(0)]],
     threadgroup uint& tokenAction [[threadgroup(1)]],
     const uint environment [[threadgroup_position_in_grid]],
@@ -1806,6 +1825,7 @@ kernel void mr_numanx_human_matter_complete_apply(
     threadgroup_barrier(mem_flags::mem_threadgroup);
     const uint actionCode = tokenAction;
     if (actionCode == 2u) {
+        if (lane == 0u) rootTranslations[environment] = acceptedRootTranslations[environment];
         const uint qBase = environment * dispatch.qStride;
         for (uint coordinate = lane; coordinate < dispatch.nq;
              coordinate += threadCount)

@@ -390,6 +390,10 @@ ValidRun runValid(const Harness& harness) {
     const NMFEMNodeStateGPU accepted = node();
     const NMFEMNodeStateGPU initialCandidate = accepted;
     const MRBodyStateGPU candidateBody = body();
+    // This fixture intentionally exercises legacy scalar geometry. Bind a
+    // valid companion even when the production kernel's paired mode is off.
+    const std::uint32_t compensatedTranslation = 0u;
+    const nm_float4 candidateBodyPositionLow{};
     const NMIncidenceRangeGPU range{0u, 0u, 0u, 0u};
     const NMContinuumObjectGPU object{};
     const NMSchedulerStateGPU scheduler{};
@@ -421,6 +425,8 @@ ValidRun runValid(const Harness& harness) {
         harness.device, binding, @"attachment record");
     id<MTLBuffer> bodyBuffer = makeBuffer(
         harness.device, candidateBody, @"candidate body");
+    id<MTLBuffer> bodyPositionLowBuffer = makeBuffer(
+        harness.device, candidateBodyPositionLow, @"candidate body low zero placeholder");
     id<MTLBuffer> jacobianBuffer = makeBuffer(
         harness.device, jacobian, @"attachment point Jacobian");
     id<MTLBuffer> generalizedBuffer = makeBuffer(
@@ -476,6 +482,9 @@ ValidRun runValid(const Harness& harness) {
             [encoder setBuffer:candidateBuffer offset:0u atIndex:9u];
             [encoder setBuffer:rangeBuffer offset:0u atIndex:10u];
             [encoder setBuffer:statusBuffer offset:0u atIndex:11u];
+            [encoder setBuffer:bodyPositionLowBuffer offset:0u atIndex:12u];
+            [encoder setBytes:&compensatedTranslation
+                       length:sizeof(compensatedTranslation) atIndex:13u];
         });
     encode(commandBuffer, harness.map, 1u,
         [&](id<MTLComputeCommandEncoder> encoder) {
@@ -700,6 +709,10 @@ DriveRun runDriveCase(
     NMFEMNodeStateGPU candidate = node();
     candidate.positionAndMass = f4(91.0f, 92.0f, 93.0f, 2.0f);
     const MRBodyStateGPU candidateBody = body();
+    // This fixture intentionally exercises legacy scalar geometry. Bind a
+    // valid companion even when the production kernel's paired mode is off.
+    const std::uint32_t compensatedTranslation = 0u;
+    const nm_float4 candidateBodyPositionLow{};
     const auto jacobian = pointJacobian();
     std::array<float, kDofs> generalized{};
     const NMIncidenceRangeGPU range{0u, 0u, 0u, 0u};
@@ -713,6 +726,8 @@ DriveRun runDriveCase(
         harness.device, binding, @"drive-case attachment");
     id<MTLBuffer> bodyBuffer = makeBuffer(
         harness.device, candidateBody, @"drive-case body");
+    id<MTLBuffer> bodyPositionLowBuffer = makeBuffer(
+        harness.device, candidateBodyPositionLow, @"drive-case body low zero placeholder");
     id<MTLBuffer> jacobianBuffer = makeBuffer(
         harness.device, jacobian, @"drive-case Jacobian");
     id<MTLBuffer> generalizedBuffer = makeBuffer(
@@ -742,6 +757,9 @@ DriveRun runDriveCase(
             [encoder setBuffer:candidateBuffer offset:0u atIndex:9u];
             [encoder setBuffer:rangeBuffer offset:0u atIndex:10u];
             [encoder setBuffer:statusBuffer offset:0u atIndex:11u];
+            [encoder setBuffer:bodyPositionLowBuffer offset:0u atIndex:12u];
+            [encoder setBytes:&compensatedTranslation
+                       length:sizeof(compensatedTranslation) atIndex:13u];
         });
     finish(commandBuffer);
     return {

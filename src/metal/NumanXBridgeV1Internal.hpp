@@ -26,7 +26,8 @@ using PreparedTerminalCompletion = void (*)(
     const mrnx_root_v1& root,
     const mrnx_candidate_view_v1* candidate,
     const mrnx_candidate_channel_v1* channels,
-    std::uint32_t channelCount
+    std::uint32_t channelCount,
+    const MRNumanXHumanMatterJointPublicationFenceGPU* committedFence
 ) noexcept;
 
 // Internal-only constructors used by the future provenance-valid full-body

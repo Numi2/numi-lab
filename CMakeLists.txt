@@ -104,6 +104,15 @@ set(METALROBO_BROADPHASE_SOURCE
 set(METALROBO_ARTICULATED_OPERATOR_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedOperator.metal"
 )
+set(METALROBO_ARTICULATED_OPERATOR_COMPENSATED_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedOperatorCompensated.metal"
+)
+set(METALROBO_COMPENSATED_TRANSLATION_CHECK_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/CompensatedTranslationCheck.metal"
+)
+set(METALROBO_HUMAN_BEHAVIOR_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/HumanBehavior.metal"
+)
 set(METALROBO_MILLARD_MUSCLE_REFERENCE_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MillardMuscleReference.metal"
 )
@@ -208,6 +217,15 @@ set(METALROBO_BROADPHASE_AIR
 )
 set(METALROBO_ARTICULATED_OPERATOR_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboArticulatedOperator.air"
+)
+set(METALROBO_ARTICULATED_OPERATOR_COMPENSATED_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboArticulatedOperatorCompensated.air"
+)
+set(METALROBO_COMPENSATED_TRANSLATION_CHECK_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboCompensatedTranslationCheck.air"
+)
+set(METALROBO_HUMAN_BEHAVIOR_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboHumanBehavior.air"
 )
 set(METALROBO_MILLARD_MUSCLE_REFERENCE_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboMillardMuscleReference.air"
@@ -428,6 +446,21 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
             -o "${METALROBO_ARTICULATED_OPERATOR_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_ARTICULATED_OPERATOR_COMPENSATED_SOURCE}"
+            -o "${METALROBO_ARTICULATED_OPERATOR_COMPENSATED_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_COMPENSATED_TRANSLATION_CHECK_SOURCE}"
+            -o "${METALROBO_COMPENSATED_TRANSLATION_CHECK_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_HUMAN_BEHAVIOR_SOURCE}"
+            -o "${METALROBO_HUMAN_BEHAVIOR_AIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
@@ -680,6 +713,9 @@ add_custom_command(
             "${METALROBO_COLLISION_AIR}"
             "${METALROBO_BROADPHASE_AIR}"
             "${METALROBO_ARTICULATED_OPERATOR_AIR}"
+            "${METALROBO_ARTICULATED_OPERATOR_COMPENSATED_AIR}"
+            "${METALROBO_COMPENSATED_TRANSLATION_CHECK_AIR}"
+            "${METALROBO_HUMAN_BEHAVIOR_AIR}"
             "${METALROBO_MILLARD_MUSCLE_REFERENCE_AIR}"
             "${METALROBO_MUJOCO_MUSCLE_REFERENCE_AIR}"
             "${METALROBO_NUMANX_HUMAN_IO_AIR}"
@@ -727,6 +763,12 @@ add_custom_command(
         "${METALROBO_COLLISION_SOURCE}"
         "${METALROBO_BROADPHASE_SOURCE}"
         "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
+        "${METALROBO_ARTICULATED_OPERATOR_COMPENSATED_SOURCE}"
+        "${METALROBO_COMPENSATED_TRANSLATION_CHECK_SOURCE}"
+        "${METALROBO_HUMAN_BEHAVIOR_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/compensated_translation_gpu.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/compensated_geometry_gpu.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/human_behavior_gpu.h"
         "${METALROBO_ARTICULATED_ABA_SOURCE}"
         "${METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_SOURCE}"
         "${METALROBO_NUMI_HUMAN_STAND_SOURCE}"
@@ -897,6 +939,7 @@ add_library(
     src/core/NumiHumanJointEquality.cpp
     src/core/NumiHumanMuscleEquilibrium.cpp
     src/core/NumiHumanInitialState.cpp
+    src/core/HumanBehaviorProgram.cpp
     src/core/NumiHumanTensionNetwork.cpp
     src/core/NumiHumanTendon.cpp
     src/core/NumiHumanCartilage.cpp
@@ -926,6 +969,7 @@ add_library(
     src/apple/VisualAssetCooker.mm
     src/metal/MetalArticulatedOperator.mm
     src/metal/MetalNumanXHumanIO.mm
+    src/metal/MetalHumanBehaviorTelemetry.mm
     src/metal/NumanXBridgeV1.mm
     src/metal/NumanXRuntimeV1.mm
     src/metal/MetalNumanXCoupledHuman.mm
@@ -985,6 +1029,14 @@ target_compile_options(
     PRIVATE
         "$<$<COMPILE_LANGUAGE:CXX>:-Wall;-Wextra;-Wpedantic>"
         "$<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc;-Wall;-Wextra;-Wpedantic>"
+)
+# Error-free root translation expansions require ordered scalar operations.
+set_source_files_properties(
+    src/core/NumiHumanInitialState.cpp
+    src/metal/MetalArticulatedOperator.mm
+    src/metal/MetalNumanXHumanMatter.mm
+    src/metal/NumanXRuntimeV1.mm
+    PROPERTIES COMPILE_OPTIONS "-fno-fast-math;-ffp-contract=off"
 )
 target_link_libraries(
     metalrobo
@@ -1397,9 +1449,55 @@ if(METALROBO_HAS_SWIFT)
 endif()
 
 if(BUILD_TESTING)
+    add_executable(metalrobo_compensated_translation_check apps/compensated_translation_check.mm)
+    target_link_libraries(metalrobo_compensated_translation_check PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(metalrobo_compensated_translation_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_compensated_translation_check PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_compensated_translation_cpu COMMAND metalrobo_compensated_translation_check --cpu)
+    add_test(NAME numi_human_compensated_translation_metal COMMAND metalrobo_compensated_translation_check "${METALROBO_METALLIB}")
+    add_executable(metalrobo_compensated_geometry_check apps/compensated_geometry_check.mm)
+    target_link_libraries(metalrobo_compensated_geometry_check PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(metalrobo_compensated_geometry_check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_compensated_geometry_check PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_compensated_geometry_cpu COMMAND metalrobo_compensated_geometry_check --cpu)
+    add_test(NAME numi_human_compensated_geometry_metal COMMAND metalrobo_compensated_geometry_check "${METALROBO_METALLIB}")
+    set_tests_properties(numi_human_compensated_geometry_cpu numi_human_compensated_geometry_metal
+        PROPERTIES LABELS "numi-human;precision" TIMEOUT 60)
+    add_executable(metalrobo_human_support_precision_check apps/human_support_precision_check.cpp)
+    target_include_directories(metalrobo_human_support_precision_check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+    target_compile_options(metalrobo_human_support_precision_check PRIVATE
+        -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_human_support_precision_check PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+    add_test(NAME numi_human_support_precision COMMAND metalrobo_human_support_precision_check)
+    set_tests_properties(numi_human_support_precision PROPERTIES LABELS "numi-human;physics;cpu" TIMEOUT 30)
+    set_tests_properties(numi_human_compensated_translation_cpu numi_human_compensated_translation_metal PROPERTIES
+        LABELS "numi-human;precision" TIMEOUT 60)
+    add_executable(metalrobo_human_behavior_telemetry_check apps/human_behavior_telemetry_check.mm)
+    target_link_libraries(metalrobo_human_behavior_telemetry_check PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(metalrobo_human_behavior_telemetry_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_human_behavior_telemetry_check PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_behavior_telemetry COMMAND metalrobo_human_behavior_telemetry_check "${METALROBO_METALLIB}")
+    set_tests_properties(numi_human_behavior_telemetry PROPERTIES LABELS "numi-human;behavior;metal" TIMEOUT 60)
+    add_executable(metalrobo_human_behavior_program_check apps/human_behavior_program_check.cpp)
+    target_link_libraries(metalrobo_human_behavior_program_check PRIVATE metalrobo)
+    target_compile_options(metalrobo_human_behavior_program_check PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    set_target_properties(metalrobo_human_behavior_program_check PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_behavior_program COMMAND metalrobo_human_behavior_program_check)
+    set_tests_properties(numi_human_behavior_program PROPERTIES LABELS "numi-human;behavior;compiler")
     add_executable(metalrobo_numi_human_initial_state_test tests/numi_human_initial_state_test.cpp)
     target_link_libraries(metalrobo_numi_human_initial_state_test PRIVATE metalrobo)
-    target_compile_options(metalrobo_numi_human_initial_state_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    target_compile_options(metalrobo_numi_human_initial_state_test PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
     set_target_properties(metalrobo_numi_human_initial_state_test PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")

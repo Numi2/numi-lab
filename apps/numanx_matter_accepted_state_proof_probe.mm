@@ -93,6 +93,7 @@ std::uint64_t humanReference(const OwnerArenas& arenas) {
         mixU64(hash, sourceTree(
             content, static_cast<std::uint32_t>(source)));
     };
+    fold(arenas.rootTranslation, numi::matter::detail::AcceptedStateProofSource::humanRootTranslation);
     fold(arenas.q, numi::matter::detail::AcceptedStateProofSource::humanQ);
     fold(arenas.v, numi::matter::detail::AcceptedStateProofSource::humanV);
     fold(arenas.mujoco,
@@ -345,6 +346,9 @@ void verifyApplicationKernelTerminalSemantics(id<MTLDevice> device) {
 
 struct MatterCandidateService {
     id<MTLCommandBuffer> commandBuffer = nil;
+    id<MTLBuffer> rootTranslation = nil;
+    id<MTLBuffer> bodyPositionLow = nil;
+    id<MTLBuffer> borrowedCandidateRoot = nil;
     id<MTLBuffer> q = nil;
     id<MTLBuffer> body = nil;
     id<MTLBuffer> jacobian = nil;
@@ -361,7 +365,30 @@ bool encodeMatterCandidate(
         static_cast<std::uint32_t>(query.operation);
     if (service == nullptr || service->commandBuffer == nil ||
         operation >= service->calls.size() ||
-        query.generalizedVectorStride != kDofs) return false;
+        query.generalizedVectorStride != kDofs || query.legacyHighOnly ||
+        query.pointPositionLow != nullptr ||
+        query.pointPositionLowGPUAddress != 0u ||
+        query.pointPositionLowElementCount != 0u) return false;
+    const bool kinematics = query.operation ==
+        numi::matter::CoupledCandidateOperation::candidateKinematics;
+    if (kinematics) {
+        if (query.candidateRootTranslation == nullptr ||
+            query.candidateBodyPositionLow == nullptr ||
+            query.candidateRootTranslationElementCount != 1u ||
+            query.candidateBodyPositionLowElementCount != kBodies) return false;
+        service->borrowedCandidateRoot =
+            (__bridge id<MTLBuffer>)query.candidateRootTranslation;
+    } else {
+        if (query.candidateBodies != nullptr || query.candidateBodyStride != 0u ||
+            query.candidateRootTranslation != nullptr ||
+            query.candidateBodyPositionLow != nullptr ||
+            query.candidateRootTranslationGPUAddress != 0u ||
+            query.candidateBodyPositionLowGPUAddress != 0u ||
+            query.candidateRootTranslationElementCount != 0u ||
+            query.candidateBodyPositionLowElementCount != 0u) return false;
+        if (query.operation == numi::matter::CoupledCandidateOperation::inverseMassPreconditioner &&
+            (query.candidateQ != nullptr || query.candidateQStride != 0u)) return false;
+    }
     id<MTLBlitCommandEncoder> blit =
         [service->commandBuffer blitCommandEncoder];
     if (blit == nil) return false;
@@ -373,7 +400,11 @@ bool encodeMatterCandidate(
             copy(blit, service->q, query.candidateQ,
                  kQ * sizeof(float)) &&
             copy(blit, service->body, query.candidateBodies,
-                 query.candidateBodyStride * sizeof(MRBodyStateGPU));
+                 query.candidateBodyStride * sizeof(MRBodyStateGPU)) &&
+            copy(blit, service->rootTranslation, query.candidateRootTranslation,
+                 sizeof(MRCompensatedRootTranslationGPU)) &&
+            copy(blit, service->bodyPositionLow, query.candidateBodyPositionLow,
+                 kBodies * sizeof(mr_float4));
         if (valid && query.pointCount != 0u) {
             valid = query.pointCount == kPoints &&
                 query.pointJacobianStride == 3u * kDofs &&
@@ -475,7 +506,8 @@ ProofResult runProof(
     const bool mutateMatter,
     const bool checkUnsupportedFlags = false,
     const bool mutateVascular = false,
-    const bool mutateVascularClock = false
+    const bool mutateVascularClock = false,
+    const bool mutateRootOnly = false
 ) {
     constexpr std::uint32_t environmentIdentifier = 17u;
     constexpr std::uint32_t transactionSlot = 0u;
@@ -500,6 +532,7 @@ ProofResult runProof(
     runtimeConfig.captureEvents = false;
     runtimeConfig.captureDiagnostics = true;
     runtimeConfig.adaptiveTransfer = false;
+    runtimeConfig.coupledCandidateCompensatedTranslation = true;
     runtimeConfig.acceptedStateProofMujocoBytesPerEnvironmentCapacity =
         sizeof(MRMujocoMuscleStateGPU);
     numi::matter::Runtime matter;
@@ -544,6 +577,17 @@ ProofResult runProof(
         static_cast<float*>(arenas.q.contents)[0] = 1.25e-3f;
         candidateQ[0] = 1.25e-3f;
     }
+    auto* acceptedRoot = static_cast<MRCompensatedRootTranslationGPU*>(arenas.rootTranslation.contents);
+    *acceptedRoot = mrCompensatedTranslationFromProjection({candidateQ[0], candidateQ[1], candidateQ[2], 0.0f});
+    if (mutateRootOnly) {
+        // Different complete state with exactly the same projected q.
+        acceptedRoot->displacement.x = 0x1p-40f;
+        acceptedRoot->correction.x = 0x1p-66f;
+        require(mrCompensatedTranslationValid(*acceptedRoot) &&
+            mrCompensatedBits(mrCompensatedTranslationProjection(*acceptedRoot).x) ==
+                mrCompensatedBits(candidateQ[0]),
+            "root-only fixture changed q projection");
+    }
     MRBodyStateGPU body{};
     body.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
     body.linearVelocityAndInverseMass = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -566,6 +610,8 @@ ProofResult runProof(
     inverse.rhsCount = 1u;
     MatterCandidateService service;
     service.q = makeBuffer(device, candidateQ, @"proof candidate q");
+    service.rootTranslation = makeBuffer(device, *acceptedRoot, @"proof candidate compensated root");
+    service.bodyPositionLow = makeZeroBuffer(device, kBodies * sizeof(mr_float4), @"proof body position low");
     service.body = makeBuffer(device, body, @"proof candidate body");
     service.jacobian = makeBuffer(
         device, jacobian, @"proof candidate Jacobian");
@@ -648,6 +694,10 @@ ProofResult runProof(
     id<MTLBuffer> matterStatuses =
         (__bridge id<MTLBuffer>)matter.statusBuffer();
     numi::matter::AcceptedStateProofPass proofPass;
+    proofPass.rootTranslation = (__bridge void*)arenas.rootTranslation;
+    proofPass.rootTranslationGPUAddress = arenas.rootTranslation.gpuAddress;
+    proofPass.rootTranslationElementCount = 1u;
+    proofPass.rootTranslationStride = 1u;
     proofPass.environmentCount = 1u;
     proofPass.environmentIdentifierBase = environmentIdentifier;
     proofPass.commandBuffer = (__bridge void*)prepare;
@@ -696,6 +746,64 @@ ProofResult runProof(
     proofPass.matterDeviceProgramFingerprint =
         matter.deviceProgramFingerprint();
     if (checkUnsupportedFlags) {
+        auto missingRoot = proofPass;
+        missingRoot.rootTranslation = nullptr;
+        require(!matter.encodeAcceptedStateProof(missingRoot), "q-only Human proof was admitted");
+        auto wrongRootCount = proofPass;
+        wrongRootCount.rootTranslationElementCount = 2u;
+        require(!matter.encodeAcceptedStateProof(wrongRootCount), "wrong root record count was admitted");
+        auto wrongRootStride = proofPass;
+        wrongRootStride.rootTranslationStride = 2u;
+        require(!matter.encodeAcceptedStateProof(wrongRootStride), "wrong root stride was admitted");
+        auto wrongRootAddress = proofPass;
+        wrongRootAddress.rootTranslationGPUAddress ^= 16u;
+        require(!matter.encodeAcceptedStateProof(wrongRootAddress), "wrong root GPU address was admitted");
+        id<MTLBuffer> shortRootBuffer = makeZeroBuffer(device,
+            sizeof(MRCompensatedRootTranslationGPU) - 1u, @"short proof root negative");
+        auto shortRoot = proofPass;
+        shortRoot.rootTranslation = (__bridge void*)shortRootBuffer;
+        shortRoot.rootTranslationGPUAddress = shortRootBuffer.gpuAddress;
+        require(!matter.encodeAcceptedStateProof(shortRoot),
+            "47-byte compensated root resource was admitted");
+        require(service.borrowedCandidateRoot != nil,
+            "proof negative did not capture an actual private candidate root");
+        auto privateCandidateRoot = proofPass;
+        privateCandidateRoot.rootTranslation = (__bridge void*)service.borrowedCandidateRoot;
+        privateCandidateRoot.rootTranslationGPUAddress = service.borrowedCandidateRoot.gpuAddress;
+        require(!matter.encodeAcceptedStateProof(privateCandidateRoot),
+            "private candidate root substituted for accepted authority");
+        constexpr NSUInteger overlappingBytes = sizeof(NMAcceptedStateProofGPU) +
+            sizeof(MRCompensatedRootTranslationGPU);
+        constexpr MTLResourceOptions overlapOptions =
+            MTLResourceStorageModePrivate | MTLResourceHazardTrackingModeTracked;
+        const auto overlapSize = [device heapBufferSizeAndAlignWithLength:overlappingBytes
+            options:overlapOptions];
+        MTLHeapDescriptor* overlapDescriptor = [[MTLHeapDescriptor alloc] init];
+        overlapDescriptor.type = MTLHeapTypePlacement;
+        overlapDescriptor.storageMode = MTLStorageModePrivate;
+        overlapDescriptor.hazardTrackingMode = MTLHazardTrackingModeTracked;
+        overlapDescriptor.size = overlapSize.size;
+        id<MTLHeap> overlapHeap = [device newHeapWithDescriptor:overlapDescriptor];
+        require(overlapHeap != nil, "failed to allocate proof/root alias heap");
+        id<MTLBuffer> proofRoot = [overlapHeap newBufferWithLength:overlappingBytes
+            options:overlapOptions offset:0u];
+        [proofRoot makeAliasable];
+        id<MTLBuffer> proofOutput = [overlapHeap newBufferWithLength:overlappingBytes
+            options:overlapOptions offset:0u];
+        require(proofRoot != nil && proofOutput != nil && proofRoot != proofOutput &&
+                proofRoot.gpuAddress != 0u && proofRoot.gpuAddress == proofOutput.gpuAddress,
+            "proof/root alias fixture did not overlap distinct resources");
+        auto overlappingRootOutput = proofPass;
+        overlappingRootOutput.rootTranslation = (__bridge void*)proofRoot;
+        overlappingRootOutput.rootTranslationGPUAddress = proofRoot.gpuAddress;
+        overlappingRootOutput.acceptedStateProofs = (__bridge void*)proofOutput;
+        overlappingRootOutput.acceptedStateProofsGPUAddress = proofOutput.gpuAddress;
+        require(!matter.encodeAcceptedStateProof(overlappingRootOutput),
+            "proof output overlapped accepted compensated root authority");
+        auto aliasedRoot = proofPass;
+        aliasedRoot.rootTranslation = proofPass.q;
+        aliasedRoot.rootTranslationGPUAddress = proofPass.qGPUAddress;
+        require(!matter.encodeAcceptedStateProof(aliasedRoot), "aliased root/q proof was admitted");
         auto aliasedInput = proofPass;
         aliasedInput.v = aliasedInput.q;
         aliasedInput.vGPUAddress = aliasedInput.qGPUAddress;
@@ -1105,6 +1213,8 @@ int main() {
                 FinalMode::applyAccept, false, false);
             const ProofResult humanMutation = runProof(
                 FinalMode::applyAccept, true, false);
+            const ProofResult rootMutation = runProof(
+                FinalMode::applyAccept, true, false, false, false, false, true);
             const ProofResult matterMutation = runProof(
                 FinalMode::applyAccept, false, true);
             const ProofResult vascularMutation = runProof(
@@ -1141,6 +1251,9 @@ int main() {
             require(humanMutation.proof.humanStateFingerprint !=
                     baseline.proof.humanStateFingerprint,
                 "Human q mutation did not change Human content hash");
+            require(rootMutation.proof.humanStateFingerprint != humanMutation.proof.humanStateFingerprint &&
+                    rootMutation.proof.humanStateFingerprint == rootMutation.humanReference,
+                "complete root mutation with unchanged q is missing from Human proof");
             require(matterMutation.proof.humanStateFingerprint ==
                     baseline.proof.humanStateFingerprint &&
                     matterMutation.proof.matterStateFingerprint !=
@@ -1184,6 +1297,8 @@ int main() {
                 << "vascular_content_mutation=pass\n"
                 << "vascular_clock_content_mutation=pass\n"
                 << "human_content_mutation=pass\n"
+                << "compensated_root_content_mutation_with_same_q=pass\n"
+                << "missing_root_proof=fail_closed\n"
                 << "chunk_tree_cpu_parity=pass\n"
                 << "byte_replay=pass\n"
                 << "borrowed_interval_aliases=fail_closed\n"

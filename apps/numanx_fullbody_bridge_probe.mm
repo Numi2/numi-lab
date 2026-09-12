@@ -139,7 +139,10 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
     dispatch.environmentCount = 1u;
     dispatch.objectCount = 1u;
     dispatch.rigidGeneralizedCapacity = 1u;
-    const NMFGMRESLayoutGPU layout{1,1,2,0};
+    NMFGMRESLayoutGPU layout{};
+    layout.supportContactCount = 1u;
+    layout.supportBase = 1u;
+    layout.unknownCount = 2u;
     NMHumanSupportDispatchGPU support{};
     support.contactCount = 1u;
     support.articulatedNv = 1u;
@@ -192,6 +195,10 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
     };
     id<MTLBuffer> contacts = buffer(&contact, sizeof(contact));
     id<MTLBuffer> bodies = buffer(&body, sizeof(body));
+    // This direct NCP fixture intentionally exercises legacy coordinates.
+    // Metal still requires valid bindings for the disabled paired inputs.
+    id<MTLBuffer> bodyPositionLow = buffer(&zero4, sizeof(zero4));
+    const std::uint32_t compensatedTranslation = 0u;
     id<MTLBuffer> generalizedBuffer = buffer(&generalized, sizeof(generalized));
     id<MTLBuffer> jacobians = buffer(jacobian.data(), sizeof(jacobian));
     const nm_float4 initialHistory{shape==2 ? 0.5f : 0.0f, 0.0f, 0.0f, 0.5f};
@@ -230,6 +237,12 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
         require(encoder != nil, "Matter support qualification encoder failed");
         [encoder setComputePipelineState:state];
         bind(encoder);
+        if (state == evaluatePipeline) {
+            [encoder setBuffer:bodyPositionLow offset:0u atIndex:15u];
+            [encoder setBuffer:bodyPositionLow offset:0u atIndex:16u];
+            [encoder setBytes:&compensatedTranslation
+                length:sizeof(compensatedTranslation) atIndex:17u];
+        }
         [encoder setBytes:&layout length:sizeof(layout) atIndex:30u];
         [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
             threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
@@ -295,6 +308,8 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
         [encoder setBuffer:directionBuffer offset:0u atIndex:2u];
         [encoder setBuffer:alphaBuffer offset:0u atIndex:3u];
         [encoder setBuffer:candidateHistory offset:0u atIndex:4u];
+        // No vascular unknowns participate in this mechanical fixture.
+        [encoder setBuffer:alphaBuffer offset:0u atIndex:5u];
     });
     encodeOne(evaluatePipeline, [&](id<MTLComputeCommandEncoder> encoder) {
         [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
@@ -727,10 +742,17 @@ void qualifyTouchAggregation(id<MTLDevice> device) {
 int writePreparedStanceFixture(const char* certificate, const char* output,
     const char* contacts, const char* equalities, const char* limits,
     const std::uint64_t timestepMicroseconds = 100u, const bool importInitialState = false,
-    const std::uint32_t newtonIterations = 16u) {
+    const std::uint32_t newtonIterations = 16u, const std::uint64_t timestepNanoseconds = 0u) {
     @autoreleasepool {
-        require(timestepMicroseconds > 0u && timestepMicroseconds <= 1'000'000u,
-            "prepared fixture timestep outside (0, 1000000] microseconds");
+        require(timestepMicroseconds <= 1'000'000u && timestepNanoseconds <= 1'000'000'000u,
+            "prepared fixture timestep exceeds one second");
+        require(timestepNanoseconds != 0u || timestepMicroseconds != 0u,
+            "prepared fixture timestep must be positive");
+        require(timestepNanoseconds == 0u || timestepMicroseconds == 0u ||
+            timestepNanoseconds == timestepMicroseconds * 1000u,
+            "prepared fixture clock units disagree");
+        const auto exactNanoseconds = timestepNanoseconds != 0u
+            ? timestepNanoseconds : timestepMicroseconds * 1000u;
         metalrobo::NumiHumanInitialState initial;
         if (importInitialState) {
             const auto rigid = readPayloadBytes(MRNX_FULLBODY_RIGID);
@@ -785,7 +807,7 @@ int writePreparedStanceFixture(const char* certificate, const char* output,
         }
         }
         require(newtonIterations > 0u && newtonIterations <= 128u, "invalid prepared Newton iteration budget");
-        auto world=authoredFixtureWorld(initial.q);world.frameTimestep=timestepMicroseconds*1.0e-6;
+        auto world=authoredFixtureWorld(initial.q);world.frameTimestep=exactNanoseconds*1.0e-9;
         world.mixedSolver.newtonIterations = newtonIterations;
         numi::matter::CompileOptions options;options.maximumRateExponent=0u;
         const auto compiled=numi::matter::compileWorld(world,options);
@@ -801,12 +823,23 @@ int writePreparedStanceFixture(const char* certificate, const char* output,
         require(!importInitialState || initial.humanSourceFingerprint == expectedSource,
             "imported prepared state composed source mismatch");
         initial.humanSourceFingerprint=expectedSource;
-        initial.worldFingerprint=compiled.world.fingerprint;initial.timestepMicroseconds=timestepMicroseconds;
+        initial.worldFingerprint=compiled.world.fingerprint;
+        initial.timestepMicroseconds=exactNanoseconds % 1000u == 0u ? exactNanoseconds / 1000u : 0u;
+        // Preserve old NHINIT1 fixtures unless an exact-ns/v2 state was requested.
+        if (timestepNanoseconds != 0u || initial.timestepNanoseconds != 0u || initial.rootTranslation) {
+            initial.timestepNanoseconds=exactNanoseconds;
+            if (!initial.rootTranslation) initial.rootTranslation=mrCompensatedTranslationFromProjection(
+                {initial.q[0],initial.q[1],initial.q[2],0.0f});
+        }
+        require(metalrobo::numiHumanInitialStateTimestepNanoseconds(initial) == exactNanoseconds,
+            "prepared fixture exact clock mismatch");
         std::string error;std::vector<std::byte> bytes;
         const bool encoded=metalrobo::encodeNumiHumanInitialState(initial,bytes,error);
         require(encoded,error.c_str());
         const std::filesystem::path directory(output);std::filesystem::create_directories(directory);
-        const bool saved=numi::matter::writePackage(compiled,directory/("prepared-"+std::to_string(timestepMicroseconds)+"us.nmatterpack"),&error);
+        const auto durationName=timestepNanoseconds != 0u
+            ? std::to_string(exactNanoseconds)+"ns" : std::to_string(initial.timestepMicroseconds)+"us";
+        const bool saved=numi::matter::writePackage(compiled,directory/("prepared-"+durationName+".nmatterpack"),&error);
         require(saved,error.c_str());
         std::ofstream stateFile(directory/"prepared.nhinit",std::ios::binary);
         stateFile.write(reinterpret_cast<const char*>(bytes.data()),bytes.size());
@@ -1622,7 +1655,10 @@ int main(int argc, char** argv) {
         if (argc==2 && std::string(argv[1])=="--touch-aggregation-only") {
             @autoreleasepool {qualifyTouchAggregation(MTLCreateSystemDefaultDevice());return 0;}
         }
-        if ((argc==7 || argc==8 || argc==9) && (std::string(argv[1])=="--prepared-stance-fixture" || std::string(argv[1])=="--prepared-state-fixture")) {
+        if ((argc==7 || argc==8 || argc==9) && (std::string(argv[1])=="--prepared-stance-fixture" || std::string(argv[1])=="--prepared-state-fixture" ||
+                std::string(argv[1])=="--prepared-state-fixture-ns")) {
+            const bool exactNs=std::string(argv[1])=="--prepared-state-fixture-ns";
+            require(!exactNs || argc >= 8, "exact-ns fixture requires an explicit nanosecond timestep");
             std::uint64_t timestep = 100u;
             if (argc >= 8) {
                 const std::string value(argv[7]);
@@ -1639,8 +1675,8 @@ int main(int argc, char** argv) {
                 require(parsed > 0u && parsed <= 128u, "invalid Newton iteration budget");
                 iterations = static_cast<std::uint32_t>(parsed);
             }
-            return writePreparedStanceFixture(argv[2],argv[3],argv[4],argv[5],argv[6],timestep,
-                std::string(argv[1])=="--prepared-state-fixture",iterations);
+            return writePreparedStanceFixture(argv[2],argv[3],argv[4],argv[5],argv[6],exactNs?0u:timestep,
+                std::string(argv[1])!="--prepared-stance-fixture",iterations,exactNs?timestep:0u);
         }
         if (argc==2 && std::string(argv[1])=="--support-only") {
             @autoreleasepool {
