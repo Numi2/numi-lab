@@ -49,29 +49,74 @@ bool periodTicks(double period, int exponent, std::uint64_t& ticks) {
     if (!std::isfinite(value) || value<1 || value>=0x1p63 || value!=std::floor(value)) return false;
     ticks=static_cast<std::uint64_t>(value); return std::ldexp(double(ticks),exponent)==period;
 }
-bool validCompartment(const NMVascularCompartmentGPU& x, const NMVascularUnknownGPU& u) {
-    if(x.identity.z>1 || x.identity.w>2 || !finite4(x.compliance) || !finite4(x.elastance) || !finite4(x.waveform) || x.reserved0) return false;
-    if(x.identity.z==0 && (!positive(x.compliance.x) || !positive(u.initialAndScaling.x))) return false;
-    if(x.identity.w==0) {
-        if(!positive(x.compliance.z) || !positive(1.0/double(x.compliance.z)) || !zero4(x.elastance) || !zero4(x.waveform) || x.periodTicks) return false;
-        return finite(double(x.compliance.w)+x.compliance.y+(double(u.initialAndScaling.x)-x.compliance.x)/x.compliance.z);
+bool rationalPeriod(const VascularCompartmentSource& source, int exponent,
+    std::uint64_t& numerator, std::uint64_t& multiplier) {
+    const bool rational=source.periodNumeratorSeconds!=0 || source.periodDenominator!=0;
+    if (!rational) {
+        multiplier=1;
+        return periodTicks(source.periodSeconds,exponent,numerator);
     }
-    if(x.identity.z!=0 || x.compliance.z!=0 || !positive(x.elastance.x) || x.elastance.y<x.elastance.x ||
-       !x.periodTicks || x.periodTicks>=0x8000000000000000ULL || x.waveform.x<3 || x.waveform.x>4 ||
-       x.waveform.y!=0 || x.waveform.z!=0 || x.waveform.w!=0) return false;
+    if(source.periodSeconds!=0 || !source.periodNumeratorSeconds || !source.periodDenominator ||
+       std::gcd(source.periodNumeratorSeconds,source.periodDenominator)!=1u)return false;
+    numerator=source.periodNumeratorSeconds;multiplier=source.periodDenominator;
+    int shift=-exponent;
+    while(shift>0 && (multiplier&1u)==0u){multiplier>>=1u;--shift;}
+    while(shift<0 && (numerator&1u)==0u){numerator>>=1u;++shift;}
+    constexpr std::uint64_t maximumNumerator=0x7fffffffffffffffull;
+    if(shift>=63 || shift<=-64)return false;
+    if(shift>0){if(numerator>(maximumNumerator>>shift))return false;numerator<<=shift;}
+    else if(shift<0){if(multiplier>(std::numeric_limits<std::uint64_t>::max()>>-shift))return false;multiplier<<=-shift;}
+    return numerator>0 && numerator<=maximumNumerator && multiplier>0;
+}
+bool validCompartment(const NMVascularCompartmentGPU& x, const NMVascularUnknownGPU& u) {
+    if(x.identity.z>1 || x.identity.w>4 || !finite4(x.compliance) || !finite4(x.elastance) ||
+       !finite4(x.waveform) || !finite4(x.pressureParameters))return false;
+    if(x.identity.z==0 && (!positive(x.compliance.x) || !positive(u.initialAndScaling.x)))return false;
+    if(x.pressureParameters.y!=0 || x.pressureParameters.z!=0 || x.pressureParameters.w!=0)return false;
+    if(x.identity.w==0 || x.identity.w==3) {
+        if(!positive(x.compliance.z) || !positive(1.0/double(x.compliance.z)) || !zero4(x.elastance) ||
+           x.periodTicks || x.periodMultiplier)return false;
+        if(x.identity.w==0) {
+            if(!zero4(x.waveform) || !zero4(x.pressureParameters))return false;
+            return finite(double(x.compliance.w)+x.compliance.y+(double(u.initialAndScaling.x)-x.compliance.x)/x.compliance.z);
+        }
+        if(x.identity.z!=0 || !positive(x.pressureParameters.x) ||
+           x.waveform.x!=float(std::acos(-1.0)) || x.waveform.y!=0 || x.waveform.z!=0 || x.waveform.w!=0)return false;
+        const float normalizedInitial=u.initialAndScaling.x/u.initialAndScaling.y;
+        const float restoredInitial=normalizedInitial*u.initialAndScaling.y;
+        const float displacement=restoredInitial-x.compliance.x;
+        if(!(restoredInitial>0) || !std::isfinite(restoredInitial) ||
+           !(std::abs(u.initialAndScaling.x-x.compliance.x)<x.pressureParameters.x) ||
+           !(std::abs(displacement)<x.pressureParameters.x))return false;
+        const float angle=(0.5f*x.waveform.x)*(displacement/x.pressureParameters.x);
+        const float tangent=std::tan(angle);
+        const float inverseCompliance=(1.0f+tangent*tangent)/x.compliance.z;
+        const float pressure=x.compliance.w+x.compliance.y+
+            (2.0f*x.pressureParameters.x/x.waveform.x/x.compliance.z)*tangent;
+        return std::cos(angle)>0 && positive(inverseCompliance) && finite(pressure);
+    }
+    if(x.identity.z!=0 || x.compliance.z!=0 || !zero4(x.pressureParameters) ||
+       !positive(x.elastance.x) || x.elastance.y<x.elastance.x ||
+       !x.periodTicks || x.periodTicks>=0x8000000000000000ULL || !x.periodMultiplier ||
+       std::gcd(x.periodTicks,x.periodMultiplier)!=1u || x.waveform.x<3 || x.waveform.x>4 ||
+       x.waveform.z!=0 || x.waveform.w!=0)return false;
     const auto start=x.elastance.z,end=x.elastance.w;
     if(!(start>0 && start<1 && end>0 && end<1))return false;
-    if(x.identity.w==1 ? end<=start : start+end<1)return false;
+    if(x.identity.w==2 ? start+end<1 : end<=start)return false;
+    if(x.identity.w==4 ? (x.waveform.y<0 || x.waveform.y+end>1) : x.waveform.y!=0)return false;
     for(double e:{double(x.elastance.x),double(x.elastance.y)})
         if(!finite(double(x.compliance.w)+x.compliance.y+e*(double(u.initialAndScaling.x)-x.compliance.x)))return false;
     return true;
 }
 bool validConnection(const NMVascularConnectionGPU& x, const NMVascularUnknownGPU& u) {
-    if(x.identity.w>1 || !finite4(x.physical) || x.physical.w!=0)return false;
-    if(x.identity.w==0)return positive(x.physical.x) && x.physical.y>=0 && x.physical.z==0;
-    if(x.physical.x!=0 || x.physical.y!=0 || !positive(x.physical.z) || u.initialAndScaling.x<0)return false;
+    if(x.identity.w>3 || !finite4(x.physical))return false;
+    if(x.identity.w==0)return positive(x.physical.x) && x.physical.y>=0 && x.physical.z==0 && x.physical.w==0;
+    if(u.initialAndScaling.x<0 || !positive(double(u.initialAndScaling.z)/u.initialAndScaling.y))return false;
+    if(x.identity.w>=2)return positive(x.physical.x) && x.physical.y==0 && x.physical.z==0 &&
+        (x.identity.w==3 || x.physical.w==0) && finite(double(x.physical.x)*u.initialAndScaling.x);
+    if(x.physical.x!=0 || x.physical.y!=0 || !positive(x.physical.z) || x.physical.w!=0)return false;
     const double ratio=double(u.initialAndScaling.x)/x.physical.z;
-    return finite(ratio*ratio) && positive(double(u.initialAndScaling.z)/u.initialAndScaling.y);
+    return finite(ratio*ratio);
 }
 bool allZero(const NMVascularIdentityGPU& x) { for (unsigned i=0;i<4;++i) if (x.content[i]||x.source[i]||x.authored[i]) return false; return true; }
 }
@@ -118,15 +163,21 @@ bool compileVascular(const WorldSource& source, CompiledWorld& world, std::vecto
     };
     for (auto index:oc) {const auto& x=v.compartments[index];std::uint32_t name=0;const auto row=std::uint32_t(c.compartments.size());
         if (!finite(x.referenceVolume)||!finite(x.initialVolume)||!finite(x.compliance)||!finite(x.referencePressure)||!finite(x.externalPressure)||!positive(x.volumeScale)||!tolerance(x.volumeResidualTolerance)||!finite(x.initialVolume/x.volumeScale)||!addName(x.anatomicalIdentifier,name)) return fail("invalid compartment volume/storage, pressure, scale, tolerance or anatomy");
-        if (!finite(x.elastanceMin)||!finite(x.elastanceMax)||!finite(x.periodSeconds)||!finite(x.activationStart)||!finite(x.activationEnd)||!finite(x.sourcePi))return fail("unrepresentable source waveform");
+        if (!finite(x.elastanceMin)||!finite(x.elastanceMax)||!finite(x.periodSeconds)||!finite(x.activationStart)||!finite(x.activationEnd)||!finite(x.sourcePi)||!finite(x.phaseDelay)||!finite(x.maximumVolumeDisplacement))return fail("unrepresentable source waveform");
+        if (x.pressureLaw==VascularPressureLaw::atanCompliance &&
+            (!(x.maximumVolumeDisplacement>0) ||
+             x.initialVolume<=x.referenceVolume-x.maximumVolumeDisplacement ||
+             x.initialVolume>=x.referenceVolume+x.maximumVolumeDisplacement))
+            return fail("authored absolute volume is outside the open atan pressure domain");
         NMVascularCompartmentGPU node{};
         node.identity={x.stableIdentifier,name,std::uint32_t(x.storageKind),std::uint32_t(x.pressureLaw)};
         node.compliance=f4(x.referenceVolume,x.referencePressure,x.compliance,x.externalPressure);
         node.elastance=f4(x.elastanceMin,x.elastanceMax,x.activationStart,x.activationEnd);
-        node.waveform=f4(x.sourcePi);
-        if(x.pressureLaw!=VascularPressureLaw::linearCompliance) {
-            if(!periodTicks(x.periodSeconds,exponent,node.periodTicks))return fail("source period cannot be represented exactly by bounded native clock");
-        } else if(x.periodSeconds!=0)return fail("linear compliance has unexpected period");
+        node.waveform=f4(x.sourcePi,x.phaseDelay);
+        node.pressureParameters=f4(x.maximumVolumeDisplacement);
+        if(x.pressureLaw==VascularPressureLaw::ventricularElastance || x.pressureLaw==VascularPressureLaw::atrialElastance || x.pressureLaw==VascularPressureLaw::cosinePulseElastance) {
+            if(!rationalPeriod(x,exponent,node.periodTicks,node.periodMultiplier))return fail("source period cannot be represented exactly by bounded native rational clock");
+        } else if(x.periodSeconds!=0 || x.periodNumeratorSeconds || x.periodDenominator)return fail("untimed pressure law has unexpected period");
         c.unknowns[row]={f4(x.initialVolume,x.volumeScale,x.volumeScale,x.volumeResidualTolerance)};
         if(!validCompartment(node,c.unknowns[row]))return fail("unsupported storage or cardiac pressure law");
         if(x.storageKind==VascularStorageKind::storageDisplacement && (S||T||X))return fail("hydraulic storage displacement lacks absolute blood volume required by species/tissue exchange");
@@ -135,8 +186,8 @@ bool compileVascular(const WorldSource& source, CompiledWorld& world, std::vecto
     }
     std::vector<std::vector<std::uint32_t>> edges(C),bloodX(C*S),tissueX(T*S);
     for (auto index:oe) {const auto& x=v.connections[index];const auto row=std::uint32_t(c.connections.size());
-        if (!ci.contains(x.fromCompartment)||!ci.contains(x.toCompartment)||x.fromCompartment==x.toCompartment||!finite(x.resistance)||!finite(x.inertance)||!finite(x.orificeCoefficient)||!finite(x.initialFlow)||!positive(x.flowScale)||!positive(x.pressureScale)||!tolerance(x.flowResidualTolerance)||!finite(x.initialFlow/x.flowScale)) return fail("invalid connection endpoint, passive law, scale or tolerance");
-        const auto a=ci[x.fromCompartment],b=ci[x.toCompartment];c.connections.push_back({{x.stableIdentifier,a,b,std::uint32_t(x.flowLaw)},f4(x.resistance,x.inertance,x.orificeCoefficient)});
+        if (!ci.contains(x.fromCompartment)||!ci.contains(x.toCompartment)||x.fromCompartment==x.toCompartment||!finite(x.resistance)||!finite(x.inertance)||!finite(x.orificeCoefficient)||!finite(x.downstreamPressureFloor)||!finite(x.initialFlow)||!positive(x.flowScale)||!positive(x.pressureScale)||!tolerance(x.flowResidualTolerance)||!finite(x.initialFlow/x.flowScale)) return fail("invalid connection endpoint, passive law, scale or tolerance");
+        const auto a=ci[x.fromCompartment],b=ci[x.toCompartment];c.connections.push_back({{x.stableIdentifier,a,b,std::uint32_t(x.flowLaw)},f4(x.resistance,x.inertance,x.orificeCoefficient,x.downstreamPressureFloor)});
         c.unknowns[c.layout.offsets.y+row]={f4(x.initialFlow,x.flowScale,x.pressureScale,x.flowResidualTolerance)};if(!validConnection(c.connections.back(),c.unknowns[c.layout.offsets.y+row]))return fail("unsupported or invalid flow law");edges[a].push_back(row);edges[b].push_back(row);
     }
     for (auto index:ot) {const auto& x=v.tissues[index];const auto row=std::uint32_t(c.tissues.size());std::uint32_t name=0;

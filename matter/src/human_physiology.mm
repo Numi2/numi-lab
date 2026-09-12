@@ -2,6 +2,7 @@
 #import <CommonCrypto/CommonDigest.h>
 #include "numi/matter/human_physiology.hpp"
 #include <algorithm>
+#include <charconv>
 #include <cmath>
 #include <limits>
 #include <set>
@@ -47,12 +48,13 @@ void rejectDuplicateKeys(NSData* data) {
     }
     need(frames.empty(),"invalid JSON nesting");
 }
-NSDictionary* record(id value, std::initializer_list<const char*> keys, std::initializer_list<const char*> extra = {}) {
+NSDictionary* record(id value, std::initializer_list<const char*> keys, std::initializer_list<const char*> extra = {}, std::initializer_list<const char*> regional = {}) {
     need([value isKindOfClass:NSDictionary.class], "expected object");
     NSDictionary* result = value;
     std::set<std::string> expected;
     for (const char* key : keys) expected.emplace(key);
     for (const char* key : extra) expected.emplace(key);
+    for (const char* key : regional) expected.emplace(key);
     need(result.count == expected.size(), "missing or unsupported object fields");
     for (id key in result) need(expected.contains(text(key)), "unsupported field " + text(key));
     return result;
@@ -73,6 +75,18 @@ std::uint32_t identifier(id value) {
     double result = number(value);
     need(result >= 1 && result < NM_INVALID_INDEX && result == std::floor(result), "invalid stable identifier");
     return static_cast<std::uint32_t>(result);
+}
+// Rational periods use canonical decimal strings so every UInt64 is exact
+// across JSON implementations, including integers larger than 2^53.
+std::uint64_t unsignedPeriod(id value) {
+    const auto digits=text(value);
+    need(digits.size()<=20 && (digits=="0" || digits.front()!='0') &&
+         std::all_of(digits.begin(),digits.end(),[](char c){return c>='0' && c<='9';}),
+         "period integer must use canonical unsigned decimal text");
+    std::uint64_t result=0;
+    const auto parsed=std::from_chars(digits.data(),digits.data()+digits.size(),result);
+    need(parsed.ec==std::errc{} && parsed.ptr==digits.data()+digits.size(),"period integer overflow");
+    return result;
 }
 std::array<std::uint64_t,4> digest(id value) {
     std::string hex = text(value);
@@ -108,12 +122,13 @@ bool readHumanPhysiologyNetwork(const std::filesystem::path& path,
         rejectDuplicateKeys(data);
         NSDictionary* root=record(json,{"schema","model_id","qualification","law","authored_graph_sha256","source_graph_sha256","residual_tolerance","species","compartments","connections","tissue_reservoirs","exchanges"});
         const auto schema=text(root[@"schema"]);
-        const bool cardiac=schema=="HumanPack.physiology-native.v2";
+        const bool regional=schema=="HumanPack.physiology-native.v3";
+        const bool cardiac=regional || schema=="HumanPack.physiology-native.v2";
         need(cardiac || schema=="HumanPack.physiology-native.v1","unsupported schema");
         (void)text(root[@"model_id"]);
         const auto qualification=text(root[@"qualification"]);
-        need(cardiac ? qualification=="source_model_reproduction" : (qualification=="fixture_only" || qualification=="uncalibrated"),"unsupported qualification claim");
-        need(text(root[@"law"])==(cardiac ? "closed_periodic_elastance_orifice_v2" : "closed_linear_compliance_transport_v1"),"unsupported constitutive law");
+        need(regional ? qualification=="source_model_variant" : cardiac ? qualification=="source_model_reproduction" : (qualification=="fixture_only" || qualification=="uncalibrated"),"unsupported qualification claim");
+        need(text(root[@"law"])==(regional ? "closed_rational_elastance_regional_volume_v3" : cardiac ? "closed_periodic_elastance_orifice_v2" : "closed_linear_compliance_transport_v1"),"unsupported constitutive law");
         const double tolerance=number(root[@"residual_tolerance"]);
         need(tolerance>0 && tolerance<1,"invalid residual tolerance");
         VascularNetworkSource result;
@@ -148,7 +163,7 @@ bool readHumanPhysiologyNetwork(const std::filesystem::path& path,
         need(cardiac || !result.species.empty(),"species registry is empty");
         previous.clear();
         for (id item in list(root[@"compartments"])) {
-            NSDictionary* r=record(item,{"id","stable_identifier","anatomical_region_id","physical_volume_owner_id","reference_volume_m3","reference_pressure_pa","external_pressure_pa","compliance_m3_per_pa","initial_volume_m3","volume_scale_m3","volume_residual_tolerance","initial_species_mol"}, cardiac ? std::initializer_list<const char*>{"storage_kind","pressure_law","elastance_min_pa_per_m3","elastance_max_pa_per_m3","period_seconds","activation_start","activation_end","source_pi"} : std::initializer_list<const char*>{});
+            NSDictionary* r=record(item,{"id","stable_identifier","anatomical_region_id","physical_volume_owner_id","reference_volume_m3","reference_pressure_pa","external_pressure_pa","compliance_m3_per_pa","initial_volume_m3","volume_scale_m3","volume_residual_tolerance","initial_species_mol"}, cardiac ? std::initializer_list<const char*>{"storage_kind","pressure_law","elastance_min_pa_per_m3","elastance_max_pa_per_m3","period_seconds","activation_start","activation_end","source_pi"} : std::initializer_list<const char*>{}, regional ? std::initializer_list<const char*>{"maximum_volume_displacement_m3","phase_delay","period_numerator_seconds","period_denominator"} : std::initializer_list<const char*>{});
             VascularCompartmentSource v; v.stableIdentifier=identity(r,previous); owner(r);
             v.anatomicalIdentifier=text(r[@"anatomical_region_id"]);
             v.referenceVolume=number(r[@"reference_volume_m3"]); v.referencePressure=number(r[@"reference_pressure_pa"]);
@@ -159,11 +174,22 @@ bool readHumanPhysiologyNetwork(const std::filesystem::path& path,
                 const auto storage=text(r[@"storage_kind"]), law=text(r[@"pressure_law"]);
                 need(storage=="absolute_volume" || storage=="storage_displacement","unknown storage coordinate");
                 v.storageKind=storage=="absolute_volume" ? VascularStorageKind::absoluteVolume : VascularStorageKind::storageDisplacement;
-                need(law=="linear_compliance" || law=="ventricular_elastance" || law=="atrial_elastance","unknown pressure law");
-                v.pressureLaw=law=="linear_compliance" ? VascularPressureLaw::linearCompliance : law=="ventricular_elastance" ? VascularPressureLaw::ventricularElastance : VascularPressureLaw::atrialElastance;
+                need(law=="linear_compliance" || law=="ventricular_elastance" || law=="atrial_elastance" ||
+                     (regional && (law=="atan_compliance" || law=="cosine_pulse_elastance")),"unknown pressure law");
+                if(law=="linear_compliance") v.pressureLaw=VascularPressureLaw::linearCompliance;
+                else if(law=="ventricular_elastance") v.pressureLaw=VascularPressureLaw::ventricularElastance;
+                else if(law=="atrial_elastance") v.pressureLaw=VascularPressureLaw::atrialElastance;
+                else if(law=="atan_compliance") v.pressureLaw=VascularPressureLaw::atanCompliance;
+                else v.pressureLaw=VascularPressureLaw::cosinePulseElastance;
                 v.elastanceMin=number(r[@"elastance_min_pa_per_m3"]);v.elastanceMax=number(r[@"elastance_max_pa_per_m3"]);
                 v.periodSeconds=number(r[@"period_seconds"]);v.activationStart=number(r[@"activation_start"]);
                 v.activationEnd=number(r[@"activation_end"]);v.sourcePi=number(r[@"source_pi"]);
+            }
+            if(regional) {
+                v.maximumVolumeDisplacement=number(r[@"maximum_volume_displacement_m3"]);
+                v.phaseDelay=number(r[@"phase_delay"]);
+                v.periodNumeratorSeconds=unsignedPeriod(r[@"period_numerator_seconds"]);
+                v.periodDenominator=unsignedPeriod(r[@"period_denominator"]);
             }
             if(v.storageKind==VascularStorageKind::absoluteVolume){positive(v.referenceVolume);positive(v.initialVolume);}
             if(v.pressureLaw==VascularPressureLaw::linearCompliance)positive(v.compliance);
@@ -173,7 +199,7 @@ bool readHumanPhysiologyNetwork(const std::filesystem::path& path,
         need(result.compartments.size()>=2,"closed circulation requires at least two compartments");
         previous.clear();
         for (id item in list(root[@"connections"])) {
-            NSDictionary* r=record(item,{"id","stable_identifier","from","to","resistance_pa_s_per_m3","inertance_pa_s2_per_m3","initial_flow_m3_per_s","flow_scale_m3_per_s","pressure_scale_pa","flow_residual_tolerance"}, cardiac ? std::initializer_list<const char*>{"flow_law","orifice_coefficient_m3_per_s_sqrt_pa"} : std::initializer_list<const char*>{});
+            NSDictionary* r=record(item,{"id","stable_identifier","from","to","resistance_pa_s_per_m3","inertance_pa_s2_per_m3","initial_flow_m3_per_s","flow_scale_m3_per_s","pressure_scale_pa","flow_residual_tolerance"}, cardiac ? std::initializer_list<const char*>{"flow_law","orifice_coefficient_m3_per_s_sqrt_pa"} : std::initializer_list<const char*>{}, regional ? std::initializer_list<const char*>{"downstream_pressure_floor_pa"} : std::initializer_list<const char*>{});
             VascularConnectionSource v; v.stableIdentifier=identity(r,previous);
             v.fromCompartment=identifier(r[@"from"]);v.toCompartment=identifier(r[@"to"]);
             v.resistance=number(r[@"resistance_pa_s_per_m3"]);v.inertance=number(r[@"inertance_pa_s2_per_m3"]);v.initialFlow=number(r[@"initial_flow_m3_per_s"]);
@@ -181,10 +207,15 @@ bool readHumanPhysiologyNetwork(const std::filesystem::path& path,
             v.flowResidualTolerance=number(r[@"flow_residual_tolerance"]); need(v.flowResidualTolerance==tolerance,"row tolerance differs from contract");
             if(cardiac) {
                 const auto law=text(r[@"flow_law"]);
-                need(law=="resistance_inertance" || law=="one_way_orifice","unknown flow law");
-                v.flowLaw=law=="resistance_inertance" ? VascularFlowLaw::resistanceInertance : VascularFlowLaw::oneWayOrifice;
+                need(law=="resistance_inertance" || law=="one_way_orifice" ||
+                     (regional && (law=="one_way_resistance" || law=="starling_resistance")),"unknown flow law");
+                if(law=="resistance_inertance") v.flowLaw=VascularFlowLaw::resistanceInertance;
+                else if(law=="one_way_orifice") v.flowLaw=VascularFlowLaw::oneWayOrifice;
+                else if(law=="one_way_resistance") v.flowLaw=VascularFlowLaw::oneWayResistance;
+                else v.flowLaw=VascularFlowLaw::starlingResistance;
                 v.orificeCoefficient=number(r[@"orifice_coefficient_m3_per_s_sqrt_pa"]);
             }
+            if(regional) v.downstreamPressureFloor=number(r[@"downstream_pressure_floor_pa"]);
             if(v.flowLaw==VascularFlowLaw::resistanceInertance)positive(v.resistance);
             positive(v.flowScale);positive(v.pressureScale); need(v.inertance>=0,"negative inertance");
             result.connections.push_back(v);

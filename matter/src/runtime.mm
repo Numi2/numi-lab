@@ -10981,10 +10981,24 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             (row < offsets.y && state.vascularValue.compartments[row].identity.z == 0u &&
                 !(physical > 0.0f)) ||
             (row >= offsets.y && row < offsets.z &&
-                state.vascularValue.connections[row - offsets.y].identity.w == 1u && physical < 0.0f) ||
+                state.vascularValue.connections[row - offsets.y].identity.w != 0u && physical < 0.0f) ||
             (row >= offsets.z && physical < 0.0f)) {
             diagnostics.message = "Matter snapshot vascular state is inadmissible";
             return diagnostics;
+        }
+        if (row < offsets.y && state.vascularValue.compartments[row].identity.w == 3u) {
+            const auto node = state.vascularValue.compartments[row];
+            const float displacement = physical - node.compliance.x;
+            const float angle = (0.5f * node.waveform.x) * (displacement / node.pressureParameters.x);
+            const float tangent = std::tan(angle);
+            const float pressure = node.compliance.w + node.compliance.y +
+                (2.0f * node.pressureParameters.x / node.waveform.x / node.compliance.z) * tangent;
+            const float derivative = (1.0f + tangent * tangent) / node.compliance.z;
+            if (!(std::abs(displacement) < node.pressureParameters.x) || !(std::cos(angle) > 0.0f) ||
+                !std::isfinite(pressure) || !std::isfinite(derivative) || !(derivative > 0.0f)) {
+                diagnostics.message = "Matter snapshot vascular state is outside its pressure-law domain";
+                return diagnostics;
+            }
         }
     }
     exactArena(

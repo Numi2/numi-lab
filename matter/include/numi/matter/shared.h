@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 27u
+#define NM_MATTER_ABI_VERSION 28u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -415,13 +415,14 @@ typedef struct NM_ALIGN16 NMVascularCompartmentGPU {
     nm_uint4 identity; // stable id, anatomical name byte offset, storage kind, pressure law
     nm_float4 compliance; // reference volume/storage, reference pressure, compliance, external pressure
     nm_float4 elastance; // Emin, Emax (Pa/m3), activation start, activation end/duration
-    nm_u64 periodTicks;
-    nm_u64 reserved0;
-    nm_float4 waveform; // source pi, reserved zero
+    nm_u64 periodTicks; // rational period numerator in binary clock quanta
+    nm_u64 periodMultiplier; // rational period denominator; zero for untimed laws
+    nm_float4 waveform; // source pi, cosine pulse phase delay, reserved zero
+    nm_float4 pressureParameters; // atan-law Vmax (m3), reserved zero
 } NMVascularCompartmentGPU;
 typedef struct NM_ALIGN16 NMVascularConnectionGPU {
     nm_uint4 identity; // stable id, from compartment index, to compartment index, flow law
-    nm_float4 physical; // resistance, inertance, orifice CV, reserved zero
+    nm_float4 physical; // resistance, inertance, orifice CV, Starling downstream pressure floor
 } NMVascularConnectionGPU;
 typedef struct NM_ALIGN16 NMVascularTissueGPU {
     nm_uint4 identity; // stable id, anatomical name byte offset, FEM object or invalid, 0

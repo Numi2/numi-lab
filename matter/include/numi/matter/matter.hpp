@@ -465,8 +465,8 @@ struct VascularSpeciesSource {
     double amountResidualTolerance = 0.0;
 };
 enum class VascularStorageKind : std::uint32_t { absoluteVolume = 0u, storageDisplacement = 1u };
-enum class VascularPressureLaw : std::uint32_t { linearCompliance = 0u, ventricularElastance = 1u, atrialElastance = 2u };
-enum class VascularFlowLaw : std::uint32_t { resistanceInertance = 0u, oneWayOrifice = 1u };
+enum class VascularPressureLaw : std::uint32_t { linearCompliance = 0u, ventricularElastance = 1u, atrialElastance = 2u, atanCompliance = 3u, cosinePulseElastance = 4u };
+enum class VascularFlowLaw : std::uint32_t { resistanceInertance = 0u, oneWayOrifice = 1u, oneWayResistance = 2u, starlingResistance = 3u };
 struct VascularCompartmentSource {
     std::uint32_t stableIdentifier = 0u;
     std::string anatomicalIdentifier;
@@ -486,6 +486,10 @@ struct VascularCompartmentSource {
     // Ventricle: peak and relaxation fractions. Atrium: start and duration.
     double activationStart = 0.0, activationEnd = 0.0;
     double sourcePi = 0.0; // preserve the source angular constant
+    double maximumVolumeDisplacement = 0.0; // atan law Vmax, m3
+    double phaseDelay = 0.0; // cosine pulse onset, cycle fraction
+    // Exact integer-seconds rational period; mutually exclusive with periodSeconds.
+    std::uint64_t periodNumeratorSeconds = 0u, periodDenominator = 0u;
 };
 struct VascularConnectionSource {
     std::uint32_t stableIdentifier = 0u;
@@ -501,6 +505,7 @@ struct VascularConnectionSource {
     VascularFlowLaw flowLaw = VascularFlowLaw::resistanceInertance;
     // Q = CV sqrt(max(Pfrom - Pto, 0)); R/L are zero for this law.
     double orificeCoefficient = 0.0; // m3/(s sqrt(Pa))
+    double downstreamPressureFloor = 0.0; // Starling resistor only, Pa
 };
 struct VascularTissueBindingSource {
     std::uint32_t node = 0u; // object-local FEM node

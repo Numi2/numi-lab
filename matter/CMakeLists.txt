@@ -265,6 +265,28 @@ if(APPLE)
 endif()
 
 if(APPLE)
+    add_executable(numi-matter-cvsim-check tools/cvsim_check.mm)
+    target_link_libraries(numi-matter-cvsim-check PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_include_directories(numi-matter-cvsim-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_definitions(numi-matter-cvsim-check PRIVATE NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+    target_compile_options(numi-matter-cvsim-check PRIVATE -fobjc-arc -Wall -Wextra -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.cvsim_source COMMAND numi-matter-cvsim-check
+            "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/cvsim21.native.v3.json"
+            "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/cvsim21-continuous-reference-64ms.csv")
+        set_tests_properties(matter.metal.cvsim_source PROPERTIES LABELS "matter;metal;human;vascular" TIMEOUT 60)
+        find_package(Python3 COMPONENTS Interpreter QUIET)
+        if(Python3_Interpreter_FOUND)
+            add_test(NAME matter.compiler.cvsim_admission
+                COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/cvsim_input_check.py"
+                "$<TARGET_FILE:numi-matter-physiologyc>" "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/cvsim21.native.v3.json"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/shi-hose.native.v2.json")
+            set_tests_properties(matter.compiler.cvsim_admission PROPERTIES LABELS "matter;compiler;human;vascular" TIMEOUT 60)
+        endif()
+    endif()
+endif()
+
+if(APPLE)
     add_executable(numi-matter-cardiac-transaction-check tools/cardiac_transaction_check.mm)
     target_link_libraries(numi-matter-cardiac-transaction-check PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
     target_include_directories(numi-matter-cardiac-transaction-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")

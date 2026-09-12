@@ -1,0 +1,13 @@
+{
+  "schema": "NumiHuman.CVSim21-native-reference-prefix.v1",
+  "source_url": "https://physionet.org/content/cvsim/1.0.0/",
+  "source_lock_sha256": "b118d58230a3f2766108d05501a3ac9b910124ef823567a7e5fe23f6df0b4f67",
+  "full_reference_sha256": "1423dbd3ad5c831780ec4462d8e3db8f151934211b36b100d4aea42bb0d43f7e",
+  "prefix_sha256": "d2c27511484fa378400600ebfa1621787695426cde8cf3b1607e8a14627f0caf",
+  "samples_including_initial": 129,
+  "output_timestep_seconds": 0.0005000000237487257,
+  "relative_tolerance": 1e-12,
+  "coordinates": "upstream_equation",
+  "reference_owner": "NumiHuman tools/cvsim21_reference/continuous_reference.cpp + unchanged upstream C eqns_ptr/elastance_ptr",
+  "boundary": "continuous fixed-rate source-equation variant, AB/CP/tilt off; no anatomical or biological calibration"
+}
