@@ -54,6 +54,23 @@ inline float2 vascularNodePressure(uint nodeIndex, uint stateBase, uint coeffici
 inline float vascularDrivingPressure(const NMVascularConnectionGPU edge, float pa, float pb) {
     return pa - (edge.identity.w == 3u ? max(pb, edge.physical.w) : pb);
 }
+inline bool vascularUnilateral(const NMVascularConnectionGPU edge) {
+    return edge.identity.w >= 1u && edge.identity.w <= 3u;
+}
+// At Q=0 select one joint hydraulic/transport generalized Jacobian by pressure.
+// The exact pressure tie uses the forward branch, without hysteresis or epsilon.
+inline bool vascularDirectionalReverse(float q, float dp) {
+    return q < 0.0f || (q == 0.0f && dp < 0.0f);
+}
+// A single explicit rounding operation is shared by breakpoint detection,
+// physical-merit trial and application for the new signed flow law. Legacy
+// flow laws and every other state retain their existing arithmetic.
+inline float vascularDirectionalAffine(float value, float alpha, float correction) {
+    return fma(alpha, correction, value);
+}
+inline float vascularDirectionalResistance(const NMVascularConnectionGPU edge, float q, float dp) {
+    return vascularDirectionalReverse(q, dp) ? edge.directional.x : edge.physical.x;
+}
 inline float vascularOpenEquation(const NMVascularConnectionGPU edge, float q, float dp) {
     if (edge.identity.w == 1u) { const float qcv = q / edge.physical.z; return qcv * qcv - dp; }
     return edge.physical.x * q - dp;
@@ -66,7 +83,7 @@ inline bool vascularPositiveVariable(const NMVascularLayoutGPU graph, uint row,
     device const NMVascularConnectionGPU* connections) {
     if (row >= graph.cavities.z) return false;
     return row < graph.offsets.y ? compartments[row].identity.z == 0u :
-        (row < graph.offsets.z ? connections[row - graph.offsets.y].identity.w != 0u : true);
+        (row < graph.offsets.z ? vascularUnilateral(connections[row - graph.offsets.y]) : true);
 }
 inline bool vascularAdmissible(const NMVascularLayoutGPU graph, uint row, float value,
     device const NMVascularCompartmentGPU* compartments,
@@ -419,7 +436,7 @@ kernel void nm_vascular_begin_working_set(
     if (microstep.solverIteration == 0u) workingSet[global] = 0u;
     if (local < graph.offsets.y || local >= graph.offsets.z) return;
     const NMVascularConnectionGPU edge = connections[local - graph.offsets.y];
-    if (edge.identity.w == 0u) return;
+    if (!vascularUnilateral(edge)) return;
     const uint base = environment * graph.ranges.z;
     const uint eb = environment * graph.counts.x;
     const float q = vascularPhysical(candidate, unknowns, base, local);
@@ -493,7 +510,11 @@ inline float2 vascularEquation(
         // At the Starling floor tie use the fixed downstream-pressure branch.
         const float downstreamDerivative = edge.identity.w == 3u && pb.x <= edge.physical.w ? 0.0f : pb.y;
         const float dPressure = derivative ? pa.y - downstreamDerivative : 0.0f;
-        if (edge.identity.w != 0u) {
+        if (edge.identity.w == 4u) {
+            const float resistance = vascularDirectionalResistance(edge, value, dp);
+            equation = resistance * value - dp;
+            tangent = resistance * delta - dPressure;
+        } else if (vascularUnilateral(edge)) {
             const float flowPressure = unknowns[local].initialAndScaling.z / scale;
             const float closed = value * flowPressure;
             const float open = vascularOpenEquation(edge, value, dp);
@@ -519,7 +540,18 @@ inline float2 vascularEquation(
                 const NMVascularConnectionGPU edge = connections[edgeIndex];
                 const uint flowRow = graph.offsets.y + edgeIndex;
                 const float flow = vascularPhysical(candidate, unknowns, stateBase, flowRow);
-                const uint donor = flow >= 0.0f ? edge.identity.y : edge.identity.z;
+                bool reverse = flow < 0.0f;
+                if (edge.identity.w == 4u && flow == 0.0f) {
+                    const uint coefficientBase = (stateBase / graph.ranges.z) * graph.counts.x;
+                    const float pa = vascularNodePressure(edge.identity.y, stateBase, coefficientBase,
+                        directionBase, false, 0.0f, unknowns, compartments, cavities, compartmentCavity,
+                        candidate, direction, elastance).x;
+                    const float pb = vascularNodePressure(edge.identity.z, stateBase, coefficientBase,
+                        directionBase, false, 0.0f, unknowns, compartments, cavities, compartmentCavity,
+                        candidate, direction, elastance).x;
+                    reverse = vascularDirectionalReverse(flow, pa - pb);
+                }
+                const uint donor = reverse ? edge.identity.z : edge.identity.y;
                 const uint donorRow = graph.offsets.z + donor * graph.counts.z + species;
                 const float volume = vascularPhysical(candidate, unknowns, stateBase, donor);
                 const float mass = vascularPhysical(candidate, unknowns, stateBase, donorRow);
@@ -695,18 +727,25 @@ kernel void nm_vascular_precondition(
             const float q = vascularPhysical(candidate, unknowns, stateBase, local);
             const float flowPressure = unknowns[local].initialAndScaling.z /
                 unknowns[local].initialAndScaling.y;
-            const bool closedBranch = q * flowPressure <= vascularOpenEquation(edge, q, dp);
-            // A closed zero-flow row is an exact active constraint. Eliminate
-            // its tangent rather than allow Krylov roundoff to reverse flow.
-            if (closedBranch && q == 0.0f) {
-                preconditioned[row] = float4(0.0f);
-                return;
+            if (edge.identity.w == 4u) {
+                const float physicalDiagonal = vascularDirectionalResistance(edge, q, dp);
+                // A zero physical diagonal is retained in Jv; this fallback is
+                // normalized preconditioner scaling only, never resistance.
+                diagonal *= physicalDiagonal > 0.0f ? physicalDiagonal : flowPressure;
+            } else {
+                const bool closedBranch = q * flowPressure <= vascularOpenEquation(edge, q, dp);
+                // A closed zero-flow row is an exact active constraint. Eliminate
+                // its tangent rather than allow Krylov roundoff to reverse flow.
+                if (closedBranch && q == 0.0f) {
+                    preconditioned[row] = float4(0.0f);
+                    return;
+                }
+                // At opening Q=0, the physical diagonal is zero; use unit scaling
+                // only as a preconditioner, preserving the exact coupled Jv.
+                const float physicalDiagonal = closedBranch ? flowPressure :
+                    vascularOpenDiagonal(edge, q);
+                diagonal *= physicalDiagonal > 0.0f ? physicalDiagonal : flowPressure;
             }
-            // At opening Q=0, the physical diagonal is zero; use unit scaling
-            // only as a preconditioner, preserving the exact coupled Jv.
-            const float physicalDiagonal = closedBranch ? flowPressure :
-                vascularOpenDiagonal(edge, q);
-            diagonal *= physicalDiagonal > 0.0f ? physicalDiagonal : flowPressure;
         } else diagonal *= edge.physical.x + edge.physical.y / microstep.time.x;
     } else if (local >= graph.offsets.z && local < graph.cavities.z) {
         const bool blood = local < graph.offsets.w;
@@ -776,7 +815,7 @@ kernel void nm_vascular_resolve_working_set(
     bool activated = false;
     if (environmentHealthy(statuses, environment)) {
         for (uint edge = lane; edge < graph.counts.y; edge += 32u) {
-            if (connections[edge].identity.w == 0u) continue;
+            if (!vascularUnilateral(connections[edge])) continue;
             const uint row = environment * graph.ranges.z + graph.offsets.y + edge;
             const float q = candidate[row].x;
             if (!all(isfinite(solution[layout.vascularBase + row]))) {
@@ -904,6 +943,35 @@ kernel void nm_vascular_limit_line_search(
                 const float step = correction * variableScale;
                 alpha = min(alpha, 0.99f * (correction > 0.0f ? maximum - displacement : maximum + displacement) / abs(step));
             }
+            if (local >= graph.offsets.y && local < graph.offsets.z &&
+                connections[local - graph.offsets.y].identity.w == 4u &&
+                ((value > 0.0f && correction < 0.0f) || (value < 0.0f && correction > 0.0f))) {
+                // Stop the *shared* Newton path at its first directional-law
+                // breakpoint. Crossing an arbitrarily stiff reverse branch in
+                // one trial need not satisfy Armijo, even for a linear storage
+                // Schur block. Every mechanical/transport variable receives
+                // the same alpha; no flow is clipped or projected separately.
+                float breakpoint = -value / correction;
+                if (breakpoint <= alpha) {
+                    // A rounded quotient can leave Q + alpha*dQ on the old
+                    // side. Advance only to the first adjacent representable
+                    // common alpha that reaches the new side (or exact zero).
+                    // Check the actual affine expression; if rounding cannot
+                    // represent the crossing, fail rather than invent Q=0.
+                    for (uint rounding = 0u; rounding < 2u; ++rounding) {
+                        const float atBreakpoint = vascularDirectionalAffine(value, breakpoint, correction);
+                        if (value > 0.0f ? atBreakpoint <= 0.0f : atBreakpoint >= 0.0f) break;
+                        breakpoint = nextafter(breakpoint, INFINITY);
+                    }
+                    const float atBreakpoint = vascularDirectionalAffine(value, breakpoint, correction);
+                    if (!(breakpoint > 0.0f) || !isfinite(breakpoint) ||
+                        (value > 0.0f ? atBreakpoint > 0.0f : atBreakpoint < 0.0f)) {
+                        alpha = 0.0f;
+                        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                            NM_INVALID_INDEX, local, float4(value, correction, breakpoint, 4.0f));
+                    } else alpha = min(alpha, breakpoint);
+                }
+            }
             if (workingSet[row] == 0u && vascularPositiveVariable(graph, local, compartments, connections) && correction < 0.0f) {
             // Fraction to boundary preserves strict volume positivity and
             // never clips an amount or hides a failed Newton direction.
@@ -938,9 +1006,12 @@ kernel void nm_vascular_limit_line_search(
         for (uint attempt = 0u; attempt < trials; ++attempt) {
             for (uint local = lane; local < graph.ranges.z; local += 32u) {
                 const uint row = base + local;
+                const bool directional = local >= graph.offsets.y && local < graph.offsets.z &&
+                    connections[local - graph.offsets.y].identity.w == 4u;
                 const float value = workingSet[row] != 0u ?
                     (1.0f - alpha) * candidate[row].x :
-                    candidate[row].x + alpha * solution[directionBase + local].x;
+                    (directional ? vascularDirectionalAffine(candidate[row].x, alpha, solution[directionBase + local].x) :
+                        candidate[row].x + alpha * solution[directionBase + local].x);
                 trial[row] = float4(value, 0.0f, 0.0f, 0.0f);
             }
             threadgroup_barrier(mem_flags::mem_device);
@@ -991,6 +1062,7 @@ kernel void nm_vascular_apply_solution(
     device const NMMatterStatusGPU* statuses [[buffer(5)]],
     device uint* workingSet [[buffer(6)]],
     device const uint* changed [[buffer(7)]],
+    device const NMVascularConnectionGPU* connections [[buffer(8)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     uint global [[thread_position_in_grid]]) {
     if (global >= dispatch.environmentCount * graph.ranges.z) return;
@@ -999,7 +1071,14 @@ kernel void nm_vascular_apply_solution(
     if (workingSet[global] != 0u) {
         candidate[global].x *= 1.0f - alpha[environment];
         if (alpha[environment] > 0.0f) workingSet[global] = 2u;
-    } else candidate[global].x += alpha[environment] * solution[layout.vascularBase + global].x;
+    } else {
+        const uint local = global - environment * graph.ranges.z;
+        const bool directional = local >= graph.offsets.y && local < graph.offsets.z &&
+            connections[local - graph.offsets.y].identity.w == 4u;
+        candidate[global].x = directional ?
+            vascularDirectionalAffine(candidate[global].x, alpha[environment], solution[layout.vascularBase + global].x) :
+            candidate[global].x + alpha[environment] * solution[layout.vascularBase + global].x;
+    }
 }
 kernel void nm_vascular_certify(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],

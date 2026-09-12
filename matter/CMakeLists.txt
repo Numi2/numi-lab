@@ -378,3 +378,17 @@ if(APPLE)
     endif()
 
 endif()
+
+if(APPLE)
+    add_executable(numi-matter-directional-valve-check tools/directional_valve_check.mm)
+    target_link_libraries(numi-matter-directional-valve-check PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_include_directories(numi-matter-directional-valve-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_definitions(numi-matter-directional-valve-check PRIVATE NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+    target_compile_options(numi-matter-directional-valve-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.compiler.directional_valve COMMAND numi-matter-directional-valve-check --cpu-only)
+        add_test(NAME matter.metal.directional_valve COMMAND numi-matter-directional-valve-check)
+        set_tests_properties(matter.compiler.directional_valve matter.metal.directional_valve
+            PROPERTIES LABELS "matter;human;vascular" TIMEOUT 180)
+    endif()
+endif()

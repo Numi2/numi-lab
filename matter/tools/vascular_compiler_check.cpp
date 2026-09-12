@@ -146,7 +146,7 @@ int main() {
         bad=heart.world;bad.vascular.layout.clock.x++;rejectedCooked(bad,"altered clock quantum");
         bad=heart.world;bad.vascular.compartments[1].periodTicks=0;rejectedCooked(bad,"missing cooked cardiac period");
         bad=heart.world;bad.vascular.compartments[1].periodMultiplier=0;rejectedCooked(bad,"unused cardiac bytes");
-        bad=heart.world;bad.vascular.connections[0].identity.w=4;rejectedCooked(bad,"unknown flow law");
+        bad=heart.world;bad.vascular.connections[0].identity.w=5;rejectedCooked(bad,"unknown flow law");
         const auto cardiacIdentity=[&](WorldSource change,const char* role){auto c=compileWorld(change);require(c.succeeded()&&c.world.fingerprint!=heart.world.fingerprint&&c.world.physicsFingerprint!=heart.world.physicsFingerprint,std::string("unbound cardiac field: ")+role);};
         changed=cardiac;changed.vascular.compartments[0].periodSeconds=2;cardiacIdentity(changed,"period");
         changed=cardiac;changed.vascular.compartments[0].sourcePi=3.141592653589793;cardiacIdentity(changed,"source pi");

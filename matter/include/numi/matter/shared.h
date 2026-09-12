@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 32u
+#define NM_MATTER_ABI_VERSION 33u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -439,7 +439,8 @@ typedef struct NM_ALIGN16 NMVascularCompartmentGPU {
 } NMVascularCompartmentGPU;
 typedef struct NM_ALIGN16 NMVascularConnectionGPU {
     nm_uint4 identity; // stable id, from compartment index, to compartment index, flow law
-    nm_float4 physical; // resistance, inertance, orifice CV, Starling downstream pressure floor
+    nm_float4 physical; // resistance (forward for law 4), inertance, orifice CV, Starling floor
+    nm_float4 directional; // law 4 reverse resistance, 0, 0, 0; all zero for other laws
 } NMVascularConnectionGPU;
 typedef struct NM_ALIGN16 NMVascularTissueGPU {
     nm_uint4 identity; // stable id, anatomical name byte offset, FEM object or invalid, 0

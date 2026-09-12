@@ -7178,6 +7178,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.statuses offset:0u atIndex:5u];
                 [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:6u];
                 [encoder setBuffer:state.vascularWorkingSetChanged offset:0u atIndex:7u];
+                [encoder setBuffer:state.vascularConnections offset:0u atIndex:8u];
             });
             dispatchThreads("nm_human_support_apply_solution", humanSupportTotal, [&] {
                 setDispatch();
@@ -11167,7 +11168,8 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             (row < offsets.y && state.vascularValue.compartments[row].identity.z == 0u &&
                 !(physical > 0.0f)) ||
             (row >= offsets.y && row < offsets.z &&
-                state.vascularValue.connections[row - offsets.y].identity.w != 0u && physical < 0.0f) ||
+                state.vascularValue.connections[row - offsets.y].identity.w >= 1u &&
+                state.vascularValue.connections[row - offsets.y].identity.w <= 3u && physical < 0.0f) ||
             (row >= offsets.z && row < state.vascularValue.layout.cavities.z && physical < 0.0f)) {
             diagnostics.message = "Matter snapshot vascular state is inadmissible";
             return diagnostics;

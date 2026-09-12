@@ -504,7 +504,7 @@ struct VascularSpeciesSource {
 };
 enum class VascularStorageKind : std::uint32_t { absoluteVolume = 0u, storageDisplacement = 1u };
 enum class VascularPressureLaw : std::uint32_t { linearCompliance = 0u, ventricularElastance = 1u, atrialElastance = 2u, atanCompliance = 3u, cosinePulseElastance = 4u, deformingCavity = 5u };
-enum class VascularFlowLaw : std::uint32_t { resistanceInertance = 0u, oneWayOrifice = 1u, oneWayResistance = 2u, starlingResistance = 3u };
+enum class VascularFlowLaw : std::uint32_t { resistanceInertance = 0u, oneWayOrifice = 1u, oneWayResistance = 2u, starlingResistance = 3u, directionalResistance = 4u };
 struct VascularCompartmentSource {
     std::uint32_t stableIdentifier = 0u;
     std::string anatomicalIdentifier;
@@ -534,7 +534,7 @@ struct VascularConnectionSource {
     // Stable source identifiers, resolved by cooking (never vector indices).
     std::uint32_t fromCompartment = 0u;
     std::uint32_t toCompartment = 0u;
-    double resistance = 0.0; // Pa s/m3, strictly positive
+    double resistance = 0.0; // Pa s/m3; directional forward R permits zero, other resistive laws require positive R
     double inertance = 0.0; // Pa s2/m3, nonnegative
     double initialFlow = 0.0; // m3/s; signed from -> to
     double flowScale = 0.0; // m3/s
@@ -544,6 +544,10 @@ struct VascularConnectionSource {
     // Q = CV sqrt(max(Pfrom - Pto, 0)); R/L are zero for this law.
     double orificeCoefficient = 0.0; // m3/(s sqrt(Pa))
     double downstreamPressureFloor = 0.0; // Starling resistor only, Pa
+    // Explicit signed directional law: R(Q)*Q = Pfrom-Pto. Forward R is
+    // resistance; reverse R must be positive and >= forward R. L/CV/floor
+    // are zero. This is a declared native formulation, not a CARP valve model.
+    double reverseResistance = 0.0; // Pa s/m3; zero for every other flow law
 };
 struct VascularTissueBindingSource {
     std::uint32_t node = 0u; // object-local FEM node

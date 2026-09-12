@@ -113,7 +113,16 @@ bool validCompartment(const NMVascularCompartmentGPU& x, const NMVascularUnknown
     return true;
 }
 bool validConnection(const NMVascularConnectionGPU& x, const NMVascularUnknownGPU& u) {
-    if(x.identity.w>3 || !finite4(x.physical))return false;
+    if(x.identity.w>4 || !finite4(x.physical) || !finite4(x.directional))return false;
+    if(x.identity.w==4) {
+        const double r = u.initialAndScaling.x < 0 ? x.directional.x : x.physical.x;
+        return x.physical.x>=0 && positive(x.directional.x) && x.directional.x>=x.physical.x &&
+            x.physical.y==0 && x.physical.z==0 && x.physical.w==0 &&
+            x.directional.y==0 && x.directional.z==0 && x.directional.w==0 &&
+            positive(double(u.initialAndScaling.z)/u.initialAndScaling.y) &&
+            finite(r*u.initialAndScaling.x);
+    }
+    if(!zero4(x.directional))return false;
     if(x.identity.w==0)return positive(x.physical.x) && x.physical.y>=0 && x.physical.z==0 && x.physical.w==0;
     if(u.initialAndScaling.x<0 || !positive(double(u.initialAndScaling.z)/u.initialAndScaling.y))return false;
     if(x.identity.w>=2)return positive(x.physical.x) && x.physical.y==0 && x.physical.z==0 &&
@@ -340,8 +349,11 @@ bool compileVascular(const WorldSource& source, CompiledWorld& world, std::vecto
     }
     std::vector<std::vector<std::uint32_t>> edges(C),bloodX(C*S),tissueX(T*S);
     for (auto index:oe) {const auto& x=v.connections[index];const auto row=std::uint32_t(c.connections.size());
-        if (!ci.contains(x.fromCompartment)||!ci.contains(x.toCompartment)||x.fromCompartment==x.toCompartment||!finite(x.resistance)||!finite(x.inertance)||!finite(x.orificeCoefficient)||!finite(x.downstreamPressureFloor)||!finite(x.initialFlow)||!positive(x.flowScale)||!positive(x.pressureScale)||!tolerance(x.flowResidualTolerance)||!finite(x.initialFlow/x.flowScale)) return fail("invalid connection endpoint, passive law, scale or tolerance");
-        const auto a=ci[x.fromCompartment],b=ci[x.toCompartment];c.connections.push_back({{x.stableIdentifier,a,b,std::uint32_t(x.flowLaw)},f4(x.resistance,x.inertance,x.orificeCoefficient,x.downstreamPressureFloor)});
+        if (!ci.contains(x.fromCompartment)||!ci.contains(x.toCompartment)||x.fromCompartment==x.toCompartment||!finite(x.resistance)||!finite(x.reverseResistance)||!finite(x.inertance)||!finite(x.orificeCoefficient)||!finite(x.downstreamPressureFloor)||!finite(x.initialFlow)||!positive(x.flowScale)||!positive(x.pressureScale)||!tolerance(x.flowResidualTolerance)||!finite(x.initialFlow/x.flowScale)) return fail("invalid connection endpoint, passive law, scale or tolerance");
+        if (x.flowLaw==VascularFlowLaw::directionalResistance ?
+            (x.resistance<0 || !(x.reverseResistance>0) || x.reverseResistance<x.resistance) :
+            x.reverseResistance!=0) return fail("invalid authored directional resistance");
+        const auto a=ci[x.fromCompartment],b=ci[x.toCompartment];c.connections.push_back({{x.stableIdentifier,a,b,std::uint32_t(x.flowLaw)},f4(x.resistance,x.inertance,x.orificeCoefficient,x.downstreamPressureFloor),f4(x.reverseResistance)});
         c.unknowns[c.layout.offsets.y+row]={f4(x.initialFlow,x.flowScale,x.pressureScale,x.flowResidualTolerance)};if(!validConnection(c.connections.back(),c.unknowns[c.layout.offsets.y+row]))return fail("unsupported or invalid flow law");edges[a].push_back(row);edges[b].push_back(row);
     }
     for (auto index:ot) {const auto& x=v.tissues[index];const auto row=std::uint32_t(c.tissues.size());std::uint32_t name=0;
@@ -452,6 +464,17 @@ bool validateVascularLayout(const CompiledWorld& world,std::string* error) {
     }
     std::vector<std::vector<std::uint32_t>> edges(C),bloodX(C*S),tissueX(T*S);
     for(std::size_t i=0;i<E;++i) {const auto& x=c.connections[i];if(!x.identity.x||(i&&x.identity.x<=c.connections[i-1].identity.x)||x.identity.y>=C||x.identity.z>=C||x.identity.y==x.identity.z||!validConnection(x,c.unknowns[C+i]))return fail("invalid connection flow law");edges[x.identity.y].push_back(i);edges[x.identity.z].push_back(i);}
+    // Potential ideal-pressure constraints must have independent incidence
+    // columns: reject undirected cycles (including parallel/antiparallel edges).
+    // With positive independent compliant storage this suffices for a positive
+    // definite storage Schur block. It is not a rank claim for coupled mechanics.
+    std::vector<std::uint32_t> idealParent(C);std::iota(idealParent.begin(),idealParent.end(),0u);
+    const auto idealRoot=[&](std::uint32_t i){while(idealParent[i]!=i){idealParent[i]=idealParent[idealParent[i]];i=idealParent[i];}return i;};
+    for(const auto& edge:c.connections) if(edge.identity.w==4u && edge.physical.x==0.0f) {
+        const auto a=idealRoot(edge.identity.y),b=idealRoot(edge.identity.z);
+        if(a==b)return fail("zero-forward directional connections must form an undirected forest");
+        idealParent[b]=a;
+    }
     std::size_t nextBinding=0;
     for(std::size_t i=0;i<T;++i) {const auto& x=c.tissues[i];if(!x.identity.x||(i&&x.identity.x<=c.tissues[i-1].identity.x)||x.identity.w||!name(x.identity.y)||!finite4(x.physical)||!positive(x.physical.x)||x.physical.y!=0||x.physical.z!=0||x.physical.w!=0||x.region.x!=nextBinding||x.region.z||x.region.w||x.region.y>c.tissueBindings.size()-nextBinding)return fail("invalid fixed tissue reservoir");
         if((x.identity.z==NM_INVALID_INDEX)!=(x.region.y==0))return fail("incomplete tissue FEM binding");
