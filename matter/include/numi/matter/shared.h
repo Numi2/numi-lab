@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 25u
+#define NM_MATTER_ABI_VERSION 26u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -384,6 +384,55 @@ typedef struct NM_ALIGN16 NMMixedMaterialGPU {
     // activation threshold, activation slope, cohesive strength, fracture energy.
     nm_float4 coupling;
 } NMMixedMaterialGPU;
+
+// Passive vascular V1. Every unknown uses one float4.x in the existing
+// monolithic Krylov arena; y/z/w are zero. Accepted x = physical / variableScale.
+typedef struct NM_ALIGN16 NMVascularLayoutGPU {
+    nm_uint4 counts; // compartments, connections, species, fixed tissue reservoirs
+    nm_uint4 ranges; // exchanges, tissue bindings, unknown count, flags (zero)
+    nm_uint4 offsets; // volume, flow, blood amount, tissue amount base indices
+} NMVascularLayoutGPU;
+typedef struct NM_ALIGN16 NMVascularIdentityGPU {
+    nm_u64 content[4];
+    nm_u64 source[4];
+    nm_u64 authored[4];
+} NMVascularIdentityGPU;
+typedef struct NM_ALIGN16 NMVascularUnknownGPU {
+    // physical initial value, variable scale, physical residual scale,
+    // dimensionless absolute residual tolerance.
+    nm_float4 initialAndScaling;
+} NMVascularUnknownGPU;
+typedef struct NM_ALIGN16 NMVascularSpeciesGPU {
+    nm_uint4 identity; // stable id, name byte offset, reserved zero, reserved zero
+    nm_float4 scaling; // mol scale, normalized amount residual tolerance, 0, 0
+} NMVascularSpeciesGPU;
+typedef struct NM_ALIGN16 NMVascularCompartmentGPU {
+    nm_uint4 identity; // stable id, anatomical name byte offset, 0, 0
+    nm_float4 compliance; // reference volume, reference pressure, compliance, external pressure
+} NMVascularCompartmentGPU;
+typedef struct NM_ALIGN16 NMVascularConnectionGPU {
+    nm_uint4 identity; // stable id, from compartment index, to compartment index, 0
+    nm_float4 physical; // resistance, inertance, 0, 0
+} NMVascularConnectionGPU;
+typedef struct NM_ALIGN16 NMVascularTissueGPU {
+    nm_uint4 identity; // stable id, anatomical name byte offset, FEM object or invalid, 0
+    nm_float4 physical; // fixed volume, 0, 0, 0
+    nm_uint4 region; // first tissue binding, count, 0, 0
+} NMVascularTissueGPU;
+typedef struct NM_ALIGN16 NMVascularExchangeGPU {
+    nm_uint4 identity; // stable id, compartment index, tissue index, species index
+    nm_float4 physical; // permeability-surface, partition coefficient, 0, 0
+} NMVascularExchangeGPU;
+typedef struct NM_ALIGN16 NMVascularTissueBindingGPU {
+    nm_uint4 identity; // tissue index, global FEM node, 0, 0
+    nm_float4 physical; // normalized regional weight, 0, 0, 0
+} NMVascularTissueBindingGPU;
+typedef struct NM_ALIGN16 NMVascularRangeGPU {
+    nm_u32 first;
+    nm_u32 count;
+    nm_u32 reserved0;
+    nm_u32 reserved1;
+} NMVascularRangeGPU;
 
 typedef struct NM_ALIGN16 NMFEMFieldStateGPU {
     // mechanical pressure, temperature, pore pressure, electric potential.
@@ -860,6 +909,11 @@ typedef struct NM_ALIGN16 NMFGMRESLayoutGPU {
     nm_u32 supportBase;
     nm_u32 unknownCount;
     nm_u32 reserved;
+    // First-class normalized scalar vascular block follows Human support.
+    nm_u32 vascularUnknownCount;
+    nm_u32 vascularBase;
+    float vascularResidualTolerance;
+    nm_u32 vascularReserved;
 } NMFGMRESLayoutGPU;
 
 typedef struct NM_ALIGN16 NMHumanSupportKKTGPU {

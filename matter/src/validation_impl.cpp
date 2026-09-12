@@ -1,4 +1,5 @@
 #include "numi/matter/detail.hpp"
+#include "numi/matter/vascular.hpp"
 
 #include <algorithm>
 #include <array>
@@ -108,6 +109,7 @@ public:
             validateContact() &&
             validateAdaptiveAndSchedulers() &&
             validateIdentification() &&
+            detail::validateVascularLayout(world_, error_) &&
             validateFingerprint();
     }
 
@@ -139,7 +141,8 @@ private:
         if ((dispatch.flags & ~kKnownMatterFlags) != 0u) {
             return fail("Matter dispatch contains unknown flags");
         }
-        if (dispatch.environmentCount == 0u || dispatch.materialCount == 0u) {
+        if (dispatch.environmentCount == 0u ||
+            (dispatch.materialCount == 0u && world_.vascular.compartments.empty())) {
             return fail("Matter dispatch requires environments and materials");
         }
         if (dispatch.materialCount != world_.materials.size() ||

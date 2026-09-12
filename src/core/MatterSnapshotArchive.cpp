@@ -219,6 +219,7 @@ std::vector<std::byte> serialize(
     writer.podVector(snapshot.femMaterialState);
     writer.podVector(snapshot.identification);
     writer.podVector(snapshot.environmentParameters);
+    writer.podVector(snapshot.vascularState);
     return writer.bytes();
 }
 
@@ -293,6 +294,7 @@ bool deserialize(
         !reader.podVector(snapshot.femMaterialState) ||
         !reader.podVector(snapshot.identification) ||
         !reader.podVector(snapshot.environmentParameters) ||
+        (formatVersion >= 5u && !reader.podVector(snapshot.vascularState)) ||
         !reader.finished()) {
         return false;
     }
@@ -433,6 +435,7 @@ MatterSnapshotArchiveResult readMatterSnapshotArchive(
         if ((header.formatVersion != 1u &&
              header.formatVersion != 2u &&
              header.formatVersion != 3u &&
+             header.formatVersion != 4u &&
              header.formatVersion != kMatterSnapshotArchiveVersion) ||
             header.endianMarker != kEndianMarker ||
             header.matterAbiVersion != NM_MATTER_ABI_VERSION) {
@@ -527,6 +530,7 @@ bool sameMatterSnapshotAuthority(
         equalBytes(left.particles, right.particles) &&
         equalBytes(left.femNodes, right.femNodes) &&
         equalBytes(left.femFields, right.femFields) &&
+        equalBytes(left.vascularState, right.vascularState) &&
         equalBytes(left.femTopologyNodes, right.femTopologyNodes) &&
         equalBytes(
             left.femTopologyTetrahedra,

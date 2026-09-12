@@ -50,6 +50,22 @@ enum class FingerprintSection : std::uint32_t {
     learnedMaterials,
     learnedLayers,
     learnedWeights,
+    vascularLayout,
+    vascularIdentity,
+    vascularSpecies,
+    vascularCompartments,
+    vascularConnections,
+    vascularTissues,
+    vascularExchanges,
+    vascularTissueBindings,
+    vascularUnknowns,
+    vascularConnectionIncidence,
+    vascularConnectionRanges,
+    vascularBloodExchangeIncidence,
+    vascularBloodExchangeRanges,
+    vascularTissueExchangeIncidence,
+    vascularTissueExchangeRanges,
+    vascularNames,
 };
 
 template <typename T>
@@ -176,6 +192,38 @@ std::uint64_t compiledWorldFingerprint(
         std::span<const NMLearnedLayerGPU>(world.learnedLayers));
     hashSection(fingerprint, FingerprintSection::learnedWeights,
         std::span<const float>(world.learnedWeights));
+    hashSection(fingerprint, FingerprintSection::vascularLayout,
+        std::span<const NMVascularLayoutGPU>(&world.vascular.layout, 1u));
+    hashSection(fingerprint, FingerprintSection::vascularIdentity,
+        std::span<const NMVascularIdentityGPU>(&world.vascular.identity, 1u));
+    hashSection(fingerprint, FingerprintSection::vascularSpecies,
+        std::span<const NMVascularSpeciesGPU>(world.vascular.species));
+    hashSection(fingerprint, FingerprintSection::vascularCompartments,
+        std::span<const NMVascularCompartmentGPU>(world.vascular.compartments));
+    hashSection(fingerprint, FingerprintSection::vascularConnections,
+        std::span<const NMVascularConnectionGPU>(world.vascular.connections));
+    hashSection(fingerprint, FingerprintSection::vascularTissues,
+        std::span<const NMVascularTissueGPU>(world.vascular.tissues));
+    hashSection(fingerprint, FingerprintSection::vascularExchanges,
+        std::span<const NMVascularExchangeGPU>(world.vascular.exchanges));
+    hashSection(fingerprint, FingerprintSection::vascularTissueBindings,
+        std::span<const NMVascularTissueBindingGPU>(world.vascular.tissueBindings));
+    hashSection(fingerprint, FingerprintSection::vascularUnknowns,
+        std::span<const NMVascularUnknownGPU>(world.vascular.unknowns));
+    hashSection(fingerprint, FingerprintSection::vascularConnectionIncidence,
+        std::span<const std::uint32_t>(world.vascular.connectionIncidence));
+    hashSection(fingerprint, FingerprintSection::vascularConnectionRanges,
+        std::span<const NMVascularRangeGPU>(world.vascular.connectionRanges));
+    hashSection(fingerprint, FingerprintSection::vascularBloodExchangeIncidence,
+        std::span<const std::uint32_t>(world.vascular.bloodExchangeIncidence));
+    hashSection(fingerprint, FingerprintSection::vascularBloodExchangeRanges,
+        std::span<const NMVascularRangeGPU>(world.vascular.bloodExchangeRanges));
+    hashSection(fingerprint, FingerprintSection::vascularTissueExchangeIncidence,
+        std::span<const std::uint32_t>(world.vascular.tissueExchangeIncidence));
+    hashSection(fingerprint, FingerprintSection::vascularTissueExchangeRanges,
+        std::span<const NMVascularRangeGPU>(world.vascular.tissueExchangeRanges));
+    hashSection(fingerprint, FingerprintSection::vascularNames,
+        std::span<const std::uint8_t>(world.vascular.names));
     return fingerprint == 0u ? 1u : fingerprint;
 }
 

@@ -20,6 +20,7 @@ set(
     src/language_impl.cpp
     src/constitutive_impl.cpp
     src/compiler_impl.cpp
+    src/vascular_impl.cpp
     src/fingerprint_impl.cpp
     src/validation_impl.cpp
     src/package_impl.cpp
@@ -110,6 +111,7 @@ if(APPLE)
             src/metal/mpm.metalinc
             src/metal/fem.metalinc
             src/metal/fgmres.metalinc
+            src/metal/vascular.metalinc
             src/metal/human_equality.metalinc
             src/metal/human_limits.metalinc
             src/metal/mixed_fem.metalinc
@@ -134,6 +136,7 @@ if(APPLE)
         numi_matter_runtime_objects
         OBJECT
         src/runtime.mm
+        src/human_physiology.mm
         src/metal_world.cpp
         src/numi_human.mm
     )
@@ -213,5 +216,41 @@ if(APPLE)
         add_test(NAME matter.metal.source_fiber COMMAND numi-matter-fiber-check)
         set_tests_properties(matter.compiler.source_fiber matter.metal.source_fiber
             PROPERTIES LABELS "matter;material;human" TIMEOUT 60)
+    endif()
+endif()
+
+# HumanPack physiology uses the existing Matter package/runtime authority.
+add_executable(numi-matter-vascular-compiler-check tools/vascular_compiler_check.cpp)
+target_link_libraries(numi-matter-vascular-compiler-check PRIVATE numi_matter_compiler)
+target_compile_options(numi-matter-vascular-compiler-check PRIVATE -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.vascular COMMAND numi-matter-vascular-compiler-check)
+    set_tests_properties(matter.compiler.vascular PROPERTIES LABELS "matter;compiler;human;vascular" TIMEOUT 60)
+endif()
+if(APPLE)
+    add_executable(numi-matter-physiologyc tools/physiologyc.mm)
+    target_link_libraries(numi-matter-physiologyc PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}")
+    target_compile_options(numi-matter-physiologyc PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    install(TARGETS numi-matter-physiologyc RUNTIME DESTINATION bin)
+    add_executable(numi-matter-vascular-check tools/vascular_check.mm)
+    target_link_libraries(numi-matter-vascular-check PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_include_directories(numi-matter-vascular-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_definitions(numi-matter-vascular-check PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}"
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/silicone.nmatter")
+    target_compile_options(numi-matter-vascular-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.vascular COMMAND numi-matter-vascular-check)
+        set_tests_properties(matter.metal.vascular PROPERTIES LABELS "matter;metal;human;vascular" TIMEOUT 60)
+        add_test(NAME matter.metal.human_physiology_payload COMMAND numi-matter-vascular-check
+            --human-input "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/human_physiology.native.v1.json")
+        set_tests_properties(matter.metal.human_physiology_payload PROPERTIES LABELS "matter;metal;human;vascular" TIMEOUT 60)
+        find_package(Python3 COMPONENTS Interpreter QUIET)
+        if(Python3_Interpreter_FOUND)
+            add_test(NAME matter.compiler.human_physiology_admission
+                COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/physiology_input_check.py"
+                "$<TARGET_FILE:numi-matter-physiologyc>" "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/human_physiology.native.v1.json")
+            set_tests_properties(matter.compiler.human_physiology_admission PROPERTIES LABELS "matter;compiler;human;vascular" TIMEOUT 60)
+        endif()
     endif()
 endif()

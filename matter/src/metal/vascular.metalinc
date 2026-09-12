@@ -1,0 +1,409 @@
+namespace numi_matter_metal {
+
+// Conservative closed RLC network and passive tissue transport, integrated in
+// the Matter Newton state. Every dynamic value is physical / authored scale.
+// All reservoirs and fluxes use SI units; no biological parameter defaults.
+inline float vascularPhysical(device const float4* state,
+    device const NMVascularUnknownGPU* unknowns, uint base, uint local) {
+    return state[base + local].x * unknowns[local].initialAndScaling.y;
+}
+inline float vascularConcentration(float amount, float volume) {
+    const float value = amount / volume;
+    return isfinite(amount) && amount >= 0.0f && isfinite(volume) &&
+        volume > 0.0f && isfinite(value) && (amount == 0.0f || value > 0.0f)
+        ? value : INFINITY;
+}
+inline float vascularPressure(const NMVascularCompartmentGPU node, float volume) {
+    return node.compliance.w + node.compliance.y +
+        (volume - node.compliance.x) / node.compliance.z;
+}
+inline bool vascularPositiveVariable(const NMVascularLayoutGPU graph, uint row) {
+    return row < graph.offsets.y || row >= graph.offsets.z;
+}
+inline bool vascularAdmissible(const NMVascularLayoutGPU graph, uint row, float value) {
+    return isfinite(value) && (row < graph.offsets.y ? value > 0.0f :
+        (row >= graph.offsets.z ? value >= 0.0f : true));
+}
+
+kernel void nm_vascular_episode_reset(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    constant NMResetPassGPU& pass [[buffer(2)]],
+    device const uint* resetMasks [[buffer(3)]],
+    device const NMVascularUnknownGPU* unknowns [[buffer(4)]],
+    device float4* accepted [[buffer(5)]],
+    device float4* candidate [[buffer(6)]],
+    device float4* checkpoint [[buffer(7)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= dispatch.environmentCount * graph.ranges.z ||
+        (pass.flags & NM_RESET_ENABLED) == 0u || pass.resetMaskStepStride == 0u) return;
+    const uint environment = global / graph.ranges.z;
+    if (resetMasks[pass.controlStep * pass.resetMaskStepStride + environment] == 0u) return;
+    const uint local = global - environment * graph.ranges.z;
+    const float4 initial = float4(unknowns[local].initialAndScaling.x /
+        unknowns[local].initialAndScaling.y, 0.0f, 0.0f, 0.0f);
+    accepted[global] = initial;
+    candidate[global] = initial;
+    checkpoint[global] = initial;
+}
+
+kernel void nm_vascular_checkpoint(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    device const float4* accepted [[buffer(2)]],
+    device float4* candidate [[buffer(3)]],
+    device float4* checkpoint [[buffer(4)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= dispatch.environmentCount * graph.ranges.z) return;
+    candidate[global] = accepted[global];
+    checkpoint[global] = accepted[global];
+}
+kernel void nm_vascular_prepare_candidate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    device const float4* accepted [[buffer(2)]],
+    device float4* candidate [[buffer(3)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global < dispatch.environmentCount * graph.ranges.z)
+        candidate[global] = accepted[global];
+}
+kernel void nm_vascular_commit(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    device float4* accepted [[buffer(3)]],
+    device const float4* candidate [[buffer(4)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global < dispatch.environmentCount * graph.ranges.z &&
+        environmentHealthy(statuses, global / graph.ranges.z))
+        accepted[global] = candidate[global];
+}
+kernel void nm_vascular_rollback(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    device float4* accepted [[buffer(3)]],
+    device float4* candidate [[buffer(4)]],
+    device const float4* checkpoint [[buffer(5)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global < dispatch.environmentCount * graph.ranges.z &&
+        !environmentHealthy(statuses, global / graph.ranges.z)) {
+        accepted[global] = checkpoint[global];
+        candidate[global] = checkpoint[global];
+    }
+}
+
+// Shared residual/Jacobian evaluator. A directional value of a normalized
+// state is converted to physical units before differentiating any flux. The
+// exact same signed edge/exchange contribution enters both adjacent rows.
+inline float2 vascularEquation(
+    const NMVascularLayoutGPU graph, float dt, uint local, uint stateBase,
+    uint directionBase, bool derivative,
+    device const NMVascularUnknownGPU* unknowns,
+    device const NMVascularCompartmentGPU* compartments,
+    device const NMVascularConnectionGPU* connections,
+    device const NMVascularTissueGPU* tissues,
+    device const NMVascularExchangeGPU* exchanges,
+    device const uint* connectionIncidence,
+    device const NMVascularRangeGPU* connectionRanges,
+    device const uint* bloodExchangeIncidence,
+    device const NMVascularRangeGPU* bloodExchangeRanges,
+    device const uint* tissueExchangeIncidence,
+    device const NMVascularRangeGPU* tissueExchangeRanges,
+    device const float4* accepted, device const float4* candidate,
+    device const float4* direction) {
+    const float scale = unknowns[local].initialAndScaling.y;
+    const float value = vascularPhysical(candidate, unknowns, stateBase, local);
+    const float delta = derivative ? direction[directionBase + local].x * scale : 0.0f;
+    float equation = scale * (candidate[stateBase + local].x - accepted[stateBase + local].x);
+    float tangent = delta;
+    if (local < graph.offsets.y) {
+        const NMVascularRangeGPU range = connectionRanges[local];
+        for (uint slot = 0u; slot < range.count; ++slot) {
+            const uint edge = connectionIncidence[range.first + slot];
+            const float sign = connections[edge].identity.y == local ? 1.0f : -1.0f;
+            const uint flowRow = graph.offsets.y + edge;
+            equation += dt * sign * vascularPhysical(candidate, unknowns, stateBase, flowRow);
+            if (derivative) tangent += dt * sign * direction[directionBase + flowRow].x *
+                unknowns[flowRow].initialAndScaling.y;
+        }
+    } else if (local < graph.offsets.z) {
+        const NMVascularConnectionGPU edge = connections[local - graph.offsets.y];
+        const uint a = edge.identity.y;
+        const uint b = edge.identity.z;
+        const float pa = vascularPressure(compartments[a], vascularPhysical(candidate, unknowns, stateBase, a));
+        const float pb = vascularPressure(compartments[b], vascularPhysical(candidate, unknowns, stateBase, b));
+        equation = edge.physical.y * scale * (candidate[stateBase + local].x - accepted[stateBase + local].x) / dt + edge.physical.x * value - (pa - pb);
+        tangent = (edge.physical.y / dt + edge.physical.x) * delta;
+        if (derivative) tangent -=
+            direction[directionBase + a].x * unknowns[a].initialAndScaling.y / compartments[a].compliance.z -
+            direction[directionBase + b].x * unknowns[b].initialAndScaling.y / compartments[b].compliance.z;
+    } else {
+        const bool blood = local < graph.offsets.w;
+        const uint amount = local - (blood ? graph.offsets.z : graph.offsets.w);
+        const uint reservoir = amount / graph.counts.z;
+        const uint species = amount - reservoir * graph.counts.z;
+        if (blood) {
+            const NMVascularRangeGPU range = connectionRanges[reservoir];
+            for (uint slot = 0u; slot < range.count; ++slot) {
+                const uint edgeIndex = connectionIncidence[range.first + slot];
+                const NMVascularConnectionGPU edge = connections[edgeIndex];
+                const uint flowRow = graph.offsets.y + edgeIndex;
+                const float flow = vascularPhysical(candidate, unknowns, stateBase, flowRow);
+                const uint donor = flow >= 0.0f ? edge.identity.y : edge.identity.z;
+                const uint donorRow = graph.offsets.z + donor * graph.counts.z + species;
+                const float volume = vascularPhysical(candidate, unknowns, stateBase, donor);
+                const float mass = vascularPhysical(candidate, unknowns, stateBase, donorRow);
+                const float concentration = vascularConcentration(mass, volume);
+                const float sign = edge.identity.y == reservoir ? 1.0f : -1.0f;
+                equation += dt * sign * flow * concentration;
+                if (derivative) {
+                    const float dq = direction[directionBase + flowRow].x * unknowns[flowRow].initialAndScaling.y;
+                    const float dm = direction[directionBase + donorRow].x * unknowns[donorRow].initialAndScaling.y;
+                    const float dv = direction[directionBase + donor].x * unknowns[donor].initialAndScaling.y;
+                    tangent += dt * sign * (dq * concentration + flow * (dm - concentration * dv) / volume);
+                }
+            }
+        }
+        const NMVascularRangeGPU range = blood ? bloodExchangeRanges[amount] : tissueExchangeRanges[amount];
+        for (uint slot = 0u; slot < range.count; ++slot) {
+            const uint exchangeIndex = blood ? bloodExchangeIncidence[range.first + slot] :
+                tissueExchangeIncidence[range.first + slot];
+            const NMVascularExchangeGPU exchange = exchanges[exchangeIndex];
+            const uint node = exchange.identity.y;
+            const uint tissue = exchange.identity.z;
+            const uint bloodRow = graph.offsets.z + node * graph.counts.z + species;
+            const uint tissueRow = graph.offsets.w + tissue * graph.counts.z + species;
+            const float bloodVolume = vascularPhysical(candidate, unknowns, stateBase, node);
+            const float bloodMass = vascularPhysical(candidate, unknowns, stateBase, bloodRow);
+            const float tissueMass = vascularPhysical(candidate, unknowns, stateBase, tissueRow);
+            const float bloodConcentration = vascularConcentration(bloodMass, bloodVolume);
+            const float partitionVolume = tissues[tissue].physical.x * exchange.physical.y;
+            const float sign = blood ? 1.0f : -1.0f;
+            const float tissueConcentration = vascularConcentration(tissueMass, partitionVolume);
+            equation += dt * sign * exchange.physical.x * (bloodConcentration - tissueConcentration);
+            if (derivative) {
+                const float dm = direction[directionBase + bloodRow].x * unknowns[bloodRow].initialAndScaling.y;
+                const float dv = direction[directionBase + node].x * unknowns[node].initialAndScaling.y;
+                const float mt = direction[directionBase + tissueRow].x * unknowns[tissueRow].initialAndScaling.y;
+                tangent += dt * sign * exchange.physical.x *
+                    ((dm - bloodConcentration * dv) / bloodVolume - mt / partitionVolume);
+            }
+        }
+    }
+    return float2(equation, tangent) / unknowns[local].initialAndScaling.z;
+}
+
+// Identical bindings for residual and Jacobian-vector kernels make their
+// constitutive state and timestep impossible to pair with different arenas.
+#define NM_VASCULAR_EQUATION_ARGUMENTS \
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]], \
+    constant NMVascularLayoutGPU& graph [[buffer(1)]], \
+    constant NMMicrostepGPU& microstep [[buffer(2)]], \
+    device const NMVascularUnknownGPU* unknowns [[buffer(3)]], \
+    device const NMVascularCompartmentGPU* compartments [[buffer(4)]], \
+    device const NMVascularConnectionGPU* connections [[buffer(5)]], \
+    device const NMVascularTissueGPU* tissues [[buffer(6)]], \
+    device const NMVascularExchangeGPU* exchanges [[buffer(7)]], \
+    device const uint* connectionIncidence [[buffer(8)]], \
+    device const NMVascularRangeGPU* connectionRanges [[buffer(9)]], \
+    device const uint* bloodExchangeIncidence [[buffer(10)]], \
+    device const NMVascularRangeGPU* bloodExchangeRanges [[buffer(11)]], \
+    device const uint* tissueExchangeIncidence [[buffer(12)]], \
+    device const NMVascularRangeGPU* tissueExchangeRanges [[buffer(13)]], \
+    device const float4* accepted [[buffer(14)]], \
+    device const float4* candidate [[buffer(15)]], \
+    device const float4* direction [[buffer(16)]], \
+    device float4* output [[buffer(17)]], \
+    device const NMFGMRESStateGPU* states [[buffer(18)]], \
+    device NMMatterStatusGPU* statuses [[buffer(19)]], \
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]], \
+    uint global [[thread_position_in_grid]]
+#define NM_VASCULAR_EVALUATE(derivative) vascularEquation(graph, microstep.time.x, local, \
+    environment * graph.ranges.z, layout.vascularBase + environment * graph.ranges.z, \
+    derivative, unknowns, compartments, connections, tissues, exchanges, \
+    connectionIncidence, connectionRanges, bloodExchangeIncidence, bloodExchangeRanges, \
+    tissueExchangeIncidence, tissueExchangeRanges, accepted, candidate, direction)
+
+kernel void nm_vascular_residual(NM_VASCULAR_EQUATION_ARGUMENTS) {
+    if (global >= dispatch.environmentCount * graph.ranges.z) return;
+    const uint environment = global / graph.ranges.z;
+    const uint local = global - environment * graph.ranges.z;
+    output[layout.vascularBase + global] = float4(0.0f);
+    if (!environmentHealthy(statuses, environment)) return;
+    if (!vascularAdmissible(graph, local, candidate[global].x) ||
+        any(candidate[global].yzw != float3(0.0f))) {
+        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, local, float4(candidate[global].x, 0.0f, 0.0f, 0.0f));
+        return;
+    }
+    const float value = NM_VASCULAR_EVALUATE(false).x;
+    if (!isfinite(value)) {
+        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, local, float4(value, 0.0f, 0.0f, 0.0f));
+        return;
+    }
+    output[layout.vascularBase + global] = float4(-value, 0.0f, 0.0f, 0.0f);
+}
+kernel void nm_vascular_operator(NM_VASCULAR_EQUATION_ARGUMENTS) {
+    if (global >= dispatch.environmentCount * graph.ranges.z) return;
+    const uint environment = global / graph.ranges.z;
+    const uint local = global - environment * graph.ranges.z;
+    output[layout.vascularBase + global] = float4(0.0f);
+    if (!environmentHealthy(statuses, environment) || states[environment].diagnostics.z > 0.5f) return;
+    const float value = NM_VASCULAR_EVALUATE(true).y;
+    if (!isfinite(value)) {
+        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, local, float4(value, 0.0f, 0.0f, 0.0f));
+        return;
+    }
+    output[layout.vascularBase + global] = float4(value, 0.0f, 0.0f, 0.0f);
+}
+#undef NM_VASCULAR_EVALUATE
+#undef NM_VASCULAR_EQUATION_ARGUMENTS
+
+// Positive diagonal scaling for the pressure/volume/species mixed units.
+// The nonsymmetric transport/compliance cross-block remains in the operator.
+kernel void nm_vascular_precondition(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    constant NMMicrostepGPU& microstep [[buffer(2)]],
+    device const NMVascularUnknownGPU* unknowns [[buffer(3)]],
+    device const NMVascularConnectionGPU* connections [[buffer(4)]],
+    device const float4* basis [[buffer(5)]],
+    device float4* preconditioned [[buffer(6)]],
+    device const NMFGMRESStateGPU* states [[buffer(7)]],
+    device const float4* candidate [[buffer(8)]],
+    device const NMVascularTissueGPU* tissues [[buffer(9)]],
+    device const NMVascularExchangeGPU* exchanges [[buffer(10)]],
+    device const uint* connectionIncidence [[buffer(11)]],
+    device const NMVascularRangeGPU* connectionRanges [[buffer(12)]],
+    device const uint* bloodExchangeIncidence [[buffer(13)]],
+    device const NMVascularRangeGPU* bloodExchangeRanges [[buffer(14)]],
+    device const uint* tissueExchangeIncidence [[buffer(15)]],
+    device const NMVascularRangeGPU* tissueExchangeRanges [[buffer(16)]],
+    device NMMatterStatusGPU* statuses [[buffer(17)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= dispatch.environmentCount * graph.ranges.z) return;
+    const uint environment = global / graph.ranges.z;
+    const uint local = global - environment * graph.ranges.z;
+    const uint row = layout.vascularBase + global;
+    float diagonal = unknowns[local].initialAndScaling.y / unknowns[local].initialAndScaling.z;
+    if (local >= graph.offsets.y && local < graph.offsets.z) {
+        const float2 rl = connections[local - graph.offsets.y].physical.xy;
+        diagonal *= rl.x + rl.y / microstep.time.x;
+    } else if (local >= graph.offsets.z) {
+        const bool blood = local < graph.offsets.w;
+        const uint amount = local - (blood ? graph.offsets.z : graph.offsets.w);
+        const uint reservoir = amount / graph.counts.z;
+        const uint stateBase = environment * graph.ranges.z;
+        float rate = 0.0f;
+        if (blood) {
+            const float volume = vascularPhysical(candidate, unknowns, stateBase, reservoir);
+            const NMVascularRangeGPU range = connectionRanges[reservoir];
+            for (uint slot = 0u; slot < range.count; ++slot) {
+                const uint edgeIndex = connectionIncidence[range.first + slot];
+                const NMVascularConnectionGPU edge = connections[edgeIndex];
+                const float flow = vascularPhysical(candidate, unknowns,
+                    stateBase, graph.offsets.y + edgeIndex);
+                const uint donor = flow >= 0.0f ? edge.identity.y : edge.identity.z;
+                if (donor == reservoir) rate += abs(flow) / volume;
+            }
+        }
+        const NMVascularRangeGPU range = blood ? bloodExchangeRanges[amount] : tissueExchangeRanges[amount];
+        for (uint slot = 0u; slot < range.count; ++slot) {
+            const uint exchangeIndex = blood ? bloodExchangeIncidence[range.first + slot] :
+                tissueExchangeIncidence[range.first + slot];
+            const NMVascularExchangeGPU exchange = exchanges[exchangeIndex];
+            const float capacity = blood ? vascularPhysical(candidate, unknowns,
+                stateBase, exchange.identity.y) :
+                tissues[exchange.identity.z].physical.x * exchange.physical.y;
+            rate += exchange.physical.x / capacity;
+        }
+        diagonal *= 1.0f + microstep.time.x * rate;
+    }
+    if (!isfinite(diagonal) || !(diagonal > 0.0f)) {
+        preconditioned[row] = float4(0.0f);
+        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, local, float4(diagonal, 0.0f, 0.0f, 0.0f));
+        return;
+    }
+    preconditioned[row] = states[environment].diagnostics.z > 0.5f ? float4(0.0f) :
+        float4(basis[row].x / diagonal, 0.0f, 0.0f, 0.0f);
+}
+
+kernel void nm_vascular_limit_line_search(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    device const float4* candidate [[buffer(2)]],
+    device const float4* solution [[buffer(3)]],
+    device float4* lineSearch [[buffer(4)]],
+    device float* vascularAlpha [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    if (lane >= 32u || environment >= dispatch.environmentCount || graph.ranges.z == 0u) return;
+    float alpha = 1.0f;
+    for (uint object = lane; object < dispatch.objectCount; object += 32u)
+        alpha = min(alpha, lineSearch[environment * dispatch.objectCount + object].x);
+    for (uint local = lane; local < graph.ranges.z; local += 32u) {
+        const uint row = environment * graph.ranges.z + local;
+        const float value = candidate[row].x;
+        const float correction = solution[layout.vascularBase + row].x;
+        if (!vascularAdmissible(graph, local, value) || !isfinite(correction)) {
+            alpha = 0.0f;
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, local, float4(value, correction, 0.0f, 0.0f));
+        } else if (vascularPositiveVariable(graph, local) && correction < 0.0f) {
+            // Fraction to boundary preserves strict volume positivity and
+            // never clips an amount or hides a failed Newton direction.
+            alpha = min(alpha, 0.99f * value / -correction);
+        }
+    }
+    alpha = simd_min(alpha);
+    if (lane == 0u) {
+        vascularAlpha[environment] = alpha;
+        if (!(alpha > 0.0f) || !isfinite(alpha))
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, NM_INVALID_INDEX, float4(alpha, 0.0f, 0.0f, 0.0f));
+    }
+    for (uint object = lane; object < dispatch.objectCount; object += 32u)
+        lineSearch[environment * dispatch.objectCount + object].x = alpha;
+}
+kernel void nm_vascular_apply_solution(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    device const float4* solution [[buffer(2)]],
+    device const float* alpha [[buffer(3)]],
+    device float4* candidate [[buffer(4)]],
+    device const NMMatterStatusGPU* statuses [[buffer(5)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= dispatch.environmentCount * graph.ranges.z) return;
+    const uint environment = global / graph.ranges.z;
+    if (environmentHealthy(statuses, environment))
+        candidate[global].x += alpha[environment] * solution[layout.vascularBase + global].x;
+}
+kernel void nm_vascular_certify(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    device const NMVascularUnknownGPU* unknowns [[buffer(2)]],
+    device const float4* candidate [[buffer(3)]],
+    device const float4* residual [[buffer(4)]],
+    device NMMatterStatusGPU* statuses [[buffer(5)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= dispatch.environmentCount * graph.ranges.z) return;
+    const uint environment = global / graph.ranges.z;
+    const uint local = global - environment * graph.ranges.z;
+    if (!environmentHealthy(statuses, environment)) return;
+    const float value = abs(residual[layout.vascularBase + global].x);
+    const float tolerance = unknowns[local].initialAndScaling.w;
+    if (!isfinite(value) || value > tolerance || !vascularAdmissible(graph, local, candidate[global].x))
+        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, local, float4(value, tolerance, candidate[global].x, 0.0f));
+}
+
+} // namespace numi_matter_metal

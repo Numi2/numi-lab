@@ -22,7 +22,7 @@ inline constexpr std::array<char, 16> kMagic{
     'N', 'U', 'M', 'I', 'M', 'A', 'T', 'T',
     'E', 'R', 'P', 'K', 'G', '\0', '\0', '\0',
 };
-inline constexpr std::uint32_t kPackageVersion = 10u;
+inline constexpr std::uint32_t kPackageVersion = 11u;
 inline constexpr std::uint32_t kEndianMarker = 0x01020304u;
 
 enum class Section : std::uint32_t {
@@ -68,6 +68,22 @@ enum class Section : std::uint32_t {
     learnedMaterials,
     learnedLayers,
     learnedWeights,
+    vascularLayout,
+    vascularIdentity,
+    vascularSpecies,
+    vascularCompartments,
+    vascularConnections,
+    vascularTissues,
+    vascularExchanges,
+    vascularTissueBindings,
+    vascularUnknowns,
+    vascularConnectionIncidence,
+    vascularConnectionRanges,
+    vascularBloodExchangeIncidence,
+    vascularBloodExchangeRanges,
+    vascularTissueExchangeIncidence,
+    vascularTissueExchangeRanges,
+    vascularNames,
     generatedMetal,
 };
 
@@ -200,28 +216,6 @@ template <typename T>
         return false;
     }
     output = std::move(candidate);
-    return true;
-}
-
-[[nodiscard]] bool skipSection(
-    std::ifstream& stream,
-    const SectionHeader& header,
-    std::string* error
-) {
-    if (header.byteCount > static_cast<std::uint64_t>(
-            std::numeric_limits<std::streamoff>::max())) {
-        if (error != nullptr) {
-            *error = "matter package section is too large to seek";
-        }
-        return false;
-    }
-    stream.seekg(static_cast<std::streamoff>(header.byteCount), std::ios::cur);
-    if (!stream) {
-        if (error != nullptr) {
-            *error = "matter package ended while skipping an unknown section";
-        }
-        return false;
-    }
     return true;
 }
 
@@ -361,6 +355,38 @@ bool writePackage(
             std::span<const NMLearnedLayerGPU>(world.learnedLayers)) &&
         writeSection(stream, Section::learnedWeights,
             std::span<const float>(world.learnedWeights)) &&
+        writeSection(stream, Section::vascularLayout,
+            std::span<const NMVascularLayoutGPU>(&world.vascular.layout, 1u)) &&
+        writeSection(stream, Section::vascularIdentity,
+            std::span<const NMVascularIdentityGPU>(&world.vascular.identity, 1u)) &&
+        writeSection(stream, Section::vascularSpecies,
+            std::span<const NMVascularSpeciesGPU>(world.vascular.species)) &&
+        writeSection(stream, Section::vascularCompartments,
+            std::span<const NMVascularCompartmentGPU>(world.vascular.compartments)) &&
+        writeSection(stream, Section::vascularConnections,
+            std::span<const NMVascularConnectionGPU>(world.vascular.connections)) &&
+        writeSection(stream, Section::vascularTissues,
+            std::span<const NMVascularTissueGPU>(world.vascular.tissues)) &&
+        writeSection(stream, Section::vascularExchanges,
+            std::span<const NMVascularExchangeGPU>(world.vascular.exchanges)) &&
+        writeSection(stream, Section::vascularTissueBindings,
+            std::span<const NMVascularTissueBindingGPU>(world.vascular.tissueBindings)) &&
+        writeSection(stream, Section::vascularUnknowns,
+            std::span<const NMVascularUnknownGPU>(world.vascular.unknowns)) &&
+        writeSection(stream, Section::vascularConnectionIncidence,
+            std::span<const std::uint32_t>(world.vascular.connectionIncidence)) &&
+        writeSection(stream, Section::vascularConnectionRanges,
+            std::span<const NMVascularRangeGPU>(world.vascular.connectionRanges)) &&
+        writeSection(stream, Section::vascularBloodExchangeIncidence,
+            std::span<const std::uint32_t>(world.vascular.bloodExchangeIncidence)) &&
+        writeSection(stream, Section::vascularBloodExchangeRanges,
+            std::span<const NMVascularRangeGPU>(world.vascular.bloodExchangeRanges)) &&
+        writeSection(stream, Section::vascularTissueExchangeIncidence,
+            std::span<const std::uint32_t>(world.vascular.tissueExchangeIncidence)) &&
+        writeSection(stream, Section::vascularTissueExchangeRanges,
+            std::span<const NMVascularRangeGPU>(world.vascular.tissueExchangeRanges)) &&
+        writeSection(stream, Section::vascularNames,
+            std::span<const std::uint8_t>(world.vascular.names)) &&
         writeStringSection(stream, Section::generatedMetal, compiled.generatedMetal);
 
     if (!written || !stream.flush()) {
@@ -521,6 +547,46 @@ bool readPackage(
             decoded = decodeVector(stream, section, candidate.learnedLayers, error); break;
         case Section::learnedWeights:
             decoded = decodeVector(stream, section, candidate.learnedWeights, error); break;
+        case Section::vascularLayout: {
+            std::vector<NMVascularLayoutGPU> values;
+            decoded = decodeVector(stream, section, values, error) && values.size() == 1u;
+            if (decoded) candidate.vascular.layout = values.front();
+            break;
+        }
+        case Section::vascularIdentity: {
+            std::vector<NMVascularIdentityGPU> values;
+            decoded = decodeVector(stream, section, values, error) && values.size() == 1u;
+            if (decoded) candidate.vascular.identity = values.front();
+            break;
+        }
+        case Section::vascularSpecies:
+            decoded = decodeVector(stream, section, candidate.vascular.species, error); break;
+        case Section::vascularCompartments:
+            decoded = decodeVector(stream, section, candidate.vascular.compartments, error); break;
+        case Section::vascularConnections:
+            decoded = decodeVector(stream, section, candidate.vascular.connections, error); break;
+        case Section::vascularTissues:
+            decoded = decodeVector(stream, section, candidate.vascular.tissues, error); break;
+        case Section::vascularExchanges:
+            decoded = decodeVector(stream, section, candidate.vascular.exchanges, error); break;
+        case Section::vascularTissueBindings:
+            decoded = decodeVector(stream, section, candidate.vascular.tissueBindings, error); break;
+        case Section::vascularUnknowns:
+            decoded = decodeVector(stream, section, candidate.vascular.unknowns, error); break;
+        case Section::vascularConnectionIncidence:
+            decoded = decodeVector(stream, section, candidate.vascular.connectionIncidence, error); break;
+        case Section::vascularConnectionRanges:
+            decoded = decodeVector(stream, section, candidate.vascular.connectionRanges, error); break;
+        case Section::vascularBloodExchangeIncidence:
+            decoded = decodeVector(stream, section, candidate.vascular.bloodExchangeIncidence, error); break;
+        case Section::vascularBloodExchangeRanges:
+            decoded = decodeVector(stream, section, candidate.vascular.bloodExchangeRanges, error); break;
+        case Section::vascularTissueExchangeIncidence:
+            decoded = decodeVector(stream, section, candidate.vascular.tissueExchangeIncidence, error); break;
+        case Section::vascularTissueExchangeRanges:
+            decoded = decodeVector(stream, section, candidate.vascular.tissueExchangeRanges, error); break;
+        case Section::vascularNames:
+            decoded = decodeVector(stream, section, candidate.vascular.names, error); break;
         case Section::generatedMetal: {
             if (section.elementSize != 1u ||
                 section.elementCount != section.byteCount ||
@@ -539,7 +605,8 @@ bool readPackage(
             break;
         }
         default:
-            decoded = skipSection(stream, section, error);
+            decoded = false;
+            if (error != nullptr) *error = "unknown section in exact-version Matter package";
             break;
         }
         if (!decoded) {

@@ -4,6 +4,7 @@
 
 #include "../matter/src/accepted_state_proof_gpu.hpp"
 #include "numi/matter/accepted_state_apply_gpu.h"
+#include "../matter/tools/vascular_fixture.hpp"
 
 namespace proof_fixture {
 
@@ -430,6 +431,7 @@ bool equalAcceptedAuthority(
         equalBytes(left.particles, right.particles) &&
         equalBytes(left.femNodes, right.femNodes) &&
         equalBytes(left.femFields, right.femFields) &&
+        equalBytes(left.vascularState, right.vascularState) &&
         equalBytes(left.femTopologyNodes, right.femTopologyNodes) &&
         equalBytes(left.femTopologyTetrahedra,
                    right.femTopologyTetrahedra) &&
@@ -470,7 +472,8 @@ ProofResult runProof(
     const FinalMode mode,
     const bool mutateHuman,
     const bool mutateMatter,
-    const bool checkUnsupportedFlags = false
+    const bool checkUnsupportedFlags = false,
+    const bool mutateVascular = false
 ) {
     constexpr std::uint32_t environmentIdentifier = 17u;
     constexpr std::uint32_t transactionSlot = 0u;
@@ -487,7 +490,8 @@ ProofResult runProof(
     require(device != nil, "no Metal device is available");
     id<MTLCommandQueue> queue = [device newCommandQueue];
     require(queue != nil, "failed to create proof probe queue");
-    auto world = compileAttachedWorld();
+    auto vascular = vascularFixture();
+    auto world = compileAttachedWorld(0u, &vascular);
     numi::matter::RuntimeConfiguration runtimeConfig;
     runtimeConfig.metallib = NUMI_MATTER_METALLIB;
     runtimeConfig.environmentCount = 1u;
@@ -510,6 +514,14 @@ ProofResult runProof(
         const auto restored = matter.restore(mutation);
         require(restored.encoded,
             "Matter mutation restore failed: " + restored.message);
+    }
+    if (mutateVascular) {
+        auto mutation = matter.snapshot();
+        require(mutation.available && !mutation.vascularState.empty(),
+                "vascular mutation snapshot unavailable");
+        mutation.vascularState[world.vascular.layout.offsets.w].x += 0.25f;
+        const auto restored = matter.restore(mutation);
+        require(restored.encoded, "vascular mutation restore failed: " + restored.message);
     }
     const auto before = matter.snapshot();
     require(before.available, "pre-prepare authority snapshot unavailable");
@@ -1084,6 +1096,8 @@ int main() {
                 FinalMode::applyAccept, true, false);
             const ProofResult matterMutation = runProof(
                 FinalMode::applyAccept, false, true);
+            const ProofResult vascularMutation = runProof(
+                FinalMode::applyAccept, false, false, false, true);
             const ProofResult rejected = runProof(
                 FinalMode::applyReject, false, false);
             const ProofResult pending = runProof(
@@ -1119,6 +1133,11 @@ int main() {
                     matterMutation.proof.matterStateFingerprint !=
                         baseline.proof.matterStateFingerprint,
                 "Matter accepted-state mutation did not change Matter hash");
+            require(vascularMutation.proof.humanStateFingerprint ==
+                        baseline.proof.humanStateFingerprint &&
+                    vascularMutation.proof.matterStateFingerprint !=
+                        baseline.proof.matterStateFingerprint,
+                    "vascular accepted-state mutation missing from Matter proof");
             requireZeroToken(rejected.token);
             require(rejected.authorityRestored,
                 "ABI4 REJECT did not restore accepted authority");
@@ -1144,6 +1163,7 @@ int main() {
                 << "device=Apple_Metal\n"
                 << "real_runtime_prepare_proof_apply_publication=pass\n"
                 << "accepted_rigid_and_matter_content_mutation=pass\n"
+                << "vascular_content_mutation=pass\n"
                 << "human_content_mutation=pass\n"
                 << "chunk_tree_cpu_parity=pass\n"
                 << "byte_replay=pass\n"

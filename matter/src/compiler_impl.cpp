@@ -1,4 +1,5 @@
 #include "numi/matter/detail.hpp"
+#include "numi/matter/vascular.hpp"
 
 #include <algorithm>
 #include <array>
@@ -487,7 +488,7 @@ void validateWorld(
             "Matter cannot microstep against frozen rod geometry",
         });
     }
-    if (source.materials.empty()) {
+    if (source.materials.empty() && source.vascular.compartments.empty()) {
         diagnostics.push_back({
             Diagnostic::Severity::error, 0u, 0u,
             "matter world requires at least one material",
@@ -2442,6 +2443,7 @@ CompileResult compileWorld(
         1.0e20
     );
     world.dispatch = dispatch;
+    if (!detail::compileVascular(source, world, result.diagnostics)) return result;
 
     if (!result.succeeded()) {
         return result;

@@ -455,6 +455,75 @@ struct ObjectSource {
     std::vector<MutationCommandSource> mutationCommands;
 };
 
+// Vascular V1 owns passive linear compliance, resistance/inertance and
+// conservative species transport. Units are SI; tolerances are positive,
+// dimensionless bounds on residuals divided by their authored scales.
+struct VascularSpeciesSource {
+    std::uint32_t stableIdentifier = 0u;
+    std::string name;
+    double amountScale = 0.0; // mol
+    double amountResidualTolerance = 0.0;
+};
+struct VascularCompartmentSource {
+    std::uint32_t stableIdentifier = 0u;
+    std::string anatomicalIdentifier;
+    double referenceVolume = 0.0; // m3
+    double initialVolume = 0.0;
+    double referencePressure = 0.0; // Pa
+    double compliance = 0.0; // m3/Pa
+    double externalPressure = 0.0;
+    double volumeScale = 0.0; // m3
+    double volumeResidualTolerance = 0.0;
+    std::vector<double> initialSpeciesAmounts; // mol, source species order
+};
+struct VascularConnectionSource {
+    std::uint32_t stableIdentifier = 0u;
+    // Stable source identifiers, resolved by cooking (never vector indices).
+    std::uint32_t fromCompartment = 0u;
+    std::uint32_t toCompartment = 0u;
+    double resistance = 0.0; // Pa s/m3, strictly positive
+    double inertance = 0.0; // Pa s2/m3, nonnegative
+    double initialFlow = 0.0; // m3/s; signed from -> to
+    double flowScale = 0.0; // m3/s
+    double pressureScale = 0.0; // Pa, scales the flow equation
+    double flowResidualTolerance = 0.0;
+};
+struct VascularTissueBindingSource {
+    std::uint32_t node = 0u; // object-local FEM node
+    double weight = 0.0; // positive normalized regional identity weight
+};
+struct VascularTissueSource {
+    std::uint32_t stableIdentifier = 0u;
+    std::string anatomicalIdentifier;
+    double volume = 0.0; // m3, fixed reservoir volume in V1
+    std::vector<double> initialSpeciesAmounts;
+    // An optional REAL FEM object/region association is identity only in V1.
+    // Dynamic deformation/pressure feedback is unsupported and rejected.
+    std::uint32_t objectIndex = NM_INVALID_INDEX;
+    std::vector<VascularTissueBindingSource> femRegion;
+    bool mechanicsFeedback = false;
+};
+struct VascularExchangeSource {
+    std::uint32_t stableIdentifier = 0u;
+    std::uint32_t compartment = 0u; // stable identifiers
+    std::uint32_t tissue = 0u;
+    std::uint32_t species = 0u;
+    double permeabilitySurface = 0.0; // m3/s, strictly positive
+    double partitionCoefficient = 0.0; // c_blood - c_tissue / K
+};
+struct VascularNetworkSource {
+    // Whole source payload and upstream graph SHA256 bytes as four u64 words.
+    // They are exact provenance, never host pointers or runtime state.
+    std::array<std::uint64_t, 4> contentIdentity{};
+    std::array<std::uint64_t, 4> sourceIdentity{};
+    std::array<std::uint64_t, 4> authoredIdentity{};
+    std::vector<VascularSpeciesSource> species;
+    std::vector<VascularCompartmentSource> compartments;
+    std::vector<VascularConnectionSource> connections;
+    std::vector<VascularTissueSource> tissues;
+    std::vector<VascularExchangeSource> exchanges;
+};
+
 struct WorldSource {
     double frameTimestep = 1.0 / 60.0;
     std::array<double, 3> gravity{0.0, 0.0, -9.81};
@@ -470,6 +539,7 @@ struct WorldSource {
     std::uint32_t articulatedQCapacity = 41u;
     bool deterministic = true;
     MixedSolverSource mixedSolver;
+    VascularNetworkSource vascular;
     std::vector<MaterialProgram> materials;
     std::vector<ObjectSource> objects;
     std::vector<RigidProxySource> rigidProxies;
@@ -513,6 +583,27 @@ struct CookedContact {
     std::vector<NMIncidenceRangeGPU> rigidRanges;
 };
 
+struct CookedVascular {
+    NMVascularLayoutGPU layout{};
+    NMVascularIdentityGPU identity{};
+    std::vector<NMVascularSpeciesGPU> species;
+    std::vector<NMVascularCompartmentGPU> compartments;
+    std::vector<NMVascularConnectionGPU> connections;
+    std::vector<NMVascularTissueGPU> tissues;
+    std::vector<NMVascularExchangeGPU> exchanges;
+    std::vector<NMVascularTissueBindingGPU> tissueBindings;
+    std::vector<NMVascularUnknownGPU> unknowns;
+    std::vector<std::uint32_t> connectionIncidence;
+    std::vector<NMVascularRangeGPU> connectionRanges;
+    std::vector<std::uint32_t> bloodExchangeIncidence;
+    std::vector<NMVascularRangeGPU> bloodExchangeRanges;
+    std::vector<std::uint32_t> tissueExchangeIncidence;
+    std::vector<NMVascularRangeGPU> tissueExchangeRanges;
+    // Exact UTF-8 names/anatomical IDs, each NUL terminated. Offsets in
+    // identity fields bind semantic IDs without hashing away the strings.
+    std::vector<std::uint8_t> names;
+};
+
 struct CompiledWorld {
     NMMatterDispatchGPU dispatch{};
     NMMixedSolverGPU mixedSolver{};
@@ -527,6 +618,7 @@ struct CompiledWorld {
     CookedMPM mpm;
     CookedFEM fem;
     CookedContact contact;
+    CookedVascular vascular;
     std::vector<NMAdaptiveStateGPU> adaptive;
     std::vector<NMSchedulerStateGPU> schedulers;
     std::vector<NMIdentificationDistributionGPU> identification;
@@ -1104,6 +1196,9 @@ struct RuntimeStateSnapshot {
     std::vector<NMParticleStateGPU> particles;
     std::vector<NMFEMNodeStateGPU> femNodes;
     std::vector<NMFEMFieldStateGPU> femFields;
+    // Accepted normalized vascular volume, flow, blood and tissue amounts;
+    // each physical value is x times the cooked unknown variable scale.
+    std::vector<nm_float4> vascularState;
     std::vector<NMFEMTopologyNodeGPU> femTopologyNodes;
     std::vector<NMTetrahedronGPU> femTopologyTetrahedra;
     std::vector<NMCohesiveFaceGPU> cohesiveFaces;

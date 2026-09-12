@@ -40,6 +40,8 @@ numi::matter::RuntimeStateSnapshot fixture() {
     result.particles.resize(2u);
     result.femNodes.resize(3u);
     result.femFields.resize(2u);
+    result.vascularState = {{1.25f, 0.0f, 0.0f, 0.0f},
+                            {0.5f, 0.0f, 0.0f, 0.0f}};
     result.femTopologyNodes.resize(3u);
     result.femTopologyTetrahedra.resize(2u);
     result.cohesiveFaces.resize(2u);
@@ -111,6 +113,13 @@ int main(int argc, const char* argv[]) {
                 metalrobo::sameMatterSnapshotAuthority(source, decoded),
             "Matter snapshot archive round trip changed state bytes"
         );
+
+        {
+            auto changed = decoded;
+            changed.vascularState[0].x += 0.125f;
+            require(!metalrobo::sameMatterSnapshotAuthority(source, changed),
+                    "vascular continuation state missing from archive authority");
+        }
 
         {
             std::fstream stream(

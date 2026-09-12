@@ -156,7 +156,8 @@ void waitForSharedEventValue(
 }
 
 numi::matter::CompiledWorld compileAttachedWorld(
-    const std::uint32_t attachmentBodyIndex = 0u
+    const std::uint32_t attachmentBodyIndex = 0u,
+    const numi::matter::VascularNetworkSource* vascular = nullptr
 ) {
     const auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
     require(parsed.succeeded(), "Matter material did not parse");
@@ -167,6 +168,7 @@ numi::matter::CompiledWorld compileAttachedWorld(
     source.articulatedDofCapacity = kDofs;
     source.articulatedQCapacity = kQ;
     source.materials.push_back(parsed.material);
+    if (vascular != nullptr) source.vascular = *vascular;
     numi::matter::ObjectSource object;
     object.name = "numanx_adapter_attached_fem";
     object.materialIndex = 0u;
