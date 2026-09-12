@@ -5,6 +5,8 @@
 #include "vascular_fixture.hpp"
 #include <algorithm>
 #include <array>
+#include <bit>
+#include <limits>
 #include <cmath>
 #include <cstring>
 #include <iomanip>
@@ -14,7 +16,7 @@
 using namespace numi::matter;
 namespace {
 void need(bool ok,const std::string& why){if(!ok)throw std::runtime_error(why);}
-bool same(const std::vector<nm_float4>& a,const std::vector<nm_float4>& b){return a.size()==b.size()&&(a.empty()||std::memcmp(a.data(),b.data(),a.size()*sizeof(nm_float4))==0);}
+template<class T> bool same(const std::vector<T>& a,const std::vector<T>& b){return a.size()==b.size()&&(a.empty()||std::memcmp(a.data(),b.data(),a.size()*sizeof(T))==0);}
 WorldSource sourceFor(VascularNetworkSource n,double dt,bool fem=false) {
     WorldSource s;s.environmentCount=2;s.frameTimestep=dt;s.gravity={0,0,0};s.vascular=std::move(n);
     s.mixedSolver.relativeResidual=1e-7;s.mixedSolver.newtonIterations=12;s.mixedSolver.fgmresIterations=64;
@@ -47,7 +49,7 @@ struct Run {
         const auto init=runtime.initialize(world,cfg);need(init.encoded,init.message);
     }
     RuntimeStateSnapshot state(){auto s=runtime.snapshot();need(s.available,s.message);return s;}
-    void step(unsigned index,int reject=-1,int reset=-1) {
+    void step(unsigned index,int reject=-1,int reset=-1,int expectedFailure=-1) {
         auto* values=static_cast<MRMetalWorldStatusGPU*>(statuses.contents);
         for(unsigned e=0;e<2;++e){values[e]={};values[e].environment=e;}
         id<MTLCommandBuffer> cb=[queue commandBuffer];need(cb!=nil,"command buffer unavailable");
@@ -70,8 +72,12 @@ struct Run {
         req.phase=EncodePhase::postCommit;r=runtime.encode(req);need(r.encoded,"post: "+r.message);
         [cb commit];[cb waitUntilCompleted];need(cb.status==MTLCommandBufferStatusCompleted,"Metal command failed");(void)failure;(void)resetBuffer;
         auto end=state();need(end.statuses.size()==2,"missing environment certificates");
-        for(unsigned e=0;e<2;++e)if(static_cast<int>(e)!=reject) need(end.statuses[e].code==NM_STATUS_SUCCESS,
-            "vascular step "+std::to_string(index)+" environment "+std::to_string(e)+" rejected code="+std::to_string(end.statuses[e].code)+" residual="+std::to_string(end.statuses[e].diagnostics.z));
+        for(unsigned e=0;e<2;++e)if(static_cast<int>(e)!=reject && static_cast<int>(e)!=expectedFailure) need(end.statuses[e].code==NM_STATUS_SUCCESS,
+            "vascular step "+std::to_string(index)+" environment "+std::to_string(e)+" rejected code="+std::to_string(end.statuses[e].code)+
+            " object="+std::to_string(end.statuses[e].objectIndex)+" failing_index="+std::to_string(end.statuses[e].failingIndex)+
+            " diagnostics=["+std::to_string(end.statuses[e].diagnostics.x)+","+std::to_string(end.statuses[e].diagnostics.y)+","+
+            std::to_string(end.statuses[e].diagnostics.z)+","+std::to_string(end.statuses[e].diagnostics.w)+"]");
+        if(expectedFailure>=0)need(end.statuses[expectedFailure].code!=NM_STATUS_SUCCESS,"expected failure not reported");
     }
 };
 
@@ -83,7 +89,16 @@ Reference initial(const VascularNetworkSource& n){return{n.compartments[0].initi
 Reference advance(Reference old,const VascularNetworkSource& n,double dt){
     auto pressure=[](double v,const VascularCompartmentSource& c){return c.externalPressure+c.referencePressure+(v-c.referenceVolume)/c.compliance;};
     const auto& edge=n.connections[0];
-    const double q=(pressure(old.a,n.compartments[0])-pressure(old.b,n.compartments[1])+edge.inertance*old.q/dt)/(edge.resistance+edge.inertance/dt+dt*(1/n.compartments[0].compliance+1/n.compartments[1].compliance));
+    const double dp=pressure(old.a,n.compartments[0])-pressure(old.b,n.compartments[1]);
+    const double storageSlope=dt*(1/n.compartments[0].compliance+1/n.compartments[1].compliance);
+    double q;
+    if(edge.flowLaw==VascularFlowLaw::oneWayOrifice){
+        // Independently eliminate both backward-Euler volume equations:
+        // q*q/CV^2 + storageSlope*q - dp = 0, q >= 0. The rationalized
+        // positive root avoids cancellation; adverse pressure gives q=0.
+        const double cv=edge.orificeCoefficient;
+        q=dp<=0 ? 0 : 2*dp*cv/(std::sqrt(std::pow(storageSlope*cv,2)+4*dp)+storageSlope*cv);
+    } else q=(dp+edge.inertance*old.q/dt)/(edge.resistance+edge.inertance/dt+storageSlope);
     Reference out{old.a-dt*q,old.b+dt*q,q,{}};
     double m[3][4]={{1,0,0,old.amount[0]},{0,1,0,old.amount[1]},{0,0,1,old.amount[2]}};
     const unsigned donor=q>=0?0:1,receiver=1-donor;const double adv=dt*std::abs(q)/(donor==0?out.a:out.b);
@@ -112,20 +127,62 @@ void qualify(VascularNetworkSource n,const char* label,bool fem=false){
     constexpr unsigned steps=16;constexpr double dt=.01;
     Run run(sourceFor(n,dt,fem));auto start=run.state();auto ref=initial(n);const auto first=ref;
     double maxError=0,maxConservation=0;RuntimeStateSnapshot firstStep;
-    for(unsigned i=0;i<steps;++i){run.step(i);ref=advance(ref,n,run.runtime.timestepSeconds());auto current=run.state();check(run,current,ref,first,maxError,maxConservation);if(i==0)firstStep=current;}
+    for(unsigned i=0;i<steps;++i){
+        run.step(i);ref=advance(ref,n,run.runtime.timestepSeconds());auto current=run.state();
+        check(run,current,ref,first,maxError,maxConservation);
+        if(n.connections[0].flowLaw==VascularFlowLaw::oneWayOrifice){
+            const auto l=run.world.vascular.layout;
+            for(unsigned env=0;env<2;++env){
+                const double q=value(run,current,l.offsets.y,env);
+                need(ref.q==0 ? q==0 : q>0,"valve did not reach the exact closed/open branch");
+                if(ref.q==0 && ref.amount[1]==0)
+                    need(value(run,current,l.offsets.z+1,env)==0,"closed valve leaked tracer into isolated blood pool");
+                need(value(run,current,l.offsets.w,env)>0,"valve fixture did not exercise tissue exchange");
+            }
+        }
+        if(i==0)firstStep=current;
+    }
     auto evolved=run.state();need(!same(start.vascularState,evolved.vascularState),"state did not evolve");
     auto restored=run.runtime.restore(start);need(restored.encoded,restored.message);
     for(unsigned i=0;i<steps;++i)run.step(i);
     need(same(evolved.vascularState,run.state().vascularState),"snapshot replay differs");
+    need(same(evolved.vascularClock,run.state().vascularClock),"snapshot replay clock differs");
     const auto before=run.state();run.step(steps,1);const auto rejected=run.state();const auto stride=run.world.vascular.unknowns.size();
     need(std::memcmp(before.vascularState.data()+stride,rejected.vascularState.data()+stride,stride*sizeof(nm_float4))==0,"rejected environment leaked future vascular state");
+    need(std::memcmp(&before.vascularClock[1],&rejected.vascularClock[1],sizeof(NMVascularClockGPU))==0,"rejected future advanced clock");
+    need(before.vascularClock[0].low!=rejected.vascularClock[0].low,"accepted clock stalled");
     need(std::memcmp(before.vascularState.data(),rejected.vascularState.data(),stride*sizeof(nm_float4))!=0,"accepted environment did not advance");
     auto corrupt=before;corrupt.vascularState[0].x=-1;auto denied=run.runtime.restore(corrupt);need(!denied.encoded,"negative volume restore accepted");need(same(rejected.vascularState,run.state().vascularState),"invalid restore changed state");
     run.step(steps+1,-1,1);const auto resetState=run.state();
     need(std::memcmp(firstStep.vascularState.data()+stride,resetState.vascularState.data()+stride,stride*sizeof(nm_float4))==0,"episode reset did not restore authored vascular origin");
+    need(std::memcmp(&firstStep.vascularClock[1],&resetState.vascularClock[1],sizeof(NMVascularClockGPU))==0,"episode reset did not restore clock origin");
     need(std::memcmp(rejected.vascularState.data(),resetState.vascularState.data(),stride*sizeof(nm_float4))!=0,"episode reset stalled other environment");
     std::cout<<"vascular_case="<<label<<" result=pass accepted_steps="<<steps<<" environments=2 fp64_normalized_max="<<maxError<<" relative_conservation_max="<<maxConservation<<" replay=bitwise isolated_rollback=pass invalid_restore=denied isolated_reset=pass fem_region="<<(fem?"bound_identity_only":"none")<<'\n';
 }
+// Synthetic absolute-volume valve cases exercise the species product rule
+// and tissue exchange independently of the hydraulics-only cardiac source.
+void valveTransport(){
+    auto closing=vascularFixture();
+    auto& edge=closing.connections[0];
+    edge.flowLaw=VascularFlowLaw::oneWayOrifice;
+    edge.resistance=0;edge.inertance=0;edge.orificeCoefficient=1e-7;
+    edge.initialFlow=2e-6;
+    closing.compartments[0].initialVolume=1e-6;
+    closing.compartments[1].initialVolume=2e-6;
+    closing.exchanges[0].compartment=closing.compartments[0].stableIdentifier;
+    // At this authored initial guess, q*pressureScale/flowScale = 2000 Pa,
+    // q^2/CV^2-dp = 1400 Pa: the original min law selects its open branch.
+    // Its unconstrained hydraulic Newton correction crosses q<0. Closing
+    // must remove that edge from BOTH conservation rows and species tangents,
+    // while the independent blood-A/tissue exchange remains active.
+    qualify(closing,"valve_closing_species_exchange");
+    auto opening=vascularFixture();
+    opening.connections[0].flowLaw=VascularFlowLaw::oneWayOrifice;
+    opening.connections[0].resistance=0;opening.connections[0].inertance=0;
+    opening.connections[0].orificeCoefficient=1e-7;
+    qualify(opening,"valve_opening_species_exchange");
+}
+
 void branched(){
     auto n=vascularFixture();n.species.push_back({10,"fixture:second-tracer",2e-6,1e-5});
     n.compartments[0].initialSpeciesAmounts={2e-6,1e-6};n.compartments[1].initialSpeciesAmounts={0,3e-6};
@@ -143,6 +200,30 @@ void branched(){
     need(r.runtime.restore(start).encoded,"branched restore failed");for(unsigned i=0;i<8;++i)r.step(i);need(same(end.vascularState,r.state().vascularState),"branched replay failed");
     std::cout<<"vascular_branched=pass compartments=3 edges=3 species=2 tissues=2 exchanges=3 relative_conservation_max="<<worst<<" replay=bitwise\n";
 }
+void clockLifecycle(){
+    Run r(sourceFor(vascularFixture(),.01));auto initial=r.state();
+    need(initial.vascularClock.size()==2,"clock logical width");
+    const auto quantum=std::bit_cast<std::int32_t>(r.world.vascular.layout.clock.x);
+    const auto dt=static_cast<std::uint64_t>(std::ldexp(double(r.runtime.timestepSeconds()),-quantum));
+    r.step(0);auto one=r.state();need(one.vascularClock[0].low==dt&&one.vascularClock[0].high==0,"clock did not advance exact authored dt");
+    auto malformed=one;malformed.vascularClock.pop_back();need(!r.runtime.restore(malformed).encoded,"clock arity restore accepted");
+    need(same(one.vascularClock,r.state().vascularClock),"malformed clock restore mutated state");
+    auto huge=one;huge.vascularClock[0]={0xfffffffffffffffcul,17};huge.vascularClock[1]={123,0x100000001ul};
+    need(r.runtime.restore(huge).encoded,"large clock restore failed");r.step(1);auto large=r.state();
+    need(large.vascularClock[0].low==std::uint64_t(0xfffffffffffffffcul+dt)&&large.vascularClock[0].high==18,"runtime clock carry failed");
+    need(large.vascularClock[1].low==123+dt&&large.vascularClock[1].high==0x100000001ul,"runtime high-word continuation failed");
+    auto overflow=large;overflow.vascularClock[0]={std::numeric_limits<std::uint64_t>::max(),std::numeric_limits<std::uint64_t>::max()};
+    need(r.runtime.restore(overflow).encoded,"overflow-boundary restore failed");r.step(2,-1,-1,0);auto denied=r.state();
+    const auto stride=r.world.vascular.unknowns.size();
+    need(std::memcmp(&overflow.vascularClock[0],&denied.vascularClock[0],sizeof(NMVascularClockGPU))==0&&std::memcmp(overflow.vascularState.data(),denied.vascularState.data(),stride*sizeof(nm_float4))==0,"overflow failed to roll back physical state and clock");
+    need(denied.vascularClock[1].low==overflow.vascularClock[1].low+dt,"overflow contaminated healthy environment");
+    need(r.runtime.restore(initial).encoded,"clock lifecycle initial restore failed");
+    auto cb=[r.queue commandBuffer];EncodeRequest req;req.commandBuffer=(__bridge void*)cb;req.environmentStatuses=(__bridge void*)r.statuses;
+    req.timestepSeconds=std::nextafter(r.runtime.timestepSeconds(),INFINITY);req.physicsSubsteps=1;req.runAdaptiveTransfer=false;
+    const auto invalid=r.runtime.encode(req);need(!invalid.encoded,"unrepresentable timestep override accepted");
+    need(same(initial.vascularClock,r.state().vascularClock)&&same(initial.vascularState,r.state().vascularState),"invalid timestep mutated authority");
+    std::cout<<"vascular_clock_lifecycle=pass exact_dt_ticks="<<dt<<" carry=exact huge_snapshot=pass overflow_rollback=pass malformed_arity=denied timestep_override=denied\n";
+}
 void refinement(){
     auto n=vascularFixture();n.exchanges[0].permeabilitySurface=1e-7;
     const double duration=.16;std::array<double,3> errors{};
@@ -159,6 +240,6 @@ int main(int argc,const char* argv[]){@autoreleasepool{try{
     if(argc==3 && std::string(argv[1])=="--human-input") {VascularNetworkSource n;std::string error;need(readHumanPhysiologyNetwork(argv[2],n,&error),error);need(n.compartments.size()==2&&n.connections.size()==1&&n.species.size()==1&&n.tissues.size()==1&&n.exchanges.size()==1,"reference requires two-pool fixture");qualify(n,"human_compiled_fixture");}
     else {need(argc==1,"usage: numi-matter-vascular-check [--human-input FIXTURE.json]");
         qualify(vascularFixture(),"resistive_exchange");auto reverse=vascularFixture();std::swap(reverse.compartments[0].initialVolume,reverse.compartments[1].initialVolume);qualify(reverse,"reverse_flow");
-        auto inertial=vascularFixture();inertial.connections[0].inertance=1e7;qualify(inertial,"inertial_flow");qualify(vascularFixture(),"fem_region",true);branched();refinement();}
+        auto inertial=vascularFixture();inertial.connections[0].inertance=1e7;qualify(inertial,"inertial_flow");qualify(vascularFixture(),"fem_region",true);valveTransport();branched();refinement();clockLifecycle();}
     std::cout<<"vascular_native_qualification=pass runtime_input=nmatterpack biological_calibration=unqualified\n";return 0;
 }catch(const std::exception& e){std::cerr<<"vascular_native_qualification=failed reason="<<e.what()<<'\n';return 1;}}}

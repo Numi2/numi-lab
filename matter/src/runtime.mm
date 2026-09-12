@@ -527,6 +527,13 @@ struct Runtime::State {
     id<MTLBuffer> vascularCandidate = nil;
     id<MTLBuffer> vascularCheckpoint = nil;
     id<MTLBuffer> vascularLineSearch = nil;
+    id<MTLBuffer> vascularWorkingSet = nil;
+    id<MTLBuffer> vascularWorkingSetChanged = nil;
+    id<MTLBuffer> vascularLineSearchTrial = nil;
+    id<MTLBuffer> vascularElastance = nil;
+    id<MTLBuffer> vascularClockAccepted = nil;
+    id<MTLBuffer> vascularClockCandidate = nil;
+    id<MTLBuffer> vascularClockCheckpoint = nil;
     NMMixedSolverGPU mixedSolverValue{};
     std::uint64_t sourcePhysicsFingerprint = 0u;
     std::uint64_t worldFingerprint = 0u;
@@ -1477,11 +1484,15 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_vascular_checkpoint",
             "nm_vascular_episode_reset",
             "nm_vascular_prepare_candidate",
+            "nm_vascular_prepare_clock",
+            "nm_vascular_prepare_elastance",
             "nm_vascular_commit",
             "nm_vascular_rollback",
             "nm_vascular_residual",
             "nm_vascular_operator",
             "nm_vascular_precondition",
+            "nm_vascular_begin_working_set",
+            "nm_vascular_resolve_working_set",
             "nm_vascular_limit_line_search",
             "nm_vascular_apply_solution",
             "nm_vascular_certify",
@@ -1701,6 +1712,25 @@ RuntimeDiagnostics Runtime::initialize(
             valid, candidate->residentBytes);
         candidate->vascularLineSearch = privateScratch<float>(
             candidate->device, environments, valid, candidate->residentBytes);
+        candidate->vascularLineSearchTrial = privateScratch<nm_float4>(candidate->device,
+            environments * world.vascular.layout.ranges.z, valid, candidate->residentBytes);
+        candidate->vascularWorkingSet = privateScratch<std::uint32_t>(candidate->device,
+            environments * world.vascular.layout.ranges.z, valid, candidate->residentBytes);
+        candidate->vascularWorkingSetChanged = privateScratch<std::uint32_t>(candidate->device,
+            environments, valid, candidate->residentBytes);
+        candidate->vascularElastance = privateScratch<float>(candidate->device,
+            environments * world.vascular.layout.counts.x, valid, candidate->residentBytes);
+        const std::vector<NMVascularClockGPU> clockInitial(
+            world.vascular.layout.ranges.z == 0u ? 0u : 1u);
+        candidate->vascularClockAccepted = uploads.repeated(
+            std::span<const NMVascularClockGPU>(clockInitial), environments,
+            valid, candidate->residentBytes);
+        candidate->vascularClockCandidate = uploads.repeated(
+            std::span<const NMVascularClockGPU>(clockInitial), environments,
+            valid, candidate->residentBytes);
+        candidate->vascularClockCheckpoint = uploads.repeated(
+            std::span<const NMVascularClockGPU>(clockInitial), environments,
+            valid, candidate->residentBytes);
         candidate->mixedSolver = uploads.one(
             std::span<const NMMixedSolverGPU>(&world.mixedSolver, 1u),
             valid, candidate->residentBytes);
@@ -2648,6 +2678,8 @@ RuntimeDiagnostics Runtime::initialize(
                        sizeof(NMFEMFieldStateGPU)),
             proofBytes(candidate->vascularValue.layout.ranges.z,
                        sizeof(nm_float4)),
+            proofBytes(candidate->vascularValue.layout.ranges.z == 0u ? 0u : 1u,
+                       sizeof(NMVascularClockGPU)),
             proofBytes(candidate->dispatch.tetrahedronCount,
                        sizeof(NMTetrahedronGPU)),
             proofBytes(candidate->dispatch.topologyNodeCapacity,
@@ -3271,6 +3303,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
             diagnostics.message =
                 "Matter runtime timestep differs from the active coupled cadence";
             return diagnostics;
+        }
+
+        std::uint64_t vascularTimestepTicks = 0u;
+        if (state.vascularValue.layout.ranges.z != 0u) {
+            const float vascularDt = frameTimestep /
+                static_cast<float>(1u << state.dispatch.maximumRateExponent);
+            const int quantumExponent = std::bit_cast<std::int32_t>(
+                state.vascularValue.layout.clock.x);
+            const double ticks = std::ldexp(static_cast<double>(vascularDt), -quantumExponent);
+            if (!std::isfinite(ticks) || !(ticks >= 1.0) || !(ticks < 0x1p64) ||
+                std::trunc(ticks) != ticks) {
+                diagnostics.message =
+                    "vascular timestep is not exactly representable in the authored binary clock";
+                return diagnostics;
+            }
+            vascularTimestepTicks = static_cast<std::uint64_t>(ticks);
         }
 
         id<MTLCommandBuffer> commandBuffer =
@@ -4005,6 +4053,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.vascularAccepted offset:0u atIndex:3u];
                 [encoder setBuffer:state.vascularCandidate offset:0u atIndex:4u];
                 [encoder setBuffer:state.vascularCheckpoint offset:0u atIndex:5u];
+                [encoder setBuffer:state.vascularClockAccepted offset:0u atIndex:6u];
+                [encoder setBuffer:state.vascularClockCandidate offset:0u atIndex:7u];
+                [encoder setBuffer:state.vascularClockCheckpoint offset:0u atIndex:8u];
             });
             dispatchThreads("nm_learned_rollback", state.dispatch.learnedWeightCount, [&] {
                 setDispatch();
@@ -4302,6 +4353,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.vascularAccepted offset:0u atIndex:5u];
                 [encoder setBuffer:state.vascularCandidate offset:0u atIndex:6u];
                 [encoder setBuffer:state.vascularCheckpoint offset:0u atIndex:7u];
+                [encoder setBuffer:state.vascularClockAccepted offset:0u atIndex:8u];
+                [encoder setBuffer:state.vascularClockCandidate offset:0u atIndex:9u];
+                [encoder setBuffer:state.vascularClockCheckpoint offset:0u atIndex:10u];
             });
         }
 
@@ -4470,6 +4524,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.vascularAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.vascularCandidate offset:0u atIndex:3u];
                 [encoder setBuffer:state.vascularCheckpoint offset:0u atIndex:4u];
+                [encoder setBuffer:state.vascularClockAccepted offset:0u atIndex:5u];
+                [encoder setBuffer:state.vascularClockCandidate offset:0u atIndex:6u];
+                [encoder setBuffer:state.vascularClockCheckpoint offset:0u atIndex:7u];
             });
             dispatchThreads("nm_learned_checkpoint", state.dispatch.learnedWeightCount, [&] {
                 setDispatch();
@@ -4581,9 +4638,29 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 0.0f,
             };
 
+            if (vascularTotal != 0u) {
+                dispatchThreads("nm_vascular_prepare_clock", environments, [&] {
+                    setDispatch();
+                    [encoder setBytes:&vascularTimestepTicks length:sizeof(vascularTimestepTicks) atIndex:1u];
+                    [encoder setBuffer:state.vascularClockAccepted offset:0u atIndex:2u];
+                    [encoder setBuffer:state.vascularClockCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+                });
+                dispatchThreads("nm_vascular_prepare_elastance",
+                    environments * state.vascularValue.layout.counts.x, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.vascularValue.layout
+                        length:sizeof(state.vascularValue.layout) atIndex:1u];
+                    [encoder setBuffer:state.vascularCompartments offset:0u atIndex:2u];
+                    [encoder setBuffer:state.vascularClockCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.vascularElastance offset:0u atIndex:4u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                });
+            }
+
             const auto encodeVascularEquation = [&](const char* kernel,
                     id<MTLBuffer> direction, NSUInteger directionOffset,
-                    id<MTLBuffer> output) {
+                    id<MTLBuffer> output, std::uint32_t useWorkingSet = 1u) {
                 dispatchThreads(kernel, vascularTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&state.vascularValue.layout
@@ -4606,7 +4683,81 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:output offset:0u atIndex:17u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:18u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:19u];
+                    [encoder setBuffer:state.vascularElastance offset:0u atIndex:20u];
+                    [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:21u];
+                    [encoder setBytes:&useWorkingSet length:sizeof(useWorkingSet) atIndex:22u];
                 });
+            };
+            // Opt-in, bounded copies at a single requested root preserve the
+            // failing Newton iterate before transactional rollback. The caller
+            // retains submission authority; no new queue, commit, or wait.
+            const auto encodeVascularTrace = [&](const char* stage) -> bool {
+                const char* traceRoot = std::getenv("NM_VASCULAR_TRACE_ROOT");
+                if (traceRoot == nullptr || vascularTotal == 0u || vascularTotal > 4096u ||
+                    request.controlStep != std::strtoul(traceRoot, nullptr, 10)) return true;
+                struct TraceArena { const char* name; id<MTLBuffer> source; NSUInteger offset; NSUInteger bytes; };
+                const NSUInteger vectorOffset = state.fgmresLayout.vascularBase * sizeof(nm_float4);
+                const NSUInteger vectorBytes = vascularTotal * sizeof(nm_float4);
+                const std::array<TraceArena, 11u> arenas{{
+                    {"accepted", state.vascularAccepted, 0u, vectorBytes},
+                    {"candidate", state.vascularCandidate, 0u, vectorBytes},
+                    {"residual", state.femResidual, vectorOffset, vectorBytes},
+                    {"solution", state.femSolution, vectorOffset, vectorBytes},
+                    {"alpha", state.vascularLineSearch, 0u, environments * sizeof(float)},
+                    {"working_set", state.vascularWorkingSet, 0u, vascularTotal * sizeof(std::uint32_t)},
+                    {"working_set_changed", state.vascularWorkingSetChanged, 0u, environments * sizeof(std::uint32_t)},
+                    {"fgmres", state.fgmresStates, 0u, environments * sizeof(NMFGMRESStateGPU)},
+                    {"elastance", state.vascularElastance, 0u, environments * state.vascularValue.layout.counts.x * sizeof(float)},
+                    {"clock", state.vascularClockCandidate, 0u, environments * sizeof(NMVascularClockGPU)},
+                    {"status", state.statuses, 0u, environments * sizeof(NMMatterStatusGPU)},
+                }};
+                NSUInteger bytes = 0u;
+                for (const auto& arena : arenas) bytes += (arena.bytes + 15u) & ~15u;
+                id<MTLBuffer> snapshot = [state.device newBufferWithLength:bytes options:MTLResourceStorageModeShared];
+                [encoder endEncoding];
+                encoder = nil;
+                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+                if (snapshot == nil || copy == nil) {
+                    if (copy != nil) [copy endEncoding];
+                    diagnostics.message = "failed to allocate vascular diagnostic snapshot";
+                    return false;
+                }
+                NSUInteger offset = 0u;
+                for (const auto& arena : arenas) {
+                    [copy copyFromBuffer:arena.source sourceOffset:arena.offset toBuffer:snapshot destinationOffset:offset size:arena.bytes];
+                    offset += (arena.bytes + 15u) & ~15u;
+                }
+                [copy endEncoding];
+                const auto root = request.controlStep;
+                const auto iteration = micro.solverIteration;
+                const auto tick = microtick;
+                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                    if (completed.status != MTLCommandBufferStatusCompleted) return;
+                    std::ostringstream line;
+                    line << "vascular_iterate={\"root\":" << root << ",\"microtick\":" << tick
+                         << ",\"iteration\":" << iteration << ",\"stage\":\"" << stage << "\",\"arenas\":{";
+                    const auto* data = static_cast<const unsigned char*>(snapshot.contents);
+                    NSUInteger at = 0u;
+                    bool first = true;
+                    constexpr char hex[] = "0123456789abcdef";
+                    for (const auto& arena : arenas) {
+                        if (!first) line << ',';
+                        first = false;
+                        line << '\"' << arena.name << "\":\"";
+                        for (NSUInteger i = 0u; i < arena.bytes; ++i) line << hex[data[at + i] >> 4u] << hex[data[at + i] & 15u];
+                        line << '\"';
+                        at += (arena.bytes + 15u) & ~15u;
+                    }
+                    line << "}}\n";
+                    const auto text = line.str();
+                    std::fwrite(text.data(), 1u, text.size(), stderr);
+                }];
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message = "failed to resume Matter after vascular diagnostic snapshot";
+                    return false;
+                }
+                return true;
             };
             const auto encodeTopologyRebuild = [&](id<MTLBuffer> nodes) {
                 dispatchThreads("nm_topology_rebuild_clear", femNodeTotal, [&] {
@@ -5518,6 +5669,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                  nonlinearIteration < nonlinearIterationBudget;
                  ++nonlinearIteration) {
             micro.solverIteration = nonlinearIteration;
+            dispatchThreads("nm_vascular_begin_working_set", vascularTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&state.vascularValue.layout length:sizeof(state.vascularValue.layout) atIndex:1u];
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:2u];
+                [encoder setBuffer:state.vascularUnknowns offset:0u atIndex:3u];
+                [encoder setBuffer:state.vascularCompartments offset:0u atIndex:4u];
+                [encoder setBuffer:state.vascularConnections offset:0u atIndex:5u];
+                [encoder setBuffer:state.vascularCandidate offset:0u atIndex:6u];
+                [encoder setBuffer:state.vascularElastance offset:0u atIndex:7u];
+                [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:8u];
+            });
             if (!encodeFEMHumanAttachmentKinematics()) {
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
@@ -5766,6 +5928,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
             });
             encodeVascularEquation("nm_vascular_residual",
                 state.femSolution, 0u, state.femResidual);
+            if (!encodeVascularTrace("assembly")) {
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
 
             // Staged, GPU-resident FGMRES: expensive constitutive and contact
             // operator work is distributed over nodes/active contacts. The
@@ -6128,7 +6294,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.vascularTissueExchangeIncidence offset:0u atIndex:15u];
                     [encoder setBuffer:state.vascularTissueExchangeRanges offset:0u atIndex:16u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:17u];
-                });
+                    [encoder setBuffer:state.vascularCompartments offset:0u atIndex:18u];
+                [encoder setBuffer:state.vascularElastance offset:0u atIndex:19u];
+                    [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:20u];
+            });
                 dispatchThreads("nm_fgmres_precondition_free_rigid",
                     rigidGeneralizedTotal, [&] {
                     setDispatch();
@@ -6643,6 +6812,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             }
 
+            dispatchGroups32("nm_vascular_resolve_working_set", environments, [&] {
+                setDispatch();
+                [encoder setBytes:&state.vascularValue.layout length:sizeof(state.vascularValue.layout) atIndex:1u];
+                [encoder setBuffer:state.vascularConnections offset:0u atIndex:2u];
+                [encoder setBuffer:state.vascularCandidate offset:0u atIndex:3u];
+                [encoder setBuffer:state.femSolution offset:0u atIndex:4u];
+                [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:5u];
+                [encoder setBuffer:state.vascularWorkingSetChanged offset:0u atIndex:6u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                [encoder setBuffer:state.vascularUnknowns offset:0u atIndex:8u];
+                [encoder setBuffer:state.vascularCompartments offset:0u atIndex:9u];
+                [encoder setBuffer:state.vascularElastance offset:0u atIndex:10u];
+            });
             dispatchGroups32("nm_fgmres_measure_correction", environments, [&] {
                 setDispatch();
                 [encoder setBuffer:state.objects offset:0u atIndex:1u];
@@ -6790,7 +6972,29 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femLineSearch offset:0u atIndex:4u];
                 [encoder setBuffer:state.vascularLineSearch offset:0u atIndex:5u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                [encoder setBuffer:state.vascularCompartments offset:0u atIndex:7u];
+                [encoder setBuffer:state.vascularConnections offset:0u atIndex:8u];
+                [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:9u];
+                [encoder setBuffer:state.vascularWorkingSetChanged offset:0u atIndex:10u];
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:11u];
+                [encoder setBuffer:state.vascularUnknowns offset:0u atIndex:12u];
+                [encoder setBuffer:state.vascularAccepted offset:0u atIndex:13u];
+                [encoder setBuffer:state.vascularTissues offset:0u atIndex:14u];
+                [encoder setBuffer:state.vascularExchanges offset:0u atIndex:15u];
+                [encoder setBuffer:state.vascularConnectionIncidence offset:0u atIndex:16u];
+                [encoder setBuffer:state.vascularConnectionRanges offset:0u atIndex:17u];
+                [encoder setBuffer:state.vascularBloodExchangeIncidence offset:0u atIndex:18u];
+                [encoder setBuffer:state.vascularBloodExchangeRanges offset:0u atIndex:19u];
+                [encoder setBuffer:state.vascularTissueExchangeIncidence offset:0u atIndex:20u];
+                [encoder setBuffer:state.vascularTissueExchangeRanges offset:0u atIndex:21u];
+                [encoder setBuffer:state.vascularElastance offset:0u atIndex:22u];
+                [encoder setBuffer:state.vascularLineSearchTrial offset:0u atIndex:23u];
+                [encoder setBuffer:state.mixedSolver offset:0u atIndex:24u];
             });
+            if (!encodeVascularTrace("line_search")) {
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
             dispatchThreads("nm_vascular_apply_solution", vascularTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&state.vascularValue.layout
@@ -6799,6 +7003,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.vascularLineSearch offset:0u atIndex:3u];
                 [encoder setBuffer:state.vascularCandidate offset:0u atIndex:4u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:6u];
+                [encoder setBuffer:state.vascularWorkingSetChanged offset:0u atIndex:7u];
             });
             dispatchThreads("nm_human_support_apply_solution", humanSupportTotal, [&] {
                 setDispatch();
@@ -6806,6 +7012,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femSolution offset:0u atIndex:2u];
                 [encoder setBuffer:state.femLineSearch offset:0u atIndex:3u];
                 [encoder setBuffer:state.humanSupportHistoriesCandidate offset:0u atIndex:4u];
+                [encoder setBuffer:state.vascularLineSearch offset:0u atIndex:5u];
             });
             dispatchThreads("nm_rigid_apply_candidate_solution",
                 rigidCandidateTotal, [&] {
@@ -6814,6 +7021,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femLineSearch offset:0u atIndex:2u];
                 [encoder setBuffer:state.coupledGeneralizedCandidate
                              offset:0u atIndex:3u];
+                [encoder setBuffer:state.vascularLineSearch offset:0u atIndex:4u];
             });
             dispatchThreads("nm_fem_apply_solution", femNodeTotal, [&] {
                 setDispatch();
@@ -7253,7 +7461,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
 
             }
             encodeVascularEquation("nm_vascular_residual",
-                state.femSolution, 0u, state.femResidual);
+                state.femSolution, 0u, state.femResidual, 0u);
+            if (!encodeVascularTrace("certificate")) {
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
             dispatchThreads("nm_vascular_certify", vascularTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&state.vascularValue.layout
@@ -7262,6 +7474,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.vascularCandidate offset:0u atIndex:3u];
                 [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                [encoder setBuffer:state.vascularCompartments offset:0u atIndex:6u];
+                [encoder setBuffer:state.vascularConnections offset:0u atIndex:7u];
             });
             dispatchGroups32("nm_mixed_certify", objectTotal, [&] {
                 setDispatch();
@@ -7387,6 +7601,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.statuses offset:0u atIndex:2u];
                 [encoder setBuffer:state.vascularAccepted offset:0u atIndex:3u];
                 [encoder setBuffer:state.vascularCandidate offset:0u atIndex:4u];
+                [encoder setBuffer:state.vascularClockAccepted offset:0u atIndex:5u];
+                [encoder setBuffer:state.vascularClockCandidate offset:0u atIndex:6u];
             });
             dispatchThreads("nm_learned_commit", state.dispatch.learnedWeightCount, [&] {
                 setDispatch();
@@ -7510,6 +7726,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.vascularAccepted offset:0u atIndex:3u];
                 [encoder setBuffer:state.vascularCandidate offset:0u atIndex:4u];
                 [encoder setBuffer:state.vascularCheckpoint offset:0u atIndex:5u];
+                [encoder setBuffer:state.vascularClockAccepted offset:0u atIndex:6u];
+                [encoder setBuffer:state.vascularClockCandidate offset:0u atIndex:7u];
+                [encoder setBuffer:state.vascularClockCheckpoint offset:0u atIndex:8u];
             });
         dispatchThreads("nm_learned_rollback", state.dispatch.learnedWeightCount, [&] {
             setDispatch();
@@ -7974,6 +8193,13 @@ bool Runtime::encodeAcceptedStateProof(
             state.vascularCandidate,
             state.vascularCheckpoint,
             state.vascularLineSearch,
+            state.vascularWorkingSet,
+            state.vascularWorkingSetChanged,
+            state.vascularLineSearchTrial,
+            state.vascularClockAccepted,
+            state.vascularClockCandidate,
+            state.vascularClockCheckpoint,
+            state.vascularElastance,
 
             state.femTetrahedraAccepted,
             state.femTetrahedraCheckpoint,
@@ -8135,7 +8361,7 @@ bool Runtime::encodeAcceptedStateProof(
         const std::uint64_t femMaterialScalars =
             static_cast<std::uint64_t>(state.dispatch.tetrahedronCount) *
             state.dispatch.materialStateStride;
-        const std::array<ProofArena, 29u> arenas{{
+        const std::array<ProofArena, 30u> arenas{{
             {pass.q, detail::AcceptedStateProofSource::humanQ,
              detail::kAcceptedStateProofTargetHuman, 0u,
              perEnvironmentBytes(pass.qStride, sizeof(float)), 0u},
@@ -8175,6 +8401,11 @@ bool Runtime::encodeAcceptedStateProof(
              detail::kAcceptedStateProofTargetMatter, 0u,
              perEnvironmentBytes(state.vascularValue.layout.ranges.z,
                  sizeof(nm_float4)), 0u},
+            {owned(state.vascularClockAccepted),
+             detail::AcceptedStateProofSource::matterVascularClock,
+             detail::kAcceptedStateProofTargetMatter, 0u,
+             perEnvironmentBytes(state.vascularValue.layout.ranges.z == 0u ? 0u : 1u,
+                 sizeof(NMVascularClockGPU)), 0u},
             {owned(state.femTetrahedraAccepted),
              detail::AcceptedStateProofSource::matterFEMTetrahedra,
              detail::kAcceptedStateProofTargetMatter, 0u,
@@ -8741,6 +8972,13 @@ bool Runtime::applyPreparedStateImpl(
             state.vascularCandidate,
             state.vascularCheckpoint,
             state.vascularLineSearch,
+            state.vascularWorkingSet,
+            state.vascularWorkingSetChanged,
+            state.vascularLineSearchTrial,
+            state.vascularClockAccepted,
+            state.vascularClockCandidate,
+            state.vascularClockCheckpoint,
+            state.vascularElastance,
 
             state.learnedWeightsAccepted,
             state.learnedWeightsCheckpoint,
@@ -9060,6 +9298,9 @@ bool Runtime::applyPreparedStateImpl(
                 [encoder setBuffer:state.vascularAccepted offset:0u atIndex:3u];
                 [encoder setBuffer:state.vascularCandidate offset:0u atIndex:4u];
                 [encoder setBuffer:state.vascularCheckpoint offset:0u atIndex:5u];
+                [encoder setBuffer:state.vascularClockAccepted offset:0u atIndex:6u];
+                [encoder setBuffer:state.vascularClockCandidate offset:0u atIndex:7u];
+                [encoder setBuffer:state.vascularClockCheckpoint offset:0u atIndex:8u];
             });
         if (state.dispatch.learnedWeightCount != 0u) {
             encoded = encoded && runtimeDispatch(
@@ -10723,6 +10964,12 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
         diagnostics.message = "Matter snapshot vascular logical size changed";
         return diagnostics;
     }
+    const std::size_t vascularClockCount = vascularCount == 0u ? 0u :
+        state.dispatch.environmentCount;
+    if (snapshot.vascularClock.size() != vascularClockCount) {
+        diagnostics.message = "Matter snapshot vascular clock logical size changed";
+        return diagnostics;
+    }
     for (std::size_t index = 0u; index < vascularCount; ++index) {
         const auto value = snapshot.vascularState[index];
         const auto row = index % state.vascularValue.layout.ranges.z;
@@ -10731,7 +10978,10 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             state.vascularValue.unknowns[row].initialAndScaling.y;
         if (!std::isfinite(value.x) || !std::isfinite(physical) ||
             value.y != 0.0f || value.z != 0.0f || value.w != 0.0f ||
-            (row < offsets.y && !(physical > 0.0f)) ||
+            (row < offsets.y && state.vascularValue.compartments[row].identity.z == 0u &&
+                !(physical > 0.0f)) ||
+            (row >= offsets.y && row < offsets.z &&
+                state.vascularValue.connections[row - offsets.y].identity.w == 1u && physical < 0.0f) ||
             (row >= offsets.z && physical < 0.0f)) {
             diagnostics.message = "Matter snapshot vascular state is inadmissible";
             return diagnostics;
@@ -11080,6 +11330,7 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
         );
         id<MTLBuffer> femFields = stage(snapshot.femFields, "FEM-field");
         id<MTLBuffer> vascularState = stage(snapshot.vascularState, "vascular-state");
+        id<MTLBuffer> vascularClock = stage(snapshot.vascularClock, "vascular-clock");
         id<MTLBuffer> solverCertificates = stage(
             snapshot.solverCertificates,
             "solver-certificate"
@@ -11221,6 +11472,8 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             state.femFieldsCandidate, state.femFieldsCheckpoint);
         mirror(vascularState, state.vascularAccepted,
             state.vascularCandidate, state.vascularCheckpoint);
+        mirror(vascularClock, state.vascularClockAccepted,
+            state.vascularClockCandidate, state.vascularClockCheckpoint);
         copy(femFields, state.femFieldsWork);
         mirror(learnedWeights, state.learnedWeightsAccepted,
             state.learnedWeightsCandidate, state.learnedWeightsCheckpoint);
@@ -11391,6 +11644,7 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             copy(state_->femMaterialStateAccepted);
         id<MTLBuffer> femFields = copy(state_->femFieldsAccepted);
         id<MTLBuffer> vascularState = copy(state_->vascularAccepted);
+        id<MTLBuffer> vascularClock = copy(state_->vascularClockAccepted);
         id<MTLBuffer> solverCertificates = copy(state_->solverCertificates);
         id<MTLBuffer> statuses = copy(state_->statuses);
         id<MTLBuffer> mpmActiveNodeIndices =
@@ -11428,7 +11682,7 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             copy(state_->environmentParameters);
         if (contactFailures == nil || particles == nil || femNodes == nil ||
             particleMaterialState == nil || femMaterialState == nil ||
-            femFields == nil || vascularState == nil || solverCertificates == nil ||
+            femFields == nil || vascularState == nil || vascularClock == nil || solverCertificates == nil ||
             statuses == nil ||
             mpmActiveNodeIndices == nil || mpmNodeToActive == nil ||
             mpmActiveNodeCounts == nil ||
@@ -11470,6 +11724,7 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         encodeCopy(state_->femMaterialStateAccepted, femMaterialState);
         encodeCopy(state_->femFieldsAccepted, femFields);
         encodeCopy(state_->vascularAccepted, vascularState);
+        encodeCopy(state_->vascularClockAccepted, vascularClock);
         encodeCopy(state_->solverCertificates, solverCertificates);
         encodeCopy(state_->statuses, statuses);
         encodeCopy(state_->mpmActiveNodeIndices, mpmActiveNodeIndices);
@@ -11545,6 +11800,8 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         readCount(vascularState, snapshot.vascularState,
             static_cast<std::size_t>(state_->dispatch.environmentCount) *
                 state_->vascularValue.layout.ranges.z);
+        readCount(vascularClock, snapshot.vascularClock,
+            state_->vascularValue.layout.ranges.z == 0u ? 0u : state_->dispatch.environmentCount);
         read(solverCertificates, snapshot.solverCertificates);
         readCount(
             statuses,

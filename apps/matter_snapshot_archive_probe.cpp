@@ -42,6 +42,7 @@ numi::matter::RuntimeStateSnapshot fixture() {
     result.femFields.resize(2u);
     result.vascularState = {{1.25f, 0.0f, 0.0f, 0.0f},
                             {0.5f, 0.0f, 0.0f, 0.0f}};
+    result.vascularClock = {{0xfedcba9876543210ull, 0x123456789abcdef0ull}};
     result.femTopologyNodes.resize(3u);
     result.femTopologyTetrahedra.resize(2u);
     result.cohesiveFaces.resize(2u);
@@ -119,6 +120,14 @@ int main(int argc, const char* argv[]) {
             changed.vascularState[0].x += 0.125f;
             require(!metalrobo::sameMatterSnapshotAuthority(source, changed),
                     "vascular continuation state missing from archive authority");
+        }
+
+        for (bool high : {false, true}) {
+            auto changed = decoded;
+            if (high) changed.vascularClock[0].high ^= 1ull;
+            else changed.vascularClock[0].low ^= 1ull;
+            require(!metalrobo::sameMatterSnapshotAuthority(source, changed),
+                    "vascular clock word missing from archive authority");
         }
 
         {

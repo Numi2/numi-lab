@@ -47,11 +47,12 @@ void rejectDuplicateKeys(NSData* data) {
     }
     need(frames.empty(),"invalid JSON nesting");
 }
-NSDictionary* record(id value, std::initializer_list<const char*> keys) {
+NSDictionary* record(id value, std::initializer_list<const char*> keys, std::initializer_list<const char*> extra = {}) {
     need([value isKindOfClass:NSDictionary.class], "expected object");
     NSDictionary* result = value;
     std::set<std::string> expected;
     for (const char* key : keys) expected.emplace(key);
+    for (const char* key : extra) expected.emplace(key);
     need(result.count == expected.size(), "missing or unsupported object fields");
     for (id key in result) need(expected.contains(text(key)), "unsupported field " + text(key));
     return result;
@@ -106,11 +107,13 @@ bool readHumanPhysiologyNetwork(const std::filesystem::path& path,
         need(json!=nil, "invalid JSON");
         rejectDuplicateKeys(data);
         NSDictionary* root=record(json,{"schema","model_id","qualification","law","authored_graph_sha256","source_graph_sha256","residual_tolerance","species","compartments","connections","tissue_reservoirs","exchanges"});
-        need(text(root[@"schema"])=="HumanPack.physiology-native.v1","unsupported schema");
+        const auto schema=text(root[@"schema"]);
+        const bool cardiac=schema=="HumanPack.physiology-native.v2";
+        need(cardiac || schema=="HumanPack.physiology-native.v1","unsupported schema");
         (void)text(root[@"model_id"]);
         const auto qualification=text(root[@"qualification"]);
-        need(qualification=="fixture_only" || qualification=="uncalibrated","unsupported qualification claim");
-        need(text(root[@"law"])=="closed_linear_compliance_transport_v1","unsupported constitutive law");
+        need(cardiac ? qualification=="source_model_reproduction" : (qualification=="fixture_only" || qualification=="uncalibrated"),"unsupported qualification claim");
+        need(text(root[@"law"])==(cardiac ? "closed_periodic_elastance_orifice_v2" : "closed_linear_compliance_transport_v1"),"unsupported constitutive law");
         const double tolerance=number(root[@"residual_tolerance"]);
         need(tolerance>0 && tolerance<1,"invalid residual tolerance");
         VascularNetworkSource result;
@@ -142,29 +145,48 @@ bool readHumanPhysiologyNetwork(const std::filesystem::path& path,
             v.amountResidualTolerance=number(r[@"amount_residual_tolerance"]); need(v.amountResidualTolerance==tolerance,"row tolerance differs from contract");
             result.species.push_back(v);
         }
-        need(!result.species.empty(),"species registry is empty");
+        need(cardiac || !result.species.empty(),"species registry is empty");
         previous.clear();
         for (id item in list(root[@"compartments"])) {
-            NSDictionary* r=record(item,{"id","stable_identifier","anatomical_region_id","physical_volume_owner_id","reference_volume_m3","reference_pressure_pa","external_pressure_pa","compliance_m3_per_pa","initial_volume_m3","volume_scale_m3","volume_residual_tolerance","initial_species_mol"});
+            NSDictionary* r=record(item,{"id","stable_identifier","anatomical_region_id","physical_volume_owner_id","reference_volume_m3","reference_pressure_pa","external_pressure_pa","compliance_m3_per_pa","initial_volume_m3","volume_scale_m3","volume_residual_tolerance","initial_species_mol"}, cardiac ? std::initializer_list<const char*>{"storage_kind","pressure_law","elastance_min_pa_per_m3","elastance_max_pa_per_m3","period_seconds","activation_start","activation_end","source_pi"} : std::initializer_list<const char*>{});
             VascularCompartmentSource v; v.stableIdentifier=identity(r,previous); owner(r);
             v.anatomicalIdentifier=text(r[@"anatomical_region_id"]);
             v.referenceVolume=number(r[@"reference_volume_m3"]); v.referencePressure=number(r[@"reference_pressure_pa"]);
             v.externalPressure=number(r[@"external_pressure_pa"]); v.compliance=number(r[@"compliance_m3_per_pa"]);
             v.initialVolume=number(r[@"initial_volume_m3"]); v.volumeScale=number(r[@"volume_scale_m3"]);
             v.volumeResidualTolerance=number(r[@"volume_residual_tolerance"]); need(v.volumeResidualTolerance==tolerance,"row tolerance differs from contract");
-            positive(v.referenceVolume);positive(v.compliance);positive(v.initialVolume);positive(v.volumeScale);
+            if(cardiac) {
+                const auto storage=text(r[@"storage_kind"]), law=text(r[@"pressure_law"]);
+                need(storage=="absolute_volume" || storage=="storage_displacement","unknown storage coordinate");
+                v.storageKind=storage=="absolute_volume" ? VascularStorageKind::absoluteVolume : VascularStorageKind::storageDisplacement;
+                need(law=="linear_compliance" || law=="ventricular_elastance" || law=="atrial_elastance","unknown pressure law");
+                v.pressureLaw=law=="linear_compliance" ? VascularPressureLaw::linearCompliance : law=="ventricular_elastance" ? VascularPressureLaw::ventricularElastance : VascularPressureLaw::atrialElastance;
+                v.elastanceMin=number(r[@"elastance_min_pa_per_m3"]);v.elastanceMax=number(r[@"elastance_max_pa_per_m3"]);
+                v.periodSeconds=number(r[@"period_seconds"]);v.activationStart=number(r[@"activation_start"]);
+                v.activationEnd=number(r[@"activation_end"]);v.sourcePi=number(r[@"source_pi"]);
+            }
+            if(v.storageKind==VascularStorageKind::absoluteVolume){positive(v.referenceVolume);positive(v.initialVolume);}
+            if(v.pressureLaw==VascularPressureLaw::linearCompliance)positive(v.compliance);
+            positive(v.volumeScale);
             v.initialSpeciesAmounts=amounts(r[@"initial_species_mol"],result.species.size()); result.compartments.push_back(v);
         }
         need(result.compartments.size()>=2,"closed circulation requires at least two compartments");
         previous.clear();
         for (id item in list(root[@"connections"])) {
-            NSDictionary* r=record(item,{"id","stable_identifier","from","to","resistance_pa_s_per_m3","inertance_pa_s2_per_m3","initial_flow_m3_per_s","flow_scale_m3_per_s","pressure_scale_pa","flow_residual_tolerance"});
+            NSDictionary* r=record(item,{"id","stable_identifier","from","to","resistance_pa_s_per_m3","inertance_pa_s2_per_m3","initial_flow_m3_per_s","flow_scale_m3_per_s","pressure_scale_pa","flow_residual_tolerance"}, cardiac ? std::initializer_list<const char*>{"flow_law","orifice_coefficient_m3_per_s_sqrt_pa"} : std::initializer_list<const char*>{});
             VascularConnectionSource v; v.stableIdentifier=identity(r,previous);
             v.fromCompartment=identifier(r[@"from"]);v.toCompartment=identifier(r[@"to"]);
             v.resistance=number(r[@"resistance_pa_s_per_m3"]);v.inertance=number(r[@"inertance_pa_s2_per_m3"]);v.initialFlow=number(r[@"initial_flow_m3_per_s"]);
             v.flowScale=number(r[@"flow_scale_m3_per_s"]);v.pressureScale=number(r[@"pressure_scale_pa"]);
             v.flowResidualTolerance=number(r[@"flow_residual_tolerance"]); need(v.flowResidualTolerance==tolerance,"row tolerance differs from contract");
-            positive(v.resistance); positive(v.flowScale);positive(v.pressureScale); need(v.inertance>=0,"negative inertance");
+            if(cardiac) {
+                const auto law=text(r[@"flow_law"]);
+                need(law=="resistance_inertance" || law=="one_way_orifice","unknown flow law");
+                v.flowLaw=law=="resistance_inertance" ? VascularFlowLaw::resistanceInertance : VascularFlowLaw::oneWayOrifice;
+                v.orificeCoefficient=number(r[@"orifice_coefficient_m3_per_s_sqrt_pa"]);
+            }
+            if(v.flowLaw==VascularFlowLaw::resistanceInertance)positive(v.resistance);
+            positive(v.flowScale);positive(v.pressureScale); need(v.inertance>=0,"negative inertance");
             result.connections.push_back(v);
         }
         previous.clear();

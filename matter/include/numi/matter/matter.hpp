@@ -455,8 +455,8 @@ struct ObjectSource {
     std::vector<MutationCommandSource> mutationCommands;
 };
 
-// Vascular V1 owns passive linear compliance, resistance/inertance and
-// conservative species transport. Units are SI; tolerances are positive,
+// Vascular laws share the existing Matter transaction and conservative transport.
+// Storage displacement is a hydraulic coordinate, never an absolute blood volume. Units are SI; tolerances are positive,
 // dimensionless bounds on residuals divided by their authored scales.
 struct VascularSpeciesSource {
     std::uint32_t stableIdentifier = 0u;
@@ -464,6 +464,9 @@ struct VascularSpeciesSource {
     double amountScale = 0.0; // mol
     double amountResidualTolerance = 0.0;
 };
+enum class VascularStorageKind : std::uint32_t { absoluteVolume = 0u, storageDisplacement = 1u };
+enum class VascularPressureLaw : std::uint32_t { linearCompliance = 0u, ventricularElastance = 1u, atrialElastance = 2u };
+enum class VascularFlowLaw : std::uint32_t { resistanceInertance = 0u, oneWayOrifice = 1u };
 struct VascularCompartmentSource {
     std::uint32_t stableIdentifier = 0u;
     std::string anatomicalIdentifier;
@@ -475,6 +478,14 @@ struct VascularCompartmentSource {
     double volumeScale = 0.0; // m3
     double volumeResidualTolerance = 0.0;
     std::vector<double> initialSpeciesAmounts; // mol, source species order
+    VascularStorageKind storageKind = VascularStorageKind::absoluteVolume;
+    VascularPressureLaw pressureLaw = VascularPressureLaw::linearCompliance;
+    // Prescribed periodic source law. All fields are zero for linear compliance.
+    double elastanceMin = 0.0, elastanceMax = 0.0; // Pa/m3
+    double periodSeconds = 0.0;
+    // Ventricle: peak and relaxation fractions. Atrium: start and duration.
+    double activationStart = 0.0, activationEnd = 0.0;
+    double sourcePi = 0.0; // preserve the source angular constant
 };
 struct VascularConnectionSource {
     std::uint32_t stableIdentifier = 0u;
@@ -487,6 +498,9 @@ struct VascularConnectionSource {
     double flowScale = 0.0; // m3/s
     double pressureScale = 0.0; // Pa, scales the flow equation
     double flowResidualTolerance = 0.0;
+    VascularFlowLaw flowLaw = VascularFlowLaw::resistanceInertance;
+    // Q = CV sqrt(max(Pfrom - Pto, 0)); R/L are zero for this law.
+    double orificeCoefficient = 0.0; // m3/(s sqrt(Pa))
 };
 struct VascularTissueBindingSource {
     std::uint32_t node = 0u; // object-local FEM node
@@ -1199,6 +1213,8 @@ struct RuntimeStateSnapshot {
     // Accepted normalized vascular volume, flow, blood and tissue amounts;
     // each physical value is x times the cooked unknown variable scale.
     std::vector<nm_float4> vascularState;
+    // Exact accepted elapsed time in cooked binary clock ticks, per environment.
+    std::vector<NMVascularClockGPU> vascularClock;
     std::vector<NMFEMTopologyNodeGPU> femTopologyNodes;
     std::vector<NMTetrahedronGPU> femTopologyTetrahedra;
     std::vector<NMCohesiveFaceGPU> cohesiveFaces;

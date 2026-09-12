@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 26u
+#define NM_MATTER_ABI_VERSION 27u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -390,8 +390,13 @@ typedef struct NM_ALIGN16 NMMixedMaterialGPU {
 typedef struct NM_ALIGN16 NMVascularLayoutGPU {
     nm_uint4 counts; // compartments, connections, species, fixed tissue reservoirs
     nm_uint4 ranges; // exchanges, tissue bindings, unknown count, flags (zero)
-    nm_uint4 offsets; // volume, flow, blood amount, tissue amount base indices
+    nm_uint4 offsets; // volume/storage, flow, blood amount, tissue amount base indices
+    nm_uint4 clock; // x: signed binary time quantum exponent, y/z/w reserved zero
 } NMVascularLayoutGPU;
+typedef struct NM_ALIGN16 NMVascularClockGPU {
+    nm_u64 low; // elapsed accepted ticks, unsigned 128-bit low/high words
+    nm_u64 high;
+} NMVascularClockGPU;
 typedef struct NM_ALIGN16 NMVascularIdentityGPU {
     nm_u64 content[4];
     nm_u64 source[4];
@@ -407,12 +412,16 @@ typedef struct NM_ALIGN16 NMVascularSpeciesGPU {
     nm_float4 scaling; // mol scale, normalized amount residual tolerance, 0, 0
 } NMVascularSpeciesGPU;
 typedef struct NM_ALIGN16 NMVascularCompartmentGPU {
-    nm_uint4 identity; // stable id, anatomical name byte offset, 0, 0
-    nm_float4 compliance; // reference volume, reference pressure, compliance, external pressure
+    nm_uint4 identity; // stable id, anatomical name byte offset, storage kind, pressure law
+    nm_float4 compliance; // reference volume/storage, reference pressure, compliance, external pressure
+    nm_float4 elastance; // Emin, Emax (Pa/m3), activation start, activation end/duration
+    nm_u64 periodTicks;
+    nm_u64 reserved0;
+    nm_float4 waveform; // source pi, reserved zero
 } NMVascularCompartmentGPU;
 typedef struct NM_ALIGN16 NMVascularConnectionGPU {
-    nm_uint4 identity; // stable id, from compartment index, to compartment index, 0
-    nm_float4 physical; // resistance, inertance, 0, 0
+    nm_uint4 identity; // stable id, from compartment index, to compartment index, flow law
+    nm_float4 physical; // resistance, inertance, orifice CV, reserved zero
 } NMVascularConnectionGPU;
 typedef struct NM_ALIGN16 NMVascularTissueGPU {
     nm_uint4 identity; // stable id, anatomical name byte offset, FEM object or invalid, 0

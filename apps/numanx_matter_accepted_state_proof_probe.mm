@@ -432,6 +432,7 @@ bool equalAcceptedAuthority(
         equalBytes(left.femNodes, right.femNodes) &&
         equalBytes(left.femFields, right.femFields) &&
         equalBytes(left.vascularState, right.vascularState) &&
+        equalBytes(left.vascularClock, right.vascularClock) &&
         equalBytes(left.femTopologyNodes, right.femTopologyNodes) &&
         equalBytes(left.femTopologyTetrahedra,
                    right.femTopologyTetrahedra) &&
@@ -473,7 +474,8 @@ ProofResult runProof(
     const bool mutateHuman,
     const bool mutateMatter,
     const bool checkUnsupportedFlags = false,
-    const bool mutateVascular = false
+    const bool mutateVascular = false,
+    const bool mutateVascularClock = false
 ) {
     constexpr std::uint32_t environmentIdentifier = 17u;
     constexpr std::uint32_t transactionSlot = 0u;
@@ -522,6 +524,15 @@ ProofResult runProof(
         mutation.vascularState[world.vascular.layout.offsets.w].x += 0.25f;
         const auto restored = matter.restore(mutation);
         require(restored.encoded, "vascular mutation restore failed: " + restored.message);
+    }
+    if (mutateVascularClock) {
+        auto mutation = matter.snapshot();
+        require(mutation.available && mutation.vascularClock.size() == 1u,
+                "vascular clock mutation snapshot unavailable");
+        mutation.vascularClock[0].low = 0xfffffffffffffff0ull;
+        mutation.vascularClock[0].high = 0x100000001ull;
+        const auto restored = matter.restore(mutation);
+        require(restored.encoded, "vascular clock mutation restore failed: " + restored.message);
     }
     const auto before = matter.snapshot();
     require(before.available, "pre-prepare authority snapshot unavailable");
@@ -1098,6 +1109,8 @@ int main() {
                 FinalMode::applyAccept, false, true);
             const ProofResult vascularMutation = runProof(
                 FinalMode::applyAccept, false, false, false, true);
+            const ProofResult vascularClockMutation = runProof(
+                FinalMode::applyAccept, false, false, false, false, true);
             const ProofResult rejected = runProof(
                 FinalMode::applyReject, false, false);
             const ProofResult pending = runProof(
@@ -1138,6 +1151,11 @@ int main() {
                     vascularMutation.proof.matterStateFingerprint !=
                         baseline.proof.matterStateFingerprint,
                     "vascular accepted-state mutation missing from Matter proof");
+            require(vascularClockMutation.proof.humanStateFingerprint ==
+                        baseline.proof.humanStateFingerprint &&
+                    vascularClockMutation.proof.matterStateFingerprint !=
+                        baseline.proof.matterStateFingerprint,
+                    "vascular clock missing from accepted Matter proof");
             requireZeroToken(rejected.token);
             require(rejected.authorityRestored,
                 "ABI4 REJECT did not restore accepted authority");
@@ -1164,6 +1182,7 @@ int main() {
                 << "real_runtime_prepare_proof_apply_publication=pass\n"
                 << "accepted_rigid_and_matter_content_mutation=pass\n"
                 << "vascular_content_mutation=pass\n"
+                << "vascular_clock_content_mutation=pass\n"
                 << "human_content_mutation=pass\n"
                 << "chunk_tree_cpu_parity=pass\n"
                 << "byte_replay=pass\n"

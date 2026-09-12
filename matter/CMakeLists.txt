@@ -249,8 +249,32 @@ if(APPLE)
         if(Python3_Interpreter_FOUND)
             add_test(NAME matter.compiler.human_physiology_admission
                 COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/physiology_input_check.py"
-                "$<TARGET_FILE:numi-matter-physiologyc>" "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/human_physiology.native.v1.json")
+                "$<TARGET_FILE:numi-matter-physiologyc>" "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/human_physiology.native.v1.json"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/shi-hose.native.v2.json")
             set_tests_properties(matter.compiler.human_physiology_admission PROPERTIES LABELS "matter;compiler;human;vascular" TIMEOUT 60)
         endif()
+    endif()
+endif()
+
+if(APPLE)
+    add_executable(numi-matter-cardiac-check tools/cardiac_check.mm)
+    target_link_libraries(numi-matter-cardiac-check PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_include_directories(numi-matter-cardiac-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_definitions(numi-matter-cardiac-check PRIVATE NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+    target_compile_options(numi-matter-cardiac-check PRIVATE -fobjc-arc -Wall -Wextra -Werror)
+endif()
+
+if(APPLE)
+    add_executable(numi-matter-cardiac-transaction-check tools/cardiac_transaction_check.mm)
+    target_link_libraries(numi-matter-cardiac-transaction-check PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_include_directories(numi-matter-cardiac-transaction-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_definitions(numi-matter-cardiac-transaction-check PRIVATE NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+    target_compile_options(numi-matter-cardiac-transaction-check PRIVATE -fobjc-arc -Wall -Wextra -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.cardiac_transaction COMMAND numi-matter-cardiac-transaction-check)
+        set_tests_properties(matter.metal.cardiac_transaction PROPERTIES LABELS "matter;metal;human;vascular" TIMEOUT 60)
+        add_test(NAME matter.metal.cardiac_source COMMAND numi-matter-cardiac-check
+            "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/shi-hose.native.v2.json" --steps 64 --dt .001)
+        set_tests_properties(matter.metal.cardiac_source PROPERTIES LABELS "matter;metal;human;vascular" TIMEOUT 120)
     endif()
 endif()

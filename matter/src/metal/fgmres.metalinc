@@ -1507,9 +1507,11 @@ kernel void nm_rigid_initialize_feasible_candidate(
 
 kernel void nm_rigid_apply_candidate_solution(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     device const float4* solution [[buffer(1)]],
     device const float4* lineSearch [[buffer(2)]],
     device float* candidate [[buffer(3)]],
+    device const float* vascularAlpha [[buffer(4)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount *
@@ -1517,8 +1519,9 @@ kernel void nm_rigid_apply_candidate_solution(
     if (global >= total || dispatch.rigidGeneralizedCapacity == 0u) return;
     const uint environment = global / dispatch.rigidGeneralizedCapacity;
     const float alpha = dispatch.objectCount == 0u
-        ? 1.0f
+        ? (layout.vascularUnknownCount == 0u ? 1.0f : vascularAlpha[environment])
         : lineSearch[environment * dispatch.objectCount].x;
+    if (alpha == 0.0f) return;
     candidate[global] += alpha *
         solution[fgmresRigidBase(dispatch) + global].x;
 }
@@ -3529,12 +3532,15 @@ kernel void nm_human_support_apply_solution(
     device const float4* solution [[buffer(2)]],
     device const float4* lineSearch [[buffer(3)]],
     device float4* histories [[buffer(4)]],
+    device const float* vascularAlpha [[buffer(5)]],
     uint global [[thread_position_in_grid]]
 ) {
     if (global >= dispatch.environmentCount * support.contactCount) return;
     const uint environment = global / support.contactCount;
-    const float alpha = dispatch.objectCount == 0u ? 1.0f :
-        lineSearch[environment * dispatch.objectCount].x;
+    const float alpha = dispatch.objectCount == 0u
+        ? (layout.vascularUnknownCount == 0u ? 1.0f : vascularAlpha[environment])
+        : lineSearch[environment * dispatch.objectCount].x;
+    if (alpha == 0.0f) return;
     const float3 normal = support.groundNormal.xyz;
     const float4 history = histories[global];
     const float3 next = history.xyz + history.w * normal +

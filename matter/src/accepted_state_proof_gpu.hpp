@@ -5,7 +5,7 @@
 namespace numi::matter::detail {
 
 inline constexpr std::uint32_t kAcceptedStateProofSchemaVersion = 3u;
-inline constexpr std::uint32_t kAcceptedStateProofManifestVersion = 5u;
+inline constexpr std::uint32_t kAcceptedStateProofManifestVersion = 6u;
 inline constexpr std::uint32_t kAcceptedStateProofChunkBytes = 1024u;
 inline constexpr std::uint32_t kAcceptedStateProofTargetHuman = 0u;
 inline constexpr std::uint32_t kAcceptedStateProofTargetMatter = 1u;
@@ -41,6 +41,7 @@ enum class AcceptedStateProofSource : std::uint32_t {
     matterHumanSupportHistories = 0x2018u,
     matterHumanSupportConsequences = 0x2019u,
     matterVascularState = 0x201au,
+    matterVascularClock = 0x201bu,
 };
 
 struct alignas(16) AcceptedStateProofBeginGPU {

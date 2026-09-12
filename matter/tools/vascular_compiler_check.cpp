@@ -1,6 +1,7 @@
 #include "numi/matter/vascular.hpp"
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -106,6 +107,50 @@ int main() {
         changed=associated;changed.vascular.tissues[0].femRegion={{0u,.9}};rejected(changed,"unnormalized FEM region");
         changed=associated;changed.objects[0].mutationPolicy.enabled=true;rejected(changed,"unsupported vascular topology remap");
         bad=bound.world;bad.vascular.tissueBindings[0].identity.y=999;rejectedCooked(bad,"stale FEM association");
+        // Numerical constitutive fixtures only; actual source replication uses
+        // the separately pinned Human source payload and generated CellML oracle.
+        auto cardiac=s;cardiac.vascular.species.clear();cardiac.vascular.tissues.clear();cardiac.vascular.exchanges.clear();
+        for(auto& node:cardiac.vascular.compartments)node.initialSpeciesAmounts.clear();
+        auto& chamber=cardiac.vascular.compartments[0];
+        chamber.pressureLaw=VascularPressureLaw::ventricularElastance;chamber.compliance=0;
+        chamber.elastanceMin=1e7;chamber.elastanceMax=3e8;chamber.periodSeconds=1;
+        chamber.activationStart=.3;chamber.activationEnd=.45;chamber.sourcePi=3.14159;
+        auto& storage=cardiac.vascular.compartments[1];storage.storageKind=VascularStorageKind::storageDisplacement;
+        storage.referenceVolume=0;storage.initialVolume=0;
+        auto& valve=cardiac.vascular.connections[0];valve.flowLaw=VascularFlowLaw::oneWayOrifice;
+        valve.resistance=0;valve.inertance=0;valve.orificeCoefficient=3e-5;valve.initialFlow=0;
+        const auto heart=compileWorld(cardiac);require(heart.succeeded(),"cardiac hydraulic fixture rejected: "+messages(heart));
+        const auto& hv=heart.world.vascular;
+        require(hv.compartments[0].identity.z==1 && hv.unknowns[0].initialAndScaling.x==0 && hv.compartments[1].periodTicks>0,"storage or periodic chamber lost during cooking");
+        changed=cardiac;changed.vascular.compartments[1].initialVolume=-1e-4;
+        require(compileWorld(changed).succeeded(),"signed hydraulic storage rejected");
+        changed=cardiac;changed.vascular.compartments[0].pressureLaw=VascularPressureLaw::atrialElastance;
+        changed.vascular.compartments[0].activationStart=.92;changed.vascular.compartments[0].activationEnd=.09;
+        const auto atrium=compileWorld(changed);require(atrium.succeeded(),"source atrial wrapped waveform rejected");
+        changed.vascular.compartments[0].activationEnd=.01;rejected(changed,"unsupported nonwrapping source atrial law");
+        changed=cardiac;changed.vascular.compartments[0].activationEnd=.2;rejected(changed,"unordered ventricular phase");
+        changed=cardiac;changed.vascular.compartments[0].elastanceMin=-1;rejected(changed,"negative elastance");
+        changed=cardiac;changed.vascular.compartments[0].elastanceMax=1;rejected(changed,"peak below minimum");
+        changed=cardiac;changed.frameTimestep=1e-300;rejected(changed,"base timestep underflows Float32");
+        changed=cardiac;changed.frameTimestep=1e300;rejected(changed,"base timestep overflows Float32");
+        changed=cardiac;changed.vascular.compartments[0].periodSeconds=1e20;rejected(changed,"period exceeds exact tick bound");
+        changed=cardiac;changed.vascular.compartments[0].periodSeconds=1+std::ldexp(1.0,-50);rejected(changed,"period silently quantized");
+        changed=cardiac;changed.vascular.compartments[0].sourcePi=0;rejected(changed,"missing source angular constant");
+        changed=cardiac;changed.vascular.compartments[1].elastanceMin=1;rejected(changed,"unused waveform payload");
+        changed=cardiac;changed.vascular.connections[0].initialFlow=-1e-6;rejected(changed,"reverse source valve initial flow");
+        changed=cardiac;changed.vascular.connections[0].resistance=1;rejected(changed,"orifice mixed with unsupported resistance");
+        changed=cardiac;changed.vascular.connections[0].orificeCoefficient=0;rejected(changed,"zero orifice coefficient");
+        changed=s;changed.vascular.compartments[0].storageKind=VascularStorageKind::storageDisplacement;rejected(changed,"blood concentration derived from hydraulic displacement");
+        changed=cardiac;changed.vascular.compartments[0].storageKind=VascularStorageKind::storageDisplacement;rejected(changed,"cardiac source lacks absolute chamber volume");
+        bad=heart.world;bad.vascular.layout.clock.x++;rejectedCooked(bad,"altered clock quantum");
+        bad=heart.world;bad.vascular.compartments[1].periodTicks=0;rejectedCooked(bad,"missing cooked cardiac period");
+        bad=heart.world;bad.vascular.compartments[1].reserved0=1;rejectedCooked(bad,"unused cardiac bytes");
+        bad=heart.world;bad.vascular.connections[0].identity.w=2;rejectedCooked(bad,"unknown flow law");
+        const auto cardiacIdentity=[&](WorldSource change,const char* role){auto c=compileWorld(change);require(c.succeeded()&&c.world.fingerprint!=heart.world.fingerprint&&c.world.physicsFingerprint!=heart.world.physicsFingerprint,std::string("unbound cardiac field: ")+role);};
+        changed=cardiac;changed.vascular.compartments[0].periodSeconds=2;cardiacIdentity(changed,"period");
+        changed=cardiac;changed.vascular.compartments[0].sourcePi=3.141592653589793;cardiacIdentity(changed,"source pi");
+        changed=cardiac;changed.vascular.compartments[0].elastanceMax*=1.1;cardiacIdentity(changed,"Emax");
+        changed=cardiac;changed.vascular.connections[0].orificeCoefficient*=1.1;cardiacIdentity(changed,"CV");
         const auto stamp=std::chrono::steady_clock::now().time_since_epoch().count();
         const auto path=std::filesystem::temp_directory_path()/("numi-vascular-compiler-"+std::to_string(stamp)+".nmatterpack");std::string error;
         require(writePackage(compiled,path,&error),"package write failed: "+error);
@@ -113,7 +158,11 @@ int main() {
         require(decoded.fingerprint==w.fingerprint&&decoded.physicsFingerprint==w.physicsFingerprint&&decoded.vascular.names==v.names&&decoded.vascular.identity.authored[3]==8u,"package changed graph state or provenance");
         std::fstream corrupt(path,std::ios::in|std::ios::out|std::ios::binary);corrupt.seekp(-1,std::ios::end);corrupt.put('x');corrupt.close();
         require(!readPackage(path,decoded,nullptr,&error),"corrupted package accepted");std::filesystem::remove(path);
-        std::cout<<"vascular_compiler=pass boundary=source_cooking_package_validation_only laws=passive_compliance_resistance_inertance_transport_exchange canonical_order=true semantic_rejection=true provenance_bound=true\n";
+        require(writePackage(heart,path,&error),"cardiac package write failed: "+error);
+        require(readPackage(path,decoded,nullptr,&error),"cardiac package read failed: "+error);
+        require(decoded.fingerprint==heart.world.fingerprint && decoded.vascular.compartments[1].periodTicks==hv.compartments[1].periodTicks,"cardiac package changed source time or fingerprint");
+        std::filesystem::remove(path);
+        std::cout<<"vascular_compiler=pass boundary=source_cooking_package_validation_only laws=compliance_periodic_elastance_orifice_resistance_inertance_transport_exchange canonical_order=true semantic_rejection=true provenance_bound=true\n";
         return 0;
     }catch(const std::exception& e){std::cerr<<"vascular_compiler=fail reason="<<e.what()<<'\n';return 1;}
 }

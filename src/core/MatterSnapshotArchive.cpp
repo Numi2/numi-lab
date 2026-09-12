@@ -220,6 +220,7 @@ std::vector<std::byte> serialize(
     writer.podVector(snapshot.identification);
     writer.podVector(snapshot.environmentParameters);
     writer.podVector(snapshot.vascularState);
+    writer.podVector(snapshot.vascularClock);
     return writer.bytes();
 }
 
@@ -295,6 +296,7 @@ bool deserialize(
         !reader.podVector(snapshot.identification) ||
         !reader.podVector(snapshot.environmentParameters) ||
         (formatVersion >= 5u && !reader.podVector(snapshot.vascularState)) ||
+        (formatVersion >= 6u && !reader.podVector(snapshot.vascularClock)) ||
         !reader.finished()) {
         return false;
     }
@@ -531,6 +533,7 @@ bool sameMatterSnapshotAuthority(
         equalBytes(left.femNodes, right.femNodes) &&
         equalBytes(left.femFields, right.femFields) &&
         equalBytes(left.vascularState, right.vascularState) &&
+        equalBytes(left.vascularClock, right.vascularClock) &&
         equalBytes(left.femTopologyNodes, right.femTopologyNodes) &&
         equalBytes(
             left.femTopologyTetrahedra,

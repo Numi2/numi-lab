@@ -1,5 +1,6 @@
 #include "numi/matter/vascular.hpp"
 #include <algorithm>
+#include <bit>
 #include <cmath>
 #include <limits>
 #include <map>
@@ -41,12 +42,43 @@ template<class T> bool validIds(const std::vector<T>& v) {
 void incidence(const std::vector<std::vector<std::uint32_t>>& rows, std::vector<std::uint32_t>& values, std::vector<NMVascularRangeGPU>& ranges) {
     for (const auto& row:rows) { ranges.push_back({std::uint32_t(values.size()),std::uint32_t(row.size()),0u,0u}); values.insert(values.end(),row.begin(),row.end()); }
 }
+bool zero4(const nm_float4 v) { return v.x==0 && v.y==0 && v.z==0 && v.w==0; }
+int clockExponent(float timestep) { return std::ilogb(timestep)-23-16; }
+bool periodTicks(double period, int exponent, std::uint64_t& ticks) {
+    const double value=std::ldexp(period,-exponent);
+    if (!std::isfinite(value) || value<1 || value>=0x1p63 || value!=std::floor(value)) return false;
+    ticks=static_cast<std::uint64_t>(value); return std::ldexp(double(ticks),exponent)==period;
+}
+bool validCompartment(const NMVascularCompartmentGPU& x, const NMVascularUnknownGPU& u) {
+    if(x.identity.z>1 || x.identity.w>2 || !finite4(x.compliance) || !finite4(x.elastance) || !finite4(x.waveform) || x.reserved0) return false;
+    if(x.identity.z==0 && (!positive(x.compliance.x) || !positive(u.initialAndScaling.x))) return false;
+    if(x.identity.w==0) {
+        if(!positive(x.compliance.z) || !positive(1.0/double(x.compliance.z)) || !zero4(x.elastance) || !zero4(x.waveform) || x.periodTicks) return false;
+        return finite(double(x.compliance.w)+x.compliance.y+(double(u.initialAndScaling.x)-x.compliance.x)/x.compliance.z);
+    }
+    if(x.identity.z!=0 || x.compliance.z!=0 || !positive(x.elastance.x) || x.elastance.y<x.elastance.x ||
+       !x.periodTicks || x.periodTicks>=0x8000000000000000ULL || x.waveform.x<3 || x.waveform.x>4 ||
+       x.waveform.y!=0 || x.waveform.z!=0 || x.waveform.w!=0) return false;
+    const auto start=x.elastance.z,end=x.elastance.w;
+    if(!(start>0 && start<1 && end>0 && end<1))return false;
+    if(x.identity.w==1 ? end<=start : start+end<1)return false;
+    for(double e:{double(x.elastance.x),double(x.elastance.y)})
+        if(!finite(double(x.compliance.w)+x.compliance.y+e*(double(u.initialAndScaling.x)-x.compliance.x)))return false;
+    return true;
+}
+bool validConnection(const NMVascularConnectionGPU& x, const NMVascularUnknownGPU& u) {
+    if(x.identity.w>1 || !finite4(x.physical) || x.physical.w!=0)return false;
+    if(x.identity.w==0)return positive(x.physical.x) && x.physical.y>=0 && x.physical.z==0;
+    if(x.physical.x!=0 || x.physical.y!=0 || !positive(x.physical.z) || u.initialAndScaling.x<0)return false;
+    const double ratio=double(u.initialAndScaling.x)/x.physical.z;
+    return finite(ratio*ratio) && positive(double(u.initialAndScaling.z)/u.initialAndScaling.y);
+}
 bool allZero(const NMVascularIdentityGPU& x) { for (unsigned i=0;i<4;++i) if (x.content[i]||x.source[i]||x.authored[i]) return false; return true; }
 }
 
 bool compileVascular(const WorldSource& source, CompiledWorld& world, std::vector<Diagnostic>& diagnostics) {
     const auto& v=source.vascular; auto& c=world.vascular; c={};
-    const auto fail=[&](std::string message){diagnostics.push_back({Diagnostic::Severity::error,0u,0u,"vascular V1: "+message});return false;};
+    const auto fail=[&](std::string message){diagnostics.push_back({Diagnostic::Severity::error,0u,0u,"vascular: "+message});return false;};
     const std::uint64_t C=v.compartments.size(),E=v.connections.size(),S=v.species.size(),T=v.tissues.size(),X=v.exchanges.size();
     if (C==0) {
         if (E||S||T||X || std::any_of(v.contentIdentity.begin(),v.contentIdentity.end(),[](auto x){return x!=0;}) || std::any_of(v.sourceIdentity.begin(),v.sourceIdentity.end(),[](auto x){return x!=0;}) || std::any_of(v.authoredIdentity.begin(),v.authoredIdentity.end(),[](auto x){return x!=0;})) return fail("empty network has dangling authored data");
@@ -60,6 +92,9 @@ bool compileVascular(const WorldSource& source, CompiledWorld& world, std::vecto
     const std::uint64_t N=C+E+(C+T)*S;
     if (N>limit || source.environmentCount==0 || N>limit/(std::uint64_t(source.environmentCount)*(NM_MIXED_FGMRES_RESTART+1u))) return fail("network exceeds GPU Krylov address capacity");
     if (!validIds(v.compartments)||!validIds(v.connections)||!validIds(v.species)||!validIds(v.tissues)||!validIds(v.exchanges)) return fail("stable identifiers must be nonzero and unique within each record kind");
+    if(!positive(source.frameTimestep))return fail("base timestep is not positive finite representable Float32");
+    const int exponent=clockExponent(float(source.frameTimestep));
+    c.layout.clock={std::bit_cast<std::uint32_t>(std::int32_t(exponent)),0u,0u,0u};
     c.layout.counts={std::uint32_t(C),std::uint32_t(E),std::uint32_t(S),std::uint32_t(T)};
     c.layout.offsets={0u,std::uint32_t(C),std::uint32_t(C+E),std::uint32_t(C+E+C*S)};
     c.layout.ranges={std::uint32_t(X),0u,std::uint32_t(N),0u};
@@ -82,16 +117,27 @@ bool compileVascular(const WorldSource& source, CompiledWorld& world, std::vecto
         for (std::size_t j=0;j<S;++j) {const auto& sp=v.species[os[j]];const double m=initial[os[j]];if (!finite(m)||m<0||!finite(m/sp.amountScale)) return false;c.unknowns[base+j]={f4(m,sp.amountScale,sp.amountScale,sp.amountResidualTolerance)};} return true;
     };
     for (auto index:oc) {const auto& x=v.compartments[index];std::uint32_t name=0;const auto row=std::uint32_t(c.compartments.size());
-        if (!positive(x.referenceVolume)||!positive(x.initialVolume)||!positive(x.compliance)||!finite(x.referencePressure)||!finite(x.externalPressure)||!positive(x.volumeScale)||!tolerance(x.volumeResidualTolerance)||!finite(x.initialVolume/x.volumeScale)||!addName(x.anatomicalIdentifier,name)) return fail("invalid compartment volume, compliance, pressure, scale, tolerance or anatomy");
-        ci[x.stableIdentifier]=row;c.compartments.push_back({{x.stableIdentifier,name,0u,0u},f4(x.referenceVolume,x.referencePressure,x.compliance,x.externalPressure)});
+        if (!finite(x.referenceVolume)||!finite(x.initialVolume)||!finite(x.compliance)||!finite(x.referencePressure)||!finite(x.externalPressure)||!positive(x.volumeScale)||!tolerance(x.volumeResidualTolerance)||!finite(x.initialVolume/x.volumeScale)||!addName(x.anatomicalIdentifier,name)) return fail("invalid compartment volume/storage, pressure, scale, tolerance or anatomy");
+        if (!finite(x.elastanceMin)||!finite(x.elastanceMax)||!finite(x.periodSeconds)||!finite(x.activationStart)||!finite(x.activationEnd)||!finite(x.sourcePi))return fail("unrepresentable source waveform");
+        NMVascularCompartmentGPU node{};
+        node.identity={x.stableIdentifier,name,std::uint32_t(x.storageKind),std::uint32_t(x.pressureLaw)};
+        node.compliance=f4(x.referenceVolume,x.referencePressure,x.compliance,x.externalPressure);
+        node.elastance=f4(x.elastanceMin,x.elastanceMax,x.activationStart,x.activationEnd);
+        node.waveform=f4(x.sourcePi);
+        if(x.pressureLaw!=VascularPressureLaw::linearCompliance) {
+            if(!periodTicks(x.periodSeconds,exponent,node.periodTicks))return fail("source period cannot be represented exactly by bounded native clock");
+        } else if(x.periodSeconds!=0)return fail("linear compliance has unexpected period");
         c.unknowns[row]={f4(x.initialVolume,x.volumeScale,x.volumeScale,x.volumeResidualTolerance)};
+        if(!validCompartment(node,c.unknowns[row]))return fail("unsupported storage or cardiac pressure law");
+        if(x.storageKind==VascularStorageKind::storageDisplacement && (S||T||X))return fail("hydraulic storage displacement lacks absolute blood volume required by species/tissue exchange");
+        ci[x.stableIdentifier]=row;c.compartments.push_back(node);
         if (!amount(c.layout.offsets.z+row*S,x.initialSpeciesAmounts)) return fail("invalid blood species amounts");
     }
     std::vector<std::vector<std::uint32_t>> edges(C),bloodX(C*S),tissueX(T*S);
     for (auto index:oe) {const auto& x=v.connections[index];const auto row=std::uint32_t(c.connections.size());
-        if (!ci.contains(x.fromCompartment)||!ci.contains(x.toCompartment)||x.fromCompartment==x.toCompartment||!positive(x.resistance)||!finite(x.inertance)||x.inertance<0||!finite(x.initialFlow)||!positive(x.flowScale)||!positive(x.pressureScale)||!tolerance(x.flowResidualTolerance)||!finite(x.initialFlow/x.flowScale)) return fail("invalid connection endpoint, passive law, scale or tolerance");
-        const auto a=ci[x.fromCompartment],b=ci[x.toCompartment];c.connections.push_back({{x.stableIdentifier,a,b,0u},f4(x.resistance,x.inertance)});
-        c.unknowns[c.layout.offsets.y+row]={f4(x.initialFlow,x.flowScale,x.pressureScale,x.flowResidualTolerance)};edges[a].push_back(row);edges[b].push_back(row);
+        if (!ci.contains(x.fromCompartment)||!ci.contains(x.toCompartment)||x.fromCompartment==x.toCompartment||!finite(x.resistance)||!finite(x.inertance)||!finite(x.orificeCoefficient)||!finite(x.initialFlow)||!positive(x.flowScale)||!positive(x.pressureScale)||!tolerance(x.flowResidualTolerance)||!finite(x.initialFlow/x.flowScale)) return fail("invalid connection endpoint, passive law, scale or tolerance");
+        const auto a=ci[x.fromCompartment],b=ci[x.toCompartment];c.connections.push_back({{x.stableIdentifier,a,b,std::uint32_t(x.flowLaw)},f4(x.resistance,x.inertance,x.orificeCoefficient)});
+        c.unknowns[c.layout.offsets.y+row]={f4(x.initialFlow,x.flowScale,x.pressureScale,x.flowResidualTolerance)};if(!validConnection(c.connections.back(),c.unknowns[c.layout.offsets.y+row]))return fail("unsupported or invalid flow law");edges[a].push_back(row);edges[b].push_back(row);
     }
     for (auto index:ot) {const auto& x=v.tissues[index];const auto row=std::uint32_t(c.tissues.size());std::uint32_t name=0;
         if (!positive(x.volume)||x.mechanicsFeedback||!addName(x.anatomicalIdentifier,name)) return fail("invalid tissue volume/anatomy or unsupported mechanics feedback");
@@ -113,13 +159,15 @@ bool compileVascular(const WorldSource& source, CompiledWorld& world, std::vecto
 }
 
 bool validateVascularLayout(const CompiledWorld& world,std::string* error) {
-    const auto& c=world.vascular;const auto fail=[&](std::string_view s){if(error&&error->empty())*error="vascular V1: "+std::string(s);return false;};
+    const auto& c=world.vascular;const auto fail=[&](std::string_view s){if(error&&error->empty())*error="vascular: "+std::string(s);return false;};
     const std::uint64_t C=c.compartments.size(),E=c.connections.size(),S=c.species.size(),T=c.tissues.size(),X=c.exchanges.size();
     const auto limit=std::numeric_limits<std::uint32_t>::max();
     if (C>limit||E>limit/2u||S>limit||T>limit||X>limit||C+E>limit||C+T>limit||(S && C+T>(limit-C-E)/S))return fail("cooked count overflow");
     const auto N=C+E+(C+T)*S;
     if (c.layout.counts.x!=C||c.layout.counts.y!=E||c.layout.counts.z!=S||c.layout.counts.w!=T||c.layout.ranges.x!=X||c.layout.ranges.y!=c.tissueBindings.size()||c.layout.ranges.z!=N||c.layout.ranges.w!=0||c.layout.offsets.x!=0||c.layout.offsets.y!=C||c.layout.offsets.z!=C+E||c.layout.offsets.w!=C+E+C*S||c.unknowns.size()!=N) return fail("layout counts or unknown offsets disagree");
-    if (C==0) return (E==0&&S==0&&T==0&&X==0&&c.names.empty()&&c.tissueBindings.empty()&&c.connectionIncidence.empty()&&c.connectionRanges.empty()&&c.bloodExchangeIncidence.empty()&&c.bloodExchangeRanges.empty()&&c.tissueExchangeIncidence.empty()&&c.tissueExchangeRanges.empty()&&allZero(c.identity))||fail("empty network has dangling state");
+    if (C==0) return (c.layout.clock.x==0&&c.layout.clock.y==0&&c.layout.clock.z==0&&c.layout.clock.w==0&&E==0&&S==0&&T==0&&X==0&&c.names.empty()&&c.tissueBindings.empty()&&c.connectionIncidence.empty()&&c.connectionRanges.empty()&&c.bloodExchangeIncidence.empty()&&c.bloodExchangeRanges.empty()&&c.tissueExchangeIncidence.empty()&&c.tissueExchangeRanges.empty()&&allZero(c.identity))||fail("empty network has dangling state");
+    if(!positive(world.dispatch.gravityAndTimestep.w))return fail("cooked base timestep is invalid");
+    if(c.layout.clock.x!=std::bit_cast<std::uint32_t>(std::int32_t(clockExponent(world.dispatch.gravityAndTimestep.w)))||c.layout.clock.y||c.layout.clock.z||c.layout.clock.w)return fail("clock quantum is not canonical for the cooked timestep");
     if (world.dispatch.environmentCount==0 || N>limit/(std::uint64_t(world.dispatch.environmentCount)*(NM_MIXED_FGMRES_RESTART+1u)))return fail("Krylov address overflow");
     for (const auto& object : world.objects)
         if ((object.flags & NM_OBJECT_MUTABLE_TOPOLOGY) != 0u)
@@ -132,20 +180,22 @@ bool validateVascularLayout(const CompiledWorld& world,std::string* error) {
         if(offset!=nextName||offset>=c.names.size())return false;const auto begin=c.names.begin()+offset;const auto end=std::find(begin,c.names.end(),0);if(end==c.names.end())return false;
         const std::string value(begin,end);if(!utf8(value))return false;nextName=std::size_t(end-c.names.begin())+1;if(result)*result=value;return true;
     };
-    for (std::size_t i=0;i<N;++i) {const auto v=c.unknowns[i].initialAndScaling;if(!finite4(v)||!positive(v.y)||!positive(v.z)||!tolerance(v.w)||!finite(double(v.x)/v.y))return fail("invalid normalized unknown");if((i<C && !(v.x>0))||(i>=C+E&&v.x<0))return fail("negative amount or nonpositive volume");if((i<C||i>=C+E)&&v.y!=v.z)return fail("conservation row has inconsistent physical scale");}
+    for (std::size_t i=0;i<N;++i) {const auto v=c.unknowns[i].initialAndScaling;if(!finite4(v)||!positive(v.y)||!positive(v.z)||!tolerance(v.w)||!finite(double(v.x)/v.y))return fail("invalid normalized unknown");if((i<C && c.compartments[i].identity.z==0 && !(v.x>0))||(i>=C+E&&v.x<0))return fail("negative amount or nonpositive volume");if((i<C||i>=C+E)&&v.y!=v.z)return fail("conservation row has inconsistent physical scale");}
     std::set<std::string> speciesNames;
     for(std::size_t i=0;i<S;++i) {const auto& s=c.species[i];std::string text;
         if(!s.identity.x||(i&&s.identity.x<=c.species[i-1].identity.x)||s.identity.z||s.identity.w||!name(s.identity.y,&text)||!speciesNames.insert(text).second||!finite4(s.scaling)||!positive(s.scaling.x)||!tolerance(s.scaling.y)||s.scaling.z!=0||s.scaling.w!=0)return fail("invalid species identity or scale");
         for(std::size_t j=0;j<C+T;++j){const auto u=c.unknowns[C+E+j*S+i].initialAndScaling;if(u.y!=s.scaling.x||u.z!=s.scaling.x||u.w!=s.scaling.y)return fail("species unknown scales disagree");}
     }
-    for(std::size_t i=0;i<C;++i) {const auto& x=c.compartments[i];if(!x.identity.x||(i&&x.identity.x<=c.compartments[i-1].identity.x)||x.identity.z||x.identity.w||!name(x.identity.y)||!finite4(x.compliance)||!positive(x.compliance.x)||!positive(x.compliance.z))return fail("invalid passive compartment");const double pressure=double(x.compliance.w)+x.compliance.y+(double(c.unknowns[i].initialAndScaling.x)-x.compliance.x)/x.compliance.z;if(!finite(pressure)||!positive(1.0/double(x.compliance.z)))return fail("initial compartment pressure or inverse compliance is not representable");
+    for(std::size_t i=0;i<C;++i) {const auto& x=c.compartments[i];
+        if(!x.identity.x||(i&&x.identity.x<=c.compartments[i-1].identity.x)||!name(x.identity.y)||!validCompartment(x,c.unknowns[i]))return fail("invalid compartment pressure/storage law");
+        if(x.identity.z==1 && (S||T||X))return fail("storage displacement cannot supply blood concentration or tissue exchange");
         for (std::size_t j=0;j<S;++j) {
             const double concentration=double(c.unknowns[C+E+i*S+j].initialAndScaling.x)/c.unknowns[i].initialAndScaling.x;
             if (!finite(concentration)) return fail("initial blood concentration is not representable");
         }
     }
     std::vector<std::vector<std::uint32_t>> edges(C),bloodX(C*S),tissueX(T*S);
-    for(std::size_t i=0;i<E;++i) {const auto& x=c.connections[i];if(!x.identity.x||(i&&x.identity.x<=c.connections[i-1].identity.x)||x.identity.y>=C||x.identity.z>=C||x.identity.y==x.identity.z||x.identity.w||!finite4(x.physical)||!positive(x.physical.x)||x.physical.y<0||x.physical.z!=0||x.physical.w!=0)return fail("invalid passive connection");edges[x.identity.y].push_back(i);edges[x.identity.z].push_back(i);}
+    for(std::size_t i=0;i<E;++i) {const auto& x=c.connections[i];if(!x.identity.x||(i&&x.identity.x<=c.connections[i-1].identity.x)||x.identity.y>=C||x.identity.z>=C||x.identity.y==x.identity.z||!validConnection(x,c.unknowns[C+i]))return fail("invalid connection flow law");edges[x.identity.y].push_back(i);edges[x.identity.z].push_back(i);}
     std::size_t nextBinding=0;
     for(std::size_t i=0;i<T;++i) {const auto& x=c.tissues[i];if(!x.identity.x||(i&&x.identity.x<=c.tissues[i-1].identity.x)||x.identity.w||!name(x.identity.y)||!finite4(x.physical)||!positive(x.physical.x)||x.physical.y!=0||x.physical.z!=0||x.physical.w!=0||x.region.x!=nextBinding||x.region.z||x.region.w||x.region.y>c.tissueBindings.size()-nextBinding)return fail("invalid fixed tissue reservoir");
         if((x.identity.z==NM_INVALID_INDEX)!=(x.region.y==0))return fail("incomplete tissue FEM binding");
