@@ -376,6 +376,11 @@ if(APPLE)
                 "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/human_organ_vessel_registration_20260913.json")
         set_tests_properties(matter.compiler.vessel_registration
             PROPERTIES LABELS "matter;compiler;human;vascular;provenance" TIMEOUT 120)
+        add_test(NAME matter.compiler.vessel_body_links
+            COMMAND numi-matter-vessel-registration-check
+                "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/human_organ_vessel_body_link_20260913.json")
+        set_tests_properties(matter.compiler.vessel_body_links
+            PROPERTIES LABELS "matter;compiler;human;vascular;provenance" TIMEOUT 120)
     endif()
 
     add_executable(numi-matter-vascular-cavity-check tools/vascular_cavity_check.mm)

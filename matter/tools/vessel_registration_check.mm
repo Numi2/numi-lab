@@ -73,6 +73,69 @@ void finiteMatrix4(id value, const char* label) {
 void requireNull(id value, const char* label) {
     requireCondition(value == [NSNull null], std::string(label) + " was mechanically promoted");
 }
+
+void checkBodyLinkReceipt(NSDictionary* root) {
+    requireCondition(stringValue(requiredValue(root, @"schema"), "schema") ==
+                         "HumanPack.organ-vessel-body-link-registration.v1",
+                     "unexpected vessel body-link schema");
+    requireCondition(stringValue(requiredValue(root, @"compiler"), "compiler") ==
+                         "numilab-human.organ-vessel-body-links.1",
+                     "unexpected vessel body-link compiler");
+    sha256Text(requiredValue(root, @"identity_sha256"), "identity_sha256");
+    NSDictionary* source = (NSDictionary*)requiredValue(root, @"source");
+    requireCondition([source isKindOfClass:[NSDictionary class]], "body-link source is not an object");
+    sha256Text(requiredValue(source, @"human_manifest_sha256"), "human_manifest_sha256");
+    sha256Text(requiredValue(source, @"rigid_payload_sha256"), "rigid_payload_sha256");
+    sha256Text(requiredValue(source, @"source_archive_sha256"), "source_archive_sha256");
+    requireCondition(finiteNumber(requiredValue(source, @"body_count"), "body_count") == 157.0 &&
+                     finiteNumber(requiredValue(source, @"source_body_count"), "source_body_count") == 103.0,
+                     "body-link topology changed");
+    NSDictionary* qualification = (NSDictionary*)requiredValue(root, @"qualification");
+    requireCondition([qualification isKindOfClass:[NSDictionary class]], "body-link qualification is not an object");
+    requireCondition(booleanValue(requiredValue(qualification, @"source_to_world_frame_registered"), "world frame") &&
+                     booleanValue(requiredValue(qualification, @"body_link_registration"), "body link") &&
+                     booleanValue(requiredValue(qualification, @"body_link_transform_registered"), "body transform") &&
+                     !booleanValue(requiredValue(qualification, @"tubular_vessel_field"), "tubular field") &&
+                     !booleanValue(requiredValue(qualification, @"blood_mass_owner"), "blood mass") &&
+                     !booleanValue(requiredValue(qualification, @"pressure_gradient_momentum_transfer"), "pressure momentum") &&
+                     !booleanValue(requiredValue(qualification, @"two_way_tissue_exchange"), "tissue exchange") &&
+                     !booleanValue(requiredValue(qualification, @"subject_calibration"), "subject calibration"),
+                     "body-link mechanics boundary changed");
+
+    NSArray* rows = (NSArray*)requiredValue(root, @"bindings");
+    requireCondition([rows isKindOfClass:[NSArray class]] && rows.count == 6u,
+                     "body-link receipt must contain six bindings");
+    struct Expected { const char* member; const char* body; double source; double core; };
+    const std::array<Expected, 6u> expected{{
+        {"FJ1932", "Abdomen", 4.0, 7.0}, {"FJ3411", "torso", 9.0, 20.0},
+        {"FJ3413", "torso", 9.0, 20.0}, {"FJ3427", "torso", 9.0, 20.0},
+        {"FJ3441", "Abdomen", 4.0, 7.0}, {"FJ3645", "torso", 9.0, 20.0}}};
+    for (NSUInteger i = 0; i < rows.count; ++i) {
+        requireCondition([rows[i] isKindOfClass:[NSDictionary class]], "body-link binding is not an object");
+        NSDictionary* row = (NSDictionary*)rows[i];
+        const Expected& item = expected[i];
+        requireCondition(stringValue(requiredValue(row, @"member_id"), "member_id") == item.member &&
+                         stringValue(requiredValue(row, @"myosim_body"), "myosim_body") == item.body,
+                         "body-link vessel/body identity changed");
+        requireCondition(finiteNumber(requiredValue(row, @"source_body_id"), "source_body_id") == item.source &&
+                         finiteNumber(requiredValue(row, @"core_body_index"), "core_body_index") == item.core,
+                         "body-link source/core index changed");
+        requireCondition(!stringValue(requiredValue(row, @"source_name"), "source_name").empty() &&
+                         !stringValue(requiredValue(row, @"region_id"), "region_id").empty(),
+                         "body-link source identity is empty");
+        finiteVector(requiredValue(row, @"default_com_position_world_m"), "body-link COM", 3u);
+        finiteVector(requiredValue(row, @"default_inertial_quaternion_world_xyzw"), "body-link quaternion", 4u);
+        requireCondition(booleanValue(requiredValue(row, @"body_link_registration"), "binding body link") &&
+                         !booleanValue(requiredValue(row, @"tubular_field_registered"), "binding tubular field") &&
+                         !booleanValue(requiredValue(row, @"centreline_registered"), "binding centreline") &&
+                         !booleanValue(requiredValue(row, @"pressure_gradient_momentum_transfer"), "binding pressure momentum") &&
+                         !booleanValue(requiredValue(row, @"subject_calibration"), "binding subject calibration"),
+                         "body-link binding mechanics boundary changed");
+        requireNull(requiredValue(row, @"cross_section_area_m2"), "cross_section_area_m2");
+        requireNull(requiredValue(row, @"material_density_kg_per_m3"), "material_density_kg_per_m3");
+        requireNull(requiredValue(row, @"mechanical_mass_owner"), "mechanical_mass_owner");
+    }
+}
 }
 
 int main(int argc, const char* argv[]) {
@@ -89,6 +152,12 @@ int main(int argc, const char* argv[]) {
                              jsonError == nil ? "vessel-registration is not an object"
                                                : std::string([[jsonError localizedDescription] UTF8String]));
             NSDictionary* root = (NSDictionary*)json;
+            if (stringValue(requiredValue(root, @"schema"), "schema") ==
+                    "HumanPack.organ-vessel-body-link-registration.v1") {
+                checkBodyLinkReceipt(root);
+                std::printf("numi_matter_vessel_body_link=pass vessels=6 source_body_frame=pass mechanics=unqualified calibration=unqualified\n");
+                return 0;
+            }
             requireCondition(stringValue(requiredValue(root, @"schema"), "schema") ==
                                  "HumanPack.organ-vessel-registration.v1",
                              "unexpected vessel-registration schema");
