@@ -122,6 +122,7 @@ inline NumiHumanHandoffComparison numiHumanHandoffCompare(
     }
     result.count = reference.size();
     long double squared = 0.0L;
+    double worstDelta = -1.0;
     for (std::size_t index = 0u; index < reference.size(); ++index) {
         const double expected = reference[index];
         const double actual = candidate[index];
@@ -132,17 +133,16 @@ inline NumiHumanHandoffComparison numiHumanHandoffCompare(
             ? delta / tolerance
             : (delta == 0.0 ? 0.0 : std::numeric_limits<double>::infinity());
         squared += static_cast<long double>(delta) * delta;
+        result.maximumAbsoluteDelta = std::max(
+            result.maximumAbsoluteDelta, delta);
         if (normalized > result.maximumNormalizedError ||
             (normalized == result.maximumNormalizedError &&
-             delta > result.maximumAbsoluteDelta)) {
+             delta > worstDelta)) {
             result.maximumNormalizedError = normalized;
-            result.maximumAbsoluteDelta = delta;
             result.worstIndex = index;
             result.worstReference = expected;
             result.worstCandidate = actual;
-        } else {
-            result.maximumAbsoluteDelta = std::max(
-                result.maximumAbsoluteDelta, delta);
+            worstDelta = delta;
         }
     }
     result.rmsAbsoluteDelta = std::sqrt(
@@ -355,8 +355,12 @@ inline bool numiHumanDynamicSnapshotValid(
     output << '}';
     output.flags(flags);
     output.precision(precision);
+    if (!output.good()) {
+        error = "could not write dynamic Human handoff JSON";
+        return false;
+    }
     error.clear();
-    return output.good();
+    return true;
 }
 
 } // namespace metalrobo
