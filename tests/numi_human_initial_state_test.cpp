@@ -1,5 +1,6 @@
 #include "metalrobo/NumiHumanInitialState.hpp"
 #include "metalrobo/mrnx_bridge_v1.h"
+#include "numi_human_static_dynamic_handoff_cases.hpp"
 #include <cstring>
 #include <bit>
 #include <cmath>
@@ -174,7 +175,12 @@ int main() {
         mrnx_runtime_config_v7 config{};
         config.abi_version=MRNX_RUNTIME_CONFIG_ABI_V7; config.struct_size=sizeof(config);
         require(mrnx_bridge_v1_runtime_create_v7(&config,&info)==nullptr);
-        std::cout << "NHINIT1 golden migration and NHINIT2 compensated/ns serialization: " << checks << " controls passed; no GPU execution\n";
+
+        const std::size_t handoffChecks =
+            metalrobo::test::runNumiHumanStaticDynamicHandoffCases();
+        checks += handoffChecks;
+        std::cout << "NHINIT1 golden migration, NHINIT2 compensated/ns serialization, and static/dynamic handoff contract: "
+                  << checks << " controls passed; no GPU execution\n";
         return 0;
     } catch(const std::exception& error) { std::cerr << error.what() << '\n';return 1; }
 }
