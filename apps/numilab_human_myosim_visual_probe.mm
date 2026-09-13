@@ -1835,8 +1835,12 @@ LoadedTorsoAnatomy loadTorsoAnatomy(
     // Focused Human payloads deliberately retain their global source stable
     // IDs (for example a four-surface calf subset includes tendon ID 7). IDs
     // are therefore unique but need not be dense in [1, tissueCount].
-    std::vector<std::uint32_t> stableIds;
-    stableIds.reserve(result.records.size());
+    // Stable IDs are authored global IDs and may be sparse.  The previous
+    // reserve-only vector had size zero, so every valid torso record failed
+    // the bounds check before any source surface could reach the renderer.
+    // Size the lookup by the declared surface count and keep index zero
+    // unused, preserving the strict uniqueness/range gate.
+    std::vector<std::uint8_t> stableIds(result.header.surfaceCount + 1u, 0u);
     for (const TorsoAnatomyRecord& record : result.records) {
         require(record.bodyIndex < rigid.engineBodyCount && record.vertexCount > 0u &&
                     record.indexCount > 0u && record.indexCount % 3u == 0u &&
@@ -16383,6 +16387,9 @@ int main(int argc, char** argv) {
 
             metalrobo::VisualMotionSampleBatchV1 motion = makeMotion(bodies);
             bool completeVisualCoverage = true;
+            bool anyOrganSurfaceVisible = false;
+            bool anyVesselSurfaceVisible = false;
+            bool anyNerveSurfaceVisible = false;
             bool anyTendonAttachmentEnvelopeVisible = false;
             bool capturedRenderer = false;
             std::string rendererDeviceName;
@@ -16506,9 +16513,13 @@ int main(int argc, char** argv) {
                     (!passiveFEMTissue.has_value() || passiveFEMTissuePixels > 0u);
                 completeVisualCoverage = completeVisualCoverage &&
                     (!pectoralisFascia.has_value() || pectoralisFasciaPixels > 0u);
-                completeVisualCoverage = completeVisualCoverage &&
-                    (!torsoAnatomyPayload.has_value() ||
-                     (organSurfacePixels > 0u && vesselSurfacePixels > 0u && nerveSurfacePixels > 0u));
+                // A source organ or vessel may be occluded from a particular
+                // camera.  Require the anatomy set across the selected camera
+                // family, while retaining per-view coverage for the primary
+                // linked body and any explicitly requested tissue owner.
+                anyOrganSurfaceVisible = anyOrganSurfaceVisible || organSurfacePixels > 0u;
+                anyVesselSurfaceVisible = anyVesselSurfaceVisible || vesselSurfacePixels > 0u;
+                anyNerveSurfaceVisible = anyNerveSurfaceVisible || nerveSurfacePixels > 0u;
                 anyRequestedRouteVisible = anyRequestedRouteVisible || routePixels > 0u;
                 anyTendonAttachmentEnvelopeVisible = anyTendonAttachmentEnvelopeVisible ||
                     tendonAttachmentEnvelopePixels > 0u;
@@ -16537,6 +16548,10 @@ int main(int argc, char** argv) {
             }
             require(completeVisualCoverage,
                     "one or more native Human frames have no linked-body coverage");
+            require(!torsoAnatomyPayload.has_value() ||
+                        (anyOrganSurfaceVisible && anyVesselSurfaceVisible &&
+                         anyNerveSurfaceVisible),
+                    "native Human torso anatomy surfaces are completely occluded");
             require(!sourceRouteCentrelines || anyRequestedRouteVisible,
                     "requested source route is completely occluded from all native Human cameras");
             require(renderedTendonAttachmentEnvelopes == 0u || anyTendonAttachmentEnvelopeVisible,
