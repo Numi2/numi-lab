@@ -447,12 +447,17 @@ typedef struct NM_ALIGN16 NMVascularTissueGPU {
     // blood-owner compartment index + 1 (zero means no mechanical owner)
     nm_uint4 identity;
     // fixed reservoir volume, registered blood density (kg/m3), initial
-    // mechanically partitioned blood mass (kg), reserved zero.
-    nm_float4 physical;
-    nm_uint4 region; // first tissue binding, count, 0, 0
+    // mechanically partitioned blood mass (kg), pressure-reaction area (m2).
+    nm_float4 physical; // fixed reservoir volume, density, initial mass, pressure area
+    // first tissue binding, count, pressure-from compartment + 1,
+    // pressure-to compartment + 1. Both pressure entries are zero when the
+    // explicit pressure-gradient wall reaction is disabled.
+    nm_uint4 region;
     // authored FEM-region spatial moments in the initial object frame:
     // weighted first moment (x,y,z), then raw second moments (xx,xy,xz)
-    // and (yy,yz,zz). Runtime mass multiplies these geometry moments.
+    // and (yy,yz,zz). Runtime mass multiplies these geometry moments. The
+    // reserved w lanes carry the authored pressure-reaction unit direction
+    // xyz when region.z and region.w are nonzero.
     nm_float4 spatialFirst;
     nm_float4 spatialSecond0;
     nm_float4 spatialSecond1;

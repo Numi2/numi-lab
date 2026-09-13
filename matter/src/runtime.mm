@@ -1771,8 +1771,11 @@ RuntimeDiagnostics Runtime::initialize(
         const bool hasVascularBloodMass = std::any_of(
             world.vascular.tissues.begin(), world.vascular.tissues.end(),
             [](const auto& tissue) { return tissue.identity.w != 0u; });
+        const bool hasVascularPressureReaction = std::any_of(
+            world.vascular.tissues.begin(), world.vascular.tissues.end(),
+            [](const auto& tissue) { return tissue.region.z != 0u && tissue.region.w != 0u; });
         candidate->vascularCavityMergedExternal = privateScratch<nm_float4>(
-            candidate->device, (world.vascular.cavities.empty() && !hasVascularBloodMass) ? 0u :
+            candidate->device, (world.vascular.cavities.empty() && !hasVascularBloodMass && !hasVascularPressureReaction) ? 0u :
                 environments * world.dispatch.femNodeCount,
             valid, candidate->residentBytes);
         candidate->vascularUnknowns = uploads.one(
@@ -3484,8 +3487,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
         const bool hasVascularBloodMass = std::any_of(
             state.vascularValue.tissues.begin(), state.vascularValue.tissues.end(),
             [](const auto& tissue) { return tissue.identity.w != 0u; });
+        const bool hasVascularPressureReaction = std::any_of(
+            state.vascularValue.tissues.begin(), state.vascularValue.tissues.end(),
+            [](const auto& tissue) { return tissue.region.z != 0u && tissue.region.w != 0u; });
         const bool hasVascularMechanicalForces =
-            hasVascularCavities || hasVascularBloodMass;
+            hasVascularCavities || hasVascularBloodMass || hasVascularPressureReaction;
         id<MTLBuffer> femMechanicalForces = hasVascularMechanicalForces
             ? state.vascularCavityMergedExternal : femExternalForces;
         const std::uint32_t hasFEMMechanicalForces =
@@ -4930,6 +4936,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.statuses offset:0u atIndex:15u];
                     [encoder setBuffer:state.vascularTissues offset:0u atIndex:16u];
                     [encoder setBuffer:state.vascularTissueBindings offset:0u atIndex:17u];
+                    [encoder setBuffer:state.vascularElastance offset:0u atIndex:18u];
                 });
             };
             // Opt-in, bounded copies at a single requested root preserve the
@@ -6678,7 +6685,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
                 // Include cavity traction before attachment capture, so the
                 // existing scatter applies its single work-conjugate J^T.
-                if (hasVascularCavities) {
+                if (hasVascularMechanicalForces) {
                     dispatchThreads("nm_vascular_cavity_operator", femNodeTotal, [&] {
                         setDispatch();
                         [encoder setBytes:&state.vascularValue.layout length:sizeof(state.vascularValue.layout) atIndex:1u];
@@ -6696,6 +6703,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femOperatorValue offset:0u atIndex:13u];
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:14u];
                         [encoder setBuffer:state.statuses offset:0u atIndex:15u];
+                        [encoder setBuffer:state.vascularTissues offset:0u atIndex:16u];
+                        [encoder setBuffer:state.vascularTissueBindings offset:0u atIndex:17u];
+                        [encoder setBuffer:state.vascularElastance offset:0u atIndex:18u];
                     });
                 }
                 dispatchThreads(

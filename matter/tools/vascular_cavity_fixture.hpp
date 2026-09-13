@@ -78,7 +78,7 @@ inline std::vector<Vec> discreteGradient(const std::vector<Vec>& old,const std::
     for(unsigned i=0;i<a.size();++i)a[i]=scaled(add(add(a[i],scaled(b[i],4)),c[i]),1./6);
     return a;
 }
-inline numi::matter::WorldSource world(bool pinInner=false,double dt=.001,bool bloodMass=false){
+inline numi::matter::WorldSource world(bool pinInner=false,double dt=.001,bool bloodMass=false,bool pressureMomentum=false){
     using namespace numi::matter;
     WorldSource s;s.environmentCount=2;s.frameTimestep=dt;s.gravity={0,0,0};
     s.mixedSolver.relativeResidual=1e-7;s.mixedSolver.newtonIterations=12;s.mixedSolver.fgmresIterations=64;
@@ -111,10 +111,15 @@ inline numi::matter::WorldSource world(bool pinInner=false,double dt=.001,bool b
     boundary.initialPressure=0;boundary.pressureScale=100;boundary.geometryResidualTolerance=1e-5;
     boundary.sourceIdentity={0x73796e7468657469ULL,0x632d636176697479ULL,0,1};boundary.mechanicalIdentity={0x686f6c6c6f772d66ULL,0x656d2d7368656c6cULL,0,1};
     for(unsigned i=0;i<shell.lumenFaces.size();++i)boundary.faces.push_back({100+i,shell.lumenFaces[i],VascularCavityFaceRole::materialWall});
-    if(bloodMass){
+    if(bloodMass || pressureMomentum){
         s.gravity={0,0,-9.81};
         VascularTissueSource owner;owner.stableIdentifier=41;owner.anatomicalIdentifier="synthetic:blood_mass_owner";
-        owner.volume=4e-6;owner.initialSpeciesAmounts={0};owner.objectIndex=0;owner.bloodCompartment=12;owner.bloodDensity=1060;
+        owner.volume=4e-6;owner.initialSpeciesAmounts={0};owner.objectIndex=0;
+        if (bloodMass) { owner.bloodCompartment=12; owner.bloodDensity=1060; }
+        if (pressureMomentum) {
+            owner.pressureFromCompartment=12; owner.pressureToCompartment=11;
+            owner.pressureDirection={0,0,1}; owner.pressureArea=2e-4;
+        }
         const double weight=1./double(shell.innerNodes.size());
         for(const auto node:shell.innerNodes)owner.femRegion.push_back({node,weight});
         n.tissues.push_back(owner);

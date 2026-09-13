@@ -118,6 +118,80 @@ inline ulong vascularClockPhaseRemainder(const NMVascularClockGPU clock, ulong n
     }
     return result;
 }
+
+inline uint vascularPressureRow(const NMVascularLayoutGPU graph, uint compartment,
+    device const NMVascularCompartmentGPU* compartments,
+    device const NMVascularCavityGPU* cavities) {
+    if (compartment >= graph.counts.x) return NM_INVALID_INDEX;
+    if (compartments[compartment].identity.w != 5u) return compartment;
+    for (uint i = 0u; i < graph.cavities.x; ++i)
+        if (cavities[i].identity.y == compartment) return cavities[i].identity.w;
+    return NM_INVALID_INDEX;
+}
+
+inline float2 vascularCompartmentPressure(const NMVascularLayoutGPU graph,
+    uint compartment, uint stateBase, uint coefficientBase, uint directionBase, bool derivative,
+    device const NMVascularUnknownGPU* unknowns,
+    device const NMVascularCompartmentGPU* compartments,
+    device const NMVascularCavityGPU* cavities,
+    device const float* elastance, device const float4* vascularState,
+    device const float4* direction) {
+    const uint row = vascularPressureRow(graph, compartment, compartments, cavities);
+    if (row == NM_INVALID_INDEX) return float2(INFINITY);
+    const float value = vascularPhysical(vascularState, unknowns, stateBase, row);
+    if (compartments[compartment].identity.w == 5u) {
+        const float tangent = derivative
+            ? direction[directionBase + row].x * unknowns[row].initialAndScaling.y
+            : 0.0f;
+        return float2(value, tangent);
+    }
+    const float2 pressure = vascularPressureTangent(compartments[compartment],
+        value, elastance[coefficientBase + compartment]);
+    const float tangent = derivative
+        ? pressure.y * direction[directionBase + row].x * unknowns[row].initialAndScaling.y
+        : 0.0f;
+    return float2(pressure.x, tangent);
+}
+
+// Explicit pressure-gradient wall reaction. The source contract supplies the
+// two pressure compartments, a unit path direction, and cross-sectional area;
+// the registered FEM region receives -A (p_from - p_to) direction. This is a
+// conservative reaction path, not an implicit blood density or perfusion law.
+inline float3 vascularPressureReactionNodeForce(
+    const NMVascularLayoutGPU graph, uint node, uint nodeBase, uint stateBase,
+    device const NMVascularUnknownGPU* unknowns,
+    device const NMVascularCompartmentGPU* compartments,
+    device const NMVascularCavityGPU* cavities,
+    device const NMVascularTissueGPU* tissues,
+    device const NMVascularTissueBindingGPU* bindings,
+    device const float* elastance, device const float4* vascularState,
+    device const float4* direction,
+    uint directionBase, bool derivative) {
+    float3 result = float3(0.0f);
+    for (uint tissueIndex = 0u; tissueIndex < graph.counts.w; ++tissueIndex) {
+        const NMVascularTissueGPU tissue = tissues[tissueIndex];
+        if (tissue.region.z == 0u || tissue.region.w == 0u) continue;
+        const float2 from = vascularCompartmentPressure(graph, tissue.region.z - 1u,
+            stateBase, (stateBase / graph.ranges.z) * graph.counts.x, directionBase,
+            derivative, unknowns, compartments, cavities, elastance, vascularState,
+            direction);
+        const float2 to = vascularCompartmentPressure(graph, tissue.region.w - 1u,
+            stateBase, (stateBase / graph.ranges.z) * graph.counts.x, directionBase,
+            derivative, unknowns, compartments, cavities, elastance, vascularState,
+            direction);
+        const float3 unit = float3(tissue.spatialFirst.w,
+            tissue.spatialSecond0.w, tissue.spatialSecond1.w);
+        const float pressureDifference = derivative ? from.y - to.y : from.x - to.x;
+        const float3 reaction = -pressureDifference * tissue.physical.w * unit;
+        if (!all(isfinite(reaction))) return float3(INFINITY);
+        for (uint slot = 0u; slot < tissue.region.y; ++slot) {
+            const NMVascularTissueBindingGPU binding = bindings[tissue.region.x + slot];
+            if (binding.identity.y == node)
+                result += binding.physical.x * reaction;
+        }
+    }
+    return result;
+}
 kernel void nm_vascular_prepare_clock(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant ulong& timestepTicks [[buffer(1)]],
@@ -469,6 +543,7 @@ kernel void nm_vascular_cavity_forces(
     device NMMatterStatusGPU* statuses [[buffer(15)]],
     device const NMVascularTissueGPU* tissues [[buffer(16)]],
     device const NMVascularTissueBindingGPU* tissueBindings [[buffer(17)]],
+    device const float* elastance [[buffer(18)]],
     uint global [[thread_position_in_grid]]) {
     if (global >= dispatch.environmentCount * dispatch.femNodeCount) return;
     const uint environment = global / dispatch.femNodeCount;
@@ -482,6 +557,10 @@ kernel void nm_vascular_cavity_forces(
         force += vascularBloodMassNodeForce(dispatch, graph, global - nodeBase, nodeBase,
             environment * graph.ranges.z, microstep.time.x, unknowns, tissues, tissueBindings,
             accepted, candidate, vascularState);
+    if (environmentHealthy(statuses, environment))
+        force += vascularPressureReactionNodeForce(graph, global - nodeBase, nodeBase,
+            environment * graph.ranges.z, unknowns, compartments, cavities, tissues,
+            tissueBindings, elastance, vascularState, vascularState, 0u, false);
     merged[global] = float4(force, 0.0f);
     if (!all(isfinite(force))) recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
         NM_INVALID_INDEX, global - nodeBase, float4(force, 0.0f));
@@ -503,6 +582,9 @@ kernel void nm_vascular_cavity_operator(
     device float4* output [[buffer(13)]],
     device const NMFGMRESStateGPU* states [[buffer(14)]],
     device NMMatterStatusGPU* statuses [[buffer(15)]],
+    device const NMVascularTissueGPU* tissues [[buffer(16)]],
+    device const NMVascularTissueBindingGPU* tissueBindings [[buffer(17)]],
+    device const float* elastance [[buffer(18)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     uint global [[thread_position_in_grid]]) {
     if (global >= dispatch.environmentCount * dispatch.femNodeCount) return;
@@ -511,12 +593,18 @@ kernel void nm_vascular_cavity_operator(
     const NMFEMNodeStateGPU node = candidate[global];
     if ((node.restAndFixed.w > 0.5f && node.restAndFixed.w < 1.5f) || !(node.positionAndMass.w > 0.0f)) return;
     const uint nodeBase = environment * dispatch.femNodeCount, stateBase = environment * graph.ranges.z;
-    const float3 tangent = -microstep.time.x * vascularCavityNodeForce(global - nodeBase,
-        nodeBase, stateBase, graph, microstep.time.x, true, unknowns, compartments, cavities,
-        faces, incidence, ranges, accepted, candidate, vascularState, direction, layout.vascularBase + stateBase);
-    output[global].xyz += tangent;
-    if (!all(isfinite(tangent))) recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
-        NM_INVALID_INDEX, global - nodeBase, float4(tangent, 0.0f));
+    float3 tangent = float3(0.0f);
+    if (graph.cavities.x != 0u)
+        tangent = -microstep.time.x * vascularCavityNodeForce(global - nodeBase,
+            nodeBase, stateBase, graph, microstep.time.x, true, unknowns, compartments, cavities,
+            faces, incidence, ranges, accepted, candidate, vascularState, direction, layout.vascularBase + stateBase);
+    const float3 pressureTangent = -microstep.time.x *
+        vascularPressureReactionNodeForce(graph, global - nodeBase, nodeBase, stateBase,
+            unknowns, compartments, cavities, tissues, tissueBindings, elastance,
+            vascularState, direction, layout.vascularBase + stateBase, true);
+    output[global].xyz += tangent + pressureTangent;
+    if (!all(isfinite(tangent)) || !all(isfinite(pressureTangent))) recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+        NM_INVALID_INDEX, global - nodeBase, float4(tangent + pressureTangent, 0.0f));
 }
 
 // Primal valve working set, private to one microtick. 0 is free, 1 is a

@@ -378,7 +378,35 @@ bool compileVascular(const WorldSource& source, CompiledWorld& world, std::vecto
             // Zero is the legacy/no-owner value; stored indices are +1.
             bloodOwner = compartment + 1u;
         }
-        ti[x.stableIdentifier]=row;NMVascularTissueGPU tissue{{x.stableIdentifier,name,x.objectIndex,bloodOwner},f4(x.volume,x.bloodDensity,0.0,0.0),{std::uint32_t(c.tissueBindings.size()),std::uint32_t(x.femRegion.size()),0u,0u},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+        const bool pressureAuthored =
+            x.pressureFromCompartment != 0u ||
+            x.pressureToCompartment != 0u ||
+            x.pressureArea != 0.0 ||
+            std::any_of(x.pressureDirection.begin(), x.pressureDirection.end(),
+                [](double value) { return value != 0.0; });
+        std::uint32_t pressureFrom = 0u, pressureTo = 0u;
+        if (pressureAuthored) {
+            if (!ci.contains(x.pressureFromCompartment) ||
+                !ci.contains(x.pressureToCompartment) ||
+                x.pressureFromCompartment == x.pressureToCompartment ||
+                x.objectIndex == NM_INVALID_INDEX || x.femRegion.empty() ||
+                !positive(x.pressureArea) ||
+                !finite(static_cast<float>(x.pressureArea)))
+                return fail("pressure reaction requires two compartments, a positive area and a real FEM region");
+            const double norm = std::sqrt(
+                x.pressureDirection[0] * x.pressureDirection[0] +
+                x.pressureDirection[1] * x.pressureDirection[1] +
+                x.pressureDirection[2] * x.pressureDirection[2]);
+            if (!finite(norm) || std::abs(norm - 1.0) > 1e-8 ||
+                std::any_of(x.pressureDirection.begin(), x.pressureDirection.end(),
+                    [](double value) {
+                        return !finite(value) || !finite(static_cast<float>(value));
+                    }))
+                return fail("pressure reaction direction must be a finite unit vector");
+            pressureFrom = ci[x.pressureFromCompartment] + 1u;
+            pressureTo = ci[x.pressureToCompartment] + 1u;
+        }
+        ti[x.stableIdentifier]=row;NMVascularTissueGPU tissue{{x.stableIdentifier,name,x.objectIndex,bloodOwner},f4(x.volume,x.bloodDensity,0.0,pressureAuthored?x.pressureArea:0.0),{std::uint32_t(c.tissueBindings.size()),std::uint32_t(x.femRegion.size()),pressureFrom,pressureTo},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
         double sum=0;double first[3]={0,0,0};double second[6]={0,0,0,0,0,0};std::set<std::uint32_t> seen;auto region=x.femRegion;std::sort(region.begin(),region.end(),[](auto a,auto b){return a.node<b.node;});
         for (const auto& b:region) {
             const auto& object=world.objects[x.objectIndex];const auto& authored=source.objects[x.objectIndex];
@@ -393,6 +421,11 @@ bool compileVascular(const WorldSource& source, CompiledWorld& world, std::vecto
         tissue.spatialFirst=f4(first[0],first[1],first[2]);
         tissue.spatialSecond0=f4(second[0],second[1],second[2]);
         tissue.spatialSecond1=f4(second[3],second[4],second[5]);
+        if (pressureAuthored) {
+            tissue.spatialFirst.w = static_cast<float>(x.pressureDirection[0]);
+            tissue.spatialSecond0.w = static_cast<float>(x.pressureDirection[1]);
+            tissue.spatialSecond1.w = static_cast<float>(x.pressureDirection[2]);
+        }
         if (bloodOwner != 0u) {
             const auto compartment = bloodOwner - 1u;
             const double initialVolume = c.unknowns[compartment].initialAndScaling.x;
@@ -554,7 +587,26 @@ bool validateVascularLayout(const CompiledWorld& world,std::string* error) {
     };
     std::map<std::uint32_t, std::uint32_t> bloodNodeOwners;
     std::size_t nextBinding=0;
-    for(std::size_t i=0;i<T;++i) {const auto& x=c.tissues[i];if(!x.identity.x||(i&&x.identity.x<=c.tissues[i-1].identity.x)||x.identity.w>C||!name(x.identity.y)||!finite4(x.physical)||!finite4(x.spatialFirst)||!finite4(x.spatialSecond0)||!finite4(x.spatialSecond1)||!positive(x.physical.x)||x.physical.w!=0||x.spatialFirst.w!=0||x.spatialSecond0.w!=0||x.spatialSecond1.w!=0||x.region.x!=nextBinding||x.region.z||x.region.w||x.region.y>c.tissueBindings.size()-nextBinding)return fail("invalid fixed tissue reservoir");
+    for(std::size_t i=0;i<T;++i) {const auto& x=c.tissues[i];if(!x.identity.x||(i&&x.identity.x<=c.tissues[i-1].identity.x)||x.identity.w>C||!name(x.identity.y)||!finite4(x.physical)||!finite4(x.spatialFirst)||!finite4(x.spatialSecond0)||!finite4(x.spatialSecond1)||!positive(x.physical.x)||x.region.x!=nextBinding||x.region.y>c.tissueBindings.size()-nextBinding)return fail("invalid fixed tissue reservoir");
+        const bool pressureReaction = x.region.z != 0u || x.region.w != 0u ||
+            x.physical.w != 0.0f || x.spatialFirst.w != 0.0f ||
+            x.spatialSecond0.w != 0.0f || x.spatialSecond1.w != 0.0f;
+        if (pressureReaction) {
+            const auto from = x.region.z == 0u ? NM_INVALID_INDEX : x.region.z - 1u;
+            const auto to = x.region.w == 0u ? NM_INVALID_INDEX : x.region.w - 1u;
+            const double norm = std::sqrt(
+                double(x.spatialFirst.w) * double(x.spatialFirst.w) +
+                double(x.spatialSecond0.w) * double(x.spatialSecond0.w) +
+                double(x.spatialSecond1.w) * double(x.spatialSecond1.w));
+            if (from >= C || to >= C || from == to ||
+                !positive(double(x.physical.w)) || !finite(norm) ||
+                std::abs(norm - 1.0) > 2e-6)
+                return fail("invalid pressure reaction identity, area or direction");
+        } else if (x.physical.w != 0.0f || x.spatialFirst.w != 0.0f ||
+                   x.spatialSecond0.w != 0.0f || x.spatialSecond1.w != 0.0f ||
+                   x.region.z != 0u || x.region.w != 0u) {
+            return fail("partial pressure reaction contract");
+        }
         if (x.identity.w == 0u) {
             if (x.physical.y != 0.0f || x.physical.z != 0.0f)
                 return fail("unowned tissue carries blood mechanical mass");

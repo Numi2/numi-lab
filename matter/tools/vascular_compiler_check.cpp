@@ -110,6 +110,21 @@ int main() {
         require(std::abs(bound.world.vascular.tissues[0].spatialFirst.y-.0025f)<1e-7f&&
                 std::abs(bound.world.vascular.tissues[0].spatialSecond1.x-2.5e-5f)<1e-8f,
                 "blood owner spatial moments were not cooked");
+        associated.vascular.tissues[0].pressureFromCompartment=20u;
+        associated.vascular.tissues[0].pressureToCompartment=10u;
+        associated.vascular.tissues[0].pressureDirection={0,0,1};
+        associated.vascular.tissues[0].pressureArea=1e-4;
+        const auto pressureBound=compileWorld(associated);require(pressureBound.succeeded(),"explicit pressure reaction was rejected: "+messages(pressureBound));
+        const auto& pressureOwner=pressureBound.world.vascular.tissues[0];
+        require(pressureOwner.region.z!=0u&&pressureOwner.region.w!=0u&&
+                std::abs(pressureOwner.physical.w-1e-4f)<1e-9f&&
+                std::abs(pressureOwner.spatialSecond1.w-1.f)<1e-7f,
+                "pressure reaction identity, area or direction was not cooked");
+        changed=associated;changed.vascular.tissues[0].pressureArea=0;rejected(changed,"zero pressure reaction area");
+        changed=associated;changed.vascular.tissues[0].pressureDirection={0,0,2};rejected(changed,"non-unit pressure reaction direction");
+        changed=associated;changed.vascular.tissues[0].pressureToCompartment=999;rejected(changed,"missing pressure reaction endpoint");
+        changed=associated;changed.vascular.tissues[0].pressureFromCompartment=0;rejected(changed,"partial pressure reaction identity");
+        changed=associated;changed.vascular.tissues[0].femRegion.clear();rejected(changed,"pressure reaction without a FEM region");
         changed=associated;changed.vascular.tissues[0].femRegion={{0u,.5},{0u,.5}};rejected(changed,"duplicate FEM region node");
         changed=associated;changed.vascular.tissues[0].femRegion={{0u,.9}};rejected(changed,"unnormalized FEM region");
         changed=associated;changed.vascular.tissues[0].bloodCompartment=0u;rejected(changed,"blood owner without compartment identity");

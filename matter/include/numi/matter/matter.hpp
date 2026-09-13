@@ -570,6 +570,17 @@ struct VascularTissueSource {
     // separate qualification gates.
     std::uint32_t bloodCompartment = 0u; // stable compartment identifier
     double bloodDensity = 0.0; // kg/m3, positive when bloodCompartment is set
+    // Optional explicit pressure-gradient wall reaction. The authored unit
+    // direction points from pressureFromCompartment toward
+    // pressureToCompartment; the registered FEM region receives the equal and
+    // opposite wall reaction, pressure difference times cross-sectional area.
+    // All four fields are zero when this owner has no pressure reaction. This
+    // is a mechanical transfer contract only; it does not supply anatomy,
+    // perfusion, density calibration, or a second fluid state.
+    std::uint32_t pressureFromCompartment = 0u;
+    std::uint32_t pressureToCompartment = 0u;
+    std::array<double, 3> pressureDirection{};
+    double pressureArea = 0.0; // m2, positive when the contract is enabled
 };
 struct VascularExchangeSource {
     std::uint32_t stableIdentifier = 0u;

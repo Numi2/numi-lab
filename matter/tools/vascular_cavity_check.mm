@@ -128,6 +128,10 @@ void productionOperators(Run& run){
     const auto unknownBuffer=gpuBuffer(run.device,w.vascular.unknowns),cavityBuffer=gpuBuffer(run.device,w.vascular.cavities),faceBuffer=gpuBuffer(run.device,w.vascular.cavityFaces);
     const auto incidenceBuffer=gpuBuffer(run.device,w.vascular.cavityNodeIncidence),rangeBuffer=gpuBuffer(run.device,w.vascular.cavityNodeRanges);
     const auto bloodTissueBuffer=gpuBufferOrDummy(run.device,w.vascular.tissues),bloodBindingBuffer=gpuBufferOrDummy(run.device,w.vascular.tissueBindings);
+    std::vector<float> fixtureElastance(w.dispatch.environmentCount*w.vascular.compartments.size(),1.f);
+    for(unsigned env=0;env<w.dispatch.environmentCount;++env) for(unsigned i=0;i<w.vascular.compartments.size();++i)
+        if(w.vascular.compartments[i].identity.w==0u||w.vascular.compartments[i].identity.w==3u) fixtureElastance[env*w.vascular.compartments.size()+i]=float(1./w.vascular.compartments[i].compliance.z);
+    const auto elastanceBuffer=gpuBufferOrDummy(run.device,fixtureElastance);
     auto acceptedBuffer=gpuBuffer(run.device,accepted);
     auto encodeCommon=[&](id<MTLComputeCommandEncoder> encoder,id<MTLBuffer> compartmentBuffer,id<MTLBuffer> candidateBuffer,id<MTLBuffer> vascularBuffer){
         [encoder setBytes:&w.dispatch length:sizeof(w.dispatch) atIndex:0];[encoder setBytes:&w.vascular.layout length:sizeof(w.vascular.layout) atIndex:1];
@@ -144,6 +148,7 @@ void productionOperators(Run& run){
         encodeCommon(encoder,p,c,v);[encoder setBuffer:b offset:0 atIndex:12];[encoder setBytes:&include length:sizeof(include) atIndex:13];
         [encoder setBuffer:output offset:0 atIndex:14];[encoder setBuffer:status offset:0 atIndex:15];
         [encoder setBuffer:bloodTissueBuffer offset:0 atIndex:16];[encoder setBuffer:bloodBindingBuffer offset:0 atIndex:17];
+        [encoder setBuffer:elastanceBuffer offset:0 atIndex:18];
         [encoder dispatchThreads:MTLSizeMake(2*nodes,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];completed(cb);
         for(unsigned env=0;env<2;++env)need(static_cast<NMMatterStatusGPU*>(status.contents)[env].code==NM_STATUS_SUCCESS,"manufactured cavity force state rejected");
         const auto* values=static_cast<nm_float4*>(output.contents);return std::vector<nm_float4>(values,values+2*nodes);
@@ -155,6 +160,7 @@ void productionOperators(Run& run){
         const auto output=gpuBuffer(run.device,initial),solver=gpuBuffer(run.device,solverStates),status=gpuBuffer(run.device,std::vector<NMMatterStatusGPU>(2));
         encodeCommon(encoder,p,c,v);[encoder setBytes:&layout length:sizeof(layout) atIndex:30];[encoder setBuffer:d offset:0 atIndex:12];
         [encoder setBuffer:output offset:0 atIndex:13];[encoder setBuffer:solver offset:0 atIndex:14];[encoder setBuffer:status offset:0 atIndex:15];
+        [encoder setBuffer:bloodTissueBuffer offset:0 atIndex:16];[encoder setBuffer:bloodBindingBuffer offset:0 atIndex:17];[encoder setBuffer:elastanceBuffer offset:0 atIndex:18];
         [encoder dispatchThreads:MTLSizeMake(2*nodes,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];completed(cb);
         for(unsigned env=0;env<2;++env)need(static_cast<NMMatterStatusGPU*>(status.contents)[env].code==NM_STATUS_SUCCESS,"manufactured cavity tangent state rejected");
         const auto* values=static_cast<nm_float4*>(output.contents);return std::vector<nm_float4>(values,values+2*nodes);
@@ -409,6 +415,10 @@ void bloodMassOwner(){
     const auto cavityBuffer=gpuBuffer(run.device,w.vascular.cavities),faceBuffer=gpuBuffer(run.device,w.vascular.cavityFaces);
     const auto incidenceBuffer=gpuBuffer(run.device,w.vascular.cavityNodeIncidence),rangeBuffer=gpuBuffer(run.device,w.vascular.cavityNodeRanges);
     const auto acceptedBuffer=gpuBuffer(run.device,accepted),tissueBuffer=gpuBuffer(run.device,w.vascular.tissues),bindingBuffer=gpuBuffer(run.device,w.vascular.tissueBindings);
+    std::vector<float> fixtureElastance(w.dispatch.environmentCount*w.vascular.compartments.size(),1.f);
+    for(unsigned env=0;env<w.dispatch.environmentCount;++env) for(unsigned i=0;i<w.vascular.compartments.size();++i)
+        if(w.vascular.compartments[i].identity.w==0u||w.vascular.compartments[i].identity.w==3u) fixtureElastance[env*w.vascular.compartments.size()+i]=float(1./w.vascular.compartments[i].compliance.z);
+    const auto elastanceBuffer=gpuBufferOrDummy(run.device,fixtureElastance);
     auto encode=[&](const std::vector<nm_float4>& state,
                     const std::vector<NMFEMNodeStateGPU>& candidateNodes){
         const auto command=[run.queue commandBuffer];auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:forcePipeline];
@@ -420,7 +430,7 @@ void bloodMassOwner(){
         [encoder setBuffer:cavityBuffer offset:0 atIndex:5];[encoder setBuffer:faceBuffer offset:0 atIndex:6];[encoder setBuffer:incidenceBuffer offset:0 atIndex:7];
         [encoder setBuffer:rangeBuffer offset:0 atIndex:8];[encoder setBuffer:acceptedBuffer offset:0 atIndex:9];[encoder setBuffer:candidateBuffer offset:0 atIndex:10];[encoder setBuffer:vascularBuffer offset:0 atIndex:11];
         [encoder setBuffer:borrowed offset:0 atIndex:12];[encoder setBytes:&include length:sizeof(include) atIndex:13];[encoder setBuffer:output offset:0 atIndex:14];[encoder setBuffer:statuses offset:0 atIndex:15];
-        [encoder setBuffer:tissueBuffer offset:0 atIndex:16];[encoder setBuffer:bindingBuffer offset:0 atIndex:17];
+        [encoder setBuffer:tissueBuffer offset:0 atIndex:16];[encoder setBuffer:bindingBuffer offset:0 atIndex:17];[encoder setBuffer:elastanceBuffer offset:0 atIndex:18];
         [encoder dispatchThreads:MTLSizeMake(2*nodes,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];completed(command);
         for(unsigned env=0;env<2;++env)need(static_cast<NMMatterStatusGPU*>(statuses.contents)[env].code==NM_STATUS_SUCCESS,"blood owner force state rejected");
         const auto* values=static_cast<nm_float4*>(output.contents);return std::vector<nm_float4>(values,values+2*nodes);
@@ -576,6 +586,57 @@ void bloodMassOwner(){
              <<" replay=bitwise time_integrated_moment_closure=pass pressure_impulse_closure=pass"
              <<" pressure_driven_momentum=unqualified subject_calibration=unqualified\n";
 }
+void pressureMomentumOwner(){
+    const auto shell=fixture::hollowShell();Run run(fixture::world(false,.001,false,true));const auto& w=run.world;
+    need(w.vascular.tissues.size()==1,"pressure reaction fixture did not cook its FEM region");
+    const auto& owner=w.vascular.tissues[0];need(owner.region.z!=0u&&owner.region.w!=0u&&owner.physical.w>0.f,"pressure reaction contract was not cooked");
+    need(std::abs(double(owner.spatialFirst.w))<1e-7&&std::abs(double(owner.spatialSecond0.w))<1e-7&&std::abs(double(owner.spatialSecond1.w)-1.)<1e-7,"pressure reaction direction was not preserved");
+    const auto accepted=run.state().femNodes;const auto vascular=run.state().vascularState;const unsigned nodes=w.dispatch.femNodeCount;
+    NSError* error=nil;auto library=[run.device newLibraryWithURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:NUMI_MATTER_METALLIB]] error:&error];
+    need(library!=nil,"metallib unavailable for pressure reaction check");
+    const auto forcePipeline=pipeline(run.device,library,@"numi_matter_metal::nm_vascular_cavity_forces");
+    const auto operatorPipeline=pipeline(run.device,library,@"numi_matter_metal::nm_vascular_cavity_operator");
+    NMMicrostepGPU micro{};micro.time={float(run.runtime.timestepSeconds()),float(1./run.runtime.timestepSeconds()),0,0};micro.flags=NM_MICROSTEP_FGMRES_OPERATOR;
+    const auto unknownBuffer=gpuBuffer(run.device,w.vascular.unknowns),compartmentBuffer=gpuBuffer(run.device,w.vascular.compartments);
+    const auto cavityBuffer=gpuBufferOrDummy(run.device,w.vascular.cavities),faceBuffer=gpuBufferOrDummy(run.device,w.vascular.cavityFaces);
+    const auto incidenceBuffer=gpuBufferOrDummy(run.device,w.vascular.cavityNodeIncidence),rangeBuffer=gpuBufferOrDummy(run.device,w.vascular.cavityNodeRanges);
+    const auto tissueBuffer=gpuBuffer(run.device,w.vascular.tissues),bindingBuffer=gpuBuffer(run.device,w.vascular.tissueBindings);
+    std::vector<float> fixtureElastance(w.dispatch.environmentCount*w.vascular.compartments.size(),1.f);
+    for(unsigned env=0;env<w.dispatch.environmentCount;++env) for(unsigned i=0;i<w.vascular.compartments.size();++i)
+        if(w.vascular.compartments[i].identity.w==0u||w.vascular.compartments[i].identity.w==3u) fixtureElastance[env*w.vascular.compartments.size()+i]=float(1./w.vascular.compartments[i].compliance.z);
+    const auto elastanceBuffer=gpuBufferOrDummy(run.device,fixtureElastance);
+    auto encodeForce=[&](const std::vector<nm_float4>& state){
+        const auto command=[run.queue commandBuffer];auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:forcePipeline];
+        const auto stateBuffer=gpuBuffer(run.device,state),candidateBuffer=gpuBuffer(run.device,accepted),borrowed=gpuBuffer(run.device,std::vector<nm_float4>(2*nodes));
+        const auto output=gpuBuffer(run.device,std::vector<nm_float4>(2*nodes,nm_float4{99,99,99,0})),statuses=gpuBuffer(run.device,std::vector<NMMatterStatusGPU>(2));const std::uint32_t include=0;
+        [encoder setBytes:&w.dispatch length:sizeof(w.dispatch) atIndex:0];[encoder setBytes:&w.vascular.layout length:sizeof(w.vascular.layout) atIndex:1];[encoder setBytes:&micro length:sizeof(micro) atIndex:2];
+        [encoder setBuffer:unknownBuffer offset:0 atIndex:3];[encoder setBuffer:compartmentBuffer offset:0 atIndex:4];[encoder setBuffer:cavityBuffer offset:0 atIndex:5];[encoder setBuffer:faceBuffer offset:0 atIndex:6];
+        [encoder setBuffer:incidenceBuffer offset:0 atIndex:7];[encoder setBuffer:rangeBuffer offset:0 atIndex:8];[encoder setBuffer:gpuBuffer(run.device,accepted) offset:0 atIndex:9];[encoder setBuffer:candidateBuffer offset:0 atIndex:10];[encoder setBuffer:stateBuffer offset:0 atIndex:11];
+        [encoder setBuffer:borrowed offset:0 atIndex:12];[encoder setBytes:&include length:sizeof(include) atIndex:13];[encoder setBuffer:output offset:0 atIndex:14];[encoder setBuffer:statuses offset:0 atIndex:15];
+        [encoder setBuffer:tissueBuffer offset:0 atIndex:16];[encoder setBuffer:bindingBuffer offset:0 atIndex:17];[encoder setBuffer:elastanceBuffer offset:0 atIndex:18];
+        [encoder dispatchThreads:MTLSizeMake(2*nodes,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];completed(command);
+        for(unsigned env=0;env<2;++env)need(static_cast<NMMatterStatusGPU*>(statuses.contents)[env].code==NM_STATUS_SUCCESS,"pressure reaction force state rejected");
+        const auto* values=static_cast<nm_float4*>(output.contents);return std::vector<nm_float4>(values,values+2*nodes);
+    };
+    const auto first=encodeForce(vascular),second=encodeForce(vascular);need(same(first,second),"pressure reaction replay changed output");
+    unsigned from=NM_INVALID_INDEX,to=NM_INVALID_INDEX;for(unsigned i=0;i<w.vascular.compartments.size();++i){if(w.vascular.compartments[i].identity.x==12u)from=i;if(w.vascular.compartments[i].identity.x==11u)to=i;}
+    need(from!=NM_INVALID_INDEX&&to!=NM_INVALID_INDEX,"pressure reaction compartments were not resolved");
+    const double volume=run.physical(run.state(),from);const auto& source=w.vascular.compartments[from];const double pFrom=source.compliance.y+(volume-source.compliance.x)/source.compliance.z;const double pTo=run.physical(run.state(),w.vascular.cavities[0].identity.w);const double totalReaction=-(pFrom-pTo)*double(owner.physical.w),weight=1./double(shell.innerNodes.size());
+    double observedTotal=0;for(unsigned env=0;env<2;++env)for(unsigned node=0;node<nodes;++node){const bool owned=std::find(shell.innerNodes.begin(),shell.innerNodes.end(),node)!=shell.innerNodes.end();const auto& force=first[env*nodes+node];const double expected=owned?totalReaction*weight:0.;need(std::abs(double(force.z)-expected)<2e-7&&std::abs(double(force.x))<2e-7&&std::abs(double(force.y))<2e-7,"pressure reaction force disagreed with the authored pressure-area direction");observedTotal+=force.z;}
+    need(std::abs(observedTotal-2.*totalReaction)<2e-6,"pressure reaction did not conserve the registered wall force");
+    NMFGMRESLayoutGPU layout{};layout.vascularUnknownCount=unsigned(w.vascular.unknowns.size());layout.vascularBase=4*nodes;layout.unknownCount=layout.vascularBase+2*layout.vascularUnknownCount;
+    auto direction=std::vector<nm_float4>(layout.unknownCount);for(unsigned env=0;env<2;++env)direction[layout.vascularBase+env*w.vascular.unknowns.size()+from].x=.5f;
+    const auto directionBuffer=gpuBuffer(run.device,direction),acceptedBuffer=gpuBuffer(run.device,accepted),candidateBuffer=gpuBuffer(run.device,accepted),stateBuffer=gpuBuffer(run.device,vascular);
+    auto encodeOperator=[&](){const auto command=[run.queue commandBuffer];auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:operatorPipeline];
+        const auto output=gpuBuffer(run.device,std::vector<nm_float4>(2*nodes)),solver=gpuBuffer(run.device,std::vector<NMFGMRESStateGPU>(2)),statuses=gpuBuffer(run.device,std::vector<NMMatterStatusGPU>(2));
+        [encoder setBytes:&w.dispatch length:sizeof(w.dispatch) atIndex:0];[encoder setBytes:&w.vascular.layout length:sizeof(w.vascular.layout) atIndex:1];[encoder setBytes:&micro length:sizeof(micro) atIndex:2];[encoder setBuffer:unknownBuffer offset:0 atIndex:3];[encoder setBuffer:compartmentBuffer offset:0 atIndex:4];
+        [encoder setBuffer:cavityBuffer offset:0 atIndex:5];[encoder setBuffer:faceBuffer offset:0 atIndex:6];[encoder setBuffer:incidenceBuffer offset:0 atIndex:7];[encoder setBuffer:rangeBuffer offset:0 atIndex:8];[encoder setBuffer:acceptedBuffer offset:0 atIndex:9];[encoder setBuffer:candidateBuffer offset:0 atIndex:10];[encoder setBuffer:stateBuffer offset:0 atIndex:11];[encoder setBuffer:directionBuffer offset:0 atIndex:12];[encoder setBuffer:output offset:0 atIndex:13];[encoder setBuffer:solver offset:0 atIndex:14];[encoder setBuffer:statuses offset:0 atIndex:15];
+        [encoder setBuffer:tissueBuffer offset:0 atIndex:16];[encoder setBuffer:bindingBuffer offset:0 atIndex:17];[encoder setBuffer:elastanceBuffer offset:0 atIndex:18];[encoder setBytes:&layout length:sizeof(layout) atIndex:30];
+        [encoder dispatchThreads:MTLSizeMake(2*nodes,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];completed(command);for(unsigned env=0;env<2;++env)need(static_cast<NMMatterStatusGPU*>(statuses.contents)[env].code==NM_STATUS_SUCCESS,"pressure reaction tangent state rejected");const auto* values=static_cast<nm_float4*>(output.contents);return std::vector<nm_float4>(values,values+2*nodes);};
+    const auto firstOperator=encodeOperator(),secondOperator=encodeOperator();need(same(firstOperator,secondOperator),"pressure reaction tangent replay changed output");
+    const double pressureDelta=.5*double(w.vascular.unknowns[from].initialAndScaling.y)/source.compliance.z;const double tangentTotal=micro.time.x*pressureDelta*double(owner.physical.w);for(unsigned env=0;env<2;++env)for(unsigned node=0;node<nodes;++node){const bool owned=std::find(shell.innerNodes.begin(),shell.innerNodes.end(),node)!=shell.innerNodes.end();const double expected=owned?tangentTotal*weight:0.;const auto& value=firstOperator[env*nodes+node];need(std::abs(double(value.z)-expected)<3e-7&&std::abs(double(value.x))<3e-7&&std::abs(double(value.y))<3e-7,"pressure reaction tangent disagreed with the pressure-area derivative");}
+    std::cout<<"pressure_gradient_reaction=pass from_compartment=12 to_compartment=11 area_m2="<<owner.physical.w<<" total_force_per_environment_N="<<totalReaction<<" replay=bitwise jacobian=pass pressure_driven_fluid_momentum=unqualified anatomical_registration=unqualified subject_calibration=unqualified\n";
+}
 void movingWall(){
     constexpr unsigned steps=32;const auto shell=fixture::hollowShell();Run run(fixture::world());
     productionOperators(run);
@@ -616,5 +677,5 @@ void movingWall(){
              <<" qualification=synthetic_moving_wall_interface blood_mechanical_mass=absent biological_calibration=unqualified\n";
 }
 } // namespace
-int main(){@autoreleasepool{try{std::cout<<std::setprecision(17);geometryOracle();bloodMassOwner();movingWall();return 0;}
+int main(){@autoreleasepool{try{std::cout<<std::setprecision(17);geometryOracle();bloodMassOwner();pressureMomentumOwner();movingWall();return 0;}
 catch(const std::exception& error){std::cerr<<"cavity_check=failed reason="<<error.what()<<'\n';return 1;}}}
