@@ -584,7 +584,49 @@ void waitForCompletion(Completion& completion, const unsigned timeoutSeconds=10u
         "full-body root did not settle exactly once");
 }
 
-numi::matter::WorldSource authoredFixtureWorld(const std::vector<float>& preparedQ = {}) {
+void appendSyntheticVascularOwner(numi::matter::WorldSource& world) {
+    // This owner is deliberately source-independent. It proves package
+    // admission and identity/mass/momentum wiring on the real fullbody
+    // topology; it is not anatomical, subject-calibrated, or behavioral data.
+    world.vascular.contentIdentity = {
+        0x4e554d495f424c44ull, 0x534d4153535f5631ull,
+        0x464958545552455full, 0x31325f3555535f31ull};
+    world.vascular.sourceIdentity = {
+        0x53594e5448455449ull, 0x435f424c4f4f445full,
+        0x4d4543485f5631ull, 0x0000000000000001ull};
+    world.vascular.authoredIdentity = {
+        0x4d41545445525f46ull, 0x554c4c424f44595full,
+        0x424c4f4f445f4f57ull, 0x4e45525f5631ull};
+    world.vascular.compartments.push_back({
+        2u, "fixture:blood-proximal", 1.0e-6, 1.0e-6,
+        0.25, 1.0e-9, 0.0, 1.0e-6, 1.0e-5, {},
+        numi::matter::VascularStorageKind::absoluteVolume,
+        numi::matter::VascularPressureLaw::linearCompliance});
+    world.vascular.compartments.push_back({
+        3u, "fixture:blood-distal", 1.0e-6, 1.0e-6,
+        0.0, 1.0e-9, 0.0, 1.0e-6, 1.0e-5, {},
+        numi::matter::VascularStorageKind::absoluteVolume,
+        numi::matter::VascularPressureLaw::linearCompliance});
+    world.vascular.connections.push_back({
+        4u, 2u, 3u, 1.0e9, 1.0e-3, 0.0, 1.0e-6, 1.0, 1.0e-5,
+        numi::matter::VascularFlowLaw::resistanceInertance});
+    numi::matter::VascularTissueSource bloodOwner;
+    bloodOwner.stableIdentifier = 5u;
+    bloodOwner.anatomicalIdentifier = "fixture:blood-owner";
+    bloodOwner.volume = 1.0e-6;
+    bloodOwner.objectIndex = 0u;
+    bloodOwner.bloodCompartment = 2u;
+    bloodOwner.bloodDensity = 1060.0;
+    bloodOwner.bloodMomentumTransfer = true;
+    bloodOwner.pressureFromCompartment = 2u;
+    bloodOwner.pressureToCompartment = 3u;
+    bloodOwner.pressureDirection = {0.0, 0.0, 1.0};
+    bloodOwner.pressureArea = 1.0e-4;
+    bloodOwner.femRegion = {{0u, 0.25}, {1u, 0.25}, {2u, 0.25}, {3u, 0.25}};
+    world.vascular.tissues.push_back(std::move(bloodOwner));
+}
+
+numi::matter::WorldSource authoredFixtureWorld(const std::vector<float>& preparedQ = {}, const bool includeVascular = false) {
     // Decode only the existing rigid ABI needed by this qualification fixture.
     // Production asset parsing remains in the native runtime owner.
     std::ifstream input(MRNX_FULLBODY_RIGID, std::ios::binary);
@@ -663,10 +705,65 @@ numi::matter::WorldSource authoredFixtureWorld(const std::vector<float>& prepare
         object.tetrahedra.push_back({{0u, 1u, 2u, 3u}});
         world.objects.push_back(object);
     }
+    if (includeVascular) appendSyntheticVascularOwner(world);
     return world;
 }
 
-
+void qualifyFullBodyVascularAdmission() {
+    @autoreleasepool {
+        const auto source = authoredFixtureWorld({}, true);
+        numi::matter::CompileOptions options;
+        options.maximumRateExponent = 0u;
+        const auto compiled = numi::matter::compileWorld(source, options);
+        require(compiled.succeeded(), "fullbody vascular source failed to compile");
+        std::string error;
+        require(numi::matter::validateCompiledWorldLayout(compiled.world, &error),
+                error.c_str());
+        const auto& world = compiled.world;
+        const auto& vascular = world.vascular;
+        require(world.dispatch.objectCount == 3u &&
+                    world.dispatch.femNodeCount == 12u &&
+                    world.dispatch.femHumanAttachmentCount == 12u &&
+                    vascular.layout.counts.x == 2u &&
+                    vascular.layout.counts.y == 1u &&
+                    vascular.layout.counts.w == 1u &&
+                    vascular.layout.ranges.z == 3u &&
+                    vascular.tissues.size() == 1u &&
+                    vascular.tissueBindings.size() == 4u,
+                "fullbody vascular package counts are not canonical");
+        const auto& owner = vascular.tissues.front();
+        require(owner.identity.z == 0u &&
+                    owner.identity.w ==
+                        (1u | NM_VASCULAR_TISSUE_MOMENTUM_TRANSFER) &&
+                    owner.region.x == 0u && owner.region.y == 4u &&
+                    owner.region.z == 1u && owner.region.w == 2u &&
+                    owner.physical.y == 1060.0f &&
+                    std::abs(owner.physical.z - 1.06e-3f) < 1.0e-8f,
+                "fullbody vascular owner mass/momentum contract is not cooked");
+        const auto package = std::filesystem::temp_directory_path() /
+            ("numanx-fullbody-vascular-" + std::to_string(getpid()) +
+             ".nmatterpack");
+        require(numi::matter::writePackage(compiled, package, &error),
+                error.c_str());
+        numi::matter::CompiledWorld reloaded;
+        require(numi::matter::readPackage(package, reloaded, nullptr, &error),
+                error.c_str());
+        require(numi::matter::validateCompiledWorldLayout(reloaded, &error),
+                error.c_str());
+        require(reloaded.fingerprint == world.fingerprint &&
+                    reloaded.vascular.tissues.size() == 1u &&
+                    reloaded.vascular.tissues.front().identity.w ==
+                        owner.identity.w,
+                "fullbody vascular package replay changed owner identity");
+        std::filesystem::remove(package);
+        std::printf(
+            "numanx_fullbody_vascular_admission=pass bodies=157 nq=129 nv=128 "
+            "objects=3 fem_nodes=12 vascular_compartments=2 connections=1 "
+            "tissue_owner=1 blood_density=1060kg_m3 momentum_transfer=explicit "
+            "package_replay=bitwise dynamics=unqualified anatomy=unqualified "
+            "subject_calibration=unqualified\n");
+    }
+}
 
 void qualifyTouchAggregation(id<MTLDevice> device) {
     NSError* error=nil;
@@ -1829,12 +1926,16 @@ int main(int argc, char** argv) {
                 return 0;
             }
         }
+        if (argc == 2 && std::string(argv[1]) == "--vascular-fullbody-admission") {
+            qualifyFullBodyVascularAdmission();
+            return 0;
+        }
         require(argc == 1 || (argc == 2 &&
                     (std::string(argv[1]) == "--authored-world" ||
                      std::string(argv[1]) == "--source-equalities" ||
                      std::string(argv[1]) == "--costal-tissue" ||
                      std::string(argv[1]) == "--exact-clock")),
-                "usage: numanx_fullbody_bridge_probe [--authored-world|--source-equalities|--costal-tissue|--exact-clock|--support-only]");
+                "usage: numanx_fullbody_bridge_probe [--authored-world|--source-equalities|--costal-tissue|--exact-clock|--support-only|--vascular-fullbody-admission]");
         const bool costal=argc==2&&std::string(argv[1])=="--costal-tissue";
         const bool exactClock=argc==2&&std::string(argv[1])=="--exact-clock";
         return run(argc == 2 && !exactClock,
