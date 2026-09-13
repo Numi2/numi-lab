@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 34u
+#define NM_MATTER_ABI_VERSION 35u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -443,8 +443,11 @@ typedef struct NM_ALIGN16 NMVascularConnectionGPU {
     nm_float4 directional; // law 4 reverse resistance, 0, 0, 0; all zero for other laws
 } NMVascularConnectionGPU;
 typedef struct NM_ALIGN16 NMVascularTissueGPU {
-    nm_uint4 identity; // stable id, anatomical name byte offset, FEM object or invalid, 0
-    nm_float4 physical; // fixed volume, 0, 0, 0
+    // stable id, anatomical name byte offset, FEM object or invalid,
+    // blood-owner compartment index + 1 (zero means no mechanical owner)
+    nm_uint4 identity;
+    // fixed reservoir volume, registered blood density (kg/m3), 0, 0
+    nm_float4 physical;
     nm_uint4 region; // first tissue binding, count, 0, 0
 } NMVascularTissueGPU;
 typedef struct NM_ALIGN16 NMVascularExchangeGPU {

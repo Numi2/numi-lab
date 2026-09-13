@@ -563,6 +563,12 @@ struct VascularTissueSource {
     std::uint32_t objectIndex = NM_INVALID_INDEX;
     std::vector<VascularTissueBindingSource> femRegion;
     bool mechanicsFeedback = false;
+    // Optional single-owner blood mechanical mass registration. When set,
+    // this tissue receives the compartment's fluid mass over its real FEM
+    // region. It is a body-force/mass ledger only; momentum transfer and
+    // subject-specific density remain separate qualification gates.
+    std::uint32_t bloodCompartment = 0u; // stable compartment identifier
+    double bloodDensity = 0.0; // kg/m3, positive when bloodCompartment is set
 };
 struct VascularExchangeSource {
     std::uint32_t stableIdentifier = 0u;

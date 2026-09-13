@@ -525,6 +525,7 @@ struct Runtime::State {
     id<MTLBuffer> vascularCompartments = nil;
     id<MTLBuffer> vascularConnections = nil;
     id<MTLBuffer> vascularTissues = nil;
+    id<MTLBuffer> vascularTissueBindings = nil;
     id<MTLBuffer> vascularExchanges = nil;
     id<MTLBuffer> vascularConnectionIncidence = nil;
     id<MTLBuffer> vascularConnectionRanges = nil;
@@ -1767,8 +1768,11 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->vascularCavityNodeRanges = uploads.one(
             std::span<const NMVascularRangeGPU>(world.vascular.cavityNodeRanges),
             valid, candidate->residentBytes);
+        const bool hasVascularBloodMass = std::any_of(
+            world.vascular.tissues.begin(), world.vascular.tissues.end(),
+            [](const auto& tissue) { return tissue.identity.w != 0u; });
         candidate->vascularCavityMergedExternal = privateScratch<nm_float4>(
-            candidate->device, world.vascular.cavities.empty() ? 0u :
+            candidate->device, (world.vascular.cavities.empty() && !hasVascularBloodMass) ? 0u :
                 environments * world.dispatch.femNodeCount,
             valid, candidate->residentBytes);
         candidate->vascularUnknowns = uploads.one(
@@ -1782,6 +1786,9 @@ RuntimeDiagnostics Runtime::initialize(
             valid, candidate->residentBytes);
         candidate->vascularTissues = uploads.one(
             std::span<const NMVascularTissueGPU>(world.vascular.tissues),
+            valid, candidate->residentBytes);
+        candidate->vascularTissueBindings = uploads.one(
+            std::span<const NMVascularTissueBindingGPU>(world.vascular.tissueBindings),
             valid, candidate->residentBytes);
         candidate->vascularExchanges = uploads.one(
             std::span<const NMVascularExchangeGPU>(world.vascular.exchanges),
@@ -3474,10 +3481,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
             return diagnostics;
         }
         const bool hasVascularCavities = state.vascularValue.layout.cavities.x != 0u;
-        id<MTLBuffer> femMechanicalForces = hasVascularCavities
+        const bool hasVascularBloodMass = std::any_of(
+            state.vascularValue.tissues.begin(), state.vascularValue.tissues.end(),
+            [](const auto& tissue) { return tissue.identity.w != 0u; });
+        const bool hasVascularMechanicalForces =
+            hasVascularCavities || hasVascularBloodMass;
+        id<MTLBuffer> femMechanicalForces = hasVascularMechanicalForces
             ? state.vascularCavityMergedExternal : femExternalForces;
         const std::uint32_t hasFEMMechanicalForces =
-            hasVascularCavities || hasFEMExternalForces ? 1u : 0u;
+            hasVascularMechanicalForces || hasFEMExternalForces ? 1u : 0u;
         id<MTLBuffer> femKinematicTargets =
             request.femKinematicTargets == nullptr
                 ? state.dummy
@@ -4898,7 +4910,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             // Reassemble hydraulic wall work with borrowed loads at the same
             // candidate used by the mechanical residual and final certificate.
             const auto encodeCavityForces = [&]() {
-                if (!hasVascularCavities) return;
+                if (!hasVascularMechanicalForces) return;
                 dispatchThreads("nm_vascular_cavity_forces", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&state.vascularValue.layout length:sizeof(state.vascularValue.layout) atIndex:1u];
@@ -4916,6 +4928,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&hasFEMExternalForces length:sizeof(hasFEMExternalForces) atIndex:13u];
                     [encoder setBuffer:state.vascularCavityMergedExternal offset:0u atIndex:14u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:15u];
+                    [encoder setBuffer:state.vascularTissues offset:0u atIndex:16u];
+                    [encoder setBuffer:state.vascularTissueBindings offset:0u atIndex:17u];
                 });
             };
             // Opt-in, bounded copies at a single requested root preserve the
@@ -8539,6 +8553,7 @@ bool Runtime::encodeAcceptedStateProof(
             state.vascularCompartments,
             state.vascularConnections,
             state.vascularTissues,
+            state.vascularTissueBindings,
             state.vascularExchanges,
             state.vascularConnectionIncidence,
             state.vascularConnectionRanges,
@@ -9328,6 +9343,7 @@ bool Runtime::applyPreparedStateImpl(
             state.vascularCompartments,
             state.vascularConnections,
             state.vascularTissues,
+            state.vascularTissueBindings,
             state.vascularExchanges,
             state.vascularConnectionIncidence,
             state.vascularConnectionRanges,

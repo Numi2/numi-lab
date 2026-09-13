@@ -102,10 +102,17 @@ int main() {
         organ.femNodes={{{0,0,0}},{{.01,0,0}},{{0,.01,0}},{{0,0,.01}}};
         organ.tetrahedra.push_back({{0u,1u,2u,3u}});associated.objects.push_back(organ);
         associated.vascular.tissues[0].objectIndex=0;associated.vascular.tissues[0].femRegion={{2u,.25},{0u,.75}};
+        associated.vascular.tissues[0].bloodCompartment=20u;
+        associated.vascular.tissues[0].bloodDensity=1060.0;
         const auto bound=compileWorld(associated);require(bound.succeeded(),"real FEM association rejected: "+messages(bound));
         require(bound.world.vascular.tissueBindings.size()==2&&bound.world.vascular.tissueBindings[0].identity.y==0&&bound.world.vascular.tissueBindings[1].identity.y==2,"FEM region not canonically resolved");
+        require(bound.world.vascular.tissues[0].identity.w!=0u&&bound.world.vascular.tissues[0].physical.y==float(1060.0),"blood mechanical owner was not cooked");
         changed=associated;changed.vascular.tissues[0].femRegion={{0u,.5},{0u,.5}};rejected(changed,"duplicate FEM region node");
         changed=associated;changed.vascular.tissues[0].femRegion={{0u,.9}};rejected(changed,"unnormalized FEM region");
+        changed=associated;changed.vascular.tissues[0].bloodCompartment=0u;rejected(changed,"blood owner without compartment identity");
+        changed=associated;changed.vascular.tissues[0].bloodDensity=0.0;rejected(changed,"blood owner without positive density");
+        auto duplicate=associated;auto second=duplicate.vascular.tissues[0];second.stableIdentifier=6u;second.anatomicalIdentifier="fixture/second_organ";duplicate.vascular.tissues.push_back(second);
+        rejected(duplicate,"duplicate blood compartment owner");
         changed=associated;changed.objects[0].mutationPolicy.enabled=true;rejected(changed,"unsupported vascular topology remap");
         bad=bound.world;bad.vascular.tissueBindings[0].identity.y=999;rejectedCooked(bad,"stale FEM association");
         // Numerical constitutive fixtures only; actual source replication uses

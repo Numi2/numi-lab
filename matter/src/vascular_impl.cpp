@@ -132,8 +132,10 @@ bool validConnection(const NMVascularConnectionGPU& x, const NMVascularUnknownGP
     return finite(ratio*ratio);
 }
 bool allZero(const NMVascularIdentityGPU& x) { for (unsigned i=0;i<4;++i) if (x.content[i]||x.source[i]||x.authored[i]) return false; return true; }
-// Direct material-boundary embedding: no geometry-dependent tolerance weld,
-// artificial caps, source-volume offsets, or additional fluid mechanical mass.
+// Direct material-boundary embedding: no geometry-dependent tolerance weld or
+// artificial caps. Blood mechanical mass is admitted only through the explicit
+// single-owner tissue registration below; no implicit cavity volume or density
+// is invented by the compiler.
 using CavityPoint = std::array<long double,3>;
 using CavityFaceKey = std::array<std::uint32_t,3>;
 CavityPoint cavitySubtract(const CavityPoint& a,const CavityPoint& b) {
@@ -356,11 +358,26 @@ bool compileVascular(const WorldSource& source, CompiledWorld& world, std::vecto
         const auto a=ci[x.fromCompartment],b=ci[x.toCompartment];c.connections.push_back({{x.stableIdentifier,a,b,std::uint32_t(x.flowLaw)},f4(x.resistance,x.inertance,x.orificeCoefficient,x.downstreamPressureFloor),f4(x.reverseResistance)});
         c.unknowns[c.layout.offsets.y+row]={f4(x.initialFlow,x.flowScale,x.pressureScale,x.flowResidualTolerance)};if(!validConnection(c.connections.back(),c.unknowns[c.layout.offsets.y+row]))return fail("unsupported or invalid flow law");edges[a].push_back(row);edges[b].push_back(row);
     }
+    std::vector<std::uint32_t> bloodOwnerTissue(C, NM_INVALID_INDEX);
     for (auto index:ot) {const auto& x=v.tissues[index];const auto row=std::uint32_t(c.tissues.size());std::uint32_t name=0;
-        if (!positive(x.volume)||x.mechanicsFeedback||!addName(x.anatomicalIdentifier,name)) return fail("invalid tissue volume/anatomy or unsupported mechanics feedback");
+        if (!positive(x.volume)||x.mechanicsFeedback||!finite(x.bloodDensity)||!addName(x.anatomicalIdentifier,name)) return fail("invalid tissue volume/anatomy, blood density or unsupported mechanics feedback");
         if ((x.objectIndex==NM_INVALID_INDEX)!=x.femRegion.empty()) return fail("FEM tissue region requires both a real object and nodes");
         if (x.objectIndex!=NM_INVALID_INDEX && (x.objectIndex>=world.objects.size() || world.objects[x.objectIndex].representation!=NM_REPRESENTATION_FEM)) return fail("tissue binding does not name a real FEM object");
-        ti[x.stableIdentifier]=row;NMVascularTissueGPU tissue{{x.stableIdentifier,name,x.objectIndex,0u},f4(x.volume),{std::uint32_t(c.tissueBindings.size()),std::uint32_t(x.femRegion.size()),0u,0u}};
+        std::uint32_t bloodOwner = 0u;
+        if (x.bloodCompartment == 0u) {
+            if (x.bloodDensity != 0.0) return fail("blood density requires an explicit compartment owner");
+        } else {
+            if (!ci.contains(x.bloodCompartment) || !positive(x.bloodDensity) ||
+                x.objectIndex == NM_INVALID_INDEX || x.femRegion.empty())
+                return fail("blood mass owner requires a positive density and real FEM region");
+            const auto compartment = ci[x.bloodCompartment];
+            if (bloodOwnerTissue[compartment] != NM_INVALID_INDEX)
+                return fail("blood compartment has duplicate mechanical mass owners");
+            bloodOwnerTissue[compartment] = row;
+            // Zero is the legacy/no-owner value; stored indices are +1.
+            bloodOwner = compartment + 1u;
+        }
+        ti[x.stableIdentifier]=row;NMVascularTissueGPU tissue{{x.stableIdentifier,name,x.objectIndex,bloodOwner},f4(x.volume,x.bloodDensity),{std::uint32_t(c.tissueBindings.size()),std::uint32_t(x.femRegion.size()),0u,0u}};
         double sum=0;std::set<std::uint32_t> seen;auto region=x.femRegion;std::sort(region.begin(),region.end(),[](auto a,auto b){return a.node<b.node;});
         for (const auto& b:region) {const auto& object=world.objects[x.objectIndex];if (!positive(b.weight)||b.node>=object.stateCount||!seen.insert(b.node).second||c.tissueBindings.size()==limit) return fail("invalid or duplicate FEM regional node/weight");sum+=b.weight;c.tissueBindings.push_back({{row,object.stateOffset+b.node,0u,0u},f4(b.weight)});}
         if (!region.empty() && std::abs(sum-1.0)>1e-8) return fail("FEM regional weights must sum to one");
@@ -475,8 +492,18 @@ bool validateVascularLayout(const CompiledWorld& world,std::string* error) {
         if(a==b)return fail("zero-forward directional connections must form an undirected forest");
         idealParent[b]=a;
     }
+    std::vector<std::uint32_t> bloodOwnerTissue(C, NM_INVALID_INDEX);
     std::size_t nextBinding=0;
-    for(std::size_t i=0;i<T;++i) {const auto& x=c.tissues[i];if(!x.identity.x||(i&&x.identity.x<=c.tissues[i-1].identity.x)||x.identity.w||!name(x.identity.y)||!finite4(x.physical)||!positive(x.physical.x)||x.physical.y!=0||x.physical.z!=0||x.physical.w!=0||x.region.x!=nextBinding||x.region.z||x.region.w||x.region.y>c.tissueBindings.size()-nextBinding)return fail("invalid fixed tissue reservoir");
+    for(std::size_t i=0;i<T;++i) {const auto& x=c.tissues[i];if(!x.identity.x||(i&&x.identity.x<=c.tissues[i-1].identity.x)||x.identity.w>C||!name(x.identity.y)||!finite4(x.physical)||!positive(x.physical.x)||x.physical.z!=0||x.physical.w!=0||x.region.x!=nextBinding||x.region.z||x.region.w||x.region.y>c.tissueBindings.size()-nextBinding)return fail("invalid fixed tissue reservoir");
+        if (x.identity.w == 0u) {
+            if (x.physical.y != 0.0f) return fail("unowned tissue carries blood density");
+        } else {
+            const auto owner = x.identity.w - 1u;
+            if (!positive(double(x.physical.y)) || x.identity.z == NM_INVALID_INDEX || x.region.y == 0u ||
+                c.compartments[owner].identity.z != 0u || bloodOwnerTissue[owner] != NM_INVALID_INDEX)
+                return fail("blood mechanical owner lacks an absolute registered FEM region");
+            bloodOwnerTissue[owner] = std::uint32_t(i);
+        }
         if((x.identity.z==NM_INVALID_INDEX)!=(x.region.y==0))return fail("incomplete tissue FEM binding");
         if(x.identity.z!=NM_INVALID_INDEX && (x.identity.z>=world.objects.size()||world.objects[x.identity.z].representation!=NM_REPRESENTATION_FEM))return fail("tissue does not bind a real FEM object");
         double sum=0;std::uint32_t previous=0;

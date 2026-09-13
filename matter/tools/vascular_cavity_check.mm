@@ -88,6 +88,10 @@ template<class T> id<MTLBuffer> gpuBuffer(id<MTLDevice> device,const std::vector
     need(!values.empty(),"empty direct operator input");
     return [device newBufferWithBytes:values.data() length:values.size()*sizeof(T) options:MTLResourceStorageModeShared];
 }
+template<class T> id<MTLBuffer> gpuBufferOrDummy(id<MTLDevice> device,const std::vector<T>& values){
+    if(!values.empty())return gpuBuffer(device,values);
+    return [device newBufferWithLength:sizeof(T) options:MTLResourceStorageModeShared];
+}
 id<MTLComputePipelineState> pipeline(id<MTLDevice> device,id<MTLLibrary> library,NSString* name){
     NSError* error=nil;auto function=[library newFunctionWithName:name];need(function!=nil,"production cavity kernel missing");
     auto result=[device newComputePipelineStateWithFunction:function error:&error];need(result!=nil,"cavity pipeline creation failed");return result;
@@ -122,6 +126,7 @@ void productionOperators(Run& run){
     }
     const auto unknownBuffer=gpuBuffer(run.device,w.vascular.unknowns),cavityBuffer=gpuBuffer(run.device,w.vascular.cavities),faceBuffer=gpuBuffer(run.device,w.vascular.cavityFaces);
     const auto incidenceBuffer=gpuBuffer(run.device,w.vascular.cavityNodeIncidence),rangeBuffer=gpuBuffer(run.device,w.vascular.cavityNodeRanges);
+    const auto bloodTissueBuffer=gpuBufferOrDummy(run.device,w.vascular.tissues),bloodBindingBuffer=gpuBufferOrDummy(run.device,w.vascular.tissueBindings);
     auto acceptedBuffer=gpuBuffer(run.device,accepted);
     auto encodeCommon=[&](id<MTLComputeCommandEncoder> encoder,id<MTLBuffer> compartmentBuffer,id<MTLBuffer> candidateBuffer,id<MTLBuffer> vascularBuffer){
         [encoder setBytes:&w.dispatch length:sizeof(w.dispatch) atIndex:0];[encoder setBytes:&w.vascular.layout length:sizeof(w.vascular.layout) atIndex:1];
@@ -137,6 +142,7 @@ void productionOperators(Run& run){
         const auto status=gpuBuffer(run.device,std::vector<NMMatterStatusGPU>(2));const std::uint32_t include=hasBorrowed?1:0;
         encodeCommon(encoder,p,c,v);[encoder setBuffer:b offset:0 atIndex:12];[encoder setBytes:&include length:sizeof(include) atIndex:13];
         [encoder setBuffer:output offset:0 atIndex:14];[encoder setBuffer:status offset:0 atIndex:15];
+        [encoder setBuffer:bloodTissueBuffer offset:0 atIndex:16];[encoder setBuffer:bloodBindingBuffer offset:0 atIndex:17];
         [encoder dispatchThreads:MTLSizeMake(2*nodes,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];completed(cb);
         for(unsigned env=0;env<2;++env)need(static_cast<NMMatterStatusGPU*>(status.contents)[env].code==NM_STATUS_SUCCESS,"manufactured cavity force state rejected");
         const auto* values=static_cast<nm_float4*>(output.contents);return std::vector<nm_float4>(values,values+2*nodes);
@@ -375,6 +381,50 @@ void geometryOracle(){
     need(std::abs(work-change)<1e-20&&std::sqrt(fixture::dot(force,force))<1e-18,"closed surface work/force geometry oracle failed");
     std::cout<<"cavity_geometry_oracle=pass tissue_tets=156 outer_fixed_nodes=56 lumen_free_nodes=8 lumen_faces=12 tissue_volume_m3="<<tissueVolume<<" lumen_volume_m3="<<fixture::volume(old,shell.lumenFaces)<<" pressure_work_error_m3="<<std::abs(work-change)<<'\n';
 }
+void bloodMassOwner(){
+    const auto shell=fixture::hollowShell();Run run(fixture::world(false,.001,true));const auto& w=run.world;
+    need(w.vascular.tissues.size()==1&&w.vascular.tissueBindings.size()==shell.innerNodes.size(),"blood owner fixture did not cook its FEM region");
+    const auto& owner=w.vascular.tissues[0];need(owner.identity.w!=0u&&owner.physical.y>1000.f,"blood owner identity or density was not cooked");
+    double weightSum=0;for(const auto& binding:w.vascular.tissueBindings)weightSum+=binding.physical.x;
+    need(std::abs(weightSum-1.)<1e-7,"blood owner FEM weights are not normalized");
+    unsigned compartment=NM_INVALID_INDEX;for(unsigned i=0;i<w.vascular.compartments.size();++i)if(w.vascular.compartments[i].identity.x==12u)compartment=i;
+    need(compartment!=NM_INVALID_INDEX&&owner.identity.w==compartment+1u,"blood owner compartment was not canonically resolved");
+    const auto accepted=run.state().femNodes;const auto vascular=run.state().vascularState;const unsigned nodes=w.dispatch.femNodeCount;
+    NSError* error=nil;auto library=[run.device newLibraryWithURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:NUMI_MATTER_METALLIB]] error:&error];
+    need(library!=nil,"metallib unavailable for blood owner operator check");
+    const auto forcePipeline=pipeline(run.device,library,@"numi_matter_metal::nm_vascular_cavity_forces");
+    NMMicrostepGPU micro{};micro.time={float(run.runtime.timestepSeconds()),float(1./run.runtime.timestepSeconds()),0,0};
+    const auto unknownBuffer=gpuBuffer(run.device,w.vascular.unknowns),compartmentBuffer=gpuBuffer(run.device,w.vascular.compartments);
+    const auto cavityBuffer=gpuBuffer(run.device,w.vascular.cavities),faceBuffer=gpuBuffer(run.device,w.vascular.cavityFaces);
+    const auto incidenceBuffer=gpuBuffer(run.device,w.vascular.cavityNodeIncidence),rangeBuffer=gpuBuffer(run.device,w.vascular.cavityNodeRanges);
+    const auto acceptedBuffer=gpuBuffer(run.device,accepted),tissueBuffer=gpuBuffer(run.device,w.vascular.tissues),bindingBuffer=gpuBuffer(run.device,w.vascular.tissueBindings);
+    auto encode=[&](){
+        const auto command=[run.queue commandBuffer];auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:forcePipeline];
+        const auto vascularBuffer=gpuBuffer(run.device,vascular),borrowed=gpuBuffer(run.device,std::vector<nm_float4>(2*nodes,nm_float4{0,0,0,0}));
+        const auto output=gpuBuffer(run.device,std::vector<nm_float4>(2*nodes,nm_float4{99,99,99,0}));
+        const auto statuses=gpuBuffer(run.device,std::vector<NMMatterStatusGPU>(2));const std::uint32_t include=0;
+        [encoder setBytes:&w.dispatch length:sizeof(w.dispatch) atIndex:0];[encoder setBytes:&w.vascular.layout length:sizeof(w.vascular.layout) atIndex:1];
+        [encoder setBytes:&micro length:sizeof(micro) atIndex:2];[encoder setBuffer:unknownBuffer offset:0 atIndex:3];[encoder setBuffer:compartmentBuffer offset:0 atIndex:4];
+        [encoder setBuffer:cavityBuffer offset:0 atIndex:5];[encoder setBuffer:faceBuffer offset:0 atIndex:6];[encoder setBuffer:incidenceBuffer offset:0 atIndex:7];
+        [encoder setBuffer:rangeBuffer offset:0 atIndex:8];[encoder setBuffer:acceptedBuffer offset:0 atIndex:9];[encoder setBuffer:acceptedBuffer offset:0 atIndex:10];[encoder setBuffer:vascularBuffer offset:0 atIndex:11];
+        [encoder setBuffer:borrowed offset:0 atIndex:12];[encoder setBytes:&include length:sizeof(include) atIndex:13];[encoder setBuffer:output offset:0 atIndex:14];[encoder setBuffer:statuses offset:0 atIndex:15];
+        [encoder setBuffer:tissueBuffer offset:0 atIndex:16];[encoder setBuffer:bindingBuffer offset:0 atIndex:17];
+        [encoder dispatchThreads:MTLSizeMake(2*nodes,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];completed(command);
+        for(unsigned env=0;env<2;++env)need(static_cast<NMMatterStatusGPU*>(statuses.contents)[env].code==NM_STATUS_SUCCESS,"blood owner force state rejected");
+        const auto* values=static_cast<nm_float4*>(output.contents);return std::vector<nm_float4>(values,values+2*nodes);
+    };
+    const auto first=encode(),second=encode();need(same(first,second),"blood owner force replay changed output");
+    const double volume=run.physical(run.state(),compartment),density=owner.physical.y,weight=1./double(shell.innerNodes.size());
+    const double expectedTotal=double(w.dispatch.gravityAndTimestep.z)*density*volume;
+    double total=0;for(unsigned env=0;env<2;++env)for(unsigned node=0;node<nodes;++node){
+        const auto& force=first[env*nodes+node];const bool owned=std::find(shell.innerNodes.begin(),shell.innerNodes.end(),node)!=shell.innerNodes.end();
+        const double expected=owned?expectedTotal*weight:0.;need(std::abs(double(force.x))<2e-7&&std::abs(double(force.y))<2e-7,"blood owner introduced lateral force");
+        need(std::abs(double(force.z)-expected)<2e-6,"blood owner body force did not match density-volume scatter");total+=force.z;
+    }
+    need(std::abs(total-2.*expectedTotal)<4e-6,"blood owner body force did not conserve total weight");
+    std::cout<<"blood_mass_owner=pass compartment_stable_id=12 density_kg_m3="<<density<<" accepted_volume_m3="<<volume
+             <<" total_force_N="<<total<<" normalized_region_weight="<<weight<<" replay=bitwise momentum_transfer=unqualified subject_calibration=unqualified\n";
+}
 void movingWall(){
     constexpr unsigned steps=32;const auto shell=fixture::hollowShell();Run run(fixture::world());
     productionOperators(run);
@@ -415,5 +465,5 @@ void movingWall(){
              <<" qualification=synthetic_moving_wall_interface blood_mechanical_mass=absent biological_calibration=unqualified\n";
 }
 } // namespace
-int main(){@autoreleasepool{try{std::cout<<std::setprecision(17);geometryOracle();movingWall();return 0;}
+int main(){@autoreleasepool{try{std::cout<<std::setprecision(17);geometryOracle();bloodMassOwner();movingWall();return 0;}
 catch(const std::exception& error){std::cerr<<"cavity_check=failed reason="<<error.what()<<'\n';return 1;}}}

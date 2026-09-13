@@ -351,6 +351,37 @@ inline float3 vascularCavityNodeForce(uint node, uint nodeBase, uint stateBase,
     return result;
 }
 
+// A registered blood owner contributes exactly one body-force distribution to
+// its real FEM region. The hydraulic compartment remains the sole volume
+// authority; density converts that accepted volume to mechanical mass and the
+// normalized tissue region owns the spatial scatter. No cavity-volume or
+// tissue-reservoir mass is implicitly added here.
+inline float3 vascularBloodMassNodeForce(
+    constant NMMatterDispatchGPU& dispatch,
+    const NMVascularLayoutGPU graph, uint node, uint stateBase,
+    device const NMVascularUnknownGPU* unknowns,
+    device const NMVascularTissueGPU* tissues,
+    device const NMVascularTissueBindingGPU* bindings,
+    device const float4* vascularState) {
+    float3 result = float3(0.0f);
+    for (uint tissueIndex = 0u; tissueIndex < graph.counts.w; ++tissueIndex) {
+        const NMVascularTissueGPU tissue = tissues[tissueIndex];
+        if (tissue.identity.w == 0u || tissue.region.y == 0u) continue;
+        const uint compartment = tissue.identity.w - 1u;
+        const float volume = vascularPhysical(vascularState, unknowns, stateBase, compartment);
+        const float mass = tissue.physical.y * volume;
+        if (!isfinite(mass) || mass < 0.0f) return float3(INFINITY);
+        for (uint slot = 0u; slot < tissue.region.y; ++slot) {
+            const NMVascularTissueBindingGPU binding = bindings[tissue.region.x + slot];
+            // Binding node ids are local to the FEM object; only vascular state
+            // carries the per-environment base.
+            if (binding.identity.y == node)
+                result += dispatch.gravityAndTimestep.xyz * mass * binding.physical.x;
+        }
+    }
+    return result;
+}
+
 kernel void nm_vascular_cavity_forces(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMVascularLayoutGPU& graph [[buffer(1)]],
@@ -368,6 +399,8 @@ kernel void nm_vascular_cavity_forces(
     constant uint& hasBorrowed [[buffer(13)]],
     device float4* merged [[buffer(14)]],
     device NMMatterStatusGPU* statuses [[buffer(15)]],
+    device const NMVascularTissueGPU* tissues [[buffer(16)]],
+    device const NMVascularTissueBindingGPU* tissueBindings [[buffer(17)]],
     uint global [[thread_position_in_grid]]) {
     if (global >= dispatch.environmentCount * dispatch.femNodeCount) return;
     const uint environment = global / dispatch.femNodeCount;
@@ -377,6 +410,9 @@ kernel void nm_vascular_cavity_forces(
         force += vascularCavityNodeForce(global - nodeBase, nodeBase, environment * graph.ranges.z,
             graph, microstep.time.x, false, unknowns, compartments, cavities, faces, incidence, ranges,
             accepted, candidate, vascularState, vascularState, 0u);
+    if (environmentHealthy(statuses, environment))
+        force += vascularBloodMassNodeForce(dispatch, graph, global - nodeBase,
+            environment * graph.ranges.z, unknowns, tissues, tissueBindings, vascularState);
     merged[global] = float4(force, 0.0f);
     if (!all(isfinite(force))) recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
         NM_INVALID_INDEX, global - nodeBase, float4(force, 0.0f));
