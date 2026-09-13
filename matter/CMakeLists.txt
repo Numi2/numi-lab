@@ -367,6 +367,17 @@ if(APPLE)
             PROPERTIES LABELS "matter;compiler;human;vascular;provenance" TIMEOUT 120)
     endif()
 
+    add_executable(numi-matter-vessel-registration-check tools/vessel_registration_check.mm)
+    target_link_libraries(numi-matter-vessel-registration-check PRIVATE "${FOUNDATION_FRAMEWORK}")
+    target_compile_options(numi-matter-vessel-registration-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.compiler.vessel_registration
+            COMMAND numi-matter-vessel-registration-check
+                "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/human_organ_vessel_registration_20260913.json")
+        set_tests_properties(matter.compiler.vessel_registration
+            PROPERTIES LABELS "matter;compiler;human;vascular;provenance" TIMEOUT 120)
+    endif()
+
     add_executable(numi-matter-vascular-cavity-check tools/vascular_cavity_check.mm)
     target_link_libraries(numi-matter-vascular-cavity-check PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
     target_include_directories(numi-matter-vascular-cavity-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
