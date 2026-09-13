@@ -35,6 +35,9 @@ extern "C" {
 #define MRNX_RUNTIME_CONFIG_ABI_V5 5u
 #define MRNX_RUNTIME_CONFIG_ABI_V6 6u
 #define MRNX_RUNTIME_CONFIG_ABI_V7 7u
+#define MRNX_RUNTIME_CONFIG_ABI_V8 8u
+#define MRNX_PHYSICAL_ROOT_REQUEST_ABI_V2 2u
+#define MRNX_EXACT_CLOCK_INFO_ABI_V1 1u
 #define MRNX_AGGREGATE_SNAPSHOT_ABI_V4 4u
 #define MRNX_CULTURE_ACCEPTED_VIEW_ABI_V1 1u
 #define MRNX_CULTURE_PREPARED_VIEW_ABI_V1 1u
@@ -366,6 +369,27 @@ typedef struct mrnx_runtime_config_v7 {
     uint64_t expected_initial_state_fingerprint;
 } mrnx_runtime_config_v7;
 
+// Exact-clock construction extends the complete v7 prepared-state contract.
+// The nested legacy microsecond word must be zero; timestep_nanoseconds is the
+// sole clock authority and must be a positive value representable by the
+// native transaction timeline. v1-v7 construction and request entry points
+// remain unchanged and continue to use integer microseconds.
+typedef struct mrnx_runtime_config_v8 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    mrnx_runtime_config_v7 runtime;
+    uint64_t timestep_nanoseconds;
+} mrnx_runtime_config_v8;
+
+typedef struct mrnx_exact_clock_info_v1 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint64_t timestep_nanoseconds;
+    uint64_t clock_quantum_nanoseconds;
+    uint64_t published_timestamp_nanoseconds;
+    uint64_t publication_epoch;
+} mrnx_exact_clock_info_v1;
+
 // Immutable construction metadata. Legacy v1/v2 worlds are explicitly marked
 // as fixtures; successfully loading an authored package is not calibration.
 typedef struct mrnx_runtime_world_info_v1 {
@@ -676,6 +700,24 @@ typedef struct mrnx_physical_root_request_v1 {
     mrnx_event_point_v1 motor_ready;
 } mrnx_physical_root_request_v1;
 
+// Exact-clock request extension. The fixed-width token layouts are retained
+// so GPU ownership and fingerprints stay identical; in this entry point the
+// timestamp words in root, substep, candidate, and the motor header/gate are
+// exact nanoseconds. The v1 entry point rejects an exact-clock runtime.
+typedef struct mrnx_physical_root_request_v2 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    mrnx_brain_joint_transaction_v1 root;
+    mrnx_brain_joint_substep_v1 substep;
+    mrnx_brain_motor_candidate_v1 candidate;
+    mrnx_metal_range_v1 motor_header;
+    mrnx_metal_range_v1 muscle_excitation;
+    mrnx_metal_range_v1 autonomic_command;
+    mrnx_metal_range_v1 active_sensing_command;
+    mrnx_metal_range_v1 motor_ready_gate;
+    mrnx_event_point_v1 motor_ready;
+} mrnx_physical_root_request_v2;
+
 // candidate_handle and every view passed here are borrowed for the callback
 // invocation. On success candidate_handle is non-null and carries an internal
 // lifecycle self-hold; call mrnx_bridge_v1_candidate_retain before returning
@@ -745,9 +787,16 @@ MRNX_BRIDGE_EXPORT mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v7(
     const mrnx_runtime_config_v7* config,
     mrnx_runtime_info_v1* info
 );
+MRNX_BRIDGE_EXPORT mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v8(
+    const mrnx_runtime_config_v8* config,
+    mrnx_runtime_info_v1* info
+);
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_world_info(
     const mrnx_runtime_v1* runtime,
     mrnx_runtime_world_info_v1* info);
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_exact_clock(
+    const mrnx_runtime_v1* runtime,
+    mrnx_exact_clock_info_v1* info);
 MRNX_BRIDGE_EXPORT void mrnx_bridge_v1_runtime_retain(
     mrnx_runtime_v1* runtime);
 MRNX_BRIDGE_EXPORT void mrnx_bridge_v1_runtime_drop(
@@ -773,6 +822,11 @@ MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_muscle_attachment_anatomy(
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_begin_physical_root(
     mrnx_runtime_v1* runtime,
     const mrnx_physical_root_request_v1* request,
+    void* completion_context,
+    mrnx_physical_root_settled_callback_v1 completion);
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_begin_physical_root_v2(
+    mrnx_runtime_v1* runtime,
+    const mrnx_physical_root_request_v2* request,
     void* completion_context,
     mrnx_physical_root_settled_callback_v1 completion);
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot(
@@ -927,6 +981,10 @@ static_assert(sizeof(mrnx_runtime_config_v3) == 168u);
 static_assert(sizeof(mrnx_runtime_config_v4) == 192u);
 static_assert(sizeof(mrnx_runtime_config_v5) == 224u);
 static_assert(sizeof(mrnx_runtime_config_v6) == 240u);
+static_assert(offsetof(mrnx_runtime_config_v8, runtime) == 8u);
+static_assert(offsetof(mrnx_runtime_config_v8, timestep_nanoseconds) == 8u + sizeof(mrnx_runtime_config_v7));
+static_assert(sizeof(mrnx_physical_root_request_v2) == sizeof(mrnx_physical_root_request_v1));
+static_assert(sizeof(mrnx_exact_clock_info_v1) == 40u);
 static_assert(offsetof(mrnx_runtime_config_v6, joint_limit_payload_path) == 200u);
 static_assert(offsetof(mrnx_runtime_config_v6, costal_cartilage_payload_path) == 216u);
 static_assert(offsetof(mrnx_runtime_config_v4, joint_equality_payload_path) == 176u);
@@ -1103,6 +1161,10 @@ _Static_assert(sizeof(mrnx_runtime_config_v3) == 168u, "mrnx_runtime_config_v3 A
 _Static_assert(sizeof(mrnx_runtime_config_v4) == 192u, "mrnx_runtime_config_v4 ABI");
 _Static_assert(sizeof(mrnx_runtime_config_v5) == 224u, "mrnx_runtime_config_v5 ABI");
 _Static_assert(sizeof(mrnx_runtime_config_v6) == 240u, "mrnx_runtime_config_v6 ABI");
+_Static_assert(offsetof(mrnx_runtime_config_v8, runtime) == 8u, "mrnx_runtime_config_v8 runtime offset");
+_Static_assert(offsetof(mrnx_runtime_config_v8, timestep_nanoseconds) == 8u + sizeof(mrnx_runtime_config_v7), "mrnx_runtime_config_v8 clock offset");
+_Static_assert(sizeof(mrnx_physical_root_request_v2) == sizeof(mrnx_physical_root_request_v1), "mrnx_physical_root_request_v2 ABI");
+_Static_assert(sizeof(mrnx_exact_clock_info_v1) == 40u, "mrnx_exact_clock_info_v1 ABI");
 _Static_assert(offsetof(mrnx_runtime_config_v6, joint_limit_payload_path) == 200u, "mrnx limits offset");
 _Static_assert(offsetof(mrnx_runtime_config_v6, costal_cartilage_payload_path) == 216u, "mrnx costal offset");
 _Static_assert(offsetof(mrnx_runtime_config_v3, matter_world_package_path) == 144u,

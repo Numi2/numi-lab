@@ -42,6 +42,7 @@ struct MetalNumanXHumanIOBufferSlot {
     std::uint32_t stepCount = 0u;
     std::uint32_t receptorCount = 0u;
     float timestepSeconds = 0.0f;
+    std::uint64_t timestampQuantumNanoseconds = 1000u;
     std::uint64_t receptorTimestampMicroseconds = 0u;
 
     std::uint64_t transactionFingerprint = 0u;
@@ -333,33 +334,52 @@ void rememberFailureLocked(
     view.excitationGPUAddress = slot.excitationGPUAddress;
     view.motorOutputHeaderGPUAddress = slot.motorOutputHeaderGPUAddress;
     view.commandBufferIdentity = slot.commandBufferIdentity;
+    view.timestampQuantumNanoseconds = slot.timestampQuantumNanoseconds;
     view.receptorTimestampMicroseconds =
         slot.receptorTimestampMicroseconds;
-    const double timestepMicrosecondsDouble =
-        slot.timestepSeconds * 1'000'000.0;
-    if (std::isfinite(timestepMicrosecondsDouble) &&
-        timestepMicrosecondsDouble >= 1.0 &&
-        timestepMicrosecondsDouble <=
-            static_cast<double>(std::numeric_limits<std::uint32_t>::max())) {
-        const auto timestepMicroseconds = static_cast<std::uint64_t>(
-            std::llround(timestepMicrosecondsDouble));
+    const double quantumSeconds = static_cast<double>(
+        slot.timestampQuantumNanoseconds) * 1.0e-9;
+    const double timestepTicksDouble = quantumSeconds > 0.0
+        ? slot.timestepSeconds / quantumSeconds : 0.0;
+    if (slot.timestampQuantumNanoseconds != 0u &&
+        std::isfinite(timestepTicksDouble) && timestepTicksDouble >= 1.0 &&
+        timestepTicksDouble <= static_cast<double>(
+            std::numeric_limits<std::uint64_t>::max())) {
+        const auto timestepTicks = static_cast<std::uint64_t>(
+            std::llround(timestepTicksDouble));
         const float canonicalTimestepSeconds = static_cast<float>(
-            timestepMicroseconds) / 1'000'000.0f;
+            static_cast<double>(timestepTicks) * quantumSeconds);
         if (slot.timestepSeconds == canonicalTimestepSeconds &&
-            timestepMicroseconds <=
-                std::numeric_limits<std::uint64_t>::max() -
-                    slot.receptorTimestampMicroseconds) {
+            timestepTicks <= std::numeric_limits<std::uint64_t>::max() -
+                slot.receptorTimestampMicroseconds) {
             view.deliveryTimestampMicroseconds =
-                slot.receptorTimestampMicroseconds + timestepMicroseconds;
-            view.latencyMicroseconds = static_cast<std::uint32_t>(
-                timestepMicroseconds);
-            view.stepTimeStrideMicroseconds = static_cast<std::uint32_t>(
-                timestepMicroseconds);
+                slot.receptorTimestampMicroseconds + timestepTicks;
+            view.latencyMicroseconds = timestepTicks <=
+                std::numeric_limits<std::uint32_t>::max()
+                ? static_cast<std::uint32_t>(timestepTicks) : 0u;
+            view.stepTimeStrideMicroseconds = view.latencyMicroseconds;
+            view.receptorTimestampNanoseconds =
+                slot.receptorTimestampMicroseconds <=
+                    std::numeric_limits<std::uint64_t>::max() /
+                        slot.timestampQuantumNanoseconds
+                ? slot.receptorTimestampMicroseconds *
+                    slot.timestampQuantumNanoseconds : 0u;
+            view.deliveryTimestampNanoseconds =
+                view.deliveryTimestampMicroseconds <=
+                    std::numeric_limits<std::uint64_t>::max() /
+                        slot.timestampQuantumNanoseconds
+                ? view.deliveryTimestampMicroseconds *
+                    slot.timestampQuantumNanoseconds : 0u;
+            view.latencyNanoseconds = timestepTicks <=
+                std::numeric_limits<std::uint64_t>::max() /
+                    slot.timestampQuantumNanoseconds
+                ? timestepTicks * slot.timestampQuantumNanoseconds : 0u;
+            view.stepTimeStrideNanoseconds = view.latencyNanoseconds;
         }
     }
     view.receptorTimeSeconds = static_cast<double>(
         slot.receptorTimestampMicroseconds
-    ) / 1'000'000.0;
+    ) * quantumSeconds;
     view.deliveryTimeSeconds =
         view.receptorTimeSeconds + slot.timestepSeconds;
     view.latencySeconds = slot.timestepSeconds;
@@ -586,6 +606,7 @@ void clearCandidateOwnershipLocked(State& state) noexcept;
     hash = hashU64(hash, slot.validityEnvironmentStride);
     hash = hashU64(hash, slot.validityStepStride);
     hash = hashU64(hash, 1u);
+    hash = hashU64(hash, slot.timestampQuantumNanoseconds);
     hash = hashU32(hash, std::bit_cast<std::uint32_t>(slot.timestepSeconds));
     hash = hashU64(hash, slot.receptorTimestampMicroseconds);
     hash = hashU64(hash, slot.excitationGPUAddress);
@@ -1491,9 +1512,18 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
             "supplemental HumanIO program is only partially configured"
         );
     }
+    if (input.timestampQuantumNanoseconds != 1u &&
+        input.timestampQuantumNanoseconds != 1000u) {
+        return diagnosticsLocked(
+            state,
+            MetalNumanXHumanIOStatus::invalidInput,
+            "timestampQuantumNanoseconds must be exactly 1 or 1000"
+        );
+    }
+    const double quantumSeconds = static_cast<double>(
+        input.timestampQuantumNanoseconds) * 1.0e-9;
     const double receptorTimeSeconds = static_cast<double>(
-        input.receptorTimestampMicroseconds
-    ) / 1'000'000.0;
+        input.receptorTimestampMicroseconds) * quantumSeconds;
     if (!(input.timestepSeconds > 0.0f) ||
         !std::isfinite(input.timestepSeconds) ||
         !std::isfinite(receptorTimeSeconds) ||
@@ -1533,22 +1563,21 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
             "Human accepts only candidate actuator kind 1 and an exact candidate/input muscle count"
         );
     }
-    const double stepMicroseconds =
-        static_cast<double>(input.timestepSeconds) * 1'000'000.0;
-    if (!std::isfinite(stepMicroseconds) || stepMicroseconds < 1.0 ||
-        stepMicroseconds >
-            static_cast<double>(std::numeric_limits<long long>::max())) {
+    const double stepTicks =
+        static_cast<double>(input.timestepSeconds) / quantumSeconds;
+    if (!std::isfinite(stepTicks) || stepTicks < 1.0 ||
+        stepTicks > static_cast<double>(
+            std::numeric_limits<std::uint64_t>::max())) {
         return diagnosticsLocked(
             state,
             MetalNumanXHumanIOStatus::invalidInput,
-            "Human timestep cannot be represented as integral microseconds"
+            "Human timestep cannot be represented in the selected exact clock"
         );
     }
     const auto roundedStepMicroseconds =
-        static_cast<std::uint64_t>(std::llround(stepMicroseconds));
+        static_cast<std::uint64_t>(std::llround(stepTicks));
     const float canonicalTimestepSeconds = static_cast<float>(
-        roundedStepMicroseconds
-    ) / 1'000'000.0f;
+        static_cast<double>(roundedStepMicroseconds) * quantumSeconds);
     if (input.timestepSeconds != canonicalTimestepSeconds ||
         roundedStepMicroseconds >
             std::numeric_limits<std::uint64_t>::max() / input.stepCount ||
@@ -1559,7 +1588,7 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
         return diagnosticsLocked(
             state,
             MetalNumanXHumanIOStatus::invalidInput,
-            "Human timestep must be the canonical integral-microsecond float, and its horizon/receptor time must exactly bind the validated NumiBrain substep"
+            "Human timestep must be the canonical exact-clock float, and its horizon/receptor time must exactly bind the validated NumiBrain substep"
         );
     }
     if (state.publishedSlot >= 0 &&
@@ -1899,6 +1928,7 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
     hash = hashValue(hash, input.muscleCount);
     hash = hashValue(hash, input.stepCount);
     hash = hashValue(hash, std::bit_cast<std::uint32_t>(input.timestepSeconds));
+    hash = hashValue(hash, input.timestampQuantumNanoseconds);
     hash = hashValue(hash, input.receptorTimestampMicroseconds);
     hash = hashValue(hash, input.supplementalProgram.fingerprint);
     hash = hashValue(hash, slot.proprioception.gpuAddress);
@@ -2963,6 +2993,7 @@ MetalNumanXHumanIODiagnostics MetalNumanXHumanIOContext::prepare(
         slot.stepCount = input.stepCount;
         slot.receptorCount = input.muscleCount;
         slot.timestepSeconds = input.timestepSeconds;
+        slot.timestampQuantumNanoseconds = input.timestampQuantumNanoseconds;
         slot.receptorTimestampMicroseconds =
             input.receptorTimestampMicroseconds;
         slot.transactionFingerprint = input.root.transactionFingerprint;
