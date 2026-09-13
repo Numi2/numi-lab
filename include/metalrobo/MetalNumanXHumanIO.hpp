@@ -114,6 +114,11 @@ struct MetalNumanXHumanIOInput {
     std::uint32_t stepCount = 0u;
     float timestepSeconds = 0.0f;
 
+    // Legacy HumanIO uses a 1,000 ns timestamp quantum (microseconds). The
+    // exact-clock bridge sets this to 1 ns and carries all timestamp words in
+    // the existing fixed-width token slots without rounding.
+    std::uint64_t timestampQuantumNanoseconds = 1000u;
+
     // Exact integer authority for the receptor sample at horizon step zero.
     // Step s is evaluated at this timestamp plus s * timestepSeconds and
     // delivered after the stand update at one timestep later. The public sensor
@@ -196,6 +201,11 @@ struct MetalNumanXHumanIOSensorView {
     double deliveryTimeSeconds = 0.0;
     double latencySeconds = 0.0;
     double stepTimeStrideSeconds = 0.0;
+    std::uint64_t timestampQuantumNanoseconds = 1000u;
+    std::uint64_t receptorTimestampNanoseconds = 0u;
+    std::uint64_t deliveryTimestampNanoseconds = 0u;
+    std::uint64_t latencyNanoseconds = 0u;
+    std::uint64_t stepTimeStrideNanoseconds = 0u;
     MetalNumanXHumanIOViewState state =
         MetalNumanXHumanIOViewState::candidate;
 };
