@@ -43,7 +43,8 @@ struct Run {
         const bool loaded=readPackage(path,world,nullptr,&message);std::error_code removal;std::filesystem::remove(path,removal);
         need(loaded&&!removal&&world.fingerprint==compiled.world.fingerprint,"package roundtrip: "+message);
         double mass=0;for(const auto& node:world.fem.nodes)mass+=node.positionAndMass.w;
-        need(std::abs(mass-.026)<1e-8,"hydraulic lumen added mechanical mass to the hollow tissue shell");
+        double expectedMass=.026;for(const auto& tissue:world.vascular.tissues)expectedMass+=tissue.physical.z;
+        need(std::abs(mass-expectedMass)<1e-8,"registered blood mass was not partitioned into FEM nodal inertia");
         device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal device unavailable");
         need([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple Metal required");
         queue=[device newCommandQueue];statuses=[device newBufferWithLength:2*sizeof(MRMetalWorldStatusGPU) options:MTLResourceStorageModeShared];
@@ -384,7 +385,13 @@ void geometryOracle(){
 void bloodMassOwner(){
     const auto shell=fixture::hollowShell();Run run(fixture::world(false,.001,true));const auto& w=run.world;
     need(w.vascular.tissues.size()==1&&w.vascular.tissueBindings.size()==shell.innerNodes.size(),"blood owner fixture did not cook its FEM region");
-    const auto& owner=w.vascular.tissues[0];need(owner.identity.w!=0u&&owner.physical.y>1000.f,"blood owner identity or density was not cooked");
+    const auto& owner=w.vascular.tissues[0];need(owner.identity.w!=0u&&owner.physical.y>1000.f&&owner.physical.z>0.f,"blood owner identity, density or initial mechanical mass was not cooked");
+    need(std::abs(double(owner.physical.z)-4e-6*1060.0)<1e-8,"blood owner initial mechanical mass disagrees with hydraulic volume");
+    const auto baseline=compileWorld(fixture::world());need(baseline.succeeded(),"blood owner baseline compile failed");
+    for (const auto node:shell.innerNodes) {
+        const double delta=double(w.fem.nodes[node].positionAndMass.w)-double(baseline.world.fem.nodes[node].positionAndMass.w);
+        need(std::abs(delta-double(owner.physical.z)/double(shell.innerNodes.size()))<2e-8,"blood mass partition was not normalized over FEM nodes");
+    }
     need(std::abs(owner.spatialFirst.x)<1e-7f&&std::abs(owner.spatialFirst.y)<1e-7f&&std::abs(owner.spatialFirst.z)<1e-7f&&
          std::abs(owner.spatialSecond0.x-2.5e-5f)<1e-8f&&std::abs(owner.spatialSecond1.x-2.5e-5f)<1e-8f&&std::abs(owner.spatialSecond1.z-2.5e-5f)<1e-8f,
          "blood owner spatial moments were not symmetric or source-bound");
@@ -401,32 +408,65 @@ void bloodMassOwner(){
     const auto cavityBuffer=gpuBuffer(run.device,w.vascular.cavities),faceBuffer=gpuBuffer(run.device,w.vascular.cavityFaces);
     const auto incidenceBuffer=gpuBuffer(run.device,w.vascular.cavityNodeIncidence),rangeBuffer=gpuBuffer(run.device,w.vascular.cavityNodeRanges);
     const auto acceptedBuffer=gpuBuffer(run.device,accepted),tissueBuffer=gpuBuffer(run.device,w.vascular.tissues),bindingBuffer=gpuBuffer(run.device,w.vascular.tissueBindings);
-    auto encode=[&](){
+    auto encode=[&](const std::vector<nm_float4>& state,
+                    const std::vector<NMFEMNodeStateGPU>& candidateNodes){
         const auto command=[run.queue commandBuffer];auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:forcePipeline];
-        const auto vascularBuffer=gpuBuffer(run.device,vascular),borrowed=gpuBuffer(run.device,std::vector<nm_float4>(2*nodes,nm_float4{0,0,0,0}));
+        const auto vascularBuffer=gpuBuffer(run.device,state),candidateBuffer=gpuBuffer(run.device,candidateNodes),borrowed=gpuBuffer(run.device,std::vector<nm_float4>(2*nodes,nm_float4{0,0,0,0}));
         const auto output=gpuBuffer(run.device,std::vector<nm_float4>(2*nodes,nm_float4{99,99,99,0}));
         const auto statuses=gpuBuffer(run.device,std::vector<NMMatterStatusGPU>(2));const std::uint32_t include=0;
         [encoder setBytes:&w.dispatch length:sizeof(w.dispatch) atIndex:0];[encoder setBytes:&w.vascular.layout length:sizeof(w.vascular.layout) atIndex:1];
         [encoder setBytes:&micro length:sizeof(micro) atIndex:2];[encoder setBuffer:unknownBuffer offset:0 atIndex:3];[encoder setBuffer:compartmentBuffer offset:0 atIndex:4];
         [encoder setBuffer:cavityBuffer offset:0 atIndex:5];[encoder setBuffer:faceBuffer offset:0 atIndex:6];[encoder setBuffer:incidenceBuffer offset:0 atIndex:7];
-        [encoder setBuffer:rangeBuffer offset:0 atIndex:8];[encoder setBuffer:acceptedBuffer offset:0 atIndex:9];[encoder setBuffer:acceptedBuffer offset:0 atIndex:10];[encoder setBuffer:vascularBuffer offset:0 atIndex:11];
+        [encoder setBuffer:rangeBuffer offset:0 atIndex:8];[encoder setBuffer:acceptedBuffer offset:0 atIndex:9];[encoder setBuffer:candidateBuffer offset:0 atIndex:10];[encoder setBuffer:vascularBuffer offset:0 atIndex:11];
         [encoder setBuffer:borrowed offset:0 atIndex:12];[encoder setBytes:&include length:sizeof(include) atIndex:13];[encoder setBuffer:output offset:0 atIndex:14];[encoder setBuffer:statuses offset:0 atIndex:15];
         [encoder setBuffer:tissueBuffer offset:0 atIndex:16];[encoder setBuffer:bindingBuffer offset:0 atIndex:17];
         [encoder dispatchThreads:MTLSizeMake(2*nodes,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];completed(command);
         for(unsigned env=0;env<2;++env)need(static_cast<NMMatterStatusGPU*>(statuses.contents)[env].code==NM_STATUS_SUCCESS,"blood owner force state rejected");
         const auto* values=static_cast<nm_float4*>(output.contents);return std::vector<nm_float4>(values,values+2*nodes);
     };
-    const auto first=encode(),second=encode();need(same(first,second),"blood owner force replay changed output");
+    const auto first=encode(vascular,accepted),second=encode(vascular,accepted);need(same(first,second),"blood owner correction replay changed output");
     const double volume=run.physical(run.state(),compartment),density=owner.physical.y,weight=1./double(shell.innerNodes.size());
-    const double expectedTotal=double(w.dispatch.gravityAndTimestep.z)*density*volume;
     double total=0;for(unsigned env=0;env<2;++env)for(unsigned node=0;node<nodes;++node){
-        const auto& force=first[env*nodes+node];const bool owned=std::find(shell.innerNodes.begin(),shell.innerNodes.end(),node)!=shell.innerNodes.end();
-        const double expected=owned?expectedTotal*weight:0.;need(std::abs(double(force.x))<2e-7&&std::abs(double(force.y))<2e-7,"blood owner introduced lateral force");
-        need(std::abs(double(force.z)-expected)<2e-6,"blood owner body force did not match density-volume scatter");total+=force.z;
+        const auto& force=first[env*nodes+node];
+        need(std::abs(double(force.x))<2e-7&&std::abs(double(force.y))<2e-7&&std::abs(double(force.z))<2e-7,"initial blood mass was double-counted as an external force");
+        total+=force.z;
     }
-    need(std::abs(total-2.*expectedTotal)<4e-6,"blood owner body force did not conserve total weight");
-    std::cout<<"blood_mass_owner=pass compartment_stable_id=12 density_kg_m3="<<density<<" accepted_volume_m3="<<volume
-             <<" total_force_N="<<total<<" normalized_region_weight="<<weight<<" replay=bitwise momentum_transfer=unqualified subject_calibration=unqualified\n";
+    need(std::abs(total)<4e-7,"initial blood mass correction was not zero");
+    auto changed=vascular;
+    const unsigned vascularStride=unsigned(w.vascular.unknowns.size());
+    for (unsigned env=0; env<2; ++env) changed[env*vascularStride+compartment].x+=0.5f;
+    const auto dynamic=encode(changed,accepted);const double deltaVolume=0.5*double(w.vascular.unknowns[compartment].initialAndScaling.y);
+    const double expectedDelta=double(w.dispatch.gravityAndTimestep.z)*density*deltaVolume*weight;
+    double dynamicTotal=0;
+    for(unsigned env=0;env<2;++env)for(unsigned node=0;node<nodes;++node){
+        const bool owned=std::find(shell.innerNodes.begin(),shell.innerNodes.end(),node)!=shell.innerNodes.end();
+        const double expected=owned?expectedDelta:0.;
+        const auto& force=dynamic[env*nodes+node];
+        need(std::abs(double(force.z)-expected)<2e-6&&std::abs(double(force.x))<2e-7&&std::abs(double(force.y))<2e-7,"dynamic blood mass correction disagreed with current volume");
+        dynamicTotal+=force.z;
+    }
+    need(std::abs(dynamicTotal-2.*double(w.dispatch.gravityAndTimestep.z)*density*deltaVolume)<4e-6,"dynamic blood mass correction did not conserve total force");
+    auto moving=accepted;
+    const double imposedVelocity=0.003;
+    for(unsigned env=0;env<2;++env) for(const auto node:shell.innerNodes)
+        moving[env*nodes+node].velocityAndInverseMass.z+=float(imposedVelocity);
+    const auto inertial=encode(changed,moving);
+    const double acceleration=imposedVelocity/double(run.runtime.timestepSeconds());
+    const double expectedInertial=(double(w.dispatch.gravityAndTimestep.z)+acceleration)*density*deltaVolume*weight;
+    double inertialTotal=0;
+    for(unsigned env=0;env<2;++env) for(unsigned node=0;node<nodes;++node){
+        const bool owned=std::find(shell.innerNodes.begin(),shell.innerNodes.end(),node)!=shell.innerNodes.end();
+        const double expected=owned?expectedInertial:0.;
+        const auto& force=inertial[env*nodes+node];
+        need(std::abs(double(force.z)-expected)<2e-6&&std::abs(double(force.x))<2e-7&&std::abs(double(force.y))<2e-7,"co-moving blood inertia correction disagreed with tissue acceleration");
+        inertialTotal+=force.z;
+    }
+    need(std::abs(inertialTotal-2.*(double(w.dispatch.gravityAndTimestep.z)+acceleration)*density*deltaVolume)<4e-6,"co-moving blood inertia correction did not conserve total force");
+    std::cout<<"blood_mass_owner=pass compartment_stable_id=12 density_kg_m3="<<density<<" initial_volume_m3="<<volume
+             <<" initial_mass_kg="<<owner.physical.z<<" dynamic_volume_delta_m3="<<deltaVolume
+             <<" dynamic_force_total_N="<<dynamicTotal<<" normalized_region_weight="<<weight
+             <<" partitioned_inertia=pass dynamic_gravity_correction=pass co_moving_inertia=pass"
+             <<" replay=bitwise pressure_driven_momentum=unqualified subject_calibration=unqualified\n";
 }
 void movingWall(){
     constexpr unsigned steps=32;const auto shell=fixture::hollowShell();Run run(fixture::world());

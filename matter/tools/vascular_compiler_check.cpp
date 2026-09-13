@@ -119,6 +119,8 @@ int main() {
         changed=associated;changed.objects[0].mutationPolicy.enabled=true;rejected(changed,"unsupported vascular topology remap");
         bad=bound.world;bad.vascular.tissueBindings[0].identity.y=999;rejectedCooked(bad,"stale FEM association");
         bad=bound.world;bad.vascular.tissues[0].spatialFirst.y+=.001f;rejectedCooked(bad,"stale FEM spatial moment");
+        bad=bound.world;bad.vascular.tissues[0].physical.z+=.001f;rejectedCooked(bad,"stale registered blood mass");
+        bad=bound.world;bad.fem.nodes[0].positionAndMass.w+=.001f;rejectedCooked(bad,"forged FEM nodal blood mass");
         // Numerical constitutive fixtures only; actual source replication uses
         // the separately pinned Human source payload and generated CellML oracle.
         auto cardiac=s;cardiac.vascular.species.clear();cardiac.vascular.tissues.clear();cardiac.vascular.exchanges.clear();

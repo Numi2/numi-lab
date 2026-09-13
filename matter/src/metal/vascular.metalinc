@@ -351,32 +351,42 @@ inline float3 vascularCavityNodeForce(uint node, uint nodeBase, uint stateBase,
     return result;
 }
 
-// A registered blood owner contributes exactly one body-force distribution to
-// its real FEM region. The hydraulic compartment remains the sole volume
-// authority; density converts that accepted volume to mechanical mass and the
-// normalized tissue region owns the spatial scatter. No cavity-volume or
-// tissue-reservoir mass is implicitly added here.
+// Initial blood mass is partitioned into the registered FEM nodes by the
+// compiler. The hydraulic compartment remains the only volume authority.
+// This kernel supplies the current-volume correction, including co-moving
+// inertial transfer, so initial gravity/inertia is not double-counted by an
+// external force. No cavity-volume or tissue-reservoir mass is implicit.
 inline float3 vascularBloodMassNodeForce(
     constant NMMatterDispatchGPU& dispatch,
-    const NMVascularLayoutGPU graph, uint node, uint stateBase,
+    const NMVascularLayoutGPU graph, uint node, uint nodeBase, uint stateBase,
+    float dt,
     device const NMVascularUnknownGPU* unknowns,
     device const NMVascularTissueGPU* tissues,
     device const NMVascularTissueBindingGPU* bindings,
+    device const NMFEMNodeStateGPU* accepted,
+    device const NMFEMNodeStateGPU* candidate,
     device const float4* vascularState) {
     float3 result = float3(0.0f);
+    const float safeDt = max(dt, 1.0e-12f);
     for (uint tissueIndex = 0u; tissueIndex < graph.counts.w; ++tissueIndex) {
         const NMVascularTissueGPU tissue = tissues[tissueIndex];
         if (tissue.identity.w == 0u || tissue.region.y == 0u) continue;
         const uint compartment = tissue.identity.w - 1u;
         const float volume = vascularPhysical(vascularState, unknowns, stateBase, compartment);
-        const float mass = tissue.physical.y * volume;
-        if (!isfinite(mass) || mass < 0.0f) return float3(INFINITY);
+        const float currentMass = tissue.physical.y * volume;
+        const float deltaMass = currentMass - tissue.physical.z;
+        if (!isfinite(currentMass) || currentMass <= 0.0f || !isfinite(deltaMass))
+            return float3(INFINITY);
+        if (abs(deltaMass) <= 1.0e-12f) continue;
         for (uint slot = 0u; slot < tissue.region.y; ++slot) {
             const NMVascularTissueBindingGPU binding = bindings[tissue.region.x + slot];
-            // Binding node ids are local to the FEM object; only vascular state
-            // carries the per-environment base.
-            if (binding.identity.y == node)
-                result += dispatch.gravityAndTimestep.xyz * mass * binding.physical.x;
+            if (binding.identity.y != node) continue;
+            const uint globalNode = nodeBase + binding.identity.y;
+            const float3 acceleration =
+                (candidate[globalNode].velocityAndInverseMass.xyz -
+                 accepted[globalNode].velocityAndInverseMass.xyz) / safeDt;
+            result += (dispatch.gravityAndTimestep.xyz + acceleration) *
+                deltaMass * binding.physical.x;
         }
     }
     return result;
@@ -411,8 +421,9 @@ kernel void nm_vascular_cavity_forces(
             graph, microstep.time.x, false, unknowns, compartments, cavities, faces, incidence, ranges,
             accepted, candidate, vascularState, vascularState, 0u);
     if (environmentHealthy(statuses, environment))
-        force += vascularBloodMassNodeForce(dispatch, graph, global - nodeBase,
-            environment * graph.ranges.z, unknowns, tissues, tissueBindings, vascularState);
+        force += vascularBloodMassNodeForce(dispatch, graph, global - nodeBase, nodeBase,
+            environment * graph.ranges.z, microstep.time.x, unknowns, tissues, tissueBindings,
+            accepted, candidate, vascularState);
     merged[global] = float4(force, 0.0f);
     if (!all(isfinite(force))) recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
         NM_INVALID_INDEX, global - nodeBase, float4(force, 0.0f));
