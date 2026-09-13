@@ -4937,6 +4937,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.vascularTissues offset:0u atIndex:16u];
                     [encoder setBuffer:state.vascularTissueBindings offset:0u atIndex:17u];
                     [encoder setBuffer:state.vascularElastance offset:0u atIndex:18u];
+                    [encoder setBuffer:state.vascularConnections offset:0u atIndex:19u];
+                    [encoder setBuffer:state.vascularAccepted offset:0u atIndex:20u];
                 });
             };
             // Opt-in, bounded copies at a single requested root preserve the
@@ -6706,6 +6708,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.vascularTissues offset:0u atIndex:16u];
                         [encoder setBuffer:state.vascularTissueBindings offset:0u atIndex:17u];
                         [encoder setBuffer:state.vascularElastance offset:0u atIndex:18u];
+                        [encoder setBuffer:state.vascularConnections offset:0u atIndex:19u];
+                        [encoder setBuffer:state.vascularAccepted offset:0u atIndex:20u];
                     });
                 }
                 dispatchThreads(

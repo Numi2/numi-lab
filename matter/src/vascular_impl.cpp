@@ -406,7 +406,22 @@ bool compileVascular(const WorldSource& source, CompiledWorld& world, std::vecto
             pressureFrom = ci[x.pressureFromCompartment] + 1u;
             pressureTo = ci[x.pressureToCompartment] + 1u;
         }
-        ti[x.stableIdentifier]=row;NMVascularTissueGPU tissue{{x.stableIdentifier,name,x.objectIndex,bloodOwner},f4(x.volume,x.bloodDensity,0.0,pressureAuthored?x.pressureArea:0.0),{std::uint32_t(c.tissueBindings.size()),std::uint32_t(x.femRegion.size()),pressureFrom,pressureTo},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+        if (x.bloodMomentumTransfer) {
+            if (bloodOwner == 0u || !pressureAuthored)
+                return fail("blood momentum transfer requires a blood owner and pressure reaction");
+            const auto from = pressureFrom - 1u;
+            const auto to = pressureTo - 1u;
+            std::size_t matches = 0u;
+            for (const auto& edge : c.connections) {
+                if (edge.identity.y == from && edge.identity.z == to &&
+                    edge.physical.y > 0.0f) ++matches;
+            }
+            if (matches != 1u)
+                return fail("blood momentum transfer requires one matching inertial vascular edge");
+        }
+        const std::uint32_t storedOwner = bloodOwner |
+            (x.bloodMomentumTransfer ? NM_VASCULAR_TISSUE_MOMENTUM_TRANSFER : 0u);
+        ti[x.stableIdentifier]=row;NMVascularTissueGPU tissue{{x.stableIdentifier,name,x.objectIndex,storedOwner},f4(x.volume,x.bloodDensity,0.0,pressureAuthored?x.pressureArea:0.0),{std::uint32_t(c.tissueBindings.size()),std::uint32_t(x.femRegion.size()),pressureFrom,pressureTo},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
         double sum=0;double first[3]={0,0,0};double second[6]={0,0,0,0,0,0};std::set<std::uint32_t> seen;auto region=x.femRegion;std::sort(region.begin(),region.end(),[](auto a,auto b){return a.node<b.node;});
         for (const auto& b:region) {
             const auto& object=world.objects[x.objectIndex];const auto& authored=source.objects[x.objectIndex];
@@ -587,7 +602,10 @@ bool validateVascularLayout(const CompiledWorld& world,std::string* error) {
     };
     std::map<std::uint32_t, std::uint32_t> bloodNodeOwners;
     std::size_t nextBinding=0;
-    for(std::size_t i=0;i<T;++i) {const auto& x=c.tissues[i];if(!x.identity.x||(i&&x.identity.x<=c.tissues[i-1].identity.x)||x.identity.w>C||!name(x.identity.y)||!finite4(x.physical)||!finite4(x.spatialFirst)||!finite4(x.spatialSecond0)||!finite4(x.spatialSecond1)||!positive(x.physical.x)||x.region.x!=nextBinding||x.region.y>c.tissueBindings.size()-nextBinding)return fail("invalid fixed tissue reservoir");
+    for(std::size_t i=0;i<T;++i) {const auto& x=c.tissues[i];
+        const bool momentumTransfer = (x.identity.w & NM_VASCULAR_TISSUE_MOMENTUM_TRANSFER) != 0u;
+        const std::uint32_t ownerCode = x.identity.w & ~NM_VASCULAR_TISSUE_MOMENTUM_TRANSFER;
+        if(!x.identity.x||(i&&x.identity.x<=c.tissues[i-1].identity.x)||ownerCode>C||!name(x.identity.y)||!finite4(x.physical)||!finite4(x.spatialFirst)||!finite4(x.spatialSecond0)||!finite4(x.spatialSecond1)||!positive(x.physical.x)||x.region.x!=nextBinding||x.region.y>c.tissueBindings.size()-nextBinding)return fail("invalid fixed tissue reservoir");
         const bool pressureReaction = x.region.z != 0u || x.region.w != 0u ||
             x.physical.w != 0.0f || x.spatialFirst.w != 0.0f ||
             x.spatialSecond0.w != 0.0f || x.spatialSecond1.w != 0.0f;
@@ -607,11 +625,11 @@ bool validateVascularLayout(const CompiledWorld& world,std::string* error) {
                    x.region.z != 0u || x.region.w != 0u) {
             return fail("partial pressure reaction contract");
         }
-        if (x.identity.w == 0u) {
-            if (x.physical.y != 0.0f || x.physical.z != 0.0f)
-                return fail("unowned tissue carries blood mechanical mass");
+        if (ownerCode == 0u) {
+            if (momentumTransfer || x.physical.y != 0.0f || x.physical.z != 0.0f)
+                return fail("unowned tissue carries blood mechanical mass or momentum");
         } else {
-            const auto owner = x.identity.w - 1u;
+            const auto owner = ownerCode - 1u;
             if (!positive(double(x.physical.y)) || !positive(double(x.physical.z)) ||
                 x.identity.z == NM_INVALID_INDEX || x.region.y == 0u ||
                 c.compartments[owner].identity.z != 0u || bloodOwnerTissue[owner] != NM_INVALID_INDEX)
@@ -620,12 +638,19 @@ bool validateVascularLayout(const CompiledWorld& world,std::string* error) {
                 double(x.physical.y) * c.unknowns[owner].initialAndScaling.x;
             if (!massClose(x.physical.z, expectedMass))
                 return fail("blood mechanical owner mass disagrees with its initial hydraulic volume");
+            if (momentumTransfer) {
+                if (!pressureReaction) return fail("blood momentum owner lacks a pressure reaction");
+                std::size_t matches = 0u;
+                for (const auto& edge : c.connections)
+                    if (edge.identity.y == x.region.z - 1u && edge.identity.z == x.region.w - 1u && edge.physical.y > 0.0f) ++matches;
+                if (matches != 1u) return fail("blood momentum owner lacks one matching inertial edge");
+            }
             bloodOwnerTissue[owner] = std::uint32_t(i);
         }
         if((x.identity.z==NM_INVALID_INDEX)!=(x.region.y==0))return fail("incomplete tissue FEM binding");
         if(x.identity.z!=NM_INVALID_INDEX && (x.identity.z>=world.objects.size()||world.objects[x.identity.z].representation!=NM_REPRESENTATION_FEM))return fail("tissue does not bind a real FEM object");
         double sum=0;double first[3]={0,0,0};double second[6]={0,0,0,0,0,0};std::uint32_t previous=0;
-        for(std::size_t j=0;j<x.region.y;++j){const auto& b=c.tissueBindings[nextBinding+j];const auto& object=world.objects[x.identity.z];if(b.identity.x!=i||b.identity.y<object.stateOffset||std::uint64_t(b.identity.y)>=std::uint64_t(object.stateOffset)+object.stateCount||b.identity.y>=world.fem.nodes.size()||(j&&b.identity.y<=previous)||b.identity.z||b.identity.w||!finite4(b.physical)||!positive(b.physical.x)||b.physical.y!=0||b.physical.z!=0||b.physical.w!=0)return fail("invalid tissue FEM incidence");if(x.identity.w!=0u&&!bloodNodeOwners.emplace(b.identity.y,std::uint32_t(i)).second)return fail("blood mechanical owner regions overlap a FEM node");if(x.identity.w!=0u)expectedBloodMass[b.identity.y]+=double(x.physical.z)*b.physical.x;previous=b.identity.y;sum+=b.physical.x;const auto& p=world.fem.nodes[b.identity.y].positionAndMass;if(!finite(p.x)||!finite(p.y)||!finite(p.z))return fail("nonfinite cooked FEM regional coordinate");first[0]+=b.physical.x*p.x;first[1]+=b.physical.x*p.y;first[2]+=b.physical.x*p.z;second[0]+=b.physical.x*p.x*p.x;second[1]+=b.physical.x*p.x*p.y;second[2]+=b.physical.x*p.x*p.z;second[3]+=b.physical.x*p.y*p.y;second[4]+=b.physical.x*p.y*p.z;second[5]+=b.physical.x*p.z*p.z;}
+        for(std::size_t j=0;j<x.region.y;++j){const auto& b=c.tissueBindings[nextBinding+j];const auto& object=world.objects[x.identity.z];if(b.identity.x!=i||b.identity.y<object.stateOffset||std::uint64_t(b.identity.y)>=std::uint64_t(object.stateOffset)+object.stateCount||b.identity.y>=world.fem.nodes.size()||(j&&b.identity.y<=previous)||b.identity.z||b.identity.w||!finite4(b.physical)||!positive(b.physical.x)||b.physical.y!=0||b.physical.z!=0||b.physical.w!=0)return fail("invalid tissue FEM incidence");if(ownerCode!=0u&&!bloodNodeOwners.emplace(b.identity.y,std::uint32_t(i)).second)return fail("blood mechanical owner regions overlap a FEM node");if(x.identity.w!=0u)expectedBloodMass[b.identity.y]+=double(x.physical.z)*b.physical.x;previous=b.identity.y;sum+=b.physical.x;const auto& p=world.fem.nodes[b.identity.y].positionAndMass;if(!finite(p.x)||!finite(p.y)||!finite(p.z))return fail("nonfinite cooked FEM regional coordinate");first[0]+=b.physical.x*p.x;first[1]+=b.physical.x*p.y;first[2]+=b.physical.x*p.z;second[0]+=b.physical.x*p.x*p.x;second[1]+=b.physical.x*p.x*p.y;second[2]+=b.physical.x*p.x*p.z;second[3]+=b.physical.x*p.y*p.y;second[4]+=b.physical.x*p.y*p.z;second[5]+=b.physical.x*p.z*p.z;}
         if(x.region.y&&std::abs(sum-1.0)>1e-6)return fail("cooked tissue region is not normalized");nextBinding+=x.region.y;
         const auto momentClose=[](double a,double b){return std::abs(a-b)<=2e-5*std::max(1.0,std::abs(b));};
         if ((x.region.y==0 && (!zero4(x.spatialFirst)||!zero4(x.spatialSecond0)||!zero4(x.spatialSecond1))) ||

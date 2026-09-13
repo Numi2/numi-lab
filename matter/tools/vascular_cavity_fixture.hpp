@@ -106,7 +106,7 @@ inline numi::matter::WorldSource world(bool pinInner=false,double dt=.001,bool b
     reservoir.referenceVolume=4e-6;reservoir.initialVolume=4e-6;reservoir.referencePressure=100;reservoir.compliance=1e-8;
     reservoir.volumeScale=1e-6;reservoir.volumeResidualTolerance=1e-5;reservoir.initialSpeciesAmounts={2e-6};n.compartments.push_back(reservoir);
     VascularConnectionSource edge;edge.stableIdentifier=21;edge.fromCompartment=12;edge.toCompartment=11;
-    edge.resistance=1e9;edge.flowScale=1e-7;edge.pressureScale=100;edge.flowResidualTolerance=1e-5;n.connections.push_back(edge);
+    edge.resistance=1e9;edge.inertance=pressureMomentum?1e-4:0.0;edge.flowScale=1e-7;edge.pressureScale=100;edge.flowResidualTolerance=1e-5;n.connections.push_back(edge);
     VascularCavitySource boundary;boundary.stableIdentifier=31;boundary.compartment=11;boundary.objectIndex=0;
     boundary.initialPressure=0;boundary.pressureScale=100;boundary.geometryResidualTolerance=1e-5;
     boundary.sourceIdentity={0x73796e7468657469ULL,0x632d636176697479ULL,0,1};boundary.mechanicalIdentity={0x686f6c6c6f772d66ULL,0x656d2d7368656c6cULL,0,1};
@@ -119,6 +119,7 @@ inline numi::matter::WorldSource world(bool pinInner=false,double dt=.001,bool b
         if (pressureMomentum) {
             owner.pressureFromCompartment=12; owner.pressureToCompartment=11;
             owner.pressureDirection={0,0,1}; owner.pressureArea=2e-4;
+            owner.bloodMomentumTransfer=true;
         }
         const double weight=1./double(shell.innerNodes.size());
         for(const auto node:shell.innerNodes)owner.femRegion.push_back({node,weight});

@@ -114,13 +114,16 @@ int main() {
         associated.vascular.tissues[0].pressureToCompartment=10u;
         associated.vascular.tissues[0].pressureDirection={0,0,1};
         associated.vascular.tissues[0].pressureArea=1e-4;
-        const auto pressureBound=compileWorld(associated);require(pressureBound.succeeded(),"explicit pressure reaction was rejected: "+messages(pressureBound));
+        associated.vascular.tissues[0].bloodMomentumTransfer=true;
+        const auto pressureBound=compileWorld(associated);require(pressureBound.succeeded(),"explicit pressure/momentum reaction was rejected: "+messages(pressureBound));
         const auto& pressureOwner=pressureBound.world.vascular.tissues[0];
         require(pressureOwner.region.z!=0u&&pressureOwner.region.w!=0u&&
                 std::abs(pressureOwner.physical.w-1e-4f)<1e-9f&&
-                std::abs(pressureOwner.spatialSecond1.w-1.f)<1e-7f,
-                "pressure reaction identity, area or direction was not cooked");
-        changed=associated;changed.vascular.tissues[0].pressureArea=0;rejected(changed,"zero pressure reaction area");
+                std::abs(pressureOwner.spatialSecond1.w-1.f)<1e-7f&&
+                (pressureOwner.identity.w & NM_VASCULAR_TISSUE_MOMENTUM_TRANSFER) != 0u,
+                "pressure/momentum reaction identity, area or direction was not cooked");
+        changed=associated;changed.vascular.tissues[0].bloodMomentumTransfer=false;changed.vascular.connections[0].inertance=0.0;changed.vascular.tissues[0].bloodMomentumTransfer=true;rejected(changed,"momentum transfer without inertial edge");
+        changed=associated;changed.vascular.tissues[0].bloodMomentumTransfer=false;changed.vascular.tissues[0].pressureArea=0;rejected(changed,"zero pressure reaction area");
         changed=associated;changed.vascular.tissues[0].pressureDirection={0,0,2};rejected(changed,"non-unit pressure reaction direction");
         changed=associated;changed.vascular.tissues[0].pressureToCompartment=999;rejected(changed,"missing pressure reaction endpoint");
         changed=associated;changed.vascular.tissues[0].pressureFromCompartment=0;rejected(changed,"partial pressure reaction identity");

@@ -563,6 +563,11 @@ struct VascularTissueSource {
     std::uint32_t objectIndex = NM_INVALID_INDEX;
     std::vector<VascularTissueBindingSource> femRegion;
     bool mechanicsFeedback = false;
+    // Explicit fluid-momentum ownership. When enabled, the pressure reaction
+    // must name a matching inertial vascular edge. The runtime transfers the
+    // finite-volume blood momentum change to this registered wall region; it
+    // never infers a vessel or density from geometry.
+    bool bloodMomentumTransfer = false;
     // Optional single-owner blood mechanical mass registration. When set,
     // this tissue receives the compartment's initial fluid mass over its real
     // FEM region. Runtime applies only the current-volume mass correction;

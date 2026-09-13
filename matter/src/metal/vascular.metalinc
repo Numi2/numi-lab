@@ -157,16 +157,20 @@ inline float2 vascularCompartmentPressure(const NMVascularLayoutGPU graph,
 // two pressure compartments, a unit path direction, and cross-sectional area;
 // the registered FEM region receives -A (p_from - p_to) direction. This is a
 // conservative reaction path, not an implicit blood density or perfusion law.
+// An explicitly flagged owner may additionally receive finite-volume fluid-momentum
+// reaction from the matching inertial vascular edge; the source must opt in.
 inline float3 vascularPressureReactionNodeForce(
     const NMVascularLayoutGPU graph, uint node, uint nodeBase, uint stateBase,
     device const NMVascularUnknownGPU* unknowns,
     device const NMVascularCompartmentGPU* compartments,
     device const NMVascularCavityGPU* cavities,
+    device const NMVascularConnectionGPU* connections,
     device const NMVascularTissueGPU* tissues,
     device const NMVascularTissueBindingGPU* bindings,
     device const float* elastance, device const float4* vascularState,
+    device const float4* acceptedVascularState,
     device const float4* direction,
-    uint directionBase, bool derivative) {
+    uint directionBase, float dt, bool derivative) {
     float3 result = float3(0.0f);
     for (uint tissueIndex = 0u; tissueIndex < graph.counts.w; ++tissueIndex) {
         const NMVascularTissueGPU tissue = tissues[tissueIndex];
@@ -182,7 +186,31 @@ inline float3 vascularPressureReactionNodeForce(
         const float3 unit = float3(tissue.spatialFirst.w,
             tissue.spatialSecond0.w, tissue.spatialSecond1.w);
         const float pressureDifference = derivative ? from.y - to.y : from.x - to.x;
-        const float3 reaction = -pressureDifference * tissue.physical.w * unit;
+        float3 reaction = -pressureDifference * tissue.physical.w * unit;
+        if ((tissue.identity.w & NM_VASCULAR_TISSUE_MOMENTUM_TRANSFER) != 0u) {
+            const uint fromCompartment = tissue.region.z - 1u;
+            const uint toCompartment = tissue.region.w - 1u;
+            uint flowEdge = NM_INVALID_INDEX;
+            for (uint edge = 0u; edge < graph.counts.y; ++edge) {
+                if (connections[edge].identity.y == fromCompartment &&
+                    connections[edge].identity.z == toCompartment &&
+                    connections[edge].physical.y > 0.0f) {
+                    if (flowEdge != NM_INVALID_INDEX) return float3(INFINITY);
+                    flowEdge = edge;
+                }
+            }
+            if (flowEdge == NM_INVALID_INDEX || !(tissue.physical.w > 0.0f) ||
+                !(tissue.physical.y > 0.0f) || !(tissue.physical.x > 0.0f))
+                return float3(INFINITY);
+            const uint flowRow = graph.offsets.y + flowEdge;
+            const float safeDt = max(dt, 1.0e-12f);
+            const float flowDelta = derivative
+                ? direction[directionBase + flowRow].x * unknowns[flowRow].initialAndScaling.y
+                : vascularPhysical(vascularState, unknowns, stateBase, flowRow) -
+                  vascularPhysical(acceptedVascularState, unknowns, stateBase, flowRow);
+            const float momentumFactor = tissue.physical.y * tissue.physical.x / tissue.physical.w;
+            reaction += -momentumFactor * flowDelta / safeDt * unit;
+        }
         if (!all(isfinite(reaction))) return float3(INFINITY);
         for (uint slot = 0u; slot < tissue.region.y; ++slot) {
             const NMVascularTissueBindingGPU binding = bindings[tissue.region.x + slot];
@@ -444,8 +472,9 @@ inline float3 vascularBloodMassNodeForce(
     const float safeDt = max(dt, 1.0e-12f);
     for (uint tissueIndex = 0u; tissueIndex < graph.counts.w; ++tissueIndex) {
         const NMVascularTissueGPU tissue = tissues[tissueIndex];
-        if (tissue.identity.w == 0u || tissue.region.y == 0u) continue;
-        const uint compartment = tissue.identity.w - 1u;
+        const uint ownerCode = tissue.identity.w & ~NM_VASCULAR_TISSUE_MOMENTUM_TRANSFER;
+        if (ownerCode == 0u || tissue.region.y == 0u) continue;
+        const uint compartment = ownerCode - 1u;
         const float volume = vascularPhysical(vascularState, unknowns, stateBase, compartment);
         const float currentMass = tissue.physical.y * volume;
         const float deltaMass = currentMass - tissue.physical.z;
@@ -483,10 +512,11 @@ kernel void nm_vascular_blood_moments(
     const uint tissueIndex = global - environment * tissueCount;
     NMVascularTissueMomentGPU moment{};
     const NMVascularTissueGPU tissue = tissues[tissueIndex];
-    if (tissue.identity.w != 0u && tissue.region.y != 0u) {
+    const uint ownerCode = tissue.identity.w & ~NM_VASCULAR_TISSUE_MOMENTUM_TRANSFER;
+    if (ownerCode != 0u && tissue.region.y != 0u) {
         const uint nodeBase = environment * dispatch.femNodeCount;
         const uint stateBase = environment * graph.ranges.z;
-        const uint compartment = tissue.identity.w - 1u;
+        const uint compartment = ownerCode - 1u;
         const float volume = vascularPhysical(vascularState, unknowns, stateBase, compartment);
         const float mass = tissue.physical.y * volume;
         if (!isfinite(mass) || !(mass > 0.0f)) {
@@ -544,6 +574,8 @@ kernel void nm_vascular_cavity_forces(
     device const NMVascularTissueGPU* tissues [[buffer(16)]],
     device const NMVascularTissueBindingGPU* tissueBindings [[buffer(17)]],
     device const float* elastance [[buffer(18)]],
+    device const NMVascularConnectionGPU* connections [[buffer(19)]],
+    device const float4* acceptedVascularState [[buffer(20)]],
     uint global [[thread_position_in_grid]]) {
     if (global >= dispatch.environmentCount * dispatch.femNodeCount) return;
     const uint environment = global / dispatch.femNodeCount;
@@ -559,8 +591,9 @@ kernel void nm_vascular_cavity_forces(
             accepted, candidate, vascularState);
     if (environmentHealthy(statuses, environment))
         force += vascularPressureReactionNodeForce(graph, global - nodeBase, nodeBase,
-            environment * graph.ranges.z, unknowns, compartments, cavities, tissues,
-            tissueBindings, elastance, vascularState, vascularState, 0u, false);
+            environment * graph.ranges.z, unknowns, compartments, cavities, connections, tissues,
+            tissueBindings, elastance, vascularState, acceptedVascularState, vascularState, 0u,
+            microstep.time.x, false);
     merged[global] = float4(force, 0.0f);
     if (!all(isfinite(force))) recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
         NM_INVALID_INDEX, global - nodeBase, float4(force, 0.0f));
@@ -585,6 +618,8 @@ kernel void nm_vascular_cavity_operator(
     device const NMVascularTissueGPU* tissues [[buffer(16)]],
     device const NMVascularTissueBindingGPU* tissueBindings [[buffer(17)]],
     device const float* elastance [[buffer(18)]],
+    device const NMVascularConnectionGPU* connections [[buffer(19)]],
+    device const float4* acceptedVascularState [[buffer(20)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     uint global [[thread_position_in_grid]]) {
     if (global >= dispatch.environmentCount * dispatch.femNodeCount) return;
@@ -600,8 +635,9 @@ kernel void nm_vascular_cavity_operator(
             faces, incidence, ranges, accepted, candidate, vascularState, direction, layout.vascularBase + stateBase);
     const float3 pressureTangent = -microstep.time.x *
         vascularPressureReactionNodeForce(graph, global - nodeBase, nodeBase, stateBase,
-            unknowns, compartments, cavities, tissues, tissueBindings, elastance,
-            vascularState, direction, layout.vascularBase + stateBase, true);
+            unknowns, compartments, cavities, connections, tissues, tissueBindings, elastance,
+            vascularState, acceptedVascularState, direction, layout.vascularBase + stateBase,
+            microstep.time.x, true);
     output[global].xyz += tangent + pressureTangent;
     if (!all(isfinite(tangent)) || !all(isfinite(pressureTangent))) recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
         NM_INVALID_INDEX, global - nodeBase, float4(tangent + pressureTangent, 0.0f));
