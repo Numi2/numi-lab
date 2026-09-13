@@ -2202,6 +2202,10 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             !checkedAdd(responsePerEnvironment,
                         input.stand.jointEqualities.size(),
                         responsePerEnvironment) ||
+            // Reserve one response vector per generalized coordinate for
+            // source-authored position-limit projection.
+            !checkedAdd(responsePerEnvironment, articulation.nv,
+                        responsePerEnvironment) ||
             !checkedMultiply(responsePerEnvironment, articulation.nv,
                              responsePerEnvironment) ||
             !checkedMultiply(input.environmentCount, responsePerEnvironment,

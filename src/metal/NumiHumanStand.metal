@@ -1009,7 +1009,133 @@ kernel void mr_numi_human_stand_step(
         }
     }
 
+    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
+    // Source-authored scalar position limits are unilateral generalized
+    // constraints. Static Human recruitment may rely on their reaction; a
+    // stand horizon that omits them turns that accepted load into an
+    // artificial high-acceleration joint impulse. Reuse the response arena
+    // after contact/equality projection and solve each active limit against
+    // the same factored mass matrix. The projection is velocity-level and
+    // therefore preserves the accepted q/v transaction without clamping.
+    const uint limitResponseCapacity = nv;
+    const uint limitResponseBase = responseBase +
+        (3u * dispatch.supportContactCount + dispatch.jointEqualityCount) * nv;
+    uint limitCount = 0u;
+    uint limitDofs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     for (uint dof = 0u; dof < nv; ++dof) {
+        device const MRDofPropertiesGPU& properties =
+            dofs[articulation.vOffset + dof];
+        if ((properties.flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u) continue;
+        if (properties.qIndex == MR_INVALID_INDEX ||
+            properties.qIndex < articulation.qOffset ||
+            properties.qIndex >= articulation.qOffset + nq ||
+            !(properties.limits.x < properties.limits.y) ||
+            !isfinite(properties.limits.x) ||
+            !isfinite(properties.limits.y)) {
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_MODEL, dof);
+            return;
+        }
+        const float position = qState[
+            qBase + properties.qIndex - articulation.qOffset];
+        const float tolerance = 1.0e-7f;
+        const bool lowerNear = position <= properties.limits.x + tolerance;
+        const bool upperNear = position >= properties.limits.y - tolerance;
+        const bool lowerActive = lowerNear &&
+            (position < properties.limits.x || candidateV[dof] < 0.0f);
+        const bool upperActive = upperNear &&
+            (position > properties.limits.y || candidateV[dof] > 0.0f);
+        if (!lowerActive && !upperActive) continue;
+        if (lowerActive && upperActive) {
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_MODEL, dof);
+            return;
+        }
+        if (limitCount >= limitResponseCapacity) {
+            // The fixed response arena is sized for contacts and equalities.
+            // Refuse an over-capacity limit set instead of silently dropping
+            // a source constraint.
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, dof);
+            return;
+        }
+        limitDofs[limitCount] = dof;
+        device float* response = responseScratch + limitResponseBase +
+            limitCount * nv;
+        for (uint index = 0u; index < nv; ++index) response[index] = 0.0f;
+        response[dof] = 1.0f;
+        if (!solveFactor(factor, workspace, response, nv)) {
+            fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED, dof);
+            return;
+        }
+        ++limitCount;
+    }
+    for (uint iteration = 0u;
+         iteration < dispatch.contactIterationCount && limitCount != 0u;
+         ++iteration) {
+        for (uint limit = 0u; limit < limitCount; ++limit) {
+            const uint dof = limitDofs[limit];
+            device const MRDofPropertiesGPU& properties =
+                dofs[articulation.vOffset + dof];
+            const float position = qState[
+                qBase + properties.qIndex - articulation.qOffset];
+            const bool lowerActive =
+                position <= properties.limits.x + 1.0e-7f &&
+                (position < properties.limits.x || candidateV[dof] < 0.0f);
+            const bool upperActive =
+                position >= properties.limits.y - 1.0e-7f &&
+                (position > properties.limits.y || candidateV[dof] > 0.0f);
+            device const float* response = responseScratch + limitResponseBase +
+                limit * nv;
+            const float effectiveMass = response[dof] + kResponseRegularization;
+            if (!(effectiveMass > kResponseRegularization) ||
+                !isfinite(effectiveMass)) {
+                fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED, dof);
+                return;
+            }
+            const float velocity = candidateV[dof];
+            float targetVelocity = 0.0f;
+            float impulse = 0.0f;
+            if (lowerActive) {
+                targetVelocity = max(
+                    0.0f,
+                    min(4.0f,
+                        -0.2f * (position - properties.limits.x) / timestep)
+                );
+                if (velocity < targetVelocity) {
+                    impulse = max(
+                        0.0f,
+                        (targetVelocity - velocity) / effectiveMass
+                    );
+                }
+            } else if (upperActive) {
+                targetVelocity = min(
+                    0.0f,
+                    max(-4.0f,
+                        -0.2f * (position - properties.limits.y) / timestep)
+                );
+                if (velocity > targetVelocity) {
+                    impulse = min(
+                        0.0f,
+                        (targetVelocity - velocity) / effectiveMass
+                    );
+                }
+            }
+            if (!isfinite(impulse)) {
+                fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
+                return;
+            }
+            for (uint index = 0u; index < nv; ++index) {
+                candidateV[index] += impulse * response[index];
+            }
+        }
+    }
+
+    }
+
+    maximumAcceleration = 0.0f;
+    for (uint dof = 0u; dof < nv; ++dof) {
+        maximumAcceleration = max(
+            maximumAcceleration,
+            abs((candidateV[dof] - vState[vBase + dof]) / timestep)
+        );
         if (!isfinite(candidateV[dof])) {
             fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
             return;

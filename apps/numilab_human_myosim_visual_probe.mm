@@ -3342,7 +3342,8 @@ CompiledStandActivation compileStaticStandActivation(
         passiveCouplings = {},
     const std::uint32_t activationSweeps = 240u,
     const bool allowPoseSearch = true,
-    const std::optional<std::uint32_t> poseSweeps = std::nullopt
+    const std::optional<std::uint32_t> poseSweeps = std::nullopt,
+    const double solverTimestepSeconds = 1.0e-4
 ) {
     require(muscles.header.payloadAbi == kMusclePayloadAbi &&
                 muscles.referenceArchitectures.size() ==
@@ -3350,7 +3351,9 @@ CompiledStandActivation compileStaticStandActivation(
                 !jointEqualities.payload.records.empty(),
             "stand equilibrium requires NHMYO2 architecture and NHEQ1 constraints");
     metalrobo::NumiHumanMuscleEquilibriumConfig config;
-    config.timestep = 1.0e-4;
+    require(std::isfinite(solverTimestepSeconds) && solverTimestepSeconds > 0.0,
+            "stand equilibrium requires a positive finite solver timestep");
+    config.timestep = solverTimestepSeconds;
     config.activationLimit = activationCap;
     config.activationSamples = 65u;
     config.activationSweeps = activationSweeps;
@@ -3675,7 +3678,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             &supportContacts,
             {},
             240u,
-            !initialCoordinate.has_value()
+            !initialCoordinate.has_value(),
+            std::nullopt,
+            timestepSeconds
         );
         selectedControlBaselineActivation = compiledActivation.activation;
         for (const std::uint32_t muscleIndex : selectedSourceMuscleIndices) {
@@ -3696,7 +3701,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             &supportContacts,
             {},
             240u,
-            !initialCoordinate.has_value()
+            !initialCoordinate.has_value(),
+            std::nullopt,
+            timestepSeconds
         );
     }
     // Explicit tissue poses disable pose search before recruitment, so q,
