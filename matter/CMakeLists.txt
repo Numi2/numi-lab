@@ -383,6 +383,10 @@ if(APPLE)
             PROPERTIES LABELS "matter;compiler;human;vascular;provenance" TIMEOUT 120)
     endif()
 
+    add_executable(numi-matter-vessel-mass-moment-check tools/vessel_mass_moment_check.mm)
+    target_link_libraries(numi-matter-vessel-mass-moment-check PRIVATE "${FOUNDATION_FRAMEWORK}")
+    target_compile_options(numi-matter-vessel-mass-moment-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+
     add_executable(numi-matter-vascular-cavity-check tools/vascular_cavity_check.mm)
     target_link_libraries(numi-matter-vascular-cavity-check PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
     target_include_directories(numi-matter-vascular-cavity-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
