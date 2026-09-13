@@ -599,7 +599,8 @@ void appendSyntheticVascularOwner(numi::matter::WorldSource& world) {
         0x424c4f4f445f4f57ull, 0x4e45525f5631ull};
     world.vascular.compartments.push_back({
         2u, "fixture:blood-proximal", 1.0e-6, 1.0e-6,
-        0.25, 1.0e-9, 0.0, 1.0e-6, 1.0e-5, {},
+        std::getenv("MRNX_SYNTHETIC_PROXIMAL_PRESSURE") ? std::strtod(std::getenv("MRNX_SYNTHETIC_PROXIMAL_PRESSURE"), nullptr) : 0.25,
+        1.0e-9, 0.0, 1.0e-6, 1.0e-5, {},
         numi::matter::VascularStorageKind::absoluteVolume,
         numi::matter::VascularPressureLaw::linearCompliance});
     world.vascular.compartments.push_back({
@@ -830,6 +831,12 @@ void qualifyTouchAggregation(id<MTLDevice> device) {
         const auto invalid=run();
         require(invalid[0].identity.w==0u&&invalid[1].identity.w==1u,"bad row did not invalidate only its receptor");
     }
+    std::memcpy(input.contents,rows.data(),input.length);
+    raw[1].impulseAndNormal.w=-1.0e-12f;
+    const auto signedZero=run();
+    require(signedZero[0].identity.w==MR_NUMANX_HUMAN_SUPPORT_CONSEQUENCE_VERSION &&
+        signedZero[0].impulseAndNormal.w==rows[0].impulseAndNormal.w,
+        "sub-ulp negative unloaded support impulse was not clamped");
     std::printf("numanx_touch_aggregation=pass rows=18 receptors=10 impulse=%.9g centre_of_pressure=conserved replay=bitwise malformed_rows=4\n",total);
 }
 
@@ -904,7 +911,8 @@ int writePreparedStanceFixture(const char* certificate, const char* output,
         }
         }
         require(newtonIterations > 0u && newtonIterations <= 128u, "invalid prepared Newton iteration budget");
-        auto world=authoredFixtureWorld(initial.q);world.frameTimestep=exactNanoseconds*1.0e-9;
+        const bool includeVascular = std::getenv("MRNX_INCLUDE_SYNTHETIC_VASCULAR") != nullptr;
+        auto world=authoredFixtureWorld(initial.q, includeVascular);world.frameTimestep=exactNanoseconds*1.0e-9;
         world.mixedSolver.newtonIterations = newtonIterations;
         numi::matter::CompileOptions options;options.maximumRateExponent=0u;
         const auto compiled=numi::matter::compileWorld(world,options);

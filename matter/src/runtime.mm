@@ -7814,6 +7814,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femResidual offset:0u atIndex:2u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+                    [encoder setBuffer:state.humanSupportHistoriesCandidate offset:0u atIndex:5u];
                 });
 
             }

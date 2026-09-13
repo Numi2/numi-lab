@@ -3558,6 +3558,7 @@ kernel void nm_human_support_certify(
     device const float4* residual [[buffer(2)]],
     device const NMFGMRESStateGPU* states [[buffer(3)]],
     device NMMatterStatusGPU* statuses [[buffer(4)]],
+    device const float4* supportHistories [[buffer(5)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
@@ -3585,9 +3586,23 @@ kernel void nm_human_support_certify(
     const float threshold = max(solver.regularization.x,
         solver.residualTolerances.x * max(min(states[environment].nonlinear.x,
             states[environment].nonlinear.y), 1.0f));
+    bool invalidSupportImpulse = false;
+    if (lane == 0u) {
+        for (uint row = 0u; row < layout.supportContactCount; ++row) {
+            const float normalImpulse = supportHistories[
+                environment * layout.supportContactCount + row].w;
+            if (!isfinite(normalImpulse) || normalImpulse < -1.0e-7f) {
+                invalidSupportImpulse = true;
+                break;
+            }
+        }
+    }
     if (lane == 0u && (!isfinite(norm) || norm > threshold))
         recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
             NM_INVALID_INDEX, NM_INVALID_INDEX, float4(norm, threshold, supportNorm, rigidNorm));
+    if (lane == 0u && invalidSupportImpulse)
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            NM_INVALID_INDEX, NM_INVALID_INDEX, float4(-1.0f, 0.0f, supportNorm, rigidNorm));
 }
 
 } // namespace numi_matter_metal

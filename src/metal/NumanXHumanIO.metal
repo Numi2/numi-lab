@@ -567,21 +567,30 @@ kernel void numanx_human_aggregate_support(
     uint flags=0u;
     for (uint row=map.x; row<map.x+map.y; ++row) {
         const MRNumanXHumanSupportConsequenceGPU item = rows[row];
+        // A converged complementarity solve can leave a sub-ulp negative
+        // normal impulse when a row is exactly unloaded. Treat that signed
+        // zero as zero for the sensor projection, while retaining rejection
+        // for a physically meaningful negative impulse.
+        const float normalImpulse = item.impulseAndNormal.w;
+        const float tangentImpulse = item.tangentVelocityAndImpulse.w;
         if (item.identity.x != row || item.identity.y != map.w ||
             item.identity.w != MR_NUMANX_HUMAN_SUPPORT_CONSEQUENCE_VERSION ||
             !all(isfinite(item.pointAndSeparation)) || !all(isfinite(item.impulseAndNormal)) ||
-            !all(isfinite(item.tangentVelocityAndImpulse)) || item.impulseAndNormal.w < 0.0f ||
-            item.tangentVelocityAndImpulse.w < 0.0f) return;
+            !all(isfinite(item.tangentVelocityAndImpulse)) || normalImpulse < -1.0e-7f ||
+            tangentImpulse < -1.0e-7f) return;
         if (item.pointAndSeparation.w < minimumGap) {
             minimumGap = item.pointAndSeparation.w;
             result.pointAndSeparation = item.pointAndSeparation;
             result.tangentVelocityAndImpulse.xyz = item.tangentVelocityAndImpulse.xyz;
         }
-        weightedPoint += item.pointAndSeparation.xyz*item.impulseAndNormal.w;
-        weightedVelocity += item.tangentVelocityAndImpulse.xyz*item.impulseAndNormal.w;
+        const float clampedNormalImpulse = max(normalImpulse, 0.0f);
+        const float clampedTangentImpulse = max(tangentImpulse, 0.0f);
+        weightedPoint += item.pointAndSeparation.xyz*clampedNormalImpulse;
+        weightedVelocity += item.tangentVelocityAndImpulse.xyz*clampedNormalImpulse;
         flags |= item.identity.z;
         result.impulseAndNormal += item.impulseAndNormal;
-        result.tangentVelocityAndImpulse.w += item.tangentVelocityAndImpulse.w;
+        result.impulseAndNormal.w += clampedNormalImpulse - normalImpulse;
+        result.tangentVelocityAndImpulse.w += clampedTangentImpulse;
     }
     if (!all(isfinite(result.impulseAndNormal)) || !all(isfinite(result.tangentVelocityAndImpulse))) return;
     if (result.impulseAndNormal.w > 0.0f) {
