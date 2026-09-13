@@ -2557,6 +2557,7 @@ struct MuscleDrivenVisualState {
     // substitutes a smaller mechanical model.
     std::uint32_t selectedSourceMuscleActivationCount = 0u;
     double muscleMetalElapsedMilliseconds = 0.0;
+    double sourceDynamicForceParityMaximumNewtons = 0.0;
     std::string muscleMetalDeviceName;
     bool persistentMetalHorizon = false;
     bool selectedTendonControl = false;
@@ -3695,6 +3696,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 "persistent Human initial coordinate equality projection failed");
     }
     CompiledStandActivation compiledActivation;
+    double sourceDynamicForceParityMaximumNewtons = 0.0;
     std::vector<float> selectedControlBaselineActivation;
     if (applySelectedActivationIncrement) {
         compiledActivation = compileStaticStandActivation(
@@ -3886,6 +3888,35 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         parityGeneralizedForce.assign(
             parityForce.generalizedForce.begin(),
             parityForce.generalizedForce.end()
+        );
+        double maximumCompiledForce = 0.0;
+        for (const double value : compiledActivation.generalizedMuscleForce) {
+            maximumCompiledForce = std::max(maximumCompiledForce, std::abs(value));
+        }
+        const std::size_t parityCount = std::min(
+            compiledActivation.generalizedMuscleForce.size(),
+            parityGeneralizedForce.size()
+        );
+        for (std::size_t dof = 0u; dof < parityCount; ++dof) {
+            sourceDynamicForceParityMaximumNewtons = std::max(
+                sourceDynamicForceParityMaximumNewtons,
+                std::abs(
+                    parityGeneralizedForce[dof] -
+                    compiledActivation.generalizedMuscleForce[dof]
+                )
+            );
+        }
+        const double forceParityTolerance = std::max(
+            0.05, 1.0e-4 * std::max(1.0, maximumCompiledForce)
+        );
+        require(
+            parityCount == compiledActivation.generalizedMuscleForce.size() &&
+                parityCount == parityGeneralizedForce.size() &&
+                std::isfinite(sourceDynamicForceParityMaximumNewtons) &&
+                sourceDynamicForceParityMaximumNewtons <= forceParityTolerance,
+            "source CPU/Metal MyoSim generalized-force parity exceeded tolerance: delta=" +
+                std::to_string(sourceDynamicForceParityMaximumNewtons) +
+                " tolerance=" + std::to_string(forceParityTolerance)
         );
     }
     metalrobo::ArticulatedDynamicsConfig parityConfig;
@@ -4451,6 +4482,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         muscles.gpuMuscles.size() * stepCount * phaseCount
     );
     result.muscleMetalElapsedMilliseconds = totalElapsedMilliseconds;
+    result.sourceDynamicForceParityMaximumNewtons = sourceDynamicForceParityMaximumNewtons;
     result.muscleMetalDeviceName = diagnostics.deviceName;
     for (const MRMujocoMuscleResultGPU& muscle : metalResult.mujocoResults) {
         result.appliedWrapCount += muscle.appliedWrapCount;
@@ -17137,6 +17169,8 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->muscleMetalForceRecordCount : 0u)
                       << " muscle_force_metal_elapsed_ms=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->muscleMetalElapsedMilliseconds : 0.0)
+                      << " source_dynamic_force_parity_max_delta_n=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->sourceDynamicForceParityMaximumNewtons : 0.0)
                       << " passive_fem_tissue_stable_id=" << (passiveFEMTissue.has_value()
                               ? std::to_string(passiveFEMTissue->stableId) : "none")
                       << " passive_fem_tetrahedra=" << (passiveFEMTissue.has_value()
