@@ -107,6 +107,9 @@ int main() {
         const auto bound=compileWorld(associated);require(bound.succeeded(),"real FEM association rejected: "+messages(bound));
         require(bound.world.vascular.tissueBindings.size()==2&&bound.world.vascular.tissueBindings[0].identity.y==0&&bound.world.vascular.tissueBindings[1].identity.y==2,"FEM region not canonically resolved");
         require(bound.world.vascular.tissues[0].identity.w!=0u&&bound.world.vascular.tissues[0].physical.y==float(1060.0),"blood mechanical owner was not cooked");
+        require(std::abs(bound.world.vascular.tissues[0].spatialFirst.y-.0025f)<1e-7f&&
+                std::abs(bound.world.vascular.tissues[0].spatialSecond1.x-2.5e-5f)<1e-8f,
+                "blood owner spatial moments were not cooked");
         changed=associated;changed.vascular.tissues[0].femRegion={{0u,.5},{0u,.5}};rejected(changed,"duplicate FEM region node");
         changed=associated;changed.vascular.tissues[0].femRegion={{0u,.9}};rejected(changed,"unnormalized FEM region");
         changed=associated;changed.vascular.tissues[0].bloodCompartment=0u;rejected(changed,"blood owner without compartment identity");
@@ -115,6 +118,7 @@ int main() {
         rejected(duplicate,"duplicate blood compartment owner");
         changed=associated;changed.objects[0].mutationPolicy.enabled=true;rejected(changed,"unsupported vascular topology remap");
         bad=bound.world;bad.vascular.tissueBindings[0].identity.y=999;rejectedCooked(bad,"stale FEM association");
+        bad=bound.world;bad.vascular.tissues[0].spatialFirst.y+=.001f;rejectedCooked(bad,"stale FEM spatial moment");
         // Numerical constitutive fixtures only; actual source replication uses
         // the separately pinned Human source payload and generated CellML oracle.
         auto cardiac=s;cardiac.vascular.species.clear();cardiac.vascular.tissues.clear();cardiac.vascular.exchanges.clear();

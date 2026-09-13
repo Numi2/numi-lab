@@ -385,6 +385,9 @@ void bloodMassOwner(){
     const auto shell=fixture::hollowShell();Run run(fixture::world(false,.001,true));const auto& w=run.world;
     need(w.vascular.tissues.size()==1&&w.vascular.tissueBindings.size()==shell.innerNodes.size(),"blood owner fixture did not cook its FEM region");
     const auto& owner=w.vascular.tissues[0];need(owner.identity.w!=0u&&owner.physical.y>1000.f,"blood owner identity or density was not cooked");
+    need(std::abs(owner.spatialFirst.x)<1e-7f&&std::abs(owner.spatialFirst.y)<1e-7f&&std::abs(owner.spatialFirst.z)<1e-7f&&
+         std::abs(owner.spatialSecond0.x-2.5e-5f)<1e-8f&&std::abs(owner.spatialSecond1.x-2.5e-5f)<1e-8f&&std::abs(owner.spatialSecond1.z-2.5e-5f)<1e-8f,
+         "blood owner spatial moments were not symmetric or source-bound");
     double weightSum=0;for(const auto& binding:w.vascular.tissueBindings)weightSum+=binding.physical.x;
     need(std::abs(weightSum-1.)<1e-7,"blood owner FEM weights are not normalized");
     unsigned compartment=NM_INVALID_INDEX;for(unsigned i=0;i<w.vascular.compartments.size();++i)if(w.vascular.compartments[i].identity.x==12u)compartment=i;

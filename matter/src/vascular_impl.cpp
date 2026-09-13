@@ -377,10 +377,21 @@ bool compileVascular(const WorldSource& source, CompiledWorld& world, std::vecto
             // Zero is the legacy/no-owner value; stored indices are +1.
             bloodOwner = compartment + 1u;
         }
-        ti[x.stableIdentifier]=row;NMVascularTissueGPU tissue{{x.stableIdentifier,name,x.objectIndex,bloodOwner},f4(x.volume,x.bloodDensity),{std::uint32_t(c.tissueBindings.size()),std::uint32_t(x.femRegion.size()),0u,0u}};
-        double sum=0;std::set<std::uint32_t> seen;auto region=x.femRegion;std::sort(region.begin(),region.end(),[](auto a,auto b){return a.node<b.node;});
-        for (const auto& b:region) {const auto& object=world.objects[x.objectIndex];if (!positive(b.weight)||b.node>=object.stateCount||!seen.insert(b.node).second||c.tissueBindings.size()==limit) return fail("invalid or duplicate FEM regional node/weight");sum+=b.weight;c.tissueBindings.push_back({{row,object.stateOffset+b.node,0u,0u},f4(b.weight)});}
+        ti[x.stableIdentifier]=row;NMVascularTissueGPU tissue{{x.stableIdentifier,name,x.objectIndex,bloodOwner},f4(x.volume,x.bloodDensity),{std::uint32_t(c.tissueBindings.size()),std::uint32_t(x.femRegion.size()),0u,0u},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+        double sum=0;double first[3]={0,0,0};double second[6]={0,0,0,0,0,0};std::set<std::uint32_t> seen;auto region=x.femRegion;std::sort(region.begin(),region.end(),[](auto a,auto b){return a.node<b.node;});
+        for (const auto& b:region) {
+            const auto& object=world.objects[x.objectIndex];const auto& authored=source.objects[x.objectIndex];
+            if (!positive(b.weight)||b.node>=object.stateCount||b.node>=authored.femNodes.size()||!seen.insert(b.node).second||c.tissueBindings.size()==limit) return fail("invalid or duplicate FEM regional node/weight");
+            const auto& p=authored.femNodes[b.node];if(!finite(p[0])||!finite(p[1])||!finite(p[2]))return fail("nonfinite FEM regional coordinate");
+            sum+=b.weight;first[0]+=b.weight*p[0];first[1]+=b.weight*p[1];first[2]+=b.weight*p[2];
+            second[0]+=b.weight*p[0]*p[0];second[1]+=b.weight*p[0]*p[1];second[2]+=b.weight*p[0]*p[2];
+            second[3]+=b.weight*p[1]*p[1];second[4]+=b.weight*p[1]*p[2];second[5]+=b.weight*p[2]*p[2];
+            c.tissueBindings.push_back({{row,object.stateOffset+b.node,0u,0u},f4(b.weight)});
+        }
         if (!region.empty() && std::abs(sum-1.0)>1e-8) return fail("FEM regional weights must sum to one");
+        tissue.spatialFirst=f4(first[0],first[1],first[2]);
+        tissue.spatialSecond0=f4(second[0],second[1],second[2]);
+        tissue.spatialSecond1=f4(second[3],second[4],second[5]);
         c.tissues.push_back(tissue);if (!amount(c.layout.offsets.w+row*S,x.initialSpeciesAmounts)) return fail("invalid tissue species amounts");
     }
     for (auto index:ox) {const auto& x=v.exchanges[index];const auto row=std::uint32_t(c.exchanges.size());
@@ -494,7 +505,7 @@ bool validateVascularLayout(const CompiledWorld& world,std::string* error) {
     }
     std::vector<std::uint32_t> bloodOwnerTissue(C, NM_INVALID_INDEX);
     std::size_t nextBinding=0;
-    for(std::size_t i=0;i<T;++i) {const auto& x=c.tissues[i];if(!x.identity.x||(i&&x.identity.x<=c.tissues[i-1].identity.x)||x.identity.w>C||!name(x.identity.y)||!finite4(x.physical)||!positive(x.physical.x)||x.physical.z!=0||x.physical.w!=0||x.region.x!=nextBinding||x.region.z||x.region.w||x.region.y>c.tissueBindings.size()-nextBinding)return fail("invalid fixed tissue reservoir");
+    for(std::size_t i=0;i<T;++i) {const auto& x=c.tissues[i];if(!x.identity.x||(i&&x.identity.x<=c.tissues[i-1].identity.x)||x.identity.w>C||!name(x.identity.y)||!finite4(x.physical)||!finite4(x.spatialFirst)||!finite4(x.spatialSecond0)||!finite4(x.spatialSecond1)||!positive(x.physical.x)||x.physical.z!=0||x.physical.w!=0||x.spatialFirst.w!=0||x.spatialSecond0.w!=0||x.spatialSecond1.w!=0||x.region.x!=nextBinding||x.region.z||x.region.w||x.region.y>c.tissueBindings.size()-nextBinding)return fail("invalid fixed tissue reservoir");
         if (x.identity.w == 0u) {
             if (x.physical.y != 0.0f) return fail("unowned tissue carries blood density");
         } else {
@@ -506,9 +517,15 @@ bool validateVascularLayout(const CompiledWorld& world,std::string* error) {
         }
         if((x.identity.z==NM_INVALID_INDEX)!=(x.region.y==0))return fail("incomplete tissue FEM binding");
         if(x.identity.z!=NM_INVALID_INDEX && (x.identity.z>=world.objects.size()||world.objects[x.identity.z].representation!=NM_REPRESENTATION_FEM))return fail("tissue does not bind a real FEM object");
-        double sum=0;std::uint32_t previous=0;
-        for(std::size_t j=0;j<x.region.y;++j){const auto& b=c.tissueBindings[nextBinding+j];const auto& object=world.objects[x.identity.z];if(b.identity.x!=i||b.identity.y<object.stateOffset||std::uint64_t(b.identity.y)>=std::uint64_t(object.stateOffset)+object.stateCount||(j&&b.identity.y<=previous)||b.identity.z||b.identity.w||!finite4(b.physical)||!positive(b.physical.x)||b.physical.y!=0||b.physical.z!=0||b.physical.w!=0)return fail("invalid tissue FEM incidence");previous=b.identity.y;sum+=b.physical.x;}
+        double sum=0;double first[3]={0,0,0};double second[6]={0,0,0,0,0,0};std::uint32_t previous=0;
+        for(std::size_t j=0;j<x.region.y;++j){const auto& b=c.tissueBindings[nextBinding+j];const auto& object=world.objects[x.identity.z];if(b.identity.x!=i||b.identity.y<object.stateOffset||std::uint64_t(b.identity.y)>=std::uint64_t(object.stateOffset)+object.stateCount||b.identity.y>=world.fem.nodes.size()||(j&&b.identity.y<=previous)||b.identity.z||b.identity.w||!finite4(b.physical)||!positive(b.physical.x)||b.physical.y!=0||b.physical.z!=0||b.physical.w!=0)return fail("invalid tissue FEM incidence");previous=b.identity.y;sum+=b.physical.x;const auto& p=world.fem.nodes[b.identity.y].positionAndMass;if(!finite(p.x)||!finite(p.y)||!finite(p.z))return fail("nonfinite cooked FEM regional coordinate");first[0]+=b.physical.x*p.x;first[1]+=b.physical.x*p.y;first[2]+=b.physical.x*p.z;second[0]+=b.physical.x*p.x*p.x;second[1]+=b.physical.x*p.x*p.y;second[2]+=b.physical.x*p.x*p.z;second[3]+=b.physical.x*p.y*p.y;second[4]+=b.physical.x*p.y*p.z;second[5]+=b.physical.x*p.z*p.z;}
         if(x.region.y&&std::abs(sum-1.0)>1e-6)return fail("cooked tissue region is not normalized");nextBinding+=x.region.y;
+        const auto momentClose=[](double a,double b){return std::abs(a-b)<=2e-5*std::max(1.0,std::abs(b));};
+        if ((x.region.y==0 && (!zero4(x.spatialFirst)||!zero4(x.spatialSecond0)||!zero4(x.spatialSecond1))) ||
+            (x.region.y!=0 && (!momentClose(x.spatialFirst.x,first[0])||!momentClose(x.spatialFirst.y,first[1])||!momentClose(x.spatialFirst.z,first[2])||
+                !momentClose(x.spatialSecond0.x,second[0])||!momentClose(x.spatialSecond0.y,second[1])||!momentClose(x.spatialSecond0.z,second[2])||
+                !momentClose(x.spatialSecond1.x,second[3])||!momentClose(x.spatialSecond1.y,second[4])||!momentClose(x.spatialSecond1.z,second[5]))))
+            return fail("tissue spatial moments do not match its normalized FEM region");
         for (std::size_t j=0;j<S;++j) {
             const double concentration=double(c.unknowns[C+E+C*S+i*S+j].initialAndScaling.x)/x.physical.x;
             if (!finite(concentration)) return fail("initial tissue concentration is not representable");
