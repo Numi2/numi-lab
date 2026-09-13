@@ -355,6 +355,18 @@ if(APPLE)
         set_tests_properties(matter.metal.fem_material_frame PROPERTIES LABELS "matter;material;human" TIMEOUT 180)
     endif()
 
+    add_executable(numi-matter-vascular-human-binding-check tools/vascular_human_binding_check.mm)
+    target_link_libraries(numi-matter-vascular-human-binding-check PRIVATE "${FOUNDATION_FRAMEWORK}" numi_matter_compiler)
+    target_include_directories(numi-matter-vascular-human-binding-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_options(numi-matter-vascular-human-binding-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.compiler.vascular_human_binding
+            COMMAND numi-matter-vascular-human-binding-check
+                "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/human_organ_blood_bridge_20260913.json")
+        set_tests_properties(matter.compiler.vascular_human_binding
+            PROPERTIES LABELS "matter;compiler;human;vascular;provenance" TIMEOUT 120)
+    endif()
+
     add_executable(numi-matter-vascular-cavity-check tools/vascular_cavity_check.mm)
     target_link_libraries(numi-matter-vascular-cavity-check PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
     target_include_directories(numi-matter-vascular-cavity-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
