@@ -14,9 +14,9 @@ std::uint64_t hashFence(const MRNumanXHumanMatterJointPublicationFenceGPU& f){
     const auto* p=reinterpret_cast<const std::uint8_t*>(&f);std::uint64_t h=14695981039346656037ull;
     for(unsigned i=0;i<120;++i){h^=p[i];h*=1099511628211ull;}return h;
 }
-CompiledHumanBehaviorProgram program(){HumanBehaviorProgramSource s;s.bodyCount=1;s.nq=7;s.nv=6;s.task=2;s.timestepNanoseconds=25000;
+CompiledHumanBehaviorProgram program(){HumanBehaviorProgramSource s;s.bodyCount=1;s.nq=7;s.nv=6;s.task=2;s.timestepNanoseconds=kNumiHumanBehaviorTimestepNanoseconds;
     for(auto& h:s.sourceSHA256)h.fill(1);s.numerical={0,0,0,0,0,1,1,0,0,0,0,1,1.0+std::ldexp(1.0,-24),.3,1,.5};
-    s.forbiddenBodies={{{0,0}}};HumanBehaviorCompileBinding b;b.bodyCount=1;b.nq=7;b.nv=6;b.timestepNanoseconds=25000;
+    s.forbiddenBodies={{{0,0}}};HumanBehaviorCompileBinding b;b.bodyCount=1;b.nq=7;b.nv=6;b.timestepNanoseconds=kNumiHumanBehaviorTimestepNanoseconds;
     b.sourceArchiveSHA256=s.sourceSHA256[0];b.rigidSHA256=s.sourceSHA256[1];b.sourceToCore={{{0,0}}};b.cookedCOMOffset={{{0,0,0}}};
     CompiledHumanBehaviorProgram out;std::string error;need(compileHumanBehaviorProgram(s,b,out,error),error.c_str());return out;
 }
@@ -42,7 +42,7 @@ struct Driver {
             p.bodyPoses=(__bridge void*)bodies;p.bodyPositionLow=(__bridge void*)low;p.pointJacobians=(__bridge void*)jacobian;p.v=(__bridge void*)velocity;
             p.bodyPoseStride=1;p.bodyCount=1;p.qCoordinateCount=7;p.dofCount=6;p.vStride=6;p.pointWorldStride=4;p.pointJacobianStride=72;
             p.transactionFingerprint=100+serial;p.linearizationEpoch=20+serial;p.slotGeneration=serial;
-            return t.encodeCandidate(p,4+acceptedOrdinal,100000+acceptedOrdinal*25000,error);});
+            return t.encodeCandidate(p,4+acceptedOrdinal,100000+acceptedOrdinal*kNumiHumanBehaviorTimestepNanoseconds,error);});
     }
     auto fence(std::uint64_t serial){MRNumanXHumanMatterJointPublicationFenceGPU f{};
         f.abiVersion=1;f.structBytes=sizeof(f);f.status=MR_NUMANX_HUMAN_MATTER_PUBLICATION_COMMITTED;f.controlStep=static_cast<std::uint32_t>(serial);f.physicsSubstepCount=1;
@@ -52,7 +52,7 @@ struct Driver {
     }
     auto release(MetalHumanBehaviorTelemetry& t,std::uint64_t serial,bool accepted,std::uint64_t acceptedOrdinal=0){if(acceptedOrdinal==0)acceptedOrdinal=serial;MRHumanBehaviorReleaseGPU r{};
         r.programFingerprint=t.fingerprint();r.transactionFingerprint=100+serial;r.linearizationEpoch=20+serial;r.slotGeneration=serial;
-        r.physicsGeneration=4+acceptedOrdinal;r.acceptedTimestampNanoseconds=100000+acceptedOrdinal*25000;r.publicationSerial=t.completedAttempts()+1;r.released=accepted?1:2;
+        r.physicsGeneration=4+acceptedOrdinal;r.acceptedTimestampNanoseconds=100000+acceptedOrdinal*kNumiHumanBehaviorTimestepNanoseconds;r.publicationSerial=t.completedAttempts()+1;r.released=accepted?1:2;
         if(accepted)r.jointFenceFingerprint=fence(serial).fenceFingerprint;return r;
     }
 };
@@ -63,7 +63,7 @@ int main(int argc,const char* argv[]){@autoreleasepool{try{
     d.measure(t,1,std::ldexp(1.0f,-50));auto first=d.fence(1);auto release=d.release(t,1,true);need(t.terminal(release,&first,d.error),d.error.c_str());
     const auto pending=t.snapshot();need(pending.reduction[0].acceptedRootCount==0,"pending sample prematurely counted");
     d.flush(t);const auto accepted=t.snapshot();const auto& a=accepted.reduction[0];
-    need(a.status==0&&a.acceptedRootCount==1&&a.metricSampleCount==1&&a.endNanoseconds==125000,"accepted nonzero epoch reduction failed");
+    need(a.status==0&&a.acceptedRootCount==1&&a.metricSampleCount==1&&a.endNanoseconds==112500,"accepted nonzero epoch reduction failed");
     need(a.postureViolationCount==0&&a.speedErrorSampleCount==1&&std::abs(double(a.extremaHigh.w)+a.extremaLow.w-.0625)<1e-12,"threshold/SSE measurement failed");
     need(a.auditCoveredRootCount==0&&a.auditCoveredAttemptCount==0&&a.initialPostureValid==1&&a.initialSettled==1,"reset posture/settled measurement missing");
     d.flush(t);auto repeated=t.snapshot();need(std::memcmp(&a,&repeated.reduction[0],sizeof(a))==0,"duplicate flush changed metrics");
@@ -75,9 +75,9 @@ int main(int argc,const char* argv[]){@autoreleasepool{try{
     need(t.restore(afterReject,d.error),"checkpoint after early rejected attempt was denied");d.flush(t);
     d.measure(t,3,std::ldexp(1.0f,-50),2);auto retryFence=d.fence(3);auto retryRelease=d.release(t,3,true,2);
     need(t.terminal(retryRelease,&retryFence,d.error),d.error.c_str());d.flush(t);const auto retry=t.snapshot();
-    need(retry.reduction[0].status==0&&retry.reduction[0].acceptedRootCount==2&&retry.reduction[0].rejectedAttemptCount==1&&retry.reduction[0].endNanoseconds==150000,"rejection retry clock/count drift");
+    need(retry.reduction[0].status==0&&retry.reduction[0].acceptedRootCount==2&&retry.reduction[0].rejectedAttemptCount==1&&retry.reduction[0].endNanoseconds==125000,"rejection retry clock/count drift");
     auto wrongEpoch=d.telemetry(200000);need(!wrongEpoch.restore(pending,d.error),"checkpoint from mismatched reset epoch admitted");
     auto below=d.telemetry();d.measure(below,1,-std::ldexp(1.0f,-50));auto belowRelease=d.release(below,1,true);need(below.terminal(belowRelease,&first,d.error),d.error.c_str());d.flush(below);need(below.snapshot().reduction[0].postureViolationCount==1,"negative low threshold side lost");
     auto bad=d.telemetry();d.measure(bad,1,std::ldexp(1.0f,-50));auto corrupted=first;corrupted.brainShadowStateFingerprint=0;corrupted.fenceFingerprint=hashFence(corrupted);auto badRelease=d.release(bad,1,true);badRelease.jointFenceFingerprint=corrupted.fenceFingerprint;need(bad.terminal(badRelease,&corrupted,d.error),d.error.c_str());d.flush(bad);need(bad.snapshot().reduction[0].status!=0&&bad.snapshot().reduction[0].acceptedRootCount==0,"invalid root fence counted");
-    std::printf("human_behavior_telemetry=pass controls=10 pending_publication=denied committed=once early_reject=preserved retry=pass checkpoint_replay=bitwise double_flush=bitwise nonzero_epoch=pass mismatched_reset=denied paired_threshold=pass audit_coverage=unknown physical_steps=0\n");return 0;
+    std::printf("human_behavior_telemetry=pass controls=10 pending_publication=denied committed=once early_reject=preserved retry=pass checkpoint_replay=bitwise double_flush=bitwise nonzero_epoch=pass mismatched_reset=denied paired_threshold=pass audit_coverage=unknown clock=12500ns physical_steps=0\n");return 0;
 }catch(const std::exception& e){std::fprintf(stderr,"human_behavior_telemetry=fail %s\n",e.what());return 1;}}}

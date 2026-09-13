@@ -8,6 +8,9 @@
 #include <vector>
 
 namespace metalrobo {
+// Canonical Human behavior/control quantum. The native exact-clock runtime,
+// behavior compiler, and telemetry receipts must share this 12.5 us quantum.
+inline constexpr std::uint64_t kNumiHumanBehaviorTimestepNanoseconds = 12'500u;
 struct HumanBehaviorBodyBinding {
     std::uint32_t sourceBodyRecordIndex = 0, coreBodyIndex = 0;
     std::array<double,3> sourceOriginInOriginalCOMFrame{};
