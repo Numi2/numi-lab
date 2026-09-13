@@ -392,6 +392,64 @@ inline float3 vascularBloodMassNodeForce(
     return result;
 }
 
+kernel void nm_vascular_blood_moments(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    device const NMFEMNodeStateGPU* nodes [[buffer(2)]],
+    device const NMVascularUnknownGPU* unknowns [[buffer(3)]],
+    device const NMVascularTissueGPU* tissues [[buffer(4)]],
+    device const NMVascularTissueBindingGPU* bindings [[buffer(5)]],
+    device const float4* vascularState [[buffer(6)]],
+    device NMVascularTissueMomentGPU* output [[buffer(7)]],
+    device NMMatterStatusGPU* statuses [[buffer(8)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint tissueCount = graph.counts.w;
+    if (tissueCount == 0u || global >= dispatch.environmentCount * tissueCount) return;
+    const uint environment = global / tissueCount;
+    const uint tissueIndex = global - environment * tissueCount;
+    NMVascularTissueMomentGPU moment{};
+    const NMVascularTissueGPU tissue = tissues[tissueIndex];
+    if (tissue.identity.w != 0u && tissue.region.y != 0u) {
+        const uint nodeBase = environment * dispatch.femNodeCount;
+        const uint stateBase = environment * graph.ranges.z;
+        const uint compartment = tissue.identity.w - 1u;
+        const float volume = vascularPhysical(vascularState, unknowns, stateBase, compartment);
+        const float mass = tissue.physical.y * volume;
+        if (!isfinite(mass) || !(mass > 0.0f)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, tissueIndex, float4(mass, volume, 0.0f, 0.0f));
+            output[global] = moment;
+            return;
+        }
+        float3 first = float3(0.0f), velocity = float3(0.0f);
+        float3 second0 = float3(0.0f), second1 = float3(0.0f);
+        for (uint slot = 0u; slot < tissue.region.y; ++slot) {
+            const NMVascularTissueBindingGPU binding = bindings[tissue.region.x + slot];
+            const float weight = binding.physical.x;
+            const NMFEMNodeStateGPU node = nodes[nodeBase + binding.identity.y];
+            const float3 x = node.positionAndMass.xyz;
+            const float3 v = node.velocityAndInverseMass.xyz;
+            first += weight * x;
+            velocity += weight * v;
+            second0 += weight * float3(x.x * x.x, x.x * x.y, x.x * x.z);
+            second1 += weight * float3(x.y * x.y, x.y * x.z, x.z * x.z);
+        }
+        moment.firstMassMoment = float4(mass * first, mass);
+        moment.secondMassMoment0 = float4(mass * second0, 0.0f);
+        moment.secondMassMoment1 = float4(mass * second1, 0.0f);
+        moment.linearMomentum = float4(mass * velocity, 0.0f);
+        if (!all(isfinite(moment.firstMassMoment)) ||
+            !all(isfinite(moment.secondMassMoment0)) ||
+            !all(isfinite(moment.secondMassMoment1)) ||
+            !all(isfinite(moment.linearMomentum))) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, tissueIndex, moment.firstMassMoment);
+            moment = NMVascularTissueMomentGPU{};
+        }
+    }
+    output[global] = moment;
+}
+
 kernel void nm_vascular_cavity_forces(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMVascularLayoutGPU& graph [[buffer(1)]],

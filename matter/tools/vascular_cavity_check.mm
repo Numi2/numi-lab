@@ -403,6 +403,7 @@ void bloodMassOwner(){
     NSError* error=nil;auto library=[run.device newLibraryWithURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:NUMI_MATTER_METALLIB]] error:&error];
     need(library!=nil,"metallib unavailable for blood owner operator check");
     const auto forcePipeline=pipeline(run.device,library,@"numi_matter_metal::nm_vascular_cavity_forces");
+    const auto momentPipeline=pipeline(run.device,library,@"numi_matter_metal::nm_vascular_blood_moments");
     NMMicrostepGPU micro{};micro.time={float(run.runtime.timestepSeconds()),float(1./run.runtime.timestepSeconds()),0,0};
     const auto unknownBuffer=gpuBuffer(run.device,w.vascular.unknowns),compartmentBuffer=gpuBuffer(run.device,w.vascular.compartments);
     const auto cavityBuffer=gpuBuffer(run.device,w.vascular.cavities),faceBuffer=gpuBuffer(run.device,w.vascular.cavityFaces);
@@ -424,6 +425,37 @@ void bloodMassOwner(){
         for(unsigned env=0;env<2;++env)need(static_cast<NMMatterStatusGPU*>(statuses.contents)[env].code==NM_STATUS_SUCCESS,"blood owner force state rejected");
         const auto* values=static_cast<nm_float4*>(output.contents);return std::vector<nm_float4>(values,values+2*nodes);
     };
+    const auto encodeMoments=[&](const std::vector<nm_float4>& state,
+                                 const std::vector<NMFEMNodeStateGPU>& nodes){
+        const auto command=[run.queue commandBuffer];auto encoder=[command computeCommandEncoder];
+        [encoder setComputePipelineState:momentPipeline];
+        const auto nodeBuffer=gpuBuffer(run.device,nodes),vascularBuffer=gpuBuffer(run.device,state);
+        const auto output=gpuBuffer(run.device,std::vector<NMVascularTissueMomentGPU>(2*w.vascular.tissues.size()));
+        const auto statuses=gpuBuffer(run.device,std::vector<NMMatterStatusGPU>(2));
+        [encoder setBytes:&w.dispatch length:sizeof(w.dispatch) atIndex:0];
+        [encoder setBytes:&w.vascular.layout length:sizeof(w.vascular.layout) atIndex:1];
+        [encoder setBuffer:nodeBuffer offset:0 atIndex:2];[encoder setBuffer:unknownBuffer offset:0 atIndex:3];
+        [encoder setBuffer:tissueBuffer offset:0 atIndex:4];[encoder setBuffer:bindingBuffer offset:0 atIndex:5];
+        [encoder setBuffer:vascularBuffer offset:0 atIndex:6];[encoder setBuffer:output offset:0 atIndex:7];
+        [encoder setBuffer:statuses offset:0 atIndex:8];
+        [encoder dispatchThreads:MTLSizeMake(2*w.vascular.tissues.size(),1,1)
+            threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];completed(command);
+        for(unsigned env=0;env<2;++env)need(static_cast<NMMatterStatusGPU*>(statuses.contents)[env].code==NM_STATUS_SUCCESS,"blood moment state rejected");
+        const auto* values=static_cast<NMVascularTissueMomentGPU*>(output.contents);
+        return std::vector<NMVascularTissueMomentGPU>(values,values+2*w.vascular.tissues.size());
+    };
+    const auto initialMoments=encodeMoments(vascular,accepted),initialReplay=encodeMoments(vascular,accepted);
+    need(same(initialMoments,initialReplay),"blood spatial moment replay changed output");
+    const auto& initialMoment=initialMoments[0];
+    need(std::abs(double(initialMoment.firstMassMoment.x))<2e-9&&
+         std::abs(double(initialMoment.firstMassMoment.y))<2e-9&&
+         std::abs(double(initialMoment.firstMassMoment.z))<2e-9&&
+         std::abs(double(initialMoment.firstMassMoment.w)-double(owner.physical.z))<2e-8,
+         "initial blood first mass moment disagreed with the symmetric region");
+    need(std::abs(double(initialMoment.secondMassMoment0.x)-double(owner.physical.z)*2.5e-5)<2e-12&&
+         std::abs(double(initialMoment.secondMassMoment1.x)-double(owner.physical.z)*2.5e-5)<2e-12&&
+         std::abs(double(initialMoment.secondMassMoment1.z)-double(owner.physical.z)*2.5e-5)<2e-12,
+         "initial blood second mass moment disagreed with the reference spatial moment");
     const auto first=encode(vascular,accepted),second=encode(vascular,accepted);need(same(first,second),"blood owner correction replay changed output");
     const double volume=run.physical(run.state(),compartment),density=owner.physical.y,weight=1./double(shell.innerNodes.size());
     double total=0;for(unsigned env=0;env<2;++env)for(unsigned node=0;node<nodes;++node){
@@ -462,10 +494,40 @@ void bloodMassOwner(){
         inertialTotal+=force.z;
     }
     need(std::abs(inertialTotal-2.*(double(w.dispatch.gravityAndTimestep.z)+acceleration)*density*deltaVolume)<4e-6,"co-moving blood inertia correction did not conserve total force");
+    const auto dynamicMoments=encodeMoments(changed,moving);
+    const double dynamicMass=density*(volume+deltaVolume);
+    for(unsigned env=0;env<2;++env){
+        fixture::Vec firstMoment{},second0{},second1{},velocity{};
+        for(const auto& binding:w.vascular.tissueBindings){
+            const double weight=binding.physical.x;const auto& node=moving[env*nodes+binding.identity.y];
+            const fixture::Vec x{node.positionAndMass.x,node.positionAndMass.y,node.positionAndMass.z};
+            const fixture::Vec v{node.velocityAndInverseMass.x,node.velocityAndInverseMass.y,node.velocityAndInverseMass.z};
+            for(unsigned k=0;k<3;++k){firstMoment[k]+=weight*x[k];velocity[k]+=weight*v[k];}
+            second0[0]+=weight*x[0]*x[0];second0[1]+=weight*x[0]*x[1];second0[2]+=weight*x[0]*x[2];
+            second1[0]+=weight*x[1]*x[1];second1[1]+=weight*x[1]*x[2];second1[2]+=weight*x[2]*x[2];
+        }
+        const auto& actual=dynamicMoments[env];
+        need(std::abs(double(actual.firstMassMoment.x)-dynamicMass*firstMoment[0])<3e-10&&
+             std::abs(double(actual.firstMassMoment.y)-dynamicMass*firstMoment[1])<3e-10&&
+             std::abs(double(actual.firstMassMoment.z)-dynamicMass*firstMoment[2])<3e-10&&
+             std::abs(double(actual.firstMassMoment.w)-dynamicMass)<3e-8,
+             "dynamic blood first mass moment disagreed with the moving FEM region");
+        need(std::abs(double(actual.secondMassMoment0.x)-dynamicMass*second0[0])<3e-12&&
+             std::abs(double(actual.secondMassMoment0.y)-dynamicMass*second0[1])<3e-12&&
+             std::abs(double(actual.secondMassMoment0.z)-dynamicMass*second0[2])<3e-12&&
+             std::abs(double(actual.secondMassMoment1.x)-dynamicMass*second1[0])<3e-12&&
+             std::abs(double(actual.secondMassMoment1.y)-dynamicMass*second1[1])<3e-12&&
+             std::abs(double(actual.secondMassMoment1.z)-dynamicMass*second1[2])<3e-12,
+             "dynamic blood second mass moment disagreed with the moving FEM region");
+        need(std::abs(double(actual.linearMomentum.x)-dynamicMass*velocity[0])<3e-8&&
+             std::abs(double(actual.linearMomentum.y)-dynamicMass*velocity[1])<3e-8&&
+             std::abs(double(actual.linearMomentum.z)-dynamicMass*velocity[2])<3e-8,
+             "dynamic blood co-moving momentum disagreed with the moving FEM region");
+    }
     std::cout<<"blood_mass_owner=pass compartment_stable_id=12 density_kg_m3="<<density<<" initial_volume_m3="<<volume
              <<" initial_mass_kg="<<owner.physical.z<<" dynamic_volume_delta_m3="<<deltaVolume
              <<" dynamic_force_total_N="<<dynamicTotal<<" normalized_region_weight="<<weight
-             <<" partitioned_inertia=pass dynamic_gravity_correction=pass co_moving_inertia=pass"
+             <<" partitioned_inertia=pass dynamic_gravity_correction=pass dynamic_spatial_moments=pass co_moving_inertia=pass"
              <<" replay=bitwise pressure_driven_momentum=unqualified subject_calibration=unqualified\n";
 }
 void movingWall(){

@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 37u
+#define NM_MATTER_ABI_VERSION 38u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -465,6 +465,16 @@ typedef struct NM_ALIGN16 NMVascularTissueBindingGPU {
     nm_uint4 identity; // tissue index, global FEM node, 0, 0
     nm_float4 physical; // normalized regional weight, 0, 0, 0
 } NMVascularTissueBindingGPU;
+typedef struct NM_ALIGN16 NMVascularTissueMomentGPU {
+    // Current mass-weighted first moment (kg m); w is current mass (kg).
+    nm_float4 firstMassMoment;
+    // Current raw second moments (kg m2): xx, xy, xz.
+    nm_float4 secondMassMoment0;
+    // Current raw second moments (kg m2): yy, yz, zz.
+    nm_float4 secondMassMoment1;
+    // Current co-moving linear momentum (kg m/s); w is reserved zero.
+    nm_float4 linearMomentum;
+} NMVascularTissueMomentGPU;
 typedef struct NM_ALIGN16 NMVascularRangeGPU {
     nm_u32 first;
     nm_u32 count;
