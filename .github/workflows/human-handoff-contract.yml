@@ -30,7 +30,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Configure focused native tests
-        run: cmake -S . -B build-human-handoff -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+        run: >-
+          cmake -S . -B build-human-handoff -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DBUILD_TESTING=ON
+          -DNUMANX_FULLBODY_RIGID_ASSET=${{ github.workspace }}/CMakeLists.txt
+          -DNUMANX_FULLBODY_MUSCLE_ASSET=${{ github.workspace }}/CMakeLists.txt
+          -DNUMANX_FULLBODY_SUPPORT_CONTACT_ASSET=${{ github.workspace }}/CMakeLists.txt
+          -DNUMANX_FULLBODY_VISUAL_PACK_ASSET=${{ github.workspace }}/CMakeLists.txt
+          -DNUMANX_FULLBODY_VISION_PROFILE_ASSET=${{ github.workspace }}/CMakeLists.txt
       - name: Build NHINIT and handoff contract target
         run: cmake --build build-human-handoff --target metalrobo_numi_human_initial_state_test -j 3
       - name: Run NHINIT and handoff contract tests
