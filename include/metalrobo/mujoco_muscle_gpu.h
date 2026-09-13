@@ -8,6 +8,7 @@
 
 #define MR_MUJOCO_MUSCLE_REFERENCE_GPU_ABI_VERSION 4u
 #define MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION 2u
+#define MR_MUJOCO_MUSCLE_ACTIVATION_EXACT_GPU_ABI_VERSION 3u
 #define MR_MUJOCO_MUSCLE_ACTIVE_FORCE_GPU_ABI_VERSION 1u
 #define MR_MUJOCO_MUSCLE_ROUTE_CUT_GPU_ABI_VERSION 1u
 
@@ -112,9 +113,10 @@ typedef struct MR_ALIGN16 MRMujocoMuscleStateGPU {
     mr_float4 excitationAndActivation;
 } MRMujocoMuscleStateGPU;
 
-// One explicit device-side activation update follows the reference pass. It
-// intentionally owns only the mutable activation sidecar: source force and
-// tendon-path evaluation remain in MRMujocoMuscleReferenceDispatchGPU.
+// One device-side activation update follows the reference pass. ABI 2 retains
+// the historical explicit-Euler update. ABI 3 uses an exact first-order hold
+// over the same source derivative and is selected by the Human production
+// operator; both versions own only the mutable activation sidecar.
 typedef struct MR_ALIGN16 MRMujocoMuscleActivationDispatchGPU {
     mr_u32 abiVersion;
     mr_u32 stateCount;

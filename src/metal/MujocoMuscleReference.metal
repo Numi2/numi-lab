@@ -980,7 +980,10 @@ kernel void mr_mujoco_muscle_activation_step(
     constant MRMujocoMuscleActivationDispatchGPU& dispatch [[buffer(2)]],
     uint globalIndex [[thread_position_in_grid]]
 ) {
-    if (dispatch.abiVersion != MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION ||
+    const bool exactFirstOrderHold =
+        dispatch.abiVersion == MR_MUJOCO_MUSCLE_ACTIVATION_EXACT_GPU_ABI_VERSION;
+    if ((dispatch.abiVersion != MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION &&
+         !exactFirstOrderHold) ||
         dispatch.reserved0 != 0u || dispatch.reserved1 != 0u ||
         dispatch.timestepSecondsAndReserved.y != 0.0f ||
         dispatch.timestepSecondsAndReserved.z != 0.0f ||
@@ -1004,13 +1007,25 @@ kernel void mr_mujoco_muscle_activation_step(
         !finite4(reference.fiberStateTendonForceResidual)) {
         return;
     }
-    const float nextActivation = clamp(
-        current.excitationAndActivation.y +
-            dispatch.timestepSecondsAndReserved.x *
-                reference.pathForceAndActivationDerivative.w,
-        0.0f,
-        1.0f
-    );
+    const float control = clamp(current.excitationAndActivation.x, 0.0f, 1.0f);
+    const float activation = clamp(current.excitationAndActivation.y, 0.0f, 1.0f);
+    const float excess = control - activation;
+    const float derivative = reference.pathForceAndActivationDerivative.w;
+    float nextActivation = activation;
+    if (exactFirstOrderHold && excess != 0.0f && derivative != 0.0f) {
+        // The reference pass already evaluated da/dt = (u-a)/tau at the
+        // accepted state. Recover that positive tau and integrate the
+        // first-order hold analytically without adding a muscle-state buffer.
+        const float tau = excess / derivative;
+        if (!(isfinite(tau) && tau > 0.0f)) return;
+        nextActivation = control - excess * exp(
+            -dispatch.timestepSecondsAndReserved.x / tau
+        );
+    } else if (!exactFirstOrderHold) {
+        nextActivation = activation +
+            dispatch.timestepSecondsAndReserved.x * derivative;
+    }
+    nextActivation = clamp(nextActivation, 0.0f, 1.0f);
     if (!isfinite(nextActivation)) return;
     MRMujocoMuscleStateGPU next = current;
     next.excitationAndActivation.y = nextActivation;

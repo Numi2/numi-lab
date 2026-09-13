@@ -1646,11 +1646,14 @@ struct MetalArticulatedOperatorConfig {
     // the multi-articulation contact frontend before batched inverse ABA.
     bool pointJacobiansOnly = false;
     // When non-zero, advance each valid MyoSim activation after its force
-    // reference and reduction pass in the same Metal command buffer. This is
-    // one explicit-Euler step in seconds; callers retain the returned state
-    // sidecar and feed it into their next transaction. Zero preserves the
-    // historical force-only behavior.
+    // reference and reduction pass in the same Metal command buffer. The Human
+    // production path uses the versioned exact first-order hold; callers retain
+    // the returned state sidecar and feed it into their next transaction. Zero
+    // preserves the historical force-only behavior.
     float mujocoActivationTimestepSeconds = 0.0f;
+    // Select ABI 3's exact first-order hold. False retains ABI 2's historical
+    // explicit-Euler update for legacy callers and compatibility tests.
+    bool mujocoActivationExactFirstOrderHold = true;
     // Empty discovers the co-installed metallib relative to the loaded
     // MetalRobo dylib, with the configured build-tree path as a fallback.
     // A non-empty path is an explicit trusted ABI-compatible override.

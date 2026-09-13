@@ -9182,7 +9182,9 @@ MetalArticulatedOperatorContext::submit(
                 if (state_->config.mujocoActivationTimestepSeconds > 0.0f) {
                     MRMujocoMuscleActivationDispatchGPU activationDispatch{};
                     activationDispatch.abiVersion =
-                        MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION;
+                        state_->config.mujocoActivationExactFirstOrderHold
+                            ? MR_MUJOCO_MUSCLE_ACTIVATION_EXACT_GPU_ABI_VERSION
+                            : MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION;
                     activationDispatch.stateCount = static_cast<mr_u32>(
                         diagnostics.layout.mujocoStateElements
                     );
@@ -10654,7 +10656,9 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                 if (config.mujocoActivationTimestepSeconds > 0.0f) {
                     MRMujocoMuscleActivationDispatchGPU activationDispatch{};
                     activationDispatch.abiVersion =
-                        MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION;
+                        config.mujocoActivationExactFirstOrderHold
+                            ? MR_MUJOCO_MUSCLE_ACTIVATION_EXACT_GPU_ABI_VERSION
+                            : MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION;
                     activationDispatch.stateCount = static_cast<mr_u32>(
                         layout.mujocoStateElements
                     );
