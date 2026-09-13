@@ -1010,9 +1010,9 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
         );
     }
     // Use deliberately non-equilibrium activation values to verify that the
-    // new Metal sidecar update is performing an actual temporal advance, not
-    // merely echoing the input state. Force parity above remains tied to the
-    // source-default 0.5/0.5 state.
+    // exact first-order-hold Metal sidecar update is performing an actual
+    // temporal advance, not merely echoing the input state. Force parity above
+    // remains tied to the source-default 0.5/0.5 state.
     constexpr float kActivationTimestepSeconds = 1.0e-4f;
     std::vector<MRMujocoMuscleStateGPU> activationStates = muscles.gpuStates;
     for (std::size_t index = 0u; index < activationStates.size(); ++index) {
@@ -1069,6 +1069,37 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
                 activationContextDiagnostics.status
             ) + " " + activationContextDiagnostics.message
     );
+    // Run the same state through the explicitly versioned ABI 2 path. This
+    // keeps the legacy update available while the Human production path uses
+    // ABI 3 for timestep refinement.
+    auto legacyConfig = activationConfig;
+    legacyConfig.mujocoActivationExactFirstOrderHold = false;
+    metalrobo::MetalArticulatedOperatorResult legacyResult;
+    const auto legacyDiagnostics = metalrobo::runMetalArticulatedOperator(
+        model, activationInput, legacyResult, legacyConfig
+    );
+    require(
+        legacyDiagnostics.succeeded() &&
+            legacyResult.mujocoActivationStates.size() == activationStates.size(),
+        std::string("MyoSim legacy activation-step operator failed: ") +
+            metalrobo::metalArticulatedOperatorHostStatusName(
+                legacyDiagnostics.status
+            ) + " " + legacyDiagnostics.message
+    );
+    for (std::size_t index = 0u; index < activationStates.size(); ++index) {
+        const float initial = activationStates[index].excitationAndActivation.y;
+        const float derivative = activationResult.mujocoResults[index]
+            .pathForceAndActivationDerivative.w;
+        const float expected = std::clamp(
+            initial + kActivationTimestepSeconds * derivative, 0.0f, 1.0f
+        );
+        require(
+            std::abs(double(
+                legacyResult.mujocoActivationStates[index].excitationAndActivation.y
+            ) - expected) < 2.0e-6,
+            "MyoSim ABI 2 legacy activation update changed"
+        );
+    }
     metrics.activationTimestepSeconds = kActivationTimestepSeconds;
     for (std::size_t index = 0u;
          index < activationStates.size();
@@ -1077,8 +1108,16 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
             activationStates[index].excitationAndActivation.y;
         const float derivative = activationResult.mujocoResults[index]
             .pathForceAndActivationDerivative.w;
+        const float control = std::clamp(
+            activationStates[index].excitationAndActivation.x, 0.0f, 1.0f
+        );
+        const float excess = control - initialActivation;
         const float expectedActivation = std::clamp(
-            initialActivation + kActivationTimestepSeconds * derivative,
+            (excess == 0.0f || derivative == 0.0f)
+                ? initialActivation
+                : control - excess * std::exp(
+                    -kActivationTimestepSeconds / (excess / derivative)
+                ),
             0.0f,
             1.0f
         );
@@ -1121,8 +1160,19 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
     for (std::size_t index = 0; index < continuedStates.size(); ++index) {
         const auto& before = continuedStates[index].excitationAndActivation;
         const auto& after = continued.mujocoActivationStates[index].excitationAndActivation;
-        const float expected = std::clamp(before.y + kActivationTimestepSeconds *
-            continued.mujocoResults[index].pathForceAndActivationDerivative.w, 0.0f, 1.0f);
+        const float control = std::clamp(before.x, 0.0f, 1.0f);
+        const float excess = control - before.y;
+        const float derivative =
+            continued.mujocoResults[index].pathForceAndActivationDerivative.w;
+        const float expected = std::clamp(
+            (excess == 0.0f || derivative == 0.0f)
+                ? before.y
+                : control - excess * std::exp(
+                    -kActivationTimestepSeconds / (excess / derivative)
+                ),
+            0.0f,
+            1.0f
+        );
         continuationError = std::max(continuationError, std::abs(double(after.y - expected)));
         initializedFibres += before.z > 0.0f ? 1u : 0u;
         changedActivations += after.y != before.y ? 1u : 0u;
