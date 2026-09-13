@@ -13637,13 +13637,18 @@ float parseFocusDistanceMeters(const std::string& value) {
 std::uint32_t parseMuscleStepCount(const std::string& value) {
     std::size_t parsed = 0u;
     unsigned long result = 0ul;
+    const std::string error =
+        "--muscle-step-count must be an integer from 1 through " +
+        std::to_string(MR_NUMI_HUMAN_STAND_MAX_STEPS);
     try {
         result = std::stoul(value, &parsed, 10);
     } catch (const std::exception&) {
-        throw std::runtime_error("--muscle-step-count must be an integer from 1 through 64");
+        throw std::runtime_error(error);
     }
-    require(parsed == value.size() && result >= 1ul && result <= 64ul,
-            "--muscle-step-count must be an integer from 1 through 64");
+    require(parsed == value.size() &&
+                result >= 1ul &&
+                result <= static_cast<unsigned long>(MR_NUMI_HUMAN_STAND_MAX_STEPS),
+            error);
     return static_cast<std::uint32_t>(result);
 }
 
@@ -14128,7 +14133,8 @@ int main(int argc, char** argv) {
                           << " <myosim-fullbody-muscle-reference.nhmyo>"
                           << " [bodyparts3d-myosim-major-bones.nhbones] <output-directory>"
                           << " [--muscle-step-seconds <1e-6..1e-3>]"
-                          << " [--muscle-step-count <1..64>]"
+                          << " [--muscle-step-count <1.."
+                          << MR_NUMI_HUMAN_STAND_MAX_STEPS << ">]"
                           << " [--muscle-activation <0..1>]"
                           << " [--persistent-metal-stand] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay]"
                           << " [--bilateral-achilles-certificate]"
