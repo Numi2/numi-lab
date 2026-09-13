@@ -524,11 +524,57 @@ void bloodMassOwner(){
              std::abs(double(actual.linearMomentum.z)-dynamicMass*velocity[2])<3e-8,
              "dynamic blood co-moving momentum disagreed with the moving FEM region");
     }
+    // A bounded time-integrated closure uses the production moment kernel on
+    // two consecutive co-moving configurations. With fixed current mass,
+    // the finite difference of the first mass moment must equal the reported
+    // co-moving linear momentum. This is a moment/transfer audit only; it
+    // does not invent a fluid pressure-gradient state.
+    auto movingNext=moving;
+    const double dt=double(run.runtime.timestepSeconds());
+    for(unsigned env=0;env<2;++env) for(const auto node:shell.innerNodes){
+        auto& position=movingNext[env*nodes+node].positionAndMass;
+        const auto& velocityState=moving[env*nodes+node].velocityAndInverseMass;
+        position.x+=float(dt*double(velocityState.x));
+        position.y+=float(dt*double(velocityState.y));
+        position.z+=float(dt*double(velocityState.z));
+    }
+    const auto nextMoments=encodeMoments(changed,movingNext);
+    double momentDerivativeError=0,momentDerivativeScale=0;
+    for(unsigned env=0;env<2;++env){
+        const auto& beforeMoment=dynamicMoments[env];const auto& afterMoment=nextMoments[env];
+        for(unsigned component=0;component<3;++component){
+            const float* before=&beforeMoment.firstMassMoment.x;
+            const float* after=&afterMoment.firstMassMoment.x;
+            const float* momentum=&beforeMoment.linearMomentum.x;
+            const double derivative=(double(after[component])-double(before[component]))/dt;
+            momentDerivativeError=std::max(momentDerivativeError,std::abs(derivative-double(momentum[component])));
+            momentDerivativeScale=std::max(momentDerivativeScale,std::abs(double(momentum[component])));
+        }
+        need(std::memcmp(&beforeMoment.firstMassMoment.w,&afterMoment.firstMassMoment.w,sizeof(float))==0,
+             "time-integrated blood moment changed mass without a volume change");
+    }
+    need(momentDerivativeScale>1e-12&&momentDerivativeError/momentDerivativeScale<3e-4,
+         "time-integrated blood first-moment derivative disagreed with co-moving momentum");
+    // Uniform cavity pressure has no net force on a closed surface. Remove
+    // the separately known current-volume mass correction and retain the
+    // residual pressure impulse as an explicit closed-surface audit.
+    const auto pressureForces=dynamic;
+    fixture::Vec pressureTotal{0,0,0};
+    for(unsigned env=0;env<2;++env) for(unsigned node=0;node<nodes;++node){
+        const bool owned=std::find(shell.innerNodes.begin(),shell.innerNodes.end(),node)!=shell.innerNodes.end();
+        const double correction=owned?double(w.dispatch.gravityAndTimestep.z)*density*deltaVolume*weight:0.;
+        const auto& force=pressureForces[env*nodes+node];
+        pressureTotal[0]+=double(force.x);pressureTotal[1]+=double(force.y);
+        pressureTotal[2]+=double(force.z)-correction;
+    }
+    const double pressureImpulseNorm=std::sqrt(fixture::dot(pressureTotal,pressureTotal))*dt;
+    need(pressureImpulseNorm<2e-9,"uniform closed-surface pressure impulse did not cancel");
     std::cout<<"blood_mass_owner=pass compartment_stable_id=12 density_kg_m3="<<density<<" initial_volume_m3="<<volume
              <<" initial_mass_kg="<<owner.physical.z<<" dynamic_volume_delta_m3="<<deltaVolume
              <<" dynamic_force_total_N="<<dynamicTotal<<" normalized_region_weight="<<weight
              <<" partitioned_inertia=pass dynamic_gravity_correction=pass dynamic_spatial_moments=pass co_moving_inertia=pass"
-             <<" replay=bitwise pressure_driven_momentum=unqualified subject_calibration=unqualified\n";
+             <<" replay=bitwise time_integrated_moment_closure=pass pressure_impulse_closure=pass"
+             <<" pressure_driven_momentum=unqualified subject_calibration=unqualified\n";
 }
 void movingWall(){
     constexpr unsigned steps=32;const auto shell=fixture::hollowShell();Run run(fixture::world());
