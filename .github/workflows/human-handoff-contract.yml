@@ -1,0 +1,37 @@
+name: Human static-dynamic handoff contract
+
+on:
+  push:
+    branches: [coupled]
+    paths:
+      - "include/metalrobo/NumiHumanStaticDynamicHandoff.hpp"
+      - "tests/numi_human_static_dynamic_handoff_cases.hpp"
+      - "tests/numi_human_initial_state_test.cpp"
+      - ".github/workflows/human-handoff-contract.yml"
+  pull_request:
+    paths:
+      - "include/metalrobo/NumiHumanStaticDynamicHandoff.hpp"
+      - "tests/numi_human_static_dynamic_handoff_cases.hpp"
+      - "tests/numi_human_initial_state_test.cpp"
+      - ".github/workflows/human-handoff-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: human-handoff-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure focused native tests
+        run: cmake -S . -B build-human-handoff -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+      - name: Build NHINIT and handoff contract target
+        run: cmake --build build-human-handoff --target metalrobo_numi_human_initial_state_test -j 3
+      - name: Run NHINIT and handoff contract tests
+        run: ctest --test-dir build-human-handoff -R '^numi_human_initial_state$' --output-on-failure -j 1
