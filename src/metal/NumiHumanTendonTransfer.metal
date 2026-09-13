@@ -5,6 +5,11 @@
 
 using namespace metal;
 
+#include "PairedSourceGeometry.metalinc"
+#ifndef MR_TENDON_TRANSFER_KERNEL_NAME
+#define MR_TENDON_TRANSFER_KERNEL_NAME mr_numi_human_tendon_transfer
+#endif
+
 namespace {
 
 inline bool finite4(const float4 value) { return all(isfinite(value)); }
@@ -37,9 +42,10 @@ inline float3 pointJacobian(
     const uint dof,
     const MRNumiHumanTendonTransferDispatchGPU dispatch,
     device const MRArticulatedBodyPoseGPU* bodyPoses,
+    device const float4* bodyPositionLow,
     device const float* pointJacobians,
     const uint bodyIndex,
-    const float3 worldPoint
+    const MRSourcePoint worldPoint
 ) {
     const uint localBody = bodyIndex - dispatch.articulationFirstBody;
     const MRArticulatedBodyPoseGPU pose = bodyPoses[
@@ -71,12 +77,12 @@ inline float3 pointJacobian(
         );
         angular += 0.5f * cross(worldAxis, probe - center);
     }
-    return center + cross(angular, worldPoint - pose.position.xyz);
+    return center + cross(angular, worldPoint - mrSourceBodyPoint(pose.position,bodyPositionLow,environment*dispatch.bodyPoseStride+localBody));
 }
 
 } // namespace
 
-kernel void mr_numi_human_tendon_transfer(
+kernel void MR_TENDON_TRANSFER_KERNEL_NAME(
     constant MRNumiHumanTendonTransferDispatchGPU& dispatch [[buffer(0)]],
     device const MRNumiHumanTendonBindingGPU* bindings [[buffer(1)]],
     device const MRNumiHumanTendonEnvelopeGPU* envelopes [[buffer(2)]],
@@ -85,8 +91,15 @@ kernel void mr_numi_human_tendon_transfer(
     device const float* pointJacobians [[buffer(5)]],
     device MRNumiHumanTendonTransferResultGPU* results [[buffer(6)]],
     device float* generalizedCorrections [[buffer(7)]],
+#if MR_SOURCE_PAIRED_GEOMETRY
+    device const float4* bodyPositionLow [[buffer(8)]],
+#endif
     uint globalIndex [[thread_position_in_grid]]
 ) {
+#if !MR_SOURCE_PAIRED_GEOMETRY
+    device const float4* bodyPositionLow = nullptr;
+#endif
+
     if (dispatch.endpointCount == 0u ||
         globalIndex >= dispatch.environmentCount * dispatch.endpointCount) {
         return;
@@ -189,8 +202,8 @@ kernel void mr_numi_human_tendon_transfer(
     float3 localResultant = float3(0.0f);
     float3 localMoment = float3(0.0f);
     float3 localNodalForces[4];
-    float3 worldNodes[4];
-    const float3 sourceWorld = pose.position.xyz + quaternionRotate(
+    MRSourcePoint worldNodes[4];
+    const MRSourcePoint sourceWorld = mrSourceBodyPoint(pose.position,bodyPositionLow,environment*dispatch.bodyPoseStride+localBody) + mrSourceRotate(
         pose.orientation, binding.sourceLocalPoint.xyz
     );
     for (uint node = 0u; node < 4u; ++node) {
@@ -208,7 +221,7 @@ kernel void mr_numi_human_tendon_transfer(
             }
         }
         localNodalForces[node] = mappedForce(envelope, node, terminalLocalForce);
-        worldNodes[node] = pose.position.xyz + quaternionRotate(
+        worldNodes[node] = mrSourceBodyPoint(pose.position,bodyPositionLow,environment*dispatch.bodyPoseStride+localBody) + mrSourceRotate(
             pose.orientation, envelope.localNodes[node].xyz
         );
         const float3 worldForce = quaternionRotate(
@@ -227,14 +240,14 @@ kernel void mr_numi_human_tendon_transfer(
     for (uint dof = 0u; dof < dispatch.dofCount; ++dof) {
         const float sourceGeneralized = dot(
             terminalWorldForce,
-            pointJacobian(environment, dof, dispatch, bodyPoses, pointJacobians,
+            pointJacobian(environment, dof, dispatch, bodyPoses, bodyPositionLow, pointJacobians,
                           binding.bodyIndex, sourceWorld)
         );
         float distributedGeneralized = 0.0f;
         for (uint node = 0u; node < 4u; ++node) {
             distributedGeneralized += dot(
                 result.nodalWorldForces[node].xyz,
-                pointJacobian(environment, dof, dispatch, bodyPoses, pointJacobians,
+                pointJacobian(environment, dof, dispatch, bodyPoses, bodyPositionLow, pointJacobians,
                               binding.bodyIndex, worldNodes[node])
             );
         }

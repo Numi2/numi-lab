@@ -119,6 +119,9 @@ set(METALROBO_MILLARD_MUSCLE_REFERENCE_SOURCE
 set(METALROBO_MUJOCO_MUSCLE_REFERENCE_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MujocoMuscleReference.metal"
 )
+set(METALROBO_MUJOCO_MUSCLE_REFERENCE_COMPENSATED_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MujocoMuscleReferenceCompensated.metal"
+)
 set(METALROBO_NUMANX_HUMAN_IO_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumanXHumanIO.metal"
 )
@@ -143,8 +146,14 @@ set(METALROBO_NUMI_HUMAN_STAND_SOURCE
 set(METALROBO_NUMI_HUMAN_TENDON_TRANSFER_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanTendonTransfer.metal"
 )
+set(METALROBO_NUMI_HUMAN_TENDON_TRANSFER_COMPENSATED_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanTendonTransferCompensated.metal"
+)
 set(METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanExtensorHood.metal"
+)
+set(METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_COMPENSATED_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanExtensorHoodCompensated.metal"
 )
 set(METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedParallelABA.metal"
@@ -233,6 +242,9 @@ set(METALROBO_MILLARD_MUSCLE_REFERENCE_AIR
 set(METALROBO_MUJOCO_MUSCLE_REFERENCE_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboMujocoMuscleReference.air"
 )
+set(METALROBO_MUJOCO_MUSCLE_REFERENCE_COMPENSATED_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboMujocoMuscleReferenceCompensated.air"
+)
 set(METALROBO_NUMANX_HUMAN_IO_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboNumanXHumanIO.air"
 )
@@ -260,8 +272,14 @@ set(METALROBO_NUMI_HUMAN_STAND_AIR
 set(METALROBO_NUMI_HUMAN_TENDON_TRANSFER_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboNumiHumanTendonTransfer.air"
 )
+set(METALROBO_NUMI_HUMAN_TENDON_TRANSFER_COMPENSATED_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboNumiHumanTendonTransferCompensated.air"
+)
 set(METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboNumiHumanExtensorHood.air"
+)
+set(METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_COMPENSATED_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboNumiHumanExtensorHoodCompensated.air"
 )
 set(METALROBO_PARAMETERIZED_ARTICULATED_ABA_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboParameterizedArticulatedABA.air"
@@ -393,8 +411,22 @@ add_custom_command(
             -O3
             -fno-fast-math
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_COMPENSATED_SOURCE}"
+            -o "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_COMPENSATED_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_SOURCE}"
             -o "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_COMPENSATED_SOURCE}"
+            -o "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_COMPENSATED_AIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
@@ -475,6 +507,13 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_MUJOCO_MUSCLE_REFERENCE_SOURCE}"
             -o "${METALROBO_MUJOCO_MUSCLE_REFERENCE_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_MUJOCO_MUSCLE_REFERENCE_COMPENSATED_SOURCE}"
+            -o "${METALROBO_MUJOCO_MUSCLE_REFERENCE_COMPENSATED_AIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
@@ -718,6 +757,7 @@ add_custom_command(
             "${METALROBO_HUMAN_BEHAVIOR_AIR}"
             "${METALROBO_MILLARD_MUSCLE_REFERENCE_AIR}"
             "${METALROBO_MUJOCO_MUSCLE_REFERENCE_AIR}"
+            "${METALROBO_MUJOCO_MUSCLE_REFERENCE_COMPENSATED_AIR}"
             "${METALROBO_NUMANX_HUMAN_IO_AIR}"
             "${METALROBO_NUMANX_COUPLED_HUMAN_AIR}"
             "${METALROBO_NUMANX_HUMAN_MATTER_AIR}"
@@ -727,7 +767,9 @@ add_custom_command(
             "${METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_AIR}"
             "${METALROBO_NUMI_HUMAN_STAND_AIR}"
             "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_AIR}"
+            "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_COMPENSATED_AIR}"
             "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_AIR}"
+            "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_COMPENSATED_AIR}"
             "${METALROBO_PARAMETERIZED_ARTICULATED_ABA_AIR}"
             "${METALROBO_ARTICULATED_ABA_SMALL_AIR}"
             "${METALROBO_MULTI_ARTICULATED_ABA_AIR}"
@@ -766,6 +808,12 @@ add_custom_command(
         "${METALROBO_ARTICULATED_OPERATOR_COMPENSATED_SOURCE}"
         "${METALROBO_COMPENSATED_TRANSLATION_CHECK_SOURCE}"
         "${METALROBO_HUMAN_BEHAVIOR_SOURCE}"
+        # The paired wrappers include the corresponding legacy source units,
+        # which are also explicit dependencies of this shared metallib command.
+        "${METALROBO_MUJOCO_MUSCLE_REFERENCE_COMPENSATED_SOURCE}"
+        "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_COMPENSATED_SOURCE}"
+        "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_COMPENSATED_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/PairedSourceGeometry.metalinc"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/compensated_translation_gpu.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/compensated_geometry_gpu.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/human_behavior_gpu.h"
@@ -1468,6 +1516,43 @@ if(BUILD_TESTING)
     add_test(NAME numi_human_compensated_geometry_metal COMMAND metalrobo_compensated_geometry_check "${METALROBO_METALLIB}")
     set_tests_properties(numi_human_compensated_geometry_cpu numi_human_compensated_geometry_metal
         PROPERTIES LABELS "numi-human;precision" TIMEOUT 60)
+    add_executable(metalrobo_source_route_precision_check apps/source_route_precision_check.mm)
+    target_link_libraries(metalrobo_source_route_precision_check PRIVATE
+        metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(metalrobo_source_route_precision_check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_source_route_precision_check PROPERTIES
+        CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO
+        OBJCXX_STANDARD 20 OBJCXX_STANDARD_REQUIRED YES OBJCXX_EXTENSIONS NO
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_dependencies(metalrobo_source_route_precision_check metalrobo_shaders)
+    add_test(NAME numi_human_source_route_precision_cpu
+        COMMAND metalrobo_source_route_precision_check --cpu)
+    add_test(NAME numi_human_source_route_precision_metal
+        COMMAND metalrobo_source_route_precision_check "${METALROBO_METALLIB}")
+    set_tests_properties(numi_human_source_route_precision_cpu PROPERTIES
+        LABELS "numi-human;precision;source-route;cpu" TIMEOUT 30)
+    set_tests_properties(numi_human_source_route_precision_metal PROPERTIES
+        LABELS "numi-human;precision;source-route;metal" TIMEOUT 120
+        ENVIRONMENT "MTL_DEBUG_LAYER=1")
+    add_executable(metalrobo_numilab_human_extensor_hood_admission_probe
+        apps/numilab_human_extensor_hood_admission_probe.mm)
+    target_link_libraries(metalrobo_numilab_human_extensor_hood_admission_probe PRIVATE
+        metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(metalrobo_numilab_human_extensor_hood_admission_probe PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_numilab_human_extensor_hood_admission_probe PROPERTIES
+        CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO
+        OBJCXX_STANDARD 20 OBJCXX_STANDARD_REQUIRED YES OBJCXX_EXTENSIONS NO
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_dependencies(metalrobo_numilab_human_extensor_hood_admission_probe metalrobo_shaders)
+    add_test(NAME numi_human.extensor_hood_admission
+        COMMAND metalrobo_numilab_human_extensor_hood_admission_probe "${METALROBO_METALLIB}")
+    set_tests_properties(numi_human.extensor_hood_admission PROPERTIES
+        LABELS "numi-human;precision;tendon;metal" TIMEOUT 120
+        ENVIRONMENT "MTL_DEBUG_LAYER=1")
     add_executable(metalrobo_human_support_precision_check apps/human_support_precision_check.cpp)
     target_include_directories(metalrobo_human_support_precision_check PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")

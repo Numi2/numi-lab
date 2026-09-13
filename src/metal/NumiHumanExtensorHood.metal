@@ -6,6 +6,12 @@
 
 using namespace metal;
 
+#include "PairedSourceGeometry.metalinc"
+#ifndef MR_HOOD_SOLVE_KERNEL_NAME
+#define MR_HOOD_SOLVE_KERNEL_NAME mr_numi_human_solve_extensor_hood
+#define MR_HOOD_ASSEMBLE_KERNEL_NAME mr_numi_human_assemble_extensor_hood_correction
+#endif
+
 namespace {
 
 constant uint kMaxNodes = MR_NUMI_HUMAN_EXTENSOR_HOOD_MAX_RAY_NODES;
@@ -28,17 +34,20 @@ inline bool validBody(
         bodyIndex - dispatch.articulationFirstBody < dispatch.bodyPoseStride;
 }
 
-inline float3 worldPoint(
+inline MRSourcePoint worldPoint(
     const uint environment,
     constant MRNumiHumanExtensorHoodDispatchGPU& dispatch,
     device const MRArticulatedBodyPoseGPU* bodyPoses,
+    device const float4* bodyPositionLow,
     const uint bodyIndex,
     const float3 localPoint
 ) {
     const MRArticulatedBodyPoseGPU pose = bodyPoses[
         environment * dispatch.bodyPoseStride +
         bodyIndex - dispatch.articulationFirstBody];
-    return pose.position.xyz + quaternionRotate(pose.orientation, localPoint);
+    return mrSourceBodyPoint(pose.position,bodyPositionLow,
+        environment * dispatch.bodyPoseStride + bodyIndex - dispatch.articulationFirstBody)
+        + mrSourceRotate(pose.orientation, localPoint);
 }
 
 inline float3 angularJacobian(
@@ -82,9 +91,10 @@ inline float3 pointJacobian(
     const uint dof,
     constant MRNumiHumanExtensorHoodDispatchGPU& dispatch,
     device const MRArticulatedBodyPoseGPU* bodyPoses,
+    device const float4* bodyPositionLow,
     device const float* pointJacobians,
     const uint bodyIndex,
-    const float3 point
+    const MRSourcePoint point
 ) {
     const uint localBody = bodyIndex - dispatch.articulationFirstBody;
     const MRArticulatedBodyPoseGPU pose = bodyPoses[
@@ -99,7 +109,8 @@ inline float3 pointJacobian(
     return center + cross(
         angularJacobian(environment, dof, dispatch, bodyPoses,
                         pointJacobians, bodyIndex),
-        point - pose.position.xyz);
+        point - mrSourceBodyPoint(pose.position,bodyPositionLow,
+            environment * dispatch.bodyPoseStride + localBody));
 }
 
 inline bool evaluate(
@@ -217,7 +228,7 @@ inline bool choleskySolve(
 
 } // namespace
 
-kernel void mr_numi_human_solve_extensor_hood(
+kernel void MR_HOOD_SOLVE_KERNEL_NAME(
     constant MRNumiHumanExtensorHoodDispatchGPU& dispatch [[buffer(0)]],
     device const MRNumiHumanExtensorHoodRayGPU* rays [[buffer(1)]],
     device const MRNumiHumanExtensorHoodNodeGPU* nodes [[buffer(2)]],
@@ -231,8 +242,15 @@ kernel void mr_numi_human_solve_extensor_hood(
     device MRNumiHumanExtensorHoodNodeResultGPU* nodeResults [[buffer(10)]],
     device MRNumiHumanExtensorHoodRayResultGPU* rayResults [[buffer(11)]],
     device const MRMujocoMuscleWrapGPU* wraps [[buffer(12)]],
+#if MR_SOURCE_PAIRED_GEOMETRY
+    device const float4* bodyPositionLow [[buffer(13)]],
+    device float4* relativeNodePositions [[buffer(14)]],
+#endif
     uint global [[thread_position_in_grid]]
 ) {
+#if !MR_SOURCE_PAIRED_GEOMETRY
+    device const float4* bodyPositionLow = nullptr;
+#endif
     if (dispatch.rayCount == 0u ||
         global >= dispatch.environmentCount * dispatch.rayCount) return;
     const uint environment = global / dispatch.rayCount;
@@ -274,6 +292,22 @@ kernel void mr_numi_human_solve_extensor_hood(
         return;
     }
 
+    MRSourcePoint rayAnchor = mrSourceZeroPoint();
+#if MR_SOURCE_PAIRED_GEOMETRY
+    const MRNumiHumanExtensorHoodNodeGPU anchorNode = nodes[ray.nodes.x];
+    if (!validBody(anchorNode.bodyIndex, dispatch) || !finite4(anchorNode.localPoint)) {
+        result.status = MR_NUMI_HUMAN_EXTENSOR_HOOD_INVALID_TOPOLOGY;
+        rayResults[global] = result;
+        return;
+    }
+    rayAnchor = worldPoint(environment, dispatch, bodyPoses, bodyPositionLow,
+        anchorNode.bodyIndex, anchorNode.localPoint.xyz);
+    if (!mrSourcePointFinite(rayAnchor)) {
+        result.status = MR_NUMI_HUMAN_EXTENSOR_HOOD_NONFINITE_RESULT;
+        rayResults[global] = result;
+        return;
+    }
+#endif
     float3 position[kMaxNodes];
     float3 initialPosition[kMaxNodes];
     float3 candidate[kMaxNodes];
@@ -308,8 +342,8 @@ kernel void mr_numi_human_solve_extensor_hood(
             return;
         }
         position[local] = worldPoint(
-            environment, dispatch, bodyPoses, node.bodyIndex,
-            node.localPoint.xyz);
+            environment, dispatch, bodyPoses, bodyPositionLow, node.bodyIndex,
+            node.localPoint.xyz) - rayAnchor;
         initialPosition[local] = position[local];
         appliedLoad[local] = float3(0.0f);
         if ((node.flags & MR_NUMI_HUMAN_EXTENSOR_HOOD_NODE_FIXED) != 0u) {
@@ -425,8 +459,8 @@ kernel void mr_numi_human_solve_extensor_hood(
             return;
         }
         const float3 proximal = worldPoint(
-            environment, dispatch, bodyPoses, input.proximalBodyIndex,
-            input.proximalLocalPoint.xyz);
+            environment, dispatch, bodyPoses, bodyPositionLow, input.proximalBodyIndex,
+            input.proximalLocalPoint.xyz) - rayAnchor;
         const float3 delta = proximal - position[nodeLocal];
         const float distanceValue = length(delta);
         if (!(distanceValue > dispatch.solver.y) || !isfinite(distanceValue)) {
@@ -609,7 +643,12 @@ kernel void mr_numi_human_solve_extensor_hood(
             maximumDisplacement = max(maximumDisplacement, length(displacement));
         }
         MRNumiHumanExtensorHoodNodeResultGPU nodeResult{};
+#if MR_SOURCE_PAIRED_GEOMETRY
+        relativeNodePositions[nodeBase + local] = float4(position[local], 0.0f);
+        nodeResult.position = float4(mrSourcePointProjection(rayAnchor + position[local]), 0.0f);
+#else
         nodeResult.position = float4(position[local], 0.0f);
+#endif
         nodeResult.bodyForce = float4(bodyForce, 0.0f);
         nodeResults[nodeBase + local] = nodeResult;
         forceClosure += bodyForce;
@@ -622,8 +661,8 @@ kernel void mr_numi_human_solve_extensor_hood(
         const MRNumiHumanExtensorHoodInputGPU input =
             inputs[ray.elements.z + local];
         const float3 proximal = worldPoint(
-            environment, dispatch, bodyPoses, input.proximalBodyIndex,
-            input.proximalLocalPoint.xyz);
+            environment, dispatch, bodyPoses, bodyPositionLow, input.proximalBodyIndex,
+            input.proximalLocalPoint.xyz) - rayAnchor;
         const float3 distal = position[input.nodeIndex - ray.nodes.x];
         const float distanceValue = length(proximal - distal);
         if (!(distanceValue > dispatch.solver.y)) {
@@ -651,6 +690,10 @@ kernel void mr_numi_human_solve_extensor_hood(
             maximumEngineeringStrain,
             (currentLength - element.material.x) / element.material.x);
     }
+#if MR_SOURCE_PAIRED_GEOMETRY
+    momentClosure += cross(rayAnchor.high.xyz, forceClosure) +
+        cross(rayAnchor.low.xyz, forceClosure);
+#endif
     if (!finite4(float4(forceClosure, maximumResidual)) ||
         !finite4(float4(momentClosure, maximumTension)) ||
         !finite4(float4(strainEnergy, maximumDisplacement,
@@ -671,7 +714,7 @@ kernel void mr_numi_human_solve_extensor_hood(
     rayResults[global] = result;
 }
 
-kernel void mr_numi_human_assemble_extensor_hood_correction(
+kernel void MR_HOOD_ASSEMBLE_KERNEL_NAME(
     constant MRNumiHumanExtensorHoodDispatchGPU& dispatch [[buffer(0)]],
     device const MRNumiHumanExtensorHoodRayGPU* rays [[buffer(1)]],
     device const MRNumiHumanExtensorHoodNodeGPU* nodes [[buffer(2)]],
@@ -686,8 +729,15 @@ kernel void mr_numi_human_assemble_extensor_hood_correction(
     device const MRNumiHumanExtensorHoodRayResultGPU* rayResults [[buffer(11)]],
     device float* corrections [[buffer(12)]],
     device const float* suffixJacobians [[buffer(13)]],
+#if MR_SOURCE_PAIRED_GEOMETRY
+    device const float4* bodyPositionLow [[buffer(14)]],
+    device const float4* relativeNodePositions [[buffer(15)]],
+#endif
     uint global [[thread_position_in_grid]]
 ) {
+#if !MR_SOURCE_PAIRED_GEOMETRY
+    device const float4* bodyPositionLow = nullptr;
+#endif
     if (global >= dispatch.environmentCount * dispatch.dofCount) return;
     const uint environment = global / dispatch.dofCount;
     const uint dof = global - environment * dispatch.dofCount;
@@ -700,19 +750,29 @@ kernel void mr_numi_human_assemble_extensor_hood_correction(
             return;
         }
         const MRNumiHumanExtensorHoodRayGPU ray = rays[rayIndex];
+#if MR_SOURCE_PAIRED_GEOMETRY
+        const MRNumiHumanExtensorHoodNodeGPU anchorNode = nodes[ray.nodes.x];
+        const MRSourcePoint rayAnchor = worldPoint(environment, dispatch, bodyPoses,
+            bodyPositionLow, anchorNode.bodyIndex, anchorNode.localPoint.xyz);
+#endif
         for (uint local = 0u; local < ray.nodes.y; ++local) {
             const uint nodeIndex = ray.nodes.x + local;
             const MRNumiHumanExtensorHoodNodeGPU node = nodes[nodeIndex];
             const MRNumiHumanExtensorHoodNodeResultGPU solved = nodeResults[
                 environment * dispatch.nodeCount + nodeIndex];
-            const float3 bodyPoint =
+            const MRSourcePoint bodyPoint =
                 (node.flags & MR_NUMI_HUMAN_EXTENSOR_HOOD_NODE_FIXED) != 0u
+#if MR_SOURCE_PAIRED_GEOMETRY
+                    ? rayAnchor + relativeNodePositions[
+                        environment * dispatch.nodeCount + nodeIndex].xyz
+#else
                     ? solved.position.xyz
-                    : worldPoint(environment, dispatch, bodyPoses,
+#endif
+                    : worldPoint(environment, dispatch, bodyPoses, bodyPositionLow,
                                  node.bodyIndex, node.localPoint.xyz);
             correction += dot(
                 solved.bodyForce.xyz,
-                pointJacobian(environment, dof, dispatch, bodyPoses,
+                pointJacobian(environment, dof, dispatch, bodyPoses, bodyPositionLow,
                               pointJacobians, node.bodyIndex,
                               bodyPoint));
         }
@@ -722,12 +782,17 @@ kernel void mr_numi_human_assemble_extensor_hood_correction(
             const float representedForce = muscleResults[
                 environment * dispatch.muscleCount + input.muscleIndex
             ].activeForceAndReserved.x;
-            const float3 proximal = worldPoint(
-                environment, dispatch, bodyPoses, input.proximalBodyIndex,
+            const MRSourcePoint proximal = worldPoint(
+                environment, dispatch, bodyPoses, bodyPositionLow, input.proximalBodyIndex,
                 input.proximalLocalPoint.xyz);
-            const float3 distal = nodeResults[
+#if MR_SOURCE_PAIRED_GEOMETRY
+            const MRSourcePoint distal = rayAnchor + relativeNodePositions[
+                environment * dispatch.nodeCount + input.nodeIndex].xyz;
+#else
+            const MRSourcePoint distal = nodeResults[
                 environment * dispatch.nodeCount + input.nodeIndex
             ].position.xyz;
+#endif
             const float distanceValue = length(proximal - distal);
             if (!(distanceValue > dispatch.solver.y)) {
                 corrections[global] = NAN;
@@ -737,7 +802,7 @@ kernel void mr_numi_human_assemble_extensor_hood_correction(
                 -abs(representedForce) * (proximal - distal) / distanceValue;
             correction += dot(
                 counterforce,
-                pointJacobian(environment, dof, dispatch, bodyPoses,
+                pointJacobian(environment, dof, dispatch, bodyPoses, bodyPositionLow,
                               pointJacobians, input.proximalBodyIndex,
                               proximal));
             const uint inputIndex = ray.elements.z + local;
@@ -754,6 +819,7 @@ kernel void mr_numi_human_assemble_extensor_hood_correction(
     corrections[global] = correction;
 }
 
+#if !MR_SOURCE_PAIRED_GEOMETRY
 kernel void mr_numi_human_apply_extensor_hood_correction(
     constant MRNumiHumanExtensorHoodDispatchGPU& dispatch [[buffer(0)]],
     device const float* corrections [[buffer(1)]],
@@ -797,3 +863,5 @@ kernel void mr_numi_human_commit_extensor_hood_audit(
          dispatch.stepIndex) * dispatch.rayCount + rayIndex;
     history[historyIndex] = result;
 }
+
+#endif // !MR_SOURCE_PAIRED_GEOMETRY

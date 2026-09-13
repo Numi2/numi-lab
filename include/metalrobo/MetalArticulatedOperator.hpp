@@ -127,6 +127,11 @@ struct MetalNumiHumanTendonLoadPass {
     void* generalizedCorrections = nullptr;
     void* generalizedForces = nullptr;
     void* bodyPoses = nullptr;
+    // Paired geometry uses the same environment/body stride as bodyPoses.
+    // Null with zero address/count retains the legacy high-only view.
+    void* bodyPositionLow = nullptr;
+    std::uint64_t bodyPositionLowGPUAddress = 0u;
+    std::uint64_t bodyPositionLowElementCount = 0u;
     void* pointJacobians = nullptr;
     void* standStatuses = nullptr;
     std::uint32_t stepIndex = 0u;
@@ -1609,8 +1614,16 @@ struct MetalArticulatedOperatorInput {
     std::size_t environmentCount = 0u;
     std::size_t pointCount = 0u;
     std::span<const float> q{};
-    // Optional initial authoritative translation, one per environment. Empty
-    // creates an episode reference from q.xyz; resident continuations retain it.
+    // Optional canonical authoritative translation, one per floating-root
+    // environment, with exactly matching q.xyz projection. In a Stand horizon,
+    // empty creates the episode reference from q.xyz; continuations retain it.
+    // Without Stand, a nonempty span explicitly selects read-only paired FK and
+    // MyoSim source evaluation. This requires pointJacobiansOnly and excludes
+    // Millard and resident continuation. The supplied q/v/root records are not
+    // advanced and no Stand callback, clock, or accepted root is published.
+    // A positive source constitutive evaluation timestep still produces its
+    // private candidate muscle-state result, exactly as in the legacy evaluator.
+    // Empty retains legacy one-pass scalar geometry outside Stand.
     std::span<const MRCompensatedRootTranslationGPU> rootTranslations{};
     // Optional environment-major articulation velocity. Required only when a
     // caller needs nonzero MyoSim path velocity; stand horizons source the
@@ -1787,6 +1800,12 @@ struct MetalArticulatedOperatorResult {
     MetalArticulatedOperatorLayout layout{};
     std::vector<MRArticulatedBodyPoseGPU> bodyPoses;
     std::vector<MRArticulatedPointWorldGPU> pointWorld;
+    // Present for explicit paired evaluation or a Stand horizon. These are the
+    // evaluated root coordinates and companions to body/point highs. Read-only
+    // evaluation preserves the input root records exactly.
+    std::vector<MRCompensatedRootTranslationGPU> rootTranslations;
+    std::vector<mr_float4> bodyPositionLow;
+    std::vector<mr_float4> pointPositionLow;
     std::vector<float> diagnosticMassMatrix;
     std::vector<float> pointJacobians;
     std::vector<float> generalizedImpulse;
@@ -1807,8 +1826,6 @@ struct MetalArticulatedOperatorResult {
     // historical one-pass operator path.
     std::vector<float> standQ;
     std::vector<MRCompensatedRootTranslationGPU> standRootTranslations;
-    std::vector<mr_float4> bodyPositionLow;
-    std::vector<mr_float4> pointPositionLow;
     std::vector<float> standV;
     std::vector<MRNumiHumanStandStatusGPU> standStatuses;
     // Final accepted step's exact endpoint-to-node transaction and its

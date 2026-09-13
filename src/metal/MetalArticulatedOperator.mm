@@ -223,12 +223,14 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> compensatedPipeline = nil;
     __strong id<MTLComputePipelineState> millardPipeline = nil;
     __strong id<MTLComputePipelineState> mujocoPipeline = nil;
+    __strong id<MTLComputePipelineState> mujocoCompensatedPipeline = nil;
     __strong id<MTLComputePipelineState> mujocoActiveForcePipeline = nil;
     __strong id<MTLComputePipelineState> mujocoReducePipeline = nil;
     __strong id<MTLComputePipelineState> mujocoActivationPipeline = nil;
     __strong id<MTLComputePipelineState> standPipeline = nil;
     __strong id<MTLComputePipelineState> standReconcilePipeline = nil;
     __strong id<MTLComputePipelineState> tendonPipeline = nil;
+    __strong id<MTLComputePipelineState> tendonCompensatedPipeline = nil;
     __strong id<MTLComputePipelineState> humanMatterBeginPipeline = nil;
     __strong id<MTLComputePipelineState> humanMatterConsumePipeline = nil;
     __strong id<MTLComputePipelineState>
@@ -1437,6 +1439,10 @@ bool validNumiHumanStand(
     return true;
 }
 
+bool hasCompensatedGeometry(const MetalArticulatedOperatorLayout& layout) noexcept {
+    return (layout.dispatch.flags & MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION) != 0u;
+}
+
 bool buildRequirements(
     const EngineModel& model,
     const MetalArticulatedOperatorLayout& layout,
@@ -1668,13 +1674,13 @@ bool buildRequirements(
             layout.standJointEqualityElements,
             requirements.standEntries[kStandJointEqualitiesBuffer]
         ) ||
-        !makeRequirement<MRCompensatedRootTranslationGPU>("Human root translation", layout.standStatusElements,
+        !makeRequirement<MRCompensatedRootTranslationGPU>("Human root translation", hasCompensatedGeometry(layout) ? layout.statusElements : 0u,
             requirements.standEntries[kStandRootTranslationBuffer]) ||
         !makeRequirement<MRCompensatedRootTranslationGPU>("Human root translation checkpoint", layout.standStatusElements,
             requirements.standEntries[kStandRootTranslationCheckpointBuffer]) ||
-        !makeRequirement<mr_float4>("Human body low positions", layout.standStatusElements ? layout.bodyPoseElements : 0u,
+        !makeRequirement<mr_float4>("Human body low positions", hasCompensatedGeometry(layout) ? layout.bodyPoseElements : 0u,
             requirements.standEntries[kStandBodyPositionLowBuffer]) ||
-        !makeRequirement<mr_float4>("Human point low positions", layout.standStatusElements ? layout.pointWorldElements : 0u,
+        !makeRequirement<mr_float4>("Human point low positions", hasCompensatedGeometry(layout) ? layout.pointWorldElements : 0u,
             requirements.standEntries[kStandPointPositionLowBuffer]) ||
         !makeRequirement<MRCompensatedRootTranslationGPU>("NumanX root translation checkpoint", layout.humanMatterOwnerStatusElements,
             requirements.humanMatterEntries[kHumanMatterRootTranslationCheckpointBuffer]) ||
@@ -1793,11 +1799,15 @@ bool buildRequirements(
         return false;
     }
 
-    // The historical operator does not bind the separate stand arena. Keep
-    // its cold allocation/stats contract unchanged unless a horizon exists.
+    // Read-only paired geometry borrows only the root/body/point slots from the
+    // private arena. Keep all physical Stand/checkpoint slots lazy, and preserve
+    // the historical empty-span allocation contract.
     if (layout.standStatusElements == 0u) {
         for (std::size_t index = kStandContactsBuffer;
              index < kStandBufferCount; ++index) {
+            if (hasCompensatedGeometry(layout) &&
+                (index == kStandRootTranslationBuffer || index == kStandBodyPositionLowBuffer ||
+                 index == kStandPointPositionLowBuffer)) continue;
             requirements.standEntries[index].allocationBytes = 0u;
         }
     }
@@ -2062,10 +2072,13 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
     }
     layout.statusElements = input.environmentCount;
     if (!input.rootTranslations.empty()) {
-        if (!input.stand.enabled() || input.q.size() != layout.qElements ||
-            input.rootTranslations.size() != input.environmentCount)
+        if (articulation.rootType != MR_ROOT_FLOATING || articulation.nq < 7u ||
+            input.q.size() != layout.qElements || input.rootTranslations.size() != input.environmentCount ||
+            (!input.stand.enabled() && (!config.pointJacobiansOnly || input.millard.enabled() ||
+                                       input.residentContinuation.configured())))
             return reject(std::move(diagnostics), MetalArticulatedOperatorHostStatus::invalidDimensions,
-                "root translation requires one record per stand environment");
+                "root translation requires canonical floating-root records; read-only paired evaluation "
+                "requires point-Jacobian-only mode without Millard or resident continuation");
         for (std::size_t environment = 0u; environment < input.environmentCount; ++environment) {
             const auto& value = input.rootTranslations[environment];
             const auto projection = mrCompensatedTranslationProjection(value);
@@ -2078,7 +2091,8 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
                     "root translation is noncanonical or differs from q projection");
         }
     }
-    if (input.stand.enabled()) dispatch.flags |= MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION;
+    if (input.stand.enabled() || !input.rootTranslations.empty())
+        dispatch.flags |= MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION;
 
 
     if (input.millard.enabled()) {
@@ -2974,12 +2988,34 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         MetalArticulatedOperatorHostStatus::metalPipelineFailure, describeError(error));
     context.pipeline = pipeline;
     context.millardPipeline = millardPipeline;
+    id<MTLFunction> mujocoCompensatedFunction = [library
+        newFunctionWithName:@"mr_mujoco_muscle_reference_compensated"];
+    id<MTLComputePipelineState> mujocoCompensatedPipeline =
+        mujocoCompensatedFunction == nil ? nil : [device
+            newComputePipelineStateWithFunction:mujocoCompensatedFunction error:&error];
+    if (mujocoCompensatedPipeline == nil ||
+        mujocoCompensatedPipeline.maxTotalThreadsPerThreadgroup < kThreadsPerThreadgroup)
+        return reject(std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+            "failed to create paired MyoSim reference pipeline: " + describeError(error));
+    context.mujocoCompensatedPipeline = mujocoCompensatedPipeline;
     context.mujocoPipeline = mujocoPipeline;
     context.mujocoActiveForcePipeline = mujocoActiveForcePipeline;
     context.mujocoReducePipeline = mujocoReducePipeline;
     context.mujocoActivationPipeline = mujocoActivationPipeline;
     context.standPipeline = standPipeline;
     context.standReconcilePipeline = reconcilePipeline;
+    id<MTLFunction> tendonCompensatedFunction = [library
+        newFunctionWithName:@"mr_numi_human_tendon_transfer_compensated"];
+    id<MTLComputePipelineState> tendonCompensatedPipeline =
+        tendonCompensatedFunction == nil ? nil : [device
+            newComputePipelineStateWithFunction:tendonCompensatedFunction error:&error];
+    if (tendonCompensatedPipeline == nil ||
+        tendonCompensatedPipeline.maxTotalThreadsPerThreadgroup < kThreadsPerThreadgroup)
+        return reject(std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+            "failed to create paired tendon transfer pipeline: " + describeError(error));
+    context.tendonCompensatedPipeline = tendonCompensatedPipeline;
     context.tendonPipeline = tendonPipeline;
     context.initialized = true;
     ++context.stats.pipelineCreationCount;
@@ -3673,20 +3709,6 @@ void uploadBatch(
                 requirements.standEntries[index].allocationBytes
             );
         }
-        if (!reusePublishedResidentState) {
-            auto* translations = static_cast<MRCompensatedRootTranslationGPU*>(
-                context.standBuffers[kStandRootTranslationBuffer].contents);
-            for (std::size_t environment = 0u; environment < input.environmentCount; ++environment) {
-                translations[environment] = input.rootTranslations.empty()
-                    ? MRCompensatedRootTranslationGPU{}
-                    : input.rootTranslations[environment];
-                if (input.rootTranslations.empty()) {
-                    const std::size_t base = environment * (input.q.size() / input.environmentCount);
-                    translations[environment] = mrCompensatedTranslationFromProjection(
-                        {input.q[base], input.q[base+1u], input.q[base+2u], 0.0f});
-                }
-            }
-        }
         copyToBuffer(
             context.standBuffers[kStandTendonBindingsBuffer],
             input.stand.tendonBindings.empty()
@@ -3714,6 +3736,20 @@ void uploadBatch(
                   ),
             requirements.standEntries[kStandJointEqualitiesBuffer]
         );
+    }
+    if (hasCompensatedGeometry(layout) && !reusePublishedResidentState) {
+        auto* translations = static_cast<MRCompensatedRootTranslationGPU*>(
+            context.standBuffers[kStandRootTranslationBuffer].contents);
+        for (std::size_t environment = 0u; environment < input.environmentCount; ++environment) {
+            const std::size_t base = environment * layout.dispatch.qStride;
+            translations[environment] = input.rootTranslations.empty()
+                ? mrCompensatedTranslationFromProjection(
+                    {input.q[base], input.q[base+1u], input.q[base+2u], 0.0f})
+                : input.rootTranslations[environment];
+        }
+        for (const auto index : {kStandBodyPositionLowBuffer, kStandPointPositionLowBuffer})
+            std::memset(context.standBuffers[index].contents, 0,
+                requirements.standEntries[index].allocationBytes);
     }
     for (std::size_t index = 0u;
          index < kHumanMatterBufferCount; ++index) {
@@ -7492,11 +7528,14 @@ MetalArticulatedOperatorSubmission::wait(
             staged.mujocoGeneralizedForces.resize(
                 layout.mujocoGeneralizedForceElements
             );
+            if (hasCompensatedGeometry(layout)) {
+                staged.rootTranslations.resize(layout.statusElements);
+                staged.bodyPositionLow.resize(layout.bodyPoseElements);
+                staged.pointPositionLow.resize(layout.pointWorldElements);
+            }
             if (pending->hasStandHorizon) {
                 staged.standQ.resize(layout.qElements);
                 staged.standRootTranslations.resize(layout.standStatusElements);
-                staged.bodyPositionLow.resize(layout.bodyPoseElements);
-                staged.pointPositionLow.resize(layout.pointWorldElements);
                 staged.standV.resize(layout.standVelocityElements);
                 staged.standStatuses.resize(layout.standStatusElements);
                 staged.standTendonTransfers.resize(
@@ -7551,11 +7590,14 @@ MetalArticulatedOperatorSubmission::wait(
                     staged.mujocoGeneralizedForces.begin()
                 );
             }
+            if (hasCompensatedGeometry(layout)) {
+                copyOutput(staged.rootTranslations, pending->context->standBuffers[kStandRootTranslationBuffer]);
+                copyOutput(staged.bodyPositionLow, pending->context->standBuffers[kStandBodyPositionLowBuffer]);
+                copyOutput(staged.pointPositionLow, pending->context->standBuffers[kStandPointPositionLowBuffer]);
+            }
             if (pending->hasStandHorizon) {
                 copyOutput(staged.standQ, buffers[6u]);
                 copyOutput(staged.standRootTranslations, pending->context->standBuffers[kStandRootTranslationBuffer]);
-                copyOutput(staged.bodyPositionLow, pending->context->standBuffers[kStandBodyPositionLowBuffer]);
-                copyOutput(staged.pointPositionLow, pending->context->standBuffers[kStandPointPositionLowBuffer]);
                 copyOutput(
                     staged.standV,
                     pending->context->standBuffers[kStandVelocityBuffer]
@@ -8168,7 +8210,8 @@ MetalArticulatedOperatorContext::submit(
                 : 1u;
             const MRArticulationGPU& articulation =
                 model.articulations[input.articulationIndex];
-            if (input.stand.enabled() &&
+            const bool pairedGeometry = hasCompensatedGeometry(diagnostics.layout);
+            if (pairedGeometry &&
                 detail::articulatedOperatorThreadgroupBytes(articulation.bodyCount,
                     articulation.nv, !state_->config.pointJacobiansOnly, true) +
                     state_->compensatedPipeline.staticThreadgroupMemoryLength >
@@ -8688,6 +8731,11 @@ MetalArticulatedOperatorContext::submit(
                 pass.generalizedForces =
                     (__bridge void*)state_->buffers[kMillardForcesBuffer];
                 pass.bodyPoses = (__bridge void*)state_->buffers[8u];
+                pass.bodyPositionLow = (__bridge void*)state_->standBuffers[
+                    kStandBodyPositionLowBuffer];
+                pass.bodyPositionLowGPUAddress = state_->standBuffers[
+                    kStandBodyPositionLowBuffer].gpuAddress;
+                pass.bodyPositionLowElementCount = diagnostics.layout.bodyPoseElements;
                 pass.pointJacobians = (__bridge void*)state_->buffers[11u];
                 pass.standStatuses = (__bridge void*)state_->standBuffers[
                     kStandStatusBuffer
@@ -8834,7 +8882,7 @@ MetalArticulatedOperatorContext::submit(
                     "failed to create Metal compute encoder"
                 );
             }
-            [encoder setComputePipelineState:input.stand.enabled() ? state_->compensatedPipeline : state_->pipeline];
+            [encoder setComputePipelineState:pairedGeometry ? state_->compensatedPipeline : state_->pipeline];
             for (NSUInteger index = 0u;
                  index < kRawBufferCount;
                  ++index) {
@@ -8843,7 +8891,7 @@ MetalArticulatedOperatorContext::submit(
                        offset:0u
                       atIndex:index];
             }
-            if (input.stand.enabled()) {
+            if (pairedGeometry) {
                 [encoder setBuffer:state_->standBuffers[kStandRootTranslationBuffer] offset:0u atIndex:17u];
                 [encoder setBuffer:state_->standBuffers[kStandBodyPositionLowBuffer] offset:0u atIndex:18u];
                 [encoder setBuffer:state_->standBuffers[kStandPointPositionLowBuffer] offset:0u atIndex:19u];
@@ -8854,7 +8902,7 @@ MetalArticulatedOperatorContext::submit(
                         articulation.bodyCount,
                         articulation.nv,
                         !state_->config.pointJacobiansOnly,
-                        input.stand.enabled()
+                        pairedGeometry
                     )
                 atIndex:0u];
             [encoder
@@ -8920,7 +8968,8 @@ MetalArticulatedOperatorContext::submit(
                         "failed to create MyoSim reference encoder"
                     );
                 }
-                [mujocoEncoder setComputePipelineState:state_->mujocoPipeline];
+                [mujocoEncoder setComputePipelineState:pairedGeometry
+                    ? state_->mujocoCompensatedPipeline : state_->mujocoPipeline];
                 for (NSUInteger index = 0u;
                      index < kRawBufferCount;
                      ++index) {
@@ -8931,6 +8980,9 @@ MetalArticulatedOperatorContext::submit(
                 }
                 [mujocoEncoder setBuffer:state_->standBuffers[
                     kStandVelocityBuffer] offset:0u atIndex:7u];
+                if (pairedGeometry)
+                    [mujocoEncoder setBuffer:state_->standBuffers[
+                        kStandBodyPositionLowBuffer] offset:0u atIndex:10u];
                 const std::size_t threadCount =
                     diagnostics.layout.mujocoResultElements;
                 [mujocoEncoder
@@ -9070,7 +9122,7 @@ MetalArticulatedOperatorContext::submit(
                             "failed to create Numi Human tendon-transfer encoder"
                         );
                     }
-                    [tendonEncoder setComputePipelineState:state_->tendonPipeline];
+                    [tendonEncoder setComputePipelineState:state_->tendonCompensatedPipeline];
                     [tendonEncoder setBytes:&tendonDispatch
                                       length:sizeof(tendonDispatch)
                                      atIndex:0u];
@@ -9088,6 +9140,8 @@ MetalArticulatedOperatorContext::submit(
                         kStandTendonTransfersBuffer] offset:0u atIndex:6u];
                     [tendonEncoder setBuffer:state_->standBuffers[
                         kStandTendonCorrectionsBuffer] offset:0u atIndex:7u];
+                    [tendonEncoder setBuffer:state_->standBuffers[
+                        kStandBodyPositionLowBuffer] offset:0u atIndex:8u];
                     const std::size_t transferThreadCount =
                         diagnostics.layout.standTendonTransferElements;
                     [tendonEncoder
@@ -9862,6 +9916,10 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
         );
     }
     try {
+        if (!input.rootTranslations.empty()) {
+            MetalArticulatedOperatorContext context(config);
+            return context.run(model, input, result);
+        }
         diagnostics = validateAndBuildLayout(
             model,
             input,

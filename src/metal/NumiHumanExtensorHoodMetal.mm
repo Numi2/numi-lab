@@ -3,6 +3,7 @@
 #include "metalrobo/NumiHumanExtensorHoodMetal.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstring>
 #include <limits>
@@ -11,6 +12,41 @@
 
 namespace metalrobo {
 namespace {
+
+bool checkedProduct(const std::uint64_t a, const std::uint64_t b,
+                    std::uint64_t& result) {
+    if (b != 0u && a > std::numeric_limits<std::uint64_t>::max() / b)
+        return false;
+    result = a * b;
+    return true;
+}
+
+bool checkedSum(const std::uint64_t a, const std::uint64_t b,
+                std::uint64_t& result) {
+    if (a > std::numeric_limits<std::uint64_t>::max() - b) return false;
+    result = a + b;
+    return true;
+}
+
+struct ConsumedGPURange {
+    std::uint64_t begin = 0u;
+    std::uint64_t end = 0u;
+};
+
+bool consumedRange(id<MTLBuffer> buffer, const std::uint64_t elements,
+                   const std::uint64_t elementBytes,
+                   ConsumedGPURange& range) {
+    std::uint64_t bytes = 0u;
+    if (buffer == nil || elements == 0u ||
+        !checkedProduct(elements, elementBytes, bytes) ||
+        bytes > buffer.length || buffer.gpuAddress == 0u) return false;
+    range.begin = buffer.gpuAddress;
+    return checkedSum(range.begin, bytes, range.end);
+}
+
+bool overlaps(const ConsumedGPURange& a, const ConsumedGPURange& b) {
+    return a.begin < b.end && b.begin < a.end;
+}
 
 std::uint64_t appendFingerprint(
     std::uint64_t hash, const void* bytes, const std::size_t count
@@ -48,8 +84,11 @@ struct NumiHumanExtensorHoodMetalAdapter::State {
     __strong id<MTLDevice> device = nil;
     __strong id<MTLLibrary> library = nil;
     __strong id<MTLComputePipelineState> solvePipeline = nil;
+    __strong id<MTLComputePipelineState> solveCompensatedPipeline = nil;
     __strong id<MTLComputePipelineState> routeCutPipeline = nil;
+    __strong id<MTLComputePipelineState> routeCutCompensatedPipeline = nil;
     __strong id<MTLComputePipelineState> assemblePipeline = nil;
+    __strong id<MTLComputePipelineState> assembleCompensatedPipeline = nil;
     __strong id<MTLComputePipelineState> applyPipeline = nil;
     __strong id<MTLComputePipelineState> commitPipeline = nil;
     __strong id<MTLBuffer> rayBuffer = nil;
@@ -59,6 +98,7 @@ struct NumiHumanExtensorHoodMetalAdapter::State {
     __strong id<MTLBuffer> routeCutBuffer = nil;
     __strong id<MTLBuffer> suffixJacobianBuffer = nil;
     __strong id<MTLBuffer> nodeResultBuffer = nil;
+    __strong id<MTLBuffer> relativeNodePositionBuffer = nil;
     __strong id<MTLBuffer> rayResultBuffer = nil;
     __strong id<MTLBuffer> historyBuffer = nil;
     __strong id<MTLBuffer> correctionBuffer = nil;
@@ -265,35 +305,91 @@ bool NumiHumanExtensorHoodMetalAdapter::encodePreDynamics(
         id<MTLBuffer> bodyPoses = (__bridge id<MTLBuffer>)pass.bodyPoses;
         id<MTLBuffer> pointJacobians =
             (__bridge id<MTLBuffer>)pass.pointJacobians;
+        id<MTLBuffer> bodyPositionLow = (__bridge id<MTLBuffer>)pass.bodyPositionLow;
+        const bool paired = bodyPositionLow != nil;
         if (command == nil || muscles == nil || sites == nil || wraps == nil ||
-            routes == nil ||
-            results == nil || generalized == nil || bodyPoses == nil ||
-            pointJacobians == nil) {
+            routes == nil || results == nil || generalized == nil ||
+            bodyPoses == nil || pointJacobians == nil) {
             state_->message = "borrowed hood Metal objects are unavailable";
             return false;
         }
-        const std::uint64_t muscleRowElements =
-            static_cast<std::uint64_t>(pass.environmentCount) *
-            pass.muscleCount * pass.dofCount;
-        const std::uint64_t reducedEnd =
-            static_cast<std::uint64_t>(pass.generalizedForceOffset) +
-            static_cast<std::uint64_t>(pass.environmentCount - 1u) *
-                pass.generalizedForceStride + pass.dofCount;
-        if (pass.generalizedForceOffset < muscleRowElements ||
-            std::max(muscleRowElements, reducedEnd) >
-                generalized.length / sizeof(float)) {
-            state_->message = "hood generalized-force arena is undersized";
-            return false;
-        }
         id<MTLDevice> device = generalized.device;
-        if (device == nil || muscles.device.registryID != device.registryID ||
+        if (device == nil || command.commandQueue.device.registryID != device.registryID ||
+            muscles.device.registryID != device.registryID ||
             sites.device.registryID != device.registryID ||
             wraps.device.registryID != device.registryID ||
             routes.device.registryID != device.registryID ||
             results.device.registryID != device.registryID ||
             bodyPoses.device.registryID != device.registryID ||
-            pointJacobians.device.registryID != device.registryID) {
+            pointJacobians.device.registryID != device.registryID ||
+            (paired && bodyPositionLow.device.registryID != device.registryID)) {
             state_->message = "hood borrowed buffers do not share one device";
+            return false;
+        }
+        std::uint64_t bodyPositionElements = 0u;
+        std::uint64_t resultElements = 0u;
+        std::uint64_t muscleRowElements = 0u;
+        std::uint64_t reducedEnd = 0u;
+        std::uint64_t jacobianElements = 0u;
+        std::uint64_t bodyPointEnd = 0u;
+        std::uint64_t bodyJacobianEnd = 0u;
+        std::uint64_t suffixJacobianElements = 0u;
+        if (!checkedProduct(pass.environmentCount, pass.bodyPoseStride,
+                            bodyPositionElements) ||
+            !checkedProduct(pass.environmentCount, pass.muscleCount,
+                            resultElements) ||
+            !checkedProduct(resultElements, pass.dofCount, muscleRowElements) ||
+            !checkedProduct(pass.environmentCount - 1u,
+                            pass.generalizedForceStride, reducedEnd) ||
+            !checkedSum(reducedEnd, pass.generalizedForceOffset, reducedEnd) ||
+            !checkedSum(reducedEnd, pass.dofCount, reducedEnd) ||
+            !checkedProduct(pass.environmentCount, pass.pointJacobianStride,
+                            jacobianElements) ||
+            !checkedProduct(pass.bodyPoseStride, 4u, bodyPointEnd) ||
+            !checkedSum(bodyPointEnd, pass.bodyJacobianPointOffset, bodyPointEnd) ||
+            !checkedProduct(bodyPointEnd, 3u, bodyJacobianEnd) ||
+            !checkedProduct(bodyJacobianEnd, pass.dofCount, bodyJacobianEnd) ||
+            !checkedProduct(pass.environmentCount, state_->routeCuts.size(),
+                            suffixJacobianElements) ||
+            !checkedProduct(suffixJacobianElements, pass.dofCount,
+                            suffixJacobianElements) ||
+            // Shader arena indices are uint, even on a 64-bit host.
+            std::max({bodyPositionElements, resultElements, muscleRowElements,
+                      reducedEnd, jacobianElements, suffixJacobianElements}) >
+                std::numeric_limits<mr_u32>::max() ||
+            bodyJacobianEnd > pass.pointJacobianStride ||
+            pass.generalizedForceOffset < muscleRowElements) {
+            state_->message = "hood borrowed buffer extent is invalid";
+            return false;
+        }
+        // Compare consumed byte intervals, not Objective-C identities: distinct
+        // placement-heap buffers can name the same GPU memory. The generalized
+        // arena includes source rows and the strided reduced output.
+        std::array<ConsumedGPURange, 8u> borrowed{};
+        if (!consumedRange(muscles, pass.muscleCount, sizeof(MRMujocoMuscleGPU), borrowed[0]) ||
+            !consumedRange(sites, pass.siteCount, sizeof(MRMujocoMuscleSiteGPU), borrowed[1]) ||
+            !consumedRange(wraps, pass.wrapCount, sizeof(MRMujocoMuscleWrapGPU), borrowed[2]) ||
+            !consumedRange(routes, pass.routeNodeCount, sizeof(MRMujocoMuscleRouteNodeGPU), borrowed[3]) ||
+            !consumedRange(results, resultElements, sizeof(MRMujocoMuscleResultGPU), borrowed[4]) ||
+            !consumedRange(generalized, std::max(muscleRowElements, reducedEnd), sizeof(float), borrowed[5]) ||
+            !consumedRange(bodyPoses, bodyPositionElements, sizeof(MRArticulatedBodyPoseGPU), borrowed[6]) ||
+            !consumedRange(pointJacobians, jacobianElements, sizeof(float), borrowed[7])) {
+            state_->message = "hood borrowed buffer extent is invalid";
+            return false;
+        }
+        ConsumedGPURange lowRange{};
+        if (paired ? (pass.bodyPositionLowGPUAddress != bodyPositionLow.gpuAddress ||
+                      pass.bodyPositionLowElementCount != bodyPositionElements ||
+                      !consumedRange(bodyPositionLow, bodyPositionElements,
+                                     sizeof(mr_float4), lowRange))
+                   : (pass.bodyPositionLowGPUAddress != 0u ||
+                      pass.bodyPositionLowElementCount != 0u)) {
+            state_->message = "hood paired body-position authority is invalid";
+            return false;
+        }
+        if (paired && std::any_of(borrowed.begin(), borrowed.end(),
+                [&](const auto& range) { return overlaps(lowRange, range); })) {
+            state_->message = "hood paired body-position range overlaps borrowed arena";
             return false;
         }
         if (state_->device == nil) {
@@ -319,10 +415,16 @@ bool NumiHumanExtensorHoodMetalAdapter::encodePreDynamics(
             };
             state_->solvePipeline = pipeline(
                 "mr_numi_human_solve_extensor_hood");
+            state_->solveCompensatedPipeline = pipeline(
+                "mr_numi_human_solve_extensor_hood_compensated");
             state_->routeCutPipeline = pipeline(
                 "mr_mujoco_muscle_route_suffix_jacobian");
+            state_->routeCutCompensatedPipeline = pipeline(
+                "mr_mujoco_muscle_route_suffix_jacobian_compensated");
             state_->assemblePipeline = pipeline(
                 "mr_numi_human_assemble_extensor_hood_correction");
+            state_->assembleCompensatedPipeline = pipeline(
+                "mr_numi_human_assemble_extensor_hood_correction_compensated");
             state_->applyPipeline = pipeline(
                 "mr_numi_human_apply_extensor_hood_correction");
             state_->commitPipeline = pipeline(
@@ -349,6 +451,10 @@ bool NumiHumanExtensorHoodMetalAdapter::encodePreDynamics(
                 static_cast<NSUInteger>(state_->environmentCount) *
                     state_->routeCuts.size() * pass.dofCount * sizeof(float)
                 options:MTLResourceStorageModeShared];
+            state_->relativeNodePositionBuffer = [device newBufferWithLength:
+                static_cast<NSUInteger>(state_->environmentCount) *
+                    state_->nodes.size() * sizeof(mr_float4)
+                options:MTLResourceStorageModePrivate];
             state_->nodeResultBuffer = [device newBufferWithLength:
                 static_cast<NSUInteger>(state_->environmentCount) *
                     state_->nodes.size() *
@@ -369,7 +475,9 @@ bool NumiHumanExtensorHoodMetalAdapter::encodePreDynamics(
                 static_cast<NSUInteger>(state_->environmentCount) *
                     pass.dofCount * sizeof(float)
                 options:MTLResourceStorageModeShared];
-            if (state_->solvePipeline == nil || state_->routeCutPipeline == nil ||
+            if (state_->solveCompensatedPipeline == nil || state_->routeCutCompensatedPipeline == nil ||
+                state_->assembleCompensatedPipeline == nil || state_->relativeNodePositionBuffer == nil ||
+                state_->solvePipeline == nil || state_->routeCutPipeline == nil ||
                 state_->assemblePipeline == nil ||
                 state_->applyPipeline == nil || state_->commitPipeline == nil ||
                 state_->rayBuffer == nil || state_->nodeBuffer == nil ||
@@ -476,7 +584,8 @@ bool NumiHumanExtensorHoodMetalAdapter::encodePreDynamics(
             state_->message = "hood source-route cut encoder is unavailable";
             return false;
         }
-        [routeCutEncoder setComputePipelineState:state_->routeCutPipeline];
+        const auto routePipeline = paired ? state_->routeCutCompensatedPipeline : state_->routeCutPipeline;
+        [routeCutEncoder setComputePipelineState:routePipeline];
         [routeCutEncoder setBuffer:bodyPoses offset:0u atIndex:0u];
         [routeCutEncoder setBuffer:pointJacobians offset:0u atIndex:1u];
         [routeCutEncoder setBytes:&routeDispatch
@@ -491,13 +600,14 @@ bool NumiHumanExtensorHoodMetalAdapter::encodePreDynamics(
                             offset:0u atIndex:8u];
         [routeCutEncoder setBuffer:state_->suffixJacobianBuffer
                             offset:0u atIndex:9u];
+        if (paired) [routeCutEncoder setBuffer:bodyPositionLow offset:0u atIndex:10u];
         const NSUInteger routeCutWidth = std::max<NSUInteger>(1u, std::min(
             routeCutCount, std::min<NSUInteger>(
-                state_->routeCutPipeline.maxTotalThreadsPerThreadgroup, 64u)));
+                routePipeline.maxTotalThreadsPerThreadgroup, 64u)));
         [routeCutEncoder dispatchThreads:MTLSizeMake(routeCutCount, 1u, 1u)
             threadsPerThreadgroup:MTLSizeMake(routeCutWidth, 1u, 1u)];
         [routeCutEncoder endEncoding];
-        if (!encode(state_->solvePipeline, rayCount,
+        if (!encode(paired ? state_->solveCompensatedPipeline : state_->solvePipeline, rayCount,
                 [&](id<MTLComputeCommandEncoder> encoder) {
                     [encoder setBuffer:state_->rayBuffer offset:0u atIndex:1u];
                     [encoder setBuffer:state_->nodeBuffer offset:0u atIndex:2u];
@@ -511,8 +621,12 @@ bool NumiHumanExtensorHoodMetalAdapter::encodePreDynamics(
                     [encoder setBuffer:state_->nodeResultBuffer offset:0u atIndex:10u];
                     [encoder setBuffer:state_->rayResultBuffer offset:0u atIndex:11u];
                     [encoder setBuffer:wraps offset:0u atIndex:12u];
+                    if (paired) {
+                        [encoder setBuffer:bodyPositionLow offset:0u atIndex:13u];
+                        [encoder setBuffer:state_->relativeNodePositionBuffer offset:0u atIndex:14u];
+                    }
                 }) ||
-            !encode(state_->assemblePipeline, dofCount,
+            !encode(paired ? state_->assembleCompensatedPipeline : state_->assemblePipeline, dofCount,
                 [&](id<MTLComputeCommandEncoder> encoder) {
                     [encoder setBuffer:state_->rayBuffer offset:0u atIndex:1u];
                     [encoder setBuffer:state_->nodeBuffer offset:0u atIndex:2u];
@@ -528,6 +642,10 @@ bool NumiHumanExtensorHoodMetalAdapter::encodePreDynamics(
                     [encoder setBuffer:state_->correctionBuffer offset:0u atIndex:12u];
                     [encoder setBuffer:state_->suffixJacobianBuffer
                                 offset:0u atIndex:13u];
+                    if (paired) {
+                        [encoder setBuffer:bodyPositionLow offset:0u atIndex:14u];
+                        [encoder setBuffer:state_->relativeNodePositionBuffer offset:0u atIndex:15u];
+                    }
                 }) ||
             !encode(state_->applyPipeline, dofCount,
                 [&](id<MTLComputeCommandEncoder> encoder) {

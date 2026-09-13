@@ -1,0 +1,3 @@
+#define MR_SOURCE_PAIRED_GEOMETRY 1
+#define MR_TENDON_TRANSFER_KERNEL_NAME mr_numi_human_tendon_transfer_compensated
+#include "NumiHumanTendonTransfer.metal"

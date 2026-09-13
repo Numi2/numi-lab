@@ -1,5 +1,6 @@
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
+#include "metalrobo/compensated_translation_gpu.h"
 #include "metalrobo/MujocoMuscleReference.hpp"
 #include "metalrobo/NumiHumanJointEquality.hpp"
 #include "metalrobo/NumiHumanInitialState.hpp"
@@ -1569,7 +1570,7 @@ int run(
 
 // Same admitted FP32 pose, independent native FP64 route evaluation and
 // Metal path evaluation. This does not advance a body or grant reset authority.
-int runPreparedPathReference(const char* rigidPath, const char* musclePath, const char* initialPath, std::uint64_t timestepOverride = 0u) {
+int runPreparedPathReference(const char* rigidPath, const char* musclePath, const char* initialPath, std::uint64_t timestepOverride = 0u, bool pairedGeometry = false) {
     const LoadedRigid rigid = loadRigid(rigidPath);
     const LoadedMuscles muscles = loadMuscles(musclePath, rigid.header);
     const auto& model = rigid.model;
@@ -1595,20 +1596,124 @@ int runPreparedPathReference(const char* rigidPath, const char* musclePath, cons
             points.push_back(point);
         }
     }
+    const auto initialQ = initial.q, initialV = initial.v;
+    const auto initialMuscles = initial.muscles;
+    std::vector<MRCompensatedRootTranslationGPU> rootTranslations;
+    if (pairedGeometry) rootTranslations.push_back(initial.rootTranslation.value_or(
+        mrCompensatedTranslationFromProjection({initial.q[0], initial.q[1], initial.q[2], 0.0f})));
+    const auto initialRoots = rootTranslations;
     const metalrobo::MetalArticulatedOperatorInput input{
         .articulationIndex = 0u, .environmentCount = 1u, .pointCount = points.size(),
-        .q = initial.q, .v = initial.v, .points = points,
+        .q = initial.q, .rootTranslations = rootTranslations, .v = initial.v, .points = points,
         .mujoco = {.muscles = muscles.gpuMuscles, .states = initial.muscles,
             .sites = muscles.gpuSites, .wraps = muscles.gpuWraps,
             .routeNodes = muscles.gpuRoutes, .bodyJacobianPointOffset = 0u}};
+    const metalrobo::MetalArticulatedOperatorConfig config{
+        .pointJacobiansOnly = true, .mujocoActivationTimestepSeconds = timestep};
+    std::size_t admissionControls = 0u;
+    if (pairedGeometry) {
+        const auto denied = [&](const metalrobo::MetalArticulatedOperatorInput& rejectedInput,
+                                const metalrobo::MetalArticulatedOperatorConfig& rejectedConfig) {
+            metalrobo::MetalArticulatedOperatorResult sentinel;
+            sentinel.generalizedImpulse = {123.0f};
+            const auto result = metalrobo::runMetalArticulatedOperator(model, rejectedInput, sentinel, rejectedConfig);
+            require(!result.succeeded() && !result.dispatched && !result.published &&
+                sentinel.generalizedImpulse == std::vector<float>{123.0f},
+                "read-only paired admission accepted incompatible input or changed output");
+            ++admissionControls;
+        };
+        auto invalidConfig = config; invalidConfig.pointJacobiansOnly = false;
+        denied(input, invalidConfig);
+        MRMillardMuscleGPU dummyMillard{};
+        auto invalidInput = input;
+        invalidInput.millard.muscles = std::span<const MRMillardMuscleGPU>(&dummyMillard, 1u);
+        denied(invalidInput, config);
+        auto invalidRoots = rootTranslations;
+        invalidRoots[0].reference.w = 1.0f;
+        invalidInput = input; invalidInput.rootTranslations = invalidRoots;
+        denied(invalidInput, config);
+        auto invalidQ = initial.q;
+        invalidQ[0] = std::nextafter(invalidQ[0], invalidQ[0] == 0.0f
+            ? 1.0f : 0.0f);
+        invalidInput = input; invalidInput.q = invalidQ;
+        denied(invalidInput, config);
+        invalidRoots = rootTranslations; invalidRoots.push_back(rootTranslations[0]);
+        invalidInput = input; invalidInput.rootTranslations = invalidRoots;
+        denied(invalidInput, config);
+        invalidInput = input;
+        invalidInput.residentContinuation.previousTransactionFingerprint = 1u;
+        invalidInput.residentContinuation.previousPhysicsGeneration = 1u;
+        denied(invalidInput, config);
+    }
     metalrobo::MetalArticulatedOperatorResult gpu;
-    const auto diagnostics = metalrobo::runMetalArticulatedOperator(model, input, gpu,
-        {.pointJacobiansOnly = true,
-         .mujocoActivationTimestepSeconds = timestep});
+    metalrobo::MetalArticulatedOperatorDiagnostics diagnostics;
+    if (pairedGeometry) {
+        metalrobo::MetalArticulatedOperatorContext context(config);
+        diagnostics = context.run(model, input, gpu);
+        require(diagnostics.succeeded() && diagnostics.published,
+            "prepared paired context evaluation failed: " + diagnostics.message);
+        metalrobo::MetalArticulatedOperatorResult replay;
+        const auto replayDiagnostics = context.run(model, input, replay);
+        const auto identical = []<typename T>(const std::vector<T>& left, const std::vector<T>& right) {
+            return left.size() == right.size() && (left.empty() ||
+                std::memcmp(left.data(), right.data(), left.size() * sizeof(T)) == 0);
+        };
+        const auto pairedEqual = [&](const metalrobo::MetalArticulatedOperatorResult& other) {
+            return identical(gpu.rootTranslations, other.rootTranslations) &&
+                identical(gpu.bodyPoses, other.bodyPoses) && identical(gpu.bodyPositionLow, other.bodyPositionLow) &&
+                identical(gpu.pointWorld, other.pointWorld) && identical(gpu.pointPositionLow, other.pointPositionLow) &&
+                identical(gpu.pointJacobians, other.pointJacobians) &&
+                identical(gpu.mujocoResults, other.mujocoResults) &&
+                identical(gpu.mujocoActivationStates, other.mujocoActivationStates) &&
+                identical(gpu.mujocoMuscleGeneralizedForces, other.mujocoMuscleGeneralizedForces) &&
+                identical(gpu.mujocoGeneralizedForces, other.mujocoGeneralizedForces);
+        };
+        const auto noStand = [](const metalrobo::MetalArticulatedOperatorResult& value,
+                                const metalrobo::MetalArticulatedOperatorDiagnostics& info) {
+            return value.standQ.empty() && value.standRootTranslations.empty() &&
+                value.standV.empty() && value.standStatuses.empty() && info.layout.standStatusElements == 0u;
+        };
+        require(replayDiagnostics.succeeded() && replayDiagnostics.published &&
+            identical(gpu.rootTranslations, initialRoots) && pairedEqual(replay),
+            "prepared paired resident reuse changed source evaluation bytes");
+        // Reuse the same context across both geometry modes. Retained allocations
+        // must become logically absent in legacy mode, then be reinitialized from
+        // the authored input rather than a previous private constitutive result.
+        auto legacyInput = input; legacyInput.rootTranslations = {};
+        metalrobo::MetalArticulatedOperatorResult legacy;
+        const auto legacyDiagnostics = context.run(model, legacyInput, legacy);
+        require(legacyDiagnostics.succeeded() && legacyDiagnostics.published &&
+            legacy.rootTranslations.empty() && legacy.bodyPositionLow.empty() &&
+            legacy.pointPositionLow.empty() && noStand(legacy, legacyDiagnostics),
+            "paired to legacy transition retained paired or physical state");
+        metalrobo::MetalArticulatedOperatorResult pairedAgain;
+        const auto pairedAgainDiagnostics = context.run(model, input, pairedAgain);
+        require(pairedAgainDiagnostics.succeeded() && pairedAgainDiagnostics.published && pairedEqual(pairedAgain),
+            "legacy to paired transition changed authored source evaluation bytes");
+        require(identical(initial.q, initialQ) && identical(initial.v, initialV) &&
+            identical(initial.muscles, initialMuscles) && identical(rootTranslations, initialRoots),
+            "read-only paired evaluation changed input source state");
+        require(gpu.bodyPositionLow.size() == gpu.bodyPoses.size() &&
+            gpu.pointPositionLow.size() == gpu.pointWorld.size() && noStand(gpu, diagnostics) &&
+            noStand(replay, replayDiagnostics) && noStand(pairedAgain, pairedAgainDiagnostics),
+            "read-only paired source evaluation acquired physical Stand state");
+        std::cout << "prepared_compensated_admission=pass negative_controls=" << admissionControls
+                  << " repeated_input=bitwise mode_transition=paired_legacy_paired_bitwise"
+                     " source_state=unchanged physical_steps=0 accepted_root_publications=0\n";
+    } else {
+        diagnostics = metalrobo::runMetalArticulatedOperator(model, input, gpu, config);
+    }
     require(diagnostics.succeeded() && diagnostics.dispatched && diagnostics.published,
         "prepared Metal path evaluation failed: " + diagnostics.message);
     require(gpu.mujocoResults.size() == muscles.muscles.size(), "prepared path result extent");
-    const std::vector<double> q(initial.q.begin(), initial.q.end()), v(initial.v.begin(), initial.v.end());
+    std::vector<double> q(initial.q.begin(), initial.q.end());
+    const std::vector<double> v(initial.v.begin(), initial.v.end());
+    if (pairedGeometry) {
+        const auto& root = rootTranslations[0];
+        for (std::size_t axis = 0u; axis < 3u; ++axis)
+            q[axis] = static_cast<double>(static_cast<long double>((&root.reference.x)[axis]) +
+                (&root.displacement.x)[axis] + (&root.correction.x)[axis]);
+    }
     std::vector<metalrobo::ArticulatedBodyKinematics> referenceBodies(articulation.bodyCount);
     require(metalrobo::computeArticulatedBodyKinematics(model, 0u, q, v, referenceBodies).succeeded(),
         "prepared body reference");
@@ -1621,6 +1726,10 @@ int runPreparedPathReference(const char* rigidPath, const char* musclePath, cons
                   << "],\"metal_position\":[" << actual.position.x << ',' << actual.position.y << ',' << actual.position.z
                   << "],\"native_orientation\":[" << expected.orientation[0] << ',' << expected.orientation[1] << ','
                   << expected.orientation[2] << ',' << expected.orientation[3]
+                  << "],\"metal_position_low\":["
+                  << (pairedGeometry ? gpu.bodyPositionLow[body].x : 0.0f) << ','
+                  << (pairedGeometry ? gpu.bodyPositionLow[body].y : 0.0f) << ','
+                  << (pairedGeometry ? gpu.bodyPositionLow[body].z : 0.0f)
                   << "],\"metal_orientation\":[" << actual.orientation.x << ',' << actual.orientation.y << ','
                   << actual.orientation.z << ',' << actual.orientation.w << "]}\n";
     }
@@ -1634,7 +1743,8 @@ int runPreparedPathReference(const char* rigidPath, const char* musclePath, cons
             : r.orientation;
         auto value = quaternionRotate(rotation, site.localPoint);
         for (std::size_t axis = 0; axis < 3; ++axis)
-            value[axis] += useGPU ? (&p.position.x)[axis] : r.centerOfMassPosition[axis];
+            value[axis] += useGPU ? static_cast<double>((&p.position.x)[axis]) +
+                (pairedGeometry ? (&gpu.bodyPositionLow[localBody].x)[axis] : 0.0) : r.centerOfMassPosition[axis];
         return value;
     };
     for (std::size_t i = 0; i < muscles.muscles.size(); ++i) {
@@ -1719,6 +1829,8 @@ int runPreparedPathReference(const char* rigidPath, const char* musclePath, cons
               << ",\"path_passed\":" << (pathPassed ? "true" : "false")
               << ",\"fiber_passed\":" << (fiberPassed ? "true" : "false")
               << ",\"normalized_force_tolerance\":1e-5,\"publication_tolerance_ulps\":0.501"
+              << ",\"geometry_mode\":\"" << (pairedGeometry ? "paired_read_only" : "legacy_scalar") << "\""
+              << ",\"physical_steps\":0,\"accepted_root_publications\":0"
               << ",\"tolerance_m\":2e-6,\"passed\":"
               << (passed ? "true" : "false") << "}\n";
     return passed ? 0 : 1;
@@ -1728,7 +1840,8 @@ int runPreparedPathReference(const char* rigidPath, const char* musclePath, cons
 
 int main(int argc, char** argv) {
     try {
-        if ((argc == 5 || argc == 7) && std::string(argv[3]) == "--prepared-paths") {
+        if ((argc == 5 || argc == 7) && (std::string(argv[3]) == "--prepared-paths" ||
+            std::string(argv[3]) == "--prepared-compensated-paths")) {
             std::uint64_t timestepOverride = 0u;
             if (argc == 7) {
                 require(std::string(argv[5]) == "--timestep-us", "expected --timestep-us");
@@ -1737,14 +1850,15 @@ int main(int argc, char** argv) {
                 require(parsed.ec == std::errc{} && parsed.ptr == end && timestepOverride > 0u,
                     "timestep must be a positive integer microsecond count");
             }
-            return runPreparedPathReference(argv[1], argv[2], argv[4], timestepOverride);
+            return runPreparedPathReference(argv[1], argv[2], argv[4], timestepOverride,
+                std::string(argv[3]) == "--prepared-compensated-paths");
         }
         if (argc < 3 || argc > 7) {
             std::cerr << "usage: " << argv[0] << " <myosim-fullbody-core-reference.nhrigid> "
                       << "<myosim-fullbody-muscle-reference.nhmyo> "
                       << "[numi-human-tendon-endpoints.nhtendon] [--metal] "
                          "[myosim-fullbody-joint-equalities.nheq] "
-                         "[--equilibrium] | --prepared-paths <prepared.nhinit> [--timestep-us N]\n";
+                         "[--equilibrium] | --prepared-paths/--prepared-compensated-paths <prepared.nhinit> [--timestep-us N]\n";
             return 2;
         }
         const char* tendonPath = nullptr;
