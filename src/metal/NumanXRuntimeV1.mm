@@ -3644,8 +3644,12 @@ bool encodeRuntimeBehaviorCandidate(void* raw,
     auto* runtime = static_cast<RuntimeState*>(raw);
     if (runtime == nullptr) return false;
     if (runtime->behavior == nullptr) return true;
-    if (pass.phase == metalrobo::MetalNumanXHumanMatterPhase::beginStep)
-        return runtime->behavior->encodeFlush(pass.commandBuffer, runtime->behaviorError);
+    if (pass.phase == metalrobo::MetalNumanXHumanMatterPhase::beginStep) {
+        if (!runtime->behavior->encodeFlush(pass.commandBuffer, runtime->behaviorError)) return false;
+        if (runtime->behavior->completedAttempts() == 0u)
+            return runtime->behavior->encodeInitial(pass, runtime->behaviorError);
+        return true;
+    }
     if (pass.phase != metalrobo::MetalNumanXHumanMatterPhase::postDynamics) return false;
     const auto* active = runtime->encodingActive;
     if (active == nullptr || active->slotGeneration != pass.slotGeneration ||

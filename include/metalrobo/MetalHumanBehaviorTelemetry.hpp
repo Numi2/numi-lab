@@ -25,6 +25,11 @@ public:
     ~MetalHumanBehaviorTelemetry();
     MetalHumanBehaviorTelemetry(const MetalHumanBehaviorTelemetry&)=delete;
     MetalHumanBehaviorTelemetry& operator=(const MetalHumanBehaviorTelemetry&)=delete;
+    // Measure the exact accepted reset state on the existing owner command
+    // buffer. This records posture/settled observations only; it does not
+    // advance physics or authorize a publication.
+    [[nodiscard]] bool encodeInitial(const MetalNumanXHumanMatterPass& pass,
+        std::string& error) noexcept;
     [[nodiscard]] bool encodeCandidate(const MetalNumanXHumanMatterPass& pass, std::uint64_t physicsGeneration, std::uint64_t acceptedTimestampNanoseconds, std::string& error) noexcept;
     [[nodiscard]] bool encodeFlush(void* commandBuffer, std::string& error) noexcept;
     // Internal terminal callback only. disposition1 means actual successful

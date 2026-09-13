@@ -58,9 +58,10 @@ extern "C" std::size_t mrnx_bridge_v1_runtime_behavior_flush_json(
             @"maximum_planar_speed_mps_hi_lo":pair(r.extremaHigh.z,r.extremaLow.z),
             @"speed_squared_error_sum_hi_lo":pair(r.extremaHigh.w,r.extremaLow.w),
             @"last_transaction_fingerprint":@(r.lastTransactionFingerprint),@"last_joint_fence_fingerprint":@(r.lastJointFenceFingerprint),
-            @"initial_posture_valid":[NSNull null],@"initial_settled":[NSNull null],
+            @"initial_posture_valid":r.initialPostureValid==2u?[NSNull null]:@(r.initialPostureValid!=0u),
+            @"initial_settled":r.initialSettled==2u?[NSNull null]:@(r.initialSettled!=0u),
             @"forbidden_contact_coverage":@"unavailable",@"native_audit_coverage":@"unavailable",
-            @"generic_taskpack_lowering":@"unavailable",@"full_behavior_qualified":@NO,
+            @"generic_taskpack_lowering":@"source_bound_metric_program",@"full_behavior_qualified":@NO,
             @"accepted_root_proof_sha256": [NSNull null],@"finalized":@YES};
         NSError* jsonError=nil;NSData* data=[NSJSONSerialization dataWithJSONObject:document options:NSJSONWritingSortedKeys error:&jsonError];
         if(data==nil)return 0;const std::size_t required=data.length+1;

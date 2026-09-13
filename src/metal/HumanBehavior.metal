@@ -75,6 +75,36 @@ kernel void human_behavior_measure(
     samples[env]=sample;
 }
 
+// Seeds only the reset observations in the reducer. A reset sample is
+// authoritative only when it is produced by the same owner pass and exact
+// source-bound program as later candidates; it never contributes to accepted
+// root counts or outcomes.
+kernel void human_behavior_seed_initial(
+    constant MRHumanBehaviorProgramGPU& p [[buffer(0)]],
+    constant MRHumanBehaviorDispatchGPU& d [[buffer(1)]],
+    const device MRHumanBehaviorCandidateGPU* samples [[buffer(2)]],
+    device MRHumanBehaviorReductionGPU* reductions [[buffer(3)]],
+    uint env [[thread_position_in_grid]]) {
+    if (env >= 1u) return;
+    auto out = reductions[env];
+    const auto s = samples[env];
+    const bool valid = out.status == 0u && out.programFingerprint == p.fingerprint &&
+        out.initialPostureValid == 2u && out.initialSettled == 2u &&
+        d.physicsGeneration == out.initialPhysicsGeneration &&
+        d.acceptedTimestampNanoseconds == out.initialTimestampNanoseconds &&
+        s.abiVersion == MR_HUMAN_BEHAVIOR_ABI_VERSION && s.status == 0u &&
+        s.programFingerprint == p.fingerprint &&
+        s.physicsGeneration == out.initialPhysicsGeneration &&
+        s.acceptedTimestampNanoseconds == out.initialTimestampNanoseconds;
+    if (!valid) {
+        out.status = 3u;
+    } else {
+        out.initialPostureValid = s.postureValid ? 1u : 0u;
+        out.initialSettled = s.settled ? 1u : 0u;
+    }
+    reductions[env] = out;
+}
+
 kernel void human_behavior_reduce(
     constant MRHumanBehaviorProgramGPU& p [[buffer(0)]],
     constant uint& environments [[buffer(1)]],

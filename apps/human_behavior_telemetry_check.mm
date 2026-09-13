@@ -59,12 +59,13 @@ struct Driver {
 }
 int main(int argc,const char* argv[]){@autoreleasepool{try{
     need(argc==2,"usage: human_behavior_telemetry_check MetalRobo.metallib");Driver d(argv[1]);auto t=d.telemetry();
+    d.command([&](void* cb){MRCompensatedRootTranslationGPU root{};root.reference={0,0,1,0};root.displacement={0,0,std::ldexp(1.0f,-24),0};root.correction={0,0,0,0};const auto position=mrCompensatedTranslationPosition(root,{0,0,0,0});static_cast<MRArticulatedBodyPoseGPU*>(d.bodies.contents)->position=position.high;*static_cast<mr_float4*>(d.low.contents)=position.low;MetalNumanXHumanMatterPass p{};p.phase=MetalNumanXHumanMatterPhase::beginStep;p.commandBuffer=cb;p.environmentCount=1;p.physicsSubstepCount=1;p.bodyPoses=(__bridge void*)d.bodies;p.bodyPositionLow=(__bridge void*)d.low;p.pointJacobians=(__bridge void*)d.jacobian;p.v=(__bridge void*)d.velocity;p.bodyPoseStride=1;p.bodyCount=1;p.qCoordinateCount=7;p.dofCount=6;p.vStride=6;p.pointWorldStride=4;p.pointJacobianStride=72;p.transactionFingerprint=99;p.linearizationEpoch=19;p.slotGeneration=1;return t.encodeInitial(p,d.error);});
     d.measure(t,1,std::ldexp(1.0f,-50));auto first=d.fence(1);auto release=d.release(t,1,true);need(t.terminal(release,&first,d.error),d.error.c_str());
     const auto pending=t.snapshot();need(pending.reduction[0].acceptedRootCount==0,"pending sample prematurely counted");
     d.flush(t);const auto accepted=t.snapshot();const auto& a=accepted.reduction[0];
     need(a.status==0&&a.acceptedRootCount==1&&a.metricSampleCount==1&&a.endNanoseconds==125000,"accepted nonzero epoch reduction failed");
     need(a.postureViolationCount==0&&a.speedErrorSampleCount==1&&std::abs(double(a.extremaHigh.w)+a.extremaLow.w-.0625)<1e-12,"threshold/SSE measurement failed");
-    need(a.auditCoveredRootCount==0&&a.auditCoveredAttemptCount==0&&a.initialPostureValid==2,"unknown coverage invented");
+    need(a.auditCoveredRootCount==0&&a.auditCoveredAttemptCount==0&&a.initialPostureValid==1&&a.initialSettled==1,"reset posture/settled measurement missing");
     d.flush(t);auto repeated=t.snapshot();need(std::memcmp(&a,&repeated.reduction[0],sizeof(a))==0,"duplicate flush changed metrics");
     need(t.restore(pending,d.error),d.error.c_str());d.flush(t);auto replay=t.snapshot();need(std::memcmp(&a,&replay.reduction[0],sizeof(a))==0,"pending checkpoint replay changed metrics");
     // Current root rejects before postDynamics: beginStep consumes pending,
