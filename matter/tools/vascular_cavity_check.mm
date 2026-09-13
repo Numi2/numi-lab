@@ -26,6 +26,9 @@ template<class T> void unchangedEnvironment(const std::vector<T>& a,const std::v
 bool samePhysical(const RuntimeStateSnapshot& a,const RuntimeStateSnapshot& b){
     return same(a.femNodes,b.femNodes)&&same(a.femFields,b.femFields)&&same(a.vascularState,b.vascularState)&&same(a.vascularClock,b.vascularClock);
 }
+bool sameBloodMomentumState(const RuntimeStateSnapshot& a,const RuntimeStateSnapshot& b){
+    return same(a.femNodes,b.femNodes)&&same(a.vascularState,b.vascularState)&&same(a.vascularClock,b.vascularClock);
+}
 std::vector<fixture::Vec> positions(const RuntimeStateSnapshot& s,unsigned env,unsigned nodes){
     need(s.femNodes.size()==2*nodes,"accepted FEM node coverage");std::vector<fixture::Vec> x(nodes);
     for(unsigned i=0;i<nodes;++i){const auto& p=s.femNodes[env*nodes+i].positionAndMass;x[i]={p.x,p.y,p.z};}
@@ -405,7 +408,8 @@ void bloodMassOwner(){
     need(std::abs(weightSum-1.)<1e-7,"blood owner FEM weights are not normalized");
     unsigned compartment=NM_INVALID_INDEX;for(unsigned i=0;i<w.vascular.compartments.size();++i)if(w.vascular.compartments[i].identity.x==12u)compartment=i;
     need(compartment!=NM_INVALID_INDEX&&owner.identity.w==compartment+1u,"blood owner compartment was not canonically resolved");
-    const auto accepted=run.state().femNodes;const auto vascular=run.state().vascularState;const unsigned nodes=w.dispatch.femNodeCount;
+    const auto initialSnapshot=run.state();
+    const auto accepted=initialSnapshot.femNodes;const auto vascular=initialSnapshot.vascularState;const unsigned nodes=w.dispatch.femNodeCount;
     NSError* error=nil;auto library=[run.device newLibraryWithURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:NUMI_MATTER_METALLIB]] error:&error];
     need(library!=nil,"metallib unavailable for blood owner operator check");
     const auto forcePipeline=pipeline(run.device,library,@"numi_matter_metal::nm_vascular_cavity_forces");
@@ -565,6 +569,30 @@ void bloodMassOwner(){
     }
     need(momentDerivativeScale>1e-12&&momentDerivativeError/momentDerivativeScale<3e-4,
          "time-integrated blood first-moment derivative disagreed with co-moving momentum");
+    // Restore the coupled FEM velocity and vascular state as one accepted
+    // transaction, then replay the owner moments. This proves that a
+    // checkpoint cannot restore one side of the blood momentum state while
+    // leaving the other side at a different continuation point.
+    auto movingSnapshot=run.state();
+    for(unsigned env=0;env<2;++env) for(const auto node:shell.innerNodes)
+        movingSnapshot.femNodes[env*nodes+node].velocityAndInverseMass.z+=float(imposedVelocity);
+    const auto expectedRestoredMoments=encodeMoments(movingSnapshot.vascularState,movingSnapshot.femNodes);
+    need(run.runtime.restore(movingSnapshot).encoded,"coupled blood momentum restore was rejected");
+    const auto restoredMomentum=run.state();
+    need(sameBloodMomentumState(restoredMomentum,movingSnapshot),"coupled blood momentum restore was not atomic");
+    need(same(encodeMoments(restoredMomentum.vascularState,restoredMomentum.femNodes),expectedRestoredMoments),
+         "coupled blood momentum moments changed across restore");
+    const auto restoredCheckpoint=restoredMomentum;
+    need(run.runtime.restore(initialSnapshot).encoded,"blood momentum rewind failed");
+    need(run.runtime.restore(restoredCheckpoint).encoded,"blood momentum replay restore failed");
+    const auto replayedMomentum=run.state();
+    need(sameBloodMomentumState(replayedMomentum,restoredCheckpoint),"coupled blood momentum replay changed state");
+    auto invalidMomentum=restoredCheckpoint;
+    invalidMomentum.vascularState[0].x=std::numeric_limits<float>::quiet_NaN();
+    const auto deniedMomentum=run.runtime.restore(invalidMomentum);
+    need(!deniedMomentum.encoded&&sameBloodMomentumState(run.state(),replayedMomentum),
+         "invalid coupled blood momentum restore changed accepted state");
+    need(run.runtime.restore(initialSnapshot).encoded,"blood momentum final rewind failed");
     // Uniform cavity pressure has no net force on a closed surface. Remove
     // the separately known current-volume mass correction and retain the
     // residual pressure impulse as an explicit closed-surface audit.
@@ -584,7 +612,7 @@ void bloodMassOwner(){
              <<" dynamic_force_total_N="<<dynamicTotal<<" normalized_region_weight="<<weight
              <<" partitioned_inertia=pass dynamic_gravity_correction=pass dynamic_spatial_moments=pass co_moving_inertia=pass"
              <<" replay=bitwise time_integrated_moment_closure=pass pressure_impulse_closure=pass"
-             <<" pressure_driven_momentum=unqualified subject_calibration=unqualified\n";
+             <<" atomic_full_momentum_restore=pass pressure_driven_momentum=unqualified subject_calibration=unqualified\n";
 }
 void pressureMomentumOwner(){
     const auto shell=fixture::hollowShell();Run run(fixture::world(false,.001,true,true));const auto& w=run.world;
