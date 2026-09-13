@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_NUMI_HUMAN_STAND_ABI_VERSION 3u
+#define MR_NUMI_HUMAN_STAND_ABI_VERSION 4u
 #define MR_NUMI_HUMAN_STAND_MAX_BODIES 192u
 #define MR_NUMI_HUMAN_STAND_MAX_DOFS 160u
 #define MR_NUMI_HUMAN_STAND_MAX_Q 161u
@@ -43,7 +43,8 @@ typedef struct MR_ALIGN16 MRNumiHumanStandContactGPU {
     mr_u32 reserved0;
 
     // x = Coulomb friction, y = activation slop metres,
-    // z = normal stabilization fraction, w reserved.
+    // z = normal stabilization fraction, w = source static normal
+    // support force in N. A zero force retains cold-start contact.
     mr_float4 frictionSlopAndStabilization;
 } MRNumiHumanStandContactGPU;
 

@@ -109,39 +109,6 @@ inline float pointJacobianAxis(
         direction.z * pointJacobians[pointBase + 2u * nv + dof];
 }
 
-inline bool inverseSymmetric3x3(
-    const float3 row0,
-    const float3 row1,
-    const float3 row2,
-    thread float3& inverse0,
-    thread float3& inverse1,
-    thread float3& inverse2
-) {
-    const float determinant =
-        row0.x * (row1.y * row2.z - row1.z * row2.y) -
-        row0.y * (row1.x * row2.z - row1.z * row2.x) +
-        row0.z * (row1.x * row2.y - row1.y * row2.x);
-    if (!(determinant > 1.0e-18f) || !isfinite(determinant)) return false;
-    const float inverseDeterminant = 1.0f / determinant;
-    inverse0 = inverseDeterminant * float3(
-        row1.y * row2.z - row1.z * row2.y,
-        row0.z * row2.y - row0.y * row2.z,
-        row0.y * row1.z - row0.z * row1.y
-    );
-    inverse1 = inverseDeterminant * float3(
-        row1.z * row2.x - row1.x * row2.z,
-        row0.x * row2.z - row0.z * row2.x,
-        row0.z * row1.x - row0.x * row1.z
-    );
-    inverse2 = inverseDeterminant * float3(
-        row1.x * row2.y - row1.y * row2.x,
-        row0.y * row2.x - row0.x * row2.y,
-        row0.x * row1.y - row0.y * row1.x
-    );
-    return all(isfinite(inverse0)) && all(isfinite(inverse1)) &&
-        all(isfinite(inverse2));
-}
-
 inline bool evaluateJointEquality(
     device const MRNumiHumanJointEqualityGPU& equality,
     device const float* q,
@@ -702,8 +669,25 @@ kernel void mr_numi_human_stand_step(
                 vState[vBase + 3u], vState[vBase + 4u], vState[vBase + 5u]
             );
     }
+    // Source static support reactions are explicit contact-owner loads. They
+    // are converted to generalized force through the same point Jacobians
+    // used by the runtime contact solver; they are not root assistance.
     for (uint dof = 0u; dof < nv; ++dof) {
         float effort = generalizedForceWorkspace[forceBase + dof];
+        if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
+            for (uint contact = 0u;
+                 contact < dispatch.supportContactCount;
+                 ++contact) {
+                const float supportForce =
+                    contacts[contact].frictionSlopAndStabilization.w;
+                if (supportForce <= 0.0f) continue;
+                effort += supportForce * pointJacobianAxis(
+                    pointJacobians, pointJacobianBase,
+                    contacts[contact].pointQueryIndex, nv, dof,
+                    dispatch.groundNormal.xyz
+                );
+            }
+        }
         if (dof < 3u) effort += assistanceForce[dof];
         else if (dof < 6u) effort += assistanceTorque[dof - 3u];
         candidateV[dof] = effort - bias[dof];
@@ -759,7 +743,7 @@ kernel void mr_numi_human_stand_step(
                 support.frictionSlopAndStabilization.y < 0.0f ||
                 support.frictionSlopAndStabilization.z < 0.0f ||
                 support.frictionSlopAndStabilization.z > 1.0f ||
-                support.frictionSlopAndStabilization.w != 0.0f) {
+                support.frictionSlopAndStabilization.w < 0.0f) {
                 fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, contact);
                 return;
             }
@@ -809,7 +793,6 @@ kernel void mr_numi_human_stand_step(
                 }
             }
         }
-
         for (uint iteration = 0u;
              iteration < dispatch.contactIterationCount;
              ++iteration) {
@@ -838,33 +821,50 @@ kernel void mr_numi_human_stand_step(
                         timestep
                 );
                 device float* matrix = contactMatrices + 9u * contact;
-                float3 inverse0, inverse1, inverse2;
-                if (!inverseSymmetric3x3(
-                        float3(matrix[0], matrix[1], matrix[2]),
-                        float3(matrix[3], matrix[4], matrix[5]),
-                        float3(matrix[6], matrix[7], matrix[8]),
-                        inverse0, inverse1, inverse2
-                    )) {
+                const float normalMass = matrix[0u];
+                const float tangentDeterminant =
+                    matrix[4u] * matrix[8u] - matrix[5u] * matrix[7u];
+                if (!(normalMass > kResponseRegularization) ||
+                    !isfinite(normalMass) ||
+                    (support.frictionSlopAndStabilization.x > 0.0f &&
+                     (!(tangentDeterminant > kResponseRegularization) ||
+                      !isfinite(tangentDeterminant)))) {
                     fail(status, MR_NUMI_HUMAN_STAND_CONTACT_FAILED, contact);
                     return;
                 }
-                const float3 residual{
-                    targetNormalVelocity - velocity.x,
-                    -velocity.y,
-                    -velocity.z,
-                };
-                const float3 delta{
-                    dot(inverse0, residual),
-                    dot(inverse1, residual),
-                    dot(inverse2, residual),
-                };
                 const float3 oldLambda{
                     lambdas[3u * contact + 0u],
                     lambdas[3u * contact + 1u],
                     lambdas[3u * contact + 2u],
                 };
-                float3 newLambda = oldLambda + delta;
-                newLambda.x = max(newLambda.x, 0.0f);
+                // Solve the unilateral normal row first. A coupled 3x3
+                // inverse may produce a negative normal candidate because
+                // tangential velocity is not an admissible pull force.
+                const float normalDelta =
+                    (targetNormalVelocity - velocity.x) / normalMass;
+                float3 newLambda = oldLambda;
+                newLambda.x = max(oldLambda.x + normalDelta, 0.0f);
+                const float appliedNormal = newLambda.x - oldLambda.x;
+                // Tangential rows see the velocity after the normal update.
+                const float tangentialVelocityY =
+                    velocity.y + matrix[1u] * appliedNormal;
+                const float tangentialVelocityZ =
+                    velocity.z + matrix[2u] * appliedNormal;
+                if (support.frictionSlopAndStabilization.x > 0.0f) {
+                    const float tangentDeltaY =
+                        (matrix[8u] * (-tangentialVelocityY) -
+                         matrix[5u] * (-tangentialVelocityZ)) /
+                        tangentDeterminant;
+                    const float tangentDeltaZ =
+                        (-matrix[7u] * (-tangentialVelocityY) +
+                         matrix[4u] * (-tangentialVelocityZ)) /
+                        tangentDeterminant;
+                    newLambda.y = oldLambda.y + tangentDeltaY;
+                    newLambda.z = oldLambda.z + tangentDeltaZ;
+                } else {
+                    newLambda.y = 0.0f;
+                    newLambda.z = 0.0f;
+                }
                 const float tangentLimit =
                     support.frictionSlopAndStabilization.x * newLambda.x;
                 const float tangentNorm = length(newLambda.yz);

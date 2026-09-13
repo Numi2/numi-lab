@@ -1409,7 +1409,7 @@ bool validNumiHumanStand(
             contact.frictionSlopAndStabilization.y < 0.0f ||
             contact.frictionSlopAndStabilization.z < 0.0f ||
             contact.frictionSlopAndStabilization.z > 1.0f ||
-            contact.frictionSlopAndStabilization.w != 0.0f) {
+            contact.frictionSlopAndStabilization.w < 0.0f) {
             reason = "stand support-contact record is malformed";
             return false;
         }

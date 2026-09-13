@@ -2946,7 +2946,8 @@ struct MetalMujocoVisualQueries {
 
 MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
     const metalrobo::EngineModel& model,
-    const LoadedSupportContacts* support = nullptr
+    const LoadedSupportContacts* support = nullptr,
+    const std::span<const double> supportNormalForce = {}
 ) {
     require(
         model.articulations.size() == 1u &&
@@ -2978,8 +2979,15 @@ MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
         }
     }
     if (support != nullptr) {
+        require(
+            supportNormalForce.empty() ||
+                supportNormalForce.size() == support->records.size(),
+            "MyoSim source support force count does not match support witnesses");
         result.supportContacts.reserve(support->records.size());
-        for (const SupportContactRecord& record : support->records) {
+        for (std::size_t supportIndex = 0u;
+             supportIndex < support->records.size();
+             ++supportIndex) {
+            const SupportContactRecord& record = support->records[supportIndex];
             MRArticulatedPointImpulseGPU point =
                 metalrobo::compileNumiHumanSupportQuery(support->header, record);
             const std::uint32_t pointQueryIndex =
@@ -2989,11 +2997,22 @@ MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
             contact.bodyIndex = record.bodyIndex;
             contact.pointQueryIndex = pointQueryIndex;
             contact.sourceGeometryIndex = record.sourceGeometryIndex;
+            double sourceSupportForce = 0.0;
+            if (!supportNormalForce.empty()) {
+                sourceSupportForce = supportNormalForce[supportIndex];
+                require(
+                    std::isfinite(sourceSupportForce) && sourceSupportForce >= 0.0,
+                    "MyoSim source support force is invalid");
+                require(
+                    sourceSupportForce <=
+                        static_cast<double>(std::numeric_limits<float>::max()),
+                    "MyoSim source support force is not representable");
+            }
             contact.frictionSlopAndStabilization = {
                 record.friction,
                 0.002f,
                 0.2f,
-                0.0f,
+                static_cast<float>(sourceSupportForce),
             };
             result.supportContacts.push_back(contact);
         }
@@ -3357,6 +3376,12 @@ CompiledStandActivation compileStaticStandActivation(
     config.activationLimit = activationCap;
     config.activationSamples = 65u;
     config.activationSweeps = activationSweeps;
+    // The stand owner is solving a loaded source equilibrium. Keep the
+    // source residual authoritative while still retaining the bounded search
+    // and exact nonlinear checkpoint path.
+    config.activationRegularization = 1.0e-8;
+    config.poseRegularization = 1.0e-4;
+    config.globalActivationPolishIterations = 64u;
     if (!passiveCouplings.empty()) {
         config.poseSweeps = 12u;
         config.poseCandidateCount = 12u;
@@ -3677,9 +3702,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             {},
             &supportContacts,
             {},
-            240u,
+            1024u,
             !initialCoordinate.has_value(),
-            std::nullopt,
+            std::optional<std::uint32_t>{24u},
             timestepSeconds
         );
         selectedControlBaselineActivation = compiledActivation.activation;
@@ -3700,9 +3725,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             selectedSourceMuscleIndices,
             &supportContacts,
             {},
-            240u,
+            1024u,
             !initialCoordinate.has_value(),
-            std::nullopt,
+            std::optional<std::uint32_t>{24u},
             timestepSeconds
         );
     }
@@ -3717,7 +3742,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         v.push_back(static_cast<float>(velocity));
     }
     const MetalMujocoVisualQueries queries =
-        makeMetalMujocoVisualQueries(model, &supportContacts);
+        makeMetalMujocoVisualQueries(
+            model,
+            &supportContacts,
+            compiledActivation.supportNormalForce
+        );
     std::vector<MRMujocoMuscleStateGPU> states(muscles.gpuMuscles.size());
     for (std::size_t muscleIndex = 0u;
          muscleIndex < states.size(); ++muscleIndex) {
