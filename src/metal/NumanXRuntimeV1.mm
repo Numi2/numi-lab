@@ -546,7 +546,7 @@ VisionProfile loadVisionProfile(
     const std::string& packPath,
     const std::string& profilePath,
     const std::uint32_t bodyCount,
-    const std::uint64_t timestepMicroseconds
+    const double timestepSeconds
 ) {
     metalrobo::VisualAssetPackV2 pack;
     std::string packReason;
@@ -638,8 +638,7 @@ VisionProfile loadVisionProfile(
         static_cast<float>(minimumDepth),
         static_cast<float>(maximumDepth),
         static_cast<float>(depthQuantum),
-        static_cast<float>(static_cast<double>(timestepMicroseconds) /
-            1'000'000.0)};
+        static_cast<float>(timestepSeconds)};
     result.bodyBounds.resize(bodyCount);
     const float infinity = std::numeric_limits<float>::infinity();
     for (auto& bounds : result.bodyBounds) {
@@ -1051,7 +1050,7 @@ namespace {
     const std::uint32_t attachmentBody,
     const std::array<double, 3u>& attachmentWorldPosition,
     const std::array<double, 4u>& attachmentBodyOrientation,
-    const std::uint64_t timestepMicroseconds
+    const double timestepSeconds
 ) {
     const auto parsed = numi::matter::parseMatterFile(materialPath);
     requireBuild(
@@ -1059,8 +1058,7 @@ namespace {
         "Matter material did not parse");
     numi::matter::WorldSource source;
     source.environmentCount = 1u;
-    source.frameTimestep =
-        static_cast<double>(timestepMicroseconds) / 1'000'000.0;
+    source.frameTimestep = timestepSeconds;
     source.gravity = {0.0, 0.0, 0.0};
     source.articulatedDofCapacity =
         MR_NUMANX_COUPLED_HUMAN_MAX_DOFS;
@@ -1241,7 +1239,8 @@ void shiftTissuePoint(Point& point, const std::uint32_t body,
 [[nodiscard]] numi::matter::CompiledWorld loadAuthoredWorld(
     const mrnx_runtime_config_v3& config,
     const FullBodyAssets& assets,
-    const std::vector<metalrobo::ArticulatedBodyKinematics>& bodies
+    const std::vector<metalrobo::ArticulatedBodyKinematics>& bodies,
+    const double expectedTimestepSeconds
 ) {
     requireBuild(
         config.expected_model_source_fingerprint == assets.sourceFingerprint,
@@ -1268,7 +1267,7 @@ void shiftTissuePoint(Point& point, const std::uint32_t body,
             dispatch.rigidGeneralizedCapacity, dispatch.rigidQCapacity,
             world.fem.humanAttachments.size(), world.contact.rigidProxies.size(),
             dispatch.gravityAndTimestep.w,
-            static_cast<float>(static_cast<double>(config.runtime.timestep_microseconds) / 1'000'000.0),
+            static_cast<float>(expectedTimestepSeconds),
             dispatch.gravityAndTimestep.x, dispatch.gravityAndTimestep.y, dispatch.gravityAndTimestep.z,
             humanGravity.x, humanGravity.y, humanGravity.z);
     }
@@ -1285,8 +1284,7 @@ void shiftTissuePoint(Point& point, const std::uint32_t body,
             !world.fem.humanAttachments.empty() &&
             world.contact.rigidProxies.empty() &&
             dispatch.gravityAndTimestep.w == static_cast<float>(
-                static_cast<double>(config.runtime.timestep_microseconds) /
-                1'000'000.0) &&
+                static_cast<float>(expectedTimestepSeconds)) &&
             dispatch.gravityAndTimestep.x == humanGravity.x &&
             dispatch.gravityAndTimestep.y == humanGravity.y &&
             dispatch.gravityAndTimestep.z == humanGravity.z,
@@ -1625,7 +1623,14 @@ struct RuntimeState final : std::enable_shared_from_this<RuntimeState> {
     __strong id<MTLBuffer> touchSupportMapping = nil;
     __strong id<MTLBuffer> visualBodyBounds = nil;
     std::uint64_t supplementalProgramFingerprint = 0u;
+    // The historical member name is retained for the fixed internal token
+    // layout. In exact-clock mode it stores nanosecond ticks; the quantum and
+    // seconds fields make the unit explicit at every conversion seam.
     std::uint64_t timestepMicroseconds = 0u;
+    std::uint64_t timestepNanoseconds = 0u;
+    std::uint64_t clockQuantumNanoseconds = 1000u;
+    double timestepSeconds = 0.0;
+    bool exactClock = false;
     std::uint32_t transactionSlotCount = 0u;
     std::uint64_t nextSlotGeneration = 1u;
     std::uint64_t nextSensorGeneration = 1u;
@@ -1899,8 +1904,15 @@ void cultureCompletion(
     const mrnx_runtime_config_v4* equalityConfig = nullptr,
     const mrnx_runtime_config_v5* tissueConfig = nullptr,
     const mrnx_runtime_config_v6* limitConfig = nullptr,
-    const mrnx_runtime_config_v7* initialConfig = nullptr
+    const mrnx_runtime_config_v7* initialConfig = nullptr,
+    const std::uint64_t exactTimestepNanoseconds = 0u
 ) {
+    const bool exactClock = exactTimestepNanoseconds != 0u;
+    const std::uint64_t timestepNanoseconds = exactClock
+        ? exactTimestepNanoseconds : config.timestep_microseconds * 1000ull;
+    const std::uint64_t clockTicks = exactClock
+        ? exactTimestepNanoseconds : config.timestep_microseconds;
+    const double timestepSeconds = static_cast<double>(timestepNanoseconds) * 1.0e-9;
     requireBuild(
         config.abi_version == MRNX_BRIDGE_ABI_V1 &&
             config.struct_size == sizeof(config) &&
@@ -1921,8 +1933,10 @@ void cultureCompletion(
             config.metalrobo_metallib_path[0] != '\0' &&
             config.matter_metallib_path[0] != '\0' &&
             (authored != nullptr || config.matter_material_path[0] != '\0') &&
-            config.timestep_microseconds != 0u &&
-            config.timestep_microseconds <= 1'000'000u &&
+            ((exactClock && config.timestep_microseconds == 0u &&
+              exactTimestepNanoseconds <= 1'000'000'000u) ||
+             (!exactClock && config.timestep_microseconds != 0u &&
+              config.timestep_microseconds <= 1'000'000u)) &&
             config.maximum_retained_bytes != 0u &&
             config.transaction_slot_count != 0u &&
             config.transaction_slot_count <= 8u && config.reserved0 == 0u,
@@ -1955,7 +1969,7 @@ void cultureCompletion(
     runtime->behaviorBinding.bodyCount = runtime->assets.rigid.engineBodyCount;
     runtime->behaviorBinding.nq = runtime->assets.rigid.nq;
     runtime->behaviorBinding.nv = runtime->assets.rigid.nv;
-    runtime->behaviorBinding.timestepNanoseconds = config.timestep_microseconds * 1000ull;
+    runtime->behaviorBinding.timestepNanoseconds = timestepNanoseconds;
     for (std::uint32_t i = 0u; i < runtime->assets.sourceMap.size(); ++i)
         runtime->behaviorBinding.sourceToCore.push_back({i, runtime->assets.sourceMap[i]});
     runtime->behaviorBinding.cookedCOMOffset = tissueConfig != nullptr ? tissueOffsets
@@ -1979,13 +1993,13 @@ void cultureCompletion(
             MRNX_RUNTIME_ASSET_FAILURE_V1, "initial-state admission failed: " + error);
         const auto initialNanoseconds =
             metalrobo::numiHumanInitialStateTimestepNanoseconds(initialState);
-        // Root/substep/sensor protocols still express exact integer microseconds.
-        // NHINIT2 may carry finer time, but never round it during admission.
-        requireBuild(initialNanoseconds != 0u && initialNanoseconds % 1000u == 0u,
-            MRNX_RUNTIME_ASSET_FAILURE_V1,
-            "fractional-microsecond initial state requires a nanosecond transaction protocol");
+        // NHINIT2 carries the exact clock. Legacy construction still requires
+        // the canonical microsecond representation; v8 compares the exact
+        // nanosecond word without rounding.
+        requireBuild(initialNanoseconds != 0u,
+            MRNX_RUNTIME_ASSET_FAILURE_V1, "initial-state clock is missing");
         requireBuild(initialState.worldFingerprint == authored->expected_matter_world_fingerprint &&
-            initialNanoseconds / 1000u == config.timestep_microseconds,
+            initialNanoseconds == timestepNanoseconds,
             MRNX_RUNTIME_ASSET_FAILURE_V1, "initial-state world/clock mismatch");
         double norm = 0.0;
         for (unsigned i = 3u; i < 7u; ++i) norm += double(initialState.q[i]) * initialState.q[i];
@@ -2036,13 +2050,14 @@ void cultureCompletion(
         MRNX_RUNTIME_ASSET_FAILURE_V1,
         "full-body default attachment kinematics failed");
     const auto world = authored != nullptr
-        ? loadAuthoredWorld(*authored, runtime->assets, defaultBodies)
+        ? loadAuthoredWorld(*authored, runtime->assets, defaultBodies,
+            timestepSeconds)
         : compileAttachedWorld(
         config.matter_material_path,
         attachmentBody,
         defaultBodies[attachmentBody].centerOfMassPosition,
         defaultBodies[attachmentBody].orientation,
-        config.timestep_microseconds);
+        timestepSeconds);
     if (equalityConfig != nullptr) loadJointEqualities(runtime->assets, *equalityConfig);
     if (limitConfig != nullptr) loadJointLimits(runtime->assets, *limitConfig);
     if(tissueConfig!=nullptr) {
@@ -2069,13 +2084,17 @@ void cultureCompletion(
     requireBuild(
         runtime->domain != nullptr, MRNX_RUNTIME_METAL_FAILURE_V1,
         "failed to create NumanX bridge domain");
-    runtime->timestepMicroseconds = config.timestep_microseconds;
+    runtime->timestepMicroseconds = clockTicks;
+    runtime->timestepNanoseconds = timestepNanoseconds;
+    runtime->clockQuantumNanoseconds = exactClock ? 1u : 1000u;
+    runtime->timestepSeconds = timestepSeconds;
+    runtime->exactClock = exactClock;
     runtime->transactionSlotCount = config.transaction_slot_count;
     runtime->visionProfile = loadVisionProfile(
         config.visual_pack_path,
         config.vision_profile_path,
         runtime->assets.rigid.engineBodyCount,
-        config.timestep_microseconds);
+        timestepSeconds);
     if(tissueConfig!=nullptr) {
         shiftTissuePoint(runtime->visionProfile.localPosition,runtime->visionProfile.parentBodyIndex,tissueOffsets);
         for(unsigned i=0;i<runtime->visionProfile.bodyBounds.size();++i) {
@@ -2173,9 +2192,7 @@ void cultureCompletion(
     const metalrobo::MetalArticulatedOperatorConfig ownerConfig{
         .writeDiagnosticMassMatrix = false,
         .pointJacobiansOnly = true,
-        .mujocoActivationTimestepSeconds = static_cast<float>(
-            static_cast<double>(config.timestep_microseconds) /
-            1'000'000.0),
+        .mujocoActivationTimestepSeconds = static_cast<float>(timestepSeconds),
         .metallibPath = config.metalrobo_metallib_path,
     };
     runtime->owner =
@@ -2203,7 +2220,8 @@ void cultureCompletion(
     const mrnx_runtime_config_v4* equalityConfig = nullptr,
     const mrnx_runtime_config_v5* tissueConfig = nullptr,
     const mrnx_runtime_config_v6* limitConfig = nullptr,
-    const mrnx_runtime_config_v7* initialConfig = nullptr
+    const mrnx_runtime_config_v7* initialConfig = nullptr,
+    const std::uint64_t exactTimestepNanoseconds = 0u
 ) {
     requireBuild(
         config.abi_version == MRNX_RUNTIME_CONFIG_ABI_V2 &&
@@ -2226,7 +2244,8 @@ void cultureCompletion(
     base.maximum_retained_bytes = config.maximum_retained_bytes;
     base.transaction_slot_count = config.transaction_slot_count;
     base.reserved0 = config.reserved0;
-    auto runtime = createRuntimeState(base, authored, equalityConfig, tissueConfig, limitConfig, initialConfig);
+    auto runtime = createRuntimeState(base, authored, equalityConfig, tissueConfig,
+        limitConfig, initialConfig, exactTimestepNanoseconds);
     const bool cultureEnabled = config.culture_pack_path != nullptr &&
         config.culture_pack_path[0] != '\0';
     const bool checkpointSupplied = config.culture_checkpoint_path != nullptr &&
@@ -2458,8 +2477,9 @@ void fillRuntimeInfoFailure(
     humanInput.environmentCount = 1u;
     humanInput.muscleCount = MRNX_FULL_BODY_MUSCLE_COUNT;
     humanInput.stepCount = 1u;
-    humanInput.timestepSeconds = static_cast<float>(
-        static_cast<double>(runtime->timestepMicroseconds) / 1'000'000.0);
+    humanInput.timestepSeconds = static_cast<float>(runtime->timestepSeconds);
+    humanInput.timestampQuantumNanoseconds =
+        runtime->clockQuantumNanoseconds;
     humanInput.receptorTimestampMicroseconds =
         substep.startTimestampMicroseconds;
     humanInput.candidateSensorGeneration = sensorGeneration;
@@ -2895,7 +2915,8 @@ mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v5(
 static mrnx_runtime_v1* createRuntimeV6OrV7(
     const mrnx_runtime_config_v6* config,
     mrnx_runtime_info_v1* info,
-    const mrnx_runtime_config_v7* initialConfig
+    const mrnx_runtime_config_v7* initialConfig,
+    const std::uint64_t exactTimestepNanoseconds = 0u
 ) {
     @autoreleasepool {
         if (config == nullptr) {
@@ -2939,7 +2960,8 @@ static mrnx_runtime_v1* createRuntimeV6OrV7(
             tissue.costal_binding_payload_path = config->costal_binding_payload_path;
             tissue.expected_costal_binding_fingerprint = config->expected_costal_binding_fingerprint;
             auto state = createRuntimeStateV2(config->runtime.runtime.runtime, &config->runtime.runtime,
-                &config->runtime, config->costal_binding_payload_path != nullptr ? &tissue : nullptr, config, initialConfig);
+                &config->runtime, config->costal_binding_payload_path != nullptr ? &tissue : nullptr,
+                config, initialConfig, exactTimestepNanoseconds);
             auto* runtime = new (std::nothrow) mrnx_runtime_v1;
             if (runtime == nullptr) {
                 fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
@@ -2981,6 +3003,26 @@ mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v7(
     return createRuntimeV6OrV7(&config->runtime, info, config);
 }
 
+mrnx_runtime_v1* mrnx_bridge_v1_runtime_create_v8(
+    const mrnx_runtime_config_v8* config, mrnx_runtime_info_v1* info
+) {
+    if (config == nullptr || config->abi_version != MRNX_RUNTIME_CONFIG_ABI_V8 ||
+        config->struct_size != sizeof(*config) ||
+        config->timestep_nanoseconds == 0u ||
+        config->timestep_nanoseconds > 1'000'000'000u ||
+        config->runtime.abi_version != MRNX_RUNTIME_CONFIG_ABI_V7 ||
+        config->runtime.struct_size != sizeof(config->runtime) ||
+        config->runtime.runtime.runtime.runtime.runtime.timestep_microseconds != 0u ||
+        config->runtime.initial_state_payload_path == nullptr ||
+        config->runtime.initial_state_payload_path[0] == '\0' ||
+        config->runtime.expected_initial_state_fingerprint == 0u) {
+        fillRuntimeInfoFailure(info, MRNX_RUNTIME_INVALID_CONFIGURATION_V1);
+        return nullptr;
+    }
+    return createRuntimeV6OrV7(&config->runtime.runtime, info,
+        &config->runtime, config->timestep_nanoseconds);
+}
+
 bool mrnx_bridge_v1_runtime_copy_world_info(
     const mrnx_runtime_v1* runtime,
     mrnx_runtime_world_info_v1* info
@@ -2989,6 +3031,34 @@ bool mrnx_bridge_v1_runtime_copy_world_info(
         info->abi_version != MRNX_BRIDGE_ABI_V1 ||
         info->struct_size != sizeof(*info)) return false;
     *info = runtime->state->worldInfo;
+    return true;
+}
+
+bool mrnx_bridge_v1_runtime_copy_exact_clock(
+    const mrnx_runtime_v1* runtime,
+    mrnx_exact_clock_info_v1* info
+) {
+    if (runtime == nullptr || runtime->state == nullptr || info == nullptr ||
+        info->abi_version != MRNX_EXACT_CLOCK_INFO_ABI_V1 ||
+        info->struct_size != sizeof(*info)) return false;
+    const std::lock_guard lock(runtime->state->mutex);
+    if (!runtime->state->exactClock) {
+        *info = {};
+        return false;
+    }
+    info->timestep_nanoseconds = runtime->state->timestepNanoseconds;
+    info->clock_quantum_nanoseconds =
+        runtime->state->clockQuantumNanoseconds;
+    if (runtime->state->publishedTimestampMicroseconds >
+            std::numeric_limits<std::uint64_t>::max() /
+                runtime->state->clockQuantumNanoseconds) {
+        *info = {};
+        return false;
+    }
+    info->published_timestamp_nanoseconds =
+        runtime->state->publishedTimestampMicroseconds *
+        runtime->state->clockQuantumNanoseconds;
+    info->publication_epoch = runtime->state->aggregate.publication_epoch;
     return true;
 }
 
@@ -3237,9 +3307,48 @@ bool mrnx_bridge_v1_runtime_begin_physical_root(
             return false;
         }
         const auto state = runtime->state;
+        if (state->exactClock) return false;
         try {
             return beginPhysicalRoot(
                 state, *request, completionContext, completion);
+        } catch (...) {
+            const std::lock_guard lock(state->mutex);
+            state->beginInProgress = false;
+            return false;
+        }
+    }
+}
+
+bool mrnx_bridge_v1_runtime_begin_physical_root_v2(
+    mrnx_runtime_v1* runtime,
+    const mrnx_physical_root_request_v2* request,
+    void* completionContext,
+    const mrnx_physical_root_settled_callback_v1 completion
+) {
+    @autoreleasepool {
+        if (runtime == nullptr || runtime->state == nullptr ||
+            request == nullptr || completion == nullptr ||
+            !runtime->state->exactClock ||
+            request->abi_version != MRNX_PHYSICAL_ROOT_REQUEST_ABI_V2 ||
+            request->struct_size != sizeof(*request)) {
+            return false;
+        }
+        const auto state = runtime->state;
+        mrnx_physical_root_request_v1 internal{};
+        internal.abi_version = MRNX_BRIDGE_ABI_V1;
+        internal.struct_size = sizeof(internal);
+        internal.root = request->root;
+        internal.substep = request->substep;
+        internal.candidate = request->candidate;
+        internal.motor_header = request->motor_header;
+        internal.muscle_excitation = request->muscle_excitation;
+        internal.autonomic_command = request->autonomic_command;
+        internal.active_sensing_command = request->active_sensing_command;
+        internal.motor_ready_gate = request->motor_ready_gate;
+        internal.motor_ready = request->motor_ready;
+        try {
+            return beginPhysicalRoot(
+                state, internal, completionContext, completion);
         } catch (...) {
             const std::lock_guard lock(state->mutex);
             state->beginInProgress = false;
@@ -3654,17 +3763,22 @@ bool encodeRuntimeBehaviorCandidate(void* raw,
     const auto* active = runtime->encodingActive;
     if (active == nullptr || active->slotGeneration != pass.slotGeneration ||
         active->transactionFingerprint != pass.transactionFingerprint ||
-        active->acceptedTimestampMicroseconds > std::numeric_limits<std::uint64_t>::max() / 1000ull)
+        active->acceptedTimestampMicroseconds >
+            std::numeric_limits<std::uint64_t>::max() /
+                runtime->clockQuantumNanoseconds)
         return false;
     return runtime->behavior->encodeCandidate(pass, active->physicsGeneration,
-        active->acceptedTimestampMicroseconds * 1000ull, runtime->behaviorError);
+        active->acceptedTimestampMicroseconds *
+            runtime->clockQuantumNanoseconds, runtime->behaviorError);
 }
 
 void recordRuntimeBehaviorTerminal(RuntimeState& runtime, const ActiveRoot& active,
     const mrnx_root_v1& root, bool accepted,
     const MRNumanXHumanMatterJointPublicationFenceGPU* fence) noexcept {
     if (runtime.behavior == nullptr) return;
-    if (active.acceptedTimestampMicroseconds > std::numeric_limits<std::uint64_t>::max() / 1000ull ||
+    if (active.acceptedTimestampMicroseconds >
+            std::numeric_limits<std::uint64_t>::max() /
+                runtime.clockQuantumNanoseconds ||
         runtime.behavior->completedAttempts() == std::numeric_limits<std::uint64_t>::max()) {
         runtime.behaviorError = "behavior clock or attempt count overflow";
         return;
@@ -3675,7 +3789,12 @@ void recordRuntimeBehaviorTerminal(RuntimeState& runtime, const ActiveRoot& acti
     release.linearizationEpoch = root.linearization_epoch;
     release.slotGeneration = root.slot_generation;
     release.physicsGeneration = active.physicsGeneration;
-    release.acceptedTimestampNanoseconds = active.acceptedTimestampMicroseconds * 1000ull;
+    release.acceptedTimestampNanoseconds =
+        active.acceptedTimestampMicroseconds <=
+            std::numeric_limits<std::uint64_t>::max() /
+                runtime.clockQuantumNanoseconds
+        ? active.acceptedTimestampMicroseconds *
+            runtime.clockQuantumNanoseconds : 0u;
     release.publicationSerial = runtime.behavior->completedAttempts() + 1u;
     release.jointFenceFingerprint = fence != nullptr ? fence->fenceFingerprint : 0u;
     release.released = accepted ? 1u : 2u;
@@ -4282,8 +4401,7 @@ void physicalCompletion(
                 .supportStride = 10u,
                 .tickCount = active->runtime->cultureWindowTicks,
                 .physicsTimestepSeconds = static_cast<float>(
-                    static_cast<double>(active->runtime->timestepMicroseconds) /
-                    1'000'000.0),
+                    active->runtime->timestepSeconds),
                 .currentPerNewton = active->runtime->cultureCurrentPerNewton,
             };
             auto ticket = active->runtime->culture->prepareSupportWindow(request);
@@ -4419,11 +4537,20 @@ void cultureCompletion(
                 runtime->timestepMicroseconds) {
         return false;
     }
-    if (runtime->behavior != nullptr &&
-        (root.committedTimestampMicroseconds > std::numeric_limits<std::uint64_t>::max() / 1000ull ||
-         root.targetTimestampMicroseconds > std::numeric_limits<std::uint64_t>::max() / 1000ull ||
-         (!runtime->publishedOnce && root.committedTimestampMicroseconds * 1000ull !=
-             runtime->behaviorInitialTimestampNanoseconds))) return false;
+    if (runtime->behavior != nullptr) {
+        if (runtime->exactClock) {
+            if (!runtime->publishedOnce &&
+                root.committedTimestampMicroseconds !=
+                    runtime->behaviorInitialTimestampNanoseconds) return false;
+        } else if (
+            root.committedTimestampMicroseconds >
+                std::numeric_limits<std::uint64_t>::max() / 1000ull ||
+            root.targetTimestampMicroseconds >
+                std::numeric_limits<std::uint64_t>::max() / 1000ull ||
+            (!runtime->publishedOnce &&
+             root.committedTimestampMicroseconds * 1000ull !=
+                 runtime->behaviorInitialTimestampNanoseconds)) return false;
+    }
     failureStage = 2u;
     if (substep.transactionFingerprint != root.transactionFingerprint ||
         substep.substepIndex != 0u || substep.attemptIndex != 0u ||

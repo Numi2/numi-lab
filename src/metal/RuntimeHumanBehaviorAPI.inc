@@ -9,7 +9,7 @@ extern "C" bool mrnx_bridge_v1_runtime_behavior_attach(
         const std::lock_guard lock(runtime->mutex);
         if(runtime->behavior!=nullptr||runtime->active!=nullptr||runtime->beginInProgress||
            runtime->terminalQuarantine||runtime->publishedOnce||runtime->lastAttemptedControlStep!=0||
-           initialCommittedTimestampNanoseconds%1000ull!=0)return false;
+           (!runtime->exactClock && initialCommittedTimestampNanoseconds%1000ull!=0))return false;
         const std::string expected(expectedSHA);
         if(expected.size()!=64||!std::all_of(expected.begin(),expected.end(),[](char c){return (c>='0'&&c<='9')||(c>='a'&&c<='f');}))return false;
         const auto image=loadImmutablePayload(path,"Human behavior metric program");
