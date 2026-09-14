@@ -5,12 +5,18 @@ on:
     branches: [coupled]
     paths:
       - "include/metalrobo/NumiHumanStaticDynamicHandoff.hpp"
+      - "include/metalrobo/NumiHumanMuscleEquilibrium.hpp"
+      - "src/core/NumiHumanMuscleEquilibrium.cpp"
+      - "apps/numilab_human_myosim_visual_probe.mm"
       - "tests/numi_human_static_dynamic_handoff_cases.hpp"
       - "tests/numi_human_initial_state_test.cpp"
       - ".github/workflows/human-handoff-contract.yml"
   pull_request:
     paths:
       - "include/metalrobo/NumiHumanStaticDynamicHandoff.hpp"
+      - "include/metalrobo/NumiHumanMuscleEquilibrium.hpp"
+      - "src/core/NumiHumanMuscleEquilibrium.cpp"
+      - "apps/numilab_human_myosim_visual_probe.mm"
       - "tests/numi_human_static_dynamic_handoff_cases.hpp"
       - "tests/numi_human_initial_state_test.cpp"
       - ".github/workflows/human-handoff-contract.yml"
@@ -39,7 +45,10 @@ jobs:
           -DNUMANX_FULLBODY_SUPPORT_CONTACT_ASSET=${{ github.workspace }}/CMakeLists.txt
           -DNUMANX_FULLBODY_VISUAL_PACK_ASSET=${{ github.workspace }}/CMakeLists.txt
           -DNUMANX_FULLBODY_VISION_PROFILE_ASSET=${{ github.workspace }}/CMakeLists.txt
-      - name: Build NHINIT and handoff contract target
-        run: cmake --build build-human-handoff --target metalrobo_numi_human_initial_state_test -j 3
+      - name: Build Human equilibrium, app, and handoff tests
+        run: >-
+          cmake --build build-human-handoff
+          --target metalrobo_numi_human_initial_state_test numilab_human_myosim_visual_probe
+          -j 3
       - name: Run NHINIT and handoff contract tests
         run: ctest --test-dir build-human-handoff -R '^numi_human_initial_state$' --output-on-failure -j 1
