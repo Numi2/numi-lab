@@ -1,0 +1,42 @@
+name: Apply Human active-force parity fix
+
+on:
+  push:
+    branches: [coupled]
+    paths:
+      - ".github/scripts/apply_human_active_force_fix.py"
+      - ".github/workflows/apply-human-active-force-fix.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-human-active-force-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: coupled
+          fetch-depth: 0
+      - name: Apply asserted source transformation
+        run: python3 .github/scripts/apply_human_active_force_fix.py
+      - name: Validate patch shape
+        run: |
+          git diff --check
+          git diff --exit-code -- .github/scripts/apply_human_active_force_fix.py .github/workflows/apply-human-active-force-fix.yml
+          git diff --stat
+          test -n "$(git status --porcelain -- include/metalrobo/NumiHumanMuscleEquilibrium.hpp src/core/NumiHumanMuscleEquilibrium.cpp apps/numilab_human_myosim_visual_probe.mm)"
+      - name: Commit authoritative force correction
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add include/metalrobo/NumiHumanMuscleEquilibrium.hpp src/core/NumiHumanMuscleEquilibrium.cpp apps/numilab_human_myosim_visual_probe.mm
+          git commit -m "Align Human static equilibrium with driven muscle force"
+          git push origin HEAD:coupled
