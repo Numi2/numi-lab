@@ -2570,6 +2570,9 @@ struct MuscleDrivenVisualState {
     double persistentNormalImpulse = 0.0;
     double persistentRootAssistanceForce = 0.0;
     double persistentRootAssistanceTorque = 0.0;
+    bool persistentStaticPreloadApplied = false;
+    double persistentStaticPreloadL1 = 0.0;
+    double persistentStaticPreloadMaximum = 0.0;
     std::uint32_t compiledActiveMuscleCount = 0u;
     double compiledActivationResidualRms = 0.0;
     double compiledInitialActivationResidualRms = 0.0;
@@ -2946,7 +2949,8 @@ struct MetalMujocoVisualQueries {
 
 MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
     const metalrobo::EngineModel& model,
-    const LoadedSupportContacts* support = nullptr
+    const LoadedSupportContacts* support = nullptr,
+    const std::span<const std::size_t> supportRecordIndices = {}
 ) {
     require(
         model.articulations.size() == 1u &&
@@ -2957,10 +2961,12 @@ MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
     );
     MetalMujocoVisualQueries result;
     result.bodyJacobianPointOffset = 0u;
-    result.points.reserve(
-        4u * model.bodies.size() +
-        (support == nullptr ? 0u : support->records.size())
-    );
+    const std::size_t supportPointCount = support == nullptr
+        ? 0u
+        : (supportRecordIndices.empty()
+            ? support->records.size()
+            : supportRecordIndices.size());
+    result.points.reserve(4u * model.bodies.size() + supportPointCount);
     for (std::uint32_t body = 0u;
          body < model.bodies.size();
          ++body) {
@@ -2978,8 +2984,11 @@ MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
         }
     }
     if (support != nullptr) {
-        result.supportContacts.reserve(support->records.size());
-        for (const SupportContactRecord& record : support->records) {
+        result.supportContacts.reserve(supportPointCount);
+        const auto appendSupportRecord = [&](const std::size_t recordIndex) {
+            require(recordIndex < support->records.size(),
+                    "MyoSim support active-set record index is out of range");
+            const SupportContactRecord& record = support->records[recordIndex];
             MRArticulatedPointImpulseGPU point =
                 metalrobo::compileNumiHumanSupportQuery(support->header, record);
             const std::uint32_t pointQueryIndex =
@@ -2996,6 +3005,15 @@ MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
                 0.0f,
             };
             result.supportContacts.push_back(contact);
+        };
+        if (supportRecordIndices.empty()) {
+            for (std::size_t index = 0u; index < support->records.size(); ++index) {
+                appendSupportRecord(index);
+            }
+        } else {
+            for (const std::size_t index : supportRecordIndices) {
+                appendSupportRecord(index);
+            }
         }
     }
     return result;
@@ -3663,6 +3681,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 "persistent Human initial coordinate equality projection failed");
     }
     CompiledStandActivation compiledActivation;
+    std::vector<std::size_t> dynamicSupportRecordIndices;
     std::vector<float> selectedControlBaselineActivation;
     if (applySelectedActivationIncrement) {
         compiledActivation = compileStaticStandActivation(
@@ -3701,7 +3720,57 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     }
     // Explicit tissue poses disable pose search before recruitment, so q,
     // activation and every reported force refer to the same accepted posture.
+    // The static solve owns the contact active set. Reusing every witness that
+    // happens to fall inside the dynamic activation slop creates a different
+    // unilateral problem at release and injects an impulse into the prepared
+    // state. Carry only witnesses with a positive static normal reaction into
+    // the dynamic operator, while preserving original record indices for warm
+    // starts and source identity.
+    if (!supportContacts.records.empty()) {
+        require(compiledActivation.supportNormalForce.size() ==
+                    supportContacts.records.size(),
+                "persistent Human static support force count is inconsistent");
+        for (std::size_t index = 0u;
+             index < compiledActivation.supportNormalForce.size(); ++index) {
+            if (compiledActivation.supportNormalForce[index] > 1.0e-8) {
+                dynamicSupportRecordIndices.push_back(index);
+            }
+        }
+        require(!dynamicSupportRecordIndices.empty() &&
+                    dynamicSupportRecordIndices.size() ==
+                        compiledActivation.activeSupportContactCount,
+                "persistent Human dynamic support active set disagrees with static solve");
+    }
     const std::vector<float> q = packMetalConfiguration(compiledActivation.q);
+    // Carry the complete static non-muscle reaction into the first dynamic
+    // step. The large-state owner already supplies gravity and MyoSim muscle
+    // force; this explicit preload carries support, equality, limit, and
+    // registered passive-coordinate reactions without introducing a root
+    // motor or a second contact authority.
+    std::vector<float> generalizedForcePreload(model.defaultV.size(), 0.0f);
+    const auto addPreload = [&](const std::span<const double> source,
+                                const char* label) {
+        require(source.size() == generalizedForcePreload.size(),
+                std::string("persistent Human static preload size mismatch: ") + label);
+        for (std::size_t index = 0u; index < source.size(); ++index) {
+            require(std::isfinite(source[index]),
+                    std::string("persistent Human static preload is non-finite: ") + label);
+            generalizedForcePreload[index] += static_cast<float>(source[index]);
+        }
+    };
+    addPreload(compiledActivation.generalizedSupportForce, "support");
+    addPreload(compiledActivation.generalizedJointEqualityForce, "joint-equality");
+    addPreload(compiledActivation.generalizedPositionLimitForce, "position-limit");
+    addPreload(compiledActivation.generalizedPassiveCoordinateForce, "passive-coordinate");
+    double staticPreloadL1 = 0.0;
+    double staticPreloadMaximum = 0.0;
+    for (const float value : generalizedForcePreload) {
+        require(std::isfinite(value),
+                "persistent Human static generalized preload is non-finite after packing");
+        staticPreloadL1 += std::abs(static_cast<double>(value));
+        staticPreloadMaximum = std::max(
+            staticPreloadMaximum, std::abs(static_cast<double>(value)));
+    }
     std::vector<float> v;
     v.reserve(model.defaultV.size());
     for (const double velocity : model.defaultV) {
@@ -3710,7 +3779,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         v.push_back(static_cast<float>(velocity));
     }
     const MetalMujocoVisualQueries queries =
-        makeMetalMujocoVisualQueries(model, &supportContacts);
+        makeMetalMujocoVisualQueries(
+            model, &supportContacts, dynamicSupportRecordIndices);
     std::vector<MRMujocoMuscleStateGPU> states(muscles.gpuMuscles.size());
     for (std::size_t muscleIndex = 0u;
          muscleIndex < states.size(); ++muscleIndex) {
@@ -3755,6 +3825,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         },
         .stand = {
             .v = v,
+            .generalizedForcePreload = generalizedForcePreload,
             .contacts = queries.supportContacts,
             .jointEqualities = jointEqualities.payload.records,
             .tendonBindings = tendonProgram.bindings,
@@ -3870,6 +3941,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     metalrobo::MetalArticulatedOperatorInput parityInput = input;
     parityInput.stand.stepCount = 1u;
     parityInput.stand.enableContact = false;
+    parityInput.stand.generalizedForcePreload = {};
     parityInput.stand.jointEqualities = {};
     parityInput.stand.enableRootAssistance = false;
     parityInput.stand.assistanceGains = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -4469,6 +4541,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     );
     result.persistentRootAssistanceForce = assistedStatus.factorAndAssistance.z;
     result.persistentRootAssistanceTorque = assistedStatus.factorAndAssistance.w;
+    result.persistentStaticPreloadApplied = !generalizedForcePreload.empty();
+    result.persistentStaticPreloadL1 = staticPreloadL1;
+    result.persistentStaticPreloadMaximum = staticPreloadMaximum;
     result.compiledActiveMuscleCount = compiledActivation.activeMuscleCount;
     result.compiledActivationResidualRms =
         compiledActivation.normalizedResidualRms;
@@ -17013,6 +17088,12 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->persistentRootAssistanceForce : 0.0)
                       << " persistent_max_root_assistance_torque_nm=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->persistentRootAssistanceTorque : 0.0)
+                      << " persistent_static_preload=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->persistentStaticPreloadApplied ? "true" : "false")
+                      << " persistent_static_preload_l1=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentStaticPreloadL1 : 0.0)
+                      << " persistent_static_preload_max=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentStaticPreloadMaximum : 0.0)
                       << " compiled_stand_active_muscles=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->compiledActiveMuscleCount : 0u)
                       << " compiled_stand_recruited_muscles=" << (muscleDrivenState.has_value()

@@ -32,6 +32,10 @@ enum MRNumiHumanStandFlags {
     // Internal owner prefix: vState names private scratch initialized from
     // accepted v. Produce v_free without advancing q or completedSteps.
     MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY = 1u << 4u,
+    // Add an explicitly supplied generalized reaction/preload to the source
+    // muscle force before the mass solve. This is the handoff from a complete
+    // static equilibrium owner; it is not root assistance or a hidden motor.
+    MR_NUMI_HUMAN_STAND_HAS_GENERALIZED_FORCE_PRELOAD = 1u << 5u,
 };
 
 // One source-authored support witness. The point-query index addresses the

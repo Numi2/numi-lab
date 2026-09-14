@@ -1119,6 +1119,7 @@ bool validNumiHumanStand(
         if (!stand.v.empty() || !stand.contacts.empty() ||
             !stand.jointEqualities.empty() ||
             !stand.tendonBindings.empty() || !stand.tendonEnvelopes.empty() ||
+            !stand.generalizedForcePreload.empty() ||
             stand.tendonLoadProgram.configured() ||
             stand.numanXTransactionProgram.configured() ||
             stand.numanXHumanMatterProgram.configured()) {
@@ -1191,6 +1192,14 @@ bool validNumiHumanStand(
             return std::isfinite(value);
         })) {
         reason = "stand velocity stream is not finite environment-major nv state";
+        return false;
+    }
+    if (!stand.generalizedForcePreload.empty() &&
+        (stand.generalizedForcePreload.size() != expectedVelocityCount ||
+         !std::all_of(stand.generalizedForcePreload.begin(),
+                      stand.generalizedForcePreload.end(),
+                      [](const float value) { return std::isfinite(value); }))) {
+        reason = "stand generalized-force preload is not finite environment-major nv state";
         return false;
     }
     if (!finite(stand.groundPoint) || !finite(stand.groundNormal) ||
@@ -4804,6 +4813,9 @@ struct MetalBufferRegion {
     if (input.stand.enableRootAssistance) {
         dispatch.flags |= MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE;
     }
+    if (!input.stand.generalizedForcePreload.empty()) {
+        dispatch.flags |= MR_NUMI_HUMAN_STAND_HAS_GENERALIZED_FORCE_PRELOAD;
+    }
     dispatch.qStride = articulation.nq;
     dispatch.vStride = articulation.nv;
     dispatch.pointWorldStride = layout.dispatch.pointWorldStride;
@@ -7877,6 +7889,25 @@ MetalArticulatedOperatorContext::submit(
             }
             commandBuffer.label =
                 @"MetalRobo persistent articulated operator";
+            __strong id<MTLBuffer> generalizedForcePreloadBuffer = nil;
+            if (!input.stand.generalizedForcePreload.empty()) {
+                const NSUInteger preloadBytes = static_cast<NSUInteger>(
+                    input.stand.generalizedForcePreload.size() * sizeof(float)
+                );
+                generalizedForcePreloadBuffer = [state_->device
+                    newBufferWithBytes:input.stand.generalizedForcePreload.data()
+                                 length:preloadBytes
+                                options:MTLResourceStorageModeShared];
+                if (generalizedForcePreloadBuffer == nil) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                        "failed to allocate Human generalized-force preload"
+                    );
+                }
+                generalizedForcePreloadBuffer.label =
+                    @"Numi Human static generalized-force preload";
+            }
             diagnostics.numanXProgramFingerprint =
                 input.stand.numanXTransactionProgram.valid()
                     ? input.stand.numanXTransactionProgram.fingerprint
@@ -9060,6 +9091,7 @@ MetalArticulatedOperatorContext::submit(
                 [predictor setBuffer:state_->standBuffers[kStandTendonBindingsBuffer] offset:0u atIndex:18u];
                 [predictor setBuffer:state_->standBuffers[kStandTendonTransfersBuffer] offset:0u atIndex:19u];
                 [predictor setBuffer:state_->standBuffers[kStandJointEqualitiesBuffer] offset:0u atIndex:20u];
+                [predictor setBuffer:generalizedForcePreloadBuffer offset:0u atIndex:21u];
                 [predictor setBytes:&predictorDispatch length:sizeof(predictorDispatch) atIndex:4u];
                 for (NSUInteger index = kStandContactsBuffer; index <= kStandStatusBuffer; ++index)
                     [predictor setBuffer:state_->standBuffers[index] offset:0u atIndex:10u + index];
@@ -9184,6 +9216,7 @@ MetalArticulatedOperatorContext::submit(
                     kStandTendonTransfersBuffer] offset:0u atIndex:19u];
                 [standEncoder setBuffer:state_->standBuffers[
                     kStandJointEqualitiesBuffer] offset:0u atIndex:20u];
+                [standEncoder setBuffer:generalizedForcePreloadBuffer offset:0u atIndex:21u];
                 [standEncoder
                     dispatchThreadgroups:MTLSizeMake(
                         static_cast<NSUInteger>(input.environmentCount),

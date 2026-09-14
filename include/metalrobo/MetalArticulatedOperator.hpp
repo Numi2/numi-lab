@@ -1505,6 +1505,10 @@ private:
 // Root assistance is a world wrench on the floating base, never joint torque.
 struct MetalNumiHumanStandInput {
     std::span<const float> v{};
+    // Optional environment-major generalized reaction/preload emitted by a
+    // complete static equilibrium owner. It is added to the MyoSim force
+    // field before the large-state mass solve; it is not root assistance.
+    std::span<const float> generalizedForcePreload{};
     std::span<const MRNumiHumanStandContactGPU> contacts{};
     // Exact scalar joint manifold imported from the source model. These rows
     // carry bilateral reaction impulses during dynamics; dependent q/v are

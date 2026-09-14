@@ -231,6 +231,7 @@ kernel void mr_numi_human_stand_step(
     device const MRNumiHumanTendonBindingGPU* tendonBindings [[buffer(18)]],
     device const MRNumiHumanTendonTransferResultGPU* tendonTransfers [[buffer(19)]],
     device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],
+    device const float* generalizedForcePreload [[buffer(21)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint threadCount [[threads_per_threadgroup]]
@@ -325,7 +326,8 @@ kernel void mr_numi_human_stand_step(
                 MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE |
                 MR_NUMI_HUMAN_STAND_HAS_TENDON_LOADS |
                 MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES |
-                MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY
+                MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY |
+                MR_NUMI_HUMAN_STAND_HAS_GENERALIZED_FORCE_PRELOAD
             )) != 0u ||
             ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u &&
              ((dispatch.flags & (MR_NUMI_HUMAN_STAND_ENABLE_CONTACT |
@@ -701,6 +703,9 @@ kernel void mr_numi_human_stand_step(
     }
     for (uint dof = 0u; dof < nv; ++dof) {
         float effort = generalizedForceWorkspace[forceBase + dof];
+        if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_GENERALIZED_FORCE_PRELOAD) != 0u) {
+            effort += generalizedForcePreload[environment * dispatch.generalizedForceStride + dof];
+        }
         if (dof < 3u) effort += assistanceForce[dof];
         else if (dof < 6u) effort += assistanceTorque[dof - 3u];
         candidateV[dof] = effort - bias[dof];
