@@ -1513,17 +1513,23 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     // samples. This also supplies the accepted FP64 fibre state.
     std::fill(state.muscleForce.begin(), state.muscleForce.end(), 0.0);
     for (std::size_t muscle = 0u; muscle < muscles.size(); ++muscle) {
-        double force = 0.0;
+        double sourceForce = 0.0;
         diagnostics = evaluateStaticForce(
             resolved[muscle].pathLength, state.activation[muscle],
-            config.timestep, muscles[muscle], architectures[muscle], force,
-            state.fiberLength[muscle], static_cast<std::uint32_t>(muscle)
+            config.timestep, muscles[muscle], architectures[muscle],
+            sourceForce, state.fiberLength[muscle],
+            static_cast<std::uint32_t>(muscle)
         );
         if (!diagnostics.succeeded()) return diagnostics;
-        state.muscleTendonForce[muscle] = force;
+        const double drivenForce = humanDrivenMuscleForce(
+            sourceForce, state.passiveMuscleTendonForce[muscle],
+            architectures[muscle]
+        );
+        state.muscleTendonForce[muscle] = sourceForce;
+        state.drivenMuscleTendonForce[muscle] = drivenForce;
         for (std::size_t dof = 0u; dof < nv; ++dof) {
             state.muscleForce[dof] +=
-                force * resolved[muscle].jacobian[dof];
+                drivenForce * resolved[muscle].jacobian[dof];
         }
     }
     std::fill(state.supportForce.begin(), state.supportForce.end(), 0.0);
