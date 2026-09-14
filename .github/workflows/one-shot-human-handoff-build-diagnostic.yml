@@ -1,0 +1,66 @@
+name: One-shot Human handoff build diagnostic
+
+on:
+  push:
+    branches:
+      - codex/handoff-build-diagnostic
+    paths:
+      - .github/workflows/one-shot-human-handoff-build-diagnostic.yml
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/handoff-build-diagnostic
+          fetch-depth: 0
+
+      - name: Configure and capture output
+        shell: bash
+        run: |
+          set +e
+          mkdir -p .diagnostics/human-handoff
+          cmake -S . -B build-human-handoff -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=ON \
+            -DNUMANX_FULLBODY_RIGID_ASSET="$GITHUB_WORKSPACE/CMakeLists.txt" \
+            -DNUMANX_FULLBODY_MUSCLE_ASSET="$GITHUB_WORKSPACE/CMakeLists.txt" \
+            -DNUMANX_FULLBODY_SUPPORT_CONTACT_ASSET="$GITHUB_WORKSPACE/CMakeLists.txt" \
+            -DNUMANX_FULLBODY_VISUAL_PACK_ASSET="$GITHUB_WORKSPACE/CMakeLists.txt" \
+            -DNUMANX_FULLBODY_VISION_PROFILE_ASSET="$GITHUB_WORKSPACE/CMakeLists.txt" \
+            > .diagnostics/human-handoff/configure.log 2>&1
+          echo $? > .diagnostics/human-handoff/configure.status
+          exit 0
+
+      - name: Build and capture output
+        shell: bash
+        run: |
+          set +e
+          cmake --build build-human-handoff \
+            --target metalrobo_numi_human_initial_state_test metalrobo_numilab_human_myosim_visual_probe \
+            -j 3 > .diagnostics/human-handoff/build.log 2>&1
+          echo $? > .diagnostics/human-handoff/build.status
+          exit 0
+
+      - name: Test and capture output
+        shell: bash
+        run: |
+          set +e
+          ctest --test-dir build-human-handoff -R '^numi_human_initial_state$' \
+            --output-on-failure -j 1 > .diagnostics/human-handoff/test.log 2>&1
+          echo $? > .diagnostics/human-handoff/test.status
+          exit 0
+
+      - name: Commit diagnostic output
+        shell: bash
+        run: |
+          git config user.name "Numi Human Build Diagnostic"
+          git config user.email "33553832+Numi2@users.noreply.github.com"
+          git add -f .diagnostics/human-handoff
+          git commit -m "Record Human handoff compiler diagnostics"
+          git push origin HEAD:codex/handoff-build-diagnostic
