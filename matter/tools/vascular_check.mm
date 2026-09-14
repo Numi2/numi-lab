@@ -234,11 +234,185 @@ void refinement(){
     need(errors[2]<errors[1] && errors[1]<errors[0] && errors[0]/errors[1]>1.7 && errors[1]/errors[2]>1.7,"hydraulic timestep refinement failed");
     std::cout<<"vascular_refinement=pass equal_duration_s="<<duration<<" errors_m3="<<errors[0]<<','<<errors[1]<<','<<errors[2]<<'\n';
 }
+void humanRegional(const std::string& path) {
+    VascularNetworkSource network;
+    std::string error;
+    need(readHumanPhysiologyNetwork(path, network, &error), error);
+    need(network.compartments.size() == 21u && network.connections.size() == 24u &&
+         network.species.empty() && network.tissues.empty() && network.exchanges.empty(),
+         "CVSim21 source graph topology changed");
+    const auto nonzeroIdentity = [](const std::array<std::uint64_t, 4>& identity) {
+        return std::any_of(identity.begin(), identity.end(), [](std::uint64_t value) {
+            return value != 0u;
+        });
+    };
+    need(nonzeroIdentity(network.contentIdentity) &&
+         nonzeroIdentity(network.sourceIdentity) &&
+         nonzeroIdentity(network.authoredIdentity),
+         "CVSim21 source identities are absent");
+    const auto compartment = [&](const char* suffix) {
+        const std::string wanted = suffix;
+        for (const auto& candidate : network.compartments) {
+            if (candidate.anatomicalIdentifier.size() >= wanted.size() &&
+                candidate.anatomicalIdentifier.compare(
+                    candidate.anatomicalIdentifier.size() - wanted.size(),
+                    wanted.size(), wanted) == 0) {
+                return candidate.stableIdentifier;
+            }
+        }
+        throw std::runtime_error(std::string("CVSim21 source compartment missing: ") + suffix);
+    };
+    network.species.push_back({1001u, "oxygen_amount", 1.0e-3, 1.0e-5});
+    for (auto& candidate : network.compartments) {
+        candidate.initialSpeciesAmounts = {0.20 * candidate.initialVolume};
+    }
+    struct Bed {
+        const char* region;
+        const char* arterial;
+        const char* venous;
+        double candidateVolume;
+    };
+    constexpr std::array<Bed, 7> beds{{
+        {"right_lung", "pulmonary_arteries", "pulmonary_veins", 8.735690598687958e-05},
+        {"left_lung", "pulmonary_arteries", "pulmonary_veins", 8.340118835074067e-05},
+        {"right_kidney", "renal_arteries", "renal_veins", 1.0687769971363567e-04},
+        {"left_kidney", "renal_arteries", "renal_veins", 1.0374115500169420e-04},
+        {"stomach", "splanchnic_arteries", "splanchnic_veins", 5.664554569713276e-04},
+        {"pancreas", "splanchnic_arteries", "splanchnic_veins", 1.2977908046225777e-04},
+        {"liver", "splanchnic_arteries", "splanchnic_veins", 1.1080525283765639e-03},
+    }};
+    for (std::size_t i = 0; i < beds.size(); ++i) {
+        const auto arterial = compartment(beds[i].arterial);
+        const auto venous = compartment(beds[i].venous);
+        need(arterial != venous, "regional bed arterial and venous owners alias");
+        VascularTissueSource tissue;
+        tissue.stableIdentifier = 2001u + static_cast<std::uint32_t>(i);
+        tissue.anatomicalIdentifier = std::string("Human/BodyParts3D/") + beds[i].region;
+        tissue.volume = beds[i].candidateVolume;
+        tissue.initialSpeciesAmounts = {0.05 * tissue.volume};
+        network.tissues.push_back(std::move(tissue));
+        network.exchanges.push_back({
+            3001u + static_cast<std::uint32_t>(i), arterial,
+            2001u + static_cast<std::uint32_t>(i), 1001u, 1.0e-5, 1.0
+        });
+    }
+    constexpr unsigned steps = 512u;
+    constexpr unsigned rejectedStep = 37u;
+    constexpr double timestep = 1.25e-5;
+    constexpr double bloodDensity = 1060.0;
+    Run run(sourceFor(std::move(network), timestep));
+    need(run.world.vascular.layout.counts.x == 21u &&
+         run.world.vascular.layout.counts.z == 1u &&
+         run.world.vascular.layout.counts.w == beds.size(),
+         "regional source layout lost blood or tissue rows");
+    const auto initial = run.state();
+    need(std::abs(run.runtime.timestepSeconds() - timestep) < 1.0e-5 * timestep,
+         "regional exchange did not retain the exact 12.5 us timestep");
+    const auto total = [&](const RuntimeStateSnapshot& snapshot, unsigned environment) {
+        struct Totals {
+            double volume = 0.0;
+            double bloodMass = 0.0;
+            double oxygen = 0.0;
+        };
+        Totals result;
+        const auto& layout = run.world.vascular.layout;
+        for (std::uint32_t i = 0; i < layout.counts.x; ++i) {
+            result.volume += value(run, snapshot, layout.offsets.x + i, environment);
+            result.oxygen += value(run, snapshot,
+                layout.offsets.z + i * layout.counts.z, environment);
+        }
+        result.bloodMass = result.volume * bloodDensity;
+        for (std::uint32_t i = 0; i < layout.counts.w; ++i) {
+            result.oxygen += value(run, snapshot,
+                layout.offsets.w + i * layout.counts.z, environment);
+        }
+        return result;
+    };
+    const auto initialTotals = total(initial, 0u);
+    need(initialTotals.volume > 0.005 && initialTotals.oxygen > 0.0,
+         "regional source initial conserved totals are empty");
+    double maximumVolumeError = 0.0;
+    double maximumBloodMassError = 0.0;
+    double maximumOxygenError = 0.0;
+    const auto verify = [&](const RuntimeStateSnapshot& snapshot) {
+        for (unsigned environment = 0; environment < 2u; ++environment) {
+            const auto current = total(snapshot, environment);
+            const double volumeError = std::abs(current.volume - initialTotals.volume) /
+                initialTotals.volume;
+            const double bloodMassError =
+                std::abs(current.bloodMass - initialTotals.bloodMass) /
+                initialTotals.bloodMass;
+            const double oxygenError = std::abs(current.oxygen - initialTotals.oxygen) /
+                initialTotals.oxygen;
+            maximumVolumeError = std::max(maximumVolumeError, volumeError);
+            maximumBloodMassError = std::max(maximumBloodMassError, bloodMassError);
+            maximumOxygenError = std::max(maximumOxygenError, oxygenError);
+            need(volumeError < 5.0e-5 && bloodMassError < 5.0e-5 &&
+                     oxygenError < 5.0e-5,
+                 "regional blood mass, volume, or oxygen amount was not conserved");
+        }
+    };
+    const auto runSequence = [&]() {
+        for (unsigned step = 0; step < steps; ++step) {
+            if (step == rejectedStep) {
+                const auto before = run.state();
+                run.step(step, 0);
+                const auto after = run.state();
+                const auto stride = run.world.vascular.unknowns.size();
+                need(std::memcmp(before.vascularState.data(), after.vascularState.data(),
+                                 stride * sizeof(nm_float4)) == 0 &&
+                     std::memcmp(before.vascularClock.data(), after.vascularClock.data(),
+                                 sizeof(NMVascularClockGPU)) == 0,
+                     "rejected regional candidate changed accepted environment");
+            } else {
+                run.step(step);
+            }
+            verify(run.state());
+        }
+        return run.state();
+    };
+    const auto finalState = runSequence();
+    need(!same(initial.vascularState, finalState.vascularState),
+         "regional blood/tissue state did not evolve");
+    const auto tissueOffset = run.world.vascular.layout.offsets.w;
+    need(std::abs(value(run, finalState, tissueOffset, 0u) -
+                  value(run, initial, tissueOffset, 0u)) > 0.0,
+         "regional tissue exchange did not change a tissue amount");
+    const auto quantum = std::bit_cast<std::int32_t>(run.world.vascular.layout.clock.x);
+    const auto ticks = static_cast<std::uint64_t>(
+        std::ldexp(run.runtime.timestepSeconds(), -quantum));
+    need(finalState.vascularClock[0].low == (steps - 1u) * ticks &&
+         finalState.vascularClock[1].low == steps * ticks &&
+         finalState.vascularClock[0].high == 0u &&
+         finalState.vascularClock[1].high == 0u,
+         "regional exact clock did not match accepted/rejected steps c0=" +
+             std::to_string(finalState.vascularClock[0].low) + " c1=" +
+             std::to_string(finalState.vascularClock[1].low) + " ticks=" +
+             std::to_string(ticks) + " h0=" +
+             std::to_string(finalState.vascularClock[0].high) + " h1=" +
+             std::to_string(finalState.vascularClock[1].high));
+    need(run.runtime.restore(initial).encoded, "regional snapshot restore failed");
+    const auto replayState = runSequence();
+    need(same(finalState.vascularState, replayState.vascularState) &&
+         same(finalState.vascularClock, replayState.vascularClock),
+         "regional source replay was not bitwise identical");
+    std::cout << "human_regional_exchange=pass source_compartments=21 source_edges=24 "
+              << "regional_beds=7 attempted_steps=" << steps
+              << " accepted_environment0=" << (steps - 1u)
+              << " rejected_step=" << rejectedStep
+              << " timestep_ns=12500 blood_density_candidate_kg_m3=" << bloodDensity
+              << " volume_conservation_max=" << maximumVolumeError
+              << " blood_mass_conservation_max=" << maximumBloodMassError
+              << " oxygen_conservation_max=" << maximumOxygenError
+              << " rollback=bitwise replay=bitwise source_identity=retained "
+                 "density_material_calibration=unqualified\n";
+}
 }
 int main(int argc,const char* argv[]){@autoreleasepool{try{
     std::cout<<std::setprecision(10);
     if(argc==3 && std::string(argv[1])=="--human-input") {VascularNetworkSource n;std::string error;need(readHumanPhysiologyNetwork(argv[2],n,&error),error);need(n.compartments.size()==2&&n.connections.size()==1&&n.species.size()==1&&n.tissues.size()==1&&n.exchanges.size()==1,"reference requires two-pool fixture");qualify(n,"human_compiled_fixture");}
-    else {need(argc==1,"usage: numi-matter-vascular-check [--human-input FIXTURE.json]");
+    else if(argc==3 && std::string(argv[1])=="--human-regional") {humanRegional(argv[2]);}
+    else {need(argc==1,"usage: numi-matter-vascular-check [--human-input FIXTURE.json | --human-regional CVSIM21.json]");
         qualify(vascularFixture(),"resistive_exchange");auto reverse=vascularFixture();std::swap(reverse.compartments[0].initialVolume,reverse.compartments[1].initialVolume);qualify(reverse,"reverse_flow");
         auto inertial=vascularFixture();inertial.connections[0].inertance=1e7;qualify(inertial,"inertial_flow");qualify(vascularFixture(),"fem_region",true);valveTransport();branched();refinement();clockLifecycle();}
     std::cout<<"vascular_native_qualification=pass runtime_input=nmatterpack biological_calibration=unqualified\n";return 0;
