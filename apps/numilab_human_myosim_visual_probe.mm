@@ -2571,6 +2571,8 @@ struct MuscleDrivenVisualState {
     double selectedControlBaselineElapsedMilliseconds = 0.0;
     bool rootAssistanceEnabled = false;
     bool assistanceRemovalEvaluated = false;
+    bool sourceConstraintPreloadApplied = false;
+    double sourceConstraintPreloadMaximumNewtons = 0.0;
     std::uint32_t persistentCompletedSteps = 0u;
     double persistentMaximumAcceleration = 0.0;
     double persistentMaximumPenetrationMeters = 0.0;
@@ -3982,6 +3984,24 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             timestepSeconds
         );
     states = initialFiberEquilibrium.states;
+    std::vector<float> preloadedGeneralizedForce(model.world.nv, 0.0f);
+    require(
+        compiledActivation.generalizedJointEqualityForce.size() ==
+                model.world.nv &&
+            compiledActivation.generalizedPositionLimitForce.size() ==
+                model.world.nv,
+        "persistent Human source equilibrium did not publish constraint reactions"
+    );
+    for (std::size_t dof = 0u; dof < model.world.nv; ++dof) {
+        preloadedGeneralizedForce[dof] = static_cast<float>(
+            compiledActivation.generalizedJointEqualityForce[dof] +
+            compiledActivation.generalizedPositionLimitForce[dof]
+        );
+        require(
+            std::isfinite(preloadedGeneralizedForce[dof]),
+            "persistent Human source constraint preload is non-finite"
+        );
+    }
     metalrobo::NumiHumanTendonMetalProgram tendonProgram;
     const auto tendonPack = metalrobo::makeNumiHumanTendonMetalProgram(
         muscles.tendonPayload,
@@ -4014,6 +4034,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         },
         .stand = {
             .v = v,
+            .preloadedGeneralizedForce = preloadedGeneralizedForce,
             .contacts = queries.supportContacts,
             .jointEqualities = jointEqualities.payload.records,
             .tendonBindings = tendonProgram.bindings,
@@ -4159,6 +4180,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     parityInput.stand.stepCount = 1u;
     parityInput.stand.enableContact = false;
     parityInput.stand.jointEqualities = {};
+    parityInput.stand.preloadedGeneralizedForce = {};
     parityInput.stand.enableRootAssistance = false;
     parityInput.stand.assistanceGains = {0.0f, 0.0f, 0.0f, 0.0f};
     metalrobo::MetalArticulatedOperatorResult parityResult;
@@ -4760,6 +4782,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     );
     result.persistentRootAssistanceForce = assistedStatus.factorAndAssistance.z;
     result.persistentRootAssistanceTorque = assistedStatus.factorAndAssistance.w;
+    result.sourceConstraintPreloadApplied = true;
+    for (const float value : preloadedGeneralizedForce) {
+        result.sourceConstraintPreloadMaximumNewtons = std::max(
+            result.sourceConstraintPreloadMaximumNewtons,
+            std::abs(static_cast<double>(value))
+        );
+    }
     result.compiledActiveMuscleCount = compiledActivation.activeMuscleCount;
     result.compiledActivationResidualRms =
         compiledActivation.normalizedResidualRms;
@@ -17317,6 +17346,11 @@ int main(int argc, char** argv) {
                               muscleDrivenState->rootAssistanceEnabled ? "world_root_wrench" : "none")
                       << " persistent_assistance_removal=" << (muscleDrivenState.has_value() &&
                               muscleDrivenState->assistanceRemovalEvaluated ? "evaluated" : "not_evaluated")
+                      << " source_constraint_preload=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->sourceConstraintPreloadApplied
+                                  ? "static_equality_plus_position_limit" : "none")
+                      << " source_constraint_preload_max_n=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->sourceConstraintPreloadMaximumNewtons : 0.0)
                       << " persistent_max_acceleration=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->persistentMaximumAcceleration : 0.0)
                       << " persistent_max_penetration_m=" << (muscleDrivenState.has_value()

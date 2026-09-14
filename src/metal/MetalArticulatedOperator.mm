@@ -1128,6 +1128,7 @@ bool validNumiHumanStand(
     if (!stand.enabled()) {
         if (!stand.v.empty() || !stand.contacts.empty() ||
             !stand.jointEqualities.empty() ||
+            !stand.preloadedGeneralizedForce.empty() ||
             !stand.tendonBindings.empty() || !stand.tendonEnvelopes.empty() ||
             stand.tendonLoadProgram.configured() ||
             stand.numanXTransactionProgram.configured() ||
@@ -1201,6 +1202,18 @@ bool validNumiHumanStand(
             return std::isfinite(value);
         })) {
         reason = "stand velocity stream is not finite environment-major nv state";
+        return false;
+    }
+    if (!stand.preloadedGeneralizedForce.empty() &&
+        stand.preloadedGeneralizedForce.size() != expectedVelocityCount) {
+        reason = "stand generalized constraint preload is not environment-major nv state";
+        return false;
+    }
+    if (!std::all_of(
+            stand.preloadedGeneralizedForce.begin(),
+            stand.preloadedGeneralizedForce.end(),
+            [](const float value) { return std::isfinite(value); })) {
+        reason = "stand generalized constraint preload contains a non-finite value";
         return false;
     }
     if (!finite(stand.groundPoint) || !finite(stand.groundNormal) ||
@@ -2193,6 +2206,12 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
                         constraintVectorElements) ||
             !checkedMultiply(articulation.nv, 3u,
                              vectorPerEnvironment) ||
+            // Reserve one nv-vector prefix for an optional source-equilibrium
+            // generalized constraint preload. The remaining arena layout is
+            // unchanged and retains the bias/candidate/workspace/constraint
+            // vectors at an offset after that prefix.
+            !checkedAdd(vectorPerEnvironment, articulation.nv,
+                        vectorPerEnvironment) ||
             !checkedAdd(vectorPerEnvironment, constraintVectorElements,
                         vectorPerEnvironment) ||
             !checkedMultiply(input.environmentCount, vectorPerEnvironment,
@@ -3711,6 +3730,13 @@ void uploadBatch(
                 context.standBuffers[index].contents,
                 0,
                 requirements.standEntries[index].allocationBytes
+            );
+        }
+        if (!input.stand.preloadedGeneralizedForce.empty()) {
+            std::memcpy(
+                context.standBuffers[kStandVectorBuffer].contents,
+                input.stand.preloadedGeneralizedForce.data(),
+                input.stand.preloadedGeneralizedForce.size() * sizeof(float)
             );
         }
         copyToBuffer(

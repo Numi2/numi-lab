@@ -1549,6 +1549,11 @@ private:
 // Root assistance is a world wrench on the floating base, never joint torque.
 struct MetalNumiHumanStandInput {
     std::span<const float> v{};
+    // Optional source-equilibrium generalized constraint preload, one nv
+    // vector per environment. It carries the accepted static equality/limit
+    // reaction into the first release so the dynamic owner does not have to
+    // rediscover a known reaction through a serial impulse projection.
+    std::span<const float> preloadedGeneralizedForce{};
     std::span<const MRNumiHumanStandContactGPU> contacts{};
     // Exact scalar joint manifold imported from the source model. These rows
     // carry bilateral reaction impulses during dynamics; dependent q/v are

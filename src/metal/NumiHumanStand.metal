@@ -223,9 +223,10 @@ kernel void mr_numi_human_stand_step(
     const uint spatialBase = environment * bodyCount * 6u * nv;
     const uint bodyMotionBase = environment * bodyCount * 2u;
     const uint factorBase = environment * nv * nv;
-    const uint vectorStride = 3u * nv +
+    const uint vectorStride = nv + 3u * nv +
         12u * dispatch.supportContactCount + dispatch.jointEqualityCount;
-    const uint vectorBase = environment * vectorStride;
+    const uint preloadBase = environment * vectorStride;
+    const uint vectorBase = preloadBase + nv;
     const uint responseBase = environment *
         (dispatch.supportContactCount * 3u + dispatch.jointEqualityCount) * nv;
     device float* bias = vectorScratch + vectorBase;
@@ -673,7 +674,8 @@ kernel void mr_numi_human_stand_step(
     // are converted to generalized force through the same point Jacobians
     // used by the runtime contact solver; they are not root assistance.
     for (uint dof = 0u; dof < nv; ++dof) {
-        float effort = generalizedForceWorkspace[forceBase + dof];
+        float effort = generalizedForceWorkspace[forceBase + dof] +
+            vectorScratch[preloadBase + dof];
         if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
             for (uint contact = 0u;
                  contact < dispatch.supportContactCount;
