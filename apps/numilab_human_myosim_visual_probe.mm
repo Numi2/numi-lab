@@ -64,6 +64,7 @@ constexpr std::array<char, 8u> kExtensorHoodMagic{
 };
 constexpr std::uint32_t kPayloadAbi = 1u;
 constexpr std::uint32_t kMusclePayloadAbi = 2u;
+constexpr double kDefaultPersistentStandActivationCap = 0.8;
 constexpr std::uint32_t kBodySemantic = 51001u;
 constexpr std::uint32_t kSiteSemantic = 51002u;
 constexpr std::uint32_t kRouteSemantic = 51003u;
@@ -16041,7 +16042,7 @@ int main(int argc, char** argv) {
                                 *jointEqualityPayload,
                                 *muscleStepSeconds,
                                 muscleStepCount.value_or(1u),
-                                muscleActivation.value_or(0.5),
+                                muscleActivation.value_or(kDefaultPersistentStandActivationCap),
                                 selectedSourceMuscleActivations,
                                 false,
                                 standRootAssistance,
@@ -16160,7 +16161,7 @@ int main(int argc, char** argv) {
                                 *jointEqualityPayload,
                                 *muscleStepSeconds,
                                 muscleStepCount.value_or(1u),
-                                muscleActivation.value_or(0.5),
+                                muscleActivation.value_or(kDefaultPersistentStandActivationCap),
                                 selectedSourceMuscleActivations,
                                 selectedTendonControl,
                                 standRootAssistance,
@@ -17291,7 +17292,11 @@ int main(int argc, char** argv) {
                       << " muscle_step_count=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->stepCount : 0u)
                       << " muscle_activation=" << (muscleStepSeconds.has_value()
-                              ? muscleActivation.value_or(0.5) : 0.0)
+                              ? muscleActivation.value_or(
+                                  persistentMetalStand
+                                      ? kDefaultPersistentStandActivationCap
+                                      : 0.5)
+                              : 0.0)
                       << " muscle_activation_scope=" << (muscleDrivenState.has_value()
                               ? (muscleDrivenState->selectedTendonControl
                                   ? "selected_increment_over_compiled_posture"
