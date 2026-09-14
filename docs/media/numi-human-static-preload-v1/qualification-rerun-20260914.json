@@ -1,0 +1,56 @@
+{
+  "schema": "numi.human.static-preload.requalification.v1",
+  "recorded_utc": "2026-09-14T12:57:02Z",
+  "code_commit": "e51edddf5c0d36ed4547e6b740e32f1c950ad468",
+  "branch": "human-completion-static-preload",
+  "host": "Apple M4 Pro Mac mini via ssh macmini",
+  "source_receipt": "docs/media/numi-human-static-preload-v1/qualification.json",
+  "source_receipt_sha256": "d8fc090f571e1f67630003cee41d228b6a71bf116247383c49ca92f221d72ebd",
+  "payloads": {
+    "rigid": {
+      "path": "/Users/n/NumiHumanCurrent/myosim-fullbody-core-reference.nhrigid",
+      "sha256": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44"
+    },
+    "muscle": {
+      "path": "/Users/n/NumiHumanCurrent/myosim-fullbody-muscle-reference.nhmyo",
+      "sha256": "9a988f19a6fd8e533cd0f2bf3192cb8535fb008ccd394ffbf1a4432d3db76a05"
+    },
+    "support": {
+      "path": "/Users/n/NumiHumanCurrent/myosim-fullbody-support-contact.nhcnt",
+      "sha256": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907"
+    },
+    "equalities": {
+      "path": "/Users/n/NumiHumanCurrent/myosim-fullbody-joint-equalities.nheq",
+      "sha256": "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a"
+    },
+    "tendon": {
+      "path": "/Users/n/NumiHumanCurrent/numi-human-tendon-attachments.nhtendon",
+      "sha256": "a594194f510eb4aa990a8767f868f999a10b4fedb745c8665368a231ed39b555"
+    }
+  },
+  "reproduction": {
+    "step_seconds": 1.25e-05,
+    "steps": 64,
+    "duration_seconds": 0.0008,
+    "one_step_persistent_max_acceleration_m_s2": 3.00897479057,
+    "repeat_64_step_persistent_max_acceleration_m_s2": 7.71253347397,
+    "repeat_64_step_persistent_normal_impulse": 3.95996576117e-05,
+    "repeat_64_step_max_velocity_delta": 0.00596422795206,
+    "repeat_64_step_max_configuration_delta": 3.80200799555e-06,
+    "static_preload_l1": 3943.85030127,
+    "deterministic_repeat": true,
+    "build": "PASS",
+    "result": "The original 5.75767946243 m/s2 64-step field is contradicted by the clean rebuild and repeat under the same commit and payload hashes; the repeat is retained as the current value."
+  },
+  "checks": {
+    "clean_rebuild": "PASS",
+    "one_step_12_5us": "PASS",
+    "repeat_64_step_12_5us": "PASS",
+    "deterministic_repeat": "PASS",
+    "static_balanced": "OPEN",
+    "sustained_standing": "OPEN",
+    "perturbation_recovery": "OPEN",
+    "walking": "OPEN"
+  },
+  "scope": "This requalification corrects the contradictory 64-step receipt. It proves only bounded deterministic release and source reaction handoff for one adult reference model; it does not claim standing, walking, biological, material, or clinical qualification."
+}
