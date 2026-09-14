@@ -13880,6 +13880,21 @@ double parseMuscleActivation(const std::string& value) {
     return result;
 }
 
+double parseWholeBodyActivationCap(const std::string& value) {
+    std::size_t parsed = 0u;
+    double result = 0.0;
+    try {
+        result = std::stod(value, &parsed);
+    } catch (const std::exception&) {
+        throw std::runtime_error(
+            "--whole-body-activation-cap must be a finite decimal from 0 through 1");
+    }
+    require(
+        parsed == value.size() && std::isfinite(result) && result > 0.0 && result <= 1.0,
+        "--whole-body-activation-cap must be a finite decimal greater than 0 and no greater than 1");
+    return result;
+}
+
 double parseOpenKneeFlexionRadians(const std::string& value) {
     std::size_t parsed = 0u;
     double result = 0.0;
@@ -14166,6 +14181,7 @@ int main(int argc, char** argv) {
             std::optional<std::filesystem::path> anteriorThoraxPayloadPath;
             std::optional<std::uint32_t> requestedCameraIndex;
             std::optional<std::uint32_t> wholeBodyActivationSweeps;
+            std::optional<double> wholeBodyActivationCap;
             std::optional<std::uint32_t> wholeBodyPoseSweeps;
             std::vector<std::pair<std::uint32_t, double>> requestedPoseCoordinates;
             std::uint32_t frameDimension = kDefaultFrameDimension;
@@ -14242,6 +14258,11 @@ int main(int argc, char** argv) {
                             "value and may be given only once");
                     wholeBodyActivationSweeps.emplace(
                         parseWholeBodyActivationSweeps(argv[++index]));
+                } else if (argument == "--whole-body-activation-cap") {
+                    require(index + 1 < argc && !wholeBodyActivationCap.has_value(),
+                            "--whole-body-activation-cap requires one value and may be given only once");
+                    wholeBodyActivationCap.emplace(
+                        parseWholeBodyActivationCap(argv[++index]));
                 } else if (argument == "--whole-body-pose-sweeps") {
                     require(index + 1 < argc && !wholeBodyPoseSweeps.has_value(),
                             "--whole-body-pose-sweeps requires one value and may be given only once");
@@ -14772,6 +14793,10 @@ int main(int argc, char** argv) {
                         wholeBodySupportCertificate,
                     "--whole-body-activation-sweeps requires "
                     "--whole-body-support-certificate");
+            require(!wholeBodyActivationCap.has_value() ||
+                        wholeBodySupportCertificate,
+                    "--whole-body-activation-cap requires "
+                    "--whole-body-support-certificate");
             require(!wholeBodyAllResiduals || wholeBodySupportCertificate,
                     "--whole-body-all-residuals requires "
                     "--whole-body-support-certificate");
@@ -15097,13 +15122,13 @@ int main(int argc, char** argv) {
                 const CompiledStandActivation support =
                     compileStaticStandActivation(
                         rigid.model, musclePayload, *jointEqualityPayload,
-                        aligned.q, 1.0, {}, &*supportContactPayload,
+                        aligned.q, wholeBodyActivationCap.value_or(1.0), {}, &*supportContactPayload,
                         passiveCouplings,
                         wholeBodyActivationSweeps.value_or(240u), true, wholeBodyPoseSweeps, *muscleStepSeconds);
                 const CompiledStandActivation replaySupport =
                     compileStaticStandActivation(
                         rigid.model, musclePayload, *jointEqualityPayload,
-                        aligned.q, 1.0, {}, &*supportContactPayload,
+                        aligned.q, wholeBodyActivationCap.value_or(1.0), {}, &*supportContactPayload,
                         passiveCouplings,
                         wholeBodyActivationSweeps.value_or(240u), true, wholeBodyPoseSweeps, *muscleStepSeconds);
                 const auto bitwiseEqual = [](const auto& first,
@@ -15170,7 +15195,7 @@ int main(int argc, char** argv) {
                     fifthMcpLowerStopCounterfactual.emplace(
                         compileStaticStandActivation(
                             rigid.model, musclePayload,
-                            *jointEqualityPayload, counterfactualQ, 1.0, {},
+                            *jointEqualityPayload, counterfactualQ, wholeBodyActivationCap.value_or(1.0), {},
                             &*supportContactPayload, passiveCouplings,
                             wholeBodyActivationSweeps.value_or(240u), true, wholeBodyPoseSweeps, *muscleStepSeconds
                         )
@@ -15178,7 +15203,7 @@ int main(int argc, char** argv) {
                     const CompiledStandActivation counterfactualReplay =
                         compileStaticStandActivation(
                             rigid.model, musclePayload,
-                            *jointEqualityPayload, counterfactualQ, 1.0, {},
+                            *jointEqualityPayload, counterfactualQ, wholeBodyActivationCap.value_or(1.0), {},
                             &*supportContactPayload, passiveCouplings,
                             wholeBodyActivationSweeps.value_or(240u), true, wholeBodyPoseSweeps, *muscleStepSeconds
                         );
@@ -15378,6 +15403,8 @@ int main(int argc, char** argv) {
                           << support.normalizedResidualRms
                           << " activation_sweeps="
                           << support.activationSweeps
+                          << " activation_cap="
+                          << wholeBodyActivationCap.value_or(1.0)
                           << " global_activation_polish_iterations="
                           << support.globalActivationPolishIterations
                           << " accepted_global_activation_polish_steps="
