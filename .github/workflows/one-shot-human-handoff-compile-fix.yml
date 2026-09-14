@@ -1,0 +1,55 @@
+name: One-shot Human handoff compile fix
+
+on:
+  push:
+    branches:
+      - codex/handoff-compile-fix
+    paths:
+      - .github/workflows/one-shot-human-handoff-compile-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/handoff-compile-fix
+          fetch-depth: 0
+      - name: Retain driven standing force
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('apps/numilab_human_myosim_visual_probe.mm')
+          source = path.read_text(encoding='utf-8')
+          replacements = [
+              (
+                  '    std::vector<double> muscleTendonForce;\n    std::vector<double> passiveMuscleTendonForce;\n',
+                  '    std::vector<double> muscleTendonForce;\n    std::vector<double> drivenMuscleTendonForce;\n    std::vector<double> passiveMuscleTendonForce;\n',
+                  'compiled standing state field',
+              ),
+              (
+                  '    result.muscleTendonForce = std::move(compiled.muscleTendonForce);\n    result.passiveMuscleTendonForce =\n',
+                  '    result.muscleTendonForce = std::move(compiled.muscleTendonForce);\n    result.drivenMuscleTendonForce =\n        std::move(compiled.drivenMuscleTendonForce);\n    result.passiveMuscleTendonForce =\n',
+                  'compiled standing state assignment',
+              ),
+          ]
+          for old, new, label in replacements:
+              count = source.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected one match, found {count}')
+              source = source.replace(old, new, 1)
+          path.write_text(source, encoding='utf-8')
+          PY
+          git diff --check
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "Numi Human Lead"
+          git config user.email "33553832+Numi2@users.noreply.github.com"
+          git add apps/numilab_human_myosim_visual_probe.mm
+          git commit -m "Retain driven force in compiled Human stand"
+          git push origin HEAD:codex/handoff-compile-fix
