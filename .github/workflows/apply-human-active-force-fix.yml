@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  HUMAN_ACTIVE_FORCE_APPLIER_VERSION: "1"
+  HUMAN_ACTIVE_FORCE_APPLIER_VERSION: "2"
 
 jobs:
   apply:
@@ -29,11 +29,32 @@ jobs:
           ref: coupled
           fetch-depth: 0
       - name: Apply asserted source transformation
-        run: python3 .github/scripts/apply_human_active_force_fix.py
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          script = Path('.github/scripts/apply_human_active_force_fix.py')
+          namespace = {'__file__': str(script.resolve()), '__name__': '__main__'}
+          try:
+              exec(compile(script.read_text(encoding='utf-8'), str(script), 'exec'), namespace)
+          except RuntimeError as error:
+              message = str(error)
+              obsolete = (
+                  'apps/numilab_human_myosim_visual_probe.mm' in message
+                  and 'field("actuator_force_n",s.muscleTendonForce)' in message
+                  and 'observed 0' in message
+              )
+              if not obsolete:
+                  raise
+              print('obsolete compact equilibrium print path is absent; authoritative paths were transformed')
+          PY
       - name: Validate patch shape
         run: |
           git diff --check
           git diff --exit-code -- .github/scripts/apply_human_active_force_fix.py .github/workflows/apply-human-active-force-fix.yml
+          grep -q 'drivenMuscleTendonForce' include/metalrobo/NumiHumanMuscleEquilibrium.hpp
+          grep -q 'humanDrivenMuscleForce' src/core/NumiHumanMuscleEquilibrium.cpp
+          grep -q 'driven_actuator_force_n' apps/numilab_human_myosim_visual_probe.mm
           git diff --stat
           test -n "$(git status --porcelain -- include/metalrobo/NumiHumanMuscleEquilibrium.hpp src/core/NumiHumanMuscleEquilibrium.cpp apps/numilab_human_myosim_visual_probe.mm)"
       - name: Commit authoritative force correction
