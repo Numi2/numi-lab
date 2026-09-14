@@ -48,7 +48,7 @@ jobs:
       - name: Build Human equilibrium, app, and handoff tests
         run: >-
           cmake --build build-human-handoff
-          --target metalrobo_numi_human_initial_state_test numilab_human_myosim_visual_probe
+          --target metalrobo_numi_human_initial_state_test metalrobo_numilab_human_myosim_visual_probe
           -j 3
       - name: Run NHINIT and handoff contract tests
         run: ctest --test-dir build-human-handoff -R '^numi_human_initial_state$' --output-on-failure -j 1
