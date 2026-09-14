@@ -1,0 +1,47 @@
+Test project /Users/runner/work/numi-lab/numi-lab/build-human-handoff
+    Start 12: numi_human_initial_state
+Could not find executable /Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/metalrobo_numi_human_initial_state_test
+Looked in the following places:
+/Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/metalrobo_numi_human_initial_state_test
+/Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/metalrobo_numi_human_initial_state_test
+/Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/Release/metalrobo_numi_human_initial_state_test
+/Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/Release/metalrobo_numi_human_initial_state_test
+/Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/Debug/metalrobo_numi_human_initial_state_test
+/Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/Debug/metalrobo_numi_human_initial_state_test
+/Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/MinSizeRel/metalrobo_numi_human_initial_state_test
+/Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/MinSizeRel/metalrobo_numi_human_initial_state_test
+/Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/RelWithDebInfo/metalrobo_numi_human_initial_state_test
+/Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/RelWithDebInfo/metalrobo_numi_human_initial_state_test
+/Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/Deployment/metalrobo_numi_human_initial_state_test
+/Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/Deployment/metalrobo_numi_human_initial_state_test
+/Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/Development/metalrobo_numi_human_initial_state_test
+/Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/Development/metalrobo_numi_human_initial_state_test
+Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/metalrobo_numi_human_initial_state_test
+Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/metalrobo_numi_human_initial_state_test
+Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/Release/metalrobo_numi_human_initial_state_test
+Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/Release/metalrobo_numi_human_initial_state_test
+Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/Debug/metalrobo_numi_human_initial_state_test
+Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/Debug/metalrobo_numi_human_initial_state_test
+Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/MinSizeRel/metalrobo_numi_human_initial_state_test
+Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/MinSizeRel/metalrobo_numi_human_initial_state_test
+Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/RelWithDebInfo/metalrobo_numi_human_initial_state_test
+Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/RelWithDebInfo/metalrobo_numi_human_initial_state_test
+Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/Deployment/metalrobo_numi_human_initial_state_test
+Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/Deployment/metalrobo_numi_human_initial_state_test
+Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/Development/metalrobo_numi_human_initial_state_test
+Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/Development/metalrobo_numi_human_initial_state_test
+Unable to find executable: /Users/runner/work/numi-lab/numi-lab/build-human-handoff/bin/metalrobo_numi_human_initial_state_test
+1/1 Test #12: numi_human_initial_state .........***Not Run   0.00 sec
+
+0% tests passed, 1 tests failed out of 1
+
+Label Time Summary:
+initialization    =   0.00 sec*proc (1 test)
+numanx            =   0.00 sec*proc (1 test)
+numi-human        =   0.00 sec*proc (1 test)
+
+Total Test time (real) =   0.01 sec
+
+The following tests FAILED:
+	 12 - numi_human_initial_state (Not Run)                initialization numanx numi-human
+Errors while running CTest
