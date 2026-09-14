@@ -5,19 +5,27 @@ on:
     branches: [coupled]
     paths:
       - "include/metalrobo/NumiHumanStaticDynamicHandoff.hpp"
+      - "include/metalrobo/NumiHumanStaticDynamicHandoff*.hpp"
+      - "include/metalrobo/NumiHumanPreStepMuscleParity.hpp"
+      - "include/metalrobo/NumiHumanDynamicStateSeed.hpp"
       - "include/metalrobo/NumiHumanMuscleEquilibrium.hpp"
       - "src/core/NumiHumanMuscleEquilibrium.cpp"
       - "apps/numilab_human_myosim_visual_probe.mm"
-      - "tests/numi_human_static_dynamic_handoff_cases.hpp"
+      - "tests/numi_human_static_dynamic_handoff_cases*.hpp"
+      - "tests/numi_human_pre_step_muscle_parity_cases.hpp"
       - "tests/numi_human_initial_state_test.cpp"
       - ".github/workflows/human-handoff-contract.yml"
   pull_request:
     paths:
       - "include/metalrobo/NumiHumanStaticDynamicHandoff.hpp"
+      - "include/metalrobo/NumiHumanStaticDynamicHandoff*.hpp"
+      - "include/metalrobo/NumiHumanPreStepMuscleParity.hpp"
+      - "include/metalrobo/NumiHumanDynamicStateSeed.hpp"
       - "include/metalrobo/NumiHumanMuscleEquilibrium.hpp"
       - "src/core/NumiHumanMuscleEquilibrium.cpp"
       - "apps/numilab_human_myosim_visual_probe.mm"
-      - "tests/numi_human_static_dynamic_handoff_cases.hpp"
+      - "tests/numi_human_static_dynamic_handoff_cases*.hpp"
+      - "tests/numi_human_pre_step_muscle_parity_cases.hpp"
       - "tests/numi_human_initial_state_test.cpp"
       - ".github/workflows/human-handoff-contract.yml"
   workflow_dispatch:

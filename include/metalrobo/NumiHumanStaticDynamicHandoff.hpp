@@ -2,3 +2,4 @@
 
 #include "metalrobo/NumiHumanStaticDynamicHandoffAudit.hpp"
 #include "metalrobo/NumiHumanStaticDynamicHandoffJson.hpp"
+#include "metalrobo/NumiHumanPreStepMuscleParity.hpp"
