@@ -9,11 +9,14 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace metalrobo {
 
 inline constexpr std::size_t kNumiHumanHandoffMuscleCount = 416u;
 inline constexpr std::size_t kNumiHumanHandoffDofCount = 128u;
+inline constexpr std::string_view kNumiHumanPassiveBiasPolicy =
+    "legacy_zero_activation_bias_excluded_compliant_tendon_force_retained";
 
 struct NumiHumanHandoffThresholds {
     double activationAbsolute = 1.0e-7;
@@ -21,6 +24,7 @@ struct NumiHumanHandoffThresholds {
     double fiberRelative = 5.0e-6;
     double forceAbsoluteNewtons = 5.0e-2;
     double forceRelative = 5.0e-5;
+    double decompositionAbsoluteNewtons = 1.0e-6;
     double residualAbsolute = 1.0e-3;
     double maximumDampedEquilibriumResidual = 1.0e-5;
 };
@@ -33,14 +37,16 @@ struct NumiHumanHandoffComparison {
     double maximumNormalizedError = 0.0;
     double worstReference = 0.0;
     double worstCandidate = 0.0;
+    double worstAbsoluteDelta = 0.0;
     bool passed = false;
 };
 
 struct NumiHumanDynamicHandoffSnapshot {
     std::span<const double> activation;
     std::span<const double> fiberLengthMeters;
-    std::span<const double> actuatorForceNewtons;
-    std::span<const double> passiveActuatorForceNewtons;
+    std::span<const double> sourceTotalActuatorForceNewtons;
+    std::span<const double> excludedPassiveBiasForceNewtons;
+    std::span<const double> drivenActuatorForceNewtons;
     std::span<const double> dampedEquilibriumResidual;
     std::span<const double> generalizedMuscleForce;
     std::span<const double> generalizedPassiveForce;
@@ -52,8 +58,9 @@ struct NumiHumanDynamicHandoffSnapshot {
 struct NumiHumanStaticDynamicHandoffInput {
     std::span<const double> staticActivation;
     std::span<const double> staticFiberLengthMeters;
-    std::span<const double> staticActuatorForceNewtons;
-    std::span<const double> staticPassiveActuatorForceNewtons;
+    std::span<const double> staticSourceTotalActuatorForceNewtons;
+    std::span<const double> staticExcludedPassiveBiasForceNewtons;
+    std::span<const double> staticDrivenActuatorForceNewtons;
     std::span<const double> staticGeneralizedMuscleForce;
     std::span<const double> staticGeneralizedPassiveForce;
     std::span<const double> staticGeneralizedForceResidual;
@@ -64,8 +71,10 @@ struct NumiHumanStaticDynamicHandoffEvidence {
     bool inputValid = false;
     NumiHumanHandoffComparison activation;
     NumiHumanHandoffComparison fiberLength;
-    NumiHumanHandoffComparison actuatorForce;
-    NumiHumanHandoffComparison passiveActuatorForce;
+    NumiHumanHandoffComparison sourceTotalActuatorForce;
+    NumiHumanHandoffComparison excludedPassiveBiasForce;
+    NumiHumanHandoffComparison drivenActuatorForce;
+    NumiHumanHandoffComparison sourceForceDecomposition;
     NumiHumanHandoffComparison generalizedMuscleForce;
     NumiHumanHandoffComparison generalizedPassiveForce;
     NumiHumanHandoffComparison generalizedForceResidual;
@@ -73,6 +82,7 @@ struct NumiHumanStaticDynamicHandoffEvidence {
     double maximumDampedEquilibriumResidual = 0.0;
     bool activationAndFiberStateParity = false;
     bool perMuscleForceParity = false;
+    bool sourceForceDecompositionClosed = false;
     bool generalizedForceParity = false;
     bool fiberTendonEquilibriumClosed = false;
     bool complete = false;
@@ -100,6 +110,8 @@ inline bool numiHumanHandoffThresholdsValid(
         std::isfinite(value.forceAbsoluteNewtons) &&
         value.forceAbsoluteNewtons >= 0.0 &&
         std::isfinite(value.forceRelative) && value.forceRelative >= 0.0 &&
+        std::isfinite(value.decompositionAbsoluteNewtons) &&
+        value.decompositionAbsoluteNewtons >= 0.0 &&
         std::isfinite(value.residualAbsolute) &&
         value.residualAbsolute >= 0.0 &&
         std::isfinite(value.maximumDampedEquilibriumResidual) &&
@@ -142,6 +154,7 @@ inline NumiHumanHandoffComparison numiHumanHandoffCompare(
             result.worstIndex = index;
             result.worstReference = expected;
             result.worstCandidate = actual;
+            result.worstAbsoluteDelta = delta;
             worstDelta = delta;
         }
     }
@@ -205,10 +218,11 @@ inline bool numiHumanDynamicSnapshotValid(
     };
     if (!muscleVector(value.activation) ||
         !muscleVector(value.fiberLengthMeters) ||
-        !muscleVector(value.actuatorForceNewtons) ||
-        !muscleVector(value.passiveActuatorForceNewtons) ||
+        !muscleVector(value.sourceTotalActuatorForceNewtons) ||
+        !muscleVector(value.excludedPassiveBiasForceNewtons) ||
+        !muscleVector(value.drivenActuatorForceNewtons) ||
         !muscleVector(value.dampedEquilibriumResidual)) {
-        error = "dynamic Human handoff must publish five finite 416-muscle vectors";
+        error = "dynamic Human handoff must publish six finite 416-muscle vectors";
         return false;
     }
     if (!dofVector(value.generalizedMuscleForce) ||
@@ -240,24 +254,25 @@ inline bool numiHumanDynamicSnapshotValid(
     if (!detail::numiHumanDynamicSnapshotValid(input.dynamic, result.error)) {
         return result;
     }
-    const auto staticMuscleVector = [](const std::span<const double> values) {
+    const auto muscleVector = [](const std::span<const double> values) {
         return values.size() == kNumiHumanHandoffMuscleCount &&
             detail::numiHumanHandoffFinite(values);
     };
-    const auto staticDofVector = [](const std::span<const double> values) {
+    const auto dofVector = [](const std::span<const double> values) {
         return values.size() == kNumiHumanHandoffDofCount &&
             detail::numiHumanHandoffFinite(values);
     };
-    if (!staticMuscleVector(input.staticActivation) ||
-        !staticMuscleVector(input.staticFiberLengthMeters) ||
-        !staticMuscleVector(input.staticActuatorForceNewtons) ||
-        !staticMuscleVector(input.staticPassiveActuatorForceNewtons)) {
-        result.error = "static Human handoff must publish four finite 416-muscle vectors";
+    if (!muscleVector(input.staticActivation) ||
+        !muscleVector(input.staticFiberLengthMeters) ||
+        !muscleVector(input.staticSourceTotalActuatorForceNewtons) ||
+        !muscleVector(input.staticExcludedPassiveBiasForceNewtons) ||
+        !muscleVector(input.staticDrivenActuatorForceNewtons)) {
+        result.error = "static Human handoff must publish five finite 416-muscle vectors";
         return result;
     }
-    if (!staticDofVector(input.staticGeneralizedMuscleForce) ||
-        !staticDofVector(input.staticGeneralizedPassiveForce) ||
-        !staticDofVector(input.staticGeneralizedForceResidual)) {
+    if (!dofVector(input.staticGeneralizedMuscleForce) ||
+        !dofVector(input.staticGeneralizedPassiveForce) ||
+        !dofVector(input.staticGeneralizedForceResidual)) {
         result.error = "static Human handoff must publish three finite 128-DoF vectors";
         return result;
     }
@@ -268,13 +283,27 @@ inline bool numiHumanDynamicSnapshotValid(
     result.fiberLength = detail::numiHumanHandoffCompare(
         input.staticFiberLengthMeters, input.dynamic.fiberLengthMeters,
         thresholds.fiberAbsoluteMeters, thresholds.fiberRelative);
-    result.actuatorForce = detail::numiHumanHandoffCompare(
-        input.staticActuatorForceNewtons, input.dynamic.actuatorForceNewtons,
+    result.sourceTotalActuatorForce = detail::numiHumanHandoffCompare(
+        input.staticSourceTotalActuatorForceNewtons,
+        input.dynamic.sourceTotalActuatorForceNewtons,
         thresholds.forceAbsoluteNewtons, thresholds.forceRelative);
-    result.passiveActuatorForce = detail::numiHumanHandoffCompare(
-        input.staticPassiveActuatorForceNewtons,
-        input.dynamic.passiveActuatorForceNewtons,
+    result.excludedPassiveBiasForce = detail::numiHumanHandoffCompare(
+        input.staticExcludedPassiveBiasForceNewtons,
+        input.dynamic.excludedPassiveBiasForceNewtons,
         thresholds.forceAbsoluteNewtons, thresholds.forceRelative);
+    result.drivenActuatorForce = detail::numiHumanHandoffCompare(
+        input.staticDrivenActuatorForceNewtons,
+        input.dynamic.drivenActuatorForceNewtons,
+        thresholds.forceAbsoluteNewtons, thresholds.forceRelative);
+    std::vector<double> reconstructed(kNumiHumanHandoffMuscleCount, 0.0);
+    for (std::size_t muscle = 0u; muscle < reconstructed.size(); ++muscle) {
+        reconstructed[muscle] =
+            input.dynamic.drivenActuatorForceNewtons[muscle] +
+            input.dynamic.excludedPassiveBiasForceNewtons[muscle];
+    }
+    result.sourceForceDecomposition = detail::numiHumanHandoffCompare(
+        input.dynamic.sourceTotalActuatorForceNewtons, reconstructed,
+        thresholds.decompositionAbsoluteNewtons, thresholds.forceRelative);
     result.generalizedMuscleForce = detail::numiHumanHandoffCompare(
         input.staticGeneralizedMuscleForce,
         input.dynamic.generalizedMuscleForce,
@@ -299,7 +328,11 @@ inline bool numiHumanDynamicSnapshotValid(
     result.activationAndFiberStateParity =
         result.activation.passed && result.fiberLength.passed;
     result.perMuscleForceParity =
-        result.actuatorForce.passed && result.passiveActuatorForce.passed;
+        result.sourceTotalActuatorForce.passed &&
+        result.excludedPassiveBiasForce.passed &&
+        result.drivenActuatorForce.passed;
+    result.sourceForceDecompositionClosed =
+        result.sourceForceDecomposition.passed;
     result.generalizedForceParity =
         result.generalizedMuscleForce.passed &&
         result.generalizedPassiveForce.passed &&
@@ -308,7 +341,9 @@ inline bool numiHumanDynamicSnapshotValid(
         result.maximumDampedEquilibriumResidual <=
             thresholds.maximumDampedEquilibriumResidual;
     result.complete = result.activationAndFiberStateParity &&
-        result.perMuscleForceParity && result.generalizedForceParity &&
+        result.perMuscleForceParity &&
+        result.sourceForceDecompositionClosed &&
+        result.generalizedForceParity &&
         result.fiberTendonEquilibriumClosed;
     result.error.clear();
     return result;
@@ -325,9 +360,11 @@ inline bool numiHumanDynamicSnapshotValid(
     const auto flags = output.flags();
     const auto precision = output.precision();
     output << std::setprecision(std::numeric_limits<double>::max_digits10)
-           << "{\"schema\":\"numi.human.dynamic-handoff.v1\","
+           << "{\"schema\":\"numi.human.dynamic-handoff.v2\","
            << "\"stage\":\"pre_step\",\"completed_steps\":0,"
-           << "\"state_owner\":";
+           << "\"passive_bias_policy\":";
+    detail::numiHumanWriteJsonString(output, kNumiHumanPassiveBiasPolicy);
+    output << ",\"state_owner\":";
     detail::numiHumanWriteJsonString(output, snapshot.stateOwner);
     output << ",\"force_owner\":";
     detail::numiHumanWriteJsonString(output, snapshot.forceOwner);
@@ -335,11 +372,15 @@ inline bool numiHumanDynamicSnapshotValid(
     detail::numiHumanWriteJsonVector(output, snapshot.activation);
     output << ",\"fiber_length_m\":";
     detail::numiHumanWriteJsonVector(output, snapshot.fiberLengthMeters);
-    output << ",\"actuator_force_n\":";
-    detail::numiHumanWriteJsonVector(output, snapshot.actuatorForceNewtons);
-    output << ",\"passive_actuator_force_n\":";
+    output << ",\"source_total_actuator_force_n\":";
     detail::numiHumanWriteJsonVector(
-        output, snapshot.passiveActuatorForceNewtons);
+        output, snapshot.sourceTotalActuatorForceNewtons);
+    output << ",\"excluded_passive_bias_force_n\":";
+    detail::numiHumanWriteJsonVector(
+        output, snapshot.excludedPassiveBiasForceNewtons);
+    output << ",\"driven_actuator_force_n\":";
+    detail::numiHumanWriteJsonVector(
+        output, snapshot.drivenActuatorForceNewtons);
     output << ",\"damped_equilibrium_residual\":";
     detail::numiHumanWriteJsonVector(
         output, snapshot.dampedEquilibriumResidual);
