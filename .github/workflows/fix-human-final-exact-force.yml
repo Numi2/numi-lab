@@ -1,0 +1,37 @@
+name: Fix Human final exact driven force
+
+on:
+  push:
+    branches: [coupled]
+    paths:
+      - ".github/scripts/fix_human_final_exact_force.py"
+      - ".github/workflows/fix-human-final-exact-force.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: coupled
+          fetch-depth: 0
+      - name: Correct final exact force owner
+        run: python3 .github/scripts/fix_human_final_exact_force.py
+      - name: Validate correction
+        run: |
+          git diff --check
+          grep -A20 'Publish exact force-law values' src/core/NumiHumanMuscleEquilibrium.cpp | grep -q 'drivenForce'
+          git diff --stat
+      - name: Commit final exact correction
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/core/NumiHumanMuscleEquilibrium.cpp
+          git commit -m "Use driven force in final Human equilibrium state"
+          git push origin HEAD:coupled
