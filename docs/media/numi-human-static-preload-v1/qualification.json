@@ -1,0 +1,91 @@
+{
+  "schema": "numi.human.static-preload.v1",
+  "recorded_utc": "2026-09-14T00:00:00Z",
+  "code_commit": "d4ddbcf39a9e7cf8cbffc9cf7f8a3d02bc2c0be7",
+  "branch": "human-completion-static-preload",
+  "host": "Apple M4 Pro Mac mini via ssh macmini",
+  "payloads": {
+    "rigid": {
+      "path": "/Users/n/NumiHumanCurrent/myosim-fullbody-core-reference.nhrigid",
+      "sha256": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44"
+    },
+    "muscle": {
+      "path": "/Users/n/NumiHumanCurrent/myosim-fullbody-muscle-reference.nhmyo",
+      "sha256": "9a988f19a6fd8e533cd0f2bf3192cb8535fb008ccd394ffbf1a4432d3db76a05"
+    },
+    "support": {
+      "path": "/Users/n/NumiHumanCurrent/myosim-fullbody-support-contact.nhcnt",
+      "sha256": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907"
+    },
+    "equalities": {
+      "path": "/Users/n/NumiHumanCurrent/myosim-fullbody-joint-equalities.nheq",
+      "sha256": "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a"
+    },
+    "tendon": {
+      "path": "/Users/n/NumiHumanCurrent/numi-human-tendon-attachments.nhtendon",
+      "sha256": "a594194f510eb4aa990a8767f868f999a10b4fedb745c8665368a231ed39b555"
+    }
+  },
+  "static_owner": {
+    "bodies": 157,
+    "q": 129,
+    "v": 128,
+    "mass_kg": 97.1319506911,
+    "support_witnesses": 10,
+    "active_supports": 6,
+    "total_support_force_n": 952.864475166,
+    "root_force_residual_n": 1.8716023078e-06,
+    "normalized_residual_rms": 0.860775535128,
+    "max_acceleration_residual": 3.02534584286,
+    "balanced": false,
+    "note": "Static source solver remains a bounded residual certificate; balanced=false is intentionally retained."
+  },
+  "dynamic_release_refinement": [
+    {
+      "timestep_s": 0.0001,
+      "persistent_max_acceleration_m_s2": 2.9227335453,
+      "persistent_normal_impulse": 0.00026492140023,
+      "max_velocity_delta": 0.0006272814353
+    },
+    {
+      "timestep_s": 5e-05,
+      "persistent_max_acceleration_m_s2": 2.97133898735,
+      "persistent_normal_impulse": 0.000132446555654,
+      "max_velocity_delta": 0.000314126547892
+    },
+    {
+      "timestep_s": 2.5e-05,
+      "persistent_max_acceleration_m_s2": 2.99630022049,
+      "persistent_normal_impulse": 6.62191523588e-05,
+      "max_velocity_delta": 0.000157192975166
+    },
+    {
+      "timestep_s": 1.25e-05,
+      "persistent_max_acceleration_m_s2": 3.00897169113,
+      "persistent_normal_impulse": 3.31088049279e-05,
+      "max_velocity_delta": 7.86364253145e-05
+    }
+  ],
+  "dynamic_horizon_12_5us_64_steps": {
+    "steps": 64,
+    "duration_s": 0.0008,
+    "persistent_max_acceleration_m_s2": 5.75767946243,
+    "persistent_normal_impulse": 4.0611368604e-05,
+    "max_velocity_delta": 0.00591177353635,
+    "max_configuration_delta": 2.39629298449e-06,
+    "static_preload_l1": 3943.85591214,
+    "static_preload_max_n": 952.864501953
+  },
+  "checks": {
+    "full_cmake_build": "PASS",
+    "numanx_human_matter_owner_probe": "PASS",
+    "one_step_12_5us": "PASS",
+    "refinement_100_50_25_12_5us": "PASS",
+    "deterministic_10s_standing": "OPEN",
+    "perturbation_recovery": "OPEN",
+    "walking": "OPEN",
+    "subject_calibration": "OPEN",
+    "blood_tissue_material_closure": "OPEN"
+  },
+  "scope": "This receipt proves source-static-reaction handoff and bounded native release stability for one adult reference model. It does not claim standing, walking, biological, material, or clinical qualification."
+}
