@@ -15019,6 +15019,7 @@ int main(int argc, char** argv) {
                 writeReactionVector("reference_fiber_length_m", support.referenceFiberLength);
                 writeReactionVector("actuator_force_n", support.muscleTendonForce);
                 writeReactionVector("passive_actuator_force_n", support.passiveMuscleTendonForce);
+                writeReactionVector("driven_actuator_force_n", support.drivenMuscleTendonForce);
                 std::cout << "}\n";
                 std::cout << std::setprecision(12)
                           << "numi_human_whole_body_support_wrench=ok"

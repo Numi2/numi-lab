@@ -219,8 +219,14 @@ struct NumiHumanMuscleEquilibriumResult {
     // FP64 oracle; the Metal transaction may independently initialize its
     // typed state from the zero sentinel and parity-check the result.
     std::vector<double> fiberLength;
+    // Exact source actuator force before the Human passive-bias policy.
     std::vector<double> muscleTendonForce;
+    // Exact zero-activation source force at the accepted path length.
     std::vector<double> passiveMuscleTendonForce;
+    // Force actually registered in Human standing dynamics. Legacy MuJoCo
+    // muscles exclude their zero-activation bias; compliant muscles retain
+    // their full tendon force, matching mr_mujoco_muscle_active_force_rows.
+    std::vector<double> drivenMuscleTendonForce;
     std::vector<double> generalizedMuscleForce;
     // Signed articulation-local unilateral reaction. Lower stops contribute
     // positive generalized force and upper stops negative generalized force.

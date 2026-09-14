@@ -18,12 +18,23 @@ namespace {
 
 constexpr double kMinimum = 1.0e-12;
 
+[[nodiscard]] double humanDrivenMuscleForce(
+    const double sourceForce,
+    const double zeroActivationForce,
+    const MujocoCompliantMuscleArchitecture& architecture
+) noexcept {
+    const bool compliant = architecture.optimalFiberLength > 0.0 &&
+        architecture.tendonSlackLength > 0.0;
+    return compliant ? sourceForce : sourceForce - zeroActivationForce;
+}
+
 struct PoseState {
     std::vector<double> q;
     std::vector<double> activation;
     std::vector<double> fiberLength;
     std::vector<double> muscleTendonForce;
     std::vector<double> passiveMuscleTendonForce;
+    std::vector<double> drivenMuscleTendonForce;
     std::vector<double> muscleForce;
     std::vector<double> supportNormalForce;
     std::vector<double> supportPlaneGapMeters;
@@ -1192,6 +1203,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     state.fiberLength.assign(muscles.size(), 0.0);
     state.muscleTendonForce.assign(muscles.size(), 0.0);
     state.passiveMuscleTendonForce.assign(muscles.size(), 0.0);
+    state.drivenMuscleTendonForce.assign(muscles.size(), 0.0);
     state.muscleForce.assign(nv, 0.0);
     solveFloatingRootSupportForces(
         articulation, objectiveTarget, supportJacobians, config,
@@ -1229,23 +1241,33 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
         }
         const double passive = forceSamples[muscle * sampleCount];
         state.passiveMuscleTendonForce[muscle] = passive;
-        double initialForce = passive;
+        for (std::uint32_t sample = 0u; sample < sampleCount; ++sample) {
+            const std::size_t index = muscle * sampleCount + sample;
+            forceSamples[index] = humanDrivenMuscleForce(
+                forceSamples[index], passive, architectures[muscle]
+            );
+        }
+        double sourceForce = passive;
         if (initializeFromAcceptedState) {
             diagnostics = evaluateStaticForce(
                 resolved[muscle].pathLength, state.activation[muscle],
                 config.timestep, muscles[muscle], architectures[muscle],
-                initialForce, state.fiberLength[muscle],
+                sourceForce, state.fiberLength[muscle],
                 static_cast<std::uint32_t>(muscle)
             );
             if (!diagnostics.succeeded()) return diagnostics;
         }
-        optimizerForce[muscle] = initialForce;
-        state.muscleTendonForce[muscle] = initialForce;
+        const double drivenForce = humanDrivenMuscleForce(
+            sourceForce, passive, architectures[muscle]
+        );
+        optimizerForce[muscle] = drivenForce;
+        state.muscleTendonForce[muscle] = sourceForce;
+        state.drivenMuscleTendonForce[muscle] = drivenForce;
         for (std::size_t dof = 0u; dof < nv; ++dof) {
             state.muscleForce[dof] +=
-                initialForce * resolved[muscle].jacobian[dof];
+                drivenForce * resolved[muscle].jacobian[dof];
             objectiveMuscleAcceleration[dof] +=
-                initialForce * objectiveJacobians[muscle][dof];
+                drivenForce * objectiveJacobians[muscle][dof];
         }
     }
     state.residual.assign(nv, 0.0);
@@ -1279,6 +1301,8 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
         candidate.activation = state.activation;
         candidate.target = state.target;
         candidate.passiveCoordinateForce = state.passiveCoordinateForce;
+        candidate.passiveMuscleTendonForce =
+            state.passiveMuscleTendonForce;
         candidate.weights = state.weights;
         candidate.supportNormalForce = state.supportNormalForce;
         candidate.supportPlaneGapMeters = state.supportPlaneGapMeters;
@@ -1286,18 +1310,28 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
             articulation, objectiveTarget, supportJacobians, config,
             candidate.supportNormalForce, candidate.supportForce);
         candidate.fiberLength.assign(muscles.size(), 0.0);
+        candidate.muscleTendonForce.assign(muscles.size(), 0.0);
+        candidate.drivenMuscleTendonForce.assign(muscles.size(), 0.0);
         candidate.muscleForce.assign(nv, 0.0);
-        std::vector<double> exactForce(muscles.size(), 0.0);
+        std::vector<double> exactDrivenForce(muscles.size(), 0.0);
         for (std::size_t muscle = 0u; muscle < muscles.size(); ++muscle) {
+            double sourceForce = 0.0;
             auto exactDiagnostics = evaluateStaticForce(
                 resolved[muscle].pathLength, candidate.activation[muscle],
                 config.timestep, muscles[muscle], architectures[muscle],
-                exactForce[muscle], candidate.fiberLength[muscle],
+                sourceForce, candidate.fiberLength[muscle],
                 static_cast<std::uint32_t>(muscle));
             if (!exactDiagnostics.succeeded()) return exactDiagnostics;
+            const double drivenForce = humanDrivenMuscleForce(
+                sourceForce, candidate.passiveMuscleTendonForce[muscle],
+                architectures[muscle]
+            );
+            candidate.muscleTendonForce[muscle] = sourceForce;
+            candidate.drivenMuscleTendonForce[muscle] = drivenForce;
+            exactDrivenForce[muscle] = drivenForce;
             for (std::size_t dof = 0u; dof < nv; ++dof) {
                 candidate.muscleForce[dof] +=
-                    exactForce[muscle] * resolved[muscle].jacobian[dof];
+                    drivenForce * resolved[muscle].jacobian[dof];
             }
         }
         candidate.residual.assign(nv, 0.0);
@@ -1317,7 +1351,10 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
         // Re-anchor the coordinate optimizer to the exact nonlinear force
         // law. Otherwise piecewise interpolation error accumulates across
         // sweeps and a nominal descent direction can leave the exact state.
-        optimizerForce = std::move(exactForce);
+        optimizerForce = std::move(exactDrivenForce);
+        state.muscleTendonForce = candidate.muscleTendonForce;
+        state.drivenMuscleTendonForce =
+            candidate.drivenMuscleTendonForce;
         state.muscleForce = candidate.muscleForce;
         state.supportNormalForce = candidate.supportNormalForce;
         state.supportForce = candidate.supportForce;
@@ -1607,20 +1644,27 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
                 candidate.supportNormalForce, candidate.supportForce);
             candidate.fiberLength.assign(muscles.size(), 0.0);
             candidate.muscleTendonForce.assign(muscles.size(), 0.0);
+            candidate.drivenMuscleTendonForce.assign(muscles.size(), 0.0);
             candidate.muscleForce.assign(nv, 0.0);
             for (std::size_t muscle = 0u; muscle < muscles.size(); ++muscle) {
-                double force = 0.0;
+                double sourceForce = 0.0;
                 diagnostics = evaluateStaticForce(
                     resolved[muscle].pathLength,
                     candidate.activation[muscle], config.timestep,
-                    muscles[muscle], architectures[muscle], force,
+                    muscles[muscle], architectures[muscle], sourceForce,
                     candidate.fiberLength[muscle],
                     static_cast<std::uint32_t>(muscle));
                 if (!diagnostics.succeeded()) return diagnostics;
-                candidate.muscleTendonForce[muscle] = force;
+                const double drivenForce = humanDrivenMuscleForce(
+                    sourceForce,
+                    candidate.passiveMuscleTendonForce[muscle],
+                    architectures[muscle]
+                );
+                candidate.muscleTendonForce[muscle] = sourceForce;
+                candidate.drivenMuscleTendonForce[muscle] = drivenForce;
                 for (std::size_t dof = 0u; dof < nv; ++dof) {
                     candidate.muscleForce[dof] +=
-                        force * resolved[muscle].jacobian[dof];
+                        drivenForce * resolved[muscle].jacobian[dof];
                 }
             }
             candidate.residual.assign(nv, 0.0);
@@ -1751,15 +1795,16 @@ NumiHumanMuscleEquilibriumDiagnostics evaluatePoseWithActivation(
     state.fiberLength.assign(muscles.size(), 0.0);
     state.muscleTendonForce.assign(muscles.size(), 0.0);
     state.passiveMuscleTendonForce.assign(muscles.size(), 0.0);
+    state.drivenMuscleTendonForce.assign(muscles.size(), 0.0);
     for (std::size_t muscle = 0u; muscle < muscles.size(); ++muscle) {
-        double force = 0.0;
+        double sourceForce = 0.0;
         diagnostics = evaluateStaticForce(
             resolved[muscle].pathLength, state.activation[muscle],
-            config.timestep, muscles[muscle], architectures[muscle], force,
-            state.fiberLength[muscle], static_cast<std::uint32_t>(muscle)
+            config.timestep, muscles[muscle], architectures[muscle],
+            sourceForce, state.fiberLength[muscle],
+            static_cast<std::uint32_t>(muscle)
         );
         if (!diagnostics.succeeded()) return diagnostics;
-        state.muscleTendonForce[muscle] = force;
         double passiveForce = 0.0;
         double passiveFiberLength = 0.0;
         diagnostics = evaluateStaticForce(
@@ -1767,10 +1812,15 @@ NumiHumanMuscleEquilibriumDiagnostics evaluatePoseWithActivation(
             muscles[muscle], architectures[muscle], passiveForce,
             passiveFiberLength, static_cast<std::uint32_t>(muscle));
         if (!diagnostics.succeeded()) return diagnostics;
+        const double drivenForce = humanDrivenMuscleForce(
+            sourceForce, passiveForce, architectures[muscle]
+        );
+        state.muscleTendonForce[muscle] = sourceForce;
         state.passiveMuscleTendonForce[muscle] = passiveForce;
+        state.drivenMuscleTendonForce[muscle] = drivenForce;
         for (std::size_t dof = 0u; dof < articulation.nv; ++dof) {
             state.muscleForce[dof] +=
-                force * resolved[muscle].jacobian[dof];
+                drivenForce * resolved[muscle].jacobian[dof];
         }
     }
     state.residual.assign(articulation.nv, 0.0);
@@ -2643,6 +2693,8 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
     candidate.fiberLength = current.fiberLength;
     candidate.muscleTendonForce = current.muscleTendonForce;
     candidate.passiveMuscleTendonForce = current.passiveMuscleTendonForce;
+    candidate.drivenMuscleTendonForce =
+        current.drivenMuscleTendonForce;
     candidate.generalizedMuscleForce = current.muscleForce;
     candidate.generalizedPositionLimitForce = current.limitForce;
     candidate.generalizedJointEqualityForce = current.equalityForce;
