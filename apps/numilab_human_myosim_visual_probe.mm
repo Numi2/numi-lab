@@ -3268,6 +3268,7 @@ struct CompiledStandActivation {
     std::vector<double> generalizedForceResidual;
     std::vector<double> generalizedAccelerationResidual;
     std::vector<double> muscleTendonForce;
+    std::vector<double> drivenMuscleTendonForce;
     std::vector<double> passiveMuscleTendonForce;
     std::vector<double> supportNormalForce;
     std::uint32_t activeMuscleCount = 0u;
@@ -3505,6 +3506,8 @@ CompiledStandActivation compileStaticStandActivation(
     result.generalizedAccelerationResidual =
         std::move(compiled.generalizedAccelerationResidual);
     result.muscleTendonForce = std::move(compiled.muscleTendonForce);
+    result.drivenMuscleTendonForce =
+        std::move(compiled.drivenMuscleTendonForce);
     result.passiveMuscleTendonForce =
         std::move(compiled.passiveMuscleTendonForce);
     result.supportNormalForce = std::move(compiled.supportNormalForce);
