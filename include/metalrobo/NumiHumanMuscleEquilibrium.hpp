@@ -87,6 +87,10 @@ struct NumiHumanMuscleEquilibriumConfig {
     // A separated witness carries exactly zero force; penetration beyond this
     // bound rejects the initial pose or discards a pose-search candidate.
     double supportGapToleranceMeters = 1.0e-6;
+    // Runtime source contacts use a bounded near-plane activation band. The
+    // offline wrench solve must admit the same band while still rejecting
+    // penetration beyond supportGapToleranceMeters.
+    double supportActivationDistanceMeters = 2.0e-3;
     double maximumSupportForceNewtons = 5000.0;
     double supportForceRegularization = 1.0e-14;
     std::uint32_t supportForceSweeps = 4096u;

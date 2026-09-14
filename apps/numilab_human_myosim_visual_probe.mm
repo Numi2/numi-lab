@@ -2558,6 +2558,8 @@ struct MuscleDrivenVisualState {
     std::uint32_t selectedSourceMuscleActivationCount = 0u;
     double muscleMetalElapsedMilliseconds = 0.0;
     double sourceDynamicForceParityMaximumNewtons = 0.0;
+    double sourceSupportForceParityMaximumNewtons = 0.0;
+    std::uint32_t sourceSupportForceParityMaximumDof = MR_INVALID_INDEX;
     std::string muscleMetalDeviceName;
     bool persistentMetalHorizon = false;
     bool selectedTendonControl = false;
@@ -2582,6 +2584,9 @@ struct MuscleDrivenVisualState {
     double compiledMaximumVelocityIncrement = 0.0;
     bool compiledBalanced = false;
     double compiledMaximumActivation = 0.0;
+    std::uint32_t initialFiberEquilibrationIterations = 0u;
+    double initialFiberEquilibrationMaximumLengthDelta = 0.0;
+    double initialFiberEquilibrationMaximumVelocity = 0.0;
     std::uint32_t compiledRecruitedMuscleCount = 0u;
     std::uint32_t compiledActivePositionLimitCount = 0u;
     std::uint32_t compiledAcceptedPoseSteps = 0u;
@@ -3088,8 +3093,11 @@ MetalMujocoForceStep evaluateMetalMujocoForce(
             result.mujocoResults.size() == muscles.gpuMuscles.size() &&
             result.mujocoActivationStates.size() == states.size() &&
             result.mujocoGeneralizedForces.size() == model.world.nv,
-        "MyoSim Metal full-body force transaction failed: " +
-            diagnostics.message
+        "MyoSim Metal full-body force transaction failed: gpu_status=" +
+            std::to_string(diagnostics.firstGPUStatusCode) +
+            " failing_environment=" +
+            std::to_string(diagnostics.firstFailingEnvironment) +
+            " " + diagnostics.message
     );
     MetalMujocoForceStep output;
     output.generalizedForce = std::move(result.mujocoGeneralizedForces);
@@ -3151,11 +3159,50 @@ GroundAlignedSupport makeGroundAlignedSupport(
         support.header.groundNormalY,
         support.header.groundNormalZ,
     }, "MyoSim source ground normal");
-    double minimumGap = std::numeric_limits<double>::infinity();
+    // Align the root to the actual authored support surface, using the same
+    // sphere/ellipsoid support offset as the articulated contact operator.
+    // The NHCNT2 primitive gap is the centre gap; aligning to that value
+    // places every curved witness below the plane by its support radius.
+    std::vector<metalrobo::ArticulatedPointQuery> surfaceQueries;
+    surfaceQueries.reserve(support.records.size());
     for (const SupportContactRecord& record : support.records) {
-        minimumGap = std::min(
-            minimumGap, static_cast<double>(record.defaultSignedPlaneDistance)
-        );
+        surfaceQueries.push_back({
+            record.bodyIndex,
+            {record.localPointX, record.localPointY, record.localPointZ},
+            record.supportRadius,
+            groundNormal,
+            {record.supportRadii[0], record.supportRadii[1], record.supportRadii[2]},
+            {record.supportOrientation[0], record.supportOrientation[1],
+             record.supportOrientation[2], record.supportOrientation[3]},
+        });
+    }
+    std::vector<metalrobo::ArticulatedPointKinematics> surfacePoints(
+        surfaceQueries.size());
+    std::vector<double> surfaceJacobians(
+        surfaceQueries.size() * 3u * model.world.nv, 0.0);
+    metalrobo::ArticulatedDynamicsConfig surfaceDynamics;
+    surfaceDynamics.gravity = {
+        model.world.gravityAndTimestep.x,
+        model.world.gravityAndTimestep.y,
+        model.world.gravityAndTimestep.z,
+    };
+    surfaceDynamics.timestep = std::max(
+        1.0e-6, static_cast<double>(model.world.gravityAndTimestep.w));
+    const std::vector<double> zeroVelocity(model.world.nv, 0.0);
+    const auto surfaceDiagnostics = metalrobo::computeArticulatedPointJacobians(
+        model, 0u, result.q, zeroVelocity, surfaceQueries, surfacePoints,
+        surfaceJacobians, surfaceDynamics);
+    require(surfaceDiagnostics.succeeded(),
+            "MyoSim source support surface kinematics failed");
+    double minimumGap = std::numeric_limits<double>::infinity();
+    for (const auto& point : surfacePoints) {
+        const double gap =
+            (point.position[0] - support.header.groundPointX) * groundNormal[0] +
+            (point.position[1] - support.header.groundPointY) * groundNormal[1] +
+            (point.position[2] - support.header.groundPointZ) * groundNormal[2];
+        require(std::isfinite(gap),
+                "MyoSim source support surface gap is non-finite");
+        minimumGap = std::min(minimumGap, gap);
     }
     require(std::isfinite(minimumGap) && minimumGap >= -1.0e-4 &&
                 minimumGap <= 0.25,
@@ -3491,7 +3538,7 @@ CompiledStandActivation compileStaticStandActivation(
         require(std::isfinite(gap) && gap >= -config.supportGapToleranceMeters,
                 "static Human support compile published penetrating geometry");
         minimumSupportGap = std::min(minimumSupportGap, gap);
-        if (gap > config.supportGapToleranceMeters) {
+        if (gap > config.supportActivationDistanceMeters) {
             ++separatedWitnessCount;
             maximumSeparatedForce = std::max(maximumSeparatedForce,
                 std::abs(compiled.supportNormalForce[index]));
@@ -3505,6 +3552,8 @@ CompiledStandActivation compileStaticStandActivation(
                   << " compiled_support_min_gap_m=" << minimumSupportGap
                   << " compiled_support_gap_tolerance_m="
                   << config.supportGapToleranceMeters
+                  << " compiled_support_activation_distance_m="
+                  << config.supportActivationDistanceMeters
                   << " compiled_support_separated_witnesses="
                   << separatedWitnessCount
                   << " compiled_support_max_separated_force_n="
@@ -3603,6 +3652,93 @@ void reportDeformableContactFailures(const numi::matter::RuntimeStateSnapshot& s
     }
 }
 
+struct InitialMujocoFiberEquilibrium {
+    std::vector<MRMujocoMuscleStateGPU> states;
+    MetalMujocoForceStep force;
+    std::uint32_t iterations = 0u;
+    double maximumLengthDelta = std::numeric_limits<double>::infinity();
+    double maximumFiberVelocity = std::numeric_limits<double>::infinity();
+};
+
+InitialMujocoFiberEquilibrium equilibrateInitialMujocoFiberStates(
+    const metalrobo::EngineModel& model,
+    const LoadedMuscles& muscles,
+    const MetalMujocoVisualQueries& queries,
+    const std::span<const double> q,
+    std::vector<MRMujocoMuscleStateGPU> states,
+    const double runtimeTimestepSeconds
+) {
+    require(!states.empty(),
+            "initial MyoSim fibre equilibration requires source muscles");
+    require(std::isfinite(runtimeTimestepSeconds) &&
+                runtimeTimestepSeconds > 0.0,
+            "initial MyoSim fibre equilibration received an invalid timestep");
+    // This is a fixed-pose nonlinear solve, not a simulated clock advance.
+    // A larger implicit step moves the accepted fibre state to the zero-speed
+    // root quickly while the persistent Human horizon retains the canonical
+    // runtime timestep supplied by the caller.
+    const float solverTimestep = static_cast<float>(std::clamp(
+        runtimeTimestepSeconds * 8.0,
+        1.0e-5,
+        1.0e-4
+    ));
+    const metalrobo::MetalArticulatedOperatorConfig config{
+        .pointJacobiansOnly = true,
+        .mujocoActivationTimestepSeconds = solverTimestep,
+    };
+    metalrobo::MetalArticulatedOperatorContext context(config);
+    InitialMujocoFiberEquilibrium result;
+    result.states = std::move(states);
+    constexpr std::uint32_t kMaximumIterations = 256u;
+    constexpr double kLengthToleranceMeters = 1.0e-7;
+    constexpr double kVelocityToleranceMetersPerSecond = 1.0e-3;
+    bool converged = false;
+    for (std::uint32_t iteration = 0u;
+         iteration < kMaximumIterations; ++iteration) {
+        const std::vector<MRMujocoMuscleStateGPU> previous = result.states;
+        try {
+            result.force = evaluateMetalMujocoForce(
+                model, muscles, queries, q, result.states, context
+            );
+        } catch (const std::exception& exception) {
+            throw std::runtime_error(
+                "initial MyoSim fibre equilibration failed at iteration=" +
+                std::to_string(iteration) + " " + exception.what()
+            );
+        }
+        require(result.states.size() == previous.size(),
+                "initial MyoSim fibre equilibration changed state count");
+        result.maximumLengthDelta = 0.0;
+        result.maximumFiberVelocity = 0.0;
+        for (std::size_t index = 0u; index < result.states.size(); ++index) {
+            const mr_float4 state =
+                result.states[index].excitationAndActivation;
+            require(std::isfinite(state.x) && std::isfinite(state.y) &&
+                        std::isfinite(state.z) && std::isfinite(state.w) &&
+                        state.z >= 0.0f,
+                    "initial MyoSim fibre equilibration produced non-finite state");
+            result.maximumLengthDelta = std::max(
+                result.maximumLengthDelta,
+                std::abs(static_cast<double>(state.z) -
+                         static_cast<double>(previous[index].excitationAndActivation.z))
+            );
+            result.maximumFiberVelocity = std::max(
+                result.maximumFiberVelocity,
+                std::abs(static_cast<double>(state.w))
+            );
+        }
+        result.iterations = iteration + 1u;
+        if (result.maximumLengthDelta <= kLengthToleranceMeters &&
+            result.maximumFiberVelocity <= kVelocityToleranceMetersPerSecond) {
+            converged = true;
+            break;
+        }
+    }
+    require(converged,
+            "initial MyoSim fibre/tendon equilibrium did not converge at the prepared pose");
+    return result;
+}
+
 MuscleDrivenVisualState integratePersistentMetalHumanState(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& muscles,
@@ -3697,6 +3833,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     }
     CompiledStandActivation compiledActivation;
     double sourceDynamicForceParityMaximumNewtons = 0.0;
+    double sourceSupportForceParityMaximumNewtons = 0.0;
+    std::uint32_t sourceSupportForceParityMaximumDof = MR_INVALID_INDEX;
     std::vector<float> selectedControlBaselineActivation;
     if (applySelectedActivationIncrement) {
         compiledActivation = compileStaticStandActivation(
@@ -3753,6 +3891,75 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             &supportContacts,
             compiledActivation.supportNormalForce
         );
+    // Audit the generalized support wrench through the same articulated
+    // point-Jacobian owner used by the runtime contact query. This catches a
+    // source/static versus runtime support-force ownership mismatch before the
+    // first Metal release step.
+    {
+        std::vector<metalrobo::ArticulatedPointQuery> supportQueries;
+        supportQueries.reserve(supportContacts.records.size());
+        for (const SupportContactRecord& record : supportContacts.records) {
+            supportQueries.push_back({
+                record.bodyIndex,
+                {record.localPointX, record.localPointY, record.localPointZ},
+            });
+        }
+        std::vector<metalrobo::ArticulatedPointKinematics> supportPoints(
+            supportQueries.size());
+        std::vector<double> supportJacobians(
+            supportQueries.size() * 3u * model.world.nv, 0.0);
+        std::vector<double> zeroSupportVelocity(model.world.nv, 0.0);
+        metalrobo::ArticulatedDynamicsConfig supportDynamics;
+        supportDynamics.timestep = timestepSeconds;
+        const auto supportDiagnostics =
+            metalrobo::computeArticulatedPointJacobians(
+                model, 0u, compiledActivation.q, zeroSupportVelocity,
+                supportQueries, supportPoints, supportJacobians,
+                supportDynamics);
+        require(
+            supportDiagnostics.succeeded(),
+            "persistent Human support-force parity kinematics failed"
+        );
+        const auto supportNormal = normalizedVector({
+            supportContacts.header.groundNormalX,
+            supportContacts.header.groundNormalY,
+            supportContacts.header.groundNormalZ,
+        }, "persistent Human support-force parity normal");
+        std::vector<double> runtimeSupportForce(model.world.nv, 0.0);
+        for (std::size_t supportIndex = 0u;
+             supportIndex < supportContacts.records.size();
+             ++supportIndex) {
+            const double normalForce =
+                compiledActivation.supportNormalForce[supportIndex];
+            for (std::size_t dof = 0u; dof < model.world.nv; ++dof) {
+                double generalized = 0.0;
+                for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                    generalized += supportNormal[axis] * supportJacobians[
+                        (supportIndex * 3u + axis) * model.world.nv + dof];
+                }
+                runtimeSupportForce[dof] += normalForce * generalized;
+            }
+        }
+        require(
+            runtimeSupportForce.size() ==
+                compiledActivation.generalizedSupportForce.size(),
+            "persistent Human support-force parity dimensions disagree"
+        );
+        for (std::size_t dof = 0u; dof < runtimeSupportForce.size(); ++dof) {
+            const double delta = std::abs(
+                runtimeSupportForce[dof] -
+                compiledActivation.generalizedSupportForce[dof]
+            );
+            if (delta > sourceSupportForceParityMaximumNewtons) {
+                sourceSupportForceParityMaximumNewtons = delta;
+                sourceSupportForceParityMaximumDof =
+                    static_cast<std::uint32_t>(dof);
+            }
+        }
+    }
+    require(compiledActivation.referenceFiberLength.size() ==
+                muscles.gpuMuscles.size(),
+            "stand equilibrium did not publish one fibre length per source route");
     std::vector<MRMujocoMuscleStateGPU> states(muscles.gpuMuscles.size());
     for (std::size_t muscleIndex = 0u;
          muscleIndex < states.size(); ++muscleIndex) {
@@ -3765,6 +3972,16 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             0.0f,
         };
     }
+    const InitialMujocoFiberEquilibrium initialFiberEquilibrium =
+        equilibrateInitialMujocoFiberStates(
+            model,
+            muscles,
+            queries,
+            compiledActivation.q,
+            std::move(states),
+            timestepSeconds
+        );
+    states = initialFiberEquilibrium.states;
     metalrobo::NumiHumanTendonMetalProgram tendonProgram;
     const auto tendonPack = metalrobo::makeNumiHumanTendonMetalProgram(
         muscles.tendonPayload,
@@ -4483,6 +4700,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     );
     result.muscleMetalElapsedMilliseconds = totalElapsedMilliseconds;
     result.sourceDynamicForceParityMaximumNewtons = sourceDynamicForceParityMaximumNewtons;
+    result.sourceSupportForceParityMaximumNewtons = sourceSupportForceParityMaximumNewtons;
+    result.sourceSupportForceParityMaximumDof = sourceSupportForceParityMaximumDof;
     result.muscleMetalDeviceName = diagnostics.deviceName;
     for (const MRMujocoMuscleResultGPU& muscle : metalResult.mujocoResults) {
         result.appliedWrapCount += muscle.appliedWrapCount;
@@ -4553,6 +4772,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     result.compiledBalanced = compiledActivation.balanced;
     result.compiledMaximumActivation =
         compiledActivation.maximumActivation;
+    result.initialFiberEquilibrationIterations =
+        initialFiberEquilibrium.iterations;
+    result.initialFiberEquilibrationMaximumLengthDelta =
+        initialFiberEquilibrium.maximumLengthDelta;
+    result.initialFiberEquilibrationMaximumVelocity =
+        initialFiberEquilibrium.maximumFiberVelocity;
     result.compiledRecruitedMuscleCount =
         compiledActivation.recruitedMuscleCount;
     result.compiledActivePositionLimitCount =
@@ -14845,13 +15070,13 @@ int main(int argc, char** argv) {
                         rigid.model, musclePayload, *jointEqualityPayload,
                         aligned.q, 1.0, {}, &*supportContactPayload,
                         passiveCouplings,
-                        wholeBodyActivationSweeps.value_or(240u), true, wholeBodyPoseSweeps);
+                        wholeBodyActivationSweeps.value_or(240u), true, wholeBodyPoseSweeps, *muscleStepSeconds);
                 const CompiledStandActivation replaySupport =
                     compileStaticStandActivation(
                         rigid.model, musclePayload, *jointEqualityPayload,
                         aligned.q, 1.0, {}, &*supportContactPayload,
                         passiveCouplings,
-                        wholeBodyActivationSweeps.value_or(240u), true, wholeBodyPoseSweeps);
+                        wholeBodyActivationSweeps.value_or(240u), true, wholeBodyPoseSweeps, *muscleStepSeconds);
                 const auto bitwiseEqual = [](const auto& first,
                                              const auto& second) {
                     using Value = typename std::decay_t<decltype(first)>::value_type;
@@ -14918,7 +15143,7 @@ int main(int argc, char** argv) {
                             rigid.model, musclePayload,
                             *jointEqualityPayload, counterfactualQ, 1.0, {},
                             &*supportContactPayload, passiveCouplings,
-                            wholeBodyActivationSweeps.value_or(240u), true, wholeBodyPoseSweeps
+                            wholeBodyActivationSweeps.value_or(240u), true, wholeBodyPoseSweeps, *muscleStepSeconds
                         )
                     );
                     const CompiledStandActivation counterfactualReplay =
@@ -14926,7 +15151,7 @@ int main(int argc, char** argv) {
                             rigid.model, musclePayload,
                             *jointEqualityPayload, counterfactualQ, 1.0, {},
                             &*supportContactPayload, passiveCouplings,
-                            wholeBodyActivationSweeps.value_or(240u), true, wholeBodyPoseSweeps
+                            wholeBodyActivationSweeps.value_or(240u), true, wholeBodyPoseSweeps, *muscleStepSeconds
                         );
                     require(
                         bitwiseEqual(
@@ -17132,6 +17357,12 @@ int main(int argc, char** argv) {
                               muscleDrivenState->compiledBalanced ? "true" : "false")
                       << " compiled_stand_max_activation=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->compiledMaximumActivation : 0.0)
+                      << " initial_fiber_equilibration_iterations=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->initialFiberEquilibrationIterations : 0u)
+                      << " initial_fiber_equilibration_max_length_delta_m=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->initialFiberEquilibrationMaximumLengthDelta : 0.0)
+                      << " initial_fiber_equilibration_max_velocity_mps=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->initialFiberEquilibrationMaximumVelocity : 0.0)
                       << " compiled_stand_max_equality_reaction=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->compiledMaximumEqualityReaction : 0.0)
                       << " compiled_stand_max_limit_reaction=" << (muscleDrivenState.has_value()
@@ -17171,6 +17402,10 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->muscleMetalElapsedMilliseconds : 0.0)
                       << " source_dynamic_force_parity_max_delta_n=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->sourceDynamicForceParityMaximumNewtons : 0.0)
+                      << " source_support_force_parity_max_delta_n=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->sourceSupportForceParityMaximumNewtons : 0.0)
+                      << " source_support_force_parity_max_delta_dof=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->sourceSupportForceParityMaximumDof : MR_INVALID_INDEX)
                       << " passive_fem_tissue_stable_id=" << (passiveFEMTissue.has_value()
                               ? std::to_string(passiveFEMTissue->stableId) : "none")
                       << " passive_fem_tetrahedra=" << (passiveFEMTissue.has_value()

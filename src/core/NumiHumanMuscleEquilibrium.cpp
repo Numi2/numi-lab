@@ -228,6 +228,7 @@ NumiHumanMuscleEquilibriumDiagnostics resolveStaticSupports(
     std::vector<std::vector<double>>& generalizedColumns,
     std::vector<double>& planeGaps,
     const double gapTolerance,
+    const double activationDistance,
     const ArticulatedDynamicsConfig& dynamicsConfig,
     const bool requireAdmissiblePose = true
 ) {
@@ -291,7 +292,7 @@ NumiHumanMuscleEquilibriumDiagnostics resolveStaticSupports(
         planeGaps[support] = gap;
         // Zero columns keep source indexing stable while removing the force
         // variable for a separated witness from every recruitment objective.
-        if (requireAdmissiblePose && gap > gapTolerance) continue;
+        if (requireAdmissiblePose && gap > activationDistance) continue;
         const std::size_t base = support * 3u * nv;
         for (std::size_t dof = 0u; dof < nv; ++dof) {
             generalizedColumns[support][dof] =
@@ -1085,7 +1086,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     auto diagnostics = resolveStaticSupports(
         model, articulationIndex, state.q, supports, supportJacobians,
         state.supportPlaneGapMeters, config.supportGapToleranceMeters,
-        dynamicsConfig);
+        config.supportActivationDistanceMeters, dynamicsConfig);
     if (!diagnostics.succeeded()) return diagnostics;
     std::vector<ResolvedMuscle> resolved;
     diagnostics = resolveMuscles(
@@ -1681,7 +1682,7 @@ NumiHumanMuscleEquilibriumDiagnostics evaluatePoseWithActivation(
     auto diagnostics = resolveStaticSupports(
         model, articulationIndex, state.q, supports, supportJacobians,
         state.supportPlaneGapMeters, config.supportGapToleranceMeters,
-        dynamicsConfig);
+        config.supportActivationDistanceMeters, dynamicsConfig);
     if (!diagnostics.succeeded()) return diagnostics;
     std::vector<ResolvedMuscle> resolved;
     diagnostics = resolveMuscles(
@@ -1974,7 +1975,8 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanSupportPose(
                         std::vector<std::vector<double>>& jac,
                         std::vector<double>& gaps) {
         return resolveStaticSupports(model, articulationIndex, q, supports,
-            jac, gaps, config.gapToleranceMeters, dynamics, false);
+            jac, gaps, config.gapToleranceMeters, config.gapToleranceMeters,
+            dynamics, false);
     };
     auto diagnostics = evaluate(candidate.q, columns, candidate.supportPlaneGapMeters);
     if (!diagnostics.succeeded()) return diagnostics;
@@ -2140,6 +2142,8 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
         config.positionLimitTolerance >= 0.0 &&
         std::isfinite(config.supportGapToleranceMeters) &&
         config.supportGapToleranceMeters >= 0.0 &&
+        std::isfinite(config.supportActivationDistanceMeters) &&
+        config.supportActivationDistanceMeters >= config.supportGapToleranceMeters &&
         std::isfinite(config.maximumSupportForceNewtons) &&
         config.maximumSupportForceNewtons > 0.0 &&
         std::isfinite(config.supportForceRegularization) &&
@@ -2935,7 +2939,7 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanCompliantEquilibrium(
     std::vector<std::vector<double>> initialJ;
     std::vector<double> initialGaps, target;
     diagnostics=resolveStaticSupports(model,artIndex,initialQ,supports,initialJ,initialGaps,
-        config.supportGapTolerance,dynamics);
+        config.supportGapTolerance,config.supportGapTolerance,dynamics);
     if (!diagnostics.succeeded()) return diagnostics;
     diagnostics=gravityTarget(model,artIndex,initialQ,target,dynamics);
     if (!diagnostics.succeeded()) return diagnostics;
@@ -2967,7 +2971,7 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanCompliantEquilibrium(
         }
         std::vector<std::vector<double>> supportJ;
         d=resolveStaticSupports(model,artIndex,q,supports,supportJ,s.supportPlaneGapMeters,
-            config.supportGapTolerance,dynamics,false);
+            config.supportGapTolerance,config.supportGapTolerance,dynamics,false);
         if (!d.succeeded()) return d;
         s.supportNormalForce.assign(normal.begin(),normal.end());
         s.generalizedSupportForce.assign(nv,0);s.generalizedJointEqualityForce.assign(nv,0);s.generalizedPositionLimitForce.assign(nv,0);
