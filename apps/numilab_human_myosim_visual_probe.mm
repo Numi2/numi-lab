@@ -14454,6 +14454,7 @@ int main(int argc, char** argv) {
                           << " [--bilateral-plantar-fascia-certificate]"
                           << " [--whole-body-support-certificate]"
                           << " [--whole-body-activation-sweeps <1..8192>]"
+                          << " [--whole-body-activation-cap <0..1>]"
                           << " [--whole-body-pose-sweeps <0..256>]"
                           << " [--whole-body-all-residuals]"
                           << " [--fifth-mcp-lower-stop-counterfactual]"
