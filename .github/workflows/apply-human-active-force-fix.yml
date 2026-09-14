@@ -15,6 +15,9 @@ concurrency:
   group: apply-human-active-force-${{ github.ref }}
   cancel-in-progress: false
 
+env:
+  HUMAN_ACTIVE_FORCE_APPLIER_VERSION: "1"
+
 jobs:
   apply:
     if: github.actor != 'github-actions[bot]'
