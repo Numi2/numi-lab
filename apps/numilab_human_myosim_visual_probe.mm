@@ -17,6 +17,7 @@
 #include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
 #include "metalrobo/NumiHumanCompliantEquilibrium.hpp"
 #include "metalrobo/NumiHumanInitialState.hpp"
+#include "metalrobo/NumiHumanDynamicStateSeed.hpp"
 #include "numi/matter/human_limits_gpu.h"
 #include "metalrobo/NumiHumanTendon.hpp"
 #include "metalrobo/NumiHumanTendonMetal.hpp"
@@ -3711,18 +3712,24 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     }
     const MetalMujocoVisualQueries queries =
         makeMetalMujocoVisualQueries(model, &supportContacts);
-    std::vector<MRMujocoMuscleStateGPU> states(muscles.gpuMuscles.size());
-    for (std::size_t muscleIndex = 0u;
-         muscleIndex < states.size(); ++muscleIndex) {
-        const float initialActivation =
-            compiledActivation.activation[muscleIndex];
-        states[muscleIndex].excitationAndActivation = {
-            initialActivation,
-            initialActivation,
-            0.0f,
-            0.0f,
-        };
-    }
+    std::vector<double> persistentActivation(
+        compiledActivation.activation.begin(),
+        compiledActivation.activation.end()
+    );
+    std::vector<MRMujocoMuscleStateGPU> states;
+    const auto persistentSeed =
+        metalrobo::seedNumiHumanDynamicMuscleState(
+            persistentActivation,
+            compiledActivation.referenceFiberLength,
+            states
+        );
+    require(
+        persistentSeed.succeeded() &&
+            states.size() == muscles.gpuMuscles.size(),
+        "persistent Human stand could not transport accepted fibre state: status=" +
+            std::to_string(static_cast<std::uint32_t>(persistentSeed.status)) +
+            " muscle=" + std::to_string(persistentSeed.failingIndex)
+    );
     metalrobo::NumiHumanTendonMetalProgram tendonProgram;
     const auto tendonPack = metalrobo::makeNumiHumanTendonMetalProgram(
         muscles.tendonPayload,
@@ -3785,21 +3792,24 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     metalrobo::MetalArticulatedOperatorResult selectedControlBaselineResult;
     double selectedControlBaselineElapsedMilliseconds = 0.0;
     if (applySelectedActivationIncrement) {
-        std::vector<MRMujocoMuscleStateGPU> baselineStates(
-            muscles.gpuMuscles.size()
+        std::vector<double> baselineActivation(
+            selectedControlBaselineActivation.begin(),
+            selectedControlBaselineActivation.end()
         );
-        for (std::size_t muscleIndex = 0u;
-             muscleIndex < baselineStates.size();
-             ++muscleIndex) {
-            const float baselineActivation =
-                selectedControlBaselineActivation[muscleIndex];
-            baselineStates[muscleIndex].excitationAndActivation = {
+        std::vector<MRMujocoMuscleStateGPU> baselineStates;
+        const auto baselineSeed =
+            metalrobo::seedNumiHumanDynamicMuscleState(
                 baselineActivation,
-                baselineActivation,
-                0.0f,
-                0.0f,
-            };
-        }
+                compiledActivation.referenceFiberLength,
+                baselineStates
+            );
+        require(
+            baselineSeed.succeeded() &&
+                baselineStates.size() == muscles.gpuMuscles.size(),
+            "selected Human baseline could not transport accepted fibre state: status=" +
+                std::to_string(static_cast<std::uint32_t>(baselineSeed.status)) +
+                " muscle=" + std::to_string(baselineSeed.failingIndex)
+        );
         metalrobo::MetalArticulatedOperatorInput baselineInput = input;
         baselineInput.mujoco.states = baselineStates;
         const auto baselineDiagnostics = context.run(
