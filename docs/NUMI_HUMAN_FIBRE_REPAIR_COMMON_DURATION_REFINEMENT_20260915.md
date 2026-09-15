@@ -113,6 +113,36 @@ friction rows, the production muscle/passive-force RHS, unilateral
 complementarity, or time integration. They neither validate a regularization
 choice nor identify a coupled-solver replacement.
 
+## Read-only FP64 active-set audit at the 12.5 us event
+
+The same reference route was run against the retained 12.5 us trace at step
+279, where equality 43 / source-limit DOF 113 owns the peak acceleration.
+It verifies all 49 nonconstant equality derivatives at that actual trace
+state; the largest centered-finite-difference difference is
+`7.1645807342424206e-11` for equality 43. The 105-row equality plus
+near-boundary-limit operator again has numerical rank 81 under the declared
+`1e-10` normalized pivot cutoff, retaining 41 equality and 40 near-boundary
+limit directions. Its minimum articulated Cholesky pivot is
+`0.010022659996858297`.
+
+The implicated equality-43 / upper-limit-113 pair remains finite but strongly
+coupled: correlation `-0.99997094609204384`, positive eigenvalues
+`0.0029024017843966021` and `199.79134150280635`, and condition
+`68836.555495827808`. The broader rank geometry is materially the same as the
+25 us snapshot; the count of outward near-boundary limits changes from six at
+the 25 us event to three here. This rules out treating the earlier equality-50
+event as evidence of an isolated singularity, but it does not identify the
+dynamic discrepancy's cause.
+
+The raw audit is retained as
+[`12.5 us full equality/limit active-set audit`](media/numi-human-fibre-repair-common-duration-refinement-20260915/local-m4-12p5us-step279-active-set-audit.txt)
+with SHA-256 `a9fa667780d19790d8732f925751564868fc25557e094d167680023549151482`.
+It declares `contact_rows_included=false`, `friction_rows_included=false`,
+`muscle_and_passive_force_rhs_included=false`, `time_integrated=false`, and
+`full_active_set_qualified=false`. Thus it is a read-only derivative/rank
+discriminator, not a high-precision full dynamics reference, solver approval,
+or standing qualification.
+
 ## Retained receipts
 
 The three new local runs have Metal-validation stderr and complete compressed
