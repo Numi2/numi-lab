@@ -2563,6 +2563,9 @@ struct MuscleDrivenVisualState {
     std::uint32_t sourceSupportForceParityMaximumDof = MR_INVALID_INDEX;
     std::string muscleMetalDeviceName;
     bool persistentMetalHorizon = false;
+    bool persistentSourcePassiveJointTissue = false;
+    std::uint32_t persistentPassiveCoordinateCouplingCount = 0u;
+    double persistentPassiveCoordinateForceMaximumNewtons = 0.0;
     bool selectedTendonControl = false;
     bool selectedControlBaselineEvaluated = false;
     double selectedControlBaselineMaximumQDelta = 0.0;
@@ -3760,7 +3763,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         initialCoordinate = std::nullopt,
     const bool requireContinuumRigidStateEffect = true,
     const metalrobo::MetalNumiHumanTendonLoadProgram*
-        additionalTendonLoadProgram = nullptr
+        additionalTendonLoadProgram = nullptr,
+    const bool sourcePassiveJointTissue = false
 ) {
     require(std::isfinite(timestepSeconds) && timestepSeconds >= 1.0e-6 &&
                 timestepSeconds <= 1.0e-3 && stepCount >= 1u &&
@@ -3811,6 +3815,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         continuumTransaction != nullptr
             ? &continuumTransaction->program
             : additionalTendonLoadProgram;
+    const auto persistentPassiveCouplings = sourcePassiveJointTissue
+        ? wholeBodyUpperPassiveCoordinateCouplings()
+        : std::vector<metalrobo::NumiHumanPassiveCoordinateCoupling>{};
     GroundAlignedSupport aligned =
         makeGroundAlignedSupport(model, supportContacts);
     if (initialCoordinate.has_value()) {
@@ -3848,7 +3855,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             1.0,
             {},
             &supportContacts,
-            {},
+            persistentPassiveCouplings,
             1024u,
             !initialCoordinate.has_value(),
             std::optional<std::uint32_t>{24u},
@@ -3871,7 +3878,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             activation,
             selectedSourceMuscleIndices,
             &supportContacts,
-            {},
+            persistentPassiveCouplings,
             1024u,
             !initialCoordinate.has_value(),
             std::optional<std::uint32_t>{24u},
@@ -3990,13 +3997,16 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         compiledActivation.generalizedJointEqualityForce.size() ==
                 model.world.nv &&
             compiledActivation.generalizedPositionLimitForce.size() ==
+                model.world.nv &&
+            compiledActivation.generalizedPassiveCoordinateForce.size() ==
                 model.world.nv,
         "persistent Human source equilibrium did not publish constraint reactions"
     );
     for (std::size_t dof = 0u; dof < model.world.nv; ++dof) {
         preloadedGeneralizedForce[dof] = static_cast<float>(
             compiledActivation.generalizedJointEqualityForce[dof] +
-            compiledActivation.generalizedPositionLimitForce[dof]
+            compiledActivation.generalizedPositionLimitForce[dof] +
+            compiledActivation.generalizedPassiveCoordinateForce[dof]
         );
         require(
             std::isfinite(preloadedGeneralizedForce[dof]),
@@ -4698,6 +4708,15 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     }
     result.stepCount = stepCount;
     result.persistentMetalHorizon = true;
+    result.persistentSourcePassiveJointTissue = sourcePassiveJointTissue;
+    result.persistentPassiveCoordinateCouplingCount =
+        static_cast<std::uint32_t>(persistentPassiveCouplings.size());
+    for (const double value : compiledActivation.generalizedPassiveCoordinateForce) {
+        result.persistentPassiveCoordinateForceMaximumNewtons = std::max(
+            result.persistentPassiveCoordinateForceMaximumNewtons,
+            std::abs(value)
+        );
+    }
     result.selectedTendonControl = applySelectedActivationIncrement;
     result.selectedControlBaselineEvaluated =
         applySelectedActivationIncrement;
@@ -14135,6 +14154,7 @@ int main(int argc, char** argv) {
             std::optional<double> muscleActivation;
             std::optional<std::uint32_t> muscleStepCount;
             bool persistentMetalStand = false;
+            bool persistentSourcePassiveJointTissue = false;
             bool selectedTendonControl = false;
             bool standRootAssistance = false;
             bool standRemoveAssistance = false;
@@ -14205,6 +14225,10 @@ int main(int argc, char** argv) {
                     require(!persistentMetalStand,
                             "--persistent-metal-stand may be given only once");
                     persistentMetalStand = true;
+                } else if (argument == "--persistent-source-passive-joint-tissue") {
+                    require(!persistentSourcePassiveJointTissue,
+                            "--persistent-source-passive-joint-tissue may be given only once");
+                    persistentSourcePassiveJointTissue = true;
                 } else if (argument == "--selected-tendon-control") {
                     require(!selectedTendonControl,
                             "--selected-tendon-control may be given only once");
@@ -14448,7 +14472,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-count <1.."
                           << MR_NUMI_HUMAN_STAND_MAX_STEPS << ">]"
                           << " [--muscle-activation <0..1>]"
-                          << " [--persistent-metal-stand] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay]"
+                          << " [--persistent-metal-stand] [--persistent-source-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay]"
                           << " [--bilateral-achilles-certificate]"
                           << " [--bilateral-thumb-tendon-certificate]"
                           << " [--bilateral-triceps-medialis-enthesis-certificate]"
@@ -14789,6 +14813,9 @@ int main(int argc, char** argv) {
             require(!sourcePassiveJointTissue || wholeBodySupportCertificate,
                     "--source-passive-joint-tissue requires "
                     "--whole-body-support-certificate");
+            require(!persistentSourcePassiveJointTissue || persistentMetalStand,
+                    "--persistent-source-passive-joint-tissue requires "
+                    "--persistent-metal-stand");
             require(!wholeBodyPoseSweeps.has_value() || wholeBodySupportCertificate,
                     "--whole-body-pose-sweeps requires --whole-body-support-certificate");
             require(!wholeBodyActivationSweeps.has_value() ||
@@ -16051,7 +16078,8 @@ int main(int argc, char** argv) {
                                 nullptr,
                                 std::nullopt,
                                 true,
-                                &hoodProgram
+                                &hoodProgram,
+                                persistentSourcePassiveJointTissue
                             )
                         );
                         const auto hoodDiagnostics = hoodAdapter.diagnostics();
@@ -16166,7 +16194,12 @@ int main(int argc, char** argv) {
                                 selectedTendonControl,
                                 standRootAssistance,
                                 standRemoveAssistance,
-                                standDeterministicReplay || selectedTendonControl
+                                standDeterministicReplay || selectedTendonControl,
+                                nullptr,
+                                std::nullopt,
+                                true,
+                                nullptr,
+                                persistentSourcePassiveJointTissue
                             )
                         );
                     }
@@ -17337,6 +17370,12 @@ int main(int argc, char** argv) {
                               : "none")
                       << " persistent_metal_horizon=" << (muscleDrivenState.has_value() &&
                               muscleDrivenState->persistentMetalHorizon ? "true" : "false")
+                      << " persistent_source_passive_joint_tissue=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->persistentSourcePassiveJointTissue ? "true" : "false")
+                      << " persistent_passive_coordinate_couplings=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentPassiveCoordinateCouplingCount : 0u)
+                      << " persistent_passive_coordinate_force_max_n=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentPassiveCoordinateForceMaximumNewtons : 0.0)
                       << " persistent_completed_steps=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->persistentCompletedSteps : 0u)
                       << " tendon_step_transaction=" << (muscleDrivenState.has_value() &&
@@ -17381,7 +17420,10 @@ int main(int argc, char** argv) {
                               muscleDrivenState->assistanceRemovalEvaluated ? "evaluated" : "not_evaluated")
                       << " source_constraint_preload=" << (muscleDrivenState.has_value() &&
                               muscleDrivenState->sourceConstraintPreloadApplied
-                                  ? "static_equality_plus_position_limit" : "none")
+                                  ? (muscleDrivenState->persistentSourcePassiveJointTissue
+                                      ? "static_equality_plus_position_limit_plus_passive_joint_tissue"
+                                      : "static_equality_plus_position_limit")
+                                  : "none")
                       << " source_constraint_preload_max_n=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->sourceConstraintPreloadMaximumNewtons : 0.0)
                       << " persistent_max_acceleration=" << (muscleDrivenState.has_value()
