@@ -80,6 +80,16 @@ discriminator and its high-precision reference. It does not prove that this
 row alone causes the whole refinement failure and does not justify adding
 regularization or replacing the solver.
 
+The retained step-281 trace also separates this late-horizon interaction from
+the exact-support precision boundary discussed below: its minimum plane gap
+was positive (`8.156545305837426e-08 m`), penetration was zero, and its
+pre/post normal-contact target residuals were only
+`4.3192067700204007e-09 m/s` and `4.4300514367989763e-09 m/s`. The
+`1.5269326468114741e-05 m/s` transfer therefore persists away from the
+contact-surface rounding boundary. This further narrows the next experiment
+to the real equality/limit active set; it does not identify a corrective
+formulation.
+
 ## Smallest production-path coupled-solve discriminator
 
 `metalrobo_numi_human_stand_coupling_probe` is a deliberately small,
