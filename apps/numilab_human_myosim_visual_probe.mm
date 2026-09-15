@@ -3502,10 +3502,9 @@ CompiledStandActivation compileStaticStandActivation(
                     "automatic support active-set search found no admissible stance");
             preparedQ = std::move(bestStance.q);
             // Preserve the geometry-certified unilateral active set while
-            // recruitment solves force. A second unconstrained pose search
-            // could separate the fitted plantar witnesses before the wrench
-            // solve sees them.
-            config.poseSweeps = 0u;
+            // recruitment solves force. Keep the caller's bounded posture
+            // budget: each candidate reprojects the loaded active manifold
+            // before it can enter the internal muscle/equality solve.
             std::cout << std::setprecision(17)
                       << "compiled_support_stance=automatic_active_set"
                       << " iterations=" << bestStance.iterations
