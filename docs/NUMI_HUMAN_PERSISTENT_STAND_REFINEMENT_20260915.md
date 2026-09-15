@@ -69,11 +69,58 @@ DOF 113 (joint 141, child body 142). Its initial force-audit components were
 force, with a `-2.55709055234488e-05 N` row residual. Across all 128 audit
 rows, the largest initial component residual was `0.032620927143028666 N`.
 
-This locates a coupled equality/limit interaction worth reducing to the
-smallest production-muscle/passive/contact/equality scene and comparing with
-a high-precision reference. It does not prove that this row alone causes the
-whole refinement failure and does not justify adding regularization or
-replacing the solver.
+This locates a coupled equality/limit interaction. The next section records
+the corresponding smallest production-muscle/passive/contact/equality
+discriminator and its high-precision reference. It does not prove that this
+row alone causes the whole refinement failure and does not justify adding
+regularization or replacing the solver.
+
+## Smallest production-path coupled-solve discriminator
+
+`metalrobo_numi_human_stand_coupling_probe` is a deliberately small,
+one-step production-path fixture: a floating root, two scalar joints,
+source-style normal contact, passive preload, tendon transfer, one bilateral
+equality, and the dependent coordinate's upper limit. It is neither a full
+plane-contact oracle nor a long-horizon standing reference.
+
+Two fresh Apple M4 Pro runs with Metal API validation produced byte-identical
+stdout (SHA-256
+`3ed9e994c2c55411158a252b5271691bd6ead6c0b50cea72335315b2c1ae558a`).
+The independent FP64 route derivative was `1.1928223077229005`; its finite
+difference was `1.1928223076773659` (absolute difference
+`4.55346e-11`). The no-contact production path differed from its FP64
+source/equality reference by `8.5276565897629553e-07 m/s2`, with zero
+reported equality and tendon residuals.
+
+For the frictionless normal-contact/equality/upper-limit triad, the FP64
+Schur/KKT reference had a minimum pivot of `0.36363652396693968` and reported
+a maximum regularized-KKT residual of `4.4664279309739511e-18`. This is
+evidence that the
+small reference instance is not rank-singular; it is not evidence that a
+regularization change is appropriate in the production solve.
+
+| Timestep | Metal-to-FP64 velocity difference (m/s) | Gate (tolerance `1e-5`) |
+| ---: | ---: | :--- |
+| 100 us | `2.5485201911652844e-06` | pass |
+| 50 us | `3.285915848120853e-06` | pass |
+| 25 us | `5.6662694291367402e-06` | pass |
+| 12.5 us | `1.0879757724720971e-05` | **fail** |
+
+At 12.5 us, no supported iteration count (1, 4, 16, 32, or the device ABI
+maximum 64) met the `1e-5 m/s` gate; the respective differences were
+`1.6560523651669524e-04`, `1.4560544802470855e-04`,
+`3.9925146821316106e-05`, `1.5506986074539293e-05`, and
+`1.0879757724720971e-05`. That is a bounded numerical failure, not a reason
+to silently raise iteration limits or relax the acceptance criterion.
+
+The final equality-coordinate assignment also reproduces the row conflict
+directly in the full triad at 12.5 us: it changes the equality target
+residual from `2.2428295665122278e-07` to zero, while changing the
+source-limit target residual from zero to `2.2428295665122278e-07`.
+The no-contact, inactive-limit, and no-equality controls do not show that
+trade-off. This supports an ordering/formulation hypothesis for the coupled
+equality/limit path; it does not establish a full-Human root cause or a
+replacement formulation.
 
 ## Passive-coupling discriminator
 
