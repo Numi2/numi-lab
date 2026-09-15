@@ -3978,10 +3978,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
          muscleIndex < states.size(); ++muscleIndex) {
         const float initialActivation =
             compiledActivation.activation[muscleIndex];
+        require(muscleIndex < compiledActivation.referenceFiberLength.size() &&
+                    std::isfinite(compiledActivation.referenceFiberLength[muscleIndex]) &&
+                    compiledActivation.referenceFiberLength[muscleIndex] > 0.0,
+                "persistent Human static equilibrium did not publish a valid fibre length");
         states[muscleIndex].excitationAndActivation = {
             initialActivation,
             initialActivation,
-            0.0f,
+            static_cast<float>(compiledActivation.referenceFiberLength[muscleIndex]),
             0.0f,
         };
     }
