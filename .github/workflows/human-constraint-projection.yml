@@ -40,6 +40,18 @@ jobs:
             /tmp/human-${name}
           done
           git diff --exit-code
+      - name: Retain source-bound compiler inputs
+        run: |
+          git rev-parse HEAD > human-source-revision.txt
+          git archive --format=tar HEAD AGENTS.md CMakeLists.txt cmake include src apps tests tools .github | gzip > human-native-source.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: human-native-compiler-inputs
+          path: |
+            human-native-source.tar.gz
+            human-source-revision.txt
+          retention-days: 14
+          if-no-files-found: error
   metal-compile:
     runs-on: macos-15
     timeout-minutes: 15
