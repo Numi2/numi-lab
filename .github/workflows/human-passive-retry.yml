@@ -11,7 +11,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - name: Restore exact verified patch bytes
+      - name: Restore exact verified source patch
         shell: python
         run: |
           import base64, hashlib, pathlib, re, subprocess, zlib
@@ -22,16 +22,9 @@ jobs:
           data = zlib.decompress(base64.b64decode(encoded, validate=True))
           assert len(data) == 46177
           assert hashlib.sha256(data).hexdigest() == '8b32d4e610fd888a6c5a1c915e6e838625c34793b741208ad64b14f90f420323'
-          subprocess.run(['git','apply','--check','-'], input=data, check=True)
-          subprocess.run(['git','apply','--index','-'], input=data, check=True)
-          regular = pathlib.Path('.github/workflows/human-constraint-projection.yml')
-          text = regular.read_text()
-          old = '          clang++ -std=c++20 -fobjc-arc -fsyntax-only -Iinclude -Imatter/include src/metal/MetalArticulatedOperator.mm\n          clang++ -std=c++20 -fobjc-arc -fsyntax-only -Iinclude -Imatter/include apps/numilab_human_myosim_visual_probe.mm\n'
-          assert text.count(old) == 1
-          text = text.replace(old, '          python3 tools/check_human_host_syntax.py\n')
-          text = text.replace('      - tools/check_human_constraint_owner.py\n', '      - tools/check_human_constraint_owner.py\n      - tools/check_human_host_syntax.py\n')
-          regular.write_text(text)
-          subprocess.run(['git','add','--',str(regular)],check=True)
+          exclude = '--exclude=.github/workflows/human-constraint-projection.yml'
+          subprocess.run(['git','apply',exclude,'--check','-'], input=data, check=True)
+          subprocess.run(['git','apply',exclude,'--index','-'], input=data, check=True)
       - name: Verify portable numerical policies
         run: |
           for name in constraint_projection equality_limit_block passive_joint; do
@@ -44,16 +37,16 @@ jobs:
         run: |
           xcrun --sdk macosx metal -std=metal3.1 -Iinclude -c src/metal/NumiHumanStand.metal -o /tmp/NumiHumanStand.air
           python3 tools/check_human_host_syntax.py
-      - name: Publish tested source and retire temporary workflows
+      - name: Publish tested source only
         run: |
           test "$GITHUB_REF_NAME" = human-native-runtime-20260915
-          git rm -- .github/workflows/human-passive-integration.yml .github/workflows/human-passive-retry.yml
+          if git diff --cached --name-only | grep '^.github/'; then exit 1; fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m 'Use current-state passive joints in the implicit Human solve'
           git push origin HEAD:refs/heads/human-native-runtime-20260915
           git rev-parse HEAD > human-source-revision.txt
-          git archive --format=tar HEAD include src apps tests tools .github CMakeLists.txt | gzip > human-native-source.tar.gz
+          git archive --format=tar HEAD include src apps tests tools CMakeLists.txt | gzip > human-native-source.tar.gz
       - uses: actions/upload-artifact@v4
         with:
           name: human-passive-native-source
