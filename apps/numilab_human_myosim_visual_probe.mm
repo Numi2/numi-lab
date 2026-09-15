@@ -2546,8 +2546,12 @@ struct PersistentDynamicForceAuditRow {
 struct PersistentStandTraceSample {
     std::uint32_t step = 0u;
     double timeSeconds = 0.0;
-    std::uint32_t maximumAccelerationDof = MR_INVALID_INDEX;
-    double maximumAcceleration = 0.0;
+    // The kernel records this before dependent equality coordinates are
+    // projected. The published-state acceleration below is recomputed after
+    // that projection, so a trace cannot silently conflate the two.
+    double kernelMaximumAcceleration = 0.0;
+    std::uint32_t publishedMaximumAccelerationDof = MR_INVALID_INDEX;
+    double publishedMaximumAcceleration = 0.0;
     std::uint32_t maximumConfigurationDeltaQ = MR_INVALID_INDEX;
     double maximumConfigurationDelta = 0.0;
     std::uint32_t maximumVelocityDof = MR_INVALID_INDEX;
@@ -4588,6 +4592,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             sample.step = traceStep;
             sample.timeSeconds = timestepSeconds * traceStep;
             const auto& traceStatus = traceResult.standStatuses.front();
+            sample.kernelMaximumAcceleration =
+                traceStatus.contactAndAcceleration.w;
             sample.minimumPlaneGapMeters =
                 traceStatus.contactAndAcceleration.x;
             sample.maximumPenetrationMeters =
@@ -4632,9 +4638,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     (static_cast<double>(traceResult.standV[dof]) -
                      static_cast<double>(traceV[dof])) / timestepSeconds
                 );
-                if (acceleration > sample.maximumAcceleration) {
-                    sample.maximumAcceleration = acceleration;
-                    sample.maximumAccelerationDof =
+                if (acceleration > sample.publishedMaximumAcceleration) {
+                    sample.publishedMaximumAcceleration = acceleration;
+                    sample.publishedMaximumAccelerationDof =
                         static_cast<std::uint32_t>(dof);
                 }
                 const double velocity = std::abs(
@@ -4646,7 +4652,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                         static_cast<std::uint32_t>(dof);
                 }
             }
-            require(std::isfinite(sample.maximumAcceleration) &&
+            require(std::isfinite(sample.kernelMaximumAcceleration) &&
+                        std::isfinite(sample.publishedMaximumAcceleration) &&
                         std::isfinite(sample.maximumConfigurationDelta) &&
                         std::isfinite(sample.maximumVelocity),
                     "persistent Human trace produced a non-finite state diagnostic");
@@ -18126,10 +18133,12 @@ int main(int argc, char** argv) {
                         muscleDrivenState->persistentStandTrace[sampleIndex];
                     std::cout << "{\"step\":" << sample.step
                               << ",\"time_seconds\":" << sample.timeSeconds
-                              << ",\"maximum_acceleration_dof\":"
-                              << sample.maximumAccelerationDof
-                              << ",\"maximum_acceleration\":"
-                              << sample.maximumAcceleration
+                              << ",\"kernel_maximum_acceleration\":"
+                              << sample.kernelMaximumAcceleration
+                              << ",\"published_maximum_acceleration_dof\":"
+                              << sample.publishedMaximumAccelerationDof
+                              << ",\"published_maximum_acceleration\":"
+                              << sample.publishedMaximumAcceleration
                               << ",\"maximum_configuration_delta_q\":"
                               << sample.maximumConfigurationDeltaQ
                               << ",\"maximum_configuration_delta\":"
