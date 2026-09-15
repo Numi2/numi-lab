@@ -27,16 +27,39 @@ jobs:
           git rev-parse HEAD > human-release-evidence/native-revision.txt
           git -C human-inputs rev-parse HEAD > human-release-evidence/input-revision.txt
           sw_vers > human-release-evidence/machine.txt
-          xcrun --find metal >> human-release-evidence/machine.txt
+      - name: Select an installed Metal 4 toolchain
+        shell: python
+        run: |
+          import json, os, pathlib, subprocess, tempfile
+          probes=[]
+          selected=None
+          with tempfile.TemporaryDirectory(prefix='human-metal-toolchain-') as directory:
+              source=pathlib.Path(directory)/'probe.metal'
+              source.write_text('#include <metal_stdlib>\nusing namespace metal;\nkernel void probe(device float* out [[buffer(0)]], uint i [[thread_position_in_grid]]) { out[i]=0.0f; }\n')
+              for app in sorted(pathlib.Path('/Applications').glob('Xcode*.app'),reverse=True):
+                  developer=app/'Contents/Developer'
+                  environment={**os.environ,'DEVELOPER_DIR':str(developer)}
+                  command=['xcrun','--sdk','macosx','metal','-std=metal4.0','-c',str(source),'-o',str(pathlib.Path(directory)/'probe.air')]
+                  result=subprocess.run(command,env=environment,capture_output=True,text=True,timeout=30)
+                  probes.append({'developer_dir':str(developer),'exit_code':result.returncode,'stdout':result.stdout,'stderr':result.stderr})
+                  if result.returncode==0:
+                      selected=str(developer)
+                      break
+          pathlib.Path('human-release-evidence/toolchains.json').write_text(json.dumps({'selected':selected,'probes':probes},indent=2)+'\n')
+          if selected is None: raise RuntimeError('No installed Metal 4 compiler; full build not attempted')
+          with open(os.environ['GITHUB_ENV'],'a') as stream: stream.write('DEVELOPER_DIR='+selected+'\n')
+          print('Selected',selected)
       - name: Configure and build the owning Human target
         run: |
           set -o pipefail
+          xcrun --find metal >> human-release-evidence/machine.txt
+          xcodebuild -version >> human-release-evidence/machine.txt
           cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF 2>&1 | tee human-release-evidence/configure.txt
           cmake --build BuildHuman --target metalrobo_numilab_human_myosim_visual_probe --parallel 3 2>&1 | tee human-release-evidence/build.txt
       - name: Run bounded common-duration cases without root assistance
         shell: python
         run: |
-          import hashlib, json, os, pathlib, shlex, signal, subprocess, time
+          import hashlib, json, os, pathlib, signal, subprocess, time
           root=pathlib.Path.cwd()
           output=root/'human-release-evidence'
           inputs=root/'human-inputs'
