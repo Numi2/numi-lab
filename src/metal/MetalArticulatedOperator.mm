@@ -7790,7 +7790,7 @@ MetalArticulatedOperatorSubmission::wait(
                     stand.jointEqualityCounts.y !=
                         pending->standJointEqualityCount ||
                     stand.jointEqualityCounts.z != 0u ||
-                    stand.jointEqualityCounts.w != 0u) {
+                    stand.jointEqualityCounts.w >= pending->articulation.nv) {
                     return reject(
                         std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::internalFailure,

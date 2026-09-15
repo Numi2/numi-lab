@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_NUMI_HUMAN_STAND_ABI_VERSION 4u
+#define MR_NUMI_HUMAN_STAND_ABI_VERSION 5u
 #define MR_NUMI_HUMAN_STAND_MAX_BODIES 192u
 #define MR_NUMI_HUMAN_STAND_MAX_DOFS 160u
 #define MR_NUMI_HUMAN_STAND_MAX_Q 161u
@@ -114,7 +114,9 @@ typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
     // wrench-equivalence correction, and represented actuator-force norm.
     mr_float4 tendonDiagnostics;
 
-    // active row count, maximum active row count, failed row count, reserved.
+    // active row count, maximum active row count, failed row count, and the
+    // articulation-local velocity DOF with the maximum pre-projection
+    // acceleration. The final field is MR_INVALID_INDEX when no step ran.
     mr_uint4 jointEqualityCounts;
     // Maximum pre-projection position error, maximum constrained velocity
     // error, maximum absolute bilateral impulse, and sum absolute impulses.

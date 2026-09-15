@@ -2550,6 +2550,9 @@ struct PersistentStandTraceSample {
     // projected. The published-state acceleration below is recomputed after
     // that projection, so a trace cannot silently conflate the two.
     double kernelMaximumAcceleration = 0.0;
+    std::uint32_t kernelMaximumAccelerationDof = MR_INVALID_INDEX;
+    std::uint32_t kernelMaximumAccelerationEquality = MR_INVALID_INDEX;
+    std::string kernelMaximumAccelerationOwner = "none";
     std::uint32_t publishedMaximumAccelerationDof = MR_INVALID_INDEX;
     double publishedMaximumAcceleration = 0.0;
     std::uint32_t maximumConfigurationDeltaQ = MR_INVALID_INDEX;
@@ -4594,6 +4597,40 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             const auto& traceStatus = traceResult.standStatuses.front();
             sample.kernelMaximumAcceleration =
                 traceStatus.contactAndAcceleration.w;
+            sample.kernelMaximumAccelerationDof =
+                traceStatus.jointEqualityCounts.w;
+            require(sample.kernelMaximumAccelerationDof < traceV.size(),
+                    "persistent Human trace kernel acceleration DOF is invalid");
+            for (std::size_t equalityIndex = 0u;
+                 equalityIndex < jointEqualities.payload.records.size();
+                 ++equalityIndex) {
+                const auto& equality =
+                    jointEqualities.payload.records[equalityIndex];
+                if (equality.indices.y == sample.kernelMaximumAccelerationDof) {
+                    sample.kernelMaximumAccelerationEquality =
+                        static_cast<std::uint32_t>(equalityIndex);
+                    sample.kernelMaximumAccelerationOwner =
+                        "joint_equality_dependent_velocity";
+                    break;
+                }
+                if (equality.indices.w == sample.kernelMaximumAccelerationDof) {
+                    sample.kernelMaximumAccelerationEquality =
+                        static_cast<std::uint32_t>(equalityIndex);
+                    sample.kernelMaximumAccelerationOwner =
+                        "joint_equality_master_velocity";
+                    break;
+                }
+            }
+            if (sample.kernelMaximumAccelerationOwner == "none") {
+                const auto& dof = model.dofs[
+                    model.articulations.front().vOffset +
+                    sample.kernelMaximumAccelerationDof
+                ];
+                sample.kernelMaximumAccelerationOwner =
+                    (dof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u
+                        ? "position_limit_velocity"
+                        : "unconstrained_velocity";
+            }
             sample.minimumPlaneGapMeters =
                 traceStatus.contactAndAcceleration.x;
             sample.maximumPenetrationMeters =
@@ -18135,6 +18172,12 @@ int main(int argc, char** argv) {
                               << ",\"time_seconds\":" << sample.timeSeconds
                               << ",\"kernel_maximum_acceleration\":"
                               << sample.kernelMaximumAcceleration
+                              << ",\"kernel_maximum_acceleration_dof\":"
+                              << sample.kernelMaximumAccelerationDof
+                              << ",\"kernel_maximum_acceleration_equality\":"
+                              << sample.kernelMaximumAccelerationEquality
+                              << ",\"kernel_maximum_acceleration_owner\":\""
+                              << sample.kernelMaximumAccelerationOwner << "\""
                               << ",\"published_maximum_acceleration_dof\":"
                               << sample.publishedMaximumAccelerationDof
                               << ",\"published_maximum_acceleration\":"

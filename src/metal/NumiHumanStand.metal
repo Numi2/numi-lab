@@ -245,6 +245,7 @@ kernel void mr_numi_human_stand_step(
             status.code = MR_NUMI_HUMAN_STAND_SUCCESS;
             status.environment = environment;
             status.failingIndex = MR_INVALID_INDEX;
+            status.jointEqualityCounts.w = MR_INVALID_INDEX;
             status.contactAndAcceleration.x =
                 (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u &&
                     dispatch.supportContactCount != 0u
@@ -1133,11 +1134,15 @@ kernel void mr_numi_human_stand_step(
     }
 
     maximumAcceleration = 0.0f;
+    uint maximumAccelerationDof = 0u;
     for (uint dof = 0u; dof < nv; ++dof) {
-        maximumAcceleration = max(
-            maximumAcceleration,
-            abs((candidateV[dof] - vState[vBase + dof]) / timestep)
+        const float acceleration = abs(
+            (candidateV[dof] - vState[vBase + dof]) / timestep
         );
+        if (acceleration > maximumAcceleration) {
+            maximumAcceleration = acceleration;
+            maximumAccelerationDof = dof;
+        }
         if (!isfinite(candidateV[dof])) {
             fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
             return;
@@ -1237,9 +1242,11 @@ kernel void mr_numi_human_stand_step(
         status.contactAndAcceleration.y, maximumPenetration
     );
     status.contactAndAcceleration.z = totalNormalImpulse;
-    status.contactAndAcceleration.w = max(
-        status.contactAndAcceleration.w, maximumAcceleration
-    );
+    if (maximumAcceleration > status.contactAndAcceleration.w ||
+        status.jointEqualityCounts.w == MR_INVALID_INDEX) {
+        status.contactAndAcceleration.w = maximumAcceleration;
+        status.jointEqualityCounts.w = maximumAccelerationDof;
+    }
     status.factorAndAssistance.x = min(
         status.factorAndAssistance.x, minimumPivot
     );
