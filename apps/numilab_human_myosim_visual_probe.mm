@@ -2553,6 +2553,14 @@ struct PersistentStandTraceSample {
     std::uint32_t kernelMaximumAccelerationDof = MR_INVALID_INDEX;
     std::uint32_t kernelMaximumAccelerationEquality = MR_INVALID_INDEX;
     std::string kernelMaximumAccelerationOwner = "none";
+    // When the peak belongs to a dependent equality velocity, this is an
+    // independent FP64 evaluation of the final projected q/v state. It keeps
+    // a finite-precision projection check separate from the kernel's
+    // pre-projection candidate acceleration.
+    bool kernelMaximumAccelerationEqualityReferenceChecked = false;
+    double kernelMaximumAccelerationEqualityDerivative = 0.0;
+    double kernelMaximumAccelerationEqualityPositionError = 0.0;
+    double kernelMaximumAccelerationEqualityVelocityError = 0.0;
     std::uint32_t publishedMaximumAccelerationDof = MR_INVALID_INDEX;
     double publishedMaximumAcceleration = 0.0;
     std::uint32_t maximumConfigurationDeltaQ = MR_INVALID_INDEX;
@@ -4630,6 +4638,57 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     (dof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u
                         ? "position_limit_velocity"
                         : "unconstrained_velocity";
+            }
+            if (sample.kernelMaximumAccelerationOwner ==
+                "joint_equality_dependent_velocity") {
+                require(sample.kernelMaximumAccelerationEquality <
+                            jointEqualities.payload.records.size(),
+                        "persistent Human trace equality owner is invalid");
+                const auto& equality = jointEqualities.payload.records[
+                    sample.kernelMaximumAccelerationEquality
+                ];
+                std::vector<double> referenceQ;
+                referenceQ.reserve(traceResult.standQ.size());
+                for (const float coordinate : traceResult.standQ) {
+                    referenceQ.push_back(static_cast<double>(coordinate));
+                }
+                metalrobo::NumiHumanJointEqualityEvaluation reference;
+                const auto referenceDiagnostics =
+                    metalrobo::evaluateNumiHumanJointEquality(
+                        equality, referenceQ, reference
+                    );
+                require(referenceDiagnostics.succeeded(),
+                        "persistent Human trace FP64 equality reference failed");
+                const double expectedVelocity =
+                    equality.indices.w == MR_INVALID_INDEX
+                        ? 0.0
+                        : reference.derivative * static_cast<double>(
+                            traceResult.standV[equality.indices.w]
+                        );
+                const double actualVelocity = static_cast<double>(
+                    traceResult.standV[equality.indices.y]
+                );
+                const double positionError = std::abs(reference.positionError);
+                const double velocityError = std::abs(
+                    actualVelocity - expectedVelocity
+                );
+                const double referenceScale = std::max(
+                    {1.0, std::abs(reference.dependentTarget),
+                     std::abs(expectedVelocity), std::abs(actualVelocity)}
+                );
+                const double referenceTolerance = 64.0 *
+                    std::numeric_limits<float>::epsilon() * referenceScale;
+                require(positionError <= referenceTolerance &&
+                            velocityError <= referenceTolerance,
+                        "persistent Human trace FP64 equality projection disagrees "
+                        "with the final device state");
+                sample.kernelMaximumAccelerationEqualityReferenceChecked = true;
+                sample.kernelMaximumAccelerationEqualityDerivative =
+                    reference.derivative;
+                sample.kernelMaximumAccelerationEqualityPositionError =
+                    positionError;
+                sample.kernelMaximumAccelerationEqualityVelocityError =
+                    velocityError;
             }
             sample.minimumPlaneGapMeters =
                 traceStatus.contactAndAcceleration.x;
@@ -18144,7 +18203,7 @@ int main(int argc, char** argv) {
                     std::cout << ']';
                 };
                 std::cout << std::setprecision(17)
-                          << "persistent_stand_trace={\"schema\":\"numi.human.persistent-stand-trace.v1\""
+                          << "persistent_stand_trace={\"schema\":\"numi.human.persistent-stand-trace.v2\""
                           << ",\"driver\":\"segmented_one_step_production_horizon\""
                           << ",\"endpoint_equivalent\":\""
                           << (muscleDrivenState->persistentStandTraceEndpointBitwise
@@ -18178,6 +18237,15 @@ int main(int argc, char** argv) {
                               << sample.kernelMaximumAccelerationEquality
                               << ",\"kernel_maximum_acceleration_owner\":\""
                               << sample.kernelMaximumAccelerationOwner << "\""
+                              << ",\"kernel_maximum_acceleration_equality_reference_checked\":"
+                              << (sample.kernelMaximumAccelerationEqualityReferenceChecked
+                                      ? "true" : "false")
+                              << ",\"kernel_maximum_acceleration_equality_derivative\":"
+                              << sample.kernelMaximumAccelerationEqualityDerivative
+                              << ",\"kernel_maximum_acceleration_equality_position_error\":"
+                              << sample.kernelMaximumAccelerationEqualityPositionError
+                              << ",\"kernel_maximum_acceleration_equality_velocity_error\":"
+                              << sample.kernelMaximumAccelerationEqualityVelocityError
                               << ",\"published_maximum_acceleration_dof\":"
                               << sample.publishedMaximumAccelerationDof
                               << ",\"published_maximum_acceleration\":"
