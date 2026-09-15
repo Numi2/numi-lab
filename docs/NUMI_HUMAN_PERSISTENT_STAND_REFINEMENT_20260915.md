@@ -148,6 +148,12 @@ symmetrized equality/near-boundary-limit Delassus operator with a declared
 impulse system, alter the Metal runtime, or infer a contact impulse from the
 trace.
 
+The pivot retained 41 equality and 40 near-boundary limit directions on both
+the local arm64 and Apple M4 Pro runs. Individual dependent-row identities are
+deliberately not reported: tied near-zero pivots can select different,
+equivalent rows across platforms, while the rank and row-class counts remain
+the portable observation.
+
 On the exact 12.5 us source-bound trace at steps 1, 280, 281, and 512, the
 snapshot consistently contained 51 equality rows and 54 near-boundary limit
 rows. Its normalized operator had numerical rank 81 of 105 at the declared
