@@ -1587,8 +1587,12 @@ if(BUILD_TESTING)
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
     add_test(NAME numi_human_initial_state COMMAND metalrobo_numi_human_initial_state_test)
-    add_test(NAME numanx.integration.human_touch_aggregation COMMAND metalrobo_numanx_fullbody_bridge_probe --touch-aggregation-only)
-    set_tests_properties(numanx.integration.human_touch_aggregation PROPERTIES LABELS "numanx;human;metal;support")
+    if(TARGET metalrobo_numanx_fullbody_bridge_probe)
+        add_test(NAME numanx.integration.human_touch_aggregation
+            COMMAND metalrobo_numanx_fullbody_bridge_probe --touch-aggregation-only)
+        set_tests_properties(numanx.integration.human_touch_aggregation
+            PROPERTIES LABELS "numanx;human;metal;support")
+    endif()
     set_tests_properties(numi_human_initial_state PROPERTIES LABELS "numi-human;initialization;numanx")
 endif()
 
@@ -2913,16 +2917,22 @@ if(BUILD_TESTING)
         NAME matter.physics.human_support_loaded
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --human-support-loaded
     )
-    add_test(
-        NAME matter.physics.human_support_linearization
-        COMMAND $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe> --support-only
-    )
     set_tests_properties(
         matter.physics.human_support_loaded
-        matter.physics.human_support_linearization
         PROPERTIES ENVIRONMENT "MTL_DEBUG_LAYER=1"
         LABELS "human;matter;metal;physics" TIMEOUT 120
     )
+    if(TARGET metalrobo_numanx_fullbody_bridge_probe)
+        add_test(
+            NAME matter.physics.human_support_linearization
+            COMMAND $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe> --support-only
+        )
+        set_tests_properties(
+            matter.physics.human_support_linearization
+            PROPERTIES ENVIRONMENT "MTL_DEBUG_LAYER=1"
+            LABELS "human;matter;metal;physics" TIMEOUT 120
+        )
+    endif()
     add_test(
         NAME matter.physics.articulated_contact_boundary_recovery
         COMMAND
