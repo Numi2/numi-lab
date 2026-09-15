@@ -84,6 +84,26 @@ owners. It does not establish that those rows alone cause the temporal
 refinement failure, nor does it supply a full FP64 contact/friction/RHS/time
 integration reference.
 
+### Same-trace FP64 two-row check
+
+The existing read-only reference route was rerun at this exact trace point:
+step 279, equality 43, and its dependent upper-limit DOF 113. It independently
+obtained an equality derivative of `0.024761449566623395`; a centered finite
+difference gave `0.024761449638269203` (absolute difference
+`7.1645807342424206e-11`). The two-row Delassus correlation was
+`-0.99997094609204384`, with positive eigenvalues
+`0.0029024017843966021` and `199.79134150280635`, condition number
+`68836.555495827808`, and a minimum articulated Cholesky pivot of
+`0.010022659996858297`.
+
+The raw result is retained as
+[`step-279-fp64-rank-audit.txt`](media/numi-human-constraint-impulse-trace-20260915/step-279-fp64-rank-audit.txt)
+(SHA-256 `65ab14651c592cdc8f36ff7846fc385a679c1773c760a584aa942de33b22189d`).
+This confirms a strongly coupled but non-singular two-row operator at the
+observed event. It still excludes contact/friction rows, the production
+muscle/passive-force right-hand side, unilateral complementarity, and time
+integration; `full_active_set_qualified` remains false.
+
 ## Physical M4 Pro execution control
 
 The Mac mini data volume had only about 390 MiB free and its existing Human

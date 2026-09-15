@@ -2,11 +2,13 @@
 
 ## Immutable release tuple
 
-`human-native-runtime-package-v3-20260915` is the current release tag on the
+`human-native-runtime-package-v4-20260915` is the current release tag on the
 public `human-native-runtime-20260915` branch. It pins the complete bounded
 native-runtime tuple below, including the read-only constraint-impulse trace
-instrumentation and its retained receipts. `human-native-runtime-package-v2-20260915`
-and `human-native-runtime-package-20260915` remain earlier immutable package
+instrumentation, its retained receipts, and the same-trace step-279 FP64
+two-row check. `human-native-runtime-package-v3-20260915`,
+`human-native-runtime-package-v2-20260915`, and
+`human-native-runtime-package-20260915` remain earlier immutable package
 receipts.
 
 | Component | Immutable identity |
@@ -34,7 +36,9 @@ and trace hashes. It reported 51 equality rows, 54 near-boundary limit rows,
 numerical rank 81 of 105, and 41 retained equality plus 40 retained limit
 directions. The v3 source adds owner-retaining diagnostics only: its local
 6.4 ms trace records equality 43 / source-limit DOF 113 at the largest
-acceleration and post-projection limit residual. See
+acceleration and post-projection limit residual. The v4 package adds the
+same-trace FP64 two-row check, which measures a positive but strongly coupled
+operator for exactly that pair. See
 `NUMI_HUMAN_CONSTRAINT_IMPULSE_TRACE_20260915.md` for the exact raw-artifact
 hashes and the physical M4 Pro execution boundary. Neither audit is a
 contact, force, integration, standing, or physiological qualification.
@@ -60,7 +64,7 @@ metalrobo_numilab_human_myosim_visual_probe \
   --stand-contact-iterations 64 --stand-deterministic-replay
 ```
 
-The retained v3 local trace completes all 512 steps on an unassisted root,
+The retained v3/v4 local trace completes all 512 steps on an unassisted root,
 includes all 416 recruited muscle records, has zero penetration, and has a
 bitwise-equivalent segmented endpoint. Its peak kernel acceleration is
 `1.2233552932739258 m/s2 or rad/s2`; its raw transcript SHA-256 is
@@ -72,11 +76,11 @@ historical M4 Pro v2 receipt or a cross-hardware bitwise claim.
 
 The source-delivery problem is closed: an independent user can obtain the
 native source, receipt, and exact runtime inputs from pinned public tags. The
-v3 local executable is not byte-identical to the historical retained binary,
+v3/v4 local executable is not byte-identical to the historical retained binary,
 so this is not a historical-executable reproduction claim. The current Mac
 mini has insufficient free capacity for a new source build and was already
-owned by a separate full-Human run when the v3 full-body execution was due;
-the v3 physical M4 Pro evidence is therefore execution-only and focused.
+owned by a separate full-Human run when the v3/v4 full-body execution was due;
+the v3/v4 physical M4 Pro evidence is therefore execution-only and focused.
 No solver regularization, passive-stiffness tuning, or runtime mechanics was
 introduced by this release. The common-duration temporal force-convergence
 gate remains failed, and this release does not qualify standing, passive-force
