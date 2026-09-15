@@ -10,10 +10,12 @@
 
 #include <algorithm>
 #include <array>
+#include <cctype>
 #include <cmath>
 #include <charconv>
 #include <cstdint>
 #include <cstring>
+#include <cstdlib>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -544,6 +546,322 @@ int runJointEqualityDerivativeAudit(
               << ",\"relative_tolerance\":"
               << kJointEqualityDerivativeRelativeTolerance
               << ",\"passed\":true}\n";
+    return 0;
+}
+
+[[nodiscard]] std::uint32_t parseUnsignedArgument(
+    const char* const text,
+    const char* const name
+) {
+    const char* const end = text + std::strlen(text);
+    std::uint32_t value = 0u;
+    const auto parsed = std::from_chars(text, end, value);
+    require(
+        parsed.ec == std::errc{} && parsed.ptr == end,
+        std::string(name) + " must be an unsigned integer"
+    );
+    return value;
+}
+
+[[nodiscard]] std::vector<double> loadTraceConfiguration(
+    const char* const tracePath,
+    const std::uint32_t step,
+    const std::size_t expectedCount
+) {
+    std::ifstream input(tracePath, std::ios::binary | std::ios::ate);
+    require(input.is_open(), std::string("cannot open stand trace ") + tracePath);
+    const std::streamsize size = input.tellg();
+    require(size >= 0, "cannot determine stand trace size");
+    input.seekg(0, std::ios::beg);
+    std::string contents(static_cast<std::size_t>(size), '\0');
+    if (!contents.empty()) {
+        input.read(contents.data(), size);
+        require(input.good(), "truncated stand trace");
+    }
+
+    const std::string stepPrefix =
+        "{\"step\":" + std::to_string(step) + ",";
+    const std::size_t recordBegin = contents.find(stepPrefix);
+    require(recordBegin != std::string::npos,
+            "requested step is absent from stand trace");
+    const std::size_t nextRecord = contents.find("{\"step\":", recordBegin + 1u);
+    const std::size_t recordEnd = nextRecord == std::string::npos
+        ? contents.size()
+        : nextRecord;
+    const std::string qPrefix{"\"q\":["};
+    const std::size_t qBeginWithPrefix = contents.find(qPrefix, recordBegin);
+    require(
+        qBeginWithPrefix != std::string::npos && qBeginWithPrefix < recordEnd,
+        "requested stand-trace record has no configuration array"
+    );
+    const std::size_t qBegin = qBeginWithPrefix + qPrefix.size();
+    const std::size_t qEnd = contents.find(']', qBegin);
+    require(qEnd != std::string::npos && qEnd < recordEnd,
+            "stand-trace configuration array is truncated");
+
+    const std::string_view encoded(
+        contents.data() + qBegin, qEnd - qBegin
+    );
+    std::vector<double> q;
+    std::size_t cursor = 0u;
+    while (cursor < encoded.size()) {
+        const std::size_t comma = encoded.find(',', cursor);
+        const std::size_t tokenEnd = comma == std::string_view::npos
+            ? encoded.size()
+            : comma;
+        std::size_t tokenBegin = cursor;
+        while (tokenBegin < tokenEnd && std::isspace(
+            static_cast<unsigned char>(encoded[tokenBegin])
+        )) {
+            ++tokenBegin;
+        }
+        std::size_t trimmedEnd = tokenEnd;
+        while (trimmedEnd > tokenBegin && std::isspace(
+            static_cast<unsigned char>(encoded[trimmedEnd - 1u])
+        )) {
+            --trimmedEnd;
+        }
+        require(tokenBegin < trimmedEnd,
+                "stand-trace configuration has an empty element");
+        const std::string token(encoded.substr(tokenBegin, trimmedEnd - tokenBegin));
+        char* parsedEnd = nullptr;
+        const double value = std::strtod(token.c_str(), &parsedEnd);
+        require(
+            parsedEnd != token.c_str() && *parsedEnd == '\0' && std::isfinite(value),
+            "stand-trace configuration has a non-finite or invalid element"
+        );
+        q.push_back(value);
+        require(q.size() <= expectedCount,
+                "stand-trace configuration has too many elements");
+        if (comma == std::string_view::npos) break;
+        cursor = comma + 1u;
+    }
+    require(q.size() == expectedCount,
+            "stand-trace configuration count disagrees with NHRIGID2");
+    return q;
+}
+
+struct SymmetricTwoByTwoSpectrum {
+    double minimumEigenvalue = 0.0;
+    double maximumEigenvalue = 0.0;
+    double condition = 0.0;
+};
+
+[[nodiscard]] SymmetricTwoByTwoSpectrum spectrum(
+    const double diagonal0,
+    const double offDiagonal,
+    const double diagonal1
+) {
+    const double trace = diagonal0 + diagonal1;
+    const double radius = std::hypot(diagonal0 - diagonal1, 2.0 * offDiagonal);
+    SymmetricTwoByTwoSpectrum result{
+        .minimumEigenvalue = 0.5 * (trace - radius),
+        .maximumEigenvalue = 0.5 * (trace + radius),
+    };
+    require(
+        std::isfinite(result.minimumEigenvalue) &&
+            std::isfinite(result.maximumEigenvalue) &&
+            result.minimumEigenvalue > 0.0,
+        "equality/limit Delassus matrix is not positive definite"
+    );
+    result.condition = result.maximumEigenvalue / result.minimumEigenvalue;
+    require(std::isfinite(result.condition),
+            "equality/limit Delassus condition is non-finite");
+    return result;
+}
+
+int runTraceEqualityLimitRankAudit(
+    const char* const rigidPath,
+    const char* const equalityPath,
+    const char* const tracePath,
+    const char* const stepArgument,
+    const char* const equalityArgument
+) {
+    constexpr double kBoundaryTolerance = 1.0e-5;
+    constexpr double kResponseRegularization = 1.0e-7;
+    const std::uint32_t step = parseUnsignedArgument(stepArgument, "trace step");
+    const std::uint32_t equalityIndex =
+        parseUnsignedArgument(equalityArgument, "equality index");
+    const LoadedRigid rigid = loadRigid(rigidPath);
+    const metalrobo::NumiHumanJointEqualityPayload equalities =
+        loadJointEqualities(equalityPath, rigid.header);
+    require(equalityIndex < equalities.records.size(),
+            "equality index is outside NHEQ1");
+    const std::vector<double> q = loadTraceConfiguration(
+        tracePath, step, rigid.header.nq
+    );
+    const MRNumiHumanJointEqualityGPU& equality =
+        equalities.records[equalityIndex];
+    require(
+        equality.indices.y < rigid.header.nv &&
+            equality.indices.x < rigid.header.nq,
+        "equality dependent indices are outside NHRIGID2"
+    );
+    const MRDofPropertiesGPU& limit = rigid.model.dofs.at(equality.indices.y);
+    require(
+        limit.qIndex != MR_INVALID_INDEX && limit.qIndex < rigid.header.nq &&
+            (limit.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u,
+        "equality dependent DoF has no source position limit"
+    );
+
+    metalrobo::NumiHumanJointEqualityEvaluation evaluation;
+    require(
+        metalrobo::evaluateNumiHumanJointEquality(equality, q, evaluation).succeeded(),
+        "could not evaluate trace equality"
+    );
+    double traceFiniteDifference = 0.0;
+    double traceDerivativeAbsoluteError = 0.0;
+    double traceDerivativeRelativeError = 0.0;
+    if (equality.indices.z != MR_INVALID_INDEX) {
+        require(
+            equality.indices.z < rigid.header.nq &&
+                equality.indices.w < rigid.header.nv,
+            "equality master indices are outside NHRIGID2"
+        );
+        const double coordinate = q[equality.indices.z];
+        const double h = 1.0e-5 * std::max(1.0, std::abs(coordinate));
+        std::vector<double> positive(q);
+        std::vector<double> negative(q);
+        positive[equality.indices.z] += h;
+        negative[equality.indices.z] -= h;
+        metalrobo::NumiHumanJointEqualityEvaluation plus;
+        metalrobo::NumiHumanJointEqualityEvaluation minus;
+        require(
+            metalrobo::evaluateNumiHumanJointEquality(equality, positive, plus).succeeded() &&
+                metalrobo::evaluateNumiHumanJointEquality(equality, negative, minus).succeeded(),
+            "trace equality derivative finite-difference evaluation failed"
+        );
+        traceFiniteDifference =
+            (plus.dependentTarget - minus.dependentTarget) / (2.0 * h);
+        traceDerivativeAbsoluteError =
+            std::abs(traceFiniteDifference - evaluation.derivative);
+        traceDerivativeRelativeError = traceDerivativeAbsoluteError / std::max(
+            {1.0, std::abs(traceFiniteDifference), std::abs(evaluation.derivative)}
+        );
+        require(
+            traceDerivativeRelativeError <= kJointEqualityDerivativeRelativeTolerance,
+            "trace equality derivative finite-difference mismatch"
+        );
+    } else {
+        require(evaluation.derivative == 0.0,
+                "constant trace equality has a nonzero derivative");
+    }
+    const double position = q[limit.qIndex];
+    const double lowerDistance = position - static_cast<double>(limit.limits.x);
+    const double upperDistance = static_cast<double>(limit.limits.y) - position;
+    const bool lowerBoundary = std::abs(lowerDistance) <= std::abs(upperDistance);
+    const double boundaryDistance = lowerBoundary ? lowerDistance : upperDistance;
+    require(
+        std::isfinite(lowerDistance) && std::isfinite(upperDistance) &&
+            std::abs(boundaryDistance) <= kBoundaryTolerance,
+        "trace equality dependent coordinate is not near a source limit"
+    );
+    const double limitSign = lowerBoundary ? 1.0 : -1.0;
+
+    const std::size_t nv = rigid.header.nv;
+    std::vector<double> rows(2u * nv, 0.0);
+    rows[equality.indices.y] = 1.0;
+    if (equality.indices.w != MR_INVALID_INDEX) {
+        require(equality.indices.w < rigid.header.nv,
+                "equality master velocity is outside NHRIGID2");
+        rows[equality.indices.w] = -evaluation.derivative;
+    }
+    rows[nv + equality.indices.y] = limitSign;
+    std::vector<double> responses(2u * nv, 0.0);
+    metalrobo::ArticulatedDynamicsConfig dynamicsConfig{};
+    dynamicsConfig.gravity = {
+        rigid.model.world.gravityAndTimestep.x,
+        rigid.model.world.gravityAndTimestep.y,
+        rigid.model.world.gravityAndTimestep.z,
+    };
+    dynamicsConfig.timestep = rigid.model.world.gravityAndTimestep.w;
+    const auto responseDiagnostics =
+        metalrobo::computeArticulatedInverseMassResponses(
+            rigid.model, 0u, q, rows, responses, dynamicsConfig
+        );
+    require(
+        responseDiagnostics.succeeded(),
+        "FP64 equality/limit inverse-mass response failed status=" +
+            std::to_string(static_cast<std::uint32_t>(responseDiagnostics.status))
+    );
+
+    double delassus00 = 0.0;
+    double delassus01 = 0.0;
+    double delassus10 = 0.0;
+    double delassus11 = 0.0;
+    double rowNorm0Squared = 0.0;
+    double rowNorm1Squared = 0.0;
+    double rowDot = 0.0;
+    for (std::size_t dof = 0u; dof < nv; ++dof) {
+        const double equalityRow = rows[dof];
+        const double limitRow = rows[nv + dof];
+        delassus00 += equalityRow * responses[dof];
+        delassus01 += equalityRow * responses[nv + dof];
+        delassus10 += limitRow * responses[dof];
+        delassus11 += limitRow * responses[nv + dof];
+        rowNorm0Squared += equalityRow * equalityRow;
+        rowNorm1Squared += limitRow * limitRow;
+        rowDot += equalityRow * limitRow;
+    }
+    const double symmetricOffDiagonal = 0.5 * (delassus01 + delassus10);
+    const SymmetricTwoByTwoSpectrum physical = spectrum(
+        delassus00, symmetricOffDiagonal, delassus11
+    );
+    const SymmetricTwoByTwoSpectrum regularized = spectrum(
+        delassus00 + kResponseRegularization, symmetricOffDiagonal,
+        delassus11 + kResponseRegularization
+    );
+    const double rowCosine = rowDot / std::sqrt(rowNorm0Squared * rowNorm1Squared);
+    const double delassusCorrelation = symmetricOffDiagonal /
+        std::sqrt(delassus00 * delassus11);
+    require(
+        std::isfinite(rowCosine) && std::isfinite(delassusCorrelation),
+        "equality/limit correlation is non-finite"
+    );
+
+    std::cout << std::setprecision(17)
+              << "numi_human_trace_equality_limit_rank_audit="
+              << "{\"schema\":\"numi.human.trace-equality-limit-rank-audit.v1\""
+              << ",\"trace_step\":" << step
+              << ",\"equality_index\":" << equalityIndex
+              << ",\"dependent_q\":" << equality.indices.x
+              << ",\"dependent_v\":" << equality.indices.y
+              << ",\"master_q\":" << equality.indices.z
+              << ",\"master_v\":" << equality.indices.w
+              << ",\"dependent_position\":" << position
+              << ",\"lower_distance\":" << lowerDistance
+              << ",\"upper_distance\":" << upperDistance
+              << ",\"limit_boundary\":\""
+              << (lowerBoundary ? "lower" : "upper") << "\""
+              << ",\"equality_target\":" << evaluation.dependentTarget
+              << ",\"equality_position_error\":" << evaluation.positionError
+              << ",\"equality_derivative\":" << evaluation.derivative
+              << ",\"trace_derivative_finite_difference\":"
+              << traceFiniteDifference
+              << ",\"trace_derivative_absolute_error\":"
+              << traceDerivativeAbsoluteError
+              << ",\"trace_derivative_relative_error\":"
+              << traceDerivativeRelativeError
+              << ",\"row_cosine\":" << rowCosine
+              << ",\"delassus_00\":" << delassus00
+              << ",\"delassus_01\":" << delassus01
+              << ",\"delassus_10\":" << delassus10
+              << ",\"delassus_11\":" << delassus11
+              << ",\"delassus_correlation\":" << delassusCorrelation
+              << ",\"physical_min_eigenvalue\":" << physical.minimumEigenvalue
+              << ",\"physical_max_eigenvalue\":" << physical.maximumEigenvalue
+              << ",\"physical_condition\":" << physical.condition
+              << ",\"regularization\":" << kResponseRegularization
+              << ",\"regularized_min_eigenvalue\":"
+              << regularized.minimumEigenvalue
+              << ",\"regularized_max_eigenvalue\":"
+              << regularized.maximumEigenvalue
+              << ",\"regularized_condition\":" << regularized.condition
+              << ",\"fp64_minimum_cholesky_pivot\":"
+              << responseDiagnostics.minimumCholeskyPivot
+              << ",\"source_identity_matched\":true"
+              << ",\"full_active_set_qualified\":false}"
+              << '\n';
     return 0;
 }
 
@@ -2017,6 +2335,12 @@ int main(int argc, char** argv) {
             std::string(argv[3]) == "--equality-derivative-audit") {
             return runJointEqualityDerivativeAudit(argv[1], argv[2]);
         }
+        if (argc == 7 &&
+            std::string(argv[3]) == "--trace-equality-limit-rank-audit") {
+            return runTraceEqualityLimitRankAudit(
+                argv[1], argv[2], argv[4], argv[5], argv[6]
+            );
+        }
         if ((argc == 5 || argc == 7) && (std::string(argv[3]) == "--prepared-paths" ||
             std::string(argv[3]) == "--prepared-compensated-paths")) {
             std::uint64_t timestepOverride = 0u;
@@ -2035,7 +2359,11 @@ int main(int argc, char** argv) {
                       << "<myosim-fullbody-muscle-reference.nhmyo> "
                       << "[numi-human-tendon-endpoints.nhtendon] [--metal] "
                          "[myosim-fullbody-joint-equalities.nheq] "
-                         "[--equilibrium] | <myosim-fullbody-joint-equalities.nheq> --equality-derivative-audit | --prepared-paths/--prepared-compensated-paths <prepared.nhinit> [--timestep-us N]\n";
+                         "[--equilibrium] | <rigid> <NHEQ1> --equality-derivative-audit | "
+                         "<rigid> <NHEQ1> --trace-equality-limit-rank-audit "
+                         "<trace> <step> <equality-index> | "
+                         "--prepared-paths/--prepared-compensated-paths "
+                         "<prepared.nhinit> [--timestep-us N]\n";
             return 2;
         }
         const char* tendonPath = nullptr;

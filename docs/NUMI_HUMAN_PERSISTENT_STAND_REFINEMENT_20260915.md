@@ -90,6 +90,51 @@ contact-surface rounding boundary. This further narrows the next experiment
 to the real equality/limit active set; it does not identify a corrective
 formulation.
 
+## Full-body step-281 two-row rank audit
+
+The public `metalrobo_numilab_human_myosim_reference_probe` now has a
+read-only FP64 `--trace-equality-limit-rank-audit` route. It loads the retained
+12.5 us trace configuration together with the source NHRIGID2/NHEQ1 payloads,
+then forms only the two rows implicated above: equality 43 and the dependent
+DOF 113 upper-limit row. It evaluates the equality derivative at that exact
+trace configuration, obtains the two articulated inverse-mass responses, and
+reports their 2-by-2 Delassus spectrum. It neither invokes nor changes the
+Metal runtime solver, its ordering, its regularization, or any runtime
+acceptance policy.
+
+At step 281, the equality derivative was `0.024761449652952218`; an
+independent centered finite difference at the same trace configuration was
+`0.024761449724571696` (absolute error `7.161947770950583e-11`). The
+configuration rows have cosine `-0.99969357620641963`, and their FP64
+Delassus correlation is `-0.99997094609184678`. The physical 2-by-2 matrix
+has eigenvalues `0.0029024018040786359` and `199.79134150282351`, for a
+condition number of `68836.555029032941`; its minimum articulated Cholesky
+pivot is `0.010022659996853154`.
+
+As a diagnostic counterfactual only, adding `1e-7` to each diagonal changes
+the condition number only to `68834.183435297993`. Thus this pair is strongly
+near-dependent but not singular, and this particular diagonal magnitude does
+not materially improve its conditioning. That rejects a superficial
+regularization response; it does not select a production formulation.
+
+The same two-row audit at retained steps 1, 280, and 512 produced physical
+condition numbers `68836.275941459564`, `68836.552307467617`, and
+`68836.569541804987`, respectively; each trace-point derivative matched its
+finite difference within `7.17e-11`. The localized conditioning is therefore
+already present at the beginning of this retained release and does not show a
+sudden two-row rank collapse at step 281. This is still not a full active-set
+or time-integrated diagnosis.
+
+Two fresh Apple M4 Pro runs produced byte-identical raw stdout (SHA-256
+`4a20ec68331d4634847c9e5ea73c4aaf5085d27c750433002a3337c7453355a3`). The
+probe intentionally reports `full_active_set_qualified: false`: it excludes
+the remaining equalities, source limits, contacts, friction rows, muscle and
+passive-force right-hand sides, and time integration. It therefore neither
+proves a full active-set rank failure nor resolves the temporal-convergence
+failure. The next solver experiment must retain the production rows and RHS
+while isolating this real interaction; it must not promote a two-row
+counterfactual as a solver fix.
+
 ## Smallest production-path coupled-solve discriminator
 
 `metalrobo_numi_human_stand_coupling_probe` is a deliberately small,
@@ -226,6 +271,7 @@ different preparation or larger excursion.
 | 12.5 us / 6.4 ms | `db8de20f02a10d5c686ab3133b961ba267bb39e38cb8d301293a2bd16c187644` |
 | 12.5 us / 0.8 ms, runtime passive on | `e61a9755158cccaea00f44b06d8bac342852fb30d42929d96d255f685bd8ac5d` |
 | 12.5 us / 0.8 ms, runtime passive off | `bdbf73e8cb7aa6948415f21b6f9751135d4ac07d821bd76b3fca9becd8651516` |
+| step-281 FP64 two-row rank audit, both runs | `4a20ec68331d4634847c9e5ea73c4aaf5085d27c750433002a3337c7453355a3` |
 
 The 0.8 ms runtime-passive-on result reproduces a kernel peak of
 `0.11579056829214096`, consistent with the retained approximate `0.116`
@@ -256,3 +302,17 @@ MTL_DEBUG_LAYER=1 <build-dir>/bin/metalrobo_numilab_human_myosim_visual_probe \
 Use `(dt, count)` values `(0.0001, 64)`, `(0.00005, 128)`,
 `(0.000025, 256)`, and `(0.0000125, 512)`. Keep the raw trace, not merely
 its summary, when testing a focused coupled-solve change.
+
+To reproduce the bounded rank audit from the same retained 12.5 us trace:
+
+```sh
+cmake --build <build-dir> --target metalrobo_numilab_human_myosim_reference_probe
+<build-dir>/bin/metalrobo_numilab_human_myosim_reference_probe \
+  <rigid.nhrigid> <equalities.nheq> \
+  --trace-equality-limit-rank-audit <persistent-stand-trace.txt> 281 43
+```
+
+The audit requires the full retained configuration array for the requested
+step and rejects a missing, malformed, or schema-incompatible array. Its
+result is a localized FP64 conditioning measurement, not a replay, standing,
+or physiological qualification.
