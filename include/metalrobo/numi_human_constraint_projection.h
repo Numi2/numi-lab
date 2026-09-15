@@ -51,3 +51,50 @@ inline float mrNumiHumanProjectIntervalImpulse(
     if (upperCandidate < 0.0f) return upperCandidate;
     return 0.0f;
 }
+
+#if defined(__METAL_VERSION__)
+inline float mrNumiHumanFusedMultiplyAdd(float a, float b, float c) {
+    return metal::fma(a, b, c);
+}
+#else
+#include <cmath>
+inline float mrNumiHumanFusedMultiplyAdd(float a, float b, float c) {
+    return std::fma(a, b, c);
+}
+#endif
+
+struct MRNumiHumanEqualityLimitBlock {
+    float equalityDelta;
+    float limitImpulse;
+    float projectedResponse;
+    bool valid;
+};
+
+// A local Schur block inside the existing coupled sweep, not a second global
+// solver. The four entries are contractions of the SAME factored mass responses:
+// a=E M^-1 E^T, b=E M^-1 L^T, c=L M^-1 E^T, d=L M^-1 L^T.
+// Keeping b and c separate respects the actual FP32 response vectors.
+inline MRNumiHumanEqualityLimitBlock mrNumiHumanProjectEqualityLimitBlock(
+    float accumulatedLimit, float equalityVelocity, float limitVelocity,
+    float equalityTarget, float lowerVelocity, float upperVelocity,
+    float a, float b, float c, float d
+) {
+    MRNumiHumanEqualityLimitBlock result = {0.0f, accumulatedLimit, 0.0f, false};
+    if (!(a > 0.0f) || !(d > 0.0f)) return result;
+    const float ca = c / a;
+    const float projected = mrNumiHumanFusedMultiplyAdd(-ca, b, d);
+    result.projectedResponse = projected;
+    // A rank-deficient pair has no independent limit direction. Do not
+    // manufacture one with diagonal compliance; the caller retains its
+    // ordinary row solve and the existing residual gates.
+    if (!(projected > 1.0e-7f * d)) return result;
+    const float equalityOnlyDelta = (equalityTarget - equalityVelocity) / a;
+    const float projectedVelocity = mrNumiHumanFusedMultiplyAdd(
+        c, equalityOnlyDelta, limitVelocity);
+    result.limitImpulse = mrNumiHumanProjectIntervalImpulse(
+        accumulatedLimit, projectedVelocity, lowerVelocity, upperVelocity, projected);
+    const float limitDelta = result.limitImpulse - accumulatedLimit;
+    result.equalityDelta = mrNumiHumanFusedMultiplyAdd(-b / a, limitDelta, equalityOnlyDelta);
+    result.valid = true;
+    return result;
+}
