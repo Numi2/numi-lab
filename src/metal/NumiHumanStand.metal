@@ -2,6 +2,7 @@
 
 #include "metalrobo/numi_human_joint_equality_gpu.h"
 #include "metalrobo/numi_human_stand_gpu.h"
+#include "metalrobo/numi_human_constraint_projection.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
 #include "metalrobo/numi_human_tendon_gpu.h"
 
@@ -672,26 +673,11 @@ kernel void mr_numi_human_stand_step(
                 vState[vBase + 3u], vState[vBase + 4u], vState[vBase + 5u]
             );
     }
-    // Source static support reactions are explicit contact-owner loads. They
-    // are converted to generalized force through the same point Jacobians
-    // used by the runtime contact solver; they are not root assistance.
+    // Support belongs exclusively to the unilateral impulse solve below.
+    // Static support is a retractable warm start, never an additional force.
     for (uint dof = 0u; dof < nv; ++dof) {
         float effort = generalizedForceWorkspace[forceBase + dof] +
             vectorScratch[preloadBase + dof];
-        if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
-            for (uint contact = 0u;
-                 contact < dispatch.supportContactCount;
-                 ++contact) {
-                const float supportForce =
-                    contacts[contact].frictionSlopAndStabilization.w;
-                if (supportForce <= 0.0f) continue;
-                effort += supportForce * pointJacobianAxis(
-                    pointJacobians, pointJacobianBase,
-                    contacts[contact].pointQueryIndex, nv, dof,
-                    dispatch.groundNormal.xyz
-                );
-            }
-        }
         if (dof < 3u) effort += assistanceForce[dof];
         else if (dof < 6u) effort += assistanceTorque[dof - 3u];
         candidateV[dof] = effort - bias[dof];
@@ -827,6 +813,24 @@ kernel void mr_numi_human_stand_step(
                     matrix[3u * row + column] = value;
                 }
             }
+            // Every step starts with a new free velocity. Initialize the
+            // matching total impulse and apply it exactly once; retaining an
+            // unapplied previous-step lambda would corrupt complementarity.
+            const float seed = mrNumiHumanSupportSeedImpulse(
+                support.frictionSlopAndStabilization.w, timestep, gap,
+                support.frictionSlopAndStabilization.y);
+            if (!isfinite(seed)) {
+                fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, contact);
+                return;
+            }
+            lambdas[3u * contact + 0u] = seed;
+            lambdas[3u * contact + 1u] = 0.0f;
+            lambdas[3u * contact + 2u] = 0.0f;
+            device const float* normalResponse = responseScratch +
+                responseBase + (3u * contact) * nv;
+            for (uint dof = 0u; dof < nv; ++dof) {
+                candidateV[dof] += seed * normalResponse[dof];
+            }
         }
         }
         for (uint iteration = 0u;
@@ -851,11 +855,9 @@ kernel void mr_numi_human_stand_step(
                         ) * candidateV[dof];
                     }
                 }
-                const float targetNormalVelocity = max(
-                    0.0f,
-                    -support.frictionSlopAndStabilization.z * min(gap, 0.0f) /
-                        timestep
-                );
+                const float targetNormalVelocity =
+                    mrNumiHumanContactVelocityTarget(gap, timestep,
+                        support.frictionSlopAndStabilization.z);
                 if (coupledSweep + 1u == coupledSweepCount) {
                     contactActiveForPostProjection[contact] = 1u;
                     contactTargetNormalVelocityForPostProjection[contact] =
@@ -1077,16 +1079,10 @@ kernel void mr_numi_human_stand_step(
         }
         const float position = qState[
             qBase + properties.qIndex - articulation.qOffset];
-        const float tolerance = 1.0e-7f;
-        const bool lowerNear = position <= properties.limits.x + tolerance;
-        const bool upperNear = position >= properties.limits.y - tolerance;
-        const bool lowerActive = lowerNear &&
-            (position < properties.limits.x || candidateV[dof] < 0.0f);
-        const bool upperActive = upperNear &&
-            (position > properties.limits.y || candidateV[dof] > 0.0f);
-        if (!lowerActive && !upperActive) continue;
-        if (lowerActive && upperActive) {
-            fail(status, MR_NUMI_HUMAN_STAND_INVALID_MODEL, dof);
+        // Prepare every authored scalar interval. Contact/equality updates
+        // can activate a row that was inactive in the first free velocity.
+        if (!isfinite(position)) {
+            fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_INPUT, dof);
             return;
         }
         if (limitCount >= limitResponseCapacity) {
@@ -1119,12 +1115,6 @@ kernel void mr_numi_human_stand_step(
                 dofs[articulation.vOffset + dof];
             const float position = qState[
                 qBase + properties.qIndex - articulation.qOffset];
-            const bool lowerActive =
-                position <= properties.limits.x + 1.0e-7f &&
-                (position < properties.limits.x || candidateV[dof] < 0.0f);
-            const bool upperActive =
-                position >= properties.limits.y - 1.0e-7f &&
-                (position > properties.limits.y || candidateV[dof] > 0.0f);
             device const float* response = responseScratch + limitResponseBase +
                 limit * nv;
             const float effectiveMass = response[dof] + kResponseRegularization;
@@ -1133,39 +1123,24 @@ kernel void mr_numi_human_stand_step(
                 fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED, dof);
                 return;
             }
-            const float velocity = candidateV[dof];
-            float targetVelocity = 0.0f;
-            float impulse = 0.0f;
-            if (lowerActive) {
-                targetVelocity = max(
-                    0.0f,
-                    min(4.0f,
-                        -0.2f * (position - properties.limits.x) / timestep)
-                );
-                if (velocity < targetVelocity) {
-                    impulse = max(
-                        0.0f,
-                        (targetVelocity - velocity) / effectiveMass
-                    );
-                }
-            } else if (upperActive) {
-                targetVelocity = min(
-                    0.0f,
-                    max(-4.0f,
-                        -0.2f * (position - properties.limits.y) / timestep)
-                );
-                if (velocity > targetVelocity) {
-                    impulse = min(
-                        0.0f,
-                        (targetVelocity - velocity) / effectiveMass
-                    );
-                }
+            const float lowerVelocity = mrNumiHumanLowerLimitVelocityTarget(
+                position, properties.limits.x, timestep);
+            const float upperVelocity = mrNumiHumanUpperLimitVelocityTarget(
+                position, properties.limits.y, timestep);
+            if (!isfinite(lowerVelocity) || !isfinite(upperVelocity) ||
+                lowerVelocity > upperVelocity) {
+                fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
+                return;
             }
+            const float nextImpulse = mrNumiHumanProjectIntervalImpulse(
+                limitAccumulatedImpulses[limit], candidateV[dof],
+                lowerVelocity, upperVelocity, effectiveMass);
+            const float impulse = nextImpulse - limitAccumulatedImpulses[limit];
             if (!isfinite(impulse)) {
                 fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
                 return;
             }
-            limitAccumulatedImpulses[limit] += impulse;
+            limitAccumulatedImpulses[limit] = nextImpulse;
             for (uint index = 0u; index < nv; ++index) {
                 candidateV[index] += impulse * response[index];
             }
@@ -1265,36 +1240,13 @@ kernel void mr_numi_human_stand_step(
                 device const MRDofPropertiesGPU& properties =
                     dofs[articulation.vOffset + dof];
                 const float position = limitPreStepPositions[limit];
-                const bool lowerActive =
-                    position <= properties.limits.x + 1.0e-7f &&
-                    (position < properties.limits.x || candidateV[dof] < 0.0f);
-                const bool upperActive =
-                    position >= properties.limits.y - 1.0e-7f &&
-                    (position > properties.limits.y || candidateV[dof] > 0.0f);
-                if (lowerActive) {
-                    const float targetVelocity = max(
-                        0.0f,
-                        min(4.0f,
-                            -0.2f * (position - properties.limits.x) /
-                                timestep)
-                    );
-                    maximumPreProjectionLimitResidual = max(
-                        maximumPreProjectionLimitResidual,
-                        max(0.0f, targetVelocity - candidateV[dof])
-                    );
-                }
-                if (upperActive) {
-                    const float targetVelocity = min(
-                        0.0f,
-                        max(-4.0f,
-                            -0.2f * (position - properties.limits.y) /
-                                timestep)
-                    );
-                    maximumPreProjectionLimitResidual = max(
-                        maximumPreProjectionLimitResidual,
-                        max(0.0f, candidateV[dof] - targetVelocity)
-                    );
-                }
+                const float lowerVelocity = mrNumiHumanLowerLimitVelocityTarget(
+                    position, properties.limits.x, timestep);
+                const float upperVelocity = mrNumiHumanUpperLimitVelocityTarget(
+                    position, properties.limits.y, timestep);
+                maximumPreProjectionLimitResidual = max(maximumPreProjectionLimitResidual,
+                    max(max(0.0f, lowerVelocity - candidateV[dof]),
+                        max(0.0f, candidateV[dof] - upperVelocity)));
             }
         }
         for (uint equalityIndex = 0u;
@@ -1406,36 +1358,13 @@ kernel void mr_numi_human_stand_step(
                 device const MRDofPropertiesGPU& properties =
                     dofs[articulation.vOffset + dof];
                 const float position = limitPreStepPositions[limit];
-                const bool lowerActive =
-                    position <= properties.limits.x + 1.0e-7f &&
-                    (position < properties.limits.x || candidateV[dof] < 0.0f);
-                const bool upperActive =
-                    position >= properties.limits.y - 1.0e-7f &&
-                    (position > properties.limits.y || candidateV[dof] > 0.0f);
-                if (lowerActive) {
-                    const float targetVelocity = max(
-                        0.0f,
-                        min(4.0f,
-                            -0.2f * (position - properties.limits.x) /
-                                timestep)
-                    );
-                    maximumPostProjectionLimitResidual = max(
-                        maximumPostProjectionLimitResidual,
-                        max(0.0f, targetVelocity - candidateV[dof])
-                    );
-                }
-                if (upperActive) {
-                    const float targetVelocity = min(
-                        0.0f,
-                        max(-4.0f,
-                            -0.2f * (position - properties.limits.y) /
-                                timestep)
-                    );
-                    maximumPostProjectionLimitResidual = max(
-                        maximumPostProjectionLimitResidual,
-                        max(0.0f, candidateV[dof] - targetVelocity)
-                    );
-                }
+                const float lowerVelocity = mrNumiHumanLowerLimitVelocityTarget(
+                    position, properties.limits.x, timestep);
+                const float upperVelocity = mrNumiHumanUpperLimitVelocityTarget(
+                    position, properties.limits.y, timestep);
+                maximumPostProjectionLimitResidual = max(maximumPostProjectionLimitResidual,
+                    max(max(0.0f, lowerVelocity - candidateV[dof]),
+                        max(0.0f, candidateV[dof] - upperVelocity)));
             }
         }
         for (uint equalityIndex = 0u;
