@@ -2539,6 +2539,33 @@ struct PersistentDynamicForceAuditRow {
     double residual = 0.0;
 };
 
+// An opt-in diagnostic trace made of one accepted production horizon step at
+// a time. It retains q/v at each sample so timestep comparisons can examine
+// the trajectory, while keeping force-work and impulsive-constraint evidence
+// explicitly separate.
+struct PersistentStandTraceSample {
+    std::uint32_t step = 0u;
+    double timeSeconds = 0.0;
+    std::uint32_t maximumAccelerationDof = MR_INVALID_INDEX;
+    double maximumAcceleration = 0.0;
+    std::uint32_t maximumConfigurationDeltaQ = MR_INVALID_INDEX;
+    double maximumConfigurationDelta = 0.0;
+    std::uint32_t maximumVelocityDof = MR_INVALID_INDEX;
+    double maximumVelocity = 0.0;
+    double minimumPlaneGapMeters = 0.0;
+    double maximumPenetrationMeters = 0.0;
+    double normalImpulse = 0.0;
+    double tendonMaximumForceResidual = 0.0;
+    double tendonMaximumMomentResidual = 0.0;
+    double maximumEqualityImpulse = 0.0;
+    double totalEqualityImpulse = 0.0;
+    double muscleVirtualWorkJoules = 0.0;
+    double preloadVirtualWorkJoules = 0.0;
+    double supportVirtualWorkJoules = 0.0;
+    std::vector<float> q;
+    std::vector<float> v;
+};
+
 struct MuscleDrivenVisualState {
     std::vector<float> q;
     std::vector<std::array<mr_float4, 2u>> extensorHoodSolvedSegments;
@@ -2575,6 +2602,14 @@ struct MuscleDrivenVisualState {
     double sourceDynamicForceParityMaximumNewtons = 0.0;
     double persistentDynamicMaximumForceResidual = 0.0;
     std::vector<PersistentDynamicForceAuditRow> persistentDynamicForceAudit;
+    bool persistentStandTraceCaptured = false;
+    bool persistentStandTraceEndpointBitwise = false;
+    double persistentStandTraceEndpointMaximumQDelta = 0.0;
+    double persistentStandTraceEndpointMaximumVDelta = 0.0;
+    double persistentStandTraceMuscleVirtualWorkJoules = 0.0;
+    double persistentStandTracePreloadVirtualWorkJoules = 0.0;
+    double persistentStandTraceSupportVirtualWorkJoules = 0.0;
+    std::vector<PersistentStandTraceSample> persistentStandTrace;
     double sourceSupportForceParityMaximumNewtons = 0.0;
     std::uint32_t sourceSupportForceParityMaximumDof = MR_INVALID_INDEX;
     std::string muscleMetalDeviceName;
@@ -3783,7 +3818,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const bool requireContinuumRigidStateEffect = true,
     const metalrobo::MetalNumiHumanTendonLoadProgram*
         additionalTendonLoadProgram = nullptr,
-    const bool sourcePassiveJointTissue = false
+    const bool sourcePassiveJointTissue = false,
+    const bool capturePersistentStandTrace = false
 ) {
     require(std::isfinite(timestepSeconds) && timestepSeconds >= 1.0e-6 &&
                 timestepSeconds <= 1.0e-3 && stepCount >= 1u &&
@@ -3818,6 +3854,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             "selected Human tendon control requires NHMYO2 and an explicit source-muscle subset");
     require(!removeRootAssistance || enableRootAssistance,
             "assistance removal requires an assisted stand phase");
+    require(!capturePersistentStandTrace ||
+                (!enableRootAssistance && !removeRootAssistance &&
+                 continuumTransaction == nullptr &&
+                 additionalTendonLoadProgram == nullptr),
+            "persistent Human trace requires an unassisted source-only horizon");
     require(continuumTransaction == nullptr ||
                 (continuumTransaction->program.valid() &&
                  continuumTransaction->runtime != nullptr &&
@@ -4474,6 +4515,181 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     jointEqualities.payload.records.size() &&
                 status.jointEqualityCounts.z == 0u,
             "persistent Human stand returned an incomplete device status");
+    std::vector<PersistentStandTraceSample> persistentStandTrace;
+    bool persistentStandTraceEndpointBitwise = false;
+    double persistentStandTraceEndpointMaximumQDelta = 0.0;
+    double persistentStandTraceEndpointMaximumVDelta = 0.0;
+    double persistentStandTraceMuscleVirtualWorkJoules = 0.0;
+    double persistentStandTracePreloadVirtualWorkJoules = 0.0;
+    double persistentStandTraceSupportVirtualWorkJoules = 0.0;
+    if (capturePersistentStandTrace) {
+        require(anatomicalLoadProgram == nullptr,
+                "persistent Human trace cannot replace source route force ownership");
+        metalrobo::MetalArticulatedOperatorContext traceContext(config);
+        metalrobo::MetalArticulatedOperatorInput traceInput = input;
+        // The nominal horizon's borrowed audit callback is intentionally not
+        // replayed here: it observes the same transfer buffer but is not part
+        // of the mechanics. This keeps its transaction counters tied to the
+        // authoritative horizon while the trace exercises the production
+        // MyoSim/contact/equality/tendon kernel one accepted step at a time.
+        traceInput.stand.tendonLoadProgram = {};
+        traceInput.stand.stepCount = 1u;
+        std::vector<float> traceQ(q);
+        std::vector<float> traceV(v);
+        std::vector<MRMujocoMuscleStateGPU> traceStates = states;
+        std::vector<MRCompensatedRootTranslationGPU> traceRoots;
+        persistentStandTrace.reserve(static_cast<std::size_t>(stepCount) + 1u);
+        PersistentStandTraceSample initialSample;
+        initialSample.q = traceQ;
+        initialSample.v = traceV;
+        persistentStandTrace.push_back(std::move(initialSample));
+        for (std::uint32_t traceStep = 1u;
+             traceStep <= stepCount; ++traceStep) {
+            traceInput.q = traceQ;
+            traceInput.rootTranslations = traceRoots;
+            traceInput.stand.v = traceV;
+            traceInput.mujoco.states = traceStates;
+            metalrobo::MetalArticulatedOperatorResult traceResult;
+            const auto traceDiagnostics = traceContext.run(
+                model, traceInput, traceResult
+            );
+            require(
+                traceDiagnostics.succeeded() && traceDiagnostics.published &&
+                    traceDiagnostics.completedStandSteps == 1u &&
+                    traceResult.standQ.size() == traceQ.size() &&
+                    traceResult.standV.size() == traceV.size() &&
+                    traceResult.standRootTranslations.size() == 1u &&
+                    traceResult.mujocoActivationStates.size() == traceStates.size() &&
+                    traceResult.mujocoGeneralizedForces.size() == traceV.size() &&
+                    traceResult.standStatuses.size() == 1u &&
+                    traceResult.standStatuses.front().code ==
+                        MR_NUMI_HUMAN_STAND_SUCCESS,
+                "persistent Human segmented trace step failed: " +
+                    traceDiagnostics.message
+            );
+            const auto generalizedVirtualWork = [&traceV, &traceResult,
+                                                   timestepSeconds](const auto& force) {
+                require(force.size() == traceV.size(),
+                        "persistent Human trace force-work dimensions disagree");
+                double work = 0.0;
+                for (std::size_t dof = 0u; dof < traceV.size(); ++dof) {
+                    const double midpointVelocity = 0.5 * (
+                        static_cast<double>(traceV[dof]) +
+                        static_cast<double>(traceResult.standV[dof])
+                    );
+                    work += static_cast<double>(force[dof]) *
+                        midpointVelocity * timestepSeconds;
+                }
+                require(std::isfinite(work),
+                        "persistent Human trace virtual work is non-finite");
+                return work;
+            };
+            PersistentStandTraceSample sample;
+            sample.step = traceStep;
+            sample.timeSeconds = timestepSeconds * traceStep;
+            const auto& traceStatus = traceResult.standStatuses.front();
+            sample.minimumPlaneGapMeters =
+                traceStatus.contactAndAcceleration.x;
+            sample.maximumPenetrationMeters =
+                traceStatus.contactAndAcceleration.y;
+            sample.normalImpulse = traceStatus.contactAndAcceleration.z;
+            sample.tendonMaximumForceResidual = traceStatus.tendonDiagnostics.x;
+            sample.tendonMaximumMomentResidual = traceStatus.tendonDiagnostics.y;
+            sample.maximumEqualityImpulse =
+                traceStatus.jointEqualityDiagnostics.z;
+            sample.totalEqualityImpulse =
+                traceStatus.jointEqualityDiagnostics.w;
+            sample.muscleVirtualWorkJoules = generalizedVirtualWork(
+                traceResult.mujocoGeneralizedForces
+            );
+            sample.preloadVirtualWorkJoules = generalizedVirtualWork(
+                preloadedGeneralizedForce
+            );
+            sample.supportVirtualWorkJoules = generalizedVirtualWork(
+                compiledActivation.generalizedSupportForce
+            );
+            persistentStandTraceMuscleVirtualWorkJoules +=
+                sample.muscleVirtualWorkJoules;
+            persistentStandTracePreloadVirtualWorkJoules +=
+                sample.preloadVirtualWorkJoules;
+            persistentStandTraceSupportVirtualWorkJoules +=
+                sample.supportVirtualWorkJoules;
+            for (std::size_t qIndex = 0u; qIndex < traceResult.standQ.size();
+                 ++qIndex) {
+                const double delta = std::abs(
+                    static_cast<double>(traceResult.standQ[qIndex]) -
+                    static_cast<double>(q[qIndex])
+                );
+                if (delta > sample.maximumConfigurationDelta) {
+                    sample.maximumConfigurationDelta = delta;
+                    sample.maximumConfigurationDeltaQ =
+                        static_cast<std::uint32_t>(qIndex);
+                }
+            }
+            for (std::size_t dof = 0u; dof < traceResult.standV.size();
+                 ++dof) {
+                const double acceleration = std::abs(
+                    (static_cast<double>(traceResult.standV[dof]) -
+                     static_cast<double>(traceV[dof])) / timestepSeconds
+                );
+                if (acceleration > sample.maximumAcceleration) {
+                    sample.maximumAcceleration = acceleration;
+                    sample.maximumAccelerationDof =
+                        static_cast<std::uint32_t>(dof);
+                }
+                const double velocity = std::abs(
+                    static_cast<double>(traceResult.standV[dof])
+                );
+                if (velocity > sample.maximumVelocity) {
+                    sample.maximumVelocity = velocity;
+                    sample.maximumVelocityDof =
+                        static_cast<std::uint32_t>(dof);
+                }
+            }
+            require(std::isfinite(sample.maximumAcceleration) &&
+                        std::isfinite(sample.maximumConfigurationDelta) &&
+                        std::isfinite(sample.maximumVelocity),
+                    "persistent Human trace produced a non-finite state diagnostic");
+            sample.q = traceResult.standQ;
+            sample.v = traceResult.standV;
+            persistentStandTrace.push_back(std::move(sample));
+            traceQ = std::move(traceResult.standQ);
+            traceV = std::move(traceResult.standV);
+            traceStates = std::move(traceResult.mujocoActivationStates);
+            traceRoots = std::move(traceResult.standRootTranslations);
+        }
+        for (std::size_t qIndex = 0u; qIndex < traceQ.size(); ++qIndex) {
+            persistentStandTraceEndpointMaximumQDelta = std::max(
+                persistentStandTraceEndpointMaximumQDelta,
+                std::abs(static_cast<double>(traceQ[qIndex]) -
+                         static_cast<double>(metalResult.standQ[qIndex]))
+            );
+        }
+        for (std::size_t dof = 0u; dof < traceV.size(); ++dof) {
+            persistentStandTraceEndpointMaximumVDelta = std::max(
+                persistentStandTraceEndpointMaximumVDelta,
+                std::abs(static_cast<double>(traceV[dof]) -
+                         static_cast<double>(metalResult.standV[dof]))
+            );
+        }
+        persistentStandTraceEndpointBitwise =
+            std::memcmp(traceQ.data(), metalResult.standQ.data(),
+                        traceQ.size() * sizeof(float)) == 0 &&
+            std::memcmp(traceV.data(), metalResult.standV.data(),
+                        traceV.size() * sizeof(float)) == 0 &&
+            traceStates.size() == metalResult.mujocoActivationStates.size() &&
+            std::memcmp(traceStates.data(),
+                        metalResult.mujocoActivationStates.data(),
+                        traceStates.size() * sizeof(MRMujocoMuscleStateGPU)) == 0 &&
+            traceRoots.size() == metalResult.standRootTranslations.size() &&
+            std::memcmp(traceRoots.data(), metalResult.standRootTranslations.data(),
+                        traceRoots.size() * sizeof(MRCompensatedRootTranslationGPU)) == 0;
+        require(persistentStandTraceEndpointBitwise,
+                "persistent Human segmented trace disagrees with the uninterrupted horizon: q=" +
+                    std::to_string(persistentStandTraceEndpointMaximumQDelta) +
+                    " v=" +
+                    std::to_string(persistentStandTraceEndpointMaximumVDelta));
+    }
     double tendonContinuumMaximumQDelta = 0.0;
     double tendonContinuumMaximumVDelta = 0.0;
     bool tendonContinuumReactionVerified = false;
@@ -4825,6 +5041,20 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     result.persistentDynamicMaximumForceResidual =
         dynamicInitialMaximumForceResidual;
     result.persistentDynamicForceAudit = std::move(dynamicForceAudit);
+    result.persistentStandTraceCaptured = capturePersistentStandTrace;
+    result.persistentStandTraceEndpointBitwise =
+        persistentStandTraceEndpointBitwise;
+    result.persistentStandTraceEndpointMaximumQDelta =
+        persistentStandTraceEndpointMaximumQDelta;
+    result.persistentStandTraceEndpointMaximumVDelta =
+        persistentStandTraceEndpointMaximumVDelta;
+    result.persistentStandTraceMuscleVirtualWorkJoules =
+        persistentStandTraceMuscleVirtualWorkJoules;
+    result.persistentStandTracePreloadVirtualWorkJoules =
+        persistentStandTracePreloadVirtualWorkJoules;
+    result.persistentStandTraceSupportVirtualWorkJoules =
+        persistentStandTraceSupportVirtualWorkJoules;
+    result.persistentStandTrace = std::move(persistentStandTrace);
     result.sourceSupportForceParityMaximumNewtons = sourceSupportForceParityMaximumNewtons;
     result.sourceSupportForceParityMaximumDof = sourceSupportForceParityMaximumDof;
     result.muscleMetalDeviceName = diagnostics.deviceName;
@@ -14242,6 +14472,7 @@ int main(int argc, char** argv) {
             bool standRootAssistance = false;
             bool standRemoveAssistance = false;
             bool standDeterministicReplay = false;
+            bool persistentStandTrace = false;
             bool bilateralAchillesCertificate = false;
             bool bilateralThumbTendonCertificate = false;
             bool bilateralTricepsMedialisEnthesisCertificate = false;
@@ -14328,6 +14559,10 @@ int main(int argc, char** argv) {
                     require(!standDeterministicReplay,
                             "--stand-deterministic-replay may be given only once");
                     standDeterministicReplay = true;
+                } else if (argument == "--persistent-stand-trace") {
+                    require(!persistentStandTrace,
+                            "--persistent-stand-trace may be given only once");
+                    persistentStandTrace = true;
                 } else if (argument == "--bilateral-achilles-certificate") {
                     require(!bilateralAchillesCertificate,
                             "--bilateral-achilles-certificate may be given only once");
@@ -14555,7 +14790,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-count <1.."
                           << MR_NUMI_HUMAN_STAND_MAX_STEPS << ">]"
                           << " [--muscle-activation <0..1>]"
-                          << " [--persistent-metal-stand] [--persistent-source-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay]"
+                          << " [--persistent-metal-stand] [--persistent-source-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace]"
                           << " [--bilateral-achilles-certificate]"
                           << " [--bilateral-thumb-tendon-certificate]"
                           << " [--bilateral-triceps-medialis-enthesis-certificate]"
@@ -15175,6 +15410,8 @@ int main(int argc, char** argv) {
                     "--stand-remove-assistance requires --stand-root-assistance");
             require(!standDeterministicReplay || persistentMetalStand,
                     "--stand-deterministic-replay requires --persistent-metal-stand");
+            require(!persistentStandTrace || persistentMetalStand,
+                    "--persistent-stand-trace requires --persistent-metal-stand");
             require(!passiveFEMTissueStableId.has_value() ||
                         (softTissuePayload.has_value() && muscleStepSeconds.has_value()),
                     "--passive-fem-tissue-stable-id requires --soft-tissue-payload and --muscle-step-seconds");
@@ -16282,7 +16519,8 @@ int main(int argc, char** argv) {
                                 std::nullopt,
                                 true,
                                 nullptr,
-                                persistentSourcePassiveJointTissue
+                                persistentSourcePassiveJointTissue,
+                                persistentStandTrace
                             )
                         );
                     }
@@ -17596,6 +17834,24 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->sourceDynamicForceParityMaximumNewtons : 0.0)
                       << " persistent_dynamic_force_residual_max_n=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->persistentDynamicMaximumForceResidual : 0.0)
+                      << " persistent_stand_trace=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->persistentStandTraceCaptured
+                                  ? "captured" : "not_requested")
+                      << " persistent_stand_trace_endpoint=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->persistentStandTraceCaptured
+                                  ? (muscleDrivenState->persistentStandTraceEndpointBitwise
+                                      ? "bitwise" : "mismatch")
+                                  : "not_requested")
+                      << " persistent_stand_trace_endpoint_max_q_delta=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentStandTraceEndpointMaximumQDelta : 0.0)
+                      << " persistent_stand_trace_endpoint_max_v_delta=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentStandTraceEndpointMaximumVDelta : 0.0)
+                      << " persistent_stand_trace_muscle_virtual_work_j=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentStandTraceMuscleVirtualWorkJoules : 0.0)
+                      << " persistent_stand_trace_preload_virtual_work_j=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentStandTracePreloadVirtualWorkJoules : 0.0)
+                      << " persistent_stand_trace_support_virtual_work_j=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentStandTraceSupportVirtualWorkJoules : 0.0)
                       << " source_support_force_parity_max_delta_n=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->sourceSupportForceParityMaximumNewtons : 0.0)
                       << " source_support_force_parity_max_delta_dof=" << (muscleDrivenState.has_value()
@@ -17829,6 +18085,83 @@ int main(int argc, char** argv) {
                               << ",\"passive_force_n\":" << row.passiveForce
                               << ",\"gravity_target_n\":" << row.gravityTarget
                               << ",\"residual_n\":" << row.residual << '}';
+                }
+                std::cout << "]}\n";
+            }
+            if (muscleDrivenState.has_value() &&
+                muscleDrivenState->persistentStandTraceCaptured) {
+                const auto writeTraceArray = [](const auto& values) {
+                    std::cout << '[';
+                    for (std::size_t valueIndex = 0u;
+                         valueIndex < values.size(); ++valueIndex) {
+                        if (valueIndex != 0u) std::cout << ',';
+                        std::cout << values[valueIndex];
+                    }
+                    std::cout << ']';
+                };
+                std::cout << std::setprecision(17)
+                          << "persistent_stand_trace={\"schema\":\"numi.human.persistent-stand-trace.v1\""
+                          << ",\"driver\":\"segmented_one_step_production_horizon\""
+                          << ",\"endpoint_equivalent\":\""
+                          << (muscleDrivenState->persistentStandTraceEndpointBitwise
+                                  ? "bitwise" : "mismatch")
+                          << "\""
+                          << ",\"endpoint_max_q_delta\":"
+                          << muscleDrivenState->persistentStandTraceEndpointMaximumQDelta
+                          << ",\"endpoint_max_v_delta\":"
+                          << muscleDrivenState->persistentStandTraceEndpointMaximumVDelta
+                          << ",\"work_scope\":\"continuous_generalized_source_muscle_preload_and_support_virtual_work_excludes_impulsive_contact_and_equality_projection\""
+                          << ",\"total_muscle_virtual_work_j\":"
+                          << muscleDrivenState->persistentStandTraceMuscleVirtualWorkJoules
+                          << ",\"total_preload_virtual_work_j\":"
+                          << muscleDrivenState->persistentStandTracePreloadVirtualWorkJoules
+                          << ",\"total_support_virtual_work_j\":"
+                          << muscleDrivenState->persistentStandTraceSupportVirtualWorkJoules
+                          << ",\"samples\":[";
+                for (std::size_t sampleIndex = 0u;
+                     sampleIndex < muscleDrivenState->persistentStandTrace.size();
+                     ++sampleIndex) {
+                    if (sampleIndex != 0u) std::cout << ',';
+                    const auto& sample =
+                        muscleDrivenState->persistentStandTrace[sampleIndex];
+                    std::cout << "{\"step\":" << sample.step
+                              << ",\"time_seconds\":" << sample.timeSeconds
+                              << ",\"maximum_acceleration_dof\":"
+                              << sample.maximumAccelerationDof
+                              << ",\"maximum_acceleration\":"
+                              << sample.maximumAcceleration
+                              << ",\"maximum_configuration_delta_q\":"
+                              << sample.maximumConfigurationDeltaQ
+                              << ",\"maximum_configuration_delta\":"
+                              << sample.maximumConfigurationDelta
+                              << ",\"maximum_velocity_dof\":"
+                              << sample.maximumVelocityDof
+                              << ",\"maximum_velocity\":"
+                              << sample.maximumVelocity
+                              << ",\"minimum_plane_gap_m\":"
+                              << sample.minimumPlaneGapMeters
+                              << ",\"maximum_penetration_m\":"
+                              << sample.maximumPenetrationMeters
+                              << ",\"normal_impulse\":" << sample.normalImpulse
+                              << ",\"tendon_max_force_residual_n\":"
+                              << sample.tendonMaximumForceResidual
+                              << ",\"tendon_max_moment_residual_nm\":"
+                              << sample.tendonMaximumMomentResidual
+                              << ",\"maximum_equality_impulse\":"
+                              << sample.maximumEqualityImpulse
+                              << ",\"total_equality_impulse\":"
+                              << sample.totalEqualityImpulse
+                              << ",\"muscle_virtual_work_j\":"
+                              << sample.muscleVirtualWorkJoules
+                              << ",\"preload_virtual_work_j\":"
+                              << sample.preloadVirtualWorkJoules
+                              << ",\"support_virtual_work_j\":"
+                              << sample.supportVirtualWorkJoules
+                              << ",\"q\":";
+                    writeTraceArray(sample.q);
+                    std::cout << ",\"v\":";
+                    writeTraceArray(sample.v);
+                    std::cout << '}';
                 }
                 std::cout << "]}\n";
             }
