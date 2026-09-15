@@ -7778,7 +7778,8 @@ MetalArticulatedOperatorSubmission::wait(
                 if (!finite(stand.contactAndAcceleration) ||
                     !finite(stand.factorAndAssistance) ||
                     !finite(stand.tendonDiagnostics) ||
-                    !finite(stand.jointEqualityDiagnostics)) {
+                    !finite(stand.jointEqualityDiagnostics) ||
+                    !finite(stand.jointEqualityProjectionDiagnostics)) {
                     return reject(
                         std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::internalFailure,

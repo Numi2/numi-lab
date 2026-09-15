@@ -1028,6 +1028,28 @@ void checkCommonDurationRefinement() {
                     (variant.equality || status.jointEqualityCounts.x == 0u),
                 "common-duration discriminator did not retain its selected coupling"
             );
+            // The final dependent-coordinate overwrite is not a generic
+            // equality side effect in this fixture: it occurs only where
+            // contact, the bilateral equality, and the active dependent
+            // limit interact. Keep that causal discriminator under test.
+            const bool expectsFinalEqualityProjection =
+                variant.contact && variant.equality &&
+                variant.dependentLimitActive;
+            if (expectsFinalEqualityProjection) {
+                require(
+                    status.jointEqualityProjectionDiagnostics.z > 1.0e-8f &&
+                        status.jointEqualityProjectionDiagnostics.w > 1.0e-8f,
+                    "coupled contact/equality/limit path omitted its final equality velocity projection"
+                );
+            } else {
+                require(
+                    status.jointEqualityProjectionDiagnostics.x == 0.0f &&
+                        status.jointEqualityProjectionDiagnostics.y == 0.0f &&
+                        status.jointEqualityProjectionDiagnostics.z == 0.0f &&
+                        status.jointEqualityProjectionDiagnostics.w == 0.0f,
+                    "uncoupled control unexpectedly used final equality projection"
+                );
+            }
             summaries.push_back({
                 .timestepSeconds = timestep,
                 .steps = steps,
@@ -1059,6 +1081,14 @@ void checkCommonDurationRefinement() {
                       << summary.status.tendonDiagnostics.x
                       << " equality_abs_impulse="
                       << summary.status.jointEqualityDiagnostics.z
+                      << " equality_position_projection_max_m_or_rad="
+                      << summary.status.jointEqualityProjectionDiagnostics.x
+                      << " equality_position_projection_total_m_or_rad="
+                      << summary.status.jointEqualityProjectionDiagnostics.y
+                      << " equality_velocity_projection_max_m_s_or_rad_s="
+                      << summary.status.jointEqualityProjectionDiagnostics.z
+                      << " equality_velocity_projection_total_m_s_or_rad_s="
+                      << summary.status.jointEqualityProjectionDiagnostics.w
                       << " endpoint_q_difference_to_12p5us_m="
                       << maximumDifference(summary.q, finest.q)
                       << " endpoint_v_difference_to_12p5us_m_s="

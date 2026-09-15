@@ -2575,6 +2575,10 @@ struct PersistentStandTraceSample {
     double tendonMaximumMomentResidual = 0.0;
     double maximumEqualityImpulse = 0.0;
     double totalEqualityImpulse = 0.0;
+    double maximumEqualityPositionProjection = 0.0;
+    double totalEqualityPositionProjection = 0.0;
+    double maximumEqualityVelocityProjection = 0.0;
+    double totalEqualityVelocityProjection = 0.0;
     double muscleVirtualWorkJoules = 0.0;
     double preloadVirtualWorkJoules = 0.0;
     double supportVirtualWorkJoules = 0.0;
@@ -2677,6 +2681,10 @@ struct MuscleDrivenVisualState {
     double maximumJointEqualityVelocityError = 0.0;
     double maximumJointEqualityImpulse = 0.0;
     double totalJointEqualityImpulse = 0.0;
+    double maximumJointEqualityPositionProjection = 0.0;
+    double totalJointEqualityPositionProjection = 0.0;
+    double maximumJointEqualityVelocityProjection = 0.0;
+    double totalJointEqualityVelocityProjection = 0.0;
     double assistedConfigurationDelta = 0.0;
     double removalConfigurationDelta = 0.0;
     double oneStepParityMaximumQError = 0.0;
@@ -4715,6 +4723,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 traceStatus.jointEqualityDiagnostics.z;
             sample.totalEqualityImpulse =
                 traceStatus.jointEqualityDiagnostics.w;
+            sample.maximumEqualityPositionProjection =
+                traceStatus.jointEqualityProjectionDiagnostics.x;
+            sample.totalEqualityPositionProjection =
+                traceStatus.jointEqualityProjectionDiagnostics.y;
+            sample.maximumEqualityVelocityProjection =
+                traceStatus.jointEqualityProjectionDiagnostics.z;
+            sample.totalEqualityVelocityProjection =
+                traceStatus.jointEqualityProjectionDiagnostics.w;
             sample.muscleVirtualWorkJoules = generalizedVirtualWork(
                 traceResult.mujocoGeneralizedForces
             );
@@ -5296,6 +5312,24 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         assistedStatus.jointEqualityDiagnostics.w +
         (removeRootAssistance
              ? finalStatus.jointEqualityDiagnostics.w
+             : 0.0f);
+    result.maximumJointEqualityPositionProjection = std::max(
+        assistedStatus.jointEqualityProjectionDiagnostics.x,
+        finalStatus.jointEqualityProjectionDiagnostics.x
+    );
+    result.totalJointEqualityPositionProjection =
+        assistedStatus.jointEqualityProjectionDiagnostics.y +
+        (removeRootAssistance
+             ? finalStatus.jointEqualityProjectionDiagnostics.y
+             : 0.0f);
+    result.maximumJointEqualityVelocityProjection = std::max(
+        assistedStatus.jointEqualityProjectionDiagnostics.z,
+        finalStatus.jointEqualityProjectionDiagnostics.z
+    );
+    result.totalJointEqualityVelocityProjection =
+        assistedStatus.jointEqualityProjectionDiagnostics.w +
+        (removeRootAssistance
+             ? finalStatus.jointEqualityProjectionDiagnostics.w
              : 0.0f);
     result.oneStepParityMaximumQError = parityMaximumQError;
     result.oneStepParityMaximumVError = parityMaximumVError;
@@ -17969,6 +18003,14 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->maximumJointEqualityImpulse : 0.0)
                       << " stand_total_equality_impulse=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->totalJointEqualityImpulse : 0.0)
+                      << " stand_max_equality_position_projection_m_or_rad=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->maximumJointEqualityPositionProjection : 0.0)
+                      << " stand_total_equality_position_projection_m_or_rad=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->totalJointEqualityPositionProjection : 0.0)
+                      << " stand_max_equality_velocity_projection_m_s_or_rad_s=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->maximumJointEqualityVelocityProjection : 0.0)
+                      << " stand_total_equality_velocity_projection_m_s_or_rad_s=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->totalJointEqualityVelocityProjection : 0.0)
                       << " assisted_configuration_delta=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->assistedConfigurationDelta : 0.0)
                       << " removal_configuration_delta=" << (muscleDrivenState.has_value()
@@ -18332,6 +18374,14 @@ int main(int argc, char** argv) {
                               << sample.maximumEqualityImpulse
                               << ",\"total_equality_impulse\":"
                               << sample.totalEqualityImpulse
+                              << ",\"maximum_equality_position_projection_m_or_rad\":"
+                              << sample.maximumEqualityPositionProjection
+                              << ",\"total_equality_position_projection_m_or_rad\":"
+                              << sample.totalEqualityPositionProjection
+                              << ",\"maximum_equality_velocity_projection_m_s_or_rad_s\":"
+                              << sample.maximumEqualityVelocityProjection
+                              << ",\"total_equality_velocity_projection_m_s_or_rad_s\":"
+                              << sample.totalEqualityVelocityProjection
                               << ",\"muscle_virtual_work_j\":"
                               << sample.muscleVirtualWorkJoules
                               << ",\"preload_virtual_work_j\":"

@@ -733,6 +733,10 @@ kernel void mr_numi_human_stand_step(
     float maximumEqualityVelocityError = 0.0f;
     float maximumEqualityImpulse = 0.0f;
     float totalEqualityImpulse = 0.0f;
+    float maximumEqualityPositionProjection = 0.0f;
+    float totalEqualityPositionProjection = 0.0f;
+    float maximumEqualityVelocityProjection = 0.0f;
+    float totalEqualityVelocityProjection = 0.0f;
 
     // Contact, bilateral equalities, and source position limits share one
     // mass factor.  Interleave their existing projected updates so an active
@@ -1225,6 +1229,13 @@ kernel void mr_numi_human_stand_step(
         maximumEqualityPositionError = max(
             maximumEqualityPositionError, abs(error)
         );
+        const float positionProjection = abs(
+            target - qState[qBase + equality.indices.x]
+        );
+        maximumEqualityPositionProjection = max(
+            maximumEqualityPositionProjection, positionProjection
+        );
+        totalEqualityPositionProjection += positionProjection;
         qState[qBase + equality.indices.x] = target;
         const float dependentVelocity =
             equality.indices.w == MR_INVALID_INDEX
@@ -1236,6 +1247,13 @@ kernel void mr_numi_human_stand_step(
                  equalityIndex);
             return;
         }
+        const float velocityProjection = abs(
+            dependentVelocity - vState[vBase + equality.indices.y]
+        );
+        maximumEqualityVelocityProjection = max(
+            maximumEqualityVelocityProjection, velocityProjection
+        );
+        totalEqualityVelocityProjection += velocityProjection;
         vState[vBase + equality.indices.y] = dependentVelocity;
         candidateV[equality.indices.y] = dependentVelocity;
     }
@@ -1289,6 +1307,18 @@ kernel void mr_numi_human_stand_step(
         status.jointEqualityDiagnostics.z, maximumEqualityImpulse
     );
     status.jointEqualityDiagnostics.w += totalEqualityImpulse;
+    status.jointEqualityProjectionDiagnostics.x = max(
+        status.jointEqualityProjectionDiagnostics.x,
+        maximumEqualityPositionProjection
+    );
+    status.jointEqualityProjectionDiagnostics.y +=
+        totalEqualityPositionProjection;
+    status.jointEqualityProjectionDiagnostics.z = max(
+        status.jointEqualityProjectionDiagnostics.z,
+        maximumEqualityVelocityProjection
+    );
+    status.jointEqualityProjectionDiagnostics.w +=
+        totalEqualityVelocityProjection;
 }
 
 // Ordinary stand/tendon accepted-step owner. Derived poses/routes/factors are

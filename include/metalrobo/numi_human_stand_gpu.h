@@ -121,10 +121,16 @@ typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
     // Maximum pre-projection position error, maximum constrained velocity
     // error, maximum absolute bilateral impulse, and sum absolute impulses.
     mr_float4 jointEqualityDiagnostics;
+    // The final exact-coordinate projection can overwrite the post-solve
+    // dependent position and velocity.  Keep that correction separate from
+    // the constraint solve itself: x/y are the maximum/sum absolute position
+    // overwrites (m or rad), and z/w are the maximum/sum absolute velocity
+    // overwrites (m/s or rad/s), accumulated across accepted steps.
+    mr_float4 jointEqualityProjectionDiagnostics;
 } MRNumiHumanStandStatusGPU;
 
 #if !defined(__METAL_VERSION__)
 static_assert(sizeof(MRNumiHumanStandContactGPU) == 32);
 static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 160);
-static_assert(sizeof(MRNumiHumanStandStatusGPU) == 128);
+static_assert(sizeof(MRNumiHumanStandStatusGPU) == 144);
 #endif
