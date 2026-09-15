@@ -1,0 +1,98 @@
+name: Human source-locked bounded release
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths: [.github/workflows/human-bounded-release.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: human-bounded-release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  native-release:
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Numi2/numilab-human
+          ref: 3d637e7b9b07ae01a7d69ed80ed992cea9307aca
+          path: human-inputs
+          sparse-checkout: Docs/media/native-runtime-source-package-20260915
+      - name: Record source and machine before building
+        run: |
+          mkdir -p human-release-evidence
+          git rev-parse HEAD > human-release-evidence/native-revision.txt
+          git -C human-inputs rev-parse HEAD > human-release-evidence/input-revision.txt
+          sw_vers > human-release-evidence/machine.txt
+          xcrun --find metal >> human-release-evidence/machine.txt
+      - name: Configure and build the owning Human target
+        run: |
+          set -o pipefail
+          cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF 2>&1 | tee human-release-evidence/configure.txt
+          cmake --build BuildHuman --target metalrobo_numilab_human_myosim_visual_probe --parallel 3 2>&1 | tee human-release-evidence/build.txt
+      - name: Run bounded common-duration cases without root assistance
+        shell: python
+        run: |
+          import hashlib, json, os, pathlib, shlex, signal, subprocess, time
+          root=pathlib.Path.cwd()
+          output=root/'human-release-evidence'
+          inputs=root/'human-inputs'
+          published=json.loads((inputs/'Docs/media/native-runtime-source-package-20260915/source-package-receipt-v1.json').read_text())
+          def digest(path):
+              h=hashlib.sha256()
+              with path.open('rb') as stream:
+                  for block in iter(lambda:stream.read(1024*1024),b''): h.update(block)
+              return h.hexdigest()
+          payloads={name:inputs/value['path'] for name,value in published['inputs'].items()}
+          for name,path in payloads.items():
+              if digest(path)!=published['inputs'][name]['sha256']: raise RuntimeError('payload changed: '+name)
+          binary=root/'BuildHuman/bin/metalrobo_numilab_human_myosim_visual_probe'
+          artifacts={name:{'path':str(path),'sha256':digest(path)} for name,path in payloads.items()}
+          for path in [binary,*sorted((root/'BuildHuman/lib').glob('*.dylib')),*sorted((root/'BuildHuman/shaders').glob('*.metallib')),*sorted((root/'BuildHuman/matter/shaders').glob('*.metallib'))]:
+              artifacts[str(path.relative_to(root))]={'path':str(path),'sha256':digest(path)}
+          receipt={'schema':'numi.human.hosted-bounded-release.v1','native_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'input_commit':subprocess.check_output(['git','-C',str(inputs),'rev-parse','HEAD'],text=True).strip(),'execution_environment':'GitHub macos-15; device reported by native executable, not inferred from runner architecture','artifacts':artifacts,'cases':[],'full_human_qualification':False}
+          def publish():
+              tmp=output/'execution.json.tmp'
+              tmp.write_text(json.dumps(receipt,indent=2,allow_nan=False)+'\n')
+              tmp.replace(output/'execution.json')
+          publish()
+          cases=[('control-12p5us',0.0000125,1),('100us',0.0001,64),('50us',0.00005,128),('25us',0.000025,256),('12p5us',0.0000125,512)]
+          for name,dt,steps in cases:
+              directory=output/name
+              directory.mkdir()
+              command=[str(binary),str(payloads['rigid']),str(payloads['muscle']),str(directory/'frames'),'--tendon-payload',str(payloads['tendon']),'--joint-equality-payload',str(payloads['joint_equalities']),'--support-contact-payload',str(payloads['support_contact']),'--persistent-metal-stand','--persistent-source-passive-joint-tissue','--persistent-stand-trace','--stand-deterministic-replay','--stand-contact-iterations','64','--muscle-step-seconds',str(dt),'--muscle-step-count',str(steps),'--muscle-activation','0.8','--dimension','512','--camera-index','0']
+              case={'name':name,'command':command,'timestep_nanoseconds':round(dt*1e9),'steps':steps,'status':'running'}
+              receipt['cases'].append(case)
+              publish()
+              start=time.monotonic()
+              environment={**os.environ,'MTL_DEBUG_LAYER':'1'}
+              with (directory/'stdout.txt').open('w') as stdout,(directory/'stderr.txt').open('w') as stderr:
+                  process=subprocess.Popen(command,stdout=stdout,stderr=stderr,env=environment,start_new_session=True)
+                  try: code=process.wait(timeout=180)
+                  except subprocess.TimeoutExpired:
+                      try: os.killpg(process.pid,signal.SIGKILL)
+                      except ProcessLookupError: pass
+                      process.wait()
+                      code=None
+              case.update(exit_code=code,wall_seconds=time.monotonic()-start,status='process_completed' if code==0 else 'timeout' if code is None else 'failed')
+              for name2 in ['stdout','stderr']: case[name2+'_sha256']=digest(directory/(name2+'.txt'))
+              lines=(directory/'stdout.txt').read_text().splitlines()
+              summaries=[line for line in lines if line.startswith('myosim_articulated_marker_visual=')]
+              case['summary']=summaries[-1] if len(summaries)==1 else None
+              case['source_artifacts_unchanged']=all(digest(pathlib.Path(value['path']))==value['sha256'] for value in artifacts.values())
+              publish()
+              print(case['name'],case['status'],'seconds=',case['wall_seconds'],flush=True)
+              if code!=0 or len(summaries)!=1 or not case['source_artifacts_unchanged']:
+                  raise RuntimeError('Bounded Human execution incomplete; raw evidence retained')
+          receipt['status']='execution_complete_not_force_or_behavior_qualification'
+          publish()
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-source-locked-release
+          path: human-release-evidence
+          retention-days: 14
+          if-no-files-found: error
