@@ -2,6 +2,8 @@
 #import <Metal/Metal.h>
 #include "metalrobo/numi_human_stand_gpu.h"
 #include "metalrobo/compensated_translation_gpu.h"
+#include "metalrobo/numi_human_tendon_gpu.h"
+#include "metalrobo/numi_human_joint_equality_gpu.h"
 #include <array>
 #include <cmath>
 #include <cstring>
@@ -26,16 +28,20 @@ mr_float4 rotation(float angle) { return {0,0,std::sin(angle/2),std::cos(angle/2
 
 std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
                      id<MTLCommandQueue> queue,float h,bool enabled) {
+    // Even disabled array arguments require one ABI-sized element for Metal validation.
     const std::array<std::size_t,25> sizes={
         sizeof(MRWorldGPU),sizeof(MRArticulationGPU),nv*sizeof(MRDofPropertiesGPU),
         bodies*sizeof(MRBodyPropertiesGPU),sizeof(MRNumiHumanStandDispatchGPU),
         environments*nq*sizeof(float),environments*nv*sizeof(float),
         environments*bodies*sizeof(MRArticulatedBodyPoseGPU),
         environments*points*sizeof(MRArticulatedPointWorldGPU),
-        environments*points*3*nv*sizeof(float),environments*nv*sizeof(float),16,
+        environments*points*3*nv*sizeof(float),environments*nv*sizeof(float),
+        sizeof(MRNumiHumanStandContactGPU),
         environments*bodies*6*nv*sizeof(float),environments*bodies*2*sizeof(mr_float4),
         environments*nv*nv*sizeof(float),environments*4*nv*sizeof(float),16,
-        environments*sizeof(MRNumiHumanStandStatusGPU),16,16,16,
+        environments*sizeof(MRNumiHumanStandStatusGPU),
+        sizeof(MRNumiHumanTendonBindingGPU),sizeof(MRNumiHumanTendonTransferResultGPU),
+        sizeof(MRNumiHumanJointEqualityGPU),
         environments*sizeof(MRCompensatedRootTranslationGPU),
         environments*bodies*sizeof(mr_float4),environments*points*sizeof(mr_float4),
         nv*(nv+1)*sizeof(float)};
@@ -124,11 +130,17 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
         [command commit];
         if(dispatch_semaphore_wait(complete,dispatch_time(DISPATCH_TIME_NOW,30*NSEC_PER_SEC))!=0) {
             std::cerr<<"production Metal probe timed out; no result admitted\n";
-            std::_Exit(2);
+            std::_Exit(2); // Do not release buffers potentially still owned by the GPU.
         }
         require(command.status==MTLCommandBufferStatusCompleted,"production Metal command failed");
         auto* status=static_cast<MRNumiHumanStandStatusGPU*>(buffers[17].contents);
         for(unsigned e=0;e<environments;++e) {
+            if(status[e].code!=MR_NUMI_HUMAN_STAND_SUCCESS ||
+               std::abs(v[e*nv+6]-expectedV[e])>2e-5*(1+std::abs(expectedV[e]))) {
+                std::cerr<<"h="<<h<<" enabled="<<enabled<<" step="<<step<<" env="<<e
+                         <<" status="<<status[e].code<<" failing_index="<<status[e].failingIndex
+                         <<" expected_v="<<expectedV[e]<<" actual_v="<<v[e*nv+6]<<'\n';
+            }
             require(status[e].code==MR_NUMI_HUMAN_STAND_SUCCESS&&status[e].completedSteps==1,
                     "production kernel did not complete the step");
             require(std::abs(v[e*nv+6]-expectedV[e])<=2e-5*(1+std::abs(expectedV[e])),
