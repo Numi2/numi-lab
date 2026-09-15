@@ -14726,6 +14726,7 @@ int main(int argc, char** argv) {
             std::optional<double> muscleActivation;
             std::optional<std::uint32_t> muscleStepCount;
             bool persistentMetalStand = false;
+            bool mechanicsOnly = false;
             bool persistentSourcePassiveJointTissue = false;
             bool persistentRuntimeWithoutPassiveJointTissue = false;
             bool selectedTendonControl = false;
@@ -14800,6 +14801,10 @@ int main(int argc, char** argv) {
                     require(!persistentMetalStand,
                             "--persistent-metal-stand may be given only once");
                     persistentMetalStand = true;
+                } else if (argument == "--mechanics-only") {
+                    require(!mechanicsOnly,
+                            "--mechanics-only may be given only once");
+                    mechanicsOnly = true;
                 } else if (argument == "--persistent-source-passive-joint-tissue") {
                     require(!persistentSourcePassiveJointTissue,
                             "--persistent-source-passive-joint-tissue may be given only once");
@@ -15062,7 +15067,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-count <1.."
                           << MR_NUMI_HUMAN_STAND_MAX_STEPS << ">]"
                           << " [--muscle-activation <0..1>]"
-                          << " [--persistent-metal-stand] [--persistent-source-passive-joint-tissue] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-contact-iterations <1..64>]"
+                          << " [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-contact-iterations <1..64>]"
                           << " [--bilateral-achilles-certificate]"
                           << " [--bilateral-thumb-tendon-certificate]"
                           << " [--bilateral-triceps-medialis-enthesis-certificate]"
@@ -15680,6 +15685,10 @@ int main(int argc, char** argv) {
                     "--selected-tendon-control requires muscle timestep, support contacts, NHEQ1 joint equalities, and selected source muscles");
             require(!persistentMetalStand || !selectedTendonControl,
                     "--persistent-metal-stand and --selected-tendon-control are mutually exclusive");
+            require(!mechanicsOnly || persistentMetalStand,
+                    "--mechanics-only requires --persistent-metal-stand");
+            require(!mechanicsOnly || !requestedCameraIndex.has_value(),
+                    "--mechanics-only cannot request a camera capture");
             require(!standRootAssistance || persistentMetalStand,
                     "--stand-root-assistance requires --persistent-metal-stand");
             require(!standRemoveAssistance || standRootAssistance,
@@ -17335,7 +17344,7 @@ int main(int argc, char** argv) {
                     "could not write native Human visual manifest: " + reason);
 
             metalrobo::VisualMotionSampleBatchV1 motion = makeMotion(bodies);
-            bool completeVisualCoverage = true;
+            bool completeVisualCoverage = !mechanicsOnly;
             bool anyOrganSurfaceVisible = false;
             bool anyVesselSurfaceVisible = false;
             bool anyNerveSurfaceVisible = false;
@@ -17366,6 +17375,10 @@ int main(int argc, char** argv) {
             std::string rendererProfileReason;
             require(rendererProfile.valid(&rendererProfileReason),
                     "native Human renderer profile is invalid: " + rendererProfileReason);
+            // This explicit mode changes presentation only. All mechanics,
+            // replay, tendon, state and force checks above remain mandatory.
+            // The GPU renderer is not invoked in this mode.
+            if (!mechanicsOnly) {
             for (std::size_t camera = 0u; camera < cameraNames.size(); ++camera) {
                 if (requestedCameraIndex.has_value() && camera != *requestedCameraIndex) {
                     continue;
@@ -17505,6 +17518,7 @@ int main(int argc, char** argv) {
                     "requested source route is completely occluded from all native Human cameras");
             require(renderedTendonAttachmentEnvelopes == 0u || anyTendonAttachmentEnvelopeVisible,
                     "requested NHTENDON2/3 attachment envelope is completely occluded from all cameras");
+            } // Rendering and visual qualification are absent in mechanics-only mode.
             const std::string tendonProgramName = "NHTENDON" +
                 std::to_string(musclePayload.tendonPayload.payloadAbi);
             const bool sourceSupportContact = muscleDrivenState.has_value() &&
@@ -17612,17 +17626,23 @@ int main(int argc, char** argv) {
                     : "_with_four_exact_ligament_surfaces_owned_by_an_accepted_NHKFEM1_two_body_attachment_reaction_snapshot_under_submicron_tibia_translation_not_loaded_flexion_source_transverse_isotropy_or_clinical_validation";
             }
             std::cout << std::setprecision(12)
-                      << (bodypartsBoneVisual
-                              ? "myosim_articulated_bodyparts_bone_visual=ok"
-                              : "myosim_articulated_marker_visual=ok")
+                      << (mechanicsOnly
+                              ? "myosim_articulated_mechanics=ok"
+                              : (bodypartsBoneVisual
+                                  ? "myosim_articulated_bodyparts_bone_visual=ok"
+                                  : "myosim_articulated_marker_visual=ok"))
+                      << " rendering_performed=" << (capturedRenderer ? "true" : "false")
+                      << " visual_coverage_qualified="
+                      << (!mechanicsOnly && completeVisualCoverage ? "true" : "false")
                       << " metal_pose_device=\"" << poseDiagnostics.deviceName << "\""
-                      << " renderer_device=\"" << rendererDeviceName << "\""
-                      << " frame_dimension=" << frameDimension
-                      << " renderer_profile=" << rendererProfile.id
-                      << " renderer_temporal_samples=" << rendererProfile.temporalSamples
-                      << " renderer_area_light_samples=" << rendererProfile.areaLightSamples
+                      << " renderer_device=\"" << (mechanicsOnly ? "not_requested" : rendererDeviceName) << "\""
+                      << " frame_dimension=" << (mechanicsOnly ? 0u : frameDimension)
+                      << " renderer_profile=" << (mechanicsOnly ? "disabled" : rendererProfile.id)
+                      << " renderer_temporal_samples=" << (mechanicsOnly ? 0u : rendererProfile.temporalSamples)
+                      << " renderer_area_light_samples=" << (mechanicsOnly ? 0u : rendererProfile.areaLightSamples)
                       << " core_bodies=" << rigid.header.engineBodyCount
-                      << " rendered_link_visuals=" << renderedBodies
+                      << " prepared_link_visuals=" << renderedBodies
+                      << " rendered_link_visuals=" << (mechanicsOnly ? 0u : renderedBodies)
                       << " bodyparts_bones=" << (bonePayload.has_value() ? bonePayload->records.size() : 0u)
                       << " requested_bone_bodies=" << requestedBoneBodyIndices.size()
                       << " requested_bone_stable_ids=" << requestedBoneStableIds.size()
