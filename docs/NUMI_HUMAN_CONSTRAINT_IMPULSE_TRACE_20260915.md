@@ -159,13 +159,20 @@ This is a physical-M4-Pro full-body execution receipt, but not a remote
 source-build qualification: the device had insufficient capacity for another
 worktree and ran the verified exact local arm64 bundle listed above.
 
+## Follow-on common-duration fibre-repair result
+
+The four-member, same-source 6.4 ms refinement was subsequently rerun after
+the fibre-state repair. It remains a **FAIL**: finer timesteps amplify the
+recorded force inconsistency despite zero penetration and bitwise segmented
+endpoints. The complete trajectory, impulse, residual, tendon, continuous-work,
+and FP64 rank/active-set receipts are in
+[`NUMI_HUMAN_FIBRE_REPAIR_COMMON_DURATION_REFINEMENT_20260915.md`](NUMI_HUMAN_FIBRE_REPAIR_COMMON_DURATION_REFINEMENT_20260915.md).
+
 ## What remains failed or unqualified
 
-The prior common-duration refinement result remains failed; this receipt runs
-only its 12.5 us member and does not reevaluate 100, 50, and 25 us. The
-recorded local trace is deterministic and diagnostically richer, but it does
-not demonstrate temporal convergence, passive anatomical calibration,
+The local trace is deterministic and diagnostically richer, but it does not
+demonstrate temporal convergence, passive anatomical calibration,
 physiological standing, or a general coupled-solver correction. The next
-reference should use the now-recorded full production owner identities and
+reference must use the now-recorded full production owner identities and
 retain the force, contact, equality, limit, tendon-residual, and work terms
 at the same trace point.
