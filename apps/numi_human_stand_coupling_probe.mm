@@ -31,8 +31,9 @@
 // MyoSim, a source-style plane support witness, passive preload, tendon
 // transfer, and one bilateral scalar equality.  The no-contact one-step
 // branch is compared with an independent FP64 source route/dynamics/equality
-// projection; the contact branch is retained separately because the generic
-// CPU contact oracle does not yet represent this stand-specific plane solve.
+// projection.  The frictionless normal-contact/equality/upper-limit triad
+// also has a one-step FP64 KKT reference; the full frictional plane-contact
+// solve remains outside this probe's CPU oracle.
 namespace {
 
 using metalrobo::ArticulatedBodyWrench;
@@ -374,6 +375,39 @@ struct Fixture {
         }
     }
 
+    void moveOffDependentPositionLimit() {
+        // Preserve the terminal support height exactly while moving the
+        // dependent coordinate away from its upper bound.  This keeps the
+        // source limit capability declared, but makes the limit solve
+        // inactive for the control horizon.
+        q[1u] = 0.015f;
+        q[kMasterQ] = 0.005f;
+        q[kDependentQ] = 0.010f;
+        require(
+            std::abs(q[kDependentQ] - kEqualitySlope * q[kMasterQ]) <= 1.0e-7f,
+            "inactive-limit control left the equality manifold"
+        );
+        const MujocoMuscleResult source = sourceAt(asDouble(q), asDouble(v));
+        MujocoCompliantMuscleResult stationary{};
+        const MujocoCompliantMuscleState zeroLengthRequest{
+            .excitation = referenceState.excitation,
+            .activation = referenceState.activation,
+            .fiberLength = 0.0,
+            .fiberVelocity = 0.0,
+        };
+        const auto status = metalrobo::evaluateMujocoCompliantMuscle(
+            source.path.length, source.path.velocity, timestepSeconds,
+            referenceMuscle, architecture, zeroLengthRequest, stationary
+        );
+        require(
+            status.succeeded() && stationary.candidateFiberLength > 0.0,
+            "inactive-limit control could not seed its stationary fibre state"
+        );
+        gpuStates.front().excitationAndActivation.z =
+            static_cast<float>(stationary.candidateFiberLength);
+        gpuStates.front().excitationAndActivation.w = 0.0f;
+    }
+
     [[nodiscard]] MujocoMuscleResult sourceAt(
         const std::vector<double>& configuration,
         const std::vector<double>& velocity
@@ -414,7 +448,8 @@ struct Run {
     const Fixture& fixture,
     const std::uint32_t stepCount,
     const bool enableContact,
-    const bool includeEquality
+    const bool includeEquality,
+    const std::uint32_t contactIterationCount = 16u
 ) {
     MetalArticulatedOperatorConfig configuration{};
     configuration.pointJacobiansOnly = true;
@@ -446,7 +481,7 @@ struct Run {
     input.stand.tendonBindings = fixture.tendonBindings;
     input.stand.tendonEnvelopes = {};
     input.stand.stepCount = stepCount;
-    input.stand.contactIterationCount = 16u;
+    input.stand.contactIterationCount = contactIterationCount;
     input.stand.enableContact = enableContact;
     input.stand.enableRootAssistance = false;
     input.stand.groundPoint = f4();
@@ -473,7 +508,7 @@ struct Run {
     return run;
 }
 
-[[nodiscard]] std::vector<double> constrainedReferenceAcceleration(
+[[nodiscard]] std::vector<double> freeReferenceAcceleration(
     const Fixture& fixture
 ) {
     const std::vector<double> q = asDouble(fixture.q);
@@ -506,6 +541,18 @@ struct Run {
             " pivot=" + std::to_string(forward.minimumCholeskyPivot)
     );
 
+    return freeAcceleration;
+}
+
+[[nodiscard]] std::vector<double> constrainedReferenceAcceleration(
+    const Fixture& fixture
+) {
+    const std::vector<double> q = asDouble(fixture.q);
+    std::vector<double> freeAcceleration = freeReferenceAcceleration(fixture);
+
+    metalrobo::ArticulatedDynamicsConfig dynamicsConfig{};
+    dynamicsConfig.gravity = {0.0, -9.81, 0.0};
+    dynamicsConfig.timestep = fixture.timestepSeconds;
     std::vector<double> equalityRow(fixture.model.world.nv, 0.0);
     equalityRow[kMasterV] = -static_cast<double>(kEqualitySlope);
     equalityRow[kDependentV] = 1.0;
@@ -534,6 +581,281 @@ struct Run {
         freeAcceleration[dof] -= inverseMassRow[dof] * lambda;
     }
     return freeAcceleration;
+}
+
+struct DenseThreeSolve {
+    std::array<double, 3u> solution{};
+    double minimumAbsolutePivot = std::numeric_limits<double>::infinity();
+};
+
+[[nodiscard]] DenseThreeSolve solveDenseThreeByThree(
+    const std::array<std::array<double, 3u>, 3u>& coefficients,
+    const std::array<double, 3u>& rightHandSide
+) {
+    std::array<std::array<double, 4u>, 3u> augmented{};
+    for (std::size_t row = 0u; row < 3u; ++row) {
+        for (std::size_t column = 0u; column < 3u; ++column) {
+            augmented[row][column] = coefficients[row][column];
+        }
+        augmented[row][3u] = rightHandSide[row];
+    }
+
+    DenseThreeSolve result{};
+    for (std::size_t column = 0u; column < 3u; ++column) {
+        std::size_t pivotRow = column;
+        for (std::size_t candidate = column + 1u;
+             candidate < 3u;
+             ++candidate) {
+            if (std::abs(augmented[candidate][column]) >
+                std::abs(augmented[pivotRow][column])) {
+                pivotRow = candidate;
+            }
+        }
+        const double pivot = augmented[pivotRow][column];
+        require(
+            std::isfinite(pivot) && std::abs(pivot) > 1.0e-12,
+            "FP64 simultaneous contact/equality/limit Schur matrix is singular"
+        );
+        if (pivotRow != column) {
+            std::swap(augmented[pivotRow], augmented[column]);
+        }
+        result.minimumAbsolutePivot = std::min(
+            result.minimumAbsolutePivot, std::abs(augmented[column][column])
+        );
+        const double normalizedPivot = augmented[column][column];
+        for (std::size_t entry = column; entry < 4u; ++entry) {
+            augmented[column][entry] /= normalizedPivot;
+        }
+        for (std::size_t row = 0u; row < 3u; ++row) {
+            if (row == column) continue;
+            const double scale = augmented[row][column];
+            for (std::size_t entry = column; entry < 4u; ++entry) {
+                augmented[row][entry] -= scale * augmented[column][entry];
+            }
+        }
+    }
+    for (std::size_t row = 0u; row < 3u; ++row) {
+        result.solution[row] = augmented[row][3u];
+        require(
+            std::isfinite(result.solution[row]),
+            "FP64 simultaneous contact/equality/limit solution is non-finite"
+        );
+    }
+    return result;
+}
+
+struct SimultaneousTriadReference {
+    std::vector<double> freeVelocity;
+    std::vector<double> constrainedVelocity;
+    std::array<double, 3u> impulses{};
+    std::array<double, 3u> targetVelocity{};
+    std::array<double, 3u> constraintVelocity{};
+    std::array<double, 3u> regularizedResidual{};
+    std::array<std::array<double, 3u>, 3u> physicalDelassus{};
+    double initialContactGap = 0.0;
+    double minimumAbsolutePivot = 0.0;
+};
+
+[[nodiscard]] SimultaneousTriadReference simultaneousTriadReference(
+    const Fixture& fixture
+) {
+    constexpr double kRegularization = 1.0e-7;
+    constexpr std::size_t kContactNormalRow = 0u;
+    constexpr std::size_t kEqualityRow = 1u;
+    constexpr std::size_t kUpperLimitRow = 2u;
+    constexpr std::size_t kRowCount = 3u;
+
+    const std::vector<double> q = asDouble(fixture.q);
+    const std::vector<double> v = asDouble(fixture.v);
+    metalrobo::ArticulatedDynamicsConfig dynamicsConfig{};
+    dynamicsConfig.gravity = {0.0, -9.81, 0.0};
+    dynamicsConfig.timestep = fixture.timestepSeconds;
+
+    metalrobo::ArticulatedPointQuery support{};
+    support.bodyIndex = kTerminalBody;
+    support.localPoint = {0.0, 0.0, 0.0};
+    support.supportRadius = 0.03;
+    support.supportPlaneNormal = {0.0, 1.0, 0.0};
+    std::array<metalrobo::ArticulatedPointKinematics, 1u> points{};
+    std::vector<double> pointJacobians(3u * fixture.model.world.nv, 0.0);
+    const auto pointDiagnostics = metalrobo::computeArticulatedPointJacobians(
+        fixture.model, 0u, q, v, std::span(&support, 1u), points,
+        pointJacobians, dynamicsConfig
+    );
+    require(
+        pointDiagnostics.succeeded(),
+        "FP64 support-point Jacobian failed for simultaneous-triad reference"
+    );
+
+    SimultaneousTriadReference result{};
+    result.initialContactGap = points.front().position[1u];
+    require(
+        std::abs(result.initialContactGap) <= 1.0e-7 &&
+            std::abs(q[kDependentQ] -
+                     static_cast<double>(fixture.model.dofs.at(kDependentV).limits.y)) <=
+                1.0e-7,
+        "simultaneous-triad reference did not begin at the support/upper-limit intersection"
+    );
+    result.targetVelocity[kContactNormalRow] = std::max(
+        0.0,
+        -0.2 * std::min(result.initialContactGap, 0.0) /
+            static_cast<double>(fixture.timestepSeconds)
+    );
+    const double equalityError = q[kDependentQ] -
+        static_cast<double>(kEqualitySlope) * q[kMasterQ];
+    result.targetVelocity[kEqualityRow] = std::clamp(
+        -0.2 * equalityError / static_cast<double>(fixture.timestepSeconds),
+        -4.0,
+        4.0
+    );
+    result.targetVelocity[kUpperLimitRow] = std::min(
+        0.0,
+        std::max(
+            -4.0,
+            -0.2 * (q[kDependentQ] -
+                    static_cast<double>(fixture.model.dofs.at(kDependentV).limits.y)) /
+                static_cast<double>(fixture.timestepSeconds)
+        )
+    );
+
+    const std::size_t nv = fixture.model.world.nv;
+    std::vector<double> rows(kRowCount * nv, 0.0);
+    for (std::size_t dof = 0u; dof < nv; ++dof) {
+        rows[kContactNormalRow * nv + dof] = pointJacobians[nv + dof];
+        rows[kEqualityRow * nv + dof] =
+            dof == kMasterV ? -static_cast<double>(kEqualitySlope) :
+            dof == kDependentV ? 1.0 : 0.0;
+        // An upper limit is a non-negative row in the outward (-qdot) direction.
+        rows[kUpperLimitRow * nv + dof] =
+            dof == kDependentV ? -1.0 : 0.0;
+    }
+    std::vector<double> responses(kRowCount * nv, 0.0);
+    const auto responseDiagnostics =
+        metalrobo::computeArticulatedInverseMassResponses(
+            fixture.model, 0u, q, rows, responses, dynamicsConfig
+        );
+    require(
+        responseDiagnostics.succeeded(),
+        "FP64 inverse-mass triad responses failed"
+    );
+
+    const std::vector<double> freeAcceleration =
+        freeReferenceAcceleration(fixture);
+    result.freeVelocity = v;
+    for (std::size_t dof = 0u; dof < nv; ++dof) {
+        result.freeVelocity[dof] +=
+            static_cast<double>(fixture.timestepSeconds) * freeAcceleration[dof];
+    }
+
+    std::array<std::array<double, 3u>, 3u> system{};
+    std::array<double, 3u> rightHandSide{};
+    for (std::size_t row = 0u; row < kRowCount; ++row) {
+        for (std::size_t column = 0u; column < kRowCount; ++column) {
+            double value = 0.0;
+            for (std::size_t dof = 0u; dof < nv; ++dof) {
+                value += rows[row * nv + dof] *
+                    responses[column * nv + dof];
+            }
+            result.physicalDelassus[row][column] = value;
+            system[row][column] = value + (row == column ? kRegularization : 0.0);
+        }
+        rightHandSide[row] = result.targetVelocity[row];
+        for (std::size_t dof = 0u; dof < nv; ++dof) {
+            rightHandSide[row] -=
+                rows[row * nv + dof] * result.freeVelocity[dof];
+        }
+    }
+    const DenseThreeSolve solve = solveDenseThreeByThree(system, rightHandSide);
+    result.impulses = solve.solution;
+    require(
+        result.impulses[kContactNormalRow] >= -1.0e-12 &&
+            result.impulses[kUpperLimitRow] >= -1.0e-12,
+        "FP64 simultaneous-triad active set requires a pulling contact or limit impulse"
+    );
+    result.minimumAbsolutePivot = solve.minimumAbsolutePivot;
+    result.constrainedVelocity = result.freeVelocity;
+    for (std::size_t row = 0u; row < kRowCount; ++row) {
+        for (std::size_t dof = 0u; dof < nv; ++dof) {
+            result.constrainedVelocity[dof] +=
+                result.impulses[row] * responses[row * nv + dof];
+        }
+    }
+    for (std::size_t row = 0u; row < kRowCount; ++row) {
+        for (std::size_t dof = 0u; dof < nv; ++dof) {
+            result.constraintVelocity[row] +=
+                rows[row * nv + dof] * result.constrainedVelocity[dof];
+        }
+        result.regularizedResidual[row] = result.constraintVelocity[row] -
+            result.targetVelocity[row] + kRegularization * result.impulses[row];
+        require(
+            std::isfinite(result.regularizedResidual[row]) &&
+                std::abs(result.regularizedResidual[row]) <= 2.0e-10,
+            "FP64 simultaneous-triad regularized KKT residual is too large"
+        );
+    }
+    return result;
+}
+
+void checkSimultaneousTriadReference() {
+    Fixture fixture(kDefaultTimestepSeconds);
+    fixture.contacts.front().frictionSlopAndStabilization.x = 0.0f;
+    const SimultaneousTriadReference reference =
+        simultaneousTriadReference(fixture);
+    std::cout << "simultaneous_triad_initial_gap_m="
+              << reference.initialContactGap
+              << " simultaneous_triad_contact_impulse_ns="
+              << reference.impulses[0u]
+              << " simultaneous_triad_contact_target_velocity_m_s="
+              << reference.targetVelocity[0u]
+              << " simultaneous_triad_equality_impulse_ns="
+              << reference.impulses[1u]
+              << " simultaneous_triad_upper_limit_impulse_ns="
+              << reference.impulses[2u]
+              << " simultaneous_triad_contact_equality_cross_delassus="
+              << reference.physicalDelassus[0u][1u]
+              << " simultaneous_triad_contact_limit_cross_delassus="
+              << reference.physicalDelassus[0u][2u]
+              << " simultaneous_triad_equality_limit_cross_delassus="
+              << reference.physicalDelassus[1u][2u]
+              << " simultaneous_triad_minimum_pivot="
+              << reference.minimumAbsolutePivot
+              << " simultaneous_triad_max_regularized_kkt_residual="
+              << std::max({
+                     std::abs(reference.regularizedResidual[0u]),
+                     std::abs(reference.regularizedResidual[1u]),
+                     std::abs(reference.regularizedResidual[2u]),
+                 }) << '\n';
+    constexpr std::array<std::uint32_t, 3u> iterationCounts{{4u, 16u, 64u}};
+    for (const std::uint32_t contactIterationCount : iterationCounts) {
+        const Run metal = runHorizon(
+            fixture, 1u, true, true, contactIterationCount
+        );
+        double maximumVelocityDifference = 0.0;
+        for (std::size_t dof = 0u;
+             dof < reference.constrainedVelocity.size();
+             ++dof) {
+            maximumVelocityDifference = std::max(
+                maximumVelocityDifference,
+                std::abs(reference.constrainedVelocity[dof] -
+                         static_cast<double>(metal.result.standV[dof]))
+            );
+        }
+        std::cout << "one_step_metal_to_simultaneous_fp64_velocity_difference_m_s="
+                  << maximumVelocityDifference
+                  << " coupled_iteration_count=" << contactIterationCount
+                  << '\n';
+        if (contactIterationCount == 16u) {
+            require(
+                maximumVelocityDifference <= 5.0e-4,
+                "sixteen coupled sweeps did not approach the FP64 triad reference"
+            );
+        } else if (contactIterationCount == 64u) {
+            require(
+                maximumVelocityDifference <= 1.0e-5,
+                "sixty-four coupled sweeps did not converge toward the FP64 triad reference"
+            );
+        }
+    }
 }
 
 void checkSourceDerivative(const Fixture& fixture) {
@@ -664,18 +986,30 @@ void checkCommonDurationRefinement() {
         bool contact = false;
         bool equality = false;
         bool passivePreload = false;
+        bool dependentLimitActive = true;
+        float contactFriction = 0.70f;
     };
-    constexpr std::array<Variant, 4u> variants{{
-        {"full", true, true, true},
-        {"no_contact", false, true, true},
-        {"no_equality", true, false, true},
-        {"no_passive_preload", true, true, false},
+    // The dependent coordinate begins at its source upper limit.  Keep an
+    // explicit inactive-limit control so a later limit projection is not
+    // silently attributed to the contact/equality pair.
+    constexpr std::array<Variant, 6u> variants{{
+        {"full", true, true, true, true},
+        {"no_contact", false, true, true, true},
+        {"no_equality", true, false, true, true},
+        {"no_passive_preload", true, true, false, true},
+        {"inactive_dependent_limit", true, true, true, false},
+        {"frictionless_contact", true, true, true, true, 0.0f},
     }};
     for (const Variant& variant : variants) {
         std::vector<RefinementSummary> summaries;
         summaries.reserve(cases.size());
         for (const auto [timestep, steps] : cases) {
             Fixture fixture(timestep);
+            if (!variant.dependentLimitActive) {
+                fixture.moveOffDependentPositionLimit();
+            }
+            fixture.contacts.front().frictionSlopAndStabilization.x =
+                variant.contactFriction;
             if (!variant.passivePreload) {
                 std::fill(
                     fixture.passivePreload.begin(), fixture.passivePreload.end(), 0.0f
@@ -703,6 +1037,15 @@ void checkCommonDurationRefinement() {
             });
         }
         const RefinementSummary& finest = summaries.back();
+        if (variant.contact && variant.equality && variant.passivePreload &&
+            variant.dependentLimitActive && variant.contactFriction > 0.0f) {
+            const RefinementSummary& coarsest = summaries.front();
+            require(
+                maximumDifference(coarsest.q, finest.q) <= 1.0e-5 &&
+                    maximumDifference(coarsest.v, finest.v) <= 5.0e-4,
+                "coupled contact/equality/limit refinement did not approach its fine state"
+            );
+        }
         for (const RefinementSummary& summary : summaries) {
             std::cout << "refinement_variant=" << variant.name
                       << " dt_us="
@@ -732,12 +1075,14 @@ int main() {
         std::cout << std::setprecision(17);
         const Fixture fixture(kDefaultTimestepSeconds);
         checkOneStepReference(fixture);
+        checkSimultaneousTriadReference();
         checkContactAndReplay(fixture);
         checkCommonDurationRefinement();
         std::cout << "numi_human_stand_coupling_probe=passed "
                   << "scope=minimal_production_path "
                   << "standing_qualified=false "
-                  << "combined_fp64_plane_contact_oracle=false\n";
+                  << "simultaneous_fp64_normal_triad_reference=true "
+                  << "full_fp64_plane_contact_oracle=false\n";
         return 0;
     } catch (const std::exception& error) {
         std::cerr << "numi_human_stand_coupling_probe: " << error.what() << '\n';

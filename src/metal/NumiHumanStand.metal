@@ -734,7 +734,21 @@ kernel void mr_numi_human_stand_step(
     float maximumEqualityImpulse = 0.0f;
     float totalEqualityImpulse = 0.0f;
 
+    // Contact, bilateral equalities, and source position limits share one
+    // mass factor.  Interleave their existing projected updates so an active
+    // row cannot be silently invalidated by a later constraint family.
+    const uint coupledSweepCount = dispatch.contactIterationCount;
+    const uint limitResponseCapacity = nv;
+    const uint limitResponseBase = responseBase +
+        (3u * dispatch.supportContactCount + dispatch.jointEqualityCount) * nv;
+    uint limitCount = 0u;
+    uint limitDofs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    for (uint coupledSweep = 0u;
+         coupledSweep < coupledSweepCount;
+         ++coupledSweep) {
+
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
+        if (coupledSweep == 0u) {
         for (uint contact = 0u; contact < dispatch.supportContactCount; ++contact) {
             device const MRNumiHumanStandContactGPU& support = contacts[contact];
             if (support.bodyIndex < articulation.firstBody ||
@@ -796,8 +810,9 @@ kernel void mr_numi_human_stand_step(
                 }
             }
         }
+        }
         for (uint iteration = 0u;
-             iteration < dispatch.contactIterationCount;
+             iteration < 1u;
              ++iteration) {
             for (uint contact = 0u; contact < dispatch.supportContactCount; ++contact) {
                 device const MRNumiHumanStandContactGPU& support = contacts[contact];
@@ -890,9 +905,10 @@ kernel void mr_numi_human_stand_step(
     }
 
     // Equality rows use the same factored mass matrix as contact. Solving
-    // them after the unilateral support pass makes the authored anatomical
-    // manifold exact without injecting a hidden joint motor.
+    // them in the coupled sweep keeps the authored anatomical manifold and
+    // active unilateral rows mutually consistent without a hidden motor.
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES) != 0u) {
+        if (coupledSweep == 0u) {
         for (uint equalityIndex = 0u;
              equalityIndex < dispatch.jointEqualityCount;
              ++equalityIndex) {
@@ -927,9 +943,10 @@ kernel void mr_numi_human_stand_step(
                 return;
             }
         }
+        }
 
         for (uint iteration = 0u;
-             iteration < dispatch.contactIterationCount;
+             iteration < 1u;
              ++iteration) {
             for (uint equalityIndex = 0u;
                  equalityIndex < dispatch.jointEqualityCount;
@@ -976,6 +993,7 @@ kernel void mr_numi_human_stand_step(
                 }
             }
         }
+        if (coupledSweep + 1u == coupledSweepCount) {
         for (uint equalityIndex = 0u;
              equalityIndex < dispatch.jointEqualityCount;
              ++equalityIndex) {
@@ -1010,21 +1028,16 @@ kernel void mr_numi_human_stand_step(
             );
             totalEqualityImpulse += absoluteImpulse;
         }
+        }
     }
 
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
     // Source-authored scalar position limits are unilateral generalized
     // constraints. Static Human recruitment may rely on their reaction; a
     // stand horizon that omits them turns that accepted load into an
-    // artificial high-acceleration joint impulse. Reuse the response arena
-    // after contact/equality projection and solve each active limit against
-    // the same factored mass matrix. The projection is velocity-level and
-    // therefore preserves the accepted q/v transaction without clamping.
-    const uint limitResponseCapacity = nv;
-    const uint limitResponseBase = responseBase +
-        (3u * dispatch.supportContactCount + dispatch.jointEqualityCount) * nv;
-    uint limitCount = 0u;
-    uint limitDofs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    // artificial high-acceleration joint impulse. Their response columns are
+    // prepared once, then projected alongside contact and equality rows.
+    if (coupledSweep == 0u) {
     for (uint dof = 0u; dof < nv; ++dof) {
         device const MRDofPropertiesGPU& properties =
             dofs[articulation.vOffset + dof];
@@ -1070,8 +1083,9 @@ kernel void mr_numi_human_stand_step(
         }
         ++limitCount;
     }
+    }
     for (uint iteration = 0u;
-         iteration < dispatch.contactIterationCount && limitCount != 0u;
+         iteration < 1u && limitCount != 0u;
          ++iteration) {
         for (uint limit = 0u; limit < limitCount; ++limit) {
             const uint dof = limitDofs[limit];
@@ -1129,6 +1143,8 @@ kernel void mr_numi_human_stand_step(
                 candidateV[index] += impulse * response[index];
             }
         }
+    }
+
     }
 
     }
