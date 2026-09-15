@@ -6,6 +6,7 @@ on:
       - include/metalrobo/numi_human_constraint_projection.h
       - tests/numi_human_constraint_projection_test.cpp
       - tools/apply_human_constraint_projection.py
+      - tools/apply_human_reaction_ownership.py
       - .github/workflows/human-constraint-projection.yml
   workflow_dispatch:
 permissions:
@@ -21,8 +22,10 @@ jobs:
       source_sha: ${{ steps.publish.outputs.source_sha }}
     steps:
       - uses: actions/checkout@v4
-      - name: Apply exact source correction
-        run: python3 tools/apply_human_constraint_projection.py
+      - name: Apply exact source corrections
+        run: |
+          python3 tools/apply_human_constraint_projection.py
+          python3 tools/apply_human_reaction_ownership.py
       - name: Test shared projection policy
         run: |
           c++ -std=c++20 -O2 -Wall -Wextra -Werror -Iinclude tests/numi_human_constraint_projection_test.cpp -o /tmp/human-constraint-projection
@@ -34,11 +37,11 @@ jobs:
           TARGET_BRANCH: ${{ github.ref_name }}
         run: |
           test "$TARGET_BRANCH" = human-native-runtime-20260915
-          if ! git diff --quiet -- src/metal/NumiHumanStand.metal; then
+          if ! git diff --quiet -- src/metal/NumiHumanStand.metal apps/numilab_human_myosim_visual_probe.mm; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add -- src/metal/NumiHumanStand.metal
-            git commit -m 'Fix Human support impulse ownership and releasable limits'
+            git add -- src/metal/NumiHumanStand.metal apps/numilab_human_myosim_visual_probe.mm
+            git commit -m 'Remove permanent Human equality and limit reaction loads'
             git push origin "HEAD:refs/heads/$TARGET_BRANCH"
           fi
           echo "source_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
@@ -47,8 +50,10 @@ jobs:
           name: human-constraint-projection-source
           path: |
             src/metal/NumiHumanStand.metal
+            apps/numilab_human_myosim_visual_probe.mm
             include/metalrobo/numi_human_constraint_projection.h
             tests/numi_human_constraint_projection_test.cpp
+            tools/apply_human_reaction_ownership.py
   metal-compile:
     needs: integrate
     runs-on: macos-15
@@ -65,3 +70,5 @@ jobs:
         run: |
           clang++ -std=c++20 -O2 -Wall -Wextra -Werror -Iinclude tests/numi_human_constraint_projection_test.cpp -o /tmp/human-constraint-projection
           /tmp/human-constraint-projection
+      - name: Verify permanent-load exclusion
+        run: python3 tools/apply_human_reaction_ownership.py
