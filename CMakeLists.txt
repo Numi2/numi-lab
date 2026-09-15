@@ -3242,6 +3242,53 @@ set_target_properties(
 )
 
 add_executable(
+    metalrobo_numi_human_stand_coupling_probe
+    apps/numi_human_stand_coupling_probe.mm
+)
+add_dependencies(
+    metalrobo_numi_human_stand_coupling_probe
+    metalrobo_shaders
+)
+target_compile_definitions(
+    metalrobo_numi_human_stand_coupling_probe
+    PRIVATE
+        METALROBO_DEFAULT_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_numi_human_stand_coupling_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numi_human_stand_coupling_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numi_human_stand_coupling_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+if(BUILD_TESTING)
+    add_test(
+        NAME numi_human.stand_coupling_minimal
+        COMMAND metalrobo_numi_human_stand_coupling_probe
+    )
+    set_tests_properties(
+        numi_human.stand_coupling_minimal
+        PROPERTIES LABELS "numi-human;metal;mechanics;coupling"
+    )
+endif()
+
+add_executable(
     metalrobo_numanx_human_io_probe
     apps/numanx_human_io_probe.mm
 )
