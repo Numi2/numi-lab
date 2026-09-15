@@ -3441,7 +3441,10 @@ CompiledStandActivation compileStaticStandActivation(
     config.poseRegularization = 1.0e-4;
     config.globalActivationPolishIterations = 64u;
     if (!passiveCouplings.empty()) {
-        config.poseSweeps = 12u;
+        // The passive-coupled whole-body solve had accepted every prior
+        // pose step while the internal residual was still descending. Keep
+        // the search bounded, but do not stop at the old 12-step ceiling.
+        config.poseSweeps = 24u;
         config.poseCandidateCount = 12u;
         config.poseRecruitmentCandidateCount = 3u;
     }
