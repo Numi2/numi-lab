@@ -2525,6 +2525,20 @@ LoadedAnteriorThorax loadAnteriorThorax(
     return result;
 }
 
+struct PersistentDynamicForceAuditRow {
+    std::uint32_t dof = MR_INVALID_INDEX;
+    std::uint32_t jointIndex = MR_INVALID_INDEX;
+    std::uint32_t childBodyIndex = MR_INVALID_INDEX;
+    std::string name;
+    double metalMuscleForce = 0.0;
+    double supportForce = 0.0;
+    double equalityForce = 0.0;
+    double limitForce = 0.0;
+    double passiveForce = 0.0;
+    double gravityTarget = 0.0;
+    double residual = 0.0;
+};
+
 struct MuscleDrivenVisualState {
     std::vector<float> q;
     std::vector<std::array<mr_float4, 2u>> extensorHoodSolvedSegments;
@@ -2559,6 +2573,8 @@ struct MuscleDrivenVisualState {
     std::uint32_t selectedSourceMuscleActivationCount = 0u;
     double muscleMetalElapsedMilliseconds = 0.0;
     double sourceDynamicForceParityMaximumNewtons = 0.0;
+    double persistentDynamicMaximumForceResidual = 0.0;
+    std::vector<PersistentDynamicForceAuditRow> persistentDynamicForceAudit;
     double sourceSupportForceParityMaximumNewtons = 0.0;
     std::uint32_t sourceSupportForceParityMaximumDof = MR_INVALID_INDEX;
     std::string muscleMetalDeviceName;
@@ -3997,9 +4013,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             compiledActivation.q,
             std::move(states),
             timestepSeconds
-        );
+    );
     states = initialFiberEquilibrium.states;
     std::vector<float> preloadedGeneralizedForce(model.world.nv, 0.0f);
+    std::vector<PersistentDynamicForceAuditRow> dynamicForceAudit;
+    dynamicForceAudit.reserve(model.world.nv);
+    double dynamicInitialMaximumForceResidual = 0.0;
     require(
         compiledActivation.generalizedJointEqualityForce.size() ==
                 model.world.nv &&
@@ -4007,7 +4026,61 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 model.world.nv &&
             compiledActivation.generalizedPassiveCoordinateForce.size() ==
                 model.world.nv,
+            "persistent Human source equilibrium did not publish constraint reactions"
+    );
+    require(
+        compiledActivation.generalizedMuscleForce.size() == model.world.nv &&
+            compiledActivation.generalizedSupportForce.size() == model.world.nv &&
+            compiledActivation.gravityTarget.size() == model.world.nv &&
+            initialFiberEquilibrium.force.generalizedForce.size() == model.world.nv,
         "persistent Human source equilibrium did not publish constraint reactions"
+    );
+    for (std::size_t dof = 0u; dof < model.world.nv; ++dof) {
+        const double metalMuscleForce = static_cast<double>(
+            initialFiberEquilibrium.force.generalizedForce[dof]
+        );
+        const double supportForce = compiledActivation.generalizedSupportForce[dof];
+        const double equalityForce = compiledActivation.generalizedJointEqualityForce[dof];
+        const double limitForce = compiledActivation.generalizedPositionLimitForce[dof];
+        const double passiveForce = compiledActivation.generalizedPassiveCoordinateForce[dof];
+        const double gravityTarget = compiledActivation.gravityTarget[dof];
+        const double residual = metalMuscleForce + supportForce + equalityForce +
+            limitForce + passiveForce - gravityTarget;
+        require(
+            std::isfinite(metalMuscleForce) && std::isfinite(supportForce) &&
+                std::isfinite(equalityForce) && std::isfinite(limitForce) &&
+                std::isfinite(passiveForce) && std::isfinite(gravityTarget) &&
+                std::isfinite(residual),
+            "persistent Human dynamic force audit produced a non-finite component"
+        );
+        dynamicInitialMaximumForceResidual = std::max(
+            dynamicInitialMaximumForceResidual, std::abs(residual)
+        );
+        const std::size_t globalDof = model.articulations.front().vOffset + dof;
+        const MRDofPropertiesGPU& properties = model.dofs.at(globalDof);
+        const std::uint32_t childBody = properties.jointIndex < model.joints.size()
+            ? model.joints[properties.jointIndex].childBody : MR_INVALID_INDEX;
+        PersistentDynamicForceAuditRow row;
+        row.dof = static_cast<std::uint32_t>(dof);
+        row.jointIndex = properties.jointIndex;
+        row.childBodyIndex = childBody;
+        row.name = globalDof < model.dofNames.size()
+            ? model.dofNames[globalDof] : "unnamed";
+        row.metalMuscleForce = metalMuscleForce;
+        row.supportForce = supportForce;
+        row.equalityForce = equalityForce;
+        row.limitForce = limitForce;
+        row.passiveForce = passiveForce;
+        row.gravityTarget = gravityTarget;
+        row.residual = residual;
+        dynamicForceAudit.push_back(std::move(row));
+    }
+    std::stable_sort(
+        dynamicForceAudit.begin(), dynamicForceAudit.end(),
+        [](const PersistentDynamicForceAuditRow& first,
+           const PersistentDynamicForceAuditRow& second) {
+            return std::abs(first.residual) > std::abs(second.residual);
+        }
     );
     for (std::size_t dof = 0u; dof < model.world.nv; ++dof) {
         preloadedGeneralizedForce[dof] = static_cast<float>(
@@ -4749,6 +4822,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     );
     result.muscleMetalElapsedMilliseconds = totalElapsedMilliseconds;
     result.sourceDynamicForceParityMaximumNewtons = sourceDynamicForceParityMaximumNewtons;
+    result.persistentDynamicMaximumForceResidual =
+        dynamicInitialMaximumForceResidual;
+    result.persistentDynamicForceAudit = std::move(dynamicForceAudit);
     result.sourceSupportForceParityMaximumNewtons = sourceSupportForceParityMaximumNewtons;
     result.sourceSupportForceParityMaximumDof = sourceSupportForceParityMaximumDof;
     result.muscleMetalDeviceName = diagnostics.deviceName;
@@ -17518,6 +17594,8 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->muscleMetalElapsedMilliseconds : 0.0)
                       << " source_dynamic_force_parity_max_delta_n=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->sourceDynamicForceParityMaximumNewtons : 0.0)
+                      << " persistent_dynamic_force_residual_max_n=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentDynamicMaximumForceResidual : 0.0)
                       << " source_support_force_parity_max_delta_n=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->sourceSupportForceParityMaximumNewtons : 0.0)
                       << " source_support_force_parity_max_delta_dof=" << (muscleDrivenState.has_value()
@@ -17728,6 +17806,32 @@ int main(int argc, char** argv) {
                                   : "cpu_fp64_mujoco_tangent_and_wrapped_arc_centreline_at_same_q_not_an_anatomical_tendon_surface_or_bodyparts3d_surface_attachment_certificate")
                               : "hidden_until_a_source_route_centreline_inspection_is_requested")
                       << '\n';
+            if (muscleDrivenState.has_value() &&
+                !muscleDrivenState->persistentDynamicForceAudit.empty()) {
+                std::cout << std::setprecision(17)
+                          << "persistent_dynamic_force_audit={\"schema\":\"numi.human.persistent-dynamic-force-audit.v1\""
+                          << ",\"maximum_abs_residual_n\":"
+                          << muscleDrivenState->persistentDynamicMaximumForceResidual
+                          << ",\"rows\":[";
+                for (std::size_t index = 0u;
+                     index < muscleDrivenState->persistentDynamicForceAudit.size();
+                     ++index) {
+                    if (index != 0u) std::cout << ',';
+                    const auto& row = muscleDrivenState->persistentDynamicForceAudit[index];
+                    std::cout << "{\"dof\":" << row.dof
+                              << ",\"joint_index\":" << row.jointIndex
+                              << ",\"child_body_index\":" << row.childBodyIndex
+                              << ",\"name\":\"" << row.name << "\""
+                              << ",\"metal_muscle_force_n\":" << row.metalMuscleForce
+                              << ",\"support_force_n\":" << row.supportForce
+                              << ",\"equality_force_n\":" << row.equalityForce
+                              << ",\"limit_force_n\":" << row.limitForce
+                              << ",\"passive_force_n\":" << row.passiveForce
+                              << ",\"gravity_target_n\":" << row.gravityTarget
+                              << ",\"residual_n\":" << row.residual << '}';
+                }
+                std::cout << "]}\n";
+            }
             return 0;
         } catch (const std::exception& error) {
             std::cerr << "myosim_articulated_visual=failed error=\""
