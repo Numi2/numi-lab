@@ -4,6 +4,7 @@
 #include "metalrobo/compensated_translation_gpu.h"
 #include "metalrobo/numi_human_tendon_gpu.h"
 #include "metalrobo/numi_human_joint_equality_gpu.h"
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstring>
@@ -15,8 +16,9 @@
 // Runs the production standing kernel, not a duplicate dynamics kernel.
 // A free spherical-inertia parent and coaxial spherical-inertia child give
 // M_angular=[[1.5,0.5],[0.5,0.5]], hence relative inertia 1/3. Their coincident
-// centres remove centrifugal translation. Contact/anatomical validity is not
-// asserted by this deliberately small numerical fixture.
+// centres remove centrifugal translation. The contact cases use one point at
+// the coincident centres with an analytic vertical/friction solution; this
+// does not validate anatomical contact or a full Human trajectory.
 namespace {
 constexpr unsigned nv=7, nq=8, bodies=2, points=8, environments=2;
 void require(bool value, const char* message) {
@@ -27,8 +29,10 @@ V3 cross(V3 a,V3 b) { return {a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-
 mr_float4 rotation(float angle) { return {0,0,std::sin(angle/2),std::cos(angle/2)}; }
 
 std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
-                     id<MTLCommandQueue> queue,float h,bool enabled) {
-    // Even disabled array arguments require one ABI-sized element for Metal validation.
+                     id<MTLCommandQueue> queue,float h,bool enabled,
+                     float supportSeedScale=-1.0f,unsigned contactMode=0u) {
+    const unsigned contactCount=supportSeedScale>=0.0f?1u:0u;
+    // Even disabled arguments require one ABI-sized element for Metal validation.
     const std::array<std::size_t,25> sizes={
         sizeof(MRWorldGPU),sizeof(MRArticulationGPU),nv*sizeof(MRDofPropertiesGPU),
         bodies*sizeof(MRBodyPropertiesGPU),sizeof(MRNumiHumanStandDispatchGPU),
@@ -38,7 +42,9 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
         environments*points*3*nv*sizeof(float),environments*nv*sizeof(float),
         sizeof(MRNumiHumanStandContactGPU),
         environments*bodies*6*nv*sizeof(float),environments*bodies*2*sizeof(mr_float4),
-        environments*nv*nv*sizeof(float),environments*4*nv*sizeof(float),16,
+        environments*nv*nv*sizeof(float),
+        environments*(4*nv+12*contactCount)*sizeof(float),
+        environments*(3*contactCount+nv)*nv*sizeof(float),
         environments*sizeof(MRNumiHumanStandStatusGPU),
         sizeof(MRNumiHumanTendonBindingGPU),sizeof(MRNumiHumanTendonTransferResultGPU),
         sizeof(MRNumiHumanJointEqualityGPU),
@@ -54,6 +60,7 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
     auto* world=static_cast<MRWorldGPU*>(buffers[0].contents);
     world->abiVersion=MR_ENGINE_ABI_VERSION;
     world->bodyCount=bodies; world->articulationCount=1; world->nq=nq; world->nv=nv;
+    world->gravityAndTimestep={0,0,contactCount?-9.81f:0.0f,h};
     auto* articulation=static_cast<MRArticulationGPU*>(buffers[1].contents);
     articulation->bodyCount=bodies; articulation->rootType=MR_ROOT_FLOATING;
     articulation->nq=nq; articulation->nv=nv;
@@ -73,21 +80,33 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
     dispatch->environmentCount=environments; dispatch->stepCount=1;
     dispatch->qStride=nq; dispatch->vStride=nv; dispatch->pointWorldStride=points;
     dispatch->pointJacobianStride=points*3*nv; dispatch->bodyPoseStride=bodies;
-    dispatch->generalizedForceStride=nv; dispatch->contactIterationCount=1;
+    dispatch->generalizedForceStride=nv; dispatch->contactIterationCount=8;
+    dispatch->supportContactCount=contactCount;
     dispatch->groundPointAndTimestep={0,0,0,h}; dispatch->groundNormal={0,0,1,0};
     dispatch->targetRootOrientation={0,0,0,1};
-    dispatch->flags=enabled?MR_NUMI_HUMAN_STAND_HAS_PASSIVE_JOINT_PROGRAM:0;
+    dispatch->flags=(enabled?MR_NUMI_HUMAN_STAND_HAS_PASSIVE_JOINT_PROGRAM:0) |
+        (contactCount?MR_NUMI_HUMAN_STAND_ENABLE_CONTACT:0);
+    auto* contact=static_cast<MRNumiHumanStandContactGPU*>(buffers[11].contents);
+    contact->bodyIndex=0; contact->pointQueryIndex=0;
+    contact->frictionSlopAndStabilization={0.5f,0.002f,0.2f,
+        contactCount?supportSeedScale*6.0f*9.81f:0.0f};
     auto* program=static_cast<float*>(buffers[24].contents);
     program[6*nv+6]=100000.0f; program[nv*nv+6]=0.1f;
     auto* q=static_cast<float*>(buffers[5].contents);
     auto* v=static_cast<float*>(buffers[6].contents);
     for(unsigned e=0;e<environments;++e) {
         q[e*nq+6]=1; q[e*nq+7]=e==0?0.2f:-0.12f;
-        v[e*nv+6]=e==0?0.3f:-0.17f; v[e*nv+5]=-v[e*nv+6]/3;
+        v[e*nv+6]=contactCount?0.0f:(e==0?0.3f:-0.17f);
+        v[e*nv+5]=-v[e*nv+6]/3;
+        if(contactCount) {
+            v[e*nv]=(e==0?0.02f:-0.035f);
+            v[e*nv+2]=contactMode==1u?0.1f:(contactMode==2u?-0.1f:0.0f);
+        }
     }
     std::size_t checks=0;
-    for(unsigned step=0;step<64;++step) {
+    for(unsigned step=0;step<(contactCount?1u:64u);++step) {
         std::array<double,environments> expectedV{},expectedQ{},oldEnergy{},momentum{};
+        std::array<double,environments> normalImpulse{},tangentImpulse{},expectedX{},expectedZ{};
         auto* poses=static_cast<MRArticulatedBodyPoseGPU*>(buffers[7].contents);
         auto* jacobian=static_cast<float*>(buffers[9].contents);
         std::memset(jacobian,0,sizes[9]);
@@ -98,6 +117,14 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
             expectedQ[e]=q[e*nq+7]+h*expectedV[e];
             oldEnergy[e]=0.5*k*x*x+0.5*(1.0/3.0)*u*u;
             momentum[e]=1.5*v[e*nv+5]+0.5*v[e*nv+6];
+            if(contactCount) {
+                const double freeZ=v[e*nv+2]+double(h)*world->gravityAndTimestep.z;
+                normalImpulse[e]=6.0*std::max(-freeZ,0.0);
+                expectedZ[e]=std::max(freeZ,0.0);
+                const double initialX=v[e*nv];
+                tangentImpulse[e]=std::min(6.0*std::abs(initialX),0.5*normalImpulse[e]);
+                expectedX[e]=std::copysign(std::max(std::abs(initialX)-tangentImpulse[e]/6.0,0.0),initialX);
+            }
             float rootAngle=2*std::atan2(q[e*nq+5],q[e*nq+6]);
             for(unsigned body=0;body<bodies;++body) {
                 float angle=rootAngle+(body==1?q[e*nq+7]:0);
@@ -130,7 +157,7 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
         [command commit];
         if(dispatch_semaphore_wait(complete,dispatch_time(DISPATCH_TIME_NOW,30*NSEC_PER_SEC))!=0) {
             std::cerr<<"production Metal probe timed out; no result admitted\n";
-            std::_Exit(2); // Do not release buffers potentially still owned by the GPU.
+            std::_Exit(2);
         }
         require(command.status==MTLCommandBufferStatusCompleted,"production Metal command failed");
         auto* status=static_cast<MRNumiHumanStandStatusGPU*>(buffers[17].contents);
@@ -153,6 +180,28 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
             double energy=0.5*(enabled?program[6*nv+6]:0.0)*x*x+0.5*(1.0/3.0)*u*u;
             require(energy<=oldEnergy[e]+2e-5*(1+oldEnergy[e]),"passive implicit step created energy");
             checks+=5;
+            if(contactCount) {
+                const auto& measured=status[e];
+                const bool matches=std::abs(v[e*nv]-expectedX[e])<2e-6 &&
+                    std::abs(v[e*nv+2]-expectedZ[e])<2e-6 &&
+                    std::abs(measured.contactAndAcceleration.z-normalImpulse[e])<1e-5 &&
+                    std::abs(measured.constraintImpulseDiagnostics.y-tangentImpulse[e])<1e-5;
+                if(!matches) {
+                    std::cerr<<"support h="<<h<<" seed_scale="<<supportSeedScale<<" mode="<<contactMode
+                             <<" env="<<e<<" vx="<<v[e*nv]<<" expected_vx="<<expectedX[e]
+                             <<" vz="<<v[e*nv+2]<<" expected_vz="<<expectedZ[e]
+                             <<" normal="<<measured.contactAndAcceleration.z<<" expected_normal="<<normalImpulse[e]
+                             <<" tangent="<<measured.constraintImpulseDiagnostics.y<<" expected_tangent="<<tangentImpulse[e]<<'\n';
+                }
+                require(matches,"production support/friction solution differs from independent impulse oracle");
+                require(measured.factorAndAssistance.z==0.0f&&measured.factorAndAssistance.w==0.0f,
+                        "contact fixture received artificial root assistance");
+                require(measured.contactAndAcceleration.z>=0.0f,
+                        "unilateral contact pulled the body toward the plane");
+                require(measured.constraintImpulseDiagnostics.y<=0.5f*measured.contactAndAcceleration.z+1e-6f,
+                        "tangential impulse exceeded friction cone");
+                checks+=4;
+            }
         }
     }
     return checks;
@@ -176,9 +225,15 @@ int main(int argc,char** argv) {
             std::size_t checks=0;
             for(float timestep:{1.25e-5f,1.0e-4f,1.0e-3f})
                 for(bool enabled:{false,true}) checks+=exercise(device,pipeline,queue,timestep,enabled);
+            const auto passiveChecks=checks;
+            for(float timestep:{1.25e-5f,1.0e-4f,1.0e-3f})
+                for(float seed:{0.0f,1.0f,2.0f})
+                    for(unsigned mode:{0u,1u,2u})
+                        checks+=exercise(device,pipeline,queue,timestep,false,seed,mode);
             std::cout<<"gpu_available=true device=\""<<device.name.UTF8String
                      <<"\" production_kernel=mr_numi_human_stand_step checks="<<checks
-                     <<" status=passed scope=two_body_passive_integration_not_full_human\n";
+                     <<" passive_checks="<<passiveChecks<<" support_checks="<<(checks-passiveChecks)
+                     <<" status=passed scope=two_body_passive_and_contact_not_full_human\n";
             return 0;
         } catch(const std::exception& error) { std::cerr<<error.what()<<'\n'; return 1; }
     }
