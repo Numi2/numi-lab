@@ -24,6 +24,14 @@ jobs:
           assert hashlib.sha256(data).hexdigest() == '8b32d4e610fd888a6c5a1c915e6e838625c34793b741208ad64b14f90f420323'
           subprocess.run(['git','apply','--check','-'], input=data, check=True)
           subprocess.run(['git','apply','--index','-'], input=data, check=True)
+          regular = pathlib.Path('.github/workflows/human-constraint-projection.yml')
+          text = regular.read_text()
+          old = '          clang++ -std=c++20 -fobjc-arc -fsyntax-only -Iinclude -Imatter/include src/metal/MetalArticulatedOperator.mm\n          clang++ -std=c++20 -fobjc-arc -fsyntax-only -Iinclude -Imatter/include apps/numilab_human_myosim_visual_probe.mm\n'
+          assert text.count(old) == 1
+          text = text.replace(old, '          python3 tools/check_human_host_syntax.py\n')
+          text = text.replace('      - tools/check_human_constraint_owner.py\n', '      - tools/check_human_constraint_owner.py\n      - tools/check_human_host_syntax.py\n')
+          regular.write_text(text)
+          subprocess.run(['git','add','--',str(regular)],check=True)
       - name: Verify portable numerical policies
         run: |
           for name in constraint_projection equality_limit_block passive_joint; do
@@ -35,8 +43,7 @@ jobs:
       - name: Compile production shader and host owners
         run: |
           xcrun --sdk macosx metal -std=metal3.1 -Iinclude -c src/metal/NumiHumanStand.metal -o /tmp/NumiHumanStand.air
-          clang++ -std=c++20 -fobjc-arc -fsyntax-only -Iinclude -Imatter/include src/metal/MetalArticulatedOperator.mm
-          clang++ -std=c++20 -fobjc-arc -fsyntax-only -Iinclude -Imatter/include apps/numilab_human_myosim_visual_probe.mm
+          python3 tools/check_human_host_syntax.py
       - name: Publish tested source and retire temporary workflows
         run: |
           test "$GITHUB_REF_NAME" = human-native-runtime-20260915
