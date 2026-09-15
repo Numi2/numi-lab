@@ -1093,6 +1093,24 @@ void writeTraceEqualityLimitPairJson(
     output << '}';
 }
 
+void writeTraceEqualityLimitRowJson(
+    std::ostream& output,
+    const TraceEqualityLimitRow& row
+) {
+    output << "{\"kind\":\"" << traceEqualityLimitRowKindName(row.kind)
+           << "\",\"source_index\":" << row.sourceIndex
+           << ",\"q_index\":" << row.qIndex
+           << ",\"v_index\":" << row.vIndex;
+    if (row.kind == TraceEqualityLimitRowKind::equality) {
+        output << ",\"derivative\":" << row.derivative;
+    } else {
+        output << ",\"boundary_distance\":" << row.boundaryDistance
+               << ",\"outward_at_trace\":"
+               << (row.outwardAtTrace ? "true" : "false");
+    }
+    output << '}';
+}
+
 int runTraceEqualityLimitActiveSetAudit(
     const char* const rigidPath,
     const char* const equalityPath,
@@ -1256,6 +1274,16 @@ int runTraceEqualityLimitActiveSetAudit(
     const PivotedCholeskyAudit factor = pivotedCholeskyAudit(
         normalizedGram, rowCount, kRelativePivotCutoff
     );
+    std::size_t retainedEqualityRowCount = 0u;
+    std::size_t retainedLimitRowCount = 0u;
+    for (std::size_t index = 0u; index < factor.rank; ++index) {
+        const TraceEqualityLimitRow& row = metadata[factor.order[index]];
+        if (row.kind == TraceEqualityLimitRowKind::equality) {
+            ++retainedEqualityRowCount;
+        } else {
+            ++retainedLimitRowCount;
+        }
+    }
 
     TraceEqualityLimitPairAudit mostCoupled;
     TraceEqualityLimitPairAudit implicated;
@@ -1312,6 +1340,19 @@ int runTraceEqualityLimitActiveSetAudit(
               << factor.firstRejectedPivot
               << ",\"normalized_pivot_maximum_negative_residual\":"
               << factor.maximumNegativeResidual
+              << ",\"normalized_pivot_retained_equality_row_count\":"
+              << retainedEqualityRowCount
+              << ",\"normalized_pivot_retained_near_boundary_limit_row_count\":"
+              << retainedLimitRowCount
+              << ",\"normalized_pivot_first_rejected_row\":";
+    if (factor.rank < rowCount) {
+        writeTraceEqualityLimitRowJson(
+            std::cout, metadata[factor.order[factor.rank]]
+        );
+    } else {
+        std::cout << "null";
+    }
+    std::cout
               << ",\"fp64_minimum_cholesky_pivot\":"
               << responseDiagnostics.minimumCholeskyPivot
               << ",\"most_coupled_equality_limit_pair\":";
