@@ -1505,6 +1505,10 @@ void checkProductionOrderTriadReference() {
         metalTargetKkt.constrainedVelocity,
         metalTargetOrder.postProjectionVelocity
     );
+    const VelocityComparison preProjectionOrderToKkt = compareVelocities(
+        metalTargetKkt.constrainedVelocity,
+        metalTargetOrder.preProjectionVelocity
+    );
     const VelocityComparison geometryTargetToMetalTargetOrder = compareVelocities(
         fp64GeometryOrder.postProjectionVelocity,
         metalTargetOrder.postProjectionVelocity
@@ -1513,6 +1517,7 @@ void checkProductionOrderTriadReference() {
         std::isfinite(metalGap) && std::isfinite(metalContactTarget) &&
             std::isfinite(metalToProductionOrder.maximumDifference) &&
             std::isfinite(productionOrderToKkt.maximumDifference) &&
+            std::isfinite(preProjectionOrderToKkt.maximumDifference) &&
             std::isfinite(geometryTargetToMetalTargetOrder.maximumDifference) &&
             metalTargetOrder.upperLimitAdmitted,
         "production-order triad discriminator produced an invalid comparison"
@@ -1549,6 +1554,8 @@ void checkProductionOrderTriadReference() {
               << metalToProductionOrder.dof
               << " fp64_production_order_to_simultaneous_kkt_velocity_difference_m_s="
               << productionOrderToKkt.maximumDifference
+              << " fp64_pre_projection_order_to_simultaneous_kkt_velocity_difference_m_s="
+              << preProjectionOrderToKkt.maximumDifference
               << " fp64_geometry_to_metal_target_production_order_velocity_difference_m_s="
               << geometryTargetToMetalTargetOrder.maximumDifference
               << " scope=diagnostic_not_production_policy"
