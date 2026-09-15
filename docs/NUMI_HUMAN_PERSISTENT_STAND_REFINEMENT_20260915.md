@@ -13,6 +13,11 @@ binary SHA-256 was
 `510f2e9653a973e042bd46fc83f5714d604ee65d2f22680d55cd60821c8ec27b`.
 Metal API validation was enabled for every receipt.
 
+The current receipt tag
+`human-native-stationary-fibre-continuity-20260915` is a documentation-only
+descendant of that runtime source commit. The source branch and immutable tag
+therefore pin the same tested runtime code together with this evidence.
+
 The retained input payload SHA-256 values were:
 
 | Payload | SHA-256 |
@@ -121,6 +126,37 @@ The no-contact, inactive-limit, and no-equality controls do not show that
 trade-off. This supports an ordering/formulation hypothesis for the coupled
 equality/limit path; it does not establish a full-Human root cause or a
 replacement formulation.
+
+## Stationary-fibre continuity and loading discriminator
+
+The separate `metalrobo_source_route_precision_check` production-route probe
+contains a focused compliant-fibre regression at the 12.5 us clock. It first
+obtains an independent FP64 stationary root from the zero-length sentinel,
+publishes that positive root to the Metal sidecar, then tests the exact-zero
+path-velocity case, signed `-1e-3` and `+1e-3 m/s` path-velocity requests,
+an activation change, and a path-length/tendon-load perturbation. Each
+nonzero-velocity, activation, and loading result is checked against the FP64
+reference under the probe's declared fibre-length, fibre-velocity, and tendon
+tension tolerances.
+
+Two fresh Apple M4 Pro runs with Metal API validation produced byte-identical
+stdout (SHA-256
+`c15b265b44bfd482312ff8f4777b51578c28533d602349011efb8ffb1b374d60`).
+The accepted stationary root was `0.21805927157402039 m`; the exact-zero
+production path retained it and reported no artificial fibre velocity. The
+reported normalized tendon tension was `0.36703518033027649`. The two signed
+near-zero requests each reported a bounded fibre velocity of
+`-3.3554570109117776e-06 m/s`; the test's continuity guard compares both
+paths with FP64 and bounds their magnitude rather than asserting a derivative
+sign at float resolution. Raising activation produced a re-solved fibre
+length of `0.21805717051029205 m`, and the path-length perturbation changed
+the normalized tendon tension to `0.027911754325032234`.
+
+The native Metal probe passed all `3,206` checks, and its paired CPU and
+Metal CTest entries both passed. This checks the special case at and around
+its trigger condition; it does not establish differentiability of every
+float branch, validate every one of the 416 muscles under arbitrary loading,
+or qualify full-body dynamics.
 
 ## Passive-coupling discriminator
 
