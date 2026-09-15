@@ -142,14 +142,16 @@ the same `12.5 us` timestep.
 The free path and equality-only control differed from their FP64 references
 by only `1.2603779731180801e-11 m/s` and
 `1.0641343763193728e-11 m/s`, respectively. The full triad differed by
-`1.0879757724720971e-05 m/s`, with its largest coordinate at root-y; the
-contact-target difference accounts for `1.0728836312839947e-05 m/s` of that
-value, leaving `1.5092141188102392e-07 m/s` before attributing any residual
-to the interleaved constraint path. Its final source-limit residual was
-`2.2428295665122278e-07 m/s` and its equality residual was zero.
+`1.0879757724720971e-05 m/s`, with its largest coordinate at root-y. As a
+counterfactual control only, substituting Metal's recorded contact target into
+the otherwise unchanged FP64 KKT reference reduced the comparison to
+`2.2425888232285692e-07 m/s`; the raw failing comparison remains the one
+above. That residual is consistent in scale with the final source-limit
+residual of `2.2428295665122278e-07 m/s`, while the equality residual was
+zero.
 
 Two M4 runs with Metal API validation had byte-identical stdout (SHA-256
-`f99212cf6e5de01f267ffe82b80705c44ba14a6001013a3159eb16fdfddd1a47`).
+`b17919370a974c0879ccffd8ea26cd5df20cf30d257703068afc7e816c08bcc7`).
 This is not a re-baselined pass or a solver fix: the old FP64 comparison and
 the 6.4 ms temporal-convergence result remain failed as recorded above. It
 does identify a required next decision for any higher-precision reference:

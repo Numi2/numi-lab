@@ -684,7 +684,8 @@ struct SimultaneousTriadReference {
 };
 
 [[nodiscard]] SimultaneousTriadReference simultaneousTriadReference(
-    const Fixture& fixture
+    const Fixture& fixture,
+    const double contactTargetOverride = std::numeric_limits<double>::quiet_NaN()
 ) {
     constexpr double kRegularization = 1.0e-7;
     constexpr std::size_t kContactNormalRow = 0u;
@@ -723,11 +724,14 @@ struct SimultaneousTriadReference {
                 1.0e-7,
         "simultaneous-triad reference did not begin at the support/upper-limit intersection"
     );
-    result.targetVelocity[kContactNormalRow] = std::max(
+    const double rawContactTargetVelocity = std::max(
         0.0,
         -0.2 * std::min(result.initialContactGap, 0.0) /
             static_cast<double>(fixture.timestepSeconds)
     );
+    result.targetVelocity[kContactNormalRow] = std::isfinite(contactTargetOverride)
+        ? contactTargetOverride
+        : rawContactTargetVelocity;
     const double equalityError = q[kDependentQ] -
         static_cast<double>(kEqualitySlope) * q[kMasterQ];
     result.targetVelocity[kEqualityRow] = std::clamp(
@@ -1116,6 +1120,14 @@ void checkExactContactPrecisionDiagnostic() {
         -contactStabilization * std::min(gpuMinimumGap, 0.0) /
             static_cast<double>(kFinestTimestep)
     );
+    // This is a counterfactual FP64 reference, not the gate above: it keeps
+    // the same FP64 dynamics and rows but uses the target published by the
+    // Metal geometry, isolating the solver remainder after target agreement.
+    const SimultaneousTriadReference metalTargetReference =
+        simultaneousTriadReference(fixture, gpuContactTargetVelocity);
+    const VelocityComparison targetMatchedComparison = compareVelocities(
+        metalTargetReference.constrainedVelocity, projected.result.standV
+    );
     const double contactTargetVelocityDifference = std::abs(
         reference.targetVelocity[0u] - gpuContactTargetVelocity
     );
@@ -1127,6 +1139,7 @@ void checkExactContactPrecisionDiagnostic() {
         std::isfinite(freeComparison.maximumDifference) &&
             std::isfinite(equalityOnlyComparison.maximumDifference) &&
             std::isfinite(projectedComparison.maximumDifference) &&
+            std::isfinite(targetMatchedComparison.maximumDifference) &&
             std::isfinite(gpuMinimumGap) &&
             std::isfinite(gpuContactTargetVelocity) &&
             std::isfinite(contactTargetVelocityDifference) &&
@@ -1154,6 +1167,8 @@ void checkExactContactPrecisionDiagnostic() {
               << equalityOnlyComparison.maximumDifference
               << " triad_metal_to_fp64_velocity_difference_m_s="
               << projectedComparison.maximumDifference
+              << " triad_metal_to_fp64_matched_contact_target_velocity_difference_m_s="
+              << targetMatchedComparison.maximumDifference
               << " triad_worst_dof=" << projectedComparison.dof
               << " triad_fp64_velocity_m_s="
               << projectedComparison.referenceVelocity
