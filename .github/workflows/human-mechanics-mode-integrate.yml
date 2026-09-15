@@ -1,0 +1,49 @@
+name: Integrate explicit Human mechanics-only mode
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths: [.github/workflows/human-mechanics-mode-integrate.yml]
+permissions:
+  contents: write
+jobs:
+  integrate:
+    runs-on: macos-26
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply exact source-only change
+        shell: python
+        run: |
+          import hashlib, pathlib, subprocess
+          source=pathlib.Path('apps/numilab_human_myosim_visual_probe.mm')
+          assert hashlib.sha256(source.read_bytes()).hexdigest()=='597399e74b6254a897b39a042c58102452fff1104696f588db86deb7f5d52957'
+          patch=pathlib.Path('tools/patches/human_mechanics_only.patch').read_bytes()
+          assert hashlib.sha256(patch).hexdigest()=='e8fb8234703c2ec04938d559095aae805bc711e6d99da87373f63c328a1f94b9'
+          subprocess.run(['git','apply','--check','-'],input=patch,check=True)
+          subprocess.run(['git','apply','--index','-'],input=patch,check=True)
+          assert hashlib.sha256(source.read_bytes()).hexdigest()=='022c97def55a0ff3185bdd4754e475ac1bc79ff708734d2b06548d22908eef3e'
+      - name: Check host and presentation boundary
+        run: |
+          python3 tools/check_human_host_syntax.py
+          python3 tools/check_human_constraint_owner.py
+          python3 tools/check_human_mechanics_mode.py
+          git diff --cached --check
+      - name: Publish tested source only
+        run: |
+          test "$GITHUB_REF_NAME" = human-native-runtime-20260915
+          git rm -- tools/patches/human_mechanics_only.patch
+          if git diff --cached --name-only | grep '^.github/'; then exit 1; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Separate Human mechanics evidence from optional GPU rendering'
+          git push origin HEAD:refs/heads/human-native-runtime-20260915
+          git rev-parse HEAD > mechanics-only-revision.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-mechanics-only-source
+          path: |
+            apps/numilab_human_myosim_visual_probe.mm
+            mechanics-only-revision.txt
+          retention-days: 14
+          if-no-files-found: error
