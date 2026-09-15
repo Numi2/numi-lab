@@ -471,6 +471,25 @@ struct VelocityComparison {
     return comparison;
 }
 
+[[nodiscard]] VelocityComparison compareVelocities(
+    const std::vector<double>& reference,
+    const std::vector<double>& observed
+) {
+    require(reference.size() == observed.size(),
+            "FP64 comparison dimensions disagree");
+    VelocityComparison comparison{};
+    for (std::size_t dof = 0u; dof < reference.size(); ++dof) {
+        const double difference = std::abs(reference[dof] - observed[dof]);
+        if (difference > comparison.maximumDifference) {
+            comparison.maximumDifference = difference;
+            comparison.dof = dof;
+            comparison.referenceVelocity = reference[dof];
+            comparison.observedVelocity = observed[dof];
+        }
+    }
+    return comparison;
+}
+
 [[nodiscard]] Run runHorizon(
     const Fixture& fixture,
     const std::uint32_t stepCount,
@@ -682,6 +701,269 @@ struct SimultaneousTriadReference {
     double initialContactGap = 0.0;
     double minimumAbsolutePivot = 0.0;
 };
+
+// This follows the production order exactly in FP64: normal contact, then
+// equality, then the source position limit for every sweep, followed by the
+// existing exact equality-coordinate overwrite.  It is intentionally not a
+// new solver or a candidate runtime policy.  Comparing it with the
+// simultaneous KKT reference separates order/projection behavior from FP32
+// arithmetic and the exact-surface contact target.
+struct ProductionOrderTriadReference {
+    std::vector<double> preProjectionVelocity;
+    std::vector<double> postProjectionVelocity;
+    std::array<double, 3u> accumulatedImpulses{};
+    std::array<double, 3u> targetVelocity{};
+    std::array<double, 3u> preProjectionTargetResidual{};
+    std::array<double, 3u> postProjectionTargetResidual{};
+    double initialContactGap = 0.0;
+    bool upperLimitAdmitted = false;
+};
+
+[[nodiscard]] ProductionOrderTriadReference productionOrderTriadReference(
+    const Fixture& fixture,
+    const std::uint32_t coupledSweepCount,
+    const double contactTargetOverride = std::numeric_limits<double>::quiet_NaN()
+) {
+    constexpr double kRegularization = 1.0e-7;
+    constexpr std::size_t kContactNormalRow = 0u;
+    constexpr std::size_t kEqualityRow = 1u;
+    constexpr std::size_t kUpperLimitRow = 2u;
+    constexpr std::size_t kRowCount = 3u;
+    require(coupledSweepCount != 0u,
+            "production-order reference needs at least one coupled sweep");
+    require(fixture.contacts.size() == 1u &&
+                fixture.contacts.front().frictionSlopAndStabilization.x == 0.0f,
+            "production-order reference only models the frictionless normal triad");
+
+    const std::vector<double> q = asDouble(fixture.q);
+    const std::vector<double> v = asDouble(fixture.v);
+    metalrobo::ArticulatedDynamicsConfig dynamicsConfig{};
+    dynamicsConfig.gravity = {0.0, -9.81, 0.0};
+    dynamicsConfig.timestep = fixture.timestepSeconds;
+
+    metalrobo::ArticulatedPointQuery support{};
+    support.bodyIndex = kTerminalBody;
+    support.localPoint = {0.0, 0.0, 0.0};
+    support.supportRadius = 0.03;
+    support.supportPlaneNormal = {0.0, 1.0, 0.0};
+    std::array<metalrobo::ArticulatedPointKinematics, 1u> points{};
+    const std::size_t nv = fixture.model.world.nv;
+    std::vector<double> pointJacobians(3u * nv, 0.0);
+    const auto pointDiagnostics = metalrobo::computeArticulatedPointJacobians(
+        fixture.model, 0u, q, v, std::span(&support, 1u), points,
+        pointJacobians, dynamicsConfig
+    );
+    require(pointDiagnostics.succeeded(),
+            "FP64 support-point Jacobian failed for production-order reference");
+
+    ProductionOrderTriadReference result{};
+    result.initialContactGap = points.front().position[1u];
+    const auto& dependentProperties = fixture.model.dofs.at(kDependentV);
+    const double lowerLimit = static_cast<double>(dependentProperties.limits.x);
+    const double upperLimit = static_cast<double>(dependentProperties.limits.y);
+    const double dependentPosition = q[kDependentQ];
+    require(
+        std::abs(result.initialContactGap) <= 1.0e-7 &&
+            std::abs(dependentPosition - upperLimit) <= 1.0e-7,
+        "production-order reference did not begin at the support/upper-limit intersection"
+    );
+
+    std::vector<double> rows(kRowCount * nv, 0.0);
+    for (std::size_t dof = 0u; dof < nv; ++dof) {
+        rows[kContactNormalRow * nv + dof] = pointJacobians[nv + dof];
+        rows[kEqualityRow * nv + dof] =
+            dof == kMasterV ? -static_cast<double>(kEqualitySlope) :
+            dof == kDependentV ? 1.0 : 0.0;
+        // The production limit response stores +e_dof and uses a negative
+        // unilateral impulse for an upper limit.
+        rows[kUpperLimitRow * nv + dof] = dof == kDependentV ? 1.0 : 0.0;
+    }
+    std::vector<double> responses(kRowCount * nv, 0.0);
+    const auto responseDiagnostics = metalrobo::computeArticulatedInverseMassResponses(
+        fixture.model, 0u, q, rows, responses, dynamicsConfig
+    );
+    require(responseDiagnostics.succeeded(),
+            "FP64 inverse-mass production-order triad responses failed");
+
+    const auto rowVelocity = [&](const std::size_t row,
+                                 const std::vector<double>& velocity) {
+        double value = 0.0;
+        for (std::size_t dof = 0u; dof < nv; ++dof) {
+            value += rows[row * nv + dof] * velocity[dof];
+        }
+        return value;
+    };
+    const auto applyResponse = [&](std::vector<double>& velocity,
+                                   const std::size_t row,
+                                   const double impulse) {
+        for (std::size_t dof = 0u; dof < nv; ++dof) {
+            velocity[dof] += impulse * responses[row * nv + dof];
+        }
+    };
+    const auto effectiveMass = [&](const std::size_t row) {
+        double value = kRegularization;
+        for (std::size_t dof = 0u; dof < nv; ++dof) {
+            value += rows[row * nv + dof] * responses[row * nv + dof];
+        }
+        require(std::isfinite(value) && value > kRegularization,
+                "FP64 production-order triad effective mass is invalid");
+        return value;
+    };
+
+    const double contactStabilization = static_cast<double>(
+        fixture.contacts.front().frictionSlopAndStabilization.z
+    );
+    const double rawContactTarget = std::max(
+        0.0,
+        -contactStabilization * std::min(result.initialContactGap, 0.0) /
+            static_cast<double>(fixture.timestepSeconds)
+    );
+    result.targetVelocity[kContactNormalRow] =
+        std::isfinite(contactTargetOverride) ? contactTargetOverride : rawContactTarget;
+    const double equalityError = dependentPosition -
+        static_cast<double>(kEqualitySlope) * q[kMasterQ];
+    result.targetVelocity[kEqualityRow] = std::clamp(
+        -0.2 * equalityError / static_cast<double>(fixture.timestepSeconds),
+        -4.0, 4.0
+    );
+    result.targetVelocity[kUpperLimitRow] = std::min(
+        0.0,
+        std::max(
+            -4.0,
+            -0.2 * (dependentPosition - upperLimit) /
+                static_cast<double>(fixture.timestepSeconds)
+        )
+    );
+
+    const double contactMass = effectiveMass(kContactNormalRow);
+    const double equalityMass = effectiveMass(kEqualityRow);
+    const double limitMass = effectiveMass(kUpperLimitRow);
+    std::vector<double> candidate = v;
+    const std::vector<double> freeAcceleration = freeReferenceAcceleration(fixture);
+    for (std::size_t dof = 0u; dof < nv; ++dof) {
+        candidate[dof] += static_cast<double>(fixture.timestepSeconds) *
+            freeAcceleration[dof];
+    }
+    double contactLambda = 0.0;
+    double equalityLambda = 0.0;
+    double limitLambda = 0.0;
+    bool limitAdmitted = false;
+    bool lowerLimitAdmitted = false;
+    constexpr double kLimitTolerance = 1.0e-7;
+    for (std::uint32_t sweep = 0u; sweep < coupledSweepCount; ++sweep) {
+        const double oldContactLambda = contactLambda;
+        contactLambda = std::max(
+            oldContactLambda +
+                (result.targetVelocity[kContactNormalRow] -
+                 rowVelocity(kContactNormalRow, candidate)) / contactMass,
+            0.0
+        );
+        applyResponse(candidate, kContactNormalRow,
+                      contactLambda - oldContactLambda);
+
+        const double equalityDelta =
+            (result.targetVelocity[kEqualityRow] -
+             rowVelocity(kEqualityRow, candidate)) / equalityMass;
+        equalityLambda += equalityDelta;
+        applyResponse(candidate, kEqualityRow, equalityDelta);
+
+        if (sweep == 0u) {
+            const bool lowerNear = dependentPosition <= lowerLimit + kLimitTolerance;
+            const bool upperNear = dependentPosition >= upperLimit - kLimitTolerance;
+            const bool lowerActive = lowerNear &&
+                (dependentPosition < lowerLimit || candidate[kDependentV] < 0.0);
+            const bool upperActive = upperNear &&
+                (dependentPosition > upperLimit || candidate[kDependentV] > 0.0);
+            require(!(lowerActive && upperActive),
+                    "FP64 production-order triad admitted conflicting limit rows");
+            limitAdmitted = lowerActive || upperActive;
+            lowerLimitAdmitted = lowerActive;
+            result.upperLimitAdmitted = upperActive;
+        }
+        if (!limitAdmitted) continue;
+        const bool lowerActive = dependentPosition <= lowerLimit + kLimitTolerance &&
+            (dependentPosition < lowerLimit || candidate[kDependentV] < 0.0);
+        const bool upperActive = dependentPosition >= upperLimit - kLimitTolerance &&
+            (dependentPosition > upperLimit || candidate[kDependentV] > 0.0);
+        double limitDelta = 0.0;
+        if (lowerActive) {
+            const double targetVelocity = std::max(
+                0.0,
+                std::min(
+                    4.0,
+                    -0.2 * (dependentPosition - lowerLimit) /
+                        static_cast<double>(fixture.timestepSeconds)
+                )
+            );
+            if (candidate[kDependentV] < targetVelocity) {
+                limitDelta = std::max(
+                    0.0, (targetVelocity - candidate[kDependentV]) / limitMass
+                );
+            }
+        } else if (upperActive) {
+            const double targetVelocity = result.targetVelocity[kUpperLimitRow];
+            if (candidate[kDependentV] > targetVelocity) {
+                limitDelta = std::min(
+                    0.0, (targetVelocity - candidate[kDependentV]) / limitMass
+                );
+            }
+        }
+        limitLambda += limitDelta;
+        applyResponse(candidate, kUpperLimitRow, limitDelta);
+    }
+    require(limitAdmitted && result.upperLimitAdmitted && !lowerLimitAdmitted,
+            "FP64 production-order triad did not retain the source upper limit");
+    result.accumulatedImpulses = {contactLambda, equalityLambda, limitLambda};
+    result.preProjectionVelocity = candidate;
+    result.preProjectionTargetResidual[kContactNormalRow] = std::max(
+        0.0, result.targetVelocity[kContactNormalRow] -
+            rowVelocity(kContactNormalRow, candidate)
+    );
+    result.preProjectionTargetResidual[kUpperLimitRow] = std::max(
+        0.0, candidate[kDependentV] - result.targetVelocity[kUpperLimitRow]
+    );
+    const double postIntegrationEqualityError =
+        q[kDependentQ] + static_cast<double>(fixture.timestepSeconds) *
+            candidate[kDependentV] -
+        static_cast<double>(kEqualitySlope) *
+            (q[kMasterQ] + static_cast<double>(fixture.timestepSeconds) *
+                candidate[kMasterV]);
+    const double postIntegrationEqualityTarget = std::clamp(
+        -0.2 * postIntegrationEqualityError /
+            static_cast<double>(fixture.timestepSeconds),
+        -4.0, 4.0
+    );
+    result.preProjectionTargetResidual[kEqualityRow] = std::abs(
+        rowVelocity(kEqualityRow, candidate) - postIntegrationEqualityTarget
+    );
+
+    result.postProjectionVelocity = candidate;
+    result.postProjectionVelocity[kDependentV] =
+        static_cast<double>(kEqualitySlope) * result.postProjectionVelocity[kMasterV];
+    result.postProjectionTargetResidual[kContactNormalRow] = std::max(
+        0.0, result.targetVelocity[kContactNormalRow] -
+            rowVelocity(kContactNormalRow, result.postProjectionVelocity)
+    );
+    result.postProjectionTargetResidual[kUpperLimitRow] = std::max(
+        0.0, result.postProjectionVelocity[kDependentV] -
+            result.targetVelocity[kUpperLimitRow]
+    );
+    result.postProjectionTargetResidual[kEqualityRow] = std::abs(
+        rowVelocity(kEqualityRow, result.postProjectionVelocity) -
+            result.targetVelocity[kEqualityRow]
+    );
+    require(
+        std::all_of(result.preProjectionVelocity.begin(),
+                    result.preProjectionVelocity.end(),
+                    [](const double value) { return std::isfinite(value); }) &&
+            std::all_of(result.postProjectionVelocity.begin(),
+                        result.postProjectionVelocity.end(),
+                        [](const double value) { return std::isfinite(value); }) &&
+            result.postProjectionTargetResidual[kEqualityRow] <= 1.0e-14,
+        "FP64 production-order triad produced an invalid final projection"
+    );
+    return result;
+}
 
 [[nodiscard]] SimultaneousTriadReference simultaneousTriadReference(
     const Fixture& fixture,
@@ -1184,6 +1466,95 @@ void checkExactContactPrecisionDiagnostic() {
               << " standing_qualified=false\n";
 }
 
+// The simultaneous KKT reference establishes the ideal coupled-row target,
+// while this second reference follows the production contact/equality/limit
+// order and its final equality overwrite.  Keeping both references on the
+// same Metal-published contact target separates three quantities: surface
+// precision, finite-sweep ordering/projection, and the remaining FP32 path
+// difference.  It does not choose a corrective runtime formulation.
+void checkProductionOrderTriadReference() {
+    constexpr float kFinestTimestep = 12.5e-6f;
+    constexpr std::uint32_t kCoupledSweepCount = 64u;
+    Fixture fixture(kFinestTimestep);
+    fixture.contacts.front().frictionSlopAndStabilization.x = 0.0f;
+    const Run metal = runHorizon(
+        fixture, 1u, true, true, kCoupledSweepCount
+    );
+    const MRNumiHumanStandStatusGPU& status = metal.result.standStatuses.front();
+    const double metalGap = static_cast<double>(status.contactAndAcceleration.x);
+    const double contactStabilization = static_cast<double>(
+        fixture.contacts.front().frictionSlopAndStabilization.z
+    );
+    const double metalContactTarget = std::max(
+        0.0,
+        -contactStabilization * std::min(metalGap, 0.0) /
+            static_cast<double>(kFinestTimestep)
+    );
+    const ProductionOrderTriadReference fp64GeometryOrder =
+        productionOrderTriadReference(fixture, kCoupledSweepCount);
+    const ProductionOrderTriadReference metalTargetOrder =
+        productionOrderTriadReference(
+            fixture, kCoupledSweepCount, metalContactTarget
+        );
+    const SimultaneousTriadReference metalTargetKkt =
+        simultaneousTriadReference(fixture, metalContactTarget);
+    const VelocityComparison metalToProductionOrder = compareVelocities(
+        metalTargetOrder.postProjectionVelocity, metal.result.standV
+    );
+    const VelocityComparison productionOrderToKkt = compareVelocities(
+        metalTargetKkt.constrainedVelocity,
+        metalTargetOrder.postProjectionVelocity
+    );
+    const VelocityComparison geometryTargetToMetalTargetOrder = compareVelocities(
+        fp64GeometryOrder.postProjectionVelocity,
+        metalTargetOrder.postProjectionVelocity
+    );
+    require(
+        std::isfinite(metalGap) && std::isfinite(metalContactTarget) &&
+            std::isfinite(metalToProductionOrder.maximumDifference) &&
+            std::isfinite(productionOrderToKkt.maximumDifference) &&
+            std::isfinite(geometryTargetToMetalTargetOrder.maximumDifference) &&
+            metalTargetOrder.upperLimitAdmitted,
+        "production-order triad discriminator produced an invalid comparison"
+    );
+    require(
+        metalToProductionOrder.maximumDifference <= 1.0e-8,
+        "Metal path no longer matches the FP64 replay of its production ordering"
+    );
+    std::cout << "production_order_triad_reference"
+              << " dt_us=" << static_cast<double>(kFinestTimestep) * 1.0e6
+              << " coupled_iteration_count=" << kCoupledSweepCount
+              << " metal_contact_target_velocity_m_s=" << metalContactTarget
+              << " fp64_geometry_contact_target_velocity_m_s="
+              << fp64GeometryOrder.targetVelocity[0u]
+              << " fp64_production_order_pre_contact_residual_m_s="
+              << metalTargetOrder.preProjectionTargetResidual[0u]
+              << " fp64_production_order_pre_limit_residual_m_s="
+              << metalTargetOrder.preProjectionTargetResidual[2u]
+              << " fp64_production_order_pre_equality_residual_m_s="
+              << metalTargetOrder.preProjectionTargetResidual[1u]
+              << " fp64_production_order_post_contact_residual_m_s="
+              << metalTargetOrder.postProjectionTargetResidual[0u]
+              << " fp64_production_order_post_limit_residual_m_s="
+              << metalTargetOrder.postProjectionTargetResidual[2u]
+              << " fp64_production_order_post_equality_residual_m_s="
+              << metalTargetOrder.postProjectionTargetResidual[1u]
+              << " metal_post_limit_residual_m_s="
+              << status.postProjectionPreStepConstraintDiagnostics.y
+              << " metal_post_equality_residual_m_s="
+              << status.postProjectionPreStepConstraintDiagnostics.z
+              << " metal_to_fp64_production_order_velocity_difference_m_s="
+              << metalToProductionOrder.maximumDifference
+              << " metal_to_fp64_production_order_worst_dof="
+              << metalToProductionOrder.dof
+              << " fp64_production_order_to_simultaneous_kkt_velocity_difference_m_s="
+              << productionOrderToKkt.maximumDifference
+              << " fp64_geometry_to_metal_target_production_order_velocity_difference_m_s="
+              << geometryTargetToMetalTargetOrder.maximumDifference
+              << " scope=diagnostic_not_production_policy"
+              << " standing_qualified=false\n";
+}
+
 void checkSourceDerivative(const Fixture& fixture) {
     const std::vector<double> v = asDouble(fixture.v);
     std::vector<double> q = asDouble(fixture.q);
@@ -1436,6 +1807,7 @@ int main() {
         checkSimultaneousTriadFinestTimestepIterationConvergence();
         checkPostProjectionPreStepConstraintDiagnostics();
         checkExactContactPrecisionDiagnostic();
+        checkProductionOrderTriadReference();
         checkContactAndReplay(fixture);
         checkCommonDurationRefinement();
         std::cout << "numi_human_stand_coupling_probe=passed "

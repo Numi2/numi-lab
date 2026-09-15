@@ -215,6 +215,44 @@ geometry before treating a gap-divided-by-timestep target as a coupled-solver
 error. It does not establish contact accuracy away from that boundary or
 qualify standing.
 
+## FP64 production-order replay discriminator
+
+The next diagnostic replays the actual minimal Metal ordering in FP64: normal
+contact, bilateral equality, and source upper-limit updates for every one of
+the 64 supported sweeps, followed by the same final exact equality-coordinate
+overwrite. It is not a replacement solver and does not change a production
+policy. It separates the finite-sweep/order effect from FP32 arithmetic by
+using the contact target published by Metal.
+
+At `12.5 us`, using Metal's zero contact target, the final Metal velocity
+differed from this FP64 production-order replay by only
+`1.0902011396326465e-11 m/s`. The same FP64 production-order endpoint differed
+from the simultaneous FP64 KKT endpoint by
+`2.242479803114606e-07 m/s`. Its final equality overwrite set the equality
+residual to zero while leaving a source-limit residual of
+`2.2427205463982645e-07 m/s`; Metal reported
+`2.2428295665122278e-07 m/s` for that corresponding post-projection limit
+residual. Thus, in this minimal active set, the remaining matched-target
+difference is an ordering/projection effect, not a material FP32 solve error.
+
+Changing only from the FP64 geometry-derived contact target to Metal's target
+changed the FP64 production-order endpoint by
+`1.0715329472338284e-05 m/s`. The two effects are therefore separately
+measured: exact-surface target canonicalization dominates the old raw KKT
+comparison, while the exact equality overwrite trades a smaller source-limit
+residual for zero equality residual. This narrows the next full-body work to
+the active equality/limit projection policy and explicit contact-surface
+canonicalization. It does not prove the same decomposition for all Human
+constraints, authorize regularization, or pass the temporal-convergence gate.
+
+The M4 Pro Metal-validation run passed the existing
+`numi_human.stand_coupling_minimal` CTest. Two fresh runs had byte-identical
+stdout (SHA-256
+`6a4b36e103da87ec4ad699dee3334c2edac18f3731ff79fbbf06ae910b66ce52`);
+the retained transcript is in
+[`media/numi-human-production-order-triad-20260915`](media/numi-human-production-order-triad-20260915).
+The Metal-validation stderr timestamps are intentionally not compared.
+
 ## Stationary-fibre continuity and loading discriminator
 
 The separate `metalrobo_source_route_precision_check` production-route probe
