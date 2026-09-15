@@ -2,7 +2,9 @@ name: Human source-locked bounded release
 on:
   push:
     branches: [human-native-runtime-20260915]
-    paths: [.github/workflows/human-bounded-release.yml]
+    paths:
+      - .github/workflows/human-bounded-release.yml
+      - tools/check_human_metal4_device.mm
   workflow_dispatch:
 permissions:
   contents: read
@@ -11,8 +13,8 @@ concurrency:
   cancel-in-progress: false
 jobs:
   native-release:
-    runs-on: macos-15
-    timeout-minutes: 25
+    runs-on: macos-26
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -27,26 +29,36 @@ jobs:
           git rev-parse HEAD > human-release-evidence/native-revision.txt
           git -C human-inputs rev-parse HEAD > human-release-evidence/input-revision.txt
           sw_vers > human-release-evidence/machine.txt
-      - name: Select an installed Metal 4 toolchain
+      - name: Verify compiler and device Metal 4 support
         shell: python
         run: |
           import json, os, pathlib, subprocess, tempfile
+          output=pathlib.Path('human-release-evidence')
           probes=[]
           selected=None
           with tempfile.TemporaryDirectory(prefix='human-metal-toolchain-') as directory:
-              source=pathlib.Path(directory)/'probe.metal'
+              temporary=pathlib.Path(directory)
+              source=temporary/'probe.metal'
               source.write_text('#include <metal_stdlib>\nusing namespace metal;\nkernel void probe(device float* out [[buffer(0)]], uint i [[thread_position_in_grid]]) { out[i]=0.0f; }\n')
               for app in sorted(pathlib.Path('/Applications').glob('Xcode*.app'),reverse=True):
                   developer=app/'Contents/Developer'
                   environment={**os.environ,'DEVELOPER_DIR':str(developer)}
-                  command=['xcrun','--sdk','macosx','metal','-std=metal4.0','-c',str(source),'-o',str(pathlib.Path(directory)/'probe.air')]
+                  command=['xcrun','--sdk','macosx','metal','-std=metal4.0','-c',str(source),'-o',str(temporary/'probe.air')]
                   result=subprocess.run(command,env=environment,capture_output=True,text=True,timeout=30)
                   probes.append({'developer_dir':str(developer),'exit_code':result.returncode,'stdout':result.stdout,'stderr':result.stderr})
                   if result.returncode==0:
                       selected=str(developer)
                       break
-          pathlib.Path('human-release-evidence/toolchains.json').write_text(json.dumps({'selected':selected,'probes':probes},indent=2)+'\n')
-          if selected is None: raise RuntimeError('No installed Metal 4 compiler; full build not attempted')
+              (output/'toolchains.json').write_text(json.dumps({'selected':selected,'probes':probes},indent=2)+'\n')
+              if selected is None: raise RuntimeError('No installed Metal 4 compiler; full build not attempted')
+              environment={**os.environ,'DEVELOPER_DIR':selected}
+              subprocess.run(['xcrun','--sdk','macosx','metallib',str(temporary/'probe.air'),'-o',str(temporary/'probe.metallib')],env=environment,check=True,timeout=30)
+              subprocess.run(['xcrun','clang++','-std=c++20','-fobjc-arc','-Wall','-Wextra','-Werror','tools/check_human_metal4_device.mm','-framework','Foundation','-framework','Metal','-o',str(temporary/'device-check')],env=environment,check=True,timeout=60)
+              result=subprocess.run([str(temporary/'device-check'),str(temporary/'probe.metallib')],env=environment,capture_output=True,text=True,timeout=30)
+              (output/'device-preflight.json').write_text(result.stdout)
+              (output/'device-preflight-stderr.txt').write_text(result.stderr)
+              print(result.stdout,flush=True)
+              if result.returncode: raise RuntimeError('Metal 4 device preflight failed; full build not attempted')
           with open(os.environ['GITHUB_ENV'],'a') as stream: stream.write('DEVELOPER_DIR='+selected+'\n')
           print('Selected',selected)
       - name: Configure and build the owning Human target
@@ -76,7 +88,7 @@ jobs:
           artifacts={name:{'path':str(path),'sha256':digest(path)} for name,path in payloads.items()}
           for path in [binary,*sorted((root/'BuildHuman/lib').glob('*.dylib')),*sorted((root/'BuildHuman/shaders').glob('*.metallib')),*sorted((root/'BuildHuman/matter/shaders').glob('*.metallib'))]:
               artifacts[str(path.relative_to(root))]={'path':str(path),'sha256':digest(path)}
-          receipt={'schema':'numi.human.hosted-bounded-release.v1','native_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'input_commit':subprocess.check_output(['git','-C',str(inputs),'rev-parse','HEAD'],text=True).strip(),'execution_environment':'GitHub macos-15; device reported by native executable, not inferred from runner architecture','artifacts':artifacts,'cases':[],'full_human_qualification':False}
+          receipt={'schema':'numi.human.hosted-bounded-release.v1','native_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'input_commit':subprocess.check_output(['git','-C',str(inputs),'rev-parse','HEAD'],text=True).strip(),'execution_environment':'GitHub macos-26; device reported by preflight and native executable, not inferred from runner architecture','device_preflight':json.loads((output/'device-preflight.json').read_text()),'artifacts':artifacts,'cases':[],'full_human_qualification':False}
           def publish():
               tmp=output/'execution.json.tmp'
               tmp.write_text(json.dumps(receipt,indent=2,allow_nan=False)+'\n')
@@ -87,14 +99,14 @@ jobs:
               directory=output/name
               directory.mkdir()
               command=[str(binary),str(payloads['rigid']),str(payloads['muscle']),str(directory/'frames'),'--tendon-payload',str(payloads['tendon']),'--joint-equality-payload',str(payloads['joint_equalities']),'--support-contact-payload',str(payloads['support_contact']),'--persistent-metal-stand','--persistent-source-passive-joint-tissue','--persistent-stand-trace','--stand-deterministic-replay','--stand-contact-iterations','64','--muscle-step-seconds',str(dt),'--muscle-step-count',str(steps),'--muscle-activation','0.8','--dimension','512','--camera-index','0']
-              case={'name':name,'command':command,'timestep_nanoseconds':round(dt*1e9),'steps':steps,'status':'running'}
+              case={'name':name,'command':command,'timestep_nanoseconds':round(dt*1e9),'steps':steps,'status':'running','timeout_seconds':300}
               receipt['cases'].append(case)
               publish()
               start=time.monotonic()
               environment={**os.environ,'MTL_DEBUG_LAYER':'1'}
               with (directory/'stdout.txt').open('w') as stdout,(directory/'stderr.txt').open('w') as stderr:
                   process=subprocess.Popen(command,stdout=stdout,stderr=stderr,env=environment,start_new_session=True)
-                  try: code=process.wait(timeout=180)
+                  try: code=process.wait(timeout=case['timeout_seconds'])
                   except subprocess.TimeoutExpired:
                       try: os.killpg(process.pid,signal.SIGKILL)
                       except ProcessLookupError: pass
