@@ -4177,11 +4177,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     for (std::size_t dof = 0u; dof < model.world.nv; ++dof) {
         const double runtimePassiveForce = removeRuntimePassiveJointTissue
             ? 0.0 : compiledActivation.generalizedPassiveCoordinateForce[dof];
-        preloadedGeneralizedForce[dof] = static_cast<float>(
-            compiledActivation.generalizedJointEqualityForce[dof] +
-            compiledActivation.generalizedPositionLimitForce[dof] +
-            runtimePassiveForce
-        );
+        // Runtime constraint reactions are solved, never permanently preloaded.
+        // A static stop or equality force is not a time-invariant actuator;
+        // retaining it prevents complete unloading as the body moves.
+        // The initial passive-tissue preload is retained as the existing
+        // bounded-release approximation, NOT a calibrated dynamic tissue law.
+        preloadedGeneralizedForce[dof] = static_cast<float>(runtimePassiveForce);
         require(
             std::isfinite(preloadedGeneralizedForce[dof]),
             "persistent Human source constraint preload is non-finite"
@@ -18323,7 +18324,7 @@ int main(int argc, char** argv) {
             if (muscleDrivenState.has_value() &&
                 !muscleDrivenState->persistentDynamicForceAudit.empty()) {
                 std::cout << std::setprecision(17)
-                          << "persistent_dynamic_force_audit={\"schema\":\"numi.human.persistent-dynamic-force-audit.v1\""
+                          << "persistent_initial_force_reference={\"schema\":\"numi.human.persistent-initial-force-reference.v1\""
                           << ",\"maximum_abs_residual_n\":"
                           << muscleDrivenState->persistentDynamicMaximumForceResidual
                           << ",\"rows\":[";
