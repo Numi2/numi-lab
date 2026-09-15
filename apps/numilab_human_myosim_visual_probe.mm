@@ -2535,6 +2535,7 @@ struct PersistentDynamicForceAuditRow {
     double equalityForce = 0.0;
     double limitForce = 0.0;
     double passiveForce = 0.0;
+    double compiledPassiveForce = 0.0;
     double gravityTarget = 0.0;
     double residual = 0.0;
 };
@@ -2631,6 +2632,7 @@ struct MuscleDrivenVisualState {
     bool persistentMetalHorizon = false;
     std::uint32_t persistentContactIterationCount = 0u;
     bool persistentSourcePassiveJointTissue = false;
+    bool persistentRuntimePassiveJointTissue = false;
     std::uint32_t persistentPassiveCoordinateCouplingCount = 0u;
     double persistentPassiveCoordinateForceMaximumNewtons = 0.0;
     bool selectedTendonControl = false;
@@ -3836,7 +3838,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         additionalTendonLoadProgram = nullptr,
     const bool sourcePassiveJointTissue = false,
     const bool capturePersistentStandTrace = false,
-    const std::uint32_t contactIterationCount = 16u
+    const std::uint32_t contactIterationCount = 16u,
+    const bool removeRuntimePassiveJointTissue = false
 ) {
     require(std::isfinite(timestepSeconds) && timestepSeconds >= 1.0e-6 &&
                 timestepSeconds <= 1.0e-3 && stepCount >= 1u &&
@@ -3872,6 +3875,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             "selected Human tendon control requires NHMYO2 and an explicit source-muscle subset");
     require(!removeRootAssistance || enableRootAssistance,
             "assistance removal requires an assisted stand phase");
+    require(!removeRuntimePassiveJointTissue || sourcePassiveJointTissue,
+            "runtime passive-joint removal requires source passive joint tissue");
     require(!capturePersistentStandTrace ||
                 (!enableRootAssistance && !removeRootAssistance &&
                  continuumTransaction == nullptr &&
@@ -4101,7 +4106,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         const double supportForce = compiledActivation.generalizedSupportForce[dof];
         const double equalityForce = compiledActivation.generalizedJointEqualityForce[dof];
         const double limitForce = compiledActivation.generalizedPositionLimitForce[dof];
-        const double passiveForce = compiledActivation.generalizedPassiveCoordinateForce[dof];
+        const double compiledPassiveForce =
+            compiledActivation.generalizedPassiveCoordinateForce[dof];
+        const double passiveForce = removeRuntimePassiveJointTissue
+            ? 0.0 : compiledPassiveForce;
         const double gravityTarget = compiledActivation.gravityTarget[dof];
         const double residual = metalMuscleForce + supportForce + equalityForce +
             limitForce + passiveForce - gravityTarget;
@@ -4130,6 +4138,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         row.equalityForce = equalityForce;
         row.limitForce = limitForce;
         row.passiveForce = passiveForce;
+        row.compiledPassiveForce = compiledPassiveForce;
         row.gravityTarget = gravityTarget;
         row.residual = residual;
         dynamicForceAudit.push_back(std::move(row));
@@ -4142,10 +4151,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         }
     );
     for (std::size_t dof = 0u; dof < model.world.nv; ++dof) {
+        const double runtimePassiveForce = removeRuntimePassiveJointTissue
+            ? 0.0 : compiledActivation.generalizedPassiveCoordinateForce[dof];
         preloadedGeneralizedForce[dof] = static_cast<float>(
             compiledActivation.generalizedJointEqualityForce[dof] +
             compiledActivation.generalizedPositionLimitForce[dof] +
-            compiledActivation.generalizedPassiveCoordinateForce[dof]
+            runtimePassiveForce
         );
         require(
             std::isfinite(preloadedGeneralizedForce[dof]),
@@ -5112,6 +5123,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     result.persistentMetalHorizon = true;
     result.persistentContactIterationCount = contactIterationCount;
     result.persistentSourcePassiveJointTissue = sourcePassiveJointTissue;
+    result.persistentRuntimePassiveJointTissue =
+        sourcePassiveJointTissue && !removeRuntimePassiveJointTissue;
     result.persistentPassiveCoordinateCouplingCount =
         static_cast<std::uint32_t>(persistentPassiveCouplings.size());
     for (const double value : compiledActivation.generalizedPassiveCoordinateForce) {
@@ -14592,6 +14605,7 @@ int main(int argc, char** argv) {
             std::optional<std::uint32_t> muscleStepCount;
             bool persistentMetalStand = false;
             bool persistentSourcePassiveJointTissue = false;
+            bool persistentRuntimeWithoutPassiveJointTissue = false;
             bool selectedTendonControl = false;
             bool standRootAssistance = false;
             bool standRemoveAssistance = false;
@@ -14668,6 +14682,10 @@ int main(int argc, char** argv) {
                     require(!persistentSourcePassiveJointTissue,
                             "--persistent-source-passive-joint-tissue may be given only once");
                     persistentSourcePassiveJointTissue = true;
+                } else if (argument == "--persistent-runtime-without-passive-joint-tissue") {
+                    require(!persistentRuntimeWithoutPassiveJointTissue,
+                            "--persistent-runtime-without-passive-joint-tissue may be given only once");
+                    persistentRuntimeWithoutPassiveJointTissue = true;
                 } else if (argument == "--selected-tendon-control") {
                     require(!selectedTendonControl,
                             "--selected-tendon-control may be given only once");
@@ -14922,7 +14940,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-count <1.."
                           << MR_NUMI_HUMAN_STAND_MAX_STEPS << ">]"
                           << " [--muscle-activation <0..1>]"
-                          << " [--persistent-metal-stand] [--persistent-source-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-contact-iterations <1..64>]"
+                          << " [--persistent-metal-stand] [--persistent-source-passive-joint-tissue] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-contact-iterations <1..64>]"
                           << " [--bilateral-achilles-certificate]"
                           << " [--bilateral-thumb-tendon-certificate]"
                           << " [--bilateral-triceps-medialis-enthesis-certificate]"
@@ -15266,6 +15284,10 @@ int main(int argc, char** argv) {
             require(!persistentSourcePassiveJointTissue || persistentMetalStand,
                     "--persistent-source-passive-joint-tissue requires "
                     "--persistent-metal-stand");
+            require(!persistentRuntimeWithoutPassiveJointTissue ||
+                        (persistentMetalStand && persistentSourcePassiveJointTissue),
+                    "--persistent-runtime-without-passive-joint-tissue requires "
+                    "--persistent-metal-stand and --persistent-source-passive-joint-tissue");
             require(!wholeBodyPoseSweeps.has_value() || wholeBodySupportCertificate,
                     "--whole-body-pose-sweeps requires --whole-body-support-certificate");
             require(!wholeBodyActivationSweeps.has_value() ||
@@ -16655,7 +16677,8 @@ int main(int argc, char** argv) {
                                 nullptr,
                                 persistentSourcePassiveJointTissue,
                                 persistentStandTrace,
-                                standContactIterationCount.value_or(16u)
+                                standContactIterationCount.value_or(16u),
+                                persistentRuntimeWithoutPassiveJointTissue
                             )
                         );
                     }
@@ -17830,6 +17853,8 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->persistentContactIterationCount : 0u)
                       << " persistent_source_passive_joint_tissue=" << (muscleDrivenState.has_value() &&
                               muscleDrivenState->persistentSourcePassiveJointTissue ? "true" : "false")
+                      << " persistent_runtime_passive_joint_tissue=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->persistentRuntimePassiveJointTissue ? "true" : "false")
                       << " persistent_passive_coordinate_couplings=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->persistentPassiveCoordinateCouplingCount : 0u)
                       << " persistent_passive_coordinate_force_max_n=" << (muscleDrivenState.has_value()
@@ -18220,6 +18245,8 @@ int main(int argc, char** argv) {
                               << ",\"equality_force_n\":" << row.equalityForce
                               << ",\"limit_force_n\":" << row.limitForce
                               << ",\"passive_force_n\":" << row.passiveForce
+                              << ",\"compiled_passive_force_n\":"
+                              << row.compiledPassiveForce
                               << ",\"gravity_target_n\":" << row.gravityTarget
                               << ",\"residual_n\":" << row.residual << '}';
                 }
