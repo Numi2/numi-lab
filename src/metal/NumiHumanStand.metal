@@ -246,6 +246,7 @@ kernel void mr_numi_human_stand_step(
             status.environment = environment;
             status.failingIndex = MR_INVALID_INDEX;
             status.jointEqualityCounts.w = MR_INVALID_INDEX;
+            status.constraintImpulseOwners = uint4(MR_INVALID_INDEX);
             status.contactAndAcceleration.x =
                 (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u &&
                     dispatch.supportContactCount != 0u
@@ -732,6 +733,7 @@ kernel void mr_numi_human_stand_step(
     float maximumEqualityPositionError = 0.0f;
     float maximumEqualityVelocityError = 0.0f;
     float maximumEqualityImpulse = 0.0f;
+    uint maximumEqualityImpulseIndex = MR_INVALID_INDEX;
     float totalEqualityImpulse = 0.0f;
     float maximumEqualityPositionProjection = 0.0f;
     float totalEqualityPositionProjection = 0.0f;
@@ -748,6 +750,7 @@ kernel void mr_numi_human_stand_step(
     uint limitCount = 0u;
     uint limitDofs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     float limitPreStepPositions[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    float limitAccumulatedImpulses[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     uint contactActiveForPostProjection[MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
     float contactTargetNormalVelocityForPostProjection[
         MR_NUMI_HUMAN_STAND_MAX_CONTACTS
@@ -1043,9 +1046,10 @@ kernel void mr_numi_human_stand_step(
                 abs(velocityError - targetVelocity)
             );
             const float absoluteImpulse = abs(equalityLambdas[equalityIndex]);
-            maximumEqualityImpulse = max(
-                maximumEqualityImpulse, absoluteImpulse
-            );
+            if (absoluteImpulse > maximumEqualityImpulse) {
+                maximumEqualityImpulse = absoluteImpulse;
+                maximumEqualityImpulseIndex = equalityIndex;
+            }
             totalEqualityImpulse += absoluteImpulse;
         }
         }
@@ -1094,6 +1098,7 @@ kernel void mr_numi_human_stand_step(
         }
         limitDofs[limitCount] = dof;
         limitPreStepPositions[limitCount] = position;
+        limitAccumulatedImpulses[limitCount] = 0.0f;
         device float* response = responseScratch + limitResponseBase +
             limitCount * nv;
         for (uint index = 0u; index < nv; ++index) response[index] = 0.0f;
@@ -1160,6 +1165,7 @@ kernel void mr_numi_human_stand_step(
                 fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
                 return;
             }
+            limitAccumulatedImpulses[limit] += impulse;
             for (uint index = 0u; index < nv; ++index) {
                 candidateV[index] += impulse * response[index];
             }
@@ -1459,8 +1465,35 @@ kernel void mr_numi_human_stand_step(
     }
 
     float totalNormalImpulse = 0.0f;
+    float maximumNormalImpulse = 0.0f;
+    float maximumTangentialImpulse = 0.0f;
+    float maximumAbsoluteLimitImpulse = 0.0f;
+    float totalAbsoluteLimitImpulse = 0.0f;
+    uint maximumNormalImpulseContact = MR_INVALID_INDEX;
+    uint maximumTangentialImpulseContact = MR_INVALID_INDEX;
+    uint maximumAbsoluteLimitImpulseDof = MR_INVALID_INDEX;
     for (uint contact = 0u; contact < dispatch.supportContactCount; ++contact) {
-        totalNormalImpulse += lambdas[3u * contact + 0u];
+        const float normalImpulse = lambdas[3u * contact + 0u];
+        const float tangentialImpulse = length(float2(
+            lambdas[3u * contact + 1u], lambdas[3u * contact + 2u]
+        ));
+        totalNormalImpulse += normalImpulse;
+        if (normalImpulse > maximumNormalImpulse) {
+            maximumNormalImpulse = normalImpulse;
+            maximumNormalImpulseContact = contact;
+        }
+        if (tangentialImpulse > maximumTangentialImpulse) {
+            maximumTangentialImpulse = tangentialImpulse;
+            maximumTangentialImpulseContact = contact;
+        }
+    }
+    for (uint limit = 0u; limit < limitCount; ++limit) {
+        const float absoluteImpulse = abs(limitAccumulatedImpulses[limit]);
+        totalAbsoluteLimitImpulse += absoluteImpulse;
+        if (absoluteImpulse > maximumAbsoluteLimitImpulse) {
+            maximumAbsoluteLimitImpulse = absoluteImpulse;
+            maximumAbsoluteLimitImpulseDof = limitDofs[limit];
+        }
     }
     status.completedSteps = dispatch.stepIndex + 1u;
     status.activeContactCount = activeContacts;
@@ -1507,6 +1540,23 @@ kernel void mr_numi_human_stand_step(
         status.jointEqualityDiagnostics.z, maximumEqualityImpulse
     );
     status.jointEqualityDiagnostics.w += totalEqualityImpulse;
+    if (maximumNormalImpulse > status.constraintImpulseDiagnostics.x) {
+        status.constraintImpulseDiagnostics.x = maximumNormalImpulse;
+        status.constraintImpulseOwners.x = maximumNormalImpulseContact;
+    }
+    if (maximumTangentialImpulse > status.constraintImpulseDiagnostics.y) {
+        status.constraintImpulseDiagnostics.y = maximumTangentialImpulse;
+        status.constraintImpulseOwners.y = maximumTangentialImpulseContact;
+    }
+    if (maximumAbsoluteLimitImpulse > status.constraintImpulseDiagnostics.z) {
+        status.constraintImpulseDiagnostics.z = maximumAbsoluteLimitImpulse;
+        status.constraintImpulseOwners.z = maximumAbsoluteLimitImpulseDof;
+    }
+    status.constraintImpulseDiagnostics.w += totalAbsoluteLimitImpulse;
+    if (maximumEqualityImpulse > 0.0f &&
+        maximumEqualityImpulse >= status.jointEqualityDiagnostics.z) {
+        status.constraintImpulseOwners.w = maximumEqualityImpulseIndex;
+    }
     status.jointEqualityProjectionDiagnostics.x = max(
         status.jointEqualityProjectionDiagnostics.x,
         maximumEqualityPositionProjection

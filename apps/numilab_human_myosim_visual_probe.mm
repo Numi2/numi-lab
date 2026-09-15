@@ -2571,6 +2571,14 @@ struct PersistentStandTraceSample {
     double minimumPlaneGapMeters = 0.0;
     double maximumPenetrationMeters = 0.0;
     double normalImpulse = 0.0;
+    double maximumNormalContactImpulse = 0.0;
+    double maximumTangentialContactImpulse = 0.0;
+    double maximumSourceLimitImpulse = 0.0;
+    double totalSourceLimitAbsoluteImpulse = 0.0;
+    std::uint32_t maximumNormalContactImpulseIndex = MR_INVALID_INDEX;
+    std::uint32_t maximumTangentialContactImpulseIndex = MR_INVALID_INDEX;
+    std::uint32_t maximumSourceLimitImpulseDof = MR_INVALID_INDEX;
+    std::uint32_t maximumEqualityImpulseIndex = MR_INVALID_INDEX;
     double tendonMaximumForceResidual = 0.0;
     double tendonMaximumMomentResidual = 0.0;
     double maximumEqualityImpulse = 0.0;
@@ -4725,6 +4733,22 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             sample.maximumPenetrationMeters =
                 traceStatus.contactAndAcceleration.y;
             sample.normalImpulse = traceStatus.contactAndAcceleration.z;
+            sample.maximumNormalContactImpulse =
+                traceStatus.constraintImpulseDiagnostics.x;
+            sample.maximumTangentialContactImpulse =
+                traceStatus.constraintImpulseDiagnostics.y;
+            sample.maximumSourceLimitImpulse =
+                traceStatus.constraintImpulseDiagnostics.z;
+            sample.totalSourceLimitAbsoluteImpulse =
+                traceStatus.constraintImpulseDiagnostics.w;
+            sample.maximumNormalContactImpulseIndex =
+                traceStatus.constraintImpulseOwners.x;
+            sample.maximumTangentialContactImpulseIndex =
+                traceStatus.constraintImpulseOwners.y;
+            sample.maximumSourceLimitImpulseDof =
+                traceStatus.constraintImpulseOwners.z;
+            sample.maximumEqualityImpulseIndex =
+                traceStatus.constraintImpulseOwners.w;
             sample.tendonMaximumForceResidual = traceStatus.tendonDiagnostics.x;
             sample.tendonMaximumMomentResidual = traceStatus.tendonDiagnostics.y;
             sample.maximumEqualityImpulse =
@@ -4802,6 +4826,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                         std::isfinite(sample.publishedMaximumAcceleration) &&
                         std::isfinite(sample.maximumConfigurationDelta) &&
                         std::isfinite(sample.maximumVelocity) &&
+                        std::isfinite(sample.maximumNormalContactImpulse) &&
+                        std::isfinite(sample.maximumTangentialContactImpulse) &&
+                        std::isfinite(sample.maximumSourceLimitImpulse) &&
+                        std::isfinite(sample.totalSourceLimitAbsoluteImpulse) &&
                         std::isfinite(sample.preProjectionNormalContactTargetVelocityResidual) &&
                         std::isfinite(sample.postProjectionNormalContactTargetVelocityResidual) &&
                         std::isfinite(sample.preProjectionSourceLimitTargetVelocityResidual) &&
@@ -18332,7 +18360,7 @@ int main(int argc, char** argv) {
                     std::cout << ']';
                 };
                 std::cout << std::setprecision(17)
-                          << "persistent_stand_trace={\"schema\":\"numi.human.persistent-stand-trace.v2\""
+                          << "persistent_stand_trace={\"schema\":\"numi.human.persistent-stand-trace.v3\""
                           << ",\"driver\":\"segmented_one_step_production_horizon\""
                           << ",\"endpoint_equivalent\":\""
                           << (muscleDrivenState->persistentStandTraceEndpointBitwise
@@ -18392,6 +18420,22 @@ int main(int argc, char** argv) {
                               << ",\"maximum_penetration_m\":"
                               << sample.maximumPenetrationMeters
                               << ",\"normal_impulse\":" << sample.normalImpulse
+                              << ",\"maximum_normal_contact_impulse_ns\":"
+                              << sample.maximumNormalContactImpulse
+                              << ",\"maximum_normal_contact_impulse_index\":"
+                              << sample.maximumNormalContactImpulseIndex
+                              << ",\"maximum_tangential_contact_impulse_ns\":"
+                              << sample.maximumTangentialContactImpulse
+                              << ",\"maximum_tangential_contact_impulse_index\":"
+                              << sample.maximumTangentialContactImpulseIndex
+                              << ",\"maximum_source_limit_impulse_ns_or_nms\":"
+                              << sample.maximumSourceLimitImpulse
+                              << ",\"total_source_limit_absolute_impulse_ns_or_nms\":"
+                              << sample.totalSourceLimitAbsoluteImpulse
+                              << ",\"maximum_source_limit_impulse_dof\":"
+                              << sample.maximumSourceLimitImpulseDof
+                              << ",\"maximum_equality_impulse_index\":"
+                              << sample.maximumEqualityImpulseIndex
                               << ",\"tendon_max_force_residual_n\":"
                               << sample.tendonMaximumForceResidual
                               << ",\"tendon_max_moment_residual_nm\":"

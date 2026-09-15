@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_NUMI_HUMAN_STAND_ABI_VERSION 5u
+#define MR_NUMI_HUMAN_STAND_ABI_VERSION 6u
 #define MR_NUMI_HUMAN_STAND_MAX_BODIES 192u
 #define MR_NUMI_HUMAN_STAND_MAX_DOFS 160u
 #define MR_NUMI_HUMAN_STAND_MAX_Q 161u
@@ -136,10 +136,19 @@ typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
     // projection. This is a linearized diagnostic, not a post-step contact
     // query; comparing it with the preceding vector isolates that overwrite.
     mr_float4 postProjectionPreStepConstraintDiagnostics;
+    // Maximum normal-contact impulse, maximum tangential-contact impulse,
+    // maximum absolute source-limit impulse, and cumulative absolute
+    // source-limit impulse across accepted steps. These are diagnostic-only:
+    // they do not participate in the solve or warm start.
+    mr_float4 constraintImpulseDiagnostics;
+    // Source owners for x/y/z above: support-contact index, support-contact
+    // index, source velocity DOF, then equality record with the maximum
+    // absolute bilateral impulse. MR_INVALID_INDEX means no nonzero owner.
+    mr_uint4 constraintImpulseOwners;
 } MRNumiHumanStandStatusGPU;
 
 #if !defined(__METAL_VERSION__)
 static_assert(sizeof(MRNumiHumanStandContactGPU) == 32);
 static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 160);
-static_assert(sizeof(MRNumiHumanStandStatusGPU) == 176);
+static_assert(sizeof(MRNumiHumanStandStatusGPU) == 208);
 #endif

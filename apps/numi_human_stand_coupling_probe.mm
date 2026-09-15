@@ -1745,6 +1745,14 @@ void checkCommonDurationRefinement() {
                         status.jointEqualityProjectionDiagnostics.w > 1.0e-8f,
                     "coupled contact/equality/limit path omitted its final equality velocity projection"
                 );
+                require(
+                    status.constraintImpulseDiagnostics.x > 0.0f &&
+                        status.constraintImpulseDiagnostics.z > 0.0f &&
+                        status.constraintImpulseOwners.x == 0u &&
+                        status.constraintImpulseOwners.z == kDependentV &&
+                        status.constraintImpulseOwners.w == 0u,
+                    "coupled contact/equality/limit path did not retain its impulse owners"
+                );
             } else {
                 require(
                     status.jointEqualityProjectionDiagnostics.x == 0.0f &&
@@ -1785,6 +1793,22 @@ void checkCommonDurationRefinement() {
                       << summary.status.tendonDiagnostics.x
                       << " equality_abs_impulse="
                       << summary.status.jointEqualityDiagnostics.z
+                      << " equality_impulse_index="
+                      << summary.status.constraintImpulseOwners.w
+                      << " max_normal_contact_impulse_ns="
+                      << summary.status.constraintImpulseDiagnostics.x
+                      << " max_normal_contact_impulse_index="
+                      << summary.status.constraintImpulseOwners.x
+                      << " max_tangential_contact_impulse_ns="
+                      << summary.status.constraintImpulseDiagnostics.y
+                      << " max_tangential_contact_impulse_index="
+                      << summary.status.constraintImpulseOwners.y
+                      << " max_source_limit_impulse_ns_or_nms="
+                      << summary.status.constraintImpulseDiagnostics.z
+                      << " total_source_limit_abs_impulse_ns_or_nms="
+                      << summary.status.constraintImpulseDiagnostics.w
+                      << " max_source_limit_impulse_dof="
+                      << summary.status.constraintImpulseOwners.z
                       << " equality_position_projection_max_m_or_rad="
                       << summary.status.jointEqualityProjectionDiagnostics.x
                       << " equality_position_projection_total_m_or_rad="

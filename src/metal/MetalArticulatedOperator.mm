@@ -433,6 +433,7 @@ struct MetalArticulatedOperatorSubmissionState {
     std::uint32_t standStepCount = 0u;
     std::size_t standTendonBindingCount = 0u;
     std::size_t standTendonEnvelopeBindingCount = 0u;
+    std::size_t standContactCount = 0u;
     std::size_t standJointEqualityCount = 0u;
     bool ownsInFlight = false;
 };
@@ -7781,7 +7782,8 @@ MetalArticulatedOperatorSubmission::wait(
                     !finite(stand.jointEqualityDiagnostics) ||
                     !finite(stand.jointEqualityProjectionDiagnostics) ||
                     !finite(stand.preProjectionPreStepConstraintDiagnostics) ||
-                    !finite(stand.postProjectionPreStepConstraintDiagnostics)) {
+                    !finite(stand.postProjectionPreStepConstraintDiagnostics) ||
+                    !finite(stand.constraintImpulseDiagnostics)) {
                     return reject(
                         std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::internalFailure,
@@ -7798,6 +7800,24 @@ MetalArticulatedOperatorSubmission::wait(
                         std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::internalFailure,
                         "GPU Numi Human joint-equality accounting is malformed"
+                    );
+                }
+                if ((stand.constraintImpulseOwners.x != MR_INVALID_INDEX &&
+                     stand.constraintImpulseOwners.x >=
+                         pending->standContactCount) ||
+                    (stand.constraintImpulseOwners.y != MR_INVALID_INDEX &&
+                     stand.constraintImpulseOwners.y >=
+                         pending->standContactCount) ||
+                    (stand.constraintImpulseOwners.z != MR_INVALID_INDEX &&
+                     stand.constraintImpulseOwners.z >=
+                         pending->articulation.nv) ||
+                    (stand.constraintImpulseOwners.w != MR_INVALID_INDEX &&
+                     stand.constraintImpulseOwners.w >=
+                         pending->standJointEqualityCount)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::internalFailure,
+                        "GPU Numi Human constraint-impulse owners are malformed"
                     );
                 }
                 const std::size_t expectedTransfers =
@@ -9673,6 +9693,7 @@ MetalArticulatedOperatorContext::submit(
                             MR_NUMI_HUMAN_TENDON_TRANSFER_DISTRIBUTED_ENVELOPE;
                     }
                 ));
+            pending->standContactCount = input.stand.contacts.size();
             pending->standJointEqualityCount =
                 input.stand.jointEqualities.size();
             if (input.stand.numanXHumanMatterProgram.valid()) {
