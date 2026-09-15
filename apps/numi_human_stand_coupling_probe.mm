@@ -967,6 +967,82 @@ void checkSimultaneousTriadFinestTimestepIterationConvergence() {
               << " standing_qualified=false\n";
 }
 
+// The final equality-coordinate assignment is deliberately outside the
+// coupled sweeps. Record which of the same pre-step rows it leaves violated
+// in the smallest frictionless production triad before changing formulation
+// or numerical policy. This is an observation-only discriminator.
+void checkPostProjectionPreStepConstraintDiagnostics() {
+    constexpr float kFinestTimestep = 12.5e-6f;
+    struct Variant {
+        const char* name = "";
+        bool contact = false;
+        bool equality = false;
+        bool dependentLimitActive = true;
+    };
+    constexpr std::array<Variant, 4u> variants{{
+        {"full_triad", true, true, true},
+        {"no_contact", false, true, true},
+        {"inactive_dependent_limit", true, true, false},
+        {"no_equality", true, false, true},
+    }};
+    for (const Variant& variant : variants) {
+        Fixture fixture(kFinestTimestep);
+        fixture.contacts.front().frictionSlopAndStabilization.x = 0.0f;
+        if (!variant.dependentLimitActive) {
+            fixture.moveOffDependentPositionLimit();
+        }
+        const Run metal = runHorizon(
+            fixture, 1u, variant.contact, variant.equality, 64u
+        );
+        const auto& preProjection = metal.result.standStatuses.front()
+            .preProjectionPreStepConstraintDiagnostics;
+        const auto& postProjection = metal.result.standStatuses.front()
+            .postProjectionPreStepConstraintDiagnostics;
+        require(
+            std::isfinite(preProjection.x) && std::isfinite(preProjection.y) &&
+                std::isfinite(preProjection.z) && std::isfinite(preProjection.w) &&
+                preProjection.w >= std::max({preProjection.x, preProjection.y,
+                                              preProjection.z}) &&
+                std::isfinite(postProjection.x) && std::isfinite(postProjection.y) &&
+                std::isfinite(postProjection.z) && std::isfinite(postProjection.w) &&
+                postProjection.w >= std::max({postProjection.x, postProjection.y,
+                                               postProjection.z}),
+            "post-projection pre-step constraint diagnostic is invalid"
+        );
+        if (!variant.equality) {
+            require(
+                preProjection.x == 0.0f && preProjection.y == 0.0f &&
+                    preProjection.z == 0.0f && preProjection.w == 0.0f &&
+                    postProjection.x == 0.0f && postProjection.y == 0.0f &&
+                    postProjection.z == 0.0f && postProjection.w == 0.0f,
+                "no-equality control unexpectedly recorded a final equality projection residual"
+            );
+        }
+        std::cout << "simultaneous_triad_postprojection_prestep_constraint_residual"
+                  << " variant=" << variant.name
+                  << " dt_us=" << static_cast<double>(kFinestTimestep) * 1.0e6
+                  << " coupled_iteration_count=64"
+                  << " pre_projection_normal_contact_target_velocity_violation_m_s="
+                  << preProjection.x
+                  << " post_projection_normal_contact_target_velocity_violation_m_s="
+                  << postProjection.x
+                  << " pre_projection_source_limit_target_velocity_violation_m_s_or_rad_s="
+                  << preProjection.y
+                  << " post_projection_source_limit_target_velocity_violation_m_s_or_rad_s="
+                  << postProjection.y
+                  << " pre_projection_equality_target_velocity_residual_m_s_or_rad_s="
+                  << preProjection.z
+                  << " post_projection_equality_target_velocity_residual_m_s_or_rad_s="
+                  << postProjection.z
+                  << " pre_projection_maximum_target_velocity_residual_m_s_or_rad_s="
+                  << preProjection.w
+                  << " post_projection_maximum_target_velocity_residual_m_s_or_rad_s="
+                  << postProjection.w
+                  << " scope=one_step_frictionless_normal_contact_equality_upper_limit"
+                  << " standing_qualified=false\n";
+    }
+}
+
 void checkSourceDerivative(const Fixture& fixture) {
     const std::vector<double> v = asDouble(fixture.v);
     std::vector<double> q = asDouble(fixture.q);
@@ -1217,6 +1293,7 @@ int main() {
         checkSimultaneousTriadReference();
         checkSimultaneousTriadTimestepReference();
         checkSimultaneousTriadFinestTimestepIterationConvergence();
+        checkPostProjectionPreStepConstraintDiagnostics();
         checkContactAndReplay(fixture);
         checkCommonDurationRefinement();
         std::cout << "numi_human_stand_coupling_probe=passed "

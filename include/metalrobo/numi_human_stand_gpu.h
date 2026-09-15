@@ -127,10 +127,19 @@ typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
     // overwrites (m or rad), and z/w are the maximum/sum absolute velocity
     // overwrites (m/s or rad/s), accumulated across accepted steps.
     mr_float4 jointEqualityProjectionDiagnostics;
+    // Residuals immediately before the final exact equality projection.
+    // x/y/z are the maximum normal-contact, source position-limit, and
+    // equality target velocity residuals; w is their maximum. Contact and
+    // limit rows use the pre-step Jacobian, gap, and source position.
+    mr_float4 preProjectionPreStepConstraintDiagnostics;
+    // The corresponding residuals immediately after the final exact equality
+    // projection. This is a linearized diagnostic, not a post-step contact
+    // query; comparing it with the preceding vector isolates that overwrite.
+    mr_float4 postProjectionPreStepConstraintDiagnostics;
 } MRNumiHumanStandStatusGPU;
 
 #if !defined(__METAL_VERSION__)
 static_assert(sizeof(MRNumiHumanStandContactGPU) == 32);
 static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 160);
-static_assert(sizeof(MRNumiHumanStandStatusGPU) == 144);
+static_assert(sizeof(MRNumiHumanStandStatusGPU) == 176);
 #endif

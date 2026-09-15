@@ -2579,6 +2579,14 @@ struct PersistentStandTraceSample {
     double totalEqualityPositionProjection = 0.0;
     double maximumEqualityVelocityProjection = 0.0;
     double totalEqualityVelocityProjection = 0.0;
+    // Compare terminal coupled-sweep and exact-projection velocities against
+    // the same pre-step contact/limit rows, without a geometric re-query.
+    double preProjectionNormalContactTargetVelocityResidual = 0.0;
+    double postProjectionNormalContactTargetVelocityResidual = 0.0;
+    double preProjectionSourceLimitTargetVelocityResidual = 0.0;
+    double postProjectionSourceLimitTargetVelocityResidual = 0.0;
+    double preProjectionEqualityTargetVelocityResidual = 0.0;
+    double postProjectionEqualityTargetVelocityResidual = 0.0;
     double muscleVirtualWorkJoules = 0.0;
     double preloadVirtualWorkJoules = 0.0;
     double supportVirtualWorkJoules = 0.0;
@@ -4731,6 +4739,18 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 traceStatus.jointEqualityProjectionDiagnostics.z;
             sample.totalEqualityVelocityProjection =
                 traceStatus.jointEqualityProjectionDiagnostics.w;
+            sample.preProjectionNormalContactTargetVelocityResidual =
+                traceStatus.preProjectionPreStepConstraintDiagnostics.x;
+            sample.preProjectionSourceLimitTargetVelocityResidual =
+                traceStatus.preProjectionPreStepConstraintDiagnostics.y;
+            sample.preProjectionEqualityTargetVelocityResidual =
+                traceStatus.preProjectionPreStepConstraintDiagnostics.z;
+            sample.postProjectionNormalContactTargetVelocityResidual =
+                traceStatus.postProjectionPreStepConstraintDiagnostics.x;
+            sample.postProjectionSourceLimitTargetVelocityResidual =
+                traceStatus.postProjectionPreStepConstraintDiagnostics.y;
+            sample.postProjectionEqualityTargetVelocityResidual =
+                traceStatus.postProjectionPreStepConstraintDiagnostics.z;
             sample.muscleVirtualWorkJoules = generalizedVirtualWork(
                 traceResult.mujocoGeneralizedForces
             );
@@ -4781,7 +4801,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             require(std::isfinite(sample.kernelMaximumAcceleration) &&
                         std::isfinite(sample.publishedMaximumAcceleration) &&
                         std::isfinite(sample.maximumConfigurationDelta) &&
-                        std::isfinite(sample.maximumVelocity),
+                        std::isfinite(sample.maximumVelocity) &&
+                        std::isfinite(sample.preProjectionNormalContactTargetVelocityResidual) &&
+                        std::isfinite(sample.postProjectionNormalContactTargetVelocityResidual) &&
+                        std::isfinite(sample.preProjectionSourceLimitTargetVelocityResidual) &&
+                        std::isfinite(sample.postProjectionSourceLimitTargetVelocityResidual) &&
+                        std::isfinite(sample.preProjectionEqualityTargetVelocityResidual) &&
+                        std::isfinite(sample.postProjectionEqualityTargetVelocityResidual),
                     "persistent Human trace produced a non-finite state diagnostic");
             sample.q = traceResult.standQ;
             sample.v = traceResult.standV;
@@ -18382,6 +18408,18 @@ int main(int argc, char** argv) {
                               << sample.maximumEqualityVelocityProjection
                               << ",\"total_equality_velocity_projection_m_s_or_rad_s\":"
                               << sample.totalEqualityVelocityProjection
+                              << ",\"pre_projection_normal_contact_target_velocity_residual_m_s\":"
+                              << sample.preProjectionNormalContactTargetVelocityResidual
+                              << ",\"post_projection_normal_contact_target_velocity_residual_m_s\":"
+                              << sample.postProjectionNormalContactTargetVelocityResidual
+                              << ",\"pre_projection_source_limit_target_velocity_residual_m_s_or_rad_s\":"
+                              << sample.preProjectionSourceLimitTargetVelocityResidual
+                              << ",\"post_projection_source_limit_target_velocity_residual_m_s_or_rad_s\":"
+                              << sample.postProjectionSourceLimitTargetVelocityResidual
+                              << ",\"pre_projection_equality_target_velocity_residual_m_s_or_rad_s\":"
+                              << sample.preProjectionEqualityTargetVelocityResidual
+                              << ",\"post_projection_equality_target_velocity_residual_m_s_or_rad_s\":"
+                              << sample.postProjectionEqualityTargetVelocityResidual
                               << ",\"muscle_virtual_work_j\":"
                               << sample.muscleVirtualWorkJoules
                               << ",\"preload_virtual_work_j\":"

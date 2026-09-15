@@ -747,6 +747,17 @@ kernel void mr_numi_human_stand_step(
         (3u * dispatch.supportContactCount + dispatch.jointEqualityCount) * nv;
     uint limitCount = 0u;
     uint limitDofs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    float limitPreStepPositions[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    uint contactActiveForPostProjection[MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
+    float contactTargetNormalVelocityForPostProjection[
+        MR_NUMI_HUMAN_STAND_MAX_CONTACTS
+    ];
+    for (uint contact = 0u;
+         contact < dispatch.supportContactCount;
+         ++contact) {
+        contactActiveForPostProjection[contact] = 0u;
+        contactTargetNormalVelocityForPostProjection[contact] = 0.0f;
+    }
     for (uint coupledSweep = 0u;
          coupledSweep < coupledSweepCount;
          ++coupledSweep) {
@@ -842,6 +853,11 @@ kernel void mr_numi_human_stand_step(
                     -support.frictionSlopAndStabilization.z * min(gap, 0.0f) /
                         timestep
                 );
+                if (coupledSweep + 1u == coupledSweepCount) {
+                    contactActiveForPostProjection[contact] = 1u;
+                    contactTargetNormalVelocityForPostProjection[contact] =
+                        targetNormalVelocity;
+                }
                 device float* matrix = contactMatrices + 9u * contact;
                 const float normalMass = matrix[0u];
                 const float tangentDeterminant =
@@ -1077,6 +1093,7 @@ kernel void mr_numi_human_stand_step(
             return;
         }
         limitDofs[limitCount] = dof;
+        limitPreStepPositions[limitCount] = position;
         device float* response = responseScratch + limitResponseBase +
             limitCount * nv;
         for (uint index = 0u; index < nv; ++index) response[index] = 0.0f;
@@ -1209,6 +1226,97 @@ kernel void mr_numi_human_stand_step(
         qState[qBase + properties.qIndex - articulation.qOffset] +=
             timestep * candidateV[dof];
     }
+    // The velocity state is still the terminal coupled-sweep candidate here.
+    // Record its residual against the same pre-step contact and limit rows
+    // before the exact coordinate projection below overwrites dependencies.
+    float maximumPreProjectionContactResidual = 0.0f;
+    float maximumPreProjectionLimitResidual = 0.0f;
+    float maximumPreProjectionEqualityResidual = 0.0f;
+    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES) != 0u) {
+        if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
+            for (uint contact = 0u;
+                 contact < dispatch.supportContactCount;
+                 ++contact) {
+                if (contactActiveForPostProjection[contact] == 0u) continue;
+                device const MRNumiHumanStandContactGPU& support =
+                    contacts[contact];
+                float normalVelocity = 0.0f;
+                for (uint dof = 0u; dof < nv; ++dof) {
+                    normalVelocity += pointJacobianAxis(
+                        pointJacobians, pointJacobianBase,
+                        support.pointQueryIndex, nv, dof, normal
+                    ) * candidateV[dof];
+                }
+                maximumPreProjectionContactResidual = max(
+                    maximumPreProjectionContactResidual,
+                    max(0.0f,
+                        contactTargetNormalVelocityForPostProjection[contact] -
+                            normalVelocity)
+                );
+            }
+            for (uint limit = 0u; limit < limitCount; ++limit) {
+                const uint dof = limitDofs[limit];
+                device const MRDofPropertiesGPU& properties =
+                    dofs[articulation.vOffset + dof];
+                const float position = limitPreStepPositions[limit];
+                const bool lowerActive =
+                    position <= properties.limits.x + 1.0e-7f &&
+                    (position < properties.limits.x || candidateV[dof] < 0.0f);
+                const bool upperActive =
+                    position >= properties.limits.y - 1.0e-7f &&
+                    (position > properties.limits.y || candidateV[dof] > 0.0f);
+                if (lowerActive) {
+                    const float targetVelocity = max(
+                        0.0f,
+                        min(4.0f,
+                            -0.2f * (position - properties.limits.x) /
+                                timestep)
+                    );
+                    maximumPreProjectionLimitResidual = max(
+                        maximumPreProjectionLimitResidual,
+                        max(0.0f, targetVelocity - candidateV[dof])
+                    );
+                }
+                if (upperActive) {
+                    const float targetVelocity = min(
+                        0.0f,
+                        max(-4.0f,
+                            -0.2f * (position - properties.limits.y) /
+                                timestep)
+                    );
+                    maximumPreProjectionLimitResidual = max(
+                        maximumPreProjectionLimitResidual,
+                        max(0.0f, candidateV[dof] - targetVelocity)
+                    );
+                }
+            }
+        }
+        for (uint equalityIndex = 0u;
+             equalityIndex < dispatch.jointEqualityCount;
+             ++equalityIndex) {
+            device const MRNumiHumanJointEqualityGPU& equality =
+                jointEqualities[equalityIndex];
+            float target = 0.0f;
+            float derivative = 0.0f;
+            float error = 0.0f;
+            if (!evaluateJointEquality(
+                    equality, qState, qBase, nq, nv,
+                    target, derivative, error
+                )) continue;
+            float velocity = candidateV[equality.indices.y];
+            if (equality.indices.w != MR_INVALID_INDEX) {
+                velocity -= derivative * candidateV[equality.indices.w];
+            }
+            const float targetVelocity = clamp(
+                -0.2f * error / timestep, -4.0f, 4.0f
+            );
+            maximumPreProjectionEqualityResidual = max(
+                maximumPreProjectionEqualityResidual,
+                abs(velocity - targetVelocity)
+            );
+        }
+    }
+
     for (uint equalityIndex = 0u;
          equalityIndex < dispatch.jointEqualityCount;
          ++equalityIndex) {
@@ -1256,6 +1364,98 @@ kernel void mr_numi_human_stand_step(
         totalEqualityVelocityProjection += velocityProjection;
         vState[vBase + equality.indices.y] = dependentVelocity;
         candidateV[equality.indices.y] = dependentVelocity;
+    }
+
+    // The exact coordinate projection intentionally follows the coupled
+    // contact/equality/limit sweeps. Measure its terminal state against the
+    // same pre-step linearization before re-querying geometry on the next
+    // accepted step. This records evidence without changing any solve row.
+    float maximumPostProjectionContactResidual = 0.0f;
+    float maximumPostProjectionLimitResidual = 0.0f;
+    float maximumPostProjectionEqualityResidual = 0.0f;
+    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES) != 0u) {
+        if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
+            for (uint contact = 0u;
+                 contact < dispatch.supportContactCount;
+                 ++contact) {
+                if (contactActiveForPostProjection[contact] == 0u) continue;
+                device const MRNumiHumanStandContactGPU& support =
+                    contacts[contact];
+                float normalVelocity = 0.0f;
+                for (uint dof = 0u; dof < nv; ++dof) {
+                    normalVelocity += pointJacobianAxis(
+                        pointJacobians, pointJacobianBase,
+                        support.pointQueryIndex, nv, dof, normal
+                    ) * candidateV[dof];
+                }
+                maximumPostProjectionContactResidual = max(
+                    maximumPostProjectionContactResidual,
+                    max(0.0f,
+                        contactTargetNormalVelocityForPostProjection[contact] -
+                            normalVelocity)
+                );
+            }
+            for (uint limit = 0u; limit < limitCount; ++limit) {
+                const uint dof = limitDofs[limit];
+                device const MRDofPropertiesGPU& properties =
+                    dofs[articulation.vOffset + dof];
+                const float position = limitPreStepPositions[limit];
+                const bool lowerActive =
+                    position <= properties.limits.x + 1.0e-7f &&
+                    (position < properties.limits.x || candidateV[dof] < 0.0f);
+                const bool upperActive =
+                    position >= properties.limits.y - 1.0e-7f &&
+                    (position > properties.limits.y || candidateV[dof] > 0.0f);
+                if (lowerActive) {
+                    const float targetVelocity = max(
+                        0.0f,
+                        min(4.0f,
+                            -0.2f * (position - properties.limits.x) /
+                                timestep)
+                    );
+                    maximumPostProjectionLimitResidual = max(
+                        maximumPostProjectionLimitResidual,
+                        max(0.0f, targetVelocity - candidateV[dof])
+                    );
+                }
+                if (upperActive) {
+                    const float targetVelocity = min(
+                        0.0f,
+                        max(-4.0f,
+                            -0.2f * (position - properties.limits.y) /
+                                timestep)
+                    );
+                    maximumPostProjectionLimitResidual = max(
+                        maximumPostProjectionLimitResidual,
+                        max(0.0f, candidateV[dof] - targetVelocity)
+                    );
+                }
+            }
+        }
+        for (uint equalityIndex = 0u;
+             equalityIndex < dispatch.jointEqualityCount;
+             ++equalityIndex) {
+            device const MRNumiHumanJointEqualityGPU& equality =
+                jointEqualities[equalityIndex];
+            float target = 0.0f;
+            float derivative = 0.0f;
+            float error = 0.0f;
+            if (!evaluateJointEquality(
+                    equality, qState, qBase, nq, nv,
+                    target, derivative, error
+                )) continue;
+            float velocity = candidateV[equality.indices.y];
+            if (equality.indices.w != MR_INVALID_INDEX) {
+                velocity -= derivative * candidateV[equality.indices.w];
+            }
+            const float targetVelocity = clamp(
+                -0.2f * error / timestep, -4.0f, 4.0f
+            );
+            maximumPostProjectionEqualityResidual = max(
+                maximumPostProjectionEqualityResidual,
+                abs(velocity - targetVelocity)
+            );
+        }
     }
 
     float totalNormalImpulse = 0.0f;
@@ -1319,6 +1519,52 @@ kernel void mr_numi_human_stand_step(
     );
     status.jointEqualityProjectionDiagnostics.w +=
         totalEqualityVelocityProjection;
+    const float maximumPreProjectionConstraintResidual = max(
+        maximumPreProjectionContactResidual,
+        max(
+            maximumPreProjectionLimitResidual,
+            maximumPreProjectionEqualityResidual
+        )
+    );
+    const float maximumPostProjectionConstraintResidual = max(
+        maximumPostProjectionContactResidual,
+        max(
+            maximumPostProjectionLimitResidual,
+            maximumPostProjectionEqualityResidual
+        )
+    );
+    status.preProjectionPreStepConstraintDiagnostics.x = max(
+        status.preProjectionPreStepConstraintDiagnostics.x,
+        maximumPreProjectionContactResidual
+    );
+    status.preProjectionPreStepConstraintDiagnostics.y = max(
+        status.preProjectionPreStepConstraintDiagnostics.y,
+        maximumPreProjectionLimitResidual
+    );
+    status.preProjectionPreStepConstraintDiagnostics.z = max(
+        status.preProjectionPreStepConstraintDiagnostics.z,
+        maximumPreProjectionEqualityResidual
+    );
+    status.preProjectionPreStepConstraintDiagnostics.w = max(
+        status.preProjectionPreStepConstraintDiagnostics.w,
+        maximumPreProjectionConstraintResidual
+    );
+    status.postProjectionPreStepConstraintDiagnostics.x = max(
+        status.postProjectionPreStepConstraintDiagnostics.x,
+        maximumPostProjectionContactResidual
+    );
+    status.postProjectionPreStepConstraintDiagnostics.y = max(
+        status.postProjectionPreStepConstraintDiagnostics.y,
+        maximumPostProjectionLimitResidual
+    );
+    status.postProjectionPreStepConstraintDiagnostics.z = max(
+        status.postProjectionPreStepConstraintDiagnostics.z,
+        maximumPostProjectionEqualityResidual
+    );
+    status.postProjectionPreStepConstraintDiagnostics.w = max(
+        status.postProjectionPreStepConstraintDiagnostics.w,
+        maximumPostProjectionConstraintResidual
+    );
 }
 
 // Ordinary stand/tendon accepted-step owner. Derived poses/routes/factors are
