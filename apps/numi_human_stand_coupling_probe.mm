@@ -858,6 +858,58 @@ void checkSimultaneousTriadReference() {
     }
 }
 
+// Keep the one-step FP64 KKT comparison on the same timestep grid as the
+// common-duration discriminator.  This does not claim a full plane-contact
+// oracle or a long-horizon reference; it establishes whether the active
+// normal-contact/equality/upper-limit triad itself remains well-conditioned
+// and accurately solved at each candidate step size.
+void checkSimultaneousTriadTimestepReference() {
+    constexpr double kVelocityTolerance = 1.0e-5;
+    constexpr std::array<float, 4u> timesteps{{
+        100.0e-6f,
+        50.0e-6f,
+        25.0e-6f,
+        12.5e-6f,
+    }};
+    bool referenceGatePassed = true;
+    for (const float timestep : timesteps) {
+        Fixture fixture(timestep);
+        fixture.contacts.front().frictionSlopAndStabilization.x = 0.0f;
+        const SimultaneousTriadReference reference =
+            simultaneousTriadReference(fixture);
+        const Run metal = runHorizon(fixture, 1u, true, true, 64u);
+        double maximumVelocityDifference = 0.0;
+        for (std::size_t dof = 0u;
+             dof < reference.constrainedVelocity.size();
+             ++dof) {
+            maximumVelocityDifference = std::max(
+                maximumVelocityDifference,
+                std::abs(reference.constrainedVelocity[dof] -
+                         static_cast<double>(metal.result.standV[dof]))
+            );
+        }
+        require(std::isfinite(maximumVelocityDifference),
+                "timestep-swept coupled solve produced a non-finite FP64 comparison");
+        const bool passesReferenceGate =
+            maximumVelocityDifference <= kVelocityTolerance;
+        referenceGatePassed = referenceGatePassed && passesReferenceGate;
+        std::cout << "simultaneous_triad_timestep_reference dt_us="
+                  << static_cast<double>(timestep) * 1.0e6
+                  << " coupled_iteration_count=64"
+                  << " fp64_minimum_pivot="
+                  << reference.minimumAbsolutePivot
+                  << " fp64_velocity_tolerance_m_s=" << kVelocityTolerance
+                  << " fp64_reference_gate="
+                  << (passesReferenceGate ? "pass" : "fail")
+                  << " metal_to_fp64_velocity_difference_m_s="
+                  << maximumVelocityDifference << '\n';
+    }
+    std::cout << "simultaneous_triad_timestep_reference_gate="
+              << (referenceGatePassed ? "pass" : "fail")
+              << " scope=one_step_frictionless_normal_contact_equality_upper_limit"
+              << " standing_qualified=false\n";
+}
+
 void checkSourceDerivative(const Fixture& fixture) {
     const std::vector<double> v = asDouble(fixture.v);
     std::vector<double> q = asDouble(fixture.q);
@@ -1106,6 +1158,7 @@ int main() {
         const Fixture fixture(kDefaultTimestepSeconds);
         checkOneStepReference(fixture);
         checkSimultaneousTriadReference();
+        checkSimultaneousTriadTimestepReference();
         checkContactAndReplay(fixture);
         checkCommonDurationRefinement();
         std::cout << "numi_human_stand_coupling_probe=passed "
