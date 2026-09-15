@@ -3,6 +3,7 @@
 #include "metalrobo/numi_human_joint_equality_gpu.h"
 #include "metalrobo/numi_human_stand_gpu.h"
 #include "metalrobo/numi_human_constraint_projection.h"
+#include "metalrobo/numi_human_passive_joint.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
 #include "metalrobo/numi_human_tendon_gpu.h"
 
@@ -202,6 +203,7 @@ kernel void mr_numi_human_stand_step(
     device MRCompensatedRootTranslationGPU* rootTranslations [[buffer(21)]],
     device const float4* bodyPositionLow [[buffer(22)]],
     device const float4* pointPositionLow [[buffer(23)]],
+    device const float* passiveJointProgram [[buffer(24)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint threadCount [[threads_per_threadgroup]]
@@ -299,7 +301,8 @@ kernel void mr_numi_human_stand_step(
                 MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE |
                 MR_NUMI_HUMAN_STAND_HAS_TENDON_LOADS |
                 MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES |
-                MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY
+                MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY |
+                MR_NUMI_HUMAN_STAND_HAS_PASSIVE_JOINT_PROGRAM
             )) != 0u ||
             ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u &&
              ((dispatch.flags & (MR_NUMI_HUMAN_STAND_ENABLE_CONTACT |
@@ -559,6 +562,17 @@ kernel void mr_numi_human_stand_step(
         if ((dof.flags & MR_DOF_FLAG_DRIVE) == 0u) {
             value += dof.drive.y * vState[vBase + row];
         }
+        if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_PASSIVE_JOINT_PROGRAM) != 0u) {
+            for (uint column = 6u; column < nv; ++column) {
+                const float stiffness = passiveJointProgram[row * nv + column];
+                if (stiffness == 0.0f) continue;
+                const uint sourceQ = dofs[articulation.vOffset + column].qIndex;
+                const float displacement = qState[qBase + sourceQ - articulation.qOffset] -
+                    passiveJointProgram[nv * nv + column];
+                value += mrNumiHumanPassiveImplicitBias(stiffness, displacement,
+                    vState[vBase + column], dispatch.groundPointAndTimestep.w);
+            }
+        }
         bias[row] = value;
     }
 
@@ -607,6 +621,10 @@ kernel void mr_numi_human_stand_step(
                 // Backward-Euler passive damping: (M + hD)a = tau-b-Dv.
                 value += dispatch.groundPointAndTimestep.w * dof.drive.y;
             }
+        }
+        if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_PASSIVE_JOINT_PROGRAM) != 0u) {
+            value += mrNumiHumanPassiveEffectiveInertia(
+                passiveJointProgram[index], dispatch.groundPointAndTimestep.w);
         }
         factor[index] = value;
     }

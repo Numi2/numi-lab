@@ -1549,11 +1549,15 @@ private:
 // Root assistance is a world wrench on the floating base, never joint torque.
 struct MetalNumiHumanStandInput {
     std::span<const float> v{};
-    // Optional source-equilibrium generalized constraint preload, one nv
-    // vector per environment. It carries the accepted static equality/limit
-    // reaction into the first release so the dynamic owner does not have to
-    // rediscover a known reaction through a serial impulse projection.
+    // Optional constant external generalized load, one nv vector per environment.
+    // Never use this for solved equality/contact/limit reactions or for tissue
+    // stiffness. Those contributions have current-state owners below.
     std::span<const float> preloadedGeneralizedForce{};
+    // Immutable row-major K[nv,nv] followed by scalar rest coordinates r[nv].
+    // The host validates symmetry, positive semidefiniteness and zero root
+    // rows/columns. Each device step includes K(q-r)+hKv in the bias and h^2K
+    // in the SAME effective factor used for constraint response columns.
+    std::span<const float> passiveJointProgram{};
     std::span<const MRNumiHumanStandContactGPU> contacts{};
     // Exact scalar joint manifold imported from the source model. These rows
     // carry bilateral reaction impulses during dynamics; dependent q/v are
@@ -1747,6 +1751,8 @@ struct MetalArticulatedOperatorLayout {
     std::size_t standContactBytes = 0u;
     std::size_t standJointEqualityElements = 0u;
     std::size_t standJointEqualityBytes = 0u;
+    std::size_t standPassiveJointElements = 0u;
+    std::size_t standPassiveJointBytes = 0u;
     std::size_t standSpatialJacobianElements = 0u;
     std::size_t standBodyMotionElements = 0u;
     std::size_t standFactorElements = 0u;

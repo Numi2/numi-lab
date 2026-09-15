@@ -15,6 +15,7 @@
 #include "metalrobo/NumiHumanKnee.hpp"
 #include "metalrobo/NumiHumanKneeContact.hpp"
 #include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
+#include "metalrobo/NumiHumanPassiveJoint.hpp"
 #include "metalrobo/NumiHumanCompliantEquilibrium.hpp"
 #include "metalrobo/NumiHumanInitialState.hpp"
 #include "numi/matter/human_limits_gpu.h"
@@ -2597,6 +2598,8 @@ struct PersistentStandTraceSample {
     double postProjectionEqualityTargetVelocityResidual = 0.0;
     double muscleVirtualWorkJoules = 0.0;
     double preloadVirtualWorkJoules = 0.0;
+    double passiveJointEnergyJoules = 0.0;
+    double passiveJointPotentialWorkJoules = 0.0;
     double supportVirtualWorkJoules = 0.0;
     std::vector<float> q;
     std::vector<float> v;
@@ -4103,7 +4106,52 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             timestepSeconds
     );
     states = initialFiberEquilibrium.states;
-    std::vector<float> preloadedGeneralizedForce(model.world.nv, 0.0f);
+    std::vector<float> passiveJointProgram;
+    if (!persistentPassiveCouplings.empty() && !removeRuntimePassiveJointTissue) {
+        std::string passiveError;
+        require(metalrobo::compileNumiHumanPassiveJointProgram(
+                    persistentPassiveCouplings, model.world.nv, passiveJointProgram, passiveError),
+                "persistent Human passive joint program failed: " + passiveError);
+    }
+    // Evaluate only for initial parity/trace diagnostics. Runtime force and
+    // tangent are evaluated from live q/v in the production Metal kernel.
+    const auto passiveForceAt = [&model, &passiveJointProgram](
+        const std::span<const float> configuration) {
+        const std::size_t nv = model.world.nv;
+        const auto& articulation = model.articulations.front();
+        std::vector<double> force(nv, 0.0);
+        if (passiveJointProgram.empty()) return force;
+        for (std::size_t row = 6u; row < nv; ++row)
+            for (std::size_t column = 6u; column < nv; ++column) {
+                const double stiffness = passiveJointProgram[row * nv + column];
+                if (stiffness == 0.0) continue;
+                const auto sourceQ = model.dofs[articulation.vOffset + column].qIndex;
+                require(sourceQ >= articulation.qOffset + 7u &&
+                            sourceQ - articulation.qOffset < configuration.size(),
+                        "passive joint trace references a non-scalar coordinate");
+                force[row] -= stiffness *
+                    (static_cast<double>(configuration[sourceQ - articulation.qOffset]) -
+                     passiveJointProgram[nv * nv + column]);
+            }
+        return force;
+    };
+    const auto passiveEnergyAt = [&model, &passiveJointProgram, &passiveForceAt](
+        const std::span<const float> configuration) {
+        if (passiveJointProgram.empty()) return 0.0;
+        const auto force = passiveForceAt(configuration);
+        const auto& articulation = model.articulations.front();
+        double energy = 0.0;
+        for (std::size_t dof = 6u; dof < force.size(); ++dof) {
+            if (force[dof] == 0.0) continue;
+            const auto sourceQ = model.dofs[articulation.vOffset + dof].qIndex;
+            const double displacement = static_cast<double>(configuration[sourceQ - articulation.qOffset]) -
+                passiveJointProgram[force.size() * force.size() + dof];
+            energy -= 0.5 * force[dof] * displacement;
+        }
+        require(std::isfinite(energy), "passive joint potential is non-finite");
+        return energy;
+    };
+    const std::vector<double> initialRuntimePassiveForce = passiveForceAt(q);
     std::vector<PersistentDynamicForceAuditRow> dynamicForceAudit;
     dynamicForceAudit.reserve(model.world.nv);
     double dynamicInitialMaximumForceResidual = 0.0;
@@ -4132,8 +4180,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         const double limitForce = compiledActivation.generalizedPositionLimitForce[dof];
         const double compiledPassiveForce =
             compiledActivation.generalizedPassiveCoordinateForce[dof];
-        const double passiveForce = removeRuntimePassiveJointTissue
-            ? 0.0 : compiledPassiveForce;
+        const double passiveForce = initialRuntimePassiveForce[dof];
         const double gravityTarget = compiledActivation.gravityTarget[dof];
         const double residual = metalMuscleForce + supportForce + equalityForce +
             limitForce + passiveForce - gravityTarget;
@@ -4174,20 +4221,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             return std::abs(first.residual) > std::abs(second.residual);
         }
     );
-    for (std::size_t dof = 0u; dof < model.world.nv; ++dof) {
-        const double runtimePassiveForce = removeRuntimePassiveJointTissue
-            ? 0.0 : compiledActivation.generalizedPassiveCoordinateForce[dof];
-        // Runtime constraint reactions are solved, never permanently preloaded.
-        // A static stop or equality force is not a time-invariant actuator;
-        // retaining it prevents complete unloading as the body moves.
-        // The initial passive-tissue preload is retained as the existing
-        // bounded-release approximation, NOT a calibrated dynamic tissue law.
-        preloadedGeneralizedForce[dof] = static_cast<float>(runtimePassiveForce);
-        require(
-            std::isfinite(preloadedGeneralizedForce[dof]),
-            "persistent Human source constraint preload is non-finite"
-        );
-    }
+    // Equality/limit reactions and passive tissue are never constant applied
+    // forces. The native constraint owner and current-state implicit law own them.
     metalrobo::NumiHumanTendonMetalProgram tendonProgram;
     const auto tendonPack = metalrobo::makeNumiHumanTendonMetalProgram(
         muscles.tendonPayload,
@@ -4220,7 +4255,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         },
         .stand = {
             .v = v,
-            .preloadedGeneralizedForce = preloadedGeneralizedForce,
+            .passiveJointProgram = passiveJointProgram,
             .contacts = queries.supportContacts,
             .jointEqualities = jointEqualities.payload.records,
             .tendonBindings = tendonProgram.bindings,
@@ -4367,6 +4402,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     parityInput.stand.enableContact = false;
     parityInput.stand.jointEqualities = {};
     parityInput.stand.preloadedGeneralizedForce = {};
+    parityInput.stand.passiveJointProgram = {};
     parityInput.stand.enableRootAssistance = false;
     parityInput.stand.assistanceGains = {0.0f, 0.0f, 0.0f, 0.0f};
     metalrobo::MetalArticulatedOperatorResult parityResult;
@@ -4596,6 +4632,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         PersistentStandTraceSample initialSample;
         initialSample.q = traceQ;
         initialSample.v = traceV;
+        initialSample.passiveJointEnergyJoules = passiveEnergyAt(traceQ);
         persistentStandTrace.push_back(std::move(initialSample));
         for (std::uint32_t traceStep = 1u;
              traceStep <= stepCount; ++traceStep) {
@@ -4779,9 +4816,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             sample.muscleVirtualWorkJoules = generalizedVirtualWork(
                 traceResult.mujocoGeneralizedForces
             );
-            sample.preloadVirtualWorkJoules = generalizedVirtualWork(
-                preloadedGeneralizedForce
-            );
+            sample.preloadVirtualWorkJoules = 0.0; // No permanent load is applied.
+            sample.passiveJointEnergyJoules = passiveEnergyAt(traceResult.standQ);
+            sample.passiveJointPotentialWorkJoules =
+                passiveEnergyAt(traceQ) - sample.passiveJointEnergyJoules;
             sample.supportVirtualWorkJoules = generalizedVirtualWork(
                 compiledActivation.generalizedSupportForce
             );
@@ -5306,13 +5344,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     );
     result.persistentRootAssistanceForce = assistedStatus.factorAndAssistance.z;
     result.persistentRootAssistanceTorque = assistedStatus.factorAndAssistance.w;
-    result.sourceConstraintPreloadApplied = true;
-    for (const float value : preloadedGeneralizedForce) {
-        result.sourceConstraintPreloadMaximumNewtons = std::max(
-            result.sourceConstraintPreloadMaximumNewtons,
-            std::abs(static_cast<double>(value))
-        );
-    }
+    result.sourceConstraintPreloadApplied = false;
+    result.sourceConstraintPreloadMaximumNewtons = 0.0;
     result.compiledActiveMuscleCount = compiledActivation.activeMuscleCount;
     result.compiledActivationResidualRms =
         compiledActivation.normalizedResidualRms;
@@ -17940,6 +17973,9 @@ int main(int argc, char** argv) {
                               muscleDrivenState->persistentMetalHorizon ? "true" : "false")
                       << " persistent_contact_iteration_count=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->persistentContactIterationCount : 0u)
+                      << " persistent_passive_joint_law=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->persistentRuntimePassiveJointTissue
+                                  ? "current_state_linear_backward_euler" : "disabled")
                       << " persistent_source_passive_joint_tissue=" << (muscleDrivenState.has_value() &&
                               muscleDrivenState->persistentSourcePassiveJointTissue ? "true" : "false")
                       << " persistent_runtime_passive_joint_tissue=" << (muscleDrivenState.has_value() &&
@@ -18361,7 +18397,7 @@ int main(int argc, char** argv) {
                     std::cout << ']';
                 };
                 std::cout << std::setprecision(17)
-                          << "persistent_stand_trace={\"schema\":\"numi.human.persistent-stand-trace.v3\""
+                          << "persistent_stand_trace={\"schema\":\"numi.human.persistent-stand-trace.v4\""
                           << ",\"driver\":\"segmented_one_step_production_horizon\""
                           << ",\"endpoint_equivalent\":\""
                           << (muscleDrivenState->persistentStandTraceEndpointBitwise
@@ -18371,7 +18407,7 @@ int main(int argc, char** argv) {
                           << muscleDrivenState->persistentStandTraceEndpointMaximumQDelta
                           << ",\"endpoint_max_v_delta\":"
                           << muscleDrivenState->persistentStandTraceEndpointMaximumVDelta
-                          << ",\"work_scope\":\"continuous_generalized_source_muscle_preload_and_support_virtual_work_excludes_impulsive_contact_and_equality_projection\""
+                          << ",\"work_scope\":\"muscle_virtual_work_and_static_support_reference_not_impulse_work;passive_potential_change_includes_coordinate_projection\""
                           << ",\"total_muscle_virtual_work_j\":"
                           << muscleDrivenState->persistentStandTraceMuscleVirtualWorkJoules
                           << ",\"total_preload_virtual_work_j\":"
@@ -18467,6 +18503,8 @@ int main(int argc, char** argv) {
                               << sample.postProjectionEqualityTargetVelocityResidual
                               << ",\"muscle_virtual_work_j\":"
                               << sample.muscleVirtualWorkJoules
+                              << ",\"passive_joint_energy_j\":" << sample.passiveJointEnergyJoules
+                              << ",\"passive_joint_potential_work_j\":" << sample.passiveJointPotentialWorkJoules
                               << ",\"preload_virtual_work_j\":"
                               << sample.preloadVirtualWorkJoules
                               << ",\"support_virtual_work_j\":"

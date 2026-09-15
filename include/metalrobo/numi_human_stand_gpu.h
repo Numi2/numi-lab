@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_NUMI_HUMAN_STAND_ABI_VERSION 6u
+#define MR_NUMI_HUMAN_STAND_ABI_VERSION 7u
 #define MR_NUMI_HUMAN_STAND_MAX_BODIES 192u
 #define MR_NUMI_HUMAN_STAND_MAX_DOFS 160u
 #define MR_NUMI_HUMAN_STAND_MAX_Q 161u
@@ -32,6 +32,7 @@ enum MRNumiHumanStandFlags {
     // Internal owner prefix: vState names private scratch initialized from
     // accepted v. Produce v_free without advancing q or completedSteps.
     MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY = 1u << 4u,
+    MR_NUMI_HUMAN_STAND_HAS_PASSIVE_JOINT_PROGRAM = 1u << 5u,
 };
 
 // One source-authored support witness. The point-query index addresses the

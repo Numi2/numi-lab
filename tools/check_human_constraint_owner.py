@@ -27,11 +27,14 @@ require("limitAccumulatedImpulses[limit] = nextImpulse;" in kernel,
 require(kernel.index("Final equality evidence includes paired limit corrections.") >
         kernel.index("mrNumiHumanProjectEqualityLimitBlock("),
         "equality diagnostics precede final coupled corrections")
-needle = "preloadedGeneralizedForce[dof] ="
-require(runner.count(needle) == 1, "permanent preload owner is ambiguous")
-expression = runner.split(needle, 1)[1].split(";", 1)[0]
-require(expression.strip() == "static_cast<float>(runtimePassiveForce)",
-        "permanent Human preload is not exclusively the scoped passive reference")
+require("preloadedGeneralizedForce[dof] =" not in runner,
+        "runner reintroduced a frozen passive or constraint force")
+require(".passiveJointProgram = passiveJointProgram" in runner and
+        "compileNumiHumanPassiveJointProgram(" in runner,
+        "runner no longer transports the source passive stiffness")
+require("mrNumiHumanPassiveImplicitBias(" in kernel and
+        "mrNumiHumanPassiveEffectiveInertia(" in kernel,
+        "passive force and effective tangent no longer share the dynamics owner")
 require("persistent_dynamic_force_audit=" not in runner and
         runner.count("persistent_initial_force_reference=") == 1,
         "static reference reactions are mislabelled as actual dynamic force evidence")

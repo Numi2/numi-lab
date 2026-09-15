@@ -1,3 +1,4 @@
+#include "metalrobo/NumiHumanPassiveJoint.hpp"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 
@@ -41,7 +42,8 @@ namespace {
 // occupies slots 16..23 in the same command buffer. The MyoSim sidecar owns
 // slots 24..30 and consumes the same private pose/Jacobian output directly.
 constexpr std::size_t kRawBufferCount = 31u;
-constexpr std::size_t kStandBufferCount = 22u;
+constexpr std::size_t kStandBufferCount = 23u;
+constexpr std::size_t kStandPassiveJointBuffer = 22u;
 constexpr std::size_t kStandRootTranslationBuffer = 18u;
 constexpr std::size_t kStandRootTranslationCheckpointBuffer = 19u;
 constexpr std::size_t kStandBodyPositionLowBuffer = 20u;
@@ -1130,6 +1132,7 @@ bool validNumiHumanStand(
         if (!stand.v.empty() || !stand.contacts.empty() ||
             !stand.jointEqualities.empty() ||
             !stand.preloadedGeneralizedForce.empty() ||
+            !stand.passiveJointProgram.empty() ||
             !stand.tendonBindings.empty() || !stand.tendonEnvelopes.empty() ||
             stand.tendonLoadProgram.configured() ||
             stand.numanXTransactionProgram.configured() ||
@@ -1204,6 +1207,25 @@ bool validNumiHumanStand(
         })) {
         reason = "stand velocity stream is not finite environment-major nv state";
         return false;
+    }
+    if (!stand.passiveJointProgram.empty()) {
+        if (!validateNumiHumanPassiveJointProgram(
+                stand.passiveJointProgram, articulation.nv, reason)) return false;
+        for (std::size_t i = 6u; i < articulation.nv; ++i) {
+            if (stand.passiveJointProgram[i * articulation.nv + i] == 0.0f) continue;
+            const auto& source = model.dofs[articulation.vOffset + i];
+            if (source.qIndex < articulation.qOffset + 7u ||
+                source.qIndex >= articulation.qOffset + articulation.nq) {
+                reason = "passive joint program has a non-scalar source coordinate";
+                return false;
+            }
+        }
+        // The coupled Matter source-factor contract does not yet expose this
+        // extra tangent. Reject it rather than supplying an incomplete operator.
+        if (stand.numanXHumanMatterProgram.configured()) {
+            reason = "passive joint tangent is not admitted to the Human/Matter ABI";
+            return false;
+        }
     }
     if (!stand.preloadedGeneralizedForce.empty() &&
         stand.preloadedGeneralizedForce.size() != expectedVelocityCount) {
@@ -1682,6 +1704,11 @@ bool buildRequirements(
             "Numi Human tendon generalized corrections",
             layout.standTendonCorrectionElements,
             requirements.standEntries[kStandTendonCorrectionsBuffer]
+        ) ||
+        !makeRequirement<float>(
+            "Numi Human current-state passive joint program",
+            layout.standPassiveJointElements,
+            requirements.standEntries[kStandPassiveJointBuffer]
         ) ||
         !makeRequirement<MRNumiHumanJointEqualityGPU>(
             "Numi Human joint equalities",
@@ -2164,6 +2191,7 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
     if (input.stand.enabled()) {
         layout.standVelocityElements = input.stand.v.size();
         layout.standContactElements = input.stand.contacts.size();
+        layout.standPassiveJointElements = input.stand.passiveJointProgram.size();
         layout.standJointEqualityElements =
             input.stand.jointEqualities.size();
         layout.standStatusElements = input.environmentCount;
@@ -2356,6 +2384,7 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         exceedsShaderAddressing(layout.mujocoGeneralizedForceElements) ||
         exceedsShaderAddressing(layout.standVelocityElements) ||
         exceedsShaderAddressing(layout.standContactElements) ||
+        exceedsShaderAddressing(layout.standPassiveJointElements) ||
         exceedsShaderAddressing(layout.standJointEqualityElements) ||
         exceedsShaderAddressing(layout.standSpatialJacobianElements) ||
         exceedsShaderAddressing(layout.standBodyMotionElements) ||
@@ -2466,6 +2495,8 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         requirements.standEntries[kStandVelocityBuffer].logicalBytes;
     layout.standContactBytes =
         requirements.standEntries[kStandContactsBuffer].logicalBytes;
+    layout.standPassiveJointBytes =
+        requirements.standEntries[kStandPassiveJointBuffer].logicalBytes;
     layout.standJointEqualityBytes =
         requirements.standEntries[kStandJointEqualitiesBuffer].logicalBytes;
     layout.standStatusBytes =
@@ -3733,12 +3764,20 @@ void uploadBatch(
                 requirements.standEntries[index].allocationBytes
             );
         }
+        copyToBuffer(
+            context.standBuffers[kStandPassiveJointBuffer],
+            input.stand.passiveJointProgram.empty() ? nullptr :
+                static_cast<const void*>(input.stand.passiveJointProgram.data()),
+            requirements.standEntries[kStandPassiveJointBuffer]
+        );
         if (!input.stand.preloadedGeneralizedForce.empty()) {
-            std::memcpy(
-                context.standBuffers[kStandVectorBuffer].contents,
-                input.stand.preloadedGeneralizedForce.data(),
-                input.stand.preloadedGeneralizedForce.size() * sizeof(float)
-            );
+            const std::size_t vectorStride = layout.standVectorElements / input.environmentCount;
+            auto* destination = static_cast<float*>(context.standBuffers[kStandVectorBuffer].contents);
+            for (std::size_t environment = 0u; environment < input.environmentCount; ++environment) {
+                std::memcpy(destination + environment * vectorStride,
+                    input.stand.preloadedGeneralizedForce.data() + environment * (layout.standVelocityElements / input.environmentCount),
+                    (layout.standVelocityElements / input.environmentCount) * sizeof(float));
+            }
         }
         copyToBuffer(
             context.standBuffers[kStandTendonBindingsBuffer],
@@ -4993,6 +5032,9 @@ struct MetalBufferRegion {
     }
     if (!input.stand.jointEqualities.empty()) {
         dispatch.flags |= MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES;
+    }
+    if (!input.stand.passiveJointProgram.empty()) {
+        dispatch.flags |= MR_NUMI_HUMAN_STAND_HAS_PASSIVE_JOINT_PROGRAM;
     }
     dispatch.groundPointAndTimestep = {
         input.stand.groundPoint.x,
@@ -9325,6 +9367,7 @@ MetalArticulatedOperatorContext::submit(
                 [predictor setBuffer:state_->standBuffers[kStandRootTranslationBuffer] offset:0u atIndex:21u];
                 [predictor setBuffer:state_->standBuffers[kStandBodyPositionLowBuffer] offset:0u atIndex:22u];
                 [predictor setBuffer:state_->standBuffers[kStandPointPositionLowBuffer] offset:0u atIndex:23u];
+                [predictor setBuffer:state_->standBuffers[kStandPassiveJointBuffer] offset:0u atIndex:24u];
                 [predictor setComputePipelineState:state_->standPipeline];
                 [predictor setBuffer:state_->buffers[0u] offset:0u atIndex:0u];
                 [predictor setBuffer:state_->buffers[1u] offset:0u atIndex:1u];
@@ -9439,6 +9482,7 @@ MetalArticulatedOperatorContext::submit(
                 [standEncoder setBuffer:state_->standBuffers[kStandRootTranslationBuffer] offset:0u atIndex:21u];
                 [standEncoder setBuffer:state_->standBuffers[kStandBodyPositionLowBuffer] offset:0u atIndex:22u];
                 [standEncoder setBuffer:state_->standBuffers[kStandPointPositionLowBuffer] offset:0u atIndex:23u];
+                [standEncoder setBuffer:state_->standBuffers[kStandPassiveJointBuffer] offset:0u atIndex:24u];
                 [standEncoder setBuffer:state_->buffers[0u] offset:0u atIndex:0u];
                 [standEncoder setBuffer:state_->buffers[1u] offset:0u atIndex:1u];
                 [standEncoder setBuffer:state_->buffers[3u] offset:0u atIndex:2u];
