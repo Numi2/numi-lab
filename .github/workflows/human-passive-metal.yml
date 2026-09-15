@@ -1,0 +1,56 @@
+name: Human passive production-kernel test
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths:
+      - tests/numi_human_passive_metal_test.mm
+      - src/metal/NumiHumanStand.metal
+      - include/metalrobo/numi_human_passive_joint.h
+      - include/metalrobo/numi_human_stand_gpu.h
+      - .github/workflows/human-passive-metal.yml
+  pull_request:
+    paths:
+      - tests/numi_human_passive_metal_test.mm
+      - src/metal/NumiHumanStand.metal
+      - include/metalrobo/numi_human_passive_joint.h
+      - include/metalrobo/numi_human_stand_gpu.h
+      - .github/workflows/human-passive-metal.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  production-kernel:
+    runs-on: macos-15
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile production kernel and execution harness
+        run: |
+          xcrun --sdk macosx metal -std=metal3.1 -fno-fast-math -Iinclude -c src/metal/NumiHumanStand.metal -o /tmp/NumiHumanStand.air
+          xcrun --sdk macosx metallib /tmp/NumiHumanStand.air -o /tmp/NumiHumanStand.metallib
+          clang++ -std=c++20 -O2 -Wall -Wextra -Werror -fno-fast-math -fobjc-arc -Iinclude tests/numi_human_passive_metal_test.mm -framework Foundation -framework Metal -o /tmp/human-passive-metal
+      - name: Execute when a Metal device is exposed
+        run: |
+          set +e
+          MTL_DEBUG_LAYER=1 /tmp/human-passive-metal /tmp/NumiHumanStand.metallib > passive-metal-result.txt 2> passive-metal-stderr.txt
+          code=$?
+          set -e
+          cat passive-metal-result.txt
+          cat passive-metal-stderr.txt
+          printf 'exit_code=%s\n' "$code" >> passive-metal-result.txt
+          git rev-parse HEAD > passive-metal-revision.txt
+          if [ "$code" = 77 ]; then
+            echo 'Metal device absent: execution skipped, not a numerical pass.' >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$code" != 0 ]; then
+            exit "$code"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-passive-metal-result
+          path: |
+            passive-metal-result.txt
+            passive-metal-stderr.txt
+            passive-metal-revision.txt
+          retention-days: 14
+          if-no-files-found: warn
