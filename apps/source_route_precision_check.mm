@@ -159,9 +159,10 @@ struct GPU {
     }
 };
 struct RouteOutput {MRMujocoMuscleResultGPU result;std::array<float,dofs> force,suffix;};
-RouteOutput evaluateGPU(GPU& gpu,const Fixture& f,const Geometry& g,bool paired) {
+RouteOutput evaluateGPU(GPU& gpu,const Fixture& f,const Geometry& g,bool paired,
+                       const float timestepSeconds = .000025f) {
     MRMujocoMuscleReferenceDispatchGPU d{};d.abiVersion=MR_MUJOCO_MUSCLE_REFERENCE_GPU_ABI_VERSION;
-    d.muscleCount=1;d.siteCount=unsigned(f.sites.size());d.wrapCount=1;d.routeNodeCount=unsigned(f.routes.size());d.environmentCount=1;d.bodyPoseStride=bodies;d.dofCount=dofs;d.pointJacobianStride=jacobianCount;d.bodyJacobianPointStride=4;d.timestepSecondsAndReserved=f4(.000025);
+    d.muscleCount=1;d.siteCount=unsigned(f.sites.size());d.wrapCount=1;d.routeNodeCount=unsigned(f.routes.size());d.environmentCount=1;d.bodyPoseStride=bodies;d.dofCount=dofs;d.pointJacobianStride=jacobianCount;d.bodyJacobianPointStride=4;d.timestepSecondsAndReserved=f4(timestepSeconds);
     std::vector<float> velocity(f.velocity.begin(),f.velocity.end());
     auto pose=gpu.vector(g.poses),low=gpu.vector(g.low),jac=gpu.vector(g.jacobian),v=gpu.vector(velocity),db=gpu.object(d),muscle=gpu.object(f.muscle),state=gpu.object(f.muscleState),sites=gpu.vector(f.gpuSites),wraps=gpu.vector(f.gpuWraps),routes=gpu.vector(f.routes),result=gpu.buffer(nullptr,sizeof(MRMujocoMuscleResultGPU)),force=gpu.buffer(nullptr,dofs*sizeof(float));
     gpu.dispatch(paired?"mr_mujoco_muscle_reference_compensated":"mr_mujoco_muscle_reference",{{7,v},{8,pose},{10,low},{11,jac},{23,force},{24,db},{25,muscle},{26,state},{27,sites},{28,wraps},{29,routes},{30,result}},1);
@@ -256,6 +257,147 @@ void routeChecks(GPU& gpu) {
     }
     require(legacyDetected,"large-origin high-only negative control detects lost geometry");
     std::cout<<"route_max_length_error_m="<<maximumLengthError<<" route_max_J_error="<<maximumJacobianError<<" route_max_force_error_N="<<maximumForceError<<" origin_length_error_m="<<maximumOriginError<<'\n';
+}
+
+void compliantFiberChecks(GPU& gpu) {
+    constexpr double timestepSeconds = 12.5e-6;
+    constexpr double q = double(.003f);
+    Fixture fixture(0u);
+    fixture.velocity.assign(dofs, 0.0);
+    const auto baseRoute = fixture.oracle(q);
+    require(std::abs(baseRoute.path.lengthJacobian[6]) > 0.1,
+            "compliant fibre fixture has a nontrivial path velocity column");
+
+    MujocoCompliantMuscleArchitecture architecture{};
+    architecture.optimalFiberLength = 0.45 * baseRoute.path.length;
+    architecture.tendonSlackLength = 0.55 * baseRoute.path.length;
+    architecture.tendonStrainAtOneNormalizedForce = 0.049;
+    architecture.tendonStiffnessAtOneNormalizedForce = 1.375 / 0.049;
+    architecture.tendonNormalizedForceAtToeEnd = 2.0 / 3.0;
+    architecture.tendonCurviness = 0.5;
+    architecture.normalizedFiberDamping = 0.1;
+    fixture.muscle.compliantArchitecture0 = f4(
+        architecture.optimalFiberLength,
+        architecture.tendonSlackLength,
+        architecture.tendonStrainAtOneNormalizedForce,
+        architecture.tendonStiffnessAtOneNormalizedForce
+    );
+    fixture.muscle.compliantArchitecture1 = f4(
+        architecture.tendonNormalizedForceAtToeEnd,
+        architecture.tendonCurviness,
+        architecture.normalizedFiberDamping,
+        architecture.fitNormalizedRmse
+    );
+
+    const MujocoCompliantMuscleState unresolved{
+        fixture.state.excitation, fixture.state.activation, 0.0, 0.0
+    };
+    MujocoCompliantMuscleResult staticRoot{};
+    require(evaluateMujocoCompliantMuscle(
+                baseRoute.path.length, 0.0, timestepSeconds, fixture.definition,
+                architecture, unresolved, staticRoot).succeeded(),
+            "independent FP64 stationary compliant-fibre root");
+    const float acceptedFibre = static_cast<float>(staticRoot.candidateFiberLength);
+    require(std::isfinite(acceptedFibre) && acceptedFibre > 0.0f,
+            "stationary root survives FP32 publication");
+    fixture.muscleState.excitationAndActivation = f4(
+        fixture.state.excitation, fixture.state.activation, acceptedFibre, 0.0
+    );
+
+    const auto stationary = evaluateGPU(
+        gpu, fixture, Geometry(fixture, 0.0, q), true,
+        static_cast<float>(timestepSeconds)
+    );
+    require(stationary.result.status == MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS,
+            "stationary compliant-fibre GPU status");
+    require(stationary.result.fiberStateTendonForceResidual.x == acceptedFibre,
+            "stationary accepted fibre root is preserved exactly");
+    require(stationary.result.fiberStateTendonForceResidual.y == 0.0f,
+            "stationary accepted fibre root has zero artificial velocity");
+    require(std::isfinite(stationary.result.fiberStateTendonForceResidual.z) &&
+                std::isfinite(stationary.result.fiberStateTendonForceResidual.w) &&
+                std::abs(stationary.result.fiberStateTendonForceResidual.w) <= 1.0e-4f,
+            "stationary accepted fibre root retains bounded residual");
+
+    const auto comparePerturbation = [&](const char* label, const double qValue,
+                                         const double requestedPathVelocity,
+                                         const double activation) {
+        Fixture candidate = fixture;
+        candidate.velocity.assign(dofs, 0.0);
+        const auto restPath = candidate.oracle(qValue);
+        require(std::abs(restPath.path.lengthJacobian[6]) > 0.1,
+                std::string(label) + " path velocity column");
+        candidate.velocity[6] = requestedPathVelocity /
+            restPath.path.lengthJacobian[6];
+        const auto sourcePath = candidate.oracle(qValue);
+        require(std::isfinite(sourcePath.path.velocity),
+                std::string(label) + " source path velocity");
+        if (requestedPathVelocity != 0.0) {
+            require(std::abs(sourcePath.path.velocity) >= 5.0e-4,
+                    std::string(label) + " remains nonzero around stationary branch");
+        }
+        candidate.muscleState.excitationAndActivation = f4(
+            activation, activation, acceptedFibre, 0.0
+        );
+        const MujocoCompliantMuscleState accepted{
+            activation, activation, acceptedFibre, 0.0
+        };
+        MujocoCompliantMuscleResult reference{};
+        require(evaluateMujocoCompliantMuscle(
+                    sourcePath.path.length, sourcePath.path.velocity,
+                    timestepSeconds, candidate.definition, architecture,
+                    accepted, reference).succeeded(),
+                std::string(label) + " independent FP64 compliant-fibre update");
+        const auto gpuResult = evaluateGPU(
+            gpu, candidate, Geometry(candidate, 0.0, qValue), true,
+            static_cast<float>(timestepSeconds)
+        );
+        require(gpuResult.result.status == MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS,
+                std::string(label) + " production compliant-fibre status");
+        near(gpuResult.result.fiberStateTendonForceResidual.x,
+             reference.candidateFiberLength, 3.0e-6,
+             std::string(label) + " fibre length against FP64");
+        near(gpuResult.result.fiberStateTendonForceResidual.y,
+             reference.candidateFiberVelocity, 0.03,
+             std::string(label) + " fibre velocity against FP64");
+        near(gpuResult.result.fiberStateTendonForceResidual.z,
+             reference.tendonTension, 2.0e-4,
+             std::string(label) + " tendon tension against FP64");
+        require(std::isfinite(gpuResult.result.fiberStateTendonForceResidual.w) &&
+                    std::abs(gpuResult.result.fiberStateTendonForceResidual.w) <= 2.0e-4f,
+                std::string(label) + " bounded production equilibrium residual");
+        return gpuResult;
+    };
+
+    const auto negative = comparePerturbation(
+        "negative-small-velocity", q, -1.0e-3, fixture.state.activation
+    );
+    const auto positive = comparePerturbation(
+        "positive-small-velocity", q, 1.0e-3, fixture.state.activation
+    );
+    require(std::abs(negative.result.fiberStateTendonForceResidual.y) < 0.03f &&
+                std::abs(positive.result.fiberStateTendonForceResidual.y) < 0.03f,
+            "small signed path velocities do not create an artificial fibre-speed jump");
+
+    const auto activationChanged = comparePerturbation(
+        "activation-change", q, 0.0, fixture.state.activation + 0.15
+    );
+    require(std::abs(activationChanged.result.fiberStateTendonForceResidual.x -
+                         acceptedFibre) > 5.0e-8f,
+            "activation change re-solves rather than reusing an invalid stationary root");
+    const auto tendonLoaded = comparePerturbation(
+        "tendon-load-change", q + 0.01, 0.0, fixture.state.activation
+    );
+    require(std::abs(tendonLoaded.result.fiberStateTendonForceResidual.z -
+                         stationary.result.fiberStateTendonForceResidual.z) > 1.0e-4f,
+            "path-length change updates tendon loading rather than reusing the stationary root");
+    std::cout << "compliant_fibre_stationary_root_m=" << acceptedFibre
+              << " stationary_tendon=" << stationary.result.fiberStateTendonForceResidual.z
+              << " negative_velocity=" << negative.result.fiberStateTendonForceResidual.y
+              << " positive_velocity=" << positive.result.fiberStateTendonForceResidual.y
+              << " activation_fibre=" << activationChanged.result.fiberStateTendonForceResidual.x
+              << " loaded_tendon=" << tendonLoaded.result.fiberStateTendonForceResidual.z
+              << '\n';
 }
 
 struct HoodFixture {
@@ -363,7 +505,7 @@ int main(int argc,char** argv) {
     @autoreleasepool {try {
         std::cout<<std::setprecision(17);cpuChecks();HoodFixture hoodOracle;
         if(argc==2 && std::string(argv[1])=="--cpu") {std::cout<<"source_route_precision_cpu PASS checks="<<checks<<'\n';return 0;}
-        require(argc==2,"usage: source-route-precision-check --cpu|metallib");GPU gpu(argv[1]);routeChecks(gpu);hoodChecks(gpu);
+        require(argc==2,"usage: source-route-precision-check --cpu|metallib");GPU gpu(argv[1]);routeChecks(gpu);compliantFiberChecks(gpu);hoodChecks(gpu);
         std::cout<<"source_route_precision_metal PASS checks="<<checks<<'\n';return 0;
     }catch(const std::exception& e){std::cerr<<"source_route_precision FAIL "<<e.what()<<'\n';return 1;}}
 }
