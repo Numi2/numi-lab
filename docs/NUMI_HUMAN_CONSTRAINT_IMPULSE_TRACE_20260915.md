@@ -133,11 +133,31 @@ The existing 12.5 us full-triad FP64 comparison remains a **FAIL**:
 execution also retained the established source-limit/equality projection
 trade-off. This is intentional evidence preservation, not a re-baselined pass.
 
-An exact full-body M4 Pro trace was not started: after the preflight, a
-separate `human-coupled-velocity-closure-control-fixed-512` process acquired
-the device. The new trace was terminated before it could compete with that
-owner. Consequently, this receipt is not a physical-M4-Pro full-body replay
-or a remote-build qualification.
+An initial full-body attempt was stopped when a separate
+`human-coupled-velocity-closure-control-fixed-512` process acquired the
+device. After that owner released it, the exact full 6.4 ms configuration ran
+to completion on the M4 Pro with Metal API validation. Its raw stdout is
+retained as
+[`m4-pro-full-stdout.txt.gz`](media/numi-human-constraint-impulse-trace-20260915/m4-pro-full-stdout.txt.gz)
+(uncompressed SHA-256 `ceece3bc8d2dd835e80cb133dec994010d30be987594034dfb44586c85036276`,
+compressed SHA-256 `1b813581fdde17a1df4468dbe4778e9f44faf615df132115e461f962ce7f98ef`)
+with its validation stderr in
+[`m4-pro-full-stderr.txt`](media/numi-human-constraint-impulse-trace-20260915/m4-pro-full-stderr.txt)
+(SHA-256 `079c67292998a3e5c60d6d987eb13e5114412c0e5c7403ca4533b3e0069e502b`).
+
+The 4,240,792-byte serialized `persistent_stand_trace` payload from the
+physical M4 Pro has SHA-256
+`f1c5177007e7085aacf226b498c2fab81366d981cf05e5c39af87a630da733e8`
+and is byte-identical to the local Apple M4 payload. It records the same
+513 samples, bitwise segmented endpoint, zero penetration, step-279
+equality-43/source-limit-113 event, contact owners, tendon residual, and
+continuous work values listed above. Whole stdout is not claimed
+cross-hardware-identical because it includes host-specific rendering and
+timing fields.
+
+This is a physical-M4-Pro full-body execution receipt, but not a remote
+source-build qualification: the device had insufficient capacity for another
+worktree and ran the verified exact local arm64 bundle listed above.
 
 ## What remains failed or unqualified
 
