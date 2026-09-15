@@ -563,10 +563,74 @@ int runJointEqualityDerivativeAudit(
     return value;
 }
 
-[[nodiscard]] std::vector<double> loadTraceConfiguration(
+[[nodiscard]] std::vector<double> loadTraceArray(
+    const std::string& contents,
+    const std::size_t recordBegin,
+    const std::size_t recordEnd,
+    const std::string_view key,
+    const std::size_t expectedCount
+) {
+    const std::string prefix{"\"" + std::string(key) + "\":["};
+    const std::size_t beginWithPrefix = contents.find(prefix, recordBegin);
+    require(
+        beginWithPrefix != std::string::npos && beginWithPrefix < recordEnd,
+        "requested stand-trace record has no " + std::string(key) + " array"
+    );
+    const std::size_t begin = beginWithPrefix + prefix.size();
+    const std::size_t end = contents.find(']', begin);
+    require(end != std::string::npos && end < recordEnd,
+            "stand-trace " + std::string(key) + " array is truncated");
+
+    const std::string_view encoded(contents.data() + begin, end - begin);
+    std::vector<double> values;
+    std::size_t cursor = 0u;
+    while (cursor < encoded.size()) {
+        const std::size_t comma = encoded.find(',', cursor);
+        const std::size_t tokenEnd = comma == std::string_view::npos
+            ? encoded.size()
+            : comma;
+        std::size_t tokenBegin = cursor;
+        while (tokenBegin < tokenEnd && std::isspace(
+            static_cast<unsigned char>(encoded[tokenBegin])
+        )) {
+            ++tokenBegin;
+        }
+        std::size_t trimmedEnd = tokenEnd;
+        while (trimmedEnd > tokenBegin && std::isspace(
+            static_cast<unsigned char>(encoded[trimmedEnd - 1u])
+        )) {
+            --trimmedEnd;
+        }
+        require(tokenBegin < trimmedEnd,
+                "stand-trace " + std::string(key) + " has an empty element");
+        const std::string token(encoded.substr(tokenBegin, trimmedEnd - tokenBegin));
+        char* parsedEnd = nullptr;
+        const double value = std::strtod(token.c_str(), &parsedEnd);
+        require(
+            parsedEnd != token.c_str() && *parsedEnd == '\0' && std::isfinite(value),
+            "stand-trace " + std::string(key) + " has a non-finite or invalid element"
+        );
+        values.push_back(value);
+        require(values.size() <= expectedCount,
+                "stand-trace " + std::string(key) + " has too many elements");
+        if (comma == std::string_view::npos) break;
+        cursor = comma + 1u;
+    }
+    require(values.size() == expectedCount,
+            "stand-trace " + std::string(key) + " count disagrees with NHRIGID2");
+    return values;
+}
+
+struct TraceState {
+    std::vector<double> q;
+    std::vector<double> v;
+};
+
+[[nodiscard]] TraceState loadTraceState(
     const char* const tracePath,
     const std::uint32_t step,
-    const std::size_t expectedCount
+    const std::size_t expectedQCount,
+    const std::size_t expectedVCount
 ) {
     std::ifstream input(tracePath, std::ios::binary | std::ios::ate);
     require(input.is_open(), std::string("cannot open stand trace ") + tracePath);
@@ -588,57 +652,18 @@ int runJointEqualityDerivativeAudit(
     const std::size_t recordEnd = nextRecord == std::string::npos
         ? contents.size()
         : nextRecord;
-    const std::string qPrefix{"\"q\":["};
-    const std::size_t qBeginWithPrefix = contents.find(qPrefix, recordBegin);
-    require(
-        qBeginWithPrefix != std::string::npos && qBeginWithPrefix < recordEnd,
-        "requested stand-trace record has no configuration array"
-    );
-    const std::size_t qBegin = qBeginWithPrefix + qPrefix.size();
-    const std::size_t qEnd = contents.find(']', qBegin);
-    require(qEnd != std::string::npos && qEnd < recordEnd,
-            "stand-trace configuration array is truncated");
+    return {
+        loadTraceArray(contents, recordBegin, recordEnd, "q", expectedQCount),
+        loadTraceArray(contents, recordBegin, recordEnd, "v", expectedVCount),
+    };
+}
 
-    const std::string_view encoded(
-        contents.data() + qBegin, qEnd - qBegin
-    );
-    std::vector<double> q;
-    std::size_t cursor = 0u;
-    while (cursor < encoded.size()) {
-        const std::size_t comma = encoded.find(',', cursor);
-        const std::size_t tokenEnd = comma == std::string_view::npos
-            ? encoded.size()
-            : comma;
-        std::size_t tokenBegin = cursor;
-        while (tokenBegin < tokenEnd && std::isspace(
-            static_cast<unsigned char>(encoded[tokenBegin])
-        )) {
-            ++tokenBegin;
-        }
-        std::size_t trimmedEnd = tokenEnd;
-        while (trimmedEnd > tokenBegin && std::isspace(
-            static_cast<unsigned char>(encoded[trimmedEnd - 1u])
-        )) {
-            --trimmedEnd;
-        }
-        require(tokenBegin < trimmedEnd,
-                "stand-trace configuration has an empty element");
-        const std::string token(encoded.substr(tokenBegin, trimmedEnd - tokenBegin));
-        char* parsedEnd = nullptr;
-        const double value = std::strtod(token.c_str(), &parsedEnd);
-        require(
-            parsedEnd != token.c_str() && *parsedEnd == '\0' && std::isfinite(value),
-            "stand-trace configuration has a non-finite or invalid element"
-        );
-        q.push_back(value);
-        require(q.size() <= expectedCount,
-                "stand-trace configuration has too many elements");
-        if (comma == std::string_view::npos) break;
-        cursor = comma + 1u;
-    }
-    require(q.size() == expectedCount,
-            "stand-trace configuration count disagrees with NHRIGID2");
-    return q;
+[[nodiscard]] std::vector<double> loadTraceConfiguration(
+    const char* const tracePath,
+    const std::uint32_t step,
+    const std::size_t expectedCount
+) {
+    return loadTraceState(tracePath, step, expectedCount, expectedCount - 1u).q;
 }
 
 struct SymmetricTwoByTwoSpectrum {
@@ -862,6 +887,445 @@ int runTraceEqualityLimitRankAudit(
               << ",\"source_identity_matched\":true"
               << ",\"full_active_set_qualified\":false}"
               << '\n';
+    return 0;
+}
+
+// This is deliberately an operator snapshot, not a dynamics replacement. It
+// retains every bilateral equality and every source limit that is already near
+// an authored boundary in a retained production trace, then measures their
+// FP64 inverse-mass coupling together. Contact, friction, force RHS, and time
+// integration remain outside this audit and are reported as such.
+enum class TraceEqualityLimitRowKind : std::uint32_t {
+    equality,
+    lowerLimit,
+    upperLimit,
+};
+
+struct TraceEqualityLimitRow {
+    TraceEqualityLimitRowKind kind = TraceEqualityLimitRowKind::equality;
+    std::uint32_t sourceIndex = MR_INVALID_INDEX;
+    std::uint32_t qIndex = MR_INVALID_INDEX;
+    std::uint32_t vIndex = MR_INVALID_INDEX;
+    double derivative = 0.0;
+    double boundaryDistance = 0.0;
+    bool outwardAtTrace = false;
+};
+
+[[nodiscard]] const char* traceEqualityLimitRowKindName(
+    const TraceEqualityLimitRowKind kind
+) {
+    switch (kind) {
+    case TraceEqualityLimitRowKind::equality: return "equality";
+    case TraceEqualityLimitRowKind::lowerLimit: return "lower_limit";
+    case TraceEqualityLimitRowKind::upperLimit: return "upper_limit";
+    }
+    return "unknown";
+}
+
+struct PivotedCholeskyAudit {
+    std::vector<std::size_t> order;
+    std::size_t rank = 0u;
+    double cutoff = 0.0;
+    double minimumAcceptedPivot = std::numeric_limits<double>::infinity();
+    double firstRejectedPivot = 0.0;
+    double maximumNegativeResidual = 0.0;
+};
+
+// A deterministic diagonal-pivoted Cholesky inspection of a symmetric PSD
+// Gram matrix. It reports numerical rank at a declared relative pivot cutoff;
+// it intentionally neither regularizes nor changes the underlying operator.
+[[nodiscard]] PivotedCholeskyAudit pivotedCholeskyAudit(
+    const std::span<const double> symmetricGram,
+    const std::size_t dimension,
+    const double relativeCutoff
+) {
+    require(
+        dimension > 0u && symmetricGram.size() == dimension * dimension &&
+            std::isfinite(relativeCutoff) && relativeCutoff > 0.0,
+        "invalid symmetric Gram audit dimensions or cutoff"
+    );
+    PivotedCholeskyAudit result;
+    result.order.resize(dimension);
+    std::vector<double> residual(dimension, 0.0);
+    std::vector<double> factor(dimension * dimension, 0.0);
+    double maximumDiagonal = 0.0;
+    for (std::size_t row = 0u; row < dimension; ++row) {
+        result.order[row] = row;
+        const double diagonal = symmetricGram[row * dimension + row];
+        require(std::isfinite(diagonal), "Gram diagonal is non-finite");
+        residual[row] = diagonal;
+        maximumDiagonal = std::max(maximumDiagonal, diagonal);
+    }
+    require(maximumDiagonal > 0.0,
+            "Gram audit has no positive diagonal response");
+    result.cutoff = maximumDiagonal * relativeCutoff;
+    for (std::size_t column = 0u; column < dimension; ++column) {
+        std::size_t pivot = column;
+        for (std::size_t candidate = column + 1u;
+             candidate < dimension;
+             ++candidate) {
+            if (residual[candidate] > residual[pivot]) pivot = candidate;
+        }
+        if (pivot != column) {
+            std::swap(result.order[pivot], result.order[column]);
+            std::swap(residual[pivot], residual[column]);
+            for (std::size_t previous = 0u; previous < column; ++previous) {
+                std::swap(
+                    factor[pivot * dimension + previous],
+                    factor[column * dimension + previous]
+                );
+            }
+        }
+        const double pivotValue = residual[column];
+        if (!(pivotValue > result.cutoff)) {
+            result.firstRejectedPivot = pivotValue;
+            break;
+        }
+        const double root = std::sqrt(pivotValue);
+        require(std::isfinite(root) && root > 0.0,
+                "Gram Cholesky pivot is non-finite");
+        factor[column * dimension + column] = root;
+        result.minimumAcceptedPivot = std::min(
+            result.minimumAcceptedPivot, pivotValue
+        );
+        ++result.rank;
+        for (std::size_t row = column + 1u; row < dimension; ++row) {
+            double value = symmetricGram[
+                result.order[row] * dimension + result.order[column]
+            ];
+            for (std::size_t previous = 0u; previous < column; ++previous) {
+                value -= factor[row * dimension + previous] *
+                    factor[column * dimension + previous];
+            }
+            const double entry = value / root;
+            require(std::isfinite(entry), "Gram Cholesky entry is non-finite");
+            factor[row * dimension + column] = entry;
+            residual[row] -= entry * entry;
+            if (residual[row] < 0.0) {
+                result.maximumNegativeResidual = std::max(
+                    result.maximumNegativeResidual, -residual[row]
+                );
+            }
+        }
+    }
+    if (result.rank == dimension) result.firstRejectedPivot = 0.0;
+    return result;
+}
+
+struct TraceEqualityLimitPairAudit {
+    bool available = false;
+    std::size_t equalityRow = 0u;
+    std::size_t limitRow = 0u;
+    double correlation = 0.0;
+    double minimumEigenvalue = 0.0;
+    double maximumEigenvalue = 0.0;
+    double condition = 0.0;
+};
+
+[[nodiscard]] TraceEqualityLimitPairAudit traceEqualityLimitPairAudit(
+    const std::span<const double> gram,
+    const std::size_t dimension,
+    const std::size_t equalityRow,
+    const std::size_t limitRow
+) {
+    require(
+        gram.size() == dimension * dimension && equalityRow < dimension &&
+            limitRow < dimension,
+        "invalid equality/limit pair audit indices"
+    );
+    const double diagonal0 = gram[equalityRow * dimension + equalityRow];
+    const double diagonal1 = gram[limitRow * dimension + limitRow];
+    const double offDiagonal = 0.5 * (
+        gram[equalityRow * dimension + limitRow] +
+        gram[limitRow * dimension + equalityRow]
+    );
+    require(
+        std::isfinite(diagonal0) && std::isfinite(diagonal1) &&
+            std::isfinite(offDiagonal) && diagonal0 > 0.0 && diagonal1 > 0.0,
+        "equality/limit pair has invalid Delassus diagonal"
+    );
+    const double trace = diagonal0 + diagonal1;
+    const double radius = std::hypot(diagonal0 - diagonal1, 2.0 * offDiagonal);
+    TraceEqualityLimitPairAudit result;
+    result.available = true;
+    result.equalityRow = equalityRow;
+    result.limitRow = limitRow;
+    result.correlation = offDiagonal / std::sqrt(diagonal0 * diagonal1);
+    result.minimumEigenvalue = 0.5 * (trace - radius);
+    result.maximumEigenvalue = 0.5 * (trace + radius);
+    result.condition = result.minimumEigenvalue > 0.0
+        ? result.maximumEigenvalue / result.minimumEigenvalue
+        : std::numeric_limits<double>::infinity();
+    require(
+        std::isfinite(result.correlation) && std::isfinite(result.minimumEigenvalue) &&
+            std::isfinite(result.maximumEigenvalue),
+        "equality/limit pair spectrum is non-finite"
+    );
+    return result;
+}
+
+void writeTraceEqualityLimitPairJson(
+    std::ostream& output,
+    const TraceEqualityLimitPairAudit& pair,
+    const std::span<const TraceEqualityLimitRow> rows
+) {
+    if (!pair.available) {
+        output << "null";
+        return;
+    }
+    const TraceEqualityLimitRow& equality = rows[pair.equalityRow];
+    const TraceEqualityLimitRow& limit = rows[pair.limitRow];
+    output << "{\"equality_index\":" << equality.sourceIndex
+           << ",\"equality_dependent_v\":" << equality.vIndex
+           << ",\"limit_dof\":" << limit.sourceIndex
+           << ",\"limit_q\":" << limit.qIndex
+           << ",\"limit_boundary\":\""
+           << traceEqualityLimitRowKindName(limit.kind) << "\""
+           << ",\"limit_boundary_distance\":" << limit.boundaryDistance
+           << ",\"limit_outward_at_trace\":"
+           << (limit.outwardAtTrace ? "true" : "false")
+           << ",\"correlation\":" << pair.correlation
+           << ",\"minimum_eigenvalue\":" << pair.minimumEigenvalue
+           << ",\"maximum_eigenvalue\":" << pair.maximumEigenvalue
+           << ",\"condition\":";
+    if (std::isfinite(pair.condition)) output << pair.condition;
+    else output << "null";
+    output << '}';
+}
+
+int runTraceEqualityLimitActiveSetAudit(
+    const char* const rigidPath,
+    const char* const equalityPath,
+    const char* const tracePath,
+    const char* const stepArgument
+) {
+    constexpr double kBoundaryTolerance = 1.0e-5;
+    constexpr double kRelativePivotCutoff = 1.0e-10;
+    const std::uint32_t step = parseUnsignedArgument(stepArgument, "trace step");
+    const LoadedRigid rigid = loadRigid(rigidPath);
+    const metalrobo::NumiHumanJointEqualityPayload equalities =
+        loadJointEqualities(equalityPath, rigid.header);
+    const TraceState trace = loadTraceState(
+        tracePath, step, rigid.header.nq, rigid.header.nv
+    );
+    const EqualityDerivativeAudit derivativeAudit = auditJointEqualityDerivatives(
+        equalities.records, trace.q, "trace_q"
+    );
+    const std::size_t nv = rigid.header.nv;
+    std::vector<TraceEqualityLimitRow> metadata;
+    metadata.reserve(equalities.records.size() + nv);
+    std::vector<double> rows;
+    rows.reserve((equalities.records.size() + nv) * nv);
+    const auto appendRow = [&](const TraceEqualityLimitRow& row) {
+        metadata.push_back(row);
+        rows.resize(rows.size() + nv, 0.0);
+    };
+
+    for (std::size_t equalityIndex = 0u;
+         equalityIndex < equalities.records.size();
+         ++equalityIndex) {
+        const MRNumiHumanJointEqualityGPU& equality = equalities.records[equalityIndex];
+        metalrobo::NumiHumanJointEqualityEvaluation evaluation;
+        require(
+            metalrobo::evaluateNumiHumanJointEquality(
+                equality, trace.q, evaluation
+            ).succeeded(),
+            "could not evaluate full equality set at trace state"
+        );
+        require(
+            equality.indices.x < rigid.header.nq && equality.indices.y < nv &&
+                (equality.indices.w == MR_INVALID_INDEX || equality.indices.w < nv),
+            "trace equality indices are outside NHRIGID2"
+        );
+        appendRow({
+            .kind = TraceEqualityLimitRowKind::equality,
+            .sourceIndex = static_cast<std::uint32_t>(equalityIndex),
+            .qIndex = equality.indices.x,
+            .vIndex = equality.indices.y,
+            .derivative = evaluation.derivative,
+        });
+        const std::size_t offset = (metadata.size() - 1u) * nv;
+        rows[offset + equality.indices.y] = 1.0;
+        if (equality.indices.w != MR_INVALID_INDEX) {
+            rows[offset + equality.indices.w] = -evaluation.derivative;
+        }
+    }
+
+    std::size_t outwardNearBoundaryLimitCount = 0u;
+    for (std::size_t dof = 0u; dof < nv; ++dof) {
+        const MRDofPropertiesGPU& properties = rigid.model.dofs[dof];
+        if ((properties.flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u) continue;
+        require(
+            properties.qIndex != MR_INVALID_INDEX && properties.qIndex < rigid.header.nq &&
+                std::isfinite(properties.limits.x) && std::isfinite(properties.limits.y) &&
+                properties.limits.x < properties.limits.y,
+            "trace source limit is malformed"
+        );
+        const double position = trace.q[properties.qIndex];
+        const double lowerDistance = position - static_cast<double>(properties.limits.x);
+        const double upperDistance = static_cast<double>(properties.limits.y) - position;
+        const bool lowerNear = std::abs(lowerDistance) <= kBoundaryTolerance;
+        const bool upperNear = std::abs(upperDistance) <= kBoundaryTolerance;
+        if (!lowerNear && !upperNear) continue;
+        require(!(lowerNear && upperNear),
+                "trace source limit is simultaneously near both boundaries");
+        const bool lower = lowerNear;
+        const bool outward = lower ? trace.v[dof] < 0.0 : trace.v[dof] > 0.0;
+        outwardNearBoundaryLimitCount += outward ? 1u : 0u;
+        appendRow({
+            .kind = lower ? TraceEqualityLimitRowKind::lowerLimit
+                          : TraceEqualityLimitRowKind::upperLimit,
+            .sourceIndex = static_cast<std::uint32_t>(dof),
+            .qIndex = properties.qIndex,
+            .vIndex = static_cast<std::uint32_t>(dof),
+            .boundaryDistance = lower ? lowerDistance : upperDistance,
+            .outwardAtTrace = outward,
+        });
+        const std::size_t offset = (metadata.size() - 1u) * nv;
+        rows[offset + dof] = lower ? 1.0 : -1.0;
+    }
+    require(metadata.size() > equalities.records.size(),
+            "trace active-set audit found no near-boundary source limit");
+
+    std::vector<double> responses(rows.size(), 0.0);
+    metalrobo::ArticulatedDynamicsConfig dynamicsConfig{};
+    dynamicsConfig.gravity = {
+        rigid.model.world.gravityAndTimestep.x,
+        rigid.model.world.gravityAndTimestep.y,
+        rigid.model.world.gravityAndTimestep.z,
+    };
+    dynamicsConfig.timestep = rigid.model.world.gravityAndTimestep.w;
+    const auto responseDiagnostics = metalrobo::computeArticulatedInverseMassResponses(
+        rigid.model, 0u, trace.q, rows, responses, dynamicsConfig
+    );
+    require(
+        responseDiagnostics.succeeded(),
+        "FP64 full equality/limit inverse-mass response failed status=" +
+            std::to_string(static_cast<std::uint32_t>(responseDiagnostics.status))
+    );
+
+    const std::size_t rowCount = metadata.size();
+    std::vector<double> gram(rowCount * rowCount, 0.0);
+    double maximumAsymmetry = 0.0;
+    double maximumAbsoluteOffDiagonalCorrelation = 0.0;
+    for (std::size_t row = 0u; row < rowCount; ++row) {
+        for (std::size_t column = 0u; column < rowCount; ++column) {
+            double value = 0.0;
+            for (std::size_t dof = 0u; dof < nv; ++dof) {
+                value += rows[row * nv + dof] * responses[column * nv + dof];
+            }
+            require(std::isfinite(value), "full equality/limit Delassus entry is non-finite");
+            gram[row * rowCount + column] = value;
+        }
+    }
+    for (std::size_t row = 0u; row < rowCount; ++row) {
+        require(gram[row * rowCount + row] > 0.0,
+                "full equality/limit Delassus diagonal is not positive");
+        for (std::size_t column = row + 1u; column < rowCount; ++column) {
+            const double symmetric = 0.5 * (
+                gram[row * rowCount + column] +
+                gram[column * rowCount + row]
+            );
+            maximumAsymmetry = std::max(
+                maximumAsymmetry,
+                std::abs(gram[row * rowCount + column] -
+                         gram[column * rowCount + row])
+            );
+            gram[row * rowCount + column] = symmetric;
+            gram[column * rowCount + row] = symmetric;
+        }
+    }
+    std::vector<double> normalizedGram(rowCount * rowCount, 0.0);
+    for (std::size_t row = 0u; row < rowCount; ++row) {
+        for (std::size_t column = 0u; column < rowCount; ++column) {
+            const double normalized = gram[row * rowCount + column] /
+                std::sqrt(
+                    gram[row * rowCount + row] *
+                    gram[column * rowCount + column]
+                );
+            require(std::isfinite(normalized),
+                    "normalized full equality/limit Delassus entry is non-finite");
+            normalizedGram[row * rowCount + column] = normalized;
+            if (row != column) {
+                maximumAbsoluteOffDiagonalCorrelation = std::max(
+                    maximumAbsoluteOffDiagonalCorrelation, std::abs(normalized)
+                );
+            }
+        }
+    }
+    const PivotedCholeskyAudit factor = pivotedCholeskyAudit(
+        normalizedGram, rowCount, kRelativePivotCutoff
+    );
+
+    TraceEqualityLimitPairAudit mostCoupled;
+    TraceEqualityLimitPairAudit implicated;
+    for (std::size_t equalityRow = 0u; equalityRow < rowCount; ++equalityRow) {
+        if (metadata[equalityRow].kind != TraceEqualityLimitRowKind::equality) continue;
+        for (std::size_t limitRow = 0u; limitRow < rowCount; ++limitRow) {
+            if (metadata[limitRow].kind == TraceEqualityLimitRowKind::equality) continue;
+            TraceEqualityLimitPairAudit candidate = traceEqualityLimitPairAudit(
+                gram, rowCount, equalityRow, limitRow
+            );
+            if (!mostCoupled.available ||
+                std::abs(candidate.correlation) > std::abs(mostCoupled.correlation)) {
+                mostCoupled = candidate;
+            }
+            if (metadata[equalityRow].sourceIndex == 43u &&
+                metadata[limitRow].sourceIndex == 113u) {
+                implicated = candidate;
+            }
+        }
+    }
+    require(mostCoupled.available,
+            "full equality/limit audit found no equality-limit pair");
+
+    std::cout << std::setprecision(17)
+              << "numi_human_trace_equality_limit_active_set_audit="
+              << "{\"schema\":\"numi.human.trace-equality-limit-active-set-audit.v1\""
+              << ",\"trace_step\":" << step
+              << ",\"equality_row_count\":" << equalities.records.size()
+              << ",\"near_boundary_limit_row_count\":"
+              << (rowCount - equalities.records.size())
+              << ",\"outward_near_boundary_limit_row_count\":"
+              << outwardNearBoundaryLimitCount
+              << ",\"operator_row_count\":" << rowCount
+              << ",\"velocity_dof_count\":" << nv
+              << ",\"equality_derivative_checked_count\":"
+              << derivativeAudit.checkedCount
+              << ",\"equality_derivative_maximum_absolute_error\":"
+              << derivativeAudit.maximumAbsoluteError
+              << ",\"equality_derivative_maximum_absolute_error_index\":"
+              << derivativeAudit.maximumAbsoluteErrorIndex
+              << ",\"equality_derivative_maximum_relative_error\":"
+              << derivativeAudit.maximumRelativeError
+              << ",\"equality_derivative_maximum_relative_error_index\":"
+              << derivativeAudit.maximumRelativeErrorIndex
+              << ",\"gram_maximum_asymmetry\":" << maximumAsymmetry
+              << ",\"normalized_gram_maximum_absolute_off_diagonal\":"
+              << maximumAbsoluteOffDiagonalCorrelation
+              << ",\"normalized_pivot_relative_cutoff\":"
+              << kRelativePivotCutoff
+              << ",\"normalized_pivot_rank\":" << factor.rank
+              << ",\"normalized_pivot_minimum_accepted\":"
+              << factor.minimumAcceptedPivot
+              << ",\"normalized_pivot_first_rejected\":"
+              << factor.firstRejectedPivot
+              << ",\"normalized_pivot_maximum_negative_residual\":"
+              << factor.maximumNegativeResidual
+              << ",\"fp64_minimum_cholesky_pivot\":"
+              << responseDiagnostics.minimumCholeskyPivot
+              << ",\"most_coupled_equality_limit_pair\":";
+    writeTraceEqualityLimitPairJson(std::cout, mostCoupled, metadata);
+    std::cout << ",\"implicated_equality_43_limit_113_pair\":";
+    writeTraceEqualityLimitPairJson(std::cout, implicated, metadata);
+    std::cout << ",\"source_identity_matched\":true"
+              << ",\"contact_rows_included\":false"
+              << ",\"friction_rows_included\":false"
+              << ",\"muscle_and_passive_force_rhs_included\":false"
+              << ",\"time_integrated\":false"
+              << ",\"full_active_set_qualified\":false"
+              << ",\"scope\":\"read_only_FP64_equality_plus_near_boundary_limit_operator_snapshot\""
+              << "}\n";
     return 0;
 }
 
@@ -2341,6 +2805,12 @@ int main(int argc, char** argv) {
                 argv[1], argv[2], argv[4], argv[5], argv[6]
             );
         }
+        if (argc == 6 &&
+            std::string(argv[3]) == "--trace-equality-limit-active-set-audit") {
+            return runTraceEqualityLimitActiveSetAudit(
+                argv[1], argv[2], argv[4], argv[5]
+            );
+        }
         if ((argc == 5 || argc == 7) && (std::string(argv[3]) == "--prepared-paths" ||
             std::string(argv[3]) == "--prepared-compensated-paths")) {
             std::uint64_t timestepOverride = 0u;
@@ -2362,6 +2832,8 @@ int main(int argc, char** argv) {
                          "[--equilibrium] | <rigid> <NHEQ1> --equality-derivative-audit | "
                          "<rigid> <NHEQ1> --trace-equality-limit-rank-audit "
                          "<trace> <step> <equality-index> | "
+                         "<rigid> <NHEQ1> --trace-equality-limit-active-set-audit "
+                         "<trace> <step> | "
                          "--prepared-paths/--prepared-compensated-paths "
                          "<prepared.nhinit> [--timestep-us N]\n";
             return 2;
