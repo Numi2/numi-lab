@@ -543,6 +543,25 @@ inline bool solveCompliantFiber(
         acceptedFiber =
             0.5f * (initializationLower + initializationUpper);
     }
+    // At a stationary path, preserve an already accepted static root exactly.
+    // A float-length bisection cannot resolve a sub-micron correction relative
+    // to a 12.5 us clock without turning roundoff into artificial fibre speed
+    // and damping force. The zero-velocity constitutive root is the accepted
+    // state when its residual is within the authored force tolerance.
+    if (pathVelocity == 0.0f) {
+        float stationaryTension = 0.0f;
+        const float stationaryResidual = compliantFiberIncrementResidual(
+            0.0f, acceptedFiber, predictedPath, timestep, activation, muscle,
+            stationaryTension
+        );
+        if (isfinite(stationaryResidual) && abs(stationaryResidual) <= 1.0e-4f) {
+            fiberLength = acceptedFiber;
+            fiberVelocity = 0.0f;
+            tendonForce = max(0.0f, stationaryTension);
+            equilibriumResidual = stationaryResidual;
+            return isfinite(fiberLength) && isfinite(tendonForce);
+        }
+    }
     // Preserve the authored timestep, including steps below ten microseconds.
     float lower = min(0.05f * optimalFiberLength, 0.5f * predictedPath) - acceptedFiber;
     float upper = predictedPath - acceptedFiber;
