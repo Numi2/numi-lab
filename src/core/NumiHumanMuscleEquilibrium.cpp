@@ -331,7 +331,6 @@ void solveFloatingRootSupportForces(
         normalForce.assign(generalizedColumns.size(), 0.0);
     }
     if (rootDofCount == 0u || generalizedColumns.empty()) return;
-
     // Static support is a hard mechanical layer above internal recruitment:
     // solve the floating-base wrench first. Muscle paths are internal force
     // pairs and therefore cannot supply a net world wrench. Mixing these six

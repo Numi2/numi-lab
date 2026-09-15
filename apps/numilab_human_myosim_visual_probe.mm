@@ -3269,6 +3269,7 @@ struct CompiledStandActivation {
     std::vector<double> generalizedAccelerationResidual;
     std::vector<double> muscleTendonForce;
     std::vector<double> passiveMuscleTendonForce;
+    std::vector<double> drivenMuscleTendonForce;
     std::vector<double> supportNormalForce;
     std::uint32_t activeMuscleCount = 0u;
     std::uint32_t activationSweeps = 0u;
@@ -3390,6 +3391,135 @@ CompiledStandActivation compileStaticStandActivation(
         }
     }
     std::vector<double> preparedQ(q.begin(), q.end());
+    if (supportContacts != nullptr && supportContacts->stanceCoordinates.empty()) {
+        // The legacy NHCNT1 payload contains discrete plantar witnesses whose
+        // source pose is not exactly coplanar. A root translation alone can
+        // therefore admit only the lowest pair, leaving the floating wrench
+        // underconstrained. Before recruitment, fit the complete authored
+        // witness set through the support-path scalar joints so the active set
+        // is selected by geometry rather than by a hidden support load.
+        std::vector<bool> supportBodyPath(model.bodies.size(), false);
+        for (const auto& record : supportContacts->records) {
+            std::uint32_t body = record.bodyIndex;
+            while (body != MR_INVALID_INDEX && body < model.bodies.size() &&
+                   !supportBodyPath[body]) {
+                supportBodyPath[body] = true;
+                body = model.bodies[body].parentBody;
+            }
+        }
+        std::vector<metalrobo::NumiHumanSupportPoseCoordinate> autoCoordinates;
+        std::vector<std::uint32_t> autoContacts;
+        autoContacts.reserve(supportContacts->records.size());
+        for (std::uint32_t index = 0u;
+             index < supportContacts->records.size(); ++index) {
+            autoContacts.push_back(index);
+        }
+        const auto& articulation = model.articulations.front();
+        std::vector<bool> equalityDependent(articulation.nv, false);
+        for (const auto& equality : jointEqualities.payload.records) {
+            if (equality.indices.y < articulation.nv) {
+                equalityDependent[equality.indices.y] = true;
+            }
+        }
+        for (std::uint32_t localV = 0u; localV < 3u && localV < articulation.nv; ++localV) {
+            if (!equalityDependent[localV]) {
+                autoCoordinates.push_back({localV, localV == 2u ? 0.20 : 0.01});
+            }
+        }
+        for (std::uint32_t localV = 6u; localV < articulation.nv; ++localV) {
+            const auto& dof = model.dofs[articulation.vOffset + localV];
+            if (dof.qIndex == MR_INVALID_INDEX ||
+                dof.jointIndex >= model.joints.size() ||
+                !supportBodyPath[model.joints[dof.jointIndex].childBody] ||
+                equalityDependent[localV] ||
+                (dof.flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u ||
+                !std::isfinite(dof.limits.x) || !std::isfinite(dof.limits.y) ||
+                !(dof.limits.y > dof.limits.x)) {
+                continue;
+            }
+            const double range = static_cast<double>(dof.limits.y) - dof.limits.x;
+            autoCoordinates.push_back({
+                localV, std::min(0.12, 0.25 * range)
+            });
+        }
+        if (!autoCoordinates.empty() && !autoContacts.empty()) {
+            const std::size_t witnessCount = autoContacts.size();
+            // Exhaustive active-set fitting is intentionally bounded. A support
+            // payload with more witnesses must provide an explicit stance or be
+            // reduced by its source-bound compiler; silently launching 2^N fits
+            // makes qualification non-deterministic and can monopolize the host.
+            require(witnessCount <= 12u,
+                    "automatic support active-set search requires at most 12 witnesses");
+            std::uint32_t bestMask = 0u;
+            int bestCount = -1;
+            metalrobo::NumiHumanSupportPoseResult bestStance;
+            std::vector<std::uint32_t> bestContacts;
+            double bestSupportFootprint = -std::numeric_limits<double>::infinity();
+            for (int targetCount = static_cast<int>(witnessCount);
+                 targetCount >= 3 && bestMask == 0u; --targetCount) {
+                const std::uint32_t limit = 1u << witnessCount;
+                for (std::uint32_t mask = 1u; mask < limit; ++mask) {
+                    int count = 0;
+                    for (std::size_t index = 0u; index < witnessCount; ++index) {
+                        if ((mask & (1u << index)) != 0u) ++count;
+                    }
+                    if (count != targetCount) continue;
+                    std::vector<std::uint32_t> activeContacts;
+                    activeContacts.reserve(static_cast<std::size_t>(count));
+                    for (std::size_t index = 0u; index < witnessCount; ++index) {
+                        if ((mask & (1u << index)) != 0u) {
+                            activeContacts.push_back(autoContacts[index]);
+                        }
+                    }
+                    metalrobo::NumiHumanSupportPoseResult trial;
+                    const auto fit = metalrobo::compileNumiHumanSupportPose(
+                        model, 0u, q, jointEqualities.payload.records, staticSupports,
+                        activeContacts, autoCoordinates, trial);
+                    if (fit.succeeded()) {
+                        double minimumX = std::numeric_limits<double>::infinity();
+                        double maximumX = -std::numeric_limits<double>::infinity();
+                        double minimumY = std::numeric_limits<double>::infinity();
+                        double maximumY = -std::numeric_limits<double>::infinity();
+                        for (const auto index : activeContacts) {
+                            const auto& record = supportContacts->records[index];
+                            minimumX = std::min(minimumX, static_cast<double>(record.worldWitnessX));
+                            maximumX = std::max(maximumX, static_cast<double>(record.worldWitnessX));
+                            minimumY = std::min(minimumY, static_cast<double>(record.worldWitnessY));
+                            maximumY = std::max(maximumY, static_cast<double>(record.worldWitnessY));
+                        }
+                        const double footprint = (maximumX - minimumX) * (maximumY - minimumY);
+                        if (bestMask == 0u || footprint > bestSupportFootprint) {
+                            bestMask = mask;
+                            bestCount = count;
+                            bestSupportFootprint = footprint;
+                            bestStance = std::move(trial);
+                            bestContacts = std::move(activeContacts);
+                        }
+                    }
+                }
+            }
+            require(bestMask != 0u,
+                    "automatic support active-set search found no admissible stance");
+            preparedQ = std::move(bestStance.q);
+            // Preserve the geometry-certified unilateral active set while
+            // recruitment solves force. A second unconstrained pose search
+            // could separate the fitted plantar witnesses before the wrench
+            // solve sees them.
+            config.poseSweeps = 0u;
+            std::cout << std::setprecision(17)
+                      << "compiled_support_stance=automatic_active_set"
+                      << " iterations=" << bestStance.iterations
+                      << " min_gap_m=" << bestStance.minimumGapMeters
+                      << " max_active_gap_m=" << bestStance.maximumActiveGapMeters
+                      << " coordinates=" << autoCoordinates.size()
+                      << " active_contacts=" << bestCount << " indices=";
+            for (std::size_t index = 0u; index < bestContacts.size(); ++index) {
+                if (index != 0u) std::cout << ',';
+                std::cout << bestContacts[index];
+            }
+            std::cout << "\n";
+        }
+    }
     if (supportContacts != nullptr && !supportContacts->stanceCoordinates.empty()) {
         require(allowPoseSearch, "support stance cannot change an explicitly registered tissue pose");
         metalrobo::NumiHumanSupportPoseResult stance;
@@ -3507,6 +3637,8 @@ CompiledStandActivation compileStaticStandActivation(
     result.muscleTendonForce = std::move(compiled.muscleTendonForce);
     result.passiveMuscleTendonForce =
         std::move(compiled.passiveMuscleTendonForce);
+    result.drivenMuscleTendonForce =
+        std::move(compiled.drivenMuscleTendonForce);
     result.supportNormalForce = std::move(compiled.supportNormalForce);
     result.searchTrace = std::move(compiled.searchTrace);
     result.activeMuscleCount = diagnostics.activeMuscleCount;
