@@ -910,6 +910,63 @@ void checkSimultaneousTriadTimestepReference() {
               << " standing_qualified=false\n";
 }
 
+// The timestep sweep leaves the finest case just outside the one-step
+// reference tolerance at the production 64-sweep budget. Hold all other
+// inputs fixed and sweep only supported budgets before changing the coupled
+// formulation. This is diagnostic evidence: it does not alter a runtime
+// default or claim a full-contact reference.
+void checkSimultaneousTriadFinestTimestepIterationConvergence() {
+    constexpr float kFinestTimestep = 12.5e-6f;
+    constexpr double kVelocityTolerance = 1.0e-5;
+    constexpr std::array<std::uint32_t, 5u> iterationCounts{{
+        1u, 4u, 16u, 32u, 64u,
+    }};
+    Fixture fixture(kFinestTimestep);
+    fixture.contacts.front().frictionSlopAndStabilization.x = 0.0f;
+    const SimultaneousTriadReference reference =
+        simultaneousTriadReference(fixture);
+    std::uint32_t firstPassingIterationCount = 0u;
+    for (const std::uint32_t contactIterationCount : iterationCounts) {
+        const Run metal = runHorizon(
+            fixture, 1u, true, true, contactIterationCount
+        );
+        double maximumVelocityDifference = 0.0;
+        for (std::size_t dof = 0u;
+             dof < reference.constrainedVelocity.size();
+             ++dof) {
+            maximumVelocityDifference = std::max(
+                maximumVelocityDifference,
+                std::abs(reference.constrainedVelocity[dof] -
+                         static_cast<double>(metal.result.standV[dof]))
+            );
+        }
+        require(std::isfinite(maximumVelocityDifference),
+                "finest-timestep coupled solve produced a non-finite FP64 comparison");
+        const bool passesReferenceGate =
+            maximumVelocityDifference <= kVelocityTolerance;
+        if (passesReferenceGate && firstPassingIterationCount == 0u) {
+            firstPassingIterationCount = contactIterationCount;
+        }
+        std::cout << "simultaneous_triad_finest_timestep_supported_iteration_reference"
+                  << " dt_us=" << static_cast<double>(kFinestTimestep) * 1.0e6
+                  << " coupled_iteration_count=" << contactIterationCount
+                  << " fp64_minimum_pivot=" << reference.minimumAbsolutePivot
+                  << " fp64_velocity_tolerance_m_s=" << kVelocityTolerance
+                  << " fp64_reference_gate="
+                  << (passesReferenceGate ? "pass" : "fail")
+                  << " metal_to_fp64_velocity_difference_m_s="
+                  << maximumVelocityDifference << '\n';
+    }
+    std::cout << "simultaneous_triad_finest_timestep_supported_iteration_reference_gate="
+              << (firstPassingIterationCount == 0u ? "fail" : "pass")
+              << " first_passing_coupled_iteration_count="
+              << firstPassingIterationCount
+              << " scope=one_step_frictionless_normal_contact_equality_upper_limit"
+              << " device_abi_max_coupled_iteration_count=64"
+              << " runtime_default_unchanged=true"
+              << " standing_qualified=false\n";
+}
+
 void checkSourceDerivative(const Fixture& fixture) {
     const std::vector<double> v = asDouble(fixture.v);
     std::vector<double> q = asDouble(fixture.q);
@@ -1159,6 +1216,7 @@ int main() {
         checkOneStepReference(fixture);
         checkSimultaneousTriadReference();
         checkSimultaneousTriadTimestepReference();
+        checkSimultaneousTriadFinestTimestepIterationConvergence();
         checkContactAndReplay(fixture);
         checkCommonDurationRefinement();
         std::cout << "numi_human_stand_coupling_probe=passed "
