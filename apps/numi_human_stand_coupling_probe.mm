@@ -444,6 +444,33 @@ struct Run {
     MetalArticulatedOperatorResult result;
 };
 
+struct VelocityComparison {
+    double maximumDifference = 0.0;
+    std::size_t dof = 0u;
+    double referenceVelocity = 0.0;
+    double observedVelocity = 0.0;
+};
+
+[[nodiscard]] VelocityComparison compareVelocities(
+    const std::vector<double>& reference,
+    const std::vector<float>& observed
+) {
+    require(reference.size() == observed.size(),
+            "velocity comparison dimensions disagree");
+    VelocityComparison comparison{};
+    for (std::size_t dof = 0u; dof < reference.size(); ++dof) {
+        const double observedVelocity = static_cast<double>(observed[dof]);
+        const double difference = std::abs(reference[dof] - observedVelocity);
+        if (difference > comparison.maximumDifference) {
+            comparison.maximumDifference = difference;
+            comparison.dof = dof;
+            comparison.referenceVelocity = reference[dof];
+            comparison.observedVelocity = observedVelocity;
+        }
+    }
+    return comparison;
+}
+
 [[nodiscard]] Run runHorizon(
     const Fixture& fixture,
     const std::uint32_t stepCount,
@@ -1043,6 +1070,105 @@ void checkPostProjectionPreStepConstraintDiagnostics() {
     }
 }
 
+// At the exact support surface, an FP64 geometric reconstruction can retain a
+// sub-float penetration while the production Metal path rounds it to zero.
+// At short timesteps that changes the Baumgarte target by gap/dt. This probe
+// reports the boundary explicitly, alongside free and equality-only controls,
+// so an oracle mismatch is not mistaken for a coupled-solver regression.
+void checkExactContactPrecisionDiagnostic() {
+    constexpr float kFinestTimestep = 12.5e-6f;
+    Fixture fixture(kFinestTimestep);
+    fixture.contacts.front().frictionSlopAndStabilization.x = 0.0f;
+    const SimultaneousTriadReference reference =
+        simultaneousTriadReference(fixture);
+    std::vector<double> equalityOnlyReferenceVelocity = asDouble(fixture.v);
+    const std::vector<double> equalityOnlyReferenceAcceleration =
+        constrainedReferenceAcceleration(fixture);
+    for (std::size_t dof = 0u;
+         dof < equalityOnlyReferenceVelocity.size();
+         ++dof) {
+        equalityOnlyReferenceVelocity[dof] +=
+            static_cast<double>(kFinestTimestep) *
+            equalityOnlyReferenceAcceleration[dof];
+    }
+    const Run free = runHorizon(fixture, 1u, false, false, 64u);
+    const Run equalityOnly = runHorizon(fixture, 1u, false, true, 64u);
+    const Run projected = runHorizon(fixture, 1u, true, true, 64u);
+    const MRNumiHumanStandStatusGPU& projectedStatus =
+        projected.result.standStatuses.front();
+    const VelocityComparison freeComparison = compareVelocities(
+        reference.freeVelocity, free.result.standV
+    );
+    const VelocityComparison equalityOnlyComparison = compareVelocities(
+        equalityOnlyReferenceVelocity, equalityOnly.result.standV
+    );
+    const VelocityComparison projectedComparison = compareVelocities(
+        reference.constrainedVelocity, projected.result.standV
+    );
+    const double gpuMinimumGap = static_cast<double>(
+        projectedStatus.contactAndAcceleration.x
+    );
+    const double contactStabilization = static_cast<double>(
+        fixture.contacts.front().frictionSlopAndStabilization.z
+    );
+    const double gpuContactTargetVelocity = std::max(
+        0.0,
+        -contactStabilization * std::min(gpuMinimumGap, 0.0) /
+            static_cast<double>(kFinestTimestep)
+    );
+    const double contactTargetVelocityDifference = std::abs(
+        reference.targetVelocity[0u] - gpuContactTargetVelocity
+    );
+    const float projectedEqualityVelocityResidual = std::abs(
+        projected.result.standV[kDependentV] -
+        kEqualitySlope * projected.result.standV[kMasterV]
+    );
+    require(
+        std::isfinite(freeComparison.maximumDifference) &&
+            std::isfinite(equalityOnlyComparison.maximumDifference) &&
+            std::isfinite(projectedComparison.maximumDifference) &&
+            std::isfinite(gpuMinimumGap) &&
+            std::isfinite(gpuContactTargetVelocity) &&
+            std::isfinite(contactTargetVelocityDifference) &&
+            std::isfinite(projectedEqualityVelocityResidual),
+        "exact-contact precision diagnostic produced a non-finite comparison"
+    );
+    require(
+        freeComparison.maximumDifference <= 1.0e-8 &&
+            equalityOnlyComparison.maximumDifference <= 1.0e-8,
+        "exact-contact precision diagnostic cannot isolate the contact path"
+    );
+    std::cout << "exact_contact_precision_diagnostic"
+              << " dt_us=" << static_cast<double>(kFinestTimestep) * 1.0e6
+              << " fp64_initial_contact_gap_m=" << reference.initialContactGap
+              << " metal_initial_contact_gap_m=" << gpuMinimumGap
+              << " fp64_contact_target_velocity_m_s="
+              << reference.targetVelocity[0u]
+              << " metal_contact_target_velocity_m_s="
+              << gpuContactTargetVelocity
+              << " contact_target_velocity_difference_m_s="
+              << contactTargetVelocityDifference
+              << " free_metal_to_fp64_velocity_difference_m_s="
+              << freeComparison.maximumDifference
+              << " equality_only_metal_to_fp64_velocity_difference_m_s="
+              << equalityOnlyComparison.maximumDifference
+              << " triad_metal_to_fp64_velocity_difference_m_s="
+              << projectedComparison.maximumDifference
+              << " triad_worst_dof=" << projectedComparison.dof
+              << " triad_fp64_velocity_m_s="
+              << projectedComparison.referenceVelocity
+              << " triad_metal_velocity_m_s="
+              << projectedComparison.observedVelocity
+              << " triad_post_limit_residual_m_s="
+              << projectedStatus.postProjectionPreStepConstraintDiagnostics.y
+              << " triad_post_equality_residual_m_s="
+              << projectedStatus.postProjectionPreStepConstraintDiagnostics.z
+              << " triad_equality_velocity_residual_m_s="
+              << projectedEqualityVelocityResidual
+              << " scope=diagnostic_not_production_policy"
+              << " standing_qualified=false\n";
+}
+
 void checkSourceDerivative(const Fixture& fixture) {
     const std::vector<double> v = asDouble(fixture.v);
     std::vector<double> q = asDouble(fixture.q);
@@ -1294,6 +1420,7 @@ int main() {
         checkSimultaneousTriadTimestepReference();
         checkSimultaneousTriadFinestTimestepIterationConvergence();
         checkPostProjectionPreStepConstraintDiagnostics();
+        checkExactContactPrecisionDiagnostic();
         checkContactAndReplay(fixture);
         checkCommonDurationRefinement();
         std::cout << "numi_human_stand_coupling_probe=passed "

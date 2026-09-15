@@ -127,6 +127,37 @@ trade-off. This supports an ordering/formulation hypothesis for the coupled
 equality/limit path; it does not establish a full-Human root cause or a
 replacement formulation.
 
+## Exact-surface precision discriminator
+
+The rejected 12.5 us small-triad gate has an additional, narrower source of
+error that is distinct from the free dynamics and equality-only paths. A
+production-path diagnostic leaves the runtime code and solver policy
+unchanged, then records the two geometries and derived normal-contact target
+at the nominal support surface. On Apple M4 Pro, the FP64 reference retained
+an initial gap of `-6.7055225261292151e-10 m`, while the Metal path recorded
+exactly `0 m`. The corresponding Baumgarte normal target was
+`1.0728836312839947e-05 m/s` for the FP64 reference and `0 m/s` for Metal at
+the same `12.5 us` timestep.
+
+The free path and equality-only control differed from their FP64 references
+by only `1.2603779731180801e-11 m/s` and
+`1.0641343763193728e-11 m/s`, respectively. The full triad differed by
+`1.0879757724720971e-05 m/s`, with its largest coordinate at root-y; the
+contact-target difference accounts for `1.0728836312839947e-05 m/s` of that
+value, leaving `1.5092141188102392e-07 m/s` before attributing any residual
+to the interleaved constraint path. Its final source-limit residual was
+`2.2428295665122278e-07 m/s` and its equality residual was zero.
+
+Two M4 runs with Metal API validation had byte-identical stdout (SHA-256
+`f99212cf6e5de01f267ffe82b80705c44ba14a6001013a3159eb16fdfddd1a47`).
+This is not a re-baselined pass or a solver fix: the old FP64 comparison and
+the 6.4 ms temporal-convergence result remain failed as recorded above. It
+does identify a required next decision for any higher-precision reference:
+declare how an exact contact surface is canonicalized across FP32 and FP64
+geometry before treating a gap-divided-by-timestep target as a coupled-solver
+error. It does not establish contact accuracy away from that boundary or
+qualify standing.
+
 ## Stationary-fibre continuity and loading discriminator
 
 The separate `metalrobo_source_route_precision_check` production-route probe
