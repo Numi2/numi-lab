@@ -2629,6 +2629,7 @@ struct MuscleDrivenVisualState {
     std::uint32_t sourceSupportForceParityMaximumDof = MR_INVALID_INDEX;
     std::string muscleMetalDeviceName;
     bool persistentMetalHorizon = false;
+    std::uint32_t persistentContactIterationCount = 0u;
     bool persistentSourcePassiveJointTissue = false;
     std::uint32_t persistentPassiveCoordinateCouplingCount = 0u;
     double persistentPassiveCoordinateForceMaximumNewtons = 0.0;
@@ -3834,14 +3835,16 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const metalrobo::MetalNumiHumanTendonLoadProgram*
         additionalTendonLoadProgram = nullptr,
     const bool sourcePassiveJointTissue = false,
-    const bool capturePersistentStandTrace = false
+    const bool capturePersistentStandTrace = false,
+    const std::uint32_t contactIterationCount = 16u
 ) {
     require(std::isfinite(timestepSeconds) && timestepSeconds >= 1.0e-6 &&
                 timestepSeconds <= 1.0e-3 && stepCount >= 1u &&
                 stepCount <= MR_NUMI_HUMAN_STAND_MAX_STEPS &&
                 std::isfinite(activation) && activation >= 0.0 &&
-                activation <= 1.0,
-            "persistent Human stand horizon has an invalid timestep or step count");
+                activation <= 1.0 && contactIterationCount >= 1u &&
+                contactIterationCount <= 64u,
+            "persistent Human stand horizon has an invalid timestep, step count, or contact iteration count");
     require(model.articulations.size() == 1u && model.world.nq ==
                 model.articulations.front().nq && model.world.nv ==
                 model.articulations.front().nv,
@@ -4187,7 +4190,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             .tendonBindings = tendonProgram.bindings,
             .tendonEnvelopes = tendonProgram.envelopes,
             .stepCount = stepCount,
-            .contactIterationCount = 16u,
+            .contactIterationCount = contactIterationCount,
             .enableContact = true,
             .enableRootAssistance = enableRootAssistance,
             .groundPoint = {
@@ -5107,6 +5110,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     }
     result.stepCount = stepCount;
     result.persistentMetalHorizon = true;
+    result.persistentContactIterationCount = contactIterationCount;
     result.persistentSourcePassiveJointTissue = sourcePassiveJointTissue;
     result.persistentPassiveCoordinateCouplingCount =
         static_cast<std::uint32_t>(persistentPassiveCouplings.size());
@@ -14393,6 +14397,23 @@ std::uint32_t parseMuscleStepCount(const std::string& value) {
     return static_cast<std::uint32_t>(result);
 }
 
+std::uint32_t parseStandContactIterationCount(const std::string& value) {
+    std::size_t parsed = 0u;
+    unsigned long result = 0ul;
+    constexpr unsigned long kMaximumIterations = 64ul;
+    try {
+        result = std::stoul(value, &parsed, 10);
+    } catch (const std::exception&) {
+        throw std::runtime_error(
+            "--stand-contact-iterations must be an integer from 1 through 64"
+        );
+    }
+    require(parsed == value.size() && result >= 1ul &&
+                result <= kMaximumIterations,
+            "--stand-contact-iterations must be an integer from 1 through 64");
+    return static_cast<std::uint32_t>(result);
+}
+
 std::uint32_t parseWholeBodyActivationSweeps(const std::string& value) {
     std::size_t parsed = 0u;
     unsigned long result = 0ul;
@@ -14576,6 +14597,7 @@ int main(int argc, char** argv) {
             bool standRemoveAssistance = false;
             bool standDeterministicReplay = false;
             bool persistentStandTrace = false;
+            std::optional<std::uint32_t> standContactIterationCount;
             bool bilateralAchillesCertificate = false;
             bool bilateralThumbTendonCertificate = false;
             bool bilateralTricepsMedialisEnthesisCertificate = false;
@@ -14666,6 +14688,13 @@ int main(int argc, char** argv) {
                     require(!persistentStandTrace,
                             "--persistent-stand-trace may be given only once");
                     persistentStandTrace = true;
+                } else if (argument == "--stand-contact-iterations") {
+                    require(index + 1 < argc &&
+                                !standContactIterationCount.has_value(),
+                            "--stand-contact-iterations requires one value and may be given only once");
+                    standContactIterationCount.emplace(
+                        parseStandContactIterationCount(argv[++index])
+                    );
                 } else if (argument == "--bilateral-achilles-certificate") {
                     require(!bilateralAchillesCertificate,
                             "--bilateral-achilles-certificate may be given only once");
@@ -14893,7 +14922,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-count <1.."
                           << MR_NUMI_HUMAN_STAND_MAX_STEPS << ">]"
                           << " [--muscle-activation <0..1>]"
-                          << " [--persistent-metal-stand] [--persistent-source-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace]"
+                          << " [--persistent-metal-stand] [--persistent-source-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-contact-iterations <1..64>]"
                           << " [--bilateral-achilles-certificate]"
                           << " [--bilateral-thumb-tendon-certificate]"
                           << " [--bilateral-triceps-medialis-enthesis-certificate]"
@@ -15515,6 +15544,8 @@ int main(int argc, char** argv) {
                     "--stand-deterministic-replay requires --persistent-metal-stand");
             require(!persistentStandTrace || persistentMetalStand,
                     "--persistent-stand-trace requires --persistent-metal-stand");
+            require(!standContactIterationCount.has_value() || persistentMetalStand,
+                    "--stand-contact-iterations requires --persistent-metal-stand");
             require(!passiveFEMTissueStableId.has_value() ||
                         (softTissuePayload.has_value() && muscleStepSeconds.has_value()),
                     "--passive-fem-tissue-stable-id requires --soft-tissue-payload and --muscle-step-seconds");
@@ -16623,7 +16654,8 @@ int main(int argc, char** argv) {
                                 true,
                                 nullptr,
                                 persistentSourcePassiveJointTissue,
-                                persistentStandTrace
+                                persistentStandTrace,
+                                standContactIterationCount.value_or(16u)
                             )
                         );
                     }
@@ -17794,6 +17826,8 @@ int main(int argc, char** argv) {
                               : "none")
                       << " persistent_metal_horizon=" << (muscleDrivenState.has_value() &&
                               muscleDrivenState->persistentMetalHorizon ? "true" : "false")
+                      << " persistent_contact_iteration_count=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentContactIterationCount : 0u)
                       << " persistent_source_passive_joint_tissue=" << (muscleDrivenState.has_value() &&
                               muscleDrivenState->persistentSourcePassiveJointTissue ? "true" : "false")
                       << " persistent_passive_coordinate_couplings=" << (muscleDrivenState.has_value()

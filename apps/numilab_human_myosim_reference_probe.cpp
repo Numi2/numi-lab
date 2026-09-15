@@ -21,6 +21,7 @@
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <vector>
 
@@ -422,6 +423,128 @@ std::vector<std::byte> readBytes(const char* path) {
         require(input.good(), "truncated tendon payload");
     }
     return bytes;
+}
+
+struct EqualityDerivativeAudit {
+    std::uint32_t checkedCount = 0u;
+    std::uint32_t maximumAbsoluteErrorIndex = MR_INVALID_INDEX;
+    std::uint32_t maximumRelativeErrorIndex = MR_INVALID_INDEX;
+    double maximumAbsoluteError = 0.0;
+    double maximumRelativeError = 0.0;
+};
+
+constexpr double kJointEqualityDerivativeRelativeTolerance = 2.0e-7;
+
+EqualityDerivativeAudit auditJointEqualityDerivatives(
+    const std::span<const MRNumiHumanJointEqualityGPU> equalities,
+    const std::span<const double> q,
+    const std::string_view poseName
+) {
+    require(!equalities.empty(),
+            "joint-equality derivative audit requires at least one equality");
+    EqualityDerivativeAudit audit;
+    for (std::size_t index = 0u; index < equalities.size(); ++index) {
+        const auto& equality = equalities[index];
+        metalrobo::NumiHumanJointEqualityEvaluation center;
+        require(
+            metalrobo::evaluateNumiHumanJointEquality(equality, q, center).succeeded(),
+            "joint-equality derivative audit could not evaluate " +
+                std::to_string(index) + " at " + std::string(poseName)
+        );
+        if (equality.indices.z == MR_INVALID_INDEX) {
+            require(center.derivative == 0.0,
+                    "constant joint equality has a nonzero derivative at " +
+                        std::to_string(index));
+            continue;
+        }
+        const double coordinate = q[equality.indices.z];
+        const double h = 1.0e-5 * std::max(1.0, std::abs(coordinate));
+        std::vector<double> positive(q.begin(), q.end());
+        std::vector<double> negative(q.begin(), q.end());
+        positive[equality.indices.z] += h;
+        negative[equality.indices.z] -= h;
+        metalrobo::NumiHumanJointEqualityEvaluation plus;
+        metalrobo::NumiHumanJointEqualityEvaluation minus;
+        require(
+            metalrobo::evaluateNumiHumanJointEquality(equality, positive, plus).succeeded() &&
+                metalrobo::evaluateNumiHumanJointEquality(equality, negative, minus).succeeded(),
+            "joint-equality derivative finite-difference evaluation failed at " +
+                std::to_string(index) + " at " + std::string(poseName)
+        );
+        const double finiteDifference =
+            (plus.dependentTarget - minus.dependentTarget) / (2.0 * h);
+        const double absoluteError = std::abs(finiteDifference - center.derivative);
+        const double scale = std::max(
+            {1.0, std::abs(finiteDifference), std::abs(center.derivative)}
+        );
+        const double relativeError = absoluteError / scale;
+        if (absoluteError > audit.maximumAbsoluteError) {
+            audit.maximumAbsoluteError = absoluteError;
+            audit.maximumAbsoluteErrorIndex = static_cast<std::uint32_t>(index);
+        }
+        if (relativeError > audit.maximumRelativeError) {
+            audit.maximumRelativeError = relativeError;
+            audit.maximumRelativeErrorIndex = static_cast<std::uint32_t>(index);
+        }
+        require(relativeError <= kJointEqualityDerivativeRelativeTolerance,
+                "joint-equality derivative finite-difference mismatch at " +
+                    std::to_string(index) + " at " + std::string(poseName) +
+                    " relative_error=" + std::to_string(relativeError));
+        ++audit.checkedCount;
+    }
+    return audit;
+}
+
+int runJointEqualityDerivativeAudit(
+    const char* rigidPath, const char* equalityPath
+) {
+    const LoadedRigid rigid = loadRigid(rigidPath);
+    const metalrobo::NumiHumanJointEqualityPayload equalities =
+        loadJointEqualities(equalityPath, rigid.header);
+    std::vector<double> authoredQ(
+        rigid.model.defaultQ.begin(), rigid.model.defaultQ.end()
+    );
+    const EqualityDerivativeAudit authored = auditJointEqualityDerivatives(
+        equalities.records, authoredQ, "authored_q"
+    );
+    std::vector<double> projectedQ = authoredQ;
+    double maximumProjection = 0.0;
+    require(
+        metalrobo::projectNumiHumanJointEqualities(
+            equalities.records, projectedQ, &maximumProjection
+        ).succeeded(),
+        "joint-equality derivative audit could not project the authored pose"
+    );
+    const EqualityDerivativeAudit projected = auditJointEqualityDerivatives(
+        equalities.records, projectedQ, "projected_q"
+    );
+    std::cout << std::setprecision(17)
+              << "numi_human_joint_equality_derivative_audit="
+              << "{\"schema\":\"numi.human.joint-equality-derivative-audit.v1\""
+              << ",\"equality_count\":" << equalities.records.size()
+              << ",\"maximum_projection_m_or_rad\":" << maximumProjection
+              << ",\"authored_checked_count\":" << authored.checkedCount
+              << ",\"authored_maximum_absolute_error\":"
+              << authored.maximumAbsoluteError
+              << ",\"authored_maximum_absolute_error_index\":"
+              << authored.maximumAbsoluteErrorIndex
+              << ",\"authored_maximum_relative_error\":"
+              << authored.maximumRelativeError
+              << ",\"authored_maximum_relative_error_index\":"
+              << authored.maximumRelativeErrorIndex
+              << ",\"projected_checked_count\":" << projected.checkedCount
+              << ",\"projected_maximum_absolute_error\":"
+              << projected.maximumAbsoluteError
+              << ",\"projected_maximum_absolute_error_index\":"
+              << projected.maximumAbsoluteErrorIndex
+              << ",\"projected_maximum_relative_error\":"
+              << projected.maximumRelativeError
+              << ",\"projected_maximum_relative_error_index\":"
+              << projected.maximumRelativeErrorIndex
+              << ",\"relative_tolerance\":"
+              << kJointEqualityDerivativeRelativeTolerance
+              << ",\"passed\":true}\n";
+    return 0;
 }
 
 void applyNumiHumanTendonPayload(
@@ -1890,6 +2013,10 @@ int runPreparedPathReference(const char* rigidPath, const char* musclePath, cons
 
 int main(int argc, char** argv) {
     try {
+        if (argc == 4 && std::string(argv[2]).ends_with(".nheq") &&
+            std::string(argv[3]) == "--equality-derivative-audit") {
+            return runJointEqualityDerivativeAudit(argv[1], argv[2]);
+        }
         if ((argc == 5 || argc == 7) && (std::string(argv[3]) == "--prepared-paths" ||
             std::string(argv[3]) == "--prepared-compensated-paths")) {
             std::uint64_t timestepOverride = 0u;
@@ -1908,7 +2035,7 @@ int main(int argc, char** argv) {
                       << "<myosim-fullbody-muscle-reference.nhmyo> "
                       << "[numi-human-tendon-endpoints.nhtendon] [--metal] "
                          "[myosim-fullbody-joint-equalities.nheq] "
-                         "[--equilibrium] | --prepared-paths/--prepared-compensated-paths <prepared.nhinit> [--timestep-us N]\n";
+                         "[--equilibrium] | <myosim-fullbody-joint-equalities.nheq> --equality-derivative-audit | --prepared-paths/--prepared-compensated-paths <prepared.nhinit> [--timestep-us N]\n";
             return 2;
         }
         const char* tendonPath = nullptr;
