@@ -135,6 +135,46 @@ failure. The next solver experiment must retain the production rows and RHS
 while isolating this real interaction; it must not promote a two-row
 counterfactual as a solver fix.
 
+## Full equality/near-boundary-limit operator snapshot
+
+The public reference probe now also has a read-only FP64
+`--trace-equality-limit-active-set-audit` route. At a retained trace step it
+evaluates every one of the 51 source equality derivatives against a centered
+finite difference, forms all equality rows, then adds every source position
+limit whose coordinate is within `1e-5` of an authored boundary. It obtains
+the complete batch of articulated inverse-mass responses and audits the
+symmetrized equality/near-boundary-limit Delassus operator with a declared
+`1e-10` relative diagonal-pivot cutoff. It does not regularize, solve an
+impulse system, alter the Metal runtime, or infer a contact impulse from the
+trace.
+
+On the exact 12.5 us source-bound trace at steps 1, 280, 281, and 512, the
+snapshot consistently contained 51 equality rows and 54 near-boundary limit
+rows. Its normalized operator had numerical rank 81 of 105 at the declared
+cutoff; the first rejected pivots were about `1e-15`, while the smallest
+accepted pivot was about `1.46666e-3`. The maximum derivative finite-
+difference error was at most `7.17e-11`. This establishes a structurally
+dependent equality/limit row set rather than a sudden rank collapse at the
+acceleration event.
+
+The most correlated equality/limit pair in this snapshot was equality 31 and
+upper-limit DOF 66 (correlation about `-0.9999929063`, two-row condition about
+`281940.46`). That limit was not outward-moving in the retained state, so this
+operator observation does **not** attribute the reported dynamic error to
+that pair. The traced equality-43/upper-limit-113 pair remains outward-moving
+at the sampled steps and has correlation about `-0.9999709461` and condition
+about `68836.56`. It is therefore still a concrete production interaction,
+but the snapshot alone cannot assign causality or select a solve order.
+
+Two Apple M4 Pro step-281 runs produced byte-identical stdout (SHA-256
+`7067eb9d94f4bc084340ad8e6d2f67d5b4f0c9fbce49d7eb4d72bd265b888f3e`).
+The four-step series has SHA-256
+`267c27077a88f4619be3b0527a65f1e58cfb513e911f9d424f888dafc43b4808`.
+The audit explicitly excludes contact and friction rows, the muscle/passive
+force right-hand side, unilateral impulse complementarity, and time
+integration. It is a narrowed operator diagnosis, not full-active-set,
+standing, anatomical, or physiological qualification.
+
 ## Smallest production-path coupled-solve discriminator
 
 `metalrobo_numi_human_stand_coupling_probe` is a deliberately small,
@@ -310,6 +350,8 @@ different preparation or larger excursion.
 | 12.5 us / 0.8 ms, runtime passive on | `e61a9755158cccaea00f44b06d8bac342852fb30d42929d96d255f685bd8ac5d` |
 | 12.5 us / 0.8 ms, runtime passive off | `bdbf73e8cb7aa6948415f21b6f9751135d4ac07d821bd76b3fca9becd8651516` |
 | step-281 FP64 two-row rank audit, both runs | `4a20ec68331d4634847c9e5ea73c4aaf5085d27c750433002a3337c7453355a3` |
+| step-281 FP64 equality/near-boundary-limit audit, both M4 runs | `7067eb9d94f4bc084340ad8e6d2f67d5b4f0c9fbce49d7eb4d72bd265b888f3e` |
+| steps 1/280/281/512 FP64 equality/near-boundary-limit audit | `267c27077a88f4619be3b0527a65f1e58cfb513e911f9d424f888dafc43b4808` |
 
 The 0.8 ms runtime-passive-on result reproduces a kernel peak of
 `0.11579056829214096`, consistent with the retained approximate `0.116`
@@ -354,3 +396,17 @@ The audit requires the full retained configuration array for the requested
 step and rejects a missing, malformed, or schema-incompatible array. Its
 result is a localized FP64 conditioning measurement, not a replay, standing,
 or physiological qualification.
+
+To reproduce the broader equality/near-boundary-limit operator snapshot from
+the same retained trace:
+
+```sh
+cmake --build <build-dir> --target metalrobo_numilab_human_myosim_reference_probe
+<build-dir>/bin/metalrobo_numilab_human_myosim_reference_probe \
+  <rigid.nhrigid> <equalities.nheq> \
+  --trace-equality-limit-active-set-audit <persistent-stand-trace.txt> 281
+```
+
+This route verifies the equality derivatives and source identity, but it does
+not admit a missing contact, force, or time-integration reference as a solver
+qualification.
