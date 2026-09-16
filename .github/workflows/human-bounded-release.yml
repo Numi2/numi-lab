@@ -6,6 +6,11 @@ on:
       - .github/workflows/human-bounded-release.yml
       - tools/check_human_metal4_device.mm
   workflow_dispatch:
+    inputs:
+      refinement:
+        description: 'Run all four common-duration grids after the canonical 100us case'
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -14,127 +19,133 @@ concurrency:
 jobs:
   native-release:
     runs-on: macos-26
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/checkout@v4
         with:
           repository: Numi2/numilab-human
-          ref: 3d637e7b9b07ae01a7d69ed80ed992cea9307aca
+          ref: 21f27ccbd6562022103267bde6f2e7ef680eea9d
           path: human-inputs
-          sparse-checkout: Docs/media/native-runtime-source-package-20260915
-      - name: Record source and machine before building
+          sparse-checkout: |
+            .numi/commands
+            Docs/media/native-runtime-source-package-20260915
+          persist-credentials: false
+      - name: Record exact source and build the owning Human target
         run: |
+          set -euo pipefail
           mkdir -p human-release-evidence
           git rev-parse HEAD > human-release-evidence/native-revision.txt
           git -C human-inputs rev-parse HEAD > human-release-evidence/input-revision.txt
           sw_vers > human-release-evidence/machine.txt
-          python3 tools/check_human_mechanics_mode.py
-      - name: Verify compiler and device Metal 4 support
-        shell: python
-        run: |
-          import json, os, pathlib, subprocess, tempfile
-          output=pathlib.Path('human-release-evidence')
-          probes=[]
-          selected=None
-          with tempfile.TemporaryDirectory(prefix='human-metal-toolchain-') as directory:
-              temporary=pathlib.Path(directory)
-              source=temporary/'probe.metal'
-              source.write_text('#include <metal_stdlib>\nusing namespace metal;\nkernel void probe(device float* out [[buffer(0)]], uint i [[thread_position_in_grid]]) { out[i]=0.0f; }\n')
-              for app in sorted(pathlib.Path('/Applications').glob('Xcode*.app'),reverse=True):
-                  developer=app/'Contents/Developer'
-                  environment={**os.environ,'DEVELOPER_DIR':str(developer)}
-                  result=subprocess.run(['xcrun','--sdk','macosx','metal','-std=metal4.0','-c',str(source),'-o',str(temporary/'probe.air')],env=environment,capture_output=True,text=True,timeout=30)
-                  probes.append({'developer_dir':str(developer),'exit_code':result.returncode,'stdout':result.stdout,'stderr':result.stderr})
-                  if result.returncode==0:
-                      selected=str(developer)
-                      break
-              (output/'toolchains.json').write_text(json.dumps({'selected':selected,'probes':probes},indent=2)+'\n')
-              if selected is None: raise RuntimeError('No installed Metal 4 compiler; full build not attempted')
-              environment={**os.environ,'DEVELOPER_DIR':selected}
-              subprocess.run(['xcrun','--sdk','macosx','metallib',str(temporary/'probe.air'),'-o',str(temporary/'probe.metallib')],env=environment,check=True,timeout=30)
-              subprocess.run(['xcrun','clang++','-std=c++20','-fobjc-arc','-Wall','-Wextra','-Werror','tools/check_human_metal4_device.mm','-framework','Foundation','-framework','Metal','-o',str(temporary/'device-check')],env=environment,check=True,timeout=60)
-              result=subprocess.run([str(temporary/'device-check'),str(temporary/'probe.metallib')],env=environment,capture_output=True,text=True,timeout=30)
-              (output/'device-preflight.json').write_text(result.stdout)
-              (output/'device-preflight-stderr.txt').write_text(result.stderr)
-              print(result.stdout,flush=True)
-              if result.returncode: raise RuntimeError('Metal 4 device preflight failed; full build not attempted')
-          with open(os.environ['GITHUB_ENV'],'a') as stream: stream.write('DEVELOPER_DIR='+selected+'\n')
-      - name: Configure and build the owning Human target
-        run: |
-          set -o pipefail
-          xcrun --find metal >> human-release-evidence/machine.txt
           xcodebuild -version >> human-release-evidence/machine.txt
+          python3 tools/check_human_mechanics_mode.py
           cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF 2>&1 | tee human-release-evidence/configure.txt
           cmake --build BuildHuman --target metalrobo_numilab_human_myosim_visual_probe --parallel 3 2>&1 | tee human-release-evidence/build.txt
-      - name: Run mechanics-only common-duration cases without root assistance
+      - name: Execute canonical standing preparation without assistance
         shell: python
+        env:
+          RUN_REFINEMENT: ${{ inputs.refinement && 'true' || 'false' }}
         run: |
           import hashlib, json, os, pathlib, shlex, signal, subprocess, time
-          root=pathlib.Path.cwd()
-          output=root/'human-release-evidence'
-          inputs=root/'human-inputs'
-          published=json.loads((inputs/'Docs/media/native-runtime-source-package-20260915/source-package-receipt-v1.json').read_text())
+          root = pathlib.Path.cwd()
+          output = root / 'human-release-evidence'
+          inputs = root / 'human-inputs'
+          package = inputs / 'Docs/media/native-runtime-source-package-20260915'
+          published = json.loads((package / 'source-package-receipt-v1.json').read_text())
           def digest(path):
-              h=hashlib.sha256()
+              h = hashlib.sha256()
               with path.open('rb') as stream:
-                  for block in iter(lambda:stream.read(1024*1024),b''): h.update(block)
+                  for block in iter(lambda: stream.read(1024*1024), b''): h.update(block)
               return h.hexdigest()
-          payloads={name:inputs/value['path'] for name,value in published['inputs'].items()}
-          for name,path in payloads.items():
-              if digest(path)!=published['inputs'][name]['sha256']: raise RuntimeError('payload changed: '+name)
-          binary=root/'BuildHuman/bin/metalrobo_numilab_human_myosim_visual_probe'
-          artifacts={name:{'path':str(path),'sha256':digest(path)} for name,path in payloads.items()}
-          for path in [binary,*sorted((root/'BuildHuman/lib').glob('*.dylib')),*sorted((root/'BuildHuman/shaders').glob('*.metallib')),*sorted((root/'BuildHuman/matter/shaders').glob('*.metallib'))]:
-              artifacts[str(path.relative_to(root))]={'path':str(path),'sha256':digest(path)}
-          receipt={'schema':'numi.human.hosted-bounded-release.v1','native_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'input_commit':subprocess.check_output(['git','-C',str(inputs),'rev-parse','HEAD'],text=True).strip(),'execution_environment':'GitHub macos-26; device reported by preflight and native executable','device_preflight':json.loads((output/'device-preflight.json').read_text()),'rendering_requested':False,'artifacts':artifacts,'cases':[],'full_human_qualification':False}
+          payloads = {name: inputs / value['path'] for name, value in published['inputs'].items()}
+          for name, path in payloads.items():
+              if digest(path) != published['inputs'][name]['sha256']:
+                  raise RuntimeError('Source payload changed: ' + name)
+          wrapper = inputs / '.numi/commands/human'
+          binary = root / 'BuildHuman/bin/metalrobo_numilab_human_myosim_visual_probe'
+          files = {**payloads, 'launcher': wrapper, 'binary': binary}
+          for path in sorted((root / 'BuildHuman').rglob('*.metallib')) + sorted((root / 'BuildHuman/lib').glob('*.dylib')):
+              files[str(path.relative_to(root))] = path
+          artifacts = {name: {'path': str(path), 'sha256': digest(path)} for name, path in files.items()}
+          record = {
+              'schema': 'numi.human.hosted-bounded-release.v1',
+              'native_commit': subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip(),
+              'input_commit': subprocess.check_output(['git','-C',str(inputs),'rev-parse','HEAD'], text=True).strip(),
+              'execution_environment': 'GitHub macos-26; actual device reported by the native executable',
+              'initialization': 'canonical_numi_human_stand_authored_support_stance',
+              'rendering_requested': False, 'artifacts': artifacts, 'cases': [],
+              'full_human_qualification': False, 'force_convergence': False}
           def publish():
-              tmp=output/'execution.json.tmp'
-              tmp.write_text(json.dumps(receipt,indent=2,allow_nan=False)+'\n')
-              tmp.replace(output/'execution.json')
+              temporary = output / 'execution.json.tmp'
+              temporary.write_text(json.dumps(record, indent=2, allow_nan=False) + '\n')
+              temporary.replace(output / 'execution.json')
           publish()
-          cases=[('control-12p5us',0.0000125,1),('100us',0.0001,64),('50us',0.00005,128),('25us',0.000025,256),('12p5us',0.0000125,512)]
-          for name,dt,steps in cases:
-              directory=output/name
+          grids = [('100us', '0.0001', 64)]
+          if os.environ['RUN_REFINEMENT'] == 'true':
+              grids += [('50us', '0.00005', 128), ('25us', '0.000025', 256), ('12p5us', '0.0000125', 512)]
+          for name, dt, steps in grids:
+              directory = output / name
               directory.mkdir()
-              command=[str(binary),str(payloads['rigid']),str(payloads['muscle']),str(directory/'frames'),'--tendon-payload',str(payloads['tendon']),'--joint-equality-payload',str(payloads['joint_equalities']),'--support-contact-payload',str(payloads['support_contact']),'--persistent-metal-stand','--mechanics-only','--persistent-source-passive-joint-tissue','--persistent-stand-trace','--stand-deterministic-replay','--stand-contact-iterations','64','--muscle-step-seconds',str(dt),'--muscle-step-count',str(steps),'--muscle-activation','0.8']
-              case={'name':name,'command':command,'timestep_nanoseconds':round(dt*1e9),'steps':steps,'status':'running','timeout_seconds':300}
-              receipt['cases'].append(case)
+              command = [str(wrapper), 'stand', str(payloads['rigid'].parent),
+                  str(directory / 'unused-in-mechanics-mode.nhbones'), str(payloads['tendon']),
+                  str(payloads['support_contact']), str(directory / 'frames'),
+                  '--mechanics-only', '--steps', str(steps), '--timestep', dt]
+              case = {'name': name, 'command': command, 'timestep_nanoseconds': round(float(dt)*1e9),
+                  'steps': steps, 'status': 'running', 'timeout_seconds': 600}
+              record['cases'].append(case)
               publish()
-              start=time.monotonic()
-              environment={**os.environ,'MTL_DEBUG_LAYER':'1'}
-              with (directory/'stdout.txt').open('w') as stdout,(directory/'stderr.txt').open('w') as stderr:
-                  process=subprocess.Popen(command,stdout=stdout,stderr=stderr,env=environment,start_new_session=True)
-                  try: code=process.wait(timeout=case['timeout_seconds'])
+              start = time.monotonic()
+              environment = {**os.environ, 'NUMI_LAB_ROOT': str(root),
+                  'NUMI_BUILD_DIR': str(root / 'BuildHuman'), 'MTL_DEBUG_LAYER': '1',
+                  'NUMI_HUMAN_EXECUTION_STAGES': '1'}
+              with (directory/'stdout.txt').open('w') as out, (directory/'stderr.txt').open('w') as err:
+                  process = subprocess.Popen(command, stdout=out, stderr=err,
+                      env=environment, start_new_session=True)
+                  try:
+                      code = process.wait(timeout=case['timeout_seconds'])
                   except subprocess.TimeoutExpired:
-                      try: os.killpg(process.pid,signal.SIGKILL)
+                      with (directory/'timeout-profile.txt').open('w') as profile:
+                          try:
+                              sampled = subprocess.run(['/usr/bin/sample', str(process.pid), '3', '1'],
+                                  stdout=profile, stderr=subprocess.STDOUT, timeout=12)
+                              case['timeout_profile_exit_code'] = sampled.returncode
+                          except (OSError, subprocess.TimeoutExpired) as exc:
+                              profile.write(str(exc))
+                      try: os.killpg(process.pid, signal.SIGKILL)
                       except ProcessLookupError: pass
                       process.wait()
-                      code=None
-              case.update(exit_code=code,wall_seconds=time.monotonic()-start,status='process_completed' if code==0 else 'timeout' if code is None else 'failed')
-              for name2 in ['stdout','stderr']: case[name2+'_sha256']=digest(directory/(name2+'.txt'))
-              lines=(directory/'stdout.txt').read_text().splitlines()
-              summaries=[line for line in lines if line.startswith('myosim_articulated_mechanics=')]
-              case['summary']=summaries[-1] if len(summaries)==1 else None
-              metrics={}
+                      code = None
+              case.update(exit_code=code, wall_seconds=time.monotonic()-start,
+                  status='process_completed' if code==0 else 'timeout' if code is None else 'failed')
+              for key in ['stdout', 'stderr']: case[key+'_sha256'] = digest(directory/(key+'.txt'))
+              lines = (directory/'stdout.txt').read_text().splitlines()
+              summaries = [line for line in lines if line.startswith('myosim_articulated_mechanics=')]
+              metrics = {}
               if len(summaries)==1:
                   for token in shlex.split(summaries[0]):
                       if '=' in token:
-                          key,value=token.split('=',1)
-                          if key in metrics: raise RuntimeError('duplicate native metric: '+key)
+                          key, value = token.split('=',1)
+                          if key in metrics: raise RuntimeError('Duplicate native metric: '+key)
                           metrics[key]=value
-              case['execution_contract_matched']=all(metrics.get(key)==value for key,value in {
-                  'myosim_articulated_mechanics':'ok','rendering_performed':'false',
-                  'visual_coverage_qualified':'false','core_bodies':'157',
-                  'persistent_metal_horizon':'true','persistent_completed_steps':str(steps),
-                  'persistent_root_assistance':'none','stand_deterministic_replay':'bitwise',
+              case['metrics'] = metrics
+              case['execution_contract_matched'] = all(metrics.get(key)==value for key,value in {
+                  'myosim_articulated_mechanics':'ok', 'rendering_performed':'false',
+                  'visual_coverage_qualified':'false', 'core_bodies':'157',
+                  'persistent_metal_horizon':'true', 'persistent_completed_steps':str(steps),
+                  'persistent_root_assistance':'none', 'stand_deterministic_replay':'bitwise',
                   'persistent_passive_joint_law':'current_state_linear_backward_euler'}.items())
-              case['source_artifacts_unchanged']=all(digest(pathlib.Path(value['path']))==value['sha256'] for value in artifacts.values())
+              case['compiled_static_balance'] = metrics.get('compiled_stand_balanced')=='true'
+              case['source_artifacts_unchanged'] = all(digest(path)==artifacts[key]['sha256'] for key,path in files.items())
               publish()
-              print(case['name'],case['status'],'seconds=',case['wall_seconds'],flush=True)
+              print(name, case['status'], 'static_balance=',case['compiled_static_balance'], flush=True)
               if code!=0 or not case['execution_contract_matched'] or not case['source_artifacts_unchanged']:
-                  raise RuntimeError('Bounded Human execution incomplete; raw evidence retained')
-          receipt['status']='execution_complete_not_force_or_behavior_qualification'
+                  raise RuntimeError('Canonical Human execution incomplete; raw evidence retained')
+              if not case['compiled_static_balance']:
+                  raise RuntimeError('Canonical initial equilibrium remains unbalanced; do not extend the horizon')
+          record['status'] = 'execution_complete_not_force_or_behavior_qualification'
           publish()
       - uses: actions/upload-artifact@v4
         if: always()
