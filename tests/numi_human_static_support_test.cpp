@@ -338,6 +338,20 @@ int main() {
                      fixture.weight()),
             "airborne mass received a fictitious ground reaction");
 
+    // The runtime speculative band is not physical contact thickness.
+    // A separated body must not acquire a static ground reaction,
+    // even when its witness is inside that broad-phase band.
+    for (const double gap : {1.0e-5, 5.0e-4, 1.0e-3, 1.9e-3}) {
+        auto nearPlane = touching;
+        nearPlane.localPoint[2] = gap;
+        require(fixture.compile({nearPlane}, airborne).succeeded() &&
+                    !airborne.diagnostics.balanced &&
+                    airborne.supportNormalForce[0] == 0.0 &&
+                    near(airborne.diagnostics.maximumFloatingRootForceResidual,
+                         fixture.weight()),
+                "near-plane separation carried a static reaction");
+    }
+
     auto penetrating = touching;
     penetrating.localPoint[2] = -0.014;
     const auto rejected = fixture.compile({penetrating}, accepted);

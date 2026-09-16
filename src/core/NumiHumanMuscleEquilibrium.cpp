@@ -292,7 +292,10 @@ NumiHumanMuscleEquilibriumDiagnostics resolveStaticSupports(
         planeGaps[support] = gap;
         // Zero columns keep source indexing stable while removing the force
         // variable for a separated witness from every recruitment objective.
-        if (requireAdmissiblePose && gap > activationDistance) continue;
+        // A speculative runtime band only schedules a possible collision.
+        // Static positive load requires geometrically closed support.
+        const double staticGapTolerance = std::min(gapTolerance, activationDistance);
+        if (requireAdmissiblePose && gap > staticGapTolerance) continue;
         const std::size_t base = support * 3u * nv;
         for (std::size_t dof = 0u; dof < nv; ++dof) {
             generalizedColumns[support][dof] =

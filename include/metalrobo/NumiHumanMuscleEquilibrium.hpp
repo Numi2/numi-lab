@@ -87,9 +87,9 @@ struct NumiHumanMuscleEquilibriumConfig {
     // A separated witness carries exactly zero force; penetration beyond this
     // bound rejects the initial pose or discards a pose-search candidate.
     double supportGapToleranceMeters = 1.0e-6;
-    // Runtime source contacts use a bounded near-plane activation band. The
-    // offline wrench solve must admit the same band while still rejecting
-    // penetration beyond supportGapToleranceMeters.
+    // Runtime speculative-contact search distance. It never enlarges the
+    // static load-bearing region: only supportGapToleranceMeters admits
+    // numerical roundoff in static closed-contact geometry.
     double supportActivationDistanceMeters = 2.0e-3;
     double maximumSupportForceNewtons = 5000.0;
     double supportForceRegularization = 1.0e-14;

@@ -30,6 +30,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <chrono>
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
@@ -50,6 +51,16 @@
 #include <vector>
 
 namespace {
+
+// Wall-clock diagnostics only; never alter simulation time or state.
+void reportHumanExecutionStage(const char* stage, std::uint32_t step = 0u) {
+    static const auto origin = std::chrono::steady_clock::now();
+    const double elapsed = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - origin).count();
+    std::cout << "human_execution_stage=" << stage
+              << " wall_elapsed_ms=" << elapsed
+              << " stage_step=" << step << std::endl;
+}
 
 constexpr std::array<char, 8u> kRigidMagic{
     'N', 'H', 'R', 'I', 'G', 'I', 'D', '2',
@@ -3643,7 +3654,7 @@ CompiledStandActivation compileStaticStandActivation(
         require(std::isfinite(gap) && gap >= -config.supportGapToleranceMeters,
                 "static Human support compile published penetrating geometry");
         minimumSupportGap = std::min(minimumSupportGap, gap);
-        if (gap > config.supportActivationDistanceMeters) {
+        if (gap > config.supportGapToleranceMeters) {
             ++separatedWitnessCount;
             maximumSeparatedForce = std::max(maximumSeparatedForce,
                 std::abs(compiled.supportNormalForce[index]));
@@ -3951,6 +3962,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     std::isfinite(maximumProjection),
                 "persistent Human initial coordinate equality projection failed");
     }
+    reportHumanExecutionStage("static_equilibrium_begin");
     CompiledStandActivation compiledActivation;
     double sourceDynamicForceParityMaximumNewtons = 0.0;
     double sourceSupportForceParityMaximumNewtons = 0.0;
@@ -3995,6 +4007,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             timestepSeconds
         );
     }
+    reportHumanExecutionStage("static_equilibrium_end");
     // Explicit tissue poses disable pose search before recruitment, so q,
     // activation and every reported force refer to the same accepted posture.
     const std::vector<float> q = packMetalConfiguration(compiledActivation.q);
@@ -4096,6 +4109,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             0.0f,
         };
     }
+    reportHumanExecutionStage("fiber_equilibrium_begin");
     const InitialMujocoFiberEquilibrium initialFiberEquilibrium =
         equilibrateInitialMujocoFiberStates(
             model,
@@ -4106,6 +4120,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             timestepSeconds
     );
     states = initialFiberEquilibrium.states;
+    reportHumanExecutionStage("fiber_equilibrium_end", initialFiberEquilibrium.iterations);
+    reportHumanExecutionStage("initial_force_checks_begin");
     std::vector<float> passiveJointProgram;
     if (!persistentPassiveCouplings.empty() && !removeRuntimePassiveJointTissue) {
         std::string passiveError;
@@ -4570,7 +4586,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         }
     }
     metalrobo::MetalArticulatedOperatorResult metalResult;
+    reportHumanExecutionStage("initial_force_checks_end");
+    reportHumanExecutionStage("native_horizon_begin");
     auto diagnostics = context.run(model, input, metalResult);
+    reportHumanExecutionStage("native_horizon_end", diagnostics.completedStandSteps);
     if (!diagnostics.succeeded() && continuumTransaction != nullptr) {
         const auto failed = continuumTransaction->runtime->snapshot();
         std::cerr << "human_joint_failure completed_steps=" << diagnostics.completedStandSteps;
@@ -4613,6 +4632,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     double persistentStandTracePreloadVirtualWorkJoules = 0.0;
     double persistentStandTraceSupportVirtualWorkJoules = 0.0;
     if (capturePersistentStandTrace) {
+        reportHumanExecutionStage("segmented_trace_begin");
         require(anatomicalLoadProgram == nullptr,
                 "persistent Human trace cannot replace source route force ownership");
         metalrobo::MetalArticulatedOperatorContext traceContext(config);
@@ -4636,6 +4656,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         persistentStandTrace.push_back(std::move(initialSample));
         for (std::uint32_t traceStep = 1u;
              traceStep <= stepCount; ++traceStep) {
+            if (traceStep == 1u || traceStep % 16u == 0u)
+                reportHumanExecutionStage("segmented_trace_step", traceStep);
             traceInput.q = traceQ;
             traceInput.rootTranslations = traceRoots;
             traceInput.stand.v = traceV;
@@ -5085,7 +5107,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             ? mr_float4{1800.0f, 360.0f, 700.0f, 100.0f}
             : mr_float4{0.0f, 0.0f, 0.0f, 0.0f};
         metalrobo::MetalArticulatedOperatorResult replayResult;
+        reportHumanExecutionStage("deterministic_replay_begin");
         auto replayDiagnostics = context.run(model, input, replayResult);
+        reportHumanExecutionStage("deterministic_replay_end", replayDiagnostics.completedStandSteps);
         require(replayDiagnostics.succeeded() && replayDiagnostics.published &&
                     replayDiagnostics.completedStandSteps == stepCount,
                 "persistent Human deterministic assisted replay failed: " +
