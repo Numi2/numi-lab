@@ -3178,7 +3178,8 @@ MetalMujocoForceStep evaluateMetalMujocoForce(
     const MetalMujocoVisualQueries& queries,
     const std::span<const double> configuration,
     std::vector<MRMujocoMuscleStateGPU>& states,
-    metalrobo::MetalArticulatedOperatorContext& context
+    metalrobo::MetalArticulatedOperatorContext& context,
+    const std::span<const MRCompensatedRootTranslationGPU> roots = {}
 ) {
     const std::vector<float> q = packMetalConfiguration(configuration);
     const metalrobo::MetalArticulatedOperatorInput input{
@@ -3186,6 +3187,7 @@ MetalMujocoForceStep evaluateMetalMujocoForce(
         .environmentCount = 1u,
         .pointCount = queries.points.size(),
         .q = q,
+        .rootTranslations = roots,
         .points = queries.points,
         .mujoco = {
             .muscles = muscles.gpuMuscles,
@@ -3782,7 +3784,8 @@ InitialMujocoFiberEquilibrium equilibrateInitialMujocoFiberStates(
     const MetalMujocoVisualQueries& queries,
     const std::span<const double> q,
     std::vector<MRMujocoMuscleStateGPU> states,
-    const double runtimeTimestepSeconds
+    const double runtimeTimestepSeconds,
+    const std::span<const MRCompensatedRootTranslationGPU> roots
 ) {
     require(!states.empty(),
             "initial MyoSim fibre equilibration requires source muscles");
@@ -3814,7 +3817,7 @@ InitialMujocoFiberEquilibrium equilibrateInitialMujocoFiberStates(
         const std::vector<MRMujocoMuscleStateGPU> previous = result.states;
         try {
             result.force = evaluateMetalMujocoForce(
-                model, muscles, queries, q, result.states, context
+                model, muscles, queries, q, result.states, context, roots
             );
         } catch (const std::exception& exception) {
             throw std::runtime_error(
@@ -4011,6 +4014,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     // Explicit tissue poses disable pose search before recruitment, so q,
     // activation and every reported force refer to the same accepted posture.
     const std::vector<float> q = packMetalConfiguration(compiledActivation.q);
+    MRCompensatedRootTranslationGPU initialRoot{};
+    std::string initialRootError;
+    require(compiledActivation.q.size() >= 3u &&
+                metalrobo::makeNumiHumanInitialRootTranslation(
+                    {compiledActivation.q[0], compiledActivation.q[1], compiledActivation.q[2]},
+                    initialRoot, initialRootError),
+            "persistent Human root placement failed: " + initialRootError);
+    const std::vector<MRCompensatedRootTranslationGPU> initialRoots{initialRoot};
     std::vector<float> v;
     v.reserve(model.defaultV.size());
     for (const double velocity : model.defaultV) {
@@ -4117,7 +4128,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             queries,
             compiledActivation.q,
             std::move(states),
-            timestepSeconds
+            timestepSeconds,
+            initialRoots
     );
     states = initialFiberEquilibrium.states;
     reportHumanExecutionStage("fiber_equilibrium_end", initialFiberEquilibrium.iterations);
@@ -4260,6 +4272,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         .environmentCount = 1u,
         .pointCount = queries.points.size(),
         .q = q,
+        .rootTranslations = initialRoots,
         .points = queries.points,
         .mujoco = {
             .muscles = muscles.gpuMuscles,
@@ -4647,7 +4660,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         std::vector<float> traceQ(q);
         std::vector<float> traceV(v);
         std::vector<MRMujocoMuscleStateGPU> traceStates = states;
-        std::vector<MRCompensatedRootTranslationGPU> traceRoots;
+        std::vector<MRCompensatedRootTranslationGPU> traceRoots(initialRoots);
         persistentStandTrace.reserve(static_cast<std::size_t>(stepCount) + 1u);
         PersistentStandTraceSample initialSample;
         initialSample.q = traceQ;
@@ -5054,6 +5067,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         std::vector<float> removalV = metalResult.standV;
         std::vector<MRMujocoMuscleStateGPU> removalStates =
             metalResult.mujocoActivationStates;
+        const auto removalRoots = metalResult.standRootTranslations;
+        input.rootTranslations = removalRoots;
         input.q = removalQ;
         input.stand.v = removalV;
         input.mujoco.states = removalStates;
@@ -5099,6 +5114,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     "persistent Human continuum replay restore failed: " +
                         restored.message);
         }
+        input.rootTranslations = initialRoots;
         input.q = q;
         input.stand.v = v;
         input.mujoco.states = states;
@@ -5121,6 +5137,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             std::vector<float> replayRemovalV = replayResult.standV;
             std::vector<MRMujocoMuscleStateGPU> replayRemovalStates =
                 replayResult.mujocoActivationStates;
+            const auto replayRemovalRoots = replayResult.standRootTranslations;
+            input.rootTranslations = replayRemovalRoots;
             input.q = replayRemovalQ;
             input.stand.v = replayRemovalV;
             input.mujoco.states = replayRemovalStates;
@@ -5180,8 +5198,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                  metalResult.standTendonGeneralizedCorrections.size() *
                      sizeof(float)
              ) == 0);
+        const bool sameRoots = replayResult.standRootTranslations.size() == 1u &&
+            metalResult.standRootTranslations.size() == 1u &&
+            std::memcmp(replayResult.standRootTranslations.data(),
+                        metalResult.standRootTranslations.data(),
+                        sizeof(MRCompensatedRootTranslationGPU)) == 0;
         require(sameQ && sameV && sameStatus && sameTendonTransfers &&
-                    sameTendonCorrections,
+                    sameTendonCorrections && sameRoots,
                 "persistent Human stand replay was not bitwise deterministic");
         if (continuumTransaction != nullptr) {
             const auto replayContinuum =

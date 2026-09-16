@@ -32,6 +32,14 @@ struct NumiHumanInitialState {
     std::vector<MRMujocoMuscleStateGPU> muscles;
 };
 
+// Preserve an offline FP64 placement in the existing authoritative FP32 root
+// expansion. The public q projection remains unchanged. Reject nonfinite,
+// overflowing or underflowing inputs that cannot round-trip; output is unchanged
+// on failure. This is construction only, never a live-state reset operation.
+[[nodiscard]] bool makeNumiHumanInitialRootTranslation(
+    const std::array<double, 3u>& position,
+    MRCompensatedRootTranslationGPU& output, std::string& error);
+
 // Exact effective clock; zero denotes missing, inconsistent or out-of-domain
 // identity. The domain remains the legacy (0,1 second] interval.
 [[nodiscard]] std::uint64_t numiHumanInitialStateTimestepNanoseconds(

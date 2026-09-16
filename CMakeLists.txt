@@ -1593,6 +1593,12 @@ if(BUILD_TESTING)
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
     add_test(NAME numi_human_initial_state COMMAND metalrobo_numi_human_initial_state_test)
+    add_executable(metalrobo_numi_human_root_placement_test tests/numi_human_root_placement_test.cpp)
+    target_link_libraries(metalrobo_numi_human_root_placement_test PRIVATE metalrobo)
+    target_compile_options(metalrobo_numi_human_root_placement_test PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_numi_human_root_placement_test PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+    add_test(NAME numi_human_root_placement COMMAND metalrobo_numi_human_root_placement_test)
     if(TARGET metalrobo_numanx_fullbody_bridge_probe)
         add_test(NAME numanx.integration.human_touch_aggregation
             COMMAND metalrobo_numanx_fullbody_bridge_probe --touch-aggregation-only)

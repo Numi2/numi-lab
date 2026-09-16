@@ -61,6 +61,44 @@ bool valid(const NumiHumanInitialState& s, std::string& error) {
 }
 } // namespace
 
+bool makeNumiHumanInitialRootTranslation(
+    const std::array<double, 3u>& position,
+    MRCompensatedRootTranslationGPU& output, std::string& error) {
+    std::array<float, 3u> reference{}, displacement{}, correction{};
+    for (std::size_t axis = 0u; axis < position.size(); ++axis) {
+        const double value = position[axis];
+        if (!std::isfinite(value) ||
+            std::abs(value) > static_cast<double>(std::numeric_limits<float>::max()))
+            return fail(error, "initial root placement is not finite or representable");
+        reference[axis] = static_cast<float>(value);
+        const double residual = value - static_cast<double>(reference[axis]);
+        const float high = static_cast<float>(residual);
+        const float low = static_cast<float>(residual - static_cast<double>(high));
+        const auto normalized = mrCompensatedSum(high, low);
+        displacement[axis] = normalized.high;
+        correction[axis] = normalized.low;
+        const double reconstructed = (static_cast<double>(reference[axis]) +
+            static_cast<double>(displacement[axis])) + static_cast<double>(correction[axis]);
+        if (reconstructed != value)
+            return fail(error, "initial root placement loses precision in the FP32 expansion");
+    }
+    const MRCompensatedRootTranslationGPU candidate{
+        {reference[0], reference[1], reference[2], 0.0f},
+        {displacement[0], displacement[1], displacement[2], 0.0f},
+        {correction[0], correction[1], correction[2], 0.0f}};
+    if (!mrCompensatedTranslationValid(candidate))
+        return fail(error, "initial root placement produced a noncanonical expansion");
+    const auto projected = mrCompensatedTranslationProjection(candidate);
+    const std::array<float, 3u> projection{projected.x, projected.y, projected.z};
+    for (std::size_t axis = 0u; axis < projection.size(); ++axis)
+        if (std::bit_cast<std::uint32_t>(projection[axis]) !=
+            std::bit_cast<std::uint32_t>(reference[axis]))
+            return fail(error, "initial root placement changed the canonical q projection");
+    output = candidate;
+    error.clear();
+    return true;
+}
+
 std::uint64_t numiHumanInitialStateTimestepNanoseconds(const NumiHumanInitialState& s) noexcept {
     if (s.timestepMicroseconds > maxTimestepNanoseconds / 1000u ||
         s.timestepNanoseconds > maxTimestepNanoseconds ||
