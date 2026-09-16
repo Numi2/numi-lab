@@ -11,13 +11,16 @@ on:
       - 'src/metal/NumiHumanStand.metal'
       - 'tests/numi_human*'
       - 'tests/mujoco_muscle_path_batch_test.cpp'
+      - 'CMakeLists.txt'
       - '.github/workflows/human-runtime-regressions.yml'
   pull_request:
     paths:
       - 'include/metalrobo/*Human*'
+      - 'include/metalrobo/numi_human*'
       - 'src/core/NumiHuman*'
       - 'src/metal/NumiHumanStand.metal'
       - 'tests/numi_human*'
+      - 'CMakeLists.txt'
       - '.github/workflows/human-runtime-regressions.yml'
   workflow_dispatch:
 permissions:
@@ -33,7 +36,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Retain the exact integrated source
+      - name: Retain exact integrated source
         run: |
           mkdir -p human-runtime-evidence
           git rev-parse HEAD > human-runtime-evidence/revision.txt
@@ -47,7 +50,7 @@ jobs:
       - name: Check shared numerical policies
         run: |
           set -eu
-          for name in constraint_projection equality_limit_block passive_joint; do
+          for name in constraint_projection equality_limit_block passive_joint friction; do
             c++ -std=c++20 -O2 -Wall -Wextra -Werror -Iinclude tests/numi_human_${name}_test.cpp -o /tmp/human-${name}
             /tmp/human-${name}
           done
@@ -63,11 +66,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Build and exercise the production numerical owners
+      - name: Build and exercise production numerical owners
         run: |
           set -eu
           cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
-          cmake --build BuildHuman --target metalrobo_numi_human_static_support_test metalrobo_numi_human_root_placement_test metalrobo_mujoco_muscle_path_batch_test --parallel 3
-          ctest --test-dir BuildHuman -R '^(numi_human_static_support|numi_human_root_placement|mujoco_muscle_path_batch)$' --output-on-failure
+          cmake --build BuildHuman --target metalrobo_numi_human_static_support_test metalrobo_numi_human_root_placement_test metalrobo_mujoco_muscle_path_batch_test metalrobo_numi_human_friction_test --parallel 3
+          ctest --test-dir BuildHuman -R '^(numi_human_static_support|numi_human_root_placement|mujoco_muscle_path_batch|numi_human_friction)$' --output-on-failure
           python3 tools/check_human_host_syntax.py
           git diff --exit-code
