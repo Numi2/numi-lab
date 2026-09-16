@@ -1,4 +1,4 @@
-name: Integrate metric-correct Human friction
+name: Register verified Human friction build ownership
 on:
   push:
     branches: [human-native-runtime-20260915]
@@ -14,95 +14,43 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Reproduce the old production-kernel error
-        run: |
-          set -eu
-          mkdir -p human-friction-evidence
-          test "$(git hash-object src/metal/NumiHumanStand.metal)" = 27de7bc5c728f7f33bac8e4dca887341b55bc108
-          git rev-parse HEAD > human-friction-evidence/before-revision.txt
-          xcrun --sdk macosx metal -std=metal4.0 -fno-fast-math -Iinclude -c src/metal/NumiHumanStand.metal -o /tmp/stand-before.air
-          xcrun --sdk macosx metallib /tmp/stand-before.air -o /tmp/stand-before.metallib
-          clang++ -std=c++20 -O2 -Wall -Wextra -Werror -fno-fast-math -fobjc-arc -Iinclude tests/numi_human_friction_metal_test.mm -framework Foundation -framework Metal -o /tmp/friction-metal
-          set +e
-          MTL_DEBUG_LAYER=1 /tmp/friction-metal /tmp/stand-before.metallib > human-friction-evidence/before-stdout.txt 2> human-friction-evidence/before-stderr.txt
-          code=$?
-          set -e
-          cat human-friction-evidence/before-stderr.txt
-          test "$code" = 1
-          grep -q ANISOTROPIC_ORACLE_MISMATCH human-friction-evidence/before-stderr.txt
-      - name: Replace radial clipping in the existing contact sweep
+      - name: Bind the verified friction owner to the native build
         shell: python
         run: |
           from pathlib import Path
           import subprocess
-          p = Path('src/metal/NumiHumanStand.metal')
-          assert subprocess.check_output(['git','hash-object',str(p)],text=True).strip() == '27de7bc5c728f7f33bac8e4dca887341b55bc108'
-          s = p.read_text()
-          anchor = '#include "metalrobo/numi_human_constraint_projection.h"'
-          assert s.count(anchor) == 1
-          s = s.replace(anchor, anchor+'\n#include "metalrobo/numi_human_friction.h"')
-          for old,new in [('velocity.y + matrix[1u] * appliedNormal','velocity.y + matrix[3u] * appliedNormal'),('velocity.z + matrix[2u] * appliedNormal','velocity.z + matrix[6u] * appliedNormal')]:
-              assert s.count(old) == 1
-              s = s.replace(old,new)
-          a = s.index('                if (support.frictionSlopAndStabilization.x > 0.0f) {', s.index('const float tangentialVelocityY'))
-          b = s.index('                const float3 applied = newLambda - oldLambda;',a)
-          assert 'newLambda.yz *= tangentLimit / tangentNorm;' in s[a:b]
-          s = s[:a] + '''                if (support.frictionSlopAndStabilization.x > 0.0f && newLambda.x > 0.0f) {
-                              // Conditional maximum dissipation uses the tangent Delassus
-                              // metric, not Euclidean clipping of an unconstrained impulse.
-                              // Preserve both actual response contractions when removing
-                              // the old impulse; symmetrize only roundoff in the SPD metric.
-                              const float rhsY = matrix[4u] * oldLambda.y +
-                                  matrix[5u] * oldLambda.z - tangentialVelocityY;
-                              const float rhsZ = matrix[7u] * oldLambda.y +
-                                  matrix[8u] * oldLambda.z - tangentialVelocityZ;
-                              const auto tangent = mrNumiHumanSolveFrictionDisk(
-                                  matrix[4u], 0.5f * matrix[5u] + 0.5f * matrix[7u],
-                                  matrix[8u], rhsY, rhsZ,
-                                  support.frictionSlopAndStabilization.x * newLambda.x);
-                              if (!tangent.valid) {
-                                  fail(status, MR_NUMI_HUMAN_STAND_CONTACT_FAILED, contact);
-                                  return;
-                              }
-                              newLambda.y = tangent.x;
-                              newLambda.z = tangent.y;
-                          } else {
-                              newLambda.y = 0.0f;
-                              newLambda.z = 0.0f;
-                          }
-          ''' + s[b:]
+          assert subprocess.check_output(['git','hash-object','src/metal/NumiHumanStand.metal'],text=True).strip() == '2d5ab81e812f623db7035980e62bf78a186a5434'
+          p=Path('CMakeLists.txt')
+          assert subprocess.check_output(['git','hash-object',str(p)],text=True).strip() == '7ab2f4cb0bd19794aeb95c76a1cb54d2f9017c1e'
+          s=p.read_text()
+          anchor='        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_constraint_projection.h"'
+          assert s.count(anchor)==1
+          s=s.replace(anchor,anchor+'\n        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_friction.h"')
+          anchor='    add_executable(metalrobo_mujoco_muscle_path_batch_test tests/mujoco_muscle_path_batch_test.cpp)'
+          assert s.count(anchor)==1
+          addition='''    add_executable(metalrobo_numi_human_friction_test tests/numi_human_friction_test.cpp)
+              target_include_directories(metalrobo_numi_human_friction_test PRIVATE include)
+              target_compile_options(metalrobo_numi_human_friction_test PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+              set_target_properties(metalrobo_numi_human_friction_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+              add_test(NAME numi_human_friction COMMAND metalrobo_numi_human_friction_test)
+              set_tests_properties(numi_human_friction PROPERTIES LABELS "numi-human;mechanics;contact")
+          '''
+          s=s.replace(anchor,addition+anchor)
           p.write_text(s)
           subprocess.run(['git','diff','--check'],check=True)
-      - name: Verify corrected kernel and existing numerical contracts
+      - name: Exercise the registered target
         run: |
-          set -euo pipefail
-          for name in constraint_projection equality_limit_block passive_joint friction; do
-            clang++ -std=c++20 -O2 -Wall -Wextra -Werror -Iinclude tests/numi_human_${name}_test.cpp -o /tmp/human-${name}
-            /tmp/human-${name} | tee human-friction-evidence/${name}.txt
-          done
-          xcrun --sdk macosx metal -std=metal4.0 -fno-fast-math -Iinclude -c src/metal/NumiHumanStand.metal -o /tmp/stand-after.air
-          xcrun --sdk macosx metallib /tmp/stand-after.air -o /tmp/stand-after.metallib
-          MTL_DEBUG_LAYER=1 /tmp/friction-metal /tmp/stand-after.metallib > human-friction-evidence/after-stdout.txt 2> human-friction-evidence/after-stderr.txt
-          clang++ -std=c++20 -O2 -Wall -Wextra -Werror -fno-fast-math -fobjc-arc -Iinclude tests/numi_human_passive_metal_test.mm -framework Foundation -framework Metal -o /tmp/passive-metal
-          MTL_DEBUG_LAYER=1 /tmp/passive-metal /tmp/stand-after.metallib > human-friction-evidence/existing-gpu-stdout.txt 2> human-friction-evidence/existing-gpu-stderr.txt
-          cat human-friction-evidence/after-stdout.txt human-friction-evidence/existing-gpu-stdout.txt
-          python3 tools/check_human_constraint_owner.py
-      - name: Publish verified numerical source only
+          set -eu
+          cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+          cmake --build BuildHuman --target metalrobo_numi_human_friction_test --parallel 3
+          ctest --test-dir BuildHuman -R '^numi_human_friction$' --output-on-failure
+      - name: Publish the verified CMake change only
         run: |
           set -eu
           test "$GITHUB_REF_NAME" = human-native-runtime-20260915
-          git add -- src/metal/NumiHumanStand.metal
+          git add -- CMakeLists.txt
           git diff --cached --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Solve Human tangential friction in its actual inertia metric'
+          git commit -m 'Bind Human friction helper to shader rebuilds and CTest'
           git push origin HEAD:refs/heads/human-native-runtime-20260915
-          git rev-parse HEAD > human-friction-evidence/after-revision.txt
-          cp src/metal/NumiHumanStand.metal human-friction-evidence/
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: human-friction-before-after
-          path: human-friction-evidence
-          retention-days: 14
-          if-no-files-found: error
