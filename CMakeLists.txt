@@ -852,6 +852,7 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_stand_gpu.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_passive_joint.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_constraint_projection.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_friction.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/multicopter_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/task_program_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/policy_program_types.h"
@@ -1619,6 +1620,12 @@ if(BUILD_TESTING)
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
     add_test(NAME numi_human_static_support COMMAND metalrobo_numi_human_static_support_test)
     set_tests_properties(numi_human_static_support PROPERTIES LABELS "numi-human;mechanics;support")
+    add_executable(metalrobo_numi_human_friction_test tests/numi_human_friction_test.cpp)
+    target_include_directories(metalrobo_numi_human_friction_test PRIVATE include)
+    target_compile_options(metalrobo_numi_human_friction_test PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_numi_human_friction_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+    add_test(NAME numi_human_friction COMMAND metalrobo_numi_human_friction_test)
+    set_tests_properties(numi_human_friction PROPERTIES LABELS "numi-human;mechanics;contact")
     add_executable(metalrobo_mujoco_muscle_path_batch_test tests/mujoco_muscle_path_batch_test.cpp)
     target_link_libraries(metalrobo_mujoco_muscle_path_batch_test PRIVATE metalrobo)
     target_compile_options(metalrobo_mujoco_muscle_path_batch_test PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
