@@ -1,0 +1,106 @@
+name: Integrate Human response-stride repair
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths: [.github/workflows/human-response-stride-integration.yml]
+permissions:
+  contents: write
+concurrency:
+  group: human-response-stride-integration
+  cancel-in-progress: false
+jobs:
+  repair:
+    runs-on: macos-15
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare source-locked regression and repair
+        shell: python
+        run: |
+          import pathlib, subprocess
+          def read(path, sha):
+              assert subprocess.check_output(['git','hash-object',path],text=True).strip()==sha, path+' changed'
+              return pathlib.Path(path).read_text()
+          kernel='src/metal/NumiHumanStand.metal'
+          text=read(kernel,'af20c0f7f0b078ad9f9977547afbe5100449c90c')
+          pathlib.Path('/tmp/HumanStandBefore.metal').write_text(text)
+          old='(dispatch.supportContactCount * 3u + dispatch.jointEqualityCount) * nv;'
+          assert text.count(old)==1
+          text=text.replace(old,'(dispatch.supportContactCount * 3u + dispatch.jointEqualityCount + nv) * nv;')
+          pathlib.Path(kernel).write_text(text)
+          test='tests/numi_human_passive_metal_test.mm'
+          text=read(test,'bb4d60f2c62e01405ddee30ac82ce60292de75c0')
+          def replace(old,new):
+              global text
+              assert text.count(old)==1,old
+              text=text.replace(old,new)
+          replace('#include <iostream>','#include <iostream>\n#include <limits>')
+          replace('    dofs[6].qIndex=7; dofs[6].drive.y=0.2f;', '''    dofs[6].qIndex=7; dofs[6].drive.y=0.2f;
+              if(contactMode==3u) {
+                  // This interval is initially inactive but its response must be
+                  // prepared: later coupled rows may activate it. Poisoning the
+                  // arena detects cross-environment aliasing even for equal masses.
+                  dofs[6].flags |= MR_DOF_FLAG_POSITION_LIMIT;
+                  dofs[6].limits={-1.0f,1.0f,0.0f,0.0f};
+                  std::fill_n(static_cast<float*>(buffers[16].contents),
+                      sizes[16]/sizeof(float),std::numeric_limits<float>::quiet_NaN());
+              }''')
+          replace('            checks+=5;', '''            checks+=5;
+                      if(contactMode==3u) {
+                          const unsigned stride=(3u*contactCount+nv)*nv;
+                          const auto* response=static_cast<const float*>(buffers[16].contents)
+                              +e*stride+3u*contactCount*nv;
+                          const double expectedResponse=1.0/(1.0/3.0+h*dofs[6].drive.y);
+                          require(std::isfinite(response[6]) &&
+                              std::abs(response[6]-expectedResponse)<2e-5 &&
+                              std::isfinite(response[5]) &&
+                              std::abs(response[5]+expectedResponse/3.0)<2e-5,
+                              "limit response column was not written in its own environment");
+                          ++checks;
+                      }''')
+          replace('for(unsigned mode:{0u,1u,2u})','for(unsigned mode:{0u,1u,2u,3u})')
+          pathlib.Path(test).write_text(text)
+      - name: Prove the new test rejects the old production kernel
+        run: |
+          set -eu
+          mkdir -p human-response-evidence
+          xcrun --sdk macosx metal -std=metal3.1 -fno-fast-math -Iinclude -c /tmp/HumanStandBefore.metal -o /tmp/HumanStandBefore.air
+          xcrun --sdk macosx metallib /tmp/HumanStandBefore.air -o /tmp/HumanStandBefore.metallib
+          clang++ -std=c++20 -O2 -fno-fast-math -fobjc-arc -Iinclude tests/numi_human_passive_metal_test.mm -framework Foundation -framework Metal -o /tmp/human-response-test
+          set +e
+          /tmp/human-response-test /tmp/HumanStandBefore.metallib > human-response-evidence/before.txt 2>&1
+          result=$?
+          set -e
+          test "$result" -eq 1
+          grep -F 'limit response column was not written in its own environment' human-response-evidence/before.txt
+      - name: Test the repaired production kernel and host contracts
+        run: |
+          set -eu
+          xcrun --sdk macosx metal -std=metal3.1 -fno-fast-math -Iinclude -c src/metal/NumiHumanStand.metal -o /tmp/HumanStandAfter.air
+          xcrun --sdk macosx metallib /tmp/HumanStandAfter.air -o /tmp/HumanStandAfter.metallib
+          /tmp/human-response-test /tmp/HumanStandAfter.metallib > human-response-evidence/after.txt 2>&1
+          cat human-response-evidence/after.txt
+          python3 tools/check_human_constraint_owner.py
+          python3 tools/check_human_host_syntax.py
+          git diff --check
+      - name: Publish only the tested source files
+        run: |
+          set -eu
+          test "$GITHUB_REF_NAME" = human-native-runtime-20260915
+          git add -- src/metal/NumiHumanStand.metal tests/numi_human_passive_metal_test.mm
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Isolate each Human environment constraint response arena'
+          git push origin HEAD:refs/heads/human-native-runtime-20260915
+          git rev-parse HEAD > human-response-evidence/source-revision.txt
+          git diff HEAD^ HEAD > human-response-evidence/change.patch
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-response-stride-evidence
+          path: |
+            human-response-evidence
+            src/metal/NumiHumanStand.metal
+            tests/numi_human_passive_metal_test.mm
+          retention-days: 14
+          if-no-files-found: error
