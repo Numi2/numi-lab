@@ -1619,6 +1619,13 @@ if(BUILD_TESTING)
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
     add_test(NAME numi_human_static_support COMMAND metalrobo_numi_human_static_support_test)
     set_tests_properties(numi_human_static_support PROPERTIES LABELS "numi-human;mechanics;support")
+    add_executable(metalrobo_mujoco_muscle_path_batch_test tests/mujoco_muscle_path_batch_test.cpp)
+    target_link_libraries(metalrobo_mujoco_muscle_path_batch_test PRIVATE metalrobo)
+    target_compile_options(metalrobo_mujoco_muscle_path_batch_test PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_mujoco_muscle_path_batch_test PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+    add_test(NAME mujoco_muscle_path_batch COMMAND metalrobo_mujoco_muscle_path_batch_test)
+    set_tests_properties(mujoco_muscle_path_batch PROPERTIES LABELS "numi-human;mechanics;muscle")
 endif()
 
 if(BUILD_TESTING)

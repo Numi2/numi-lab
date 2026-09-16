@@ -190,31 +190,29 @@ NumiHumanMuscleEquilibriumDiagnostics resolveMuscles(
 ) {
     const std::size_t nv = model.articulations[articulationIndex].nv;
     const std::vector<double> zeroVelocity(nv, 0.0);
+    std::vector<MujocoMusclePathResult> paths;
+    const auto diagnostics = evaluateMujocoMusclePaths(
+        model, articulationIndex, q, zeroVelocity, sites, wraps,
+        muscles, paths, dynamicsConfig);
+    if (!diagnostics.succeeded()) {
+        auto failed = failure(NumiHumanMuscleEquilibriumStatus::kinematicsFailure,
+                              diagnostics.failingIndex);
+        failed.muscleStatus = diagnostics.status;
+        return failed;
+    }
     std::vector<ResolvedMuscle> candidate(muscles.size());
     for (std::size_t muscle = 0u; muscle < muscles.size(); ++muscle) {
-        MujocoMuscleResult path;
-        const auto diagnostics = evaluateMujocoMuscle(
-            model, articulationIndex, q, zeroVelocity, sites, wraps,
-            muscles[muscle], {}, path, dynamicsConfig
-        );
-        if (!diagnostics.succeeded()) {
-            auto failed = failure(
-                NumiHumanMuscleEquilibriumStatus::kinematicsFailure,
-                static_cast<std::uint32_t>(muscle)
-            );
-            failed.muscleStatus = diagnostics.status;
-            return failed;
-        }
-        if (!(path.path.length > kMinimum) ||
-            path.path.lengthJacobian.size() != nv ||
-            !finiteSpan(path.path.lengthJacobian)) {
+        auto& path = paths[muscle];
+        if (!(path.length > kMinimum) ||
+            path.lengthJacobian.size() != nv ||
+            !finiteSpan(path.lengthJacobian)) {
             return failure(
                 NumiHumanMuscleEquilibriumStatus::kinematicsFailure,
                 static_cast<std::uint32_t>(muscle)
             );
         }
-        candidate[muscle].pathLength = path.path.length;
-        candidate[muscle].jacobian = std::move(path.path.lengthJacobian);
+        candidate[muscle].pathLength = path.length;
+        candidate[muscle].jacobian = std::move(path.lengthJacobian);
     }
     resolved = std::move(candidate);
     return {};

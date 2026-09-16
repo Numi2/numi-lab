@@ -168,6 +168,23 @@ struct MujocoMuscleReferenceDiagnostics {
     double* activationDerivative = nullptr
 );
 
+// Evaluate source-ordered paths at one immutable q/v. Reuses the existing
+// route geometry and articulated point-Jacobian owners, preparing body poses
+// once and bounding temporary Jacobians to 32 routes per batch. Does not cache
+// across calls or poses. On failure results are unchanged; failingIndex names
+// the muscle for route errors and remains the sentinel for shared-state errors.
+[[nodiscard]] MujocoMuscleReferenceDiagnostics evaluateMujocoMusclePaths(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<const double> q,
+    std::span<const double> v,
+    std::span<const MujocoMuscleSite> sites,
+    std::span<const MujocoWrapGeometry> wraps,
+    std::span<const MujocoMuscleDefinition> definitions,
+    std::vector<MujocoMusclePathResult>& results,
+    const ArticulatedDynamicsConfig& config = {}
+);
+
 // Evaluates MyoSim's source spatial route and MuJoCo general-muscle force at
 // an arbitrary native Core state. Sphere/cylinder wrapping follows MuJoCo
 // 3.12's mju_wrap algorithm (Apache-2.0 source) exactly in FP64 arithmetic.

@@ -452,21 +452,20 @@ bool validDefinition(const MujocoMuscleDefinition& definition,
         definition.route.back().type == MujocoRouteNodeType::site;
 }
 
-MujocoMuscleReferenceDiagnostics resolvePath(
-    const EngineModel& model, const std::uint32_t articulationIndex, const std::span<const double> q,
-    const std::span<const double> v, const std::span<const MujocoMuscleSite> sites,
-    const std::span<const MujocoWrapGeometry> wraps, const MujocoMuscleDefinition& definition,
-    MujocoMusclePathResult& result, const ArticulatedDynamicsConfig& config
+// One route-geometry owner is shared by scalar and batch callers. Batching
+// only amortizes articulation kinematics and point-Jacobian preparation.
+MujocoMuscleReferenceDiagnostics resolvePathGeometry(
+    const MRArticulationGPU& articulation,
+    const std::span<const ArticulatedBodyKinematics> bodies,
+    const std::span<const MujocoMuscleSite> sites,
+    const std::span<const MujocoWrapGeometry> wraps,
+    const MujocoMuscleDefinition& definition,
+    MujocoMusclePathResult& result,
+    std::vector<Segment>& segments
 ) {
-    if (!validDefinition(definition, sites, wraps)) return failure(MujocoMuscleReferenceStatus::invalidDefinition);
+    if (!validDefinition(definition, sites, wraps))
+        return failure(MujocoMuscleReferenceStatus::invalidDefinition);
     result = {};
-    const MRArticulationGPU& articulation = model.articulations.at(articulationIndex);
-    if (q.size() != articulation.nq || v.size() != articulation.nv) return failure(MujocoMuscleReferenceStatus::invalidState);
-    std::vector<ArticulatedBodyKinematics> bodies(articulation.bodyCount);
-    const ArticulatedDynamicsDiagnostics bodyDiagnostics = computeArticulatedBodyKinematics(
-        model, articulationIndex, q, v, bodies, config
-    );
-    if (!bodyDiagnostics.succeeded()) return failure(MujocoMuscleReferenceStatus::kinematicsFailure);
     auto body = [&bodies, &articulation](const std::uint32_t index) -> const ArticulatedBodyKinematics* {
         if (index < articulation.firstBody || index >= articulation.firstBody + bodies.size()) return nullptr;
         return &bodies[index - articulation.firstBody];
@@ -487,7 +486,7 @@ MujocoMuscleReferenceDiagnostics resolvePath(
         if (!finite(rotation) || !finite(world)) return std::nullopt;
         return ResolvedPoint{bodyIndex, matApply(transpose(rotation), subtract(world, pose->centerOfMassPosition)), world};
     };
-    std::vector<Segment> segments;
+    segments.clear();
     double length = 0.0;
     std::uint32_t appliedWraps = 0u;
     std::size_t cursor = 0u;
@@ -557,6 +556,57 @@ MujocoMuscleReferenceDiagnostics resolvePath(
     if (cursor != definition.route.size() - 1u || !(length > kMinimum) || !finite(length)) {
         return failure(MujocoMuscleReferenceStatus::invalidPath);
     }
+    result.length = length;
+    result.appliedWrapCount = appliedWraps;
+    return {};
+}
+
+MujocoMuscleReferenceDiagnostics finishPathJacobian(
+    const std::span<const Segment> segments,
+    const std::span<const double> jacobians,
+    const std::span<const double> v,
+    MujocoMusclePathResult& result
+) {
+    const std::size_t nv = v.size();
+    result.lengthJacobian.assign(nv, 0.0);
+    for (std::size_t segmentIndex = 0u; segmentIndex < segments.size(); ++segmentIndex) {
+        const Segment& segment = segments[segmentIndex];
+        const Vec3 direction = normalized(subtract(segment.second.world, segment.first.world));
+        for (std::size_t dof = 0u; dof < nv; ++dof) {
+            double gradient = 0.0;
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                gradient += direction[axis] * (
+                    jacobians[((segmentIndex * 2u + 1u) * 3u + axis) * nv + dof] -
+                    jacobians[((segmentIndex * 2u + 0u) * 3u + axis) * nv + dof]
+                );
+            }
+            result.lengthJacobian[dof] += gradient;
+        }
+    }
+    result.velocity = 0.0;
+    for (std::size_t dof = 0u; dof < nv; ++dof) result.velocity += result.lengthJacobian[dof] * v[dof];
+    if (!finite(result.length) || !finite(result.velocity) || !std::all_of(result.lengthJacobian.begin(), result.lengthJacobian.end(), [](const double value) { return finite(value); })) {
+        return failure(MujocoMuscleReferenceStatus::nonfiniteResult);
+    }
+    return {};
+}
+
+MujocoMuscleReferenceDiagnostics resolvePath(
+    const EngineModel& model, const std::uint32_t articulationIndex, const std::span<const double> q,
+    const std::span<const double> v, const std::span<const MujocoMuscleSite> sites,
+    const std::span<const MujocoWrapGeometry> wraps, const MujocoMuscleDefinition& definition,
+    MujocoMusclePathResult& result, const ArticulatedDynamicsConfig& config
+) {
+    if (!validDefinition(definition, sites, wraps)) return failure(MujocoMuscleReferenceStatus::invalidDefinition);
+    if (articulationIndex >= model.articulations.size()) return failure(MujocoMuscleReferenceStatus::invalidState);
+    const auto& articulation = model.articulations[articulationIndex];
+    if (q.size() != articulation.nq || v.size() != articulation.nv) return failure(MujocoMuscleReferenceStatus::invalidState);
+    std::vector<ArticulatedBodyKinematics> bodies(articulation.bodyCount);
+    if (!computeArticulatedBodyKinematics(model, articulationIndex, q, v, bodies, config).succeeded())
+        return failure(MujocoMuscleReferenceStatus::kinematicsFailure);
+    std::vector<Segment> segments;
+    auto diagnostics = resolvePathGeometry(articulation, bodies, sites, wraps, definition, result, segments);
+    if (!diagnostics.succeeded()) return diagnostics;
     std::vector<ArticulatedPointQuery> queries;
     queries.reserve(segments.size() * 2u);
     for (const Segment& segment : segments) {
@@ -565,33 +615,10 @@ MujocoMuscleReferenceDiagnostics resolvePath(
     }
     std::vector<ArticulatedPointKinematics> kinematics(queries.size());
     std::vector<double> jacobians(queries.size() * 3u * articulation.nv);
-    const ArticulatedDynamicsDiagnostics pointDiagnostics = computeArticulatedPointJacobians(
-        model, articulationIndex, q, v, queries, kinematics, jacobians, config
-    );
-    if (!pointDiagnostics.succeeded()) return failure(MujocoMuscleReferenceStatus::kinematicsFailure);
-    result.length = length;
-    result.appliedWrapCount = appliedWraps;
-    result.lengthJacobian.assign(articulation.nv, 0.0);
-    for (std::size_t segmentIndex = 0u; segmentIndex < segments.size(); ++segmentIndex) {
-        const Segment& segment = segments[segmentIndex];
-        const Vec3 direction = normalized(subtract(segment.second.world, segment.first.world));
-        for (std::size_t dof = 0u; dof < articulation.nv; ++dof) {
-            double gradient = 0.0;
-            for (std::size_t axis = 0u; axis < 3u; ++axis) {
-                gradient += direction[axis] * (
-                    jacobians[((segmentIndex * 2u + 1u) * 3u + axis) * articulation.nv + dof] -
-                    jacobians[((segmentIndex * 2u + 0u) * 3u + axis) * articulation.nv + dof]
-                );
-            }
-            result.lengthJacobian[dof] += gradient;
-        }
-    }
-    result.velocity = 0.0;
-    for (std::size_t dof = 0u; dof < articulation.nv; ++dof) result.velocity += result.lengthJacobian[dof] * v[dof];
-    if (!finite(result.length) || !finite(result.velocity) || !std::all_of(result.lengthJacobian.begin(), result.lengthJacobian.end(), [](const double value) { return finite(value); })) {
-        return failure(MujocoMuscleReferenceStatus::nonfiniteResult);
-    }
-    return {};
+    if (!computeArticulatedPointJacobians(model, articulationIndex, q, v, queries,
+                                        kinematics, jacobians, config).succeeded())
+        return failure(MujocoMuscleReferenceStatus::kinematicsFailure);
+    return finishPathJacobian(segments, jacobians, v, result);
 }
 
 double muscleGainLength(const double length, const double lower, const double upper) {
@@ -850,6 +877,70 @@ MujocoMuscleReferenceDiagnostics evaluateMujocoCompliantMuscle(
         .actuatorForce = -maximumForce * tendonTension,
         .normalizedEquilibriumResidual = residual,
     };
+    return {};
+}
+
+MujocoMuscleReferenceDiagnostics evaluateMujocoMusclePaths(
+    const EngineModel& model, const std::uint32_t articulationIndex,
+    const std::span<const double> q, const std::span<const double> v,
+    const std::span<const MujocoMuscleSite> sites,
+    const std::span<const MujocoWrapGeometry> wraps,
+    const std::span<const MujocoMuscleDefinition> definitions,
+    std::vector<MujocoMusclePathResult>& results,
+    const ArticulatedDynamicsConfig& config
+) {
+    if (articulationIndex >= model.articulations.size())
+        return failure(MujocoMuscleReferenceStatus::invalidState);
+    const auto& articulation = model.articulations[articulationIndex];
+    if (q.size() != articulation.nq || v.size() != articulation.nv ||
+        definitions.size() >= MR_INVALID_INDEX)
+        return failure(MujocoMuscleReferenceStatus::invalidState);
+    std::vector<ArticulatedBodyKinematics> bodies(articulation.bodyCount);
+    if (!computeArticulatedBodyKinematics(model, articulationIndex, q, v, bodies, config).succeeded())
+        return failure(MujocoMuscleReferenceStatus::kinematicsFailure);
+    std::vector<MujocoMusclePathResult> candidate(definitions.size());
+    // Bound temporary Jacobian memory independently of the muscle population.
+    // The source-order arithmetic for each route is identical to scalar calls.
+    constexpr std::size_t routeBatchSize = 32u;
+    for (std::size_t begin = 0u; begin < definitions.size(); begin += routeBatchSize) {
+        const std::size_t end = std::min(begin + routeBatchSize, definitions.size());
+        std::vector<std::vector<Segment>> routes(end - begin);
+        std::vector<ArticulatedPointQuery> queries;
+        for (std::size_t index = begin; index < end; ++index) {
+            auto& segments = routes[index - begin];
+            auto diagnostics = resolvePathGeometry(articulation, bodies, sites, wraps,
+                definitions[index], candidate[index], segments);
+            if (!diagnostics.succeeded()) {
+                diagnostics.failingIndex = static_cast<std::uint32_t>(index);
+                return diagnostics;
+            }
+            for (const Segment& segment : segments) {
+                queries.push_back({segment.first.bodyIndex, segment.first.local});
+                queries.push_back({segment.second.bodyIndex, segment.second.local});
+            }
+        }
+        const std::size_t rowStride = 3u * static_cast<std::size_t>(articulation.nv);
+        if (rowStride != 0u && queries.size() > std::numeric_limits<std::size_t>::max() / rowStride)
+            return failure(MujocoMuscleReferenceStatus::invalidState);
+        std::vector<ArticulatedPointKinematics> kinematics(queries.size());
+        std::vector<double> jacobians(queries.size() * rowStride);
+        if (!computeArticulatedPointJacobians(model, articulationIndex, q, v, queries,
+                                            kinematics, jacobians, config).succeeded())
+            return failure(MujocoMuscleReferenceStatus::kinematicsFailure);
+        std::size_t offset = 0u;
+        for (std::size_t index = begin; index < end; ++index) {
+            const auto& segments = routes[index - begin];
+            const std::size_t count = segments.size() * 2u * rowStride;
+            auto diagnostics = finishPathJacobian(segments,
+                std::span<const double>(jacobians).subspan(offset, count), v, candidate[index]);
+            if (!diagnostics.succeeded()) {
+                diagnostics.failingIndex = static_cast<std::uint32_t>(index);
+                return diagnostics;
+            }
+            offset += count;
+        }
+    }
+    results = std::move(candidate);
     return {};
 }
 
