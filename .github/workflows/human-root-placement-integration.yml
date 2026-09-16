@@ -1,0 +1,235 @@
+name: Integrate precise Human root placement
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths: [.github/workflows/human-root-placement-integration.yml]
+permissions:
+  contents: write
+concurrency:
+  group: human-root-placement-integration
+  cancel-in-progress: false
+jobs:
+  integrate:
+    runs-on: macos-15
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add checked construction and wire the existing root sidecar
+        shell: python
+        run: |
+          import pathlib, subprocess
+          def read(path,sha):
+              assert subprocess.check_output(['git','hash-object',path],text=True).strip()==sha,path+' changed'
+              return pathlib.Path(path).read_text()
+          path='include/metalrobo/NumiHumanInitialState.hpp'
+          text=read(path,'2ea58559a9760b2044335363c43ac274742dfbe5')
+          anchor='// Exact effective clock; zero denotes missing, inconsistent or out-of-domain'
+          assert text.count(anchor)==1
+          text=text.replace(anchor,'''// Preserve an offline FP64 placement in the existing authoritative FP32 root
+          // expansion. The public q projection remains unchanged. Reject nonfinite,
+          // overflowing or underflowing inputs that cannot round-trip; output is unchanged
+          // on failure. This is construction only, never a live-state reset operation.
+          [[nodiscard]] bool makeNumiHumanInitialRootTranslation(
+              const std::array<double, 3u>& position,
+              MRCompensatedRootTranslationGPU& output, std::string& error);
+
+          '''+anchor)
+          pathlib.Path(path).write_text(text)
+          path='src/core/NumiHumanInitialState.cpp'
+          text=read(path,'909a6d1da061bb56158526e8ff99700dd028be61')
+          anchor='std::uint64_t numiHumanInitialStateTimestepNanoseconds('
+          assert text.count(anchor)==1
+          text=text.replace(anchor,'''bool makeNumiHumanInitialRootTranslation(
+              const std::array<double, 3u>& position,
+              MRCompensatedRootTranslationGPU& output, std::string& error) {
+              std::array<float, 3u> reference{}, displacement{}, correction{};
+              for (std::size_t axis = 0u; axis < position.size(); ++axis) {
+                  const double value = position[axis];
+                  if (!std::isfinite(value) ||
+                      std::abs(value) > static_cast<double>(std::numeric_limits<float>::max()))
+                      return fail(error, "initial root placement is not finite or representable");
+                  reference[axis] = static_cast<float>(value);
+                  const double residual = value - static_cast<double>(reference[axis]);
+                  const float high = static_cast<float>(residual);
+                  const float low = static_cast<float>(residual - static_cast<double>(high));
+                  const auto normalized = mrCompensatedSum(high, low);
+                  displacement[axis] = normalized.high;
+                  correction[axis] = normalized.low;
+                  const double reconstructed = (static_cast<double>(reference[axis]) +
+                      static_cast<double>(displacement[axis])) + static_cast<double>(correction[axis]);
+                  if (reconstructed != value)
+                      return fail(error, "initial root placement loses precision in the FP32 expansion");
+              }
+              const MRCompensatedRootTranslationGPU candidate{
+                  {reference[0], reference[1], reference[2], 0.0f},
+                  {displacement[0], displacement[1], displacement[2], 0.0f},
+                  {correction[0], correction[1], correction[2], 0.0f}};
+              if (!mrCompensatedTranslationValid(candidate))
+                  return fail(error, "initial root placement produced a noncanonical expansion");
+              const auto projected = mrCompensatedTranslationProjection(candidate);
+              const std::array<float, 3u> projection{projected.x, projected.y, projected.z};
+              for (std::size_t axis = 0u; axis < projection.size(); ++axis)
+                  if (std::bit_cast<std::uint32_t>(projection[axis]) !=
+                      std::bit_cast<std::uint32_t>(reference[axis]))
+                      return fail(error, "initial root placement changed the canonical q projection");
+              output = candidate;
+              error.clear();
+              return true;
+          }
+
+          '''+anchor)
+          pathlib.Path(path).write_text(text)
+          path='tests/numi_human_root_placement_test.cpp'
+          assert not pathlib.Path(path).exists()
+          pathlib.Path(path).write_text('''#include "metalrobo/NumiHumanInitialState.hpp"
+          #include <bit>
+          #include <cmath>
+          #include <cstring>
+          #include <iostream>
+          #include <limits>
+          #include <stdexcept>
+          namespace {
+          std::size_t checks = 0;
+          void require(bool ok, const char* label="root placement regression") {
+              ++checks;
+              if (!ok) throw std::runtime_error(label);
+          }
+          }
+          int main() {
+              try {
+                  MRCompensatedRootTranslationGPU placed{};
+                  std::string placementError;
+                  const std::array<std::array<double, 3u>, 6u> placements{{
+                      {-0.0, 0.0, -0.0},
+                      {-0.05000000074505806, 0.20000000298023224, 1.94682457843},
+                      {1.0 + 0x1p-26, -1.0 - 0x1p-26, 100000001.0},
+                      {1.0 + 0x1p-24 + 0x1p-52, 1.0 + 0x1p-24 - 0x1p-52, -1.0 - 0x1p-24},
+                      {0.001234567890123, -12.34567890123, 9876.543210123},
+                      {double(std::numeric_limits<float>::denorm_min()), 1e-20, -1e-20}
+                  }};
+                  for (const auto& position : placements) {
+                      require(metalrobo::makeNumiHumanInitialRootTranslation(position, placed, placementError),
+                              "offline root placement must round-trip through its authoritative expansion");
+                      require(placementError.empty() && mrCompensatedTranslationValid(placed));
+                      const auto high = mrCompensatedTranslationProjection(placed);
+                      const std::array<float,3u> highValues{high.x,high.y,high.z};
+                      const std::array<float,3u> r{placed.reference.x,placed.reference.y,placed.reference.z};
+                      const std::array<float,3u> d{placed.displacement.x,placed.displacement.y,placed.displacement.z};
+                      const std::array<float,3u> c{placed.correction.x,placed.correction.y,placed.correction.z};
+                      for (std::size_t axis=0;axis<3u;++axis) {
+                          require((double(r[axis])+d[axis])+c[axis]==position[axis], "FP64 placement lost low words");
+                          require(std::bit_cast<std::uint32_t>(highValues[axis])==
+                                  std::bit_cast<std::uint32_t>(float(position[axis])), "q projection changed");
+                      }
+                  }
+                  const auto acceptedPlacement=placed;
+                  for (const double bad : {std::numeric_limits<double>::infinity(),
+                                          std::numeric_limits<double>::quiet_NaN(),
+                                          std::numeric_limits<double>::max(), 1e-100}) {
+                      require(!metalrobo::makeNumiHumanInitialRootTranslation({0.0,bad,1.0},placed,placementError));
+                      require(!placementError.empty() && std::memcmp(&placed,&acceptedPlacement,sizeof(placed))==0,
+                              "invalid placement mutated accepted root state");
+                  }
+                  std::cout << "Human root placement: " << checks << " checks passed; no GPU execution\\n";
+                  return 0;
+              } catch(const std::exception& error) {
+                  std::cerr << error.what() << '\\n';
+                  return 1;
+              }
+          }
+          ''')
+          path='apps/numilab_human_myosim_visual_probe.mm'
+          text=read(path,'16dc9c1c67cbd37eddc290eb82f47c2ce2661812')
+          def replace(old,new):
+              global text
+              assert text.count(old)==1,old
+              text=text.replace(old,new)
+          replace('    metalrobo::MetalArticulatedOperatorContext& context\n) {\n    const std::vector<float> q = packMetalConfiguration(configuration);',
+                  '    metalrobo::MetalArticulatedOperatorContext& context,\n    const std::span<const MRCompensatedRootTranslationGPU> roots = {}\n) {\n    const std::vector<float> q = packMetalConfiguration(configuration);')
+          begin=text.index('MetalMujocoForceStep evaluateMetalMujocoForce(')
+          end=text.index('    metalrobo::MetalArticulatedOperatorResult result;',begin)
+          part=text[begin:end]
+          assert part.count('        .q = q,')==1
+          text=text[:begin]+part.replace('        .q = q,','        .q = q,\n        .rootTranslations = roots,')+text[end:]
+          replace('    const double runtimeTimestepSeconds\n) {',
+                  '    const double runtimeTimestepSeconds,\n    const std::span<const MRCompensatedRootTranslationGPU> roots\n) {')
+          replace('                model, muscles, queries, q, result.states, context\n',
+                  '                model, muscles, queries, q, result.states, context, roots\n')
+          replace('    const std::vector<float> q = packMetalConfiguration(compiledActivation.q);',
+                  '''    const std::vector<float> q = packMetalConfiguration(compiledActivation.q);
+              MRCompensatedRootTranslationGPU initialRoot{};
+              std::string initialRootError;
+              require(compiledActivation.q.size() >= 3u &&
+                          metalrobo::makeNumiHumanInitialRootTranslation(
+                              {compiledActivation.q[0], compiledActivation.q[1], compiledActivation.q[2]},
+                              initialRoot, initialRootError),
+                      "persistent Human root placement failed: " + initialRootError);
+              const std::vector<MRCompensatedRootTranslationGPU> initialRoots{initialRoot};''')
+          replace('            std::move(states),\n            timestepSeconds\n    );',
+                  '            std::move(states),\n            timestepSeconds,\n            initialRoots\n    );')
+          begin=text.index('    metalrobo::MetalArticulatedOperatorInput input{',text.index('MuscleDrivenVisualState integratePersistentMetalHumanState('))
+          end=text.index('    metalrobo::MetalArticulatedOperatorResult selectedControlBaselineResult;',begin)
+          part=text[begin:end]
+          assert part.count('        .q = q,')==1
+          text=text[:begin]+part.replace('        .q = q,','        .q = q,\n        .rootTranslations = initialRoots,')+text[end:]
+          replace('        std::vector<MRCompensatedRootTranslationGPU> traceRoots;',
+                  '        std::vector<MRCompensatedRootTranslationGPU> traceRoots(initialRoots);')
+          replace('        input.q = removalQ;',
+                  '        const auto removalRoots = metalResult.standRootTranslations;\n        input.rootTranslations = removalRoots;\n        input.q = removalQ;')
+          replace('        input.q = q;\n        input.stand.v = v;',
+                  '        input.rootTranslations = initialRoots;\n        input.q = q;\n        input.stand.v = v;')
+          replace('            input.q = replayRemovalQ;',
+                  '            const auto replayRemovalRoots = replayResult.standRootTranslations;\n            input.rootTranslations = replayRemovalRoots;\n            input.q = replayRemovalQ;')
+          replace('        require(sameQ && sameV && sameStatus && sameTendonTransfers &&\n                    sameTendonCorrections,',
+                  '''        const bool sameRoots = replayResult.standRootTranslations.size() == 1u &&
+                      metalResult.standRootTranslations.size() == 1u &&
+                      std::memcmp(replayResult.standRootTranslations.data(),
+                                  metalResult.standRootTranslations.data(),
+                                  sizeof(MRCompensatedRootTranslationGPU)) == 0;
+                  require(sameQ && sameV && sameStatus && sameTendonTransfers &&
+                              sameTendonCorrections && sameRoots,''')
+          pathlib.Path(path).write_text(text)
+          path='CMakeLists.txt'
+          text=read(path,'a01f2bba03e2e0275fb1f3508c927db057e0c420')
+          anchor='    add_test(NAME numi_human_initial_state COMMAND metalrobo_numi_human_initial_state_test)'
+          assert text.count(anchor)==1
+          text=text.replace(anchor,anchor+'''
+              add_executable(metalrobo_numi_human_root_placement_test tests/numi_human_root_placement_test.cpp)
+              target_link_libraries(metalrobo_numi_human_root_placement_test PRIVATE metalrobo)
+              target_compile_options(metalrobo_numi_human_root_placement_test PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+              set_target_properties(metalrobo_numi_human_root_placement_test PROPERTIES
+                  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+              add_test(NAME numi_human_root_placement COMMAND metalrobo_numi_human_root_placement_test)''')
+          pathlib.Path(path).write_text(text)
+      - name: Verify placement math and every affected host translation unit
+        run: |
+          set -eu
+          mkdir -p human-root-evidence
+          clang++ -std=c++20 -O2 -Wall -Wextra -Werror -fno-fast-math -ffp-contract=off -Iinclude tests/numi_human_root_placement_test.cpp src/core/NumiHumanInitialState.cpp -o /tmp/human-root-placement
+          /tmp/human-root-placement | tee human-root-evidence/placement-test.txt
+          python3 tools/check_human_host_syntax.py
+          python3 tools/check_human_constraint_owner.py
+          git diff --check
+      - name: Publish source changes without changing workflows
+        run: |
+          set -eu
+          git add -- CMakeLists.txt include/metalrobo/NumiHumanInitialState.hpp src/core/NumiHumanInitialState.cpp tests/numi_human_root_placement_test.cpp apps/numilab_human_myosim_visual_probe.mm
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Keep the solved Human root expansion through initialization and replay'
+          git push origin HEAD:refs/heads/human-native-runtime-20260915
+          git rev-parse HEAD > human-root-evidence/native-revision.txt
+          git diff HEAD^ HEAD > human-root-evidence/change.patch
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-root-placement-evidence
+          path: |
+            human-root-evidence
+            CMakeLists.txt
+            include/metalrobo/NumiHumanInitialState.hpp
+            src/core/NumiHumanInitialState.cpp
+            tests/numi_human_root_placement_test.cpp
+            apps/numilab_human_myosim_visual_probe.mm
+          retention-days: 14
+          if-no-files-found: error
