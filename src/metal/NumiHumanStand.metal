@@ -3,6 +3,7 @@
 #include "metalrobo/numi_human_joint_equality_gpu.h"
 #include "metalrobo/numi_human_stand_gpu.h"
 #include "metalrobo/numi_human_constraint_projection.h"
+#include "metalrobo/numi_human_friction.h"
 #include "metalrobo/numi_human_passive_joint.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
 #include "metalrobo/numi_human_tendon_gpu.h"
@@ -909,29 +910,31 @@ kernel void mr_numi_human_stand_step(
                 const float appliedNormal = newLambda.x - oldLambda.x;
                 // Tangential rows see the velocity after the normal update.
                 const float tangentialVelocityY =
-                    velocity.y + matrix[1u] * appliedNormal;
+                    velocity.y + matrix[3u] * appliedNormal;
                 const float tangentialVelocityZ =
-                    velocity.z + matrix[2u] * appliedNormal;
-                if (support.frictionSlopAndStabilization.x > 0.0f) {
-                    const float tangentDeltaY =
-                        (matrix[8u] * (-tangentialVelocityY) -
-                         matrix[5u] * (-tangentialVelocityZ)) /
-                        tangentDeterminant;
-                    const float tangentDeltaZ =
-                        (-matrix[7u] * (-tangentialVelocityY) +
-                         matrix[4u] * (-tangentialVelocityZ)) /
-                        tangentDeterminant;
-                    newLambda.y = oldLambda.y + tangentDeltaY;
-                    newLambda.z = oldLambda.z + tangentDeltaZ;
+                    velocity.z + matrix[6u] * appliedNormal;
+                if (support.frictionSlopAndStabilization.x > 0.0f && newLambda.x > 0.0f) {
+                    // Conditional maximum dissipation uses the tangent Delassus
+                    // metric, not Euclidean clipping of an unconstrained impulse.
+                    // Preserve both actual response contractions when removing
+                    // the old impulse; symmetrize only roundoff in the SPD metric.
+                    const float rhsY = matrix[4u] * oldLambda.y +
+                        matrix[5u] * oldLambda.z - tangentialVelocityY;
+                    const float rhsZ = matrix[7u] * oldLambda.y +
+                        matrix[8u] * oldLambda.z - tangentialVelocityZ;
+                    const auto tangent = mrNumiHumanSolveFrictionDisk(
+                        matrix[4u], 0.5f * matrix[5u] + 0.5f * matrix[7u],
+                        matrix[8u], rhsY, rhsZ,
+                        support.frictionSlopAndStabilization.x * newLambda.x);
+                    if (!tangent.valid) {
+                        fail(status, MR_NUMI_HUMAN_STAND_CONTACT_FAILED, contact);
+                        return;
+                    }
+                    newLambda.y = tangent.x;
+                    newLambda.z = tangent.y;
                 } else {
                     newLambda.y = 0.0f;
                     newLambda.z = 0.0f;
-                }
-                const float tangentLimit =
-                    support.frictionSlopAndStabilization.x * newLambda.x;
-                const float tangentNorm = length(newLambda.yz);
-                if (tangentNorm > tangentLimit && tangentNorm > 0.0f) {
-                    newLambda.yz *= tangentLimit / tangentNorm;
                 }
                 const float3 applied = newLambda - oldLambda;
                 lambdas[3u * contact + 0u] = newLambda.x;
