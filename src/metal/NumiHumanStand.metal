@@ -231,7 +231,7 @@ kernel void mr_numi_human_stand_step(
     const uint preloadBase = environment * vectorStride;
     const uint vectorBase = preloadBase + nv;
     const uint responseBase = environment *
-        (dispatch.supportContactCount * 3u + dispatch.jointEqualityCount) * nv;
+        (dispatch.supportContactCount * 3u + dispatch.jointEqualityCount + nv) * nv;
     device float* bias = vectorScratch + vectorBase;
     device float* candidateV = bias + nv;
     device float* workspace = candidateV + nv;

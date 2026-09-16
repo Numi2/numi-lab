@@ -10,6 +10,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <vector>
 
@@ -67,6 +68,15 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
     auto* dofs=static_cast<MRDofPropertiesGPU*>(buffers[2].contents);
     for(unsigned i=0;i<nv;++i) { dofs[i].vIndex=i; dofs[i].qIndex=i<3?i:MR_INVALID_INDEX; }
     dofs[6].qIndex=7; dofs[6].drive.y=0.2f;
+    if(contactMode==3u) {
+        // This interval is initially inactive but its response must be
+        // prepared: later coupled rows may activate it. Poisoning the
+        // arena detects cross-environment aliasing even for equal masses.
+        dofs[6].flags |= MR_DOF_FLAG_POSITION_LIMIT;
+        dofs[6].limits={-1.0f,1.0f,0.0f,0.0f};
+        std::fill_n(static_cast<float*>(buffers[16].contents),
+            sizes[16]/sizeof(float),std::numeric_limits<float>::quiet_NaN());
+    }
     auto* physical=static_cast<MRBodyPropertiesGPU*>(buffers[3].contents);
     for(unsigned i=0;i<bodies;++i) {
         const float inertia=i==0?1.0f:0.5f, mass=i==0?4.0f:2.0f;
@@ -180,6 +190,18 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
             double energy=0.5*(enabled?program[6*nv+6]:0.0)*x*x+0.5*(1.0/3.0)*u*u;
             require(energy<=oldEnergy[e]+2e-5*(1+oldEnergy[e]),"passive implicit step created energy");
             checks+=5;
+            if(contactMode==3u) {
+                const unsigned stride=(3u*contactCount+nv)*nv;
+                const auto* response=static_cast<const float*>(buffers[16].contents)
+                    +e*stride+3u*contactCount*nv;
+                const double expectedResponse=1.0/(1.0/3.0+h*dofs[6].drive.y);
+                require(std::isfinite(response[6]) &&
+                    std::abs(response[6]-expectedResponse)<2e-5 &&
+                    std::isfinite(response[5]) &&
+                    std::abs(response[5]+expectedResponse/3.0)<2e-5,
+                    "limit response column was not written in its own environment");
+                ++checks;
+            }
             if(contactCount) {
                 const auto& measured=status[e];
                 const bool matches=std::abs(v[e*nv]-expectedX[e])<2e-6 &&
@@ -228,7 +250,7 @@ int main(int argc,char** argv) {
             const auto passiveChecks=checks;
             for(float timestep:{1.25e-5f,1.0e-4f,1.0e-3f})
                 for(float seed:{0.0f,1.0f,2.0f})
-                    for(unsigned mode:{0u,1u,2u})
+                    for(unsigned mode:{0u,1u,2u,3u})
                         checks+=exercise(device,pipeline,queue,timestep,false,seed,mode);
             std::cout<<"gpu_available=true device=\""<<device.name.UTF8String
                      <<"\" production_kernel=mr_numi_human_stand_step checks="<<checks
