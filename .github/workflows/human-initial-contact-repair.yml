@@ -1,0 +1,218 @@
+name: Verify Human static contact admission
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths: [.github/workflows/human-initial-contact-repair.yml]
+permissions:
+  contents: write
+concurrency:
+  group: human-initial-contact-repair
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: macos-26
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Numi2/numilab-human
+          ref: 21f27ccbd6562022103267bde6f2e7ef680eea9d
+          path: human-inputs
+          sparse-checkout: Docs/media/native-runtime-source-package-20260915
+      - name: Select the actual Metal 4 compiler
+        shell: python
+        run: |
+          import os, pathlib, subprocess, tempfile
+          pathlib.Path('human-contact-evidence').mkdir()
+          with tempfile.TemporaryDirectory() as tmp:
+              source=pathlib.Path(tmp)/'probe.metal'
+              source.write_text('#include <metal_stdlib>\nusing namespace metal;\nkernel void probe(device float* p [[buffer(0)]]) { p[0]=0; }\n')
+              for app in sorted(pathlib.Path('/Applications').glob('Xcode*.app'),reverse=True):
+                  developer=str(app/'Contents/Developer')
+                  env={**os.environ,'DEVELOPER_DIR':developer}
+                  result=subprocess.run(['xcrun','--sdk','macosx','metal','-std=metal4.0','-c',str(source),'-o',tmp+'/probe.air'],env=env,capture_output=True,timeout=30)
+                  if result.returncode==0:
+                      with open(os.environ['GITHUB_ENV'],'a') as f: f.write('DEVELOPER_DIR='+developer+'\n')
+                      pathlib.Path('human-contact-evidence/toolchain.txt').write_text(developer+'\n')
+                      break
+              else: raise RuntimeError('No Metal 4 compiler; execution not attempted')
+      - name: Add the regression before changing the static solver
+        shell: python
+        run: |
+          import pathlib, subprocess
+          path='tests/numi_human_static_support_test.cpp'
+          assert subprocess.check_output(['git','hash-object',path],text=True).strip()=='74568be81ad6723cfd7c3cf4ff968b3d35f78e61'
+          text=pathlib.Path(path).read_text()
+          old='    auto penetrating = touching;'
+          assert text.count(old)==1
+          text=text.replace(old,'''    // The runtime speculative band is not physical contact thickness.
+              // A separated body must not acquire a static ground reaction,
+              // even when its witness is inside that broad-phase band.
+              for (const double gap : {1.0e-5, 5.0e-4, 1.0e-3, 1.9e-3}) {
+                  auto nearPlane = touching;
+                  nearPlane.localPoint[2] = gap;
+                  require(fixture.compile({nearPlane}, airborne).succeeded() &&
+                              !airborne.diagnostics.balanced &&
+                              airborne.supportNormalForce[0] == 0.0 &&
+                              near(airborne.diagnostics.maximumFloatingRootForceResidual,
+                                   fixture.weight()),
+                          "near-plane separation carried a static reaction");
+              }
+
+          '''+old)
+          pathlib.Path(path).write_text(text)
+      - name: Prove the old static owner fails the new regression
+        run: |
+          set -eu
+          cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON > human-contact-evidence/configure.txt 2>&1
+          cmake --build BuildHuman --target metalrobo_numi_human_static_support_test --parallel 3 > human-contact-evidence/build-before.txt 2>&1
+          set +e
+          BuildHuman/bin/metalrobo_numi_human_static_support_test > human-contact-evidence/static-before.txt 2>&1
+          result=$?
+          set -e
+          test "$result" -eq 1
+          grep -F 'near-plane separation carried a static reaction' human-contact-evidence/static-before.txt
+      - name: Repair static admission and add phase timing without changing dynamics
+        shell: python
+        run: |
+          import pathlib, subprocess
+          def read(path,sha):
+              assert subprocess.check_output(['git','hash-object',path],text=True).strip()==sha,path+' changed'
+              return pathlib.Path(path).read_text()
+          path='src/core/NumiHumanMuscleEquilibrium.cpp'
+          text=read(path,'a379b2eff87a4ffb31ea267be074577bf53d9035')
+          old='        if (requireAdmissiblePose && gap > activationDistance) continue;'
+          assert text.count(old)==1
+          text=text.replace(old,'''        // A speculative runtime band only schedules a possible collision.
+                  // Static positive load requires geometrically closed support.
+                  const double staticGapTolerance = std::min(gapTolerance, activationDistance);
+                  if (requireAdmissiblePose && gap > staticGapTolerance) continue;''')
+          pathlib.Path(path).write_text(text)
+          path='include/metalrobo/NumiHumanMuscleEquilibrium.hpp'
+          text=read(path,'77e3726930bdb2fda78a45d830513c984f21f73e')
+          old='''    // Runtime source contacts use a bounded near-plane activation band. The
+              // offline wrench solve must admit the same band while still rejecting
+              // penetration beyond supportGapToleranceMeters.'''
+          assert text.count(old)==1
+          text=text.replace(old,'''    // Runtime speculative-contact search distance. It never enlarges the
+              // static load-bearing region: only supportGapToleranceMeters admits
+              // numerical roundoff in static closed-contact geometry.''')
+          pathlib.Path(path).write_text(text)
+          path='apps/numilab_human_myosim_visual_probe.mm'
+          text=read(path,'4ec3ffcc05dfbc5116bd18fa150e62517ba059df')
+          def replace(old,new):
+              global text
+              assert text.count(old)==1,old
+              text=text.replace(old,new)
+          replace('#include <cmath>','#include <cmath>\n#include <chrono>')
+          replace('namespace {\n\n','''namespace {
+
+          // Wall-clock diagnostics only; never alter simulation time or state.
+          void reportHumanExecutionStage(const char* stage, std::uint32_t step = 0u) {
+              static const auto origin = std::chrono::steady_clock::now();
+              const double elapsed = std::chrono::duration<double, std::milli>(
+                  std::chrono::steady_clock::now() - origin).count();
+              std::cout << "human_execution_stage=" << stage
+                        << " wall_elapsed_ms=" << elapsed
+                        << " stage_step=" << step << std::endl;
+          }
+
+          ''')
+          replace('if (gap > config.supportActivationDistanceMeters)',
+                  'if (gap > config.supportGapToleranceMeters)')
+          replace('    CompiledStandActivation compiledActivation;',
+                  '    reportHumanExecutionStage("static_equilibrium_begin");\n    CompiledStandActivation compiledActivation;')
+          replace('    // Explicit tissue poses disable pose search before recruitment, so q,',
+                  '    reportHumanExecutionStage("static_equilibrium_end");\n    // Explicit tissue poses disable pose search before recruitment, so q,')
+          replace('    const InitialMujocoFiberEquilibrium initialFiberEquilibrium =',
+                  '    reportHumanExecutionStage("fiber_equilibrium_begin");\n    const InitialMujocoFiberEquilibrium initialFiberEquilibrium =')
+          replace('    states = initialFiberEquilibrium.states;',
+                  '    states = initialFiberEquilibrium.states;\n    reportHumanExecutionStage("fiber_equilibrium_end", initialFiberEquilibrium.iterations);\n    reportHumanExecutionStage("initial_force_checks_begin");')
+          replace('    auto diagnostics = context.run(model, input, metalResult);',
+                  '    reportHumanExecutionStage("initial_force_checks_end");\n    reportHumanExecutionStage("native_horizon_begin");\n    auto diagnostics = context.run(model, input, metalResult);\n    reportHumanExecutionStage("native_horizon_end", diagnostics.completedStandSteps);')
+          replace('    if (capturePersistentStandTrace) {',
+                  '    if (capturePersistentStandTrace) {\n        reportHumanExecutionStage("segmented_trace_begin");')
+          replace('            traceInput.q = traceQ;',
+                  '            if (traceStep == 1u || traceStep % 16u == 0u)\n                reportHumanExecutionStage("segmented_trace_step", traceStep);\n            traceInput.q = traceQ;')
+          replace('        auto replayDiagnostics = context.run(model, input, replayResult);',
+                  '        reportHumanExecutionStage("deterministic_replay_begin");\n        auto replayDiagnostics = context.run(model, input, replayResult);\n        reportHumanExecutionStage("deterministic_replay_end", replayDiagnostics.completedStandSteps);')
+          pathlib.Path(path).write_text(text)
+      - name: Verify corrected static geometry and compile the complete Human executable
+        run: |
+          set -eu
+          cmake --build BuildHuman --target metalrobo_numi_human_static_support_test metalrobo_numilab_human_myosim_visual_probe --parallel 3 > human-contact-evidence/build-after.txt 2>&1
+          BuildHuman/bin/metalrobo_numi_human_static_support_test > human-contact-evidence/static-after.txt 2>&1
+          cat human-contact-evidence/static-after.txt
+          python3 tools/check_human_constraint_owner.py
+          python3 tools/check_human_host_syntax.py
+          git diff --check
+      - name: Publish tested sources only
+        run: |
+          set -eu
+          git add -- src/core/NumiHumanMuscleEquilibrium.cpp include/metalrobo/NumiHumanMuscleEquilibrium.hpp tests/numi_human_static_support_test.cpp apps/numilab_human_myosim_visual_probe.mm
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Separate static contact closure from speculative activation'
+          git push origin HEAD:refs/heads/human-native-runtime-20260915
+          git rev-parse HEAD > human-contact-evidence/native-revision.txt
+          git diff HEAD^ HEAD > human-contact-evidence/change.patch
+      - name: Localize the same 64-step release with bounded stack sampling
+        shell: python
+        run: |
+          import hashlib, json, os, pathlib, signal, subprocess, time
+          root=pathlib.Path.cwd()
+          out=root/'human-contact-evidence'
+          inputs=root/'human-inputs'
+          published=json.loads((inputs/'Docs/media/native-runtime-source-package-20260915/source-package-receipt-v1.json').read_text())
+          def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
+          payloads={name:inputs/row['path'] for name,row in published['inputs'].items()}
+          for name,path in payloads.items():
+              assert digest(path)==published['inputs'][name]['sha256'],name
+          binary=root/'BuildHuman/bin/metalrobo_numilab_human_myosim_visual_probe'
+          command=[str(binary),str(payloads['rigid']),str(payloads['muscle']),str(out/'frames'),'--tendon-payload',str(payloads['tendon']),'--joint-equality-payload',str(payloads['joint_equalities']),'--support-contact-payload',str(payloads['support_contact']),'--persistent-metal-stand','--mechanics-only','--persistent-source-passive-joint-tissue','--persistent-stand-trace','--stand-deterministic-replay','--stand-contact-iterations','64','--muscle-step-seconds','0.0001','--muscle-step-count','64','--muscle-activation','0.8']
+          artifacts={name:{'path':str(path),'sha256':digest(path)} for name,path in payloads.items()}
+          for path in [binary,*sorted((root/'BuildHuman').rglob('*.metallib')),*sorted((root/'BuildHuman/lib').glob('*.dylib'))]:
+              artifacts[str(path.relative_to(root))]={'path':str(path),'sha256':digest(path)}
+          receipt={'schema':'numi.human.execution-diagnosis.v1','native_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'input_commit':subprocess.check_output(['git','-C',str(inputs),'rev-parse','HEAD'],text=True).strip(),'command':command,'artifacts':artifacts,'execution_environment':'GitHub macos-26; not a physical M4 qualification','sample_attempts':[],'timeout_seconds':300,'force_convergence':False,'sustained_standing':False}
+          start=time.monotonic()
+          with (out/'stdout.txt').open('w') as stdout,(out/'stderr.txt').open('w') as stderr:
+              process=subprocess.Popen(command,stdout=stdout,stderr=stderr,env={**os.environ,'MTL_DEBUG_LAYER':'1'},start_new_session=True)
+              for deadline in [120,210,290,300]:
+                  try:
+                      process.wait(timeout=max(0.1,deadline-(time.monotonic()-start)))
+                      break
+                  except subprocess.TimeoutExpired:
+                      if deadline<300:
+                          sample=out/f'sample-{deadline}.txt'
+                          try:
+                              result=subprocess.run(['/usr/bin/sample',str(process.pid),'1','1','-file',str(sample)],capture_output=True,text=True,timeout=8)
+                              receipt['sample_attempts'].append({'at_seconds':deadline,'exit_code':result.returncode,'stdout':result.stdout,'stderr':result.stderr,'path':sample.name})
+                          except subprocess.TimeoutExpired:
+                              receipt['sample_attempts'].append({'at_seconds':deadline,'status':'sampling_timeout'})
+                      else:
+                          try: os.killpg(process.pid,signal.SIGKILL)
+                          except ProcessLookupError: pass
+                          process.wait()
+                          receipt['timed_out']=True
+          receipt.update(exit_code=process.returncode,wall_seconds=time.monotonic()-start)
+          receipt['artifacts_unchanged']=all(digest(pathlib.Path(row['path']))==row['sha256'] for row in artifacts.values())
+          receipt['stages']=[line for line in (out/'stdout.txt').read_text().splitlines() if line.startswith('human_execution_stage=')]
+          for name in ['stdout','stderr']: receipt[name+'_sha256']=digest(out/(name+'.txt'))
+          (out/'execution.json').write_text(json.dumps(receipt,indent=2,allow_nan=False)+'\n')
+          print('\n'.join(receipt['stages']),flush=True)
+          print('native_exit_code=',process.returncode,'wall_seconds=',receipt['wall_seconds'],flush=True)
+          if process.returncode!=0 or not receipt['artifacts_unchanged']:
+              raise RuntimeError('Release not complete; diagnostic evidence retained without qualification')
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-static-contact-and-execution-evidence
+          path: |
+            human-contact-evidence
+            src/core/NumiHumanMuscleEquilibrium.cpp
+            include/metalrobo/NumiHumanMuscleEquilibrium.hpp
+            tests/numi_human_static_support_test.cpp
+            apps/numilab_human_myosim_visual_probe.mm
+          retention-days: 14
+          if-no-files-found: error
