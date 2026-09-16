@@ -1,0 +1,38 @@
+name: Audit Human velocity transport
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths: [.github/workflows/human-velocity-transport-audit.yml]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Hash embedded transport chunks
+        shell: python
+        run: |
+          import ast, hashlib, pathlib
+          path = pathlib.Path('.github/workflows/human-velocity-diagnostics-integrate.yml')
+          text = path.read_text()
+          block = text.split('encoded = (', 1)[1].split('\n          )', 1)[0]
+          chunks = [ast.literal_eval(line.strip()) for line in block.splitlines() if line.strip()]
+          expected = [
+            'fa36df3bc92a830dce579510f84e497e10ff95721aaa036e082f0dc21e8d7a95',
+            '711b6719b22f036757a4a930f266fcd0ec73c75df04ccc524fcba60a5ae3f197',
+            '917baab423bbab865462ae90706a12953120782ed9ced9b8b53af954c253542e',
+            '0cec6a2cbd98bf3d322dfdb524dc00203573dd76decfb4d8faea07f6de2c58f0',
+            'dd6967a12bf2c263bbb80a3280b438923841160a1d48c3497f242d5369373b4c',
+            '5d6d4cc39ea701214ae81c5f5dc73e9bb96bd11f78f27bf55c8bf05e1d4909e5',
+            '87571132415780bd568fddd2bc4221b0b6095418f3239a77a62421ad4f8a05a1',
+            '740c7922ba17551eca423420242af8563e06b72209910216dbd0f00a59e1bb98',
+          ]
+          assert len(chunks) == len(expected), (len(chunks), len(expected))
+          for index, (chunk, digest) in enumerate(zip(chunks, expected, strict=True)):
+              actual = hashlib.sha256(chunk.encode()).hexdigest()
+              print(index, len(chunk), actual)
+              assert actual == digest, f'chunk {index} differs: {actual}'
+          encoded = ''.join(chunks)
+          assert len(encoded) == 7164
+          assert hashlib.sha256(encoded.encode()).hexdigest() == '69e998cd7e8d4e3ecfb569efc1a4ab694448498d6e5c956ca77b1f2013591554'
