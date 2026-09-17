@@ -116,6 +116,22 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
     auto* status=static_cast<MRNumiHumanStandStatusGPU*>(buffers[17].contents);
     require(status->code==MR_NUMI_HUMAN_STAND_SUCCESS&&status->completedSteps==1,
             "production step did not complete");
+    require(status->velocityDiagnosticOwners.x<nv &&
+                status->velocityDiagnosticOwners.y<nv &&
+                status->velocityDiagnosticOwners.z<nv &&
+                status->velocityDiagnosticOwners.w<nv,
+            "velocity diagnostic owner is invalid");
+    require(status->velocityDiagnostics.x>=0.0f &&
+                status->velocityDiagnostics.y>=0.0f &&
+                status->velocityDiagnostics.z>=0.0f &&
+                status->velocityDiagnostics.w>=0.0f &&
+                std::abs(status->velocityDiagnostics.z/h-
+                         status->contactAndAcceleration.w)<=
+                    2e-4f*(1.0f+status->contactAndAcceleration.w),
+            "impulse-equivalent acceleration does not match pre-projection delta-v");
+    require(std::abs(status->velocityDiagnostics.w-
+                     status->velocityDiagnostics.z)<=2e-6f,
+            "friction fixture without equality projection changed published delta-v");
     double maxError=0;
     for(unsigned i=0;i<nv;++i) maxError=std::max(maxError,std::abs(v[i]-expected[i]));
     if(maxError>3e-5) {
@@ -128,7 +144,7 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
     require(std::abs(status->contactAndAcceleration.z-mass)<2e-5,"normal contact solution changed");
     require(status->factorAndAssistance.z==0&&status->factorAndAssistance.w==0,"hidden assistance");
     require(px*(2*speedSign+a*px)+py*(speedSign+d*py)<=2e-5,"positive sliding work");
-    return 11;
+    return 14;
 }
 }
 int main(int argc,char** argv) {

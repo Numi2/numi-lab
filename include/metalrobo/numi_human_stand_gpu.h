@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_NUMI_HUMAN_STAND_ABI_VERSION 7u
+#define MR_NUMI_HUMAN_STAND_ABI_VERSION 8u
 #define MR_NUMI_HUMAN_STAND_MAX_BODIES 192u
 #define MR_NUMI_HUMAN_STAND_MAX_DOFS 160u
 #define MR_NUMI_HUMAN_STAND_MAX_Q 161u
@@ -146,10 +146,20 @@ typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
     // index, source velocity DOF, then equality record with the maximum
     // absolute bilateral impulse. MR_INVALID_INDEX means no nonzero owner.
     mr_uint4 constraintImpulseOwners;
+
+    // Keep smooth dynamics and velocity-level constraint corrections separate.
+    // x = maximum unconstrained force acceleration before contact/equalities/
+    // limits; y = maximum constraint-induced delta-v before the exact equality
+    // projection; z = maximum total pre-projection delta-v from the accepted
+    // state; w = maximum final published delta-v after exact projection.
+    mr_float4 velocityDiagnostics;
+    // Articulation-local velocity DOFs owning x/y/z/w above. An invalid owner
+    // means no accepted physical step populated that diagnostic.
+    mr_uint4 velocityDiagnosticOwners;
 } MRNumiHumanStandStatusGPU;
 
 #if !defined(__METAL_VERSION__)
 static_assert(sizeof(MRNumiHumanStandContactGPU) == 32);
 static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 160);
-static_assert(sizeof(MRNumiHumanStandStatusGPU) == 208);
+static_assert(sizeof(MRNumiHumanStandStatusGPU) == 240);
 #endif

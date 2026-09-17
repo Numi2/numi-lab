@@ -180,6 +180,22 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
             }
             require(status[e].code==MR_NUMI_HUMAN_STAND_SUCCESS&&status[e].completedSteps==1,
                     "production kernel did not complete the step");
+            require(status[e].velocityDiagnosticOwners.x<nv &&
+                        status[e].velocityDiagnosticOwners.y<nv &&
+                        status[e].velocityDiagnosticOwners.z<nv &&
+                        status[e].velocityDiagnosticOwners.w<nv,
+                    "production kernel returned invalid velocity-diagnostic owners");
+            require(status[e].velocityDiagnostics.x>=0.0f &&
+                        status[e].velocityDiagnostics.y>=0.0f &&
+                        status[e].velocityDiagnostics.z>=0.0f &&
+                        status[e].velocityDiagnostics.w>=0.0f &&
+                        std::abs(status[e].velocityDiagnostics.z/h-
+                                 status[e].contactAndAcceleration.w)<=
+                            2e-4f*(1.0f+status[e].contactAndAcceleration.w),
+                    "smooth and impulse-equivalent velocity diagnostics are inconsistent");
+            require(std::abs(status[e].velocityDiagnostics.w-
+                             status[e].velocityDiagnostics.z)<=2e-6f,
+                    "fixture without equality projection changed published delta-v");
             require(std::abs(v[e*nv+6]-expectedV[e])<=2e-5*(1+std::abs(expectedV[e])),
                     "Metal velocity differs from independent backward-Euler solution");
             require(std::abs(q[e*nq+7]-expectedQ[e])<=2e-6,
@@ -189,7 +205,7 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
             double x=q[e*nq+7]-double(program[nv*nv+6]),u=v[e*nv+6];
             double energy=0.5*(enabled?program[6*nv+6]:0.0)*x*x+0.5*(1.0/3.0)*u*u;
             require(energy<=oldEnergy[e]+2e-5*(1+oldEnergy[e]),"passive implicit step created energy");
-            checks+=5;
+            checks+=8;
             if(contactMode==3u) {
                 const unsigned stride=(3u*contactCount+nv)*nv;
                 const auto* response=static_cast<const float*>(buffers[16].contents)

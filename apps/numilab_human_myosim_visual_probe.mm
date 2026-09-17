@@ -2559,11 +2559,20 @@ struct PersistentDynamicForceAuditRow {
 struct PersistentStandTraceSample {
     std::uint32_t step = 0u;
     double timeSeconds = 0.0;
-    // The kernel records this before dependent equality coordinates are
-    // projected. The published-state acceleration below is recomputed after
-    // that projection, so a trace cannot silently conflate the two.
+    // The legacy kernel metric is total pre-projection delta-v divided by the
+    // timestep. It includes unilateral/bilateral impulses and is therefore not
+    // a smooth force acceleration. The explicit fields below preserve each
+    // velocity stage without changing the production solve.
     double kernelMaximumAcceleration = 0.0;
     std::uint32_t kernelMaximumAccelerationDof = MR_INVALID_INDEX;
+    double freeForceAcceleration = 0.0;
+    std::uint32_t freeForceAccelerationDof = MR_INVALID_INDEX;
+    double constraintVelocityDelta = 0.0;
+    std::uint32_t constraintVelocityDeltaDof = MR_INVALID_INDEX;
+    double preProjectionVelocityDelta = 0.0;
+    std::uint32_t preProjectionVelocityDeltaDof = MR_INVALID_INDEX;
+    double publishedVelocityDelta = 0.0;
+    std::uint32_t publishedVelocityDeltaDof = MR_INVALID_INDEX;
     std::uint32_t kernelMaximumAccelerationEquality = MR_INVALID_INDEX;
     std::string kernelMaximumAccelerationOwner = "none";
     // When the peak belongs to a dependent equality velocity, this is an
@@ -2681,7 +2690,17 @@ struct MuscleDrivenVisualState {
     bool sourceConstraintPreloadApplied = false;
     double sourceConstraintPreloadMaximumNewtons = 0.0;
     std::uint32_t persistentCompletedSteps = 0u;
+    // Compatibility metric: maximum pre-projection total delta-v / dt. Keep
+    // smooth force acceleration and constraint/projection increments separate.
     double persistentMaximumAcceleration = 0.0;
+    double persistentMaximumFreeAcceleration = 0.0;
+    std::uint32_t persistentMaximumFreeAccelerationDof = MR_INVALID_INDEX;
+    double persistentMaximumConstraintVelocityDelta = 0.0;
+    std::uint32_t persistentMaximumConstraintVelocityDeltaDof = MR_INVALID_INDEX;
+    double persistentMaximumPreProjectionVelocityDelta = 0.0;
+    std::uint32_t persistentMaximumPreProjectionVelocityDeltaDof = MR_INVALID_INDEX;
+    double persistentMaximumPublishedVelocityDelta = 0.0;
+    std::uint32_t persistentMaximumPublishedVelocityDeltaDof = MR_INVALID_INDEX;
     double persistentMaximumPenetrationMeters = 0.0;
     double persistentNormalImpulse = 0.0;
     double persistentRootAssistanceForce = 0.0;
@@ -4637,6 +4656,15 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     jointEqualities.payload.records.size() &&
                 status.jointEqualityCounts.z == 0u,
             "persistent Human stand returned an incomplete device status");
+    require(
+        std::abs(
+            static_cast<double>(status.velocityDiagnostics.z) /
+                timestepSeconds -
+            static_cast<double>(status.contactAndAcceleration.w)
+        ) <= 2.0e-4 *
+            (1.0 + static_cast<double>(status.contactAndAcceleration.w)),
+        "persistent Human impulse-equivalent acceleration disagrees with delta-v"
+    );
     std::vector<PersistentStandTraceSample> persistentStandTrace;
     bool persistentStandTraceEndpointBitwise = false;
     double persistentStandTraceEndpointMaximumQDelta = 0.0;
@@ -4718,8 +4746,24 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 traceStatus.contactAndAcceleration.w;
             sample.kernelMaximumAccelerationDof =
                 traceStatus.jointEqualityCounts.w;
-            require(sample.kernelMaximumAccelerationDof < traceV.size(),
-                    "persistent Human trace kernel acceleration DOF is invalid");
+            sample.freeForceAcceleration = traceStatus.velocityDiagnostics.x;
+            sample.freeForceAccelerationDof =
+                traceStatus.velocityDiagnosticOwners.x;
+            sample.constraintVelocityDelta = traceStatus.velocityDiagnostics.y;
+            sample.constraintVelocityDeltaDof =
+                traceStatus.velocityDiagnosticOwners.y;
+            sample.preProjectionVelocityDelta = traceStatus.velocityDiagnostics.z;
+            sample.preProjectionVelocityDeltaDof =
+                traceStatus.velocityDiagnosticOwners.z;
+            sample.publishedVelocityDelta = traceStatus.velocityDiagnostics.w;
+            sample.publishedVelocityDeltaDof =
+                traceStatus.velocityDiagnosticOwners.w;
+            require(sample.kernelMaximumAccelerationDof < traceV.size() &&
+                        sample.freeForceAccelerationDof < traceV.size() &&
+                        sample.constraintVelocityDeltaDof < traceV.size() &&
+                        sample.preProjectionVelocityDeltaDof < traceV.size() &&
+                        sample.publishedVelocityDeltaDof < traceV.size(),
+                    "persistent Human trace velocity diagnostic DOF is invalid");
             for (std::size_t equalityIndex = 0u;
                  equalityIndex < jointEqualities.payload.records.size();
                  ++equalityIndex) {
@@ -5388,6 +5432,51 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     result.persistentMaximumAcceleration = std::max(
         assistedStatus.contactAndAcceleration.w,
         finalStatus.contactAndAcceleration.w
+    );
+    const auto retainVelocityMaximum = [](
+        const float firstValue, const std::uint32_t firstOwner,
+        const float secondValue, const std::uint32_t secondOwner,
+        double& value, std::uint32_t& owner
+    ) {
+        if (firstValue >= secondValue) {
+            value = firstValue;
+            owner = firstOwner;
+        } else {
+            value = secondValue;
+            owner = secondOwner;
+        }
+    };
+    retainVelocityMaximum(
+        assistedStatus.velocityDiagnostics.x,
+        assistedStatus.velocityDiagnosticOwners.x,
+        finalStatus.velocityDiagnostics.x,
+        finalStatus.velocityDiagnosticOwners.x,
+        result.persistentMaximumFreeAcceleration,
+        result.persistentMaximumFreeAccelerationDof
+    );
+    retainVelocityMaximum(
+        assistedStatus.velocityDiagnostics.y,
+        assistedStatus.velocityDiagnosticOwners.y,
+        finalStatus.velocityDiagnostics.y,
+        finalStatus.velocityDiagnosticOwners.y,
+        result.persistentMaximumConstraintVelocityDelta,
+        result.persistentMaximumConstraintVelocityDeltaDof
+    );
+    retainVelocityMaximum(
+        assistedStatus.velocityDiagnostics.z,
+        assistedStatus.velocityDiagnosticOwners.z,
+        finalStatus.velocityDiagnostics.z,
+        finalStatus.velocityDiagnosticOwners.z,
+        result.persistentMaximumPreProjectionVelocityDelta,
+        result.persistentMaximumPreProjectionVelocityDeltaDof
+    );
+    retainVelocityMaximum(
+        assistedStatus.velocityDiagnostics.w,
+        assistedStatus.velocityDiagnosticOwners.w,
+        finalStatus.velocityDiagnostics.w,
+        finalStatus.velocityDiagnosticOwners.w,
+        result.persistentMaximumPublishedVelocityDelta,
+        result.persistentMaximumPublishedVelocityDeltaDof
     );
     result.persistentRootAssistanceForce = assistedStatus.factorAndAssistance.z;
     result.persistentRootAssistanceTorque = assistedStatus.factorAndAssistance.w;
@@ -18103,6 +18192,23 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->sourceConstraintPreloadMaximumNewtons : 0.0)
                       << " persistent_max_acceleration=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->persistentMaximumAcceleration : 0.0)
+                      << " persistent_max_acceleration_semantics=pre_projection_total_delta_v_divided_by_timestep"
+                      << " persistent_max_free_acceleration=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentMaximumFreeAcceleration : 0.0)
+                      << " persistent_max_free_acceleration_dof=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentMaximumFreeAccelerationDof : MR_INVALID_INDEX)
+                      << " persistent_max_constraint_delta_v=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentMaximumConstraintVelocityDelta : 0.0)
+                      << " persistent_max_constraint_delta_v_dof=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentMaximumConstraintVelocityDeltaDof : MR_INVALID_INDEX)
+                      << " persistent_max_pre_projection_delta_v=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentMaximumPreProjectionVelocityDelta : 0.0)
+                      << " persistent_max_pre_projection_delta_v_dof=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentMaximumPreProjectionVelocityDeltaDof : MR_INVALID_INDEX)
+                      << " persistent_max_published_delta_v=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentMaximumPublishedVelocityDelta : 0.0)
+                      << " persistent_max_published_delta_v_dof=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentMaximumPublishedVelocityDeltaDof : MR_INVALID_INDEX)
                       << " persistent_max_penetration_m=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->persistentMaximumPenetrationMeters : 0.0)
                       << " persistent_normal_impulse=" << (muscleDrivenState.has_value()
@@ -18494,6 +18600,22 @@ int main(int argc, char** argv) {
                               << sample.kernelMaximumAcceleration
                               << ",\"kernel_maximum_acceleration_dof\":"
                               << sample.kernelMaximumAccelerationDof
+                              << ",\"free_force_acceleration\":"
+                              << sample.freeForceAcceleration
+                              << ",\"free_force_acceleration_dof\":"
+                              << sample.freeForceAccelerationDof
+                              << ",\"constraint_velocity_delta\":"
+                              << sample.constraintVelocityDelta
+                              << ",\"constraint_velocity_delta_dof\":"
+                              << sample.constraintVelocityDeltaDof
+                              << ",\"pre_projection_velocity_delta\":"
+                              << sample.preProjectionVelocityDelta
+                              << ",\"pre_projection_velocity_delta_dof\":"
+                              << sample.preProjectionVelocityDeltaDof
+                              << ",\"published_velocity_delta\":"
+                              << sample.publishedVelocityDelta
+                              << ",\"published_velocity_delta_dof\":"
+                              << sample.publishedVelocityDeltaDof
                               << ",\"kernel_maximum_acceleration_equality\":"
                               << sample.kernelMaximumAccelerationEquality
                               << ",\"kernel_maximum_acceleration_owner\":\""

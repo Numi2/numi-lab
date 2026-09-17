@@ -7825,7 +7825,8 @@ MetalArticulatedOperatorSubmission::wait(
                     !finite(stand.jointEqualityProjectionDiagnostics) ||
                     !finite(stand.preProjectionPreStepConstraintDiagnostics) ||
                     !finite(stand.postProjectionPreStepConstraintDiagnostics) ||
-                    !finite(stand.constraintImpulseDiagnostics)) {
+                    !finite(stand.constraintImpulseDiagnostics) ||
+                    !finite(stand.velocityDiagnostics)) {
                     return reject(
                         std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::internalFailure,
@@ -7860,6 +7861,16 @@ MetalArticulatedOperatorSubmission::wait(
                         std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::internalFailure,
                         "GPU Numi Human constraint-impulse owners are malformed"
+                    );
+                }
+                if (stand.velocityDiagnosticOwners.x >= pending->articulation.nv ||
+                    stand.velocityDiagnosticOwners.y >= pending->articulation.nv ||
+                    stand.velocityDiagnosticOwners.z >= pending->articulation.nv ||
+                    stand.velocityDiagnosticOwners.w >= pending->articulation.nv) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::internalFailure,
+                        "GPU Numi Human velocity-diagnostic owners are malformed"
                     );
                 }
                 const std::size_t expectedTransfers =

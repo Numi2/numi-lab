@@ -251,6 +251,7 @@ kernel void mr_numi_human_stand_step(
             status.failingIndex = MR_INVALID_INDEX;
             status.jointEqualityCounts.w = MR_INVALID_INDEX;
             status.constraintImpulseOwners = uint4(MR_INVALID_INDEX);
+            status.velocityDiagnosticOwners = uint4(MR_INVALID_INDEX);
             status.contactAndAcceleration.x =
                 (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u &&
                     dispatch.supportContactCount != 0u
@@ -706,10 +707,19 @@ kernel void mr_numi_human_stand_step(
         return;
     }
     const float timestep = dispatch.groundPointAndTimestep.w;
-    float maximumAcceleration = 0.0f;
+    float maximumFreeAcceleration = 0.0f;
+    uint maximumFreeAccelerationDof = 0u;
     for (uint dof = 0u; dof < nv; ++dof) {
-        maximumAcceleration = max(maximumAcceleration, abs(candidateV[dof]));
+        const float acceleration = abs(candidateV[dof]);
+        if (acceleration > maximumFreeAcceleration) {
+            maximumFreeAcceleration = acceleration;
+            maximumFreeAccelerationDof = dof;
+        }
         candidateV[dof] = vState[vBase + dof] + timestep * candidateV[dof];
+        // The bias arena is no longer needed after the free solve. Preserve the
+        // unconstrained velocity so contact/equality/limit corrections can be
+        // measured independently from smooth force acceleration.
+        bias[dof] = candidateV[dof];
     }
 
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u) {
@@ -1249,12 +1259,27 @@ kernel void mr_numi_human_stand_step(
         }
         }
 
-    maximumAcceleration = 0.0f;
+    float maximumConstraintVelocityDelta = 0.0f;
+    uint maximumConstraintVelocityDeltaDof = 0u;
+    float maximumPreProjectionVelocityDelta = 0.0f;
+    uint maximumPreProjectionVelocityDeltaDof = 0u;
+    float maximumAcceleration = 0.0f;
     uint maximumAccelerationDof = 0u;
     for (uint dof = 0u; dof < nv; ++dof) {
-        const float acceleration = abs(
-            (candidateV[dof] - vState[vBase + dof]) / timestep
-        );
+        // No factored solve follows this point, so the workspace can retain the
+        // accepted pre-step velocity through the exact equality projection.
+        workspace[dof] = vState[vBase + dof];
+        const float constraintDelta = abs(candidateV[dof] - bias[dof]);
+        if (constraintDelta > maximumConstraintVelocityDelta) {
+            maximumConstraintVelocityDelta = constraintDelta;
+            maximumConstraintVelocityDeltaDof = dof;
+        }
+        const float totalDelta = abs(candidateV[dof] - workspace[dof]);
+        if (totalDelta > maximumPreProjectionVelocityDelta) {
+            maximumPreProjectionVelocityDelta = totalDelta;
+            maximumPreProjectionVelocityDeltaDof = dof;
+        }
+        const float acceleration = totalDelta / timestep;
         if (acceleration > maximumAcceleration) {
             maximumAcceleration = acceleration;
             maximumAccelerationDof = dof;
@@ -1422,6 +1447,16 @@ kernel void mr_numi_human_stand_step(
         candidateV[equality.indices.y] = dependentVelocity;
     }
 
+    float maximumPublishedVelocityDelta = 0.0f;
+    uint maximumPublishedVelocityDeltaDof = 0u;
+    for (uint dof = 0u; dof < nv; ++dof) {
+        const float delta = abs(vState[vBase + dof] - workspace[dof]);
+        if (delta > maximumPublishedVelocityDelta) {
+            maximumPublishedVelocityDelta = delta;
+            maximumPublishedVelocityDeltaDof = dof;
+        }
+    }
+
     // The exact coordinate projection intentionally follows the coupled
     // contact/equality/limit sweeps. Measure its terminal state against the
     // same pre-step linearization before re-querying geometry on the next
@@ -1540,6 +1575,26 @@ kernel void mr_numi_human_stand_step(
         status.jointEqualityCounts.w == MR_INVALID_INDEX) {
         status.contactAndAcceleration.w = maximumAcceleration;
         status.jointEqualityCounts.w = maximumAccelerationDof;
+    }
+    if (maximumFreeAcceleration > status.velocityDiagnostics.x ||
+        status.velocityDiagnosticOwners.x == MR_INVALID_INDEX) {
+        status.velocityDiagnostics.x = maximumFreeAcceleration;
+        status.velocityDiagnosticOwners.x = maximumFreeAccelerationDof;
+    }
+    if (maximumConstraintVelocityDelta > status.velocityDiagnostics.y ||
+        status.velocityDiagnosticOwners.y == MR_INVALID_INDEX) {
+        status.velocityDiagnostics.y = maximumConstraintVelocityDelta;
+        status.velocityDiagnosticOwners.y = maximumConstraintVelocityDeltaDof;
+    }
+    if (maximumPreProjectionVelocityDelta > status.velocityDiagnostics.z ||
+        status.velocityDiagnosticOwners.z == MR_INVALID_INDEX) {
+        status.velocityDiagnostics.z = maximumPreProjectionVelocityDelta;
+        status.velocityDiagnosticOwners.z = maximumPreProjectionVelocityDeltaDof;
+    }
+    if (maximumPublishedVelocityDelta > status.velocityDiagnostics.w ||
+        status.velocityDiagnosticOwners.w == MR_INVALID_INDEX) {
+        status.velocityDiagnostics.w = maximumPublishedVelocityDelta;
+        status.velocityDiagnosticOwners.w = maximumPublishedVelocityDeltaDof;
     }
     status.factorAndAssistance.x = min(
         status.factorAndAssistance.x, minimumPivot
