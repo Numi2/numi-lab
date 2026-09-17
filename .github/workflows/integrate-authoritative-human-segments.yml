@@ -35,15 +35,17 @@ jobs:
           subprocess.run(['git','apply','--index','-'], input=patch, check=True)
           source = pathlib.Path('apps/numilab_human_myosim_visual_probe.mm')
           text = source.read_text()
-          old = """    const auto runAuthoritativeHorizon = [&context, &model,
-                                           &mergeStandStatus,
-                                           useSegmentedAuthoritativeHorizon](
-"""
-          new = """    const auto runAuthoritativeHorizon = [&context, &model,
-                                           &mergeStandStatus,
-                                           useSegmentedAuthoritativeHorizon,
-                                           kMaximumAuthoritativeSubmissionSteps](
-"""
+          old = (
+              "    const auto runAuthoritativeHorizon = [&context, &model,\n"
+              "                                           &mergeStandStatus,\n"
+              "                                           useSegmentedAuthoritativeHorizon](\n"
+          )
+          new = (
+              "    const auto runAuthoritativeHorizon = [&context, &model,\n"
+              "                                           &mergeStandStatus,\n"
+              "                                           useSegmentedAuthoritativeHorizon,\n"
+              "                                           kMaximumAuthoritativeSubmissionSteps](\n"
+          )
           assert text.count(old) == 1
           source.write_text(text.replace(old, new))
           subprocess.run(['git','add','--',str(source)], check=True)
