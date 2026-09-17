@@ -1,0 +1,273 @@
+name: Human 100 ms bounded release
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths:
+      - .github/workflows/human-100ms-release.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: human-100ms-release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Numi2/numilab-human
+          ref: dbd5b7a233c6e510fbda20ba91d9f07f6d9805f5
+          path: human-inputs
+          sparse-checkout: |
+            .numi/commands
+            Docs/media/native-runtime-source-package-20260915
+          persist-credentials: false
+      - name: Verify Metal 4 toolchain
+        run: |
+          set -euo pipefail
+          mkdir -p human-100ms-evidence
+          cat > /tmp/numi-metal-toolchain-probe.metal <<'METAL'
+          #include <metal_stdlib>
+          using namespace metal;
+          kernel void numi_toolchain_probe(device float* value [[buffer(0)]]) {
+              if (value != nullptr) value[0] = value[0];
+          }
+          METAL
+          if ! xcrun -sdk macosx metal -std=metal4.0 -c /tmp/numi-metal-toolchain-probe.metal -o /tmp/numi-metal-toolchain-probe.air > human-100ms-evidence/metal-toolchain-initial.txt 2>&1; then
+              xcodebuild -downloadComponent MetalToolchain 2>&1 | tee human-100ms-evidence/metal-toolchain-download.txt
+          fi
+          xcrun -sdk macosx metal -std=metal4.0 -c /tmp/numi-metal-toolchain-probe.metal -o /tmp/numi-metal-toolchain-probe.air 2>&1 | tee human-100ms-evidence/metal-toolchain-final.txt
+          xcrun -sdk macosx metallib /tmp/numi-metal-toolchain-probe.air -o /tmp/numi-metal-toolchain-probe.metallib
+      - name: Build current Human runtime
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > human-100ms-evidence/native-revision.txt
+          git -C human-inputs rev-parse HEAD > human-100ms-evidence/input-revision.txt
+          sw_vers > human-100ms-evidence/machine.txt
+          xcodebuild -version >> human-100ms-evidence/machine.txt
+          python3 tools/check_human_mechanics_mode.py
+          cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF 2>&1 | tee human-100ms-evidence/configure.txt
+          cmake --build BuildHuman --target metalrobo_numilab_human_myosim_visual_probe --parallel 3 2>&1 | tee human-100ms-evidence/build.txt
+      - name: Execute exact 100 ms unassisted release
+        shell: python
+        run: |
+          import hashlib, json, math, os, pathlib, shlex, signal, subprocess, time
+
+          root = pathlib.Path.cwd()
+          evidence = root / 'human-100ms-evidence'
+          inputs = root / 'human-inputs'
+          package = inputs / 'Docs/media/native-runtime-source-package-20260915'
+          published = json.loads((package / 'source-package-receipt-v1.json').read_text())
+
+          def digest(path):
+              value = hashlib.sha256()
+              with pathlib.Path(path).open('rb') as stream:
+                  for block in iter(lambda: stream.read(1024 * 1024), b''):
+                      value.update(block)
+              return value.hexdigest()
+
+          payloads = {name: inputs / row['path'] for name, row in published['inputs'].items()}
+          for name, path in payloads.items():
+              if digest(path) != published['inputs'][name]['sha256']:
+                  raise RuntimeError('source payload changed: ' + name)
+
+          wrapper = inputs / '.numi/commands/human'
+          binary = root / 'BuildHuman/bin/metalrobo_numilab_human_myosim_visual_probe'
+          command = [
+              str(wrapper), 'stand', str(payloads['rigid'].parent),
+              str(evidence / 'unused-in-mechanics-mode.nhbones'),
+              str(payloads['tendon']), str(payloads['support_contact']),
+              str(evidence / 'frames'), '--mechanics-only', '--no-step-trace',
+              '--steps', '1000', '--timestep', '0.0001',
+          ]
+          environment = {
+              **os.environ,
+              'NUMI_LAB_ROOT': str(root),
+              'NUMI_BUILD_DIR': str(root / 'BuildHuman'),
+              'MTL_DEBUG_LAYER': '1',
+              'NUMI_HUMAN_EXECUTION_STAGES': '1',
+          }
+          stdout_path = evidence / 'stdout.txt'
+          stderr_path = evidence / 'stderr.txt'
+          started = time.monotonic()
+          with stdout_path.open('w') as stdout, stderr_path.open('w') as stderr:
+              process = subprocess.Popen(
+                  command, stdout=stdout, stderr=stderr,
+                  env=environment, start_new_session=True,
+              )
+              try:
+                  exit_code = process.wait(timeout=3000)
+              except subprocess.TimeoutExpired:
+                  with (evidence / 'timeout-profile.txt').open('w') as profile:
+                      try:
+                          sampled = subprocess.run(
+                              ['/usr/bin/sample', str(process.pid), '4', '1'],
+                              stdout=profile, stderr=subprocess.STDOUT, timeout=15,
+                          )
+                          profile.write('\nsample_exit_code=' + str(sampled.returncode) + '\n')
+                      except (OSError, subprocess.TimeoutExpired) as error:
+                          profile.write(str(error))
+                  try:
+                      os.killpg(process.pid, signal.SIGKILL)
+                  except ProcessLookupError:
+                      pass
+                  process.wait()
+                  exit_code = None
+          wall_seconds = time.monotonic() - started
+
+          text = stdout_path.read_text()
+          summaries = [line for line in text.splitlines() if line.startswith('myosim_articulated_mechanics=')]
+          terminals = [line.split('=', 1)[1] for line in text.splitlines() if line.startswith('stand_terminal_state=')]
+          metrics = {}
+          if len(summaries) == 1:
+              for token in shlex.split(summaries[0]):
+                  if '=' not in token:
+                      continue
+                  key, value = token.split('=', 1)
+                  if key in metrics:
+                      raise RuntimeError('duplicate native metric: ' + key)
+                  metrics[key] = value
+          terminal = json.loads(terminals[0]) if len(terminals) == 1 else None
+          stderr_lines = [line for line in stderr_path.read_text().splitlines()
+                          if line.strip() and 'Metal API Validation Enabled' not in line]
+
+          def finite_number(key):
+              if key not in metrics:
+                  raise RuntimeError('missing native metric: ' + key)
+              value = float(metrics[key])
+              if not math.isfinite(value):
+                  raise RuntimeError('non-finite native metric: ' + key)
+              return value
+
+          required = {
+              'myosim_articulated_mechanics': 'ok',
+              'rendering_performed': 'false',
+              'visual_coverage_qualified': 'false',
+              'core_bodies': '157',
+              'persistent_metal_horizon': 'true',
+              'persistent_completed_steps': '1000',
+              'muscle_step_count': '1000',
+              'muscle_step_seconds': '0.0001',
+              'persistent_root_assistance': 'none',
+              'stand_deterministic_replay': 'bitwise',
+              'persistent_passive_joint_law': 'current_state_linear_backward_euler',
+              'compiled_stand_balanced': 'true',
+          }
+          mismatches = {key: (metrics.get(key), expected)
+                        for key, expected in required.items()
+                        if metrics.get(key) != expected}
+
+          root_translation_delta = root_orientation_delta = None
+          scalar_configuration_delta = velocity_maximum = None
+          if terminal is not None:
+              if terminal.get('schema') != 'numi.human.legacy-stand-terminal.v1':
+                  raise RuntimeError('terminal schema changed')
+              if terminal.get('step_count') != 1000 or terminal.get('root_assistance') is not False:
+                  raise RuntimeError('terminal horizon contract changed')
+              q0, q1 = terminal['initial_q'], terminal['q']
+              v1 = terminal['v']
+              if len(q0) != 129 or len(q1) != 129 or len(v1) != 128:
+                  raise RuntimeError('terminal state dimensions changed')
+              root_translation_delta = max(abs(float(a) - float(b)) for a, b in zip(q0[:3], q1[:3]))
+              qa = [float(value) for value in q0[3:7]]
+              qb = [float(value) for value in q1[3:7]]
+              na = math.sqrt(sum(value * value for value in qa))
+              nb = math.sqrt(sum(value * value for value in qb))
+              qa = [value / na for value in qa]
+              qb = [value / nb for value in qb]
+              sign = 1.0 if sum(a * b for a, b in zip(qa, qb)) >= 0.0 else -1.0
+              numerator = math.sqrt(sum((a - sign * b) ** 2 for a, b in zip(qa, qb)))
+              denominator = math.sqrt(sum((a + sign * b) ** 2 for a, b in zip(qa, qb)))
+              root_orientation_delta = 4.0 * math.atan2(numerator, denominator)
+              scalar_configuration_delta = max(
+                  abs(float(a) - float(b)) for a, b in zip(q0[7:], q1[7:])
+              )
+              velocity_maximum = max(abs(float(value)) for value in v1)
+              if not all(math.isfinite(value) for value in (
+                  root_translation_delta, root_orientation_delta,
+                  scalar_configuration_delta, velocity_maximum,
+              )):
+                  raise RuntimeError('terminal drift is non-finite')
+
+          penetration = finite_number('persistent_max_penetration_m') if metrics else None
+          normal_impulse = finite_number('persistent_normal_impulse') if metrics else None
+          equality_error = finite_number('stand_max_equality_velocity_error') if metrics else None
+          published_delta_v = finite_number('persistent_max_published_delta_v') if metrics else None
+          dynamic_force_residual = finite_number('persistent_dynamic_force_residual_max_n') if metrics else None
+          bounded_release_completed = (
+              exit_code == 0 and not stderr_lines and not mismatches and terminal is not None
+              and penetration is not None and penetration <= 1.0e-4
+              and normal_impulse is not None and normal_impulse > 0.0
+          )
+          result = {
+              'schema': 'numi.human.100ms-bounded-release.v1',
+              'status': 'completed' if bounded_release_completed else 'failed',
+              'native_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              'input_commit': subprocess.check_output(['git', '-C', str(inputs), 'rev-parse', 'HEAD'], text=True).strip(),
+              'binary_sha256': digest(binary),
+              'launcher_sha256': digest(wrapper),
+              'payload_sha256': {name: digest(path) for name, path in payloads.items()},
+              'duration_seconds': 0.1,
+              'timestep_seconds': 0.0001,
+              'step_count': 1000,
+              'wall_seconds': wall_seconds,
+              'exit_code': exit_code,
+              'stdout_sha256': digest(stdout_path),
+              'stderr_sha256': digest(stderr_path),
+              'stderr_nonbanner_lines': stderr_lines,
+              'required_metric_mismatches': mismatches,
+              'results': {
+                  'root_translation_max_delta_m': root_translation_delta,
+                  'root_orientation_delta_rad': root_orientation_delta,
+                  'scalar_configuration_max_delta_mixed_units': scalar_configuration_delta,
+                  'terminal_generalized_velocity_max_mixed_units': velocity_maximum,
+                  'maximum_penetration_m': penetration,
+                  'terminal_normal_impulse_ns': normal_impulse,
+                  'maximum_equality_velocity_error_mixed_units': equality_error,
+                  'maximum_published_delta_v_mixed_units': published_delta_v,
+                  'dynamic_force_residual_max_n': dynamic_force_residual,
+              },
+              'qualification': {
+                  'source_bound': True,
+                  'exact_100ms_clock': True,
+                  'no_root_assistance': metrics.get('persistent_root_assistance') == 'none',
+                  'bitwise_replay': metrics.get('stand_deterministic_replay') == 'bitwise',
+                  'bounded_release_completed': bounded_release_completed,
+                  'stable_standing': False,
+                  'force_convergence': False,
+                  'physical_m4_validation': False,
+                  'recovery': False,
+                  'walking': False,
+              },
+              'boundary': (
+                  'Hosted Apple Paravirtual 100 ms release without per-step trace. Completion, replay, '
+                  'contact retention, terminal drift, and bounded penetration are recorded. No empirical '
+                  'standing tolerance, physical-M4 validation, force convergence, recovery, or walking is claimed.'
+              ),
+              'metrics': metrics,
+          }
+          (evidence / 'release-v1.json').write_text(json.dumps(result, indent=2, allow_nan=False) + '\n')
+          print(json.dumps({
+              'status': result['status'],
+              'native_commit': result['native_commit'],
+              'wall_seconds': wall_seconds,
+              'root_translation_max_delta_m': root_translation_delta,
+              'root_orientation_delta_rad': root_orientation_delta,
+              'terminal_generalized_velocity_max_mixed_units': velocity_maximum,
+              'maximum_penetration_m': penetration,
+              'terminal_normal_impulse_ns': normal_impulse,
+          }, indent=2, allow_nan=False))
+          if not bounded_release_completed:
+              raise RuntimeError('100 ms Human release failed closed; evidence retained')
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-100ms-bounded-release
+          path: human-100ms-evidence
+          retention-days: 14
+          if-no-files-found: error
