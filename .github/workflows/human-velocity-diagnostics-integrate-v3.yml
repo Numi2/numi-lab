@@ -1,0 +1,78 @@
+name: Integrate Human velocity-stage diagnostics v3
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths: [.github/workflows/human-velocity-diagnostics-integrate-v3.yml]
+permissions:
+  contents: write
+concurrency:
+  group: human-velocity-diagnostics-integration-v3
+  cancel-in-progress: false
+jobs:
+  integrate:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore and apply the verified source patch
+        shell: python
+        run: |
+          import ast, base64, hashlib, pathlib, subprocess, zlib
+          carrier = pathlib.Path('.github/workflows/human-velocity-diagnostics-integrate-v2.yml').read_text()
+          block = carrier.split('chunks = (', 1)[1].split('\n          )', 1)[0]
+          chunks = [ast.literal_eval(line.strip()) for line in block.splitlines() if line.strip()]
+          encoded = ''.join(chunks)
+          assert len(encoded) == 6828
+          assert hashlib.sha256(encoded.encode()).hexdigest() == '18c9804810a50e713ec8efa49a248c0220715ec9469b246d6d225c9decd8ff79'
+          patch = zlib.decompress(base64.b64decode(encoded, validate=True))
+          assert len(patch) == 25191
+          assert hashlib.sha256(patch).hexdigest() == '23186362a404ddeee73d18f78a885e4bc8e63bab7681a11bee3cf00ce55b828c'
+          subprocess.run(['git', 'apply', '--check', '-'], input=patch, check=True)
+          subprocess.run(['git', 'apply', '--index', '-'], input=patch, check=True)
+          expected = {
+              'apps/numilab_human_myosim_visual_probe.mm',
+              'include/metalrobo/numi_human_stand_gpu.h',
+              'src/metal/MetalArticulatedOperator.mm',
+              'src/metal/NumiHumanStand.metal',
+              'tests/numi_human_friction_metal_test.mm',
+              'tests/numi_human_passive_metal_test.mm',
+          }
+          actual = set(subprocess.check_output(['git','diff','--cached','--name-only'], text=True).splitlines())
+          assert actual == expected, (sorted(actual), sorted(expected))
+          subprocess.run(['git','diff','--cached','--check'], check=True)
+      - name: Verify portable numerical contracts
+        run: |
+          set -eu
+          for name in constraint_projection equality_limit_block passive_joint friction; do
+            clang++ -std=c++20 -O2 -Wall -Wextra -Werror -Iinclude tests/numi_human_${name}_test.cpp -o /tmp/human-${name}
+            /tmp/human-${name}
+          done
+          python3 tools/check_human_constraint_owner.py
+      - name: Compile and exercise complete production owners
+        run: |
+          set -eu
+          xcrun --sdk macosx metal -std=metal4.0 -fno-fast-math -Iinclude -c src/metal/NumiHumanStand.metal -o /tmp/NumiHumanStand.air
+          xcrun --sdk macosx metallib /tmp/NumiHumanStand.air -o /tmp/NumiHumanStand.metallib
+          for name in passive friction; do
+            clang++ -std=c++20 -O2 -Wall -Wextra -Werror -fno-fast-math -fobjc-arc -Iinclude tests/numi_human_${name}_metal_test.mm -framework Foundation -framework Metal -o /tmp/human-${name}-metal
+            MTL_DEBUG_LAYER=1 /tmp/human-${name}-metal /tmp/NumiHumanStand.metallib
+          done
+          python3 tools/check_human_host_syntax.py
+          cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+          cmake --build BuildHuman --target metalrobo_numilab_human_myosim_visual_probe --parallel 3
+      - name: Publish verified source increment
+        run: |
+          set -eu
+          test "$GITHUB_REF_NAME" = human-native-runtime-20260915
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Separate smooth Human acceleration from constraint delta-v'
+          git push origin HEAD:refs/heads/human-native-runtime-20260915
+          git rev-parse HEAD > human-velocity-diagnostics-revision.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-velocity-diagnostics-v3
+          path: human-velocity-diagnostics-revision.txt
+          retention-days: 14
+          if-no-files-found: warn
