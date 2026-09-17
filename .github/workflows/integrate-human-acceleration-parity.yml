@@ -1,0 +1,188 @@
+name: Integrate Human acceleration-space force parity
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths:
+      - .github/workflows/integrate-human-acceleration-parity.yml
+permissions:
+  contents: write
+concurrency:
+  group: integrate-human-acceleration-parity
+  cancel-in-progress: false
+jobs:
+  integrate:
+    runs-on: macos-26
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch the production Human probe
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('apps/numilab_human_myosim_visual_probe.mm')
+          text = path.read_text(encoding='utf-8')
+
+          include_old = '#include "metalrobo/NumiHumanMuscleEquilibrium.hpp"\n'
+          include_new = include_old + '#include "metalrobo/NumiHumanForceParity.hpp"\n'
+          assert text.count(include_old) == 1
+          text = text.replace(include_old, include_new, 1)
+
+          state_old = '''    double muscleMetalElapsedMilliseconds = 0.0;
+              double sourceDynamicForceParityMaximumNewtons = 0.0;
+              double persistentDynamicMaximumForceResidual = 0.0;
+          '''
+          state_new = '''    double muscleMetalElapsedMilliseconds = 0.0;
+              double sourceDynamicForceParityMaximumNewtons = 0.0;
+              double sourceDynamicForceParityMaximumVelocityIncrement = 0.0;
+              double sourceDynamicForceParityMaximumAcceleration = 0.0;
+              std::uint32_t sourceDynamicForceParityMaximumAccelerationDof =
+                  MR_INVALID_INDEX;
+              double persistentDynamicMaximumForceResidual = 0.0;
+          '''
+          assert text.count(state_old) == 1
+          text = text.replace(state_old, state_new, 1)
+
+          local_old = '''    CompiledStandActivation compiledActivation;
+              double sourceDynamicForceParityMaximumNewtons = 0.0;
+              double sourceSupportForceParityMaximumNewtons = 0.0;
+          '''
+          local_new = '''    CompiledStandActivation compiledActivation;
+              double sourceDynamicForceParityMaximumNewtons = 0.0;
+              double sourceDynamicForceParityMaximumVelocityIncrement = 0.0;
+              double sourceDynamicForceParityMaximumAcceleration = 0.0;
+              std::uint32_t sourceDynamicForceParityMaximumAccelerationDof =
+                  MR_INVALID_INDEX;
+              double sourceSupportForceParityMaximumNewtons = 0.0;
+          '''
+          assert text.count(local_old) == 1
+          text = text.replace(local_old, local_new, 1)
+
+          integration_old = '''    parityConfig.timestep = timestepSeconds;
+              parityConfig.implicitPassiveDofDamping = true;
+              const auto parityCpu = metalrobo::integrateArticulatedState(
+          '''
+          integration_new = '''    parityConfig.timestep = timestepSeconds;
+              parityConfig.implicitPassiveDofDamping = true;
+              std::vector<double> compiledParityQ = compiledActivation.q;
+              std::vector<double> compiledParityV(
+                  model.defaultV.begin(), model.defaultV.end()
+              );
+              const auto compiledParityCpu = metalrobo::integrateArticulatedState(
+                  model,
+                  0u,
+                  compiledParityQ,
+                  compiledParityV,
+                  compiledActivation.generalizedMuscleForce,
+                  {},
+                  parityConfig
+              );
+              require(
+                  compiledParityCpu.succeeded(),
+                  "persistent Human compiled-force acceleration parity reference failed"
+              );
+              const auto parityCpu = metalrobo::integrateArticulatedState(
+          '''
+          assert text.count(integration_old) == 1
+          text = text.replace(integration_old, integration_new, 1)
+
+          parity_old = '''    require(parityCpu.succeeded(),
+                      "persistent Human stand CPU one-step parity reference failed");
+              metalrobo::MetalArticulatedOperatorInput parityInput = input;
+          '''
+          parity_new = '''    require(parityCpu.succeeded(),
+                      "persistent Human stand CPU one-step parity reference failed");
+              const auto accelerationParity =
+                  metalrobo::compareNumiHumanUnconstrainedVelocityParity(
+                      compiledParityV, parityV, timestepSeconds
+                  );
+              require(
+                  accelerationParity.valid,
+                  "persistent Human acceleration-space force parity is invalid"
+              );
+              sourceDynamicForceParityMaximumVelocityIncrement =
+                  accelerationParity.maximumVelocityDelta;
+              sourceDynamicForceParityMaximumAcceleration =
+                  accelerationParity.maximumAccelerationDelta;
+              sourceDynamicForceParityMaximumAccelerationDof =
+                  accelerationParity.maximumVelocityDeltaDof;
+              metalrobo::MetalArticulatedOperatorInput parityInput = input;
+          '''
+          assert text.count(parity_old) == 1
+          text = text.replace(parity_old, parity_new, 1)
+
+          assign_old = '''    result.sourceDynamicForceParityMaximumNewtons = sourceDynamicForceParityMaximumNewtons;
+              result.persistentDynamicMaximumForceResidual =
+          '''
+          assign_new = '''    result.sourceDynamicForceParityMaximumNewtons = sourceDynamicForceParityMaximumNewtons;
+              result.sourceDynamicForceParityMaximumVelocityIncrement =
+                  sourceDynamicForceParityMaximumVelocityIncrement;
+              result.sourceDynamicForceParityMaximumAcceleration =
+                  sourceDynamicForceParityMaximumAcceleration;
+              result.sourceDynamicForceParityMaximumAccelerationDof =
+                  sourceDynamicForceParityMaximumAccelerationDof;
+              result.persistentDynamicMaximumForceResidual =
+          '''
+          assert text.count(assign_old) == 1
+          text = text.replace(assign_old, assign_new, 1)
+
+          output_old = '''                      << " source_dynamic_force_parity_max_delta_n=" << (muscleDrivenState.has_value()
+                                      ? muscleDrivenState->sourceDynamicForceParityMaximumNewtons : 0.0)
+                              << " persistent_dynamic_force_residual_max_n=" << (muscleDrivenState.has_value()
+          '''
+          output_new = '''                      << " source_dynamic_force_parity_max_delta_n=" << (muscleDrivenState.has_value()
+                                      ? muscleDrivenState->sourceDynamicForceParityMaximumNewtons : 0.0)
+                              << " source_dynamic_force_parity_max_delta_v_mixed_units=" << (muscleDrivenState.has_value()
+                                      ? muscleDrivenState->sourceDynamicForceParityMaximumVelocityIncrement : 0.0)
+                              << " source_dynamic_force_parity_max_delta_acceleration_mixed_units=" << (muscleDrivenState.has_value()
+                                      ? muscleDrivenState->sourceDynamicForceParityMaximumAcceleration : 0.0)
+                              << " source_dynamic_force_parity_max_delta_dof=" << (muscleDrivenState.has_value()
+                                      ? muscleDrivenState->sourceDynamicForceParityMaximumAccelerationDof : MR_INVALID_INDEX)
+                              << " source_dynamic_force_parity_acceleration_semantics=\"unconstrained_same_operator_compiled_vs_metal_muscle_force\""
+                              << " persistent_dynamic_force_residual_max_n=" << (muscleDrivenState.has_value()
+          '''
+          assert text.count(output_old) == 1
+          text = text.replace(output_old, output_new, 1)
+
+          path.write_text(text, encoding='utf-8')
+      - name: Verify parity policy and production host
+        run: |
+          set -euo pipefail
+          clang++ -std=c++20 -O2 -Wall -Wextra -Werror -Iinclude \
+            tests/numi_human_force_parity_test.cpp -o /tmp/numi-human-force-parity
+          /tmp/numi-human-force-parity
+          python3 tools/check_human_host_syntax.py
+          git diff --check
+      - name: Build production Human target
+        run: |
+          set -euo pipefail
+          cat > /tmp/numi-metal-toolchain-probe.metal <<'METAL'
+          #include <metal_stdlib>
+          using namespace metal;
+          kernel void numi_toolchain_probe(device float* value [[buffer(0)]]) {
+              if (value != nullptr) value[0] = value[0];
+          }
+          METAL
+          if ! xcrun -sdk macosx metal -std=metal4.0 -c /tmp/numi-metal-toolchain-probe.metal -o /tmp/numi-metal-toolchain-probe.air >/tmp/metal-probe.txt 2>&1; then
+              xcodebuild -downloadComponent MetalToolchain
+          fi
+          cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+          cmake --build BuildHuman --target metalrobo_numilab_human_myosim_visual_probe --parallel 3
+      - name: Publish verified source increment
+        run: |
+          git add \
+            apps/numilab_human_myosim_visual_probe.mm \
+            include/metalrobo/NumiHumanForceParity.hpp \
+            tests/numi_human_force_parity_test.cpp
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Measure Human muscle-force parity in acceleration space'
+          git push origin HEAD:refs/heads/human-native-runtime-20260915
+          git rev-parse HEAD > human-acceleration-parity-revision.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-acceleration-parity-source
+          path: human-acceleration-parity-revision.txt
+          retention-days: 14
+          if-no-files-found: warn
