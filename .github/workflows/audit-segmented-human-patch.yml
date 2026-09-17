@@ -1,0 +1,48 @@
+name: Audit segmented Human source patch
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths: [.github/workflows/audit-segmented-human-patch.yml]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract and inspect exact segment patch
+        shell: python
+        run: |
+          import base64, hashlib, json, pathlib, re, subprocess, zlib
+          carrier = pathlib.Path('.github/workflows/integrate-segmented-human-horizon.yml').read_text()
+          match = re.search(r"segmented_encoded = '([^']+)'", carrier)
+          assert match is not None
+          compressed = base64.b64decode(match.group(1), validate=True)
+          patch = zlib.decompress(compressed)
+          assert len(patch) == 15451
+          assert hashlib.sha256(patch).hexdigest() == '1c439dbcd19f17ec3f429f77b750fe028b7f573a99ff62673536d906404389bf'
+          out = pathlib.Path('segment-patch-audit')
+          out.mkdir()
+          (out / 'segmented.patch').write_bytes(patch)
+          check = subprocess.run(['git','apply','--check',str(out/'segmented.patch')], text=True, capture_output=True)
+          stat = subprocess.run(['git','apply','--stat',str(out/'segmented.patch')], text=True, capture_output=True)
+          record = {
+              'schema': 'numi.human.segment-patch-audit.v1',
+              'source_commit': subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip(),
+              'patch_bytes': len(patch),
+              'patch_sha256': hashlib.sha256(patch).hexdigest(),
+              'applies_without_trace_patch': check.returncode == 0,
+              'check_stdout': check.stdout,
+              'check_stderr': check.stderr,
+              'stat_stdout': stat.stdout,
+              'stat_stderr': stat.stderr,
+          }
+          (out / 'audit.json').write_text(json.dumps(record, indent=2, allow_nan=False) + '\n')
+          print(json.dumps(record, sort_keys=True))
+      - uses: actions/upload-artifact@v4
+        with:
+          name: segmented-human-patch-audit
+          path: segment-patch-audit
+          retention-days: 14
+          if-no-files-found: error
