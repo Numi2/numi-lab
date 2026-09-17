@@ -33,6 +33,20 @@ jobs:
           assert hashlib.sha256(patch).hexdigest() == '1c439dbcd19f17ec3f429f77b750fe028b7f573a99ff62673536d906404389bf'
           subprocess.run(['git','apply','--check','-'], input=patch, check=True)
           subprocess.run(['git','apply','--index','-'], input=patch, check=True)
+          source = pathlib.Path('apps/numilab_human_myosim_visual_probe.mm')
+          text = source.read_text()
+          old = """    const auto runAuthoritativeHorizon = [&context, &model,
+                                           &mergeStandStatus,
+                                           useSegmentedAuthoritativeHorizon](
+"""
+          new = """    const auto runAuthoritativeHorizon = [&context, &model,
+                                           &mergeStandStatus,
+                                           useSegmentedAuthoritativeHorizon,
+                                           kMaximumAuthoritativeSubmissionSteps](
+"""
+          assert text.count(old) == 1
+          source.write_text(text.replace(old, new))
+          subprocess.run(['git','add','--',str(source)], check=True)
           changed = subprocess.check_output(['git','diff','--cached','--name-only'], text=True).splitlines()
           assert changed == ['apps/numilab_human_myosim_visual_probe.mm'], changed
           subprocess.run(['git','diff','--cached','--check'], check=True)
