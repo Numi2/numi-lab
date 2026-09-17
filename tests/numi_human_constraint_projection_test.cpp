@@ -58,6 +58,21 @@ int main() {
                 "lower stop cannot decrease a positive impulse");
         require(close(mrNumiHumanProjectIntervalImpulse(-1, -0.5f, -100, 0, 1), -0.5f),
                 "upper stop cannot decrease a negative impulse magnitude");
+        const float contactSlop = mrNumiHumanContactRepresentationSlop(0.0f);
+        require(contactSlop > 1.9e-6f && contactSlop < 2.0e-6f,
+                "contact representation slop scale changed");
+        for (const float dt : {1.0e-4f, 5.0e-5f, 2.5e-5f, 1.25e-5f}) {
+            require(mrNumiHumanContactVelocityTarget(0.5f * contactSlop, dt, 0.2f) == 0.0f,
+                    "positive contact ULP drift became a timestep-amplified release");
+            require(mrNumiHumanContactVelocityTarget(-0.5f * contactSlop, dt, 0.2f) == 0.0f,
+                    "negative contact ULP drift became a timestep-amplified impact");
+            require(close(mrNumiHumanContactVelocityTarget(0.001f, dt, 0.2f),
+                          -(0.001f-contactSlop)/dt, 2.0e-4f),
+                    "measurable contact separation no longer approaches freely");
+            require(close(mrNumiHumanContactVelocityTarget(-0.001f, dt, 0.2f),
+                          0.2f*(0.001f-contactSlop)/dt, 2.0e-4f),
+                    "measurable contact penetration stabilization changed");
+        }
         const auto released = solve(0.9f, {-1, -2});
         require(close(released[2], 0) && close(released[3], 2),
                 "coupled inactive stop kept an artificial reaction");

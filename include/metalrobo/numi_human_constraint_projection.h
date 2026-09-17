@@ -4,12 +4,27 @@
 // Callers validate finite inputs, positive dt/response, ordered position bounds,
 // and stabilization in [0,1]. No mass, force, or timestep is hidden here.
 
+inline float mrNumiHumanContactRepresentationSlop(const float gap) {
+    // The compensated point/plane subtraction still ends in FP32 and the dot
+    // product spans three components. A scale-aware ULP band prevents a
+    // representational sign flip at an authored coincident witness from
+    // becoming a timestep-amplified impact/release cycle.
+    const float absoluteGap = gap < 0.0f ? -gap : gap;
+    const float scale = absoluteGap > 1.0f ? absoluteGap : 1.0f;
+    return 16.0f * 1.1920928955078125e-7f * scale;
+}
+
 inline float mrNumiHumanContactVelocityTarget(
     const float gap, const float timestep, const float stabilization
 ) {
-    // A separated speculative witness may approach the plane. Requiring zero
-    // normal velocity here would support the body before physical contact.
-    return gap >= 0.0f ? -gap / timestep : -stabilization * gap / timestep;
+    // A separated speculative witness may approach the plane. Only the
+    // representational coincidence band is treated as zero gap; measurable
+    // separation still receives no support and measurable penetration retains
+    // the authored stabilization policy.
+    const float slop = mrNumiHumanContactRepresentationSlop(gap);
+    if (gap > slop) return -(gap - slop) / timestep;
+    if (gap < -slop) return -stabilization * (gap + slop) / timestep;
+    return 0.0f;
 }
 
 inline float mrNumiHumanSupportSeedImpulse(
