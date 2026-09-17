@@ -4617,10 +4617,281 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             );
         }
     }
+    constexpr std::uint32_t kMaximumAuthoritativeSubmissionSteps = 32u;
+    const bool useSegmentedAuthoritativeHorizon =
+        !enableRootAssistance && !removeRootAssistance &&
+        continuumTransaction == nullptr && additionalTendonLoadProgram == nullptr &&
+        stepCount > kMaximumAuthoritativeSubmissionSteps;
+    const auto mergeStandStatus = [](
+        MRNumiHumanStandStatusGPU& aggregate,
+        const MRNumiHumanStandStatusGPU& segment
+    ) {
+        require(aggregate.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+                    segment.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+                    aggregate.environment == segment.environment &&
+                    aggregate.flags == segment.flags,
+                "segmented Human stand status identity changed");
+        aggregate.completedSteps += segment.completedSteps;
+        aggregate.activeContactCount = segment.activeContactCount;
+        aggregate.maximumActiveContactCount = std::max(
+            aggregate.maximumActiveContactCount,
+            segment.maximumActiveContactCount
+        );
+        aggregate.contactIterations = std::max(
+            aggregate.contactIterations, segment.contactIterations
+        );
+        aggregate.contactAndAcceleration.x = std::min(
+            aggregate.contactAndAcceleration.x,
+            segment.contactAndAcceleration.x
+        );
+        aggregate.contactAndAcceleration.y = std::max(
+            aggregate.contactAndAcceleration.y,
+            segment.contactAndAcceleration.y
+        );
+        // This is the terminal step's solved load, not an interval sum.
+        aggregate.contactAndAcceleration.z = segment.contactAndAcceleration.z;
+        if (segment.contactAndAcceleration.w > aggregate.contactAndAcceleration.w) {
+            aggregate.contactAndAcceleration.w = segment.contactAndAcceleration.w;
+            aggregate.jointEqualityCounts.w = segment.jointEqualityCounts.w;
+        }
+        aggregate.factorAndAssistance.x = std::min(
+            aggregate.factorAndAssistance.x, segment.factorAndAssistance.x
+        );
+        aggregate.factorAndAssistance.y = std::max(
+            aggregate.factorAndAssistance.y, segment.factorAndAssistance.y
+        );
+        aggregate.factorAndAssistance.z = std::max(
+            aggregate.factorAndAssistance.z, segment.factorAndAssistance.z
+        );
+        aggregate.factorAndAssistance.w = std::max(
+            aggregate.factorAndAssistance.w, segment.factorAndAssistance.w
+        );
+        aggregate.tendonTransferCount += segment.tendonTransferCount;
+        aggregate.tendonEnvelopeTransferCount += segment.tendonEnvelopeTransferCount;
+        aggregate.tendonPointTransferCount += segment.tendonPointTransferCount;
+        aggregate.tendonFailureCount += segment.tendonFailureCount;
+        aggregate.tendonDiagnostics.x = std::max(
+            aggregate.tendonDiagnostics.x, segment.tendonDiagnostics.x
+        );
+        aggregate.tendonDiagnostics.y = std::max(
+            aggregate.tendonDiagnostics.y, segment.tendonDiagnostics.y
+        );
+        aggregate.tendonDiagnostics.z = std::max(
+            aggregate.tendonDiagnostics.z, segment.tendonDiagnostics.z
+        );
+        aggregate.tendonDiagnostics.w = std::max(
+            aggregate.tendonDiagnostics.w, segment.tendonDiagnostics.w
+        );
+        aggregate.jointEqualityCounts.x = segment.jointEqualityCounts.x;
+        aggregate.jointEqualityCounts.y = std::max(
+            aggregate.jointEqualityCounts.y, segment.jointEqualityCounts.y
+        );
+        aggregate.jointEqualityCounts.z += segment.jointEqualityCounts.z;
+        aggregate.jointEqualityDiagnostics.x = std::max(
+            aggregate.jointEqualityDiagnostics.x,
+            segment.jointEqualityDiagnostics.x
+        );
+        aggregate.jointEqualityDiagnostics.y = std::max(
+            aggregate.jointEqualityDiagnostics.y,
+            segment.jointEqualityDiagnostics.y
+        );
+        if (segment.jointEqualityDiagnostics.z >
+            aggregate.jointEqualityDiagnostics.z) {
+            aggregate.jointEqualityDiagnostics.z =
+                segment.jointEqualityDiagnostics.z;
+            aggregate.constraintImpulseOwners.w =
+                segment.constraintImpulseOwners.w;
+        }
+        aggregate.jointEqualityDiagnostics.w +=
+            segment.jointEqualityDiagnostics.w;
+        aggregate.jointEqualityProjectionDiagnostics.x = std::max(
+            aggregate.jointEqualityProjectionDiagnostics.x,
+            segment.jointEqualityProjectionDiagnostics.x
+        );
+        aggregate.jointEqualityProjectionDiagnostics.y +=
+            segment.jointEqualityProjectionDiagnostics.y;
+        aggregate.jointEqualityProjectionDiagnostics.z = std::max(
+            aggregate.jointEqualityProjectionDiagnostics.z,
+            segment.jointEqualityProjectionDiagnostics.z
+        );
+        aggregate.jointEqualityProjectionDiagnostics.w +=
+            segment.jointEqualityProjectionDiagnostics.w;
+        aggregate.preProjectionPreStepConstraintDiagnostics.x = std::max(
+            aggregate.preProjectionPreStepConstraintDiagnostics.x,
+            segment.preProjectionPreStepConstraintDiagnostics.x
+        );
+        aggregate.preProjectionPreStepConstraintDiagnostics.y = std::max(
+            aggregate.preProjectionPreStepConstraintDiagnostics.y,
+            segment.preProjectionPreStepConstraintDiagnostics.y
+        );
+        aggregate.preProjectionPreStepConstraintDiagnostics.z = std::max(
+            aggregate.preProjectionPreStepConstraintDiagnostics.z,
+            segment.preProjectionPreStepConstraintDiagnostics.z
+        );
+        aggregate.preProjectionPreStepConstraintDiagnostics.w = std::max(
+            aggregate.preProjectionPreStepConstraintDiagnostics.w,
+            segment.preProjectionPreStepConstraintDiagnostics.w
+        );
+        aggregate.postProjectionPreStepConstraintDiagnostics.x = std::max(
+            aggregate.postProjectionPreStepConstraintDiagnostics.x,
+            segment.postProjectionPreStepConstraintDiagnostics.x
+        );
+        aggregate.postProjectionPreStepConstraintDiagnostics.y = std::max(
+            aggregate.postProjectionPreStepConstraintDiagnostics.y,
+            segment.postProjectionPreStepConstraintDiagnostics.y
+        );
+        aggregate.postProjectionPreStepConstraintDiagnostics.z = std::max(
+            aggregate.postProjectionPreStepConstraintDiagnostics.z,
+            segment.postProjectionPreStepConstraintDiagnostics.z
+        );
+        aggregate.postProjectionPreStepConstraintDiagnostics.w = std::max(
+            aggregate.postProjectionPreStepConstraintDiagnostics.w,
+            segment.postProjectionPreStepConstraintDiagnostics.w
+        );
+        if (segment.constraintImpulseDiagnostics.x >
+            aggregate.constraintImpulseDiagnostics.x) {
+            aggregate.constraintImpulseDiagnostics.x =
+                segment.constraintImpulseDiagnostics.x;
+            aggregate.constraintImpulseOwners.x = segment.constraintImpulseOwners.x;
+        }
+        if (segment.constraintImpulseDiagnostics.y >
+            aggregate.constraintImpulseDiagnostics.y) {
+            aggregate.constraintImpulseDiagnostics.y =
+                segment.constraintImpulseDiagnostics.y;
+            aggregate.constraintImpulseOwners.y = segment.constraintImpulseOwners.y;
+        }
+        if (segment.constraintImpulseDiagnostics.z >
+            aggregate.constraintImpulseDiagnostics.z) {
+            aggregate.constraintImpulseDiagnostics.z =
+                segment.constraintImpulseDiagnostics.z;
+            aggregate.constraintImpulseOwners.z = segment.constraintImpulseOwners.z;
+        }
+        aggregate.constraintImpulseDiagnostics.w +=
+            segment.constraintImpulseDiagnostics.w;
+        if (segment.velocityDiagnostics.x > aggregate.velocityDiagnostics.x) {
+            aggregate.velocityDiagnostics.x = segment.velocityDiagnostics.x;
+            aggregate.velocityDiagnosticOwners.x =
+                segment.velocityDiagnosticOwners.x;
+        }
+        if (segment.velocityDiagnostics.y > aggregate.velocityDiagnostics.y) {
+            aggregate.velocityDiagnostics.y = segment.velocityDiagnostics.y;
+            aggregate.velocityDiagnosticOwners.y =
+                segment.velocityDiagnosticOwners.y;
+        }
+        if (segment.velocityDiagnostics.z > aggregate.velocityDiagnostics.z) {
+            aggregate.velocityDiagnostics.z = segment.velocityDiagnostics.z;
+            aggregate.velocityDiagnosticOwners.z =
+                segment.velocityDiagnosticOwners.z;
+        }
+        if (segment.velocityDiagnostics.w > aggregate.velocityDiagnostics.w) {
+            aggregate.velocityDiagnostics.w = segment.velocityDiagnostics.w;
+            aggregate.velocityDiagnosticOwners.w =
+                segment.velocityDiagnosticOwners.w;
+        }
+    };
+    const auto runAuthoritativeHorizon = [&context, &model,
+                                           &mergeStandStatus,
+                                           useSegmentedAuthoritativeHorizon,
+                                           kMaximumAuthoritativeSubmissionSteps](
+        metalrobo::MetalArticulatedOperatorInput horizonInput,
+        metalrobo::MetalArticulatedOperatorResult& horizonResult
+    ) {
+        const std::uint32_t requestedSteps = horizonInput.stand.stepCount;
+        if (!useSegmentedAuthoritativeHorizon ||
+            requestedSteps <= kMaximumAuthoritativeSubmissionSteps) {
+            return context.run(model, horizonInput, horizonResult);
+        }
+        require(!horizonInput.q.empty() && !horizonInput.stand.v.empty() &&
+                    !horizonInput.mujoco.states.empty() &&
+                    horizonInput.rootTranslations.size() == 1u,
+                "segmented Human horizon requires complete authoritative state");
+        std::vector<float> currentQ(
+            horizonInput.q.begin(), horizonInput.q.end()
+        );
+        std::vector<float> currentV(
+            horizonInput.stand.v.begin(), horizonInput.stand.v.end()
+        );
+        std::vector<MRMujocoMuscleStateGPU> currentStates(
+            horizonInput.mujoco.states.begin(), horizonInput.mujoco.states.end()
+        );
+        std::vector<MRCompensatedRootTranslationGPU> currentRoots(
+            horizonInput.rootTranslations.begin(),
+            horizonInput.rootTranslations.end()
+        );
+        metalrobo::MetalArticulatedOperatorDiagnostics aggregateDiagnostics;
+        aggregateDiagnostics.dispatched = true;
+        aggregateDiagnostics.published = true;
+        aggregateDiagnostics.successfulEnvironmentCount = 1u;
+        bool haveStatus = false;
+        MRNumiHumanStandStatusGPU aggregateStatus{};
+        std::uint32_t completedSteps = 0u;
+        double elapsedMilliseconds = 0.0;
+        while (completedSteps < requestedSteps) {
+            const std::uint32_t segmentSteps = std::min(
+                kMaximumAuthoritativeSubmissionSteps,
+                requestedSteps - completedSteps
+            );
+            horizonInput.stand.stepCount = segmentSteps;
+            horizonInput.q = currentQ;
+            horizonInput.rootTranslations = currentRoots;
+            horizonInput.stand.v = currentV;
+            horizonInput.mujoco.states = currentStates;
+            metalrobo::MetalArticulatedOperatorResult segmentResult;
+            auto segmentDiagnostics = context.run(
+                model, horizonInput, segmentResult
+            );
+            elapsedMilliseconds += segmentDiagnostics.elapsedMilliseconds;
+            if (!segmentDiagnostics.succeeded() ||
+                !segmentDiagnostics.dispatched ||
+                !segmentDiagnostics.published ||
+                segmentDiagnostics.completedStandSteps != segmentSteps ||
+                segmentResult.standQ.size() != currentQ.size() ||
+                segmentResult.standV.size() != currentV.size() ||
+                segmentResult.mujocoActivationStates.size() !=
+                    currentStates.size() ||
+                segmentResult.standRootTranslations.size() != 1u ||
+                segmentResult.standStatuses.size() != 1u ||
+                segmentResult.standStatuses.front().code !=
+                    MR_NUMI_HUMAN_STAND_SUCCESS) {
+                segmentDiagnostics.completedStandSteps += completedSteps;
+                segmentDiagnostics.elapsedMilliseconds = elapsedMilliseconds;
+                segmentDiagnostics.message =
+                    "segmented authoritative Human horizon failed after " +
+                    std::to_string(completedSteps) + " accepted steps: " +
+                    segmentDiagnostics.message;
+                horizonResult = std::move(segmentResult);
+                return segmentDiagnostics;
+            }
+            if (!haveStatus) {
+                aggregateStatus = segmentResult.standStatuses.front();
+                haveStatus = true;
+            } else {
+                mergeStandStatus(
+                    aggregateStatus, segmentResult.standStatuses.front()
+                );
+            }
+            completedSteps += segmentSteps;
+            currentQ = segmentResult.standQ;
+            currentV = segmentResult.standV;
+            currentStates = segmentResult.mujocoActivationStates;
+            currentRoots = segmentResult.standRootTranslations;
+            aggregateDiagnostics = segmentDiagnostics;
+            horizonResult = std::move(segmentResult);
+        }
+        require(haveStatus && horizonResult.standStatuses.size() == 1u,
+                "segmented Human horizon published no status");
+        aggregateStatus.completedSteps = requestedSteps;
+        horizonResult.standStatuses.front() = aggregateStatus;
+        aggregateDiagnostics.completedStandSteps = requestedSteps;
+        aggregateDiagnostics.elapsedMilliseconds = elapsedMilliseconds;
+        aggregateDiagnostics.message =
+            "segmented authoritative Human horizon completed";
+        return aggregateDiagnostics;
+    };
     metalrobo::MetalArticulatedOperatorResult metalResult;
     reportHumanExecutionStage("initial_force_checks_end");
     reportHumanExecutionStage("native_horizon_begin");
-    auto diagnostics = context.run(model, input, metalResult);
+    auto diagnostics = runAuthoritativeHorizon(input, metalResult);
     reportHumanExecutionStage("native_horizon_end", diagnostics.completedStandSteps);
     if (!diagnostics.succeeded() && continuumTransaction != nullptr) {
         const auto failed = continuumTransaction->runtime->snapshot();
@@ -5068,6 +5339,45 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         ));
     bool tendonBorrowedConsumerVerified = false;
     if (!tendonProgram.bindings.empty()) {
+        const auto* borrowedTendonStatus =
+            static_cast<const MRNumiHumanStandStatusGPU*>(
+                acceptedTendonConsumer.statusSnapshot.contents
+            );
+        const std::uint32_t borrowedTendonStatusSteps =
+            useSegmentedAuthoritativeHorizon
+                ? ((stepCount - 1u) %
+                    kMaximumAuthoritativeSubmissionSteps) + 1u
+                : stepCount;
+        const bool borrowedTendonStatusMatchesPublication =
+            acceptedTendonConsumer.statusSnapshot != nil &&
+            (!useSegmentedAuthoritativeHorizon
+                ? std::memcmp(
+                    acceptedTendonConsumer.statusSnapshot.contents,
+                    metalResult.standStatuses.data(),
+                    sizeof(MRNumiHumanStandStatusGPU)
+                  ) == 0
+                : borrowedTendonStatus != nullptr &&
+                  borrowedTendonStatus->code == status.code &&
+                  borrowedTendonStatus->environment == status.environment &&
+                  borrowedTendonStatus->completedSteps ==
+                    borrowedTendonStatusSteps &&
+                  borrowedTendonStatus->failingIndex == status.failingIndex &&
+                  borrowedTendonStatus->flags == status.flags &&
+                  borrowedTendonStatus->activeContactCount ==
+                    status.activeContactCount &&
+                  borrowedTendonStatus->contactAndAcceleration.z ==
+                    status.contactAndAcceleration.z &&
+                  borrowedTendonStatus->tendonTransferCount ==
+                    tendonProgram.bindings.size() *
+                    borrowedTendonStatusSteps &&
+                  borrowedTendonStatus->tendonEnvelopeTransferCount ==
+                    tendonEnvelopeBindingCount *
+                    borrowedTendonStatusSteps &&
+                  borrowedTendonStatus->tendonPointTransferCount ==
+                    (tendonProgram.bindings.size() -
+                     tendonEnvelopeBindingCount) *
+                    borrowedTendonStatusSteps &&
+                  borrowedTendonStatus->tendonFailureCount == 0u);
         tendonBorrowedConsumerVerified =
             status.tendonTransferCount ==
                 tendonProgram.bindings.size() * stepCount &&
@@ -5094,11 +5404,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 metalResult.standTendonGeneralizedCorrections.size() *
                     sizeof(float)
             ) == 0 &&
-            std::memcmp(
-                acceptedTendonConsumer.statusSnapshot.contents,
-                metalResult.standStatuses.data(),
-                sizeof(MRNumiHumanStandStatusGPU)
-            ) == 0;
+            borrowedTendonStatusMatchesPublication;
         require(tendonBorrowedConsumerVerified,
                 "persistent Human borrowed tendon-load snapshot disagreed with publication");
     }
@@ -5168,7 +5474,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             : mr_float4{0.0f, 0.0f, 0.0f, 0.0f};
         metalrobo::MetalArticulatedOperatorResult replayResult;
         reportHumanExecutionStage("deterministic_replay_begin");
-        auto replayDiagnostics = context.run(model, input, replayResult);
+        auto replayDiagnostics = runAuthoritativeHorizon(
+            input, replayResult
+        );
         reportHumanExecutionStage("deterministic_replay_end", replayDiagnostics.completedStandSteps);
         require(replayDiagnostics.succeeded() && replayDiagnostics.published &&
                     replayDiagnostics.completedStandSteps == stepCount,
