@@ -20,12 +20,32 @@ inline float mrNumiHumanSupportSeedImpulse(
     return gap <= slop ? force * timestep : 0.0f;
 }
 
+inline float mrNumiHumanPositionLimitSlop(
+    const float position, const float bound
+) {
+    // Source coordinates are authored in FP64 and executed in FP32. Equality
+    // projection and q integration can therefore place a coordinate a few ULPs
+    // beyond an otherwise coincident hard stop. Treat that representational
+    // band as zero position error instead of converting it into a timestep-
+    // amplified restitution-like velocity. The band is scale-aware, symmetric,
+    // and materially smaller than any admitted anatomical calibration error.
+    const float absolutePosition = position < 0.0f ? -position : position;
+    const float absoluteBound = bound < 0.0f ? -bound : bound;
+    float scale = absolutePosition > absoluteBound
+        ? absolutePosition
+        : absoluteBound;
+    if (scale < 1.0f) scale = 1.0f;
+    return 16.0f * 1.1920928955078125e-7f * scale;
+}
+
 inline float mrNumiHumanLowerLimitVelocityTarget(
     const float position, const float lower, const float timestep
 ) {
     const float gap = position - lower;
     if (gap >= 0.0f) return -gap / timestep;
-    const float correction = -0.2f * gap / timestep;
+    const float slop = mrNumiHumanPositionLimitSlop(position, lower);
+    if (gap >= -slop) return 0.0f;
+    const float correction = -0.2f * (gap + slop) / timestep;
     return correction < 4.0f ? correction : 4.0f;
 }
 

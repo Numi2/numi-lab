@@ -70,10 +70,30 @@ int main() {
                 "interior lower bound wrongly freezes the coordinate");
         require(close(mrNumiHumanUpperLimitVelocityTarget(0.9f, 1, 0.01f), (1.0f-0.9f)/0.01f),
                 "interior upper bound wrongly freezes the coordinate");
-        require(close(mrNumiHumanLowerLimitVelocityTarget(-0.001f, 0, 0.01f), 0.02f),
-                "penetration stabilization changed");
-        require(close(mrNumiHumanUpperLimitVelocityTarget(1.001f, 1, 0.01f), -0.02f),
-                "upper penetration stabilization changed");
+        const float zeroScaleSlop = mrNumiHumanPositionLimitSlop(0.0f, 0.0f);
+        require(zeroScaleSlop > 1.9e-6f && zeroScaleSlop < 2.0e-6f,
+                "position-limit slop scale changed");
+        for (const float dt : {1.0e-4f, 5.0e-5f, 2.5e-5f, 1.25e-5f}) {
+            require(mrNumiHumanLowerLimitVelocityTarget(
+                        -0.5f * zeroScaleSlop, 0.0f, dt) == 0.0f,
+                    "sub-ULP lower-limit drift became a timestep-amplified correction");
+            require(mrNumiHumanUpperLimitVelocityTarget(
+                        1.0f + 0.5f * mrNumiHumanPositionLimitSlop(1.0f, 1.0f),
+                        1.0f, dt) == 0.0f,
+                    "sub-ULP upper-limit drift became a timestep-amplified correction");
+        }
+        const float expectedLowerCorrection =
+            0.2f * (0.001f - mrNumiHumanPositionLimitSlop(-0.001f, 0.0f)) /
+            0.01f;
+        const float expectedUpperCorrection =
+            -0.2f * (0.001f - mrNumiHumanPositionLimitSlop(1.001f, 1.0f)) /
+            0.01f;
+        require(close(mrNumiHumanLowerLimitVelocityTarget(-0.001f, 0, 0.01f),
+                      expectedLowerCorrection),
+                "penetration stabilization outside the representational band changed");
+        require(close(mrNumiHumanUpperLimitVelocityTarget(1.001f, 1, 0.01f),
+                      expectedUpperCorrection),
+                "upper penetration stabilization outside the representational band changed");
         for (const float dt : {1.0e-4f, 5.0e-5f, 2.5e-5f, 1.25e-5f}) {
             const float force = 981.0f;
             const float response = 0.01f;
