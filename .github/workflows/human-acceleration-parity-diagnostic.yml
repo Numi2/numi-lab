@@ -80,7 +80,7 @@ jobs:
               str(evidence / 'unused-in-mechanics-mode.nhbones'),
               str(payloads['tendon']), str(payloads['support_contact']),
               str(evidence / 'frames'), '--mechanics-only', '--no-step-trace',
-              '--no-deterministic-replay', '--steps', '1', '--timestep', '0.0001',
+              '--steps', '1', '--timestep', '0.0001',
           ]
           environment = {
               **os.environ,
