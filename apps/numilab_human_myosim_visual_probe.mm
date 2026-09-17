@@ -2722,9 +2722,15 @@ struct MuscleDrivenVisualState {
     double initialFiberEquilibrationMaximumVelocity = 0.0;
     std::uint32_t compiledRecruitedMuscleCount = 0u;
     std::uint32_t compiledActivePositionLimitCount = 0u;
+    std::uint32_t compiledActiveStructuralLockCount = 0u;
+    std::uint32_t compiledActiveFiniteRangePositionLimitCount = 0u;
+    std::uint32_t compiledMaximumStructuralLockReactionDof = MR_INVALID_INDEX;
+    std::uint32_t compiledMaximumFiniteRangePositionLimitReactionDof = MR_INVALID_INDEX;
     std::uint32_t compiledAcceptedPoseSteps = 0u;
     double compiledMaximumEqualityReaction = 0.0;
     double compiledMaximumLimitReaction = 0.0;
+    double compiledMaximumStructuralLockReaction = 0.0;
+    double compiledMaximumFiniteRangePositionLimitReaction = 0.0;
     std::uint32_t compiledSupportContactCount = 0u;
     std::uint32_t compiledActiveSupportContactCount = 0u;
     double compiledTotalSupportForceNewtons = 0.0;
@@ -3485,6 +3491,10 @@ struct CompiledStandActivation {
     std::uint32_t acceptedGlobalActivationPolishSteps = 0u;
     std::uint32_t recruitedMuscleCount = 0u;
     std::uint32_t activePositionLimitCount = 0u;
+    std::uint32_t activeStructuralLockCount = 0u;
+    std::uint32_t activeFiniteRangePositionLimitCount = 0u;
+    std::uint32_t maximumStructuralLockReactionDof = MR_INVALID_INDEX;
+    std::uint32_t maximumFiniteRangePositionLimitReactionDof = MR_INVALID_INDEX;
     std::uint32_t acceptedPoseSteps = 0u;
     std::uint32_t acceptedCoupledPoseSteps = 0u;
     std::uint32_t rejectedConstraintCandidates = 0u;
@@ -3497,6 +3507,8 @@ struct CompiledStandActivation {
     double maximumActivation = 0.0;
     double maximumEqualityReaction = 0.0;
     double maximumLimitReaction = 0.0;
+    double maximumStructuralLockReaction = 0.0;
+    double maximumFiniteRangePositionLimitReaction = 0.0;
     double positionLimitKktResidual = 0.0;
     std::uint32_t rejectedPositionLimitPoseCandidates = 0u;
     std::uint32_t supportContactCount = 0u;
@@ -3740,6 +3752,13 @@ CompiledStandActivation compileStaticStandActivation(
         diagnostics.acceptedGlobalActivationPolishSteps;
     result.recruitedMuscleCount = diagnostics.recruitedMuscleCount;
     result.activePositionLimitCount = diagnostics.activePositionLimitCount;
+    result.activeStructuralLockCount = diagnostics.activeStructuralLockCount;
+    result.activeFiniteRangePositionLimitCount =
+        diagnostics.activeFiniteRangePositionLimitCount;
+    result.maximumStructuralLockReactionDof =
+        diagnostics.maximumStructuralLockReactionDof;
+    result.maximumFiniteRangePositionLimitReactionDof =
+        diagnostics.maximumFiniteRangePositionLimitReactionDof;
     result.acceptedPoseSteps = diagnostics.acceptedPoseSteps;
     result.acceptedCoupledPoseSteps = diagnostics.acceptedCoupledPoseSteps;
     result.rejectedConstraintCandidates = diagnostics.rejectedConstraintCandidates;
@@ -3755,6 +3774,10 @@ CompiledStandActivation compileStaticStandActivation(
     result.maximumActivation = diagnostics.maximumActivation;
     result.maximumEqualityReaction = diagnostics.maximumJointEqualityReaction;
     result.maximumLimitReaction = diagnostics.maximumPositionLimitReaction;
+    result.maximumStructuralLockReaction =
+        diagnostics.maximumStructuralLockReaction;
+    result.maximumFiniteRangePositionLimitReaction =
+        diagnostics.maximumFiniteRangePositionLimitReaction;
     result.positionLimitKktResidual = diagnostics.positionLimitKktResidual;
     result.rejectedPositionLimitPoseCandidates = diagnostics.rejectedPositionLimitPoseCandidates;
     result.supportContactCount = diagnostics.supportContactCount;
@@ -5858,11 +5881,23 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         compiledActivation.recruitedMuscleCount;
     result.compiledActivePositionLimitCount =
         compiledActivation.activePositionLimitCount;
+    result.compiledActiveStructuralLockCount =
+        compiledActivation.activeStructuralLockCount;
+    result.compiledActiveFiniteRangePositionLimitCount =
+        compiledActivation.activeFiniteRangePositionLimitCount;
+    result.compiledMaximumStructuralLockReactionDof =
+        compiledActivation.maximumStructuralLockReactionDof;
+    result.compiledMaximumFiniteRangePositionLimitReactionDof =
+        compiledActivation.maximumFiniteRangePositionLimitReactionDof;
     result.compiledAcceptedPoseSteps = compiledActivation.acceptedPoseSteps;
     result.compiledMaximumEqualityReaction =
         compiledActivation.maximumEqualityReaction;
     result.compiledMaximumLimitReaction =
         compiledActivation.maximumLimitReaction;
+    result.compiledMaximumStructuralLockReaction =
+        compiledActivation.maximumStructuralLockReaction;
+    result.compiledMaximumFiniteRangePositionLimitReaction =
+        compiledActivation.maximumFiniteRangePositionLimitReaction;
     result.compiledSupportContactCount =
         compiledActivation.supportContactCount;
     result.compiledActiveSupportContactCount =
@@ -18577,6 +18612,10 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->compiledRecruitedMuscleCount : 0u)
                       << " compiled_stand_active_limits=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->compiledActivePositionLimitCount : 0u)
+                      << " compiled_stand_active_structural_locks=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledActiveStructuralLockCount : 0u)
+                      << " compiled_stand_active_finite_range_limits=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledActiveFiniteRangePositionLimitCount : 0u)
                       << " compiled_stand_pose_steps=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->compiledAcceptedPoseSteps : 0u)
                       << " compiled_stand_normalized_residual_rms=" << (muscleDrivenState.has_value()
@@ -18611,6 +18650,14 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->compiledMaximumEqualityReaction : 0.0)
                       << " compiled_stand_max_limit_reaction=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->compiledMaximumLimitReaction : 0.0)
+                      << " compiled_stand_max_structural_lock_reaction=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledMaximumStructuralLockReaction : 0.0)
+                      << " compiled_stand_max_structural_lock_reaction_dof=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledMaximumStructuralLockReactionDof : MR_INVALID_INDEX)
+                      << " compiled_stand_max_finite_range_limit_reaction=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledMaximumFiniteRangePositionLimitReaction : 0.0)
+                      << " compiled_stand_max_finite_range_limit_reaction_dof=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->compiledMaximumFiniteRangePositionLimitReactionDof : MR_INVALID_INDEX)
                       << " stand_joint_equalities=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->jointEqualityCount : 0u)
                       << " stand_max_equality_position_error=" << (muscleDrivenState.has_value()

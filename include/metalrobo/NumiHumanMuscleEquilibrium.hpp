@@ -170,6 +170,13 @@ struct NumiHumanMuscleEquilibriumDiagnostics {
     std::uint32_t rejectedPenetratingPoseCandidates = 0u;
     std::uint32_t rejectedPositionLimitPoseCandidates = 0u;
     std::uint32_t activePositionLimitCount = 0u;
+    // Separate collapsed/near-collapsed coordinate locks from finite-range
+    // anatomical stops. They are both solved by the unilateral reaction
+    // owner, but only the latter indicate posture resting on a joint bound.
+    std::uint32_t activeStructuralLockCount = 0u;
+    std::uint32_t activeFiniteRangePositionLimitCount = 0u;
+    std::uint32_t maximumStructuralLockReactionDof = MR_INVALID_INDEX;
+    std::uint32_t maximumFiniteRangePositionLimitReactionDof = MR_INVALID_INDEX;
     std::uint32_t jointEqualityCount = 0u;
     std::uint32_t supportContactCount = 0u;
     std::uint32_t activeSupportContactCount = 0u;
@@ -183,6 +190,8 @@ struct NumiHumanMuscleEquilibriumDiagnostics {
     double maximumActivation = 0.0;
     double minimumNormalizedPositionLimitMargin = 1.0;
     double maximumPositionLimitReaction = 0.0;
+    double maximumStructuralLockReaction = 0.0;
+    double maximumFiniteRangePositionLimitReaction = 0.0;
     // Independent, unit-Delassus-scaled physical complementarity check.
     // Includes equality-dependent source stops; no runtime compliance claim.
     double positionLimitKktResidual = 0.0;

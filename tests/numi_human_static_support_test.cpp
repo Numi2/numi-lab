@@ -570,13 +570,21 @@ int main() {
     const auto intoStop = compileReaction(1, 3);
     require(near(intoStop.generalizedPositionLimitForce[0], 2) &&
             near(intoStop.generalizedAccelerationResidual[0], 0) &&
-            near(intoStop.generalizedAccelerationResidual[1], 3),
-            "positive coordinate force hid a mass-coupled stop violation");
+            near(intoStop.generalizedAccelerationResidual[1], 3) &&
+            intoStop.diagnostics.activeStructuralLockCount == 0u &&
+            intoStop.diagnostics.activeFiniteRangePositionLimitCount == 1u &&
+            intoStop.diagnostics.maximumFiniteRangePositionLimitReactionDof == 0u &&
+            near(intoStop.diagnostics.maximumFiniteRangePositionLimitReaction, 2),
+            "positive coordinate force hid or misclassified a finite-range stop");
     const auto awayFromStop = compileReaction(-1, -3);
     require(near(awayFromStop.generalizedPositionLimitForce[0], 0) &&
             near(awayFromStop.generalizedAccelerationResidual[0], 2) &&
-            near(awayFromStop.generalizedAccelerationResidual[1], -5),
-            "outward acceleration received a spurious joint-stop force");
+            near(awayFromStop.generalizedAccelerationResidual[1], -5) &&
+            awayFromStop.diagnostics.activeStructuralLockCount == 0u &&
+            awayFromStop.diagnostics.activeFiniteRangePositionLimitCount == 0u &&
+            awayFromStop.diagnostics.maximumStructuralLockReactionDof == MR_INVALID_INDEX &&
+            awayFromStop.diagnostics.maximumFiniteRangePositionLimitReactionDof == MR_INVALID_INDEX,
+            "outward acceleration received or reported a spurious joint-stop force");
     reactions.model.dofs[0].limits = f4(-1, 0, 0);
     const auto upperStop = compileReaction(-1, -3);
     require(near(upperStop.generalizedPositionLimitForce[0], -2) &&
@@ -586,8 +594,12 @@ int main() {
     reactions.model.dofs[0].limits = f4(0, 0, 0);
     const auto collapsedRange = compileReaction(1, 3);
     require(near(collapsedRange.generalizedPositionLimitForce[0], 2) &&
-            near(collapsedRange.generalizedAccelerationResidual[0], 0),
-            "coincident lower and upper stops failed their unilateral solve");
+            near(collapsedRange.generalizedAccelerationResidual[0], 0) &&
+            collapsedRange.diagnostics.activeStructuralLockCount == 1u &&
+            collapsedRange.diagnostics.activeFiniteRangePositionLimitCount == 0u &&
+            collapsedRange.diagnostics.maximumStructuralLockReactionDof == 0u &&
+            near(collapsedRange.diagnostics.maximumStructuralLockReaction, 2),
+            "coincident lower and upper stops failed structural-lock classification");
     reactions.model.dofs[0].limits = f4(0, 1, 0);
     reactions.model.dofs[1].limits = f4(0, 1, 0);
     const auto bothStops = compileReaction(-3, -1);

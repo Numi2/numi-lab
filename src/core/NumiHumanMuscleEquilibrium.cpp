@@ -2712,13 +2712,43 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
         minimumNormalizedLimitMargin(
             model, articulationIndex, current.q
         );
-    for (const double reaction : current.limitForce) {
-        if (reaction != 0.0) {
+    for (std::size_t localV = 0u;
+         localV < current.limitForce.size(); ++localV) {
+        const double reaction = current.limitForce[localV];
+        const double magnitude = std::abs(reaction);
+        if (magnitude > 1.0e-10) {
             ++candidate.diagnostics.activePositionLimitCount;
+            const MRDofPropertiesGPU& dof =
+                model.dofs[articulation.vOffset + localV];
+            const double range =
+                static_cast<double>(dof.limits.y) - dof.limits.x;
+            const bool structuralLock =
+                (dof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u &&
+                std::isfinite(range) &&
+                range <= config.positionLimitTolerance;
+            if (structuralLock) {
+                ++candidate.diagnostics.activeStructuralLockCount;
+                if (magnitude >
+                    candidate.diagnostics.maximumStructuralLockReaction) {
+                    candidate.diagnostics.maximumStructuralLockReaction =
+                        magnitude;
+                    candidate.diagnostics.maximumStructuralLockReactionDof =
+                        static_cast<std::uint32_t>(localV);
+                }
+            } else {
+                ++candidate.diagnostics.activeFiniteRangePositionLimitCount;
+                if (magnitude >
+                    candidate.diagnostics.maximumFiniteRangePositionLimitReaction) {
+                    candidate.diagnostics.maximumFiniteRangePositionLimitReaction =
+                        magnitude;
+                    candidate.diagnostics.maximumFiniteRangePositionLimitReactionDof =
+                        static_cast<std::uint32_t>(localV);
+                }
+            }
         }
         candidate.diagnostics.maximumPositionLimitReaction = std::max(
             candidate.diagnostics.maximumPositionLimitReaction,
-            std::abs(reaction)
+            magnitude
         );
     }
     for (const double reaction : current.equalityForce) {
