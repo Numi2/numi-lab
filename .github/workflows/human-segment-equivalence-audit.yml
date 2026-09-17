@@ -1,0 +1,60 @@
+name: Human segment equivalence audit
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths:
+      - .github/workflows/human-segment-equivalence-audit.yml
+      - tools/audit_human_segment_equivalence.py
+permissions:
+  contents: read
+concurrency:
+  group: human-segment-equivalence-audit
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: macos-26
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Numi2/numilab-human
+          ref: 40a113ec2422ac367cbf0bf2778683d4f78f7eab
+          path: human-inputs
+          sparse-checkout: Docs/media/native-runtime-source-package-20260915
+          persist-credentials: false
+      - name: Apply diagnostic-only submission-bound override
+        run: python3 tools/audit_human_segment_equivalence.py prepare
+      - name: Verify or install Metal 4 toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s\n' '#include <metal_stdlib>' 'using namespace metal;' 'kernel void numi_segment_equivalence_probe(device float* x [[buffer(0)]]) { if (x != nullptr) x[0] = x[0]; }' > /tmp/numi-segment-equivalence-probe.metal
+          if ! xcrun -sdk macosx metal -std=metal4.0 -c /tmp/numi-segment-equivalence-probe.metal -o /tmp/numi-segment-equivalence-probe.air >/tmp/metal-initial.txt 2>&1; then
+            xcodebuild -downloadComponent MetalToolchain
+          fi
+          xcrun -sdk macosx metal -std=metal4.0 -c /tmp/numi-segment-equivalence-probe.metal -o /tmp/numi-segment-equivalence-probe.air
+      - name: Build complete Human target
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p human-segment-equivalence-evidence
+          git rev-parse HEAD > human-segment-equivalence-evidence/native-revision.txt
+          git -C human-inputs rev-parse HEAD > human-segment-equivalence-evidence/input-revision.txt
+          sw_vers > human-segment-equivalence-evidence/machine.txt
+          python3 tools/check_human_host_syntax.py
+          cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF 2>&1 | tee human-segment-equivalence-evidence/configure.txt
+          cmake --build BuildHuman --target metalrobo_numilab_human_myosim_visual_probe --parallel 3 2>&1 | tee human-segment-equivalence-evidence/build.txt
+      - name: Compare segmented and monolithic 64-step horizons
+        run: >-
+          python3 tools/audit_human_segment_equivalence.py execute
+          --inputs human-inputs
+          --build BuildHuman
+          --output human-segment-equivalence-evidence
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-segment-equivalence-evidence
+          path: human-segment-equivalence-evidence
+          retention-days: 14
+          if-no-files-found: warn
