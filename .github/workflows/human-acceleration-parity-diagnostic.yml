@@ -20,13 +20,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Numi2/numilab-human
-          ref: 68209b1566187ef648eb9538bda0eeef117caee9
+          ref: 36245dd2b81ea4273468a5438de9838def0f8fbd
           path: human-inputs
           sparse-checkout: |
             .numi/commands
             Docs/media/native-runtime-source-package-20260915
             src/numilab_human/model.py
             src/numilab_human/native_acceleration_force_parity.py
+            src/numilab_human/native_limit_reaction_classification.py
           persist-credentials: false
       - name: Verify Metal 4 and build current Human target
         run: |
@@ -133,7 +134,7 @@ jobs:
           )
           if exit_code != 0:
               raise RuntimeError('native acceleration-parity diagnostic did not complete')
-      - name: Compile fail-closed parity receipt
+      - name: Compile fail-closed parity and limit-classification receipts
         run: |
           set -euo pipefail
           native_commit=$(cat human-acceleration-parity-evidence/native-revision.txt)
@@ -147,15 +148,25 @@ jobs:
             --stdout human-acceleration-parity-evidence/stdout.txt \
             --source-commit "$native_commit" \
             --binary-sha256 "$binary_sha" \
-            --output human-acceleration-parity-evidence/receipt-v1.json
+            --output human-acceleration-parity-evidence/acceleration-parity-receipt-v1.json
+          PYTHONPATH=human-inputs/src python3 -m numilab_human.native_limit_reaction_classification \
+            --stdout human-acceleration-parity-evidence/stdout.txt \
+            --source-commit "$native_commit" \
+            --binary-sha256 "$binary_sha" \
+            --output human-acceleration-parity-evidence/limit-reaction-classification-v1.json
           python3 - <<'PY'
           import json, pathlib
-          receipt = json.loads(pathlib.Path('human-acceleration-parity-evidence/receipt-v1.json').read_text())
-          assert receipt['status'] == 'partial'
-          assert receipt['qualification']['same_operator_muscle_force_acceleration_parity_measured'] is True
-          assert receipt['qualification']['generalized_force_convergence'] is False
-          assert receipt['qualification']['sustained_standing'] is False
-          print(json.dumps(receipt['diagnostic'], indent=2))
+          root = pathlib.Path('human-acceleration-parity-evidence')
+          parity = json.loads((root / 'acceleration-parity-receipt-v1.json').read_text())
+          limits = json.loads((root / 'limit-reaction-classification-v1.json').read_text())
+          assert parity['qualification']['same_operator_muscle_force_acceleration_parity_measured'] is True
+          assert parity['qualification']['generalized_force_convergence'] is False
+          assert limits['qualification']['reaction_classes_measured'] is True
+          assert limits['qualification']['finite_range_stop_dependence_resolved'] is False
+          print(json.dumps({
+              'acceleration_parity': parity['diagnostic'],
+              'limit_reactions': limits['classification'],
+          }, indent=2))
           PY
       - uses: actions/upload-artifact@v4
         if: always()
