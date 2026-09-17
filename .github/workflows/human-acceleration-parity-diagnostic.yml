@@ -1,0 +1,166 @@
+name: Human full-body acceleration parity diagnostic
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths: [.github/workflows/human-acceleration-parity-diagnostic.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: human-acceleration-parity-diagnostic-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  diagnostic:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Numi2/numilab-human
+          ref: 68209b1566187ef648eb9538bda0eeef117caee9
+          path: human-inputs
+          sparse-checkout: |
+            .numi/commands
+            Docs/media/native-runtime-source-package-20260915
+            src/numilab_human/model.py
+            src/numilab_human/native_acceleration_force_parity.py
+          persist-credentials: false
+      - name: Verify Metal 4 and build current Human target
+        run: |
+          set -euo pipefail
+          mkdir -p human-acceleration-parity-evidence
+          cat > /tmp/numi-metal-toolchain-probe.metal <<'METAL'
+          #include <metal_stdlib>
+          using namespace metal;
+          kernel void numi_toolchain_probe(device float* value [[buffer(0)]]) {
+              if (value != nullptr) value[0] = value[0];
+          }
+          METAL
+          if ! xcrun -sdk macosx metal -std=metal4.0 -c /tmp/numi-metal-toolchain-probe.metal -o /tmp/numi-metal-toolchain-probe.air > human-acceleration-parity-evidence/metal-toolchain-initial.txt 2>&1; then
+              xcodebuild -downloadComponent MetalToolchain 2>&1 | tee human-acceleration-parity-evidence/metal-toolchain-download.txt
+          fi
+          xcrun -sdk macosx metal -std=metal4.0 -c /tmp/numi-metal-toolchain-probe.metal -o /tmp/numi-metal-toolchain-probe.air 2>&1 | tee human-acceleration-parity-evidence/metal-toolchain-final.txt
+          git rev-parse HEAD > human-acceleration-parity-evidence/native-revision.txt
+          git -C human-inputs rev-parse HEAD > human-acceleration-parity-evidence/input-revision.txt
+          sw_vers > human-acceleration-parity-evidence/machine.txt
+          xcodebuild -version >> human-acceleration-parity-evidence/machine.txt
+          python3 tools/check_human_mechanics_mode.py
+          cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF 2>&1 | tee human-acceleration-parity-evidence/configure.txt
+          cmake --build BuildHuman --target metalrobo_numilab_human_myosim_visual_probe --parallel 3 2>&1 | tee human-acceleration-parity-evidence/build.txt
+      - name: Execute one exact unassisted full-body step
+        shell: python
+        run: |
+          import hashlib, json, os, pathlib, signal, subprocess, time
+
+          root = pathlib.Path.cwd()
+          evidence = root / 'human-acceleration-parity-evidence'
+          inputs = root / 'human-inputs'
+          package = inputs / 'Docs/media/native-runtime-source-package-20260915'
+          published = json.loads((package / 'source-package-receipt-v1.json').read_text())
+
+          def digest(path):
+              value = hashlib.sha256()
+              with pathlib.Path(path).open('rb') as stream:
+                  for block in iter(lambda: stream.read(1024 * 1024), b''):
+                      value.update(block)
+              return value.hexdigest()
+
+          payloads = {name: inputs / row['path'] for name, row in published['inputs'].items()}
+          for name, path in payloads.items():
+              if digest(path) != published['inputs'][name]['sha256']:
+                  raise RuntimeError('source payload changed: ' + name)
+
+          wrapper = inputs / '.numi/commands/human'
+          binary = root / 'BuildHuman/bin/metalrobo_numilab_human_myosim_visual_probe'
+          command = [
+              str(wrapper), 'stand', str(payloads['rigid'].parent),
+              str(evidence / 'unused-in-mechanics-mode.nhbones'),
+              str(payloads['tendon']), str(payloads['support_contact']),
+              str(evidence / 'frames'), '--mechanics-only', '--no-step-trace',
+              '--no-deterministic-replay', '--steps', '1', '--timestep', '0.0001',
+          ]
+          environment = {
+              **os.environ,
+              'NUMI_LAB_ROOT': str(root),
+              'NUMI_BUILD_DIR': str(root / 'BuildHuman'),
+              'MTL_DEBUG_LAYER': '1',
+              'NUMI_HUMAN_EXECUTION_STAGES': '1',
+          }
+          stdout_path = evidence / 'stdout.txt'
+          stderr_path = evidence / 'stderr.txt'
+          started = time.monotonic()
+          with stdout_path.open('w') as stdout, stderr_path.open('w') as stderr:
+              process = subprocess.Popen(
+                  command, stdout=stdout, stderr=stderr,
+                  env=environment, start_new_session=True,
+              )
+              try:
+                  exit_code = process.wait(timeout=900)
+              except subprocess.TimeoutExpired:
+                  with (evidence / 'timeout-profile.txt').open('w') as profile:
+                      try:
+                          subprocess.run(
+                              ['/usr/bin/sample', str(process.pid), '4', '1'],
+                              stdout=profile, stderr=subprocess.STDOUT, timeout=15,
+                          )
+                      except (OSError, subprocess.TimeoutExpired) as error:
+                          profile.write(str(error))
+                  try:
+                      os.killpg(process.pid, signal.SIGKILL)
+                  except ProcessLookupError:
+                      pass
+                  process.wait()
+                  exit_code = None
+          execution = {
+              'schema': 'numi.human.acceleration-parity-execution.v1',
+              'native_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              'input_commit': subprocess.check_output(['git', '-C', str(inputs), 'rev-parse', 'HEAD'], text=True).strip(),
+              'binary_sha256': digest(binary),
+              'stdout_sha256': digest(stdout_path),
+              'stderr_sha256': digest(stderr_path),
+              'exit_code': exit_code,
+              'wall_seconds': time.monotonic() - started,
+              'timestep_seconds': 0.0001,
+              'step_count': 1,
+              'root_assistance': 'none',
+              'rendering_requested': False,
+          }
+          (evidence / 'execution-v1.json').write_text(
+              json.dumps(execution, indent=2, allow_nan=False) + '\n'
+          )
+          if exit_code != 0:
+              raise RuntimeError('native acceleration-parity diagnostic did not complete')
+      - name: Compile fail-closed parity receipt
+        run: |
+          set -euo pipefail
+          native_commit=$(cat human-acceleration-parity-evidence/native-revision.txt)
+          binary_sha=$(python3 - <<'PY'
+          import hashlib, pathlib
+          path = pathlib.Path('BuildHuman/bin/metalrobo_numilab_human_myosim_visual_probe')
+          print(hashlib.sha256(path.read_bytes()).hexdigest())
+          PY
+          )
+          PYTHONPATH=human-inputs/src python3 -m numilab_human.native_acceleration_force_parity \
+            --stdout human-acceleration-parity-evidence/stdout.txt \
+            --source-commit "$native_commit" \
+            --binary-sha256 "$binary_sha" \
+            --output human-acceleration-parity-evidence/receipt-v1.json
+          python3 - <<'PY'
+          import json, pathlib
+          receipt = json.loads(pathlib.Path('human-acceleration-parity-evidence/receipt-v1.json').read_text())
+          assert receipt['status'] == 'partial'
+          assert receipt['qualification']['same_operator_muscle_force_acceleration_parity_measured'] is True
+          assert receipt['qualification']['generalized_force_convergence'] is False
+          assert receipt['qualification']['sustained_standing'] is False
+          print(json.dumps(receipt['diagnostic'], indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-full-body-acceleration-parity
+          path: human-acceleration-parity-evidence
+          retention-days: 14
+          if-no-files-found: error
