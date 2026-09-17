@@ -1,0 +1,377 @@
+name: Human current-source refinement
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths: [.github/workflows/human-current-refinement.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: human-current-refinement-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  case:
+    runs-on: macos-26
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {name: 100us, dt: '0.0001', steps: 64}
+          - {name: 50us, dt: '0.00005', steps: 128}
+          - {name: 25us, dt: '0.000025', steps: 256}
+          - {name: 12p5us, dt: '0.0000125', steps: 512}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Numi2/numilab-human
+          ref: 40a113ec2422ac367cbf0bf2778683d4f78f7eab
+          path: human-inputs
+          sparse-checkout: |
+            .numi/commands
+            Docs/media/native-runtime-source-package-20260915
+          persist-credentials: false
+      - name: Verify Metal 4 toolchain
+        run: |
+          set -euo pipefail
+          mkdir -p human-current-evidence
+          cat > /tmp/numi-metal-toolchain-probe.metal <<'METAL'
+          #include <metal_stdlib>
+          using namespace metal;
+          kernel void numi_toolchain_probe(device float* value [[buffer(0)]]) {
+              if (value != nullptr) value[0] = value[0];
+          }
+          METAL
+          if ! xcrun -sdk macosx metal -std=metal4.0 -c /tmp/numi-metal-toolchain-probe.metal -o /tmp/numi-metal-toolchain-probe.air > human-current-evidence/metal-toolchain-initial.txt 2>&1; then
+              xcodebuild -downloadComponent MetalToolchain 2>&1 | tee human-current-evidence/metal-toolchain-download.txt
+          fi
+          xcrun -sdk macosx metal -std=metal4.0 -c /tmp/numi-metal-toolchain-probe.metal -o /tmp/numi-metal-toolchain-probe.air 2>&1 | tee human-current-evidence/metal-toolchain-final.txt
+          xcrun -sdk macosx metallib /tmp/numi-metal-toolchain-probe.air -o /tmp/numi-metal-toolchain-probe.metallib
+      - name: Build current native Human owner
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > human-current-evidence/native-revision.txt
+          git -C human-inputs rev-parse HEAD > human-current-evidence/input-revision.txt
+          sw_vers > human-current-evidence/machine.txt
+          xcodebuild -version >> human-current-evidence/machine.txt
+          python3 tools/check_human_mechanics_mode.py
+          cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF 2>&1 | tee human-current-evidence/configure.txt
+          cmake --build BuildHuman --target metalrobo_numilab_human_myosim_visual_probe --parallel 3 2>&1 | tee human-current-evidence/build.txt
+      - name: Execute source-bound unassisted case
+        shell: python
+        env:
+          CASE_NAME: ${{ matrix.name }}
+          CASE_DT: ${{ matrix.dt }}
+          CASE_STEPS: ${{ matrix.steps }}
+        run: |
+          import hashlib, json, math, os, pathlib, shlex, signal, subprocess, time
+
+          root = pathlib.Path.cwd()
+          evidence = root / 'human-current-evidence'
+          inputs = root / 'human-inputs'
+          package = inputs / 'Docs/media/native-runtime-source-package-20260915'
+          receipt = json.loads((package / 'source-package-receipt-v1.json').read_text())
+
+          def digest(path):
+              h = hashlib.sha256()
+              with pathlib.Path(path).open('rb') as stream:
+                  for block in iter(lambda: stream.read(1024 * 1024), b''):
+                      h.update(block)
+              return h.hexdigest()
+
+          payloads = {name: inputs / value['path'] for name, value in receipt['inputs'].items()}
+          for name, path in payloads.items():
+              if digest(path) != receipt['inputs'][name]['sha256']:
+                  raise RuntimeError('source payload changed: ' + name)
+
+          wrapper = inputs / '.numi/commands/human'
+          binary = root / 'BuildHuman/bin/metalrobo_numilab_human_myosim_visual_probe'
+          name = os.environ['CASE_NAME']
+          dt = os.environ['CASE_DT']
+          steps = int(os.environ['CASE_STEPS'])
+          ns = round(float(dt) * 1.0e9)
+          if ns * steps != 6_400_000:
+              raise RuntimeError('case does not span exactly 6.4 ms')
+
+          case_dir = evidence / name
+          case_dir.mkdir()
+          command = [
+              str(wrapper), 'stand', str(payloads['rigid'].parent),
+              str(case_dir / 'unused-in-mechanics-mode.nhbones'),
+              str(payloads['tendon']), str(payloads['support_contact']),
+              str(case_dir / 'frames'), '--mechanics-only',
+              '--steps', str(steps), '--timestep', dt,
+          ]
+          environment = {
+              **os.environ,
+              'NUMI_LAB_ROOT': str(root),
+              'NUMI_BUILD_DIR': str(root / 'BuildHuman'),
+              'MTL_DEBUG_LAYER': '1',
+          }
+          started = time.monotonic()
+          with (case_dir / 'stdout.txt').open('w') as stdout, (case_dir / 'stderr.txt').open('w') as stderr:
+              process = subprocess.Popen(
+                  command, stdout=stdout, stderr=stderr,
+                  env=environment, start_new_session=True,
+              )
+              try:
+                  code = process.wait(timeout=2100)
+              except subprocess.TimeoutExpired:
+                  with (case_dir / 'timeout-profile.txt').open('w') as profile:
+                      try:
+                          sample = subprocess.run(
+                              ['/usr/bin/sample', str(process.pid), '3', '1'],
+                              stdout=profile, stderr=subprocess.STDOUT, timeout=12,
+                          )
+                          profile.write('\nsample_exit_code=' + str(sample.returncode) + '\n')
+                      except (OSError, subprocess.TimeoutExpired) as error:
+                          profile.write(str(error))
+                  try:
+                      os.killpg(process.pid, signal.SIGKILL)
+                  except ProcessLookupError:
+                      pass
+                  process.wait()
+                  code = None
+
+          text = (case_dir / 'stdout.txt').read_text()
+          summaries = [line for line in text.splitlines() if line.startswith('myosim_articulated_mechanics=')]
+          if len(summaries) != 1:
+              raise RuntimeError('missing or ambiguous mechanics summary')
+          metrics = {}
+          for token in shlex.split(summaries[0]):
+              if '=' not in token:
+                  continue
+              key, value = token.split('=', 1)
+              if key in metrics:
+                  raise RuntimeError('duplicate metric: ' + key)
+              metrics[key] = value
+
+          required = {
+              'myosim_articulated_mechanics': 'ok',
+              'rendering_performed': 'false',
+              'visual_coverage_qualified': 'false',
+              'core_bodies': '157',
+              'persistent_metal_horizon': 'true',
+              'persistent_completed_steps': str(steps),
+              'persistent_root_assistance': 'none',
+              'stand_deterministic_replay': 'bitwise',
+              'persistent_passive_joint_law': 'current_state_linear_backward_euler',
+              'persistent_max_acceleration_semantics': 'pre_projection_total_delta_v_divided_by_timestep',
+          }
+          mismatches = {key: (metrics.get(key), value) for key, value in required.items() if metrics.get(key) != value}
+          stage_keys = [
+              'persistent_max_free_acceleration', 'persistent_max_free_acceleration_dof',
+              'persistent_max_constraint_delta_v', 'persistent_max_constraint_delta_v_dof',
+              'persistent_max_pre_projection_delta_v', 'persistent_max_pre_projection_delta_v_dof',
+              'persistent_max_published_delta_v', 'persistent_max_published_delta_v_dof',
+          ]
+          traces = [line.split('=', 1)[1] for line in text.splitlines() if line.startswith('persistent_stand_trace=')]
+          terminals = [line.split('=', 1)[1] for line in text.splitlines() if line.startswith('stand_terminal_state=')]
+          if len(traces) != 1 or len(terminals) != 1:
+              raise RuntimeError('missing or ambiguous state evidence')
+          trace = json.loads(traces[0])
+          terminal = json.loads(terminals[0])
+          if trace.get('schema') != 'numi.human.persistent-stand-trace.v4':
+              raise RuntimeError('trace schema changed')
+          if len(trace.get('samples', [])) != steps + 1:
+              raise RuntimeError('trace is incomplete')
+          if trace.get('endpoint_equivalent') != 'bitwise' or trace.get('endpoint_max_q_delta') != 0 or trace.get('endpoint_max_v_delta') != 0:
+              raise RuntimeError('deterministic trace endpoint differs')
+          if terminal.get('step_count') != steps or terminal.get('root_assistance') is not False:
+              raise RuntimeError('terminal contract changed')
+
+          stderr_lines = [line for line in (case_dir / 'stderr.txt').read_text().splitlines()
+                          if line.strip() and 'Metal API Validation Enabled' not in line]
+          result = {
+              'schema': 'numi.human.current-refinement-case.v1',
+              'name': name,
+              'native_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              'input_commit': subprocess.check_output(['git', '-C', str(inputs), 'rev-parse', 'HEAD'], text=True).strip(),
+              'binary_sha256': digest(binary),
+              'payload_sha256': {key: digest(value) for key, value in payloads.items()},
+              'launcher_sha256': digest(wrapper),
+              'timestep_nanoseconds': ns,
+              'step_count': steps,
+              'duration_nanoseconds': ns * steps,
+              'exit_code': code,
+              'wall_seconds': time.monotonic() - started,
+              'stdout_sha256': digest(case_dir / 'stdout.txt'),
+              'stderr_sha256': digest(case_dir / 'stderr.txt'),
+              'stderr_nonbanner_lines': stderr_lines,
+              'required_metric_mismatches': mismatches,
+              'velocity_stage_diagnostics_complete': all(key in metrics for key in stage_keys),
+              'compiled_static_balance': metrics.get('compiled_stand_balanced') == 'true',
+              'metrics': metrics,
+          }
+          (case_dir / 'case-summary.json').write_text(json.dumps(result, indent=2, allow_nan=False) + '\n')
+          print(json.dumps({key: result[key] for key in (
+              'name', 'native_commit', 'timestep_nanoseconds', 'step_count',
+              'exit_code', 'wall_seconds', 'velocity_stage_diagnostics_complete',
+              'compiled_static_balance')}, indent=2))
+          if code != 0 or stderr_lines or mismatches or not result['velocity_stage_diagnostics_complete'] or not result['compiled_static_balance']:
+              raise RuntimeError('current-source Human execution failed closed; raw evidence retained')
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-current-refinement-${{ matrix.name }}
+          path: human-current-evidence
+          retention-days: 14
+          if-no-files-found: error
+
+  compare:
+    needs: case
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: human-current-refinement-*
+          path: downloaded
+      - name: Audit common-time state and reaction refinement
+        shell: python
+        run: |
+          import hashlib, json, math, pathlib, shlex
+
+          root = pathlib.Path('downloaded')
+          summaries = list(root.rglob('case-summary.json'))
+          if len(summaries) != 4:
+              raise RuntimeError(f'expected four case summaries, found {len(summaries)}')
+
+          runs = {}
+          for summary_path in summaries:
+              summary = json.loads(summary_path.read_text())
+              name = summary['name']
+              if name in runs:
+                  raise RuntimeError('duplicate case ' + name)
+              case_dir = summary_path.parent
+              stdout = case_dir / 'stdout.txt'
+              stderr = case_dir / 'stderr.txt'
+              if hashlib.sha256(stdout.read_bytes()).hexdigest() != summary['stdout_sha256']:
+                  raise RuntimeError(name + ' stdout hash mismatch')
+              if hashlib.sha256(stderr.read_bytes()).hexdigest() != summary['stderr_sha256']:
+                  raise RuntimeError(name + ' stderr hash mismatch')
+              text = stdout.read_text()
+              trace_rows = [line.split('=', 1)[1] for line in text.splitlines() if line.startswith('persistent_stand_trace=')]
+              if len(trace_rows) != 1:
+                  raise RuntimeError(name + ' trace record missing or ambiguous')
+              trace = json.loads(trace_rows[0])
+              runs[name] = {'summary': summary, 'samples': trace['samples']}
+
+          expected = {'100us': (100000, 64), '50us': (50000, 128),
+                      '25us': (25000, 256), '12p5us': (12500, 512)}
+          if set(runs) != set(expected):
+              raise RuntimeError('refinement grid incomplete')
+          for name, (ns, steps) in expected.items():
+              row = runs[name]['summary']
+              if row['timestep_nanoseconds'] != ns or row['step_count'] != steps or row['duration_nanoseconds'] != 6_400_000:
+                  raise RuntimeError(name + ' grid mismatch')
+              if row['exit_code'] != 0 or row['required_metric_mismatches'] or not row['velocity_stage_diagnostics_complete']:
+                  raise RuntimeError(name + ' execution contract failed')
+
+          for key in ('native_commit', 'input_commit', 'binary_sha256', 'launcher_sha256'):
+              if len({runs[name]['summary'][key] for name in runs}) != 1:
+                  raise RuntimeError('mixed ' + key)
+          payload_keys = sorted(next(iter(runs.values()))['summary']['payload_sha256'])
+          for key in payload_keys:
+              if len({runs[name]['summary']['payload_sha256'][key] for name in runs}) != 1:
+                  raise RuntimeError('mixed payload ' + key)
+
+          def maximum_delta(first, second):
+              return max(abs(float(a) - float(b)) for a, b in zip(first, second, strict=True))
+
+          def quaternion_delta(first, second):
+              na = math.sqrt(sum(float(x) * float(x) for x in first))
+              nb = math.sqrt(sum(float(x) * float(x) for x in second))
+              a = [float(x) / na for x in first]
+              b = [float(x) / nb for x in second]
+              sign = 1.0 if sum(x * y for x, y in zip(a, b, strict=True)) >= 0.0 else -1.0
+              numerator = math.sqrt(sum((x - sign * y) ** 2 for x, y in zip(a, b, strict=True)))
+              denominator = math.sqrt(sum((x + sign * y) ** 2 for x, y in zip(a, b, strict=True)))
+              return 4.0 * math.atan2(numerator, denominator)
+
+          fine = runs['12p5us']['samples']
+          comparisons = []
+          strides = {'100us': 1, '50us': 2, '25us': 4}
+          for name, stride in strides.items():
+              samples = runs[name]['samples']
+              root_translation = []
+              root_orientation = []
+              scalar_configuration = []
+              velocity = []
+              normal_reaction = []
+              for interval in range(65):
+                  coarse = samples[interval * stride]
+                  reference = fine[interval * 8]
+                  root_translation.append(maximum_delta(coarse['q'][:3], reference['q'][:3]))
+                  root_orientation.append(quaternion_delta(coarse['q'][3:7], reference['q'][3:7]))
+                  scalar_configuration.append(maximum_delta(coarse['q'][7:], reference['q'][7:]))
+                  velocity.append(maximum_delta(coarse['v'], reference['v']))
+                  if interval:
+                      coarse_impulse = sum(row['normal_impulse'] for row in samples[(interval - 1) * stride + 1:interval * stride + 1])
+                      fine_impulse = sum(row['normal_impulse'] for row in fine[(interval - 1) * 8 + 1:interval * 8 + 1])
+                      normal_reaction.append((coarse_impulse - fine_impulse) / 1.0e-4)
+              comparisons.append({
+                  'case': name,
+                  'reference': '12p5us',
+                  'common_timestamp_count': 65,
+                  'maximum_root_translation_delta_m': max(root_translation),
+                  'maximum_root_orientation_delta_rad': max(root_orientation),
+                  'maximum_scalar_configuration_delta_mixed_units': max(scalar_configuration),
+                  'maximum_generalized_velocity_delta_mixed_units': max(velocity),
+                  'maximum_common_interval_normal_reaction_delta_n': max(abs(value) for value in normal_reaction),
+                  'rms_common_interval_normal_reaction_delta_n': math.sqrt(sum(value * value for value in normal_reaction) / len(normal_reaction)),
+              })
+
+          cases = []
+          for name in ('100us', '50us', '25us', '12p5us'):
+              summary = runs[name]['summary']
+              metrics = summary['metrics']
+              samples = runs[name]['samples']
+              cases.append({
+                  'name': name,
+                  'timestep_nanoseconds': summary['timestep_nanoseconds'],
+                  'step_count': summary['step_count'],
+                  'wall_seconds': summary['wall_seconds'],
+                  'static_residual_rms': float(metrics['compiled_stand_normalized_residual_rms']),
+                  'static_support_reference_n': float(metrics['compiled_stand_total_support_force_n']),
+                  'maximum_free_acceleration_mixed_units': float(metrics['persistent_max_free_acceleration']),
+                  'maximum_constraint_delta_v_mixed_units': float(metrics['persistent_max_constraint_delta_v']),
+                  'maximum_pre_projection_delta_v_mixed_units': float(metrics['persistent_max_pre_projection_delta_v']),
+                  'maximum_published_delta_v_mixed_units': float(metrics['persistent_max_published_delta_v']),
+                  'legacy_pre_projection_rate_mixed_units_per_s': float(metrics['persistent_max_acceleration']),
+                  'maximum_penetration_m': float(metrics['persistent_max_penetration_m']),
+                  'mean_normal_reaction_n': sum(row['normal_impulse'] for row in samples[1:]) / 0.0064,
+                  'maximum_equality_velocity_error': float(metrics['stand_max_equality_velocity_error']),
+              })
+
+          free = [row['maximum_free_acceleration_mixed_units'] for row in cases]
+          report = {
+              'schema': 'numi.human.current-refinement-comparison.v1',
+              'status': 'diagnostic_complete',
+              'native_commit': cases and next(iter(runs.values()))['summary']['native_commit'],
+              'input_commit': next(iter(runs.values()))['summary']['input_commit'],
+              'common_duration_nanoseconds': 6_400_000,
+              'cases': cases,
+              'comparisons': comparisons,
+              'free_acceleration_range_over_minimum': ((max(free) - min(free)) / min(free)) if min(free) > 0.0 else None,
+              'force_convergence': False,
+              'sustained_standing': False,
+              'boundary': (
+                  'Current-source hosted Apple Paravirtual comparison of captured q/v, separated velocity stages, '
+                  'and interval-integrated normal impulse. It is not physical-M4 qualification, a complete reaction '
+                  'or impulsive-work certificate, sustained standing, recovery, or walking.'
+              ),
+          }
+          pathlib.Path('current-refinement-comparison.json').write_text(json.dumps(report, indent=2, allow_nan=False) + '\n')
+          print(json.dumps(report, indent=2, allow_nan=False))
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-current-refinement-comparison
+          path: current-refinement-comparison.json
+          retention-days: 14
+          if-no-files-found: error
