@@ -1,0 +1,101 @@
+name: Integrate bounded Human trace sampling
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths: [.github/workflows/integrate-bounded-human-trace.yml]
+permissions:
+  contents: write
+concurrency:
+  group: integrate-bounded-human-trace
+  cancel-in-progress: false
+jobs:
+  integrate:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Numi2/numilab-human
+          ref: bbf07157d6cc57265cfa401b8f1fafeeec61b3c9
+          path: human-inputs
+          sparse-checkout: |
+            .numi/commands
+            Docs/media/native-runtime-source-package-20260915
+          persist-credentials: false
+      - name: Apply exact bounded-trace source patch
+        shell: python
+        run: |
+          import base64, hashlib, subprocess, zlib
+          encoded = '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'
+          compressed = base64.b64decode(encoded, validate=True)
+          patch = zlib.decompress(compressed)
+          assert len(patch) == 11134
+          assert hashlib.sha256(patch).hexdigest() == 'f9a48d7747a61f5b45ac5a0e78599215702943211c2e2976548864df88b01c49'
+          subprocess.run(['git','apply','--check','-'],input=patch,check=True)
+          subprocess.run(['git','apply','--index','-'],input=patch,check=True)
+          assert subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines() == ['apps/numilab_human_myosim_visual_probe.mm']
+          subprocess.run(['git','diff','--cached','--check'],check=True)
+      - name: Verify or install Metal compiler
+        run: |
+          set -euo pipefail
+          cat > /tmp/numi-trace-probe.metal <<'METAL'
+          #include <metal_stdlib>
+          using namespace metal;
+          kernel void numi_trace_probe(device float* x [[buffer(0)]]) { if (x != nullptr) x[0] = x[0]; }
+          METAL
+          if ! xcrun -sdk macosx metal -std=metal4.0 -c /tmp/numi-trace-probe.metal -o /tmp/numi-trace-probe.air >/tmp/metal-initial.txt 2>&1; then
+            xcodebuild -downloadComponent MetalToolchain
+          fi
+          xcrun -sdk macosx metal -std=metal4.0 -c /tmp/numi-trace-probe.metal -o /tmp/numi-trace-probe.air
+      - name: Build complete Human target
+        run: |
+          python3 tools/check_human_host_syntax.py
+          cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+          cmake --build BuildHuman --target metalrobo_numilab_human_myosim_visual_probe --parallel 3
+      - name: Execute 128-step source-bound trace
+        shell: python
+        run: |
+          import json, os, pathlib, subprocess
+          root=pathlib.Path.cwd(); inputs=root/'human-inputs'
+          receipt=json.loads((inputs/'Docs/media/native-runtime-source-package-20260915/source-package-receipt-v1.json').read_text())
+          payloads={name:inputs/value['path'] for name,value in receipt['inputs'].items()}
+          output=root/'bounded-trace-evidence'; output.mkdir()
+          command=[str(inputs/'.numi/commands/human'),'stand',str(payloads['rigid'].parent),
+              str(output/'unused.nhbones'),str(payloads['tendon']),str(payloads['support_contact']),
+              str(output/'frames'),'--mechanics-only','--steps','128','--timestep','0.00005']
+          environment={**os.environ,'NUMI_LAB_ROOT':str(root),'NUMI_BUILD_DIR':str(root/'BuildHuman'),'MTL_DEBUG_LAYER':'1'}
+          completed=subprocess.run(command,env=environment,text=True,capture_output=True,timeout=1200)
+          (output/'stdout.txt').write_text(completed.stdout)
+          (output/'stderr.txt').write_text(completed.stderr)
+          if completed.returncode != 0: raise RuntimeError('bounded trace execution failed')
+          rows=[line.split('=',1)[1] for line in completed.stdout.splitlines() if line.startswith('persistent_stand_trace=')]
+          if len(rows)!=1: raise RuntimeError('missing or ambiguous trace')
+          trace=json.loads(rows[0])
+          assert trace['schema']=='numi.human.persistent-stand-trace.v5'
+          assert trace['driver']=='bounded_segment_production_horizon'
+          assert trace['maximum_segment_steps']==2
+          assert trace['sample_count']==65==len(trace['samples'])
+          assert trace['endpoint_equivalent']=='bitwise'
+          assert trace['endpoint_max_q_delta']==0 and trace['endpoint_max_v_delta']==0
+          assert trace['samples'][0]['step']==0 and trace['samples'][0]['segment_steps']==0
+          assert [row['step'] for row in trace['samples'][1:]]==list(range(2,129,2))
+          assert all(row['segment_steps']==2 for row in trace['samples'][1:])
+          assert all('active_contact_count' in row and 'maximum_active_contact_count' in row for row in trace['samples'])
+          summary=[line for line in completed.stdout.splitlines() if line.startswith('myosim_articulated_mechanics=')]
+          assert len(summary)==1 and 'persistent_completed_steps=128' in summary[0]
+          (output/'receipt.json').write_text(json.dumps({'schema':'numi.human.bounded-trace-integration.v1','native_source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'trace_samples':len(trace['samples']),'maximum_segment_steps':trace['maximum_segment_steps'],'endpoint_equivalent':trace['endpoint_equivalent'],'qualification_boundary':'Trace sampling and deterministic endpoint only; not standing or force convergence.'},indent=2)+'\n')
+      - name: Publish tested source increment
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Bound Human trace sampling to 64 production intervals'
+          git push origin HEAD:refs/heads/human-native-runtime-20260915
+          git rev-parse HEAD > bounded-trace-evidence/source-revision.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-bounded-trace-evidence
+          path: bounded-trace-evidence
+          retention-days: 14
+          if-no-files-found: warn
