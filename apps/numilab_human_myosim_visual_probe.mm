@@ -15,6 +15,7 @@
 #include "metalrobo/NumiHumanKnee.hpp"
 #include "metalrobo/NumiHumanKneeContact.hpp"
 #include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
+#include "metalrobo/NumiHumanForceParity.hpp"
 #include "metalrobo/NumiHumanPassiveJoint.hpp"
 #include "metalrobo/NumiHumanCompliantEquilibrium.hpp"
 #include "metalrobo/NumiHumanInitialState.hpp"
@@ -2659,6 +2660,10 @@ struct MuscleDrivenVisualState {
     std::uint32_t selectedSourceMuscleActivationCount = 0u;
     double muscleMetalElapsedMilliseconds = 0.0;
     double sourceDynamicForceParityMaximumNewtons = 0.0;
+    double sourceDynamicForceParityMaximumVelocityIncrement = 0.0;
+    double sourceDynamicForceParityMaximumAcceleration = 0.0;
+    std::uint32_t sourceDynamicForceParityMaximumAccelerationDof =
+        MR_INVALID_INDEX;
     double persistentDynamicMaximumForceResidual = 0.0;
     std::vector<PersistentDynamicForceAuditRow> persistentDynamicForceAudit;
     bool persistentStandTraceCaptured = false;
@@ -3987,6 +3992,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     reportHumanExecutionStage("static_equilibrium_begin");
     CompiledStandActivation compiledActivation;
     double sourceDynamicForceParityMaximumNewtons = 0.0;
+    double sourceDynamicForceParityMaximumVelocityIncrement = 0.0;
+    double sourceDynamicForceParityMaximumAcceleration = 0.0;
+    std::uint32_t sourceDynamicForceParityMaximumAccelerationDof =
+        MR_INVALID_INDEX;
     double sourceSupportForceParityMaximumNewtons = 0.0;
     std::uint32_t sourceSupportForceParityMaximumDof = MR_INVALID_INDEX;
     std::vector<float> selectedControlBaselineActivation;
@@ -4434,6 +4443,23 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     };
     parityConfig.timestep = timestepSeconds;
     parityConfig.implicitPassiveDofDamping = true;
+    std::vector<double> compiledParityQ = compiledActivation.q;
+    std::vector<double> compiledParityV(
+        model.defaultV.begin(), model.defaultV.end()
+    );
+    const auto compiledParityCpu = metalrobo::integrateArticulatedState(
+        model,
+        0u,
+        compiledParityQ,
+        compiledParityV,
+        compiledActivation.generalizedMuscleForce,
+        {},
+        parityConfig
+    );
+    require(
+        compiledParityCpu.succeeded(),
+        "persistent Human compiled-force acceleration parity reference failed"
+    );
     const auto parityCpu = metalrobo::integrateArticulatedState(
         model,
         0u,
@@ -4445,6 +4471,20 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     );
     require(parityCpu.succeeded(),
             "persistent Human stand CPU one-step parity reference failed");
+    const auto accelerationParity =
+        metalrobo::compareNumiHumanUnconstrainedVelocityParity(
+            compiledParityV, parityV, timestepSeconds
+        );
+    require(
+        accelerationParity.valid,
+        "persistent Human acceleration-space force parity is invalid"
+    );
+    sourceDynamicForceParityMaximumVelocityIncrement =
+        accelerationParity.maximumVelocityDelta;
+    sourceDynamicForceParityMaximumAcceleration =
+        accelerationParity.maximumAccelerationDelta;
+    sourceDynamicForceParityMaximumAccelerationDof =
+        accelerationParity.maximumVelocityDeltaDof;
     metalrobo::MetalArticulatedOperatorInput parityInput = input;
     parityInput.stand.stepCount = 1u;
     parityInput.stand.enableContact = false;
@@ -5666,6 +5706,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     );
     result.muscleMetalElapsedMilliseconds = totalElapsedMilliseconds;
     result.sourceDynamicForceParityMaximumNewtons = sourceDynamicForceParityMaximumNewtons;
+    result.sourceDynamicForceParityMaximumVelocityIncrement =
+        sourceDynamicForceParityMaximumVelocityIncrement;
+    result.sourceDynamicForceParityMaximumAcceleration =
+        sourceDynamicForceParityMaximumAcceleration;
+    result.sourceDynamicForceParityMaximumAccelerationDof =
+        sourceDynamicForceParityMaximumAccelerationDof;
     result.persistentDynamicMaximumForceResidual =
         dynamicInitialMaximumForceResidual;
     result.persistentDynamicForceAudit = std::move(dynamicForceAudit);
@@ -18608,6 +18654,13 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->muscleMetalElapsedMilliseconds : 0.0)
                       << " source_dynamic_force_parity_max_delta_n=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->sourceDynamicForceParityMaximumNewtons : 0.0)
+                      << " source_dynamic_force_parity_max_delta_v_mixed_units=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->sourceDynamicForceParityMaximumVelocityIncrement : 0.0)
+                      << " source_dynamic_force_parity_max_delta_acceleration_mixed_units=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->sourceDynamicForceParityMaximumAcceleration : 0.0)
+                      << " source_dynamic_force_parity_max_delta_dof=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->sourceDynamicForceParityMaximumAccelerationDof : MR_INVALID_INDEX)
+                      << " source_dynamic_force_parity_acceleration_semantics=\"unconstrained_same_operator_compiled_vs_metal_muscle_force\""
                       << " persistent_dynamic_force_residual_max_n=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->persistentDynamicMaximumForceResidual : 0.0)
                       << " persistent_stand_trace=" << (muscleDrivenState.has_value() &&
