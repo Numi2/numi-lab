@@ -47,9 +47,11 @@ jobs:
           persist-credentials: false
       - name: Retain exact integrated source
         run: |
+          set -euo pipefail
           mkdir -p human-runtime-evidence
           git rev-parse HEAD > human-runtime-evidence/revision.txt
           git archive --format=tar HEAD include src apps tests tools cmake matter CMakeLists.txt AGENTS.md .github | gzip > human-runtime-evidence/source.tar.gz
+          (cd human-runtime-evidence && sha256sum source.tar.gz > source.sha256)
       - uses: actions/upload-artifact@v4
         with:
           name: human-integrated-source
