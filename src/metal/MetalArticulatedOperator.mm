@@ -2257,9 +2257,12 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
                         responsePerEnvironment) ||
             !checkedMultiply(responsePerEnvironment, articulation.nv,
                              responsePerEnvironment) ||
-            // Per-environment bilateral Schur factor, diagonal scaling,
-            // pivot indices and correction RHS. Never alias the next arena.
+            // Per-environment bilateral Schur factor, scaling, pivot/RHS
+            // vectors and one equality correction per possible limit column.
+            // Include every term before applying the environment stride.
             !checkedAdd(input.stand.jointEqualities.size(), 3u,
+                        bilateralScratchElements) ||
+            !checkedAdd(bilateralScratchElements, articulation.nv,
                         bilateralScratchElements) ||
             !checkedMultiply(input.stand.jointEqualities.size(),
                              bilateralScratchElements, bilateralScratchElements) ||

@@ -16,7 +16,7 @@ def require(condition: bool, message: str) -> None:
 
 
 for symbol in ("mrNumiHumanSupportSeedImpulse(", "mrNumiHumanContactVelocityTarget(",
-               "mrNumiHumanProjectIntervalImpulse(", "mrNumiHumanProjectEqualityLimitBlock("):
+               "mrNumiHumanProjectIntervalImpulse(", "mrNumiHumanBilateralSolve("):
     require(symbol in kernel, f"production standing owner lost {symbol}")
 require("effort += supportForce" not in kernel,
         "support reaction reintroduced as a permanent effort")
@@ -24,9 +24,13 @@ require("lambdas[3u * contact + 0u] = seed;" in kernel,
         "normal warm-start impulse is not registered")
 require("limitAccumulatedImpulses[limit] = nextImpulse;" in kernel,
         "limit impulse is no longer an accumulated projection")
-require(kernel.index("Final equality evidence includes paired limit corrections.") >
-        kernel.index("mrNumiHumanProjectEqualityLimitBlock("),
+require(kernel.index("Final equality evidence includes full-block limit corrections.") >
+        kernel.index("equalityLambdas[ei] = fma(impulse,"),
         "equality diagnostics precede final coupled corrections")
+require("limitEqualityIndices" not in kernel and "limitEqualityCorrections" in kernel,
+        "limit solve regressed to an isolated equality pair")
+require("nv * equalityCount" in kernel,
+        "conditioned limit multipliers are missing from the response stride")
 require("preloadedGeneralizedForce[dof] =" not in runner,
         "runner reintroduced a frozen passive or constraint force")
 require(".passiveJointProgram = passiveJointProgram" in runner and
