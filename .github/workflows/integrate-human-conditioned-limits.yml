@@ -65,7 +65,9 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m 'Condition Human joint-limit responses on the complete bilateral system'
-          git push origin HEAD:refs/heads/human-native-runtime-20260915
+          branch="human-conditioned-limits-verified-${GITHUB_RUN_ID}"
+          git push origin "HEAD:refs/heads/$branch"
+          printf '%s\n' "$branch" > human-limit-evidence/source-branch.txt
           git rev-parse HEAD > human-limit-evidence/source-revision.txt
       - uses: actions/upload-artifact@v4
         if: always()
