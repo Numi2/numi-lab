@@ -677,6 +677,101 @@ int main() {
             recruitedReaction.activation[0] > 0.0 &&
             near(recruitedReaction.generalizedPositionLimitForce[0], 2.75, 5.0e-4),
             "recruitment did not balance a coupled joint-stop load");
+    // An optional stop-load cost must never replace an already balanced
+    // solution with an unbalanced one. Here lowering F reduces the stop
+    // reaction, but leaves an acceleration on the second slider.
+    auto stopConfig = reactions.config;
+    stopConfig.activationRegularization = 0.0;
+    stopConfig.globalActivationPolishIterations = 12u;
+    const auto compileStopPolicy = [&](const auto& model, const auto& config) {
+        NumiHumanMuscleEquilibriumResult output;
+        const auto status = compileNumiHumanMuscleEquilibrium(
+            model, 0u, reactions.q, recruitingSites, {}, reactions.muscles,
+            reactions.architectures, {}, {}, {}, recruitingLoads,
+            output, config);
+        require(status.succeeded(), "stop-load recruitment failed");
+        return output;
+    };
+    const auto balancedStopBaseline = compileStopPolicy(reactions.model, stopConfig);
+    require(balancedStopBaseline.diagnostics.balanced,
+            "analytic stop-policy baseline lost balance");
+    for (double penalty : {1e-5, 1e-3, 1.0, 1000.0}) {
+        stopConfig.finiteRangePositionLimitReactionRegularization = penalty;
+        const auto output = compileStopPolicy(reactions.model, stopConfig);
+        std::cerr << "stop_policy_probe weight=" << penalty
+                  << " residual=" << output.diagnostics.normalizedResidualRms
+                  << " reaction=" << output.generalizedPositionLimitForce[0]
+                  << " baseline=" << balancedStopBaseline.generalizedPositionLimitForce[0] << '\n';
+        require(output.diagnostics.balanced &&
+                output.diagnostics.normalizedResidualRms <= stopConfig.balanceTolerance,
+                "optional stop-load penalty traded away static balance");
+        require(output.q == balancedStopBaseline.q &&
+                output.diagnostics.positionLimitKktResidual <= 1e-8 &&
+                output.activation[0] >= 0.0 && output.activation[0] <= stopConfig.activationLimit,
+                "stop-load refinement changed pose, feasibility or actuator limits");
+        require(std::abs(output.generalizedPositionLimitForce[0]) <=
+                std::abs(balancedStopBaseline.generalizedPositionLimitForce[0]) + 1e-8,
+                "stop-load refinement increased the stop reaction");
+        const auto replayed = compileStopPolicy(reactions.model, stopConfig);
+        require(replayed.activation == output.activation && replayed.fiberLength == output.fiberLength &&
+                replayed.generalizedForceResidual == output.generalizedForceResidual,
+                "balance-preserving stop refinement did not replay exactly");
+    }
+    stopConfig.finiteRangePositionLimitReactionRegularization = 0.0;
+    stopConfig.activationLimit = 0.001;
+    const auto infeasibleBaseline = compileStopPolicy(reactions.model, stopConfig);
+    require(!infeasibleBaseline.diagnostics.balanced,
+            "analytic infeasible stop case unexpectedly balanced");
+    stopConfig.finiteRangePositionLimitReactionRegularization = 1000.0;
+    const auto infeasibleStop = compileStopPolicy(reactions.model, stopConfig);
+    require(!infeasibleStop.diagnostics.balanced &&
+            infeasibleStop.activation == infeasibleBaseline.activation &&
+            infeasibleStop.generalizedAccelerationResidual == infeasibleBaseline.generalizedAccelerationResidual,
+            "optional stop phase changed or promoted an infeasible baseline");
+
+    // Redundant recruitment can unload a stop WITHOUT needing residual
+    // tolerance: one route pulls both sliders, the other opposes the distal
+    // component. This is an analytic force-sharing problem, not an oracle
+    // made from the optimizer's reaction projection.
+    auto redundantModel = reactions.model;
+    redundantModel.joints[1].axis0 = f4(0, 1, 0);
+    const std::vector<MujocoMuscleSite> unloadSites{
+        {0u, {0,1,0}}, {2u, {0,0,0}}, {1u, {0,0,0}}, {2u, {0,1,0}}};
+    std::vector<MujocoMuscleDefinition> unloadMuscles(2u, reactions.muscles[0]);
+    unloadMuscles[0].route = {{MujocoRouteNodeType::site, 0u}, {MujocoRouteNodeType::site, 1u}};
+    unloadMuscles[1].route = {{MujocoRouteNodeType::site, 2u}, {MujocoRouteNodeType::site, 3u}};
+    const std::vector<MujocoCompliantMuscleArchitecture> unloadArchitectures(2u);
+    const std::vector<NumiHumanPassiveCoordinateCoupling> unloadLoads{{0u, 0u, -1.0, 1.0}};
+    auto unloadConfig = reactions.config;
+    unloadConfig.activationRegularization = 0.0;
+    unloadConfig.globalActivationPolishIterations = 24u;
+    unloadConfig.finiteRangePositionLimitReactionRegularization = 1.0;
+    NumiHumanMuscleEquilibriumResult unloaded;
+    require(compileNumiHumanMuscleEquilibrium(redundantModel, 0u, reactions.q,
+        unloadSites, {}, unloadMuscles, unloadArchitectures, {}, {}, {},
+        unloadLoads, unloaded, unloadConfig).succeeded() && unloaded.diagnostics.balanced &&
+        unloaded.diagnostics.normalizedResidualRms < 1e-6 &&
+        std::abs(unloaded.generalizedPositionLimitForce[0]) < 1e-5 &&
+        near(unloaded.muscleTendonForce[0], -1.0, 1e-5) &&
+        near(unloaded.muscleTendonForce[1], -1.0, 1e-5),
+        "redundant recruitment did not unload the analytic stop with real muscles");
+    require(unloaded.q == reactions.q && unloaded.diagnostics.positionLimitKktResidual <= 1e-8,
+        "analytic stop unloading changed pose or physical complementarity");
+    // Collapsed structural locks carry legitimate reaction and cost zero.
+    redundantModel.dofs[0].limits = f4(0, 0, 0);
+    NumiHumanMuscleEquilibriumResult lockedBaseline, lockedPenalty;
+    unloadConfig.finiteRangePositionLimitReactionRegularization = 0.0;
+    require(compileNumiHumanMuscleEquilibrium(redundantModel, 0u, reactions.q,
+        unloadSites, {}, unloadMuscles, unloadArchitectures, {}, {}, {},
+        unloadLoads, lockedBaseline, unloadConfig).succeeded(), "locked baseline failed");
+    unloadConfig.finiteRangePositionLimitReactionRegularization = 1000.0;
+    require(compileNumiHumanMuscleEquilibrium(redundantModel, 0u, reactions.q,
+        unloadSites, {}, unloadMuscles, unloadArchitectures, {}, {}, {},
+        unloadLoads, lockedPenalty, unloadConfig).succeeded() &&
+        lockedPenalty.activation == lockedBaseline.activation &&
+        lockedPenalty.generalizedPositionLimitForce == lockedBaseline.generalizedPositionLimitForce,
+        "stop-load preference penalized an authored structural lock");
+
     // Two coupled serial sliders: a proximal muscle supplies [-1,0]F and
     // a spanning muscle [-1,-1]F. The exact tension solution for loads [5,2]
     // is [3,2]. A single ordered sweep cannot resolve this force sharing.
@@ -775,6 +870,7 @@ int main() {
               << " coupled_recruitment=passed recruitment_bounds=passed"
               << " coupled_posture=passed"
               << " coupled_limit_reactions=passed dependent_acceleration=passed"
+              << " balance_preserving_stop_refinement=passed redundant_stop_unloading=passed"
               << " analytic_weight_n=" << replay.supportNormalForce[0]
               << " replay=exact penetration=rejected airborne_force_n=0\n";
 }
