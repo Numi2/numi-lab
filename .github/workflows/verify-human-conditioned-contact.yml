@@ -21,6 +21,7 @@ jobs:
           git rev-parse HEAD > human-contact-evidence/baseline-revision.txt
           git archive HEAD include src/metal/NumiHumanStand.metal | tar -x -C /tmp/human-contact-baseline
           python3 tools/patch_human_conditioned_contact.py
+          python3 tools/refine_human_conditioned_contact.py
           git diff --check
       - name: Verify portable policies and production host syntax
         run: |
@@ -31,6 +32,14 @@ jobs:
           done
           python3 tools/check_human_constraint_owner.py
           python3 tools/check_human_host_syntax.py
+      - name: Verify Metal compiler availability
+        run: |
+          set -euo pipefail
+          printf '#include <metal_stdlib>\nusing namespace metal;\nkernel void check(device float* v [[buffer(0)]]) { v[0]=0; }\n' > /tmp/human-toolchain.metal
+          if ! xcrun -sdk macosx metal -std=metal4.0 -c /tmp/human-toolchain.metal -o /tmp/human-toolchain.air > human-contact-evidence/toolchain-initial.txt 2>&1; then
+            xcodebuild -downloadComponent MetalToolchain 2>&1 | tee human-contact-evidence/toolchain-download.txt
+          fi
+          xcrun -sdk macosx metal -std=metal4.0 -c /tmp/human-toolchain.metal -o /tmp/human-toolchain.air 2>&1 | tee human-contact-evidence/toolchain-final.txt
       - name: Reproduce old contact-equality coupling failure on the production GPU
         run: |
           set -eu
