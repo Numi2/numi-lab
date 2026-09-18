@@ -3587,7 +3587,10 @@ CompiledStandActivation compileStaticStandActivation(
     // A balanced standing candidate should not prefer anatomical joint stops
     // over muscle/support load sharing. This is an optimizer cost only; the
     // unilateral stop law and its KKT certificate remain unchanged.
-    config.finiteRangePositionLimitReactionRegularization = 1.0e-3;
+    // Disabled until recruitment carries the exact active-stop reaction
+    // derivative; an objective-only penalty can trade equilibrium residual for
+    // smaller stop load without supplying a descent direction.
+    config.finiteRangePositionLimitReactionRegularization = 0.0;
     config.globalActivationPolishIterations = 64u;
     if (!passiveCouplings.empty()) {
         // The passive-coupled whole-body solve had accepted every prior
