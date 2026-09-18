@@ -1,0 +1,56 @@
+name: Integrate coupled Human bilateral solve
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths: [.github/workflows/integrate-human-bilateral.yml, tools/integrate_human_bilateral_20260918.py]
+permissions:
+  contents: write
+concurrency:
+  group: integrate-human-bilateral
+  cancel-in-progress: false
+jobs:
+  integrate:
+    runs-on: macos-26
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply reviewed source changes
+        run: python3 tools/integrate_human_bilateral_20260918.py
+      - name: Verify existing and new numerical contracts
+        run: |
+          set -eu
+          mkdir -p bilateral-evidence
+          for name in constraint_projection equality_limit_block passive_joint friction bilateral; do
+            clang++ -std=c++20 -O2 -Wall -Wextra -Werror -Iinclude tests/numi_human_${name}_test.cpp -o /tmp/human-${name}
+            /tmp/human-${name} | tee bilateral-evidence/${name}.txt
+          done
+          python3 tools/check_human_constraint_owner.py
+          python3 tools/check_human_host_syntax.py
+          git diff --check
+      - name: Compile and execute production Metal fixtures
+        run: |
+          set -eu
+          xcrun --sdk macosx metal -std=metal4.0 -fno-fast-math -Iinclude -c src/metal/NumiHumanStand.metal -o /tmp/NumiHumanStand.air
+          xcrun --sdk macosx metallib /tmp/NumiHumanStand.air -o /tmp/NumiHumanStand.metallib
+          for name in passive friction bilateral; do
+            clang++ -std=c++20 -O2 -Wall -Wextra -Werror -fno-fast-math -fobjc-arc -Iinclude tests/numi_human_${name}_metal_test.mm -framework Foundation -framework Metal -o /tmp/human-${name}-metal
+            MTL_DEBUG_LAYER=1 /tmp/human-${name}-metal /tmp/NumiHumanStand.metallib > bilateral-evidence/${name}-gpu-stdout.txt 2> bilateral-evidence/${name}-gpu-stderr.txt
+            cat bilateral-evidence/${name}-gpu-stdout.txt
+          done
+      - name: Publish verified numerical source
+        run: |
+          test "$GITHUB_REF_NAME" = human-native-runtime-20260915
+          git add -- CMakeLists.txt include/metalrobo/numi_human_stand_gpu.h src/metal/MetalArticulatedOperator.mm src/metal/NumiHumanStand.metal
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Solve coupled Human joint equalities as a scaled Schur block'
+          git push origin HEAD:refs/heads/human-native-runtime-20260915
+          git rev-parse HEAD > bilateral-evidence/source-revision.txt
+          git diff HEAD^ HEAD > bilateral-evidence/integrated.patch
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-bilateral-integration
+          path: bilateral-evidence
+          retention-days: 14
+          if-no-files-found: warn
