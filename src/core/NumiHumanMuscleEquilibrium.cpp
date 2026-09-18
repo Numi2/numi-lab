@@ -899,6 +899,7 @@ NumiHumanMuscleEquilibriumDiagnostics finishResidual(
     state.finiteRangeLimitBurden.assign(articulation.nv, 0.0);
     double finiteRangeLimitPenalty = 0.0;
     std::size_t finiteRangeLimitCount = 0u;
+    if (config.finiteRangePositionLimitReactionRegularization > 0.0) {
     for (std::size_t index = 0u; index < projection.limits.size(); ++index) {
         const auto& row = projection.limits[index];
         if (row.sourceDof >= articulation.nv ||
@@ -948,6 +949,7 @@ NumiHumanMuscleEquilibriumDiagnostics finishResidual(
     if (finiteRangeLimitCount != 0u) {
         finiteRangeLimitPenalty /=
             static_cast<double>(finiteRangeLimitCount);
+    }
     }
 
     // Lift accelerations through the exact zero-velocity equality tangent.
