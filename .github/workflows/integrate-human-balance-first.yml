@@ -4,13 +4,15 @@ on:
     branches: [human-native-runtime-20260915]
     paths: [.github/workflows/integrate-human-balance-first.yml]
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: integrate-human-balance-first
   cancel-in-progress: true
 jobs:
   verify-and-publish:
-    runs-on: macos-15
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -25,17 +27,28 @@ jobs:
           test "$(git hash-object tests/numi_human_static_support_test.cpp)" = 1746ae23e2b65c8f77fdb64888c2920a7f2849da
           git show HEAD:src/core/NumiHumanMuscleEquilibrium.cpp > /tmp/human-equilibrium-before.cpp
           cat tools/integration/human-balance-first.{0,1,2,3} | gzip -dc > human-balance-evidence/change.patch
-          test "$(shasum -a 256 human-balance-evidence/change.patch | cut -d' ' -f1)" = ab4e04a30b7c3ce0efec48ef2a5f8669061330b3264de2491ef8420471d60839
+          echo 'ab4e04a30b7c3ce0efec48ef2a5f8669061330b3264de2491ef8420471d60839  human-balance-evidence/change.patch' | sha256sum --check
           git apply --index human-balance-evidence/change.patch
           git diff --cached --check
           test "$(git diff --cached --name-only | wc -l | tr -d ' ')" = 3
           git diff --cached --stat
-      - name: Reproduce the old failure and verify the corrected production owner
+      - name: Reproduce the old failure and verify the same production core with LAPACK
         shell: bash
         run: |
           set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y liblapack-dev libblas-dev
+          # Test-only ABI declarations for the same LAPACK routines supplied
+          # by Accelerate on Apple. No compatibility code enters the product.
+          mkdir -p /tmp/human-lapack/Accelerate
+          cat > /tmp/human-lapack/Accelerate/Accelerate.h <<'HEADER'
+          #pragma once
+          using __LAPACK_int = int;
+          extern "C" void dposv_(const char*,const int*,const int*,double*,const int*,double*,const int*,int*);
+          extern "C" void dsyev_(const char*,const char*,const int*,double*,const int*,double*,double*,const int*,int*);
+          HEADER
           common=(src/core/NumiHumanJointEquality.cpp src/core/NumiHumanSupport.cpp src/core/MujocoMuscleReference.cpp src/core/ArticulatedDynamics.cpp src/core/OpenSimSpatialTransform.cpp src/core/OpenSimFunction.cpp src/core/QualityContactSolver.cpp)
-          clang++ -std=c++20 -O2 -Iinclude tests/numi_human_static_support_test.cpp /tmp/human-equilibrium-before.cpp "${common[@]}" -framework Accelerate -o /tmp/human-balance-before
+          clang++ -std=c++20 -O2 -Iinclude -I/tmp/human-lapack tests/numi_human_static_support_test.cpp /tmp/human-equilibrium-before.cpp "${common[@]}" -llapack -lblas -o /tmp/human-balance-before
           set +e
           /tmp/human-balance-before > human-balance-evidence/before.txt 2>&1
           code=$?
@@ -43,15 +56,14 @@ jobs:
           cat human-balance-evidence/before.txt
           test "$code" = 1
           grep -q 'optional stop-load penalty traded away static balance' human-balance-evidence/before.txt
-          clang++ -std=c++20 -O2 -Iinclude tests/numi_human_static_support_test.cpp src/core/NumiHumanMuscleEquilibrium.cpp "${common[@]}" -framework Accelerate -o /tmp/human-balance-after
+          clang++ -std=c++20 -O2 -Iinclude -I/tmp/human-lapack tests/numi_human_static_support_test.cpp src/core/NumiHumanMuscleEquilibrium.cpp "${common[@]}" -llapack -lblas -o /tmp/human-balance-after
           /tmp/human-balance-after > human-balance-evidence/after.txt 2>&1
           cat human-balance-evidence/after.txt
           grep -q 'balance_preserving_stop_refinement=passed redundant_stop_unloading=passed' human-balance-evidence/after.txt
           python3 tools/check_human_constraint_owner.py
-          python3 tools/check_human_host_syntax.py
-          sw_vers > human-balance-evidence/machine.txt
+          uname -a > human-balance-evidence/machine.txt
           clang++ --version >> human-balance-evidence/machine.txt
-      - name: Publish verified source and remove the one-shot integration files
+      - name: Publish scoped core and remove temporary integration files
         shell: bash
         run: |
           set -euo pipefail
@@ -68,7 +80,51 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: human-balance-first-verification
+          name: human-balance-first-portable-verification
           path: human-balance-evidence
+          retention-days: 14
+          if-no-files-found: error
+  apple-verification:
+    permissions:
+      contents: read
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify exactly the same patch with Apple Accelerate and host compilation
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p human-balance-apple-evidence
+          git rev-parse HEAD > human-balance-apple-evidence/base-revision.txt
+          git show HEAD:src/core/NumiHumanMuscleEquilibrium.cpp > /tmp/human-equilibrium-before.cpp
+          cat tools/integration/human-balance-first.{0,1,2,3} | gzip -dc > human-balance-apple-evidence/change.patch
+          test "$(shasum -a 256 human-balance-apple-evidence/change.patch | cut -d' ' -f1)" = ab4e04a30b7c3ce0efec48ef2a5f8669061330b3264de2491ef8420471d60839
+          git apply --index human-balance-apple-evidence/change.patch
+          git diff --cached --check
+          common=(src/core/NumiHumanJointEquality.cpp src/core/NumiHumanSupport.cpp src/core/MujocoMuscleReference.cpp src/core/ArticulatedDynamics.cpp src/core/OpenSimSpatialTransform.cpp src/core/OpenSimFunction.cpp src/core/QualityContactSolver.cpp)
+          clang++ -std=c++20 -O2 -Iinclude tests/numi_human_static_support_test.cpp /tmp/human-equilibrium-before.cpp "${common[@]}" -framework Accelerate -o /tmp/human-balance-before
+          set +e
+          /tmp/human-balance-before > human-balance-apple-evidence/before.txt 2>&1
+          code=$?
+          set -e
+          cat human-balance-apple-evidence/before.txt
+          test "$code" = 1
+          grep -q 'optional stop-load penalty traded away static balance' human-balance-apple-evidence/before.txt
+          clang++ -std=c++20 -O2 -Iinclude tests/numi_human_static_support_test.cpp src/core/NumiHumanMuscleEquilibrium.cpp "${common[@]}" -framework Accelerate -o /tmp/human-balance-after
+          /tmp/human-balance-after > human-balance-apple-evidence/after.txt 2>&1
+          cat human-balance-apple-evidence/after.txt
+          grep -q 'balance_preserving_stop_refinement=passed redundant_stop_unloading=passed' human-balance-apple-evidence/after.txt
+          python3 tools/check_human_constraint_owner.py
+          python3 tools/check_human_host_syntax.py
+          sw_vers > human-balance-apple-evidence/machine.txt
+          clang++ --version >> human-balance-apple-evidence/machine.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-balance-first-apple-verification
+          path: human-balance-apple-evidence
           retention-days: 14
           if-no-files-found: error
