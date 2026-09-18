@@ -3584,6 +3584,10 @@ CompiledStandActivation compileStaticStandActivation(
     // and exact nonlinear checkpoint path.
     config.activationRegularization = 1.0e-8;
     config.poseRegularization = 1.0e-4;
+    // A balanced standing candidate should not prefer anatomical joint stops
+    // over muscle/support load sharing. This is an optimizer cost only; the
+    // unilateral stop law and its KKT certificate remain unchanged.
+    config.finiteRangePositionLimitReactionRegularization = 1.0e-3;
     config.globalActivationPolishIterations = 64u;
     if (!passiveCouplings.empty()) {
         // The passive-coupled whole-body solve had accepted every prior
