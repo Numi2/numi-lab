@@ -2206,6 +2206,7 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         std::size_t vectorPerEnvironment = 0u;
         std::size_t constraintVectorElements = 0u;
         std::size_t responsePerEnvironment = 0u;
+        std::size_t bilateralScratchElements = 0u;
         if (!checkedMultiply(
                 input.environmentCount,
                 layout.standTendonBindingElements,
@@ -2256,6 +2257,14 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
                         responsePerEnvironment) ||
             !checkedMultiply(responsePerEnvironment, articulation.nv,
                              responsePerEnvironment) ||
+            // Per-environment bilateral Schur factor, diagonal scaling,
+            // pivot indices and correction RHS. Never alias the next arena.
+            !checkedAdd(input.stand.jointEqualities.size(), 3u,
+                        bilateralScratchElements) ||
+            !checkedMultiply(input.stand.jointEqualities.size(),
+                             bilateralScratchElements, bilateralScratchElements) ||
+            !checkedAdd(responsePerEnvironment, bilateralScratchElements,
+                        responsePerEnvironment) ||
             !checkedMultiply(input.environmentCount, responsePerEnvironment,
                              layout.standResponseElements)) {
             return reject(

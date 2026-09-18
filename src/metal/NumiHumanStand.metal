@@ -4,6 +4,7 @@
 #include "metalrobo/numi_human_stand_gpu.h"
 #include "metalrobo/numi_human_constraint_projection.h"
 #include "metalrobo/numi_human_friction.h"
+#include "metalrobo/numi_human_bilateral.h"
 #include "metalrobo/numi_human_passive_joint.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
 #include "metalrobo/numi_human_tendon_gpu.h"
@@ -231,8 +232,14 @@ kernel void mr_numi_human_stand_step(
         12u * dispatch.supportContactCount + dispatch.jointEqualityCount;
     const uint preloadBase = environment * vectorStride;
     const uint vectorBase = preloadBase + nv;
-    const uint responseBase = environment *
-        (dispatch.supportContactCount * 3u + dispatch.jointEqualityCount + nv) * nv;
+    const uint equalityCount = dispatch.jointEqualityCount;
+    const uint responseColumns = (dispatch.supportContactCount * 3u + equalityCount + nv) * nv;
+    const uint responseStride = responseColumns + equalityCount * (equalityCount + 3u);
+    const uint responseBase = environment * responseStride;
+    device float* equalityFactor = responseScratch + responseBase + responseColumns;
+    device float* equalityScale = equalityFactor + equalityCount * equalityCount;
+    device float* equalityPivots = equalityScale + equalityCount;
+    device float* equalityRhs = equalityPivots + equalityCount;
     device float* bias = vectorScratch + vectorBase;
     device float* candidateV = bias + nv;
     device float* workspace = candidateV + nv;
@@ -1000,57 +1007,62 @@ kernel void mr_numi_human_stand_step(
                 return;
             }
         }
-        }
-
-        for (uint iteration = 0u;
-             iteration < 1u;
-             ++iteration) {
-            for (uint equalityIndex = 0u;
-                 equalityIndex < dispatch.jointEqualityCount;
-                 ++equalityIndex) {
-                device const MRNumiHumanJointEqualityGPU& equality =
-                    jointEqualities[equalityIndex];
-                float target = 0.0f;
-                float derivative = 0.0f;
-                float error = 0.0f;
-                if (!evaluateJointEquality(
-                        equality, qState, qBase, nq, nv,
-                        target, derivative, error
-                    )) {
-                    ++status.jointEqualityCounts.z;
-                    fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
-                         equalityIndex);
-                    return;
-                }
-                device const float* response = responseScratch + responseBase +
-                    (3u * dispatch.supportContactCount + equalityIndex) * nv;
-                float effectiveMass = response[equality.indices.y];
-                float constraintVelocity = candidateV[equality.indices.y];
-                if (equality.indices.w != MR_INVALID_INDEX) {
-                    effectiveMass -= derivative * response[equality.indices.w];
-                    constraintVelocity -=
-                        derivative * candidateV[equality.indices.w];
-                }
-                effectiveMass += kResponseRegularization;
-                if (!(effectiveMass > kResponseRegularization) ||
-                    !isfinite(effectiveMass)) {
-                    ++status.jointEqualityCounts.z;
-                    fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
-                         equalityIndex);
-                    return;
-                }
-                const float targetVelocity = clamp(
-                    -0.2f * error / timestep, -4.0f, 4.0f
-                );
-                const float delta =
-                    (targetVelocity - constraintVelocity) / effectiveMass;
-                equalityLambdas[equalityIndex] += delta;
-                for (uint dof = 0u; dof < nv; ++dof) {
-                    candidateV[dof] += delta * response[dof];
-                }
+        // Solve all bilateral rows together, not as scalar Gauss-Seidel
+        // updates which can undo each other. Keep the actual nonsymmetric
+        // FP32 contractions instead of silently adding diagonal compliance.
+        for (uint row=0u; row<equalityCount; ++row) {
+            device const MRNumiHumanJointEqualityGPU& equality=jointEqualities[row];
+            float target=0.0f, derivative=0.0f, error=0.0f;
+            if (!evaluateJointEquality(equality,qState,qBase,nq,nv,target,derivative,error)) {
+                fail(status,MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,row);
+                return;
+            }
+            for (uint column=0u; column<equalityCount; ++column) {
+                device const float* response=responseScratch+responseBase+
+                    (3u*dispatch.supportContactCount+column)*nv;
+                float value=response[equality.indices.y];
+                if (equality.indices.w!=MR_INVALID_INDEX)
+                    value=fma(-derivative,response[equality.indices.w],value);
+                equalityFactor[row*equalityCount+column]=value;
             }
         }
+        if (!mrNumiHumanBilateralFactor(equalityFactor,equalityScale,equalityPivots,equalityCount)) {
+            fail(status,MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,MR_INVALID_INDEX);
+            return;
+        }
+        }
 
+        // Recompute the actual velocity residual for a refinement correction.
+        // This is still the same E M_eff^-1 E^T block and impulse ownership.
+        for (uint refinement=0u; refinement<2u; ++refinement) {
+            for (uint row=0u; row<equalityCount; ++row) {
+                device const MRNumiHumanJointEqualityGPU& equality=jointEqualities[row];
+                float target=0.0f, derivative=0.0f, error=0.0f;
+                if (!evaluateJointEquality(equality,qState,qBase,nq,nv,target,derivative,error)) {
+                    fail(status,MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,row);
+                    return;
+                }
+                float velocity=candidateV[equality.indices.y];
+                if (equality.indices.w!=MR_INVALID_INDEX)
+                    velocity=fma(-derivative,candidateV[equality.indices.w],velocity);
+                equalityRhs[row]=clamp(-0.2f*error/timestep,-4.0f,4.0f)-velocity;
+            }
+            if (!mrNumiHumanBilateralSolve(equalityFactor,equalityScale,equalityPivots,equalityRhs,equalityCount)) {
+                fail(status,MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,MR_INVALID_INDEX);
+                return;
+            }
+            for (uint row=0u; row<equalityCount; ++row)
+                equalityLambdas[row]+=equalityRhs[row];
+            for (uint dof=0u; dof<nv; ++dof) {
+                float correction=0.0f;
+                for (uint row=0u; row<equalityCount; ++row) {
+                    device const float* response=responseScratch+responseBase+
+                        (3u*dispatch.supportContactCount+row)*nv;
+                    correction=fma(equalityRhs[row],response[dof],correction);
+                }
+                candidateV[dof]+=correction;
+            }
+        }
     }
 
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {

@@ -853,6 +853,7 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_passive_joint.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_constraint_projection.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_friction.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_bilateral.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/multicopter_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/task_program_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/policy_program_types.h"
@@ -5084,3 +5085,10 @@ target_link_libraries(numi_human_tissue_binding_check PRIVATE metalrobo)
 target_compile_options(numi_human_tissue_binding_check PRIVATE -Wall -Wextra -Wpedantic -Werror)
 target_compile_definitions(numi_human_tissue_binding_check PRIVATE NUMI_COSTAL_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_costal_cartilage_pseudoelastic.nmatter")
 set_target_properties(numi_human_tissue_binding_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+
+if(BUILD_TESTING)
+    add_executable(metalrobo_numi_human_bilateral_test tests/numi_human_bilateral_test.cpp)
+    target_include_directories(metalrobo_numi_human_bilateral_test PRIVATE include)
+    target_compile_features(metalrobo_numi_human_bilateral_test PRIVATE cxx_std_20)
+    add_test(NAME numi_human_bilateral COMMAND metalrobo_numi_human_bilateral_test)
+endif()
