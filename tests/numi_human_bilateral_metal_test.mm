@@ -21,15 +21,19 @@ void require(bool value,const char* message) {if(!value)throw std::runtime_error
 using V3=std::array<float,3>;
 V3 cross(V3 a,V3 b){return {a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};}
 unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
-                  id<MTLCommandQueue> queue,float h,unsigned sweeps,bool reverse,bool loaded,unsigned limitedDof) {
+                  id<MTLCommandQueue> queue,float h,unsigned sweeps,bool reverse,bool loaded,unsigned limitedDof,
+                  unsigned contactBody=MR_INVALID_INDEX,float seedImpulse=0.0f,bool closing=true) {
+    const unsigned nc = contactBody == MR_INVALID_INDEX ? 0u : 1u;
+    require(nc == 0u || limitedDof == MR_INVALID_INDEX,
+            "contact oracle excludes a simultaneous finite stop");
     const std::array<std::size_t,25> sizes={
         sizeof(MRWorldGPU),sizeof(MRArticulationGPU),nv*sizeof(MRDofPropertiesGPU),
         bodies*sizeof(MRBodyPropertiesGPU),sizeof(MRNumiHumanStandDispatchGPU),
         envs*nq*sizeof(float),envs*nv*sizeof(float),envs*bodies*sizeof(MRArticulatedBodyPoseGPU),
         envs*points*sizeof(MRArticulatedPointWorldGPU),envs*points*3*nv*sizeof(float),envs*nv*sizeof(float),
         sizeof(MRNumiHumanStandContactGPU),envs*bodies*MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS*nv*sizeof(float),envs*bodies*2*sizeof(mr_float4),
-        envs*nv*nv*sizeof(float),envs*(4*nv+neq)*sizeof(float),
-        envs*((neq+nv)*nv+neq*(neq+3+nv))*sizeof(float),envs*sizeof(MRNumiHumanStandStatusGPU),
+        envs*nv*nv*sizeof(float),envs*(4*nv+neq+12*nc)*sizeof(float),
+        envs*((3*nc+neq+nv)*nv+neq*(neq+3+nv+3*nc))*sizeof(float),envs*sizeof(MRNumiHumanStandStatusGPU),
         sizeof(MRNumiHumanTendonBindingGPU),sizeof(MRNumiHumanTendonTransferResultGPU),
         neq*sizeof(MRNumiHumanJointEqualityGPU),envs*sizeof(MRCompensatedRootTranslationGPU),
         envs*bodies*sizeof(mr_float4),envs*points*sizeof(mr_float4),nv*(nv+1)*sizeof(float)};
@@ -63,9 +67,18 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
     d->qStride=nq;d->vStride=nv;d->pointWorldStride=points;d->pointJacobianStride=points*3*nv;
     d->bodyPoseStride=bodies;d->generalizedForceStride=nv;d->contactIterationCount=sweeps;
     d->jointEqualityCount=neq;d->flags=MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES;
-    if (limitedDof != MR_INVALID_INDEX)
+    if (limitedDof != MR_INVALID_INDEX || nc != 0u)
         d->flags |= MR_NUMI_HUMAN_STAND_ENABLE_CONTACT;
     d->groundPointAndTimestep={0,0,0,h};d->groundNormal={0,0,1,0};d->targetRootOrientation={0,0,0,1};
+    if (nc != 0u) {
+        d->supportContactCount=nc;
+        d->groundNormal={0,1,0,0};
+        auto* contact=static_cast<MRNumiHumanStandContactGPU*>(b[11].contents);
+        contact->bodyIndex=contactBody;contact->pointQueryIndex=4*contactBody+1;
+        // A y-normal impulse at x=1 changes both linear and angular momentum.
+        // Zero and excessive seeds must produce the same cold-start solution.
+        contact->frictionSlopAndStabilization={0,1e-5f,0.2f,seedImpulse/h};
+    }
     auto* eq=static_cast<MRNumiHumanJointEqualityGPU*>(b[20].contents);
     const float c1=0.7f,c2=-0.2f;
     eq[reverse?1:0].indices={8,7,7,6};eq[reverse?1:0].referencesAndCoefficients0={0,0,0,c1};
@@ -76,8 +89,12 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
     auto* positions=static_cast<MRArticulatedPointWorldGPU*>(b[8].contents);
     auto* jac=static_cast<float*>(b[9].contents);
     std::array<std::array<double,4>,envs> expected{},old{};
+    std::array<double,envs> expectedNormal{},oldLinear{},expectedLinear{};
     for(unsigned e=0;e<envs;++e) {
         q[e*nq+6]=1;
+        oldLinear[e]=nc ? (closing ? -2.0 : 2.0) : 0.0;
+        v[e*nv+1]=static_cast<float>(oldLinear[e]);
+        expectedLinear[e]=oldLinear[e];
         v[e*nv+5]=e?-.2f:.1f;v[e*nv+6]=e?-.3f:.4f;
         v[e*nv+7]=loaded?c1*v[e*nv+6]:-.7f;
         v[e*nv+8]=loaded?c2*v[e*nv+6]:.9f;
@@ -116,6 +133,21 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
                 expected[e][1] = 0.0;
             }
         }
+        if (nc != 0u) {
+            // Reduce the equality-constrained model analytically to root
+            // translation plus a 2x2 angular inertia, then impose one normal
+            // contact. This oracle shares no factor/projector with production.
+            const double multiplier=contactBody==0u ? 0.0 : t[contactBody-1];
+            const double angularRootResponse=(c-bb*multiplier)/determinant;
+            const double jointResponse=(a*multiplier-bb)/determinant;
+            const double inverseContactMass=0.25+angularRootResponse+multiplier*jointResponse;
+            const double freeNormal=oldLinear[e]+expected[e][0]+multiplier*expected[e][1];
+            require(inverseContactMass>0.0,"independent contact inertia is invalid");
+            expectedNormal[e]=std::max(0.0,-freeNormal/inverseContactMass);
+            expectedLinear[e]+=0.25*expectedNormal[e];
+            expected[e][0]+=angularRootResponse*expectedNormal[e];
+            expected[e][1]+=jointResponse*expectedNormal[e];
+        }
         expected[e][2]=c1*expected[e][1];expected[e][3]=c2*expected[e][1];
     }
     id<MTLCommandBuffer> command=[queue commandBuffer];id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
@@ -132,14 +164,36 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
         double oldMomentum=0,newMomentum=0,oldEnergy=0,newEnergy=0;
         for(unsigned j=0;j<4;++j) {
             const double error=std::abs(v[e*nv+5+j]-expected[e][j]);
-            if(error>2e-5*(1+std::abs(expected[e][j])))std::cerr<<"row="<<j<<" env="<<e<<" sweeps="<<sweeps<<" limitedDof="<<limitedDof<<" got="<<v[e*nv+5+j]<<" expected="<<expected[e][j]<<'\n';
+            if(error>2e-5*(1+std::abs(expected[e][j])))std::cerr<<"row="<<j<<" env="<<e<<" sweeps="<<sweeps<<" limitedDof="<<limitedDof<<" contactBody="<<contactBody<<" got="<<v[e*nv+5+j]<<" expected="<<expected[e][j]<<'\n';
             require(error<2e-5*(1+std::abs(expected[e][j])),"coupled equality velocity differs from reduced-mass oracle");++checks;
             const double before=old[e][0]+(j?old[e][j]:0),after=v[e*nv+5]+(j?v[e*nv+5+j]:0);
             oldMomentum+=inertia[j]*before;newMomentum+=inertia[j]*after;
             oldEnergy+=.5*inertia[j]*before*before;newEnergy+=.5*inertia[j]*after*after;
         }
-        require(std::abs(newMomentum-oldMomentum)<1e-5*(1+std::abs(oldMomentum)),"internal equality created angular momentum");++checks;
+        require(std::abs(newMomentum-oldMomentum-expectedNormal[e])<1e-5*(1+std::abs(oldMomentum)),
+                "constraint solve violated angular impulse balance");++checks;
+        oldEnergy+=2.0*oldLinear[e]*oldLinear[e];
+        newEnergy+=2.0*double(v[e*nv+1])*v[e*nv+1];
         if(!loaded) {require(newEnergy<=oldEnergy+1e-5,"unforced equality projection created energy");++checks;}
+        if(nc != 0u) {
+            require(std::abs(v[e*nv+1]-expectedLinear[e])<2e-5,
+                    "contact solve differs from reduced linear momentum oracle");++checks;
+            const unsigned contactJoint=contactBody==0u ? MR_INVALID_INDEX : 5u+contactBody;
+            const double normalVelocity=v[e*nv+1]+v[e*nv+5]+(contactJoint==MR_INVALID_INDEX?0:v[e*nv+contactJoint]);
+            if(normalVelocity < -2e-6) {
+                std::cerr.precision(10);
+                std::cerr<<"normal residual env="<<e<<" h="<<h<<" sweeps="<<sweeps
+                         <<" contactBody="<<contactBody<<" seed="<<seedImpulse
+                         <<" loaded="<<loaded<<" closing="<<closing
+                         <<" normalVelocity="<<normalVelocity
+                         <<" expectedImpulse="<<expectedNormal[e]<<'\n';
+            }
+            require(normalVelocity>=-2e-6,"equality correction invalidated unilateral contact");++checks;
+            require(std::abs(4.0*(v[e*nv+1]-oldLinear[e])-expectedNormal[e])<1e-5,
+                    "contact solve violated linear impulse balance");++checks;
+            require(expectedNormal[e]==0.0 || std::abs(normalVelocity)<2e-6,
+                    "loaded contact has nonzero terminal normal velocity");++checks;
+        }
         require(std::abs(v[e*nv+7]-c1*v[e*nv+6])<1e-6&&std::abs(v[e*nv+8]-c2*v[e*nv+6])<1e-6,"published equality tangent residual");++checks;
         if (limitedDof != MR_INVALID_INDEX) {
             require(v[e*nv+limitedDof] <= 2e-6, "published finite-stop velocity violated"); ++checks;
@@ -165,6 +219,12 @@ int main(int argc,char** argv) {
             for(float h:{1e-4f,5e-5f,1.25e-5f})for(unsigned sweeps:{1u,4u,64u})for(bool reverse:{false,true})for(bool loaded:{false,true})
                 for(unsigned limitedDof:{MR_INVALID_INDEX,6u,7u,8u})
                     checks+=exercise(device,pipeline,queue,h,sweeps,reverse,loaded,limitedDof);
+            for(float h:{1e-4f,5e-5f,1.25e-5f})for(unsigned sweeps:{1u,4u,64u})
+                for(bool reverse:{false,true})for(bool loaded:{false,true})
+                    for(unsigned contactBody:{0u,1u,2u,3u})for(float seed:{0.0f,20.0f})
+                        for(bool closing:{false,true})
+                            checks+=exercise(device,pipeline,queue,h,sweeps,reverse,loaded,
+                                MR_INVALID_INDEX,contactBody,seed,closing);
             std::cout<<"Human production bilateral block: "<<checks<<" checks passed; device="<<device.name.UTF8String<<'\n';return 0;
         }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
     }

@@ -2207,6 +2207,7 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         std::size_t constraintVectorElements = 0u;
         std::size_t responsePerEnvironment = 0u;
         std::size_t bilateralScratchElements = 0u;
+        std::size_t contactEqualityColumns = 0u;
         if (!checkedMultiply(
                 input.environmentCount,
                 layout.standTendonBindingElements,
@@ -2258,11 +2259,15 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             !checkedMultiply(responsePerEnvironment, articulation.nv,
                              responsePerEnvironment) ||
             // Per-environment bilateral Schur factor, scaling, pivot/RHS
-            // vectors and one equality correction per possible limit column.
+            // vectors and equality corrections per contact/limit response column.
             // Include every term before applying the environment stride.
             !checkedAdd(input.stand.jointEqualities.size(), 3u,
                         bilateralScratchElements) ||
             !checkedAdd(bilateralScratchElements, articulation.nv,
+                        bilateralScratchElements) ||
+            !checkedMultiply(input.stand.contacts.size(), 3u,
+                             contactEqualityColumns) ||
+            !checkedAdd(bilateralScratchElements, contactEqualityColumns,
                         bilateralScratchElements) ||
             !checkedMultiply(input.stand.jointEqualities.size(),
                              bilateralScratchElements, bilateralScratchElements) ||

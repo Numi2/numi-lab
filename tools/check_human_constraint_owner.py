@@ -24,12 +24,12 @@ require("lambdas[3u * contact + 0u] = seed;" in kernel,
         "normal warm-start impulse is not registered")
 require("limitAccumulatedImpulses[limit] = nextImpulse;" in kernel,
         "limit impulse is no longer an accumulated projection")
-require(kernel.index("Final equality evidence includes full-block limit corrections.") >
+require(kernel.index("Final equality evidence includes full-block contact and limit corrections.") >
         kernel.index("equalityLambdas[ei] = fma(impulse,"),
         "equality diagnostics precede final coupled corrections")
 require("limitEqualityIndices" not in kernel and "limitEqualityCorrections" in kernel,
         "limit solve regressed to an isolated equality pair")
-require("nv * equalityCount" in kernel,
+require("(nv + 3u * dispatch.supportContactCount) * equalityCount" in kernel,
         "conditioned limit multipliers are missing from the response stride")
 require("preloadedGeneralizedForce[dof] =" not in runner,
         "runner reintroduced a frozen passive or constraint force")
@@ -43,3 +43,10 @@ require("persistent_dynamic_force_audit=" not in runner and
         runner.count("persistent_initial_force_reference=") == 1,
         "static reference reactions are mislabelled as actual dynamic force evidence")
 print("Human constraint-owner structural checks passed")
+
+require("contactEqualityCorrections" in kernel and
+        kernel.count("conditionBilateralResponse(response, equalityCorrection,") == 2,
+        "contact and limit families must share complete bilateral conditioning")
+require(kernel.index("mrNumiHumanBilateralFactor(") <
+        kernel.index("mrNumiHumanSupportSeedImpulse("),
+        "bilateral factor must precede the support warm start")
