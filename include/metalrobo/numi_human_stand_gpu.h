@@ -2,7 +2,9 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_NUMI_HUMAN_STAND_ABI_VERSION 9u
+#define MR_NUMI_HUMAN_STAND_ABI_VERSION 10u
+// Six spatial Jacobian rows plus three cached world-inertia products.
+#define MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS 9u
 #define MR_NUMI_HUMAN_STAND_MAX_BODIES 192u
 #define MR_NUMI_HUMAN_STAND_MAX_DOFS 160u
 #define MR_NUMI_HUMAN_STAND_MAX_Q 161u

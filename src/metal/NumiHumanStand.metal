@@ -225,7 +225,9 @@ kernel void mr_numi_human_stand_step(
     const uint pointJacobianBase = environment * dispatch.pointJacobianStride;
     const uint forceBase = environment * dispatch.generalizedForceStride +
         dispatch.generalizedForceOffset;
-    const uint spatialBase = environment * bodyCount * 6u * nv;
+    const uint spatialBase = environment * bodyCount *
+        MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv;
+    const uint inertiaWeightedBase = spatialBase + bodyCount * 6u * nv;
     const uint bodyMotionBase = environment * bodyCount * 2u;
     const uint factorBase = environment * nv * nv;
     const uint vectorStride = nv + 3u * nv +
@@ -506,6 +508,15 @@ kernel void mr_numi_human_stand_step(
         spatialJacobianScratch[base + 3u * nv] = linear.x;
         spatialJacobianScratch[base + 4u * nv] = linear.y;
         spatialJacobianScratch[base + 5u * nv] = linear.z;
+        // I_world J_angular is shared by every mass-matrix row. Compute it
+        // once per body/column, retaining the same world-inertia operation
+        // and body-ordered dot-product reduction used by the original path.
+        const float3 inertiaWeighted = worldInertiaMultiply(
+            bodies[articulation.firstBody + localBody], orientation, angular);
+        const uint weighted = inertiaWeightedBase + localBody * 3u * nv + dof;
+        spatialJacobianScratch[weighted + 0u * nv] = inertiaWeighted.x;
+        spatialJacobianScratch[weighted + 1u * nv] = inertiaWeighted.y;
+        spatialJacobianScratch[weighted + 2u * nv] = inertiaWeighted.z;
     }
     threadgroup_barrier(mem_flags::mem_device);
 
@@ -599,10 +610,11 @@ kernel void mr_numi_human_stand_step(
                 spatialJacobianScratch[base + 1u * nv + row],
                 spatialJacobianScratch[base + 2u * nv + row],
             };
-            const float3 rightAngular{
-                spatialJacobianScratch[base + 0u * nv + column],
-                spatialJacobianScratch[base + 1u * nv + column],
-                spatialJacobianScratch[base + 2u * nv + column],
+            const uint weighted = inertiaWeightedBase + localBody * 3u * nv + column;
+            const float3 rightInertiaWeighted{
+                spatialJacobianScratch[weighted + 0u * nv],
+                spatialJacobianScratch[weighted + 1u * nv],
+                spatialJacobianScratch[weighted + 2u * nv],
             };
             const float3 leftLinear{
                 spatialJacobianScratch[base + 3u * nv + row],
@@ -614,13 +626,8 @@ kernel void mr_numi_human_stand_step(
                 spatialJacobianScratch[base + 4u * nv + column],
                 spatialJacobianScratch[base + 5u * nv + column],
             };
-            value += dot(
-                leftAngular,
-                worldInertiaMultiply(
-                    body, bodyPoses[bodyPoseBase + localBody].orientation,
-                    rightAngular
-                )
-            ) + body.massAndInverseMass.x * dot(leftLinear, rightLinear);
+            value += dot(leftAngular, rightInertiaWeighted) +
+                body.massAndInverseMass.x * dot(leftLinear, rightLinear);
         }
         if (row == column) {
             device const MRDofPropertiesGPU& dof =

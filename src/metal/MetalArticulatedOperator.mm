@@ -2218,7 +2218,7 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
                 layout.standTendonCorrectionElements
             ) ||
             !checkedMultiply(articulation.bodyCount, articulation.nv, bodyDofs) ||
-            !checkedMultiply(bodyDofs, 6u, bodyDofs) ||
+            !checkedMultiply(bodyDofs, MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS, bodyDofs) ||
             !checkedMultiply(input.environmentCount, bodyDofs,
                              layout.standSpatialJacobianElements) ||
             !checkedMultiply(articulation.bodyCount, 2u,

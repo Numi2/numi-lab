@@ -37,14 +37,14 @@ std::array<double,2> oracle(double a,double d,double vx,double vy,double radius)
     return solve(upper);
 }
 unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
-                  id<MTLCommandQueue> queue,float friction,float speedSign,float seedScale) {
+                  id<MTLCommandQueue> queue,float friction,float speedSign,float seedScale,float angle) {
     constexpr unsigned nv=6,nq=7,points=5,contacts=1;
     const std::array<std::size_t,25> sizes={
         sizeof(MRWorldGPU),sizeof(MRArticulationGPU),nv*sizeof(MRDofPropertiesGPU),
         sizeof(MRBodyPropertiesGPU),sizeof(MRNumiHumanStandDispatchGPU),
         nq*sizeof(float),nv*sizeof(float),sizeof(MRArticulatedBodyPoseGPU),
         points*sizeof(MRArticulatedPointWorldGPU),points*3*nv*sizeof(float),nv*sizeof(float),
-        sizeof(MRNumiHumanStandContactGPU),6*nv*sizeof(float),2*sizeof(mr_float4),
+        sizeof(MRNumiHumanStandContactGPU),MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS*nv*sizeof(float),2*sizeof(mr_float4),
         nv*nv*sizeof(float),(4*nv+12*contacts)*sizeof(float),(3*contacts+nv)*nv*sizeof(float),
         sizeof(MRNumiHumanStandStatusGPU),sizeof(MRNumiHumanTendonBindingGPU),
         sizeof(MRNumiHumanTendonTransferResultGPU),sizeof(MRNumiHumanJointEqualityGPU),
@@ -75,18 +75,27 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
     dispatch->contactIterationCount=8;dispatch->supportContactCount=1;
     dispatch->groundPointAndTimestep={0,0,0,h};dispatch->groundNormal={0,0,1,0};
     dispatch->targetRootOrientation={0,0,0,1};dispatch->flags=MR_NUMI_HUMAN_STAND_ENABLE_CONTACT;
-    auto* q=static_cast<float*>(buffers[5].contents);q[2]=0.5f;q[6]=1;
-    auto* v=static_cast<float*>(buffers[6].contents);v[0]=2*speedSign;v[1]=speedSign;v[2]=-1;
+    const double cosine=std::cos(double(angle)),sine=std::sin(double(angle));
+    const auto rotate=[&](double x,double y) {
+        return std::array<double,2>{cosine*x-sine*y,sine*x+cosine*y};
+    };
+    const auto initialVelocity=rotate(2*speedSign,speedSign);
+    auto* q=static_cast<float*>(buffers[5].contents);q[2]=0.5f;
+    q[5]=std::sin(angle/2);q[6]=std::cos(angle/2);
+    auto* v=static_cast<float*>(buffers[6].contents);
+    v[0]=static_cast<float>(initialVelocity[0]);v[1]=static_cast<float>(initialVelocity[1]);v[2]=-1;
     auto* pose=static_cast<MRArticulatedBodyPoseGPU*>(buffers[7].contents);
-    pose->orientation={0,0,0,1};
+    pose->orientation={0,0,q[5],q[6]};
     auto* positions=static_cast<MRArticulatedPointWorldGPU*>(buffers[8].contents);
     auto* jacobian=static_cast<float*>(buffers[9].contents);
     const std::array<V3,points> offsets={V3{0,0,0},{1,0,0},{0,1,0},{0,0,1},{0,0,-0.5f}};
     for(unsigned p=0;p<points;++p) {
-        positions[p].position={offsets[p][0],offsets[p][1],0.5f+offsets[p][2],0};
+        const auto xy=rotate(offsets[p][0],offsets[p][1]);
+        const V3 worldOffset{static_cast<float>(xy[0]),static_cast<float>(xy[1]),offsets[p][2]};
+        positions[p].position={worldOffset[0],worldOffset[1],0.5f+worldOffset[2],0};
         for(unsigned d=0;d<3;++d) jacobian[p*3*nv+d*nv+d]=1;
         for(unsigned d=3;d<6;++d) {
-            V3 axis{0,0,0};axis[d-3]=1;const auto motion=cross(axis,offsets[p]);
+            V3 axis{0,0,0};axis[d-3]=1;const auto motion=cross(axis,worldOffset);
             for(unsigned c=0;c<3;++c) jacobian[p*3*nv+c*nv+d]=motion[c];
         }
     }
@@ -95,9 +104,13 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
     contact->frictionSlopAndStabilization={friction,0.002f,0.2f,seedScale*mass/h};
     const double a=1/double(mass)+0.25/body->inertiaRow1.y;
     const double d=1/double(mass)+0.25/body->inertiaRow0.x;
-    const auto p=oracle(a,d,v[0],v[1],double(friction)*mass);
-    const std::array<double,nv> expected={v[0]+p[0]/mass,v[1]+p[1]/mass,0,
-        0.5*p[1]/body->inertiaRow0.x,-0.5*p[0]/body->inertiaRow1.y,0};
+    // Solve in the principal inertia frame, then rotate the analytic result.
+    // The production kernel must handle the resulting off-diagonal world tensor.
+    const auto p=oracle(a,d,2*speedSign,speedSign,double(friction)*mass);
+    const auto worldImpulse=rotate(p[0],p[1]);
+    const auto worldAngular=rotate(0.5*p[1]/body->inertiaRow0.x,-0.5*p[0]/body->inertiaRow1.y);
+    const std::array<double,nv> expected={v[0]+worldImpulse[0]/mass,v[1]+worldImpulse[1]/mass,0,
+        worldAngular[0],worldAngular[1],0};
     id<MTLCommandBuffer> command=[queue commandBuffer];
     id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
     require(command!=nil&&encoder!=nil,"command creation failed");
@@ -139,12 +152,25 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
                  <<" max_error="<<maxError<<" vx="<<v[0]<<" expected="<<expected[0]<<'\n';
         throw std::runtime_error("production tangent impulse violates maximum dissipation");
     }
-    const double px=mass*(v[0]-2*speedSign),py=mass*(v[1]-speedSign);
+    const double worldPx=mass*(v[0]-initialVelocity[0]),worldPy=mass*(v[1]-initialVelocity[1]);
+    const double px=cosine*worldPx+sine*worldPy,py=-sine*worldPx+cosine*worldPy;
     require(std::hypot(px,py)<=double(friction)*mass+2e-5,"friction disk violated");
     require(std::abs(status->contactAndAcceleration.z-mass)<2e-5,"normal contact solution changed");
     require(status->factorAndAssistance.z==0&&status->factorAndAssistance.w==0,"hidden assistance");
     require(px*(2*speedSign+a*px)+py*(speedSign+d*py)<=2e-5,"positive sliding work");
-    return 14;
+    // Independently check the cached I_world * J_angular columns, including
+    // zero translational columns and non-diagonal rotated inertias.
+    const auto* spatial=static_cast<const float*>(buffers[12].contents);
+    for(unsigned column=0;column<nv;++column) {
+        const double wx=column==3?1:0,wy=column==4?1:0,wz=column==5?1:0;
+        const double localX=cosine*wx+sine*wy,localY=-sine*wx+cosine*wy;
+        const auto weighted=rotate(body->inertiaRow0.x*localX,body->inertiaRow1.y*localY);
+        const std::array<double,3> exact={weighted[0],weighted[1],body->inertiaRow2.z*wz};
+        for(unsigned axis=0;axis<3;++axis)
+            require(std::abs(spatial[6*nv+axis*nv+column]-exact[axis])<2e-6,
+                    "cached world-inertia column differs from analytic rotation");
+    }
+    return 14+3*nv;
 }
 }
 int main(int argc,char** argv) {
@@ -164,7 +190,9 @@ int main(int argc,char** argv) {
             unsigned checks=0;
             for(float mu:{0.4f,0.0f,2.0f})
                 for(float sign:{1.0f,-1.0f})
-                    for(float seed:{0.0f,1.0f,2.0f}) checks+=exercise(device,pipeline,queue,mu,sign,seed);
+                    for(float seed:{0.0f,1.0f,2.0f})
+                        for(float angle:{0.0f,0.37f,1.2f,-0.65f})
+                            checks+=exercise(device,pipeline,queue,mu,sign,seed,angle);
             std::cout<<"gpu_available=true device=\""<<device.name.UTF8String
                      <<"\" checks="<<checks<<" status=passed scope=anisotropic_contact_not_full_human\n";
         } catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}
