@@ -21,7 +21,7 @@ void require(bool value,const char* message) {if(!value)throw std::runtime_error
 using V3=std::array<float,3>;
 V3 cross(V3 a,V3 b){return {a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};}
 unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
-                  id<MTLCommandQueue> queue,float h,unsigned sweeps,bool reverse,bool loaded) {
+                  id<MTLCommandQueue> queue,float h,unsigned sweeps,bool reverse,bool loaded,unsigned limitedDof) {
     const std::array<std::size_t,25> sizes={
         sizeof(MRWorldGPU),sizeof(MRArticulationGPU),nv*sizeof(MRDofPropertiesGPU),
         bodies*sizeof(MRBodyPropertiesGPU),sizeof(MRNumiHumanStandDispatchGPU),
@@ -29,7 +29,7 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
         envs*points*sizeof(MRArticulatedPointWorldGPU),envs*points*3*nv*sizeof(float),envs*nv*sizeof(float),
         sizeof(MRNumiHumanStandContactGPU),envs*bodies*MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS*nv*sizeof(float),envs*bodies*2*sizeof(mr_float4),
         envs*nv*nv*sizeof(float),envs*(4*nv+neq)*sizeof(float),
-        envs*((neq+nv)*nv+neq*(neq+3))*sizeof(float),envs*sizeof(MRNumiHumanStandStatusGPU),
+        envs*((neq+nv)*nv+neq*(neq+3+nv))*sizeof(float),envs*sizeof(MRNumiHumanStandStatusGPU),
         sizeof(MRNumiHumanTendonBindingGPU),sizeof(MRNumiHumanTendonTransferResultGPU),
         neq*sizeof(MRNumiHumanJointEqualityGPU),envs*sizeof(MRCompensatedRootTranslationGPU),
         envs*bodies*sizeof(mr_float4),envs*points*sizeof(mr_float4),nv*(nv+1)*sizeof(float)};
@@ -45,6 +45,13 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
     art->bodyCount=bodies;art->rootType=MR_ROOT_FLOATING;art->nq=nq;art->nv=nv;
     auto* dofs=static_cast<MRDofPropertiesGPU*>(b[2].contents);
     for(unsigned d=0;d<nv;++d) {dofs[d].vIndex=d;dofs[d].qIndex=d<3?d:d<6?MR_INVALID_INDEX:d+1;}
+    if (limitedDof != MR_INVALID_INDEX) {
+        // Finite-range stop, not a structural lock. A limit on the shared
+        // independent coordinate couples to both equality rows. Test a
+        // dependent coordinate as well; both environments share the model.
+        dofs[limitedDof].flags |= MR_DOF_FLAG_POSITION_LIMIT;
+        dofs[limitedDof].limits = {-0.25f, 0.0f, 0.0f, 0.0f};
+    }
     const std::array<float,4> inertia={0.2f,0.01f,2.0f,0.3f};
     auto* props=static_cast<MRBodyPropertiesGPU*>(b[3].contents);
     for(unsigned i=0;i<bodies;++i) {
@@ -56,6 +63,8 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
     d->qStride=nq;d->vStride=nv;d->pointWorldStride=points;d->pointJacobianStride=points*3*nv;
     d->bodyPoseStride=bodies;d->generalizedForceStride=nv;d->contactIterationCount=sweeps;
     d->jointEqualityCount=neq;d->flags=MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES;
+    if (limitedDof != MR_INVALID_INDEX)
+        d->flags |= MR_NUMI_HUMAN_STAND_ENABLE_CONTACT;
     d->groundPointAndTimestep={0,0,0,h};d->groundNormal={0,0,1,0};d->targetRootOrientation={0,0,0,1};
     auto* eq=static_cast<MRNumiHumanJointEqualityGPU*>(b[20].contents);
     const float c1=0.7f,c2=-0.2f;
@@ -98,6 +107,15 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
         const double determinant=a*c-bb*bb;
         expected[e][0]=(c*r0-bb*r1)/determinant;
         expected[e][1]=(a*r1-bb*r0)/determinant;
+        if (limitedDof != MR_INVALID_INDEX) {
+            const double multiplier = limitedDof == 6u ? 1.0 : limitedDof == 7u ? c1 : c2;
+            if (multiplier * expected[e][1] > 0.0) {
+                // With the independent joint stopped, angular momentum fixes
+                // the floating root. This oracle does not use a Schur solve.
+                expected[e][0] = r0 / a;
+                expected[e][1] = 0.0;
+            }
+        }
         expected[e][2]=c1*expected[e][1];expected[e][3]=c2*expected[e][1];
     }
     id<MTLCommandBuffer> command=[queue commandBuffer];id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
@@ -114,7 +132,7 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
         double oldMomentum=0,newMomentum=0,oldEnergy=0,newEnergy=0;
         for(unsigned j=0;j<4;++j) {
             const double error=std::abs(v[e*nv+5+j]-expected[e][j]);
-            if(error>2e-5*(1+std::abs(expected[e][j])))std::cerr<<"row="<<j<<" env="<<e<<" sweeps="<<sweeps<<" got="<<v[e*nv+5+j]<<" expected="<<expected[e][j]<<'\n';
+            if(error>2e-5*(1+std::abs(expected[e][j])))std::cerr<<"row="<<j<<" env="<<e<<" sweeps="<<sweeps<<" limitedDof="<<limitedDof<<" got="<<v[e*nv+5+j]<<" expected="<<expected[e][j]<<'\n';
             require(error<2e-5*(1+std::abs(expected[e][j])),"coupled equality velocity differs from reduced-mass oracle");++checks;
             const double before=old[e][0]+(j?old[e][j]:0),after=v[e*nv+5]+(j?v[e*nv+5+j]:0);
             oldMomentum+=inertia[j]*before;newMomentum+=inertia[j]*after;
@@ -123,6 +141,11 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
         require(std::abs(newMomentum-oldMomentum)<1e-5*(1+std::abs(oldMomentum)),"internal equality created angular momentum");++checks;
         if(!loaded) {require(newEnergy<=oldEnergy+1e-5,"unforced equality projection created energy");++checks;}
         require(std::abs(v[e*nv+7]-c1*v[e*nv+6])<1e-6&&std::abs(v[e*nv+8]-c2*v[e*nv+6])<1e-6,"published equality tangent residual");++checks;
+        if (limitedDof != MR_INVALID_INDEX) {
+            require(v[e*nv+limitedDof] <= 2e-6, "published finite-stop velocity violated"); ++checks;
+            require(status[e].jointEqualityDiagnostics.y < 2e-6,
+                    "limit correction invalidated a bilateral row before projection"); ++checks;
+        }
         require(status[e].factorAndAssistance.z==0&&status[e].factorAndAssistance.w==0,"hidden assistance");++checks;
         require(std::abs(q[e*nq+7]-h*expected[e][1])<2e-7,"position integration differs from impulse solve");++checks;
     }
@@ -140,7 +163,8 @@ int main(int argc,char** argv) {
             require(pipeline!=nil,"pipeline unavailable");id<MTLCommandQueue> queue=[device newCommandQueue];require(queue!=nil,"queue unavailable");
             unsigned checks=0;
             for(float h:{1e-4f,5e-5f,1.25e-5f})for(unsigned sweeps:{1u,4u,64u})for(bool reverse:{false,true})for(bool loaded:{false,true})
-                checks+=exercise(device,pipeline,queue,h,sweeps,reverse,loaded);
+                for(unsigned limitedDof:{MR_INVALID_INDEX,6u,7u,8u})
+                    checks+=exercise(device,pipeline,queue,h,sweeps,reverse,loaded,limitedDof);
             std::cout<<"Human production bilateral block: "<<checks<<" checks passed; device="<<device.name.UTF8String<<'\n';return 0;
         }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
     }
