@@ -5,11 +5,13 @@ on:
     paths:
       - tests/numi_human_passive_metal_test.mm
       - tests/numi_human_friction_metal_test.mm
+      - tests/numi_human_bilateral_metal_test.mm
       - src/metal/NumiHumanStand.metal
       - include/metalrobo/numi_human_passive_joint.h
       - include/metalrobo/numi_human_stand_gpu.h
       - include/metalrobo/numi_human_constraint_projection.h
       - include/metalrobo/numi_human_friction.h
+      - include/metalrobo/numi_human_bilateral.h
       - .github/workflows/human-passive-metal.yml
   pull_request:
     paths:
@@ -28,20 +30,20 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Compile the production kernel and both integration fixtures
+      - name: Compile the production kernel and all integration fixtures
         run: |
           set -eu
           mkdir -p human-gpu-evidence
           git rev-parse HEAD > human-gpu-evidence/revision.txt
           xcrun --sdk macosx metal -std=metal4.0 -fno-fast-math -Iinclude -c src/metal/NumiHumanStand.metal -o /tmp/NumiHumanStand.air
           xcrun --sdk macosx metallib /tmp/NumiHumanStand.air -o /tmp/NumiHumanStand.metallib
-          for name in passive friction; do
+          for name in passive friction bilateral; do
             clang++ -std=c++20 -O2 -Wall -Wextra -Werror -fno-fast-math -fobjc-arc -Iinclude tests/numi_human_${name}_metal_test.mm -framework Foundation -framework Metal -o /tmp/human-${name}-metal
           done
       - name: Execute actual kernel regressions when a device is exposed
         run: |
           set -eu
-          for name in passive friction; do
+          for name in passive friction bilateral; do
             set +e
             MTL_DEBUG_LAYER=1 /tmp/human-${name}-metal /tmp/NumiHumanStand.metallib > human-gpu-evidence/${name}-stdout.txt 2> human-gpu-evidence/${name}-stderr.txt
             code=$?

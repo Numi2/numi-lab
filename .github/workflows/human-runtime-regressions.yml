@@ -59,7 +59,7 @@ jobs:
       - name: Check shared numerical policies
         run: |
           set -eu
-          for name in constraint_projection equality_limit_block passive_joint friction; do
+          for name in constraint_projection equality_limit_block passive_joint friction bilateral; do
             c++ -std=c++20 -O2 -Wall -Wextra -Werror -Iinclude tests/numi_human_${name}_test.cpp -o /tmp/human-${name}
             /tmp/human-${name}
           done
@@ -79,7 +79,7 @@ jobs:
         run: |
           set -eu
           cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
-          cmake --build BuildHuman --target metalrobo_numi_human_static_support_test metalrobo_numi_human_root_placement_test metalrobo_mujoco_muscle_path_batch_test metalrobo_numi_human_friction_test --parallel 3
-          ctest --test-dir BuildHuman -R '^(numi_human_static_support|numi_human_root_placement|mujoco_muscle_path_batch|numi_human_friction)$' --output-on-failure
+          cmake --build BuildHuman --target metalrobo_numi_human_static_support_test metalrobo_numi_human_root_placement_test metalrobo_mujoco_muscle_path_batch_test metalrobo_numi_human_friction_test metalrobo_numi_human_bilateral_test --parallel 3
+          ctest --test-dir BuildHuman -R '^(numi_human_static_support|numi_human_root_placement|mujoco_muscle_path_batch|numi_human_friction|numi_human_bilateral)$' --output-on-failure
           python3 tools/check_human_host_syntax.py
           git diff --exit-code
