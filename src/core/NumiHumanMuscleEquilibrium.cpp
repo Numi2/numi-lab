@@ -11,6 +11,7 @@
 #include <cmath>
 #include <limits>
 #include <numeric>
+#include <tuple>
 #include <utility>
 
 namespace metalrobo {
@@ -36,6 +37,10 @@ struct PoseState {
     std::vector<double> accelerationResidual;
     std::vector<double> weights;
     std::vector<double> limitMultipliers;
+    // Dimensionless reaction burden in the equilibrium acceleration metric.
+    // Source and equality-reduced independent DoFs both receive the burden so
+    // posture search can move the physical coordinate that can actually move.
+    std::vector<double> finiteRangeLimitBurden;
     double limitKktResidual = 0.0;
     double residualRms = 0.0;
     double maximumResidual = 0.0;
@@ -885,6 +890,66 @@ NumiHumanMuscleEquilibriumDiagnostics finishResidual(
         state.objective = std::numeric_limits<double>::infinity();
         return failure(NumiHumanMuscleEquilibriumStatus::constraintSolveFailure);
     }
+
+    // A zero constrained acceleration is not sufficient for a physiological
+    // standing state when a finite-range joint stop is carrying the load.
+    // Measure each such reaction by the acceleration it would contribute
+    // through the same mass/equality metric used by recruitment. Structural
+    // locks (collapsed source ranges) remain exact constraints and cost zero.
+    state.finiteRangeLimitBurden.assign(articulation.nv, 0.0);
+    double finiteRangeLimitPenalty = 0.0;
+    std::size_t finiteRangeLimitCount = 0u;
+    for (std::size_t index = 0u; index < projection.limits.size(); ++index) {
+        const auto& row = projection.limits[index];
+        if (row.sourceDof >= articulation.nv ||
+            row.independentDof >= articulation.nv ||
+            index >= state.limitMultipliers.size()) {
+            return failure(NumiHumanMuscleEquilibriumStatus::nonfiniteResult);
+        }
+        const auto& dof = model.dofs[articulation.vOffset + row.sourceDof];
+        const double range =
+            static_cast<double>(dof.limits.y) - dof.limits.x;
+        if (!std::isfinite(range) ||
+            range <= config.positionLimitTolerance) {
+            continue;
+        }
+        const double physicalForce =
+            row.scale * state.limitMultipliers[index];
+        if (!(physicalForce > 1.0e-10)) continue;
+        double burdenSquared = 0.0;
+        std::size_t burdenRows = 0u;
+        for (const std::uint32_t independentDof :
+             projection.independentDofs) {
+            const double normalizedAcceleration =
+                state.weights[independentDof] *
+                row.acceleration[independentDof] * physicalForce;
+            burdenSquared +=
+                normalizedAcceleration * normalizedAcceleration;
+            ++burdenRows;
+        }
+        const double burden = std::sqrt(
+            burdenSquared /
+            static_cast<double>(std::max<std::size_t>(1u, burdenRows))
+        );
+        if (!std::isfinite(burden)) {
+            return failure(
+                NumiHumanMuscleEquilibriumStatus::nonfiniteResult
+            );
+        }
+        state.finiteRangeLimitBurden[row.sourceDof] = std::max(
+            state.finiteRangeLimitBurden[row.sourceDof], burden
+        );
+        state.finiteRangeLimitBurden[row.independentDof] = std::max(
+            state.finiteRangeLimitBurden[row.independentDof], burden
+        );
+        finiteRangeLimitPenalty += burden * burden;
+        ++finiteRangeLimitCount;
+    }
+    if (finiteRangeLimitCount != 0u) {
+        finiteRangeLimitPenalty /=
+            static_cast<double>(finiteRangeLimitCount);
+    }
+
     // Lift accelerations through the exact zero-velocity equality tangent.
     // Equality reactions must balance M*a - f, not simply cancel f on a
     // dependent coordinate while the rest of the articulation accelerates.
@@ -946,6 +1011,8 @@ NumiHumanMuscleEquilibriumDiagnostics finishResidual(
             state.supportNormalForce.begin(),
             state.supportNormalForce.end(),
             state.supportNormalForce.begin(), 0.0) +
+        config.finiteRangePositionLimitReactionRegularization *
+            finiteRangeLimitPenalty +
         config.poseRegularization * posePenalty(
             model, articulationIndex, initialQ, state.q
         );
@@ -1792,7 +1859,12 @@ std::vector<std::uint32_t> poseCandidates(
 ) {
     const MRArticulationGPU& articulation =
         model.articulations[articulationIndex];
-    std::vector<std::pair<double, std::uint32_t>> ranked;
+    struct Candidate {
+        bool loadedFiniteRangeStop = false;
+        double score = 0.0;
+        std::uint32_t dof = MR_INVALID_INDEX;
+    };
+    std::vector<Candidate> ranked;
     for (std::uint32_t localV = 0u; localV < articulation.nv; ++localV) {
         const MRDofPropertiesGPU& dof =
             model.dofs[articulation.vOffset + localV];
@@ -1806,21 +1878,33 @@ std::vector<std::uint32_t> poseCandidates(
             !(dof.limits.y > dof.limits.x)) {
             continue;
         }
-        ranked.emplace_back(
-            std::abs(
-                state.weights[localV] * state.accelerationResidual[localV]
-            ),
-            localV
-        );
+        const double stopBurden =
+            localV < state.finiteRangeLimitBurden.size()
+            ? state.finiteRangeLimitBurden[localV] : 0.0;
+        ranked.push_back({
+            stopBurden > 0.0,
+            stopBurden > 0.0
+                ? stopBurden
+                : std::abs(
+                    state.weights[localV] *
+                    state.accelerationResidual[localV]
+                ),
+            localV,
+        });
     }
-    std::sort(ranked.begin(), ranked.end(), [](const auto& left, const auto& right) {
-        if (left.first != right.first) return left.first > right.first;
-        return left.second < right.second;
+    std::sort(ranked.begin(), ranked.end(), [](const Candidate& left,
+                                                const Candidate& right) {
+        if (left.loadedFiniteRangeStop != right.loadedFiniteRangeStop) {
+            return left.loadedFiniteRangeStop >
+                right.loadedFiniteRangeStop;
+        }
+        if (left.score != right.score) return left.score > right.score;
+        return left.dof < right.dof;
     });
     if (ranked.size() > maximumCount) ranked.resize(maximumCount);
     std::vector<std::uint32_t> result;
     result.reserve(ranked.size());
-    for (const auto& entry : ranked) result.push_back(entry.second);
+    for (const auto& entry : ranked) result.push_back(entry.dof);
     return result;
 }
 
@@ -2139,6 +2223,9 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
         config.poseRegularization >= 0.0 &&
         std::isfinite(config.poseImprovementTolerance) &&
         config.poseImprovementTolerance >= 0.0 &&
+        std::isfinite(
+            config.finiteRangePositionLimitReactionRegularization) &&
+        config.finiteRangePositionLimitReactionRegularization >= 0.0 &&
         std::isfinite(config.positionLimitTolerance) &&
         config.positionLimitTolerance >= 0.0 &&
         std::isfinite(config.supportGapToleranceMeters) &&
