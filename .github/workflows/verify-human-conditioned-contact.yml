@@ -1,0 +1,76 @@
+name: Verify equality-conditioned Human contact
+on:
+  push:
+    branches: [human-conditioned-contact-20260918]
+    paths: [.github/workflows/verify-human-conditioned-contact.yml]
+permissions:
+  contents: write
+concurrency:
+  group: verify-human-conditioned-contact
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: macos-26
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preserve baseline and apply checked source change
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/human-contact-baseline human-contact-evidence
+          git rev-parse HEAD > human-contact-evidence/baseline-revision.txt
+          git archive HEAD include src/metal/NumiHumanStand.metal | tar -x -C /tmp/human-contact-baseline
+          python3 tools/patch_human_conditioned_contact.py
+          git diff --check
+      - name: Verify portable policies and production host syntax
+        run: |
+          set -eu
+          for name in constraint_projection equality_limit_block passive_joint friction bilateral; do
+            clang++ -std=c++20 -O2 -Wall -Wextra -Werror -Iinclude tests/numi_human_${name}_test.cpp -o /tmp/human-${name}
+            /tmp/human-${name}
+          done
+          python3 tools/check_human_constraint_owner.py
+          python3 tools/check_human_host_syntax.py
+      - name: Reproduce old contact-equality coupling failure on the production GPU
+        run: |
+          set -eu
+          old=/tmp/human-contact-baseline
+          xcrun --sdk macosx metal -std=metal4.0 -fno-fast-math -I"$old/include" -c "$old/src/metal/NumiHumanStand.metal" -o /tmp/contact-old.air
+          xcrun --sdk macosx metallib /tmp/contact-old.air -o /tmp/contact-old.metallib
+          clang++ -std=c++20 -O2 -Wall -Wextra -Werror -fno-fast-math -fobjc-arc -I"$old/include" tests/numi_human_bilateral_metal_test.mm -framework Foundation -framework Metal -o /tmp/contact-old-test
+          set +e
+          MTL_DEBUG_LAYER=1 /tmp/contact-old-test /tmp/contact-old.metallib > human-contact-evidence/baseline-stdout.txt 2> human-contact-evidence/baseline-stderr.txt
+          code=$?
+          set -e
+          cat human-contact-evidence/baseline-stdout.txt human-contact-evidence/baseline-stderr.txt
+          printf '%s\n' "$code" > human-contact-evidence/baseline-exit.txt
+          test "$code" = 1
+          grep -q 'coupled equality velocity differs from reduced-mass oracle' human-contact-evidence/baseline-stderr.txt
+      - name: Exercise corrected production kernel without changing tolerances
+        run: |
+          set -eu
+          xcrun --sdk macosx metal -std=metal4.0 -fno-fast-math -Iinclude -c src/metal/NumiHumanStand.metal -o /tmp/contact-new.air
+          xcrun --sdk macosx metallib /tmp/contact-new.air -o /tmp/contact-new.metallib
+          for name in passive friction bilateral; do
+            clang++ -std=c++20 -O2 -Wall -Wextra -Werror -fno-fast-math -fobjc-arc -Iinclude tests/numi_human_${name}_metal_test.mm -framework Foundation -framework Metal -o /tmp/contact-${name}-test
+            MTL_DEBUG_LAYER=1 /tmp/contact-${name}-test /tmp/contact-new.metallib > human-contact-evidence/${name}-stdout.txt 2> human-contact-evidence/${name}-stderr.txt
+            cat human-contact-evidence/${name}-stdout.txt human-contact-evidence/${name}-stderr.txt
+          done
+      - name: Publish the verified five-file numerical increment
+        run: |
+          set -eu
+          test "$GITHUB_REF_NAME" = human-conditioned-contact-20260918
+          git add -- include/metalrobo/numi_human_stand_gpu.h src/metal/MetalArticulatedOperator.mm src/metal/NumiHumanStand.metal tests/numi_human_bilateral_metal_test.mm tools/check_human_constraint_owner.py
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Preserve the complete Human equality tangent in ground-contact responses'
+          git push origin HEAD:refs/heads/human-conditioned-contact-20260918
+          git rev-parse HEAD > human-contact-evidence/source-revision.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-conditioned-contact-results
+          path: human-contact-evidence
+          retention-days: 14
+          if-no-files-found: error
