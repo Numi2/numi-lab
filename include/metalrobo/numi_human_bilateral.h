@@ -28,6 +28,19 @@ inline bool mrNumiHumanBilateralFactor(
     unsigned n
 ) {
     if (n == 0u || n > 160u) return false;
+    // Keep the scalar case explicit. Besides avoiding unnecessary pivot
+    // machinery, this gives host compilers a provable one-element access
+    // contract for the invalid-diagonal regression.
+    if (n == 1u) {
+        const float diagonal = matrix[0];
+        if (!(diagonal > 0.0f) || !mrNHBilateralFinite(diagonal)) return false;
+        inverseScale[0] = 1.0f / mrNHBilateralSqrt(diagonal);
+        if (!mrNHBilateralFinite(inverseScale[0])) return false;
+        matrix[0] = (matrix[0] * inverseScale[0]) * inverseScale[0];
+        if (!mrNHBilateralFinite(matrix[0]) || matrix[0] == 0.0f) return false;
+        pivots[0] = 0.0f;
+        return true;
+    }
     for (unsigned i=0u; i<n; ++i) {
         const float diagonal=matrix[i*n+i];
         if (!(diagonal>0.0f) || !mrNHBilateralFinite(diagonal)) return false;
