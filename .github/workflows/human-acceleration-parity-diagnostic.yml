@@ -2,7 +2,11 @@ name: Human full-body acceleration parity diagnostic
 on:
   push:
     branches: [human-native-runtime-20260915]
-    paths: [.github/workflows/human-acceleration-parity-diagnostic.yml]
+    paths:
+      - .github/workflows/human-acceleration-parity-diagnostic.yml
+      - include/metalrobo/NumiHumanMuscleEquilibrium.hpp
+      - src/core/NumiHumanMuscleEquilibrium.cpp
+      - apps/numilab_human_myosim_visual_probe.mm
   workflow_dispatch:
 permissions:
   contents: read
