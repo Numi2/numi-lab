@@ -76,6 +76,11 @@ struct NumiHumanMuscleEquilibriumConfig {
     double positionLimitMarginFraction = 0.01;
     double poseRegularization = 2.5e-3;
     double poseImprovementTolerance = 1.0e-8;
+    // Penalize reliance on finite-range anatomical/mechanical stops in the
+    // offline standing objective. The burden is measured in the same
+    // normalized acceleration metric as equilibrium. Collapsed structural
+    // locks are excluded. Zero preserves legacy callers unless they opt in.
+    double finiteRangePositionLimitReactionRegularization = 0.0;
     // A static unilateral reaction exists only at the stop, within this
     // numerical tolerance. The broader runtime activation distance belongs
     // to the velocity-level complementarity solve, not this equilibrium
