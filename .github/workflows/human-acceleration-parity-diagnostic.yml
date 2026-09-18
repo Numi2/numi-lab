@@ -7,6 +7,9 @@ on:
       - include/metalrobo/NumiHumanMuscleEquilibrium.hpp
       - src/core/NumiHumanMuscleEquilibrium.cpp
       - apps/numilab_human_myosim_visual_probe.mm
+      - include/metalrobo/numi_human_stand_gpu.h
+      - src/metal/MetalArticulatedOperator.mm
+      - src/metal/NumiHumanStand.metal
   workflow_dispatch:
 permissions:
   contents: read
