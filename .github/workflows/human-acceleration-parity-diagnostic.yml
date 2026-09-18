@@ -13,6 +13,12 @@ jobs:
   diagnostic:
     runs-on: macos-26
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {name: 100us, dt: "0.0001"}
+          - {name: 12p5us, dt: "0.0000125"}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -53,6 +59,8 @@ jobs:
           cmake --build BuildHuman --target metalrobo_numilab_human_myosim_visual_probe --parallel 3 2>&1 | tee human-acceleration-parity-evidence/build.txt
       - name: Execute one exact unassisted full-body step
         shell: python
+        env:
+          CASE_DT: ${{ matrix.dt }}
         run: |
           import hashlib, json, os, pathlib, signal, subprocess, time
 
@@ -81,7 +89,7 @@ jobs:
               str(evidence / 'unused-in-mechanics-mode.nhbones'),
               str(payloads['tendon']), str(payloads['support_contact']),
               str(evidence / 'frames'), '--mechanics-only', '--no-step-trace',
-              '--steps', '1', '--timestep', '0.0001',
+              '--steps', '1', '--timestep', os.environ['CASE_DT'],
           ]
           environment = {
               **os.environ,
@@ -124,7 +132,7 @@ jobs:
               'stderr_sha256': digest(stderr_path),
               'exit_code': exit_code,
               'wall_seconds': time.monotonic() - started,
-              'timestep_seconds': 0.0001,
+              'timestep_seconds': float(os.environ['CASE_DT']),
               'step_count': 1,
               'root_assistance': 'none',
               'rendering_requested': False,
@@ -171,7 +179,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: human-full-body-acceleration-parity
+          name: human-full-body-acceleration-parity-${{ matrix.name }}
           path: human-acceleration-parity-evidence
           retention-days: 14
           if-no-files-found: error
