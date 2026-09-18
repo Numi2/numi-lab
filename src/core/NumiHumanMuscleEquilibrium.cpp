@@ -770,8 +770,15 @@ bool solveLimitReactions(
 bool projectLimitTangent(
     const AccelerationProjection& projection,
     const PoseState& state,
-    std::vector<std::vector<double>>& accelerationColumns
+    std::vector<std::vector<double>>& accelerationColumns,
+    std::vector<std::vector<double>>* limitMultiplierColumns = nullptr
 ) {
+    if (limitMultiplierColumns != nullptr) {
+        limitMultiplierColumns->assign(
+            accelerationColumns.size(),
+            std::vector<double>(projection.limits.size(), 0.0)
+        );
+    }
     std::vector<std::size_t> active;
     for (std::size_t index = 0u; index < projection.limits.size(); ++index) {
         if (state.limitMultipliers[index] > 1.0e-10) active.push_back(index);
@@ -796,7 +803,9 @@ bool projectLimitTangent(
             }
         }
     }
-    for (auto& acceleration : accelerationColumns) {
+    for (std::size_t columnIndex = 0u;
+         columnIndex < accelerationColumns.size(); ++columnIndex) {
+        auto& acceleration = accelerationColumns[columnIndex];
         std::vector<double> reaction(count, 0.0);
         for (std::size_t index = 0u; index < count; ++index) {
             const auto& row = projection.limits[active[index]];
@@ -814,9 +823,15 @@ bool projectLimitTangent(
             reaction[index] /= lower[index * count + index];
         }
         for (std::size_t index = 0u; index < count; ++index) {
-            const auto& row = projection.limits[active[index]];
+            const auto limitIndex = active[index];
+            const auto& row = projection.limits[limitIndex];
+            if (limitMultiplierColumns != nullptr) {
+                (*limitMultiplierColumns)[columnIndex][limitIndex] =
+                    reaction[index];
+            }
             for (const auto dof : projection.independentDofs) {
-                acceleration[dof] += row.acceleration[dof] * row.scale * reaction[index];
+                acceleration[dof] +=
+                    row.acceleration[dof] * row.scale * reaction[index];
             }
         }
         if (!finiteSpan(acceleration)) return false;
@@ -1594,7 +1609,12 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     for (std::uint32_t iteration = 0u;
          iteration < globalPolishIterations; ++iteration) {
         auto constrainedJacobians = objectiveJacobians;
-        if (!projectLimitTangent(projection, state, constrainedJacobians)) {
+        std::vector<std::vector<double>> limitMultiplierJacobians;
+        if (!projectLimitTangent(
+                projection, state, constrainedJacobians,
+                config.finiteRangePositionLimitReactionRegularization > 0.0
+                    ? &limitMultiplierJacobians : nullptr
+            )) {
             return failure(NumiHumanMuscleEquilibriumStatus::nonfiniteResult);
         }
         state.globalActivationPolishIterations = iteration + 1u;
@@ -1602,9 +1622,76 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
         std::vector<std::size_t> selected;
         std::vector<std::vector<double>> coupledColumns;
         std::vector<double> selectedActivation, normalizedResidual;
-        const double rowScale = 1.0 / std::sqrt(static_cast<double>(std::max<std::size_t>(1u, objectiveRowCount)));
+        const double rowScale = 1.0 / std::sqrt(
+            static_cast<double>(
+                std::max<std::size_t>(1u, objectiveRowCount)
+            )
+        );
         for (const auto dof : projection.independentDofs) {
-            normalizedResidual.push_back(rowScale * state.weights[dof] * state.accelerationResidual[dof]);
+            normalizedResidual.push_back(
+                rowScale * state.weights[dof] *
+                state.accelerationResidual[dof]
+            );
+        }
+
+        // Match the exact finite-stop term in finishResidual with its local
+        // active-set derivative. The residual scalar for each loaded stop is
+        // its normalized acceleration burden; its derivative comes from the
+        // same Schur complement used to project the muscle acceleration.
+        std::vector<std::size_t> finiteLimitRows;
+        std::vector<double> finiteLimitBurdenScale;
+        if (config.finiteRangePositionLimitReactionRegularization > 0.0) {
+            for (std::size_t index = 0u;
+                 index < projection.limits.size(); ++index) {
+                if (index >= state.limitMultipliers.size() ||
+                    state.limitMultipliers[index] <= 1.0e-10) {
+                    continue;
+                }
+                const auto& limit = projection.limits[index];
+                const auto& dof =
+                    model.dofs[articulation.vOffset + limit.sourceDof];
+                const double range =
+                    static_cast<double>(dof.limits.y) - dof.limits.x;
+                if (!std::isfinite(range) ||
+                    range <= config.positionLimitTolerance) {
+                    continue;
+                }
+                double scaleSquared = 0.0;
+                std::size_t scaleRows = 0u;
+                for (const std::uint32_t independentDof :
+                     projection.independentDofs) {
+                    const double value =
+                        state.weights[independentDof] *
+                        limit.acceleration[independentDof] * limit.scale;
+                    scaleSquared += value * value;
+                    ++scaleRows;
+                }
+                const double burdenScale = std::sqrt(
+                    scaleSquared / static_cast<double>(
+                        std::max<std::size_t>(1u, scaleRows)
+                    )
+                );
+                if (!std::isfinite(burdenScale)) {
+                    return failure(
+                        NumiHumanMuscleEquilibriumStatus::nonfiniteResult
+                    );
+                }
+                finiteLimitRows.push_back(index);
+                finiteLimitBurdenScale.push_back(burdenScale);
+            }
+        }
+        const double finiteLimitResidualScale =
+            finiteLimitRows.empty() ? 0.0 : std::sqrt(
+                config.finiteRangePositionLimitReactionRegularization /
+                static_cast<double>(finiteLimitRows.size())
+            );
+        for (std::size_t row = 0u;
+             row < finiteLimitRows.size(); ++row) {
+            normalizedResidual.push_back(
+                finiteLimitResidualScale *
+                finiteLimitBurdenScale[row] *
+                state.limitMultipliers[finiteLimitRows[row]]
+            );
         }
         for (std::size_t muscle = 0u; muscle < muscles.size(); ++muscle) {
             if (recruited[muscle] == 0u) continue;
@@ -1628,7 +1715,26 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
             const double forceSlope = (upperForce - lowerForce) / (upperActivation - lowerActivation);
             std::vector<double> column;
             for (const auto dof : projection.independentDofs) {
-                column.push_back(rowScale * state.weights[dof] * constrainedJacobians[muscle][dof] * forceSlope);
+                column.push_back(
+                    rowScale * state.weights[dof] *
+                    constrainedJacobians[muscle][dof] * forceSlope
+                );
+            }
+            for (std::size_t row = 0u;
+                 row < finiteLimitRows.size(); ++row) {
+                const std::size_t limitIndex = finiteLimitRows[row];
+                if (muscle >= limitMultiplierJacobians.size() ||
+                    limitIndex >= limitMultiplierJacobians[muscle].size()) {
+                    return failure(
+                        NumiHumanMuscleEquilibriumStatus::nonfiniteResult
+                    );
+                }
+                column.push_back(
+                    finiteLimitResidualScale *
+                    finiteLimitBurdenScale[row] *
+                    limitMultiplierJacobians[muscle][limitIndex] *
+                    forceSlope
+                );
             }
             coupledColumns.push_back(std::move(column));
             selected.push_back(muscle);
