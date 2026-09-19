@@ -25,7 +25,7 @@ import signal
 import subprocess
 import sys
 import time
-from typing import Any
+from typing import Any, Optional
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
@@ -108,7 +108,7 @@ def canonical_digest(value: object) -> str:
 
 
 def command(
-    arguments: list[str], *, cwd: Path | None = None, timeout: float = 15.0
+    arguments: list[str], *, cwd: Optional[Path] = None, timeout: float = 15.0
 ) -> subprocess.CompletedProcess[str]:
     try:
         return subprocess.run(
@@ -125,7 +125,7 @@ def command(
 
 
 def required_output(
-    arguments: list[str], *, cwd: Path | None = None, timeout: float = 15.0
+    arguments: list[str], *, cwd: Optional[Path] = None, timeout: float = 15.0
 ) -> str:
     completed = command(arguments, cwd=cwd, timeout=timeout)
     require(
@@ -374,7 +374,9 @@ def system_snapshot() -> dict[str, Any]:
     }
 
 
-def process_sample(pid: int, elapsed_seconds: float) -> dict[str, Any] | None:
+def process_sample(
+    pid: int, elapsed_seconds: float
+) -> Optional[dict[str, Any]]:
     completed = command_probe(
         ["ps", "-o", "rss=,vsz=,pcpu=", "-p", str(pid)], timeout=2.0
     )
