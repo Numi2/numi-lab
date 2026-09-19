@@ -158,6 +158,27 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
     require(std::abs(status->contactAndAcceleration.z-mass)<2e-5,"normal contact solution changed");
     require(status->factorAndAssistance.z==0&&status->factorAndAssistance.w==0,"hidden assistance");
     require(px*(2*speedSign+a*px)+py*(speedSign+d*py)<=2e-5,"positive sliding work");
+    const double finalContactX = expected[0] - 0.5 * expected[4];
+    const double finalContactY = expected[1] + 0.5 * expected[3];
+    const double expectedNormalWork = 0.5 * mass * (-1.0 + expected[2]);
+    const double expectedTangentWork = 0.5 * (
+        worldImpulse[0] * (initialVelocity[0] + finalContactX) +
+        worldImpulse[1] * (initialVelocity[1] + finalContactY)
+    );
+    require(std::abs(status->constraintImpulseWorkDiagnostics.x-
+                     expectedNormalWork)<3e-5*(1+std::abs(expectedNormalWork)),
+            "normal impulse work differs from analytic offset-contact oracle");
+    require(std::abs(status->constraintImpulseWorkDiagnostics.y-
+                     expectedTangentWork)<3e-5*(1+std::abs(expectedTangentWork)),
+            "tangential impulse work differs from analytic offset-contact oracle");
+    require(std::abs(status->constraintImpulseWorkDiagnostics.z)<2e-7 &&
+                std::abs(status->constraintImpulseWorkDiagnostics.w)<2e-7,
+            "contact fixture reported equality or source-limit work");
+    require(status->constraintImpulseAbsoluteWorkDiagnostics.x+2e-7>=
+                std::abs(status->constraintImpulseWorkDiagnostics.x) &&
+                status->constraintImpulseAbsoluteWorkDiagnostics.y+2e-7>=
+                std::abs(status->constraintImpulseWorkDiagnostics.y),
+            "absolute offset-contact work hid coupled-sweep activity");
     // Independently check the cached I_world * J_angular columns, including
     // zero translational columns and non-diagonal rotated inertias.
     const auto* spatial=static_cast<const float*>(buffers[12].contents);
@@ -170,7 +191,7 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
             require(std::abs(spatial[6*nv+axis*nv+column]-exact[axis])<2e-6,
                     "cached world-inertia column differs from analytic rotation");
     }
-    return 14+3*nv;
+    return 18+3*nv;
 }
 }
 int main(int argc,char** argv) {

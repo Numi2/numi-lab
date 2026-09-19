@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_NUMI_HUMAN_STAND_ABI_VERSION 11u
+#define MR_NUMI_HUMAN_STAND_ABI_VERSION 12u
 // Six spatial Jacobian rows plus three cached world-inertia products.
 #define MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS 9u
 #define MR_NUMI_HUMAN_STAND_MAX_BODIES 192u
@@ -149,6 +149,22 @@ typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
     // absolute bilateral impulse. MR_INVALID_INDEX means no nonzero owner.
     mr_uint4 constraintImpulseOwners;
 
+    // Signed generalized impulse work accumulated across accepted steps.
+    // x/y split normal and tangential contact work, z is bilateral equality
+    // work (including equality reactions induced by source limits), and w is
+    // direct source-limit work. Each impulse update uses the trapezoidal row
+    // velocity, 0.5 * delta_lambda * (velocity_before + velocity_after), so
+    // the sum is the corresponding quadratic-energy change of the effective
+    // response operator in joules. This is not by itself physical kinetic
+    // energy when the response includes implicit passive terms.
+    // The final exact coordinate projection is an overwrite, not an owned
+    // impulse, and therefore remains outside this diagnostic.
+    mr_float4 constraintImpulseWorkDiagnostics;
+    // Sum of the absolute per-update work contributions for x/y/z/w above.
+    // Keeping activity as well as the signed result prevents cancellation
+    // across coupled sweeps or accepted steps from hiding a large reaction.
+    mr_float4 constraintImpulseAbsoluteWorkDiagnostics;
+
     // Keep smooth dynamics and velocity-level constraint corrections separate.
     // x = maximum unconstrained force acceleration before contact/equalities/
     // limits; y = maximum constraint-induced delta-v before the exact equality
@@ -163,5 +179,5 @@ typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
 #if !defined(__METAL_VERSION__)
 static_assert(sizeof(MRNumiHumanStandContactGPU) == 32);
 static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 160);
-static_assert(sizeof(MRNumiHumanStandStatusGPU) == 240);
+static_assert(sizeof(MRNumiHumanStandStatusGPU) == 272);
 #endif

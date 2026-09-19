@@ -116,7 +116,7 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
     std::size_t checks=0;
     for(unsigned step=0;step<(contactCount?1u:64u);++step) {
         std::array<double,environments> expectedV{},expectedQ{},oldEnergy{},momentum{};
-        std::array<double,environments> normalImpulse{},tangentImpulse{},expectedX{},expectedZ{};
+        std::array<double,environments> normalImpulse{},tangentImpulse{},expectedX{},expectedZ{},freeX{},freeZ{};
         auto* poses=static_cast<MRArticulatedBodyPoseGPU*>(buffers[7].contents);
         auto* jacobian=static_cast<float*>(buffers[9].contents);
         std::memset(jacobian,0,sizes[9]);
@@ -128,12 +128,12 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
             oldEnergy[e]=0.5*k*x*x+0.5*(1.0/3.0)*u*u;
             momentum[e]=1.5*v[e*nv+5]+0.5*v[e*nv+6];
             if(contactCount) {
-                const double freeZ=v[e*nv+2]+double(h)*world->gravityAndTimestep.z;
-                normalImpulse[e]=6.0*std::max(-freeZ,0.0);
-                expectedZ[e]=std::max(freeZ,0.0);
-                const double initialX=v[e*nv];
-                tangentImpulse[e]=std::min(6.0*std::abs(initialX),0.5*normalImpulse[e]);
-                expectedX[e]=std::copysign(std::max(std::abs(initialX)-tangentImpulse[e]/6.0,0.0),initialX);
+                freeZ[e]=v[e*nv+2]+double(h)*world->gravityAndTimestep.z;
+                normalImpulse[e]=6.0*std::max(-freeZ[e],0.0);
+                expectedZ[e]=std::max(freeZ[e],0.0);
+                freeX[e]=v[e*nv];
+                tangentImpulse[e]=std::min(6.0*std::abs(freeX[e]),0.5*normalImpulse[e]);
+                expectedX[e]=std::copysign(std::max(std::abs(freeX[e])-tangentImpulse[e]/6.0,0.0),freeX[e]);
             }
             float rootAngle=2*std::atan2(q[e*nq+5],q[e*nq+6]);
             for(unsigned body=0;body<bodies;++body) {
@@ -238,7 +238,27 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
                         "unilateral contact pulled the body toward the plane");
                 require(measured.constraintImpulseDiagnostics.y<=0.5f*measured.contactAndAcceleration.z+1e-6f,
                         "tangential impulse exceeded friction cone");
-                checks+=4;
+                const double expectedNormalWork = 0.5 * normalImpulse[e] *
+                    (freeZ[e] + expectedZ[e]);
+                const double signedTangentImpulse =
+                    6.0 * (expectedX[e] - freeX[e]);
+                const double expectedTangentWork = 0.5 * signedTangentImpulse *
+                    (freeX[e] + expectedX[e]);
+                require(std::abs(measured.constraintImpulseWorkDiagnostics.x-
+                                 expectedNormalWork)<=2e-5*(1+std::abs(expectedNormalWork)),
+                        "normal impulse work differs from independent kinetic-energy oracle");
+                require(std::abs(measured.constraintImpulseWorkDiagnostics.y-
+                                 expectedTangentWork)<=2e-5*(1+std::abs(expectedTangentWork)),
+                        "tangential impulse work differs from independent kinetic-energy oracle");
+                require(std::abs(measured.constraintImpulseWorkDiagnostics.z)<=2e-7 &&
+                            std::abs(measured.constraintImpulseWorkDiagnostics.w)<=2e-7,
+                        "contact-only fixture reported equality or source-limit work");
+                require(measured.constraintImpulseAbsoluteWorkDiagnostics.x+2e-7>=
+                            std::abs(measured.constraintImpulseWorkDiagnostics.x) &&
+                            measured.constraintImpulseAbsoluteWorkDiagnostics.y+2e-7>=
+                            std::abs(measured.constraintImpulseWorkDiagnostics.y),
+                        "absolute contact work hid coupled-sweep activity");
+                checks+=8;
             }
         }
     }

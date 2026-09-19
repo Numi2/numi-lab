@@ -139,7 +139,32 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
             oldEnergy+=.5*inertia[j]*before*before;newEnergy+=.5*inertia[j]*after*after;
         }
         require(std::abs(newMomentum-oldMomentum)<1e-5*(1+std::abs(oldMomentum)),"internal equality created angular momentum");++checks;
-        if(!loaded) {require(newEnergy<=oldEnergy+1e-5,"unforced equality projection created energy");++checks;}
+        require(std::isfinite(status[e].constraintImpulseWorkDiagnostics.x) &&
+                    std::isfinite(status[e].constraintImpulseWorkDiagnostics.y) &&
+                    std::isfinite(status[e].constraintImpulseWorkDiagnostics.z) &&
+                    std::isfinite(status[e].constraintImpulseWorkDiagnostics.w) &&
+                    std::isfinite(status[e].constraintImpulseAbsoluteWorkDiagnostics.x) &&
+                    std::isfinite(status[e].constraintImpulseAbsoluteWorkDiagnostics.y) &&
+                    std::isfinite(status[e].constraintImpulseAbsoluteWorkDiagnostics.z) &&
+                    std::isfinite(status[e].constraintImpulseAbsoluteWorkDiagnostics.w),
+                "constraint impulse work is non-finite");++checks;
+        require(std::abs(status[e].constraintImpulseWorkDiagnostics.x)<2e-7 &&
+                    std::abs(status[e].constraintImpulseWorkDiagnostics.y)<2e-7,
+                "bilateral fixture reported contact work");++checks;
+        if(!loaded) {
+            require(newEnergy<=oldEnergy+1e-5,"unforced equality projection created energy");++checks;
+            const double reportedWork =
+                status[e].constraintImpulseWorkDiagnostics.z +
+                status[e].constraintImpulseWorkDiagnostics.w;
+            const double expectedWork = newEnergy - oldEnergy;
+            require(std::abs(reportedWork-expectedWork)<
+                        5e-5*(1+std::abs(expectedWork)),
+                    "equality/limit impulse work differs from independent energy oracle");++checks;
+            require(status[e].constraintImpulseAbsoluteWorkDiagnostics.z+
+                        status[e].constraintImpulseAbsoluteWorkDiagnostics.w+2e-7>=
+                        std::abs(reportedWork),
+                    "absolute equality/limit work hid coupled-sweep activity");++checks;
+        }
         require(std::abs(v[e*nv+7]-c1*v[e*nv+6])<1e-6&&std::abs(v[e*nv+8]-c2*v[e*nv+6])<1e-6,"published equality tangent residual");++checks;
         if (limitedDof != MR_INVALID_INDEX) {
             require(v[e*nv+limitedDof] <= 2e-6, "published finite-stop velocity violated"); ++checks;

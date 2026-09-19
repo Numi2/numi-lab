@@ -160,10 +160,16 @@ jobs:
                   raise RuntimeError('missing or ambiguous state evidence')
               trace = json.loads(traces[0])
               terminal = json.loads(terminals[0])
-              if trace.get('schema') != 'numi.human.persistent-stand-trace.v4':
+              if trace.get('schema') != 'numi.human.persistent-stand-trace.v5':
                   raise RuntimeError('trace schema changed')
               if len(trace.get('samples', [])) != steps + 1:
                   raise RuntimeError('trace is incomplete')
+              work_pairs = {
+                  'contact_normal_impulse_work_j': 'contact_normal_absolute_impulse_work_j',
+                  'contact_tangential_impulse_work_j': 'contact_tangential_absolute_impulse_work_j',
+                  'equality_impulse_work_j': 'equality_absolute_impulse_work_j',
+                  'source_limit_impulse_work_j': 'source_limit_absolute_impulse_work_j',
+              }
               for index, sample in enumerate(trace['samples']):
                   if sample.get('step') != index or not math.isclose(float(sample['time_seconds']), index * ns * 1.0e-9, rel_tol=0.0, abs_tol=1.0e-12):
                       raise RuntimeError('trace physical timestamps changed')
@@ -172,6 +178,28 @@ jobs:
                   values = sample['q'] + sample['v'] + [sample['normal_impulse']]
                   if not all(math.isfinite(float(value)) for value in values):
                       raise RuntimeError('trace contains nonfinite physical state')
+                  for signed, absolute in work_pairs.items():
+                      signed_value = float(sample[signed])
+                      absolute_value = float(sample[absolute])
+                      if (not math.isfinite(signed_value) or
+                          not math.isfinite(absolute_value) or
+                          absolute_value < 0.0 or
+                          absolute_value + 1.0e-12 < abs(signed_value)):
+                          raise RuntimeError('trace constraint impulse work is incomplete')
+              total_fields = {
+                  'contact_normal_impulse_work_j': 'total_contact_normal_impulse_work_j',
+                  'contact_tangential_impulse_work_j': 'total_contact_tangential_impulse_work_j',
+                  'equality_impulse_work_j': 'total_equality_impulse_work_j',
+                  'source_limit_impulse_work_j': 'total_source_limit_impulse_work_j',
+                  'contact_normal_absolute_impulse_work_j': 'total_contact_normal_absolute_impulse_work_j',
+                  'contact_tangential_absolute_impulse_work_j': 'total_contact_tangential_absolute_impulse_work_j',
+                  'equality_absolute_impulse_work_j': 'total_equality_absolute_impulse_work_j',
+                  'source_limit_absolute_impulse_work_j': 'total_source_limit_absolute_impulse_work_j',
+              }
+              for sample_field, total_field in total_fields.items():
+                  expected = sum(float(sample[sample_field]) for sample in trace['samples'][1:])
+                  if not math.isclose(float(trace[total_field]), expected, rel_tol=1.0e-12, abs_tol=1.0e-12):
+                      raise RuntimeError('trace constraint impulse work total differs')
               if trace.get('endpoint_equivalent') != 'bitwise' or trace.get('endpoint_max_q_delta') != 0 or trace.get('endpoint_max_v_delta') != 0:
                   raise RuntimeError('deterministic trace endpoint differs')
               if terminal.get('step_count') != steps or terminal.get('root_assistance') is not False:
@@ -180,7 +208,7 @@ jobs:
               stderr_lines = [line for line in (case_dir / 'stderr.txt').read_text().splitlines()
                               if line.strip() and 'Metal API Validation Enabled' not in line]
               result = {
-                  'schema': 'numi.human.current-refinement-case.v1',
+                  'schema': 'numi.human.current-short-refinement-case.v2',
                   'name': name,
                   'native_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
                   'input_commit': subprocess.check_output(['git', '-C', str(inputs), 'rev-parse', 'HEAD'], text=True).strip(),
@@ -197,6 +225,7 @@ jobs:
                   'stderr_nonbanner_lines': stderr_lines,
                   'required_metric_mismatches': mismatches,
                   'velocity_stage_diagnostics_complete': all(key in metrics for key in stage_keys),
+                  'constraint_impulse_work_complete': True,
                   'compiled_static_balance': metrics.get('compiled_stand_balanced') == 'true',
                   'metrics': metrics,
               }
@@ -204,13 +233,13 @@ jobs:
               print(json.dumps({key: result[key] for key in (
                   'name', 'native_commit', 'timestep_nanoseconds', 'step_count',
                   'exit_code', 'wall_seconds', 'velocity_stage_diagnostics_complete',
-                  'compiled_static_balance')}, indent=2))
+                  'constraint_impulse_work_complete', 'compiled_static_balance')}, indent=2))
               print(json.dumps({key: metrics.get(key) for key in (
                   'compiled_stand_normalized_residual_rms', 'compiled_stand_max_limit_reaction',
                   'persistent_max_acceleration', 'persistent_max_published_delta_v',
                   'persistent_max_penetration_m', 'persistent_normal_impulse',
                   'stand_max_equality_velocity_error')}, indent=2))
-              if code != 0 or stderr_lines or mismatches or not result['velocity_stage_diagnostics_complete'] or not result['compiled_static_balance']:
+              if code != 0 or stderr_lines or mismatches or not result['velocity_stage_diagnostics_complete'] or not result['constraint_impulse_work_complete'] or not result['compiled_static_balance']:
                   raise RuntimeError('current-source Human execution failed closed; raw evidence retained')
           failures = []
           for name, dt, steps in (
@@ -281,7 +310,7 @@ jobs:
               row = runs[name]['summary']
               if row['timestep_nanoseconds'] != ns or row['step_count'] != steps or row['duration_nanoseconds'] != 800_000:
                   raise RuntimeError(name + ' grid mismatch')
-              if row['exit_code'] != 0 or row['required_metric_mismatches'] or not row['velocity_stage_diagnostics_complete'] or not row['compiled_static_balance']:
+              if row['exit_code'] != 0 or row['required_metric_mismatches'] or not row['velocity_stage_diagnostics_complete'] or not row['constraint_impulse_work_complete'] or not row['compiled_static_balance']:
                   raise RuntimeError(name + ' execution contract failed')
 
           for key in ('native_commit', 'input_commit', 'binary_sha256', 'launcher_sha256'):

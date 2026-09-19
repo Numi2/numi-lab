@@ -2617,6 +2617,14 @@ struct PersistentStandTraceSample {
     double postProjectionSourceLimitTargetVelocityResidual = 0.0;
     double preProjectionEqualityTargetVelocityResidual = 0.0;
     double postProjectionEqualityTargetVelocityResidual = 0.0;
+    double contactNormalImpulseWorkJoules = 0.0;
+    double contactTangentialImpulseWorkJoules = 0.0;
+    double equalityImpulseWorkJoules = 0.0;
+    double sourceLimitImpulseWorkJoules = 0.0;
+    double contactNormalAbsoluteImpulseWorkJoules = 0.0;
+    double contactTangentialAbsoluteImpulseWorkJoules = 0.0;
+    double equalityAbsoluteImpulseWorkJoules = 0.0;
+    double sourceLimitAbsoluteImpulseWorkJoules = 0.0;
     double muscleVirtualWorkJoules = 0.0;
     double preloadVirtualWorkJoules = 0.0;
     double passiveJointEnergyJoules = 0.0;
@@ -2673,6 +2681,9 @@ struct MuscleDrivenVisualState {
     double persistentStandTraceMuscleVirtualWorkJoules = 0.0;
     double persistentStandTracePreloadVirtualWorkJoules = 0.0;
     double persistentStandTraceSupportVirtualWorkJoules = 0.0;
+    std::array<double, 4u> persistentStandTraceConstraintImpulseWorkJoules{};
+    std::array<double, 4u>
+        persistentStandTraceConstraintAbsoluteImpulseWorkJoules{};
     std::vector<PersistentStandTraceSample> persistentStandTrace;
     double sourceSupportForceParityMaximumNewtons = 0.0;
     std::uint32_t sourceSupportForceParityMaximumDof = MR_INVALID_INDEX;
@@ -4838,6 +4849,22 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         }
         aggregate.constraintImpulseDiagnostics.w +=
             segment.constraintImpulseDiagnostics.w;
+        aggregate.constraintImpulseWorkDiagnostics.x +=
+            segment.constraintImpulseWorkDiagnostics.x;
+        aggregate.constraintImpulseWorkDiagnostics.y +=
+            segment.constraintImpulseWorkDiagnostics.y;
+        aggregate.constraintImpulseWorkDiagnostics.z +=
+            segment.constraintImpulseWorkDiagnostics.z;
+        aggregate.constraintImpulseWorkDiagnostics.w +=
+            segment.constraintImpulseWorkDiagnostics.w;
+        aggregate.constraintImpulseAbsoluteWorkDiagnostics.x +=
+            segment.constraintImpulseAbsoluteWorkDiagnostics.x;
+        aggregate.constraintImpulseAbsoluteWorkDiagnostics.y +=
+            segment.constraintImpulseAbsoluteWorkDiagnostics.y;
+        aggregate.constraintImpulseAbsoluteWorkDiagnostics.z +=
+            segment.constraintImpulseAbsoluteWorkDiagnostics.z;
+        aggregate.constraintImpulseAbsoluteWorkDiagnostics.w +=
+            segment.constraintImpulseAbsoluteWorkDiagnostics.w;
         if (segment.velocityDiagnostics.x > aggregate.velocityDiagnostics.x) {
             aggregate.velocityDiagnostics.x = segment.velocityDiagnostics.x;
             aggregate.velocityDiagnosticOwners.x =
@@ -5013,6 +5040,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     double persistentStandTraceMuscleVirtualWorkJoules = 0.0;
     double persistentStandTracePreloadVirtualWorkJoules = 0.0;
     double persistentStandTraceSupportVirtualWorkJoules = 0.0;
+    std::array<double, 4u> persistentStandTraceConstraintImpulseWorkJoules{};
+    std::array<double, 4u>
+        persistentStandTraceConstraintAbsoluteImpulseWorkJoules{};
     if (capturePersistentStandTrace) {
         reportHumanExecutionStage("segmented_trace_begin");
         require(anatomicalLoadProgram == nullptr,
@@ -5233,6 +5263,22 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 traceStatus.postProjectionPreStepConstraintDiagnostics.y;
             sample.postProjectionEqualityTargetVelocityResidual =
                 traceStatus.postProjectionPreStepConstraintDiagnostics.z;
+            sample.contactNormalImpulseWorkJoules =
+                traceStatus.constraintImpulseWorkDiagnostics.x;
+            sample.contactTangentialImpulseWorkJoules =
+                traceStatus.constraintImpulseWorkDiagnostics.y;
+            sample.equalityImpulseWorkJoules =
+                traceStatus.constraintImpulseWorkDiagnostics.z;
+            sample.sourceLimitImpulseWorkJoules =
+                traceStatus.constraintImpulseWorkDiagnostics.w;
+            sample.contactNormalAbsoluteImpulseWorkJoules =
+                traceStatus.constraintImpulseAbsoluteWorkDiagnostics.x;
+            sample.contactTangentialAbsoluteImpulseWorkJoules =
+                traceStatus.constraintImpulseAbsoluteWorkDiagnostics.y;
+            sample.equalityAbsoluteImpulseWorkJoules =
+                traceStatus.constraintImpulseAbsoluteWorkDiagnostics.z;
+            sample.sourceLimitAbsoluteImpulseWorkJoules =
+                traceStatus.constraintImpulseAbsoluteWorkDiagnostics.w;
             sample.muscleVirtualWorkJoules = generalizedVirtualWork(
                 traceResult.mujocoGeneralizedForces
             );
@@ -5249,6 +5295,29 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 sample.preloadVirtualWorkJoules;
             persistentStandTraceSupportVirtualWorkJoules +=
                 sample.supportVirtualWorkJoules;
+            const std::array<double, 4u> constraintImpulseWork{
+                sample.contactNormalImpulseWorkJoules,
+                sample.contactTangentialImpulseWorkJoules,
+                sample.equalityImpulseWorkJoules,
+                sample.sourceLimitImpulseWorkJoules,
+            };
+            const std::array<double, 4u> constraintAbsoluteImpulseWork{
+                sample.contactNormalAbsoluteImpulseWorkJoules,
+                sample.contactTangentialAbsoluteImpulseWorkJoules,
+                sample.equalityAbsoluteImpulseWorkJoules,
+                sample.sourceLimitAbsoluteImpulseWorkJoules,
+            };
+            for (std::size_t family = 0u; family < 4u; ++family) {
+                require(
+                    constraintAbsoluteImpulseWork[family] + 1.0e-12 >=
+                        std::abs(constraintImpulseWork[family]),
+                    "persistent Human trace absolute impulse work hid signed work"
+                );
+                persistentStandTraceConstraintImpulseWorkJoules[family] +=
+                    constraintImpulseWork[family];
+                persistentStandTraceConstraintAbsoluteImpulseWorkJoules[family] +=
+                    constraintAbsoluteImpulseWork[family];
+            }
             for (std::size_t qIndex = 0u; qIndex < traceResult.standQ.size();
                  ++qIndex) {
                 const double delta = std::abs(
@@ -5294,7 +5363,19 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                         std::isfinite(sample.preProjectionSourceLimitTargetVelocityResidual) &&
                         std::isfinite(sample.postProjectionSourceLimitTargetVelocityResidual) &&
                         std::isfinite(sample.preProjectionEqualityTargetVelocityResidual) &&
-                        std::isfinite(sample.postProjectionEqualityTargetVelocityResidual),
+                        std::isfinite(sample.postProjectionEqualityTargetVelocityResidual) &&
+                        std::all_of(
+                            constraintImpulseWork.begin(),
+                            constraintImpulseWork.end(),
+                            [](const double work) { return std::isfinite(work); }
+                        ) &&
+                        std::all_of(
+                            constraintAbsoluteImpulseWork.begin(),
+                            constraintAbsoluteImpulseWork.end(),
+                            [](const double work) {
+                                return std::isfinite(work) && work >= 0.0;
+                            }
+                        ),
                     "persistent Human trace produced a non-finite state diagnostic");
             sample.q = traceResult.standQ;
             sample.v = traceResult.standV;
@@ -5335,6 +5416,46 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     std::to_string(persistentStandTraceEndpointMaximumQDelta) +
                     " v=" +
                     std::to_string(persistentStandTraceEndpointMaximumVDelta));
+        const std::array<double, 4u> horizonConstraintImpulseWork{
+            status.constraintImpulseWorkDiagnostics.x,
+            status.constraintImpulseWorkDiagnostics.y,
+            status.constraintImpulseWorkDiagnostics.z,
+            status.constraintImpulseWorkDiagnostics.w,
+        };
+        const std::array<double, 4u> horizonConstraintAbsoluteImpulseWork{
+            status.constraintImpulseAbsoluteWorkDiagnostics.x,
+            status.constraintImpulseAbsoluteWorkDiagnostics.y,
+            status.constraintImpulseAbsoluteWorkDiagnostics.z,
+            status.constraintImpulseAbsoluteWorkDiagnostics.w,
+        };
+        for (std::size_t family = 0u; family < 4u; ++family) {
+            const double signedTolerance = 64.0 *
+                std::numeric_limits<float>::epsilon() * std::max(
+                    1.0e-6,
+                    persistentStandTraceConstraintAbsoluteImpulseWorkJoules[family]
+                );
+            require(
+                std::abs(
+                    horizonConstraintImpulseWork[family] -
+                    persistentStandTraceConstraintImpulseWorkJoules[family]
+                ) <= signedTolerance,
+                "persistent Human trace signed impulse work disagrees with "
+                "the authoritative horizon"
+            );
+            const double absoluteTolerance = 64.0 *
+                std::numeric_limits<float>::epsilon() * std::max(
+                    1.0e-6,
+                    persistentStandTraceConstraintAbsoluteImpulseWorkJoules[family]
+                );
+            require(
+                std::abs(
+                    horizonConstraintAbsoluteImpulseWork[family] -
+                    persistentStandTraceConstraintAbsoluteImpulseWorkJoules[family]
+                ) <= absoluteTolerance,
+                "persistent Human trace absolute impulse work disagrees with "
+                "the authoritative horizon"
+            );
+        }
     }
     double tendonContinuumMaximumQDelta = 0.0;
     double tendonContinuumMaximumVDelta = 0.0;
@@ -5758,6 +5879,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         persistentStandTracePreloadVirtualWorkJoules;
     result.persistentStandTraceSupportVirtualWorkJoules =
         persistentStandTraceSupportVirtualWorkJoules;
+    result.persistentStandTraceConstraintImpulseWorkJoules =
+        persistentStandTraceConstraintImpulseWorkJoules;
+    result.persistentStandTraceConstraintAbsoluteImpulseWorkJoules =
+        persistentStandTraceConstraintAbsoluteImpulseWorkJoules;
     result.persistentStandTrace = std::move(persistentStandTrace);
     result.sourceSupportForceParityMaximumNewtons = sourceSupportForceParityMaximumNewtons;
     result.sourceSupportForceParityMaximumDof = sourceSupportForceParityMaximumDof;
@@ -18985,7 +19110,7 @@ int main(int argc, char** argv) {
                     std::cout << ']';
                 };
                 std::cout << std::setprecision(17)
-                          << "persistent_stand_trace={\"schema\":\"numi.human.persistent-stand-trace.v4\""
+                          << "persistent_stand_trace={\"schema\":\"numi.human.persistent-stand-trace.v5\""
                           << ",\"driver\":\"segmented_one_step_production_horizon\""
                           << ",\"endpoint_equivalent\":\""
                           << (muscleDrivenState->persistentStandTraceEndpointBitwise
@@ -18995,7 +19120,23 @@ int main(int argc, char** argv) {
                           << muscleDrivenState->persistentStandTraceEndpointMaximumQDelta
                           << ",\"endpoint_max_v_delta\":"
                           << muscleDrivenState->persistentStandTraceEndpointMaximumVDelta
-                          << ",\"work_scope\":\"muscle_virtual_work_and_static_support_reference_not_impulse_work;passive_potential_change_includes_coordinate_projection\""
+                          << ",\"work_scope\":\"production_constraint_impulse_work_by_family;exact_coordinate_projection_is_an_unowned_overwrite_not_impulse_work;muscle_virtual_work_and_static_support_reference;passive_potential_change_includes_coordinate_projection\""
+                          << ",\"total_contact_normal_impulse_work_j\":"
+                          << muscleDrivenState->persistentStandTraceConstraintImpulseWorkJoules[0u]
+                          << ",\"total_contact_tangential_impulse_work_j\":"
+                          << muscleDrivenState->persistentStandTraceConstraintImpulseWorkJoules[1u]
+                          << ",\"total_equality_impulse_work_j\":"
+                          << muscleDrivenState->persistentStandTraceConstraintImpulseWorkJoules[2u]
+                          << ",\"total_source_limit_impulse_work_j\":"
+                          << muscleDrivenState->persistentStandTraceConstraintImpulseWorkJoules[3u]
+                          << ",\"total_contact_normal_absolute_impulse_work_j\":"
+                          << muscleDrivenState->persistentStandTraceConstraintAbsoluteImpulseWorkJoules[0u]
+                          << ",\"total_contact_tangential_absolute_impulse_work_j\":"
+                          << muscleDrivenState->persistentStandTraceConstraintAbsoluteImpulseWorkJoules[1u]
+                          << ",\"total_equality_absolute_impulse_work_j\":"
+                          << muscleDrivenState->persistentStandTraceConstraintAbsoluteImpulseWorkJoules[2u]
+                          << ",\"total_source_limit_absolute_impulse_work_j\":"
+                          << muscleDrivenState->persistentStandTraceConstraintAbsoluteImpulseWorkJoules[3u]
                           << ",\"total_muscle_virtual_work_j\":"
                           << muscleDrivenState->persistentStandTraceMuscleVirtualWorkJoules
                           << ",\"total_preload_virtual_work_j\":"
@@ -19105,6 +19246,22 @@ int main(int argc, char** argv) {
                               << sample.preProjectionEqualityTargetVelocityResidual
                               << ",\"post_projection_equality_target_velocity_residual_m_s_or_rad_s\":"
                               << sample.postProjectionEqualityTargetVelocityResidual
+                              << ",\"contact_normal_impulse_work_j\":"
+                              << sample.contactNormalImpulseWorkJoules
+                              << ",\"contact_tangential_impulse_work_j\":"
+                              << sample.contactTangentialImpulseWorkJoules
+                              << ",\"equality_impulse_work_j\":"
+                              << sample.equalityImpulseWorkJoules
+                              << ",\"source_limit_impulse_work_j\":"
+                              << sample.sourceLimitImpulseWorkJoules
+                              << ",\"contact_normal_absolute_impulse_work_j\":"
+                              << sample.contactNormalAbsoluteImpulseWorkJoules
+                              << ",\"contact_tangential_absolute_impulse_work_j\":"
+                              << sample.contactTangentialAbsoluteImpulseWorkJoules
+                              << ",\"equality_absolute_impulse_work_j\":"
+                              << sample.equalityAbsoluteImpulseWorkJoules
+                              << ",\"source_limit_absolute_impulse_work_j\":"
+                              << sample.sourceLimitAbsoluteImpulseWorkJoules
                               << ",\"muscle_virtual_work_j\":"
                               << sample.muscleVirtualWorkJoules
                               << ",\"passive_joint_energy_j\":" << sample.passiveJointEnergyJoules
