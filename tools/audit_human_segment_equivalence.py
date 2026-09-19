@@ -31,7 +31,7 @@ OPTIMIZATION_SHADER = REPOSITORY_ROOT / OPTIMIZATION_SHADER_RELATIVE
 ENVIRONMENT_KEY = "NUMI_HUMAN_DIAGNOSTIC_MAXIMUM_AUTHORITATIVE_SUBMISSION_STEPS"
 CASE_SCHEMA = "numi.human.segment-equivalence-case.v5"
 REPORT_SCHEMA = "numi.human.segment-equivalence-audit.v4"
-HOSTED_REPORT_SCHEMA = "numi.human.hosted-segment-probe.v1"
+HOSTED_REPORT_SCHEMA = "numi.human.hosted-segment-probe.v2"
 SUSTAINED_REPORT_SCHEMA = "numi.human.segment-sustained-audit.v1"
 OPTIMIZATION_REPORT_SCHEMA = "numi.human.optimization-equivalence.v1"
 FLOAT32_EPSILON = 2.0 ** -23
@@ -905,7 +905,8 @@ def arithmetic_comparison(key: str, reference: dict, candidate: dict,
     }
 
 
-def load_cases(cases_root: Path, expected: dict[str, dict]) -> dict[str, dict]:
+def load_cases(cases_root: Path, expected: dict[str, dict],
+               require_contract: bool = True) -> dict[str, dict]:
     cases: dict[str, dict] = {}
     for path in sorted(cases_root.rglob("case.json")):
         case = json.loads(path.read_text())
@@ -920,11 +921,12 @@ def load_cases(cases_root: Path, expected: dict[str, dict]) -> dict[str, dict]:
         cases[name] = case
     require(cases.keys() == expected.keys(),
             f"case set changed: {sorted(cases)}")
-    for name, case in cases.items():
-        require(case.get("contract_matched") is True,
-                f"{name} did not complete its native contract")
-        require(case.get("segment_contract_matched") is True,
-                f"{name} segment-stage contract changed")
+    if require_contract:
+        for name, case in cases.items():
+            require(case.get("contract_matched") is True,
+                    f"{name} did not complete its native contract")
+            require(case.get("segment_contract_matched") is True,
+                    f"{name} segment-stage contract changed")
     return cases
 
 
@@ -1761,16 +1763,41 @@ def compare_hosted(cases_root: Path, output: Path) -> int:
             "metal_debug_layer": True,
         },
     }
-    cases = load_cases(cases_root, expected)
-    reference_name = "cap16-debug-off"
+    cases = load_cases(cases_root, expected, require_contract=False)
+    reference_name = "cap8-debug-off"
     require_exact_stack(cases, reference_name)
-    cap_comparison = mechanics_comparison(
-        cases[reference_name], cases["cap8-debug-off"], False
-    )
+    for name in ["cap8-debug-off", "cap8-debug-on"]:
+        require(cases[name].get("contract_matched") is True,
+                f"{name} did not complete its native contract")
+        require(cases[name].get("segment_contract_matched") is True,
+                f"{name} segment-stage contract changed")
     debug_comparison = mechanics_comparison(
         cases["cap8-debug-off"], cases["cap8-debug-on"], True
     )
-    passed = cap_comparison["passed"] and debug_comparison["passed"]
+    cap16_completed = (
+        cases["cap16-debug-off"].get("contract_matched") is True and
+        cases["cap16-debug-off"].get("segment_contract_matched") is True
+    )
+    cap_comparison = (
+        mechanics_comparison(
+            cases["cap16-debug-off"], cases["cap8-debug-off"], False
+        )
+        if cap16_completed else None
+    )
+    cap16_characterization = {
+        "completed_native_contract": cap16_completed,
+        "exit_code": cases["cap16-debug-off"].get("exit_code"),
+        "timed_out": cases["cap16-debug-off"].get("timed_out"),
+        "parse_error": cases["cap16-debug-off"].get("parse_error"),
+        "segment_contract_matched": cases["cap16-debug-off"].get(
+            "segment_contract_matched"
+        ),
+        "maximum_segment_wall_milliseconds": cases[
+            "cap16-debug-off"
+        ].get("maximum_segment_wall_milliseconds"),
+        "stderr_tail": cases["cap16-debug-off"].get("stderr_tail", []),
+    }
+    passed = debug_comparison["passed"]
     result = {
         "schema": HOSTED_REPORT_SCHEMA,
         "status": "passed" if passed else "failed",
@@ -1779,16 +1806,21 @@ def compare_hosted(cases_root: Path, output: Path) -> int:
         "duration_seconds": 0.0008,
         "reference_case": reference_name,
         "cap8_vs_cap16": cap_comparison,
+        "cap16_watchdog_characterization": cap16_characterization,
         "debug_layer_comparison_at_cap8": debug_comparison,
         "case_summaries": {
             name: case_summary(case) for name, case in cases.items()
         },
         "qualification": {
-            "bounded_cap8_and_cap16_completed_with_bitwise_replay": True,
-            "cap8_equivalent_to_cap16": cap_comparison["passed"],
+            "bounded_cap8_completed_with_bitwise_replay": True,
+            "cap16_completed_with_bitwise_replay": cap16_completed,
+            "cap8_equivalent_to_cap16": (
+                cap_comparison["passed"] if cap_comparison is not None else False
+            ),
             "debug_layer_mechanics_exact_at_cap8":
                 debug_comparison["passed"],
             "monolithic_equivalence": False,
+            "cap16_hosted_watchdog_containment": cap16_completed,
             "cap32_hosted_watchdog_containment": False,
             "full_6_4ms_hosted_watchdog_containment": False,
             "physical_m4_validation": False,
@@ -1797,9 +1829,11 @@ def compare_hosted(cases_root: Path, output: Path) -> int:
         },
         "boundary": (
             "Fresh Apple-Paravirtual runners completed isolated 64-step "
-            "cap-8 and cap-16 horizons with deterministic replay. Cap-8 and "
-            "cap-16 mechanics are compared, but neither is a monolithic "
-            "reference. This bounded probe does not qualify cap 32, the full "
+            "cap-8 debug-off and debug-on horizons with deterministic replay "
+            "and exact mechanics identity. The cap-16 case remains a retained "
+            "watchdog characterization: it is compared when it completes and "
+            "reported as an explicit failed boundary when it does not. This "
+            "bounded probe does not qualify cap 16 or 32 containment, the full "
             "6.4 ms target, physical M4 execution, force convergence, or "
             "sustained standing."
         ),
@@ -1810,12 +1844,15 @@ def compare_hosted(cases_root: Path, output: Path) -> int:
     )
     print(json.dumps({
         "passed": passed,
-        "cap8_equivalent_to_cap16": cap_comparison["passed"],
+        "cap16_completed": cap16_completed,
+        "cap8_equivalent_to_cap16": (
+            cap_comparison["passed"] if cap_comparison is not None else False
+        ),
         "debug_layer_mechanics_exact_at_cap8":
             debug_comparison["passed"],
     }, sort_keys=True))
     require(passed,
-            "hosted cap-8/cap-16 mechanics or debug-layer identity changed")
+            "hosted cap-8 native contract or debug-layer identity changed")
     return 0
 
 

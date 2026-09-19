@@ -124,7 +124,7 @@ jobs:
         with:
           pattern: human-segment-case-*
           path: human-segment-cases
-      - name: Compare bounded hosted trajectories, status, and work
+      - name: Compare required cap-8 mechanics and characterize cap-16 watchdog
         run: >-
           python3 tools/audit_human_segment_equivalence.py compare-hosted
           --cases human-segment-cases
