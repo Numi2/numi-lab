@@ -24,6 +24,7 @@ SOURCE = Path("apps/numilab_human_myosim_visual_probe.mm")
 ENVIRONMENT_KEY = "NUMI_HUMAN_DIAGNOSTIC_MAXIMUM_AUTHORITATIVE_SUBMISSION_STEPS"
 CASE_SCHEMA = "numi.human.segment-equivalence-case.v4"
 REPORT_SCHEMA = "numi.human.segment-equivalence-audit.v4"
+HOSTED_REPORT_SCHEMA = "numi.human.hosted-segment-probe.v1"
 SUSTAINED_REPORT_SCHEMA = "numi.human.segment-sustained-audit.v1"
 FLOAT32_EPSILON = 2.0 ** -23
 
@@ -773,6 +774,84 @@ def compare_cases(cases_root: Path, output: Path) -> int:
     return 0
 
 
+def compare_hosted(cases_root: Path, output: Path) -> int:
+    shared = {
+        "timestep_seconds": 0.0000125,
+        "step_count": 64,
+        "deterministic_replay": True,
+    }
+    expected = {
+        "cap8-debug-off": {
+            **shared, "maximum_submission_steps": 8,
+            "metal_debug_layer": False,
+        },
+        "cap16-debug-off": {
+            **shared, "maximum_submission_steps": 16,
+            "metal_debug_layer": False,
+        },
+        "cap8-debug-on": {
+            **shared, "maximum_submission_steps": 8,
+            "metal_debug_layer": True,
+        },
+    }
+    cases = load_cases(cases_root, expected)
+    reference_name = "cap16-debug-off"
+    require_exact_stack(cases, reference_name)
+    cap_comparison = mechanics_comparison(
+        cases[reference_name], cases["cap8-debug-off"], False
+    )
+    debug_comparison = mechanics_comparison(
+        cases["cap8-debug-off"], cases["cap8-debug-on"], True
+    )
+    passed = cap_comparison["passed"] and debug_comparison["passed"]
+    result = {
+        "schema": HOSTED_REPORT_SCHEMA,
+        "status": "passed" if passed else "failed",
+        "step_count": 64,
+        "timestep_seconds": 0.0000125,
+        "duration_seconds": 0.0008,
+        "reference_case": reference_name,
+        "cap8_vs_cap16": cap_comparison,
+        "debug_layer_comparison_at_cap8": debug_comparison,
+        "case_summaries": {
+            name: case_summary(case) for name, case in cases.items()
+        },
+        "qualification": {
+            "bounded_cap8_and_cap16_completed_with_bitwise_replay": True,
+            "cap8_equivalent_to_cap16": cap_comparison["passed"],
+            "debug_layer_mechanics_exact_at_cap8":
+                debug_comparison["passed"],
+            "monolithic_equivalence": False,
+            "cap32_hosted_watchdog_containment": False,
+            "full_6_4ms_hosted_watchdog_containment": False,
+            "physical_m4_validation": False,
+            "force_convergence": False,
+            "sustained_standing": False,
+        },
+        "boundary": (
+            "Fresh Apple-Paravirtual runners completed isolated 64-step "
+            "cap-8 and cap-16 horizons with deterministic replay. Cap-8 and "
+            "cap-16 mechanics are compared, but neither is a monolithic "
+            "reference. This bounded probe does not qualify cap 32, the full "
+            "6.4 ms target, physical M4 execution, force convergence, or "
+            "sustained standing."
+        ),
+    }
+    output.mkdir(parents=True, exist_ok=True)
+    (output / "hosted-segment-probe.json").write_text(
+        json.dumps(result, indent=2, allow_nan=False) + "\n"
+    )
+    print(json.dumps({
+        "passed": passed,
+        "cap8_equivalent_to_cap16": cap_comparison["passed"],
+        "debug_layer_mechanics_exact_at_cap8":
+            debug_comparison["passed"],
+    }, sort_keys=True))
+    require(passed,
+            "hosted cap-8/cap-16 mechanics or debug-layer identity changed")
+    return 0
+
+
 def compare_sustained(cases_root: Path, equivalence_report: Path,
                       machine_facts: Path, output: Path) -> int:
     shared = {
@@ -899,6 +978,9 @@ def main() -> int:
     compare_parser = subparsers.add_parser("compare")
     compare_parser.add_argument("--cases", type=Path, required=True)
     compare_parser.add_argument("--output", type=Path, required=True)
+    hosted_parser = subparsers.add_parser("compare-hosted")
+    hosted_parser.add_argument("--cases", type=Path, required=True)
+    hosted_parser.add_argument("--output", type=Path, required=True)
     sustained_parser = subparsers.add_parser("compare-sustained")
     sustained_parser.add_argument("--cases", type=Path, required=True)
     sustained_parser.add_argument(
@@ -931,6 +1013,8 @@ def main() -> int:
             arguments.cases, arguments.equivalence_report,
             arguments.machine_facts, arguments.output,
         )
+    if arguments.command == "compare-hosted":
+        return compare_hosted(arguments.cases, arguments.output)
     return compare_cases(arguments.cases, arguments.output)
 
 

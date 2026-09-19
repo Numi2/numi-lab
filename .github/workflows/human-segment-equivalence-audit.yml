@@ -72,10 +72,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {name: monolithic64-debug-off, maximum_steps: 64, debug_layer: 'off'}
           - {name: cap8-debug-off, maximum_steps: 8, debug_layer: 'off'}
           - {name: cap16-debug-off, maximum_steps: 16, debug_layer: 'off'}
-          - {name: cap32-debug-off, maximum_steps: 32, debug_layer: 'off'}
           - {name: cap8-debug-on, maximum_steps: 8, debug_layer: 'on'}
     steps:
       - uses: actions/checkout@v4
@@ -126,9 +124,9 @@ jobs:
         with:
           pattern: human-segment-case-*
           path: human-segment-cases
-      - name: Compare trajectories, complete status, and cumulative work
+      - name: Compare bounded hosted trajectories, status, and work
         run: >-
-          python3 tools/audit_human_segment_equivalence.py compare
+          python3 tools/audit_human_segment_equivalence.py compare-hosted
           --cases human-segment-cases
           --output human-segment-equivalence-report
       - uses: actions/upload-artifact@v4
