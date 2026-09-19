@@ -4711,7 +4711,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             );
         }
     }
-    constexpr std::uint32_t kMaximumAuthoritativeSubmissionSteps = 32u;
+    // Keep each authoritative command buffer inside the measured Apple
+    // execution envelope. Cap-8 is qualified against monolithic, cap-16 and
+    // cap-32 mechanics, including physical-M4 replay and validation-layer runs.
+    constexpr std::uint32_t kMaximumAuthoritativeSubmissionSteps = 8u;
     const bool useSegmentedAuthoritativeHorizon =
         !enableRootAssistance && !removeRootAssistance &&
         continuumTransaction == nullptr && additionalTendonLoadProgram == nullptr &&

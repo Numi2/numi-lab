@@ -55,6 +55,9 @@ leaves `J^T` untouched; production coupling replaces a share and never adds a
 duplicate force owner. The passive multi-body qualification and its limits are
 recorded in
 [`docs/NUMI_HUMAN_PASSIVE_FEM_ATTACHMENTS.md`](docs/NUMI_HUMAN_PASSIVE_FEM_ATTACHMENTS.md).
+The physical-M4 cap-8 promotion, exact mechanics-equivalence receipts, and
+bounded stand-shader timing observations are recorded in
+[`docs/NUMI_HUMAN_SEGMENT_OPTIMIZATION.md`](docs/NUMI_HUMAN_SEGMENT_OPTIMIZATION.md).
 
 The environment-wide Newton unknown is
 

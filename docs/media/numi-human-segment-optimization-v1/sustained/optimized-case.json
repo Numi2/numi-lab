@@ -1,0 +1,3541 @@
+{
+  "schema": "numi.human.segment-equivalence-case.v5",
+  "name": "optimization-candidate-cap8-512",
+  "maximum_submission_steps": 8,
+  "metal_debug_layer": false,
+  "timestep_seconds": 1.25e-05,
+  "step_count": 512,
+  "duration_seconds": 0.0064,
+  "deterministic_replay": true,
+  "timeout_seconds": 2400,
+  "scenario_configuration": {
+    "schema": "numi.human.segment-audit-scenario.v1",
+    "deterministic_replay": true,
+    "dimension": 640,
+    "execution_stages": true,
+    "maximum_submission_steps": 8,
+    "mechanics_only": true,
+    "metal_debug_layer": false,
+    "persistent_source_passive_joint_tissue": true,
+    "persistent_stand_trace": false,
+    "root_assistance": false,
+    "runtime_environment": {
+      "HOME": "/Users/n",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LOGNAME": "n",
+      "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+      "SDKROOT": "/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+      "SHELL": "/bin/zsh",
+      "TMPDIR": "/var/folders/ks/sfmz3dh91_7c9_vyd_3lzj100000gn/T/",
+      "USER": "n",
+      "NUMI_HUMAN_EXECUTION_STAGES": "1",
+      "NUMI_HUMAN_DIAGNOSTIC_MAXIMUM_AUTHORITATIVE_SUBMISSION_STEPS": "8"
+    },
+    "runtime_working_directory": "<REPOSITORY_ROOT>",
+    "stand_contact_iterations": 64,
+    "step_count": 512,
+    "support_contact_payload_magic": "NHCNT1",
+    "support_stance_contacts": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "support_stance_dofs": [
+      {
+        "dof": 2,
+        "value": "0.02"
+      },
+      {
+        "dof": 108,
+        "value": "0.1"
+      },
+      {
+        "dof": 109,
+        "value": "0.1"
+      },
+      {
+        "dof": 110,
+        "value": "0.1"
+      },
+      {
+        "dof": 122,
+        "value": "0.1"
+      },
+      {
+        "dof": 123,
+        "value": "0.1"
+      },
+      {
+        "dof": 124,
+        "value": "0.1"
+      }
+    ],
+    "timestep_seconds": 1.25e-05,
+    "timeout_seconds": 2400
+  },
+  "scenario_configuration_sha256": "300f1cc65557b5241189a5cb8e69532e87d735c40054af2c2988a1b9ccdac355",
+  "command": [
+    "/Users/n/Developer/numi-human-opt-61c14e0/build/bin/metalrobo_numilab_human_myosim_visual_probe",
+    "/Users/n/Developer/numi-human-segment-34ded27/inputs/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-core-reference.nhrigid",
+    "/Users/n/Developer/numi-human-segment-34ded27/inputs/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-muscle-reference.nhmyo",
+    "/Users/n/Developer/numi-human-opt-61c14e0/evidence/optimization-candidate-cap8-512/frames",
+    "--tendon-payload",
+    "/Users/n/Developer/numi-human-segment-34ded27/inputs/Docs/media/native-runtime-source-package-20260915/input/numi-human-tendon-attachments.nhtendon",
+    "--support-contact-payload",
+    "/Users/n/Developer/numi-human-segment-34ded27/inputs/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-support-contact.nhcnt",
+    "--joint-equality-payload",
+    "/Users/n/Developer/numi-human-segment-34ded27/inputs/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-joint-equalities.nheq",
+    "--support-stance-dof",
+    "2",
+    "0.02",
+    "--support-stance-dof",
+    "108",
+    "0.1",
+    "--support-stance-dof",
+    "109",
+    "0.1",
+    "--support-stance-dof",
+    "110",
+    "0.1",
+    "--support-stance-dof",
+    "122",
+    "0.1",
+    "--support-stance-dof",
+    "123",
+    "0.1",
+    "--support-stance-dof",
+    "124",
+    "0.1",
+    "--support-stance-contact",
+    "2",
+    "--support-stance-contact",
+    "3",
+    "--support-stance-contact",
+    "4",
+    "--support-stance-contact",
+    "5",
+    "--support-stance-contact",
+    "6",
+    "--support-stance-contact",
+    "7",
+    "--muscle-step-seconds",
+    "1.2500000000000001e-05",
+    "--muscle-step-count",
+    "512",
+    "--persistent-metal-stand",
+    "--persistent-source-passive-joint-tissue",
+    "--stand-contact-iterations",
+    "64",
+    "--dimension",
+    "640",
+    "--mechanics-only",
+    "--stand-deterministic-replay"
+  ],
+  "exit_code": 0,
+  "timed_out": false,
+  "parse_error": "",
+  "contract_matched": true,
+  "wall_seconds": 570.847542458,
+  "expected_segment_count": 128,
+  "segment_contract_matched": true,
+  "maximum_segment_wall_milliseconds": 4114.423999999999,
+  "segments": [
+    {
+      "begin_step": 0,
+      "end_step": 8,
+      "step_count": 8,
+      "wall_milliseconds": 4112.793959000002
+    },
+    {
+      "begin_step": 8,
+      "end_step": 16,
+      "step_count": 8,
+      "wall_milliseconds": 4083.4884999999995
+    },
+    {
+      "begin_step": 16,
+      "end_step": 24,
+      "step_count": 8,
+      "wall_milliseconds": 4080.648709000001
+    },
+    {
+      "begin_step": 24,
+      "end_step": 32,
+      "step_count": 8,
+      "wall_milliseconds": 4092.266542000005
+    },
+    {
+      "begin_step": 32,
+      "end_step": 40,
+      "step_count": 8,
+      "wall_milliseconds": 4082.1767920000057
+    },
+    {
+      "begin_step": 40,
+      "end_step": 48,
+      "step_count": 8,
+      "wall_milliseconds": 4091.5790419999976
+    },
+    {
+      "begin_step": 48,
+      "end_step": 56,
+      "step_count": 8,
+      "wall_milliseconds": 4089.4114580000023
+    },
+    {
+      "begin_step": 56,
+      "end_step": 64,
+      "step_count": 8,
+      "wall_milliseconds": 4077.5854580000014
+    },
+    {
+      "begin_step": 64,
+      "end_step": 72,
+      "step_count": 8,
+      "wall_milliseconds": 4082.5470839999907
+    },
+    {
+      "begin_step": 72,
+      "end_step": 80,
+      "step_count": 8,
+      "wall_milliseconds": 4077.1234590000095
+    },
+    {
+      "begin_step": 80,
+      "end_step": 88,
+      "step_count": 8,
+      "wall_milliseconds": 4085.4597090000025
+    },
+    {
+      "begin_step": 88,
+      "end_step": 96,
+      "step_count": 8,
+      "wall_milliseconds": 4089.200959000009
+    },
+    {
+      "begin_step": 96,
+      "end_step": 104,
+      "step_count": 8,
+      "wall_milliseconds": 4089.299291999996
+    },
+    {
+      "begin_step": 104,
+      "end_step": 112,
+      "step_count": 8,
+      "wall_milliseconds": 4072.108124999999
+    },
+    {
+      "begin_step": 112,
+      "end_step": 120,
+      "step_count": 8,
+      "wall_milliseconds": 4081.8487920000043
+    },
+    {
+      "begin_step": 120,
+      "end_step": 128,
+      "step_count": 8,
+      "wall_milliseconds": 4081.1909589999996
+    },
+    {
+      "begin_step": 128,
+      "end_step": 136,
+      "step_count": 8,
+      "wall_milliseconds": 4082.444666999989
+    },
+    {
+      "begin_step": 136,
+      "end_step": 144,
+      "step_count": 8,
+      "wall_milliseconds": 4078.918334000002
+    },
+    {
+      "begin_step": 144,
+      "end_step": 152,
+      "step_count": 8,
+      "wall_milliseconds": 4080.486416999993
+    },
+    {
+      "begin_step": 152,
+      "end_step": 160,
+      "step_count": 8,
+      "wall_milliseconds": 4088.905209000004
+    },
+    {
+      "begin_step": 160,
+      "end_step": 168,
+      "step_count": 8,
+      "wall_milliseconds": 4096.117834000019
+    },
+    {
+      "begin_step": 168,
+      "end_step": 176,
+      "step_count": 8,
+      "wall_milliseconds": 4099.915500000003
+    },
+    {
+      "begin_step": 176,
+      "end_step": 184,
+      "step_count": 8,
+      "wall_milliseconds": 4084.0811669999966
+    },
+    {
+      "begin_step": 184,
+      "end_step": 192,
+      "step_count": 8,
+      "wall_milliseconds": 4079.2950830000045
+    },
+    {
+      "begin_step": 192,
+      "end_step": 200,
+      "step_count": 8,
+      "wall_milliseconds": 4094.77766599998
+    },
+    {
+      "begin_step": 200,
+      "end_step": 208,
+      "step_count": 8,
+      "wall_milliseconds": 4094.8569579999894
+    },
+    {
+      "begin_step": 208,
+      "end_step": 216,
+      "step_count": 8,
+      "wall_milliseconds": 4096.898541999981
+    },
+    {
+      "begin_step": 216,
+      "end_step": 224,
+      "step_count": 8,
+      "wall_milliseconds": 4092.9512919999834
+    },
+    {
+      "begin_step": 224,
+      "end_step": 232,
+      "step_count": 8,
+      "wall_milliseconds": 4094.5307500000054
+    },
+    {
+      "begin_step": 232,
+      "end_step": 240,
+      "step_count": 8,
+      "wall_milliseconds": 4091.0795410000137
+    },
+    {
+      "begin_step": 240,
+      "end_step": 248,
+      "step_count": 8,
+      "wall_milliseconds": 4088.1169590000063
+    },
+    {
+      "begin_step": 248,
+      "end_step": 256,
+      "step_count": 8,
+      "wall_milliseconds": 4097.970333000005
+    },
+    {
+      "begin_step": 256,
+      "end_step": 264,
+      "step_count": 8,
+      "wall_milliseconds": 4098.236582999991
+    },
+    {
+      "begin_step": 264,
+      "end_step": 272,
+      "step_count": 8,
+      "wall_milliseconds": 4098.705083000008
+    },
+    {
+      "begin_step": 272,
+      "end_step": 280,
+      "step_count": 8,
+      "wall_milliseconds": 4082.880291999987
+    },
+    {
+      "begin_step": 280,
+      "end_step": 288,
+      "step_count": 8,
+      "wall_milliseconds": 4092.7672909999965
+    },
+    {
+      "begin_step": 288,
+      "end_step": 296,
+      "step_count": 8,
+      "wall_milliseconds": 4100.276333000016
+    },
+    {
+      "begin_step": 296,
+      "end_step": 304,
+      "step_count": 8,
+      "wall_milliseconds": 4084.681249999994
+    },
+    {
+      "begin_step": 304,
+      "end_step": 312,
+      "step_count": 8,
+      "wall_milliseconds": 4090.9284170000174
+    },
+    {
+      "begin_step": 312,
+      "end_step": 320,
+      "step_count": 8,
+      "wall_milliseconds": 4089.356375000003
+    },
+    {
+      "begin_step": 320,
+      "end_step": 328,
+      "step_count": 8,
+      "wall_milliseconds": 4078.132250000024
+    },
+    {
+      "begin_step": 328,
+      "end_step": 336,
+      "step_count": 8,
+      "wall_milliseconds": 4089.75229199999
+    },
+    {
+      "begin_step": 336,
+      "end_step": 344,
+      "step_count": 8,
+      "wall_milliseconds": 4087.0837499999907
+    },
+    {
+      "begin_step": 344,
+      "end_step": 352,
+      "step_count": 8,
+      "wall_milliseconds": 4089.5795410000137
+    },
+    {
+      "begin_step": 352,
+      "end_step": 360,
+      "step_count": 8,
+      "wall_milliseconds": 4092.967540999991
+    },
+    {
+      "begin_step": 360,
+      "end_step": 368,
+      "step_count": 8,
+      "wall_milliseconds": 4081.708417000016
+    },
+    {
+      "begin_step": 368,
+      "end_step": 376,
+      "step_count": 8,
+      "wall_milliseconds": 4087.571667000011
+    },
+    {
+      "begin_step": 376,
+      "end_step": 384,
+      "step_count": 8,
+      "wall_milliseconds": 4082.393457999977
+    },
+    {
+      "begin_step": 384,
+      "end_step": 392,
+      "step_count": 8,
+      "wall_milliseconds": 4103.427792000002
+    },
+    {
+      "begin_step": 392,
+      "end_step": 400,
+      "step_count": 8,
+      "wall_milliseconds": 4085.671082999994
+    },
+    {
+      "begin_step": 400,
+      "end_step": 408,
+      "step_count": 8,
+      "wall_milliseconds": 4092.0643340000242
+    },
+    {
+      "begin_step": 408,
+      "end_step": 416,
+      "step_count": 8,
+      "wall_milliseconds": 4092.623499999987
+    },
+    {
+      "begin_step": 416,
+      "end_step": 424,
+      "step_count": 8,
+      "wall_milliseconds": 4086.412249999994
+    },
+    {
+      "begin_step": 424,
+      "end_step": 432,
+      "step_count": 8,
+      "wall_milliseconds": 4090.0354170000064
+    },
+    {
+      "begin_step": 432,
+      "end_step": 440,
+      "step_count": 8,
+      "wall_milliseconds": 4091.3140419999836
+    },
+    {
+      "begin_step": 440,
+      "end_step": 448,
+      "step_count": 8,
+      "wall_milliseconds": 4092.9999170000083
+    },
+    {
+      "begin_step": 448,
+      "end_step": 456,
+      "step_count": 8,
+      "wall_milliseconds": 4091.343458999996
+    },
+    {
+      "begin_step": 456,
+      "end_step": 464,
+      "step_count": 8,
+      "wall_milliseconds": 4090.5714579999913
+    },
+    {
+      "begin_step": 464,
+      "end_step": 472,
+      "step_count": 8,
+      "wall_milliseconds": 4087.564333999995
+    },
+    {
+      "begin_step": 472,
+      "end_step": 480,
+      "step_count": 8,
+      "wall_milliseconds": 4089.661374999967
+    },
+    {
+      "begin_step": 480,
+      "end_step": 488,
+      "step_count": 8,
+      "wall_milliseconds": 4086.8667499999865
+    },
+    {
+      "begin_step": 488,
+      "end_step": 496,
+      "step_count": 8,
+      "wall_milliseconds": 4079.18087500002
+    },
+    {
+      "begin_step": 496,
+      "end_step": 504,
+      "step_count": 8,
+      "wall_milliseconds": 4080.7195829999982
+    },
+    {
+      "begin_step": 504,
+      "end_step": 512,
+      "step_count": 8,
+      "wall_milliseconds": 4081.136208000011
+    },
+    {
+      "begin_step": 0,
+      "end_step": 8,
+      "step_count": 8,
+      "wall_milliseconds": 4114.423999999999
+    },
+    {
+      "begin_step": 8,
+      "end_step": 16,
+      "step_count": 8,
+      "wall_milliseconds": 4083.919916999992
+    },
+    {
+      "begin_step": 16,
+      "end_step": 24,
+      "step_count": 8,
+      "wall_milliseconds": 4077.0530000000144
+    },
+    {
+      "begin_step": 24,
+      "end_step": 32,
+      "step_count": 8,
+      "wall_milliseconds": 4081.4303330000257
+    },
+    {
+      "begin_step": 32,
+      "end_step": 40,
+      "step_count": 8,
+      "wall_milliseconds": 4083.5419999999576
+    },
+    {
+      "begin_step": 40,
+      "end_step": 48,
+      "step_count": 8,
+      "wall_milliseconds": 4091.7222920000204
+    },
+    {
+      "begin_step": 48,
+      "end_step": 56,
+      "step_count": 8,
+      "wall_milliseconds": 4090.0557499999995
+    },
+    {
+      "begin_step": 56,
+      "end_step": 64,
+      "step_count": 8,
+      "wall_milliseconds": 4074.638957999996
+    },
+    {
+      "begin_step": 64,
+      "end_step": 72,
+      "step_count": 8,
+      "wall_milliseconds": 4078.15533400001
+    },
+    {
+      "begin_step": 72,
+      "end_step": 80,
+      "step_count": 8,
+      "wall_milliseconds": 4072.008458999975
+    },
+    {
+      "begin_step": 80,
+      "end_step": 88,
+      "step_count": 8,
+      "wall_milliseconds": 4086.0023330000113
+    },
+    {
+      "begin_step": 88,
+      "end_step": 96,
+      "step_count": 8,
+      "wall_milliseconds": 4090.799457999994
+    },
+    {
+      "begin_step": 96,
+      "end_step": 104,
+      "step_count": 8,
+      "wall_milliseconds": 4088.930209000013
+    },
+    {
+      "begin_step": 104,
+      "end_step": 112,
+      "step_count": 8,
+      "wall_milliseconds": 4080.088374999992
+    },
+    {
+      "begin_step": 112,
+      "end_step": 120,
+      "step_count": 8,
+      "wall_milliseconds": 4081.4204589999863
+    },
+    {
+      "begin_step": 120,
+      "end_step": 128,
+      "step_count": 8,
+      "wall_milliseconds": 4076.3554170000134
+    },
+    {
+      "begin_step": 128,
+      "end_step": 136,
+      "step_count": 8,
+      "wall_milliseconds": 4084.6103749999893
+    },
+    {
+      "begin_step": 136,
+      "end_step": 144,
+      "step_count": 8,
+      "wall_milliseconds": 4078.389916999964
+    },
+    {
+      "begin_step": 144,
+      "end_step": 152,
+      "step_count": 8,
+      "wall_milliseconds": 4075.6651249999995
+    },
+    {
+      "begin_step": 152,
+      "end_step": 160,
+      "step_count": 8,
+      "wall_milliseconds": 4090.61495800002
+    },
+    {
+      "begin_step": 160,
+      "end_step": 168,
+      "step_count": 8,
+      "wall_milliseconds": 4092.275416999997
+    },
+    {
+      "begin_step": 168,
+      "end_step": 176,
+      "step_count": 8,
+      "wall_milliseconds": 4093.8483750000014
+    },
+    {
+      "begin_step": 176,
+      "end_step": 184,
+      "step_count": 8,
+      "wall_milliseconds": 4086.7263329999987
+    },
+    {
+      "begin_step": 184,
+      "end_step": 192,
+      "step_count": 8,
+      "wall_milliseconds": 4079.2605829999666
+    },
+    {
+      "begin_step": 192,
+      "end_step": 200,
+      "step_count": 8,
+      "wall_milliseconds": 4095.3973750000005
+    },
+    {
+      "begin_step": 200,
+      "end_step": 208,
+      "step_count": 8,
+      "wall_milliseconds": 4095.8149579999736
+    },
+    {
+      "begin_step": 208,
+      "end_step": 216,
+      "step_count": 8,
+      "wall_milliseconds": 4092.9470420000143
+    },
+    {
+      "begin_step": 216,
+      "end_step": 224,
+      "step_count": 8,
+      "wall_milliseconds": 4099.211583000026
+    },
+    {
+      "begin_step": 224,
+      "end_step": 232,
+      "step_count": 8,
+      "wall_milliseconds": 4097.379375000019
+    },
+    {
+      "begin_step": 232,
+      "end_step": 240,
+      "step_count": 8,
+      "wall_milliseconds": 4095.2232080000103
+    },
+    {
+      "begin_step": 240,
+      "end_step": 248,
+      "step_count": 8,
+      "wall_milliseconds": 4092.6822500000126
+    },
+    {
+      "begin_step": 248,
+      "end_step": 256,
+      "step_count": 8,
+      "wall_milliseconds": 4098.770709000004
+    },
+    {
+      "begin_step": 256,
+      "end_step": 264,
+      "step_count": 8,
+      "wall_milliseconds": 4094.052874999994
+    },
+    {
+      "begin_step": 264,
+      "end_step": 272,
+      "step_count": 8,
+      "wall_milliseconds": 4095.7323340000003
+    },
+    {
+      "begin_step": 272,
+      "end_step": 280,
+      "step_count": 8,
+      "wall_milliseconds": 4082.0968749999884
+    },
+    {
+      "begin_step": 280,
+      "end_step": 288,
+      "step_count": 8,
+      "wall_milliseconds": 4092.6283330000006
+    },
+    {
+      "begin_step": 288,
+      "end_step": 296,
+      "step_count": 8,
+      "wall_milliseconds": 4099.766249999986
+    },
+    {
+      "begin_step": 296,
+      "end_step": 304,
+      "step_count": 8,
+      "wall_milliseconds": 4077.5961669999524
+    },
+    {
+      "begin_step": 304,
+      "end_step": 312,
+      "step_count": 8,
+      "wall_milliseconds": 4093.1274579999736
+    },
+    {
+      "begin_step": 312,
+      "end_step": 320,
+      "step_count": 8,
+      "wall_milliseconds": 4088.66295800003
+    },
+    {
+      "begin_step": 320,
+      "end_step": 328,
+      "step_count": 8,
+      "wall_milliseconds": 4079.358125000028
+    },
+    {
+      "begin_step": 328,
+      "end_step": 336,
+      "step_count": 8,
+      "wall_milliseconds": 4091.869791999983
+    },
+    {
+      "begin_step": 336,
+      "end_step": 344,
+      "step_count": 8,
+      "wall_milliseconds": 4086.7424159999937
+    },
+    {
+      "begin_step": 344,
+      "end_step": 352,
+      "step_count": 8,
+      "wall_milliseconds": 4085.762374999991
+    },
+    {
+      "begin_step": 352,
+      "end_step": 360,
+      "step_count": 8,
+      "wall_milliseconds": 4095.8285000000033
+    },
+    {
+      "begin_step": 360,
+      "end_step": 368,
+      "step_count": 8,
+      "wall_milliseconds": 4081.0415839999914
+    },
+    {
+      "begin_step": 368,
+      "end_step": 376,
+      "step_count": 8,
+      "wall_milliseconds": 4088.897875000024
+    },
+    {
+      "begin_step": 376,
+      "end_step": 384,
+      "step_count": 8,
+      "wall_milliseconds": 4084.090208000038
+    },
+    {
+      "begin_step": 384,
+      "end_step": 392,
+      "step_count": 8,
+      "wall_milliseconds": 4097.751333000022
+    },
+    {
+      "begin_step": 392,
+      "end_step": 400,
+      "step_count": 8,
+      "wall_milliseconds": 4081.4679170000018
+    },
+    {
+      "begin_step": 400,
+      "end_step": 408,
+      "step_count": 8,
+      "wall_milliseconds": 4094.8385000000126
+    },
+    {
+      "begin_step": 408,
+      "end_step": 416,
+      "step_count": 8,
+      "wall_milliseconds": 4094.6758750000154
+    },
+    {
+      "begin_step": 416,
+      "end_step": 424,
+      "step_count": 8,
+      "wall_milliseconds": 4087.57141699997
+    },
+    {
+      "begin_step": 424,
+      "end_step": 432,
+      "step_count": 8,
+      "wall_milliseconds": 4088.9463750000577
+    },
+    {
+      "begin_step": 432,
+      "end_step": 440,
+      "step_count": 8,
+      "wall_milliseconds": 4086.551916000084
+    },
+    {
+      "begin_step": 440,
+      "end_step": 448,
+      "step_count": 8,
+      "wall_milliseconds": 4095.6499170000898
+    },
+    {
+      "begin_step": 448,
+      "end_step": 456,
+      "step_count": 8,
+      "wall_milliseconds": 4093.0705829999642
+    },
+    {
+      "begin_step": 456,
+      "end_step": 464,
+      "step_count": 8,
+      "wall_milliseconds": 4091.736082999967
+    },
+    {
+      "begin_step": 464,
+      "end_step": 472,
+      "step_count": 8,
+      "wall_milliseconds": 4091.229958000011
+    },
+    {
+      "begin_step": 472,
+      "end_step": 480,
+      "step_count": 8,
+      "wall_milliseconds": 4084.0643329999875
+    },
+    {
+      "begin_step": 480,
+      "end_step": 488,
+      "step_count": 8,
+      "wall_milliseconds": 4084.493625000003
+    },
+    {
+      "begin_step": 488,
+      "end_step": 496,
+      "step_count": 8,
+      "wall_milliseconds": 4084.283708999981
+    },
+    {
+      "begin_step": 496,
+      "end_step": 504,
+      "step_count": 8,
+      "wall_milliseconds": 4079.666790999938
+    },
+    {
+      "begin_step": 504,
+      "end_step": 512,
+      "step_count": 8,
+      "wall_milliseconds": 4080.073834000039
+    }
+  ],
+  "execution_stages": [
+    {
+      "name": "static_equilibrium_begin",
+      "wall_elapsed_ms": 4.1e-05,
+      "step": 0
+    },
+    {
+      "name": "static_equilibrium_end",
+      "wall_elapsed_ms": 47307.488083,
+      "step": 0
+    },
+    {
+      "name": "fiber_equilibrium_begin",
+      "wall_elapsed_ms": 47307.535833,
+      "step": 0
+    },
+    {
+      "name": "fiber_equilibrium_end",
+      "wall_elapsed_ms": 47375.172916,
+      "step": 1
+    },
+    {
+      "name": "initial_force_checks_begin",
+      "wall_elapsed_ms": 47375.187041,
+      "step": 0
+    },
+    {
+      "name": "initial_force_checks_end",
+      "wall_elapsed_ms": 47520.615583,
+      "step": 0
+    },
+    {
+      "name": "native_horizon_begin",
+      "wall_elapsed_ms": 47520.65675,
+      "step": 0
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 47520.662916,
+      "step": 0
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 51633.456875,
+      "step": 8
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 51633.469875,
+      "step": 8
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 55716.958375,
+      "step": 16
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 55716.967666,
+      "step": 16
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 59797.616375,
+      "step": 24
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 59797.629208,
+      "step": 24
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 63889.89575,
+      "step": 32
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 63889.920083,
+      "step": 32
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 67972.096875,
+      "step": 40
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 67972.109291,
+      "step": 40
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 72063.688333,
+      "step": 48
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 72063.698,
+      "step": 48
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 76153.109458,
+      "step": 56
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 76153.116583,
+      "step": 56
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 80230.702041,
+      "step": 64
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 80230.708916,
+      "step": 64
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 84313.256,
+      "step": 72
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 84313.267916,
+      "step": 72
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 88390.391375,
+      "step": 80
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 88390.398791,
+      "step": 80
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 92475.8585,
+      "step": 88
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 92475.871416,
+      "step": 88
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 96565.072375,
+      "step": 96
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 96565.084791,
+      "step": 96
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 100654.384083,
+      "step": 104
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 100654.392208,
+      "step": 104
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 104726.500333,
+      "step": 112
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 104726.507333,
+      "step": 112
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 108808.356125,
+      "step": 120
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 108808.361916,
+      "step": 120
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 112889.552875,
+      "step": 128
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 112889.559166,
+      "step": 128
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 116972.003833,
+      "step": 136
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 116972.009791,
+      "step": 136
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 121050.928125,
+      "step": 144
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 121050.940333,
+      "step": 144
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 125131.42675,
+      "step": 152
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 125131.447541,
+      "step": 152
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 129220.35275,
+      "step": 160
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 129220.364666,
+      "step": 160
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 133316.4825,
+      "step": 168
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 133316.491208,
+      "step": 168
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 137416.406708,
+      "step": 176
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 137416.424333,
+      "step": 176
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 141500.5055,
+      "step": 184
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 141500.515375,
+      "step": 184
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 145579.810458,
+      "step": 192
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 145579.81825,
+      "step": 192
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 149674.595916,
+      "step": 200
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 149674.613583,
+      "step": 200
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 153769.470541,
+      "step": 208
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 153769.477833,
+      "step": 208
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 157866.376375,
+      "step": 216
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 157866.383208,
+      "step": 216
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 161959.3345,
+      "step": 224
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 161959.343583,
+      "step": 224
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 166053.874333,
+      "step": 232
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 166053.882375,
+      "step": 232
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 170144.961916,
+      "step": 240
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 170144.968791,
+      "step": 240
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 174233.08575,
+      "step": 248
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 174233.092083,
+      "step": 248
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 178331.062416,
+      "step": 256
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 178331.069125,
+      "step": 256
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 182429.305708,
+      "step": 264
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 182429.327375,
+      "step": 264
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 186528.032458,
+      "step": 272
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 186528.043833,
+      "step": 272
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 190610.924125,
+      "step": 280
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 190610.932125,
+      "step": 280
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 194703.699416,
+      "step": 288
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 194703.705708,
+      "step": 288
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 198803.982041,
+      "step": 296
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 198803.988083,
+      "step": 296
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 202888.669333,
+      "step": 304
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 202888.685041,
+      "step": 304
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 206979.613458,
+      "step": 312
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 206979.624166,
+      "step": 312
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 211068.980541,
+      "step": 320
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 211068.998458,
+      "step": 320
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 215147.130708,
+      "step": 328
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 215147.139208,
+      "step": 328
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 219236.8915,
+      "step": 336
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 219236.902333,
+      "step": 336
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 223323.986083,
+      "step": 344
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 223323.993875,
+      "step": 344
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 227413.573416,
+      "step": 352
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 227413.5805,
+      "step": 352
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 231506.548041,
+      "step": 360
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 231506.558666,
+      "step": 360
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 235588.267083,
+      "step": 368
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 235588.274791,
+      "step": 368
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 239675.846458,
+      "step": 376
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 239675.861708,
+      "step": 376
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 243758.255166,
+      "step": 384
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 243758.278958,
+      "step": 384
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 247861.70675,
+      "step": 392
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 247861.72,
+      "step": 392
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 251947.391083,
+      "step": 400
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 251947.400041,
+      "step": 400
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 256039.464375,
+      "step": 408
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 256039.473375,
+      "step": 408
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 260132.096875,
+      "step": 416
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 260132.104458,
+      "step": 416
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 264218.516708,
+      "step": 424
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 264218.523916,
+      "step": 424
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 268308.559333,
+      "step": 432
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 268308.568958,
+      "step": 432
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 272399.883,
+      "step": 440
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 272399.916041,
+      "step": 440
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 276492.915958,
+      "step": 448
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 276492.924416,
+      "step": 448
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 280584.267875,
+      "step": 456
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 280584.277833,
+      "step": 456
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 284674.849291,
+      "step": 464
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 284674.856416,
+      "step": 464
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 288762.42075,
+      "step": 472
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 288762.427458,
+      "step": 472
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 292852.088833,
+      "step": 480
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 292852.096416,
+      "step": 480
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 296938.963166,
+      "step": 488
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 296938.970416,
+      "step": 488
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 301018.151291,
+      "step": 496
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 301018.170333,
+      "step": 496
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 305098.889916,
+      "step": 504
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 305098.911458,
+      "step": 504
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 309180.047666,
+      "step": 512
+    },
+    {
+      "name": "native_horizon_end",
+      "wall_elapsed_ms": 309180.059541,
+      "step": 512
+    },
+    {
+      "name": "deterministic_replay_begin",
+      "wall_elapsed_ms": 309180.096583,
+      "step": 0
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 309180.101,
+      "step": 0
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 313294.525,
+      "step": 8
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 313294.532916,
+      "step": 8
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 317378.452833,
+      "step": 16
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 317378.460416,
+      "step": 16
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 321455.513416,
+      "step": 24
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 321455.523833,
+      "step": 24
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 325536.954166,
+      "step": 32
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 325536.961666,
+      "step": 32
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 329620.503666,
+      "step": 40
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 329620.516541,
+      "step": 40
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 333712.238833,
+      "step": 48
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 333712.245625,
+      "step": 48
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 337802.301375,
+      "step": 56
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 337802.3085,
+      "step": 56
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 341876.947458,
+      "step": 64
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 341876.967541,
+      "step": 64
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 345955.122875,
+      "step": 72
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 345955.135666,
+      "step": 72
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 350027.144125,
+      "step": 80
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 350027.153833,
+      "step": 80
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 354113.156166,
+      "step": 88
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 354113.166958,
+      "step": 88
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 358203.966416,
+      "step": 96
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 358203.992166,
+      "step": 96
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 362292.922375,
+      "step": 104
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 362292.946458,
+      "step": 104
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 366373.034833,
+      "step": 112
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 366373.048291,
+      "step": 112
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 370454.46875,
+      "step": 120
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 370454.478666,
+      "step": 120
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 374530.834083,
+      "step": 128
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 374530.84275,
+      "step": 128
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 378615.453125,
+      "step": 136
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 378615.460083,
+      "step": 136
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 382693.85,
+      "step": 144
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 382693.856708,
+      "step": 144
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 386769.521833,
+      "step": 152
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 386769.52875,
+      "step": 152
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 390860.143708,
+      "step": 160
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 390860.157916,
+      "step": 160
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 394952.433333,
+      "step": 168
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 394952.4405,
+      "step": 168
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 399046.288875,
+      "step": 176
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 399046.2955,
+      "step": 176
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 403133.021833,
+      "step": 184
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 403133.0285,
+      "step": 184
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 407212.289083,
+      "step": 192
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 407212.3105,
+      "step": 192
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 411307.707875,
+      "step": 200
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 411307.7195,
+      "step": 200
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 415403.534458,
+      "step": 208
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 415403.543291,
+      "step": 208
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 419496.490333,
+      "step": 216
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 419496.507083,
+      "step": 216
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 423595.718666,
+      "step": 224
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 423595.739083,
+      "step": 224
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 427693.118458,
+      "step": 232
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 427693.130208,
+      "step": 232
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 431788.353416,
+      "step": 240
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 431788.363375,
+      "step": 240
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 435881.045625,
+      "step": 248
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 435881.053291,
+      "step": 248
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 439979.824,
+      "step": 256
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 439979.83125,
+      "step": 256
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 444073.884125,
+      "step": 264
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 444073.890916,
+      "step": 264
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 448169.62325,
+      "step": 272
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 448169.641125,
+      "step": 272
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 452251.738,
+      "step": 280
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 452251.74975,
+      "step": 280
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 456344.378083,
+      "step": 288
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 456344.384666,
+      "step": 288
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 460444.150916,
+      "step": 296
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 460444.157208,
+      "step": 296
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 464521.753375,
+      "step": 304
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 464521.762958,
+      "step": 304
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 468614.890416,
+      "step": 312
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 468614.897625,
+      "step": 312
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 472703.560583,
+      "step": 320
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 472703.56775,
+      "step": 320
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 476782.925875,
+      "step": 328
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 476782.942208,
+      "step": 328
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 480874.812,
+      "step": 336
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 480874.827875,
+      "step": 336
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 484961.570291,
+      "step": 344
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 484961.589333,
+      "step": 344
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 489047.351708,
+      "step": 352
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 489047.36825,
+      "step": 352
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 493143.19675,
+      "step": 360
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 493143.208791,
+      "step": 360
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 497224.250375,
+      "step": 368
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 497224.261916,
+      "step": 368
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 501313.159791,
+      "step": 376
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 501313.168708,
+      "step": 376
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 505397.258916,
+      "step": 384
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 505397.266458,
+      "step": 384
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 509495.017791,
+      "step": 392
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 509495.032416,
+      "step": 392
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 513576.500333,
+      "step": 400
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 513576.507583,
+      "step": 400
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 517671.346083,
+      "step": 408
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 517671.352791,
+      "step": 408
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 521766.028666,
+      "step": 416
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 521766.036958,
+      "step": 416
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 525853.608375,
+      "step": 424
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 525853.615208,
+      "step": 424
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 529942.561583,
+      "step": 432
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 529942.569375,
+      "step": 432
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 534029.121291,
+      "step": 440
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 534029.128541,
+      "step": 440
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 538124.778458,
+      "step": 448
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 538124.799875,
+      "step": 448
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 542217.870458,
+      "step": 456
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 542217.905,
+      "step": 456
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 546309.641083,
+      "step": 464
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 546309.664583,
+      "step": 464
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 550400.894541,
+      "step": 472
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 550400.905958,
+      "step": 472
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 554484.970291,
+      "step": 480
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 554484.982833,
+      "step": 480
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 558569.476458,
+      "step": 488
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 558569.485166,
+      "step": 488
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 562653.768875,
+      "step": 496
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 562653.775875,
+      "step": 496
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 566733.442666,
+      "step": 504
+    },
+    {
+      "name": "authoritative_segment_begin",
+      "wall_elapsed_ms": 566733.450916,
+      "step": 504
+    },
+    {
+      "name": "authoritative_segment_end",
+      "wall_elapsed_ms": 570813.52475,
+      "step": 512
+    },
+    {
+      "name": "deterministic_replay_end",
+      "wall_elapsed_ms": 570813.541333,
+      "step": 512
+    }
+  ],
+  "terminal": {
+    "schema": "numi.human.legacy-stand-terminal.v1",
+    "step_count": 512,
+    "timestep_seconds": 1.25e-05,
+    "root_assistance": false,
+    "initial_q": [
+      -0.05000000074505806,
+      0.20000000298023224,
+      1.9454089403152466,
+      0,
+      0,
+      0,
+      1,
+      -0.006813135463744402,
+      -0.0010471156565472484,
+      -0.004914718680083752,
+      0,
+      0,
+      -0.004380164667963982,
+      -0.0012604300864040852,
+      -0.00018963264301419258,
+      -0.00018567807273939252,
+      -0.001389879616908729,
+      -0.0002568574564065784,
+      -0.00018567807273939252,
+      -0.0015738343354314566,
+      -0.00026188360061496496,
+      -0.00015289690054487437,
+      -0.0017373495502397418,
+      -0.00019685774168465286,
+      -0.00014198622375261039,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0.0014897068031132221,
+      0,
+      -0.0014897068031132221,
+      0.009136768989264965,
+      0,
+      0.01149907335639,
+      -0.0017548430478200316,
+      0.007556694094091654,
+      0.009108545258641243,
+      -0.007999999448657036,
+      0.12499036639928818,
+      0.12699027359485626,
+      0,
+      -0.0014324772637337446,
+      0,
+      0,
+      0,
+      -0.0014331386191770434,
+      0,
+      0,
+      0,
+      -0.001434077275916934,
+      0,
+      0,
+      0,
+      -0.0014332416467368603,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      -0.008470595814287663,
+      0,
+      0.008470595814287663,
+      0.009223218075931072,
+      0,
+      0.010930710472166538,
+      -0.0016830587992444634,
+      0.002178489463403821,
+      0.008505727164447308,
+      -0.007999999448657036,
+      0.12980887293815613,
+      0.1270543485879898,
+      0,
+      -0.0014329408295452595,
+      0,
+      0,
+      0,
+      -0.001433087745681405,
+      0,
+      0,
+      0,
+      -0.0014358882326632738,
+      0,
+      0,
+      0,
+      -0.0014333534054458141,
+      0,
+      0,
+      0.0011160707799717784,
+      0.0006870415527373552,
+      -0.0038624785374850035,
+      7.69253966081962e-11,
+      9.537330214470785e-08,
+      0,
+      -1.4732499664660281e-08,
+      1.0893900004305124e-08,
+      0.010967547073960304,
+      0.0005696640582755208,
+      -0.005137693602591753,
+      -0.010828100144863129,
+      0.05241920053958893,
+      0.010506000369787216,
+      0.0011466520372778177,
+      0.0010030537378042936,
+      0.003852611407637596,
+      -7.69253966081962e-11,
+      9.537330214470785e-08,
+      0,
+      -1.4732499664660281e-08,
+      -1.0893900004305124e-08,
+      0.010882245376706123,
+      0.00017045055574271828,
+      -0.005112773738801479,
+      -0.010828100144863129,
+      0.05241920053958893,
+      0.010506000369787216
+    ],
+    "initial_v": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "q": [
+      -0.04999968037009239,
+      0.20000147819519043,
+      1.9454089403152466,
+      -6.707517172799271e-07,
+      1.2213614297706954e-07,
+      -1.2640006730180176e-07,
+      1,
+      -0.006814323365688324,
+      -0.0010467956308275461,
+      -0.004914478398859501,
+      0,
+      0,
+      -0.004380928352475166,
+      -0.0012606498785316944,
+      -0.000189574682735838,
+      -0.00018566900689620525,
+      -0.0013901219936087728,
+      -0.0002567789633758366,
+      -0.00018566900689620525,
+      -0.0015741087263450027,
+      -0.00026180356508120894,
+      -0.000152889420860447,
+      -0.0017376524629071355,
+      -0.00019679756951518357,
+      -0.00014197928248904645,
+      -1.1179948907293936e-14,
+      4.7353088925049594e-15,
+      -4.7353088925049594e-15,
+      1.1179948907293936e-14,
+      -2.2637086805478e-15,
+      1.8294461540287188e-14,
+      8.223268596553764e-15,
+      -8.223268596553764e-15,
+      -1.8294461540287188e-14,
+      2.2637086805478e-15,
+      0.001489717047661543,
+      4.619813578454583e-14,
+      -0.001489717047661543,
+      0.009137185290455818,
+      -7.924103213874378e-12,
+      0.01149954367429018,
+      -0.0017546528251841664,
+      0.00755961611866951,
+      0.009107318706810474,
+      -0.007999328896403313,
+      0.12499036639928818,
+      0.12699027359485626,
+      2.5263361749239266e-06,
+      -0.0014332719147205353,
+      -2.868650109122406e-11,
+      1.0666654564554356e-14,
+      -5.073476638806085e-10,
+      -0.0014341359492391348,
+      -1.5835126265795196e-10,
+      -1.3960426781603474e-12,
+      1.3142215493644471e-06,
+      -0.001435601501725614,
+      5.690864668395079e-07,
+      -8.854036752901917e-13,
+      4.4789913999920827e-07,
+      -0.0014317462919279933,
+      -1.2966085670418348e-11,
+      -2.623200051274366e-13,
+      -3.808260130855334e-15,
+      1.613002723873996e-15,
+      -1.613002723873996e-15,
+      3.808260130855334e-15,
+      -7.710939553736698e-16,
+      6.231698049431614e-15,
+      2.8011169925045267e-15,
+      -2.8011169925045267e-15,
+      -6.231698049431614e-15,
+      7.710939553736698e-16,
+      -0.008470595814287663,
+      1.5736611774959386e-14,
+      0.008470595814287663,
+      0.009223218075931072,
+      1.8884010024103337e-14,
+      0.010930806398391724,
+      -0.0016824118793010712,
+      0.0021766505669802427,
+      0.00850492063909769,
+      -0.007999686524271965,
+      0.12980887293815613,
+      0.1270543485879898,
+      9.561217919826226e-13,
+      -0.0014335322193801403,
+      2.9893185908395903e-13,
+      -6.0693850119364345e-12,
+      9.610004849183729e-13,
+      -0.0014336947351694107,
+      3.0253620789122415e-13,
+      7.842526651488245e-16,
+      8.646144351587282e-07,
+      -0.001436864142306149,
+      2.983832132485986e-07,
+      2.298658689319611e-16,
+      8.263291562116137e-08,
+      -0.0014312315033748746,
+      3.200168401757894e-14,
+      -4.548531457250927e-16,
+      0.0011147396871820092,
+      0.0006869850330986083,
+      -0.0038647912442684174,
+      7.734881485310652e-11,
+      9.537352951838329e-08,
+      7.201331891915075e-11,
+      -1.4726803776454744e-08,
+      1.092050894158092e-08,
+      0.010968499816954136,
+      0.0005739956977777183,
+      -0.0051374551840126514,
+      -0.010828100144863129,
+      0.05241920053958893,
+      0.010506000369787216,
+      0.001145296380855143,
+      0.0010027423268184066,
+      0.0038511173333972692,
+      -7.69253966081962e-11,
+      9.537330214470785e-08,
+      8.685659475241582e-18,
+      -1.4732499664660281e-08,
+      -1.0893900004305124e-08,
+      0.010882722213864326,
+      0.000172514992300421,
+      -0.005112058483064175,
+      -0.010828100144863129,
+      0.05241920053958893,
+      0.010506000369787216
+    ],
+    "v": [
+      6.407305045286193e-05,
+      0.00040811364306136966,
+      -6.100245173001895e-06,
+      -0.0003617772017605603,
+      3.885060505126603e-05,
+      -8.428590808762237e-05,
+      -0.0003367670869920403,
+      7.8045908594504e-05,
+      7.86239979788661e-05,
+      0,
+      0,
+      -0.00021650755661539733,
+      -6.230191502254456e-05,
+      1.4134113371255808e-05,
+      2.9704146982112434e-06,
+      -6.870048673590645e-05,
+      1.9144661564496346e-05,
+      2.9704146982112434e-06,
+      -7.779320003464818e-05,
+      1.951928061316721e-05,
+      2.4459925498376833e-06,
+      -8.587560296291485e-05,
+      1.4672630641143769e-05,
+      2.2714473288942827e-06,
+      -1.851162235652626e-12,
+      7.840666050445977e-13,
+      -7.840666050445977e-13,
+      1.851162235652626e-12,
+      -3.748220809250691e-13,
+      3.0291745674315695e-12,
+      1.3615986593426554e-12,
+      -1.3615986593426554e-12,
+      -3.0291745674315695e-12,
+      3.748220809250691e-13,
+      5.6274784583365545e-06,
+      7.649430568135163e-12,
+      -5.6274784583365545e-06,
+      7.972550520207733e-05,
+      -1.2413688965651204e-09,
+      0.00014843732060398906,
+      2.634937482071109e-05,
+      0.0008420448866672814,
+      -0.00026507084839977324,
+      0.00019859620078932494,
+      0.00028358164126984775,
+      -0.0002102611615555361,
+      0.0007282947190105915,
+      -0.00020554558432195336,
+      -4.4866039772273325e-09,
+      2.1875916876579193e-12,
+      -7.939789270494657e-08,
+      -0.0002474998764228076,
+      -2.4783883390000483e-08,
+      -2.1585205844942834e-10,
+      0.0004085093969479203,
+      -0.0004177973314654082,
+      0.00019018985040020198,
+      -1.2948633831832979e-10,
+      0.0001595305948285386,
+      0.0004056205798406154,
+      -2.276202559770013e-09,
+      -8.163437981156818e-11,
+      -4.872175796491462e-13,
+      2.0636281312241822e-13,
+      -2.0636281312241822e-13,
+      4.872175796491462e-13,
+      -9.865148791182027e-14,
+      7.9726514019135e-13,
+      3.5836665666227896e-13,
+      -3.5836665666227896e-13,
+      -7.9726514019135e-13,
+      9.865148791182027e-14,
+      1.674847590038553e-05,
+      2.0132957800900186e-12,
+      -1.674847590038553e-05,
+      2.8936149192304583e-06,
+      -2.815501521161168e-12,
+      -1.4438571270147804e-05,
+      0.00015011028153821826,
+      -0.0005204984918236732,
+      -0.00015661415818613023,
+      8.379476639674976e-05,
+      6.699654477415606e-05,
+      -0.0001089319193852134,
+      1.0458449384298518e-10,
+      -0.0001294298708671704,
+      2.0473327894121596e-11,
+      -9.47436351594888e-10,
+      9.045434540277952e-11,
+      -0.00012716655328404158,
+      2.88607488602155e-11,
+      3.338724424966494e-13,
+      0.0002164447505492717,
+      -0.00022575128241442144,
+      9.121897892327979e-05,
+      -2.450602568093707e-11,
+      5.69356461710413e-06,
+      0.0006238615605980158,
+      -1.4370883649750255e-10,
+      -1.0507975045648266e-10,
+      -0.000341724487952888,
+      -2.2193111362867057e-05,
+      -0.0003303783305454999,
+      6.623816078965561e-11,
+      3.524753752759402e-11,
+      1.1265549382244444e-08,
+      8.911049120818859e-10,
+      4.1626093683078125e-09,
+      0.0001512485760031268,
+      0.0006934275152161717,
+      2.983963167935144e-05,
+      -5.495864319193799e-10,
+      -1.691950329840708e-10,
+      2.789518893653309e-10,
+      -0.00035398281761445105,
+      -3.559588731150143e-05,
+      -0.00026826359680853784,
+      -6.237061462053628e-16,
+      3.3189485201656343e-16,
+      1.0607770358720542e-13,
+      8.390746491983726e-15,
+      -3.919560598937728e-14,
+      7.781765452818945e-05,
+      0.00030321325175464153,
+      0.00011006369459209964,
+      -5.174968967073829e-15,
+      -1.5931598124142615e-15,
+      2.6266430284467178e-15
+    ]
+  },
+  "metrics": {
+    "myosim_articulated_mechanics": "ok",
+    "rendering_performed": "false",
+    "visual_coverage_qualified": "false",
+    "metal_pose_device": "Apple M4 Pro",
+    "renderer_device": "not_requested",
+    "frame_dimension": "0",
+    "renderer_profile": "disabled",
+    "renderer_temporal_samples": "0",
+    "renderer_area_light_samples": "0",
+    "core_bodies": "157",
+    "prepared_link_visuals": "96",
+    "rendered_link_visuals": "0",
+    "bodyparts_bones": "0",
+    "requested_bone_bodies": "0",
+    "requested_bone_stable_ids": "0",
+    "bodyparts_soft_tissues": "0",
+    "requested_soft_tissue_surfaces": "0",
+    "soft_tissue_binding": "none",
+    "bodyparts_tendon_attachment_collars": "0",
+    "bodyparts_tendon_attachment_envelopes": "0",
+    "bodyparts_skin_shells": "0",
+    "bodyparts_torso_anatomy_surfaces": "0",
+    "torso_anatomy_binding": "none",
+    "passive_fem_tissues": "0",
+    "pectoralis_fascia_bodies": "0",
+    "open_knee_regions": "0",
+    "open_knee_bone_visual_owner": "none",
+    "open_knee_accepted_tissue_fem_regions": "0",
+    "open_knee_accepted_tissue_fem_nodes": "0",
+    "open_knee_accepted_tissue_fem_max_displacement_m": "0",
+    "open_knee_live_tissue_fem": "none",
+    "open_knee_quadriceps_endpoint_count": "0",
+    "open_knee_quadriceps_owner_fraction": "0",
+    "open_knee_qat_load_nodes": "0",
+    "open_knee_qat_load_patch_area_m2": "0",
+    "open_knee_quadriceps_force_l1_n": "0",
+    "open_knee_quadriceps_force_resultant_n": "0",
+    "open_knee_quadriceps_enthesis_reaction_resultant_n": "0",
+    "open_knee_ptl_force_l1_n": "0",
+    "open_knee_ptl_force_resultant_n": "0",
+    "open_knee_ptl_patella_reaction_resultant_n": "0",
+    "open_knee_ptl_tibia_reaction_resultant_n": "0",
+    "open_knee_ptl_patella_load_nodes": "0",
+    "open_knee_ptl_tibia_load_nodes": "0",
+    "open_knee_assembled_external_force_l1_n": "0",
+    "open_knee_assembled_external_force_resultant_n": "0",
+    "open_knee_articular_pairs": "0",
+    "open_knee_articular_samples": "0",
+    "open_knee_articular_mechanical_samples": "0",
+    "open_knee_articular_internal_same_body_samples": "0",
+    "open_knee_articular_closed_samples": "0",
+    "open_knee_articular_contact_area_m2": "0",
+    "open_knee_articular_normal_force_n": "0",
+    "open_knee_articular_max_pressure_pa": "0",
+    "open_knee_articular_body_force_l1_n": "0",
+    "open_knee_articular_force_residual_n": "0",
+    "open_knee_articular_moment_residual_nm": "0",
+    "open_knee_articular_stored_energy_j": "0",
+    "open_knee_articular_max_normal_strain": "0",
+    "open_knee_articular_max_closure_m": "0",
+    "open_knee_articular_audited_steps": "0",
+    "open_knee_articular_trajectory_min_closed_samples": "0",
+    "open_knee_articular_trajectory_max_closed_samples": "0",
+    "open_knee_articular_trajectory_min_normal_force_n": "0",
+    "open_knee_articular_trajectory_max_normal_force_n": "0",
+    "open_knee_articular_trajectory_max_pressure_pa": "0",
+    "open_knee_articular_trajectory_max_stored_energy_j": "0",
+    "open_knee_articular_trajectory_max_normal_strain": "0",
+    "open_knee_articular_trajectory_max_closure_m": "0",
+    "open_knee_articular_trajectory_max_force_residual_n": "0",
+    "open_knee_articular_trajectory_max_moment_residual_nm": "0",
+    "open_knee_passive_ligament_count": "0",
+    "open_knee_passive_ligament_latest_transaction_accepted": "0",
+    "open_knee_passive_ligament_endpoint_force_l1_n": "0",
+    "open_knee_passive_ligament_max_tension_n": "0",
+    "open_knee_passive_ligament_min_effective_stretch": "0",
+    "open_knee_passive_ligament_max_effective_stretch": "0",
+    "open_knee_passive_ligament_force_residual_n": "0",
+    "open_knee_passive_ligament_moment_residual_nm": "0",
+    "open_knee_tissue_fem_qualification_flexion_rad": "0",
+    "open_knee_initial_continuum_map_max_displacement_m": "0",
+    "open_knee_initial_continuum_map_anchor_residual_m": "0",
+    "open_knee_initial_continuum_map_min_J": "1",
+    "open_knee_initial_continuum_map_max_J": "1",
+    "open_knee_projected_rest_visual_correction_max_m": "0",
+    "open_knee_projected_rest_reconstruction_max_residual_m": "0",
+    "open_knee_tissue_fem_min_J": "1",
+    "open_knee_tissue_fem_max_J": "1",
+    "open_knee_tissue_fem_femur_reaction_l1_n": "0",
+    "open_knee_tissue_fem_tibia_reaction_l1_n": "0",
+    "open_knee_tissue_fem_patella_reaction_l1_n": "0",
+    "open_knee_tissue_fem_tibia_anchor_target_max_residual_m": "0",
+    "open_knee_tissue_fem_patella_anchor_target_max_residual_m": "0",
+    "visual_supplement": "none",
+    "skin_shell_binding": "none",
+    "muscle_sites": "1815",
+    "route_centerline_segments": "0",
+    "source_route_centrelines": "false",
+    "source_route_muscles": "0",
+    "extensor_hood_solved_segments": "0",
+    "source_route_applied_wraps": "0",
+    "source_route_surface_projected_sites": "0",
+    "focus_body_index": "none",
+    "focus_joint_child_body_index": "none",
+    "camera_framing": "exact_rendered_source_geometry_bounds",
+    "camera_joint_anchor_residual_m": "0",
+    "camera_source_extent_m": "1.71179652214",
+    "camera_distance_m": "1.57485282421",
+    "pose_stage_elapsed_ms": "2.740625",
+    "renderer_compile_ms_first_camera": "0",
+    "pose_source": "persistent_metal_current_pose_all_416_mujoco_routes_activation_gravity_large_state_dynamics_and_source_foot_support",
+    "pose_q_override_count": "0",
+    "muscle_step_seconds": "1.25e-05",
+    "muscle_step_count": "512",
+    "muscle_activation": "0.8",
+    "muscle_activation_scope": "all_source_muscles",
+    "muscle_control_mode": "compiled_persistent_stand",
+    "muscle_selected_source_activation_count": "0",
+    "selected_control_baseline": "not_requested",
+    "selected_control_baseline_max_q_delta": "0",
+    "selected_control_baseline_max_q_delta_index": "4294967295",
+    "selected_control_baseline_max_v_delta": "0",
+    "selected_control_baseline_max_v_delta_index": "4294967295",
+    "selected_control_baseline_elapsed_ms": "0",
+    "muscle_passive_baseline": "nhmyo2_damped_fiber_tendon_equilibrium",
+    "persistent_metal_horizon": "true",
+    "persistent_contact_iteration_count": "64",
+    "persistent_passive_joint_law": "current_state_linear_backward_euler",
+    "persistent_source_passive_joint_tissue": "true",
+    "persistent_runtime_passive_joint_tissue": "true",
+    "persistent_passive_coordinate_couplings": "40",
+    "persistent_passive_coordinate_force_max_n": "0.00998843992133",
+    "persistent_completed_steps": "512",
+    "tendon_step_transaction": "NHTENDON3",
+    "tendon_borrowed_consumer": "same_command_buffer_exact_snapshot",
+    "tendon_rollback": "consumer_rejection_preserved_result",
+    "tendon_rigid_state_effect": "transfer_only_bitwise_identical_no_direct_joint_torque",
+    "tendon_continuum_max_q_delta_from_source_JT": "0",
+    "tendon_continuum_max_v_delta_from_source_JT": "0",
+    "tendon_step_transfers": "425984",
+    "tendon_step_envelope_transfers": "328192",
+    "tendon_step_point_fallbacks": "97792",
+    "tendon_step_max_force_residual_n": "8.66532645887e-05",
+    "tendon_step_max_moment_residual_nm": "2.03792114917e-06",
+    "tendon_step_max_generalized_correction": "0.00067138671875",
+    "persistent_root_assistance": "none",
+    "persistent_assistance_removal": "not_evaluated",
+    "source_constraint_preload": "none",
+    "source_constraint_preload_max_n": "0",
+    "persistent_max_acceleration": "29.4365787506",
+    "persistent_max_acceleration_semantics": "pre_projection_total_delta_v_divided_by_timestep",
+    "persistent_max_free_acceleration": "10076.359375",
+    "persistent_max_free_acceleration_dof": "112",
+    "persistent_max_constraint_delta_v": "0.12595449388",
+    "persistent_max_constraint_delta_v_dof": "112",
+    "persistent_max_pre_projection_delta_v": "0.000367957225535",
+    "persistent_max_pre_projection_delta_v_dof": "109",
+    "persistent_max_published_delta_v": "0.000367957225535",
+    "persistent_max_published_delta_v_dof": "109",
+    "persistent_max_penetration_m": "7.34674117098e-08",
+    "persistent_normal_impulse": "0.011909974739",
+    "persistent_source_limit_absolute_impulse_ns_or_nms": "7.86740398407",
+    "persistent_stand_status_non_cumulative_hex": "000000000000000000020000ffffffff0600000006000000400000002d00000023c59db323c59d330e22433c1d7eeb4195b8243c59b01d4100000000000000000080060000020500007e0100000000009eb9b53838c308360000303af5335d443300000033000000000000006d00000000000030d042352e7868f83c00000000000000300000000001007a340000000095a72734ddc3aa335c00fa365c00fa3695a72734ddc3aa3300d5ff2c95a727341a736e3b12203c3a0c090a3c0000000005000000070000007100000026000000000000000000000000000000000000000000000000000000000000000000000070711d4637fa003e62eac03962eac03970000000700000006d0000006d000000",
+    "persistent_max_root_assistance_force_n": "0",
+    "persistent_max_root_assistance_torque_nm": "0",
+    "compiled_stand_active_muscles": "272",
+    "compiled_stand_recruited_muscles": "416",
+    "compiled_stand_active_limits": "25",
+    "compiled_stand_active_structural_locks": "0",
+    "compiled_stand_active_finite_range_limits": "25",
+    "compiled_stand_pose_steps": "24",
+    "compiled_stand_normalized_residual_rms": "0.0393735097818",
+    "compiled_stand_initial_normalized_residual_rms": "0.728012324212",
+    "compiled_stand_max_acceleration_residual": "0.155408702676",
+    "compiled_stand_support_contacts": "10",
+    "compiled_stand_active_support_contacts": "6",
+    "compiled_stand_total_support_force_n": "952.864475293",
+    "compiled_stand_max_root_force_residual": "1.74466697445e-06",
+    "compiled_stand_max_root_acceleration_residual": "0.0541573834676",
+    "compiled_stand_max_velocity_increment": "1.94260878345e-06",
+    "compiled_stand_balanced": "true",
+    "compiled_stand_max_activation": "0.8",
+    "initial_fiber_equilibration_iterations": "1",
+    "initial_fiber_equilibration_max_length_delta_m": "5.96046447754e-08",
+    "initial_fiber_equilibration_max_velocity_mps": "0.000555392063688",
+    "compiled_stand_max_equality_reaction": "2403.63000592",
+    "compiled_stand_max_limit_reaction": "563.34106368",
+    "compiled_stand_max_structural_lock_reaction": "0",
+    "compiled_stand_max_structural_lock_reaction_dof": "4294967295",
+    "compiled_stand_max_finite_range_limit_reaction": "563.34106368",
+    "compiled_stand_max_finite_range_limit_reaction_dof": "113",
+    "stand_joint_equalities": "51",
+    "stand_max_equality_position_error": "4.65661287308e-10",
+    "stand_max_equality_velocity_error": "4.12139766759e-11",
+    "stand_max_equality_impulse": "0.0303232520819",
+    "stand_total_equality_impulse": "51.6710700989",
+    "stand_max_equality_position_projection_m_or_rad": "4.65661287308e-10",
+    "stand_total_equality_position_projection_m_or_rad": "1.53363203026e-07",
+    "stand_max_equality_velocity_projection_m_s_or_rad_s": "2.32830657865e-07",
+    "stand_total_equality_velocity_projection_m_s_or_rad_s": "4.77756202599e-07",
+    "assisted_configuration_delta": "4.3316395022e-06",
+    "removal_configuration_delta": "0",
+    "stand_one_step_max_q_error": "3.82086442485e-08",
+    "stand_one_step_max_v_error": "5.62745957854e-05",
+    "stand_deterministic_replay": "bitwise",
+    "stand_replay_elapsed_ms": "261607.970707",
+    "muscle_step_applied_wraps": "88",
+    "muscle_force_metal_device": "Apple M4 Pro",
+    "muscle_force_metal_transactions": "1",
+    "muscle_force_metal_active_records": "212992",
+    "muscle_force_metal_elapsed_ms": "261633.377622",
+    "source_dynamic_force_parity_max_delta_n": "0.162544645179",
+    "source_dynamic_force_parity_max_delta_v_mixed_units": "5.51099852585e-05",
+    "source_dynamic_force_parity_max_delta_acceleration_mixed_units": "4.40879882068",
+    "source_dynamic_force_parity_max_delta_dof": "21",
+    "source_dynamic_force_parity_acceleration_semantics": "unconstrained_same_operator_compiled_vs_metal_muscle_force",
+    "persistent_dynamic_force_residual_max_n": "0.372853462949",
+    "persistent_stand_trace": "not_requested",
+    "persistent_stand_trace_endpoint": "not_requested",
+    "persistent_stand_trace_endpoint_max_q_delta": "0",
+    "persistent_stand_trace_endpoint_max_v_delta": "0",
+    "persistent_stand_trace_muscle_virtual_work_j": "0",
+    "persistent_stand_trace_preload_virtual_work_j": "0",
+    "persistent_stand_trace_support_virtual_work_j": "0",
+    "persistent_contact_normal_impulse_work_j": "-0.00047588389134",
+    "persistent_contact_tangential_impulse_work_j": "-0.000104088001535",
+    "persistent_equality_impulse_work_j": "-0.346789032221",
+    "persistent_source_limit_impulse_work_j": "-7.76130982558e-05",
+    "persistent_contact_normal_absolute_impulse_work_j": "0.0640592798591",
+    "persistent_contact_tangential_absolute_impulse_work_j": "0.000104088001535",
+    "persistent_equality_absolute_impulse_work_j": "0.346789032221",
+    "persistent_source_limit_absolute_impulse_work_j": "7.76423694333e-05",
+    "source_support_force_parity_max_delta_n": "0",
+    "source_support_force_parity_max_delta_dof": "4294967295",
+    "passive_fem_tissue_stable_id": "none",
+    "passive_fem_tetrahedra": "0",
+    "passive_fem_steps": "0",
+    "passive_fem_fgmres_iterations": "0",
+    "passive_fem_anchor_displacement_m": "0",
+    "passive_fem_free_displacement_m": "0",
+    "passive_fem_minimum_J": "0",
+    "passive_fem_gpu_elapsed_ms": "0",
+    "passive_fem_device": "none",
+    "anterior_thorax_nodes": "0",
+    "anterior_thorax_tetrahedra": "0",
+    "anterior_thorax_attachments": "0",
+    "anterior_thorax_fixed_nodes": "0",
+    "anterior_thorax_loaded_nodes": "0",
+    "anterior_thorax_owner_fraction": "0",
+    "anterior_thorax_applied_force_l1_n": "0",
+    "anterior_thorax_anchor_reaction_l1_n": "0",
+    "anterior_thorax_anchor_reaction_resultant_n": "0",
+    "anterior_thorax_anchor_reaction_max_node_n": "0",
+    "anterior_thorax_steps": "0",
+    "anterior_thorax_fgmres_iterations": "0",
+    "anterior_thorax_max_displacement_m": "0",
+    "anterior_thorax_minimum_J": "0",
+    "anterior_thorax_replay": "none",
+    "anterior_thorax_rollback": "none",
+    "anterior_thorax_coupled_transaction_elapsed_ms": "0",
+    "anterior_thorax_device": "none",
+    "pectoralis_fascia_nodes": "0",
+    "pectoralis_fascia_tetrahedra": "0",
+    "pectoralis_fascia_anatomical_vertices": "0",
+    "pectoralis_fascia_anatomical_triangles": "0",
+    "pectoralis_fascia_mapping_max_distance_m": "0",
+    "pectoralis_fascia_mapping_rms_distance_m": "0",
+    "pectoralis_fascia_deformed_anatomical_vertices": "0",
+    "pectoralis_fascia_mapping_max_applied_distance_m": "0",
+    "pectoralis_fascia_fixed_nodes": "0",
+    "pectoralis_fascia_load_nodes": "0",
+    "pectoralis_fascia_load_fraction": "0",
+    "pectoralis_fascia_applied_force_n": "0",
+    "pectoralis_fascia_anchor_reaction_resultant_n": "0",
+    "pectoralis_fascia_anchor_reaction_l1_n": "0",
+    "pectoralis_fascia_anchor_reaction_min_l1_n": "0",
+    "pectoralis_fascia_anchor_reaction_audited_steps": "0",
+    "pectoralis_fascia_anchor_reaction_max_node_n": "0",
+    "pectoralis_fascia_directional_regions": "0",
+    "pectoralis_fascia_directional_material_objects": "0",
+    "pectoralis_fascia_directional_pectoral_regions": "0",
+    "pectoralis_fascia_directional_thoracolumbar_regions": "0",
+    "pectoralis_fascia_directional_external_oblique_regions": "0",
+    "pectoralis_fascia_directional_internal_oblique_regions": "0",
+    "pectoralis_fascia_min_fibre_terminal_alignment": "0",
+    "pectoralis_fascia_min_fibre_sheet_alignment": "0",
+    "pectoralis_fascia_min_fibre_group_alignment": "0",
+    "pectoralis_fascia_gliding_contact_samples": "0",
+    "pectoralis_fascia_gliding_contact_closed_samples": "0",
+    "pectoralis_fascia_gliding_contact_audited_steps": "0",
+    "pectoralis_fascia_gliding_contact_area_m2": "0",
+    "pectoralis_fascia_gliding_contact_max_normal_force_n": "0",
+    "pectoralis_fascia_gliding_contact_min_normal_force_n": "0",
+    "pectoralis_fascia_gliding_contact_max_pressure_pa": "0",
+    "pectoralis_fascia_gliding_contact_stored_energy_j": "0",
+    "pectoralis_fascia_gliding_contact_max_normal_strain": "0",
+    "pectoralis_fascia_gliding_contact_max_closure_m": "0",
+    "pectoralis_fascia_gliding_contact_max_tangent_glide_m": "0",
+    "pectoralis_fascia_gliding_contact_force_residual_n": "0",
+    "pectoralis_fascia_gliding_contact_moment_residual_nm": "0",
+    "pectoralis_fascia_steps": "0",
+    "pectoralis_fascia_fgmres_iterations": "0",
+    "pectoralis_fascia_max_displacement_m": "0",
+    "pectoralis_fascia_minimum_J": "0",
+    "pectoralis_fascia_replay": "none",
+    "pectoralis_fascia_rollback": "none",
+    "pectoralis_fascia_coupled_transaction_elapsed_ms": "0",
+    "pectoralis_fascia_device": "none",
+    "muscle_step_max_velocity_delta": "0.000842044886667",
+    "muscle_step_max_velocity_delta_dof": "41",
+    "muscle_step_max_configuration_delta": "4.3316395022e-06",
+    "muscle_step_max_configuration_delta_q": "110",
+    "compiled_ankle_r": "0.0109675473261",
+    "compiled_subtalar_r": "0.000569664082993",
+    "compiled_mtp_r": "-0.00513769377708",
+    "compiled_ankle_l": "0.0108822456282",
+    "compiled_subtalar_l": "0.000170450559239",
+    "compiled_mtp_l": "-0.00511277391447",
+    "final_ankle_r": "0.010968499817",
+    "final_subtalar_r": "0.000573995697778",
+    "final_mtp_r": "-0.00513745518401",
+    "final_ankle_l": "0.0108827222139",
+    "final_subtalar_l": "0.0001725149923",
+    "final_mtp_l": "-0.00511205848306",
+    "source_support_contact": "true",
+    "source_support_witnesses": "10",
+    "source_support_active_contacts": "6",
+    "source_support_max_active_contacts": "6",
+    "source_support_min_plane_gap_m": "-7.34674117098e-08",
+    "source_support_seed_translation_m": "0.0531754574561",
+    "source_support_metal_device": "Apple M4 Pro",
+    "source_support_metal_status": "persistent_large_state_metal",
+    "source_support_metal_elapsed_ms": "261633.377622",
+    "source_support_max_gpu_cpu_velocity_error": "0",
+    "boundary": "bounded_persistent_apple_metal_all_416_source_routes_with_inferred_positive_fiber_tendon_architecture_damped_backward_euler_equilibrium_explicit_NHTENDON3_force_transfer_large_state_mass_gravity_low_velocity_bias_and_source_foot_support_not_anatomically_calibrated_pennation_exact_jdot_rnea_joint_limit_general_collision_or_closed_loop_standing_qualification",
+    "route_geometry": "hidden_until_a_source_route_centreline_inspection_is_requested"
+  },
+  "stdout_sha256": "19d3ef95dfa6d9230900d4884319fece64703a7ea4c3e5d0f7802cae0c88ef15",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_tail": [],
+  "native_commit": "61c14e0a72a8a3a31a4250020c17c68ae5566020",
+  "source_provenance": {
+    "native_commit": "61c14e0a72a8a3a31a4250020c17c68ae5566020",
+    "native_tree": "d0fa293c521bf999cfc35884a388b332676fae2b",
+    "target_shader_path": "src/metal/NumiHumanStand.metal",
+    "target_shader_sha256": "93ce40a8a0d7c6c6e3269c1b8e33dd1e02372f2d2e93856c6e4ae48469ac7532",
+    "target_shader_head_sha256": "2a33f080920bc0b26fb1528d13f0fc969b5815e7ee82b9352d740063df9f1678",
+    "target_shader_head_relative_patch_sha256": "4412f56cd495abe65fe7d0136712efe100687cf79f220f07ab636d4980cd90c5",
+    "target_shader_head_relative_patch_empty": false,
+    "head_non_driver_non_target_manifest_sha256": "4e875e394726d507d31e80fdc2042be94b52e370544e12b7a25dc8b271eff770",
+    "staged_changed_paths": [
+      "apps/numilab_human_myosim_visual_probe.mm"
+    ],
+    "unstaged_changed_paths": [
+      "src/metal/NumiHumanStand.metal"
+    ],
+    "source_untracked_paths": [],
+    "excluded_execution_untracked_paths": [],
+    "diagnostic_driver_is_only_staged_change": true,
+    "only_allowlisted_shader_is_unstaged": true,
+    "source_clean_except_diagnostic_driver_and_target_shader": true,
+    "sha256": "a032c3c20810d5ff439d6ce32f811ea381f08b0f0b077cfe456bbdbc12532f20"
+  },
+  "source_provenance_sha256": "a032c3c20810d5ff439d6ce32f811ea381f08b0f0b077cfe456bbdbc12532f20",
+  "input_commit": "f53c2e1053bc90e7ec44fd69a5b49f96b71b71ab",
+  "binary_sha256": "57a4bc2ffd05f88f99469286868bd30f69346c5d79735f18c1e17e86d1878452",
+  "metallib_sha256": {
+    "matter": "6397674c0463683e182c41dc110944847c82a0832848ead4310bbe3e305033fc",
+    "metalrobo": "e0156b2dbcacea0a39653dee75722b9ade4e04e822e0184d10592f3bd6b8a093"
+  },
+  "cmake_cache_sha256": "8b877ed83e9da4b79aabe41e5491c919229c705abe0349bbd73dc36c4fa10133",
+  "normalized_build_configuration": {
+    "cmake_cache": {
+      "BUILD_TESTING": "OFF",
+      "CMAKE_BUILD_TYPE": "Release",
+      "CMAKE_COMMAND": "/opt/homebrew/bin/cmake",
+      "CMAKE_CXX_COMPILER": "/usr/bin/c++",
+      "CMAKE_CXX_FLAGS": "",
+      "CMAKE_CXX_FLAGS_DEBUG": "-g",
+      "CMAKE_CXX_FLAGS_MINSIZEREL": "-Os -DNDEBUG",
+      "CMAKE_CXX_FLAGS_RELEASE": "-O3 -DNDEBUG",
+      "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "-O2 -g -DNDEBUG",
+      "CMAKE_GENERATOR": "Ninja",
+      "CMAKE_GENERATOR_PLATFORM": "",
+      "CMAKE_GENERATOR_TOOLSET": "",
+      "CMAKE_MAKE_PROGRAM": "/opt/homebrew/bin/ninja",
+      "CMAKE_OSX_ARCHITECTURES": "",
+      "CMAKE_OSX_DEPLOYMENT_TARGET": "",
+      "CMAKE_OSX_SYSROOT": ""
+    },
+    "configuration": "Release",
+    "generator": "Ninja",
+    "sha256": "746926fc5a407b7a2ab6ebe257269268512e6273a12ec0bd32b59baa1e64690d"
+  },
+  "normalized_build_configuration_sha256": "746926fc5a407b7a2ab6ebe257269268512e6273a12ec0bd32b59baa1e64690d",
+  "toolchain_receipt": {
+    "cmake": "cmake version 4.4.1\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode-26.6.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+    "executables": {
+      "cmake": "/opt/homebrew/Cellar/cmake/4.4.1/bin/cmake",
+      "compiler": "/usr/bin/c++",
+      "ninja": "/opt/homebrew/Cellar/ninja/1.13.2/bin/ninja"
+    },
+    "metal": "Apple metal version 32023.883 (metalfe-32023.883)\nTarget: air64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /private/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.XhhgAx/Metal.xctoolchain/usr/metal/current/bin",
+    "macos_sdk_version": "26.5",
+    "ninja": "1.13.2",
+    "xcode": "Xcode 26.6\nBuild version 17F113",
+    "sha256": "0f0c2748aed5585a1b42c1ae0f1ba703a40b9544813f7a57d34115d7921eed7a"
+  },
+  "toolchain_receipt_sha256": "0f0c2748aed5585a1b42c1ae0f1ba703a40b9544813f7a57d34115d7921eed7a",
+  "physical_machine_receipt": {
+    "architecture": "arm64",
+    "chip": "Apple M4 Pro",
+    "machine_identity_sha256": "dedf8c6a84734c3ddeea7d687877352f8ab55641d7d70f17b23f051e60dd9c5a",
+    "machine_model": "Mac16,11",
+    "machine_name": "Mac mini",
+    "memory": "24 GB",
+    "os_build": "25G72",
+    "os_version": "26.6",
+    "sha256": "5ad2b8017e76f37668214d653119b5e55ba8793bd2af90079d8f62f502a0bad7"
+  },
+  "physical_machine_receipt_sha256": "5ad2b8017e76f37668214d653119b5e55ba8793bd2af90079d8f62f502a0bad7",
+  "shader_build_binding": {
+    "build_graph_available": true,
+    "metalrobo_metallib_sha256": "e0156b2dbcacea0a39653dee75722b9ade4e04e822e0184d10592f3bd6b8a093",
+    "target_shader_sha256": "93ce40a8a0d7c6c6e3269c1b8e33dd1e02372f2d2e93856c6e4ae48469ac7532",
+    "metallib_target": "shaders/MetalRobo.metallib",
+    "forced_clean_completed": true,
+    "forced_rebuild_completed": true,
+    "forced_rebuild_output_sha256": "312d8534477ebb951d3604e28d0425bce31877a845a5982ca2f8917f4699bb28",
+    "normalized_commands": [
+      "cd <BUILD_ROOT> && /opt/homebrew/bin/cmake -E make_directory <BUILD_ROOT>/shaders && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/FunctionBasedDenseDynamics.metal -o <BUILD_ROOT>/shaders/MetalRoboFunctionBasedDenseDynamics.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/NumiHumanStand.metal -o <BUILD_ROOT>/shaders/MetalRoboNumiHumanStand.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/NumiHumanTendonTransfer.metal -o <BUILD_ROOT>/shaders/MetalRoboNumiHumanTendonTransfer.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/NumiHumanTendonTransferCompensated.metal -o <BUILD_ROOT>/shaders/MetalRoboNumiHumanTendonTransferCompensated.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/NumiHumanExtensorHood.metal -o <BUILD_ROOT>/shaders/MetalRoboNumiHumanExtensorHood.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/NumiHumanExtensorHoodCompensated.metal -o <BUILD_ROOT>/shaders/MetalRoboNumiHumanExtensorHoodCompensated.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/ConstraintSolver.metal -o <BUILD_ROOT>/shaders/MetalRoboConstraintSolver.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/MetalQualityContactSolver.metal -o <BUILD_ROOT>/shaders/MetalRoboQualityContactSolver.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/MetalUnifiedQualitySolver.metal -o <BUILD_ROOT>/shaders/MetalRoboUnifiedQualitySolver.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/FreeBodyDynamics.metal -o <BUILD_ROOT>/shaders/MetalRoboFreeBodyDynamics.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/MulticopterDynamics.metal -o <BUILD_ROOT>/shaders/MetalRoboMulticopterDynamics.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/Collision.metal -o <BUILD_ROOT>/shaders/MetalRoboCollision.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/DeterministicBroadphase.metal -o <BUILD_ROOT>/shaders/MetalRoboDeterministicBroadphase.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/ArticulatedOperator.metal -o <BUILD_ROOT>/shaders/MetalRoboArticulatedOperator.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/ArticulatedOperatorCompensated.metal -o <BUILD_ROOT>/shaders/MetalRoboArticulatedOperatorCompensated.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/CompensatedTranslationCheck.metal -o <BUILD_ROOT>/shaders/MetalRoboCompensatedTranslationCheck.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/HumanBehavior.metal -o <BUILD_ROOT>/shaders/MetalRoboHumanBehavior.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/MillardMuscleReference.metal -o <BUILD_ROOT>/shaders/MetalRoboMillardMuscleReference.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/MujocoMuscleReference.metal -o <BUILD_ROOT>/shaders/MetalRoboMujocoMuscleReference.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/MujocoMuscleReferenceCompensated.metal -o <BUILD_ROOT>/shaders/MetalRoboMujocoMuscleReferenceCompensated.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/NumanXHumanIO.metal -o <BUILD_ROOT>/shaders/MetalRoboNumanXHumanIO.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/NumanXCoupledHuman.metal -o <BUILD_ROOT>/shaders/MetalRoboNumanXCoupledHuman.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -I <REPOSITORY_ROOT>/matter/include -c <REPOSITORY_ROOT>/src/metal/NumanXHumanMatter.metal -o <BUILD_ROOT>/shaders/MetalRoboNumanXHumanMatter.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/NumanXHumanMatterOwner.metal -o <BUILD_ROOT>/shaders/MetalRoboNumanXHumanMatterOwner.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -DMR_ARTICULATED_OPERATOR_KERNEL_NAME=mr_parameterized_articulated_operator -DMR_ARTICULATED_OPERATOR_BODY_PARAMETERS=1 -c <REPOSITORY_ROOT>/src/metal/ArticulatedOperator.metal -o <BUILD_ROOT>/shaders/MetalRoboParameterizedArticulatedOperator.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/ArticulatedABA.metal -o <BUILD_ROOT>/shaders/MetalRoboArticulatedABA.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -DMR_ABA_KERNEL_NAME=mr_parameterized_articulated_aba_step -DMR_ABA_BODY_PARAMETERS=1 -c <REPOSITORY_ROOT>/src/metal/ArticulatedABA.metal -o <BUILD_ROOT>/shaders/MetalRoboParameterizedArticulatedABA.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -DMR_ABA_KERNEL_NAME=mr_articulated_aba_step_small -DMR_ABA_COMPILED_MAX_BODIES=12 -DMR_ABA_COMPILED_MAX_DOFS=16 -DMR_ABA_COMPILED_MAX_Q=17 -c <REPOSITORY_ROOT>/src/metal/ArticulatedABA.metal -o <BUILD_ROOT>/shaders/MetalRoboArticulatedABASmall.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -DMR_ABA_KERNEL_NAME=mr_multi_articulated_aba_step -DMR_ABA_MULTI_ARTICULATION=1 -c <REPOSITORY_ROOT>/src/metal/ArticulatedABA.metal -o <BUILD_ROOT>/shaders/MetalRoboMultiArticulatedABA.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/ArticulatedParallelABA.metal -o <BUILD_ROOT>/shaders/MetalRoboParallelArticulatedABA.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -DMR_PARALLEL_ABA_KERNEL_NAME=mr_parallel_parameterized_articulated_aba_step -DMR_ABA_BODY_PARAMETERS=1 -c <REPOSITORY_ROOT>/src/metal/ArticulatedParallelABA.metal -o <BUILD_ROOT>/shaders/MetalRoboParallelParameterizedArticulatedABA.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -DMR_PARALLEL_ABA_KERNEL_NAME=mr_parallel_articulated_aba_step_small -DMR_ABA_COMPILED_MAX_BODIES=12 -DMR_ABA_COMPILED_MAX_DOFS=16 -DMR_ABA_COMPILED_MAX_Q=17 -c <REPOSITORY_ROOT>/src/metal/ArticulatedParallelABA.metal -o <BUILD_ROOT>/shaders/MetalRoboParallelArticulatedABASmall.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -DMR_PARALLEL_ABA_KERNEL_NAME=mr_parallel_multi_articulated_aba_step -DMR_ABA_MULTI_ARTICULATION=1 -c <REPOSITORY_ROOT>/src/metal/ArticulatedParallelABA.metal -o <BUILD_ROOT>/shaders/MetalRoboParallelMultiArticulatedABA.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/DiscreteElasticRod.metal -o <BUILD_ROOT>/shaders/MetalRoboDiscreteElasticRod.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/MetalGeneralizedConstraints.metal -o <BUILD_ROOT>/shaders/MetalRoboGeneralizedConstraints.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/MetalMultiArticulatedContact.metal -o <BUILD_ROOT>/shaders/MetalRoboMultiArticulatedContact.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/ArticulatedInverseMass.metal -o <BUILD_ROOT>/shaders/MetalRoboArticulatedInverseMass.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/OpenSimSpatialTransform.metal -o <BUILD_ROOT>/shaders/MetalRoboOpenSimSpatialTransform.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -DMR_INVERSE_MASS_KERNEL_NAME=mr_multi_articulated_inverse_mass -DMR_INVERSE_MASS_MULTI_ARTICULATION=1 -c <REPOSITORY_ROOT>/src/metal/ArticulatedInverseMass.metal -o <BUILD_ROOT>/shaders/MetalRoboMultiArticulatedInverseMass.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -DMR_INVERSE_MASS_KERNEL_NAME=mr_parameterized_multi_articulated_inverse_mass -DMR_PARALLEL_INVERSE_MASS_KERNEL_NAME=mr_parameterized_parallel_multi_articulated_inverse_mass -DMR_INVERSE_MASS_MULTI_ARTICULATION=1 -DMR_INVERSE_MASS_BODY_PARAMETERS=1 -c <REPOSITORY_ROOT>/src/metal/ArticulatedInverseMass.metal -o <BUILD_ROOT>/shaders/MetalRoboParameterizedMultiArticulatedInverseMass.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -DMR_INVERSE_MASS_KERNEL_NAME=mr_world_streaming_articulated_inverse_mass -DMR_PARALLEL_INVERSE_MASS_KERNEL_NAME=mr_world_parallel_streaming_articulated_inverse_mass -DMR_INVERSE_MASS_BODY_PARAMETERS=1 -DMR_INVERSE_MASS_STREAMING_RHS=1 -DMR_PARALLEL_INVERSE_MASS_STREAMING_RHS=1 -c <REPOSITORY_ROOT>/src/metal/ArticulatedInverseMass.metal -o <BUILD_ROOT>/shaders/MetalRoboStreamingArticulatedInverseMass.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/MetalWorld.metal -o <BUILD_ROOT>/shaders/MetalRoboWorld.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/MetalWorldContact.metal -o <BUILD_ROOT>/shaders/MetalRoboWorldContact.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/WorldCompiler.metal -o <BUILD_ROOT>/shaders/MetalRoboWorldCompiler.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/LocomotionTask.metal -o <BUILD_ROOT>/shaders/MetalRoboLocomotionTask.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/PolicyInference.metal -o <BUILD_ROOT>/shaders/MetalRoboPolicyInference.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -I <REPOSITORY_ROOT>/src/metal -c <REPOSITORY_ROOT>/src/metal/HybridRenderer.metal -o <BUILD_ROOT>/shaders/MetalRoboHybridRenderer.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -I <REPOSITORY_ROOT>/src/metal -c <REPOSITORY_ROOT>/src/metal/EnvironmentPrefilter.metal -o <BUILD_ROOT>/shaders/MetalRoboEnvironmentPrefilter.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/VisualAssetCook.metal -o <BUILD_ROOT>/shaders/MetalRoboVisualAssetCook.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/Tactile.metal -o <BUILD_ROOT>/shaders/MetalRoboTactile.air && xcrun -sdk macosx metal -std=metal4.0 -O3 -I <REPOSITORY_ROOT>/include -c <REPOSITORY_ROOT>/src/metal/SceneQuery.metal -o <BUILD_ROOT>/shaders/MetalRoboSceneQuery.air && xcrun -sdk macosx metallib <BUILD_ROOT>/shaders/MetalRoboConstraintSolver.air <BUILD_ROOT>/shaders/MetalRoboQualityContactSolver.air <BUILD_ROOT>/shaders/MetalRoboUnifiedQualitySolver.air <BUILD_ROOT>/shaders/MetalRoboFreeBodyDynamics.air <BUILD_ROOT>/shaders/MetalRoboMulticopterDynamics.air <BUILD_ROOT>/shaders/MetalRoboCollision.air <BUILD_ROOT>/shaders/MetalRoboDeterministicBroadphase.air <BUILD_ROOT>/shaders/MetalRoboArticulatedOperator.air <BUILD_ROOT>/shaders/MetalRoboArticulatedOperatorCompensated.air <BUILD_ROOT>/shaders/MetalRoboCompensatedTranslationCheck.air <BUILD_ROOT>/shaders/MetalRoboHumanBehavior.air <BUILD_ROOT>/shaders/MetalRoboMillardMuscleReference.air <BUILD_ROOT>/shaders/MetalRoboMujocoMuscleReference.air <BUILD_ROOT>/shaders/MetalRoboMujocoMuscleReferenceCompensated.air <BUILD_ROOT>/shaders/MetalRoboNumanXHumanIO.air <BUILD_ROOT>/shaders/MetalRoboNumanXCoupledHuman.air <BUILD_ROOT>/shaders/MetalRoboNumanXHumanMatter.air <BUILD_ROOT>/shaders/MetalRoboNumanXHumanMatterOwner.air <BUILD_ROOT>/shaders/MetalRoboParameterizedArticulatedOperator.air <BUILD_ROOT>/shaders/MetalRoboArticulatedABA.air <BUILD_ROOT>/shaders/MetalRoboFunctionBasedDenseDynamics.air <BUILD_ROOT>/shaders/MetalRoboNumiHumanStand.air <BUILD_ROOT>/shaders/MetalRoboNumiHumanTendonTransfer.air <BUILD_ROOT>/shaders/MetalRoboNumiHumanTendonTransferCompensated.air <BUILD_ROOT>/shaders/MetalRoboNumiHumanExtensorHood.air <BUILD_ROOT>/shaders/MetalRoboNumiHumanExtensorHoodCompensated.air <BUILD_ROOT>/shaders/MetalRoboParameterizedArticulatedABA.air <BUILD_ROOT>/shaders/MetalRoboArticulatedABASmall.air <BUILD_ROOT>/shaders/MetalRoboMultiArticulatedABA.air <BUILD_ROOT>/shaders/MetalRoboParallelArticulatedABA.air <BUILD_ROOT>/shaders/MetalRoboParallelParameterizedArticulatedABA.air <BUILD_ROOT>/shaders/MetalRoboParallelArticulatedABASmall.air <BUILD_ROOT>/shaders/MetalRoboParallelMultiArticulatedABA.air <BUILD_ROOT>/shaders/MetalRoboDiscreteElasticRod.air <BUILD_ROOT>/shaders/MetalRoboGeneralizedConstraints.air <BUILD_ROOT>/shaders/MetalRoboMultiArticulatedContact.air <BUILD_ROOT>/shaders/MetalRoboArticulatedInverseMass.air <BUILD_ROOT>/shaders/MetalRoboOpenSimSpatialTransform.air <BUILD_ROOT>/shaders/MetalRoboMultiArticulatedInverseMass.air <BUILD_ROOT>/shaders/MetalRoboParameterizedMultiArticulatedInverseMass.air <BUILD_ROOT>/shaders/MetalRoboStreamingArticulatedInverseMass.air <BUILD_ROOT>/shaders/MetalRoboWorld.air <BUILD_ROOT>/shaders/MetalRoboWorldContact.air <BUILD_ROOT>/shaders/MetalRoboWorldCompiler.air <BUILD_ROOT>/shaders/MetalRoboLocomotionTask.air <BUILD_ROOT>/shaders/MetalRoboPolicyInference.air <BUILD_ROOT>/shaders/MetalRoboHybridRenderer.air <BUILD_ROOT>/shaders/MetalRoboEnvironmentPrefilter.air <BUILD_ROOT>/shaders/MetalRoboVisualAssetCook.air <BUILD_ROOT>/shaders/MetalRoboTactile.air <BUILD_ROOT>/shaders/MetalRoboSceneQuery.air -o <BUILD_ROOT>/shaders/MetalRobo.metallib"
+    ],
+    "normalized_transitive_inputs": [
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/compensated_geometry_gpu.h",
+        "sha256": "1bf85c7e7b8b2102c5e0e6f3fbba88e2b30530e6b5fbb33375fb581d5261d84e"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/compensated_translation_gpu.h",
+        "sha256": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/constraint_ir_shared.h",
+        "sha256": "1abad282fa1e88b809da2271c8e98bc0fcde6adc6629b61a7f8f7d7633c5403f"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/engine_types.h",
+        "sha256": "fb6f66bcb8a1f5d0e47f4dabb7a22c7c74ecd6f3a8eeb79a3c6bedd33882efdd"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/generalized_constraint_shared.h",
+        "sha256": "8a2a07facd9219301b9721181e44315345406455fc44d8d5b57114aca8ca4fcb"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/gpu_types.h",
+        "sha256": "55777caa42851b167780255c76e02c40e2285ee43cc6dda77063d8639f6728d8"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/human_behavior_gpu.h",
+        "sha256": "64937fe188ca2be425b6881b228eefba25cc9d9f02dc239045e487f4bd619409"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/hybrid_renderer_types.h",
+        "sha256": "a6e649d2b9c76abde86beab68607bd38945d45f030531c7833f6c6dc9cb23595"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/millard_muscle_gpu.h",
+        "sha256": "c20317582a89332036e1855b7d1fdb71dccacea50aa0ce9c789ecba0886b83f6"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/mujoco_muscle_gpu.h",
+        "sha256": "3169e324f631099c79c6fa719e4633a6bcfba4f99716772bed10e9aaf7862538"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/multi_contact_shared.h",
+        "sha256": "c55c60d62c3ab364c5569ccc1781f5a5496b44aea4dc78d26c2308c144cdcc18"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/multicopter_types.h",
+        "sha256": "4eb86846416a436667461463119838983ccc88b278fe985b09b705f50b0ca51d"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/numanx_coupled_human_gpu.h",
+        "sha256": "83a7627a7ba707fe41db9569b3166c6be519ed1ff44b522c54ea36078730c85a"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/numanx_human_io_gpu.h",
+        "sha256": "c482a9d338cab0210c9daa3063e2bf37800bd45875c7cf200cf84a85324f5a05"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/numanx_human_matter_adapter_gpu.h",
+        "sha256": "9225fa9cf76bc8c2b12747c3ad7cc62d86dee49547d8b6c8455ca0c3fd614b69"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/numanx_human_matter_gpu.h",
+        "sha256": "51ed8a99428a403618b553fdbbd62f64d891022302003f1a1f6bb16a6f3370cf"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/numi_human_bilateral.h",
+        "sha256": "5a49d308d978a2e2caa479751e7589c6200898e5f6e7f571299e451f0e039643"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/numi_human_constraint_projection.h",
+        "sha256": "06cf8c8cabc19c6d0a1acdde6623f840d897324e14b4e56645adb91ecfecf269"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/numi_human_extensor_hood_gpu.h",
+        "sha256": "eb085f779ad594ddca759833e2ae36db1e4202b79bd8ac31dd2c492694b3fa20"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/numi_human_friction.h",
+        "sha256": "b0e5868c0df4cfc3cecf5cd0440561ed0d66c010b49f367ece3611a0b3996587"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/numi_human_passive_joint.h",
+        "sha256": "dd0023672d43927d0e397951dbde97f962324555c9dd69593b7b6024fdad05d7"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/numi_human_stand_gpu.h",
+        "sha256": "7a2fae3a2ab135f182c97ae597e94b285e9d22e8f0c4731f6f567f21af9be828"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/numi_human_tendon_gpu.h",
+        "sha256": "1ab91d0618a17981e598d1b16774efc94c05b53d3800d00da67437fa93318058"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/opensim_spatial_transform_gpu.h",
+        "sha256": "8e4c21a87be3c2b93db02cc3953f81bf36c7eba7318c5db575afb7cd1c51caf0"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/parallel_aba_shared.h",
+        "sha256": "017a29c5a992df98541274975f7604a24e260d33b141aff30a51c0695e52b00d"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/policy_program_types.h",
+        "sha256": "4ad0a0ebec2627f0cd059dd58b6d6dd9c24719e9004ffdf85ec43e91c5fff605"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/quality_solver_shared.h",
+        "sha256": "bd7b4d7a81b3ec2e6d194e82d2e103e89056cdb6af196d8f10f2238a00482768"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/r2s2r_types.h",
+        "sha256": "10f51ee3602102d9e8f2b5d97ea211850fd32f82a7448880d298e17ec3b7536f"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/rod_gpu_shared.h",
+        "sha256": "0e8a2fc59a2969ca2493aaa0ee9d6e51cac723a22a63cb2e6d03b00807fd373d"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/scene_query_types.h",
+        "sha256": "12390a5b34b1db90be109f5373beb4ce23a07d1225435fec4b823b8bca1b63df"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/tactile_types.h",
+        "sha256": "edbf8a209e527fb6f74190a63d41b092d196cc8635a7ba3d9586893ab26e1abb"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/task_program_types.h",
+        "sha256": "3327c53929de854ae300b8a2a2d06f27c2fbd31dabfa7430f621a67d82747c95"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/unified_quality_shared.h",
+        "sha256": "22d658c8dd27daf4136945f3e953620add0c65040c051cfccf684eee37f8a4b9"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/visual_platform_types.h",
+        "sha256": "0e4dbb0fce94713c26fb33e1eef206213d962568e22e79f8efd8f41108886601"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/include/metalrobo/world_compiler_types.h",
+        "sha256": "f8cee3f615b509b8338f2bcdff6e6359101f469ea72e86142df2155ad9274c0d"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/ArticulatedABA.metal",
+        "sha256": "a603370e8d2edb9764ffa36d66f4ff5110926463fc58fca02619ba71ffcf019c"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/ArticulatedInverseMass.metal",
+        "sha256": "4833d1701012e516954191e86843d5c09a6e0a8be74605f06304361254169090"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/ArticulatedOperator.metal",
+        "sha256": "fd56b4e7f45d0c2e43ec28ca9b2e506c01cd28fdbbfad6614e106109a8f37a27"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/ArticulatedOperatorCompensated.metal",
+        "sha256": "8ec499449b221368c59ab733207ce87567c18610bc0b3b996fd63c1355b8a5f8"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/ArticulatedParallelABA.metal",
+        "sha256": "1c96247b537f8a2e9b58988b44a1ef578a9cb156c052e3f8d5dddbaace6fe51a"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/Collision.metal",
+        "sha256": "7fbe584ea69aee8ff5d48fc6ecd943d442a2d24d75bac7c16bb248d29d2bb742"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/CompensatedTranslationCheck.metal",
+        "sha256": "c988122b7abe35bab368a9cfd445e4147160d6c6ed97e53e776d7975a381d5f1"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/ConstraintSolver.metal",
+        "sha256": "5f2f80de91c48b34edbba9587954cf5bdcdd337daec10b7b3427d67bdb9e0eb2"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/DeterministicBroadphase.metal",
+        "sha256": "655c79e03962718d7afed0c2891b338a21b784191897872f4abc8c1cafcdb335"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/DiscreteElasticRod.metal",
+        "sha256": "92b0d5f084dcf2ed37ec4fa8c4cb64fcc797fd30d8b84347527625635c44ef3b"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/EnvironmentPrefilter.metal",
+        "sha256": "e050c2e8377a43bbd8c4ca136b7cafb6c8b582df44fc4d47ea5a0fbbe8e567c5"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/FreeBodyDynamics.metal",
+        "sha256": "33aa2e962936b8d7499f4478531af810ea7df8a2a677ced3d6e283e146cd0bd1"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/FunctionBasedDenseDynamics.metal",
+        "sha256": "fe9b85ec203406d355b3f69e68b5cd8133fc1db3b6ceaefe8e317ef1b9e69ab1"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/HumanBehavior.metal",
+        "sha256": "359e76ae9b7567787de5bcd2a06ff4a1f37eb4486f65d5513e9db0a0b5307afe"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/HybridRenderer.metal",
+        "sha256": "8a129b4303032fc29aab030918fbe091a0ffd75da7e71cc5e8991824c957e2dc"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/LocomotionTask.metal",
+        "sha256": "8e8b647ad44dc417d922844b46458c8a3043a281830b85b3670c0150314669a6"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/MetalGeneralizedConstraints.metal",
+        "sha256": "cb3d5c31ca0f5bee67b8080156adb1e52c98a620a5c111f1522fbbb5aacc7971"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/MetalMultiArticulatedContact.metal",
+        "sha256": "c93a69859ccfe3bbaa7549dd760a6d3ed7e69c836c3836a12cbb009fa0555f2c"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/MetalQualityContactSolver.metal",
+        "sha256": "2e373355c99926121413faa2215409686ef1277d01a2feec93603bcb9ecbf882"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/MetalUnifiedQualitySolver.metal",
+        "sha256": "4d6991711958f69de582708cb59010b5e2b55d34ff291198192db861f1c03f88"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/MetalWorld.metal",
+        "sha256": "caa9b200ebcfdccd6a0a987638b7dea59f04397074dde10248b1e0959f395ce5"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/MetalWorldContact.metal",
+        "sha256": "b2661321dae97dbf70d5c0294c9be4e1f36019f9a7f5b09685373ecd238eb365"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/MillardMuscleReference.metal",
+        "sha256": "d4d7c305e9a1b83af2e3a947b5ac543b3bb5fcf3845879259c9a4f4cd3b6eca7"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/MujocoMuscleReference.metal",
+        "sha256": "299c6d026dfd9a05bcb5ac03cfc666d43206899d0eee16a99434844639bcf152"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/MujocoMuscleReferenceCompensated.metal",
+        "sha256": "6bb2a1c9db6d6fd8a5b05150e6cb7906ffe0ebd64441321bc032e44527dd76e3"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/MulticopterDynamics.metal",
+        "sha256": "34606914a748101c14d406351af2160d2ff77e1c28ef30fffa2777dd931a5702"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/NumanXCoupledHuman.metal",
+        "sha256": "b72a77bc3050e3db3f7f24bdd5f24b60809e8b780c4b83759e86daa6c3c134b0"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/NumanXHumanIO.metal",
+        "sha256": "2cc0fda7d350d14756f28a66891f82f79907391fcf6cd85f604453e2f812a415"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/NumanXHumanMatter.metal",
+        "sha256": "0221db457d6b20f7fe0b412103cf53c85cd69c68ea611810675f164e4f1b608a"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/NumanXHumanMatterOwner.metal",
+        "sha256": "14238fb51c2d78705c16622feef894ce0caae05fcb15f4d7c4ce9ee3bc0c4aec"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/NumiHumanExtensorHood.metal",
+        "sha256": "fe08af022334409c02cbc07e40afea3b82fdcf9b27aa0a58f1ed2c0143b6b137"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/NumiHumanExtensorHoodCompensated.metal",
+        "sha256": "c7afde108c91a916142bffb983e4fa90fb796ad47fba15de2b792ff7bb75f5e0"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/NumiHumanStand.metal",
+        "sha256": "93ce40a8a0d7c6c6e3269c1b8e33dd1e02372f2d2e93856c6e4ae48469ac7532"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/NumiHumanTendonTransfer.metal",
+        "sha256": "68fef8b467408f0197d6c4eb14d41226e482d8dbc33cc109fc70edccfb1ca108"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/NumiHumanTendonTransferCompensated.metal",
+        "sha256": "f130d1a92ddf4535f0b641bc0dedb72ab8ae07f3895d36c6f600303308820999"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/OpenSimSpatialTransform.metal",
+        "sha256": "e354a1dd41f0086b6dbe84a2d92ad0b0db24c856f7c011cdeb5ede79b10cc617"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/PairedSourceGeometry.metalinc",
+        "sha256": "a356506575f8ec0a8ef0bc715bd833950ed5ca485eb80322c6213182fd1ac96d"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/PolicyInference.metal",
+        "sha256": "2327aa8fa47f20d5729cf8390f207dea19c89befe7659890a23cca4d3715d616"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/SceneQuery.metal",
+        "sha256": "ee40612b254f4c356aa8e78f9d6cbfafc86fb8651f9954d0f706370e4e108126"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/Tactile.metal",
+        "sha256": "2028e817797a334398f79678bfa90a5b4f1c3a983b3fc153ca9c464cd6f86c56"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/VisualAssetCook.metal",
+        "sha256": "7450516ea3e1800507fc841a349e8e892e92e21b3e569c2c7a50e5bbb9a35720"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/VisualPBR.metal",
+        "sha256": "70b19be521964d1851ab99e8e0f9d2a9ac1a19f32106fb307c13976ba5447859"
+      },
+      {
+        "path": "<REPOSITORY_ROOT>/src/metal/WorldCompiler.metal",
+        "sha256": "7497e6cb584074671caa8c2d4d596227f22d6b97f16c652c9e9c02926ecc65c0"
+      }
+    ],
+    "shader_is_transitive_input": true,
+    "target_up_to_date": true,
+    "target_up_to_date_output": "ninja: Entering directory `/Users/n/Developer/numi-human-opt-61c14e0/build'\nninja: no work to do.",
+    "sha256": "341195f1a4cbc2839ae67e057f921a74384b4a98c0b5667cd5a71e39e89dfd27"
+  },
+  "shader_build_binding_sha256": "341195f1a4cbc2839ae67e057f921a74384b4a98c0b5667cd5a71e39e89dfd27",
+  "diagnostic_source_sha256": "1db6d01fae7a3852ff27b891b20bd5270cec579861d46a8a905ce86a4929b34e",
+  "audit_script_sha256": "e32b4674696bc4f75570bfa71b1df80054365105614d7d5335c9c1acd0fdcede",
+  "diagnostic_patch_sha256": "0fb2d798815756b8b92e53a95aace20e8be64255ad2ad5755644d5eea9e84a1a",
+  "payload_sha256": {
+    "joint_equalities": "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a",
+    "muscle": "9a988f19a6fd8e533cd0f2bf3192cb8535fb008ccd394ffbf1a4432d3db76a05",
+    "rigid": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44",
+    "support_contact": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907",
+    "tendon": "a594194f510eb4aa990a8767f868f999a10b4fedb745c8665368a231ed39b555"
+  }
+}

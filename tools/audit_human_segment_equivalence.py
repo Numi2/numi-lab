@@ -497,10 +497,10 @@ def prepare() -> int:
     text = SOURCE.read_text()
     require(text.count("#include <cstdlib>") == 1,
             "diagnostic environment support changed")
-    old = """    constexpr std::uint32_t kMaximumAuthoritativeSubmissionSteps = 32u;
+    old = """    constexpr std::uint32_t kMaximumAuthoritativeSubmissionSteps = 8u;
     const bool useSegmentedAuthoritativeHorizon =
 """
-    new = """    std::uint32_t kMaximumAuthoritativeSubmissionSteps = 32u;
+    new = """    std::uint32_t kMaximumAuthoritativeSubmissionSteps = 8u;
     if (const char* diagnosticMaximum = std::getenv(
             \"NUMI_HUMAN_DIAGNOSTIC_MAXIMUM_AUTHORITATIVE_SUBMISSION_STEPS\")) {
         std::size_t consumed = 0u;
@@ -1485,6 +1485,9 @@ def compare_optimization(baseline_path: Path, optimized_path: Path,
         "status": "passed" if mechanics["passed"] else "failed",
         "baseline_case": str(baseline_path),
         "optimized_case": str(optimized_path),
+        "baseline_case_sha256": digest(baseline_path),
+        "optimized_case_sha256": digest(optimized_path),
+        "comparator_script_sha256": digest(Path(__file__)),
         "step_count": baseline["step_count"],
         "timestep_seconds": baseline["timestep_seconds"],
         "mechanics_comparison": mechanics,

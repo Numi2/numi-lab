@@ -651,6 +651,15 @@ kernel void mr_numi_human_stand_step(
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
     if (lane != 0u) return;
 
+    // The spatial Jacobian/inertia columns are dead after mass assembly and
+    // the barrier above. Reuse two nv rows as per-step equality linearization
+    // caches; unlike the persistent preload prefix, this scratch is rebuilt
+    // before every stand step. q is unchanged throughout the coupled sweeps.
+    device float* equalityDerivativeCache =
+        spatialJacobianScratch + spatialBase;
+    device float* equalityTargetVelocityCache =
+        equalityDerivativeCache + nv;
+
     float minimumPivot = INFINITY;
     float maximumPivot = 0.0f;
     for (uint row = 0u; row < nv; ++row) {
@@ -892,13 +901,10 @@ kernel void mr_numi_human_stand_step(
             for (uint dof = 0u; dof < nv; ++dof) {
                 candidateV[dof] += seed * normalResponse[dof];
             }
-            float normalVelocityAfterSeed = 0.0f;
-            for (uint dof = 0u; dof < nv; ++dof) {
-                normalVelocityAfterSeed += pointJacobianAxis(
-                    pointJacobians, pointJacobianBase,
-                    support.pointQueryIndex, nv, dof, normal
-                ) * candidateV[dof];
-            }
+            const float normalVelocityAfterSeed = fma(
+                seed, matrix[0u] - kResponseRegularization,
+                normalVelocityBeforeSeed
+            );
             const float seedWork = 0.5f * seed *
                 (normalVelocityBeforeSeed + normalVelocityAfterSeed);
             if (!isfinite(seedWork)) {
@@ -996,44 +1002,41 @@ kernel void mr_numi_human_stand_step(
                 lambdas[3u * contact + 0u] = newLambda.x;
                 lambdas[3u * contact + 1u] = newLambda.y;
                 lambdas[3u * contact + 2u] = newLambda.z;
-                device const float* normalResponse = responseScratch +
-                    responseBase + (3u * contact) * nv;
-                for (uint dof = 0u; dof < nv; ++dof) {
-                    candidateV[dof] += applied.x * normalResponse[dof];
-                }
-                float normalVelocityAfter = 0.0f;
-                float2 tangentialVelocityBefore{0.0f};
-                for (uint dof = 0u; dof < nv; ++dof) {
-                    normalVelocityAfter += pointJacobianAxis(
-                        pointJacobians, pointJacobianBase,
-                        support.pointQueryIndex, nv, dof, normal
-                    ) * candidateV[dof];
-                    tangentialVelocityBefore.x += pointJacobianAxis(
-                        pointJacobians, pointJacobianBase,
-                        support.pointQueryIndex, nv, dof, tangent0
-                    ) * candidateV[dof];
-                    tangentialVelocityBefore.y += pointJacobianAxis(
-                        pointJacobians, pointJacobianBase,
-                        support.pointQueryIndex, nv, dof, tangent1
-                    ) * candidateV[dof];
-                }
-                for (uint axis = 1u; axis < 3u; ++axis) {
+                // Reuse the already-computed actual Delassus contractions for
+                // diagnostic work. The solver adds regularization only to the
+                // diagonal; off-diagonal entries remain deliberately
+                // nonsymmetric FP32 contractions and must not be averaged.
+                const float normalVelocityAfter = fma(
+                    applied.x, matrix[0u] - kResponseRegularization,
+                    velocity.x
+                );
+                const float2 tangentialVelocityBefore{
+                    fma(applied.x, matrix[3u], velocity.y),
+                    fma(applied.x, matrix[6u], velocity.z),
+                };
+                float2 tangentialVelocityAfter = tangentialVelocityBefore;
+                tangentialVelocityAfter.x = fma(
+                    applied.y, matrix[4u] - kResponseRegularization,
+                    tangentialVelocityAfter.x
+                );
+                tangentialVelocityAfter.x = fma(
+                    applied.z, matrix[5u], tangentialVelocityAfter.x
+                );
+                tangentialVelocityAfter.y = fma(
+                    applied.y, matrix[7u], tangentialVelocityAfter.y
+                );
+                tangentialVelocityAfter.y = fma(
+                    applied.z, matrix[8u] - kResponseRegularization,
+                    tangentialVelocityAfter.y
+                );
+                // Preserve the production state-update order exactly: normal,
+                // tangent0, then tangent1, each in increasing DOF order.
+                for (uint axis = 0u; axis < 3u; ++axis) {
                     device const float* response = responseScratch + responseBase +
                         (3u * contact + axis) * nv;
                     for (uint dof = 0u; dof < nv; ++dof) {
                         candidateV[dof] += applied[axis] * response[dof];
                     }
-                }
-                float2 tangentialVelocityAfter{0.0f};
-                for (uint dof = 0u; dof < nv; ++dof) {
-                    tangentialVelocityAfter.x += pointJacobianAxis(
-                        pointJacobians, pointJacobianBase,
-                        support.pointQueryIndex, nv, dof, tangent0
-                    ) * candidateV[dof];
-                    tangentialVelocityAfter.y += pointJacobianAxis(
-                        pointJacobians, pointJacobianBase,
-                        support.pointQueryIndex, nv, dof, tangent1
-                    ) * candidateV[dof];
                 }
                 const float normalWork = 0.5f * applied.x *
                     (velocity.x + normalVelocityAfter);
@@ -1077,6 +1080,10 @@ kernel void mr_numi_human_stand_step(
                      equalityIndex);
                 return;
             }
+            equalityDerivativeCache[equalityIndex] = derivative;
+            equalityTargetVelocityCache[equalityIndex] = clamp(
+                -0.2f * error / timestep, -4.0f, 4.0f
+            );
             maximumEqualityPositionError = max(
                 maximumEqualityPositionError, abs(error)
             );
@@ -1099,11 +1106,7 @@ kernel void mr_numi_human_stand_step(
         // FP32 contractions instead of silently adding diagonal compliance.
         for (uint row=0u; row<equalityCount; ++row) {
             device const MRNumiHumanJointEqualityGPU& equality=jointEqualities[row];
-            float target=0.0f, derivative=0.0f, error=0.0f;
-            if (!evaluateJointEquality(equality,qState,qBase,nq,nv,target,derivative,error)) {
-                fail(status,MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,row);
-                return;
-            }
+            const float derivative = equalityDerivativeCache[row];
             for (uint column=0u; column<equalityCount; ++column) {
                 device const float* response=responseScratch+responseBase+
                     (3u*dispatch.supportContactCount+column)*nv;
@@ -1124,15 +1127,13 @@ kernel void mr_numi_human_stand_step(
         for (uint refinement=0u; refinement<2u; ++refinement) {
             for (uint row=0u; row<equalityCount; ++row) {
                 device const MRNumiHumanJointEqualityGPU& equality=jointEqualities[row];
-                float target=0.0f, derivative=0.0f, error=0.0f;
-                if (!evaluateJointEquality(equality,qState,qBase,nq,nv,target,derivative,error)) {
-                    fail(status,MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,row);
-                    return;
-                }
+                const float derivative = equalityDerivativeCache[row];
                 float velocity=candidateV[equality.indices.y];
                 if (equality.indices.w!=MR_INVALID_INDEX)
                     velocity=fma(-derivative,candidateV[equality.indices.w],velocity);
-                equalityRhs[row]=clamp(-0.2f*error/timestep,-4.0f,4.0f)-velocity;
+                workspace[row] = velocity;
+                equalityRhs[row] =
+                    equalityTargetVelocityCache[row] - velocity;
             }
             if (!mrNumiHumanBilateralSolve(equalityFactor,equalityScale,equalityPivots,equalityRhs,equalityCount)) {
                 fail(status,MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,MR_INVALID_INDEX);
@@ -1140,24 +1141,8 @@ kernel void mr_numi_human_stand_step(
             }
             float refinementWork = 0.0f;
             for (uint row=0u; row<equalityCount; ++row) {
-                device const MRNumiHumanJointEqualityGPU& equality =
-                    jointEqualities[row];
-                float target = 0.0f, derivative = 0.0f, error = 0.0f;
-                if (!evaluateJointEquality(
-                        equality, qState, qBase, nq, nv,
-                        target, derivative, error
-                    )) {
-                    fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED, row);
-                    return;
-                }
-                float velocity = candidateV[equality.indices.y];
-                if (equality.indices.w != MR_INVALID_INDEX) {
-                    velocity = fma(
-                        -derivative, candidateV[equality.indices.w], velocity
-                    );
-                }
                 refinementWork = fma(
-                    0.5f * equalityRhs[row], velocity, refinementWork
+                    0.5f * equalityRhs[row], workspace[row], refinementWork
                 );
                 equalityLambdas[row]+=equalityRhs[row];
             }
@@ -1173,14 +1158,7 @@ kernel void mr_numi_human_stand_step(
             for (uint row = 0u; row < equalityCount; ++row) {
                 device const MRNumiHumanJointEqualityGPU& equality =
                     jointEqualities[row];
-                float target = 0.0f, derivative = 0.0f, error = 0.0f;
-                if (!evaluateJointEquality(
-                        equality, qState, qBase, nq, nv,
-                        target, derivative, error
-                    )) {
-                    fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED, row);
-                    return;
-                }
+                const float derivative = equalityDerivativeCache[row];
                 float velocity = candidateV[equality.indices.y];
                 if (equality.indices.w != MR_INVALID_INDEX) {
                     velocity = fma(
@@ -1264,12 +1242,7 @@ kernel void mr_numi_human_stand_step(
             for (uint refinement = 0u; refinement < 2u; ++refinement) {
                 for (uint ei = 0u; ei < equalityCount; ++ei) {
                     device const MRNumiHumanJointEqualityGPU& eq = jointEqualities[ei];
-                    float target = 0.0f, derivative = 0.0f, error = 0.0f;
-                    if (!evaluateJointEquality(eq, qState, qBase, nq, nv,
-                                               target, derivative, error)) {
-                        fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED, ei);
-                        return;
-                    }
+                    const float derivative = equalityDerivativeCache[ei];
                     float residual = response[eq.indices.y];
                     if (eq.indices.w != MR_INVALID_INDEX)
                         residual = fma(-derivative, response[eq.indices.w], residual);
@@ -1345,6 +1318,7 @@ kernel void mr_numi_human_stand_step(
                 return;
             }
             limitAccumulatedImpulses[limit] = nextImpulse;
+            if (impulse == 0.0f) continue;
             // Preserve ownership of the compensating bilateral reactions,
             // including negative increments when a limit is released.
             device const float* equalityCorrection = limitEqualityCorrections +
@@ -1355,14 +1329,7 @@ kernel void mr_numi_human_stand_step(
             for (uint ei = 0u; ei < equalityCount; ++ei) {
                 device const MRNumiHumanJointEqualityGPU& equality =
                     jointEqualities[ei];
-                float target = 0.0f, derivative = 0.0f, error = 0.0f;
-                if (!evaluateJointEquality(
-                        equality, qState, qBase, nq, nv,
-                        target, derivative, error
-                    )) {
-                    fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED, ei);
-                    return;
-                }
+                const float derivative = equalityDerivativeCache[ei];
                 float velocity = candidateV[equality.indices.y];
                 if (equality.indices.w != MR_INVALID_INDEX) {
                     velocity = fma(
@@ -1384,14 +1351,7 @@ kernel void mr_numi_human_stand_step(
             for (uint ei = 0u; ei < equalityCount; ++ei) {
                 device const MRNumiHumanJointEqualityGPU& equality =
                     jointEqualities[ei];
-                float target = 0.0f, derivative = 0.0f, error = 0.0f;
-                if (!evaluateJointEquality(
-                        equality, qState, qBase, nq, nv,
-                        target, derivative, error
-                    )) {
-                    fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED, ei);
-                    return;
-                }
+                const float derivative = equalityDerivativeCache[ei];
                 float velocity = candidateV[equality.indices.y];
                 if (equality.indices.w != MR_INVALID_INDEX) {
                     velocity = fma(
@@ -1427,25 +1387,13 @@ kernel void mr_numi_human_stand_step(
              ++equalityIndex) {
             device const MRNumiHumanJointEqualityGPU& equality =
                 jointEqualities[equalityIndex];
-            float target = 0.0f;
-            float derivative = 0.0f;
-            float error = 0.0f;
-            if (!evaluateJointEquality(
-                    equality, qState, qBase, nq, nv,
-                    target, derivative, error
-                )) {
-                ++status.jointEqualityCounts.z;
-                fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
-                     equalityIndex);
-                return;
-            }
+            const float derivative = equalityDerivativeCache[equalityIndex];
             float velocityError = candidateV[equality.indices.y];
             if (equality.indices.w != MR_INVALID_INDEX) {
                 velocityError -= derivative * candidateV[equality.indices.w];
             }
-            const float targetVelocity = clamp(
-                -0.2f * error / timestep, -4.0f, 4.0f
-            );
+            const float targetVelocity =
+                equalityTargetVelocityCache[equalityIndex];
             maximumEqualityVelocityError = max(
                 maximumEqualityVelocityError,
                 abs(velocityError - targetVelocity)
