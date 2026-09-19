@@ -13,6 +13,8 @@ project(
     LANGUAGES C CXX OBJCXX
 )
 
+include(CTest)
+
 execute_process(
     COMMAND git -C "${CMAKE_CURRENT_SOURCE_DIR}" rev-parse HEAD
     OUTPUT_VARIABLE NUMI_SOURCE_REVISION
@@ -719,6 +721,40 @@ set_target_properties(
         BUILD_RPATH "@loader_path/../lib"
         INSTALL_RPATH "@loader_path"
 )
+
+if(BUILD_TESTING)
+    add_executable(
+        metalrobo_numi_human_force_parity_test
+        tests/numi_human_force_parity_test.cpp
+    )
+    target_include_directories(
+        metalrobo_numi_human_force_parity_test
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    )
+    target_compile_options(
+        metalrobo_numi_human_force_parity_test
+        PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+            -Werror
+            -fno-fast-math
+            -ffp-contract=off
+    )
+    set_target_properties(
+        metalrobo_numi_human_force_parity_test
+        PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    )
+    add_test(
+        NAME numi_human_force_parity
+        COMMAND $<TARGET_FILE:metalrobo_numi_human_force_parity_test>
+    )
+    set_tests_properties(
+        numi_human_force_parity
+        PROPERTIES LABELS "numi-human;mechanics;parity"
+    )
+endif()
 
 add_executable(metalrobo_bench apps/benchmark.cpp)
 target_link_libraries(metalrobo_bench PRIVATE metalrobo)
