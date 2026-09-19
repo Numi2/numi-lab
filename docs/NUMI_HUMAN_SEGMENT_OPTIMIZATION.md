@@ -68,6 +68,18 @@ reported bitwise replay. Wall time was 113.763449 s and the maximum segment was
 4117.132875 ms. This is a production-default execution check, not an additional
 performance sample or a standing claim.
 
+## Hosted watchdog boundary
+
+The bounded [hosted audit](https://github.com/Numi2/numi-lab/actions/runs/35473782899)
+passed its required cap-8 contract at commit
+`5a0e567464ba83175c0b648f879378c8bf1ef408`: debug-off and debug-on cases
+completed with bitwise replay and exact mechanics identity. The retained cap-16
+case failed on Apple-Paravirtual Metal after 32 accepted steps with
+`kIOGPUCommandBufferCallbackErrorHang`. Earlier fresh runners completed cap 16,
+so it is a variable watchdog characterization, not qualified hosted
+containment. The v2 report remains green only for the required cap-8 envelope
+and records cap-16 containment as false.
+
 ## Provenance
 
 - Machine: Mac mini, Apple M4 Pro, 24 GB, macOS 26.6 (`25G72`).
