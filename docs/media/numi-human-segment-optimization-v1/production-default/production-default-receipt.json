@@ -1,0 +1,43 @@
+{
+  "schema": "numi.human.production-cap8-physical-smoke.v1",
+  "native_commit": "487a8fd9efefa448bc21b44c0f319c7ce5317e08",
+  "input_commit": "f53c2e1053bc90e7ec44fd69a5b49f96b71b71ab",
+  "machine": {
+    "architecture": "arm64",
+    "chip": "Apple M4 Pro",
+    "machine_identity_sha256": "dedf8c6a84734c3ddeea7d687877352f8ab55641d7d70f17b23f051e60dd9c5a",
+    "machine_model": "Mac16,11",
+    "machine_name": "Mac mini",
+    "memory": "24 GB",
+    "os_build": "25G72",
+    "os_version": "26.6",
+    "sha256": "5ad2b8017e76f37668214d653119b5e55ba8793bd2af90079d8f62f502a0bad7"
+  },
+  "checks": {
+    "exit_zero": true,
+    "source_clean": true,
+    "production_default_is_const_cap8": true,
+    "diagnostic_override_absent": true,
+    "terminal_step_count_64": true,
+    "root_assistance_disabled": true,
+    "native_completed_steps_64": true,
+    "replay_bitwise": true,
+    "segment_count_16": true,
+    "all_segments_cap8": true
+  },
+  "diagnostic_override_present": false,
+  "step_count": 64,
+  "timestep_seconds": 1.25e-05,
+  "segment_count": 16,
+  "maximum_segment_wall_milliseconds": 4117.13287500001,
+  "wall_seconds": 113.763449166,
+  "terminal_sha256": "87a8e1d902afe87fa529eff724be4d01ad79c2b5a635ccb49770b59c25c7e0d2",
+  "metrics_sha256": "436115d5442a3f99000263f55a0c5e614f583a0cf61d4c3c093a88815932bf87",
+  "binary_sha256": "c47222cc3c46a617533966a1237c77d060d727b97b81357c118499f19a678e87",
+  "metalrobo_metallib_sha256": "e0156b2dbcacea0a39653dee75722b9ade4e04e822e0184d10592f3bd6b8a093",
+  "application_source_sha256": "fe41bf2c8c571b8e00c1dcf090a95770ba75bc6c00553f3ea394338df4dff8c6",
+  "stand_shader_sha256": "93ce40a8a0d7c6c6e3269c1b8e33dd1e02372f2d2e93856c6e4ae48469ac7532",
+  "stdout_sha256": "d4c68248d61ea313403647af9617e0a9f10a9c70f36a5c0605407442b3a7518d",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sha256": "5c2c5d611e8f278d602018344735297e8bc802d8df64fac311e4d8ec99bd2f62"
+}

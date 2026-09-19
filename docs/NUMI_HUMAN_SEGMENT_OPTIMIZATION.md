@@ -56,6 +56,18 @@ Both comparisons passed:
 For the sustained comparison, the largest work delta consumed about 0.19% of
 its declared bound.
 
+## Post-promotion production default
+
+A fresh, clean worktree at promoted commit
+`487a8fd9efefa448bc21b44c0f319c7ce5317e08` was configured and built from
+scratch on the same physical M4 Pro. The unmodified production source retained
+the `constexpr` cap of eight, and the diagnostic segment-override environment
+variable was absent. The 64-step run completed 16 authoritative segments across
+its primary and replay paths, kept every segment at or below eight steps, and
+reported bitwise replay. Wall time was 113.763449 s and the maximum segment was
+4117.132875 ms. This is a production-default execution check, not an additional
+performance sample or a standing claim.
+
 ## Provenance
 
 - Machine: Mac mini, Apple M4 Pro, 24 GB, macOS 26.6 (`25G72`).
