@@ -32,6 +32,7 @@
 #include <array>
 #include <cmath>
 #include <chrono>
+#include <cstdlib>
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
@@ -55,6 +56,13 @@ namespace {
 
 // Wall-clock diagnostics only; never alter simulation time or state.
 void reportHumanExecutionStage(const char* stage, std::uint32_t step = 0u) {
+    static const bool enabled = [] {
+        const char* value = std::getenv("NUMI_HUMAN_EXECUTION_STAGES");
+        return value != nullptr && std::strcmp(value, "1") == 0;
+    }();
+    if (!enabled) {
+        return;
+    }
     static const auto origin = std::chrono::steady_clock::now();
     const double elapsed = std::chrono::duration<double, std::milli>(
         std::chrono::steady_clock::now() - origin).count();
@@ -2719,6 +2727,11 @@ struct MuscleDrivenVisualState {
     std::uint32_t persistentMaximumPublishedVelocityDeltaDof = MR_INVALID_INDEX;
     double persistentMaximumPenetrationMeters = 0.0;
     double persistentNormalImpulse = 0.0;
+    double persistentSourceLimitAbsoluteImpulse = 0.0;
+    std::array<double, 4u> persistentConstraintImpulseWorkJoules{};
+    std::array<double, 4u>
+        persistentConstraintAbsoluteImpulseWorkJoules{};
+    std::string persistentStandStatusNonCumulativeHex;
     double persistentRootAssistanceForce = 0.0;
     double persistentRootAssistanceTorque = 0.0;
     std::uint32_t compiledActiveMuscleCount = 0u;
@@ -4776,8 +4789,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             aggregate.jointEqualityDiagnostics.y,
             segment.jointEqualityDiagnostics.y
         );
-        if (segment.jointEqualityDiagnostics.z >
-            aggregate.jointEqualityDiagnostics.z) {
+        if (segment.jointEqualityDiagnostics.z > 0.0f &&
+            segment.jointEqualityDiagnostics.z >=
+                aggregate.jointEqualityDiagnostics.z) {
             aggregate.jointEqualityDiagnostics.z =
                 segment.jointEqualityDiagnostics.z;
             aggregate.constraintImpulseOwners.w =
@@ -4934,8 +4948,15 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             horizonInput.stand.v = currentV;
             horizonInput.mujoco.states = currentStates;
             metalrobo::MetalArticulatedOperatorResult segmentResult;
+            reportHumanExecutionStage(
+                "authoritative_segment_begin", completedSteps
+            );
             auto segmentDiagnostics = context.run(
                 model, horizonInput, segmentResult
+            );
+            reportHumanExecutionStage(
+                "authoritative_segment_end",
+                completedSteps + segmentDiagnostics.completedStandSteps
             );
             elapsedMilliseconds += segmentDiagnostics.elapsedMilliseconds;
             if (!segmentDiagnostics.succeeded() ||
@@ -5848,6 +5869,39 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     result.rootAssistanceEnabled = enableRootAssistance;
     result.assistanceRemovalEvaluated = removeRootAssistance;
     result.persistentCompletedSteps = stepCount * phaseCount;
+    result.persistentConstraintImpulseWorkJoules = {
+        finalStatus.constraintImpulseWorkDiagnostics.x,
+        finalStatus.constraintImpulseWorkDiagnostics.y,
+        finalStatus.constraintImpulseWorkDiagnostics.z,
+        finalStatus.constraintImpulseWorkDiagnostics.w,
+    };
+    result.persistentConstraintAbsoluteImpulseWorkJoules = {
+        finalStatus.constraintImpulseAbsoluteWorkDiagnostics.x,
+        finalStatus.constraintImpulseAbsoluteWorkDiagnostics.y,
+        finalStatus.constraintImpulseAbsoluteWorkDiagnostics.z,
+        finalStatus.constraintImpulseAbsoluteWorkDiagnostics.w,
+    };
+    result.persistentSourceLimitAbsoluteImpulse =
+        finalStatus.constraintImpulseDiagnostics.w;
+    MRNumiHumanStandStatusGPU normalizedStatus = finalStatus;
+    normalizedStatus.jointEqualityDiagnostics.w = 0.0f;
+    normalizedStatus.jointEqualityProjectionDiagnostics.y = 0.0f;
+    normalizedStatus.jointEqualityProjectionDiagnostics.w = 0.0f;
+    normalizedStatus.constraintImpulseDiagnostics.w = 0.0f;
+    normalizedStatus.constraintImpulseWorkDiagnostics = {};
+    normalizedStatus.constraintImpulseAbsoluteWorkDiagnostics = {};
+    constexpr char kHexDigits[] = "0123456789abcdef";
+    const auto* normalizedStatusBytes =
+        reinterpret_cast<const unsigned char*>(&normalizedStatus);
+    result.persistentStandStatusNonCumulativeHex.resize(
+        sizeof(normalizedStatus) * 2u
+    );
+    for (std::size_t index = 0u; index < sizeof(normalizedStatus); ++index) {
+        result.persistentStandStatusNonCumulativeHex[2u * index] =
+            kHexDigits[normalizedStatusBytes[index] >> 4u];
+        result.persistentStandStatusNonCumulativeHex[2u * index + 1u] =
+            kHexDigits[normalizedStatusBytes[index] & 0x0fu];
+    }
     result.selectedSourceMuscleActivationCount = static_cast<std::uint32_t>(
         selectedSourceMuscleIndices.size()
     );
@@ -18734,6 +18788,10 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->persistentMaximumPenetrationMeters : 0.0)
                       << " persistent_normal_impulse=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->persistentNormalImpulse : 0.0)
+                      << " persistent_source_limit_absolute_impulse_ns_or_nms=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentSourceLimitAbsoluteImpulse : 0.0)
+                      << " persistent_stand_status_non_cumulative_hex=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentStandStatusNonCumulativeHex : "none")
                       << " persistent_max_root_assistance_force_n=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->persistentRootAssistanceForce : 0.0)
                       << " persistent_max_root_assistance_torque_nm=" << (muscleDrivenState.has_value()
@@ -18860,6 +18918,22 @@ int main(int argc, char** argv) {
                               ? muscleDrivenState->persistentStandTracePreloadVirtualWorkJoules : 0.0)
                       << " persistent_stand_trace_support_virtual_work_j=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->persistentStandTraceSupportVirtualWorkJoules : 0.0)
+                      << " persistent_contact_normal_impulse_work_j=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentConstraintImpulseWorkJoules[0u] : 0.0)
+                      << " persistent_contact_tangential_impulse_work_j=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentConstraintImpulseWorkJoules[1u] : 0.0)
+                      << " persistent_equality_impulse_work_j=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentConstraintImpulseWorkJoules[2u] : 0.0)
+                      << " persistent_source_limit_impulse_work_j=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentConstraintImpulseWorkJoules[3u] : 0.0)
+                      << " persistent_contact_normal_absolute_impulse_work_j=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentConstraintAbsoluteImpulseWorkJoules[0u] : 0.0)
+                      << " persistent_contact_tangential_absolute_impulse_work_j=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentConstraintAbsoluteImpulseWorkJoules[1u] : 0.0)
+                      << " persistent_equality_absolute_impulse_work_j=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentConstraintAbsoluteImpulseWorkJoules[2u] : 0.0)
+                      << " persistent_source_limit_absolute_impulse_work_j=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentConstraintAbsoluteImpulseWorkJoules[3u] : 0.0)
                       << " source_support_force_parity_max_delta_n=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->sourceSupportForceParityMaximumNewtons : 0.0)
                       << " source_support_force_parity_max_delta_dof=" << (muscleDrivenState.has_value()

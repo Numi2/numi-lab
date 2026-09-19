@@ -5,23 +5,20 @@ on:
     paths:
       - .github/workflows/human-segment-equivalence-audit.yml
       - tools/audit_human_segment_equivalence.py
+      - apps/numilab_human_myosim_visual_probe.mm
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: human-segment-equivalence-audit
+  group: human-segment-equivalence-audit-${{ github.ref }}
   cancel-in-progress: false
 jobs:
-  audit:
+  build:
     runs-on: macos-26
-    timeout-minutes: 35
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
         with:
-          repository: Numi2/numilab-human
-          ref: 40a113ec2422ac367cbf0bf2778683d4f78f7eab
-          path: human-inputs
-          sparse-checkout: Docs/media/native-runtime-source-package-20260915
           persist-credentials: false
       - name: Apply diagnostic-only submission-bound override
         run: python3 tools/audit_human_segment_equivalence.py prepare
@@ -38,23 +35,106 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p human-segment-equivalence-evidence
-          git rev-parse HEAD > human-segment-equivalence-evidence/native-revision.txt
-          git -C human-inputs rev-parse HEAD > human-segment-equivalence-evidence/input-revision.txt
-          sw_vers > human-segment-equivalence-evidence/machine.txt
+          mkdir -p human-segment-build-evidence
+          git rev-parse HEAD > human-segment-build-evidence/native-revision.txt
+          sw_vers > human-segment-build-evidence/machine.txt
+          system_profiler SPHardwareDataType >> human-segment-build-evidence/machine.txt
+          xcodebuild -version >> human-segment-build-evidence/machine.txt
+          xcrun -sdk macosx metal --version >> human-segment-build-evidence/machine.txt
+          git diff --cached --binary -- apps/numilab_human_myosim_visual_probe.mm > human-segment-build-evidence/diagnostic.patch
           python3 tools/check_human_host_syntax.py
-          cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF 2>&1 | tee human-segment-equivalence-evidence/configure.txt
-          cmake --build BuildHuman --target metalrobo_numilab_human_myosim_visual_probe --parallel 3 2>&1 | tee human-segment-equivalence-evidence/build.txt
-      - name: Compare segmented and monolithic 64-step horizons
-        run: >-
-          python3 tools/audit_human_segment_equivalence.py execute
-          --inputs human-inputs
-          --build BuildHuman
-          --output human-segment-equivalence-evidence
+          cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF 2>&1 | tee human-segment-build-evidence/configure.txt
+          cmake --build BuildHuman --target metalrobo_numilab_human_myosim_visual_probe --parallel 3 2>&1 | tee human-segment-build-evidence/build.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: human-segment-runtime
+          path: |
+            BuildHuman/bin/metalrobo_numilab_human_myosim_visual_probe
+            BuildHuman/lib/libmetalrobo.dylib
+            BuildHuman/shaders/MetalRobo.metallib
+            BuildHuman/matter/shaders/NumiMatter.metallib
+            BuildHuman/CMakeCache.txt
+          retention-days: 14
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: human-segment-equivalence-evidence
-          path: human-segment-equivalence-evidence
+          name: human-segment-build-evidence
+          path: human-segment-build-evidence
           retention-days: 14
-          if-no-files-found: warn
+          if-no-files-found: error
+
+  case:
+    needs: build
+    runs-on: macos-26
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {name: monolithic64-debug-off, maximum_steps: 64, debug_layer: 'off'}
+          - {name: cap8-debug-off, maximum_steps: 8, debug_layer: 'off'}
+          - {name: cap16-debug-off, maximum_steps: 16, debug_layer: 'off'}
+          - {name: cap32-debug-off, maximum_steps: 32, debug_layer: 'off'}
+          - {name: cap8-debug-on, maximum_steps: 8, debug_layer: 'on'}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Numi2/numilab-human
+          ref: f53c2e1053bc90e7ec44fd69a5b49f96b71b71ab
+          path: human-inputs
+          sparse-checkout: Docs/media/native-runtime-source-package-20260915
+          persist-credentials: false
+      - name: Apply exact diagnostic source patch
+        run: python3 tools/audit_human_segment_equivalence.py prepare
+      - uses: actions/download-artifact@v4
+        with:
+          name: human-segment-runtime
+          path: BuildHuman
+      - name: Execute one isolated bounded case
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x BuildHuman/bin/metalrobo_numilab_human_myosim_visual_probe
+          python3 tools/audit_human_segment_equivalence.py execute-case \
+            --inputs human-inputs \
+            --build BuildHuman \
+            --output human-segment-case \
+            --name '${{ matrix.name }}' \
+            --maximum-steps '${{ matrix.maximum_steps }}' \
+            --metal-debug-layer '${{ matrix.debug_layer }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-segment-case-${{ matrix.name }}
+          path: human-segment-case
+          retention-days: 14
+          if-no-files-found: error
+
+  compare:
+    if: always()
+    needs: case
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: human-segment-case-*
+          path: human-segment-cases
+      - name: Compare trajectories, complete status, and cumulative work
+        run: >-
+          python3 tools/audit_human_segment_equivalence.py compare
+          --cases human-segment-cases
+          --output human-segment-equivalence-report
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-segment-equivalence-report
+          path: human-segment-equivalence-report
+          retention-days: 14
+          if-no-files-found: error
