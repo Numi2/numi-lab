@@ -24,8 +24,11 @@ require("lambdas[3u * contact + 0u] = seed;" in kernel,
         "normal warm-start impulse is not registered")
 require("limitAccumulatedImpulses[limit] = nextImpulse;" in kernel,
         "limit impulse is no longer an accumulated projection")
+limit_equality_update = "equalityLambdas[ei] += equalityImpulse;"
+require(limit_equality_update in kernel,
+        "limit solve no longer registers its equality compensators")
 require(kernel.index("Final equality evidence includes full-block limit corrections.") >
-        kernel.index("equalityLambdas[ei] = fma(impulse,"),
+        kernel.index(limit_equality_update),
         "equality diagnostics precede final coupled corrections")
 require("limitEqualityIndices" not in kernel and "limitEqualityCorrections" in kernel,
         "limit solve regressed to an isolated equality pair")
