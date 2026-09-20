@@ -115,10 +115,40 @@ struct alignas(16) AcceptedStateProofFinalizeGPU {
     std::uint64_t slotGeneration = 0u;
 };
 
+struct alignas(16) AcceptedStateProofFinalizeGPUV2 {
+    std::uint32_t abiVersion = 0u;
+    std::uint32_t structSize = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t environmentIdentifierBase = 0u;
+    std::uint32_t matterStatusStride = 0u;
+    std::uint32_t acceptedStateProofStride = 0u;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t transactionSlot = 0u;
+    std::uint32_t environmentStatusStride = 0u;
+    std::uint32_t clockDomain = 0u;
+    std::uint32_t clockQuantumNanoseconds = 0u;
+    std::uint32_t reserved0 = 0u;
+    std::uint32_t reserved1 = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t substepFingerprint = 0u;
+    std::uint64_t acceptedTimestampNanoseconds = 0u;
+    std::uint64_t physicsGeneration = 0u;
+    std::uint64_t matterSourcePhysicsFingerprint = 0u;
+    std::uint64_t matterDeviceProgramFingerprint = 0u;
+    std::uint64_t stateProofProgramFingerprint = 0u;
+    std::uint64_t adapterProgramFingerprint = 0u;
+    std::uint64_t transactionPolicyFingerprint = 0u;
+    std::uint64_t linearizationEpoch = 0u;
+    std::uint64_t slotGeneration = 0u;
+    std::uint64_t motorCandidateFingerprint = 0u;
+};
+
 static_assert(sizeof(AcceptedStateProofBeginGPU) == 32u);
 static_assert(sizeof(AcceptedStateProofChunkGPU) == 48u);
 static_assert(sizeof(AcceptedStateProofReduceGPU) == 32u);
 static_assert(sizeof(AcceptedStateProofFoldGPU) == 48u);
 static_assert(sizeof(AcceptedStateProofFinalizeGPU) == 128u);
+static_assert(sizeof(AcceptedStateProofFinalizeGPUV2) == 160u);
 
 } // namespace numi::matter::detail

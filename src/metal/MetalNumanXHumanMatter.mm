@@ -3,6 +3,7 @@
 
 #include "metalrobo/MetalNumanXHumanMatter.hpp"
 #include "metalrobo/MetalNumanXHumanIO.hpp"
+#include "metalrobo/NumanXExactTransaction.hpp"
 
 #include "metalrobo/MetalNumanXCoupledHuman.hpp"
 #include "metalrobo/engine_types.h"
@@ -57,6 +58,40 @@ MR_ASSERT_PROOF_FIELD_LAYOUT(adapterProgramFingerprint);
 MR_ASSERT_PROOF_FIELD_LAYOUT(transactionPolicyFingerprint);
 #undef MR_ASSERT_PROOF_FIELD_LAYOUT
 
+static_assert(MR_NUMANX_HUMAN_MATTER_EXACT_ADAPTER_ABI_VERSION ==
+              NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION_V2);
+static_assert(sizeof(MRNumanXAcceptedStateProofGPUV2) ==
+              sizeof(NMAcceptedStateProofGPUV2));
+static_assert(alignof(MRNumanXAcceptedStateProofGPUV2) ==
+              alignof(NMAcceptedStateProofGPUV2));
+#define MR_ASSERT_PROOF_V2_FIELD_LAYOUT(field) \
+    static_assert(offsetof(MRNumanXAcceptedStateProofGPUV2, field) == \
+                  offsetof(NMAcceptedStateProofGPUV2, field))
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(abiVersion);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(structSize);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(status);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(environment);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(transactionFingerprint);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(substepFingerprint);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(acceptedTimestampNanoseconds);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(physicsGeneration);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(clockDomain);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(clockQuantumNanoseconds);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(humanStateFingerprint);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(matterStateFingerprint);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(physicsStateFingerprint);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(matterSourcePhysicsFingerprint);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(matterDeviceProgramFingerprint);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(stateProofProgramFingerprint);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(adapterProgramFingerprint);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(transactionPolicyFingerprint);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(linearizationEpoch);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(slotGeneration);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(motorCandidateFingerprint);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(inboundAuthorityFingerprint);
+MR_ASSERT_PROOF_V2_FIELD_LAYOUT(proofFingerprint);
+#undef MR_ASSERT_PROOF_V2_FIELD_LAYOUT
+
 static_assert(sizeof(MRNumanXHumanMatterProposalGPU) ==
               sizeof(NMOwnerProposalGPU));
 static_assert(sizeof(MRNumanXHumanMatterBrainAckGPU) ==
@@ -85,6 +120,12 @@ enum class HumanMatterSlotStage : std::uint32_t {
     restoreRequired,
     terminalNoTouch,
     released,
+};
+
+enum class HumanMatterProofFamily : std::uint32_t {
+    none = 0u,
+    legacyV1 = 1u,
+    exactV2 = 2u,
 };
 
 struct MetalNumanXHumanMatterCallbackFrame;
@@ -198,6 +239,9 @@ struct MetalNumanXHumanMatterSlot {
     __strong id<MTLBuffer> acceptedTokens = nil;
     __strong id<MTLBuffer> acceptedStateProofs = nil;
     MetalNumanXHumanMatterTransaction transaction{};
+    MetalNumanXHumanMatterTransactionV2 transactionV2{};
+    MetalNumanXHumanIOExactPreparedView exactHumanIO{};
+    HumanMatterProofFamily proofFamily = HumanMatterProofFamily::none;
     MetalNumanXHumanMatterLeaseIdentity lease{};
     HumanMatterSlotStage stage = HumanMatterSlotStage::empty;
     std::uintptr_t commandBufferIdentity = 0u;
@@ -207,6 +251,8 @@ struct MetalNumanXHumanMatterSlot {
     std::array<MetalNumanXHumanMatterAuthorityRegion, kOwnerPhysicalAuthorityRegionCount>
         physicalAuthorityRegions{};
     std::size_t physicalAuthorityRegionCount = 0u;
+    MetalNumanXHumanMatterAuthorityRegion exactInboundAuthorityRegion{};
+    bool exactInboundAuthorityRetained = false;
     MetalNumanXHumanMatterApplicationReservation applicationReservation{};
     numi::matter::PreparedStatePublicationBinding publicationBinding{};
     numi::matter::PreparedStatePublicationReservation
@@ -254,10 +300,12 @@ struct MetalNumanXHumanMatterState {
     __strong id<MTLComputePipelineState> mapHumanStatusPipeline = nil;
     __strong id<MTLComputePipelineState> captureOutcomePipeline = nil;
     __strong id<MTLComputePipelineState> preparedTokenPipeline = nil;
+    __strong id<MTLComputePipelineState> preparedTokenPipelineV2 = nil;
     std::vector<MetalNumanXHumanMatterSlot> slots;
     std::mutex mutex;
     NumanXExecutableImageIdentity metallibIdentity{};
     std::uint64_t fingerprint = 0u;
+    std::uint64_t exactFingerprint = 0u;
     std::uint64_t matterSourceFingerprint = 0u;
     std::uint64_t matterDeviceFingerprint = 0u;
     std::uint64_t retainedBytes = 0u;
@@ -286,6 +334,7 @@ using State = detail::MetalNumanXHumanMatterState;
 using Slot = detail::MetalNumanXHumanMatterSlot;
 using PhysicalDiagnostics = detail::PhysicalDiagnosticsReadback;
 using SlotStage = detail::HumanMatterSlotStage;
+using ProofFamily = detail::HumanMatterProofFamily;
 using Frame = detail::MetalNumanXHumanMatterCallbackFrame;
 
 constexpr std::uint64_t kFNVOffset = 14695981039346656037ull;
@@ -545,7 +594,8 @@ constexpr std::size_t kMatterApplyPrivateRegion = 4u;
     const bool skipTargetPhysical,
     const bool skipTargetLease,
     const bool skipTargetApplication,
-    const bool allowTargetLeasePrivateAliases
+    const bool allowTargetLeasePrivateAliases,
+    const bool allowTargetExactAuthorityAlias = false
 ) noexcept {
     if (candidates == nullptr || candidateCount == 0u) return false;
     for (std::size_t left = 0u; left < candidateCount; ++left) {
@@ -611,6 +661,23 @@ constexpr std::size_t kMatterApplyPrivateRegion = 4u;
     for (const Slot& retained : state.slots) {
         if (!slotRetainsBorrowedAuthority(retained)) continue;
         const bool targetSlot = &retained == &target;
+        if (retained.exactInboundAuthorityRetained) {
+            BufferRegion exactAuthority{};
+            if (!scalarRegion(
+                    retained.exactInboundAuthorityRegion.address,
+                    retained.exactInboundAuthorityRegion.bytes,
+                    exactAuthority)) {
+                return false;
+            }
+            for (const BufferRegion& candidate :
+                 std::span<const BufferRegion>(candidates, candidateCount)) {
+                if (!regionsOverlap(candidate, exactAuthority)) continue;
+                if (!(targetSlot && allowTargetExactAuthorityAlias &&
+                      sameRegion(candidate, exactAuthority))) {
+                    return false;
+                }
+            }
+        }
         if (!(targetSlot && skipTargetPhysical) &&
             retained.physicalAuthorityRegionCount != 0u) {
             if (retained.physicalAuthorityRegionCount !=
@@ -813,6 +880,79 @@ void mixValue(std::uint64_t& hash, const T value) noexcept {
         acceptedPhysicsTokenFingerprint(raw) == expectedFingerprint;
 }
 
+[[nodiscard]] std::uint64_t programFingerprintForSlot(
+    const State& state,
+    const Slot& slot
+) noexcept {
+    switch (slot.proofFamily) {
+    case ProofFamily::legacyV1:
+        return state.fingerprint;
+    case ProofFamily::exactV2:
+        return state.exactFingerprint;
+    case ProofFamily::none:
+        return 0u;
+    }
+    return 0u;
+}
+
+[[nodiscard]] std::uint32_t acceptedTokenStrideForSlot(
+    const Slot& slot
+) noexcept {
+    switch (slot.proofFamily) {
+    case ProofFamily::legacyV1:
+        return MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_BYTES;
+    case ProofFamily::exactV2:
+        return MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_V2_BYTES;
+    case ProofFamily::none:
+        return 0u;
+    }
+    return 0u;
+}
+
+[[nodiscard]] bool validAcceptedPhysicsTokenForSlot(
+    const State& state,
+    const Slot& slot,
+    const void* raw,
+    const std::uint64_t expectedFingerprint
+) noexcept {
+    if (raw == nullptr || expectedFingerprint == 0u) return false;
+    switch (slot.proofFamily) {
+    case ProofFamily::legacyV1:
+        return validAcceptedPhysicsToken(
+            raw,
+            slot.transaction.transactionFingerprint,
+            expectedFingerprint);
+    case ProofFamily::exactV2:
+    {
+        if (programFingerprintForSlot(state, slot) == 0u) return false;
+        MRNumanXAcceptedPhysicsStateTokenGPUV2 token{};
+        std::memcpy(&token, raw, sizeof(token));
+        return token.transactionFingerprint ==
+                slot.transactionV2.transactionFingerprint &&
+            token.substepFingerprint ==
+                slot.transactionV2.substepFingerprint &&
+            token.physicsStateFingerprint != 0u &&
+            token.acceptedTimestampNanoseconds ==
+                slot.exactHumanIO.sensor.deliveryTimestampNanoseconds &&
+            token.physicsGeneration ==
+                slot.transactionV2.physicsGeneration &&
+            token.environmentIdentifier ==
+                slot.transactionV2.environmentIdentifierBase &&
+            token.flags == 0u &&
+            token.clockDomain ==
+                MR_NUMANX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
+            token.clockQuantumNanoseconds ==
+                MR_NUMANX_EXACT_CLOCK_QUANTUM_NANOSECONDS &&
+            token.tokenFingerprint == expectedFingerprint &&
+            token.tokenFingerprint ==
+                metalNumanXExactAcceptedPhysicsTokenV2Fingerprint(token);
+    }
+    case ProofFamily::none:
+        return false;
+    }
+    return false;
+}
+
 [[nodiscard]] NSString* nsString(const std::string& value) {
     return [NSString stringWithUTF8String:value.c_str()];
 }
@@ -839,6 +979,8 @@ void mixValue(std::uint64_t& hash, const T value) noexcept {
         result.retainedBytes = state->retainedBytes;
         result.acceptedStateProofAvailable =
             state->config.stateProofProgram.valid();
+        result.acceptedStateProofV2Available =
+            state->config.stateProofProgramV2.valid();
         result.deviceName = state->device == nil
             ? std::string{}
             : fromNSString(state->device.name);
@@ -876,6 +1018,36 @@ void mixValue(std::uint64_t& hash, const T value) noexcept {
         transaction.transactionFingerprint != 0u &&
         transaction.substepFingerprint != 0u &&
         transaction.acceptedTimestampMicroseconds != 0u &&
+        transaction.physicsGeneration != 0u &&
+        transaction.linearizationEpoch != 0u &&
+        transaction.slotGeneration != 0u &&
+        checkedAdd(
+            transaction.environmentIdentifierBase,
+            transaction.environmentCount - 1u,
+            lastEnvironment) &&
+        lastEnvironment <= std::numeric_limits<std::uint32_t>::max();
+}
+
+[[nodiscard]] bool transactionValid(
+    const State& state,
+    const MetalNumanXHumanMatterTransactionV2& transaction
+) noexcept {
+    std::uint64_t lastEnvironment = 0u;
+    return transaction.environmentCount == 1u &&
+        transaction.environmentCount <= state.config.environmentCapacity &&
+        transaction.transactionSlot < state.slots.size() &&
+        transaction.physicsSubsteps == 1u &&
+        transaction.physicsSubstep == 0u &&
+        transaction.expectedMatterCompletedMicrosteps != 0u &&
+        transaction.dofLayoutVersion ==
+            kMetalNumanXHumanMatterDofLayoutVersion &&
+        transaction.dofCount != 0u &&
+        transaction.dofCount <= MR_NUMANX_COUPLED_HUMAN_MAX_DOFS &&
+        transaction.qCoordinateCount == transaction.dofCount + 1u &&
+        transaction.qCoordinateCount <= MR_NUMANX_COUPLED_HUMAN_MAX_Q &&
+        transaction.reserved0 == 0u && transaction.reserved1 == 0u &&
+        transaction.transactionFingerprint != 0u &&
+        transaction.substepFingerprint != 0u &&
         transaction.physicsGeneration != 0u &&
         transaction.linearizationEpoch != 0u &&
         transaction.slotGeneration != 0u &&
@@ -931,6 +1103,67 @@ void mixValue(std::uint64_t& hash, const T value) noexcept {
     return dispatch;
 }
 
+[[nodiscard]] MRNumanXHumanMatterAdapterDispatchGPUV2 makeDispatchV2(
+    const State& state,
+    const Slot& slot,
+    const MetalNumanXHumanMatterPass& pass
+) noexcept {
+    const auto& transaction = slot.transactionV2;
+    const auto& humanIO = slot.exactHumanIO;
+    MRNumanXHumanMatterAdapterDispatchGPUV2 dispatch{};
+    dispatch.abiVersion =
+        MR_NUMANX_HUMAN_MATTER_EXACT_ADAPTER_ABI_VERSION;
+    dispatch.environmentCount = transaction.environmentCount;
+    dispatch.expectedMatterCompletedMicrosteps =
+        transaction.expectedMatterCompletedMicrosteps;
+    dispatch.matterSuccessCode = NM_STATUS_SUCCESS;
+    dispatch.jointStatusStride = slot.coupledArena.jointStatusStride;
+    narrowU32(pass.jointStatusStride, dispatch.jointStatusStride);
+    dispatch.standStatusStride = 1u;
+    dispatch.matterOutcomeStride = 1u;
+    dispatch.acceptedTokenStrideBytes =
+        MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_V2_BYTES;
+    dispatch.worldStatusStride = 1u;
+    dispatch.acceptedStateProofStride = 1u;
+    dispatch.environmentIdentifierBase =
+        transaction.environmentIdentifierBase;
+    dispatch.controlStep = transaction.controlStep;
+    dispatch.physicsSubstep = transaction.physicsSubstep;
+    dispatch.physicsSubsteps = transaction.physicsSubsteps;
+    dispatch.structSize = sizeof(dispatch);
+    dispatch.programFingerprint = state.exactFingerprint;
+    dispatch.transactionFingerprint = transaction.transactionFingerprint;
+    dispatch.substepFingerprint = transaction.substepFingerprint;
+    dispatch.acceptedTimestampNanoseconds =
+        humanIO.sensor.deliveryTimestampNanoseconds;
+    dispatch.physicsGeneration = transaction.physicsGeneration;
+    dispatch.linearizationEpoch = transaction.linearizationEpoch;
+    dispatch.slotGeneration = transaction.slotGeneration;
+    dispatch.matterSourcePhysicsFingerprint = state.matterSourceFingerprint;
+    dispatch.matterDeviceProgramFingerprint = state.matterDeviceFingerprint;
+    dispatch.stateProofProgramFingerprint =
+        state.config.stateProofProgramV2.valid()
+            ? state.config.stateProofProgramV2.fingerprint
+            : 0u;
+    dispatch.clockDomain = humanIO.authority.clockDomain;
+    dispatch.clockQuantumNanoseconds =
+        humanIO.authority.clockQuantumNanoseconds;
+    narrowU32(
+        humanIO.authority.byteCount,
+        dispatch.inboundAuthorityByteCount);
+    dispatch.motorCandidateFingerprint =
+        humanIO.authority.motorCandidateFingerprint;
+    dispatch.acceptedBrainTimestampNanoseconds =
+        humanIO.authority.acceptedBrainTimestampNanoseconds;
+    dispatch.brainGeneration = humanIO.authority.brainGeneration;
+    dispatch.humanIOProgramFingerprint =
+        humanIO.authority.humanIOProgramFingerprint;
+    dispatch.inboundAuthorityGPUAddress = humanIO.authority.gpuAddress;
+    dispatch.authorityRangeIdentityFingerprint =
+        humanIO.authority.rangeIdentityFingerprint;
+    return dispatch;
+}
+
 void dispatchEnvironments(
     id<MTLComputeCommandEncoder> encoder,
     id<MTLComputePipelineState> pipeline,
@@ -950,13 +1183,20 @@ void dispatchEnvironments(
 ) noexcept {
     __unsafe_unretained id<MTLCommandBuffer> commandBuffer =
         (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
-    const auto dispatch = makeDispatch(state, slot, pass);
     id<MTLComputeCommandEncoder> encoder =
         [commandBuffer computeCommandEncoder];
     if (encoder == nil) return false;
     encoder.label = @"NumanX Human/Matter prepare world status";
     [encoder setComputePipelineState:state.prepareWorldStatusPipeline];
-    [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+    if (slot.proofFamily == ProofFamily::exactV2) {
+        const auto dispatch = makeDispatchV2(state, slot, pass);
+        [encoder setBytes:&dispatch
+                   length:sizeof(MRNumanXHumanMatterAdapterDispatchGPU)
+                  atIndex:0u];
+    } else {
+        const auto dispatch = makeDispatch(state, slot, pass);
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+    }
     [encoder setBuffer:slot.worldStatuses offset:0u atIndex:1u];
     dispatchEnvironments(
         encoder, state.prepareWorldStatusPipeline,
@@ -1035,13 +1275,20 @@ void dispatchEnvironments(
 ) noexcept {
     __unsafe_unretained id<MTLCommandBuffer> commandBuffer =
         (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
-    const auto dispatch = makeDispatch(state, slot, pass);
     id<MTLComputeCommandEncoder> encoder =
         [commandBuffer computeCommandEncoder];
     if (encoder == nil) return false;
     encoder.label = @"NumanX Human/Matter map Human status";
     [encoder setComputePipelineState:state.mapHumanStatusPipeline];
-    [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+    if (slot.proofFamily == ProofFamily::exactV2) {
+        const auto dispatch = makeDispatchV2(state, slot, pass);
+        [encoder setBytes:&dispatch
+                   length:sizeof(MRNumanXHumanMatterAdapterDispatchGPU)
+                  atIndex:0u];
+    } else {
+        const auto dispatch = makeDispatch(state, slot, pass);
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+    }
     [encoder setBuffer:(__bridge id<MTLBuffer>)pass.standStatuses
                  offset:0u atIndex:1u];
     [encoder setBuffer:slot.worldStatuses offset:0u atIndex:2u];
@@ -1061,13 +1308,20 @@ void dispatchEnvironments(
         (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
     __unsafe_unretained id<MTLBuffer> matterStatuses =
         (__bridge id<MTLBuffer>)state.config.matterRuntime->statusBuffer();
-    const auto dispatch = makeDispatch(state, slot, pass);
     id<MTLComputeCommandEncoder> encoder =
         [commandBuffer computeCommandEncoder];
     if (encoder == nil || matterStatuses == nil) return false;
     encoder.label = @"NumanX Human/Matter capture Matter outcome";
     [encoder setComputePipelineState:state.captureOutcomePipeline];
-    [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+    if (slot.proofFamily == ProofFamily::exactV2) {
+        const auto dispatch = makeDispatchV2(state, slot, pass);
+        [encoder setBytes:&dispatch
+                   length:sizeof(MRNumanXHumanMatterAdapterDispatchGPU)
+                  atIndex:0u];
+    } else {
+        const auto dispatch = makeDispatch(state, slot, pass);
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+    }
     [encoder setBuffer:matterStatuses offset:0u atIndex:1u];
     [encoder setBuffer:slot.matterOutcomes offset:0u atIndex:2u];
     dispatchEnvironments(
@@ -1084,20 +1338,32 @@ void dispatchEnvironments(
 ) noexcept {
     __unsafe_unretained id<MTLCommandBuffer> commandBuffer =
         (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
-    const auto dispatch = makeDispatch(state, slot, pass);
     id<MTLComputeCommandEncoder> encoder =
         [commandBuffer computeCommandEncoder];
     if (encoder == nil) return false;
     encoder.label = @"NumanX Human/Matter accepted-state proof gate";
-    [encoder setComputePipelineState:state.preparedTokenPipeline];
-    [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
     [encoder setBuffer:(__bridge id<MTLBuffer>)pass.jointStatuses
                  offset:0u atIndex:1u];
     [encoder setBuffer:slot.acceptedStateProofs offset:0u atIndex:2u];
     [encoder setBuffer:slot.acceptedTokens offset:0u atIndex:3u];
-    dispatchEnvironments(
-        encoder, state.preparedTokenPipeline,
-        slot.transaction.environmentCount);
+    if (slot.proofFamily == ProofFamily::exactV2) {
+        const auto dispatch = makeDispatchV2(state, slot, pass);
+        [encoder setComputePipelineState:state.preparedTokenPipelineV2];
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [encoder setBuffer:
+            (__bridge id<MTLBuffer>)slot.exactHumanIO.authority.metalBuffer
+                     offset:slot.exactHumanIO.authority.byteOffset
+                   atIndex:4u];
+        dispatchEnvironments(
+            encoder, state.preparedTokenPipelineV2, 1u);
+    } else {
+        const auto dispatch = makeDispatch(state, slot, pass);
+        [encoder setComputePipelineState:state.preparedTokenPipeline];
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        dispatchEnvironments(
+            encoder, state.preparedTokenPipeline,
+            slot.transaction.environmentCount);
+    }
     [encoder endEncoding];
     return true;
 }
@@ -1163,6 +1429,40 @@ void dispatchEnvironments(
     return nonzeroHash(hash);
 }
 
+[[nodiscard]] bool exactHumanIOValidForSlot(
+    const State& state,
+    const Slot& slot
+) noexcept {
+    if (slot.proofFamily != ProofFamily::exactV2 ||
+        !slot.exactHumanIO.valid()) {
+        return false;
+    }
+    const auto& authority = slot.exactHumanIO.authority;
+    const auto& sensor = slot.exactHumanIO.sensor;
+    const auto& transaction = slot.transactionV2;
+    __unsafe_unretained id<MTLBuffer> buffer =
+        (__bridge id<MTLBuffer>)authority.metalBuffer;
+    std::uint64_t rangeEnd = 0u;
+    return buffer != nil && buffer.device != nil &&
+        buffer.device.registryID == state.device.registryID &&
+        authority.deviceRegistryID == state.device.registryID &&
+        buffer.storageMode == MTLStorageModePrivate &&
+        authority.byteOffset == 0u &&
+        authority.byteCount == sizeof(MRNumanXExactInboundAuthorityGPUV2) &&
+        checkedAdd(authority.byteOffset, authority.byteCount, rangeEnd) &&
+        rangeEnd <= buffer.length &&
+        buffer.gpuAddress + authority.byteOffset == authority.gpuAddress &&
+        transaction.transactionFingerprint ==
+            authority.transactionFingerprint &&
+        transaction.substepFingerprint == authority.substepFingerprint &&
+        sensor.deliveryTimestampNanoseconds != 0u &&
+        sensor.deliveryTimestampNanoseconds >
+            authority.acceptedBrainTimestampNanoseconds &&
+        sensor.programFingerprint == authority.humanIOProgramFingerprint &&
+        state.config.stateProofProgramV2.valid() &&
+        state.exactFingerprint != 0u;
+}
+
 [[nodiscard]] bool validatePass(
     State& state,
     Slot& slot,
@@ -1170,12 +1470,15 @@ void dispatchEnvironments(
     const MetalNumanXHumanMatterPhase expectedPhase,
     const bool compareSignature
 ) noexcept {
-    constexpr std::uint32_t capabilities =
+    constexpr std::uint32_t baseCapabilities =
         MetalNumanXHumanMatterExactCandidateKinematics |
         MetalNumanXHumanMatterSourceEffectiveTangent |
         MetalNumanXHumanMatterStagedReaction |
         MetalNumanXHumanMatterJointDecision |
         MetalNumanXHumanMatterPreparedPhysicsGate;
+    const std::uint32_t capabilities = baseCapabilities |
+        (slot.proofFamily == ProofFamily::exactV2
+            ? MetalNumanXHumanMatterExactClockAuthority : 0u);
     constexpr std::uint32_t access =
         MetalNumanXHumanMatterReadLiveHumanState |
         MetalNumanXHumanMatterReadHumanCheckpoints |
@@ -1209,11 +1512,10 @@ void dispatchEnvironments(
         pass.reactionStride < pass.dofCount ||
         pass.reactionStride != slot.coupledArena.reactionStride ||
         pass.jointStatusStride != slot.coupledArena.jointStatusStride ||
-        pass.acceptedTokenStrideBytes !=
-            MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_BYTES ||
+        pass.acceptedTokenStrideBytes != acceptedTokenStrideForSlot(slot) ||
         !(pass.timestepSeconds > 0.0f) ||
         !std::isfinite(pass.timestepSeconds) ||
-        pass.programFingerprint != state.fingerprint ||
+        pass.programFingerprint != programFingerprintForSlot(state, slot) ||
         pass.transactionFingerprint !=
             slot.transaction.transactionFingerprint ||
         pass.linearizationEpoch != slot.transaction.linearizationEpoch ||
@@ -1229,6 +1531,8 @@ void dispatchEnvironments(
             slot.coupledArena.jointStatusGPUAddress ||
         pass.acceptedPhysicsStateTokensGPUAddress !=
             slot.acceptedTokens.gpuAddress ||
+        (slot.proofFamily == ProofFamily::exactV2 &&
+         !exactHumanIOValidForSlot(state, slot)) ||
         !exactCallbackValid ||
         !validCommandBuffer(state.device, pass.commandBuffer)) return false;
 
@@ -1267,7 +1571,7 @@ void dispatchEnvironments(
     // access modes: checkpoints, live destinations, owner status, staged
     // reaction, joint status, proof scratch and the prepared token form one
     // rollback/proof authority and must never share bytes.
-    std::array<BufferRegion, 27u> regions{};
+    std::array<BufferRegion, 28u> regions{};
     std::size_t regionCount = 0u;
     const auto appendBuffer = [&] (
         void* raw, const std::uint64_t address,
@@ -1344,6 +1648,7 @@ void dispatchEnvironments(
     // Fail closed if a later arena addition is not reflected in retained
     // cross-slot isolation. Count the actual owner prefix before transients.
     if (regionCount != slot.physicalAuthorityRegions.size()) return false;
+    BufferRegion exactAuthorityRegion{};
     if (!appendBuffer(pass.ownerStatuses, pass.ownerStatusesGPUAddress,
                 ownerElements, sizeof(MRNumanXHumanMatterOwnerStatusGPU)) ||
         !appendExactBytes(
@@ -1365,10 +1670,35 @@ void dispatchEnvironments(
             state.config.matterRuntime->statusBuffer())) {
         return false;
     }
+    if (slot.proofFamily == ProofFamily::exactV2) {
+        if (!appendExactBytes(
+                slot.exactHumanIO.authority.metalBuffer,
+                slot.exactHumanIO.authority.gpuAddress,
+                slot.exactHumanIO.authority.byteCount)) {
+            return false;
+        }
+        exactAuthorityRegion = regions[regionCount - 1u];
+    }
     for (std::size_t left = 0u; left < regionCount; ++left) {
         for (std::size_t right = left + 1u; right < regionCount; ++right) {
             if (regionsOverlap(regions[left], regions[right])) return false;
         }
+    }
+    if (slot.proofFamily == ProofFamily::exactV2) {
+        if (!authorityRegionsIsolated(
+                state, slot, &exactAuthorityRegion, 1u,
+                false, false, false, false,
+                compareSignature) ||
+            (compareSignature &&
+             (!slot.exactInboundAuthorityRetained ||
+              slot.exactInboundAuthorityRegion.address !=
+                  exactAuthorityRegion.address ||
+              slot.exactInboundAuthorityRegion.bytes !=
+                  exactAuthorityRegion.bytes))) {
+            return false;
+        }
+    } else if (slot.exactInboundAuthorityRetained) {
+        return false;
     }
     if (!compareSignature) {
         if (!authorityRegionsIsolated(
@@ -1389,6 +1719,13 @@ void dispatchEnvironments(
         }
         slot.physicalAuthorityRegionCount =
             slot.physicalAuthorityRegions.size();
+        if (slot.proofFamily == ProofFamily::exactV2) {
+            slot.exactInboundAuthorityRegion = {
+                exactAuthorityRegion.address,
+                exactAuthorityRegion.bytes,
+            };
+            slot.exactInboundAuthorityRetained = true;
+        }
         const std::array<BufferRegion, 8u> leaseRegions{{
             {slot.lease.preparedTokensGPUAddress,
              slot.lease.preparedTokenBytes},
@@ -1589,7 +1926,7 @@ void dispatchEnvironments(
     std::uint64_t recordBytes = 0u;
     return checkedMultiply(
             lease.environmentCount,
-            MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_BYTES,
+            lease.proposedTokenStrideBytes,
             tokenBytes) &&
         checkedMultiply(lease.environmentCount, 128u, recordBytes) &&
         bufferRegion(
@@ -1671,9 +2008,14 @@ void dispatchEnvironments(
     Slot& slot,
     const MetalNumanXHumanMatterPrepareLease& lease
 ) noexcept {
+    const std::uint64_t expectedProgramFingerprint =
+        programFingerprintForSlot(state, slot);
+    const std::uint32_t expectedTokenStride =
+        acceptedTokenStrideForSlot(slot);
     std::uint64_t tokenBytes = 0u;
     std::uint64_t recordBytes = 0u;
-    if (lease.abiVersion != kMetalNumanXHumanMatterABIVersion ||
+    if (expectedProgramFingerprint == 0u || expectedTokenStride == 0u ||
+        lease.abiVersion != kMetalNumanXHumanMatterABIVersion ||
         lease.structSize != sizeof(MetalNumanXHumanMatterPrepareLease) ||
         lease.environmentCount != slot.transaction.environmentCount ||
         lease.environmentCount != 1u ||
@@ -1687,16 +2029,13 @@ void dispatchEnvironments(
         lease.dofLayoutVersion !=
             kMetalNumanXHumanMatterDofLayoutVersion ||
         lease.reservedDofLayout != 0u ||
-        lease.preparedTokenStrideBytes !=
-            MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_BYTES ||
+        lease.preparedTokenStrideBytes != expectedTokenStride ||
         lease.proposalStride != 1u ||
-        lease.proposedTokenStrideBytes !=
-            MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_BYTES ||
+        lease.proposedTokenStrideBytes != expectedTokenStride ||
         lease.applyActionStride != 1u ||
         lease.matterApplyOutcomeStride != 1u ||
         lease.appliedOutcomeStride != 1u ||
-        lease.finalTokenStrideBytes !=
-            MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_BYTES ||
+        lease.finalTokenStrideBytes != expectedTokenStride ||
         lease.publicationFenceStride != 1u ||
         lease.preparedPhysicsStateTokens !=
             (__bridge void*)slot.acceptedTokens ||
@@ -1709,7 +2048,7 @@ void dispatchEnvironments(
         lease.matterApplyOutcomesGPUAddress !=
             slot.matterApplyOutcomes.gpuAddress ||
         lease.matterApplyOutcomeElementCount != 1u ||
-        lease.programFingerprint != state.fingerprint ||
+        lease.programFingerprint != expectedProgramFingerprint ||
         lease.transactionFingerprint !=
             slot.transaction.transactionFingerprint ||
         lease.linearizationEpoch != slot.transaction.linearizationEpoch ||
@@ -1726,7 +2065,7 @@ void dispatchEnvironments(
         lease.publicationFenceElementCount != 1u ||
         !checkedMultiply(
             lease.environmentCount,
-            MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_BYTES, tokenBytes) ||
+            expectedTokenStride, tokenBytes) ||
         lease.finalAcceptedPhysicsStateTokenByteCount != tokenBytes ||
         lease.proposedPhysicsStateTokenByteCount != tokenBytes ||
         !exactSharedEvent(state.device, lease.physicalPreparedEvent)) {
@@ -1734,6 +2073,9 @@ void dispatchEnvironments(
     }
     if (slot.humanIOCandidateBound) {
         if (!slot.humanIOCandidate.valid() ||
+            (slot.proofFamily == ProofFamily::exactV2 &&
+             slot.humanIOCandidate.humanIOProgramFingerprint !=
+                slot.exactHumanIO.authority.humanIOProgramFingerprint) ||
             !sameHumanIOCandidate(
                 slot.humanIOCandidate,
                 lease.humanIOCandidate)) {
@@ -1929,6 +2271,8 @@ void dispatchEnvironments(
     const MRNumanXHumanMatterProposalGPU& proposal,
     const void* proposedToken
 ) noexcept {
+    const std::uint64_t expectedProgramFingerprint =
+        programFingerprintForSlot(state, slot);
     const bool accept =
         proposal.decision == MR_NUMANX_HUMAN_MATTER_ROOT_ACCEPT &&
         proposal.code == MR_NUMANX_HUMAN_MATTER_PROPOSAL_SUCCESS &&
@@ -1946,7 +2290,8 @@ void dispatchEnvironments(
     return proposal.abiVersion == MR_NUMANX_HUMAN_MATTER_ABI_VERSION &&
         proposal.status == MR_NUMANX_HUMAN_MATTER_PROPOSAL_READY &&
         (accept || reject) &&
-        proposal.programFingerprint == state.fingerprint &&
+        expectedProgramFingerprint != 0u &&
+        proposal.programFingerprint == expectedProgramFingerprint &&
         proposal.transactionFingerprint ==
             slot.transaction.transactionFingerprint &&
         proposal.linearizationEpoch == slot.transaction.linearizationEpoch &&
@@ -1965,13 +2310,14 @@ void dispatchEnvironments(
         proposal.proposalFingerprint ==
             humanMatterRecordFingerprint(&proposal) &&
         (accept
-             ? validAcceptedPhysicsToken(
+             ? validAcceptedPhysicsTokenForSlot(
+                   state,
+                   slot,
                    proposedToken,
-                   slot.transaction.transactionFingerprint,
                    proposal.physicsTokenFingerprint)
              : zeroBytes(
                    proposedToken,
-                   MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_BYTES));
+                   acceptedTokenStrideForSlot(slot)));
 }
 
 [[nodiscard]] bool validAppliedRecord(
@@ -1982,6 +2328,8 @@ void dispatchEnvironments(
     const void* proposedToken,
     const void* finalToken
 ) noexcept {
+    const std::uint64_t expectedProgramFingerprint =
+        programFingerprintForSlot(state, slot);
     const bool accept = applied.status ==
             MR_NUMANX_HUMAN_MATTER_APPLIED_ACCEPT_QUARANTINED &&
         applied.decision == MR_NUMANX_HUMAN_MATTER_ROOT_ACCEPT &&
@@ -2022,7 +2370,8 @@ void dispatchEnvironments(
     return validProposalRecord(state, slot, proposal, proposedToken) &&
         applied.abiVersion == MR_NUMANX_HUMAN_MATTER_ABI_VERSION &&
         (accept || reject) &&
-        applied.programFingerprint == state.fingerprint &&
+        expectedProgramFingerprint != 0u &&
+        applied.programFingerprint == expectedProgramFingerprint &&
         applied.transactionFingerprint ==
             slot.transaction.transactionFingerprint &&
         applied.linearizationEpoch == slot.transaction.linearizationEpoch &&
@@ -2040,16 +2389,17 @@ void dispatchEnvironments(
         (accept
              ? (applied.physicsTokenFingerprint ==
                     proposal.physicsTokenFingerprint &&
-                validAcceptedPhysicsToken(
+                validAcceptedPhysicsTokenForSlot(
+                    state,
+                    slot,
                     finalToken,
-                    slot.transaction.transactionFingerprint,
                     applied.physicsTokenFingerprint) &&
                 std::memcmp(
                     proposedToken, finalToken,
-                    MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_BYTES) == 0)
+                    acceptedTokenStrideForSlot(slot)) == 0)
              : zeroBytes(
                    finalToken,
-                   MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_BYTES));
+                   acceptedTokenStrideForSlot(slot)));
 }
 
 [[nodiscard]] bool validPublicationFenceRecord(
@@ -2059,8 +2409,17 @@ void dispatchEnvironments(
     const numi::matter::PreparedStatePublicationBinding& binding,
     const std::uint32_t expectedStatus
 ) noexcept {
-    return fence.abiVersion ==
-            MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION &&
+    const std::uint64_t expectedProgramFingerprint =
+        programFingerprintForSlot(state, slot);
+    const std::uint32_t expectedFenceABI =
+        slot.proofFamily == ProofFamily::exactV2
+            ? MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION_V2
+            : MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION;
+    const std::uint32_t expectedTokenFamily =
+        slot.proofFamily == ProofFamily::exactV2
+            ? NM_MATTER_PREPARED_TOKEN_FAMILY_V2
+            : NM_MATTER_PREPARED_TOKEN_FAMILY_V1;
+    return fence.abiVersion == expectedFenceABI &&
         fence.structBytes ==
             MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_BYTES &&
         fence.status == expectedStatus && fence.environment == 0u &&
@@ -2068,7 +2427,8 @@ void dispatchEnvironments(
         fence.substepIndex == slot.transaction.physicsSubstep &&
         fence.physicsSubstepCount == slot.transaction.physicsSubsteps &&
         fence.reserved0 == 0u &&
-        fence.ownerProgramFingerprint == state.fingerprint &&
+        expectedProgramFingerprint != 0u &&
+        fence.ownerProgramFingerprint == expectedProgramFingerprint &&
         fence.transactionFingerprint ==
             slot.transaction.transactionFingerprint &&
         fence.linearizationEpoch == slot.transaction.linearizationEpoch &&
@@ -2079,6 +2439,8 @@ void dispatchEnvironments(
             binding.brainShadowStateFingerprint &&
         fence.brainWitnessFingerprint ==
             binding.brainWitnessFingerprint &&
+        binding.tokenFamily == expectedTokenFamily &&
+        binding.reserved0 == 0u &&
         fence.appliedDecisionFingerprint ==
             binding.appliedDecisionFingerprint &&
         fence.jointCommitFingerprint == binding.jointCommitFingerprint &&
@@ -2097,7 +2459,17 @@ void dispatchEnvironments(
     const std::uint64_t brainGeneration
 ) noexcept {
     const auto& candidate = slot.humanIOCandidate;
+    const std::uint64_t expectedProgramFingerprint =
+        programFingerprintForSlot(state, slot);
+    const bool exactHumanIOProgramBound =
+        slot.proofFamily != ProofFamily::exactV2 ||
+        (slot.exactHumanIO.valid() &&
+         candidate.humanIOProgramFingerprint ==
+            slot.exactHumanIO.authority.humanIOProgramFingerprint &&
+         binding.humanIOProgramFingerprint ==
+            slot.exactHumanIO.authority.humanIOProgramFingerprint);
     return slot.humanIOCandidateBound && candidate.valid() &&
+        expectedProgramFingerprint != 0u && exactHumanIOProgramBound &&
         binding.abiVersion == kMetalNumanXHumanIOPublicationABIVersion &&
         binding.structSize == sizeof(binding) &&
         binding.environmentCount == slot.transaction.environmentCount &&
@@ -2107,7 +2479,7 @@ void dispatchEnvironments(
         binding.substepIndex == slot.transaction.physicsSubstep &&
         binding.physicsSubstepCount == slot.transaction.physicsSubsteps &&
         binding.controlStep == slot.transaction.controlStep &&
-        binding.ownerProgramFingerprint == state.fingerprint &&
+        binding.ownerProgramFingerprint == expectedProgramFingerprint &&
         binding.transactionFingerprint ==
             slot.transaction.transactionFingerprint &&
         binding.linearizationEpoch == slot.transaction.linearizationEpoch &&
@@ -2612,65 +2984,93 @@ void cancelSlot(State& state, Slot& slot) noexcept {
     Slot& slot,
     const MetalNumanXHumanMatterPass& pass
 ) noexcept {
-    const auto& program = state.config.stateProofProgram;
-    if (!program.valid()) return true;
     __unsafe_unretained id<MTLBuffer> matterStatuses =
         (__bridge id<MTLBuffer>)state.config.matterRuntime->statusBuffer();
+    if (matterStatuses == nil) return false;
+    const auto populateCommon = [&] (auto& proof) noexcept {
+        proof.environmentCount = slot.transaction.environmentCount;
+        proof.environmentIdentifierBase =
+            slot.transaction.environmentIdentifierBase;
+        proof.commandBuffer = pass.commandBuffer;
+        proof.q = pass.q;
+        proof.rootTranslation = pass.rootTranslation;
+        proof.rootTranslationGPUAddress = pass.rootTranslationGPUAddress;
+        proof.rootTranslationElementCount = pass.rootTranslationElementCount;
+        proof.rootTranslationStride = 1u;
+        proof.v = pass.v;
+        proof.mujocoStates = pass.mujocoStates;
+        proof.matterGeneralizedReaction = pass.matterGeneralizedReaction;
+        proof.environmentStatuses = (__bridge void*)slot.worldStatuses;
+        proof.matterStatuses = (__bridge void*)matterStatuses;
+        proof.acceptedStateProofs = (__bridge void*)slot.acceptedStateProofs;
+        proof.qGPUAddress = pass.qGPUAddress;
+        proof.vGPUAddress = pass.vGPUAddress;
+        proof.mujocoStatesGPUAddress = pass.mujocoStatesGPUAddress;
+        proof.matterGeneralizedReactionGPUAddress =
+            pass.matterGeneralizedReactionGPUAddress;
+        proof.environmentStatusesGPUAddress = slot.worldStatuses.gpuAddress;
+        proof.matterStatusesGPUAddress = matterStatuses.gpuAddress;
+        proof.acceptedStateProofsGPUAddress =
+            slot.acceptedStateProofs.gpuAddress;
+        proof.qElementCount = pass.environmentCount * pass.qStride;
+        proof.vElementCount = pass.environmentCount * pass.vStride;
+        proof.mujocoStateCount =
+            pass.environmentCount * pass.mujocoStateStride;
+        proof.matterGeneralizedReactionElementCount =
+            pass.environmentCount * pass.reactionStride;
+        proof.environmentStatusElementCount = pass.environmentCount;
+        proof.matterStatusElementCount = pass.environmentCount;
+        proof.acceptedStateProofElementCount = pass.environmentCount;
+        narrowU32(pass.qStride, proof.qStride);
+        narrowU32(pass.vStride, proof.vStride);
+        narrowU32(pass.mujocoStateStride, proof.mujocoStateStride);
+        narrowU32(pass.reactionStride, proof.reactionStride);
+        proof.environmentStatusStride = 1u;
+        proof.matterStatusStride = 1u;
+        proof.acceptedStateProofStride = 1u;
+        narrowU32(pass.qCoordinateCount, proof.qCoordinateCount);
+        narrowU32(pass.dofCount, proof.dofCount);
+        proof.transactionSlot = slot.transaction.transactionSlot;
+        proof.transactionFingerprint = slot.transaction.transactionFingerprint;
+        proof.substepFingerprint = slot.transaction.substepFingerprint;
+        proof.physicsGeneration = slot.transaction.physicsGeneration;
+        proof.linearizationEpoch = slot.transaction.linearizationEpoch;
+        proof.slotGeneration = slot.transaction.slotGeneration;
+        proof.matterSourcePhysicsFingerprint = state.matterSourceFingerprint;
+        proof.matterDeviceProgramFingerprint = state.matterDeviceFingerprint;
+    };
+    if (slot.proofFamily == ProofFamily::exactV2) {
+        const auto& program = state.config.stateProofProgramV2;
+        if (!program.valid() || !exactHumanIOValidForSlot(state, slot)) {
+            return false;
+        }
+        MetalNumanXHumanMatterStateProofPassV2 proof;
+        populateCommon(proof);
+        proof.programFingerprint = state.exactFingerprint;
+        proof.stateProofProgramFingerprint = program.fingerprint;
+        proof.acceptedTimestampNanoseconds =
+            slot.exactHumanIO.sensor.deliveryTimestampNanoseconds;
+        proof.inboundAuthority =
+            slot.exactHumanIO.authority.metalBuffer;
+        proof.inboundAuthorityGPUAddress =
+            slot.exactHumanIO.authority.gpuAddress;
+        proof.inboundAuthorityByteCount =
+            slot.exactHumanIO.authority.byteCount;
+        proof.clockDomain = slot.exactHumanIO.authority.clockDomain;
+        proof.clockQuantumNanoseconds =
+            slot.exactHumanIO.authority.clockQuantumNanoseconds;
+        proof.motorCandidateFingerprint =
+            slot.exactHumanIO.authority.motorCandidateFingerprint;
+        return program.encode(program.context, proof);
+    }
+    const auto& program = state.config.stateProofProgram;
+    if (!program.valid()) return true;
     MetalNumanXHumanMatterStateProofPass proof;
-    proof.environmentCount = slot.transaction.environmentCount;
-    proof.environmentIdentifierBase =
-        slot.transaction.environmentIdentifierBase;
-    proof.commandBuffer = pass.commandBuffer;
-    proof.q = pass.q;
-    proof.rootTranslation = pass.rootTranslation;
-    proof.rootTranslationGPUAddress = pass.rootTranslationGPUAddress;
-    proof.rootTranslationElementCount = pass.rootTranslationElementCount;
-    proof.rootTranslationStride = 1u;
-    proof.v = pass.v;
-    proof.mujocoStates = pass.mujocoStates;
-    proof.matterGeneralizedReaction = pass.matterGeneralizedReaction;
-    proof.environmentStatuses = (__bridge void*)slot.worldStatuses;
-    proof.matterStatuses = (__bridge void*)matterStatuses;
-    proof.acceptedStateProofs = (__bridge void*)slot.acceptedStateProofs;
-    proof.qGPUAddress = pass.qGPUAddress;
-    proof.vGPUAddress = pass.vGPUAddress;
-    proof.mujocoStatesGPUAddress = pass.mujocoStatesGPUAddress;
-    proof.matterGeneralizedReactionGPUAddress =
-        pass.matterGeneralizedReactionGPUAddress;
-    proof.environmentStatusesGPUAddress = slot.worldStatuses.gpuAddress;
-    proof.matterStatusesGPUAddress = matterStatuses.gpuAddress;
-    proof.acceptedStateProofsGPUAddress =
-        slot.acceptedStateProofs.gpuAddress;
-    proof.qElementCount = pass.environmentCount * pass.qStride;
-    proof.vElementCount = pass.environmentCount * pass.vStride;
-    proof.mujocoStateCount =
-        pass.environmentCount * pass.mujocoStateStride;
-    proof.matterGeneralizedReactionElementCount =
-        pass.environmentCount * pass.reactionStride;
-    proof.environmentStatusElementCount = pass.environmentCount;
-    proof.matterStatusElementCount = pass.environmentCount;
-    proof.acceptedStateProofElementCount = pass.environmentCount;
-    narrowU32(pass.qStride, proof.qStride);
-    narrowU32(pass.vStride, proof.vStride);
-    narrowU32(pass.mujocoStateStride, proof.mujocoStateStride);
-    narrowU32(pass.reactionStride, proof.reactionStride);
-    proof.environmentStatusStride = 1u;
-    proof.matterStatusStride = 1u;
-    proof.acceptedStateProofStride = 1u;
-    narrowU32(pass.qCoordinateCount, proof.qCoordinateCount);
-    narrowU32(pass.dofCount, proof.dofCount);
-    proof.transactionSlot = slot.transaction.transactionSlot;
+    populateCommon(proof);
     proof.programFingerprint = state.fingerprint;
     proof.stateProofProgramFingerprint = program.fingerprint;
-    proof.transactionFingerprint = slot.transaction.transactionFingerprint;
-    proof.substepFingerprint = slot.transaction.substepFingerprint;
     proof.acceptedTimestampMicroseconds =
         slot.transaction.acceptedTimestampMicroseconds;
-    proof.physicsGeneration = slot.transaction.physicsGeneration;
-    proof.linearizationEpoch = slot.transaction.linearizationEpoch;
-    proof.slotGeneration = slot.transaction.slotGeneration;
-    proof.matterSourcePhysicsFingerprint = state.matterSourceFingerprint;
-    proof.matterDeviceProgramFingerprint = state.matterDeviceFingerprint;
     return program.encode(program.context, proof);
 }
 
@@ -2854,6 +3254,10 @@ void abortCallback(void* opaque, void* commandBuffer) noexcept {
                 !validLeaseResources(*state, slot, baseLease) ||
                 candidate.transactionFingerprint !=
                     slot.transaction.transactionFingerprint ||
+                (slot.proofFamily == ProofFamily::exactV2 &&
+                 candidate.humanIOProgramFingerprint !=
+                    slot.exactHumanIO.authority.
+                        humanIOProgramFingerprint) ||
                 candidate.deviceRegistryID != state->device.registryID ||
                 candidate.identityFingerprint !=
                     candidate.computedIdentityFingerprint()) {
@@ -2924,7 +3328,8 @@ makeDispositionIdentity(
                 preflight.physicsSubstepCount !=
                     slot.transaction.physicsSubsteps ||
                 preflight.controlStep != slot.transaction.controlStep ||
-                preflight.programFingerprint != state->fingerprint ||
+                preflight.programFingerprint !=
+                    programFingerprintForSlot(*state, slot) ||
                 preflight.transactionFingerprint !=
                     slot.transaction.transactionFingerprint ||
                 preflight.linearizationEpoch !=
@@ -3070,7 +3475,8 @@ makeDispositionIdentity(
                 ownerPass.physicsSubstepCount !=
                     slot.transaction.physicsSubsteps ||
                 ownerPass.controlStep != slot.transaction.controlStep ||
-                ownerPass.programFingerprint != state->fingerprint ||
+                ownerPass.programFingerprint !=
+                    programFingerprintForSlot(*state, slot) ||
                 ownerPass.transactionFingerprint !=
                     slot.transaction.transactionFingerprint ||
                 ownerPass.linearizationEpoch !=
@@ -3145,53 +3551,90 @@ makeDispositionIdentity(
                 slot.stage = SlotStage::terminalNoTouch;
                 return false;
             }
-            numi::matter::AcceptedStateApplyPass matterPass{};
-            matterPass.mode = validateAck
-                ? numi::matter::PreparedStateApplyMode::validateBrainAck
-                : numi::matter::PreparedStateApplyMode::forceReject;
-            matterPass.environmentCount = slot.transaction.environmentCount;
-            matterPass.environmentIdentifierBase =
-                slot.transaction.environmentIdentifierBase;
-            matterPass.controlStep = slot.transaction.controlStep;
-            matterPass.physicsSubstep = slot.transaction.physicsSubstep;
-            matterPass.physicsSubstepCount =
-                slot.transaction.physicsSubsteps;
-            matterPass.transactionSlot = slot.transaction.transactionSlot;
-            matterPass.commandBuffer = ownerPass.commandBuffer;
-            matterPass.proposals = lease.proposals;
-            matterPass.brainAcks = ownerPass.brainAcks;
-            matterPass.applyActions = lease.applyActions;
-            matterPass.matterApplyOutcomes = lease.matterApplyOutcomes;
-            matterPass.proposedPhysicsStateTokens =
-                lease.proposedPhysicsStateTokens;
-            matterPass.proposalsGPUAddress = lease.proposalsGPUAddress;
-            matterPass.brainAcksGPUAddress = ownerPass.brainAcksGPUAddress;
-            matterPass.applyActionsGPUAddress = lease.applyActionsGPUAddress;
-            matterPass.matterApplyOutcomesGPUAddress =
-                lease.matterApplyOutcomesGPUAddress;
-            matterPass.proposedPhysicsStateTokensGPUAddress =
-                lease.proposedPhysicsStateTokensGPUAddress;
-            matterPass.proposalElementCount = lease.proposalElementCount;
-            matterPass.brainAckElementCount = ownerPass.brainAckElementCount;
-            matterPass.applyActionElementCount =
-                lease.applyActionElementCount;
-            matterPass.matterApplyOutcomeElementCount =
-                lease.matterApplyOutcomeElementCount;
-            matterPass.proposedPhysicsStateTokenBytes =
-                lease.proposedPhysicsStateTokenByteCount;
-            matterPass.proposalStride = lease.proposalStride;
-            matterPass.brainAckStride = ownerPass.brainAckStride;
-            matterPass.applyActionStride = lease.applyActionStride;
-            matterPass.matterApplyOutcomeStride =
-                lease.matterApplyOutcomeStride;
-            matterPass.proposedPhysicsStateTokenStrideBytes =
-                lease.proposedTokenStrideBytes;
-            matterPass.ownerProgramFingerprint = lease.programFingerprint;
-            matterPass.transactionFingerprint =
-                lease.transactionFingerprint;
-            matterPass.linearizationEpoch = lease.linearizationEpoch;
-            matterPass.slotGeneration = lease.slotGeneration;
-            if (!state->config.matterRuntime->applyPreparedState(matterPass)) {
+            const auto populateMatterPass = [&] (auto& matterPass) noexcept {
+                matterPass.mode = validateAck
+                    ? numi::matter::PreparedStateApplyMode::validateBrainAck
+                    : numi::matter::PreparedStateApplyMode::forceReject;
+                matterPass.environmentCount =
+                    slot.transaction.environmentCount;
+                matterPass.environmentIdentifierBase =
+                    slot.transaction.environmentIdentifierBase;
+                matterPass.controlStep = slot.transaction.controlStep;
+                matterPass.physicsSubstep = slot.transaction.physicsSubstep;
+                matterPass.physicsSubstepCount =
+                    slot.transaction.physicsSubsteps;
+                matterPass.transactionSlot =
+                    slot.transaction.transactionSlot;
+                matterPass.commandBuffer = ownerPass.commandBuffer;
+                matterPass.proposals = lease.proposals;
+                matterPass.brainAcks = ownerPass.brainAcks;
+                matterPass.applyActions = lease.applyActions;
+                matterPass.matterApplyOutcomes = lease.matterApplyOutcomes;
+                matterPass.proposedPhysicsStateTokens =
+                    lease.proposedPhysicsStateTokens;
+                matterPass.proposalsGPUAddress =
+                    lease.proposalsGPUAddress;
+                matterPass.brainAcksGPUAddress =
+                    ownerPass.brainAcksGPUAddress;
+                matterPass.applyActionsGPUAddress =
+                    lease.applyActionsGPUAddress;
+                matterPass.matterApplyOutcomesGPUAddress =
+                    lease.matterApplyOutcomesGPUAddress;
+                matterPass.proposedPhysicsStateTokensGPUAddress =
+                    lease.proposedPhysicsStateTokensGPUAddress;
+                matterPass.proposalElementCount =
+                    lease.proposalElementCount;
+                matterPass.brainAckElementCount =
+                    ownerPass.brainAckElementCount;
+                matterPass.applyActionElementCount =
+                    lease.applyActionElementCount;
+                matterPass.matterApplyOutcomeElementCount =
+                    lease.matterApplyOutcomeElementCount;
+                matterPass.proposedPhysicsStateTokenBytes =
+                    lease.proposedPhysicsStateTokenByteCount;
+                matterPass.proposalStride = lease.proposalStride;
+                matterPass.brainAckStride = ownerPass.brainAckStride;
+                matterPass.applyActionStride = lease.applyActionStride;
+                matterPass.matterApplyOutcomeStride =
+                    lease.matterApplyOutcomeStride;
+                matterPass.proposedPhysicsStateTokenStrideBytes =
+                    lease.proposedTokenStrideBytes;
+                matterPass.ownerProgramFingerprint =
+                    lease.programFingerprint;
+                matterPass.transactionFingerprint =
+                    lease.transactionFingerprint;
+                matterPass.linearizationEpoch = lease.linearizationEpoch;
+                matterPass.slotGeneration = lease.slotGeneration;
+            };
+            bool matterApplyEncoded = false;
+            switch (slot.proofFamily) {
+            case ProofFamily::legacyV1:
+            {
+                numi::matter::AcceptedStateApplyPass matterPass{};
+                populateMatterPass(matterPass);
+                matterApplyEncoded =
+                    state->config.matterRuntime->applyPreparedState(
+                        matterPass);
+                break;
+            }
+            case ProofFamily::exactV2:
+            {
+                numi::matter::AcceptedStateApplyPassV2 matterPass{};
+                populateMatterPass(matterPass);
+                matterPass.clockDomain =
+                    slot.exactHumanIO.authority.clockDomain;
+                matterPass.clockQuantumNanoseconds =
+                    slot.exactHumanIO.authority.
+                        clockQuantumNanoseconds;
+                matterApplyEncoded =
+                    state->config.matterRuntime->applyPreparedStateV2(
+                        matterPass);
+                break;
+            }
+            case ProofFamily::none:
+                break;
+            }
+            if (!matterApplyEncoded) {
                 return false;
             }
             reservation.brainAcks = reinterpret_cast<std::uintptr_t>(
@@ -3603,6 +4046,10 @@ releasePrepareLeaseCallback(
                 return false;
             }
             numi::matter::PreparedStatePublicationBinding binding{};
+            binding.tokenFamily =
+                slot.proofFamily == ProofFamily::exactV2
+                    ? NM_MATTER_PREPARED_TOKEN_FAMILY_V2
+                    : NM_MATTER_PREPARED_TOKEN_FAMILY_V1;
             binding.physicsTokenFingerprint =
                 proposal->physicsTokenFingerprint;
             binding.brainProgramFingerprint =
@@ -3821,7 +4268,9 @@ MetalNumanXHumanMatterContext::initialize() {
         config.reserved0 != 0u || config.maximumRetainedBytes == 0u ||
         ((config.candidateObserverContext == nullptr) != (config.observeCandidate == nullptr)) ||
         (config.stateProofProgram.configured() &&
-         !config.stateProofProgram.valid())) {
+         !config.stateProofProgram.valid()) ||
+        (config.stateProofProgramV2.configured() &&
+         !config.stateProofProgramV2.valid())) {
         return diagnostics(
             &state, MetalNumanXHumanMatterHostStatus::invalidConfiguration,
             "runtime, metallibs, capacities, proof program, or reserved fields are invalid");
@@ -3845,11 +4294,16 @@ MetalNumanXHumanMatterContext::initialize() {
         config.matterRuntime->deviceProgramFingerprint();
     const std::uint64_t matterProofFingerprint =
         config.matterRuntime->acceptedStateProofProgramFingerprint();
+    const std::uint64_t matterProofFingerprintV2 =
+        config.matterRuntime->acceptedStateProofProgramFingerprintV2();
     if (state.matterSourceFingerprint == 0u ||
         state.matterDeviceFingerprint == 0u ||
         matterProofFingerprint == 0u ||
+        matterProofFingerprintV2 == 0u ||
         (config.stateProofProgram.valid() &&
-         config.stateProofProgram.fingerprint != matterProofFingerprint)) {
+         config.stateProofProgram.fingerprint != matterProofFingerprint) ||
+        (config.stateProofProgramV2.valid() &&
+         config.stateProofProgramV2.fingerprint != matterProofFingerprintV2)) {
         return diagnostics(
             &state,
             MetalNumanXHumanMatterHostStatus::matterRuntimeIncompatible,
@@ -3932,7 +4386,10 @@ MetalNumanXHumanMatterContext::initialize() {
             !pipeline(@"numanx_human_matter_capture_outcome",
                       state.captureOutcomePipeline) ||
             !pipeline(@"numanx_human_matter_write_prepared_token",
-                      state.preparedTokenPipeline)) {
+                      state.preparedTokenPipeline) ||
+            (config.stateProofProgramV2.valid() &&
+             !pipeline(@"numanx_human_matter_write_prepared_token_v2",
+                       state.preparedTokenPipelineV2))) {
             return diagnostics(
                 &state, MetalNumanXHumanMatterHostStatus::metalPipelineFailure,
                 "adapter metallib is missing a required NumanX Human/Matter kernel");
@@ -3967,7 +4424,7 @@ MetalNumanXHumanMatterContext::initialize() {
                          MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_BYTES,
                          tokenBytes) ||
         !checkedMultiply(config.environmentCapacity,
-                         MR_NUMANX_ACCEPTED_STATE_PROOF_BYTES,
+                         MR_NUMANX_ACCEPTED_STATE_PROOF_V2_BYTES,
                          proofBytes) ||
         !checkedAdd(outcomesBytes, applyOutcomeBytes, perSlot) ||
         !checkedAdd(perSlot, worldBytes, perSlot) ||
@@ -4084,6 +4541,31 @@ MetalNumanXHumanMatterContext::initialize() {
     mixValue(fingerprint, state.metallibIdentity.byteFingerprint);
     mixValue(fingerprint, state.metallibIdentity.byteCount);
     state.fingerprint = nonzeroHash(fingerprint);
+    if (config.stateProofProgramV2.valid()) {
+        std::uint64_t exactFingerprint = kFNVOffset;
+        mixValue(exactFingerprint,
+            static_cast<std::uint64_t>(
+                MR_NUMANX_HUMAN_MATTER_EXACT_ADAPTER_ABI_VERSION));
+        mixValue(exactFingerprint, state.matterSourceFingerprint);
+        mixValue(exactFingerprint, state.matterDeviceFingerprint);
+        mixValue(exactFingerprint, state.coupledProgram.fingerprint);
+        mixValue(exactFingerprint, config.stateProofProgramV2.fingerprint);
+        mixValue(exactFingerprint,
+            static_cast<std::uint64_t>(config.environmentCapacity));
+        mixValue(exactFingerprint,
+            static_cast<std::uint64_t>(config.pointCapacity));
+        mixValue(exactFingerprint,
+            static_cast<std::uint64_t>(config.transactionSlotCount));
+        mixValue(exactFingerprint, state.metallibIdentity.byteFingerprint);
+        mixValue(exactFingerprint, state.metallibIdentity.byteCount);
+        state.exactFingerprint = nonzeroHash(exactFingerprint);
+        if (state.exactFingerprint == state.fingerprint) {
+            return diagnostics(
+                &state,
+                MetalNumanXHumanMatterHostStatus::matterRuntimeIncompatible,
+                "legacy and exact Human/Matter program identities collide");
+        }
+    }
     state.initialized = true;
     return diagnostics(&state, MetalNumanXHumanMatterHostStatus::success);
 }
@@ -4103,6 +4585,9 @@ MetalNumanXHumanMatterProgram MetalNumanXHumanMatterContext::program(
          transaction.slotGeneration <=
             slot.transaction.slotGeneration)) return result;
     slot.transaction = transaction;
+    slot.transactionV2 = {};
+    slot.exactHumanIO = {};
+    slot.proofFamily = ProofFamily::legacyV1;
     slot.lease = {};
     slot.stage = SlotStage::prepared;
     slot.commandBufferIdentity = 0u;
@@ -4111,6 +4596,8 @@ MetalNumanXHumanMatterProgram MetalNumanXHumanMatterContext::program(
     slot.applyAttempt = 0u;
     slot.physicalAuthorityRegions = {};
     slot.physicalAuthorityRegionCount = 0u;
+    slot.exactInboundAuthorityRegion = {};
+    slot.exactInboundAuthorityRetained = false;
     slot.applicationReservation = {};
     slot.publicationBinding = {};
     slot.publicationReservation = {};
@@ -4203,8 +4690,182 @@ MetalNumanXHumanMatterProgram MetalNumanXHumanMatterContext::program(
     result.transactionFingerprint = transaction.transactionFingerprint;
     result.linearizationEpoch = transaction.linearizationEpoch;
     result.slotGeneration = transaction.slotGeneration;
+    result.tokenFamily =
+        MetalNumanXHumanMatterTokenFamily::legacyMicrosecondsV1;
+    result.reservedTokenFamily = 0u;
+    result.humanIOProgramFingerprint = 0u;
     if (!result.valid()) {
         slot.stage = SlotStage::released;
+        maybeReleaseLifetimeHold(*state_);
+        return {};
+    }
+    return result;
+}
+
+MetalNumanXHumanMatterProgram MetalNumanXHumanMatterContext::program(
+    const MetalNumanXHumanMatterTransactionV2& transaction,
+    const MetalNumanXHumanIOExactPreparedView& humanIO
+) noexcept {
+    MetalNumanXHumanMatterProgram result{};
+    if (state_ == nullptr || !state_->initialized ||
+        !transactionValid(*state_, transaction) || !humanIO.valid() ||
+        !state_->config.stateProofProgramV2.valid() ||
+        state_->preparedTokenPipelineV2 == nil ||
+        state_->exactFingerprint == 0u ||
+        transaction.transactionFingerprint !=
+            humanIO.authority.transactionFingerprint ||
+        transaction.substepFingerprint !=
+            humanIO.authority.substepFingerprint ||
+        humanIO.sensor.deliveryTimestampNanoseconds == 0u ||
+        humanIO.sensor.deliveryTimestampNanoseconds <=
+            humanIO.authority.acceptedBrainTimestampNanoseconds ||
+        humanIO.sensor.programFingerprint !=
+            humanIO.authority.humanIOProgramFingerprint) {
+        return result;
+    }
+    std::lock_guard lock(state_->mutex);
+    Slot& slot = state_->slots[transaction.transactionSlot];
+    if ((slot.stage != SlotStage::empty &&
+         slot.stage != SlotStage::released) ||
+        slot.leaseAcquired || slot.awaitingFirstAbort ||
+        (slot.transaction.slotGeneration != 0u &&
+         transaction.slotGeneration <= slot.transaction.slotGeneration)) {
+        return result;
+    }
+
+    MetalNumanXHumanMatterTransaction common{};
+    common.environmentCount = transaction.environmentCount;
+    common.environmentIdentifierBase = transaction.environmentIdentifierBase;
+    common.transactionSlot = transaction.transactionSlot;
+    common.controlStep = transaction.controlStep;
+    common.physicsSubstep = transaction.physicsSubstep;
+    common.physicsSubsteps = transaction.physicsSubsteps;
+    common.expectedMatterCompletedMicrosteps =
+        transaction.expectedMatterCompletedMicrosteps;
+    common.qCoordinateCount = transaction.qCoordinateCount;
+    common.dofCount = transaction.dofCount;
+    common.dofLayoutVersion = transaction.dofLayoutVersion;
+    common.seed = transaction.seed;
+    common.transactionFingerprint = transaction.transactionFingerprint;
+    common.substepFingerprint = transaction.substepFingerprint;
+    common.physicsGeneration = transaction.physicsGeneration;
+    common.linearizationEpoch = transaction.linearizationEpoch;
+    common.slotGeneration = transaction.slotGeneration;
+
+    slot.transaction = common;
+    slot.transactionV2 = transaction;
+    slot.exactHumanIO = humanIO;
+    slot.proofFamily = ProofFamily::exactV2;
+    slot.lease = {};
+    slot.stage = SlotStage::prepared;
+    slot.commandBufferIdentity = 0u;
+    slot.applyCommandBufferIdentity = 0u;
+    slot.passSignature = 0u;
+    slot.applyAttempt = 0u;
+    slot.physicalAuthorityRegions = {};
+    slot.physicalAuthorityRegionCount = 0u;
+    slot.exactInboundAuthorityRegion = {};
+    slot.exactInboundAuthorityRetained = false;
+    slot.applicationReservation = {};
+    slot.publicationBinding = {};
+    slot.publicationReservation = {};
+    slot.appliedOutcome = {};
+    slot.humanIOCandidate = {};
+    slot.humanIOBinding = {};
+    slot.publicationReserved = false;
+    slot.humanIOCandidateBound = false;
+    slot.humanIORootReserved = false;
+    slot.matterOpened = false;
+    slot.cancelIssued = false;
+    slot.completionArmed = false;
+    slot.leaseAcquired = false;
+    slot.physicalCommandCompleted = false;
+    slot.physicalCommandFailed = false;
+    slot.applyEncoded = false;
+    slot.applyCommandCompleted = false;
+    slot.applyCommandSucceeded = false;
+    slot.restoreRequired = false;
+    slot.awaitingFirstAbort = false;
+    slot.callbackFrame = nullptr;
+    state_->lifetimeHold = state_;
+
+    result.capabilities =
+        MetalNumanXHumanMatterExactCandidateKinematics |
+        MetalNumanXHumanMatterSourceEffectiveTangent |
+        MetalNumanXHumanMatterStagedReaction |
+        MetalNumanXHumanMatterJointDecision |
+        MetalNumanXHumanMatterPreparedPhysicsGate |
+        MetalNumanXHumanMatterExactClockAuthority;
+    result.accessFlags =
+        MetalNumanXHumanMatterReadLiveHumanState |
+        MetalNumanXHumanMatterReadHumanCheckpoints |
+        MetalNumanXHumanMatterReadSourceEffectiveTangent |
+        MetalNumanXHumanMatterMayEncodeExactCandidate |
+        MetalNumanXHumanMatterWriteStagedReaction |
+        MetalNumanXHumanMatterWriteJointStatus |
+        MetalNumanXHumanMatterWritePreparedPhysicsToken;
+    result.context = state_.get();
+    result.encode = &encodeCallback;
+    result.abort = &abortCallback;
+    result.acquirePrepareLease = &acquirePrepareLeaseCallback;
+    result.bindHumanIOCandidatePublication =
+        &bindHumanIOCandidatePublicationCallback;
+    result.releasePrepareLease = &releasePrepareLeaseCallback;
+    result.reservePreparedApplication =
+        &reservePreparedApplicationCallback;
+    result.encodePreparedApply = &encodePreparedApplyCallback;
+    result.abortPreparedApply = &abortPreparedApplyCallback;
+    result.reservePublishedRoot = &reservePublishedRootCallback;
+    result.releasePublishedRoot = &releasePublishedRootCallback;
+    result.fingerprint = state_->exactFingerprint;
+    result.matterGeneralizedReaction =
+        slot.coupledArena.matterGeneralizedReaction;
+    result.jointStatuses = slot.coupledArena.jointStatuses;
+    result.acceptedPhysicsStateTokens =
+        (__bridge void*)slot.acceptedTokens;
+    result.matterApplyOutcomes =
+        (__bridge void*)slot.matterApplyOutcomes;
+    result.matterGeneralizedReactionGPUAddress =
+        slot.coupledArena.reactionGPUAddress;
+    result.jointStatusesGPUAddress =
+        slot.coupledArena.jointStatusGPUAddress;
+    result.acceptedPhysicsStateTokensGPUAddress =
+        slot.acceptedTokens.gpuAddress;
+    result.matterApplyOutcomesGPUAddress =
+        slot.matterApplyOutcomes.gpuAddress;
+    result.matterGeneralizedReactionElementCount =
+        slot.coupledArena.reactionByteCount / sizeof(float);
+    result.jointStatusElementCount =
+        slot.coupledArena.jointStatusByteCount /
+            sizeof(MRNumanXCoupledHumanStatusGPU);
+    result.acceptedPhysicsStateTokenByteCount = slot.acceptedTokens.length;
+    result.matterApplyOutcomeElementCount = transaction.environmentCount;
+    result.environmentCount = transaction.environmentCount;
+    result.reactionStride = slot.coupledArena.reactionStride;
+    result.jointStatusStride = slot.coupledArena.jointStatusStride;
+    result.acceptedTokenStrideBytes =
+        MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_V2_BYTES;
+    result.matterApplyOutcomeStride = 1u;
+    result.transactionSlot = transaction.transactionSlot;
+    result.substepIndex = transaction.physicsSubstep;
+    result.physicsSubstepCount = transaction.physicsSubsteps;
+    result.candidatePointCapacity = state_->config.pointCapacity;
+    result.controlStep = transaction.controlStep;
+    result.qCoordinateCount = transaction.qCoordinateCount;
+    result.dofCount = transaction.dofCount;
+    result.dofLayoutVersion = transaction.dofLayoutVersion;
+    result.transactionFingerprint = transaction.transactionFingerprint;
+    result.linearizationEpoch = transaction.linearizationEpoch;
+    result.slotGeneration = transaction.slotGeneration;
+    result.tokenFamily =
+        MetalNumanXHumanMatterTokenFamily::exactNanosecondsV2;
+    result.reservedTokenFamily = 0u;
+    result.humanIOProgramFingerprint =
+        humanIO.authority.humanIOProgramFingerprint;
+    if (!result.valid()) {
+        slot.stage = SlotStage::released;
+        slot.exactHumanIO = {};
+        slot.proofFamily = ProofFamily::none;
         maybeReleaseLifetimeHold(*state_);
         return {};
     }

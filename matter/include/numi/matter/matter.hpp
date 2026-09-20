@@ -1097,6 +1097,79 @@ struct AcceptedStateProofPass {
     std::uint32_t rootTranslationStride = 0u;
 };
 
+// Exact-nanosecond accepted-state proof surface. This repeats the borrowed
+// state ranges deliberately: callers cannot select the exact family through a
+// flag on AcceptedStateProofPass, and a legacy timestamp can never be
+// reinterpreted as nanoseconds. inboundAuthority is the private 112-byte
+// HumanIO receipt produced earlier on the same command buffer.
+struct AcceptedStateProofPassV2 {
+    std::uint32_t abiVersion =
+        NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION_V2;
+    std::uint32_t structSize = sizeof(AcceptedStateProofPassV2);
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t environmentIdentifierBase = 0u;
+
+    void* commandBuffer = nullptr;
+    void* q = nullptr;
+    void* v = nullptr;
+    void* mujocoStates = nullptr;
+    void* matterGeneralizedReaction = nullptr;
+    void* environmentStatuses = nullptr;
+    void* matterStatuses = nullptr;
+    void* acceptedStateProofs = nullptr;
+    void* inboundAuthority = nullptr;
+
+    std::uint64_t qGPUAddress = 0u;
+    std::uint64_t vGPUAddress = 0u;
+    std::uint64_t mujocoStatesGPUAddress = 0u;
+    std::uint64_t matterGeneralizedReactionGPUAddress = 0u;
+    std::uint64_t environmentStatusesGPUAddress = 0u;
+    std::uint64_t matterStatusesGPUAddress = 0u;
+    std::uint64_t acceptedStateProofsGPUAddress = 0u;
+    std::uint64_t inboundAuthorityGPUAddress = 0u;
+
+    std::uint64_t qElementCount = 0u;
+    std::uint64_t vElementCount = 0u;
+    std::uint64_t mujocoStateCount = 0u;
+    std::uint64_t matterGeneralizedReactionElementCount = 0u;
+    std::uint64_t environmentStatusElementCount = 0u;
+    std::uint64_t matterStatusElementCount = 0u;
+    std::uint64_t acceptedStateProofElementCount = 0u;
+    std::uint64_t inboundAuthorityByteCount = 0u;
+
+    std::uint32_t qStride = 0u;
+    std::uint32_t vStride = 0u;
+    std::uint32_t mujocoStateStride = 0u;
+    std::uint32_t reactionStride = 0u;
+    std::uint32_t environmentStatusStride = 0u;
+    std::uint32_t matterStatusStride = 0u;
+    std::uint32_t acceptedStateProofStride = 0u;
+    std::uint32_t qCoordinateCount = 0u;
+    std::uint32_t dofCount = 0u;
+    std::uint32_t transactionSlot = 0u;
+    std::uint32_t clockDomain =
+        NM_MATTER_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
+    std::uint32_t clockQuantumNanoseconds =
+        NM_MATTER_EXACT_CLOCK_QUANTUM_NANOSECONDS;
+    std::uint32_t reserved0 = 0u;
+
+    std::uint64_t programFingerprint = 0u;
+    std::uint64_t stateProofProgramFingerprint = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t substepFingerprint = 0u;
+    std::uint64_t acceptedTimestampNanoseconds = 0u;
+    std::uint64_t physicsGeneration = 0u;
+    std::uint64_t linearizationEpoch = 0u;
+    std::uint64_t slotGeneration = 0u;
+    std::uint64_t matterSourcePhysicsFingerprint = 0u;
+    std::uint64_t matterDeviceProgramFingerprint = 0u;
+    std::uint64_t motorCandidateFingerprint = 0u;
+    void* rootTranslation = nullptr;
+    std::uint64_t rootTranslationGPUAddress = 0u;
+    std::uint64_t rootTranslationElementCount = 0u;
+    std::uint32_t rootTranslationStride = 0u;
+};
+
 enum class PreparedStateApplyMode : std::uint32_t {
     validateBrainAck = 0u,
     forceReject = 1u,
@@ -1148,6 +1221,57 @@ struct AcceptedStateApplyPass {
     std::uint32_t matterApplyOutcomeStride = 0u;
     std::uint32_t proposedPhysicsStateTokenStrideBytes = 0u;
     std::uint32_t reserved3 = 0u;
+
+    std::uint64_t ownerProgramFingerprint = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t linearizationEpoch = 0u;
+    std::uint64_t slotGeneration = 0u;
+};
+
+// Exact-clock successor to AcceptedStateApplyPass. The owner records remain
+// ABI4, while this distinct host surface selects the V2 prepared binding and
+// carries the token clock family explicitly through Matter's apply dispatch.
+// A 64-byte token size is never used as a family discriminator.
+struct AcceptedStateApplyPassV2 {
+    std::uint32_t abiVersion = 2u;
+    std::uint32_t structSize = sizeof(AcceptedStateApplyPassV2);
+    PreparedStateApplyMode mode = PreparedStateApplyMode::validateBrainAck;
+    std::uint32_t tokenFamily = 2u;
+
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t environmentIdentifierBase = 0u;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t physicsSubstepCount = 1u;
+    std::uint32_t transactionSlot = 0u;
+    std::uint32_t clockDomain = 2u;
+    std::uint32_t clockQuantumNanoseconds = 1u;
+
+    void* commandBuffer = nullptr;
+    void* proposals = nullptr;
+    void* brainAcks = nullptr;
+    void* applyActions = nullptr;
+    void* matterApplyOutcomes = nullptr;
+    void* proposedPhysicsStateTokens = nullptr;
+
+    std::uint64_t proposalsGPUAddress = 0u;
+    std::uint64_t brainAcksGPUAddress = 0u;
+    std::uint64_t applyActionsGPUAddress = 0u;
+    std::uint64_t matterApplyOutcomesGPUAddress = 0u;
+    std::uint64_t proposedPhysicsStateTokensGPUAddress = 0u;
+
+    std::uint64_t proposalElementCount = 0u;
+    std::uint64_t brainAckElementCount = 0u;
+    std::uint64_t applyActionElementCount = 0u;
+    std::uint64_t matterApplyOutcomeElementCount = 0u;
+    std::uint64_t proposedPhysicsStateTokenBytes = 0u;
+
+    std::uint32_t proposalStride = 0u;
+    std::uint32_t brainAckStride = 0u;
+    std::uint32_t applyActionStride = 0u;
+    std::uint32_t matterApplyOutcomeStride = 0u;
+    std::uint32_t proposedPhysicsStateTokenStrideBytes = 0u;
+    std::uint32_t reserved0 = 0u;
 
     std::uint64_t ownerProgramFingerprint = 0u;
     std::uint64_t transactionFingerprint = 0u;
@@ -1227,8 +1351,10 @@ static_assert(offsetof(PreparedStatePublicationFence, fenceFingerprint) == 120u)
 struct PreparedStatePublicationBinding {
     std::uint32_t abiVersion = 1u;
     std::uint32_t structSize = sizeof(PreparedStatePublicationBinding);
+    // Explicit family of the retained accepted-state proof/token. This value
+    // is derived from the prepared generation, never selected by a publisher.
+    std::uint32_t tokenFamily = 1u;
     std::uint32_t reserved0 = 0u;
-    std::uint32_t reserved1 = 0u;
     std::uint64_t physicsTokenFingerprint = 0u;
     std::uint64_t brainProgramFingerprint = 0u;
     std::uint64_t brainShadowStateFingerprint = 0u;
@@ -1241,6 +1367,7 @@ struct PreparedStatePublicationBinding {
 static_assert(sizeof(PreparedStatePublicationBinding) == 80u);
 static_assert(alignof(PreparedStatePublicationBinding) ==
               alignof(std::uint64_t));
+static_assert(offsetof(PreparedStatePublicationBinding, tokenFamily) == 8u);
 static_assert(offsetof(PreparedStatePublicationBinding,
                        physicsTokenFingerprint) == 16u);
 static_assert(offsetof(PreparedStatePublicationBinding,
@@ -1422,16 +1549,24 @@ public:
     [[nodiscard]] bool encodeAcceptedStateProof(
         const AcceptedStateProofPass& pass
     ) noexcept;
+    [[nodiscard]] bool encodeAcceptedStateProofV2(
+        const AcceptedStateProofPassV2& pass
+    ) noexcept;
     // Stable identity of the proof shader, arena manifest, and exact initialized
     // Matter device program. Supply this as the adapter proof-program identity.
     [[nodiscard]] std::uint64_t
     acceptedStateProofProgramFingerprint() const noexcept;
+    [[nodiscard]] std::uint64_t
+    acceptedStateProofProgramFingerprintV2() const noexcept;
     [[nodiscard]] std::size_t
     acceptedStateProofResidentBytes() const noexcept;
     // ABI4 apply after an immutable Brain ACK. ACCEPT remains
     // acceptedPendingPublication; REJECT restores and resolves immediately.
     [[nodiscard]] bool applyPreparedState(
         const AcceptedStateApplyPass& pass
+    ) noexcept;
+    [[nodiscard]] bool applyPreparedStateV2(
+        const AcceptedStateApplyPassV2& pass
     ) noexcept;
     // Exact-identity lifecycle query. UNKNOWN is returned for an invalid or
     // stale identity and must fail closed. REJECT reaches RESOLVED; ACCEPT
@@ -1568,12 +1703,17 @@ public:
 
 private:
     struct State;
+    struct AcceptedStateProofPassView;
+    struct AcceptedStateApplyPassView;
+    [[nodiscard]] bool encodeAcceptedStateProofImpl(
+        const AcceptedStateProofPassView& pass
+    ) noexcept;
     [[nodiscard]] RuntimeDiagnostics encodeImpl(
         const EncodeRequest& request,
         bool retainPreparedState
     );
     [[nodiscard]] bool applyPreparedStateImpl(
-        const AcceptedStateApplyPass& pass
+        const AcceptedStateApplyPassView& pass
     ) noexcept;
     std::unique_ptr<State> state_;
 };

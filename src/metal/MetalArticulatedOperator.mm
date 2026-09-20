@@ -4,6 +4,7 @@
 
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/MetalNumanXHumanIO.hpp"
+#include "metalrobo/NumanXExactTransaction.hpp"
 #include "metalrobo/numanx_human_matter_adapter_gpu.h"
 
 #include <dlfcn.h>
@@ -161,6 +162,22 @@ struct NumanXTransactionAbortGuard {
     return false;
 }
 
+[[nodiscard]] bool validHumanMatterFamilyIdentity(
+    const MetalNumanXHumanMatterTokenFamily family,
+    const std::uint64_t admittedHumanIOProgramFingerprint,
+    const std::uint32_t dispatchFlags
+) noexcept {
+    const bool exactDispatch =
+        (dispatchFlags & MR_NUMANX_HUMAN_MATTER_EXACT_TOKEN_FAMILY) != 0u;
+    switch (family) {
+    case MetalNumanXHumanMatterTokenFamily::legacyMicrosecondsV1:
+        return !exactDispatch && admittedHumanIOProgramFingerprint == 0u;
+    case MetalNumanXHumanMatterTokenFamily::exactNanosecondsV2:
+        return exactDispatch && admittedHumanIOProgramFingerprint != 0u;
+    }
+    return false;
+}
+
 struct NumanXHumanMatterAbortGuard {
     void* context = nullptr;
     MetalNumanXHumanMatterAbort abort = nullptr;
@@ -263,6 +280,9 @@ struct MetalArticulatedOperatorContextState {
         std::uint64_t transactionFingerprint = 0u;
         std::uint64_t physicsGeneration = 0u;
         std::uint64_t acceptedTokenFingerprint = 0u;
+        MetalNumanXHumanMatterTokenFamily tokenFamily =
+            MetalNumanXHumanMatterTokenFamily::legacyMicrosecondsV1;
+        std::uint64_t humanIOProgramFingerprint = 0u;
         std::size_t qBytes = 0u;
         std::size_t velocityBytes = 0u;
         std::size_t mujocoStateBytes = 0u;
@@ -303,6 +323,9 @@ struct MetalArticulatedOperatorContextState {
         std::uint64_t proposalEventValue = 0u;
         std::uint64_t appliedEventValue = 0u;
         MRNumanXHumanMatterDispatchGPU dispatch{};
+        MetalNumanXHumanMatterTokenFamily tokenFamily =
+            MetalNumanXHumanMatterTokenFamily::legacyMicrosecondsV1;
+        std::uint64_t humanIOProgramFingerprint = 0u;
         std::uint32_t transactionSlot = 0u;
         std::uint64_t preparedTokenByteCount = 0u;
         std::uint64_t proposalElementCount = 0u;
@@ -3854,6 +3877,17 @@ void uploadBatch(
     const MetalNumanXHumanMatterProgram& program =
         input.stand.numanXHumanMatterProgram;
     if (!program.valid()) return true;
+    const bool exactClock =
+        (program.capabilities &
+         MetalNumanXHumanMatterExactClockAuthority) != 0u;
+    if (exactClock &&
+        (!input.stand.numanXTransactionProgram.valid() ||
+         input.stand.numanXTransactionProgram.fingerprint !=
+             program.humanIOProgramFingerprint)) {
+        reason =
+            "exact Human/Matter authority requires the matching HumanIO transaction program";
+        return false;
+    }
     const auto byteCount = [](
         const std::uint64_t elements,
         const std::uint64_t elementBytes,
@@ -4216,7 +4250,8 @@ struct MetalBufferRegion {
 }
 
 [[nodiscard]] std::uint64_t acceptedPhysicsTokenFingerprint(
-    const void* raw
+    const void* raw,
+    const bool exactFamily
 ) noexcept {
     constexpr std::uint64_t offset = 14695981039346656037ull;
     if (raw == nullptr) return 0u;
@@ -4234,6 +4269,11 @@ struct MetalBufferRegion {
     std::memcpy(words, bytes, sizeof(words));
     std::uint32_t words32[16]{};
     std::memcpy(words32, bytes, sizeof(words32));
+    if (exactFamily) {
+        MRNumanXAcceptedPhysicsStateTokenGPUV2 token{};
+        std::memcpy(&token, raw, sizeof(token));
+        return metalNumanXExactAcceptedPhysicsTokenV2Fingerprint(token);
+    }
     std::uint64_t hash = offset;
     hash = mix(hash, 1u, sizeof(std::uint32_t));
     for (std::size_t index = 0u; index < 5u; ++index) {
@@ -4285,16 +4325,33 @@ struct MetalBufferRegion {
 
 [[nodiscard]] bool validAcceptedPhysicsToken(
     const void* raw,
-    const std::uint64_t transactionFingerprint,
+    const MRNumanXHumanMatterDispatchGPU& dispatch,
     const std::uint64_t expectedFingerprint
 ) noexcept {
-    if (raw == nullptr || transactionFingerprint == 0u ||
+    if (raw == nullptr || dispatch.transactionFingerprint == 0u ||
         expectedFingerprint == 0u) return false;
     std::uint64_t words[8]{};
     std::memcpy(words, raw, sizeof(words));
-    return words[0] == transactionFingerprint && words[6] == 0u &&
-        words[7] == expectedFingerprint &&
-        acceptedPhysicsTokenFingerprint(raw) == expectedFingerprint;
+    const bool exactFamily =
+        (dispatch.flags &
+         MR_NUMANX_HUMAN_MATTER_EXACT_TOKEN_FAMILY) != 0u;
+    if (words[0] != dispatch.transactionFingerprint ||
+        words[7] != expectedFingerprint ||
+        acceptedPhysicsTokenFingerprint(raw, exactFamily) !=
+            expectedFingerprint) {
+        return false;
+    }
+    if (!exactFamily) return words[6] == 0u;
+    MRNumanXAcceptedPhysicsStateTokenGPUV2 token{};
+    std::memcpy(&token, raw, sizeof(token));
+    return token.substepFingerprint != 0u &&
+        token.physicsStateFingerprint != 0u &&
+        token.acceptedTimestampNanoseconds != 0u &&
+        token.physicsGeneration != 0u && token.flags == 0u &&
+        token.clockDomain ==
+            MR_NUMANX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
+        token.clockQuantumNanoseconds ==
+            MR_NUMANX_EXACT_CLOCK_QUANTUM_NANOSECONDS;
 }
 
 [[nodiscard]] bool importableSharedEvent(
@@ -4356,7 +4413,7 @@ struct MetalBufferRegion {
         (accept
              ? validAcceptedPhysicsToken(
                    proposedToken,
-                   dispatch.transactionFingerprint,
+                   dispatch,
                    proposal.physicsTokenFingerprint)
              : zeroAcceptedPhysicsToken(proposedToken));
 }
@@ -4429,7 +4486,7 @@ struct MetalBufferRegion {
                     proposal.physicsTokenFingerprint &&
                 validAcceptedPhysicsToken(
                     finalToken,
-                    dispatch.transactionFingerprint,
+                    dispatch,
                     applied.physicsTokenFingerprint) &&
                 std::memcmp(
                     proposedToken,
@@ -5533,7 +5590,16 @@ bool MetalNumanXHumanMatterPrepared::bindHumanIOCandidatePublication(
                 prepared.dispatch.slotGeneration == slotGeneration_ &&
                 prepared.capability.lock() == capability_;
         };
+        const bool exactFamily = prepared.tokenFamily ==
+            MetalNumanXHumanMatterTokenFamily::exactNanosecondsV2;
         if (!exactGeneration() || prepared.humanIOBindInFlight ||
+            !validHumanMatterFamilyIdentity(
+                prepared.tokenFamily,
+                prepared.humanIOProgramFingerprint,
+                prepared.dispatch.flags) ||
+            (exactFamily &&
+             candidate.humanIOProgramFingerprint !=
+                 prepared.humanIOProgramFingerprint) ||
             prepared.lease.humanIOCandidate.configured() ||
             prepared.proposalInFlight || prepared.proposalComplete ||
             prepared.proposalFailed ||
@@ -5580,6 +5646,9 @@ bool MetalNumanXHumanMatterPrepared::bindHumanIOCandidatePublication(
         const auto callback = prepared.bindHumanIOCandidatePublication;
         void* callbackContext = prepared.leaseContext;
         const std::uint64_t generation = prepared.dispatch.slotGeneration;
+        const auto retainedTokenFamily = prepared.tokenFamily;
+        const std::uint64_t retainedHumanIOProgramFingerprint =
+            prepared.humanIOProgramFingerprint;
         prepared.humanIOBindInFlight = true;
         lock.unlock();
         const bool bound = callback(callbackContext, stagedLease, candidate);
@@ -5588,7 +5657,14 @@ bool MetalNumanXHumanMatterPrepared::bindHumanIOCandidatePublication(
         if (!current.active ||
             current.dispatch.slotGeneration != generation ||
             current.capability.lock() != capability_ ||
-            !current.humanIOBindInFlight) {
+            !current.humanIOBindInFlight ||
+            current.tokenFamily != retainedTokenFamily ||
+            current.humanIOProgramFingerprint !=
+                retainedHumanIOProgramFingerprint ||
+            !validHumanMatterFamilyIdentity(
+                current.tokenFamily,
+                current.humanIOProgramFingerprint,
+                current.dispatch.flags)) {
             return false;
         }
         current.humanIOBindInFlight = false;
@@ -5640,6 +5716,8 @@ MetalNumanXHumanMatterPrepared::proposePrepared(
     try {
         const std::lock_guard lock(state_->mutex);
         auto& prepared = state_->humanMatterPrepared;
+        const bool exactFamily = prepared.tokenFamily ==
+            MetalNumanXHumanMatterTokenFamily::exactNanosecondsV2;
         if (!prepared.active ||
             prepared.dispatch.slotGeneration != slotGeneration_ ||
             prepared.capability.lock() != capability_) {
@@ -5662,12 +5740,19 @@ MetalNumanXHumanMatterPrepared::proposePrepared(
                 MetalNumanXHumanMatterOperationStatus::terminalNoTouch,
                 "prepared Human/Matter generation is terminally quarantined");
         }
-        if (!prepared.lease.humanIOCandidate.valid() ||
+        if (!validHumanMatterFamilyIdentity(
+                prepared.tokenFamily,
+                prepared.humanIOProgramFingerprint,
+                prepared.dispatch.flags) ||
+            !prepared.lease.humanIOCandidate.valid() ||
             prepared.lease.humanIOCandidate.transactionFingerprint !=
-                prepared.dispatch.transactionFingerprint) {
+                prepared.dispatch.transactionFingerprint ||
+            (exactFamily &&
+             prepared.lease.humanIOCandidate.humanIOProgramFingerprint !=
+                 prepared.humanIOProgramFingerprint)) {
             return fail(
                 MetalNumanXHumanMatterOperationStatus::invalidRequest,
-                "proposal requires the exact post-physical HumanIO candidate publication binding");
+                "proposal requires the admitted token family and exact post-physical HumanIO candidate publication binding");
         }
         const bool validateWitness = request.mode ==
             MetalNumanXHumanMatterProposalMode::validateBrainWitness;
@@ -5809,6 +5894,9 @@ MetalNumanXHumanMatterPrepared::proposePrepared(
         dispatch.flags = validateWitness
             ? MR_NUMANX_HUMAN_MATTER_PROPOSAL_VALIDATE_BRAIN_WITNESS
             : MR_NUMANX_HUMAN_MATTER_PROPOSAL_FORCE_REJECT;
+        if (exactFamily) {
+            dispatch.flags |= MR_NUMANX_HUMAN_MATTER_EXACT_TOKEN_FAMILY;
+        }
         dispatch.environmentCount = prepared.dispatch.environmentCount;
         dispatch.stepIndex = prepared.dispatch.stepIndex;
         dispatch.substepIndex = prepared.dispatch.substepIndex;
@@ -6347,6 +6435,20 @@ MetalNumanXHumanMatterPrepared::applyPrepared(
                     : MetalNumanXHumanMatterOperationStatus::invalidRequest,
                 "prepared Human/Matter generation is not reserved for apply");
         }
+        const bool exactFamily = prepared.tokenFamily ==
+            MetalNumanXHumanMatterTokenFamily::exactNanosecondsV2;
+        if (!validHumanMatterFamilyIdentity(
+                prepared.tokenFamily,
+                prepared.humanIOProgramFingerprint,
+                prepared.dispatch.flags) ||
+            !prepared.lease.humanIOCandidate.valid() ||
+            (exactFamily &&
+             prepared.lease.humanIOCandidate.humanIOProgramFingerprint !=
+                 prepared.humanIOProgramFingerprint)) {
+            return fail(
+                MetalNumanXHumanMatterOperationStatus::invalidRequest,
+                "apply token family or admitted HumanIO identity changed after preparation");
+        }
         const bool validateAck = request.mode ==
             MetalNumanXHumanMatterApplyMode::validateBrainAck;
         if (request.abiVersion != kMetalNumanXHumanMatterABIVersion ||
@@ -6543,6 +6645,9 @@ MetalNumanXHumanMatterPrepared::applyPrepared(
         dispatch.flags = validateAck
             ? MR_NUMANX_HUMAN_MATTER_APPLY_VALIDATE_BRAIN_ACK
             : MR_NUMANX_HUMAN_MATTER_APPLY_FORCE_REJECT;
+        if (exactFamily) {
+            dispatch.flags |= MR_NUMANX_HUMAN_MATTER_EXACT_TOKEN_FAMILY;
+        }
         dispatch.environmentCount = prepared.dispatch.environmentCount;
         dispatch.stepIndex = prepared.dispatch.stepIndex;
         dispatch.substepIndex = prepared.dispatch.substepIndex;
@@ -6998,6 +7103,8 @@ bool MetalNumanXHumanMatterPrepared::reservePublishedRoot(
     try {
         std::unique_lock lock(state_->mutex);
         auto& prepared = state_->humanMatterPrepared;
+        const bool exactFamily = prepared.tokenFamily ==
+            MetalNumanXHumanMatterTokenFamily::exactNanosecondsV2;
         if (!prepared.active ||
             prepared.dispatch.slotGeneration != slotGeneration_ ||
             prepared.capability.lock() != capability_ ||
@@ -7007,7 +7114,14 @@ bool MetalNumanXHumanMatterPrepared::reservePublishedRoot(
             prepared.publicationReserved ||
             prepared.publicationReleaseInFlight ||
             prepared.reservePublishedRoot == nullptr ||
-            !prepared.lease.humanIOCandidate.valid()) {
+            !prepared.lease.humanIOCandidate.valid() ||
+            !validHumanMatterFamilyIdentity(
+                prepared.tokenFamily,
+                prepared.humanIOProgramFingerprint,
+                prepared.dispatch.flags) ||
+            (exactFamily &&
+             prepared.lease.humanIOCandidate.humanIOProgramFingerprint !=
+                 prepared.humanIOProgramFingerprint)) {
             return false;
         }
         if (request.abiVersion != kMetalNumanXHumanMatterABIVersion ||
@@ -7133,8 +7247,9 @@ bool MetalNumanXHumanMatterPrepared::reservePublishedRoot(
         }
 
         MRNumanXHumanMatterJointPublicationFenceGPU fence{};
-        fence.abiVersion =
-            MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION;
+        fence.abiVersion = exactFamily
+            ? MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION_V2
+            : MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION;
         fence.structBytes = MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_BYTES;
         fence.status = MR_NUMANX_HUMAN_MATTER_PUBLICATION_PENDING;
         fence.environment = 0u;
@@ -7318,6 +7433,10 @@ MetalNumanXHumanMatterPrepared::releasePublishedRoot(
             prepared.publicationReleaseInFlight ||
             prepared.terminalNoTouch ||
             prepared.releasePublishedRoot == nullptr ||
+            !validHumanMatterFamilyIdentity(
+                prepared.tokenFamily,
+                prepared.humanIOProgramFingerprint,
+                prepared.dispatch.flags) ||
             request.abiVersion != kMetalNumanXHumanMatterABIVersion ||
             request.structSize != sizeof(request) ||
             request.publicationFences != prepared.lease.publicationFences ||
@@ -7372,14 +7491,25 @@ MetalNumanXHumanMatterPrepared::releasePublishedRoot(
             kHumanMatterFinalAcceptedTokenBuffer].contents;
         const auto* acceptedToken = static_cast<const
             MRNumanXAcceptedPhysicsStateTokenGPU*>(finalToken);
+        const bool exactFamily = prepared.tokenFamily ==
+            MetalNumanXHumanMatterTokenFamily::exactNanosecondsV2;
+        const std::uint32_t expectedFenceABI = exactFamily
+            ? MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION_V2
+            : MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION;
+        const auto* exactAcceptedToken = static_cast<const
+            MRNumanXAcceptedPhysicsStateTokenGPUV2*>(finalToken);
         const bool fenceValid = proposal != nullptr && applied != nullptr &&
             fence != nullptr && acceptedToken != nullptr &&
             acceptedToken->transactionFingerprint ==
                 prepared.dispatch.transactionFingerprint &&
             acceptedToken->physicsGeneration != 0u &&
-            acceptedToken->environmentIdentifier == 0u &&
             acceptedToken->flags == 0u &&
-            acceptedToken->reserved == 0u &&
+            (exactFamily
+                 ? exactAcceptedToken->clockDomain ==
+                        MR_NUMANX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
+                     exactAcceptedToken->clockQuantumNanoseconds ==
+                        MR_NUMANX_EXACT_CLOCK_QUANTUM_NANOSECONDS
+                 : acceptedToken->reserved == 0u) &&
             acceptedToken->tokenFingerprint != 0u &&
             validAppliedRecord(
                 *applied,
@@ -7388,8 +7518,7 @@ MetalNumanXHumanMatterPrepared::releasePublishedRoot(
                 proposedToken,
                 finalToken,
                 prepared.lease.humanIOCandidate) &&
-            fence->abiVersion ==
-                MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION &&
+            fence->abiVersion == expectedFenceABI &&
             fence->structBytes ==
                 MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_BYTES &&
             fence->status == MR_NUMANX_HUMAN_MATTER_PUBLICATION_COMMITTED &&
@@ -7497,6 +7626,9 @@ MetalNumanXHumanMatterPrepared::releasePublishedRoot(
             .physicsGeneration = acceptedToken->physicsGeneration,
             .acceptedTokenFingerprint =
                 acceptedToken->tokenFingerprint,
+            .tokenFamily = current.tokenFamily,
+            .humanIOProgramFingerprint =
+                current.humanIOProgramFingerprint,
             .qBytes = current.residentQBytes,
             .velocityBytes = current.residentVelocityBytes,
             .mujocoStateBytes = current.residentMujocoStateBytes,
@@ -8062,10 +8194,28 @@ MetalArticulatedOperatorContext::submit(
             state_->publishedResident.active;
         if (reusePublishedResidentState) {
             const auto& resident = state_->publishedResident;
+            const auto& program = input.stand.numanXHumanMatterProgram;
             const bool stateArenaValid =
                 continuation.valid() &&
-                input.stand.numanXHumanMatterProgram.valid() &&
+                program.valid() &&
                 resident.model == &model &&
+                resident.tokenFamily == program.tokenFamily &&
+                resident.humanIOProgramFingerprint ==
+                    program.humanIOProgramFingerprint &&
+                (resident.tokenFamily !=
+                         MetalNumanXHumanMatterTokenFamily::
+                             exactNanosecondsV2 ||
+                 (input.stand.numanXTransactionProgram.valid() &&
+                  input.stand.numanXTransactionProgram.fingerprint ==
+                      resident.humanIOProgramFingerprint)) &&
+                validHumanMatterFamilyIdentity(
+                    resident.tokenFamily,
+                    resident.humanIOProgramFingerprint,
+                    program.tokenFamily ==
+                            MetalNumanXHumanMatterTokenFamily::
+                                exactNanosecondsV2
+                        ? MR_NUMANX_HUMAN_MATTER_EXACT_TOKEN_FAMILY
+                        : 0u) &&
                 continuation.previousTransactionFingerprint ==
                     resident.transactionFingerprint &&
                 continuation.previousPhysicsGeneration ==
@@ -8578,6 +8728,11 @@ MetalArticulatedOperatorContext::submit(
                 dispatch.substepIndex = program.substepIndex;
                 dispatch.flags =
                     MR_NUMANX_HUMAN_MATTER_HAS_PREPARED_TOKEN;
+                if (program.tokenFamily ==
+                    MetalNumanXHumanMatterTokenFamily::exactNanosecondsV2) {
+                    dispatch.flags |=
+                        MR_NUMANX_HUMAN_MATTER_EXACT_TOKEN_FAMILY;
+                }
                 dispatch.transactionSlot = program.transactionSlot;
                 dispatch.nq = articulation.nq;
                 dispatch.nv = articulation.nv;
@@ -9770,6 +9925,9 @@ MetalArticulatedOperatorContext::submit(
                 prepared = {};
                 prepared.active = true;
                 prepared.dispatch = makeHumanMatterDispatch();
+                prepared.tokenFamily = program.tokenFamily;
+                prepared.humanIOProgramFingerprint =
+                    program.humanIOProgramFingerprint;
                 prepared.transactionSlot = program.transactionSlot;
                 prepared.preparedTokenByteCount =
                     program.acceptedPhysicsStateTokenByteCount;

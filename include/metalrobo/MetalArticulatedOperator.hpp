@@ -378,6 +378,15 @@ enum MetalNumanXHumanMatterCapability : std::uint32_t {
     MetalNumanXHumanMatterStagedReaction = 1u << 2u,
     MetalNumanXHumanMatterJointDecision = 1u << 3u,
     MetalNumanXHumanMatterPreparedPhysicsGate = 1u << 4u,
+    // The physical prepare token and proof use the exact-nanosecond V2
+    // family and consume a device-private HumanIO admission receipt. Token
+    // byte size is deliberately not a family discriminator.
+    MetalNumanXHumanMatterExactClockAuthority = 1u << 5u,
+};
+
+enum class MetalNumanXHumanMatterTokenFamily : std::uint32_t {
+    legacyMicrosecondsV1 = 1u,
+    exactNanosecondsV2 = 2u,
 };
 
 inline constexpr std::uint32_t kMetalNumanXHumanMatterKnownCapabilities =
@@ -385,7 +394,8 @@ inline constexpr std::uint32_t kMetalNumanXHumanMatterKnownCapabilities =
     MetalNumanXHumanMatterSourceEffectiveTangent |
     MetalNumanXHumanMatterStagedReaction |
     MetalNumanXHumanMatterJointDecision |
-    MetalNumanXHumanMatterPreparedPhysicsGate;
+    MetalNumanXHumanMatterPreparedPhysicsGate |
+    MetalNumanXHumanMatterExactClockAuthority;
 
 struct MetalNumanXHumanMatterPass;
 
@@ -1121,6 +1131,13 @@ struct MetalNumanXHumanMatterProgram {
     std::uint64_t transactionFingerprint = 0u;
     std::uint64_t linearizationEpoch = 0u;
     std::uint64_t slotGeneration = 0u;
+    MetalNumanXHumanMatterTokenFamily tokenFamily =
+        MetalNumanXHumanMatterTokenFamily::legacyMicrosecondsV1;
+    std::uint32_t reservedTokenFamily = 0u;
+    // Required only for exactNanosecondsV2. The owner admits the exact
+    // program only when this is the simultaneously attached HumanIO
+    // transaction program, closing cross-command receipt replay.
+    std::uint64_t humanIOProgramFingerprint = 0u;
 
     [[nodiscard]] bool valid() const noexcept {
         constexpr std::uint32_t requiredCapabilities =
@@ -1141,6 +1158,16 @@ struct MetalNumanXHumanMatterProgram {
         const bool exactAccess =
             (accessFlags &
              MetalNumanXHumanMatterMayEncodeExactCandidate) != 0u;
+        const bool exactClock =
+            (capabilities &
+             MetalNumanXHumanMatterExactClockAuthority) != 0u;
+        const bool familyValid = exactClock
+            ? tokenFamily ==
+                    MetalNumanXHumanMatterTokenFamily::exactNanosecondsV2 &&
+                humanIOProgramFingerprint != 0u
+            : tokenFamily ==
+                    MetalNumanXHumanMatterTokenFamily::legacyMicrosecondsV1 &&
+                humanIOProgramFingerprint == 0u;
         return abiVersion == kMetalNumanXHumanMatterABIVersion &&
             structSize == sizeof(MetalNumanXHumanMatterProgram) &&
             (capabilities &
@@ -1149,6 +1176,7 @@ struct MetalNumanXHumanMatterProgram {
             (accessFlags & ~kMetalNumanXHumanMatterKnownAccess) == 0u &&
             (accessFlags & requiredAccess) == requiredAccess &&
             exactCapability == exactAccess &&
+            familyValid && reservedTokenFamily == 0u &&
             (exactCapability
                  ? candidatePointCapacity <=
                        MR_ARTICULATED_OPERATOR_MAX_POINTS
@@ -1228,6 +1256,10 @@ struct MetalNumanXHumanMatterProgram {
             physicsSubstepCount != 0u ||
             candidatePointCapacity != 0u ||
             controlStep != 0u ||
+            tokenFamily !=
+                MetalNumanXHumanMatterTokenFamily::legacyMicrosecondsV1 ||
+            reservedTokenFamily != 0u ||
+            humanIOProgramFingerprint != 0u ||
             transactionFingerprint != 0u || linearizationEpoch != 0u ||
             slotGeneration != 0u;
     }

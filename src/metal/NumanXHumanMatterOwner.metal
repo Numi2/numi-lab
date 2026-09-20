@@ -36,11 +36,10 @@ inline ulong nonzeroFingerprint(const ulong hash) {
     return hash == 0ul ? 14695981039346656037ul : hash;
 }
 
-// Exact NBAcceptedPhysicsStateToken relation. The record itself has no ABI
+// Legacy NBAcceptedPhysicsStateToken relation. The record itself has no ABI
 // word, so version 1 is mixed as the first u32 and the terminal word at byte
-// 56 is excluded from the fold. This is timeline integrity/replay identity,
-// not a cryptographic authenticator.
-inline ulong acceptedTokenFingerprint(device const uchar* token) {
+// 56 is excluded from the fold. This byte order is frozen for v1.
+inline ulong acceptedTokenFingerprintV1(device const uchar* token) {
     device const ulong* words =
         reinterpret_cast<device const ulong*>(token);
     device const uint* words32 =
@@ -61,18 +60,67 @@ inline ulong acceptedTokenFingerprint(device const uchar* token) {
     return hash;
 }
 
+// Exact-clock successor. Clock domain and quantum occupy the legacy reserved
+// word, but the trusted dispatch flag selects this family before payload
+// interpretation. The fingerprint is the raw FNV result, matching the exact
+// adapter and CPU relation.
+inline ulong acceptedTokenFingerprintV2(device const uchar* token) {
+    device const ulong* words =
+        reinterpret_cast<device const ulong*>(token);
+    device const uint* words32 =
+        reinterpret_cast<device const uint*>(token);
+    ulong hash = 14695981039346656037ul;
+    hash = fnv1aU32(
+        hash, MR_NUMANX_HUMAN_MATTER_EXACT_TOKEN_FINGERPRINT_DOMAIN);
+    hash = fnv1aU32(hash, MR_NUMANX_HUMAN_MATTER_EXACT_TOKEN_VERSION);
+    hash = fnv1aU64(hash, words[0]);
+    hash = fnv1aU64(hash, words[1]);
+    hash = fnv1aU64(hash, words[2]);
+    hash = fnv1aU64(hash, words[3]);
+    hash = fnv1aU64(hash, words[4]);
+    hash = fnv1aU32(hash, words32[10]);
+    hash = fnv1aU32(hash, words32[11]);
+    hash = fnv1aU32(hash, words32[12]);
+    hash = fnv1aU32(hash, words32[13]);
+    return hash;
+}
+
+inline bool exactTokenFamily(const uint dispatchFlags) {
+    return (dispatchFlags &
+            MR_NUMANX_HUMAN_MATTER_EXACT_TOKEN_FAMILY) != 0u;
+}
+
+inline ulong acceptedTokenFingerprint(
+    device const uchar* token,
+    const bool exactFamily
+) {
+    return exactFamily ? acceptedTokenFingerprintV2(token)
+                       : acceptedTokenFingerprintV1(token);
+}
+
 inline bool validAcceptedToken(
     device const uchar* token,
     const ulong expectedTransactionFingerprint,
-    const ulong expectedTokenFingerprint
+    const ulong expectedTokenFingerprint,
+    const bool exactFamily
 ) {
     device const ulong* words =
         reinterpret_cast<device const ulong*>(token);
-    return expectedTransactionFingerprint != 0ul &&
+    device const uint* words32 =
+        reinterpret_cast<device const uint*>(token);
+    const bool commonValid = expectedTransactionFingerprint != 0ul &&
         expectedTokenFingerprint != 0ul &&
-        words[0] == expectedTransactionFingerprint && words[6] == 0ul &&
+        words[0] == expectedTransactionFingerprint &&
         words[7] == expectedTokenFingerprint &&
-        acceptedTokenFingerprint(token) == expectedTokenFingerprint;
+        acceptedTokenFingerprint(token, exactFamily) ==
+            expectedTokenFingerprint;
+    if (!commonValid) return false;
+    if (!exactFamily) return words[6] == 0ul;
+    return words[1] != 0ul && words[2] != 0ul && words[3] != 0ul &&
+        words[4] != 0ul && words32[11] == 0u &&
+        words32[12] == MR_NUMANX_HUMAN_MATTER_EXACT_CLOCK_DOMAIN &&
+        words32[13] ==
+            MR_NUMANX_HUMAN_MATTER_EXACT_CLOCK_QUANTUM_NANOSECONDS;
 }
 
 inline bool zeroAcceptedToken(device const uchar* token) {
@@ -338,7 +386,9 @@ inline bool validOwnerDispatch(
 ) {
     return dispatch.abiVersion == MR_NUMANX_HUMAN_MATTER_ABI_VERSION &&
         dispatch.environmentCount == 1u && dispatch.stepIndex == 0u &&
-        dispatch.flags == MR_NUMANX_HUMAN_MATTER_HAS_PREPARED_TOKEN &&
+        (dispatch.flags &
+         ~MR_NUMANX_HUMAN_MATTER_DISPATCH_KNOWN_FLAGS) == 0u &&
+        (dispatch.flags & MR_NUMANX_HUMAN_MATTER_HAS_PREPARED_TOKEN) != 0u &&
         dispatch.transactionSlot <
             MR_NUMANX_COUPLED_HUMAN_MAX_TRANSACTION_SLOTS &&
         dispatch.nv != 0u &&
@@ -373,20 +423,20 @@ inline bool validOwnerDispatch(
 inline bool validProposalDispatch(
     constant MRNumanXHumanMatterProposalDispatchGPU& dispatch
 ) {
-    const uint knownFlags =
-        MR_NUMANX_HUMAN_MATTER_PROPOSAL_VALIDATE_BRAIN_WITNESS |
-        MR_NUMANX_HUMAN_MATTER_PROPOSAL_FORCE_REJECT;
-    const bool oneMode = dispatch.flags ==
+    const uint mode =
+        dispatch.flags & MR_NUMANX_HUMAN_MATTER_PROPOSAL_MODE_FLAGS;
+    const bool oneMode = mode ==
             MR_NUMANX_HUMAN_MATTER_PROPOSAL_VALIDATE_BRAIN_WITNESS ||
-        dispatch.flags == MR_NUMANX_HUMAN_MATTER_PROPOSAL_FORCE_REJECT;
+        mode == MR_NUMANX_HUMAN_MATTER_PROPOSAL_FORCE_REJECT;
     return dispatch.abiVersion == MR_NUMANX_HUMAN_MATTER_ABI_VERSION &&
-        (dispatch.flags & ~knownFlags) == 0u && oneMode &&
+        (dispatch.flags &
+         ~MR_NUMANX_HUMAN_MATTER_PROPOSAL_KNOWN_FLAGS) == 0u && oneMode &&
         dispatch.environmentCount == 1u && dispatch.stepIndex == 0u &&
         dispatch.substepIndex == 0u &&
         dispatch.transactionSlot <
             MR_NUMANX_COUPLED_HUMAN_MAX_TRANSACTION_SLOTS &&
         dispatch.ownerStatusStride != 0u &&
-        (dispatch.flags ==
+        (mode ==
              MR_NUMANX_HUMAN_MATTER_PROPOSAL_VALIDATE_BRAIN_WITNESS
              ? dispatch.brainWitnessStride != 0u
              : dispatch.brainWitnessStride == 0u) &&
@@ -408,13 +458,14 @@ inline bool validProposalDispatch(
 inline bool validApplyDispatch(
     constant MRNumanXHumanMatterApplyDispatchGPU& dispatch
 ) {
-    const uint knownFlags = MR_NUMANX_HUMAN_MATTER_APPLY_VALIDATE_BRAIN_ACK |
-        MR_NUMANX_HUMAN_MATTER_APPLY_FORCE_REJECT;
-    const bool oneMode = dispatch.flags ==
+    const uint mode =
+        dispatch.flags & MR_NUMANX_HUMAN_MATTER_APPLY_MODE_FLAGS;
+    const bool oneMode = mode ==
             MR_NUMANX_HUMAN_MATTER_APPLY_VALIDATE_BRAIN_ACK ||
-        dispatch.flags == MR_NUMANX_HUMAN_MATTER_APPLY_FORCE_REJECT;
+        mode == MR_NUMANX_HUMAN_MATTER_APPLY_FORCE_REJECT;
     return dispatch.abiVersion == MR_NUMANX_HUMAN_MATTER_ABI_VERSION &&
-        (dispatch.flags & ~knownFlags) == 0u && oneMode &&
+        (dispatch.flags &
+         ~MR_NUMANX_HUMAN_MATTER_APPLY_KNOWN_FLAGS) == 0u && oneMode &&
         dispatch.environmentCount == 1u && dispatch.stepIndex == 0u &&
         dispatch.substepIndex == 0u &&
         dispatch.transactionSlot <
@@ -426,7 +477,7 @@ inline bool validApplyDispatch(
         dispatch.qStride == dispatch.nq && dispatch.vStride == dispatch.nv &&
         dispatch.mujocoStateStride == dispatch.mujocoStateCount &&
         dispatch.ownerStatusStride != 0u &&
-        (dispatch.flags == MR_NUMANX_HUMAN_MATTER_APPLY_VALIDATE_BRAIN_ACK
+        (mode == MR_NUMANX_HUMAN_MATTER_APPLY_VALIDATE_BRAIN_ACK
              ? dispatch.brainAckStride != 0u
              : dispatch.brainAckStride == 0u) &&
         dispatch.proposedTokenStrideBytes ==
@@ -1180,6 +1231,11 @@ kernel void mr_numanx_human_matter_prepare_physical(
             reinterpret_cast<device ulong*>(
                 preparedTokens + tokenBase +
                     MR_NUMANX_HUMAN_MATTER_PREPARED_TOKEN_FINGERPRINT_OFFSET);
+        const bool preparedTokenValid = validAcceptedToken(
+            preparedTokens + tokenBase,
+            dispatch.transactionFingerprint,
+            *tokenFingerprint,
+            exactTokenFamily(dispatch.flags));
         const bool prepare = validOwnerDispatch(dispatch) &&
             matchingOwner(owner, dispatch, environment) &&
             owner.stage ==
@@ -1193,7 +1249,7 @@ kernel void mr_numanx_human_matter_prepare_physical(
             joint.humanCode == MR_NUMI_HUMAN_STAND_SUCCESS &&
             joint.humanCompletedSteps == 1u &&
             joint.matterCompletedMicrosteps != 0u &&
-            *tokenFingerprint != 0u;
+            preparedTokenValid;
         atomic_store_explicit(
             &restore, prepare ? 0u : 1u, memory_order_relaxed);
         owner.preparedTokenPreserved = prepare ? 1u : 0u;
@@ -1317,15 +1373,17 @@ kernel void mr_numanx_human_matter_propose_prepared(
         validAcceptedToken(
             preparedTokens + preparedBase,
             dispatch.transactionFingerprint,
-            physicsTokenFingerprint);
+            physicsTokenFingerprint,
+            exactTokenFamily(dispatch.flags));
 
     bool accept = false;
     uint code = MR_NUMANX_HUMAN_MATTER_PROPOSAL_INVALID_OWNER;
     ulong brainProgram = 0ul;
     ulong brainShadow = 0ul;
     ulong brainWitness = 0ul;
-    const bool forceReject = dispatchValid && dispatch.flags ==
-        MR_NUMANX_HUMAN_MATTER_PROPOSAL_FORCE_REJECT;
+    const bool forceReject = dispatchValid &&
+        (dispatch.flags & MR_NUMANX_HUMAN_MATTER_PROPOSAL_MODE_FLAGS) ==
+            MR_NUMANX_HUMAN_MATTER_PROPOSAL_FORCE_REJECT;
     if (!physicalComplete) {
         code = MR_NUMANX_HUMAN_MATTER_PROPOSAL_INVALID_OWNER;
     } else if (physicalRejected) {
@@ -1500,9 +1558,11 @@ kernel void mr_numanx_human_matter_validate_apply(
              : validAcceptedToken(
                    proposedToken,
                    dispatch.transactionFingerprint,
-                   proposal.physicsTokenFingerprint));
-    const bool forceReject = dispatch.flags ==
-        MR_NUMANX_HUMAN_MATTER_APPLY_FORCE_REJECT;
+                   proposal.physicsTokenFingerprint,
+                   exactTokenFamily(dispatch.flags)));
+    const bool forceReject =
+        (dispatch.flags & MR_NUMANX_HUMAN_MATTER_APPLY_MODE_FLAGS) ==
+            MR_NUMANX_HUMAN_MATTER_APPLY_FORCE_REJECT;
     bool accept = false;
     uint code = MR_NUMANX_HUMAN_MATTER_APPLIED_INVALID_OWNER;
     MRNumanXHumanMatterBrainAckGPU ack{};
@@ -1698,7 +1758,8 @@ kernel void mr_numanx_human_matter_complete_apply(
             : validAcceptedToken(
                   proposedToken,
                   dispatch.transactionFingerprint,
-                  proposal.physicsTokenFingerprint);
+                  proposal.physicsTokenFingerprint,
+                  exactTokenFamily(dispatch.flags));
         const bool actionAcceptConsistent =
             (action.status == MR_NUMANX_HUMAN_MATTER_APPLY_ACCEPT &&
              action.decision == MR_NUMANX_HUMAN_MATTER_ROOT_ACCEPT &&

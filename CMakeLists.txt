@@ -3676,6 +3676,88 @@ set_target_properties(
 )
 
 add_executable(
+    metalrobo_numanx_matter_exact_accepted_state_proof_probe
+    apps/numanx_matter_exact_accepted_state_proof_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_matter_exact_accepted_state_proof_probe
+    metalrobo_shaders
+    numi_matter_shaders
+)
+target_compile_definitions(
+    metalrobo_numanx_matter_exact_accepted_state_proof_probe
+    PRIVATE
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+        NUMANX_ADAPTER_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_numanx_matter_exact_accepted_state_proof_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_matter_exact_accepted_state_proof_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_matter_exact_accepted_state_proof_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_human_matter_exact_v2_lifecycle_probe
+    apps/numanx_human_matter_exact_v2_lifecycle_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_human_matter_exact_v2_lifecycle_probe
+    metalrobo_shaders
+    numi_matter_shaders
+)
+target_compile_definitions(
+    metalrobo_numanx_human_matter_exact_v2_lifecycle_probe
+    PRIVATE
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+        NUMANX_ADAPTER_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_features(
+    metalrobo_numanx_human_matter_exact_v2_lifecycle_probe
+    PRIVATE cxx_std_20
+)
+target_compile_options(
+    metalrobo_numanx_human_matter_exact_v2_lifecycle_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_human_matter_exact_v2_lifecycle_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_human_matter_exact_v2_lifecycle_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
     metalrobo_numanx_matter_attachment_runtime_probe
     apps/numanx_matter_attachment_runtime_probe.mm
 )
@@ -4042,6 +4124,24 @@ if(BUILD_TESTING)
             $<TARGET_FILE:metalrobo_numanx_matter_accepted_state_proof_probe>
     )
     add_test(
+        NAME numanx.integration.matter_exact_accepted_state_v2
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_matter_exact_accepted_state_proof_probe>
+    )
+    add_test(
+        NAME numanx.integration.human_matter_exact_v2_lifecycle
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_human_matter_exact_v2_lifecycle_probe>
+    )
+    set_tests_properties(
+        numanx.integration.human_matter_exact_v2_lifecycle
+        PROPERTIES
+            ENVIRONMENT "MTL_DEBUG_LAYER=1"
+            LABELS "numanx;human;matter;exact-clock;metal"
+            RUN_SERIAL TRUE
+            TIMEOUT 120
+    )
+    add_test(
         NAME numanx.integration.human_matter_attachment_runtime
         COMMAND $<TARGET_FILE:metalrobo_numanx_matter_attachment_runtime_probe>
     )
@@ -4106,6 +4206,7 @@ if(BUILD_TESTING)
         numanx.integration.human_matter_exact_candidate
         numanx.integration.human_matter_adapter
         numanx.integration.matter_accepted_state_2pc
+        numanx.integration.matter_exact_accepted_state_v2
         numanx.integration.human_matter_attachment_runtime
         PROPERTIES
             LABELS "numanx;human;physics;metal"

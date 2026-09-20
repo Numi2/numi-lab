@@ -88,6 +88,35 @@ struct FinalizeGPU {
     ulong slotGeneration;
 };
 
+struct FinalizeGPUV2 {
+    uint abiVersion;
+    uint structSize;
+    uint environmentCount;
+    uint environmentIdentifierBase;
+    uint matterStatusStride;
+    uint acceptedStateProofStride;
+    uint controlStep;
+    uint physicsSubstep;
+    uint transactionSlot;
+    uint environmentStatusStride;
+    uint clockDomain;
+    uint clockQuantumNanoseconds;
+    uint reserved0;
+    uint reserved1;
+    ulong transactionFingerprint;
+    ulong substepFingerprint;
+    ulong acceptedTimestampNanoseconds;
+    ulong physicsGeneration;
+    ulong matterSourcePhysicsFingerprint;
+    ulong matterDeviceProgramFingerprint;
+    ulong stateProofProgramFingerprint;
+    ulong adapterProgramFingerprint;
+    ulong transactionPolicyFingerprint;
+    ulong linearizationEpoch;
+    ulong slotGeneration;
+    ulong motorCandidateFingerprint;
+};
+
 inline void mixUInt(thread ulong& hash, const uint value) {
     for (uint byte = 0u; byte < 4u; ++byte) {
         hash ^= ulong((value >> (8u * byte)) & 0xffu);
@@ -164,6 +193,134 @@ inline ulong preparedTokenFingerprint(
     // NBAcceptedPhysicsStateToken::reserved is canonical zero. The policy is
     // already bound by proof.physicsStateFingerprint.
     mixULong(hash, 0ul);
+    return hash;
+}
+
+inline ulong inboundAuthorityFingerprint(
+    thread const NMExactInboundAuthorityGPUV2& authority
+) {
+    ulong hash = kFNVOffset;
+    mixUInt(
+        hash, NM_MATTER_FINGERPRINT_DOMAIN_EXACT_INBOUND_AUTHORITY_V2);
+    mixUInt(hash, authority.abiVersion);
+    mixUInt(hash, authority.structSize);
+    mixUInt(hash, authority.clockDomain);
+    mixUInt(hash, authority.clockQuantumNanoseconds);
+    mixULong(hash, authority.acceptedBrainTimestampNanoseconds);
+    mixULong(hash, authority.brainGeneration);
+    mixULong(hash, authority.transactionFingerprint);
+    mixULong(hash, authority.substepFingerprint);
+    mixULong(hash, authority.motorCandidateFingerprint);
+    mixULong(hash, authority.motorOutputFingerprint);
+    mixULong(hash, authority.motorProfileFingerprint);
+    mixULong(hash, authority.motorReadyGateFingerprint);
+    mixULong(hash, authority.brainProgramFingerprint);
+    mixULong(hash, authority.fastProgramFingerprint);
+    mixULong(hash, authority.decisionGateFingerprint);
+    return hash;
+}
+
+inline bool validInboundAuthority(
+    thread const NMExactInboundAuthorityGPUV2& authority,
+    constant FinalizeGPUV2& pass
+) {
+    const ulong expected = inboundAuthorityFingerprint(authority);
+    return authority.abiVersion ==
+            NM_MATTER_EXACT_INBOUND_AUTHORITY_ABI_VERSION_V2 &&
+        authority.structSize == NM_MATTER_EXACT_INBOUND_AUTHORITY_V2_BYTES &&
+        authority.clockDomain == pass.clockDomain &&
+        authority.clockQuantumNanoseconds == pass.clockQuantumNanoseconds &&
+        authority.brainGeneration != 0ul &&
+        authority.transactionFingerprint == pass.transactionFingerprint &&
+        authority.substepFingerprint == pass.substepFingerprint &&
+        authority.motorCandidateFingerprint ==
+            pass.motorCandidateFingerprint &&
+        authority.motorOutputFingerprint != 0ul &&
+        authority.motorProfileFingerprint != 0ul &&
+        authority.motorReadyGateFingerprint != 0ul &&
+        authority.brainProgramFingerprint != 0ul &&
+        authority.fastProgramFingerprint != 0ul &&
+        authority.decisionGateFingerprint != 0ul &&
+        authority.inboundAuthorityFingerprint != 0ul &&
+        authority.inboundAuthorityFingerprint == expected;
+}
+
+inline ulong physicsFingerprintV2(
+    const ulong human,
+    const ulong matter,
+    thread const NMExactInboundAuthorityGPUV2& authority,
+    constant FinalizeGPUV2& pass,
+    const uint environment
+) {
+    ulong hash = kFNVOffset;
+    mixUInt(hash, NM_MATTER_FINGERPRINT_DOMAIN_PHYSICS_STATE_V2);
+    mixUInt(hash, NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION_V2);
+    mixUInt(hash, pass.clockDomain);
+    mixUInt(hash, pass.clockQuantumNanoseconds);
+    mixULong(hash, human);
+    mixULong(hash, matter);
+    mixULong(hash, pass.matterSourcePhysicsFingerprint);
+    mixULong(hash, pass.matterDeviceProgramFingerprint);
+    mixULong(hash, pass.stateProofProgramFingerprint);
+    mixULong(hash, pass.adapterProgramFingerprint);
+    mixULong(hash, pass.transactionPolicyFingerprint);
+    mixULong(hash, pass.motorCandidateFingerprint);
+    mixULong(hash, authority.inboundAuthorityFingerprint);
+    mixULong(hash, pass.transactionFingerprint);
+    mixULong(hash, pass.substepFingerprint);
+    mixULong(hash, pass.acceptedTimestampNanoseconds);
+    mixULong(hash, pass.physicsGeneration);
+    mixUInt(hash, pass.environmentIdentifierBase + environment);
+    return hash;
+}
+
+inline ulong recordFingerprintV2(
+    thread const NMAcceptedStateProofGPUV2& proof
+) {
+    ulong hash = kFNVOffset;
+    mixUInt(hash, NM_MATTER_FINGERPRINT_DOMAIN_ACCEPTED_STATE_PROOF_V2);
+    mixUInt(hash, proof.abiVersion);
+    mixUInt(hash, proof.structSize);
+    mixUInt(hash, proof.status);
+    mixUInt(hash, proof.environment);
+    mixULong(hash, proof.transactionFingerprint);
+    mixULong(hash, proof.substepFingerprint);
+    mixULong(hash, proof.acceptedTimestampNanoseconds);
+    mixULong(hash, proof.physicsGeneration);
+    mixUInt(hash, proof.clockDomain);
+    mixUInt(hash, proof.clockQuantumNanoseconds);
+    mixULong(hash, proof.humanStateFingerprint);
+    mixULong(hash, proof.matterStateFingerprint);
+    mixULong(hash, proof.physicsStateFingerprint);
+    mixULong(hash, proof.matterSourcePhysicsFingerprint);
+    mixULong(hash, proof.matterDeviceProgramFingerprint);
+    mixULong(hash, proof.stateProofProgramFingerprint);
+    mixULong(hash, proof.adapterProgramFingerprint);
+    mixULong(hash, proof.transactionPolicyFingerprint);
+    mixULong(hash, proof.linearizationEpoch);
+    mixULong(hash, proof.slotGeneration);
+    mixULong(hash, proof.motorCandidateFingerprint);
+    mixULong(hash, proof.inboundAuthorityFingerprint);
+    return hash;
+}
+
+inline ulong preparedTokenFingerprintV2(
+    thread const NMAcceptedStateProofGPUV2& proof,
+    constant FinalizeGPUV2& pass,
+    const uint environment
+) {
+    ulong hash = kFNVOffset;
+    mixUInt(hash, NM_MATTER_FINGERPRINT_DOMAIN_ACCEPTED_PHYSICS_TOKEN_V2);
+    mixUInt(hash, NM_MATTER_ACCEPTED_PHYSICS_TOKEN_VERSION_V2);
+    mixULong(hash, proof.transactionFingerprint);
+    mixULong(hash, proof.substepFingerprint);
+    mixULong(hash, proof.physicsStateFingerprint);
+    mixULong(hash, proof.acceptedTimestampNanoseconds);
+    mixULong(hash, proof.physicsGeneration);
+    mixUInt(hash, pass.environmentIdentifierBase + environment);
+    mixUInt(hash, 0u);
+    mixUInt(hash, proof.clockDomain);
+    mixUInt(hash, proof.clockQuantumNanoseconds);
     return hash;
 }
 
@@ -390,10 +547,238 @@ kernel void nm_accepted_state_proof_finalize(
     bindings[environment] = binding;
 }
 
+kernel void nm_accepted_state_proof_finalize_v2(
+    constant accepted_state_proof_detail::FinalizeGPUV2& pass [[buffer(0)]],
+    device const ulong* hashes [[buffer(1)]],
+    device const NMMatterStatusGPU* matterStatuses [[buffer(2)]],
+    device NMAcceptedStateProofGPUV2* output [[buffer(3)]],
+    device NMPreparedStateBindingGPU* bindings [[buffer(4)]],
+    device const MRMetalWorldStatusGPU* environmentStatuses [[buffer(5)]],
+    device const NMExactInboundAuthorityGPUV2* inboundAuthority [[buffer(6)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    using namespace accepted_state_proof_detail;
+    if (pass.environmentCount > 0x7fffffffu ||
+        environment >= pass.environmentCount) return;
+    NMAcceptedStateProofGPUV2 proof = {};
+    NMPreparedStateBindingGPU binding = {};
+    binding.abiVersion = NM_MATTER_PREPARED_STATE_ABI_VERSION_V2;
+    binding.status = NM_PREPARED_STATE_BINDING_REJECTED;
+    binding.environment = environment;
+    binding.stepIndex = 0u;
+    binding.substepIndex = pass.physicsSubstep;
+    binding.transactionSlot = pass.transactionSlot;
+    binding.controlStep = pass.controlStep;
+    binding.transactionFingerprint = pass.transactionFingerprint;
+    binding.substepFingerprint = pass.substepFingerprint;
+    binding.linearizationEpoch = pass.linearizationEpoch;
+    binding.slotGeneration = pass.slotGeneration;
+    binding.adapterProgramFingerprint = pass.adapterProgramFingerprint;
+    binding.transactionPolicyFingerprint =
+        pass.transactionPolicyFingerprint;
+    proof.abiVersion = pass.abiVersion;
+    proof.structSize = pass.structSize;
+    proof.status = NM_ACCEPTED_STATE_PROOF_REJECTED;
+    proof.environment = pass.environmentIdentifierBase + environment;
+    proof.transactionFingerprint = pass.transactionFingerprint;
+    proof.substepFingerprint = pass.substepFingerprint;
+    proof.acceptedTimestampNanoseconds = pass.acceptedTimestampNanoseconds;
+    proof.physicsGeneration = pass.physicsGeneration;
+    proof.clockDomain = pass.clockDomain;
+    proof.clockQuantumNanoseconds = pass.clockQuantumNanoseconds;
+    proof.matterSourcePhysicsFingerprint = pass.matterSourcePhysicsFingerprint;
+    proof.matterDeviceProgramFingerprint = pass.matterDeviceProgramFingerprint;
+    proof.stateProofProgramFingerprint = pass.stateProofProgramFingerprint;
+    proof.adapterProgramFingerprint = pass.adapterProgramFingerprint;
+    proof.transactionPolicyFingerprint = pass.transactionPolicyFingerprint;
+    proof.linearizationEpoch = pass.linearizationEpoch;
+    proof.slotGeneration = pass.slotGeneration;
+    proof.motorCandidateFingerprint = pass.motorCandidateFingerprint;
+    const NMExactInboundAuthorityGPUV2 authority = inboundAuthority[0];
+    const NMMatterStatusGPU matterStatus =
+        matterStatuses[environment * pass.matterStatusStride];
+    const MRMetalWorldStatusGPU humanStatus =
+        environmentStatuses[environment * pass.environmentStatusStride];
+    const ulong human = hashes[environment];
+    const ulong matterHash = hashes[pass.environmentCount + environment];
+    const bool authorityValid = validInboundAuthority(authority, pass);
+    const bool valid = pass.abiVersion ==
+            NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION_V2 &&
+        pass.structSize == NM_MATTER_ACCEPTED_STATE_PROOF_V2_BYTES &&
+        pass.environmentCount == 1u && pass.matterStatusStride != 0u &&
+        pass.environmentStatusStride != 0u &&
+        pass.acceptedStateProofStride != 0u &&
+        pass.clockDomain ==
+            NM_MATTER_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
+        pass.clockQuantumNanoseconds ==
+            NM_MATTER_EXACT_CLOCK_QUANTUM_NANOSECONDS &&
+        pass.reserved0 == 0u && pass.reserved1 == 0u &&
+        pass.transactionFingerprint != 0ul &&
+        pass.substepFingerprint != 0ul &&
+        pass.acceptedTimestampNanoseconds != 0ul &&
+        pass.acceptedTimestampNanoseconds >
+            authority.acceptedBrainTimestampNanoseconds &&
+        pass.physicsGeneration != 0ul &&
+        pass.matterSourcePhysicsFingerprint != 0ul &&
+        pass.matterDeviceProgramFingerprint != 0ul &&
+        pass.stateProofProgramFingerprint != 0ul &&
+        pass.adapterProgramFingerprint != 0ul &&
+        pass.transactionPolicyFingerprint != 0ul &&
+        pass.linearizationEpoch != 0ul && pass.slotGeneration != 0ul &&
+        pass.motorCandidateFingerprint != 0ul && authorityValid &&
+        humanStatus.code == MR_STEP_SUCCESS &&
+        humanStatus.environment == environment &&
+        humanStatus.controlStep == pass.controlStep &&
+        humanStatus.successfulSubsteps == pass.physicsSubstep + 1u &&
+        humanStatus.failingSubstep == MR_INVALID_INDEX &&
+        humanStatus.failingIndex == MR_INVALID_INDEX &&
+        matterStatus.code == NM_STATUS_SUCCESS &&
+        matterStatus.environment == environment &&
+        matterStatus.completedMicrosteps != 0u &&
+        human != 0ul && matterHash != 0ul;
+    if (valid) {
+        proof.status = NM_ACCEPTED_STATE_PROOF_VALID;
+        proof.humanStateFingerprint = human;
+        proof.matterStateFingerprint = matterHash;
+        proof.inboundAuthorityFingerprint =
+            authority.inboundAuthorityFingerprint;
+        proof.physicsStateFingerprint = physicsFingerprintV2(
+            human, matterHash, authority, pass, environment);
+        proof.proofFingerprint = recordFingerprintV2(proof);
+        if (proof.physicsStateFingerprint == 0ul ||
+            proof.proofFingerprint == 0ul) {
+            proof = {};
+            proof.abiVersion = pass.abiVersion;
+            proof.structSize = pass.structSize;
+            proof.status = NM_ACCEPTED_STATE_PROOF_REJECTED;
+            proof.environment = pass.environmentIdentifierBase + environment;
+        }
+    }
+    if (proof.status == NM_ACCEPTED_STATE_PROOF_VALID) {
+        binding.status = NM_PREPARED_STATE_BINDING_VALID;
+        binding.physicsTokenFingerprint =
+            preparedTokenFingerprintV2(proof, pass, environment);
+        binding.proofFingerprint = proof.proofFingerprint;
+        if (binding.physicsTokenFingerprint == 0ul) {
+            binding.status = NM_PREPARED_STATE_BINDING_REJECTED;
+            binding.physicsTokenFingerprint = 0ul;
+            binding.proofFingerprint = 0ul;
+        }
+    }
+    output[environment * pass.acceptedStateProofStride] = proof;
+    bindings[environment] = binding;
+}
+
 namespace prepared_state_detail {
 
 inline ulong nonzeroFingerprint(const ulong hash) {
     return hash == 0ul ? accepted_state_proof_detail::kFNVOffset : hash;
+}
+
+// Both accepted-token revisions are exactly 64 bytes. Their byte size is
+// therefore never a family discriminator; the trusted apply dispatch selects
+// one of these layouts and its corresponding fingerprint relation.
+struct PreparedTokenV1 {
+    ulong transactionFingerprint;
+    ulong substepFingerprint;
+    ulong physicsStateFingerprint;
+    ulong acceptedTimestampMicroseconds;
+    ulong physicsGeneration;
+    uint environmentIdentifier;
+    uint flags;
+    ulong reserved;
+    ulong tokenFingerprint;
+};
+
+struct PreparedTokenV2 {
+    ulong transactionFingerprint;
+    ulong substepFingerprint;
+    ulong physicsStateFingerprint;
+    ulong acceptedTimestampNanoseconds;
+    ulong physicsGeneration;
+    uint environmentIdentifier;
+    uint flags;
+    uint clockDomain;
+    uint clockQuantumNanoseconds;
+    ulong tokenFingerprint;
+};
+
+inline ulong preparedTokenFingerprint(
+    const device PreparedTokenV1& token
+) {
+    using namespace accepted_state_proof_detail;
+    ulong hash = kFNVOffset;
+    mixUInt(hash, 1u);
+    mixULong(hash, token.transactionFingerprint);
+    mixULong(hash, token.substepFingerprint);
+    mixULong(hash, token.physicsStateFingerprint);
+    mixULong(hash, token.acceptedTimestampMicroseconds);
+    mixULong(hash, token.physicsGeneration);
+    mixUInt(hash, token.environmentIdentifier);
+    mixUInt(hash, token.flags);
+    mixULong(hash, token.reserved);
+    return hash;
+}
+
+inline ulong preparedTokenFingerprint(
+    const device PreparedTokenV2& token
+) {
+    using namespace accepted_state_proof_detail;
+    ulong hash = kFNVOffset;
+    mixUInt(hash, NM_MATTER_FINGERPRINT_DOMAIN_ACCEPTED_PHYSICS_TOKEN_V2);
+    mixUInt(hash, NM_MATTER_ACCEPTED_PHYSICS_TOKEN_VERSION_V2);
+    mixULong(hash, token.transactionFingerprint);
+    mixULong(hash, token.substepFingerprint);
+    mixULong(hash, token.physicsStateFingerprint);
+    mixULong(hash, token.acceptedTimestampNanoseconds);
+    mixULong(hash, token.physicsGeneration);
+    mixUInt(hash, token.environmentIdentifier);
+    mixUInt(hash, token.flags);
+    mixUInt(hash, token.clockDomain);
+    mixUInt(hash, token.clockQuantumNanoseconds);
+    return hash;
+}
+
+inline bool validPreparedToken(
+    const device PreparedTokenV1& token,
+    thread const NMPreparedStateBindingGPU& binding,
+    constant NMPreparedStateApplyGPU& pass,
+    const uint environment
+) {
+    return pass.tokenFamily == NM_MATTER_PREPARED_TOKEN_FAMILY_V1 &&
+        token.transactionFingerprint == pass.transactionFingerprint &&
+        token.substepFingerprint == binding.substepFingerprint &&
+        token.physicsStateFingerprint != 0ul &&
+        token.acceptedTimestampMicroseconds != 0ul &&
+        token.physicsGeneration != 0ul &&
+        token.environmentIdentifier ==
+            pass.environmentIdentifierBase + environment &&
+        token.flags == 0u && token.reserved == 0ul &&
+        token.tokenFingerprint != 0ul &&
+        token.tokenFingerprint == binding.physicsTokenFingerprint &&
+        token.tokenFingerprint == preparedTokenFingerprint(token);
+}
+
+inline bool validPreparedToken(
+    const device PreparedTokenV2& token,
+    thread const NMPreparedStateBindingGPU& binding,
+    constant NMPreparedStateApplyGPU& pass,
+    const uint environment
+) {
+    return pass.tokenFamily == NM_MATTER_PREPARED_TOKEN_FAMILY_V2 &&
+        token.transactionFingerprint == pass.transactionFingerprint &&
+        token.substepFingerprint == binding.substepFingerprint &&
+        token.physicsStateFingerprint != 0ul &&
+        token.acceptedTimestampNanoseconds != 0ul &&
+        token.physicsGeneration != 0ul &&
+        token.environmentIdentifier ==
+            pass.environmentIdentifierBase + environment &&
+        token.flags == 0u && token.clockDomain == pass.clockDomain &&
+        token.clockQuantumNanoseconds ==
+            pass.clockQuantumNanoseconds &&
+        token.tokenFingerprint != 0ul &&
+        token.tokenFingerprint == binding.physicsTokenFingerprint &&
+        token.tokenFingerprint == preparedTokenFingerprint(token);
 }
 
 inline ulong proposalFingerprint(thread const NMOwnerProposalGPU& value) {
@@ -569,20 +954,30 @@ kernel void nm_prepared_state_validate_application(
     const NMOwnerApplyActionGPU action =
         applyActions[environment * pass.applyActionStride];
     const NMPreparedStateBindingGPU binding = bindings[environment];
+    const bool legacyFamily =
+        pass.tokenFamily == NM_MATTER_PREPARED_TOKEN_FAMILY_V1 &&
+        pass.clockDomain == 0u && pass.clockQuantumNanoseconds == 0u &&
+        binding.abiVersion == NM_MATTER_PREPARED_STATE_ABI_VERSION;
+    const bool exactFamily =
+        pass.tokenFamily == NM_MATTER_PREPARED_TOKEN_FAMILY_V2 &&
+        pass.clockDomain ==
+            NM_MATTER_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
+        pass.clockQuantumNanoseconds ==
+            NM_MATTER_EXACT_CLOCK_QUANTUM_NANOSECONDS &&
+        binding.abiVersion == NM_MATTER_PREPARED_STATE_ABI_VERSION_V2;
     const bool dispatchValid =
         pass.abiVersion == NM_MATTER_OWNER_APPLY_ABI_VERSION &&
         pass.environmentCount == 1u && pass.proposalStride != 0u &&
         pass.brainAckStride != 0u && pass.applyActionStride != 0u &&
         pass.matterApplyOutcomeStride != 0u &&
-        pass.proposedTokenStrideBytes == 64u && pass.stepIndex == 0u &&
-        pass.substepIndex == 0u && pass.physicsSubstepCount == 1u &&
+        pass.proposedTokenStrideBytes == 64u && pass.substepIndex == 0u &&
+        pass.physicsSubstepCount == 1u &&
         pass.ownerProgramFingerprint != 0ul &&
         pass.transactionFingerprint != 0ul &&
         pass.linearizationEpoch != 0ul && pass.slotGeneration != 0ul &&
         pass.matterProgramFingerprint != 0ul &&
-        pass.forceRestore <= 1u && pass.reserved0 == 0u &&
-        pass.reserved1 == 0u && pass.reserved2 == 0u &&
-        pass.reserved3 == 0ul;
+        pass.forceRestore <= 1u && (legacyFamily || exactFamily) &&
+        pass.reserved0 == 0ul;
     const bool proposalAcceptConsistent =
         proposal.decision == NM_OWNER_ROOT_ACCEPT &&
         proposal.code == NM_OWNER_PROPOSAL_SUCCESS &&
@@ -705,8 +1100,8 @@ kernel void nm_prepared_state_validate_application(
         action.actionFingerprint != 0ul &&
         action.actionFingerprint == applyActionFingerprint(action);
     const bool bindingIdentityValid =
-        binding.abiVersion == NM_MATTER_PREPARED_STATE_ABI_VERSION &&
-        binding.environment == environment && binding.stepIndex == 0u &&
+        (legacyFamily || exactFamily) && binding.environment == environment &&
+        binding.stepIndex == 0u &&
         binding.substepIndex == pass.substepIndex &&
         binding.transactionSlot == pass.transactionSlot &&
         binding.controlStep == pass.controlStep &&
@@ -732,6 +1127,13 @@ kernel void nm_prepared_state_validate_application(
         ulong(environment) * pass.proposedTokenStrideBytes;
     const device ulong* proposedTokenFingerprint =
         reinterpret_cast<const device ulong*>(proposedToken + 56ul);
+    const bool acceptedTokenValid = legacyFamily
+        ? validPreparedToken(
+            *reinterpret_cast<const device PreparedTokenV1*>(proposedToken),
+            binding, pass, environment)
+        : exactFamily && validPreparedToken(
+            *reinterpret_cast<const device PreparedTokenV2*>(proposedToken),
+            binding, pass, environment);
     bool proposedTokenZero = true;
     for (uint byte = 0u; byte < pass.proposedTokenStrideBytes; ++byte)
         proposedTokenZero = proposedTokenZero && proposedToken[byte] == 0u;
@@ -740,7 +1142,7 @@ kernel void nm_prepared_state_validate_application(
              ? (proposal.physicsTokenFingerprint ==
                     *proposedTokenFingerprint &&
                 binding.physicsTokenFingerprint ==
-                    *proposedTokenFingerprint)
+                    *proposedTokenFingerprint && acceptedTokenValid)
              : proposedTokenZero);
     const bool terminalNoTouch = pass.forceRestore == 0u &&
         (proposal.status == NM_OWNER_PROPOSAL_PENDING ||

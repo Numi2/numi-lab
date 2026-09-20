@@ -1460,6 +1460,86 @@ bool encodeRuntimeProof(
     return runtime->encodeAcceptedStateProof(pass);
 }
 
+bool encodeRuntimeProofV2(
+    void* context,
+    const metalrobo::MetalNumanXHumanMatterStateProofPassV2& source
+) noexcept {
+    auto* runtime = static_cast<numi::matter::Runtime*>(context);
+    if (runtime == nullptr ||
+        source.abiVersion !=
+            MR_NUMANX_HUMAN_MATTER_EXACT_ADAPTER_ABI_VERSION ||
+        source.structSize != sizeof(source)) {
+        return false;
+    }
+    numi::matter::AcceptedStateProofPassV2 pass{};
+    pass.environmentCount = source.environmentCount;
+    pass.environmentIdentifierBase = source.environmentIdentifierBase;
+    pass.commandBuffer = source.commandBuffer;
+    pass.q = source.q;
+    pass.rootTranslation = source.rootTranslation;
+    pass.rootTranslationGPUAddress = source.rootTranslationGPUAddress;
+    pass.rootTranslationElementCount = source.rootTranslationElementCount;
+    pass.rootTranslationStride = source.rootTranslationStride;
+    pass.v = source.v;
+    pass.mujocoStates = source.mujocoStates;
+    pass.matterGeneralizedReaction = source.matterGeneralizedReaction;
+    pass.environmentStatuses = source.environmentStatuses;
+    pass.matterStatuses = source.matterStatuses;
+    pass.acceptedStateProofs = source.acceptedStateProofs;
+    pass.inboundAuthority = source.inboundAuthority;
+    pass.qGPUAddress = source.qGPUAddress;
+    pass.vGPUAddress = source.vGPUAddress;
+    pass.mujocoStatesGPUAddress = source.mujocoStatesGPUAddress;
+    pass.matterGeneralizedReactionGPUAddress =
+        source.matterGeneralizedReactionGPUAddress;
+    pass.environmentStatusesGPUAddress =
+        source.environmentStatusesGPUAddress;
+    pass.matterStatusesGPUAddress = source.matterStatusesGPUAddress;
+    pass.acceptedStateProofsGPUAddress =
+        source.acceptedStateProofsGPUAddress;
+    pass.inboundAuthorityGPUAddress = source.inboundAuthorityGPUAddress;
+    pass.qElementCount = source.qElementCount;
+    pass.vElementCount = source.vElementCount;
+    pass.mujocoStateCount = source.mujocoStateCount;
+    pass.matterGeneralizedReactionElementCount =
+        source.matterGeneralizedReactionElementCount;
+    pass.environmentStatusElementCount =
+        source.environmentStatusElementCount;
+    pass.matterStatusElementCount = source.matterStatusElementCount;
+    pass.acceptedStateProofElementCount =
+        source.acceptedStateProofElementCount;
+    pass.inboundAuthorityByteCount = source.inboundAuthorityByteCount;
+    pass.qStride = source.qStride;
+    pass.vStride = source.vStride;
+    pass.mujocoStateStride = source.mujocoStateStride;
+    pass.reactionStride = source.reactionStride;
+    pass.environmentStatusStride = source.environmentStatusStride;
+    pass.matterStatusStride = source.matterStatusStride;
+    pass.acceptedStateProofStride = source.acceptedStateProofStride;
+    pass.qCoordinateCount = source.qCoordinateCount;
+    pass.dofCount = source.dofCount;
+    pass.transactionSlot = source.transactionSlot;
+    pass.clockDomain = source.clockDomain;
+    pass.clockQuantumNanoseconds = source.clockQuantumNanoseconds;
+    pass.reserved0 = source.reserved0;
+    pass.programFingerprint = source.programFingerprint;
+    pass.stateProofProgramFingerprint =
+        source.stateProofProgramFingerprint;
+    pass.transactionFingerprint = source.transactionFingerprint;
+    pass.substepFingerprint = source.substepFingerprint;
+    pass.acceptedTimestampNanoseconds =
+        source.acceptedTimestampNanoseconds;
+    pass.physicsGeneration = source.physicsGeneration;
+    pass.linearizationEpoch = source.linearizationEpoch;
+    pass.slotGeneration = source.slotGeneration;
+    pass.matterSourcePhysicsFingerprint =
+        source.matterSourcePhysicsFingerprint;
+    pass.matterDeviceProgramFingerprint =
+        source.matterDeviceProgramFingerprint;
+    pass.motorCandidateFingerprint = source.motorCandidateFingerprint;
+    return runtime->encodeAcceptedStateProofV2(pass);
+}
+
 [[nodiscard]] bool bufferObject(
     void* raw,
     __unsafe_unretained id<MTLBuffer>& output
@@ -2498,13 +2578,18 @@ void cultureCompletion(
     adapterConfig.stateProofProgram.encode = &encodeRuntimeProof;
     adapterConfig.stateProofProgram.fingerprint =
         runtime->matter->acceptedStateProofProgramFingerprint();
+    adapterConfig.stateProofProgramV2.context = runtime->matter.get();
+    adapterConfig.stateProofProgramV2.encode = &encodeRuntimeProofV2;
+    adapterConfig.stateProofProgramV2.fingerprint =
+        runtime->matter->acceptedStateProofProgramFingerprintV2();
     runtime->adapter =
         std::make_unique<metalrobo::MetalNumanXHumanMatterContext>(
             std::move(adapterConfig));
     const auto adapterDiagnostics = runtime->adapter->initialize();
     requireBuild(
         adapterDiagnostics.succeeded() &&
-            adapterDiagnostics.acceptedStateProofAvailable,
+            adapterDiagnostics.acceptedStateProofAvailable &&
+            adapterDiagnostics.acceptedStateProofV2Available,
         MRNX_RUNTIME_MATTER_FAILURE_V1,
         "Human/Matter adapter initialization failed: " +
             adapterDiagnostics.message);

@@ -1,6 +1,7 @@
 #include <metal_stdlib>
 
 #include "metalrobo/numanx_human_matter_adapter_gpu.h"
+#include "metalrobo/numanx_human_io_gpu.h"
 #include "numi/matter/shared.h"
 
 using namespace metal;
@@ -29,8 +30,15 @@ inline void fnvMixULong(thread ulong& hash, const ulong value) {
 inline bool validDispatch(
     constant MRNumanXHumanMatterAdapterDispatchGPU& dispatch
 ) {
-    return dispatch.abiVersion ==
-            MR_NUMANX_HUMAN_MATTER_ADAPTER_ABI_VERSION &&
+    const bool familyValid =
+        (dispatch.abiVersion ==
+                MR_NUMANX_HUMAN_MATTER_ADAPTER_ABI_VERSION &&
+         dispatch.reserved0 == 0u) ||
+        (dispatch.abiVersion ==
+                MR_NUMANX_HUMAN_MATTER_EXACT_ADAPTER_ABI_VERSION &&
+         dispatch.reserved0 == sizeof(
+             MRNumanXHumanMatterAdapterDispatchGPUV2));
+    return familyValid &&
         dispatch.environmentCount == 1u &&
         dispatch.expectedMatterCompletedMicrosteps != 0u &&
         dispatch.jointStatusStride != 0u &&
@@ -40,7 +48,7 @@ inline bool validDispatch(
             MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_BYTES &&
         dispatch.worldStatusStride != 0u &&
         dispatch.acceptedStateProofStride != 0u &&
-        dispatch.flags == 0u && dispatch.reserved0 == 0u &&
+        dispatch.flags == 0u &&
         dispatch.physicsSubsteps == 1u &&
         dispatch.physicsSubstep == 0u &&
         dispatch.programFingerprint != 0u &&
@@ -148,6 +156,219 @@ inline bool validAcceptedStateProof(
         proof.transactionPolicyFingerprint != 0ul &&
         proof.proofFingerprint != 0ul &&
         proof.proofFingerprint == expectedProofFingerprint;
+}
+
+inline ulong exactInboundAuthorityFingerprint(
+    thread const MRNumanXExactInboundAuthorityGPUV2& authority
+) {
+    ulong hash = kFNVOffset;
+    fnvMixUInt(
+        hash, MR_NUMANX_FINGERPRINT_DOMAIN_EXACT_INBOUND_AUTHORITY_V2);
+    fnvMixUInt(hash, authority.abiVersion);
+    fnvMixUInt(hash, authority.structSize);
+    fnvMixUInt(hash, authority.clockDomain);
+    fnvMixUInt(hash, authority.clockQuantumNanoseconds);
+    fnvMixULong(hash, authority.acceptedBrainTimestampNanoseconds);
+    fnvMixULong(hash, authority.brainGeneration);
+    fnvMixULong(hash, authority.transactionFingerprint);
+    fnvMixULong(hash, authority.substepFingerprint);
+    fnvMixULong(hash, authority.motorCandidateFingerprint);
+    fnvMixULong(hash, authority.motorOutputFingerprint);
+    fnvMixULong(hash, authority.motorProfileFingerprint);
+    fnvMixULong(hash, authority.motorReadyGateFingerprint);
+    fnvMixULong(hash, authority.brainProgramFingerprint);
+    fnvMixULong(hash, authority.fastProgramFingerprint);
+    fnvMixULong(hash, authority.decisionGateFingerprint);
+    return hash;
+}
+
+inline bool validExactDispatch(
+    constant MRNumanXHumanMatterAdapterDispatchGPUV2& dispatch
+) {
+    return dispatch.abiVersion ==
+            MR_NUMANX_HUMAN_MATTER_EXACT_ADAPTER_ABI_VERSION &&
+        dispatch.structSize == sizeof(dispatch) &&
+        dispatch.environmentCount == 1u &&
+        dispatch.expectedMatterCompletedMicrosteps != 0u &&
+        dispatch.jointStatusStride != 0u &&
+        dispatch.standStatusStride != 0u &&
+        dispatch.matterOutcomeStride != 0u &&
+        dispatch.acceptedTokenStrideBytes ==
+            MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_V2_BYTES &&
+        dispatch.worldStatusStride != 0u &&
+        dispatch.acceptedStateProofStride != 0u &&
+        dispatch.flags == 0u && dispatch.physicsSubsteps == 1u &&
+        dispatch.physicsSubstep == 0u &&
+        dispatch.programFingerprint != 0u &&
+        dispatch.transactionFingerprint != 0u &&
+        dispatch.substepFingerprint != 0u &&
+        dispatch.acceptedTimestampNanoseconds != 0u &&
+        dispatch.acceptedTimestampNanoseconds >
+            dispatch.acceptedBrainTimestampNanoseconds &&
+        dispatch.physicsGeneration != 0u &&
+        dispatch.linearizationEpoch != 0u &&
+        dispatch.slotGeneration != 0u &&
+        dispatch.matterSourcePhysicsFingerprint != 0u &&
+        dispatch.matterDeviceProgramFingerprint != 0u &&
+        dispatch.stateProofProgramFingerprint != 0u &&
+        dispatch.clockDomain ==
+            MR_NUMANX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
+        dispatch.clockQuantumNanoseconds ==
+            MR_NUMANX_EXACT_CLOCK_QUANTUM_NANOSECONDS &&
+        dispatch.inboundAuthorityByteCount ==
+            sizeof(MRNumanXExactInboundAuthorityGPUV2) &&
+        dispatch.reserved0 == 0u &&
+        dispatch.motorCandidateFingerprint != 0u &&
+        dispatch.brainGeneration != 0u &&
+        dispatch.humanIOProgramFingerprint != 0u &&
+        dispatch.inboundAuthorityGPUAddress != 0u &&
+        dispatch.authorityRangeIdentityFingerprint != 0u;
+}
+
+inline bool validExactInboundAuthority(
+    thread const MRNumanXExactInboundAuthorityGPUV2& authority,
+    constant MRNumanXHumanMatterAdapterDispatchGPUV2& dispatch
+) {
+    const ulong expected = exactInboundAuthorityFingerprint(authority);
+    return authority.abiVersion ==
+            MR_NUMANX_EXACT_INBOUND_AUTHORITY_ABI_VERSION_V2 &&
+        authority.structSize == sizeof(authority) &&
+        authority.clockDomain == dispatch.clockDomain &&
+        authority.clockQuantumNanoseconds ==
+            dispatch.clockQuantumNanoseconds &&
+        authority.acceptedBrainTimestampNanoseconds ==
+            dispatch.acceptedBrainTimestampNanoseconds &&
+        authority.brainGeneration == dispatch.brainGeneration &&
+        authority.transactionFingerprint ==
+            dispatch.transactionFingerprint &&
+        authority.substepFingerprint == dispatch.substepFingerprint &&
+        authority.motorCandidateFingerprint ==
+            dispatch.motorCandidateFingerprint &&
+        authority.motorOutputFingerprint != 0ul &&
+        authority.motorProfileFingerprint != 0ul &&
+        authority.motorReadyGateFingerprint != 0ul &&
+        authority.brainProgramFingerprint != 0ul &&
+        authority.fastProgramFingerprint != 0ul &&
+        authority.decisionGateFingerprint != 0ul &&
+        authority.inboundAuthorityFingerprint != 0ul &&
+        authority.inboundAuthorityFingerprint == expected;
+}
+
+inline ulong exactPhysicsStateFingerprint(
+    thread const MRNumanXAcceptedStateProofGPUV2& proof
+) {
+    ulong hash = kFNVOffset;
+    fnvMixUInt(hash, MR_NUMANX_FINGERPRINT_DOMAIN_PHYSICS_STATE_V2);
+    fnvMixUInt(hash, MR_NUMANX_HUMAN_MATTER_EXACT_ADAPTER_ABI_VERSION);
+    fnvMixUInt(hash, proof.clockDomain);
+    fnvMixUInt(hash, proof.clockQuantumNanoseconds);
+    fnvMixULong(hash, proof.humanStateFingerprint);
+    fnvMixULong(hash, proof.matterStateFingerprint);
+    fnvMixULong(hash, proof.matterSourcePhysicsFingerprint);
+    fnvMixULong(hash, proof.matterDeviceProgramFingerprint);
+    fnvMixULong(hash, proof.stateProofProgramFingerprint);
+    fnvMixULong(hash, proof.adapterProgramFingerprint);
+    fnvMixULong(hash, proof.transactionPolicyFingerprint);
+    fnvMixULong(hash, proof.motorCandidateFingerprint);
+    fnvMixULong(hash, proof.inboundAuthorityFingerprint);
+    fnvMixULong(hash, proof.transactionFingerprint);
+    fnvMixULong(hash, proof.substepFingerprint);
+    fnvMixULong(hash, proof.acceptedTimestampNanoseconds);
+    fnvMixULong(hash, proof.physicsGeneration);
+    fnvMixUInt(hash, proof.environment);
+    return hash;
+}
+
+inline ulong exactProofFingerprint(
+    thread const MRNumanXAcceptedStateProofGPUV2& proof
+) {
+    ulong hash = kFNVOffset;
+    fnvMixUInt(
+        hash, MR_NUMANX_FINGERPRINT_DOMAIN_ACCEPTED_STATE_PROOF_V2);
+    fnvMixUInt(hash, proof.abiVersion);
+    fnvMixUInt(hash, proof.structSize);
+    fnvMixUInt(hash, proof.status);
+    fnvMixUInt(hash, proof.environment);
+    fnvMixULong(hash, proof.transactionFingerprint);
+    fnvMixULong(hash, proof.substepFingerprint);
+    fnvMixULong(hash, proof.acceptedTimestampNanoseconds);
+    fnvMixULong(hash, proof.physicsGeneration);
+    fnvMixUInt(hash, proof.clockDomain);
+    fnvMixUInt(hash, proof.clockQuantumNanoseconds);
+    fnvMixULong(hash, proof.humanStateFingerprint);
+    fnvMixULong(hash, proof.matterStateFingerprint);
+    fnvMixULong(hash, proof.physicsStateFingerprint);
+    fnvMixULong(hash, proof.matterSourcePhysicsFingerprint);
+    fnvMixULong(hash, proof.matterDeviceProgramFingerprint);
+    fnvMixULong(hash, proof.stateProofProgramFingerprint);
+    fnvMixULong(hash, proof.adapterProgramFingerprint);
+    fnvMixULong(hash, proof.transactionPolicyFingerprint);
+    fnvMixULong(hash, proof.linearizationEpoch);
+    fnvMixULong(hash, proof.slotGeneration);
+    fnvMixULong(hash, proof.motorCandidateFingerprint);
+    fnvMixULong(hash, proof.inboundAuthorityFingerprint);
+    return hash;
+}
+
+inline bool validExactAcceptedStateProof(
+    thread const MRNumanXAcceptedStateProofGPUV2& proof,
+    thread const MRNumanXExactInboundAuthorityGPUV2& authority,
+    constant MRNumanXHumanMatterAdapterDispatchGPUV2& dispatch
+) {
+    return validExactDispatch(dispatch) &&
+        validExactInboundAuthority(authority, dispatch) &&
+        proof.abiVersion ==
+            MR_NUMANX_HUMAN_MATTER_EXACT_ADAPTER_ABI_VERSION &&
+        proof.structSize == sizeof(proof) &&
+        proof.status == MR_NUMANX_ACCEPTED_STATE_PROOF_VALID &&
+        proof.environment == dispatch.environmentIdentifierBase &&
+        proof.transactionFingerprint == dispatch.transactionFingerprint &&
+        proof.substepFingerprint == dispatch.substepFingerprint &&
+        proof.acceptedTimestampNanoseconds ==
+            dispatch.acceptedTimestampNanoseconds &&
+        proof.physicsGeneration == dispatch.physicsGeneration &&
+        proof.clockDomain == dispatch.clockDomain &&
+        proof.clockQuantumNanoseconds ==
+            dispatch.clockQuantumNanoseconds &&
+        proof.humanStateFingerprint != 0ul &&
+        proof.matterStateFingerprint != 0ul &&
+        proof.physicsStateFingerprint ==
+            exactPhysicsStateFingerprint(proof) &&
+        proof.matterSourcePhysicsFingerprint ==
+            dispatch.matterSourcePhysicsFingerprint &&
+        proof.matterDeviceProgramFingerprint ==
+            dispatch.matterDeviceProgramFingerprint &&
+        proof.stateProofProgramFingerprint ==
+            dispatch.stateProofProgramFingerprint &&
+        proof.adapterProgramFingerprint == dispatch.programFingerprint &&
+        proof.transactionPolicyFingerprint != 0ul &&
+        proof.linearizationEpoch == dispatch.linearizationEpoch &&
+        proof.slotGeneration == dispatch.slotGeneration &&
+        proof.motorCandidateFingerprint ==
+            dispatch.motorCandidateFingerprint &&
+        proof.inboundAuthorityFingerprint ==
+            authority.inboundAuthorityFingerprint &&
+        proof.proofFingerprint != 0ul &&
+        proof.proofFingerprint == exactProofFingerprint(proof);
+}
+
+inline ulong exactAcceptedTokenFingerprint(
+    thread const MRNumanXAcceptedPhysicsStateTokenGPUV2& token
+) {
+    ulong hash = kFNVOffset;
+    fnvMixUInt(
+        hash, MR_NUMANX_FINGERPRINT_DOMAIN_ACCEPTED_PHYSICS_TOKEN_V2);
+    fnvMixUInt(hash, MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_VERSION_V2);
+    fnvMixULong(hash, token.transactionFingerprint);
+    fnvMixULong(hash, token.substepFingerprint);
+    fnvMixULong(hash, token.physicsStateFingerprint);
+    fnvMixULong(hash, token.acceptedTimestampNanoseconds);
+    fnvMixULong(hash, token.physicsGeneration);
+    fnvMixUInt(hash, token.environmentIdentifier);
+    fnvMixUInt(hash, token.flags);
+    fnvMixUInt(hash, token.clockDomain);
+    fnvMixUInt(hash, token.clockQuantumNanoseconds);
+    return hash;
 }
 
 } // namespace
@@ -272,6 +493,75 @@ kernel void numanx_human_matter_write_prepared_token(
     accepted.environmentIdentifier =
         dispatch.environmentIdentifierBase + environment;
     accepted.tokenFingerprint = acceptedTokenFingerprint(accepted);
+    if (accepted.tokenFingerprint == 0ul) {
+        joint.decision = MR_NUMANX_COUPLED_HUMAN_REJECT_MATTER;
+        joint.matterCode =
+            MR_NUMANX_HUMAN_MATTER_ADAPTER_INVALID_STATE_PROOF;
+        return;
+    }
+    *token = accepted;
+}
+
+kernel void numanx_human_matter_write_prepared_token_v2(
+    constant MRNumanXHumanMatterAdapterDispatchGPUV2& dispatch [[buffer(0)]],
+    device MRNumanXCoupledHumanStatusGPU* jointStatuses [[buffer(1)]],
+    device const MRNumanXAcceptedStateProofGPUV2* proofs [[buffer(2)]],
+    device uchar* acceptedTokens [[buffer(3)]],
+    device const MRNumanXExactInboundAuthorityGPUV2* inboundAuthorities
+        [[buffer(4)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    // The exact path always dispatches one thread. Clear the only token before
+    // inspecting environmentCount or any mutable input, so malformed dispatch
+    // bytes cannot preserve a token from a reused slot.
+    if (environment != 0u) return;
+    device MRNumanXAcceptedPhysicsStateTokenGPUV2* token =
+        reinterpret_cast<device MRNumanXAcceptedPhysicsStateTokenGPUV2*>(
+            acceptedTokens);
+    *token = {};
+    if (dispatch.jointStatusStride == 0u) return;
+
+    device MRNumanXCoupledHumanStatusGPU& joint = jointStatuses[0];
+    const MRNumanXAcceptedStateProofGPUV2 proof = proofs[0];
+    const MRNumanXExactInboundAuthorityGPUV2 authority =
+        inboundAuthorities[0];
+    const bool authorityAvailable =
+        authority.abiVersion != 0u || authority.inboundAuthorityFingerprint != 0ul;
+    const bool authorityValid =
+        validExactInboundAuthority(authority, dispatch);
+    const bool proofAvailable =
+        proof.status != MR_NUMANX_ACCEPTED_STATE_PROOF_PENDING;
+    const bool valid = authorityValid &&
+        validExactAcceptedStateProof(proof, authority, dispatch);
+    if (!valid) {
+        if (joint.decision == MR_NUMANX_COUPLED_HUMAN_ACCEPT ||
+            (joint.decision == MR_NUMANX_COUPLED_HUMAN_REJECT_MATTER &&
+             joint.matterCode == dispatch.matterSuccessCode)) {
+            joint.decision = MR_NUMANX_COUPLED_HUMAN_REJECT_MATTER;
+            joint.matterCode = !authorityValid
+                ? (authorityAvailable
+                    ? MR_NUMANX_HUMAN_MATTER_ADAPTER_INVALID_INBOUND_AUTHORITY
+                    : MR_NUMANX_HUMAN_MATTER_ADAPTER_MISSING_INBOUND_AUTHORITY)
+                : (proofAvailable
+                    ? MR_NUMANX_HUMAN_MATTER_ADAPTER_INVALID_STATE_PROOF
+                    : MR_NUMANX_HUMAN_MATTER_ADAPTER_MISSING_STATE_PROOF);
+        }
+        return;
+    }
+    if (joint.decision != MR_NUMANX_COUPLED_HUMAN_ACCEPT) return;
+
+    MRNumanXAcceptedPhysicsStateTokenGPUV2 accepted = {};
+    accepted.transactionFingerprint = dispatch.transactionFingerprint;
+    accepted.substepFingerprint = dispatch.substepFingerprint;
+    accepted.physicsStateFingerprint = proof.physicsStateFingerprint;
+    accepted.acceptedTimestampNanoseconds =
+        dispatch.acceptedTimestampNanoseconds;
+    accepted.physicsGeneration = dispatch.physicsGeneration;
+    accepted.environmentIdentifier = proof.environment;
+    accepted.clockDomain = dispatch.clockDomain;
+    accepted.clockQuantumNanoseconds =
+        dispatch.clockQuantumNanoseconds;
+    accepted.tokenFingerprint = exactAcceptedTokenFingerprint(accepted);
     if (accepted.tokenFingerprint == 0ul) {
         joint.decision = MR_NUMANX_COUPLED_HUMAN_REJECT_MATTER;
         joint.matterCode =

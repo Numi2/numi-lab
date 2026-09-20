@@ -213,12 +213,15 @@ ApplicationKernelResult runApplicationKernel(
     pass.applyActionStride = 1u;
     pass.matterApplyOutcomeStride = 1u;
     pass.proposedTokenStrideBytes = 64u;
-    pass.stepIndex = 0u;
+    pass.environmentIdentifierBase = 0u;
     pass.substepIndex = 0u;
     pass.transactionSlot = 3u;
     pass.physicsSubstepCount = 1u;
     pass.controlStep = 37u;
     pass.forceRestore = forceRestore ? 1u : 0u;
+    pass.tokenFamily = NM_MATTER_PREPARED_TOKEN_FAMILY_V1;
+    pass.clockDomain = 0u;
+    pass.clockQuantumNanoseconds = 0u;
     pass.ownerProgramFingerprint = 0x4f574e4552505247ull;
     pass.transactionFingerprint = 0x5452414e53414354ull;
     pass.linearizationEpoch = 0x4c494e4541523031ull;

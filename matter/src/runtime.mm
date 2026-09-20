@@ -10,6 +10,7 @@
 #include "metalrobo/compensated_translation_gpu.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
 #include "metalrobo/numanx_human_matter_adapter_gpu.h"
+#include "metalrobo/numanx_human_io_gpu.h"
 #include "metalrobo/numanx_human_matter_gpu.h"
 
 #include <algorithm>
@@ -76,6 +77,44 @@ NM_ASSERT_PROOF_FIELD_LAYOUT(proofFingerprint);
 NM_ASSERT_PROOF_FIELD_LAYOUT(adapterProgramFingerprint);
 NM_ASSERT_PROOF_FIELD_LAYOUT(transactionPolicyFingerprint);
 #undef NM_ASSERT_PROOF_FIELD_LAYOUT
+static_assert(
+    NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION_V2 ==
+        MR_NUMANX_HUMAN_MATTER_EXACT_ADAPTER_ABI_VERSION);
+static_assert(sizeof(NMAcceptedStateProofGPUV2) ==
+              sizeof(MRNumanXAcceptedStateProofGPUV2));
+static_assert(alignof(NMAcceptedStateProofGPUV2) ==
+              alignof(MRNumanXAcceptedStateProofGPUV2));
+#define NM_ASSERT_PROOF_V2_FIELD_LAYOUT(field) \
+    static_assert(offsetof(NMAcceptedStateProofGPUV2, field) == \
+                  offsetof(MRNumanXAcceptedStateProofGPUV2, field))
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(abiVersion);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(structSize);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(status);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(environment);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(transactionFingerprint);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(substepFingerprint);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(acceptedTimestampNanoseconds);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(physicsGeneration);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(clockDomain);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(clockQuantumNanoseconds);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(humanStateFingerprint);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(matterStateFingerprint);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(physicsStateFingerprint);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(matterSourcePhysicsFingerprint);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(matterDeviceProgramFingerprint);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(stateProofProgramFingerprint);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(adapterProgramFingerprint);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(transactionPolicyFingerprint);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(linearizationEpoch);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(slotGeneration);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(motorCandidateFingerprint);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(inboundAuthorityFingerprint);
+NM_ASSERT_PROOF_V2_FIELD_LAYOUT(proofFingerprint);
+#undef NM_ASSERT_PROOF_V2_FIELD_LAYOUT
+static_assert(sizeof(NMExactInboundAuthorityGPUV2) ==
+              sizeof(MRNumanXExactInboundAuthorityGPUV2));
+static_assert(alignof(NMExactInboundAuthorityGPUV2) ==
+              alignof(MRNumanXExactInboundAuthorityGPUV2));
 static_assert(static_cast<std::uint32_t>(NM_ACCEPTED_STATE_PROOF_PENDING) ==
               static_cast<std::uint32_t>(
                   MR_NUMANX_ACCEPTED_STATE_PROOF_PENDING));
@@ -326,12 +365,14 @@ const char kImageAnchor = 0;
     const std::uint32_t identificationDistributionCount,
     const std::uint32_t femNodeIncidenceStride,
     const std::uint32_t femNodeRangeStride,
-    const std::uint64_t mujocoBytesPerEnvironmentCapacity
+    const std::uint64_t mujocoBytesPerEnvironmentCapacity,
+    const std::uint32_t proofABIVersion,
+    const std::uint64_t proofBytes
 ) noexcept {
     std::uint64_t hash = acceptedStateProofSourceFingerprint();
     hash = mixFingerprint(
-        hash, NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION);
-    hash = mixFingerprint(hash, sizeof(NMAcceptedStateProofGPU));
+        hash, proofABIVersion);
+    hash = mixFingerprint(hash, proofBytes);
     hash = mixFingerprint(hash, executionFingerprint);
     hash = mixFingerprint(hash, dispatch.environmentCount);
     hash = mixFingerprint(hash, dispatch.objectCount);
@@ -526,6 +567,7 @@ struct Runtime::State {
     id<MTLComputePipelineState> acceptedStateProofReduce = nil;
     id<MTLComputePipelineState> acceptedStateProofFold = nil;
     id<MTLComputePipelineState> acceptedStateProofFinalize = nil;
+    id<MTLComputePipelineState> acceptedStateProofFinalizeV2 = nil;
     id<MTLComputePipelineState> preparedStateValidateApplication = nil;
     id<MTLComputePipelineState> preparedStateNormalizeApplication = nil;
     id<MTLComputePipelineState> preparedStateMaterializeRestoreStatuses = nil;
@@ -577,6 +619,7 @@ struct Runtime::State {
     std::uint64_t worldFingerprint = 0u;
     std::uint64_t executionFingerprint = 0u;
     std::uint64_t acceptedStateProofProgramFingerprint = 0u;
+    std::uint64_t acceptedStateProofProgramFingerprintV2 = 0u;
     std::uint64_t acceptedStateProofMujocoBytesPerEnvironmentCapacity = 0u;
     std::size_t acceptedStateProofResidentByteCount = 0u;
     std::size_t residentBytes = 0u;
@@ -599,6 +642,7 @@ struct Runtime::State {
         std::uint32_t identificationCheckpoint = 0u;
         bool identificationAdvanced = false;
         bool acceptedStateProofEncoded = false;
+        std::uint32_t acceptedStateProofFamily = 0u;
         bool acceptedStateProofEligible = false;
         std::uint64_t transactionPolicyFingerprint = 0u;
         std::uint32_t physicsSubsteps = 1u;
@@ -742,6 +786,7 @@ struct Runtime::State {
             preparedEnvironmentStatuses = nullptr;
             preparedEnvironmentStatusesGPUAddress = 0u;
             acceptedStateProofEncoded = false;
+            acceptedStateProofFamily = 0u;
             acceptedStateProofEligible = false;
             transactionPolicyFingerprint = 0u;
             identificationAdvanced = false;
@@ -1036,6 +1081,321 @@ struct Runtime::State {
     ) const {
         const auto iterator = pipelines.find(std::string(name));
         return iterator == pipelines.end() ? nil : iterator->second;
+    }
+};
+
+struct Runtime::AcceptedStateProofPassView {
+    bool exact = false;
+    std::uint32_t abiVersion = 0u;
+    std::uint32_t structSize = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t environmentIdentifierBase = 0u;
+    void* commandBuffer = nullptr;
+    void* q = nullptr;
+    void* v = nullptr;
+    void* mujocoStates = nullptr;
+    void* matterGeneralizedReaction = nullptr;
+    void* environmentStatuses = nullptr;
+    void* matterStatuses = nullptr;
+    void* acceptedStateProofs = nullptr;
+    void* inboundAuthority = nullptr;
+    std::uint64_t qGPUAddress = 0u;
+    std::uint64_t vGPUAddress = 0u;
+    std::uint64_t mujocoStatesGPUAddress = 0u;
+    std::uint64_t matterGeneralizedReactionGPUAddress = 0u;
+    std::uint64_t environmentStatusesGPUAddress = 0u;
+    std::uint64_t matterStatusesGPUAddress = 0u;
+    std::uint64_t acceptedStateProofsGPUAddress = 0u;
+    std::uint64_t inboundAuthorityGPUAddress = 0u;
+    std::uint64_t qElementCount = 0u;
+    std::uint64_t vElementCount = 0u;
+    std::uint64_t mujocoStateCount = 0u;
+    std::uint64_t matterGeneralizedReactionElementCount = 0u;
+    std::uint64_t environmentStatusElementCount = 0u;
+    std::uint64_t matterStatusElementCount = 0u;
+    std::uint64_t acceptedStateProofElementCount = 0u;
+    std::uint64_t inboundAuthorityByteCount = 0u;
+    std::uint32_t qStride = 0u;
+    std::uint32_t vStride = 0u;
+    std::uint32_t mujocoStateStride = 0u;
+    std::uint32_t reactionStride = 0u;
+    std::uint32_t environmentStatusStride = 0u;
+    std::uint32_t matterStatusStride = 0u;
+    std::uint32_t acceptedStateProofStride = 0u;
+    std::uint32_t qCoordinateCount = 0u;
+    std::uint32_t dofCount = 0u;
+    std::uint32_t transactionSlot = 0u;
+    std::uint32_t clockDomain = 0u;
+    std::uint32_t clockQuantumNanoseconds = 0u;
+    std::uint32_t reserved0 = 0u;
+    std::uint64_t programFingerprint = 0u;
+    std::uint64_t stateProofProgramFingerprint = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t substepFingerprint = 0u;
+    std::uint64_t acceptedTimestampMicroseconds = 0u;
+    std::uint64_t acceptedTimestampNanoseconds = 0u;
+    std::uint64_t physicsGeneration = 0u;
+    std::uint64_t linearizationEpoch = 0u;
+    std::uint64_t slotGeneration = 0u;
+    std::uint64_t matterSourcePhysicsFingerprint = 0u;
+    std::uint64_t matterDeviceProgramFingerprint = 0u;
+    std::uint64_t motorCandidateFingerprint = 0u;
+    void* rootTranslation = nullptr;
+    std::uint64_t rootTranslationGPUAddress = 0u;
+    std::uint64_t rootTranslationElementCount = 0u;
+    std::uint32_t rootTranslationStride = 0u;
+
+    explicit AcceptedStateProofPassView(
+        const AcceptedStateProofPass& input
+    ) noexcept {
+#define NM_COPY_PROOF_PASS_FIELD(field) field = input.field
+        NM_COPY_PROOF_PASS_FIELD(abiVersion);
+        NM_COPY_PROOF_PASS_FIELD(structSize);
+        NM_COPY_PROOF_PASS_FIELD(environmentCount);
+        NM_COPY_PROOF_PASS_FIELD(environmentIdentifierBase);
+        NM_COPY_PROOF_PASS_FIELD(commandBuffer);
+        NM_COPY_PROOF_PASS_FIELD(q);
+        NM_COPY_PROOF_PASS_FIELD(v);
+        NM_COPY_PROOF_PASS_FIELD(mujocoStates);
+        NM_COPY_PROOF_PASS_FIELD(matterGeneralizedReaction);
+        NM_COPY_PROOF_PASS_FIELD(environmentStatuses);
+        NM_COPY_PROOF_PASS_FIELD(matterStatuses);
+        NM_COPY_PROOF_PASS_FIELD(acceptedStateProofs);
+        NM_COPY_PROOF_PASS_FIELD(qGPUAddress);
+        NM_COPY_PROOF_PASS_FIELD(vGPUAddress);
+        NM_COPY_PROOF_PASS_FIELD(mujocoStatesGPUAddress);
+        NM_COPY_PROOF_PASS_FIELD(matterGeneralizedReactionGPUAddress);
+        NM_COPY_PROOF_PASS_FIELD(environmentStatusesGPUAddress);
+        NM_COPY_PROOF_PASS_FIELD(matterStatusesGPUAddress);
+        NM_COPY_PROOF_PASS_FIELD(acceptedStateProofsGPUAddress);
+        NM_COPY_PROOF_PASS_FIELD(qElementCount);
+        NM_COPY_PROOF_PASS_FIELD(vElementCount);
+        NM_COPY_PROOF_PASS_FIELD(mujocoStateCount);
+        NM_COPY_PROOF_PASS_FIELD(matterGeneralizedReactionElementCount);
+        NM_COPY_PROOF_PASS_FIELD(environmentStatusElementCount);
+        NM_COPY_PROOF_PASS_FIELD(matterStatusElementCount);
+        NM_COPY_PROOF_PASS_FIELD(acceptedStateProofElementCount);
+        NM_COPY_PROOF_PASS_FIELD(qStride);
+        NM_COPY_PROOF_PASS_FIELD(vStride);
+        NM_COPY_PROOF_PASS_FIELD(mujocoStateStride);
+        NM_COPY_PROOF_PASS_FIELD(reactionStride);
+        NM_COPY_PROOF_PASS_FIELD(environmentStatusStride);
+        NM_COPY_PROOF_PASS_FIELD(matterStatusStride);
+        NM_COPY_PROOF_PASS_FIELD(acceptedStateProofStride);
+        NM_COPY_PROOF_PASS_FIELD(qCoordinateCount);
+        NM_COPY_PROOF_PASS_FIELD(dofCount);
+        NM_COPY_PROOF_PASS_FIELD(transactionSlot);
+        NM_COPY_PROOF_PASS_FIELD(programFingerprint);
+        NM_COPY_PROOF_PASS_FIELD(stateProofProgramFingerprint);
+        NM_COPY_PROOF_PASS_FIELD(transactionFingerprint);
+        NM_COPY_PROOF_PASS_FIELD(substepFingerprint);
+        NM_COPY_PROOF_PASS_FIELD(acceptedTimestampMicroseconds);
+        NM_COPY_PROOF_PASS_FIELD(physicsGeneration);
+        NM_COPY_PROOF_PASS_FIELD(linearizationEpoch);
+        NM_COPY_PROOF_PASS_FIELD(slotGeneration);
+        NM_COPY_PROOF_PASS_FIELD(matterSourcePhysicsFingerprint);
+        NM_COPY_PROOF_PASS_FIELD(matterDeviceProgramFingerprint);
+        NM_COPY_PROOF_PASS_FIELD(rootTranslation);
+        NM_COPY_PROOF_PASS_FIELD(rootTranslationGPUAddress);
+        NM_COPY_PROOF_PASS_FIELD(rootTranslationElementCount);
+        NM_COPY_PROOF_PASS_FIELD(rootTranslationStride);
+#undef NM_COPY_PROOF_PASS_FIELD
+    }
+
+    explicit AcceptedStateProofPassView(
+        const AcceptedStateProofPassV2& input
+    ) noexcept : exact(true) {
+#define NM_COPY_PROOF_PASS_V2_FIELD(field) field = input.field
+        NM_COPY_PROOF_PASS_V2_FIELD(abiVersion);
+        NM_COPY_PROOF_PASS_V2_FIELD(structSize);
+        NM_COPY_PROOF_PASS_V2_FIELD(environmentCount);
+        NM_COPY_PROOF_PASS_V2_FIELD(environmentIdentifierBase);
+        NM_COPY_PROOF_PASS_V2_FIELD(commandBuffer);
+        NM_COPY_PROOF_PASS_V2_FIELD(q);
+        NM_COPY_PROOF_PASS_V2_FIELD(v);
+        NM_COPY_PROOF_PASS_V2_FIELD(mujocoStates);
+        NM_COPY_PROOF_PASS_V2_FIELD(matterGeneralizedReaction);
+        NM_COPY_PROOF_PASS_V2_FIELD(environmentStatuses);
+        NM_COPY_PROOF_PASS_V2_FIELD(matterStatuses);
+        NM_COPY_PROOF_PASS_V2_FIELD(acceptedStateProofs);
+        NM_COPY_PROOF_PASS_V2_FIELD(inboundAuthority);
+        NM_COPY_PROOF_PASS_V2_FIELD(qGPUAddress);
+        NM_COPY_PROOF_PASS_V2_FIELD(vGPUAddress);
+        NM_COPY_PROOF_PASS_V2_FIELD(mujocoStatesGPUAddress);
+        NM_COPY_PROOF_PASS_V2_FIELD(matterGeneralizedReactionGPUAddress);
+        NM_COPY_PROOF_PASS_V2_FIELD(environmentStatusesGPUAddress);
+        NM_COPY_PROOF_PASS_V2_FIELD(matterStatusesGPUAddress);
+        NM_COPY_PROOF_PASS_V2_FIELD(acceptedStateProofsGPUAddress);
+        NM_COPY_PROOF_PASS_V2_FIELD(inboundAuthorityGPUAddress);
+        NM_COPY_PROOF_PASS_V2_FIELD(qElementCount);
+        NM_COPY_PROOF_PASS_V2_FIELD(vElementCount);
+        NM_COPY_PROOF_PASS_V2_FIELD(mujocoStateCount);
+        NM_COPY_PROOF_PASS_V2_FIELD(matterGeneralizedReactionElementCount);
+        NM_COPY_PROOF_PASS_V2_FIELD(environmentStatusElementCount);
+        NM_COPY_PROOF_PASS_V2_FIELD(matterStatusElementCount);
+        NM_COPY_PROOF_PASS_V2_FIELD(acceptedStateProofElementCount);
+        NM_COPY_PROOF_PASS_V2_FIELD(inboundAuthorityByteCount);
+        NM_COPY_PROOF_PASS_V2_FIELD(qStride);
+        NM_COPY_PROOF_PASS_V2_FIELD(vStride);
+        NM_COPY_PROOF_PASS_V2_FIELD(mujocoStateStride);
+        NM_COPY_PROOF_PASS_V2_FIELD(reactionStride);
+        NM_COPY_PROOF_PASS_V2_FIELD(environmentStatusStride);
+        NM_COPY_PROOF_PASS_V2_FIELD(matterStatusStride);
+        NM_COPY_PROOF_PASS_V2_FIELD(acceptedStateProofStride);
+        NM_COPY_PROOF_PASS_V2_FIELD(qCoordinateCount);
+        NM_COPY_PROOF_PASS_V2_FIELD(dofCount);
+        NM_COPY_PROOF_PASS_V2_FIELD(transactionSlot);
+        NM_COPY_PROOF_PASS_V2_FIELD(clockDomain);
+        NM_COPY_PROOF_PASS_V2_FIELD(clockQuantumNanoseconds);
+        NM_COPY_PROOF_PASS_V2_FIELD(reserved0);
+        NM_COPY_PROOF_PASS_V2_FIELD(programFingerprint);
+        NM_COPY_PROOF_PASS_V2_FIELD(stateProofProgramFingerprint);
+        NM_COPY_PROOF_PASS_V2_FIELD(transactionFingerprint);
+        NM_COPY_PROOF_PASS_V2_FIELD(substepFingerprint);
+        NM_COPY_PROOF_PASS_V2_FIELD(acceptedTimestampNanoseconds);
+        NM_COPY_PROOF_PASS_V2_FIELD(physicsGeneration);
+        NM_COPY_PROOF_PASS_V2_FIELD(linearizationEpoch);
+        NM_COPY_PROOF_PASS_V2_FIELD(slotGeneration);
+        NM_COPY_PROOF_PASS_V2_FIELD(matterSourcePhysicsFingerprint);
+        NM_COPY_PROOF_PASS_V2_FIELD(matterDeviceProgramFingerprint);
+        NM_COPY_PROOF_PASS_V2_FIELD(motorCandidateFingerprint);
+        NM_COPY_PROOF_PASS_V2_FIELD(rootTranslation);
+        NM_COPY_PROOF_PASS_V2_FIELD(rootTranslationGPUAddress);
+        NM_COPY_PROOF_PASS_V2_FIELD(rootTranslationElementCount);
+        NM_COPY_PROOF_PASS_V2_FIELD(rootTranslationStride);
+#undef NM_COPY_PROOF_PASS_V2_FIELD
+    }
+};
+
+struct Runtime::AcceptedStateApplyPassView {
+    bool exact = false;
+    std::uint32_t abiVersion = 0u;
+    std::uint32_t structSize = 0u;
+    PreparedStateApplyMode mode = PreparedStateApplyMode::validateBrainAck;
+    std::uint32_t tokenFamily = 1u;
+    std::uint32_t headerReserved0 = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t environmentIdentifierBase = 0u;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t physicsSubstepCount = 0u;
+    std::uint32_t transactionSlot = 0u;
+    std::uint32_t clockDomain = 0u;
+    std::uint32_t clockQuantumNanoseconds = 0u;
+    void* commandBuffer = nullptr;
+    void* proposals = nullptr;
+    void* brainAcks = nullptr;
+    void* applyActions = nullptr;
+    void* matterApplyOutcomes = nullptr;
+    void* proposedPhysicsStateTokens = nullptr;
+    std::uint64_t proposalsGPUAddress = 0u;
+    std::uint64_t brainAcksGPUAddress = 0u;
+    std::uint64_t applyActionsGPUAddress = 0u;
+    std::uint64_t matterApplyOutcomesGPUAddress = 0u;
+    std::uint64_t proposedPhysicsStateTokensGPUAddress = 0u;
+    std::uint64_t proposalElementCount = 0u;
+    std::uint64_t brainAckElementCount = 0u;
+    std::uint64_t applyActionElementCount = 0u;
+    std::uint64_t matterApplyOutcomeElementCount = 0u;
+    std::uint64_t proposedPhysicsStateTokenBytes = 0u;
+    std::uint32_t proposalStride = 0u;
+    std::uint32_t brainAckStride = 0u;
+    std::uint32_t applyActionStride = 0u;
+    std::uint32_t matterApplyOutcomeStride = 0u;
+    std::uint32_t proposedPhysicsStateTokenStrideBytes = 0u;
+    std::uint32_t tailReserved0 = 0u;
+    std::uint64_t ownerProgramFingerprint = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t linearizationEpoch = 0u;
+    std::uint64_t slotGeneration = 0u;
+
+    explicit AcceptedStateApplyPassView(
+        const AcceptedStateApplyPass& input
+    ) noexcept {
+#define NM_COPY_APPLY_PASS_FIELD(field) field = input.field
+        NM_COPY_APPLY_PASS_FIELD(abiVersion);
+        NM_COPY_APPLY_PASS_FIELD(structSize);
+        NM_COPY_APPLY_PASS_FIELD(mode);
+        headerReserved0 = input.reserved0;
+        NM_COPY_APPLY_PASS_FIELD(environmentCount);
+        NM_COPY_APPLY_PASS_FIELD(environmentIdentifierBase);
+        NM_COPY_APPLY_PASS_FIELD(controlStep);
+        NM_COPY_APPLY_PASS_FIELD(physicsSubstep);
+        NM_COPY_APPLY_PASS_FIELD(physicsSubstepCount);
+        NM_COPY_APPLY_PASS_FIELD(transactionSlot);
+        headerReserved0 |= input.reserved1 | input.reserved2;
+        NM_COPY_APPLY_PASS_FIELD(commandBuffer);
+        NM_COPY_APPLY_PASS_FIELD(proposals);
+        NM_COPY_APPLY_PASS_FIELD(brainAcks);
+        NM_COPY_APPLY_PASS_FIELD(applyActions);
+        NM_COPY_APPLY_PASS_FIELD(matterApplyOutcomes);
+        NM_COPY_APPLY_PASS_FIELD(proposedPhysicsStateTokens);
+        NM_COPY_APPLY_PASS_FIELD(proposalsGPUAddress);
+        NM_COPY_APPLY_PASS_FIELD(brainAcksGPUAddress);
+        NM_COPY_APPLY_PASS_FIELD(applyActionsGPUAddress);
+        NM_COPY_APPLY_PASS_FIELD(matterApplyOutcomesGPUAddress);
+        NM_COPY_APPLY_PASS_FIELD(proposedPhysicsStateTokensGPUAddress);
+        NM_COPY_APPLY_PASS_FIELD(proposalElementCount);
+        NM_COPY_APPLY_PASS_FIELD(brainAckElementCount);
+        NM_COPY_APPLY_PASS_FIELD(applyActionElementCount);
+        NM_COPY_APPLY_PASS_FIELD(matterApplyOutcomeElementCount);
+        NM_COPY_APPLY_PASS_FIELD(proposedPhysicsStateTokenBytes);
+        NM_COPY_APPLY_PASS_FIELD(proposalStride);
+        NM_COPY_APPLY_PASS_FIELD(brainAckStride);
+        NM_COPY_APPLY_PASS_FIELD(applyActionStride);
+        NM_COPY_APPLY_PASS_FIELD(matterApplyOutcomeStride);
+        NM_COPY_APPLY_PASS_FIELD(proposedPhysicsStateTokenStrideBytes);
+        tailReserved0 = input.reserved3;
+        NM_COPY_APPLY_PASS_FIELD(ownerProgramFingerprint);
+        NM_COPY_APPLY_PASS_FIELD(transactionFingerprint);
+        NM_COPY_APPLY_PASS_FIELD(linearizationEpoch);
+        NM_COPY_APPLY_PASS_FIELD(slotGeneration);
+#undef NM_COPY_APPLY_PASS_FIELD
+    }
+
+    explicit AcceptedStateApplyPassView(
+        const AcceptedStateApplyPassV2& input
+    ) noexcept : exact(true) {
+#define NM_COPY_APPLY_PASS_V2_FIELD(field) field = input.field
+        NM_COPY_APPLY_PASS_V2_FIELD(abiVersion);
+        NM_COPY_APPLY_PASS_V2_FIELD(structSize);
+        NM_COPY_APPLY_PASS_V2_FIELD(mode);
+        NM_COPY_APPLY_PASS_V2_FIELD(tokenFamily);
+        NM_COPY_APPLY_PASS_V2_FIELD(environmentCount);
+        NM_COPY_APPLY_PASS_V2_FIELD(environmentIdentifierBase);
+        NM_COPY_APPLY_PASS_V2_FIELD(controlStep);
+        NM_COPY_APPLY_PASS_V2_FIELD(physicsSubstep);
+        NM_COPY_APPLY_PASS_V2_FIELD(physicsSubstepCount);
+        NM_COPY_APPLY_PASS_V2_FIELD(transactionSlot);
+        NM_COPY_APPLY_PASS_V2_FIELD(clockDomain);
+        NM_COPY_APPLY_PASS_V2_FIELD(clockQuantumNanoseconds);
+        NM_COPY_APPLY_PASS_V2_FIELD(commandBuffer);
+        NM_COPY_APPLY_PASS_V2_FIELD(proposals);
+        NM_COPY_APPLY_PASS_V2_FIELD(brainAcks);
+        NM_COPY_APPLY_PASS_V2_FIELD(applyActions);
+        NM_COPY_APPLY_PASS_V2_FIELD(matterApplyOutcomes);
+        NM_COPY_APPLY_PASS_V2_FIELD(proposedPhysicsStateTokens);
+        NM_COPY_APPLY_PASS_V2_FIELD(proposalsGPUAddress);
+        NM_COPY_APPLY_PASS_V2_FIELD(brainAcksGPUAddress);
+        NM_COPY_APPLY_PASS_V2_FIELD(applyActionsGPUAddress);
+        NM_COPY_APPLY_PASS_V2_FIELD(matterApplyOutcomesGPUAddress);
+        NM_COPY_APPLY_PASS_V2_FIELD(proposedPhysicsStateTokensGPUAddress);
+        NM_COPY_APPLY_PASS_V2_FIELD(proposalElementCount);
+        NM_COPY_APPLY_PASS_V2_FIELD(brainAckElementCount);
+        NM_COPY_APPLY_PASS_V2_FIELD(applyActionElementCount);
+        NM_COPY_APPLY_PASS_V2_FIELD(matterApplyOutcomeElementCount);
+        NM_COPY_APPLY_PASS_V2_FIELD(proposedPhysicsStateTokenBytes);
+        NM_COPY_APPLY_PASS_V2_FIELD(proposalStride);
+        NM_COPY_APPLY_PASS_V2_FIELD(brainAckStride);
+        NM_COPY_APPLY_PASS_V2_FIELD(applyActionStride);
+        NM_COPY_APPLY_PASS_V2_FIELD(matterApplyOutcomeStride);
+        NM_COPY_APPLY_PASS_V2_FIELD(proposedPhysicsStateTokenStrideBytes);
+        tailReserved0 = input.reserved0;
+        NM_COPY_APPLY_PASS_V2_FIELD(ownerProgramFingerprint);
+        NM_COPY_APPLY_PASS_V2_FIELD(transactionFingerprint);
+        NM_COPY_APPLY_PASS_V2_FIELD(linearizationEpoch);
+        NM_COPY_APPLY_PASS_V2_FIELD(slotGeneration);
+#undef NM_COPY_APPLY_PASS_V2_FIELD
     }
 };
 
@@ -1432,7 +1792,23 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->femNodeIncidenceStride,
                 candidate->femNodeRangeStride,
                 candidate
-                    ->acceptedStateProofMujocoBytesPerEnvironmentCapacity);
+                    ->acceptedStateProofMujocoBytesPerEnvironmentCapacity,
+                NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION,
+                sizeof(NMAcceptedStateProofGPU));
+        candidate->acceptedStateProofProgramFingerprintV2 =
+            candidate->acceptedStateProofMujocoBytesPerEnvironmentCapacity ==
+                    0u
+            ? 0u
+            : makeAcceptedStateProofProgramFingerprint(
+                candidate->executionFingerprint,
+                candidate->dispatch,
+                candidate->identificationDistributionCount,
+                candidate->femNodeIncidenceStride,
+                candidate->femNodeRangeStride,
+                candidate
+                    ->acceptedStateProofMujocoBytesPerEnvironmentCapacity,
+                NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION_V2,
+                sizeof(NMAcceptedStateProofGPUV2));
         dispatch_data_t libraryImage = dispatch_data_create(
             metallibImage.bytes,
             metallibImage.length,
@@ -1480,6 +1856,8 @@ RuntimeDiagnostics Runtime::initialize(
             @"nm_accepted_state_proof_fold");
         candidate->acceptedStateProofFinalize = proofPipeline(
             @"nm_accepted_state_proof_finalize");
+        candidate->acceptedStateProofFinalizeV2 = proofPipeline(
+            @"nm_accepted_state_proof_finalize_v2");
         candidate->preparedStateValidateApplication = proofPipeline(
             @"nm_prepared_state_validate_application");
         candidate->preparedStateNormalizeApplication = proofPipeline(
@@ -1493,6 +1871,7 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->acceptedStateProofReduce == nil ||
             candidate->acceptedStateProofFold == nil ||
             candidate->acceptedStateProofFinalize == nil ||
+            candidate->acceptedStateProofFinalizeV2 == nil ||
             candidate->preparedStateValidateApplication == nil ||
             candidate->preparedStateNormalizeApplication == nil ||
             candidate->preparedStateMaterializeRestoreStatuses == nil ||
@@ -4545,6 +4924,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 ownership->applyCommandCompleted = false;
             } else {
                 ownership->acceptedStateProofEncoded = false;
+                ownership->acceptedStateProofFamily = 0u;
                 ownership->acceptedStateProofEligible = false;
                 ownership->transactionPolicyFingerprint = 0u;
                 ownership->preparedStateRequested = false;
@@ -8279,6 +8659,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     locked->preparedEnvironmentStatusesGPUAddress =
                                         0u;
                                     locked->acceptedStateProofEncoded = false;
+                                    locked->acceptedStateProofFamily = 0u;
                                     locked->acceptedStateProofEligible = false;
                                     locked->transactionPolicyFingerprint = 0u;
                                     locked->identificationAdvanced = false;
@@ -8298,6 +8679,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         }
                         locked->identificationAdvanced = false;
                         locked->acceptedStateProofEncoded = false;
+                        locked->acceptedStateProofFamily = 0u;
                         locked->acceptedStateProofEligible = false;
                         locked->transactionPolicyFingerprint = 0u;
                         locked->preparedStateRequested = false;
@@ -8390,6 +8772,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
         ownership->dispositionIdentity = {};
         ownership->disposition = PreparedStateDisposition::unknown;
         ownership->acceptedStateProofEncoded = false;
+        ownership->acceptedStateProofFamily = 0u;
         ownership->acceptedStateProofEligible =
             !request.runIdentification &&
             request.resetMaskStepStride == 0u &&
@@ -8412,10 +8795,41 @@ RuntimeDiagnostics Runtime::encodeImpl(
 bool Runtime::encodeAcceptedStateProof(
     const AcceptedStateProofPass& pass
 ) noexcept {
+    return encodeAcceptedStateProofImpl(AcceptedStateProofPassView(pass));
+}
+
+bool Runtime::encodeAcceptedStateProofV2(
+    const AcceptedStateProofPassV2& pass
+) noexcept {
+    return encodeAcceptedStateProofImpl(AcceptedStateProofPassView(pass));
+}
+
+bool Runtime::encodeAcceptedStateProofImpl(
+    const AcceptedStateProofPassView& pass
+) noexcept {
     @autoreleasepool {
-        if (state_ == nullptr ||
-            pass.abiVersion != NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION ||
-            pass.structSize != sizeof(AcceptedStateProofPass) ||
+        const bool familyValid = pass.exact
+            ? pass.abiVersion ==
+                    NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION_V2 &&
+                pass.structSize == sizeof(AcceptedStateProofPassV2) &&
+                pass.environmentCount == 1u &&
+                pass.inboundAuthority != nullptr &&
+                pass.inboundAuthorityByteCount ==
+                    NM_MATTER_EXACT_INBOUND_AUTHORITY_V2_BYTES &&
+                pass.clockDomain ==
+                    NM_MATTER_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
+                pass.clockQuantumNanoseconds ==
+                    NM_MATTER_EXACT_CLOCK_QUANTUM_NANOSECONDS &&
+                pass.reserved0 == 0u &&
+                pass.acceptedTimestampNanoseconds != 0u &&
+                pass.motorCandidateFingerprint != 0u
+            : pass.abiVersion == NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION &&
+                pass.structSize == sizeof(AcceptedStateProofPass) &&
+                pass.inboundAuthority == nullptr &&
+                pass.inboundAuthorityGPUAddress == 0u &&
+                pass.inboundAuthorityByteCount == 0u &&
+                pass.acceptedTimestampMicroseconds != 0u;
+        if (state_ == nullptr || !familyValid ||
             pass.commandBuffer == nullptr || pass.q == nullptr ||
             pass.v == nullptr || pass.mujocoStates == nullptr ||
             pass.rootTranslation == nullptr ||
@@ -8443,10 +8857,11 @@ bool Runtime::encodeAcceptedStateProof(
             pass.reactionStride != state.dispatch.rigidGeneralizedCapacity ||
             pass.programFingerprint == 0u ||
             pass.stateProofProgramFingerprint !=
-                state.acceptedStateProofProgramFingerprint ||
+                (pass.exact
+                    ? state.acceptedStateProofProgramFingerprintV2
+                    : state.acceptedStateProofProgramFingerprint) ||
             pass.transactionFingerprint == 0u ||
             pass.substepFingerprint == 0u ||
-            pass.acceptedTimestampMicroseconds == 0u ||
             pass.physicsGeneration == 0u ||
             pass.linearizationEpoch == 0u || pass.slotGeneration == 0u ||
             pass.matterSourcePhysicsFingerprint !=
@@ -8511,7 +8926,10 @@ bool Runtime::encodeAcceptedStateProof(
             !byteCount(pass.matterStatusElementCount,
                        sizeof(NMMatterStatusGPU), statusBytes) ||
             !byteCount(pass.acceptedStateProofElementCount,
-                       sizeof(NMAcceptedStateProofGPU), outputBytes) ||
+                       pass.exact
+                           ? sizeof(NMAcceptedStateProofGPUV2)
+                           : sizeof(NMAcceptedStateProofGPU),
+                       outputBytes) ||
             mujocoBytes / pass.environmentCount >
                 state
                     .acceptedStateProofMujocoBytesPerEnvironmentCapacity ||
@@ -8537,6 +8955,8 @@ bool Runtime::encodeAcceptedStateProof(
             (__bridge id<MTLBuffer>)pass.matterStatuses;
         __unsafe_unretained id<MTLBuffer> acceptedStateProofs =
             (__bridge id<MTLBuffer>)pass.acceptedStateProofs;
+        __unsafe_unretained id<MTLBuffer> inboundAuthority = pass.exact
+            ? (__bridge id<MTLBuffer>)pass.inboundAuthority : nil;
         const auto validBorrowedBuffer = [&](id<MTLBuffer> buffer,
                                              const std::uint64_t address,
                                              const std::uint64_t bytes) {
@@ -8586,6 +9006,10 @@ bool Runtime::encodeAcceptedStateProof(
                 acceptedStateProofs,
                 pass.acceptedStateProofsGPUAddress,
                 outputBytes) ||
+            (pass.exact && !validBorrowedBuffer(
+                inboundAuthority,
+                pass.inboundAuthorityGPUAddress,
+                pass.inboundAuthorityByteCount)) ||
             matterStatuses != state.statuses) {
             return false;
         }
@@ -8706,7 +9130,7 @@ bool Runtime::encodeAcceptedStateProof(
             std::uint64_t address = 0u;
             std::uint64_t bytes = 0u;
         };
-        const std::array<BorrowedRange, 8u> borrowedRanges{{
+        std::vector<BorrowedRange> borrowedRanges{
             {rootTranslation, pass.rootTranslationGPUAddress, rootTranslationBytes},
             {q, pass.qGPUAddress, qBytes},
             {v, pass.vGPUAddress, vBytes},
@@ -8718,7 +9142,14 @@ bool Runtime::encodeAcceptedStateProof(
             {matterStatuses, pass.matterStatusesGPUAddress, statusBytes},
             {acceptedStateProofs,
              pass.acceptedStateProofsGPUAddress, outputBytes},
-        }};
+        };
+        if (pass.exact) {
+            borrowedRanges.push_back({
+                inboundAuthority,
+                pass.inboundAuthorityGPUAddress,
+                pass.inboundAuthorityByteCount,
+            });
+        }
         for (std::size_t left = 0u; left < borrowedRanges.size(); ++left) {
             for (std::size_t right = left + 1u;
                  right < borrowedRanges.size(); ++right) {
@@ -8766,7 +9197,9 @@ bool Runtime::encodeAcceptedStateProof(
             state.acceptedStateProofChunks == nil ||
             state.acceptedStateProofReduce == nil ||
             state.acceptedStateProofFold == nil ||
-            state.acceptedStateProofFinalize == nil ||
+            (pass.exact
+                ? state.acceptedStateProofFinalizeV2 == nil
+                : state.acceptedStateProofFinalize == nil) ||
             state.acceptedStateProofHashes == nil ||
             state.acceptedStateProofScratchA == nil ||
             state.acceptedStateProofScratchB == nil ||
@@ -9084,43 +9517,100 @@ bool Runtime::encodeAcceptedStateProof(
             barrier();
         }
 
-        detail::AcceptedStateProofFinalizeGPU finalize{
-            .abiVersion = NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION,
-            .structSize = NM_MATTER_ACCEPTED_STATE_PROOF_BYTES,
-            .environmentCount = pass.environmentCount,
-            .environmentIdentifierBase = pass.environmentIdentifierBase,
-            .matterStatusStride = pass.matterStatusStride,
-            .acceptedStateProofStride = pass.acceptedStateProofStride,
-            .controlStep = ownership->controlStep,
-            .physicsSubstep = ownership->physicsSubstep,
-            .transactionSlot = pass.transactionSlot,
-            .environmentStatusStride = pass.environmentStatusStride,
-            .transactionFingerprint = pass.transactionFingerprint,
-            .substepFingerprint = pass.substepFingerprint,
-            .acceptedTimestampMicroseconds =
-                pass.acceptedTimestampMicroseconds,
-            .physicsGeneration = pass.physicsGeneration,
-            .matterSourcePhysicsFingerprint =
-                pass.matterSourcePhysicsFingerprint,
-            .matterDeviceProgramFingerprint =
-                pass.matterDeviceProgramFingerprint,
-            .stateProofProgramFingerprint =
-                pass.stateProofProgramFingerprint,
-            .adapterProgramFingerprint = pass.programFingerprint,
-            .transactionPolicyFingerprint =
-                ownership->transactionPolicyFingerprint,
-            .linearizationEpoch = pass.linearizationEpoch,
-            .slotGeneration = pass.slotGeneration,
-        };
-        [encoder setBytes:&finalize length:sizeof(finalize) atIndex:0u];
-        [encoder setBuffer:state.acceptedStateProofHashes offset:0u atIndex:1u];
-        [encoder setBuffer:matterStatuses offset:0u atIndex:2u];
-        [encoder setBuffer:acceptedStateProofs offset:0u atIndex:3u];
-        [encoder setBuffer:state.preparedStateBindings offset:0u atIndex:4u];
-        [encoder setBuffer:environmentStatuses offset:0u atIndex:5u];
-        dispatch(state.acceptedStateProofFinalize, pass.environmentCount);
+        if (pass.exact) {
+            detail::AcceptedStateProofFinalizeGPUV2 finalize{
+                .abiVersion =
+                    NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION_V2,
+                .structSize = NM_MATTER_ACCEPTED_STATE_PROOF_V2_BYTES,
+                .environmentCount = pass.environmentCount,
+                .environmentIdentifierBase = pass.environmentIdentifierBase,
+                .matterStatusStride = pass.matterStatusStride,
+                .acceptedStateProofStride = pass.acceptedStateProofStride,
+                .controlStep = ownership->controlStep,
+                .physicsSubstep = ownership->physicsSubstep,
+                .transactionSlot = pass.transactionSlot,
+                .environmentStatusStride = pass.environmentStatusStride,
+                .clockDomain = pass.clockDomain,
+                .clockQuantumNanoseconds = pass.clockQuantumNanoseconds,
+                .reserved0 = 0u,
+                .reserved1 = 0u,
+                .transactionFingerprint = pass.transactionFingerprint,
+                .substepFingerprint = pass.substepFingerprint,
+                .acceptedTimestampNanoseconds =
+                    pass.acceptedTimestampNanoseconds,
+                .physicsGeneration = pass.physicsGeneration,
+                .matterSourcePhysicsFingerprint =
+                    pass.matterSourcePhysicsFingerprint,
+                .matterDeviceProgramFingerprint =
+                    pass.matterDeviceProgramFingerprint,
+                .stateProofProgramFingerprint =
+                    pass.stateProofProgramFingerprint,
+                .adapterProgramFingerprint = pass.programFingerprint,
+                .transactionPolicyFingerprint =
+                    ownership->transactionPolicyFingerprint,
+                .linearizationEpoch = pass.linearizationEpoch,
+                .slotGeneration = pass.slotGeneration,
+                .motorCandidateFingerprint =
+                    pass.motorCandidateFingerprint,
+            };
+            [encoder setComputePipelineState:
+                state.acceptedStateProofFinalizeV2];
+            [encoder setBytes:&finalize length:sizeof(finalize) atIndex:0u];
+            [encoder setBuffer:state.acceptedStateProofHashes
+                         offset:0u atIndex:1u];
+            [encoder setBuffer:matterStatuses offset:0u atIndex:2u];
+            [encoder setBuffer:acceptedStateProofs offset:0u atIndex:3u];
+            [encoder setBuffer:state.preparedStateBindings
+                         offset:0u atIndex:4u];
+            [encoder setBuffer:environmentStatuses offset:0u atIndex:5u];
+            [encoder setBuffer:inboundAuthority offset:0u atIndex:6u];
+            dispatch(
+                state.acceptedStateProofFinalizeV2,
+                pass.environmentCount);
+        } else {
+            detail::AcceptedStateProofFinalizeGPU finalize{
+                .abiVersion = NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION,
+                .structSize = NM_MATTER_ACCEPTED_STATE_PROOF_BYTES,
+                .environmentCount = pass.environmentCount,
+                .environmentIdentifierBase = pass.environmentIdentifierBase,
+                .matterStatusStride = pass.matterStatusStride,
+                .acceptedStateProofStride = pass.acceptedStateProofStride,
+                .controlStep = ownership->controlStep,
+                .physicsSubstep = ownership->physicsSubstep,
+                .transactionSlot = pass.transactionSlot,
+                .environmentStatusStride = pass.environmentStatusStride,
+                .transactionFingerprint = pass.transactionFingerprint,
+                .substepFingerprint = pass.substepFingerprint,
+                .acceptedTimestampMicroseconds =
+                    pass.acceptedTimestampMicroseconds,
+                .physicsGeneration = pass.physicsGeneration,
+                .matterSourcePhysicsFingerprint =
+                    pass.matterSourcePhysicsFingerprint,
+                .matterDeviceProgramFingerprint =
+                    pass.matterDeviceProgramFingerprint,
+                .stateProofProgramFingerprint =
+                    pass.stateProofProgramFingerprint,
+                .adapterProgramFingerprint = pass.programFingerprint,
+                .transactionPolicyFingerprint =
+                    ownership->transactionPolicyFingerprint,
+                .linearizationEpoch = pass.linearizationEpoch,
+                .slotGeneration = pass.slotGeneration,
+            };
+            [encoder setComputePipelineState:
+                state.acceptedStateProofFinalize];
+            [encoder setBytes:&finalize length:sizeof(finalize) atIndex:0u];
+            [encoder setBuffer:state.acceptedStateProofHashes
+                         offset:0u atIndex:1u];
+            [encoder setBuffer:matterStatuses offset:0u atIndex:2u];
+            [encoder setBuffer:acceptedStateProofs offset:0u atIndex:3u];
+            [encoder setBuffer:state.preparedStateBindings
+                         offset:0u atIndex:4u];
+            [encoder setBuffer:environmentStatuses offset:0u atIndex:5u];
+            dispatch(state.acceptedStateProofFinalize, pass.environmentCount);
+        }
         [encoder endEncoding];
         ownership->acceptedStateProofEncoded = true;
+        ownership->acceptedStateProofFamily = pass.exact ? 2u : 1u;
         ownership->dispositionIdentity = PreparedStateDispositionIdentity{
             .abiVersion = 1u,
             .structSize = sizeof(PreparedStateDispositionIdentity),
@@ -9143,11 +9633,17 @@ bool Runtime::encodeAcceptedStateProof(
 bool Runtime::applyPreparedState(
     const AcceptedStateApplyPass& pass
 ) noexcept {
-    return applyPreparedStateImpl(pass);
+    return applyPreparedStateImpl(AcceptedStateApplyPassView(pass));
+}
+
+bool Runtime::applyPreparedStateV2(
+    const AcceptedStateApplyPassV2& pass
+) noexcept {
+    return applyPreparedStateImpl(AcceptedStateApplyPassView(pass));
 }
 
 bool Runtime::applyPreparedStateImpl(
-    const AcceptedStateApplyPass& input
+    const AcceptedStateApplyPassView& input
 ) noexcept {
     struct CommonPass {
         std::uint32_t environmentCount = 0u;
@@ -9186,7 +9682,7 @@ bool Runtime::applyPreparedStateImpl(
         .slotGeneration = input.slotGeneration,
     };
     const CommonPass* pass = &common;
-    const AcceptedStateApplyPass* applyPass = &input;
+    const AcceptedStateApplyPassView* applyPass = &input;
     void* const commandBufferPointer = input.commandBuffer;
     const bool forceRestore =
         input.mode == PreparedStateApplyMode::forceReject;
@@ -9207,12 +9703,25 @@ bool Runtime::applyPreparedStateImpl(
             pass->physicsSubstepCount != 1u) {
             return false;
         }
-        if (applyPass->abiVersion != 1u ||
-             applyPass->structSize != sizeof(AcceptedStateApplyPass) ||
+        const bool familyValid = applyPass->exact
+            ? applyPass->abiVersion == 2u &&
+                applyPass->structSize == sizeof(AcceptedStateApplyPassV2) &&
+                applyPass->tokenFamily == 2u &&
+                applyPass->clockDomain ==
+                    NM_MATTER_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
+                applyPass->clockQuantumNanoseconds ==
+                    NM_MATTER_EXACT_CLOCK_QUANTUM_NANOSECONDS &&
+                applyPass->headerReserved0 == 0u
+            : applyPass->abiVersion == 1u &&
+                applyPass->structSize == sizeof(AcceptedStateApplyPass) &&
+                applyPass->tokenFamily == 1u &&
+                applyPass->clockDomain == 0u &&
+                applyPass->clockQuantumNanoseconds == 0u &&
+                applyPass->headerReserved0 == 0u;
+        if (!familyValid ||
              (applyPass->mode != PreparedStateApplyMode::validateBrainAck &&
               applyPass->mode != PreparedStateApplyMode::forceReject) ||
-             applyPass->reserved0 != 0u || applyPass->reserved1 != 0u ||
-             applyPass->reserved2 != 0u || applyPass->reserved3 != 0u ||
+             applyPass->tailReserved0 != 0u ||
              applyPass->environmentCount != 1u ||
              applyPass->proposals == nullptr ||
              applyPass->applyActions == nullptr ||
@@ -9354,6 +9863,11 @@ bool Runtime::applyPreparedStateImpl(
             ownership->preparedCommandFailed ||
             ownership->terminalNoTouch ||
             (!forceRestore && !ownership->acceptedStateProofEncoded) ||
+            (ownership->acceptedStateProofEncoded &&
+             ownership->acceptedStateProofFamily !=
+                 (applyPass->exact
+                      ? NM_MATTER_PREPARED_TOKEN_FAMILY_V2
+                      : NM_MATTER_PREPARED_TOKEN_FAMILY_V1)) ||
             ownership->dispositionIdentity.transactionSlot !=
                 pass->transactionSlot ||
             ownership->dispositionIdentity.ownerProgramFingerprint !=
@@ -9594,22 +10108,25 @@ bool Runtime::applyPreparedStateImpl(
                 applyPass->matterApplyOutcomeStride,
             .proposedTokenStrideBytes =
                 applyPass->proposedPhysicsStateTokenStrideBytes,
-            .stepIndex = 0u,
+            .environmentIdentifierBase = pass->environmentIdentifierBase,
             .substepIndex = pass->physicsSubstep,
             .transactionSlot = pass->transactionSlot,
             .physicsSubstepCount = pass->physicsSubstepCount,
             .controlStep = pass->controlStep,
             .forceRestore = forceRestore ? 1u : 0u,
-            .reserved0 = 0u,
-            .reserved1 = 0u,
-            .reserved2 = 0u,
+            .tokenFamily = applyPass->tokenFamily,
+            .clockDomain = applyPass->clockDomain,
+            .clockQuantumNanoseconds =
+                applyPass->clockQuantumNanoseconds,
             .ownerProgramFingerprint = pass->ownerProgramFingerprint,
             .transactionFingerprint = pass->transactionFingerprint,
             .linearizationEpoch = pass->linearizationEpoch,
             .slotGeneration = pass->slotGeneration,
             .matterProgramFingerprint =
-                state.acceptedStateProofProgramFingerprint,
-            .reserved3 = 0u,
+                applyPass->exact
+                    ? state.acceptedStateProofProgramFingerprintV2
+                    : state.acceptedStateProofProgramFingerprint,
+            .reserved0 = 0u,
         };
         bool encoded = dispatch(
             state.preparedStateValidateApplication,
@@ -9934,6 +10451,13 @@ std::uint64_t Runtime::acceptedStateProofProgramFingerprint() const noexcept {
         : 0u;
 }
 
+std::uint64_t
+Runtime::acceptedStateProofProgramFingerprintV2() const noexcept {
+    return state_ != nullptr
+        ? state_->acceptedStateProofProgramFingerprintV2
+        : 0u;
+}
+
 std::size_t Runtime::acceptedStateProofResidentBytes() const noexcept {
     return state_ != nullptr
         ? state_->acceptedStateProofResidentByteCount
@@ -10005,7 +10529,9 @@ bool Runtime::reservePublishedRoot(
         identity.reserved0 != 0u || identity.reserved1 != 0u ||
         binding.abiVersion != 1u ||
         binding.structSize != sizeof(PreparedStatePublicationBinding) ||
-        binding.reserved0 != 0u || binding.reserved1 != 0u ||
+        (binding.tokenFamily != NM_MATTER_PREPARED_TOKEN_FAMILY_V1 &&
+         binding.tokenFamily != NM_MATTER_PREPARED_TOKEN_FAMILY_V2) ||
+        binding.reserved0 != 0u ||
         binding.physicsTokenFingerprint == 0u ||
         binding.brainProgramFingerprint == 0u ||
         binding.brainShadowStateFingerprint == 0u ||
@@ -10027,7 +10553,8 @@ bool Runtime::reservePublishedRoot(
             ownership->applyCommandBuffer != nullptr ||
             !ownership->preparedCommandCompleted ||
             ownership->preparedCommandFailed ||
-            ownership->publicationReserved) {
+            ownership->publicationReserved ||
+            ownership->acceptedStateProofFamily != binding.tokenFamily) {
             return false;
         }
         const NMPreparedStatePublicationFactsGPU& facts =
@@ -10061,6 +10588,7 @@ bool Runtime::reservePublishedRoot(
         std::uint64_t nonce = ownership->publicationReservationCounter;
         nonce = mixFingerprint(nonce, identity.ownerProgramFingerprint);
         nonce = mixFingerprint(nonce, identity.linearizationEpoch);
+        nonce = mixFingerprint(nonce, binding.tokenFamily);
         nonce = mixFingerprint(nonce, binding.appliedDecisionFingerprint);
         nonce = mixFingerprint(nonce, binding.jointCommitFingerprint);
         capability.reservationNonce = nonce == 0u
@@ -10117,11 +10645,16 @@ bool Runtime::releasePublishedRoot(
         }
         const PreparedStatePublicationBinding expected =
             ownership->publicationBinding;
+        const std::uint32_t expectedFenceABI =
+            expected.tokenFamily == NM_MATTER_PREPARED_TOKEN_FAMILY_V2
+                ? NM_MATTER_PUBLICATION_FENCE_ABI_VERSION_V2
+                : NM_MATTER_PUBLICATION_FENCE_ABI_VERSION;
         // An exact-identity release is one shot. Any unexpected fence after
         // Brain publication cannot be retried or restored safely; preserve
         // the reservation itself as immutable quarantine evidence.
         const bool validFence =
-            fence.abiVersion == NM_MATTER_PUBLICATION_FENCE_ABI_VERSION &&
+            expected.tokenFamily == ownership->acceptedStateProofFamily &&
+            fence.abiVersion == expectedFenceABI &&
             fence.structBytes == sizeof(PreparedStatePublicationFence) &&
             fence.status == NM_JOINT_PUBLICATION_COMMITTED &&
             fence.environment == 0u && fence.reserved0 == 0u &&
@@ -10168,6 +10701,7 @@ bool Runtime::releasePublishedRoot(
         ownership->preparedEnvironmentStatuses = nullptr;
         ownership->preparedEnvironmentStatusesGPUAddress = 0u;
         ownership->acceptedStateProofEncoded = false;
+        ownership->acceptedStateProofFamily = 0u;
         ownership->acceptedStateProofEligible = false;
         ownership->transactionPolicyFingerprint = 0u;
         ownership->identificationAdvanced = false;
@@ -10216,6 +10750,7 @@ void Runtime::cancel(void* commandBuffer) noexcept {
             ownership->activeCommandBuffer = nullptr;
             ownership->preDynamicsOpen = false;
             ownership->acceptedStateProofEncoded = false;
+            ownership->acceptedStateProofFamily = 0u;
             ownership->acceptedStateProofEligible = false;
             ownership->transactionPolicyFingerprint = 0u;
             ownership->preparedStateRequested = false;

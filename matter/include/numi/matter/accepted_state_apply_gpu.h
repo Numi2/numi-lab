@@ -3,10 +3,14 @@
 #include "numi/matter/shared.h"
 
 #define NM_MATTER_PREPARED_STATE_ABI_VERSION 1u
+#define NM_MATTER_PREPARED_STATE_ABI_VERSION_V2 2u
+#define NM_MATTER_PREPARED_TOKEN_FAMILY_V1 1u
+#define NM_MATTER_PREPARED_TOKEN_FAMILY_V2 2u
 #define NM_MATTER_OWNER_APPLY_ABI_VERSION 4u
 #define NM_MATTER_OWNER_BRAIN_ACK_ABI_VERSION 1u
 #define NM_MATTER_OWNER_APPLY_RECORD_BYTES 128u
 #define NM_MATTER_PUBLICATION_FENCE_ABI_VERSION 1u
+#define NM_MATTER_PUBLICATION_FENCE_ABI_VERSION_V2 2u
 
 enum NMPreparedStateBindingStatus : nm_u32 {
     NM_PREPARED_STATE_BINDING_PENDING = 0u,
@@ -303,21 +307,25 @@ typedef struct NM_ALIGN16 NMPreparedStateApplyGPU {
     nm_u32 applyActionStride;
     nm_u32 matterApplyOutcomeStride;
     nm_u32 proposedTokenStrideBytes;
-    nm_u32 stepIndex;
+    // Global accepted-token environment identifiers are base + local index.
+    // Owner proposal/action records remain local and retain stepIndex == 0.
+    nm_u32 environmentIdentifierBase;
     nm_u32 substepIndex;
     nm_u32 transactionSlot;
     nm_u32 physicsSubstepCount;
     nm_u32 controlStep;
     nm_u32 forceRestore;
-    nm_u32 reserved0;
-    nm_u32 reserved1;
-    nm_u32 reserved2;
+    // Explicit prepared/token family. 64-byte token size is common to both
+    // revisions and therefore can never select the hash or clock semantics.
+    nm_u32 tokenFamily;
+    nm_u32 clockDomain;
+    nm_u32 clockQuantumNanoseconds;
     nm_u64 ownerProgramFingerprint;
     nm_u64 transactionFingerprint;
     nm_u64 linearizationEpoch;
     nm_u64 slotGeneration;
     nm_u64 matterProgramFingerprint;
-    nm_u64 reserved3;
+    nm_u64 reserved0;
 } NMPreparedStateApplyGPU;
 
 enum NMPreparedStateRestoreFlags : nm_u32 {
@@ -354,4 +362,13 @@ static_assert(offsetof(NMMatterApplyOutcomeGPU, outcomeFingerprint) == 120u);
 static_assert(offsetof(NMOwnerAppliedOutcomeGPU, appliedFingerprint) == 120u);
 static_assert(offsetof(NMJointPublicationFenceGPU, fenceFingerprint) == 120u);
 static_assert(sizeof(NMPreparedStateApplyGPU) == 112u);
+static_assert(alignof(NMPreparedStateApplyGPU) == 16u);
+static_assert(offsetof(NMPreparedStateApplyGPU,
+                       environmentIdentifierBase) == 28u);
+static_assert(offsetof(NMPreparedStateApplyGPU, tokenFamily) == 52u);
+static_assert(offsetof(NMPreparedStateApplyGPU, clockDomain) == 56u);
+static_assert(offsetof(NMPreparedStateApplyGPU,
+                       clockQuantumNanoseconds) == 60u);
+static_assert(offsetof(NMPreparedStateApplyGPU,
+                       ownerProgramFingerprint) == 64u);
 #endif

@@ -33,6 +33,10 @@ enum MRNumanXHumanMatterAdapterCode : mr_u32 {
         MR_NUMANX_COUPLED_HUMAN_SERVICE_CODE_BIT | 0x100u,
     MR_NUMANX_HUMAN_MATTER_ADAPTER_INVALID_STATE_PROOF =
         MR_NUMANX_COUPLED_HUMAN_SERVICE_CODE_BIT | 0x101u,
+    MR_NUMANX_HUMAN_MATTER_ADAPTER_MISSING_INBOUND_AUTHORITY =
+        MR_NUMANX_COUPLED_HUMAN_SERVICE_CODE_BIT | 0x102u,
+    MR_NUMANX_HUMAN_MATTER_ADAPTER_INVALID_INBOUND_AUTHORITY =
+        MR_NUMANX_COUPLED_HUMAN_SERVICE_CODE_BIT | 0x103u,
 };
 
 // GPU-derived content proof.  humanStateFingerprint and
@@ -171,6 +175,55 @@ typedef struct MR_ALIGN16 MRNumanXHumanMatterAdapterDispatchGPU {
     mr_u64 stateProofProgramFingerprint;
 } MRNumanXHumanMatterAdapterDispatchGPU;
 
+// Exact-clock successor. The first 144 bytes preserve every legacy field
+// offset so the prepare/map/capture kernels can consume the common prefix;
+// reserved0 becomes the exact struct size and the suffix binds the private
+// HumanIO receipt range. Family is always selected by abiVersion, never by
+// inspecting the 64-byte token shape.
+typedef struct MR_ALIGN16 MRNumanXHumanMatterAdapterDispatchGPUV2 {
+    mr_u32 abiVersion;
+    mr_u32 environmentCount;
+    mr_u32 expectedMatterCompletedMicrosteps;
+    mr_u32 matterSuccessCode;
+
+    mr_u32 jointStatusStride;
+    mr_u32 standStatusStride;
+    mr_u32 matterOutcomeStride;
+    mr_u32 acceptedTokenStrideBytes;
+
+    mr_u32 worldStatusStride;
+    mr_u32 acceptedStateProofStride;
+    mr_u32 environmentIdentifierBase;
+    mr_u32 flags;
+
+    mr_u32 controlStep;
+    mr_u32 physicsSubstep;
+    mr_u32 physicsSubsteps;
+    mr_u32 structSize;
+
+    mr_u64 programFingerprint;
+    mr_u64 transactionFingerprint;
+    mr_u64 substepFingerprint;
+    mr_u64 acceptedTimestampNanoseconds;
+    mr_u64 physicsGeneration;
+    mr_u64 linearizationEpoch;
+    mr_u64 slotGeneration;
+    mr_u64 matterSourcePhysicsFingerprint;
+    mr_u64 matterDeviceProgramFingerprint;
+    mr_u64 stateProofProgramFingerprint;
+
+    mr_u32 clockDomain;
+    mr_u32 clockQuantumNanoseconds;
+    mr_u32 inboundAuthorityByteCount;
+    mr_u32 reserved0;
+    mr_u64 motorCandidateFingerprint;
+    mr_u64 acceptedBrainTimestampNanoseconds;
+    mr_u64 brainGeneration;
+    mr_u64 humanIOProgramFingerprint;
+    mr_u64 inboundAuthorityGPUAddress;
+    mr_u64 authorityRangeIdentityFingerprint;
+} MRNumanXHumanMatterAdapterDispatchGPUV2;
+
 #if !defined(__METAL_VERSION__)
 #include <cstddef>
 static_assert(sizeof(MRNumanXAcceptedStateProofGPU) ==
@@ -202,4 +255,52 @@ static_assert(sizeof(MRNumanXHumanMatterAdapterDispatchGPU) == 144u);
 static_assert(alignof(MRNumanXHumanMatterAdapterDispatchGPU) == 16u);
 static_assert(offsetof(MRNumanXHumanMatterAdapterDispatchGPU,
                        programFingerprint) == 64u);
+static_assert(sizeof(MRNumanXHumanMatterAdapterDispatchGPUV2) == 208u);
+static_assert(alignof(MRNumanXHumanMatterAdapterDispatchGPUV2) == 16u);
+static_assert(offsetof(MRNumanXHumanMatterAdapterDispatchGPUV2,
+                       programFingerprint) == 64u);
+static_assert(offsetof(MRNumanXHumanMatterAdapterDispatchGPUV2,
+                       acceptedTimestampNanoseconds) == 88u);
+static_assert(offsetof(MRNumanXHumanMatterAdapterDispatchGPUV2,
+                       stateProofProgramFingerprint) == 136u);
+static_assert(offsetof(MRNumanXHumanMatterAdapterDispatchGPUV2,
+                       clockDomain) == 144u);
+static_assert(offsetof(MRNumanXHumanMatterAdapterDispatchGPUV2,
+                       motorCandidateFingerprint) == 160u);
+static_assert(offsetof(MRNumanXHumanMatterAdapterDispatchGPUV2,
+                       inboundAuthorityGPUAddress) == 192u);
+static_assert(offsetof(MRNumanXHumanMatterAdapterDispatchGPUV2,
+                       authorityRangeIdentityFingerprint) == 200u);
+#define MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(field) \
+    static_assert(offsetof(MRNumanXHumanMatterAdapterDispatchGPUV2, field) == \
+                  offsetof(MRNumanXHumanMatterAdapterDispatchGPU, field))
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(abiVersion);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(environmentCount);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(
+    expectedMatterCompletedMicrosteps);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(matterSuccessCode);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(jointStatusStride);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(standStatusStride);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(matterOutcomeStride);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(acceptedTokenStrideBytes);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(worldStatusStride);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(acceptedStateProofStride);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(environmentIdentifierBase);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(flags);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(controlStep);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(physicsSubstep);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(physicsSubsteps);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(programFingerprint);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(transactionFingerprint);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(substepFingerprint);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(physicsGeneration);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(linearizationEpoch);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(slotGeneration);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(
+    matterSourcePhysicsFingerprint);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(
+    matterDeviceProgramFingerprint);
+MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON(
+    stateProofProgramFingerprint);
+#undef MR_ASSERT_HUMAN_MATTER_DISPATCH_V2_COMMON
 #endif

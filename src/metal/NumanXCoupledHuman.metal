@@ -355,7 +355,7 @@ kernel void numanx_coupled_human_validate_candidate(
         if (!isfinite(candidateQ[qBase + coordinate])) {
             rejectHuman(
                 status,
-                MR_NUMANX_COUPLED_HUMAN_SERVICE_KINEMATICS_FAILED
+                MR_NUMANX_COUPLED_HUMAN_SERVICE_CANDIDATE_Q_NONFINITE
             );
             return;
         }
@@ -371,7 +371,7 @@ kernel void numanx_coupled_human_validate_candidate(
             !finite4(state.inverseInertiaWorldRow2)) {
             rejectHuman(
                 status,
-                MR_NUMANX_COUPLED_HUMAN_SERVICE_KINEMATICS_FAILED
+                MR_NUMANX_COUPLED_HUMAN_SERVICE_CANDIDATE_BODY_NONFINITE
             );
             return;
         }
@@ -386,7 +386,7 @@ kernel void numanx_coupled_human_validate_candidate(
                 if (!isfinite(pointJacobians[rowBase + dof])) {
                     rejectHuman(
                         status,
-                        MR_NUMANX_COUPLED_HUMAN_SERVICE_KINEMATICS_FAILED
+                        MR_NUMANX_COUPLED_HUMAN_SERVICE_CANDIDATE_JACOBIAN_NONFINITE
                     );
                     return;
                 }
