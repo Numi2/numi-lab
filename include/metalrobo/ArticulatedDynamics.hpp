@@ -113,6 +113,16 @@ struct ArticulatedPointQuery {
     std::array<double, 4> supportOrientation{};
 };
 
+// Exact source-representation conversion for FP64 parity/reference paths.
+// Every float is widened directly from the production point ABI; callers must
+// not reconstruct geometry from decimal literals. The source record is checked
+// with the same shape/metadata contract as the Metal operator, and pointQuery
+// is published only on success.
+[[nodiscard]] ArticulatedDynamicsStatus widenArticulatedPointQueryFromGPU(
+    const MRArticulatedPointImpulseGPU& source,
+    ArticulatedPointQuery& pointQuery
+) noexcept;
+
 struct ArticulatedPointKinematics {
     std::array<double, 3> position{};
     std::array<double, 3> linearVelocity{};

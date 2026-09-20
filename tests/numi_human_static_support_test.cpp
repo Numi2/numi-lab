@@ -237,6 +237,237 @@ void testCurvedSupport() {
         payload.contacts[0].supportRadius==0,"legacy witness changed semantics");
 }
 
+void testPointQuerySourceWidening() {
+    using namespace metalrobo;
+    EngineModel model;
+    MRArticulationGPU articulation{};
+    articulation.rootBody = 0u;
+    articulation.rootType = MR_ROOT_FIXED;
+    articulation.firstBody = 0u;
+    articulation.bodyCount = 3u;
+    articulation.firstJoint = 0u;
+    articulation.jointCount = 2u;
+    articulation.nq = 2u;
+    articulation.nv = 2u;
+    model.articulations.push_back(articulation);
+    model.bodies.push_back(body(
+        MR_INVALID_INDEX, MR_INVALID_INDEX, 1.0, {1.0, 1.0, 1.0}
+    ));
+    for (std::uint32_t jointIndex = 0u; jointIndex < 2u; ++jointIndex) {
+        model.bodies.push_back(body(
+            jointIndex, jointIndex, 1.0, {1.0, 1.0, 1.0}
+        ));
+        MRJointDescriptorGPU joint{};
+        joint.parentBody = jointIndex;
+        joint.childBody = jointIndex + 1u;
+        joint.jointType = MR_JOINT_PRISMATIC;
+        joint.qOffset = jointIndex;
+        joint.nq = 1u;
+        joint.vOffset = jointIndex;
+        joint.nv = 1u;
+        joint.axis0 = f4(0.0, 1.0, 0.0);
+        joint.parentRotation = f4(0.0, 0.0, 0.0, 1.0);
+        joint.childRotation = f4(0.0, 0.0, 0.0, 1.0);
+        model.joints.push_back(joint);
+        MRDofPropertiesGPU dof{};
+        dof.articulationIndex = 0u;
+        dof.jointIndex = jointIndex;
+        dof.qIndex = jointIndex;
+        dof.vIndex = jointIndex;
+        dof.localDof = 0u;
+        dof.flags = MR_DOF_FLAG_POSITION_LIMIT;
+        dof.limits = f4(-0.1, 0.1, 0.0, 0.0);
+        model.dofs.push_back(dof);
+    }
+    const std::array<float, 2u> sourceQ{{0.01f, 0.02f}};
+    const std::vector<double> q{
+        static_cast<double>(sourceQ[0]),
+        static_cast<double>(sourceQ[1]),
+    };
+    const std::vector<double> v(2u, 0.0);
+    const auto gap = [&](const ArticulatedPointQuery& query) {
+        std::array<ArticulatedPointKinematics, 1u> point{};
+        std::array<double, 6u> jacobian{};
+        require(
+            computeArticulatedPointJacobians(
+                model, 0u, q, v, std::span(&query, 1u), point, jacobian
+            ).succeeded(),
+            "widened point query was not accepted by FP64 kinematics"
+        );
+        return point.front().position[1u];
+    };
+    const auto sameQuery = [](const ArticulatedPointQuery& first,
+                              const ArticulatedPointQuery& second) {
+        return first.bodyIndex == second.bodyIndex &&
+            first.localPoint == second.localPoint &&
+            first.supportRadius == second.supportRadius &&
+            first.supportPlaneNormal == second.supportPlaneNormal &&
+            first.supportRadii == second.supportRadii &&
+            first.supportOrientation == second.supportOrientation;
+    };
+
+    MRArticulatedPointImpulseGPU sphere{};
+    sphere.bodyIndex = 2u;
+    sphere.flags = MR_ARTICULATED_POINT_SPHERE_SUPPORT;
+    sphere.supportPlaneNormalAndRadius = f4(0.0, 1.0, 0.0, 0.03);
+    ArticulatedPointQuery sphereQuery{};
+    require(
+        widenArticulatedPointQueryFromGPU(sphere, sphereQuery) ==
+                ArticulatedDynamicsStatus::success &&
+            sphereQuery.bodyIndex == sphere.bodyIndex &&
+            sphereQuery.localPoint == std::array<double, 3u>{0.0, 0.0, 0.0} &&
+            sphereQuery.supportRadius ==
+                static_cast<double>(sphere.supportPlaneNormalAndRadius.w) &&
+            sphereQuery.supportPlaneNormal ==
+                std::array<double, 3u>{0.0, 1.0, 0.0} &&
+            gap(sphereQuery) == 0.0,
+        "source-authored coincident sphere did not widen exactly"
+    );
+
+    ArticulatedPointQuery reauthored = sphereQuery;
+    reauthored.supportRadius = 0.03;
+    const double historicalGap =
+        static_cast<double>(sourceQ[0]) + static_cast<double>(sourceQ[1]) - 0.03;
+    require(
+        historicalGap == -6.7055225261292151e-10 &&
+            gap(reauthored) == historicalGap,
+        "re-authored FP64 radius no longer reproduces the historical oracle gap"
+    );
+
+    for (const float direction : {
+             -std::numeric_limits<float>::infinity(),
+             std::numeric_limits<float>::infinity(),
+         }) {
+        MRArticulatedPointImpulseGPU adjacent = sphere;
+        adjacent.supportPlaneNormalAndRadius.w = std::nextafter(
+            sphere.supportPlaneNormalAndRadius.w, direction
+        );
+        ArticulatedPointQuery adjacentQuery{};
+        require(
+            widenArticulatedPointQueryFromGPU(adjacent, adjacentQuery) ==
+                ArticulatedDynamicsStatus::success,
+            "adjacent source-float radius was rejected"
+        );
+        const double expected =
+            static_cast<double>(sourceQ[0]) + static_cast<double>(sourceQ[1]) -
+            static_cast<double>(adjacent.supportPlaneNormalAndRadius.w);
+        require(
+            gap(adjacentQuery) == expected &&
+                ((direction < 0.0f && expected > 0.0) ||
+                 (direction > 0.0f && expected < 0.0)),
+            "one-ULP source radius lost its exact gap sign or magnitude"
+        );
+    }
+
+    MRArticulatedPointImpulseGPU ellipsoid{};
+    ellipsoid.bodyIndex = 2u;
+    ellipsoid.flags = MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT;
+    ellipsoid.localPoint = f4(0.125, -0.25, 0.375, 0.0);
+    ellipsoid.worldImpulse = f4(0.5, -0.25, 0.125, 0.0);
+    ellipsoid.supportPlaneNormalAndRadius = f4(0.6, 0.8, 0.0, 0.0);
+    ellipsoid.supportRadii = f4(0.02, 0.03, 0.04, 0.0);
+    const float halfRoot = std::sqrt(0.5f);
+    ellipsoid.supportOrientation = {0.0f, 0.0f, halfRoot, halfRoot};
+    ArticulatedPointQuery ellipsoidQuery{};
+    require(
+        widenArticulatedPointQueryFromGPU(ellipsoid, ellipsoidQuery) ==
+                ArticulatedDynamicsStatus::success &&
+            ellipsoidQuery.localPoint == std::array<double, 3u>{
+                static_cast<double>(ellipsoid.localPoint.x),
+                static_cast<double>(ellipsoid.localPoint.y),
+                static_cast<double>(ellipsoid.localPoint.z),
+            } &&
+            ellipsoidQuery.supportPlaneNormal == std::array<double, 3u>{
+                static_cast<double>(ellipsoid.supportPlaneNormalAndRadius.x),
+                static_cast<double>(ellipsoid.supportPlaneNormalAndRadius.y),
+                static_cast<double>(ellipsoid.supportPlaneNormalAndRadius.z),
+            } &&
+            ellipsoidQuery.supportRadii == std::array<double, 3u>{
+                static_cast<double>(ellipsoid.supportRadii.x),
+                static_cast<double>(ellipsoid.supportRadii.y),
+                static_cast<double>(ellipsoid.supportRadii.z),
+            } &&
+            ellipsoidQuery.supportOrientation == std::array<double, 4u>{
+                static_cast<double>(ellipsoid.supportOrientation.x),
+                static_cast<double>(ellipsoid.supportOrientation.y),
+                static_cast<double>(ellipsoid.supportOrientation.z),
+                static_cast<double>(ellipsoid.supportOrientation.w),
+            } &&
+            std::isfinite(gap(ellipsoidQuery)),
+        "ellipsoid source geometry was not widened field-for-field"
+    );
+
+    ArticulatedPointQuery sentinel{};
+    sentinel.bodyIndex = 91u;
+    sentinel.localPoint = {1.0, 2.0, 3.0};
+    sentinel.supportRadius = 4.0;
+    sentinel.supportPlaneNormal = {5.0, 6.0, 7.0};
+    sentinel.supportRadii = {8.0, 9.0, 10.0};
+    sentinel.supportOrientation = {11.0, 12.0, 13.0, 14.0};
+    struct InvalidCase {
+        MRArticulatedPointImpulseGPU source{};
+        ArticulatedDynamicsStatus expected = ArticulatedDynamicsStatus::invalidModel;
+    };
+    std::vector<InvalidCase> invalid;
+    const auto reject = [&](const MRArticulatedPointImpulseGPU& source,
+                            const ArticulatedDynamicsStatus expected =
+                                ArticulatedDynamicsStatus::invalidModel) {
+        invalid.push_back({source, expected});
+    };
+    auto bad = sphere;
+    bad.bodyIndex = MR_INVALID_INDEX;
+    reject(bad);
+    bad = sphere;
+    bad.flags |= MR_ARTICULATED_POINT_INACTIVE;
+    reject(bad);
+    bad = sphere;
+    bad.flags |= MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT;
+    reject(bad);
+    bad = sphere;
+    bad.reserved0 = 1u;
+    reject(bad);
+    bad = sphere;
+    bad.reserved1 = 1u;
+    reject(bad);
+    bad = sphere;
+    bad.localPoint.w = 1.0f;
+    reject(bad);
+    bad = sphere;
+    bad.worldImpulse.w = 1.0f;
+    reject(bad);
+    bad = sphere;
+    bad.localPoint.x = std::numeric_limits<float>::quiet_NaN();
+    reject(bad, ArticulatedDynamicsStatus::nonfiniteInput);
+    bad = sphere;
+    bad.supportPlaneNormalAndRadius.y = 0.0f;
+    reject(bad);
+    bad = sphere;
+    bad.supportPlaneNormalAndRadius.w = 0.0f;
+    reject(bad);
+    bad = sphere;
+    bad.supportRadii.x = 0.01f;
+    reject(bad);
+    bad = ellipsoid;
+    bad.supportPlaneNormalAndRadius.w = 0.01f;
+    reject(bad);
+    bad = ellipsoid;
+    bad.supportOrientation = {};
+    reject(bad);
+    bad = {};
+    bad.bodyIndex = 2u;
+    bad.supportPlaneNormalAndRadius.x = 1.0f;
+    reject(bad);
+    for (const InvalidCase& item : invalid) {
+        ArticulatedPointQuery output = sentinel;
+        require(
+            widenArticulatedPointQueryFromGPU(item.source, output) ==
+                    item.expected &&
+                sameQuery(output, sentinel),
+            "invalid GPU point metadata did not fail closed"
+        );
+    }
+}
+
 void testSourceCompliantPreparation() {
     using namespace metalrobo;
     NumiHumanSourceScalarLaw law{{-100,-2,0,0},{0.5f,0.5f,0.1f,0.5f},{2,0,0,0},0.4,true};
@@ -303,6 +534,7 @@ void testSourceCompliantPreparation() {
 int main() {
     testSourceCompliantPreparation();
     testCurvedSupport();
+    testPointQuerySourceWidening();
     using namespace metalrobo;
     Fixture fixture;
     const NumiHumanStaticSupportContact touching{.bodyIndex = 0u};

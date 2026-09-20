@@ -1838,6 +1838,96 @@ void mergeFactorizationDiagnostics(
 
 } // namespace
 
+ArticulatedDynamicsStatus widenArticulatedPointQueryFromGPU(
+    const MRArticulatedPointImpulseGPU& source,
+    ArticulatedPointQuery& pointQuery
+) noexcept {
+    constexpr mr_u32 supportFlags =
+        MR_ARTICULATED_POINT_SPHERE_SUPPORT |
+        MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT;
+    const bool sphere =
+        (source.flags & MR_ARTICULATED_POINT_SPHERE_SUPPORT) != 0u;
+    const bool ellipsoid =
+        (source.flags & MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT) != 0u;
+    if (!finite(source.localPoint) || !finite(source.worldImpulse) ||
+        !finite(source.supportPlaneNormalAndRadius) ||
+        !finite(source.supportRadii) || !finite(source.supportOrientation)) {
+        return ArticulatedDynamicsStatus::nonfiniteInput;
+    }
+    if (source.bodyIndex == MR_INVALID_INDEX ||
+        (source.flags & ~supportFlags) != 0u ||
+        (sphere && ellipsoid) || source.reserved0 != 0u ||
+        source.reserved1 != 0u || source.localPoint.w != 0.0f ||
+        source.worldImpulse.w != 0.0f) {
+        return ArticulatedDynamicsStatus::invalidModel;
+    }
+
+    const auto zero = [](const mr_float4 value) {
+        return value.x == 0.0f && value.y == 0.0f &&
+            value.z == 0.0f && value.w == 0.0f;
+    };
+    const float normalNormSquared =
+        source.supportPlaneNormalAndRadius.x *
+            source.supportPlaneNormalAndRadius.x +
+        source.supportPlaneNormalAndRadius.y *
+            source.supportPlaneNormalAndRadius.y +
+        source.supportPlaneNormalAndRadius.z *
+            source.supportPlaneNormalAndRadius.z;
+    const float orientationNormSquared =
+        source.supportOrientation.x * source.supportOrientation.x +
+        source.supportOrientation.y * source.supportOrientation.y +
+        source.supportOrientation.z * source.supportOrientation.z +
+        source.supportOrientation.w * source.supportOrientation.w;
+    if (!sphere && !ellipsoid) {
+        if (!zero(source.supportPlaneNormalAndRadius) ||
+            !zero(source.supportRadii) || !zero(source.supportOrientation)) {
+            return ArticulatedDynamicsStatus::invalidModel;
+        }
+    } else if (std::abs(normalNormSquared - 1.0f) > 1.0e-5f) {
+        return ArticulatedDynamicsStatus::invalidModel;
+    } else if (sphere) {
+        if (!(source.supportPlaneNormalAndRadius.w > 0.0f) ||
+            !zero(source.supportRadii) || !zero(source.supportOrientation)) {
+            return ArticulatedDynamicsStatus::invalidModel;
+        }
+    } else if (source.supportPlaneNormalAndRadius.w != 0.0f ||
+               !(source.supportRadii.x > 0.0f) ||
+               !(source.supportRadii.y > 0.0f) ||
+               !(source.supportRadii.z > 0.0f) ||
+               source.supportRadii.w != 0.0f ||
+               std::abs(orientationNormSquared - 1.0f) > 1.0e-5f) {
+        return ArticulatedDynamicsStatus::invalidModel;
+    }
+
+    ArticulatedPointQuery converted{};
+    converted.bodyIndex = source.bodyIndex;
+    converted.localPoint = {
+        static_cast<double>(source.localPoint.x),
+        static_cast<double>(source.localPoint.y),
+        static_cast<double>(source.localPoint.z),
+    };
+    converted.supportRadius =
+        static_cast<double>(source.supportPlaneNormalAndRadius.w);
+    converted.supportPlaneNormal = {
+        static_cast<double>(source.supportPlaneNormalAndRadius.x),
+        static_cast<double>(source.supportPlaneNormalAndRadius.y),
+        static_cast<double>(source.supportPlaneNormalAndRadius.z),
+    };
+    converted.supportRadii = {
+        static_cast<double>(source.supportRadii.x),
+        static_cast<double>(source.supportRadii.y),
+        static_cast<double>(source.supportRadii.z),
+    };
+    converted.supportOrientation = {
+        static_cast<double>(source.supportOrientation.x),
+        static_cast<double>(source.supportOrientation.y),
+        static_cast<double>(source.supportOrientation.z),
+        static_cast<double>(source.supportOrientation.w),
+    };
+    pointQuery = converted;
+    return ArticulatedDynamicsStatus::success;
+}
+
 ArticulatedDynamicsDiagnostics computeArticulatedBodyKinematics(
     const EngineModel& model,
     const std::uint32_t articulationIndex,
